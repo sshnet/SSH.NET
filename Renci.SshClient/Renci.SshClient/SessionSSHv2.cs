@@ -22,7 +22,7 @@ namespace Renci.SshClient
         {
         }
 
-        protected override void SendMessage(Message message)
+        internal override void SendMessage(Message message)
         {
             if (!this.IsConnected)
                 return;

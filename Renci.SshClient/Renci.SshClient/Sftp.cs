@@ -16,8 +16,8 @@ namespace Renci.SshClient
         {
             this._session = session;
 
-            //  TODO:   Keep track of all open channels to disconnect them when connection is closed
-            this._channel = new ChannelSftp(this._session.SessionInfo);
+            //this._channel = new ChannelSftp(this._session);
+            this._channel = this._session.CreateChannel<ChannelSftp>();
         }
 
 
@@ -31,9 +31,20 @@ namespace Renci.SshClient
             this._channel.UploadFile(source, fileName);
         }
 
+        public void UploadFile(string source, string fileName)
+        {
+            this._channel.UploadFile(File.OpenRead(source), fileName);
+        }
+
         public void DownloadFile(string fileName, Stream destination)
         {
             this._channel.DownloadFile(fileName, destination);
+        }
+
+        public void DownloadFile(string fileName, string destination)
+        {
+            var file = File.Create(destination);
+            this._channel.DownloadFile(fileName, file);
         }
 
         public void RemoveFile(string fileName)

@@ -9,6 +9,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using Renci.SshClient.Algorithms;
+using Renci.SshClient.Channels;
 using Renci.SshClient.Common;
 using Renci.SshClient.Messages;
 using Renci.SshClient.Messages.Connection;
@@ -26,7 +27,8 @@ namespace Renci.SshClient
             var ep = new IPEndPoint(Dns.GetHostAddresses(connectionInfo.Host)[0], connectionInfo.Port);
             var socket = new Socket(ep.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
             socket.Connect(ep);
-            socket.ReceiveTimeout = 5 * 1000;   //  Set default receive timeout to 5 seconds
+            //socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, 1000 * 15);
+            //socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveTimeout, 1000 * 5);
 
             //  Get server version from the server,
             //  ignore text lines which are sent before if any
@@ -50,9 +52,9 @@ namespace Renci.SshClient
             return session;
         }
 
-        private ConnectionInfo _connectionInfo;
-
         private Socket _socket;
+
+        private int _waitTimeout = 5 * 1000;    //  Set default receive timeout to 5 seconds
 
         private KeyExchange _keyExhcange;
 
@@ -63,6 +65,14 @@ namespace Renci.SshClient
         private IDictionary<ServiceNames, Service> _services = new Dictionary<ServiceNames, Service>();
 
         private IDictionary<uint, uint> _openChannels = new Dictionary<uint, uint>();
+
+        private EventWaitHandle _disconnectWaitHandle = new AutoResetEvent(false);
+
+        private EventWaitHandle _exceptionWaitHandle = new AutoResetEvent(false);
+
+        private Exception _exceptionToThrow;
+
+        public event EventHandler<MessageReceivedEventArgs> MessageReceived;
 
         protected HMAC ServerMac { get; private set; }
 
@@ -76,7 +86,14 @@ namespace Renci.SshClient
 
         protected Compression ClientCompression { get; private set; }
 
-        internal SessionInfo SessionInfo { get; private set; }
+        //  TODO:   Consider refactor to make setter private
+        public IEnumerable<byte> SessionId { get; set; }
+
+        public string ServerVersion { get; private set; }
+
+        public string ClientVersion { get; private set; }
+
+        public ConnectionInfo ConnectionInfo { get; private set; }
 
         public bool IsConnected
         {
@@ -90,18 +107,32 @@ namespace Renci.SshClient
 
         protected Session(ConnectionInfo connectionInfo, Socket socket, string serverVersion)
         {
-            this._connectionInfo = connectionInfo;
+            this.ConnectionInfo = connectionInfo;
             this._socket = socket;
+            //this._socket.ReceiveTimeout = this._waitTimeout;
 
-            this.SessionInfo = new SessionInfo(this.SendMessage, this._connectionInfo, socket.ReceiveTimeout);
-            this.SessionInfo.ServerVersion = serverVersion;
-            this.SessionInfo.ClientVersion = string.Format("SSH-2.0-Renci.SshClient.{0}", this.GetType().Assembly.GetName().Version);
+            this.ServerVersion = serverVersion;
+            this.ClientVersion = string.Format("SSH-2.0-Renci.SshClient.{0}", this.GetType().Assembly.GetName().Version);
+        }
 
+        private static IDictionary<Type, Func<Session, Channel>> _channels = new Dictionary<Type, Func<Session, Channel>>()
+            {
+                {typeof(ChannelSession), (session) => { return new ChannelSession(session);}},
+                {typeof(ChannelSftp), (session) => { return new ChannelSftp(session);}}
+            };
+
+        public T CreateChannel<T>() where T : Channel
+        {
+            if (!this._socket.Connected)
+            {
+                throw new InvalidOperationException("Not connected");
+            }
+            return _channels[typeof(T)](this) as T;
         }
 
         public void Connect()
         {
-            this.Write(Encoding.ASCII.GetBytes(string.Format("{0}\n", this.SessionInfo.ClientVersion)));
+            this.Write(Encoding.ASCII.GetBytes(string.Format("{0}\n", this.ClientVersion)));
 
             //  Register Transport response messages
             Message.RegisterMessageType<DisconnectMessage>(MessageTypes.Disconnect);
@@ -118,16 +149,16 @@ namespace Renci.SshClient
             this._messageListener.RunWorkerAsync();
 
             //  Wait for key exchange to be completed
-            this.SessionInfo.WaitHandle(this._keyExhangedFinishedWaitHandle);
+            this.WaitHandle(this._keyExhangedFinishedWaitHandle);
 
             //  If sessionId is not set then its not connected
-            if (this.SessionInfo.SessionId == null)
+            if (this.SessionId == null)
             {
                 this.Disconnect();
                 return;
             }
 
-            var authenticationService = new UserAuthenticationService(this.SessionInfo);
+            var authenticationService = new UserAuthenticationService(this);
 
             authenticationService.AuthenticateUser();
 
@@ -145,7 +176,33 @@ namespace Renci.SshClient
             this.DisconnectCleanup();
         }
 
-        protected abstract void SendMessage(Message message);
+        internal abstract void SendMessage(Message message);
+
+        internal void WaitHandle(EventWaitHandle waitHandle)
+        {
+            var waitHandles = new EventWaitHandle[]
+                {
+                    this._disconnectWaitHandle,
+                    this._exceptionWaitHandle,
+                    waitHandle,
+                };
+
+            //EventWaitHandle.WaitAny(waitHandles);
+
+            var index = EventWaitHandle.WaitAny(waitHandles, this._waitTimeout);
+
+            if (this._exceptionToThrow != null)
+            {
+                var exception = this._exceptionToThrow;
+                this._exceptionToThrow = null;
+                throw exception;
+            }
+            else if (index > waitHandles.Length)
+            {
+                //  TODO:   Issue timeout disconnect message if approapriate
+                throw new TimeoutException();
+            }
+        }
 
         protected abstract Message ReceiveMessage();
 
@@ -196,7 +253,7 @@ namespace Renci.SshClient
             }
 
             //  Create key exchange algorithm
-            this._keyExhcange = KeyExchange.Create(message, this.SessionInfo);
+            this._keyExhcange = KeyExchange.Create(message, this);
 
             this._keyExhcange.Failed += delegate(object sender, KeyExchangeFailedEventArgs e)
             {
@@ -261,19 +318,34 @@ namespace Renci.SshClient
         {
             var buffer = new byte[length];
 
-            SocketError socketErrorCode;
+            SocketError socketErrorCode = SocketError.Success;
 
-            this._socket.Receive(buffer, 0, length, SocketFlags.None, out socketErrorCode);
+            int bytesRead = 0;
 
-            //  Check for socket errors
-            if (socketErrorCode != SocketError.Success)
+            while (bytesRead == 0 && this._socket.Connected && socketErrorCode == SocketError.Success)
             {
-                throw new SocketException((int)socketErrorCode);
+                var asynchResult = this._socket.BeginReceive(buffer, 0, length, SocketFlags.None, null, null);
+
+                while (!asynchResult.IsCompleted && this._socket.Connected)
+                {
+                    asynchResult.AsyncWaitHandle.WaitOne(this._waitTimeout);
+                }
+                bytesRead = this._socket.EndReceive(asynchResult, out socketErrorCode);
             }
-            else if (!this._socket.Connected)
+
+            //  Check for errors
+            if (!this._socket.Connected)
             {
                 //  If socket was closed throw an exception
                 throw new SocketException(995); //  WSA_OPERATION_ABORTED
+            }
+            if (bytesRead != length && socketErrorCode == SocketError.Success)
+            {
+                throw new InvalidDataException(string.Format("Data read {0}, expected {1}", bytesRead, length));
+            }
+            else if (socketErrorCode != SocketError.Success)
+            {
+                throw new SocketException((int)socketErrorCode);
             }
             else
                 return buffer;
@@ -322,9 +394,6 @@ namespace Renci.SshClient
             {
                 this._socket.Disconnect(false);
             }
-
-            //  Let session know that it was disconected
-            this.SessionInfo.Disconnect();
         }
 
         private void MessageListener_DoWork(object sender, DoWorkEventArgs e)
@@ -344,17 +413,31 @@ namespace Renci.SshClient
                     this.HandleMessage(message);
 
                     //  Raise an event that message received
-                    this.SessionInfo.RaiseMessageReceived(this, new MessageReceivedEventArgs(message));
+                    this.RaiseMessageReceived(this, new MessageReceivedEventArgs(message));
                 }
                 catch (Exception exp)
                 {
+                    //  TODO:   This exception can be swolloed if it occures while running in the background, look for possible solutions
+
                     //  In case of error issue disconntect command
                     this.Disconnect(DisconnectReasonCodes.ByApplication, exp.ToString());
 
+                    //  Set exception that need to be thrown by the main thread
+                    this._exceptionToThrow = exp;
+
+                    this._exceptionWaitHandle.Set();
                     //  TODO:   Set exp to some excpetion that can be thrown later by the main thread.
 
                     break;
                 }
+            }
+        }
+
+        private void RaiseMessageReceived(object sender, MessageReceivedEventArgs args)
+        {
+            if (this.MessageReceived != null)
+            {
+                this.MessageReceived(sender, args);
             }
         }
 

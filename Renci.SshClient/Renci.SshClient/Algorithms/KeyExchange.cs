@@ -17,7 +17,7 @@ namespace Renci.SshClient.Algorithms
         /// </summary>
         /// <param name="message">The message.</param>
         /// <returns></returns>
-        internal static KeyExchange Create(KeyExchangeInitMessage message, SessionInfo sessionInfo)
+        internal static KeyExchange Create(KeyExchangeInitMessage message, Session session)
         {
 
             //  TODO:   Determine key exchange algorithm
@@ -32,7 +32,7 @@ namespace Renci.SshClient.Algorithms
                 throw new InvalidDataException("Failed to negotiate key exchange algorithm.");
             }
 
-            return Settings.KeyExchangeAlgorithms[keyExchangeAlgorithm](sessionInfo);
+            return Settings.KeyExchangeAlgorithms[keyExchangeAlgorithm](session);
         }
 
         /// <summary>
@@ -87,7 +87,7 @@ namespace Renci.SshClient.Algorithms
 
         public bool IsSuccessed { get; protected set; }
 
-        protected SessionInfo SessionInfo { get; private set; }
+        protected Session Session { get; private set; }
 
         protected string ClientPayload { get; set; }
 
@@ -107,9 +107,9 @@ namespace Renci.SshClient.Algorithms
 
         public event EventHandler<KeyExchangeFailedEventArgs> Failed;
 
-        public KeyExchange(SessionInfo sessionInfo)
+        public KeyExchange(Session session)
         {
-            this.SessionInfo = sessionInfo;
+            this.Session = session;
             this.ServerDecompression = Compression.None;
             this.ClientCompression = Compression.None;
         }
@@ -191,9 +191,9 @@ namespace Renci.SshClient.Algorithms
         public virtual void Finish()
         {
             //  TODO:   Validate that all required properties are set
-            if (this.SessionInfo.SessionId == null)
+            if (this.Session.SessionId == null)
             {
-                this.SessionInfo.SessionId = this.ExchangeHash;
+                this.Session.SessionId = this.ExchangeHash;
             }
 
             //  Set encryption 
@@ -201,10 +201,10 @@ namespace Renci.SshClient.Algorithms
             using (var clientAlgorithm = this._clientEncryptionAlgorithm())
             {
                 //  Calculate client to server initial IV
-                var clientValue = this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'A', this.SessionInfo.SessionId));
+                var clientValue = this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'A', this.Session.SessionId));
 
                 //  Calculate client to server encryption
-                var clientKey = this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'C', this.SessionInfo.SessionId));
+                var clientKey = this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'C', this.Session.SessionId));
 
                 clientKey = this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, clientKey, clientAlgorithm.KeySize / 8);
 
@@ -219,10 +219,10 @@ namespace Renci.SshClient.Algorithms
             using (var serverAlgorithm = this._serverDecryptionAlgorithm())
             {
                 //  Calculate server to client initial IV
-                var serverValue = this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'B', this.SessionInfo.SessionId));
+                var serverValue = this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'B', this.Session.SessionId));
 
                 //  Calculate server to client encryption
-                var serverKey = this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'D', this.SessionInfo.SessionId));
+                var serverKey = this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'D', this.Session.SessionId));
 
                 serverKey = this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, serverKey, serverAlgorithm.KeySize / 8);
 
@@ -233,11 +233,11 @@ namespace Renci.SshClient.Algorithms
             }
 
             //  Calculate client to server integrity
-            var MACc2s = this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'E', this.SessionInfo.SessionId));
+            var MACc2s = this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'E', this.Session.SessionId));
             var clientMac = this._clientHmacAlgorithm(MACc2s);
 
             //  Calculate server to client integrity
-            var MACs2c = this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'F', this.SessionInfo.SessionId));
+            var MACs2c = this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'F', this.Session.SessionId));
             var serverMac = this._serverHmacAlgorithm(MACs2c);
 
             //  TODO:   Create compression and decompression objects if any
@@ -314,15 +314,15 @@ namespace Renci.SshClient.Algorithms
 
         protected void SendMessage(Message message)
         {
-            this.SessionInfo.SendMessage(message);
+            this.Session.SendMessage(message);
         }
 
         private IEnumerable<byte> CalculateHash()
         {
             var hashData = new _ExchangeHashData
             {
-                ClientVersion = this.SessionInfo.ClientVersion,
-                ServerVersion = this.SessionInfo.ServerVersion,
+                ClientVersion = this.Session.ClientVersion,
+                ServerVersion = this.Session.ServerVersion,
                 ClientPayload = this.ClientPayload,
                 ServerPayload = this.ServerPayload,
                 HostKey = this.HostKey,

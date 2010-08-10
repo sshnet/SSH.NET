@@ -13,8 +13,8 @@ namespace Renci.SshClient.Services
             }
         }
 
-        public UserAuthenticationPassword(SessionInfo sessionInfo)
-            : base(sessionInfo)
+        public UserAuthenticationPassword(Session session)
+            : base(session)
         {
 
         }
@@ -24,13 +24,13 @@ namespace Renci.SshClient.Services
             //  TODO:   Handle all user authentication messages
             //Message.RegisterMessageType<PasswordChangeRequiredMessage>(MessageTypes.UserAuthenticationPasswordChangeRequired);
 
-            if (!string.IsNullOrEmpty(this.SessionInfo.ConnectionInfo.Password))
+            if (!string.IsNullOrEmpty(this.Session.ConnectionInfo.Password))
             {
                 this.SendMessage(new PasswordRequestMessage
                 {
                     ServiceName = ServiceNames.Connection,
-                    Username = this.SessionInfo.ConnectionInfo.Username,
-                    Password = this.SessionInfo.ConnectionInfo.Password,
+                    Username = this.Session.ConnectionInfo.Username,
+                    Password = this.Session.ConnectionInfo.Password,
                 });
                 return true;
             }

@@ -27,8 +27,8 @@ namespace Renci.SshClient.Services
 
         public bool IsAuthenticated { get; private set; }
 
-        public UserAuthenticationService(SessionInfo sessionInfo)
-            : base(sessionInfo)
+        public UserAuthenticationService(Session session)
+            : base(session)
         {
             this.AuthenticationCompletedHandle = new AutoResetEvent(false);
         }
@@ -41,7 +41,7 @@ namespace Renci.SshClient.Services
             Message.RegisterMessageType<BannerMessage>(MessageTypes.UserAuthenticationBanner);
 
             //  Attach event handlers to handle messages
-            this.SessionInfo.MessageReceived += SessionInfo_MessageReceived;
+            this.Session.MessageReceived += SessionInfo_MessageReceived;
 
             //  Request user authorization service
             this.SendMessage(new ServiceRequestMessage
@@ -50,19 +50,19 @@ namespace Renci.SshClient.Services
             });
 
             //  Wait for service to be accepted
-            this.SessionInfo.WaitHandle(this._serviceAccepted);
+            this.Session.WaitHandle(this._serviceAccepted);
 
             //  Start by quering supported authentication methods
             this.SendMessage(new RequestMessage
             {
-                Username = this.SessionInfo.ConnectionInfo.Username,
+                Username = this.Session.ConnectionInfo.Username,
                 ServiceName = ServiceNames.Connection,
             });
 
             //  Wait for authentication to be completed
-            this.SessionInfo.WaitHandle(this._authenticationCompleted);
+            this.Session.WaitHandle(this._authenticationCompleted);
 
-            this.SessionInfo.MessageReceived -= SessionInfo_MessageReceived;
+            this.Session.MessageReceived -= SessionInfo_MessageReceived;
 
             Message.UnRegisterMessageType(MessageTypes.UserAuthenticationFailure);
             Message.UnRegisterMessageType(MessageTypes.UserAuthenticationSuccess);
@@ -105,7 +105,7 @@ namespace Renci.SshClient.Services
 
             if (methodsToTry.Count() == 0)
             {
-                this.AuthenticationFailed(string.Format("User '{0}' cannot be authorized.", this.SessionInfo.ConnectionInfo.Username));
+                this.AuthenticationFailed(string.Format("User '{0}' cannot be authorized.", this.Session.ConnectionInfo.Username));
                 return;
             }
 
@@ -116,11 +116,11 @@ namespace Renci.SshClient.Services
 
                 if (methodName == "publickey")
                 {
-                    userAuthentication = new UserAuthenticationPublicKey(this.SessionInfo);
+                    userAuthentication = new UserAuthenticationPublicKey(this.Session);
                 }
                 else if (methodName == "password")
                 {
-                    userAuthentication = new UserAuthenticationPassword(this.SessionInfo);
+                    userAuthentication = new UserAuthenticationPassword(this.Session);
                 }
                 this._executedMethods.Add(methodName);
                 if (userAuthentication != null)

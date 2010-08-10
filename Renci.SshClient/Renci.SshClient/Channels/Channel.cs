@@ -38,9 +38,9 @@ namespace Renci.SshClient.Channels
 
         public bool IsOpen { get; protected set; }
 
-        protected SessionInfo SessionInfo { get; private set; }
+        protected Session Session { get; private set; }
 
-        public Channel(SessionInfo sessionInfo, uint windowSize, uint packetSize)
+        public Channel(Session session, uint windowSize, uint packetSize)
         {
             this._initialWindowSize = windowSize;
             this._maximumPacketSize = Math.Max(packetSize, 0x8000); //  Ensure minimum maximum packet size of 0x8000 bytes
@@ -61,21 +61,21 @@ namespace Renci.SshClient.Channels
                 this.ClientChannelNumber = _channelCounter++;
             }
 
-            this.SessionInfo = sessionInfo;
+            this.Session = session;
             this.ChannelData = new StringBuilder((int)this._initialWindowSize);
             this.ChannelExtendedData = new StringBuilder((int)this._initialWindowSize);
             this.WindowSize = this._initialWindowSize;  // Initial window size
             this.PacketSize = this._maximumPacketSize;     // Maximum packet size
         }
 
-        public Channel(SessionInfo sessionInfo)
-            : this(sessionInfo, 0x100000, 0x8000)
+        public Channel(Session session)
+            : this(session, 0x100000, 0x8000)
         {
         }
 
         public virtual void Open()
         {
-            this.SessionInfo.MessageReceived += SessionInfo_MessageReceived;
+            this.Session.MessageReceived += SessionInfo_MessageReceived;
 
             //  Open session channel
             if (!this.IsOpen)
@@ -88,7 +88,7 @@ namespace Renci.SshClient.Channels
                     MaximumPacketSize = this.PacketSize,
                 });
 
-                this.SessionInfo.WaitHandle(this._channelOpenWaitHandle);
+                this.Session.WaitHandle(this._channelOpenWaitHandle);
             }
         }
 
@@ -102,7 +102,7 @@ namespace Renci.SshClient.Channels
                 });
 
                 //  Wait for channel to be closed
-                this.SessionInfo.WaitHandle(this._channelClosedWaitHandle);
+                this.Session.WaitHandle(this._channelClosedWaitHandle);
             }
 
             this.CloseCleanup();
@@ -130,7 +130,7 @@ namespace Renci.SshClient.Channels
 
         protected void SendMessage(Message message)
         {
-            this.SessionInfo.SendMessage(message);
+            this.Session.SendMessage(message);
         }
 
         private void SessionInfo_MessageReceived(object sender, MessageReceivedEventArgs e)
@@ -251,7 +251,7 @@ namespace Renci.SshClient.Channels
 
             this.IsOpen = false;
 
-            this.SessionInfo.MessageReceived -= SessionInfo_MessageReceived;
+            this.Session.MessageReceived -= SessionInfo_MessageReceived;
         }
     }
 }

@@ -14,8 +14,8 @@ namespace Renci.SshClient.Channels
             get { return ChannelTypes.Session; }
         }
 
-        public ChannelSession(SessionInfo sessionInfo)
-            : base(sessionInfo, 0x100000, 0x1000)
+        public ChannelSession(Session session)
+            : base(session, 0x100000, 0x1000)
         {
         }
 
@@ -33,7 +33,7 @@ namespace Renci.SshClient.Channels
             });
 
 
-            this.SessionInfo.WaitHandle(this._channelEofWaitHandle);
+            this.Session.WaitHandle(this._channelEofWaitHandle);
 
             this.Close();
 
@@ -46,6 +46,13 @@ namespace Renci.SshClient.Channels
             base.OnChannelEof();
 
             //  TODO:   All wait handles add timeout and then throw an exception or monitor connection closed event
+            this._channelEofWaitHandle.Set();
+        }
+
+        protected override void OnChannelClose()
+        {
+            base.OnChannelClose();
+
             this._channelEofWaitHandle.Set();
         }
 

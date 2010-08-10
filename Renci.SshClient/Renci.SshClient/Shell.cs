@@ -13,8 +13,9 @@ namespace Renci.SshClient
 
         public string Execute(string command)
         {
-            //  TODO:   Keep track of all open channels to cdisconnect them when connection is closed
-            var channel = new ChannelSession(this._session.SessionInfo);
+            //var channel = new ChannelSession(this._session);
+
+            var channel = this._session.CreateChannel<ChannelSession>();
 
             var result = channel.Execute(command);
 

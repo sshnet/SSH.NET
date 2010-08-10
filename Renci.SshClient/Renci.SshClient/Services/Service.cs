@@ -6,16 +6,16 @@ namespace Renci.SshClient.Services
     {
         public abstract ServiceNames ServiceName { get; }
 
-        protected SessionInfo SessionInfo { get; private set; }
+        protected Session Session { get; private set; }
 
-        public Service(SessionInfo sessionInfo)
+        public Service(Session session)
         {
-            this.SessionInfo = sessionInfo;
+            this.Session = session;
         }
 
         protected void SendMessage(Message message)
         {
-            this.SessionInfo.SendMessage(message);
+            this.Session.SendMessage(message);
         }
 
     }

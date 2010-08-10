@@ -33,13 +33,13 @@ namespace Renci.SshClient.Channels
             get { return ChannelTypes.Session; }
         }
 
-        public ChannelSftp(SessionInfo sessionInfo, uint windowSize, uint packetSize)
-            : base(sessionInfo, windowSize, packetSize)
+        public ChannelSftp(Session session, uint windowSize, uint packetSize)
+            : base(session, windowSize, packetSize)
         {
         }
 
-        public ChannelSftp(SessionInfo sessionInfo)
-            : base(sessionInfo, 0x100000, 0x4000)
+        public ChannelSftp(Session session)
+            : base(session, 0x100000, 0x4000)
         {
         }
 
@@ -56,7 +56,7 @@ namespace Renci.SshClient.Channels
                 SubsystemName = "sftp",
             });
 
-            this.SessionInfo.WaitHandle(this._channelRequestSuccessWaitHandle);
+            this.Session.WaitHandle(this._channelRequestSuccessWaitHandle);
 
             this.SendMessage(new InitMessage
             {
@@ -263,7 +263,7 @@ namespace Renci.SshClient.Channels
 
         private SftpMessage ReceiveMessage()
         {
-            this.SessionInfo.WaitHandle(this._responseMessageReceivedWaitHandle);
+            this.Session.WaitHandle(this._responseMessageReceivedWaitHandle);
 
             var statusMessage = this._responseMessage as StatusMessage;
 

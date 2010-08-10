@@ -172,7 +172,6 @@
     <Compile Include="Services\Service.cs" />
     <Compile Include="Services\UserAuthenticationService.cs" />
     <Compile Include="Session.cs" />
-    <Compile Include="SessionInfo.cs" />
     <Compile Include="SessionSSHv2.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="Common\SshData.cs" />

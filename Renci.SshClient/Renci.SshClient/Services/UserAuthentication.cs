@@ -5,18 +5,18 @@ namespace Renci.SshClient.Services
     {
         public abstract string Name { get; }
 
-        protected SessionInfo SessionInfo { get; private set; }
+        protected Session Session { get; private set; }
 
-        public UserAuthentication(SessionInfo sessionInfo)
+        public UserAuthentication(Session session)
         {
-            this.SessionInfo = sessionInfo;
+            this.Session = session;
         }
 
         public abstract bool Start();
 
         protected void SendMessage(Message message)
         {
-            this.SessionInfo.SendMessage(message);
+            this.Session.SendMessage(message);
         }
 
     }

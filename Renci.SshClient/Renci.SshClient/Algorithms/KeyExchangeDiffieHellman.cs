@@ -43,8 +43,8 @@ namespace Renci.SshClient.Algorithms
         /// Initializes a new instance of the <see cref="KeyExchangeDiffieHellman"/> class.
         /// </summary>
         /// <param name="sessionInfo">The session information.</param>
-        internal KeyExchangeDiffieHellman(SessionInfo sessionInfo)
-            : base(sessionInfo)
+        internal KeyExchangeDiffieHellman(Session session)
+            : base(session)
         {
         }
 
@@ -72,7 +72,7 @@ namespace Renci.SshClient.Algorithms
                 E = this.ClientExchangeValue,
             });
 
-            this.SessionInfo.MessageReceived += SessionInfo_MessageReceived;
+            this.Session.MessageReceived += SessionInfo_MessageReceived;
 
         }
 
@@ -80,7 +80,7 @@ namespace Renci.SshClient.Algorithms
         {
             base.Finish();
 
-            this.SessionInfo.MessageReceived -= SessionInfo_MessageReceived;
+            this.Session.MessageReceived -= SessionInfo_MessageReceived;
         }
 
         private void SessionInfo_MessageReceived(object sender, MessageReceivedEventArgs e)

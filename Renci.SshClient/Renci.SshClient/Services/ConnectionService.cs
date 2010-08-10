@@ -10,20 +10,10 @@ namespace Renci.SshClient.Services
             get { throw new NotImplementedException(); }
         }
 
-        public ConnectionService(SessionInfo sessionInfo)
-            : base(sessionInfo)
+        public ConnectionService(Session session)
+            : base(session)
         {
 
         }
-
-        //public override void Request()
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //public override void Accept()
-        //{
-        //    throw new NotImplementedException();
-        //}
     }
 }

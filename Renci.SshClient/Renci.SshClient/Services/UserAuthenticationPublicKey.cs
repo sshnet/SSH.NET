@@ -13,8 +13,8 @@ namespace Renci.SshClient.Services
             }
         }
 
-        public UserAuthenticationPublicKey(SessionInfo sessionInfo)
-            : base(sessionInfo)
+        public UserAuthenticationPublicKey(Session session)
+            : base(session)
         {
 
         }
@@ -22,16 +22,16 @@ namespace Renci.SshClient.Services
 
         public override bool Start()
         {
-            if (this.SessionInfo.ConnectionInfo.KeyFile != null)
+            if (this.Session.ConnectionInfo.KeyFile != null)
             {
                 //  TODO:   Complete full public key implemention which includes other messages
                 this.SendMessage(new PublicKeyRequestMessage
                 {
                     ServiceName = ServiceNames.Connection,
-                    Username = this.SessionInfo.ConnectionInfo.Username,
-                    PublicKeyAlgorithmName = this.SessionInfo.ConnectionInfo.KeyFile.AlgorithmName,
-                    PublicKeyData = this.SessionInfo.ConnectionInfo.KeyFile.PublicKey,
-                    Signature = this.SessionInfo.ConnectionInfo.KeyFile.GetSignature(this.SessionInfo.SessionId),
+                    Username = this.Session.ConnectionInfo.Username,
+                    PublicKeyAlgorithmName = this.Session.ConnectionInfo.KeyFile.AlgorithmName,
+                    PublicKeyData = this.Session.ConnectionInfo.KeyFile.PublicKey,
+                    Signature = this.Session.ConnectionInfo.KeyFile.GetSignature(this.Session.SessionId),
                 });
                 return true;
             }

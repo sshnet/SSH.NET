@@ -10,8 +10,8 @@ namespace Renci.SshClient.Services
                 return "hostbased";
             }
         }
-        public UserAuthenticationHost(SessionInfo sessionInfo)
-            : base(sessionInfo)
+        public UserAuthenticationHost(Session session)
+            : base(session)
         {
 
         }

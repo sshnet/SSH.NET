@@ -1,0 +1,194 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{2F5F8C90-0BD1-424F-997C-7BC6280919D1}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Renci.SshClient</RootNamespace>
+    <AssemblyName>Renci.SshClient</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Algorithms\Algorithm.cs" />
+    <Compile Include="Algorithms\Compression.cs" />
+    <Compile Include="Channels\ChannelSftp.cs" />
+    <Compile Include="Common\DataReceivedEventArgs.cs" />
+    <Compile Include="Common\FtpFileInfo.cs" />
+    <Compile Include="Messages\Sftp\AceMasks.cs" />
+    <Compile Include="Messages\Sftp\Attributes.cs" />
+    <Compile Include="Messages\Sftp\AttrsMessage.cs" />
+    <Compile Include="Messages\Sftp\CloseMessage.cs" />
+    <Compile Include="Messages\Sftp\DataMessage.cs" />
+    <Compile Include="Messages\Sftp\ExtendedMessage.cs" />
+    <Compile Include="Messages\Sftp\ExtendedReplyMessage.cs" />
+    <Compile Include="Messages\Sftp\Flags.cs" />
+    <Compile Include="Messages\Sftp\FSetStat.cs" />
+    <Compile Include="Messages\Sftp\FSetStatMessage.cs" />
+    <Compile Include="Messages\Sftp\FStatMessage.cs" />
+    <Compile Include="Messages\Sftp\HandleMessage.cs" />
+    <Compile Include="Messages\Sftp\InitMessage.cs" />
+    <Compile Include="Messages\Sftp\SymLinkMessage.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Messages\Sftp\LStatMessage.cs" />
+    <Compile Include="Messages\Sftp\MkDirMessage.cs" />
+    <Compile Include="Messages\Sftp\NameMessage.cs" />
+    <Compile Include="Messages\Sftp\OpenDirMessage.cs" />
+    <Compile Include="Messages\Sftp\OpenMessage.cs" />
+    <Compile Include="Messages\Sftp\ReadDirMessage.cs" />
+    <Compile Include="Messages\Sftp\ReadLinkMessage.cs" />
+    <Compile Include="Messages\Sftp\ReadMessage.cs" />
+    <Compile Include="Messages\Sftp\RealPathMessage.cs" />
+    <Compile Include="Messages\Sftp\RemoveMessage.cs" />
+    <Compile Include="Messages\Sftp\RenameMessage.cs" />
+    <Compile Include="Messages\Sftp\RmDirMessage.cs" />
+    <Compile Include="Messages\Sftp\SetStatMessage.cs" />
+    <Compile Include="Messages\Sftp\SftpDataMessage.cs" />
+    <Compile Include="Messages\Sftp\SftpMessage.cs" />
+    <Compile Include="Messages\Sftp\SftpMessageTypes.cs" />
+    <Compile Include="Messages\Sftp\StatMessage.cs" />
+    <Compile Include="Messages\Sftp\StatusCodes.cs" />
+    <Compile Include="Messages\Sftp\StatusMessage.cs" />
+    <Compile Include="Messages\Sftp\VersionMessage.cs" />
+    <Compile Include="Messages\Sftp\WriteMessage.cs" />
+    <Compile Include="PrivateKey.cs" />
+    <Compile Include="Algorithms\KeyExchange.cs" />
+    <Compile Include="Algorithms\KeyExchangeCompletedEventArgs.cs" />
+    <Compile Include="Algorithms\KeyExchangeDiffieHellman.cs" />
+    <Compile Include="Algorithms\KeyExchangeFailedEventArgs.cs" />
+    <Compile Include="Algorithms\KeyExchangeSendMessageEventArgs.cs" />
+    <Compile Include="PrivateKeyDsa.cs" />
+    <Compile Include="PrivateKeyRsa.cs" />
+    <Compile Include="Algorithms\Signature.cs" />
+    <Compile Include="Algorithms\SignatureDss.cs" />
+    <Compile Include="Algorithms\SignatureRsa.cs" />
+    <Compile Include="KeyFile.cs" />
+    <Compile Include="Messages\Connection\ChannelMessage.cs" />
+    <Compile Include="Messages\Connection\RequestNames.cs" />
+    <Compile Include="Services\UserAuthentication.cs" />
+    <Compile Include="Services\UserAuthenticationHost.cs" />
+    <Compile Include="Services\UserAuthenticationPassword.cs" />
+    <Compile Include="Services\UserAuthenticationPublicKey.cs" />
+    <Compile Include="Channels\Channel.cs" />
+    <Compile Include="Channels\ChannelSession.cs" />
+    <Compile Include="Channels\ChannelTypes.cs" />
+    <Compile Include="ConnectionInfo.cs" />
+    <Compile Include="Common\Extensions.cs" />
+    <Compile Include="Common\MessageReceivedEventArgs.cs" />
+    <Compile Include="Messages\Connection\ChannelCloseMessage.cs" />
+    <Compile Include="Messages\Connection\ChannelDataMessage.cs" />
+    <Compile Include="Messages\Connection\ChannelEofMessage.cs" />
+    <Compile Include="Messages\Connection\ChannelExtendedDataMessage.cs" />
+    <Compile Include="Messages\Connection\ChannelFailureMessage.cs" />
+    <Compile Include="Messages\Connection\ChannelOpenConfirmationMessage.cs" />
+    <Compile Include="Messages\Connection\ChannelOpenFailureMessage.cs" />
+    <Compile Include="Messages\Connection\ChannelOpenFailureReasons.cs" />
+    <Compile Include="Messages\Connection\ChannelOpenMessage.cs" />
+    <Compile Include="Messages\Connection\ChannelRequestMessage.cs" />
+    <Compile Include="Messages\Connection\ChannelSuccessMessage.cs" />
+    <Compile Include="Messages\Connection\ChannelWindowAdjustMessage.cs" />
+    <Compile Include="Messages\Connection\GlobalRequestMessage.cs" />
+    <Compile Include="Messages\Connection\RequestFailureMessage.cs" />
+    <Compile Include="Messages\Connection\RequestSuccessMessage.cs" />
+    <Compile Include="Messages\ServiceNames.cs" />
+    <Compile Include="Messages\Transport\ServiceRequestMessage.cs" />
+    <Compile Include="Messages\Transport\DebugMessage.cs" />
+    <Compile Include="Messages\Transport\IgnoreMessage.cs" />
+    <Compile Include="Messages\Transport\ServiceAcceptMessage.cs" />
+    <Compile Include="Messages\Transport\DisconnectMessage.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Messages\Transport\KeyExchangeInitMessage.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Messages\Transport\KeyExchangeDhInitMessage.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Messages\Transport\KeyExchangeDhReplyMessage.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Messages\Message.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Messages\MessageTypes.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Messages\Transport\NewKeysMessage.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Messages\Transport\DisconnectReasonCodes.cs" />
+    <Compile Include="Messages\Transport\UnimplementedMessage.cs" />
+    <Compile Include="Messages\Authentication\BannerMessage.cs" />
+    <Compile Include="Messages\Authentication\FailureMessage.cs" />
+    <Compile Include="Messages\Authentication\HostRequestMessage.cs" />
+    <Compile Include="Messages\Authentication\InformationRequestMessage.cs" />
+    <Compile Include="Messages\Authentication\InformationResponseMessage.cs" />
+    <Compile Include="Messages\Authentication\Methods.cs" />
+    <Compile Include="Messages\Authentication\PasswordChangeRequiredMessage.cs" />
+    <Compile Include="Messages\Authentication\PasswordRequestMessage.cs" />
+    <Compile Include="Messages\Authentication\PublicKeyMessage.cs" />
+    <Compile Include="Messages\Authentication\PublicKeyRequestMessage.cs" />
+    <Compile Include="Messages\Authentication\RequestMessage.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Messages\Authentication\SuccessMessage.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\ConnectionService.cs" />
+    <Compile Include="Services\Service.cs" />
+    <Compile Include="Services\UserAuthenticationService.cs" />
+    <Compile Include="Session.cs" />
+    <Compile Include="SessionInfo.cs" />
+    <Compile Include="SessionSSHv2.cs" />
+    <Compile Include="Settings.cs" />
+    <Compile Include="Common\SshData.cs" />
+    <Compile Include="Connection.cs" />
+    <Compile Include="Sftp.cs" />
+    <Compile Include="Shell.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Shell\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

@@ -1,0 +1,257 @@
+﻿
+using System;
+using System.Text;
+using System.Threading;
+using Renci.SshClient.Common;
+using Renci.SshClient.Messages;
+using Renci.SshClient.Messages.Connection;
+namespace Renci.SshClient.Channels
+{
+    internal abstract class Channel
+    {
+        private static uint _channelCounter = 0;
+
+        private static object _lock = new object();
+
+        private EventWaitHandle _channelOpenWaitHandle = new AutoResetEvent(false);
+
+        private EventWaitHandle _channelClosedWaitHandle = new AutoResetEvent(false);
+
+        private uint _initialWindowSize = 0x100000;
+
+        //private uint _maximumPacketSize = 0x4000;
+        private uint _maximumPacketSize = 1024;
+
+        protected StringBuilder ChannelData { get; private set; }
+
+        protected StringBuilder ChannelExtendedData { get; private set; }
+
+        public abstract ChannelTypes ChannelType { get; }
+
+        public uint ClientChannelNumber { get; set; }
+
+        public uint ServerChannelNumber { get; set; }
+
+        public uint WindowSize { get; set; }
+
+        public uint PacketSize { get; set; }
+
+        public bool IsOpen { get; protected set; }
+
+        protected SessionInfo SessionInfo { get; private set; }
+
+        public Channel(SessionInfo sessionInfo, uint windowSize, uint packetSize)
+        {
+            this._initialWindowSize = windowSize;
+            this._maximumPacketSize = Math.Max(packetSize, 0x8000); //  Ensure minimum maximum packet size of 0x8000 bytes
+
+            Message.RegisterMessageType<ChannelOpenConfirmationMessage>(MessageTypes.ChannelOpenConfirmation);
+            Message.RegisterMessageType<ChannelOpenFailureMessage>(MessageTypes.ChannelOpenFailure);
+            Message.RegisterMessageType<ChannelWindowAdjustMessage>(MessageTypes.ChannelWindowAdjust);
+            Message.RegisterMessageType<ChannelExtendedDataMessage>(MessageTypes.ChannelExtendedData);
+            Message.RegisterMessageType<ChannelRequestMessage>(MessageTypes.ChannelRequest);
+            Message.RegisterMessageType<ChannelSuccessMessage>(MessageTypes.ChannelSuccess);
+            Message.RegisterMessageType<ChannelDataMessage>(MessageTypes.ChannelData);
+            Message.RegisterMessageType<ChannelEofMessage>(MessageTypes.ChannelEof);
+            Message.RegisterMessageType<ChannelCloseMessage>(MessageTypes.ChannelClose);
+
+            lock (_lock)
+            {
+                //  TODO:   Refactor to make channel number to come from the session, to avoid situation where new session will be open and first channel number will not be 0
+                this.ClientChannelNumber = _channelCounter++;
+            }
+
+            this.SessionInfo = sessionInfo;
+            this.ChannelData = new StringBuilder((int)this._initialWindowSize);
+            this.ChannelExtendedData = new StringBuilder((int)this._initialWindowSize);
+            this.WindowSize = this._initialWindowSize;  // Initial window size
+            this.PacketSize = this._maximumPacketSize;     // Maximum packet size
+        }
+
+        public Channel(SessionInfo sessionInfo)
+            : this(sessionInfo, 0x100000, 0x8000)
+        {
+        }
+
+        public virtual void Open()
+        {
+            this.SessionInfo.MessageReceived += SessionInfo_MessageReceived;
+
+            //  Open session channel
+            if (!this.IsOpen)
+            {
+                this.SendMessage(new ChannelOpenMessage
+                {
+                    ChannelName = "session",
+                    ChannelNumber = this.ClientChannelNumber,
+                    InitialWindowSize = this.WindowSize,
+                    MaximumPacketSize = this.PacketSize,
+                });
+
+                this.SessionInfo.WaitHandle(this._channelOpenWaitHandle);
+            }
+        }
+
+        public virtual void Close()
+        {
+            if (this.IsOpen)
+            {
+                this.SendMessage(new ChannelCloseMessage
+                {
+                    ChannelNumber = this.ServerChannelNumber,
+                });
+
+                //  Wait for channel to be closed
+                this.SessionInfo.WaitHandle(this._channelClosedWaitHandle);
+            }
+
+            this.CloseCleanup();
+        }
+
+        protected virtual void OnChannelData(string data)
+        {
+        }
+
+        protected virtual void OnChannelExtendedData(string data, uint dataTypeCode)
+        {
+        }
+
+        protected virtual void OnChannelSuccess()
+        {
+        }
+
+        protected virtual void OnChannelEof()
+        {
+        }
+
+        protected virtual void OnChannelClose()
+        {
+        }
+
+        protected void SendMessage(Message message)
+        {
+            this.SessionInfo.SendMessage(message);
+        }
+
+        private void SessionInfo_MessageReceived(object sender, MessageReceivedEventArgs e)
+        {
+            ChannelMessage message = e.Message as ChannelMessage;
+
+            //  Handle only messages belong to this channel or channel open confirmation
+            if (message.ChannelNumber == this.ClientChannelNumber || e.Message is ChannelOpenConfirmationMessage)
+            {
+                this.HandleMessage((dynamic)e.Message);
+            }
+        }
+
+        #region Message handlers
+
+        private void HandleMessage<T>(T message) where T : Message
+        {
+            throw new NotSupportedException(string.Format("Message type '{0}' is not supported.", message.MessageType));
+        }
+
+        private void HandleMessage(ChannelOpenConfirmationMessage message)
+        {
+            //  Make sure we open channel only for requested channel number
+            if (this.ClientChannelNumber != message.ChannelNumber)
+                return;
+
+            this.ServerChannelNumber = message.ServerChannelNumber;
+            this.IsOpen = true;
+            this.WindowSize = message.InitialWindowSize;
+            this.PacketSize = message.MaximumPacketSize;
+            this._channelOpenWaitHandle.Set();
+        }
+
+        private void HandleMessage(ChannelOpenFailureMessage message)
+        {
+            this.IsOpen = false;
+            this._channelOpenWaitHandle.Set();
+        }
+
+        private void HandleMessage(ChannelWindowAdjustMessage message)
+        {
+            this.WindowSize += message.BytesToAdd;
+        }
+
+        private void HandleMessage(ChannelDataMessage message)
+        {
+            this.AdjustDataWindow(message.Data);
+            this.OnChannelData(message.Data);
+        }
+
+        private void HandleMessage(ChannelExtendedDataMessage message)
+        {
+            this.AdjustDataWindow(message.Data);
+            this.OnChannelExtendedData(message.Data, message.DataTypeCode);
+        }
+
+        private void HandleMessage(ChannelRequestMessage message)
+        {
+            Message replyMessage = new ChannelFailureMessage()
+            {
+                ChannelNumber = message.ChannelNumber,
+            };
+
+            if (message.RequestName == RequestNames.ExitStatus)
+            {
+                var exitStatus = message.ExitStatus;
+                replyMessage = new ChannelSuccessMessage()
+                {
+                    ChannelNumber = message.ChannelNumber,
+                };
+            }
+
+            if (message.WantReply)
+            {
+                this.SendMessage(replyMessage);
+            }
+        }
+
+        private void HandleMessage(ChannelSuccessMessage message)
+        {
+            this.OnChannelSuccess();
+        }
+
+        private void HandleMessage(ChannelEofMessage message)
+        {
+            this.OnChannelEof();
+        }
+
+        private void HandleMessage(ChannelCloseMessage message)
+        {
+            //  TODO:   Handle this message
+            this.CloseCleanup();
+
+            this._channelClosedWaitHandle.Set();
+        }
+
+        private void AdjustDataWindow(string messageData)
+        {
+            this.WindowSize -= (uint)messageData.Length;
+
+            //  Adjust window if window size is too low
+            if (this.WindowSize < this._initialWindowSize / 2)
+            {
+                this.SendMessage(new ChannelWindowAdjustMessage
+                {
+                    ChannelNumber = this.ServerChannelNumber,
+                    BytesToAdd = this._initialWindowSize - this.WindowSize,
+                });
+                this.WindowSize = this._initialWindowSize;
+            }
+        }
+
+        #endregion
+
+
+        private void CloseCleanup()
+        {
+
+            this.IsOpen = false;
+
+            this.SessionInfo.MessageReceived -= SessionInfo_MessageReceived;
+        }
+    }
+}

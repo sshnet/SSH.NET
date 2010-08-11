@@ -100,10 +100,13 @@ namespace Renci.SshClient
         {
             get
             {
-                if (this._socket == null)
-                    return false;
+                lock (this._socket)
+                {
+                    if (this._socket == null)
+                        return false;
 
-                return !(this._socket.Poll(1000, SelectMode.SelectRead) & (this._socket.Available == 0));
+                    return !(this._socket.Poll(5000, SelectMode.SelectRead) & (this._socket.Available == 0));
+                }
             }
         }
 
@@ -134,7 +137,7 @@ namespace Renci.SshClient
 
         private static IDictionary<Type, Func<Session, Channel>> _channels = new Dictionary<Type, Func<Session, Channel>>()
             {
-                {typeof(ChannelSession), (session) => { return new ChannelSession(session);}},
+                {typeof(ChannelExec), (session) => { return new ChannelExec(session);}},
                 {typeof(ChannelSftp), (session) => { return new ChannelSftp(session);}}
             };
 
@@ -164,7 +167,7 @@ namespace Renci.SshClient
 
             //  Start incoming request listener
             this._messageListener = new BackgroundWorker();
-            this._messageListener.DoWork += MessageListener_DoWork;
+            this._messageListener.DoWork += MessageListener;
             this._messageListener.RunWorkerAsync();
 
             //  Wait for key exchange to be completed
@@ -410,7 +413,7 @@ namespace Renci.SshClient
             }
         }
 
-        private void MessageListener_DoWork(object sender, DoWorkEventArgs e)
+        private void MessageListener(object sender, DoWorkEventArgs e)
         {
             Exception excpetion = null;
 

@@ -105,7 +105,7 @@
     <Compile Include="Services\UserAuthenticationPassword.cs" />
     <Compile Include="Services\UserAuthenticationPublicKey.cs" />
     <Compile Include="Channels\Channel.cs" />
-    <Compile Include="Channels\ChannelSession.cs" />
+    <Compile Include="Channels\ChannelExec.cs" />
     <Compile Include="Channels\ChannelTypes.cs" />
     <Compile Include="ConnectionInfo.cs" />
     <Compile Include="Common\Extensions.cs" />

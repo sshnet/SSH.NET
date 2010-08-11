@@ -128,6 +128,10 @@ namespace Renci.SshClient.Channels
         {
         }
 
+        protected virtual void OnChannelFailed(uint reasonCode, string description)
+        {
+        }
+
         protected void SendMessage(Message message)
         {
             this.Session.SendMessage(message);
@@ -168,6 +172,7 @@ namespace Renci.SshClient.Channels
         {
             this.IsOpen = false;
             this._channelOpenWaitHandle.Set();
+            this.OnChannelFailed(message.ReasonCode, message.Description);
         }
 
         private void HandleMessage(ChannelWindowAdjustMessage message)
@@ -221,7 +226,6 @@ namespace Renci.SshClient.Channels
 
         private void HandleMessage(ChannelCloseMessage message)
         {
-            //  TODO:   Handle this message
             this.CloseCleanup();
 
             this._channelClosedWaitHandle.Set();
@@ -245,10 +249,8 @@ namespace Renci.SshClient.Channels
 
         #endregion
 
-
         private void CloseCleanup()
         {
-
             this.IsOpen = false;
 
             this.Session.MessageReceived -= SessionInfo_MessageReceived;

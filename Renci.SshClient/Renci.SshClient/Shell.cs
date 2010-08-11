@@ -1,4 +1,6 @@
 ﻿
+using System.IO;
+using System.Text;
 using Renci.SshClient.Channels;
 namespace Renci.SshClient
 {
@@ -15,11 +17,26 @@ namespace Renci.SshClient
         {
             //var channel = new ChannelSession(this._session);
 
-            var channel = this._session.CreateChannel<ChannelSession>();
+            MemoryStream resultStream = new MemoryStream();
 
-            var result = channel.Execute(command);
 
-            return result;
+            var channel = this._session.CreateChannel<ChannelExec>();
+
+            channel.Execute(command, resultStream, null);
+
+            return Encoding.ASCII.GetString(resultStream.ToArray());
         }
+
+        public string Execute(string command, Stream extended)
+        {
+            MemoryStream resultStream = new MemoryStream();
+
+            var channel = this._session.CreateChannel<ChannelExec>();
+
+            channel.Execute(command, resultStream, extended);
+
+            return Encoding.ASCII.GetString(resultStream.ToArray());
+        }
+
     }
 }

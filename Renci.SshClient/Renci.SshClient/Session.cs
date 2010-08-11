@@ -8,12 +8,12 @@ using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
-using Renci.SshClient.Algorithms;
 using Renci.SshClient.Channels;
 using Renci.SshClient.Common;
 using Renci.SshClient.Messages;
 using Renci.SshClient.Messages.Connection;
 using Renci.SshClient.Messages.Transport;
+using Renci.SshClient.Security;
 using Renci.SshClient.Services;
 
 namespace Renci.SshClient
@@ -82,9 +82,17 @@ namespace Renci.SshClient
 
         protected HMAC ClientMac { get; private set; }
 
-        protected ICryptoTransform Encryption { get; private set; }
+        /// <summary>
+        /// Gets or sets the client cipher which used to encrypt messages sent to server.
+        /// </summary>
+        /// <value>The client cipher.</value>
+        protected Cipher ClientCipher { get; private set; }
 
-        protected ICryptoTransform Decryption { get; private set; }
+        /// <summary>
+        /// Gets or sets the server cipher which used to decrypt messages sent by server.
+        /// </summary>
+        /// <value>The server cipher.</value>
+        protected Cipher ServerCipher { get; private set; }
 
         protected Compression ServerDecompression { get; private set; }
 
@@ -293,8 +301,8 @@ namespace Renci.SshClient
             //  Update encryption and decryption algorithm
             this.ServerMac = this._keyExhcange.ServerMac;
             this.ClientMac = this._keyExhcange.ClientMac;
-            this.Encryption = this._keyExhcange.Encryption;
-            this.Decryption = this._keyExhcange.Decryption;
+            this.ClientCipher = this._keyExhcange.ClientCipher;
+            this.ServerCipher = this._keyExhcange.ServerCipher;
             this.ServerDecompression = this._keyExhcange.ServerDecompression;
             this.ClientCompression = this._keyExhcange.ClientCompression;
 

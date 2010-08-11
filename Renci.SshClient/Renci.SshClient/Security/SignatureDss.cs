@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 
-namespace Renci.SshClient.Algorithms
+namespace Renci.SshClient.Security
 {
     internal class SignatureDss : Signature
     {

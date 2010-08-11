@@ -6,7 +6,7 @@ using Renci.SshClient.Common;
 using Renci.SshClient.Messages;
 using Renci.SshClient.Messages.Transport;
 
-namespace Renci.SshClient.Algorithms
+namespace Renci.SshClient.Security
 {
     internal class KeyExchangeDiffieHellman : KeyExchange
     {

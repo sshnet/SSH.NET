@@ -1,4 +1,4 @@
-﻿namespace Renci.SshClient.Algorithms
+﻿namespace Renci.SshClient.Security
 {
     public abstract class Compression : Algorithm
     {

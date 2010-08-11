@@ -1,20 +1,19 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
-using Renci.SshClient.Algorithms;
+using Renci.SshClient.Security;
+
 namespace Renci.SshClient
 {
     internal static class Settings
     {
         public static IDictionary<string, Func<Session, KeyExchange>> KeyExchangeAlgorithms { get; private set; }
 
-        public static IDictionary<string, Func<SymmetricAlgorithm>> Encryptions { get; private set; }
+        public static IDictionary<string, Func<Cipher>> Encryptions { get; private set; }
 
         public static IDictionary<string, Func<IEnumerable<byte>, HMAC>> HmacAlgorithms { get; private set; }
 
-        //public static IDictionary<string, Func<IEnumerable<byte>, IEnumerable<byte>, IEnumerable<byte>, bool>> HostKeyAlgorithms { get; private set; }
         public static IDictionary<string, Func<IEnumerable<byte>, Signature>> HostKeyAlgorithms { get; private set; }
 
 
@@ -27,10 +26,10 @@ namespace Renci.SshClient
 
             };
 
-            Settings.Encryptions = new Dictionary<string, Func<SymmetricAlgorithm>>()
+            Settings.Encryptions = new Dictionary<string, Func<Cipher>>()
             {
-                {"3des-cbc", () => { return new System.Security.Cryptography.TripleDESCryptoServiceProvider();}},
-                //{"aes128-cbc", () => { return new System.Security.Cryptography.RijndaelManaged();}},   //  TODO:   Need to be tested, currently not working
+                {"3des-cbc", () => { return new CipherTripleDES();}},
+                //{"aes128-cbc", () => { return new CipherAES128();}},  //  TODO:   This cipher does not work
             };
 
 
@@ -40,11 +39,8 @@ namespace Renci.SshClient
                 {"hmac-sha1", (key) => { return new System.Security.Cryptography.HMACSHA1(key.Take(20).ToArray());}},
             };
 
-            //Settings.HostKeyAlgorithms = new Dictionary<string, Func<IEnumerable<byte>, IEnumerable<byte>, IEnumerable<byte>, bool>>()
             Settings.HostKeyAlgorithms = new Dictionary<string, Func<IEnumerable<byte>, Signature>>()
             {
-                //{"ssh-rsa", (hash, signature, hostKeyData) => { var s = new SignatureRsa(hostKeyData); return s.Validate(hash, signature);}},
-                //{"ssh-dsa", (hash, signature, hostKeyData) => { var s = new SignatureDss(hostKeyData); return s.Validate(hash, signature);}}, //  TODO:   Need to be tested
                 {"ssh-rsa", (hostKeyData) => { return new SignatureRsa(hostKeyData);}},
                 {"ssh-dsa", (hostKeyData) => { return new SignatureDss(hostKeyData);;}}, //  TODO:   Need to be tested
             };

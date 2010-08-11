@@ -24,7 +24,7 @@ namespace Renci.SshClient
 
         internal override void SendMessage(Message message)
         {
-            if (!this.IsConnected)
+            if (!this.IsSocketConnected)
                 return;
 
             //  TODO:  Refactor so we lock only _outboundPacketSequence and _inboundPacketSequence relevant operations
@@ -96,7 +96,7 @@ namespace Renci.SshClient
 
         protected override Message ReceiveMessage()
         {
-            if (!this.IsConnected)
+            if (!this.IsSocketConnected)
                 return null;
 
             //  No lock needed since all messages read by only one thread

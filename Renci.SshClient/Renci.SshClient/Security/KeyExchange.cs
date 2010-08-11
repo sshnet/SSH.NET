@@ -8,7 +8,7 @@ using Renci.SshClient.Common;
 using Renci.SshClient.Messages;
 using Renci.SshClient.Messages.Transport;
 
-namespace Renci.SshClient.Algorithms
+namespace Renci.SshClient.Security
 {
     internal abstract class KeyExchange : Algorithm
     {
@@ -38,12 +38,12 @@ namespace Renci.SshClient.Algorithms
         /// <summary>
         /// Specifies negotiated algorithm to encrypt information when sent to the server
         /// </summary>
-        private Func<SymmetricAlgorithm> _clientEncryptionAlgorithm;
+        private Func<Cipher> _clientCipher;
 
         /// <summary>
         /// Specifies negotiated algorithm to decrypt information from the server
         /// </summary>
-        private Func<SymmetricAlgorithm> _serverDecryptionAlgorithm;
+        private Func<Cipher> _serverCipher;
 
         /// <summary>
         /// Specifies negotiated HMAC algorithm to use for client
@@ -75,9 +75,9 @@ namespace Renci.SshClient.Algorithms
 
         public HMAC ClientMac { get; set; }
 
-        public ICryptoTransform Encryption { get; set; }
+        public Cipher ClientCipher { get; set; }
 
-        public ICryptoTransform Decryption { get; set; }
+        public Cipher ServerCipher { get; set; }
 
         public Compression ServerDecompression { get; set; }
 
@@ -151,7 +151,7 @@ namespace Renci.SshClient.Algorithms
             {
                 throw new InvalidOperationException("Client encryption algorithm not found");
             }
-            this._clientEncryptionAlgorithm = Settings.Encryptions[clientEncryptionAlgorithmName];
+            this._clientCipher = Settings.Encryptions[clientEncryptionAlgorithmName];
 
             //  Determine encryption algorithm
             var serverDecryptionAlgorithmName = (from a in message.EncryptionAlgorithmsServerToClient
@@ -162,7 +162,7 @@ namespace Renci.SshClient.Algorithms
             {
                 throw new InvalidOperationException("Server decryption algorithm not found");
             }
-            this._serverDecryptionAlgorithm = Settings.Encryptions[clientEncryptionAlgorithmName];
+            this._serverCipher = Settings.Encryptions[clientEncryptionAlgorithmName];
 
             //  Determine client hmac algorithm
             var clientHmacAlgorithmName = (from a in message.MacAlgorithmsClientToSserver
@@ -196,41 +196,30 @@ namespace Renci.SshClient.Algorithms
                 this.Session.SessionId = this.ExchangeHash;
             }
 
-            //  Set encryption 
-            ICryptoTransform encryption;
-            using (var clientAlgorithm = this._clientEncryptionAlgorithm())
-            {
-                //  Calculate client to server initial IV
-                var clientValue = this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'A', this.Session.SessionId));
+            //  Initialize client cipher
+            var clientCipher = this._clientCipher();
+            //  Calculate client to server initial IV
+            var clientVector = this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'A', this.Session.SessionId));
 
-                //  Calculate client to server encryption
-                var clientKey = this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'C', this.Session.SessionId));
+            //  Calculate client to server encryption
+            var clientKey = this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'C', this.Session.SessionId));
 
-                clientKey = this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, clientKey, clientAlgorithm.KeySize / 8);
+            clientKey = this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, clientKey, clientCipher.KeySize / 8);
 
-                clientAlgorithm.Mode = System.Security.Cryptography.CipherMode.CBC;
-                clientAlgorithm.Padding = System.Security.Cryptography.PaddingMode.None;
+            clientCipher.Init(clientKey, clientVector);
 
-                encryption = clientAlgorithm.CreateEncryptor(clientKey.Take(clientAlgorithm.KeySize / 8).ToArray(), clientValue.Take(clientAlgorithm.BlockSize / 8).ToArray());
-            }
+            //  Initilize server cipher
+            var serverCipher = this._serverCipher();
 
-            //  Set decryption
-            ICryptoTransform decryption;
-            using (var serverAlgorithm = this._serverDecryptionAlgorithm())
-            {
-                //  Calculate server to client initial IV
-                var serverValue = this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'B', this.Session.SessionId));
+            //  Calculate server to client initial IV
+            var serverVector = this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'B', this.Session.SessionId));
 
-                //  Calculate server to client encryption
-                var serverKey = this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'D', this.Session.SessionId));
+            //  Calculate server to client encryption
+            var serverKey = this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'D', this.Session.SessionId));
 
-                serverKey = this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, serverKey, serverAlgorithm.KeySize / 8);
+            serverKey = this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, serverKey, serverCipher.KeySize / 8);
 
-                serverAlgorithm.Mode = System.Security.Cryptography.CipherMode.CBC;
-                serverAlgorithm.Padding = System.Security.Cryptography.PaddingMode.None;
-
-                decryption = serverAlgorithm.CreateDecryptor(serverKey.Take(serverAlgorithm.KeySize / 8).ToArray(), serverValue.Take(serverAlgorithm.BlockSize / 8).ToArray());
-            }
+            serverCipher.Init(serverKey, serverVector);
 
             //  Calculate client to server integrity
             var MACc2s = this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'E', this.Session.SessionId));
@@ -242,8 +231,8 @@ namespace Renci.SshClient.Algorithms
 
             //  TODO:   Create compression and decompression objects if any
 
-            this.Decryption = decryption;
-            this.Encryption = encryption;
+            this.ServerCipher = serverCipher;
+            this.ClientCipher = clientCipher;
             this.ServerDecompression = Compression.None;
             this.ClientCompression = Compression.None;
             this.ServerMac = serverMac;

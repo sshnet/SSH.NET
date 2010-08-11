@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Renci.SshClient.Algorithms
+namespace Renci.SshClient.Security
 {
     internal class KeyExchangeFailedEventArgs : EventArgs
     {

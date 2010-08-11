@@ -32,7 +32,7 @@ namespace Renci.SshClient
             //  Messages can be sent by different thread so we need to synchronize it
             lock (_writeLock)
             {
-                var paddingMultiplier = this.Encryption == null ? (byte)8 : (byte)this.Encryption.OutputBlockSize;    //    Should be recalculate base on cipher min lenght if sipher specified
+                var paddingMultiplier = this.ClientCipher == null ? (byte)8 : (byte)this.ClientCipher.BlockSize;    //    Should be recalculate base on cipher min lenght if sipher specified
 
                 //  TODO:   Maximum uncomporessed payload 32768
                 //  TOOO:   If compression specified then compress only payload
@@ -70,9 +70,10 @@ namespace Renci.SshClient
 
                 //  Encrypt packet data
                 var encryptedData = packetData.ToList();
-                if (this.Encryption != null)
+                if (this.ClientCipher != null)
                 {
-                    encryptedData = new List<byte>(this.Encrypt(packetData));
+                    //encryptedData = new List<byte>(this.Encrypt(packetData));
+                    encryptedData = new List<byte>(this.ClientCipher.Encrypt(packetData));
                 }
 
                 //  Add message authentication code (MAC)
@@ -103,18 +104,20 @@ namespace Renci.SshClient
 
             List<byte> decryptedData;
 
-            var blockSize = this.Decryption == null ? (byte)8 : (byte)this.Decryption.InputBlockSize;
+            //var blockSize = this.Decryption == null ? (byte)8 : (byte)this.Decryption.InputBlockSize;
+            var blockSize = this.ServerCipher == null ? (byte)8 : (byte)this.ServerCipher.BlockSize;
 
             //  Read packet lenght first
             var data = new List<byte>(this.Read(blockSize));
 
-            if (this.Decryption == null)
+            if (this.ServerCipher == null)
             {
                 decryptedData = data.ToList();
             }
             else
             {
-                decryptedData = new List<byte>(this.Decrypt(data));
+                //decryptedData = new List<byte>(this.Decrypt(data));
+                decryptedData = new List<byte>(this.ServerCipher.Decrypt(data));
             }
 
             var packetLength = BitConverter.ToUInt32(decryptedData.Take(4).Reverse().ToArray(), 0);
@@ -130,13 +133,14 @@ namespace Renci.SshClient
             {
                 data = new List<byte>(this.Read(blockSize));
 
-                if (this.Decryption == null)
+                if (this.ServerCipher == null)
                 {
                     decryptedData.AddRange(data);
                 }
                 else
                 {
-                    decryptedData.AddRange(this.Decrypt(data));
+                    //decryptedData.AddRange(this.Decrypt(data));
+                    decryptedData.AddRange(this.ServerCipher.Decrypt(data));
                 }
                 bytesToRead -= blockSize;
             }
@@ -181,18 +185,18 @@ namespace Renci.SshClient
             return true;
         }
 
-        private IEnumerable<byte> Encrypt(List<byte> data)
-        {
-            var temp = new byte[data.Count];
-            this.Encryption.TransformBlock(data.ToArray(), 0, data.Count, temp, 0);
-            return temp;
-        }
+        //private IEnumerable<byte> Encrypt(List<byte> data)
+        //{
+        //    var temp = new byte[data.Count];
+        //    this.Encryption.TransformBlock(data.ToArray(), 0, data.Count, temp, 0);
+        //    return temp;
+        //}
 
-        private IEnumerable<byte> Decrypt(List<byte> data)
-        {
-            var temp = new byte[data.Count];
-            this.Decryption.TransformBlock(data.ToArray(), 0, data.Count, temp, 0);
-            return temp;
-        }
+        //private IEnumerable<byte> Decrypt(List<byte> data)
+        //{
+        //    var temp = new byte[data.Count];
+        //    this.Decryption.TransformBlock(data.ToArray(), 0, data.Count, temp, 0);
+        //    return temp;
+        //}
     }
 }

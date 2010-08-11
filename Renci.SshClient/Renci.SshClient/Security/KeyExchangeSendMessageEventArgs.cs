@@ -1,7 +1,7 @@
 ﻿using System;
 using Renci.SshClient.Messages;
 
-namespace Renci.SshClient.Algorithms
+namespace Renci.SshClient.Security
 {
     internal class KeyExchangeSendMessageEventArgs : EventArgs
     {

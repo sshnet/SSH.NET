@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
-namespace Renci.SshClient.Algorithms
+
+namespace Renci.SshClient.Security
 {
     internal abstract class Signature : Algorithm
     {

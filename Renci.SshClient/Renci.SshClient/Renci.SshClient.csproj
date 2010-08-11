@@ -45,6 +45,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Security\Algorithm.cs" />
+    <Compile Include="Security\Cipher.cs" />
+    <Compile Include="Security\CipherAES128.cs" />
+    <Compile Include="Security\CipherTripleDES.cs" />
     <Compile Include="Security\Compression.cs" />
     <Compile Include="Channels\ChannelSftp.cs" />
     <Compile Include="Common\DataReceivedEventArgs.cs" />
@@ -86,14 +89,14 @@
     <Compile Include="Messages\Sftp\StatusMessage.cs" />
     <Compile Include="Messages\Sftp\VersionMessage.cs" />
     <Compile Include="Messages\Sftp\WriteMessage.cs" />
-    <Compile Include="Services\PrivateKey.cs" />
+    <Compile Include="Security\PrivateKey.cs" />
     <Compile Include="Security\KeyExchange.cs" />
     <Compile Include="Security\KeyExchangeCompletedEventArgs.cs" />
     <Compile Include="Security\KeyExchangeDiffieHellman.cs" />
     <Compile Include="Security\KeyExchangeFailedEventArgs.cs" />
     <Compile Include="Security\KeyExchangeSendMessageEventArgs.cs" />
-    <Compile Include="Services\PrivateKeyDsa.cs" />
-    <Compile Include="Services\PrivateKeyRsa.cs" />
+    <Compile Include="Security\PrivateKeyDsa.cs" />
+    <Compile Include="Security\PrivateKeyRsa.cs" />
     <Compile Include="Security\Signature.cs" />
     <Compile Include="Security\SignatureDss.cs" />
     <Compile Include="Security\SignatureRsa.cs" />

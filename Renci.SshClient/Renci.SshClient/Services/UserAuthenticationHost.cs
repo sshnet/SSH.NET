@@ -1,4 +1,4 @@
-﻿namespace Renci.SshClient.Security
+﻿namespace Renci.SshClient.Services
 {
     internal class UserAuthenticationHost : UserAuthentication
     {

@@ -5,19 +5,18 @@ using System.Linq;
 using System.Security.Cryptography;
 using Renci.SshClient.Common;
 
-namespace Renci.SshClient
+namespace Renci.SshClient.Security
 {
-    internal class PrivateKeyDsa : PrivateKey
+    internal class PrivateKeyRsa : PrivateKey
     {
+        private byte[] _modulus;
+        private byte[] _eValue;
+        private byte[] _dValue;
         private byte[] _pValue;
-
         private byte[] _qValue;
-
-        private byte[] _gValue;
-
-        private byte[] _publicKeyValue;
-
-        private byte[] _privateKeyValue;
+        private byte[] _dpValue;
+        private byte[] _dqValue;
+        private byte[] _iqValue;
 
         private IEnumerable<byte> _publicKey;
         /// <summary>
@@ -30,12 +29,10 @@ namespace Renci.SshClient
             {
                 if (this._publicKey == null)
                 {
-                    this._publicKey = new DsaPublicKeyData
+                    this._publicKey = new RsaPublicKeyData
                     {
-                        P = this._pValue,
-                        Q = this._qValue,
-                        G = this._gValue,
-                        Public = this._publicKeyValue,
+                        E = this._eValue,
+                        Modulus = this._modulus,
                     }.GetBytes();
 
                 }
@@ -45,16 +42,16 @@ namespace Renci.SshClient
 
         public override string AlgorithmName
         {
-            get { return "ssh-dss"; }
+            get { return "ssh-rsa"; }
         }
 
 
-        public PrivateKeyDsa(IEnumerable<byte> data)
+        public PrivateKeyRsa(IEnumerable<byte> data)
             : base(data)
         {
-            if (!this.ParseDSAPrivateKey())
+            if (!this.ParseRSAPrivateKey())
             {
-                throw new InvalidDataException("DSA Key is not valid");
+                throw new InvalidDataException("RSA Key is not valid");
             }
         }
 
@@ -64,23 +61,27 @@ namespace Renci.SshClient
             using (var sha1 = new System.Security.Cryptography.SHA1CryptoServiceProvider())
             using (var cs = new System.Security.Cryptography.CryptoStream(System.IO.Stream.Null, sha1, System.Security.Cryptography.CryptoStreamMode.Write))
             {
-                DSAParameters DSAKeyInfo = new DSAParameters();
+                RSAParameters RSAKeyInfo = new RSAParameters();
 
-                DSAKeyInfo.X = this._privateKeyValue.TrimLeadinZero().ToArray();
-                DSAKeyInfo.P = this._pValue.TrimLeadinZero().ToArray();
-                DSAKeyInfo.Q = this._qValue.TrimLeadinZero().ToArray();
-                DSAKeyInfo.G = this._gValue.TrimLeadinZero().ToArray();
+                RSAKeyInfo.Exponent = _eValue.TrimLeadinZero().ToArray();
+                RSAKeyInfo.D = _dValue.TrimLeadinZero().ToArray();
+                RSAKeyInfo.Modulus = _modulus.TrimLeadinZero().ToArray();
+                RSAKeyInfo.P = _pValue.TrimLeadinZero().ToArray();
+                RSAKeyInfo.Q = _qValue.TrimLeadinZero().ToArray();
+                RSAKeyInfo.DP = _dpValue.TrimLeadinZero().ToArray();
+                RSAKeyInfo.DQ = _dqValue.TrimLeadinZero().ToArray();
+                RSAKeyInfo.InverseQ = _iqValue.TrimLeadinZero().ToArray();
 
                 cs.Write(data, 0, data.Length);
 
                 cs.Close();
 
-                var DSA = new System.Security.Cryptography.DSACryptoServiceProvider();
-                DSA.ImportParameters(DSAKeyInfo);
-                var DSAFormatter = new RSAPKCS1SignatureFormatter(DSA);
-                DSAFormatter.SetHashAlgorithm("SHA1");
+                var RSA = new System.Security.Cryptography.RSACryptoServiceProvider();
+                RSA.ImportParameters(RSAKeyInfo);
+                var RSAFormatter = new RSAPKCS1SignatureFormatter(RSA);
+                RSAFormatter.SetHashAlgorithm("SHA1");
 
-                var signature = DSAFormatter.CreateSignature(sha1);
+                var signature = RSAFormatter.CreateSignature(sha1);
 
                 return new SignatureKeyData
                 {
@@ -91,7 +92,7 @@ namespace Renci.SshClient
 
         }
 
-        private bool ParseDSAPrivateKey()
+        private bool ParseRSAPrivateKey()
         {
             // ---------  Set up stream to decode the asn.1 encoded RSA private key  ------
             using (var ms = new MemoryStream(this.Data.ToArray()))
@@ -116,7 +117,17 @@ namespace Renci.SshClient
                 if (bt != 0x00)
                     return false;
 
+
                 //------  all private key components are Integer sequences ----
+                elems = GetIntegerSize(binr);
+                this._modulus = binr.ReadBytes(elems);
+
+                elems = GetIntegerSize(binr);
+                this._eValue = binr.ReadBytes(elems);
+
+                elems = GetIntegerSize(binr);
+                this._dValue = binr.ReadBytes(elems);
+
                 elems = GetIntegerSize(binr);
                 this._pValue = binr.ReadBytes(elems);
 
@@ -124,16 +135,16 @@ namespace Renci.SshClient
                 this._qValue = binr.ReadBytes(elems);
 
                 elems = GetIntegerSize(binr);
-                this._gValue = binr.ReadBytes(elems);
+                this._dpValue = binr.ReadBytes(elems);
 
                 elems = GetIntegerSize(binr);
-                this._publicKeyValue = binr.ReadBytes(elems);
+                this._dqValue = binr.ReadBytes(elems);
 
                 elems = GetIntegerSize(binr);
-                this._privateKeyValue = binr.ReadBytes(elems);
+                this._iqValue = binr.ReadBytes(elems);
+
+                return true;
             }
-
-            return true;
         }
 
         private static int GetIntegerSize(BinaryReader binr)
@@ -165,15 +176,11 @@ namespace Renci.SshClient
             return count;
         }
 
-        private class DsaPublicKeyData : SshData
+        private class RsaPublicKeyData : SshData
         {
-            public IEnumerable<byte> P { get; set; }
+            public IEnumerable<byte> Modulus { get; set; }
 
-            public IEnumerable<byte> Q { get; set; }
-
-            public IEnumerable<byte> G { get; set; }
-
-            public IEnumerable<byte> Public { get; set; }
+            public IEnumerable<byte> E { get; set; }
 
             protected override void LoadData()
             {
@@ -181,11 +188,9 @@ namespace Renci.SshClient
 
             protected override void SaveData()
             {
-                this.Write("ssh-dss");
-                this.Write(this.P.GetSshString());
-                this.Write(this.Q.GetSshString());
-                this.Write(this.G.GetSshString());
-                this.Write(this.Public.GetSshString());
+                this.Write("ssh-rsa");
+                this.Write(this.E.GetSshString());
+                this.Write(this.Modulus.GetSshString());
             }
         }
     }

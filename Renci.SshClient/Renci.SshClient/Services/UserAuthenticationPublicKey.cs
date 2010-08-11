@@ -1,7 +1,7 @@
-﻿
-using Renci.SshClient.Messages;
+﻿using Renci.SshClient.Messages;
 using Renci.SshClient.Messages.Authentication;
-namespace Renci.SshClient.Services
+
+namespace Renci.SshClient.Security
 {
     internal class UserAuthenticationPublicKey : UserAuthentication
     {

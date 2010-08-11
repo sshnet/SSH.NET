@@ -1,5 +1,6 @@
 ﻿using Renci.SshClient.Messages;
-namespace Renci.SshClient.Services
+
+namespace Renci.SshClient.Security
 {
     internal abstract class UserAuthentication
     {

@@ -5,6 +5,7 @@ using Renci.SshClient.Common;
 using Renci.SshClient.Messages;
 using Renci.SshClient.Messages.Authentication;
 using Renci.SshClient.Messages.Transport;
+using Renci.SshClient.Security;
 
 namespace Renci.SshClient.Services
 {

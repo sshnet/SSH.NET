@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Renci.SshClient.Common;
 
-namespace Renci.SshClient
+namespace Renci.SshClient.Security
 {
     internal abstract class PrivateKey
     {

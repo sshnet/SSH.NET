@@ -1,6 +1,5 @@
 ﻿
 using System;
-using System.Text;
 using System.Threading;
 using Renci.SshClient.Common;
 using Renci.SshClient.Messages;
@@ -21,10 +20,6 @@ namespace Renci.SshClient.Channels
 
         //private uint _maximumPacketSize = 0x4000;
         private uint _maximumPacketSize = 1024;
-
-        protected StringBuilder ChannelData { get; private set; }
-
-        protected StringBuilder ChannelExtendedData { get; private set; }
 
         public abstract ChannelTypes ChannelType { get; }
 
@@ -62,8 +57,6 @@ namespace Renci.SshClient.Channels
             }
 
             this.Session = session;
-            this.ChannelData = new StringBuilder((int)this._initialWindowSize);
-            this.ChannelExtendedData = new StringBuilder((int)this._initialWindowSize);
             this.WindowSize = this._initialWindowSize;  // Initial window size
             this.PacketSize = this._maximumPacketSize;     // Maximum packet size
         }

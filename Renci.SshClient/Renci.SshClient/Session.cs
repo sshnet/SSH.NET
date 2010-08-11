@@ -27,7 +27,13 @@ namespace Renci.SshClient
             var ep = new IPEndPoint(Dns.GetHostAddresses(connectionInfo.Host)[0], connectionInfo.Port);
             var socket = new Socket(ep.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
             socket.ExclusiveAddressUse = true;
-            socket.Connect(ep);
+
+            //  Connect socket with 5 seconds timeout
+            var connectResult = socket.BeginConnect(ep, null, null);
+
+            connectResult.AsyncWaitHandle.WaitOne(1000 * 15);
+
+            socket.EndConnect(connectResult);
 
             //  Get server version from the server,
             //  ignore text lines which are sent before if any
@@ -208,9 +214,9 @@ namespace Renci.SshClient
 
         internal abstract void SendMessage(Message message);
 
-        internal void WaitHandle(EventWaitHandle waitHandle)
+        internal void WaitHandle(WaitHandle waitHandle)
         {
-            var waitHandles = new EventWaitHandle[]
+            var waitHandles = new WaitHandle[]
                 {
                     this._disconnectWaitHandle,
                     this._exceptionWaitHandle,

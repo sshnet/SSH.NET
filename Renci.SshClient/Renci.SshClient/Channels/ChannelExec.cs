@@ -10,13 +10,15 @@ namespace Renci.SshClient.Channels
 
     internal class ChannelExec : Channel
     {
-        private EventWaitHandle _channelExecutionWaitHandle = new AutoResetEvent(false);
-
         private Stream _channelData;
 
         private Stream _channelExtendedData;
 
         private Exception _exception;
+
+        private ChannelAsyncResult _asyncResult;
+
+        private AsyncCallback _callback;
 
         public override ChannelTypes ChannelType
         {
@@ -28,8 +30,24 @@ namespace Renci.SshClient.Channels
         {
         }
 
-        internal void Execute(string command, Stream output, Stream extendedOutput)
+        internal ChannelAsyncResult BeginExecute(string command, Stream output, Stream extendedOutput, AsyncCallback callback, object state)
         {
+            //  Prevent from executing BeginExecute before calling EndExecute
+            if (this._asyncResult != null)
+            {
+                throw new InvalidOperationException("");
+            }
+
+            //  Create new AsyncResult object
+            this._asyncResult = new ChannelAsyncResult(this)
+            {
+                AsyncWaitHandle = new EventWaitHandle(false, EventResetMode.ManualReset),
+                IsCompleted = false,
+                AsyncState = state,
+            };
+
+            this._callback = callback;
+
             this._channelData = output;
             this._channelExtendedData = extendedOutput;
 
@@ -44,10 +62,24 @@ namespace Renci.SshClient.Channels
                 Command = command,
             });
 
+            return _asyncResult;
+        }
 
-            this.Session.WaitHandle(this._channelExecutionWaitHandle);
+        internal void EndExecute(IAsyncResult result)
+        {
+            ChannelAsyncResult channelAsyncResult = result as ChannelAsyncResult;
+
+            if (channelAsyncResult.Channel != this)
+            {
+                throw new InvalidOperationException("Invalid IAsyncResult parameter");
+            }
+
+            //Make sure that operation completed if not wait for it to finish
+            this._asyncResult.AsyncWaitHandle.WaitOne();
 
             this.Close();
+
+            this._asyncResult = null;
 
             if (this._exception != null)
             {
@@ -61,14 +93,14 @@ namespace Renci.SshClient.Channels
         {
             base.OnChannelEof();
 
-            this._channelExecutionWaitHandle.Set();
+            this.ExecutionCompleted();
         }
 
         protected override void OnChannelFailed(uint reasonCode, string description)
         {
             base.OnChannelFailed(reasonCode, description);
             this._exception = new InvalidOperationException(string.Format("Channel failed to open. Code: {0}, Reason {1}", reasonCode, description));
-            this._channelExecutionWaitHandle.Set();
+            this.ExecutionCompleted();
         }
 
         protected override void OnChannelData(string data)
@@ -92,10 +124,14 @@ namespace Renci.SshClient.Channels
             }
         }
 
-        private void Init()
+        private void ExecutionCompleted()
         {
-            this.ChannelData.Length = 0;
-            this.ChannelExtendedData.Length = 0;
+            this._asyncResult.IsCompleted = true;
+            if (this._callback != null)
+            {
+                this._callback(this._asyncResult);
+            }
+            ((EventWaitHandle)_asyncResult.AsyncWaitHandle).Set();
         }
     }
 }

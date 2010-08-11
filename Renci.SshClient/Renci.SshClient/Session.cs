@@ -26,9 +26,8 @@ namespace Renci.SshClient
         {
             var ep = new IPEndPoint(Dns.GetHostAddresses(connectionInfo.Host)[0], connectionInfo.Port);
             var socket = new Socket(ep.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            socket.ExclusiveAddressUse = true;
             socket.Connect(ep);
-            //socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, 1000 * 15);
-            //socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveTimeout, 1000 * 5);
 
             //  Get server version from the server,
             //  ignore text lines which are sent before if any
@@ -72,6 +71,11 @@ namespace Renci.SshClient
 
         private Exception _exceptionToThrow;
 
+        /// <summary>
+        /// Specifies that disconnect command was issued by the client
+        /// </summary>
+        private bool _isDisconnectByClient;
+
         public event EventHandler<MessageReceivedEventArgs> MessageReceived;
 
         protected HMAC ServerMac { get; private set; }
@@ -86,6 +90,23 @@ namespace Renci.SshClient
 
         protected Compression ClientCompression { get; private set; }
 
+        /// <summary>
+        /// Gets a value indicating whether socket connected.
+        /// </summary>
+        /// <value>
+        /// 	<c>true</c> if socket connected; otherwise, <c>false</c>.
+        /// </value>
+        protected bool IsSocketConnected
+        {
+            get
+            {
+                if (this._socket == null)
+                    return false;
+
+                return !(this._socket.Poll(1000, SelectMode.SelectRead) & (this._socket.Available == 0));
+            }
+        }
+
         //  TODO:   Consider refactor to make setter private
         public IEnumerable<byte> SessionId { get; set; }
 
@@ -95,21 +116,17 @@ namespace Renci.SshClient
 
         public ConnectionInfo ConnectionInfo { get; private set; }
 
-        public bool IsConnected
-        {
-            get
-            {
-                //  TODO:   Add condition that user is authenticated
-                //  TODO:   Add condition that connection was not terminated byt MSG_DISCONNECT
-                return this._socket.Connected;
-            }
-        }
-
         protected Session(ConnectionInfo connectionInfo, Socket socket, string serverVersion)
         {
             this.ConnectionInfo = connectionInfo;
             this._socket = socket;
-            //this._socket.ReceiveTimeout = this._waitTimeout;
+            this._socket.NoDelay = true;
+            this._socket.Blocking = true;
+            //this._socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveTimeout, 1000);
+            //this._socket.ReceiveTimeout = 1000;
+            //this._socket.LingerState = new LingerOption(false, 1);
+            //this._socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, 1);
+            //this._socket.IOControl(IOControlCode.KeepAliveValues, _inValue, _outvalue);
 
             this.ServerVersion = serverVersion;
             this.ClientVersion = string.Format("SSH-2.0-Renci.SshClient.{0}", this.GetType().Assembly.GetName().Version);
@@ -123,7 +140,7 @@ namespace Renci.SshClient
 
         public T CreateChannel<T>() where T : Channel
         {
-            if (!this._socket.Connected)
+            if (!this.IsSocketConnected)
             {
                 throw new InvalidOperationException("Not connected");
             }
@@ -142,6 +159,8 @@ namespace Renci.SshClient
             Message.RegisterMessageType<ServiceAcceptMessage>(MessageTypes.ServiceAcceptRequest);
             Message.RegisterMessageType<KeyExchangeInitMessage>(MessageTypes.KeyExchangeInit);
             Message.RegisterMessageType<NewKeysMessage>(MessageTypes.NewKeys);
+
+            this._isDisconnectByClient = false;
 
             //  Start incoming request listener
             this._messageListener = new BackgroundWorker();
@@ -187,21 +206,21 @@ namespace Renci.SshClient
                     waitHandle,
                 };
 
-            //EventWaitHandle.WaitAny(waitHandles);
+            EventWaitHandle.WaitAny(waitHandles);
 
-            var index = EventWaitHandle.WaitAny(waitHandles, this._waitTimeout);
+            //var index = EventWaitHandle.WaitAny(waitHandles, this._waitTimeout);
 
-            if (this._exceptionToThrow != null)
-            {
-                var exception = this._exceptionToThrow;
-                this._exceptionToThrow = null;
-                throw exception;
-            }
-            else if (index > waitHandles.Length)
-            {
-                //  TODO:   Issue timeout disconnect message if approapriate
-                throw new TimeoutException();
-            }
+            //if (this._exceptionToThrow != null)
+            //{
+            //    var exception = this._exceptionToThrow;
+            //    this._exceptionToThrow = null;
+            //    throw exception;
+            //}
+            //else if (index > waitHandles.Length)
+            //{
+            //    //  TODO:   Issue timeout disconnect message if approapriate
+            //    throw new TimeoutException();
+            //}
         }
 
         protected abstract Message ReceiveMessage();
@@ -302,8 +321,10 @@ namespace Renci.SshClient
 
         protected void Disconnect(DisconnectReasonCodes reasonCode, string message)
         {
-            if (this._socket != null && this._socket.Connected)
+            if (this.IsSocketConnected)
             {
+                this._isDisconnectByClient = true;
+
                 this.SendMessage(new DisconnectMessage
                 {
                     ReasonCode = reasonCode,
@@ -320,23 +341,12 @@ namespace Renci.SshClient
 
             SocketError socketErrorCode = SocketError.Success;
 
-            int bytesRead = 0;
-
-            while (bytesRead == 0 && this._socket.Connected && socketErrorCode == SocketError.Success)
-            {
-                var asynchResult = this._socket.BeginReceive(buffer, 0, length, SocketFlags.None, null, null);
-
-                while (!asynchResult.IsCompleted && this._socket.Connected)
-                {
-                    asynchResult.AsyncWaitHandle.WaitOne(this._waitTimeout);
-                }
-                bytesRead = this._socket.EndReceive(asynchResult, out socketErrorCode);
-            }
+            int bytesRead = this._socket.Receive(buffer, 0, length, SocketFlags.None, out socketErrorCode);
 
             //  Check for errors
-            if (!this._socket.Connected)
+            if (!this.IsSocketConnected)
             {
-                //  If socket was closed throw an exception
+                //  Connection was terminated either by remote server or local client
                 throw new SocketException(995); //  WSA_OPERATION_ABORTED
             }
             if (bytesRead != length && socketErrorCode == SocketError.Success)
@@ -356,14 +366,18 @@ namespace Renci.SshClient
             //  TODO:   Make sure socket is connected
             SocketError socketErrorCode;
 
-            this._socket.Send(data, 0, data.Length, SocketFlags.None, out socketErrorCode);
+            int bytesSent = this._socket.Send(data, 0, data.Length, SocketFlags.None, out socketErrorCode);
 
             //  Check for socket errors
             if (socketErrorCode != SocketError.Success)
             {
                 throw new SocketException((int)socketErrorCode);
             }
-            else if (!this._socket.Connected)
+            else if (bytesSent < data.Length)
+            {
+                throw new InvalidOperationException(string.Format("Sent {0} bytes, expected {1}.", bytesSent, data.Length));
+            }
+            else if (!this.IsSocketConnected)
             {
                 //  If socket was closed throw an exception
                 throw new SocketException(995); //  WSA_OPERATION_ABORTED
@@ -390,7 +404,7 @@ namespace Renci.SshClient
             }
 
             //  Close socket connection if still open
-            if (this._socket.Connected)
+            if (this.IsSocketConnected)
             {
                 this._socket.Disconnect(false);
             }
@@ -398,9 +412,11 @@ namespace Renci.SshClient
 
         private void MessageListener_DoWork(object sender, DoWorkEventArgs e)
         {
-            while (this._socket.Connected)
+            Exception excpetion = null;
+
+            try
             {
-                try
+                while (this.IsSocketConnected)
                 {
                     dynamic message = this.ReceiveMessage();
 
@@ -415,21 +431,36 @@ namespace Renci.SshClient
                     //  Raise an event that message received
                     this.RaiseMessageReceived(this, new MessageReceivedEventArgs(message));
                 }
-                catch (Exception exp)
+            }
+            catch (SocketException exp)
+            {
+                //  If disconnect was issued by the client then exit listnting loop
+                if (exp.ErrorCode == 995 && this._isDisconnectByClient)
                 {
-                    //  TODO:   This exception can be swolloed if it occures while running in the background, look for possible solutions
-
-                    //  In case of error issue disconntect command
-                    this.Disconnect(DisconnectReasonCodes.ByApplication, exp.ToString());
-
-                    //  Set exception that need to be thrown by the main thread
-                    this._exceptionToThrow = exp;
-
-                    this._exceptionWaitHandle.Set();
-                    //  TODO:   Set exp to some excpetion that can be thrown later by the main thread.
-
-                    break;
+                    //  Do nothing
                 }
+                else
+                {
+                    //  Set exception that need to be thrown by the main thread
+                    excpetion = exp;
+                }
+            }
+            catch (Exception exp)
+            {
+                //  TODO:   This exception can be swolloed if it occures while running in the background, look for possible solutions
+
+                //  In case of error issue disconntect command
+                this.Disconnect(DisconnectReasonCodes.ByApplication, exp.ToString());
+
+                excpetion = exp;
+            }
+
+            if (excpetion != null)
+            {
+                //  Set exception that need to be thrown by the main thread
+                this._exceptionToThrow = excpetion;
+
+                this._exceptionWaitHandle.Set();
             }
         }
 

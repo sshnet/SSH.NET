@@ -28,6 +28,8 @@ namespace Renci.SshClient.Channels
 
         private StringBuilder _packetData;
 
+        private ChannelAsyncResult _asyncResult;
+
         public override ChannelTypes ChannelType
         {
             get { return ChannelTypes.Session; }
@@ -229,7 +231,6 @@ namespace Renci.SshClient.Channels
                 this._packetData.Append(data);
             }
 
-
             if (this._packetData.Length < this._packetData.MaxCapacity)
             {
                 //  Wait for more packet data
@@ -350,6 +351,10 @@ namespace Renci.SshClient.Channels
             }
             else if (dataMessage != null)
             {
+                if (this._asyncResult != null)
+                {
+                    this._asyncResult.BytesReceived += dataMessage.Data.Length;
+                }
                 return dataMessage.Data;
             }
             else
@@ -370,6 +375,12 @@ namespace Renci.SshClient.Channels
             var message = this.ReceiveMessage<StatusMessage>();
 
             this.EnsureStatusCode(message, StatusCodes.Ok);
+
+            if (this._asyncResult != null)
+            {
+                this._asyncResult.BytesSent += data.Length;
+            }
+
         }
 
         private void RemoveRemoteFile(string fileName)

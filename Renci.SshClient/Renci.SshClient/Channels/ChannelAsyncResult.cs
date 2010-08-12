@@ -11,7 +11,17 @@ namespace Renci.SshClient.Channels
         /// <value>The channel.</value>
         internal ChannelExec Channel { get; private set; }
 
+        /// <summary>
+        /// Gets or sets the bytes received. If SFTP only file bytes are counted.
+        /// </summary>
+        /// <value>Total bytes received.</value>
         public int BytesReceived { get; set; }
+
+        /// <summary>
+        /// Gets or sets the bytes sent by SFTP.
+        /// </summary>
+        /// <value>Total bytes sent.</value>
+        public int BytesSent { get; set; }
 
         #region IAsyncResult Members
 

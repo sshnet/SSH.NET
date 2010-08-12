@@ -111,6 +111,11 @@ namespace Renci.SshClient.Channels
             {
                 this._channelData.Write(data.GetSshBytes().ToArray(), 0, data.Length);
             }
+
+            if (this._asyncResult != null)
+            {
+                this._asyncResult.BytesReceived += data.Length;
+            }
         }
 
         protected override void OnChannelExtendedData(string data, uint dataTypeCode)

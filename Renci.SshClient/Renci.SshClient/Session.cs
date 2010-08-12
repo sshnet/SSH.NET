@@ -71,10 +71,11 @@ namespace Renci.SshClient
 
         private IDictionary<uint, uint> _openChannels = new Dictionary<uint, uint>();
 
-        private EventWaitHandle _disconnectWaitHandle = new AutoResetEvent(false);
-
         private EventWaitHandle _exceptionWaitHandle = new AutoResetEvent(false);
 
+        /// <summary>
+        /// Exception that need to be thrown by waiting thread
+        /// </summary>
         private Exception _exceptionToThrow;
 
         /// <summary>
@@ -218,26 +219,31 @@ namespace Renci.SshClient
         {
             var waitHandles = new WaitHandle[]
                 {
-                    this._disconnectWaitHandle,
                     this._exceptionWaitHandle,
                     waitHandle,
                 };
 
-            EventWaitHandle.WaitAny(waitHandles);
+            //  TODO:   Signal waitandle to stop waiting, in case someone waiting for it.
+            //  TODO:   throw exception in case of _disconnectWaitHandle or _exceptionWaitHandle was signalled
 
-            //var index = EventWaitHandle.WaitAny(waitHandles, this._waitTimeout);
+            var index = 0;
+#if NOTIMEOUT
+            index = EventWaitHandle.WaitAny(waitHandles);
+#else
+            index = EventWaitHandle.WaitAny(waitHandles, this._waitTimeout);
+#endif
+            if (this._exceptionToThrow != null)
+            {
+                var exception = this._exceptionToThrow;
+                this._exceptionToThrow = null;
+                throw exception;
+            }
+            else if (index > waitHandles.Length)
+            {
+                //  TODO:   Issue timeout disconnect message if approapriate
+                throw new TimeoutException();
+            }
 
-            //if (this._exceptionToThrow != null)
-            //{
-            //    var exception = this._exceptionToThrow;
-            //    this._exceptionToThrow = null;
-            //    throw exception;
-            //}
-            //else if (index > waitHandles.Length)
-            //{
-            //    //  TODO:   Issue timeout disconnect message if approapriate
-            //    throw new TimeoutException();
-            //}
         }
 
         protected abstract Message ReceiveMessage();

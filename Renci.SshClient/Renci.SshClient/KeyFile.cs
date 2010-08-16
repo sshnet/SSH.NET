@@ -14,7 +14,6 @@ namespace Renci.SshClient
         private Regex _headerLineContinue = new Regex(@"(?<headerValue>[^:]+(?<continue>\\)?)");
         private Regex _endKeyLine = new Regex(@"----[ ]*END (?<keyName>.+) PRIVATE KEY[ ]*----");
 
-        //private PrivateKey _key;
         private CryptoPrivateKey _key;
 
         public string AlgorithmName
@@ -22,7 +21,6 @@ namespace Renci.SshClient
             get
             {
                 return this._key.Name;
-                //return this._key.AlgorithmName;
             }
         }
 
@@ -31,7 +29,6 @@ namespace Renci.SshClient
             get
             {
                 return this._key.GetPublicKey().GetBytes();
-                //return this._key.PublicKey;
             }
         }
 
@@ -45,18 +42,19 @@ namespace Renci.SshClient
 
         }
 
-        public void Open(string fileName)
+        public void Open(Stream privateKey, string passPhrase)
         {
-            using (var keyFile = File.OpenText(fileName))
-            {
-                var headerTag = string.Empty;
-                var headerValue = string.Empty;
-                var headerValueContinue = false;
-                var data = new StringBuilder();
-                var keyName = string.Empty;
+            var headerTag = string.Empty;
+            var headerValue = string.Empty;
+            var headerValueContinue = false;
+            var data = new StringBuilder();
+            var keyName = string.Empty;
 
-                var fileLine = string.Empty;
-                while ((fileLine = keyFile.ReadLine()) != null)
+            var fileLine = string.Empty;
+
+            using (StreamReader sr = new StreamReader(privateKey))
+            {
+                while ((fileLine = sr.ReadLine()) != null)
                 {
                     var match = _beginKeyLine.Match(fileLine);
                     if (match.Success)
@@ -113,29 +111,37 @@ namespace Renci.SshClient
 
                     data.Append(fileLine);
                 }
-
-                if (string.IsNullOrEmpty(keyName))
-                {
-                    throw new InvalidDataException("Invalid Public key file");
-                }
-
-                switch (keyName)
-                {
-                    case "RSA":
-                        //this._key = new PrivateKeyRsa(System.Convert.FromBase64String(data.ToString()));
-                        this._key = new CryptoPrivateKeyRsa();
-
-                        break;
-                    case "DSA":
-                        //this._key = new PrivateKeyDsa(System.Convert.FromBase64String(data.ToString()));
-                        this._key = new CryptoPrivateKeyDss();
-                        break;
-                    default:
-                        throw new NotSupportedException(string.Format("Key '{0}' is not supported.", keyName));
-                }
-
-                this._key.Load(System.Convert.FromBase64String(data.ToString()));
             }
+
+            if (string.IsNullOrEmpty(keyName))
+            {
+                throw new InvalidDataException("Invalid Public key file");
+            }
+
+            switch (keyName)
+            {
+                case "RSA":
+                    this._key = new CryptoPrivateKeyRsa();
+
+                    break;
+                case "DSA":
+                    this._key = new CryptoPrivateKeyDss();
+                    break;
+                default:
+                    throw new NotSupportedException(string.Format("Key '{0}' is not supported.", keyName));
+            }
+
+            this._key.Load(System.Convert.FromBase64String(data.ToString()), passPhrase.GetSshBytes());
+        }
+
+        public void Open(string fileName)
+        {
+            this.Open(File.Open(fileName, FileMode.Open), null);
+        }
+
+        public void Open(string fileName, string passPhrase)
+        {
+            this.Open(File.Open(fileName, FileMode.Open), passPhrase);
         }
 
     }

@@ -22,11 +22,15 @@ namespace Renci.SshClient.Security
             get { return "ssh-rsa"; }
         }
 
-        public override void Load(IEnumerable<byte> data)
+        public override void Load(IEnumerable<byte> data, IEnumerable<byte> passPhrase)
         {
-            // ---------  Set up stream to decode the asn.1 encoded RSA private key  ------
+            if (passPhrase != null)
+            {
+                throw new NotSupportedException("Keys with passphrase currently not supported");
+            }
+
             using (var ms = new MemoryStream(data.ToArray()))
-            using (var binr = new BinaryReader(ms)) //wrap Memory Stream with BinaryReader for easy reading
+            using (var binr = new BinaryReader(ms))
             {
                 byte bt = 0;
                 ushort twobytes = 0;
@@ -114,11 +118,6 @@ namespace Renci.SshClient.Security
                     Signature = signature,
                 }.GetBytes();
             }
-        }
-
-        public override bool VerifySignature(IEnumerable<byte> hash, IEnumerable<byte> signature)
-        {
-            throw new NotImplementedException();
         }
 
         public override IEnumerable<byte> GetBytes()

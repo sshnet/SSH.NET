@@ -19,8 +19,13 @@ namespace Renci.SshClient.Security
             get { return "ssh-dss"; }
         }
 
-        public override void Load(IEnumerable<byte> data)
+        public override void Load(IEnumerable<byte> data, IEnumerable<byte> passPhrase)
         {
+            if (passPhrase != null)
+            {
+                throw new NotSupportedException("Keys with passphrase currently not supported");
+            }
+
             using (var ms = new MemoryStream(data.ToArray()))
             using (var binr = new BinaryReader(ms)) //wrap Memory Stream with BinaryReader for easy reading
             {
@@ -96,11 +101,6 @@ namespace Renci.SshClient.Security
                     Signature = signature,
                 }.GetBytes();
             }
-        }
-
-        public override bool VerifySignature(IEnumerable<byte> hash, IEnumerable<byte> signature)
-        {
-            throw new NotImplementedException();
         }
 
         public override IEnumerable<byte> GetBytes()

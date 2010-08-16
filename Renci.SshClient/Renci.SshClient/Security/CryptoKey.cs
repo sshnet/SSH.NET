@@ -8,8 +8,6 @@ namespace Renci.SshClient.Security
 
         public abstract void Load(IEnumerable<byte> data);
 
-        public abstract bool VerifySignature(IEnumerable<byte> hash, IEnumerable<byte> signature);
-
         public abstract IEnumerable<byte> GetBytes();
     }
 }

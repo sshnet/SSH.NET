@@ -3,20 +3,11 @@ using Renci.SshClient.Common;
 
 namespace Renci.SshClient.Security
 {
-    internal abstract class PrivateKey
+    public abstract class CryptoPrivateKey : CryptoKey
     {
-        public abstract string AlgorithmName { get; }
+        public abstract CryptoPublicKey GetPublicKey();
 
-        protected IEnumerable<byte> Data { get; private set; }
-
-        public abstract IEnumerable<byte> PublicKey { get; }
-
-        public PrivateKey(IEnumerable<byte> data)
-        {
-            this.Data = data;
-        }
-
-        public abstract IEnumerable<byte> GetSignature(IEnumerable<byte> sessionId);
+        public abstract IEnumerable<byte> GetSignature(IEnumerable<byte> key);
 
         protected class SignatureKeyData : SshData
         {
@@ -34,6 +25,5 @@ namespace Renci.SshClient.Security
                 this.Write(this.Signature.GetSshString());
             }
         }
-
     }
 }

@@ -14,8 +14,7 @@ namespace Renci.SshClient
 
         public static IDictionary<string, Func<IEnumerable<byte>, HMAC>> HmacAlgorithms { get; private set; }
 
-        public static IDictionary<string, Func<IEnumerable<byte>, Signature>> HostKeyAlgorithms { get; private set; }
-
+        public static IDictionary<string, Func<CryptoPublicKey>> HostKeyAlgorithms { get; private set; }
 
         static Settings()
         {
@@ -39,10 +38,10 @@ namespace Renci.SshClient
                 {"hmac-sha1", (key) => { return new System.Security.Cryptography.HMACSHA1(key.Take(20).ToArray());}},
             };
 
-            Settings.HostKeyAlgorithms = new Dictionary<string, Func<IEnumerable<byte>, Signature>>()
+            Settings.HostKeyAlgorithms = new Dictionary<string, Func<CryptoPublicKey>>()
             {
-                {"ssh-rsa", (hostKeyData) => { return new SignatureRsa(hostKeyData);}},
-                {"ssh-dsa", (hostKeyData) => { return new SignatureDss(hostKeyData);;}}, //  TODO:   Need to be tested
+                {"ssh-rsa", () => { return new CryptoPublicKeyRsa();}},
+                {"ssh-dsa", () => { return new CryptoPublicKeyDss();}}, //  TODO:   Need to be tested
             };
         }
     }

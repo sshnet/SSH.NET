@@ -1,41 +1,62 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 
 namespace Renci.SshClient.Security
 {
-    internal class SignatureDss : Signature
+    public class CryptoPublicKeyDss : CryptoPublicKey
     {
+        private IEnumerable<byte> _p;
+        private IEnumerable<byte> _q;
+        private IEnumerable<byte> _g;
+        private IEnumerable<byte> _x;
+
         public override string Name
         {
-            get { return "ssh-dss"; }
+            get { throw new NotImplementedException(); }
         }
 
-        public SignatureDss(IEnumerable<byte> data)
-            : base(data)
+        public CryptoPublicKeyDss()
         {
 
         }
 
-        public override bool ValidateSignature(IEnumerable<byte> hash, IEnumerable<byte> signature)
+        public CryptoPublicKeyDss(IEnumerable<byte> p, IEnumerable<byte> q, IEnumerable<byte> g, IEnumerable<byte> x)
         {
-            var pLength = BitConverter.ToUInt32(this.Data.Take(4).Reverse().ToArray(), 0);
+            this._p = p;
+            this._q = q;
+            this._g = g;
+            this._x = x;
+        }
 
-            var pData = this.Data.Skip(4).Take((int)pLength).ToArray();
+        public override void Load(IEnumerable<byte> data)
+        {
+            using (var ms = new MemoryStream(data.ToArray()))
+            using (var br = new BinaryReader(ms))
+            {
 
-            var qLength = BitConverter.ToUInt32(this.Data.Skip(4 + (int)pLength).Take(4).Reverse().ToArray(), 0);
+                var pl = BitConverter.ToUInt32(br.ReadBytes(4).Reverse().ToArray(), 0);
 
-            var qData = this.Data.Skip(4 + (int)pLength + 4).Take((int)qLength).ToArray();
+                _p = br.ReadBytes((int)pl);
 
-            var gLength = BitConverter.ToUInt32(this.Data.Skip(4 + (int)pLength + 4 + (int)qLength).Take(4).Reverse().ToArray(), 0);
+                var ql = BitConverter.ToUInt32(br.ReadBytes(4).Reverse().ToArray(), 0);
 
-            var gData = this.Data.Skip(4 + (int)pLength + 4 + (int)qLength + 4).Take((int)gLength).ToArray();
+                _q = br.ReadBytes((int)ql);
 
-            var xLength = BitConverter.ToUInt32(this.Data.Skip(4 + (int)pLength + 4 + (int)qLength + 4 + (int)gLength).Take(4).Reverse().ToArray(), 0);
+                var gl = BitConverter.ToUInt32(br.ReadBytes(4).Reverse().ToArray(), 0);
 
-            var xData = this.Data.Skip(4 + (int)pLength + 4 + (int)qLength + 4 + (int)xLength + 4).Take((int)xLength).ToArray();
+                _g = br.ReadBytes((int)gl);
 
+                var xl = BitConverter.ToUInt32(br.ReadBytes(4).Reverse().ToArray(), 0);
+
+                _x = br.ReadBytes((int)xl);
+            }
+        }
+
+        public override bool VerifySignature(IEnumerable<byte> hash, IEnumerable<byte> signature)
+        {
             using (var sha1 = new SHA1CryptoServiceProvider())
             {
                 using (var cs = new CryptoStream(System.IO.Stream.Null, sha1, CryptoStreamMode.Write))
@@ -49,10 +70,10 @@ namespace Renci.SshClient.Security
                 {
                     dsa.ImportParameters(new DSAParameters
                     {
-                        X = xData.TrimLeadinZero().ToArray(),
-                        P = pData.TrimLeadinZero().ToArray(),
-                        Q = qData.TrimLeadinZero().ToArray(),
-                        G = gData.TrimLeadinZero().ToArray(),
+                        X = _x.TrimLeadinZero().ToArray(),
+                        P = _p.TrimLeadinZero().ToArray(),
+                        Q = _q.TrimLeadinZero().ToArray(),
+                        G = _g.TrimLeadinZero().ToArray(),
                     });
                     var dsaDeformatter = new DSASignatureDeformatter(dsa);
                     dsaDeformatter.SetHashAlgorithm("SHA1");
@@ -86,6 +107,11 @@ namespace Renci.SshClient.Security
                     return dsaDeformatter.VerifySignature(sha1, sig);
                 }
             }
+        }
+
+        public override IEnumerable<byte> GetBytes()
+        {
+            throw new NotImplementedException();
         }
     }
 }

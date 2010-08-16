@@ -296,9 +296,11 @@ namespace Renci.SshClient.Security
 
             var data = bytes.Skip(4 + algorithmName.Length);
 
-            var signature = Settings.HostKeyAlgorithms[algorithmName](data);
+            CryptoPublicKey key = Settings.HostKeyAlgorithms[algorithmName]();
 
-            return signature.ValidateSignature(this.ExchangeHash, this.Signature.GetSshBytes());
+            key.Load(data);
+
+            return key.VerifySignature(this.ExchangeHash, this.Signature.GetSshBytes());
         }
 
         protected void SendMessage(Message message)

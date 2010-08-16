@@ -14,13 +14,15 @@ namespace Renci.SshClient
         private Regex _headerLineContinue = new Regex(@"(?<headerValue>[^:]+(?<continue>\\)?)");
         private Regex _endKeyLine = new Regex(@"----[ ]*END (?<keyName>.+) PRIVATE KEY[ ]*----");
 
-        private PrivateKey _key;
+        //private PrivateKey _key;
+        private CryptoPrivateKey _key;
 
         public string AlgorithmName
         {
             get
             {
-                return this._key.AlgorithmName;
+                return this._key.Name;
+                //return this._key.AlgorithmName;
             }
         }
 
@@ -28,7 +30,8 @@ namespace Renci.SshClient
         {
             get
             {
-                return this._key.PublicKey;
+                return this._key.GetPublicKey().GetBytes();
+                //return this._key.PublicKey;
             }
         }
 
@@ -119,15 +122,19 @@ namespace Renci.SshClient
                 switch (keyName)
                 {
                     case "RSA":
-                        this._key = new PrivateKeyRsa(System.Convert.FromBase64String(data.ToString()));
+                        //this._key = new PrivateKeyRsa(System.Convert.FromBase64String(data.ToString()));
+                        this._key = new CryptoPrivateKeyRsa();
+
                         break;
                     case "DSA":
-                        this._key = new PrivateKeyDsa(System.Convert.FromBase64String(data.ToString()));
+                        //this._key = new PrivateKeyDsa(System.Convert.FromBase64String(data.ToString()));
+                        this._key = new CryptoPrivateKeyDss();
                         break;
                     default:
                         throw new NotSupportedException(string.Format("Key '{0}' is not supported.", keyName));
                 }
 
+                this._key.Load(System.Convert.FromBase64String(data.ToString()));
             }
         }
 

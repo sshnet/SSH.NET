@@ -22,7 +22,7 @@ namespace Renci.SshClient.Security
             get { return "ssh-rsa"; }
         }
 
-        public override void Load(IEnumerable<byte> data, IEnumerable<byte> passPhrase)
+        public override void Load(IEnumerable<byte> data, string passPhrase)
         {
             if (passPhrase != null)
             {
@@ -92,14 +92,14 @@ namespace Renci.SshClient.Security
             {
                 RSAParameters RSAKeyInfo = new RSAParameters();
 
-                RSAKeyInfo.Exponent = _exponent.TrimLeadinZero().ToArray();
-                RSAKeyInfo.D = _dValue.TrimLeadinZero().ToArray();
-                RSAKeyInfo.Modulus = _modulus.TrimLeadinZero().ToArray();
-                RSAKeyInfo.P = _pValue.TrimLeadinZero().ToArray();
-                RSAKeyInfo.Q = _qValue.TrimLeadinZero().ToArray();
-                RSAKeyInfo.DP = _dpValue.TrimLeadinZero().ToArray();
-                RSAKeyInfo.DQ = _dqValue.TrimLeadinZero().ToArray();
-                RSAKeyInfo.InverseQ = _inverseQ.TrimLeadinZero().ToArray();
+                RSAKeyInfo.Exponent = this._exponent.TrimLeadinZero().ToArray();
+                RSAKeyInfo.D = this._dValue.TrimLeadinZero().ToArray();
+                RSAKeyInfo.Modulus = this._modulus.TrimLeadinZero().ToArray();
+                RSAKeyInfo.P = this._pValue.TrimLeadinZero().ToArray();
+                RSAKeyInfo.Q = this._qValue.TrimLeadinZero().ToArray();
+                RSAKeyInfo.DP = this._dpValue.TrimLeadinZero().ToArray();
+                RSAKeyInfo.DQ = this._dqValue.TrimLeadinZero().ToArray();
+                RSAKeyInfo.InverseQ = this._inverseQ.TrimLeadinZero().ToArray();
 
                 cs.Write(data, 0, data.Length);
 

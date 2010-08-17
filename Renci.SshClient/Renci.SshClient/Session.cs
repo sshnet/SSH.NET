@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Security.Authentication;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
@@ -14,7 +15,6 @@ using Renci.SshClient.Messages;
 using Renci.SshClient.Messages.Connection;
 using Renci.SshClient.Messages.Transport;
 using Renci.SshClient.Security;
-using Renci.SshClient.Services;
 
 namespace Renci.SshClient
 {
@@ -59,19 +59,19 @@ namespace Renci.SshClient
 
         private Socket _socket;
 
-        private int _waitTimeout = 5 * 1000;    //  Set default receive timeout to 5 seconds
-
         private KeyExchange _keyExhcange;
 
         private BackgroundWorker _messageListener;
 
         private EventWaitHandle _keyExhangedFinishedWaitHandle = new AutoResetEvent(false);
 
-        private IDictionary<ServiceNames, Service> _services = new Dictionary<ServiceNames, Service>();
+        private EventWaitHandle _serviceAccepted = new AutoResetEvent(false);
+
+        private EventWaitHandle _exceptionWaitHandle = new AutoResetEvent(false);
 
         private IDictionary<uint, uint> _openChannels = new Dictionary<uint, uint>();
 
-        private EventWaitHandle _exceptionWaitHandle = new AutoResetEvent(false);
+        private IDictionary<string, UserAuthentication> _executedAuthenticationMethods = new Dictionary<string, UserAuthentication>();
 
         /// <summary>
         /// Exception that need to be thrown by waiting thread
@@ -82,6 +82,11 @@ namespace Renci.SshClient
         /// Specifies that disconnect command was issued by the client
         /// </summary>
         private bool _isDisconnectByClient;
+
+        /// <summary>
+        /// Specifies weither connection is authenticated
+        /// </summary>
+        private bool _isAuthenticated;
 
         public event EventHandler<MessageReceivedEventArgs> MessageReceived;
 
@@ -195,13 +200,38 @@ namespace Renci.SshClient
                 return;
             }
 
-            var authenticationService = new UserAuthenticationService(this);
-
-            authenticationService.AuthenticateUser();
-
-            if (!authenticationService.IsAuthenticated)
+            //  Request user authorization service
+            this.SendMessage(new ServiceRequestMessage
             {
-                throw new InvalidOperationException(string.Format("User cannot be authenticated. Reason: {0}.", authenticationService.ErrorMessage));
+                ServiceName = ServiceNames.UserAuthentication,
+            });
+
+            //  Wait for service to be accepted
+            this.WaitHandle(this._serviceAccepted);
+
+            //  This implemention will ignore supported by server methods and will try to authenticated user using method supported by the client.
+            string errorMessage = null; //  Hold last authentication error if any
+            foreach (var methodName in Settings.SupportedAuthenticationMethods.Keys)
+            {
+                var userAuthentication = Settings.SupportedAuthenticationMethods[methodName](this);
+
+                if (userAuthentication.Execute())
+                {
+                    if (userAuthentication.IsAuthenticated)
+                    {
+                        this._isAuthenticated = true;
+                        break;
+                    }
+                    else
+                    {
+                        errorMessage = userAuthentication.ErrorMessage;
+                    }
+                }
+            }
+
+            if (!this._isAuthenticated)
+            {
+                throw new AuthenticationException(errorMessage ?? "User cannot be authenticated.");
             }
         }
 
@@ -277,6 +307,7 @@ namespace Renci.SshClient
 
         protected virtual void HandleMessage(ServiceAcceptMessage message)
         {
+            this._serviceAccepted.Set();
         }
 
         protected virtual void HandleMessage(ServiceRequestMessage message)

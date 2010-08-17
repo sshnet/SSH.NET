@@ -16,6 +16,8 @@ namespace Renci.SshClient
 
         public static IDictionary<string, Func<CryptoPublicKey>> HostKeyAlgorithms { get; private set; }
 
+        public static IDictionary<string, Func<Session, UserAuthentication>> SupportedAuthenticationMethods { get; private set; }
+
         static Settings()
         {
             Settings.KeyExchangeAlgorithms = new Dictionary<string, Func<Session, KeyExchange>>()
@@ -42,6 +44,13 @@ namespace Renci.SshClient
             {
                 {"ssh-rsa", () => { return new CryptoPublicKeyRsa();}},
                 {"ssh-dsa", () => { return new CryptoPublicKeyDss();}}, //  TODO:   Need to be tested
+            };
+
+            Settings.SupportedAuthenticationMethods = new Dictionary<string, Func<Session, UserAuthentication>>()
+            {
+                {"none", (session)=> {return new UserAuthenticationNone(session);}},
+                {"publickey", (session)=> {return new UserAuthenticationPublicKey(session);}},
+                {"password", (session)=> {return new UserAuthenticationPassword(session);}},
             };
         }
     }

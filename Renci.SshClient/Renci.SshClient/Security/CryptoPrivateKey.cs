@@ -10,7 +10,7 @@ namespace Renci.SshClient.Security
             this.Load(data, null);
         }
 
-        public abstract void Load(IEnumerable<byte> data, IEnumerable<byte> passPhrase);
+        public abstract void Load(IEnumerable<byte> data, string passPhrase);
 
         public abstract CryptoPublicKey GetPublicKey();
 

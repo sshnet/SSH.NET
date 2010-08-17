@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
+using Renci.SshClient.Common;
 
 namespace Renci.SshClient.Security
 {
@@ -111,7 +112,38 @@ namespace Renci.SshClient.Security
 
         public override IEnumerable<byte> GetBytes()
         {
-            throw new NotImplementedException();
+            return new DsaPublicKeyData
+            {
+                P = this._p,
+                Q = this._q,
+                G = this._g,
+                Public = this._x,
+            }.GetBytes();
         }
+
+        private class DsaPublicKeyData : SshData
+        {
+            public IEnumerable<byte> P { get; set; }
+
+            public IEnumerable<byte> Q { get; set; }
+
+            public IEnumerable<byte> G { get; set; }
+
+            public IEnumerable<byte> Public { get; set; }
+
+            protected override void LoadData()
+            {
+            }
+
+            protected override void SaveData()
+            {
+                this.Write("ssh-dss");
+                this.Write(this.P.GetSshString());
+                this.Write(this.Q.GetSshString());
+                this.Write(this.G.GetSshString());
+                this.Write(this.Public.GetSshString());
+            }
+        }
+
     }
 }

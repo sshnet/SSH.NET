@@ -19,7 +19,7 @@ namespace Renci.SshClient.Security
             get { return "ssh-dss"; }
         }
 
-        public override void Load(IEnumerable<byte> data, IEnumerable<byte> passPhrase)
+        public override void Load(IEnumerable<byte> data, string passPhrase)
         {
             if (passPhrase != null)
             {
@@ -68,7 +68,7 @@ namespace Renci.SshClient.Security
 
         public override CryptoPublicKey GetPublicKey()
         {
-            return new CryptoPublicKeyDss();
+            return new CryptoPublicKeyDss(this._p, this._q, this._g, this._x);
         }
 
         public override IEnumerable<byte> GetSignature(IEnumerable<byte> key)
@@ -90,7 +90,7 @@ namespace Renci.SshClient.Security
 
                 var DSA = new System.Security.Cryptography.DSACryptoServiceProvider();
                 DSA.ImportParameters(DSAKeyInfo);
-                var DSAFormatter = new RSAPKCS1SignatureFormatter(DSA);
+                var DSAFormatter = new DSASignatureFormatter(DSA);
                 DSAFormatter.SetHashAlgorithm("SHA1");
 
                 var signature = DSAFormatter.CreateSignature(sha1);

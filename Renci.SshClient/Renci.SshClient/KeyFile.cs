@@ -131,7 +131,7 @@ namespace Renci.SshClient
                     throw new NotSupportedException(string.Format("Key '{0}' is not supported.", keyName));
             }
 
-            this._key.Load(System.Convert.FromBase64String(data.ToString()), passPhrase.GetSshBytes());
+            this._key.Load(System.Convert.FromBase64String(data.ToString()), passPhrase);
         }
 
         public void Open(string fileName)

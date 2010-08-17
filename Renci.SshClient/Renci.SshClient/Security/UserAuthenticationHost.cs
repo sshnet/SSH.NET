@@ -1,4 +1,4 @@
-﻿namespace Renci.SshClient.Services
+﻿namespace Renci.SshClient.Security
 {
     internal class UserAuthenticationHost : UserAuthentication
     {
@@ -15,7 +15,12 @@
 
         }
 
-        public override bool Start()
+        protected override bool Run()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        protected override void HandleMessage<T>(T message)
         {
             throw new System.NotImplementedException();
         }

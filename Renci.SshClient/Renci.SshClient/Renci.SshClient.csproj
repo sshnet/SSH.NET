@@ -118,7 +118,7 @@
     <Compile Include="Security\KeyExchangeDiffieHellman.cs" />
     <Compile Include="Security\KeyExchangeFailedEventArgs.cs" />
     <Compile Include="Security\KeyExchangeSendMessageEventArgs.cs" />
-    <Compile Include="KeyFile.cs" />
+    <Compile Include="PrivateKeyFile.cs" />
     <Compile Include="Messages\Connection\ChannelMessage.cs" />
     <Compile Include="Messages\Connection\RequestNames.cs" />
     <Compile Include="Security\UserAuthentication.cs" />
@@ -199,7 +199,6 @@
     <Compile Include="Shell.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Services\" />
     <Folder Include="Shell\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

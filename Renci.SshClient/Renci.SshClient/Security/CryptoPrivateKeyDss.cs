@@ -11,8 +11,8 @@ namespace Renci.SshClient.Security
         private byte[] _p;
         private byte[] _q;
         private byte[] _g;
-        private byte[] _x;
         private byte[] _publicKey;
+        private byte[] _privateKey;
 
         public override string Name
         {
@@ -62,13 +62,13 @@ namespace Renci.SshClient.Security
                 this._publicKey = binr.ReadBytes(elems);
 
                 elems = CryptoPrivateKeyDss.GetIntegerSize(binr);
-                this._x = binr.ReadBytes(elems);
+                this._privateKey = binr.ReadBytes(elems);
             }
         }
 
         public override CryptoPublicKey GetPublicKey()
         {
-            return new CryptoPublicKeyDss(this._p, this._q, this._g, this._x);
+            return new CryptoPublicKeyDss(this._p, this._q, this._g, this._publicKey);
         }
 
         public override IEnumerable<byte> GetSignature(IEnumerable<byte> key)
@@ -79,7 +79,7 @@ namespace Renci.SshClient.Security
             {
                 DSAParameters DSAKeyInfo = new DSAParameters();
 
-                DSAKeyInfo.X = this._x.TrimLeadinZero().ToArray();
+                DSAKeyInfo.X = this._privateKey.TrimLeadinZero().ToArray();
                 DSAKeyInfo.P = this._p.TrimLeadinZero().ToArray();
                 DSAKeyInfo.Q = this._q.TrimLeadinZero().ToArray();
                 DSAKeyInfo.G = this._g.TrimLeadinZero().ToArray();

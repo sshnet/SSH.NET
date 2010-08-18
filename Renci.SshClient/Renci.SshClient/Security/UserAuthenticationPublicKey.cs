@@ -30,7 +30,6 @@ namespace Renci.SshClient.Security
 
             Message.RegisterMessageType<InformationRequestMessage>(MessageTypes.UserAuthenticationInformationRequest);
 
-
             //  TODO:   Complete full public key implemention which includes other messages
             var message = new PublicKeyRequestMessage
             {
@@ -38,15 +37,12 @@ namespace Renci.SshClient.Security
                 Username = this.Session.ConnectionInfo.Username,
                 PublicKeyAlgorithmName = this.Session.ConnectionInfo.KeyFile.AlgorithmName,
                 PublicKeyData = this.Session.ConnectionInfo.KeyFile.PublicKey,
-                Signature = new byte[] { },
-                //Signature = this.Session.ConnectionInfo.KeyFile.GetSignature(this.Session.SessionId),
+                //Signature = new byte[] { },
             };
 
             var signatureData = new SignatureData(message, this.Session.SessionId.GetSshString()).GetBytes();
 
-            var signature = this.Session.ConnectionInfo.KeyFile.GetSignature(signatureData);
-
-            message.Signature = signature;
+            message.Signature = this.Session.ConnectionInfo.KeyFile.GetSignature(signatureData);
 
             this.Session.SendMessage(message);
 

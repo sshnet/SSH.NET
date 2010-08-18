@@ -12,7 +12,7 @@ namespace Renci.SshClient.Security
         private IEnumerable<byte> _p;
         private IEnumerable<byte> _q;
         private IEnumerable<byte> _g;
-        private IEnumerable<byte> _x;
+        private IEnumerable<byte> _publicKey;
 
         public override string Name
         {
@@ -24,12 +24,12 @@ namespace Renci.SshClient.Security
 
         }
 
-        public CryptoPublicKeyDss(IEnumerable<byte> p, IEnumerable<byte> q, IEnumerable<byte> g, IEnumerable<byte> x)
+        public CryptoPublicKeyDss(IEnumerable<byte> p, IEnumerable<byte> q, IEnumerable<byte> g, IEnumerable<byte> publicKey)
         {
             this._p = p;
             this._q = q;
             this._g = g;
-            this._x = x;
+            this._publicKey = publicKey;
         }
 
         public override void Load(IEnumerable<byte> data)
@@ -52,7 +52,7 @@ namespace Renci.SshClient.Security
 
                 var xl = BitConverter.ToUInt32(br.ReadBytes(4).Reverse().ToArray(), 0);
 
-                _x = br.ReadBytes((int)xl);
+                _publicKey = br.ReadBytes((int)xl);
             }
         }
 
@@ -71,7 +71,7 @@ namespace Renci.SshClient.Security
                 {
                     dsa.ImportParameters(new DSAParameters
                     {
-                        X = _x.TrimLeadinZero().ToArray(),
+                        X = _publicKey.TrimLeadinZero().ToArray(),
                         P = _p.TrimLeadinZero().ToArray(),
                         Q = _q.TrimLeadinZero().ToArray(),
                         G = _g.TrimLeadinZero().ToArray(),
@@ -117,7 +117,7 @@ namespace Renci.SshClient.Security
                 P = this._p,
                 Q = this._q,
                 G = this._g,
-                Public = this._x,
+                Public = this._publicKey,
             }.GetBytes();
         }
 
@@ -144,6 +144,5 @@ namespace Renci.SshClient.Security
                 this.Write(this.Public.GetSshString());
             }
         }
-
     }
 }

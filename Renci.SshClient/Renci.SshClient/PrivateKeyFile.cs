@@ -7,7 +7,7 @@ using Renci.SshClient.Security;
 
 namespace Renci.SshClient
 {
-    public class KeyFile
+    public class PrivateKeyFile
     {
         private Regex _beginKeyLine = new Regex(@"----[ ]*BEGIN (?<keyName>.+) PRIVATE KEY[ ]*----");
         private Regex _headerLine = new Regex(@"(?<headerTag>[^:]{1,64}):[ ](?<headerValue>[^:]+(?<continue>\\)?)");
@@ -37,12 +37,27 @@ namespace Renci.SshClient
             return this._key.GetSignature(sessionId);
         }
 
-        public KeyFile()
+        public PrivateKeyFile(Stream privateKey)
         {
-
+            this.Open(privateKey, null);
         }
 
-        public void Open(Stream privateKey, string passPhrase)
+        public PrivateKeyFile(string fileName)
+        {
+            this.Open(File.Open(fileName, FileMode.Open), null);
+        }
+
+        public PrivateKeyFile(string fileName, string passPhrase)
+        {
+            this.Open(File.Open(fileName, FileMode.Open), passPhrase);
+        }
+
+        public PrivateKeyFile(Stream privateKey, string passPhrase)
+        {
+            this.Open(privateKey, passPhrase);
+        }
+
+        private void Open(Stream privateKey, string passPhrase)
         {
             var headerTag = string.Empty;
             var headerValue = string.Empty;
@@ -132,16 +147,6 @@ namespace Renci.SshClient
             }
 
             this._key.Load(System.Convert.FromBase64String(data.ToString()), passPhrase);
-        }
-
-        public void Open(string fileName)
-        {
-            this.Open(File.Open(fileName, FileMode.Open), null);
-        }
-
-        public void Open(string fileName, string passPhrase)
-        {
-            this.Open(File.Open(fileName, FileMode.Open), passPhrase);
         }
 
     }

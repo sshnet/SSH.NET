@@ -10,7 +10,7 @@
 
         public string Password { get; set; }
 
-        public KeyFile KeyFile { get; set; }
+        public PrivateKeyFile KeyFile { get; set; }
 
         public ConnectionInfo()
         {

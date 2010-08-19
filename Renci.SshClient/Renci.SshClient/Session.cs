@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -10,6 +8,7 @@ using System.Security.Authentication;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using Renci.SshClient.Channels;
 using Renci.SshClient.Common;
 using Renci.SshClient.Messages;
@@ -65,13 +64,13 @@ namespace Renci.SshClient
 
         private Socket _socket;
 
-        private NetworkStream _sockeStream;
+        private NetworkStream _socketStream;
 
         private int _waitTimeout = 1000 * 10;   //  Default 10 sec wait timeout
 
         private KeyExchange _keyExhcange;
 
-        private BackgroundWorker _messageListener;
+        private Task _messageListener;
 
         private EventWaitHandle _keyExhangedFinishedWaitHandle = new AutoResetEvent(false);
 
@@ -142,7 +141,7 @@ namespace Renci.SshClient
             this.ServerVersion = serverVersion;
             this.ClientVersion = string.Format("SSH-2.0-Renci.SshClient.{0}", this.GetType().Assembly.GetName().Version);
 
-            this._sockeStream = new NetworkStream(socket);
+            this._socketStream = new NetworkStream(socket);
         }
 
         private static IDictionary<Type, Func<Session, Channel>> _channels = new Dictionary<Type, Func<Session, Channel>>()
@@ -162,70 +161,71 @@ namespace Renci.SshClient
 
         public void Connect()
         {
-            //  If connected dont connect again
-            if (this.IsConnected)
-                return;
-
-            this.IsConnected = true;
-
-            this.Write(Encoding.ASCII.GetBytes(string.Format("{0}\n", this.ClientVersion)));
-
-            //  Register Transport response messages
-            this.RegisterMessageType<DisconnectMessage>(MessageTypes.Disconnect);
-            this.RegisterMessageType<IgnoreMessage>(MessageTypes.Ignore);
-            this.RegisterMessageType<UnimplementedMessage>(MessageTypes.Unimplemented);
-            this.RegisterMessageType<DebugMessage>(MessageTypes.Debug);
-            this.RegisterMessageType<ServiceAcceptMessage>(MessageTypes.ServiceAcceptRequest);
-            this.RegisterMessageType<KeyExchangeInitMessage>(MessageTypes.KeyExchangeInit);
-            this.RegisterMessageType<NewKeysMessage>(MessageTypes.NewKeys);
-
-            //  Start incoming request listener
-            this._messageListener = new BackgroundWorker();
-            this._messageListener.DoWork += MessageListener;
-            this._messageListener.RunWorkerAsync();
-
-            //  Wait for key exchange to be completed
-            this.WaitHandle(this._keyExhangedFinishedWaitHandle);
-
-            //  If sessionId is not set then its not connected
-            if (this.SessionId == null)
+            lock (this._socket)
             {
-                this.Disconnect();
-                return;
-            }
+                //  If connected dont connect again
+                if (this.IsConnected)
+                    return;
 
-            //  Request user authorization service
-            this.SendMessage(new ServiceRequestMessage
-            {
-                ServiceName = ServiceNames.UserAuthentication,
-            });
+                this.IsConnected = true;
 
-            //  Wait for service to be accepted
-            this.WaitHandle(this._serviceAccepted);
+                this.Write(Encoding.ASCII.GetBytes(string.Format("{0}\n", this.ClientVersion)));
 
-            //  This implemention will ignore supported by server methods and will try to authenticated user using method supported by the client.
-            string errorMessage = null; //  Hold last authentication error if any
-            foreach (var methodName in Settings.SupportedAuthenticationMethods.Keys)
-            {
-                var userAuthentication = Settings.SupportedAuthenticationMethods[methodName](this);
+                //  Register Transport response messages
+                this.RegisterMessageType<DisconnectMessage>(MessageTypes.Disconnect);
+                this.RegisterMessageType<IgnoreMessage>(MessageTypes.Ignore);
+                this.RegisterMessageType<UnimplementedMessage>(MessageTypes.Unimplemented);
+                this.RegisterMessageType<DebugMessage>(MessageTypes.Debug);
+                this.RegisterMessageType<ServiceAcceptMessage>(MessageTypes.ServiceAcceptRequest);
+                this.RegisterMessageType<KeyExchangeInitMessage>(MessageTypes.KeyExchangeInit);
+                this.RegisterMessageType<NewKeysMessage>(MessageTypes.NewKeys);
 
-                if (userAuthentication.Execute())
+                //  Start incoming request listener
+                this._messageListener = Task.Factory.StartNew(() => { this.MessageListener(); });
+
+                //  Wait for key exchange to be completed
+                this.WaitHandle(this._keyExhangedFinishedWaitHandle);
+
+                //  If sessionId is not set then its not connected
+                if (this.SessionId == null)
                 {
-                    if (userAuthentication.IsAuthenticated)
+                    this.Disconnect();
+                    return;
+                }
+
+                //  Request user authorization service
+                this.SendMessage(new ServiceRequestMessage
+                {
+                    ServiceName = ServiceNames.UserAuthentication,
+                });
+
+                //  Wait for service to be accepted
+                this.WaitHandle(this._serviceAccepted);
+
+                //  This implemention will ignore supported by server methods and will try to authenticated user using method supported by the client.
+                string errorMessage = null; //  Hold last authentication error if any
+                foreach (var methodName in Settings.SupportedAuthenticationMethods.Keys)
+                {
+                    var userAuthentication = Settings.SupportedAuthenticationMethods[methodName](this);
+
+                    if (userAuthentication.Execute())
                     {
-                        this._isAuthenticated = true;
-                        break;
-                    }
-                    else
-                    {
-                        errorMessage = userAuthentication.ErrorMessage;
+                        if (userAuthentication.IsAuthenticated)
+                        {
+                            this._isAuthenticated = true;
+                            break;
+                        }
+                        else
+                        {
+                            errorMessage = userAuthentication.ErrorMessage;
+                        }
                     }
                 }
-            }
 
-            if (!this._isAuthenticated)
-            {
-                throw new AuthenticationException(errorMessage ?? "User cannot be authenticated.");
+                if (!this._isAuthenticated)
+                {
+                    throw new AuthenticationException(errorMessage ?? "User cannot be authenticated.");
+                }
             }
         }
 
@@ -388,13 +388,11 @@ namespace Renci.SshClient
 
             try
             {
-                //int bytesRead = this._sockeStream.Read(buffer, 0, length);
-
                 var totalBytesRead = 0;
 
                 while (totalBytesRead < length)
                 {
-                    int bytesRead = this._sockeStream.Read(buffer, 0, length);
+                    int bytesRead = this._socketStream.Read(buffer, 0, length);
                     if (bytesRead > 0)
                     {
                         totalBytesRead += bytesRead;
@@ -435,8 +433,8 @@ namespace Renci.SshClient
         {
             try
             {
-                this._sockeStream.Write(data, 0, data.Length);
-                this._sockeStream.Flush();
+                this._socketStream.Write(data, 0, data.Length);
+                this._socketStream.Flush();
             }
             catch (Exception)
             {
@@ -521,7 +519,7 @@ namespace Renci.SshClient
             }
         }
 
-        private void MessageListener(object sender, DoWorkEventArgs e)
+        private void MessageListener()
         {
             try
             {
@@ -566,13 +564,11 @@ namespace Renci.SshClient
         {
             //  Keep track of open channels
             this._openChannels.Add(message.ChannelNumber, message.ServerChannelNumber);
-            Debug.WriteLine("Open channel " + message.ServerChannelNumber);
         }
 
         private void HandleMessage(ChannelCloseMessage message)
         {
             //  Keep track of open channels
-            Debug.WriteLine("Close channel " + this._openChannels[message.ChannelNumber]);
             this._openChannels.Remove(message.ChannelNumber);
         }
 

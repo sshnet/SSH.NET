@@ -24,9 +24,9 @@ namespace Renci.SshClient.Security
         /// <returns>true if method was execute; otherwise false.</returns>
         public bool Execute()
         {
-            Message.RegisterMessageType<FailureMessage>(MessageTypes.UserAuthenticationFailure);
-            Message.RegisterMessageType<SuccessMessage>(MessageTypes.UserAuthenticationSuccess);
-            Message.RegisterMessageType<BannerMessage>(MessageTypes.UserAuthenticationBanner);
+            this.Session.RegisterMessageType<FailureMessage>(MessageTypes.UserAuthenticationFailure);
+            this.Session.RegisterMessageType<SuccessMessage>(MessageTypes.UserAuthenticationSuccess);
+            this.Session.RegisterMessageType<BannerMessage>(MessageTypes.UserAuthenticationBanner);
 
             this.Session.MessageReceived += Session_MessageReceived;
 
@@ -34,9 +34,9 @@ namespace Renci.SshClient.Security
 
             this.Session.MessageReceived -= Session_MessageReceived;
 
-            Message.UnRegisterMessageType(MessageTypes.UserAuthenticationFailure);
-            Message.UnRegisterMessageType(MessageTypes.UserAuthenticationSuccess);
-            Message.UnRegisterMessageType(MessageTypes.UserAuthenticationBanner);
+            this.Session.UnRegisterMessageType(MessageTypes.UserAuthenticationFailure);
+            this.Session.UnRegisterMessageType(MessageTypes.UserAuthenticationSuccess);
+            this.Session.UnRegisterMessageType(MessageTypes.UserAuthenticationBanner);
 
             return result;
         }

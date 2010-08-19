@@ -65,7 +65,7 @@ namespace Renci.SshClient.Security
             this.ClientExchangeValue = clientExchangeValue;
 
             //  Register expected message replies
-            Message.RegisterMessageType<KeyExchangeDhReplyMessage>(MessageTypes.KeyExchangeDhReply);
+            this.Session.RegisterMessageType<KeyExchangeDhReplyMessage>(MessageTypes.KeyExchangeDhReply);
 
             this.SendMessage(new KeyExchangeDhInitMessage
             {
@@ -100,7 +100,7 @@ namespace Renci.SshClient.Security
         private void HandleMessage(KeyExchangeDhReplyMessage message)
         {
             //  Unregister message once received
-            Message.UnRegisterMessageType(MessageTypes.KeyExchangeDhReply);
+            this.Session.UnRegisterMessageType(MessageTypes.KeyExchangeDhReply);
 
             var sharedKey = System.Numerics.BigInteger.ModPow(message.F, this._randomValue, KeyExchangeDiffieHellman._prime);
 

@@ -24,7 +24,7 @@ namespace Renci.SshClient
 
         internal override void SendMessage(Message message)
         {
-            if (!this.IsSocketConnected)
+            if (!this.IsConnected)
                 return;
 
             //  TODO:  Refactor so we lock only _outboundPacketSequence and _inboundPacketSequence relevant operations
@@ -97,7 +97,7 @@ namespace Renci.SshClient
 
         protected override Message ReceiveMessage()
         {
-            if (!this.IsSocketConnected)
+            if (!this.IsConnected)
                 return null;
 
             //  No lock needed since all messages read by only one thread
@@ -168,7 +168,7 @@ namespace Renci.SshClient
 
             var paddingLength = decryptedData[4];
 
-            return Message.Load(decryptedData.Skip(5).Take((int)(packetLength - paddingLength - 1)));
+            return this.LoadMessage(decryptedData.Skip(5).Take((int)(packetLength - paddingLength - 1)));
         }
 
         private bool ValidateHash(List<byte> decryptedData, byte[] serverHash, uint packetSequence)

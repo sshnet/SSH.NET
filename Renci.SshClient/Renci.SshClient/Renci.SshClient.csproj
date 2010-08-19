@@ -194,9 +194,9 @@
     <Compile Include="SessionSSHv2.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="Common\SshData.cs" />
-    <Compile Include="Connection.cs" />
     <Compile Include="Sftp.cs" />
     <Compile Include="Shell.cs" />
+    <Compile Include="SshBase.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Shell\" />

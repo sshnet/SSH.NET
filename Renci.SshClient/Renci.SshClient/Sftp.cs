@@ -1,70 +1,97 @@
-﻿
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using Renci.SshClient.Channels;
 using Renci.SshClient.Common;
 
 namespace Renci.SshClient
 {
-    public class Sftp
+    public class Sftp : SshBase
     {
-        private Session _session;
-
         private ChannelSftp _channel;
 
-        internal Sftp(Session session)
+        private ChannelSftp Channel
         {
-            this._session = session;
-
-            //this._channel = new ChannelSftp(this._session);
-            this._channel = this._session.CreateChannel<ChannelSftp>();
+            get
+            {
+                if (this._channel == null)
+                {
+                    this.Session.Connect();
+                    this._channel = this.Session.CreateChannel<ChannelSftp>();
+                }
+                return this._channel;
+            }
         }
+
+        public Sftp(ConnectionInfo connectionInfo)
+            : base(connectionInfo)
+        {
+        }
+
+        public Sftp(string host, int port, string username, string password)
+            : base(host, port, username, password)
+        {
+        }
+
+        public Sftp(string host, string username, string password)
+            : base(host, username, password)
+        {
+        }
+
+        public Sftp(string host, int port, string username, PrivateKeyFile keyFile)
+            : base(host, port, username, keyFile)
+        {
+        }
+
+        public Sftp(string host, string username, PrivateKeyFile keyFile)
+            : base(host, username, keyFile)
+        {
+        }
+
 
 
         public IEnumerable<FtpFileInfo> ListDirectory(string path)
         {
-            return this._channel.ListDirectory(path);
+            return this.Channel.ListDirectory(path);
         }
 
         public void UploadFile(Stream source, string fileName)
         {
-            this._channel.UploadFile(source, fileName);
+            this.Channel.UploadFile(source, fileName);
         }
 
         public void UploadFile(string source, string fileName)
         {
-            this._channel.UploadFile(File.OpenRead(source), fileName);
+            this.Channel.UploadFile(File.OpenRead(source), fileName);
         }
 
         public void DownloadFile(string fileName, Stream destination)
         {
-            this._channel.DownloadFile(fileName, destination);
+            this.Channel.DownloadFile(fileName, destination);
         }
 
         public void DownloadFile(string fileName, string destination)
         {
-            var file = File.Create(destination);
-            this._channel.DownloadFile(fileName, file);
+            this.Channel.DownloadFile(fileName, File.Create(destination));
         }
 
         public void RemoveFile(string fileName)
         {
-            this._channel.RemoveFile(fileName);
+            this.Channel.RemoveFile(fileName);
         }
 
         public void RenameFile(string oldFileName, string newFileName)
         {
-            this._channel.RenameFile(oldFileName, newFileName);
+            this.Channel.RenameFile(oldFileName, newFileName);
         }
 
         public void CreateDirectory(string directoryName)
         {
-            this._channel.CreateDirectory(directoryName);
+            this.Channel.CreateDirectory(directoryName);
         }
 
         public void RemoveDirectory(string directoryName)
         {
-            this._channel.RemoveDirectory(directoryName);
+            this.Channel.RemoveDirectory(directoryName);
         }
     }
 }

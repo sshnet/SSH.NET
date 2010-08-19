@@ -143,7 +143,6 @@ namespace Renci.SshClient
             this.ClientVersion = string.Format("SSH-2.0-Renci.SshClient.{0}", this.GetType().Assembly.GetName().Version);
 
             this._sockeStream = new NetworkStream(socket);
-            this.IsConnected = true;
         }
 
         private static IDictionary<Type, Func<Session, Channel>> _channels = new Dictionary<Type, Func<Session, Channel>>()
@@ -163,6 +162,12 @@ namespace Renci.SshClient
 
         public void Connect()
         {
+            //  If connected dont connect again
+            if (this.IsConnected)
+                return;
+
+            this.IsConnected = true;
+
             this.Write(Encoding.ASCII.GetBytes(string.Format("{0}\n", this.ClientVersion)));
 
             //  Register Transport response messages

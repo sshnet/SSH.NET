@@ -28,7 +28,7 @@ namespace Renci.SshClient.Security
             if (this.Session.ConnectionInfo.KeyFile == null)
                 return false;
 
-            Message.RegisterMessageType<InformationRequestMessage>(MessageTypes.UserAuthenticationInformationRequest);
+            this.Session.RegisterMessageType<InformationRequestMessage>(MessageTypes.UserAuthenticationInformationRequest);
 
             //  TODO:   Complete full public key implemention which includes other messages
             var message = new PublicKeyRequestMessage
@@ -48,7 +48,7 @@ namespace Renci.SshClient.Security
 
             this.Session.WaitHandle(this._authenticationCompleted);
 
-            Message.UnRegisterMessageType(MessageTypes.UserAuthenticationInformationRequest);
+            this.Session.UnRegisterMessageType(MessageTypes.UserAuthenticationInformationRequest);
 
 
             return true;

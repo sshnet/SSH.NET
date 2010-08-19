@@ -33,10 +33,55 @@
             }
         }
 
+
         public Connection(ConnectionInfo connectionInfo)
         {
-            this._session = Session.CreateSession(connectionInfo);
+            this.ConnectionInfo = connectionInfo;
+            this._session = Session.CreateSession(this.ConnectionInfo);
         }
+
+        public Connection(string host, int port, string username, string password)
+            : this(new ConnectionInfo
+            {
+                Host = host,
+                Port = port,
+                Username = username,
+                Password = password,
+            })
+        {
+        }
+
+        public Connection(string host, string username, string password)
+            : this(new ConnectionInfo
+            {
+                Host = host,
+                Username = username,
+                Password = password,
+            })
+        {
+        }
+
+        public Connection(string host, int port, string username, PrivateKeyFile keyFile)
+            : this(new ConnectionInfo
+            {
+                Host = host,
+                Port = port,
+                Username = username,
+                KeyFile = keyFile,
+            })
+        {
+        }
+
+        public Connection(string host, string username, PrivateKeyFile keyFile)
+            : this(new ConnectionInfo
+            {
+                Host = host,
+                Username = username,
+                KeyFile = keyFile,
+            })
+        {
+        }
+
 
         public void Connect()
         {

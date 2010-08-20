@@ -22,6 +22,11 @@ namespace Renci.SshClient
     {
         protected const int MAXIMUM_PACKET_SIZE = 35000;
 
+        /// <summary>
+        /// Creates new session using connection informaiton.
+        /// </summary>
+        /// <param name="connectionInfo">The connection info.</param>
+        /// <returns>New version specific session.</returns>
         public static Session CreateSession(ConnectionInfo connectionInfo)
         {
             var ep = new IPEndPoint(Dns.GetHostAddresses(connectionInfo.Host)[0], connectionInfo.Port);
@@ -32,7 +37,7 @@ namespace Renci.SshClient
             //  Connect socket with 5 seconds timeout
             var connectResult = socket.BeginConnect(ep, null, null);
 
-            connectResult.AsyncWaitHandle.WaitOne(1000 * 5);
+            connectResult.AsyncWaitHandle.WaitOne(connectionInfo.Timeout);
 
             socket.EndConnect(connectResult);
 
@@ -62,25 +67,45 @@ namespace Renci.SshClient
             return session;
         }
 
+        /// <summary>
+        /// Holds connection socket.
+        /// </summary>
         private Socket _socket;
 
+        /// <summary>
+        /// Holds connection socket stream to communicate with the server
+        /// </summary>
         private NetworkStream _socketStream;
 
-        private int _waitTimeout = 1000 * 10;   //  Default 10 sec wait timeout
-
+        /// <summary>
+        /// Holds reference to key exchange algorithm being used by this connection
+        /// </summary>
         private KeyExchange _keyExhcange;
 
+        /// <summary>
+        /// Holds reference to task that listnes for incoming messages
+        /// </summary>
         private Task _messageListener;
 
+        /// <summary>
+        /// WaitHandle to signal that key exchange was finished, weither it was succesfull or not.
+        /// </summary>
         private EventWaitHandle _keyExhangedFinishedWaitHandle = new AutoResetEvent(false);
 
+        /// <summary>
+        /// WaitHandle to signale that last service request was accepted
+        /// </summary>
         private EventWaitHandle _serviceAccepted = new AutoResetEvent(false);
 
+        /// <summary>
+        /// WaitHandle to signal that exception was thrown by another thread.
+        /// </summary>
         private EventWaitHandle _exceptionWaitHandle = new AutoResetEvent(false);
 
+        /// <summary>
+        /// Keeps track of all open channels
+        /// </summary>
         private IDictionary<uint, uint> _openChannels = new Dictionary<uint, uint>();
-
-        private IDictionary<string, UserAuthentication> _executedAuthenticationMethods = new Dictionary<string, UserAuthentication>();
 
         /// <summary>
         /// Exception that need to be thrown by waiting thread
@@ -92,10 +117,21 @@ namespace Renci.SshClient
         /// </summary>
         private bool _isAuthenticated;
 
+        /// <summary>
+        /// Occurs when new message received.
+        /// </summary>
         public event EventHandler<MessageReceivedEventArgs> MessageReceived;
 
+        /// <summary>
+        /// Gets or sets the HMAC algorithm to use when receiving message from the server.
+        /// </summary>
+        /// <value>The server mac.</value>
         protected HMAC ServerMac { get; private set; }
 
+        /// <summary>
+        /// Gets or sets the HMAC algorithm to use when sending message to the server.
+        /// </summary>
+        /// <value>The client mac.</value>
         protected HMAC ClientMac { get; private set; }
 
         /// <summary>
@@ -110,8 +146,16 @@ namespace Renci.SshClient
         /// <value>The server cipher.</value>
         protected Cipher ServerCipher { get; private set; }
 
+        /// <summary>
+        /// Gets or sets the compression algorithm to use when receiving message from the server.
+        /// </summary>
+        /// <value>The server decompression.</value>
         protected Compression ServerDecompression { get; private set; }
 
+        /// <summary>
+        /// Gets or sets the compression algorithm to use when sending message to the server.
+        /// </summary>
+        /// <value>The client compression.</value>
         protected Compression ClientCompression { get; private set; }
 
         /// <summary>
@@ -125,12 +169,30 @@ namespace Renci.SshClient
         //  TODO:   Consider refactor to make setter private
         public IEnumerable<byte> SessionId { get; set; }
 
+        /// <summary>
+        /// Gets or sets the server version string.
+        /// </summary>
+        /// <value>The server version.</value>
         public string ServerVersion { get; private set; }
 
+        /// <summary>
+        /// Gets or sets the client version string.
+        /// </summary>
+        /// <value>The client version.</value>
         public string ClientVersion { get; private set; }
 
+        /// <summary>
+        /// Gets or sets the connection info.
+        /// </summary>
+        /// <value>The connection info.</value>
         public ConnectionInfo ConnectionInfo { get; private set; }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Session"/> class.
+        /// </summary>
+        /// <param name="connectionInfo">The connection info.</param>
+        /// <param name="socket">The socket.</param>
+        /// <param name="serverVersion">The server version.</param>
         protected Session(ConnectionInfo connectionInfo, Socket socket, string serverVersion)
         {
             this.ConnectionInfo = connectionInfo;
@@ -150,6 +212,11 @@ namespace Renci.SshClient
                 {typeof(ChannelSftp), (session) => { return new ChannelSftp(session);}}
             };
 
+        /// <summary>
+        /// Creates the new channel.
+        /// </summary>
+        /// <typeparam name="T">Type of channel to create.</typeparam>
+        /// <returns>New channel of specified type</returns>
         public T CreateChannel<T>() where T : Channel
         {
             if (!this.IsConnected)
@@ -159,6 +226,9 @@ namespace Renci.SshClient
             return _channels[typeof(T)](this) as T;
         }
 
+        /// <summary>
+        /// Connects to the server.
+        /// </summary>
         public void Connect()
         {
             lock (this._socket)
@@ -229,6 +299,9 @@ namespace Renci.SshClient
             }
         }
 
+        /// <summary>
+        /// Disconnects from the server
+        /// </summary>
         public void Disconnect()
         {
             //  TODO:   Change message to something more appropriate
@@ -237,8 +310,16 @@ namespace Renci.SshClient
             this.DisconnectCleanup();
         }
 
+        /// <summary>
+        /// Sends packet message to the server.
+        /// </summary>
+        /// <param name="message">The message.</param>
         internal abstract void SendMessage(Message message);
 
+        /// <summary>
+        /// Waits for handle to signal while checking other handles as well including timeout check to prevent waiting for ever
+        /// </summary>
+        /// <param name="waitHandle">The wait handle.</param>
         internal void WaitHandle(WaitHandle waitHandle)
         {
             var waitHandles = new WaitHandle[]
@@ -254,7 +335,7 @@ namespace Renci.SshClient
 #if NOTIMEOUT
             index = EventWaitHandle.WaitAny(waitHandles);
 #else
-            index = EventWaitHandle.WaitAny(waitHandles, this._waitTimeout);
+            index = EventWaitHandle.WaitAny(waitHandles, this.ConnectionInfo.Timeout);
 #endif
             if (this._exceptionToThrow != null)
             {
@@ -269,8 +350,17 @@ namespace Renci.SshClient
             }
         }
 
+        /// <summary>
+        /// Receives the message from the server.
+        /// </summary>
+        /// <returns></returns>
         protected abstract Message ReceiveMessage();
 
+        /// <summary>
+        /// Handles the message.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="message">The message.</param>
         protected virtual void HandleMessage<T>(T message) where T : Message
         {
             //  Do nothing as message could be proccessed by other module
@@ -368,6 +458,11 @@ namespace Renci.SshClient
 
         #endregion
 
+        /// <summary>
+        /// Disconnects client from the server with specified reason code.
+        /// </summary>
+        /// <param name="reasonCode">The reason code.</param>
+        /// <param name="message">The message.</param>
         protected void Disconnect(DisconnectReasonCodes reasonCode, string message)
         {
             if (this.IsConnected)
@@ -382,6 +477,11 @@ namespace Renci.SshClient
             }
         }
 
+        /// <summary>
+        /// Reads the specified length of bytes from the server
+        /// </summary>
+        /// <param name="length">The length.</param>
+        /// <returns></returns>
         protected byte[] Read(int length)
         {
             var buffer = new byte[length];
@@ -429,6 +529,10 @@ namespace Renci.SshClient
 
         }
 
+        /// <summary>
+        /// Writes the specified data to the server.
+        /// </summary>
+        /// <param name="data">The data.</param>
         protected void Write(byte[] data)
         {
             try
@@ -443,6 +547,9 @@ namespace Renci.SshClient
             }
         }
 
+        /// <summary>
+        /// Initiates new key request by the client
+        /// </summary>
         protected void RequestNewKeys()
         {
             //  TODO:   Create method to issue new keys when required
@@ -498,6 +605,9 @@ namespace Renci.SshClient
 
         #endregion
 
+        /// <summary>
+        /// Perfom neccesary cleanup when client disconects from the server
+        /// </summary>
         private void DisconnectCleanup()
         {
             //  Stop running listener thread
@@ -519,6 +629,9 @@ namespace Renci.SshClient
             }
         }
 
+        /// <summary>
+        /// Listnets for incoming message from the server and handles them. This method run as a task on seperate thread.
+        /// </summary>
         private void MessageListener()
         {
             try
@@ -552,6 +665,11 @@ namespace Renci.SshClient
             }
         }
 
+        /// <summary>
+        /// Raises the MessageReceived event.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="args">The <see cref="Renci.SshClient.Common.MessageReceivedEventArgs"/> instance containing the event data.</param>
         private void RaiseMessageReceived(object sender, MessageReceivedEventArgs args)
         {
             if (this.MessageReceived != null)
@@ -560,12 +678,20 @@ namespace Renci.SshClient
             }
         }
 
+        /// <summary>
+        /// Handles <see cref="ChannelOpenConfirmationMessage"/> message.
+        /// </summary>
+        /// <param name="message">The message.</param>
         private void HandleMessage(ChannelOpenConfirmationMessage message)
         {
             //  Keep track of open channels
             this._openChannels.Add(message.ChannelNumber, message.ServerChannelNumber);
         }
 
+        /// <summary>
+        /// Handles <see cref="ChannelCloseMessage"/> message.
+        /// </summary>
+        /// <param name="message">The message.</param>
         private void HandleMessage(ChannelCloseMessage message)
         {
             //  Keep track of open channels

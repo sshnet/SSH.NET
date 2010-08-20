@@ -18,8 +18,7 @@ namespace Renci.SshClient.Channels
 
         private uint _initialWindowSize = 0x100000;
 
-        //private uint _maximumPacketSize = 0x4000;
-        private uint _maximumPacketSize = 1024;
+        private uint _maximumPacketSize = 0x4000;
 
         public abstract ChannelTypes ChannelType { get; }
 

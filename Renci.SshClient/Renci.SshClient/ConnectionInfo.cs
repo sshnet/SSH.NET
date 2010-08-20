@@ -12,10 +12,13 @@
 
         public PrivateKeyFile KeyFile { get; set; }
 
+        public int Timeout { get; set; }
+
         public ConnectionInfo()
         {
             //  Set default connection values
             this.Port = 22;
+            this.Timeout = 1000 * 10;   //  Set default timeout to 10 sec
         }
     }
 }

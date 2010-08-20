@@ -9,9 +9,6 @@ namespace Renci.SshClient
 {
     internal class SessionSSHv2 : Session
     {
-        private static object _readLock = new object();
-        private static object _writeLock = new object();
-
         private static RNGCryptoServiceProvider _randomizer = new System.Security.Cryptography.RNGCryptoServiceProvider();
 
         private UInt32 _outboundPacketSequence = 0;
@@ -30,7 +27,7 @@ namespace Renci.SshClient
             //  TODO:  Refactor so we lock only _outboundPacketSequence and _inboundPacketSequence relevant operations
 
             //  Messages can be sent by different thread so we need to synchronize it
-            lock (_writeLock)
+            lock (this) //  Lock on session
             {
                 var paddingMultiplier = this.ClientCipher == null ? (byte)8 : (byte)this.ClientCipher.BlockSize;    //    Should be recalculate base on cipher min lenght if sipher specified
 

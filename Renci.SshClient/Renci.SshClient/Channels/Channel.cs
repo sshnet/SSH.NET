@@ -1,17 +1,13 @@
-﻿
-using System;
+﻿using System;
 using System.Threading;
 using Renci.SshClient.Common;
 using Renci.SshClient.Messages;
 using Renci.SshClient.Messages.Connection;
+
 namespace Renci.SshClient.Channels
 {
     internal abstract class Channel
     {
-        private static uint _channelCounter = 0;
-
-        private static object _lock = new object();
-
         private EventWaitHandle _channelOpenWaitHandle = new AutoResetEvent(false);
 
         private EventWaitHandle _channelClosedWaitHandle = new AutoResetEvent(false);
@@ -30,20 +26,16 @@ namespace Renci.SshClient.Channels
 
         public uint PacketSize { get; set; }
 
-        public bool IsOpen { get; protected set; }
+        public bool IsOpen { get; private set; }
 
         protected Session Session { get; private set; }
 
-        public Channel(Session session, uint windowSize, uint packetSize)
+        public Channel(Session session, uint channelId, uint windowSize, uint packetSize)
         {
             this._initialWindowSize = windowSize;
             this._maximumPacketSize = Math.Max(packetSize, 0x8000); //  Ensure minimum maximum packet size of 0x8000 bytes
 
-            lock (_lock)
-            {
-                //  TODO:   Refactor to make channel number to come from the session, to avoid situation where new session will be open and first channel number will not be 0
-                this.ClientChannelNumber = _channelCounter++;
-            }
+            this.ClientChannelNumber = channelId;
 
             this.Session = session;
             this.WindowSize = this._initialWindowSize;  // Initial window size
@@ -61,8 +53,8 @@ namespace Renci.SshClient.Channels
 
         }
 
-        public Channel(Session session)
-            : this(session, 0x100000, 0x8000)
+        public Channel(Session session, uint channelId)
+            : this(session, channelId, 0x100000, 0x8000)
         {
         }
 

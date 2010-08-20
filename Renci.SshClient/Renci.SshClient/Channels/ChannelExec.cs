@@ -25,8 +25,8 @@ namespace Renci.SshClient.Channels
             get { return ChannelTypes.Session; }
         }
 
-        public ChannelExec(Session session)
-            : base(session, 0x100000, 0x1000)
+        public ChannelExec(Session session, uint channelId)
+            : base(session, channelId, 0x100000, 0x1000)
         {
         }
 

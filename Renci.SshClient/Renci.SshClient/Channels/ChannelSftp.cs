@@ -35,13 +35,13 @@ namespace Renci.SshClient.Channels
             get { return ChannelTypes.Session; }
         }
 
-        public ChannelSftp(Session session, uint windowSize, uint packetSize)
-            : base(session, windowSize, packetSize)
+        public ChannelSftp(Session session, uint channelId, uint windowSize, uint packetSize)
+            : base(session, channelId, windowSize, packetSize)
         {
         }
 
-        public ChannelSftp(Session session)
-            : base(session, 0x100000, 0x4000)
+        public ChannelSftp(Session session, uint channelId)
+            : base(session, channelId, 0x100000, 0x4000)
         {
         }
 

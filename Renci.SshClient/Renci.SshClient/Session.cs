@@ -87,6 +87,8 @@ namespace Renci.SshClient
         /// </summary>
         private Task _messageListener;
 
+        private volatile uint _channelId;
+
         /// <summary>
         /// WaitHandle to signal that key exchange was finished, weither it was succesfull or not.
         /// </summary>
@@ -206,10 +208,10 @@ namespace Renci.SshClient
             this._socketStream = new NetworkStream(socket);
         }
 
-        private static IDictionary<Type, Func<Session, Channel>> _channels = new Dictionary<Type, Func<Session, Channel>>()
+        private static IDictionary<Type, Func<Session, uint, Channel>> _channels = new Dictionary<Type, Func<Session, uint, Channel>>()
             {
-                {typeof(ChannelExec), (session) => { return new ChannelExec(session);}},
-                {typeof(ChannelSftp), (session) => { return new ChannelSftp(session);}}
+                {typeof(ChannelExec), (session, channelId) => { return new ChannelExec(session, channelId);}},
+                {typeof(ChannelSftp), (session, channelId) => { return new ChannelSftp(session, channelId);}}
             };
 
         /// <summary>
@@ -219,11 +221,12 @@ namespace Renci.SshClient
         /// <returns>New channel of specified type</returns>
         public T CreateChannel<T>() where T : Channel
         {
+            //  TODO:   Ensure that only 10 channels can be opened at a time
             if (!this.IsConnected)
             {
                 throw new InvalidOperationException("Not connected");
             }
-            return _channels[typeof(T)](this) as T;
+            return _channels[typeof(T)](this, this._channelId) as T;
         }
 
         /// <summary>
@@ -686,6 +689,7 @@ namespace Renci.SshClient
         {
             //  Keep track of open channels
             this._openChannels.Add(message.ChannelNumber, message.ServerChannelNumber);
+            this._channelId++;
         }
 
         /// <summary>
@@ -696,6 +700,11 @@ namespace Renci.SshClient
         {
             //  Keep track of open channels
             this._openChannels.Remove(message.ChannelNumber);
+            this._channelId--;
+        }
+
+        private void HandleMessage(ChannelFailureMessage message)
+        {
         }
 
         #region IDisposable Members

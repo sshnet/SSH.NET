@@ -29,10 +29,10 @@ namespace Renci.SshClient
         /// <returns>New version specific session.</returns>
         public static Session CreateSession(ConnectionInfo connectionInfo)
         {
+            //  TODO:   See if possible to move socket connection logic to Connect method
+
             var ep = new IPEndPoint(Dns.GetHostAddresses(connectionInfo.Host)[0], connectionInfo.Port);
             var socket = new Socket(ep.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-            socket.NoDelay = true;
-            socket.ExclusiveAddressUse = true;
 
             //  Connect socket with 5 seconds timeout
             var connectResult = socket.BeginConnect(ep, null, null);
@@ -41,11 +41,14 @@ namespace Renci.SshClient
 
             socket.EndConnect(connectResult);
 
+            socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.NoDelay, 1);
+
             //  Get server version from the server,
             //  ignore text lines which are sent before if any
             var serverVersion = string.Empty;
 
-            using (StreamReader sr = new StreamReader(new NetworkStream(socket)))
+            using (var ns = new NetworkStream(socket))
+            using (var sr = new StreamReader(ns))
             {
                 while (true)
                 {
@@ -59,6 +62,7 @@ namespace Renci.SshClient
                         break;
                     }
                 }
+                ns.Close();
             }
 
             //  TODO:   Create session based on server version
@@ -199,13 +203,9 @@ namespace Renci.SshClient
         {
             this.ConnectionInfo = connectionInfo;
             this._socket = socket;
-            this._socket.NoDelay = true;
-            this._socket.Blocking = true;
 
             this.ServerVersion = serverVersion;
             this.ClientVersion = string.Format("SSH-2.0-Renci.SshClient.{0}", this.GetType().Assembly.GetName().Version);
-
-            this._socketStream = new NetworkStream(socket);
         }
 
         private static IDictionary<Type, Func<Session, uint, Channel>> _channels = new Dictionary<Type, Func<Session, uint, Channel>>()
@@ -236,6 +236,8 @@ namespace Renci.SshClient
         {
             lock (this._socket)
             {
+                this._socketStream = new NetworkStream(this._socket);
+
                 //  If connected dont connect again
                 if (this.IsConnected)
                     return;
@@ -615,6 +617,10 @@ namespace Renci.SshClient
         {
             //  Stop running listener thread
 
+
+            if (this._socketStream != null)
+                this._socketStream.Close();
+
             //  Close all open channels if any
             foreach (var channelId in this._openChannels.Values)
             {
@@ -625,11 +631,12 @@ namespace Renci.SshClient
             }
 
             //  Close socket connection if still open
-            if (this.IsConnected)
+            if (this._socket != null)
             {
-                this._socket.Disconnect(false);
-                this.IsConnected = false;
+                this._socket.Close();
             }
+
+            this.IsConnected = false;
         }
 
         /// <summary>

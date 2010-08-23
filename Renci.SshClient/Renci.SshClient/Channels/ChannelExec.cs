@@ -139,5 +139,9 @@ namespace Renci.SshClient.Channels
             }
             ((EventWaitHandle)_asyncResult.AsyncWaitHandle).Set();
         }
+
+        protected override void OnDisposing()
+        {
+        }
     }
 }

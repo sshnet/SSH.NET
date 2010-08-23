@@ -6,7 +6,7 @@ using Renci.SshClient.Messages.Connection;
 
 namespace Renci.SshClient.Channels
 {
-    internal abstract class Channel
+    internal abstract class Channel : IDisposable
     {
         private EventWaitHandle _channelOpenWaitHandle = new AutoResetEvent(false);
 
@@ -251,5 +251,55 @@ namespace Renci.SshClient.Channels
 
             this.Session.MessageReceived -= SessionInfo_MessageReceived;
         }
+
+        #region IDisposable Members
+
+        protected abstract void OnDisposing();
+
+        private bool disposed = false;
+
+        public void Dispose()
+        {
+            Dispose(true);
+
+            GC.SuppressFinalize(this);
+        }
+
+        private void Dispose(bool disposing)
+        {
+            // Check to see if Dispose has already been called.
+            if (!this.disposed)
+            {
+                // If disposing equals true, dispose all managed
+                // and unmanaged resources.
+                if (disposing)
+                {
+                    // Dispose managed resources.
+                    if (this._channelOpenWaitHandle != null)
+                    {
+                        this._channelOpenWaitHandle.Dispose();
+                    }
+                    if (this._channelClosedWaitHandle != null)
+                    {
+                        this._channelClosedWaitHandle.Dispose();
+                    }
+
+                    this.OnDisposing();
+                }
+
+                // Note disposing has been done.
+                disposed = true;
+            }
+        }
+
+        ~Channel()
+        {
+            // Do not re-create Dispose clean-up code here.
+            // Calling Dispose(false) is optimal in terms of
+            // readability and maintainability.
+            Dispose(false);
+        }
+
+        #endregion
     }
 }

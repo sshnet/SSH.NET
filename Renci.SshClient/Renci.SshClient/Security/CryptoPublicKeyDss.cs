@@ -16,7 +16,7 @@ namespace Renci.SshClient.Security
 
         public override string Name
         {
-            get { throw new NotImplementedException(); }
+            get { return "ssh-dss"; }
         }
 
         public CryptoPublicKeyDss()

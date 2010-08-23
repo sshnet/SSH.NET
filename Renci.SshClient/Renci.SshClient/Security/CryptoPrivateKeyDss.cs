@@ -88,18 +88,20 @@ namespace Renci.SshClient.Security
 
                 cs.Close();
 
-                var DSA = new System.Security.Cryptography.DSACryptoServiceProvider();
-                DSA.ImportParameters(DSAKeyInfo);
-                var DSAFormatter = new DSASignatureFormatter(DSA);
-                DSAFormatter.SetHashAlgorithm("SHA1");
-
-                var signature = DSAFormatter.CreateSignature(sha1);
-
-                return new SignatureKeyData
+                using (var DSA = new System.Security.Cryptography.DSACryptoServiceProvider())
                 {
-                    AlgorithmName = this.Name,
-                    Signature = signature,
-                }.GetBytes();
+                    DSA.ImportParameters(DSAKeyInfo);
+                    var DSAFormatter = new DSASignatureFormatter(DSA);
+                    DSAFormatter.SetHashAlgorithm("SHA1");
+
+                    var signature = DSAFormatter.CreateSignature(sha1);
+
+                    return new SignatureKeyData
+                    {
+                        AlgorithmName = this.Name,
+                        Signature = signature,
+                    }.GetBytes();
+                }
             }
         }
 

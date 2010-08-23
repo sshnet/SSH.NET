@@ -105,18 +105,20 @@ namespace Renci.SshClient.Security
 
                 cs.Close();
 
-                var RSA = new System.Security.Cryptography.RSACryptoServiceProvider();
-                RSA.ImportParameters(RSAKeyInfo);
-                var RSAFormatter = new RSAPKCS1SignatureFormatter(RSA);
-                RSAFormatter.SetHashAlgorithm("SHA1");
-
-                var signature = RSAFormatter.CreateSignature(sha1);
-
-                return new SignatureKeyData
+                using (var RSA = new System.Security.Cryptography.RSACryptoServiceProvider())
                 {
-                    AlgorithmName = this.Name,
-                    Signature = signature,
-                }.GetBytes();
+                    RSA.ImportParameters(RSAKeyInfo);
+                    var RSAFormatter = new RSAPKCS1SignatureFormatter(RSA);
+                    RSAFormatter.SetHashAlgorithm("SHA1");
+
+                    var signature = RSAFormatter.CreateSignature(sha1);
+
+                    return new SignatureKeyData
+                    {
+                        AlgorithmName = this.Name,
+                        Signature = signature,
+                    }.GetBytes();
+                }
             }
         }
 

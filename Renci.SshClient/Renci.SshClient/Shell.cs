@@ -39,11 +39,12 @@ namespace Renci.SshClient
 
         public string Execute(string command, Stream extended)
         {
-            MemoryStream resultStream = new MemoryStream();
+            using (MemoryStream resultStream = new MemoryStream())
+            {
+                this.Execute(command, resultStream, extended);
 
-            this.Execute(command, resultStream, extended);
-
-            return Encoding.ASCII.GetString(resultStream.ToArray());
+                return Encoding.ASCII.GetString(resultStream.ToArray());
+            }
         }
 
         public void Execute(string command, Stream output, Stream extended)

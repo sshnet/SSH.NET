@@ -740,6 +740,21 @@ namespace Renci.SshClient
                         this.Disconnect();
                         this._socket.Dispose();
                     }
+
+                    if (this._keyExhangedFinishedWaitHandle != null)
+                    {
+                        this._keyExhangedFinishedWaitHandle.Dispose();
+                    }
+
+                    if (this._serviceAccepted != null)
+                    {
+                        this._serviceAccepted.Dispose();
+                    }
+
+                    if (this._exceptionWaitHandle != null)
+                    {
+                        this._exceptionWaitHandle.Dispose();
+                    }
                 }
 
                 // Note disposing has been done.

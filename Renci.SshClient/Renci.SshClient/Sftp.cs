@@ -61,7 +61,10 @@ namespace Renci.SshClient
 
         public void UploadFile(string source, string fileName)
         {
-            this.Channel.UploadFile(File.OpenRead(source), fileName);
+            using (var sourceFile = File.OpenRead(source))
+            {
+                this.Channel.UploadFile(sourceFile, fileName);
+            }
         }
 
         public void DownloadFile(string fileName, Stream destination)
@@ -71,7 +74,10 @@ namespace Renci.SshClient
 
         public void DownloadFile(string fileName, string destination)
         {
-            this.Channel.DownloadFile(fileName, File.Create(destination));
+            using (var destinationFile = File.Create(destination))
+            {
+                this.Channel.DownloadFile(fileName, destinationFile);
+            }
         }
 
         public void RemoveFile(string fileName)

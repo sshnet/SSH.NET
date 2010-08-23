@@ -1,11 +1,12 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using Renci.SshClient.Common;
 using Renci.SshClient.Messages;
 using Renci.SshClient.Messages.Authentication;
 
 namespace Renci.SshClient.Security
 {
-    internal class UserAuthenticationPublicKey : UserAuthentication
+    internal class UserAuthenticationPublicKey : UserAuthentication, IDisposable
     {
         private EventWaitHandle _authenticationCompleted = new AutoResetEvent(false);
 
@@ -101,5 +102,47 @@ namespace Renci.SshClient.Security
                 this.Write(this._message.PublicKeyData.GetSshString());
             }
         }
+
+        #region IDisposable Members
+
+        private bool disposed = false;
+
+        public void Dispose()
+        {
+            Dispose(true);
+
+            GC.SuppressFinalize(this);
+        }
+
+        private void Dispose(bool disposing)
+        {
+            // Check to see if Dispose has already been called.
+            if (!this.disposed)
+            {
+                // If disposing equals true, dispose all managed
+                // and unmanaged resources.
+                if (disposing)
+                {
+                    // Dispose managed resources.
+                    if (this._authenticationCompleted != null)
+                    {
+                        this._authenticationCompleted.Dispose();
+                    }
+                }
+
+                // Note disposing has been done.
+                disposed = true;
+            }
+        }
+
+        ~UserAuthenticationPublicKey()
+        {
+            // Do not re-create Dispose clean-up code here.
+            // Calling Dispose(false) is optimal in terms of
+            // readability and maintainability.
+            Dispose(false);
+        }
+
+        #endregion
     }
 }

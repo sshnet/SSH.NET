@@ -44,12 +44,18 @@ namespace Renci.SshClient
 
         public PrivateKeyFile(string fileName)
         {
-            this.Open(File.Open(fileName, FileMode.Open), null);
+            using (var keyFile = File.Open(fileName, FileMode.Open))
+            {
+                this.Open(keyFile, null);
+            }
         }
 
         public PrivateKeyFile(string fileName, string passPhrase)
         {
-            this.Open(File.Open(fileName, FileMode.Open), passPhrase);
+            using (var keyFile = File.Open(fileName, FileMode.Open))
+            {
+                this.Open(keyFile, passPhrase);
+            }
         }
 
         public PrivateKeyFile(Stream privateKey, string passPhrase)

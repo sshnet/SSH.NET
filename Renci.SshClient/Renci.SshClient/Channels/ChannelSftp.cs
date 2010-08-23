@@ -14,8 +14,6 @@ namespace Renci.SshClient.Channels
     {
         private EventWaitHandle _channelRequestSuccessWaitHandle = new AutoResetEvent(false);
 
-        private EventWaitHandle _testWaitHandle = new AutoResetEvent(false);
-
         private EventWaitHandle _responseMessageReceivedWaitHandle = new EventWaitHandle(false, EventResetMode.ManualReset);
 
         private uint _requestId;
@@ -554,5 +552,21 @@ namespace Renci.SshClient.Channels
             }
         }
 
+        #region IDisposable Members
+
+        protected override void OnDisposing()
+        {
+            // Dispose managed resources.
+            if (this._channelRequestSuccessWaitHandle != null)
+            {
+                this._channelRequestSuccessWaitHandle.Dispose();
+            }
+            if (this._responseMessageReceivedWaitHandle != null)
+            {
+                this._responseMessageReceivedWaitHandle.Dispose();
+            }
+        }
+
+        #endregion
     }
 }

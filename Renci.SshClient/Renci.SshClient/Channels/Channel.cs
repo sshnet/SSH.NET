@@ -16,6 +16,8 @@ namespace Renci.SshClient.Channels
 
         private uint _maximumPacketSize = 0x4000;
 
+        private int _chanelOpenFailedAttempts = 0;
+
         public abstract ChannelTypes ChannelType { get; }
 
         public uint ClientChannelNumber { get; set; }
@@ -155,9 +157,18 @@ namespace Renci.SshClient.Channels
 
         private void HandleMessage(ChannelOpenFailureMessage message)
         {
-            this.IsOpen = false;
-            this._channelOpenWaitHandle.Set();
-            this.OnChannelFailed(message.ReasonCode, message.Description);
+            if (_chanelOpenFailedAttempts > this.Session.ConnectionInfo.RetryAttempts)
+            {
+                this.IsOpen = false;
+
+                this._channelOpenWaitHandle.Set();
+                this.OnChannelFailed(message.ReasonCode, message.Description);
+            }
+            else
+            {
+                //  Try to open channel again
+                this.Open();
+            }
         }
 
         private void HandleMessage(ChannelWindowAdjustMessage message)

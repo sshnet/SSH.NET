@@ -99,6 +99,7 @@ namespace Renci.SshClient.Channels
         protected override void OnChannelFailed(uint reasonCode, string description)
         {
             base.OnChannelFailed(reasonCode, description);
+
             this._exception = new InvalidOperationException(string.Format("Channel failed to open. Code: {0}, Reason {1}", reasonCode, description));
             this.ExecutionCompleted();
         }

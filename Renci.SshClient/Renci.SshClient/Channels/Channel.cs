@@ -52,7 +52,6 @@ namespace Renci.SshClient.Channels
             this.Session.RegisterMessageType<ChannelDataMessage>(MessageTypes.ChannelData);
             this.Session.RegisterMessageType<ChannelEofMessage>(MessageTypes.ChannelEof);
             this.Session.RegisterMessageType<ChannelCloseMessage>(MessageTypes.ChannelClose);
-
         }
 
         public Channel(Session session, uint channelId)
@@ -67,14 +66,7 @@ namespace Renci.SshClient.Channels
             //  Open session channel
             if (!this.IsOpen)
             {
-                this.SendMessage(new ChannelOpenMessage
-                {
-                    ChannelName = "session",
-                    ChannelNumber = this.ClientChannelNumber,
-                    InitialWindowSize = this.WindowSize,
-                    MaximumPacketSize = this.PacketSize,
-                });
-
+                this.SendChannelOpenMessage();
                 this.Session.WaitHandle(this._channelOpenWaitHandle);
             }
         }
@@ -113,6 +105,7 @@ namespace Renci.SshClient.Channels
 
         protected virtual void OnChannelClose()
         {
+            //  TODO:   Channel is closed when it sent and received Close message
         }
 
         protected virtual void OnChannelFailed(uint reasonCode, string description)
@@ -166,8 +159,8 @@ namespace Renci.SshClient.Channels
             }
             else
             {
-                //  Try to open channel again
-                this.Open();
+                //  Send channel open message again
+                this.SendChannelOpenMessage();
             }
         }
 
@@ -245,11 +238,25 @@ namespace Renci.SshClient.Channels
 
         #endregion
 
+        private void SendChannelOpenMessage()
+        {
+            this.SendMessage(new ChannelOpenMessage
+            {
+                ChannelName = "session",
+                ChannelNumber = this.ClientChannelNumber,
+                InitialWindowSize = this.WindowSize,
+                MaximumPacketSize = this.PacketSize,
+            });
+        }
+
         private void CloseCleanup()
         {
-            this.IsOpen = false;
+            if (this.IsOpen)
+            {
+                this.IsOpen = false;
 
-            this.Session.MessageReceived -= SessionInfo_MessageReceived;
+                this.Session.MessageReceived -= SessionInfo_MessageReceived;
+            }
         }
 
         #region IDisposable Members

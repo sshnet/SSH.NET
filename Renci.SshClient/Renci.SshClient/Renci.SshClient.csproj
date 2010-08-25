@@ -61,6 +61,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Channels\ChannelAsyncResult.cs" />
+    <Compile Include="Common\BlockingStack.cs" />
     <Compile Include="Security\Algorithm.cs" />
     <Compile Include="Security\Cipher.cs" />
     <Compile Include="Security\CipherAES128.cs" />
@@ -191,7 +192,6 @@
     <Compile Include="Messages\Authentication\SuccessMessage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Session.cs" />
-    <Compile Include="SessionSSHv2.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="Common\SshData.cs" />
     <Compile Include="Sftp.cs" />

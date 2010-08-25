@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -18,68 +19,24 @@ using Renci.SshClient.Security;
 
 namespace Renci.SshClient
 {
-    internal abstract class Session : IDisposable
+    internal class Session : IDisposable
     {
         protected const int MAXIMUM_PACKET_SIZE = 35000;
 
+        private static RNGCryptoServiceProvider _randomizer = new System.Security.Cryptography.RNGCryptoServiceProvider();
+
         /// <summary>
-        /// Creates new session using connection informaiton.
+        /// Controls how many authentication attempts can take place at the same time.
         /// </summary>
-        /// <param name="connectionInfo">The connection info.</param>
-        /// <returns>New version specific session.</returns>
-        public static Session CreateSession(ConnectionInfo connectionInfo)
-        {
-            //  TODO:   See if possible to move socket connection logic to Connect method
-
-            var ep = new IPEndPoint(Dns.GetHostAddresses(connectionInfo.Host)[0], connectionInfo.Port);
-            var socket = new Socket(ep.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-
-            //  Connect socket with 5 seconds timeout
-            var connectResult = socket.BeginConnect(ep, null, null);
-
-            connectResult.AsyncWaitHandle.WaitOne(connectionInfo.Timeout);
-
-            socket.EndConnect(connectResult);
-
-            socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.NoDelay, 1);
-
-            //  Get server version from the server,
-            //  ignore text lines which are sent before if any
-            var serverVersion = string.Empty;
-
-            using (var ns = new NetworkStream(socket))
-            using (var sr = new StreamReader(ns))
-            {
-                while (true)
-                {
-                    serverVersion = sr.ReadLine();
-                    if (string.IsNullOrEmpty(serverVersion))
-                    {
-                        continue;
-                    }
-                    else if (serverVersion.StartsWith("SSH"))
-                    {
-                        break;
-                    }
-                }
-                ns.Close();
-            }
-
-            //  TODO:   Create session based on server version
-            var session = new SessionSSHv2(connectionInfo, socket, serverVersion);
-
-            return session;
-        }
+        /// <remarks>
+        /// Some server may restrict number to prevent authentication attacks
+        /// </remarks>
+        private static SemaphoreSlim _authenticationConnection = new SemaphoreSlim(3);
 
         /// <summary>
         /// Holds connection socket.
         /// </summary>
         private Socket _socket;
-
-        /// <summary>
-        /// Holds connection socket stream to communicate with the server
-        /// </summary>
-        private NetworkStream _socketStream;
 
         /// <summary>
         /// Holds reference to key exchange algorithm being used by this connection
@@ -91,7 +48,15 @@ namespace Renci.SshClient
         /// </summary>
         private Task _messageListener;
 
-        private volatile uint _channelId;
+        /// <summary>
+        /// Specifies outbount packet number
+        /// </summary>
+        private UInt32 _outboundPacketSequence = 0;
+
+        /// <summary>
+        /// Specifies incomin packet number
+        /// </summary>
+        private UInt32 _inboundPacketSequence = 0;
 
         /// <summary>
         /// WaitHandle to signal that key exchange was finished, weither it was succesfull or not.
@@ -122,6 +87,16 @@ namespace Renci.SshClient
         /// Specifies weither connection is authenticated
         /// </summary>
         private bool _isAuthenticated;
+
+        /// <summary>
+        /// Specifies weither socket is connected or not
+        /// </summary>
+        private bool _isSocketConnected;
+
+        /// <summary>
+        /// holds number to be used for session channels
+        /// </summary>
+        private BlockingStack<uint> _channelNumbers = new BlockingStack<uint>();
 
         /// <summary>
         /// Occurs when new message received.
@@ -170,7 +145,13 @@ namespace Renci.SshClient
         /// <value>
         /// 	<c>true</c> if socket connected; otherwise, <c>false</c>.
         /// </value>
-        protected bool IsConnected { get; private set; }
+        protected bool IsConnected
+        {
+            get
+            {
+                return this._isSocketConnected && this._isAuthenticated;
+            }
+        }
 
         //  TODO:   Consider refactor to make setter private
         public IEnumerable<byte> SessionId { get; set; }
@@ -193,19 +174,13 @@ namespace Renci.SshClient
         /// <value>The connection info.</value>
         public ConnectionInfo ConnectionInfo { get; private set; }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Session"/> class.
-        /// </summary>
-        /// <param name="connectionInfo">The connection info.</param>
-        /// <param name="socket">The socket.</param>
-        /// <param name="serverVersion">The server version.</param>
-        protected Session(ConnectionInfo connectionInfo, Socket socket, string serverVersion)
+        internal Session(ConnectionInfo connectionInfo)
         {
             this.ConnectionInfo = connectionInfo;
-            this._socket = socket;
-
-            this.ServerVersion = serverVersion;
             this.ClientVersion = string.Format("SSH-2.0-Renci.SshClient.{0}", this.GetType().Assembly.GetName().Version);
+
+            //  Prepopulate chanel numbers that will be used
+            System.Threading.Tasks.Parallel.For(0, connectionInfo.MaxSessions, (i) => { this._channelNumbers.Push((uint)i); });
         }
 
         private static IDictionary<Type, Func<Session, uint, Channel>> _channels = new Dictionary<Type, Func<Session, uint, Channel>>()
@@ -226,80 +201,134 @@ namespace Renci.SshClient
             {
                 throw new InvalidOperationException("Not connected");
             }
-            return _channels[typeof(T)](this, this._channelId) as T;
+
+            return _channels[typeof(T)](this, this._channelNumbers.WaitAndPop()) as T;
+        }
+
+        public void Connect()
+        {
+            this.Connect(this.ConnectionInfo);
         }
 
         /// <summary>
         /// Connects to the server.
         /// </summary>
-        public void Connect()
+        public void Connect(ConnectionInfo connectionInfo)
         {
-            lock (this._socket)
+            if (connectionInfo == null)
             {
-                this._socketStream = new NetworkStream(this._socket);
+                throw new ArgumentNullException("connectionInfo");
+            }
 
+            if (this.IsConnected)
+                return;
+
+            lock (this)
+            {
                 //  If connected dont connect again
                 if (this.IsConnected)
                     return;
 
-                this.IsConnected = true;
-
-                this.Write(Encoding.ASCII.GetBytes(string.Format("{0}\n", this.ClientVersion)));
-
-                //  Register Transport response messages
-                this.RegisterMessageType<DisconnectMessage>(MessageTypes.Disconnect);
-                this.RegisterMessageType<IgnoreMessage>(MessageTypes.Ignore);
-                this.RegisterMessageType<UnimplementedMessage>(MessageTypes.Unimplemented);
-                this.RegisterMessageType<DebugMessage>(MessageTypes.Debug);
-                this.RegisterMessageType<ServiceAcceptMessage>(MessageTypes.ServiceAcceptRequest);
-                this.RegisterMessageType<KeyExchangeInitMessage>(MessageTypes.KeyExchangeInit);
-                this.RegisterMessageType<NewKeysMessage>(MessageTypes.NewKeys);
-
-                //  Start incoming request listener
-                this._messageListener = Task.Factory.StartNew(() => { this.MessageListener(); });
-
-                //  Wait for key exchange to be completed
-                this.WaitHandle(this._keyExhangedFinishedWaitHandle);
-
-                //  If sessionId is not set then its not connected
-                if (this.SessionId == null)
+                try
                 {
-                    this.Disconnect();
-                    return;
-                }
+                    _authenticationConnection.Wait();
 
-                //  Request user authorization service
-                this.SendMessage(new ServiceRequestMessage
-                {
-                    ServiceName = ServiceNames.UserAuthentication,
-                });
+                    var ep = new IPEndPoint(Dns.GetHostAddresses(connectionInfo.Host)[0], connectionInfo.Port);
+                    this._socket = new Socket(ep.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
-                //  Wait for service to be accepted
-                this.WaitHandle(this._serviceAccepted);
+                    //  Connect socket with 5 seconds timeout
+                    var connectResult = this._socket.BeginConnect(ep, null, null);
 
-                //  This implemention will ignore supported by server methods and will try to authenticated user using method supported by the client.
-                string errorMessage = null; //  Hold last authentication error if any
-                foreach (var methodName in Settings.SupportedAuthenticationMethods.Keys)
-                {
-                    var userAuthentication = Settings.SupportedAuthenticationMethods[methodName](this);
+                    connectResult.AsyncWaitHandle.WaitOne(connectionInfo.Timeout);
 
-                    if (userAuthentication.Execute())
+                    this._socket.EndConnect(connectResult);
+
+                    this._socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.NoDelay, 1);
+
+                    this._isSocketConnected = true;
+
+                    //this._socketStream = new NetworkStream(this._socket);
+
+                    //  Get server version from the server,
+                    //  ignore text lines which are sent before if any
+                    using (var ns = new NetworkStream(this._socket))
+                    using (var sr = new StreamReader(ns))
                     {
-                        if (userAuthentication.IsAuthenticated)
+                        while (true)
                         {
-                            this._isAuthenticated = true;
-                            break;
-                        }
-                        else
-                        {
-                            errorMessage = userAuthentication.ErrorMessage;
+                            this.ServerVersion = sr.ReadLine();
+                            if (string.IsNullOrEmpty(this.ServerVersion))
+                            {
+                                throw new InvalidOperationException("Server string is null or empty.");
+                            }
+                            else if (this.ServerVersion.StartsWith("SSH"))
+                            {
+                                break;
+                            }
                         }
                     }
-                }
 
-                if (!this._isAuthenticated)
+                    this.Write(Encoding.ASCII.GetBytes(string.Format("{0}\n", this.ClientVersion)));
+
+                    //  Register Transport response messages
+                    this.RegisterMessageType<DisconnectMessage>(MessageTypes.Disconnect);
+                    this.RegisterMessageType<IgnoreMessage>(MessageTypes.Ignore);
+                    this.RegisterMessageType<UnimplementedMessage>(MessageTypes.Unimplemented);
+                    this.RegisterMessageType<DebugMessage>(MessageTypes.Debug);
+                    this.RegisterMessageType<ServiceAcceptMessage>(MessageTypes.ServiceAcceptRequest);
+                    this.RegisterMessageType<KeyExchangeInitMessage>(MessageTypes.KeyExchangeInit);
+                    this.RegisterMessageType<NewKeysMessage>(MessageTypes.NewKeys);
+
+                    //  Start incoming request listener
+                    this._messageListener = Task.Factory.StartNew(() => { this.MessageListener(); });
+
+                    //  Wait for key exchange to be completed
+                    this.WaitHandle(this._keyExhangedFinishedWaitHandle);
+
+                    //  If sessionId is not set then its not connected
+                    if (this.SessionId == null)
+                    {
+                        this.Disconnect();
+                        return;
+                    }
+
+                    //  Request user authorization service
+                    this.SendMessage(new ServiceRequestMessage
+                    {
+                        ServiceName = ServiceNames.UserAuthentication,
+                    });
+
+                    //  Wait for service to be accepted
+                    this.WaitHandle(this._serviceAccepted);
+
+                    //  This implemention will ignore supported by server methods and will try to authenticated user using method supported by the client.
+                    string errorMessage = null; //  Hold last authentication error if any
+                    foreach (var methodName in Settings.SupportedAuthenticationMethods.Keys)
+                    {
+                        var userAuthentication = Settings.SupportedAuthenticationMethods[methodName](this);
+
+                        if (userAuthentication.Execute())
+                        {
+                            if (userAuthentication.IsAuthenticated)
+                            {
+                                this._isAuthenticated = true;
+                                break;
+                            }
+                            else
+                            {
+                                errorMessage = userAuthentication.ErrorMessage;
+                            }
+                        }
+                    }
+
+                    if (!this._isAuthenticated)
+                    {
+                        throw new AuthenticationException(errorMessage ?? "User cannot be authenticated.");
+                    }
+                }
+                finally
                 {
-                    throw new AuthenticationException(errorMessage ?? "User cannot be authenticated.");
+                    _authenticationConnection.Release();
                 }
             }
         }
@@ -314,12 +343,6 @@ namespace Renci.SshClient
 
             this.DisconnectCleanup();
         }
-
-        /// <summary>
-        /// Sends packet message to the server.
-        /// </summary>
-        /// <param name="message">The message.</param>
-        internal abstract void SendMessage(Message message);
 
         /// <summary>
         /// Waits for handle to signal while checking other handles as well including timeout check to prevent waiting for ever
@@ -356,10 +379,161 @@ namespace Renci.SshClient
         }
 
         /// <summary>
+        /// Sends packet message to the server.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        internal virtual void SendMessage(Message message)
+        {
+            if (!this._isSocketConnected)
+                return;
+
+            //  TODO:  Refactor so we lock only _outboundPacketSequence and _inboundPacketSequence relevant operations
+
+            //  Messages can be sent by different thread so we need to synchronize it
+            lock (this._socket) //  Lock on session
+            {
+                var paddingMultiplier = this.ClientCipher == null ? (byte)8 : (byte)this.ClientCipher.BlockSize;    //    Should be recalculate base on cipher min lenght if sipher specified
+
+                //  TODO:   Maximum uncomporessed payload 32768
+                //  TOOO:   If compression specified then compress only payload
+
+                var messageData = message.GetBytes();
+
+                var packetLength = messageData.Count() + 4 + 1; //  add length bytes and padding byte
+                byte paddingLength = (byte)((-packetLength) & (paddingMultiplier - 1));
+                if (paddingLength < paddingMultiplier)
+                {
+                    paddingLength += paddingMultiplier;
+                }
+
+                //  Build Packet data
+                var packetData = new List<byte>();
+
+                //  Add packet padding length
+                packetData.Add(paddingLength);
+
+                //  Add packet payload
+                packetData.AddRange(messageData);
+
+                //  Add random padding
+                var paddingBytes = new byte[paddingLength];
+                _randomizer.GetBytes(paddingBytes);
+                packetData.AddRange(paddingBytes);
+
+                //  Insert packet length
+                packetData.InsertRange(0, BitConverter.GetBytes((uint)(packetData.Count())).Reverse());
+
+                //  Calculate packet hash
+                var hashData = new List<byte>();
+                hashData.AddRange(BitConverter.GetBytes((this._outboundPacketSequence)).Reverse());
+                hashData.AddRange(packetData);
+
+                //  Encrypt packet data
+                var encryptedData = packetData.ToList();
+                if (this.ClientCipher != null)
+                {
+                    //encryptedData = new List<byte>(this.Encrypt(packetData));
+                    encryptedData = new List<byte>(this.ClientCipher.Encrypt(packetData));
+                }
+
+                //  Add message authentication code (MAC)
+                if (this.ClientMac != null)
+                {
+                    var hash = this.ClientMac.ComputeHash(hashData.ToArray());
+
+                    encryptedData.AddRange(hash);
+                }
+
+                if (encryptedData.Count > Session.MAXIMUM_PACKET_SIZE)
+                {
+                    throw new InvalidOperationException("Packet is too big. Maximum packet size is 35000 bytes.");
+                }
+
+                this.Write(encryptedData.ToArray());
+
+                this._outboundPacketSequence++;
+            }
+        }
+
+        /// <summary>
         /// Receives the message from the server.
         /// </summary>
         /// <returns></returns>
-        protected abstract Message ReceiveMessage();
+        protected virtual Message ReceiveMessage()
+        {
+            if (!this._isSocketConnected)
+                return null;
+
+            //  No lock needed since all messages read by only one thread
+
+            List<byte> decryptedData;
+
+            //var blockSize = this.Decryption == null ? (byte)8 : (byte)this.Decryption.InputBlockSize;
+            var blockSize = this.ServerCipher == null ? (byte)8 : (byte)this.ServerCipher.BlockSize;
+
+            //  Read packet lenght first
+            var data = new List<byte>(this.Read(blockSize));
+
+            if (this.ServerCipher == null)
+            {
+                decryptedData = data.ToList();
+            }
+            else
+            {
+                //decryptedData = new List<byte>(this.Decrypt(data));
+                decryptedData = new List<byte>(this.ServerCipher.Decrypt(data));
+            }
+
+            var packetLength = BitConverter.ToUInt32(decryptedData.Take(4).Reverse().ToArray(), 0);
+
+            //  Test packet minimum and maximum boundaries
+            if (packetLength < Math.Max((byte)16, blockSize) - 4 || packetLength > Session.MAXIMUM_PACKET_SIZE - 4)
+                throw new InvalidOperationException(string.Format("Bad packet length {0}", packetLength));
+
+            //  Read rest of the packet data
+            int bytesToRead = (int)(packetLength - (blockSize - 4));
+
+            while (bytesToRead > 0)
+            {
+                data = new List<byte>(this.Read(blockSize));
+
+                if (this.ServerCipher == null)
+                {
+                    decryptedData.AddRange(data);
+                }
+                else
+                {
+                    //decryptedData.AddRange(this.Decrypt(data));
+                    decryptedData.AddRange(this.ServerCipher.Decrypt(data));
+                }
+                bytesToRead -= blockSize;
+            }
+
+            //  Validate message against MAC
+            if (this.ServerMac != null)
+            {
+                var serverHash = this.Read(this.ServerMac.HashSize / 8);
+
+                var clientHashData = new List<byte>();
+                clientHashData.AddRange(BitConverter.GetBytes(this._inboundPacketSequence).Reverse());
+                clientHashData.AddRange(decryptedData);
+
+                //  Calculate packet hash
+                var clientHash = this.ServerMac.ComputeHash(clientHashData.ToArray());
+
+                if (!serverHash.IsEqualTo(clientHash))
+                {
+                    throw new InvalidOperationException("MAC error");
+                }
+            }
+
+            //  TODO:   Issue new keys after x number of packets
+            this._inboundPacketSequence++;
+
+            var paddingLength = decryptedData[4];
+
+            return this.LoadMessage(decryptedData.Skip(5).Take((int)(packetLength - paddingLength - 1)));
+        }
 
         /// <summary>
         /// Handles the message.
@@ -375,7 +549,7 @@ namespace Renci.SshClient
 
         protected virtual void HandleMessage(DisconnectMessage message)
         {
-            this.IsConnected = false;   //  Connection is terminated after this message
+            this._isSocketConnected = false;   //  Connection is terminated after this message
 
             this.DisconnectCleanup();
         }
@@ -491,47 +665,30 @@ namespace Renci.SshClient
         {
             var buffer = new byte[length];
 
-            try
-            {
-                var totalBytesRead = 0;
+            var totalBytesRead = 0;
 
-                while (totalBytesRead < length)
+            while (totalBytesRead < length)
+            {
+                //int bytesRead = this._socketStream.Read(buffer, 0, length);
+                int bytesRead = this._socket.Receive(buffer, length, SocketFlags.None);
+
+                if (bytesRead == 0)
                 {
-                    int bytesRead = this._socketStream.Read(buffer, 0, length);
-                    if (bytesRead > 0)
-                    {
-                        totalBytesRead += bytesRead;
-                    }
-                    else
-                    {
-                        totalBytesRead = bytesRead;
-                        break;
-                    }
+                    throw new IOException("Unable to read data to the transport connection: An established connection was aborted by the software in your host machine");
                 }
 
-                if (totalBytesRead < length)
+                if (bytesRead > 0)
                 {
-                    this.IsConnected = false;
-                    if (totalBytesRead > 0)
-                    {
-                        throw new InvalidDataException(string.Format("Data read {0}, expected {1}", totalBytesRead, length));
-                    }
-                    else
-                    {
-                        //  Socket was disconnected by the server
-                        throw new IOException("Unable to read data to the transport connection: An established connection was aborted by the software in your host machine");
-                    }
+                    totalBytesRead += bytesRead;
                 }
                 else
-                    return buffer;
-            }
-            catch (Exception)
-            {
-                //  If exception was thrown mark connection as closed and rethrow an exception
-                this.IsConnected = false;
-                throw;
+                {
+                    totalBytesRead = bytesRead;
+                    break;
+                }
             }
 
+            return buffer;
         }
 
         /// <summary>
@@ -542,12 +699,13 @@ namespace Renci.SshClient
         {
             try
             {
-                this._socketStream.Write(data, 0, data.Length);
-                this._socketStream.Flush();
+                //this._socketStream.Write(data, 0, data.Length);
+                //this._socketStream.Flush();
+                this._socket.Send(data);
             }
             catch (Exception)
             {
-                this.IsConnected = false;
+                this._isSocketConnected = false;
                 throw;
             }
         }
@@ -610,6 +768,20 @@ namespace Renci.SshClient
 
         #endregion
 
+        private bool ValidateHash(List<byte> decryptedData, byte[] serverHash, uint packetSequence)
+        {
+            var clientHashData = new List<byte>();
+            clientHashData.AddRange(BitConverter.GetBytes(packetSequence).Reverse());
+            clientHashData.AddRange(decryptedData);
+
+            var clientHash = this.ServerMac.ComputeHash(clientHashData.ToArray());
+            if (!serverHash.IsEqualTo(clientHash))
+            {
+                return false;
+            }
+            return true;
+        }
+
         /// <summary>
         /// Perfom neccesary cleanup when client disconects from the server
         /// </summary>
@@ -618,16 +790,19 @@ namespace Renci.SshClient
             //  Stop running listener thread
 
 
-            if (this._socketStream != null)
-                this._socketStream.Close();
+            //if (this._socketStream != null)
+            //    this._socketStream.Close();
 
             //  Close all open channels if any
-            foreach (var channelId in this._openChannels.Values)
+            if (this.IsConnected)
             {
-                this.SendMessage(new ChannelCloseMessage
+                foreach (var channelId in this._openChannels.Values)
                 {
-                    ChannelNumber = channelId,
-                });
+                    this.SendMessage(new ChannelCloseMessage
+                    {
+                        ChannelNumber = channelId,
+                    });
+                }
             }
 
             //  Close socket connection if still open
@@ -636,7 +811,7 @@ namespace Renci.SshClient
                 this._socket.Close();
             }
 
-            this.IsConnected = false;
+            this._isSocketConnected = false;
         }
 
         /// <summary>
@@ -646,7 +821,7 @@ namespace Renci.SshClient
         {
             try
             {
-                while (this.IsConnected)
+                while (this._isSocketConnected)
                 {
                     dynamic message = this.ReceiveMessage();
 
@@ -655,12 +830,18 @@ namespace Renci.SshClient
                         throw new NullReferenceException("The 'message' variable cannot be null");
                     }
 
+                    Debug.WriteLine(((Message)message).MessageType);
+
                     //  Handle session messages first
                     this.HandleMessage(message);
 
                     //  Raise an event that message received
                     this.RaiseMessageReceived(this, new MessageReceivedEventArgs(message));
                 }
+            }
+            catch (IOException)
+            {
+                this._isSocketConnected = false;
             }
             catch (Exception exp)
             {
@@ -695,8 +876,10 @@ namespace Renci.SshClient
         private void HandleMessage(ChannelOpenConfirmationMessage message)
         {
             //  Keep track of open channels
-            this._openChannels.Add(message.ChannelNumber, message.ServerChannelNumber);
-            this._channelId++;
+            lock (this._openChannels)
+            {
+                this._openChannels.Add(message.ChannelNumber, message.ServerChannelNumber);
+            }
         }
 
         /// <summary>
@@ -706,12 +889,21 @@ namespace Renci.SshClient
         private void HandleMessage(ChannelCloseMessage message)
         {
             //  Keep track of open channels
-            this._openChannels.Remove(message.ChannelNumber);
-            this._channelId--;
+            lock (this._openChannels)
+            {
+                this._openChannels.Remove(message.ChannelNumber);
+                this._channelNumbers.Push(message.ChannelNumber);
+            }
         }
 
         private void HandleMessage(ChannelFailureMessage message)
         {
+            //  Keep track of open channels
+            lock (this._openChannels)
+            {
+                this._openChannels.Remove(message.ChannelNumber);
+                this._channelNumbers.Push(message.ChannelNumber);
+            }
         }
 
         #region IDisposable Members
@@ -734,6 +926,11 @@ namespace Renci.SshClient
                 // and unmanaged resources.
                 if (disposing)
                 {
+                    //if (this._socketStream != null)
+                    //{
+                    //    this._socket.Dispose();
+                    //}
+
                     // Dispose managed resources.
                     if (this._socket != null)
                     {

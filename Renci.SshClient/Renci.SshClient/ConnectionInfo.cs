@@ -16,12 +16,15 @@
 
         public int RetryAttempts { get; set; }
 
+        public int MaxSessions { get; set; }
+
         public ConnectionInfo()
         {
             //  Set default connection values
             this.Port = 22;
             this.Timeout = 1000 * 10;   //  Set default timeout to 10 sec
             this.RetryAttempts = 3;
+            this.MaxSessions = 10;
         }
     }
 }

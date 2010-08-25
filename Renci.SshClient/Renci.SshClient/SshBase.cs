@@ -10,7 +10,7 @@ namespace Renci.SshClient
         public SshBase(ConnectionInfo connectionInfo)
         {
             this.ConnectionInfo = connectionInfo;
-            this.Session = Session.CreateSession(this.ConnectionInfo);
+            this.Session = new Session(this.ConnectionInfo);
         }
 
         public SshBase(string host, int port, string username, string password)

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -76,7 +75,7 @@ namespace Renci.SshClient
         /// <summary>
         /// Keeps track of all open channels
         /// </summary>
-        private IDictionary<uint, uint> _openChannels = new Dictionary<uint, uint>();
+        private Dictionary<uint, Channel> _openChannels = new Dictionary<uint, Channel>();
 
         /// <summary>
         /// Exception that need to be thrown by waiting thread
@@ -87,11 +86,6 @@ namespace Renci.SshClient
         /// Specifies weither connection is authenticated
         /// </summary>
         private bool _isAuthenticated;
-
-        /// <summary>
-        /// Specifies weither socket is connected or not
-        /// </summary>
-        private bool _isSocketConnected;
 
         /// <summary>
         /// holds number to be used for session channels
@@ -149,7 +143,7 @@ namespace Renci.SshClient
         {
             get
             {
-                return this._isSocketConnected && this._isAuthenticated;
+                return this._socket != null && this._socket.Connected && this._isAuthenticated;
             }
         }
 
@@ -180,7 +174,10 @@ namespace Renci.SshClient
             this.ClientVersion = string.Format("SSH-2.0-Renci.SshClient.{0}", this.GetType().Assembly.GetName().Version);
 
             //  Prepopulate chanel numbers that will be used
-            System.Threading.Tasks.Parallel.For(0, connectionInfo.MaxSessions, (i) => { this._channelNumbers.Push((uint)i); });
+            for (int i = connectionInfo.MaxSessions - 1; i > 0; i--)
+            {
+                this._channelNumbers.Push((uint)i - 1 + 100);
+            }
         }
 
         private static IDictionary<Type, Func<Session, uint, Channel>> _channels = new Dictionary<Type, Func<Session, uint, Channel>>()
@@ -202,7 +199,20 @@ namespace Renci.SshClient
                 throw new InvalidOperationException("Not connected");
             }
 
-            return _channels[typeof(T)](this, this._channelNumbers.WaitAndPop()) as T;
+            T channel;
+            var clientChannelId = this._channelNumbers.WaitAndPop();
+
+            lock (this._openChannels)
+            {
+                channel = _channels[typeof(T)](this, clientChannelId) as T;
+
+                channel.Closed += Channel_Closed;
+                channel.OpenFailed += Channel_Closed;
+
+                this._openChannels.Add(clientChannelId, channel);
+            }
+
+            return channel;
         }
 
         public void Connect()
@@ -244,10 +254,6 @@ namespace Renci.SshClient
                     this._socket.EndConnect(connectResult);
 
                     this._socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.NoDelay, 1);
-
-                    this._isSocketConnected = true;
-
-                    //this._socketStream = new NetworkStream(this._socket);
 
                     //  Get server version from the server,
                     //  ignore text lines which are sent before if any
@@ -384,7 +390,7 @@ namespace Renci.SshClient
         /// <param name="message">The message.</param>
         internal virtual void SendMessage(Message message)
         {
-            if (!this._isSocketConnected)
+            if (!this._socket.Connected)
                 return;
 
             //  TODO:  Refactor so we lock only _outboundPacketSequence and _inboundPacketSequence relevant operations
@@ -432,7 +438,6 @@ namespace Renci.SshClient
                 var encryptedData = packetData.ToList();
                 if (this.ClientCipher != null)
                 {
-                    //encryptedData = new List<byte>(this.Encrypt(packetData));
                     encryptedData = new List<byte>(this.ClientCipher.Encrypt(packetData));
                 }
 
@@ -461,14 +466,13 @@ namespace Renci.SshClient
         /// <returns></returns>
         protected virtual Message ReceiveMessage()
         {
-            if (!this._isSocketConnected)
+            if (!this._socket.Connected)
                 return null;
 
             //  No lock needed since all messages read by only one thread
 
             List<byte> decryptedData;
 
-            //var blockSize = this.Decryption == null ? (byte)8 : (byte)this.Decryption.InputBlockSize;
             var blockSize = this.ServerCipher == null ? (byte)8 : (byte)this.ServerCipher.BlockSize;
 
             //  Read packet lenght first
@@ -480,7 +484,6 @@ namespace Renci.SshClient
             }
             else
             {
-                //decryptedData = new List<byte>(this.Decrypt(data));
                 decryptedData = new List<byte>(this.ServerCipher.Decrypt(data));
             }
 
@@ -503,7 +506,6 @@ namespace Renci.SshClient
                 }
                 else
                 {
-                    //decryptedData.AddRange(this.Decrypt(data));
                     decryptedData.AddRange(this.ServerCipher.Decrypt(data));
                 }
                 bytesToRead -= blockSize;
@@ -543,14 +545,16 @@ namespace Renci.SshClient
         protected virtual void HandleMessage<T>(T message) where T : Message
         {
             //  Do nothing as message could be proccessed by other module
+            if (message is ChannelMessage)
+            {
+                this.HandleMessage(message as ChannelMessage);
+            }
         }
 
         #region Handle transport messages
 
         protected virtual void HandleMessage(DisconnectMessage message)
         {
-            this._isSocketConnected = false;   //  Connection is terminated after this message
-
             this.DisconnectCleanup();
         }
 
@@ -637,6 +641,25 @@ namespace Renci.SshClient
 
         #endregion
 
+        #region Handle channel messages
+
+        protected virtual void HandleMessage(ChannelMessage message)
+        {
+            var channel = this._openChannels[message.ChannelNumber];
+            channel.HandleChannelMessage(message);
+        }
+
+        private void Channel_Closed(object sender, ChannelEventArgs e)
+        {
+            lock (this._openChannels)
+            {
+                this._openChannels.Remove(e.ChannelNumber);
+                this._channelNumbers.Push(e.ChannelNumber);
+            }
+        }
+
+        #endregion
+
         /// <summary>
         /// Disconnects client from the server with specified reason code.
         /// </summary>
@@ -669,11 +692,11 @@ namespace Renci.SshClient
 
             while (totalBytesRead < length)
             {
-                //int bytesRead = this._socketStream.Read(buffer, 0, length);
                 int bytesRead = this._socket.Receive(buffer, length, SocketFlags.None);
 
                 if (bytesRead == 0)
                 {
+                    this._socket.Close();
                     throw new IOException("Unable to read data to the transport connection: An established connection was aborted by the software in your host machine");
                 }
 
@@ -697,17 +720,7 @@ namespace Renci.SshClient
         /// <param name="data">The data.</param>
         protected void Write(byte[] data)
         {
-            try
-            {
-                //this._socketStream.Write(data, 0, data.Length);
-                //this._socketStream.Flush();
-                this._socket.Send(data);
-            }
-            catch (Exception)
-            {
-                this._isSocketConnected = false;
-                throw;
-            }
+            this._socket.Send(data);
         }
 
         /// <summary>
@@ -787,21 +800,12 @@ namespace Renci.SshClient
         /// </summary>
         private void DisconnectCleanup()
         {
-            //  Stop running listener thread
-
-
-            //if (this._socketStream != null)
-            //    this._socketStream.Close();
-
             //  Close all open channels if any
             if (this.IsConnected)
             {
-                foreach (var channelId in this._openChannels.Values)
+                foreach (var channel in this._openChannels.Values)
                 {
-                    this.SendMessage(new ChannelCloseMessage
-                    {
-                        ChannelNumber = channelId,
-                    });
+                    channel.Close();
                 }
             }
 
@@ -810,8 +814,6 @@ namespace Renci.SshClient
             {
                 this._socket.Close();
             }
-
-            this._isSocketConnected = false;
         }
 
         /// <summary>
@@ -821,7 +823,7 @@ namespace Renci.SshClient
         {
             try
             {
-                while (this._isSocketConnected)
+                while (this._socket.Connected)
                 {
                     dynamic message = this.ReceiveMessage();
 
@@ -829,8 +831,6 @@ namespace Renci.SshClient
                     {
                         throw new NullReferenceException("The 'message' variable cannot be null");
                     }
-
-                    Debug.WriteLine(((Message)message).MessageType);
 
                     //  Handle session messages first
                     this.HandleMessage(message);
@@ -841,7 +841,7 @@ namespace Renci.SshClient
             }
             catch (IOException)
             {
-                this._isSocketConnected = false;
+                //  Ignore this error since socket was disconected
             }
             catch (Exception exp)
             {
@@ -869,43 +869,6 @@ namespace Renci.SshClient
             }
         }
 
-        /// <summary>
-        /// Handles <see cref="ChannelOpenConfirmationMessage"/> message.
-        /// </summary>
-        /// <param name="message">The message.</param>
-        private void HandleMessage(ChannelOpenConfirmationMessage message)
-        {
-            //  Keep track of open channels
-            lock (this._openChannels)
-            {
-                this._openChannels.Add(message.ChannelNumber, message.ServerChannelNumber);
-            }
-        }
-
-        /// <summary>
-        /// Handles <see cref="ChannelCloseMessage"/> message.
-        /// </summary>
-        /// <param name="message">The message.</param>
-        private void HandleMessage(ChannelCloseMessage message)
-        {
-            //  Keep track of open channels
-            lock (this._openChannels)
-            {
-                this._openChannels.Remove(message.ChannelNumber);
-                this._channelNumbers.Push(message.ChannelNumber);
-            }
-        }
-
-        private void HandleMessage(ChannelFailureMessage message)
-        {
-            //  Keep track of open channels
-            lock (this._openChannels)
-            {
-                this._openChannels.Remove(message.ChannelNumber);
-                this._channelNumbers.Push(message.ChannelNumber);
-            }
-        }
-
         #region IDisposable Members
 
         private bool disposed = false;
@@ -926,11 +889,6 @@ namespace Renci.SshClient
                 // and unmanaged resources.
                 if (disposing)
                 {
-                    //if (this._socketStream != null)
-                    //{
-                    //    this._socket.Dispose();
-                    //}
-
                     // Dispose managed resources.
                     if (this._socket != null)
                     {
@@ -968,6 +926,5 @@ namespace Renci.SshClient
         }
 
         #endregion
-
     }
 }

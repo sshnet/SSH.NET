@@ -6,8 +6,6 @@ namespace Renci.SshClient.Common
 {
     public class BlockingStack<T> : IEnumerable<T>, ICollection, IEnumerable
     {
-        //private EventWaitHandle _updated = new AutoResetEvent(false);
-
         private Stack<T> _stack;
 
         public BlockingStack()
@@ -18,7 +16,6 @@ namespace Renci.SshClient.Common
         public BlockingStack(IEnumerable<T> collection)
         {
             this._stack = new Stack<T>(collection);
-            //this._updated.Set();
         }
 
         public BlockingStack(int capacity)
@@ -85,7 +82,6 @@ namespace Renci.SshClient.Common
                 while (this._stack.Count == 0)
                 {
                     Monitor.Wait(this);
-                    //this._updated.WaitOne();
                 }
                 var result = this._stack.Pop();
                 Monitor.PulseAll(this);
@@ -98,7 +94,6 @@ namespace Renci.SshClient.Common
             lock (this)
             {
                 this._stack.Push(item);
-                //this._updated.Set();
                 Monitor.PulseAll(this);
             }
         }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading;
-using Renci.SshClient.Common;
 using Renci.SshClient.Messages;
 using Renci.SshClient.Messages.Connection;
 
@@ -16,19 +15,33 @@ namespace Renci.SshClient.Channels
 
         private uint _maximumPacketSize = 0x4000;
 
-        private int _chanelOpenFailedAttempts = 0;
+        /// <summary>
+        /// Counts faile channel open attempts
+        /// </summary>
+        private int _failedOpenAttempts;
+
+        /// <summary>
+        /// Indicates weither close channel message was sent
+        /// </summary>
+        private bool _closeMessageSent = false;
 
         public abstract ChannelTypes ChannelType { get; }
 
-        public uint ClientChannelNumber { get; set; }
+        public uint ClientChannelNumber { get; private set; }
 
-        public uint ServerChannelNumber { get; set; }
+        public uint ServerChannelNumber { get; private set; }
 
-        public uint WindowSize { get; set; }
+        public uint WindowSize { get; private set; }
 
-        public uint PacketSize { get; set; }
+        public uint PacketSize { get; private set; }
 
         public bool IsOpen { get; private set; }
+
+        public event EventHandler<ChannelEventArgs> Opened;
+
+        public event EventHandler<ChannelEventArgs> Closed;
+
+        public event EventHandler<ChannelEventArgs> OpenFailed;
 
         protected Session Session { get; private set; }
 
@@ -61,13 +74,12 @@ namespace Renci.SshClient.Channels
 
         public virtual void Open()
         {
-            this.Session.MessageReceived += SessionInfo_MessageReceived;
-
             //  Open session channel
             if (!this.IsOpen)
             {
                 this.SendChannelOpenMessage();
                 this.Session.WaitHandle(this._channelOpenWaitHandle);
+                //  TODO:   Throw exception if channel could not be open, this can happend after sever failed open attempts
             }
         }
 
@@ -75,16 +87,18 @@ namespace Renci.SshClient.Channels
         {
             if (this.IsOpen)
             {
-                this.SendMessage(new ChannelCloseMessage
-                {
-                    ChannelNumber = this.ServerChannelNumber,
-                });
+                this.SendChannelCloseMessage();
 
                 //  Wait for channel to be closed
                 this.Session.WaitHandle(this._channelClosedWaitHandle);
             }
 
             this.CloseCleanup();
+        }
+
+        internal void HandleChannelMessage(ChannelMessage message)
+        {
+            this.HandleMessage((dynamic)message);
         }
 
         protected virtual void OnChannelData(string data)
@@ -105,7 +119,6 @@ namespace Renci.SshClient.Channels
 
         protected virtual void OnChannelClose()
         {
-            //  TODO:   Channel is closed when it sent and received Close message
         }
 
         protected virtual void OnChannelFailed(uint reasonCode, string description)
@@ -117,17 +130,6 @@ namespace Renci.SshClient.Channels
             this.Session.SendMessage(message);
         }
 
-        private void SessionInfo_MessageReceived(object sender, MessageReceivedEventArgs e)
-        {
-            ChannelMessage message = e.Message as ChannelMessage;
-
-            //  Handle only messages belong to this channel or channel open confirmation
-            if (message.ChannelNumber == this.ClientChannelNumber || e.Message is ChannelOpenConfirmationMessage)
-            {
-                this.HandleMessage((dynamic)e.Message);
-            }
-        }
-
         #region Message handlers
 
         private void HandleMessage<T>(T message) where T : Message
@@ -137,30 +139,33 @@ namespace Renci.SshClient.Channels
 
         private void HandleMessage(ChannelOpenConfirmationMessage message)
         {
-            //  Make sure we open channel only for requested channel number
-            if (this.ClientChannelNumber != message.ChannelNumber)
-                return;
-
             this.ServerChannelNumber = message.ServerChannelNumber;
-            this.IsOpen = true;
             this.WindowSize = message.InitialWindowSize;
             this.PacketSize = message.MaximumPacketSize;
+
+            this.IsOpen = true;
+
+            this.RaiseOpened();
+
             this._channelOpenWaitHandle.Set();
         }
 
         private void HandleMessage(ChannelOpenFailureMessage message)
         {
-            if (_chanelOpenFailedAttempts > this.Session.ConnectionInfo.RetryAttempts)
+            if (this._failedOpenAttempts < this.Session.ConnectionInfo.RetryAttempts)
             {
-                this.IsOpen = false;
-
-                this._channelOpenWaitHandle.Set();
-                this.OnChannelFailed(message.ReasonCode, message.Description);
+                this.SendChannelOpenMessage();
+                this._failedOpenAttempts++;
             }
             else
             {
-                //  Send channel open message again
-                this.SendChannelOpenMessage();
+                this.RaiseOpenFailed();
+
+                this.CloseCleanup();
+
+                this.OnChannelFailed(message.ReasonCode, message.Description);
+
+                this._channelOpenWaitHandle.Set();
             }
         }
 
@@ -215,6 +220,10 @@ namespace Renci.SshClient.Channels
 
         private void HandleMessage(ChannelCloseMessage message)
         {
+            this.OnChannelClose();
+
+            this.RaiseClosed();
+
             this.CloseCleanup();
 
             this._channelClosedWaitHandle.Set();
@@ -238,7 +247,31 @@ namespace Renci.SshClient.Channels
 
         #endregion
 
-        private void SendChannelOpenMessage()
+        private void RaiseOpened()
+        {
+            if (this.Opened != null)
+            {
+                this.Opened(this, new ChannelEventArgs(this.ClientChannelNumber));
+            }
+        }
+
+        private void RaiseClosed()
+        {
+            if (this.Closed != null)
+            {
+                this.Closed(this, new ChannelEventArgs(this.ClientChannelNumber));
+            }
+        }
+
+        private void RaiseOpenFailed()
+        {
+            if (this.OpenFailed != null)
+            {
+                this.OpenFailed(this, new ChannelEventArgs(this.ClientChannelNumber));
+            }
+        }
+
+        internal void SendChannelOpenMessage()
         {
             this.SendMessage(new ChannelOpenMessage
             {
@@ -249,14 +282,31 @@ namespace Renci.SshClient.Channels
             });
         }
 
+        private void SendChannelCloseMessage()
+        {
+            if (this._closeMessageSent)
+                return;
+
+            lock (this)
+            {
+                if (this._closeMessageSent)
+                    return;
+
+                this.SendMessage(new ChannelCloseMessage
+                {
+                    ChannelNumber = this.ServerChannelNumber,
+                });
+                this._closeMessageSent = true;
+            }
+        }
+
         private void CloseCleanup()
         {
-            if (this.IsOpen)
-            {
-                this.IsOpen = false;
+            if (!this.IsOpen)
+                return;
 
-                this.Session.MessageReceived -= SessionInfo_MessageReceived;
-            }
+            this.IsOpen = false;
+            this.SendChannelCloseMessage();
         }
 
         #region IDisposable Members

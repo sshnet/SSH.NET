@@ -61,6 +61,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Channels\ChannelAsyncResult.cs" />
+    <Compile Include="Channels\ChannelEventArgs.cs" />
     <Compile Include="Common\BlockingStack.cs" />
     <Compile Include="Security\Algorithm.cs" />
     <Compile Include="Security\Cipher.cs" />

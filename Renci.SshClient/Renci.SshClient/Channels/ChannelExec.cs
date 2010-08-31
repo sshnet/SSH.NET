@@ -26,7 +26,7 @@ namespace Renci.SshClient.Channels
         }
 
         public ChannelExec(Session session, uint channelId)
-            : base(session, channelId, 0x100000, 0x1000)
+            : base(session, channelId, 0x100000, 0x8000)
         {
         }
 
@@ -47,7 +47,6 @@ namespace Renci.SshClient.Channels
             };
 
             this._callback = callback;
-
             this._channelData = output;
             this._channelExtendedData = extendedOutput;
 
@@ -67,31 +66,46 @@ namespace Renci.SshClient.Channels
 
         internal void EndExecute(IAsyncResult result)
         {
-            ChannelAsyncResult channelAsyncResult = result as ChannelAsyncResult;
-
-            if (channelAsyncResult.Channel != this)
+            try
             {
-                throw new InvalidOperationException("Invalid IAsyncResult parameter");
+                ChannelAsyncResult channelAsyncResult = result as ChannelAsyncResult;
+
+                if (channelAsyncResult.Channel != this)
+                {
+                    throw new InvalidOperationException("Invalid IAsyncResult parameter");
+                }
+
+                //Make sure that operation completed if not wait for it to finish
+                this.Session.WaitHandle(this._asyncResult.AsyncWaitHandle);
+
+                this.Close();
+
+                this._asyncResult = null;
+
+                if (this._exception != null)
+                {
+                    var exception = this._exception;
+                    this._exception = null; //  Clean exception
+                    throw exception;
+                }
+            }
+            catch (Exception exp)
+            {
+                throw;
             }
 
-            //Make sure that operation completed if not wait for it to finish
-            this.Session.WaitHandle(this._asyncResult.AsyncWaitHandle);
-
-            this.Close();
-
-            this._asyncResult = null;
-
-            if (this._exception != null)
-            {
-                var exception = this._exception;
-                this._exception = null; //  Clean exception
-                throw exception;
-            }
         }
 
         protected override void OnChannelEof()
         {
             base.OnChannelEof();
+
+            this.ExecutionCompleted();
+        }
+
+        protected override void OnChannelClose()
+        {
+            base.OnChannelClose();
 
             this.ExecutionCompleted();
         }

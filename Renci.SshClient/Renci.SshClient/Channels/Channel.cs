@@ -13,7 +13,7 @@ namespace Renci.SshClient.Channels
 
         private uint _initialWindowSize = 0x100000;
 
-        private uint _maximumPacketSize = 0x4000;
+        private uint _maximumPacketSize = 0x8000;
 
         /// <summary>
         /// Counts faile channel open attempts
@@ -196,10 +196,19 @@ namespace Renci.SshClient.Channels
             if (message.RequestName == RequestNames.ExitStatus)
             {
                 var exitStatus = message.ExitStatus;
+
                 replyMessage = new ChannelSuccessMessage()
                 {
                     ChannelNumber = message.ChannelNumber,
                 };
+
+                this.SendChannelCloseMessage();
+
+                //  TODO:   if exitStatus is not 0 then throw an exception or notify user that command failed to execute correctly
+            }
+            else
+            {
+                throw new NotImplementedException(string.Format("Request name {0} is not implemented.", message.RequestName));
             }
 
             if (message.WantReply)
@@ -229,6 +238,8 @@ namespace Renci.SshClient.Channels
             this._channelClosedWaitHandle.Set();
         }
 
+        #endregion
+
         private void AdjustDataWindow(string messageData)
         {
             this.WindowSize -= (uint)messageData.Length;
@@ -244,8 +255,6 @@ namespace Renci.SshClient.Channels
                 this.WindowSize = this._initialWindowSize;
             }
         }
-
-        #endregion
 
         private void RaiseOpened()
         {

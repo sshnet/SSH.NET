@@ -135,11 +135,15 @@ namespace Renci.SshClient.Channels
         protected void SendMessage(ChannelDataMessage message)
         {
             //  TODO:   Adjust server window size if needed
+            this.ServerWindowSize -= (uint)message.Data.Length;
+            this.Session.SendMessage(message);
         }
 
         protected void SendMessage(ChannelExtendedDataMessage message)
         {
             //  TODO:   Adjust server window size if needed
+            this.ServerWindowSize -= (uint)message.Data.Length;
+            this.Session.SendMessage(message);
         }
 
         #region Message handlers

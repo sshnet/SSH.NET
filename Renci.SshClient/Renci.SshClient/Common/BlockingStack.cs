@@ -126,12 +126,12 @@ namespace Renci.SshClient.Common
 
         public bool IsSynchronized
         {
-            get { throw new System.NotImplementedException(); }
+            get { return true; }
         }
 
         public object SyncRoot
         {
-            get { throw new System.NotImplementedException(); }
+            get { return this; }
         }
 
         #endregion

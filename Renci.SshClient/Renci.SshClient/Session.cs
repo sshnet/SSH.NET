@@ -73,6 +73,11 @@ namespace Renci.SshClient
         private EventWaitHandle _exceptionWaitHandle = new AutoResetEvent(false);
 
         /// <summary>
+        /// WaitHandle to signal that listner ended
+        /// </summary>
+        private EventWaitHandle _listenerWaitHandle = new AutoResetEvent(false);
+
+        /// <summary>
         /// Keeps track of all open channels
         /// </summary>
         private Dictionary<uint, Channel> _openChannels = new Dictionary<uint, Channel>();
@@ -86,6 +91,11 @@ namespace Renci.SshClient
         /// Specifies weither connection is authenticated
         /// </summary>
         private bool _isAuthenticated;
+
+        /// <summary>
+        /// Specifies weither Disconnect method was called
+        /// </summary>
+        private bool _isDisconnecting;
 
         /// <summary>
         /// holds number to be used for session channels
@@ -233,15 +243,18 @@ namespace Renci.SshClient
             if (this.IsConnected)
                 return;
 
-            lock (this)
+            try
             {
-                //  If connected dont connect again
+                _authenticationConnection.Wait();
+
                 if (this.IsConnected)
                     return;
 
-                try
+                lock (this)
                 {
-                    _authenticationConnection.Wait();
+                    //  If connected dont connect again
+                    if (this.IsConnected)
+                        return;
 
                     var ep = new IPEndPoint(Dns.GetHostAddresses(connectionInfo.Host)[0], connectionInfo.Port);
                     this._socket = new Socket(ep.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
@@ -331,11 +344,13 @@ namespace Renci.SshClient
                     {
                         throw new AuthenticationException(errorMessage ?? "User cannot be authenticated.");
                     }
+
+                    Monitor.Pulse(this);
                 }
-                finally
-                {
-                    _authenticationConnection.Release();
-                }
+            }
+            finally
+            {
+                _authenticationConnection.Release();
             }
         }
 
@@ -344,7 +359,8 @@ namespace Renci.SshClient
         /// </summary>
         public void Disconnect()
         {
-            //  TODO:   Change message to something more appropriate
+            this._isDisconnecting = true;
+
             this.Disconnect(DisconnectReasonCodes.ByApplication, "Connection terminated by the client.");
 
             this.DisconnectCleanup();
@@ -359,6 +375,7 @@ namespace Renci.SshClient
             var waitHandles = new WaitHandle[]
                 {
                     this._exceptionWaitHandle,
+                    this._listenerWaitHandle,   //  When listener exits
                     waitHandle,
                 };
 
@@ -491,7 +508,7 @@ namespace Renci.SshClient
 
             //  Test packet minimum and maximum boundaries
             if (packetLength < Math.Max((byte)16, blockSize) - 4 || packetLength > Session.MAXIMUM_PACKET_SIZE - 4)
-                throw new InvalidOperationException(string.Format("Bad packet length {0}", packetLength));
+                throw new IOException(string.Format("Bad packet length {0}", packetLength));
 
             //  Read rest of the packet data
             int bytesToRead = (int)(packetLength - (blockSize - 4));
@@ -525,7 +542,7 @@ namespace Renci.SshClient
 
                 if (!serverHash.IsEqualTo(clientHash))
                 {
-                    throw new InvalidOperationException("MAC error");
+                    throw new IOException("MAC error");
                 }
             }
 
@@ -839,9 +856,19 @@ namespace Renci.SshClient
                     this.RaiseMessageReceived(this, new MessageReceivedEventArgs(message));
                 }
             }
-            catch (IOException)
+            catch (IOException exp)
             {
                 //  Ignore this error since socket was disconected
+
+                //  Ensure socket is disconnected
+                this._socket.Close();
+
+                if (!this._isDisconnecting)
+                {
+                    this._exceptionToThrow = exp;
+
+                    this._exceptionWaitHandle.Set();
+                }
             }
             catch (Exception exp)
             {
@@ -854,6 +881,8 @@ namespace Renci.SshClient
 
                 this._exceptionWaitHandle.Set();
             }
+
+            this._listenerWaitHandle.Set();
         }
 
         /// <summary>
@@ -909,6 +938,11 @@ namespace Renci.SshClient
                     if (this._exceptionWaitHandle != null)
                     {
                         this._exceptionWaitHandle.Dispose();
+                    }
+
+                    if (this._listenerWaitHandle != null)
+                    {
+                        this._listenerWaitHandle.Dispose();
                     }
                 }
 

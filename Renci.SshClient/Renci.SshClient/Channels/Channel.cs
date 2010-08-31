@@ -31,7 +31,9 @@ namespace Renci.SshClient.Channels
 
         public uint ServerChannelNumber { get; private set; }
 
-        public uint WindowSize { get; private set; }
+        public uint LocalWindowSize { get; private set; }
+
+        public uint ServerWindowSize { get; private set; }
 
         public uint PacketSize { get; private set; }
 
@@ -53,7 +55,7 @@ namespace Renci.SshClient.Channels
             this.ClientChannelNumber = channelId;
 
             this.Session = session;
-            this.WindowSize = this._initialWindowSize;  // Initial window size
+            this.LocalWindowSize = this._initialWindowSize;  // Initial window size
             this.PacketSize = this._maximumPacketSize;     // Maximum packet size
 
             this.Session.RegisterMessageType<ChannelOpenConfirmationMessage>(MessageTypes.ChannelOpenConfirmation);
@@ -130,6 +132,16 @@ namespace Renci.SshClient.Channels
             this.Session.SendMessage(message);
         }
 
+        protected void SendMessage(ChannelDataMessage message)
+        {
+            //  TODO:   Adjust server window size if needed
+        }
+
+        protected void SendMessage(ChannelExtendedDataMessage message)
+        {
+            //  TODO:   Adjust server window size if needed
+        }
+
         #region Message handlers
 
         private void HandleMessage<T>(T message) where T : Message
@@ -140,7 +152,7 @@ namespace Renci.SshClient.Channels
         private void HandleMessage(ChannelOpenConfirmationMessage message)
         {
             this.ServerChannelNumber = message.ServerChannelNumber;
-            this.WindowSize = message.InitialWindowSize;
+            this.ServerWindowSize = message.InitialWindowSize;
             this.PacketSize = message.MaximumPacketSize;
 
             this.IsOpen = true;
@@ -171,7 +183,7 @@ namespace Renci.SshClient.Channels
 
         private void HandleMessage(ChannelWindowAdjustMessage message)
         {
-            this.WindowSize += message.BytesToAdd;
+            this.ServerWindowSize += message.BytesToAdd;
         }
 
         private void HandleMessage(ChannelDataMessage message)
@@ -201,8 +213,6 @@ namespace Renci.SshClient.Channels
                 {
                     ChannelNumber = message.ChannelNumber,
                 };
-
-                this.SendChannelCloseMessage();
 
                 //  TODO:   if exitStatus is not 0 then throw an exception or notify user that command failed to execute correctly
             }
@@ -242,17 +252,17 @@ namespace Renci.SshClient.Channels
 
         private void AdjustDataWindow(string messageData)
         {
-            this.WindowSize -= (uint)messageData.Length;
+            this.LocalWindowSize -= (uint)messageData.Length;
 
             //  Adjust window if window size is too low
-            if (this.WindowSize < this._initialWindowSize / 2)
+            if (this.LocalWindowSize < 1)
             {
                 this.SendMessage(new ChannelWindowAdjustMessage
                 {
                     ChannelNumber = this.ServerChannelNumber,
-                    BytesToAdd = this._initialWindowSize - this.WindowSize,
+                    BytesToAdd = this._initialWindowSize,
                 });
-                this.WindowSize = this._initialWindowSize;
+                this.LocalWindowSize = this._initialWindowSize;
             }
         }
 
@@ -286,7 +296,7 @@ namespace Renci.SshClient.Channels
             {
                 ChannelName = "session",
                 ChannelNumber = this.ClientChannelNumber,
-                InitialWindowSize = this.WindowSize,
+                InitialWindowSize = this.LocalWindowSize,
                 MaximumPacketSize = this.PacketSize,
             });
         }

@@ -26,7 +26,7 @@ namespace Renci.SshClient.Channels
         }
 
         public ChannelExec(Session session, uint channelId)
-            : base(session, channelId, 0x100000, 0x8000)
+            : base(session, channelId, 0x010000, 0x8000)
         {
         }
 
@@ -66,34 +66,26 @@ namespace Renci.SshClient.Channels
 
         internal void EndExecute(IAsyncResult result)
         {
-            try
+            ChannelAsyncResult channelAsyncResult = result as ChannelAsyncResult;
+
+            if (channelAsyncResult.Channel != this)
             {
-                ChannelAsyncResult channelAsyncResult = result as ChannelAsyncResult;
-
-                if (channelAsyncResult.Channel != this)
-                {
-                    throw new InvalidOperationException("Invalid IAsyncResult parameter");
-                }
-
-                //Make sure that operation completed if not wait for it to finish
-                this.Session.WaitHandle(this._asyncResult.AsyncWaitHandle);
-
-                this.Close();
-
-                this._asyncResult = null;
-
-                if (this._exception != null)
-                {
-                    var exception = this._exception;
-                    this._exception = null; //  Clean exception
-                    throw exception;
-                }
-            }
-            catch (Exception exp)
-            {
-                throw;
+                throw new InvalidOperationException("Invalid IAsyncResult parameter");
             }
 
+            //Make sure that operation completed if not wait for it to finish
+            this.Session.WaitHandle(this._asyncResult.AsyncWaitHandle);
+
+            this.Close();
+
+            this._asyncResult = null;
+
+            if (this._exception != null)
+            {
+                var exception = this._exception;
+                this._exception = null; //  Clean exception
+                throw exception;
+            }
         }
 
         protected override void OnChannelEof()
@@ -137,7 +129,7 @@ namespace Renci.SshClient.Channels
         {
             base.OnChannelExtendedData(data, dataTypeCode);
 
-            //  TODO:   dataTypeCode curentlyu ignored
+            //  TODO:   dataTypeCode curently ignored
             if (this._channelExtendedData != null)
             {
                 this._channelExtendedData.Write(data.GetSshBytes().ToArray(), 0, data.Length);

@@ -303,7 +303,7 @@ namespace Renci.SshClient.Channels
             var message = new SftpDataMessage
             {
                 ChannelNumber = this.ServerChannelNumber,
-                Data = sftpMessage,
+                Message = sftpMessage,
             };
 
             this.SendMessage(message);

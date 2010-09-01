@@ -11,6 +11,8 @@ namespace Renci.SshClient.Channels
 
         private EventWaitHandle _channelClosedWaitHandle = new AutoResetEvent(false);
 
+        private EventWaitHandle _channelWindowAdjustWaitHandle = new AutoResetEvent(false);
+
         private uint _initialWindowSize = 0x100000;
 
         private uint _maximumPacketSize = 0x8000;
@@ -134,14 +136,24 @@ namespace Renci.SshClient.Channels
 
         protected void SendMessage(ChannelDataMessage message)
         {
-            //  TODO:   Adjust server window size if needed
+            if (this.ServerWindowSize < 1)
+            {
+                //  Wait for window to be adjust
+                this.Session.WaitHandle(this._channelWindowAdjustWaitHandle);
+            }
+
             this.ServerWindowSize -= (uint)message.Data.Length;
             this.Session.SendMessage(message);
         }
 
         protected void SendMessage(ChannelExtendedDataMessage message)
         {
-            //  TODO:   Adjust server window size if needed
+            if (this.ServerWindowSize < 1)
+            {
+                //  Wait for window to be adjust
+                this.Session.WaitHandle(this._channelWindowAdjustWaitHandle);
+            }
+
             this.ServerWindowSize -= (uint)message.Data.Length;
             this.Session.SendMessage(message);
         }
@@ -188,6 +200,7 @@ namespace Renci.SshClient.Channels
         private void HandleMessage(ChannelWindowAdjustMessage message)
         {
             this.ServerWindowSize += message.BytesToAdd;
+            this._channelWindowAdjustWaitHandle.Set();
         }
 
         private void HandleMessage(ChannelDataMessage message)

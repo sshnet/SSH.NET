@@ -22,6 +22,8 @@ namespace Renci.SshClient
     {
         protected const int MAXIMUM_PACKET_SIZE = 35000;
 
+        protected const int MAXIMUM_PAYLOAD_SIZE = 32768;
+
         private static RNGCryptoServiceProvider _randomizer = new System.Security.Cryptography.RNGCryptoServiceProvider();
 
         /// <summary>
@@ -50,7 +52,7 @@ namespace Renci.SshClient
         /// <summary>
         /// Specifies outbount packet number
         /// </summary>
-        private UInt32 _outboundPacketSequence = 0;
+        private volatile UInt32 _outboundPacketSequence = 0;
 
         /// <summary>
         /// Specifies incomin packet number
@@ -157,8 +159,11 @@ namespace Renci.SshClient
             }
         }
 
-        //  TODO:   Consider refactor to make setter private
-        public IEnumerable<byte> SessionId { get; set; }
+        /// <summary>
+        /// Gets or sets the session id.
+        /// </summary>
+        /// <value>The session id.</value>
+        public IEnumerable<byte> SessionId { get; private set; }
 
         /// <summary>
         /// Gets or sets the server version string.
@@ -197,13 +202,13 @@ namespace Renci.SshClient
         /// <returns>New channel of specified type</returns>
         public T CreateChannel<T>() where T : Channel
         {
-            //  TODO:   Ensure that only 10 channels can be opened at a time
             if (!this.IsConnected)
             {
                 throw new InvalidOperationException("Not connected");
             }
 
             T channel;
+            //  Gets newxt available channel number or waits for one to become available
             var clientChannelId = this._channelNumbers.WaitAndPop();
 
             lock (this._openChannels)
@@ -382,9 +387,6 @@ namespace Renci.SshClient
                     waitHandle,
                 };
 
-            //  TODO:   Signal waitandle to stop waiting, in case someone waiting for it.
-            //  TODO:   throw exception in case of _disconnectWaitHandle or _exceptionWaitHandle was signalled
-
             var index = 0;
 #if NOTIMEOUT
             index = EventWaitHandle.WaitAny(waitHandles);
@@ -399,8 +401,8 @@ namespace Renci.SshClient
             }
             else if (index > waitHandles.Length)
             {
-                //  TODO:   Issue timeout disconnect message if approapriate
-                throw new TimeoutException();
+                this.Disconnect(DisconnectReasonCodes.ByApplication, "Operation timeout");
+                throw new TimeoutException("Operation timeout");
             }
         }
 
@@ -413,42 +415,45 @@ namespace Renci.SshClient
             if (!this._socket.Connected)
                 return;
 
-            //  TODO:  Refactor so we lock only _outboundPacketSequence and _inboundPacketSequence relevant operations
-
             //  Messages can be sent by different thread so we need to synchronize it
-            lock (this._socket) //  Lock on session
+            var paddingMultiplier = this.ClientCipher == null ? (byte)8 : (byte)this.ClientCipher.BlockSize;    //    Should be recalculate base on cipher min lenght if sipher specified
+
+            var messageData = message.GetBytes();
+
+            if (messageData.Count() > Session.MAXIMUM_PAYLOAD_SIZE)
             {
-                var paddingMultiplier = this.ClientCipher == null ? (byte)8 : (byte)this.ClientCipher.BlockSize;    //    Should be recalculate base on cipher min lenght if sipher specified
+                throw new InvalidOperationException(string.Format("Payload cannot be more then {0} bytes.", Session.MAXIMUM_PAYLOAD_SIZE));
+            }
 
-                //  TODO:   Maximum uncomporessed payload 32768
-                //  TOOO:   If compression specified then compress only payload
+            //  TOOO:   If compression specified then compress only payload (messageData)
 
-                var messageData = message.GetBytes();
+            var packetLength = messageData.Count() + 4 + 1; //  add length bytes and padding byte
+            byte paddingLength = (byte)((-packetLength) & (paddingMultiplier - 1));
+            if (paddingLength < paddingMultiplier)
+            {
+                paddingLength += paddingMultiplier;
+            }
 
-                var packetLength = messageData.Count() + 4 + 1; //  add length bytes and padding byte
-                byte paddingLength = (byte)((-packetLength) & (paddingMultiplier - 1));
-                if (paddingLength < paddingMultiplier)
-                {
-                    paddingLength += paddingMultiplier;
-                }
+            //  Build Packet data
+            var packetData = new List<byte>();
 
-                //  Build Packet data
-                var packetData = new List<byte>();
+            //  Add packet padding length
+            packetData.Add(paddingLength);
 
-                //  Add packet padding length
-                packetData.Add(paddingLength);
+            //  Add packet payload
+            packetData.AddRange(messageData);
 
-                //  Add packet payload
-                packetData.AddRange(messageData);
+            //  Add random padding
+            var paddingBytes = new byte[paddingLength];
+            _randomizer.GetBytes(paddingBytes);
+            packetData.AddRange(paddingBytes);
 
-                //  Add random padding
-                var paddingBytes = new byte[paddingLength];
-                _randomizer.GetBytes(paddingBytes);
-                packetData.AddRange(paddingBytes);
+            //  Insert packet length
+            packetData.InsertRange(0, BitConverter.GetBytes((uint)(packetData.Count())).Reverse());
 
-                //  Insert packet length
-                packetData.InsertRange(0, BitConverter.GetBytes((uint)(packetData.Count())).Reverse());
-
+            //  Lock handling of _outboundPacketSequence since it must be sent sequently to server
+            lock (this._socket)
+            {
                 //  Calculate packet hash
                 var hashData = new List<byte>();
                 hashData.AddRange(BitConverter.GetBytes((this._outboundPacketSequence)).Reverse());
@@ -471,12 +476,14 @@ namespace Renci.SshClient
 
                 if (encryptedData.Count > Session.MAXIMUM_PACKET_SIZE)
                 {
-                    throw new InvalidOperationException("Packet is too big. Maximum packet size is 35000 bytes.");
+                    throw new InvalidOperationException(string.Format("Packet is too big. Maximum packet size is {0} bytes.", Session.MAXIMUM_PACKET_SIZE));
                 }
 
                 this.Write(encryptedData.ToArray());
 
                 this._outboundPacketSequence++;
+
+                Monitor.Pulse(this._socket);
             }
         }
 
@@ -623,6 +630,7 @@ namespace Renci.SshClient
         {
             this._keyExhcange.Finish();
 
+            this.SessionId = this._keyExhcange.SessionId;
             //  Update encryption and decryption algorithm
             this.ServerMac = this._keyExhcange.ServerMac;
             this.ClientMac = this._keyExhcange.ClientMac;
@@ -882,6 +890,7 @@ namespace Renci.SshClient
 
             if (this._messageListener != null)
             {
+                //  Wait for listner task to finish
                 this._messageListener.Wait();
                 this._messageListener = null;
             }

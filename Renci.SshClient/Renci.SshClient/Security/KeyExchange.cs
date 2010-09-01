@@ -71,6 +71,8 @@ namespace Renci.SshClient.Security
             }
         }
 
+        public IEnumerable<byte> SessionId { get; set; }
+
         public HMAC ServerMac { get; set; }
 
         public HMAC ClientMac { get; set; }
@@ -110,6 +112,7 @@ namespace Renci.SshClient.Security
         public KeyExchange(Session session)
         {
             this.Session = session;
+            this.SessionId = session.SessionId;
             this.ServerDecompression = Compression.None;
             this.ClientCompression = Compression.None;
         }
@@ -191,18 +194,19 @@ namespace Renci.SshClient.Security
         public virtual void Finish()
         {
             //  TODO:   Validate that all required properties are set
-            if (this.Session.SessionId == null)
+
+            if (this.SessionId == null)
             {
-                this.Session.SessionId = this.ExchangeHash;
+                this.SessionId = this.ExchangeHash;
             }
 
             //  Initialize client cipher
             var clientCipher = this._clientCipher();
             //  Calculate client to server initial IV
-            var clientVector = this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'A', this.Session.SessionId));
+            var clientVector = this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'A', this.SessionId));
 
             //  Calculate client to server encryption
-            var clientKey = this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'C', this.Session.SessionId));
+            var clientKey = this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'C', this.SessionId));
 
             clientKey = this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, clientKey, clientCipher.KeySize / 8);
 
@@ -212,21 +216,21 @@ namespace Renci.SshClient.Security
             var serverCipher = this._serverCipher();
 
             //  Calculate server to client initial IV
-            var serverVector = this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'B', this.Session.SessionId));
+            var serverVector = this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'B', this.SessionId));
 
             //  Calculate server to client encryption
-            var serverKey = this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'D', this.Session.SessionId));
+            var serverKey = this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'D', this.SessionId));
 
             serverKey = this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, serverKey, serverCipher.KeySize / 8);
 
             serverCipher.Init(serverKey, serverVector);
 
             //  Calculate client to server integrity
-            var MACc2s = this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'E', this.Session.SessionId));
+            var MACc2s = this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'E', this.SessionId));
             var clientMac = this._clientHmacAlgorithm(MACc2s);
 
             //  Calculate server to client integrity
-            var MACs2c = this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'F', this.Session.SessionId));
+            var MACs2c = this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'F', this.SessionId));
             var serverMac = this._serverHmacAlgorithm(MACs2c);
 
             //  TODO:   Create compression and decompression objects if any

@@ -76,6 +76,5 @@ namespace Renci.SshClient
 
             channelAsyncResult.Channel.EndExecute(asynchResult);
         }
-
     }
 }

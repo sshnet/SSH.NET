@@ -259,12 +259,12 @@ namespace Renci.SshClient.Channels
             this.LocalWindowSize -= (uint)messageData.Length;
 
             //  Adjust window if window size is too low
-            if (this.LocalWindowSize < 1)
+            if (this.LocalWindowSize < this.PacketSize)
             {
                 this.SendMessage(new ChannelWindowAdjustMessage
                 {
                     ChannelNumber = this.ServerChannelNumber,
-                    BytesToAdd = this._initialWindowSize,
+                    BytesToAdd = this._initialWindowSize - this.LocalWindowSize,
                 });
                 this.LocalWindowSize = this._initialWindowSize;
             }

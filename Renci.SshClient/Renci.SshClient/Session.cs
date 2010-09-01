@@ -60,27 +60,27 @@ namespace Renci.SshClient
         /// <summary>
         /// WaitHandle to signal that key exchange was finished, weither it was succesfull or not.
         /// </summary>
-        private EventWaitHandle _keyExhangedFinishedWaitHandle = new AutoResetEvent(false);
+        private EventWaitHandle _keyExhangedFinishedWaitHandle;
 
         /// <summary>
         /// WaitHandle to signale that last service request was accepted
         /// </summary>
-        private EventWaitHandle _serviceAccepted = new AutoResetEvent(false);
+        private EventWaitHandle _serviceAccepted;
 
         /// <summary>
         /// WaitHandle to signal that exception was thrown by another thread.
         /// </summary>
-        private EventWaitHandle _exceptionWaitHandle = new AutoResetEvent(false);
+        private EventWaitHandle _exceptionWaitHandle;
 
         /// <summary>
         /// WaitHandle to signal that listner ended
         /// </summary>
-        private EventWaitHandle _listenerWaitHandle = new AutoResetEvent(false);
+        private EventWaitHandle _listenerWaitHandle;
 
         /// <summary>
         /// Keeps track of all open channels
         /// </summary>
-        private Dictionary<uint, Channel> _openChannels = new Dictionary<uint, Channel>();
+        private Dictionary<uint, Channel> _openChannels;
 
         /// <summary>
         /// Exception that need to be thrown by waiting thread
@@ -100,7 +100,7 @@ namespace Renci.SshClient
         /// <summary>
         /// holds number to be used for session channels
         /// </summary>
-        private BlockingStack<uint> _channelNumbers = new BlockingStack<uint>();
+        private BlockingStack<uint> _channelNumbers;
 
         /// <summary>
         /// Occurs when new message received.
@@ -182,12 +182,6 @@ namespace Renci.SshClient
         {
             this.ConnectionInfo = connectionInfo;
             this.ClientVersion = string.Format("SSH-2.0-Renci.SshClient.{0}", this.GetType().Assembly.GetName().Version);
-
-            //  Prepopulate chanel numbers that will be used
-            for (int i = connectionInfo.MaxSessions - 1; i > 0; i--)
-            {
-                this._channelNumbers.Push((uint)i - 1 + 100);
-            }
         }
 
         private static IDictionary<Type, Func<Session, uint, Channel>> _channels = new Dictionary<Type, Func<Session, uint, Channel>>()
@@ -255,6 +249,15 @@ namespace Renci.SshClient
                     //  If connected dont connect again
                     if (this.IsConnected)
                         return;
+
+                    this.Initialize();
+
+                    //  Prepopulate chanel numbers that will be used
+                    for (int i = connectionInfo.MaxSessions - 1; i > 0; i--)
+                    {
+                        this._channelNumbers.Push((uint)i - 1);
+                    }
+
 
                     var ep = new IPEndPoint(Dns.GetHostAddresses(connectionInfo.Host)[0], connectionInfo.Port);
                     this._socket = new Socket(ep.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
@@ -513,19 +516,13 @@ namespace Renci.SshClient
             //  Read rest of the packet data
             int bytesToRead = (int)(packetLength - (blockSize - 4));
 
-            while (bytesToRead > 0)
+            if (this.ServerCipher == null)
             {
-                data = new List<byte>(this.Read(blockSize));
-
-                if (this.ServerCipher == null)
-                {
-                    decryptedData.AddRange(data);
-                }
-                else
-                {
-                    decryptedData.AddRange(this.ServerCipher.Decrypt(data));
-                }
-                bytesToRead -= blockSize;
+                decryptedData.AddRange(this.Read(bytesToRead));
+            }
+            else
+            {
+                decryptedData.AddRange(this.ServerCipher.Decrypt(this.Read(bytesToRead)));
             }
 
             //  Validate message against MAC
@@ -704,29 +701,28 @@ namespace Renci.SshClient
         protected byte[] Read(int length)
         {
             var buffer = new byte[length];
-
-            var totalBytesRead = 0;
-
-            while (totalBytesRead < length)
+            var offset = 0;
+            int received = 0;  // how many bytes is already received
+            do
             {
-                int bytesRead = this._socket.Receive(buffer, length, SocketFlags.None);
+                try
+                {
+                    received += this._socket.Receive(buffer, offset + received, length - received, SocketFlags.None);
+                }
+                catch (SocketException exp)
+                {
+                    if (exp.SocketErrorCode == SocketError.WouldBlock ||
+                        exp.SocketErrorCode == SocketError.IOPending ||
+                        exp.SocketErrorCode == SocketError.NoBufferSpaceAvailable)
+                    {
+                        // socket buffer is probably empty, wait and try again
+                        Thread.Sleep(30);
+                    }
+                    else
+                        throw exp;  // any serious error occurr
+                }
+            } while (received < length);
 
-                if (bytesRead == 0)
-                {
-                    this._socket.Close();
-                    throw new IOException("Unable to read data to the transport connection: An established connection was aborted by the software in your host machine");
-                }
-
-                if (bytesRead > 0)
-                {
-                    totalBytesRead += bytesRead;
-                }
-                else
-                {
-                    totalBytesRead = bytesRead;
-                    break;
-                }
-            }
 
             return buffer;
         }
@@ -737,7 +733,29 @@ namespace Renci.SshClient
         /// <param name="data">The data.</param>
         protected void Write(byte[] data)
         {
-            this._socket.Send(data);
+            int sent = 0;  // how many bytes is already sent
+            int length = data.Length;
+
+            do
+            {
+                try
+                {
+                    sent += this._socket.Send(data, sent, length - sent, SocketFlags.None);
+                }
+                catch (SocketException ex)
+                {
+                    if (ex.SocketErrorCode == SocketError.WouldBlock ||
+                        ex.SocketErrorCode == SocketError.IOPending ||
+                        ex.SocketErrorCode == SocketError.NoBufferSpaceAvailable)
+                    {
+                        // socket buffer is probably full, wait and try again
+                        Thread.Sleep(30);
+                    }
+                    else
+                        throw ex;  // any serious error occurr
+                }
+            } while (sent < length);
+
         }
 
         /// <summary>
@@ -798,6 +816,36 @@ namespace Renci.SshClient
 
         #endregion
 
+        /// <summary>
+        /// Initializes this session.
+        /// </summary>
+        /// <remarks>Initialization required when same session object being reconnected</remarks>
+        private void Initialize()
+        {
+            //  TODO:   Consider reseting objects to initial stage instead of creating a new one
+            //  Initialize session
+            this._outboundPacketSequence = 0;
+            this._inboundPacketSequence = 0;
+            this._openChannels = new Dictionary<uint, Channel>();
+            this._keyExhangedFinishedWaitHandle = new AutoResetEvent(false);
+            this._serviceAccepted = new AutoResetEvent(false);
+            this._exceptionWaitHandle = new AutoResetEvent(false);
+            this._listenerWaitHandle = new AutoResetEvent(false);
+            this._channelNumbers = new BlockingStack<uint>();
+            this._exceptionToThrow = null;
+            this.SessionId = null;
+            this.ServerVersion = null;
+            this._keyExhcange = null;
+            this.ServerMac = null;
+            this.ClientMac = null;
+            this.ClientCipher = null;
+            this.ServerCipher = null;
+            this.ServerDecompression = null;
+            this.ClientCompression = null;
+            this._isAuthenticated = false;
+            this._isDisconnecting = false;
+        }
+
         private bool ValidateHash(List<byte> decryptedData, byte[] serverHash, uint packetSequence)
         {
             var clientHashData = new List<byte>();
@@ -831,6 +879,12 @@ namespace Renci.SshClient
             {
                 this._socket.Close();
             }
+
+            if (this._messageListener != null)
+            {
+                this._messageListener.Wait();
+                this._messageListener = null;
+            }
         }
 
         /// <summary>
@@ -856,30 +910,27 @@ namespace Renci.SshClient
                     this.RaiseMessageReceived(this, new MessageReceivedEventArgs(message));
                 }
             }
-            catch (IOException exp)
-            {
-                //  Ignore this error since socket was disconected
-
-                //  Ensure socket is disconnected
-                this._socket.Close();
-
-                if (!this._isDisconnecting)
-                {
-                    this._exceptionToThrow = exp;
-
-                    this._exceptionWaitHandle.Set();
-                }
-            }
             catch (Exception exp)
             {
                 //  TODO:   This exception can be swolloed if it occures while running in the background, look for possible solutions
 
-                //  In case of error issue disconntect command
-                this.Disconnect(DisconnectReasonCodes.ByApplication, exp.ToString());
+                //  Ignore this error since socket was disconected
+                if (exp is SocketException && ((SocketException)exp).SocketErrorCode == SocketError.ConnectionAborted && this._isDisconnecting)
+                {
+                    //  Do nothing since connection was disconnected by the client
+                }
+                else
+                {
+                    //  In case of error issue disconntect command
+                    this.Disconnect(DisconnectReasonCodes.ByApplication, exp.ToString());
 
-                this._exceptionToThrow = exp;
+                    this._exceptionToThrow = exp;
 
-                this._exceptionWaitHandle.Set();
+                    this._exceptionWaitHandle.Set();
+                }
+
+                //  Ensure socket is disconnected
+                this._socket.Close();
             }
 
             this._listenerWaitHandle.Set();

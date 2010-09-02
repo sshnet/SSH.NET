@@ -63,6 +63,7 @@
     <Compile Include="Channels\ChannelAsyncResult.cs" />
     <Compile Include="Channels\ChannelEventArgs.cs" />
     <Compile Include="Common\BlockingStack.cs" />
+    <Compile Include="Common\SshException.cs" />
     <Compile Include="Security\Algorithm.cs" />
     <Compile Include="Security\Cipher.cs" />
     <Compile Include="Security\CipherAES128.cs" />

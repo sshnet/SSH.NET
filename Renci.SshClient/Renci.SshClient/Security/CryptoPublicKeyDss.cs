@@ -38,19 +38,19 @@ namespace Renci.SshClient.Security
             using (var br = new BinaryReader(ms))
             {
 
-                var pl = BitConverter.ToUInt32(br.ReadBytes(4).Reverse().ToArray(), 0);
+                var pl = (uint)(br.ReadByte() << 24 | br.ReadByte() << 16 | br.ReadByte() << 8 | br.ReadByte());
 
                 _p = br.ReadBytes((int)pl);
 
-                var ql = BitConverter.ToUInt32(br.ReadBytes(4).Reverse().ToArray(), 0);
+                var ql = (uint)(br.ReadByte() << 24 | br.ReadByte() << 16 | br.ReadByte() << 8 | br.ReadByte());
 
                 _q = br.ReadBytes((int)ql);
 
-                var gl = BitConverter.ToUInt32(br.ReadBytes(4).Reverse().ToArray(), 0);
+                var gl = (uint)(br.ReadByte() << 24 | br.ReadByte() << 16 | br.ReadByte() << 8 | br.ReadByte());
 
                 _g = br.ReadBytes((int)gl);
 
-                var xl = BitConverter.ToUInt32(br.ReadBytes(4).Reverse().ToArray(), 0);
+                var xl = (uint)(br.ReadByte() << 24 | br.ReadByte() << 16 | br.ReadByte() << 8 | br.ReadByte());
 
                 _publicKey = br.ReadBytes((int)xl);
             }

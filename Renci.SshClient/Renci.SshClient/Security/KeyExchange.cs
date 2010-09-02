@@ -294,7 +294,7 @@ namespace Renci.SshClient.Security
         {
             var bytes = this.HostKey.GetSshBytes();
 
-            var length = BitConverter.ToUInt32(bytes.Take(4).Reverse().ToArray(), 0);
+            var length = (uint)(this.HostKey[0] << 24 | this.HostKey[1] << 16 | this.HostKey[2] << 8 | this.HostKey[3]);
 
             var algorithmName = bytes.Skip(4).Take((int)length).GetSshString();
 

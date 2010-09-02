@@ -65,10 +65,6 @@ namespace Renci.SshClient
             return IsEqualTo(value, compareList, null);
         }
 
-        public static bool IsEqualTo(this IEnumerable value, IEnumerable compareList)
-        {
-            return IsEqualTo<object>(value.OfType<object>(), compareList.OfType<object>());
-        }
 
         public static void DebugPrint(this IEnumerable<byte> bytes)
         {
@@ -81,23 +77,15 @@ namespace Renci.SshClient
 
         public static string GetSshString(this IEnumerable<byte> data)
         {
-            List<char> bytes = new List<char>();
-            foreach (var b in data)
-            {
-                bytes.Add((char)b);
-            }
-
-            return new string(bytes.ToArray());
+            return new string((from b in data select (char)b).ToArray());
         }
 
         public static IEnumerable<byte> GetSshBytes(this string data)
         {
-            List<byte> bytes = new List<byte>();
-            foreach (var c in data.ToCharArray())
+            foreach (var c in data)
             {
-                bytes.Add((byte)c);
+                yield return (byte)c;
             }
-            return bytes.ToArray();
         }
 
         public static IEnumerable<byte> TrimLeadinZero(this IEnumerable<byte> data)

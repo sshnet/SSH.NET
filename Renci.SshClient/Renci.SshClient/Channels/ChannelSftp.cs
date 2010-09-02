@@ -220,7 +220,8 @@ namespace Renci.SshClient.Channels
 
             if (this._packetData == null)
             {
-                var packetLength = BitConverter.ToUInt32(data.GetSshBytes().Take(4).Reverse().ToArray(), 0);
+                var packetLength = (uint)(data[0] << 24 | data[1] << 16 | data[2] << 8 | data[3]);
+
                 this._packetData = new StringBuilder((int)packetLength, (int)packetLength);
                 this._packetData.Append(data.GetSshBytes().Skip(4).GetSshString());
             }

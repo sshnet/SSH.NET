@@ -5,8 +5,6 @@ using Renci.SshClient.Messages.Connection;
 
 namespace Renci.SshClient.Channels
 {
-    //  TODO:   Add Begin* and End* methods for async calls
-
     internal class ChannelExec : Channel
     {
         private Stream _channelData;

@@ -10,6 +10,8 @@ using Renci.SshClient.Messages.Sftp;
 
 namespace Renci.SshClient.Channels
 {
+    //  TODO:   Add Begin* and End* methods for async calls
+
     internal class ChannelSftp : Channel
     {
         private EventWaitHandle _channelRequestSuccessWaitHandle = new AutoResetEvent(false);

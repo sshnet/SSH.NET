@@ -914,9 +914,9 @@ namespace Renci.SshClient
         /// </summary>
         private void MessageListener()
         {
-            try
+            while (this._socket.Connected)
             {
-                while (this._socket.Connected)
+                try
                 {
                     dynamic message = this.ReceiveMessage();
 
@@ -931,29 +931,42 @@ namespace Renci.SshClient
                     //  Raise an event that message received
                     this.RaiseMessageReceived(this, new MessageReceivedEventArgs(message));
                 }
-            }
-            catch (Exception exp)
-            {
-                //  TODO:   This exception can be swolloed if it occures while running in the background, look for possible solutions
-
-                //  Ignore this error since socket was disconected
-                if (exp is SocketException && ((SocketException)exp).SocketErrorCode == SocketError.ConnectionAborted && this._isDisconnecting)
+                catch (SshException exp)
                 {
-                    //  Do nothing since connection was disconnected by the client
-                }
-                else
-                {
-                    //  In case of error issue disconntect command
-                    this.Disconnect(DisconnectReasonCodes.ByApplication, exp.ToString());
+                    if (exp.ShouldDisconnect)
+                    {
+                        //  In case of error issue disconntect command
+                        this.Disconnect(DisconnectReasonCodes.ByApplication, exp.ToString());
+                    }
 
                     this._exceptionToThrow = exp;
 
                     this._exceptionWaitHandle.Set();
                 }
+                catch (Exception exp)
+                {
+                    //  TODO:   This exception can be swolloed if it occures while running in the background, look for possible solutions
 
-                //  Ensure socket is disconnected
-                this._socket.Close();
+                    //  Ignore this error since socket was disconected
+                    if (exp is SocketException && ((SocketException)exp).SocketErrorCode == SocketError.ConnectionAborted && this._isDisconnecting)
+                    {
+                        //  Do nothing since connection was disconnected by the client
+                    }
+                    else
+                    {
+                        //  In case of error issue disconntect command
+                        this.Disconnect(DisconnectReasonCodes.ByApplication, exp.ToString());
+
+                        this._exceptionToThrow = exp;
+
+                        this._exceptionWaitHandle.Set();
+                    }
+
+                    //  Ensure socket is disconnected
+                    this._socket.Close();
+                }
             }
+
 
             this._listenerWaitHandle.Set();
         }

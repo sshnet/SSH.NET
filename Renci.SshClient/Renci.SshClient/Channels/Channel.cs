@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using Renci.SshClient.Common;
 using Renci.SshClient.Messages;
 using Renci.SshClient.Messages.Connection;
 
@@ -231,7 +232,12 @@ namespace Renci.SshClient.Channels
                     ChannelNumber = message.ChannelNumber,
                 };
 
-                //  TODO:   if exitStatus is not 0 then throw an exception or notify user that command failed to execute correctly
+                //  Throw an error if exit status is not 0
+                if (exitStatus > 0)
+                {
+                    throw new SshException(string.Format("Operation failed. Exit status: {0}", exitStatus), false);
+                }
+
             }
             else
             {

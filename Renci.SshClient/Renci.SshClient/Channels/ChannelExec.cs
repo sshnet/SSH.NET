@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using Renci.SshClient.Messages.Connection;
 
@@ -116,7 +115,10 @@ namespace Renci.SshClient.Channels
 
             if (this._channelData != null)
             {
-                this._channelData.Write(data.GetSshBytes().ToArray(), 0, data.Length);
+                foreach (var b in data)
+                {
+                    this._channelData.WriteByte((byte)b);
+                }
             }
 
             if (this._asyncResult != null)
@@ -132,12 +134,25 @@ namespace Renci.SshClient.Channels
             //  TODO:   dataTypeCode curently ignored
             if (this._channelExtendedData != null)
             {
-                this._channelExtendedData.Write(data.GetSshBytes().ToArray(), 0, data.Length);
+                foreach (var b in data)
+                {
+                    this._channelExtendedData.WriteByte((byte)b);
+                }
             }
         }
 
         private void ExecutionCompleted()
         {
+            if (this._channelData != null)
+            {
+                this._channelData.Flush();
+            }
+
+            if (this._channelExtendedData != null)
+            {
+                this._channelExtendedData.Flush();
+            }
+
             this._asyncResult.IsCompleted = true;
             if (this._callback != null)
             {

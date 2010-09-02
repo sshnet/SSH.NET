@@ -49,9 +49,6 @@ namespace Renci.SshClient
 
         public void Execute(string command, Stream output, Stream extended)
         {
-            //  Make sure session is connected
-            this.Session.Connect();
-
             this.EndExecute(this.BeginExecute(command, output, extended, null, null));
         }
 

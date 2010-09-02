@@ -7,6 +7,7 @@ using System.Net.Sockets;
 using System.Security.Authentication;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Renci.SshClient.Channels;
@@ -25,6 +26,8 @@ namespace Renci.SshClient
         protected const int MAXIMUM_PAYLOAD_SIZE = 32768;
 
         private static RNGCryptoServiceProvider _randomizer = new System.Security.Cryptography.RNGCryptoServiceProvider();
+
+        private static Regex _serverVersionRe = new Regex("^SSH-(?<protoversion>[^-]+)-(?<softwareversion>.+)( SP.+)?$", RegexOptions.Compiled);
 
         /// <summary>
         /// Controls how many authentication attempts can take place at the same time.
@@ -105,45 +108,40 @@ namespace Renci.SshClient
         private BlockingStack<uint> _channelNumbers;
 
         /// <summary>
-        /// Occurs when new message received.
-        /// </summary>
-        public event EventHandler<MessageReceivedEventArgs> MessageReceived;
-
-        /// <summary>
         /// Gets or sets the HMAC algorithm to use when receiving message from the server.
         /// </summary>
         /// <value>The server mac.</value>
-        protected HMAC ServerMac { get; private set; }
+        private HMAC _serverMac;
 
         /// <summary>
         /// Gets or sets the HMAC algorithm to use when sending message to the server.
         /// </summary>
         /// <value>The client mac.</value>
-        protected HMAC ClientMac { get; private set; }
+        private HMAC _clientMac;
 
         /// <summary>
         /// Gets or sets the client cipher which used to encrypt messages sent to server.
         /// </summary>
         /// <value>The client cipher.</value>
-        protected Cipher ClientCipher { get; private set; }
+        private Cipher _clientCipher;
 
         /// <summary>
         /// Gets or sets the server cipher which used to decrypt messages sent by server.
         /// </summary>
         /// <value>The server cipher.</value>
-        protected Cipher ServerCipher { get; private set; }
+        private Cipher _serverCipher;
 
         /// <summary>
         /// Gets or sets the compression algorithm to use when receiving message from the server.
         /// </summary>
         /// <value>The server decompression.</value>
-        protected Compression ServerDecompression { get; private set; }
+        private Compression _serverDecompression;
 
         /// <summary>
         /// Gets or sets the compression algorithm to use when sending message to the server.
         /// </summary>
         /// <value>The client compression.</value>
-        protected Compression ClientCompression { get; private set; }
+        private Compression _clientCompression;
 
         /// <summary>
         /// Gets a value indicating whether socket connected.
@@ -158,6 +156,11 @@ namespace Renci.SshClient
                 return this._socket != null && this._socket.Connected && this._isAuthenticated;
             }
         }
+
+        /// <summary>
+        /// Occurs when new message received.
+        /// </summary>
+        public event EventHandler<MessageReceivedEventArgs> MessageReceived;
 
         /// <summary>
         /// Gets or sets the session id.
@@ -276,6 +279,7 @@ namespace Renci.SshClient
 
                     this._socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.NoDelay, 1);
 
+                    Match versionMatch = null;
                     //  Get server version from the server,
                     //  ignore text lines which are sent before if any
                     using (var ns = new NetworkStream(this._socket))
@@ -284,15 +288,24 @@ namespace Renci.SshClient
                         while (true)
                         {
                             this.ServerVersion = sr.ReadLine();
+                            versionMatch = _serverVersionRe.Match(this.ServerVersion);
                             if (string.IsNullOrEmpty(this.ServerVersion))
                             {
                                 throw new InvalidOperationException("Server string is null or empty.");
                             }
-                            else if (this.ServerVersion.StartsWith("SSH"))
+                            else if (versionMatch.Success)
                             {
                                 break;
                             }
                         }
+                    }
+
+                    //  Get server SSH version
+                    var version = versionMatch.Result("${protoversion}");
+
+                    if (!version.Equals("2.0"))
+                    {
+                        throw new NotSupportedException(string.Format("Server version '{0}' is not supported.", version));
                     }
 
                     this.Write(Encoding.ASCII.GetBytes(string.Format("{0}\n", this.ClientVersion)));
@@ -416,7 +429,7 @@ namespace Renci.SshClient
                 return;
 
             //  Messages can be sent by different thread so we need to synchronize it
-            var paddingMultiplier = this.ClientCipher == null ? (byte)8 : (byte)this.ClientCipher.BlockSize;    //    Should be recalculate base on cipher min lenght if sipher specified
+            var paddingMultiplier = this._clientCipher == null ? (byte)8 : (byte)this._clientCipher.BlockSize;    //    Should be recalculate base on cipher min lenght if sipher specified
 
             var messageData = message.GetBytes();
 
@@ -461,15 +474,15 @@ namespace Renci.SshClient
 
                 //  Encrypt packet data
                 var encryptedData = packetData.ToList();
-                if (this.ClientCipher != null)
+                if (this._clientCipher != null)
                 {
-                    encryptedData = new List<byte>(this.ClientCipher.Encrypt(packetData));
+                    encryptedData = new List<byte>(this._clientCipher.Encrypt(packetData));
                 }
 
                 //  Add message authentication code (MAC)
-                if (this.ClientMac != null)
+                if (this._clientMac != null)
                 {
-                    var hash = this.ClientMac.ComputeHash(hashData.ToArray());
+                    var hash = this._clientMac.ComputeHash(hashData.ToArray());
 
                     encryptedData.AddRange(hash);
                 }
@@ -500,21 +513,21 @@ namespace Renci.SshClient
 
             List<byte> decryptedData;
 
-            var blockSize = this.ServerCipher == null ? (byte)8 : (byte)this.ServerCipher.BlockSize;
+            var blockSize = this._serverCipher == null ? (byte)8 : (byte)this._serverCipher.BlockSize;
 
             //  Read packet lenght first
             var data = new List<byte>(this.Read(blockSize));
 
-            if (this.ServerCipher == null)
+            if (this._serverCipher == null)
             {
                 decryptedData = data.ToList();
             }
             else
             {
-                decryptedData = new List<byte>(this.ServerCipher.Decrypt(data));
+                decryptedData = new List<byte>(this._serverCipher.Decrypt(data));
             }
 
-            var packetLength = BitConverter.ToUInt32(decryptedData.Take(4).Reverse().ToArray(), 0);
+            var packetLength = (uint)(decryptedData[0] << 24 | decryptedData[1] << 16 | decryptedData[2] << 8 | decryptedData[3]);
 
             //  Test packet minimum and maximum boundaries
             if (packetLength < Math.Max((byte)16, blockSize) - 4 || packetLength > Session.MAXIMUM_PACKET_SIZE - 4)
@@ -523,28 +536,28 @@ namespace Renci.SshClient
             //  Read rest of the packet data
             int bytesToRead = (int)(packetLength - (blockSize - 4));
 
-            if (this.ServerCipher == null)
+            if (this._serverCipher == null)
             {
                 decryptedData.AddRange(this.Read(bytesToRead));
             }
             else
             {
-                decryptedData.AddRange(this.ServerCipher.Decrypt(this.Read(bytesToRead)));
+                decryptedData.AddRange(this._serverCipher.Decrypt(this.Read(bytesToRead)));
             }
 
             //  Validate message against MAC
-            if (this.ServerMac != null)
+            if (this._serverMac != null)
             {
-                var serverHash = this.Read(this.ServerMac.HashSize / 8);
+                var serverHash = this.Read(this._serverMac.HashSize / 8);
 
                 var clientHashData = new List<byte>();
                 clientHashData.AddRange(BitConverter.GetBytes(this._inboundPacketSequence).Reverse());
                 clientHashData.AddRange(decryptedData);
 
                 //  Calculate packet hash
-                var clientHash = this.ServerMac.ComputeHash(clientHashData.ToArray());
+                var clientHash = this._serverMac.ComputeHash(clientHashData.ToArray());
 
-                if (!serverHash.IsEqualTo(clientHash))
+                if (!serverHash.SequenceEqual(clientHash))
                 {
                     throw new IOException("MAC error");
                 }
@@ -555,7 +568,11 @@ namespace Renci.SshClient
 
             var paddingLength = decryptedData[4];
 
-            return this.LoadMessage(decryptedData.Skip(5).Take((int)(packetLength - paddingLength - 1)));
+            //  TODO:   Decrypt message payload
+
+            var payload = decryptedData.Skip(5).Take((int)(packetLength - paddingLength - 1));
+
+            return this.LoadMessage(payload);
         }
 
         /// <summary>
@@ -632,12 +649,12 @@ namespace Renci.SshClient
 
             this.SessionId = this._keyExhcange.SessionId;
             //  Update encryption and decryption algorithm
-            this.ServerMac = this._keyExhcange.ServerMac;
-            this.ClientMac = this._keyExhcange.ClientMac;
-            this.ClientCipher = this._keyExhcange.ClientCipher;
-            this.ServerCipher = this._keyExhcange.ServerCipher;
-            this.ServerDecompression = this._keyExhcange.ServerDecompression;
-            this.ClientCompression = this._keyExhcange.ClientCompression;
+            this._serverMac = this._keyExhcange.ServerMac;
+            this._clientMac = this._keyExhcange.ClientMac;
+            this._clientCipher = this._keyExhcange.ClientCipher;
+            this._serverCipher = this._keyExhcange.ServerCipher;
+            this._serverDecompression = this._keyExhcange.ServerDecompression;
+            this._clientCompression = this._keyExhcange.ClientCompression;
 
             this._keyExhangedFinishedWaitHandle.Set();
         }
@@ -844,12 +861,12 @@ namespace Renci.SshClient
             this.SessionId = null;
             this.ServerVersion = null;
             this._keyExhcange = null;
-            this.ServerMac = null;
-            this.ClientMac = null;
-            this.ClientCipher = null;
-            this.ServerCipher = null;
-            this.ServerDecompression = null;
-            this.ClientCompression = null;
+            this._serverMac = null;
+            this._clientMac = null;
+            this._clientCipher = null;
+            this._serverCipher = null;
+            this._serverDecompression = null;
+            this._clientCompression = null;
             this._isAuthenticated = false;
             this._isDisconnecting = false;
         }
@@ -860,12 +877,8 @@ namespace Renci.SshClient
             clientHashData.AddRange(BitConverter.GetBytes(packetSequence).Reverse());
             clientHashData.AddRange(decryptedData);
 
-            var clientHash = this.ServerMac.ComputeHash(clientHashData.ToArray());
-            if (!serverHash.IsEqualTo(clientHash))
-            {
-                return false;
-            }
-            return true;
+            var clientHash = this._serverMac.ComputeHash(clientHashData.ToArray());
+            return serverHash.SequenceEqual(clientHash);
         }
 
         /// <summary>

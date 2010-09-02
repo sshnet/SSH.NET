@@ -129,7 +129,7 @@ namespace Renci.SshClient.Security
                     highbyte = binr.ReadByte();	// data size in next 2 bytes
                     lowbyte = binr.ReadByte();
                     byte[] modint = { lowbyte, highbyte, 0x00, 0x00 };
-                    count = BitConverter.ToInt32(modint, 0);
+                    count = (int)(modint[0] << 24 | modint[1] << 16 | modint[2] << 8 | modint[3]);
                 }
                 else
                 {

@@ -66,23 +66,26 @@ namespace Renci.SshClient.Common
 
         protected UInt16 ReadUInt16()
         {
-            return BitConverter.ToUInt16(this.ReadBytes(2).Reverse().ToArray(), 0);
+            var data = this.ReadBytes(2).ToArray();
+            return (ushort)(data[0] << 8 | data[1]);
         }
 
         protected UInt32 ReadUInt32()
         {
-            return BitConverter.ToUInt32(this.ReadBytes(4).Reverse().ToArray(), 0);
+            var data = this.ReadBytes(4).ToArray();
+            return (uint)(data[0] << 24 | data[1] << 16 | data[2] << 8 | data[3]);
         }
 
         protected UInt64 ReadUInt64()
         {
-            return BitConverter.ToUInt64(this.ReadBytes(8).Reverse().ToArray(), 0);
+            var data = this.ReadBytes(8).ToArray();
+            return (uint)(data[0] << 56 | data[1] << 48 | data[2] << 40 | data[3] << 32 | data[4] << 24 | data[5] << 16 | data[6] << 8 | data[7]);
         }
 
         protected Int64 ReadInt64()
         {
-            return BitConverter.ToInt64(this.ReadBytes(8).Reverse().ToArray(), 0);
-
+            var data = this.ReadBytes(8).ToArray();
+            return (int)(data[0] << 56 | data[1] << 48 | data[2] << 40 | data[3] << 32 | data[4] << 24 | data[5] << 16 | data[6] << 8 | data[7]);
         }
 
         protected string ReadString()

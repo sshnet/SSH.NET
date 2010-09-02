@@ -33,12 +33,11 @@ namespace Renci.SshClient.Security
             using (var ms = new MemoryStream(data.ToArray()))
             using (var br = new BinaryReader(ms))
             {
-
-                var el = BitConverter.ToUInt32(br.ReadBytes(4).Reverse().ToArray(), 0);
+                var el = (uint)(br.ReadByte() << 24 | br.ReadByte() << 16 | br.ReadByte() << 8 | br.ReadByte());
 
                 this._exponent = br.ReadBytes((int)el);
 
-                var ml = BitConverter.ToUInt32(br.ReadBytes(4).Reverse().ToArray(), 0);
+                var ml = (uint)(br.ReadByte() << 24 | br.ReadByte() << 16 | br.ReadByte() << 8 | br.ReadByte());
 
                 this._modulus = br.ReadBytes((int)ml);
             }

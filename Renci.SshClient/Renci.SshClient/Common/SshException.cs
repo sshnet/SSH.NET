@@ -3,6 +3,7 @@ using System.Runtime.Serialization;
 
 namespace Renci.SshClient.Common
 {
+    [Serializable]
     public class SshException : Exception
     {
         public bool ShouldDisconnect { get; private set; }

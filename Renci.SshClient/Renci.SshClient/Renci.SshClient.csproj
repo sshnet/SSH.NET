@@ -117,6 +117,7 @@
     <Compile Include="Security\CryptoPublicKeyDss.cs" />
     <Compile Include="Security\CryptoPublicKeyRsa.cs" />
     <Compile Include="Security\KeyExchange.cs" />
+    <Compile Include="Security\KeyExchangeAlgorithm.cs" />
     <Compile Include="Security\KeyExchangeCompletedEventArgs.cs" />
     <Compile Include="Security\KeyExchangeDiffieHellman.cs" />
     <Compile Include="Security\KeyExchangeFailedEventArgs.cs" />

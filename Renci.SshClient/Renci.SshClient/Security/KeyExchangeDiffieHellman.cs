@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Security.Cryptography;
@@ -8,7 +9,7 @@ using Renci.SshClient.Messages.Transport;
 
 namespace Renci.SshClient.Security
 {
-    internal class KeyExchangeDiffieHellman : KeyExchange
+    internal class KeyExchangeDiffieHellman : KeyExchangeAlgorithm
     {
         private static RNGCryptoServiceProvider _randomizer = new System.Security.Cryptography.RNGCryptoServiceProvider();
 
@@ -32,6 +33,18 @@ namespace Renci.SshClient.Security
 
         private static BigInteger _group = new BigInteger(new byte[] { 2 });
 
+        private string _clientPayload;
+
+        private string _serverPayload;
+
+        private BigInteger _clientExchangeValue;
+
+        private BigInteger _serverExchangeValue;
+
+        private string _hostKey;
+
+        private string _signature;
+
         private BigInteger _randomValue;
 
         public override string Name
@@ -48,9 +61,38 @@ namespace Renci.SshClient.Security
         {
         }
 
-        public override void Start(KeyExchangeInitMessage message)
+        public override void HandleMessage<T>(T message)
         {
-            base.Start(message);
+            this.HandleMessage((dynamic)message);
+        }
+
+        public override bool ValidateExchangeHash()
+        {
+            var exchangeHash = this.CalculateHash();
+
+            var hostKey = this._hostKey;
+
+            var signature = this._signature;
+
+            var bytes = hostKey.GetSshBytes();
+
+            var length = (uint)(hostKey[0] << 24 | hostKey[1] << 16 | hostKey[2] << 8 | hostKey[3]);
+
+            var algorithmName = bytes.Skip(4).Take((int)length).GetSshString();
+
+            var data = bytes.Skip(4 + algorithmName.Length);
+
+            CryptoPublicKey key = Settings.HostKeyAlgorithms[algorithmName]();
+
+            key.Load(data);
+
+            return key.VerifySignature(exchangeHash, signature.GetSshBytes());
+        }
+
+        private void HandleMessage(KeyExchangeInitMessage message)
+        {
+            this._serverPayload = message.GetBytes().GetSshString();
+            this._clientPayload = this.Session.ClientInitMessage.GetBytes().GetSshString();
 
             //  TODO:   Calculate random value correctly, enforce limits
             var clientExchangeValue = BigInteger.Zero;
@@ -60,65 +102,94 @@ namespace Renci.SshClient.Security
                 clientExchangeValue = System.Numerics.BigInteger.ModPow(KeyExchangeDiffieHellman._group, this._randomValue, KeyExchangeDiffieHellman._prime);
             }
 
-            this.ServerPayload = message.GetBytes().GetSshString();
-
-            this.ClientExchangeValue = clientExchangeValue;
+            this._clientExchangeValue = clientExchangeValue;
 
             //  Register expected message replies
             this.Session.RegisterMessageType<KeyExchangeDhReplyMessage>(MessageTypes.KeyExchangeDhReply);
 
             this.SendMessage(new KeyExchangeDhInitMessage
             {
-                E = this.ClientExchangeValue,
+                E = this._clientExchangeValue,
             });
-
-            this.Session.MessageReceived += SessionInfo_MessageReceived;
-
         }
 
-        public override void Finish()
-        {
-            base.Finish();
-
-            this.Session.MessageReceived -= SessionInfo_MessageReceived;
-        }
-
-        private void SessionInfo_MessageReceived(object sender, MessageReceivedEventArgs e)
-        {
-            this.HandleMessage((dynamic)e.Message);
-        }
-
-        private void HandleMessage<T>(T message) where T : Message, new()
-        {
-            //  Do nothing, handle only known messages
-        }
-
-        /// <summary>
-        /// Handles the KeyExchangeDhReplyMessage message.
-        /// </summary>
-        /// <param name="message">The message.</param>
         private void HandleMessage(KeyExchangeDhReplyMessage message)
         {
             //  Unregister message once received
             this.Session.UnRegisterMessageType(MessageTypes.KeyExchangeDhReply);
 
-            var sharedKey = System.Numerics.BigInteger.ModPow(message.F, this._randomValue, KeyExchangeDiffieHellman._prime);
+            this._serverExchangeValue = message.F;
+            this._hostKey = message.HostKey;
+            this.SharedKey = System.Numerics.BigInteger.ModPow(message.F, this._randomValue, KeyExchangeDiffieHellman._prime);
+            this._signature = message.Signature;
+        }
 
-            this.ServerExchangeValue = message.F;
-            this.HostKey = message.HostKey;
-            this.SharedKey = sharedKey;
-            this.Signature = message.Signature;
-
-            //  Validate hash value
-            if (this.ValidateExchangeHash())
+        protected override IEnumerable<byte> CalculateHash()
+        {
+            var hashData = new _ExchangeHashData
             {
-                this.IsSuccessed = true;
-                this.SendMessage(new NewKeysMessage());
+                ClientVersion = this.Session.ClientVersion,
+                ServerVersion = this.Session.ServerVersion,
+                ClientPayload = this._clientPayload,
+                ServerPayload = this._serverPayload,
+                HostKey = this._hostKey,
+                ClientExchangeValue = this._clientExchangeValue,
+                ServerExchangeValue = this._serverExchangeValue,
+                SharedKey = this.SharedKey,
+            }.GetBytes();
+
+            return this.Hash(hashData);
+        }
+
+        private class _ExchangeHashData : SshData
+        {
+            public string ServerVersion { get; set; }
+
+            public string ClientVersion { get; set; }
+
+            public string ClientPayload { get; set; }
+
+            public string ServerPayload { get; set; }
+
+            public string HostKey { get; set; }
+
+            public UInt32? MinimumGroupSize { get; set; }
+
+            public UInt32? PreferredGroupSize { get; set; }
+
+            public UInt32? MaximumGroupSize { get; set; }
+
+            public IEnumerable<byte> Prime { get; set; }
+
+            public BigInteger ClientExchangeValue { get; set; }
+
+            public BigInteger ServerExchangeValue { get; set; }
+
+            public BigInteger SharedKey { get; set; }
+
+            protected override void LoadData()
+            {
+                throw new System.NotImplementedException();
             }
-            else
+
+            protected override void SaveData()
             {
-                this.IsSuccessed = false;
-                this.RaiseFailed("Key negotiationed failed.");
+                this.Write(this.ClientVersion);
+                this.Write(this.ServerVersion);
+                this.Write(this.ClientPayload);
+                this.Write(this.ServerPayload);
+                this.Write(this.HostKey);
+                if (this.MinimumGroupSize.HasValue)
+                    this.Write(this.MinimumGroupSize.Value);
+                if (this.PreferredGroupSize.HasValue)
+                    this.Write(this.PreferredGroupSize.Value);
+                if (this.MaximumGroupSize.HasValue)
+                    this.Write(this.MaximumGroupSize.Value);
+                if (this.Prime != null)
+                    this.Write(this.Prime);
+                this.Write(this.ClientExchangeValue);
+                this.Write(this.ServerExchangeValue);
+                this.Write(this.SharedKey);
             }
         }
     }

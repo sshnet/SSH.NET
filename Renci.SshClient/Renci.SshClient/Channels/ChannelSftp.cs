@@ -41,7 +41,7 @@ namespace Renci.SshClient.Channels
         }
 
         public ChannelSftp(Session session, uint channelId)
-            : base(session, channelId, 0x100000, 0x4000)
+            : base(session, channelId, 0x100000, 0x0100)
         {
         }
 

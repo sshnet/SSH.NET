@@ -382,6 +382,10 @@ namespace Renci.SshClient.Channels
                     {
                         this._channelClosedWaitHandle.Dispose();
                     }
+                    if (this._channelWindowAdjustWaitHandle != null)
+                    {
+                        this._channelWindowAdjustWaitHandle.Dispose();
+                    }
 
                     this.OnDisposing();
                 }

@@ -8,7 +8,7 @@ namespace Renci.SshClient
 {
     internal static class Settings
     {
-        public static IDictionary<string, Func<Session, KeyExchange>> KeyExchangeAlgorithms { get; private set; }
+        public static IDictionary<string, Func<Session, KeyExchangeAlgorithm>> KeyExchangeAlgorithms { get; private set; }
 
         public static IDictionary<string, Func<Cipher>> Encryptions { get; private set; }
 
@@ -20,11 +20,10 @@ namespace Renci.SshClient
 
         static Settings()
         {
-            Settings.KeyExchangeAlgorithms = new Dictionary<string, Func<Session, KeyExchange>>()
+            Settings.KeyExchangeAlgorithms = new Dictionary<string, Func<Session, KeyExchangeAlgorithm>>()
             {
                 {"diffie-hellman-group1-sha1", (a) => { return new KeyExchangeDiffieHellman(a);}}
                 //"diffie-hellman-group-exchange-sha1"
-
             };
 
             Settings.Encryptions = new Dictionary<string, Func<Cipher>>()

@@ -1,23 +1,17 @@
-﻿namespace Renci.SshClient.Security
+﻿using System.Collections.Generic;
+namespace Renci.SshClient.Security
 {
-    public abstract class Compression : Algorithm
+    internal abstract class Compression : Algorithm
     {
-        private class CompressionNone : Compression
-        {
+        protected Session Session { get; private set; }
 
-            public override string Name
-            {
-                get { return "none"; }
-            }
+        public Compression(Session session)
+        {
+            this.Session = session;
         }
 
-        static Compression()
-        {
-            Compression.None = new CompressionNone
-            {
-            };
-        }
+        public abstract IEnumerable<byte> Compress(IEnumerable<byte> data);
 
-        public static Compression None { get; private set; }
+        public abstract IEnumerable<byte> Uncompress(IEnumerable<byte> data);
     }
 }

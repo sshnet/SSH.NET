@@ -1,13 +1,14 @@
-﻿
-namespace Renci.SshClient.Messages.Connection
+﻿namespace Renci.SshClient.Messages.Connection
 {
-    internal enum RequestNames
+    internal enum ChannelRequestNames
     {
         /// <summary>
         /// pty-req
         /// </summary>
         PseudoTerminal,
-        ///x11-req
+        /// <summary>
+        /// x11-req
+        /// </summary>
         X11Forwarding,
         /// <summary>
         /// env

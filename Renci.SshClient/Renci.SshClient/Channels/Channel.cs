@@ -84,7 +84,10 @@ namespace Renci.SshClient.Channels
             {
                 this.SendChannelOpenMessage();
                 this.Session.WaitHandle(this._channelOpenWaitHandle);
-                //  TODO:   Throw exception if channel could not be open, this can happend after sever failed open attempts
+                if (!this.IsOpen)
+                {
+                    throw new SshException(string.Format("Failed to open a channel after {0} attemps.", this._failedOpenAttempts));
+                }
             }
         }
 
@@ -223,7 +226,7 @@ namespace Renci.SshClient.Channels
                 ChannelNumber = message.ChannelNumber,
             };
 
-            if (message.RequestName == RequestNames.ExitStatus)
+            if (message.RequestName == ChannelRequestNames.ExitStatus)
             {
                 var exitStatus = message.ExitStatus;
 

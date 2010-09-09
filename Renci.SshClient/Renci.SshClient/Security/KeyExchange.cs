@@ -34,6 +34,10 @@ namespace Renci.SshClient.Security
         /// </summary>
         private Func<IEnumerable<byte>, HMAC> _serverHmacAlgorithm;
 
+        private Func<Session, Compression> _compression;
+
+        private Func<Session, Compression> _decompression;
+
         /// <summary>
         /// Gets the key exchange algorithm name.
         /// </summary>
@@ -116,8 +120,6 @@ namespace Renci.SshClient.Security
         public KeyExchange(Session session)
         {
             this.Session = session;
-            this.ServerDecompression = Compression.None;
-            this.ClientCompression = Compression.None;
         }
 
         public void HandleMessage(KeyExchangeInitMessage message)
@@ -128,60 +130,82 @@ namespace Renci.SshClient.Security
 
             this.SendMessage(this.Session.ClientInitMessage);
 
-            var keyExchangeAlgorithm = (from s in message.KeyExchangeAlgorithms
-                                        from c in Settings.KeyExchangeAlgorithms.Keys
+            var keyExchangeAlgorithm = (from c in Settings.KeyExchangeAlgorithms.Keys
+                                        from s in message.KeyExchangeAlgorithms
                                         where s == c
                                         select c).FirstOrDefault();
 
-            //  TODO:   If dont agree on algorithms then send disconnect message
             if (keyExchangeAlgorithm == null)
             {
-                throw new InvalidOperationException("Failed to negotiate key exchange algorithm.");
+                throw new SshException("Failed to negotiate key exchange algorithm.", true, DisconnectReasonCodes.KeyExchangeFailed);
             }
 
             //  Determine encryption algorithm
-            var clientEncryptionAlgorithmName = (from a in message.EncryptionAlgorithmsClientToServer
-                                                 from b in Settings.Encryptions.Keys
+            var clientEncryptionAlgorithmName = (from b in Settings.Encryptions.Keys
+                                                 from a in message.EncryptionAlgorithmsClientToServer
                                                  where a == b
                                                  select a).FirstOrDefault();
             if (string.IsNullOrEmpty(clientEncryptionAlgorithmName))
             {
-                throw new InvalidOperationException("Client encryption algorithm not found");
+                throw new SshException("Client encryption algorithm not found", true, DisconnectReasonCodes.KeyExchangeFailed);
             }
             this._clientCipher = Settings.Encryptions[clientEncryptionAlgorithmName];
 
             //  Determine encryption algorithm
-            var serverDecryptionAlgorithmName = (from a in message.EncryptionAlgorithmsServerToClient
-                                                 from b in Settings.Encryptions.Keys
+            var serverDecryptionAlgorithmName = (from b in Settings.Encryptions.Keys
+                                                 from a in message.EncryptionAlgorithmsServerToClient
                                                  where a == b
                                                  select a).FirstOrDefault();
             if (string.IsNullOrEmpty(serverDecryptionAlgorithmName))
             {
-                throw new InvalidOperationException("Server decryption algorithm not found");
+                throw new SshException("Server decryption algorithm not found", true, DisconnectReasonCodes.KeyExchangeFailed);
             }
             this._serverCipher = Settings.Encryptions[clientEncryptionAlgorithmName];
 
             //  Determine client hmac algorithm
-            var clientHmacAlgorithmName = (from a in message.MacAlgorithmsClientToSserver
-                                           from b in Settings.HmacAlgorithms.Keys
+            var clientHmacAlgorithmName = (from b in Settings.HmacAlgorithms.Keys
+                                           from a in message.MacAlgorithmsClientToSserver
                                            where a == b
                                            select a).FirstOrDefault();
             if (string.IsNullOrEmpty(clientHmacAlgorithmName))
             {
-                throw new InvalidOperationException("Server HMAC algorithm not found");
+                throw new SshException("Server HMAC algorithm not found", true, DisconnectReasonCodes.KeyExchangeFailed);
             }
             this._clientHmacAlgorithm = Settings.HmacAlgorithms[clientHmacAlgorithmName];
 
             //  Determine server hmac algorithm
-            var serverHmacAlgorithmName = (from a in message.MacAlgorithmsServerToClient
-                                           from b in Settings.HmacAlgorithms.Keys
+            var serverHmacAlgorithmName = (from b in Settings.HmacAlgorithms.Keys
+                                           from a in message.MacAlgorithmsServerToClient
                                            where a == b
                                            select a).FirstOrDefault();
             if (string.IsNullOrEmpty(serverHmacAlgorithmName))
             {
-                throw new InvalidOperationException("Server HMAC algorithm not found");
+                throw new SshException("Server HMAC algorithm not found", true, DisconnectReasonCodes.KeyExchangeFailed);
             }
             this._serverHmacAlgorithm = Settings.HmacAlgorithms[serverHmacAlgorithmName];
+
+            //  Determine compression algorithm
+            var compressionAlgorithmName = (from b in Settings.CompressionAlgorithms.Keys
+                                            from a in message.CompressionAlgorithmsClientToServer
+                                            where a == b
+                                            select a).FirstOrDefault();
+            if (string.IsNullOrEmpty(compressionAlgorithmName))
+            {
+                throw new SshException("Compression algorithm not found", true, DisconnectReasonCodes.KeyExchangeFailed);
+            }
+
+            this._compression = Settings.CompressionAlgorithms[compressionAlgorithmName];
+
+            //  Determine decompression algorithm
+            var decompressionAlgorithmName = (from b in Settings.CompressionAlgorithms.Keys
+                                              from a in message.CompressionAlgorithmsServerToClient
+                                              where a == b
+                                              select a).FirstOrDefault();
+            if (string.IsNullOrEmpty(decompressionAlgorithmName))
+            {
+                throw new SshException("Decompression algorithm not found", true, DisconnectReasonCodes.KeyExchangeFailed);
+            }
+            this._decompression = Settings.CompressionAlgorithms[decompressionAlgorithmName];
 
             this._keyExchangeAlgorithm = Settings.KeyExchangeAlgorithms[keyExchangeAlgorithm](this.Session);
 
@@ -199,7 +223,7 @@ namespace Renci.SshClient.Security
             }
             else
             {
-                throw new InvalidOperationException("Key exchange negotiation failed.");
+                throw new SshException("Key exchange negotiation failed.", true, DisconnectReasonCodes.KeyExchangeFailed);
             }
 
             var exchangeHash = this._keyExchangeAlgorithm.ExchangeHash;
@@ -244,12 +268,10 @@ namespace Renci.SshClient.Security
             var MACs2c = this.Hash(this.GenerateSessionKey(sharedKey, exchangeHash, 'F', this.SessionId));
             var serverMac = this._serverHmacAlgorithm(MACs2c);
 
-            //  TODO:   Create compression and decompression objects if any
-
             this.ServerCipher = serverCipher;
             this.ClientCipher = clientCipher;
-            this.ServerDecompression = Compression.None;
-            this.ClientCompression = Compression.None;
+            this.ServerDecompression = this._decompression(this.Session);
+            this.ClientCompression = this._compression(this.Session);
             this.ServerMac = serverMac;
             this.ClientMac = clientMac;
 

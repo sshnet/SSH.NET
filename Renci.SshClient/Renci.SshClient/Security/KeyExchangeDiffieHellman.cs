@@ -93,14 +93,17 @@ namespace Renci.SshClient.Security
         {
             this._serverPayload = message.GetBytes().GetSshString();
             this._clientPayload = this.Session.ClientInitMessage.GetBytes().GetSshString();
-
-            //  TODO:   Calculate random value correctly, enforce limits
+            var bytesArray = new byte[128];
             var clientExchangeValue = BigInteger.Zero;
-            while (clientExchangeValue < 1 || clientExchangeValue > ((KeyExchangeDiffieHellman._prime - 1) / 2))
+
+            do
             {
-                this._randomValue = new BigInteger(new Random().NextDouble() * long.MaxValue);
+                _randomizer.GetBytes(bytesArray);
+                bytesArray[bytesArray.Length - 1] = (byte)(bytesArray[bytesArray.Length - 1] & 0x7F);   //  Ensure not a negative value
+                this._randomValue = new BigInteger(bytesArray);
                 clientExchangeValue = System.Numerics.BigInteger.ModPow(KeyExchangeDiffieHellman._group, this._randomValue, KeyExchangeDiffieHellman._prime);
-            }
+
+            } while (clientExchangeValue < 1 || clientExchangeValue > ((KeyExchangeDiffieHellman._prime - 1)));
 
             this._clientExchangeValue = clientExchangeValue;
 

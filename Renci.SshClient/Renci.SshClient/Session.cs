@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -65,22 +66,22 @@ namespace Renci.SshClient
         /// <summary>
         /// WaitHandle to signale that last service request was accepted
         /// </summary>
-        private EventWaitHandle _serviceAccepted;
+        private EventWaitHandle _serviceAccepted = new AutoResetEvent(false);
 
         /// <summary>
         /// WaitHandle to signal that exception was thrown by another thread.
         /// </summary>
-        private EventWaitHandle _exceptionWaitHandle;
+        private EventWaitHandle _exceptionWaitHandle = new AutoResetEvent(false);
 
         /// <summary>
         /// WaitHandle to signal that listner ended
         /// </summary>
-        private EventWaitHandle _listenerWaitHandle;
+        private EventWaitHandle _listenerWaitHandle = new AutoResetEvent(false);
 
         /// <summary>
         /// Keeps track of all open channels
         /// </summary>
-        private Dictionary<uint, Channel> _openChannels;
+        private Dictionary<uint, Channel> _openChannels = new Dictionary<uint, Channel>();
 
         /// <summary>
         /// Exception that need to be thrown by waiting thread
@@ -100,7 +101,7 @@ namespace Renci.SshClient
         /// <summary>
         /// holds number to be used for session channels
         /// </summary>
-        private BlockingStack<uint> _channelNumbers;
+        private BlockingStack<uint> _channelNumbers = new BlockingStack<uint>();
 
         /// <summary>
         /// Gets a value indicating whether socket connected.
@@ -152,8 +153,8 @@ namespace Renci.SshClient
                         EncryptionAlgorithmsServerToClient = Settings.Encryptions.Keys,
                         MacAlgorithmsClientToSserver = Settings.HmacAlgorithms.Keys,
                         MacAlgorithmsServerToClient = Settings.HmacAlgorithms.Keys,
-                        CompressionAlgorithmsClientToServer = new string[] { "none" },
-                        CompressionAlgorithmsServerToClient = new string[] { "none" },
+                        CompressionAlgorithmsClientToServer = Settings.CompressionAlgorithms.Keys,
+                        CompressionAlgorithmsServerToClient = Settings.CompressionAlgorithms.Keys,
                         LanguagesClientToServer = new string[] { string.Empty },
                         LanguagesServerToClient = new string[] { string.Empty },
                         FirstKexPacketFollows = false,
@@ -436,7 +437,10 @@ namespace Renci.SshClient
                 throw new InvalidOperationException(string.Format("Payload cannot be more then {0} bytes.", Session.MAXIMUM_PAYLOAD_SIZE));
             }
 
-            //  TOOO:   If compression specified then compress only payload (messageData)
+            if (this._keyExhcange.ClientCompression != null)
+            {
+                messageData = this._keyExhcange.ClientCompression.Compress(messageData);
+            }
 
             var packetLength = messageData.Count() + 4 + 1; //  add length bytes and padding byte
             byte paddingLength = (byte)((-packetLength) & (paddingMultiplier - 1));
@@ -529,7 +533,7 @@ namespace Renci.SshClient
 
             //  Test packet minimum and maximum boundaries
             if (packetLength < Math.Max((byte)16, blockSize) - 4 || packetLength > Session.MAXIMUM_PACKET_SIZE - 4)
-                throw new IOException(string.Format("Bad packet length {0}", packetLength));
+                throw new SshException(string.Format("Bad packet length {0}", packetLength), true, DisconnectReasonCodes.ProtocolError);
 
             //  Read rest of the packet data
             int bytesToRead = (int)(packetLength - (blockSize - 4));
@@ -541,6 +545,15 @@ namespace Renci.SshClient
             else
             {
                 decryptedData.AddRange(this._keyExhcange.ServerCipher.Decrypt(this.Read(bytesToRead)));
+            }
+
+            var paddingLength = decryptedData[4];
+
+            var messagePayload = decryptedData.Skip(5).Take((int)(packetLength - paddingLength - 1));
+
+            if (this._keyExhcange.ServerDecompression != null)
+            {
+                messagePayload = new List<byte>(this._keyExhcange.ServerDecompression.Uncompress(messagePayload));
             }
 
             //  Validate message against MAC            
@@ -557,19 +570,16 @@ namespace Renci.SshClient
 
                 if (!serverHash.SequenceEqual(clientHash))
                 {
-                    throw new IOException("MAC error");
+                    throw new SshException("MAC error", true, DisconnectReasonCodes.MacError);
                 }
             }
 
             this._inboundPacketSequence++;
 
-            var paddingLength = decryptedData[4];
-
             //  TODO:   Inflate message payload
 
-            var payload = decryptedData.Skip(5).Take((int)(packetLength - paddingLength - 1));
 
-            return this.LoadMessage(payload);
+            return this.LoadMessage(messagePayload);
         }
 
         /// <summary>
@@ -595,7 +605,7 @@ namespace Renci.SshClient
 
         protected virtual void HandleMessage(IgnoreMessage message)
         {
-            throw new NotImplementedException();
+            //  This message should be ignored
         }
 
         protected virtual void HandleMessage(UnimplementedMessage message)
@@ -605,7 +615,10 @@ namespace Renci.SshClient
 
         protected virtual void HandleMessage(DebugMessage message)
         {
-            throw new NotImplementedException();
+            if (message.IsAlwaysDisplay)
+            {
+                Debug.WriteLine(message.Message);
+            }
         }
 
         protected virtual void HandleMessage(ServiceAcceptMessage message)
@@ -802,15 +815,14 @@ namespace Renci.SshClient
         /// <remarks>Initialization required when same session object being reconnected</remarks>
         private void Initialize()
         {
-            //  TODO:   Consider reseting objects to initial stage instead of creating a new one
             //  Initialize session
             this._outboundPacketSequence = 0;
             this._inboundPacketSequence = 0;
-            this._openChannels = new Dictionary<uint, Channel>();
-            this._serviceAccepted = new AutoResetEvent(false);
-            this._exceptionWaitHandle = new AutoResetEvent(false);
-            this._listenerWaitHandle = new AutoResetEvent(false);
-            this._channelNumbers = new BlockingStack<uint>();
+            this._openChannels.Clear();
+            this._serviceAccepted.Reset();
+            this._exceptionWaitHandle.Reset();
+            this._listenerWaitHandle.Reset();
+            this._channelNumbers.Clear();
             this._exceptionToThrow = null;
             this.ServerVersion = null;
             this._keyExhcange = null;
@@ -886,7 +898,7 @@ namespace Renci.SshClient
                     if (exp.ShouldDisconnect)
                     {
                         //  In case of error issue disconntect command
-                        this.Disconnect(DisconnectReasonCodes.ByApplication, exp.ToString());
+                        this.Disconnect(exp.DisconnectReasonCode, exp.ToString());
                     }
 
                     this._exceptionToThrow = exp;

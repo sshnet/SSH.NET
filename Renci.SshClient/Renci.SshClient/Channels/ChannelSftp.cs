@@ -53,7 +53,7 @@ namespace Renci.SshClient.Channels
             this.SendMessage(new ChannelRequestMessage
             {
                 ChannelNumber = this.ServerChannelNumber,
-                RequestName = RequestNames.Subsystem,
+                RequestName = ChannelRequestNames.Subsystem,
                 WantReply = true,
                 SubsystemName = "sftp",
             });

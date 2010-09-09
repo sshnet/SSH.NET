@@ -1,9 +1,14 @@
-﻿using System;
-
+﻿
 namespace Renci.SshClient.Messages.Transport
 {
     internal class DebugMessage : Message
     {
+        public bool IsAlwaysDisplay { get; set; }
+
+        public string Message { get; set; }
+
+        public string Language { get; set; }
+
         public override MessageTypes MessageType
         {
             get { return MessageTypes.Debug; }
@@ -11,12 +16,16 @@ namespace Renci.SshClient.Messages.Transport
 
         protected override void LoadData()
         {
-            throw new NotImplementedException();
+            this.IsAlwaysDisplay = this.ReadBoolean();
+            this.Message = this.ReadString();
+            this.Language = this.ReadString();
         }
 
         protected override void SaveData()
         {
-            throw new NotImplementedException();
+            this.Write(this.IsAlwaysDisplay);
+            this.Write(this.Message);
+            this.Write(this.Language);
         }
     }
 }

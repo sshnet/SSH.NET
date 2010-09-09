@@ -14,6 +14,8 @@ namespace Renci.SshClient
 
         public static IDictionary<string, Func<IEnumerable<byte>, HMAC>> HmacAlgorithms { get; private set; }
 
+        public static IDictionary<string, Func<Session, Compression>> CompressionAlgorithms { get; private set; }
+
         public static IDictionary<string, Func<CryptoPublicKey>> HostKeyAlgorithms { get; private set; }
 
         public static IDictionary<string, Func<Session, UserAuthentication>> SupportedAuthenticationMethods { get; private set; }
@@ -51,6 +53,14 @@ namespace Renci.SshClient
                 {"publickey", (session)=> {return new UserAuthenticationPublicKey(session);}},
                 {"password", (session)=> {return new UserAuthenticationPassword(session);}},
             };
+
+            Settings.CompressionAlgorithms = new Dictionary<string, Func<Session, Compression>>()
+            {
+                {"none", (session) => { return null;}}, 
+                {"zlib", (session) => { return new CompressionZlibOpenSsh(session);}}, 
+                {"zlib@openssh.com", (session) => { return new CompressionZlibOpenSsh(session);}}, 
+            };
+
         }
     }
 }

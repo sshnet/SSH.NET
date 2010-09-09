@@ -8,7 +8,7 @@ namespace Renci.SshClient.Messages.Connection
             get { return MessageTypes.ChannelRequest; }
         }
 
-        public RequestNames RequestName { get; set; }
+        public ChannelRequestNames RequestName { get; set; }
 
         public bool WantReply { get; set; }
 
@@ -34,12 +34,12 @@ namespace Renci.SshClient.Messages.Connection
                 case "shell":
                     break;
                 case "exec":
-                    this.RequestName = RequestNames.Exec;
+                    this.RequestName = ChannelRequestNames.Exec;
                     this.WantReply = this.ReadBoolean();
                     this.Command = this.ReadString();
                     break;
                 case "subsystem":
-                    this.RequestName = RequestNames.Subsystem;
+                    this.RequestName = ChannelRequestNames.Subsystem;
                     this.WantReply = this.ReadBoolean();
                     this.SubsystemName = this.ReadString();
                     break;
@@ -50,7 +50,7 @@ namespace Renci.SshClient.Messages.Connection
                 case "signal":
                     break;
                 case "exit-status":
-                    this.RequestName = RequestNames.ExitStatus;
+                    this.RequestName = ChannelRequestNames.ExitStatus;
                     this.WantReply = this.ReadBoolean();
                     this.ExitStatus = this.ReadUInt32();
                     break;
@@ -67,36 +67,36 @@ namespace Renci.SshClient.Messages.Connection
 
             switch (this.RequestName)
             {
-                case RequestNames.PseudoTerminal:
+                case ChannelRequestNames.PseudoTerminal:
                     break;
-                case RequestNames.X11Forwarding:
+                case ChannelRequestNames.X11Forwarding:
                     break;
-                case RequestNames.EnvironmentVariable:
+                case ChannelRequestNames.EnvironmentVariable:
                     break;
-                case RequestNames.Shell:
+                case ChannelRequestNames.Shell:
                     break;
-                case RequestNames.Exec:
+                case ChannelRequestNames.Exec:
                     this.Write("exec");
                     this.Write(this.WantReply);
                     this.Write(this.Command);
                     break;
-                case RequestNames.Subsystem:
+                case ChannelRequestNames.Subsystem:
                     this.Write("subsystem");
                     this.Write(this.WantReply);
                     this.Write(this.SubsystemName);
                     break;
-                case RequestNames.WindowChange:
+                case ChannelRequestNames.WindowChange:
                     break;
-                case RequestNames.XonXoff:
+                case ChannelRequestNames.XonXoff:
                     break;
-                case RequestNames.Signal:
+                case ChannelRequestNames.Signal:
                     break;
-                case RequestNames.ExitStatus:
+                case ChannelRequestNames.ExitStatus:
                     this.Write("exit-status");
                     this.Write(this.WantReply);
                     this.Write(this.ExitStatus);
                     break;
-                case RequestNames.ExitSignal:
+                case ChannelRequestNames.ExitSignal:
                     break;
                 default:
                     break;

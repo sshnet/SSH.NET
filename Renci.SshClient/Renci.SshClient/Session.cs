@@ -576,9 +576,6 @@ namespace Renci.SshClient
 
             this._inboundPacketSequence++;
 
-            //  TODO:   Inflate message payload
-
-
             return this.LoadMessage(messagePayload);
         }
 

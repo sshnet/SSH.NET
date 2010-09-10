@@ -33,9 +33,6 @@ namespace Renci.SshClient.Messages.Transport
             this.HostKey = this.ReadString();
             this.F = this.ReadBigInteger();
             this.Signature = this.ReadString();
-
-            //  TODO:   Determine which algorithms to use from signature
-
         }
 
         protected override void SaveData()

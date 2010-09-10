@@ -31,7 +31,9 @@ namespace Renci.SshClient
             Settings.Encryptions = new Dictionary<string, Func<Cipher>>()
             {
                 {"3des-cbc", () => { return new CipherTripleDES();}},
-                //{"aes128-cbc", () => { return new CipherAES128();}},  //  TODO:   This cipher does not work
+                {"aes128-cbc", () => { return new CipherAES128CBC();}},
+                {"aes192-cbc", () => { return new CipherAES192CBC();}},
+                {"aes256-cbc", () => { return new CipherAES256CBC();}},
             };
 
 
@@ -57,7 +59,7 @@ namespace Renci.SshClient
             Settings.CompressionAlgorithms = new Dictionary<string, Func<Session, Compression>>()
             {
                 {"none", (session) => { return null;}}, 
-                {"zlib", (session) => { return new CompressionZlibOpenSsh(session);}}, 
+                {"zlib", (session) => { return new CompressionZlib(session);}}, 
                 {"zlib@openssh.com", (session) => { return new CompressionZlibOpenSsh(session);}}, 
             };
 

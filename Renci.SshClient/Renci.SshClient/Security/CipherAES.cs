@@ -5,7 +5,7 @@ using System.Security.Cryptography;
 
 namespace Renci.SshClient.Security
 {
-    internal class CipherAES128 : Cipher, IDisposable
+    internal abstract class CipherAES : Cipher, IDisposable
     {
         private SymmetricAlgorithm _algorithm;
 
@@ -34,9 +34,12 @@ namespace Renci.SshClient.Security
             }
         }
 
-        public CipherAES128()
+        protected abstract int KeyBitsSize { get; }
+
+        public CipherAES()
         {
             this._algorithm = new System.Security.Cryptography.RijndaelManaged();
+            this._algorithm.KeySize = this.KeyBitsSize;
             this._algorithm.Mode = System.Security.Cryptography.CipherMode.CBC;
             this._algorithm.Padding = System.Security.Cryptography.PaddingMode.None;
         }
@@ -111,7 +114,7 @@ namespace Renci.SshClient.Security
             }
         }
 
-        ~CipherAES128()
+        ~CipherAES()
         {
             // Do not re-create Dispose clean-up code here.
             // Calling Dispose(false) is optimal in terms of
@@ -121,4 +124,27 @@ namespace Renci.SshClient.Security
 
         #endregion
     }
+
+    internal class CipherAES128CBC : CipherAES
+    {
+        protected override int KeyBitsSize
+        {
+            get { return 128; }
+        }
+    }
+    internal class CipherAES192CBC : CipherAES
+    {
+        protected override int KeyBitsSize
+        {
+            get { return 192; }
+        }
+    }
+    internal class CipherAES256CBC : CipherAES
+    {
+        protected override int KeyBitsSize
+        {
+            get { return 256; }
+        }
+    }
+
 }

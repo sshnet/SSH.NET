@@ -538,13 +538,16 @@ namespace Renci.SshClient
             //  Read rest of the packet data
             int bytesToRead = (int)(packetLength - (blockSize - 4));
 
-            if (this._keyExhcange.ServerCipher == null)
+            if (bytesToRead > 0)
             {
-                decryptedData.AddRange(this.Read(bytesToRead));
-            }
-            else
-            {
-                decryptedData.AddRange(this._keyExhcange.ServerCipher.Decrypt(this.Read(bytesToRead)));
+                if (this._keyExhcange.ServerCipher == null)
+                {
+                    decryptedData.AddRange(this.Read(bytesToRead));
+                }
+                else
+                {
+                    decryptedData.AddRange(this._keyExhcange.ServerCipher.Decrypt(this.Read(bytesToRead)));
+                }
             }
 
             var paddingLength = decryptedData[4];

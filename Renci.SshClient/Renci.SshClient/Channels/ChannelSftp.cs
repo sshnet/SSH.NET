@@ -62,7 +62,7 @@ namespace Renci.SshClient.Channels
 
             this.SendMessage(new InitMessage
             {
-                Version = 6,
+                Version = 3,
             });
 
             var versionMessage = this.ReceiveMessage<VersionMessage>();
@@ -128,7 +128,7 @@ namespace Renci.SshClient.Channels
                 while ((data = this.RemoteRead(handle, offset, bufferSize)) != null)
                 {
                     var fileData = data.GetSshBytes().ToArray();
-                    destination.Write(fileData, 0, (int)bufferSize);
+                    destination.Write(fileData, 0, fileData.Length);
                     destination.Flush();
                     offset += (ulong)fileData.Length;
                 }
@@ -216,6 +216,7 @@ namespace Renci.SshClient.Channels
             this._channelRequestSuccessWaitHandle.Set();
         }
 
+
         protected override void OnChannelData(string data)
         {
             base.OnChannelData(data);
@@ -243,8 +244,15 @@ namespace Renci.SshClient.Channels
 
             this._packetData = null;
 
-            //  TODO:   Handle SSH_FXP_STATUS here
-            //  TODO:   Validate message request id is correct
+            if (sftpMessage.RequestId != null)
+            {
+                if (sftpMessage.RequestId != this._requestId)
+                {
+                    throw new InvalidOperationException("Invalid request id.");
+                }
+
+                this._requestId++;
+            }
 
             this._responseMessage = sftpMessage;
 
@@ -302,7 +310,7 @@ namespace Renci.SshClient.Channels
 
         private void SendMessage(SftpMessage sftpMessage)
         {
-            sftpMessage.RequestId = this._requestId++;
+            sftpMessage.RequestId = this._requestId;
             var message = new SftpDataMessage
             {
                 ChannelNumber = this.ServerChannelNumber,
@@ -465,7 +473,18 @@ namespace Renci.SshClient.Channels
             });
 
             var status = this.ReceiveMessage<StatusMessage>();
-            //  TODO:   If close is fails wait a litle a try to close it again, in case server fluashed data into the file during close
+            var attempts = 0;
+            //  If close is fails wait a litle a try to close it again, in case server flushed data into the file during close
+            while (status.StatusCode != StatusCodes.Ok && attempts++ < this.Session.ConnectionInfo.RetryAttempts)
+            {
+                Thread.Sleep(50);
+                status = this.ReceiveMessage<StatusMessage>();
+            }
+
+            if (status.StatusCode != StatusCodes.Ok)
+            {
+                throw new InvalidOperationException(string.Format("File handle cannot be closed after {0} attempts.", attempts));
+            }
         }
 
         private Attributes GetRemoteFileAttributes(string filename)

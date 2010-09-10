@@ -72,33 +72,27 @@ namespace Renci.SshClient.Messages.Sftp
         protected Attributes ReadAttributes()
         {
             var attributes = new Attributes();
-            attributes.Flag = this.ReadUInt32();
 
-            var isSize = (attributes.Flag & 0x00000001) == 0x00000001;  //SSH_FILEXFER_ATTR_SIZE              0x00000001
-            var isUidGid = (attributes.Flag & 0x00000002) == 0x00000002;  //SSH_FILEXFER_ATTR_UIDGID              0x00000002
-            var isPermissions = (attributes.Flag & 0x00000004) == 0x00000004;  //SSH_FILEXFER_ATTR_PERMISSIONS       0x00000004
-            var isAccessModifyTime = (attributes.Flag & 0x00000008) == 0x00000008;  //SSH_FILEXFER_ATTR_ACMODTIME        0x00000008
+            var flag = this.ReadUInt32();
 
-            var isExtended = (attributes.Flag & 0x80000000) == 0x80000000;  //SSH_FILEXFER_ATTR_EXTENDED          0x80000000
-
-            if (isSize)
+            if ((flag & 0x00000001) == 0x00000001)   //  SSH_FILEXFER_ATTR_SIZE
             {
                 attributes.Size = this.ReadUInt64();
             }
 
-            if (isUidGid)
+            if ((flag & 0x00000002) == 0x00000002)   //  SSH_FILEXFER_ATTR_UIDGID
             {
                 attributes.UserId = this.ReadUInt32();
 
                 attributes.GroupId = this.ReadUInt32();
             }
 
-            if (isPermissions)
+            if ((flag & 0x00000004) == 0x00000004)   //  SSH_FILEXFER_ATTR_PERMISSIONS
             {
                 attributes.Permissions = this.ReadUInt32();
             }
 
-            if (isAccessModifyTime)
+            if ((flag & 0x00000008) == 0x00000008)   //  SSH_FILEXFER_ATTR_ACMODTIME
             {
                 var time = this.ReadUInt32();
                 attributes.AccessTime = DateTime.FromFileTime((time + 11644473600) * 10000000);
@@ -106,7 +100,7 @@ namespace Renci.SshClient.Messages.Sftp
                 attributes.ModifyTime = DateTime.FromFileTime((time + 11644473600) * 10000000);
             }
 
-            if (isExtended)
+            if ((flag & 0x80000000) == 0x80000000)   //  SSH_FILEXFER_ATTR_ACMODTIME
             {
                 var extendedCount = this.ReadUInt32();
                 attributes.Extentions = this.ReadExtensionPair();
@@ -117,7 +111,6 @@ namespace Renci.SshClient.Messages.Sftp
 
         protected void Write(Attributes attributes)
         {
-            //  TODO:   Complete attribute serialization, at this point we pass no attributes
             if (attributes == null)
             {
                 this.Write((uint)0);
@@ -125,42 +118,60 @@ namespace Renci.SshClient.Messages.Sftp
             }
             else
             {
-                //  TODO:   Need to be tested
-                throw new NotImplementedException();
+                UInt32 flag = 0;
 
-                var isSize = (attributes.Flag & 0x00000001) == 0x00000001;  //SSH_FILEXFER_ATTR_SIZE              0x00000001
-                var isUidGid = (attributes.Flag & 0x00000002) == 0x00000002;  //SSH_FILEXFER_ATTR_UIDGID              0x00000002
-                var isPermissions = (attributes.Flag & 0x00000004) == 0x00000004;  //SSH_FILEXFER_ATTR_PERMISSIONS       0x00000004
-                var isAccessModifyTime = (attributes.Flag & 0x00000008) == 0x00000008;  //SSH_FILEXFER_ATTR_ACMODTIME        0x00000008
-
-                var isExtended = (attributes.Flag & 0x80000000) == 0x80000000;  //SSH_FILEXFER_ATTR_EXTENDED          0x80000000
-
-                if (isSize)
+                if (attributes.Size.HasValue)
                 {
-                    this.Write(attributes.Size);
+                    flag |= 0x00000001;
                 }
 
-                if (isUidGid)
+                if (attributes.UserId.HasValue && attributes.GroupId.HasValue)
                 {
-                    this.Write(attributes.UserId);
-
-                    this.Write(attributes.GroupId);
+                    flag |= 0x00000002;
                 }
 
-                if (isPermissions)
+                if (attributes.Permissions.HasValue)
                 {
-                    this.Write(attributes.Permissions);
+                    flag |= 0x00000004;
                 }
 
-                if (isAccessModifyTime)
+                if (attributes.AccessTime.HasValue && attributes.ModifyTime.HasValue)
                 {
-                    uint time = (uint)(attributes.AccessTime.ToFileTime() - 11644473600) / 10000000;
+                    flag |= 0x00000008;
+                }
+
+                if (attributes.Extentions != null)
+                {
+                    flag |= 0x80000000;
+                }
+
+                this.Write(flag);
+
+                if (attributes.Size.HasValue)
+                {
+                    this.Write(attributes.Size.Value);
+                }
+
+                if (attributes.UserId.HasValue && attributes.GroupId.HasValue)
+                {
+                    this.Write(attributes.UserId.Value);
+                    this.Write(attributes.GroupId.Value);
+                }
+
+                if (attributes.Permissions.HasValue)
+                {
+                    this.Write(attributes.Permissions.Value);
+                }
+
+                if (attributes.AccessTime.HasValue && attributes.ModifyTime.HasValue)
+                {
+                    uint time = (uint)(attributes.AccessTime.Value.ToFileTime() / 10000000 - 11644473600);
                     this.Write(time);
-                    time = (uint)(attributes.ModifyTime.ToFileTime() - 11644473600) / 10000000;
+                    time = (uint)(attributes.ModifyTime.Value.ToFileTime() / 10000000 - 11644473600);
                     this.Write(time);
                 }
 
-                if (isExtended)
+                if (attributes.Extentions != null)
                 {
                     this.Write(attributes.Extentions);
                 }

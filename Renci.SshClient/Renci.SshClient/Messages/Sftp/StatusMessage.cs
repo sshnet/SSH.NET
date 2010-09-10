@@ -47,21 +47,17 @@
                 this.ErrorMessage = this.ReadString();
                 this.Language = this.ReadString();
             }
-            //  TODO:   Load error specific data
         }
 
         protected override void SaveData()
         {
             base.SaveData();
             this.Write((uint)this.StatusCode);
-            if (this.StatusCode == StatusCodes.Ok)
+            if (!string.IsNullOrEmpty(this.ErrorMessage))
             {
-                //  No more data need to be written
-                return;
+                this.Write(this.ErrorMessage);
+                this.Write(this.Language);
             }
-            this.Write(this.ErrorMessage);
-            this.Write(this.Language);
-            //  TODO:   Save error specific data
         }
     }
 }

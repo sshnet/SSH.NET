@@ -5,6 +5,7 @@ using System.Numerics;
 using System.Security.Cryptography;
 using System.Threading;
 using Renci.SshClient.Common;
+using Renci.SshClient.Compression;
 using Renci.SshClient.Messages;
 using Renci.SshClient.Messages.Transport;
 
@@ -34,9 +35,9 @@ namespace Renci.SshClient.Security
         /// </summary>
         private Func<IEnumerable<byte>, HMAC> _serverHmacAlgorithm;
 
-        private Func<Session, Compression> _compression;
+        private Func<Session, Compressor> _compression;
 
-        private Func<Session, Compression> _decompression;
+        private Func<Session, Compressor> _decompression;
 
         /// <summary>
         /// Gets the key exchange algorithm name.
@@ -97,9 +98,9 @@ namespace Renci.SshClient.Security
         /// <value>The server cipher.</value>
         public Cipher ServerCipher { get; private set; }
 
-        public Compression ServerDecompression { get; private set; }
+        public Compressor ServerDecompression { get; private set; }
 
-        public Compression ClientCompression { get; private set; }
+        public Compressor ClientCompression { get; private set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether key exchange is in progress.

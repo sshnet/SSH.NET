@@ -69,7 +69,7 @@
     <Compile Include="Security\Cipher.cs" />
     <Compile Include="Security\CipherAES.cs" />
     <Compile Include="Security\CipherTripleDES.cs" />
-    <Compile Include="Security\Compression.cs" />
+    <Compile Include="Compression\Compressor.cs" />
     <Compile Include="Channels\ChannelSftp.cs" />
     <Compile Include="Common\DataReceivedEventArgs.cs" />
     <Compile Include="Common\FtpFileInfo.cs" />
@@ -110,8 +110,8 @@
     <Compile Include="Messages\Sftp\StatusMessage.cs" />
     <Compile Include="Messages\Sftp\VersionMessage.cs" />
     <Compile Include="Messages\Sftp\WriteMessage.cs" />
-    <Compile Include="Security\CompressionZlib.cs" />
-    <Compile Include="Security\CompressionZlibOpenSsh.cs" />
+    <Compile Include="Compression\Zlib.cs" />
+    <Compile Include="Compression\ZlibOpenSsh.cs" />
     <Compile Include="Security\CryptoKey.cs" />
     <Compile Include="Security\CryptoPrivateKey.cs" />
     <Compile Include="Security\CryptoPrivateKeyDss.cs" />

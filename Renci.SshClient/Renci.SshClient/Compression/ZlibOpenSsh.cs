@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Renci.SshClient.Security
+namespace Renci.SshClient.Compression
 {
-    internal class CompressionZlibOpenSsh : Compression
+    internal class ZlibOpenSsh : Compressor
     {
         private bool _active;
 
@@ -12,7 +12,7 @@ namespace Renci.SshClient.Security
             get { return "zlib@openssh.org"; }
         }
 
-        public CompressionZlibOpenSsh(Session session)
+        public ZlibOpenSsh(Session session)
             : base(session)
         {
             session.MessageReceived += Session_MessageReceived;
@@ -33,7 +33,6 @@ namespace Renci.SshClient.Security
             {
                 return data;
             }
-
             throw new NotImplementedException();
 
             //using (var output = new MemoryStream())

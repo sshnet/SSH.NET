@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Renci.SshClient.Security
+namespace Renci.SshClient.Compression
 {
-    internal class CompressionZlib : Compression
+    internal class Zlib : Compressor
     {
         private bool _active;
 
@@ -12,7 +12,7 @@ namespace Renci.SshClient.Security
             get { return "zlib"; }
         }
 
-        public CompressionZlib(Session session)
+        public Zlib(Session session)
             : base(session)
         {
             session.MessageReceived += Session_MessageReceived;

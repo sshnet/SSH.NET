@@ -1,11 +1,12 @@
 ﻿using System.Collections.Generic;
-namespace Renci.SshClient.Security
+using Renci.SshClient.Security;
+namespace Renci.SshClient.Compression
 {
-    internal abstract class Compression : Algorithm
+    internal abstract class Compressor : Algorithm
     {
         protected Session Session { get; private set; }
 
-        public Compression(Session session)
+        public Compressor(Session session)
         {
             this.Session = session;
         }

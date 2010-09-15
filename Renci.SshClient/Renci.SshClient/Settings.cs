@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
+using Renci.SshClient.Compression;
 using Renci.SshClient.Security;
 
 namespace Renci.SshClient
@@ -14,7 +15,7 @@ namespace Renci.SshClient
 
         public static IDictionary<string, Func<IEnumerable<byte>, HMAC>> HmacAlgorithms { get; private set; }
 
-        public static IDictionary<string, Func<Session, Compression>> CompressionAlgorithms { get; private set; }
+        public static IDictionary<string, Func<Session, Compressor>> CompressionAlgorithms { get; private set; }
 
         public static IDictionary<string, Func<CryptoPublicKey>> HostKeyAlgorithms { get; private set; }
 
@@ -56,11 +57,11 @@ namespace Renci.SshClient
                 {"password", (session)=> {return new UserAuthenticationPassword(session);}},
             };
 
-            Settings.CompressionAlgorithms = new Dictionary<string, Func<Session, Compression>>()
+            Settings.CompressionAlgorithms = new Dictionary<string, Func<Session, Compressor>>()
             {
                 {"none", (session) => { return null;}}, 
-                {"zlib", (session) => { return new CompressionZlib(session);}}, 
-                {"zlib@openssh.com", (session) => { return new CompressionZlibOpenSsh(session);}}, 
+                {"zlib", (session) => { return new Zlib(session);}}, 
+                {"zlib@openssh.com", (session) => { return new ZlibOpenSsh(session);}}, 
             };
 
         }

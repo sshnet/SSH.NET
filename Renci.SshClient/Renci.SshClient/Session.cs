@@ -76,7 +76,7 @@ namespace Renci.SshClient
         /// <summary>
         /// WaitHandle to signal that listner ended
         /// </summary>
-        private EventWaitHandle _listenerWaitHandle = new AutoResetEvent(false);
+        private EventWaitHandle _listenerWaitHandle = new ManualResetEvent(false);
 
         /// <summary>
         /// Keeps track of all open channels
@@ -94,9 +94,10 @@ namespace Renci.SshClient
         private bool _isAuthenticated;
 
         /// <summary>
-        /// Specifies weither Disconnect method was called
+        /// Specifies DisconnectMessage that was sent by the client to the server
         /// </summary>
-        private bool _isDisconnecting;
+        private DisconnectMessage _disconnectMessage;
+
 
         /// <summary>
         /// holds number to be used for session channels
@@ -113,7 +114,7 @@ namespace Renci.SshClient
         {
             get
             {
-                return this._socket != null && this._socket.Connected && this._isAuthenticated;
+                return this._socket != null && this._socket.Connected && this._isAuthenticated && this._messageListener.Status == TaskStatus.Running;
             }
         }
 
@@ -202,26 +203,25 @@ namespace Renci.SshClient
         /// <returns>New channel of specified type</returns>
         public T CreateChannel<T>() where T : Channel
         {
+            //  Gets next available channel number or waits for one to become available
+            var clientChannelId = this._channelNumbers.WaitAndPop();
+
             if (!this.IsConnected)
             {
                 throw new InvalidOperationException("Not connected");
             }
 
-            T channel;
-            //  Gets newxt available channel number or waits for one to become available
-            var clientChannelId = this._channelNumbers.WaitAndPop();
-
             lock (this._openChannels)
             {
-                channel = _channels[typeof(T)](this, clientChannelId) as T;
+                var channel = _channels[typeof(T)](this, clientChannelId) as T;
 
                 channel.Closed += Channel_Closed;
                 channel.OpenFailed += Channel_Closed;
 
                 this._openChannels.Add(clientChannelId, channel);
-            }
 
-            return channel;
+                return channel;
+            }
         }
 
         public void Connect()
@@ -379,11 +379,14 @@ namespace Renci.SshClient
         /// </summary>
         public void Disconnect()
         {
-            this._isDisconnecting = true;
-
             this.Disconnect(DisconnectReasonCodes.ByApplication, "Connection terminated by the client.");
 
-            this.DisconnectCleanup();
+            if (this._messageListener != null)
+            {
+                //  Wait for listner task to finish
+                this._messageListener.Wait();
+                this._messageListener = null;
+            }
         }
 
         /// <summary>
@@ -405,11 +408,15 @@ namespace Renci.SshClient
 #else
             index = EventWaitHandle.WaitAny(waitHandles, this.ConnectionInfo.Timeout);
 #endif
-            if (this._exceptionToThrow != null)
+            if (index == 0 && this._exceptionToThrow != null)
             {
                 var exception = this._exceptionToThrow;
                 this._exceptionToThrow = null;
                 throw exception;
+            }
+            else if (index == 1)
+            {
+                throw new SshException("Connection was terminated.");
             }
             else if (index > waitHandles.Length)
             {
@@ -683,15 +690,15 @@ namespace Renci.SshClient
         /// <param name="message">The message.</param>
         protected void Disconnect(DisconnectReasonCodes reasonCode, string message)
         {
-            if (this.IsConnected)
+            if (this._disconnectMessage == null)
             {
-                this.SendMessage(new DisconnectMessage
-                {
-                    ReasonCode = reasonCode,
-                    Description = message,
-                });
+                this._disconnectMessage = new DisconnectMessage
+                                            {
+                                                ReasonCode = reasonCode,
+                                                Description = message,
+                                            };
 
-                this.DisconnectCleanup();
+                this.SendMessage(this._disconnectMessage);
             }
         }
 
@@ -704,12 +711,22 @@ namespace Renci.SshClient
         {
             var buffer = new byte[length];
             var offset = 0;
-            int received = 0;  // how many bytes is already received
+            int receivedTotal = 0;  // how many bytes is already received
             do
             {
                 try
                 {
-                    received += this._socket.Receive(buffer, offset + received, length - received, SocketFlags.None);
+                    var receivedBytes = this._socket.Receive(buffer, offset + receivedTotal, length - receivedTotal, SocketFlags.None);
+                    if (receivedBytes > 0)
+                    {
+                        receivedTotal += receivedBytes;
+                        continue;
+                    }
+                    else
+                    {
+                        this._socket.Disconnect(true);
+                        throw new SshException("An established connection was aborted by the software in your host machine.");
+                    }
                 }
                 catch (SocketException exp)
                 {
@@ -723,7 +740,7 @@ namespace Renci.SshClient
                     else
                         throw;  // any serious error occurr
                 }
-            } while (received < length);
+            } while (receivedTotal < length);
 
 
             return buffer;
@@ -815,6 +832,14 @@ namespace Renci.SshClient
         /// <remarks>Initialization required when same session object being reconnected</remarks>
         private void Initialize()
         {
+            //  Make sure that message listner finished all work if it was created
+            //  before initializing connection again
+            if (this._messageListener != null)
+            {
+                this._messageListener.Wait();
+                this._messageListener = null;
+            }
+
             //  Initialize session
             this._outboundPacketSequence = 0;
             this._inboundPacketSequence = 0;
@@ -827,7 +852,7 @@ namespace Renci.SshClient
             this.ServerVersion = null;
             this._keyExhcange = null;
             this._isAuthenticated = false;
-            this._isDisconnecting = false;
+            //this._disconnectMessage = null;
         }
 
         /// <summary>
@@ -836,12 +861,19 @@ namespace Renci.SshClient
         private void DisconnectCleanup()
         {
             //  Close all open channels if any
-            if (this.IsConnected)
+            lock (this._openChannels)
             {
                 foreach (var channel in this._openChannels.Values)
                 {
-                    channel.Close();
+                    this._channelNumbers.Push(channel.ClientChannelNumber);
+
+                    //  TODO:   See if possible redesign to avoid "connected" check at this place
+                    if (this.IsConnected)
+                    {
+                        channel.Close();
+                    }
                 }
+                this._openChannels.Clear();
             }
 
             //  Close socket connection if still open
@@ -850,12 +882,7 @@ namespace Renci.SshClient
                 this._socket.Close();
             }
 
-            if (this._messageListener != null)
-            {
-                //  Wait for listner task to finish
-                this._messageListener.Wait();
-                this._messageListener = null;
-            }
+            this._disconnectMessage = null;
         }
 
         /// <summary>
@@ -863,11 +890,11 @@ namespace Renci.SshClient
         /// </summary>
         private void MessageListener()
         {
-            while (this._socket.Connected)
+            while (true)
             {
                 try
                 {
-                    var message = this.ReceiveMessage();
+                    var message = this._disconnectMessage ?? this.ReceiveMessage();
 
                     if (message == null)
                     {
@@ -876,7 +903,7 @@ namespace Renci.SshClient
                     else if (message is DisconnectMessage)
                     {
                         //  Always handle disconnect message first
-                        this.HandleMessage(message);
+                        this.HandleMessage((dynamic)message);
                         break;  //  Exit message listener loop, no more messages should be handled
                     }
                     else if (this._keyExhcange.InProgress)
@@ -904,31 +931,19 @@ namespace Renci.SshClient
                     this._exceptionToThrow = exp;
 
                     this._exceptionWaitHandle.Set();
+
                 }
                 catch (Exception exp)
                 {
                     //  TODO:   This exception can be swolloed if it occures while running in the background, look for possible solutions
 
-                    //  Ignore this error since socket was disconected
-                    if (exp is SocketException && ((SocketException)exp).SocketErrorCode == SocketError.ConnectionAborted && this._isDisconnecting)
-                    {
-                        //  Do nothing since connection was disconnected by the client
-                    }
-                    else
-                    {
-                        //  In case of error issue disconntect command
-                        this.Disconnect(DisconnectReasonCodes.ByApplication, exp.ToString());
+                    this.Disconnect(DisconnectReasonCodes.ByApplication, exp.ToString());
 
-                        this._exceptionToThrow = exp;
+                    this._exceptionToThrow = exp;
 
-                        this._exceptionWaitHandle.Set();
-                    }
-
-                    //  Ensure socket is disconnected
-                    this._socket.Close();
+                    this._exceptionWaitHandle.Set();
                 }
             }
-
 
             this._listenerWaitHandle.Set();
         }
@@ -948,7 +963,7 @@ namespace Renci.SshClient
 
         #region IDisposable Members
 
-        private bool disposed = false;
+        private bool _disposed = false;
 
         public void Dispose()
         {
@@ -960,7 +975,7 @@ namespace Renci.SshClient
         private void Dispose(bool disposing)
         {
             // Check to see if Dispose has already been called.
-            if (!this.disposed)
+            if (!this._disposed)
             {
                 // If disposing equals true, dispose all managed
                 // and unmanaged resources.
@@ -990,7 +1005,7 @@ namespace Renci.SshClient
                 }
 
                 // Note disposing has been done.
-                disposed = true;
+                this._disposed = true;
             }
         }
 

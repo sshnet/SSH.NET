@@ -23,7 +23,7 @@ namespace Renci.SshClient
         {
             //  Set default connection values
             this.Port = 22;
-            this.Timeout = TimeSpan.FromMinutes(30);
+            this.Timeout = TimeSpan.FromSeconds(30);
             this.RetryAttempts = 10;
             this.MaxSessions = 10;
         }

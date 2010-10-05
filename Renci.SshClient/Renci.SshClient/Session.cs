@@ -692,13 +692,20 @@ namespace Renci.SshClient
         {
             if (this._disconnectMessage == null)
             {
-                this._disconnectMessage = new DisconnectMessage
-                                            {
-                                                ReasonCode = reasonCode,
-                                                Description = message,
-                                            };
+                lock (this)
+                {
+                    //  Ensure only one thread at a time can send disconnect message
+                    if (this._disconnectMessage == null)
+                    {
+                        this._disconnectMessage = new DisconnectMessage
+                        {
+                            ReasonCode = reasonCode,
+                            Description = message,
+                        };
 
-                this.SendMessage(this._disconnectMessage);
+                        this.SendMessage(this._disconnectMessage);
+                    }
+                }
             }
         }
 

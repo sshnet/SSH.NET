@@ -1,4 +1,5 @@
-﻿namespace Renci.SshClient
+﻿using System;
+namespace Renci.SshClient
 {
     public class ConnectionInfo
     {
@@ -12,7 +13,7 @@
 
         public PrivateKeyFile KeyFile { get; set; }
 
-        public int Timeout { get; set; }
+        public TimeSpan Timeout { get; set; }
 
         public int RetryAttempts { get; set; }
 
@@ -22,7 +23,7 @@
         {
             //  Set default connection values
             this.Port = 22;
-            this.Timeout = 1000 * 10;   //  Set default timeout to 10 sec
+            this.Timeout = TimeSpan.FromMinutes(30);
             this.RetryAttempts = 10;
             this.MaxSessions = 10;
         }

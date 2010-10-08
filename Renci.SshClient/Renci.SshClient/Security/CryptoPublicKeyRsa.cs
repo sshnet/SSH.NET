@@ -30,16 +30,27 @@ namespace Renci.SshClient.Security
 
         public override void Load(IEnumerable<byte> data)
         {
-            using (var ms = new MemoryStream(data.ToArray()))
-            using (var br = new BinaryReader(ms))
+            MemoryStream ms = null;
+            try
             {
-                var el = (uint)(br.ReadByte() << 24 | br.ReadByte() << 16 | br.ReadByte() << 8 | br.ReadByte());
+                ms = new MemoryStream(data.ToArray());
+                using (var br = new BinaryReader(ms))
+                {
+                    var el = (uint)(br.ReadByte() << 24 | br.ReadByte() << 16 | br.ReadByte() << 8 | br.ReadByte());
 
-                this._exponent = br.ReadBytes((int)el);
+                    this._exponent = br.ReadBytes((int)el);
 
-                var ml = (uint)(br.ReadByte() << 24 | br.ReadByte() << 16 | br.ReadByte() << 8 | br.ReadByte());
+                    var ml = (uint)(br.ReadByte() << 24 | br.ReadByte() << 16 | br.ReadByte() << 8 | br.ReadByte());
 
-                this._modulus = br.ReadBytes((int)ml);
+                    this._modulus = br.ReadBytes((int)ml);
+                }
+            }
+            finally
+            {
+                if (ms != null)
+                {
+                    ms.Dispose();
+                }
             }
         }
 
@@ -51,7 +62,6 @@ namespace Renci.SshClient.Security
                 {
                     var data = hash.ToArray();
                     cs.Write(data, 0, data.Length);
-                    cs.Close();
                 }
 
                 using (var rsa = new RSACryptoServiceProvider())

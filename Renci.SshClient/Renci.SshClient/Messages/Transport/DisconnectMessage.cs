@@ -9,7 +9,7 @@ namespace Renci.SshClient.Messages.Transport
             get { return MessageTypes.Disconnect; }
         }
 
-        public DisconnectReasonCodes ReasonCode { get; set; }
+        public DisconnectReasons ReasonCode { get; set; }
 
         public string Description { get; set; }
 
@@ -17,7 +17,7 @@ namespace Renci.SshClient.Messages.Transport
 
         protected override void LoadData()
         {
-            this.ReasonCode = (DisconnectReasonCodes)this.ReadUInt32();
+            this.ReasonCode = (DisconnectReasons)this.ReadUInt32();
             this.Description = this.ReadString();
             this.Language = this.ReadString();
         }

@@ -180,7 +180,7 @@
     <Compile Include="Messages\Transport\NewKeysMessage.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Messages\Transport\DisconnectReasonCodes.cs" />
+    <Compile Include="Messages\Transport\DisconnectReasons.cs" />
     <Compile Include="Messages\Transport\UnimplementedMessage.cs" />
     <Compile Include="Messages\Authentication\BannerMessage.cs" />
     <Compile Include="Messages\Authentication\FailureMessage.cs" />

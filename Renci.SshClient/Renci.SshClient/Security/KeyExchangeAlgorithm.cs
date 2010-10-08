@@ -47,9 +47,8 @@ namespace Renci.SshClient.Security
                 {
                     var hashData = hashBytes.ToArray();
                     cs.Write(hashData, 0, hashData.Length);
-                    cs.Close();
-                    return md.Hash;
                 }
+                return md.Hash;
             }
         }
 

@@ -28,54 +28,64 @@ namespace Renci.SshClient.Security
             {
                 throw new NotSupportedException("Keys with passphrase currently not supported");
             }
-
-            using (var ms = new MemoryStream(data.ToArray()))
-            using (var binr = new BinaryReader(ms))
+            MemoryStream ms = null;
+            try
             {
-                byte bt = 0;
-                ushort twobytes = 0;
-                int elems = 0;
+                ms = new MemoryStream(data.ToArray());
+                using (var binr = new BinaryReader(ms))
+                {
+                    byte bt = 0;
+                    ushort twobytes = 0;
+                    int elems = 0;
 
-                twobytes = binr.ReadUInt16();
-                if (twobytes == 0x8130)	//data read as little endian order (actual data order for Sequence is 30 81)
-                    binr.ReadByte();	//advance 1 byte
-                else if (twobytes == 0x8230)
-                    binr.ReadInt16();	//advance 2 bytes
-                else
-                    throw new InvalidOperationException("Not valid RSA Key.");
+                    twobytes = binr.ReadUInt16();
+                    if (twobytes == 0x8130)	//data read as little endian order (actual data order for Sequence is 30 81)
+                        binr.ReadByte();	//advance 1 byte
+                    else if (twobytes == 0x8230)
+                        binr.ReadInt16();	//advance 2 bytes
+                    else
+                        throw new InvalidOperationException("Not valid RSA Key.");
 
-                twobytes = binr.ReadUInt16();
-                if (twobytes != 0x0102)	//version number
-                    throw new NotSupportedException("Not supported RSA Key version.");
-                bt = binr.ReadByte();
-                if (bt != 0x00)
-                    throw new InvalidOperationException("Not valid RSA Key.");
+                    twobytes = binr.ReadUInt16();
+                    if (twobytes != 0x0102)	//version number
+                        throw new NotSupportedException("Not supported RSA Key version.");
+                    bt = binr.ReadByte();
+                    if (bt != 0x00)
+                        throw new InvalidOperationException("Not valid RSA Key.");
 
 
-                //------  all private key components are Integer sequences ----
-                elems = CryptoPrivateKeyRsa.GetIntegerSize(binr);
-                this._modulus = binr.ReadBytes(elems);
+                    //------  all private key components are Integer sequences ----
+                    elems = CryptoPrivateKeyRsa.GetIntegerSize(binr);
+                    this._modulus = binr.ReadBytes(elems);
 
-                elems = CryptoPrivateKeyRsa.GetIntegerSize(binr);
-                this._exponent = binr.ReadBytes(elems);
+                    elems = CryptoPrivateKeyRsa.GetIntegerSize(binr);
+                    this._exponent = binr.ReadBytes(elems);
 
-                elems = CryptoPrivateKeyRsa.GetIntegerSize(binr);
-                this._dValue = binr.ReadBytes(elems);
+                    elems = CryptoPrivateKeyRsa.GetIntegerSize(binr);
+                    this._dValue = binr.ReadBytes(elems);
 
-                elems = CryptoPrivateKeyRsa.GetIntegerSize(binr);
-                this._pValue = binr.ReadBytes(elems);
+                    elems = CryptoPrivateKeyRsa.GetIntegerSize(binr);
+                    this._pValue = binr.ReadBytes(elems);
 
-                elems = CryptoPrivateKeyRsa.GetIntegerSize(binr);
-                this._qValue = binr.ReadBytes(elems);
+                    elems = CryptoPrivateKeyRsa.GetIntegerSize(binr);
+                    this._qValue = binr.ReadBytes(elems);
 
-                elems = CryptoPrivateKeyRsa.GetIntegerSize(binr);
-                this._dpValue = binr.ReadBytes(elems);
+                    elems = CryptoPrivateKeyRsa.GetIntegerSize(binr);
+                    this._dpValue = binr.ReadBytes(elems);
 
-                elems = CryptoPrivateKeyRsa.GetIntegerSize(binr);
-                this._dqValue = binr.ReadBytes(elems);
+                    elems = CryptoPrivateKeyRsa.GetIntegerSize(binr);
+                    this._dqValue = binr.ReadBytes(elems);
 
-                elems = CryptoPrivateKeyRsa.GetIntegerSize(binr);
-                this._inverseQ = binr.ReadBytes(elems);
+                    elems = CryptoPrivateKeyRsa.GetIntegerSize(binr);
+                    this._inverseQ = binr.ReadBytes(elems);
+                }
+            }
+            finally
+            {
+                if (ms != null)
+                {
+                    ms.Dispose();
+                }
             }
         }
 
@@ -88,26 +98,26 @@ namespace Renci.SshClient.Security
         {
             var data = key.ToArray();
             using (var sha1 = new System.Security.Cryptography.SHA1CryptoServiceProvider())
-            using (var cs = new System.Security.Cryptography.CryptoStream(System.IO.Stream.Null, sha1, System.Security.Cryptography.CryptoStreamMode.Write))
             {
-                RSAParameters RSAKeyInfo = new RSAParameters();
+                RSAParameters rsaKeyInfo = new RSAParameters();
 
-                RSAKeyInfo.Exponent = this._exponent.TrimLeadinZero().ToArray();
-                RSAKeyInfo.D = this._dValue.TrimLeadinZero().ToArray();
-                RSAKeyInfo.Modulus = this._modulus.TrimLeadinZero().ToArray();
-                RSAKeyInfo.P = this._pValue.TrimLeadinZero().ToArray();
-                RSAKeyInfo.Q = this._qValue.TrimLeadinZero().ToArray();
-                RSAKeyInfo.DP = this._dpValue.TrimLeadinZero().ToArray();
-                RSAKeyInfo.DQ = this._dqValue.TrimLeadinZero().ToArray();
-                RSAKeyInfo.InverseQ = this._inverseQ.TrimLeadinZero().ToArray();
+                using (var cs = new System.Security.Cryptography.CryptoStream(System.IO.Stream.Null, sha1, System.Security.Cryptography.CryptoStreamMode.Write))
+                {
+                    rsaKeyInfo.Exponent = this._exponent.TrimLeadinZero().ToArray();
+                    rsaKeyInfo.D = this._dValue.TrimLeadinZero().ToArray();
+                    rsaKeyInfo.Modulus = this._modulus.TrimLeadinZero().ToArray();
+                    rsaKeyInfo.P = this._pValue.TrimLeadinZero().ToArray();
+                    rsaKeyInfo.Q = this._qValue.TrimLeadinZero().ToArray();
+                    rsaKeyInfo.DP = this._dpValue.TrimLeadinZero().ToArray();
+                    rsaKeyInfo.DQ = this._dqValue.TrimLeadinZero().ToArray();
+                    rsaKeyInfo.InverseQ = this._inverseQ.TrimLeadinZero().ToArray();
 
-                cs.Write(data, 0, data.Length);
-
-                cs.Close();
+                    cs.Write(data, 0, data.Length);
+                }
 
                 using (var RSA = new System.Security.Cryptography.RSACryptoServiceProvider())
                 {
-                    RSA.ImportParameters(RSAKeyInfo);
+                    RSA.ImportParameters(rsaKeyInfo);
                     var RSAFormatter = new RSAPKCS1SignatureFormatter(RSA);
                     RSAFormatter.SetHashAlgorithm("SHA1");
 

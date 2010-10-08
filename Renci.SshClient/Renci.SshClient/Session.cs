@@ -98,7 +98,6 @@ namespace Renci.SshClient
         /// </summary>
         private DisconnectMessage _disconnectMessage;
 
-
         /// <summary>
         /// holds number to be used for session channels
         /// </summary>
@@ -278,21 +277,33 @@ namespace Renci.SshClient
                     Match versionMatch = null;
                     //  Get server version from the server,
                     //  ignore text lines which are sent before if any
-                    using (var ns = new NetworkStream(this._socket))
-                    using (var sr = new StreamReader(ns))
+                    NetworkStream ns = null;
+                    try
                     {
-                        while (true)
+
+                        ns = new NetworkStream(this._socket);
+                        using (var sr = new StreamReader(ns))
                         {
-                            this.ServerVersion = sr.ReadLine();
-                            versionMatch = _serverVersionRe.Match(this.ServerVersion);
-                            if (string.IsNullOrEmpty(this.ServerVersion))
+                            while (true)
                             {
-                                throw new InvalidOperationException("Server string is null or empty.");
+                                this.ServerVersion = sr.ReadLine();
+                                versionMatch = _serverVersionRe.Match(this.ServerVersion);
+                                if (string.IsNullOrEmpty(this.ServerVersion))
+                                {
+                                    throw new InvalidOperationException("Server string is null or empty.");
+                                }
+                                else if (versionMatch.Success)
+                                {
+                                    break;
+                                }
                             }
-                            else if (versionMatch.Success)
-                            {
-                                break;
-                            }
+                        }
+                    }
+                    finally
+                    {
+                        if (ns != null)
+                        {
+                            ns.Dispose();
                         }
                     }
 
@@ -301,7 +312,7 @@ namespace Renci.SshClient
 
                     if (!version.Equals("2.0"))
                     {
-                        throw new NotSupportedException(string.Format("Server version '{0}' is not supported.", version));
+                        throw new SshException(string.Format("Server version '{0}' is not supported.", version), DisconnectReasons.ProtocolVersionNotSupported);
                     }
 
                     this.Write(Encoding.ASCII.GetBytes(string.Format("{0}\n", this.ClientVersion)));
@@ -379,7 +390,7 @@ namespace Renci.SshClient
         /// </summary>
         public void Disconnect()
         {
-            this.Disconnect(DisconnectReasonCodes.ByApplication, "Connection terminated by the client.");
+            this.Disconnect(DisconnectReasons.ByApplication, "Connection terminated by the client.");
 
             if (this._messageListener != null)
             {
@@ -420,7 +431,7 @@ namespace Renci.SshClient
             }
             else if (index > waitHandles.Length)
             {
-                this.Disconnect(DisconnectReasonCodes.ByApplication, "Operation timeout");
+                this.Disconnect(DisconnectReasons.ByApplication, "Operation timeout");
                 throw new TimeoutException("Operation timeout");
             }
         }
@@ -540,7 +551,7 @@ namespace Renci.SshClient
 
             //  Test packet minimum and maximum boundaries
             if (packetLength < Math.Max((byte)16, blockSize) - 4 || packetLength > Session.MAXIMUM_PACKET_SIZE - 4)
-                throw new SshException(string.Format("Bad packet length {0}", packetLength), true, DisconnectReasonCodes.ProtocolError);
+                throw new SshException(string.Format("Bad packet length {0}", packetLength), DisconnectReasons.ProtocolError);
 
             //  Read rest of the packet data
             int bytesToRead = (int)(packetLength - (blockSize - 4));
@@ -580,7 +591,7 @@ namespace Renci.SshClient
 
                 if (!serverHash.SequenceEqual(clientHash))
                 {
-                    throw new SshException("MAC error", true, DisconnectReasonCodes.MacError);
+                    throw new SshException("MAC error", DisconnectReasons.MacError);
                 }
             }
 
@@ -688,7 +699,7 @@ namespace Renci.SshClient
         /// </summary>
         /// <param name="reasonCode">The reason code.</param>
         /// <param name="message">The message.</param>
-        protected void Disconnect(DisconnectReasonCodes reasonCode, string message)
+        protected void Disconnect(DisconnectReasons reasonCode, string message)
         {
             if (this._disconnectMessage == null)
             {
@@ -867,26 +878,23 @@ namespace Renci.SshClient
         /// </summary>
         private void DisconnectCleanup()
         {
+            //  Close socket connection if still open
+            if (this._socket != null)
+            {
+                this._socket.Close();
+            }
+
             //  Close all open channels if any
             lock (this._openChannels)
             {
                 foreach (var channel in this._openChannels.Values)
                 {
+                    //  Push channel numbers back to queue in case someone waiting
                     this._channelNumbers.Push(channel.ClientChannelNumber);
 
-                    //  TODO:   See if possible redesign to avoid "connected" check at this place
-                    if (this.IsConnected)
-                    {
-                        channel.Close();
-                    }
+                    //  Channels cannot be closed at this point since after SSH_MSG_DISCONNECT data should not be sent or received.
                 }
                 this._openChannels.Clear();
-            }
-
-            //  Close socket connection if still open
-            if (this._socket != null)
-            {
-                this._socket.Close();
             }
 
             this._disconnectMessage = null;
@@ -929,10 +937,10 @@ namespace Renci.SshClient
                 }
                 catch (SshException exp)
                 {
-                    if (exp.ShouldDisconnect)
+                    if (exp.DisconnectReason != DisconnectReasons.None)
                     {
                         //  In case of error issue disconntect command
-                        this.Disconnect(exp.DisconnectReasonCode, exp.ToString());
+                        this.Disconnect(exp.DisconnectReason, exp.ToString());
                     }
 
                     this._exceptionToThrow = exp;
@@ -944,7 +952,7 @@ namespace Renci.SshClient
                 {
                     //  TODO:   This exception can be swolloed if it occures while running in the background, look for possible solutions
 
-                    this.Disconnect(DisconnectReasonCodes.ByApplication, exp.ToString());
+                    this.Disconnect(DisconnectReasons.ByApplication, exp.ToString());
 
                     this._exceptionToThrow = exp;
 
@@ -991,8 +999,7 @@ namespace Renci.SshClient
                     // Dispose managed resources.
                     if (this._socket != null)
                     {
-                        this.Disconnect();
-                        this._socket.Dispose();
+                        this._socket.Close();
                     }
 
                     if (this._serviceAccepted != null)
@@ -1008,6 +1015,11 @@ namespace Renci.SshClient
                     if (this._listenerWaitHandle != null)
                     {
                         this._listenerWaitHandle.Dispose();
+                    }
+
+                    if (this._keyExhcange != null)
+                    {
+                        this._keyExhcange.Dispose();
                     }
                 }
 
@@ -1025,5 +1037,18 @@ namespace Renci.SshClient
         }
 
         #endregion
+
+        private class AAANetworkStream : NetworkStream
+        {
+            public AAANetworkStream(Socket socket) : base(socket) { }
+            public AAANetworkStream(Socket socket, bool ownsSocket) : base(socket, ownsSocket) { }
+            public AAANetworkStream(Socket socket, FileAccess access) : base(socket, access) { }
+            public AAANetworkStream(Socket socket, FileAccess access, bool ownsSocket) : base(socket, access, ownsSocket) { }
+
+            protected override void Dispose(bool disposing)
+            {
+                base.Dispose(disposing);
+            }
+        }
     }
 }

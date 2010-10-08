@@ -1,7 +1,8 @@
 ﻿namespace Renci.SshClient.Messages.Transport
 {
-    public enum DisconnectReasonCodes : uint
+    public enum DisconnectReasons : uint
     {
+        None = 0,
         /// <summary>
         /// SSH_DISCONNECT_HOST_NOT_ALLOWED_TO_CONNECT
         /// </summary>

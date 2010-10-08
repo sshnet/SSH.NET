@@ -238,7 +238,7 @@ namespace Renci.SshClient.Channels
                 //  Throw an error if exit status is not 0
                 if (exitStatus > 0)
                 {
-                    throw new SshException(string.Format("Operation failed. Exit status: {0}", exitStatus), false);
+                    throw new SshException(string.Format("Operation failed. Exit status: {0}", exitStatus), exitStatus);
                 }
 
             }

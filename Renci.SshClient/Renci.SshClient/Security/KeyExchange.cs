@@ -138,7 +138,7 @@ namespace Renci.SshClient.Security
 
             if (keyExchangeAlgorithm == null)
             {
-                throw new SshException("Failed to negotiate key exchange algorithm.", true, DisconnectReasonCodes.KeyExchangeFailed);
+                throw new SshException("Failed to negotiate key exchange algorithm.", DisconnectReasons.KeyExchangeFailed);
             }
 
             //  Determine encryption algorithm
@@ -148,7 +148,7 @@ namespace Renci.SshClient.Security
                                                  select a).FirstOrDefault();
             if (string.IsNullOrEmpty(clientEncryptionAlgorithmName))
             {
-                throw new SshException("Client encryption algorithm not found", true, DisconnectReasonCodes.KeyExchangeFailed);
+                throw new SshException("Client encryption algorithm not found", DisconnectReasons.KeyExchangeFailed);
             }
             this._clientCipher = Settings.Encryptions[clientEncryptionAlgorithmName];
 
@@ -159,7 +159,7 @@ namespace Renci.SshClient.Security
                                                  select a).FirstOrDefault();
             if (string.IsNullOrEmpty(serverDecryptionAlgorithmName))
             {
-                throw new SshException("Server decryption algorithm not found", true, DisconnectReasonCodes.KeyExchangeFailed);
+                throw new SshException("Server decryption algorithm not found", DisconnectReasons.KeyExchangeFailed);
             }
             this._serverCipher = Settings.Encryptions[clientEncryptionAlgorithmName];
 
@@ -170,7 +170,7 @@ namespace Renci.SshClient.Security
                                            select a).FirstOrDefault();
             if (string.IsNullOrEmpty(clientHmacAlgorithmName))
             {
-                throw new SshException("Server HMAC algorithm not found", true, DisconnectReasonCodes.KeyExchangeFailed);
+                throw new SshException("Server HMAC algorithm not found", DisconnectReasons.KeyExchangeFailed);
             }
             this._clientHmacAlgorithm = Settings.HmacAlgorithms[clientHmacAlgorithmName];
 
@@ -181,7 +181,7 @@ namespace Renci.SshClient.Security
                                            select a).FirstOrDefault();
             if (string.IsNullOrEmpty(serverHmacAlgorithmName))
             {
-                throw new SshException("Server HMAC algorithm not found", true, DisconnectReasonCodes.KeyExchangeFailed);
+                throw new SshException("Server HMAC algorithm not found", DisconnectReasons.KeyExchangeFailed);
             }
             this._serverHmacAlgorithm = Settings.HmacAlgorithms[serverHmacAlgorithmName];
 
@@ -192,7 +192,7 @@ namespace Renci.SshClient.Security
                                             select a).FirstOrDefault();
             if (string.IsNullOrEmpty(compressionAlgorithmName))
             {
-                throw new SshException("Compression algorithm not found", true, DisconnectReasonCodes.KeyExchangeFailed);
+                throw new SshException("Compression algorithm not found", DisconnectReasons.KeyExchangeFailed);
             }
 
             this._compression = Settings.CompressionAlgorithms[compressionAlgorithmName];
@@ -204,7 +204,7 @@ namespace Renci.SshClient.Security
                                               select a).FirstOrDefault();
             if (string.IsNullOrEmpty(decompressionAlgorithmName))
             {
-                throw new SshException("Decompression algorithm not found", true, DisconnectReasonCodes.KeyExchangeFailed);
+                throw new SshException("Decompression algorithm not found", DisconnectReasons.KeyExchangeFailed);
             }
             this._decompression = Settings.CompressionAlgorithms[decompressionAlgorithmName];
 
@@ -224,7 +224,7 @@ namespace Renci.SshClient.Security
             }
             else
             {
-                throw new SshException("Key exchange negotiation failed.", true, DisconnectReasonCodes.KeyExchangeFailed);
+                throw new SshException("Key exchange negotiation failed.", DisconnectReasons.KeyExchangeFailed);
             }
 
             var exchangeHash = this._keyExchangeAlgorithm.ExchangeHash;
@@ -300,9 +300,8 @@ namespace Renci.SshClient.Security
                 {
                     var hashData = hashBytes.ToArray();
                     cs.Write(hashData, 0, hashData.Length);
-                    cs.Close();
-                    return md.Hash;
                 }
+                return md.Hash;
             }
         }
 

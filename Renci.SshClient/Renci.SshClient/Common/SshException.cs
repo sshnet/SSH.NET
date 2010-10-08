@@ -7,61 +7,56 @@ namespace Renci.SshClient.Common
     [Serializable]
     public class SshException : Exception
     {
-        public bool ShouldDisconnect { get; private set; }
+        public DisconnectReasons DisconnectReason { get; private set; }
 
-        public DisconnectReasonCodes DisconnectReasonCode { get; private set; }
+        public uint ExitStatus { get; private set; }
 
         public SshException()
         {
-            this.ShouldDisconnect = true;
-            this.DisconnectReasonCode = DisconnectReasonCodes.ByApplication;
         }
 
         public SshException(string message)
             : base(message)
         {
-            this.ShouldDisconnect = true;
-            this.DisconnectReasonCode = DisconnectReasonCodes.ByApplication;
         }
 
         public SshException(string message, Exception inner)
             : base(message, inner)
         {
-            this.ShouldDisconnect = true;
-            this.DisconnectReasonCode = DisconnectReasonCodes.ByApplication;
         }
 
-        public SshException(string message, bool shouldDisconnect)
+        public SshException(string message, uint exitStatus)
             : base(message)
         {
-            this.ShouldDisconnect = shouldDisconnect;
-            this.DisconnectReasonCode = DisconnectReasonCodes.ByApplication;
+            this.ExitStatus = exitStatus;
         }
 
-        public SshException(string message, bool shouldDisconnect, Exception inner)
+        public SshException(string message, uint exitStatus, Exception inner)
             : base(message, inner)
         {
-            this.ShouldDisconnect = shouldDisconnect;
-            this.DisconnectReasonCode = DisconnectReasonCodes.ByApplication;
+            this.ExitStatus = exitStatus;
         }
 
-        public SshException(string message, bool shouldDisconnect, DisconnectReasonCodes disconnectReasonCode)
+        public SshException(string message, DisconnectReasons disconnectReasonCode)
             : base(message)
         {
-            this.ShouldDisconnect = shouldDisconnect;
-            this.DisconnectReasonCode = disconnectReasonCode;
+            this.DisconnectReason = disconnectReasonCode;
         }
 
-        public SshException(string message, bool shouldDisconnect, DisconnectReasonCodes disconnectReasonCode, Exception inner)
+        public SshException(string message, DisconnectReasons disconnectReasonCode, Exception inner)
             : base(message, inner)
         {
-            this.ShouldDisconnect = shouldDisconnect;
-            this.DisconnectReasonCode = disconnectReasonCode;
+            this.DisconnectReason = disconnectReasonCode;
         }
 
         protected SshException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
+        }
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
         }
 
     }

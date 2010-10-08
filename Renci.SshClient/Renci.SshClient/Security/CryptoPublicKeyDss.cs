@@ -34,25 +34,36 @@ namespace Renci.SshClient.Security
 
         public override void Load(IEnumerable<byte> data)
         {
-            using (var ms = new MemoryStream(data.ToArray()))
-            using (var br = new BinaryReader(ms))
+            MemoryStream ms = null;
+            try
             {
+                ms = new MemoryStream(data.ToArray());
+                using (var br = new BinaryReader(ms))
+                {
 
-                var pl = (uint)(br.ReadByte() << 24 | br.ReadByte() << 16 | br.ReadByte() << 8 | br.ReadByte());
+                    var pl = (uint)(br.ReadByte() << 24 | br.ReadByte() << 16 | br.ReadByte() << 8 | br.ReadByte());
 
-                _p = br.ReadBytes((int)pl);
+                    _p = br.ReadBytes((int)pl);
 
-                var ql = (uint)(br.ReadByte() << 24 | br.ReadByte() << 16 | br.ReadByte() << 8 | br.ReadByte());
+                    var ql = (uint)(br.ReadByte() << 24 | br.ReadByte() << 16 | br.ReadByte() << 8 | br.ReadByte());
 
-                _q = br.ReadBytes((int)ql);
+                    _q = br.ReadBytes((int)ql);
 
-                var gl = (uint)(br.ReadByte() << 24 | br.ReadByte() << 16 | br.ReadByte() << 8 | br.ReadByte());
+                    var gl = (uint)(br.ReadByte() << 24 | br.ReadByte() << 16 | br.ReadByte() << 8 | br.ReadByte());
 
-                _g = br.ReadBytes((int)gl);
+                    _g = br.ReadBytes((int)gl);
 
-                var xl = (uint)(br.ReadByte() << 24 | br.ReadByte() << 16 | br.ReadByte() << 8 | br.ReadByte());
+                    var xl = (uint)(br.ReadByte() << 24 | br.ReadByte() << 16 | br.ReadByte() << 8 | br.ReadByte());
 
-                _publicKey = br.ReadBytes((int)xl);
+                    _publicKey = br.ReadBytes((int)xl);
+                }
+            }
+            finally
+            {
+                if (ms != null)
+                {
+                    ms.Dispose();
+                }
             }
         }
 
@@ -64,7 +75,6 @@ namespace Renci.SshClient.Security
                 {
                     var data = hash.ToArray();
                     cs.Write(data, 0, data.Length);
-                    cs.Close();
                 }
 
                 using (var dsa = new DSACryptoServiceProvider())

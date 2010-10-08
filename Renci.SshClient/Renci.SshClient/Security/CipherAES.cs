@@ -34,12 +34,13 @@ namespace Renci.SshClient.Security
             }
         }
 
-        protected abstract int KeyBitsSize { get; }
+        protected int KeyBitsSize { get; private set; }
 
-        public CipherAES()
+        public CipherAES(int keyBitsSize)
         {
+            this.KeyBitsSize = keyBitsSize;
             this._algorithm = new System.Security.Cryptography.RijndaelManaged();
-            this._algorithm.KeySize = this.KeyBitsSize;
+            this._algorithm.KeySize = keyBitsSize;
             this._algorithm.Mode = System.Security.Cryptography.CipherMode.CBC;
             this._algorithm.Padding = System.Security.Cryptography.PaddingMode.None;
         }
@@ -127,23 +128,28 @@ namespace Renci.SshClient.Security
 
     internal class CipherAES128CBC : CipherAES
     {
-        protected override int KeyBitsSize
+        public CipherAES128CBC()
+            : base(128)
         {
-            get { return 128; }
+
         }
     }
+
     internal class CipherAES192CBC : CipherAES
     {
-        protected override int KeyBitsSize
+        public CipherAES192CBC()
+            : base(192)
         {
-            get { return 192; }
+
         }
     }
+
     internal class CipherAES256CBC : CipherAES
     {
-        protected override int KeyBitsSize
+        public CipherAES256CBC()
+            : base(256)
         {
-            get { return 256; }
+
         }
     }
 

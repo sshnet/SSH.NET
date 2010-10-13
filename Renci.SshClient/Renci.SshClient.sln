@@ -3,14 +3,14 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Renci.SshClient", "Renci.SshClient\Renci.SshClient.csproj", "{2F5F8C90-0BD1-424F-997C-7BC6280919D1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Renci.SshClient.Tests", "Tests\Renci.SshClient.Tests.csproj", "{C45379B9-17B1-4E89-BC2E-6D41726413E8}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A3063E62-89D5-43FF-AB1A-FFBECB4A1850}"
 	ProjectSection(SolutionItems) = preProject
 		Local.testsettings = Local.testsettings
 		Renci.SshClient1.vsmdi = Renci.SshClient1.vsmdi
 		TraceAndTestImpact.testsettings = TraceAndTestImpact.testsettings
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Renci.SshClient.Tests", "Renci.SshClient.Tests\Renci.SshClient.Tests.csproj", "{C45379B9-17B1-4E89-BC2E-6D41726413E8}"
 EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
@@ -21,9 +21,9 @@ Global
 		SccProjectUniqueName1 = Renci.SshClient\\Renci.SshClient.csproj
 		SccProjectName1 = Renci.SshClient
 		SccLocalPath1 = Renci.SshClient
-		SccProjectUniqueName2 = Tests\\Renci.SshClient.Tests.csproj
-		SccProjectName2 = Tests
-		SccLocalPath2 = Tests
+		SccProjectUniqueName2 = Renci.SshClient.Tests\\Renci.SshClient.Tests.csproj
+		SccProjectName2 = Renci.SshClient.Tests
+		SccLocalPath2 = Renci.SshClient.Tests
 	EndGlobalSection
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = Renci.SshClient1.vsmdi

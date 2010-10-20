@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using System.Threading;
 using Renci.SshClient.Common;
 using Renci.SshClient.Messages;
@@ -28,6 +29,11 @@ namespace Renci.SshClient.Channels
         /// </summary>
         private bool _closeMessageSent = false;
 
+        /// <summary>
+        /// If error occured holds error message
+        /// </summary>
+        private StringBuilder _errorMessage;
+
         public abstract ChannelTypes ChannelType { get; }
 
         public uint ClientChannelNumber { get; private set; }
@@ -41,6 +47,8 @@ namespace Renci.SshClient.Channels
         public uint PacketSize { get; private set; }
 
         public bool IsOpen { get; private set; }
+
+        public uint ExitStatus { get; private set; }
 
         public event EventHandler<ChannelEventArgs> Opened;
 
@@ -115,6 +123,12 @@ namespace Renci.SshClient.Channels
 
         protected virtual void OnChannelExtendedData(string data, uint dataTypeCode)
         {
+            if (dataTypeCode == 1)
+            {
+                if (this._errorMessage == null)
+                    this._errorMessage = new StringBuilder();
+                this._errorMessage.Append(data);
+            }
         }
 
         protected virtual void OnChannelSuccess()
@@ -127,6 +141,11 @@ namespace Renci.SshClient.Channels
 
         protected virtual void OnChannelClose()
         {
+            //  Throw an error if exit status is not 0
+            if (this.ExitStatus > 0)
+            {
+                throw new SshException(this._errorMessage.ToString(), this.ExitStatus);
+            }
         }
 
         protected virtual void OnChannelFailed(uint reasonCode, string description)
@@ -228,19 +247,12 @@ namespace Renci.SshClient.Channels
 
             if (message.RequestName == ChannelRequestNames.ExitStatus)
             {
-                var exitStatus = message.ExitStatus;
+                this.ExitStatus = message.ExitStatus;
 
                 replyMessage = new ChannelSuccessMessage()
                 {
                     ChannelNumber = message.ChannelNumber,
                 };
-
-                //  Throw an error if exit status is not 0
-                if (exitStatus > 0)
-                {
-                    throw new SshException(string.Format("Operation failed. Exit status: {0}", exitStatus), exitStatus);
-                }
-
             }
             else
             {

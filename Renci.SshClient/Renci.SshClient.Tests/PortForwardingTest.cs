@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using System.IO;
 using System.Net;
-using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Renci.SshClient.Tests
@@ -103,7 +102,7 @@ namespace Renci.SshClient.Tests
 
             var client = CreateShellUsingPassword();
             client.Connect();
-            var port1 = client.AddForwardedPort<ForwardedPortRemote>(8082, "www.renci1.org", 80);
+            var port1 = client.AddForwardedPort<ForwardedPortRemote>(8082, "www.renci.org", 80);
             port1.Exception += delegate(object sender, ExceptionEventArgs e)
             {
                 Assert.Fail(e.Exception.ToString());
@@ -111,10 +110,10 @@ namespace Renci.SshClient.Tests
             port1.Start();
 
             System.Threading.Tasks.Parallel.For(0, 100,
-                new ParallelOptions
-                {
-                    MaxDegreeOfParallelism = 1,
-                },
+                //new ParallelOptions
+                //{
+                //    MaxDegreeOfParallelism = 1,
+                //},
                 (counter) =>
                 {
                     var start = DateTime.Now;
@@ -122,16 +121,16 @@ namespace Renci.SshClient.Tests
                     {
 
                         var result = client.Shell.Execute("wget -O- http://localhost:8082");
+                        var end = DateTime.Now;
+                        Debug.Write(string.Format("Length: {0}", result.Length));
                     }
                     catch (Exception exp)
                     {
 
                         throw;
                     }
-                    var end = DateTime.Now;
                 }
             );
-
         }
 
         private static byte[] ReadStream(Stream stream)

@@ -25,8 +25,8 @@
         {
             base.SaveData();
             this.Write(this.ReasonCode);
-            this.Write(this.Description);
-            this.Write(this.Language);
+            this.Write(this.Description ?? string.Empty);
+            this.Write(this.Language ?? "en");
         }
     }
 }

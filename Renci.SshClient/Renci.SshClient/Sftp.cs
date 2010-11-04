@@ -5,49 +5,28 @@ using Renci.SshClient.Common;
 
 namespace Renci.SshClient
 {
-    public class Sftp : SshBase
+    public class Sftp
     {
-        private ChannelSftp _channel;
+        private ChannelSessionSftp _channel;
 
-        private ChannelSftp Channel
+        private ChannelSessionSftp Channel
         {
             get
             {
                 if (this._channel == null)
                 {
-                    this.Session.Connect();
-                    this._channel = this.Session.CreateChannel<ChannelSftp>();
+                    this._channel = this._session.CreateChannel<ChannelSessionSftp>();
                 }
                 return this._channel;
             }
         }
 
-        public Sftp(ConnectionInfo connectionInfo)
-            : base(connectionInfo)
+        private readonly Session _session;
+
+        internal Sftp(Session session)
         {
+            this._session = session;
         }
-
-        public Sftp(string host, int port, string username, string password)
-            : base(host, port, username, password)
-        {
-        }
-
-        public Sftp(string host, string username, string password)
-            : base(host, username, password)
-        {
-        }
-
-        public Sftp(string host, int port, string username, PrivateKeyFile keyFile)
-            : base(host, port, username, keyFile)
-        {
-        }
-
-        public Sftp(string host, string username, PrivateKeyFile keyFile)
-            : base(host, username, keyFile)
-        {
-        }
-
-
 
         public IEnumerable<FtpFileInfo> ListDirectory(string path)
         {

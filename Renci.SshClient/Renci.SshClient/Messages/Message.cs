@@ -33,5 +33,10 @@ namespace Renci.SshClient.Messages
             return data;
         }
 
+        public override string ToString()
+        {
+            return this.MessageType.ToString();
+        }
+
     }
 }

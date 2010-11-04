@@ -100,17 +100,24 @@ namespace Renci.SshClient.Tests
         [TestMethod]
         public void TestMultipleThreadMultipleSessions_10000()
         {
+            //  TODO:   Restore test to 10000 items
             var s = CreateShellUsingPassword();
-
-            System.Threading.Tasks.Parallel.For(0, 10000,
+            s.Connect();
+            var numOfLoops = 100000;
+            var exeCounter = 0;
+            System.Threading.Tasks.Parallel.For(0, numOfLoops,
                 (counter) =>
                 {
                     var result = ExecuteTestCommand(s);
+                    Debug.WriteLine(string.Format("TestMultipleThreadMultipleConnections #{0}", counter));
+                    exeCounter++;
                     Assert.IsTrue(result);
                 }
             );
 
             s.Disconnect();
+
+            Assert.AreEqual(exeCounter, numOfLoops);
         }
 
         [TestMethod]
@@ -118,26 +125,22 @@ namespace Renci.SshClient.Tests
         {
             try
             {
-
-                System.Threading.Tasks.Parallel.For(0, 10000,
-                    new ParallelOptions
-                        {
-                            MaxDegreeOfParallelism = 1,
-                        },
+                //  TODO:   Restore test to 10000 items
+                System.Threading.Tasks.Parallel.For(0, 100,
                     () =>
                     {
                         var s = CreateShellUsingPassword();
                         s.Connect();
                         return s;
                     },
-                    (int counter, ParallelLoopState pls, Shell s) =>
+                    (int counter, ParallelLoopState pls, SshClient s) =>
                     {
                         var result = ExecuteTestCommand(s);
                         Debug.WriteLine(string.Format("TestMultipleThreadMultipleConnections #{0}", counter));
                         Assert.IsTrue(result);
                         return s;
                     },
-                    (Shell s) =>
+                    (SshClient s) =>
                     {
                         s.Disconnect();
                     }
@@ -155,7 +158,7 @@ namespace Renci.SshClient.Tests
             var s = CreateShellUsingPassword();
             MemoryStream ms = new MemoryStream();
             s.Connect();
-            var result = s.Execute("echo 12345; echo 654321 >&2", ms);
+            var result = s.Shell.Execute("echo 12345; echo 654321 >&2", ms);
             var extendedData = Encoding.ASCII.GetString(ms.ToArray());
             result = result.Substring(0, result.Length - 1);    //  Remove \n chararacter returned by command
             extendedData = extendedData.Substring(0, extendedData.Length - 1);    //  Remove \n chararacter returned by command
@@ -172,7 +175,7 @@ namespace Renci.SshClient.Tests
             s.Connect();
             try
             {
-                s.Execute(";");
+                s.Shell.Execute(";");
                 Assert.Fail("Operation should fail");
             }
             catch (SshException exp)
@@ -189,7 +192,7 @@ namespace Renci.SshClient.Tests
             s.Connect();
             try
             {
-                s.Execute(";");
+                s.Shell.Execute(";");
                 Assert.Fail("Operation should fail");
             }
             catch (SshException exp)
@@ -222,26 +225,27 @@ namespace Renci.SshClient.Tests
             Assert.IsTrue(result);
         }
 
-        private static Shell CreateShellUsingPassword()
+        private static SshClient CreateShellUsingPassword()
         {
-            return new Shell(ConnectionData.Host, ConnectionData.Port, ConnectionData.Username, ConnectionData.Password);
+            return new SshClient(ConnectionData.Host, ConnectionData.Port, ConnectionData.Username, ConnectionData.Password);
         }
 
-        private static Shell CreateShellUsingRSAKey()
+        private static SshClient CreateShellUsingRSAKey()
         {
-            return new Shell(ConnectionData.Host, ConnectionData.Port, ConnectionData.Username, new PrivateKeyFile(ConnectionData.RsaKeyFilePath));
+            return new SshClient(ConnectionData.Host, ConnectionData.Port, ConnectionData.Username, new PrivateKeyFile(ConnectionData.RsaKeyFilePath));
         }
 
-        private static Shell CreateShellUsingDSSKey()
+        private static SshClient CreateShellUsingDSSKey()
         {
-            return new Shell(ConnectionData.Host, ConnectionData.Port, ConnectionData.Username, new PrivateKeyFile(ConnectionData.DssKeyFilePath));
+            return new SshClient(ConnectionData.Host, ConnectionData.Port, ConnectionData.Username, new PrivateKeyFile(ConnectionData.DssKeyFilePath));
         }
 
-        private static bool ExecuteTestCommand(Shell s)
+        private static bool ExecuteTestCommand(SshClient s)
         {
             var testValue = Guid.NewGuid().ToString();
             var command = string.Format("echo {0}", testValue);
-            var result = s.Execute(command);
+            //var command = string.Format("echo {0};sleep 2s", testValue);
+            var result = s.Shell.Execute(command);
             result = result.Substring(0, result.Length - 1);    //  Remove \n chararacter returned by command
             return result.Equals(testValue);
         }

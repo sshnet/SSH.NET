@@ -5,10 +5,10 @@
         /// <summary>
         /// tcpip-forward
         /// </summary>
-        TcpipForward,
+        TcpIpForward,
         /// <summary>
         /// cancel-tcpip-forward
         /// </summary>
-        CancelTcpipForward
+        CancelTcpIpForward
     }
 }

@@ -60,17 +60,26 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ChannelOpeningEventArgs.cs" />
     <Compile Include="Channels\ChannelAsyncResult.cs" />
     <Compile Include="Channels\ChannelEventArgs.cs" />
-    <Compile Include="Common\BlockingStack.cs" />
+    <Compile Include="Channels\ChannelDirectTcpip.cs" />
+    <Compile Include="Channels\ChannelForwardedTcpip.cs" />
+    <Compile Include="Channels\ChannelSession.cs" />
     <Compile Include="Common\SshException.cs" />
+    <Compile Include="ExceptionEventArgs.cs" />
+    <Compile Include="ForwardedPort.cs" />
+    <Compile Include="ForwardedPortLocal.cs" />
+    <Compile Include="ForwardedPortRemote.cs" />
+    <Compile Include="Messages\Connection\ChannelOpenDirectTcpIPMessage.cs" />
     <Compile Include="Messages\Connection\GlobalRequestNames.cs" />
+    <Compile Include="RequestSuccessEventArgs.cs" />
     <Compile Include="Security\Algorithm.cs" />
     <Compile Include="Security\Cipher.cs" />
     <Compile Include="Security\CipherAES.cs" />
     <Compile Include="Security\CipherTripleDES.cs" />
     <Compile Include="Compression\Compressor.cs" />
-    <Compile Include="Channels\ChannelSftp.cs" />
+    <Compile Include="Channels\ChannelSessionSftp.cs" />
     <Compile Include="Common\DataReceivedEventArgs.cs" />
     <Compile Include="Common\FtpFileInfo.cs" />
     <Compile Include="Messages\Sftp\AceMasks.cs" />
@@ -134,7 +143,7 @@
     <Compile Include="Security\UserAuthenticationPassword.cs" />
     <Compile Include="Security\UserAuthenticationPublicKey.cs" />
     <Compile Include="Channels\Channel.cs" />
-    <Compile Include="Channels\ChannelExec.cs" />
+    <Compile Include="Channels\ChannelSessionExec.cs" />
     <Compile Include="Channels\ChannelTypes.cs" />
     <Compile Include="ConnectionInfo.cs" />
     <Compile Include="Common\Extensions.cs" />
@@ -203,6 +212,7 @@
     <Compile Include="Sftp.cs" />
     <Compile Include="Shell.cs" />
     <Compile Include="SshBase.cs" />
+    <Compile Include="SshClient.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -3,16 +3,21 @@ namespace Renci.SshClient.Messages.Connection
 {
     internal abstract class ChannelMessage : Message
     {
-        public uint ChannelNumber { get; set; }
+        public uint LocalChannelNumber { get; set; }
 
         protected override void LoadData()
         {
-            this.ChannelNumber = this.ReadUInt32();
+            this.LocalChannelNumber = this.ReadUInt32();
         }
 
         protected override void SaveData()
         {
-            this.Write(this.ChannelNumber);
+            this.Write(this.LocalChannelNumber);
+        }
+
+        public override string ToString()
+        {
+            return string.Format("{0} : #{1}", this.MessageType, this.LocalChannelNumber);
         }
     }
 }

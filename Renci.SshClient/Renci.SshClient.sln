@@ -4,13 +4,10 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Renci.SshClient", "Renci.SshClient\Renci.SshClient.csproj", "{2F5F8C90-0BD1-424F-997C-7BC6280919D1}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A3063E62-89D5-43FF-AB1A-FFBECB4A1850}"
-	ProjectSection(SolutionItems) = preProject
-		Local.testsettings = Local.testsettings
-		Renci.SshClient1.vsmdi = Renci.SshClient1.vsmdi
-		TraceAndTestImpact.testsettings = TraceAndTestImpact.testsettings
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Renci.SshClient.Tests", "Renci.SshClient.Tests\Renci.SshClient.Tests.csproj", "{C45379B9-17B1-4E89-BC2E-6D41726413E8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{E53AE1B6-5EE8-4B56-B59F-0E7370C8B886}"
 EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
@@ -70,6 +67,21 @@ Global
 		{C45379B9-17B1-4E89-BC2E-6D41726413E8}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{C45379B9-17B1-4E89-BC2E-6D41726413E8}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{C45379B9-17B1-4E89-BC2E-6D41726413E8}.Release|x86.ActiveCfg = Release|Any CPU
+		{E53AE1B6-5EE8-4B56-B59F-0E7370C8B886}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{E53AE1B6-5EE8-4B56-B59F-0E7370C8B886}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{E53AE1B6-5EE8-4B56-B59F-0E7370C8B886}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{E53AE1B6-5EE8-4B56-B59F-0E7370C8B886}.Debug|x86.ActiveCfg = Debug|x86
+		{E53AE1B6-5EE8-4B56-B59F-0E7370C8B886}.Debug|x86.Build.0 = Debug|x86
+		{E53AE1B6-5EE8-4B56-B59F-0E7370C8B886}.DebugNoTimeout|Any CPU.ActiveCfg = Debug|x86
+		{E53AE1B6-5EE8-4B56-B59F-0E7370C8B886}.DebugNoTimeout|Mixed Platforms.ActiveCfg = Debug|x86
+		{E53AE1B6-5EE8-4B56-B59F-0E7370C8B886}.DebugNoTimeout|Mixed Platforms.Build.0 = Debug|x86
+		{E53AE1B6-5EE8-4B56-B59F-0E7370C8B886}.DebugNoTimeout|x86.ActiveCfg = Debug|x86
+		{E53AE1B6-5EE8-4B56-B59F-0E7370C8B886}.DebugNoTimeout|x86.Build.0 = Debug|x86
+		{E53AE1B6-5EE8-4B56-B59F-0E7370C8B886}.Release|Any CPU.ActiveCfg = Release|x86
+		{E53AE1B6-5EE8-4B56-B59F-0E7370C8B886}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{E53AE1B6-5EE8-4B56-B59F-0E7370C8B886}.Release|Mixed Platforms.Build.0 = Release|x86
+		{E53AE1B6-5EE8-4B56-B59F-0E7370C8B886}.Release|x86.ActiveCfg = Release|x86
+		{E53AE1B6-5EE8-4B56-B59F-0E7370C8B886}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

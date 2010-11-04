@@ -1,9 +1,10 @@
 ﻿
-using System;
 namespace Renci.SshClient.Messages.Connection
 {
     internal class RequestSuccessMessage : Message
     {
+        public uint? BoundPort { get; set; }
+
         public override MessageTypes MessageType
         {
             get { return MessageTypes.RequestSuccess; }
@@ -11,12 +12,14 @@ namespace Renci.SshClient.Messages.Connection
 
         protected override void LoadData()
         {
-            throw new NotImplementedException();
+            if (!this.IsEndOfData)
+                this.BoundPort = this.ReadUInt32();
         }
 
         protected override void SaveData()
         {
-            throw new NotImplementedException();
+            if (this.BoundPort != null)
+                this.Write(this.BoundPort.Value);
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using System;
-
+﻿
 namespace Renci.SshClient.Messages.Connection
 {
     internal class RequestFailureMessage : Message
@@ -11,12 +10,10 @@ namespace Renci.SshClient.Messages.Connection
 
         protected override void LoadData()
         {
-            throw new NotImplementedException();
         }
 
         protected override void SaveData()
         {
-            throw new NotImplementedException();
         }
     }
 }

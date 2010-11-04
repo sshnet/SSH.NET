@@ -7,7 +7,7 @@
             get { return MessageTypes.ChannelOpenConfirmation; }
         }
 
-        public uint ServerChannelNumber { get; set; }
+        public uint RemoteChannelNumber { get; set; }
 
         public uint InitialWindowSize { get; set; }
 
@@ -16,7 +16,7 @@
         protected override void LoadData()
         {
             base.LoadData();
-            this.ServerChannelNumber = this.ReadUInt32();
+            this.RemoteChannelNumber = this.ReadUInt32();
             this.InitialWindowSize = this.ReadUInt32();
             this.MaximumPacketSize = this.ReadUInt32();
         }
@@ -24,7 +24,7 @@
         protected override void SaveData()
         {
             base.SaveData();
-            this.Write(this.ServerChannelNumber);
+            this.Write(this.RemoteChannelNumber);
             this.Write(this.InitialWindowSize);
             this.Write(this.MaximumPacketSize);
         }

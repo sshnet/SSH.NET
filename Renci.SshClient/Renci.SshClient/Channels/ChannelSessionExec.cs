@@ -5,7 +5,7 @@ using Renci.SshClient.Messages.Connection;
 
 namespace Renci.SshClient.Channels
 {
-    internal class ChannelExec : Channel
+    internal class ChannelSessionExec : ChannelSession
     {
         private Stream _channelData;
 
@@ -22,9 +22,10 @@ namespace Renci.SshClient.Channels
             get { return ChannelTypes.Session; }
         }
 
-        public ChannelExec(Session session, uint channelId)
-            : base(session, channelId, 0x100000, 0x8000)
+        public ChannelSessionExec()
+            : base()
         {
+
         }
 
         internal ChannelAsyncResult BeginExecute(string command, Stream output, Stream extendedOutput, AsyncCallback callback, object state)
@@ -52,7 +53,7 @@ namespace Renci.SshClient.Channels
             //  Send channel command request
             this.SendMessage(new ChannelRequestMessage
             {
-                ChannelNumber = this.ServerChannelNumber,
+                LocalChannelNumber = this.RemoteChannelNumber,
                 RequestName = ChannelRequestNames.Exec,
                 WantReply = false,
                 Command = command,
@@ -70,7 +71,7 @@ namespace Renci.SshClient.Channels
                 throw new InvalidOperationException("Invalid IAsyncResult parameter");
             }
 
-            //Make sure that operation completed if not wait for it to finish
+            //  Make sure that operation completed if not wait for it to finish
             this.Session.WaitHandle(this._asyncResult.AsyncWaitHandle);
 
             this.Close();
@@ -96,14 +97,6 @@ namespace Renci.SshClient.Channels
         {
             base.OnChannelClose();
 
-            this.ExecutionCompleted();
-        }
-
-        protected override void OnChannelFailed(uint reasonCode, string description)
-        {
-            base.OnChannelFailed(reasonCode, description);
-
-            this._exception = new InvalidOperationException(string.Format("Channel failed to open. Code: {0}, Reason {1}", reasonCode, description));
             this.ExecutionCompleted();
         }
 

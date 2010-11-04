@@ -60,7 +60,7 @@ namespace Renci.SshClient
             this.Session.Connect();
         }
 
-        public void Disconnect()
+        public virtual void Disconnect()
         {
             this.Session.Disconnect();
         }

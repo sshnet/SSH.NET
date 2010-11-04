@@ -9,7 +9,7 @@ namespace Renci.SshClient.Channels
         /// Gets or sets the channel that async result was created for.
         /// </summary>
         /// <value>The channel.</value>
-        internal ChannelExec Channel { get; private set; }
+        internal ChannelSessionExec Channel { get; private set; }
 
         /// <summary>
         /// Gets or sets the bytes received. If SFTP only file bytes are counted.
@@ -35,7 +35,7 @@ namespace Renci.SshClient.Channels
 
         #endregion
 
-        internal ChannelAsyncResult(ChannelExec channel)
+        internal ChannelAsyncResult(ChannelSessionExec channel)
         {
             this.Channel = channel;
         }

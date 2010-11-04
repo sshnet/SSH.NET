@@ -12,7 +12,7 @@ namespace Renci.SshClient.Channels
 {
     //  TODO:   Add Begin* and End* methods for async calls
 
-    internal class ChannelSftp : Channel
+    internal class ChannelSessionSftp : ChannelSession
     {
         private EventWaitHandle _channelRequestSuccessWaitHandle = new AutoResetEvent(false);
 
@@ -35,14 +35,10 @@ namespace Renci.SshClient.Channels
             get { return ChannelTypes.Session; }
         }
 
-        public ChannelSftp(Session session, uint channelId, uint windowSize, uint packetSize)
-            : base(session, channelId, windowSize, packetSize)
+        public ChannelSessionSftp()
+            : base()
         {
-        }
 
-        public ChannelSftp(Session session, uint channelId)
-            : base(session, channelId, 0x100000, 0x0100)
-        {
         }
 
         public override void Open()
@@ -52,7 +48,7 @@ namespace Renci.SshClient.Channels
             //  Send channel command request
             this.SendMessage(new ChannelRequestMessage
             {
-                ChannelNumber = this.ServerChannelNumber,
+                LocalChannelNumber = this.RemoteChannelNumber,
                 RequestName = ChannelRequestNames.Subsystem,
                 WantReply = true,
                 SubsystemName = "sftp",
@@ -313,7 +309,7 @@ namespace Renci.SshClient.Channels
             sftpMessage.RequestId = this._requestId;
             var message = new SftpDataMessage
             {
-                ChannelNumber = this.ServerChannelNumber,
+                LocalChannelNumber = this.RemoteChannelNumber,
                 Message = sftpMessage,
             };
 

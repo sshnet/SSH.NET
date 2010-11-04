@@ -1,4 +1,5 @@
 ﻿
+using System;
 namespace Renci.SshClient.Messages.Connection
 {
     internal class GlobalRequestMessage : Message
@@ -6,6 +7,10 @@ namespace Renci.SshClient.Messages.Connection
         public GlobalRequestNames RequestName { get; set; }
 
         public bool WantReply { get; set; }
+
+        public string AddressToBind { get; set; }
+
+        public UInt32 PortToBind { get; set; }
 
         public override MessageTypes MessageType
         {
@@ -18,32 +23,36 @@ namespace Renci.SshClient.Messages.Connection
             switch (requestName)
             {
                 case "tcpip-forward":
-                    this.RequestName = GlobalRequestNames.TcpipForward;
+                    this.RequestName = GlobalRequestNames.TcpIpForward;
                     break;
                 case "cancel-tcpip-forward":
-                    this.RequestName = GlobalRequestNames.CancelTcpipForward;
+                    this.RequestName = GlobalRequestNames.CancelTcpIpForward;
                     break;
                 default:
                     break;
             }
 
             this.WantReply = this.ReadBoolean();
+            this.AddressToBind = this.ReadString();
+            this.PortToBind = this.ReadUInt32();
         }
 
         protected override void SaveData()
         {
             switch (this.RequestName)
             {
-                case GlobalRequestNames.TcpipForward:
+                case GlobalRequestNames.TcpIpForward:
                     this.Write("tcpip-forward");
                     break;
-                case GlobalRequestNames.CancelTcpipForward:
+                case GlobalRequestNames.CancelTcpIpForward:
                     this.Write("cancel-tcpip-forward");
                     break;
                 default:
                     break;
             }
             this.Write(this.WantReply);
+            this.Write(this.AddressToBind);
+            this.Write(this.PortToBind);
         }
     }
 }

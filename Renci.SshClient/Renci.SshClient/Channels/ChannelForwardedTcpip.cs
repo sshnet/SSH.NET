@@ -89,9 +89,9 @@ namespace Renci.SshClient.Channels
             this.Close();
         }
 
-        protected override void OnChannelData(string data)
+        protected override void OnData(string data)
         {
-            base.OnChannelData(data);
+            base.OnData(data);
 
             //  Read data from the channel and send it to the port
             this._socket.Send(data.GetSshBytes().ToArray());

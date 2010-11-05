@@ -22,7 +22,7 @@ namespace Renci.SshClient
 
             this.Session.RequestSuccess += Session_RequestSuccess;
             this.Session.RequestFailure += Session_RequestFailure;
-            this.Session.ChannelOpening += Session_ChannelOpening;
+            this.Session.ChannelOpen += Session_ChannelOpening;
 
             //  Send global request to start direct tcpip
             this.Session.SendMessage(new GlobalRequestMessage
@@ -38,7 +38,7 @@ namespace Renci.SshClient
             if (!this._requestStatus)
             {
                 //  If request  failed dont handle channel opening for this request
-                this.Session.ChannelOpening -= Session_ChannelOpening;
+                this.Session.ChannelOpen -= Session_ChannelOpening;
             }
         }
 
@@ -57,10 +57,10 @@ namespace Renci.SshClient
 
             this.Session.RequestSuccess -= Session_RequestSuccess;
             this.Session.RequestFailure -= Session_RequestFailure;
-            this.Session.ChannelOpening -= Session_ChannelOpening;
+            this.Session.ChannelOpen -= Session_ChannelOpening;
         }
 
-        private void Session_ChannelOpening(object sender, ChannelOpeningEventArgs e)
+        private void Session_ChannelOpening(object sender, MessageEventArgs<ChannelOpenMessage> e)
         {
             //  Ensure that this is corresponding request
             if (e.Message.ConnectedAddress == this.ConnectedHost && e.Message.ConnectedPort == this.BoundPort)
@@ -86,12 +86,12 @@ namespace Renci.SshClient
             this._globalRequestResponse.Set();
         }
 
-        private void Session_RequestSuccess(object sender, RequestSuccessEventArgs e)
+        private void Session_RequestSuccess(object sender, MessageEventArgs<RequestSuccessMessage> e)
         {
             this._requestStatus = true;
             if (this.BoundPort == 0)
             {
-                this.BoundPort = e.BoundPort;
+                this.BoundPort = (e.Message.BoundPort == null) ? 0 : e.Message.BoundPort.Value;
             }
 
             this._globalRequestResponse.Set();

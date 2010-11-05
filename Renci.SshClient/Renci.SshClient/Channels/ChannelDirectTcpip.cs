@@ -120,30 +120,25 @@ namespace Renci.SshClient.Channels
             readerTask.Wait();
         }
 
-        protected override void OnChannelData(string data)
+        protected override void OnData(string data)
         {
-            base.OnChannelData(data);
+            base.OnData(data);
 
             this._socket.Send(data.GetSshBytes().ToArray(), 0, data.Length, SocketFlags.None);
         }
 
-        protected override void OnChannelOpen()
+        protected override void OnOpenConfirmation(uint remoteChannelNumber, uint initialWindowSize, uint maximumPacketSize)
         {
-            base.OnChannelOpen();
+            base.OnOpenConfirmation(remoteChannelNumber, initialWindowSize, maximumPacketSize);
 
             this._channelOpen.Set();
         }
 
-        protected override void OnChannelEof()
+        protected override void OnEof()
         {
-            base.OnChannelEof();
+            base.OnEof();
 
             this._channelEof.Set();
-        }
-
-        protected override void OnChannelClose()
-        {
-            base.OnChannelClose();
         }
 
         protected override void OnDisposing()

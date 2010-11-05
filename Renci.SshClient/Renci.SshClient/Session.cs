@@ -198,11 +198,79 @@ namespace Renci.SshClient
         /// <value>The connection info.</value>
         public ConnectionInfo ConnectionInfo { get; private set; }
 
-        public event EventHandler<ChannelOpeningEventArgs> ChannelOpening;
+        #region Message events
 
-        public event EventHandler<RequestSuccessEventArgs> RequestSuccess;
+        /// <summary>
+        /// Occurs when <see cref="GlobalRequestMessage"/> message received
+        /// </summary>
+        public event EventHandler<MessageEventArgs<GlobalRequestMessage>> GlobalRequest;
 
-        public event EventHandler RequestFailure;
+        /// <summary>
+        /// Occurs when <see cref="RequestSuccessMessage"/> message received
+        /// </summary>
+        public event EventHandler<MessageEventArgs<RequestSuccessMessage>> RequestSuccess;
+
+        /// <summary>
+        /// Occurs when <see cref="RequestFailureMessage"/> message received
+        /// </summary>
+        public event EventHandler<MessageEventArgs<RequestFailureMessage>> RequestFailure;
+
+        /// <summary>
+        /// Occurs when <see cref="ChannelOpenMessage"/> message received
+        /// </summary>
+        public event EventHandler<MessageEventArgs<ChannelOpenMessage>> ChannelOpen;
+
+        /// <summary>
+        /// Occurs when <see cref="ChannelOpenConfirmationMessage"/> message received
+        /// </summary>
+        public event EventHandler<MessageEventArgs<ChannelOpenConfirmationMessage>> ChannelOpenConfirmation;
+
+        /// <summary>
+        /// Occurs when <see cref="ChannelOpenFailureMessage"/> message received
+        /// </summary>
+        public event EventHandler<MessageEventArgs<ChannelOpenFailureMessage>> ChannelOpenFailure;
+
+        /// <summary>
+        /// Occurs when <see cref="ChannelWindowAdjustMessage"/> message received
+        /// </summary>
+        public event EventHandler<MessageEventArgs<ChannelWindowAdjustMessage>> ChannelWindowAdjust;
+
+        /// <summary>
+        /// Occurs when <see cref="ChannelDataMessage"/> message received
+        /// </summary>
+        public event EventHandler<MessageEventArgs<ChannelDataMessage>> ChannelData;
+
+        /// <summary>
+        /// Occurs when <see cref="ChannelExtendedDataMessage"/> message received
+        /// </summary>
+        public event EventHandler<MessageEventArgs<ChannelExtendedDataMessage>> ChannelExtendedData;
+
+        /// <summary>
+        /// Occurs when <see cref="ChannelEofMessage"/> message received
+        /// </summary>
+        public event EventHandler<MessageEventArgs<ChannelEofMessage>> ChannelEof;
+
+        /// <summary>
+        /// Occurs when <see cref="ChannelCloseMessage"/> message received
+        /// </summary>
+        public event EventHandler<MessageEventArgs<ChannelCloseMessage>> ChannelClose;
+
+        /// <summary>
+        /// Occurs when <see cref="ChannelRequestMessage"/> message received
+        /// </summary>
+        public event EventHandler<MessageEventArgs<ChannelRequestMessage>> ChannelRequest;
+
+        /// <summary>
+        /// Occurs when <see cref="ChannelSuccessMessage"/> message received
+        /// </summary>
+        public event EventHandler<MessageEventArgs<ChannelSuccessMessage>> ChannelSuccess;
+
+        /// <summary>
+        /// Occurs when <see cref="ChannelFailureMessage"/> message received
+        /// </summary>
+        public event EventHandler<MessageEventArgs<ChannelFailureMessage>> ChannelFailure;
+
+        #endregion
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Session"/> class.
@@ -401,16 +469,6 @@ namespace Renci.SshClient
             lock (this)
             {
                 channel.Initialize(this, serverChannelNumber, windowSize, packetSize);
-                try
-                {
-
-                    this._sessionChannels.Add(channel.LocalChannelNumber, channel);
-                }
-                catch (Exception exp)
-                {
-
-                    throw;
-                }
             }
             return channel;
         }
@@ -623,10 +681,10 @@ namespace Renci.SshClient
         protected void HandleMessage<T>(T message) where T : Message
         {
             //  Do nothing as message could be proccessed by other module
-            if (message is ChannelMessage)
-            {
-                this.HandleMessage(message as ChannelMessage);
-            }
+            //if (message is ChannelMessage)
+            //{
+            //    this.HandleMessage(message as ChannelMessage);
+            //}
         }
 
         #region Handle transport messages
@@ -675,18 +733,17 @@ namespace Renci.SshClient
 
         protected virtual void HandleMessage(GlobalRequestMessage message)
         {
-            //  TODO:   Add implemention for this message
+            if (this.GlobalRequest != null)
+            {
+                this.GlobalRequest(this, new MessageEventArgs<GlobalRequestMessage>(message));
+            }
         }
 
         protected virtual void HandleMessage(RequestSuccessMessage message)
         {
-            //  TODO:   Add implemention for this message
             if (this.RequestSuccess != null)
             {
-                this.RequestSuccess(this, new RequestSuccessEventArgs
-                {
-                    BoundPort = (message.BoundPort == null) ? 0 : message.BoundPort.Value,
-                });
+                this.RequestSuccess(this, new MessageEventArgs<RequestSuccessMessage>(message));
             }
         }
 
@@ -694,54 +751,99 @@ namespace Renci.SshClient
         {
             if (this.RequestFailure != null)
             {
-                this.RequestFailure(this, new EventArgs());
+                this.RequestFailure(this, new MessageEventArgs<RequestFailureMessage>(message));
             }
         }
 
         #endregion
 
-        #region Handle channel messages
+        #region Handle channel messages and raise channel events
 
         protected void HandleMessage(ChannelOpenMessage message)
         {
-
-            if (this.ChannelOpening != null)
+            if (this.ChannelOpen != null)
             {
-                this.ChannelOpening(this, new ChannelOpeningEventArgs
-                    {
-                        Message = message,
-                    });
+                this.ChannelOpen(this, new MessageEventArgs<ChannelOpenMessage>(message));
             }
-        }
-
-        protected void HandleMessage(ChannelMessage message)
-        {
-            //  TODO:   Improve session channel managment, sometimes it sends a message that is not in sessionChannels collection
-            this._sessionChannels[message.LocalChannelNumber].HandleChannelMessage(message);
         }
 
         protected void HandleMessage(ChannelOpenConfirmationMessage message)
         {
-            this.HandleMessage((ChannelMessage)message);
+            if (this.ChannelOpenConfirmation != null)
+            {
+                this.ChannelOpenConfirmation(this, new MessageEventArgs<ChannelOpenConfirmationMessage>(message));
+            }
+        }
+
+        protected void HandleMessage(ChannelOpenFailureMessage message)
+        {
+            if (this.ChannelOpenFailure != null)
+            {
+                this.ChannelOpenFailure(this, new MessageEventArgs<ChannelOpenFailureMessage>(message));
+            }
+        }
+
+        protected void HandleMessage(ChannelWindowAdjustMessage message)
+        {
+            if (this.ChannelWindowAdjust != null)
+            {
+                this.ChannelWindowAdjust(this, new MessageEventArgs<ChannelWindowAdjustMessage>(message));
+            }
+        }
+
+        protected void HandleMessage(ChannelDataMessage message)
+        {
+            if (this.ChannelData != null)
+            {
+                this.ChannelData(this, new MessageEventArgs<ChannelDataMessage>(message));
+            }
+        }
+
+        protected void HandleMessage(ChannelExtendedDataMessage message)
+        {
+            if (this.ChannelExtendedData != null)
+            {
+                this.ChannelExtendedData(this, new MessageEventArgs<ChannelExtendedDataMessage>(message));
+            }
+        }
+
+        protected void HandleMessage(ChannelEofMessage message)
+        {
+            if (this.ChannelEof != null)
+            {
+                this.ChannelEof(this, new MessageEventArgs<ChannelEofMessage>(message));
+            }
         }
 
         protected void HandleMessage(ChannelCloseMessage message)
         {
-            this.HandleMessage((ChannelMessage)message);
-
-            lock (this._sessionChannels)
+            if (this.ChannelClose != null)
             {
-                this._sessionChannels.Remove(message.LocalChannelNumber);
+                this.ChannelClose(this, new MessageEventArgs<ChannelCloseMessage>(message));
+            }
+        }
+
+        protected void HandleMessage(ChannelRequestMessage message)
+        {
+            if (this.ChannelRequest != null)
+            {
+                this.ChannelRequest(this, new MessageEventArgs<ChannelRequestMessage>(message));
+            }
+        }
+
+        protected void HandleMessage(ChannelSuccessMessage message)
+        {
+            if (this.ChannelSuccess != null)
+            {
+                this.ChannelSuccess(this, new MessageEventArgs<ChannelSuccessMessage>(message));
             }
         }
 
         protected void HandleMessage(ChannelFailureMessage message)
         {
-            this.HandleMessage((ChannelMessage)message);
-
-            lock (this._sessionChannels)
+            if (this.ChannelFailure != null)
             {
-                this._sessionChannels.Remove(message.LocalChannelNumber);
+                this.ChannelFailure(this, new MessageEventArgs<ChannelFailureMessage>(message));
             }
         }
 
@@ -974,11 +1076,15 @@ namespace Renci.SshClient
                     }
                     else
                     {
+                        //  TODO:   Handle each message on induvidual thread
+                        //Task.Factory.StartNew(() =>
+                        //{
                         //  Handle message
                         this.HandleMessage((dynamic)message);
 
                         //  Raise an event that message received
                         this.RaiseMessageReceived(this, new MessageReceivedEventArgs(message));
+                        //});
                     }
                 }
                 catch (SshException exp)

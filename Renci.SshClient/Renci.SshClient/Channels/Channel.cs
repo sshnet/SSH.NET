@@ -62,6 +62,18 @@ namespace Renci.SshClient.Channels
             this.Session.RegisterMessageType<ChannelEofMessage>(MessageTypes.ChannelEof);
             this.Session.RegisterMessageType<ChannelCloseMessage>(MessageTypes.ChannelClose);
 
+            this.Session.ChannelOpen += OnChannelOpen;
+            this.Session.ChannelOpenConfirmation += OnChannelOpenConfirmation;
+            this.Session.ChannelOpenFailure += OnChannelOpenFailure;
+            this.Session.ChannelWindowAdjust += OnChannelWindowAdjust;
+            this.Session.ChannelData += OnChannelData;
+            this.Session.ChannelExtendedData += OnChannelExtendedData;
+            this.Session.ChannelEof += OnChannelEof;
+            this.Session.ChannelClose += OnChannelClose;
+            this.Session.ChannelRequest += OnChannelRequest;
+            this.Session.ChannelSuccess += OnChannelSuccess;
+            this.Session.ChannelFailure += OnChannelFailure;
+
         }
 
         public virtual void Close()
@@ -77,42 +89,65 @@ namespace Renci.SshClient.Channels
             this.CloseCleanup();
         }
 
-        internal void HandleChannelMessage(ChannelMessage message)
-        {
-            this.HandleMessage((dynamic)message);
-        }
+        #region Channel virtual methods
 
-        protected virtual void OnChannelData(string data)
+        protected virtual void OnOpen(ChannelTypes channelTypes, uint initialWindowSize, uint maximumPacketSize, string connectedAddress, uint connectedPort, string originatorAddress, uint originatorPort)
         {
         }
 
-        protected virtual void OnChannelExtendedData(string data, uint dataTypeCode)
+        protected virtual void OnOpenConfirmation(uint remoteChannelNumber, uint initialWindowSize, uint maximumPacketSize)
+        {
+            this.RemoteChannelNumber = remoteChannelNumber;
+            this.ServerWindowSize = initialWindowSize;
+            this.PacketSize = maximumPacketSize;
+
+            this.IsOpen = true;
+        }
+
+        protected virtual void OnOpenFailure(uint reasonCode, string description, string language)
         {
         }
 
-        protected virtual void OnChannelSuccess()
+        protected virtual void OnWindowAdjust(uint bytesToAdd)
+        {
+            this.ServerWindowSize += bytesToAdd;
+            this._channelWindowAdjustWaitHandle.Set();
+        }
+
+        protected virtual void OnData(string data)
+        {
+            this.AdjustDataWindow(data);
+        }
+
+        protected virtual void OnExtendedData(string data, uint dataTypeCode)
+        {
+            this.AdjustDataWindow(data);
+        }
+
+        protected virtual void OnEof()
         {
         }
 
-        protected virtual void OnChannelEof()
+        protected virtual void OnClose()
+        {
+            this.CloseCleanup();
+
+            this._channelClosedWaitHandle.Set();
+        }
+
+        protected virtual void OnRequest(ChannelRequestNames requestName, bool wantReply, string command, string subsystemName, uint exitStatus)
         {
         }
 
-        protected virtual void OnChannelOpen()
+        protected virtual void OnSuccess()
         {
         }
 
-        protected virtual void OnChannelClose()
+        protected virtual void OnFailure()
         {
         }
 
-        protected virtual void OnChannelRequest(ChannelRequestMessage message)
-        {
-        }
-
-        protected virtual void OnChannelFailed(uint reasonCode, string description)
-        {
-        }
+        #endregion
 
         protected void SendMessage(Message message)
         {
@@ -143,69 +178,109 @@ namespace Renci.SshClient.Channels
             this.Session.SendMessage(message);
         }
 
-        #region Message handlers
-
-        private void HandleMessage<T>(T message) where T : Message
+        protected void CloseCleanup()
         {
-            throw new NotSupportedException(string.Format("Message type '{0}' is not supported.", message.MessageType));
+            if (!this.IsOpen)
+                return;
+
+            this.IsOpen = false;
+            this.SendChannelCloseMessage();
         }
 
-        private void HandleMessage(ChannelOpenConfirmationMessage message)
+        #region Channel message event handlers
+
+        private void OnChannelOpen(object sender, MessageEventArgs<ChannelOpenMessage> e)
         {
-            this.RemoteChannelNumber = message.RemoteChannelNumber;
-            this.ServerWindowSize = message.InitialWindowSize;
-            this.PacketSize = message.MaximumPacketSize;
-
-            this.IsOpen = true;
-
-            this.OnChannelOpen();
+            if (e.Message.LocalChannelNumber == this.LocalChannelNumber)
+            {
+                this.OnOpen(e.Message.ChannelType, e.Message.InitialWindowSize, e.Message.MaximumPacketSize, e.Message.ConnectedAddress, e.Message.ConnectedPort, e.Message.OriginatorAddress, e.Message.OriginatorPort);
+            }
         }
 
-        private void HandleMessage(ChannelOpenFailureMessage message)
+        private void OnChannelOpenConfirmation(object sender, MessageEventArgs<ChannelOpenConfirmationMessage> e)
         {
-            this.OnChannelFailed(message.ReasonCode, message.Description);
+            if (e.Message.LocalChannelNumber == this.LocalChannelNumber)
+            {
+                this.OnOpenConfirmation(e.Message.RemoteChannelNumber, e.Message.InitialWindowSize, e.Message.MaximumPacketSize);
+            }
         }
 
-        private void HandleMessage(ChannelWindowAdjustMessage message)
+        private void OnChannelOpenFailure(object sender, MessageEventArgs<ChannelOpenFailureMessage> e)
         {
-            this.ServerWindowSize += message.BytesToAdd;
-            this._channelWindowAdjustWaitHandle.Set();
+            if (e.Message.LocalChannelNumber == this.LocalChannelNumber)
+            {
+                this.OnOpenFailure(e.Message.ReasonCode, e.Message.Description, e.Message.Language);
+            }
         }
 
-        private void HandleMessage(ChannelDataMessage message)
+        private void OnChannelWindowAdjust(object sender, MessageEventArgs<ChannelWindowAdjustMessage> e)
         {
-            this.AdjustDataWindow(message.Data);
-            this.OnChannelData(message.Data);
+            if (e.Message.LocalChannelNumber == this.LocalChannelNumber)
+            {
+                this.OnWindowAdjust(e.Message.BytesToAdd);
+            }
         }
 
-        private void HandleMessage(ChannelExtendedDataMessage message)
+        private void OnChannelData(object sender, MessageEventArgs<ChannelDataMessage> e)
         {
-            this.AdjustDataWindow(message.Data);
-            this.OnChannelExtendedData(message.Data, message.DataTypeCode);
+            if (e.Message.LocalChannelNumber == this.LocalChannelNumber)
+            {
+                this.OnData(e.Message.Data);
+            }
         }
 
-        private void HandleMessage(ChannelRequestMessage message)
+        private void OnChannelExtendedData(object sender, MessageEventArgs<ChannelExtendedDataMessage> e)
         {
-            this.OnChannelRequest(message);
+            if (e.Message.LocalChannelNumber == this.LocalChannelNumber)
+            {
+                this.OnExtendedData(e.Message.Data, e.Message.DataTypeCode);
+            }
         }
 
-        private void HandleMessage(ChannelSuccessMessage message)
+        private void OnChannelEof(object sender, MessageEventArgs<ChannelEofMessage> e)
         {
-            this.OnChannelSuccess();
+            if (e.Message.LocalChannelNumber == this.LocalChannelNumber)
+            {
+                this.OnEof();
+            }
         }
 
-        private void HandleMessage(ChannelEofMessage message)
+        private void OnChannelClose(object sender, MessageEventArgs<ChannelCloseMessage> e)
         {
-            this.OnChannelEof();
+            if (e.Message.LocalChannelNumber == this.LocalChannelNumber)
+            {
+                this.OnClose();
+
+                ////  TODO:   Refactor so this could will not be here
+                //this.CloseCleanup();
+
+                //this._channelClosedWaitHandle.Set();
+
+            }
         }
 
-        private void HandleMessage(ChannelCloseMessage message)
+        private void OnChannelRequest(object sender, MessageEventArgs<ChannelRequestMessage> e)
         {
-            this.OnChannelClose();
+            if (e.Message.LocalChannelNumber == this.LocalChannelNumber)
+            {
+                this.OnRequest(e.Message.RequestName, e.Message.WantReply, e.Message.Command, e.Message.SubsystemName, e.Message.ExitStatus);
+            }
+        }
 
-            this.CloseCleanup();
+        private void OnChannelSuccess(object sender, MessageEventArgs<ChannelSuccessMessage> e)
+        {
+            if (e.Message.LocalChannelNumber == this.LocalChannelNumber)
+            {
+                this.OnSuccess();
+            }
+        }
 
-            this._channelClosedWaitHandle.Set();
+        private void OnChannelFailure(object sender, MessageEventArgs<ChannelFailureMessage> e)
+        {
+            if (e.Message.LocalChannelNumber == this.LocalChannelNumber)
+            {
+                this.OnFailure();
+            }
         }
 
         #endregion
@@ -242,15 +317,6 @@ namespace Renci.SshClient.Channels
                 });
                 this._closeMessageSent = true;
             }
-        }
-
-        protected void CloseCleanup()
-        {
-            if (!this.IsOpen)
-                return;
-
-            this.IsOpen = false;
-            this.SendChannelCloseMessage();
         }
 
         #region IDisposable Members

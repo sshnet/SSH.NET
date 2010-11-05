@@ -100,24 +100,18 @@ namespace Renci.SshClient.Tests
         [TestMethod]
         public void TestMultipleThreadMultipleSessions_10000()
         {
-            //  TODO:   Restore test to 10000 items
             var s = CreateShellUsingPassword();
             s.Connect();
-            var numOfLoops = 100000;
-            var exeCounter = 0;
-            System.Threading.Tasks.Parallel.For(0, numOfLoops,
+            System.Threading.Tasks.Parallel.For(0, 10000,
                 (counter) =>
                 {
                     var result = ExecuteTestCommand(s);
                     Debug.WriteLine(string.Format("TestMultipleThreadMultipleConnections #{0}", counter));
-                    exeCounter++;
                     Assert.IsTrue(result);
                 }
             );
 
             s.Disconnect();
-
-            Assert.AreEqual(exeCounter, numOfLoops);
         }
 
         [TestMethod]
@@ -125,8 +119,7 @@ namespace Renci.SshClient.Tests
         {
             try
             {
-                //  TODO:   Restore test to 10000 items
-                System.Threading.Tasks.Parallel.For(0, 100,
+                System.Threading.Tasks.Parallel.For(0, 10000,
                     () =>
                     {
                         var s = CreateShellUsingPassword();

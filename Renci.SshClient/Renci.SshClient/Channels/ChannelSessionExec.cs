@@ -86,23 +86,23 @@ namespace Renci.SshClient.Channels
             }
         }
 
-        protected override void OnChannelEof()
+        protected override void OnEof()
         {
-            base.OnChannelEof();
+            base.OnEof();
+
+            //this.ExecutionCompleted();
+        }
+
+        protected override void OnClose()
+        {
+            base.OnClose();
 
             this.ExecutionCompleted();
         }
 
-        protected override void OnChannelClose()
+        protected override void OnData(string data)
         {
-            base.OnChannelClose();
-
-            this.ExecutionCompleted();
-        }
-
-        protected override void OnChannelData(string data)
-        {
-            base.OnChannelData(data);
+            base.OnData(data);
 
             if (this._channelData != null)
             {
@@ -118,9 +118,9 @@ namespace Renci.SshClient.Channels
             }
         }
 
-        protected override void OnChannelExtendedData(string data, uint dataTypeCode)
+        protected override void OnExtendedData(string data, uint dataTypeCode)
         {
-            base.OnChannelExtendedData(data, dataTypeCode);
+            base.OnExtendedData(data, dataTypeCode);
 
             //  TODO:   dataTypeCode curently ignored
             if (this._channelExtendedData != null)
@@ -144,6 +144,7 @@ namespace Renci.SshClient.Channels
                 this._channelExtendedData.Flush();
             }
 
+            //  TODO:   Execute this method on different thread since it will be run on message listener
             this._asyncResult.IsCompleted = true;
             if (this._callback != null)
             {

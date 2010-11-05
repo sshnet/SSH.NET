@@ -205,17 +205,17 @@ namespace Renci.SshClient.Channels
 
         }
 
-        protected override void OnChannelSuccess()
+        protected override void OnSuccess()
         {
-            base.OnChannelSuccess();
+            base.OnSuccess();
 
             this._channelRequestSuccessWaitHandle.Set();
         }
 
 
-        protected override void OnChannelData(string data)
+        protected override void OnData(string data)
         {
-            base.OnChannelData(data);
+            base.OnData(data);
 
             if (this._packetData == null)
             {

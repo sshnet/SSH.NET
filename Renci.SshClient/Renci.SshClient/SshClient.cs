@@ -102,6 +102,7 @@ namespace Renci.SshClient
 
         public void Connect()
         {
+            this._session = new Session(this._connectionInfo);
             this._session.Connect();
         }
 

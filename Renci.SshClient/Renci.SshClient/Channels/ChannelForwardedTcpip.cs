@@ -28,7 +28,7 @@ namespace Renci.SshClient.Channels
 
             this.ServerWindowSize = this.LocalWindowSize;
 
-            if (!this.Session.IsConnected)
+            if (!this.IsConnected)
             {
                 throw new SshException("Session is not connected.");
             }

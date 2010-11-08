@@ -36,7 +36,7 @@ namespace Renci.SshClient.Channels
 
             IPEndPoint ep = socket.RemoteEndPoint as IPEndPoint;
 
-            if (!this.Session.IsConnected)
+            if (!this.IsConnected)
             {
                 throw new SshException("Session is not connected.");
             }
@@ -55,7 +55,7 @@ namespace Renci.SshClient.Channels
             });
 
             //  Wait for channel to open
-            this.Session.WaitHandle(this._channelOpen);
+            this.WaitHandle(this._channelOpen);
 
             //  Start reading data from the port and send to channel
             EventWaitHandle readerTaskError = new AutoResetEvent(false);
@@ -66,7 +66,7 @@ namespace Renci.SshClient.Channels
                 {
                     var buffer = new byte[this.PacketSize - 9];
 
-                    while (this._socket.Connected || this.Session.IsConnected)
+                    while (this._socket.Connected || this.IsConnected)
                     {
                         try
                         {
@@ -112,7 +112,7 @@ namespace Renci.SshClient.Channels
 
             //  Channel was open and we MUST receive EOF notification, 
             //  data transfer can take longer then connection specified timeout
-            WaitHandle.WaitAny(new WaitHandle[] { this._channelEof, readerTaskError });
+            System.Threading.WaitHandle.WaitAny(new WaitHandle[] { this._channelEof, readerTaskError });
 
             this._socket.Close();
 

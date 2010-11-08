@@ -897,7 +897,7 @@ namespace Renci.SshClient
                     }
                     else
                     {
-                        this._socket.Disconnect(true);
+                        this._socket.Disconnect(false);
                         throw new SshException("An established connection was aborted by the software in your host machine.");
                     }
                 }

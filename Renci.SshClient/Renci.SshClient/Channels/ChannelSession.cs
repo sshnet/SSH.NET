@@ -44,10 +44,10 @@ namespace Renci.SshClient.Channels
             if (!this.IsOpen)
             {
                 //  Try to opend channel several times
-                while (this._failedOpenAttempts < this.Session.ConnectionInfo.RetryAttempts && !this.IsOpen)
+                while (this._failedOpenAttempts < this.ConnectionInfo.RetryAttempts && !this.IsOpen)
                 {
                     this.SendChannelOpenMessage();
-                    this.Session.WaitHandle(this._channelOpenResponseWaitHandle);
+                    this.WaitHandle(this._channelOpenResponseWaitHandle);
                 }
 
                 if (!this.IsOpen)

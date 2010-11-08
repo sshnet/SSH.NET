@@ -64,7 +64,7 @@ namespace Renci.SshClient.Tests
         {
             var client = CreateShellUsingPassword();
             client.Connect();
-            var port1 = client.AddForwardedPort<ForwardedPortLocal>(8082, "www.renci.org", 80);
+            var port1 = client.AddForwardedPort<ForwardedPortLocal>(8084, "www.renci.org", 80);
             port1.Exception += delegate(object sender, ExceptionEventArgs e)
             {
                 Assert.Fail(e.Exception.ToString());
@@ -79,7 +79,7 @@ namespace Renci.SshClient.Tests
                 (counter) =>
                 {
                     var start = DateTime.Now;
-                    var req = HttpWebRequest.Create("http://localhost:8082");
+                    var req = HttpWebRequest.Create("http://localhost:8084");
                     using (var response = req.GetResponse())
                     {
 

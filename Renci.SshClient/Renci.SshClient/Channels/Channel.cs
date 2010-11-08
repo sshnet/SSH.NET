@@ -20,6 +20,8 @@ namespace Renci.SshClient.Channels
         /// </summary>
         private bool _closeMessageSent = false;
 
+        private Session _session;
+
         public abstract ChannelTypes ChannelType { get; }
 
         public uint LocalChannelNumber { get; private set; }
@@ -34,7 +36,18 @@ namespace Renci.SshClient.Channels
 
         public bool IsOpen { get; private set; }
 
-        protected Session Session { get; private set; }
+        protected bool IsConnected
+        {
+            get { return this._session.IsConnected; }
+        }
+
+        protected ConnectionInfo ConnectionInfo
+        {
+            get
+            {
+                return this._session.ConnectionInfo;
+            }
+        }
 
         internal Channel()
         {
@@ -45,34 +58,34 @@ namespace Renci.SshClient.Channels
             this._initialWindowSize = windowSize;
             this._maximumPacketSize = Math.Max(packetSize, 0x8000); //  Ensure minimum maximum packet size of 0x8000 bytes
 
-            this.Session = session;
+            this._session = session;
             this.LocalWindowSize = this._initialWindowSize;  // Initial window size
             this.PacketSize = this._maximumPacketSize;     // Maximum packet size
 
             this.LocalChannelNumber = session.NextChannelNumber;
             this.RemoteChannelNumber = serverChannelNumber;
 
-            this.Session.RegisterMessageType<ChannelOpenConfirmationMessage>(MessageTypes.ChannelOpenConfirmation);
-            this.Session.RegisterMessageType<ChannelOpenFailureMessage>(MessageTypes.ChannelOpenFailure);
-            this.Session.RegisterMessageType<ChannelWindowAdjustMessage>(MessageTypes.ChannelWindowAdjust);
-            this.Session.RegisterMessageType<ChannelExtendedDataMessage>(MessageTypes.ChannelExtendedData);
-            this.Session.RegisterMessageType<ChannelRequestMessage>(MessageTypes.ChannelRequest);
-            this.Session.RegisterMessageType<ChannelSuccessMessage>(MessageTypes.ChannelSuccess);
-            this.Session.RegisterMessageType<ChannelDataMessage>(MessageTypes.ChannelData);
-            this.Session.RegisterMessageType<ChannelEofMessage>(MessageTypes.ChannelEof);
-            this.Session.RegisterMessageType<ChannelCloseMessage>(MessageTypes.ChannelClose);
+            this._session.RegisterMessageType<ChannelOpenConfirmationMessage>(MessageTypes.ChannelOpenConfirmation);
+            this._session.RegisterMessageType<ChannelOpenFailureMessage>(MessageTypes.ChannelOpenFailure);
+            this._session.RegisterMessageType<ChannelWindowAdjustMessage>(MessageTypes.ChannelWindowAdjust);
+            this._session.RegisterMessageType<ChannelExtendedDataMessage>(MessageTypes.ChannelExtendedData);
+            this._session.RegisterMessageType<ChannelRequestMessage>(MessageTypes.ChannelRequest);
+            this._session.RegisterMessageType<ChannelSuccessMessage>(MessageTypes.ChannelSuccess);
+            this._session.RegisterMessageType<ChannelDataMessage>(MessageTypes.ChannelData);
+            this._session.RegisterMessageType<ChannelEofMessage>(MessageTypes.ChannelEof);
+            this._session.RegisterMessageType<ChannelCloseMessage>(MessageTypes.ChannelClose);
 
-            this.Session.ChannelOpen += OnChannelOpen;
-            this.Session.ChannelOpenConfirmation += OnChannelOpenConfirmation;
-            this.Session.ChannelOpenFailure += OnChannelOpenFailure;
-            this.Session.ChannelWindowAdjust += OnChannelWindowAdjust;
-            this.Session.ChannelData += OnChannelData;
-            this.Session.ChannelExtendedData += OnChannelExtendedData;
-            this.Session.ChannelEof += OnChannelEof;
-            this.Session.ChannelClose += OnChannelClose;
-            this.Session.ChannelRequest += OnChannelRequest;
-            this.Session.ChannelSuccess += OnChannelSuccess;
-            this.Session.ChannelFailure += OnChannelFailure;
+            this._session.ChannelOpen += OnChannelOpen;
+            this._session.ChannelOpenConfirmation += OnChannelOpenConfirmation;
+            this._session.ChannelOpenFailure += OnChannelOpenFailure;
+            this._session.ChannelWindowAdjust += OnChannelWindowAdjust;
+            this._session.ChannelData += OnChannelData;
+            this._session.ChannelExtendedData += OnChannelExtendedData;
+            this._session.ChannelEof += OnChannelEof;
+            this._session.ChannelClose += OnChannelClose;
+            this._session.ChannelRequest += OnChannelRequest;
+            this._session.ChannelSuccess += OnChannelSuccess;
+            this._session.ChannelFailure += OnChannelFailure;
 
         }
 
@@ -83,7 +96,7 @@ namespace Renci.SshClient.Channels
                 this.SendChannelCloseMessage();
 
                 //  Wait for channel to be closed
-                this.Session.WaitHandle(this._channelClosedWaitHandle);
+                this._session.WaitHandle(this._channelClosedWaitHandle);
             }
 
             this.CloseCleanup();
@@ -151,7 +164,7 @@ namespace Renci.SshClient.Channels
 
         protected void SendMessage(Message message)
         {
-            this.Session.SendMessage(message);
+            this._session.SendMessage(message);
         }
 
         protected void SendMessage(ChannelDataMessage message)
@@ -159,11 +172,11 @@ namespace Renci.SshClient.Channels
             if (this.ServerWindowSize < 1)
             {
                 //  Wait for window to be adjust
-                this.Session.WaitHandle(this._channelWindowAdjustWaitHandle);
+                this._session.WaitHandle(this._channelWindowAdjustWaitHandle);
             }
 
             this.ServerWindowSize -= (uint)message.Data.Length;
-            this.Session.SendMessage(message);
+            this._session.SendMessage(message);
         }
 
         protected void SendMessage(ChannelExtendedDataMessage message)
@@ -171,11 +184,11 @@ namespace Renci.SshClient.Channels
             if (this.ServerWindowSize < 1)
             {
                 //  Wait for window to be adjust
-                this.Session.WaitHandle(this._channelWindowAdjustWaitHandle);
+                this._session.WaitHandle(this._channelWindowAdjustWaitHandle);
             }
 
             this.ServerWindowSize -= (uint)message.Data.Length;
-            this.Session.SendMessage(message);
+            this._session.SendMessage(message);
         }
 
         protected void CloseCleanup()
@@ -185,6 +198,11 @@ namespace Renci.SshClient.Channels
 
             this.IsOpen = false;
             this.SendChannelCloseMessage();
+        }
+
+        protected void WaitHandle(WaitHandle waitHandle)
+        {
+            this._session.WaitHandle(waitHandle);
         }
 
         #region Channel message event handlers

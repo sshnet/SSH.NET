@@ -72,7 +72,7 @@ namespace Renci.SshClient.Channels
             }
 
             //  Make sure that operation completed if not wait for it to finish
-            this.Session.WaitHandle(this._asyncResult.AsyncWaitHandle);
+            this.WaitHandle(this._asyncResult.AsyncWaitHandle);
 
             this.Close();
 

@@ -54,7 +54,7 @@ namespace Renci.SshClient.Channels
                 SubsystemName = "sftp",
             });
 
-            this.Session.WaitHandle(this._channelRequestSuccessWaitHandle);
+            this.WaitHandle(this._channelRequestSuccessWaitHandle);
 
             this.SendMessage(new InitMessage
             {
@@ -92,9 +92,10 @@ namespace Renci.SshClient.Channels
 
                 var buffer = new byte[1024];
                 ulong offset = 0;
-                while (source.Read(buffer, 0, buffer.Length) > 0)
+                var bytesRead = 0;
+                while ((bytesRead = source.Read(buffer, 0, buffer.Length)) > 0)
                 {
-                    this.RemoteWrite(handle, offset, buffer.GetSshString());
+                    this.RemoteWrite(handle, offset, buffer.Take(bytesRead).GetSshString());
                     offset += (ulong)buffer.Length;
                 }
             }
@@ -269,7 +270,7 @@ namespace Renci.SshClient.Channels
 
         private SftpMessage ReceiveMessage()
         {
-            this.Session.WaitHandle(this._responseMessageReceivedWaitHandle);
+            this.WaitHandle(this._responseMessageReceivedWaitHandle);
 
             var statusMessage = this._responseMessage as StatusMessage;
 
@@ -470,8 +471,8 @@ namespace Renci.SshClient.Channels
 
             var status = this.ReceiveMessage<StatusMessage>();
             var attempts = 0;
-            //  If close is fails wait a litle a try to close it again, in case server flushed data into the file during close
-            while (status.StatusCode != StatusCodes.Ok && attempts++ < this.Session.ConnectionInfo.RetryAttempts)
+            //  If close fails wait a litle a try to close it again, in case server flushed data into the file during close
+            while (status.StatusCode != StatusCodes.Ok && attempts++ < this.ConnectionInfo.RetryAttempts)
             {
                 Thread.Sleep(50);
                 status = this.ReceiveMessage<StatusMessage>();

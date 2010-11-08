@@ -113,6 +113,10 @@ namespace Renci.SshClient
                 port.Stop();
             }
             this._session.Disconnect();
+
+            //  Clean up objects created using previouse session instance
+            this._shell = null;
+            this._sftp = null;
         }
 
         public T AddForwardedPort<T>(uint boundPort, string connectedHost, uint connectedPort) where T : ForwardedPort, new()

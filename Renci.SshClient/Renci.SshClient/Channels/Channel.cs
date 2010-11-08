@@ -268,12 +268,6 @@ namespace Renci.SshClient.Channels
             if (e.Message.LocalChannelNumber == this.LocalChannelNumber)
             {
                 this.OnClose();
-
-                ////  TODO:   Refactor so this could will not be here
-                //this.CloseCleanup();
-
-                //this._channelClosedWaitHandle.Set();
-
             }
         }
 

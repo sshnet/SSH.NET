@@ -173,7 +173,7 @@ namespace Renci.SshClient.Tests
             }
             catch (SshException exp)
             {
-                Assert.AreEqual(exp.ExitStatus, (uint)2);
+                Assert.IsTrue(exp.ExitStatus > 0);
             }
             s.Disconnect();
         }

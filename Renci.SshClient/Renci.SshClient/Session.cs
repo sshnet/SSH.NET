@@ -76,12 +76,7 @@ namespace Renci.SshClient
         /// <summary>
         /// WaitHandle to signal that listner ended
         /// </summary>
-        private EventWaitHandle _listenerWaitHandle = new ManualResetEvent(false);
-
-        /// <summary>
-        /// Keeps track of all session channels
-        /// </summary>
-        private Dictionary<uint, Channel> _sessionChannels = new Dictionary<uint, Channel>();
+        private EventWaitHandle _listenerWaitHandle = new AutoResetEvent(false);
 
         /// <summary>
         /// Exception that need to be thrown by waiting thread
@@ -317,9 +312,6 @@ namespace Renci.SshClient
                     if (this.IsConnected)
                         return;
 
-                    //  TODO:   Since session is managed thru SshClient class no need to initialize class upon connect since new session instance should be created each time
-                    this.Initialize();
-
                     var ep = new IPEndPoint(Dns.GetHostAddresses(connectionInfo.Host)[0], connectionInfo.Port);
                     this._socket = new Socket(ep.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
@@ -327,6 +319,7 @@ namespace Renci.SshClient
                     var connectResult = this._socket.BeginConnect(ep, null, null);
 
                     connectResult.AsyncWaitHandle.WaitOne(connectionInfo.Timeout);
+
 
                     this._socket.EndConnect(connectResult);
 
@@ -450,6 +443,9 @@ namespace Renci.SshClient
         {
             this.Disconnect(DisconnectReasons.ByApplication, "Connection terminated by the client.");
 
+            //  Disconnect socket
+            this._socket.Disconnect(true);
+
             if (this._messageListener != null)
             {
                 //  Wait for listner task to finish
@@ -508,6 +504,8 @@ namespace Renci.SshClient
                 throw new TimeoutException("Operation timeout");
             }
         }
+
+        private string _id = Guid.NewGuid().ToString();
 
         /// <summary>
         /// Sends packet message to the server.
@@ -897,8 +895,7 @@ namespace Renci.SshClient
                     }
                     else
                     {
-                        this._socket.Disconnect(false);
-                        throw new SshException("An established connection was aborted by the software in your host machine.");
+                        throw new SshException("An established connection was aborted by the software in your host machine.", DisconnectReasons.ConnectionLost);
                     }
                 }
                 catch (SocketException exp)
@@ -1000,33 +997,6 @@ namespace Renci.SshClient
         #endregion
 
         /// <summary>
-        /// Initializes this session.
-        /// </summary>
-        /// <remarks>Initialization required when same session object being reconnected</remarks>
-        private void Initialize()
-        {
-            //  Make sure that message listner finished all work if it was created
-            //  before initializing connection again
-            if (this._messageListener != null)
-            {
-                this._messageListener.Wait();
-                this._messageListener = null;
-            }
-
-            //  Initialize session
-            this._outboundPacketSequence = 0;
-            this._inboundPacketSequence = 0;
-            this._sessionChannels.Clear();
-            this._serviceAccepted.Reset();
-            this._exceptionWaitHandle.Reset();
-            this._listenerWaitHandle.Reset();
-            this._exceptionToThrow = null;
-            this.ServerVersion = null;
-            this._keyExhcange = null;
-            this._isAuthenticated = false;
-        }
-
-        /// <summary>
         /// Perfom neccesary cleanup when client disconects from the server
         /// </summary>
         private void DisconnectCleanup()
@@ -1035,12 +1005,6 @@ namespace Renci.SshClient
             if (this._socket != null)
             {
                 this._socket.Close();
-            }
-
-            //  Clear all session channels
-            lock (this._sessionChannels)
-            {
-                this._sessionChannels.Clear();
             }
 
             this._disconnectMessage = null;
@@ -1089,16 +1053,19 @@ namespace Renci.SshClient
                 }
                 catch (SshException exp)
                 {
-                    if (exp.DisconnectReason != DisconnectReasons.None)
+                    if (exp.DisconnectReason == DisconnectReasons.ConnectionLost && this._disconnectMessage != null)
                     {
-                        //  In case of error issue disconntect command
+                        //  Ignore this error since we called disconnect command and this error is expected
+                        break;
+                    }
+                    else if (exp.DisconnectReason != DisconnectReasons.None)
+                    {
                         this.Disconnect(exp.DisconnectReason, exp.ToString());
                     }
 
                     this._exceptionToThrow = exp;
 
                     this._exceptionWaitHandle.Set();
-
                 }
                 catch (Exception exp)
                 {

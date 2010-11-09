@@ -1,5 +1,6 @@
 ﻿
 using System;
+using System.Diagnostics;
 using System.Text;
 using System.Threading;
 using Renci.SshClient.Common;
@@ -9,6 +10,12 @@ namespace Renci.SshClient.Channels
 {
     internal abstract class ChannelSession : Channel
     {
+        //  TODO:   Some debug information to be removed later
+        private static volatile int _totalOpenRequests;
+        private static volatile int _totalConfirmation = 0;
+        private static volatile int _totalClose = 0;
+        private static volatile int _totalFailed = 0;
+
         private volatile static int _channelSessionCounter = 0;
 
         private static object _lock = new object();
@@ -24,7 +31,6 @@ namespace Renci.SshClient.Channels
         private int _failedOpenAttempts;
 
         private EventWaitHandle _channelOpenResponseWaitHandle = new AutoResetEvent(false);
-
 
         public uint ExitStatus { get; private set; }
 
@@ -61,6 +67,11 @@ namespace Renci.SshClient.Channels
         {
             base.OnOpenConfirmation(remoteChannelNumber, initialWindowSize, maximumPacketSize);
 
+            ChannelSession._channelSessionCounter++;
+            Debug.WriteLine(string.Format("channel {0} open. open channels {1}", this.RemoteChannelNumber, ChannelSession._channelSessionCounter));
+
+            _totalConfirmation++;
+
             this._channelOpenResponseWaitHandle.Set();
         }
 
@@ -74,11 +85,14 @@ namespace Renci.SshClient.Channels
                 throw new SshException(this._errorMessage.ToString(), this.ExitStatus);
             }
 
-            lock (_lock)
-            {
-                ChannelSession._channelSessionCounter--;
-                Monitor.Pulse(_lock);
-            }
+            ChannelSession._channelSessionCounter--;
+
+            Debug.WriteLine(string.Format("channel {0} closed. open channels {1}", this.RemoteChannelNumber, ChannelSession._channelSessionCounter));
+
+            _totalClose++;
+
+            _slim.Release();
+
         }
 
         protected override void OnExtendedData(string data, uint dataTypeCode)
@@ -99,11 +113,11 @@ namespace Renci.SshClient.Channels
 
             this._failedOpenAttempts++;
 
-            lock (_lock)
-            {
-                ChannelSession._channelSessionCounter--;
-                Monitor.Pulse(_lock);
-            }
+            Debug.WriteLine(string.Format("Local channel: {0} attempts: {1} max channels: {2}", this.LocalChannelNumber, this._failedOpenAttempts, ChannelSession._channelSessionCounter));
+
+            _totalFailed++;
+
+            _slim.Release();
 
             this._channelOpenResponseWaitHandle.Set();
         }
@@ -149,27 +163,23 @@ namespace Renci.SshClient.Channels
             }
         }
 
+        private static SemaphoreSlim _slim = new SemaphoreSlim(10);
+
         protected void SendChannelOpenMessage()
         {
-            lock (_lock)
-            {
-                while (true)
-                {
-                    //  TODO:   Make sure that channel session counter is per session and not static, possible scenario where multiple SshClients can have only 10 session channels max
-                    if (ChannelSession._channelSessionCounter < 10)
-                        break;
-                    Monitor.Wait(_lock);
-                }
-                this.SendMessage(new ChannelOpenMessage
-                {
-                    ChannelType = ChannelTypes.Session,
-                    LocalChannelNumber = this.LocalChannelNumber,
-                    InitialWindowSize = this.LocalWindowSize,
-                    MaximumPacketSize = this.PacketSize,
-                });
+            _slim.Wait();
 
-                ChannelSession._channelSessionCounter++;
-            }
+            Debug.WriteLine(string.Format("send open new channel, total channels {0}", ChannelSession._channelSessionCounter));
+
+            this.SendMessage(new ChannelOpenMessage
+            {
+                ChannelType = ChannelTypes.Session,
+                LocalChannelNumber = this.LocalChannelNumber,
+                InitialWindowSize = this.LocalWindowSize,
+                MaximumPacketSize = this.PacketSize,
+            });
+
+            _totalOpenRequests++;
         }
     }
 }

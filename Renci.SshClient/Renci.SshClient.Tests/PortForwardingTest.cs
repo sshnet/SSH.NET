@@ -120,7 +120,8 @@ namespace Renci.SshClient.Tests
                     try
                     {
 
-                        var result = client.Shell.Execute("wget -O- http://localhost:8082");
+                        var cmd = client.CreateCommand("wget -O- http://localhost:8082");
+                        var result = cmd.Execute();
                         var end = DateTime.Now;
                         Debug.Write(string.Format("Length: {0}", result.Length));
                     }

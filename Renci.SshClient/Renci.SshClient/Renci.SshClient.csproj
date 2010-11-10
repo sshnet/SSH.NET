@@ -60,6 +60,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="SshCommand.cs" />
     <Compile Include="MessageEventArgs.cs" />
     <Compile Include="Channels\ChannelAsyncResult.cs" />
     <Compile Include="Channels\ChannelEventArgs.cs" />

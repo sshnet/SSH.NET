@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Threading;
+using Renci.SshClient.Messages;
 using Renci.SshClient.Messages.Connection;
 
 namespace Renci.SshClient.Channels
@@ -21,6 +22,10 @@ namespace Renci.SshClient.Channels
         {
             get { return ChannelTypes.Session; }
         }
+
+        public bool HasError { get; set; }
+
+        public uint ExitStatus { get; private set; }
 
         public ChannelSessionExec()
             : base()
@@ -86,18 +91,27 @@ namespace Renci.SshClient.Channels
             }
         }
 
-        protected override void OnEof()
-        {
-            base.OnEof();
-
-            //this.ExecutionCompleted();
-        }
-
         protected override void OnClose()
         {
             base.OnClose();
 
-            this.ExecutionCompleted();
+            if (this._channelData != null)
+            {
+                this._channelData.Flush();
+            }
+
+            if (this._channelExtendedData != null)
+            {
+                this._channelExtendedData.Flush();
+            }
+
+            this._asyncResult.IsCompleted = true;
+            if (this._callback != null)
+            {
+                //  TODO:   Execute this method on different thread since it will be run on message listener
+                this._callback(this._asyncResult);
+            }
+            ((EventWaitHandle)_asyncResult.AsyncWaitHandle).Set();
         }
 
         protected override void OnData(string data)
@@ -122,7 +136,6 @@ namespace Renci.SshClient.Channels
         {
             base.OnExtendedData(data, dataTypeCode);
 
-            //  TODO:   dataTypeCode curently ignored
             if (this._channelExtendedData != null)
             {
                 foreach (var b in data)
@@ -130,28 +143,46 @@ namespace Renci.SshClient.Channels
                     this._channelExtendedData.WriteByte((byte)b);
                 }
             }
+
+            if (dataTypeCode == 1)
+            {
+                this.HasError = true;
+            }
         }
 
-        private void ExecutionCompleted()
+        protected override void OnRequest(ChannelRequestNames requestName, bool wantReply, string command, string subsystemName, uint exitStatus)
         {
-            if (this._channelData != null)
+            base.OnRequest(requestName, wantReply, command, subsystemName, exitStatus);
+
+            Message replyMessage = new ChannelFailureMessage()
             {
-                this._channelData.Flush();
+                LocalChannelNumber = this.LocalChannelNumber,
+            };
+
+            if (requestName == ChannelRequestNames.ExitStatus)
+            {
+                this.ExitStatus = exitStatus;
+
+                replyMessage = new ChannelSuccessMessage()
+                {
+                    LocalChannelNumber = this.LocalChannelNumber,
+                };
+            }
+            else if (requestName == ChannelRequestNames.PseudoTerminal)
+            {
+                //  TODO:   Check if when this request is received what to do, I suspect we receive this request when no more channel sessions are available
+            }
+            else
+            {
+                throw new NotImplementedException(string.Format("Request name {0} is not implemented.", requestName));
             }
 
-            if (this._channelExtendedData != null)
+            if (wantReply)
             {
-                this._channelExtendedData.Flush();
+                this.SendMessage(replyMessage);
             }
-
-            //  TODO:   Execute this method on different thread since it will be run on message listener
-            this._asyncResult.IsCompleted = true;
-            if (this._callback != null)
-            {
-                this._callback(this._asyncResult);
-            }
-            ((EventWaitHandle)_asyncResult.AsyncWaitHandle).Set();
         }
+
 
         protected override void OnDisposing()
         {

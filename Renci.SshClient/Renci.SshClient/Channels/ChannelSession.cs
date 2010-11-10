@@ -1,10 +1,7 @@
 ﻿
-using System;
 using System.Diagnostics;
-using System.Text;
 using System.Threading;
 using Renci.SshClient.Common;
-using Renci.SshClient.Messages;
 using Renci.SshClient.Messages.Connection;
 namespace Renci.SshClient.Channels
 {
@@ -21,18 +18,11 @@ namespace Renci.SshClient.Channels
         private static object _lock = new object();
 
         /// <summary>
-        /// If error occured holds error message
-        /// </summary>
-        private StringBuilder _errorMessage;
-
-        /// <summary>
         /// Counts faile channel open attempts
         /// </summary>
         private int _failedOpenAttempts;
 
         private EventWaitHandle _channelOpenResponseWaitHandle = new AutoResetEvent(false);
-
-        public uint ExitStatus { get; private set; }
 
         public bool CanCreateChannel
         {
@@ -79,12 +69,6 @@ namespace Renci.SshClient.Channels
         {
             base.OnClose();
 
-            //  Throw an error if exit status is not 0
-            if (this.ExitStatus > 0)
-            {
-                throw new SshException(this._errorMessage.ToString(), this.ExitStatus);
-            }
-
             ChannelSession._channelSessionCounter--;
 
             Debug.WriteLine(string.Format("channel {0} closed. open channels {1}", this.RemoteChannelNumber, ChannelSession._channelSessionCounter));
@@ -92,19 +76,6 @@ namespace Renci.SshClient.Channels
             _totalClose++;
 
             _slim.Release();
-
-        }
-
-        protected override void OnExtendedData(string data, uint dataTypeCode)
-        {
-            base.OnExtendedData(data, dataTypeCode);
-
-            if (dataTypeCode == 1)
-            {
-                if (this._errorMessage == null)
-                    this._errorMessage = new StringBuilder();
-                this._errorMessage.Append(data);
-            }
         }
 
         protected override void OnOpenFailure(uint reasonCode, string description, string language)
@@ -120,39 +91,6 @@ namespace Renci.SshClient.Channels
             _slim.Release();
 
             this._channelOpenResponseWaitHandle.Set();
-        }
-
-        protected override void OnRequest(ChannelRequestNames requestName, bool wantReply, string command, string subsystemName, uint exitStatus)
-        {
-            base.OnRequest(requestName, wantReply, command, subsystemName, exitStatus);
-
-            Message replyMessage = new ChannelFailureMessage()
-            {
-                LocalChannelNumber = this.LocalChannelNumber,
-            };
-
-            if (requestName == ChannelRequestNames.ExitStatus)
-            {
-                this.ExitStatus = exitStatus;
-
-                replyMessage = new ChannelSuccessMessage()
-                {
-                    LocalChannelNumber = this.LocalChannelNumber,
-                };
-            }
-            else if (requestName == ChannelRequestNames.PseudoTerminal)
-            {
-                //  TODO:   Check if when this request is received what to do, I suspect we receive this request when no more channel sessions are available
-            }
-            else
-            {
-                throw new NotImplementedException(string.Format("Request name {0} is not implemented.", requestName));
-            }
-
-            if (wantReply)
-            {
-                this.SendMessage(replyMessage);
-            }
         }
 
         protected override void OnDisposing()

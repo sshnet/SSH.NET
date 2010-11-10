@@ -10,23 +10,6 @@ namespace Renci.SshClient
 
         private List<ForwardedPort> _forwardedPorts = new List<ForwardedPort>();
 
-        private Shell _shell;
-        /// <summary>
-        /// Gets the shell.
-        /// </summary>
-        /// <value>The shell.</value>
-        public Shell Shell
-        {
-            get
-            {
-                if (this._shell == null)
-                {
-                    this._shell = new Shell(this._session);
-                }
-                return this._shell;
-            }
-        }
-
         private Sftp _sftp;
         /// <summary>
         /// Gets the shell.
@@ -115,7 +98,6 @@ namespace Renci.SshClient
             this._session.Disconnect();
 
             //  Clean up objects created using previouse session instance
-            this._shell = null;
             this._sftp = null;
         }
 
@@ -131,6 +113,18 @@ namespace Renci.SshClient
             this._forwardedPorts.Add(port);
 
             return port;
+        }
+
+        public SshCommand CreateCommand(string commandText)
+        {
+            return new SshCommand(this._session, commandText);
+        }
+
+        public SshCommand RunCommand(string commandText)
+        {
+            var cmd = new SshCommand(this._session, commandText);
+            cmd.Execute();
+            return cmd;
         }
 
         public void RemoveForwardedPort(ForwardedPort port)

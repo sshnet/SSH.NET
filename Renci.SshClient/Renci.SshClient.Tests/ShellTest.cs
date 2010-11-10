@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
-using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Renci.SshClient.Common;
 
 namespace Renci.SshClient.Tests
 {
@@ -149,16 +147,14 @@ namespace Renci.SshClient.Tests
         public void TestExtendedOutput()
         {
             var s = CreateShellUsingPassword();
-            MemoryStream ms = new MemoryStream();
             s.Connect();
-            var result = s.Shell.Execute("echo 12345; echo 654321 >&2", ms);
-            var extendedData = Encoding.ASCII.GetString(ms.ToArray());
-            result = result.Substring(0, result.Length - 1);    //  Remove \n chararacter returned by command
-            extendedData = extendedData.Substring(0, extendedData.Length - 1);    //  Remove \n chararacter returned by command
+            var cmd = s.CreateCommand("echo 12345; echo 654321 >&2");
+            cmd.Execute();
+            var extendedData = Encoding.ASCII.GetString(cmd.ExtendedOutputStream.ToArray());
             s.Disconnect();
 
-            Assert.AreEqual("12345", result);
-            Assert.AreEqual("654321", extendedData);
+            Assert.AreEqual("12345\n", cmd.Result);
+            Assert.AreEqual("654321\n", extendedData);
         }
 
         [TestMethod]
@@ -166,15 +162,15 @@ namespace Renci.SshClient.Tests
         {
             var s = CreateShellUsingPassword();
             s.Connect();
-            try
+
+            var cmd = s.CreateCommand(";");
+            cmd.Execute();
+            if (string.IsNullOrEmpty(cmd.Error))
             {
-                s.Shell.Execute(";");
                 Assert.Fail("Operation should fail");
             }
-            catch (SshException exp)
-            {
-                Assert.IsTrue(exp.ExitStatus > 0);
-            }
+            Assert.IsTrue(cmd.ExitStatus > 0);
+
             s.Disconnect();
         }
 
@@ -183,15 +179,14 @@ namespace Renci.SshClient.Tests
         {
             var s = CreateShellUsingPassword();
             s.Connect();
-            try
+            var cmd = s.CreateCommand(";");
+            cmd.Execute();
+            if (string.IsNullOrEmpty(cmd.Error))
             {
-                s.Shell.Execute(";");
                 Assert.Fail("Operation should fail");
             }
-            catch (SshException exp)
-            {
-                Assert.AreEqual(exp.ExitStatus, (uint)2);
-            }
+            Assert.IsTrue(cmd.ExitStatus > 0);
+
             var result = ExecuteTestCommand(s);
             s.Disconnect();
 
@@ -238,7 +233,8 @@ namespace Renci.SshClient.Tests
             var testValue = Guid.NewGuid().ToString();
             var command = string.Format("echo {0}", testValue);
             //var command = string.Format("echo {0};sleep 2s", testValue);
-            var result = s.Shell.Execute(command);
+            var cmd = s.CreateCommand(command);
+            var result = cmd.Execute();
             result = result.Substring(0, result.Length - 1);    //  Remove \n chararacter returned by command
             return result.Equals(testValue);
         }

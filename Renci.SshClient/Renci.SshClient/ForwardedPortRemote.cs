@@ -6,7 +6,7 @@ using Renci.SshClient.Channels;
 using Renci.SshClient.Messages.Connection;
 namespace Renci.SshClient
 {
-    public class ForwardedPortRemote : ForwardedPort
+    public class ForwardedPortRemote : ForwardedPort, IDisposable
     {
         private bool _requestStatus;
 
@@ -96,5 +96,47 @@ namespace Renci.SshClient
 
             this._globalRequestResponse.Set();
         }
+
+        #region IDisposable Members
+
+        private bool disposed = false;
+
+        public void Dispose()
+        {
+            Dispose(true);
+
+            GC.SuppressFinalize(this);
+        }
+
+        private void Dispose(bool disposing)
+        {
+            // Check to see if Dispose has already been called.
+            if (!this.disposed)
+            {
+                // If disposing equals true, dispose all managed
+                // and unmanaged resources.
+                if (disposing)
+                {
+                    // Dispose managed resources.
+                    if (this._globalRequestResponse != null)
+                    {
+                        this._globalRequestResponse.Dispose();
+                    }
+                }
+
+                // Note disposing has been done.
+                disposed = true;
+            }
+        }
+
+        ~ForwardedPortRemote()
+        {
+            // Do not re-create Dispose clean-up code here.
+            // Calling Dispose(false) is optimal in terms of
+            // readability and maintainability.
+            Dispose(false);
+        }
+
+        #endregion
     }
 }

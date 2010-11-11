@@ -8,11 +8,15 @@ namespace Renci.SshClient.Channels
 {
     internal class ChannelSessionExec : ChannelSession
     {
+        /// <summary>
+        /// Holds channel data stream
+        /// </summary>
         private Stream _channelData;
 
+        /// <summary>
+        /// Holds channel extended data stream
+        /// </summary>
         private Stream _channelExtendedData;
-
-        private Exception _exception;
 
         private ChannelAsyncResult _asyncResult;
 
@@ -23,16 +27,36 @@ namespace Renci.SshClient.Channels
             get { return ChannelTypes.Session; }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether this channel has error.
+        /// </summary>
+        /// <value><c>true</c> if this instance has error; otherwise, <c>false</c>.</value>
         public bool HasError { get; set; }
 
+        /// <summary>
+        /// Gets or sets the exit status.
+        /// </summary>
+        /// <value>The exit status.</value>
         public uint ExitStatus { get; private set; }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ChannelSessionExec"/> class.
+        /// </summary>
         public ChannelSessionExec()
             : base()
         {
 
         }
 
+        /// <summary>
+        /// Begins the execute.
+        /// </summary>
+        /// <param name="command">The command.</param>
+        /// <param name="output">The output.</param>
+        /// <param name="extendedOutput">The extended output.</param>
+        /// <param name="callback">The callback.</param>
+        /// <param name="state">The state.</param>
+        /// <returns></returns>
         internal ChannelAsyncResult BeginExecute(string command, Stream output, Stream extendedOutput, AsyncCallback callback, object state)
         {
             //  Prevent from executing BeginExecute before calling EndExecute
@@ -67,6 +91,10 @@ namespace Renci.SshClient.Channels
             return _asyncResult;
         }
 
+        /// <summary>
+        /// Ends the execute.
+        /// </summary>
+        /// <param name="result">The result.</param>
         internal void EndExecute(IAsyncResult result)
         {
             ChannelAsyncResult channelAsyncResult = result as ChannelAsyncResult;
@@ -82,15 +110,11 @@ namespace Renci.SshClient.Channels
             this.Close();
 
             this._asyncResult = null;
-
-            if (this._exception != null)
-            {
-                var exception = this._exception;
-                this._exception = null; //  Clean exception
-                throw exception;
-            }
         }
 
+        /// <summary>
+        /// Called when channel is closed
+        /// </summary>
         protected override void OnClose()
         {
             base.OnClose();
@@ -114,6 +138,10 @@ namespace Renci.SshClient.Channels
             ((EventWaitHandle)_asyncResult.AsyncWaitHandle).Set();
         }
 
+        /// <summary>
+        /// Called when channel receives data.
+        /// </summary>
+        /// <param name="data">The data.</param>
         protected override void OnData(string data)
         {
             base.OnData(data);
@@ -132,6 +160,11 @@ namespace Renci.SshClient.Channels
             }
         }
 
+        /// <summary>
+        /// Called when channel receives extended data.
+        /// </summary>
+        /// <param name="data">The data.</param>
+        /// <param name="dataTypeCode">The data type code.</param>
         protected override void OnExtendedData(string data, uint dataTypeCode)
         {
             base.OnExtendedData(data, dataTypeCode);
@@ -150,6 +183,14 @@ namespace Renci.SshClient.Channels
             }
         }
 
+        /// <summary>
+        /// Called when channel request command is called.
+        /// </summary>
+        /// <param name="requestName">Name of the request.</param>
+        /// <param name="wantReply">if set to <c>true</c> then need to send reply to server.</param>
+        /// <param name="command">The command.</param>
+        /// <param name="subsystemName">Name of the subsystem.</param>
+        /// <param name="exitStatus">The exit status.</param>
         protected override void OnRequest(ChannelRequestNames requestName, bool wantReply, string command, string subsystemName, uint exitStatus)
         {
             base.OnRequest(requestName, wantReply, command, subsystemName, exitStatus);
@@ -183,7 +224,9 @@ namespace Renci.SshClient.Channels
             }
         }
 
-
+        /// <summary>
+        /// Called when object is being disposed.
+        /// </summary>
         protected override void OnDisposing()
         {
         }

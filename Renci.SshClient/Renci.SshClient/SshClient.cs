@@ -1,14 +1,15 @@
-﻿
+﻿using System;
 using System.Collections.Generic;
+
 namespace Renci.SshClient
 {
-    public class SshClient
+    public class SshClient : IDisposable
     {
         private Session _session;
 
-        private ConnectionInfo _connectionInfo;
-
         private List<ForwardedPort> _forwardedPorts = new List<ForwardedPort>();
+
+        public ConnectionInfo ConnectionInfo { get; private set; }
 
         private Sftp _sftp;
         /// <summary>
@@ -37,8 +38,8 @@ namespace Renci.SshClient
 
         public SshClient(ConnectionInfo connectionInfo)
         {
-            this._connectionInfo = connectionInfo;
-            this._session = new Session(this._connectionInfo);
+            this.ConnectionInfo = connectionInfo;
+            this._session = new Session(connectionInfo);
         }
 
         public SshClient(string host, int port, string username, string password)
@@ -85,7 +86,7 @@ namespace Renci.SshClient
 
         public void Connect()
         {
-            this._session = new Session(this._connectionInfo);
+            this._session = new Session(this.ConnectionInfo);
             this._session.Connect();
         }
 
@@ -131,5 +132,47 @@ namespace Renci.SshClient
         {
             this._forwardedPorts.Remove(port);
         }
+
+        #region IDisposable Members
+
+        private bool disposed = false;
+
+        public void Dispose()
+        {
+            Dispose(true);
+
+            GC.SuppressFinalize(this);
+        }
+
+        private void Dispose(bool disposing)
+        {
+            // Check to see if Dispose has already been called.
+            if (!this.disposed)
+            {
+                // If disposing equals true, dispose all managed
+                // and unmanaged resources.
+                if (disposing)
+                {
+                    // Dispose managed resources.
+                    if (this._session != null)
+                    {
+                        this._session.Dispose();
+                    }
+                }
+
+                // Note disposing has been done.
+                disposed = true;
+            }
+        }
+
+        ~SshClient()
+        {
+            // Do not re-create Dispose clean-up code here.
+            // Calling Dispose(false) is optimal in terms of
+            // readability and maintainability.
+            Dispose(false);
+        }
+
+        #endregion
     }
 }

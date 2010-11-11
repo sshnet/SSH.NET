@@ -7,34 +7,19 @@ namespace Renci.SshClient.Channels
 {
     internal abstract class ChannelSession : Channel
     {
-        //  TODO:   Some debug information to be removed later
-        private static volatile int _totalOpenRequests;
-        private static volatile int _totalConfirmation = 0;
-        private static volatile int _totalClose = 0;
-        private static volatile int _totalFailed = 0;
-
-        private volatile static int _channelSessionCounter = 0;
-
-        private static object _lock = new object();
-
         /// <summary>
         /// Counts faile channel open attempts
         /// </summary>
         private int _failedOpenAttempts;
 
+        /// <summary>
+        /// Wait handle to signal when response was received to open the channel
+        /// </summary>
         private EventWaitHandle _channelOpenResponseWaitHandle = new AutoResetEvent(false);
 
-        public bool CanCreateChannel
-        {
-            get
-            {
-                if (ChannelSession._channelSessionCounter < 10)
-                    return true;
-                else
-                    return false;
-            }
-        }
-
+        /// <summary>
+        /// Opens the channel
+        /// </summary>
         public virtual void Open()
         {
             if (!this.IsOpen)
@@ -53,46 +38,58 @@ namespace Renci.SshClient.Channels
             }
         }
 
+        /// <summary>
+        /// Called when chanel is open
+        /// </summary>
+        /// <param name="remoteChannelNumber">The remote channel number.</param>
+        /// <param name="initialWindowSize">Initial size of the window.</param>
+        /// <param name="maximumPacketSize">Maximum size of the packet.</param>
         protected override void OnOpenConfirmation(uint remoteChannelNumber, uint initialWindowSize, uint maximumPacketSize)
         {
             base.OnOpenConfirmation(remoteChannelNumber, initialWindowSize, maximumPacketSize);
 
-            ChannelSession._channelSessionCounter++;
-            Debug.WriteLine(string.Format("channel {0} open. open channels {1}", this.RemoteChannelNumber, ChannelSession._channelSessionCounter));
-
-            _totalConfirmation++;
+            Debug.WriteLine(string.Format("channel {0} open.", this.RemoteChannelNumber));
 
             this._channelOpenResponseWaitHandle.Set();
         }
 
+        /// <summary>
+        /// Called when channel is closed
+        /// </summary>
         protected override void OnClose()
         {
             base.OnClose();
 
-            ChannelSession._channelSessionCounter--;
+            Debug.WriteLine(string.Format("channel {0} closed", this.RemoteChannelNumber));
 
-            Debug.WriteLine(string.Format("channel {0} closed. open channels {1}", this.RemoteChannelNumber, ChannelSession._channelSessionCounter));
 
-            _totalClose++;
+            //  This timeout needed since when channel is closed it does not immidiatly becomes availble
+            //  but it takes time for the server to clean up resource and allow new channels to be created.
+            Thread.Sleep(100);
 
-            _slim.Release();
+            this.SessionSemaphore.Release();
         }
 
+        /// <summary>
+        /// Called when channel failed to open
+        /// </summary>
+        /// <param name="reasonCode">The reason code.</param>
+        /// <param name="description">The description.</param>
+        /// <param name="language">The language.</param>
         protected override void OnOpenFailure(uint reasonCode, string description, string language)
         {
-            //  TODO:   See why occasionaly open channel will fail when try to utilze maximum number of channels
-
             this._failedOpenAttempts++;
 
-            Debug.WriteLine(string.Format("Local channel: {0} attempts: {1} max channels: {2}", this.LocalChannelNumber, this._failedOpenAttempts, ChannelSession._channelSessionCounter));
+            Debug.WriteLine(string.Format("Local channel: {0} attempts: {1}.", this.LocalChannelNumber, this._failedOpenAttempts));
 
-            _totalFailed++;
-
-            _slim.Release();
+            this.SessionSemaphore.Release();
 
             this._channelOpenResponseWaitHandle.Set();
         }
 
+        /// <summary>
+        /// Called when object is being disposed.
+        /// </summary>
         protected override void OnDisposing()
         {
             if (this._channelOpenResponseWaitHandle != null)
@@ -101,23 +98,24 @@ namespace Renci.SshClient.Channels
             }
         }
 
-        private static SemaphoreSlim _slim = new SemaphoreSlim(10);
-
+        /// <summary>
+        /// Sends the channel open message.
+        /// </summary>
         protected void SendChannelOpenMessage()
         {
-            _slim.Wait();
-
-            Debug.WriteLine(string.Format("send open new channel, total channels {0}", ChannelSession._channelSessionCounter));
-
-            this.SendMessage(new ChannelOpenMessage
+            lock (this.SessionSemaphore)
             {
-                ChannelType = ChannelTypes.Session,
-                LocalChannelNumber = this.LocalChannelNumber,
-                InitialWindowSize = this.LocalWindowSize,
-                MaximumPacketSize = this.PacketSize,
-            });
+                //  Ensure that channels are available
+                this.SessionSemaphore.Wait();
 
-            _totalOpenRequests++;
+                this.SendMessage(new ChannelOpenMessage
+                {
+                    ChannelType = ChannelTypes.Session,
+                    LocalChannelNumber = this.LocalChannelNumber,
+                    InitialWindowSize = this.LocalWindowSize,
+                    MaximumPacketSize = this.PacketSize,
+                });
+            }
         }
     }
 }

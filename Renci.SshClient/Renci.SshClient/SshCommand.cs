@@ -107,7 +107,6 @@ namespace Renci.SshClient
             return this.Execute();
         }
 
-
         #region IDisposable Members
 
         private bool disposed = false;

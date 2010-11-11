@@ -93,6 +93,35 @@ namespace Renci.SshClient
         /// </summary>
         private DisconnectMessage _disconnectMessage;
 
+        /// <summary>
+        /// Hold session specific semaphores
+        /// </summary>
+        private List<SemaphoreSlim> _semaphores = new List<SemaphoreSlim>();
+
+        private SemaphoreSlim _sessionSemaphore;
+        /// <summary>
+        /// Gets the session semaphore that controls session channels.
+        /// </summary>
+        /// <value>The session semaphore.</value>
+        public SemaphoreSlim SessionSemaphore
+        {
+            get
+            {
+                if (this._sessionSemaphore == null)
+                {
+                    lock (this)
+                    {
+                        if (this._sessionSemaphore == null)
+                        {
+                            this._sessionSemaphore = new SemaphoreSlim(this.ConnectionInfo.MaxSessions);
+                        }
+                    }
+                }
+
+                return this._sessionSemaphore;
+            }
+        }
+
         private uint _nextChannelNumber;
         /// <summary>
         /// Gets the next channel number.
@@ -1139,6 +1168,11 @@ namespace Renci.SshClient
                     if (this._keyExhcange != null)
                     {
                         this._keyExhcange.Dispose();
+                    }
+
+                    if (this._sessionSemaphore != null)
+                    {
+                        this._sessionSemaphore.Dispose();
                     }
                 }
 

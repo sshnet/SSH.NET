@@ -103,7 +103,7 @@ namespace Renci.SshClient.Channels
                         }
                     }
                 }
-                catch (Exception exp)
+                catch (Exception)
                 {
                     readerTaskError.Set();
                     throw;

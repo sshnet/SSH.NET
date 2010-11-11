@@ -41,6 +41,10 @@ namespace Renci.SshClient.Channels
             get { return this._session.IsConnected; }
         }
 
+        /// <summary>
+        /// Gets the connection info.
+        /// </summary>
+        /// <value>The connection info.</value>
         protected ConnectionInfo ConnectionInfo
         {
             get
@@ -49,6 +53,21 @@ namespace Renci.SshClient.Channels
             }
         }
 
+        /// <summary>
+        /// Gets the session semaphore to control number of session channels
+        /// </summary>
+        /// <value>The session semaphore.</value>
+        protected SemaphoreSlim SessionSemaphore
+        {
+            get
+            {
+                return this._session.SessionSemaphore;
+            }
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Channel"/> class.
+        /// </summary>
         internal Channel()
         {
         }

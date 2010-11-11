@@ -11,6 +11,17 @@ namespace Renci.SshClient
 
         public ConnectionInfo ConnectionInfo { get; private set; }
 
+        public bool IsConnected
+        {
+            get
+            {
+                if (this._session == null)
+                    return false;
+                else
+                    return this._session.IsConnected;
+            }
+        }
+
         private Sftp _sftp;
         /// <summary>
         /// Gets the shell.

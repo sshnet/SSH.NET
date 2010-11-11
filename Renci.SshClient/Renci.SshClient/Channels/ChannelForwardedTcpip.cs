@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 using Renci.SshClient.Common;
 using Renci.SshClient.Messages.Connection;
 
@@ -67,18 +68,41 @@ namespace Renci.SshClient.Channels
             }
 
             //  Start reading data from the port and send to channel
-            using (var ns = new NetworkStream(this._socket))
+            while (this._socket.Connected || this.IsConnected)
             {
-                do
+                try
                 {
-                    var read = ns.Read(buffer, 0, buffer.Length);
-                    this.SendMessage(new ChannelDataMessage
+                    var read = this._socket.Receive(buffer);
+                    if (read > 0)
                     {
-                        LocalChannelNumber = this.RemoteChannelNumber,
-                        Data = buffer.Take(read).GetSshString(),
-                    });
+                        this.SendMessage(new ChannelDataMessage
+                        {
+                            LocalChannelNumber = this.RemoteChannelNumber,
+                            Data = buffer.Take(read).GetSshString(),
+                        });
+                    }
+                    else
+                    {
+                        //  Zero bytes received when remote host shuts down the connection
+                        break;
+                    }
                 }
-                while (ns.DataAvailable);
+                catch (SocketException exp)
+                {
+                    if (exp.SocketErrorCode == SocketError.WouldBlock ||
+                        exp.SocketErrorCode == SocketError.IOPending ||
+                        exp.SocketErrorCode == SocketError.NoBufferSpaceAvailable)
+                    {
+                        // socket buffer is probably empty, wait and try again
+                        Thread.Sleep(30);
+                    }
+                    else if (exp.SocketErrorCode == SocketError.ConnectionAborted)
+                    {
+                        break;
+                    }
+                    else
+                        throw;  // throw any other error
+                }
             }
 
             this.SendMessage(new ChannelEofMessage

@@ -20,9 +20,9 @@ namespace Renci.SshClient
             this.Session.RegisterMessageType<RequestSuccessMessage>(Messages.MessageTypes.RequestSuccess);
             this.Session.RegisterMessageType<ChannelOpenMessage>(Messages.MessageTypes.ChannelOpen);
 
-            this.Session.RequestSuccess += Session_RequestSuccess;
-            this.Session.RequestFailure += Session_RequestFailure;
-            this.Session.ChannelOpen += Session_ChannelOpening;
+            this.Session.RequestSuccessReceived += Session_RequestSuccess;
+            this.Session.RequestFailureReceived += Session_RequestFailure;
+            this.Session.ChannelOpenReceived += Session_ChannelOpening;
 
             //  Send global request to start direct tcpip
             this.Session.SendMessage(new GlobalRequestMessage
@@ -38,7 +38,7 @@ namespace Renci.SshClient
             if (!this._requestStatus)
             {
                 //  If request  failed dont handle channel opening for this request
-                this.Session.ChannelOpen -= Session_ChannelOpening;
+                this.Session.ChannelOpenReceived -= Session_ChannelOpening;
             }
         }
 
@@ -55,9 +55,9 @@ namespace Renci.SshClient
 
             this.Session.WaitHandle(this._globalRequestResponse);
 
-            this.Session.RequestSuccess -= Session_RequestSuccess;
-            this.Session.RequestFailure -= Session_RequestFailure;
-            this.Session.ChannelOpen -= Session_ChannelOpening;
+            this.Session.RequestSuccessReceived -= Session_RequestSuccess;
+            this.Session.RequestFailureReceived -= Session_RequestFailure;
+            this.Session.ChannelOpenReceived -= Session_ChannelOpening;
         }
 
         private void Session_ChannelOpening(object sender, MessageEventArgs<ChannelOpenMessage> e)

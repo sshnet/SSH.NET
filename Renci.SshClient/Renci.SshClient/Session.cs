@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -14,6 +13,7 @@ using System.Threading.Tasks;
 using Renci.SshClient.Channels;
 using Renci.SshClient.Common;
 using Renci.SshClient.Messages;
+using Renci.SshClient.Messages.Authentication;
 using Renci.SshClient.Messages.Connection;
 using Renci.SshClient.Messages.Transport;
 using Renci.SshClient.Security;
@@ -89,9 +89,9 @@ namespace Renci.SshClient
         private bool _isAuthenticated;
 
         /// <summary>
-        /// Specifies DisconnectMessage that was sent by the client to the server
+        /// Specifies whether user issued Disconnect command or not
         /// </summary>
-        private DisconnectMessage _disconnectMessage;
+        private bool _isDisconnecting;
 
         /// <summary>
         /// Hold session specific semaphores
@@ -157,11 +157,6 @@ namespace Renci.SshClient
         }
 
         /// <summary>
-        /// Occurs when new message received.
-        /// </summary>
-        public event EventHandler<MessageReceivedEventArgs> MessageReceived;
-
-        /// <summary>
         /// Gets or sets the session id.
         /// </summary>
         /// <value>The session id.</value>
@@ -225,74 +220,139 @@ namespace Renci.SshClient
         #region Message events
 
         /// <summary>
-        /// Occurs when <see cref="GlobalRequestMessage"/> message received
+        /// Occurs when <see cref="DisconnectMessage"/> message received
         /// </summary>
-        public event EventHandler<MessageEventArgs<GlobalRequestMessage>> GlobalRequest;
+        public event EventHandler<MessageEventArgs<DisconnectMessage>> DisconnectReceived;
+
+        /// <summary>
+        /// Occurs when <see cref="IgnoreMessage"/> message received
+        /// </summary>
+        public event EventHandler<MessageEventArgs<IgnoreMessage>> IgnoreReceived;
+
+        /// <summary>
+        /// Occurs when <see cref="UnimplementedMessage"/> message received
+        /// </summary>
+        public event EventHandler<MessageEventArgs<UnimplementedMessage>> UnimplementedReceived;
+
+        /// <summary>
+        /// Occurs when <see cref="DebugMessage"/> message received
+        /// </summary>
+        public event EventHandler<MessageEventArgs<DebugMessage>> DebugReceived;
+
+        /// <summary>
+        /// Occurs when <see cref="ServiceRequestMessage"/> message received
+        /// </summary>
+        public event EventHandler<MessageEventArgs<ServiceRequestMessage>> ServiceRequestReceived;
+
+        /// <summary>
+        /// Occurs when <see cref="ServiceAcceptMessage"/> message received
+        /// </summary>
+        public event EventHandler<MessageEventArgs<ServiceAcceptMessage>> ServiceAcceptReceived;
+
+        /// <summary>
+        /// Occurs when <see cref="KeyExchangeInitMessage"/> message received
+        /// </summary>
+        public event EventHandler<MessageEventArgs<KeyExchangeInitMessage>> KeyExchangeInitReceived;
+
+        /// <summary>
+        /// Occurs when <see cref="NewKeysMessage"/> message received
+        /// </summary>
+        public event EventHandler<MessageEventArgs<NewKeysMessage>> NewKeysReceived;
+
+        /// <summary>
+        /// Occurs when <see cref="RequestMessage"/> message received
+        /// </summary>
+        public event EventHandler<MessageEventArgs<RequestMessage>> UserAuthenticationRequestReceived;
+
+        /// <summary>
+        /// Occurs when <see cref="FailureMessage"/> message received
+        /// </summary>
+        public event EventHandler<MessageEventArgs<FailureMessage>> UserAuthenticationFailureReceived;
+
+        /// <summary>
+        /// Occurs when <see cref="SuccessMessage"/> message received
+        /// </summary>
+        public event EventHandler<MessageEventArgs<SuccessMessage>> UserAuthenticationSuccessReceived;
+
+        /// <summary>
+        /// Occurs when <see cref="BannerMessage"/> message received
+        /// </summary>
+        public event EventHandler<MessageEventArgs<BannerMessage>> UserAuthenticationBannerReceived;
+
+        /// <summary>
+        /// Occurs when <see cref="GlobalRequestMessage"/> message received
+        /// </summary>        
+        public event EventHandler<MessageEventArgs<GlobalRequestMessage>> GlobalRequestReceived;
 
         /// <summary>
         /// Occurs when <see cref="RequestSuccessMessage"/> message received
         /// </summary>
-        public event EventHandler<MessageEventArgs<RequestSuccessMessage>> RequestSuccess;
+        public event EventHandler<MessageEventArgs<RequestSuccessMessage>> RequestSuccessReceived;
 
         /// <summary>
         /// Occurs when <see cref="RequestFailureMessage"/> message received
         /// </summary>
-        public event EventHandler<MessageEventArgs<RequestFailureMessage>> RequestFailure;
+        public event EventHandler<MessageEventArgs<RequestFailureMessage>> RequestFailureReceived;
 
         /// <summary>
         /// Occurs when <see cref="ChannelOpenMessage"/> message received
         /// </summary>
-        public event EventHandler<MessageEventArgs<ChannelOpenMessage>> ChannelOpen;
+        public event EventHandler<MessageEventArgs<ChannelOpenMessage>> ChannelOpenReceived;
 
         /// <summary>
         /// Occurs when <see cref="ChannelOpenConfirmationMessage"/> message received
         /// </summary>
-        public event EventHandler<MessageEventArgs<ChannelOpenConfirmationMessage>> ChannelOpenConfirmation;
+        public event EventHandler<MessageEventArgs<ChannelOpenConfirmationMessage>> ChannelOpenConfirmationReceived;
 
         /// <summary>
         /// Occurs when <see cref="ChannelOpenFailureMessage"/> message received
         /// </summary>
-        public event EventHandler<MessageEventArgs<ChannelOpenFailureMessage>> ChannelOpenFailure;
+        public event EventHandler<MessageEventArgs<ChannelOpenFailureMessage>> ChannelOpenFailureReceived;
 
         /// <summary>
         /// Occurs when <see cref="ChannelWindowAdjustMessage"/> message received
         /// </summary>
-        public event EventHandler<MessageEventArgs<ChannelWindowAdjustMessage>> ChannelWindowAdjust;
+        public event EventHandler<MessageEventArgs<ChannelWindowAdjustMessage>> ChannelWindowAdjustReceived;
 
         /// <summary>
         /// Occurs when <see cref="ChannelDataMessage"/> message received
         /// </summary>
-        public event EventHandler<MessageEventArgs<ChannelDataMessage>> ChannelData;
+        public event EventHandler<MessageEventArgs<ChannelDataMessage>> ChannelDataReceived;
 
         /// <summary>
         /// Occurs when <see cref="ChannelExtendedDataMessage"/> message received
         /// </summary>
-        public event EventHandler<MessageEventArgs<ChannelExtendedDataMessage>> ChannelExtendedData;
+        public event EventHandler<MessageEventArgs<ChannelExtendedDataMessage>> ChannelExtendedDataReceived;
 
         /// <summary>
         /// Occurs when <see cref="ChannelEofMessage"/> message received
         /// </summary>
-        public event EventHandler<MessageEventArgs<ChannelEofMessage>> ChannelEof;
+        public event EventHandler<MessageEventArgs<ChannelEofMessage>> ChannelEofReceived;
 
         /// <summary>
         /// Occurs when <see cref="ChannelCloseMessage"/> message received
         /// </summary>
-        public event EventHandler<MessageEventArgs<ChannelCloseMessage>> ChannelClose;
+        public event EventHandler<MessageEventArgs<ChannelCloseMessage>> ChannelCloseReceived;
 
         /// <summary>
         /// Occurs when <see cref="ChannelRequestMessage"/> message received
         /// </summary>
-        public event EventHandler<MessageEventArgs<ChannelRequestMessage>> ChannelRequest;
+        public event EventHandler<MessageEventArgs<ChannelRequestMessage>> ChannelRequestReceived;
 
         /// <summary>
         /// Occurs when <see cref="ChannelSuccessMessage"/> message received
         /// </summary>
-        public event EventHandler<MessageEventArgs<ChannelSuccessMessage>> ChannelSuccess;
+        public event EventHandler<MessageEventArgs<ChannelSuccessMessage>> ChannelSuccessReceived;
 
         /// <summary>
         /// Occurs when <see cref="ChannelFailureMessage"/> message received
         /// </summary>
-        public event EventHandler<MessageEventArgs<ChannelFailureMessage>> ChannelFailure;
+        public event EventHandler<MessageEventArgs<ChannelFailureMessage>> ChannelFailureReceived;
+
+        /// <summary>
+        /// Occurs when message received and is not handled by any of the event handlers
+        /// </summary>
+        public event EventHandler<MessageEventArgs<Message>> MessageReceived;
 
         #endregion
 
@@ -307,20 +367,12 @@ namespace Renci.SshClient
         }
 
         /// <summary>
-        /// Connects to the Server.
-        /// </summary>
-        public void Connect()
-        {
-            this.Connect(this.ConnectionInfo);
-        }
-
-        /// <summary>
         /// Connects to the server.
         /// </summary>
         /// <param name="connectionInfo">The connection info.</param>
-        public void Connect(ConnectionInfo connectionInfo)
+        public void Connect()
         {
-            if (connectionInfo == null)
+            if (this.ConnectionInfo == null)
             {
                 throw new ArgumentNullException("connectionInfo");
             }
@@ -341,13 +393,13 @@ namespace Renci.SshClient
                     if (this.IsConnected)
                         return;
 
-                    var ep = new IPEndPoint(Dns.GetHostAddresses(connectionInfo.Host)[0], connectionInfo.Port);
+                    var ep = new IPEndPoint(Dns.GetHostAddresses(this.ConnectionInfo.Host)[0], this.ConnectionInfo.Port);
                     this._socket = new Socket(ep.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
                     //  Connect socket with 5 seconds timeout
                     var connectResult = this._socket.BeginConnect(ep, null, null);
 
-                    connectResult.AsyncWaitHandle.WaitOne(connectionInfo.Timeout);
+                    connectResult.AsyncWaitHandle.WaitOne(this.ConnectionInfo.Timeout);
 
 
                     this._socket.EndConnect(connectResult);
@@ -470,17 +522,9 @@ namespace Renci.SshClient
         /// </summary>
         public void Disconnect()
         {
-            this.Disconnect(DisconnectReasons.ByApplication, "Connection terminated by the client.");
+            this._isDisconnecting = true;
 
-            //  Disconnect socket
-            this._socket.Disconnect(true);
-
-            if (this._messageListener != null)
-            {
-                //  Wait for listner task to finish
-                this._messageListener.Wait();
-                this._messageListener = null;
-            }
+            this.SendDisconnect(DisconnectReasons.ByApplication, "Connection terminated by the client.");
         }
 
         public T CreateChannel<T>() where T : Channel, new()
@@ -529,12 +573,10 @@ namespace Renci.SshClient
             }
             else if (index > waitHandles.Length)
             {
-                this.Disconnect(DisconnectReasons.ByApplication, "Operation timeout");
+                this.SendDisconnect(DisconnectReasons.ByApplication, "Operation timeout");
                 throw new TimeoutException("Operation timeout");
             }
         }
-
-        private string _id = Guid.NewGuid().ToString();
 
         /// <summary>
         /// Sends packet message to the server.
@@ -624,7 +666,7 @@ namespace Renci.SshClient
         /// Receives the message from the server.
         /// </summary>
         /// <returns></returns>
-        protected Message ReceiveMessage()
+        private Message ReceiveMessage()
         {
             if (!this._socket.Connected)
                 return null;
@@ -700,214 +742,415 @@ namespace Renci.SshClient
             return this.LoadMessage(messagePayload);
         }
 
+        private void SendDisconnect(DisconnectReasons reasonCode, string message)
+        {
+            var disconnectMessage = new DisconnectMessage
+            {
+                ReasonCode = reasonCode,
+                Description = message,
+            };
+
+            this.SendMessage(disconnectMessage);
+
+            //  Handle disconnect message as if it was sent by the server
+            this.HandleMessage(disconnectMessage);
+        }
+
         /// <summary>
         /// Handles the message.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="message">The message.</param>
-        protected void HandleMessage<T>(T message) where T : Message
+        private void HandleMessage<T>(T message) where T : Message
         {
-            //  Do nothing as message could be proccessed by other module
-            //if (message is ChannelMessage)
-            //{
-            //    this.HandleMessage(message as ChannelMessage);
-            //}
+            this.OnMessageReceived(message);
         }
 
         #region Handle transport messages
 
-        protected virtual void HandleMessage(DisconnectMessage message)
+        private void HandleMessage(DisconnectMessage message)
         {
-            this.DisconnectCleanup();
-        }
+            this.OnDisconnectReceived(message);
 
-        protected virtual void HandleMessage(IgnoreMessage message)
-        {
-            //  This message should be ignored
-        }
+            this._socket.Disconnect(true);
 
-        protected virtual void HandleMessage(UnimplementedMessage message)
-        {
-            throw new NotImplementedException();
-        }
+            this._socket.Close();
 
-        protected virtual void HandleMessage(DebugMessage message)
-        {
-            if (message.IsAlwaysDisplay)
+            if (this._messageListener != null)
             {
-                Debug.WriteLine(message.Message);
+                //  Wait for listner task to finish
+                this._messageListener.Wait();
+                this._messageListener = null;
             }
         }
 
-        protected virtual void HandleMessage(ServiceAcceptMessage message)
+        private void HandleMessage(IgnoreMessage message)
         {
+            this.OnIgnoreReceived(message);
+        }
+
+        private void HandleMessage(UnimplementedMessage message)
+        {
+            this.OnUnimplementedReceived(message);
+        }
+
+        private void HandleMessage(DebugMessage message)
+        {
+            this.OnDebugReceived(message);
+        }
+
+        private void HandleMessage(ServiceRequestMessage message)
+        {
+            this.OnServiceRequestReceived(message);
+        }
+
+        private void HandleMessage(ServiceAcceptMessage message)
+        {
+            //  TODO:   Refactor to avoid this method here
             this._serviceAccepted.Set();
+            this.OnServiceAcceptReceived(message);
         }
 
-        protected virtual void HandleMessage(ServiceRequestMessage message)
+        private void HandleMessage(KeyExchangeInitMessage message)
         {
-            throw new NotImplementedException();
+            this.OnKeyExchangeInitReceived(message);
         }
 
-        protected virtual void HandleMessage(KeyExchangeInitMessage message)
+        private void HandleMessage(NewKeysMessage message)
         {
-            this._keyExhcange.HandleMessage(message);
+            this.OnNewKeysReceived(message);
+        }
+
+        #endregion
+
+        #region Handle User Authentication messages
+
+        private void HandleMessage(RequestMessage message)
+        {
+            this.OnUserAuthenticationRequestReceived(message);
+        }
+
+        private void HandleMessage(FailureMessage message)
+        {
+            this.OnUserAuthenticationFailureReceived(message);
+        }
+
+        private void HandleMessage(SuccessMessage message)
+        {
+            this.OnUserAuthenticationSuccessReceived(message);
+        }
+
+        private void HandleMessage(BannerMessage message)
+        {
+            this.OnUserAuthenticationBannerReceived(message);
         }
 
         #endregion
 
         #region Handle connection messages
 
-        protected virtual void HandleMessage(GlobalRequestMessage message)
+        private void HandleMessage(GlobalRequestMessage message)
         {
-            if (this.GlobalRequest != null)
+            this.OnGlobalRequestReceived(message);
+        }
+
+        private void HandleMessage(RequestSuccessMessage message)
+        {
+            this.OnRequestSuccessReceived(message);
+        }
+
+        private void HandleMessage(RequestFailureMessage message)
+        {
+            this.OnRequestFailureReceived(message);
+        }
+
+        private void HandleMessage(ChannelOpenMessage message)
+        {
+            this.OnChannelOpenReceived(message);
+        }
+
+        private void HandleMessage(ChannelOpenConfirmationMessage message)
+        {
+            this.OnChannelOpenConfirmationReceived(message);
+        }
+
+        private void HandleMessage(ChannelOpenFailureMessage message)
+        {
+            this.OnChannelOpenFailureReceived(message);
+        }
+
+        private void HandleMessage(ChannelWindowAdjustMessage message)
+        {
+            this.OnChannelWindowAdjustReceived(message);
+        }
+
+        private void HandleMessage(ChannelDataMessage message)
+        {
+            this.OnChannelDataReceived(message);
+        }
+
+        private void HandleMessage(ChannelExtendedDataMessage message)
+        {
+            this.OnChannelExtendedDataReceived(message);
+        }
+
+        private void HandleMessage(ChannelEofMessage message)
+        {
+            this.OnChannelEofReceived(message);
+        }
+
+        private void HandleMessage(ChannelCloseMessage message)
+        {
+            this.OnChannelCloseReceived(message);
+        }
+
+        private void HandleMessage(ChannelRequestMessage message)
+        {
+            this.OnChannelRequestReceived(message);
+        }
+
+        private void HandleMessage(ChannelSuccessMessage message)
+        {
+            this.OnChannelSuccessReceived(message);
+        }
+
+        private void HandleMessage(ChannelFailureMessage message)
+        {
+            this.OnChannelFailureReceived(message);
+        }
+
+        #endregion
+
+        #region Handle received message events
+
+        protected virtual void OnDisconnectReceived(DisconnectMessage message)
+        {
+            if (this.DisconnectReceived != null)
             {
-                this.GlobalRequest(this, new MessageEventArgs<GlobalRequestMessage>(message));
+                this.DisconnectReceived(this, new MessageEventArgs<DisconnectMessage>(message));
             }
         }
 
-        protected virtual void HandleMessage(RequestSuccessMessage message)
+        protected virtual void OnIgnoreReceived(IgnoreMessage message)
         {
-            if (this.RequestSuccess != null)
+            if (this.IgnoreReceived != null)
             {
-                this.RequestSuccess(this, new MessageEventArgs<RequestSuccessMessage>(message));
+                this.IgnoreReceived(this, new MessageEventArgs<IgnoreMessage>(message));
             }
         }
 
-        protected virtual void HandleMessage(RequestFailureMessage message)
+        protected virtual void OnUnimplementedReceived(UnimplementedMessage message)
         {
-            if (this.RequestFailure != null)
+            if (this.UnimplementedReceived != null)
             {
-                this.RequestFailure(this, new MessageEventArgs<RequestFailureMessage>(message));
+                this.UnimplementedReceived(this, new MessageEventArgs<UnimplementedMessage>(message));
+            }
+        }
+
+        protected virtual void OnDebugReceived(DebugMessage message)
+        {
+            if (this.DebugReceived != null)
+            {
+                this.DebugReceived(this, new MessageEventArgs<DebugMessage>(message));
+            }
+        }
+
+        protected virtual void OnServiceRequestReceived(ServiceRequestMessage message)
+        {
+            if (this.ServiceRequestReceived != null)
+            {
+                this.ServiceRequestReceived(this, new MessageEventArgs<ServiceRequestMessage>(message));
+            }
+        }
+
+        protected virtual void OnServiceAcceptReceived(ServiceAcceptMessage message)
+        {
+            if (this.ServiceAcceptReceived != null)
+            {
+                this.ServiceAcceptReceived(this, new MessageEventArgs<ServiceAcceptMessage>(message));
+            }
+        }
+
+        protected virtual void OnKeyExchangeInitReceived(KeyExchangeInitMessage message)
+        {
+            this._keyExhcange.HandleMessage(message);
+
+            if (this.KeyExchangeInitReceived != null)
+            {
+                this.KeyExchangeInitReceived(this, new MessageEventArgs<KeyExchangeInitMessage>(message));
+            }
+        }
+
+        protected virtual void OnNewKeysReceived(NewKeysMessage message)
+        {
+            if (this.NewKeysReceived != null)
+            {
+                this.NewKeysReceived(this, new MessageEventArgs<NewKeysMessage>(message));
+            }
+        }
+
+        protected virtual void OnUserAuthenticationRequestReceived(RequestMessage message)
+        {
+            if (this.UserAuthenticationRequestReceived != null)
+            {
+                this.UserAuthenticationRequestReceived(this, new MessageEventArgs<RequestMessage>(message));
+            }
+        }
+
+        protected virtual void OnUserAuthenticationFailureReceived(FailureMessage message)
+        {
+            if (this.UserAuthenticationFailureReceived != null)
+            {
+                this.UserAuthenticationFailureReceived(this, new MessageEventArgs<FailureMessage>(message));
+            }
+        }
+
+        protected virtual void OnUserAuthenticationSuccessReceived(SuccessMessage message)
+        {
+            if (this.UserAuthenticationSuccessReceived != null)
+            {
+                this.UserAuthenticationSuccessReceived(this, new MessageEventArgs<SuccessMessage>(message));
+            }
+        }
+
+        protected virtual void OnUserAuthenticationBannerReceived(BannerMessage message)
+        {
+            if (this.UserAuthenticationBannerReceived != null)
+            {
+                this.UserAuthenticationBannerReceived(this, new MessageEventArgs<BannerMessage>(message));
+            }
+        }
+
+        protected virtual void OnGlobalRequestReceived(GlobalRequestMessage message)
+        {
+            if (this.GlobalRequestReceived != null)
+            {
+                this.GlobalRequestReceived(this, new MessageEventArgs<GlobalRequestMessage>(message));
+            }
+        }
+
+        protected virtual void OnRequestSuccessReceived(RequestSuccessMessage message)
+        {
+            if (this.RequestSuccessReceived != null)
+            {
+                this.RequestSuccessReceived(this, new MessageEventArgs<RequestSuccessMessage>(message));
+            }
+        }
+
+        protected virtual void OnRequestFailureReceived(RequestFailureMessage message)
+        {
+            if (this.RequestFailureReceived != null)
+            {
+                this.RequestFailureReceived(this, new MessageEventArgs<RequestFailureMessage>(message));
+            }
+        }
+
+        protected virtual void OnChannelOpenReceived(ChannelOpenMessage message)
+        {
+            if (this.ChannelOpenReceived != null)
+            {
+                this.ChannelOpenReceived(this, new MessageEventArgs<ChannelOpenMessage>(message));
+            }
+        }
+
+        protected virtual void OnChannelOpenConfirmationReceived(ChannelOpenConfirmationMessage message)
+        {
+            if (this.ChannelOpenConfirmationReceived != null)
+            {
+                this.ChannelOpenConfirmationReceived(this, new MessageEventArgs<ChannelOpenConfirmationMessage>(message));
+            }
+        }
+
+        protected virtual void OnChannelOpenFailureReceived(ChannelOpenFailureMessage message)
+        {
+            if (this.ChannelOpenFailureReceived != null)
+            {
+                this.ChannelOpenFailureReceived(this, new MessageEventArgs<ChannelOpenFailureMessage>(message));
+            }
+        }
+
+        protected virtual void OnChannelWindowAdjustReceived(ChannelWindowAdjustMessage message)
+        {
+            if (this.ChannelWindowAdjustReceived != null)
+            {
+                this.ChannelWindowAdjustReceived(this, new MessageEventArgs<ChannelWindowAdjustMessage>(message));
+            }
+        }
+
+        protected virtual void OnChannelDataReceived(ChannelDataMessage message)
+        {
+            if (this.ChannelDataReceived != null)
+            {
+                this.ChannelDataReceived(this, new MessageEventArgs<ChannelDataMessage>(message));
+            }
+        }
+
+        protected virtual void OnChannelExtendedDataReceived(ChannelExtendedDataMessage message)
+        {
+            if (this.ChannelExtendedDataReceived != null)
+            {
+                this.ChannelExtendedDataReceived(this, new MessageEventArgs<ChannelExtendedDataMessage>(message));
+            }
+        }
+
+        protected virtual void OnChannelEofReceived(ChannelEofMessage message)
+        {
+            if (this.ChannelEofReceived != null)
+            {
+                this.ChannelEofReceived(this, new MessageEventArgs<ChannelEofMessage>(message));
+            }
+        }
+
+        protected virtual void OnChannelCloseReceived(ChannelCloseMessage message)
+        {
+            if (this.ChannelCloseReceived != null)
+            {
+                this.ChannelCloseReceived(this, new MessageEventArgs<ChannelCloseMessage>(message));
+            }
+        }
+
+        protected virtual void OnChannelRequestReceived(ChannelRequestMessage message)
+        {
+            if (this.ChannelRequestReceived != null)
+            {
+                this.ChannelRequestReceived(this, new MessageEventArgs<ChannelRequestMessage>(message));
+            }
+        }
+
+        protected virtual void OnChannelSuccessReceived(ChannelSuccessMessage message)
+        {
+            if (this.ChannelSuccessReceived != null)
+            {
+                this.ChannelSuccessReceived(this, new MessageEventArgs<ChannelSuccessMessage>(message));
+            }
+        }
+
+        protected virtual void OnChannelFailureReceived(ChannelFailureMessage message)
+        {
+            if (this.ChannelFailureReceived != null)
+            {
+                this.ChannelFailureReceived(this, new MessageEventArgs<ChannelFailureMessage>(message));
+            }
+        }
+
+        protected virtual void OnMessageReceived(Message message)
+        {
+            if (this.MessageReceived != null)
+            {
+                this.MessageReceived(this, new MessageEventArgs<Message>(message));
             }
         }
 
         #endregion
 
-        #region Handle channel messages and raise channel events
-
-        protected void HandleMessage(ChannelOpenMessage message)
-        {
-            if (this.ChannelOpen != null)
-            {
-                this.ChannelOpen(this, new MessageEventArgs<ChannelOpenMessage>(message));
-            }
-        }
-
-        protected void HandleMessage(ChannelOpenConfirmationMessage message)
-        {
-            if (this.ChannelOpenConfirmation != null)
-            {
-                this.ChannelOpenConfirmation(this, new MessageEventArgs<ChannelOpenConfirmationMessage>(message));
-            }
-        }
-
-        protected void HandleMessage(ChannelOpenFailureMessage message)
-        {
-            if (this.ChannelOpenFailure != null)
-            {
-                this.ChannelOpenFailure(this, new MessageEventArgs<ChannelOpenFailureMessage>(message));
-            }
-        }
-
-        protected void HandleMessage(ChannelWindowAdjustMessage message)
-        {
-            if (this.ChannelWindowAdjust != null)
-            {
-                this.ChannelWindowAdjust(this, new MessageEventArgs<ChannelWindowAdjustMessage>(message));
-            }
-        }
-
-        protected void HandleMessage(ChannelDataMessage message)
-        {
-            if (this.ChannelData != null)
-            {
-                this.ChannelData(this, new MessageEventArgs<ChannelDataMessage>(message));
-            }
-        }
-
-        protected void HandleMessage(ChannelExtendedDataMessage message)
-        {
-            if (this.ChannelExtendedData != null)
-            {
-                this.ChannelExtendedData(this, new MessageEventArgs<ChannelExtendedDataMessage>(message));
-            }
-        }
-
-        protected void HandleMessage(ChannelEofMessage message)
-        {
-            if (this.ChannelEof != null)
-            {
-                this.ChannelEof(this, new MessageEventArgs<ChannelEofMessage>(message));
-            }
-        }
-
-        protected void HandleMessage(ChannelCloseMessage message)
-        {
-            if (this.ChannelClose != null)
-            {
-                this.ChannelClose(this, new MessageEventArgs<ChannelCloseMessage>(message));
-            }
-        }
-
-        protected void HandleMessage(ChannelRequestMessage message)
-        {
-            if (this.ChannelRequest != null)
-            {
-                this.ChannelRequest(this, new MessageEventArgs<ChannelRequestMessage>(message));
-            }
-        }
-
-        protected void HandleMessage(ChannelSuccessMessage message)
-        {
-            if (this.ChannelSuccess != null)
-            {
-                this.ChannelSuccess(this, new MessageEventArgs<ChannelSuccessMessage>(message));
-            }
-        }
-
-        protected void HandleMessage(ChannelFailureMessage message)
-        {
-            if (this.ChannelFailure != null)
-            {
-                this.ChannelFailure(this, new MessageEventArgs<ChannelFailureMessage>(message));
-            }
-        }
-
-        #endregion
-
-        /// <summary>
-        /// Disconnects client from the server with specified reason code.
-        /// </summary>
-        /// <param name="reasonCode">The reason code.</param>
-        /// <param name="message">The message.</param>
-        protected void Disconnect(DisconnectReasons reasonCode, string message)
-        {
-            if (this._disconnectMessage == null)
-            {
-                lock (this)
-                {
-                    //  Ensure only one thread at a time can send disconnect message
-                    if (this._disconnectMessage == null)
-                    {
-                        this._disconnectMessage = new DisconnectMessage
-                        {
-                            ReasonCode = reasonCode,
-                            Description = message,
-                        };
-
-                        this.SendMessage(this._disconnectMessage);
-                    }
-                }
-            }
-        }
+        #region Read & Write operations
 
         /// <summary>
         /// Reads the specified length of bytes from the server
         /// </summary>
         /// <param name="length">The length.</param>
         /// <returns></returns>
-        protected byte[] Read(int length)
+        private byte[] Read(int length)
         {
             var buffer = new byte[length];
             var offset = 0;
@@ -949,7 +1192,7 @@ namespace Renci.SshClient
         /// Writes the specified data to the server.
         /// </summary>
         /// <param name="data">The data.</param>
-        protected void Write(byte[] data)
+        private void Write(byte[] data)
         {
             int sent = 0;  // how many bytes is already sent
             int length = data.Length;
@@ -975,6 +1218,8 @@ namespace Renci.SshClient
             } while (sent < length);
 
         }
+
+        #endregion
 
         #region Message loading functions
 
@@ -1026,20 +1271,6 @@ namespace Renci.SshClient
         #endregion
 
         /// <summary>
-        /// Perfom neccesary cleanup when client disconects from the server
-        /// </summary>
-        private void DisconnectCleanup()
-        {
-            //  Close socket connection if still open
-            if (this._socket != null)
-            {
-                this._socket.Close();
-            }
-
-            this._disconnectMessage = null;
-        }
-
-        /// <summary>
         /// Listnets for incoming message from the server and handles them. This method run as a task on seperate thread.
         /// </summary>
         private void MessageListener()
@@ -1048,19 +1279,13 @@ namespace Renci.SshClient
             {
                 try
                 {
-                    var message = this._disconnectMessage ?? this.ReceiveMessage();
+                    var message = this.ReceiveMessage();
 
                     //Debug.WriteLine(message);
 
                     if (message == null)
                     {
                         throw new NullReferenceException("The 'message' variable cannot be null");
-                    }
-                    else if (message is DisconnectMessage)
-                    {
-                        //  Always handle disconnect message first
-                        this.HandleMessage((dynamic)message);
-                        break;  //  Exit message listener loop, no more messages should be handled
                     }
                     else if (this._keyExhcange.InProgress)
                     {
@@ -1072,24 +1297,28 @@ namespace Renci.SshClient
                         //  TODO:   Handle each message on induvidual thread
                         //Task.Factory.StartNew(() =>
                         //{
+                        //    try
+                        //    {
                         //  Handle message
                         this.HandleMessage((dynamic)message);
-
-                        //  Raise an event that message received
-                        this.RaiseMessageReceived(this, new MessageReceivedEventArgs(message));
+                        //    }
+                        //    catch (Exception exp)
+                        //    {
+                        //        throw;
+                        //    }
                         //});
                     }
                 }
                 catch (SshException exp)
                 {
-                    if (exp.DisconnectReason == DisconnectReasons.ConnectionLost && this._disconnectMessage != null)
+                    if (exp.DisconnectReason == DisconnectReasons.ConnectionLost && this._isDisconnecting)
                     {
                         //  Ignore this error since we called disconnect command and this error is expected
                         break;
                     }
                     else if (exp.DisconnectReason != DisconnectReasons.None)
                     {
-                        this.Disconnect(exp.DisconnectReason, exp.ToString());
+                        this.SendDisconnect(exp.DisconnectReason, exp.ToString());
                     }
 
                     this._exceptionToThrow = exp;
@@ -1100,7 +1329,7 @@ namespace Renci.SshClient
                 {
                     //  TODO:   This exception can be swolloed if it occures while running in the background, look for possible solutions
 
-                    this.Disconnect(DisconnectReasons.ByApplication, exp.ToString());
+                    this.SendDisconnect(DisconnectReasons.ByApplication, exp.ToString());
 
                     this._exceptionToThrow = exp;
 
@@ -1109,19 +1338,6 @@ namespace Renci.SshClient
             }
 
             this._listenerWaitHandle.Set();
-        }
-
-        /// <summary>
-        /// Raises the MessageReceived event.
-        /// </summary>
-        /// <param name="sender">The sender.</param>
-        /// <param name="args">The <see cref="Renci.SshClient.Common.MessageReceivedEventArgs"/> instance containing the event data.</param>
-        private void RaiseMessageReceived(object sender, MessageReceivedEventArgs args)
-        {
-            if (this.MessageReceived != null)
-            {
-                this.MessageReceived(sender, args);
-            }
         }
 
         #region IDisposable Members

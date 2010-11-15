@@ -20,9 +20,9 @@
             throw new System.NotImplementedException();
         }
 
-        protected override void HandleMessage<T>(T message)
-        {
-            throw new System.NotImplementedException();
-        }
+        //protected override void HandleMessage<T>(T message)
+        //{
+        //    throw new System.NotImplementedException();
+        //}
     }
 }

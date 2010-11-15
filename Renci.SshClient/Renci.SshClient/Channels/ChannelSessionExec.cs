@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using Renci.SshClient.Messages;
 using Renci.SshClient.Messages.Connection;
@@ -171,10 +172,11 @@ namespace Renci.SshClient.Channels
 
             if (this._channelExtendedData != null)
             {
-                foreach (var b in data)
-                {
-                    this._channelExtendedData.WriteByte((byte)b);
-                }
+                this._channelExtendedData.Write(data.GetSshBytes().ToArray(), 0, data.Length);
+                //foreach (var b in data)
+                //{
+                //    this._channelExtendedData.WriteByte((byte)b);
+                //}
             }
 
             if (dataTypeCode == 1)

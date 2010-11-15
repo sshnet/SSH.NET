@@ -15,16 +15,13 @@ namespace Renci.SshClient.Compression
         public ZlibOpenSsh(Session session)
             : base(session)
         {
-            session.MessageReceived += Session_MessageReceived;
+            session.UserAuthenticationSuccessReceived += Session_UserAuthenticationSuccessReceived;
         }
 
-        private void Session_MessageReceived(object sender, Common.MessageReceivedEventArgs e)
+        private void Session_UserAuthenticationSuccessReceived(object sender, MessageEventArgs<Messages.Authentication.SuccessMessage> e)
         {
-            if (e.Message is Messages.Authentication.SuccessMessage)
-            {
-                this._active = true;
-                this.Session.MessageReceived -= Session_MessageReceived;
-            }
+            this._active = true;
+            this.Session.UserAuthenticationSuccessReceived -= Session_UserAuthenticationSuccessReceived;
         }
 
         public override IEnumerable<byte> Compress(IEnumerable<byte> data)

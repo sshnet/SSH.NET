@@ -28,10 +28,18 @@ namespace Renci.SshClient.Security
             this.Session.RegisterMessageType<SuccessMessage>(MessageTypes.UserAuthenticationSuccess);
             this.Session.RegisterMessageType<BannerMessage>(MessageTypes.UserAuthenticationBanner);
 
+            this.Session.UserAuthenticationRequestReceived += Session_UserAuthenticationRequestMessageReceived;
+            this.Session.UserAuthenticationFailureReceived += Session_UserAuthenticationFailureReceived;
+            this.Session.UserAuthenticationSuccessReceived += Session_UserAuthenticationSuccessMessageReceived;
+            this.Session.UserAuthenticationBannerReceived += Session_UserAuthenticationBannerMessageReceived;
             this.Session.MessageReceived += Session_MessageReceived;
 
             var result = this.Run();
 
+            this.Session.UserAuthenticationRequestReceived -= Session_UserAuthenticationRequestMessageReceived;
+            this.Session.UserAuthenticationFailureReceived -= Session_UserAuthenticationFailureReceived;
+            this.Session.UserAuthenticationSuccessReceived -= Session_UserAuthenticationSuccessMessageReceived;
+            this.Session.UserAuthenticationBannerReceived -= Session_UserAuthenticationBannerMessageReceived;
             this.Session.MessageReceived -= Session_MessageReceived;
 
             this.Session.UnRegisterMessageType(MessageTypes.UserAuthenticationFailure);
@@ -41,25 +49,51 @@ namespace Renci.SshClient.Security
             return result;
         }
 
-        protected abstract bool Run();
+        protected virtual void Session_UserAuthenticationRequestMessageReceived(object sender, MessageEventArgs<RequestMessage> e)
+        {
+        }
 
-        protected abstract void HandleMessage<T>(T message) where T : Message;
+        protected virtual void Session_UserAuthenticationFailureReceived(object sender, MessageEventArgs<FailureMessage> e)
+        {
+            this.ErrorMessage = e.Message.Message;
+            this.IsAuthenticated = false;
+        }
 
-        protected virtual void HandleMessage(SuccessMessage message)
+        protected virtual void Session_UserAuthenticationSuccessMessageReceived(object sender, MessageEventArgs<SuccessMessage> e)
         {
             this.IsAuthenticated = true;
         }
 
-        protected virtual void HandleMessage(FailureMessage message)
+        protected virtual void Session_UserAuthenticationBannerMessageReceived(object sender, MessageEventArgs<BannerMessage> e)
         {
-            this.ErrorMessage = message.Message;
-            this.IsAuthenticated = false;
         }
 
-        private void Session_MessageReceived(object sender, Common.MessageReceivedEventArgs e)
+        protected virtual void Session_MessageReceived(object sender, MessageEventArgs<Message> e)
         {
-            dynamic message = e.Message;
-            this.HandleMessage(message);
+            //dynamic message = e.Message;
+            //this.HandleMessage(message);
         }
+
+
+        protected abstract bool Run();
+
+        //protected abstract void HandleMessage<T>(T message) where T : Message;
+
+        //protected virtual void HandleMessage(SuccessMessage message)
+        //{
+        //    this.IsAuthenticated = true;
+        //}
+
+        //protected virtual void HandleMessage(FailureMessage message)
+        //{
+        //    this.ErrorMessage = message.Message;
+        //    this.IsAuthenticated = false;
+        //}
+
+        //private void Session_MessageReceived(object sender, MessageEventArgs<Message> e)
+        //{
+        //    dynamic message = e.Message;
+        //    this.HandleMessage(message);
+        //}
     }
 }

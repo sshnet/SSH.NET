@@ -33,21 +33,34 @@ namespace Renci.SshClient.Security
             return true;
         }
 
-        protected override void HandleMessage<T>(T message)
+        protected override void Session_UserAuthenticationSuccessMessageReceived(object sender, MessageEventArgs<SuccessMessage> e)
         {
-        }
-
-        protected override void HandleMessage(SuccessMessage message)
-        {
-            base.HandleMessage(message);
+            base.Session_UserAuthenticationSuccessMessageReceived(sender, e);
             this._authenticationCompleted.Set();
         }
 
-        protected override void HandleMessage(FailureMessage message)
+        protected override void Session_UserAuthenticationFailureReceived(object sender, MessageEventArgs<FailureMessage> e)
         {
-            base.HandleMessage(message);
+            base.Session_UserAuthenticationFailureReceived(sender, e);
             this._authenticationCompleted.Set();
         }
+
+
+        //protected override void HandleMessage<T>(T message)
+        //{
+        //}
+
+        //protected override void HandleMessage(SuccessMessage message)
+        //{
+        //    base.HandleMessage(message);
+        //    this._authenticationCompleted.Set();
+        //}
+
+        //protected override void HandleMessage(FailureMessage message)
+        //{
+        //    base.HandleMessage(message);
+        //    this._authenticationCompleted.Set();
+        //}
 
         #region IDisposable Members
 

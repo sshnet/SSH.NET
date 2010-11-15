@@ -94,17 +94,17 @@ namespace Renci.SshClient.Channels
             this._session.RegisterMessageType<ChannelEofMessage>(MessageTypes.ChannelEof);
             this._session.RegisterMessageType<ChannelCloseMessage>(MessageTypes.ChannelClose);
 
-            this._session.ChannelOpen += OnChannelOpen;
-            this._session.ChannelOpenConfirmation += OnChannelOpenConfirmation;
-            this._session.ChannelOpenFailure += OnChannelOpenFailure;
-            this._session.ChannelWindowAdjust += OnChannelWindowAdjust;
-            this._session.ChannelData += OnChannelData;
-            this._session.ChannelExtendedData += OnChannelExtendedData;
-            this._session.ChannelEof += OnChannelEof;
-            this._session.ChannelClose += OnChannelClose;
-            this._session.ChannelRequest += OnChannelRequest;
-            this._session.ChannelSuccess += OnChannelSuccess;
-            this._session.ChannelFailure += OnChannelFailure;
+            this._session.ChannelOpenReceived += OnChannelOpen;
+            this._session.ChannelOpenConfirmationReceived += OnChannelOpenConfirmation;
+            this._session.ChannelOpenFailureReceived += OnChannelOpenFailure;
+            this._session.ChannelWindowAdjustReceived += OnChannelWindowAdjust;
+            this._session.ChannelDataReceived += OnChannelData;
+            this._session.ChannelExtendedDataReceived += OnChannelExtendedData;
+            this._session.ChannelEofReceived += OnChannelEof;
+            this._session.ChannelCloseReceived += OnChannelClose;
+            this._session.ChannelRequestReceived += OnChannelRequest;
+            this._session.ChannelSuccessReceived += OnChannelSuccess;
+            this._session.ChannelFailureReceived += OnChannelFailure;
 
         }
 

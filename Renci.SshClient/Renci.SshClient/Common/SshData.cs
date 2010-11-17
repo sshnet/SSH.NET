@@ -23,6 +23,8 @@ namespace Renci.SshClient.Common
             }
         }
 
+        private IEnumerable<byte> _loadedData;
+
         public virtual IEnumerable<byte> GetBytes()
         {
             this._data = new List<byte>();
@@ -32,6 +34,14 @@ namespace Renci.SshClient.Common
             return this._data;
         }
 
+        internal T OfType<T>() where T : SshData, new()
+        {
+            var result = new T();
+            result.LoadBytes(this._loadedData);
+            result.LoadData();
+            return result;
+        }
+
         protected abstract void LoadData();
 
         protected abstract void SaveData();
@@ -39,12 +49,24 @@ namespace Renci.SshClient.Common
         protected void LoadBytes(IEnumerable<byte> bytes)
         {
             this.ResetReader();
+            this._loadedData = bytes.ToArray();
             this._data = new List<byte>(bytes);
         }
 
         protected void ResetReader()
         {
             this._readerIndex = 1;  //  Set to 1 to skip first byte which specifies message type
+        }
+
+        /// <summary>
+        /// Read all data
+        /// </summary>
+        /// <returns></returns>
+        protected IEnumerable<byte> ReadBytes()
+        {
+            var result = this._data.Skip(this._readerIndex);
+            this._readerIndex = this._data.Count;
+            return result;
         }
 
         protected IEnumerable<byte> ReadBytes(int length)

@@ -1,7 +1,5 @@
 ﻿
-using System;
 using System.IO;
-using System.Text;
 using Renci.SshClient.Channels;
 namespace Renci.SshClient
 {
@@ -9,48 +7,27 @@ namespace Renci.SshClient
     {
         private readonly Session _session;
 
+        private ChannelSessionShell _channel;
+
         internal Shell(Session session)
         {
             this._session = session;
         }
 
-        public string Execute(string command)
+        public void Connect(Stream output, Stream extendedOutput)
         {
-            return this.Execute(command, null);
+            this._channel = this._session.CreateChannel<ChannelSessionShell>();
+            this._channel.Start(output, extendedOutput);
         }
 
-        public string Execute(string command, Stream extended)
+        public void Send(string data)
         {
-            using (MemoryStream resultStream = new MemoryStream())
-            {
-                this.Execute(command, resultStream, extended);
-
-                return Encoding.ASCII.GetString(resultStream.ToArray());
-            }
+            this._channel.Send(data);
         }
 
-        public void Execute(string command, Stream output, Stream extended)
+        public void Disconnect()
         {
-            this.EndExecute(this.BeginExecute(command, output, extended, null, null));
-        }
-
-        public IAsyncResult BeginExecute(string command, Stream output, AsyncCallback callback, object state)
-        {
-            return this.BeginExecute(command, output, null, callback, state);
-        }
-
-        public IAsyncResult BeginExecute(string command, Stream output, Stream extendedOutput, AsyncCallback callback, object state)
-        {
-            var channel = this._session.CreateChannel<ChannelSessionExec>();
-
-            return channel.BeginExecute(command, output, extendedOutput, callback, state);
-        }
-
-        public void EndExecute(IAsyncResult asynchResult)
-        {
-            ChannelAsyncResult channelAsyncResult = asynchResult as ChannelAsyncResult;
-
-            channelAsyncResult.Channel.EndExecute(asynchResult);
+            this._channel.Close();
         }
     }
 }

@@ -167,7 +167,7 @@ namespace Renci.SshClient.Channels
             this._channelClosedWaitHandle.Set();
         }
 
-        protected virtual void OnRequest(ChannelRequestNames requestName, bool wantReply, string command, string subsystemName, uint exitStatus)
+        protected virtual void OnRequest(ChannelRequestMessage message)
         {
         }
 
@@ -294,7 +294,7 @@ namespace Renci.SshClient.Channels
         {
             if (e.Message.LocalChannelNumber == this.LocalChannelNumber)
             {
-                this.OnRequest(e.Message.RequestName, e.Message.WantReply, e.Message.Command, e.Message.SubsystemName, e.Message.ExitStatus);
+                this.OnRequest(e.Message);
             }
         }
 

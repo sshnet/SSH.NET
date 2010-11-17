@@ -17,6 +17,15 @@ namespace Renci.SshClient.Channels
         /// </summary>
         private EventWaitHandle _channelOpenResponseWaitHandle = new AutoResetEvent(false);
 
+        private EventWaitHandle _channelRequestResponse = new ManualResetEvent(false);
+
+        private bool _channelRequestSucces;
+
+        public override ChannelTypes ChannelType
+        {
+            get { return ChannelTypes.Session; }
+        }
+
         /// <summary>
         /// Opens the channel
         /// </summary>
@@ -54,6 +63,23 @@ namespace Renci.SshClient.Channels
         }
 
         /// <summary>
+        /// Called when channel failed to open
+        /// </summary>
+        /// <param name="reasonCode">The reason code.</param>
+        /// <param name="description">The description.</param>
+        /// <param name="language">The language.</param>
+        protected override void OnOpenFailure(uint reasonCode, string description, string language)
+        {
+            this._failedOpenAttempts++;
+
+            Debug.WriteLine(string.Format("Local channel: {0} attempts: {1}.", this.LocalChannelNumber, this._failedOpenAttempts));
+
+            this.SessionSemaphore.Release();
+
+            this._channelOpenResponseWaitHandle.Set();
+        }
+
+        /// <summary>
         /// Called when channel is closed
         /// </summary>
         protected override void OnClose()
@@ -70,21 +96,168 @@ namespace Renci.SshClient.Channels
             this.SessionSemaphore.Release();
         }
 
-        /// <summary>
-        /// Called when channel failed to open
-        /// </summary>
-        /// <param name="reasonCode">The reason code.</param>
-        /// <param name="description">The description.</param>
-        /// <param name="language">The language.</param>
-        protected override void OnOpenFailure(uint reasonCode, string description, string language)
+        public bool SendPseudoTerminalRequest(string environmentVariable, uint columns, uint rows, uint width, uint height, string terminalMode)
         {
-            this._failedOpenAttempts++;
+            this._channelRequestResponse.Reset();
 
-            Debug.WriteLine(string.Format("Local channel: {0} attempts: {1}.", this.LocalChannelNumber, this._failedOpenAttempts));
+            this.SendMessage(new ChannelRequestPseudoTerminalMessage
+            {
+                LocalChannelNumber = this.RemoteChannelNumber,
+                //RequestName = ChannelRequestNames.PseudoTerminal,
+                WantReply = true,
+                EnvironmentVariable = environmentVariable,
+                Columns = columns,
+                Rows = rows,
+                PixelWidth = width,
+                PixelHeight = height,
+                TerminalMode = terminalMode,
+            });
 
-            this.SessionSemaphore.Release();
+            this._channelRequestResponse.WaitOne();
 
-            this._channelOpenResponseWaitHandle.Set();
+            return this._channelRequestSucces;
+        }
+
+        public bool SendX11ForwardingRequest()
+        {
+            //byte      SSH_MSG_CHANNEL_REQUEST
+            //uint32    recipient channel
+            //string    "x11-req"
+            //boolean   want reply
+            //boolean   single connection
+            //string    x11 authentication protocol
+            //string    x11 authentication cookie
+            //uint32    x11 screen number
+            return false;
+        }
+
+        public bool SendEnvironmentVariableRequest()
+        {
+            //byte      SSH_MSG_CHANNEL_REQUEST
+            //uint32    recipient channel
+            //string    "env"
+            //boolean   want reply
+            //string    variable name
+            //string    variable value
+            return false;
+        }
+
+        public bool SendShellRequest()
+        {
+            this._channelRequestResponse.Reset();
+
+            this.SendMessage(new ChannelRequestShellMessage
+            {
+                LocalChannelNumber = this.RemoteChannelNumber,
+                //RequestName = ChannelRequestNames.Shell,
+                WantReply = true,
+            });
+
+            this._channelRequestResponse.WaitOne();
+
+            return this._channelRequestSucces;
+        }
+
+        public bool SendExecRequest(string command)
+        {
+            this._channelRequestResponse.Reset();
+
+            this.SendMessage(new ChannelRequestExecMessage
+            {
+                LocalChannelNumber = this.RemoteChannelNumber,
+                WantReply = true,
+                Command = command,
+            });
+
+            this._channelRequestResponse.WaitOne();
+
+            return this._channelRequestSucces;
+        }
+
+        public bool SendSubsystemRequest(string subsystem)
+        {
+            this._channelRequestResponse.Reset();
+
+            this.SendMessage(new ChannelRequestSubsystemMessage
+            {
+                LocalChannelNumber = this.RemoteChannelNumber,
+                WantReply = true,
+                SubsystemName = subsystem,
+            });
+
+            this._channelRequestResponse.WaitOne();
+
+            return this._channelRequestSucces;
+        }
+
+        public bool SendWindowChangeRequest()
+        {
+            //byte      SSH_MSG_CHANNEL_REQUEST
+            //uint32    recipient channel
+            //string    "window-change"
+            //boolean   FALSE
+            //uint32    terminal width, columns
+            //uint32    terminal height, rows
+            //uint32    terminal width, pixels
+            //uint32    terminal height, pixels
+            return false;
+        }
+
+        public bool SendLocalFlowRequest()
+        {
+            //byte      SSH_MSG_CHANNEL_REQUEST
+            //uint32    recipient channel
+            //string    "xon-xoff"
+            //boolean   FALSE
+            //boolean   client can do
+            return false;
+        }
+
+        public bool SendSignalRequest()
+        {
+            //byte      SSH_MSG_CHANNEL_REQUEST
+            //uint32    recipient channel
+            //string    "signal"
+            //boolean   FALSE
+            //string    signal name (without the "SIG" prefix)
+            return false;
+        }
+
+        public bool SendExitStatusRequest()
+        {
+            //byte      SSH_MSG_CHANNEL_REQUEST
+            //uint32    recipient channel
+            //string    "exit-status"
+            //boolean   FALSE
+            //uint32    exit_status
+            return false;
+        }
+
+        public bool SendExitSignalRequest()
+        {
+            //byte      SSH_MSG_CHANNEL_REQUEST
+            //uint32    recipient channel
+            //string    "exit-signal"
+            //boolean   FALSE
+            //string    signal name (without the "SIG" prefix)
+            //boolean   core dumped
+            //string    error message in ISO-10646 UTF-8 encoding
+            //string    language tag [RFC3066]
+            return false;
+        }
+
+        protected override void OnSuccess()
+        {
+            base.OnSuccess();
+            this._channelRequestSucces = true;
+            this._channelRequestResponse.Set();
+        }
+
+        protected override void OnFailure()
+        {
+            base.OnFailure();
+            this._channelRequestSucces = false;
+            this._channelRequestResponse.Set();
         }
 
         /// <summary>

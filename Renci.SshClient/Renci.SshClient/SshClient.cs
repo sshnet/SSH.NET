@@ -139,6 +139,11 @@ namespace Renci.SshClient
             return cmd;
         }
 
+        public Shell CreateShell()
+        {
+            return new Shell(this._session);
+        }
+
         public void RemoveForwardedPort(ForwardedPort port)
         {
             this._forwardedPorts.Remove(port);

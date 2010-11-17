@@ -60,10 +60,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Channels\ChannelSessionShell.cs" />
+    <Compile Include="Messages\Connection\ChannelRequest\ChannelRequestEnvironmentVariableMessage.cs" />
+    <Compile Include="Messages\Connection\ChannelRequest\ChannelRequestExecMessage.cs" />
+    <Compile Include="Messages\Connection\ChannelRequest\ChannelRequestExitSignalMessage.cs" />
+    <Compile Include="Messages\Connection\ChannelRequest\ChannelRequestExitStatusMessage.cs" />
+    <Compile Include="Messages\Connection\ChannelRequest\ChannelRequestPseudoTerminalMessage.cs" />
+    <Compile Include="Messages\Connection\ChannelRequest\ChannelRequestShellMessage.cs" />
+    <Compile Include="Messages\Connection\ChannelRequest\ChannelRequestSignalMessage.cs" />
+    <Compile Include="Messages\Connection\ChannelRequest\ChannelRequestSubsystemMessage.cs" />
+    <Compile Include="Messages\Connection\ChannelRequest\ChannelRequestWindowChangeMessage.cs" />
+    <Compile Include="Messages\Connection\ChannelRequest\ChannelRequestX11ForwardingMessage.cs" />
+    <Compile Include="Messages\Connection\ChannelRequest\ChannelRequestXonXoffMessage.cs" />
     <Compile Include="SshCommand.cs" />
     <Compile Include="MessageEventArgs.cs" />
     <Compile Include="Channels\ChannelAsyncResult.cs" />
-    <Compile Include="Channels\ChannelEventArgs.cs" />
     <Compile Include="Channels\ChannelDirectTcpip.cs" />
     <Compile Include="Channels\ChannelForwardedTcpip.cs" />
     <Compile Include="Channels\ChannelSession.cs" />
@@ -136,7 +147,6 @@
     <Compile Include="Security\KeyExchangeSendMessageEventArgs.cs" />
     <Compile Include="PrivateKeyFile.cs" />
     <Compile Include="Messages\Connection\ChannelMessage.cs" />
-    <Compile Include="Messages\Connection\ChannelRequestNames.cs" />
     <Compile Include="Security\UserAuthentication.cs" />
     <Compile Include="Security\UserAuthenticationHost.cs" />
     <Compile Include="Security\UserAuthenticationNone.cs" />
@@ -157,7 +167,7 @@
     <Compile Include="Messages\Connection\ChannelOpenFailureMessage.cs" />
     <Compile Include="Messages\Connection\ChannelOpenFailureReasons.cs" />
     <Compile Include="Messages\Connection\ChannelOpenMessage.cs" />
-    <Compile Include="Messages\Connection\ChannelRequestMessage.cs" />
+    <Compile Include="Messages\Connection\ChannelRequest\ChannelRequestMessage.cs" />
     <Compile Include="Messages\Connection\ChannelSuccessMessage.cs" />
     <Compile Include="Messages\Connection\ChannelWindowAdjustMessage.cs" />
     <Compile Include="Messages\Connection\GlobalRequestMessage.cs" />

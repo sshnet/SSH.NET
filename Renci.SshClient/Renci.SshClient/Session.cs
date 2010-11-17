@@ -442,12 +442,19 @@ namespace Renci.SshClient
                     //  Get server SSH version
                     var version = versionMatch.Result("${protoversion}");
 
-                    if (!version.Equals("2.0"))
+                    if (!(version.Equals("2.0") || version.Equals("1.99")))
                     {
                         throw new SshException(string.Format("Server version '{0}' is not supported.", version), DisconnectReasons.ProtocolVersionNotSupported);
                     }
 
-                    this.Write(Encoding.ASCII.GetBytes(string.Format("{0}\n", this.ClientVersion)));
+                    if (version.Equals("1.99"))
+                    {
+                        this.Write(Encoding.ASCII.GetBytes(string.Format("{0}", this.ClientVersion)));
+                    }
+                    else
+                    {
+                        this.Write(Encoding.ASCII.GetBytes(string.Format("{0}\n", this.ClientVersion)));
+                    }
 
                     //  Register Transport response messages
                     this.RegisterMessageType<DisconnectMessage>(MessageTypes.Disconnect);

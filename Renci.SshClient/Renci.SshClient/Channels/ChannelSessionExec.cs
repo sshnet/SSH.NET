@@ -23,11 +23,6 @@ namespace Renci.SshClient.Channels
 
         private AsyncCallback _callback;
 
-        public override ChannelTypes ChannelType
-        {
-            get { return ChannelTypes.Session; }
-        }
-
         /// <summary>
         /// Gets or sets a value indicating whether this channel has error.
         /// </summary>
@@ -81,13 +76,7 @@ namespace Renci.SshClient.Channels
             this.Open();
 
             //  Send channel command request
-            this.SendMessage(new ChannelRequestMessage
-            {
-                LocalChannelNumber = this.RemoteChannelNumber,
-                RequestName = ChannelRequestNames.Exec,
-                WantReply = false,
-                Command = command,
-            });
+            this.SendExecRequest(command);
 
             return _asyncResult;
         }
@@ -193,34 +182,28 @@ namespace Renci.SshClient.Channels
         /// <param name="command">The command.</param>
         /// <param name="subsystemName">Name of the subsystem.</param>
         /// <param name="exitStatus">The exit status.</param>
-        protected override void OnRequest(ChannelRequestNames requestName, bool wantReply, string command, string subsystemName, uint exitStatus)
+        protected override void OnRequest(ChannelRequestMessage message)
         {
-            base.OnRequest(requestName, wantReply, command, subsystemName, exitStatus);
+            base.OnRequest(message);
 
             Message replyMessage = new ChannelFailureMessage()
             {
                 LocalChannelNumber = this.LocalChannelNumber,
             };
 
-            if (requestName == ChannelRequestNames.ExitStatus)
+            if (message.RequestName == ChannelRequestExitStatusMessage.REQUEST_NAME)
             {
-                this.ExitStatus = exitStatus;
+                ChannelRequestExitStatusMessage exitStatusMessage = message.OfType<ChannelRequestExitStatusMessage>();
+
+                this.ExitStatus = exitStatusMessage.ExitStatus;
 
                 replyMessage = new ChannelSuccessMessage()
                 {
                     LocalChannelNumber = this.LocalChannelNumber,
                 };
             }
-            else if (requestName == ChannelRequestNames.PseudoTerminal)
-            {
-                //  TODO:   Check if when this request is received what to do, I suspect we receive this request when no more channel sessions are available
-            }
-            else
-            {
-                throw new NotImplementedException(string.Format("Request name {0} is not implemented.", requestName));
-            }
 
-            if (wantReply)
+            if (message.WantReply)
             {
                 this.SendMessage(replyMessage);
             }

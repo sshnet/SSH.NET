@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using Renci.SshClient.Common;
-using Renci.SshClient.Messages.Connection;
 using Renci.SshClient.Messages.Sftp;
 
 namespace Renci.SshClient.Channels
@@ -30,11 +29,6 @@ namespace Renci.SshClient.Channels
 
         private ChannelAsyncResult _asyncResult;
 
-        public override ChannelTypes ChannelType
-        {
-            get { return ChannelTypes.Session; }
-        }
-
         public ChannelSessionSftp()
             : base()
         {
@@ -46,13 +40,7 @@ namespace Renci.SshClient.Channels
             base.Open();
 
             //  Send channel command request
-            this.SendMessage(new ChannelRequestMessage
-            {
-                LocalChannelNumber = this.RemoteChannelNumber,
-                RequestName = ChannelRequestNames.Subsystem,
-                WantReply = true,
-                SubsystemName = "sftp",
-            });
+            this.SendSubsystemRequest("sftp");
 
             this.WaitHandle(this._channelRequestSuccessWaitHandle);
 

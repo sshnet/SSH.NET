@@ -36,6 +36,65 @@ namespace Renci.SshClient.Channels
 
         public bool IsOpen { get; private set; }
 
+        #region Message events
+
+        /// <summary>
+        /// Occurs when <see cref="ChannelOpenMessage"/> message received
+        /// </summary>
+        public event EventHandler<MessageEventArgs<ChannelOpenMessage>> Opening;
+
+        /// <summary>
+        /// Occurs when <see cref="ChannelOpenConfirmationMessage"/> message received
+        /// </summary>
+        public event EventHandler<MessageEventArgs<ChannelOpenConfirmationMessage>> Opened;
+
+        /// <summary>
+        /// Occurs when <see cref="ChannelOpenFailureMessage"/> message received
+        /// </summary>
+        public event EventHandler<ChannelOpenFailedEventArgs> OpenFailed;
+
+        ///// <summary>
+        ///// Occurs when <see cref="ChannelWindowAdjustMessage"/> message received
+        ///// </summary>
+        //public event EventHandler<MessageEventArgs<ChannelWindowAdjustMessage>> ChannelWindowAdjustReceived;
+
+        /// <summary>
+        /// Occurs when <see cref="ChannelDataMessage"/> message received
+        /// </summary>
+        public event EventHandler<ChannelDataEventArgs> DataReceived;
+
+        /// <summary>
+        /// Occurs when <see cref="ChannelExtendedDataMessage"/> message received
+        /// </summary>
+        public event EventHandler<ChannelDataEventArgs> ExtendedDataReceived;
+
+        /// <summary>
+        /// Occurs when <see cref="ChannelEofMessage"/> message received
+        /// </summary>
+        public event EventHandler<ChannelEventArgs> EndOfData;
+
+        /// <summary>
+        /// Occurs when <see cref="ChannelCloseMessage"/> message received
+        /// </summary>
+        public event EventHandler<ChannelEventArgs> Closed;
+
+        /// <summary>
+        /// Occurs when <see cref="ChannelRequestMessage"/> message received
+        /// </summary>
+        public event EventHandler<MessageEventArgs<ChannelRequestMessage>> RequestReceived;
+
+        /// <summary>
+        /// Occurs when <see cref="ChannelSuccessMessage"/> message received
+        /// </summary>
+        public event EventHandler<ChannelEventArgs> RequestSuccessed;
+
+        /// <summary>
+        /// Occurs when <see cref="ChannelFailureMessage"/> message received
+        /// </summary>
+        public event EventHandler<ChannelEventArgs> RequestFailed;
+
+        #endregion
+
         protected bool IsConnected
         {
             get { return this._session.IsConnected; }
@@ -123,7 +182,7 @@ namespace Renci.SshClient.Channels
 
         #region Channel virtual methods
 
-        protected virtual void OnOpen(ChannelTypes channelTypes, uint initialWindowSize, uint maximumPacketSize, string connectedAddress, uint connectedPort, string originatorAddress, uint originatorPort)
+        protected virtual void OnOpen(ChannelTypes channelType, uint initialWindowSize, uint maximumPacketSize, string connectedAddress, uint connectedPort, string originatorAddress, uint originatorPort)
         {
         }
 
@@ -138,6 +197,10 @@ namespace Renci.SshClient.Channels
 
         protected virtual void OnOpenFailure(uint reasonCode, string description, string language)
         {
+            if (this.OpenFailed != null)
+            {
+                this.OpenFailed(this, new ChannelOpenFailedEventArgs(this.LocalChannelNumber, reasonCode, description, language));
+            }
         }
 
         protected virtual void OnWindowAdjust(uint bytesToAdd)
@@ -149,15 +212,29 @@ namespace Renci.SshClient.Channels
         protected virtual void OnData(string data)
         {
             this.AdjustDataWindow(data);
+
+            if (this.DataReceived != null)
+            {
+                this.DataReceived(this, new ChannelDataEventArgs(this.LocalChannelNumber, data));
+            }
         }
 
         protected virtual void OnExtendedData(string data, uint dataTypeCode)
         {
             this.AdjustDataWindow(data);
+
+            if (this.ExtendedDataReceived != null)
+            {
+                this.ExtendedDataReceived(this, new ChannelDataEventArgs(this.LocalChannelNumber, data, dataTypeCode));
+            }
         }
 
         protected virtual void OnEof()
         {
+            if (this.EndOfData != null)
+            {
+                this.EndOfData(this, new ChannelEventArgs(this.LocalChannelNumber));
+            }
         }
 
         protected virtual void OnClose()
@@ -165,6 +242,11 @@ namespace Renci.SshClient.Channels
             this.CloseCleanup();
 
             this._channelClosedWaitHandle.Set();
+
+            if (this.Closed != null)
+            {
+                this.Closed(this, new ChannelEventArgs(this.LocalChannelNumber));
+            }
         }
 
         protected virtual void OnRequest(ChannelRequestMessage message)
@@ -173,10 +255,18 @@ namespace Renci.SshClient.Channels
 
         protected virtual void OnSuccess()
         {
+            if (this.RequestSuccessed != null)
+            {
+                this.RequestSuccessed(this, new ChannelEventArgs(this.LocalChannelNumber));
+            }
         }
 
         protected virtual void OnFailure()
         {
+            if (this.RequestFailed != null)
+            {
+                this.RequestFailed(this, new ChannelEventArgs(this.LocalChannelNumber));
+            }
         }
 
         #endregion

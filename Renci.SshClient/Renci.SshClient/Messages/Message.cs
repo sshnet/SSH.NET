@@ -6,7 +6,6 @@ namespace Renci.SshClient.Messages
 {
     public abstract class Message : SshData
     {
-
         public abstract MessageTypes MessageType { get; }
 
         internal static T Load<T>(IEnumerable<byte> data) where T : Message, new()
@@ -22,6 +21,14 @@ namespace Renci.SshClient.Messages
             message.LoadData();
 
             return message;
+        }
+
+        public override int ZeroReaderIndex
+        {
+            get
+            {
+                return 1;
+            }
         }
 
         public override IEnumerable<byte> GetBytes()

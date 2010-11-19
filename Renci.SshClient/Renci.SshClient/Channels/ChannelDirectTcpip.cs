@@ -42,17 +42,26 @@ namespace Renci.SshClient.Channels
             }
 
             //  Open channel
-            this.SendMessage(new ChannelOpenDirectTcpIPMessage
-            {
-                ChannelType = ChannelTypes.DirectTcpip,
-                LocalChannelNumber = this.LocalChannelNumber,
-                InitialWindowSize = this.LocalWindowSize,
-                MaximumPacketSize = this.PacketSize,
-                HostToConnect = remoteHost,
-                PortToConnect = port,
-                OriginatorIP = "0.0.0.0",
-                OriginatorPort = 0
-            });
+            //this.SendMessage(new ChannelOpenDirectTcpIPMessage
+            //{
+            //    ChannelType = ChannelTypes.DirectTcpip,
+            //    LocalChannelNumber = this.LocalChannelNumber,
+            //    InitialWindowSize = this.LocalWindowSize,
+            //    MaximumPacketSize = this.PacketSize,
+            //    HostToConnect = remoteHost,
+            //    PortToConnect = port,
+            //    OriginatorIP = "0.0.0.0",
+            //    OriginatorPort = 0
+            //});
+
+            this.SendMessage(new ChannelOpenMessage(this.LocalChannelNumber, this.LocalWindowSize, this.PacketSize, new DirectTcpipChannelInfo
+                {
+                    HostToConnect = remoteHost,
+                    PortToConnect = port,
+                    OriginatorAddress = "0.0.0.0",
+                    OriginatorPort = 0
+                }));
+
 
             //  Wait for channel to open
             this.WaitHandle(this._channelOpen);

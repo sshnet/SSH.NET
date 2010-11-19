@@ -100,10 +100,8 @@ namespace Renci.SshClient.Channels
         {
             this._channelRequestResponse.Reset();
 
-            this.SendMessage(new ChannelRequestPseudoTerminalMessage
+            this.SendMessage(new ChannelRequestMessage(this.RemoteChannelNumber, new PseudoTerminalRequestInfo
             {
-                LocalChannelNumber = this.RemoteChannelNumber,
-                //RequestName = ChannelRequestNames.PseudoTerminal,
                 WantReply = true,
                 EnvironmentVariable = environmentVariable,
                 Columns = columns,
@@ -111,7 +109,7 @@ namespace Renci.SshClient.Channels
                 PixelWidth = width,
                 PixelHeight = height,
                 TerminalMode = terminalMode,
-            });
+            }));
 
             this._channelRequestResponse.WaitOne();
 
@@ -146,12 +144,10 @@ namespace Renci.SshClient.Channels
         {
             this._channelRequestResponse.Reset();
 
-            this.SendMessage(new ChannelRequestShellMessage
-            {
-                LocalChannelNumber = this.RemoteChannelNumber,
-                //RequestName = ChannelRequestNames.Shell,
-                WantReply = true,
-            });
+            this.SendMessage(new ChannelRequestMessage(this.RemoteChannelNumber, new ShellRequestInfo
+                {
+                    WantReply = true,
+                }));
 
             this._channelRequestResponse.WaitOne();
 
@@ -162,12 +158,11 @@ namespace Renci.SshClient.Channels
         {
             this._channelRequestResponse.Reset();
 
-            this.SendMessage(new ChannelRequestExecMessage
+            this.SendMessage(new ChannelRequestMessage(this.RemoteChannelNumber, new ExecRequestInfo
             {
-                LocalChannelNumber = this.RemoteChannelNumber,
                 WantReply = true,
                 Command = command,
-            });
+            }));
 
             this._channelRequestResponse.WaitOne();
 
@@ -178,12 +173,11 @@ namespace Renci.SshClient.Channels
         {
             this._channelRequestResponse.Reset();
 
-            this.SendMessage(new ChannelRequestSubsystemMessage
+            this.SendMessage(new ChannelRequestMessage(this.RemoteChannelNumber, new SubsystemRequestInfo
             {
-                LocalChannelNumber = this.RemoteChannelNumber,
                 WantReply = true,
                 SubsystemName = subsystem,
-            });
+            }));
 
             this._channelRequestResponse.WaitOne();
 
@@ -281,13 +275,7 @@ namespace Renci.SshClient.Channels
                 //  Ensure that channels are available
                 this.SessionSemaphore.Wait();
 
-                this.SendMessage(new ChannelOpenMessage
-                {
-                    ChannelType = ChannelTypes.Session,
-                    LocalChannelNumber = this.LocalChannelNumber,
-                    InitialWindowSize = this.LocalWindowSize,
-                    MaximumPacketSize = this.PacketSize,
-                });
+                this.SendMessage(new ChannelOpenMessage(this.LocalChannelNumber, this.LocalWindowSize, this.PacketSize, new SessionChannelOpenInfo()));
             }
         }
     }

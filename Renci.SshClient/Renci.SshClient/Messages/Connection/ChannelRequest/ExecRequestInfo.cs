@@ -1,9 +1,13 @@
-﻿
-namespace Renci.SshClient.Messages.Connection
+﻿namespace Renci.SshClient.Messages.Connection
 {
-    internal class ChannelRequestExecMessage : ChannelRequestMessage
+    internal class ExecRequestInfo : RequestInfo
     {
-        public const string REQUEST_NAME = "exec";
+        public const string NAME = "exec";
+
+        public override string RequestName
+        {
+            get { return ExecRequestInfo.NAME; }
+        }
 
         public string Command { get; set; }
 
@@ -16,8 +20,6 @@ namespace Renci.SshClient.Messages.Connection
 
         protected override void SaveData()
         {
-            this.RequestName = REQUEST_NAME;
-
             base.SaveData();
 
             this.Write(this.Command);

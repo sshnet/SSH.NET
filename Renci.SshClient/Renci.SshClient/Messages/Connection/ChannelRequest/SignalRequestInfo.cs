@@ -1,9 +1,13 @@
-﻿
-namespace Renci.SshClient.Messages.Connection
+﻿namespace Renci.SshClient.Messages.Connection
 {
-    internal class ChannelRequestSignalMessage : ChannelRequestMessage
+    internal class SignalRequestInfo : RequestInfo
     {
-        public const string REQUEST_NAME = "signal";
+        public const string NAME = "signal";
+
+        public override string RequestName
+        {
+            get { return SignalRequestInfo.NAME; }
+        }
 
         public string SignalName { get; set; }
 
@@ -16,8 +20,6 @@ namespace Renci.SshClient.Messages.Connection
 
         protected override void SaveData()
         {
-            this.RequestName = REQUEST_NAME;
-
             base.SaveData();
 
             this.Write(this.SignalName);

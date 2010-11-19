@@ -1,9 +1,13 @@
-﻿
-namespace Renci.SshClient.Messages.Connection
+﻿namespace Renci.SshClient.Messages.Connection
 {
-    internal class ChannelRequestX11ForwardingMessage : ChannelRequestMessage
+    internal class X11ForwardingRequestInfo : RequestInfo
     {
-        public const string REQUEST_NAME = "x11-req";
+        public const string NAME = "x11-req";
+
+        public override string RequestName
+        {
+            get { return X11ForwardingRequestInfo.NAME; }
+        }
 
         public bool IsSingleConnection { get; set; }
 
@@ -25,8 +29,6 @@ namespace Renci.SshClient.Messages.Connection
 
         protected override void SaveData()
         {
-            this.RequestName = REQUEST_NAME;
-
             base.SaveData();
 
             this.Write(this.IsSingleConnection);

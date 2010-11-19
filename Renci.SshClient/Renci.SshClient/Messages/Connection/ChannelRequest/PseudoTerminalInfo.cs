@@ -1,9 +1,13 @@
-﻿
-namespace Renci.SshClient.Messages.Connection
+﻿namespace Renci.SshClient.Messages.Connection
 {
-    internal class ChannelRequestPseudoTerminalMessage : ChannelRequestMessage
+    internal class PseudoTerminalRequestInfo : RequestInfo
     {
-        public const string REQUEST_NAME = "pty-req";
+        public const string NAME = "pty-req";
+
+        public override string RequestName
+        {
+            get { return PseudoTerminalRequestInfo.NAME; }
+        }
 
         public string EnvironmentVariable { get; set; }
 
@@ -20,6 +24,7 @@ namespace Renci.SshClient.Messages.Connection
         protected override void LoadData()
         {
             base.LoadData();
+
             this.EnvironmentVariable = this.ReadString();
             this.Columns = this.ReadUInt32();
             this.Rows = this.ReadUInt32();
@@ -30,8 +35,8 @@ namespace Renci.SshClient.Messages.Connection
 
         protected override void SaveData()
         {
-            this.RequestName = REQUEST_NAME;
             base.SaveData();
+
             this.Write(this.EnvironmentVariable);
             this.Write(this.Columns);
             this.Write(this.Rows);

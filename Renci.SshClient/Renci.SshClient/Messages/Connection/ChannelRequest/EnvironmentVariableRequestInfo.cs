@@ -1,9 +1,13 @@
-﻿
-namespace Renci.SshClient.Messages.Connection
+﻿namespace Renci.SshClient.Messages.Connection
 {
-    internal class ChannelRequestEnvironmentVariableMessage : ChannelRequestMessage
+    internal class EnvironmentVariableRequestInfo : RequestInfo
     {
-        public const string REQUEST_NAME = "env";
+        public const string NAME = "env";
+
+        public override string RequestName
+        {
+            get { return EnvironmentVariableRequestInfo.NAME; }
+        }
 
         public string VariableName { get; set; }
 
@@ -19,8 +23,6 @@ namespace Renci.SshClient.Messages.Connection
 
         protected override void SaveData()
         {
-            this.RequestName = REQUEST_NAME;
-
             base.SaveData();
 
             this.Write(this.VariableName);

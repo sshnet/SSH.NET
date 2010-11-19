@@ -81,7 +81,7 @@ namespace Renci.SshClient.Channels
         /// <summary>
         /// Occurs when <see cref="ChannelRequestMessage"/> message received
         /// </summary>
-        public event EventHandler<MessageEventArgs<ChannelRequestMessage>> RequestReceived;
+        public event EventHandler<ChannelRequestEventArgs> RequestReceived;
 
         /// <summary>
         /// Occurs when <see cref="ChannelSuccessMessage"/> message received
@@ -182,7 +182,8 @@ namespace Renci.SshClient.Channels
 
         #region Channel virtual methods
 
-        protected virtual void OnOpen(ChannelTypes channelType, uint initialWindowSize, uint maximumPacketSize, string connectedAddress, uint connectedPort, string originatorAddress, uint originatorPort)
+        //protected virtual void OnOpen(ChannelTypes channelType, uint initialWindowSize, uint maximumPacketSize, string connectedAddress, uint connectedPort, string originatorAddress, uint originatorPort)
+        protected virtual void OnOpen(ChannelOpenInfo info)
         {
         }
 
@@ -249,8 +250,12 @@ namespace Renci.SshClient.Channels
             }
         }
 
-        protected virtual void OnRequest(ChannelRequestMessage message)
+        protected virtual void OnRequest(RequestInfo info)
         {
+            if (this.RequestReceived != null)
+            {
+                this.RequestReceived(this, new ChannelRequestEventArgs(info));
+            }
         }
 
         protected virtual void OnSuccess()
@@ -320,7 +325,8 @@ namespace Renci.SshClient.Channels
         {
             if (e.Message.LocalChannelNumber == this.LocalChannelNumber)
             {
-                this.OnOpen(e.Message.ChannelType, e.Message.InitialWindowSize, e.Message.MaximumPacketSize, e.Message.ConnectedAddress, e.Message.ConnectedPort, e.Message.OriginatorAddress, e.Message.OriginatorPort);
+                //this.OnOpen(e.Message.ChannelType, e.Message.InitialWindowSize, e.Message.MaximumPacketSize, e.Message.ConnectedAddress, e.Message.ConnectedPort, e.Message.OriginatorAddress, e.Message.OriginatorPort);
+                this.OnOpen(e.Message.Info);
             }
         }
 
@@ -384,7 +390,7 @@ namespace Renci.SshClient.Channels
         {
             if (e.Message.LocalChannelNumber == this.LocalChannelNumber)
             {
-                this.OnRequest(e.Message);
+                this.OnRequest(e.Message.Info);
             }
         }
 

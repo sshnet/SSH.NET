@@ -25,6 +25,14 @@ namespace Renci.SshClient.Common
 
         private IEnumerable<byte> _loadedData;
 
+        public virtual int ZeroReaderIndex
+        {
+            get
+            {
+                return 0;
+            }
+        }
+
         public virtual IEnumerable<byte> GetBytes()
         {
             this._data = new List<byte>();
@@ -42,6 +50,12 @@ namespace Renci.SshClient.Common
             return result;
         }
 
+        public void Load(IEnumerable<byte> bytes)
+        {
+            this.LoadBytes(bytes);
+            this.LoadData();
+        }
+
         protected abstract void LoadData();
 
         protected abstract void SaveData();
@@ -55,7 +69,7 @@ namespace Renci.SshClient.Common
 
         protected void ResetReader()
         {
-            this._readerIndex = 1;  //  Set to 1 to skip first byte which specifies message type
+            this._readerIndex = this.ZeroReaderIndex;  //  Set to 1 to skip first byte which specifies message type
         }
 
         /// <summary>

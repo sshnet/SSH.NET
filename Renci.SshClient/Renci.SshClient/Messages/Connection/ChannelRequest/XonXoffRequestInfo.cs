@@ -1,9 +1,13 @@
-﻿
-namespace Renci.SshClient.Messages.Connection
+﻿namespace Renci.SshClient.Messages.Connection
 {
-    internal class ChannelRequestXonXoffMessage : ChannelRequestMessage
+    internal class XonXoffRequestInfo : RequestInfo
     {
-        public const string REQUEST_NAME = "xon-xoff";
+        public const string NAME = "xon-xoff";
+
+        public override string RequestName
+        {
+            get { return XonXoffRequestInfo.NAME; }
+        }
 
         public bool ClientCanDo { get; set; }
 
@@ -16,8 +20,6 @@ namespace Renci.SshClient.Messages.Connection
 
         protected override void SaveData()
         {
-            this.RequestName = REQUEST_NAME;
-
             base.SaveData();
 
             this.Write(this.ClientCanDo);

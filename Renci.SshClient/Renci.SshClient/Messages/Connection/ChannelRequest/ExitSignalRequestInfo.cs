@@ -1,9 +1,13 @@
-﻿
-namespace Renci.SshClient.Messages.Connection
+﻿namespace Renci.SshClient.Messages.Connection
 {
-    internal class ChannelRequestExitSignalMessage : ChannelRequestMessage
+    internal class ExitSignalRequestInfo : RequestInfo
     {
-        public const string REQUEST_NAME = "exit-signal";
+        public const string NAME = "exit-signal";
+
+        public override string RequestName
+        {
+            get { return ExitSignalRequestInfo.NAME; }
+        }
 
         public string SignalName { get; set; }
 
@@ -25,8 +29,6 @@ namespace Renci.SshClient.Messages.Connection
 
         protected override void SaveData()
         {
-            this.RequestName = REQUEST_NAME;
-
             base.SaveData();
 
             this.Write(this.SignalName);
@@ -34,5 +36,6 @@ namespace Renci.SshClient.Messages.Connection
             this.Write(this.ErrorMessage);
             this.Write(this.Language);
         }
+
     }
 }

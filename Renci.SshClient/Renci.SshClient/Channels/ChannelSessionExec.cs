@@ -182,20 +182,20 @@ namespace Renci.SshClient.Channels
         /// <param name="command">The command.</param>
         /// <param name="subsystemName">Name of the subsystem.</param>
         /// <param name="exitStatus">The exit status.</param>
-        protected override void OnRequest(ChannelRequestMessage message)
+        protected override void OnRequest(RequestInfo info)
         {
-            base.OnRequest(message);
+            base.OnRequest(info);
 
             Message replyMessage = new ChannelFailureMessage()
             {
                 LocalChannelNumber = this.LocalChannelNumber,
             };
 
-            if (message.RequestName == ChannelRequestExitStatusMessage.REQUEST_NAME)
+            if (info is ExitStatusRequestInfo)
             {
-                ChannelRequestExitStatusMessage exitStatusMessage = message.OfType<ChannelRequestExitStatusMessage>();
+                ExitStatusRequestInfo exitStatusInfo = info as ExitStatusRequestInfo;
 
-                this.ExitStatus = exitStatusMessage.ExitStatus;
+                this.ExitStatus = exitStatusInfo.ExitStatus;
 
                 replyMessage = new ChannelSuccessMessage()
                 {
@@ -203,7 +203,7 @@ namespace Renci.SshClient.Channels
                 };
             }
 
-            if (message.WantReply)
+            if (info.WantReply)
             {
                 this.SendMessage(replyMessage);
             }

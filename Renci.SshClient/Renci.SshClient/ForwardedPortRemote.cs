@@ -63,20 +63,24 @@ namespace Renci.SshClient
         private void Session_ChannelOpening(object sender, MessageEventArgs<ChannelOpenMessage> e)
         {
             //  Ensure that this is corresponding request
-            if (e.Message.ConnectedAddress == this.ConnectedHost && e.Message.ConnectedPort == this.BoundPort)
+            var info = e.Message.Info as ForwardedTcpipChannelInfo;
+            if (info != null)
             {
-                Task.Factory.StartNew(() =>
+                if (info.ConnectedAddress == this.ConnectedHost && info.ConnectedPort == this.BoundPort)
                 {
-                    try
+                    Task.Factory.StartNew(() =>
                     {
-                        var channel = this.Session.CreateChannel<ChannelForwardedTcpip>(e.Message.LocalChannelNumber, e.Message.InitialWindowSize, e.Message.MaximumPacketSize);
-                        channel.Bind(this.ConnectedHost, this.ConnectedPort);
-                    }
-                    catch (Exception exp)
-                    {
-                        this.RaiseExceptionEvent(exp);
-                    }
-                });
+                        try
+                        {
+                            var channel = this.Session.CreateChannel<ChannelForwardedTcpip>(e.Message.LocalChannelNumber, e.Message.InitialWindowSize, e.Message.MaximumPacketSize);
+                            channel.Bind(this.ConnectedHost, this.ConnectedPort);
+                        }
+                        catch (Exception exp)
+                        {
+                            this.RaiseExceptionEvent(exp);
+                        }
+                    });
+                }
             }
         }
 

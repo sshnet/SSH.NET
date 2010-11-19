@@ -1,9 +1,13 @@
-﻿
-namespace Renci.SshClient.Messages.Connection
+﻿namespace Renci.SshClient.Messages.Connection
 {
-    internal class ChannelRequestWindowChangeMessage : ChannelRequestMessage
+    internal class WindowChangeRequestInfo : RequestInfo
     {
-        public const string REQUEST_NAME = "window-change";
+        public const string NAME = "window-change";
+
+        public override string RequestName
+        {
+            get { return WindowChangeRequestInfo.NAME; }
+        }
 
         public uint Columns { get; set; }
 
@@ -25,8 +29,6 @@ namespace Renci.SshClient.Messages.Connection
 
         protected override void SaveData()
         {
-            this.RequestName = REQUEST_NAME;
-
             base.SaveData();
 
             this.Write(this.Columns);

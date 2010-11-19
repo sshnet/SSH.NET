@@ -1,9 +1,13 @@
-﻿
-namespace Renci.SshClient.Messages.Connection
+﻿namespace Renci.SshClient.Messages.Connection
 {
-    internal class ChannelRequestSubsystemMessage : ChannelRequestMessage
+    internal class SubsystemRequestInfo : RequestInfo
     {
-        public const string REQUEST_NAME = "subsystem";
+        public const string NAME = "subsystem";
+
+        public override string RequestName
+        {
+            get { return SubsystemRequestInfo.NAME; }
+        }
 
         public string SubsystemName { get; set; }
 
@@ -16,8 +20,6 @@ namespace Renci.SshClient.Messages.Connection
 
         protected override void SaveData()
         {
-            this.RequestName = REQUEST_NAME;
-
             base.SaveData();
 
             this.Write(this.SubsystemName);

@@ -60,10 +60,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Channels\ChannelDataEventArgs.cs" />
-    <Compile Include="Channels\ChannelEventArgs.cs" />
-    <Compile Include="Channels\ChannelOpenFailedEventArgs.cs" />
-    <Compile Include="Channels\ChannelRequestEventArgs.cs" />
+    <Compile Include="Common\ChannelDataEventArgs.cs" />
+    <Compile Include="Common\ChannelEventArgs.cs" />
+    <Compile Include="Common\ChannelOpenFailedEventArgs.cs" />
+    <Compile Include="Common\ChannelRequestEventArgs.cs" />
     <Compile Include="Channels\ChannelSessionShell.cs" />
     <Compile Include="Messages\Connection\ChannelOpen\ChannelOpenInfo.cs" />
     <Compile Include="Messages\Connection\ChannelOpen\DirectTcpipChannelInfo.cs" />

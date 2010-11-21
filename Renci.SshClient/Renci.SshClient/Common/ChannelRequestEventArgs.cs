@@ -1,7 +1,7 @@
 ﻿using System;
 using Renci.SshClient.Messages.Connection;
 
-namespace Renci.SshClient.Channels
+namespace Renci.SshClient.Common
 {
     internal class ChannelRequestEventArgs : EventArgs
     {

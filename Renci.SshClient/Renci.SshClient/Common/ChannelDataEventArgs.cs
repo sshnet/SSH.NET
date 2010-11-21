@@ -1,5 +1,4 @@
-﻿
-namespace Renci.SshClient.Channels
+﻿namespace Renci.SshClient.Common
 {
     internal class ChannelDataEventArgs : ChannelEventArgs
     {

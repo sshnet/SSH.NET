@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using Renci.SshClient.Common;
 using Renci.SshClient.Messages;
 using Renci.SshClient.Messages.Connection;
 
@@ -10,6 +11,10 @@ namespace Renci.SshClient.Channels
         private EventWaitHandle _channelClosedWaitHandle = new AutoResetEvent(false);
 
         private EventWaitHandle _channelWindowAdjustWaitHandle = new AutoResetEvent(false);
+
+        private EventWaitHandle _errorOccuredWaitHandle = new ManualResetEvent(false);
+
+        private EventWaitHandle _disconnectedWaitHandle = new ManualResetEvent(false);
 
         private uint _initialWindowSize = 0x100000;
 
@@ -164,6 +169,8 @@ namespace Renci.SshClient.Channels
             this._session.ChannelRequestReceived += OnChannelRequest;
             this._session.ChannelSuccessReceived += OnChannelSuccess;
             this._session.ChannelFailureReceived += OnChannelFailure;
+            this._session.ErrorOccured += Session_ErrorOccured;
+            this._session.Disconnected += Session_Disconnected;
 
         }
 
@@ -317,6 +324,16 @@ namespace Renci.SshClient.Channels
         protected void WaitHandle(WaitHandle waitHandle)
         {
             this._session.WaitHandle(waitHandle);
+        }
+
+        private void Session_Disconnected(object sender, EventArgs e)
+        {
+            this._disconnectedWaitHandle.Set();
+        }
+
+        private void Session_ErrorOccured(object sender, System.IO.ErrorEventArgs e)
+        {
+            this._errorOccuredWaitHandle.Set();
         }
 
         #region Channel message event handlers

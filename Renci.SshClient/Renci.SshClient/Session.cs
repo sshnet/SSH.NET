@@ -217,6 +217,16 @@ namespace Renci.SshClient
         /// <value>The connection info.</value>
         public ConnectionInfo ConnectionInfo { get; private set; }
 
+        public event EventHandler<ErrorEventArgs> ErrorOccured;
+
+        public event EventHandler<EventArgs> Connecting;
+
+        public event EventHandler<EventArgs> Connected;
+
+        public event EventHandler<EventArgs> Disconnecting;
+
+        public event EventHandler<EventArgs> Disconnected;
+
         #region Message events
 
         /// <summary>
@@ -387,6 +397,12 @@ namespace Renci.SshClient
                 if (this.IsConnected)
                     return;
 
+                if (this.Connecting != null)
+                {
+                    //  TODO:   Create custom ConnectingEventArgs to allow to pass different connection parameters
+                    this.Connecting(this, new EventArgs());
+                }
+
                 lock (this)
                 {
                     //  If connected dont connect again
@@ -517,6 +533,12 @@ namespace Renci.SshClient
 
                     Monitor.Pulse(this);
                 }
+
+                if (this.Connected != null)
+                {
+                    //  TODO:   Create custom ConnectingEventArgs to allow to pass different connection parameters
+                    this.Connected(this, new EventArgs());
+                }
             }
             finally
             {
@@ -530,6 +552,11 @@ namespace Renci.SshClient
         public void Disconnect()
         {
             this._isDisconnecting = true;
+
+            if (this.Disconnecting != null)
+            {
+                this.Disconnecting(this, new EventArgs());
+            }
 
             this.SendDisconnect(DisconnectReasons.ByApplication, "Connection terminated by the client.");
         }
@@ -936,6 +963,11 @@ namespace Renci.SshClient
             {
                 this.DisconnectReceived(this, new MessageEventArgs<DisconnectMessage>(message));
             }
+
+            if (this.Disconnected != null)
+            {
+                this.Disconnected(this, new EventArgs());
+            }
         }
 
         protected virtual void OnIgnoreReceived(IgnoreMessage message)
@@ -1328,9 +1360,7 @@ namespace Renci.SshClient
                         this.SendDisconnect(exp.DisconnectReason, exp.ToString());
                     }
 
-                    this._exceptionToThrow = exp;
-
-                    this._exceptionWaitHandle.Set();
+                    this.RaiseError(exp);
                 }
                 catch (Exception exp)
                 {
@@ -1338,13 +1368,23 @@ namespace Renci.SshClient
 
                     this.SendDisconnect(DisconnectReasons.ByApplication, exp.ToString());
 
-                    this._exceptionToThrow = exp;
-
-                    this._exceptionWaitHandle.Set();
+                    this.RaiseError(exp);
                 }
             }
 
             this._listenerWaitHandle.Set();
+        }
+
+        private void RaiseError(Exception exp)
+        {
+            this._exceptionToThrow = exp;
+
+            this._exceptionWaitHandle.Set();
+
+            if (this.ErrorOccured != null)
+            {
+                this.ErrorOccured(this, new ErrorEventArgs(exp));
+            }
         }
 
         #region IDisposable Members

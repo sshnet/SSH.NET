@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Threading;
 
-namespace Renci.SshClient.Channels
+namespace Renci.SshClient
 {
-    public class ChannelAsyncResult : IAsyncResult
+    public class CommandAsyncResult : IAsyncResult
     {
         /// <summary>
-        /// Gets or sets the channel that async result was created for.
+        /// Gets or sets the command that async result was created for.
         /// </summary>
         /// <value>The channel.</value>
-        internal ChannelSessionExec Channel { get; private set; }
+        internal SshCommand Command { get; private set; }
 
         /// <summary>
         /// Gets or sets the bytes received. If SFTP only file bytes are counted.
@@ -35,9 +35,9 @@ namespace Renci.SshClient.Channels
 
         #endregion
 
-        internal ChannelAsyncResult(ChannelSessionExec channel)
+        internal CommandAsyncResult(SshCommand command)
         {
-            this.Channel = channel;
+            this.Command = command;
         }
     }
 }

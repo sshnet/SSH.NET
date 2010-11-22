@@ -27,7 +27,8 @@ namespace Renci.SshClient.Channels
 
         private StringBuilder _packetData;
 
-        private ChannelAsyncResult _asyncResult;
+        //  TODO:   Repalce with SFTP specific async class if needed
+        private CommandAsyncResult _asyncResult;
 
         public ChannelSessionSftp()
             : base()

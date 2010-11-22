@@ -65,6 +65,8 @@
     <Compile Include="Common\ChannelOpenFailedEventArgs.cs" />
     <Compile Include="Common\ChannelRequestEventArgs.cs" />
     <Compile Include="Channels\ChannelSessionShell.cs" />
+    <Compile Include="Common\SshConnectionException.cs" />
+    <Compile Include="Common\SshOperationTimeoutException.cs" />
     <Compile Include="Messages\Connection\ChannelOpen\ChannelOpenInfo.cs" />
     <Compile Include="Messages\Connection\ChannelOpen\DirectTcpipChannelInfo.cs" />
     <Compile Include="Messages\Connection\ChannelOpen\ForwardedTcpipChannelInfo.cs" />
@@ -84,7 +86,7 @@
     <Compile Include="Messages\Connection\ChannelRequest\XonXoffRequestInfo.cs" />
     <Compile Include="SshCommand.cs" />
     <Compile Include="MessageEventArgs.cs" />
-    <Compile Include="Channels\ChannelAsyncResult.cs" />
+    <Compile Include="ChannelAsyncResult.cs" />
     <Compile Include="Channels\ChannelDirectTcpip.cs" />
     <Compile Include="Channels\ChannelForwardedTcpip.cs" />
     <Compile Include="Channels\ChannelSession.cs" />
@@ -163,7 +165,6 @@
     <Compile Include="Security\UserAuthenticationPassword.cs" />
     <Compile Include="Security\UserAuthenticationPublicKey.cs" />
     <Compile Include="Channels\Channel.cs" />
-    <Compile Include="Channels\ChannelSessionExec.cs" />
     <Compile Include="Channels\ChannelTypes.cs" />
     <Compile Include="ConnectionInfo.cs" />
     <Compile Include="Common\Extensions.cs" />

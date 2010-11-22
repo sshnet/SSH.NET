@@ -1,11 +1,11 @@
-﻿
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Threading;
 using Renci.SshClient.Common;
 using Renci.SshClient.Messages.Connection;
+
 namespace Renci.SshClient.Channels
 {
-    internal abstract class ChannelSession : Channel
+    internal class ChannelSession : Channel
     {
         /// <summary>
         /// Counts faile channel open attempts

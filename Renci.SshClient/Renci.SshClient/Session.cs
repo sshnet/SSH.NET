@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -74,14 +75,9 @@ namespace Renci.SshClient
         private EventWaitHandle _exceptionWaitHandle = new AutoResetEvent(false);
 
         /// <summary>
-        /// WaitHandle to signal that listner ended
-        /// </summary>
-        private EventWaitHandle _listenerWaitHandle = new AutoResetEvent(false);
-
-        /// <summary>
         /// Exception that need to be thrown by waiting thread
         /// </summary>
-        private Exception _exceptionToThrow;
+        private Exception _exception;
 
         /// <summary>
         /// Specifies weither connection is authenticated
@@ -460,7 +456,7 @@ namespace Renci.SshClient
 
                     if (!(version.Equals("2.0") || version.Equals("1.99")))
                     {
-                        throw new SshException(string.Format("Server version '{0}' is not supported.", version), DisconnectReasons.ProtocolVersionNotSupported);
+                        throw new SshConnectionException(string.Format("Server version '{0}' is not supported.", version), DisconnectReasons.ProtocolVersionNotSupported);
                     }
 
                     if (version.Equals("1.99"))
@@ -485,7 +481,7 @@ namespace Renci.SshClient
                     this._keyExhcange = new KeyExchange(this);
 
                     //  Start incoming request listener
-                    this._messageListener = Task.Factory.StartNew(() => { this.MessageListener(); });
+                    this._messageListener = Task.Factory.StartNew(() => { this.MessageListener(); }, TaskCreationOptions.LongRunning);
 
                     //  Wait for key exchange to be completed
                     this.WaitHandle(this._keyExhcange.WaitHandle);
@@ -585,30 +581,20 @@ namespace Renci.SshClient
             var waitHandles = new WaitHandle[]
                 {
                     this._exceptionWaitHandle,
-                    this._listenerWaitHandle,   //  When listener exits
                     waitHandle,
                 };
 
-            var index = 0;
-#if NOTIMEOUT
-            index = EventWaitHandle.WaitAny(waitHandles);
-#else
-            index = EventWaitHandle.WaitAny(waitHandles, this.ConnectionInfo.Timeout);
-#endif
-            if (index == 0 && this._exceptionToThrow != null)
+            var index = EventWaitHandle.WaitAny(waitHandles);
+
+            if (index < 1)
             {
-                var exception = this._exceptionToThrow;
-                this._exceptionToThrow = null;
-                throw exception;
+                throw this._exception;
             }
-            else if (index == 1)
-            {
-                throw new SshException("Connection was terminated.");
-            }
-            else if (index > waitHandles.Length)
+            else if (index > 1)
             {
                 this.SendDisconnect(DisconnectReasons.ByApplication, "Operation timeout");
-                throw new TimeoutException("Operation timeout");
+
+                throw new SshOperationTimeoutException("Session operation has timed out");
             }
         }
 
@@ -727,7 +713,7 @@ namespace Renci.SshClient
 
             //  Test packet minimum and maximum boundaries
             if (packetLength < Math.Max((byte)16, blockSize) - 4 || packetLength > Session.MAXIMUM_PACKET_SIZE - 4)
-                throw new SshException(string.Format("Bad packet length {0}", packetLength), DisconnectReasons.ProtocolError);
+                throw new SshConnectionException(string.Format("Bad packet length {0}", packetLength), DisconnectReasons.ProtocolError);
 
             //  Read rest of the packet data
             int bytesToRead = (int)(packetLength - (blockSize - 4));
@@ -767,7 +753,7 @@ namespace Renci.SshClient
 
                 if (!serverHash.SequenceEqual(clientHash))
                 {
-                    throw new SshException("MAC error", DisconnectReasons.MacError);
+                    throw new SshConnectionException("MAC error", DisconnectReasons.MacError);
                 }
             }
 
@@ -806,9 +792,9 @@ namespace Renci.SshClient
         {
             this.OnDisconnectReceived(message);
 
-            this._socket.Disconnect(true);
+            this._socket.Shutdown(SocketShutdown.Both);
 
-            this._socket.Close();
+            this._socket.Disconnect(true);
 
             if (this._messageListener != null)
             {
@@ -1206,7 +1192,7 @@ namespace Renci.SshClient
                     }
                     else
                     {
-                        throw new SshException("An established connection was aborted by the software in your host machine.", DisconnectReasons.ConnectionLost);
+                        throw new SshConnectionException("An established connection was aborted by the software in your host machine.", DisconnectReasons.ConnectionLost);
                     }
                 }
                 catch (SocketException exp)
@@ -1314,13 +1300,14 @@ namespace Renci.SshClient
         /// </summary>
         private void MessageListener()
         {
-            while (true)
+            try
             {
-                try
+                while (this._socket.Connected)
+                //while (true)
                 {
                     var message = this.ReceiveMessage();
 
-                    //Debug.WriteLine(message);
+                    Debug.WriteLine(message);
 
                     if (message == null)
                     {
@@ -1348,36 +1335,24 @@ namespace Renci.SshClient
                         //});
                     }
                 }
-                catch (SshException exp)
-                {
-                    if (exp.DisconnectReason == DisconnectReasons.ConnectionLost && this._isDisconnecting)
-                    {
-                        //  Ignore this error since we called disconnect command and this error is expected
-                        break;
-                    }
-                    else if (exp.DisconnectReason != DisconnectReasons.None)
-                    {
-                        this.SendDisconnect(exp.DisconnectReason, exp.ToString());
-                    }
-
-                    this.RaiseError(exp);
-                }
-                catch (Exception exp)
-                {
-                    //  TODO:   This exception can be swolloed if it occures while running in the background, look for possible solutions
-
-                    this.SendDisconnect(DisconnectReasons.ByApplication, exp.ToString());
-
-                    this.RaiseError(exp);
-                }
             }
-
-            this._listenerWaitHandle.Set();
+            catch (Exception exp)
+            {
+                this.RaiseError(exp);
+                //  TODO:   This exception can be swolloed if it occures while running in the background, look for possible solutions
+            }
         }
 
         private void RaiseError(Exception exp)
         {
-            this._exceptionToThrow = exp;
+            var connectionException = exp as SshConnectionException;
+
+            //  If connection exception was raised while isDisconnecting is true then this is expected
+            //  case and should be ignore
+            if (connectionException != null && this._isDisconnecting)
+                return;
+
+            this._exception = exp;
 
             this._exceptionWaitHandle.Set();
 
@@ -1385,6 +1360,12 @@ namespace Renci.SshClient
             {
                 this.ErrorOccured(this, new ErrorEventArgs(exp));
             }
+            var disconnectReason = DisconnectReasons.ByApplication;
+
+            if (connectionException != null)
+                disconnectReason = connectionException.DisconnectReason;
+
+            this.SendDisconnect(disconnectReason, exp.ToString());
         }
 
         #region IDisposable Members
@@ -1421,11 +1402,6 @@ namespace Renci.SshClient
                     if (this._exceptionWaitHandle != null)
                     {
                         this._exceptionWaitHandle.Dispose();
-                    }
-
-                    if (this._listenerWaitHandle != null)
-                    {
-                        this._listenerWaitHandle.Dispose();
                     }
 
                     if (this._keyExhcange != null)

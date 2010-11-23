@@ -1,5 +1,4 @@
-﻿using System;
-
+﻿
 namespace Renci.SshClient.Messages.Transport
 {
     internal class UnimplementedMessage : Message
@@ -11,12 +10,10 @@ namespace Renci.SshClient.Messages.Transport
 
         protected override void LoadData()
         {
-            throw new NotImplementedException();
         }
 
         protected override void SaveData()
         {
-            throw new NotImplementedException();
         }
     }
 }

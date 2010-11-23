@@ -1,9 +1,10 @@
-﻿using System;
-
+﻿
 namespace Renci.SshClient.Messages.Transport
 {
     internal class IgnoreMessage : Message
     {
+        public string Data { get; set; }
+
         public override MessageTypes MessageType
         {
             get { return MessageTypes.Ignore; }
@@ -11,12 +12,12 @@ namespace Renci.SshClient.Messages.Transport
 
         protected override void LoadData()
         {
-            throw new NotImplementedException();
+            this.Data = this.ReadString();
         }
 
         protected override void SaveData()
         {
-            throw new NotImplementedException();
+            this.Write(this.Data);
         }
     }
 }

@@ -18,6 +18,14 @@ namespace Renci.SshClient.Messages.Sftp
             return Load(data, messageType);
         }
 
+        public override int ZeroReaderIndex
+        {
+            get
+            {
+                return 1;
+            }
+        }
+
         static SftpMessage()
         {
             SftpMessage._sftpMessageTypes.Add(SftpMessageTypes.Init, new LoadFunc<SftpMessage>(Load<InitMessage>));

@@ -1,33 +1,184 @@
-﻿
+﻿using System;
+using System.Diagnostics;
 using System.IO;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using Renci.SshClient.Channels;
+using Renci.SshClient.Messages.Connection;
+
 namespace Renci.SshClient
 {
     public class Shell
     {
         private readonly Session _session;
 
-        private ChannelSessionShell _channel;
+        private ChannelSession _channel;
 
-        internal Shell(Session session)
+        private Stream _channelInput;
+
+        private TextWriter _channelOutput;
+
+        private TextWriter _channelExtendedOutput;
+
+        private string _terminalName;
+
+        private uint _columns;
+
+        private uint _rows;
+
+        private uint _width;
+
+        private uint _height;
+
+        private string _terminalMode;
+
+        private Task _dataReaderTask;
+
+        private Encoding _encoding;
+
+        public event EventHandler<EventArgs> Starting;
+
+        public event EventHandler<EventArgs> Started;
+
+        public event EventHandler<EventArgs> Stopping;
+
+        public event EventHandler<EventArgs> Stopped;
+
+        public event EventHandler<ErrorEventArgs> ErrorOccured;
+
+        internal Shell(Session session, Stream input, TextWriter output, TextWriter extendedOutput, string terminalName, uint columns, uint rows, uint width, uint height, string terminalMode)
         {
             this._session = session;
+            this._channelInput = input;
+            this._channelOutput = output;
+            this._channelExtendedOutput = extendedOutput;
+            this._terminalName = terminalName;
+            this._columns = columns;
+            this._rows = rows;
+            this._width = width;
+            this._height = height;
+            this._terminalMode = terminalMode;
+            this._encoding = Encoding.ASCII;
         }
 
-        public void Connect(Stream output, Stream extendedOutput)
+        public void Start()
         {
-            this._channel = this._session.CreateChannel<ChannelSessionShell>();
-            this._channel.Start(output, extendedOutput);
+            if (this.Starting != null)
+            {
+                this.Starting(this, new EventArgs());
+            }
+
+            //  TODO:   Make sure cant start new shell while this is running
+            this._channel = this._session.CreateChannel<ChannelSession>();
+            this._channel.DataReceived += Channel_DataReceived;
+            this._channel.ExtendedDataReceived += Channel_ExtendedDataReceived;
+            this._channel.Closed += Channel_Closed;
+            this._session.Disconnected += Session_Disconnected;
+            this._session.ErrorOccured += Session_ErrorOccured;
+
+            this._channel.Open();
+            this._channel.SendPseudoTerminalRequest(this._terminalName, this._columns, this._columns, this._width, this._height, this._terminalMode);
+            this._channel.SendShellRequest();
+
+            //  Start input stream lisnter
+            this._dataReaderTask = Task.Factory.StartNew(() =>
+            {
+                try
+                {
+                    while (this._channel.IsOpen)
+                    {
+                        var ch = this._channelInput.ReadByte();
+
+                        if (ch > 0)
+                        {
+                            Debug.WriteLine(ch);
+
+                            var m = new ChannelDataMessage
+                            {
+                                Data = Char.ConvertFromUtf32(ch),
+                                LocalChannelNumber = this._channel.RemoteChannelNumber,
+                            };
+
+                            this._session.SendMessage(m);
+                        }
+                        else
+                        {
+                            //  Wait for data become available
+                            Thread.Sleep(30);
+                        }
+                    }
+                }
+                catch (Exception exp)
+                {
+
+                    throw;
+                }
+            });
+
+            if (this.Started != null)
+            {
+                this.Started(this, new EventArgs());
+            }
+
         }
 
-        public void Send(string data)
+        public void Stop()
         {
-            this._channel.Send(data);
-        }
+            if (this.Stopping != null)
+            {
+                this.Stopping(this, new EventArgs());
+            }
 
-        public void Disconnect()
-        {
             this._channel.Close();
+            this._channelInput.Close();
+
+            this._dataReaderTask.Wait();
+
+            this._channel.DataReceived -= Channel_DataReceived;
+            this._channel.ExtendedDataReceived -= Channel_ExtendedDataReceived;
+            this._session.Disconnected -= Session_Disconnected;
+            this._session.ErrorOccured -= Session_ErrorOccured;
+
+            if (this.Stopped != null)
+            {
+                this.Stopped(this, new EventArgs());
+            }
         }
+
+        private void Session_ErrorOccured(object sender, ErrorEventArgs e)
+        {
+            if (this.ErrorOccured != null)
+            {
+                this.ErrorOccured(this, e);
+            }
+        }
+
+        private void Session_Disconnected(object sender, System.EventArgs e)
+        {
+            this.Stop();
+        }
+
+        private void Channel_ExtendedDataReceived(object sender, Common.ChannelDataEventArgs e)
+        {
+            if (this._channelExtendedOutput != null)
+            {
+                this._channelExtendedOutput.Write(e.Data);
+            }
+        }
+
+        private void Channel_DataReceived(object sender, Common.ChannelDataEventArgs e)
+        {
+            if (this._channelOutput != null)
+            {
+                this._channelOutput.Write(e.Data);
+            }
+        }
+
+        private void Channel_Closed(object sender, Common.ChannelEventArgs e)
+        {
+            this.Stop();
+        }
+
     }
 }

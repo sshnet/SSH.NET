@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace Renci.SshClient
 {
@@ -139,9 +140,9 @@ namespace Renci.SshClient
             return cmd;
         }
 
-        public Shell CreateShell()
+        public Shell CreateShell(Stream input, TextWriter output, TextWriter extendedOutput, string terminalName, uint columns, uint rows, uint width, uint height, string terminalMode)
         {
-            return new Shell(this._session);
+            return new Shell(this._session, input, output, extendedOutput, terminalName, columns, rows, width, height, terminalMode);
         }
 
         public void RemoveForwardedPort(ForwardedPort port)

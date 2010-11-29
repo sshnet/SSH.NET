@@ -2,7 +2,7 @@
 using System.Text;
 namespace Renci.SshClient.Messages.Sftp
 {
-    internal class OpenDirMessage : SftpMessage
+    internal class OpenDirMessage : SftpRequestMessage
     {
         public override SftpMessageTypes SftpMessageType
         {
@@ -10,6 +10,16 @@ namespace Renci.SshClient.Messages.Sftp
         }
 
         public string Path { get; set; }
+
+        public OpenDirMessage()
+        {
+
+        }
+
+        public OpenDirMessage(string path)
+        {
+            this.Path = path;
+        }
 
         protected override void LoadData()
         {

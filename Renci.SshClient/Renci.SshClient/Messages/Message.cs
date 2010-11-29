@@ -23,7 +23,7 @@ namespace Renci.SshClient.Messages
             return message;
         }
 
-        public override int ZeroReaderIndex
+        protected override int ZeroReaderIndex
         {
             get
             {

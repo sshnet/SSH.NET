@@ -23,22 +23,22 @@ namespace Renci.SshClient
             }
         }
 
-        private Sftp _sftp;
-        /// <summary>
-        /// Gets the shell.
-        /// </summary>
-        /// <value>The shell.</value>
-        public Sftp Sftp
-        {
-            get
-            {
-                if (this._sftp == null)
-                {
-                    this._sftp = new Sftp(this._session);
-                }
-                return this._sftp;
-            }
-        }
+        //private Sftp _sftp;
+        ///// <summary>
+        ///// Gets the shell.
+        ///// </summary>
+        ///// <value>The shell.</value>
+        //public Sftp Sftp
+        //{
+        //    get
+        //    {
+        //        if (this._sftp == null)
+        //        {
+        //            this._sftp = new Sftp(this._session);
+        //        }
+        //        return this._sftp;
+        //    }
+        //}
 
         public IEnumerable<ForwardedPort> ForwardedPorts
         {
@@ -111,7 +111,7 @@ namespace Renci.SshClient
             this._session.Disconnect();
 
             //  Clean up objects created using previouse session instance
-            this._sftp = null;
+            //this._sftp = null;
         }
 
         public T AddForwardedPort<T>(uint boundPort, string connectedHost, uint connectedPort) where T : ForwardedPort, new()
@@ -135,7 +135,7 @@ namespace Renci.SshClient
 
         public SshCommand RunCommand(string commandText)
         {
-            var cmd = new SshCommand(this._session, commandText);
+            var cmd = this.CreateCommand(commandText);
             cmd.Execute();
             return cmd;
         }
@@ -144,6 +144,11 @@ namespace Renci.SshClient
         {
             return new Shell(this._session, input, output, extendedOutput, terminalName, columns, rows, width, height, terminalMode);
         }
+
+        //public Sftp CreateSftp()
+        //{
+        //    return new Sftp(this._session);
+        //}
 
         public void RemoveForwardedPort(ForwardedPort port)
         {

@@ -3,7 +3,7 @@ using Renci.SshClient.Common;
 
 namespace Renci.SshClient.Messages.Sftp
 {
-    internal class NameMessage : SftpMessage
+    internal class NameMessage : SftpRequestMessage
     {
 
         public override SftpMessageTypes SftpMessageType

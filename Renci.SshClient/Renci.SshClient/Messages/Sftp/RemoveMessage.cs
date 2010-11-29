@@ -2,7 +2,7 @@
 using System.Text;
 namespace Renci.SshClient.Messages.Sftp
 {
-    internal class RemoveMessage : SftpMessage
+    internal class RemoveMessage : SftpRequestMessage
     {
         public override SftpMessageTypes SftpMessageType
         {

@@ -1,6 +1,6 @@
 ﻿namespace Renci.SshClient.Messages.Sftp
 {
-    internal class MkDirMessage : SftpMessage
+    internal class MkDirMessage : SftpRequestMessage
     {
         public MkDirMessage()
         {
@@ -29,5 +29,6 @@
             this.Write(this.Path);
             this.Write(this.Attributes);
         }
+
     }
 }

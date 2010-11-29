@@ -1,7 +1,7 @@
 ﻿
 namespace Renci.SshClient.Messages.Sftp
 {
-    internal class ExtendedReplyMessage : SftpMessage
+    internal class ExtendedReplyMessage : SftpRequestMessage
     {
         public override SftpMessageTypes SftpMessageType
         {

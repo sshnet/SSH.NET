@@ -31,6 +31,5 @@ namespace Renci.SshClient.Messages.Sftp
             this.Write(this.Version);
             this.Write(this.Extentions);
         }
-
     }
 }

@@ -11,7 +11,8 @@
 
         protected override void LoadData()
         {
-
+            base.LoadData();
+            this.Version = this.ReadUInt32();
         }
 
         protected override void SaveData()

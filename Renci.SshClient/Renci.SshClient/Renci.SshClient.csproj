@@ -64,7 +64,6 @@
     <Compile Include="Common\ChannelEventArgs.cs" />
     <Compile Include="Common\ChannelOpenFailedEventArgs.cs" />
     <Compile Include="Common\ChannelRequestEventArgs.cs" />
-    <Compile Include="Channels\ChannelSessionShell.cs" />
     <Compile Include="Common\SshConnectionException.cs" />
     <Compile Include="Common\SshOperationTimeoutException.cs" />
     <Compile Include="Messages\Connection\ChannelOpen\ChannelOpenInfo.cs" />
@@ -84,6 +83,8 @@
     <Compile Include="Messages\Connection\ChannelRequest\WindowChangeRequestInfo.cs" />
     <Compile Include="Messages\Connection\ChannelRequest\X11ForwardingRequestInfo.cs" />
     <Compile Include="Messages\Connection\ChannelRequest\XonXoffRequestInfo.cs" />
+    <Compile Include="Messages\Sftp\SftpRequestMessage.cs" />
+    <Compile Include="SftpAsyncResult.cs" />
     <Compile Include="SshCommand.cs" />
     <Compile Include="MessageEventArgs.cs" />
     <Compile Include="ChannelAsyncResult.cs" />
@@ -102,7 +103,6 @@
     <Compile Include="Security\CipherAES.cs" />
     <Compile Include="Security\CipherTripleDES.cs" />
     <Compile Include="Compression\Compressor.cs" />
-    <Compile Include="Channels\ChannelSessionSftp.cs" />
     <Compile Include="Common\DataReceivedEventArgs.cs" />
     <Compile Include="Common\FtpFileInfo.cs" />
     <Compile Include="Messages\Sftp\AceMasks.cs" />

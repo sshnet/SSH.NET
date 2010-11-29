@@ -25,7 +25,7 @@ namespace Renci.SshClient.Common
 
         private IEnumerable<byte> _loadedData;
 
-        public virtual int ZeroReaderIndex
+        protected virtual int ZeroReaderIndex
         {
             get
             {

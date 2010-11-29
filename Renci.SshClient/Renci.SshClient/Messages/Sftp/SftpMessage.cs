@@ -18,7 +18,7 @@ namespace Renci.SshClient.Messages.Sftp
             return Load(data, messageType);
         }
 
-        public override int ZeroReaderIndex
+        protected override int ZeroReaderIndex
         {
             get
             {
@@ -59,22 +59,13 @@ namespace Renci.SshClient.Messages.Sftp
 
         public abstract SftpMessageTypes SftpMessageType { get; }
 
-        public uint? RequestId { get; set; }
-
         protected override void LoadData()
         {
-            //  SSH_FXP_INIT and SSH_FXP_VERSION doesnt have RequestID, all other messaages do
-            if (!(this.SftpMessageType == SftpMessageTypes.Init || this.SftpMessageType == SftpMessageTypes.Version))
-            {
-                this.RequestId = this.ReadUInt32();
-            }
         }
 
         protected override void SaveData()
         {
             this.Write((byte)this.SftpMessageType);
-            if (this.RequestId.HasValue)
-                this.Write(this.RequestId.Value);
         }
 
         protected Attributes ReadAttributes()

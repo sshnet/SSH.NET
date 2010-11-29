@@ -1,7 +1,7 @@
 ﻿
 namespace Renci.SshClient.Messages.Sftp
 {
-    internal class ReadDirMessage : SftpMessage
+    internal class ReadDirMessage : SftpRequestMessage
     {
         public override SftpMessageTypes SftpMessageType
         {
@@ -9,6 +9,16 @@ namespace Renci.SshClient.Messages.Sftp
         }
 
         public string Handle { get; set; }
+
+        public ReadDirMessage()
+        {
+
+        }
+
+        public ReadDirMessage(string handle)
+        {
+            this.Handle = handle;
+        }
 
         protected override void LoadData()
         {

@@ -1,6 +1,6 @@
 ﻿namespace Renci.SshClient.Messages.Sftp
 {
-    internal class StatusMessage : SftpMessage
+    internal class StatusMessage : SftpRequestMessage
     {
         public override SftpMessageTypes SftpMessageType
         {

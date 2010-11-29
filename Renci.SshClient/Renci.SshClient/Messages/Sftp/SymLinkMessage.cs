@@ -2,7 +2,7 @@
 
 namespace Renci.SshClient.Messages.Sftp
 {
-    internal class SymLinkMessage : SftpMessage
+    internal class SymLinkMessage : SftpRequestMessage
     {
         public override SftpMessageTypes SftpMessageType
         {

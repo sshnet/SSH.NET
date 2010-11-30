@@ -56,12 +56,12 @@ namespace Renci.SshClient.Security
         /// Initializes a new instance of the <see cref="KeyExchangeDiffieHellman"/> class.
         /// </summary>
         /// <param name="sessionInfo">The session information.</param>
-        internal KeyExchangeDiffieHellman(Session session)
-            : base(session)
+        internal KeyExchangeDiffieHellman()
+            : base()
         {
         }
 
-        public override void HandleMessage<T>(T message)
+        protected override void HandleMessage<T>(T message)
         {
             this.HandleMessage((dynamic)message);
         }

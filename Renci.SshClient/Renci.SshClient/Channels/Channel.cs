@@ -148,16 +148,6 @@ namespace Renci.SshClient.Channels
             this.LocalChannelNumber = session.NextChannelNumber;
             this.RemoteChannelNumber = serverChannelNumber;
 
-            this._session.RegisterMessageType<ChannelOpenConfirmationMessage>(MessageTypes.ChannelOpenConfirmation);
-            this._session.RegisterMessageType<ChannelOpenFailureMessage>(MessageTypes.ChannelOpenFailure);
-            this._session.RegisterMessageType<ChannelWindowAdjustMessage>(MessageTypes.ChannelWindowAdjust);
-            this._session.RegisterMessageType<ChannelExtendedDataMessage>(MessageTypes.ChannelExtendedData);
-            this._session.RegisterMessageType<ChannelRequestMessage>(MessageTypes.ChannelRequest);
-            this._session.RegisterMessageType<ChannelSuccessMessage>(MessageTypes.ChannelSuccess);
-            this._session.RegisterMessageType<ChannelDataMessage>(MessageTypes.ChannelData);
-            this._session.RegisterMessageType<ChannelEofMessage>(MessageTypes.ChannelEof);
-            this._session.RegisterMessageType<ChannelCloseMessage>(MessageTypes.ChannelClose);
-
             this._session.ChannelOpenReceived += OnChannelOpen;
             this._session.ChannelOpenConfirmationReceived += OnChannelOpenConfirmation;
             this._session.ChannelOpenFailureReceived += OnChannelOpenFailure;
@@ -171,7 +161,6 @@ namespace Renci.SshClient.Channels
             this._session.ChannelFailureReceived += OnChannelFailure;
             this._session.ErrorOccured += Session_ErrorOccured;
             this._session.Disconnected += Session_Disconnected;
-
         }
 
         public virtual void Close()
@@ -189,7 +178,6 @@ namespace Renci.SshClient.Channels
 
         #region Channel virtual methods
 
-        //protected virtual void OnOpen(ChannelTypes channelType, uint initialWindowSize, uint maximumPacketSize, string connectedAddress, uint connectedPort, string originatorAddress, uint originatorPort)
         protected virtual void OnOpen(ChannelOpenInfo info)
         {
         }
@@ -318,7 +306,22 @@ namespace Renci.SshClient.Channels
                 return;
 
             this.IsOpen = false;
+
             this.SendChannelCloseMessage();
+
+            this._session.ChannelOpenReceived -= OnChannelOpen;
+            this._session.ChannelOpenConfirmationReceived -= OnChannelOpenConfirmation;
+            this._session.ChannelOpenFailureReceived -= OnChannelOpenFailure;
+            this._session.ChannelWindowAdjustReceived -= OnChannelWindowAdjust;
+            this._session.ChannelDataReceived -= OnChannelData;
+            this._session.ChannelExtendedDataReceived -= OnChannelExtendedData;
+            this._session.ChannelEofReceived -= OnChannelEof;
+            this._session.ChannelCloseReceived -= OnChannelClose;
+            this._session.ChannelRequestReceived -= OnChannelRequest;
+            this._session.ChannelSuccessReceived -= OnChannelSuccess;
+            this._session.ChannelFailureReceived -= OnChannelFailure;
+            this._session.ErrorOccured -= Session_ErrorOccured;
+            this._session.Disconnected -= Session_Disconnected;
         }
 
         protected void WaitHandle(WaitHandle waitHandle)
@@ -342,7 +345,6 @@ namespace Renci.SshClient.Channels
         {
             if (e.Message.LocalChannelNumber == this.LocalChannelNumber)
             {
-                //this.OnOpen(e.Message.ChannelType, e.Message.InitialWindowSize, e.Message.MaximumPacketSize, e.Message.ConnectedAddress, e.Message.ConnectedPort, e.Message.OriginatorAddress, e.Message.OriginatorPort);
                 this.OnOpen(e.Message.Info);
             }
         }

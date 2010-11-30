@@ -70,8 +70,6 @@ namespace Renci.SshClient
             this.CommandText = commandText;
             this.CommandTimeout = -1;
 
-            this.CreateChannel();
-
             this._session.Disconnected += Session_Disconnected;
             this._session.ErrorOccured += Session_ErrorOccured;
         }
@@ -93,9 +91,14 @@ namespace Renci.SshClient
             };
 
             //  When comman rexecuted again, create a new channel
-            if (this._channel != null)
+            if (this._channel == null)
             {
                 this.CreateChannel();
+            }
+            else
+            {
+                //  TODO: Clean up all channel information and make sure its properly closed and disattached from events
+                //  TODO: To allow multiple async command execution at the same time move this._channel field into asyncResult
             }
 
             if (string.IsNullOrEmpty(this.CommandText))
@@ -235,7 +238,11 @@ namespace Renci.SshClient
         {
             if (this.ExtendedOutputStream != null)
             {
-                this.ExtendedOutputStream.Write(e.Data.GetSshBytes().ToArray(), 0, e.Data.Length);
+                lock (this.ExtendedOutputStream)
+                {
+                    this.ExtendedOutputStream.Write(e.Data.GetSshBytes().ToArray(), 0, e.Data.Length);
+                    this.ExtendedOutputStream.Flush();
+                }
             }
 
             if (e.DataTypeCode == 1)
@@ -248,12 +255,19 @@ namespace Renci.SshClient
         {
             if (this.OutputStream != null)
             {
-                this.OutputStream.Write(e.Data.GetSshBytes().ToArray(), 0, e.Data.Length);
+                lock (this.OutputStream)
+                {
+                    this.OutputStream.Write(e.Data.GetSshBytes().ToArray(), 0, e.Data.Length);
+                    this.OutputStream.Flush();
+                }
             }
 
             if (this._asyncResult != null)
             {
-                this._asyncResult.BytesReceived += e.Data.Length;
+                lock (this._asyncResult)
+                {
+                    this._asyncResult.BytesReceived += e.Data.Length;
+                }
             }
         }
 

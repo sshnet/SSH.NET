@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -13,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Renci.SshClient.Channels;
 using Renci.SshClient.Common;
+using Renci.SshClient.Compression;
 using Renci.SshClient.Messages;
 using Renci.SshClient.Messages.Authentication;
 using Renci.SshClient.Messages.Connection;
@@ -45,11 +45,6 @@ namespace Renci.SshClient
         private Socket _socket;
 
         /// <summary>
-        /// Holds reference to key exchange algorithm being used by this connection
-        /// </summary>
-        private KeyExchange _keyExhcange;
-
-        /// <summary>
         /// Holds reference to task that listnes for incoming messages
         /// </summary>
         private Task _messageListener;
@@ -74,6 +69,10 @@ namespace Renci.SshClient
         /// </summary>
         private EventWaitHandle _exceptionWaitHandle = new AutoResetEvent(false);
 
+        private EventWaitHandle _keyExchangeCompletedWaitHandle = new ManualResetEvent(false);
+
+        private KeyExchangeAlgorithm _keyExchangeAlgorithm;
+
         /// <summary>
         /// Exception that need to be thrown by waiting thread
         /// </summary>
@@ -88,6 +87,18 @@ namespace Renci.SshClient
         /// Specifies whether user issued Disconnect command or not
         /// </summary>
         private bool _isDisconnecting;
+
+        public HMAC _serverMac;
+
+        public HMAC _clientMac;
+
+        public Cipher _clientCipher;
+
+        public Cipher _serverCipher;
+
+        public Compressor _serverDecompression;
+
+        public Compressor _clientCompression;
 
         /// <summary>
         /// Hold session specific semaphores
@@ -156,13 +167,7 @@ namespace Renci.SshClient
         /// Gets or sets the session id.
         /// </summary>
         /// <value>The session id.</value>
-        public IEnumerable<byte> SessionId
-        {
-            get
-            {
-                return this._keyExhcange.SessionId;
-            }
-        }
+        public IEnumerable<byte> SessionId { get; private set; }
 
         private Message _clientInitMessage;
         /// <summary>
@@ -299,6 +304,11 @@ namespace Renci.SshClient
         /// Occurs when <see cref="RequestFailureMessage"/> message received
         /// </summary>
         public event EventHandler<MessageEventArgs<RequestFailureMessage>> RequestFailureReceived;
+
+        /// <summary>
+        /// Occurs when <see cref="ChannelMessage"/> message received
+        /// </summary>
+        public event EventHandler<MessageEventArgs<ChannelMessage>> ChannelMessageReceived;
 
         /// <summary>
         /// Occurs when <see cref="ChannelOpenMessage"/> message received
@@ -478,13 +488,11 @@ namespace Renci.SshClient
                     this.RegisterMessageType<NewKeysMessage>(MessageTypes.NewKeys);
 
 
-                    this._keyExhcange = new KeyExchange(this);
-
                     //  Start incoming request listener
                     this._messageListener = Task.Factory.StartNew(() => { this.MessageListener(); }, TaskCreationOptions.LongRunning);
 
                     //  Wait for key exchange to be completed
-                    this.WaitHandle(this._keyExhcange.WaitHandle);
+                    this.WaitHandle(this._keyExchangeCompletedWaitHandle);
 
                     //  If sessionId is not set then its not connected
                     if (this.SessionId == null)
@@ -608,7 +616,7 @@ namespace Renci.SshClient
                 return;
 
             //  Messages can be sent by different thread so we need to synchronize it            
-            var paddingMultiplier = this._keyExhcange.ClientCipher == null ? (byte)8 : (byte)this._keyExhcange.ClientCipher.BlockSize;    //    Should be recalculate base on cipher min lenght if sipher specified
+            var paddingMultiplier = this._clientCipher == null ? (byte)8 : (byte)this._clientCipher.BlockSize;    //    Should be recalculate base on cipher min lenght if sipher specified
 
             var messageData = message.GetBytes();
 
@@ -617,9 +625,9 @@ namespace Renci.SshClient
                 throw new InvalidOperationException(string.Format("Payload cannot be more then {0} bytes.", Session.MAXIMUM_PAYLOAD_SIZE));
             }
 
-            if (this._keyExhcange.ClientCompression != null)
+            if (this._clientCompression != null)
             {
-                messageData = this._keyExhcange.ClientCompression.Compress(messageData);
+                messageData = this._clientCompression.Compress(messageData);
             }
 
             var packetLength = messageData.Count() + 4 + 1; //  add length bytes and padding byte
@@ -656,15 +664,15 @@ namespace Renci.SshClient
 
                 //  Encrypt packet data
                 var encryptedData = packetData.ToList();
-                if (this._keyExhcange.ClientCipher != null)
+                if (this._clientCipher != null)
                 {
-                    encryptedData = new List<byte>(this._keyExhcange.ClientCipher.Encrypt(packetData));
+                    encryptedData = new List<byte>(this._clientCipher.Encrypt(packetData));
                 }
 
                 //  Add message authentication code (MAC)
-                if (this._keyExhcange.ClientMac != null)
+                if (this._clientMac != null)
                 {
-                    var hash = this._keyExhcange.ClientMac.ComputeHash(hashData.ToArray());
+                    var hash = this._clientMac.ComputeHash(hashData.ToArray());
 
                     encryptedData.AddRange(hash);
                 }
@@ -695,18 +703,18 @@ namespace Renci.SshClient
 
             List<byte> decryptedData;
 
-            var blockSize = this._keyExhcange.ServerCipher == null ? (byte)8 : (byte)this._keyExhcange.ServerCipher.BlockSize;
+            var blockSize = this._serverCipher == null ? (byte)8 : (byte)this._serverCipher.BlockSize;
 
             //  Read packet lenght first
             var data = new List<byte>(this.Read(blockSize));
 
-            if (this._keyExhcange.ServerCipher == null)
+            if (this._serverCipher == null)
             {
                 decryptedData = data.ToList();
             }
             else
             {
-                decryptedData = new List<byte>(this._keyExhcange.ServerCipher.Decrypt(data));
+                decryptedData = new List<byte>(this._serverCipher.Decrypt(data));
             }
 
             var packetLength = (uint)(decryptedData[0] << 24 | decryptedData[1] << 16 | decryptedData[2] << 8 | decryptedData[3]);
@@ -720,13 +728,13 @@ namespace Renci.SshClient
 
             if (bytesToRead > 0)
             {
-                if (this._keyExhcange.ServerCipher == null)
+                if (this._serverCipher == null)
                 {
                     decryptedData.AddRange(this.Read(bytesToRead));
                 }
                 else
                 {
-                    decryptedData.AddRange(this._keyExhcange.ServerCipher.Decrypt(this.Read(bytesToRead)));
+                    decryptedData.AddRange(this._serverCipher.Decrypt(this.Read(bytesToRead)));
                 }
             }
 
@@ -734,22 +742,22 @@ namespace Renci.SshClient
 
             var messagePayload = decryptedData.Skip(5).Take((int)(packetLength - paddingLength - 1));
 
-            if (this._keyExhcange.ServerDecompression != null)
+            if (this._serverDecompression != null)
             {
-                messagePayload = new List<byte>(this._keyExhcange.ServerDecompression.Uncompress(messagePayload));
+                messagePayload = new List<byte>(this._serverDecompression.Uncompress(messagePayload));
             }
 
             //  Validate message against MAC            
-            if (this._keyExhcange.ServerMac != null)
+            if (this._serverMac != null)
             {
-                var serverHash = this.Read(this._keyExhcange.ServerMac.HashSize / 8);
+                var serverHash = this.Read(this._serverMac.HashSize / 8);
 
                 var clientHashData = new List<byte>();
                 clientHashData.AddRange(BitConverter.GetBytes(this._inboundPacketSequence).Reverse());
                 clientHashData.AddRange(decryptedData);
 
                 //  Calculate packet hash
-                var clientHash = this._keyExhcange.ServerMac.ComputeHash(clientHashData.ToArray());
+                var clientHash = this._serverMac.ComputeHash(clientHashData.ToArray());
 
                 if (!serverHash.SequenceEqual(clientHash))
                 {
@@ -998,7 +1006,98 @@ namespace Renci.SshClient
 
         protected virtual void OnKeyExchangeInitReceived(KeyExchangeInitMessage message)
         {
-            this._keyExhcange.HandleMessage(message);
+            this._keyExchangeCompletedWaitHandle.Reset();
+
+            //  Connection type messages are not allowed during key excahnge phase
+            this.UnRegisterMessageType(MessageTypes.GlobalRequest);
+            this.UnRegisterMessageType(MessageTypes.RequestSuccess);
+            this.UnRegisterMessageType(MessageTypes.RequestFailure);
+            this.UnRegisterMessageType(MessageTypes.ChannelOpenConfirmation);
+            this.UnRegisterMessageType(MessageTypes.ChannelOpenFailure);
+            this.UnRegisterMessageType(MessageTypes.ChannelWindowAdjust);
+            this.UnRegisterMessageType(MessageTypes.ChannelExtendedData);
+            this.UnRegisterMessageType(MessageTypes.ChannelRequest);
+            this.UnRegisterMessageType(MessageTypes.ChannelSuccess);
+            this.UnRegisterMessageType(MessageTypes.ChannelData);
+            this.UnRegisterMessageType(MessageTypes.ChannelEof);
+            this.UnRegisterMessageType(MessageTypes.ChannelClose);
+
+            this.SendMessage(this.ClientInitMessage);
+
+            var keyExchangeAlgorithm = (from c in Settings.KeyExchangeAlgorithms.Keys
+                                        from s in message.KeyExchangeAlgorithms
+                                        where s == c
+                                        select c).FirstOrDefault();
+
+            if (keyExchangeAlgorithm == null)
+            {
+                throw new SshConnectionException("Failed to negotiate key exchange algorithm.", DisconnectReasons.KeyExchangeFailed);
+            }
+
+            this._keyExchangeAlgorithm = Settings.KeyExchangeAlgorithms[keyExchangeAlgorithm]();
+
+            //  Determine encryption algorithm
+            var clientEncryptionAlgorithmName = (from b in Settings.Encryptions.Keys
+                                                 from a in message.EncryptionAlgorithmsClientToServer
+                                                 where a == b
+                                                 select a).FirstOrDefault();
+
+            if (string.IsNullOrEmpty(clientEncryptionAlgorithmName))
+            {
+                throw new SshConnectionException("Client encryption algorithm not found", DisconnectReasons.KeyExchangeFailed);
+            }
+
+            //  Determine encryption algorithm
+            var serverDecryptionAlgorithmName = (from b in Settings.Encryptions.Keys
+                                                 from a in message.EncryptionAlgorithmsServerToClient
+                                                 where a == b
+                                                 select a).FirstOrDefault();
+            if (string.IsNullOrEmpty(serverDecryptionAlgorithmName))
+            {
+                throw new SshConnectionException("Server decryption algorithm not found", DisconnectReasons.KeyExchangeFailed);
+            }
+
+            //  Determine client hmac algorithm
+            var clientHmacAlgorithmName = (from b in Settings.HmacAlgorithms.Keys
+                                           from a in message.MacAlgorithmsClientToSserver
+                                           where a == b
+                                           select a).FirstOrDefault();
+            if (string.IsNullOrEmpty(clientHmacAlgorithmName))
+            {
+                throw new SshConnectionException("Server HMAC algorithm not found", DisconnectReasons.KeyExchangeFailed);
+            }
+
+            //  Determine server hmac algorithm
+            var serverHmacAlgorithmName = (from b in Settings.HmacAlgorithms.Keys
+                                           from a in message.MacAlgorithmsServerToClient
+                                           where a == b
+                                           select a).FirstOrDefault();
+            if (string.IsNullOrEmpty(serverHmacAlgorithmName))
+            {
+                throw new SshConnectionException("Server HMAC algorithm not found", DisconnectReasons.KeyExchangeFailed);
+            }
+
+            //  Determine compression algorithm
+            var compressionAlgorithmName = (from b in Settings.CompressionAlgorithms.Keys
+                                            from a in message.CompressionAlgorithmsClientToServer
+                                            where a == b
+                                            select a).FirstOrDefault();
+            if (string.IsNullOrEmpty(compressionAlgorithmName))
+            {
+                throw new SshConnectionException("Compression algorithm not found", DisconnectReasons.KeyExchangeFailed);
+            }
+
+            //  Determine decompression algorithm
+            var decompressionAlgorithmName = (from b in Settings.CompressionAlgorithms.Keys
+                                              from a in message.CompressionAlgorithmsServerToClient
+                                              where a == b
+                                              select a).FirstOrDefault();
+            if (string.IsNullOrEmpty(decompressionAlgorithmName))
+            {
+                throw new SshConnectionException("Decompression algorithm not found", DisconnectReasons.KeyExchangeFailed);
+            }
+
+            this._keyExchangeAlgorithm.Init(this, clientEncryptionAlgorithmName, serverDecryptionAlgorithmName, clientHmacAlgorithmName, serverHmacAlgorithmName, compressionAlgorithmName, decompressionAlgorithmName);
 
             if (this.KeyExchangeInitReceived != null)
             {
@@ -1008,6 +1107,63 @@ namespace Renci.SshClient
 
         protected virtual void OnNewKeysReceived(NewKeysMessage message)
         {
+            //  Validate hash
+            var validated = this._keyExchangeAlgorithm.ValidateExchangeHash();
+
+            if (validated)
+            {
+                this.SendMessage(new NewKeysMessage());
+            }
+            else
+            {
+                throw new SshConnectionException("Key exchange negotiation failed.", DisconnectReasons.KeyExchangeFailed);
+            }
+
+            var exchangeHash = this._keyExchangeAlgorithm.ExchangeHash;
+
+            var sharedKey = this._keyExchangeAlgorithm.SharedKey;
+
+            //  Initialize new encryption algorithms
+            if (this.SessionId == null)
+            {
+                this.SessionId = exchangeHash;
+            }
+
+            //  Create client to server cipher
+            this._clientCipher = this._keyExchangeAlgorithm.CreateClientCipher();
+
+            //  Create server to client cipher
+            this._serverCipher = this._keyExchangeAlgorithm.CreateServerCipher();
+
+            //  Create client to server mac
+            this._clientMac = this._keyExchangeAlgorithm.CreateClientMAC();
+
+            //  Calculate server to client integrity
+            this._serverMac = this._keyExchangeAlgorithm.CreateServerMAC();
+
+            this._serverDecompression = this._keyExchangeAlgorithm.CreateCompression();
+
+            this._clientCompression = this._keyExchangeAlgorithm.CreateDecompression();
+
+            this._keyExchangeAlgorithm = null;
+
+            //  Signal that key exchange completed
+            this._keyExchangeCompletedWaitHandle.Set();
+
+            //  Register Connection messages
+            this.RegisterMessageType<GlobalRequestMessage>(MessageTypes.GlobalRequest);
+            this.RegisterMessageType<RequestSuccessMessage>(MessageTypes.RequestSuccess);
+            this.RegisterMessageType<RequestFailureMessage>(MessageTypes.RequestFailure);
+            this.RegisterMessageType<ChannelOpenConfirmationMessage>(MessageTypes.ChannelOpenConfirmation);
+            this.RegisterMessageType<ChannelOpenFailureMessage>(MessageTypes.ChannelOpenFailure);
+            this.RegisterMessageType<ChannelWindowAdjustMessage>(MessageTypes.ChannelWindowAdjust);
+            this.RegisterMessageType<ChannelExtendedDataMessage>(MessageTypes.ChannelExtendedData);
+            this.RegisterMessageType<ChannelRequestMessage>(MessageTypes.ChannelRequest);
+            this.RegisterMessageType<ChannelSuccessMessage>(MessageTypes.ChannelSuccess);
+            this.RegisterMessageType<ChannelDataMessage>(MessageTypes.ChannelData);
+            this.RegisterMessageType<ChannelEofMessage>(MessageTypes.ChannelEof);
+            this.RegisterMessageType<ChannelCloseMessage>(MessageTypes.ChannelClose);
+
             if (this.NewKeysReceived != null)
             {
                 this.NewKeysReceived(this, new MessageEventArgs<NewKeysMessage>(message));
@@ -1303,36 +1459,18 @@ namespace Renci.SshClient
             try
             {
                 while (this._socket.Connected)
-                //while (true)
                 {
                     var message = this.ReceiveMessage();
 
-                    Debug.WriteLine(message);
+                    //Debug.WriteLine(string.Format("{0} : {1}", DateTime.Now, message));
 
                     if (message == null)
                     {
                         throw new NullReferenceException("The 'message' variable cannot be null");
                     }
-                    else if (this._keyExhcange.InProgress)
-                    {
-                        this._keyExhcange.HandleMessage((dynamic)message);
-                        continue;   //  Get next message, all non kexinit messages should be ignored
-                    }
                     else
                     {
-                        //  TODO:   Handle each message on induvidual thread
-                        //Task.Factory.StartNew(() =>
-                        //{
-                        //    try
-                        //    {
-                        //  Handle message
                         this.HandleMessage((dynamic)message);
-                        //    }
-                        //    catch (Exception exp)
-                        //    {
-                        //        throw;
-                        //    }
-                        //});
                     }
                 }
             }
@@ -1343,7 +1481,7 @@ namespace Renci.SshClient
             }
         }
 
-        private void RaiseError(Exception exp)
+        internal void RaiseError(Exception exp)
         {
             var connectionException = exp as SshConnectionException;
 
@@ -1402,11 +1540,6 @@ namespace Renci.SshClient
                     if (this._exceptionWaitHandle != null)
                     {
                         this._exceptionWaitHandle.Dispose();
-                    }
-
-                    if (this._keyExhcange != null)
-                    {
-                        this._keyExhcange.Dispose();
                     }
 
                     if (this._sessionSemaphore != null)

@@ -84,7 +84,19 @@
     <Compile Include="Messages\Connection\ChannelRequest\X11ForwardingRequestInfo.cs" />
     <Compile Include="Messages\Connection\ChannelRequest\XonXoffRequestInfo.cs" />
     <Compile Include="Messages\Sftp\SftpRequestMessage.cs" />
-    <Compile Include="SftpAsyncResult.cs" />
+    <Compile Include="SftpClient.cs" />
+    <Compile Include="Sftp\CreateRemoteDirectoryCommand.cs" />
+    <Compile Include="Sftp\DownloadFileCommand.cs" />
+    <Compile Include="Sftp\ListDirectoryCommand.cs" />
+    <Compile Include="Sftp\RemoveDirectoryCommand.cs" />
+    <Compile Include="Sftp\RemoveFileCommand.cs" />
+    <Compile Include="Sftp\RenameFileCommand.cs" />
+    <Compile Include="Sftp\SftpAsyncResult.cs" />
+    <Compile Include="Sftp\SftpCommand.cs" />
+    <Compile Include="Sftp\SftpFile.cs" />
+    <Compile Include="Sftp\SftpFileAttributes.cs" />
+    <Compile Include="Sftp\SftpSession.cs" />
+    <Compile Include="Sftp\UploadFileCommand.cs" />
     <Compile Include="SshCommand.cs" />
     <Compile Include="MessageEventArgs.cs" />
     <Compile Include="ChannelAsyncResult.cs" />
@@ -104,7 +116,6 @@
     <Compile Include="Security\CipherTripleDES.cs" />
     <Compile Include="Compression\Compressor.cs" />
     <Compile Include="Common\DataReceivedEventArgs.cs" />
-    <Compile Include="Common\FtpFileInfo.cs" />
     <Compile Include="Messages\Sftp\AceMasks.cs" />
     <Compile Include="Messages\Sftp\Attributes.cs" />
     <Compile Include="Messages\Sftp\AttrsMessage.cs" />
@@ -229,9 +240,7 @@
     <Compile Include="Session.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="Common\SshData.cs" />
-    <Compile Include="Sftp.cs" />
     <Compile Include="Shell.cs" />
-    <Compile Include="SshBase.cs" />
     <Compile Include="SshClient.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

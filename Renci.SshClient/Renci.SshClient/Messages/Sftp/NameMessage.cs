@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Renci.SshClient.Common;
+using Renci.SshClient.Sftp;
 
 namespace Renci.SshClient.Messages.Sftp
 {
@@ -13,35 +13,37 @@ namespace Renci.SshClient.Messages.Sftp
 
         public uint Count { get; set; }
 
-        public IList<FtpFileInfo> Files { get; set; }
+        public IEnumerable<SftpFile> Files { get; set; }
 
         public NameMessage()
         {
-            this.Files = new List<FtpFileInfo>();
         }
 
         protected override void LoadData()
         {
             base.LoadData();
             this.Count = this.ReadUInt32();
+            var files = new List<SftpFile>();
             for (int i = 0; i < this.Count; i++)
             {
                 var fileName = this.ReadString();
                 var fullName = this.ReadString();
                 var attribute = this.ReadAttributes();
 
-                this.Files.Add(new FtpFileInfo
+                //  TODO:   Complete files info population
+                files.Add(new SftpFile
                 {
                     Name = fileName,
-                    FullName = fullName,
-                    Size = attribute.Size,
-                    UserId = attribute.UserId,
-                    GroupId = attribute.GroupId,
-                    LastAccessTime = attribute.AccessTime,
-                    LastModifyTime = attribute.ModifyTime,
+                    AbsolutePath = fullName,
+                    //Size = attribute.Size,
+                    //UserId = attribute.UserId,
+                    //GroupId = attribute.GroupId,
+                    //AccessedTime = attribute.AccessTime,
+                    //ModifiedTime = attribute.ModifyTime,
                     Extentions = attribute.Extentions,
                 });
             }
+            this.Files = files;
         }
 
         protected override void SaveData()

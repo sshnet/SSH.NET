@@ -1,28 +1,30 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading;
-using Renci.SshClient.Common;
+using System.Threading.Tasks;
 
-namespace Renci.SshClient
+namespace Renci.SshClient.Sftp
 {
     public class SftpAsyncResult : IAsyncResult
     {
         private bool _isCompleted;
 
-        private Channels.ChannelSession _channelSession;
-
         private AsyncCallback _callback;
 
         private EventWaitHandle _completedWaitHandle = new ManualResetEvent(false);
 
-        public IList<FtpFileInfo> Names { get; internal set; }
+        internal SftpCommand Command { get; private set; }
 
-        internal SftpAsyncResult(Channels.ChannelSession channelSession, AsyncCallback callback, object state)
+        internal SftpAsyncResult(SftpCommand command, AsyncCallback callback, object state)
         {
-            this._channelSession = channelSession;
+            this.Command = command;
             this._callback = callback;
             this.AsyncState = state;
             this.AsyncWaitHandle = _completedWaitHandle;
+        }
+
+        internal T GetCommand<T>() where T : SftpCommand
+        {
+            return this.Command as T;
         }
 
         #region IAsyncResult Members
@@ -39,14 +41,20 @@ namespace Renci.SshClient
             {
                 return this._isCompleted;
             }
+
             internal set
             {
                 this._isCompleted = value;
+
                 if (value)
                 {
                     if (this._callback != null)
                     {
-                        this._callback(this);
+                        //  Execute callback on new pool thread
+                        Task.Factory.StartNew(() =>
+                        {
+                            this._callback(this);
+                        });
                     }
                     this._completedWaitHandle.Set();
                 }

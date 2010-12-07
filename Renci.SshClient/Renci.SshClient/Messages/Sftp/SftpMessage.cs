@@ -52,7 +52,7 @@ namespace Renci.SshClient.Messages.Sftp
             SftpMessage._sftpMessageTypes.Add(SftpMessageTypes.Handle, new LoadFunc<SftpMessage>(Load<HandleMessage>));
             SftpMessage._sftpMessageTypes.Add(SftpMessageTypes.Data, new LoadFunc<SftpMessage>(Load<DataMessage>));
             SftpMessage._sftpMessageTypes.Add(SftpMessageTypes.Name, new LoadFunc<SftpMessage>(Load<NameMessage>));
-            SftpMessage._sftpMessageTypes.Add(SftpMessageTypes.Attrs, new LoadFunc<SftpMessage>(Load<AttrsMessage>));
+            SftpMessage._sftpMessageTypes.Add(SftpMessageTypes.Attrs, new LoadFunc<SftpMessage>(Load<AttributesMessage>));
             SftpMessage._sftpMessageTypes.Add(SftpMessageTypes.Extended, new LoadFunc<SftpMessage>(Load<ExtendedMessage>));
             SftpMessage._sftpMessageTypes.Add(SftpMessageTypes.ExtendedReply, new LoadFunc<SftpMessage>(Load<ExtendedReplyMessage>));
         }

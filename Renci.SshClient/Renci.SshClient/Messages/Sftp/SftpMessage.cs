@@ -11,7 +11,7 @@ namespace Renci.SshClient.Messages.Sftp
 
         private static IDictionary<SftpMessageTypes, LoadFunc<SftpMessage>> _sftpMessageTypes = new Dictionary<SftpMessageTypes, LoadFunc<SftpMessage>>();
 
-        public static SftpMessage Load(IEnumerable<byte> data)
+        public new static SftpMessage Load(IEnumerable<byte> data)
         {
             var messageType = (SftpMessageTypes)data.FirstOrDefault();
 

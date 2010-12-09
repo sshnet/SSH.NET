@@ -306,11 +306,6 @@ namespace Renci.SshClient
         public event EventHandler<MessageEventArgs<RequestFailureMessage>> RequestFailureReceived;
 
         /// <summary>
-        /// Occurs when <see cref="ChannelMessage"/> message received
-        /// </summary>
-        public event EventHandler<MessageEventArgs<ChannelMessage>> ChannelMessageReceived;
-
-        /// <summary>
         /// Occurs when <see cref="ChannelOpenMessage"/> message received
         /// </summary>
         public event EventHandler<MessageEventArgs<ChannelOpenMessage>> ChannelOpenReceived;
@@ -589,7 +584,7 @@ namespace Renci.SshClient
 
             if (index < 1)
             {
-               throw this._exception;
+                throw this._exception;
             }
             else if (index > 1)
             {
@@ -1539,6 +1534,12 @@ namespace Renci.SshClient
                     {
                         this._sessionSemaphore.Dispose();
                     }
+
+                    if (this._keyExchangeCompletedWaitHandle != null)
+                    {
+                        this._keyExchangeCompletedWaitHandle.Dispose();
+                    }
+
                 }
 
                 // Note disposing has been done.

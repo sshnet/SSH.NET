@@ -238,11 +238,8 @@ namespace Renci.SshClient
         {
             if (this.ExtendedOutputStream != null)
             {
-                lock (this.ExtendedOutputStream)
-                {
-                    this.ExtendedOutputStream.Write(e.Data.GetSshBytes().ToArray(), 0, e.Data.Length);
-                    this.ExtendedOutputStream.Flush();
-                }
+                this.ExtendedOutputStream.Write(e.Data.GetSshBytes().ToArray(), 0, e.Data.Length);
+                this.ExtendedOutputStream.Flush();
             }
 
             if (e.DataTypeCode == 1)
@@ -255,11 +252,8 @@ namespace Renci.SshClient
         {
             if (this.OutputStream != null)
             {
-                lock (this.OutputStream)
-                {
-                    this.OutputStream.Write(e.Data.GetSshBytes().ToArray(), 0, e.Data.Length);
-                    this.OutputStream.Flush();
-                }
+                this.OutputStream.Write(e.Data.GetSshBytes().ToArray(), 0, e.Data.Length);
+                this.OutputStream.Flush();
             }
 
             if (this._asyncResult != null)
@@ -322,6 +316,18 @@ namespace Renci.SshClient
                     if (this.ExtendedOutputStream != null)
                     {
                         this.ExtendedOutputStream.Dispose();
+                    }
+
+                    // Dispose managed resources.
+                    if (this._sessionErrorOccuredWaitHandle != null)
+                    {
+                        this._sessionErrorOccuredWaitHandle.Dispose();
+                    }
+
+                    // Dispose managed resources.
+                    if (this._channel != null)
+                    {
+                        this._channel.Dispose();
                     }
                 }
 

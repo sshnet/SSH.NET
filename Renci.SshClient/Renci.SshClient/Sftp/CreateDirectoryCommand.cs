@@ -2,11 +2,11 @@
 
 namespace Renci.SshClient.Sftp
 {
-    internal class CreateRemoteDirectoryCommand : SftpCommand
+    internal class CreateDirectoryCommand : SftpCommand
     {
         private string _path;
 
-        public CreateRemoteDirectoryCommand(SftpSession sftpSession, string path)
+        public CreateDirectoryCommand(SftpSession sftpSession, string path)
             : base(sftpSession)
         {
             this._path = path;

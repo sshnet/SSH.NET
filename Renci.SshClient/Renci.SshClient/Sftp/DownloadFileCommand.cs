@@ -11,15 +11,13 @@ namespace Renci.SshClient.Sftp
         private string _handle;
         private ulong _offset = 0;
         private uint _bufferSize = 1024;
-        private string _data;
 
-        public DownloadFileCommand(SftpSession sftpSession, string path, Stream output)
+        public DownloadFileCommand(SftpSession sftpSession, uint bufferSize, string path, Stream output)
             : base(sftpSession)
         {
             this._path = path;
             this._output = output;
-            //  TODO:   Make this field to be customizable
-            this._bufferSize = 1024;
+            this._bufferSize = bufferSize;
         }
 
         protected override void OnExecute()
@@ -54,6 +52,7 @@ namespace Renci.SshClient.Sftp
             this._output.Write(fileData, 0, fileData.Length);
             this._output.Flush();
             this._offset += (ulong)fileData.Length;
+            this.AsyncResult.DownloadedBytes = this._offset;
 
             this.SendReadMessage(this._handle, this._offset, this._bufferSize);
         }

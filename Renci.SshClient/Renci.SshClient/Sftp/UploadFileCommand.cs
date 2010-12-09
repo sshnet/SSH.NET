@@ -13,13 +13,12 @@ namespace Renci.SshClient.Sftp
         private ulong _offset;
         private bool _hasMoreData;
 
-        public UploadFileCommand(SftpSession sftpSession, string path, Stream input)
+        public UploadFileCommand(SftpSession sftpSession, uint bufferSize, string path, Stream input)
             : base(sftpSession)
         {
             this._path = path;
             this._input = input;
-            //  TODO:   Make this field to be customizable
-            this._buffer = new byte[1024];
+            this._buffer = new byte[bufferSize];
         }
 
         protected override void OnExecute()
@@ -67,6 +66,8 @@ namespace Renci.SshClient.Sftp
                 this.SendWriteMessage(this._handle, this._offset, this._buffer.Take(bytesRead).GetSshString());
 
                 this._offset += (ulong)bytesRead;
+
+                this.AsyncResult.UploadedBytes = this._offset;
             }
             else
             {

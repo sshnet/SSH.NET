@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
 using Renci.SshClient.Common;
 using Renci.SshClient.Messages.Sftp;
 
@@ -9,9 +11,15 @@ namespace Renci.SshClient.Sftp
     {
         private SftpSession _sftpSession;
 
+        private AsyncCallback _callback;
+
         private uint _requestId;
 
-        private SftpAsyncResult _asyncResult;
+        private Exception _error;
+
+        protected SftpAsyncResult AsyncResult { get; private set; }
+
+        public int CommandTimeout { get; set; }
 
         public SftpCommand(SftpSession sftpSession)
         {
@@ -21,21 +29,36 @@ namespace Renci.SshClient.Sftp
             this._sftpSession.HandleMessageReceived += SftpSession_HandleMessageReceived;
             this._sftpSession.NameMessageReceived += SftpSession_NameMessageReceived;
             this._sftpSession.StatusMessageReceived += SftpSession_StatusMessageReceived;
+            this._sftpSession.ErrorOccured += SftpSession_ErrorOccured;
         }
 
         public SftpAsyncResult BeginExecute(AsyncCallback callback, object state)
         {
-            this._asyncResult = new SftpAsyncResult(this, callback, state);
+            this._callback = callback;
+
+            this.AsyncResult = new SftpAsyncResult(this, state);
 
             this.OnExecute();
 
-            return this._asyncResult;
+            return this.AsyncResult;
         }
 
         public void EndExecute(SftpAsyncResult result)
         {
-            //  TODO:   Add timeout info here
-            this._sftpSession.WaitHandle(result.AsyncWaitHandle);
+            this._sftpSession.WaitHandle(result.AsyncWaitHandle, this.CommandTimeout);
+
+            if (this._callback != null)
+            {
+                //  Execute callback on new pool thread
+                Task.Factory.StartNew(() =>
+                {
+                    this._callback(result);
+                });
+            }
+
+            if (this._error != null)
+                throw this._error;
+
         }
 
         public void Execute()
@@ -225,7 +248,7 @@ namespace Renci.SshClient.Sftp
 
         protected void CompleteExecution()
         {
-            this._asyncResult.IsCompleted = true;
+            this.AsyncResult.Complete();
 
             this._sftpSession.AttributesMessageReceived -= SftpSession_AttributesMessageReceived;
             this._sftpSession.DataMessageReceived -= SftpSession_DataMessageReceived;
@@ -285,6 +308,13 @@ namespace Renci.SshClient.Sftp
             {
                 this.OnAttributes(e.Message.Attributes);
             }
+        }
+
+        private void SftpSession_ErrorOccured(object sender, ErrorEventArgs e)
+        {
+            this._error = e.GetException();
+
+            this.CompleteExecution();
         }
 
         private void SendMessage(SftpRequestMessage message)

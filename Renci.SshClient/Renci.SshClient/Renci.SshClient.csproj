@@ -85,9 +85,10 @@
     <Compile Include="Messages\Connection\ChannelRequest\XonXoffRequestInfo.cs" />
     <Compile Include="Messages\Sftp\SftpRequestMessage.cs" />
     <Compile Include="SftpClient.cs" />
-    <Compile Include="Sftp\CreateRemoteDirectoryCommand.cs" />
+    <Compile Include="Sftp\CreateDirectoryCommand.cs" />
     <Compile Include="Sftp\DownloadFileCommand.cs" />
     <Compile Include="Sftp\ListDirectoryCommand.cs" />
+    <Compile Include="Sftp\RealPathCommand.cs" />
     <Compile Include="Sftp\RemoveDirectoryCommand.cs" />
     <Compile Include="Sftp\RemoveFileCommand.cs" />
     <Compile Include="Sftp\RenameFileCommand.cs" />
@@ -118,7 +119,7 @@
     <Compile Include="Common\DataReceivedEventArgs.cs" />
     <Compile Include="Messages\Sftp\AceMasks.cs" />
     <Compile Include="Messages\Sftp\Attributes.cs" />
-    <Compile Include="Messages\Sftp\AttrsMessage.cs" />
+    <Compile Include="Messages\Sftp\AttributesMessage.cs" />
     <Compile Include="Messages\Sftp\CloseMessage.cs" />
     <Compile Include="Messages\Sftp\DataMessage.cs" />
     <Compile Include="Messages\Sftp\ExtendedMessage.cs" />

@@ -469,14 +469,7 @@ namespace Renci.SshClient
                         throw new SshConnectionException(string.Format("Server version '{0}' is not supported.", version), DisconnectReasons.ProtocolVersionNotSupported);
                     }
 
-                    if (version.Equals("1.99"))
-                    {
-                        this.Write(Encoding.ASCII.GetBytes(string.Format("{0}", this.ClientVersion)));
-                    }
-                    else
-                    {
-                        this.Write(Encoding.ASCII.GetBytes(string.Format("{0}\n", this.ClientVersion)));
-                    }
+                    this.Write(Encoding.ASCII.GetBytes(string.Format("{0}\n", this.ClientVersion)));
 
                     //  Register Transport response messages
                     this.RegisterMessageType<DisconnectMessage>(MessageTypes.Disconnect);
@@ -596,7 +589,7 @@ namespace Renci.SshClient
 
             if (index < 1)
             {
-                throw this._exception;
+               throw this._exception;
             }
             else if (index > 1)
             {

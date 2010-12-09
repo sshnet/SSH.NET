@@ -25,6 +25,10 @@ namespace Renci.SshClient.Sftp
 
         private EventWaitHandle _sftpVersionConfirmed = new AutoResetEvent(false);
 
+        public int _operationTimeout;
+
+        public event EventHandler<ErrorEventArgs> ErrorOccured;
+
         #region SFTP messages
 
         internal event EventHandler<MessageEventArgs<StatusMessage>> StatusMessageReceived;
@@ -39,12 +43,10 @@ namespace Renci.SshClient.Sftp
 
         #endregion
 
-        public int OperationTimeout { get; private set; }
-
         public SftpSession(Session session, int operationTimeout)
         {
             this._session = session;
-            this.OperationTimeout = operationTimeout;
+            this._operationTimeout = operationTimeout;
         }
 
         public void Connect()
@@ -64,29 +66,13 @@ namespace Renci.SshClient.Sftp
                 Version = 3,
             });
 
-            this.WaitHandle(this._sftpVersionConfirmed);
-
-            //this.SendMessage(new RealPathMessage
-            //{
-            //    Path = ".",
-            //}, (m) =>
-            //{
-            //    var nameMessage = m as NameMessage;
-            //    if (nameMessage != null)
-            //    {
-            //        this._remoteCurrentDir = nameMessage.Files.First().Name;
-            //    }
-            //    else
-            //    {
-            //        throw new InvalidOperationException("");
-            //    }
-            //});
-
-
+            this.WaitHandle(this._sftpVersionConfirmed, this._operationTimeout);
         }
 
         public void Disconnect()
         {
+            //  Close SFTP channel
+            this._channel.Close();
         }
 
         internal void SendMessage(SftpRequestMessage sftpMessage)
@@ -132,8 +118,7 @@ namespace Renci.SshClient.Sftp
             }
             catch (Exception exp)
             {
-                this._exception = exp;
-                this._errorOccuredWaitHandle.Set();
+                this.RaiseError(exp);
             }
         }
 
@@ -162,6 +147,20 @@ namespace Renci.SshClient.Sftp
             {
                 this.StatusMessageReceived(this, new MessageEventArgs<StatusMessage>(message));
             }
+
+            //if (message.StatusCode == StatusCodes.NoSuchFile ||
+            //    message.StatusCode == StatusCodes.PermissionDenied ||
+            //    message.StatusCode == StatusCodes.Failure ||
+            //    message.StatusCode == StatusCodes.BadMessage ||
+            //    message.StatusCode == StatusCodes.NoConnection ||
+            //    message.StatusCode == StatusCodes.ConnectionLost ||
+            //    message.StatusCode == StatusCodes.OperationUnsupported
+            //    )
+            //{
+            //    //  Throw an exception if it was not handled by the command
+            //    throw new SshException(message.ErrorMessage);
+            //}
+
         }
 
         private void HandleMessage(DataMessage message)
@@ -200,14 +199,33 @@ namespace Renci.SshClient.Sftp
 
         private void Session_Disconnected(object sender, EventArgs e)
         {
-            //  TODO:   Do something when session is closed and operation still in progress
+            this.RaiseError(new SshException("Connection was lost"));
         }
 
         private void Session_ErrorOccured(object sender, ErrorEventArgs e)
         {
-            this._exception = e.GetException();
+            this.RaiseError(e.GetException());
+        }
 
-            this._errorOccuredWaitHandle.Set();
+        internal void WaitHandle(WaitHandle waitHandle, int operationTimeout)
+        {
+            var waitHandles = new WaitHandle[]
+                {
+                    this._errorOccuredWaitHandle,
+                    waitHandle,
+                };
+
+            var index = EventWaitHandle.WaitAny(waitHandles, operationTimeout);
+
+            if (index < 1)
+            {
+                throw this._exception;
+            }
+            else if (index > 1)
+            {
+                //  throw time out error
+                throw new SshOperationTimeoutException(string.Format("Sftp operation has timed out."));
+            }
         }
 
         private void SendMessage(SftpMessage sftpMessage)
@@ -221,24 +239,15 @@ namespace Renci.SshClient.Sftp
             this._session.SendMessage(message);
         }
 
-        internal void WaitHandle(WaitHandle waitHandle)
+        private void RaiseError(Exception error)
         {
-            var waitHandles = new WaitHandle[]
-                {
-                    this._errorOccuredWaitHandle,
-                    waitHandle,
-                };
+            this._exception = error;
 
-            var index = EventWaitHandle.WaitAny(waitHandles, this.OperationTimeout);
+            this._errorOccuredWaitHandle.Set();
 
-            if (index < 1)
+            if (this.ErrorOccured != null)
             {
-                throw this._exception;
-            }
-            else if (index > 1)
-            {
-                //  throw time out error
-                throw new SshOperationTimeoutException(string.Format("Sftp operation has timed out."));
+                this.ErrorOccured(this, new ErrorEventArgs(error));
             }
         }
     }

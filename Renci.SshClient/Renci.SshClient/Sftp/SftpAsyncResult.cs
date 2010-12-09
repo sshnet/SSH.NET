@@ -1,30 +1,51 @@
 ﻿using System;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Renci.SshClient.Sftp
 {
-    public class SftpAsyncResult : IAsyncResult
+    public class SftpAsyncResult : IAsyncResult, IDisposable
     {
-        private bool _isCompleted;
+        /// <summary>
+        /// Gets or sets the uploaded bytes.
+        /// </summary>
+        /// <value>The uploaded bytes.</value>
+        public ulong UploadedBytes { get; internal set; }
 
-        private AsyncCallback _callback;
+        /// <summary>
+        /// Gets or sets the downloaded bytes.
+        /// </summary>
+        /// <value>The downloaded bytes.</value>
+        public ulong DownloadedBytes { get; internal set; }
 
-        private EventWaitHandle _completedWaitHandle = new ManualResetEvent(false);
+        private SftpCommand _command;
 
-        internal SftpCommand Command { get; private set; }
-
-        internal SftpAsyncResult(SftpCommand command, AsyncCallback callback, object state)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SftpAsyncResult"/> class.
+        /// </summary>
+        /// <param name="command">The command.</param>
+        /// <param name="state">The state.</param>
+        internal SftpAsyncResult(SftpCommand command, object state)
         {
-            this.Command = command;
-            this._callback = callback;
+            this._command = command;
             this.AsyncState = state;
-            this.AsyncWaitHandle = _completedWaitHandle;
+            this.AsyncWaitHandle = new ManualResetEvent(false);
         }
 
+        /// <summary>
+        /// Gets the command.
+        /// </summary>
+        /// <typeparam name="T">Type of the command</typeparam>
+        /// <returns></returns>
         internal T GetCommand<T>() where T : SftpCommand
         {
-            return this.Command as T;
+            T cmd = this._command as T;
+
+            if (cmd == null)
+            {
+                throw new InvalidOperationException("Not valid IAsyncResult object.");
+            }
+
+            return cmd;
         }
 
         #region IAsyncResult Members
@@ -35,32 +56,60 @@ namespace Renci.SshClient.Sftp
 
         public bool CompletedSynchronously { get; private set; }
 
-        public bool IsCompleted
+        public bool IsCompleted { get; private set; }
+
+        #endregion
+
+        #region IDisposable Members
+
+        private bool _disposed = false;
+
+        public void Dispose()
         {
-            get
-            {
-                return this._isCompleted;
-            }
+            Dispose(true);
 
-            internal set
-            {
-                this._isCompleted = value;
+            GC.SuppressFinalize(this);
+        }
 
-                if (value)
+        private void Dispose(bool disposing)
+        {
+            // Check to see if Dispose has already been called.
+            if (!this._disposed)
+            {
+                // If disposing equals true, dispose all managed
+                // and unmanaged resources.
+                if (disposing)
                 {
-                    if (this._callback != null)
+                    // Dispose managed resources.
+                    if (this.AsyncWaitHandle != null)
                     {
-                        //  Execute callback on new pool thread
-                        Task.Factory.StartNew(() =>
-                        {
-                            this._callback(this);
-                        });
+                        this.AsyncWaitHandle.Dispose();
                     }
-                    this._completedWaitHandle.Set();
+
                 }
+
+                // Note disposing has been done.
+                this._disposed = true;
             }
         }
 
+        ~SftpAsyncResult()
+        {
+            // Do not re-create Dispose clean-up code here.
+            // Calling Dispose(false) is optimal in terms of
+            // readability and maintainability.
+            Dispose(false);
+        }
+
         #endregion
+
+        /// <summary>
+        /// Completes asynchronous operation.
+        /// </summary>
+        internal void Complete()
+        {
+            this.IsCompleted = true;
+            ((EventWaitHandle)this.AsyncWaitHandle).Set();
+        }
     }
 }

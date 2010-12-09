@@ -9,7 +9,7 @@ using Renci.SshClient.Messages.Sftp;
 
 namespace Renci.SshClient.Sftp
 {
-    internal class SftpSession
+    internal class SftpSession : IDisposable
     {
         private Session _session;
 
@@ -250,5 +250,56 @@ namespace Renci.SshClient.Sftp
                 this.ErrorOccured(this, new ErrorEventArgs(error));
             }
         }
+
+        #region IDisposable Members
+
+        private bool disposed = false;
+
+        public void Dispose()
+        {
+            Dispose(true);
+
+            GC.SuppressFinalize(this);
+        }
+
+        private void Dispose(bool disposing)
+        {
+            // Check to see if Dispose has already been called.
+            if (!this.disposed)
+            {
+                // If disposing equals true, dispose all managed
+                // and unmanaged resources.
+                if (disposing)
+                {
+                    // Dispose managed resources.
+                    if (this._channel != null)
+                    {
+                        this._channel.Dispose();
+                    }
+                    if (this._errorOccuredWaitHandle != null)
+                    {
+                        this._errorOccuredWaitHandle.Dispose();
+                    }
+                    if (this._sftpVersionConfirmed != null)
+                    {
+                        this._sftpVersionConfirmed.Dispose();
+                    }
+                }
+
+                // Note disposing has been done.
+                disposed = true;
+            }
+        }
+
+        ~SftpSession()
+        {
+            // Do not re-create Dispose clean-up code here.
+            // Calling Dispose(false) is optimal in terms of
+            // readability and maintainability.
+            Dispose(false);
+        }
+
+        #endregion
+
     }
 }

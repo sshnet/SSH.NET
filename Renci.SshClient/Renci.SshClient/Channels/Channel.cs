@@ -44,16 +44,6 @@ namespace Renci.SshClient.Channels
         #region Message events
 
         /// <summary>
-        /// Occurs when <see cref="ChannelOpenMessage"/> message received
-        /// </summary>
-        public event EventHandler<MessageEventArgs<ChannelOpenMessage>> Opening;
-
-        /// <summary>
-        /// Occurs when <see cref="ChannelOpenConfirmationMessage"/> message received
-        /// </summary>
-        public event EventHandler<MessageEventArgs<ChannelOpenConfirmationMessage>> Opened;
-
-        /// <summary>
         /// Occurs when <see cref="ChannelOpenFailureMessage"/> message received
         /// </summary>
         public event EventHandler<ChannelOpenFailedEventArgs> OpenFailed;
@@ -495,6 +485,14 @@ namespace Renci.SshClient.Channels
                     if (this._channelWindowAdjustWaitHandle != null)
                     {
                         this._channelWindowAdjustWaitHandle.Dispose();
+                    }
+                    if (this._errorOccuredWaitHandle != null)
+                    {
+                        this._errorOccuredWaitHandle.Dispose();
+                    }
+                    if (this._disconnectedWaitHandle != null)
+                    {
+                        this._disconnectedWaitHandle.Dispose();
                     }
 
                     this.OnDisposing();

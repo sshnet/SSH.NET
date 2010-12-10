@@ -12,6 +12,8 @@ namespace Renci.SshClient
 
         public uint ConnectedPort { get; internal set; }
 
+        public bool IsStarted { get; protected set; }
+
         public event EventHandler<ExceptionEventArgs> Exception;
 
         internal ForwardedPort()

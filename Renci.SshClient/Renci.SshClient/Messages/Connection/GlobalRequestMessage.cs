@@ -47,12 +47,27 @@ namespace Renci.SshClient.Messages.Connection
                 case GlobalRequestNames.CancelTcpIpForward:
                     this.Write("cancel-tcpip-forward");
                     break;
+                case GlobalRequestNames.KeepAlive:
+                    this.Write("keep-alive-message-ignore-me");
+                    break;
                 default:
                     break;
             }
+
             this.Write(this.WantReply);
-            this.Write(this.AddressToBind);
-            this.Write(this.PortToBind);
+
+            switch (this.RequestName)
+            {
+                case GlobalRequestNames.TcpIpForward:
+                case GlobalRequestNames.CancelTcpIpForward:
+                    this.Write(this.AddressToBind);
+                    this.Write(this.PortToBind);
+                    break;
+                case GlobalRequestNames.KeepAlive:
+                    break;
+                default:
+                    break;
+            }
         }
     }
 }

@@ -9,6 +9,10 @@
         /// <summary>
         /// cancel-tcpip-forward
         /// </summary>
-        CancelTcpIpForward
+        CancelTcpIpForward,
+        /// <summary>
+        /// keep-alive-message-ignore-me
+        /// </summary>
+        KeepAlive
     }
 }

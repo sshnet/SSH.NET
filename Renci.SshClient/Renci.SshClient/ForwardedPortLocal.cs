@@ -16,6 +16,10 @@ namespace Renci.SshClient
         {
             base.Start();
 
+            //  If port already started dont start it again
+            if (this.IsStarted)
+                return;
+
             var ep = new IPEndPoint(Dns.GetHostAddresses("localhost")[0], (int)this.BoundPort);
             this._listener = new TcpListener(ep);
             this._listener.Start();
@@ -53,13 +57,24 @@ namespace Renci.SshClient
                 {
                     this.RaiseExceptionEvent(exp);
                 }
+
+                this.Stop();
             });
+
+            this.IsStarted = true;
         }
 
         public override void Stop()
         {
+            //  If port not started you cant stop it
+            if (!this.IsStarted)
+                return;
+
             this._listener.Stop();
             this._listenerTask.Wait();
+
+            this.IsStarted = false;
+
         }
     }
 }

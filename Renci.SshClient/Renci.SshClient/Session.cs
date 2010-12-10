@@ -569,6 +569,18 @@ namespace Renci.SshClient
         }
 
         /// <summary>
+        /// Sends "keep alive" message to keep connection alive.
+        /// </summary>
+        internal void KeepAlive()
+        {
+            this.SendMessage(new GlobalRequestMessage
+            {
+                RequestName = GlobalRequestNames.KeepAlive,
+                WantReply = false
+            });
+        }
+
+        /// <summary>
         /// Waits for handle to signal while checking other handles as well including timeout check to prevent waiting for ever
         /// </summary>
         /// <param name="waitHandle">The wait handle.</param>

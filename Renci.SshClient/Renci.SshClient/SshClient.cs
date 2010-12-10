@@ -23,23 +23,6 @@ namespace Renci.SshClient
             }
         }
 
-        //private Sftp _sftp;
-        ///// <summary>
-        ///// Gets the shell.
-        ///// </summary>
-        ///// <value>The shell.</value>
-        //public Sftp Sftp
-        //{
-        //    get
-        //    {
-        //        if (this._sftp == null)
-        //        {
-        //            this._sftp = new Sftp(this._session);
-        //        }
-        //        return this._sftp;
-        //    }
-        //}
-
         public IEnumerable<ForwardedPort> ForwardedPorts
         {
             get
@@ -128,6 +111,19 @@ namespace Renci.SshClient
             return port;
         }
 
+        public void RemoveForwardedPort(ForwardedPort port)
+        {
+            //  Stop port forwarding before removing it
+            port.Stop();
+
+            this._forwardedPorts.Remove(port);
+        }
+
+        public void KeepAlive()
+        {
+            this._session.KeepAlive();
+        }
+
         public SshCommand CreateCommand(string commandText)
         {
             return new SshCommand(this._session, commandText);
@@ -143,16 +139,6 @@ namespace Renci.SshClient
         public Shell CreateShell(Stream input, TextWriter output, TextWriter extendedOutput, string terminalName, uint columns, uint rows, uint width, uint height, string terminalMode)
         {
             return new Shell(this._session, input, output, extendedOutput, terminalName, columns, rows, width, height, terminalMode);
-        }
-
-        //public Sftp CreateSftp()
-        //{
-        //    return new Sftp(this._session);
-        //}
-
-        public void RemoveForwardedPort(ForwardedPort port)
-        {
-            this._forwardedPorts.Remove(port);
         }
 
         #region IDisposable Members

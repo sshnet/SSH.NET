@@ -16,6 +16,10 @@ namespace Renci.SshClient
         {
             base.Start();
 
+            //  If port already started dont start it again
+            if (this.IsStarted)
+                return;
+
             this.Session.RegisterMessageType<RequestFailureMessage>(Messages.MessageTypes.RequestFailure);
             this.Session.RegisterMessageType<RequestSuccessMessage>(Messages.MessageTypes.RequestSuccess);
             this.Session.RegisterMessageType<ChannelOpenMessage>(Messages.MessageTypes.ChannelOpen);
@@ -40,10 +44,16 @@ namespace Renci.SshClient
                 //  If request  failed dont handle channel opening for this request
                 this.Session.ChannelOpenReceived -= Session_ChannelOpening;
             }
+
+            this.IsStarted = true;
         }
 
         public override void Stop()
         {
+            //  If port not started you cant stop it
+            if (!this.IsStarted)
+                return;
+
             //  Send global request to cancel direct tcpip
             this.Session.SendMessage(new GlobalRequestMessage
             {
@@ -58,6 +68,8 @@ namespace Renci.SshClient
             this.Session.RequestSuccessReceived -= Session_RequestSuccess;
             this.Session.RequestFailureReceived -= Session_RequestFailure;
             this.Session.ChannelOpenReceived -= Session_ChannelOpening;
+
+            this.IsStarted = false;
         }
 
         private void Session_ChannelOpening(object sender, MessageEventArgs<ChannelOpenMessage> e)

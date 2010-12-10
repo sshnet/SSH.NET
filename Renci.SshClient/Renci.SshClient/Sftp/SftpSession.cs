@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -89,15 +90,39 @@ namespace Renci.SshClient.Sftp
 
         private void Channel_DataReceived(object sender, Common.ChannelDataEventArgs e)
         {
+            var packets = new Queue<string>();
+
             if (this._packetData == null)
             {
-                var packetLength = (uint)(e.Data[0] << 24 | e.Data[1] << 16 | e.Data[2] << 8 | e.Data[3]);
+                var dataOffset = 0;
+                while (true)
+                {
+                    //  Read SFTP packet length
+                    var packetLength = (e.Data[dataOffset + 0] << 24 | e.Data[dataOffset + 1] << 16 | e.Data[dataOffset + 2] << 8 | e.Data[dataOffset + 3]);
 
-                this._packetData = new StringBuilder((int)packetLength, (int)packetLength);
-                this._packetData.Append(e.Data.GetSshBytes().Skip(4).GetSshString());
+                    //  Create data holder for SFTP packet
+                    this._packetData = new StringBuilder(packetLength, packetLength);
+
+                    //  Add data to the packet holder
+                    this._packetData.Append(e.Data.GetSshBytes().Skip(dataOffset + 4).Take((int)packetLength).GetSshString());
+
+                    dataOffset += (packetLength + 4);
+
+                    if (dataOffset < e.Data.Length)
+                    {
+                        //  If there is another SFTP packet in current message then queue this data and read next one
+                        packets.Enqueue(this._packetData.ToString());
+                        continue;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
             }
             else
             {
+                //  Add message data to packet data
                 this._packetData.Append(e.Data);
             }
 
@@ -107,18 +132,25 @@ namespace Renci.SshClient.Sftp
                 return;
             }
 
-            dynamic sftpMessage = SftpMessage.Load(this._packetData.ToString().GetSshBytes());
+            //  Add last packet to the queue of packet data that need to be proccessed
+            packets.Enqueue(this._packetData.ToString());
 
             this._packetData = null;
 
-            try
+            foreach (var packetData in packets)
             {
-                //  TODO:   Check to run on different thread
-                this.HandleMessage(sftpMessage);
-            }
-            catch (Exception exp)
-            {
-                this.RaiseError(exp);
+                dynamic sftpMessage = SftpMessage.Load(packetData.GetSshBytes());
+
+                try
+                {
+                    //  TODO:   Check to run on different thread
+                    this.HandleMessage(sftpMessage);
+                }
+                catch (Exception exp)
+                {
+                    this.RaiseError(exp);
+                    break;
+                }
             }
         }
 

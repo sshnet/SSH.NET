@@ -7,6 +7,9 @@ using Renci.SshClient.Messages.Sftp;
 
 namespace Renci.SshClient.Sftp
 {
+    /// <summary>
+    /// Base class for all SFTP Commands
+    /// </summary>
     internal abstract class SftpCommand
     {
         private SftpSession _sftpSession;
@@ -16,6 +19,8 @@ namespace Renci.SshClient.Sftp
         private uint _requestId;
 
         private Exception _error;
+
+        private bool _handleCloseMessageSent;
 
         protected SftpAsyncResult AsyncResult { get; private set; }
 
@@ -70,6 +75,12 @@ namespace Renci.SshClient.Sftp
 
         protected virtual void OnStatus(StatusCodes statusCode, string errorMessage, string language)
         {
+            if (this._handleCloseMessageSent)
+            {
+                this.OnHandleClosed();
+
+                this._handleCloseMessageSent = false;
+            }
         }
 
         protected virtual void OnName(IEnumerable<SftpFile> files)
@@ -107,6 +118,8 @@ namespace Renci.SshClient.Sftp
             {
                 Handle = handle,
             });
+
+            this._handleCloseMessageSent = true;
         }
 
         protected void SendReadMessage(string handle, ulong offset, uint bufferSize)
@@ -262,19 +275,19 @@ namespace Renci.SshClient.Sftp
             if (this._requestId == e.Message.RequestId)
             {
                 this.OnStatus(e.Message.StatusCode, e.Message.ErrorMessage, e.Message.Language);
-            }
 
-            if (e.Message.StatusCode == StatusCodes.NoSuchFile ||
-                e.Message.StatusCode == StatusCodes.PermissionDenied ||
-                e.Message.StatusCode == StatusCodes.Failure ||
-                e.Message.StatusCode == StatusCodes.BadMessage ||
-                e.Message.StatusCode == StatusCodes.NoConnection ||
-                e.Message.StatusCode == StatusCodes.ConnectionLost ||
-                e.Message.StatusCode == StatusCodes.OperationUnsupported
-                )
-            {
-                //  Throw an exception if it was not handled by the command
-                throw new SshException(e.Message.ErrorMessage);
+                if (e.Message.StatusCode == StatusCodes.NoSuchFile ||
+                    e.Message.StatusCode == StatusCodes.PermissionDenied ||
+                    e.Message.StatusCode == StatusCodes.Failure ||
+                    e.Message.StatusCode == StatusCodes.BadMessage ||
+                    e.Message.StatusCode == StatusCodes.NoConnection ||
+                    e.Message.StatusCode == StatusCodes.ConnectionLost ||
+                    e.Message.StatusCode == StatusCodes.OperationUnsupported
+                    )
+                {
+                    //  Throw an exception if it was not handled by the command
+                    throw new SshException(e.Message.ErrorMessage);
+                }
             }
         }
 

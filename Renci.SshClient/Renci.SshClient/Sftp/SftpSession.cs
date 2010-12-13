@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -18,7 +17,7 @@ namespace Renci.SshClient.Sftp
 
         private ChannelSession _channel;
 
-        private StringBuilder _packetData;
+        private StringBuilder _data = new StringBuilder(32 * 1024, 32 * 1024);
 
         private Exception _exception;
 
@@ -90,56 +89,33 @@ namespace Renci.SshClient.Sftp
 
         private void Channel_DataReceived(object sender, Common.ChannelDataEventArgs e)
         {
-            var packets = new Queue<string>();
+            //  Add channel data to internal data holder
+            this._data.Append(e.Data);
 
-            if (this._packetData == null)
+            while (this._data.Length > 4 + 1)
             {
-                var dataOffset = 0;
-                while (true)
+                //  Extract packet length
+                var packetLength = (this._data[0] << 24 | this._data[1] << 16 | this._data[2] << 8 | this._data[3]);
+
+                //  Check if complete packet data is available
+                if (this._data.Length < packetLength + 4)
                 {
-                    //  Read SFTP packet length
-                    var packetLength = (e.Data[dataOffset + 0] << 24 | e.Data[dataOffset + 1] << 16 | e.Data[dataOffset + 2] << 8 | e.Data[dataOffset + 3]);
-
-                    //  Create data holder for SFTP packet
-                    this._packetData = new StringBuilder(packetLength, packetLength);
-
-                    //  Add data to the packet holder
-                    this._packetData.Append(e.Data.GetSshBytes().Skip(dataOffset + 4).Take((int)packetLength).GetSshString());
-
-                    dataOffset += (packetLength + 4);
-
-                    if (dataOffset < e.Data.Length)
-                    {
-                        //  If there is another SFTP packet in current message then queue this data and read next one
-                        packets.Enqueue(this._packetData.ToString());
-                        continue;
-                    }
-                    else
-                    {
-                        break;
-                    }
+                    //  Wait for complete message to arrive first
+                    break;
                 }
-            }
-            else
-            {
-                //  Add message data to packet data
-                this._packetData.Append(e.Data);
-            }
+                this._data.Remove(0, 4);
 
-            if (this._packetData.Length < this._packetData.MaxCapacity)
-            {
-                //  Wait for more packet data
-                return;
-            }
+                //  Create buffer to hold packet data
+                var packetData = new char[packetLength];
 
-            //  Add last packet to the queue of packet data that need to be proccessed
-            packets.Enqueue(this._packetData.ToString());
+                //  Cope packet data to array
+                this._data.CopyTo(0, packetData, 0, packetLength);
 
-            this._packetData = null;
+                //  Remove loaded data from _data holder
+                this._data.Remove(0, packetLength);
 
-            foreach (var packetData in packets)
-            {
-                dynamic sftpMessage = SftpMessage.Load(packetData.GetSshBytes());
+                //  Load SFTP Message and handle it
+                dynamic sftpMessage = SftpMessage.Load(packetData.Select((c) => (byte)c));
 
                 try
                 {
@@ -179,20 +155,6 @@ namespace Renci.SshClient.Sftp
             {
                 this.StatusMessageReceived(this, new MessageEventArgs<StatusMessage>(message));
             }
-
-            //if (message.StatusCode == StatusCodes.NoSuchFile ||
-            //    message.StatusCode == StatusCodes.PermissionDenied ||
-            //    message.StatusCode == StatusCodes.Failure ||
-            //    message.StatusCode == StatusCodes.BadMessage ||
-            //    message.StatusCode == StatusCodes.NoConnection ||
-            //    message.StatusCode == StatusCodes.ConnectionLost ||
-            //    message.StatusCode == StatusCodes.OperationUnsupported
-            //    )
-            //{
-            //    //  Throw an exception if it was not handled by the command
-            //    throw new SshException(message.ErrorMessage);
-            //}
-
         }
 
         private void HandleMessage(DataMessage message)

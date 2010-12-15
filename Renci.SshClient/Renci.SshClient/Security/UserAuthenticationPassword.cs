@@ -17,12 +17,6 @@ namespace Renci.SshClient.Security
             }
         }
 
-        public UserAuthenticationPassword(Session session)
-            : base(session)
-        {
-
-        }
-
         protected override bool Run()
         {
             //  TODO:   Handle all user authentication messages
@@ -55,26 +49,9 @@ namespace Renci.SshClient.Security
             this._authenticationCompleted.Set();
         }
 
-        //protected override void HandleMessage<T>(T message)
-        //{
-        //    //  TODO:   Handle password specific messages
-        //}
-
-        //protected override void HandleMessage(SuccessMessage message)
-        //{
-        //    base.HandleMessage(message);
-        //    this._authenticationCompleted.Set();
-        //}
-
-        //protected override void HandleMessage(FailureMessage message)
-        //{
-        //    base.HandleMessage(message);
-        //    this._authenticationCompleted.Set();
-        //}
-
         #region IDisposable Members
 
-        private bool disposed = false;
+        private bool isDisposed = false;
 
         public void Dispose()
         {
@@ -83,10 +60,10 @@ namespace Renci.SshClient.Security
             GC.SuppressFinalize(this);
         }
 
-        private void Dispose(bool disposing)
+        protected virtual void Dispose(bool disposing)
         {
             // Check to see if Dispose has already been called.
-            if (!this.disposed)
+            if (!this.isDisposed)
             {
                 // If disposing equals true, dispose all managed
                 // and unmanaged resources.
@@ -100,7 +77,7 @@ namespace Renci.SshClient.Security
                 }
 
                 // Note disposing has been done.
-                disposed = true;
+                isDisposed = true;
             }
         }
 

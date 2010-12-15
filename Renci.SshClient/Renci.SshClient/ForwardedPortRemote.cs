@@ -115,7 +115,7 @@ namespace Renci.SshClient
 
         #region IDisposable Members
 
-        private bool disposed = false;
+        private bool _isDisposed = false;
 
         public void Dispose()
         {
@@ -124,10 +124,10 @@ namespace Renci.SshClient
             GC.SuppressFinalize(this);
         }
 
-        private void Dispose(bool disposing)
+        protected virtual void Dispose(bool disposing)
         {
             // Check to see if Dispose has already been called.
-            if (!this.disposed)
+            if (!this._isDisposed)
             {
                 // If disposing equals true, dispose all managed
                 // and unmanaged resources.
@@ -141,7 +141,7 @@ namespace Renci.SshClient
                 }
 
                 // Note disposing has been done.
-                disposed = true;
+                _isDisposed = true;
             }
         }
 

@@ -56,7 +56,7 @@ namespace Renci.SshClient.Security
         /// Initializes a new instance of the <see cref="KeyExchangeDiffieHellman"/> class.
         /// </summary>
         /// <param name="sessionInfo">The session information.</param>
-        internal KeyExchangeDiffieHellman()
+        public KeyExchangeDiffieHellman()
             : base()
         {
         }
@@ -82,7 +82,7 @@ namespace Renci.SshClient.Security
 
             var data = bytes.Skip(4 + algorithmName.Length);
 
-            CryptoPublicKey key = Settings.HostKeyAlgorithms[algorithmName]();
+            CryptoPublicKey key = this.Session.HostKeyAlgorithms[algorithmName].CreateInstance<CryptoPublicKey>();
 
             key.Load(data);
 

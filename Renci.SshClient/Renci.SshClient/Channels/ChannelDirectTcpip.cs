@@ -149,10 +149,5 @@ namespace Renci.SshClient.Channels
 
             this._channelEof.Set();
         }
-
-        protected override void OnDisposing()
-        {
-
-        }
     }
 }

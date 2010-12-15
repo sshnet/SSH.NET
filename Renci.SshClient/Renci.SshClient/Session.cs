@@ -88,17 +88,17 @@ namespace Renci.SshClient
         /// </summary>
         private bool _isDisconnecting;
 
-        public HMAC _serverMac;
+        private HMac _serverMac;
 
-        public HMAC _clientMac;
+        private HMac _clientMac;
 
-        public Cipher _clientCipher;
+        private Cipher _clientCipher;
 
-        public Cipher _serverCipher;
+        private Cipher _serverCipher;
 
-        public Compressor _serverDecompression;
+        private Compressor _serverDecompression;
 
-        public Compressor _clientCompression;
+        private Compressor _clientCompression;
 
         /// <summary>
         /// Hold session specific semaphores
@@ -182,14 +182,14 @@ namespace Renci.SshClient
                 {
                     this._clientInitMessage = new KeyExchangeInitMessage()
                     {
-                        KeyExchangeAlgorithms = Settings.KeyExchangeAlgorithms.Keys,
-                        ServerHostKeyAlgorithms = Settings.HostKeyAlgorithms.Keys,
-                        EncryptionAlgorithmsClientToServer = Settings.Encryptions.Keys,
-                        EncryptionAlgorithmsServerToClient = Settings.Encryptions.Keys,
-                        MacAlgorithmsClientToSserver = Settings.HmacAlgorithms.Keys,
-                        MacAlgorithmsServerToClient = Settings.HmacAlgorithms.Keys,
-                        CompressionAlgorithmsClientToServer = Settings.CompressionAlgorithms.Keys,
-                        CompressionAlgorithmsServerToClient = Settings.CompressionAlgorithms.Keys,
+                        KeyExchangeAlgorithms = this.KeyExchangeAlgorithms.Keys,
+                        ServerHostKeyAlgorithms = this.HostKeyAlgorithms.Keys,
+                        EncryptionAlgorithmsClientToServer = this.Encryptions.Keys,
+                        EncryptionAlgorithmsServerToClient = this.Encryptions.Keys,
+                        MacAlgorithmsClientToSserver = this.HmacAlgorithms.Keys,
+                        MacAlgorithmsServerToClient = this.HmacAlgorithms.Keys,
+                        CompressionAlgorithmsClientToServer = this.CompressionAlgorithms.Keys,
+                        CompressionAlgorithmsServerToClient = this.CompressionAlgorithms.Keys,
                         LanguagesClientToServer = new string[] { string.Empty },
                         LanguagesServerToClient = new string[] { string.Empty },
                         FirstKexPacketFollows = false,
@@ -367,6 +367,18 @@ namespace Renci.SshClient
 
         #endregion
 
+        public IDictionary<string, string> KeyExchangeAlgorithms { get; private set; }
+
+        public IDictionary<string, string> Encryptions { get; private set; }
+
+        public IDictionary<string, string> HmacAlgorithms { get; private set; }
+
+        public IDictionary<string, string> HostKeyAlgorithms { get; private set; }
+
+        public IDictionary<string, string> SupportedAuthenticationMethods { get; private set; }
+
+        public IDictionary<string, string> CompressionAlgorithms { get; private set; }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Session"/> class.
         /// </summary>
@@ -375,6 +387,46 @@ namespace Renci.SshClient
         {
             this.ConnectionInfo = connectionInfo;
             this.ClientVersion = string.Format("SSH-2.0-Renci.SshClient.{0}", this.GetType().Assembly.GetName().Version);
+
+            this.KeyExchangeAlgorithms = new Dictionary<string, string>()
+            {
+                {"diffie-hellman-group1-sha1", typeof(KeyExchangeDiffieHellman).AssemblyQualifiedName},
+                //"diffie-hellman-group-exchange-sha1"
+            };
+
+            this.Encryptions = new Dictionary<string, string>()
+            {
+                {"3des-cbc", typeof(CipherTripleDES).AssemblyQualifiedName},
+                {"aes128-cbc", typeof(CipherAES128CBC).AssemblyQualifiedName},
+                {"aes192-cbc", typeof(CipherAES192CBC).AssemblyQualifiedName},
+                {"aes256-cbc", typeof(CipherAES256CBC).AssemblyQualifiedName},
+            };
+
+            this.HmacAlgorithms = new Dictionary<string, string>()
+            {
+                {"hmac-md5", typeof(HMacMD5).AssemblyQualifiedName},
+                {"hmac-sha1", typeof(HMacSha1).AssemblyQualifiedName},
+            };
+
+            this.HostKeyAlgorithms = new Dictionary<string, string>()
+            {
+                {"ssh-rsa", typeof(CryptoPublicKeyRsa).AssemblyQualifiedName},
+                {"ssh-dsa", typeof(CryptoPublicKeyDss).AssemblyQualifiedName}, //  TODO:   Need to be tested
+            };
+
+            this.SupportedAuthenticationMethods = new Dictionary<string, string>()
+            {
+                {"none", typeof(UserAuthenticationNone).AssemblyQualifiedName},
+                {"publickey", typeof(UserAuthenticationPublicKey).AssemblyQualifiedName},
+                {"password", typeof(UserAuthenticationPassword).AssemblyQualifiedName},
+            };
+
+            this.CompressionAlgorithms = new Dictionary<string, string>()
+            {
+                {"none", string.Empty}, 
+                {"zlib", typeof(Zlib).AssemblyQualifiedName}, 
+                {"zlib@openssh.com", typeof(ZlibOpenSsh).AssemblyQualifiedName}, 
+            };
         }
 
         /// <summary>
@@ -417,7 +469,6 @@ namespace Renci.SshClient
                     var connectResult = this._socket.BeginConnect(ep, null, null);
 
                     connectResult.AsyncWaitHandle.WaitOne(this.ConnectionInfo.Timeout);
-
 
                     this._socket.EndConnect(connectResult);
 
@@ -464,7 +515,7 @@ namespace Renci.SshClient
                         throw new SshConnectionException(string.Format("Server version '{0}' is not supported.", version), DisconnectReasons.ProtocolVersionNotSupported);
                     }
 
-                    this.Write(Encoding.ASCII.GetBytes(string.Format("{0}\n", this.ClientVersion)));
+                    this.Write(Encoding.ASCII.GetBytes(string.Format("{0}\x0D\x0A", this.ClientVersion)));
 
                     //  Register Transport response messages
                     this.RegisterMessageType<DisconnectMessage>(MessageTypes.Disconnect);
@@ -498,11 +549,13 @@ namespace Renci.SshClient
                     //  Wait for service to be accepted
                     this.WaitHandle(this._serviceAccepted);
 
-                    //  This implemention will ignore supported by server methods and will try to authenticated user using method supported by the client.
+                    //  This implementation will ignore supported by server methods and will try to authenticated user using method supported by the client.
                     string errorMessage = null; //  Hold last authentication error if any
-                    foreach (var methodName in Settings.SupportedAuthenticationMethods.Keys)
+                    foreach (var methodName in this.SupportedAuthenticationMethods.Keys)
                     {
-                        var userAuthentication = Settings.SupportedAuthenticationMethods[methodName](this);
+                        var userAuthentication = this.SupportedAuthenticationMethods[methodName].CreateInstance<UserAuthentication>();
+                        
+                        userAuthentication.Init(this);
 
                         if (userAuthentication.Execute())
                         {
@@ -1024,20 +1077,20 @@ namespace Renci.SshClient
 
             this.SendMessage(this.ClientInitMessage);
 
-            var keyExchangeAlgorithm = (from c in Settings.KeyExchangeAlgorithms.Keys
-                                        from s in message.KeyExchangeAlgorithms
-                                        where s == c
-                                        select c).FirstOrDefault();
+            var keyExchangeAlgorithmName = (from c in this.KeyExchangeAlgorithms.Keys
+                                            from s in message.KeyExchangeAlgorithms
+                                            where s == c
+                                            select c).FirstOrDefault();
 
-            if (keyExchangeAlgorithm == null)
+            if (keyExchangeAlgorithmName == null)
             {
                 throw new SshConnectionException("Failed to negotiate key exchange algorithm.", DisconnectReasons.KeyExchangeFailed);
             }
 
-            this._keyExchangeAlgorithm = Settings.KeyExchangeAlgorithms[keyExchangeAlgorithm]();
+            this._keyExchangeAlgorithm = this.KeyExchangeAlgorithms[keyExchangeAlgorithmName].CreateInstance<KeyExchangeAlgorithm>();
 
             //  Determine encryption algorithm
-            var clientEncryptionAlgorithmName = (from b in Settings.Encryptions.Keys
+            var clientEncryptionAlgorithmName = (from b in this.Encryptions.Keys
                                                  from a in message.EncryptionAlgorithmsClientToServer
                                                  where a == b
                                                  select a).FirstOrDefault();
@@ -1048,7 +1101,7 @@ namespace Renci.SshClient
             }
 
             //  Determine encryption algorithm
-            var serverDecryptionAlgorithmName = (from b in Settings.Encryptions.Keys
+            var serverDecryptionAlgorithmName = (from b in this.Encryptions.Keys
                                                  from a in message.EncryptionAlgorithmsServerToClient
                                                  where a == b
                                                  select a).FirstOrDefault();
@@ -1058,7 +1111,7 @@ namespace Renci.SshClient
             }
 
             //  Determine client hmac algorithm
-            var clientHmacAlgorithmName = (from b in Settings.HmacAlgorithms.Keys
+            var clientHmacAlgorithmName = (from b in this.HmacAlgorithms.Keys
                                            from a in message.MacAlgorithmsClientToSserver
                                            where a == b
                                            select a).FirstOrDefault();
@@ -1068,7 +1121,7 @@ namespace Renci.SshClient
             }
 
             //  Determine server hmac algorithm
-            var serverHmacAlgorithmName = (from b in Settings.HmacAlgorithms.Keys
+            var serverHmacAlgorithmName = (from b in this.HmacAlgorithms.Keys
                                            from a in message.MacAlgorithmsServerToClient
                                            where a == b
                                            select a).FirstOrDefault();
@@ -1078,7 +1131,7 @@ namespace Renci.SshClient
             }
 
             //  Determine compression algorithm
-            var compressionAlgorithmName = (from b in Settings.CompressionAlgorithms.Keys
+            var compressionAlgorithmName = (from b in this.CompressionAlgorithms.Keys
                                             from a in message.CompressionAlgorithmsClientToServer
                                             where a == b
                                             select a).FirstOrDefault();
@@ -1088,7 +1141,7 @@ namespace Renci.SshClient
             }
 
             //  Determine decompression algorithm
-            var decompressionAlgorithmName = (from b in Settings.CompressionAlgorithms.Keys
+            var decompressionAlgorithmName = (from b in this.CompressionAlgorithms.Keys
                                               from a in message.CompressionAlgorithmsServerToClient
                                               where a == b
                                               select a).FirstOrDefault();
@@ -1517,7 +1570,7 @@ namespace Renci.SshClient
             GC.SuppressFinalize(this);
         }
 
-        private void Dispose(bool disposing)
+        protected virtual void Dispose(bool disposing)
         {
             // Check to see if Dispose has already been called.
             if (!this._disposed)
@@ -1552,6 +1605,25 @@ namespace Renci.SshClient
                         this._keyExchangeCompletedWaitHandle.Dispose();
                     }
 
+                    if (this._clientCipher != null)
+                    {
+                        this._clientCipher.Dispose();
+                    }
+
+                    if (this._serverCipher != null)
+                    {
+                        this._serverCipher.Dispose();
+                    }
+
+                    if (this._clientMac != null)
+                    {
+                        this._clientMac.Dispose();
+                    }
+
+                    if (this._serverMac != null)
+                    {
+                        this._serverMac.Dispose();
+                    }
                 }
 
                 // Note disposing has been done.

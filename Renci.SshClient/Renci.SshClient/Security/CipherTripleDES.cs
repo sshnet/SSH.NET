@@ -5,7 +5,7 @@ using System.Security.Cryptography;
 
 namespace Renci.SshClient.Security
 {
-    internal class CipherTripleDES : Cipher, IDisposable
+    internal class CipherTripleDES : Cipher
     {
         private SymmetricAlgorithm _algorithm;
 
@@ -79,21 +79,12 @@ namespace Renci.SshClient.Security
             return output;
         }
 
-        #region IDisposable Members
+        private bool _isDisposed = false;
 
-        private bool disposed = false;
-
-        public void Dispose()
-        {
-            Dispose(true);
-
-            GC.SuppressFinalize(this);
-        }
-
-        private void Dispose(bool disposing)
+        protected override void Dispose(bool disposing)
         {
             // Check to see if Dispose has already been called.
-            if (!this.disposed)
+            if (!this._isDisposed)
             {
                 // If disposing equals true, dispose all managed
                 // and unmanaged resources.
@@ -107,18 +98,8 @@ namespace Renci.SshClient.Security
                 }
 
                 // Note disposing has been done.
-                disposed = true;
+                _isDisposed = true;
             }
         }
-
-        ~CipherTripleDES()
-        {
-            // Do not re-create Dispose clean-up code here.
-            // Calling Dispose(false) is optimal in terms of
-            // readability and maintainability.
-            Dispose(false);
-        }
-
-        #endregion
     }
 }

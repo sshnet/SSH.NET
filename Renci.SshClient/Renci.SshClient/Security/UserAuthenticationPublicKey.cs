@@ -18,12 +18,6 @@ namespace Renci.SshClient.Security
             }
         }
 
-        public UserAuthenticationPublicKey(Session session)
-            : base(session)
-        {
-
-        }
-
         protected override bool Run()
         {
             if (this.Session.ConnectionInfo.KeyFile == null)
@@ -31,7 +25,7 @@ namespace Renci.SshClient.Security
 
             this.Session.RegisterMessageType<InformationRequestMessage>(MessageTypes.UserAuthenticationInformationRequest);
 
-            //  TODO:   Complete full public key implemention which includes other messages
+            //  TODO:   Complete full public key implementation which includes other messages
             var message = new PublicKeyRequestMessage
             {
                 ServiceName = ServiceNames.Connection,
@@ -55,11 +49,6 @@ namespace Renci.SshClient.Security
             return true;
         }
 
-        //protected override void HandleMessage<T>(T message)
-        //{
-        //    throw new System.NotImplementedException();
-        //}
-
         protected override void Session_UserAuthenticationSuccessMessageReceived(object sender, MessageEventArgs<SuccessMessage> e)
         {
             base.Session_UserAuthenticationSuccessMessageReceived(sender, e);
@@ -71,18 +60,6 @@ namespace Renci.SshClient.Security
             base.Session_UserAuthenticationFailureReceived(sender, e);
             this._authenticationCompleted.Set();
         }
-
-        //protected override void HandleMessage(SuccessMessage message)
-        //{
-        //    base.HandleMessage(message);
-        //    this._authenticationCompleted.Set();
-        //}
-
-        //protected override void HandleMessage(FailureMessage message)
-        //{
-        //    base.HandleMessage(message);
-        //    this._authenticationCompleted.Set();
-        //}
 
         private class SignatureData : SshData
         {
@@ -117,7 +94,7 @@ namespace Renci.SshClient.Security
 
         #region IDisposable Members
 
-        private bool disposed = false;
+        private bool _isDisposed = false;
 
         public void Dispose()
         {
@@ -126,10 +103,10 @@ namespace Renci.SshClient.Security
             GC.SuppressFinalize(this);
         }
 
-        private void Dispose(bool disposing)
+        protected virtual void Dispose(bool disposing)
         {
             // Check to see if Dispose has already been called.
-            if (!this.disposed)
+            if (!this._isDisposed)
             {
                 // If disposing equals true, dispose all managed
                 // and unmanaged resources.
@@ -143,7 +120,7 @@ namespace Renci.SshClient.Security
                 }
 
                 // Note disposing has been done.
-                disposed = true;
+                _isDisposed = true;
             }
         }
 

@@ -12,9 +12,10 @@ namespace Renci.SshClient.Compression
             get { return "zlib@openssh.org"; }
         }
 
-        public ZlibOpenSsh(Session session)
-            : base(session)
+        public override void Init(Session session)
         {
+            base.Init(session);
+
             session.UserAuthenticationSuccessReceived += Session_UserAuthenticationSuccessReceived;
         }
 

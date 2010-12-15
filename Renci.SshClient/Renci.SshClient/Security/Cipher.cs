@@ -1,12 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System;
 
 namespace Renci.SshClient.Security
 {
-    public abstract class Cipher
+    public abstract class Cipher : Algorithm, IDisposable
     {
-        public abstract string Name { get; }
-
         public abstract int BlockSize { get; }
 
         public abstract int KeySize { get; }
@@ -24,5 +23,29 @@ namespace Renci.SshClient.Security
         public abstract IEnumerable<byte> Encrypt(IEnumerable<byte> data);
 
         public abstract IEnumerable<byte> Decrypt(IEnumerable<byte> data);
+        
+        #region IDisposable Members
+
+        public void Dispose()
+        {
+            Dispose(true);
+
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+        }
+
+        ~Cipher()
+        {
+            // Do not re-create Dispose clean-up code here.
+            // Calling Dispose(false) is optimal in terms of
+            // readability and maintainability.
+            Dispose(false);
+        }
+
+        #endregion
+
     }
 }

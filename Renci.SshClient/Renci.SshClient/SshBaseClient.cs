@@ -5,6 +5,7 @@ using System.Text;
 using System.IO;
 using Renci.SshClient.Sftp;
 using Renci.SshClient.Security;
+using Renci.SshClient.Common;
 
 namespace Renci.SshClient
 {
@@ -38,6 +39,11 @@ namespace Renci.SshClient
         }
 
         /// <summary>
+        /// Occurs when client is about to connect to the server.
+        /// </summary>
+        public event EventHandler<ConnectingEventArgs> Connecting;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="SshBaseClient"/> class.
         /// </summary>
         /// <param name="connectionInfo">The connection info.</param>
@@ -60,6 +66,7 @@ namespace Renci.SshClient
             }
 
             this.Session = new Session(this.ConnectionInfo);
+            this.Session.Connecting += Session_Connecting;
             this.Session.Connect();
 
             this.OnConnected();
@@ -73,6 +80,7 @@ namespace Renci.SshClient
             this.OnDisconnecting();
 
             this.Session.Disconnect();
+            this.Session.Connecting -= Session_Connecting;
 
             this.OnDisconnected();
         }
@@ -116,6 +124,15 @@ namespace Renci.SshClient
         {
 
         }
+
+        private void Session_Connecting(object sender, ConnectingEventArgs e)
+        {
+            if (this.Connecting != null)
+            {
+                this.Connecting(this, e);
+            }
+        }
+
 
         #region IDisposable Members
 

@@ -255,17 +255,6 @@ namespace Renci.SshClient.Channels
         }
 
         /// <summary>
-        /// Called when object is being disposed.
-        /// </summary>
-        protected override void OnDisposing()
-        {
-            if (this._channelOpenResponseWaitHandle != null)
-            {
-                this._channelOpenResponseWaitHandle.Dispose();
-            }
-        }
-
-        /// <summary>
         /// Sends the channel open message.
         /// </summary>
         protected void SendChannelOpenMessage()
@@ -276,6 +265,21 @@ namespace Renci.SshClient.Channels
                 this.SessionSemaphore.Wait();
 
                 this.SendMessage(new ChannelOpenMessage(this.LocalChannelNumber, this.LocalWindowSize, this.PacketSize, new SessionChannelOpenInfo()));
+            }
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+
+            if (this._channelOpenResponseWaitHandle != null)
+            {
+                this._channelOpenResponseWaitHandle.Dispose();
+            }
+
+            if (this._channelRequestResponse != null)
+            {
+                this._channelRequestResponse.Dispose();
             }
         }
     }

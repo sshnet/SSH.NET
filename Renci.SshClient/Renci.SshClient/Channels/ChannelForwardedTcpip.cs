@@ -121,13 +121,15 @@ namespace Renci.SshClient.Channels
             this._socket.Send(data.GetSshBytes().ToArray());
         }
 
-
-        protected override void OnDisposing()
+        protected override void Dispose(bool disposing)
         {
+            base.Dispose(disposing);
+
             if (this._socket != null)
             {
                 this._socket.Close();
             }
         }
+
     }
 }

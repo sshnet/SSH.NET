@@ -13,7 +13,7 @@ namespace Renci.SshClient.Security
 
         protected Session Session { get; private set; }
 
-        public UserAuthentication(Session session)
+        public void Init(Session session)
         {
             this.Session = session;
         }

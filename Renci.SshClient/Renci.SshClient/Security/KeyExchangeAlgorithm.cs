@@ -10,23 +10,23 @@ using Renci.SshClient.Messages.Transport;
 
 namespace Renci.SshClient.Security
 {
-    internal abstract class KeyExchangeAlgorithm : Algorithm
+    public abstract class KeyExchangeAlgorithm : Algorithm
     {
         public BigInteger SharedKey { get; protected set; }
 
         protected Session Session { get; set; }
 
-        private Func<Cipher> _clientCipher;
+        private string _clientCipherTypeName;
 
-        private Func<Cipher> _serverCipher;
+        private string _serverCipherTypeName;
 
-        private Func<IEnumerable<byte>, HMAC> _cientHmacAlgorithm;
+        private string _cientHmacAlgorithmTypeName;
 
-        private Func<IEnumerable<byte>, HMAC> _serverHmacAlgorithm;
+        private string _serverHmacAlgorithmTypeName;
 
-        private Func<Session, Compressor> _compression;
+        private string _compressionTypeName;
 
-        private Func<Session, Compressor> _decompression;
+        private string _decompressionTypeName;
 
         private IEnumerable<byte> _exchangeHash;
         /// <summary>
@@ -72,21 +72,23 @@ namespace Renci.SshClient.Security
         public void Init(Session session, string clientEncryptionAlgorithmName, string serverDecryptionAlgorithmName, string clientHmacAlgorithmName, string serverHmacAlgorithmName, string compressionAlgorithmName, string decompressionAlgorithmName)
         {
             this.Session = session;
-            this._clientCipher = Settings.Encryptions[clientEncryptionAlgorithmName];
-            this._serverCipher = Settings.Encryptions[clientEncryptionAlgorithmName];
-            this._cientHmacAlgorithm = Settings.HmacAlgorithms[clientHmacAlgorithmName];
-            this._serverHmacAlgorithm = Settings.HmacAlgorithms[serverHmacAlgorithmName];
-            this._compression = Settings.CompressionAlgorithms[compressionAlgorithmName];
-            this._decompression = Settings.CompressionAlgorithms[decompressionAlgorithmName];
+            this._clientCipherTypeName = session.Encryptions[clientEncryptionAlgorithmName];
+            this._serverCipherTypeName = session.Encryptions[clientEncryptionAlgorithmName];
+            this._cientHmacAlgorithmTypeName = session.HmacAlgorithms[clientHmacAlgorithmName];
+            this._serverHmacAlgorithmTypeName = session.HmacAlgorithms[serverHmacAlgorithmName];
+            this._compressionTypeName = session.CompressionAlgorithms[compressionAlgorithmName];
+            this._decompressionTypeName = session.CompressionAlgorithms[decompressionAlgorithmName];
 
             session.MessageReceived += MessageHandler;
             session.KeyExchangeInitReceived += MessageHandler;
             session.NewKeysReceived += MessageHandler;
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "Will be disposed by the session")]
         public Cipher CreateClientCipher()
         {
-            var clientCipher = this._clientCipher();
+            //  Create client cipher
+            var clientCipher = this._clientCipherTypeName.CreateInstance<Cipher>();
 
             var exchangeHash = this.ExchangeHash;
 
@@ -105,10 +107,11 @@ namespace Renci.SshClient.Security
             return clientCipher;
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "Will be disposed by the session")]
         public Cipher CreateServerCipher()
         {
-            //  Initilize server cipher
-            var serverCipher = this._serverCipher();
+            //  Create server cipher
+            var serverCipher = this._serverCipherTypeName.CreateInstance<Cipher>();
 
             var exchangeHash = this.ExchangeHash;
 
@@ -128,26 +131,52 @@ namespace Renci.SshClient.Security
             return serverCipher;
         }
 
-        public HMAC CreateClientMAC()
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "Will be disposed by the session")]
+        public HMac CreateClientMAC()
         {
             var MACc2s = this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'E', this.Session.SessionId));
-            return this._cientHmacAlgorithm(MACc2s);
+            var mac = this._cientHmacAlgorithmTypeName.CreateInstance<HMac>();
+            
+            mac.Init(MACc2s);
+            
+            return mac;
         }
 
-        public HMAC CreateServerMAC()
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification="Will be disposed by the session")]
+        public HMac CreateServerMAC()
         {
             var MACs2c = this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'F', this.Session.SessionId));
-            return this._serverHmacAlgorithm(MACs2c);
+            var mac = this._serverHmacAlgorithmTypeName.CreateInstance<HMac>();
+            
+            mac.Init(MACs2c);
+
+            return mac;            
         }
 
         public Compressor CreateCompression()
         {
-            return this._compression(this.Session);
+            if (string.IsNullOrEmpty(this._compressionTypeName))
+            {
+                return null;
+            }
+            var compressor = this._compressionTypeName.CreateInstance<Compressor>();
+
+            compressor.Init(this.Session);
+
+            return compressor;
         }
 
         public Compressor CreateDecompression()
         {
-            return this._decompression(this.Session);
+            if (string.IsNullOrEmpty(this._decompressionTypeName))
+            {
+                return null;
+            }
+            var compressor = this._decompressionTypeName.CreateInstance<Compressor>();
+
+            compressor.Init(this.Session);
+
+            return compressor;
         }
 
         private void MessageHandler(object sender, MessageEventArgs<Message> e)

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System;
 
 namespace Renci.SshClient
 {
@@ -65,7 +66,6 @@ namespace Renci.SshClient
             return IsEqualTo(value, compareList, null);
         }
 
-
         public static void DebugPrint(this IEnumerable<byte> bytes)
         {
             foreach (var b in bytes)
@@ -106,6 +106,16 @@ namespace Renci.SshClient
             }
         }
 
-
+        /// <summary>
+        /// Creates the instance of the type specified by the string.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="name">The name.</param>
+        /// <returns></returns>
+        internal static T CreateInstance<T>(this string name) where T : class
+        {
+            var type = Type.GetType(name);
+            return Activator.CreateInstance(type) as T;
+        }
     }
 }

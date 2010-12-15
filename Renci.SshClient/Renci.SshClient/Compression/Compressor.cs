@@ -6,7 +6,7 @@ namespace Renci.SshClient.Compression
     {
         protected Session Session { get; private set; }
 
-        public Compressor(Session session)
+        public virtual void Init(Session session)
         {
             this.Session = session;
         }

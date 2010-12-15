@@ -1,8 +1,8 @@
-﻿
-using System;
+﻿using System;
+
 namespace Renci.SshClient.Messages.Connection
 {
-    internal class GlobalRequestMessage : Message
+    public class GlobalRequestMessage : Message
     {
         public GlobalRequestNames RequestName { get; set; }
 

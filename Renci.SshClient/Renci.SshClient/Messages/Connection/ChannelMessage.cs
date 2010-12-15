@@ -1,7 +1,7 @@
 ﻿
 namespace Renci.SshClient.Messages.Connection
 {
-    internal abstract class ChannelMessage : Message
+    public abstract class ChannelMessage : Message
     {
         public uint LocalChannelNumber { get; set; }
 

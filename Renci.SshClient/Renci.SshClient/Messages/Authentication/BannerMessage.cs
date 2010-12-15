@@ -2,7 +2,7 @@
 
 namespace Renci.SshClient.Messages.Authentication
 {
-    internal class BannerMessage : Message
+    public class BannerMessage : Message
     {
         public override MessageTypes MessageType
         {

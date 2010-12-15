@@ -21,7 +21,7 @@ using Renci.SshClient.Security;
 
 namespace Renci.SshClient
 {
-    internal class Session : IDisposable
+    public class Session : IDisposable
     {
         protected const int MAXIMUM_PACKET_SIZE = 35000;
 
@@ -233,137 +233,137 @@ namespace Renci.SshClient
         /// <summary>
         /// Occurs when <see cref="DisconnectMessage"/> message received
         /// </summary>
-        public event EventHandler<MessageEventArgs<DisconnectMessage>> DisconnectReceived;
+        internal event EventHandler<MessageEventArgs<DisconnectMessage>> DisconnectReceived;
 
         /// <summary>
         /// Occurs when <see cref="IgnoreMessage"/> message received
         /// </summary>
-        public event EventHandler<MessageEventArgs<IgnoreMessage>> IgnoreReceived;
+        internal event EventHandler<MessageEventArgs<IgnoreMessage>> IgnoreReceived;
 
         /// <summary>
         /// Occurs when <see cref="UnimplementedMessage"/> message received
         /// </summary>
-        public event EventHandler<MessageEventArgs<UnimplementedMessage>> UnimplementedReceived;
+        internal event EventHandler<MessageEventArgs<UnimplementedMessage>> UnimplementedReceived;
 
         /// <summary>
         /// Occurs when <see cref="DebugMessage"/> message received
         /// </summary>
-        public event EventHandler<MessageEventArgs<DebugMessage>> DebugReceived;
+        internal event EventHandler<MessageEventArgs<DebugMessage>> DebugReceived;
 
         /// <summary>
         /// Occurs when <see cref="ServiceRequestMessage"/> message received
         /// </summary>
-        public event EventHandler<MessageEventArgs<ServiceRequestMessage>> ServiceRequestReceived;
+        internal event EventHandler<MessageEventArgs<ServiceRequestMessage>> ServiceRequestReceived;
 
         /// <summary>
         /// Occurs when <see cref="ServiceAcceptMessage"/> message received
         /// </summary>
-        public event EventHandler<MessageEventArgs<ServiceAcceptMessage>> ServiceAcceptReceived;
+        internal event EventHandler<MessageEventArgs<ServiceAcceptMessage>> ServiceAcceptReceived;
 
         /// <summary>
         /// Occurs when <see cref="KeyExchangeInitMessage"/> message received
         /// </summary>
-        public event EventHandler<MessageEventArgs<KeyExchangeInitMessage>> KeyExchangeInitReceived;
+        internal event EventHandler<MessageEventArgs<KeyExchangeInitMessage>> KeyExchangeInitReceived;
 
         /// <summary>
         /// Occurs when <see cref="NewKeysMessage"/> message received
         /// </summary>
-        public event EventHandler<MessageEventArgs<NewKeysMessage>> NewKeysReceived;
+        internal event EventHandler<MessageEventArgs<NewKeysMessage>> NewKeysReceived;
 
         /// <summary>
         /// Occurs when <see cref="RequestMessage"/> message received
         /// </summary>
-        public event EventHandler<MessageEventArgs<RequestMessage>> UserAuthenticationRequestReceived;
+        internal event EventHandler<MessageEventArgs<RequestMessage>> UserAuthenticationRequestReceived;
 
         /// <summary>
         /// Occurs when <see cref="FailureMessage"/> message received
         /// </summary>
-        public event EventHandler<MessageEventArgs<FailureMessage>> UserAuthenticationFailureReceived;
+        internal event EventHandler<MessageEventArgs<FailureMessage>> UserAuthenticationFailureReceived;
 
         /// <summary>
         /// Occurs when <see cref="SuccessMessage"/> message received
         /// </summary>
-        public event EventHandler<MessageEventArgs<SuccessMessage>> UserAuthenticationSuccessReceived;
+        internal event EventHandler<MessageEventArgs<SuccessMessage>> UserAuthenticationSuccessReceived;
 
         /// <summary>
         /// Occurs when <see cref="BannerMessage"/> message received
         /// </summary>
-        public event EventHandler<MessageEventArgs<BannerMessage>> UserAuthenticationBannerReceived;
+        internal event EventHandler<MessageEventArgs<BannerMessage>> UserAuthenticationBannerReceived;
 
         /// <summary>
         /// Occurs when <see cref="GlobalRequestMessage"/> message received
         /// </summary>        
-        public event EventHandler<MessageEventArgs<GlobalRequestMessage>> GlobalRequestReceived;
+        internal event EventHandler<MessageEventArgs<GlobalRequestMessage>> GlobalRequestReceived;
 
         /// <summary>
         /// Occurs when <see cref="RequestSuccessMessage"/> message received
         /// </summary>
-        public event EventHandler<MessageEventArgs<RequestSuccessMessage>> RequestSuccessReceived;
+        internal event EventHandler<MessageEventArgs<RequestSuccessMessage>> RequestSuccessReceived;
 
         /// <summary>
         /// Occurs when <see cref="RequestFailureMessage"/> message received
         /// </summary>
-        public event EventHandler<MessageEventArgs<RequestFailureMessage>> RequestFailureReceived;
+        internal event EventHandler<MessageEventArgs<RequestFailureMessage>> RequestFailureReceived;
 
         /// <summary>
         /// Occurs when <see cref="ChannelOpenMessage"/> message received
         /// </summary>
-        public event EventHandler<MessageEventArgs<ChannelOpenMessage>> ChannelOpenReceived;
+        internal event EventHandler<MessageEventArgs<ChannelOpenMessage>> ChannelOpenReceived;
 
         /// <summary>
         /// Occurs when <see cref="ChannelOpenConfirmationMessage"/> message received
         /// </summary>
-        public event EventHandler<MessageEventArgs<ChannelOpenConfirmationMessage>> ChannelOpenConfirmationReceived;
+        internal event EventHandler<MessageEventArgs<ChannelOpenConfirmationMessage>> ChannelOpenConfirmationReceived;
 
         /// <summary>
         /// Occurs when <see cref="ChannelOpenFailureMessage"/> message received
         /// </summary>
-        public event EventHandler<MessageEventArgs<ChannelOpenFailureMessage>> ChannelOpenFailureReceived;
+        internal event EventHandler<MessageEventArgs<ChannelOpenFailureMessage>> ChannelOpenFailureReceived;
 
         /// <summary>
         /// Occurs when <see cref="ChannelWindowAdjustMessage"/> message received
         /// </summary>
-        public event EventHandler<MessageEventArgs<ChannelWindowAdjustMessage>> ChannelWindowAdjustReceived;
+        internal event EventHandler<MessageEventArgs<ChannelWindowAdjustMessage>> ChannelWindowAdjustReceived;
 
         /// <summary>
         /// Occurs when <see cref="ChannelDataMessage"/> message received
         /// </summary>
-        public event EventHandler<MessageEventArgs<ChannelDataMessage>> ChannelDataReceived;
+        internal event EventHandler<MessageEventArgs<ChannelDataMessage>> ChannelDataReceived;
 
         /// <summary>
         /// Occurs when <see cref="ChannelExtendedDataMessage"/> message received
         /// </summary>
-        public event EventHandler<MessageEventArgs<ChannelExtendedDataMessage>> ChannelExtendedDataReceived;
+        internal event EventHandler<MessageEventArgs<ChannelExtendedDataMessage>> ChannelExtendedDataReceived;
 
         /// <summary>
         /// Occurs when <see cref="ChannelEofMessage"/> message received
         /// </summary>
-        public event EventHandler<MessageEventArgs<ChannelEofMessage>> ChannelEofReceived;
+        internal event EventHandler<MessageEventArgs<ChannelEofMessage>> ChannelEofReceived;
 
         /// <summary>
         /// Occurs when <see cref="ChannelCloseMessage"/> message received
         /// </summary>
-        public event EventHandler<MessageEventArgs<ChannelCloseMessage>> ChannelCloseReceived;
+        internal event EventHandler<MessageEventArgs<ChannelCloseMessage>> ChannelCloseReceived;
 
         /// <summary>
         /// Occurs when <see cref="ChannelRequestMessage"/> message received
         /// </summary>
-        public event EventHandler<MessageEventArgs<ChannelRequestMessage>> ChannelRequestReceived;
+        internal event EventHandler<MessageEventArgs<ChannelRequestMessage>> ChannelRequestReceived;
 
         /// <summary>
         /// Occurs when <see cref="ChannelSuccessMessage"/> message received
         /// </summary>
-        public event EventHandler<MessageEventArgs<ChannelSuccessMessage>> ChannelSuccessReceived;
+        internal event EventHandler<MessageEventArgs<ChannelSuccessMessage>> ChannelSuccessReceived;
 
         /// <summary>
         /// Occurs when <see cref="ChannelFailureMessage"/> message received
         /// </summary>
-        public event EventHandler<MessageEventArgs<ChannelFailureMessage>> ChannelFailureReceived;
+        internal event EventHandler<MessageEventArgs<ChannelFailureMessage>> ChannelFailureReceived;
 
         /// <summary>
         /// Occurs when message received and is not handled by any of the event handlers
         /// </summary>
-        public event EventHandler<MessageEventArgs<Message>> MessageReceived;
+        internal event EventHandler<MessageEventArgs<Message>> MessageReceived;
 
         #endregion
 
@@ -553,12 +553,12 @@ namespace Renci.SshClient
             this.SendDisconnect(DisconnectReasons.ByApplication, "Connection terminated by the client.");
         }
 
-        public T CreateChannel<T>() where T : Channel, new()
+        internal T CreateChannel<T>() where T : Channel, new()
         {
             return CreateChannel<T>(0, 0x100000, 0x8000);
         }
 
-        public T CreateChannel<T>(uint serverChannelNumber, uint windowSize, uint packetSize) where T : Channel, new()
+        internal T CreateChannel<T>(uint serverChannelNumber, uint windowSize, uint packetSize) where T : Channel, new()
         {
             T channel = new T();
             lock (this)
@@ -1008,7 +1008,7 @@ namespace Renci.SshClient
         {
             this._keyExchangeCompletedWaitHandle.Reset();
 
-            //  Connection type messages are not allowed during key excahnge phase
+            //  Connection type messages are not allowed during key exchange phase
             this.UnRegisterMessageType(MessageTypes.GlobalRequest);
             this.UnRegisterMessageType(MessageTypes.RequestSuccess);
             this.UnRegisterMessageType(MessageTypes.RequestFailure);

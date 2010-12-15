@@ -1,7 +1,7 @@
 ﻿
 namespace Renci.SshClient.Messages.Transport
 {
-    internal class DebugMessage : Message
+    public class DebugMessage : Message
     {
         public bool IsAlwaysDisplay { get; set; }
 

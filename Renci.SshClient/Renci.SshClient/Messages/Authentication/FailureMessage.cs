@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Renci.SshClient.Messages.Authentication
 {
-    internal class FailureMessage : Message
+    public class FailureMessage : Message
     {
         public override MessageTypes MessageType
         {

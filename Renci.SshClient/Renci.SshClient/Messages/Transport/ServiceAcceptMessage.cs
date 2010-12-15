@@ -5,7 +5,7 @@ namespace Renci.SshClient.Messages.Transport
     /// <summary>
     /// SSH_MSG_SERVICE_ACCEPT
     /// </summary>
-    internal class ServiceAcceptMessage : Message
+    public class ServiceAcceptMessage : Message
     {
         public override MessageTypes MessageType
         {

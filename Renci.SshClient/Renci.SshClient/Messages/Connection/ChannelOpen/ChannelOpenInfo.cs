@@ -2,7 +2,7 @@
 
 namespace Renci.SshClient.Messages.Connection
 {
-    internal abstract class ChannelOpenInfo : SshData
+    public abstract class ChannelOpenInfo : SshData
     {
         public abstract string ChannelType { get; }
 

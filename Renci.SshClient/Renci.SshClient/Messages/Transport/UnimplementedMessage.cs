@@ -1,7 +1,7 @@
 ﻿
 namespace Renci.SshClient.Messages.Transport
 {
-    internal class UnimplementedMessage : Message
+    public class UnimplementedMessage : Message
     {
         public override MessageTypes MessageType
         {

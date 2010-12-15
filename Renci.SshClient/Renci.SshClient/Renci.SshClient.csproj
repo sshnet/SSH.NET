@@ -98,6 +98,7 @@
     <Compile Include="Sftp\SftpFileAttributes.cs" />
     <Compile Include="Sftp\SftpSession.cs" />
     <Compile Include="Sftp\UploadFileCommand.cs" />
+    <Compile Include="SshBaseClient.cs" />
     <Compile Include="SshCommand.cs" />
     <Compile Include="MessageEventArgs.cs" />
     <Compile Include="ChannelAsyncResult.cs" />

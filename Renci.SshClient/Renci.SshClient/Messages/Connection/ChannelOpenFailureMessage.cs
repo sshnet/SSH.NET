@@ -1,6 +1,6 @@
 ﻿namespace Renci.SshClient.Messages.Connection
 {
-    internal class ChannelOpenFailureMessage : ChannelMessage
+    public class ChannelOpenFailureMessage : ChannelMessage
     {
         public override MessageTypes MessageType
         {

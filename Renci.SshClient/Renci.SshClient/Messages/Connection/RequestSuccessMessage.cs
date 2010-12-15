@@ -1,7 +1,7 @@
 ﻿
 namespace Renci.SshClient.Messages.Connection
 {
-    internal class RequestSuccessMessage : Message
+    public class RequestSuccessMessage : Message
     {
         public uint? BoundPort { get; set; }
 

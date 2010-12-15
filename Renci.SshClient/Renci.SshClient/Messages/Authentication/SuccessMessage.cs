@@ -1,7 +1,7 @@
 ﻿
 namespace Renci.SshClient.Messages.Authentication
 {
-    internal class SuccessMessage : Message
+    public class SuccessMessage : Message
     {
         public override MessageTypes MessageType
         {

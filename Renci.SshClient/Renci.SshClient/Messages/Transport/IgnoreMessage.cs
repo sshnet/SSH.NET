@@ -1,7 +1,7 @@
 ﻿
 namespace Renci.SshClient.Messages.Transport
 {
-    internal class IgnoreMessage : Message
+    public class IgnoreMessage : Message
     {
         public string Data { get; set; }
 

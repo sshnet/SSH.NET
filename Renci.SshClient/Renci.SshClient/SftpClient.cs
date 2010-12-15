@@ -8,38 +8,12 @@ namespace Renci.SshClient
     /// <summary>
     /// 
     /// </summary>
-    public class SftpClient : IDisposable
+    public class SftpClient : SshBaseClient
     {
+        /// <summary>
+        /// Holds SftpSession instance that used to communicate to the SFTP server
+        /// </summary>
         private SftpSession _sftpSession;
-
-        private Session _session;
-
-        /// <summary>
-        /// Gets the connection info.
-        /// </summary>
-        /// <value>The connection info.</value>
-        public ConnectionInfo ConnectionInfo { get; private set; }
-
-        /// <summary>
-        /// Gets a value indicating whether client is connected.
-        /// </summary>
-        /// <value>
-        /// 	<c>true</c> if client is connected; otherwise, <c>false</c>.
-        /// </value>
-        public bool IsConnected
-        {
-            get
-            {
-                if (this._session == null)
-                {
-                    return false;
-                }
-                else
-                {
-                    return this._session.IsConnected;
-                }
-            }
-        }
 
         /// <summary>
         /// Gets or sets the operation timeout.
@@ -60,10 +34,10 @@ namespace Renci.SshClient
         /// </summary>
         /// <param name="connectionInfo">The connection info.</param>
         public SftpClient(ConnectionInfo connectionInfo)
+            : base(connectionInfo)
         {
             this.OperationTimeout = -1;
             this.BufferSize = 1024 * 16;
-            this.ConnectionInfo = connectionInfo;
         }
 
         /// <summary>
@@ -74,7 +48,7 @@ namespace Renci.SshClient
         /// <param name="username">The username.</param>
         /// <param name="password">The password.</param>
         public SftpClient(string host, int port, string username, string password)
-            : this(new ConnectionInfo
+            : base(new ConnectionInfo
             {
                 Host = host,
                 Port = port,
@@ -91,7 +65,7 @@ namespace Renci.SshClient
         /// <param name="username">The username.</param>
         /// <param name="password">The password.</param>
         public SftpClient(string host, string username, string password)
-            : this(new ConnectionInfo
+            : base(new ConnectionInfo
             {
                 Host = host,
                 Username = username,
@@ -108,7 +82,7 @@ namespace Renci.SshClient
         /// <param name="username">The username.</param>
         /// <param name="keyFile">The key file.</param>
         public SftpClient(string host, int port, string username, PrivateKeyFile keyFile)
-            : this(new ConnectionInfo
+            : base(new ConnectionInfo
             {
                 Host = host,
                 Port = port,
@@ -125,7 +99,7 @@ namespace Renci.SshClient
         /// <param name="username">The username.</param>
         /// <param name="keyFile">The key file.</param>
         public SftpClient(string host, string username, PrivateKeyFile keyFile)
-            : this(new ConnectionInfo
+            : base(new ConnectionInfo
             {
                 Host = host,
                 Username = username,
@@ -136,38 +110,10 @@ namespace Renci.SshClient
 
         #endregion
 
-        /// <summary>
-        /// Connects client to the server.
-        /// </summary>
-        public void Connect()
-        {
-            if (this._session == null)
-            {
-                this._session = new Session(this.ConnectionInfo);
-            }
-            this._session.Connect();
-
-            this._sftpSession = new SftpSession(this._session, this.OperationTimeout);
-
-            this._sftpSession.Connect();
-        }
-
-        /// <summary>
-        /// Disconnects client from the server.
-        /// </summary>
-        public void Disconnect()
-        {
-            this._sftpSession.Disconnect();
-
-            this._session.Disconnect();
-
-            this._session = null;
-        }
-
         #region List Directory
 
         /// <summary>
-        /// Begins the list directory.
+        /// Begins the list directory operation.
         /// </summary>
         /// <param name="path">The path.</param>
         /// <param name="asyncCallback">The async callback.</param>
@@ -183,10 +129,10 @@ namespace Renci.SshClient
         }
 
         /// <summary>
-        /// Ends the list directory.
+        /// Ends the list directory operation.
         /// </summary>
         /// <param name="asyncResult">An <see cref="IAsyncResult"/> that references the asynchronous operation.</param>
-        /// <returns></returns>
+        /// <returns>List of files</returns>
         public IEnumerable<SftpFile> EndListDirectory(IAsyncResult asyncResult)
         {
             var sftpAsyncResult = asyncResult as SftpAsyncResult;
@@ -207,7 +153,7 @@ namespace Renci.SshClient
         /// Lists the directory.
         /// </summary>
         /// <param name="path">The path.</param>
-        /// <returns></returns>
+        /// <returns>List of files</returns>
         public IEnumerable<SftpFile> ListDirectory(string path)
         {
             return this.EndListDirectory(this.BeginListDirectory(path, null, null));
@@ -554,51 +500,27 @@ namespace Renci.SshClient
 
         #endregion
 
-        #region IDisposable Members
-
-        private bool disposed = false;
-
-        public void Dispose()
+        /// <summary>
+        /// Called when client is connected to the server.
+        /// </summary>
+        protected override void OnConnected()
         {
-            Dispose(true);
+            base.OnConnected();
 
-            GC.SuppressFinalize(this);
+            this._sftpSession = new SftpSession(this.Session, this.OperationTimeout);
+
+            this._sftpSession.Connect();
         }
 
-        private void Dispose(bool disposing)
+        /// <summary>
+        /// Called when client is disconnecting from the server.
+        /// </summary>
+        protected override void OnDisconnecting()
         {
-            // Check to see if Dispose has already been called.
-            if (!this.disposed)
-            {
-                // If disposing equals true, dispose all managed
-                // and unmanaged resources.
-                if (disposing)
-                {
-                    // Dispose managed resources.
-                    if (this._session != null)
-                    {
-                        this._session.Dispose();
-                    }
-                    if (this._sftpSession != null)
-                    {
-                        this._sftpSession.Dispose();
-                    }
-                }
+            base.OnDisconnecting();
 
-                // Note disposing has been done.
-                disposed = true;
-            }
+            this._sftpSession.Disconnect();
         }
-
-        ~SftpClient()
-        {
-            // Do not re-create Dispose clean-up code here.
-            // Calling Dispose(false) is optimal in terms of
-            // readability and maintainability.
-            Dispose(false);
-        }
-
-        #endregion
 
     }
 }

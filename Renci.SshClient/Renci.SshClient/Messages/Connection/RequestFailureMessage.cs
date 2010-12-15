@@ -1,7 +1,7 @@
 ﻿
 namespace Renci.SshClient.Messages.Connection
 {
-    internal class RequestFailureMessage : Message
+    public class RequestFailureMessage : Message
     {
         public override MessageTypes MessageType
         {

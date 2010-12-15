@@ -1,6 +1,6 @@
 ﻿namespace Renci.SshClient.Messages.Transport
 {
-    internal class NewKeysMessage : Message
+    public class NewKeysMessage : Message
     {
         public override MessageTypes MessageType
         {

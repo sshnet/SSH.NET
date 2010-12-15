@@ -108,8 +108,9 @@ namespace Renci.SshClient.Tests
                 Assert.Fail(e.Exception.ToString());
             };
             port1.Start();
+            var boundport = port1.BoundPort;
 
-            System.Threading.Tasks.Parallel.For(0, 100,
+            System.Threading.Tasks.Parallel.For(0, 5,
                 //new ParallelOptions
                 //{
                 //    MaxDegreeOfParallelism = 1,
@@ -120,10 +121,10 @@ namespace Renci.SshClient.Tests
                     try
                     {
 
-                        var cmd = client.CreateCommand("wget -O- http://localhost:8082");
+                        var cmd = client.CreateCommand(string.Format("wget -O- http://localhost:{0}", boundport));
                         var result = cmd.Execute();
                         var end = DateTime.Now;
-                        Debug.Write(string.Format("Length: {0}", result.Length));
+                        Debug.WriteLine(string.Format("Length: {0}", result.Length));
                     }
                     catch (Exception exp)
                     {

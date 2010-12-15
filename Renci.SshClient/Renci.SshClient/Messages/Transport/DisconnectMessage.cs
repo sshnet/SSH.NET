@@ -2,7 +2,7 @@
 
 namespace Renci.SshClient.Messages.Transport
 {
-    internal class DisconnectMessage : Message
+    public class DisconnectMessage : Message
     {
         public override MessageTypes MessageType
         {

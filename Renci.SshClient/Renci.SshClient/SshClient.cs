@@ -4,25 +4,16 @@ using System.IO;
 
 namespace Renci.SshClient
 {
-    public class SshClient : IDisposable
+    public class SshClient : SshBaseClient
     {
-        private Session _session;
-
+        /// <summary>
+        /// Holds the list of forwarded ports
+        /// </summary>
         private List<ForwardedPort> _forwardedPorts = new List<ForwardedPort>();
 
-        public ConnectionInfo ConnectionInfo { get; private set; }
-
-        public bool IsConnected
-        {
-            get
-            {
-                if (this._session == null)
-                    return false;
-                else
-                    return this._session.IsConnected;
-            }
-        }
-
+        /// <summary>
+        /// Gets the list of forwarded ports.
+        /// </summary>
         public IEnumerable<ForwardedPort> ForwardedPorts
         {
             get
@@ -31,14 +22,15 @@ namespace Renci.SshClient
             }
         }
 
+        #region Constructors
+
         public SshClient(ConnectionInfo connectionInfo)
+            : base(connectionInfo)
         {
-            this.ConnectionInfo = connectionInfo;
-            this._session = new Session(connectionInfo);
         }
 
         public SshClient(string host, int port, string username, string password)
-            : this(new ConnectionInfo
+            : base(new ConnectionInfo
             {
                 Host = host,
                 Port = port,
@@ -49,7 +41,7 @@ namespace Renci.SshClient
         }
 
         public SshClient(string host, string username, string password)
-            : this(new ConnectionInfo
+            : base(new ConnectionInfo
             {
                 Host = host,
                 Username = username,
@@ -59,7 +51,7 @@ namespace Renci.SshClient
         }
 
         public SshClient(string host, int port, string username, PrivateKeyFile keyFile)
-            : this(new ConnectionInfo
+            : base(new ConnectionInfo
             {
                 Host = host,
                 Port = port,
@@ -70,7 +62,7 @@ namespace Renci.SshClient
         }
 
         public SshClient(string host, string username, PrivateKeyFile keyFile)
-            : this(new ConnectionInfo
+            : base(new ConnectionInfo
             {
                 Host = host,
                 Username = username,
@@ -79,29 +71,34 @@ namespace Renci.SshClient
         {
         }
 
-        public void Connect()
-        {
-            this._session = new Session(this.ConnectionInfo);
-            this._session.Connect();
-        }
+        #endregion
 
-        public void Disconnect()
+        /// <summary>
+        /// Called when client is disconnecting from the server.
+        /// </summary>
+        protected override void OnDisconnecting()
         {
+            base.OnDisconnecting();
+
             foreach (var port in this._forwardedPorts)
             {
                 port.Stop();
             }
-            this._session.Disconnect();
-
-            //  Clean up objects created using previouse session instance
-            //this._sftp = null;
         }
 
+        /// <summary>
+        /// Adds forwarded port to the list.
+        /// </summary>
+        /// <typeparam name="T">Type of forwarded port to add</typeparam>
+        /// <param name="boundPort">The bound port.</param>
+        /// <param name="connectedHost">The connected host.</param>
+        /// <param name="connectedPort">The connected port.</param>
+        /// <returns>Forwarded port</returns>
         public T AddForwardedPort<T>(uint boundPort, string connectedHost, uint connectedPort) where T : ForwardedPort, new()
         {
             T port = new T();
 
-            port.Session = this._session;
+            port.Session = this.Session;
             port.BoundPort = boundPort;
             port.ConnectedHost = connectedHost;
             port.ConnectedPort = connectedPort;
@@ -111,6 +108,10 @@ namespace Renci.SshClient
             return port;
         }
 
+        /// <summary>
+        /// Stops and removes the forwarded port from the list.
+        /// </summary>
+        /// <param name="port">Forwarded port.</param>
         public void RemoveForwardedPort(ForwardedPort port)
         {
             //  Stop port forwarding before removing it
@@ -119,16 +120,21 @@ namespace Renci.SshClient
             this._forwardedPorts.Remove(port);
         }
 
-        public void KeepAlive()
-        {
-            this._session.KeepAlive();
-        }
-
+        /// <summary>
+        /// Creates the command to be executed.
+        /// </summary>
+        /// <param name="commandText">The command text.</param>
+        /// <returns></returns>
         public SshCommand CreateCommand(string commandText)
         {
-            return new SshCommand(this._session, commandText);
+            return new SshCommand(this.Session, commandText);
         }
 
+        /// <summary>
+        /// Creates and executes the command.
+        /// </summary>
+        /// <param name="commandText">The command text.</param>
+        /// <returns></returns>
         public SshCommand RunCommand(string commandText)
         {
             var cmd = this.CreateCommand(commandText);
@@ -136,51 +142,22 @@ namespace Renci.SshClient
             return cmd;
         }
 
+        /// <summary>
+        /// Creates the shell. (not complete)
+        /// </summary>
+        /// <param name="input">The input.</param>
+        /// <param name="output">The output.</param>
+        /// <param name="extendedOutput">The extended output.</param>
+        /// <param name="terminalName">Name of the terminal.</param>
+        /// <param name="columns">The columns.</param>
+        /// <param name="rows">The rows.</param>
+        /// <param name="width">The width.</param>
+        /// <param name="height">The height.</param>
+        /// <param name="terminalMode">The terminal mode.</param>
+        /// <returns></returns>
         public Shell CreateShell(Stream input, TextWriter output, TextWriter extendedOutput, string terminalName, uint columns, uint rows, uint width, uint height, string terminalMode)
         {
-            return new Shell(this._session, input, output, extendedOutput, terminalName, columns, rows, width, height, terminalMode);
+            return new Shell(this.Session, input, output, extendedOutput, terminalName, columns, rows, width, height, terminalMode);
         }
-
-        #region IDisposable Members
-
-        private bool disposed = false;
-
-        public void Dispose()
-        {
-            Dispose(true);
-
-            GC.SuppressFinalize(this);
-        }
-
-        private void Dispose(bool disposing)
-        {
-            // Check to see if Dispose has already been called.
-            if (!this.disposed)
-            {
-                // If disposing equals true, dispose all managed
-                // and unmanaged resources.
-                if (disposing)
-                {
-                    // Dispose managed resources.
-                    if (this._session != null)
-                    {
-                        this._session.Dispose();
-                    }
-                }
-
-                // Note disposing has been done.
-                disposed = true;
-            }
-        }
-
-        ~SshClient()
-        {
-            // Do not re-create Dispose clean-up code here.
-            // Calling Dispose(false) is optimal in terms of
-            // readability and maintainability.
-            Dispose(false);
-        }
-
-        #endregion
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace Renci.SshClient.Messages.Connection
 {
-    internal enum GlobalRequestNames
+    public enum GlobalRequestNames
     {
         /// <summary>
         /// tcpip-forward

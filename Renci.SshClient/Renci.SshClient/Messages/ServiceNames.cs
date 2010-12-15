@@ -1,6 +1,6 @@
 ﻿namespace Renci.SshClient.Messages
 {
-    internal enum ServiceNames
+    public enum ServiceNames
     {
         /// <summary>
         /// ssh-userauth

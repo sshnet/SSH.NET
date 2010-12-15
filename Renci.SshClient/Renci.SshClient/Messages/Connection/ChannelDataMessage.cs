@@ -1,6 +1,6 @@
 ﻿namespace Renci.SshClient.Messages.Connection
 {
-    internal class ChannelDataMessage : ChannelMessage
+    public class ChannelDataMessage : ChannelMessage
     {
         public override MessageTypes MessageType
         {

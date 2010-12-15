@@ -2,7 +2,7 @@
 
 namespace Renci.SshClient.Messages.Connection
 {
-    internal abstract class RequestInfo : SshData
+    public abstract class RequestInfo : SshData
     {
         public abstract string RequestName { get; }
 

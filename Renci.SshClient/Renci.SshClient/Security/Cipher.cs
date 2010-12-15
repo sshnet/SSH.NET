@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Renci.SshClient.Security
 {
-    internal abstract class Cipher
+    public abstract class Cipher
     {
         public abstract string Name { get; }
 

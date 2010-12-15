@@ -2,7 +2,7 @@
 using Renci.SshClient.Security;
 namespace Renci.SshClient.Compression
 {
-    internal abstract class Compressor : Algorithm
+    public abstract class Compressor : Algorithm
     {
         protected Session Session { get; private set; }
 

@@ -3,7 +3,7 @@ using System.Text;
 
 namespace Renci.SshClient.Messages.Authentication
 {
-    internal class RequestMessage : Message
+    public class RequestMessage : Message
     {
         public override MessageTypes MessageType
         {

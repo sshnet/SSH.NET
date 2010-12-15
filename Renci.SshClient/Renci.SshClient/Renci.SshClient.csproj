@@ -64,6 +64,7 @@
     <Compile Include="Common\ChannelEventArgs.cs" />
     <Compile Include="Common\ChannelOpenFailedEventArgs.cs" />
     <Compile Include="Common\ChannelRequestEventArgs.cs" />
+    <Compile Include="Common\ConnectingEventArgs.cs" />
     <Compile Include="Common\SshConnectionException.cs" />
     <Compile Include="Common\SshOperationTimeoutException.cs" />
     <Compile Include="Messages\Connection\ChannelOpen\ChannelOpenInfo.cs" />

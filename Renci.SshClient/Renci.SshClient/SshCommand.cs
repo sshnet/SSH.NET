@@ -8,6 +8,7 @@ using Renci.SshClient.Common;
 using Renci.SshClient.Messages;
 using Renci.SshClient.Messages.Connection;
 using Renci.SshClient.Messages.Transport;
+using System.Threading.Tasks;
 
 namespace Renci.SshClient
 {
@@ -203,8 +204,8 @@ namespace Renci.SshClient
             this._asyncResult.IsCompleted = true;
             if (this._callback != null)
             {
-                //  TODO:   Execute this method on different thread since it will be run on message listener
-                this._callback(this._asyncResult);
+                //  Execute callback on different thread
+                Task.Factory.StartNew(() => { this._callback(this._asyncResult); });                
             }
             ((EventWaitHandle)_asyncResult.AsyncWaitHandle).Set();
         }

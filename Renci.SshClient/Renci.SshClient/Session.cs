@@ -220,7 +220,7 @@ namespace Renci.SshClient
 
         public event EventHandler<ErrorEventArgs> ErrorOccured;
 
-        public event EventHandler<EventArgs> Connecting;
+        public event EventHandler<ConnectingEventArgs> Connecting;
 
         public event EventHandler<EventArgs> Connected;
 
@@ -450,17 +450,41 @@ namespace Renci.SshClient
                 if (this.IsConnected)
                     return;
 
-                if (this.Connecting != null)
-                {
-                    //  TODO:   Create custom ConnectingEventArgs to allow to pass different connection parameters
-                    this.Connecting(this, new EventArgs());
-                }
-
                 lock (this)
                 {
-                    //  If connected dont connect again
+                    //  If connected don't connect again
                     if (this.IsConnected)
                         return;
+
+                    var eventArgs = new ConnectingEventArgs(this.KeyExchangeAlgorithms,
+                                                                this.Encryptions,
+                                                                this.HmacAlgorithms,
+                                                                this.HostKeyAlgorithms,
+                                                                this.SupportedAuthenticationMethods,
+                                                                this.CompressionAlgorithms);
+                    //  Populate event args connection information
+                    eventArgs.Host = this.ConnectionInfo.Host;
+                    eventArgs.Port = this.ConnectionInfo.Port;
+                    eventArgs.Username = this.ConnectionInfo.Username;
+                    eventArgs.Password = this.ConnectionInfo.Password;
+                    eventArgs.KeyFile = this.ConnectionInfo.KeyFile;
+                    eventArgs.Timeout = this.ConnectionInfo.Timeout;
+                    eventArgs.RetryAttempts = this.ConnectionInfo.RetryAttempts;
+                    eventArgs.MaxSessions = this.ConnectionInfo.MaxSessions;
+
+                    if (this.Connecting != null)
+                    {
+                        this.Connecting(this, eventArgs);
+
+                        //  Update connection information if it was changed by event handler
+                        this.ConnectionInfo.Host = eventArgs.Host;
+                        this.ConnectionInfo.Port = eventArgs.Port;
+                        this.ConnectionInfo.Username = eventArgs.Username;
+                        this.ConnectionInfo.Password = eventArgs.Password;
+                        this.ConnectionInfo.KeyFile = eventArgs.KeyFile;
+                        this.ConnectionInfo.Timeout = eventArgs.Timeout;
+                        this.ConnectionInfo.RetryAttempts = eventArgs.RetryAttempts;
+                    }
 
                     var ep = new IPEndPoint(Dns.GetHostAddresses(this.ConnectionInfo.Host)[0], this.ConnectionInfo.Port);
                     this._socket = new Socket(ep.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
@@ -468,7 +492,7 @@ namespace Renci.SshClient
                     //  Connect socket with 5 seconds timeout
                     var connectResult = this._socket.BeginConnect(ep, null, null);
 
-                    connectResult.AsyncWaitHandle.WaitOne(this.ConnectionInfo.Timeout);
+                    connectResult.AsyncWaitHandle.WaitOne(eventArgs.Timeout);
 
                     this._socket.EndConnect(connectResult);
 
@@ -554,7 +578,7 @@ namespace Renci.SshClient
                     foreach (var methodName in this.SupportedAuthenticationMethods.Keys)
                     {
                         var userAuthentication = this.SupportedAuthenticationMethods[methodName].CreateInstance<UserAuthentication>();
-                        
+
                         userAuthentication.Init(this);
 
                         if (userAuthentication.Execute())

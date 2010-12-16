@@ -1,18 +1,18 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using Renci.SshClient.Security;
+using System.Security.Cryptography;
+using System.Security;
 
 namespace Renci.SshClient
 {
     public class PrivateKeyFile
     {
-        private Regex _beginKeyLine = new Regex(@"----[ ]*BEGIN (?<keyName>.+) PRIVATE KEY[ ]*----");
-        private Regex _headerLine = new Regex(@"(?<headerTag>[^:]{1,64}):[ ](?<headerValue>[^:]+(?<continue>\\)?)");
-        private Regex _headerLineContinue = new Regex(@"(?<headerValue>[^:]+(?<continue>\\)?)");
-        private Regex _endKeyLine = new Regex(@"----[ ]*END (?<keyName>.+) PRIVATE KEY[ ]*----");
+        private static Regex _privateKeyRegex = new Regex(@"^-----BEGIN (?<keyName>\w+) PRIVATE KEY-----\r\n(Proc-Type: 4,ENCRYPTED\r\nDEK-Info: (?<cryptName>[A-Z0-9-]+),(?<salt>[A-F0-9]{16})\r\n\r\n)?(?<data>([a-zA-Z0-9/+=]{1,64}\r\n)+)-----END \k<keyName> PRIVATE KEY-----.*", RegexOptions.Compiled | RegexOptions.Multiline);
 
         private CryptoPrivateKey _key;
 
@@ -65,85 +65,40 @@ namespace Renci.SshClient
 
         private void Open(Stream privateKey, string passPhrase)
         {
-            var headerTag = string.Empty;
-            var headerValue = string.Empty;
-            var headerValueContinue = false;
-            var data = new StringBuilder();
-            var keyName = string.Empty;
-
-            var fileLine = string.Empty;
+            Match privateKeyMatch = null;
 
             using (StreamReader sr = new StreamReader(privateKey))
             {
-                while ((fileLine = sr.ReadLine()) != null)
-                {
-                    var match = _beginKeyLine.Match(fileLine);
-                    if (match.Success)
-                    {
-                        keyName = match.Result("${keyName}");
-                        continue;
-                    }
-
-                    match = _endKeyLine.Match(fileLine);
-                    if (match.Success)
-                    {
-                        var endKeyName = match.Result("${keyName}");
-                        if (!endKeyName.Equals(keyName))
-                            throw new InvalidDataException("Invalid data key file.");
-                        break;
-                    }
-
-
-                    //  Ignore everything if BEGIN was not found yet
-                    if (string.IsNullOrEmpty(keyName))
-                    {
-                        continue;
-                    }
-
-                    match = _headerLine.Match(fileLine);
-                    if (match.Success)
-                    {
-                        headerTag = match.Result("${headerTag}");
-                        headerValue = match.Result("${headerValue}");
-                        if (match.Result("${continue}") == @"\")
-                        {
-                            headerValueContinue = true;
-                        }
-                        else
-                        {
-                            headerValueContinue = false;
-                        }
-                        continue;
-                    }
-
-                    if (headerValueContinue)
-                    {
-                        headerValue += fileLine;
-                        if (match.Result("${continue}") == @"\")
-                        {
-                            headerValueContinue = true;
-                        }
-                        else
-                        {
-                            headerValueContinue = false;
-                        }
-                        continue;
-                    }
-
-                    data.Append(fileLine);
-                }
+                privateKeyMatch = _privateKeyRegex.Match(sr.ReadToEnd());
             }
 
-            if (string.IsNullOrEmpty(keyName))
+            if (!privateKeyMatch.Success)
             {
-                throw new InvalidDataException("Invalid Public key file");
+                throw new InvalidDataException("Invalid private key file.");
+            }
+
+            var keyName = privateKeyMatch.Result("${keyName}");
+            var cryptName = privateKeyMatch.Result("${cryptName}");
+            var salt = privateKeyMatch.Result("${salt}");
+            var data = privateKeyMatch.Result("${data}");
+
+            var decryptedData = string.Join(string.Empty, data.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries));
+
+            if (!string.IsNullOrEmpty(cryptName) && !string.IsNullOrEmpty(salt))
+            {
+                if (string.IsNullOrEmpty(passPhrase))
+                    throw new InvalidOperationException("Private key is encrypted but passphrase is empty.");
+
+                var binaryKey = Convert.FromBase64String(passPhrase);
+                var binarySalt = Convert.FromBase64String(salt);
+
+                throw new NotImplementedException();
             }
 
             switch (keyName)
             {
                 case "RSA":
                     this._key = new CryptoPrivateKeyRsa();
-
                     break;
                 case "DSA":
                     this._key = new CryptoPrivateKeyDss();
@@ -151,9 +106,9 @@ namespace Renci.SshClient
                 default:
                     throw new NotSupportedException(string.Format("Key '{0}' is not supported.", keyName));
             }
+            var decrypted = System.Convert.FromBase64String(data);
 
-            this._key.Load(System.Convert.FromBase64String(data.ToString()), passPhrase);
+            this._key.Load(decrypted);
         }
-
     }
 }

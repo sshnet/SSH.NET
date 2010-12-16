@@ -5,13 +5,6 @@ namespace Renci.SshClient.Security
 {
     public abstract class CryptoPrivateKey : CryptoKey
     {
-        public override void Load(IEnumerable<byte> data)
-        {
-            this.Load(data, null);
-        }
-
-        public abstract void Load(IEnumerable<byte> data, string passPhrase);
-
         public abstract CryptoPublicKey GetPublicKey();
 
         public abstract IEnumerable<byte> GetSignature(IEnumerable<byte> key);

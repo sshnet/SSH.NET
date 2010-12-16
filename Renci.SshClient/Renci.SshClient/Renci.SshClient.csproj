@@ -85,6 +85,7 @@
     <Compile Include="Messages\Connection\ChannelRequest\X11ForwardingRequestInfo.cs" />
     <Compile Include="Messages\Connection\ChannelRequest\XonXoffRequestInfo.cs" />
     <Compile Include="Messages\Sftp\SftpRequestMessage.cs" />
+    <Compile Include="Security\CipherDES.cs" />
     <Compile Include="Security\HMac.cs" />
     <Compile Include="Security\HMacMD5.cs" />
     <Compile Include="Security\HMacSha1.cs" />

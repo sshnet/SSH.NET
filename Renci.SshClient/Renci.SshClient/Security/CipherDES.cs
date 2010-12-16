@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Security.Cryptography;
 
 namespace Renci.SshClient.Security
 {
-    public class CipherTripleDES : Cipher
+    public class CipherDES : Cipher
     {
         private SymmetricAlgorithm _algorithm;
 
@@ -34,9 +35,9 @@ namespace Renci.SshClient.Security
             }
         }
 
-        public CipherTripleDES()
+        public CipherDES()
         {
-            this._algorithm = new System.Security.Cryptography.TripleDESCryptoServiceProvider();
+            this._algorithm = new System.Security.Cryptography.DESCryptoServiceProvider();
             this._algorithm.Mode = System.Security.Cryptography.CipherMode.CBC;
             this._algorithm.Padding = System.Security.Cryptography.PaddingMode.None;
         }

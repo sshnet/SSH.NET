@@ -22,12 +22,8 @@ namespace Renci.SshClient.Security
             get { return "ssh-rsa"; }
         }
 
-        public override void Load(IEnumerable<byte> data, string passPhrase)
+        public override void Load(IEnumerable<byte> data)
         {
-            if (passPhrase != null)
-            {
-                throw new NotSupportedException("Keys with passphrase currently not supported");
-            }
             MemoryStream ms = null;
             try
             {

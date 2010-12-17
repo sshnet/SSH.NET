@@ -390,8 +390,10 @@ namespace Renci.SshClient
 
             this.KeyExchangeAlgorithms = new Dictionary<string, string>()
             {
-                {"diffie-hellman-group1-sha1", typeof(KeyExchangeDiffieHellman).AssemblyQualifiedName},
+                {"diffie-hellman-group1-sha1", typeof(KeyExchangeDiffieHellmanGroup1Sha1).AssemblyQualifiedName},
+                {"diffie-hellman-group14-sha1", typeof(KeyExchangeDiffieHellmanGroup14Sha1).AssemblyQualifiedName},
                 //"diffie-hellman-group-exchange-sha1"
+                //diffie-hellman-group-exchange-sha256
             };
 
             this.Encryptions = new Dictionary<string, string>()
@@ -400,18 +402,41 @@ namespace Renci.SshClient
                 {"aes128-cbc", typeof(CipherAES128CBC).AssemblyQualifiedName},
                 {"aes192-cbc", typeof(CipherAES192CBC).AssemblyQualifiedName},
                 {"aes256-cbc", typeof(CipherAES256CBC).AssemblyQualifiedName},
+                //{"blowfish-cbc", typeof(...).AssemblyQualifiedName},
+                //{"twofish256-cbc", typeof(...).AssemblyQualifiedName},
+                //{"twofish-cbc", typeof(...).AssemblyQualifiedName},
+                //{"twofish192-cbc", typeof(...).AssemblyQualifiedName},
+                //{"twofish128-cbc", typeof(...).AssemblyQualifiedName},
+                //{"serpent256-cbc", typeof(...).AssemblyQualifiedName},
+                //{"serpent192-cbc", typeof(...).AssemblyQualifiedName},
+                //{"serpent128-cbc", typeof(...).AssemblyQualifiedName},
+                //{"arcfour128", typeof(...).AssemblyQualifiedName},
+                //{"arcfour256", typeof(...).AssemblyQualifiedName},
+                //{"arcfour", typeof(...).AssemblyQualifiedName},
+                //{"idea-cbc", typeof(...).AssemblyQualifiedName},
+                //{"cast128-cbc", typeof(...).AssemblyQualifiedName},
+                //{"rijndael-cbc@lysator.liu.se", typeof(...).AssemblyQualifiedName},
+                //{"aes128-ctr", typeof(...).AssemblyQualifiedName},
+                //{"aes192-ctr", typeof(...).AssemblyQualifiedName},
+                //{"aes256-ctr", typeof(...).AssemblyQualifiedName},
             };
 
             this.HmacAlgorithms = new Dictionary<string, string>()
             {
                 {"hmac-md5", typeof(HMacMD5).AssemblyQualifiedName},
                 {"hmac-sha1", typeof(HMacSha1).AssemblyQualifiedName},
+                //{"umac-64@openssh.com", typeof(HMacSha1).AssemblyQualifiedName},
+                //{"hmac-ripemd160", typeof(HMacSha1).AssemblyQualifiedName},
+                //{"hmac-ripemd160@openssh.com", typeof(HMacSha1).AssemblyQualifiedName},
+                //{"hmac-md5-96", typeof(...).AssemblyQualifiedName},
+                //{"hmac-sha1-96", typeof(...).AssemblyQualifiedName},
+                //{"none", typeof(...).AssemblyQualifiedName},
             };
 
             this.HostKeyAlgorithms = new Dictionary<string, string>()
             {
                 {"ssh-rsa", typeof(CryptoPublicKeyRsa).AssemblyQualifiedName},
-                {"ssh-dsa", typeof(CryptoPublicKeyDss).AssemblyQualifiedName}, //  TODO:   Need to be tested
+                //{"ssh-dss", typeof(CryptoPublicKeyDss).AssemblyQualifiedName}, 
             };
 
             this.SupportedAuthenticationMethods = new Dictionary<string, string>()
@@ -419,6 +444,7 @@ namespace Renci.SshClient
                 {"none", typeof(UserAuthenticationNone).AssemblyQualifiedName},
                 {"publickey", typeof(UserAuthenticationPublicKey).AssemblyQualifiedName},
                 {"password", typeof(UserAuthenticationPassword).AssemblyQualifiedName},
+                //{"hostbased", typeof(...).AssemblyQualifiedName},                
             };
 
             this.CompressionAlgorithms = new Dictionary<string, string>()

@@ -13,11 +13,6 @@ namespace Renci.SshClient.Security
 
         private ICryptoTransform _decryptor;
 
-        public override string Name
-        {
-            get { return "aes128-cbc"; }
-        }
-
         public override int KeySize
         {
             get
@@ -109,6 +104,11 @@ namespace Renci.SshClient.Security
 
     public class CipherAES128CBC : CipherAES
     {
+        public override string Name
+        {
+            get { return "aes128-cbc"; }
+        }
+
         public CipherAES128CBC()
             : base(128)
         {
@@ -118,6 +118,11 @@ namespace Renci.SshClient.Security
 
     public class CipherAES192CBC : CipherAES
     {
+        public override string Name
+        {
+            get { return "aes192-cbc"; }
+        }
+        
         public CipherAES192CBC()
             : base(192)
         {
@@ -127,6 +132,11 @@ namespace Renci.SshClient.Security
 
     public class CipherAES256CBC : CipherAES
     {
+        public override string Name
+        {
+            get { return "aes256-cbc"; }
+        }
+        
         public CipherAES256CBC()
             : base(256)
         {

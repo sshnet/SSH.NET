@@ -436,7 +436,7 @@ namespace Renci.SshClient
             this.HostKeyAlgorithms = new Dictionary<string, string>()
             {
                 {"ssh-rsa", typeof(CryptoPublicKeyRsa).AssemblyQualifiedName},
-                //{"ssh-dss", typeof(CryptoPublicKeyDss).AssemblyQualifiedName}, 
+                {"ssh-dss", typeof(CryptoPublicKeyDss).AssemblyQualifiedName}, 
             };
 
             this.SupportedAuthenticationMethods = new Dictionary<string, string>()

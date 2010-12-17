@@ -81,7 +81,7 @@ namespace Renci.SshClient.Security
                 {
                     dsa.ImportParameters(new DSAParameters
                     {
-                        X = _publicKey.TrimLeadinZero().ToArray(),
+                        Y = _publicKey.TrimLeadinZero().ToArray(),
                         P = _p.TrimLeadinZero().ToArray(),
                         Q = _q.TrimLeadinZero().ToArray(),
                         G = _g.TrimLeadinZero().ToArray(),

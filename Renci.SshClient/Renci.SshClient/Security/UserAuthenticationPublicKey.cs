@@ -8,7 +8,9 @@ namespace Renci.SshClient.Security
 {
     internal class UserAuthenticationPublicKey : UserAuthentication, IDisposable
     {
-        private EventWaitHandle _authenticationCompleted = new AutoResetEvent(false);
+        private EventWaitHandle _publicKeyRequestMessageResponseWaitHandle = new ManualResetEvent(false);
+
+        private bool _isSignatureRequired;
 
         public override string Name
         {
@@ -20,31 +22,66 @@ namespace Renci.SshClient.Security
 
         protected override bool Run()
         {
-            if (this.Session.ConnectionInfo.KeyFile == null)
+            if (this.Session.ConnectionInfo.KeyFiles.Count < 1)
                 return false;
 
-            this.Session.RegisterMessageType<InformationRequestMessage>(MessageTypes.UserAuthenticationInformationRequest);
+            this.Session.RegisterMessageType<PublicKeyMessage>(MessageTypes.UserAuthenticationPublicKey);
 
-            //  TODO:   Complete full public key implementation which includes other messages
-            var message = new PublicKeyRequestMessage
+            foreach (var keyFile in this.Session.ConnectionInfo.KeyFiles)
             {
-                ServiceName = ServiceNames.Connection,
-                Username = this.Session.ConnectionInfo.Username,
-                PublicKeyAlgorithmName = this.Session.ConnectionInfo.KeyFile.AlgorithmName,
-                PublicKeyData = this.Session.ConnectionInfo.KeyFile.PublicKey,
-                //Signature = new byte[] { },
-            };
+                this._publicKeyRequestMessageResponseWaitHandle.Reset();
+                this._isSignatureRequired = false;
 
-            var signatureData = new SignatureData(message, this.Session.SessionId.GetSshString()).GetBytes();
+                var message = new PublicKeyRequestMessage
+                {
+                    ServiceName = ServiceNames.Connection,
+                    Username = this.Session.ConnectionInfo.Username,
+                    PublicKeyAlgorithmName = keyFile.AlgorithmName,
+                    PublicKeyData = keyFile.PublicKey,                    
+                };
 
-            message.Signature = this.Session.ConnectionInfo.KeyFile.GetSignature(signatureData);
+                if (this.Session.ConnectionInfo.KeyFiles.Count < 2)
+                {
+                    //  If only one key file provided then send signature for very first request
+                    var signatureData = new SignatureData(message, this.Session.SessionId.GetSshString()).GetBytes();
 
-            this.Session.SendMessage(message);
+                    message.Signature = keyFile.GetSignature(signatureData);
+                }
 
-            this.Session.WaitHandle(this._authenticationCompleted);
+                //  Send public key authentication request
+                this.Session.SendMessage(message);
 
-            this.Session.UnRegisterMessageType(MessageTypes.UserAuthenticationInformationRequest);
+                this.Session.WaitHandle(this._publicKeyRequestMessageResponseWaitHandle);
 
+                if (this._isSignatureRequired)
+                {
+                    this._publicKeyRequestMessageResponseWaitHandle.Reset();
+
+                    var signatureMessage = new PublicKeyRequestMessage
+                    {
+                        ServiceName = ServiceNames.Connection,
+                        Username = this.Session.ConnectionInfo.Username,
+                        PublicKeyAlgorithmName = keyFile.AlgorithmName,
+                        PublicKeyData = keyFile.PublicKey,
+                    };
+
+                    var signatureData = new SignatureData(message, this.Session.SessionId.GetSshString()).GetBytes();
+
+                    signatureMessage.Signature = keyFile.GetSignature(signatureData);
+                    
+                    //  Send public key authentication request with signature
+                    this.Session.SendMessage(signatureMessage); 
+                }
+
+                this.Session.WaitHandle(this._publicKeyRequestMessageResponseWaitHandle);
+
+                if (this.IsAuthenticated)
+                {
+                    break;
+                }            
+            }
+
+            this.Session.UnRegisterMessageType(MessageTypes.UserAuthenticationPublicKey);
 
             return true;
         }
@@ -52,13 +89,25 @@ namespace Renci.SshClient.Security
         protected override void Session_UserAuthenticationSuccessMessageReceived(object sender, MessageEventArgs<SuccessMessage> e)
         {
             base.Session_UserAuthenticationSuccessMessageReceived(sender, e);
-            this._authenticationCompleted.Set();
+            this._publicKeyRequestMessageResponseWaitHandle.Set();
         }
 
         protected override void Session_UserAuthenticationFailureReceived(object sender, MessageEventArgs<FailureMessage> e)
         {
             base.Session_UserAuthenticationFailureReceived(sender, e);
-            this._authenticationCompleted.Set();
+            this._publicKeyRequestMessageResponseWaitHandle.Set();
+        }
+
+        protected override void Session_MessageReceived(object sender, MessageEventArgs<Message> e)
+        {
+            base.Session_MessageReceived(sender, e);
+
+            var publicKeyMessage = e.Message as PublicKeyMessage;
+            if (publicKeyMessage != null)
+            {
+                this._isSignatureRequired = true;
+                this._publicKeyRequestMessageResponseWaitHandle.Set();
+            }        
         }
 
         private class SignatureData : SshData
@@ -113,9 +162,9 @@ namespace Renci.SshClient.Security
                 if (disposing)
                 {
                     // Dispose managed resources.
-                    if (this._authenticationCompleted != null)
+                    if (this._publicKeyRequestMessageResponseWaitHandle != null)
                     {
-                        this._authenticationCompleted.Dispose();
+                        this._publicKeyRequestMessageResponseWaitHandle.Dispose();
                     }
                 }
 

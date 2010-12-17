@@ -1,17 +1,19 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 namespace Renci.SshClient
 {
     public class ConnectionInfo
     {
-        public string Host { get; set; }
+        public string Host { get; private set; }
 
-        public int Port { get; set; }
+        public int Port { get; private set; }
 
-        public string Username { get; set; }
+        public string Username { get; private set; }
 
-        public string Password { get; set; }
+        public string Password { get; private set; }
 
-        public PrivateKeyFile KeyFile { get; set; }
+        public ICollection<PrivateKeyFile> KeyFiles { get; private set; }
 
         public TimeSpan Timeout { get; set; }
 
@@ -19,13 +21,29 @@ namespace Renci.SshClient
 
         public int MaxSessions { get; set; }
 
-        public ConnectionInfo()
+        private ConnectionInfo()
         {
             //  Set default connection values
-            this.Port = 22;
             this.Timeout = TimeSpan.FromSeconds(30);
             this.RetryAttempts = 10;
             this.MaxSessions = 10;
+        }
+
+        public ConnectionInfo(string host, int port, string username, string password)
+            : this()
+        {
+            this.Host = host;
+            this.Port = port;
+            this.Username = username;
+            this.Password = password;
+        }
+
+        public ConnectionInfo(string host, int port, string username, params PrivateKeyFile[] keyFiles)
+            : this()
+        {
+            this.Host = host;
+            this.Port = port;
+            this.KeyFiles = new Collection<PrivateKeyFile>(keyFiles);
         }
     }
 }

@@ -489,11 +489,6 @@ namespace Renci.SshClient
                                                                 this.SupportedAuthenticationMethods,
                                                                 this.CompressionAlgorithms);
                     //  Populate event args connection information
-                    eventArgs.Host = this.ConnectionInfo.Host;
-                    eventArgs.Port = this.ConnectionInfo.Port;
-                    eventArgs.Username = this.ConnectionInfo.Username;
-                    eventArgs.Password = this.ConnectionInfo.Password;
-                    eventArgs.KeyFile = this.ConnectionInfo.KeyFile;
                     eventArgs.Timeout = this.ConnectionInfo.Timeout;
                     eventArgs.RetryAttempts = this.ConnectionInfo.RetryAttempts;
                     eventArgs.MaxSessions = this.ConnectionInfo.MaxSessions;
@@ -503,11 +498,6 @@ namespace Renci.SshClient
                         this.Connecting(this, eventArgs);
 
                         //  Update connection information if it was changed by event handler
-                        this.ConnectionInfo.Host = eventArgs.Host;
-                        this.ConnectionInfo.Port = eventArgs.Port;
-                        this.ConnectionInfo.Username = eventArgs.Username;
-                        this.ConnectionInfo.Password = eventArgs.Password;
-                        this.ConnectionInfo.KeyFile = eventArgs.KeyFile;
                         this.ConnectionInfo.Timeout = eventArgs.Timeout;
                         this.ConnectionInfo.RetryAttempts = eventArgs.RetryAttempts;
                     }

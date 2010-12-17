@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using Renci.SshClient.Sftp;
+using System.Collections.ObjectModel;
 
 namespace Renci.SshClient
 {
@@ -40,71 +41,23 @@ namespace Renci.SshClient
             this.BufferSize = 1024 * 16;
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="SftpClient"/> class.
-        /// </summary>
-        /// <param name="host">The host.</param>
-        /// <param name="port">The port.</param>
-        /// <param name="username">The username.</param>
-        /// <param name="password">The password.</param>
         public SftpClient(string host, int port, string username, string password)
-            : base(new ConnectionInfo
-            {
-                Host = host,
-                Port = port,
-                Username = username,
-                Password = password,
-            })
+            : this(new ConnectionInfo(host, port, username, password))
         {
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="SftpClient"/> class.
-        /// </summary>
-        /// <param name="host">The host.</param>
-        /// <param name="username">The username.</param>
-        /// <param name="password">The password.</param>
         public SftpClient(string host, string username, string password)
-            : base(new ConnectionInfo
-            {
-                Host = host,
-                Username = username,
-                Password = password,
-            })
+            : this(host, 22, username, password)
         {
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="SftpClient"/> class.
-        /// </summary>
-        /// <param name="host">The host.</param>
-        /// <param name="port">The port.</param>
-        /// <param name="username">The username.</param>
-        /// <param name="keyFile">The key file.</param>
-        public SftpClient(string host, int port, string username, PrivateKeyFile keyFile)
-            : base(new ConnectionInfo
-            {
-                Host = host,
-                Port = port,
-                Username = username,
-                KeyFile = keyFile,
-            })
+        public SftpClient(string host, int port, string username, params PrivateKeyFile[] keyFiles)
+            : this(new ConnectionInfo(host, port, username, keyFiles))
         {
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="SftpClient"/> class.
-        /// </summary>
-        /// <param name="host">The host.</param>
-        /// <param name="username">The username.</param>
-        /// <param name="keyFile">The key file.</param>
-        public SftpClient(string host, string username, PrivateKeyFile keyFile)
-            : base(new ConnectionInfo
-            {
-                Host = host,
-                Username = username,
-                KeyFile = keyFile,
-            })
+        public SftpClient(string host, string username, params PrivateKeyFile[] keyFiles)
+            : this(host, 22, username, keyFiles)
         {
         }
 

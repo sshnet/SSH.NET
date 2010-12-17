@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Renci.SshClient.Messages.Authentication
 {
@@ -9,14 +10,21 @@ namespace Renci.SshClient.Messages.Authentication
             get { return MessageTypes.UserAuthenticationPublicKey; }
         }
 
+        public string PublicKeyAlgorithmName { get; set; }
+
+        public IEnumerable<byte> PublicKeyData { get; set; }
+
+
         protected override void LoadData()
         {
-            throw new NotImplementedException();
+            this.PublicKeyAlgorithmName = this.ReadString();
+            this.PublicKeyData = this.ReadString().GetSshBytes();
         }
 
         protected override void SaveData()
         {
-            throw new NotImplementedException();
+            this.Write(this.PublicKeyAlgorithmName);
+            this.Write(this.PublicKeyData.GetSshString());
         }
     }
 }

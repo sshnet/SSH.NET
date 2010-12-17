@@ -134,7 +134,7 @@ namespace Renci.SshClient
                         }
                         break;
                     default:
-                        throw new SshException(string.Format("Unknown private key cipher \"{0}\".", cryptName));
+                        throw new SshException(string.Format("Unknown private key cipher \"{0}\".", cipherName));
                 }
             }
             else

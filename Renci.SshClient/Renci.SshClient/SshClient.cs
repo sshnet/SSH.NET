@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Collections.ObjectModel;
 
 namespace Renci.SshClient
 {
@@ -30,44 +31,22 @@ namespace Renci.SshClient
         }
 
         public SshClient(string host, int port, string username, string password)
-            : base(new ConnectionInfo
-            {
-                Host = host,
-                Port = port,
-                Username = username,
-                Password = password,
-            })
+            : this(new ConnectionInfo(host, port, username, password))
         {
         }
 
         public SshClient(string host, string username, string password)
-            : base(new ConnectionInfo
-            {
-                Host = host,
-                Username = username,
-                Password = password,
-            })
+            : this(host, 22, username, password)
         {
         }
 
-        public SshClient(string host, int port, string username, PrivateKeyFile keyFile)
-            : base(new ConnectionInfo
-            {
-                Host = host,
-                Port = port,
-                Username = username,
-                KeyFile = keyFile,
-            })
+        public SshClient(string host, int port, string username, params PrivateKeyFile[] keyFiles)
+            : this(new ConnectionInfo(host, port, username, keyFiles))
         {
         }
 
-        public SshClient(string host, string username, PrivateKeyFile keyFile)
-            : base(new ConnectionInfo
-            {
-                Host = host,
-                Username = username,
-                KeyFile = keyFile,
-            })
+        public SshClient(string host, string username, params PrivateKeyFile[] keyFiles)
+            : this(host, 22, username, keyFiles)
         {
         }
 

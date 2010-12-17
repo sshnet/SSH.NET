@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
+using Renci.SshClient.Common;
 
 namespace Renci.SshClient.Security
 {
@@ -37,14 +38,15 @@ namespace Renci.SshClient.Security
                     else if (twobytes == 0x8230)
                         binr.ReadInt16();	//advance 2 bytes
                     else
-                        throw new InvalidOperationException("Not valid DSS Key.");
-
+                        throw new SshException("DSS key is not valid for use in specified state");                    
+                    
                     twobytes = binr.ReadUInt16();
                     if (twobytes != 0x0102)	//version number
-                        throw new NotSupportedException("Not supported DSS Key version.");
+                        throw new SshException("DSS key version is not supported.");
+
                     bt = binr.ReadByte();
                     if (bt != 0x00)
-                        throw new InvalidOperationException("Not valid DSS Key.");
+                        throw new SshException("DSS key is not valid for use in specified state");                    
 
                     //------  all private key components are Integer sequences ----
                     elems = CryptoPrivateKeyDss.GetIntegerSize(binr);

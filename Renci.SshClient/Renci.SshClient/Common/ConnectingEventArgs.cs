@@ -27,7 +27,7 @@ namespace Renci.SshClient.Common
 
         public string Password { get; set; }
 
-        public PrivateKeyFile KeyFile { get; set; }
+        public ICollection<PrivateKeyFile> KeyFiles { get; set; }
 
         public TimeSpan Timeout { get; set; }
 

@@ -1,5 +1,5 @@
-﻿
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+
 namespace Renci.SshClient.Messages.Authentication
 {
     internal class PublicKeyRequestMessage : RequestMessage

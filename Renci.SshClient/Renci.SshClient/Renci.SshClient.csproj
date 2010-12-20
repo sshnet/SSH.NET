@@ -85,12 +85,20 @@
     <Compile Include="Messages\Connection\ChannelRequest\X11ForwardingRequestInfo.cs" />
     <Compile Include="Messages\Connection\ChannelRequest\XonXoffRequestInfo.cs" />
     <Compile Include="Messages\Sftp\SftpRequestMessage.cs" />
+    <Compile Include="Messages\Transport\KeyExchangeDhGroupExchangeGroup.cs" />
+    <Compile Include="Messages\Transport\KeyExchangeDhGroupExchangeInit.cs" />
+    <Compile Include="Messages\Transport\KeyExchangeDhGroupExchangeReply.cs" />
+    <Compile Include="Messages\Transport\KeyExchangeDhGroupExchangeRequest.cs" />
     <Compile Include="Security\CipherDES.cs" />
+    <Compile Include="Security\KeyExchangeDiffieHellmanGroupExchangeSha256.cs" />
     <Compile Include="Security\HMac.cs" />
     <Compile Include="Security\HMacMD5.cs" />
     <Compile Include="Security\HMacSha1.cs" />
-    <Compile Include="Security\KeyExchangeDiffieHellman.cs" />
+    <Compile Include="Security\KeyExchangeDiffieHellman.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Security\KeyExchangeDiffieHellmanGroup14Sha1.cs" />
+    <Compile Include="Security\KeyExchangeDiffieHellmanGroupExchangeSha1.cs" />
     <Compile Include="SftpClient.cs" />
     <Compile Include="Sftp\CreateDirectoryCommand.cs" />
     <Compile Include="Sftp\DownloadFileCommand.cs" />
@@ -171,7 +179,7 @@
     <Compile Include="Security\CryptoPublicKey.cs" />
     <Compile Include="Security\CryptoPublicKeyDss.cs" />
     <Compile Include="Security\CryptoPublicKeyRsa.cs" />
-    <Compile Include="Security\KeyExchangeAlgorithm.cs" />
+    <Compile Include="Security\KeyExchange.cs" />
     <Compile Include="Security\KeyExchangeCompletedEventArgs.cs" />
     <Compile Include="Security\KeyExchangeDiffieHellmanGroup1Sha1.cs" />
     <Compile Include="Security\KeyExchangeFailedEventArgs.cs" />

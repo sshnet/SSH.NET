@@ -91,16 +91,13 @@ namespace Renci.SshClient
                 AsyncState = state,
             };
 
-            //  When comman rexecuted again, create a new channel
-            if (this._channel == null)
+            //  When command re-executed again, create a new channel
+            if (this._channel != null)
             {
-                this.CreateChannel();
+                throw new SshException("Invalid operation.");
             }
-            else
-            {
-                //  TODO: Clean up all channel information and make sure its properly closed and disattached from events
-                //  TODO: To allow multiple async command execution at the same time move this._channel field into asyncResult
-            }
+
+            this.CreateChannel();
 
             if (string.IsNullOrEmpty(this.CommandText))
                 throw new ArgumentException("CommandText property is empty.");

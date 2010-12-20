@@ -28,20 +28,9 @@ namespace Renci.SshClient.Messages.Sftp
             {
                 var fileName = this.ReadString();
                 var fullName = this.ReadString();
-                var attribute = this.ReadAttributes();
+                var attributes = this.ReadAttributes();
 
-                //  TODO:   Complete files info population
-                files.Add(new SftpFile
-                {
-                    Name = fileName,
-                    AbsolutePath = fullName,
-                    //Size = attribute.Size,
-                    //UserId = attribute.UserId,
-                    //GroupId = attribute.GroupId,
-                    //AccessedTime = attribute.AccessTime,
-                    //ModifiedTime = attribute.ModifyTime,
-                    Extentions = attribute.Extentions,
-                });
+                files.Add(new SftpFile(fileName, fullName, attributes));
             }
             this.Files = files;
         }

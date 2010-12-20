@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Renci.SshClient.Messages.Sftp
 {
-    internal class Attributes
+    public class Attributes
     {
         public ulong? Size { get; set; }
 

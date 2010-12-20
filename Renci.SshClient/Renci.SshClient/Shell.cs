@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Renci.SshClient.Channels;
 using Renci.SshClient.Messages.Connection;
+using Renci.SshClient.Common;
 
 namespace Renci.SshClient
 {
@@ -37,6 +38,8 @@ namespace Renci.SshClient
 
         private Encoding _encoding;
 
+        public bool IsStarted { get; private set; }
+
         public event EventHandler<EventArgs> Starting;
 
         public event EventHandler<EventArgs> Started;
@@ -64,12 +67,16 @@ namespace Renci.SshClient
 
         public void Start()
         {
+            if (this.IsStarted)
+            {
+                throw new SshException("Shell is started.");
+            }
+        
             if (this.Starting != null)
             {
                 this.Starting(this, new EventArgs());
             }
 
-            //  TODO:   Make sure cant start new shell while this is running
             this._channel = this._session.CreateChannel<ChannelSession>();
             this._channel.DataReceived += Channel_DataReceived;
             this._channel.ExtendedDataReceived += Channel_ExtendedDataReceived;
@@ -81,7 +88,7 @@ namespace Renci.SshClient
             this._channel.SendPseudoTerminalRequest(this._terminalName, this._columns, this._columns, this._width, this._height, this._terminalMode);
             this._channel.SendShellRequest();
 
-            //  Start input stream lisnter
+            //  Start input stream listener
             this._dataReaderTask = Task.Factory.StartNew(() =>
             {
                 try
@@ -116,6 +123,8 @@ namespace Renci.SshClient
                 }
             });
 
+            this.IsStarted = true;
+
             if (this.Started != null)
             {
                 this.Started(this, new EventArgs());
@@ -125,6 +134,11 @@ namespace Renci.SshClient
 
         public void Stop()
         {
+            if (!this.IsStarted)
+            {
+                throw new SshException("Shell is not started.");
+            }
+
             if (this.Stopping != null)
             {
                 this.Stopping(this, new EventArgs());

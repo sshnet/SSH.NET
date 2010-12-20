@@ -22,7 +22,7 @@ namespace Renci.SshClient.Security
 
         protected override bool Run()
         {
-            if (this.Session.ConnectionInfo.KeyFiles.Count < 1)
+            if (this.Session.ConnectionInfo.KeyFiles == null)
                 return false;
 
             this.Session.RegisterMessageType<PublicKeyMessage>(MessageTypes.UserAuthenticationPublicKey);

@@ -1,20 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
-using System.Security.Cryptography;
-using Renci.SshClient.Common;
-using Renci.SshClient.Messages;
+using System.Text;
 using Renci.SshClient.Messages.Transport;
-using System.Globalization;
+using System.Security.Cryptography;
+using System.Numerics;
+using Renci.SshClient.Messages;
+using Renci.SshClient.Common;
+using System.Diagnostics;
 
 namespace Renci.SshClient.Security
 {
-    internal class KeyExchangeDiffieHellmanGroup1Sha1 : KeyExchangeDiffieHellman
+    public class KeyExchangeDiffieHellmanGroupExchangeSha1 : KeyExchangeDiffieHellman
     {
         public override string Name
         {
-            get { return "diffie-hellman-group1-sha1"; }
+            get { return "diffie-hellman-group-exchange-sha1"; }
         }
 
         protected override IEnumerable<byte> CalculateHash()
@@ -26,6 +27,11 @@ namespace Renci.SshClient.Security
                 ClientPayload = this._clientPayload,
                 ServerPayload = this._serverPayload,
                 HostKey = this._hostKey,
+                MinimumGroupSize = 1024,
+                PreferredGroupSize = 1024,
+                MaximumGroupSize = 1024,
+                Prime = this._prime,
+                SubGroup = this._group,
                 ClientExchangeValue = this._clientExchangeValue,
                 ServerExchangeValue = this._serverExchangeValue,
                 SharedKey = this.SharedKey,
@@ -38,27 +44,21 @@ namespace Renci.SshClient.Security
         {
             base.Start(session, message);
 
-            this.Session.RegisterMessageType<KeyExchangeDhReplyMessage>(MessageTypes.KeyExchangeDhReply);
+            this.Session.RegisterMessageType<KeyExchangeDhGroupExchangeGroup>(MessageTypes.KeyExchangeDhGroupExchangeGroup);
+            this.Session.RegisterMessageType<KeyExchangeDhGroupExchangeReply>(MessageTypes.KeyExchangeDhGroupExchangeReply);
 
             this.Session.MessageReceived += Session_MessageReceived;
 
-            BigInteger prime;
-            var secondOkleyGroup = @"00FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD129024E088A67CC74020BBEA63B139B22514A08798E3404DDEF9519B3CD3A431B302B0A6DF25F14374FE1356D6D51C245E485B576625E7EC6F44C42E9A637ED6B0BFF5CB6F406B7EDEE386BFB5A899FA5AE9F24117C4B1FE649286651ECE65381FFFFFFFFFFFFFFFF";
-            BigInteger.TryParse(secondOkleyGroup, System.Globalization.NumberStyles.AllowHexSpecifier, CultureInfo.CurrentCulture, out prime);
-
-            this._prime = prime;
-
-            this._group = new BigInteger(new byte[] { 2 });
-
-            this.PopulateClientExchangeValue();
-
-            this.Session.SendMessage(new KeyExchangeDhInitMessage
+            //  1. send SSH_MSG_KEY_DH_GEX_REQUEST
+            this.Session.SendMessage(new KeyExchangeDhGroupExchangeRequest
             {
-                E = this._clientExchangeValue
+                Minimum = 1024,
+                Preferred = 1024,
+                Maximum = 1024,
             });
-
+            
         }
-        
+
         public override void Finish()
         {
             base.Finish();
@@ -68,15 +68,37 @@ namespace Renci.SshClient.Security
 
         private void Session_MessageReceived(object sender, MessageEventArgs<Message> e)
         {
-            var message = e.Message as KeyExchangeDhReplyMessage;
-            if (message != null)
+            var groupMessage = e.Message as KeyExchangeDhGroupExchangeGroup;
+
+            if (groupMessage != null)
             {
                 //  Unregister message once received
-                this.Session.UnRegisterMessageType(MessageTypes.KeyExchangeDhReply);
+                this.Session.UnRegisterMessageType(MessageTypes.KeyExchangeDhGroupExchangeGroup);
 
-                this.HandleServerDhReply(message.HostKey, message.F, message.Signature);
+                //  2. Receive SSH_MSG_KEX_DH_GEX_GROUP
+                this._prime = groupMessage.SafePrime;
+                this._group = groupMessage.SubGroup;
+
+                this.PopulateClientExchangeValue();
+
+                //  3. Send SSH_MSG_KEX_DH_GEX_INIT
+                this.Session.SendMessage(new KeyExchangeDhGroupExchangeInit
+                {
+                    E = this._clientExchangeValue
+                });
+
+            }
+            var replyMessage = e.Message as KeyExchangeDhGroupExchangeReply;
+
+            if (replyMessage != null)
+            {
+                //  Unregister message once received
+                this.Session.UnRegisterMessageType(MessageTypes.KeyExchangeDhGroupExchangeReply);
+
+                this.HandleServerDhReply(replyMessage.HostKey, replyMessage.F, replyMessage.Signature);
             }
         }
+
 
         private class _ExchangeHashData : SshData
         {
@@ -89,6 +111,16 @@ namespace Renci.SshClient.Security
             public string ServerPayload { get; set; }
 
             public string HostKey { get; set; }
+
+            public UInt32 MinimumGroupSize { get; set; }
+
+            public UInt32 PreferredGroupSize { get; set; }
+
+            public UInt32 MaximumGroupSize { get; set; }
+
+            public BigInteger Prime { get; set; }
+
+            public BigInteger SubGroup { get; set; }
 
             public BigInteger ClientExchangeValue { get; set; }
 
@@ -108,6 +140,11 @@ namespace Renci.SshClient.Security
                 this.Write(this.ClientPayload);
                 this.Write(this.ServerPayload);
                 this.Write(this.HostKey);
+                this.Write(this.MinimumGroupSize);
+                this.Write(this.PreferredGroupSize);
+                this.Write(this.MaximumGroupSize);
+                this.Write(this.Prime);
+                this.Write(this.SubGroup);
                 this.Write(this.ClientExchangeValue);
                 this.Write(this.ServerExchangeValue);
                 this.Write(this.SharedKey);

@@ -1,10 +1,18 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Numerics;
 
 namespace Renci.SshClient.Messages.Transport
 {
-    public class KeyExchangeDhReplyMessage : Message
+    internal class KeyExchangeDhGroupExchangeReply : Message
     {
+        public override MessageTypes MessageType
+        {
+            get { return MessageTypes.KeyExchangeDhGroupExchangeReply; }
+        }
+
         /// <summary>
         /// Gets server public host key and certificates
         /// </summary>
@@ -19,17 +27,8 @@ namespace Renci.SshClient.Messages.Transport
         /// <value>The signature.</value>
         public string Signature { get; private set; }
 
-        public override MessageTypes MessageType
-        {
-            get
-            {
-                return MessageTypes.KeyExchangeDhReply;
-            }
-        }
-
         protected override void LoadData()
         {
-            this.ResetReader();
             this.HostKey = this.ReadString();
             this.F = this.ReadBigInteger();
             this.Signature = this.ReadString();
@@ -37,7 +36,9 @@ namespace Renci.SshClient.Messages.Transport
 
         protected override void SaveData()
         {
-            throw new NotSupportedException("SaveData is not supported for KeyExchangeDhReplyMessage class");
+            this.Write(this.HostKey);
+            this.Write(this.F);
+            this.Write(this.Signature);
         }
     }
 }

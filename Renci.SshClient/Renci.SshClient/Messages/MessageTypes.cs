@@ -50,11 +50,22 @@
         /// SSH_MSG_KEXDH_REPLY
         /// </summary>
         KeyExchangeDhReply = 31,
-
-        SSH_MSG_KEX_DH_GEX_GROUP = 31,
-        SSH_MSG_KEX_DH_GEX_INIT = 32,
-        SSH_MSG_KEX_DH_GEX_REPLY = 33,
-        SSH_MSG_KEX_DH_GEX_REQUEST = 34,
+        /// <summary>
+        /// SSH_MSG_KEX_DH_GEX_GROUP
+        /// </summary>
+        KeyExchangeDhGroupExchangeGroup = 31,
+        /// <summary>
+        /// SSH_MSG_KEX_DH_GEX_INIT
+        /// </summary>
+        KeyExchangeDhGroupExchangeInit = 32,
+        /// <summary>
+        /// SSH_MSG_KEX_DH_GEX_REPLY
+        /// </summary>
+        KeyExchangeDhGroupExchangeReply = 33,
+        /// <summary>
+        /// SSH_MSG_KEX_DH_GEX_REQUEST
+        /// </summary>
+        KeyExchangeDhGroupExchangeRequest = 34,
 
         /// <summary>
         /// SSH_MSG_USERAUTH_REQUEST

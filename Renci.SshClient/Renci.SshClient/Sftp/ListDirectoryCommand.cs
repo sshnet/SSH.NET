@@ -10,7 +10,15 @@ namespace Renci.SshClient.Sftp
 
         private string _handle;
 
-        public IEnumerable<SftpFile> Files { get; private set; }
+        private List<SftpFile> _files = new List<SftpFile>();
+
+        public IEnumerable<SftpFile> Files
+        {
+            get
+            {
+                return this._files.AsReadOnly();
+            }
+        }
 
         public ListDirectoryCommand(SftpSession sftpSession, string path)
             : base(sftpSession)
@@ -36,18 +44,25 @@ namespace Renci.SshClient.Sftp
         {
             base.OnName(files);
 
-            this.Files = files;
+            this._files.AddRange(files);
 
-            this.CompleteExecution();
-
-            this.SendCloseMessage(this._handle);
+            this.SendReadDirMessage(this._handle);
         }
 
         protected override void OnStatus(StatusCodes statusCode, string errorMessage, string language)
         {
+            base.OnStatus(statusCode, errorMessage, language);
+
             if (statusCode == StatusCodes.NoSuchFile)
             {
                 throw new SshException(string.Format("Path '{0}' is not found.", this._path));
+            }
+
+            if (statusCode == StatusCodes.Eof)
+            {
+                this.CompleteExecution();
+
+                this.SendCloseMessage(this._handle);
             }
         }
     }

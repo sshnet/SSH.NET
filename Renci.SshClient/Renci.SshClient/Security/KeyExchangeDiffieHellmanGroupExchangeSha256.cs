@@ -11,7 +11,7 @@ using System.Diagnostics;
 
 namespace Renci.SshClient.Security
 {
-    public class KeyExchangeDiffieHellmanGroupExchangeSha256 : KeyExchangeDiffieHellman
+    internal class KeyExchangeDiffieHellmanGroupExchangeSha256 : KeyExchangeDiffieHellman
     {
         public override string Name
         {

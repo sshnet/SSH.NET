@@ -527,12 +527,14 @@ namespace Renci.SshClient
                             while (true)
                             {
                                 this.ServerVersion = sr.ReadLine();
-                                versionMatch = _serverVersionRe.Match(this.ServerVersion);
                                 if (string.IsNullOrEmpty(this.ServerVersion))
                                 {
                                     throw new InvalidOperationException("Server string is null or empty.");
                                 }
-                                else if (versionMatch.Success)
+                                
+                                versionMatch = _serverVersionRe.Match(this.ServerVersion);
+
+                                if (versionMatch.Success)
                                 {
                                     break;
                                 }
@@ -589,6 +591,12 @@ namespace Renci.SshClient
                     //  Wait for service to be accepted
                     this.WaitHandle(this._serviceAccepted);
 
+                    if (string.IsNullOrEmpty(this.ConnectionInfo.Username))
+                    {
+                        throw new SshException("Username is not specified.");
+                    }
+                
+
                     //  This implementation will ignore supported by server methods and will try to authenticated user using method supported by the client.
                     string errorMessage = null; //  Hold last authentication error if any
                     foreach (var methodName in this.SupportedAuthenticationMethods.Keys)
@@ -621,7 +629,6 @@ namespace Renci.SshClient
 
                 if (this.Connected != null)
                 {
-                    //  TODO:   Create custom ConnectingEventArgs to allow to pass different connection parameters
                     this.Connected(this, new EventArgs());
                 }
             }
@@ -1492,6 +1499,7 @@ namespace Renci.SshClient
             {
                 this.RaiseError(exp);
                 //  TODO:   This exception can be swolloed if it occures while running in the background, look for possible solutions
+                //          It can be swolled if call async, when asynch method is finished ensure all async method check for exception to be raised
             }
         }
 

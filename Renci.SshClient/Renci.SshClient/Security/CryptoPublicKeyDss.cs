@@ -7,7 +7,7 @@ using Renci.SshClient.Common;
 
 namespace Renci.SshClient.Security
 {
-    public class CryptoPublicKeyDss : CryptoPublicKey
+    internal class CryptoPublicKeyDss : CryptoPublicKey
     {
         private IEnumerable<byte> _p;
         private IEnumerable<byte> _q;

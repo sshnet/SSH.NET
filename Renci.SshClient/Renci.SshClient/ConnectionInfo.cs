@@ -43,6 +43,7 @@ namespace Renci.SshClient
         {
             this.Host = host;
             this.Port = port;
+            this.Username = username;
             this.KeyFiles = new Collection<PrivateKeyFile>(keyFiles);
         }
     }

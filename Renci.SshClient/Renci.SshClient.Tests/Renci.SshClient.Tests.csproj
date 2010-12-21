@@ -53,16 +53,35 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ConnectionData.cs" />
-    <Compile Include="PortForwardingTest.cs" />
+    <Compile Include="ConnectionTest.cs" />
+    <Compile Include="Security\TestCipher.cs" />
+    <Compile Include="Security\TestCryptoKey.cs" />
+    <Compile Include="Security\TestHMac.cs" />
+    <Compile Include="Security\TestHostKey.cs" />
+    <Compile Include="Security\TestKeyExchange.cs" />
+    <Compile Include="Security\TestPrivateKeyFile.cs" />
+    <Compile Include="SshClientTests\TestPortForwarding.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ShellTest.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="SftpClientTests\SftpClientTest.cs" />
+    <Compile Include="SshClientTests\TestShell.cs" />
+    <Compile Include="SshClientTests\TestSshCommand.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Renci.SshClient\Renci.SshClient.csproj">
       <Project>{2F5F8C90-0BD1-424F-997C-7BC6280919D1}</Project>
       <Name>Renci.SshClient</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -119,7 +119,6 @@ namespace Renci.SshClient.Sftp
 
                 try
                 {
-                    //  TODO:   Check to run on different thread
                     this.HandleMessage(sftpMessage);
                 }
                 catch (Exception exp)

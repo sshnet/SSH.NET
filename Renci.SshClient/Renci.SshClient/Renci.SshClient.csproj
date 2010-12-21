@@ -60,13 +60,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Common\AuthenticationEventArgs.cs" />
+    <Compile Include="Common\AuthenticationPrompt.cs" />
     <Compile Include="Common\ChannelDataEventArgs.cs" />
     <Compile Include="Common\ChannelEventArgs.cs" />
     <Compile Include="Common\ChannelOpenFailedEventArgs.cs" />
     <Compile Include="Common\ChannelRequestEventArgs.cs" />
     <Compile Include="Common\ConnectingEventArgs.cs" />
+    <Compile Include="Common\SshAuthenticationException.cs" />
     <Compile Include="Common\SshConnectionException.cs" />
     <Compile Include="Common\SshOperationTimeoutException.cs" />
+    <Compile Include="Messages\Authentication\RequestMessageKeyboardInteractive.cs" />
     <Compile Include="Messages\Connection\ChannelOpen\ChannelOpenInfo.cs" />
     <Compile Include="Messages\Connection\ChannelOpen\DirectTcpipChannelInfo.cs" />
     <Compile Include="Messages\Connection\ChannelOpen\ForwardedTcpipChannelInfo.cs" />
@@ -99,6 +103,15 @@
     </Compile>
     <Compile Include="Security\KeyExchangeDiffieHellmanGroup14Sha1.cs" />
     <Compile Include="Security\KeyExchangeDiffieHellmanGroupExchangeSha1.cs" />
+    <Compile Include="Security\UserAuthenticationKeyboardInteractive.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Security\UserAuthenticationPassword.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Security\UserAuthenticationPublicKey.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="SftpClient.cs" />
     <Compile Include="Sftp\CreateDirectoryCommand.cs" />
     <Compile Include="Sftp\DownloadFileCommand.cs" />
@@ -187,10 +200,7 @@
     <Compile Include="PrivateKeyFile.cs" />
     <Compile Include="Messages\Connection\ChannelMessage.cs" />
     <Compile Include="Security\UserAuthentication.cs" />
-    <Compile Include="Security\UserAuthenticationHost.cs" />
     <Compile Include="Security\UserAuthenticationNone.cs" />
-    <Compile Include="Security\UserAuthenticationPassword.cs" />
-    <Compile Include="Security\UserAuthenticationPublicKey.cs" />
     <Compile Include="Channels\Channel.cs" />
     <Compile Include="Channels\ChannelTypes.cs" />
     <Compile Include="ConnectionInfo.cs" />
@@ -246,9 +256,9 @@
     <Compile Include="Messages\Authentication\InformationResponseMessage.cs" />
     <Compile Include="Messages\Authentication\Methods.cs" />
     <Compile Include="Messages\Authentication\PasswordChangeRequiredMessage.cs" />
-    <Compile Include="Messages\Authentication\PasswordRequestMessage.cs" />
+    <Compile Include="Messages\Authentication\RequestMessagePassword.cs" />
     <Compile Include="Messages\Authentication\PublicKeyMessage.cs" />
-    <Compile Include="Messages\Authentication\PublicKeyRequestMessage.cs" />
+    <Compile Include="Messages\Authentication\RequestMessagePublicKey.cs" />
     <Compile Include="Messages\Authentication\RequestMessage.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -259,6 +269,7 @@
     <Compile Include="Common\SshData.cs" />
     <Compile Include="Shell.cs" />
     <Compile Include="SshClient.cs" />
+    <Compile Include="UserAuthentication.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

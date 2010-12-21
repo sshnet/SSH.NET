@@ -2,6 +2,7 @@
 using System.Threading;
 using Renci.SshClient.Messages;
 using Renci.SshClient.Messages.Authentication;
+using System.Collections.Generic;
 
 namespace Renci.SshClient.Security
 {
@@ -14,17 +15,17 @@ namespace Renci.SshClient.Security
             get { return "none"; }
         }
 
-        protected override bool Run()
+        public IEnumerable<string> Methods { get; private set; }
+
+        protected override void OnAuthenticate()
         {
             this.Session.SendMessage(new RequestMessage
             {
                 ServiceName = ServiceNames.Connection,
-                Username = this.Session.ConnectionInfo.Username,
+                Username = this.Username,
             });
 
             this.Session.WaitHandle(this._authenticationCompleted);
-
-            return true;
         }
 
         protected override void Session_UserAuthenticationSuccessMessageReceived(object sender, MessageEventArgs<SuccessMessage> e)
@@ -36,6 +37,7 @@ namespace Renci.SshClient.Security
         protected override void Session_UserAuthenticationFailureReceived(object sender, MessageEventArgs<FailureMessage> e)
         {
             base.Session_UserAuthenticationFailureReceived(sender, e);
+            this.Methods = e.Message.AllowedAuthentications;
             this._authenticationCompleted.Set();
         }
 

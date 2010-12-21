@@ -1,5 +1,7 @@
 ﻿using Renci.SshClient.Messages;
 using Renci.SshClient.Messages.Authentication;
+using System;
+using Renci.SshClient.Common;
 
 namespace Renci.SshClient.Security
 {
@@ -11,32 +13,28 @@ namespace Renci.SshClient.Security
 
         public string ErrorMessage { get; private set; }
 
+        public event EventHandler<AuthenticationEventArgs> Authenticating;
+
         protected Session Session { get; private set; }
 
-        public void Init(Session session)
-        {
-            this.Session = session;
-        }
+        protected string Username { get; private set; }
 
-        /// <summary>
-        /// Executes this instance.
-        /// </summary>
-        /// <returns>true if method was execute; otherwise false.</returns>
-        public bool Execute()
+        public bool Authenticate(string username, Session session)
         {
+            this.Username = username;
+            this.Session = session;
+
             this.Session.RegisterMessageType<FailureMessage>(MessageTypes.UserAuthenticationFailure);
             this.Session.RegisterMessageType<SuccessMessage>(MessageTypes.UserAuthenticationSuccess);
             this.Session.RegisterMessageType<BannerMessage>(MessageTypes.UserAuthenticationBanner);
 
-            this.Session.UserAuthenticationRequestReceived += Session_UserAuthenticationRequestMessageReceived;
             this.Session.UserAuthenticationFailureReceived += Session_UserAuthenticationFailureReceived;
             this.Session.UserAuthenticationSuccessReceived += Session_UserAuthenticationSuccessMessageReceived;
             this.Session.UserAuthenticationBannerReceived += Session_UserAuthenticationBannerMessageReceived;
             this.Session.MessageReceived += Session_MessageReceived;
 
-            var result = this.Run();
+            this.OnAuthenticate();
 
-            this.Session.UserAuthenticationRequestReceived -= Session_UserAuthenticationRequestMessageReceived;
             this.Session.UserAuthenticationFailureReceived -= Session_UserAuthenticationFailureReceived;
             this.Session.UserAuthenticationSuccessReceived -= Session_UserAuthenticationSuccessMessageReceived;
             this.Session.UserAuthenticationBannerReceived -= Session_UserAuthenticationBannerMessageReceived;
@@ -46,12 +44,10 @@ namespace Renci.SshClient.Security
             this.Session.UnRegisterMessageType(MessageTypes.UserAuthenticationSuccess);
             this.Session.UnRegisterMessageType(MessageTypes.UserAuthenticationBanner);
 
-            return result;
+            return this.IsAuthenticated;
         }
 
-        protected virtual void Session_UserAuthenticationRequestMessageReceived(object sender, MessageEventArgs<RequestMessage> e)
-        {
-        }
+        protected abstract void OnAuthenticate();
 
         protected virtual void Session_UserAuthenticationFailureReceived(object sender, MessageEventArgs<FailureMessage> e)
         {
@@ -66,34 +62,20 @@ namespace Renci.SshClient.Security
 
         protected virtual void Session_UserAuthenticationBannerMessageReceived(object sender, MessageEventArgs<BannerMessage> e)
         {
+            RaiseAuthenticating(new AuthenticationEventArgs(e.Message.Message, e.Message.Language));
+        }
+
+        protected void RaiseAuthenticating(AuthenticationEventArgs args)
+        {
+            if (this.Authenticating != null)
+            {
+                this.Authenticating(this, args);
+            }
         }
 
         protected virtual void Session_MessageReceived(object sender, MessageEventArgs<Message> e)
         {
-            //dynamic message = e.Message;
-            //this.HandleMessage(message);
         }
-
-
-        protected abstract bool Run();
-
-        //protected abstract void HandleMessage<T>(T message) where T : Message;
-
-        //protected virtual void HandleMessage(SuccessMessage message)
-        //{
-        //    this.IsAuthenticated = true;
-        //}
-
-        //protected virtual void HandleMessage(FailureMessage message)
-        //{
-        //    this.ErrorMessage = message.Message;
-        //    this.IsAuthenticated = false;
-        //}
-
-        //private void Session_MessageReceived(object sender, MessageEventArgs<Message> e)
-        //{
-        //    dynamic message = e.Message;
-        //    this.HandleMessage(message);
-        //}
+        
     }
 }

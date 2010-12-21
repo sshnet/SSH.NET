@@ -2,7 +2,7 @@
 
 namespace Renci.SshClient.Messages.Authentication
 {
-    internal class PasswordRequestMessage : RequestMessage
+    internal class RequestMessagePassword : RequestMessage
     {
         public override string MethodName
         {

@@ -228,6 +228,11 @@ namespace Renci.SshClient
 
         public event EventHandler<EventArgs> Disconnected;
 
+        /// <summary>
+        /// Occurs when user is being authenticated and additional information available or required
+        /// </summary>
+        public event EventHandler<AuthenticationEventArgs> Authenticating;
+
         #region Message events
 
         /// <summary>
@@ -444,7 +449,10 @@ namespace Renci.SshClient
                 {"none", typeof(UserAuthenticationNone).AssemblyQualifiedName},
                 {"publickey", typeof(UserAuthenticationPublicKey).AssemblyQualifiedName},
                 {"password", typeof(UserAuthenticationPassword).AssemblyQualifiedName},
+                {"keyboard-interactive", typeof(UserAuthenticationKeyboardInteractive).AssemblyQualifiedName},
                 //{"hostbased", typeof(...).AssemblyQualifiedName},                
+                //{"gssapi-keyex", typeof(...).AssemblyQualifiedName},                
+                //{"gssapi-with-mic", typeof(...).AssemblyQualifiedName},
             };
 
             this.CompressionAlgorithms = new Dictionary<string, string>()
@@ -531,7 +539,7 @@ namespace Renci.SshClient
                                 {
                                     throw new InvalidOperationException("Server string is null or empty.");
                                 }
-                                
+
                                 versionMatch = _serverVersionRe.Match(this.ServerVersion);
 
                                 if (versionMatch.Success)
@@ -595,33 +603,50 @@ namespace Renci.SshClient
                     {
                         throw new SshException("Username is not specified.");
                     }
-                
 
-                    //  This implementation will ignore supported by server methods and will try to authenticated user using method supported by the client.
-                    string errorMessage = null; //  Hold last authentication error if any
-                    foreach (var methodName in this.SupportedAuthenticationMethods.Keys)
+                    //  Query server supported authentication methods
+                    var username = this.ConnectionInfo.Username;
+                    IEnumerable<string> serverMethods = null;
+                    using (var noneAuthentication = new UserAuthenticationNone())
                     {
-                        var userAuthentication = this.SupportedAuthenticationMethods[methodName].CreateInstance<UserAuthentication>();
-
-                        userAuthentication.Init(this);
-
-                        if (userAuthentication.Execute())
+                        if (noneAuthentication.Authenticate(username, this))
                         {
-                            if (userAuthentication.IsAuthenticated)
+                            throw new SshAuthenticationException("'none' authentication should not be allowed.");
+                        }
+
+                        serverMethods = noneAuthentication.Methods;
+                    }
+
+                    var methodNames = from serverMethod in serverMethods
+                                      from clientMethod in this.SupportedAuthenticationMethods.Keys
+                                      where
+                                        serverMethod == clientMethod
+                                      select serverMethod;
+
+                    foreach (var methodName in methodNames)
+                    {
+                        var authentication = this.SupportedAuthenticationMethods[methodName].CreateInstance<UserAuthentication>();
+
+                        authentication.Authenticating += delegate(object sender, AuthenticationEventArgs e)
+                        {
+                            if (this.Authenticating != null)
                             {
-                                this._isAuthenticated = true;
-                                break;
+                                this.Authenticating(sender, e);
                             }
-                            else
-                            {
-                                errorMessage = userAuthentication.ErrorMessage;
-                            }
+                        };
+
+                        authentication.Authenticate(username, this);
+
+                        if (authentication.IsAuthenticated)
+                        {
+                            this._isAuthenticated = true;
+                            break;
                         }
                     }
 
                     if (!this._isAuthenticated)
                     {
-                        throw new AuthenticationException(errorMessage ?? "User cannot be authenticated.");
+                        throw new SshAuthenticationException("User cannot be authenticated.");
                     }
 
                     Monitor.Pulse(this);

@@ -43,6 +43,8 @@ namespace Renci.SshClient
         /// </summary>
         public event EventHandler<ConnectingEventArgs> Connecting;
 
+        public event EventHandler<AuthenticationEventArgs> Authenticating;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="SshBaseClient"/> class.
         /// </summary>
@@ -67,6 +69,7 @@ namespace Renci.SshClient
 
             this.Session = new Session(this.ConnectionInfo);
             this.Session.Connecting += Session_Connecting;
+            this.Session.Authenticating += Session_Authenticating;
             this.Session.Connect();
 
             this.OnConnected();
@@ -81,6 +84,7 @@ namespace Renci.SshClient
 
             this.Session.Disconnect();
             this.Session.Connecting -= Session_Connecting;
+            this.Session.Authenticating -= Session_Authenticating;
 
             this.OnDisconnected();
         }
@@ -130,6 +134,14 @@ namespace Renci.SshClient
             if (this.Connecting != null)
             {
                 this.Connecting(this, e);
+            }
+        }
+
+        private void Session_Authenticating(object sender, AuthenticationEventArgs e)
+        {
+            if (this.Authenticating != null)
+            {
+                this.Authenticating(this, e);
             }
         }
 

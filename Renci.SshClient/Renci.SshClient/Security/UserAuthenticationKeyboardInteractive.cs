@@ -1,35 +1,45 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using Renci.SshClient.Messages;
 using Renci.SshClient.Messages.Authentication;
+using Renci.SshClient.Common;
+using System.Threading.Tasks;
 
 namespace Renci.SshClient.Security
 {
-    internal class UserAuthenticationPassword : UserAuthentication, IDisposable
+    internal class UserAuthenticationKeyboardInteractive : UserAuthentication, IDisposable
     {
         private EventWaitHandle _authenticationCompleted = new AutoResetEvent(false);
+
+        private Exception _exception;
 
         public override string Name
         {
             get
             {
-                return "password";
+                return "keyboard-interactive";
             }
         }
 
         protected override void OnAuthenticate()
         {
-            //  TODO:   Handle all user authentication messages
-            //Message.RegisterMessageType<PasswordChangeRequiredMessage>(MessageTypes.UserAuthenticationPasswordChangeRequired);
+            this.Session.RegisterMessageType<InformationRequestMessage>(MessageTypes.UserAuthenticationInformationRequest);
 
-            this.Session.SendMessage(new RequestMessagePassword
+            this.Session.SendMessage(new RequestMessageKeyboardInteractive
                 {
                     ServiceName = ServiceNames.Connection,
-                    Username = this.Username,
-                    Password = this.Session.ConnectionInfo.Password ?? string.Empty,
+                    Username = this.Session.ConnectionInfo.Username,
                 });
 
             this.Session.WaitHandle(this._authenticationCompleted);
+
+            this.Session.UnRegisterMessageType(MessageTypes.UserAuthenticationInformationRequest);
+
+            if (this._exception != null)
+            {
+                throw this._exception;
+            }
         }
 
         protected override void Session_UserAuthenticationSuccessMessageReceived(object sender, MessageEventArgs<SuccessMessage> e)
@@ -42,6 +52,38 @@ namespace Renci.SshClient.Security
         {
             base.Session_UserAuthenticationFailureReceived(sender, e);
             this._authenticationCompleted.Set();
+        }
+
+        protected override void Session_MessageReceived(object sender, MessageEventArgs<Message> e)
+        {
+            var informationRequestMessage = e.Message as InformationRequestMessage;
+            if (informationRequestMessage != null)
+            {
+                var eventArgs = new AuthenticationEventArgs(informationRequestMessage.Instruction, informationRequestMessage.Language, informationRequestMessage.Prompts);
+
+                var eventTask = Task.Factory.StartNew(() =>
+                {
+                    try
+                    {
+                        this.RaiseAuthenticating(eventArgs);
+
+                        var informationResponse = new InformationResponseMessage();
+
+                        foreach (var response in from r in eventArgs.Prompts orderby r.Id ascending select r.Response)
+                        {
+                            informationResponse.Responses.Add(response);
+                        }
+
+                        //  Send information response message
+                        this.Session.SendMessage(informationResponse);
+                    }
+                    catch (Exception exp)
+                    {
+                        this._exception = exp;
+                        this._authenticationCompleted.Set();
+                    }
+                });
+            }
         }
 
         #region IDisposable Members
@@ -76,7 +118,7 @@ namespace Renci.SshClient.Security
             }
         }
 
-        ~UserAuthenticationPassword()
+        ~UserAuthenticationKeyboardInteractive()
         {
             // Do not re-create Dispose clean-up code here.
             // Calling Dispose(false) is optimal in terms of

@@ -20,10 +20,10 @@ namespace Renci.SshClient.Security
             }
         }
 
-        protected override bool Run()
+        protected override void OnAuthenticate()
         {
             if (this.Session.ConnectionInfo.KeyFiles == null)
-                return false;
+                return;
 
             this.Session.RegisterMessageType<PublicKeyMessage>(MessageTypes.UserAuthenticationPublicKey);
 
@@ -32,7 +32,7 @@ namespace Renci.SshClient.Security
                 this._publicKeyRequestMessageResponseWaitHandle.Reset();
                 this._isSignatureRequired = false;
 
-                var message = new PublicKeyRequestMessage
+                var message = new RequestMessagePublicKey
                 {
                     ServiceName = ServiceNames.Connection,
                     Username = this.Session.ConnectionInfo.Username,
@@ -57,7 +57,7 @@ namespace Renci.SshClient.Security
                 {
                     this._publicKeyRequestMessageResponseWaitHandle.Reset();
 
-                    var signatureMessage = new PublicKeyRequestMessage
+                    var signatureMessage = new RequestMessagePublicKey
                     {
                         ServiceName = ServiceNames.Connection,
                         Username = this.Session.ConnectionInfo.Username,
@@ -82,13 +82,12 @@ namespace Renci.SshClient.Security
             }
 
             this.Session.UnRegisterMessageType(MessageTypes.UserAuthenticationPublicKey);
-
-            return true;
         }
 
         protected override void Session_UserAuthenticationSuccessMessageReceived(object sender, MessageEventArgs<SuccessMessage> e)
         {
             base.Session_UserAuthenticationSuccessMessageReceived(sender, e);
+
             this._publicKeyRequestMessageResponseWaitHandle.Set();
         }
 
@@ -112,12 +111,11 @@ namespace Renci.SshClient.Security
 
         private class SignatureData : SshData
         {
-
-            private PublicKeyRequestMessage _message;
+            private RequestMessagePublicKey _message;
 
             private string _sessionId;
 
-            public SignatureData(PublicKeyRequestMessage message, string sessionId)
+            public SignatureData(RequestMessagePublicKey message, string sessionId)
             {
                 this._message = message;
                 this._sessionId = sessionId;

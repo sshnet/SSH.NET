@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
+using Renci.SshClient.Common;
 
 namespace Renci.SshClient.Messages.Authentication
 {
@@ -17,7 +18,7 @@ namespace Renci.SshClient.Messages.Authentication
 
         public string Language { get; set; }
 
-        public IEnumerable<PromptEcho> Prompts { get; set; }
+        public IEnumerable<AuthenticationPrompt> Prompts { get; set; }
 
         protected override void LoadData()
         {
@@ -26,16 +27,14 @@ namespace Renci.SshClient.Messages.Authentication
             this.Language = this.ReadString();
 
             var numOfPrompts = this.ReadUInt32();
-            var prompts = new List<PromptEcho>();
+            var prompts = new List<AuthenticationPrompt>();
 
             for (int i = 0; i < numOfPrompts; i++)
-			{
-                prompts.Add(new PromptEcho
-                    {
-                        Prompt = this.ReadString(),
-                        Echo = this.ReadBoolean(),
-                    });            
-			}
+            {
+                var prompt = this.ReadString();
+                var echo = this.ReadBoolean();
+                prompts.Add(new AuthenticationPrompt(i, echo, prompt));
+            }
 
             this.Prompts = prompts;
         }
@@ -43,13 +42,6 @@ namespace Renci.SshClient.Messages.Authentication
         protected override void SaveData()
         {
             throw new NotImplementedException();
-        }
-
-        public class PromptEcho
-        {
-            public string Prompt { get; set; }
-
-            public bool Echo { get; set; }
         }
     }
 }

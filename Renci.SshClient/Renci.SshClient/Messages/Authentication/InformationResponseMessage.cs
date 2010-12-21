@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Renci.SshClient.Messages.Authentication
 {
@@ -9,6 +10,13 @@ namespace Renci.SshClient.Messages.Authentication
             get { return MessageTypes.UserAuthenticationInformationResponse; }
         }
 
+        public IList<string> Responses { get; private set; }
+
+        public InformationResponseMessage()
+        {
+            this.Responses = new List<string>();
+        }
+
         protected override void LoadData()
         {
             throw new NotImplementedException();
@@ -16,7 +24,11 @@ namespace Renci.SshClient.Messages.Authentication
 
         protected override void SaveData()
         {
-            throw new NotImplementedException();
+            this.Write((UInt32)this.Responses.Count);
+            foreach (var response in this.Responses)
+            {
+                this.Write(response);
+            }
         }
     }
 }

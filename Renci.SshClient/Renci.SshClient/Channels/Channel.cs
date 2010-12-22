@@ -48,11 +48,6 @@ namespace Renci.SshClient.Channels
         /// </summary>
         public event EventHandler<ChannelOpenFailedEventArgs> OpenFailed;
 
-        ///// <summary>
-        ///// Occurs when <see cref="ChannelWindowAdjustMessage"/> message received
-        ///// </summary>
-        //public event EventHandler<MessageEventArgs<ChannelWindowAdjustMessage>> ChannelWindowAdjustReceived;
-
         /// <summary>
         /// Occurs when <see cref="ChannelDataMessage"/> message received
         /// </summary>
@@ -428,11 +423,7 @@ namespace Renci.SshClient.Channels
             //  Adjust window if window size is too low
             if (this.LocalWindowSize < this.PacketSize)
             {
-                this.SendMessage(new ChannelWindowAdjustMessage
-                {
-                    LocalChannelNumber = this.RemoteChannelNumber,
-                    BytesToAdd = this._initialWindowSize - this.LocalWindowSize,
-                });
+                this.SendMessage(new ChannelWindowAdjustMessage(this.RemoteChannelNumber, this._initialWindowSize - this.LocalWindowSize));
                 this.LocalWindowSize = this._initialWindowSize;
             }
         }
@@ -447,10 +438,8 @@ namespace Renci.SshClient.Channels
                 if (this._closeMessageSent)
                     return;
 
-                this.SendMessage(new ChannelCloseMessage
-                {
-                    LocalChannelNumber = this.RemoteChannelNumber,
-                });
+                this.SendMessage(new ChannelCloseMessage(this.RemoteChannelNumber));
+
                 this._closeMessageSent = true;
             }
         }

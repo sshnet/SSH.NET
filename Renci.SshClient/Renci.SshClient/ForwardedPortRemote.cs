@@ -29,13 +29,7 @@ namespace Renci.SshClient
             this.Session.ChannelOpenReceived += Session_ChannelOpening;
 
             //  Send global request to start direct tcpip
-            this.Session.SendMessage(new GlobalRequestMessage
-            {
-                RequestName = GlobalRequestNames.TcpIpForward,
-                WantReply = true,
-                AddressToBind = this.ConnectedHost,
-                PortToBind = this.BoundPort,
-            });
+            this.Session.SendMessage(new GlobalRequestMessage(GlobalRequestNames.TcpIpForward, true, this.ConnectedHost, this.BoundPort));
 
             this.Session.WaitHandle(this._globalRequestResponse);
 
@@ -55,13 +49,7 @@ namespace Renci.SshClient
                 return;
 
             //  Send global request to cancel direct tcpip
-            this.Session.SendMessage(new GlobalRequestMessage
-            {
-                RequestName = GlobalRequestNames.CancelTcpIpForward,
-                WantReply = true,
-                AddressToBind = this.ConnectedHost,
-                PortToBind = this.BoundPort,
-            });
+            this.Session.SendMessage(new GlobalRequestMessage(GlobalRequestNames.CancelTcpIpForward, true, this.ConnectedHost, this.BoundPort));
 
             this.Session.WaitHandle(this._globalRequestResponse);
 

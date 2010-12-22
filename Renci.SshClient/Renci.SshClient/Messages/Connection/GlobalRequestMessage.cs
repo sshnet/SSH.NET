@@ -4,13 +4,31 @@ namespace Renci.SshClient.Messages.Connection
 {
     public class GlobalRequestMessage : Message
     {
-        public GlobalRequestNames RequestName { get; set; }
+        public GlobalRequestNames RequestName { get; private set; }
 
-        public bool WantReply { get; set; }
+        public bool WantReply { get; private set; }
 
-        public string AddressToBind { get; set; }
+        public string AddressToBind { get; private set; }
 
-        public UInt32 PortToBind { get; set; }
+        public UInt32 PortToBind { get; private set; }
+
+        public GlobalRequestMessage()
+        {
+
+        }
+
+        public GlobalRequestMessage(GlobalRequestNames requestName, bool wantReply)
+        {
+            this.RequestName = requestName;
+            this.WantReply = wantReply;
+        }
+
+        public GlobalRequestMessage(GlobalRequestNames requestName, bool wantReply, string addressToBind, uint portToBind)
+            : this(requestName, wantReply)
+        {
+            this.AddressToBind = addressToBind;
+            this.PortToBind = portToBind;
+        }
 
         public override MessageTypes MessageType
         {

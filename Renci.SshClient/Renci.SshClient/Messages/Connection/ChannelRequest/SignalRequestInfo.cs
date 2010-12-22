@@ -9,7 +9,18 @@
             get { return SignalRequestInfo.NAME; }
         }
 
-        public string SignalName { get; set; }
+        public string SignalName { get; private set; }
+
+        public SignalRequestInfo()
+        {
+            this.WantReply = false;
+        }
+
+        public SignalRequestInfo(string signalName)
+            : this()
+        {
+            this.SignalName = signalName;
+        }
 
         protected override void LoadData()
         {

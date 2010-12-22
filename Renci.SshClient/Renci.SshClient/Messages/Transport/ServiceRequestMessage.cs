@@ -12,7 +12,12 @@ namespace Renci.SshClient.Messages.Transport
             get { return MessageTypes.ServiceRequest; }
         }
 
-        public ServiceNames ServiceName { get; set; }
+        public ServiceNames ServiceName { get; private set; }
+
+        public ServiceRequestMessage(ServiceNames serviceName)
+        {
+            this.ServiceName = serviceName;
+        }
 
         protected override void LoadData()
         {

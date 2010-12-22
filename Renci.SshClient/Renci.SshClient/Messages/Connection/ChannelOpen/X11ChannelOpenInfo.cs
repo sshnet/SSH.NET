@@ -9,9 +9,9 @@
             get { return X11ChannelOpenInfo.NAME; }
         }
 
-        public string OriginatorAddress { get; set; }
+        public string OriginatorAddress { get; private set; }
 
-        public uint OriginatorPort { get; set; }
+        public uint OriginatorPort { get; private set; }
 
         protected override void LoadData()
         {

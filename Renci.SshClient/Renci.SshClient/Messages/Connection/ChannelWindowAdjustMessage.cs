@@ -1,5 +1,4 @@
-﻿
-namespace Renci.SshClient.Messages.Connection
+﻿namespace Renci.SshClient.Messages.Connection
 {
     public class ChannelWindowAdjustMessage : ChannelMessage
     {
@@ -8,7 +7,18 @@ namespace Renci.SshClient.Messages.Connection
             get { return MessageTypes.ChannelWindowAdjust; }
         }
 
-        public uint BytesToAdd { get; set; }
+        public uint BytesToAdd { get; private set; }
+
+        public ChannelWindowAdjustMessage()
+        {
+
+        }
+
+        public ChannelWindowAdjustMessage(uint localChannelNumber, uint bytesToAdd)
+        {
+            this.LocalChannelNumber = localChannelNumber;
+            this.BytesToAdd = bytesToAdd;
+        }
 
         protected override void LoadData()
         {

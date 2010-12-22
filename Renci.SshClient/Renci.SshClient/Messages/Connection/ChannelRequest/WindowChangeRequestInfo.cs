@@ -9,13 +9,27 @@
             get { return WindowChangeRequestInfo.NAME; }
         }
 
-        public uint Columns { get; set; }
+        public uint Columns { get; private set; }
 
-        public uint Rows { get; set; }
+        public uint Rows { get; private set; }
 
-        public uint Width { get; set; }
+        public uint Width { get; private set; }
 
-        public uint Height { get; set; }
+        public uint Height { get; private set; }
+
+        public WindowChangeRequestInfo()
+        {
+            this.WantReply = false;
+        }
+
+        public WindowChangeRequestInfo(uint columns, uint rows, uint width, uint height)
+            : this()
+        {
+            this.Columns = columns;
+            this.Rows = rows;
+            this.Width = width;
+            this.Height = height;
+        }
 
         protected override void LoadData()
         {

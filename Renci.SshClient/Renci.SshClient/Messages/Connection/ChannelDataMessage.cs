@@ -7,7 +7,19 @@
             get { return MessageTypes.ChannelData; }
         }
 
-        public string Data { get; set; }
+        public string Data { get; protected set; }
+
+        public ChannelDataMessage()
+            : base()
+        {
+
+        }
+
+        public ChannelDataMessage(uint localChannelNumber, string data)
+        {
+            this.LocalChannelNumber = localChannelNumber;
+            this.Data = data;
+        }
 
         protected override void LoadData()
         {

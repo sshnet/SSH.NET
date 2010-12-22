@@ -50,13 +50,7 @@ namespace Renci.SshClient.Security
             this.Session.MessageReceived += Session_MessageReceived;
 
             //  1. send SSH_MSG_KEY_DH_GEX_REQUEST
-            this.Session.SendMessage(new KeyExchangeDhGroupExchangeRequest
-            {
-                Minimum = 1024,
-                Preferred = 1024,
-                Maximum = 1024,
-            });
-            
+            this.Session.SendMessage(new KeyExchangeDhGroupExchangeRequest(1024, 1024, 1024));
         }
 
         public override void Finish()
@@ -82,10 +76,7 @@ namespace Renci.SshClient.Security
                 this.PopulateClientExchangeValue();
 
                 //  3. Send SSH_MSG_KEX_DH_GEX_INIT
-                this.Session.SendMessage(new KeyExchangeDhGroupExchangeInit
-                {
-                    E = this._clientExchangeValue
-                });
+                this.Session.SendMessage(new KeyExchangeDhGroupExchangeInit(this._clientExchangeValue));
 
             }
             var replyMessage = e.Message as KeyExchangeDhGroupExchangeReply;

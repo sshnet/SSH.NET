@@ -79,7 +79,7 @@ namespace Renci.SshClient.Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(AuthenticationException))]
+        [ExpectedException(typeof(SshAuthenticationException))]
         public void Test_Connect_Using_Invalid_PrivateKey()
         {
             MemoryStream keyFileStream = new MemoryStream(Encoding.ASCII.GetBytes(Resources.INVALID_KEY));

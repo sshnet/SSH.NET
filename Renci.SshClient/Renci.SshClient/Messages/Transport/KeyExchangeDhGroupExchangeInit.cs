@@ -13,7 +13,12 @@ namespace Renci.SshClient.Messages.Transport
             get { return MessageTypes.KeyExchangeDhGroupExchangeInit; }
         }
 
-        public BigInteger E { get; set; }
+        public BigInteger E { get; private set; }
+
+        public KeyExchangeDhGroupExchangeInit(BigInteger clientExchangeValue)
+        {
+            this.E = clientExchangeValue;
+        }
 
         protected override void LoadData()
         {

@@ -12,9 +12,9 @@ namespace Renci.SshClient.Messages.Authentication
 
         public IEnumerable<string> AllowedAuthentications { get; set; }
 
-        public string Message { get; set; }
+        public string Message { get; private set; }
 
-        public bool PartialSuccess { get; set; }
+        public bool PartialSuccess { get; private set; }
 
         protected override void LoadData()
         {

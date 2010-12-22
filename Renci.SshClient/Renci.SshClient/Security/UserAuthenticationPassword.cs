@@ -32,12 +32,7 @@ namespace Renci.SshClient.Security
 
             this.Session.RegisterMessageType<PasswordChangeRequiredMessage>(MessageTypes.UserAuthenticationPasswordChangeRequired);
 
-            this.SendMessage(new RequestMessagePassword
-                {
-                    ServiceName = ServiceNames.Connection,
-                    Username = this.Username,
-                    Password = this._connectionInfo.Password ?? string.Empty,
-                });
+            this.SendMessage(new RequestMessagePassword(ServiceNames.Connection, this.Username, this._connectionInfo.Password));
 
             this.WaitHandle(this._authenticationCompleted);
 
@@ -77,13 +72,7 @@ namespace Renci.SshClient.Security
                         this.RaiseAuthenticating(eventArgs);
 
                         //  Send new authentication request with new password
-                        this.SendMessage(new RequestMessagePassword
-                        {
-                            ServiceName = ServiceNames.Connection,
-                            Username = this.Username,
-                            Password = this._connectionInfo.Password ?? string.Empty,
-                            NewPassword = eventArgs.NewPassword ?? string.Empty,
-                        });
+                        this.SendMessage(new RequestMessagePassword(ServiceNames.Connection, this.Username, this._connectionInfo.Password, eventArgs.NewPassword));
                     }
                     catch (Exception exp)
                     {

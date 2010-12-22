@@ -7,11 +7,23 @@
             get { return MessageTypes.ChannelOpenFailure; }
         }
 
-        public uint ReasonCode { get; set; }
+        public uint ReasonCode { get; private set; }
 
-        public string Description { get; set; }
+        public string Description { get; private set; }
 
-        public string Language { get; set; }
+        public string Language { get; private set; }
+
+        public ChannelOpenFailureMessage()
+        {
+
+        }
+
+        public ChannelOpenFailureMessage(uint localChannelNumber, string description, uint reasonCode)
+        {
+            this.LocalChannelNumber = localChannelNumber;
+            this.Description = description;
+            this.ReasonCode = reasonCode;
+        }
 
         protected override void LoadData()
         {

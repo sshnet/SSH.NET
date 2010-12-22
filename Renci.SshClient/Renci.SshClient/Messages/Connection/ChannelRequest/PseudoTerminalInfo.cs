@@ -21,6 +21,22 @@
 
         public string TerminalMode { get; set; }
 
+        public PseudoTerminalRequestInfo()
+        {
+
+        }
+
+        public PseudoTerminalRequestInfo(string environmentVariable, uint columns, uint rows, uint width, uint height, string terminalMode)
+        {
+            this.WantReply = true;
+            this.EnvironmentVariable = environmentVariable;
+            this.Columns = columns;
+            this.Rows = rows;
+            this.PixelWidth = width;
+            this.PixelHeight = height;
+            this.TerminalMode = terminalMode;
+        }
+
         protected override void LoadData()
         {
             base.LoadData();

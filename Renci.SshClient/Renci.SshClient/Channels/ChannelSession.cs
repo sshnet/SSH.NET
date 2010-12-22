@@ -100,54 +100,40 @@ namespace Renci.SshClient.Channels
         {
             this._channelRequestResponse.Reset();
 
-            this.SendMessage(new ChannelRequestMessage(this.RemoteChannelNumber, new PseudoTerminalRequestInfo
-            {
-                WantReply = true,
-                EnvironmentVariable = environmentVariable,
-                Columns = columns,
-                Rows = rows,
-                PixelWidth = width,
-                PixelHeight = height,
-                TerminalMode = terminalMode,
-            }));
+            this.SendMessage(new ChannelRequestMessage(this.RemoteChannelNumber, new PseudoTerminalRequestInfo(environmentVariable, columns, rows, width, height, terminalMode)));
 
             this._channelRequestResponse.WaitOne();
 
             return this._channelRequestSucces;
         }
 
-        public bool SendX11ForwardingRequest()
+        public bool SendX11ForwardingRequest(bool isSignleConnection, string protocol, string cookie, uint screenNumber)
         {
-            //byte      SSH_MSG_CHANNEL_REQUEST
-            //uint32    recipient channel
-            //string    "x11-req"
-            //boolean   want reply
-            //boolean   single connection
-            //string    x11 authentication protocol
-            //string    x11 authentication cookie
-            //uint32    x11 screen number
-            return false;
+            this._channelRequestResponse.Reset();
+
+            this.SendMessage(new ChannelRequestMessage(this.RemoteChannelNumber, new X11ForwardingRequestInfo(isSignleConnection, protocol, cookie, screenNumber)));
+
+            this._channelRequestResponse.WaitOne();
+
+            return this._channelRequestSucces;
         }
 
-        public bool SendEnvironmentVariableRequest()
+        public bool SendEnvironmentVariableRequest(string variableName, string variableValue)
         {
-            //byte      SSH_MSG_CHANNEL_REQUEST
-            //uint32    recipient channel
-            //string    "env"
-            //boolean   want reply
-            //string    variable name
-            //string    variable value
-            return false;
+            this._channelRequestResponse.Reset();
+
+            this.SendMessage(new ChannelRequestMessage(this.RemoteChannelNumber, new EnvironmentVariableRequestInfo(variableName, variableValue)));
+
+            this._channelRequestResponse.WaitOne();
+
+            return this._channelRequestSucces;
         }
 
         public bool SendShellRequest()
         {
             this._channelRequestResponse.Reset();
 
-            this.SendMessage(new ChannelRequestMessage(this.RemoteChannelNumber, new ShellRequestInfo
-                {
-                    WantReply = true,
-                }));
+            this.SendMessage(new ChannelRequestMessage(this.RemoteChannelNumber, new ShellRequestInfo()));
 
             this._channelRequestResponse.WaitOne();
 
@@ -158,11 +144,7 @@ namespace Renci.SshClient.Channels
         {
             this._channelRequestResponse.Reset();
 
-            this.SendMessage(new ChannelRequestMessage(this.RemoteChannelNumber, new ExecRequestInfo
-            {
-                WantReply = true,
-                Command = command,
-            }));
+            this.SendMessage(new ChannelRequestMessage(this.RemoteChannelNumber, new ExecRequestInfo(command)));
 
             this._channelRequestResponse.WaitOne();
 
@@ -173,71 +155,46 @@ namespace Renci.SshClient.Channels
         {
             this._channelRequestResponse.Reset();
 
-            this.SendMessage(new ChannelRequestMessage(this.RemoteChannelNumber, new SubsystemRequestInfo
-            {
-                WantReply = true,
-                SubsystemName = subsystem,
-            }));
+            this.SendMessage(new ChannelRequestMessage(this.RemoteChannelNumber, new SubsystemRequestInfo(subsystem)));
 
             this._channelRequestResponse.WaitOne();
 
             return this._channelRequestSucces;
         }
 
-        public bool SendWindowChangeRequest()
+        public bool SendWindowChangeRequest(uint columns, uint rows, uint width, uint height)
         {
-            //byte      SSH_MSG_CHANNEL_REQUEST
-            //uint32    recipient channel
-            //string    "window-change"
-            //boolean   FALSE
-            //uint32    terminal width, columns
-            //uint32    terminal height, rows
-            //uint32    terminal width, pixels
-            //uint32    terminal height, pixels
-            return false;
+            this.SendMessage(new ChannelRequestMessage(this.RemoteChannelNumber, new WindowChangeRequestInfo(columns, rows, width, height)));
+
+            return true;
         }
 
-        public bool SendLocalFlowRequest()
+        public bool SendLocalFlowRequest(bool clientCanDo)
         {
-            //byte      SSH_MSG_CHANNEL_REQUEST
-            //uint32    recipient channel
-            //string    "xon-xoff"
-            //boolean   FALSE
-            //boolean   client can do
-            return false;
+            this.SendMessage(new ChannelRequestMessage(this.RemoteChannelNumber, new XonXoffRequestInfo(clientCanDo)));
+
+            return true;
         }
 
-        public bool SendSignalRequest()
+        public bool SendSignalRequest(string signalName)
         {
-            //byte      SSH_MSG_CHANNEL_REQUEST
-            //uint32    recipient channel
-            //string    "signal"
-            //boolean   FALSE
-            //string    signal name (without the "SIG" prefix)
-            return false;
+            this.SendMessage(new ChannelRequestMessage(this.RemoteChannelNumber, new SignalRequestInfo(signalName)));
+
+            return true;
         }
 
-        public bool SendExitStatusRequest()
+        public bool SendExitStatusRequest(uint exitStatus)
         {
-            //byte      SSH_MSG_CHANNEL_REQUEST
-            //uint32    recipient channel
-            //string    "exit-status"
-            //boolean   FALSE
-            //uint32    exit_status
-            return false;
+            this.SendMessage(new ChannelRequestMessage(this.RemoteChannelNumber, new ExitStatusRequestInfo(exitStatus)));
+
+            return true;
         }
 
-        public bool SendExitSignalRequest()
+        public bool SendExitSignalRequest(string signalName, bool coreDumped, string errorMessage, string language)
         {
-            //byte      SSH_MSG_CHANNEL_REQUEST
-            //uint32    recipient channel
-            //string    "exit-signal"
-            //boolean   FALSE
-            //string    signal name (without the "SIG" prefix)
-            //boolean   core dumped
-            //string    error message in ISO-10646 UTF-8 encoding
-            //string    language tag [RFC3066]
-            return false;
+            this.SendMessage(new ChannelRequestMessage(this.RemoteChannelNumber, new ExitSignalRequestInfo(signalName, coreDumped, errorMessage, language)));
+
+            return true;
         }
 
         protected override void OnSuccess()

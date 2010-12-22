@@ -7,11 +7,24 @@
             get { return MessageTypes.ChannelOpenConfirmation; }
         }
 
-        public uint RemoteChannelNumber { get; set; }
+        public uint RemoteChannelNumber { get; private set; }
 
-        public uint InitialWindowSize { get; set; }
+        public uint InitialWindowSize { get; private set; }
 
-        public uint MaximumPacketSize { get; set; }
+        public uint MaximumPacketSize { get; private set; }
+
+        public ChannelOpenConfirmationMessage()
+        {
+
+        }
+
+        public ChannelOpenConfirmationMessage(uint localChannelNumber, uint initialWindowSize, uint maximumPacketSize, uint remoteChannelNumber)
+        {
+            this.LocalChannelNumber = localChannelNumber;
+            this.InitialWindowSize = initialWindowSize;
+            this.MaximumPacketSize = maximumPacketSize;
+            this.RemoteChannelNumber = remoteChannelNumber;
+        }
 
         protected override void LoadData()
         {

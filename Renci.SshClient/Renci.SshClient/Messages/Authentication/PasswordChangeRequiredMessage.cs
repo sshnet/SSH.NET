@@ -8,9 +8,9 @@ namespace Renci.SshClient.Messages.Authentication
             get { return MessageTypes.UserAuthenticationPasswordChangeRequired; }
         }
 
-        public string Message { get; set; }
+        public string Message { get; private set; }
 
-        public string Language { get; set; }
+        public string Language { get; private set; }
 
         protected override void LoadData()
         {

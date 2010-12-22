@@ -12,9 +12,22 @@ namespace Renci.SshClient.Messages.Authentication
             }
         }
 
-        public string Password { get; set; }
+        public string Password { get; private set; }
 
-        public string NewPassword { get; set; }
+        public string NewPassword { get; private set; }
+
+
+        public RequestMessagePassword(ServiceNames serviceName, string username, string password)
+            : base(serviceName, username)
+        {
+            this.Password = password ?? string.Empty;
+        }
+
+        public RequestMessagePassword(ServiceNames serviceName, string username, string password, string newPassword)
+            : this(serviceName, username, password)
+        {
+            this.NewPassword = newPassword ?? string.Empty;
+        }
 
         protected override void SaveData()
         {
@@ -29,6 +42,5 @@ namespace Renci.SshClient.Messages.Authentication
                 this.Write(this.NewPassword, Encoding.UTF8);
             }
         }
-
     }
 }

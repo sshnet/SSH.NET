@@ -12,11 +12,12 @@ namespace Renci.SshClient.Messages.Authentication
             }
         }
 
-        public string Language { get; set; }
+        public string Language { get; private set; }
 
-        public string SubMethods { get; set; }
+        public string SubMethods { get; private set; }
 
-        public RequestMessageKeyboardInteractive()
+        public RequestMessageKeyboardInteractive(ServiceNames serviceName, string username)
+            : base(serviceName, username)
         {
             this.Language = string.Empty;
             this.SubMethods = string.Empty;

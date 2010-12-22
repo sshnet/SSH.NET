@@ -17,6 +17,20 @@
 
         public uint ScreenNumber { get; set; }
 
+        public X11ForwardingRequestInfo()
+        {
+            this.WantReply = true;
+        }
+
+        public X11ForwardingRequestInfo(bool isSignleConnection, string protocol, string cookie, uint screenNumber)
+            : this()
+        {
+            this.IsSingleConnection = isSignleConnection;
+            this.AuthenticationProtocol = protocol;
+            this.AuthenticationCookie = cookie;
+            this.ScreenNumber = screenNumber;
+        }
+
         protected override void LoadData()
         {
             base.LoadData();

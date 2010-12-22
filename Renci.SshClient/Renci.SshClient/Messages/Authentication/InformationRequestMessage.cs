@@ -12,13 +12,13 @@ namespace Renci.SshClient.Messages.Authentication
             get { return MessageTypes.UserAuthenticationInformationRequest; }
         }
 
-        public string Name { get; set; }
+        public string Name { get; private set; }
 
-        public string Instruction { get; set; }
+        public string Instruction { get; private set; }
 
-        public string Language { get; set; }
+        public string Language { get; private set; }
 
-        public IEnumerable<AuthenticationPrompt> Prompts { get; set; }
+        public IEnumerable<AuthenticationPrompt> Prompts { get; private set; }
 
         protected override void LoadData()
         {

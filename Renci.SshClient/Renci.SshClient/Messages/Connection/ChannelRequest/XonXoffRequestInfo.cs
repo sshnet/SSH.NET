@@ -11,6 +11,17 @@
 
         public bool ClientCanDo { get; set; }
 
+        public XonXoffRequestInfo()
+        {
+            this.WantReply = false;
+        }
+
+        public XonXoffRequestInfo(bool clientCanDo)
+            : this()
+        {
+            this.ClientCanDo = clientCanDo;
+        }
+
         protected override void LoadData()
         {
             base.LoadData();

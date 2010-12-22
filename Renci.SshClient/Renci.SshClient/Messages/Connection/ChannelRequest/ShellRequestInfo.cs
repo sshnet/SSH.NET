@@ -8,5 +8,10 @@
         {
             get { return ShellRequestInfo.NAME; }
         }
+
+        public ShellRequestInfo()
+        {
+            this.WantReply = true;
+        }
     }
 }

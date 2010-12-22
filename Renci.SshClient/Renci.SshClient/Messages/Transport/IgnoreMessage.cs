@@ -10,6 +10,16 @@ namespace Renci.SshClient.Messages.Transport
             get { return MessageTypes.Ignore; }
         }
 
+        public IgnoreMessage()
+        {
+            this.Data = string.Empty;
+        }
+
+        public IgnoreMessage(string data)
+        {
+            this.Data = data;
+        }
+
         protected override void LoadData()
         {
             this.Data = this.ReadString();

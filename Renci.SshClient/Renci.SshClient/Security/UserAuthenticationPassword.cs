@@ -23,18 +23,18 @@ namespace Renci.SshClient.Security
 
             if (passwordConnectionInfo == null)
                 return;
-
-            //  TODO:   Handle all user authentication messages
+            
+            //  TODO:   Handle PasswordChangeRequiredMessage authentication message
             //Message.RegisterMessageType<PasswordChangeRequiredMessage>(MessageTypes.UserAuthenticationPasswordChangeRequired);
 
-            this.Session.SendMessage(new RequestMessagePassword
+            this.SendMessage(new RequestMessagePassword
                 {
                     ServiceName = ServiceNames.Connection,
                     Username = this.Username,
                     Password = passwordConnectionInfo.Password ?? string.Empty,
                 });
 
-            this.Session.WaitHandle(this._authenticationCompleted);
+            this.WaitHandle(this._authenticationCompleted);
         }
 
         protected override void Session_UserAuthenticationSuccessMessageReceived(object sender, MessageEventArgs<SuccessMessage> e)

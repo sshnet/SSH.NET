@@ -2,6 +2,7 @@
 using Renci.SshClient.Messages.Authentication;
 using System;
 using Renci.SshClient.Common;
+using System.Threading;
 
 namespace Renci.SshClient.Security
 {
@@ -72,6 +73,18 @@ namespace Renci.SshClient.Security
                 this.Authenticating(this, args);
             }
         }
+
+        protected void SendMessage(Message message)
+        {
+            this.Session.SendMessage(message);
+        }
+
+        protected void WaitHandle(WaitHandle eventWaitHandle)
+        {
+            this.Session.WaitHandle(eventWaitHandle);
+        }
+
+
 
         protected virtual void Session_MessageReceived(object sender, MessageEventArgs<Message> e)
         {

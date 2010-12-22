@@ -60,7 +60,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Common\AuthenticationBannerEventArgs.cs" />
     <Compile Include="Common\AuthenticationEventArgs.cs" />
+    <Compile Include="Common\AuthenticationPasswordChangeEventArgs.cs" />
+    <Compile Include="Common\AuthenticationPromptEventArgs.cs" />
     <Compile Include="Common\AuthenticationPrompt.cs" />
     <Compile Include="Common\ChannelDataEventArgs.cs" />
     <Compile Include="Common\ChannelEventArgs.cs" />

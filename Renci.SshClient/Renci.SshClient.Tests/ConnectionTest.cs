@@ -6,6 +6,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
 using Renci.SshClient.Tests.Properties;
 using System.Security.Authentication;
+using Renci.SshClient.Common;
 
 namespace Renci.SshClient.Tests
 {
@@ -23,7 +24,7 @@ namespace Renci.SshClient.Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(AuthenticationException))]
+        [ExpectedException(typeof(SshAuthenticationException))]
         public void Test_Connect_Using_Invalid_Password()
         {
             using (var client = new SshClient(Resources.HOST, Resources.USERNAME, "invalid password"))

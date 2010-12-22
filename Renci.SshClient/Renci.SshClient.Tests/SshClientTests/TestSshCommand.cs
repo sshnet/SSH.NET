@@ -7,12 +7,25 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Threading;
 using Renci.SshClient.Tests.Properties;
+using Renci.SshClient.Common;
 
 namespace Renci.SshClient.Tests.SshClientTests
 {
     [TestClass]
     public class TestSshCommand
     {
+        [TestMethod]
+        [ExpectedException(typeof(SshConnectionException))]
+        public void Test_Execute_SingleCommand_Without_Connecting()
+        {
+            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            {
+                var result = ExecuteTestCommand(client);
+
+                Assert.IsTrue(result);
+            }
+        }
+
         [TestMethod]
         public void Test_Execute_SingleCommand()
         {

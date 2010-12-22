@@ -48,7 +48,7 @@ namespace Renci.SshClient.Security
 
             var data = bytes.Skip(4 + algorithmName.Length);
 
-            CryptoPublicKey key = this.Session.HostKeyAlgorithms[algorithmName].CreateInstance<CryptoPublicKey>();
+            CryptoPublicKey key = this.Session.ConnectionInfo.HostKeyAlgorithms[algorithmName].CreateInstance<CryptoPublicKey>();
 
             key.Load(data);
 

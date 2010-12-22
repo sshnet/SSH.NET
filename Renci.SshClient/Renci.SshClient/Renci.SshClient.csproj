@@ -93,6 +93,8 @@
     <Compile Include="Messages\Transport\KeyExchangeDhGroupExchangeInit.cs" />
     <Compile Include="Messages\Transport\KeyExchangeDhGroupExchangeReply.cs" />
     <Compile Include="Messages\Transport\KeyExchangeDhGroupExchangeRequest.cs" />
+    <Compile Include="PasswordConnectionInfo.cs" />
+    <Compile Include="PrivateKeyConnectionInfo.cs" />
     <Compile Include="Security\CipherDES.cs" />
     <Compile Include="Security\KeyExchangeDiffieHellmanGroupExchangeSha256.cs" />
     <Compile Include="Security\HMac.cs" />

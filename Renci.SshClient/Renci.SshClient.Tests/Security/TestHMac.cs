@@ -13,14 +13,13 @@ namespace Renci.SshClient.Tests.Security
     {
         [TestMethod]
         public void Test_HMac_MD5_Connection()
-        {            
-            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+        {
+            var connectionInfo = new PasswordConnectionInfo(Resources.HOST, 22, Resources.USERNAME, Resources.PASSWORD);
+            connectionInfo.HmacAlgorithms.Clear();
+            connectionInfo.HmacAlgorithms.Add("hmac-md5", typeof(HMacMD5));
+
+            using (var client = new SshClient(connectionInfo))
             {
-                client.Connecting += delegate(object sender, Common.ConnectingEventArgs e)
-                {
-                    e.HmacAlgorithms.Clear();
-                    e.HmacAlgorithms.Add("hmac-md5", typeof(HMacMD5).AssemblyQualifiedName);
-                };
                 client.Connect();
                 client.Disconnect();
             }
@@ -29,13 +28,12 @@ namespace Renci.SshClient.Tests.Security
         [TestMethod]
         public void Test_HMac_Sha1_Connection()
         {
-            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            var connectionInfo = new PasswordConnectionInfo(Resources.HOST, 22, Resources.USERNAME, Resources.PASSWORD);
+            connectionInfo.HmacAlgorithms.Clear();
+            connectionInfo.HmacAlgorithms.Add("hmac-sha1", typeof(HMacSha1));
+
+            using (var client = new SshClient(connectionInfo))
             {
-                client.Connecting += delegate(object sender, Common.ConnectingEventArgs e)
-                {
-                    e.HmacAlgorithms.Clear();
-                    e.HmacAlgorithms.Add("hmac-sha1", typeof(HMacSha1).AssemblyQualifiedName);
-                };
                 client.Connect();
                 client.Disconnect();
             }

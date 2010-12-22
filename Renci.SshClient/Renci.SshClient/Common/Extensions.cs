@@ -112,9 +112,10 @@ namespace Renci.SshClient
         /// <typeparam name="T"></typeparam>
         /// <param name="name">The name.</param>
         /// <returns></returns>
-        internal static T CreateInstance<T>(this string name) where T : class
+        internal static T CreateInstance<T>(this Type type) where T : class
         {
-            var type = Type.GetType(name);
+            if (type == null)
+                return null;
             return Activator.CreateInstance(type) as T;
         }
     }

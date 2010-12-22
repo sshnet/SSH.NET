@@ -22,12 +22,17 @@ namespace Renci.SshClient.Security
 
         protected override void OnAuthenticate()
         {
-            if (this.Session.ConnectionInfo.KeyFiles == null)
+            var privateKeyConnectionInfo = this.Session.ConnectionInfo as PrivateKeyConnectionInfo;
+
+            if (privateKeyConnectionInfo == null)
+                return;
+
+            if (privateKeyConnectionInfo.KeyFiles == null)
                 return;
 
             this.Session.RegisterMessageType<PublicKeyMessage>(MessageTypes.UserAuthenticationPublicKey);
 
-            foreach (var keyFile in this.Session.ConnectionInfo.KeyFiles)
+            foreach (var keyFile in privateKeyConnectionInfo.KeyFiles)
             {
                 this._publicKeyRequestMessageResponseWaitHandle.Reset();
                 this._isSignatureRequired = false;
@@ -40,7 +45,7 @@ namespace Renci.SshClient.Security
                     PublicKeyData = keyFile.PublicKey,                    
                 };
 
-                if (this.Session.ConnectionInfo.KeyFiles.Count < 2)
+                if (privateKeyConnectionInfo.KeyFiles.Count < 2)
                 {
                     //  If only one key file provided then send signature for very first request
                     var signatureData = new SignatureData(message, this.Session.SessionId.GetSshString()).GetBytes();

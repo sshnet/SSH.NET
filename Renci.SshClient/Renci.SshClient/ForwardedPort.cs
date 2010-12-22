@@ -1,5 +1,6 @@
 ﻿
 using System;
+using Renci.SshClient.Common;
 namespace Renci.SshClient
 {
     public abstract class ForwardedPort
@@ -30,7 +31,7 @@ namespace Renci.SshClient
 
             if (!this.Session.IsConnected)
             {
-                throw new InvalidOperationException("Not connected.");
+                throw new SshConnectionException("Not connected.");
             }
         }
 

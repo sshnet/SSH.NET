@@ -14,13 +14,12 @@ namespace Renci.SshClient.Tests.Security
         [TestMethod]
         public void Test_HostKey_SshRsa_Connection()
         {
-            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            var connectionInfo = new PasswordConnectionInfo(Resources.HOST, 22, Resources.USERNAME, Resources.PASSWORD);
+            connectionInfo.HostKeyAlgorithms.Clear();
+            connectionInfo.HostKeyAlgorithms.Add("ssh-rsa", typeof(CryptoPublicKeyRsa));
+
+            using (var client = new SshClient(connectionInfo))
             {
-                client.Connecting += delegate(object sender, Common.ConnectingEventArgs e)
-                {
-                    e.HostKeyAlgorithms.Clear();
-                    e.HostKeyAlgorithms.Add("ssh-rsa", typeof(CryptoPublicKeyRsa).AssemblyQualifiedName);
-                };
                 client.Connect();
                 client.Disconnect();
             }
@@ -29,13 +28,12 @@ namespace Renci.SshClient.Tests.Security
         [TestMethod]
         public void Test_HostKey_SshDss_Connection()
         {
-            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            var connectionInfo = new PasswordConnectionInfo(Resources.HOST, 22, Resources.USERNAME, Resources.PASSWORD);
+            connectionInfo.HostKeyAlgorithms.Clear();
+            connectionInfo.HostKeyAlgorithms.Add("ssh-dss", typeof(CryptoPublicKeyDss));
+
+            using (var client = new SshClient(connectionInfo))
             {
-                client.Connecting += delegate(object sender, Common.ConnectingEventArgs e)
-                {
-                    e.HostKeyAlgorithms.Clear();
-                    e.HostKeyAlgorithms.Add("ssh-dss", typeof(CryptoPublicKeyDss).AssemblyQualifiedName);
-                };
                 client.Connect();
                 client.Disconnect();
             }

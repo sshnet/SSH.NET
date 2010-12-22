@@ -77,6 +77,9 @@ namespace Renci.SshClient
 
         public IAsyncResult BeginExecute(AsyncCallback callback, object state)
         {
+            if (!this._session.IsConnected)
+                throw new SshConnectionException("Not connected.");
+
             //  Prevent from executing BeginExecute before calling EndExecute
             if (this._asyncResult != null)
             {

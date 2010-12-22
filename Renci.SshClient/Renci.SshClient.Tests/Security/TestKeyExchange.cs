@@ -15,13 +15,12 @@ namespace Renci.SshClient.Tests.Security
         [TestMethod]
         public void Test_KeyExchange_GroupExchange_Sha1_Connection()
         {
-            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            var connectionInfo = new PasswordConnectionInfo(Resources.HOST, 22, Resources.USERNAME, Resources.PASSWORD);
+            connectionInfo.KeyExchangeAlgorithms.Clear();
+            connectionInfo.KeyExchangeAlgorithms.Add("diffie-hellman-group-exchange-sha1", typeof(KeyExchangeDiffieHellmanGroupExchangeSha1));
+
+            using (var client = new SshClient(connectionInfo))
             {
-                client.Connecting += delegate(object sender, Common.ConnectingEventArgs e)
-                {
-                    e.KeyExchangeAlgorithms.Clear();
-                    e.KeyExchangeAlgorithms.Add("diffie-hellman-group-exchange-sha1", typeof(KeyExchangeDiffieHellmanGroupExchangeSha1).AssemblyQualifiedName);
-                };
                 client.Connect();
                 client.Disconnect();
             }
@@ -30,13 +29,12 @@ namespace Renci.SshClient.Tests.Security
         [TestMethod]
         public void Test_KeyExchange_Group14_Sha1_Connection()
         {
-            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            var connectionInfo = new PasswordConnectionInfo(Resources.HOST, 22, Resources.USERNAME, Resources.PASSWORD);
+            connectionInfo.KeyExchangeAlgorithms.Clear();
+            connectionInfo.KeyExchangeAlgorithms.Add("diffie-hellman-group14-sha1", typeof(KeyExchangeDiffieHellmanGroup14Sha1));
+
+            using (var client = new SshClient(connectionInfo))
             {
-                client.Connecting += delegate(object sender, Common.ConnectingEventArgs e)
-                {
-                    e.KeyExchangeAlgorithms.Clear();
-                    e.KeyExchangeAlgorithms.Add("diffie-hellman-group14-sha1", typeof(KeyExchangeDiffieHellmanGroup14Sha1).AssemblyQualifiedName);
-                };
                 client.Connect();
                 client.Disconnect();
             }
@@ -45,13 +43,12 @@ namespace Renci.SshClient.Tests.Security
         [TestMethod]
         public void Test_KeyExchange_Group1_Sha1_Connection()
         {
-            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            var connectionInfo = new PasswordConnectionInfo(Resources.HOST, 22, Resources.USERNAME, Resources.PASSWORD);
+            connectionInfo.KeyExchangeAlgorithms.Clear();
+            connectionInfo.KeyExchangeAlgorithms.Add("diffie-hellman-group1-sha1", typeof(KeyExchangeDiffieHellmanGroup1Sha1));
+
+            using (var client = new SshClient(connectionInfo))
             {
-                client.Connecting += delegate(object sender, Common.ConnectingEventArgs e)
-                {
-                    e.KeyExchangeAlgorithms.Clear();
-                    e.KeyExchangeAlgorithms.Add("diffie-hellman-group1-sha1", typeof(KeyExchangeDiffieHellmanGroup1Sha1).AssemblyQualifiedName);
-                };
                 client.Connect();
                 client.Disconnect();
             }
@@ -60,13 +57,12 @@ namespace Renci.SshClient.Tests.Security
         [TestMethod]
         public void Test_KeyExchange_GroupExchange_Sha256_Connection()
         {
-            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            var connectionInfo = new PasswordConnectionInfo(Resources.HOST, 22, Resources.USERNAME, Resources.PASSWORD);
+            connectionInfo.KeyExchangeAlgorithms.Clear();
+            connectionInfo.KeyExchangeAlgorithms.Add("diffie-hellman-group-exchange-sha256", typeof(KeyExchangeDiffieHellmanGroupExchangeSha256));
+
+            using (var client = new SshClient(connectionInfo))
             {
-                client.Connecting += delegate(object sender, Common.ConnectingEventArgs e)
-                {
-                    e.KeyExchangeAlgorithms.Clear();
-                    e.KeyExchangeAlgorithms.Add("diffie-hellman-group-exchange-sha256", typeof(KeyExchangeDiffieHellmanGroupExchangeSha256).AssemblyQualifiedName);
-                };
                 client.Connect();
                 client.Disconnect();
             }

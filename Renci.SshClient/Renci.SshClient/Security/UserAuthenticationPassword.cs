@@ -2,12 +2,18 @@
 using System.Threading;
 using Renci.SshClient.Messages;
 using Renci.SshClient.Messages.Authentication;
+using System.Threading.Tasks;
+using Renci.SshClient.Common;
 
 namespace Renci.SshClient.Security
 {
     internal class UserAuthenticationPassword : UserAuthentication, IDisposable
     {
         private EventWaitHandle _authenticationCompleted = new AutoResetEvent(false);
+
+        private Exception _exception;
+
+        private PasswordConnectionInfo _connectionInfo;
 
         public override string Name
         {
@@ -19,22 +25,26 @@ namespace Renci.SshClient.Security
 
         protected override void OnAuthenticate()
         {
-            var passwordConnectionInfo = this.Session.ConnectionInfo as PasswordConnectionInfo;
+            this._connectionInfo = this.Session.ConnectionInfo as PasswordConnectionInfo;
 
-            if (passwordConnectionInfo == null)
+            if (this._connectionInfo == null)
                 return;
-            
-            //  TODO:   Handle PasswordChangeRequiredMessage authentication message
-            //Message.RegisterMessageType<PasswordChangeRequiredMessage>(MessageTypes.UserAuthenticationPasswordChangeRequired);
+
+            this.Session.RegisterMessageType<PasswordChangeRequiredMessage>(MessageTypes.UserAuthenticationPasswordChangeRequired);
 
             this.SendMessage(new RequestMessagePassword
                 {
                     ServiceName = ServiceNames.Connection,
                     Username = this.Username,
-                    Password = passwordConnectionInfo.Password ?? string.Empty,
+                    Password = this._connectionInfo.Password ?? string.Empty,
                 });
 
             this.WaitHandle(this._authenticationCompleted);
+
+            if (this._exception != null)
+            {
+                throw this._exception;
+            }
         }
 
         protected override void Session_UserAuthenticationSuccessMessageReceived(object sender, MessageEventArgs<SuccessMessage> e)
@@ -47,6 +57,41 @@ namespace Renci.SshClient.Security
         {
             base.Session_UserAuthenticationFailureReceived(sender, e);
             this._authenticationCompleted.Set();
+        }
+
+        protected override void Session_MessageReceived(object sender, MessageEventArgs<Message> e)
+        {
+            base.Session_MessageReceived(sender, e);
+
+            if (e.Message is PasswordChangeRequiredMessage)
+            {
+                this.Session.UnRegisterMessageType(MessageTypes.UserAuthenticationPasswordChangeRequired);
+
+                var eventTask = Task.Factory.StartNew(() =>
+                {
+                    try
+                    {
+                        var eventArgs = new AuthenticationPasswordChangeEventArgs(this.Username);
+
+                        //  Raise an event to allow user to supply a new password
+                        this.RaiseAuthenticating(eventArgs);
+
+                        //  Send new authentication request with new password
+                        this.SendMessage(new RequestMessagePassword
+                        {
+                            ServiceName = ServiceNames.Connection,
+                            Username = this.Username,
+                            Password = this._connectionInfo.Password ?? string.Empty,
+                            NewPassword = eventArgs.NewPassword ?? string.Empty,
+                        });
+                    }
+                    catch (Exception exp)
+                    {
+                        this._exception = exp;
+                        this._authenticationCompleted.Set();
+                    }
+                });
+            }
         }
 
         #region IDisposable Members

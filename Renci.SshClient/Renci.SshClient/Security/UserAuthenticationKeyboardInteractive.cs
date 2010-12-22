@@ -59,7 +59,7 @@ namespace Renci.SshClient.Security
             var informationRequestMessage = e.Message as InformationRequestMessage;
             if (informationRequestMessage != null)
             {
-                var eventArgs = new AuthenticationEventArgs(informationRequestMessage.Instruction, informationRequestMessage.Language, informationRequestMessage.Prompts);
+                var eventArgs = new AuthenticationPromptEventArgs(this.Username, informationRequestMessage.Instruction, informationRequestMessage.Language, informationRequestMessage.Prompts);
 
                 var eventTask = Task.Factory.StartNew(() =>
                 {

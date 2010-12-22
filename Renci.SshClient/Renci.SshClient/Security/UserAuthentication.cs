@@ -63,7 +63,7 @@ namespace Renci.SshClient.Security
 
         protected virtual void Session_UserAuthenticationBannerMessageReceived(object sender, MessageEventArgs<BannerMessage> e)
         {
-            RaiseAuthenticating(new AuthenticationEventArgs(e.Message.Message, e.Message.Language));
+            RaiseAuthenticating(new AuthenticationBannerEventArgs(this.Username, e.Message.Message, e.Message.Language));
         }
 
         protected void RaiseAuthenticating(AuthenticationEventArgs args)

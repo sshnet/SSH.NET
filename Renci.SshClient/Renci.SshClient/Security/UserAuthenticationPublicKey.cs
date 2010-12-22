@@ -40,7 +40,7 @@ namespace Renci.SshClient.Security
                 var message = new RequestMessagePublicKey
                 {
                     ServiceName = ServiceNames.Connection,
-                    Username = this.Session.ConnectionInfo.Username,
+                    Username = this.Username,
                     PublicKeyAlgorithmName = keyFile.AlgorithmName,
                     PublicKeyData = keyFile.PublicKey,                    
                 };
@@ -54,9 +54,9 @@ namespace Renci.SshClient.Security
                 }
 
                 //  Send public key authentication request
-                this.Session.SendMessage(message);
+                this.SendMessage(message);
 
-                this.Session.WaitHandle(this._publicKeyRequestMessageResponseWaitHandle);
+                this.WaitHandle(this._publicKeyRequestMessageResponseWaitHandle);
 
                 if (this._isSignatureRequired)
                 {
@@ -75,10 +75,10 @@ namespace Renci.SshClient.Security
                     signatureMessage.Signature = keyFile.GetSignature(signatureData);
                     
                     //  Send public key authentication request with signature
-                    this.Session.SendMessage(signatureMessage); 
+                    this.SendMessage(signatureMessage); 
                 }
 
-                this.Session.WaitHandle(this._publicKeyRequestMessageResponseWaitHandle);
+                this.WaitHandle(this._publicKeyRequestMessageResponseWaitHandle);
 
                 if (this.IsAuthenticated)
                 {

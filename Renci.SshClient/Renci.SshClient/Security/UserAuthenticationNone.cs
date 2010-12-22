@@ -19,13 +19,13 @@ namespace Renci.SshClient.Security
 
         protected override void OnAuthenticate()
         {
-            this.Session.SendMessage(new RequestMessage
+            this.SendMessage(new RequestMessage
             {
                 ServiceName = ServiceNames.Connection,
                 Username = this.Username,
             });
 
-            this.Session.WaitHandle(this._authenticationCompleted);
+            this.WaitHandle(this._authenticationCompleted);
         }
 
         protected override void Session_UserAuthenticationSuccessMessageReceived(object sender, MessageEventArgs<SuccessMessage> e)

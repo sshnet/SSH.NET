@@ -32,7 +32,7 @@ namespace Renci.SshClient.Security
                     Username = this.Session.ConnectionInfo.Username,
                 });
 
-            this.Session.WaitHandle(this._authenticationCompleted);
+            this.WaitHandle(this._authenticationCompleted);
 
             this.Session.UnRegisterMessageType(MessageTypes.UserAuthenticationInformationRequest);
 
@@ -75,7 +75,7 @@ namespace Renci.SshClient.Security
                         }
 
                         //  Send information response message
-                        this.Session.SendMessage(informationResponse);
+                        this.SendMessage(informationResponse);
                     }
                     catch (Exception exp)
                     {

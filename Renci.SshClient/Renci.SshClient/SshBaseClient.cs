@@ -38,11 +38,6 @@ namespace Renci.SshClient
             }
         }
 
-        /// <summary>
-        /// Occurs when client is about to connect to the server.
-        /// </summary>
-        public event EventHandler<ConnectingEventArgs> Connecting;
-
         public event EventHandler<AuthenticationEventArgs> Authenticating;
 
         /// <summary>
@@ -68,7 +63,6 @@ namespace Renci.SshClient
             }
 
             this.Session = new Session(this.ConnectionInfo);
-            this.Session.Connecting += Session_Connecting;
             this.Session.Authenticating += Session_Authenticating;
             this.Session.Connect();
 
@@ -83,7 +77,6 @@ namespace Renci.SshClient
             this.OnDisconnecting();
 
             this.Session.Disconnect();
-            this.Session.Connecting -= Session_Connecting;
             this.Session.Authenticating -= Session_Authenticating;
 
             this.OnDisconnected();
@@ -129,14 +122,6 @@ namespace Renci.SshClient
 
         }
 
-        private void Session_Connecting(object sender, ConnectingEventArgs e)
-        {
-            if (this.Connecting != null)
-            {
-                this.Connecting(this, e);
-            }
-        }
-
         private void Session_Authenticating(object sender, AuthenticationEventArgs e)
         {
             if (this.Authenticating != null)
@@ -144,7 +129,6 @@ namespace Renci.SshClient
                 this.Authenticating(this, e);
             }
         }
-
 
         #region IDisposable Members
 

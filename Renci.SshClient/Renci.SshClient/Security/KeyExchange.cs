@@ -12,17 +12,17 @@ namespace Renci.SshClient.Security
 {
     public abstract class KeyExchange : Algorithm, IDisposable
     {
-        private string _clientCipherTypeName;
+        private Type _clientCipherType;
 
-        private string _serverCipherTypeName;
+        private Type _serverCipherType;
 
-        private string _cientHmacAlgorithmTypeName;
+        private Type _cientHmacAlgorithmType;
 
-        private string _serverHmacAlgorithmTypeName;
+        private Type _serverHmacAlgorithmType;
 
-        private string _compressionTypeName;
+        private Type _compressionType;
 
-        private string _decompressionTypeName;
+        private Type _decompressionType;
 
         protected Session Session { get; set; }
 
@@ -64,7 +64,7 @@ namespace Renci.SshClient.Security
             this.SendMessage(session.ClientInitMessage);
 
             //  Determine encryption algorithm
-            var clientEncryptionAlgorithmName = (from b in session.Encryptions.Keys
+            var clientEncryptionAlgorithmName = (from b in session.ConnectionInfo.Encryptions.Keys
                                                  from a in message.EncryptionAlgorithmsClientToServer
                                                  where a == b
                                                  select a).FirstOrDefault();
@@ -75,7 +75,7 @@ namespace Renci.SshClient.Security
             }
 
             //  Determine encryption algorithm
-            var serverDecryptionAlgorithmName = (from b in session.Encryptions.Keys
+            var serverDecryptionAlgorithmName = (from b in session.ConnectionInfo.Encryptions.Keys
                                                  from a in message.EncryptionAlgorithmsServerToClient
                                                  where a == b
                                                  select a).FirstOrDefault();
@@ -85,7 +85,7 @@ namespace Renci.SshClient.Security
             }
 
             //  Determine client hmac algorithm
-            var clientHmacAlgorithmName = (from b in session.HmacAlgorithms.Keys
+            var clientHmacAlgorithmName = (from b in session.ConnectionInfo.HmacAlgorithms.Keys
                                            from a in message.MacAlgorithmsClientToSserver
                                            where a == b
                                            select a).FirstOrDefault();
@@ -95,7 +95,7 @@ namespace Renci.SshClient.Security
             }
 
             //  Determine server hmac algorithm
-            var serverHmacAlgorithmName = (from b in session.HmacAlgorithms.Keys
+            var serverHmacAlgorithmName = (from b in session.ConnectionInfo.HmacAlgorithms.Keys
                                            from a in message.MacAlgorithmsServerToClient
                                            where a == b
                                            select a).FirstOrDefault();
@@ -105,7 +105,7 @@ namespace Renci.SshClient.Security
             }
 
             //  Determine compression algorithm
-            var compressionAlgorithmName = (from b in session.CompressionAlgorithms.Keys
+            var compressionAlgorithmName = (from b in session.ConnectionInfo.CompressionAlgorithms.Keys
                                             from a in message.CompressionAlgorithmsClientToServer
                                             where a == b
                                             select a).FirstOrDefault();
@@ -115,7 +115,7 @@ namespace Renci.SshClient.Security
             }
 
             //  Determine decompression algorithm
-            var decompressionAlgorithmName = (from b in session.CompressionAlgorithms.Keys
+            var decompressionAlgorithmName = (from b in session.ConnectionInfo.CompressionAlgorithms.Keys
                                               from a in message.CompressionAlgorithmsServerToClient
                                               where a == b
                                               select a).FirstOrDefault();
@@ -124,12 +124,12 @@ namespace Renci.SshClient.Security
                 throw new SshConnectionException("Decompression algorithm not found", DisconnectReasons.KeyExchangeFailed);
             }
 
-            this._clientCipherTypeName = session.Encryptions[clientEncryptionAlgorithmName];
-            this._serverCipherTypeName = session.Encryptions[clientEncryptionAlgorithmName];
-            this._cientHmacAlgorithmTypeName = session.HmacAlgorithms[clientHmacAlgorithmName];
-            this._serverHmacAlgorithmTypeName = session.HmacAlgorithms[serverHmacAlgorithmName];
-            this._compressionTypeName = session.CompressionAlgorithms[compressionAlgorithmName];
-            this._decompressionTypeName = session.CompressionAlgorithms[decompressionAlgorithmName];
+            this._clientCipherType = session.ConnectionInfo.Encryptions[clientEncryptionAlgorithmName];
+            this._serverCipherType = session.ConnectionInfo.Encryptions[clientEncryptionAlgorithmName];
+            this._cientHmacAlgorithmType = session.ConnectionInfo.HmacAlgorithms[clientHmacAlgorithmName];
+            this._serverHmacAlgorithmType = session.ConnectionInfo.HmacAlgorithms[serverHmacAlgorithmName];
+            this._compressionType = session.ConnectionInfo.CompressionAlgorithms[compressionAlgorithmName];
+            this._decompressionType = session.ConnectionInfo.CompressionAlgorithms[decompressionAlgorithmName];
         }
 
         public virtual void Finish()
@@ -147,7 +147,7 @@ namespace Renci.SshClient.Security
             }
 
             //  Create server cipher
-            this.ServerCipher = this._serverCipherTypeName.CreateInstance<Cipher>();
+            this.ServerCipher = this._serverCipherType.CreateInstance<Cipher>();
 
             //  Calculate server to client initial IV
             var serverVector = this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'B', this.Session.SessionId));
@@ -160,7 +160,7 @@ namespace Renci.SshClient.Security
             this.ServerCipher.Init(serverKey, serverVector);
 
             //  Create client cipher
-            this.ClientCipher = this._clientCipherTypeName.CreateInstance<Cipher>();
+            this.ClientCipher = this._clientCipherType.CreateInstance<Cipher>();
 
             //  Calculate client to server initial IV
             var clientVector = this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'A', this.Session.SessionId));
@@ -173,27 +173,27 @@ namespace Renci.SshClient.Security
             this.ClientCipher.Init(clientKey, clientVector);
 
             //  Create server HMac
-            this.ServerHMac = this._serverHmacAlgorithmTypeName.CreateInstance<HMac>();
+            this.ServerHMac = this._serverHmacAlgorithmType.CreateInstance<HMac>();
 
             this.ServerHMac.Init(this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'F', this.Session.SessionId)));
 
             //  Create client HMac
-            this.ClientHMac = this._cientHmacAlgorithmTypeName.CreateInstance<HMac>();
+            this.ClientHMac = this._cientHmacAlgorithmType.CreateInstance<HMac>();
 
             this.ClientHMac.Init(this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'E', this.Session.SessionId)));
 
-            if (!string.IsNullOrEmpty(this._compressionTypeName))
+            if (this._compressionType != null)
             {
-                var compressor = this._compressionTypeName.CreateInstance<Compressor>();
+                var compressor = this._compressionType.CreateInstance<Compressor>();
 
                 compressor.Init(this.Session);
 
                 this.Compressor = compressor;
             }
 
-            if (!string.IsNullOrEmpty(this._decompressionTypeName))
+            if (this._decompressionType != null)
             {
-                var decompressor = this._decompressionTypeName.CreateInstance<Compressor>();
+                var decompressor = this._decompressionType.CreateInstance<Compressor>();
 
                 decompressor.Init(this.Session);
 

@@ -182,14 +182,14 @@ namespace Renci.SshClient
                 {
                     this._clientInitMessage = new KeyExchangeInitMessage()
                     {
-                        KeyExchangeAlgorithms = this.KeyExchangeAlgorithms.Keys,
-                        ServerHostKeyAlgorithms = this.HostKeyAlgorithms.Keys,
-                        EncryptionAlgorithmsClientToServer = this.Encryptions.Keys,
-                        EncryptionAlgorithmsServerToClient = this.Encryptions.Keys,
-                        MacAlgorithmsClientToSserver = this.HmacAlgorithms.Keys,
-                        MacAlgorithmsServerToClient = this.HmacAlgorithms.Keys,
-                        CompressionAlgorithmsClientToServer = this.CompressionAlgorithms.Keys,
-                        CompressionAlgorithmsServerToClient = this.CompressionAlgorithms.Keys,
+                        KeyExchangeAlgorithms = this.ConnectionInfo.KeyExchangeAlgorithms.Keys,
+                        ServerHostKeyAlgorithms = this.ConnectionInfo.HostKeyAlgorithms.Keys,
+                        EncryptionAlgorithmsClientToServer = this.ConnectionInfo.Encryptions.Keys,
+                        EncryptionAlgorithmsServerToClient = this.ConnectionInfo.Encryptions.Keys,
+                        MacAlgorithmsClientToSserver = this.ConnectionInfo.HmacAlgorithms.Keys,
+                        MacAlgorithmsServerToClient = this.ConnectionInfo.HmacAlgorithms.Keys,
+                        CompressionAlgorithmsClientToServer = this.ConnectionInfo.CompressionAlgorithms.Keys,
+                        CompressionAlgorithmsServerToClient = this.ConnectionInfo.CompressionAlgorithms.Keys,
                         LanguagesClientToServer = new string[] { string.Empty },
                         LanguagesServerToClient = new string[] { string.Empty },
                         FirstKexPacketFollows = false,
@@ -219,10 +219,6 @@ namespace Renci.SshClient
         public ConnectionInfo ConnectionInfo { get; private set; }
 
         public event EventHandler<ErrorEventArgs> ErrorOccured;
-
-        public event EventHandler<ConnectingEventArgs> Connecting;
-
-        public event EventHandler<EventArgs> Connected;
 
         public event EventHandler<EventArgs> Disconnecting;
 
@@ -372,18 +368,6 @@ namespace Renci.SshClient
 
         #endregion
 
-        public IDictionary<string, string> KeyExchangeAlgorithms { get; private set; }
-
-        public IDictionary<string, string> Encryptions { get; private set; }
-
-        public IDictionary<string, string> HmacAlgorithms { get; private set; }
-
-        public IDictionary<string, string> HostKeyAlgorithms { get; private set; }
-
-        public IDictionary<string, string> SupportedAuthenticationMethods { get; private set; }
-
-        public IDictionary<string, string> CompressionAlgorithms { get; private set; }
-
         /// <summary>
         /// Initializes a new instance of the <see cref="Session"/> class.
         /// </summary>
@@ -392,75 +376,6 @@ namespace Renci.SshClient
         {
             this.ConnectionInfo = connectionInfo;
             this.ClientVersion = string.Format("SSH-2.0-Renci.SshClient.{0}", this.GetType().Assembly.GetName().Version);
-
-            this.KeyExchangeAlgorithms = new Dictionary<string, string>()
-            {
-                {"diffie-hellman-group-exchange-sha256", typeof(KeyExchangeDiffieHellmanGroupExchangeSha256).AssemblyQualifiedName},
-                {"diffie-hellman-group-exchange-sha1", typeof(KeyExchangeDiffieHellmanGroupExchangeSha1).AssemblyQualifiedName},
-                {"diffie-hellman-group14-sha1", typeof(KeyExchangeDiffieHellmanGroup14Sha1).AssemblyQualifiedName},
-                {"diffie-hellman-group1-sha1", typeof(KeyExchangeDiffieHellmanGroup1Sha1).AssemblyQualifiedName},
-            };
-
-            this.Encryptions = new Dictionary<string, string>()
-            {
-                {"3des-cbc", typeof(CipherTripleDES).AssemblyQualifiedName},
-                {"aes128-cbc", typeof(CipherAES128CBC).AssemblyQualifiedName},
-                {"aes192-cbc", typeof(CipherAES192CBC).AssemblyQualifiedName},
-                {"aes256-cbc", typeof(CipherAES256CBC).AssemblyQualifiedName},
-                //{"blowfish-cbc", typeof(...).AssemblyQualifiedName},
-                //{"twofish256-cbc", typeof(...).AssemblyQualifiedName},
-                //{"twofish-cbc", typeof(...).AssemblyQualifiedName},
-                //{"twofish192-cbc", typeof(...).AssemblyQualifiedName},
-                //{"twofish128-cbc", typeof(...).AssemblyQualifiedName},
-                //{"serpent256-cbc", typeof(...).AssemblyQualifiedName},
-                //{"serpent192-cbc", typeof(...).AssemblyQualifiedName},
-                //{"serpent128-cbc", typeof(...).AssemblyQualifiedName},
-                //{"arcfour128", typeof(...).AssemblyQualifiedName},
-                //{"arcfour256", typeof(...).AssemblyQualifiedName},
-                //{"arcfour", typeof(...).AssemblyQualifiedName},
-                //{"idea-cbc", typeof(...).AssemblyQualifiedName},
-                //{"cast128-cbc", typeof(...).AssemblyQualifiedName},
-                //{"rijndael-cbc@lysator.liu.se", typeof(...).AssemblyQualifiedName},
-                //{"aes128-ctr", typeof(...).AssemblyQualifiedName},
-                //{"aes192-ctr", typeof(...).AssemblyQualifiedName},
-                //{"aes256-ctr", typeof(...).AssemblyQualifiedName},
-            };
-
-            this.HmacAlgorithms = new Dictionary<string, string>()
-            {
-                {"hmac-md5", typeof(HMacMD5).AssemblyQualifiedName},
-                {"hmac-sha1", typeof(HMacSha1).AssemblyQualifiedName},
-                //{"umac-64@openssh.com", typeof(HMacSha1).AssemblyQualifiedName},
-                //{"hmac-ripemd160", typeof(HMacSha1).AssemblyQualifiedName},
-                //{"hmac-ripemd160@openssh.com", typeof(HMacSha1).AssemblyQualifiedName},
-                //{"hmac-md5-96", typeof(...).AssemblyQualifiedName},
-                //{"hmac-sha1-96", typeof(...).AssemblyQualifiedName},
-                //{"none", typeof(...).AssemblyQualifiedName},
-            };
-
-            this.HostKeyAlgorithms = new Dictionary<string, string>()
-            {
-                {"ssh-rsa", typeof(CryptoPublicKeyRsa).AssemblyQualifiedName},
-                {"ssh-dss", typeof(CryptoPublicKeyDss).AssemblyQualifiedName}, 
-            };
-
-            this.SupportedAuthenticationMethods = new Dictionary<string, string>()
-            {
-                {"none", typeof(UserAuthenticationNone).AssemblyQualifiedName},
-                {"publickey", typeof(UserAuthenticationPublicKey).AssemblyQualifiedName},
-                {"password", typeof(UserAuthenticationPassword).AssemblyQualifiedName},
-                {"keyboard-interactive", typeof(UserAuthenticationKeyboardInteractive).AssemblyQualifiedName},
-                //{"hostbased", typeof(...).AssemblyQualifiedName},                
-                //{"gssapi-keyex", typeof(...).AssemblyQualifiedName},                
-                //{"gssapi-with-mic", typeof(...).AssemblyQualifiedName},
-            };
-
-            this.CompressionAlgorithms = new Dictionary<string, string>()
-            {
-                {"none", string.Empty}, 
-                {"zlib", typeof(Zlib).AssemblyQualifiedName}, 
-                {"zlib@openssh.com", typeof(ZlibOpenSsh).AssemblyQualifiedName}, 
-            };
         }
 
         /// <summary>
@@ -490,33 +405,13 @@ namespace Renci.SshClient
                     if (this.IsConnected)
                         return;
 
-                    var eventArgs = new ConnectingEventArgs(this.KeyExchangeAlgorithms,
-                                                                this.Encryptions,
-                                                                this.HmacAlgorithms,
-                                                                this.HostKeyAlgorithms,
-                                                                this.SupportedAuthenticationMethods,
-                                                                this.CompressionAlgorithms);
-                    //  Populate event args connection information
-                    eventArgs.Timeout = this.ConnectionInfo.Timeout;
-                    eventArgs.RetryAttempts = this.ConnectionInfo.RetryAttempts;
-                    eventArgs.MaxSessions = this.ConnectionInfo.MaxSessions;
-
-                    if (this.Connecting != null)
-                    {
-                        this.Connecting(this, eventArgs);
-
-                        //  Update connection information if it was changed by event handler
-                        this.ConnectionInfo.Timeout = eventArgs.Timeout;
-                        this.ConnectionInfo.RetryAttempts = eventArgs.RetryAttempts;
-                    }
-
                     var ep = new IPEndPoint(Dns.GetHostAddresses(this.ConnectionInfo.Host)[0], this.ConnectionInfo.Port);
                     this._socket = new Socket(ep.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
                     //  Connect socket with 5 seconds timeout
                     var connectResult = this._socket.BeginConnect(ep, null, null);
 
-                    connectResult.AsyncWaitHandle.WaitOne(eventArgs.Timeout);
+                    connectResult.AsyncWaitHandle.WaitOne(this.ConnectionInfo.Timeout);
 
                     this._socket.EndConnect(connectResult);
 
@@ -606,7 +501,9 @@ namespace Renci.SshClient
 
                     //  Query server supported authentication methods
                     var username = this.ConnectionInfo.Username;
+
                     IEnumerable<string> serverMethods = null;
+
                     using (var noneAuthentication = new UserAuthenticationNone())
                     {
                         if (noneAuthentication.Authenticate(username, this))
@@ -618,14 +515,14 @@ namespace Renci.SshClient
                     }
 
                     var methodNames = from serverMethod in serverMethods
-                                      from clientMethod in this.SupportedAuthenticationMethods.Keys
+                                      from clientMethod in this.ConnectionInfo.SupportedAuthenticationMethods.Keys
                                       where
                                         serverMethod == clientMethod
                                       select serverMethod;
 
                     foreach (var methodName in methodNames)
                     {
-                        var authentication = this.SupportedAuthenticationMethods[methodName].CreateInstance<UserAuthentication>();
+                        var authentication = this.ConnectionInfo.SupportedAuthenticationMethods[methodName].CreateInstance<UserAuthentication>();
 
                         authentication.Authenticating += delegate(object sender, AuthenticationEventArgs e)
                         {
@@ -650,11 +547,6 @@ namespace Renci.SshClient
                     }
 
                     Monitor.Pulse(this);
-                }
-
-                if (this.Connected != null)
-                {
-                    this.Connected(this, new EventArgs());
                 }
             }
             finally
@@ -1146,7 +1038,7 @@ namespace Renci.SshClient
             this.UnRegisterMessageType(MessageTypes.ChannelEof);
             this.UnRegisterMessageType(MessageTypes.ChannelClose);
 
-            var keyExchangeAlgorithmName = (from c in this.KeyExchangeAlgorithms.Keys
+            var keyExchangeAlgorithmName = (from c in this.ConnectionInfo.KeyExchangeAlgorithms.Keys
                                             from s in message.KeyExchangeAlgorithms
                                             where s == c
                                             select c).FirstOrDefault();
@@ -1163,7 +1055,7 @@ namespace Renci.SshClient
             }
 
             //  Create instance of key exchange algorithm that will be used
-            this._keyExchange = this.KeyExchangeAlgorithms[keyExchangeAlgorithmName].CreateInstance<KeyExchange>();
+            this._keyExchange = this.ConnectionInfo.KeyExchangeAlgorithms[keyExchangeAlgorithmName].CreateInstance<KeyExchange>();
 
             //  Start the algorithm implementation
             this._keyExchange.Start(this, message);

@@ -8,6 +8,12 @@ namespace Renci.SshClient.Common
     {
         public DisconnectReasons DisconnectReason { get; private set; }
 
+        public SshConnectionException(string message)
+            : base(message)
+        {
+            this.DisconnectReason = DisconnectReasons.None;
+        }
+
         public SshConnectionException(string message, DisconnectReasons disconnectReasonCode)
             : base(message)
         {

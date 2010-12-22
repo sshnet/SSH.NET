@@ -31,7 +31,7 @@ namespace Renci.SshClient
         }
 
         public SshClient(string host, int port, string username, string password)
-            : this(new ConnectionInfo(host, port, username, password))
+            : this(new PasswordConnectionInfo(host, port, username, password))
         {
         }
 
@@ -41,7 +41,7 @@ namespace Renci.SshClient
         }
 
         public SshClient(string host, int port, string username, params PrivateKeyFile[] keyFiles)
-            : this(new ConnectionInfo(host, port, username, keyFiles))
+            : this(new PrivateKeyConnectionInfo(host, port, username, keyFiles))
         {
         }
 

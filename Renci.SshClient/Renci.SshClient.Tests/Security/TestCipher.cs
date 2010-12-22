@@ -14,13 +14,12 @@ namespace Renci.SshClient.Tests.Security
         [TestMethod]
         public void Test_Cipher_TripleDES_Connection()
         {
-            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            var connectionInfo = new PasswordConnectionInfo(Resources.HOST, 22, Resources.USERNAME, Resources.PASSWORD);
+            connectionInfo.Encryptions.Clear();
+            connectionInfo.Encryptions.Add("3des-cbc", typeof(CipherTripleDES));
+
+            using (var client = new SshClient(connectionInfo))
             {
-                client.Connecting += delegate(object sender, Common.ConnectingEventArgs e)
-                {
-                    e.Encryptions.Clear();
-                    e.Encryptions.Add("3des-cbc", typeof(CipherTripleDES).AssemblyQualifiedName);
-                };
                 client.Connect();
                 client.Disconnect();
             }
@@ -29,13 +28,12 @@ namespace Renci.SshClient.Tests.Security
         [TestMethod]
         public void Test_Cipher_AES128CBC_Connection()
         {
-            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            var connectionInfo = new PasswordConnectionInfo(Resources.HOST, 22, Resources.USERNAME, Resources.PASSWORD);
+            connectionInfo.Encryptions.Clear();
+            connectionInfo.Encryptions.Add("aes128-cbc", typeof(CipherAES128CBC));
+
+            using (var client = new SshClient(connectionInfo))
             {
-                client.Connecting += delegate(object sender, Common.ConnectingEventArgs e)
-                {
-                    e.Encryptions.Clear();
-                    e.Encryptions.Add("aes128-cbc", typeof(CipherAES128CBC).AssemblyQualifiedName);
-                };
                 client.Connect();
                 client.Disconnect();
             }
@@ -44,13 +42,12 @@ namespace Renci.SshClient.Tests.Security
         [TestMethod]
         public void Test_Cipher_AES192CBC_Connection()
         {
-            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            var connectionInfo = new PasswordConnectionInfo(Resources.HOST, 22, Resources.USERNAME, Resources.PASSWORD);
+            connectionInfo.Encryptions.Clear();
+            connectionInfo.Encryptions.Add("aes192-cbc", typeof(CipherAES192CBC));
+
+            using (var client = new SshClient(connectionInfo))
             {
-                client.Connecting += delegate(object sender, Common.ConnectingEventArgs e)
-                {
-                    e.Encryptions.Clear();
-                    e.Encryptions.Add("aes192-cbc", typeof(CipherAES192CBC).AssemblyQualifiedName);
-                };
                 client.Connect();
                 client.Disconnect();
             }
@@ -59,13 +56,12 @@ namespace Renci.SshClient.Tests.Security
         [TestMethod]
         public void Test_Cipher_AES256CBC_Connection()
         {
-            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            var connectionInfo = new PasswordConnectionInfo(Resources.HOST, 22, Resources.USERNAME, Resources.PASSWORD);
+            connectionInfo.Encryptions.Clear();
+            connectionInfo.Encryptions.Add("aes256-cbc", typeof(CipherAES256CBC));
+
+            using (var client = new SshClient(connectionInfo))
             {
-                client.Connecting += delegate(object sender, Common.ConnectingEventArgs e)
-                {
-                    e.Encryptions.Clear();
-                    e.Encryptions.Add("aes256-cbc", typeof(CipherAES256CBC).AssemblyQualifiedName);
-                };
                 client.Connect();
                 client.Disconnect();
             }

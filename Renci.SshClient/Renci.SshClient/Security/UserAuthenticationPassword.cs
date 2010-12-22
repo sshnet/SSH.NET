@@ -19,6 +19,11 @@ namespace Renci.SshClient.Security
 
         protected override void OnAuthenticate()
         {
+            var passwordConnectionInfo = this.Session.ConnectionInfo as PasswordConnectionInfo;
+
+            if (passwordConnectionInfo == null)
+                return;
+
             //  TODO:   Handle all user authentication messages
             //Message.RegisterMessageType<PasswordChangeRequiredMessage>(MessageTypes.UserAuthenticationPasswordChangeRequired);
 
@@ -26,7 +31,7 @@ namespace Renci.SshClient.Security
                 {
                     ServiceName = ServiceNames.Connection,
                     Username = this.Username,
-                    Password = this.Session.ConnectionInfo.Password ?? string.Empty,
+                    Password = passwordConnectionInfo.Password ?? string.Empty,
                 });
 
             this.Session.WaitHandle(this._authenticationCompleted);

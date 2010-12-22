@@ -587,7 +587,7 @@ namespace Renci.SshClient
         /// </summary>
         internal void SendKeepAlive()
         {
-            this.SendMessage(new GlobalRequestMessage(GlobalRequestNames.KeepAlive, false));
+            this.SendMessage(new IgnoreMessage());
         }
 
         /// <summary>

@@ -9,13 +9,13 @@
             get { return ForwardedTcpipChannelInfo.NAME; }
         }
 
-        public string ConnectedAddress { get; set; }
+        public string ConnectedAddress { get; private set; }
 
-        public uint ConnectedPort { get; set; }
+        public uint ConnectedPort { get; private set; }
 
-        public string OriginatorAddress { get; set; }
+        public string OriginatorAddress { get; private set; }
 
-        public uint OriginatorPort { get; set; }
+        public uint OriginatorPort { get; private set; }
 
         protected override void LoadData()
         {

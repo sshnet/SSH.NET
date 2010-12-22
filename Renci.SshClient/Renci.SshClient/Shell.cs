@@ -101,13 +101,7 @@ namespace Renci.SshClient
                         {
                             Debug.WriteLine(ch);
 
-                            var m = new ChannelDataMessage
-                            {
-                                Data = Char.ConvertFromUtf32(ch),
-                                LocalChannelNumber = this._channel.RemoteChannelNumber,
-                            };
-
-                            this._session.SendMessage(m);
+                            this._session.SendMessage(new ChannelDataMessage(this._channel.RemoteChannelNumber, Char.ConvertFromUtf32(ch)));
                         }
                         else
                         {

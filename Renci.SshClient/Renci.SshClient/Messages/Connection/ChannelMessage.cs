@@ -3,7 +3,7 @@ namespace Renci.SshClient.Messages.Connection
 {
     public abstract class ChannelMessage : Message
     {
-        public uint LocalChannelNumber { get; set; }
+        public uint LocalChannelNumber { get; protected set; }
 
         protected override void LoadData()
         {

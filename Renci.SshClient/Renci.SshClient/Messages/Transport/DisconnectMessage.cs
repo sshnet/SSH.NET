@@ -9,11 +9,22 @@ namespace Renci.SshClient.Messages.Transport
             get { return MessageTypes.Disconnect; }
         }
 
-        public DisconnectReasons ReasonCode { get; set; }
+        public DisconnectReasons ReasonCode { get; private set; }
 
-        public string Description { get; set; }
+        public string Description { get; private set; }
 
-        public string Language { get; set; }
+        public string Language { get; private set; }
+
+        public DisconnectMessage()
+        {
+
+        }
+
+        public DisconnectMessage(DisconnectReasons reasonCode, string message)
+        {
+            this.ReasonCode = reasonCode;
+            this.Description = message;
+        }
 
         protected override void LoadData()
         {

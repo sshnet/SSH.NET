@@ -6,5 +6,15 @@
         {
             get { return MessageTypes.ChannelEof; }
         }
+
+        public ChannelEofMessage()
+        {
+
+        }
+
+        public ChannelEofMessage(uint localChannelNumber)
+        {
+            this.LocalChannelNumber = localChannelNumber;
+        }
     }
 }

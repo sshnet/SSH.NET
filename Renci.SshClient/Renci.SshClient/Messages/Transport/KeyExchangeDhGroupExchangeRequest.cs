@@ -18,7 +18,7 @@ namespace Renci.SshClient.Messages.Transport
         /// <value>
         /// The minimum.
         /// </value>
-        public UInt32 Minimum { get; set; }
+        public UInt32 Minimum { get; private set; }
 
         /// <summary>
         /// Gets or sets the preferred size in bits of the group the server will send.
@@ -26,7 +26,7 @@ namespace Renci.SshClient.Messages.Transport
         /// <value>
         /// The preferred.
         /// </value>
-        public UInt32 Preferred { get; set; }
+        public UInt32 Preferred { get; private set; }
 
         /// <summary>
         /// Gets or sets the maximal size in bits of an acceptable group.
@@ -34,7 +34,14 @@ namespace Renci.SshClient.Messages.Transport
         /// <value>
         /// The maximum.
         /// </value>
-        public UInt32 Maximum { get; set; }
+        public UInt32 Maximum { get; private set; }
+
+        public KeyExchangeDhGroupExchangeRequest(uint minimum, uint preferred, uint maximum)
+        {
+            this.Minimum = minimum;
+            this.Preferred = preferred;
+            this.Maximum = maximum;
+        }
 
         protected override void LoadData()
         {

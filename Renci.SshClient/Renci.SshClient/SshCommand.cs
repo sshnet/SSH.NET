@@ -212,10 +212,7 @@ namespace Renci.SshClient
 
         private void Channel_RequestReceived(object sender, Common.ChannelRequestEventArgs e)
         {
-            Message replyMessage = new ChannelFailureMessage()
-            {
-                LocalChannelNumber = this._channel.LocalChannelNumber,
-            };
+            Message replyMessage = new ChannelFailureMessage(this._channel.LocalChannelNumber);
 
             if (e.Info is ExitStatusRequestInfo)
             {
@@ -223,10 +220,7 @@ namespace Renci.SshClient
 
                 this.ExitStatus = exitStatusInfo.ExitStatus;
 
-                replyMessage = new ChannelSuccessMessage()
-                {
-                    LocalChannelNumber = this._channel.LocalChannelNumber,
-                };
+                replyMessage = new ChannelSuccessMessage(this._channel.LocalChannelNumber);
             }
 
             if (e.Info.WantReply)

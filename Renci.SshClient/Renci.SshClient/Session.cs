@@ -486,10 +486,7 @@ namespace Renci.SshClient
                     }
 
                     //  Request user authorization service
-                    this.SendMessage(new ServiceRequestMessage
-                    {
-                        ServiceName = ServiceNames.UserAuthentication,
-                    });
+                    this.SendMessage(new ServiceRequestMessage(ServiceNames.UserAuthentication));
 
                     //  Wait for service to be accepted
                     this.WaitHandle(this._serviceAccepted);
@@ -590,11 +587,7 @@ namespace Renci.SshClient
         /// </summary>
         internal void SendKeepAlive()
         {
-            this.SendMessage(new GlobalRequestMessage
-            {
-                RequestName = GlobalRequestNames.KeepAlive,
-                WantReply = false
-            });
+            this.SendMessage(new GlobalRequestMessage(GlobalRequestNames.KeepAlive, false));
         }
 
         /// <summary>
@@ -788,11 +781,7 @@ namespace Renci.SshClient
 
         private void SendDisconnect(DisconnectReasons reasonCode, string message)
         {
-            var disconnectMessage = new DisconnectMessage
-            {
-                ReasonCode = reasonCode,
-                Description = message,
-            };
+            var disconnectMessage = new DisconnectMessage(reasonCode, message);
 
             this.SendMessage(disconnectMessage);
 
@@ -1095,6 +1084,7 @@ namespace Renci.SshClient
             this.RegisterMessageType<ChannelExtendedDataMessage>(MessageTypes.ChannelExtendedData);
             this.RegisterMessageType<ChannelRequestMessage>(MessageTypes.ChannelRequest);
             this.RegisterMessageType<ChannelSuccessMessage>(MessageTypes.ChannelSuccess);
+            this.RegisterMessageType<ChannelFailureMessage>(MessageTypes.ChannelFailure);
             this.RegisterMessageType<ChannelDataMessage>(MessageTypes.ChannelData);
             this.RegisterMessageType<ChannelEofMessage>(MessageTypes.ChannelEof);
             this.RegisterMessageType<ChannelCloseMessage>(MessageTypes.ChannelClose);

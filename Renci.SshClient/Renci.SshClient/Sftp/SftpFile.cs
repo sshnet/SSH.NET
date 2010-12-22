@@ -10,8 +10,6 @@ namespace Renci.SshClient.Sftp
         {
             this.Name = fileName;
 
-            //this.AbsolutePath = fullName;
-
             if (attributes.Size.HasValue)
                 this.Size = (int)attributes.Size.Value;
             else
@@ -42,19 +40,13 @@ namespace Renci.SshClient.Sftp
             else
                 this.ModifiedTime = DateTime.MinValue;
 
-            //this.CreatedTime = DateTime.MinValue;
-
             if (attributes.Extentions != null)
                 this.Extentions = new Dictionary<string, string>(attributes.Extentions);
         }
 
         public string Name { get; set; }
 
-        //public string AbsolutePath { get; set; }
-
         public string Filename { get; set; }
-
-        //public DateTime CreatedTime { get; set; }
 
         public DateTime AccessedTime { get; set; }
 

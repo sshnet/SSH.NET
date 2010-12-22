@@ -23,10 +23,6 @@ namespace Renci.SshClient.Messages.Connection
             {
                 return this.Info.WantReply;
             }
-            set
-            {
-                this.Info.WantReply = value;
-            }
         }
 
         public RequestInfo Info { get; private set; }

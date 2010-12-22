@@ -256,10 +256,9 @@
     <Compile Include="Messages\Transport\UnimplementedMessage.cs" />
     <Compile Include="Messages\Authentication\BannerMessage.cs" />
     <Compile Include="Messages\Authentication\FailureMessage.cs" />
-    <Compile Include="Messages\Authentication\HostRequestMessage.cs" />
+    <Compile Include="Messages\Authentication\RequestMessageHost.cs" />
     <Compile Include="Messages\Authentication\InformationRequestMessage.cs" />
     <Compile Include="Messages\Authentication\InformationResponseMessage.cs" />
-    <Compile Include="Messages\Authentication\Methods.cs" />
     <Compile Include="Messages\Authentication\PasswordChangeRequiredMessage.cs" />
     <Compile Include="Messages\Authentication\RequestMessagePassword.cs" />
     <Compile Include="Messages\Authentication\PublicKeyMessage.cs" />
@@ -270,7 +269,6 @@
     <Compile Include="Messages\Authentication\SuccessMessage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Session.cs" />
-    <Compile Include="Settings.cs" />
     <Compile Include="Common\SshData.cs" />
     <Compile Include="Shell.cs" />
     <Compile Include="SshClient.cs" />

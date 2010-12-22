@@ -37,13 +37,7 @@ namespace Renci.SshClient.Security
                 this._publicKeyRequestMessageResponseWaitHandle.Reset();
                 this._isSignatureRequired = false;
 
-                var message = new RequestMessagePublicKey
-                {
-                    ServiceName = ServiceNames.Connection,
-                    Username = this.Username,
-                    PublicKeyAlgorithmName = keyFile.AlgorithmName,
-                    PublicKeyData = keyFile.PublicKey,                    
-                };
+                var message = new RequestMessagePublicKey(ServiceNames.Connection,this.Username, keyFile.AlgorithmName, keyFile.PublicKey);
 
                 if (privateKeyConnectionInfo.KeyFiles.Count < 2)
                 {
@@ -62,13 +56,7 @@ namespace Renci.SshClient.Security
                 {
                     this._publicKeyRequestMessageResponseWaitHandle.Reset();
 
-                    var signatureMessage = new RequestMessagePublicKey
-                    {
-                        ServiceName = ServiceNames.Connection,
-                        Username = this.Session.ConnectionInfo.Username,
-                        PublicKeyAlgorithmName = keyFile.AlgorithmName,
-                        PublicKeyData = keyFile.PublicKey,
-                    };
+                    var signatureMessage = new RequestMessagePublicKey(ServiceNames.Connection, this.Session.ConnectionInfo.Username, keyFile.AlgorithmName, keyFile.PublicKey);
 
                     var signatureData = new SignatureData(message, this.Session.SessionId.GetSshString()).GetBytes();
 

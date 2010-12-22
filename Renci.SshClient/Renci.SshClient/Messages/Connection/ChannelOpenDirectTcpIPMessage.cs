@@ -3,14 +3,13 @@ namespace Renci.SshClient.Messages.Connection
 {
     internal class ChannelOpenDirectTcpIPMessage : ChannelOpenMessage
     {
+        public string HostToConnect { get; private set; }
 
-        public string HostToConnect { get; set; }
+        public uint PortToConnect { get; private set; }
 
-        public uint PortToConnect { get; set; }
+        public string OriginatorIP { get; private set; }
 
-        public string OriginatorIP { get; set; }
-
-        public uint OriginatorPort { get; set; }
+        public uint OriginatorPort { get; private set; }
 
         protected override void LoadData()
         {

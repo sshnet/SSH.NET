@@ -10,10 +10,9 @@ namespace Renci.SshClient.Messages.Authentication
             get { return MessageTypes.UserAuthenticationPublicKey; }
         }
 
-        public string PublicKeyAlgorithmName { get; set; }
+        public string PublicKeyAlgorithmName { get; private set; }
 
-        public IEnumerable<byte> PublicKeyData { get; set; }
-
+        public IEnumerable<byte> PublicKeyData { get; private set; }
 
         protected override void LoadData()
         {

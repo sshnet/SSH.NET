@@ -9,9 +9,9 @@ namespace Renci.SshClient.Messages.Authentication
             get { return MessageTypes.UserAuthenticationBanner; }
         }
 
-        public string Message { get; set; }
+        public string Message { get; private set; }
 
-        public string Language { get; set; }
+        public string Language { get; private set; }
 
         protected override void LoadData()
         {

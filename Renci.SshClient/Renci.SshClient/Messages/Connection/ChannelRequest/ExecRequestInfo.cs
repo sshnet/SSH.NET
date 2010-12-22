@@ -9,7 +9,18 @@
             get { return ExecRequestInfo.NAME; }
         }
 
-        public string Command { get; set; }
+        public string Command { get; private set; }
+
+        public ExecRequestInfo()
+        {
+
+        }
+
+        public ExecRequestInfo(string command)
+        {
+            this.WantReply = true;
+            this.Command = command;
+        }
 
         protected override void LoadData()
         {

@@ -26,11 +26,7 @@ namespace Renci.SshClient.Security
         {
             this.Session.RegisterMessageType<InformationRequestMessage>(MessageTypes.UserAuthenticationInformationRequest);
 
-            this.Session.SendMessage(new RequestMessageKeyboardInteractive
-                {
-                    ServiceName = ServiceNames.Connection,
-                    Username = this.Session.ConnectionInfo.Username,
-                });
+            this.Session.SendMessage(new RequestMessageKeyboardInteractive(ServiceNames.Connection, this.Session.ConnectionInfo.Username));
 
             this.WaitHandle(this._authenticationCompleted);
 

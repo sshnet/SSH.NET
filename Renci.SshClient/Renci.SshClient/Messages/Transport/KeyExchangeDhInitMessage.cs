@@ -4,7 +4,7 @@ namespace Renci.SshClient.Messages.Transport
 {
     internal class KeyExchangeDhInitMessage : Message
     {
-        public BigInteger E { get; set; }
+        public BigInteger E { get; private set; }
 
         public override MessageTypes MessageType
         {
@@ -12,6 +12,11 @@ namespace Renci.SshClient.Messages.Transport
             {
                 return MessageTypes.DiffieHellmanKeyExchangeInit;
             }
+        }
+
+        public KeyExchangeDhInitMessage(BigInteger clientExchangeValue)
+        {
+            this.E = clientExchangeValue;
         }
 
         protected override void LoadData()

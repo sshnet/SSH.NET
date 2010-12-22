@@ -9,7 +9,18 @@
             get { return ExitStatusRequestInfo.NAME; }
         }
 
-        public uint ExitStatus { get; set; }
+        public uint ExitStatus { get; private set; }
+
+        public ExitStatusRequestInfo()
+        {
+
+        }
+
+        public ExitStatusRequestInfo(uint exitStatus)
+        {
+            this.WantReply = false;
+            this.ExitStatus = exitStatus;
+        }
 
         protected override void LoadData()
         {

@@ -3,7 +3,7 @@ namespace Renci.SshClient.Messages.Transport
 {
     public class IgnoreMessage : Message
     {
-        public string Data { get; set; }
+        public string Data { get; private set; }
 
         public override MessageTypes MessageType
         {

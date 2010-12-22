@@ -52,10 +52,7 @@ namespace Renci.SshClient.Security
 
             this.PopulateClientExchangeValue();
 
-            this.Session.SendMessage(new KeyExchangeDhInitMessage
-            {
-                E = this._clientExchangeValue
-            });
+            this.Session.SendMessage(new KeyExchangeDhInitMessage(this._clientExchangeValue));
         }
 
         public override void Finish()

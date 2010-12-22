@@ -13,6 +13,18 @@
 
         public string VariableValue { get; set; }
 
+        public EnvironmentVariableRequestInfo()
+        {
+
+        }
+
+        public EnvironmentVariableRequestInfo(string variableName, string variableValue)
+        {
+            this.WantReply = true;
+            this.VariableName = variableName;
+            this.VariableValue = variableValue;
+        }
+
         protected override void LoadData()
         {
             base.LoadData();

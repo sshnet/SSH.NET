@@ -8,9 +8,19 @@ namespace Renci.SshClient.Messages.Connection
             get { return MessageTypes.ChannelExtendedData; }
         }
 
-        public uint DataTypeCode { get; set; }
+        public uint DataTypeCode { get; private set; }
 
-        public string Data { get; set; }
+        public string Data { get; private set; }
+
+        public ChannelExtendedDataMessage()
+        {
+
+        }
+
+        public ChannelExtendedDataMessage(uint localChannelNumber)
+        {
+            this.LocalChannelNumber = localChannelNumber;
+        }
 
         protected override void LoadData()
         {

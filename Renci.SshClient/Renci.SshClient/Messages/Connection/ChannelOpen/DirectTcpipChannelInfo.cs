@@ -9,13 +9,26 @@
             get { return DirectTcpipChannelInfo.NAME; }
         }
 
-        public string HostToConnect { get; set; }
+        public string HostToConnect { get; private set; }
 
-        public uint PortToConnect { get; set; }
+        public uint PortToConnect { get; private set; }
 
-        public string OriginatorAddress { get; set; }
+        public string OriginatorAddress { get; private set; }
 
-        public uint OriginatorPort { get; set; }
+        public uint OriginatorPort { get; private set; }
+
+        public DirectTcpipChannelInfo()
+        {
+
+        }
+        
+        public DirectTcpipChannelInfo(string hostToConnect, uint portToConnect, string originatorAddress, uint originatorPort)
+        {
+            this.HostToConnect = hostToConnect;
+            this.PortToConnect = portToConnect;
+            this.OriginatorAddress = originatorAddress;
+            this.OriginatorPort = originatorPort;
+        }
 
         protected override void LoadData()
         {

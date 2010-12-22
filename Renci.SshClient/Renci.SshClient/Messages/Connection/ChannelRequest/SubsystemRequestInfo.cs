@@ -9,7 +9,18 @@
             get { return SubsystemRequestInfo.NAME; }
         }
 
-        public string SubsystemName { get; set; }
+        public string SubsystemName { get; private set; }
+
+        public SubsystemRequestInfo()
+        {
+            this.WantReply = true;
+        }
+
+        public SubsystemRequestInfo(string subsystem)
+            : this()
+        {
+            this.SubsystemName = subsystem;
+        }
 
         protected override void LoadData()
         {

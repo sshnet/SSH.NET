@@ -12,11 +12,24 @@ namespace Renci.SshClient.Messages.Authentication
             }
         }
 
-        public string PublicKeyAlgorithmName { get; set; }
+        public string PublicKeyAlgorithmName { get; private set; }
 
-        public IEnumerable<byte> PublicKeyData { get; set; }
+        public IEnumerable<byte> PublicKeyData { get; private set; }
 
         public IEnumerable<byte> Signature { get; set; }
+
+        public RequestMessagePublicKey(ServiceNames serviceName, string username, string keyAlgorithmName, IEnumerable<byte> keyData)
+            : base(serviceName, username)
+        {
+            this.PublicKeyAlgorithmName = keyAlgorithmName;
+            this.PublicKeyData = keyData;
+        }
+
+        public RequestMessagePublicKey(ServiceNames serviceName, string username, string keyAlgorithmName, IEnumerable<byte> keyData, IEnumerable<byte> signature)
+            : this(serviceName, username, keyAlgorithmName, keyData)
+        {
+            this.Signature = signature;
+        }
 
         protected override void SaveData()
         {

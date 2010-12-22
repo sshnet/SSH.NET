@@ -19,11 +19,7 @@ namespace Renci.SshClient.Security
 
         protected override void OnAuthenticate()
         {
-            this.SendMessage(new RequestMessage
-            {
-                ServiceName = ServiceNames.Connection,
-                Username = this.Username,
-            });
+            this.SendMessage(new RequestMessage(ServiceNames.Connection, this.Username));
 
             this.WaitHandle(this._authenticationCompleted);
         }

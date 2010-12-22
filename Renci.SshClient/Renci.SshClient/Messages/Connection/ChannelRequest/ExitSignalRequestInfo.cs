@@ -1,4 +1,5 @@
-﻿namespace Renci.SshClient.Messages.Connection
+﻿using System.Text;
+namespace Renci.SshClient.Messages.Connection
 {
     internal class ExitSignalRequestInfo : RequestInfo
     {
@@ -9,13 +10,27 @@
             get { return ExitSignalRequestInfo.NAME; }
         }
 
-        public string SignalName { get; set; }
+        public string SignalName { get; private set; }
 
-        public bool CoreDumped { get; set; }
+        public bool CoreDumped { get; private set; }
 
-        public string ErrorMessage { get; set; }
+        public string ErrorMessage { get; private set; }
 
-        public string Language { get; set; }
+        public string Language { get; private set; }
+
+        public ExitSignalRequestInfo()
+        {
+
+        }
+
+        public ExitSignalRequestInfo(string signalName, bool coreDumped, string errorMessage, string language)
+        {
+            this.WantReply = false;
+            this.SignalName = signalName;
+            this.CoreDumped = coreDumped;
+            this.ErrorMessage = errorMessage;
+            this.Language = language;
+        }
 
         protected override void LoadData()
         {
@@ -34,7 +49,7 @@
             this.Write(this.SignalName);
             this.Write(this.CoreDumped);
             this.Write(this.ErrorMessage);
-            this.Write(this.Language);
+            this.Write(this.Language, Encoding.UTF8);
         }
 
     }

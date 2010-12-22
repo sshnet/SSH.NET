@@ -42,26 +42,8 @@ namespace Renci.SshClient.Channels
             }
 
             //  Open channel
-            //this.SendMessage(new ChannelOpenDirectTcpIPMessage
-            //{
-            //    ChannelType = ChannelTypes.DirectTcpip,
-            //    LocalChannelNumber = this.LocalChannelNumber,
-            //    InitialWindowSize = this.LocalWindowSize,
-            //    MaximumPacketSize = this.PacketSize,
-            //    HostToConnect = remoteHost,
-            //    PortToConnect = port,
-            //    OriginatorIP = "0.0.0.0",
-            //    OriginatorPort = 0
-            //});
-
-            this.SendMessage(new ChannelOpenMessage(this.LocalChannelNumber, this.LocalWindowSize, this.PacketSize, new DirectTcpipChannelInfo
-                {
-                    HostToConnect = remoteHost,
-                    PortToConnect = port,
-                    OriginatorAddress = "0.0.0.0",
-                    OriginatorPort = 0
-                }));
-
+            this.SendMessage(new ChannelOpenMessage(this.LocalChannelNumber, this.LocalWindowSize, this.PacketSize,
+                                                        new DirectTcpipChannelInfo(remoteHost, port, "0.0.0.0", 0)));
 
             //  Wait for channel to open
             this.WaitHandle(this._channelOpen);
@@ -83,11 +65,7 @@ namespace Renci.SshClient.Channels
                             var read = this._socket.Receive(buffer);
                             if (read > 0)
                             {
-                                this.SendMessage(new ChannelDataMessage
-                                {
-                                    LocalChannelNumber = this.RemoteChannelNumber,
-                                    Data = buffer.Take(read).GetSshString(),
-                                });
+                                this.SendMessage(new ChannelDataMessage(this.RemoteChannelNumber, buffer.Take(read).GetSshString()));
                             }
                             else
                             {

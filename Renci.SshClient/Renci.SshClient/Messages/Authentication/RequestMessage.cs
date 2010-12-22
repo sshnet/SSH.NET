@@ -10,11 +10,17 @@ namespace Renci.SshClient.Messages.Authentication
             get { return MessageTypes.UserAuthenticationRequest; }
         }
 
-        public string Username { get; set; }
+        public string Username { get; private set; }
 
-        public ServiceNames ServiceName { get; set; }
+        public ServiceNames ServiceName { get; private set; }
 
         public virtual string MethodName { get { return "none"; } }
+
+        public RequestMessage(ServiceNames serviceName, string username)
+        {
+            this.ServiceName = serviceName;
+            this.Username = username;
+        }
 
         protected override void LoadData()
         {

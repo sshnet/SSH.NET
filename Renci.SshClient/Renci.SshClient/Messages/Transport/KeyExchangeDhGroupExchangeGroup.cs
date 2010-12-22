@@ -19,7 +19,7 @@ namespace Renci.SshClient.Messages.Transport
         /// <value>
         /// The safe prime.
         /// </value>
-        public BigInteger SafePrime { get; set; }
+        public BigInteger SafePrime { get; private set; }
 
         /// <summary>
         /// Gets or sets the generator for subgroup in GF(p).
@@ -27,7 +27,7 @@ namespace Renci.SshClient.Messages.Transport
         /// <value>
         /// The sub group.
         /// </value>
-        public BigInteger SubGroup { get; set; }
+        public BigInteger SubGroup { get; private set; }
 
         protected override void LoadData()
         {

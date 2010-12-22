@@ -46,23 +46,12 @@ namespace Renci.SshClient.Channels
                 this._socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.NoDelay, 1);
 
                 //  Send channel open confirmation message
-                this.SendMessage(new ChannelOpenConfirmationMessage
-                {
-                    LocalChannelNumber = this.RemoteChannelNumber,
-                    InitialWindowSize = this.LocalWindowSize,
-                    MaximumPacketSize = this.PacketSize,
-                    RemoteChannelNumber = this.LocalChannelNumber,
-                });
+                this.SendMessage(new ChannelOpenConfirmationMessage(this.RemoteChannelNumber, this.LocalWindowSize, this.PacketSize, this.LocalChannelNumber));
             }
             catch (Exception exp)
             {
                 //  Send channel open failure message
-                this.SendMessage(new ChannelOpenFailureMessage
-                {
-                    LocalChannelNumber = this.RemoteChannelNumber,
-                    Description = exp.ToString(),
-                    ReasonCode = 2,
-                });
+                this.SendMessage(new ChannelOpenFailureMessage(this.RemoteChannelNumber, exp.ToString(), 2));
 
                 throw;
             }
@@ -75,11 +64,7 @@ namespace Renci.SshClient.Channels
                     var read = this._socket.Receive(buffer);
                     if (read > 0)
                     {
-                        this.SendMessage(new ChannelDataMessage
-                        {
-                            LocalChannelNumber = this.RemoteChannelNumber,
-                            Data = buffer.Take(read).GetSshString(),
-                        });
+                        this.SendMessage(new ChannelDataMessage(this.RemoteChannelNumber, buffer.Take(read).GetSshString()));
                     }
                     else
                     {
@@ -105,10 +90,7 @@ namespace Renci.SshClient.Channels
                 }
             }
 
-            this.SendMessage(new ChannelEofMessage
-            {
-                LocalChannelNumber = this.RemoteChannelNumber,
-            });
+            this.SendMessage(new ChannelEofMessage(this.RemoteChannelNumber));
 
             this.Close();
         }

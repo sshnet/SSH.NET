@@ -79,12 +79,7 @@ namespace Renci.SshClient.Sftp
         {
             sftpMessage.RequestId = this._requestId++;
 
-            var message = new SftpDataMessage
-            {
-                LocalChannelNumber = this._channel.RemoteChannelNumber,
-                Message = sftpMessage,
-            };
-            this._session.SendMessage(message);
+            this._session.SendMessage(new SftpDataMessage(this._channel.RemoteChannelNumber, sftpMessage));
         }
 
         private void Channel_DataReceived(object sender, Common.ChannelDataEventArgs e)
@@ -223,11 +218,7 @@ namespace Renci.SshClient.Sftp
 
         private void SendMessage(SftpMessage sftpMessage)
         {
-            var message = new SftpDataMessage
-            {
-                LocalChannelNumber = this._channel.RemoteChannelNumber,
-                Message = sftpMessage,
-            };
+            var message = new SftpDataMessage(this._channel.RemoteChannelNumber, sftpMessage);
 
             this._session.SendMessage(message);
         }

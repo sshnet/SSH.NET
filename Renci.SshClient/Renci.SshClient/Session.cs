@@ -588,7 +588,7 @@ namespace Renci.SshClient
         /// <summary>
         /// Sends "keep alive" message to keep connection alive.
         /// </summary>
-        internal void KeepAlive()
+        internal void SendKeepAlive()
         {
             this.SendMessage(new GlobalRequestMessage
             {
@@ -1465,6 +1465,11 @@ namespace Renci.SshClient
                 // and unmanaged resources.
                 if (disposing)
                 {
+                    if (this.IsConnected)
+                    {
+                        this.Disconnect();
+                    }
+
                     // Dispose managed resources.
                     if (this._socket != null)
                     {

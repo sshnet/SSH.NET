@@ -6,11 +6,16 @@ using System.IO;
 using Renci.SshClient.Sftp;
 using Renci.SshClient.Security;
 using Renci.SshClient.Common;
+using System.Threading;
 
 namespace Renci.SshClient
 {
     public abstract class SshBaseClient : IDisposable
     {
+        private TimeSpan _keepAliveInterval;
+
+        private Timer _keepAliveTimer;
+
         /// <summary>
         /// Gets current session.
         /// </summary>
@@ -35,6 +40,34 @@ namespace Renci.SshClient
                     return false;
                 else
                     return this.Session.IsConnected;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the keep alive interval in seconds.
+        /// </summary>
+        /// <value>
+        /// The keep alive interval in seconds.
+        /// </value>
+        public TimeSpan KeepAliveInterval
+        {
+            get
+            {
+                return this._keepAliveInterval;
+            }
+            set
+            {
+                this._keepAliveInterval = value;
+
+                if (this._keepAliveTimer == null)
+                {
+                    this._keepAliveTimer = new Timer((state) => 
+                    {
+                        this.SendKeepAlive();
+                    });
+                }
+
+                this._keepAliveTimer.Change(this._keepAliveInterval, this._keepAliveInterval);
             }
         }
 
@@ -85,9 +118,15 @@ namespace Renci.SshClient
         /// <summary>
         /// Sends keep-alive message to the server.
         /// </summary>
-        public void KeepAlive()
+        public void SendKeepAlive()
         {
-            this.Session.KeepAlive();
+            if (this.Session == null)
+                return;
+
+            if (!this.Session.IsConnected)
+                return;
+
+            this.Session.SendKeepAlive();
         }
 
         /// <summary>
@@ -155,6 +194,11 @@ namespace Renci.SshClient
                     {
                         this.Session.Dispose();
                     }
+                    if (this._keepAliveTimer != null)
+                    {
+                        this._keepAliveTimer.Dispose();
+                    }
+
                 }
 
                 // Note disposing has been done.

@@ -9,7 +9,7 @@ namespace Renci.SshClient
     /// <summary>
     /// 
     /// </summary>
-    public class SftpClient : SshBaseClient
+    public class SftpClient : BaseClient
     {
         /// <summary>
         /// Holds SftpSession instance that used to communicate to the SFTP server

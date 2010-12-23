@@ -5,7 +5,7 @@ using System.Collections.ObjectModel;
 
 namespace Renci.SshClient
 {
-    public class SshClient : SshBaseClient
+    public class SshClient : BaseClient
     {
         /// <summary>
         /// Holds the list of forwarded ports

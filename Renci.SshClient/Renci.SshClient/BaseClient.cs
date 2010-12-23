@@ -10,7 +10,10 @@ using System.Threading;
 
 namespace Renci.SshClient
 {
-    public abstract class SshBaseClient : IDisposable
+    /// <summary>
+    /// Serves as base class for client implementations, provides common client functionality.
+    /// </summary>
+    public abstract class BaseClient : IDisposable
     {
         private TimeSpan _keepAliveInterval;
 
@@ -74,10 +77,10 @@ namespace Renci.SshClient
         public event EventHandler<AuthenticationEventArgs> Authenticating;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SshBaseClient"/> class.
+        /// Initializes a new instance of the <see cref="BaseClient"/> class.
         /// </summary>
         /// <param name="connectionInfo">The connection info.</param>
-        public SshBaseClient(ConnectionInfo connectionInfo)
+        public BaseClient(ConnectionInfo connectionInfo)
         {
             this.ConnectionInfo = connectionInfo;
             this.Session = new Session(connectionInfo);
@@ -206,7 +209,7 @@ namespace Renci.SshClient
             }
         }
 
-        ~SshBaseClient()
+        ~BaseClient()
         {
             // Do not re-create Dispose clean-up code here.
             // Calling Dispose(false) is optimal in terms of

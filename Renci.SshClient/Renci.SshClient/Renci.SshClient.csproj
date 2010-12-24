@@ -266,21 +266,8 @@
     <Compile Include="Shell.cs" />
     <Compile Include="SshClient.cs" />
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
-    <None Include="Documentation\Content\Extensibility.AddAuthenticationMethod.aml" />
-    <None Include="Documentation\Content\Extensibility.AddEncryption.aml" />
-    <None Include="Documentation\Content\Extensibility.AddHashAlgorithm.aml" />
-    <None Include="Documentation\Content\Extensibility.aml" />
-    <None Include="Documentation\Content\HowTo.aml" />
-    <None Include="Documentation\Content\HowTo.Connect.aml" />
-    <None Include="Documentation\Content\HowTo.Sftp.aml" />
-    <None Include="Documentation\Content\HowTo.SshCommand.aml" />
-    <None Include="Documentation\Content\HowTo.SshCommand.Run.aml" />
-    <None Include="Documentation\Content\Introduction.aml" />
-    <None Include="Documentation\Content\Reference.aml" />
-    <None Include="Documentation\Renci.SshClient.content" />
-    <Content Include="Documentation\SshClient.shfbproj" />
+    <Folder Include="Documentation\Content\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

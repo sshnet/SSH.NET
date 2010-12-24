@@ -13,12 +13,12 @@
 
         public ExitStatusRequestInfo()
         {
-
+            this.WantReply = false;
         }
 
         public ExitStatusRequestInfo(uint exitStatus)
+            : this()
         {
-            this.WantReply = false;
             this.ExitStatus = exitStatus;
         }
 

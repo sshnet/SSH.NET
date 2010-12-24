@@ -224,11 +224,6 @@ namespace Renci.SshClient
 
         public event EventHandler<EventArgs> Disconnected;
 
-        /// <summary>
-        /// Occurs when user is being authenticated and additional information available or required
-        /// </summary>
-        public event EventHandler<AuthenticationEventArgs> Authenticating;
-
         #region Message events
 
         /// <summary>
@@ -496,47 +491,11 @@ namespace Renci.SshClient
                         throw new SshException("Username is not specified.");
                     }
 
-                    //  Query server supported authentication methods
-                    var username = this.ConnectionInfo.Username;
+                    //  Authenticate using provided connection info object
 
-                    IEnumerable<string> serverMethods = null;
+                    this.ConnectionInfo.Authenticate(this);
 
-                    using (var noneAuthentication = new UserAuthenticationNone())
-                    {
-                        if (noneAuthentication.Authenticate(username, this))
-                        {
-                            throw new SshAuthenticationException("'none' authentication should not be allowed.");
-                        }
-
-                        serverMethods = noneAuthentication.Methods;
-                    }
-
-                    var methodNames = from serverMethod in serverMethods
-                                      from clientMethod in this.ConnectionInfo.SupportedAuthenticationMethods.Keys
-                                      where
-                                        serverMethod == clientMethod
-                                      select serverMethod;
-
-                    foreach (var methodName in methodNames)
-                    {
-                        var authentication = this.ConnectionInfo.SupportedAuthenticationMethods[methodName].CreateInstance<UserAuthentication>();
-
-                        authentication.Authenticating += delegate(object sender, AuthenticationEventArgs e)
-                        {
-                            if (this.Authenticating != null)
-                            {
-                                this.Authenticating(sender, e);
-                            }
-                        };
-
-                        authentication.Authenticate(username, this);
-
-                        if (authentication.IsAuthenticated)
-                        {
-                            this._isAuthenticated = true;
-                            break;
-                        }
-                    }
+                    this._isAuthenticated = this.ConnectionInfo.IsAuthenticated;
 
                     if (!this._isAuthenticated)
                     {
@@ -1407,6 +1366,8 @@ namespace Renci.SshClient
                 this.RaiseError(exp);
                 //  TODO:   This exception can be swolloed if it occures while running in the background, look for possible solutions
                 //          It can be swolled if call async, when asynch method is finished ensure all async method check for exception to be raised
+                //          Or if it is running in port forwarding mode, some event should be raised at this case to handle and error and if not handle then throw
+                //          throw an exception and let it be swollowed then if not handled by the event handler
             }
         }
 

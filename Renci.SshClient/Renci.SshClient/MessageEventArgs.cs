@@ -2,7 +2,7 @@
 
 namespace Renci.SshClient
 {
-    internal class MessageEventArgs<T> : EventArgs
+    public class MessageEventArgs<T> : EventArgs
     {
         public T Message { get; private set; }
 

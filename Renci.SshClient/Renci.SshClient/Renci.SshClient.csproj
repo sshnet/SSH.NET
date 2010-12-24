@@ -112,15 +112,6 @@
     </Compile>
     <Compile Include="Security\KeyExchangeDiffieHellmanGroup14Sha1.cs" />
     <Compile Include="Security\KeyExchangeDiffieHellmanGroupExchangeSha1.cs" />
-    <Compile Include="Security\UserAuthenticationKeyboardInteractive.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Security\UserAuthenticationPassword.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Security\UserAuthenticationPublicKey.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="SftpClient.cs" />
     <Compile Include="Sftp\CreateDirectoryCommand.cs" />
     <Compile Include="Sftp\DownloadFileCommand.cs" />
@@ -208,8 +199,6 @@
     <Compile Include="Security\KeyExchangeSendMessageEventArgs.cs" />
     <Compile Include="PrivateKeyFile.cs" />
     <Compile Include="Messages\Connection\ChannelMessage.cs" />
-    <Compile Include="Security\UserAuthentication.cs" />
-    <Compile Include="Security\UserAuthenticationNone.cs" />
     <Compile Include="Channels\Channel.cs" />
     <Compile Include="Channels\ChannelTypes.cs" />
     <Compile Include="ConnectionInfo.cs" />

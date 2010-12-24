@@ -23,12 +23,12 @@
 
         public PseudoTerminalRequestInfo()
         {
-
+            this.WantReply = true;
         }
 
         public PseudoTerminalRequestInfo(string environmentVariable, uint columns, uint rows, uint width, uint height, string terminalMode)
+            : this()
         {
-            this.WantReply = true;
             this.EnvironmentVariable = environmentVariable;
             this.Columns = columns;
             this.Rows = rows;

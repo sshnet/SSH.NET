@@ -6,7 +6,7 @@ namespace Renci.SshClient.Messages.Connection
     {
         public abstract string RequestName { get; }
 
-        public virtual bool WantReply { get; protected set; }
+        public bool WantReply { get; protected set; }
 
         protected override void LoadData()
         {

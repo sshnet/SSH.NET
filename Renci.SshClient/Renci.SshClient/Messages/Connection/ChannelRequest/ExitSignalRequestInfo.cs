@@ -20,12 +20,12 @@ namespace Renci.SshClient.Messages.Connection
 
         public ExitSignalRequestInfo()
         {
-
+            this.WantReply = false;
         }
 
         public ExitSignalRequestInfo(string signalName, bool coreDumped, string errorMessage, string language)
+            : this()
         {
-            this.WantReply = false;
             this.SignalName = signalName;
             this.CoreDumped = coreDumped;
             this.ErrorMessage = errorMessage;

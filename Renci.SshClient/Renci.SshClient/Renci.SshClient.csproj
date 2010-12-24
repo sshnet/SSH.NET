@@ -76,6 +76,7 @@
     <Compile Include="Common\SshAuthenticationException.cs" />
     <Compile Include="Common\SshConnectionException.cs" />
     <Compile Include="Common\SshOperationTimeoutException.cs" />
+    <Compile Include="KeyboardInteractiveConnectionInfo.cs" />
     <Compile Include="Messages\Authentication\RequestMessageKeyboardInteractive.cs" />
     <Compile Include="Messages\Connection\ChannelOpen\ChannelOpenInfo.cs" />
     <Compile Include="Messages\Connection\ChannelOpen\DirectTcpipChannelInfo.cs" />
@@ -275,7 +276,6 @@
     <Compile Include="Common\SshData.cs" />
     <Compile Include="Shell.cs" />
     <Compile Include="SshClient.cs" />
-    <Compile Include="UserAuthentication.cs" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

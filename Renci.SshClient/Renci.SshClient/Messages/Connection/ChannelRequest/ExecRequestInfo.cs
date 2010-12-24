@@ -13,12 +13,12 @@
 
         public ExecRequestInfo()
         {
-
+            this.WantReply = true;
         }
 
         public ExecRequestInfo(string command)
+            : this()
         {
-            this.WantReply = true;
             this.Command = command;
         }
 

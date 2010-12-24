@@ -74,8 +74,6 @@ namespace Renci.SshClient
             }
         }
 
-        public event EventHandler<AuthenticationEventArgs> Authenticating;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="BaseClient"/> class.
         /// </summary>
@@ -99,7 +97,6 @@ namespace Renci.SshClient
             }
 
             this.Session = new Session(this.ConnectionInfo);
-            this.Session.Authenticating += Session_Authenticating;
             this.Session.Connect();
 
             this.OnConnected();
@@ -113,7 +110,6 @@ namespace Renci.SshClient
             this.OnDisconnecting();
 
             this.Session.Disconnect();
-            this.Session.Authenticating -= Session_Authenticating;
 
             this.OnDisconnected();
         }
@@ -162,14 +158,6 @@ namespace Renci.SshClient
         protected virtual void OnDisconnected()
         {
 
-        }
-
-        private void Session_Authenticating(object sender, AuthenticationEventArgs e)
-        {
-            if (this.Authenticating != null)
-            {
-                this.Authenticating(this, e);
-            }
         }
 
         #region IDisposable Members

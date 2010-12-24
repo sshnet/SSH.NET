@@ -15,12 +15,12 @@
 
         public EnvironmentVariableRequestInfo()
         {
-
+            this.WantReply = true;
         }
 
         public EnvironmentVariableRequestInfo(string variableName, string variableValue)
+            : this()
         {
-            this.WantReply = true;
             this.VariableName = variableName;
             this.VariableValue = variableValue;
         }

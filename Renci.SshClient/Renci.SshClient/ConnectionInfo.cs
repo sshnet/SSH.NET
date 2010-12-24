@@ -3,10 +3,22 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Renci.SshClient.Security;
 using Renci.SshClient.Compression;
+using Renci.SshClient.Messages;
+using Renci.SshClient.Messages.Authentication;
+using Renci.SshClient.Common;
+using System.Threading;
 namespace Renci.SshClient
 {
     public abstract class ConnectionInfo
     {
+        public abstract string Name { get; }
+
+        public bool IsAuthenticated { get; private set; }
+
+        public string ErrorMessage { get; private set; }
+
+        protected Session Session { get; private set; }
+
         public IDictionary<string, Type> KeyExchangeAlgorithms { get; private set; }
 
         public IDictionary<string, Type> Encryptions { get; private set; }
@@ -30,6 +42,8 @@ namespace Renci.SshClient
         public int RetryAttempts { get; set; }
 
         public int MaxSessions { get; set; }
+
+        public event EventHandler<AuthenticationBannerEventArgs> AuthenticationBanner;
 
         private ConnectionInfo()
         {
@@ -89,16 +103,16 @@ namespace Renci.SshClient
                 {"ssh-dss", typeof(CryptoPublicKeyDss)}, 
             };
 
-            this.SupportedAuthenticationMethods = new Dictionary<string, Type>()
-            {
-                {"none", typeof(UserAuthenticationNone)},
-                {"publickey", typeof(UserAuthenticationPublicKey)},
-                {"password", typeof(UserAuthenticationPassword)},
-                {"keyboard-interactive", typeof(UserAuthenticationKeyboardInteractive)},
-                //{"hostbased", typeof(...)},                
-                //{"gssapi-keyex", typeof(...)},                
-                //{"gssapi-with-mic", typeof(...)},
-            };
+            //this.SupportedAuthenticationMethods = new Dictionary<string, Type>()
+            //{
+            //    {"none", typeof(UserAuthenticationNone)},
+            //    {"publickey", typeof(UserAuthenticationPublicKey)},
+            //    {"password", typeof(UserAuthenticationPassword)},
+            //    {"keyboard-interactive", typeof(UserAuthenticationKeyboardInteractive)},
+            //    //{"hostbased", typeof(...)},                
+            //    //{"gssapi-keyex", typeof(...)},                
+            //    //{"gssapi-with-mic", typeof(...)},
+            //};
 
             this.CompressionAlgorithms = new Dictionary<string, Type>()
             {
@@ -116,5 +130,68 @@ namespace Renci.SshClient
             this.Port = port;
             this.Username = username;
         }
+
+        public bool Authenticate(Session session)
+        {
+            this.Session = session;
+
+            this.Session.RegisterMessageType<FailureMessage>(MessageTypes.UserAuthenticationFailure);
+            this.Session.RegisterMessageType<SuccessMessage>(MessageTypes.UserAuthenticationSuccess);
+            this.Session.RegisterMessageType<BannerMessage>(MessageTypes.UserAuthenticationBanner);
+
+            this.Session.UserAuthenticationFailureReceived += Session_UserAuthenticationFailureReceived;
+            this.Session.UserAuthenticationSuccessReceived += Session_UserAuthenticationSuccessMessageReceived;
+            this.Session.UserAuthenticationBannerReceived += Session_UserAuthenticationBannerMessageReceived;
+            this.Session.MessageReceived += Session_MessageReceived;
+
+            this.OnAuthenticate();
+
+            this.Session.UserAuthenticationFailureReceived -= Session_UserAuthenticationFailureReceived;
+            this.Session.UserAuthenticationSuccessReceived -= Session_UserAuthenticationSuccessMessageReceived;
+            this.Session.UserAuthenticationBannerReceived -= Session_UserAuthenticationBannerMessageReceived;
+            this.Session.MessageReceived -= Session_MessageReceived;
+
+            this.Session.UnRegisterMessageType(MessageTypes.UserAuthenticationFailure);
+            this.Session.UnRegisterMessageType(MessageTypes.UserAuthenticationSuccess);
+            this.Session.UnRegisterMessageType(MessageTypes.UserAuthenticationBanner);
+
+            return this.IsAuthenticated;
+        }
+
+        protected abstract void OnAuthenticate();
+
+        protected virtual void Session_UserAuthenticationFailureReceived(object sender, MessageEventArgs<FailureMessage> e)
+        {
+            this.ErrorMessage = e.Message.Message;
+            this.IsAuthenticated = false;
+        }
+
+        protected virtual void Session_UserAuthenticationSuccessMessageReceived(object sender, MessageEventArgs<SuccessMessage> e)
+        {
+            this.IsAuthenticated = true;
+        }
+
+        protected virtual void Session_UserAuthenticationBannerMessageReceived(object sender, MessageEventArgs<BannerMessage> e)
+        {
+            if (this.AuthenticationBanner != null)
+            {
+                this.AuthenticationBanner(this, new AuthenticationBannerEventArgs(this.Username, e.Message.Message, e.Message.Language));
+            }
+        }
+
+        protected void SendMessage(Message message)
+        {
+            this.Session.SendMessage(message);
+        }
+
+        protected void WaitHandle(WaitHandle eventWaitHandle)
+        {
+            this.Session.WaitHandle(eventWaitHandle);
+        }
+
+        protected virtual void Session_MessageReceived(object sender, MessageEventArgs<Message> e)
+        {
+        }
+
     }
 }

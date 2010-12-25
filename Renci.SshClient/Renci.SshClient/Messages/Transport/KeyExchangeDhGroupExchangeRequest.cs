@@ -5,13 +5,9 @@ using System.Text;
 
 namespace Renci.SshClient.Messages.Transport
 {
+    [Message("SSH_MSG_KEX_DH_GEX_REQUEST", 34)]
     internal class KeyExchangeDhGroupExchangeRequest : Message
     {
-        public override MessageTypes MessageType
-        {
-            get { return MessageTypes.KeyExchangeDhGroupExchangeRequest; }
-        }
-
         /// <summary>
         /// Gets or sets the minimal size in bits of an acceptable group.
         /// </summary>

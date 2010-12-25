@@ -1,14 +1,10 @@
 ﻿
 namespace Renci.SshClient.Messages.Transport
 {
+    [Message("SSH_MSG_IGNORE", 2)]
     public class IgnoreMessage : Message
     {
         public string Data { get; private set; }
-
-        public override MessageTypes MessageType
-        {
-            get { return MessageTypes.Ignore; }
-        }
 
         public IgnoreMessage()
         {

@@ -3,13 +3,9 @@ using System.Collections.Generic;
 
 namespace Renci.SshClient.Messages.Authentication
 {
+    [Message("SSH_MSG_USERAUTH_INFO_RESPONSE", 61)]
     internal class InformationResponseMessage : Message
     {
-        public override MessageTypes MessageType
-        {
-            get { return MessageTypes.UserAuthenticationInformationResponse; }
-        }
-
         public IList<string> Responses { get; private set; }
 
         public InformationResponseMessage()

@@ -135,9 +135,9 @@ namespace Renci.SshClient
         {
             this.Session = session;
 
-            this.Session.RegisterMessageType<FailureMessage>(MessageTypes.UserAuthenticationFailure);
-            this.Session.RegisterMessageType<SuccessMessage>(MessageTypes.UserAuthenticationSuccess);
-            this.Session.RegisterMessageType<BannerMessage>(MessageTypes.UserAuthenticationBanner);
+            this.Session.RegisterMessage<FailureMessage>();
+            this.Session.RegisterMessage<SuccessMessage>();
+            this.Session.RegisterMessage<BannerMessage>();
 
             this.Session.UserAuthenticationFailureReceived += Session_UserAuthenticationFailureReceived;
             this.Session.UserAuthenticationSuccessReceived += Session_UserAuthenticationSuccessMessageReceived;
@@ -151,9 +151,9 @@ namespace Renci.SshClient
             this.Session.UserAuthenticationBannerReceived -= Session_UserAuthenticationBannerMessageReceived;
             this.Session.MessageReceived -= Session_MessageReceived;
 
-            this.Session.UnRegisterMessageType(MessageTypes.UserAuthenticationFailure);
-            this.Session.UnRegisterMessageType(MessageTypes.UserAuthenticationSuccess);
-            this.Session.UnRegisterMessageType(MessageTypes.UserAuthenticationBanner);
+            this.Session.UnRegisterMessage<FailureMessage>();
+            this.Session.UnRegisterMessage<SuccessMessage>();
+            this.Session.UnRegisterMessage<BannerMessage>();
 
             return this.IsAuthenticated;
         }

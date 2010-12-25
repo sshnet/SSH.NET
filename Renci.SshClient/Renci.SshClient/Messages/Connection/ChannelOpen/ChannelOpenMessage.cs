@@ -2,13 +2,9 @@
 
 namespace Renci.SshClient.Messages.Connection
 {
+    [Message("SSH_MSG_CHANNEL_OPEN", 90)]
     public class ChannelOpenMessage : ChannelMessage
     {
-        public override MessageTypes MessageType
-        {
-            get { return MessageTypes.ChannelOpen; }
-        }
-
         public string ChannelType
         {
             get

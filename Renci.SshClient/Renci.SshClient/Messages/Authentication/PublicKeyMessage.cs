@@ -3,13 +3,9 @@ using System.Collections.Generic;
 
 namespace Renci.SshClient.Messages.Authentication
 {
+    [Message("SSH_MSG_USERAUTH_PK_OK", 60)]
     internal class PublicKeyMessage : Message
     {
-        public override MessageTypes MessageType
-        {
-            get { return MessageTypes.UserAuthenticationPublicKey; }
-        }
-
         public string PublicKeyAlgorithmName { get; private set; }
 
         public IEnumerable<byte> PublicKeyData { get; private set; }

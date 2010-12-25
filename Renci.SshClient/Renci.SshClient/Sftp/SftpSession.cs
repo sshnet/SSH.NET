@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading;
 using Renci.SshClient.Channels;
 using Renci.SshClient.Common;
-using Renci.SshClient.Messages.Sftp;
+using Renci.SshClient.Sftp.Messages;
 
 namespace Renci.SshClient.Sftp
 {

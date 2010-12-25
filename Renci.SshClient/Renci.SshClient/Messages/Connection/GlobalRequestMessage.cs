@@ -2,6 +2,7 @@
 
 namespace Renci.SshClient.Messages.Connection
 {
+    [Message("SSH_MSG_GLOBAL_REQUEST", 80)]
     public class GlobalRequestMessage : Message
     {
         public GlobalRequestNames RequestName { get; private set; }
@@ -28,11 +29,6 @@ namespace Renci.SshClient.Messages.Connection
         {
             this.AddressToBind = addressToBind;
             this.PortToBind = portToBind;
-        }
-
-        public override MessageTypes MessageType
-        {
-            get { return MessageTypes.GlobalRequest; }
         }
 
         protected override void LoadData()
@@ -65,9 +61,6 @@ namespace Renci.SshClient.Messages.Connection
                 case GlobalRequestNames.CancelTcpIpForward:
                     this.Write("cancel-tcpip-forward");
                     break;
-                case GlobalRequestNames.KeepAlive:
-                    this.Write("keep-alive-message-ignore-me");
-                    break;
                 default:
                     break;
             }
@@ -80,8 +73,6 @@ namespace Renci.SshClient.Messages.Connection
                 case GlobalRequestNames.CancelTcpIpForward:
                     this.Write(this.AddressToBind);
                     this.Write(this.PortToBind);
-                    break;
-                case GlobalRequestNames.KeepAlive:
                     break;
                 default:
                     break;

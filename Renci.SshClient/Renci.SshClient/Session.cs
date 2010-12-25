@@ -458,13 +458,13 @@ namespace Renci.SshClient
                     this.Write(Encoding.ASCII.GetBytes(string.Format("{0}\x0D\x0A", this.ClientVersion)));
 
                     //  Register Transport response messages
-                    this.RegisterMessageType<DisconnectMessage>(MessageTypes.Disconnect);
-                    this.RegisterMessageType<IgnoreMessage>(MessageTypes.Ignore);
-                    this.RegisterMessageType<UnimplementedMessage>(MessageTypes.Unimplemented);
-                    this.RegisterMessageType<DebugMessage>(MessageTypes.Debug);
-                    this.RegisterMessageType<ServiceAcceptMessage>(MessageTypes.ServiceAcceptRequest);
-                    this.RegisterMessageType<KeyExchangeInitMessage>(MessageTypes.KeyExchangeInit);
-                    this.RegisterMessageType<NewKeysMessage>(MessageTypes.NewKeys);
+                    this.RegisterMessage<DisconnectMessage>();
+                    this.RegisterMessage<IgnoreMessage>();
+                    this.RegisterMessage<UnimplementedMessage>();
+                    this.RegisterMessage<DebugMessage>();
+                    this.RegisterMessage<ServiceAcceptMessage>();
+                    this.RegisterMessage<KeyExchangeInitMessage>();
+                    this.RegisterMessage<NewKeysMessage>();
 
 
                     //  Start incoming request listener
@@ -973,18 +973,19 @@ namespace Renci.SshClient
             this._keyExchangeCompletedWaitHandle.Reset();
 
             //  Connection type messages are not allowed during key exchange phase
-            this.UnRegisterMessageType(MessageTypes.GlobalRequest);
-            this.UnRegisterMessageType(MessageTypes.RequestSuccess);
-            this.UnRegisterMessageType(MessageTypes.RequestFailure);
-            this.UnRegisterMessageType(MessageTypes.ChannelOpenConfirmation);
-            this.UnRegisterMessageType(MessageTypes.ChannelOpenFailure);
-            this.UnRegisterMessageType(MessageTypes.ChannelWindowAdjust);
-            this.UnRegisterMessageType(MessageTypes.ChannelExtendedData);
-            this.UnRegisterMessageType(MessageTypes.ChannelRequest);
-            this.UnRegisterMessageType(MessageTypes.ChannelSuccess);
-            this.UnRegisterMessageType(MessageTypes.ChannelData);
-            this.UnRegisterMessageType(MessageTypes.ChannelEof);
-            this.UnRegisterMessageType(MessageTypes.ChannelClose);
+            this.UnRegisterMessage<GlobalRequestMessage>();
+            this.UnRegisterMessage<RequestSuccessMessage>();
+            this.UnRegisterMessage<RequestFailureMessage>();
+            this.UnRegisterMessage<ChannelOpenConfirmationMessage>();
+            this.UnRegisterMessage<ChannelOpenFailureMessage>();
+            this.UnRegisterMessage<ChannelWindowAdjustMessage>();
+            this.UnRegisterMessage<ChannelExtendedDataMessage>();
+            this.UnRegisterMessage<ChannelRequestMessage>();
+            this.UnRegisterMessage<ChannelSuccessMessage>();
+            this.UnRegisterMessage<ChannelFailureMessage>();
+            this.UnRegisterMessage<ChannelDataMessage>();
+            this.UnRegisterMessage<ChannelEofMessage>();
+            this.UnRegisterMessage<ChannelCloseMessage>();
 
             var keyExchangeAlgorithmName = (from c in this.ConnectionInfo.KeyExchangeAlgorithms.Keys
                                             from s in message.KeyExchangeAlgorithms
@@ -1034,19 +1035,19 @@ namespace Renci.SshClient
             this._serverDecompression = this._keyExchange.Decompressor;
 
             //  Register Connection messages
-            this.RegisterMessageType<GlobalRequestMessage>(MessageTypes.GlobalRequest);
-            this.RegisterMessageType<RequestSuccessMessage>(MessageTypes.RequestSuccess);
-            this.RegisterMessageType<RequestFailureMessage>(MessageTypes.RequestFailure);
-            this.RegisterMessageType<ChannelOpenConfirmationMessage>(MessageTypes.ChannelOpenConfirmation);
-            this.RegisterMessageType<ChannelOpenFailureMessage>(MessageTypes.ChannelOpenFailure);
-            this.RegisterMessageType<ChannelWindowAdjustMessage>(MessageTypes.ChannelWindowAdjust);
-            this.RegisterMessageType<ChannelExtendedDataMessage>(MessageTypes.ChannelExtendedData);
-            this.RegisterMessageType<ChannelRequestMessage>(MessageTypes.ChannelRequest);
-            this.RegisterMessageType<ChannelSuccessMessage>(MessageTypes.ChannelSuccess);
-            this.RegisterMessageType<ChannelFailureMessage>(MessageTypes.ChannelFailure);
-            this.RegisterMessageType<ChannelDataMessage>(MessageTypes.ChannelData);
-            this.RegisterMessageType<ChannelEofMessage>(MessageTypes.ChannelEof);
-            this.RegisterMessageType<ChannelCloseMessage>(MessageTypes.ChannelClose);
+            this.RegisterMessage<GlobalRequestMessage>();
+            this.RegisterMessage<RequestSuccessMessage>();
+            this.RegisterMessage<RequestFailureMessage>();
+            this.RegisterMessage<ChannelOpenConfirmationMessage>();
+            this.RegisterMessage<ChannelOpenFailureMessage>();
+            this.RegisterMessage<ChannelWindowAdjustMessage>();
+            this.RegisterMessage<ChannelExtendedDataMessage>();
+            this.RegisterMessage<ChannelRequestMessage>();
+            this.RegisterMessage<ChannelSuccessMessage>();
+            this.RegisterMessage<ChannelFailureMessage>();
+            this.RegisterMessage<ChannelDataMessage>();
+            this.RegisterMessage<ChannelEofMessage>();
+            this.RegisterMessage<ChannelCloseMessage>();
 
             if (this.NewKeysReceived != null)
             {
@@ -1293,7 +1294,7 @@ namespace Renci.SshClient
 
         private delegate T LoadFunc<out T>(IEnumerable<byte> data);
 
-        private IDictionary<MessageTypes, LoadFunc<Message>> _registeredMessageTypes = new Dictionary<MessageTypes, LoadFunc<Message>>();
+        private IDictionary<byte, LoadFunc<Message>> _registeredMessageTypes = new Dictionary<byte, LoadFunc<Message>>();
 
         /// <summary>
         /// Registers the message type. This will allow message type to be recognized by and handled by the system.
@@ -1301,27 +1302,37 @@ namespace Renci.SshClient
         /// <remarks>Some message types are not allowed during cirtain times or same code can be used for different type of message</remarks>
         /// <typeparam name="T"></typeparam>
         /// <param name="messageType">Type of the message.</param>
-        public void RegisterMessageType<T>(MessageTypes messageType) where T : Message, new()
+        public void RegisterMessage<T>() where T : Message, new()
         {
+            var messageAttribute = typeof(T).GetCustomAttributes(typeof(MessageAttribute), true).SingleOrDefault() as MessageAttribute;
+
+            if (messageAttribute == null)
+                throw new SshException(string.Format("Type '{0}' is not a valid message type.", typeof(T).AssemblyQualifiedName));
+
             lock (this._registeredMessageTypes)
             {
-                if (this._registeredMessageTypes.ContainsKey(messageType))
+                if (this._registeredMessageTypes.ContainsKey(messageAttribute.Number))
                 {
-                    this.UnRegisterMessageType(messageType);
+                    this.UnRegisterMessage<T>();
                 }
 
-                this._registeredMessageTypes.Add(messageType, new LoadFunc<Message>(Message.Load<T>));
+                this._registeredMessageTypes.Add(messageAttribute.Number, new LoadFunc<Message>(Message.Load<T>));
             }
         }
 
-        public void UnRegisterMessageType(MessageTypes messageType)
+        public void UnRegisterMessage<T>()
         {
-            this._registeredMessageTypes.Remove(messageType);
+            var messageAttribute = typeof(T).GetCustomAttributes(typeof(MessageAttribute), true).SingleOrDefault() as MessageAttribute;
+
+            if (messageAttribute == null)
+                throw new SshException(string.Format("Type '{0}' is not a valid message type.", typeof(T).AssemblyQualifiedName));
+
+            this._registeredMessageTypes.Remove(messageAttribute.Number);
         }
 
         public Message LoadMessage(IEnumerable<byte> data)
         {
-            var messageType = (MessageTypes)data.FirstOrDefault();
+            var messageType = data.FirstOrDefault();
 
             lock (this._registeredMessageTypes)
             {

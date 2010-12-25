@@ -3,13 +3,9 @@ using System.Collections.Generic;
 
 namespace Renci.SshClient.Messages.Authentication
 {
+    [Message("SSH_MSG_USERAUTH_FAILURE", 51)]
     public class FailureMessage : Message
     {
-        public override MessageTypes MessageType
-        {
-            get { return MessageTypes.UserAuthenticationFailure; }
-        }
-
         public IEnumerable<string> AllowedAuthentications { get; set; }
 
         public string Message { get; private set; }

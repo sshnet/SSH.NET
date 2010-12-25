@@ -5,13 +5,9 @@ namespace Renci.SshClient.Messages.Transport
     /// <summary>
     /// Contains SSH_MSG_SERVICE_REQUEST message information
     /// </summary>
+    [Message("SSH_MSG_SERVICE_REQUEST", 5)]
     public class ServiceRequestMessage : Message
     {
-        public override MessageTypes MessageType
-        {
-            get { return MessageTypes.ServiceRequest; }
-        }
-
         public ServiceNames ServiceName { get; private set; }
 
         public ServiceRequestMessage(ServiceNames serviceName)

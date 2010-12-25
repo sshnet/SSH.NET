@@ -17,7 +17,7 @@ namespace Renci.SshClient.Messages.Connection
 
         public override string ToString()
         {
-            return string.Format("{0} : #{1}", this.MessageType, this.LocalChannelNumber);
+            return string.Format("{0} : #{1}", base.ToString(), this.LocalChannelNumber);
         }
     }
 }

@@ -1,12 +1,8 @@
 ﻿namespace Renci.SshClient.Messages.Connection
 {
+    [Message("SSH_MSG_CHANNEL_DATA", 94)]
     public class ChannelDataMessage : ChannelMessage
     {
-        public override MessageTypes MessageType
-        {
-            get { return MessageTypes.ChannelData; }
-        }
-
         public string Data { get; protected set; }
 
         public ChannelDataMessage()

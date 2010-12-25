@@ -1,12 +1,8 @@
 ﻿namespace Renci.SshClient.Messages.Transport
 {
+    [Message("SSH_MSG_NEWKEYS", 21)]
     public class NewKeysMessage : Message
     {
-        public override MessageTypes MessageType
-        {
-            get { return MessageTypes.NewKeys; }
-        }
-
         protected override void LoadData()
         {
         }

@@ -1,13 +1,9 @@
 ﻿
 namespace Renci.SshClient.Messages.Transport
 {
+    [Message("SSH_MSG_UNIMPLEMENTED", 3)]
     public class UnimplementedMessage : Message
     {
-        public override MessageTypes MessageType
-        {
-            get { return MessageTypes.Unimplemented; }
-        }
-
         protected override void LoadData()
         {
         }

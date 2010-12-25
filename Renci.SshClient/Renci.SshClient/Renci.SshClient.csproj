@@ -95,7 +95,8 @@
     <Compile Include="Messages\Connection\ChannelRequest\WindowChangeRequestInfo.cs" />
     <Compile Include="Messages\Connection\ChannelRequest\X11ForwardingRequestInfo.cs" />
     <Compile Include="Messages\Connection\ChannelRequest\XonXoffRequestInfo.cs" />
-    <Compile Include="Messages\Sftp\SftpRequestMessage.cs" />
+    <Compile Include="Messages\MessageAttribute.cs" />
+    <Compile Include="Sftp\Messages\SftpRequestMessage.cs" />
     <Compile Include="Messages\Transport\KeyExchangeDhGroupExchangeGroup.cs" />
     <Compile Include="Messages\Transport\KeyExchangeDhGroupExchangeInit.cs" />
     <Compile Include="Messages\Transport\KeyExchangeDhGroupExchangeReply.cs" />
@@ -138,7 +139,6 @@
     <Compile Include="ForwardedPort.cs" />
     <Compile Include="ForwardedPortLocal.cs" />
     <Compile Include="ForwardedPortRemote.cs" />
-    <Compile Include="Messages\Connection\ChannelOpenDirectTcpIPMessage.cs" />
     <Compile Include="Messages\Connection\GlobalRequestNames.cs" />
     <Compile Include="Security\Algorithm.cs" />
     <Compile Include="Security\Cipher.cs" />
@@ -146,43 +146,43 @@
     <Compile Include="Security\CipherTripleDES.cs" />
     <Compile Include="Compression\Compressor.cs" />
     <Compile Include="Common\DataReceivedEventArgs.cs" />
-    <Compile Include="Messages\Sftp\AceMasks.cs" />
-    <Compile Include="Messages\Sftp\Attributes.cs" />
-    <Compile Include="Messages\Sftp\AttributesMessage.cs" />
-    <Compile Include="Messages\Sftp\CloseMessage.cs" />
-    <Compile Include="Messages\Sftp\DataMessage.cs" />
-    <Compile Include="Messages\Sftp\ExtendedMessage.cs" />
-    <Compile Include="Messages\Sftp\ExtendedReplyMessage.cs" />
-    <Compile Include="Messages\Sftp\Flags.cs" />
-    <Compile Include="Messages\Sftp\FSetStat.cs" />
-    <Compile Include="Messages\Sftp\FSetStatMessage.cs" />
-    <Compile Include="Messages\Sftp\FStatMessage.cs" />
-    <Compile Include="Messages\Sftp\HandleMessage.cs" />
-    <Compile Include="Messages\Sftp\InitMessage.cs" />
-    <Compile Include="Messages\Sftp\SymLinkMessage.cs">
+    <Compile Include="Sftp\Messages\AceMasks.cs" />
+    <Compile Include="Sftp\Messages\Attributes.cs" />
+    <Compile Include="Sftp\Messages\AttributesMessage.cs" />
+    <Compile Include="Sftp\Messages\CloseMessage.cs" />
+    <Compile Include="Sftp\Messages\DataMessage.cs" />
+    <Compile Include="Sftp\Messages\ExtendedMessage.cs" />
+    <Compile Include="Sftp\Messages\ExtendedReplyMessage.cs" />
+    <Compile Include="Sftp\Messages\Flags.cs" />
+    <Compile Include="Sftp\Messages\FSetStat.cs" />
+    <Compile Include="Sftp\Messages\FSetStatMessage.cs" />
+    <Compile Include="Sftp\Messages\FStatMessage.cs" />
+    <Compile Include="Sftp\Messages\HandleMessage.cs" />
+    <Compile Include="Sftp\Messages\InitMessage.cs" />
+    <Compile Include="Sftp\Messages\SymLinkMessage.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Messages\Sftp\LStatMessage.cs" />
-    <Compile Include="Messages\Sftp\MkDirMessage.cs" />
-    <Compile Include="Messages\Sftp\NameMessage.cs" />
-    <Compile Include="Messages\Sftp\OpenDirMessage.cs" />
-    <Compile Include="Messages\Sftp\OpenMessage.cs" />
-    <Compile Include="Messages\Sftp\ReadDirMessage.cs" />
-    <Compile Include="Messages\Sftp\ReadLinkMessage.cs" />
-    <Compile Include="Messages\Sftp\ReadMessage.cs" />
-    <Compile Include="Messages\Sftp\RealPathMessage.cs" />
-    <Compile Include="Messages\Sftp\RemoveMessage.cs" />
-    <Compile Include="Messages\Sftp\RenameMessage.cs" />
-    <Compile Include="Messages\Sftp\RmDirMessage.cs" />
-    <Compile Include="Messages\Sftp\SetStatMessage.cs" />
-    <Compile Include="Messages\Sftp\SftpDataMessage.cs" />
-    <Compile Include="Messages\Sftp\SftpMessage.cs" />
-    <Compile Include="Messages\Sftp\SftpMessageTypes.cs" />
-    <Compile Include="Messages\Sftp\StatMessage.cs" />
-    <Compile Include="Messages\Sftp\StatusCodes.cs" />
-    <Compile Include="Messages\Sftp\StatusMessage.cs" />
-    <Compile Include="Messages\Sftp\VersionMessage.cs" />
-    <Compile Include="Messages\Sftp\WriteMessage.cs" />
+    <Compile Include="Sftp\Messages\LStatMessage.cs" />
+    <Compile Include="Sftp\Messages\MkDirMessage.cs" />
+    <Compile Include="Sftp\Messages\NameMessage.cs" />
+    <Compile Include="Sftp\Messages\OpenDirMessage.cs" />
+    <Compile Include="Sftp\Messages\OpenMessage.cs" />
+    <Compile Include="Sftp\Messages\ReadDirMessage.cs" />
+    <Compile Include="Sftp\Messages\ReadLinkMessage.cs" />
+    <Compile Include="Sftp\Messages\ReadMessage.cs" />
+    <Compile Include="Sftp\Messages\RealPathMessage.cs" />
+    <Compile Include="Sftp\Messages\RemoveMessage.cs" />
+    <Compile Include="Sftp\Messages\RenameMessage.cs" />
+    <Compile Include="Sftp\Messages\RmDirMessage.cs" />
+    <Compile Include="Sftp\Messages\SetStatMessage.cs" />
+    <Compile Include="Sftp\Messages\SftpDataMessage.cs" />
+    <Compile Include="Sftp\Messages\SftpMessage.cs" />
+    <Compile Include="Sftp\Messages\SftpMessageTypes.cs" />
+    <Compile Include="Sftp\Messages\StatMessage.cs" />
+    <Compile Include="Sftp\Messages\StatusCodes.cs" />
+    <Compile Include="Sftp\Messages\StatusMessage.cs" />
+    <Compile Include="Sftp\Messages\VersionMessage.cs" />
+    <Compile Include="Sftp\Messages\WriteMessage.cs" />
     <Compile Include="Compression\Zlib.cs" />
     <Compile Include="Compression\ZlibOpenSsh.cs" />
     <Compile Include="Security\CryptoKey.cs" />
@@ -239,9 +239,6 @@
     <Compile Include="Messages\Message.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Messages\MessageTypes.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Messages\Transport\NewKeysMessage.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -268,6 +265,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Documentation\Content\" />
+    <Folder Include="Messages\Sftp\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

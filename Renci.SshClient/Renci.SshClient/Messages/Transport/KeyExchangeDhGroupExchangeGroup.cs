@@ -6,13 +6,9 @@ using System.Numerics;
 
 namespace Renci.SshClient.Messages.Transport
 {
+    [Message("SSH_MSG_KEX_DH_GEX_GROUP", 31)]
     public class KeyExchangeDhGroupExchangeGroup : Message
     {
-        public override MessageTypes MessageType
-        {
-            get { return MessageTypes.KeyExchangeDhGroupExchangeGroup; }
-        }
-
         /// <summary>
         /// Gets or sets the safe prime.
         /// </summary>

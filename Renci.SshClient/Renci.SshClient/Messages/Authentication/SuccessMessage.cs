@@ -1,13 +1,9 @@
 ﻿
 namespace Renci.SshClient.Messages.Authentication
 {
+    [Message("SSH_MSG_USERAUTH_SUCCESS", 52)]
     public class SuccessMessage : Message
     {
-        public override MessageTypes MessageType
-        {
-            get { return MessageTypes.UserAuthenticationSuccess; }
-        }
-
         protected override void LoadData()
         {
         }

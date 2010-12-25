@@ -39,13 +39,13 @@ namespace Renci.SshClient
 
         protected override void OnAuthenticate()
         {
-            this.Session.RegisterMessageType<InformationRequestMessage>(MessageTypes.UserAuthenticationInformationRequest);
+            this.Session.RegisterMessage<InformationRequestMessage>();
 
             this.Session.SendMessage(new RequestMessageKeyboardInteractive(ServiceNames.Connection, this.Username));
 
             this.WaitHandle(this._authenticationCompleted);
 
-            this.Session.UnRegisterMessageType(MessageTypes.UserAuthenticationInformationRequest);
+            this.Session.UnRegisterMessage<InformationRequestMessage>();
 
             if (this._exception != null)
             {

@@ -43,7 +43,7 @@ namespace Renci.SshClient
             if (this.KeyFiles == null)
                 return;
 
-            this.Session.RegisterMessageType<PublicKeyMessage>(MessageTypes.UserAuthenticationPublicKey);
+            this.Session.RegisterMessage<PublicKeyMessage>();
 
             foreach (var keyFile in this.KeyFiles)
             {
@@ -87,7 +87,7 @@ namespace Renci.SshClient
                 }
             }
 
-            this.Session.UnRegisterMessageType(MessageTypes.UserAuthenticationPublicKey);
+            this.Session.UnRegisterMessage<PublicKeyMessage>();
         }
 
         protected override void Session_UserAuthenticationSuccessMessageReceived(object sender, MessageEventArgs<SuccessMessage> e)
@@ -135,7 +135,7 @@ namespace Renci.SshClient
             protected override void SaveData()
             {
                 this.Write(this._sessionId);
-                this.Write((byte)this._message.MessageType);
+                this.Write((byte)50);
                 this.Write(this._message.Username);
                 this.Write("ssh-connection");
                 this.Write("publickey");

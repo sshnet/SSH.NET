@@ -6,11 +6,9 @@ namespace Renci.SshClient.Messages
 {
     public abstract class Message : SshData
     {
-        public abstract MessageTypes MessageType { get; }
-
         internal static T Load<T>(IEnumerable<byte> data) where T : Message, new()
         {
-            var messageType = (MessageTypes)data.FirstOrDefault();
+            var messageType = data.FirstOrDefault();
 
             T message = new T();
 
@@ -33,17 +31,26 @@ namespace Renci.SshClient.Messages
 
         public override IEnumerable<byte> GetBytes()
         {
+            var messageAttribute = this.GetType().GetCustomAttributes(typeof(MessageAttribute), true).SingleOrDefault() as MessageAttribute;
+
+            if (messageAttribute == null)
+                throw new SshException(string.Format("Type '{0}' is not a valid message type.", this.GetType().AssemblyQualifiedName));
+
             var data = new List<byte>(base.GetBytes());
 
-            data.Insert(0, (byte)this.MessageType);
+            data.Insert(0, messageAttribute.Number);
 
             return data;
         }
 
         public override string ToString()
         {
-            return this.MessageType.ToString();
-        }
+            var messageAttribute = this.GetType().GetCustomAttributes(typeof(MessageAttribute), true).SingleOrDefault() as MessageAttribute;
 
+            if (messageAttribute == null)
+                throw new SshException(string.Format("Type '{0}' is not a valid message type.", this.GetType().AssemblyQualifiedName));
+
+            return messageAttribute.Name;
+        }
     }
 }

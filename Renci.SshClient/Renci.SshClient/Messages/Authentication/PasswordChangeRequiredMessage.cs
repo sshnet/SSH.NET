@@ -1,13 +1,9 @@
 ﻿
 namespace Renci.SshClient.Messages.Authentication
 {
+    [Message("SSH_MSG_USERAUTH_PASSWD_CHANGEREQ", 60)]
     internal class PasswordChangeRequiredMessage : Message
     {
-        public override MessageTypes MessageType
-        {
-            get { return MessageTypes.UserAuthenticationPasswordChangeRequired; }
-        }
-
         public string Message { get; private set; }
 
         public string Language { get; private set; }

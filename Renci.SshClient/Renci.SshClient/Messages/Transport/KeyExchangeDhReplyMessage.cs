@@ -3,6 +3,7 @@ using System.Numerics;
 
 namespace Renci.SshClient.Messages.Transport
 {
+    [Message("SSH_MSG_KEXDH_REPLY", 31)]
     public class KeyExchangeDhReplyMessage : Message
     {
         /// <summary>
@@ -18,14 +19,6 @@ namespace Renci.SshClient.Messages.Transport
         /// </summary>
         /// <value>The signature.</value>
         public string Signature { get; private set; }
-
-        public override MessageTypes MessageType
-        {
-            get
-            {
-                return MessageTypes.KeyExchangeDhReply;
-            }
-        }
 
         protected override void LoadData()
         {

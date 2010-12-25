@@ -1,14 +1,10 @@
 ﻿
 namespace Renci.SshClient.Messages.Connection
 {
+    [Message("SSH_MSG_REQUEST_SUCCESS", 81)]
     public class RequestSuccessMessage : Message
     {
         public uint? BoundPort { get; private set; }
-
-        public override MessageTypes MessageType
-        {
-            get { return MessageTypes.RequestSuccess; }
-        }
 
         public RequestSuccessMessage()
         {

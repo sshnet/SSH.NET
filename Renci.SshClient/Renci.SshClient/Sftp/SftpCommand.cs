@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Renci.SshClient.Common;
-using Renci.SshClient.Messages.Sftp;
+using Renci.SshClient.Sftp.Messages;
 
 namespace Renci.SshClient.Sftp
 {

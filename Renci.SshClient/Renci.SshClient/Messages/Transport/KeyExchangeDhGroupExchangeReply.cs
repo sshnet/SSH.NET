@@ -6,13 +6,9 @@ using System.Numerics;
 
 namespace Renci.SshClient.Messages.Transport
 {
+    [Message("SSH_MSG_KEX_DH_GEX_REPLY", 33)]
     internal class KeyExchangeDhGroupExchangeReply : Message
     {
-        public override MessageTypes MessageType
-        {
-            get { return MessageTypes.KeyExchangeDhGroupExchangeReply; }
-        }
-
         /// <summary>
         /// Gets server public host key and certificates
         /// </summary>

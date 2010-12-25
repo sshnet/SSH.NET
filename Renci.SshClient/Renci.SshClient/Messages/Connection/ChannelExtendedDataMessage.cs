@@ -1,13 +1,8 @@
-﻿
-namespace Renci.SshClient.Messages.Connection
+﻿namespace Renci.SshClient.Messages.Connection
 {
+    [Message("SSH_MSG_CHANNEL_EXTENDED_DATA", 95)]
     public class ChannelExtendedDataMessage : ChannelMessage
     {
-        public override MessageTypes MessageType
-        {
-            get { return MessageTypes.ChannelExtendedData; }
-        }
-
         public uint DataTypeCode { get; private set; }
 
         public string Data { get; private set; }

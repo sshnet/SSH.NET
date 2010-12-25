@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Renci.SshClient.Messages.Sftp;
+using Renci.SshClient.Sftp.Messages;
 
 namespace Renci.SshClient.Sftp
 {

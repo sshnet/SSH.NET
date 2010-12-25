@@ -38,7 +38,7 @@ namespace Renci.SshClient.Security
         {
             base.Start(session, message);
 
-            this.Session.RegisterMessageType<KeyExchangeDhReplyMessage>(MessageTypes.KeyExchangeDhReply);
+            this.Session.RegisterMessage<KeyExchangeDhReplyMessage>();
 
             this.Session.MessageReceived += Session_MessageReceived;
 
@@ -68,7 +68,7 @@ namespace Renci.SshClient.Security
             if (message != null)
             {
                 //  Unregister message once received
-                this.Session.UnRegisterMessageType(MessageTypes.KeyExchangeDhReply);
+                this.Session.UnRegisterMessage<KeyExchangeDhReplyMessage>();
 
                 this.HandleServerDhReply(message.HostKey, message.F, message.Signature);
             }

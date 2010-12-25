@@ -1,12 +1,8 @@
 ﻿namespace Renci.SshClient.Messages.Connection
 {
+    [Message("SSH_MSG_CHANNEL_OPEN_CONFIRMATION", 91)]
     public class ChannelOpenConfirmationMessage : ChannelMessage
     {
-        public override MessageTypes MessageType
-        {
-            get { return MessageTypes.ChannelOpenConfirmation; }
-        }
-
         public uint RemoteChannelNumber { get; private set; }
 
         public uint InitialWindowSize { get; private set; }

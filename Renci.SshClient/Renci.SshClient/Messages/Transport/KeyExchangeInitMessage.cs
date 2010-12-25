@@ -4,14 +4,10 @@ using System.Security.Cryptography;
 
 namespace Renci.SshClient.Messages.Transport
 {
+    [Message("SSH_MSG_KEXINIT", 20)]
     public class KeyExchangeInitMessage : Message
     {
         private static RNGCryptoServiceProvider _randomizer = new System.Security.Cryptography.RNGCryptoServiceProvider();
-
-        public override MessageTypes MessageType
-        {
-            get { return MessageTypes.KeyExchangeInit; }
-        }
 
         public KeyExchangeInitMessage()
         {

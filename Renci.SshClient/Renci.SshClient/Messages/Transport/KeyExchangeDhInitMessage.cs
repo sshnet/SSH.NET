@@ -2,17 +2,10 @@
 
 namespace Renci.SshClient.Messages.Transport
 {
+    [Message("SSH_MSG_KEXDH_INIT", 30)]
     internal class KeyExchangeDhInitMessage : Message
     {
         public BigInteger E { get; private set; }
-
-        public override MessageTypes MessageType
-        {
-            get
-            {
-                return MessageTypes.DiffieHellmanKeyExchangeInit;
-            }
-        }
 
         public KeyExchangeDhInitMessage(BigInteger clientExchangeValue)
         {

@@ -1,12 +1,8 @@
 ﻿namespace Renci.SshClient.Messages.Connection
 {
+    [Message("SSH_MSG_CHANNEL_WINDOW_ADJUST", 93)]
     public class ChannelWindowAdjustMessage : ChannelMessage
     {
-        public override MessageTypes MessageType
-        {
-            get { return MessageTypes.ChannelWindowAdjust; }
-        }
-
         public uint BytesToAdd { get; private set; }
 
         public ChannelWindowAdjustMessage()

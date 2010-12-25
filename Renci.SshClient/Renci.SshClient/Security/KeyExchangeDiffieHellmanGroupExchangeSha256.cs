@@ -22,8 +22,8 @@ namespace Renci.SshClient.Security
         {
             base.Start(session, message);
 
-            this.Session.RegisterMessageType<KeyExchangeDhGroupExchangeGroup>(MessageTypes.KeyExchangeDhGroupExchangeGroup);
-            this.Session.RegisterMessageType<KeyExchangeDhGroupExchangeReply>(MessageTypes.KeyExchangeDhGroupExchangeReply);
+            this.Session.RegisterMessage<KeyExchangeDhGroupExchangeGroup>();
+            this.Session.RegisterMessage<KeyExchangeDhGroupExchangeReply>();
 
             this.Session.MessageReceived += Session_MessageReceived;
 
@@ -81,7 +81,7 @@ namespace Renci.SshClient.Security
             if (groupMessage != null)
             {
                 //  Unregister message once received
-                this.Session.UnRegisterMessageType(MessageTypes.KeyExchangeDhGroupExchangeGroup);
+                this.Session.UnRegisterMessage<KeyExchangeDhGroupExchangeGroup>();
 
                 //  2. Receive SSH_MSG_KEX_DH_GEX_GROUP
                 this._prime = groupMessage.SafePrime;
@@ -98,7 +98,7 @@ namespace Renci.SshClient.Security
             if (replyMessage != null)
             {
                 //  Unregister message once received
-                this.Session.UnRegisterMessageType(MessageTypes.KeyExchangeDhGroupExchangeReply);
+                this.Session.UnRegisterMessage<KeyExchangeDhGroupExchangeReply>();
 
                 this.HandleServerDhReply(replyMessage.HostKey, replyMessage.F, replyMessage.Signature);
             }

@@ -1,12 +1,8 @@
 ﻿namespace Renci.SshClient.Messages.Connection
 {
+    [Message("SSH_MSG_CHANNEL_EOF", 96)]
     public class ChannelEofMessage : ChannelMessage
     {
-        public override MessageTypes MessageType
-        {
-            get { return MessageTypes.ChannelEof; }
-        }
-
         public ChannelEofMessage()
         {
 

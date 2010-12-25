@@ -5,13 +5,9 @@ using Renci.SshClient.Common;
 
 namespace Renci.SshClient.Messages.Authentication
 {
+    [Message("SSH_MSG_USERAUTH_INFO_REQUEST", 60)]
     internal class InformationRequestMessage : Message
     {
-        public override MessageTypes MessageType
-        {
-            get { return MessageTypes.UserAuthenticationInformationRequest; }
-        }
-
         public string Name { get; private set; }
 
         public string Instruction { get; private set; }

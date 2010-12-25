@@ -1,12 +1,8 @@
 ﻿namespace Renci.SshClient.Messages.Connection
 {
+    [Message("SSH_MSG_CHANNEL_OPEN_FAILURE", 92)]
     public class ChannelOpenFailureMessage : ChannelMessage
     {
-        public override MessageTypes MessageType
-        {
-            get { return MessageTypes.ChannelOpenFailure; }
-        }
-
         public uint ReasonCode { get; private set; }
 
         public string Description { get; private set; }

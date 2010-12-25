@@ -2,13 +2,9 @@
 
 namespace Renci.SshClient.Messages.Transport
 {
+    [Message("SSH_MSG_DISCONNECT", 1)]
     public class DisconnectMessage : Message
     {
-        public override MessageTypes MessageType
-        {
-            get { return MessageTypes.Disconnect; }
-        }
-
         public DisconnectReasons ReasonCode { get; private set; }
 
         public string Description { get; private set; }

@@ -1,13 +1,9 @@
 ﻿
 namespace Renci.SshClient.Messages.Connection
 {
+    [Message("SSH_MSG_REQUEST_FAILURE", 82)]
     public class RequestFailureMessage : Message
     {
-        public override MessageTypes MessageType
-        {
-            get { return MessageTypes.RequestFailure; }
-        }
-
         protected override void LoadData()
         {
         }

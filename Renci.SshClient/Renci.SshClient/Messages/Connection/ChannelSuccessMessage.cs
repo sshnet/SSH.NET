@@ -1,12 +1,8 @@
 ﻿namespace Renci.SshClient.Messages.Connection
 {
+    [Message("SSH_MSG_CHANNEL_SUCCESS", 99)]
     public class ChannelSuccessMessage : ChannelMessage
     {
-        public override MessageTypes MessageType
-        {
-            get { return MessageTypes.ChannelSuccess; }
-        }
-
         public ChannelSuccessMessage()
         {
 

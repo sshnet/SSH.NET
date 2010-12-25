@@ -3,13 +3,9 @@ using System.Text;
 
 namespace Renci.SshClient.Messages.Authentication
 {
+    [Message("SSH_MSG_USERAUTH_REQUEST", 50)]
     public class RequestMessage : Message
     {
-        public override MessageTypes MessageType
-        {
-            get { return MessageTypes.UserAuthenticationRequest; }
-        }
-
         public string Username { get; private set; }
 
         public ServiceNames ServiceName { get; private set; }

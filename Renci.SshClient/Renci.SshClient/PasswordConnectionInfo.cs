@@ -42,7 +42,7 @@ namespace Renci.SshClient
 
         protected override void OnAuthenticate()
         {
-            this.Session.RegisterMessageType<PasswordChangeRequiredMessage>(MessageTypes.UserAuthenticationPasswordChangeRequired);
+            this.Session.RegisterMessage<PasswordChangeRequiredMessage>();
 
             this.SendMessage(new RequestMessagePassword(ServiceNames.Connection, this.Username, this.Password));
 
@@ -72,7 +72,7 @@ namespace Renci.SshClient
 
             if (e.Message is PasswordChangeRequiredMessage)
             {
-                this.Session.UnRegisterMessageType(MessageTypes.UserAuthenticationPasswordChangeRequired);
+                this.Session.UnRegisterMessage<PasswordChangeRequiredMessage>();
 
                 var eventTask = Task.Factory.StartNew(() =>
                 {

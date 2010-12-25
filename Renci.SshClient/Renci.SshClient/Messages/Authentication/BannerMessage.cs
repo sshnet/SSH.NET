@@ -2,13 +2,9 @@
 
 namespace Renci.SshClient.Messages.Authentication
 {
+    [Message("SSH_MSG_USERAUTH_BANNER", 53)]
     public class BannerMessage : Message
     {
-        public override MessageTypes MessageType
-        {
-            get { return MessageTypes.UserAuthenticationBanner; }
-        }
-
         public string Message { get; private set; }
 
         public string Language { get; private set; }

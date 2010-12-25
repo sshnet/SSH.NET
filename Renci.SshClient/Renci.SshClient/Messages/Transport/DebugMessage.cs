@@ -1,6 +1,7 @@
 ﻿
 namespace Renci.SshClient.Messages.Transport
 {
+    [Message("SSH_MSG_DEBUG", 4)]
     public class DebugMessage : Message
     {
         public bool IsAlwaysDisplay { get; private set; }
@@ -8,11 +9,6 @@ namespace Renci.SshClient.Messages.Transport
         public string Message { get; private set; }
 
         public string Language { get; private set; }
-
-        public override MessageTypes MessageType
-        {
-            get { return MessageTypes.Debug; }
-        }
 
         protected override void LoadData()
         {

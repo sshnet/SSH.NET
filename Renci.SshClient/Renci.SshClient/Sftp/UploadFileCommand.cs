@@ -1,6 +1,6 @@
 ﻿using System.IO;
 using System.Linq;
-using Renci.SshClient.Messages.Sftp;
+using Renci.SshClient.Sftp.Messages;
 
 namespace Renci.SshClient.Sftp
 {

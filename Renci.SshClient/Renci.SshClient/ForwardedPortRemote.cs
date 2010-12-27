@@ -1,17 +1,23 @@
-﻿
-using System;
+﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Renci.SshClient.Channels;
 using Renci.SshClient.Messages.Connection;
+
 namespace Renci.SshClient
 {
+    /// <summary>
+    /// Provides functionality for remote port forwarding
+    /// </summary>
     public class ForwardedPortRemote : ForwardedPort, IDisposable
     {
         private bool _requestStatus;
 
         private EventWaitHandle _globalRequestResponse = new AutoResetEvent(false);
 
+        /// <summary>
+        /// Starts remote port forwarding.
+        /// </summary>
         public override void Start()
         {
             base.Start();
@@ -42,6 +48,9 @@ namespace Renci.SshClient
             this.IsStarted = true;
         }
 
+        /// <summary>
+        /// Stops remote port forwarding.
+        /// </summary>
         public override void Stop()
         {
             //  If port not started you cant stop it
@@ -105,6 +114,9 @@ namespace Renci.SshClient
 
         private bool _isDisposed = false;
 
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);
@@ -112,6 +124,10 @@ namespace Renci.SshClient
             GC.SuppressFinalize(this);
         }
 
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources
+        /// </summary>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             // Check to see if Dispose has already been called.
@@ -133,6 +149,10 @@ namespace Renci.SshClient
             }
         }
 
+        /// <summary>
+        /// Releases unmanaged resources and performs other cleanup operations before the
+        /// <see cref="ForwardedPortRemote"/> is reclaimed by garbage collection.
+        /// </summary>
         ~ForwardedPortRemote()
         {
             // Do not re-create Dispose clean-up code here.

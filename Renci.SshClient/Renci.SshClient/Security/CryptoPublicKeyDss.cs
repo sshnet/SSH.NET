@@ -7,6 +7,9 @@ using Renci.SshClient.Common;
 
 namespace Renci.SshClient.Security
 {
+    /// <summary>
+    /// Represents DSS public key
+    /// </summary>
     internal class CryptoPublicKeyDss : CryptoPublicKey
     {
         private IEnumerable<byte> _p;
@@ -14,16 +17,29 @@ namespace Renci.SshClient.Security
         private IEnumerable<byte> _g;
         private IEnumerable<byte> _publicKey;
 
+        /// <summary>
+        /// Gets key name.
+        /// </summary>
         public override string Name
         {
             get { return "ssh-dss"; }
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CryptoPublicKeyDss"/> class.
+        /// </summary>
         public CryptoPublicKeyDss()
         {
 
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CryptoPublicKeyDss"/> class.
+        /// </summary>
+        /// <param name="p">The p value.</param>
+        /// <param name="q">The q value.</param>
+        /// <param name="g">The g value.</param>
+        /// <param name="publicKey">The public key value.</param>
         public CryptoPublicKeyDss(IEnumerable<byte> p, IEnumerable<byte> q, IEnumerable<byte> g, IEnumerable<byte> publicKey)
         {
             this._p = p;
@@ -32,6 +48,10 @@ namespace Renci.SshClient.Security
             this._publicKey = publicKey;
         }
 
+        /// <summary>
+        /// Loads key specific data.
+        /// </summary>
+        /// <param name="data">The data.</param>
         public override void Load(IEnumerable<byte> data)
         {
             MemoryStream ms = null;
@@ -67,6 +87,14 @@ namespace Renci.SshClient.Security
             }
         }
 
+        /// <summary>
+        /// Verifies the signature.
+        /// </summary>
+        /// <param name="hash">The hash.</param>
+        /// <param name="signature">The signature.</param>
+        /// <returns>
+        /// true if signature verified; otherwise false.
+        /// </returns>
         public override bool VerifySignature(IEnumerable<byte> hash, IEnumerable<byte> signature)
         {
             using (var sha1 = new SHA1CryptoServiceProvider())
@@ -81,10 +109,10 @@ namespace Renci.SshClient.Security
                 {
                     dsa.ImportParameters(new DSAParameters
                     {
-                        Y = _publicKey.TrimLeadinZero().ToArray(),
-                        P = _p.TrimLeadinZero().ToArray(),
-                        Q = _q.TrimLeadinZero().ToArray(),
-                        G = _g.TrimLeadinZero().ToArray(),
+                        Y = _publicKey.TrimLeadingZero().ToArray(),
+                        P = _p.TrimLeadingZero().ToArray(),
+                        Q = _q.TrimLeadingZero().ToArray(),
+                        G = _g.TrimLeadingZero().ToArray(),
                     });
                     var dsaDeformatter = new DSASignatureDeformatter(dsa);
                     dsaDeformatter.SetHashAlgorithm("SHA1");
@@ -120,6 +148,12 @@ namespace Renci.SshClient.Security
             }
         }
 
+        /// <summary>
+        /// Gets key data byte array.
+        /// </summary>
+        /// <returns>
+        /// The data byte array.
+        /// </returns>
         public override IEnumerable<byte> GetBytes()
         {
             return new DsaPublicKeyData

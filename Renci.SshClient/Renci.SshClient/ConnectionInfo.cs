@@ -9,42 +9,112 @@ using Renci.SshClient.Common;
 using System.Threading;
 namespace Renci.SshClient
 {
+    /// <summary>
+    /// Represents remote connection infroamtion base class.
+    /// </summary>
     public abstract class ConnectionInfo
     {
+        /// <summary>
+        /// Gets connection name
+        /// </summary>
         public abstract string Name { get; }
 
+        /// <summary>
+        /// Gets a value indicating whether connection is authenticated.
+        /// </summary>
+        /// <value>
+        /// 	<c>true</c> if connection is authenticated; otherwise, <c>false</c>.
+        /// </value>
         public bool IsAuthenticated { get; private set; }
 
+        /// <summary>
+        /// Gets the authentication error message.
+        /// </summary>
         public string ErrorMessage { get; private set; }
 
+        /// <summary>
+        /// Gets reference to the session object.
+        /// </summary>
         protected Session Session { get; private set; }
 
+        /// <summary>
+        /// Gets supported key exchange algorithms for this connection.
+        /// </summary>
         public IDictionary<string, Type> KeyExchangeAlgorithms { get; private set; }
 
+        /// <summary>
+        /// Gets supported encryptions for this connection.
+        /// </summary>
         public IDictionary<string, Type> Encryptions { get; private set; }
 
+        /// <summary>
+        /// Gets supported hash algorithms for this connection.
+        /// </summary>
         public IDictionary<string, Type> HmacAlgorithms { get; private set; }
 
+        /// <summary>
+        /// Gets supported host key algorithms for this connection.
+        /// </summary>
         public IDictionary<string, Type> HostKeyAlgorithms { get; private set; }
 
-        public IDictionary<string, Type> SupportedAuthenticationMethods { get; private set; }
+        /// <summary>
+        /// Gets supported authentication methods for this connection.
+        /// </summary>
+        public IDictionary<string, Type> AuthenticationMethods { get; private set; }
+        //  TODO:   Restore AuthenticationMethods property functionality and allow connection only using supported method
 
+        /// <summary>
+        /// Gets supported compression algorithms for this connection.
+        /// </summary>
         public IDictionary<string, Type> CompressionAlgorithms { get; private set; }
 
+        /// <summary>
+        /// Gets connection host.
+        /// </summary>
         public string Host { get; private set; }
 
+        /// <summary>
+        /// Gets connection port.
+        /// </summary>
         public int Port { get; private set; }
 
+        /// <summary>
+        /// Gets connection username.
+        /// </summary>
         public string Username { get; private set; }
 
+        /// <summary>
+        /// Gets or sets connection timeout.
+        /// </summary>
+        /// <value>
+        /// Connection timeout.
+        /// </value>
         public TimeSpan Timeout { get; set; }
 
+        /// <summary>
+        /// Gets or sets number of retry attempts when session channel creation failed.
+        /// </summary>
+        /// <value>
+        /// Number of retry attempts.
+        /// </value>
         public int RetryAttempts { get; set; }
 
+        /// <summary>
+        /// Gets or sets maximum number of session channels to be open simultaneously.
+        /// </summary>
+        /// <value>
+        /// The max sessions.
+        /// </value>
         public int MaxSessions { get; set; }
 
+        /// <summary>
+        /// Occurs when authentication banner is sent by the server.
+        /// </summary>
         public event EventHandler<AuthenticationBannerEventArgs> AuthenticationBanner;
 
+        /// <summary>
+        /// Prevents a default instance of the <see cref="ConnectionInfo"/> class from being created.
+        /// </summary>
         private ConnectionInfo()
         {
             //  Set default connection values
@@ -123,6 +193,12 @@ namespace Renci.SshClient
 
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ConnectionInfo"/> class.
+        /// </summary>
+        /// <param name="host">Connection host.</param>
+        /// <param name="port">Connection port.</param>
+        /// <param name="username">Connection username.</param>
         protected ConnectionInfo(string host, int port, string username)
             : this()
         {
@@ -131,6 +207,11 @@ namespace Renci.SshClient
             this.Username = username;
         }
 
+        /// <summary>
+        /// Authenticates the specified session.
+        /// </summary>
+        /// <param name="session">The session to be authenticated.</param>
+        /// <returns>true if authenticated; otherwise false.</returns>
         public bool Authenticate(Session session)
         {
             this.Session = session;
@@ -158,19 +239,55 @@ namespace Renci.SshClient
             return this.IsAuthenticated;
         }
 
+        /// <summary>
+        /// Called when connection needs to be authenticated.
+        /// </summary>
         protected abstract void OnAuthenticate();
 
+        /// <summary>
+        /// Sends SSH message to the server.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        protected void SendMessage(Message message)
+        {
+            this.Session.SendMessage(message);
+        }
+
+        /// <summary>
+        /// Waits the handle to signal.
+        /// </summary>
+        /// <param name="eventWaitHandle">The event wait handle.</param>
+        protected void WaitHandle(WaitHandle eventWaitHandle)
+        {
+            this.Session.WaitHandle(eventWaitHandle);
+        }
+        
+        /// <summary>
+        /// Handles the UserAuthenticationFailureReceived event of the session.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The event data.</param>
         protected virtual void Session_UserAuthenticationFailureReceived(object sender, MessageEventArgs<FailureMessage> e)
         {
             this.ErrorMessage = e.Message.Message;
             this.IsAuthenticated = false;
         }
 
+        /// <summary>
+        /// Handles the UserAuthenticationSuccessMessageReceived event of the session.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The event data.</param>
         protected virtual void Session_UserAuthenticationSuccessMessageReceived(object sender, MessageEventArgs<SuccessMessage> e)
         {
             this.IsAuthenticated = true;
         }
 
+        /// <summary>
+        /// Handles the UserAuthenticationBannerMessageReceived event of the session.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The event data.</param>
         protected virtual void Session_UserAuthenticationBannerMessageReceived(object sender, MessageEventArgs<BannerMessage> e)
         {
             if (this.AuthenticationBanner != null)
@@ -179,19 +296,13 @@ namespace Renci.SshClient
             }
         }
 
-        protected void SendMessage(Message message)
-        {
-            this.Session.SendMessage(message);
-        }
-
-        protected void WaitHandle(WaitHandle eventWaitHandle)
-        {
-            this.Session.WaitHandle(eventWaitHandle);
-        }
-
+        /// <summary>
+        /// Handles the MessageReceived event of the session.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The event data.</param>
         protected virtual void Session_MessageReceived(object sender, MessageEventArgs<Message> e)
         {
         }
-
     }
 }

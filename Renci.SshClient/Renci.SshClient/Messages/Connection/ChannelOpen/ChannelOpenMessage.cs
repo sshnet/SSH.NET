@@ -2,9 +2,18 @@
 
 namespace Renci.SshClient.Messages.Connection
 {
+    /// <summary>
+    /// Represents SSH_MSG_CHANNEL_OPEN message.
+    /// </summary>
     [Message("SSH_MSG_CHANNEL_OPEN", 90)]
     public class ChannelOpenMessage : ChannelMessage
     {
+        /// <summary>
+        /// Gets the type of the channel.
+        /// </summary>
+        /// <value>
+        /// The type of the channel.
+        /// </value>
         public string ChannelType
         {
             get
@@ -13,17 +22,42 @@ namespace Renci.SshClient.Messages.Connection
             }
         }
 
+        /// <summary>
+        /// Gets the initial size of the window.
+        /// </summary>
+        /// <value>
+        /// The initial size of the window.
+        /// </value>
         public uint InitialWindowSize { get; private set; }
 
+        /// <summary>
+        /// Gets the maximum size of the packet.
+        /// </summary>
+        /// <value>
+        /// The maximum size of the packet.
+        /// </value>
         public uint MaximumPacketSize { get; private set; }
 
+        /// <summary>
+        /// Gets channel specific open information.
+        /// </summary>
         public ChannelOpenInfo Info { get; private set; }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ChannelOpenMessage"/> class.
+        /// </summary>
         public ChannelOpenMessage()
         {
             //  Required for dynamicly loading request type when it comes from the server
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ChannelOpenMessage"/> class.
+        /// </summary>
+        /// <param name="channelNumber">The channel number.</param>
+        /// <param name="initialWindowSize">Initial size of the window.</param>
+        /// <param name="maximumPacketSize">Maximum size of the packet.</param>
+        /// <param name="info">The info.</param>
         public ChannelOpenMessage(uint channelNumber, uint initialWindowSize, uint maximumPacketSize, ChannelOpenInfo info)
         {
             this.LocalChannelNumber = channelNumber;
@@ -32,6 +66,9 @@ namespace Renci.SshClient.Messages.Connection
             this.Info = info;
         }
 
+        /// <summary>
+        /// Called when type specific data need to be loaded.
+        /// </summary>
         protected override void LoadData()
         {
             var channelName = this.ReadString();
@@ -65,6 +102,9 @@ namespace Renci.SshClient.Messages.Connection
 
         }
 
+        /// <summary>
+        /// Called when type specific data need to be saved.
+        /// </summary>
         protected override void SaveData()
         {
             this.Write(this.ChannelType);

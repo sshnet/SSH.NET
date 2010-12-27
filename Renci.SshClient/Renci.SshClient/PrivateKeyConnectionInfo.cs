@@ -10,12 +10,18 @@ using Renci.SshClient.Common;
 
 namespace Renci.SshClient
 {
+    /// <summary>
+    /// Provides connection information when private key authentication method is used
+    /// </summary>
     public class PrivateKeyConnectionInfo : ConnectionInfo, IDisposable
     {
         private EventWaitHandle _publicKeyRequestMessageResponseWaitHandle = new ManualResetEvent(false);
 
         private bool _isSignatureRequired;
 
+        /// <summary>
+        /// Gets connection name
+        /// </summary>
         public override string Name
         {
             get
@@ -24,20 +30,39 @@ namespace Renci.SshClient
             }
         }
 
+        /// <summary>
+        /// Gets the key files used for authentication.
+        /// </summary>
         public ICollection<PrivateKeyFile> KeyFiles { get; private set; }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PrivateKeyConnectionInfo"/> class.
+        /// </summary>
+        /// <param name="host">Connection host.</param>
+        /// <param name="username">Connection username.</param>
+        /// <param name="keyFiles">Connection key files.</param>
         public PrivateKeyConnectionInfo(string host, string username, params PrivateKeyFile[] keyFiles)
             : this(host, 22, username, keyFiles)
         {
 
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PrivateKeyConnectionInfo"/> class.
+        /// </summary>
+        /// <param name="host">Connection host.</param>
+        /// <param name="port">Connection port.</param>
+        /// <param name="username">Connection username.</param>
+        /// <param name="keyFiles">Connection key files.</param>
         public PrivateKeyConnectionInfo(string host, int port, string username, params PrivateKeyFile[] keyFiles)
             : base(host, port, username)
         {
             this.KeyFiles = new Collection<PrivateKeyFile>(keyFiles);
         }
 
+        /// <summary>
+        /// Called when connection needs to be authenticated.
+        /// </summary>
         protected override void OnAuthenticate()
         {
             if (this.KeyFiles == null)
@@ -90,6 +115,11 @@ namespace Renci.SshClient
             this.Session.UnRegisterMessage<PublicKeyMessage>();
         }
 
+        /// <summary>
+        /// Handles the UserAuthenticationSuccessMessageReceived event of the session.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The event data.</param>
         protected override void Session_UserAuthenticationSuccessMessageReceived(object sender, MessageEventArgs<SuccessMessage> e)
         {
             base.Session_UserAuthenticationSuccessMessageReceived(sender, e);
@@ -97,12 +127,22 @@ namespace Renci.SshClient
             this._publicKeyRequestMessageResponseWaitHandle.Set();
         }
 
+        /// <summary>
+        /// Handles the UserAuthenticationFailureReceived event of the session.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The event data.</param>
         protected override void Session_UserAuthenticationFailureReceived(object sender, MessageEventArgs<FailureMessage> e)
         {
             base.Session_UserAuthenticationFailureReceived(sender, e);
             this._publicKeyRequestMessageResponseWaitHandle.Set();
         }
 
+        /// <summary>
+        /// Handles the MessageReceived event of the session.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The event data.</param>
         protected override void Session_MessageReceived(object sender, MessageEventArgs<Message> e)
         {
             base.Session_MessageReceived(sender, e);
@@ -149,6 +189,9 @@ namespace Renci.SshClient
 
         private bool _isDisposed = false;
 
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);
@@ -156,6 +199,10 @@ namespace Renci.SshClient
             GC.SuppressFinalize(this);
         }
 
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources
+        /// </summary>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             // Check to see if Dispose has already been called.
@@ -177,6 +224,10 @@ namespace Renci.SshClient
             }
         }
 
+        /// <summary>
+        /// Releases unmanaged resources and performs other cleanup operations before the
+        /// <see cref="PrivateKeyConnectionInfo"/> is reclaimed by garbage collection.
+        /// </summary>
         ~PrivateKeyConnectionInfo()
         {
             // Do not re-create Dispose clean-up code here.

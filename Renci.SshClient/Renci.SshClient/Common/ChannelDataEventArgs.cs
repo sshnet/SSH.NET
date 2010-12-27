@@ -1,17 +1,37 @@
 ﻿namespace Renci.SshClient.Common
 {
+    /// <summary>
+    /// Provides data for <see cref="Renci.SshClient.Channels.Channel.DataReceived"/> event and <see cref="Renci.SshClient.Channels.Channel.ExtendedDataReceived"/> events.
+    /// </summary>
     internal class ChannelDataEventArgs : ChannelEventArgs
     {
+        /// <summary>
+        /// Gets channel data.
+        /// </summary>
         public string Data { get; private set; }
 
-        public uint DataTypeCode { get; set; }
+        /// <summary>
+        /// Gets the data type code.
+        /// </summary>
+        public uint DataTypeCode { get; private set; }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ChannelDataEventArgs"/> class.
+        /// </summary>
+        /// <param name="channelNumber">Channel number.</param>
+        /// <param name="data">Channel data.</param>
         public ChannelDataEventArgs(uint channelNumber, string data)
             : base(channelNumber)
         {
             this.Data = data;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ChannelDataEventArgs"/> class.
+        /// </summary>
+        /// <param name="channelNumber">Channel number.</param>
+        /// <param name="data">Channel data.</param>
+        /// <param name="dataTypeCode">Channel data type code.</param>
         public ChannelDataEventArgs(uint channelNumber, string data, uint dataTypeCode)
             : this(channelNumber, data)
         {

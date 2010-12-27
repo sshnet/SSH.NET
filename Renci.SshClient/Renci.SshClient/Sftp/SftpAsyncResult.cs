@@ -3,6 +3,9 @@ using System.Threading;
 
 namespace Renci.SshClient.Sftp
 {
+    /// <summary>
+    /// Represents the status of an asynchronous SFTP operation.
+    /// </summary>
     public class SftpAsyncResult : IAsyncResult, IDisposable
     {
         /// <summary>
@@ -50,12 +53,28 @@ namespace Renci.SshClient.Sftp
 
         #region IAsyncResult Members
 
+        /// <summary>
+        /// Gets a user-defined object that qualifies or contains information about an asynchronous operation.
+        /// </summary>
+        /// <returns>A user-defined object that qualifies or contains information about an asynchronous operation.</returns>
         public object AsyncState { get; private set; }
 
+        /// <summary>
+        /// Gets a <see cref="T:System.Threading.WaitHandle"/> that is used to wait for an asynchronous operation to complete.
+        /// </summary>
+        /// <returns>A <see cref="T:System.Threading.WaitHandle"/> that is used to wait for an asynchronous operation to complete.</returns>
         public WaitHandle AsyncWaitHandle { get; private set; }
 
+        /// <summary>
+        /// Gets a value that indicates whether the asynchronous operation completed synchronously.
+        /// </summary>
+        /// <returns>true if the asynchronous operation completed synchronously; otherwise, false.</returns>
         public bool CompletedSynchronously { get; private set; }
 
+        /// <summary>
+        /// Gets a value that indicates whether the asynchronous operation has completed.
+        /// </summary>
+        /// <returns>true if the operation is complete; otherwise, false.</returns>
         public bool IsCompleted { get; private set; }
 
         #endregion
@@ -64,6 +83,9 @@ namespace Renci.SshClient.Sftp
 
         private bool _disposed = false;
 
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);
@@ -71,6 +93,10 @@ namespace Renci.SshClient.Sftp
             GC.SuppressFinalize(this);
         }
 
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources
+        /// </summary>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             // Check to see if Dispose has already been called.
@@ -93,6 +119,10 @@ namespace Renci.SshClient.Sftp
             }
         }
 
+        /// <summary>
+        /// Releases unmanaged resources and performs other cleanup operations before the
+        /// <see cref="SftpAsyncResult"/> is reclaimed by garbage collection.
+        /// </summary>
         ~SftpAsyncResult()
         {
             // Do not re-create Dispose clean-up code here.

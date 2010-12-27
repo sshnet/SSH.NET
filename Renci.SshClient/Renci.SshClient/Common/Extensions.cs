@@ -6,6 +6,9 @@ using System;
 
 namespace Renci.SshClient
 {
+    /// <summary>
+    /// Collection of different extension method
+    /// </summary>
     public static class Extensions
     {
         /// <summary>
@@ -61,11 +64,21 @@ namespace Renci.SshClient
             }
         }
 
+        /// <summary>
+        /// Checks whether a collection is the same as another collection
+        /// </summary>
+        /// <param name="value">The current instance object</param>
+        /// <param name="compareList">The collection to compare with</param>
+        /// <returns>True if the two collections contain all the same items in the same order</returns>
         public static bool IsEqualTo<TSource>(this IEnumerable<TSource> value, IEnumerable<TSource> compareList)
         {
             return IsEqualTo(value, compareList, null);
         }
 
+        /// <summary>
+        /// Prints out 
+        /// </summary>
+        /// <param name="bytes">The bytes.</param>
         public static void DebugPrint(this IEnumerable<byte> bytes)
         {
             foreach (var b in bytes)
@@ -75,11 +88,21 @@ namespace Renci.SshClient
             Debug.WriteLine(string.Empty);
         }
 
+        /// <summary>
+        /// Gets the SSH string from bytes.
+        /// </summary>
+        /// <param name="data">The bytes array.</param>
+        /// <returns>String represents SSH byte array data.</returns>
         public static string GetSshString(this IEnumerable<byte> data)
         {
             return new string((from b in data select (char)b).ToArray());
         }
 
+        /// <summary>
+        /// Gets the SSH bytes from string.
+        /// </summary>
+        /// <param name="data">The data.</param>
+        /// <returns>SSH bytes array.</returns>
         public static IEnumerable<byte> GetSshBytes(this string data)
         {
             foreach (var c in data)
@@ -88,7 +111,12 @@ namespace Renci.SshClient
             }
         }
 
-        public static IEnumerable<byte> TrimLeadinZero(this IEnumerable<byte> data)
+        /// <summary>
+        /// Trims the leading zero from bytes array.
+        /// </summary>
+        /// <param name="data">The data.</param>
+        /// <returns></returns>
+        public static IEnumerable<byte> TrimLeadingZero(this IEnumerable<byte> data)
         {
             bool leadingZero = true;
             foreach (var item in data)
@@ -107,11 +135,11 @@ namespace Renci.SshClient
         }
 
         /// <summary>
-        /// Creates the instance of the type specified by the string.
+        /// Creates an instance of the specified type using that type's default constructor.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="name">The name.</param>
-        /// <returns></returns>
+        /// <typeparam name="T">The type to create.</typeparam>
+        /// <param name="type">Type of the instance to create.</param>
+        /// <returns>A reference to the newly created object.</returns>
         internal static T CreateInstance<T>(this Type type) where T : class
         {
             if (type == null)

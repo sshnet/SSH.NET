@@ -2,7 +2,7 @@
 namespace Renci.SshClient.Channels
 {
     /// <summary>
-    /// 
+    /// Lists channel types as defined by the protocol.
     /// </summary>
     internal enum ChannelTypes
     {

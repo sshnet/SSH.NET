@@ -7,6 +7,9 @@ using Renci.SshClient.Common;
 
 namespace Renci.SshClient.Security
 {
+    /// <summary>
+    /// Represents DSS private key
+    /// </summary>
     internal class CryptoPrivateKeyDss : CryptoPrivateKey
     {
         private byte[] _p;
@@ -15,11 +18,18 @@ namespace Renci.SshClient.Security
         private byte[] _publicKey;
         private byte[] _privateKey;
 
+        /// <summary>
+        /// Gets key name.
+        /// </summary>
         public override string Name
         {
             get { return "ssh-dss"; }
         }
 
+        /// <summary>
+        /// Loads key specific data.
+        /// </summary>
+        /// <param name="data">The data.</param>
         public override void Load(IEnumerable<byte> data)
         {
             MemoryStream ms = null;
@@ -74,11 +84,20 @@ namespace Renci.SshClient.Security
             }
         }
 
+        /// <summary>
+        /// Gets the public key.
+        /// </summary>
+        /// <returns></returns>
         public override CryptoPublicKey GetPublicKey()
         {
             return new CryptoPublicKeyDss(this._p, this._q, this._g, this._publicKey);
         }
 
+        /// <summary>
+        /// Gets the signature.
+        /// </summary>
+        /// <param name="key">The key data bytes.</param>
+        /// <returns></returns>
         public override IEnumerable<byte> GetSignature(IEnumerable<byte> key)
         {
             var data = key.ToArray();
@@ -88,10 +107,10 @@ namespace Renci.SshClient.Security
 
                 using (var cs = new System.Security.Cryptography.CryptoStream(System.IO.Stream.Null, sha1, System.Security.Cryptography.CryptoStreamMode.Write))
                 {
-                    dsaKeyInfo.X = this._privateKey.TrimLeadinZero().ToArray();
-                    dsaKeyInfo.P = this._p.TrimLeadinZero().ToArray();
-                    dsaKeyInfo.Q = this._q.TrimLeadinZero().ToArray();
-                    dsaKeyInfo.G = this._g.TrimLeadinZero().ToArray();
+                    dsaKeyInfo.X = this._privateKey.TrimLeadingZero().ToArray();
+                    dsaKeyInfo.P = this._p.TrimLeadingZero().ToArray();
+                    dsaKeyInfo.Q = this._q.TrimLeadingZero().ToArray();
+                    dsaKeyInfo.G = this._g.TrimLeadingZero().ToArray();
 
                     cs.Write(data, 0, data.Length);
                 }
@@ -113,6 +132,12 @@ namespace Renci.SshClient.Security
             }
         }
 
+        /// <summary>
+        /// Gets key data byte array.
+        /// </summary>
+        /// <returns>
+        /// The data byte array.
+        /// </returns>
         public override IEnumerable<byte> GetBytes()
         {
             throw new NotImplementedException();

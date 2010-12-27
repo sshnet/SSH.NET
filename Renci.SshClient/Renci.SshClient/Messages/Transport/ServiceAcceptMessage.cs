@@ -3,13 +3,22 @@
 namespace Renci.SshClient.Messages.Transport
 {
     /// <summary>
-    /// SSH_MSG_SERVICE_ACCEPT
+    /// Represents SSH_MSG_SERVICE_ACCEPT message.
     /// </summary>
     [Message("SSH_MSG_SERVICE_ACCEPT", 6)]
     public class ServiceAcceptMessage : Message
     {
+        /// <summary>
+        /// Gets the name of the service.
+        /// </summary>
+        /// <value>
+        /// The name of the service.
+        /// </value>
         public ServiceNames ServiceName { get; private set; }
 
+        /// <summary>
+        /// Called when type specific data need to be loaded.
+        /// </summary>
         protected override void LoadData()
         {
             var serviceName = this.ReadString();
@@ -26,6 +35,9 @@ namespace Renci.SshClient.Messages.Transport
             }
         }
 
+        /// <summary>
+        /// Called when type specific data need to be saved.
+        /// </summary>
         protected override void SaveData()
         {
             throw new InvalidOperationException("Save data is not supported.");

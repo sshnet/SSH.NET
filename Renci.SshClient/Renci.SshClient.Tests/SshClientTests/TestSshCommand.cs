@@ -40,6 +40,20 @@ namespace Renci.SshClient.Tests.SshClientTests
         }
 
         [TestMethod]
+        [ExpectedException(typeof(SshOperationTimeoutException))]
+        public void Test_Execute_Timeout()
+        {
+            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            {
+                client.Connect();
+                var cmd = client.CreateCommand("sleep 10s");
+                cmd.CommandTimeout = TimeSpan.FromSeconds(5);
+                cmd.Execute();
+                client.Disconnect();
+            }
+        }
+
+        [TestMethod]
         public void Test_MultipleThread_10000_MultipleSessions()
         {
             using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))

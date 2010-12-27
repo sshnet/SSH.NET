@@ -11,13 +11,24 @@ using System.Diagnostics;
 
 namespace Renci.SshClient.Security
 {
+    /// <summary>
+    /// Represents "diffie-hellman-group-exchange-sha256" algorithm implementation.
+    /// </summary>
     internal class KeyExchangeDiffieHellmanGroupExchangeSha256 : KeyExchangeDiffieHellman
     {
+        /// <summary>
+        /// Gets algorithm name.
+        /// </summary>
         public override string Name
         {
             get { return "diffie-hellman-group-exchange-sha1"; }
         }
 
+        /// <summary>
+        /// Starts key exchange algorithm
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="message">Key exchange init message.</param>
         public override void Start(Session session, KeyExchangeInitMessage message)
         {
             base.Start(session, message);
@@ -32,6 +43,9 @@ namespace Renci.SshClient.Security
             
         }
 
+        /// <summary>
+        /// Finishes key exchange algorithm.
+        /// </summary>
         public override void Finish()
         {
             base.Finish();
@@ -39,6 +53,12 @@ namespace Renci.SshClient.Security
             this.Session.MessageReceived -= Session_MessageReceived;
         }
 
+        /// <summary>
+        /// Calculates key exchange hash value.
+        /// </summary>
+        /// <returns>
+        /// Key exchange hash.
+        /// </returns>
         protected override IEnumerable<byte> CalculateHash()
         {
             var hashData = new _ExchangeHashData
@@ -61,6 +81,13 @@ namespace Renci.SshClient.Security
             return this.Hash(hashData);
         }
 
+        /// <summary>
+        /// Hashes the specified data bytes.
+        /// </summary>
+        /// <param name="hashBytes">Data to hash.</param>
+        /// <returns>
+        /// Hashed bytes
+        /// </returns>
         protected override IEnumerable<byte> Hash(IEnumerable<byte> hashBytes)
         {
             using (var md = new SHA256CryptoServiceProvider())

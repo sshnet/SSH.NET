@@ -41,21 +41,47 @@ namespace Renci.SshClient
             this.BufferSize = 1024 * 16;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SftpClient"/> class.
+        /// </summary>
+        /// <param name="host">Connection host.</param>
+        /// <param name="port">Connection port.</param>
+        /// <param name="username">Authentication username.</param>
+        /// <param name="password">Authentication password.</param>
         public SftpClient(string host, int port, string username, string password)
             : this(new PasswordConnectionInfo(host, port, username, password))
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SftpClient"/> class.
+        /// </summary>
+        /// <param name="host">Connection host.</param>
+        /// <param name="username">Authentication username.</param>
+        /// <param name="password">Authentication password.</param>
         public SftpClient(string host, string username, string password)
             : this(host, 22, username, password)
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SftpClient"/> class.
+        /// </summary>
+        /// <param name="host">Connection host.</param>
+        /// <param name="port">Connection port.</param>
+        /// <param name="username">Authentication username.</param>
+        /// <param name="keyFiles">Authentication private key file(s) .</param>
         public SftpClient(string host, int port, string username, params PrivateKeyFile[] keyFiles)
             : this(new PrivateKeyConnectionInfo(host, port, username, keyFiles))
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SftpClient"/> class.
+        /// </summary>
+        /// <param name="host">Connection host.</param>
+        /// <param name="username">Authentication username.</param>
+        /// <param name="keyFiles">Authentication private key file(s) .</param>
         public SftpClient(string host, string username, params PrivateKeyFile[] keyFiles)
             : this(host, 22, username, keyFiles)
         {

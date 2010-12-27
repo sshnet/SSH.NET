@@ -10,6 +10,9 @@ using Renci.SshClient.Common;
 
 namespace Renci.SshClient
 {
+    /// <summary>
+    /// Represents instance of the SSH shell object
+    /// </summary>
     public class Shell
     {
         private readonly Session _session;
@@ -38,18 +41,52 @@ namespace Renci.SshClient
 
         private Encoding _encoding;
 
+        /// <summary>
+        /// Gets a value indicating whether this shell is started.
+        /// </summary>
+        /// <value>
+        /// 	<c>true</c> if started is started; otherwise, <c>false</c>.
+        /// </value>
         public bool IsStarted { get; private set; }
 
+        /// <summary>
+        /// Occurs when shell is starting.
+        /// </summary>
         public event EventHandler<EventArgs> Starting;
 
+        /// <summary>
+        /// Occurs when shell is started.
+        /// </summary>
         public event EventHandler<EventArgs> Started;
 
+        /// <summary>
+        /// Occurs when shell is stopping.
+        /// </summary>
         public event EventHandler<EventArgs> Stopping;
 
+        /// <summary>
+        /// Occurs when shell is stopped.
+        /// </summary>
         public event EventHandler<EventArgs> Stopped;
 
-        public event EventHandler<ErrorEventArgs> ErrorOccured;
+        /// <summary>
+        /// Occurs when an error occurred.
+        /// </summary>
+        public event EventHandler<ErrorEventArgs> ErrorOccurred;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Shell"/> class.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="input">The input.</param>
+        /// <param name="output">The output.</param>
+        /// <param name="extendedOutput">The extended output.</param>
+        /// <param name="terminalName">Name of the terminal.</param>
+        /// <param name="columns">The columns.</param>
+        /// <param name="rows">The rows.</param>
+        /// <param name="width">The width.</param>
+        /// <param name="height">The height.</param>
+        /// <param name="terminalMode">The terminal mode.</param>
         internal Shell(Session session, Stream input, TextWriter output, TextWriter extendedOutput, string terminalName, uint columns, uint rows, uint width, uint height, string terminalMode)
         {
             this._session = session;
@@ -65,6 +102,9 @@ namespace Renci.SshClient
             this._encoding = Encoding.ASCII;
         }
 
+        /// <summary>
+        /// Starts this shell.
+        /// </summary>
         public void Start()
         {
             if (this.IsStarted)
@@ -112,8 +152,7 @@ namespace Renci.SshClient
                 }
                 catch (Exception exp)
                 {
-
-                    throw;
+                    this.RaiseError(new ErrorEventArgs(exp));
                 }
             });
 
@@ -126,6 +165,9 @@ namespace Renci.SshClient
 
         }
 
+        /// <summary>
+        /// Stops this shell.
+        /// </summary>
         public void Stop()
         {
             if (!this.IsStarted)
@@ -156,9 +198,14 @@ namespace Renci.SshClient
 
         private void Session_ErrorOccured(object sender, ErrorEventArgs e)
         {
-            if (this.ErrorOccured != null)
+            this.RaiseError(e);
+        }
+
+        private void RaiseError(ErrorEventArgs e)
+        {
+            if (this.ErrorOccurred != null)
             {
-                this.ErrorOccured(this, e);
+                this.ErrorOccurred(this, e);
             }
         }
 
@@ -187,6 +234,5 @@ namespace Renci.SshClient
         {
             this.Stop();
         }
-
     }
 }

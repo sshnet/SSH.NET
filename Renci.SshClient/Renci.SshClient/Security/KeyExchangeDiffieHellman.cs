@@ -10,28 +10,64 @@ using Renci.SshClient.Messages;
 
 namespace Renci.SshClient.Security
 {
+    /// <summary>
+    /// Represents base class for Diffie Hellman key exchange algorithm
+    /// </summary>
     public abstract class KeyExchangeDiffieHellman : KeyExchange
     {
         private static RNGCryptoServiceProvider _randomizer = new System.Security.Cryptography.RNGCryptoServiceProvider();
 
+        /// <summary>
+        /// Specifies key exchange group number.
+        /// </summary>
         protected BigInteger _group;
 
+        /// <summary>
+        /// Specifies key exchange prime number.
+        /// </summary>
         protected BigInteger _prime;
 
+        /// <summary>
+        /// Specifies client payload
+        /// </summary>
         protected string _clientPayload;
 
+        /// <summary>
+        /// Specifies server payload
+        /// </summary>
         protected string _serverPayload;
 
+        /// <summary>
+        /// Specifies client exchange number.
+        /// </summary>
         protected BigInteger _clientExchangeValue;
 
+        /// <summary>
+        /// Specifies server exchange number.
+        /// </summary>
         protected BigInteger _serverExchangeValue;
 
+        /// <summary>
+        /// Specifies random generated number.
+        /// </summary>
         protected BigInteger _randomValue;
 
+        /// <summary>
+        /// Specifies host key data.
+        /// </summary>
         protected string _hostKey;
 
+        /// <summary>
+        /// Specifies signature data.
+        /// </summary>
         protected string _signature;
 
+        /// <summary>
+        /// Validates the exchange hash.
+        /// </summary>
+        /// <returns>
+        /// true if exchange hash is valid; otherwise false.
+        /// </returns>
         protected override bool ValidateExchangeHash()
         {
             var exchangeHash = this.CalculateHash();
@@ -55,6 +91,11 @@ namespace Renci.SshClient.Security
             return key.VerifySignature(exchangeHash, signature.GetSshBytes());
         }
 
+        /// <summary>
+        /// Starts key exchange algorithm
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="message">Key exchange init message.</param>
         public override void Start(Session session, KeyExchangeInitMessage message)
         {
             base.Start(session, message);
@@ -63,6 +104,9 @@ namespace Renci.SshClient.Security
             this._clientPayload = this.Session.ClientInitMessage.GetBytes().GetSshString();
         }
 
+        /// <summary>
+        /// Populates the client exchange value.
+        /// </summary>
         protected void PopulateClientExchangeValue()
         {
             if (this._group.IsZero)
@@ -82,6 +126,12 @@ namespace Renci.SshClient.Security
             } while (this._clientExchangeValue < 1 || this._clientExchangeValue > ((this._prime - 1)));
         }
 
+        /// <summary>
+        /// Handles the server DH reply message.
+        /// </summary>
+        /// <param name="hostKey">The host key.</param>
+        /// <param name="serverExchangeValue">The server exchange value.</param>
+        /// <param name="signature">The signature.</param>
         protected virtual void HandleServerDhReply(string hostKey, BigInteger serverExchangeValue, string signature)
         {
             this._serverExchangeValue = serverExchangeValue;

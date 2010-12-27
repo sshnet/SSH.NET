@@ -164,6 +164,9 @@ namespace Renci.SshClient
 
         private bool _isDisposed = false;
 
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);
@@ -171,6 +174,10 @@ namespace Renci.SshClient
             GC.SuppressFinalize(this);
         }
 
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources
+        /// </summary>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             // Check to see if Dispose has already been called.
@@ -197,6 +204,10 @@ namespace Renci.SshClient
             }
         }
 
+        /// <summary>
+        /// Releases unmanaged resources and performs other cleanup operations before the
+        /// <see cref="BaseClient"/> is reclaimed by garbage collection.
+        /// </summary>
         ~BaseClient()
         {
             // Do not re-create Dispose clean-up code here.

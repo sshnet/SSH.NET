@@ -1,5 +1,8 @@
 ﻿namespace Renci.SshClient.Messages.Connection
 {
+    /// <summary>
+    /// Specifies supported request names.
+    /// </summary>
     public enum GlobalRequestNames
     {
         /// <summary>

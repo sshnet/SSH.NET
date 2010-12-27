@@ -2,9 +2,18 @@
 
 namespace Renci.SshClient.Messages.Connection
 {
+    /// <summary>
+    /// Represents SSH_MSG_CHANNEL_REQUEST message.
+    /// </summary>
     [Message("SSH_MSG_CHANNEL_REQUEST", 98)]
     public class ChannelRequestMessage : ChannelMessage
     {
+        /// <summary>
+        /// Gets the name of the request.
+        /// </summary>
+        /// <value>
+        /// The name of the request.
+        /// </value>
         public string RequestName
         {
             get
@@ -13,6 +22,12 @@ namespace Renci.SshClient.Messages.Connection
             }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether the reply is needed.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if reply is needed; otherwise, <c>false</c>.
+        /// </value>
         public bool WantReply
         {
             get
@@ -21,19 +36,33 @@ namespace Renci.SshClient.Messages.Connection
             }
         }
 
+        /// <summary>
+        /// Gets channel request information.
+        /// </summary>
         public RequestInfo Info { get; private set; }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ChannelRequestMessage"/> class.
+        /// </summary>
         public ChannelRequestMessage()
         {
-            //  Required for dynamicly loading request type when it comes from the server
+            //  Required for dynamically loading request type when it comes from the server
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ChannelRequestMessage"/> class.
+        /// </summary>
+        /// <param name="localChannelName">Name of the local channel.</param>
+        /// <param name="info">The info.</param>
         public ChannelRequestMessage(uint localChannelName, RequestInfo info)
         {
             this.LocalChannelNumber = localChannelName;
             this.Info = info;
         }
 
+        /// <summary>
+        /// Called when type specific data need to be loaded.
+        /// </summary>
         protected override void LoadData()
         {
             base.LoadData();
@@ -93,6 +122,9 @@ namespace Renci.SshClient.Messages.Connection
             this.Info.Load(bytes);
         }
 
+        /// <summary>
+        /// Called when type specific data need to be saved.
+        /// </summary>
         protected override void SaveData()
         {
             base.SaveData();

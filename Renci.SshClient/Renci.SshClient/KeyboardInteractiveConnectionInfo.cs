@@ -10,12 +10,18 @@ using System.Threading.Tasks;
 
 namespace Renci.SshClient
 {
+    /// <summary>
+    /// Provides connection information when keyboard interactive authentication method is used
+    /// </summary>
     public class KeyboardInteractiveConnectionInfo : ConnectionInfo, IDisposable
     {
         private EventWaitHandle _authenticationCompleted = new AutoResetEvent(false);
 
         private Exception _exception;
 
+        /// <summary>
+        /// Gets connection name
+        /// </summary>
         public override string Name
         {
             get
@@ -24,19 +30,36 @@ namespace Renci.SshClient
             }
         }
 
+        /// <summary>
+        /// Occurs when server prompts for more authentication information.
+        /// </summary>
         public event EventHandler<AuthenticationPromptEventArgs> AuthenticationPrompt;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="KeyboardInteractiveConnectionInfo"/> class.
+        /// </summary>
+        /// <param name="host">The host.</param>
+        /// <param name="username">The username.</param>
         public KeyboardInteractiveConnectionInfo(string host, string username)
             : this(host, 22, username)
         {
 
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="KeyboardInteractiveConnectionInfo"/> class.
+        /// </summary>
+        /// <param name="host">Connection host.</param>
+        /// <param name="port">Connection port.</param>
+        /// <param name="username">Connection username.</param>
         public KeyboardInteractiveConnectionInfo(string host, int port, string username)
             : base(host, port, username)
         {
         }
 
+        /// <summary>
+        /// Called when connection needs to be authenticated.
+        /// </summary>
         protected override void OnAuthenticate()
         {
             this.Session.RegisterMessage<InformationRequestMessage>();
@@ -53,18 +76,33 @@ namespace Renci.SshClient
             }
         }
 
+        /// <summary>
+        /// Handles the UserAuthenticationSuccessMessageReceived event of the session.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The event data.</param>
         protected override void Session_UserAuthenticationSuccessMessageReceived(object sender, MessageEventArgs<SuccessMessage> e)
         {
             base.Session_UserAuthenticationSuccessMessageReceived(sender, e);
             this._authenticationCompleted.Set();
         }
 
+        /// <summary>
+        /// Handles the UserAuthenticationFailureReceived event of the session.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The event data.</param>
         protected override void Session_UserAuthenticationFailureReceived(object sender, MessageEventArgs<FailureMessage> e)
         {
             base.Session_UserAuthenticationFailureReceived(sender, e);
             this._authenticationCompleted.Set();
         }
 
+        /// <summary>
+        /// Handles the MessageReceived event of the session.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The event data.</param>
         protected override void Session_MessageReceived(object sender, MessageEventArgs<Message> e)
         {
             var informationRequestMessage = e.Message as InformationRequestMessage;
@@ -104,6 +142,9 @@ namespace Renci.SshClient
 
         private bool isDisposed = false;
 
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);
@@ -111,6 +152,10 @@ namespace Renci.SshClient
             GC.SuppressFinalize(this);
         }
 
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources
+        /// </summary>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             // Check to see if Dispose has already been called.
@@ -132,6 +177,10 @@ namespace Renci.SshClient
             }
         }
 
+        /// <summary>
+        /// Releases unmanaged resources and performs other cleanup operations before the
+        /// <see cref="KeyboardInteractiveConnectionInfo"/> is reclaimed by garbage collection.
+        /// </summary>
         ~KeyboardInteractiveConnectionInfo()
         {
             // Do not re-create Dispose clean-up code here.

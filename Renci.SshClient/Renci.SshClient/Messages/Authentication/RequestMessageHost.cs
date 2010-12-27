@@ -2,8 +2,17 @@
 
 namespace Renci.SshClient.Messages.Authentication
 {
+    /// <summary>
+    /// Represents "hostbased" SSH_MSG_USERAUTH_REQUEST message.
+    /// </summary>
     internal class RequestMessageHost : RequestMessage
     {
+        /// <summary>
+        /// Gets the name of the authentication method.
+        /// </summary>
+        /// <value>
+        /// The name of the method.
+        /// </value>
         public override string MethodName
         {
             get
@@ -41,8 +50,23 @@ namespace Renci.SshClient.Messages.Authentication
         /// </value>
         public string ClientUsername { get; private set; }
 
+        /// <summary>
+        /// Gets or sets the signature.
+        /// </summary>
+        /// <value>
+        /// The signature.
+        /// </value>
         public string Signature { get; set; }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RequestMessageHost"/> class.
+        /// </summary>
+        /// <param name="serviceName">Name of the service.</param>
+        /// <param name="username">Authentication username.</param>
+        /// <param name="publicKeyAlgorithm">The public key algorithm.</param>
+        /// <param name="publicHostKey">The public host key.</param>
+        /// <param name="clientHostName">Name of the client host.</param>
+        /// <param name="clientUsername">The client username.</param>
         public RequestMessageHost(ServiceNames serviceName, string username, string publicKeyAlgorithm, string publicHostKey, string clientHostName, string clientUsername)
             : base(serviceName, username)
         {
@@ -52,6 +76,9 @@ namespace Renci.SshClient.Messages.Authentication
             this.ClientUsername = clientUsername;
         }
 
+        /// <summary>
+        /// Called when type specific data need to be saved.
+        /// </summary>
         protected override void SaveData()
         {
             base.SaveData();

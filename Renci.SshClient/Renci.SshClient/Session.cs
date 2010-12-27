@@ -21,10 +21,19 @@ using Renci.SshClient.Security;
 
 namespace Renci.SshClient
 {
+    /// <summary>
+    /// Provides functionality to connect and interact with SSH server.
+    /// </summary>
     public class Session : IDisposable
     {
+        /// <summary>
+        /// Specifies maximum packet size defined by the protocol.
+        /// </summary>
         protected const int MAXIMUM_PACKET_SIZE = 35000;
 
+        /// <summary>
+        /// Specifies maximum payload size defined by the protocol.
+        /// </summary>
         protected const int MAXIMUM_PAYLOAD_SIZE = 32768;
 
         private static RNGCryptoServiceProvider _randomizer = new System.Security.Cryptography.RNGCryptoServiceProvider();
@@ -186,7 +195,7 @@ namespace Renci.SshClient
                         ServerHostKeyAlgorithms = this.ConnectionInfo.HostKeyAlgorithms.Keys,
                         EncryptionAlgorithmsClientToServer = this.ConnectionInfo.Encryptions.Keys,
                         EncryptionAlgorithmsServerToClient = this.ConnectionInfo.Encryptions.Keys,
-                        MacAlgorithmsClientToSserver = this.ConnectionInfo.HmacAlgorithms.Keys,
+                        MacAlgorithmsClientToServer = this.ConnectionInfo.HmacAlgorithms.Keys,
                         MacAlgorithmsServerToClient = this.ConnectionInfo.HmacAlgorithms.Keys,
                         CompressionAlgorithmsClientToServer = this.ConnectionInfo.CompressionAlgorithms.Keys,
                         CompressionAlgorithmsServerToClient = this.ConnectionInfo.CompressionAlgorithms.Keys,
@@ -218,10 +227,19 @@ namespace Renci.SshClient
         /// <value>The connection info.</value>
         public ConnectionInfo ConnectionInfo { get; private set; }
 
+        /// <summary>
+        /// Occurs when an error occurred.
+        /// </summary>
         public event EventHandler<ErrorEventArgs> ErrorOccured;
 
+        /// <summary>
+        /// Occurs when session about to disconnect from the server.
+        /// </summary>
         public event EventHandler<EventArgs> Disconnecting;
 
+        /// <summary>
+        /// Occurs when session has been disconnected form the server.
+        /// </summary>
         public event EventHandler<EventArgs> Disconnected;
 
         #region Message events
@@ -376,7 +394,6 @@ namespace Renci.SshClient
         /// <summary>
         /// Connects to the server.
         /// </summary>
-        /// <param name="connectionInfo">The connection info.</param>
         public void Connect()
         {
             if (this.ConnectionInfo == null)
@@ -712,7 +729,7 @@ namespace Renci.SshClient
 
             if (this._serverDecompression != null)
             {
-                messagePayload = new List<byte>(this._serverDecompression.Uncompress(messagePayload));
+                messagePayload = new List<byte>(this._serverDecompression.Decompress(messagePayload));
             }
 
             //  Validate message against MAC            
@@ -915,6 +932,10 @@ namespace Renci.SshClient
 
         #region Handle received message events
 
+        /// <summary>
+        /// Called when <see cref="DisconnectMessage"/> received.
+        /// </summary>
+        /// <param name="message"><see cref="DisconnectMessage"/> message.</param>
         protected virtual void OnDisconnectReceived(DisconnectMessage message)
         {
             if (this.DisconnectReceived != null)
@@ -928,6 +949,10 @@ namespace Renci.SshClient
             }
         }
 
+        /// <summary>
+        /// Called when <see cref="IgnoreMessage"/> received.
+        /// </summary>
+        /// <param name="message"><see cref="IgnoreMessage"/> message.</param>
         protected virtual void OnIgnoreReceived(IgnoreMessage message)
         {
             if (this.IgnoreReceived != null)
@@ -936,6 +961,10 @@ namespace Renci.SshClient
             }
         }
 
+        /// <summary>
+        /// Called when <see cref="UnimplementedMessage"/> message received.
+        /// </summary>
+        /// <param name="message"><see cref="UnimplementedMessage"/> message.</param>
         protected virtual void OnUnimplementedReceived(UnimplementedMessage message)
         {
             if (this.UnimplementedReceived != null)
@@ -944,6 +973,10 @@ namespace Renci.SshClient
             }
         }
 
+        /// <summary>
+        /// Called when <see cref="DebugMessage"/> message received.
+        /// </summary>
+        /// <param name="message"><see cref="DebugMessage"/> message.</param>
         protected virtual void OnDebugReceived(DebugMessage message)
         {
             if (this.DebugReceived != null)
@@ -952,6 +985,10 @@ namespace Renci.SshClient
             }
         }
 
+        /// <summary>
+        /// Called when <see cref="ServiceRequestMessage"/> message received.
+        /// </summary>
+        /// <param name="message"><see cref="ServiceRequestMessage"/> message.</param>
         protected virtual void OnServiceRequestReceived(ServiceRequestMessage message)
         {
             if (this.ServiceRequestReceived != null)
@@ -960,6 +997,10 @@ namespace Renci.SshClient
             }
         }
 
+        /// <summary>
+        /// Called when <see cref="ServiceAcceptMessage"/> message received.
+        /// </summary>
+        /// <param name="message"><see cref="ServiceAcceptMessage"/> message.</param>
         protected virtual void OnServiceAcceptReceived(ServiceAcceptMessage message)
         {
             if (this.ServiceAcceptReceived != null)
@@ -968,6 +1009,10 @@ namespace Renci.SshClient
             }
         }
 
+        /// <summary>
+        /// Called when <see cref="KeyExchangeInitMessage"/> message received.
+        /// </summary>
+        /// <param name="message"><see cref="KeyExchangeInitMessage"/> message.</param>
         protected virtual void OnKeyExchangeInitReceived(KeyExchangeInitMessage message)
         {
             this._keyExchangeCompletedWaitHandle.Reset();
@@ -1015,6 +1060,10 @@ namespace Renci.SshClient
             }
         }
 
+        /// <summary>
+        /// Called when <see cref="NewKeysMessage"/> message received.
+        /// </summary>
+        /// <param name="message"><see cref="NewKeysMessage"/> message.</param>
         protected virtual void OnNewKeysReceived(NewKeysMessage message)
         {
             //  Update sessionId
@@ -1058,6 +1107,10 @@ namespace Renci.SshClient
             this._keyExchangeCompletedWaitHandle.Set();
         }
 
+        /// <summary>
+        /// Called when <see cref="RequestMessage"/> message received.
+        /// </summary>
+        /// <param name="message"><see cref="RequestMessage"/> message.</param>
         protected virtual void OnUserAuthenticationRequestReceived(RequestMessage message)
         {
             if (this.UserAuthenticationRequestReceived != null)
@@ -1066,6 +1119,10 @@ namespace Renci.SshClient
             }
         }
 
+        /// <summary>
+        /// Called when <see cref="FailureMessage"/> message received.
+        /// </summary>
+        /// <param name="message"><see cref="FailureMessage"/> message.</param>
         protected virtual void OnUserAuthenticationFailureReceived(FailureMessage message)
         {
             if (this.UserAuthenticationFailureReceived != null)
@@ -1074,6 +1131,10 @@ namespace Renci.SshClient
             }
         }
 
+        /// <summary>
+        /// Called when <see cref="SuccessMessage"/> message received.
+        /// </summary>
+        /// <param name="message"><see cref="SuccessMessage"/> message.</param>
         protected virtual void OnUserAuthenticationSuccessReceived(SuccessMessage message)
         {
             if (this.UserAuthenticationSuccessReceived != null)
@@ -1082,6 +1143,10 @@ namespace Renci.SshClient
             }
         }
 
+        /// <summary>
+        /// Called when <see cref="BannerMessage"/> message received.
+        /// </summary>
+        /// <param name="message"><see cref="BannerMessage"/> message.</param>
         protected virtual void OnUserAuthenticationBannerReceived(BannerMessage message)
         {
             if (this.UserAuthenticationBannerReceived != null)
@@ -1090,6 +1155,10 @@ namespace Renci.SshClient
             }
         }
 
+        /// <summary>
+        /// Called when <see cref="GlobalRequestMessage"/> message received.
+        /// </summary>
+        /// <param name="message"><see cref="GlobalRequestMessage"/> message.</param>
         protected virtual void OnGlobalRequestReceived(GlobalRequestMessage message)
         {
             if (this.GlobalRequestReceived != null)
@@ -1098,6 +1167,10 @@ namespace Renci.SshClient
             }
         }
 
+        /// <summary>
+        /// Called when <see cref="RequestSuccessMessage"/> message received.
+        /// </summary>
+        /// <param name="message"><see cref="RequestSuccessMessage"/> message.</param>
         protected virtual void OnRequestSuccessReceived(RequestSuccessMessage message)
         {
             if (this.RequestSuccessReceived != null)
@@ -1106,6 +1179,10 @@ namespace Renci.SshClient
             }
         }
 
+        /// <summary>
+        /// Called when <see cref="RequestFailureMessage"/> message received.
+        /// </summary>
+        /// <param name="message"><see cref="RequestFailureMessage"/> message.</param>
         protected virtual void OnRequestFailureReceived(RequestFailureMessage message)
         {
             if (this.RequestFailureReceived != null)
@@ -1114,6 +1191,10 @@ namespace Renci.SshClient
             }
         }
 
+        /// <summary>
+        /// Called when <see cref="ChannelOpenMessage"/> message received.
+        /// </summary>
+        /// <param name="message"><see cref="ChannelOpenMessage"/> message.</param>
         protected virtual void OnChannelOpenReceived(ChannelOpenMessage message)
         {
             if (this.ChannelOpenReceived != null)
@@ -1122,6 +1203,10 @@ namespace Renci.SshClient
             }
         }
 
+        /// <summary>
+        /// Called when <see cref="ChannelOpenConfirmationMessage"/> message received.
+        /// </summary>
+        /// <param name="message"><see cref="ChannelOpenConfirmationMessage"/> message.</param>
         protected virtual void OnChannelOpenConfirmationReceived(ChannelOpenConfirmationMessage message)
         {
             if (this.ChannelOpenConfirmationReceived != null)
@@ -1130,6 +1215,10 @@ namespace Renci.SshClient
             }
         }
 
+        /// <summary>
+        /// Called when <see cref="ChannelOpenFailureMessage"/> message received.
+        /// </summary>
+        /// <param name="message"><see cref="ChannelOpenFailureMessage"/> message.</param>
         protected virtual void OnChannelOpenFailureReceived(ChannelOpenFailureMessage message)
         {
             if (this.ChannelOpenFailureReceived != null)
@@ -1138,6 +1227,10 @@ namespace Renci.SshClient
             }
         }
 
+        /// <summary>
+        /// Called when <see cref="ChannelWindowAdjustMessage"/> message received.
+        /// </summary>
+        /// <param name="message"><see cref="ChannelWindowAdjustMessage"/> message.</param>
         protected virtual void OnChannelWindowAdjustReceived(ChannelWindowAdjustMessage message)
         {
             if (this.ChannelWindowAdjustReceived != null)
@@ -1146,6 +1239,10 @@ namespace Renci.SshClient
             }
         }
 
+        /// <summary>
+        /// Called when <see cref="ChannelDataMessage"/> message received.
+        /// </summary>
+        /// <param name="message"><see cref="ChannelDataMessage"/> message.</param>
         protected virtual void OnChannelDataReceived(ChannelDataMessage message)
         {
             if (this.ChannelDataReceived != null)
@@ -1154,6 +1251,10 @@ namespace Renci.SshClient
             }
         }
 
+        /// <summary>
+        /// Called when <see cref="ChannelExtendedDataMessage"/> message received.
+        /// </summary>
+        /// <param name="message"><see cref="ChannelExtendedDataMessage"/> message.</param>
         protected virtual void OnChannelExtendedDataReceived(ChannelExtendedDataMessage message)
         {
             if (this.ChannelExtendedDataReceived != null)
@@ -1162,6 +1263,10 @@ namespace Renci.SshClient
             }
         }
 
+        /// <summary>
+        /// Called when <see cref="ChannelCloseMessage"/> message received.
+        /// </summary>
+        /// <param name="message"><see cref="ChannelCloseMessage"/> message.</param>
         protected virtual void OnChannelEofReceived(ChannelEofMessage message)
         {
             if (this.ChannelEofReceived != null)
@@ -1170,6 +1275,10 @@ namespace Renci.SshClient
             }
         }
 
+        /// <summary>
+        /// Called when <see cref="ChannelCloseMessage"/> message received.
+        /// </summary>
+        /// <param name="message"><see cref="ChannelCloseMessage"/> message.</param>
         protected virtual void OnChannelCloseReceived(ChannelCloseMessage message)
         {
             if (this.ChannelCloseReceived != null)
@@ -1178,6 +1287,10 @@ namespace Renci.SshClient
             }
         }
 
+        /// <summary>
+        /// Called when <see cref="ChannelRequestMessage"/> message received.
+        /// </summary>
+        /// <param name="message"><see cref="ChannelRequestMessage"/> message.</param>
         protected virtual void OnChannelRequestReceived(ChannelRequestMessage message)
         {
             if (this.ChannelRequestReceived != null)
@@ -1186,6 +1299,10 @@ namespace Renci.SshClient
             }
         }
 
+        /// <summary>
+        /// Called when <see cref="ChannelSuccessMessage"/> message received.
+        /// </summary>
+        /// <param name="message"><see cref="ChannelSuccessMessage"/> message.</param>
         protected virtual void OnChannelSuccessReceived(ChannelSuccessMessage message)
         {
             if (this.ChannelSuccessReceived != null)
@@ -1194,6 +1311,10 @@ namespace Renci.SshClient
             }
         }
 
+        /// <summary>
+        /// Called when <see cref="ChannelFailureMessage"/> message received.
+        /// </summary>
+        /// <param name="message"><see cref="ChannelFailureMessage"/> message.</param>
         protected virtual void OnChannelFailureReceived(ChannelFailureMessage message)
         {
             if (this.ChannelFailureReceived != null)
@@ -1202,6 +1323,10 @@ namespace Renci.SshClient
             }
         }
 
+        /// <summary>
+        /// Called when <see cref="Message"/> message received.
+        /// </summary>
+        /// <param name="message"><see cref="Message"/> message.</param>
         protected virtual void OnMessageReceived(Message message)
         {
             if (this.MessageReceived != null)
@@ -1300,8 +1425,7 @@ namespace Renci.SshClient
         /// Registers the message type. This will allow message type to be recognized by and handled by the system.
         /// </summary>
         /// <remarks>Some message types are not allowed during cirtain times or same code can be used for different type of message</remarks>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="messageType">Type of the message.</param>
+        /// <typeparam name="T">Message type</typeparam>
         public void RegisterMessage<T>() where T : Message, new()
         {
             var messageAttribute = typeof(T).GetCustomAttributes(typeof(MessageAttribute), true).SingleOrDefault() as MessageAttribute;
@@ -1320,6 +1444,10 @@ namespace Renci.SshClient
             }
         }
 
+        /// <summary>
+        /// Registers the message type. Message that is not registered will not be allowed to be handled by the system.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
         public void UnRegisterMessage<T>()
         {
             var messageAttribute = typeof(T).GetCustomAttributes(typeof(MessageAttribute), true).SingleOrDefault() as MessageAttribute;
@@ -1330,7 +1458,12 @@ namespace Renci.SshClient
             this._registeredMessageTypes.Remove(messageAttribute.Number);
         }
 
-        public Message LoadMessage(IEnumerable<byte> data)
+        /// <summary>
+        /// Loads the message.
+        /// </summary>
+        /// <param name="data">Message data.</param>
+        /// <returns>New message</returns>
+        private Message LoadMessage(IEnumerable<byte> data)
         {
             var messageType = data.FirstOrDefault();
 
@@ -1382,7 +1515,11 @@ namespace Renci.SshClient
             }
         }
 
-        internal void RaiseError(Exception exp)
+        /// <summary>
+        /// Raises the <see cref="ErrorOccured"/> event.
+        /// </summary>
+        /// <param name="exp">The exp.</param>
+        private void RaiseError(Exception exp)
         {
             var connectionException = exp as SshConnectionException;
 
@@ -1411,6 +1548,9 @@ namespace Renci.SshClient
 
         private bool _disposed = false;
 
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);
@@ -1418,6 +1558,10 @@ namespace Renci.SshClient
             GC.SuppressFinalize(this);
         }
 
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources
+        /// </summary>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             // Check to see if Dispose has already been called.
@@ -1469,6 +1613,10 @@ namespace Renci.SshClient
             }
         }
 
+        /// <summary>
+        /// Releases unmanaged resources and performs other cleanup operations before the
+        /// <see cref="Session"/> is reclaimed by garbage collection.
+        /// </summary>
         ~Session()
         {
             // Do not re-create Dispose clean-up code here.

@@ -6,6 +6,9 @@ using System.Numerics;
 
 namespace Renci.SshClient.Messages.Transport
 {
+    /// <summary>
+    /// Represents SSH_MSG_KEX_DH_GEX_GROUP message.
+    /// </summary>
     [Message("SSH_MSG_KEX_DH_GEX_GROUP", 31)]
     public class KeyExchangeDhGroupExchangeGroup : Message
     {
@@ -25,12 +28,18 @@ namespace Renci.SshClient.Messages.Transport
         /// </value>
         public BigInteger SubGroup { get; private set; }
 
+        /// <summary>
+        /// Called when type specific data need to be loaded.
+        /// </summary>
         protected override void LoadData()
         {
             this.SafePrime = this.ReadBigInteger();
             this.SubGroup = this.ReadBigInteger();
         }
 
+        /// <summary>
+        /// Called when type specific data need to be saved.
+        /// </summary>
         protected override void SaveData()
         {
             this.Write(this.SafePrime);

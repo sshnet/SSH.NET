@@ -3,23 +3,39 @@
 namespace Renci.SshClient.Messages.Transport
 {
     /// <summary>
-    /// Contains SSH_MSG_SERVICE_REQUEST message information
+    /// Represents SSH_MSG_SERVICE_REQUEST message.
     /// </summary>
     [Message("SSH_MSG_SERVICE_REQUEST", 5)]
     public class ServiceRequestMessage : Message
     {
+        /// <summary>
+        /// Gets the name of the service.
+        /// </summary>
+        /// <value>
+        /// The name of the service.
+        /// </value>
         public ServiceNames ServiceName { get; private set; }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ServiceRequestMessage"/> class.
+        /// </summary>
+        /// <param name="serviceName">Name of the service.</param>
         public ServiceRequestMessage(ServiceNames serviceName)
         {
             this.ServiceName = serviceName;
         }
 
+        /// <summary>
+        /// Called when type specific data need to be loaded.
+        /// </summary>
         protected override void LoadData()
         {
             throw new InvalidOperationException("Load data is not supported.");
         }
 
+        /// <summary>
+        /// Called when type specific data need to be saved.
+        /// </summary>
         protected override void SaveData()
         {
             switch (this.ServiceName)

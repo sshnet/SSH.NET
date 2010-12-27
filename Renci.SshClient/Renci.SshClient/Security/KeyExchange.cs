@@ -10,6 +10,9 @@ using Renci.SshClient.Messages.Transport;
 
 namespace Renci.SshClient.Security
 {
+    /// <summary>
+    /// Represents base class for different key exchange algorithm implementations
+    /// </summary>
     public abstract class KeyExchange : Algorithm, IDisposable
     {
         private Type _clientCipherType;
@@ -24,8 +27,21 @@ namespace Renci.SshClient.Security
 
         private Type _decompressionType;
 
+        /// <summary>
+        /// Gets or sets the session.
+        /// </summary>
+        /// <value>
+        /// The session.
+        /// </value>
         protected Session Session { get; set; }
+        //  TODO:   Refactor to make setter private
 
+        /// <summary>
+        /// Gets or sets key exchange shared key.
+        /// </summary>
+        /// <value>
+        /// The shared key.
+        /// </value>
         public BigInteger SharedKey { get; protected set; }
 
         private IEnumerable<byte> _exchangeHash;
@@ -45,18 +61,41 @@ namespace Renci.SshClient.Security
             }
         }
 
+        /// <summary>
+        /// Gets the cipher to encrypt sent messages.
+        /// </summary>
         public Cipher ServerCipher { get; private set; }
 
+        /// <summary>
+        /// Gets the cipher to decrypt received messages.
+        /// </summary>
         public Cipher ClientCipher { get; private set; }
 
+        /// <summary>
+        /// Gets hashing algorithm to use when message received.
+        /// </summary>
         public HMac ServerHMac { get; private set; }
 
+        /// <summary>
+        /// Gets hashing algorithm to use when sending messages.
+        /// </summary>
         public HMac ClientHMac { get; private set; }
 
+        /// <summary>
+        /// Gets compression algorithm to use when sending messages.
+        /// </summary>
         public Compressor Compressor { get; private set; }
 
+        /// <summary>
+        /// Gets compression algorithm to use when receiving messages.
+        /// </summary>
         public Compressor Decompressor { get; private set; }
 
+        /// <summary>
+        /// Starts key exchange algorithm
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="message">Key exchange init message.</param>
         public virtual void Start(Session session, KeyExchangeInitMessage message)
         {
             this.Session = session;
@@ -86,7 +125,7 @@ namespace Renci.SshClient.Security
 
             //  Determine client hmac algorithm
             var clientHmacAlgorithmName = (from b in session.ConnectionInfo.HmacAlgorithms.Keys
-                                           from a in message.MacAlgorithmsClientToSserver
+                                           from a in message.MacAlgorithmsClientToServer
                                            where a == b
                                            select a).FirstOrDefault();
             if (string.IsNullOrEmpty(clientHmacAlgorithmName))
@@ -132,6 +171,9 @@ namespace Renci.SshClient.Security
             this._decompressionType = session.ConnectionInfo.CompressionAlgorithms[decompressionAlgorithmName];
         }
 
+        /// <summary>
+        /// Finishes key exchange algorithm.
+        /// </summary>
         public virtual void Finish()
         {
             //  Validate hash
@@ -201,10 +243,23 @@ namespace Renci.SshClient.Security
             }
         }
 
+        /// <summary>
+        /// Validates the exchange hash.
+        /// </summary>
+        /// <returns>true if exchange hash is valid; otherwise false.</returns>
         protected abstract bool ValidateExchangeHash();
 
+        /// <summary>
+        /// Calculates key exchange hash value.
+        /// </summary>
+        /// <returns>Key exchange hash.</returns>
         protected abstract IEnumerable<byte> CalculateHash();
 
+        /// <summary>
+        /// Hashes the specified data bytes.
+        /// </summary>
+        /// <param name="hashBytes">Data to hash.</param>
+        /// <returns>Hashed bytes</returns>
         protected virtual IEnumerable<byte> Hash(IEnumerable<byte> hashBytes)
         {
             using (var md = new SHA1CryptoServiceProvider())
@@ -218,11 +273,23 @@ namespace Renci.SshClient.Security
             }
         }
 
+        /// <summary>
+        /// Sends SSH message to the server
+        /// </summary>
+        /// <param name="message">The message.</param>
         protected void SendMessage(Message message)
         {
             this.Session.SendMessage(message);
         }
 
+        /// <summary>
+        /// Generates the session key.
+        /// </summary>
+        /// <param name="sharedKey">The shared key.</param>
+        /// <param name="exchangeHash">The exchange hash.</param>
+        /// <param name="key">The key.</param>
+        /// <param name="size">The size.</param>
+        /// <returns></returns>
         private IEnumerable<byte> GenerateSessionKey(BigInteger sharedKey, IEnumerable<byte> exchangeHash, IEnumerable<byte> key, int size)
         {
             var result = new List<byte>(key);
@@ -239,6 +306,14 @@ namespace Renci.SshClient.Security
             return result;
         }
 
+        /// <summary>
+        /// Generates the session key.
+        /// </summary>
+        /// <param name="sharedKey">The shared key.</param>
+        /// <param name="exchangeHash">The exchange hash.</param>
+        /// <param name="p">The p.</param>
+        /// <param name="sessionId">The session id.</param>
+        /// <returns></returns>
         private IEnumerable<byte> GenerateSessionKey(BigInteger sharedKey, IEnumerable<byte> exchangeHash, char p, IEnumerable<byte> sessionId)
         {
             return new _SessionKeyGeneration
@@ -294,6 +369,9 @@ namespace Renci.SshClient.Security
 
         private bool _disposed = false;
 
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);
@@ -301,6 +379,10 @@ namespace Renci.SshClient.Security
             GC.SuppressFinalize(this);
         }
 
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources
+        /// </summary>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             // Check to see if Dispose has already been called.
@@ -337,6 +419,10 @@ namespace Renci.SshClient.Security
             }
         }
 
+        /// <summary>
+        /// Releases unmanaged resources and performs other cleanup operations before the
+        /// <see cref="KeyExchange"/> is reclaimed by garbage collection.
+        /// </summary>
         ~KeyExchange()
         {
             // Do not re-create Dispose clean-up code here.

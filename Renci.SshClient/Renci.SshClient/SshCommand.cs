@@ -12,6 +12,9 @@ using System.Threading.Tasks;
 
 namespace Renci.SshClient
 {
+    /// <summary>
+    /// Represents SSH command that can be executed.
+    /// </summary>
     public class SshCommand : IDisposable
     {
         private Encoding _encoding;
@@ -30,16 +33,37 @@ namespace Renci.SshClient
 
         private bool _hasError;
 
+        /// <summary>
+        /// Gets the command text.
+        /// </summary>
         public string CommandText { get; private set; }
 
-        public int CommandTimeout { get; set; }
+        /// <summary>
+        /// Gets or sets the command timeout.
+        /// </summary>
+        /// <value>
+        /// The command timeout.
+        /// </value>
+        public TimeSpan CommandTimeout { get; set; }
 
+        /// <summary>
+        /// Gets the command exit status.
+        /// </summary>
         public uint ExitStatus { get; private set; }
 
+        /// <summary>
+        /// Gets the output stream.
+        /// </summary>
         public MemoryStream OutputStream { get; private set; }
 
+        /// <summary>
+        /// Gets the extended output stream.
+        /// </summary>
         public MemoryStream ExtendedOutputStream { get; private set; }
 
+        /// <summary>
+        /// Gets the command execution result.
+        /// </summary>
         public string Result
         {
             get
@@ -48,6 +72,9 @@ namespace Renci.SshClient
             }
         }
 
+        /// <summary>
+        /// Gets the command execution error.
+        /// </summary>
         public string Error
         {
             get
@@ -59,22 +86,41 @@ namespace Renci.SshClient
             }
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SshCommand"/> class.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="commandText">The command text.</param>
         internal SshCommand(Session session, string commandText)
             : this(session, commandText, Encoding.ASCII)
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SshCommand"/> class.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="commandText">The command text.</param>
+        /// <param name="encoding">The encoding.</param>
         internal SshCommand(Session session, string commandText, Encoding encoding)
         {
             this._encoding = encoding;
             this._session = session;
             this.CommandText = commandText;
-            this.CommandTimeout = -1;
+            this.CommandTimeout = new TimeSpan(-1);
 
             this._session.Disconnected += Session_Disconnected;
             this._session.ErrorOccured += Session_ErrorOccured;
         }
 
+        /// <summary>
+        /// Begins an asynchronous command execution.
+        /// </summary>
+        /// <param name="callback">An optional asynchronous callback, to be called when the command execution is complete.</param>
+        /// <param name="state">A user-provided object that distinguishes this particular asynchronous read request from other requests.</param>
+        /// <returns>An <see cref="System.IAsyncResult"/> that represents the asynchronous command execution, which could still be pending.</returns>
+        /// <exception cref="Renci.SshClient.Common.SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="Renci.SshClient.Common.SshOperationTimeoutException">Operation has timed out.</exception>
         public IAsyncResult BeginExecute(AsyncCallback callback, object state)
         {
             if (!this._session.IsConnected)
@@ -115,16 +161,31 @@ namespace Renci.SshClient
             return _asyncResult;
         }
 
+        /// <summary>
+        /// Begins an asynchronous command execution.
+        /// </summary>
+        /// <param name="commandText">The command text.</param>
+        /// <param name="callback">An optional asynchronous callback, to be called when the command execution is complete.</param>
+        /// <param name="state">A user-provided object that distinguishes this particular asynchronous read request from other requests.</param>
+        /// <returns>An <see cref="System.IAsyncResult"/> that represents the asynchronous command execution, which could still be pending.</returns>
+        /// <exception cref="Renci.SshClient.Common.SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="Renci.SshClient.Common.SshOperationTimeoutException">Operation has timed out.</exception>
         public IAsyncResult BeginExecute(string commandText, AsyncCallback callback, object state)
         {
             this.CommandText = commandText;
             return BeginExecute(callback, state);
         }
 
+        /// <summary>
+        /// Waits for the pending asynchronous command execution to complete.
+        /// </summary>
+        /// <param name="asynchResult">The reference to the pending asynchronous request to finish.</param>
+        /// <returns></returns>
         public string EndExecute(IAsyncResult asynchResult)
         {
             CommandAsyncResult channelAsyncResult = asynchResult as CommandAsyncResult;
 
+            //  TODO: Create a method to perform this check in the method
             if (channelAsyncResult.Command != this)
             {
                 throw new InvalidOperationException("Invalid IAsyncResult parameter");
@@ -142,11 +203,24 @@ namespace Renci.SshClient
             return this.Result;
         }
 
+        /// <summary>
+        /// Executes command specified by <see cref="CommandText"/> property.
+        /// </summary>
+        /// <returns>Command execution result</returns>
+        /// <exception cref="Renci.SshClient.Common.SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="Renci.SshClient.Common.SshOperationTimeoutException">Operation has timed out.</exception>
         public string Execute()
         {
             return this.EndExecute(this.BeginExecute(null, null));
         }
 
+        /// <summary>
+        /// Executes the specified command text.
+        /// </summary>
+        /// <param name="commandText">The command text.</param>
+        /// <returns>Command execution result</returns>
+        /// <exception cref="Renci.SshClient.Common.SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="Renci.SshClient.Common.SshOperationTimeoutException">Operation has timed out.</exception>
         public string Execute(string commandText)
         {
             this.CommandText = commandText;
@@ -285,6 +359,9 @@ namespace Renci.SshClient
 
         private bool _isDisposed = false;
 
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);
@@ -292,6 +369,10 @@ namespace Renci.SshClient
             GC.SuppressFinalize(this);
         }
 
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources
+        /// </summary>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             // Check to see if Dispose has already been called.
@@ -331,6 +412,10 @@ namespace Renci.SshClient
             }
         }
 
+        /// <summary>
+        /// Releases unmanaged resources and performs other cleanup operations before the
+        /// <see cref="SshCommand"/> is reclaimed by garbage collection.
+        /// </summary>
         ~SshCommand()
         {
             // Do not re-create Dispose clean-up code here.

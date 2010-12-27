@@ -6,6 +6,9 @@ using Renci.SshClient.Messages.Connection;
 
 namespace Renci.SshClient.Channels
 {
+    /// <summary>
+    /// Represents base class for SSH channel implementations.
+    /// </summary>
     internal abstract class Channel : IDisposable
     {
         private EventWaitHandle _channelClosedWaitHandle = new AutoResetEvent(false);
@@ -27,18 +30,54 @@ namespace Renci.SshClient.Channels
 
         private Session _session;
 
+        /// <summary>
+        /// Gets the type of the channel.
+        /// </summary>
+        /// <value>
+        /// The type of the channel.
+        /// </value>
         public abstract ChannelTypes ChannelType { get; }
 
+        /// <summary>
+        /// Gets the local channel number.
+        /// </summary>
         public uint LocalChannelNumber { get; private set; }
 
+        /// <summary>
+        /// Gets the remote channel number assigned by the server.
+        /// </summary>
         public uint RemoteChannelNumber { get; private set; }
 
+        /// <summary>
+        /// Gets the size of the local window.
+        /// </summary>
+        /// <value>
+        /// The size of the local window.
+        /// </value>
         public uint LocalWindowSize { get; private set; }
 
+        /// <summary>
+        /// Gets or sets the size of the server window.
+        /// </summary>
+        /// <value>
+        /// The size of the server window.
+        /// </value>
         public uint ServerWindowSize { get; protected set; }
 
+        /// <summary>
+        /// Gets the size of the packet.
+        /// </summary>
+        /// <value>
+        /// The size of the packet.
+        /// </value>
         public uint PacketSize { get; private set; }
 
+        /// <summary>
+        /// Gets a value indicating whether this channel is open.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this channel is open; otherwise, <c>false</c>.
+        /// </value>
         public bool IsOpen { get; private set; }
 
         #region Message events
@@ -85,6 +124,12 @@ namespace Renci.SshClient.Channels
 
         #endregion
 
+        /// <summary>
+        /// Gets a value indicating whether the session is connected.
+        /// </summary>
+        /// <value>
+        /// 	<c>true</c> if the session is connected; otherwise, <c>false</c>.
+        /// </value>
         protected bool IsConnected
         {
             get { return this._session.IsConnected; }
@@ -121,6 +166,13 @@ namespace Renci.SshClient.Channels
         {
         }
 
+        /// <summary>
+        /// Initializes the channel.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="serverChannelNumber">The server channel number.</param>
+        /// <param name="windowSize">Size of the window.</param>
+        /// <param name="packetSize">Size of the packet.</param>
         internal virtual void Initialize(Session session, uint serverChannelNumber, uint windowSize, uint packetSize)
         {
             this._initialWindowSize = windowSize;
@@ -148,6 +200,9 @@ namespace Renci.SshClient.Channels
             this._session.Disconnected += Session_Disconnected;
         }
 
+        /// <summary>
+        /// Closes the channel.
+        /// </summary>
         public virtual void Close()
         {
             if (this.IsOpen)
@@ -163,10 +218,20 @@ namespace Renci.SshClient.Channels
 
         #region Channel virtual methods
 
+        /// <summary>
+        /// Called when channel need to be open on the client.
+        /// </summary>
+        /// <param name="info">Channel open information.</param>
         protected virtual void OnOpen(ChannelOpenInfo info)
         {
         }
 
+        /// <summary>
+        /// Called when channel is opened by the server.
+        /// </summary>
+        /// <param name="remoteChannelNumber">The remote channel number.</param>
+        /// <param name="initialWindowSize">Initial size of the window.</param>
+        /// <param name="maximumPacketSize">Maximum size of the packet.</param>
         protected virtual void OnOpenConfirmation(uint remoteChannelNumber, uint initialWindowSize, uint maximumPacketSize)
         {
             this.RemoteChannelNumber = remoteChannelNumber;
@@ -176,6 +241,12 @@ namespace Renci.SshClient.Channels
             this.IsOpen = true;
         }
 
+        /// <summary>
+        /// Called when channel failed to open.
+        /// </summary>
+        /// <param name="reasonCode">The reason code.</param>
+        /// <param name="description">The description.</param>
+        /// <param name="language">The language.</param>
         protected virtual void OnOpenFailure(uint reasonCode, string description, string language)
         {
             if (this.OpenFailed != null)
@@ -184,12 +255,20 @@ namespace Renci.SshClient.Channels
             }
         }
 
+        /// <summary>
+        /// Called when channel window need to be adjust.
+        /// </summary>
+        /// <param name="bytesToAdd">The bytes to add.</param>
         protected virtual void OnWindowAdjust(uint bytesToAdd)
         {
             this.ServerWindowSize += bytesToAdd;
             this._channelWindowAdjustWaitHandle.Set();
         }
 
+        /// <summary>
+        /// Called when channel data is received.
+        /// </summary>
+        /// <param name="data">The data.</param>
         protected virtual void OnData(string data)
         {
             this.AdjustDataWindow(data);
@@ -200,6 +279,11 @@ namespace Renci.SshClient.Channels
             }
         }
 
+        /// <summary>
+        /// Called when channel extended data is received.
+        /// </summary>
+        /// <param name="data">The data.</param>
+        /// <param name="dataTypeCode">The data type code.</param>
         protected virtual void OnExtendedData(string data, uint dataTypeCode)
         {
             this.AdjustDataWindow(data);
@@ -210,6 +294,9 @@ namespace Renci.SshClient.Channels
             }
         }
 
+        /// <summary>
+        /// Called when channel has no more data to receive.
+        /// </summary>
         protected virtual void OnEof()
         {
             if (this.EndOfData != null)
@@ -218,6 +305,9 @@ namespace Renci.SshClient.Channels
             }
         }
 
+        /// <summary>
+        /// Called when channel is closed by the server.
+        /// </summary>
         protected virtual void OnClose()
         {
             this.CloseCleanup();
@@ -230,6 +320,10 @@ namespace Renci.SshClient.Channels
             }
         }
 
+        /// <summary>
+        /// Called when channel request received.
+        /// </summary>
+        /// <param name="info">Channel request information.</param>
         protected virtual void OnRequest(RequestInfo info)
         {
             if (this.RequestReceived != null)
@@ -238,6 +332,9 @@ namespace Renci.SshClient.Channels
             }
         }
 
+        /// <summary>
+        /// Called when channel request was successful
+        /// </summary>
         protected virtual void OnSuccess()
         {
             if (this.RequestSuccessed != null)
@@ -246,6 +343,9 @@ namespace Renci.SshClient.Channels
             }
         }
 
+        /// <summary>
+        /// Called when channel request failed.
+        /// </summary>
         protected virtual void OnFailure()
         {
             if (this.RequestFailed != null)
@@ -256,11 +356,20 @@ namespace Renci.SshClient.Channels
 
         #endregion
 
+        /// <summary>
+        /// Sends SSH message to the server.
+        /// </summary>
+        /// <param name="message">The message.</param>
         protected void SendMessage(Message message)
         {
             this._session.SendMessage(message);
         }
 
+        /// <summary>
+        /// Sends channel data message to the servers.
+        /// </summary>
+        /// <remarks>This method takes care of managing the window size.</remarks>
+        /// <param name="message">Channel data message.</param>
         protected void SendMessage(ChannelDataMessage message)
         {
             if (this.ServerWindowSize < 1)
@@ -273,6 +382,11 @@ namespace Renci.SshClient.Channels
             this._session.SendMessage(message);
         }
 
+        /// <summary>
+        /// Sends channel extended data message to the servers.
+        /// </summary>
+        /// <remarks>This method takes care of managing the window size.</remarks>
+        /// <param name="message">Channel data message.</param>
         protected void SendMessage(ChannelExtendedDataMessage message)
         {
             if (this.ServerWindowSize < 1)
@@ -285,6 +399,9 @@ namespace Renci.SshClient.Channels
             this._session.SendMessage(message);
         }
 
+        /// <summary>
+        /// Performs clean up tasks when channel is need to be closed.
+        /// </summary>
         protected void CloseCleanup()
         {
             if (!this.IsOpen)
@@ -309,6 +426,10 @@ namespace Renci.SshClient.Channels
             this._session.Disconnected -= Session_Disconnected;
         }
 
+        /// <summary>
+        /// Waits for the handle to be signaled or for an error to occure.
+        /// </summary>
+        /// <param name="waitHandle">The wait handle.</param>
         protected void WaitHandle(WaitHandle waitHandle)
         {
             this._session.WaitHandle(waitHandle);
@@ -448,6 +569,9 @@ namespace Renci.SshClient.Channels
 
         private bool _isDisposed = false;
 
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);
@@ -455,6 +579,10 @@ namespace Renci.SshClient.Channels
             GC.SuppressFinalize(this);
         }
 
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources
+        /// </summary>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             // Check to see if Dispose has already been called.
@@ -488,6 +616,10 @@ namespace Renci.SshClient.Channels
             }
         }
 
+        /// <summary>
+        /// Releases unmanaged resources and performs other cleanup operations before the
+        /// <see cref="Channel"/> is reclaimed by garbage collection.
+        /// </summary>
         ~Channel()
         {
             // Do not re-create Dispose clean-up code here.

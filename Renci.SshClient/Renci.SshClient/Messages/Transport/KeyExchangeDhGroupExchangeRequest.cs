@@ -5,6 +5,9 @@ using System.Text;
 
 namespace Renci.SshClient.Messages.Transport
 {
+    /// <summary>
+    /// Represents SSH_MSG_KEX_DH_GEX_REQUEST message.
+    /// </summary>
     [Message("SSH_MSG_KEX_DH_GEX_REQUEST", 34)]
     internal class KeyExchangeDhGroupExchangeRequest : Message
     {
@@ -32,6 +35,12 @@ namespace Renci.SshClient.Messages.Transport
         /// </value>
         public UInt32 Maximum { get; private set; }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="KeyExchangeDhGroupExchangeRequest"/> class.
+        /// </summary>
+        /// <param name="minimum">The minimum.</param>
+        /// <param name="preferred">The preferred.</param>
+        /// <param name="maximum">The maximum.</param>
         public KeyExchangeDhGroupExchangeRequest(uint minimum, uint preferred, uint maximum)
         {
             this.Minimum = minimum;
@@ -39,6 +48,9 @@ namespace Renci.SshClient.Messages.Transport
             this.Maximum = maximum;
         }
 
+        /// <summary>
+        /// Called when type specific data need to be loaded.
+        /// </summary>
         protected override void LoadData()
         {
             this.Minimum = this.ReadUInt32();
@@ -46,6 +58,9 @@ namespace Renci.SshClient.Messages.Transport
             this.Maximum = this.ReadUInt32();
         }
 
+        /// <summary>
+        /// Called when type specific data need to be saved.
+        /// </summary>
         protected override void SaveData()
         {
             this.Write(this.Minimum);

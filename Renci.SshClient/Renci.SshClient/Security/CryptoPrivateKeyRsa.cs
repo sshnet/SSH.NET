@@ -7,6 +7,9 @@ using Renci.SshClient.Common;
 
 namespace Renci.SshClient.Security
 {
+    /// <summary>
+    /// Represents RSA private key
+    /// </summary>
     internal class CryptoPrivateKeyRsa : CryptoPrivateKey
     {
         private byte[] _modulus;
@@ -18,11 +21,18 @@ namespace Renci.SshClient.Security
         private byte[] _dqValue;
         private byte[] _inverseQ;
 
+        /// <summary>
+        /// Gets key name.
+        /// </summary>
         public override string Name
         {
             get { return "ssh-rsa"; }
         }
 
+        /// <summary>
+        /// Loads key specific data.
+        /// </summary>
+        /// <param name="data">The data.</param>
         public override void Load(IEnumerable<byte> data)
         {
             MemoryStream ms = null;
@@ -86,11 +96,20 @@ namespace Renci.SshClient.Security
             }
         }
 
+        /// <summary>
+        /// Gets the public key.
+        /// </summary>
+        /// <returns></returns>
         public override CryptoPublicKey GetPublicKey()
         {
             return new CryptoPublicKeyRsa(this._modulus, this._exponent);
         }
 
+        /// <summary>
+        /// Gets the signature.
+        /// </summary>
+        /// <param name="key">The key data bytes.</param>
+        /// <returns></returns>
         public override IEnumerable<byte> GetSignature(IEnumerable<byte> key)
         {
             var data = key.ToArray();
@@ -100,14 +119,14 @@ namespace Renci.SshClient.Security
 
                 using (var cs = new System.Security.Cryptography.CryptoStream(System.IO.Stream.Null, sha1, System.Security.Cryptography.CryptoStreamMode.Write))
                 {
-                    rsaKeyInfo.Exponent = this._exponent.TrimLeadinZero().ToArray();
-                    rsaKeyInfo.D = this._dValue.TrimLeadinZero().ToArray();
-                    rsaKeyInfo.Modulus = this._modulus.TrimLeadinZero().ToArray();
-                    rsaKeyInfo.P = this._pValue.TrimLeadinZero().ToArray();
-                    rsaKeyInfo.Q = this._qValue.TrimLeadinZero().ToArray();
-                    rsaKeyInfo.DP = this._dpValue.TrimLeadinZero().ToArray();
-                    rsaKeyInfo.DQ = this._dqValue.TrimLeadinZero().ToArray();
-                    rsaKeyInfo.InverseQ = this._inverseQ.TrimLeadinZero().ToArray();
+                    rsaKeyInfo.Exponent = this._exponent.TrimLeadingZero().ToArray();
+                    rsaKeyInfo.D = this._dValue.TrimLeadingZero().ToArray();
+                    rsaKeyInfo.Modulus = this._modulus.TrimLeadingZero().ToArray();
+                    rsaKeyInfo.P = this._pValue.TrimLeadingZero().ToArray();
+                    rsaKeyInfo.Q = this._qValue.TrimLeadingZero().ToArray();
+                    rsaKeyInfo.DP = this._dpValue.TrimLeadingZero().ToArray();
+                    rsaKeyInfo.DQ = this._dqValue.TrimLeadingZero().ToArray();
+                    rsaKeyInfo.InverseQ = this._inverseQ.TrimLeadingZero().ToArray();
 
                     cs.Write(data, 0, data.Length);
                 }
@@ -129,6 +148,12 @@ namespace Renci.SshClient.Security
             }
         }
 
+        /// <summary>
+        /// Gets key data byte array.
+        /// </summary>
+        /// <returns>
+        /// The data byte array.
+        /// </returns>
         public override IEnumerable<byte> GetBytes()
         {
             throw new NotImplementedException();

@@ -10,13 +10,25 @@ using System.Globalization;
 
 namespace Renci.SshClient.Security
 {
+    /// <summary>
+    /// Represents "diffie-hellman-group1-sha1" algorithm implementation.
+    /// </summary>
     internal class KeyExchangeDiffieHellmanGroup1Sha1 : KeyExchangeDiffieHellman
     {
+        /// <summary>
+        /// Gets algorithm name.
+        /// </summary>
         public override string Name
         {
             get { return "diffie-hellman-group1-sha1"; }
         }
 
+        /// <summary>
+        /// Calculates key exchange hash value.
+        /// </summary>
+        /// <returns>
+        /// Key exchange hash.
+        /// </returns>
         protected override IEnumerable<byte> CalculateHash()
         {
             var hashData = new _ExchangeHashData
@@ -34,6 +46,11 @@ namespace Renci.SshClient.Security
             return this.Hash(hashData);
         }
 
+        /// <summary>
+        /// Starts key exchange algorithm
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="message">Key exchange init message.</param>
         public override void Start(Session session, KeyExchangeInitMessage message)
         {
             base.Start(session, message);
@@ -55,7 +72,10 @@ namespace Renci.SshClient.Security
             this.Session.SendMessage(new KeyExchangeDhInitMessage(this._clientExchangeValue));
 
         }
-        
+
+        /// <summary>
+        /// Finishes key exchange algorithm.
+        /// </summary>
         public override void Finish()
         {
             base.Finish();

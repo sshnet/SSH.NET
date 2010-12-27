@@ -3,6 +3,9 @@ using System.Threading;
 
 namespace Renci.SshClient
 {
+    /// <summary>
+    /// Provides additional information for asynchronous command execution
+    /// </summary>
     public class CommandAsyncResult : IAsyncResult
     {
         /// <summary>
@@ -25,16 +28,36 @@ namespace Renci.SshClient
 
         #region IAsyncResult Members
 
+        /// <summary>
+        /// Gets a user-defined object that qualifies or contains information about an asynchronous operation.
+        /// </summary>
+        /// <returns>A user-defined object that qualifies or contains information about an asynchronous operation.</returns>
         public object AsyncState { get; internal set; }
 
+        /// <summary>
+        /// Gets a <see cref="T:System.Threading.WaitHandle"/> that is used to wait for an asynchronous operation to complete.
+        /// </summary>
+        /// <returns>A <see cref="T:System.Threading.WaitHandle"/> that is used to wait for an asynchronous operation to complete.</returns>
         public WaitHandle AsyncWaitHandle { get; internal set; }
 
+        /// <summary>
+        /// Gets a value that indicates whether the asynchronous operation completed synchronously.
+        /// </summary>
+        /// <returns>true if the asynchronous operation completed synchronously; otherwise, false.</returns>
         public bool CompletedSynchronously { get; internal set; }
 
+        /// <summary>
+        /// Gets a value that indicates whether the asynchronous operation has completed.
+        /// </summary>
+        /// <returns>true if the operation is complete; otherwise, false.</returns>
         public bool IsCompleted { get; internal set; }
 
         #endregion
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CommandAsyncResult"/> class.
+        /// </summary>
+        /// <param name="command">The command.</param>
         internal CommandAsyncResult(SshCommand command)
         {
             this.Command = command;

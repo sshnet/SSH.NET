@@ -5,6 +5,9 @@ using System.Collections.ObjectModel;
 
 namespace Renci.SshClient
 {
+    /// <summary>
+    /// Provides client connection to SSH server.
+    /// </summary>
     public class SshClient : BaseClient
     {
         /// <summary>
@@ -25,26 +28,56 @@ namespace Renci.SshClient
 
         #region Constructors
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SshClient"/> class.
+        /// </summary>
+        /// <param name="connectionInfo">The connection info.</param>
         public SshClient(ConnectionInfo connectionInfo)
             : base(connectionInfo)
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SshClient"/> class.
+        /// </summary>
+        /// <param name="host">Connection host.</param>
+        /// <param name="port">Connection port.</param>
+        /// <param name="username">Authentication username.</param>
+        /// <param name="password">Authentication password.</param>
         public SshClient(string host, int port, string username, string password)
             : this(new PasswordConnectionInfo(host, port, username, password))
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SshClient"/> class.
+        /// </summary>
+        /// <param name="host">Connection host.</param>
+        /// <param name="username">Authentication username.</param>
+        /// <param name="password">Authentication password.</param>
         public SshClient(string host, string username, string password)
             : this(host, 22, username, password)
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SshClient"/> class.
+        /// </summary>
+        /// <param name="host">Connection host.</param>
+        /// <param name="port">Connection port.</param>
+        /// <param name="username">Authentication username.</param>
+        /// <param name="keyFiles">Authentication private key file(s) .</param>
         public SshClient(string host, int port, string username, params PrivateKeyFile[] keyFiles)
             : this(new PrivateKeyConnectionInfo(host, port, username, keyFiles))
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SshClient"/> class.
+        /// </summary>
+        /// <param name="host">Connection host.</param>
+        /// <param name="username">Authentication username.</param>
+        /// <param name="keyFiles">Authentication private key file(s) .</param>
         public SshClient(string host, string username, params PrivateKeyFile[] keyFiles)
             : this(host, 22, username, keyFiles)
         {

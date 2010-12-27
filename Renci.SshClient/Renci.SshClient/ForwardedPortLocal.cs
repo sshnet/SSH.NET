@@ -1,17 +1,23 @@
-﻿
-using System;
+﻿using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using Renci.SshClient.Channels;
+
 namespace Renci.SshClient
 {
+    /// <summary>
+    /// Provides functionality for local port forwarding
+    /// </summary>
     public class ForwardedPortLocal : ForwardedPort
     {
         private TcpListener _listener;
 
         private Task _listenerTask;
 
+        /// <summary>
+        /// Starts local port forwarding.
+        /// </summary>
         public override void Start()
         {
             base.Start();
@@ -64,8 +70,12 @@ namespace Renci.SshClient
             this.IsStarted = true;
         }
 
+        /// <summary>
+        /// Stops local port forwarding.
+        /// </summary>
         public override void Stop()
         {
+            //  TODO:   This check should be moved to base class
             //  If port not started you cant stop it
             if (!this.IsStarted)
                 return;
@@ -74,7 +84,6 @@ namespace Renci.SshClient
             this._listenerTask.Wait();
 
             this.IsStarted = false;
-
         }
     }
 }

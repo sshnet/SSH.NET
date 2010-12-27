@@ -6,6 +6,9 @@ using System.Security.Cryptography;
 
 namespace Renci.SshClient.Security
 {
+    /// <summary>
+    /// Represents DES-CBC encryption.
+    /// </summary>
     public class CipherDES : Cipher
     {
         private SymmetricAlgorithm _algorithm;
@@ -14,11 +17,20 @@ namespace Renci.SshClient.Security
 
         private ICryptoTransform _decryptor;
 
+        /// <summary>
+        /// Gets algorithm name.
+        /// </summary>
         public override string Name
         {
             get { return "3des-cbc"; }
         }
 
+        /// <summary>
+        /// Gets or sets the key size, in bits, of the secret key used by the cipher.
+        /// </summary>
+        /// <value>
+        /// The key size, in bits.
+        /// </value>
         public override int KeySize
         {
             get
@@ -27,6 +39,12 @@ namespace Renci.SshClient.Security
             }
         }
 
+        /// <summary>
+        /// Gets or sets the block size, in bits, of the cipher operation.
+        /// </summary>
+        /// <value>
+        /// The block size, in bits.
+        /// </value>
         public override int BlockSize
         {
             get
@@ -35,6 +53,9 @@ namespace Renci.SshClient.Security
             }
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CipherDES"/> class.
+        /// </summary>
         public CipherDES()
         {
             this._algorithm = new System.Security.Cryptography.DESCryptoServiceProvider();
@@ -42,6 +63,13 @@ namespace Renci.SshClient.Security
             this._algorithm.Padding = System.Security.Cryptography.PaddingMode.None;
         }
 
+        /// <summary>
+        /// Encrypts the specified data.
+        /// </summary>
+        /// <param name="data">The data.</param>
+        /// <returns>
+        /// Encrypted data
+        /// </returns>
         public override IEnumerable<byte> Encrypt(IEnumerable<byte> data)
         {
             if (this._encryptor == null)
@@ -61,6 +89,13 @@ namespace Renci.SshClient.Security
             return output;
         }
 
+        /// <summary>
+        /// Decrypts the specified data.
+        /// </summary>
+        /// <param name="data">The data.</param>
+        /// <returns>
+        /// Decrypted data
+        /// </returns>
         public override IEnumerable<byte> Decrypt(IEnumerable<byte> data)
         {
             if (this._decryptor == null)
@@ -82,6 +117,10 @@ namespace Renci.SshClient.Security
 
         private bool _isDisposed = false;
 
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources
+        /// </summary>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected override void Dispose(bool disposing)
         {
             // Check to see if Dispose has already been called.

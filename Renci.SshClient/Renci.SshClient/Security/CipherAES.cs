@@ -5,6 +5,9 @@ using System.Security.Cryptography;
 
 namespace Renci.SshClient.Security
 {
+    /// <summary>
+    /// Represents base class for AES based encryption.
+    /// </summary>
     public abstract class CipherAES : Cipher
     {
         private SymmetricAlgorithm _algorithm;
@@ -13,6 +16,12 @@ namespace Renci.SshClient.Security
 
         private ICryptoTransform _decryptor;
 
+        /// <summary>
+        /// Gets or sets the key size, in bits, of the secret key used by the cipher.
+        /// </summary>
+        /// <value>
+        /// The key size, in bits.
+        /// </value>
         public override int KeySize
         {
             get
@@ -21,6 +30,12 @@ namespace Renci.SshClient.Security
             }
         }
 
+        /// <summary>
+        /// Gets or sets the block size, in bits, of the cipher operation.
+        /// </summary>
+        /// <value>
+        /// The block size, in bits.
+        /// </value>
         public override int BlockSize
         {
             get
@@ -29,8 +44,18 @@ namespace Renci.SshClient.Security
             }
         }
 
+        /// <summary>
+        /// Gets the size of the key bits.
+        /// </summary>
+        /// <value>
+        /// The size of the key bits.
+        /// </value>
         protected int KeyBitsSize { get; private set; }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CipherAES"/> class.
+        /// </summary>
+        /// <param name="keyBitsSize">Size of the key bits.</param>
         public CipherAES(int keyBitsSize)
         {
             this.KeyBitsSize = keyBitsSize;
@@ -40,6 +65,13 @@ namespace Renci.SshClient.Security
             this._algorithm.Padding = System.Security.Cryptography.PaddingMode.None;
         }
 
+        /// <summary>
+        /// Encrypts the specified data.
+        /// </summary>
+        /// <param name="data">The data.</param>
+        /// <returns>
+        /// Encrypted data
+        /// </returns>
         public override IEnumerable<byte> Encrypt(IEnumerable<byte> data)
         {
             if (this._encryptor == null)
@@ -59,6 +91,13 @@ namespace Renci.SshClient.Security
             return output;
         }
 
+        /// <summary>
+        /// Decrypts the specified data.
+        /// </summary>
+        /// <param name="data">The data.</param>
+        /// <returns>
+        /// Decrypted data
+        /// </returns>
         public override IEnumerable<byte> Decrypt(IEnumerable<byte> data)
         {
             if (this._decryptor == null)
@@ -80,6 +119,10 @@ namespace Renci.SshClient.Security
 
         private bool _isDisposed = false;
 
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources
+        /// </summary>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected override void Dispose(bool disposing)
         {
             // Check to see if Dispose has already been called.
@@ -102,13 +145,22 @@ namespace Renci.SshClient.Security
         }
     }
 
+    /// <summary>
+    /// Represents AES 128 bit encryption.
+    /// </summary>
     public class CipherAES128CBC : CipherAES
     {
+        /// <summary>
+        /// Gets algorithm name.
+        /// </summary>
         public override string Name
         {
             get { return "aes128-cbc"; }
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CipherAES128CBC"/> class.
+        /// </summary>
         public CipherAES128CBC()
             : base(128)
         {
@@ -116,13 +168,22 @@ namespace Renci.SshClient.Security
         }
     }
 
+    /// <summary>
+    /// Represents AES 192 bit encryption.
+    /// </summary>
     public class CipherAES192CBC : CipherAES
     {
+        /// <summary>
+        /// Gets algorithm name.
+        /// </summary>
         public override string Name
         {
             get { return "aes192-cbc"; }
         }
-        
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CipherAES192CBC"/> class.
+        /// </summary>
         public CipherAES192CBC()
             : base(192)
         {
@@ -130,13 +191,22 @@ namespace Renci.SshClient.Security
         }
     }
 
+    /// <summary>
+    /// Represents AES 256 bit encryption.
+    /// </summary>
     public class CipherAES256CBC : CipherAES
     {
+        /// <summary>
+        /// Gets algorithm name.
+        /// </summary>
         public override string Name
         {
             get { return "aes256-cbc"; }
         }
-        
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CipherAES256CBC"/> class.
+        /// </summary>
         public CipherAES256CBC()
             : base(256)
         {

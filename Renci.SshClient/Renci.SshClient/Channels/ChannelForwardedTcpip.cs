@@ -8,21 +8,38 @@ using Renci.SshClient.Messages.Connection;
 
 namespace Renci.SshClient.Channels
 {
+    /// <summary>
+    /// Implements "forwarded-tcpip" SSH channel.
+    /// </summary>
     internal class ChannelForwardedTcpip : Channel
     {
         private Socket _socket;
 
+        /// <summary>
+        /// Gets the type of the channel.
+        /// </summary>
+        /// <value>
+        /// The type of the channel.
+        /// </value>
         public override ChannelTypes ChannelType
         {
             get { return ChannelTypes.ForwardedTcpip; }
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ChannelForwardedTcpip"/> class.
+        /// </summary>
         public ChannelForwardedTcpip()
             : base()
         {
 
         }
 
+        /// <summary>
+        /// Binds channel to specified connected host.
+        /// </summary>
+        /// <param name="connectedHost">The connected host.</param>
+        /// <param name="connectedPort">The connected port.</param>
         public void Bind(string connectedHost, uint connectedPort)
         {
             byte[] buffer = null;
@@ -95,6 +112,10 @@ namespace Renci.SshClient.Channels
             this.Close();
         }
 
+        /// <summary>
+        /// Called when channel data is received.
+        /// </summary>
+        /// <param name="data">The data.</param>
         protected override void OnData(string data)
         {
             base.OnData(data);
@@ -103,6 +124,10 @@ namespace Renci.SshClient.Channels
             this._socket.Send(data.GetSshBytes().ToArray());
         }
 
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources
+        /// </summary>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);

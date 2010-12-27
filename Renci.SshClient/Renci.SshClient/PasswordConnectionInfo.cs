@@ -10,12 +10,18 @@ using Renci.SshClient.Messages;
 
 namespace Renci.SshClient
 {
+    /// <summary>
+    /// Provides connection information when password authentication method is used
+    /// </summary>
     public class PasswordConnectionInfo : ConnectionInfo, IDisposable
     {
         private EventWaitHandle _authenticationCompleted = new AutoResetEvent(false);
 
         private Exception _exception;
 
+        /// <summary>
+        /// Gets connection name
+        /// </summary>
         public override string Name
         {
             get
@@ -24,22 +30,44 @@ namespace Renci.SshClient
             }
         }
 
+        /// <summary>
+        /// Gets connection password.
+        /// </summary>
         public string Password { get; private set; }
 
+        /// <summary>
+        /// Occurs when user's password has expired and needs to be changed.
+        /// </summary>
         public event EventHandler<AuthenticationPasswordChangeEventArgs> PasswordExpired;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PasswordConnectionInfo"/> class.
+        /// </summary>
+        /// <param name="host">Connection host.</param>
+        /// <param name="username">Connection username.</param>
+        /// <param name="password">Connection password.</param>
         public PasswordConnectionInfo(string host, string username, string password)
             : this(host, 22, username, password)
         {
 
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PasswordConnectionInfo"/> class.
+        /// </summary>
+        /// <param name="host">Connection host.</param>
+        /// <param name="port">Connection port.</param>
+        /// <param name="username">Connection username.</param>
+        /// <param name="password">Connection password.</param>
         public PasswordConnectionInfo(string host, int port, string username, string password)
             : base(host, port, username)
         {
             this.Password = password;
         }
 
+        /// <summary>
+        /// Called when connection needs to be authenticated.
+        /// </summary>
         protected override void OnAuthenticate()
         {
             this.Session.RegisterMessage<PasswordChangeRequiredMessage>();
@@ -54,18 +82,33 @@ namespace Renci.SshClient
             }
         }
 
+        /// <summary>
+        /// Handles the UserAuthenticationSuccessMessageReceived event of the session.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The event data.</param>
         protected override void Session_UserAuthenticationSuccessMessageReceived(object sender, MessageEventArgs<SuccessMessage> e)
         {
             base.Session_UserAuthenticationSuccessMessageReceived(sender, e);
             this._authenticationCompleted.Set();
         }
 
+        /// <summary>
+        /// Handles the UserAuthenticationFailureReceived event of the session.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The event data.</param>
         protected override void Session_UserAuthenticationFailureReceived(object sender, MessageEventArgs<FailureMessage> e)
         {
             base.Session_UserAuthenticationFailureReceived(sender, e);
             this._authenticationCompleted.Set();
         }
 
+        /// <summary>
+        /// Handles the MessageReceived event of the session.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The event data.</param>
         protected override void Session_MessageReceived(object sender, MessageEventArgs<Message> e)
         {
             base.Session_MessageReceived(sender, e);
@@ -102,6 +145,9 @@ namespace Renci.SshClient
 
         private bool isDisposed = false;
 
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);
@@ -109,6 +155,10 @@ namespace Renci.SshClient
             GC.SuppressFinalize(this);
         }
 
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources
+        /// </summary>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             // Check to see if Dispose has already been called.
@@ -130,6 +180,10 @@ namespace Renci.SshClient
             }
         }
 
+        /// <summary>
+        /// Releases unmanaged resources and performs other cleanup operations before the
+        /// <see cref="PasswordConnectionInfo"/> is reclaimed by garbage collection.
+        /// </summary>
         ~PasswordConnectionInfo()
         {
             // Do not re-create Dispose clean-up code here.

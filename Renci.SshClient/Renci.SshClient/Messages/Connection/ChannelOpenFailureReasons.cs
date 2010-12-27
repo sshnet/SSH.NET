@@ -1,5 +1,8 @@
 ﻿namespace Renci.SshClient.Messages.Connection
 {
+    /// <summary>
+    /// List channel open failure reasons defined by the protocol.
+    /// </summary>
     internal enum ChannelOpenFailureReasons : uint
     {
         /// <summary>

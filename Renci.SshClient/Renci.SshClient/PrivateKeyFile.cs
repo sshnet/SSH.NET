@@ -11,12 +11,21 @@ using Renci.SshClient.Common;
 
 namespace Renci.SshClient
 {
+    /// <summary>
+    /// old private key information/
+    /// </summary>
     public class PrivateKeyFile
     {
         private static Regex _privateKeyRegex = new Regex(@"^-----BEGIN (?<keyName>\w+) PRIVATE KEY-----\r?\n(Proc-Type: 4,ENCRYPTED\r?\nDEK-Info: (?<cipherName>[A-Z0-9-]+),(?<salt>[A-F0-9]{16})\r?\n\r?\n)?(?<data>([a-zA-Z0-9/+=]{1,64}\r?\n)+)-----END \k<keyName> PRIVATE KEY-----.*", RegexOptions.Compiled | RegexOptions.Multiline);
 
         private CryptoPrivateKey _key;
 
+        /// <summary>
+        /// Gets the name of private key algorithm.
+        /// </summary>
+        /// <value>
+        /// The name of the algorithm.
+        /// </value>
         public string AlgorithmName
         {
             get
@@ -25,6 +34,9 @@ namespace Renci.SshClient
             }
         }
 
+        /// <summary>
+        /// Gets the public key.
+        /// </summary>
         public IEnumerable<byte> PublicKey
         {
             get
@@ -33,16 +45,29 @@ namespace Renci.SshClient
             }
         }
 
+        /// <summary>
+        /// Gets the signature.
+        /// </summary>
+        /// <param name="sessionId">The session id.</param>
+        /// <returns>Signature data</returns>
         public IEnumerable<byte> GetSignature(IEnumerable<byte> sessionId)
         {
             return this._key.GetSignature(sessionId);
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PrivateKeyFile"/> class.
+        /// </summary>
+        /// <param name="privateKey">The private key.</param>
         public PrivateKeyFile(Stream privateKey)
         {
             this.Open(privateKey, null);
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PrivateKeyFile"/> class.
+        /// </summary>
+        /// <param name="fileName">Name of the file.</param>
         public PrivateKeyFile(string fileName)
         {
             using (var keyFile = File.Open(fileName, FileMode.Open))
@@ -51,6 +76,11 @@ namespace Renci.SshClient
             }
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PrivateKeyFile"/> class.
+        /// </summary>
+        /// <param name="fileName">Name of the file.</param>
+        /// <param name="passPhrase">The pass phrase.</param>
         public PrivateKeyFile(string fileName, string passPhrase)
         {
             using (var keyFile = File.Open(fileName, FileMode.Open))
@@ -59,11 +89,21 @@ namespace Renci.SshClient
             }
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PrivateKeyFile"/> class.
+        /// </summary>
+        /// <param name="privateKey">The private key.</param>
+        /// <param name="passPhrase">The pass phrase.</param>
         public PrivateKeyFile(Stream privateKey, string passPhrase)
         {
             this.Open(privateKey, passPhrase);
         }
 
+        /// <summary>
+        /// Opens the specified private key.
+        /// </summary>
+        /// <param name="privateKey">The private key.</param>
+        /// <param name="passPhrase">The pass phrase.</param>
         private void Open(Stream privateKey, string passPhrase)
         {
             Match privateKeyMatch = null;
@@ -157,7 +197,14 @@ namespace Renci.SshClient
             this._key.Load(decryptedData);
         }
 
-
+        /// <summary>
+        /// Decrypts encrypted private key file data.
+        /// </summary>
+        /// <param name="cipher">Encryption cipher.</param>
+        /// <param name="cipherData">Encrypted data.</param>
+        /// <param name="passPhrase">Decryption pass phrase.</param>
+        /// <param name="binarySalt">Decryption binary salt.</param>
+        /// <returns></returns>
         public static IEnumerable<byte> DecryptKey(Cipher cipher, byte[] cipherData, string passPhrase, byte[] binarySalt)
         {
             List<byte> cipherKey = new List<byte>();

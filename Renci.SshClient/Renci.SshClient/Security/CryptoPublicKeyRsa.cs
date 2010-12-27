@@ -7,27 +7,46 @@ using Renci.SshClient.Common;
 
 namespace Renci.SshClient.Security
 {
+    /// <summary>
+    /// Represents RSA public key
+    /// </summary>
     internal class CryptoPublicKeyRsa : CryptoPublicKey
     {
         private IEnumerable<byte> _modulus;
+        
         private IEnumerable<byte> _exponent;
 
+        /// <summary>
+        /// Gets key name.
+        /// </summary>
         public override string Name
         {
             get { return "ssh-rsa"; }
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CryptoPublicKeyRsa"/> class.
+        /// </summary>
         public CryptoPublicKeyRsa()
         {
 
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CryptoPublicKeyRsa"/> class.
+        /// </summary>
+        /// <param name="modulus">The modulus.</param>
+        /// <param name="exponent">The exponent.</param>
         internal CryptoPublicKeyRsa(IEnumerable<byte> modulus, IEnumerable<byte> exponent)
         {
             this._modulus = modulus;
             this._exponent = exponent;
         }
 
+        /// <summary>
+        /// Loads key specific data.
+        /// </summary>
+        /// <param name="data">The data.</param>
         public override void Load(IEnumerable<byte> data)
         {
             MemoryStream ms = null;
@@ -54,6 +73,14 @@ namespace Renci.SshClient.Security
             }
         }
 
+        /// <summary>
+        /// Verifies the signature.
+        /// </summary>
+        /// <param name="hash">The hash.</param>
+        /// <param name="signature">The signature.</param>
+        /// <returns>
+        /// true if signature verified; otherwise false.
+        /// </returns>
         public override bool VerifySignature(IEnumerable<byte> hash, IEnumerable<byte> signature)
         {
             using (var sha1 = new SHA1CryptoServiceProvider())
@@ -68,8 +95,8 @@ namespace Renci.SshClient.Security
                 {
                     rsa.ImportParameters(new RSAParameters
                     {
-                        Exponent = this._exponent.TrimLeadinZero().ToArray(),
-                        Modulus = this._modulus.TrimLeadinZero().ToArray(),
+                        Exponent = this._exponent.TrimLeadingZero().ToArray(),
+                        Modulus = this._modulus.TrimLeadingZero().ToArray(),
                     });
 
                     var rsaDeformatter = new RSAPKCS1SignatureDeformatter(rsa);
@@ -106,6 +133,12 @@ namespace Renci.SshClient.Security
             }
         }
 
+        /// <summary>
+        /// Gets key data byte array.
+        /// </summary>
+        /// <returns>
+        /// The data byte array.
+        /// </returns>
         public override IEnumerable<byte> GetBytes()
         {
             return new RsaPublicKeyData

@@ -102,7 +102,7 @@ namespace Renci.SshClient.Sftp.Messages
             if ((flag & 0x80000000) == 0x80000000)   //  SSH_FILEXFER_ATTR_ACMODTIME
             {
                 var extendedCount = this.ReadUInt32();
-                attributes.Extentions = this.ReadExtensionPair();
+                attributes.Extensions = this.ReadExtensionPair();
             }
 
             return attributes;
@@ -139,7 +139,7 @@ namespace Renci.SshClient.Sftp.Messages
                     flag |= 0x00000008;
                 }
 
-                if (attributes.Extentions != null)
+                if (attributes.Extensions != null)
                 {
                     flag |= 0x80000000;
                 }
@@ -170,9 +170,9 @@ namespace Renci.SshClient.Sftp.Messages
                     this.Write(time);
                 }
 
-                if (attributes.Extentions != null)
+                if (attributes.Extensions != null)
                 {
-                    this.Write(attributes.Extentions);
+                    this.Write(attributes.Extensions);
                 }
             }
         }

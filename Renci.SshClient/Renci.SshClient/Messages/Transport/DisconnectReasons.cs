@@ -1,7 +1,13 @@
 ﻿namespace Renci.SshClient.Messages.Transport
 {
+    /// <summary>
+    /// Provides list of disconnect reason as specified by the protocol.
+    /// </summary>
     public enum DisconnectReasons : uint
     {
+        /// <summary>
+        /// Disconnect reason is not provided.
+        /// </summary>
         None = 0,
         /// <summary>
         /// SSH_DISCONNECT_HOST_NOT_ALLOWED_TO_CONNECT

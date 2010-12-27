@@ -72,7 +72,6 @@
     <Compile Include="Common\ChannelEventArgs.cs" />
     <Compile Include="Common\ChannelOpenFailedEventArgs.cs" />
     <Compile Include="Common\ChannelRequestEventArgs.cs" />
-    <Compile Include="Common\ConnectingEventArgs.cs" />
     <Compile Include="Common\SshAuthenticationException.cs" />
     <Compile Include="Common\SshConnectionException.cs" />
     <Compile Include="Common\SshOperationTimeoutException.cs" />
@@ -124,7 +123,6 @@
     <Compile Include="Sftp\SftpAsyncResult.cs" />
     <Compile Include="Sftp\SftpCommand.cs" />
     <Compile Include="Sftp\SftpFile.cs" />
-    <Compile Include="Sftp\SftpFileAttributes.cs" />
     <Compile Include="Sftp\SftpSession.cs" />
     <Compile Include="Sftp\UploadFileCommand.cs" />
     <Compile Include="BaseClient.cs" />
@@ -145,7 +143,6 @@
     <Compile Include="Security\CipherAES.cs" />
     <Compile Include="Security\CipherTripleDES.cs" />
     <Compile Include="Compression\Compressor.cs" />
-    <Compile Include="Common\DataReceivedEventArgs.cs" />
     <Compile Include="Sftp\Messages\AceMasks.cs" />
     <Compile Include="Sftp\Messages\Attributes.cs" />
     <Compile Include="Sftp\Messages\AttributesMessage.cs" />
@@ -193,17 +190,13 @@
     <Compile Include="Security\CryptoPublicKeyDss.cs" />
     <Compile Include="Security\CryptoPublicKeyRsa.cs" />
     <Compile Include="Security\KeyExchange.cs" />
-    <Compile Include="Security\KeyExchangeCompletedEventArgs.cs" />
     <Compile Include="Security\KeyExchangeDiffieHellmanGroup1Sha1.cs" />
-    <Compile Include="Security\KeyExchangeFailedEventArgs.cs" />
-    <Compile Include="Security\KeyExchangeSendMessageEventArgs.cs" />
     <Compile Include="PrivateKeyFile.cs" />
     <Compile Include="Messages\Connection\ChannelMessage.cs" />
     <Compile Include="Channels\Channel.cs" />
     <Compile Include="Channels\ChannelTypes.cs" />
     <Compile Include="ConnectionInfo.cs" />
     <Compile Include="Common\Extensions.cs" />
-    <Compile Include="Common\MessageReceivedEventArgs.cs" />
     <Compile Include="Messages\Connection\ChannelCloseMessage.cs" />
     <Compile Include="Messages\Connection\ChannelDataMessage.cs" />
     <Compile Include="Messages\Connection\ChannelEofMessage.cs" />
@@ -263,10 +256,7 @@
     <Compile Include="Shell.cs" />
     <Compile Include="SshClient.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Documentation\Content\" />
-    <Folder Include="Messages\Sftp\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

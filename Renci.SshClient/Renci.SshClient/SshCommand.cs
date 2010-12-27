@@ -107,7 +107,7 @@ namespace Renci.SshClient
             this._encoding = encoding;
             this._session = session;
             this.CommandText = commandText;
-            this.CommandTimeout = new TimeSpan(-1);
+            this.CommandTimeout = new TimeSpan(0, 0, 0, 0, -1);
 
             this._session.Disconnected += Session_Disconnected;
             this._session.ErrorOccured += Session_ErrorOccured;
@@ -279,7 +279,7 @@ namespace Renci.SshClient
             if (this._callback != null)
             {
                 //  Execute callback on different thread
-                Task.Factory.StartNew(() => { this._callback(this._asyncResult); });                
+                Task.Factory.StartNew(() => { this._callback(this._asyncResult); });
             }
             ((EventWaitHandle)_asyncResult.AsyncWaitHandle).Set();
         }

@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<topic id="eb8e4d77-8fc9-42e9-b8e8-c152b595d5c9" revisionNumber="1">
+  <developerConceptualDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <introduction>
+      <para>Library support multiple command execution at once. However there are some limitation to be aware of.
+      While you can run multiple commands on multiple threads at the same time usually only 10 commands are executed at the same time.
+      This is due to server default limitation which allows only 10 session channels top be open at the same time.
+      This limitation can be change on the server level, if so you can you <codeEntityReference>T:Renci.SshClient.ConnectionInfo</codeEntityReference> object to increase or decrease this value.
+      This rule is only true when you try to run multiple commands on the same connection.
+      Of course if you will be using multiple connection this rul does not apply.
+      </para>
+    </introduction>
+            <codeExample>
+              <para>Running multiple command using one connection.</para>
+              <code language="cs">
+                System.Threading.Tasks.Parallel.For(0, 10000,
+                    () =>
+                    {
+                        var client = new SshClient("host", "username", "password");
+                        client.Connect();
+                        return client;
+                    },
+                    (int counter, ParallelLoopState pls, SshClient client) =>
+                    {
+		                var cmd = client.RunCommand(string.Format("echo {0}}", counter));
+		                Console.WriteLine(cmd.Result);
+                        return client;
+                    },
+                    (SshClient client) =>
+                    {
+                        client.Disconnect();
+                        client.Dispose();
+                    }
+              </code>
+        </codeExample>
+
+  </developerConceptualDocument>
+</topic>

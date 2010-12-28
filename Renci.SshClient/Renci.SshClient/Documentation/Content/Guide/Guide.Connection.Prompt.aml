@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<topic id="301e13a5-2711-4156-bd64-ce9f0cf2da04" revisionNumber="1">
+  <developerReferenceWithSyntaxDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <content>
+      <para>
+        If you need to display banner to the user return by the server when you log on you need to attach to <codeEntityReference>E:Renci.SshClient.ConnectionInfo.AuthenticationBanner</codeEntityReference> event.
+      </para>
+      <codeExample>
+        <list class="ordered">
+          <listItem>
+            <para>Change user's password.</para>
+            <code language="cs">
+              var connectionInfo = new PasswordConnectionInfo("host", "username", "password");
+              connectionInfo.AuthenticationBanner += delegate(object sender, AuthenticationBannerEventArgs e)
+              {
+              Console.WriteLine(e.BannerMessage);
+              };
+
+              using (var client = new SshClient(connectionInfo))
+              {
+              client.Connect();
+              client.Disconnect();
+              }
+            </code>
+          </listItem>
+        </list>
+      </codeExample>
+    </content>
+    <relatedTopics>
+      <codeEntityReference>T:Renci.SshClient.PasswordConnectionInfo</codeEntityReference>
+      <codeEntityReference>T:Renci.SshClient.SshClient</codeEntityReference>
+      <codeEntityReference>M:Renci.SshClient.SshBaseClient.Connect()</codeEntityReference>
+    </relatedTopics>
+  </developerReferenceWithSyntaxDocument>
+</topic>

@@ -256,7 +256,30 @@
     <Compile Include="Shell.cs" />
     <Compile Include="SshClient.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="Documentation\Content\About.aml" />
+    <None Include="Documentation\Content\Guide\Guide.aml" />
+    <None Include="Documentation\Content\Guide\Guide.Command.aml" />
+    <None Include="Documentation\Content\Guide\Guide.Command.Asynchronous.aml" />
+    <None Include="Documentation\Content\Guide\Guide.Command.Error.aml" />
+    <None Include="Documentation\Content\Guide\Guide.Command.Multitasking.aml" />
+    <None Include="Documentation\Content\Guide\Guide.Command.StatusCode.aml" />
+    <None Include="Documentation\Content\Guide\Guide.Command.Timeout.aml" />
+    <None Include="Documentation\Content\Guide\Guide.Connection.aml" />
+    <None Include="Documentation\Content\Guide\Guide.Connection.ChangePassword.aml" />
+    <None Include="Documentation\Content\Guide\Guide.Connection.Interactive.aml" />
+    <None Include="Documentation\Content\Guide\Guide.Connection.Password.aml" />
+    <None Include="Documentation\Content\Guide\Guide.Connection.PrivateKey.aml" />
+    <None Include="Documentation\Content\Guide\Guide.Connection.Prompt.aml" />
+    <None Include="Documentation\Content\Guide\Guide.Connection.Timeout.aml" />
+    <None Include="Documentation\Content\Guide\Guide.SFtp.aml" />
+    <None Include="Documentation\Content\HowTo.Connect.aml" />
+    <None Include="Documentation\Content\Reference.aml" />
+    <None Include="Documentation\Renci.SshClient.content" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Documentation\SshClient.shfbproj" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

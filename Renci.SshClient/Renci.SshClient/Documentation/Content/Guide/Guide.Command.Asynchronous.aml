@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<topic id="3e7487ed-9a0c-4442-8b31-14e291a7c648" revisionNumber="1">
+  <developerSDKTechnologyOverviewOrientationDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
+      <title>Execut command asynchronously</title>
+      <content>
+      	If you need to execute long running command you might want to execute it in asynchronously.
+      	To execute command asynchronously you need to create command first and then call <codeEntityReference>M:Renci.SshClient.SshCommand.BeginExecute(System.AsyncCallback, System.Object)</codeEntityReference> method
+			<alert class="note">
+			  <para>If an exception occures while command is being executed it will be thrown when <codeEntityReference>M:Renci.SshClient.SshCommand.EndExecute(System.IAsyncResult)</codeEntityReference> is called.</para>
+			</alert>
+        <para>See examples below:</para>
+        <codeExample>
+          <list class="ordered">
+            <listItem>
+              <para>Display exit status when command is executed.</para>
+              <code language="cs">
+                using (var client = new SshClient("host", "username", "password"))
+                {
+                client.Connect();
+                var cmd = client.CreateCommand("sleep 30s;date"); // Perform long running task
+                var asynch = cmd.BeginExecute(null, null);
+                while (!asynch.IsCompleted)
+                {
+                    Console.WriteLine("Waiting for command to complete...");
+                    Thread.Sleep(2000);
+                }
+                cmd.EndExecute(asynch);
+                client.Disconnect();
+                }
+              </code>
+            </listItem>
+          </list>
+        </codeExample>
+      </content>
+    <relatedTopics>
+	    <codeEntityReference>M:Renci.SshClient.SshCommand.BeginExecute(System.AsyncCallback, System.Object)</codeEntityReference>
+	    <codeEntityReference>M:Renci.SshClient.SshCommand.EndExecute(System.IAsyncResult)</codeEntityReference>
+		<codeEntityReference>T:Renci.SshClient.SshCommand</codeEntityReference>
+    </relatedTopics>
+  </developerSDKTechnologyOverviewOrientationDocument>
+</topic>

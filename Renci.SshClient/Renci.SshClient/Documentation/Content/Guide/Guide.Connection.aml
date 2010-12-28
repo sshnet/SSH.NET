@@ -1,0 +1,125 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<topic id="356eeabc-aafa-4a2a-a9ab-5247b9658296" revisionNumber="1">
+  <developerReferenceWithSyntaxDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <section>
+      <title>Establish connection</title>
+      <content>
+        To establish connection you need to provide valid credentials. Both <codeEntityReference>T:Renci.SshClient.SshClient</codeEntityReference> and <codeEntityReference>T:Renci.SshClient.SftpClient</codeEntityReference> accept same paramters. See examples below:
+        <codeExample>
+          <list class="ordered">
+            <listItem>
+              <para>Connecting using username and password to server's default port</para>
+              <code language="cs">
+                using (var client = new SshClient("host", "username", "password"))
+                {
+                  client.Connect();
+                  client.Disconnect();
+                }
+              </code>
+            </listItem>
+            <listItem>
+              <para>Connecting using username and password to server's port 1234</para>
+              <code language="cs">
+                using (var client = new SftpClient("host", 1234, "username", "password"))
+                {
+                  client.Connect();
+                  client.Disconnect();
+                }
+              </code>
+            </listItem>
+
+            <listItem>
+              <para>Connecting using username and private key to server's default port</para>
+              <code language="cs">
+                using (var client = new SshClient("host", "username", new PrivateKeyFile(File.OpenRead(@"private.key"))))
+                {
+                  client.Connect();
+                  client.Disconnect();
+                }
+              </code>
+            </listItem>
+            <listItem>
+              <para>Connecting using username and private key to server's port 1234</para>
+              <code language="cs">
+                using (var client = new SftpClient("host", 1234, "username", new PrivateKeyFile(File.OpenRead(@"private.key"))))
+                {
+                  client.Connect();
+                  client.Disconnect();
+                }
+              </code>
+            </listItem>
+
+          </list>
+        </codeExample>
+      </content>
+    </section>
+
+    <section>
+      <title>
+        Using ConnectionInfo object to connect.
+      </title>
+      <content>
+        <para>
+          In more complex scenarious when additional parameters are needed during connection phase you can use <codeEntityReference>T:Renci.SshClient.ConnectionInfo</codeEntityReference> inherited object.
+          <codeEntityReference>T:Renci.SshClient.ConnectionInfo</codeEntityReference> is an abstact class and you need to use one of the inhertied classes.
+          Which class to use depends on how you want to connect to the server.
+          To connect using private key you need to use <codeEntityReference>T:Renci.SshClient.PrivateKeyConnectionInfo</codeEntityReference> object.
+          To connect using username and password combination use <codeEntityReference>T:Renci.SshClient.PasswordConnectionInfo</codeEntityReference>.
+          If you have an interactive scenario you need to use <codeEntityReference>T:Renci.SshClient.KeyboardInteractiveConnectionInfo</codeEntityReference>.
+        </para>
+        <para>See some usage examples below:</para>
+        <codeExample>
+          <list class="ordered">
+            <listItem>
+              <para>
+                Use <codeEntityReference>T:Renci.SshClient.PasswordConnectionInfo</codeEntityReference> objet to provide username and password.
+              </para>
+              <code language="cs">
+                var connectionInfo = new PasswordConnectionInfo("host", "username", "password");
+                using (var client = new SshClient(connectionInfo))
+                {
+                  client.Connect();
+                  client.Disconnect();
+                }
+              </code>
+            </listItem>
+            <listItem>
+              <para>
+                Use <codeEntityReference>T:Renci.SshClient.PrivateKeyConnectionInfo</codeEntityReference> objet to provide username and private key file
+              </para>
+              <code language="cs">
+                var connectionInfo = new PrivateKeyConnectionInfo("host", "username", new PrivateKeyFile(File.OpenRead(@"private.key")));
+                using (var client = new SshClient(connectionInfo))
+                {
+                  client.Connect();
+                  client.Disconnect();
+                }
+              </code>
+            </listItem>
+            <listItem>
+              <para>
+                Use <codeEntityReference>T:Renci.SshClient.PrivateKeyConnectionInfo</codeEntityReference> objet to provide username and private key file with passphrase.
+              </para>
+              <code language="cs">
+                var connectionInfo = new PrivateKeyConnectionInfo("host", "username", new PrivateKeyFile(File.OpenRead(@"private.key"), "passphrase"));
+                using (var client = new SshClient(connectionInfo))
+                {
+                  client.Connect();
+                  client.Disconnect();
+                }
+              </code>
+            </listItem>
+          </list>
+        </codeExample>
+      </content>
+    </section>
+
+    <relatedTopics>
+      <codeEntityReference>T:Renci.SshClient.ConnectionInfo</codeEntityReference>
+      <codeEntityReference>T:Renci.SshClient.PrivateKeyConnectionInfo</codeEntityReference>
+      <codeEntityReference>T:Renci.SshClient.PasswordConnectionInfo</codeEntityReference>
+      <codeEntityReference>T:Renci.SshClient.SshClient</codeEntityReference>
+      <codeEntityReference>M:Renci.SshClient.SshBaseClient.Connect</codeEntityReference>
+    </relatedTopics>
+  </developerReferenceWithSyntaxDocument>
+</topic>

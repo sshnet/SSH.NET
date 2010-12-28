@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<topic id="b9451bd3-f759-4964-8f42-b48b06c19dca" revisionNumber="1">
+  <developerHowToDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
+      <title>Command execution</title>
+      <content>
+      	When you need to terminte the command after specific time has passed you can use <codeEntityReference>P:Renci.SshClient.SshCommand.CommandTimeout</codeEntityReference> property.
+      	To specify time out property you must to create <codeEntityReference>T:Renci.SshClient.SshCommand</codeEntityReference> first.
+        <para>See examples below:</para>
+        <codeExample>
+          <list class="ordered">
+            <listItem>
+              <para>Execute command and specify 10 sec timeout</para>
+              <code language="cs">
+                using (var client = new SshClient("host", "username", "password"))
+                {
+	                client.Connect();
+	                var cmd = client.CreateCommand("sleep 10s");
+	                cmd.CommandTimeout = TimeSpan.FromSeconds(5);
+	                cmd.Execute();
+	                client.Disconnect();
+                }
+              </code>
+            </listItem>
+          </list>
+        </codeExample>
+      </content>
+    <relatedTopics>
+		<codeEntityReference>P:Renci.SshClient.SshCommand.CommandTimeout</codeEntityReference>
+		<codeEntityReference>T:Renci.SshClient.SshCommand</codeEntityReference>
+    </relatedTopics>
+  </developerHowToDocument>
+</topic>

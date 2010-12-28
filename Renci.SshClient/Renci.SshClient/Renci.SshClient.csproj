@@ -272,6 +272,9 @@
     <None Include="Documentation\Content\Guide\Guide.Connection.PrivateKey.aml" />
     <None Include="Documentation\Content\Guide\Guide.Connection.Prompt.aml" />
     <None Include="Documentation\Content\Guide\Guide.Connection.Timeout.aml" />
+    <None Include="Documentation\Content\Guide\Guide.PortForward.aml" />
+    <None Include="Documentation\Content\Guide\Guide.PortForward.Local.aml" />
+    <None Include="Documentation\Content\Guide\Guide.PortForward.Remote.aml" />
     <None Include="Documentation\Content\Guide\Guide.SFtp.aml" />
     <None Include="Documentation\Content\HowTo.Connect.aml" />
     <None Include="Documentation\Content\Reference.aml" />

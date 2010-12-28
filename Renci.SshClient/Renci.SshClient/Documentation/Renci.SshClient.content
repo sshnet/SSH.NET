@@ -18,6 +18,10 @@
         <Topic id="b9451bd3-f759-4964-8f42-b48b06c19dca" visible="True" tocTitle="Timeout" />
       </Topic>
       <Topic id="addfc69b-01c2-49cc-8e4d-9c8bada86d6c" visible="True" title="SFtp" />
+      <Topic id="f4ce1bdd-403f-45ec-a622-86c05a4bd913" visible="True" tocTitle="Port Forwarding">
+        <Topic id="07e8ea92-89dd-45ab-a35f-34a3202243e1" visible="True" tocTitle="Local" />
+        <Topic id="a28b7535-bc8c-4635-a60a-d9067e60f1c9" visible="True" tocTitle="Remote" />
+      </Topic>
     </Topic>
     <Topic id="8e553ec7-3a42-4bd1-9252-b9b3c957b454" visible="True" apiParentMode="InsertAsChild" title="Programming Reference" />
   </Topic>

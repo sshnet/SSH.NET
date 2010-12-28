@@ -8,7 +8,7 @@
         <codeExample>
           <list class="ordered">
             <listItem>
-              <para>Display exit status when command is executed..</para>
+              <para>Display exit status when command is executed.</para>
               <code language="cs">
                 using (var client = new SshClient("host", "username", "password"))
                 {

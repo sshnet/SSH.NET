@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Collections.ObjectModel;
+using System.Text;
 
 namespace Renci.SshClient
 {
@@ -136,11 +137,23 @@ namespace Renci.SshClient
         /// Creates the command to be executed.
         /// </summary>
         /// <param name="commandText">The command text.</param>
-        /// <returns></returns>
+        /// <returns><see cref="SshCommand"/> object.</returns>
         public SshCommand CreateCommand(string commandText)
         {
             return new SshCommand(this.Session, commandText);
         }
+
+        /// <summary>
+        /// Creates the command to be executed with specified encoding.
+        /// </summary>
+        /// <param name="commandText">The command text.</param>
+        /// <param name="encoding">The encoding to use for results.</param>
+        /// <returns><see cref="SshCommand"/> object which uses specified encoding.</returns>
+        public SshCommand CreateCommand(string commandText, Encoding encoding)
+        {
+            return new SshCommand(this.Session, commandText, encoding);
+        }
+
 
         /// <summary>
         /// Creates and executes the command.

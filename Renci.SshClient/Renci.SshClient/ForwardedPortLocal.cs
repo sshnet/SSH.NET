@@ -75,7 +75,6 @@ namespace Renci.SshClient
         /// </summary>
         public override void Stop()
         {
-            //  TODO:   This check should be moved to base class
             //  If port not started you cant stop it
             if (!this.IsStarted)
                 return;

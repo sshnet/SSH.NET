@@ -62,13 +62,13 @@ namespace Renci.SshClient
         /// </summary>
         protected override void OnAuthenticate()
         {
-            this.Session.RegisterMessage<InformationRequestMessage>();
+            this.Session.RegisterMessage("SSH_MSG_USERAUTH_INFO_REQUEST");
 
             this.Session.SendMessage(new RequestMessageKeyboardInteractive(ServiceNames.Connection, this.Username));
 
             this.WaitHandle(this._authenticationCompleted);
 
-            this.Session.UnRegisterMessage<InformationRequestMessage>();
+            this.Session.UnRegisterMessage("SSH_MSG_USERAUTH_INFO_REQUEST");
 
             if (this._exception != null)
             {

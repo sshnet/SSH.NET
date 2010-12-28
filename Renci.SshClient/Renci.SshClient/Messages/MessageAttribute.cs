@@ -2,13 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Renci.SshClient.Common;
 
 namespace Renci.SshClient.Messages
 {
+
     /// <summary>
     /// Indicates that a class represents SSH message. This class cannot be inherited.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Class, Inherited = true, AllowMultiple = false)]
     public sealed class MessageAttribute : Attribute
     {
         /// <summary>

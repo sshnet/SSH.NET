@@ -61,7 +61,6 @@ namespace Renci.SshClient
         /// Gets supported authentication methods for this connection.
         /// </summary>
         public IDictionary<string, Type> AuthenticationMethods { get; private set; }
-        //  TODO:   Restore AuthenticationMethods property functionality and allow connection only using supported method
 
         /// <summary>
         /// Gets supported compression algorithms for this connection.
@@ -173,16 +172,16 @@ namespace Renci.SshClient
                 {"ssh-dss", typeof(CryptoPublicKeyDss)}, 
             };
 
-            //this.SupportedAuthenticationMethods = new Dictionary<string, Type>()
-            //{
-            //    {"none", typeof(UserAuthenticationNone)},
-            //    {"publickey", typeof(UserAuthenticationPublicKey)},
-            //    {"password", typeof(UserAuthenticationPassword)},
-            //    {"keyboard-interactive", typeof(UserAuthenticationKeyboardInteractive)},
-            //    //{"hostbased", typeof(...)},                
-            //    //{"gssapi-keyex", typeof(...)},                
-            //    //{"gssapi-with-mic", typeof(...)},
-            //};
+            this.AuthenticationMethods = new Dictionary<string, Type>()
+            {
+                {"none", typeof(ConnectionInfo)},
+                {"publickey", typeof(PrivateKeyConnectionInfo)},
+                {"password", typeof(PasswordConnectionInfo)},
+                {"keyboard-interactive", typeof(KeyboardInteractiveConnectionInfo)},
+                //{"hostbased", typeof(...)},                
+                //{"gssapi-keyex", typeof(...)},                
+                //{"gssapi-with-mic", typeof(...)},
+            };
 
             this.CompressionAlgorithms = new Dictionary<string, Type>()
             {
@@ -216,9 +215,9 @@ namespace Renci.SshClient
         {
             this.Session = session;
 
-            this.Session.RegisterMessage<FailureMessage>();
-            this.Session.RegisterMessage<SuccessMessage>();
-            this.Session.RegisterMessage<BannerMessage>();
+            this.Session.RegisterMessage("SSH_MSG_USERAUTH_FAILURE");
+            this.Session.RegisterMessage("SSH_MSG_USERAUTH_SUCCESS");
+            this.Session.RegisterMessage("SSH_MSG_USERAUTH_BANNER");
 
             this.Session.UserAuthenticationFailureReceived += Session_UserAuthenticationFailureReceived;
             this.Session.UserAuthenticationSuccessReceived += Session_UserAuthenticationSuccessMessageReceived;
@@ -232,9 +231,9 @@ namespace Renci.SshClient
             this.Session.UserAuthenticationBannerReceived -= Session_UserAuthenticationBannerMessageReceived;
             this.Session.MessageReceived -= Session_MessageReceived;
 
-            this.Session.UnRegisterMessage<FailureMessage>();
-            this.Session.UnRegisterMessage<SuccessMessage>();
-            this.Session.UnRegisterMessage<BannerMessage>();
+            this.Session.UnRegisterMessage("SSH_MSG_USERAUTH_FAILURE");
+            this.Session.UnRegisterMessage("SSH_MSG_USERAUTH_SUCCESS");
+            this.Session.UnRegisterMessage("SSH_MSG_USERAUTH_BANNER");
 
             return this.IsAuthenticated;
         }

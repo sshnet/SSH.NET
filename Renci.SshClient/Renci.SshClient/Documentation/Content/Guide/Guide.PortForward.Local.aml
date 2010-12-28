@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<topic id="07e8ea92-89dd-45ab-a35f-34a3202243e1" revisionNumber="1">
+  <developerHowToDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
+      <content>
+        <codeExample>
+              <para>Start and stop local port forwarding.</para>
+              <code language="cs">
+                using (var client = new SshClient("host", "username", "password"))
+                {
+                	client.Connect();
+	                var port = client.AddForwardedPort&lt;ForwardedPortLocal&gt;(8084, "host to be forwarded", 80);
+	                port.Exception += delegate(object sender, ExceptionEventArgs e)
+	                {
+	                    Console.WriteLine(e.Exception.ToString());
+	                };
+	                port.Start();
+	                
+	                Thread.Sleep(1000 * 60 * 20); //	Wait 20 minutes for port to be forwarded
+	                
+	                port.Stop();
+                }
+              </code>
+        </codeExample>
+      </content>
+    <relatedTopics>
+	    <codeEntityReference>T:Renci.SshClient.SshClient</codeEntityReference>
+		<codeEntityReference>T:Renci.SshClient.ForwardedPortLocal</codeEntityReference>
+    </relatedTopics>
+  </developerHowToDocument>
+</topic>

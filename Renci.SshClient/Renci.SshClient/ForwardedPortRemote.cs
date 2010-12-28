@@ -3,6 +3,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Renci.SshClient.Channels;
 using Renci.SshClient.Messages.Connection;
+using Renci.SshClient.Common;
+using System.Diagnostics;
 
 namespace Renci.SshClient
 {
@@ -22,7 +24,7 @@ namespace Renci.SshClient
         {
             base.Start();
 
-            //  If port already started dont start it again
+            //  If port already started don't start it again
             if (this.IsStarted)
                 return;
 
@@ -35,17 +37,21 @@ namespace Renci.SshClient
             this.Session.ChannelOpenReceived += Session_ChannelOpening;
 
             //  Send global request to start direct tcpip
-            this.Session.SendMessage(new GlobalRequestMessage(GlobalRequestNames.TcpIpForward, true, this.ConnectedHost, this.BoundPort));
+            this.Session.SendMessage(new GlobalRequestMessage(GlobalRequestNames.TcpIpForward, true, this.BoundHost, this.BoundPort));
 
             this.Session.WaitHandle(this._globalRequestResponse);
 
             if (!this._requestStatus)
             {
-                //  If request  failed dont handle channel opening for this request
+                //  If request  failed don't handle channel opening for this request
                 this.Session.ChannelOpenReceived -= Session_ChannelOpening;
-            }
 
-            this.IsStarted = true;
+                throw new SshException(string.Format("Port forwarding for '{0}' port '{1}' failed to start.", this.Host, this.Port));
+            }
+            else
+            {
+                this.IsStarted = true;
+            }
         }
 
         /// <summary>
@@ -53,12 +59,14 @@ namespace Renci.SshClient
         /// </summary>
         public override void Stop()
         {
+            base.Stop();
+
             //  If port not started you cant stop it
             if (!this.IsStarted)
                 return;
 
             //  Send global request to cancel direct tcpip
-            this.Session.SendMessage(new GlobalRequestMessage(GlobalRequestNames.CancelTcpIpForward, true, this.ConnectedHost, this.BoundPort));
+            this.Session.SendMessage(new GlobalRequestMessage(GlobalRequestNames.CancelTcpIpForward, true, this.BoundHost, this.BoundPort));
 
             this.Session.WaitHandle(this._globalRequestResponse);
 
@@ -75,14 +83,16 @@ namespace Renci.SshClient
             var info = e.Message.Info as ForwardedTcpipChannelInfo;
             if (info != null)
             {
-                if (info.ConnectedAddress == this.ConnectedHost && info.ConnectedPort == this.BoundPort)
+                if (info.ConnectedAddress == this.BoundHost && info.ConnectedPort == this.BoundPort)
                 {
                     Task.Factory.StartNew(() =>
                     {
                         try
                         {
+                            this.RaiseRequestReceived(info.OriginatorAddress, info.OriginatorPort);
+
                             var channel = this.Session.CreateChannel<ChannelForwardedTcpip>(e.Message.LocalChannelNumber, e.Message.InitialWindowSize, e.Message.MaximumPacketSize);
-                            channel.Bind(this.ConnectedHost, this.ConnectedPort);
+                            channel.Bind(this.Host, this.Port);
                         }
                         catch (Exception exp)
                         {

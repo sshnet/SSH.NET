@@ -103,22 +103,39 @@ namespace Renci.SshClient
         /// Adds forwarded port to the list.
         /// </summary>
         /// <typeparam name="T">Type of forwarded port to add</typeparam>
+        /// <param name="boundHost">The bound host.</param>
         /// <param name="boundPort">The bound port.</param>
         /// <param name="connectedHost">The connected host.</param>
         /// <param name="connectedPort">The connected port.</param>
-        /// <returns>Forwarded port</returns>
-        public T AddForwardedPort<T>(uint boundPort, string connectedHost, uint connectedPort) where T : ForwardedPort, new()
+        /// <returns>
+        /// Forwarded port
+        /// </returns>
+        public T AddForwardedPort<T>(string boundHost, uint boundPort, string connectedHost, uint connectedPort) where T : ForwardedPort, new()
         {
             T port = new T();
 
             port.Session = this.Session;
+            port.BoundHost = boundHost;
             port.BoundPort = boundPort;
-            port.ConnectedHost = connectedHost;
-            port.ConnectedPort = connectedPort;
+            port.Host = connectedHost;
+            port.Port = connectedPort;
 
             this._forwardedPorts.Add(port);
 
             return port;
+        }
+
+        /// <summary>
+        /// Adds forwarded port to the list bound to "localhost".
+        /// </summary>
+        /// <typeparam name="T">Type of forwarded port to add</typeparam>
+        /// <param name="boundPort">The bound port.</param>
+        /// <param name="connectedHost">The connected host.</param>
+        /// <param name="connectedPort">The connected port.</param>
+        /// <returns></returns>
+        public T AddForwardedPort<T>(uint boundPort, string connectedHost, uint connectedPort) where T : ForwardedPort, new()
+        {
+            return this.AddForwardedPort<T>("localhost", boundPort, connectedHost, connectedPort);
         }
 
         /// <summary>

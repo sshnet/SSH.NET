@@ -53,6 +53,7 @@ namespace Renci.SshClient.Channels
             this._socket = socket;
 
             IPEndPoint ep = socket.RemoteEndPoint as IPEndPoint;
+            
 
             if (!this.IsConnected)
             {
@@ -61,7 +62,7 @@ namespace Renci.SshClient.Channels
 
             //  Open channel
             this.SendMessage(new ChannelOpenMessage(this.LocalChannelNumber, this.LocalWindowSize, this.PacketSize,
-                                                        new DirectTcpipChannelInfo(remoteHost, port, "0.0.0.0", 0)));
+                                                        new DirectTcpipChannelInfo(remoteHost, port, ep.Address.ToString(), (uint)ep.Port)));
 
             //  Wait for channel to open
             this.WaitHandle(this._channelOpen);

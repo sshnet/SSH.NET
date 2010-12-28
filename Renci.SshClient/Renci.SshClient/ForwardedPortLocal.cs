@@ -3,6 +3,8 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using Renci.SshClient.Channels;
+using Renci.SshClient.Common;
+using System.Diagnostics;
 
 namespace Renci.SshClient
 {
@@ -20,13 +22,12 @@ namespace Renci.SshClient
         /// </summary>
         public override void Start()
         {
-            base.Start();
-
-            //  If port already started dont start it again
+            //  If port already started don't start it again
             if (this.IsStarted)
                 return;
 
-            var ep = new IPEndPoint(Dns.GetHostAddresses("localhost")[0], (int)this.BoundPort);
+            var ep = new IPEndPoint(Dns.GetHostAddresses(this.BoundHost)[0], (int)this.BoundPort);
+
             this._listener = new TcpListener(ep);
             this._listener.Start();
 
@@ -42,8 +43,13 @@ namespace Renci.SshClient
                         {
                             try
                             {
+                                IPEndPoint originatorEndPoint = socket.RemoteEndPoint as IPEndPoint;
+
+                                this.RaiseRequestReceived(originatorEndPoint.Address.ToString(), (uint)originatorEndPoint.Port);
+
                                 var channel = this.Session.CreateChannel<ChannelDirectTcpip>();
-                                channel.Bind(this.ConnectedHost, this.ConnectedPort, socket);
+
+                                channel.Bind(this.Host, this.Port, socket);
                             }
                             catch (Exception exp)
                             {
@@ -75,6 +81,7 @@ namespace Renci.SshClient
         /// </summary>
         public override void Stop()
         {
+            base.Stop();
             //  If port not started you cant stop it
             if (!this.IsStarted)
                 return;

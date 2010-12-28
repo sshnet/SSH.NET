@@ -68,7 +68,7 @@ namespace Renci.SshClient
             if (this.KeyFiles == null)
                 return;
 
-            this.Session.RegisterMessage<PublicKeyMessage>();
+            this.Session.RegisterMessage("SSH_MSG_USERAUTH_PK_OK");
 
             foreach (var keyFile in this.KeyFiles)
             {
@@ -112,7 +112,7 @@ namespace Renci.SshClient
                 }
             }
 
-            this.Session.UnRegisterMessage<PublicKeyMessage>();
+            this.Session.UnRegisterMessage("SSH_MSG_USERAUTH_PK_OK");
         }
 
         /// <summary>

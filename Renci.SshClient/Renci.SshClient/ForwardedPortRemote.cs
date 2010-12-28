@@ -26,9 +26,9 @@ namespace Renci.SshClient
             if (this.IsStarted)
                 return;
 
-            this.Session.RegisterMessage<RequestFailureMessage>();
-            this.Session.RegisterMessage<RequestSuccessMessage>();
-            this.Session.RegisterMessage<ChannelOpenMessage>();
+            this.Session.RegisterMessage("SSH_MSG_REQUEST_FAILURE");
+            this.Session.RegisterMessage("SSH_MSG_REQUEST_SUCCESS");
+            this.Session.RegisterMessage("SSH_MSG_CHANNEL_OPEN");
 
             this.Session.RequestSuccessReceived += Session_RequestSuccess;
             this.Session.RequestFailureReceived += Session_RequestFailure;

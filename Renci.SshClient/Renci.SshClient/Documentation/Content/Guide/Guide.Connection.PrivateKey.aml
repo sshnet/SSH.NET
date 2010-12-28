@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<topic id="c233e412-0ea1-422f-8337-e5d1231b71e5" revisionNumber="1">
+  <developerSDKTechnologyOverviewArchitectureDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <content>
+      <para>At this point some examples how to connect using password.</para>
+      <codeExample>
+        <list class="ordered">
+          <listItem>
+            <para>Connecting using username and private key</para>
+            <code language="cs">
+              using (var client = new SshClient("host", "username", new PrivateKeyFile(File.OpenRead(@"private.key"))))
+              {
+              client.Connect();
+              client.Disconnect();
+              }
+            </code>
+          </listItem>
+          <listItem>
+            <para>Connecting using username, private key and passphrase</para>
+            <code language="cs">
+              using (var client = new SshClient("host", "username", new PrivateKeyFile(File.OpenRead(@"private.key"), "passphrase")))
+              {
+              client.Connect();
+              client.Disconnect();
+              }
+            </code>
+          </listItem>
+        </list>
+      </codeExample>
+    </content>
+    <relatedTopics>
+      <codeEntityReference>T:Renci.SshClient.PrivateKeyConnectionInfo</codeEntityReference>
+      <codeEntityReference>T:Renci.SshClient.SshClient</codeEntityReference>
+      <codeEntityReference>M:Renci.SshClient.SshBaseClient.Connect()</codeEntityReference>
+    </relatedTopics>
+  </developerSDKTechnologyOverviewArchitectureDocument>
+</topic>

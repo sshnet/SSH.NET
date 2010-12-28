@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<topic id="6df8e431-0da0-4fd3-9e26-3871030ab3af" revisionNumber="1">
+  <developerOrientationDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
+      <title>Execution errors</title>
+      <content>
+      	When command is executed and error occured you can access to errir description by accessing <codeEntityReference>P:Renci.SshClient.SshCommand.Error</codeEntityReference> property.
+      	You can also check <codeEntityReference>P:Renci.SshClient.SshCommand.ExitStatus</codeEntityReference> which is in case of error should not be 0.
+        <para>See examples below:</para>
+        <codeExample>
+          <list class="ordered">
+            <listItem>
+              <para>Execute invalid command and display execution error.</para>
+              <code language="cs">
+                using (var client = new SshClient("host", "username", "password"))
+                {
+	                client.Connect();
+	                var cmd = client.CreateCommand(";");
+	                cmd.Execute();
+	                if (!string.IsNullOrEmpty(cmd.Error))
+	                {
+	                    Console.WriteLine(cmd.Error);
+	                }
+	                client.Disconnect();
+                }
+              </code>
+            </listItem>
+          </list>
+        </codeExample>
+      </content>
+    <relatedTopics>
+	    <codeEntityReference>P:Renci.SshClient.SshCommand.ExitStatus</codeEntityReference>
+	    <codeEntityReference>P:Renci.SshClient.SshCommand.Error</codeEntityReference>
+		<codeEntityReference>T:Renci.SshClient.SshCommand</codeEntityReference>
+    </relatedTopics>
+  </developerOrientationDocument>
+</topic>

@@ -17,19 +17,24 @@ namespace Renci.SshClient
         internal Session Session { get; set; }
 
         /// <summary>
+        /// Gets the bound host.
+        /// </summary>
+        public string BoundHost { get; internal set; }
+
+        /// <summary>
         /// Gets the bound port.
         /// </summary>
         public uint BoundPort { get; internal set; }
 
         /// <summary>
-        /// Gets the connected host.
+        /// Gets the forwarded host.
         /// </summary>
-        public string ConnectedHost { get; internal set; }
+        public string Host { get; internal set; }
 
         /// <summary>
-        /// Gets the connected port.
+        /// Gets the forwarded port.
         /// </summary>
-        public uint ConnectedPort { get; internal set; }
+        public uint Port { get; internal set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether port forwarding started.
@@ -45,7 +50,12 @@ namespace Renci.SshClient
         public event EventHandler<ExceptionEventArgs> Exception;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ForwardedPort"/> class.
+        /// Occurs when port forwarding request received.
+        /// </summary>
+        public event EventHandler<PortForwardEventArgs> RequestReceived;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Port"/> class.
         /// </summary>
         internal ForwardedPort()
         {
@@ -66,17 +76,22 @@ namespace Renci.SshClient
             {
                 throw new SshConnectionException("Not connected.");
             }
+
+            this.Session.ErrorOccured += Session_ErrorOccured;
         }
 
         /// <summary>
         /// Stops port forwarding.
         /// </summary>
-        public abstract void Stop();
+        public virtual void Stop()
+        {
+            this.Session.ErrorOccured -= Session_ErrorOccured;
+        }
 
         /// <summary>
-        /// Raises the exception event.
+        /// Raises <see cref="Renci.SshClient.ForwardedPort.Exception"/> event.
         /// </summary>
-        /// <param name="execption">The execption.</param>
+        /// <param name="execption">The exception.</param>
         protected void RaiseExceptionEvent(Exception execption)
         {
             if (this.Exception != null)
@@ -85,5 +100,27 @@ namespace Renci.SshClient
             }
         }
 
+        /// <summary>
+        /// Raises <see cref="Renci.SshClient.ForwardedPort.RequestReceived"/> event.
+        /// </summary>
+        /// <param name="host">Request originator host.</param>
+        /// <param name="port">Request originator port.</param>
+        protected void RaiseRequestReceived(string host, uint port)
+        {
+            if (this.RequestReceived != null)
+            {
+                this.RequestReceived(this, new PortForwardEventArgs(host, port));
+            }
+        }
+
+        /// <summary>
+        /// Handles session ErrorOccured event.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="System.IO.ErrorEventArgs"/> instance containing the event data.</param>
+        private void Session_ErrorOccured(object sender, System.IO.ErrorEventArgs e)
+        {
+            this.RaiseExceptionEvent(e.GetException());
+        }
     }
 }

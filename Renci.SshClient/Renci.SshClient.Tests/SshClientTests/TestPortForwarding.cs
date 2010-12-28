@@ -20,7 +20,7 @@ namespace Renci.SshClient.Tests.SshClientTests
         {
             using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
             {
-                var port1 = client.AddForwardedPort<ForwardedPortLocal>(8084, "www.renci.org", 80);
+                var port1 = client.AddForwardedPort<ForwardedPortLocal>("localhost", 8084, "www.renci.org", 80);
                 port1.Exception += delegate(object sender, ExceptionEventArgs e)
                 {
                     Assert.Fail(e.Exception.ToString());
@@ -55,7 +55,7 @@ namespace Renci.SshClient.Tests.SshClientTests
             using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
             {
                 client.Connect();
-                var port1 = client.AddForwardedPort<ForwardedPortLocal>(8084, "www.renci.org", 80);
+                var port1 = client.AddForwardedPort<ForwardedPortLocal>("localhost", 8084, "www.renci.org", 80);
                 port1.Exception += delegate(object sender, ExceptionEventArgs e)
                 {
                     Assert.Fail(e.Exception.ToString());
@@ -77,7 +77,7 @@ namespace Renci.SshClient.Tests.SshClientTests
                             var data = ReadStream(response.GetResponseStream());
                             var end = DateTime.Now;
 
-                            Debug.WriteLine(string.Format("Request# {2}: Lenght: {0} Time: {1}", data.Length, (end - start), counter));
+                            Debug.WriteLine(string.Format("Request# {2}: Length: {0} Time: {1}", data.Length, (end - start), counter));
                         }
                     }
                 );
@@ -94,7 +94,7 @@ namespace Renci.SshClient.Tests.SshClientTests
             using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
             {
                 client.Connect();
-                var port1 = client.AddForwardedPort<ForwardedPortRemote>(8082, "www.renci.org", 80);
+                var port1 = client.AddForwardedPort<ForwardedPortRemote>("", 8082, "www.renci.org", 80);
                 port1.Exception += delegate(object sender, ExceptionEventArgs e)
                 {
                     Assert.Fail(e.Exception.ToString());

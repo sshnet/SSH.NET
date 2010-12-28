@@ -73,7 +73,7 @@ namespace Renci.SshClient.Messages
             var messageAttribute = this.GetType().GetCustomAttributes(typeof(MessageAttribute), true).SingleOrDefault() as MessageAttribute;
 
             if (messageAttribute == null)
-                throw new SshException(string.Format("Type '{0}' is not a valid message type.", this.GetType().AssemblyQualifiedName));
+                return string.Format("'{0}' without Message attribute.", this.GetType().FullName);
 
             return messageAttribute.Name;
         }

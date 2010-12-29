@@ -13,14 +13,11 @@ namespace Renci.SshClient.Sftp.Messages
 
         public string ExistingPath { get; set; }
 
-        public bool IsSymLink { get; set; }
-
         protected override void LoadData()
         {
             base.LoadData();
             this.NewLinkPath = this.ReadString();
             this.ExistingPath = this.ReadString();
-            this.IsSymLink = this.ReadBoolean();
         }
 
         protected override void SaveData()
@@ -28,7 +25,6 @@ namespace Renci.SshClient.Sftp.Messages
             base.SaveData();
             this.Write(this.NewLinkPath, Encoding.UTF8);
             this.Write(this.ExistingPath, Encoding.UTF8);
-            this.Write(this.IsSymLink);
         }
     }
 }

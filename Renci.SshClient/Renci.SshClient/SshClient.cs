@@ -112,6 +112,9 @@ namespace Renci.SshClient
         /// </returns>
         public T AddForwardedPort<T>(string boundHost, uint boundPort, string connectedHost, uint connectedPort) where T : ForwardedPort, new()
         {
+            //  Ensure that connection is established.
+            this.EnsureConnection();
+
             T port = new T();
 
             port.Session = this.Session;
@@ -157,7 +160,7 @@ namespace Renci.SshClient
         /// <returns><see cref="SshCommand"/> object.</returns>
         public SshCommand CreateCommand(string commandText)
         {
-            return new SshCommand(this.Session, commandText);
+            return this.CreateCommand(commandText, Encoding.ASCII);
         }
 
         /// <summary>
@@ -168,9 +171,11 @@ namespace Renci.SshClient
         /// <returns><see cref="SshCommand"/> object which uses specified encoding.</returns>
         public SshCommand CreateCommand(string commandText, Encoding encoding)
         {
+            //  Ensure that connection is established.
+            this.EnsureConnection();
+
             return new SshCommand(this.Session, commandText, encoding);
         }
-
 
         /// <summary>
         /// Creates and executes the command.
@@ -199,6 +204,9 @@ namespace Renci.SshClient
         /// <returns></returns>
         public Shell CreateShell(Stream input, TextWriter output, TextWriter extendedOutput, string terminalName, uint columns, uint rows, uint width, uint height, string terminalMode)
         {
+            //  Ensure that connection is established.
+            this.EnsureConnection();
+
             return new Shell(this.Session, input, output, extendedOutput, terminalName, columns, rows, width, height, terminalMode);
         }
     }

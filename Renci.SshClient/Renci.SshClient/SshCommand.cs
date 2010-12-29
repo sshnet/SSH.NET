@@ -91,16 +91,6 @@ namespace Renci.SshClient
         /// </summary>
         /// <param name="session">The session.</param>
         /// <param name="commandText">The command text.</param>
-        internal SshCommand(Session session, string commandText)
-            : this(session, commandText, Encoding.ASCII)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="SshCommand"/> class.
-        /// </summary>
-        /// <param name="session">The session.</param>
-        /// <param name="commandText">The command text.</param>
         /// <param name="encoding">The encoding.</param>
         internal SshCommand(Session session, string commandText, Encoding encoding)
         {
@@ -123,9 +113,6 @@ namespace Renci.SshClient
         /// <exception cref="Renci.SshClient.Common.SshOperationTimeoutException">Operation has timed out.</exception>
         public IAsyncResult BeginExecute(AsyncCallback callback, object state)
         {
-            if (!this._session.IsConnected)
-                throw new SshConnectionException("Not connected.");
-
             //  Prevent from executing BeginExecute before calling EndExecute
             if (this._asyncResult != null)
             {

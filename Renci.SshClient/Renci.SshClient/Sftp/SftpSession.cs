@@ -25,9 +25,11 @@ namespace Renci.SshClient.Sftp
 
         private EventWaitHandle _sftpVersionConfirmed = new AutoResetEvent(false);
 
-        public int _operationTimeout;
+        private int _operationTimeout;
 
         public event EventHandler<ErrorEventArgs> ErrorOccured;
+
+        public int ProtocolVersion { get; private set; }
 
         #region SFTP messages
 
@@ -67,6 +69,8 @@ namespace Renci.SshClient.Sftp
             });
 
             this.WaitHandle(this._sftpVersionConfirmed, this._operationTimeout);
+
+            this.ProtocolVersion = 3;
         }
 
         public void Disconnect()
@@ -295,6 +299,5 @@ namespace Renci.SshClient.Sftp
         }
 
         #endregion
-
     }
 }

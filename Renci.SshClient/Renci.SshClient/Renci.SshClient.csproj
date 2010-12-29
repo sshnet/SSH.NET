@@ -75,7 +75,9 @@
     <Compile Include="Common\PortForwardEventArgs.cs" />
     <Compile Include="Common\SshAuthenticationException.cs" />
     <Compile Include="Common\SshConnectionException.cs" />
+    <Compile Include="Common\SshFileNotFoundException.cs" />
     <Compile Include="Common\SshOperationTimeoutException.cs" />
+    <Compile Include="Common\SshPermissionDeniedException.cs" />
     <Compile Include="KeyboardInteractiveConnectionInfo.cs" />
     <Compile Include="Messages\Authentication\RequestMessageKeyboardInteractive.cs" />
     <Compile Include="Messages\Connection\ChannelOpen\ChannelOpenInfo.cs" />
@@ -96,6 +98,9 @@
     <Compile Include="Messages\Connection\ChannelRequest\X11ForwardingRequestInfo.cs" />
     <Compile Include="Messages\Connection\ChannelRequest\XonXoffRequestInfo.cs" />
     <Compile Include="Messages\MessageAttribute.cs" />
+    <Compile Include="Sftp\FileStatusCommand.cs" />
+    <Compile Include="Sftp\SetFileStatusCommand.cs" />
+    <Compile Include="Sftp\SymbolicLinkCommand.cs" />
     <Compile Include="Sftp\Messages\SftpRequestMessage.cs" />
     <Compile Include="Messages\Transport\KeyExchangeDhGroupExchangeGroup.cs" />
     <Compile Include="Messages\Transport\KeyExchangeDhGroupExchangeInit.cs" />

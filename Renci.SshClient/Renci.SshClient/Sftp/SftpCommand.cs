@@ -249,13 +249,12 @@ namespace Renci.SshClient.Sftp
             });
         }
 
-        protected void SendSymLinkMessage(string existingPath, string newLinkPath, bool isSymLink)
+        protected void SendSymLinkMessage(string linkPath, string path)
         {
             this.SendMessage(new SymLinkMessage
             {
-                ExistingPath = existingPath,
-                NewLinkPath = newLinkPath,
-                IsSymLink = isSymLink,
+                NewLinkPath = linkPath,
+                ExistingPath = path,
             });
         }
 
@@ -276,14 +275,20 @@ namespace Renci.SshClient.Sftp
             {
                 this.OnStatus(e.Message.StatusCode, e.Message.ErrorMessage, e.Message.Language);
 
-                if (e.Message.StatusCode == StatusCodes.NoSuchFile ||
-                    e.Message.StatusCode == StatusCodes.PermissionDenied ||
-                    e.Message.StatusCode == StatusCodes.Failure ||
-                    e.Message.StatusCode == StatusCodes.BadMessage ||
-                    e.Message.StatusCode == StatusCodes.NoConnection ||
-                    e.Message.StatusCode == StatusCodes.ConnectionLost ||
-                    e.Message.StatusCode == StatusCodes.OperationUnsupported
-                    )
+                if (e.Message.StatusCode == StatusCodes.PermissionDenied)
+                {
+                    throw new SshPermissionDeniedException(e.Message.ErrorMessage);
+                }
+                else if (e.Message.StatusCode == StatusCodes.NoSuchFile)
+                {
+                    throw new SshFileNotFoundException(e.Message.ErrorMessage);
+                }
+                else if (e.Message.StatusCode == StatusCodes.Failure ||
+                 e.Message.StatusCode == StatusCodes.BadMessage ||
+                 e.Message.StatusCode == StatusCodes.NoConnection ||
+                 e.Message.StatusCode == StatusCodes.ConnectionLost ||
+                 e.Message.StatusCode == StatusCodes.OperationUnsupported
+                 )
                 {
                     //  Throw an exception if it was not handled by the command
                     throw new SshException(e.Message.ErrorMessage);

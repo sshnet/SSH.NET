@@ -12,46 +12,19 @@ namespace Renci.SshClient.Sftp
         /// <summary>
         /// Initializes a new instance of the <see cref="SftpFile"/> class.
         /// </summary>
-        /// <param name="fileName">Name of the file.</param>
-        /// <param name="fullName">The full name.</param>
+        /// <param name="absolutePath">Name of the file.</param>
         /// <param name="attributes">The attributes.</param>
-        public SftpFile(string fileName, string fullName, Attributes attributes)
+        public SftpFile(string absolutePath, Attributes attributes)
         {
-            this.Name = fileName;
+            this.AbsolutePath = absolutePath;
 
-            if (attributes.Size.HasValue)
-                this.Size = (int)attributes.Size.Value;
-            else
-                this.Size = -1;
-
-            if (attributes.UserId.HasValue)
-                this.UserId = (int)attributes.UserId.Value;
-            else
-                this.UserId = -1;
-
-            if (attributes.GroupId.HasValue)
-                this.GroupId = (int)attributes.GroupId.Value;
-            else
-                this.GroupId = -1;
-
-            if (attributes.Permissions.HasValue)
-                this.Permissions = (int)attributes.Permissions.Value;
-            else
-                this.Permissions = -1;
-
-            if (attributes.AccessTime.HasValue)
-                this.AccessedTime = attributes.AccessTime.Value;
-            else
-                this.AccessedTime = DateTime.MinValue;
-
-            if (attributes.ModifyTime.HasValue)
-                this.ModifiedTime = attributes.ModifyTime.Value;
-            else
-                this.ModifiedTime = DateTime.MinValue;
-
-            if (attributes.Extensions != null)
-                this.Extensions = new Dictionary<string, string>(attributes.Extensions);
+            this.Attributes = attributes;
         }
+
+        /// <summary>
+        /// Gets file status information attributes.
+        /// </summary>
+        public Attributes Attributes { get; private set; }
 
         /// <summary>
         /// Gets or sets file name.
@@ -59,15 +32,7 @@ namespace Renci.SshClient.Sftp
         /// <value>
         /// File name.
         /// </value>
-        public string Name { get; set; }
-
-        /// <summary>
-        /// Gets or sets file filename.
-        /// </summary>
-        /// <value>
-        /// File filename.
-        /// </value>
-        public string Filename { get; set; }
+        public string AbsolutePath { get; set; }
 
         /// <summary>
         /// Gets or sets file accessed time.
@@ -75,7 +40,20 @@ namespace Renci.SshClient.Sftp
         /// <value>
         /// File accessed time.
         /// </value>
-        public DateTime AccessedTime { get; set; }
+        public DateTime AccessedTime
+        {
+            get
+            {
+                if (this.Attributes.AccessTime.HasValue)
+                    return this.Attributes.AccessTime.Value;
+                else
+                    return DateTime.MinValue;
+            }
+            set
+            {
+                this.Attributes.AccessTime = value;
+            }
+        }
 
         /// <summary>
         /// Gets or sets file modified time.
@@ -83,7 +61,20 @@ namespace Renci.SshClient.Sftp
         /// <value>
         /// File modified time.
         /// </value>
-        public DateTime ModifiedTime { get; set; }
+        public DateTime ModifiedTime
+        {
+            get
+            {
+                if (this.Attributes.ModifyTime.HasValue)
+                    return this.Attributes.ModifyTime.Value;
+                else
+                    return DateTime.MinValue;
+            }
+            set
+            {
+                this.Attributes.ModifyTime = value;
+            }
+        }
 
         /// <summary>
         /// Gets or sets file size.
@@ -91,7 +82,27 @@ namespace Renci.SshClient.Sftp
         /// <value>
         /// File size.
         /// </value>
-        public long Size { get; set; }
+        public long Size
+        {
+            get
+            {
+                if (this.Attributes.Size.HasValue)
+                    return (long)this.Attributes.Size.Value;
+                else
+                    return -1;
+            }
+            set
+            {
+                if (value > -1)
+                {
+                    this.Attributes.Size = new Nullable<ulong>((ulong)value);
+                }
+                else
+                {
+                    this.Attributes.Size = null;
+                }
+            }
+        }
 
         /// <summary>
         /// Gets or sets file user id.
@@ -99,7 +110,27 @@ namespace Renci.SshClient.Sftp
         /// <value>
         /// File user id.
         /// </value>
-        public int UserId { get; set; }
+        public int UserId
+        {
+            get
+            {
+                if (this.Attributes.UserId.HasValue)
+                    return (int)this.Attributes.UserId.Value;
+                else
+                    return -1;
+            }
+            set
+            {
+                if (value > -1)
+                {
+                    this.Attributes.UserId = new Nullable<uint>((uint)value);
+                }
+                else
+                {
+                    this.Attributes.UserId = null;
+                }
+            }
+        }
 
         /// <summary>
         /// Gets or sets file group id.
@@ -107,7 +138,27 @@ namespace Renci.SshClient.Sftp
         /// <value>
         /// File group id.
         /// </value>
-        public int GroupId { get; set; }
+        public int GroupId
+        {
+            get
+            {
+                if (this.Attributes.GroupId.HasValue)
+                    return (int)this.Attributes.GroupId.Value;
+                else
+                    return -1;
+            }
+            set
+            {
+                if (value > -1)
+                {
+                    this.Attributes.GroupId = new Nullable<uint>((uint)value);
+                }
+                else
+                {
+                    this.Attributes.GroupId = null;
+                }
+            }
+        }
 
         /// <summary>
         /// Gets or sets file permissions.
@@ -115,7 +166,27 @@ namespace Renci.SshClient.Sftp
         /// <value>
         /// File permissions.
         /// </value>
-        public int Permissions { get; set; }
+        public int Permissions
+        {
+            get
+            {
+                if (this.Attributes.Permissions.HasValue)
+                    return (int)this.Attributes.Permissions.Value;
+                else
+                    return -1;
+            }
+            set
+            {
+                if (value > -1)
+                {
+                    this.Attributes.Permissions = new Nullable<uint>((uint)value);
+                }
+                else
+                {
+                    this.Attributes.Permissions = null;
+                }
+            }
+        }
 
         /// <summary>
         /// Gets or sets file extensions attributes.
@@ -123,7 +194,13 @@ namespace Renci.SshClient.Sftp
         /// <value>
         /// File extensions.
         /// </value>
-        public IDictionary<string, string> Extensions { get; set; }
+        public IDictionary<string, string> Extensions
+        {
+            get
+            {
+                return this.Attributes.Extensions;
+            }
+        }
 
         /// <summary>
         /// Returns a <see cref="System.String"/> that represents this instance.
@@ -133,7 +210,7 @@ namespace Renci.SshClient.Sftp
         /// </returns>
         public override string ToString()
         {
-            return string.Format("Name {0}, Size {1}, User ID {2}, Group ID {3}, Permissions {4:X}, Accessed {5}, Modified {6}", this.Name, this.Size, this.UserId, this.GroupId, this.Permissions, this.AccessedTime, this.ModifiedTime);
+            return string.Format("Name {0}, Size {1}, User ID {2}, Group ID {3}, Permissions {4:X}, Accessed {5}, Modified {6}", this.AbsolutePath, this.Size, this.UserId, this.GroupId, this.Permissions, this.AccessedTime, this.ModifiedTime);
         }
     }
 }

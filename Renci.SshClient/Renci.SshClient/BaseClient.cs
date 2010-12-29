@@ -159,6 +159,16 @@ namespace Renci.SshClient
         {
 
         }
+        
+        /// <summary>
+        /// Ensures that client is connected.
+        /// </summary>
+        /// <exception cref="Renci.SshClient.Common.SshConnectionException">When client not connected.</exception>
+        protected void EnsureConnection()
+        {
+            if (!this.Session.IsConnected)
+                throw new SshConnectionException("Client not connected.");
+        }
 
         #region IDisposable Members
 

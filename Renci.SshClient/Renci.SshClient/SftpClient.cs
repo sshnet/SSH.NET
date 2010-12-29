@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.IO;
 using Renci.SshClient.Sftp;
@@ -27,6 +28,16 @@ namespace Renci.SshClient
         /// </summary>
         /// <value>The size of the buffer.</value>
         public uint BufferSize { get; set; }
+
+        /// <summary>
+        /// Gets remote working directory.
+        /// </summary>
+        public string WorkingDirectory { get; private set; }
+
+        /// <summary>
+        /// Gets sftp protocol version.
+        /// </summary>
+        public int ProtocolVersion { get; private set; }
 
         #region Constructors
 
@@ -89,18 +100,232 @@ namespace Renci.SshClient
 
         #endregion
 
-        #region List Directory
+        /// <summary>
+        /// Changes remote directory to path.
+        /// </summary>
+        /// <param name="path">New directory path.</param>
+        public void ChangeDirectory(string path)
+        {
+            //  TODO:   Check if change directory should be improved based on "6.10.1 Best Practice for Dealing with Paths" paragraph.
+
+            //  Ensure that connection is established.
+            this.EnsureConnection();
+
+            this.WorkingDirectory = this.ValidatePath(this.ResolvePath(path));
+        }
 
         /// <summary>
-        /// Begins the list directory operation.
+        /// Changes group of file(s)to specified group id.
+        /// </summary>
+        /// <param name="path">File(s) path, may match multiple files.</param>
+        /// <param name="groupId">Numeric GID.</param>
+        public void ChangeGroup(string path, ushort groupId) 
+        {
+            //  TODO:   Need to be tested
+
+            //  Ensure that connection is established.
+            this.EnsureConnection();
+
+            var fullPath = this.ResolvePath(path);
+
+            var cmd = new FileStatusCommand(this._sftpSession, fullPath);
+
+            cmd.CommandTimeout = this.OperationTimeout;
+
+            cmd.Execute();
+
+            cmd.SftpFile.GroupId = groupId;
+
+            var setCmd = new SetFileStatusCommand(this._sftpSession, fullPath, cmd.SftpFile.Attributes);
+
+            setCmd.CommandTimeout = this.OperationTimeout;
+
+            setCmd.Execute();
+        }
+
+        /// <summary>
+        /// Changes permissions of file(s) to specified mode.
+        /// </summary>
+        /// <param name="path">File(s) path, may match multiple files.</param>
+        /// <param name="mode">The mode.</param>
+        public void ChangePermissions(string path, int mode) 
+        {
+            //  TODO:   Need to be tested
+
+            //  Ensure that connection is established.
+            this.EnsureConnection();
+
+            var fullPath = this.ResolvePath(path);
+
+            var cmd = new FileStatusCommand(this._sftpSession, fullPath);
+
+            cmd.CommandTimeout = this.OperationTimeout;
+
+            cmd.Execute();
+
+            cmd.SftpFile.Permissions = mode;
+
+            var setCmd = new SetFileStatusCommand(this._sftpSession, fullPath, cmd.SftpFile.Attributes);
+
+            setCmd.CommandTimeout = this.OperationTimeout;
+
+            setCmd.Execute();
+        }
+
+        /// <summary>
+        /// Changes the owner of file(s) to specified owner.
+        /// </summary>
+        /// <param name="path">File(s) path, may match multiple files.</param>
+        /// <param name="owner">Numeric UID.</param>
+        public void ChangeOwner(string path, ushort owner)
+        {   
+            //  TODO:   Need to be tested
+
+            //  Ensure that connection is established.
+            this.EnsureConnection();
+
+            var fullPath = this.ResolvePath(path);
+
+            var cmd = new FileStatusCommand(this._sftpSession, fullPath);
+
+            cmd.CommandTimeout = this.OperationTimeout;
+
+            cmd.Execute();
+
+            cmd.SftpFile.UserId = owner;
+
+            var setCmd = new SetFileStatusCommand(this._sftpSession, fullPath, cmd.SftpFile.Attributes);
+
+            setCmd.CommandTimeout = this.OperationTimeout;
+
+            setCmd.Execute();
+        }
+
+        /// <summary>
+        /// Creates remote directory specified by path.
+        /// </summary>
+        /// <param name="path">Directory path to create.</param>
+        /// <exception cref="Renci.SshClient.Common.SshPermissionDeniedException"></exception>
+        /// <exception cref="Renci.SshClient.Common.SshException"></exception>
+        public void CreateDirectory(string path)
+        {
+            //  Ensure that connection is established.
+            this.EnsureConnection();
+
+            var fullPath = this.ResolvePath(path);
+
+            var cmd = new CreateDirectoryCommand(this._sftpSession, fullPath);
+
+            cmd.CommandTimeout = this.OperationTimeout;
+
+            cmd.Execute();
+        }
+
+        /// <summary>
+        /// Deletes remote directory specified by path.
+        /// </summary>
+        /// <param name="path">Directory to be deleted path.</param>
+        public void DeleteDirectory(string path)
+        {
+            //  Ensure that connection is established.
+            this.EnsureConnection();
+
+            var fullPath = this.ValidatePath(this.ResolvePath(path));
+
+            var cmd = new RemoveDirectoryCommand(this._sftpSession, fullPath);
+
+            cmd.CommandTimeout = this.OperationTimeout;
+
+            cmd.Execute();
+        }
+
+        /// <summary>
+        /// Deletes remote file specified by path.
+        /// </summary>
+        /// <param name="path">File to be deleted path.</param>
+        public void DeleteFile(string path)
+        {
+            //  Ensure that connection is established.
+            this.EnsureConnection();
+
+            var fullPath = this.ValidatePath(this.ResolvePath(path));
+
+            var cmd = new RemoveFileCommand(this._sftpSession, fullPath);
+
+            cmd.CommandTimeout = this.OperationTimeout;
+
+            cmd.Execute();
+        }
+
+        /// <summary>
+        /// Renames remote file from old path to new path.
+        /// </summary>
+        /// <param name="oldPath">Path to the old file location.</param>
+        /// <param name="newPath">Path to the new file location.</param>
+        public void RenameFile(string oldPath, string newPath)
+        {
+            //  Ensure that connection is established.
+            this.EnsureConnection();
+
+            var oldFullPath = this.ValidatePath(this.ResolvePath(oldPath));
+
+            var newFullPath = this.ResolvePath(newPath);
+
+            var cmd = new RenameFileCommand(this._sftpSession, oldFullPath, newFullPath);
+
+            cmd.CommandTimeout = this.OperationTimeout;
+
+            cmd.Execute();
+        }
+
+        /// <summary>
+        /// Creates a symbolic link from old path to new path.
+        /// </summary>
+        /// <param name="linkPath">The old path.</param>
+        /// <param name="path">The new path.</param>
+        public void SymbolicLink(string linkPath, string path)
+        {
+            //  TODO:   Need to be tested, currently does not work
+
+            //  Ensure that connection is established.
+            this.EnsureConnection();
+
+            var fullPath = this.ValidatePath(this.ResolvePath(path));
+
+            var linkFullPath = this.ResolvePath(linkPath);
+
+            var cmd = new SymbolicLinkCommand(this._sftpSession, linkFullPath, fullPath);
+
+            cmd.CommandTimeout = this.OperationTimeout;
+
+            cmd.Execute();
+        }
+
+        /// <summary>
+        /// Retrieves list of files in remote directory.
         /// </summary>
         /// <param name="path">The path.</param>
-        /// <param name="asyncCallback">The async callback.</param>
-        /// <param name="state">The state.</param>
+        /// <returns>List of directory entries</returns>
+        public IEnumerable<SftpFile> ListDirectory(string path)
+        {
+            return this.EndListDirectory(this.BeginListDirectory(path, null, null));
+        }
+
+        /// <summary>
+        /// Begins an asynchronous operation of retrieving list of files in remote directory.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <param name="asyncCallback">The method to be called when the asynchronous write operation is completed.</param>
+        /// <param name="state">A user-provided object that distinguishes this particular asynchronous write request from other requests.</param>
         /// <returns>An <see cref="IAsyncResult"/> that references the asynchronous operation.</returns>
         public IAsyncResult BeginListDirectory(string path, AsyncCallback asyncCallback, object state)
         {
-            var cmd = new ListDirectoryCommand(this._sftpSession, path);
+            //  Ensure that connection is established.
+            this.EnsureConnection();
+
+            var fullPath = this.ValidatePath(this.ResolvePath(path));
+
+            var cmd = new ListDirectoryCommand(this._sftpSession, fullPath);
 
             cmd.CommandTimeout = this.OperationTimeout;
 
@@ -108,9 +333,9 @@ namespace Renci.SshClient
         }
 
         /// <summary>
-        /// Ends the list directory operation.
+        /// Ends an asynchronous operation of retrieving list of files in remote directory.
         /// </summary>
-        /// <param name="asyncResult">An <see cref="IAsyncResult"/> that references the asynchronous operation.</param>
+        /// <param name="asyncResult">The pending asynchronous SFTP request.</param>
         /// <returns>List of files</returns>
         public IEnumerable<SftpFile> EndListDirectory(IAsyncResult asyncResult)
         {
@@ -129,30 +354,31 @@ namespace Renci.SshClient
         }
 
         /// <summary>
-        /// Lists the directory.
+        /// Downloads remote file specified by the path into the stream.
         /// </summary>
-        /// <param name="path">The path.</param>
-        /// <returns>List of files</returns>
-        public IEnumerable<SftpFile> ListDirectory(string path)
+        /// <param name="path">File to download.</param>
+        /// <param name="output">Stream to write the file into.</param>
+        public void DownloadFile(string path, Stream output)
         {
-            return this.EndListDirectory(this.BeginListDirectory(path, null, null));
+            this.EndDownloadFile(this.BeginDownloadFile(path, output, null, null));
         }
 
-        #endregion
-
-        #region Rename file
-
         /// <summary>
-        /// Begins the rename file.
+        /// Begins an asynchronous file downloading into the stream.
         /// </summary>
-        /// <param name="oldFilename">The old filename.</param>
-        /// <param name="newFileName">New name of the file.</param>
-        /// <param name="asyncCallback">The async callback.</param>
-        /// <param name="state">The state.</param>
+        /// <param name="path">The path.</param>
+        /// <param name="output">The output.</param>
+        /// <param name="asyncCallback">The method to be called when the asynchronous write operation is completed.</param>
+        /// <param name="state">A user-provided object that distinguishes this particular asynchronous write request from other requests.</param>
         /// <returns>An <see cref="IAsyncResult"/> that references the asynchronous operation.</returns>
-        public IAsyncResult BeginRenameFile(string oldFilename, string newFileName, AsyncCallback asyncCallback, object state)
+        public IAsyncResult BeginDownloadFile(string path, Stream output, AsyncCallback asyncCallback, object state)
         {
-            var cmd = new RenameFileCommand(this._sftpSession, oldFilename, newFileName);
+            //  Ensure that connection is established.
+            this.EnsureConnection();
+
+            var fullPath = this.ValidatePath(this.ResolvePath(path));
+
+            var cmd = new DownloadFileCommand(this._sftpSession, this.BufferSize, fullPath, output);
 
             cmd.CommandTimeout = this.OperationTimeout;
 
@@ -160,10 +386,10 @@ namespace Renci.SshClient
         }
 
         /// <summary>
-        /// Ends the rename file.
+        /// Ends an asynchronous file downloading into the stream.
         /// </summary>
-        /// <param name="asyncResult">An <see cref="IAsyncResult"/> that references the asynchronous operation.</param>
-        public void EndRenameFile(IAsyncResult asyncResult)
+        /// <param name="asyncResult">The pending asynchronous SFTP request.</param>
+        public void EndDownloadFile(IAsyncResult asyncResult)
         {
             var sftpAsyncResult = asyncResult as SftpAsyncResult;
 
@@ -172,35 +398,37 @@ namespace Renci.SshClient
                 throw new InvalidOperationException("Not valid IAsyncResult object.");
             }
 
-            var cmd = sftpAsyncResult.GetCommand<RenameFileCommand>();
+            var cmd = sftpAsyncResult.GetCommand<DownloadFileCommand>();
 
             cmd.EndExecute(sftpAsyncResult);
         }
 
         /// <summary>
-        /// Renames the file.
+        /// Uploads stream into remote file..
         /// </summary>
-        /// <param name="oldFilename">The old filename.</param>
-        /// <param name="newFileName">New name of the file.</param>
-        public void RenameFile(string oldFilename, string newFileName)
+        /// <param name="input">Data input stream.</param>
+        /// <param name="path">Remote file path.</param>
+        public void UploadFile(Stream input, string path)
         {
-            this.EndRenameFile(this.BeginRenameFile(oldFilename, newFileName, null, null));
+            this.EndUploadFile(this.BeginUploadFile(input, path, null, null));
         }
 
-        #endregion
-
-        #region Remove Directory
-
         /// <summary>
-        /// Begins the remove directory.
+        /// Begins an asynchronous uploading the steam into remote file.
         /// </summary>
-        /// <param name="path">The path.</param>
-        /// <param name="asyncCallback">The async callback.</param>
-        /// <param name="state">The state.</param>
+        /// <param name="input">Data input stream.</param>
+        /// <param name="path">Remote file path.</param>
+        /// <param name="asyncCallback">The method to be called when the asynchronous write operation is completed.</param>
+        /// <param name="state">A user-provided object that distinguishes this particular asynchronous write request from other requests.</param>
         /// <returns>An <see cref="IAsyncResult"/> that references the asynchronous operation.</returns>
-        public IAsyncResult BeginRemoveDirectory(string path, AsyncCallback asyncCallback, object state)
+        public IAsyncResult BeginUploadFile(Stream input, string path, AsyncCallback asyncCallback, object state)
         {
-            var cmd = new RemoveDirectoryCommand(this._sftpSession, path);
+            //  Ensure that connection is established.
+            this.EnsureConnection();
+
+            var fullPath = this.ResolvePath(path);
+
+            var cmd = new UploadFileCommand(this._sftpSession, this.BufferSize, fullPath, input);
 
             cmd.CommandTimeout = this.OperationTimeout;
 
@@ -208,151 +436,9 @@ namespace Renci.SshClient
         }
 
         /// <summary>
-        /// Ends the remove directory.
+        /// Ends an asynchronous uploading the steam into remote file.
         /// </summary>
-        /// <param name="asyncResult">An <see cref="IAsyncResult"/> that references the asynchronous operation.</param>
-        public void EndRemoveDirectory(IAsyncResult asyncResult)
-        {
-            var sftpAsyncResult = asyncResult as SftpAsyncResult;
-
-            if (sftpAsyncResult == null)
-            {
-                throw new InvalidOperationException("Not valid IAsyncResult object.");
-            }
-
-            var cmd = sftpAsyncResult.GetCommand<RemoveDirectoryCommand>();
-
-            cmd.EndExecute(sftpAsyncResult);
-        }
-
-        /// <summary>
-        /// Removes the directory.
-        /// </summary>
-        /// <param name="path">The path.</param>
-        public void RemoveDirectory(string path)
-        {
-            this.EndRemoveDirectory(this.BeginRemoveDirectory(path, null, null));
-        }
-
-        #endregion
-
-        #region Create Directory
-
-        /// <summary>
-        /// Begins the create directory.
-        /// </summary>
-        /// <param name="path">The path.</param>
-        /// <param name="asyncCallback">The async callback.</param>
-        /// <param name="state">The state.</param>
-        /// <returns>An <see cref="IAsyncResult"/> that references the asynchronous operation.</returns>
-        public IAsyncResult BeginCreateDirectory(string path, AsyncCallback asyncCallback, object state)
-        {
-            var cmd = new CreateDirectoryCommand(this._sftpSession, path);
-
-            cmd.CommandTimeout = this.OperationTimeout;
-
-            return cmd.BeginExecute(asyncCallback, state);
-        }
-
-        /// <summary>
-        /// Ends the create directory.
-        /// </summary>
-        /// <param name="asyncResult">An <see cref="IAsyncResult"/> that references the asynchronous operation.</param>
-        public void EndCreateDirectory(IAsyncResult asyncResult)
-        {
-            var sftpAsyncResult = asyncResult as SftpAsyncResult;
-
-            if (sftpAsyncResult == null)
-            {
-                throw new InvalidOperationException("Not valid IAsyncResult object.");
-            }
-
-            var cmd = sftpAsyncResult.GetCommand<CreateDirectoryCommand>();
-
-            cmd.EndExecute(sftpAsyncResult);
-        }
-
-        /// <summary>
-        /// Creates the directory.
-        /// </summary>
-        /// <param name="path">The path.</param>
-        public void CreateDirectory(string path)
-        {
-            this.EndCreateDirectory(this.BeginCreateDirectory(path, null, null));
-        }
-
-        #endregion
-
-        #region Remove File
-
-        /// <summary>
-        /// Begins the remove file.
-        /// </summary>
-        /// <param name="filename">The filename.</param>
-        /// <param name="asyncCallback">The async callback.</param>
-        /// <param name="state">The state.</param>
-        /// <returns>An <see cref="IAsyncResult"/> that references the asynchronous operation.</returns>
-        public IAsyncResult BeginRemoveFile(string filename, AsyncCallback asyncCallback, object state)
-        {
-            var cmd = new RemoveFileCommand(this._sftpSession, filename);
-
-            cmd.CommandTimeout = this.OperationTimeout;
-
-            return cmd.BeginExecute(asyncCallback, state);
-        }
-
-        /// <summary>
-        /// Ends the remove file.
-        /// </summary>
-        /// <param name="asyncResult">An <see cref="IAsyncResult"/> that references the asynchronous operation.</param>
-        public void EndRemoveFile(IAsyncResult asyncResult)
-        {
-            var sftpAsyncResult = asyncResult as SftpAsyncResult;
-
-            if (sftpAsyncResult == null)
-            {
-                throw new InvalidOperationException("Not valid IAsyncResult object.");
-            }
-
-            var cmd = sftpAsyncResult.GetCommand<RemoveFileCommand>();
-
-            cmd.EndExecute(sftpAsyncResult);
-        }
-
-        /// <summary>
-        /// Removes the file.
-        /// </summary>
-        /// <param name="filename">The filename.</param>
-        public void RemoveFile(string filename)
-        {
-            this.EndRemoveFile(this.BeginRemoveFile(filename, null, null));
-        }
-
-        #endregion
-
-        #region Upload File
-
-        /// <summary>
-        /// Begins the upload file.
-        /// </summary>
-        /// <param name="filename">The filename.</param>
-        /// <param name="input">The input.</param>
-        /// <param name="asyncCallback">The async callback.</param>
-        /// <param name="state">The state.</param>
-        /// <returns>An <see cref="IAsyncResult"/> that references the asynchronous operation.</returns>
-        public IAsyncResult BeginUploadFile(string filename, Stream input, AsyncCallback asyncCallback, object state)
-        {
-            var cmd = new UploadFileCommand(this._sftpSession, this.BufferSize, filename, input);
-
-            cmd.CommandTimeout = this.OperationTimeout;
-
-            return cmd.BeginExecute(asyncCallback, state);
-        }
-
-        /// <summary>
-        /// Ends the upload file.
-        /// </summary>
-        /// <param name="asyncResult">An <see cref="IAsyncResult"/> that references the asynchronous operation.</param>
+        /// <param name="asyncResult">The pending asynchronous SFTP request.</param>
         public void EndUploadFile(IAsyncResult asyncResult)
         {
             var sftpAsyncResult = asyncResult as SftpAsyncResult;
@@ -368,118 +454,6 @@ namespace Renci.SshClient
         }
 
         /// <summary>
-        /// Uploads the file.
-        /// </summary>
-        /// <param name="filename">The filename.</param>
-        /// <param name="input">An <see cref="IAsyncResult"/> that references the asynchronous operation.</param>
-        public void UploadFile(string filename, Stream input)
-        {
-            this.EndUploadFile(this.BeginUploadFile(filename, input, null, null));
-        }
-
-        #endregion
-
-        #region Download File
-
-        /// <summary>
-        /// Begins the download.
-        /// </summary>
-        /// <param name="filename">The filename.</param>
-        /// <param name="output">The output.</param>
-        /// <param name="asyncCallback">The async callback.</param>
-        /// <param name="state">The state.</param>
-        /// <returns>An <see cref="IAsyncResult"/> that references the asynchronous operation.</returns>
-        public IAsyncResult BeginDownload(string filename, Stream output, AsyncCallback asyncCallback, object state)
-        {
-            var cmd = new DownloadFileCommand(this._sftpSession, this.BufferSize, filename, output);
-
-            cmd.CommandTimeout = this.OperationTimeout;
-
-            return cmd.BeginExecute(asyncCallback, state);
-        }
-
-        /// <summary>
-        /// Ends the download.
-        /// </summary>
-        /// <param name="asyncResult">An <see cref="IAsyncResult"/> that references the asynchronous operation.</param>
-        public void EndDownload(IAsyncResult asyncResult)
-        {
-            var sftpAsyncResult = asyncResult as SftpAsyncResult;
-
-            if (sftpAsyncResult == null)
-            {
-                throw new InvalidOperationException("Not valid IAsyncResult object.");
-            }
-
-            var cmd = sftpAsyncResult.GetCommand<DownloadFileCommand>();
-
-            cmd.EndExecute(sftpAsyncResult);
-        }
-
-        /// <summary>
-        /// Downloads the specified filename.
-        /// </summary>
-        /// <param name="filename">The filename.</param>
-        /// <param name="output">The output.</param>
-        public void Download(string filename, Stream output)
-        {
-            this.EndDownload(this.BeginDownload(filename, output, null, null));
-        }
-
-        #endregion
-
-        #region Get Real Path
-
-        /// <summary>
-        /// Begins the get real path.
-        /// </summary>
-        /// <param name="path">The path.</param>
-        /// <param name="asyncCallback">The async callback.</param>
-        /// <param name="state">The state.</param>
-        /// <returns>An <see cref="IAsyncResult"/> that references the asynchronous operation.</returns>
-        public IAsyncResult BeginGetRealPath(string path, AsyncCallback asyncCallback, object state)
-        {
-            var cmd = new RealPathCommand(this._sftpSession, path);
-
-            cmd.CommandTimeout = this.OperationTimeout;
-
-            return cmd.BeginExecute(asyncCallback, state);
-        }
-
-        /// <summary>
-        /// Ends the get real path.
-        /// </summary>
-        /// <param name="asyncResult">An <see cref="IAsyncResult"/> that references the asynchronous operation.</param>
-        /// <returns></returns>
-        public IEnumerable<SftpFile> EndGetRealPath(IAsyncResult asyncResult)
-        {
-            var sftpAsyncResult = asyncResult as SftpAsyncResult;
-
-            if (sftpAsyncResult == null)
-            {
-                throw new InvalidOperationException("Not valid IAsyncResult object.");
-            }
-
-            var cmd = sftpAsyncResult.GetCommand<RealPathCommand>();
-
-            cmd.EndExecute(sftpAsyncResult);
-
-            return cmd.Files;
-        }
-
-        /// <summary>
-        /// Gets the real path.
-        /// </summary>
-        /// <param name="path">The path.</param>
-        /// <returns></returns>
-        public IEnumerable<SftpFile> GetRealPath(string path)
-        {
-            return this.EndGetRealPath(this.BeginGetRealPath(path, null, null));
-        }
-
-        #endregion
-
-        /// <summary>
         /// Called when client is connected to the server.
         /// </summary>
         protected override void OnConnected()
@@ -489,6 +463,12 @@ namespace Renci.SshClient
             this._sftpSession = new SftpSession(this.Session, this.OperationTimeout);
 
             this._sftpSession.Connect();
+
+            //  Resolve current directory
+            this.WorkingDirectory = this.ValidatePath(".");
+
+            //  Resolve current running version
+            this.ProtocolVersion = this._sftpSession.ProtocolVersion;
         }
 
         /// <summary>
@@ -501,5 +481,38 @@ namespace Renci.SshClient
             this._sftpSession.Disconnect();
         }
 
+        /// <summary>
+        /// Resolves the path client side without server validation.
+        /// </summary>
+        /// <param name="path">Path to resolve.</param>
+        /// <returns>Resolved path</returns>
+        private string ResolvePath(string path)
+        {
+            //  If path starts with "/" then its "absolute"
+            if (!path.StartsWith("/"))
+            {
+                return string.Format("{0}/{1}", this.WorkingDirectory, path);
+            }
+            else
+                return path;
+        }
+
+        /// <summary>
+        /// Resolves path into absolute path on the server.
+        /// </summary>
+        /// <param name="path">PAth to resolve..</param>
+        /// <returns>Absolute path</returns>
+        private string ValidatePath(string path)
+        {
+            var cmd = new RealPathCommand(this._sftpSession, path);
+
+            cmd.CommandTimeout = this.OperationTimeout;
+
+            cmd.Execute();
+
+            var file = cmd.Files.FirstOrDefault();
+
+            return file.AbsolutePath;
+        }
     }
 }

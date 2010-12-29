@@ -27,10 +27,10 @@ namespace Renci.SshClient.Sftp.Messages
             for (int i = 0; i < this.Count; i++)
             {
                 var fileName = this.ReadString();
-                var fullName = this.ReadString();
+                var fullName = this.ReadString();   //  This field value has meaningless information
                 var attributes = this.ReadAttributes();
 
-                files.Add(new SftpFile(fileName, fullName, attributes));
+                files.Add(new SftpFile(fileName, attributes));
             }
             this.Files = files;
         }

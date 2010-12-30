@@ -177,13 +177,7 @@ namespace Renci.SshClient.Security
         public virtual void Finish()
         {
             //  Validate hash
-            var validated = this.ValidateExchangeHash();
-
-            if (validated)
-            {
-                this.SendMessage(new NewKeysMessage());
-            }
-            else
+            if (!this.ValidateExchangeHash())
             {
                 throw new SshConnectionException("Key exchange negotiation failed.", DisconnectReasons.KeyExchangeFailed);
             }

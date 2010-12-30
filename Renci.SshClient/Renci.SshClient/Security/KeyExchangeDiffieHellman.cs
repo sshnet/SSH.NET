@@ -138,6 +138,9 @@ namespace Renci.SshClient.Security
             this._hostKey = hostKey;
             this.SharedKey = System.Numerics.BigInteger.ModPow(serverExchangeValue, this._randomValue, this._prime);
             this._signature = signature;
+
+            //  Whare DH reply received key exchange is completed
+            this.SendMessage(new NewKeysMessage());
         }
     }
 }

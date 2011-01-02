@@ -38,7 +38,7 @@ namespace Renci.SshClient.Sftp.Messages
         /// <value>
         /// The permissions.
         /// </value>
-        public uint? Permissions { get; set; }
+        public uint Permissions { get; set; }
 
         /// <summary>
         /// Gets or sets the access time.

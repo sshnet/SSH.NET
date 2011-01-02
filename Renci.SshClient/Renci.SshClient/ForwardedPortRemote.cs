@@ -151,6 +151,7 @@ namespace Renci.SshClient
                     if (this._globalRequestResponse != null)
                     {
                         this._globalRequestResponse.Dispose();
+                        this._globalRequestResponse = null;
                     }
                 }
 

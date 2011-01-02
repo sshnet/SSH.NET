@@ -107,6 +107,9 @@ namespace Renci.SshClient.Security
                 this.Session.UnRegisterMessage("SSH_MSG_KEX_DH_GEX_REPLY");
 
                 this.HandleServerDhReply(replyMessage.HostKey, replyMessage.F, replyMessage.Signature);
+
+                //  When SSH_MSG_KEX_DH_GEX_REPLY received key exchange is completed
+                this.Finish();
             }
         }
         

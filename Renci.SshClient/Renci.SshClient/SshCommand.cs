@@ -373,24 +373,28 @@ namespace Renci.SshClient
                     if (this.OutputStream != null)
                     {
                         this.OutputStream.Dispose();
+                        this.OutputStream = null;
                     }
 
                     // Dispose managed resources.
                     if (this.ExtendedOutputStream != null)
                     {
                         this.ExtendedOutputStream.Dispose();
+                        this.ExtendedOutputStream = null;
                     }
 
                     // Dispose managed resources.
                     if (this._sessionErrorOccuredWaitHandle != null)
                     {
                         this._sessionErrorOccuredWaitHandle.Dispose();
+                        this._sessionErrorOccuredWaitHandle = null;
                     }
 
                     // Dispose managed resources.
                     if (this._channel != null)
                     {
                         this._channel.Dispose();
+                        this._channel = null;
                     }
                 }
 

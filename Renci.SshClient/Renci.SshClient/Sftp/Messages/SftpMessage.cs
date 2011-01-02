@@ -129,7 +129,7 @@ namespace Renci.SshClient.Sftp.Messages
                     flag |= 0x00000002;
                 }
 
-                if (attributes.Permissions.HasValue)
+                if (attributes.Permissions > 0)
                 {
                     flag |= 0x00000004;
                 }
@@ -157,9 +157,9 @@ namespace Renci.SshClient.Sftp.Messages
                     this.Write(attributes.GroupId.Value);
                 }
 
-                if (attributes.Permissions.HasValue)
+                if (attributes.Permissions  > 0)
                 {
-                    this.Write(attributes.Permissions.Value);
+                    this.Write(attributes.Permissions);
                 }
 
                 if (attributes.AccessTime.HasValue && attributes.ModifyTime.HasValue)

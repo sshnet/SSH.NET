@@ -23,11 +23,6 @@ namespace Renci.SshClient.Channels
 
         private uint _maximumPacketSize = 0x8000;
 
-        /// <summary>
-        /// Indicates weither close channel message was sent
-        /// </summary>
-        private bool _closeMessageSent = false;
-
         private Session _session;
 
         /// <summary>
@@ -205,15 +200,14 @@ namespace Renci.SshClient.Channels
         /// </summary>
         public virtual void Close()
         {
-            if (this.IsOpen)
-            {
-                this.SendChannelCloseMessage();
+            //  Send EOF message first when channel need to be closed
+            this.SendMessage(new ChannelEofMessage(this.RemoteChannelNumber));
 
-                //  Wait for channel to be closed
-                this._session.WaitHandle(this._channelClosedWaitHandle);
-            }
+            //  Send message to close the channel on the server
+            this.SendMessage(new ChannelCloseMessage(this.RemoteChannelNumber));
 
-            this.CloseCleanup();
+            //  Wait for channel to be closed
+            this._session.WaitHandle(this._channelClosedWaitHandle);
         }
 
         #region Channel virtual methods
@@ -238,6 +232,7 @@ namespace Renci.SshClient.Channels
             this.ServerWindowSize = initialWindowSize;
             this.PacketSize = maximumPacketSize;
 
+            //  Chanel consider to be open when confirmation message was received
             this.IsOpen = true;
         }
 
@@ -310,14 +305,30 @@ namespace Renci.SshClient.Channels
         /// </summary>
         protected virtual void OnClose()
         {
-            this.CloseCleanup();
+            //  No more channel messages are allowed after Close message received
+            this._session.ChannelOpenReceived -= OnChannelOpen;
+            this._session.ChannelOpenConfirmationReceived -= OnChannelOpenConfirmation;
+            this._session.ChannelOpenFailureReceived -= OnChannelOpenFailure;
+            this._session.ChannelWindowAdjustReceived -= OnChannelWindowAdjust;
+            this._session.ChannelDataReceived -= OnChannelData;
+            this._session.ChannelExtendedDataReceived -= OnChannelExtendedData;
+            this._session.ChannelEofReceived -= OnChannelEof;
+            this._session.ChannelCloseReceived -= OnChannelClose;
+            this._session.ChannelRequestReceived -= OnChannelRequest;
+            this._session.ChannelSuccessReceived -= OnChannelSuccess;
+            this._session.ChannelFailureReceived -= OnChannelFailure;
+            this._session.ErrorOccured -= Session_ErrorOccured;
+            this._session.Disconnected -= Session_Disconnected;
 
-            this._channelClosedWaitHandle.Set();
-
+            //  Send close message to channel to confirm channel closing
+            this.SendMessage(new ChannelCloseMessage(this.RemoteChannelNumber));
+            
             if (this.Closed != null)
             {
                 this.Closed(this, new ChannelEventArgs(this.LocalChannelNumber));
             }
+
+            this._channelClosedWaitHandle.Set();
         }
 
         /// <summary>
@@ -362,7 +373,46 @@ namespace Renci.SshClient.Channels
         /// <param name="message">The message.</param>
         protected void SendMessage(Message message)
         {
+            //  Send channel messages only while channel is open
+            if (!this.IsOpen)
+                return;
+
             this._session.SendMessage(message);
+        }
+
+        protected void SendMessage(ChannelOpenConfirmationMessage message)
+        {
+            //  No need to check whether channel is open when trying to open a channel
+            this._session.SendMessage(message);
+
+            //  Chanel consider to be open when confirmation message is sent
+            this.IsOpen = true;
+        }
+
+        /// <summary>
+        /// Send message to open a channel.
+        /// </summary>
+        /// <param name="message">Message to send</param>
+        protected void SendMessage(ChannelOpenMessage message)
+        {
+            //  No need to check whether channel is open when trying to open a channel
+            this._session.SendMessage(message);
+        }
+
+        /// <summary>
+        /// Sends close channel message to the server
+        /// </summary>
+        /// <param name="message">Message to send.</param>
+        protected void SendMessage(ChannelCloseMessage message)
+        {
+            //  Send channel messages only while channel is open
+            if (!this.IsOpen)
+                return;
+
+            this._session.SendMessage(message);
+
+            //  When channel close message is sent channel considred to be closed
+            this.IsOpen = false;
         }
 
         /// <summary>
@@ -372,6 +422,10 @@ namespace Renci.SshClient.Channels
         /// <param name="message">Channel data message.</param>
         protected void SendMessage(ChannelDataMessage message)
         {
+            //  Send channel messages only while channel is open
+            if (!this.IsOpen)
+                return;
+
             if (this.ServerWindowSize < 1)
             {
                 //  Wait for window to be adjust
@@ -389,6 +443,10 @@ namespace Renci.SshClient.Channels
         /// <param name="message">Channel data message.</param>
         protected void SendMessage(ChannelExtendedDataMessage message)
         {
+            //  Send channel messages only while channel is open
+            if (!this.IsOpen)
+                return;
+
             if (this.ServerWindowSize < 1)
             {
                 //  Wait for window to be adjust
@@ -397,33 +455,6 @@ namespace Renci.SshClient.Channels
 
             this.ServerWindowSize -= (uint)message.Data.Length;
             this._session.SendMessage(message);
-        }
-
-        /// <summary>
-        /// Performs clean up tasks when channel is need to be closed.
-        /// </summary>
-        protected void CloseCleanup()
-        {
-            if (!this.IsOpen)
-                return;
-
-            this.IsOpen = false;
-
-            this.SendChannelCloseMessage();
-
-            this._session.ChannelOpenReceived -= OnChannelOpen;
-            this._session.ChannelOpenConfirmationReceived -= OnChannelOpenConfirmation;
-            this._session.ChannelOpenFailureReceived -= OnChannelOpenFailure;
-            this._session.ChannelWindowAdjustReceived -= OnChannelWindowAdjust;
-            this._session.ChannelDataReceived -= OnChannelData;
-            this._session.ChannelExtendedDataReceived -= OnChannelExtendedData;
-            this._session.ChannelEofReceived -= OnChannelEof;
-            this._session.ChannelCloseReceived -= OnChannelClose;
-            this._session.ChannelRequestReceived -= OnChannelRequest;
-            this._session.ChannelSuccessReceived -= OnChannelSuccess;
-            this._session.ChannelFailureReceived -= OnChannelFailure;
-            this._session.ErrorOccured -= Session_ErrorOccured;
-            this._session.Disconnected -= Session_Disconnected;
         }
 
         /// <summary>
@@ -549,22 +580,6 @@ namespace Renci.SshClient.Channels
             }
         }
 
-        private void SendChannelCloseMessage()
-        {
-            if (this._closeMessageSent)
-                return;
-
-            lock (this)
-            {
-                if (this._closeMessageSent)
-                    return;
-
-                this.SendMessage(new ChannelCloseMessage(this.RemoteChannelNumber));
-
-                this._closeMessageSent = true;
-            }
-        }
-
         #region IDisposable Members
 
         private bool _isDisposed = false;
@@ -596,18 +611,22 @@ namespace Renci.SshClient.Channels
                     if (this._channelClosedWaitHandle != null)
                     {
                         this._channelClosedWaitHandle.Dispose();
+                        this._channelClosedWaitHandle = null;
                     }
                     if (this._channelWindowAdjustWaitHandle != null)
                     {
                         this._channelWindowAdjustWaitHandle.Dispose();
+                        this._channelWindowAdjustWaitHandle = null;
                     }
                     if (this._errorOccuredWaitHandle != null)
                     {
                         this._errorOccuredWaitHandle.Dispose();
+                        this._errorOccuredWaitHandle = null;
                     }
                     if (this._disconnectedWaitHandle != null)
                     {
                         this._disconnectedWaitHandle.Dispose();
+                        this._disconnectedWaitHandle = null;
                     }
                 }
 

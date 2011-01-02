@@ -33,8 +33,7 @@ namespace Renci.SshClient.Security
         /// <value>
         /// The session.
         /// </value>
-        protected Session Session { get; set; }
-        //  TODO:   Refactor to make setter private
+        protected Session Session { get; private set; }
 
         /// <summary>
         /// Gets or sets key exchange shared key.
@@ -60,36 +59,6 @@ namespace Renci.SshClient.Security
                 return this._exchangeHash;
             }
         }
-
-        /// <summary>
-        /// Gets the cipher to encrypt sent messages.
-        /// </summary>
-        public Cipher ServerCipher { get; private set; }
-
-        /// <summary>
-        /// Gets the cipher to decrypt received messages.
-        /// </summary>
-        public Cipher ClientCipher { get; private set; }
-
-        /// <summary>
-        /// Gets hashing algorithm to use when message received.
-        /// </summary>
-        public HMac ServerHMac { get; private set; }
-
-        /// <summary>
-        /// Gets hashing algorithm to use when sending messages.
-        /// </summary>
-        public HMac ClientHMac { get; private set; }
-
-        /// <summary>
-        /// Gets compression algorithm to use when sending messages.
-        /// </summary>
-        public Compressor Compressor { get; private set; }
-
-        /// <summary>
-        /// Gets compression algorithm to use when receiving messages.
-        /// </summary>
-        public Compressor Decompressor { get; private set; }
 
         /// <summary>
         /// Starts key exchange algorithm
@@ -177,65 +146,108 @@ namespace Renci.SshClient.Security
         public virtual void Finish()
         {
             //  Validate hash
-            if (!this.ValidateExchangeHash())
+            if (this.ValidateExchangeHash())
+            {
+                this.SendMessage(new NewKeysMessage());
+            }
+            else
             {
                 throw new SshConnectionException("Key exchange negotiation failed.", DisconnectReasons.KeyExchangeFailed);
             }
+        }
+
+        public Cipher CreateServerCipher()
+        {
+            //  Resolve Session ID
+            var sessionId = this.Session.SessionId ?? this.ExchangeHash;
 
             //  Create server cipher
-            this.ServerCipher = this._serverCipherType.CreateInstance<Cipher>();
+            var serverCipher = this._serverCipherType.CreateInstance<Cipher>();
 
             //  Calculate server to client initial IV
-            var serverVector = this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'B', this.Session.SessionId));
+            var serverVector = this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'B', sessionId));
 
             //  Calculate server to client encryption
-            var serverKey = this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'D', this.Session.SessionId));
+            var serverKey = this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'D', sessionId));
 
-            serverKey = this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, serverKey, this.ServerCipher.KeySize / 8);
+            serverKey = this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, serverKey, serverCipher.KeySize / 8);
 
-            this.ServerCipher.Init(serverKey, serverVector);
+            serverCipher.Init(serverKey, serverVector);
+
+            return serverCipher;
+        }
+
+        public Cipher CreateClientCipher()
+        {
+            //  Resolve Session ID
+            var sessionId = this.Session.SessionId ?? this.ExchangeHash;
 
             //  Create client cipher
-            this.ClientCipher = this._clientCipherType.CreateInstance<Cipher>();
+            var clientCipher = this._clientCipherType.CreateInstance<Cipher>();
 
             //  Calculate client to server initial IV
-            var clientVector = this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'A', this.Session.SessionId));
+            var clientVector = this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'A', sessionId));
 
             //  Calculate client to server encryption
-            var clientKey = this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'C', this.Session.SessionId));
+            var clientKey = this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'C', sessionId));
 
-            clientKey = this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, clientKey, this.ClientCipher.KeySize / 8);
+            clientKey = this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, clientKey, clientCipher.KeySize / 8);
 
-            this.ClientCipher.Init(clientKey, clientVector);
+            clientCipher.Init(clientKey, clientVector);
+
+            return clientCipher;
+        }
+
+        public HMac CreateServerHash()
+        {
+            //  Resolve Session ID
+            var sessionId = this.Session.SessionId ?? this.ExchangeHash;
 
             //  Create server HMac
-            this.ServerHMac = this._serverHmacAlgorithmType.CreateInstance<HMac>();
+            var serverHMac = this._serverHmacAlgorithmType.CreateInstance<HMac>();
 
-            this.ServerHMac.Init(this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'F', this.Session.SessionId)));
+            serverHMac.Init(this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'F', sessionId)));
+
+            return serverHMac;
+        }
+
+        public HMac CreateClientHash()
+        {
+            //  Resolve Session ID
+            var sessionId = this.Session.SessionId ?? this.ExchangeHash;
 
             //  Create client HMac
-            this.ClientHMac = this._cientHmacAlgorithmType.CreateInstance<HMac>();
+            var clientHMac = this._cientHmacAlgorithmType.CreateInstance<HMac>();
 
-            this.ClientHMac.Init(this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'E', this.Session.SessionId)));
+            clientHMac.Init(this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'E', sessionId)));
 
-            if (this._compressionType != null)
-            {
-                var compressor = this._compressionType.CreateInstance<Compressor>();
-
-                compressor.Init(this.Session);
-
-                this.Compressor = compressor;
-            }
-
-            if (this._decompressionType != null)
-            {
-                var decompressor = this._decompressionType.CreateInstance<Compressor>();
-
-                decompressor.Init(this.Session);
-
-                this.Decompressor = decompressor;
-            }
+            return clientHMac;
         }
+
+        public Compressor CreateCompressor()
+        {
+            if (this._compressionType == null)
+                return null;
+
+            var compressor = this._compressionType.CreateInstance<Compressor>();
+
+            compressor.Init(this.Session);
+
+            return compressor;
+        }
+
+        public Compressor CreateDecompressor()
+        {
+            if (this._compressionType == null)
+                return null;
+
+            var decompressor = this._decompressionType.CreateInstance<Compressor>();
+
+            decompressor.Init(this.Session);
+
+            return decompressor;
+        }
+
 
         /// <summary>
         /// Validates the exchange hash.
@@ -361,8 +373,6 @@ namespace Renci.SshClient.Security
 
         #region IDisposable Members
 
-        private bool _disposed = false;
-
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
@@ -379,38 +389,6 @@ namespace Renci.SshClient.Security
         /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
-            // Check to see if Dispose has already been called.
-            if (!this._disposed)
-            {
-                // If disposing equals true, dispose all managed
-                // and unmanaged resources.
-                if (disposing)
-                {
-                    // Dispose managed resources.
-                    if (this.ServerCipher != null)
-                    {
-                        this.ServerCipher.Dispose();
-                    }
-
-                    if (this.ClientCipher != null)
-                    {
-                        this.ClientCipher.Dispose();
-                    }
-
-                    if (this.ServerHMac != null)
-                    {
-                        this.ServerHMac.Dispose();
-                    }
-
-                    if (this.ClientHMac != null)
-                    {
-                        this.ClientHMac.Dispose();
-                    }
-                }
-
-                // Note disposing has been done.
-                this._disposed = true;
-            }
         }
 
         /// <summary>

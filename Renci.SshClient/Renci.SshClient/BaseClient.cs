@@ -201,10 +201,12 @@ namespace Renci.SshClient
                     if (this.Session != null)
                     {
                         this.Session.Dispose();
+                        this.Session = null;
                     }
                     if (this._keepAliveTimer != null)
                     {
                         this._keepAliveTimer.Dispose();
+                        this._keepAliveTimer = null;
                     }
 
                 }

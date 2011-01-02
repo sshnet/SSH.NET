@@ -133,6 +133,7 @@ namespace Renci.SshClient.Security
                     if (this._algorithm != null)
                     {
                         this._algorithm.Dispose();
+                        this._algorithm = null;
                     }
                 }
 

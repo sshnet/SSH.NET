@@ -804,7 +804,7 @@ namespace Renci.SshClient
 
             if (this._messageListener != null)
             {
-                //  Wait for listner task to finish
+                //  Wait for listener task to finish
                 this._messageListener.Wait();
                 this._messageListener = null;
             }
@@ -1061,12 +1061,6 @@ namespace Renci.SshClient
                 throw new SshConnectionException("Failed to negotiate key exchange algorithm.", DisconnectReasons.KeyExchangeFailed);
             }
 
-            //  Dispose of of previous key exchange if exists
-            if (this._keyExchange != null)
-            {
-                this._keyExchange.Dispose();
-            }
-
             //  Create instance of key exchange algorithm that will be used
             this._keyExchange = this.ConnectionInfo.KeyExchangeAlgorithms[keyExchangeAlgorithmName].CreateInstance<KeyExchange>();
 
@@ -1091,16 +1085,51 @@ namespace Renci.SshClient
                 this.SessionId = this._keyExchange.ExchangeHash;
             }
 
-            //  Finish key exchange
-            this._keyExchange.Finish();
+            //  Dispose of old ciphers and hash algorithms
+            if (this._serverCipher != null)
+            {
+                this._serverCipher.Dispose();
+                this._serverCipher = null;
+            }
+
+            if (this._clientCipher != null)
+            {
+                this._clientCipher.Dispose();
+                this._clientCipher = null;
+            }
+
+            if (this._serverMac != null)
+            {
+                this._serverMac.Dispose();
+                this._serverMac = null;
+            }
+
+            if (this._clientMac != null)
+            {
+                this._clientMac.Dispose();
+                this._clientMac = null;
+            }
+
+            if (this._keyExchange != null)
+            {
+                this._keyExchange.Dispose();
+                this._keyExchange = null;
+            }
 
             //  Update negotiated algorithms
-            this._serverCipher = this._keyExchange.ServerCipher;
-            this._clientCipher = this._keyExchange.ClientCipher;
-            this._serverMac = this._keyExchange.ServerHMac;
-            this._clientMac = this._keyExchange.ClientHMac;
-            this._clientCompression = this._keyExchange.Compressor;
-            this._serverDecompression = this._keyExchange.Decompressor;
+            this._serverCipher = this._keyExchange.CreateServerCipher();
+            this._clientCipher = this._keyExchange.CreateClientCipher();
+            this._serverMac = this._keyExchange.CreateServerHash();
+            this._clientMac = this._keyExchange.CreateClientHash();
+            this._clientCompression = this._keyExchange.CreateCompressor();
+            this._serverDecompression = this._keyExchange.CreateDecompressor();
+
+            //  Dispose of old KeyExchange object as it is no longer needed.
+            if (this._keyExchange != null)
+            {
+                this._keyExchange.Dispose();
+                this._keyExchange = null;
+            }
 
             //  Register Connection messages
             this.RegisterMessage("SSH_MSG_GLOBAL_REQUEST");
@@ -1584,32 +1613,62 @@ namespace Renci.SshClient
                     // Dispose managed resources.
                     if (this._socket != null)
                     {
-                        this._socket.Close();
+                        this._socket.Dispose();
+                        this._socket = null;
                     }
 
                     if (this._serviceAccepted != null)
                     {
                         this._serviceAccepted.Dispose();
+                        this._serviceAccepted = null;
                     }
 
                     if (this._exceptionWaitHandle != null)
                     {
                         this._exceptionWaitHandle.Dispose();
+                        this._exceptionWaitHandle = null;
                     }
 
                     if (this._sessionSemaphore != null)
                     {
                         this._sessionSemaphore.Dispose();
+                        this._sessionSemaphore = null;
                     }
 
                     if (this._keyExchangeCompletedWaitHandle != null)
                     {
                         this._keyExchangeCompletedWaitHandle.Dispose();
+                        this._keyExchangeCompletedWaitHandle = null;
+                    }
+
+                    if (this._serverCipher != null)
+                    {
+                        this._serverCipher.Dispose();
+                        this._serverCipher = null;
+                    }
+
+                    if (this._clientCipher != null)
+                    {
+                        this._clientCipher.Dispose();
+                        this._clientCipher = null;
+                    }
+
+                    if (this._serverMac != null)
+                    {
+                        this._serverMac.Dispose();
+                        this._serverMac = null;
+                    }
+
+                    if (this._clientMac != null)
+                    {
+                        this._clientMac.Dispose();
+                        this._clientMac = null;
                     }
 
                     if (this._keyExchange != null)
                     {
                         this._keyExchange.Dispose();
+                        this._keyExchange = null;
                     }
                 }
 

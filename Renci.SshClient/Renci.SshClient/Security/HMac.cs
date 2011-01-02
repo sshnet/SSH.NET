@@ -77,6 +77,7 @@ namespace Renci.SshClient.Security
                     if (this._hmac != null)
                     {
                         this._hmac.Dispose();
+                        this._hmac = null;
                     }
                 }
 

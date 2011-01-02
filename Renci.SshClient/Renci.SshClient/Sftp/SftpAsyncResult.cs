@@ -110,6 +110,7 @@ namespace Renci.SshClient.Sftp
                     if (this.AsyncWaitHandle != null)
                     {
                         this.AsyncWaitHandle.Dispose();
+                        this.AsyncWaitHandle = null;
                     }
 
                 }

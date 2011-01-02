@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using Renci.SshClient.Sftp.Messages;
+using System.Security;
+using System.IO;
+using System.Security.AccessControl;
 
 namespace Renci.SshClient.Sftp
 {
@@ -9,6 +12,60 @@ namespace Renci.SshClient.Sftp
     /// </summary>
     public class SftpFile
     {
+        #region Bitmask constats
+
+        private static UInt32 S_IFMT = 0xF000;  //  bitmask for the file type bitfields
+
+        private static UInt32 S_IFSOCK = 0xC000;  //	socket
+
+        private static UInt32 S_IFLNK = 0xA000;  //	symbolic link
+
+        private static UInt32 S_IFREG = 0x8000;  //	regular file
+
+        private static UInt32 S_IFBLK = 0x6000;  //	block device
+
+        private static UInt32 S_IFDIR = 0x4000;  //	directory
+
+        private static UInt32 S_IFCHR = 0x2000;  //	character device
+
+        private static UInt32 S_IFIFO = 0x1000;  //	FIFO
+
+        private static UInt32 S_ISUID = 0x0800;  //	set UID bit
+
+        private static UInt32 S_ISGID = 0x0400;  //	set-group-ID bit (see below)
+
+        private static UInt32 S_ISVTX = 0x0200;  //	sticky bit (see below)
+
+        private static UInt32 S_IRWXU = 0x01C0;  //	mask for file owner permissions
+
+        private static UInt32 S_IRUSR = 0x0100;  //	owner has read permission
+
+        private static UInt32 S_IWUSR = 0x0080;  //	owner has write permission
+
+        private static UInt32 S_IXUSR = 0x0040;  //	owner has execute permission
+
+        private static UInt32 S_IRWXG = 0x0038;  //	mask for group permissions
+
+        private static UInt32 S_IRGRP = 0x0020;  //	group has read permission
+
+        private static UInt32 S_IWGRP = 0x0010;  //	group has write permission
+
+        private static UInt32 S_IXGRP = 0x0008;  //	group has execute permission
+
+        private static UInt32 S_IRWXO = 0x0007;  //	mask for permissions for others (not in group)
+
+        private static UInt32 S_IROTH = 0x0004;  //	others have read permission
+
+        private static UInt32 S_IWOTH = 0x0002;  //	others have write permission
+
+        private static UInt32 S_IXOTH = 0x0001;  //	others have execute permission
+
+        #endregion
+
+        private UInt32 _permissions;
+
+        private Attributes _attributes;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="SftpFile"/> class.
         /// </summary>
@@ -18,89 +75,73 @@ namespace Renci.SshClient.Sftp
         {
             this.AbsolutePath = absolutePath;
 
-            this.Attributes = attributes;
+            this._permissions = attributes.Permissions;
+
+            this._attributes = attributes;
         }
 
-        /// <summary>
-        /// Gets file status information attributes.
-        /// </summary>
-        public Attributes Attributes { get; private set; }
 
         /// <summary>
-        /// Gets or sets file name.
+        /// Gets the absolute path of the directory or file.
         /// </summary>
         /// <value>
         /// File name.
         /// </value>
-        public string AbsolutePath { get; set; }
+        public string AbsolutePath { get; private set; }
+
+        ///// <summary>
+        ///// Gets the name of directory or file.
+        ///// </summary>
+        //public string Name { get; private set; }
 
         /// <summary>
-        /// Gets or sets file accessed time.
+        /// Gets or sets the time the current file or directory was last accessed.
         /// </summary>
         /// <value>
-        /// File accessed time.
+        /// The time that the current file or directory was last accessed.
         /// </value>
-        public DateTime AccessedTime
+        public DateTime LastAccessTime
         {
             get
             {
-                if (this.Attributes.AccessTime.HasValue)
-                    return this.Attributes.AccessTime.Value;
+                if (this._attributes.AccessTime.HasValue)
+                    return this._attributes.AccessTime.Value;
                 else
                     return DateTime.MinValue;
-            }
-            set
-            {
-                this.Attributes.AccessTime = value;
             }
         }
 
         /// <summary>
-        /// Gets or sets file modified time.
+        /// Gets or sets the time when the current file or directory was last written to.
         /// </summary>
         /// <value>
-        /// File modified time.
+        /// The time the current file was last written.
         /// </value>
-        public DateTime ModifiedTime
+        public DateTime LastWriteTime
         {
             get
             {
-                if (this.Attributes.ModifyTime.HasValue)
-                    return this.Attributes.ModifyTime.Value;
+                if (this._attributes.ModifyTime.HasValue)
+                    return this._attributes.ModifyTime.Value;
                 else
                     return DateTime.MinValue;
-            }
-            set
-            {
-                this.Attributes.ModifyTime = value;
             }
         }
 
         /// <summary>
-        /// Gets or sets file size.
+        /// Gets or sets the size, in bytes, of the current file.
         /// </summary>
         /// <value>
-        /// File size.
+        /// The size of the current file in bytes.
         /// </value>
         public long Size
         {
             get
             {
-                if (this.Attributes.Size.HasValue)
-                    return (long)this.Attributes.Size.Value;
+                if (this._attributes.Size.HasValue)
+                    return (long)this._attributes.Size.Value;
                 else
                     return -1;
-            }
-            set
-            {
-                if (value > -1)
-                {
-                    this.Attributes.Size = new Nullable<ulong>((ulong)value);
-                }
-                else
-                {
-                    this.Attributes.Size = null;
-                }
             }
         }
 
@@ -114,8 +155,8 @@ namespace Renci.SshClient.Sftp
         {
             get
             {
-                if (this.Attributes.UserId.HasValue)
-                    return (int)this.Attributes.UserId.Value;
+                if (this._attributes.UserId.HasValue)
+                    return (int)this._attributes.UserId.Value;
                 else
                     return -1;
             }
@@ -123,11 +164,11 @@ namespace Renci.SshClient.Sftp
             {
                 if (value > -1)
                 {
-                    this.Attributes.UserId = new Nullable<uint>((uint)value);
+                    this._attributes.UserId = new Nullable<uint>((uint)value);
                 }
                 else
                 {
-                    this.Attributes.UserId = null;
+                    this._attributes.UserId = null;
                 }
             }
         }
@@ -142,8 +183,8 @@ namespace Renci.SshClient.Sftp
         {
             get
             {
-                if (this.Attributes.GroupId.HasValue)
-                    return (int)this.Attributes.GroupId.Value;
+                if (this._attributes.GroupId.HasValue)
+                    return (int)this._attributes.GroupId.Value;
                 else
                     return -1;
             }
@@ -151,45 +192,228 @@ namespace Renci.SshClient.Sftp
             {
                 if (value > -1)
                 {
-                    this.Attributes.GroupId = new Nullable<uint>((uint)value);
+                    this._attributes.GroupId = new Nullable<uint>((uint)value);
                 }
                 else
                 {
-                    this.Attributes.GroupId = null;
+                    this._attributes.GroupId = null;
                 }
             }
         }
 
         /// <summary>
-        /// Gets or sets file permissions.
+        /// Gets a value indicating whether file represents a socket.
         /// </summary>
         /// <value>
-        /// File permissions.
+        ///   <c>true</c> if file represents a socket; otherwise, <c>false</c>.
         /// </value>
-        public int Permissions
+        public bool IsSocket
         {
             get
             {
-                if (this.Attributes.Permissions.HasValue)
-                    return (int)this.Attributes.Permissions.Value;
-                else
-                    return -1;
-            }
-            set
-            {
-                if (value > -1)
-                {
-                    this.Attributes.Permissions = new Nullable<uint>((uint)value);
-                }
-                else
-                {
-                    this.Attributes.Permissions = null;
-                }
+                return ((this._permissions & S_IFSOCK) == S_IFSOCK);
             }
         }
 
         /// <summary>
-        /// Gets or sets file extensions attributes.
+        /// Gets a value indicating whether file represents a symbolic link.
+        /// </summary>
+        /// <value>
+        /// 	<c>true</c> if file represents a symbolic link; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsSymbolicLink
+        {
+            get
+            {
+                return ((this._permissions & S_IFLNK) == S_IFLNK);
+            }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether file represents a block device.
+        /// </summary>
+        /// <value>
+        /// 	<c>true</c> if file represents a block device; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsBlockDevice
+        {
+            get
+            {
+                return ((this._permissions & S_IFBLK) == S_IFBLK);
+            }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether file represents a directory.
+        /// </summary>
+        /// <value>
+        /// 	<c>true</c> if file represents a directory; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsDirectory
+        {
+            get
+            {
+                return ((this._permissions & S_IFDIR) == S_IFDIR);
+            }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether file represents a character device.
+        /// </summary>
+        /// <value>
+        /// 	<c>true</c> if file represents a character device; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsCharacterDevice
+        {
+            get
+            {
+                return ((this._permissions & S_IFCHR) == S_IFCHR);
+            }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether file represents a named pipe.
+        /// </summary>
+        /// <value>
+        /// 	<c>true</c> if file represents a named pipe; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsNamedPipe
+        {
+            get
+            {
+                return ((this._permissions & S_IFIFO) == S_IFIFO);
+            }
+        }
+
+
+        /// <summary>
+        /// Gets a value indicating whether the owner can read from this file.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if owner can read from this file; otherwise, <c>false</c>.
+        /// </value>
+        public bool OwnerCanRead
+        {
+            get
+            {
+                return ((this._permissions & S_IRUSR) == S_IRUSR);
+            }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether the owner can write into this file.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if owner can write into this file; otherwise, <c>false</c>.
+        /// </value>
+        public bool OwnerCanWrite
+        {
+            get
+            {
+                return ((this._permissions & S_IWUSR) == S_IWUSR);
+            }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether the owner can execute this file.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if owner can execute this file; otherwise, <c>false</c>.
+        /// </value>
+        public bool OwnerCanExecute
+        {
+            get
+            {
+                return ((this._permissions & S_IXUSR) == S_IXUSR);
+            }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether the group members can read from this file.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if group members can read from this file; otherwise, <c>false</c>.
+        /// </value>
+        public bool GroupCanRead
+        {
+            get
+            {
+                return ((this._permissions & S_IRUSR) == S_IRGRP);
+            }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether the group members can write into this file.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if group members can write into this file; otherwise, <c>false</c>.
+        /// </value>
+        public bool GroupCanWrite
+        {
+            get
+            {
+                return ((this._permissions & S_IWGRP) == S_IWGRP);
+            }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether the group members can execute this file.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if group members can execute this file; otherwise, <c>false</c>.
+        /// </value>
+        public bool GroupCanExecute
+        {
+            get
+            {
+                return ((this._permissions & S_IXGRP) == S_IXGRP);
+            }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether the others can read from this file.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if others can read from this file; otherwise, <c>false</c>.
+        /// </value>
+        public bool OthersCanRead
+        {
+            get
+            {
+                return ((this._permissions & S_IROTH) == S_IROTH);
+            }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether the others can write into this file.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if others can write into this file; otherwise, <c>false</c>.
+        /// </value>
+        public bool OthersCanWrite
+        {
+            get
+            {
+                return ((this._permissions & S_IWOTH) == S_IWOTH);
+            }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether the others can execute this file.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if others can execute this file; otherwise, <c>false</c>.
+        /// </value>
+        public bool OthersCanExecute
+        {
+            get
+            {
+                return ((this._permissions & S_IXOTH) == S_IXOTH);
+            }
+        }
+
+        /// <summary>
+        /// Gets the extension part of the file.
         /// </summary>
         /// <value>
         /// File extensions.
@@ -198,7 +422,7 @@ namespace Renci.SshClient.Sftp
         {
             get
             {
-                return this.Attributes.Extensions;
+                return this._attributes.Extensions;
             }
         }
 
@@ -210,7 +434,7 @@ namespace Renci.SshClient.Sftp
         /// </returns>
         public override string ToString()
         {
-            return string.Format("Name {0}, Size {1}, User ID {2}, Group ID {3}, Permissions {4:X}, Accessed {5}, Modified {6}", this.AbsolutePath, this.Size, this.UserId, this.GroupId, this.Permissions, this.AccessedTime, this.ModifiedTime);
+            return string.Format("Name {0}, Size {1}, User ID {2}, Group ID {3}, Permissions {4:X}, Accessed {5}, Modified {6}", this.AbsolutePath, this.Size, this.UserId, this.GroupId, this._permissions, this.LastAccessTime, this.LastWriteTime);
         }
     }
 }

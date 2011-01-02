@@ -169,6 +169,7 @@ namespace Renci.SshClient
                     if (this._authenticationCompleted != null)
                     {
                         this._authenticationCompleted.Dispose();
+                        this._authenticationCompleted = null;
                     }
                 }
 

@@ -216,6 +216,7 @@ namespace Renci.SshClient
                     if (this._publicKeyRequestMessageResponseWaitHandle != null)
                     {
                         this._publicKeyRequestMessageResponseWaitHandle.Dispose();
+                        this._publicKeyRequestMessageResponseWaitHandle = null;
                     }
                 }
 

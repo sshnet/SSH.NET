@@ -135,6 +135,7 @@ namespace Renci.SshClient.Channels
             if (this._socket != null)
             {
                 this._socket.Close();
+                this._socket = null;
             }
         }
 

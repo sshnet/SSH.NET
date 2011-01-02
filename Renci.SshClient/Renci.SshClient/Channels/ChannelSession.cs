@@ -42,7 +42,7 @@ namespace Renci.SshClient.Channels
         {
             if (!this.IsOpen)
             {
-                //  Try to opend channel several times
+                //  Try to open channel several times
                 while (this._failedOpenAttempts < this.ConnectionInfo.RetryAttempts && !this.IsOpen)
                 {
                     this.SendChannelOpenMessage();
@@ -51,7 +51,7 @@ namespace Renci.SshClient.Channels
 
                 if (!this.IsOpen)
                 {
-                    throw new SshException(string.Format("Failed to open a channel after {0} attemps.", this._failedOpenAttempts));
+                    throw new SshException(string.Format("Failed to open a channel after {0} attempts.", this._failedOpenAttempts));
                 }
             }
         }
@@ -65,8 +65,6 @@ namespace Renci.SshClient.Channels
         protected override void OnOpenConfirmation(uint remoteChannelNumber, uint initialWindowSize, uint maximumPacketSize)
         {
             base.OnOpenConfirmation(remoteChannelNumber, initialWindowSize, maximumPacketSize);
-
-            Debug.WriteLine(string.Format("channel {0} open.", this.RemoteChannelNumber));
 
             this._channelOpenResponseWaitHandle.Set();
         }
@@ -95,10 +93,7 @@ namespace Renci.SshClient.Channels
         {
             base.OnClose();
 
-            Debug.WriteLine(string.Format("channel {0} closed", this.RemoteChannelNumber));
-
-
-            //  This timeout needed since when channel is closed it does not immidiatly becomes availble
+            //  This timeout needed since when channel is closed it does not immediately becomes available
             //  but it takes time for the server to clean up resource and allow new channels to be created.
             Thread.Sleep(100);
 
@@ -320,11 +315,13 @@ namespace Renci.SshClient.Channels
             if (this._channelOpenResponseWaitHandle != null)
             {
                 this._channelOpenResponseWaitHandle.Dispose();
+                this._channelOpenResponseWaitHandle = null;
             }
 
             if (this._channelRequestResponse != null)
             {
                 this._channelRequestResponse.Dispose();
+                this._channelRequestResponse = null;
             }
         }
     }

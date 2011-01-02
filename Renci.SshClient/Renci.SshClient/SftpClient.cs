@@ -114,92 +114,92 @@ namespace Renci.SshClient
             this.WorkingDirectory = this.ValidatePath(this.ResolvePath(path));
         }
 
-        /// <summary>
-        /// Changes group of file(s)to specified group id.
-        /// </summary>
-        /// <param name="path">File(s) path, may match multiple files.</param>
-        /// <param name="groupId">Numeric GID.</param>
-        public void ChangeGroup(string path, ushort groupId) 
-        {
-            //  TODO:   Need to be tested
+        ///// <summary>
+        ///// Changes group of file(s)to specified group id.
+        ///// </summary>
+        ///// <param name="path">File(s) path, may match multiple files.</param>
+        ///// <param name="groupId">Numeric GID.</param>
+        //public void ChangeGroup(string path, ushort groupId) 
+        //{
+        //    //  TODO:   Need to be tested
 
-            //  Ensure that connection is established.
-            this.EnsureConnection();
+        //    //  Ensure that connection is established.
+        //    this.EnsureConnection();
 
-            var fullPath = this.ResolvePath(path);
+        //    var fullPath = this.ResolvePath(path);
 
-            var cmd = new FileStatusCommand(this._sftpSession, fullPath);
+        //    var cmd = new FileStatusCommand(this._sftpSession, fullPath);
 
-            cmd.CommandTimeout = this.OperationTimeout;
+        //    cmd.CommandTimeout = this.OperationTimeout;
 
-            cmd.Execute();
+        //    cmd.Execute();
 
-            cmd.SftpFile.GroupId = groupId;
+        //    cmd.SftpFile.GroupId = groupId;
 
-            var setCmd = new SetFileStatusCommand(this._sftpSession, fullPath, cmd.SftpFile.Attributes);
+        //    var setCmd = new SetFileStatusCommand(this._sftpSession, fullPath, cmd.SftpFile._attributes);
 
-            setCmd.CommandTimeout = this.OperationTimeout;
+        //    setCmd.CommandTimeout = this.OperationTimeout;
 
-            setCmd.Execute();
-        }
+        //    setCmd.Execute();
+        //}
 
-        /// <summary>
-        /// Changes permissions of file(s) to specified mode.
-        /// </summary>
-        /// <param name="path">File(s) path, may match multiple files.</param>
-        /// <param name="mode">The mode.</param>
-        public void ChangePermissions(string path, int mode) 
-        {
-            //  TODO:   Need to be tested
+        ///// <summary>
+        ///// Changes permissions of file(s) to specified mode.
+        ///// </summary>
+        ///// <param name="path">File(s) path, may match multiple files.</param>
+        ///// <param name="mode">The mode.</param>
+        //public void ChangePermissions(string path, int mode) 
+        //{
+        //    //  TODO:   Need to be tested
 
-            //  Ensure that connection is established.
-            this.EnsureConnection();
+        //    //  Ensure that connection is established.
+        //    this.EnsureConnection();
 
-            var fullPath = this.ResolvePath(path);
+        //    var fullPath = this.ResolvePath(path);
 
-            var cmd = new FileStatusCommand(this._sftpSession, fullPath);
+        //    var cmd = new FileStatusCommand(this._sftpSession, fullPath);
 
-            cmd.CommandTimeout = this.OperationTimeout;
+        //    cmd.CommandTimeout = this.OperationTimeout;
 
-            cmd.Execute();
+        //    cmd.Execute();
 
-            cmd.SftpFile.Permissions = mode;
+        //    cmd.SftpFile._permissions = mode;
 
-            var setCmd = new SetFileStatusCommand(this._sftpSession, fullPath, cmd.SftpFile.Attributes);
+        //    var setCmd = new SetFileStatusCommand(this._sftpSession, fullPath, cmd.SftpFile.Attributes);
 
-            setCmd.CommandTimeout = this.OperationTimeout;
+        //    setCmd.CommandTimeout = this.OperationTimeout;
 
-            setCmd.Execute();
-        }
+        //    setCmd.Execute();
+        //}
 
-        /// <summary>
-        /// Changes the owner of file(s) to specified owner.
-        /// </summary>
-        /// <param name="path">File(s) path, may match multiple files.</param>
-        /// <param name="owner">Numeric UID.</param>
-        public void ChangeOwner(string path, ushort owner)
-        {   
-            //  TODO:   Need to be tested
+        ///// <summary>
+        ///// Changes the owner of file(s) to specified owner.
+        ///// </summary>
+        ///// <param name="path">File(s) path, may match multiple files.</param>
+        ///// <param name="owner">Numeric UID.</param>
+        //public void ChangeOwner(string path, ushort owner)
+        //{   
+        //    //  TODO:   Need to be tested
 
-            //  Ensure that connection is established.
-            this.EnsureConnection();
+        //    //  Ensure that connection is established.
+        //    this.EnsureConnection();
 
-            var fullPath = this.ResolvePath(path);
+        //    var fullPath = this.ResolvePath(path);
 
-            var cmd = new FileStatusCommand(this._sftpSession, fullPath);
+        //    var cmd = new FileStatusCommand(this._sftpSession, fullPath);
 
-            cmd.CommandTimeout = this.OperationTimeout;
+        //    cmd.CommandTimeout = this.OperationTimeout;
 
-            cmd.Execute();
+        //    cmd.Execute();
 
-            cmd.SftpFile.UserId = owner;
+        //    cmd.SftpFile.UserId = owner;
 
-            var setCmd = new SetFileStatusCommand(this._sftpSession, fullPath, cmd.SftpFile.Attributes);
+        //    var setCmd = new SetFileStatusCommand(this._sftpSession, fullPath, cmd.SftpFile._attributes);
 
-            setCmd.CommandTimeout = this.OperationTimeout;
+        //    setCmd.CommandTimeout = this.OperationTimeout;
 
-            setCmd.Execute();
-        }
+        //    setCmd.Execute();
+        //}
 
         /// <summary>
         /// Creates remote directory specified by path.

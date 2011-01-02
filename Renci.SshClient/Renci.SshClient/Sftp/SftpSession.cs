@@ -187,6 +187,16 @@ namespace Renci.SshClient.Sftp
             }
         }
 
+        private void HandleMessage(ExtendedMessage message)
+        {
+            //  Extended messages currently not supported, send appropriate status message
+            this.SendMessage(new StatusMessage { 
+                StatusCode = StatusCodes.OperationUnsupported,
+                ErrorMessage = "Extended messages are not supported",
+                Language = string.Empty,
+            });
+        }
+
         #endregion
 
         private void Session_Disconnected(object sender, EventArgs e)
@@ -270,14 +280,17 @@ namespace Renci.SshClient.Sftp
                     if (this._channel != null)
                     {
                         this._channel.Dispose();
+                        this._channel = null;
                     }
                     if (this._errorOccuredWaitHandle != null)
                     {
                         this._errorOccuredWaitHandle.Dispose();
+                        this._errorOccuredWaitHandle = null;
                     }
                     if (this._sftpVersionConfirmed != null)
                     {
                         this._sftpVersionConfirmed.Dispose();
+                        this._sftpVersionConfirmed = null;
                     }
                 }
 

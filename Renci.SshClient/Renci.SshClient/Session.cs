@@ -1110,12 +1110,6 @@ namespace Renci.SshClient
                 this._clientMac = null;
             }
 
-            if (this._keyExchange != null)
-            {
-                this._keyExchange.Dispose();
-                this._keyExchange = null;
-            }
-
             //  Update negotiated algorithms
             this._serverCipher = this._keyExchange.CreateServerCipher();
             this._clientCipher = this._keyExchange.CreateClientCipher();

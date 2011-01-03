@@ -3,12 +3,12 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using Renci.SshClient.Channels;
 using Renci.SshClient.Common;
 using Renci.SshClient.Messages;
 using Renci.SshClient.Messages.Connection;
 using Renci.SshClient.Messages.Transport;
-using System.Threading.Tasks;
 
 namespace Renci.SshClient
 {
@@ -183,8 +183,6 @@ namespace Renci.SshClient
 
             this._channel.Close();
 
-            this.DeleteChannel();
-
             this._asyncResult = null;
 
             return this.Result;
@@ -223,17 +221,6 @@ namespace Renci.SshClient
             this._channel.Closed += Channel_Closed;
             this.OutputStream = new MemoryStream();
             this.ExtendedOutputStream = new MemoryStream();
-        }
-
-        private void DeleteChannel()
-        {
-            this._channel.DataReceived -= Channel_DataReceived;
-            this._channel.ExtendedDataReceived -= Channel_ExtendedDataReceived;
-            this._channel.RequestReceived -= Channel_RequestReceived;
-            this._channel.Closed -= Channel_Closed;
-
-            this._channel.Dispose();
-            this._channel = null;
         }
 
         private void Session_Disconnected(object sender, EventArgs e)
@@ -369,6 +356,10 @@ namespace Renci.SshClient
                 // and unmanaged resources.
                 if (disposing)
                 {
+
+                    this._session.Disconnected -= Session_Disconnected;
+                    this._session.ErrorOccured -= Session_ErrorOccured;
+
                     // Dispose managed resources.
                     if (this.OutputStream != null)
                     {
@@ -393,13 +384,18 @@ namespace Renci.SshClient
                     // Dispose managed resources.
                     if (this._channel != null)
                     {
+                        this._channel.DataReceived -= Channel_DataReceived;
+                        this._channel.ExtendedDataReceived -= Channel_ExtendedDataReceived;
+                        this._channel.RequestReceived -= Channel_RequestReceived;
+                        this._channel.Closed -= Channel_Closed;
+
                         this._channel.Dispose();
                         this._channel = null;
                     }
                 }
-
+                
                 // Note disposing has been done.
-                _isDisposed = true;
+                this._isDisposed = true;
             }
         }
 

@@ -310,8 +310,6 @@ namespace Renci.SshClient.Channels
         /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected override void Dispose(bool disposing)
         {
-            base.Dispose(disposing);
-
             if (this._channelOpenResponseWaitHandle != null)
             {
                 this._channelOpenResponseWaitHandle.Dispose();
@@ -323,6 +321,8 @@ namespace Renci.SshClient.Channels
                 this._channelRequestResponse.Dispose();
                 this._channelRequestResponse = null;
             }
+
+            base.Dispose(disposing);
         }
     }
 }

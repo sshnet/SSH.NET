@@ -60,7 +60,7 @@
         /// <summary>
         /// SSH_DISCONNECT_AUTH_CANCELLED_BY_USER
         /// </summary>
-        AuthenticationCancelledByUser = 13,
+        AuthenticationCanceledByUser = 13,
         /// <summary>
         /// SSH_DISCONNECT_NO_MORE_AUTH_METHODS_AVAILABLE
         /// </summary>

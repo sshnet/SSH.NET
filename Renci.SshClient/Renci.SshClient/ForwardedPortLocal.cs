@@ -11,7 +11,7 @@ namespace Renci.SshClient
     /// <summary>
     /// Provides functionality for local port forwarding
     /// </summary>
-    public class ForwardedPortLocal : ForwardedPort
+    public class ForwardedPortLocal : ForwardedPort, IDisposable
     {
         private TcpListener _listener;
 
@@ -37,6 +37,7 @@ namespace Renci.SshClient
                 {
                     while (true)
                     {
+                        //  TODO:   Check what the best place to call dispose for this socket.
                         var socket = this._listener.AcceptSocket();
 
                         Task.Factory.StartNew(() =>
@@ -91,5 +92,60 @@ namespace Renci.SshClient
 
             this.IsStarted = false;
         }
+
+
+        #region IDisposable Members
+
+        private bool _isDisposed = false;
+
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources
+        /// </summary>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        protected virtual void Dispose(bool disposing)
+        {
+            // Check to see if Dispose has already been called.
+            if (!this._isDisposed)
+            {
+                // If disposing equals true, dispose all managed
+                // and unmanaged resources.
+                if (disposing)
+                {
+                    // Dispose managed resources.
+                    if (this._listenerTask != null)
+                    {
+                        this._listenerTask.Dispose();
+                        this._listenerTask = null;
+                    }
+                }
+
+                // Note disposing has been done.
+                _isDisposed = true;
+            }
+        }
+
+        /// <summary>
+        /// Releases unmanaged resources and performs other cleanup operations before the
+        /// <see cref="Channel"/> is reclaimed by garbage collection.
+        /// </summary>
+        ~ForwardedPortLocal()
+        {
+            // Do not re-create Dispose clean-up code here.
+            // Calling Dispose(false) is optimal in terms of
+            // readability and maintainability.
+            Dispose(false);
+        }
+
+        #endregion
     }
 }

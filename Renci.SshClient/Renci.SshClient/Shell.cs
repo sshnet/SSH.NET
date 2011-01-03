@@ -5,8 +5,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Renci.SshClient.Channels;
-using Renci.SshClient.Messages.Connection;
 using Renci.SshClient.Common;
+using Renci.SshClient.Messages.Connection;
 
 namespace Renci.SshClient
 {
@@ -187,6 +187,7 @@ namespace Renci.SshClient
 
             this._channel.DataReceived -= Channel_DataReceived;
             this._channel.ExtendedDataReceived -= Channel_ExtendedDataReceived;
+            this._channel.Closed -= Channel_Closed;
             this._session.Disconnected -= Session_Disconnected;
             this._session.ErrorOccured -= Session_ErrorOccured;
 

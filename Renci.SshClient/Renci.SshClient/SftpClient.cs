@@ -514,5 +514,16 @@ namespace Renci.SshClient
 
             return file.AbsolutePath;
         }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (this._sftpSession != null)
+            {
+                this._sftpSession.Dispose();
+                this._sftpSession = null;
+            }
+
+            base.Dispose(disposing);
+        }
     }
 }

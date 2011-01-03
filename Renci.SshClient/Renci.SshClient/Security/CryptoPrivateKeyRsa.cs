@@ -92,6 +92,7 @@ namespace Renci.SshClient.Security
                 if (ms != null)
                 {
                     ms.Dispose();
+                    ms = null;
                 }
             }
         }

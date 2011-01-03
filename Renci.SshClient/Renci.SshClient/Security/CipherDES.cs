@@ -139,8 +139,10 @@ namespace Renci.SshClient.Security
                 }
 
                 // Note disposing has been done.
-                _isDisposed = true;
+                this._isDisposed = true;
             }
+
+            base.Dispose(disposing);
         }
     }
 }

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Text;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Renci.SshClient.Common;
 using Renci.SshClient.Tests.Properties;
 
@@ -58,7 +54,7 @@ namespace Renci.SshClient.Tests.SftpClientTests
 
         [TestMethod]
         [TestCategory("Sftp")]
-        [ExpectedException(typeof(SshPermissionDeniedException))]
+        [ExpectedException(typeof(SshFileNotFoundException))]
         public void Test_Sftp_CreateDirectory_Invalid_Path()
         {
             using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))

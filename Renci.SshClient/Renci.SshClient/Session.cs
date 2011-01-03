@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Security.Authentication;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -18,7 +17,6 @@ using Renci.SshClient.Messages.Authentication;
 using Renci.SshClient.Messages.Connection;
 using Renci.SshClient.Messages.Transport;
 using Renci.SshClient.Security;
-using System.Diagnostics;
 
 namespace Renci.SshClient
 {
@@ -42,11 +40,6 @@ namespace Renci.SshClient
         private static Regex _serverVersionRe = new Regex("^SSH-(?<protoversion>[^-]+)-(?<softwareversion>.+)( SP.+)?$", RegexOptions.Compiled);
 
         /// <summary>
-        /// Holds metada about session messages
-        /// </summary>
-        private IEnumerable<MessageMetadata> _messagesMetadata;
-
-        /// <summary>
         /// Controls how many authentication attempts can take place at the same time.
         /// </summary>
         /// <remarks>
@@ -55,27 +48,32 @@ namespace Renci.SshClient
         private static SemaphoreSlim _authenticationConnection = new SemaphoreSlim(3);
 
         /// <summary>
+        /// Holds metada about session messages
+        /// </summary>
+        private IEnumerable<MessageMetadata> _messagesMetadata;
+
+        /// <summary>
         /// Holds connection socket.
         /// </summary>
         private Socket _socket;
 
         /// <summary>
-        /// Holds reference to task that listnes for incoming messages
+        /// Holds reference to task that listens for incoming messages
         /// </summary>
         private Task _messageListener;
 
         /// <summary>
-        /// Specifies outbount packet number
+        /// Specifies outbound packet number
         /// </summary>
         private volatile UInt32 _outboundPacketSequence = 0;
 
         /// <summary>
-        /// Specifies incomin packet number
+        /// Specifies incoming packet number
         /// </summary>
         private UInt32 _inboundPacketSequence = 0;
 
         /// <summary>
-        /// WaitHandle to signale that last service request was accepted
+        /// WaitHandle to signal that last service request was accepted
         /// </summary>
         private EventWaitHandle _serviceAccepted = new AutoResetEvent(false);
 
@@ -84,6 +82,9 @@ namespace Renci.SshClient
         /// </summary>
         private EventWaitHandle _exceptionWaitHandle = new AutoResetEvent(false);
 
+        /// <summary>
+        /// WaitHandle to signal that key exchange was completed.
+        /// </summary>
         private EventWaitHandle _keyExchangeCompletedWaitHandle = new ManualResetEvent(false);
 
         /// <summary>
@@ -92,7 +93,7 @@ namespace Renci.SshClient
         private Exception _exception;
 
         /// <summary>
-        /// Specifies weither connection is authenticated
+        /// Specifies whether connection is authenticated
         /// </summary>
         private bool _isAuthenticated;
 
@@ -114,11 +115,6 @@ namespace Renci.SshClient
         private Compressor _serverDecompression;
 
         private Compressor _clientCompression;
-
-        /// <summary>
-        /// Hold session specific semaphores
-        /// </summary>
-        private List<SemaphoreSlim> _semaphores = new List<SemaphoreSlim>();
 
         private SemaphoreSlim _sessionSemaphore;
         /// <summary>
@@ -237,11 +233,6 @@ namespace Renci.SshClient
         /// Occurs when an error occurred.
         /// </summary>
         public event EventHandler<ErrorEventArgs> ErrorOccured;
-
-        /// <summary>
-        /// Occurs when session about to disconnect from the server.
-        /// </summary>
-        public event EventHandler<EventArgs> Disconnecting;
 
         /// <summary>
         /// Occurs when session has been disconnected form the server.
@@ -433,14 +424,14 @@ namespace Renci.SshClient
 
                     //  Build list of available messages while connecting
                     this._messagesMetadata = (from type in this.GetType().Assembly.GetTypes()
-                                         from messageAttribute in type.GetCustomAttributes(false).OfType<MessageAttribute>()
-                                         select new MessageMetadata
-                                         {
-                                             Name = messageAttribute.Name,
-                                             Number = messageAttribute.Number,
-                                             Enabled = false,
-                                             Type = type,
-                                         }).ToList();
+                                              from messageAttribute in type.GetCustomAttributes(false).OfType<MessageAttribute>()
+                                              select new MessageMetadata
+                                              {
+                                                  Name = messageAttribute.Name,
+                                                  Number = messageAttribute.Number,
+                                                  Enabled = false,
+                                                  Type = type,
+                                              }).ToList();
 
                     this._socket.EndConnect(connectResult);
 
@@ -478,6 +469,7 @@ namespace Renci.SshClient
                         if (ns != null)
                         {
                             ns.Dispose();
+                            ns = null;
                         }
                     }
 
@@ -550,14 +542,7 @@ namespace Renci.SshClient
         /// </summary>
         public void Disconnect()
         {
-            this._isDisconnecting = true;
-
-            if (this.Disconnecting != null)
-            {
-                this.Disconnecting(this, new EventArgs());
-            }
-
-            this.SendDisconnect(DisconnectReasons.ByApplication, "Connection terminated by the client.");
+            this.Dispose();
         }
 
         internal T CreateChannel<T>() where T : Channel, new()
@@ -615,8 +600,9 @@ namespace Renci.SshClient
         /// <param name="message">The message.</param>
         internal void SendMessage(Message message)
         {
-            if (!this._socket.Connected)
+            if (this._socket == null || !this._socket.Connected)
                 return;
+
             //  Messages can be sent by different thread so we need to synchronize it            
             var paddingMultiplier = this._clientCipher == null ? (byte)8 : (byte)this._clientCipher.BlockSize;    //    Should be recalculate base on cipher min lenght if sipher specified
 
@@ -798,9 +784,13 @@ namespace Renci.SshClient
         {
             this.OnDisconnectReceived(message);
 
-            this._socket.Shutdown(SocketShutdown.Both);
+            //  Shutdown and disconnect from the socket
+            if (this._socket != null)
+            {
+                this._socket.Shutdown(SocketShutdown.Both);
 
-            this._socket.Disconnect(true);
+                this._socket.Disconnect(true);
+            }
 
             if (this._messageListener != null)
             {
@@ -833,8 +823,9 @@ namespace Renci.SshClient
         private void HandleMessage(ServiceAcceptMessage message)
         {
             //  TODO:   Refactor to avoid this method here
-            this._serviceAccepted.Set();
             this.OnServiceAcceptReceived(message);
+
+            this._serviceAccepted.Set();
         }
 
         private void HandleMessage(KeyExchangeInitMessage message)
@@ -1416,7 +1407,7 @@ namespace Renci.SshClient
                         Thread.Sleep(30);
                     }
                     else
-                        throw;  // any serious error occurr
+                        throw;  // any serious error occurred
                 }
             } while (receivedTotal < length);
 
@@ -1536,10 +1527,10 @@ namespace Renci.SshClient
             catch (Exception exp)
             {
                 this.RaiseError(exp);
-                //  TODO:   This exception can be swolloed if it occures while running in the background, look for possible solutions
-                //          It can be swolled if call async, when asynch method is finished ensure all async method check for exception to be raised
+                //  TODO:   This exception can be swallowed if it occurs while running in the background, look for possible solutions
+                //          It can be swollen if call async, when asynch method is finished ensure all async method check for exception to be raised
                 //          Or if it is running in port forwarding mode, some event should be raised at this case to handle and error and if not handle then throw
-                //          throw an exception and let it be swollowed then if not handled by the event handler
+                //          throw an exception and let it be swallowed then if not handled by the event handler
             }
         }
 
@@ -1599,16 +1590,22 @@ namespace Renci.SshClient
                 // and unmanaged resources.
                 if (disposing)
                 {
-                    if (this.IsConnected)
-                    {
-                        this.Disconnect();
-                    }
+                    this._isDisconnecting = true;
 
-                    // Dispose managed resources.
+                    this.SendDisconnect(DisconnectReasons.ByApplication, "Connection terminated by the client.");
+
                     if (this._socket != null)
                     {
                         this._socket.Dispose();
                         this._socket = null;
+                    }
+
+                    if (this._messageListener != null)
+                    {
+                        //  Wait for socket to be closed and for task to complete before disposing a task
+                        this._messageListener.Wait();
+                        this._messageListener.Dispose();
+                        this._messageListener = null;
                     }
 
                     if (this._serviceAccepted != null)

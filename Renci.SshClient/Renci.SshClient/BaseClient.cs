@@ -1,12 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
-using Renci.SshClient.Sftp;
-using Renci.SshClient.Security;
-using Renci.SshClient.Common;
 using System.Threading;
+using Renci.SshClient.Common;
 
 namespace Renci.SshClient
 {
@@ -109,7 +103,7 @@ namespace Renci.SshClient
         {
             this.OnDisconnecting();
 
-            this.Session.Disconnect();
+            this.Dispose();
 
             this.OnDisconnected();
         }

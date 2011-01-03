@@ -159,5 +159,28 @@ namespace Renci.SshClient.Channels
 
             this._channelEof.Set();
         }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (this._channelEof != null)
+            {
+                this._channelEof.Dispose();
+                this._channelEof = null;
+            }
+
+            if (this._channelOpen != null)
+            {
+                this._channelOpen.Dispose();
+                this._channelOpen = null;
+            }
+
+            if (this._channelData != null)
+            {
+                this._channelData.Dispose();
+                this._channelData = null;
+            }
+
+            base.Dispose(disposing);
+        }
     }
 }

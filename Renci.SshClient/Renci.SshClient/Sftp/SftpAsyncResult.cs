@@ -112,7 +112,6 @@ namespace Renci.SshClient.Sftp
                         this.AsyncWaitHandle.Dispose();
                         this.AsyncWaitHandle = null;
                     }
-
                 }
 
                 // Note disposing has been done.

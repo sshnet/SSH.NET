@@ -75,8 +75,7 @@ namespace Renci.SshClient.Sftp
 
         public void Disconnect()
         {
-            //  Close SFTP channel
-            this._channel.Close();
+            this.Dispose();
         }
 
         internal void SendMessage(SftpRequestMessage sftpMessage)
@@ -272,6 +271,16 @@ namespace Renci.SshClient.Sftp
             // Check to see if Dispose has already been called.
             if (!this._isDisposed)
             {
+                if (this._channel != null)
+                {
+                    this._channel.DataReceived -= Channel_DataReceived;
+
+                    this._channel.Close();
+                }            
+
+                this._session.ErrorOccured -= Session_ErrorOccured;
+                this._session.Disconnected -= Session_Disconnected;
+
                 // If disposing equals true, dispose all managed
                 // and unmanaged resources.
                 if (disposing)

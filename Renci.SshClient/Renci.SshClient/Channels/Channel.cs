@@ -200,14 +200,7 @@ namespace Renci.SshClient.Channels
         /// </summary>
         public virtual void Close()
         {
-            //  Send EOF message first when channel need to be closed
-            this.SendMessage(new ChannelEofMessage(this.RemoteChannelNumber));
-
-            //  Send message to close the channel on the server
-            this.SendMessage(new ChannelCloseMessage(this.RemoteChannelNumber));
-
-            //  Wait for channel to be closed
-            this._session.WaitHandle(this._channelClosedWaitHandle);
+            this.Dispose();
         }
 
         #region Channel virtual methods
@@ -257,7 +250,6 @@ namespace Renci.SshClient.Channels
         protected virtual void OnWindowAdjust(uint bytesToAdd)
         {
             this.ServerWindowSize += bytesToAdd;
-            this._channelWindowAdjustWaitHandle.Set();
         }
 
         /// <summary>
@@ -327,8 +319,6 @@ namespace Renci.SshClient.Channels
             {
                 this.Closed(this, new ChannelEventArgs(this.LocalChannelNumber));
             }
-
-            this._channelClosedWaitHandle.Set();
         }
 
         /// <summary>
@@ -507,6 +497,8 @@ namespace Renci.SshClient.Channels
             if (e.Message.LocalChannelNumber == this.LocalChannelNumber)
             {
                 this.OnWindowAdjust(e.Message.BytesToAdd);
+
+                this._channelWindowAdjustWaitHandle.Set();
             }
         }
 
@@ -539,6 +531,8 @@ namespace Renci.SshClient.Channels
             if (e.Message.LocalChannelNumber == this.LocalChannelNumber)
             {
                 this.OnClose();
+
+                this._channelClosedWaitHandle.Set();
             }
         }
 
@@ -607,6 +601,15 @@ namespace Renci.SshClient.Channels
                 // and unmanaged resources.
                 if (disposing)
                 {
+                    //  Send EOF message first when channel need to be closed
+                    this.SendMessage(new ChannelEofMessage(this.RemoteChannelNumber));
+
+                    //  Send message to close the channel on the server
+                    this.SendMessage(new ChannelCloseMessage(this.RemoteChannelNumber));
+
+                    //  Wait for channel to be closed
+                    this._session.WaitHandle(this._channelClosedWaitHandle);
+
                     // Dispose managed resources.
                     if (this._channelClosedWaitHandle != null)
                     {
@@ -629,6 +632,22 @@ namespace Renci.SshClient.Channels
                         this._disconnectedWaitHandle = null;
                     }
                 }
+
+                //  Ensure that all events are detached from current instance
+                this._session.ChannelOpenReceived -= OnChannelOpen;
+                this._session.ChannelOpenConfirmationReceived -= OnChannelOpenConfirmation;
+                this._session.ChannelOpenFailureReceived -= OnChannelOpenFailure;
+                this._session.ChannelWindowAdjustReceived -= OnChannelWindowAdjust;
+                this._session.ChannelDataReceived -= OnChannelData;
+                this._session.ChannelExtendedDataReceived -= OnChannelExtendedData;
+                this._session.ChannelEofReceived -= OnChannelEof;
+                this._session.ChannelCloseReceived -= OnChannelClose;
+                this._session.ChannelRequestReceived -= OnChannelRequest;
+                this._session.ChannelSuccessReceived -= OnChannelSuccess;
+                this._session.ChannelFailureReceived -= OnChannelFailure;
+                this._session.ErrorOccured -= Session_ErrorOccured;
+                this._session.Disconnected -= Session_Disconnected;
+
 
                 // Note disposing has been done.
                 _isDisposed = true;

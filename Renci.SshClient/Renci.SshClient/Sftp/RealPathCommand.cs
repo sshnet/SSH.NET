@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
+using Renci.SshClient.Sftp.Messages;
 
 namespace Renci.SshClient.Sftp
 {
@@ -19,11 +21,12 @@ namespace Renci.SshClient.Sftp
             this.SendRealPathMessage(this._path);
         }
 
-        protected override void OnName(System.Collections.Generic.IEnumerable<SftpFile> files)
+        protected override void OnName(IDictionary<string, SftpFileAttributes> files)
         {
             base.OnName(files);
 
-            this.Files = files;
+            this.Files = from f in files
+                         select new SftpFile(this.SftpSession, f.Key, f.Value);
 
             this.CompleteExecution();
         }

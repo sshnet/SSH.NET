@@ -10,7 +10,7 @@ namespace Renci.SshClient.Sftp.Messages
 
         public string Path { get; set; }
 
-        public Attributes Attributes { get; set; }
+        public SftpFileAttributes Attributes { get; set; }
 
         protected override void LoadData()
         {

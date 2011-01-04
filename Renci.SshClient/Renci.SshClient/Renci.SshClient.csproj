@@ -98,7 +98,6 @@
     <Compile Include="Messages\Connection\ChannelRequest\X11ForwardingRequestInfo.cs" />
     <Compile Include="Messages\Connection\ChannelRequest\XonXoffRequestInfo.cs" />
     <Compile Include="Messages\MessageAttribute.cs" />
-    <Compile Include="Sftp\FileStatusCommand.cs" />
     <Compile Include="Sftp\SetFileStatusCommand.cs" />
     <Compile Include="Sftp\SymbolicLinkCommand.cs" />
     <Compile Include="Sftp\Messages\SftpRequestMessage.cs" />

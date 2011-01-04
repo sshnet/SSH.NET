@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.IO;
 using Renci.SshClient.Sftp;
-using System.Collections.ObjectModel;
 
 namespace Renci.SshClient
 {
@@ -21,7 +19,7 @@ namespace Renci.SshClient
         /// Gets or sets the operation timeout.
         /// </summary>
         /// <value>The operation timeout.</value>
-        public int OperationTimeout { get; set; }
+        public TimeSpan OperationTimeout { get; set; }
 
         /// <summary>
         /// Gets or sets the size of the buffer.
@@ -32,7 +30,15 @@ namespace Renci.SshClient
         /// <summary>
         /// Gets remote working directory.
         /// </summary>
-        public string WorkingDirectory { get; private set; }
+        public string WorkingDirectory
+        {
+            get
+            {
+                if (this._sftpSession == null)
+                    return null;
+                return this._sftpSession.WorkingDirectory;
+            }
+        }
 
         /// <summary>
         /// Gets sftp protocol version.
@@ -48,7 +54,7 @@ namespace Renci.SshClient
         public SftpClient(ConnectionInfo connectionInfo)
             : base(connectionInfo)
         {
-            this.OperationTimeout = -1;
+            this.OperationTimeout = new TimeSpan(0, 0, 0, 0, -1);
             this.BufferSize = 1024 * 16;
         }
 
@@ -106,100 +112,26 @@ namespace Renci.SshClient
         /// <param name="path">New directory path.</param>
         public void ChangeDirectory(string path)
         {
-            //  TODO:   Check if change directory should be improved based on "6.10.1 Best Practice for Dealing with Paths" paragraph.
-
             //  Ensure that connection is established.
             this.EnsureConnection();
 
-            this.WorkingDirectory = this.ValidatePath(this.ResolvePath(path));
+            this._sftpSession.ChangeDirectory(path);
         }
 
-        ///// <summary>
-        ///// Changes group of file(s)to specified group id.
-        ///// </summary>
-        ///// <param name="path">File(s) path, may match multiple files.</param>
-        ///// <param name="groupId">Numeric GID.</param>
-        //public void ChangeGroup(string path, ushort groupId) 
-        //{
-        //    //  TODO:   Need to be tested
+        /// <summary>
+        /// Changes permissions of file(s) to specified mode.
+        /// </summary>
+        /// <param name="path">File(s) path, may match multiple files.</param>
+        /// <param name="mode">The mode.</param>
+        public void ChangePermissions(string path, ushort mode)
+        {
+            //  Ensure that connection is established.
+            this.EnsureConnection();
 
-        //    //  Ensure that connection is established.
-        //    this.EnsureConnection();
+            var file = this._sftpSession.GetSftpFile(path);
 
-        //    var fullPath = this.ResolvePath(path);
-
-        //    var cmd = new FileStatusCommand(this._sftpSession, fullPath);
-
-        //    cmd.CommandTimeout = this.OperationTimeout;
-
-        //    cmd.Execute();
-
-        //    cmd.SftpFile.GroupId = groupId;
-
-        //    var setCmd = new SetFileStatusCommand(this._sftpSession, fullPath, cmd.SftpFile._attributes);
-
-        //    setCmd.CommandTimeout = this.OperationTimeout;
-
-        //    setCmd.Execute();
-        //}
-
-        ///// <summary>
-        ///// Changes permissions of file(s) to specified mode.
-        ///// </summary>
-        ///// <param name="path">File(s) path, may match multiple files.</param>
-        ///// <param name="mode">The mode.</param>
-        //public void ChangePermissions(string path, int mode) 
-        //{
-        //    //  TODO:   Need to be tested
-
-        //    //  Ensure that connection is established.
-        //    this.EnsureConnection();
-
-        //    var fullPath = this.ResolvePath(path);
-
-        //    var cmd = new FileStatusCommand(this._sftpSession, fullPath);
-
-        //    cmd.CommandTimeout = this.OperationTimeout;
-
-        //    cmd.Execute();
-
-        //    cmd.SftpFile._permissions = mode;
-
-        //    var setCmd = new SetFileStatusCommand(this._sftpSession, fullPath, cmd.SftpFile.Attributes);
-
-        //    setCmd.CommandTimeout = this.OperationTimeout;
-
-        //    setCmd.Execute();
-        //}
-
-        ///// <summary>
-        ///// Changes the owner of file(s) to specified owner.
-        ///// </summary>
-        ///// <param name="path">File(s) path, may match multiple files.</param>
-        ///// <param name="owner">Numeric UID.</param>
-        //public void ChangeOwner(string path, ushort owner)
-        //{   
-        //    //  TODO:   Need to be tested
-
-        //    //  Ensure that connection is established.
-        //    this.EnsureConnection();
-
-        //    var fullPath = this.ResolvePath(path);
-
-        //    var cmd = new FileStatusCommand(this._sftpSession, fullPath);
-
-        //    cmd.CommandTimeout = this.OperationTimeout;
-
-        //    cmd.Execute();
-
-        //    cmd.SftpFile.UserId = owner;
-
-        //    var setCmd = new SetFileStatusCommand(this._sftpSession, fullPath, cmd.SftpFile._attributes);
-
-        //    setCmd.CommandTimeout = this.OperationTimeout;
-
-        //    setCmd.Execute();
-        //}
+            file.SetPermissions(mode);
+        }
 
         /// <summary>
         /// Creates remote directory specified by path.
@@ -212,7 +144,7 @@ namespace Renci.SshClient
             //  Ensure that connection is established.
             this.EnsureConnection();
 
-            var fullPath = this.ResolvePath(path);
+            var fullPath = this._sftpSession.ResolvePath(path);
 
             var cmd = new CreateDirectoryCommand(this._sftpSession, fullPath);
 
@@ -230,7 +162,7 @@ namespace Renci.SshClient
             //  Ensure that connection is established.
             this.EnsureConnection();
 
-            var fullPath = this.ValidatePath(this.ResolvePath(path));
+            var fullPath = this._sftpSession.GetAbsolutePath(this._sftpSession.ResolvePath(path));
 
             var cmd = new RemoveDirectoryCommand(this._sftpSession, fullPath);
 
@@ -248,7 +180,7 @@ namespace Renci.SshClient
             //  Ensure that connection is established.
             this.EnsureConnection();
 
-            var fullPath = this.ValidatePath(this.ResolvePath(path));
+            var fullPath = this._sftpSession.GetAbsolutePath(this._sftpSession.ResolvePath(path));
 
             var cmd = new RemoveFileCommand(this._sftpSession, fullPath);
 
@@ -267,9 +199,9 @@ namespace Renci.SshClient
             //  Ensure that connection is established.
             this.EnsureConnection();
 
-            var oldFullPath = this.ValidatePath(this.ResolvePath(oldPath));
+            var oldFullPath = this._sftpSession.GetAbsolutePath(this._sftpSession.ResolvePath(oldPath));
 
-            var newFullPath = this.ResolvePath(newPath);
+            var newFullPath = this._sftpSession.ResolvePath(newPath);
 
             var cmd = new RenameFileCommand(this._sftpSession, oldFullPath, newFullPath);
 
@@ -290,9 +222,9 @@ namespace Renci.SshClient
             //  Ensure that connection is established.
             this.EnsureConnection();
 
-            var fullPath = this.ValidatePath(this.ResolvePath(path));
+            var fullPath = this._sftpSession.GetAbsolutePath(this._sftpSession.ResolvePath(path));
 
-            var linkFullPath = this.ResolvePath(linkPath);
+            var linkFullPath = this._sftpSession.ResolvePath(linkPath);
 
             var cmd = new SymbolicLinkCommand(this._sftpSession, linkFullPath, fullPath);
 
@@ -323,7 +255,7 @@ namespace Renci.SshClient
             //  Ensure that connection is established.
             this.EnsureConnection();
 
-            var fullPath = this.ValidatePath(this.ResolvePath(path));
+            var fullPath = this._sftpSession.GetAbsolutePath(this._sftpSession.ResolvePath(path));
 
             var cmd = new ListDirectoryCommand(this._sftpSession, fullPath);
 
@@ -376,7 +308,7 @@ namespace Renci.SshClient
             //  Ensure that connection is established.
             this.EnsureConnection();
 
-            var fullPath = this.ValidatePath(this.ResolvePath(path));
+            var fullPath = this._sftpSession.GetAbsolutePath(this._sftpSession.ResolvePath(path));
 
             var cmd = new DownloadFileCommand(this._sftpSession, this.BufferSize, fullPath, output);
 
@@ -426,7 +358,7 @@ namespace Renci.SshClient
             //  Ensure that connection is established.
             this.EnsureConnection();
 
-            var fullPath = this.ResolvePath(path);
+            var fullPath = this._sftpSession.ResolvePath(path);
 
             var cmd = new UploadFileCommand(this._sftpSession, this.BufferSize, fullPath, input);
 
@@ -464,9 +396,6 @@ namespace Renci.SshClient
 
             this._sftpSession.Connect();
 
-            //  Resolve current directory
-            this.WorkingDirectory = this.ValidatePath(".");
-
             //  Resolve current running version
             this.ProtocolVersion = this._sftpSession.ProtocolVersion;
         }
@@ -482,39 +411,9 @@ namespace Renci.SshClient
         }
 
         /// <summary>
-        /// Resolves the path client side without server validation.
+        /// Releases unmanaged and - optionally - managed resources
         /// </summary>
-        /// <param name="path">Path to resolve.</param>
-        /// <returns>Resolved path</returns>
-        private string ResolvePath(string path)
-        {
-            //  If path starts with "/" then its "absolute"
-            if (!path.StartsWith("/"))
-            {
-                return string.Format("{0}/{1}", this.WorkingDirectory, path);
-            }
-            else
-                return path;
-        }
-
-        /// <summary>
-        /// Resolves path into absolute path on the server.
-        /// </summary>
-        /// <param name="path">PAth to resolve..</param>
-        /// <returns>Absolute path</returns>
-        private string ValidatePath(string path)
-        {
-            var cmd = new RealPathCommand(this._sftpSession, path);
-
-            cmd.CommandTimeout = this.OperationTimeout;
-
-            cmd.Execute();
-
-            var file = cmd.Files.FirstOrDefault();
-
-            return file.AbsolutePath;
-        }
-
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected override void Dispose(bool disposing)
         {
             if (this._sftpSession != null)

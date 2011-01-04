@@ -13,7 +13,7 @@ namespace Renci.SshClient.Sftp.Messages
 
         public Flags Flags { get; set; }
 
-        public Attributes Attributes { get; set; }
+        public SftpFileAttributes Attributes { get; set; }
 
         protected override void LoadData()
         {

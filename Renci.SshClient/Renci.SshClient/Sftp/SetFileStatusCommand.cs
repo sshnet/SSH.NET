@@ -10,11 +10,11 @@ namespace Renci.SshClient.Sftp
     {
         private string _path;
 
-        private Attributes _attributes;
+        private SftpFileAttributes _attributes;
 
         public SftpFile SftpFile { get; private set; }
 
-        public SetFileStatusCommand(SftpSession sftpSession, string path, Attributes attributes)
+        public SetFileStatusCommand(SftpSession sftpSession, string path, SftpFileAttributes attributes)
             : base(sftpSession)
         {
             this._path = path;

@@ -12,8 +12,6 @@ namespace Renci.SshClient.Sftp
     /// </summary>
     internal abstract class SftpCommand
     {
-        private SftpSession _sftpSession;
-
         private AsyncCallback _callback;
 
         private uint _requestId;
@@ -24,17 +22,19 @@ namespace Renci.SshClient.Sftp
 
         protected SftpAsyncResult AsyncResult { get; private set; }
 
-        public int CommandTimeout { get; set; }
+        protected SftpSession SftpSession { get; private set; }
+
+        public TimeSpan CommandTimeout { get; set; }
 
         public SftpCommand(SftpSession sftpSession)
         {
-            this._sftpSession = sftpSession;
-            this._sftpSession.AttributesMessageReceived += SftpSession_AttributesMessageReceived;
-            this._sftpSession.DataMessageReceived += SftpSession_DataMessageReceived;
-            this._sftpSession.HandleMessageReceived += SftpSession_HandleMessageReceived;
-            this._sftpSession.NameMessageReceived += SftpSession_NameMessageReceived;
-            this._sftpSession.StatusMessageReceived += SftpSession_StatusMessageReceived;
-            this._sftpSession.ErrorOccured += SftpSession_ErrorOccured;
+            this.SftpSession = sftpSession;
+            this.SftpSession.AttributesMessageReceived += SftpSession_AttributesMessageReceived;
+            this.SftpSession.DataMessageReceived += SftpSession_DataMessageReceived;
+            this.SftpSession.HandleMessageReceived += SftpSession_HandleMessageReceived;
+            this.SftpSession.NameMessageReceived += SftpSession_NameMessageReceived;
+            this.SftpSession.StatusMessageReceived += SftpSession_StatusMessageReceived;
+            this.SftpSession.ErrorOccured += SftpSession_ErrorOccured;
         }
 
         public SftpAsyncResult BeginExecute(AsyncCallback callback, object state)
@@ -50,7 +50,7 @@ namespace Renci.SshClient.Sftp
 
         public void EndExecute(SftpAsyncResult result)
         {
-            this._sftpSession.WaitHandle(result.AsyncWaitHandle, this.CommandTimeout);
+            this.SftpSession.WaitHandle(result.AsyncWaitHandle, this.CommandTimeout);
 
             if (this._callback != null)
             {
@@ -83,7 +83,7 @@ namespace Renci.SshClient.Sftp
             }
         }
 
-        protected virtual void OnName(IEnumerable<SftpFile> files)
+        protected virtual void OnName(IDictionary<string, SftpFileAttributes> files)
         {
         }
 
@@ -95,7 +95,7 @@ namespace Renci.SshClient.Sftp
         {
         }
 
-        protected virtual void OnAttributes(Attributes attributes)
+        protected virtual void OnAttributes(SftpFileAttributes attributes)
         {
         }
 
@@ -158,7 +158,7 @@ namespace Renci.SshClient.Sftp
             });
         }
 
-        protected void SendSetStatMessage(string path, Attributes attributes)
+        protected void SendSetStatMessage(string path, SftpFileAttributes attributes)
         {
             this.SendMessage(new SetStatMessage
             {
@@ -167,7 +167,7 @@ namespace Renci.SshClient.Sftp
             });
         }
 
-        protected void SendFSetStatMessage(string handle, Attributes attributes)
+        protected void SendFSetStatMessage(string handle, SftpFileAttributes attributes)
         {
             this.SendMessage(new FSetStatMessage
             {
@@ -262,11 +262,11 @@ namespace Renci.SshClient.Sftp
         {
             this.AsyncResult.Complete();
 
-            this._sftpSession.AttributesMessageReceived -= SftpSession_AttributesMessageReceived;
-            this._sftpSession.DataMessageReceived -= SftpSession_DataMessageReceived;
-            this._sftpSession.HandleMessageReceived -= SftpSession_HandleMessageReceived;
-            this._sftpSession.NameMessageReceived -= SftpSession_NameMessageReceived;
-            this._sftpSession.StatusMessageReceived -= SftpSession_StatusMessageReceived;
+            this.SftpSession.AttributesMessageReceived -= SftpSession_AttributesMessageReceived;
+            this.SftpSession.DataMessageReceived -= SftpSession_DataMessageReceived;
+            this.SftpSession.HandleMessageReceived -= SftpSession_HandleMessageReceived;
+            this.SftpSession.NameMessageReceived -= SftpSession_NameMessageReceived;
+            this.SftpSession.StatusMessageReceived -= SftpSession_StatusMessageReceived;
         }
 
         private void SftpSession_StatusMessageReceived(object sender, MessageEventArgs<StatusMessage> e)
@@ -337,9 +337,9 @@ namespace Renci.SshClient.Sftp
 
         private void SendMessage(SftpRequestMessage message)
         {
-            this._sftpSession.SendMessage(message);
+            this.SftpSession.SendMessage(message);
 
-            //  Remeber command request id that was sent
+            //  Remembers command request id that was sent
             this._requestId = message.RequestId;
         }
     }

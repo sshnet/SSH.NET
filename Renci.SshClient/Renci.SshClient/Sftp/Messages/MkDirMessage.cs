@@ -4,7 +4,7 @@
     {
         public MkDirMessage()
         {
-            this.Attributes = new Attributes();
+            this.Attributes = new SftpFileAttributes();
         }
 
         public override SftpMessageTypes SftpMessageType
@@ -14,7 +14,7 @@
 
         public string Path { get; set; }
 
-        public Attributes Attributes { get; set; }
+        public SftpFileAttributes Attributes { get; set; }
 
         protected override void LoadData()
         {

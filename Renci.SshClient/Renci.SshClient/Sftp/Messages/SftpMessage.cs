@@ -68,9 +68,9 @@ namespace Renci.SshClient.Sftp.Messages
             this.Write((byte)this.SftpMessageType);
         }
 
-        protected Attributes ReadAttributes()
+        protected SftpFileAttributes ReadAttributes()
         {
-            var attributes = new Attributes();
+            var attributes = new SftpFileAttributes();
 
             var flag = this.ReadUInt32();
 
@@ -108,7 +108,7 @@ namespace Renci.SshClient.Sftp.Messages
             return attributes;
         }
 
-        protected void Write(Attributes attributes)
+        protected void Write(SftpFileAttributes attributes)
         {
             if (attributes == null)
             {

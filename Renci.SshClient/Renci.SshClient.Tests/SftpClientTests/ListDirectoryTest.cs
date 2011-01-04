@@ -22,7 +22,7 @@ namespace Renci.SshClient.Tests.SftpClientTests
                 var files = sftp.ListDirectory(".");
                 foreach (var file in files)
                 {
-                    Debug.WriteLine(file.AbsolutePath);
+                    Debug.WriteLine(file.FullName);
                 }
             }
         }
@@ -39,7 +39,7 @@ namespace Renci.SshClient.Tests.SftpClientTests
                 var files = sftp.ListDirectory("/etc/audit");
                 foreach (var file in files)
                 {
-                    Debug.WriteLine(file.AbsolutePath);
+                    Debug.WriteLine(file.FullName);
                 }
 
                 sftp.Disconnect();
@@ -59,7 +59,7 @@ namespace Renci.SshClient.Tests.SftpClientTests
                 var files = sftp.ListDirectory("/asdfgh");
                 foreach (var file in files)
                 {
-                    Debug.WriteLine(file.AbsolutePath);
+                    Debug.WriteLine(file.FullName);
                 }
 
                 sftp.Disconnect();
@@ -80,7 +80,7 @@ namespace Renci.SshClient.Tests.SftpClientTests
 
                 foreach (var file in files)
                 {
-                    Debug.WriteLine(file.AbsolutePath);
+                    Debug.WriteLine(file.FullName);
                 }
 
                 sftp.Disconnect();

@@ -6,7 +6,7 @@ namespace Renci.SshClient.Sftp.Messages
     /// <summary>
     /// Represents SFTP File attribute.
     /// </summary>
-    public class Attributes
+    public class SftpFileAttributes
     {
         /// <summary>
         /// Gets or sets the size.

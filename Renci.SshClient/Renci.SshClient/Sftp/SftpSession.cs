@@ -25,10 +25,18 @@ namespace Renci.SshClient.Sftp
 
         private EventWaitHandle _sftpVersionConfirmed = new AutoResetEvent(false);
 
-        private int _operationTimeout;
+        private TimeSpan _operationTimeout;
 
         public event EventHandler<ErrorEventArgs> ErrorOccured;
 
+        /// <summary>
+        /// Gets remote working directory.
+        /// </summary>
+        public string WorkingDirectory { get; private set; }
+
+        /// <summary>
+        /// Gets SFTP protocol version.
+        /// </summary>
         public int ProtocolVersion { get; private set; }
 
         #region SFTP messages
@@ -45,7 +53,7 @@ namespace Renci.SshClient.Sftp
 
         #endregion
 
-        public SftpSession(Session session, int operationTimeout)
+        public SftpSession(Session session, TimeSpan operationTimeout)
         {
             this._session = session;
             this._operationTimeout = operationTimeout;
@@ -71,11 +79,69 @@ namespace Renci.SshClient.Sftp
             this.WaitHandle(this._sftpVersionConfirmed, this._operationTimeout);
 
             this.ProtocolVersion = 3;
+
+            //  Resolve current directory
+            this.WorkingDirectory = this.GetAbsolutePath(".");
         }
 
         public void Disconnect()
         {
             this.Dispose();
+        }
+
+        public void ChangeDirectory(string path)
+        {
+            this.WorkingDirectory = this.GetAbsolutePath(this.ResolvePath(path));
+        }
+
+        /// <summary>
+        /// Resolves the path client side without server validation.
+        /// </summary>
+        /// <param name="path">Path to resolve.</param>
+        /// <returns>Resolved path</returns>
+        public string ResolvePath(string path)
+        {
+            //  If path starts with "/" then its "absolute"
+            if (!path.StartsWith("/"))
+            {
+                return string.Format("{0}/{1}", this.WorkingDirectory, path);
+            }
+            else
+                return path;
+        }
+
+        /// <summary>
+        /// Resolves path into absolute path on the server.
+        /// </summary>
+        /// <param name="path">PAth to resolve..</param>
+        /// <returns>Absolute path</returns>
+        public string GetAbsolutePath(string path)
+        {
+            var cmd = new RealPathCommand(this, path);
+
+            cmd.CommandTimeout = this._operationTimeout;
+
+            cmd.Execute();
+
+            var file = cmd.Files.FirstOrDefault();
+
+            return file.FullName;
+        }
+
+        /// <summary>
+        /// Gets the file reference from the server.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <returns></returns>
+        public SftpFile GetSftpFile(string path)
+        {
+            var cmd = new RealPathCommand(this, path);
+
+            cmd.CommandTimeout = this._operationTimeout;
+
+            cmd.Execute();
+
+            return cmd.Files.FirstOrDefault();
         }
 
         internal void SendMessage(SftpRequestMessage sftpMessage)
@@ -208,7 +274,7 @@ namespace Renci.SshClient.Sftp
             this.RaiseError(e.GetException());
         }
 
-        internal void WaitHandle(WaitHandle waitHandle, int operationTimeout)
+        internal void WaitHandle(WaitHandle waitHandle, TimeSpan operationTimeout)
         {
             var waitHandles = new WaitHandle[]
                 {

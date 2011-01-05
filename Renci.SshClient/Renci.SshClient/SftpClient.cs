@@ -213,12 +213,10 @@ namespace Renci.SshClient
         /// <summary>
         /// Creates a symbolic link from old path to new path.
         /// </summary>
-        /// <param name="linkPath">The old path.</param>
-        /// <param name="path">The new path.</param>
-        public void SymbolicLink(string linkPath, string path)
+        /// <param name="path">The old path.</param>
+        /// <param name="linkPath">The new path.</param>
+        public void SymbolicLink(string path, string linkPath)
         {
-            //  TODO:   Need to be tested, currently does not work
-
             //  Ensure that connection is established.
             this.EnsureConnection();
 
@@ -226,7 +224,7 @@ namespace Renci.SshClient
 
             var linkFullPath = this._sftpSession.ResolvePath(linkPath);
 
-            var cmd = new SymbolicLinkCommand(this._sftpSession, linkFullPath, fullPath);
+            var cmd = new SymbolicLinkCommand(this._sftpSession, fullPath, linkFullPath);
 
             cmd.CommandTimeout = this.OperationTimeout;
 
@@ -413,7 +411,7 @@ namespace Renci.SshClient
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged ResourceMessages.</param>
         protected override void Dispose(bool disposing)
         {
             if (this._sftpSession != null)

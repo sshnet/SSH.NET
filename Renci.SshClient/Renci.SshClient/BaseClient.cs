@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Threading;
 using Renci.SshClient.Common;
 
@@ -69,6 +70,11 @@ namespace Renci.SshClient
         }
 
         /// <summary>
+        /// Occurs when an error occurred.
+        /// </summary>
+        public event EventHandler<ErrorEventArgs> ErrorOccurred;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="BaseClient"/> class.
         /// </summary>
         /// <param name="connectionInfo">The connection info.</param>
@@ -92,6 +98,7 @@ namespace Renci.SshClient
 
             this.Session = new Session(this.ConnectionInfo);
             this.Session.Connect();
+            this.Session.ErrorOccured += Session_ErrorOccured;
 
             this.OnConnected();
         }
@@ -164,12 +171,20 @@ namespace Renci.SshClient
                 throw new SshConnectionException("Client not connected.");
         }
 
+        private void Session_ErrorOccured(object sender, System.IO.ErrorEventArgs e)
+        {
+            if (this.ErrorOccurred != null)
+            {
+                this.ErrorOccurred(this, e);
+            }
+        }
+
         #region IDisposable Members
 
         private bool _isDisposed = false;
 
         /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged ResourceMessages.
         /// </summary>
         public void Dispose()
         {
@@ -181,17 +196,19 @@ namespace Renci.SshClient
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged ResourceMessages.</param>
         protected virtual void Dispose(bool disposing)
         {
             // Check to see if Dispose has already been called.
             if (!this._isDisposed)
             {
                 // If disposing equals true, dispose all managed
-                // and unmanaged resources.
+                // and unmanaged ResourceMessages.
                 if (disposing)
                 {
-                    // Dispose managed resources.
+                    // Dispose managed ResourceMessages.
+                    this.Session.ErrorOccured -= Session_ErrorOccured;
+
                     if (this.Session != null)
                     {
                         this.Session.Dispose();
@@ -202,7 +219,6 @@ namespace Renci.SshClient
                         this._keepAliveTimer.Dispose();
                         this._keepAliveTimer = null;
                     }
-
                 }
 
                 // Note disposing has been done.

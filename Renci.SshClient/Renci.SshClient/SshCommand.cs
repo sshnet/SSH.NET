@@ -172,11 +172,7 @@ namespace Renci.SshClient
         {
             CommandAsyncResult channelAsyncResult = asynchResult as CommandAsyncResult;
 
-            //  TODO: Create a method to perform this check in the method
-            if (channelAsyncResult.Command != this)
-            {
-                throw new InvalidOperationException("Invalid IAsyncResult parameter");
-            }
+            channelAsyncResult.ValidateCommand(this);
 
             //  Make sure that operation completed if not wait for it to finish
             this.WaitHandle(this._asyncResult.AsyncWaitHandle);
@@ -334,7 +330,7 @@ namespace Renci.SshClient
         private bool _isDisposed = false;
 
         /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged ResourceMessages.
         /// </summary>
         public void Dispose()
         {
@@ -346,42 +342,42 @@ namespace Renci.SshClient
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged ResourceMessages.</param>
         protected virtual void Dispose(bool disposing)
         {
             // Check to see if Dispose has already been called.
             if (!this._isDisposed)
             {
                 // If disposing equals true, dispose all managed
-                // and unmanaged resources.
+                // and unmanaged ResourceMessages.
                 if (disposing)
                 {
 
                     this._session.Disconnected -= Session_Disconnected;
                     this._session.ErrorOccured -= Session_ErrorOccured;
 
-                    // Dispose managed resources.
+                    // Dispose managed ResourceMessages.
                     if (this.OutputStream != null)
                     {
                         this.OutputStream.Dispose();
                         this.OutputStream = null;
                     }
 
-                    // Dispose managed resources.
+                    // Dispose managed ResourceMessages.
                     if (this.ExtendedOutputStream != null)
                     {
                         this.ExtendedOutputStream.Dispose();
                         this.ExtendedOutputStream = null;
                     }
 
-                    // Dispose managed resources.
+                    // Dispose managed ResourceMessages.
                     if (this._sessionErrorOccuredWaitHandle != null)
                     {
                         this._sessionErrorOccuredWaitHandle.Dispose();
                         this._sessionErrorOccuredWaitHandle = null;
                     }
 
-                    // Dispose managed resources.
+                    // Dispose managed ResourceMessages.
                     if (this._channel != null)
                     {
                         this._channel.DataReceived -= Channel_DataReceived;

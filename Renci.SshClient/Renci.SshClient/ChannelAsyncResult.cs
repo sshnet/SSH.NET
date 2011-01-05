@@ -12,7 +12,7 @@ namespace Renci.SshClient
         /// Gets or sets the command that async result was created for.
         /// </summary>
         /// <value>The channel.</value>
-        internal SshCommand Command { get; private set; }
+        private SshCommand _command;
 
         /// <summary>
         /// Gets or sets the bytes received. If SFTP only file bytes are counted.
@@ -60,7 +60,20 @@ namespace Renci.SshClient
         /// <param name="command">The command.</param>
         internal CommandAsyncResult(SshCommand command)
         {
-            this.Command = command;
+            this._command = command;
+        }
+
+        /// <summary>
+        /// Validates that command object is valid to be used with this instance.
+        /// </summary>
+        /// <param name="command">The command.</param>
+        public void ValidateCommand(SshCommand command)
+        {
+            if (this._command != command)
+            {
+                throw new InvalidOperationException("Invalid IAsyncResult parameter");
+            }
+
         }
     }
 }

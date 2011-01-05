@@ -430,6 +430,7 @@ namespace Renci.SshClient
                                                   Name = messageAttribute.Name,
                                                   Number = messageAttribute.Number,
                                                   Enabled = false,
+                                                  Activated = false,
                                                   Type = type,
                                               }).ToList();
 
@@ -440,11 +441,8 @@ namespace Renci.SshClient
                     Match versionMatch = null;
                     //  Get server version from the server,
                     //  ignore text lines which are sent before if any
-                    NetworkStream ns = null;
-                    try
+                    using (var ns = new NetworkStream(this._socket))
                     {
-
-                        ns = new NetworkStream(this._socket);
                         using (var sr = new StreamReader(ns))
                         {
                             while (true)
@@ -462,14 +460,6 @@ namespace Renci.SshClient
                                     break;
                                 }
                             }
-                        }
-                    }
-                    finally
-                    {
-                        if (ns != null)
-                        {
-                            ns.Dispose();
-                            ns = null;
                         }
                     }
 
@@ -527,6 +517,21 @@ namespace Renci.SshClient
                     {
                         throw new SshAuthenticationException("User cannot be authenticated.");
                     }
+
+                    //  Register Connection messages
+                    this.RegisterMessage("SSH_MSG_GLOBAL_REQUEST");
+                    this.RegisterMessage("SSH_MSG_REQUEST_SUCCESS");
+                    this.RegisterMessage("SSH_MSG_REQUEST_FAILURE");
+                    this.RegisterMessage("SSH_MSG_CHANNEL_OPEN_CONFIRMATION");
+                    this.RegisterMessage("SSH_MSG_CHANNEL_OPEN_FAILURE");
+                    this.RegisterMessage("SSH_MSG_CHANNEL_WINDOW_ADJUST");
+                    this.RegisterMessage("SSH_MSG_CHANNEL_EXTENDED_DATA");
+                    this.RegisterMessage("SSH_MSG_CHANNEL_REQUEST");
+                    this.RegisterMessage("SSH_MSG_CHANNEL_SUCCESS");
+                    this.RegisterMessage("SSH_MSG_CHANNEL_FAILURE");
+                    this.RegisterMessage("SSH_MSG_CHANNEL_DATA");
+                    this.RegisterMessage("SSH_MSG_CHANNEL_EOF");
+                    this.RegisterMessage("SSH_MSG_CHANNEL_CLOSE");
 
                     Monitor.Pulse(this);
                 }
@@ -1025,22 +1030,12 @@ namespace Renci.SshClient
         {
             this._keyExchangeCompletedWaitHandle.Reset();
 
-            //  Connection type messages are not allowed during key exchange phase
-            this.UnRegisterMessage("SSH_MSG_GLOBAL_REQUEST");
-            this.UnRegisterMessage("SSH_MSG_REQUEST_SUCCESS");
-            this.UnRegisterMessage("SSH_MSG_REQUEST_FAILURE");
-            this.UnRegisterMessage("SSH_MSG_CHANNEL_OPEN_CONFIRMATION");
-            this.UnRegisterMessage("SSH_MSG_CHANNEL_OPEN_FAILURE");
-            this.UnRegisterMessage("SSH_MSG_CHANNEL_WINDOW_ADJUST");
-            this.UnRegisterMessage("SSH_MSG_CHANNEL_EXTENDED_DATA");
-            this.UnRegisterMessage("SSH_MSG_CHANNEL_REQUEST");
-            this.UnRegisterMessage("SSH_MSG_CHANNEL_SUCCESS");
-            this.UnRegisterMessage("SSH_MSG_CHANNEL_FAILURE");
-            this.UnRegisterMessage("SSH_MSG_CHANNEL_DATA");
-            this.UnRegisterMessage("SSH_MSG_CHANNEL_EOF");
-            this.UnRegisterMessage("SSH_MSG_CHANNEL_CLOSE");
-            //  TODO:   Replace it with algorithm which disables all messages but relevant for key exchange
-
+            //  Disable all registered messages except key exchange related
+            foreach (var messageMetadata in this._messagesMetadata)
+            {
+                if (messageMetadata.Activated == true && messageMetadata.Number < 20 || messageMetadata.Number > 30)
+                    messageMetadata.Enabled = false;
+            }
 
             var keyExchangeAlgorithmName = (from c in this.ConnectionInfo.KeyExchangeAlgorithms.Keys
                                             from s in message.KeyExchangeAlgorithms
@@ -1116,20 +1111,12 @@ namespace Renci.SshClient
                 this._keyExchange = null;
             }
 
-            //  Register Connection messages
-            this.RegisterMessage("SSH_MSG_GLOBAL_REQUEST");
-            this.RegisterMessage("SSH_MSG_REQUEST_SUCCESS");
-            this.RegisterMessage("SSH_MSG_REQUEST_FAILURE");
-            this.RegisterMessage("SSH_MSG_CHANNEL_OPEN_CONFIRMATION");
-            this.RegisterMessage("SSH_MSG_CHANNEL_OPEN_FAILURE");
-            this.RegisterMessage("SSH_MSG_CHANNEL_WINDOW_ADJUST");
-            this.RegisterMessage("SSH_MSG_CHANNEL_EXTENDED_DATA");
-            this.RegisterMessage("SSH_MSG_CHANNEL_REQUEST");
-            this.RegisterMessage("SSH_MSG_CHANNEL_SUCCESS");
-            this.RegisterMessage("SSH_MSG_CHANNEL_FAILURE");
-            this.RegisterMessage("SSH_MSG_CHANNEL_DATA");
-            this.RegisterMessage("SSH_MSG_CHANNEL_EOF");
-            this.RegisterMessage("SSH_MSG_CHANNEL_CLOSE");
+            //  Enable all active registered messages
+            foreach (var messageMetadata in this._messagesMetadata)
+            {
+                if (messageMetadata.Activated == true)
+                    messageMetadata.Enabled = true;
+            }
 
             if (this.NewKeysReceived != null)
             {
@@ -1460,7 +1447,7 @@ namespace Renci.SshClient
             {
                 Parallel.ForEach(
                     from m in this._messagesMetadata where m.Name == messageName select m,
-                    (item) => { item.Enabled = true; });
+                    (item) => { item.Enabled = true; item.Activated = true; });
             }
         }
 
@@ -1474,7 +1461,7 @@ namespace Renci.SshClient
             {
                 Parallel.ForEach(
                     from m in this._messagesMetadata where m.Name == messageName select m,
-                    (item) => { item.Enabled = false; });
+                    (item) => { item.Enabled = false; item.Activated = false; });
             }
         }
 
@@ -1486,8 +1473,7 @@ namespace Renci.SshClient
         private Message LoadMessage(IEnumerable<byte> data)
         {
             var messageType = data.FirstOrDefault();
-
-            var messageMetadata = (from m in this._messagesMetadata where m.Number == messageType && m.Enabled == true select m).SingleOrDefault();
+            var messageMetadata = (from m in this._messagesMetadata where m.Number == messageType && m.Enabled && m.Activated select m).SingleOrDefault();
 
             if (messageMetadata == null)
                 throw new SshException(string.Format("Message type {0} is not valid.", messageType));
@@ -1512,8 +1498,6 @@ namespace Renci.SshClient
                 {
                     var message = this.ReceiveMessage();
 
-                    //Debug.WriteLine(string.Format("{0} : {1}", DateTime.Now, message));
-
                     if (message == null)
                     {
                         throw new NullReferenceException("The 'message' variable cannot be null");
@@ -1527,10 +1511,6 @@ namespace Renci.SshClient
             catch (Exception exp)
             {
                 this.RaiseError(exp);
-                //  TODO:   This exception can be swallowed if it occurs while running in the background, look for possible solutions
-                //          It can be swollen if call async, when asynch method is finished ensure all async method check for exception to be raised
-                //          Or if it is running in port forwarding mode, some event should be raised at this case to handle and error and if not handle then throw
-                //          throw an exception and let it be swallowed then if not handled by the event handler
             }
         }
 
@@ -1568,7 +1548,7 @@ namespace Renci.SshClient
         private bool _disposed = false;
 
         /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged ResourceMessages.
         /// </summary>
         public void Dispose()
         {
@@ -1580,14 +1560,14 @@ namespace Renci.SshClient
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged ResourceMessages.</param>
         protected virtual void Dispose(bool disposing)
         {
             // Check to see if Dispose has already been called.
             if (!this._disposed)
             {
                 // If disposing equals true, dispose all managed
-                // and unmanaged resources.
+                // and unmanaged ResourceMessages.
                 if (disposing)
                 {
                     this._isDisconnecting = true;
@@ -1690,8 +1670,9 @@ namespace Renci.SshClient
 
             public bool Enabled { get; set; }
 
+            public bool Activated { get; set; }
+
             public Type Type { get; set; }
         }
-
     }
 }

@@ -3,8 +3,6 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using Renci.SshClient.Channels;
-using Renci.SshClient.Common;
-using System.Diagnostics;
 
 namespace Renci.SshClient
 {
@@ -37,7 +35,6 @@ namespace Renci.SshClient
                 {
                     while (true)
                     {
-                        //  TODO:   Check what the best place to call dispose for this socket.
                         var socket = this._listener.AcceptSocket();
 
                         Task.Factory.StartNew(() =>
@@ -99,7 +96,7 @@ namespace Renci.SshClient
         private bool _isDisposed = false;
 
         /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged ResourceMessages.
         /// </summary>
         public void Dispose()
         {
@@ -111,17 +108,17 @@ namespace Renci.SshClient
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged ResourceMessages.</param>
         protected virtual void Dispose(bool disposing)
         {
             // Check to see if Dispose has already been called.
             if (!this._isDisposed)
             {
                 // If disposing equals true, dispose all managed
-                // and unmanaged resources.
+                // and unmanaged ResourceMessages.
                 if (disposing)
                 {
-                    // Dispose managed resources.
+                    // Dispose managed ResourceMessages.
                     if (this._listenerTask != null)
                     {
                         this._listenerTask.Dispose();

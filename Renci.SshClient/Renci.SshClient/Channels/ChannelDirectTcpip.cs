@@ -120,7 +120,8 @@ namespace Renci.SshClient.Channels
             //  data transfer can take longer then connection specified timeout
             System.Threading.WaitHandle.WaitAny(new WaitHandle[] { this._channelEof, readerTaskError });
 
-            this._socket.Close();
+            this._socket.Dispose();
+            this._socket = null;
 
             //  Wait for task to finish and will throw any errors if any
             readerTask.Wait();
@@ -162,6 +163,12 @@ namespace Renci.SshClient.Channels
 
         protected override void Dispose(bool disposing)
         {
+            if (this._socket != null)
+            {
+                this._socket.Dispose();
+                this._socket = null;
+            }
+
             if (this._channelEof != null)
             {
                 this._channelEof.Dispose();

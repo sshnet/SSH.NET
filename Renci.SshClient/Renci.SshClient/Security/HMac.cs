@@ -1,20 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Security.Cryptography;
 
 namespace Renci.SshClient.Security
 {
     /// <summary>
-    /// Represents base class for hash algoritm classes
+    /// Represents base class for hash algorithm classes
     /// </summary>
     public abstract class HMac : Algorithm, IDisposable
     {
         /// <summary>
         /// Instance of initialized hash algorithm that being used
         /// </summary>
-        protected System.Security.Cryptography.HMAC _hmac;
-        //  TODO:   Refactor code so this member will not be protected
+        protected abstract HMAC Hash { get; }
 
         /// <summary>
         /// Initializes algorithm with specified key.
@@ -29,7 +27,7 @@ namespace Renci.SshClient.Security
         /// <returns>The hash</returns>
         internal byte[] ComputeHash(byte[] hashData)
         {
-            return this._hmac.ComputeHash(hashData);
+            return this.Hash.ComputeHash(hashData);
         }
 
         /// <summary>
@@ -42,16 +40,14 @@ namespace Renci.SshClient.Security
         {
             get
             {
-                return this._hmac.HashSize;
+                return this.Hash.HashSize;
             }
         }
 
         #region IDisposable Members
 
-        private bool _disposed = false;
-
         /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged ResourceMessages.
         /// </summary>
         public void Dispose()
         {
@@ -63,27 +59,9 @@ namespace Renci.SshClient.Security
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged ResourceMessages.</param>
         protected virtual void Dispose(bool disposing)
         {
-            // Check to see if Dispose has already been called.
-            if (!this._disposed)
-            {
-                // If disposing equals true, dispose all managed
-                // and unmanaged resources.
-                if (disposing)
-                {
-                    // Dispose managed resources.
-                    if (this._hmac != null)
-                    {
-                        this._hmac.Dispose();
-                        this._hmac = null;
-                    }
-                }
-
-                // Note disposing has been done.
-                this._disposed = true;
-            }
         }
 
         /// <summary>

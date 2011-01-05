@@ -156,6 +156,10 @@ namespace Renci.SshClient.Security
             }
         }
 
+        /// <summary>
+        /// Creates the server side cipher to use.
+        /// </summary>
+        /// <returns></returns>
         public Cipher CreateServerCipher()
         {
             //  Resolve Session ID
@@ -177,6 +181,10 @@ namespace Renci.SshClient.Security
             return serverCipher;
         }
 
+        /// <summary>
+        /// Creates the client side cipher to use.
+        /// </summary>
+        /// <returns></returns>
         public Cipher CreateClientCipher()
         {
             //  Resolve Session ID
@@ -198,6 +206,10 @@ namespace Renci.SshClient.Security
             return clientCipher;
         }
 
+        /// <summary>
+        /// Creates the server side hash algorithm to use.
+        /// </summary>
+        /// <returns></returns>
         public HMac CreateServerHash()
         {
             //  Resolve Session ID
@@ -211,6 +223,10 @@ namespace Renci.SshClient.Security
             return serverHMac;
         }
 
+        /// <summary>
+        /// Creates the client side hash algorithm to use.
+        /// </summary>
+        /// <returns></returns>
         public HMac CreateClientHash()
         {
             //  Resolve Session ID
@@ -224,6 +240,10 @@ namespace Renci.SshClient.Security
             return clientHMac;
         }
 
+        /// <summary>
+        /// Creates the compression algorithm to use to deflate data.
+        /// </summary>
+        /// <returns></returns>
         public Compressor CreateCompressor()
         {
             if (this._compressionType == null)
@@ -236,6 +256,10 @@ namespace Renci.SshClient.Security
             return compressor;
         }
 
+        /// <summary>
+        /// Creates the compression algorithm to use to inflate data.
+        /// </summary>
+        /// <returns></returns>
         public Compressor CreateDecompressor()
         {
             if (this._compressionType == null)
@@ -374,7 +398,7 @@ namespace Renci.SshClient.Security
         #region IDisposable Members
 
         /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged ResourceMessages.
         /// </summary>
         public void Dispose()
         {
@@ -386,7 +410,7 @@ namespace Renci.SshClient.Security
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged ResourceMessages.</param>
         protected virtual void Dispose(bool disposing)
         {
         }

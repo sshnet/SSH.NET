@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Renci.SshClient.Security;
 using Renci.SshClient.Tests.Properties;
 
@@ -68,6 +64,18 @@ namespace Renci.SshClient.Tests.Security
             }
         }
 
-        //  TODO:   Add test to test re-keying
+        [TestMethod]
+        public void Test_KeyExchange_Rekeying()
+        {
+            var connectionInfo = new PasswordConnectionInfo(Resources.HOST, 22, Resources.USERNAME, Resources.PASSWORD);
+
+            using (var client = new SshClient(connectionInfo))
+            {
+                client.Connect();
+                //  TODO:   Add test to test re-keying
+                Assert.Inconclusive();
+                client.Disconnect();
+            }
+        }
     }
 }

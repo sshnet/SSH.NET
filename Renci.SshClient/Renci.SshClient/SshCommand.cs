@@ -179,6 +179,8 @@ namespace Renci.SshClient
 
             this._channel.Close();
 
+            this._channel = null;
+
             this._asyncResult = null;
 
             return this.Result;

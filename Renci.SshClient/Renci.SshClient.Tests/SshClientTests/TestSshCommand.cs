@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Diagnostics;
-using System.Threading.Tasks;
+using System.Text;
 using System.Threading;
-using Renci.SshClient.Tests.Properties;
+using System.Threading.Tasks;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Renci.SshClient.Common;
+using Renci.SshClient.Tests.Properties;
 
 namespace Renci.SshClient.Tests.SshClientTests
 {
@@ -306,6 +304,22 @@ namespace Renci.SshClient.Tests.SshClientTests
             }
         }
 
+        /// <summary>
+        /// Tests for Issue 563.
+        /// </summary>
+        [TestMethod]
+        public void Test_Execute_Command_Same_Object_Different_Commands()
+        {
+            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            {
+                client.Connect();
+                var cmd = client.CreateCommand("ls -l");
+                cmd.Execute();
+                cmd.Execute("ls -l");
+                client.Disconnect();
+            }
+        }
+
         private static bool ExecuteTestCommand(Renci.SshClient.SshClient s)
         {
             var testValue = Guid.NewGuid().ToString();
@@ -316,5 +330,6 @@ namespace Renci.SshClient.Tests.SshClientTests
             result = result.Substring(0, result.Length - 1);    //  Remove \n chararacter returned by command
             return result.Equals(testValue);
         }
+
     }
 }

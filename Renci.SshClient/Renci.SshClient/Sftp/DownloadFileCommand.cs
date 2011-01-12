@@ -11,6 +11,7 @@ namespace Renci.SshClient.Sftp
         private string _handle;
         private ulong _offset = 0;
         private uint _bufferSize = 1024;
+        private bool _closing = false;
 
         public DownloadFileCommand(SftpSession sftpSession, uint bufferSize, string path, Stream output)
             : base(sftpSession)
@@ -39,6 +40,11 @@ namespace Renci.SshClient.Sftp
             base.OnStatus(statusCode, errorMessage, language);
 
             if (statusCode == StatusCodes.Eof)
+            {
+                this.SendCloseMessage(this._handle);
+                this._closing = true;
+            }
+            else if (statusCode == StatusCodes.Ok && this._closing)
             {
                 this.CompleteExecution();
             }

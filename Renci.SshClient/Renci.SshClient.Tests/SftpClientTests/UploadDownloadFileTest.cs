@@ -65,7 +65,7 @@ namespace Renci.SshClient.Tests.SftpClientTests
                 sftp.Connect();
 
                 string uploadedFileName = Path.GetTempFileName();
-                string remoteFileName = "/usr/";
+                string remoteFileName = "/etc/audit/ddd";
 
                 this.CreateTestFile(uploadedFileName, 1);
                 var exceptionOccured = false;
@@ -82,8 +82,6 @@ namespace Renci.SshClient.Tests.SftpClientTests
                 {
                     exceptionOccured = true;
                 }
-
-                sftp.DeleteFile(remoteFileName);
 
                 File.Delete(uploadedFileName);
 
@@ -113,6 +111,36 @@ namespace Renci.SshClient.Tests.SftpClientTests
                     }
                 }
                 catch (SshPermissionDeniedException)
+                {
+                    exceptionOccured = true;
+                }
+
+                sftp.Disconnect();
+
+                Assert.IsTrue(exceptionOccured);
+            }
+        }
+
+        [TestMethod]
+        [TestCategory("Sftp")]
+        public void Test_Sftp_Download_File_Not_Exists()
+        {
+            using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            {
+                sftp.Connect();
+
+                string remoteFileName = "/xxx/eee/yyy";
+
+                var exceptionOccured = false;
+
+                try
+                {
+                    using (var ms = new MemoryStream())
+                    {
+                        sftp.UploadFile(ms, remoteFileName);
+                    }
+                }
+                catch (SshFileNotFoundException)
                 {
                     exceptionOccured = true;
                 }
@@ -269,6 +297,7 @@ namespace Renci.SshClient.Tests.SftpClientTests
                 Assert.IsTrue(uploadDownloadSizeOk, "Uploaded and downloaded bytes does not match");
             }
         }
+
 
         /// <summary>
         /// Creates the test file.

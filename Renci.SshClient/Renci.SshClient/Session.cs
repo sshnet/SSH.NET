@@ -1572,7 +1572,10 @@ namespace Renci.SshClient
                 {
                     this._isDisconnecting = true;
 
-                    this.SendDisconnect(DisconnectReasons.ByApplication, "Connection terminated by the client.");
+                    if (this.IsConnected)
+                    {
+                        this.SendDisconnect(DisconnectReasons.ByApplication, "Connection terminated by the client.");
+                    }
 
                     if (this._socket != null)
                     {

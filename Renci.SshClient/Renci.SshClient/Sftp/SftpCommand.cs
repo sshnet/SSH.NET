@@ -24,6 +24,8 @@ namespace Renci.SshClient.Sftp
 
         protected SftpSession SftpSession { get; private set; }
 
+        protected bool IsStatusHandled { get; set; }
+
         public TimeSpan CommandTimeout { get; set; }
 
         public SftpCommand(SftpSession sftpSession)
@@ -274,6 +276,10 @@ namespace Renci.SshClient.Sftp
             if (this._requestId == e.Message.RequestId)
             {
                 this.OnStatus(e.Message.StatusCode, e.Message.ErrorMessage, e.Message.Language);
+
+                //  If status was handled by event handler then exit
+                if (this.IsStatusHandled)
+                    return;
 
                 if (e.Message.StatusCode == StatusCodes.PermissionDenied)
                 {

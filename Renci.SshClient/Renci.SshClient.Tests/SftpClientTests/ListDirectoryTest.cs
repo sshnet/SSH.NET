@@ -46,7 +46,6 @@ namespace Renci.SshClient.Tests.SftpClientTests
             }
         }
 
-
         [TestMethod]
         [TestCategory("Sftp")]
         [ExpectedException(typeof(SshFileNotFoundException))]
@@ -87,8 +86,6 @@ namespace Renci.SshClient.Tests.SftpClientTests
             }
         }
 
-
-
         [TestMethod]
         [TestCategory("Sftp")]
         public void Test_Sftp_ListDirectory_HugeDirectory()
@@ -97,19 +94,19 @@ namespace Renci.SshClient.Tests.SftpClientTests
             {
                 sftp.Connect();
 
-                //  Create 30000 directory items
-                for (int i = 0; i < 30000; i++)
+                //  Create 10000 directory items
+                for (int i = 0; i < 10000; i++)
                 {
                     sftp.CreateDirectory(string.Format("test_{0}", i));
                 }
 
                 var files = sftp.ListDirectory(".");
 
-                //  Ensure that directory has at least 30000 items
-                Assert.IsTrue(files.Count() > 30000);
+                //  Ensure that directory has at least 10000 items
+                Assert.IsTrue(files.Count() > 10000);
 
                 //  Delete 10000 directory items
-                for (int i = 0; i < 30000; i++)
+                for (int i = 0; i < 10000; i++)
                 {
                     sftp.DeleteDirectory(string.Format("test_{0}", i));
                 }
@@ -118,6 +115,63 @@ namespace Renci.SshClient.Tests.SftpClientTests
             }
         }
 
+        [TestMethod]
+        [TestCategory("Sftp")]
+        public void Test_Sftp_Change_Directory()
+        {
+            using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            {
+                sftp.Connect();
 
+                Assert.AreEqual(sftp.WorkingDirectory, "/home/tester");
+
+                sftp.CreateDirectory("test1");
+
+                sftp.ChangeDirectory("test1");
+
+                Assert.AreEqual(sftp.WorkingDirectory, "/home/tester/test1");
+
+                sftp.CreateDirectory("test1_1");
+                sftp.CreateDirectory("test1_2");
+                sftp.CreateDirectory("test1_3");
+
+                var files = sftp.ListDirectory(".");
+
+                Assert.IsTrue(files.First().FullName.StartsWith(string.Format("{0}", sftp.WorkingDirectory)));
+
+                sftp.ChangeDirectory("test1_1");
+
+                Assert.AreEqual(sftp.WorkingDirectory, "/home/tester/test1/test1_1");
+
+                sftp.ChangeDirectory("../test1_2");
+
+                Assert.AreEqual(sftp.WorkingDirectory, "/home/tester/test1/test1_2");
+
+                sftp.ChangeDirectory("..");
+
+                Assert.AreEqual(sftp.WorkingDirectory, "/home/tester/test1");
+
+                sftp.ChangeDirectory("..");
+
+                Assert.AreEqual(sftp.WorkingDirectory, "/home/tester");
+
+                files = sftp.ListDirectory("test1/test1_1");
+
+                Assert.IsTrue(files.First().FullName.StartsWith(string.Format("{0}/test1/test1_1", sftp.WorkingDirectory)));
+
+                sftp.ChangeDirectory("test1/test1_1");
+
+                Assert.AreEqual(sftp.WorkingDirectory, "/home/tester/test1/test1_1");
+
+                sftp.ChangeDirectory("../../");
+
+                sftp.DeleteDirectory("test1/test1_1");
+                sftp.DeleteDirectory("test1/test1_2");
+                sftp.DeleteDirectory("test1/test1_3");
+                sftp.DeleteDirectory("test1");
+
+                sftp.Disconnect();
+            }
+        }
     }
 }

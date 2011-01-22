@@ -63,7 +63,7 @@ namespace Renci.SshClient.Sftp
 
             if (statusCode == StatusCodes.NoSuchFile)
             {
-                throw new SshException(string.Format("Path '{0}' is not found.", this._path));
+                throw new SshFileNotFoundException(string.Format("Path '{0}' is not found.", this._path));
             }
 
             if (statusCode == StatusCodes.Eof)

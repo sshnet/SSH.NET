@@ -30,5 +30,17 @@ namespace Renci.SshClient.Sftp
 
             this.CompleteExecution();
         }
+
+        protected override void OnStatus(StatusCodes statusCode, string errorMessage, string language)
+        {
+            base.OnStatus(statusCode, errorMessage, language);
+
+            if (statusCode == StatusCodes.NoSuchFile)
+            {
+                this.CompleteExecution();
+
+                this.IsStatusHandled = true;
+            }
+        }
     }
 }

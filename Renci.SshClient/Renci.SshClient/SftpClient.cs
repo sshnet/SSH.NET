@@ -144,7 +144,7 @@ namespace Renci.SshClient
             //  Ensure that connection is established.
             this.EnsureConnection();
 
-            var fullPath = this._sftpSession.ResolvePath(path);
+            var fullPath = this._sftpSession.GetCanonicalPath(path);
 
             var cmd = new CreateDirectoryCommand(this._sftpSession, fullPath);
 
@@ -162,7 +162,7 @@ namespace Renci.SshClient
             //  Ensure that connection is established.
             this.EnsureConnection();
 
-            var fullPath = this._sftpSession.GetAbsolutePath(this._sftpSession.ResolvePath(path));
+            var fullPath = this._sftpSession.GetCanonicalPath(path);
 
             var cmd = new RemoveDirectoryCommand(this._sftpSession, fullPath);
 
@@ -180,7 +180,7 @@ namespace Renci.SshClient
             //  Ensure that connection is established.
             this.EnsureConnection();
 
-            var fullPath = this._sftpSession.GetAbsolutePath(this._sftpSession.ResolvePath(path));
+            var fullPath = this._sftpSession.GetCanonicalPath(path);
 
             var cmd = new RemoveFileCommand(this._sftpSession, fullPath);
 
@@ -199,9 +199,9 @@ namespace Renci.SshClient
             //  Ensure that connection is established.
             this.EnsureConnection();
 
-            var oldFullPath = this._sftpSession.GetAbsolutePath(this._sftpSession.ResolvePath(oldPath));
+            var oldFullPath = this._sftpSession.GetCanonicalPath(oldPath);
 
-            var newFullPath = this._sftpSession.ResolvePath(newPath);
+            var newFullPath = this._sftpSession.GetCanonicalPath(newPath);
 
             var cmd = new RenameFileCommand(this._sftpSession, oldFullPath, newFullPath);
 
@@ -220,9 +220,9 @@ namespace Renci.SshClient
             //  Ensure that connection is established.
             this.EnsureConnection();
 
-            var fullPath = this._sftpSession.GetAbsolutePath(this._sftpSession.ResolvePath(path));
+            var fullPath = this._sftpSession.GetCanonicalPath(path);
 
-            var linkFullPath = this._sftpSession.ResolvePath(linkPath);
+            var linkFullPath = this._sftpSession.GetCanonicalPath(linkPath);
 
             var cmd = new SymbolicLinkCommand(this._sftpSession, fullPath, linkFullPath);
 
@@ -253,7 +253,7 @@ namespace Renci.SshClient
             //  Ensure that connection is established.
             this.EnsureConnection();
 
-            var fullPath = this._sftpSession.GetAbsolutePath(this._sftpSession.ResolvePath(path));
+            var fullPath = this._sftpSession.GetCanonicalPath(path);
 
             var cmd = new ListDirectoryCommand(this._sftpSession, fullPath);
 
@@ -306,7 +306,7 @@ namespace Renci.SshClient
             //  Ensure that connection is established.
             this.EnsureConnection();
 
-            var fullPath = this._sftpSession.GetAbsolutePath(this._sftpSession.ResolvePath(path));
+            var fullPath = this._sftpSession.GetCanonicalPath(path);
 
             var cmd = new DownloadFileCommand(this._sftpSession, this.BufferSize, fullPath, output);
 
@@ -356,7 +356,7 @@ namespace Renci.SshClient
             //  Ensure that connection is established.
             this.EnsureConnection();
 
-            var fullPath = this._sftpSession.ResolvePath(path);
+            var fullPath = this._sftpSession.GetCanonicalPath(path);
 
             var cmd = new UploadFileCommand(this._sftpSession, this.BufferSize, fullPath, input);
 

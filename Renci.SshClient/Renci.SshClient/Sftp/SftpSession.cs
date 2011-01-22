@@ -6,6 +6,7 @@ using System.Threading;
 using Renci.SshClient.Channels;
 using Renci.SshClient.Common;
 using Renci.SshClient.Sftp.Messages;
+using System.Diagnostics;
 
 namespace Renci.SshClient.Sftp
 {
@@ -81,7 +82,7 @@ namespace Renci.SshClient.Sftp
             this.ProtocolVersion = 3;
 
             //  Resolve current directory
-            this.WorkingDirectory = this.GetAbsolutePath(".");
+            this.WorkingDirectory = this.GetRealPath(".");
         }
 
         public void Disconnect()
@@ -91,23 +92,7 @@ namespace Renci.SshClient.Sftp
 
         public void ChangeDirectory(string path)
         {
-            this.WorkingDirectory = this.GetAbsolutePath(this.ResolvePath(path));
-        }
-
-        /// <summary>
-        /// Resolves the path client side without server validation.
-        /// </summary>
-        /// <param name="path">Path to resolve.</param>
-        /// <returns>Resolved path</returns>
-        public string ResolvePath(string path)
-        {
-            //  If path starts with "/" then its "absolute"
-            if (!path.StartsWith("/"))
-            {
-                return string.Format("{0}/{1}", this.WorkingDirectory, path);
-            }
-            else
-                return path;
+            this.WorkingDirectory = this.GetCanonicalPath(path);
         }
 
         /// <summary>
@@ -115,17 +100,51 @@ namespace Renci.SshClient.Sftp
         /// </summary>
         /// <param name="path">PAth to resolve..</param>
         /// <returns>Absolute path</returns>
-        public string GetAbsolutePath(string path)
+        public string GetCanonicalPath(string path)
         {
-            var cmd = new RealPathCommand(this, path);
+            var fullPath = path;
 
-            cmd.CommandTimeout = this._operationTimeout;
+            if (!path.StartsWith("/") && this.WorkingDirectory != null)
+            {
+                if (this.WorkingDirectory.EndsWith("/"))
+                {
+                    fullPath = string.Format("{0}{1}", this.WorkingDirectory, path);
+                }
+                else
+                {
+                    fullPath = string.Format("{0}/{1}", this.WorkingDirectory, path);
+                }
+            }
 
-            cmd.Execute();
+            var canonizedPath = this.GetRealPath(fullPath);
 
-            var file = cmd.Files.FirstOrDefault();
+            if (!string.IsNullOrEmpty(canonizedPath))
+                return canonizedPath;
 
-            return file.FullName;
+            //  Check for special cases
+            if (fullPath.EndsWith("/.", StringComparison.InvariantCultureIgnoreCase) ||
+                fullPath.EndsWith("/..", StringComparison.InvariantCultureIgnoreCase) ||
+                fullPath.Equals("/", StringComparison.InvariantCultureIgnoreCase) ||
+                fullPath.IndexOf('/') < 0)
+                return fullPath;
+
+            var pathParts = fullPath.Split(new char[] { '/' });
+
+            var partialFullPath = string.Join("/", pathParts, 0, pathParts.Length - 1);
+
+            canonizedPath = this.GetRealPath(partialFullPath);
+
+            if (string.IsNullOrEmpty(canonizedPath))
+            {
+                return fullPath;
+            }
+            else
+            {
+                var slash = string.Empty;
+                if (!canonizedPath.EndsWith("/"))
+                    slash = "/";
+                return string.Format("{0}{1}{2}", canonizedPath, slash, pathParts[pathParts.Length - 1]);
+            }
         }
 
         /// <summary>
@@ -255,7 +274,8 @@ namespace Renci.SshClient.Sftp
         private void HandleMessage(ExtendedMessage message)
         {
             //  Extended messages currently not supported, send appropriate status message
-            this.SendMessage(new StatusMessage { 
+            this.SendMessage(new StatusMessage
+            {
                 StatusCode = StatusCodes.OperationUnsupported,
                 ErrorMessage = "Extended messages are not supported",
                 Language = string.Empty,
@@ -263,6 +283,20 @@ namespace Renci.SshClient.Sftp
         }
 
         #endregion
+
+        private string GetRealPath(string path)
+        {
+            var cmd = new RealPathCommand(this, path);
+
+            cmd.CommandTimeout = this._operationTimeout;
+
+            cmd.Execute();
+
+            if (cmd.Files == null)
+                return null;
+            else
+                return cmd.Files.First().FullName;
+        }
 
         private void Session_Disconnected(object sender, EventArgs e)
         {
@@ -342,7 +376,7 @@ namespace Renci.SshClient.Sftp
                     this._channel.DataReceived -= Channel_DataReceived;
 
                     this._channel.Close();
-                }            
+                }
 
                 this._session.ErrorOccured -= Session_ErrorOccured;
                 this._session.Disconnected -= Session_Disconnected;

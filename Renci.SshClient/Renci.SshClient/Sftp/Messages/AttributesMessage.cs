@@ -7,7 +7,12 @@
             get { return SftpMessageTypes.Attrs; }
         }
 
-        public SftpFileAttributes Attributes { get; set; }
+        public SftpFileAttributes Attributes { get; private set; }
+
+        public AttributesMessage()
+        {
+
+        }
 
         protected override void LoadData()
         {

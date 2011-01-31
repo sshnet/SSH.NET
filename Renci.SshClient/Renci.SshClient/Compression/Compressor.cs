@@ -26,13 +26,13 @@ namespace Renci.SshClient.Compression
         /// </summary>
         /// <param name="data">Data to compress.</param>
         /// <returns>Compressed data</returns>
-        public abstract IEnumerable<byte> Compress(IEnumerable<byte> data);
+        public abstract byte[] Compress(byte[] data);
 
         /// <summary>
         /// Decompresses the specified data.
         /// </summary>
         /// <param name="data">Compressed data.</param>
         /// <returns>Decompressed data.</returns>
-        public abstract IEnumerable<byte> Decompress(IEnumerable<byte> data);
+        public abstract byte[] Decompress(byte[] data);
     }
 }

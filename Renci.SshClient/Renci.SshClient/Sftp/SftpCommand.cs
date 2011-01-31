@@ -4,6 +4,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Renci.SshClient.Common;
 using Renci.SshClient.Sftp.Messages;
+using System.Threading;
 
 namespace Renci.SshClient.Sftp
 {
@@ -89,11 +90,11 @@ namespace Renci.SshClient.Sftp
         {
         }
 
-        protected virtual void OnHandle(string handle)
+        protected virtual void OnHandle(byte[] handle)
         {
         }
 
-        protected virtual void OnData(string data, bool isEof)
+        protected virtual void OnData(byte[] data, bool isEof)
         {
         }
 
@@ -107,157 +108,94 @@ namespace Renci.SshClient.Sftp
 
         protected void SendOpenMessage(string path, Flags flags)
         {
-            this.SendMessage(new OpenMessage
-            {
-                Filename = path,
-                Flags = flags,
-            });
+            this.SendMessage(new OpenMessage(this.SftpSession.NextRequestId, path, flags));
         }
 
-        protected void SendCloseMessage(string handle)
+        protected void SendCloseMessage(byte[] handle)
         {
-            this.SendMessage(new CloseMessage
-            {
-                Handle = handle,
-            });
+            this.SendMessage(new CloseMessage(this.SftpSession.NextRequestId, handle));
 
             this._handleCloseMessageSent = true;
         }
 
-        protected void SendReadMessage(string handle, ulong offset, uint bufferSize)
+        protected void SendReadMessage(byte[] handle, ulong offset, uint bufferSize)
         {
-            this.SendMessage(new ReadMessage
-            {
-                Handle = handle,
-                Offset = offset,
-                Length = bufferSize,
-            });
+            this.SendMessage(new ReadMessage(this.SftpSession.NextRequestId, handle, offset, bufferSize));
         }
 
-        protected void SendWriteMessage(string handle, ulong offset, string data)
+        protected void SendWriteMessage(byte[] handle, ulong offset, byte[] data)
         {
-            this.SendMessage(new WriteMessage
-            {
-                Handle = handle,
-                Offset = offset,
-                Data = data,
-            });
+            this.SendMessage(new WriteMessage(this.SftpSession.NextRequestId, handle, offset, data));
         }
 
         protected void SendLStatMessage(string path)
         {
-            this.SendMessage(new LStatMessage
-            {
-                Path = path,
-            });
+            this.SendMessage(new LStatMessage(this.SftpSession.NextRequestId, path));
         }
 
-        protected void SendFStatMessage(string handle)
+        protected void SendFStatMessage(byte[] handle)
         {
-            this.SendMessage(new FStatMessage
-            {
-                Handle = handle,
-            });
+            this.SendMessage(new FStatMessage(this.SftpSession.NextRequestId, handle));
         }
 
         protected void SendSetStatMessage(string path, SftpFileAttributes attributes)
         {
-            this.SendMessage(new SetStatMessage
-            {
-                Path = path,
-                Attributes = attributes,
-            });
+            this.SendMessage(new SetStatMessage(this.SftpSession.NextRequestId, path, attributes));
         }
 
-        protected void SendFSetStatMessage(string handle, SftpFileAttributes attributes)
+        protected void SendFSetStatMessage(byte[] handle, SftpFileAttributes attributes)
         {
-            this.SendMessage(new FSetStatMessage
-            {
-                Handle = handle,
-                Attributes = attributes,
-            });
+            this.SendMessage(new FSetStatMessage(this.SftpSession.NextRequestId, handle, attributes));
         }
 
         protected void SendOpenDirMessage(string path)
         {
-            this.SendMessage(new OpenDirMessage
-            {
-                Path = path,
-            });
+            this.SendMessage(new OpenDirMessage(this.SftpSession.NextRequestId, path));
         }
 
-        protected void SendReadDirMessage(string handle)
+        protected void SendReadDirMessage(byte[] handle)
         {
-            this.SendMessage(new ReadDirMessage
-            {
-                Handle = handle,
-            });
+            this.SendMessage(new ReadDirMessage(this.SftpSession.NextRequestId, handle));
         }
 
         protected void SendRemoveMessage(string filename)
         {
-            this.SendMessage(new RemoveMessage
-            {
-                Filename = filename,
-            });
+            this.SendMessage(new RemoveMessage(this.SftpSession.NextRequestId, filename));
         }
 
         protected void SendMkDirMessage(string path)
         {
-            this.SendMessage(new MkDirMessage
-            {
-                Path = path,
-            });
+            this.SendMessage(new MkDirMessage(this.SftpSession.NextRequestId, path));
         }
 
         protected void SendRmDirMessage(string path)
         {
-            this.SendMessage(new RmDirMessage
-            {
-                Path = path,
-            });
+            this.SendMessage(new RmDirMessage(this.SftpSession.NextRequestId, path));
         }
 
         protected void SendRealPathMessage(string path)
         {
-            this.SendMessage(new RealPathMessage
-            {
-                Path = path,
-            });
+            this.SendMessage(new RealPathMessage(this.SftpSession.NextRequestId, path));
         }
 
         protected void SendStatMessage(string path)
         {
-            this.SendMessage(new StatMessage
-            {
-                Path = path,
-            });
+            this.SendMessage(new StatMessage(this.SftpSession.NextRequestId, path));
         }
 
         protected void SendRenameMessage(string oldPath, string newPath)
         {
-            this.SendMessage(new RenameMessage
-            {
-                OldPath = oldPath,
-                NewPath = newPath,
-            });
+            this.SendMessage(new RenameMessage(this.SftpSession.NextRequestId, oldPath, newPath));
         }
 
         protected void SendReadLinkMessage(string path)
         {
-            this.SendMessage(new ReadLinkMessage
-            {
-                Path = path,
-            });
+            this.SendMessage(new ReadLinkMessage(this.SftpSession.NextRequestId, path));
         }
 
         protected void SendSymLinkMessage(string linkPath, string path)
         {
-            this.SendMessage(new SymLinkMessage
-            {
-                NewLinkPath = linkPath,
-                ExistingPath = path,
-            });
+            this.SendMessage(new SymLinkMessage(this.SftpSession.NextRequestId, linkPath, path));
         }
 
         protected void CompleteExecution()
@@ -343,10 +281,10 @@ namespace Renci.SshClient.Sftp
 
         private void SendMessage(SftpRequestMessage message)
         {
-            this.SftpSession.SendMessage(message);
-
             //  Remembers command request id that was sent
             this._requestId = message.RequestId;
+            
+            this.SftpSession.SendMessage(message);
         }
     }
 }

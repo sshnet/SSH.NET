@@ -14,9 +14,9 @@ namespace Renci.SshClient.Sftp.Messages
             get { return SftpMessageTypes.Version; }
         }
 
-        public uint Version { get; set; }
+        public uint Version { get; private set; }
 
-        public IDictionary<string, string> Extentions { get; set; }
+        public IDictionary<string, string> Extentions { get; private set; }
 
         protected override void LoadData()
         {

@@ -20,7 +20,7 @@ namespace Renci.SshClient.Messages.Authentication
         /// <summary>
         /// Gets the public key data.
         /// </summary>
-        public IEnumerable<byte> PublicKeyData { get; private set; }
+        public byte[] PublicKeyData { get; private set; }
 
         /// <summary>
         /// Called when type specific data need to be loaded.
@@ -28,7 +28,7 @@ namespace Renci.SshClient.Messages.Authentication
         protected override void LoadData()
         {
             this.PublicKeyAlgorithmName = this.ReadString();
-            this.PublicKeyData = this.ReadString().GetSshBytes();
+            this.PublicKeyData = this.ReadBinaryString();
         }
 
         /// <summary>
@@ -37,7 +37,7 @@ namespace Renci.SshClient.Messages.Authentication
         protected override void SaveData()
         {
             this.Write(this.PublicKeyAlgorithmName);
-            this.Write(this.PublicKeyData.GetSshString());
+            this.WriteBinaryString(this.PublicKeyData);
         }
     }
 }

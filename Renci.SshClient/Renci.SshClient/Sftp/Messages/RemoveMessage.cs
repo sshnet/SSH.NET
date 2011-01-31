@@ -1,5 +1,5 @@
-﻿
-using System.Text;
+﻿using System.Text;
+
 namespace Renci.SshClient.Sftp.Messages
 {
     internal class RemoveMessage : SftpRequestMessage
@@ -9,7 +9,13 @@ namespace Renci.SshClient.Sftp.Messages
             get { return SftpMessageTypes.Remove; }
         }
 
-        public string Filename { get; set; }
+        public string Filename { get; private set; }
+
+        public RemoveMessage(uint requestId, string filename)
+            : base(requestId)
+        {
+            this.Filename = filename;
+        }
 
         protected override void LoadData()
         {

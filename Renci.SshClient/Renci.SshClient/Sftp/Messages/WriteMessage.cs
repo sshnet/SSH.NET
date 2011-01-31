@@ -9,26 +9,39 @@ namespace Renci.SshClient.Sftp.Messages
             get { return SftpMessageTypes.Write; }
         }
 
-        public string Handle { get; set; }
+        public byte[] Handle { get; private set; }
 
-        public UInt64 Offset { get; set; }
+        public UInt64 Offset { get; private set; }
 
-        public string Data { get; set; }
+        public byte[] Data { get; private set; }
+
+        public WriteMessage()
+        {
+
+        }
+
+        public WriteMessage(uint requestId, byte[] handle, UInt64 offset, byte[] data)
+            : base(requestId)
+        {
+            this.Handle = handle;
+            this.Offset = offset;
+            this.Data = data;
+        }
 
         protected override void LoadData()
         {
             base.LoadData();
-            this.Handle = this.ReadString();
+            this.Handle = this.ReadBinaryString();
             this.Offset = this.ReadUInt64();
-            this.Data = this.ReadString();
+            this.Data = this.ReadBinaryString();
         }
 
         protected override void SaveData()
         {
             base.SaveData();
-            this.Write(this.Handle);
+            this.WriteBinaryString(this.Handle);
             this.Write(this.Offset);
-            this.Write(this.Data);
+            this.WriteBinaryString(this.Data);
         }
     }
 }

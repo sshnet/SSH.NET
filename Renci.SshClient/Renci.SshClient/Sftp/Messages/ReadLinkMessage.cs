@@ -1,5 +1,5 @@
-﻿
-using System.Text;
+﻿using System.Text;
+
 namespace Renci.SshClient.Sftp.Messages
 {
     internal class ReadLinkMessage : SftpRequestMessage
@@ -9,7 +9,18 @@ namespace Renci.SshClient.Sftp.Messages
             get { return SftpMessageTypes.ReadLink; }
         }
 
-        public string Path { get; set; }
+        public string Path { get; private set; }
+
+        public ReadLinkMessage()
+        {
+
+        }
+
+        public ReadLinkMessage(uint requestId, string path)
+            : base(requestId)
+        {
+            this.Path = path;
+        }
 
         protected override void LoadData()
         {

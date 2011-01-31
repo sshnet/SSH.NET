@@ -84,7 +84,7 @@ namespace Renci.SshClient.Channels
                             var read = this._socket.Receive(buffer);
                             if (read > 0)
                             {
-                                this.SendMessage(new ChannelDataMessage(this.RemoteChannelNumber, buffer.Take(read).GetSshString()));
+                                this.SendMessage(new ChannelDataMessage(this.RemoteChannelNumber, buffer.Take(read).ToArray()));
                             }
                             else
                             {
@@ -131,11 +131,11 @@ namespace Renci.SshClient.Channels
         /// Called when channel data is received.
         /// </summary>
         /// <param name="data">The data.</param>
-        protected override void OnData(string data)
+        protected override void OnData(byte[] data)
         {
             base.OnData(data);
 
-            this._socket.Send(data.GetSshBytes().ToArray(), 0, data.Length, SocketFlags.None);
+            this._socket.Send(data, 0, data.Length, SocketFlags.None);
         }
 
         /// <summary>

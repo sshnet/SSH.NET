@@ -7,40 +7,29 @@
             get { return SftpMessageTypes.Status; }
         }
 
-        public StatusCodes StatusCode { get; set; }
+        public StatusCodes StatusCode { get; private set; }
 
-        public string ErrorMessage { get; set; }
+        public string ErrorMessage { get; private set; }
 
-        public string Language { get; set; }
+        public string Language { get; private set; }
+
+        public StatusMessage()
+        {
+
+        }
+
+        public StatusMessage(uint requestId, StatusCodes statusCode, string errorMessage, string language)
+            : base(requestId)
+        {
+            this.StatusCode = statusCode;
+            this.ErrorMessage = errorMessage;
+            this.Language = language;
+        }
 
         protected override void LoadData()
         {
             base.LoadData();
             this.StatusCode = (StatusCodes)this.ReadUInt32();
-
-            switch (this.StatusCode)
-            {
-                case StatusCodes.Ok:
-                    break;
-                case StatusCodes.Eof:
-                    break;
-                case StatusCodes.NoSuchFile:
-                    break;
-                case StatusCodes.PermissionDenied:
-                    break;
-                case StatusCodes.Failure:
-                    break;
-                case StatusCodes.BadMessage:
-                    break;
-                case StatusCodes.NoConnection:
-                    break;
-                case StatusCodes.ConnectionLost:
-                    break;
-                case StatusCodes.OperationUnsupported:
-                    break;
-                default:
-                    break;
-            }
 
             if (!this.IsEndOfData)
             {

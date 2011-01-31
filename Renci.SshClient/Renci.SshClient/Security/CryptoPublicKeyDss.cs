@@ -12,10 +12,10 @@ namespace Renci.SshClient.Security
     /// </summary>
     internal class CryptoPublicKeyDss : CryptoPublicKey
     {
-        private IEnumerable<byte> _p;
-        private IEnumerable<byte> _q;
-        private IEnumerable<byte> _g;
-        private IEnumerable<byte> _publicKey;
+        private byte[] _p;
+        private byte[] _q;
+        private byte[] _g;
+        private byte[] _publicKey;
 
         /// <summary>
         /// Gets key name.
@@ -40,7 +40,7 @@ namespace Renci.SshClient.Security
         /// <param name="q">The q value.</param>
         /// <param name="g">The g value.</param>
         /// <param name="publicKey">The public key value.</param>
-        public CryptoPublicKeyDss(IEnumerable<byte> p, IEnumerable<byte> q, IEnumerable<byte> g, IEnumerable<byte> publicKey)
+        public CryptoPublicKeyDss(byte[] p, byte[] q, byte[] g, byte[] publicKey)
         {
             this._p = p;
             this._q = q;
@@ -168,13 +168,13 @@ namespace Renci.SshClient.Security
 
         private class DsaPublicKeyData : SshData
         {
-            public IEnumerable<byte> P { get; set; }
+            public byte[] P { get; set; }
 
-            public IEnumerable<byte> Q { get; set; }
+            public byte[] Q { get; set; }
 
-            public IEnumerable<byte> G { get; set; }
+            public byte[] G { get; set; }
 
-            public IEnumerable<byte> Public { get; set; }
+            public byte[] Public { get; set; }
 
             protected override void LoadData()
             {
@@ -183,10 +183,10 @@ namespace Renci.SshClient.Security
             protected override void SaveData()
             {
                 this.Write("ssh-dss");
-                this.Write(this.P.GetSshString());
-                this.Write(this.Q.GetSshString());
-                this.Write(this.G.GetSshString());
-                this.Write(this.Public.GetSshString());
+                this.WriteBinaryString(this.P);
+                this.WriteBinaryString(this.Q);
+                this.WriteBinaryString(this.G);
+                this.WriteBinaryString(this.Public);
             }
         }
     }

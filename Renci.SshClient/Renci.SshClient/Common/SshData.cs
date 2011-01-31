@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Text;
+using Renci.SshClient;
 
 namespace Renci.SshClient.Common
 {
@@ -14,7 +15,7 @@ namespace Renci.SshClient.Common
         /// <summary>
         /// Data byte array that hold message unencrypted data
         /// </summary>
-        private IList<byte> _data;
+        private List<byte> _data;
 
         private int _readerIndex;
 
@@ -52,13 +53,13 @@ namespace Renci.SshClient.Common
         /// Gets data bytes array
         /// </summary>
         /// <returns></returns>
-        public virtual IEnumerable<byte> GetBytes()
+        public virtual byte[] GetBytes()
         {
             this._data = new List<byte>();
 
             this.SaveData();
 
-            return this._data;
+            return this._data.ToArray();
         }
 
         internal T OfType<T>() where T : SshData, new()
@@ -73,7 +74,7 @@ namespace Renci.SshClient.Common
         /// Loads data from specified bytes.
         /// </summary>
         /// <param name="bytes">Bytes array.</param>
-        public void Load(IEnumerable<byte> bytes)
+        public void Load(byte[] bytes)
         {
             this.LoadBytes(bytes);
             this.LoadData();
@@ -96,7 +97,7 @@ namespace Renci.SshClient.Common
         protected void LoadBytes(IEnumerable<byte> bytes)
         {
             this.ResetReader();
-            this._loadedData = bytes.ToArray();
+            this._loadedData = bytes;
             this._data = new List<byte>(bytes);
         }
 
@@ -112,11 +113,11 @@ namespace Renci.SshClient.Common
         /// Reads all data left in internal buffer at current position.
         /// </summary>
         /// <returns></returns>
-        protected IEnumerable<byte> ReadBytes()
+        protected byte[] ReadBytes()
         {
-            var result = this._data.Skip(this._readerIndex);
-            this._readerIndex = this._data.Count;
-            return result;
+            var data = new byte[this._data.Count - this._readerIndex];
+            this._data.CopyTo(this._readerIndex, data, 0, data.Length);
+            return data;
         }
 
         /// <summary>
@@ -124,9 +125,10 @@ namespace Renci.SshClient.Common
         /// </summary>
         /// <param name="length">Number of bytes to read.</param>
         /// <returns></returns>
-        protected IEnumerable<byte> ReadBytes(int length)
+        protected byte[] ReadBytes(int length)
         {
-            var result = this._data.Skip(this._readerIndex).Take(length);
+            var result = new byte[length];
+            this._data.CopyTo(this._readerIndex, result, 0, length);
             this._readerIndex += length;
             return result;
         }
@@ -155,7 +157,7 @@ namespace Renci.SshClient.Common
         /// <returns>uint16 read</returns>
         protected UInt16 ReadUInt16()
         {
-            var data = this.ReadBytes(2).ToArray();
+            var data = this.ReadBytes(2);
             return (ushort)(data[0] << 8 | data[1]);
         }
 
@@ -165,7 +167,7 @@ namespace Renci.SshClient.Common
         /// <returns>uint32 read</returns>
         protected UInt32 ReadUInt32()
         {
-            var data = this.ReadBytes(4).ToArray();
+            var data = this.ReadBytes(4);
             return (uint)(data[0] << 24 | data[1] << 16 | data[2] << 8 | data[3]);
         }
 
@@ -175,7 +177,7 @@ namespace Renci.SshClient.Common
         /// <returns>uint64 read</returns>
         protected UInt64 ReadUInt64()
         {
-            var data = this.ReadBytes(8).ToArray();
+            var data = this.ReadBytes(8);
             return (uint)(data[0] << 56 | data[1] << 48 | data[2] << 40 | data[3] << 32 | data[4] << 24 | data[5] << 16 | data[6] << 8 | data[7]);
         }
 
@@ -185,7 +187,7 @@ namespace Renci.SshClient.Common
         /// <returns>int64 read</returns>
         protected Int64 ReadInt64()
         {
-            var data = this.ReadBytes(8).ToArray();
+            var data = this.ReadBytes(8);
             return (int)(data[0] << 56 | data[1] << 48 | data[2] << 40 | data[3] << 32 | data[4] << 24 | data[5] << 16 | data[6] << 8 | data[7]);
         }
 
@@ -195,19 +197,32 @@ namespace Renci.SshClient.Common
         /// <returns>string read</returns>
         protected string ReadString()
         {
-            var length = this.ReadUInt32();
+            var length = (int)this.ReadUInt32();
 
-            if (length > (UInt32)int.MaxValue)
+            if (length > int.MaxValue)
             {
                 throw new NotSupportedException(string.Format("String that longer that {0} are not supported.", int.MaxValue));
             }
 
-            var result = this._data.Skip(this._readerIndex).Take((int)length).GetSshString();
-            this._readerIndex += (int)length;
-
-            return result;
+            return Encoding.ASCII.GetString(this.ReadBytes(length));
         }
 
+        /// <summary>
+        /// Reads next string data type from internal buffer.
+        /// </summary>
+        /// <returns>string read</returns>
+        protected byte[] ReadBinaryString()
+        {
+            var length = (int)this.ReadUInt32();
+
+            if (length > int.MaxValue)
+            {
+                throw new NotSupportedException(string.Format("String that longer that {0} are not supported.", int.MaxValue));
+            }
+
+            return this.ReadBytes(length);
+        }
+        
         /// <summary>
         /// Reads next mpint data type from internal buffer.
         /// </summary>
@@ -253,8 +268,7 @@ namespace Renci.SshClient.Common
         /// <param name="data">Byte array data to write.</param>
         protected void Write(IEnumerable<byte> data)
         {
-            foreach (var b in data)
-                this.Write(b);
+            this._data.AddRange(data);
         }
 
         /// <summary>
@@ -288,7 +302,7 @@ namespace Renci.SshClient.Common
         /// <param name="data">uint16 data to write.</param>
         protected void Write(UInt16 data)
         {
-            this.Write(BitConverter.GetBytes(data).Reverse());
+            this.Write(data.GetBytes());
         }
 
         /// <summary>
@@ -297,7 +311,7 @@ namespace Renci.SshClient.Common
         /// <param name="data">uint32 data to write.</param>
         protected void Write(UInt32 data)
         {
-            this.Write(BitConverter.GetBytes(data).Reverse());
+            this.Write(data.GetBytes());
         }
 
         /// <summary>
@@ -306,7 +320,7 @@ namespace Renci.SshClient.Common
         /// <param name="data">uint64 data to write.</param>
         protected void Write(UInt64 data)
         {
-            this.Write(BitConverter.GetBytes(data).Reverse());
+            this.Write(data.GetBytes());
         }
 
         /// <summary>
@@ -315,7 +329,7 @@ namespace Renci.SshClient.Common
         /// <param name="data">int64 data to write.</param>
         protected void Write(Int64 data)
         {
-            this.Write(BitConverter.GetBytes(data).Reverse());
+            this.Write(data.GetBytes());
         }
 
         /// <summary>
@@ -335,8 +349,17 @@ namespace Renci.SshClient.Common
         /// <param name="data">string data to write.</param>
         protected void Write(string data)
         {
+            this.Write(data, Encoding.ASCII);
+        }
+
+        /// <summary>
+        /// Writes string data into internal buffer.
+        /// </summary>
+        /// <param name="data">string data to write.</param>
+        protected void WriteBinaryString(byte[] data)
+        {
             this.Write((uint)data.Length);
-            this.Write(data.GetSshBytes());
+            this._data.AddRange(data);
         }
 
         /// <summary>

@@ -156,7 +156,6 @@
     <Compile Include="Sftp\Messages\ExtendedMessage.cs" />
     <Compile Include="Sftp\Messages\ExtendedReplyMessage.cs" />
     <Compile Include="Sftp\Messages\Flags.cs" />
-    <Compile Include="Sftp\Messages\FSetStat.cs" />
     <Compile Include="Sftp\Messages\FSetStatMessage.cs" />
     <Compile Include="Sftp\Messages\FStatMessage.cs" />
     <Compile Include="Sftp\Messages\HandleMessage.cs" />

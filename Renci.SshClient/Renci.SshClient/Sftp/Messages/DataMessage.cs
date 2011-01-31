@@ -8,14 +8,19 @@ namespace Renci.SshClient.Sftp.Messages
             get { return SftpMessageTypes.Data; }
         }
 
-        public string Data { get; set; }
+        public byte[] Data { get; set; }
 
         public bool IsEof { get; set; }
+
+        public DataMessage()
+        {
+
+        }
 
         protected override void LoadData()
         {
             base.LoadData();
-            this.Data = this.ReadString();
+            this.Data = this.ReadBinaryString();
             if (!this.IsEndOfData)
             {
                 this.IsEof = this.ReadBoolean();
@@ -25,7 +30,7 @@ namespace Renci.SshClient.Sftp.Messages
         protected override void SaveData()
         {
             base.SaveData();
-            this.Write(this.Data);
+            this.WriteBinaryString(this.Data);
             if (this.IsEof)
             {
                 this.Write(this.IsEof);

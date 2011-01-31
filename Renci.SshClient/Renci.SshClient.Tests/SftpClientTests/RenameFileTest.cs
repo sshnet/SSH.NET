@@ -11,6 +11,18 @@ namespace Renci.SshClient.Tests.SftpClientTests
     [TestClass]
     public class RenameFileTest
     {
+
+        [TestInitialize()]
+        public void CleanCurrentFolder()
+        {
+            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            {
+                client.Connect();
+                client.RunCommand("rm -rf *");
+                client.Disconnect();
+            }
+        }
+
         [TestMethod]
         [TestCategory("Sftp")]
         public void Test_Sftp_Rename_File()
@@ -31,8 +43,6 @@ namespace Renci.SshClient.Tests.SftpClientTests
                 }
 
                 sftp.RenameFile(remoteFileName1, remoteFileName2);
-
-                sftp.DeleteFile(remoteFileName2);
 
                 File.Delete(uploadedFileName);
 

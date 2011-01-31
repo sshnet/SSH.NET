@@ -32,7 +32,7 @@ namespace Renci.SshClient.Messages.Authentication
         /// <value>
         /// The public host key.
         /// </value>
-        public string PublicHostKey { get; private set; }
+        public byte[] PublicHostKey { get; private set; }
 
         /// <summary>
         /// Gets or sets the name of the client host.
@@ -56,7 +56,7 @@ namespace Renci.SshClient.Messages.Authentication
         /// <value>
         /// The signature.
         /// </value>
-        public string Signature { get; set; }
+        public byte[] Signature { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RequestMessageHost"/> class.
@@ -67,7 +67,7 @@ namespace Renci.SshClient.Messages.Authentication
         /// <param name="publicHostKey">The public host key.</param>
         /// <param name="clientHostName">Name of the client host.</param>
         /// <param name="clientUsername">The client username.</param>
-        public RequestMessageHost(ServiceNames serviceName, string username, string publicKeyAlgorithm, string publicHostKey, string clientHostName, string clientUsername)
+        public RequestMessageHost(ServiceNames serviceName, string username, string publicKeyAlgorithm, byte[] publicHostKey, string clientHostName, string clientUsername)
             : base(serviceName, username)
         {
             this.PublicKeyAlgorithm = publicKeyAlgorithm;
@@ -83,14 +83,13 @@ namespace Renci.SshClient.Messages.Authentication
         {
             base.SaveData();
 
-
             this.Write(this.PublicKeyAlgorithm);
-            this.Write(this.PublicHostKey);
+            this.WriteBinaryString(this.PublicHostKey);
             this.Write(this.ClientHostName, Encoding.ASCII);
             this.Write(this.ClientUsername, Encoding.UTF8);
 
-            if (!string.IsNullOrEmpty(this.Signature))
-                this.Write(this.Signature);
+            if (this.Signature != null)
+                this.WriteBinaryString(this.Signature);
         }
     }
 }

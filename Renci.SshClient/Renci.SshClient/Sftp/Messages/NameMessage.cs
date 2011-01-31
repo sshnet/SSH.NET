@@ -4,13 +4,12 @@ namespace Renci.SshClient.Sftp.Messages
 {
     internal class NameMessage : SftpRequestMessage
     {
-
         public override SftpMessageTypes SftpMessageType
         {
             get { return SftpMessageTypes.Name; }
         }
 
-        public uint Count { get; set; }
+        public uint Count { get; private set; }
 
         public IDictionary<string, SftpFileAttributes> Files { get; private set; }
 

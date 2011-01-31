@@ -7,11 +7,11 @@ namespace Renci.SshClient.Sftp.Messages
 {
     internal abstract class SftpMessage : SshData
     {
-        private delegate T LoadFunc<out T>(IEnumerable<byte> data);
+        private delegate T LoadFunc<out T>(byte[] data);
 
         private static IDictionary<SftpMessageTypes, LoadFunc<SftpMessage>> _sftpMessageTypes = new Dictionary<SftpMessageTypes, LoadFunc<SftpMessage>>();
 
-        public new static SftpMessage Load(IEnumerable<byte> data)
+        public new static SftpMessage Load(byte[] data)
         {
             var messageType = (SftpMessageTypes)data.FirstOrDefault();
 
@@ -28,33 +28,14 @@ namespace Renci.SshClient.Sftp.Messages
 
         static SftpMessage()
         {
-            SftpMessage._sftpMessageTypes.Add(SftpMessageTypes.Init, new LoadFunc<SftpMessage>(Load<InitMessage>));
+            //  Register only messages that can be received by the client
             SftpMessage._sftpMessageTypes.Add(SftpMessageTypes.Version, new LoadFunc<SftpMessage>(Load<VersionMessage>));
-            SftpMessage._sftpMessageTypes.Add(SftpMessageTypes.Open, new LoadFunc<SftpMessage>(Load<OpenMessage>));
-            SftpMessage._sftpMessageTypes.Add(SftpMessageTypes.Close, new LoadFunc<SftpMessage>(Load<CloseMessage>));
-            SftpMessage._sftpMessageTypes.Add(SftpMessageTypes.Read, new LoadFunc<SftpMessage>(Load<ReadMessage>));
-            SftpMessage._sftpMessageTypes.Add(SftpMessageTypes.Write, new LoadFunc<SftpMessage>(Load<WriteMessage>));
-            SftpMessage._sftpMessageTypes.Add(SftpMessageTypes.LStat, new LoadFunc<SftpMessage>(Load<LStatMessage>));
-            SftpMessage._sftpMessageTypes.Add(SftpMessageTypes.FStat, new LoadFunc<SftpMessage>(Load<FStatMessage>));
-            SftpMessage._sftpMessageTypes.Add(SftpMessageTypes.SetStat, new LoadFunc<SftpMessage>(Load<SetStatMessage>));
-            SftpMessage._sftpMessageTypes.Add(SftpMessageTypes.FSetStat, new LoadFunc<SftpMessage>(Load<FSetStatMessage>));
-            SftpMessage._sftpMessageTypes.Add(SftpMessageTypes.OpenDir, new LoadFunc<SftpMessage>(Load<OpenDirMessage>));
-            SftpMessage._sftpMessageTypes.Add(SftpMessageTypes.ReadDir, new LoadFunc<SftpMessage>(Load<ReadDirMessage>));
-            SftpMessage._sftpMessageTypes.Add(SftpMessageTypes.Remove, new LoadFunc<SftpMessage>(Load<RemoveMessage>));
-            SftpMessage._sftpMessageTypes.Add(SftpMessageTypes.MkDir, new LoadFunc<SftpMessage>(Load<MkDirMessage>));
-            SftpMessage._sftpMessageTypes.Add(SftpMessageTypes.RmDir, new LoadFunc<SftpMessage>(Load<RmDirMessage>));
-            SftpMessage._sftpMessageTypes.Add(SftpMessageTypes.RealPath, new LoadFunc<SftpMessage>(Load<RealPathMessage>));
-            SftpMessage._sftpMessageTypes.Add(SftpMessageTypes.Stat, new LoadFunc<SftpMessage>(Load<StatMessage>));
-            SftpMessage._sftpMessageTypes.Add(SftpMessageTypes.Rename, new LoadFunc<SftpMessage>(Load<RenameMessage>));
-            SftpMessage._sftpMessageTypes.Add(SftpMessageTypes.ReadLink, new LoadFunc<SftpMessage>(Load<ReadLinkMessage>));
-            SftpMessage._sftpMessageTypes.Add(SftpMessageTypes.SymLink, new LoadFunc<SftpMessage>(Load<SymLinkMessage>));
             SftpMessage._sftpMessageTypes.Add(SftpMessageTypes.Status, new LoadFunc<SftpMessage>(Load<StatusMessage>));
-            SftpMessage._sftpMessageTypes.Add(SftpMessageTypes.Handle, new LoadFunc<SftpMessage>(Load<HandleMessage>));
             SftpMessage._sftpMessageTypes.Add(SftpMessageTypes.Data, new LoadFunc<SftpMessage>(Load<DataMessage>));
+            SftpMessage._sftpMessageTypes.Add(SftpMessageTypes.Handle, new LoadFunc<SftpMessage>(Load<HandleMessage>));
             SftpMessage._sftpMessageTypes.Add(SftpMessageTypes.Name, new LoadFunc<SftpMessage>(Load<NameMessage>));
             SftpMessage._sftpMessageTypes.Add(SftpMessageTypes.Attrs, new LoadFunc<SftpMessage>(Load<AttributesMessage>));
             SftpMessage._sftpMessageTypes.Add(SftpMessageTypes.Extended, new LoadFunc<SftpMessage>(Load<ExtendedMessage>));
-            SftpMessage._sftpMessageTypes.Add(SftpMessageTypes.ExtendedReply, new LoadFunc<SftpMessage>(Load<ExtendedReplyMessage>));
         }
 
         public abstract SftpMessageTypes SftpMessageType { get; }
@@ -177,7 +158,7 @@ namespace Renci.SshClient.Sftp.Messages
             }
         }
 
-        private static SftpMessage Load(IEnumerable<byte> data, SftpMessageTypes messageType)
+        private static SftpMessage Load(byte[] data, SftpMessageTypes messageType)
         {
             if (SftpMessage._sftpMessageTypes.ContainsKey(messageType))
             {
@@ -189,9 +170,9 @@ namespace Renci.SshClient.Sftp.Messages
             }
         }
 
-        private static T Load<T>(IEnumerable<byte> data) where T : SftpMessage, new()
+        private static T Load<T>(byte[] data) where T : SftpMessage, new()
         {
-            var messageType = (SftpMessageTypes)data.FirstOrDefault();
+            var messageType = (SftpMessageTypes)data[0];
 
             T message = new T();
 
@@ -204,7 +185,9 @@ namespace Renci.SshClient.Sftp.Messages
             return message;
         }
 
-
-
+        public override string ToString()
+        {
+            return string.Format("SFTP Message : {0}", this.SftpMessageType);
+        }
     }
 }

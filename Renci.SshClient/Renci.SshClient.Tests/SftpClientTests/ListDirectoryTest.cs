@@ -12,6 +12,18 @@ namespace Renci.SshClient.Tests.SftpClientTests
     [TestClass]
     public class ListDirectoryTest
     {
+
+        [TestInitialize()]
+        public void CleanCurrentFolder() 
+        {
+            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            {
+                client.Connect();
+                client.RunCommand("rm -rf *");
+                client.Disconnect();
+            }
+        }
+
         [TestMethod]
         [TestCategory("Sftp")]
         [ExpectedException(typeof(SshConnectionException))]
@@ -98,18 +110,13 @@ namespace Renci.SshClient.Tests.SftpClientTests
                 for (int i = 0; i < 10000; i++)
                 {
                     sftp.CreateDirectory(string.Format("test_{0}", i));
+                    Debug.WriteLine("Created " + i);
                 }
 
                 var files = sftp.ListDirectory(".");
 
                 //  Ensure that directory has at least 10000 items
                 Assert.IsTrue(files.Count() > 10000);
-
-                //  Delete 10000 directory items
-                for (int i = 0; i < 10000; i++)
-                {
-                    sftp.DeleteDirectory(string.Format("test_{0}", i));
-                }
 
                 sftp.Disconnect();
             }
@@ -162,6 +169,14 @@ namespace Renci.SshClient.Tests.SftpClientTests
                 sftp.ChangeDirectory("test1/test1_1");
 
                 Assert.AreEqual(sftp.WorkingDirectory, "/home/tester/test1/test1_1");
+
+                sftp.ChangeDirectory("/home/tester/test1/test1_1");
+
+                Assert.AreEqual(sftp.WorkingDirectory, "/home/tester/test1/test1_1");
+
+                sftp.ChangeDirectory("/home/tester/test1/test1_1/../test1_2");
+
+                Assert.AreEqual(sftp.WorkingDirectory, "/home/tester/test1/test1_2");
 
                 sftp.ChangeDirectory("../../");
 

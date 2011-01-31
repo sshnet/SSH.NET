@@ -1,5 +1,5 @@
-﻿
-using System.Text;
+﻿using System.Text;
+
 namespace Renci.SshClient.Sftp.Messages
 {
     internal class OpenDirMessage : SftpRequestMessage
@@ -9,14 +9,15 @@ namespace Renci.SshClient.Sftp.Messages
             get { return SftpMessageTypes.OpenDir; }
         }
 
-        public string Path { get; set; }
+        public string Path { get; private set; }
 
         public OpenDirMessage()
         {
 
         }
 
-        public OpenDirMessage(string path)
+        public OpenDirMessage(uint requestId, string path)
+            : base(requestId)
         {
             this.Path = path;
         }

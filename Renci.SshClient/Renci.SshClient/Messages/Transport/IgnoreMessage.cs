@@ -9,21 +9,21 @@
         /// <summary>
         /// Gets ignore message data if any.
         /// </summary>
-        public string Data { get; private set; }
+        public byte[] Data { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="IgnoreMessage"/> class.
         /// </summary>
         public IgnoreMessage()
         {
-            this.Data = string.Empty;
+            this.Data = new byte[] { };
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="IgnoreMessage"/> class.
         /// </summary>
         /// <param name="data">The data.</param>
-        public IgnoreMessage(string data)
+        public IgnoreMessage(byte[] data)
         {
             this.Data = data;
         }
@@ -33,7 +33,7 @@
         /// </summary>
         protected override void LoadData()
         {
-            this.Data = this.ReadString();
+            this.Data = this.ReadBinaryString();
         }
 
         /// <summary>
@@ -41,7 +41,7 @@
         /// </summary>
         protected override void SaveData()
         {
-            this.Write(this.Data);
+            this.WriteBinaryString(this.Data);
         }
     }
 }

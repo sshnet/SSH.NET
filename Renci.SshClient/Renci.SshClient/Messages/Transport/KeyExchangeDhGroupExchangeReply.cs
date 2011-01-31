@@ -16,7 +16,7 @@ namespace Renci.SshClient.Messages.Transport
         /// Gets server public host key and certificates
         /// </summary>
         /// <value>The host key.</value>
-        public string HostKey { get; private set; }
+        public byte[] HostKey { get; private set; }
 
         /// <summary>
         /// Gets the F value.
@@ -27,16 +27,16 @@ namespace Renci.SshClient.Messages.Transport
         /// Gets the signature of H.
         /// </summary>
         /// <value>The signature.</value>
-        public string Signature { get; private set; }
+        public byte[] Signature { get; private set; }
 
         /// <summary>
         /// Called when type specific data need to be loaded.
         /// </summary>
         protected override void LoadData()
         {
-            this.HostKey = this.ReadString();
+            this.HostKey = this.ReadBinaryString();
             this.F = this.ReadBigInteger();
-            this.Signature = this.ReadString();
+            this.Signature = this.ReadBinaryString();
         }
 
         /// <summary>
@@ -44,9 +44,9 @@ namespace Renci.SshClient.Messages.Transport
         /// </summary>
         protected override void SaveData()
         {
-            this.Write(this.HostKey);
+            this.WriteBinaryString(this.HostKey);
             this.Write(this.F);
-            this.Write(this.Signature);
+            this.WriteBinaryString(this.Signature);
         }
     }
 }

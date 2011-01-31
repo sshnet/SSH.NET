@@ -30,12 +30,12 @@ namespace Renci.SshClient.Security
         /// <summary>
         /// Specifies client payload
         /// </summary>
-        protected string _clientPayload;
+        protected byte[] _clientPayload;
 
         /// <summary>
         /// Specifies server payload
         /// </summary>
-        protected string _serverPayload;
+        protected byte[] _serverPayload;
 
         /// <summary>
         /// Specifies client exchange number.
@@ -55,12 +55,12 @@ namespace Renci.SshClient.Security
         /// <summary>
         /// Specifies host key data.
         /// </summary>
-        protected string _hostKey;
+        protected byte[] _hostKey;
 
         /// <summary>
         /// Specifies signature data.
         /// </summary>
-        protected string _signature;
+        protected byte[] _signature;
 
         /// <summary>
         /// Validates the exchange hash.
@@ -72,15 +72,11 @@ namespace Renci.SshClient.Security
         {
             var exchangeHash = this.CalculateHash();
 
-            var hostKey = this._hostKey;
+            var bytes = this._hostKey;
 
-            var signature = this._signature;
+            var length = (uint)(this._hostKey[0] << 24 | this._hostKey[1] << 16 | this._hostKey[2] << 8 | this._hostKey[3]);
 
-            var bytes = hostKey.GetSshBytes();
-
-            var length = (uint)(hostKey[0] << 24 | hostKey[1] << 16 | hostKey[2] << 8 | hostKey[3]);
-
-            var algorithmName = bytes.Skip(4).Take((int)length).GetSshString();
+            var algorithmName = Encoding.ASCII.GetString(bytes.Skip(4).Take((int)length).ToArray());
 
             var data = bytes.Skip(4 + algorithmName.Length);
 
@@ -88,7 +84,7 @@ namespace Renci.SshClient.Security
 
             key.Load(data);
 
-            return key.VerifySignature(exchangeHash, signature.GetSshBytes());
+            return key.VerifySignature(exchangeHash, this._signature);
         }
 
         /// <summary>
@@ -100,8 +96,8 @@ namespace Renci.SshClient.Security
         {
             base.Start(session, message);
 
-            this._serverPayload = message.GetBytes().GetSshString();
-            this._clientPayload = this.Session.ClientInitMessage.GetBytes().GetSshString();
+            this._serverPayload = message.GetBytes().ToArray();
+            this._clientPayload = this.Session.ClientInitMessage.GetBytes().ToArray();
         }
 
         /// <summary>
@@ -132,7 +128,7 @@ namespace Renci.SshClient.Security
         /// <param name="hostKey">The host key.</param>
         /// <param name="serverExchangeValue">The server exchange value.</param>
         /// <param name="signature">The signature.</param>
-        protected virtual void HandleServerDhReply(string hostKey, BigInteger serverExchangeValue, string signature)
+        protected virtual void HandleServerDhReply(byte[] hostKey, BigInteger serverExchangeValue, byte[] signature)
         {
             this._serverExchangeValue = serverExchangeValue;
             this._hostKey = hostKey;

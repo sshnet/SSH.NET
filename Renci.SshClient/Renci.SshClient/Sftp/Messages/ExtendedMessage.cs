@@ -8,7 +8,12 @@ namespace Renci.SshClient.Sftp.Messages
             get { return SftpMessageTypes.Extended; }
         }
 
-        public string ExtendedRequest { get; set; }
+        public string ExtendedRequest { get; private set; }
+
+        public ExtendedMessage()
+        {
+
+        }
 
         protected override void LoadData()
         {

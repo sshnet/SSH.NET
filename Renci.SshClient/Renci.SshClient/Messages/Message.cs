@@ -15,7 +15,7 @@ namespace Renci.SshClient.Messages
         /// <typeparam name="T">SSH message type</typeparam>
         /// <param name="data">Message data.</param>
         /// <returns>SSH message object</returns>
-        internal static T Load<T>(IEnumerable<byte> data) where T : Message, new()
+        internal static T Load<T>(byte[] data) where T : Message, new()
         {
             var messageType = data.FirstOrDefault();
 
@@ -48,7 +48,7 @@ namespace Renci.SshClient.Messages
         /// Gets data bytes array
         /// </summary>
         /// <returns></returns>
-        public override IEnumerable<byte> GetBytes()
+        public override byte[] GetBytes()
         {
             var messageAttribute = this.GetType().GetCustomAttributes(typeof(MessageAttribute), true).SingleOrDefault() as MessageAttribute;
 
@@ -59,7 +59,7 @@ namespace Renci.SshClient.Messages
 
             data.Insert(0, messageAttribute.Number);
 
-            return data;
+            return data.ToArray();
         }
 
         /// <summary>

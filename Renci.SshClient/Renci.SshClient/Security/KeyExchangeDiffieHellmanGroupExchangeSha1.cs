@@ -30,7 +30,7 @@ namespace Renci.SshClient.Security
         /// <returns>
         /// Key exchange hash.
         /// </returns>
-        protected override IEnumerable<byte> CalculateHash()
+        protected override byte[] CalculateHash()
         {
             var hashData = new _ExchangeHashData
             {
@@ -119,11 +119,11 @@ namespace Renci.SshClient.Security
 
             public string ClientVersion { get; set; }
 
-            public string ClientPayload { get; set; }
+            public byte[] ClientPayload { get; set; }
 
-            public string ServerPayload { get; set; }
+            public byte[] ServerPayload { get; set; }
 
-            public string HostKey { get; set; }
+            public byte[] HostKey { get; set; }
 
             public UInt32 MinimumGroupSize { get; set; }
 
@@ -150,9 +150,9 @@ namespace Renci.SshClient.Security
             {
                 this.Write(this.ClientVersion);
                 this.Write(this.ServerVersion);
-                this.Write(this.ClientPayload);
-                this.Write(this.ServerPayload);
-                this.Write(this.HostKey);
+                this.WriteBinaryString(this.ClientPayload);
+                this.WriteBinaryString(this.ServerPayload);
+                this.WriteBinaryString(this.HostKey);
                 this.Write(this.MinimumGroupSize);
                 this.Write(this.PreferredGroupSize);
                 this.Write(this.MaximumGroupSize);

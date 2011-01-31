@@ -14,7 +14,7 @@
         /// <summary>
         /// Gets message data.
         /// </summary>
-        public string Data { get; private set; }
+        public byte[] Data { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ChannelExtendedDataMessage"/> class.
@@ -40,7 +40,7 @@
         {
             base.LoadData();
             this.DataTypeCode = this.ReadUInt32();
-            this.Data = this.ReadString();
+            this.Data = this.ReadBinaryString();
         }
 
         /// <summary>
@@ -50,7 +50,7 @@
         {
             base.SaveData();
             this.Write(this.DataTypeCode);
-            this.Write(this.Data);
+            this.WriteBinaryString(this.Data);
         }
     }
 }

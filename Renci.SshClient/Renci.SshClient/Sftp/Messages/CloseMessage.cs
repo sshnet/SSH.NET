@@ -8,18 +8,29 @@ namespace Renci.SshClient.Sftp.Messages
             get { return SftpMessageTypes.Close; }
         }
 
-        public string Handle { get; set; }
+        public byte[] Handle { get; private set; }
+
+        public CloseMessage()
+        {
+
+        }
+
+        public CloseMessage(uint requestId, byte[] handle)
+            : base(requestId)
+        {
+            this.Handle = handle;
+        }
 
         protected override void LoadData()
         {
             base.LoadData();
-            this.Handle = this.ReadString();
+            this.Handle = this.ReadBinaryString();
         }
 
         protected override void SaveData()
         {
             base.SaveData();
-            this.Write(this.Handle);
+            this.WriteBinaryString(this.Handle);
         }
     }
 }

@@ -7,7 +7,12 @@
             get { return SftpMessageTypes.Init; }
         }
 
-        public uint Version { get; set; }
+        public uint Version { get; private set; }
+
+        public InitMessage(uint version)
+        {
+            this.Version = version;
+        }
 
         protected override void LoadData()
         {

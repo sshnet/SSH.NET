@@ -7,6 +7,7 @@ using Renci.SshClient.Channels;
 using Renci.SshClient.Common;
 using Renci.SshClient.Sftp.Messages;
 using System.Diagnostics;
+using System.Collections.Generic;
 
 namespace Renci.SshClient.Sftp
 {
@@ -14,11 +15,9 @@ namespace Renci.SshClient.Sftp
     {
         private Session _session;
 
-        private uint _requestId;
-
         private ChannelSession _channel;
 
-        private StringBuilder _data = new StringBuilder(32 * 1024, 32 * 1024);
+        private List<byte> _data = new List<byte>(32 * 1024);
 
         private Exception _exception;
 
@@ -39,6 +38,18 @@ namespace Renci.SshClient.Sftp
         /// Gets SFTP protocol version.
         /// </summary>
         public int ProtocolVersion { get; private set; }
+
+        private uint _requestId;
+        /// <summary>
+        /// Gets the next request id for sftp session.
+        /// </summary>
+        public uint NextRequestId
+        {
+            get
+            {
+                return this._requestId++;
+            }
+        }
 
         #region SFTP messages
 
@@ -72,10 +83,7 @@ namespace Renci.SshClient.Sftp
 
             this._channel.SendSubsystemRequest("sftp");
 
-            this.SendMessage(new InitMessage
-            {
-                Version = 3,
-            });
+            this.SendMessage(new InitMessage(3));
 
             this.WaitHandle(this._sftpVersionConfirmed, this._operationTimeout);
 
@@ -163,42 +171,40 @@ namespace Renci.SshClient.Sftp
             return cmd.Files.FirstOrDefault();
         }
 
-        internal void SendMessage(SftpRequestMessage sftpMessage)
+        internal void SendMessage(SftpMessage sftpMessage)
         {
-            sftpMessage.RequestId = this._requestId++;
-
             this._session.SendMessage(new SftpDataMessage(this._channel.RemoteChannelNumber, sftpMessage));
         }
 
         private void Channel_DataReceived(object sender, Common.ChannelDataEventArgs e)
         {
             //  Add channel data to internal data holder
-            this._data.Append(e.Data);
+            this._data.AddRange(e.Data);
 
-            while (this._data.Length > 4 + 1)
+            while (this._data.Count > 4 + 1)
             {
                 //  Extract packet length
                 var packetLength = (this._data[0] << 24 | this._data[1] << 16 | this._data[2] << 8 | this._data[3]);
 
                 //  Check if complete packet data is available
-                if (this._data.Length < packetLength + 4)
+                if (this._data.Count < packetLength + 4)
                 {
                     //  Wait for complete message to arrive first
                     break;
                 }
-                this._data.Remove(0, 4);
+                this._data.RemoveRange(0, 4);
 
                 //  Create buffer to hold packet data
-                var packetData = new char[packetLength];
+                var packetData = new byte[packetLength];
 
                 //  Cope packet data to array
                 this._data.CopyTo(0, packetData, 0, packetLength);
 
                 //  Remove loaded data from _data holder
-                this._data.Remove(0, packetLength);
+                this._data.RemoveRange(0, packetLength);
 
                 //  Load SFTP Message and handle it
-                dynamic sftpMessage = SftpMessage.Load(packetData.Select((c) => (byte)c));
+                dynamic sftpMessage = SftpMessage.Load(packetData);
 
                 try
                 {
@@ -213,11 +219,6 @@ namespace Renci.SshClient.Sftp
         }
 
         #region Handle SFTP incoming messages and raise appropriate events
-
-        private void HandleMessage(InitMessage message)
-        {
-            throw new InvalidOperationException("Init message should not be received by client.");
-        }
 
         private void HandleMessage(VersionMessage message)
         {
@@ -274,12 +275,7 @@ namespace Renci.SshClient.Sftp
         private void HandleMessage(ExtendedMessage message)
         {
             //  Extended messages currently not supported, send appropriate status message
-            this.SendMessage(new StatusMessage
-            {
-                StatusCode = StatusCodes.OperationUnsupported,
-                ErrorMessage = "Extended messages are not supported",
-                Language = string.Empty,
-            });
+            this.SendMessage(new StatusMessage(message.RequestId, StatusCodes.OperationUnsupported, "Extended messages are not supported", string.Empty));
         }
 
         #endregion
@@ -327,13 +323,6 @@ namespace Renci.SshClient.Sftp
                 //  throw time out error
                 throw new SshOperationTimeoutException(string.Format("Sftp operation has timed out."));
             }
-        }
-
-        private void SendMessage(SftpMessage sftpMessage)
-        {
-            var message = new SftpDataMessage(this._channel.RemoteChannelNumber, sftpMessage);
-
-            this._session.SendMessage(message);
         }
 
         private void RaiseError(Exception error)

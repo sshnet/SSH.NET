@@ -15,6 +15,18 @@ namespace Renci.SshClient.Tests.SftpClientTests
     [TestClass]
     public class UploadDownloadFileTest
     {
+
+        [TestInitialize()]
+        public void CleanCurrentFolder()
+        {
+            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            {
+                client.Connect();
+                client.RunCommand("rm -rf *");
+                client.Disconnect();
+            }
+        }
+
         [TestMethod]
         [TestCategory("Sftp")]
         public void Test_Sftp_Upload_And_Download_1MB_File()
@@ -72,7 +84,6 @@ namespace Renci.SshClient.Tests.SftpClientTests
 
                 try
                 {
-
                     using (var file = File.OpenRead(uploadedFileName))
                     {
                         sftp.UploadFile(file, remoteFileName);
@@ -82,8 +93,6 @@ namespace Renci.SshClient.Tests.SftpClientTests
                 {
                     exceptionOccured = true;
                 }
-
-                File.Delete(uploadedFileName);
 
                 sftp.Disconnect();
 
@@ -297,7 +306,6 @@ namespace Renci.SshClient.Tests.SftpClientTests
                 Assert.IsTrue(uploadDownloadSizeOk, "Uploaded and downloaded bytes does not match");
             }
         }
-
 
         /// <summary>
         /// Creates the test file.

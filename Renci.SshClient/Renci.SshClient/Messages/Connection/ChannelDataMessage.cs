@@ -12,7 +12,7 @@
         /// <value>
         /// The data.
         /// </value>
-        public string Data { get; protected set; }
+        public byte[] Data { get; protected set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ChannelDataMessage"/> class.
@@ -28,7 +28,7 @@
         /// </summary>
         /// <param name="localChannelNumber">The local channel number.</param>
         /// <param name="data">Message data.</param>
-        public ChannelDataMessage(uint localChannelNumber, string data)
+        public ChannelDataMessage(uint localChannelNumber, byte[] data)
         {
             this.LocalChannelNumber = localChannelNumber;
             this.Data = data;
@@ -40,7 +40,7 @@
         protected override void LoadData()
         {
             base.LoadData();
-            this.Data = this.ReadString();
+            this.Data = this.ReadBinaryString();
         }
 
         /// <summary>
@@ -49,7 +49,7 @@
         protected override void SaveData()
         {
             base.SaveData();
-            this.Write(this.Data);
+            this.WriteBinaryString(this.Data);
         }
     }
 }

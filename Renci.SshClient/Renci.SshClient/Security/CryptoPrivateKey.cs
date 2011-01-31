@@ -19,7 +19,7 @@ namespace Renci.SshClient.Security
         /// </summary>
         /// <param name="key">The key data bytes.</param>
         /// <returns></returns>
-        public abstract IEnumerable<byte> GetSignature(IEnumerable<byte> key);
+        public abstract byte[] GetSignature(IEnumerable<byte> key);
 
         /// <summary>
         /// Represents signature key data structure
@@ -40,7 +40,7 @@ namespace Renci.SshClient.Security
             /// <value>
             /// The signature.
             /// </value>
-            public IEnumerable<byte> Signature { get; set; }
+            public byte[] Signature { get; set; }
 
             /// <summary>
             /// Called when type specific data need to be loaded.
@@ -55,7 +55,7 @@ namespace Renci.SshClient.Security
             protected override void SaveData()
             {
                 this.Write(this.AlgorithmName);
-                this.Write(this.Signature.GetSshString());
+                this.WriteBinaryString(this.Signature);
             }
         }
     }

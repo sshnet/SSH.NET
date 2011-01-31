@@ -8,9 +8,22 @@ namespace Renci.SshClient.Sftp.Messages
             get { return SftpMessageTypes.Rename; }
         }
 
-        public string OldPath { get; set; }
+        public string OldPath { get; private set; }
 
-        public string NewPath { get; set; }
+        public string NewPath { get; private set; }
+
+        public RenameMessage()
+        {
+
+        }
+
+        public RenameMessage(uint requestId, string oldPath, string newPath)
+            : base(requestId)
+        {
+            this.OldPath = oldPath;
+            this.NewPath = newPath;
+        }
+
         protected override void LoadData()
         {
             base.LoadData();

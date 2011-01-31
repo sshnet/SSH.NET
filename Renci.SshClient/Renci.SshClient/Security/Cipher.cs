@@ -51,14 +51,14 @@ namespace Renci.SshClient.Security
         /// </summary>
         /// <param name="data">The data.</param>
         /// <returns>Encrypted data</returns>
-        public abstract IEnumerable<byte> Encrypt(IEnumerable<byte> data);
+        public abstract byte[] Encrypt(byte[] data);
 
         /// <summary>
         /// Decrypts the specified data.
         /// </summary>
         /// <param name="data">The data.</param>
         /// <returns>Decrypted data</returns>
-        public abstract IEnumerable<byte> Decrypt(IEnumerable<byte> data);
+        public abstract byte[] Decrypt(byte[] data);
         
         #region IDisposable Members
 

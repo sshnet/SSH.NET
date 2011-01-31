@@ -8,7 +8,18 @@ namespace Renci.SshClient.Sftp.Messages
             get { return SftpMessageTypes.LStat; }
         }
 
-        public string Path { get; set; }
+        public string Path { get; private set; }
+
+        public LStatMessage()
+        {
+                
+        }
+
+        public LStatMessage(uint requestId, string path)
+            : base(requestId)
+        {
+            this.Path = path;
+        }
 
         protected override void LoadData()
         {

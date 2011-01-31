@@ -8,7 +8,7 @@
         /// <summary>
         /// Gets channel data.
         /// </summary>
-        public string Data { get; private set; }
+        public byte[] Data { get; private set; }
 
         /// <summary>
         /// Gets the data type code.
@@ -20,7 +20,7 @@
         /// </summary>
         /// <param name="channelNumber">Channel number.</param>
         /// <param name="data">Channel data.</param>
-        public ChannelDataEventArgs(uint channelNumber, string data)
+        public ChannelDataEventArgs(uint channelNumber, byte[] data)
             : base(channelNumber)
         {
             this.Data = data;
@@ -32,7 +32,7 @@
         /// <param name="channelNumber">Channel number.</param>
         /// <param name="data">Channel data.</param>
         /// <param name="dataTypeCode">Channel data type code.</param>
-        public ChannelDataEventArgs(uint channelNumber, string data, uint dataTypeCode)
+        public ChannelDataEventArgs(uint channelNumber, byte[] data, uint dataTypeCode)
             : this(channelNumber, data)
         {
             this.DataTypeCode = dataTypeCode;

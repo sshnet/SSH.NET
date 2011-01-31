@@ -2,19 +2,33 @@
 {
     internal class MkDirMessage : SftpRequestMessage
     {
-        public MkDirMessage()
-        {
-            this.Attributes = new SftpFileAttributes();
-        }
-
         public override SftpMessageTypes SftpMessageType
         {
             get { return SftpMessageTypes.MkDir; }
         }
 
-        public string Path { get; set; }
+        public string Path { get; private set; }
 
-        public SftpFileAttributes Attributes { get; set; }
+        public SftpFileAttributes Attributes { get; private set; }
+
+        public MkDirMessage()
+        {
+            this.Attributes = new SftpFileAttributes();
+        }
+
+        public MkDirMessage(uint requestId, string path)
+            : base(requestId)
+        {
+            this.Path = path;
+            this.Attributes = new SftpFileAttributes();
+        }
+
+        public MkDirMessage(uint requestId, string path, SftpFileAttributes attributes)
+            : base(requestId)
+        {
+            this.Path = path;
+            this.Attributes = attributes;
+        }
 
         protected override void LoadData()
         {

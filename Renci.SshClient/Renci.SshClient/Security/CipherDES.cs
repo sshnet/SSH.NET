@@ -70,18 +70,17 @@ namespace Renci.SshClient.Security
         /// <returns>
         /// Encrypted data
         /// </returns>
-        public override IEnumerable<byte> Encrypt(IEnumerable<byte> data)
+        public override byte[] Encrypt(byte[] data)
         {
             if (this._encryptor == null)
             {
                 this._encryptor = this._algorithm.CreateEncryptor(this.Key.Take(this.KeySize / 8).ToArray(), this.Vector.Take(this.BlockSize).ToArray());
             }
 
-            var input = data.ToArray();
-            var output = new byte[input.Length];
-            var writtenBytes = this._encryptor.TransformBlock(input, 0, input.Length, output, 0);
+            var output = new byte[data.Length];
+            var writtenBytes = this._encryptor.TransformBlock(data, 0, data.Length, output, 0);
 
-            if (writtenBytes < input.Length)
+            if (writtenBytes < data.Length)
             {
                 throw new InvalidOperationException("Encryption error.");
             }
@@ -96,18 +95,17 @@ namespace Renci.SshClient.Security
         /// <returns>
         /// Decrypted data
         /// </returns>
-        public override IEnumerable<byte> Decrypt(IEnumerable<byte> data)
+        public override byte[] Decrypt(byte[] data)
         {
             if (this._decryptor == null)
             {
                 this._decryptor = this._algorithm.CreateDecryptor(this.Key.Take(this.KeySize / 8).ToArray(), this.Vector.Take(this.BlockSize).ToArray());
             }
 
-            var input = data.ToArray();
-            var output = new byte[input.Length];
-            var writtenBytes = this._decryptor.TransformBlock(input, 0, input.Length, output, 0);
+            var output = new byte[data.Length];
+            var writtenBytes = this._decryptor.TransformBlock(data, 0, data.Length, output, 0);
 
-            if (writtenBytes < input.Length)
+            if (writtenBytes < data.Length)
             {
                 throw new InvalidOperationException("Encryption error.");
             }

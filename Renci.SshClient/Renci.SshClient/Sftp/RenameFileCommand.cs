@@ -21,6 +21,8 @@ namespace Renci.SshClient.Sftp
 
         protected override void OnStatus(StatusCodes statusCode, string errorMessage, string language)
         {
+            base.OnStatus(statusCode, errorMessage, language);
+
             if (statusCode == StatusCodes.Ok)
             {
                 this.CompleteExecution();

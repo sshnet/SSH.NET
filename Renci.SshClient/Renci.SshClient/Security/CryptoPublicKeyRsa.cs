@@ -12,9 +12,9 @@ namespace Renci.SshClient.Security
     /// </summary>
     internal class CryptoPublicKeyRsa : CryptoPublicKey
     {
-        private IEnumerable<byte> _modulus;
-        
-        private IEnumerable<byte> _exponent;
+        private byte[] _modulus;
+
+        private byte[] _exponent;
 
         /// <summary>
         /// Gets key name.
@@ -37,7 +37,7 @@ namespace Renci.SshClient.Security
         /// </summary>
         /// <param name="modulus">The modulus.</param>
         /// <param name="exponent">The exponent.</param>
-        internal CryptoPublicKeyRsa(IEnumerable<byte> modulus, IEnumerable<byte> exponent)
+        internal CryptoPublicKeyRsa(byte[] modulus, byte[] exponent)
         {
             this._modulus = modulus;
             this._exponent = exponent;
@@ -151,9 +151,9 @@ namespace Renci.SshClient.Security
 
         private class RsaPublicKeyData : SshData
         {
-            public IEnumerable<byte> Modulus { get; set; }
+            public byte[] Modulus { get; set; }
 
-            public IEnumerable<byte> E { get; set; }
+            public byte[] E { get; set; }
 
             protected override void LoadData()
             {
@@ -162,8 +162,8 @@ namespace Renci.SshClient.Security
             protected override void SaveData()
             {
                 this.Write("ssh-rsa");
-                this.Write(this.E.GetSshString());
-                this.Write(this.Modulus.GetSshString());
+                this.WriteBinaryString(this.E);
+                this.WriteBinaryString(this.Modulus);
             }
         }
 

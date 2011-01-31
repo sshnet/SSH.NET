@@ -8,14 +8,15 @@ namespace Renci.SshClient.Sftp.Messages
             get { return SftpMessageTypes.ReadDir; }
         }
 
-        public string Handle { get; set; }
+        public byte[] Handle { get; private set; }
 
         public ReadDirMessage()
         {
 
         }
 
-        public ReadDirMessage(string handle)
+        public ReadDirMessage(uint requestId, byte[] handle)
+            : base(requestId)
         {
             this.Handle = handle;
         }
@@ -23,13 +24,13 @@ namespace Renci.SshClient.Sftp.Messages
         protected override void LoadData()
         {
             base.LoadData();
-            this.Handle = this.ReadString();
+            this.Handle = this.ReadBinaryString();
         }
 
         protected override void SaveData()
         {
             base.SaveData();
-            this.Write(this.Handle);
+            this.WriteBinaryString(this.Handle);
         }
     }
 }

@@ -1,5 +1,5 @@
-﻿
-using System;
+﻿using System;
+
 namespace Renci.SshClient.Sftp.Messages
 {
     internal class ReadMessage : SftpRequestMessage
@@ -9,16 +9,29 @@ namespace Renci.SshClient.Sftp.Messages
             get { return SftpMessageTypes.Read; }
         }
 
-        public string Handle { get; set; }
+        public byte[] Handle { get; private set; }
 
-        public UInt64 Offset { get; set; }
+        public UInt64 Offset { get; private set; }
 
-        public UInt32 Length { get; set; }
+        public UInt32 Length { get; private set; }
+
+        public ReadMessage()
+        {
+
+        }
+
+        public ReadMessage(uint requestId, byte[] handle, UInt64 offset, UInt32 length)
+            : base(requestId)
+        {
+            this.Handle = handle;
+            this.Offset = offset;
+            this.Length = length;
+        }
 
         protected override void LoadData()
         {
             base.LoadData();
-            this.Handle = this.ReadString();
+            this.Handle = this.ReadBinaryString();
             this.Offset = this.ReadUInt64();
             this.Length = this.ReadUInt32();
         }
@@ -26,7 +39,7 @@ namespace Renci.SshClient.Sftp.Messages
         protected override void SaveData()
         {
             base.SaveData();
-            this.Write(this.Handle);
+            this.WriteBinaryString(this.Handle);
             this.Write(this.Offset);
             this.Write(this.Length);
         }

@@ -8,7 +8,18 @@ namespace Renci.SshClient.Sftp.Messages
             get { return SftpMessageTypes.RealPath; }
         }
 
-        public string Path { get; set; }
+        public string Path { get; private set; }
+
+        public RealPathMessage()
+        {
+
+        }
+
+        public RealPathMessage(uint requestId, string path)
+            : base(requestId)
+        {
+            this.Path = path;
+        }
 
         protected override void LoadData()
         {

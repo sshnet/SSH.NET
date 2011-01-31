@@ -9,7 +9,7 @@ namespace Renci.SshClient.Sftp
     {
         private string _path;
 
-        private string _handle;
+        private byte[] _handle;
 
         private List<SftpFile> _files = new List<SftpFile>();
 
@@ -32,7 +32,7 @@ namespace Renci.SshClient.Sftp
             this.SendOpenDirMessage(this._path);
         }
 
-        protected override void OnHandle(string handle)
+        protected override void OnHandle(byte[] handle)
         {
             base.OnHandle(handle);
 

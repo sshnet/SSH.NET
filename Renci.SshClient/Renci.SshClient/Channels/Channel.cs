@@ -256,7 +256,7 @@ namespace Renci.SshClient.Channels
         /// Called when channel data is received.
         /// </summary>
         /// <param name="data">The data.</param>
-        protected virtual void OnData(string data)
+        protected virtual void OnData(byte[] data)
         {
             this.AdjustDataWindow(data);
 
@@ -271,7 +271,7 @@ namespace Renci.SshClient.Channels
         /// </summary>
         /// <param name="data">The data.</param>
         /// <param name="dataTypeCode">The data type code.</param>
-        protected virtual void OnExtendedData(string data, uint dataTypeCode)
+        protected virtual void OnExtendedData(byte[] data, uint dataTypeCode)
         {
             this.AdjustDataWindow(data);
 
@@ -562,7 +562,7 @@ namespace Renci.SshClient.Channels
 
         #endregion
 
-        private void AdjustDataWindow(string messageData)
+        private void AdjustDataWindow(byte[] messageData)
         {
             this.LocalWindowSize -= (uint)messageData.Length;
 

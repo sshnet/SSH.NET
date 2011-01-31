@@ -32,7 +32,7 @@ namespace Renci.SshClient.Messages.Authentication
         /// <summary>
         /// Gets the public key data.
         /// </summary>
-        public IEnumerable<byte> PublicKeyData { get; private set; }
+        public byte[] PublicKeyData { get; private set; }
 
         /// <summary>
         /// Gets or sets public key signature.
@@ -40,7 +40,7 @@ namespace Renci.SshClient.Messages.Authentication
         /// <value>
         /// The signature.
         /// </value>
-        public IEnumerable<byte> Signature { get; set; }
+        public byte[] Signature { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RequestMessagePublicKey"/> class.
@@ -49,7 +49,7 @@ namespace Renci.SshClient.Messages.Authentication
         /// <param name="username">Authentication username.</param>
         /// <param name="keyAlgorithmName">Name of private key algorithm.</param>
         /// <param name="keyData">Private key data.</param>
-        public RequestMessagePublicKey(ServiceNames serviceName, string username, string keyAlgorithmName, IEnumerable<byte> keyData)
+        public RequestMessagePublicKey(ServiceNames serviceName, string username, string keyAlgorithmName, byte[] keyData)
             : base(serviceName, username)
         {
             this.PublicKeyAlgorithmName = keyAlgorithmName;
@@ -64,7 +64,7 @@ namespace Renci.SshClient.Messages.Authentication
         /// <param name="keyAlgorithmName">Name of private key algorithm.</param>
         /// <param name="keyData">Private key data.</param>
         /// <param name="signature">Private key signature.</param>
-        public RequestMessagePublicKey(ServiceNames serviceName, string username, string keyAlgorithmName, IEnumerable<byte> keyData, IEnumerable<byte> signature)
+        public RequestMessagePublicKey(ServiceNames serviceName, string username, string keyAlgorithmName, byte[] keyData, byte[] signature)
             : this(serviceName, username, keyAlgorithmName, keyData)
         {
             this.Signature = signature;
@@ -86,9 +86,9 @@ namespace Renci.SshClient.Messages.Authentication
                 this.Write(true);
             }
             this.Write(this.PublicKeyAlgorithmName);
-            this.Write(this.PublicKeyData.GetSshString());
+            this.WriteBinaryString(this.PublicKeyData);
             if (this.Signature != null)
-                this.Write(this.Signature.GetSshString());
+                this.WriteBinaryString(this.Signature);
         }
     }
 }

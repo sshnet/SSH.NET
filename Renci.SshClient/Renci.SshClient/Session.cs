@@ -33,7 +33,7 @@ namespace Renci.SshClient
         /// <summary>
         /// Specifies maximum payload size defined by the protocol.
         /// </summary>
-        protected const int MAXIMUM_PAYLOAD_SIZE = 32768;
+        protected const int MAXIMUM_PAYLOAD_SIZE = 1024 * 32;
 
         private static RNGCryptoServiceProvider _randomizer = new System.Security.Cryptography.RNGCryptoServiceProvider();
 
@@ -178,7 +178,7 @@ namespace Renci.SshClient
         /// Gets or sets the session id.
         /// </summary>
         /// <value>The session id.</value>
-        public IEnumerable<byte> SessionId { get; private set; }
+        public byte[] SessionId { get; private set; }
 
         private Message _clientInitMessage;
         /// <summary>
@@ -417,6 +417,11 @@ namespace Renci.SshClient
                     var ep = new IPEndPoint(Dns.GetHostAddresses(this.ConnectionInfo.Host)[0], this.ConnectionInfo.Port);
                     this._socket = new Socket(ep.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
+                    var socketBufferSize = 2 * MAXIMUM_PACKET_SIZE;
+                    this._socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.NoDelay, true);
+                    this._socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.SendBuffer, socketBufferSize);
+                    this._socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveBuffer, socketBufferSize);
+
                     //  Connect socket with 5 seconds timeout
                     var connectResult = this._socket.BeginConnect(ep, null, null);
 
@@ -436,7 +441,6 @@ namespace Renci.SshClient
 
                     this._socket.EndConnect(connectResult);
 
-                    this._socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.NoDelay, 1);
 
                     Match versionMatch = null;
                     //  Get server version from the server,
@@ -609,11 +613,11 @@ namespace Renci.SshClient
                 return;
 
             //  Messages can be sent by different thread so we need to synchronize it            
-            var paddingMultiplier = this._clientCipher == null ? (byte)8 : (byte)this._clientCipher.BlockSize;    //    Should be recalculate base on cipher min lenght if sipher specified
+            var paddingMultiplier = this._clientCipher == null ? (byte)8 : (byte)this._clientCipher.BlockSize;    //    Should be recalculate base on cipher min length if cipher specified
 
             var messageData = message.GetBytes();
 
-            if (messageData.Count() > Session.MAXIMUM_PAYLOAD_SIZE)
+            if (messageData.Length > Session.MAXIMUM_PAYLOAD_SIZE)
             {
                 throw new InvalidOperationException(string.Format("Payload cannot be more then {0} bytes.", Session.MAXIMUM_PAYLOAD_SIZE));
             }
@@ -623,7 +627,7 @@ namespace Renci.SshClient
                 messageData = this._clientCompression.Compress(messageData);
             }
 
-            var packetLength = messageData.Count() + 4 + 1; //  add length bytes and padding byte
+            var packetLength = messageData.Length + 4 + 1; //  add length bytes and padding byte
             byte paddingLength = (byte)((-packetLength) & (paddingMultiplier - 1));
             if (paddingLength < paddingMultiplier)
             {
@@ -631,51 +635,55 @@ namespace Renci.SshClient
             }
 
             //  Build Packet data
-            var packetData = new List<byte>();
+            var packetData = new byte[4 + 1 + messageData.Length + paddingLength];
+
+            //  Add packet length
+            ((uint)packetData.Length - 4).GetBytes().CopyTo(packetData, 0);
 
             //  Add packet padding length
-            packetData.Add(paddingLength);
+            packetData[4] = paddingLength;
 
             //  Add packet payload
-            packetData.AddRange(messageData);
+            messageData.CopyTo(packetData, 4 + 1);
 
             //  Add random padding
             var paddingBytes = new byte[paddingLength];
             _randomizer.GetBytes(paddingBytes);
-            packetData.AddRange(paddingBytes);
-
-            //  Insert packet length
-            packetData.InsertRange(0, BitConverter.GetBytes((uint)(packetData.Count())).Reverse());
+            paddingBytes.CopyTo(packetData, 4 + 1 + messageData.Length);
 
             //  Lock handling of _outboundPacketSequence since it must be sent sequently to server
             lock (this._socket)
             {
                 //  Calculate packet hash
-                var hashData = new List<byte>();
-                hashData.AddRange(BitConverter.GetBytes((this._outboundPacketSequence)).Reverse());
-                hashData.AddRange(packetData);
+                var hashData = new byte[4 + packetData.Length];
+                this._outboundPacketSequence.GetBytes().CopyTo(hashData, 0);
+                packetData.CopyTo(hashData, 4);
 
                 //  Encrypt packet data
-                var encryptedData = packetData.ToList();
                 if (this._clientCipher != null)
                 {
-                    encryptedData = new List<byte>(this._clientCipher.Encrypt(packetData));
+                    packetData = this._clientCipher.Encrypt(packetData);
                 }
 
-                //  Add message authentication code (MAC)
-                if (this._clientMac != null)
-                {
-                    var hash = this._clientMac.ComputeHash(hashData.ToArray());
-
-                    encryptedData.AddRange(hash);
-                }
-
-                if (encryptedData.Count > Session.MAXIMUM_PACKET_SIZE)
+                if (packetData.Length > Session.MAXIMUM_PACKET_SIZE)
                 {
                     throw new InvalidOperationException(string.Format("Packet is too big. Maximum packet size is {0} bytes.", Session.MAXIMUM_PACKET_SIZE));
                 }
 
-                this.Write(encryptedData.ToArray());
+                if (this._clientMac == null)
+                {
+                    this.Write(packetData);
+                }
+                else
+                {
+                    var hash = this._clientMac.ComputeHash(hashData.ToArray());
+
+                    var data = new byte[packetData.Length + this._clientMac.HashSize / 8];
+                    packetData.CopyTo(data, 0);
+                    hash.CopyTo(data, packetData.Length);
+
+                    this.Write(data);
+                }
 
                 this._outboundPacketSequence++;
 
@@ -693,24 +701,17 @@ namespace Renci.SshClient
                 return null;
 
             //  No lock needed since all messages read by only one thread
-
-            List<byte> decryptedData;
-
             var blockSize = this._serverCipher == null ? (byte)8 : (byte)this._serverCipher.BlockSize;
 
             //  Read packet length first
-            var data = new List<byte>(this.Read(blockSize));
+            var firstBlock = this.Read(blockSize);
 
-            if (this._serverCipher == null)
+            if (this._serverCipher != null)
             {
-                decryptedData = data.ToList();
-            }
-            else
-            {
-                decryptedData = new List<byte>(this._serverCipher.Decrypt(data));
+                firstBlock = this._serverCipher.Decrypt(firstBlock);
             }
 
-            var packetLength = (uint)(decryptedData[0] << 24 | decryptedData[1] << 16 | decryptedData[2] << 8 | decryptedData[3]);
+            var packetLength = (uint)(firstBlock[0] << 24 | firstBlock[1] << 16 | firstBlock[2] << 8 | firstBlock[3]);
 
             //  Test packet minimum and maximum boundaries
             if (packetLength < Math.Max((byte)16, blockSize) - 4 || packetLength > Session.MAXIMUM_PACKET_SIZE - 4)
@@ -719,38 +720,58 @@ namespace Renci.SshClient
             //  Read rest of the packet data
             int bytesToRead = (int)(packetLength - (blockSize - 4));
 
+            var data = new byte[bytesToRead + blockSize];
+
+            firstBlock.CopyTo(data, 0);
+
+            byte[] serverHash = null;
+            if (this._serverMac != null)
+            {
+                serverHash = new byte[this._serverMac.HashSize / 8];
+                bytesToRead += serverHash.Length;
+            }
+
             if (bytesToRead > 0)
             {
-                if (this._serverCipher == null)
+                var nextBlocks = this.Read(bytesToRead);
+
+                if (serverHash != null)
                 {
-                    decryptedData.AddRange(this.Read(bytesToRead));
+                    Array.Copy(nextBlocks, nextBlocks.Length - serverHash.Length, serverHash, 0, serverHash.Length);
+                    nextBlocks = nextBlocks.Take(nextBlocks.Length - serverHash.Length).ToArray();
                 }
-                else
+
+                if (nextBlocks.Length > 0)
                 {
-                    decryptedData.AddRange(this._serverCipher.Decrypt(this.Read(bytesToRead)));
+                    if (this._serverCipher != null)
+                    {
+                        nextBlocks = this._serverCipher.Decrypt(nextBlocks);
+                    }
+                    nextBlocks.CopyTo(data, blockSize);
                 }
             }
 
-            var paddingLength = decryptedData[4];
+            var paddingLength = data[4];
 
-            var messagePayload = decryptedData.Skip(5).Take((int)(packetLength - paddingLength - 1));
+            var messagePayload = new byte[packetLength - paddingLength - 1];
+            Array.Copy(data, 5, messagePayload, 0, messagePayload.Length);
 
             if (this._serverDecompression != null)
             {
-                messagePayload = new List<byte>(this._serverDecompression.Decompress(messagePayload));
+                messagePayload = this._serverDecompression.Decompress(messagePayload);
             }
 
             //  Validate message against MAC            
             if (this._serverMac != null)
             {
-                var serverHash = this.Read(this._serverMac.HashSize / 8);
+                var clientHashData = new byte[4 + data.Length];
+                var lengthBytes = this._inboundPacketSequence.GetBytes();
 
-                var clientHashData = new List<byte>();
-                clientHashData.AddRange(BitConverter.GetBytes(this._inboundPacketSequence).Reverse());
-                clientHashData.AddRange(decryptedData);
+                lengthBytes.CopyTo(clientHashData, 0);
+                data.CopyTo(clientHashData, 4);
 
                 //  Calculate packet hash
-                var clientHash = this._serverMac.ComputeHash(clientHashData.ToArray());
+                var clientHash = this._serverMac.ComputeHash(clientHashData);
 
                 if (!serverHash.SequenceEqual(clientHash))
                 {
@@ -795,13 +816,14 @@ namespace Renci.SshClient
                 this._socket.Shutdown(SocketShutdown.Both);
 
                 this._socket.Disconnect(true);
-            }
 
-            if (this._messageListener != null)
-            {
-                //  Wait for listener task to finish
-                this._messageListener.Wait();
-                this._messageListener = null;
+                //  When socket is disconnected wait for listener to finish
+                if (this._messageListener != null)
+                {
+                    //  Wait for listener task to finish
+                    this._messageListener.Wait();
+                    this._messageListener = null;
+                }
             }
         }
 
@@ -1369,6 +1391,7 @@ namespace Renci.SshClient
             var buffer = new byte[length];
             var offset = 0;
             int receivedTotal = 0;  // how many bytes is already received
+
             do
             {
                 try
@@ -1397,7 +1420,6 @@ namespace Renci.SshClient
                         throw;  // any serious error occurred
                 }
             } while (receivedTotal < length);
-
 
             return buffer;
         }
@@ -1430,7 +1452,6 @@ namespace Renci.SshClient
                         throw;  // any serious error occurr
                 }
             } while (sent < length);
-
         }
 
         #endregion
@@ -1470,9 +1491,9 @@ namespace Renci.SshClient
         /// </summary>
         /// <param name="data">Message data.</param>
         /// <returns>New message</returns>
-        private Message LoadMessage(IEnumerable<byte> data)
+        private Message LoadMessage(byte[] data)
         {
-            var messageType = data.FirstOrDefault();
+            var messageType = data[0];
             var messageMetadata = (from m in this._messagesMetadata where m.Number == messageType && m.Enabled && m.Activated select m).SingleOrDefault();
 
             if (messageMetadata == null)

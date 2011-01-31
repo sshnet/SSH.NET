@@ -129,7 +129,7 @@ namespace Renci.SshClient.Channels
         /// <param name="cookie">The cookie.</param>
         /// <param name="screenNumber">The screen number.</param>
         /// <returns>true if request was successful; otherwise false.</returns>
-        public bool SendX11ForwardingRequest(bool isSingleConnection, string protocol, string cookie, uint screenNumber)
+        public bool SendX11ForwardingRequest(bool isSingleConnection, string protocol, byte[] cookie, uint screenNumber)
         {
             this._channelRequestResponse.Reset();
 

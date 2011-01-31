@@ -80,7 +80,7 @@ namespace Renci.SshClient
                 if (this.KeyFiles.Count < 2)
                 {
                     //  If only one key file provided then send signature for very first request
-                    var signatureData = new SignatureData(message, this.Session.SessionId.GetSshString()).GetBytes();
+                    var signatureData = new SignatureData(message, this.Session.SessionId).GetBytes();
 
                     message.Signature = keyFile.GetSignature(signatureData);
                 }
@@ -96,7 +96,7 @@ namespace Renci.SshClient
 
                     var signatureMessage = new RequestMessagePublicKey(ServiceNames.Connection, this.Username, keyFile.AlgorithmName, keyFile.PublicKey);
 
-                    var signatureData = new SignatureData(message, this.Session.SessionId.GetSshString()).GetBytes();
+                    var signatureData = new SignatureData(message, this.Session.SessionId).GetBytes();
 
                     signatureMessage.Signature = keyFile.GetSignature(signatureData);
 
@@ -159,9 +159,9 @@ namespace Renci.SshClient
         {
             private RequestMessagePublicKey _message;
 
-            private string _sessionId;
+            private byte[] _sessionId;
 
-            public SignatureData(RequestMessagePublicKey message, string sessionId)
+            public SignatureData(RequestMessagePublicKey message, byte[] sessionId)
             {
                 this._message = message;
                 this._sessionId = sessionId;
@@ -174,14 +174,14 @@ namespace Renci.SshClient
 
             protected override void SaveData()
             {
-                this.Write(this._sessionId);
+                this.WriteBinaryString(this._sessionId);
                 this.Write((byte)50);
                 this.Write(this._message.Username);
                 this.Write("ssh-connection");
                 this.Write("publickey");
                 this.Write((byte)1);
                 this.Write(this._message.PublicKeyAlgorithmName);
-                this.Write(this._message.PublicKeyData.GetSshString());
+                this.WriteBinaryString(this._message.PublicKeyData);
             }
         }
 

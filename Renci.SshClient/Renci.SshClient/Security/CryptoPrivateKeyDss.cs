@@ -99,7 +99,7 @@ namespace Renci.SshClient.Security
         /// </summary>
         /// <param name="key">The key data bytes.</param>
         /// <returns></returns>
-        public override IEnumerable<byte> GetSignature(IEnumerable<byte> key)
+        public override byte[] GetSignature(IEnumerable<byte> key)
         {
             var data = key.ToArray();
             using (var sha1 = new System.Security.Cryptography.SHA1CryptoServiceProvider())
@@ -128,7 +128,7 @@ namespace Renci.SshClient.Security
                     {
                         AlgorithmName = this.Name,
                         Signature = signature,
-                    }.GetBytes();
+                    }.GetBytes().ToArray();
                 }
             }
         }

@@ -8,9 +8,9 @@ namespace Renci.SshClient.Sftp
     {
         private string _path;
         private Stream _output;
-        private string _handle;
+        private byte[] _handle;
         private ulong _offset = 0;
-        private uint _bufferSize = 1024;
+        private uint _bufferSize = 1024 * 16;
         private bool _closing = false;
 
         public DownloadFileCommand(SftpSession sftpSession, uint bufferSize, string path, Stream output)
@@ -26,7 +26,7 @@ namespace Renci.SshClient.Sftp
             this.SendOpenMessage(this._path, Flags.Read);
         }
 
-        protected override void OnHandle(string handle)
+        protected override void OnHandle(byte[] handle)
         {
             base.OnHandle(handle);
 
@@ -50,14 +50,13 @@ namespace Renci.SshClient.Sftp
             }
         }
 
-        protected override void OnData(string data, bool isEof)
+        protected override void OnData(byte[] data, bool isEof)
         {
             base.OnData(data, isEof);
 
-            var fileData = data.GetSshBytes().ToArray();
-            this._output.Write(fileData, 0, fileData.Length);
+            this._output.Write(data, 0, data.Length);
             this._output.Flush();
-            this._offset += (ulong)fileData.Length;
+            this._offset += (ulong)data.Length;
             this.AsyncResult.DownloadedBytes = this._offset;
 
             this.SendReadMessage(this._handle, this._offset, this._bufferSize);

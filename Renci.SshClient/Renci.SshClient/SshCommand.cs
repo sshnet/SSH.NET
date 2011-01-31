@@ -279,7 +279,7 @@ namespace Renci.SshClient
         {
             if (this.ExtendedOutputStream != null)
             {
-                this.ExtendedOutputStream.Write(e.Data.GetSshBytes().ToArray(), 0, e.Data.Length);
+                this.ExtendedOutputStream.Write(e.Data, 0, e.Data.Length);
                 this.ExtendedOutputStream.Flush();
             }
 
@@ -293,7 +293,7 @@ namespace Renci.SshClient
         {
             if (this.OutputStream != null)
             {
-                this.OutputStream.Write(e.Data.GetSshBytes().ToArray(), 0, e.Data.Length);
+                this.OutputStream.Write(e.Data, 0, e.Data.Length);
                 this.OutputStream.Flush();
             }
 

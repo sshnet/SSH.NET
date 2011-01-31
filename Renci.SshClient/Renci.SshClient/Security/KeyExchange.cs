@@ -43,12 +43,12 @@ namespace Renci.SshClient.Security
         /// </value>
         public BigInteger SharedKey { get; protected set; }
 
-        private IEnumerable<byte> _exchangeHash;
+        private byte[] _exchangeHash;
         /// <summary>
         /// Gets the exchange hash.
         /// </summary>
         /// <value>The exchange hash.</value>
-        public IEnumerable<byte> ExchangeHash
+        public byte[] ExchangeHash
         {
             get
             {
@@ -283,14 +283,14 @@ namespace Renci.SshClient.Security
         /// Calculates key exchange hash value.
         /// </summary>
         /// <returns>Key exchange hash.</returns>
-        protected abstract IEnumerable<byte> CalculateHash();
+        protected abstract byte[] CalculateHash();
 
         /// <summary>
         /// Hashes the specified data bytes.
         /// </summary>
         /// <param name="hashBytes">Data to hash.</param>
         /// <returns>Hashed bytes</returns>
-        protected virtual IEnumerable<byte> Hash(IEnumerable<byte> hashBytes)
+        protected virtual byte[] Hash(IEnumerable<byte> hashBytes)
         {
             using (var md = new SHA1CryptoServiceProvider())
             {
@@ -320,7 +320,7 @@ namespace Renci.SshClient.Security
         /// <param name="key">The key.</param>
         /// <param name="size">The size.</param>
         /// <returns></returns>
-        private IEnumerable<byte> GenerateSessionKey(BigInteger sharedKey, IEnumerable<byte> exchangeHash, IEnumerable<byte> key, int size)
+        private byte[] GenerateSessionKey(BigInteger sharedKey, byte[] exchangeHash, IEnumerable<byte> key, int size)
         {
             var result = new List<byte>(key);
             while (size > result.Count)
@@ -333,7 +333,7 @@ namespace Renci.SshClient.Security
                 }.GetBytes()));
             }
 
-            return result;
+            return result.ToArray();
         }
 
         /// <summary>

@@ -42,7 +42,7 @@ namespace Renci.SshClient.Compression
         /// <returns>
         /// Compressed data
         /// </returns>
-        public override IEnumerable<byte> Compress(IEnumerable<byte> data)
+        public override byte[] Compress(byte[] data)
         {
             if (!this._active)
             {
@@ -78,7 +78,7 @@ namespace Renci.SshClient.Compression
         /// <returns>
         /// Decompressed data.
         /// </returns>
-        public override IEnumerable<byte> Decompress(IEnumerable<byte> data)
+        public override byte[] Decompress(byte[] data)
         {
             if (!this._active)
             {

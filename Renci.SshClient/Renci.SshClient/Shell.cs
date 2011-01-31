@@ -111,7 +111,7 @@ namespace Renci.SshClient
             {
                 throw new SshException("Shell is started.");
             }
-        
+
             if (this.Starting != null)
             {
                 this.Starting(this, new EventArgs());
@@ -141,7 +141,7 @@ namespace Renci.SshClient
                         {
                             Debug.WriteLine(ch);
 
-                            this._session.SendMessage(new ChannelDataMessage(this._channel.RemoteChannelNumber, Char.ConvertFromUtf32(ch)));
+                            this._session.SendMessage(new ChannelDataMessage(this._channel.RemoteChannelNumber, new byte[] { (byte)ch }));
                         }
                         else
                         {

@@ -9,11 +9,32 @@ namespace Renci.SshClient.Sftp.Messages
             get { return SftpMessageTypes.Open; }
         }
 
-        public string Filename { get; set; }
+        public string Filename { get; private set; }
 
-        public Flags Flags { get; set; }
+        public Flags Flags { get; private set; }
 
-        public SftpFileAttributes Attributes { get; set; }
+        public SftpFileAttributes Attributes { get; private set; }
+
+        public OpenMessage()
+        {
+
+        }
+
+        public OpenMessage(uint requestId, string fileName, Flags flags)
+            : base(requestId)
+        {
+            this.Filename = fileName;
+            this.Flags = flags;
+            this.Attributes = new SftpFileAttributes();
+        }
+
+        public OpenMessage(uint requestId, string fileName, Flags flags, SftpFileAttributes attributes)
+            : base(requestId)
+        {
+            this.Filename = fileName;
+            this.Flags = flags;
+            this.Attributes = attributes;
+        }
 
         protected override void LoadData()
         {

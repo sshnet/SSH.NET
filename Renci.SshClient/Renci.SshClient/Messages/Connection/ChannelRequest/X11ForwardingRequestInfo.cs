@@ -43,7 +43,7 @@
         /// <value>
         /// The authentication cookie.
         /// </value>
-        public string AuthenticationCookie { get; set; }
+        public byte[] AuthenticationCookie { get; set; }
 
         /// <summary>
         /// Gets or sets the screen number.
@@ -68,7 +68,7 @@
         /// <param name="protocol">The protocol.</param>
         /// <param name="cookie">The cookie.</param>
         /// <param name="screenNumber">The screen number.</param>
-        public X11ForwardingRequestInfo(bool isSingleConnection, string protocol, string cookie, uint screenNumber)
+        public X11ForwardingRequestInfo(bool isSingleConnection, string protocol, byte[] cookie, uint screenNumber)
             : this()
         {
             this.IsSingleConnection = isSingleConnection;
@@ -86,7 +86,7 @@
 
             this.IsSingleConnection = this.ReadBoolean();
             this.AuthenticationProtocol = this.ReadString();
-            this.AuthenticationCookie = this.ReadString();
+            this.AuthenticationCookie = this.ReadBinaryString();
             this.ScreenNumber = this.ReadUInt32();
         }
 
@@ -99,7 +99,7 @@
 
             this.Write(this.IsSingleConnection);
             this.Write(this.AuthenticationProtocol);
-            this.Write(this.AuthenticationCookie);
+            this.WriteBinaryString(this.AuthenticationCookie);
             this.Write(this.ScreenNumber);
         }
     }

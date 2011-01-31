@@ -10,6 +10,17 @@ namespace Renci.SshClient.Tests.SftpClientTests
     [TestClass]
     public class CreateDirectoryTest
     {
+        [TestInitialize()]
+        public void CleanCurrentFolder()
+        {
+            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            {
+                client.Connect();
+                client.RunCommand("rm -rf *");
+                client.Disconnect();
+            }
+        }
+
         [TestMethod]
         [TestCategory("Sftp")]
         [ExpectedException(typeof(SshConnectionException))]
@@ -30,8 +41,6 @@ namespace Renci.SshClient.Tests.SftpClientTests
                 sftp.Connect();
 
                 sftp.CreateDirectory("test");
-
-                sftp.DeleteDirectory("test");
 
                 sftp.Disconnect();
             }
@@ -89,12 +98,8 @@ namespace Renci.SshClient.Tests.SftpClientTests
 
                 Assert.IsTrue(exceptionThrown);
 
-                sftp.DeleteDirectory("test");
-
                 sftp.Disconnect();
             }
         }
-
-
     }
 }

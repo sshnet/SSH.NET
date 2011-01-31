@@ -12,11 +12,12 @@ namespace Renci.SshClient.Sftp.Messages
             this.LocalChannelNumber = localChannelNumber;
 
             var messageData = sftpMessage.GetBytes();
-            List<byte> data = new List<byte>();
-            data.AddRange(BitConverter.GetBytes((uint)messageData.Count()).Reverse());
-            data.AddRange(messageData);
-            this.Data = data.GetSshString();
 
+            var data = new byte[4 + messageData.Length];
+
+            ((uint)messageData.Length).GetBytes().CopyTo(data, 0);
+            messageData.CopyTo(data, 4);
+            this.Data = data;
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Linq;
 using Renci.SshClient.Sftp.Messages;
+using System;
 
 namespace Renci.SshClient.Sftp
 {
@@ -8,7 +9,7 @@ namespace Renci.SshClient.Sftp
     {
         private string _path;
         private Stream _input;
-        private string _handle;
+        private byte[] _handle;
         private byte[] _buffer;
         private ulong _offset;
         private bool _hasMoreData;
@@ -26,7 +27,7 @@ namespace Renci.SshClient.Sftp
             this.SendOpenMessage(this._path, Flags.Write | Flags.CreateNewOrOpen | Flags.Truncate);
         }
 
-        protected override void OnHandle(string handle)
+        protected override void OnHandle(byte[] handle)
         {
             base.OnHandle(handle);
 
@@ -63,7 +64,10 @@ namespace Renci.SshClient.Sftp
 
             if (this._hasMoreData)
             {
-                this.SendWriteMessage(this._handle, this._offset, this._buffer.Take(bytesRead).GetSshString());
+                var data = new byte[bytesRead];
+                Array.Copy(this._buffer, data, bytesRead);
+
+                this.SendWriteMessage(this._handle, this._offset, data);
 
                 this._offset += (ulong)bytesRead;
 

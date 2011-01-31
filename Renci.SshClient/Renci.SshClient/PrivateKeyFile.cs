@@ -37,11 +37,11 @@ namespace Renci.SshClient
         /// <summary>
         /// Gets the public key.
         /// </summary>
-        public IEnumerable<byte> PublicKey
+        public byte[] PublicKey
         {
             get
             {
-                return this._key.GetPublicKey().GetBytes();
+                return this._key.GetPublicKey().GetBytes().ToArray();
             }
         }
 
@@ -50,7 +50,7 @@ namespace Renci.SshClient
         /// </summary>
         /// <param name="sessionId">The session id.</param>
         /// <returns>Signature data</returns>
-        public IEnumerable<byte> GetSignature(IEnumerable<byte> sessionId)
+        public byte[] GetSignature(IEnumerable<byte> sessionId)
         {
             return this._key.GetSignature(sessionId);
         }

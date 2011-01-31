@@ -13,6 +13,18 @@ namespace Renci.SshClient.Sftp.Messages
 
         public string ExistingPath { get; set; }
 
+        public SymLinkMessage()
+        {
+
+        }
+
+        public SymLinkMessage(uint requestId, string newLinkPath, string existingPath)
+            : base(requestId)
+        {
+            this.NewLinkPath = newLinkPath;
+            this.ExistingPath = existingPath;
+        }
+
         protected override void LoadData()
         {
             base.LoadData();

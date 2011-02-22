@@ -441,7 +441,6 @@ namespace Renci.SshClient
 
                     this._socket.EndConnect(connectResult);
 
-
                     Match versionMatch = null;
                     //  Get server version from the server,
                     //  ignore text lines which are sent before if any
@@ -1055,7 +1054,7 @@ namespace Renci.SshClient
             //  Disable all registered messages except key exchange related
             foreach (var messageMetadata in this._messagesMetadata)
             {
-                if (messageMetadata.Activated == true && messageMetadata.Number < 20 || messageMetadata.Number > 30)
+                if (messageMetadata.Activated == true && messageMetadata.Number > 2 && (messageMetadata.Number < 20 || messageMetadata.Number > 30))
                     messageMetadata.Enabled = false;
             }
 

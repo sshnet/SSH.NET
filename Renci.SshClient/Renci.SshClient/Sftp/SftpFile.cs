@@ -336,11 +336,12 @@ namespace Renci.SshClient.Sftp
         /// </summary>
         public void UpdateStatus()
         {
-            var setCmd = new SetFileStatusCommand(this._sftpSession, this.FullName, this.GetAttributes());
+            using (var setCmd = new SetFileStatusCommand(this._sftpSession, this.FullName, this.GetAttributes()))
+            {
+                setCmd.CommandTimeout = TimeSpan.FromSeconds(30);
 
-            setCmd.CommandTimeout = TimeSpan.FromSeconds(30);
-
-            setCmd.Execute();
+                setCmd.Execute();
+            }
         }
 
         /// <summary>
@@ -376,18 +377,28 @@ namespace Renci.SshClient.Sftp
         public void Delete()
         {
             SftpCommand cmd = null;
-            if (this.IsDirectory)
+            try
             {
-                cmd = new RemoveDirectoryCommand(this._sftpSession, this.FullName);
+                if (this.IsDirectory)
+                {
+                    cmd = new RemoveDirectoryCommand(this._sftpSession, this.FullName);
+                }
+                else
+                {
+                    cmd = new RemoveFileCommand(this._sftpSession, this.FullName);
+                }
+
+                cmd.CommandTimeout = TimeSpan.FromSeconds(30);
+
+                cmd.Execute();
             }
-            else
+            finally
             {
-                cmd = new RemoveFileCommand(this._sftpSession, this.FullName);
+                if (cmd != null)
+                {
+                    cmd.Dispose();
+                }
             }
-
-            cmd.CommandTimeout = TimeSpan.FromSeconds(30);
-
-            cmd.Execute();
         }
 
         /// <summary>
@@ -397,11 +408,12 @@ namespace Renci.SshClient.Sftp
         [SecuritySafeCritical]
         public void MoveTo(string destFileName)
         {
-            var setCmd = new RenameFileCommand(this._sftpSession, this.FullName, destFileName);
+            using (var setCmd = new RenameFileCommand(this._sftpSession, this.FullName, destFileName))
+            {
+                setCmd.CommandTimeout = TimeSpan.FromSeconds(30);
 
-            setCmd.CommandTimeout = TimeSpan.FromSeconds(30);
-
-            setCmd.Execute();
+                setCmd.Execute();
+            }
         }
 
         /// <summary>

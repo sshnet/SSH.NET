@@ -11,7 +11,7 @@ namespace Renci.SshClient.Sftp
     /// <summary>
     /// Base class for all SFTP Commands
     /// </summary>
-    internal abstract class SftpCommand
+    internal abstract class SftpCommand : IDisposable
     {
         private AsyncCallback _callback;
 
@@ -286,5 +286,69 @@ namespace Renci.SshClient.Sftp
             
             this.SftpSession.SendMessage(message);
         }
+
+
+        #region IDisposable Members
+
+        private bool _isDisposed = false;
+
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged ResourceMessages.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources
+        /// </summary>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged ResourceMessages.</param>
+        protected virtual void Dispose(bool disposing)
+        {
+            // Check to see if Dispose has already been called.
+            if (!this._isDisposed)
+            {
+                // If disposing equals true, dispose all managed
+                // and unmanaged ResourceMessages.
+                if (disposing)
+                {
+
+                    this.SftpSession.AttributesMessageReceived -= SftpSession_AttributesMessageReceived;
+                    this.SftpSession.DataMessageReceived -= SftpSession_DataMessageReceived;
+                    this.SftpSession.HandleMessageReceived -= SftpSession_HandleMessageReceived;
+                    this.SftpSession.NameMessageReceived -= SftpSession_NameMessageReceived;
+                    this.SftpSession.StatusMessageReceived -= SftpSession_StatusMessageReceived;
+                    this.SftpSession.ErrorOccured -= SftpSession_ErrorOccured;
+
+                    // Dispose managed ResourceMessages.
+                    if (this.AsyncResult != null)
+                    {
+                        this.AsyncResult.Dispose();
+                        this.AsyncResult = null;
+                    }
+                }
+
+                // Note disposing has been done.
+                _isDisposed = true;
+            }
+        }
+
+        /// <summary>
+        /// Releases unmanaged resources and performs other cleanup operations before the
+        /// <see cref="BaseClient"/> is reclaimed by garbage collection.
+        /// </summary>
+        ~SftpCommand()
+        {
+            // Do not re-create Dispose clean-up code here.
+            // Calling Dispose(false) is optimal in terms of
+            // readability and maintainability.
+            Dispose(false);
+        }
+
+        #endregion
+
     }
 }

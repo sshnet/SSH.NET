@@ -164,11 +164,12 @@ namespace Renci.SshClient
 
             var fullPath = this._sftpSession.GetCanonicalPath(path);
 
-            var cmd = new RemoveDirectoryCommand(this._sftpSession, fullPath);
+            using (var cmd = new RemoveDirectoryCommand(this._sftpSession, fullPath))
+            {
+                cmd.CommandTimeout = this.OperationTimeout;
 
-            cmd.CommandTimeout = this.OperationTimeout;
-
-            cmd.Execute();
+                cmd.Execute();
+            }
         }
 
         /// <summary>
@@ -182,11 +183,12 @@ namespace Renci.SshClient
 
             var fullPath = this._sftpSession.GetCanonicalPath(path);
 
-            var cmd = new RemoveFileCommand(this._sftpSession, fullPath);
+            using (var cmd = new RemoveFileCommand(this._sftpSession, fullPath))
+            {
+                cmd.CommandTimeout = this.OperationTimeout;
 
-            cmd.CommandTimeout = this.OperationTimeout;
-
-            cmd.Execute();
+                cmd.Execute();
+            }
         }
 
         /// <summary>
@@ -203,11 +205,12 @@ namespace Renci.SshClient
 
             var newFullPath = this._sftpSession.GetCanonicalPath(newPath);
 
-            var cmd = new RenameFileCommand(this._sftpSession, oldFullPath, newFullPath);
+            using (var cmd = new RenameFileCommand(this._sftpSession, oldFullPath, newFullPath))
+            {
+                cmd.CommandTimeout = this.OperationTimeout;
 
-            cmd.CommandTimeout = this.OperationTimeout;
-
-            cmd.Execute();
+                cmd.Execute();
+            }
         }
 
         /// <summary>
@@ -224,11 +227,12 @@ namespace Renci.SshClient
 
             var linkFullPath = this._sftpSession.GetCanonicalPath(linkPath);
 
-            var cmd = new SymbolicLinkCommand(this._sftpSession, fullPath, linkFullPath);
+            using (var cmd = new SymbolicLinkCommand(this._sftpSession, fullPath, linkFullPath))
+            {
+                cmd.CommandTimeout = this.OperationTimeout;
 
-            cmd.CommandTimeout = this.OperationTimeout;
-
-            cmd.Execute();
+                cmd.Execute();
+            }
         }
 
         /// <summary>
@@ -280,7 +284,11 @@ namespace Renci.SshClient
 
             cmd.EndExecute(sftpAsyncResult);
 
-            return cmd.Files;
+            var files = cmd.Files;
+
+            cmd.Dispose();
+
+            return files;
         }
 
         /// <summary>
@@ -331,6 +339,9 @@ namespace Renci.SshClient
             var cmd = sftpAsyncResult.GetCommand<DownloadFileCommand>();
 
             cmd.EndExecute(sftpAsyncResult);
+
+            cmd.Dispose();
+
         }
 
         /// <summary>
@@ -381,6 +392,8 @@ namespace Renci.SshClient
             var cmd = sftpAsyncResult.GetCommand<UploadFileCommand>();
 
             cmd.EndExecute(sftpAsyncResult);
+
+            cmd.Dispose();
         }
 
         /// <summary>

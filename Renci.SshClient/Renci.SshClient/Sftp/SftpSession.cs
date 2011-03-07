@@ -162,13 +162,14 @@ namespace Renci.SshClient.Sftp
         /// <returns></returns>
         public SftpFile GetSftpFile(string path)
         {
-            var cmd = new RealPathCommand(this, path);
+            using (var cmd = new RealPathCommand(this, path))
+            {
+                cmd.CommandTimeout = this._operationTimeout;
 
-            cmd.CommandTimeout = this._operationTimeout;
+                cmd.Execute();
 
-            cmd.Execute();
-
-            return cmd.Files.FirstOrDefault();
+                return cmd.Files.FirstOrDefault();
+            }
         }
 
         internal void SendMessage(SftpMessage sftpMessage)
@@ -282,16 +283,17 @@ namespace Renci.SshClient.Sftp
 
         private string GetRealPath(string path)
         {
-            var cmd = new RealPathCommand(this, path);
+            using (var cmd = new RealPathCommand(this, path))
+            {
+                cmd.CommandTimeout = this._operationTimeout;
 
-            cmd.CommandTimeout = this._operationTimeout;
+                cmd.Execute();
 
-            cmd.Execute();
-
-            if (cmd.Files == null)
-                return null;
-            else
-                return cmd.Files.First().FullName;
+                if (cmd.Files == null)
+                    return null;
+                else
+                    return cmd.Files.First().FullName;
+            }
         }
 
         private void Session_Disconnected(object sender, EventArgs e)

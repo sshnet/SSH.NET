@@ -57,6 +57,18 @@ namespace Renci.SshClient.Tests
         }
 
         [TestMethod]
+        [ExpectedException(typeof(SshPassPhraseNullOrEmptyException))]
+        public void Test_Connect_Using_Key_With_Empty_PassPhrase()
+        {
+            MemoryStream keyFileStream = new MemoryStream(Encoding.ASCII.GetBytes(Resources.RSA_KEY_WITH_PASS));
+            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, new PrivateKeyFile(keyFileStream, null)))
+            {
+                client.Connect();
+                client.Disconnect();
+            }
+        }
+
+        [TestMethod]
         public void Test_Connect_Using_DsaKey_Without_PassPhrase()
         {
             MemoryStream keyFileStream = new MemoryStream(Encoding.ASCII.GetBytes(Resources.DSA_KEY_WITHOUT_PASS));

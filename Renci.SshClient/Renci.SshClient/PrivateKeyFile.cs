@@ -131,7 +131,7 @@ namespace Renci.SshClient
             if (!string.IsNullOrEmpty(cipherName) && !string.IsNullOrEmpty(salt))
             {
                 if (string.IsNullOrEmpty(passPhrase))
-                    throw new InvalidOperationException("Private key is encrypted but passphrase is empty.");
+                    throw new SshPassPhraseNullOrEmptyException("Private key is encrypted but passphrase is empty.");
 
                 byte[] binarySalt = new byte[salt.Length / 2];
                 for (int i = 0; i < binarySalt.Length; i++)

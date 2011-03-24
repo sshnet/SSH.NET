@@ -227,7 +227,7 @@ namespace Renci.SshClient
         {
             if (this._channelOutput != null)
             {
-                this._channelOutput.Write(e.Data);
+                this._channelOutput.Write(this._channelOutput.Encoding.GetString(e.Data));
             }
         }
 

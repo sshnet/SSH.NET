@@ -54,6 +54,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConnectionTest.cs" />
+    <Compile Include="Security\Cryptography\TestAes.cs" />
+    <Compile Include="Security\Cryptography\TestBlowfish.cs" />
+    <Compile Include="Security\Cryptography\TestCast.cs" />
     <Compile Include="Security\TestCipher.cs" />
     <Compile Include="Security\TestCryptoKey.cs" />
     <Compile Include="Security\TestHMac.cs" />

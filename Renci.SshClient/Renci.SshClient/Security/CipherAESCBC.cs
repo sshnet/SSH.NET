@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
+using Renci.SshClient.Security.Cryptography;
 
 namespace Renci.SshClient.Security
 {
     /// <summary>
     /// Represents base class for AES based encryption.
     /// </summary>
-    public abstract class CipherAES : Cipher
+    public abstract class CipherAESCBC : Cipher
     {
         private SymmetricAlgorithm _algorithm;
 
@@ -53,10 +54,10 @@ namespace Renci.SshClient.Security
         protected int KeyBitsSize { get; private set; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CipherAES"/> class.
+        /// Initializes a new instance of the <see cref="CipherAESCBC"/> class.
         /// </summary>
         /// <param name="keyBitsSize">Size of the key bits.</param>
-        public CipherAES(int keyBitsSize)
+        public CipherAESCBC(int keyBitsSize)
         {
             this.KeyBitsSize = keyBitsSize;
             this._algorithm = new System.Security.Cryptography.RijndaelManaged();
@@ -99,28 +100,19 @@ namespace Renci.SshClient.Security
         /// </returns>
         public override byte[] Decrypt(byte[] data)
         {
-            try
+            if (this._decryptor == null)
             {
-
-                if (this._decryptor == null)
-                {
-                    this._decryptor = this._algorithm.CreateDecryptor(this.Key.Take(this.KeySize / 8).ToArray(), this.Vector.Take(this.BlockSize).ToArray());
-                }
-
-                var output = new byte[data.Length];
-                var writtenBytes = this._decryptor.TransformBlock(data, 0, data.Length, output, 0);
-
-                if (writtenBytes < data.Length)
-                {
-                    throw new InvalidOperationException("Encryption error.");
-                }
-                return output;
+                this._decryptor = this._algorithm.CreateDecryptor(this.Key.Take(this.KeySize / 8).ToArray(), this.Vector.Take(this.BlockSize).ToArray());
             }
-            catch (Exception exp)
+
+            var output = new byte[data.Length];
+            var writtenBytes = this._decryptor.TransformBlock(data, 0, data.Length, output, 0);
+
+            if (writtenBytes < data.Length)
             {
-
-                throw;
+                throw new InvalidOperationException("Encryption error.");
             }
+            return output;
         }
 
         private bool _isDisposed = false;
@@ -157,7 +149,7 @@ namespace Renci.SshClient.Security
     /// <summary>
     /// Represents AES 128 bit encryption.
     /// </summary>
-    public class CipherAES128CBC : CipherAES
+    public class CipherAES128CBC : CipherAESCBC
     {
         /// <summary>
         /// Gets algorithm name.
@@ -180,7 +172,7 @@ namespace Renci.SshClient.Security
     /// <summary>
     /// Represents AES 192 bit encryption.
     /// </summary>
-    public class CipherAES192CBC : CipherAES
+    public class CipherAES192CBC : CipherAESCBC
     {
         /// <summary>
         /// Gets algorithm name.
@@ -203,7 +195,7 @@ namespace Renci.SshClient.Security
     /// <summary>
     /// Represents AES 256 bit encryption.
     /// </summary>
-    public class CipherAES256CBC : CipherAES
+    public class CipherAES256CBC : CipherAESCBC
     {
         /// <summary>
         /// Gets algorithm name.
@@ -222,5 +214,4 @@ namespace Renci.SshClient.Security
 
         }
     }
-
 }

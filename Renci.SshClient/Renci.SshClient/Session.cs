@@ -812,8 +812,6 @@ namespace Renci.SshClient
             //  Shutdown and disconnect from the socket
             if (this._socket != null)
             {
-                this._socket.Shutdown(SocketShutdown.Both);
-
                 this._socket.Disconnect(true);
 
                 //  When socket is disconnected wait for listener to finish
@@ -823,6 +821,9 @@ namespace Renci.SshClient
                     this._messageListener.Wait();
                     this._messageListener = null;
                 }
+                
+                this._socket.Dispose();
+                this._socket = null;
             }
         }
 

@@ -790,6 +790,7 @@ namespace Renci.SshClient
             this.SendMessage(disconnectMessage);
 
             //  Handle disconnect message as if it was sent by the server
+            //  TODO:   Review this code and may be handle it separately
             this.HandleMessage(disconnectMessage);
         }
 
@@ -812,18 +813,24 @@ namespace Renci.SshClient
             //  Shutdown and disconnect from the socket
             if (this._socket != null)
             {
-                this._socket.Disconnect(true);
-
-                //  When socket is disconnected wait for listener to finish
-                if (this._messageListener != null)
+                lock (this._socket)
                 {
-                    //  Wait for listener task to finish
-                    this._messageListener.Wait();
-                    this._messageListener = null;
+                    if (this._socket != null)
+                    {
+                        this._socket.Disconnect(true);
+
+                        //  When socket is disconnected wait for listener to finish
+                        if (this._messageListener != null)
+                        {
+                            //  Wait for listener task to finish
+                            this._messageListener.Wait();
+                            this._messageListener = null;
+                        }
+
+                        this._socket.Dispose();
+                        this._socket = null;
+                    }
                 }
-                
-                this._socket.Dispose();
-                this._socket = null;
             }
         }
 
@@ -1593,15 +1600,28 @@ namespace Renci.SshClient
                 {
                     this._isDisconnecting = true;
 
-                    if (this.IsConnected)
-                    {
-                        this.SendDisconnect(DisconnectReasons.ByApplication, "Connection terminated by the client.");
-                    }
-
                     if (this._socket != null)
                     {
-                        this._socket.Dispose();
-                        this._socket = null;
+                        lock (this._socket)
+                        {
+                            //  TODO:   Not sure if it makes sense to do locking in Dispose but just want to check it for now as possible reason, need to remove later.
+
+                            if (this._socket != null)
+                            {
+                                try
+                                {
+                                    //  If socket still open try to send disconnect message to the server
+                                    this.SendMessage(new DisconnectMessage(DisconnectReasons.ByApplication, "Connection terminated by the client."));
+                                }
+                                catch (Exception)
+                                {
+                                    //  Do nothing as this is not required to send disconnect message correctly.
+                                }
+
+                                this._socket.Dispose();
+                                this._socket = null;
+                            }
+                        }
                     }
 
                     if (this._messageListener != null)

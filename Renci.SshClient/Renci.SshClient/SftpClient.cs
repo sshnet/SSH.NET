@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.IO;
 using Renci.SshClient.Sftp;
@@ -289,6 +290,27 @@ namespace Renci.SshClient
             cmd.Dispose();
 
             return files;
+        }
+
+        /// <summary>
+        /// Gets reference to remote file or directory.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <returns></returns>
+        public SftpFile Get(string path)
+        {
+            //  Ensure that connection is established.
+            this.EnsureConnection();
+
+            var fullPath = this._sftpSession.GetCanonicalPath(path);
+
+            var cmd = new StatusCommand(this._sftpSession, fullPath);
+
+            cmd.CommandTimeout = this.OperationTimeout;
+
+            cmd.Execute();
+
+            return cmd.File;
         }
 
         /// <summary>

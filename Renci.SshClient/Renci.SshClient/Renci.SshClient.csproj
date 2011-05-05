@@ -126,6 +126,7 @@
     <Compile Include="Security\Cryptography\TransformMode.cs" />
     <Compile Include="Security\Cryptography\Ciphers\DesCipher.cs" />
     <Compile Include="Sftp\SetFileStatusCommand.cs" />
+    <Compile Include="Sftp\StatusCommand.cs" />
     <Compile Include="Sftp\SymbolicLinkCommand.cs" />
     <Compile Include="Sftp\Messages\SftpRequestMessage.cs" />
     <Compile Include="Messages\Transport\KeyExchangeDhGroupExchangeGroup.cs" />

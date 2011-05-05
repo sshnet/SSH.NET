@@ -175,25 +175,30 @@ namespace Renci.SshClient
                 throw new SshException("Shell is not started.");
             }
 
-            if (this.Stopping != null)
+            if (this._channel != null && this._channel.IsOpen)
             {
-                this.Stopping(this, new EventArgs());
-            }
+                if (this.Stopping != null)
+                {
+                    this.Stopping(this, new EventArgs());
+                }
 
-            this._channel.Close();
-            this._channelInput.Close();
+                this._channel.Close();
+                this._channelInput.Close();
 
-            this._dataReaderTask.Wait();
+                this._dataReaderTask.Wait();
 
-            this._channel.DataReceived -= Channel_DataReceived;
-            this._channel.ExtendedDataReceived -= Channel_ExtendedDataReceived;
-            this._channel.Closed -= Channel_Closed;
-            this._session.Disconnected -= Session_Disconnected;
-            this._session.ErrorOccured -= Session_ErrorOccured;
+                this._channel.DataReceived -= Channel_DataReceived;
+                this._channel.ExtendedDataReceived -= Channel_ExtendedDataReceived;
+                this._channel.Closed -= Channel_Closed;
+                this._session.Disconnected -= Session_Disconnected;
+                this._session.ErrorOccured -= Session_ErrorOccured;
 
-            if (this.Stopped != null)
-            {
-                this.Stopped(this, new EventArgs());
+                if (this.Stopped != null)
+                {
+                    this.Stopped(this, new EventArgs());
+                }
+
+                this._channel = null;
             }
         }
 

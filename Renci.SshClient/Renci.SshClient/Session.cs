@@ -485,6 +485,8 @@ namespace Renci.SshClient
                     this.RegisterMessage("SSH_MSG_KEXINIT");
                     this.RegisterMessage("SSH_MSG_NEWKEYS");
 
+                    //  Some server implementations might sent this message first, prior establishing encryption algorithm
+                    this.RegisterMessage("SSH_MSG_USERAUTH_BANNER");
 
                     //  Start incoming request listener
                     this._messageListener = Task.Factory.StartNew(() => { this.MessageListener(); }, TaskCreationOptions.LongRunning);

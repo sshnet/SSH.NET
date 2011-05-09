@@ -17,6 +17,14 @@ namespace Renci.SshClient
     /// </summary>
     public class SshCommand : IDisposable
     {
+        //private StreamReader _outputSteamReader;
+
+        //private StreamReader _extendedOutputSteamReader;
+
+        //private StreamWriter _outputSteamWriter;
+
+        //private StreamWriter _extendedOutputSteamWriter;
+
         private Encoding _encoding;
 
         private Session _session;
@@ -54,13 +62,14 @@ namespace Renci.SshClient
         /// <summary>
         /// Gets the output stream.
         /// </summary>
-        public MemoryStream OutputStream { get; private set; }
+        public Stream OutputStream { get; private set; }
 
         /// <summary>
         /// Gets the extended output stream.
         /// </summary>
-        public MemoryStream ExtendedOutputStream { get; private set; }
+        public Stream ExtendedOutputStream { get; private set; }
 
+        private StringBuilder _result;
         /// <summary>
         /// Gets the command execution result.
         /// </summary>
@@ -68,10 +77,24 @@ namespace Renci.SshClient
         {
             get
             {
-                return this._encoding.GetString(this.OutputStream.ToArray());
+                if (this._result == null)
+                {
+                    this._result = new StringBuilder();
+                }
+
+                if (this.OutputStream.Length > 0)
+                {
+                    using (var sr = new StreamReader(this.OutputStream, this._encoding))
+                    {
+                        this._result.Append(sr.ReadToEnd());
+                    }
+                }
+
+                return this._result.ToString();
             }
         }
 
+        private StringBuilder _error;
         /// <summary>
         /// Gets the command execution error.
         /// </summary>
@@ -80,7 +103,22 @@ namespace Renci.SshClient
             get
             {
                 if (this._hasError)
-                    return this._encoding.GetString(this.ExtendedOutputStream.ToArray());
+                {
+                    if (this._error == null)
+                    {
+                        this._error = new StringBuilder();
+                    }
+
+                    if (this.ExtendedOutputStream.Length > 0)
+                    {
+                        using (var sr = new StreamReader(this.ExtendedOutputStream, this._encoding))
+                        {
+                            this._error.Append(sr.ReadToEnd());
+                        }
+                    }
+
+                    return this._error.ToString();
+                }
                 else
                     return string.Empty;
             }
@@ -197,6 +235,15 @@ namespace Renci.SshClient
             return this.EndExecute(this.BeginExecute(null, null));
         }
 
+        public void Cancel()
+        {
+            if (this._channel != null && this._channel.IsOpen)
+            {
+                this._session.SendMessage(new ChannelEofMessage(this._channel.RemoteChannelNumber));
+                this._session.SendMessage(new ChannelCloseMessage(this._channel.RemoteChannelNumber));
+            }
+        }
+
         /// <summary>
         /// Executes the specified command text.
         /// </summary>
@@ -217,8 +264,13 @@ namespace Renci.SshClient
             this._channel.ExtendedDataReceived += Channel_ExtendedDataReceived;
             this._channel.RequestReceived += Channel_RequestReceived;
             this._channel.Closed += Channel_Closed;
-            this.OutputStream = new MemoryStream();
-            this.ExtendedOutputStream = new MemoryStream();
+            this.OutputStream = new PipeStream();
+            this.ExtendedOutputStream = new PipeStream();
+
+            //this._outputSteamReader = new StreamReader(this.OutputStream);
+            //this._extendedOutputSteamReader = new StreamReader(this.ExtendedOutputStream);
+            //this._outputSteamWriter = new StreamWriter(this.OutputStream);
+            //this._extendedOutputSteamWriter = new StreamWriter(this.ExtendedOutputStream);
         }
 
         private void Session_Disconnected(object sender, EventArgs e)
@@ -236,6 +288,11 @@ namespace Renci.SshClient
         }
 
         private void Channel_Closed(object sender, Common.ChannelEventArgs e)
+        {
+            Cancel1();
+        }
+
+        private void Cancel1()
         {
             if (this.OutputStream != null)
             {
@@ -294,6 +351,7 @@ namespace Renci.SshClient
             if (this.OutputStream != null)
             {
                 this.OutputStream.Write(e.Data, 0, e.Data.Length);
+                //this._outputSteamWriter.Write(this._encoding.GetString(e.Data, 0, e.Data.Length));
                 this.OutputStream.Flush();
             }
 
@@ -391,7 +449,7 @@ namespace Renci.SshClient
                         this._channel = null;
                     }
                 }
-                
+
                 // Note disposing has been done.
                 this._isDisposed = true;
             }

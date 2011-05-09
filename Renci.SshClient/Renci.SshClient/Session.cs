@@ -512,11 +512,26 @@ namespace Renci.SshClient
                         throw new SshException("Username is not specified.");
                     }
 
-                    //  In future, if more then one authentication methods are supported perform the check here.
-                    //  Authenticate using provided connection info object
-                    this.ConnectionInfo.Authenticate(this);
+                    //  Try authenticate using none method
+                    var noneConnectionInfo = new NoneConnectionInfo(this.ConnectionInfo.Host, this.ConnectionInfo.Port, this.ConnectionInfo.Username);
+                    noneConnectionInfo.Authenticate(this);
 
-                    this._isAuthenticated = this.ConnectionInfo.IsAuthenticated;
+                    this._isAuthenticated = noneConnectionInfo.IsAuthenticated;
+
+                    if (!this._isAuthenticated)
+                    {
+                        //  Ensure that authentication method is allowed
+                        if (!noneConnectionInfo.AllowedAuthentications.Contains(this.ConnectionInfo.Name))
+                        {
+                            throw new SshAuthenticationException("User authentication method is not supported.");
+                        }
+
+                        //  In future, if more then one authentication methods are supported perform the check here.
+                        //  Authenticate using provided connection info object
+                        this.ConnectionInfo.Authenticate(this);
+
+                        this._isAuthenticated = this.ConnectionInfo.IsAuthenticated;
+                    }
 
                     if (!this._isAuthenticated)
                     {

@@ -19,6 +19,10 @@ namespace Renci.SshClient
 
         private Exception _exception;
 
+        private RequestMessage _requestMessage;
+
+        private string _password;
+
         /// <summary>
         /// Gets connection name
         /// </summary>
@@ -26,14 +30,9 @@ namespace Renci.SshClient
         {
             get
             {
-                return "password";
+                return this._requestMessage.MethodName;
             }
         }
-
-        /// <summary>
-        /// Gets connection password.
-        /// </summary>
-        public string Password { get; private set; }
 
         /// <summary>
         /// Occurs when user's password has expired and needs to be changed.
@@ -62,7 +61,8 @@ namespace Renci.SshClient
         public PasswordConnectionInfo(string host, int port, string username, string password)
             : base(host, port, username)
         {
-            this.Password = password;
+            this._password = password;
+            this._requestMessage = new RequestMessagePassword(ServiceNames.Connection, this.Username, password);
         }
 
         /// <summary>
@@ -72,7 +72,7 @@ namespace Renci.SshClient
         {
             this.Session.RegisterMessage("SSH_MSG_USERAUTH_PASSWD_CHANGEREQ");
 
-            this.SendMessage(new RequestMessagePassword(ServiceNames.Connection, this.Username, this.Password));
+            this.SendMessage(this._requestMessage);
 
             this.WaitHandle(this._authenticationCompleted);
 
@@ -130,7 +130,7 @@ namespace Renci.SshClient
                         }
 
                         //  Send new authentication request with new password
-                        this.SendMessage(new RequestMessagePassword(ServiceNames.Connection, this.Username, this.Password, eventArgs.NewPassword));
+                        this.SendMessage(new RequestMessagePassword(ServiceNames.Connection, this.Username, this._password, eventArgs.NewPassword));
                     }
                     catch (Exception exp)
                     {

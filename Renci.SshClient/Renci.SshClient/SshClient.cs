@@ -202,12 +202,12 @@ namespace Renci.SshClient
         /// <param name="height">The height.</param>
         /// <param name="terminalMode">The terminal mode.</param>
         /// <returns></returns>
-        public Shell CreateShell(Stream input, TextWriter output, TextWriter extendedOutput, string terminalName, uint columns, uint rows, uint width, uint height, string terminalMode)
+        public Shell CreateShell(Stream input, Stream output, Stream extendedOutput, string terminalName, uint columns, uint rows, uint width, uint height, string terminalMode, int bufferSize = 1024)
         {
             //  Ensure that connection is established.
             this.EnsureConnection();
 
-            return new Shell(this.Session, input, output, extendedOutput, terminalName, columns, rows, width, height, terminalMode);
+            return new Shell(this.Session, input, output, extendedOutput, terminalName, columns, rows, width, height, terminalMode, bufferSize);
         }
     }
 }

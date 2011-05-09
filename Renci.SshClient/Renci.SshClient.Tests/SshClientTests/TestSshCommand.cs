@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Renci.SshClient.Common;
 using Renci.SshClient.Tests.Properties;
+using System.IO;
 
 namespace Renci.SshClient.Tests.SshClientTests
 {
@@ -164,7 +165,8 @@ namespace Renci.SshClient.Tests.SshClientTests
                 client.Connect();
                 var cmd = client.CreateCommand("echo 12345; echo 654321 >&2");
                 cmd.Execute();
-                var extendedData = Encoding.ASCII.GetString(cmd.ExtendedOutputStream.ToArray());
+                //var extendedData = Encoding.ASCII.GetString(cmd.ExtendedOutputStream.ToArray());
+                var extendedData = new StreamReader(cmd.ExtendedOutputStream, Encoding.ASCII).ReadToEnd();
                 client.Disconnect();
 
                 Assert.AreEqual("12345\n", cmd.Result);
@@ -324,10 +326,9 @@ namespace Renci.SshClient.Tests.SshClientTests
         {
             var testValue = Guid.NewGuid().ToString();
             var command = string.Format("echo {0}", testValue);
-            //var command = string.Format("echo {0};sleep 2s", testValue);
             var cmd = s.CreateCommand(command);
             var result = cmd.Execute();
-            result = result.Substring(0, result.Length - 1);    //  Remove \n chararacter returned by command
+            result = result.Substring(0, result.Length - 1);    //  Remove \n character returned by command
             return result.Equals(testValue);
         }
 

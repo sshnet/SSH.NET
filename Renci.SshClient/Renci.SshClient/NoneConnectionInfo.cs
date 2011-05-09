@@ -5,21 +5,19 @@ using System.Text;
 using System.Threading;
 using Renci.SshClient.Messages.Authentication;
 using Renci.SshClient.Messages;
-using Renci.SshClient.Common;
-using System.Threading.Tasks;
 
 namespace Renci.SshClient
 {
     /// <summary>
-    /// Provides connection information when keyboard interactive authentication method is used
+    /// Provides connection information when password authentication method is used
     /// </summary>
-    public class KeyboardInteractiveConnectionInfo : ConnectionInfo, IDisposable
+    public class NoneConnectionInfo : ConnectionInfo, IDisposable
     {
         private EventWaitHandle _authenticationCompleted = new AutoResetEvent(false);
 
         private Exception _exception;
 
-        private RequestMessage _requestMessage;
+        public IEnumerable<string> AllowedAuthentications { get; private set; }
 
         /// <summary>
         /// Gets connection name
@@ -28,36 +26,31 @@ namespace Renci.SshClient
         {
             get
             {
-                return this._requestMessage.MethodName;
+                return "none";
             }
         }
-
         /// <summary>
-        /// Occurs when server prompts for more authentication information.
+        /// Initializes a new instance of the <see cref="PasswordConnectionInfo"/> class.
         /// </summary>
-        public event EventHandler<AuthenticationPromptEventArgs> AuthenticationPrompt;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="KeyboardInteractiveConnectionInfo"/> class.
-        /// </summary>
-        /// <param name="host">The host.</param>
-        /// <param name="username">The username.</param>
-        public KeyboardInteractiveConnectionInfo(string host, string username)
+        /// <param name="host">Connection host.</param>
+        /// <param name="username">Connection username.</param>
+        /// <param name="password">Connection password.</param>
+        public NoneConnectionInfo(string host, string username)
             : this(host, 22, username)
         {
 
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="KeyboardInteractiveConnectionInfo"/> class.
+        /// Initializes a new instance of the <see cref="PasswordConnectionInfo"/> class.
         /// </summary>
         /// <param name="host">Connection host.</param>
         /// <param name="port">Connection port.</param>
         /// <param name="username">Connection username.</param>
-        public KeyboardInteractiveConnectionInfo(string host, int port, string username)
+        /// <param name="password">Connection password.</param>
+        public NoneConnectionInfo(string host, int port, string username)
             : base(host, port, username)
         {
-            this._requestMessage = new RequestMessageKeyboardInteractive(ServiceNames.Connection, username);
         }
 
         /// <summary>
@@ -65,13 +58,9 @@ namespace Renci.SshClient
         /// </summary>
         protected override void OnAuthenticate()
         {
-            this.Session.RegisterMessage("SSH_MSG_USERAUTH_INFO_REQUEST");
-
-            this.Session.SendMessage(this._requestMessage);
+            this.SendMessage(new RequestMessageNone(ServiceNames.Connection, this.Username));
 
             this.WaitHandle(this._authenticationCompleted);
-
-            this.Session.UnRegisterMessage("SSH_MSG_USERAUTH_INFO_REQUEST");
 
             if (this._exception != null)
             {
@@ -98,47 +87,11 @@ namespace Renci.SshClient
         protected override void Session_UserAuthenticationFailureReceived(object sender, MessageEventArgs<FailureMessage> e)
         {
             base.Session_UserAuthenticationFailureReceived(sender, e);
+            
+            //  Copy allowed authentication methods
+            this.AllowedAuthentications = e.Message.AllowedAuthentications.ToList();
+
             this._authenticationCompleted.Set();
-        }
-
-        /// <summary>
-        /// Handles the MessageReceived event of the session.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The event data.</param>
-        protected override void Session_MessageReceived(object sender, MessageEventArgs<Message> e)
-        {
-            var informationRequestMessage = e.Message as InformationRequestMessage;
-            if (informationRequestMessage != null)
-            {
-                var eventArgs = new AuthenticationPromptEventArgs(this.Username, informationRequestMessage.Instruction, informationRequestMessage.Language, informationRequestMessage.Prompts);
-
-                var eventTask = Task.Factory.StartNew(() =>
-                {
-                    try
-                    {
-                        if (this.AuthenticationPrompt != null)
-                        {
-                            this.AuthenticationPrompt(this, eventArgs);
-                        }
-
-                        var informationResponse = new InformationResponseMessage();
-
-                        foreach (var response in from r in eventArgs.Prompts orderby r.Id ascending select r.Response)
-                        {
-                            informationResponse.Responses.Add(response);
-                        }
-
-                        //  Send information response message
-                        this.SendMessage(informationResponse);
-                    }
-                    catch (Exception exp)
-                    {
-                        this._exception = exp;
-                        this._authenticationCompleted.Set();
-                    }
-                });
-            }
         }
 
         #region IDisposable Members
@@ -183,9 +136,9 @@ namespace Renci.SshClient
 
         /// <summary>
         /// Releases unmanaged resources and performs other cleanup operations before the
-        /// <see cref="KeyboardInteractiveConnectionInfo"/> is reclaimed by garbage collection.
+        /// <see cref="PasswordConnectionInfo"/> is reclaimed by garbage collection.
         /// </summary>
-        ~KeyboardInteractiveConnectionInfo()
+        ~NoneConnectionInfo()
         {
             // Do not re-create Dispose clean-up code here.
             // Calling Dispose(false) is optimal in terms of
@@ -195,4 +148,5 @@ namespace Renci.SshClient
 
         #endregion
     }
+
 }

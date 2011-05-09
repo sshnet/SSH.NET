@@ -82,6 +82,7 @@
     <Compile Include="Common\SshPermissionDeniedException.cs" />
     <Compile Include="KeyboardInteractiveConnectionInfo.cs" />
     <Compile Include="Messages\Authentication\RequestMessageKeyboardInteractive.cs" />
+    <Compile Include="Messages\Authentication\RequestMessageNone.cs" />
     <Compile Include="Messages\Connection\ChannelOpen\ChannelOpenInfo.cs" />
     <Compile Include="Messages\Connection\ChannelOpen\DirectTcpipChannelInfo.cs" />
     <Compile Include="Messages\Connection\ChannelOpen\ForwardedTcpipChannelInfo.cs" />
@@ -100,6 +101,7 @@
     <Compile Include="Messages\Connection\ChannelRequest\X11ForwardingRequestInfo.cs" />
     <Compile Include="Messages\Connection\ChannelRequest\XonXoffRequestInfo.cs" />
     <Compile Include="Messages\MessageAttribute.cs" />
+    <Compile Include="NoneConnectionInfo.cs" />
     <Compile Include="Security\CipherBlowfish.cs" />
     <Compile Include="Security\CipherAESCTR.cs" />
     <Compile Include="Security\CipherCast.cs" />

@@ -18,7 +18,7 @@ namespace Renci.SshClient
         private EventWaitHandle _publicKeyRequestMessageResponseWaitHandle = new ManualResetEvent(false);
 
         private bool _isSignatureRequired;
-
+        
         /// <summary>
         /// Gets connection name
         /// </summary>

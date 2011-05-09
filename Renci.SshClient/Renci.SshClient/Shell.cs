@@ -20,6 +20,8 @@ namespace Renci.SshClient
 
         private ChannelSession _channel;
 
+        private EventWaitHandle _channelClosedWaitHandle;
+
         private Stream _input;
 
         private string _terminalName;
@@ -130,24 +132,33 @@ namespace Renci.SshClient
             this._channel.SendPseudoTerminalRequest(this._terminalName, this._columns, this._columns, this._width, this._height, this._terminalMode);
             this._channel.SendShellRequest();
 
+            this._channelClosedWaitHandle = new AutoResetEvent(false);
+
             //  Start input stream listener
             this._dataReaderTask = Task.Factory.StartNew(() =>
             {
                 try
                 {
                     var buffer = new byte[this._bufferSize];
-
+                    
                     while (this._channel.IsOpen)
                     {
-                        var read = this._input.Read(buffer, 0, buffer.Length);
+                        var asyncResult = this._input.BeginRead(buffer, 0, buffer.Length, delegate(IAsyncResult result) 
+                        {
+                            var read = this._input.EndRead(result);
+                            if (read > 0)
+                            {
+                                this._session.SendMessage(new ChannelDataMessage(this._channel.RemoteChannelNumber, buffer.Take(read).ToArray()));
+                            }
 
-                        if (read > 0)
-                        { 
-                            this._session.SendMessage(new ChannelDataMessage(this._channel.RemoteChannelNumber, buffer.Take(read).ToArray()));
-                        }
-                        
-                        //  Wait for data become available
-                        Thread.Sleep(30);
+                        }, null);
+
+                        EventWaitHandle.WaitAny(new WaitHandle[] {asyncResult.AsyncWaitHandle, this._channelClosedWaitHandle});
+
+                        if (asyncResult.IsCompleted)
+                            continue;
+                        else
+                            break;
                     }
                 }
                 catch (Exception exp)
@@ -174,30 +185,10 @@ namespace Renci.SshClient
                 throw new SshException("Shell is not started.");
             }
 
+            //  If channel is open then close it to cause Channel_Closed method to be called
             if (this._channel != null && this._channel.IsOpen)
             {
-                if (this.Stopping != null)
-                {
-                    this.Stopping(this, new EventArgs());
-                }
-
                 this._channel.Close();
-                this._input.Close();
-
-                this._dataReaderTask.Wait();
-
-                this._channel.DataReceived -= Channel_DataReceived;
-                this._channel.ExtendedDataReceived -= Channel_ExtendedDataReceived;
-                this._channel.Closed -= Channel_Closed;
-                this._session.Disconnected -= Session_Disconnected;
-                this._session.ErrorOccured -= Session_ErrorOccured;
-
-                if (this.Stopped != null)
-                {
-                    this.Stopped(this, new EventArgs());
-                }
-
-                this._channel = null;
             }
         }
 
@@ -238,7 +229,33 @@ namespace Renci.SshClient
 
         private void Channel_Closed(object sender, Common.ChannelEventArgs e)
         {
-            this.Stop();
+            if (this.Stopping != null)
+            {
+                //  Handle event on different thread
+                Task.Factory.StartNew(() => { this.Stopping(this, new EventArgs()); });                
+            }
+
+            if (this._channel.IsOpen)
+                this._channel.Close();
+            this._channelClosedWaitHandle.Set();
+            this._input.Close();
+            this._input = null;
+
+            this._dataReaderTask.Wait();            
+
+            this._channel.DataReceived -= Channel_DataReceived;
+            this._channel.ExtendedDataReceived -= Channel_ExtendedDataReceived;
+            this._channel.Closed -= Channel_Closed;
+            this._session.Disconnected -= Session_Disconnected;
+            this._session.ErrorOccured -= Session_ErrorOccured;
+
+            if (this.Stopped != null)
+            {
+                //  Handle event on different thread
+                Task.Factory.StartNew(() => { this.Stopped(this, new EventArgs()); });                
+            }
+
+            this._channel = null;
         }
     }
 }

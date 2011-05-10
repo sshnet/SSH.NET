@@ -64,7 +64,6 @@ namespace Renci.SshClient.Tests.SshClientTests
             }
         }
 
-
         [TestMethod]
         public void Test_MultipleThread_10000_MultipleSessions()
         {

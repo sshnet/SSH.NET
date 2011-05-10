@@ -366,7 +366,8 @@ namespace Renci.SshClient.Sftp
                 {
                     this._channel.DataReceived -= Channel_DataReceived;
 
-                    this._channel.Close();
+                    this._channel.Dispose();
+                    this._channel = null;
                 }
 
                 this._session.ErrorOccured -= Session_ErrorOccured;
@@ -377,11 +378,6 @@ namespace Renci.SshClient.Sftp
                 if (disposing)
                 {
                     // Dispose managed resources.
-                    if (this._channel != null)
-                    {
-                        this._channel.Dispose();
-                        this._channel = null;
-                    }
                     if (this._errorOccuredWaitHandle != null)
                     {
                         this._errorOccuredWaitHandle.Dispose();

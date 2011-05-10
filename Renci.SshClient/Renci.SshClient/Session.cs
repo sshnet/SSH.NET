@@ -605,7 +605,7 @@ namespace Renci.SshClient
                     waitHandle,
                 };
 
-            var index = EventWaitHandle.WaitAny(waitHandles);
+            var index = EventWaitHandle.WaitAny(waitHandles, this.ConnectionInfo.Timeout);
 
             if (index < 1)
             {

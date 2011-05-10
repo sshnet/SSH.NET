@@ -448,7 +448,7 @@ namespace Renci.SshClient.Channels
         }
 
         /// <summary>
-        /// Waits for the handle to be signaled or for an error to occure.
+        /// Waits for the handle to be signaled or for an error to occurs.
         /// </summary>
         /// <param name="waitHandle">The wait handle.</param>
         protected void WaitHandle(WaitHandle waitHandle)

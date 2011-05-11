@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Renci.SshClient.Sftp.Messages;
+using Renci.SshNet.Sftp.Messages;
 
-namespace Renci.SshClient.Sftp
+namespace Renci.SshNet.Sftp
 {
     internal class SetFileStatusCommand : SftpCommand
     {

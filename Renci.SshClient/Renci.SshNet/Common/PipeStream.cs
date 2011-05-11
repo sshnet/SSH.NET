@@ -1,4 +1,4 @@
-﻿namespace Renci.SshClient.Common
+﻿namespace Renci.SshNet.Common
 {
     using System;
     using System.Collections.Generic;

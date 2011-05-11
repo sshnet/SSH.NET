@@ -2,9 +2,9 @@
 using System.Linq;
 using System.Collections.Generic;
 using System.IO;
-using Renci.SshClient.Sftp;
+using Renci.SshNet.Sftp;
 
-namespace Renci.SshClient
+namespace Renci.SshNet
 {
     /// <summary>
     /// 
@@ -138,8 +138,8 @@ namespace Renci.SshClient
         /// Creates remote directory specified by path.
         /// </summary>
         /// <param name="path">Directory path to create.</param>
-        /// <exception cref="Renci.SshClient.Common.SshPermissionDeniedException"></exception>
-        /// <exception cref="Renci.SshClient.Common.SshException"></exception>
+        /// <exception cref="Renci.SshNet.Common.SshPermissionDeniedException"></exception>
+        /// <exception cref="Renci.SshNet.Common.SshException"></exception>
         public void CreateDirectory(string path)
         {
             //  Ensure that connection is established.

@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Renci.SshClient.Security;
+using Renci.SshNet.Security;
 
-namespace Renci.SshClient.Tests.Security
+namespace Renci.SshNet.Tests.Security
 {
     [TestClass]
     public class TestCryptoKey

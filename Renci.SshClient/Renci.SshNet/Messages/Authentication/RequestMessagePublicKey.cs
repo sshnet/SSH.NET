@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Renci.SshClient.Messages.Authentication
+namespace Renci.SshNet.Messages.Authentication
 {
     /// <summary>
     /// Represents "publickey" SSH_MSG_USERAUTH_REQUEST message.
@@ -49,7 +49,7 @@ namespace Renci.SshClient.Messages.Authentication
         /// <param name="username">Authentication username.</param>
         /// <param name="keyAlgorithmName">Name of private key algorithm.</param>
         /// <param name="keyData">Private key data.</param>
-        public RequestMessagePublicKey(ServiceNames serviceName, string username, string keyAlgorithmName, byte[] keyData)
+        public RequestMessagePublicKey(ServiceName serviceName, string username, string keyAlgorithmName, byte[] keyData)
             : base(serviceName, username)
         {
             this.PublicKeyAlgorithmName = keyAlgorithmName;
@@ -64,7 +64,7 @@ namespace Renci.SshClient.Messages.Authentication
         /// <param name="keyAlgorithmName">Name of private key algorithm.</param>
         /// <param name="keyData">Private key data.</param>
         /// <param name="signature">Private key signature.</param>
-        public RequestMessagePublicKey(ServiceNames serviceName, string username, string keyAlgorithmName, byte[] keyData, byte[] signature)
+        public RequestMessagePublicKey(ServiceName serviceName, string username, string keyAlgorithmName, byte[] keyData, byte[] signature)
             : this(serviceName, username, keyAlgorithmName, keyData)
         {
             this.Signature = signature;

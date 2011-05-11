@@ -1,5 +1,5 @@
 ﻿using System.Globalization;
-namespace Renci.SshClient.Messages.Connection
+namespace Renci.SshNet.Messages.Connection
 {
     /// <summary>
     /// Base class for all channel specific SSH messages.

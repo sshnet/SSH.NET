@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using Renci.SshClient.Sftp.Messages;
+using Renci.SshNet.Sftp.Messages;
 
-namespace Renci.SshClient.Sftp
+namespace Renci.SshNet.Sftp
 {
     internal class StatusCommand : SftpCommand
     {

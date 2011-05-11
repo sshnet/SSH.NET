@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Renci.SshClient.Messages.Transport;
+using Renci.SshNet.Messages.Transport;
 using System.Security.Cryptography;
 using System.Numerics;
-using Renci.SshClient.Messages;
-using Renci.SshClient.Common;
+using Renci.SshNet.Messages;
+using Renci.SshNet.Common;
 using System.Diagnostics;
 
-namespace Renci.SshClient.Security
+namespace Renci.SshNet.Security
 {
     /// <summary>
     /// Represents "diffie-hellman-group-exchange-sha256" algorithm implementation.

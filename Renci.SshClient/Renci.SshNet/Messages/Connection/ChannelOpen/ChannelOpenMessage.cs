@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Globalization;
 
-namespace Renci.SshClient.Messages.Connection
+namespace Renci.SshNet.Messages.Connection
 {
     /// <summary>
     /// Represents SSH_MSG_CHANNEL_OPEN message.

@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Renci.SshClient.Common
+namespace Renci.SshNet.Common
 {
     /// <summary>
-    /// Provides data for <see cref="Renci.SshClient.ForwardedPort.RequestReceived"/> event.
+    /// Provides data for <see cref="Renci.SshNet.ForwardedPort.RequestReceived"/> event.
     /// </summary>
     public class PortForwardEventArgs : EventArgs
     {

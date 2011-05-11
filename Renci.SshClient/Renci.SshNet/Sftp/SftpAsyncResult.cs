@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 
-namespace Renci.SshClient.Sftp
+namespace Renci.SshNet.Sftp
 {
     /// <summary>
     /// Represents the status of an asynchronous SFTP operation.

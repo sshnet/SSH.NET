@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace Renci.SshClient.Messages.Authentication
+namespace Renci.SshNet.Messages.Authentication
 {
     /// <summary>
     /// Represents "password" SSH_MSG_USERAUTH_REQUEST message.
@@ -37,7 +37,7 @@ namespace Renci.SshClient.Messages.Authentication
         /// <param name="serviceName">Name of the service.</param>
         /// <param name="username">Authentication username.</param>
         /// <param name="password">Authentication password.</param>
-        public RequestMessagePassword(ServiceNames serviceName, string username, string password)
+        public RequestMessagePassword(ServiceName serviceName, string username, string password)
             : base(serviceName, username)
         {
             this.Password = password ?? string.Empty;
@@ -50,7 +50,7 @@ namespace Renci.SshClient.Messages.Authentication
         /// <param name="username">Authentication username.</param>
         /// <param name="password">Authentication password.</param>
         /// <param name="newPassword">New authentication password.</param>
-        public RequestMessagePassword(ServiceNames serviceName, string username, string password, string newPassword)
+        public RequestMessagePassword(ServiceName serviceName, string username, string password, string newPassword)
             : this(serviceName, username, password)
         {
             this.NewPassword = newPassword ?? string.Empty;

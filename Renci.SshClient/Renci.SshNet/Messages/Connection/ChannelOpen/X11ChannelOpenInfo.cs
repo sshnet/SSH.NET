@@ -1,4 +1,4 @@
-﻿namespace Renci.SshClient.Messages.Connection
+﻿namespace Renci.SshNet.Messages.Connection
 {
     /// <summary>
     /// Used to open "x11" channel type

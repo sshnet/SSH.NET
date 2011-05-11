@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Renci.SshClient.Common
+namespace Renci.SshNet.Common
 {
     /// <summary>
-    /// Provides data for <see cref="Renci.SshClient.PasswordConnectionInfo.PasswordExpired"/> event.
+    /// Provides data for <see cref="Renci.SshNet.PasswordConnectionInfo.PasswordExpired"/> event.
     /// </summary>
     public class AuthenticationPasswordChangeEventArgs : AuthenticationEventArgs
     {

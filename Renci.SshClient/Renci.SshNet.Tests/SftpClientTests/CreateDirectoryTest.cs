@@ -1,8 +1,8 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Renci.SshClient.Common;
-using Renci.SshClient.Tests.Properties;
+using Renci.SshNet.Common;
+using Renci.SshNet.Tests.Properties;
 
-namespace Renci.SshClient.Tests.SftpClientTests
+namespace Renci.SshNet.Tests.SftpClientTests
 {
     /// <summary>
     /// Summary description for CreateDirectoryTest

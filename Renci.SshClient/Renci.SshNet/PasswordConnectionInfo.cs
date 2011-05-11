@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Renci.SshClient.Messages.Authentication;
-using Renci.SshClient.Common;
-using Renci.SshClient.Messages;
+using Renci.SshNet.Messages.Authentication;
+using Renci.SshNet.Common;
+using Renci.SshNet.Messages;
 
-namespace Renci.SshClient
+namespace Renci.SshNet
 {
     /// <summary>
     /// Provides connection information when password authentication method is used
@@ -62,7 +62,7 @@ namespace Renci.SshClient
             : base(host, port, username)
         {
             this._password = password;
-            this._requestMessage = new RequestMessagePassword(ServiceNames.Connection, this.Username, password);
+            this._requestMessage = new RequestMessagePassword(ServiceName.Connection, this.Username, password);
         }
 
         /// <summary>
@@ -130,7 +130,7 @@ namespace Renci.SshClient
                         }
 
                         //  Send new authentication request with new password
-                        this.SendMessage(new RequestMessagePassword(ServiceNames.Connection, this.Username, this._password, eventArgs.NewPassword));
+                        this.SendMessage(new RequestMessagePassword(ServiceName.Connection, this.Username, this._password, eventArgs.NewPassword));
                     }
                     catch (Exception exp)
                     {

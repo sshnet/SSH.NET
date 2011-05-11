@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Renci.SshClient.Sftp.Messages
+namespace Renci.SshNet.Sftp.Messages
 {
     internal class WriteMessage : SftpRequestMessage
     {

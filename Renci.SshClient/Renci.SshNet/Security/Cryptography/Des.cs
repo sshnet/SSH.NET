@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Security.Cryptography;
+using System.Globalization;
 
-namespace Renci.SshClient.Security.Cryptography
+namespace Renci.SshNet.Security.Cryptography
 {
     //  TODO:   Des algorithm is not tested yet but fully implemented
     /// <summary>
@@ -81,7 +82,7 @@ namespace Renci.SshClient.Security.Cryptography
                 case CipherMode.CBC:
                     return new CbcMode(cipher);
                 default:
-                    throw new ArgumentException(string.Format("Mode '{0}' is not supported.", this.Mode));
+                    throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Mode '{0}' is not supported.", this.Mode));
             }
         }
 

@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Renci.SshClient.Common;
-using Renci.SshClient.Tests.Properties;
+using Renci.SshNet.Common;
+using Renci.SshNet.Tests.Properties;
 using System.IO;
 using System.Security.Cryptography;
-using Renci.SshClient.Sftp;
+using Renci.SshNet.Sftp;
 using System.Threading;
 
-namespace Renci.SshClient.Tests.SftpClientTests
+namespace Renci.SshNet.Tests.SftpClientTests
 {
     [TestClass]
     public class UploadDownloadFileTest

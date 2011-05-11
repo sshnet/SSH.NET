@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using Renci.SshClient.Messages.Authentication;
-using Renci.SshClient.Messages;
-using Renci.SshClient.Common;
+using Renci.SshNet.Messages.Authentication;
+using Renci.SshNet.Messages;
+using Renci.SshNet.Common;
 using System.Threading.Tasks;
 
-namespace Renci.SshClient
+namespace Renci.SshNet
 {
     /// <summary>
     /// Provides connection information when keyboard interactive authentication method is used
@@ -57,7 +57,7 @@ namespace Renci.SshClient
         public KeyboardInteractiveConnectionInfo(string host, int port, string username)
             : base(host, port, username)
         {
-            this._requestMessage = new RequestMessageKeyboardInteractive(ServiceNames.Connection, username);
+            this._requestMessage = new RequestMessageKeyboardInteractive(ServiceName.Connection, username);
         }
 
         /// <summary>

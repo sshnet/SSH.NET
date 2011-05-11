@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Renci.SshClient.Messages.Connection
+namespace Renci.SshNet.Messages.Connection
 {
     /// <summary>
     /// Represents SSH_MSG_GLOBAL_REQUEST message.
@@ -14,7 +14,7 @@ namespace Renci.SshClient.Messages.Connection
         /// <value>
         /// The name of the request.
         /// </value>
-        public GlobalRequestNames RequestName { get; private set; }
+        public GlobalRequestName RequestName { get; private set; }
 
         /// <summary>
         /// Gets a value indicating whether message reply should be sent..
@@ -48,7 +48,7 @@ namespace Renci.SshClient.Messages.Connection
         /// </summary>
         /// <param name="requestName">Name of the request.</param>
         /// <param name="wantReply">if set to <c>true</c> [want reply].</param>
-        public GlobalRequestMessage(GlobalRequestNames requestName, bool wantReply)
+        public GlobalRequestMessage(GlobalRequestName requestName, bool wantReply)
         {
             this.RequestName = requestName;
             this.WantReply = wantReply;
@@ -61,7 +61,7 @@ namespace Renci.SshClient.Messages.Connection
         /// <param name="wantReply">if set to <c>true</c> [want reply].</param>
         /// <param name="addressToBind">The address to bind.</param>
         /// <param name="portToBind">The port to bind.</param>
-        public GlobalRequestMessage(GlobalRequestNames requestName, bool wantReply, string addressToBind, uint portToBind)
+        public GlobalRequestMessage(GlobalRequestName requestName, bool wantReply, string addressToBind, uint portToBind)
             : this(requestName, wantReply)
         {
             this.AddressToBind = addressToBind;
@@ -77,10 +77,10 @@ namespace Renci.SshClient.Messages.Connection
             switch (requestName)
             {
                 case "tcpip-forward":
-                    this.RequestName = GlobalRequestNames.TcpIpForward;
+                    this.RequestName = GlobalRequestName.TcpIpForward;
                     break;
                 case "cancel-tcpip-forward":
-                    this.RequestName = GlobalRequestNames.CancelTcpIpForward;
+                    this.RequestName = GlobalRequestName.CancelTcpIpForward;
                     break;
                 default:
                     break;
@@ -98,10 +98,10 @@ namespace Renci.SshClient.Messages.Connection
         {
             switch (this.RequestName)
             {
-                case GlobalRequestNames.TcpIpForward:
+                case GlobalRequestName.TcpIpForward:
                     this.Write("tcpip-forward");
                     break;
-                case GlobalRequestNames.CancelTcpIpForward:
+                case GlobalRequestName.CancelTcpIpForward:
                     this.Write("cancel-tcpip-forward");
                     break;
                 default:
@@ -112,8 +112,8 @@ namespace Renci.SshClient.Messages.Connection
 
             switch (this.RequestName)
             {
-                case GlobalRequestNames.TcpIpForward:
-                case GlobalRequestNames.CancelTcpIpForward:
+                case GlobalRequestName.TcpIpForward:
+                case GlobalRequestName.CancelTcpIpForward:
                     this.Write(this.AddressToBind);
                     this.Write(this.PortToBind);
                     break;

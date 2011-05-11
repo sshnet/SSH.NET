@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
-using Renci.SshClient.Security;
-namespace Renci.SshClient.Compression
+using Renci.SshNet.Security;
+namespace Renci.SshNet.Compression
 {
     /// <summary>
     /// Represents base class for compression algorithm implementation

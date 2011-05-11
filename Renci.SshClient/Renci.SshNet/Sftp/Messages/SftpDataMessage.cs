@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Renci.SshClient.Messages.Connection;
+using Renci.SshNet.Messages.Connection;
 
-namespace Renci.SshClient.Sftp.Messages
+namespace Renci.SshNet.Sftp.Messages
 {
     internal class SftpDataMessage : ChannelDataMessage
     {

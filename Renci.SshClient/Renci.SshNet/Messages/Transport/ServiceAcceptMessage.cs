@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Renci.SshClient.Messages.Transport
+namespace Renci.SshNet.Messages.Transport
 {
     /// <summary>
     /// Represents SSH_MSG_SERVICE_ACCEPT message.
@@ -14,7 +14,7 @@ namespace Renci.SshClient.Messages.Transport
         /// <value>
         /// The name of the service.
         /// </value>
-        public ServiceNames ServiceName { get; private set; }
+        public ServiceName ServiceName { get; private set; }
 
         /// <summary>
         /// Called when type specific data need to be loaded.
@@ -25,10 +25,10 @@ namespace Renci.SshClient.Messages.Transport
             switch (serviceName)
             {
                 case "ssh-userauth":
-                    this.ServiceName = ServiceNames.UserAuthentication;
+                    this.ServiceName = ServiceName.UserAuthentication;
                     break;
                 case "ssh-connection":
-                    this.ServiceName = ServiceNames.Connection;
+                    this.ServiceName = ServiceName.Connection;
                     break;
                 default:
                     break;

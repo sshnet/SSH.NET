@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace Renci.SshClient.Messages.Transport
+namespace Renci.SshNet.Messages.Transport
 {
     /// <summary>
     /// Represents SSH_MSG_DISCONNECT message.
@@ -11,7 +11,7 @@ namespace Renci.SshClient.Messages.Transport
         /// <summary>
         /// Gets disconnect reason code.
         /// </summary>
-        public DisconnectReasons ReasonCode { get; private set; }
+        public DisconnectReason ReasonCode { get; private set; }
 
         /// <summary>
         /// Gets disconnect description.
@@ -36,7 +36,7 @@ namespace Renci.SshClient.Messages.Transport
         /// </summary>
         /// <param name="reasonCode">The reason code.</param>
         /// <param name="message">The message.</param>
-        public DisconnectMessage(DisconnectReasons reasonCode, string message)
+        public DisconnectMessage(DisconnectReason reasonCode, string message)
         {
             this.ReasonCode = reasonCode;
             this.Description = message;
@@ -47,7 +47,7 @@ namespace Renci.SshClient.Messages.Transport
         /// </summary>
         protected override void LoadData()
         {
-            this.ReasonCode = (DisconnectReasons)this.ReadUInt32();
+            this.ReasonCode = (DisconnectReason)this.ReadUInt32();
             this.Description = this.ReadString();
             this.Language = this.ReadString();
         }

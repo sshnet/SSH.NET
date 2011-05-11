@@ -1,9 +1,9 @@
 ﻿using System.IO;
 using System.Linq;
-using Renci.SshClient.Sftp.Messages;
+using Renci.SshNet.Sftp.Messages;
 using System;
 
-namespace Renci.SshClient.Sftp
+namespace Renci.SshNet.Sftp
 {
     internal class UploadFileCommand : SftpCommand
     {

@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace Renci.SshClient.Messages.Authentication
+namespace Renci.SshNet.Messages.Authentication
 {
     /// <summary>
     /// Represents "hostbased" SSH_MSG_USERAUTH_REQUEST message.
@@ -67,7 +67,7 @@ namespace Renci.SshClient.Messages.Authentication
         /// <param name="publicHostKey">The public host key.</param>
         /// <param name="clientHostName">Name of the client host.</param>
         /// <param name="clientUsername">The client username.</param>
-        public RequestMessageHost(ServiceNames serviceName, string username, string publicKeyAlgorithm, byte[] publicHostKey, string clientHostName, string clientUsername)
+        public RequestMessageHost(ServiceName serviceName, string username, string publicKeyAlgorithm, byte[] publicHostKey, string clientHostName, string clientUsername)
             : base(serviceName, username)
         {
             this.PublicKeyAlgorithm = publicKeyAlgorithm;

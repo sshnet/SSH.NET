@@ -3,10 +3,10 @@ using System.Diagnostics;
 using System.IO;
 using System.Net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Renci.SshClient.Tests.Properties;
-using Renci.SshClient.Common;
+using Renci.SshNet.Tests.Properties;
+using Renci.SshNet.Common;
 
-namespace Renci.SshClient.Tests.SshClientTests
+namespace Renci.SshNet.Tests.SshClientTests
 {
     /// <summary>
     /// Summary description for UnitTest1

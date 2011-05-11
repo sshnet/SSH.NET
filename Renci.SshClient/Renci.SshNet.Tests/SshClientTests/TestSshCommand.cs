@@ -4,11 +4,11 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Renci.SshClient.Common;
-using Renci.SshClient.Tests.Properties;
+using Renci.SshNet.Common;
+using Renci.SshNet.Tests.Properties;
 using System.IO;
 
-namespace Renci.SshClient.Tests.SshClientTests
+namespace Renci.SshNet.Tests.SshClientTests
 {
     [TestClass]
     public class TestSshCommand
@@ -314,9 +314,11 @@ namespace Renci.SshClient.Tests.SshClientTests
             using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
             {
                 client.Connect();
-                var cmd = client.CreateCommand("ls -l");
+                var cmd = client.CreateCommand("echo 12345");
                 cmd.Execute();
-                cmd.Execute("ls -l");
+                Assert.AreEqual("12345\n", cmd.Result);
+                cmd.Execute("echo 23456");
+                Assert.AreEqual("23456\n", cmd.Result);
                 client.Disconnect();
             }
         }
@@ -363,7 +365,7 @@ namespace Renci.SshClient.Tests.SshClientTests
 
 
 
-        private static bool ExecuteTestCommand(Renci.SshClient.SshClient s)
+        private static bool ExecuteTestCommand(SshClient s)
         {
             var testValue = Guid.NewGuid().ToString();
             var command = string.Format("echo {0}", testValue);

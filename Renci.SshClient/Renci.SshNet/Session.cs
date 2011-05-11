@@ -9,17 +9,17 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using Renci.SshClient.Channels;
-using Renci.SshClient.Common;
-using Renci.SshClient.Compression;
-using Renci.SshClient.Messages;
-using Renci.SshClient.Messages.Authentication;
-using Renci.SshClient.Messages.Connection;
-using Renci.SshClient.Messages.Transport;
-using Renci.SshClient.Security;
+using Renci.SshNet.Channels;
+using Renci.SshNet.Common;
+using Renci.SshNet.Compression;
+using Renci.SshNet.Messages;
+using Renci.SshNet.Messages.Authentication;
+using Renci.SshNet.Messages.Connection;
+using Renci.SshNet.Messages.Transport;
+using Renci.SshNet.Security;
 using System.Globalization;
 
-namespace Renci.SshClient
+namespace Renci.SshNet
 {
     /// <summary>
     /// Provides functionality to connect and interact with SSH server.
@@ -386,7 +386,7 @@ namespace Renci.SshClient
         internal Session(ConnectionInfo connectionInfo)
         {
             this.ConnectionInfo = connectionInfo;
-            this.ClientVersion = string.Format(CultureInfo.CurrentCulture, "SSH-2.0-Renci.SshClient.{0}", this.GetType().Assembly.GetName().Version);
+            this.ClientVersion = string.Format(CultureInfo.CurrentCulture, "SSH-2.0-Renci.SshNet.SshClient.{0}", this.GetType().Assembly.GetName().Version);
         }
 
         /// <summary>
@@ -472,7 +472,7 @@ namespace Renci.SshClient
 
                     if (!(version.Equals("2.0") || version.Equals("1.99")))
                     {
-                        throw new SshConnectionException(string.Format(CultureInfo.CurrentCulture, "Server version '{0}' is not supported.", version), DisconnectReasons.ProtocolVersionNotSupported);
+                        throw new SshConnectionException(string.Format(CultureInfo.CurrentCulture, "Server version '{0}' is not supported.", version), DisconnectReason.ProtocolVersionNotSupported);
                     }
 
                     this.Write(Encoding.ASCII.GetBytes(string.Format(CultureInfo.InvariantCulture, "{0}\x0D\x0A", this.ClientVersion)));
@@ -503,7 +503,7 @@ namespace Renci.SshClient
                     }
 
                     //  Request user authorization service
-                    this.SendMessage(new ServiceRequestMessage(ServiceNames.UserAuthentication));
+                    this.SendMessage(new ServiceRequestMessage(ServiceName.UserAuthentication));
 
                     //  Wait for service to be accepted
                     this.WaitHandle(this._serviceAccepted);
@@ -616,7 +616,7 @@ namespace Renci.SshClient
             }
             else if (index > 1)
             {
-                this.SendDisconnect(DisconnectReasons.ByApplication, "Operation timeout");
+                this.SendDisconnect(DisconnectReason.ByApplication, "Operation timeout");
 
                 throw new SshOperationTimeoutException("Session operation has timed out");
             }
@@ -734,7 +734,7 @@ namespace Renci.SshClient
 
             //  Test packet minimum and maximum boundaries
             if (packetLength < Math.Max((byte)16, blockSize) - 4 || packetLength > Session.MAXIMUM_PACKET_SIZE - 4)
-                throw new SshConnectionException(string.Format(CultureInfo.CurrentCulture, "Bad packet length {0}", packetLength), DisconnectReasons.ProtocolError);
+                throw new SshConnectionException(string.Format(CultureInfo.CurrentCulture, "Bad packet length {0}", packetLength), DisconnectReason.ProtocolError);
 
             //  Read rest of the packet data
             int bytesToRead = (int)(packetLength - (blockSize - 4));
@@ -794,7 +794,7 @@ namespace Renci.SshClient
 
                 if (!serverHash.SequenceEqual(clientHash))
                 {
-                    throw new SshConnectionException("MAC error", DisconnectReasons.MacError);
+                    throw new SshConnectionException("MAC error", DisconnectReason.MacError);
                 }
             }
 
@@ -803,7 +803,7 @@ namespace Renci.SshClient
             return this.LoadMessage(messagePayload);
         }
 
-        private void SendDisconnect(DisconnectReasons reasonCode, string message)
+        private void SendDisconnect(DisconnectReason reasonCode, string message)
         {
             var disconnectMessage = new DisconnectMessage(reasonCode, message);
 
@@ -1093,7 +1093,7 @@ namespace Renci.SshClient
 
             if (keyExchangeAlgorithmName == null)
             {
-                throw new SshConnectionException("Failed to negotiate key exchange algorithm.", DisconnectReasons.KeyExchangeFailed);
+                throw new SshConnectionException("Failed to negotiate key exchange algorithm.", DisconnectReason.KeyExchangeFailed);
             }
 
             //  Create instance of key exchange algorithm that will be used
@@ -1431,7 +1431,7 @@ namespace Renci.SshClient
                     }
                     else
                     {
-                        throw new SshConnectionException("An established connection was aborted by the software in your host machine.", DisconnectReasons.ConnectionLost);
+                        throw new SshConnectionException("An established connection was aborted by the software in your host machine.", DisconnectReason.ConnectionLost);
                     }
                 }
                 catch (SocketException exp)
@@ -1583,7 +1583,7 @@ namespace Renci.SshClient
             {
                 this.ErrorOccured(this, new ErrorEventArgs(exp));
             }
-            var disconnectReason = DisconnectReasons.ByApplication;
+            var disconnectReason = DisconnectReason.ByApplication;
 
             if (connectionException != null)
                 disconnectReason = connectionException.DisconnectReason;
@@ -1631,7 +1631,7 @@ namespace Renci.SshClient
                                 try
                                 {
                                     //  If socket still open try to send disconnect message to the server
-                                    this.SendMessage(new DisconnectMessage(DisconnectReasons.ByApplication, "Connection terminated by the client."));
+                                    this.SendMessage(new DisconnectMessage(DisconnectReason.ByApplication, "Connection terminated by the client."));
                                 }
                                 catch (Exception)
                                 {

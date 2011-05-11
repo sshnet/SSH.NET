@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Renci.SshClient.Messages.Authentication
+namespace Renci.SshNet.Messages.Authentication
 {
     /// <summary>
     /// Represents "none" SSH_MSG_USERAUTH_REQUEST message.
@@ -29,7 +29,7 @@ namespace Renci.SshClient.Messages.Authentication
         /// </summary>
         /// <param name="serviceName">Name of the service.</param>
         /// <param name="username">Authentication username.</param>
-        public RequestMessageNone(ServiceNames serviceName, string username)
+        public RequestMessageNone(ServiceName serviceName, string username)
             : base(serviceName, username)
         {
         }

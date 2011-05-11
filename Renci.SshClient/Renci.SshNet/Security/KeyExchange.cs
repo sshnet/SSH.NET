@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Security.Cryptography;
-using Renci.SshClient.Common;
-using Renci.SshClient.Compression;
-using Renci.SshClient.Messages;
-using Renci.SshClient.Messages.Transport;
+using Renci.SshNet.Common;
+using Renci.SshNet.Compression;
+using Renci.SshNet.Messages;
+using Renci.SshNet.Messages.Transport;
 
-namespace Renci.SshClient.Security
+namespace Renci.SshNet.Security
 {
     /// <summary>
     /// Represents base class for different key exchange algorithm implementations
@@ -79,7 +79,7 @@ namespace Renci.SshClient.Security
 
             if (string.IsNullOrEmpty(clientEncryptionAlgorithmName))
             {
-                throw new SshConnectionException("Client encryption algorithm not found", DisconnectReasons.KeyExchangeFailed);
+                throw new SshConnectionException("Client encryption algorithm not found", DisconnectReason.KeyExchangeFailed);
             }
 
             //  Determine encryption algorithm
@@ -89,7 +89,7 @@ namespace Renci.SshClient.Security
                                                  select a).FirstOrDefault();
             if (string.IsNullOrEmpty(serverDecryptionAlgorithmName))
             {
-                throw new SshConnectionException("Server decryption algorithm not found", DisconnectReasons.KeyExchangeFailed);
+                throw new SshConnectionException("Server decryption algorithm not found", DisconnectReason.KeyExchangeFailed);
             }
 
             //  Determine client hmac algorithm
@@ -99,7 +99,7 @@ namespace Renci.SshClient.Security
                                            select a).FirstOrDefault();
             if (string.IsNullOrEmpty(clientHmacAlgorithmName))
             {
-                throw new SshConnectionException("Server HMAC algorithm not found", DisconnectReasons.KeyExchangeFailed);
+                throw new SshConnectionException("Server HMAC algorithm not found", DisconnectReason.KeyExchangeFailed);
             }
 
             //  Determine server hmac algorithm
@@ -109,7 +109,7 @@ namespace Renci.SshClient.Security
                                            select a).FirstOrDefault();
             if (string.IsNullOrEmpty(serverHmacAlgorithmName))
             {
-                throw new SshConnectionException("Server HMAC algorithm not found", DisconnectReasons.KeyExchangeFailed);
+                throw new SshConnectionException("Server HMAC algorithm not found", DisconnectReason.KeyExchangeFailed);
             }
 
             //  Determine compression algorithm
@@ -119,7 +119,7 @@ namespace Renci.SshClient.Security
                                             select a).FirstOrDefault();
             if (string.IsNullOrEmpty(compressionAlgorithmName))
             {
-                throw new SshConnectionException("Compression algorithm not found", DisconnectReasons.KeyExchangeFailed);
+                throw new SshConnectionException("Compression algorithm not found", DisconnectReason.KeyExchangeFailed);
             }
 
             //  Determine decompression algorithm
@@ -129,7 +129,7 @@ namespace Renci.SshClient.Security
                                               select a).FirstOrDefault();
             if (string.IsNullOrEmpty(decompressionAlgorithmName))
             {
-                throw new SshConnectionException("Decompression algorithm not found", DisconnectReasons.KeyExchangeFailed);
+                throw new SshConnectionException("Decompression algorithm not found", DisconnectReason.KeyExchangeFailed);
             }
 
             this._clientCipherType = session.ConnectionInfo.Encryptions[clientEncryptionAlgorithmName];
@@ -152,7 +152,7 @@ namespace Renci.SshClient.Security
             }
             else
             {
-                throw new SshConnectionException("Key exchange negotiation failed.", DisconnectReasons.KeyExchangeFailed);
+                throw new SshConnectionException("Key exchange negotiation failed.", DisconnectReason.KeyExchangeFailed);
             }
         }
 

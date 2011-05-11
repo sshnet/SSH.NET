@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Renci.SshClient.Tests.Security.Cryptography
+namespace Renci.SshNet.Tests.Security.Cryptography
 {
     [TestClass]
     public class TestBlowfish
@@ -20,7 +20,7 @@ namespace Renci.SshClient.Tests.Security.Cryptography
             var encodedResult = new byte[input.Length];
             var decodedResult = new byte[input.Length];
 
-            var cipher = new Renci.SshClient.Security.Cryptography.Blowfish();
+            var cipher = new Renci.SshNet.Security.Cryptography.Blowfish();
             cipher.Mode = System.Security.Cryptography.CipherMode.CBC;
             var enc = cipher.CreateEncryptor(key, iv);
             enc.TransformBlock(input, 0, input.Length, encodedResult, 0);
@@ -43,7 +43,7 @@ namespace Renci.SshClient.Tests.Security.Cryptography
             var encodedResult = new byte[input.Length];
             var decodedResult = new byte[input.Length];
 
-            var cipher = new Renci.SshClient.Security.Cryptography.Blowfish(128);
+            var cipher = new Renci.SshNet.Security.Cryptography.Blowfish(128);
             cipher.Mode = System.Security.Cryptography.CipherMode.CBC;
             var enc = cipher.CreateEncryptor(key, iv);
             enc.TransformBlock(input, 0, input.Length, encodedResult, 0);

@@ -4,7 +4,7 @@ using System.IO;
 using System.Collections.ObjectModel;
 using System.Text;
 
-namespace Renci.SshClient
+namespace Renci.SshNet
 {
     /// <summary>
     /// Provides client connection to SSH server.

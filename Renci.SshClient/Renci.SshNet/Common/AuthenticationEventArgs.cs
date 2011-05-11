@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Renci.SshClient.Messages.Authentication;
+using Renci.SshNet.Messages.Authentication;
 
-namespace Renci.SshClient.Common
+namespace Renci.SshNet.Common
 {
     /// <summary>
     /// Base class for authentication events.

@@ -100,6 +100,27 @@ namespace Renci.SshNet.Tests.SftpClientTests
 
         [TestMethod]
         [TestCategory("Sftp")]
+        public void Test_Sftp_ListDirectory_Empty()
+        {
+            using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            {
+                sftp.Connect();
+
+                var files = sftp.ListDirectory(string.Empty);
+
+                Assert.IsTrue(files.Count() > 0);
+
+                foreach (var file in files)
+                {
+                    Debug.WriteLine(file.FullName);
+                }
+
+                sftp.Disconnect();
+            }
+        }
+
+        [TestMethod]
+        [TestCategory("Sftp")]
         public void Test_Sftp_ListDirectory_HugeDirectory()
         {
             using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))

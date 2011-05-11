@@ -111,6 +111,9 @@ namespace Renci.SshNet
         /// </summary>
         public void Disconnect()
         {
+            if (!this.IsConnected)
+                return;
+
             this.OnDisconnecting();
 
             this.Dispose();

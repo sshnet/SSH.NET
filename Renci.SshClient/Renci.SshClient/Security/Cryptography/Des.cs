@@ -15,8 +15,7 @@ namespace Renci.SshClient.Security.Cryptography
         /// <summary>
         /// Initializes a new instance of the <see cref="Des"/> class.
         /// </summary>
-        /// <param name="keySize">Size of the key.</param>
-        public Des(int keySize)
+        public Des()
         {
             this.KeySizeValue = 64;
             this.BlockSizeValue = 64;

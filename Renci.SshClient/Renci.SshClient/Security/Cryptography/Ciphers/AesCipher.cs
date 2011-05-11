@@ -709,7 +709,7 @@ namespace Renci.SshClient.Security.Cryptography
 
             for (int i = 0; i < key.Length; t++)
             {
-                W[t >> 2, t & 3] = CipherBase.LE_To_UInt32(key, i);
+                W[t >> 2, t & 3] = CipherBase.LittleEndianToUInt32(key, i);
                 i += 4;
             }
 
@@ -754,18 +754,18 @@ namespace Renci.SshClient.Security.Cryptography
 
         private void UnPackBlock(byte[] bytes, int off)
         {
-            C0 = CipherBase.LE_To_UInt32(bytes, off);
-            C1 = CipherBase.LE_To_UInt32(bytes, off + 4);
-            C2 = CipherBase.LE_To_UInt32(bytes, off + 8);
-            C3 = CipherBase.LE_To_UInt32(bytes, off + 12);
+            C0 = CipherBase.LittleEndianToUInt32(bytes, off);
+            C1 = CipherBase.LittleEndianToUInt32(bytes, off + 4);
+            C2 = CipherBase.LittleEndianToUInt32(bytes, off + 8);
+            C3 = CipherBase.LittleEndianToUInt32(bytes, off + 12);
         }
 
         private void PackBlock(byte[] bytes, int off)
         {
-            CipherBase.UInt32_To_LE(C0, bytes, off);
-            CipherBase.UInt32_To_LE(C1, bytes, off + 4);
-            CipherBase.UInt32_To_LE(C2, bytes, off + 8);
-            CipherBase.UInt32_To_LE(C3, bytes, off + 12);
+            CipherBase.UInt32ToLittleEndian(C0, bytes, off);
+            CipherBase.UInt32ToLittleEndian(C1, bytes, off + 4);
+            CipherBase.UInt32ToLittleEndian(C2, bytes, off + 8);
+            CipherBase.UInt32ToLittleEndian(C3, bytes, off + 12);
         }
 
         private void EncryptBlock(uint[,] KW)

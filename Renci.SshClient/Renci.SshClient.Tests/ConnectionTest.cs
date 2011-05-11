@@ -7,6 +7,7 @@ using System.IO;
 using Renci.SshClient.Tests.Properties;
 using System.Security.Authentication;
 using Renci.SshClient.Common;
+using System.Net;
 
 namespace Renci.SshClient.Tests
 {
@@ -130,5 +131,27 @@ namespace Renci.SshClient.Tests
                 client.Disconnect();
             }
         }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void Test_ConnectionInfo_NullHost()
+        {
+            var connectionInfo = new PasswordConnectionInfo(null, null, null);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public void Test_ConnectionInfo_SmallPortNumber()
+        {
+            var connectionInfo = new PasswordConnectionInfo(Resources.HOST, IPEndPoint.MinPort - 1, null, null);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public void Test_ConnectionInfo_BigPortNumber()
+        {
+            var connectionInfo = new PasswordConnectionInfo(Resources.HOST, IPEndPoint.MaxPort + 1, null, null);
+        }
+
     }
 }

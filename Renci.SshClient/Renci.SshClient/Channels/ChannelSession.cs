@@ -2,6 +2,7 @@
 using System.Threading;
 using Renci.SshClient.Common;
 using Renci.SshClient.Messages.Connection;
+using System.Globalization;
 
 namespace Renci.SshClient.Channels
 {
@@ -51,7 +52,7 @@ namespace Renci.SshClient.Channels
 
                 if (!this.IsOpen)
                 {
-                    throw new SshException(string.Format("Failed to open a channel after {0} attempts.", this._failedOpenAttempts));
+                    throw new SshException(string.Format(CultureInfo.CurrentCulture, "Failed to open a channel after {0} attempts.", this._failedOpenAttempts));
                 }
             }
         }
@@ -79,7 +80,7 @@ namespace Renci.SshClient.Channels
         {
             this._failedOpenAttempts++;
 
-            Debug.WriteLine(string.Format("Local channel: {0} attempts: {1}.", this.LocalChannelNumber, this._failedOpenAttempts));
+            Debug.WriteLine(string.Format(CultureInfo.CurrentCulture, "Local channel: {0} attempts: {1}.", this.LocalChannelNumber, this._failedOpenAttempts));
 
             this.SessionSemaphore.Release();
 

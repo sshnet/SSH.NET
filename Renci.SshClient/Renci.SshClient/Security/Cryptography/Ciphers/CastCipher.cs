@@ -33,15 +33,15 @@ namespace Renci.SshClient.Security.Cryptography
             // batch the units up into a 32 bit chunk and go for it
             // the array is in bytes, the increment is 8x8 bits = 64
 
-            uint L0 = CipherBase.BE_To_UInt32(inputBuffer, inputOffset);
-            uint R0 = CipherBase.BE_To_UInt32(inputBuffer, inputOffset + 4);
+            uint L0 = CipherBase.BigEndianToUInt32(inputBuffer, inputOffset);
+            uint R0 = CipherBase.BigEndianToUInt32(inputBuffer, inputOffset + 4);
 
             uint[] result = new uint[2];
             CAST_Encipher(L0, R0, result);
 
             // now stuff them into the destination block
-            CipherBase.UInt32_To_BE(result[0], outputBuffer, outputOffset);
-            CipherBase.UInt32_To_BE(result[1], outputBuffer, outputOffset + 4);
+            CipherBase.UInt32ToBigEndian(result[0], outputBuffer, outputOffset);
+            CipherBase.UInt32ToBigEndian(result[1], outputBuffer, outputOffset + 4);
 
             return this.BlockSize;
         }
@@ -51,15 +51,15 @@ namespace Renci.SshClient.Security.Cryptography
             // process the input block
             // batch the units up into a 32 bit chunk and go for it
             // the array is in bytes, the increment is 8x8 bits = 64
-            uint L16 = CipherBase.BE_To_UInt32(inputBuffer, inputOffset);
-            uint R16 = CipherBase.BE_To_UInt32(inputBuffer, inputOffset + 4);
+            uint L16 = CipherBase.BigEndianToUInt32(inputBuffer, inputOffset);
+            uint R16 = CipherBase.BigEndianToUInt32(inputBuffer, inputOffset + 4);
 
             uint[] result = new uint[2];
             CAST_Decipher(L16, R16, result);
 
             // now stuff them into the destination block
-            CipherBase.UInt32_To_BE(result[0], outputBuffer, outputOffset);
-            CipherBase.UInt32_To_BE(result[1], outputBuffer, outputOffset + 4);
+            CipherBase.UInt32ToBigEndian(result[0], outputBuffer, outputOffset);
+            CipherBase.UInt32ToBigEndian(result[1], outputBuffer, outputOffset + 4);
 
             return this.BlockSize;
         }

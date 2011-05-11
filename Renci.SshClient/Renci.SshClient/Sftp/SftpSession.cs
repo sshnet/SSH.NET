@@ -8,6 +8,7 @@ using Renci.SshClient.Common;
 using Renci.SshClient.Sftp.Messages;
 using System.Diagnostics;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace Renci.SshClient.Sftp
 {
@@ -112,15 +113,15 @@ namespace Renci.SshClient.Sftp
         {
             var fullPath = path;
 
-            if (!path.StartsWith("/") && this.WorkingDirectory != null)
+            if (path[0] == '/' && this.WorkingDirectory != null)
             {
-                if (this.WorkingDirectory.EndsWith("/"))
+                if (this.WorkingDirectory[this.WorkingDirectory.Length - 1] == '/')
                 {
-                    fullPath = string.Format("{0}{1}", this.WorkingDirectory, path);
+                    fullPath = string.Format(CultureInfo.InvariantCulture, "{0}{1}", this.WorkingDirectory, path);
                 }
                 else
                 {
-                    fullPath = string.Format("{0}/{1}", this.WorkingDirectory, path);
+                    fullPath = string.Format(CultureInfo.InvariantCulture, "{0}/{1}", this.WorkingDirectory, path);
                 }
             }
 
@@ -151,7 +152,7 @@ namespace Renci.SshClient.Sftp
                 var slash = string.Empty;
                 if (!canonizedPath.EndsWith("/"))
                     slash = "/";
-                return string.Format("{0}{1}{2}", canonizedPath, slash, pathParts[pathParts.Length - 1]);
+                return string.Format(CultureInfo.InvariantCulture, "{0}{1}{2}", canonizedPath, slash, pathParts[pathParts.Length - 1]);
             }
         }
 
@@ -229,7 +230,7 @@ namespace Renci.SshClient.Sftp
             }
             else
             {
-                throw new NotSupportedException(string.Format("Server SFTP version {0} is not supported.", message.Version));
+                throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "Server SFTP version {0} is not supported.", message.Version));
             }
         }
 
@@ -323,7 +324,7 @@ namespace Renci.SshClient.Sftp
             else if (index > 1)
             {
                 //  throw time out error
-                throw new SshOperationTimeoutException(string.Format("Sftp operation has timed out."));
+                throw new SshOperationTimeoutException(string.Format(CultureInfo.CurrentCulture, "Sftp operation has timed out."));
             }
         }
 

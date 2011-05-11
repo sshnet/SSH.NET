@@ -25,7 +25,7 @@ namespace Renci.SshClient.Security.Cryptography
         /// <param name="keySize">Size of the key.</param>
         public Blowfish(int keySize)
         {
-            this.KeySizeValue = 16 * 8;
+            this.KeySizeValue = keySize;
             this.BlockSizeValue = 8 * 8;
             this.FeedbackSizeValue = BlockSizeValue;
             this.LegalBlockSizesValue = new KeySizes[] { new KeySizes(64, 64, 0 ) };

@@ -57,7 +57,6 @@ namespace Renci.SshClient.Security
         /// <summary>
         /// Initializes a new instance of the <see cref="CipherAESCBC"/> class.
         /// </summary>
-        /// <param name="keyBitsSize">Size of the key bits.</param>
         public CipherCast()
         {
             this._algorithm = new Cryptography.Cast(128);

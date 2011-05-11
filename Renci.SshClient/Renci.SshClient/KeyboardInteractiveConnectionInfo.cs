@@ -113,7 +113,7 @@ namespace Renci.SshClient
             {
                 var eventArgs = new AuthenticationPromptEventArgs(this.Username, informationRequestMessage.Instruction, informationRequestMessage.Language, informationRequestMessage.Prompts);
 
-                var eventTask = Task.Factory.StartNew(() =>
+                Task.Factory.StartNew(() =>
                 {
                     try
                     {

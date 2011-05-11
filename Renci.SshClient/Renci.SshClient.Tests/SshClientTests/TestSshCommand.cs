@@ -321,6 +321,48 @@ namespace Renci.SshClient.Tests.SshClientTests
             }
         }
 
+        [TestMethod]
+        public void Test_Get_Result_Without_Execution()
+        {
+            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            {
+                client.Connect();
+                var cmd = client.CreateCommand("ls -l");
+
+                Assert.IsTrue(string.IsNullOrEmpty(cmd.Result));
+                client.Disconnect();
+            }
+        }
+
+        [TestMethod]
+        public void Test_Get_Error_Without_Execution()
+        {
+            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            {
+                client.Connect();
+                var cmd = client.CreateCommand("ls -l");
+
+                Assert.IsTrue(string.IsNullOrEmpty(cmd.Error));
+                client.Disconnect();
+            }
+        }
+
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void Test_EndExecute_Before_BeginExecute()
+        {
+            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            {
+                client.Connect();
+                var cmd = client.CreateCommand("ls -l");
+                cmd.EndExecute(null);
+                client.Disconnect();
+            }
+        }
+
+
+
         private static bool ExecuteTestCommand(Renci.SshClient.SshClient s)
         {
             var testValue = Guid.NewGuid().ToString();

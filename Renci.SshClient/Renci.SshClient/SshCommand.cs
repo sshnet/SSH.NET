@@ -9,6 +9,7 @@ using Renci.SshClient.Common;
 using Renci.SshClient.Messages;
 using Renci.SshClient.Messages.Connection;
 using Renci.SshClient.Messages.Transport;
+using System.Globalization;
 
 namespace Renci.SshClient
 {
@@ -17,14 +18,6 @@ namespace Renci.SshClient
     /// </summary>
     public class SshCommand : IDisposable
     {
-        //private StreamReader _outputSteamReader;
-
-        //private StreamReader _extendedOutputSteamReader;
-
-        //private StreamWriter _outputSteamWriter;
-
-        //private StreamWriter _extendedOutputSteamWriter;
-
         private Encoding _encoding;
 
         private Session _session;
@@ -82,7 +75,7 @@ namespace Renci.SshClient
                     this._result = new StringBuilder();
                 }
 
-                if (this.OutputStream.Length > 0)
+                if (this.OutputStream != null && this.OutputStream.Length > 0)
                 {
                     using (var sr = new StreamReader(this.OutputStream, this._encoding))
                     {
@@ -109,7 +102,7 @@ namespace Renci.SshClient
                         this._error = new StringBuilder();
                     }
 
-                    if (this.ExtendedOutputStream.Length > 0)
+                    if (this.ExtendedOutputStream != null && this.ExtendedOutputStream.Length > 0)
                     {
                         using (var sr = new StreamReader(this.ExtendedOutputStream, this._encoding))
                         {
@@ -132,6 +125,9 @@ namespace Renci.SshClient
         /// <param name="encoding">The encoding.</param>
         internal SshCommand(Session session, string commandText, Encoding encoding)
         {
+            if (session == null)
+                throw new ArgumentNullException("session");
+
             this._encoding = encoding;
             this._session = session;
             this.CommandText = commandText;
@@ -154,7 +150,7 @@ namespace Renci.SshClient
             //  Prevent from executing BeginExecute before calling EndExecute
             if (this._asyncResult != null)
             {
-                throw new InvalidOperationException("");
+                throw new InvalidOperationException("Asynchronous operation is already in progress.");
             }
 
             //  Create new AsyncResult object
@@ -204,11 +200,14 @@ namespace Renci.SshClient
         /// <summary>
         /// Waits for the pending asynchronous command execution to complete.
         /// </summary>
-        /// <param name="asynchResult">The reference to the pending asynchronous request to finish.</param>
+        /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         /// <returns></returns>
-        public string EndExecute(IAsyncResult asynchResult)
+        public string EndExecute(IAsyncResult asyncResult)
         {
-            CommandAsyncResult channelAsyncResult = asynchResult as CommandAsyncResult;
+            CommandAsyncResult channelAsyncResult = asyncResult as CommandAsyncResult;
+
+            if (channelAsyncResult == null)
+                throw new ArgumentException("Not valid 'asynchResult' parameter.");
 
             channelAsyncResult.ValidateCommand(this);
 
@@ -235,13 +234,12 @@ namespace Renci.SshClient
             return this.EndExecute(this.BeginExecute(null, null));
         }
 
+        /// <summary>
+        /// Cancels command execution in asynchronous scenarios. CURRENTLY NOT IMPLEMENTED.
+        /// </summary>
         public void Cancel()
         {
-            if (this._channel != null && this._channel.IsOpen)
-            {
-                this._session.SendMessage(new ChannelEofMessage(this._channel.RemoteChannelNumber));
-                this._session.SendMessage(new ChannelCloseMessage(this._channel.RemoteChannelNumber));
-            }
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -266,11 +264,6 @@ namespace Renci.SshClient
             this._channel.Closed += Channel_Closed;
             this.OutputStream = new PipeStream();
             this.ExtendedOutputStream = new PipeStream();
-
-            //this._outputSteamReader = new StreamReader(this.OutputStream);
-            //this._extendedOutputSteamReader = new StreamReader(this.ExtendedOutputStream);
-            //this._outputSteamWriter = new StreamWriter(this.OutputStream);
-            //this._extendedOutputSteamWriter = new StreamWriter(this.ExtendedOutputStream);
         }
 
         private void Session_Disconnected(object sender, EventArgs e)
@@ -381,7 +374,7 @@ namespace Renci.SshClient
             else if (index > 1)
             {
                 //  throw time out error
-                throw new SshOperationTimeoutException(string.Format("Command '{0}' has timed out.", this.CommandText));
+                throw new SshOperationTimeoutException(string.Format(CultureInfo.CurrentCulture, "Command '{0}' has timed out.", this.CommandText));
             }
         }
 

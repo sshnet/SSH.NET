@@ -190,7 +190,7 @@ namespace Renci.SshClient
         }
 
         /// <summary>
-        /// Creates the shell. (not complete)
+        /// Creates the shell.
         /// </summary>
         /// <param name="input">The input.</param>
         /// <param name="output">The output.</param>
@@ -201,8 +201,9 @@ namespace Renci.SshClient
         /// <param name="width">The width.</param>
         /// <param name="height">The height.</param>
         /// <param name="terminalMode">The terminal mode.</param>
+        /// <param name="bufferSize">Size of the internal read buffer.</param>
         /// <returns></returns>
-        public Shell CreateShell(Stream input, Stream output, Stream extendedOutput, string terminalName = "", uint columns = 0, uint rows = 0, uint width = 0, uint height = 0, string terminalMode = "", int bufferSize = 1024)
+        public Shell CreateShell(Stream input, Stream output, Stream extendedOutput, string terminalName, uint columns, uint rows, uint width, uint height, string terminalMode, int bufferSize)
         {
             //  Ensure that connection is established.
             this.EnsureConnection();
@@ -211,7 +212,7 @@ namespace Renci.SshClient
         }
 
         /// <summary>
-        /// Creates the shell. (not complete)
+        /// Creates the shell.
         /// </summary>
         /// <param name="input">The input.</param>
         /// <param name="output">The output.</param>
@@ -223,7 +224,39 @@ namespace Renci.SshClient
         /// <param name="height">The height.</param>
         /// <param name="terminalMode">The terminal mode.</param>
         /// <returns></returns>
-        public Shell CreateShell(Encoding encoding, string input, Stream output, Stream extendedOutput, string terminalName = "", uint columns = 0, uint rows = 0, uint width = 0, uint height = 0, string terminalMode = "", int bufferSize = 1024)
+        public Shell CreateShell(Stream input, Stream output, Stream extendedOutput, string terminalName, uint columns, uint rows, uint width, uint height, string terminalMode)
+        {
+            return this.CreateShell(input, output, extendedOutput, terminalName, columns, rows, width, height, terminalMode, 1024);
+        }
+
+        /// <summary>
+        /// Creates the shell.
+        /// </summary>
+        /// <param name="input">The input.</param>
+        /// <param name="output">The output.</param>
+        /// <param name="extendedOutput">The extended output.</param>
+        /// <returns></returns>
+        public Shell CreateShell(Stream input, Stream output, Stream extendedOutput)
+        {
+            return this.CreateShell(input, output, extendedOutput, string.Empty, 0, 0, 0, 0, string.Empty, 1024);
+        }
+
+        /// <summary>
+        /// Creates the shell.
+        /// </summary>
+        /// <param name="encoding">The encoding to use to send the input.</param>
+        /// <param name="input">The input.</param>
+        /// <param name="output">The output.</param>
+        /// <param name="extendedOutput">The extended output.</param>
+        /// <param name="terminalName">Name of the terminal.</param>
+        /// <param name="columns">The columns.</param>
+        /// <param name="rows">The rows.</param>
+        /// <param name="width">The width.</param>
+        /// <param name="height">The height.</param>
+        /// <param name="terminalMode">The terminal mode.</param>
+        /// <param name="bufferSize">Size of the internal read buffer.</param>
+        /// <returns></returns>
+        public Shell CreateShell(Encoding encoding, string input, Stream output, Stream extendedOutput, string terminalName, uint columns, uint rows, uint width , uint height , string terminalMode, int bufferSize)
         {
             //  Ensure that connection is established.
             this.EnsureConnection();
@@ -232,7 +265,39 @@ namespace Renci.SshClient
             new StreamWriter(inputStream, encoding).Write(input);
             inputStream.Seek(0, SeekOrigin.Begin);
 
-            return new Shell(this.Session, inputStream, output, extendedOutput, terminalName, columns, rows, width, height, terminalMode, bufferSize);
+            return this.CreateShell(inputStream, output, extendedOutput, terminalName, columns, rows, width, height, terminalMode, bufferSize);
+        }
+
+        /// <summary>
+        /// Creates the shell.
+        /// </summary>
+        /// <param name="encoding">The encoding.</param>
+        /// <param name="input">The input.</param>
+        /// <param name="output">The output.</param>
+        /// <param name="extendedOutput">The extended output.</param>
+        /// <param name="terminalName">Name of the terminal.</param>
+        /// <param name="columns">The columns.</param>
+        /// <param name="rows">The rows.</param>
+        /// <param name="width">The width.</param>
+        /// <param name="height">The height.</param>
+        /// <param name="terminalMode">The terminal mode.</param>
+        /// <returns></returns>
+        public Shell CreateShell(Encoding encoding, string input, Stream output, Stream extendedOutput, string terminalName, uint columns, uint rows, uint width, uint height, string terminalMode)
+        {
+            return this.CreateShell(encoding, input, output, extendedOutput, terminalName, columns, rows, width, height, terminalMode, 1024);
+        }
+
+        /// <summary>
+        /// Creates the shell.
+        /// </summary>
+        /// <param name="encoding">The encoding.</param>
+        /// <param name="input">The input.</param>
+        /// <param name="output">The output.</param>
+        /// <param name="extendedOutput">The extended output.</param>
+        /// <returns></returns>
+        public Shell CreateShell(Encoding encoding, string input, Stream output, Stream extendedOutput)
+        {
+            return this.CreateShell(encoding, input, output, extendedOutput, string.Empty, 0, 0, 0, 0, string.Empty, 1024);
         }
 
     }

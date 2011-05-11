@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Renci.SshClient.Common;
+using System.Globalization;
 
 namespace Renci.SshClient.Sftp.Messages
 {
@@ -166,14 +167,12 @@ namespace Renci.SshClient.Sftp.Messages
             }
             else
             {
-                throw new NotSupportedException(string.Format("Message type '{0}' is not registered.", messageType));
+                throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "Message type '{0}' is not registered.", messageType));
             }
         }
 
         private static T Load<T>(byte[] data) where T : SftpMessage, new()
         {
-            var messageType = (SftpMessageTypes)data[0];
-
             T message = new T();
 
             message.LoadBytes(data);
@@ -187,7 +186,7 @@ namespace Renci.SshClient.Sftp.Messages
 
         public override string ToString()
         {
-            return string.Format("SFTP Message : {0}", this.SftpMessageType);
+            return string.Format(CultureInfo.CurrentCulture, "SFTP Message : {0}", this.SftpMessageType);
         }
     }
 }

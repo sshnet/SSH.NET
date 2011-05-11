@@ -17,6 +17,7 @@ using Renci.SshClient.Messages.Authentication;
 using Renci.SshClient.Messages.Connection;
 using Renci.SshClient.Messages.Transport;
 using Renci.SshClient.Security;
+using System.Globalization;
 
 namespace Renci.SshClient
 {
@@ -385,7 +386,7 @@ namespace Renci.SshClient
         internal Session(ConnectionInfo connectionInfo)
         {
             this.ConnectionInfo = connectionInfo;
-            this.ClientVersion = string.Format("SSH-2.0-Renci.SshClient.{0}", this.GetType().Assembly.GetName().Version);
+            this.ClientVersion = string.Format(CultureInfo.CurrentCulture, "SSH-2.0-Renci.SshClient.{0}", this.GetType().Assembly.GetName().Version);
         }
 
         /// <summary>
@@ -471,10 +472,10 @@ namespace Renci.SshClient
 
                     if (!(version.Equals("2.0") || version.Equals("1.99")))
                     {
-                        throw new SshConnectionException(string.Format("Server version '{0}' is not supported.", version), DisconnectReasons.ProtocolVersionNotSupported);
+                        throw new SshConnectionException(string.Format(CultureInfo.CurrentCulture, "Server version '{0}' is not supported.", version), DisconnectReasons.ProtocolVersionNotSupported);
                     }
 
-                    this.Write(Encoding.ASCII.GetBytes(string.Format("{0}\x0D\x0A", this.ClientVersion)));
+                    this.Write(Encoding.ASCII.GetBytes(string.Format(CultureInfo.InvariantCulture, "{0}\x0D\x0A", this.ClientVersion)));
 
                     //  Register Transport response messages
                     this.RegisterMessage("SSH_MSG_DISCONNECT");
@@ -513,24 +514,26 @@ namespace Renci.SshClient
                     }
 
                     //  Try authenticate using none method
-                    var noneConnectionInfo = new NoneConnectionInfo(this.ConnectionInfo.Host, this.ConnectionInfo.Port, this.ConnectionInfo.Username);
-                    noneConnectionInfo.Authenticate(this);
-
-                    this._isAuthenticated = noneConnectionInfo.IsAuthenticated;
-
-                    if (!this._isAuthenticated)
+                    using (var noneConnectionInfo = new NoneConnectionInfo(this.ConnectionInfo.Host, this.ConnectionInfo.Port, this.ConnectionInfo.Username))
                     {
-                        //  Ensure that authentication method is allowed
-                        if (!noneConnectionInfo.AllowedAuthentications.Contains(this.ConnectionInfo.Name))
+                        noneConnectionInfo.Authenticate(this);
+
+                        this._isAuthenticated = noneConnectionInfo.IsAuthenticated;
+
+                        if (!this._isAuthenticated)
                         {
-                            throw new SshAuthenticationException("User authentication method is not supported.");
+                            //  Ensure that authentication method is allowed
+                            if (!noneConnectionInfo.AllowedAuthentications.Contains(this.ConnectionInfo.Name))
+                            {
+                                throw new SshAuthenticationException("User authentication method is not supported.");
+                            }
+
+                            //  In future, if more then one authentication methods are supported perform the check here.
+                            //  Authenticate using provided connection info object
+                            this.ConnectionInfo.Authenticate(this);
+
+                            this._isAuthenticated = this.ConnectionInfo.IsAuthenticated;
                         }
-
-                        //  In future, if more then one authentication methods are supported perform the check here.
-                        //  Authenticate using provided connection info object
-                        this.ConnectionInfo.Authenticate(this);
-
-                        this._isAuthenticated = this.ConnectionInfo.IsAuthenticated;
                     }
 
                     if (!this._isAuthenticated)
@@ -635,7 +638,7 @@ namespace Renci.SshClient
 
             if (messageData.Length > Session.MAXIMUM_PAYLOAD_SIZE)
             {
-                throw new InvalidOperationException(string.Format("Payload cannot be more then {0} bytes.", Session.MAXIMUM_PAYLOAD_SIZE));
+                throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Payload cannot be more then {0} bytes.", Session.MAXIMUM_PAYLOAD_SIZE));
             }
 
             if (this._clientCompression != null)
@@ -683,7 +686,7 @@ namespace Renci.SshClient
 
                 if (packetData.Length > Session.MAXIMUM_PACKET_SIZE)
                 {
-                    throw new InvalidOperationException(string.Format("Packet is too big. Maximum packet size is {0} bytes.", Session.MAXIMUM_PACKET_SIZE));
+                    throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Packet is too big. Maximum packet size is {0} bytes.", Session.MAXIMUM_PACKET_SIZE));
                 }
 
                 if (this._clientMac == null)
@@ -731,7 +734,7 @@ namespace Renci.SshClient
 
             //  Test packet minimum and maximum boundaries
             if (packetLength < Math.Max((byte)16, blockSize) - 4 || packetLength > Session.MAXIMUM_PACKET_SIZE - 4)
-                throw new SshConnectionException(string.Format("Bad packet length {0}", packetLength), DisconnectReasons.ProtocolError);
+                throw new SshConnectionException(string.Format(CultureInfo.CurrentCulture, "Bad packet length {0}", packetLength), DisconnectReasons.ProtocolError);
 
             //  Read rest of the packet data
             int bytesToRead = (int)(packetLength - (blockSize - 4));
@@ -1521,7 +1524,7 @@ namespace Renci.SshClient
             var messageMetadata = (from m in this._messagesMetadata where m.Number == messageType && m.Enabled && m.Activated select m).SingleOrDefault();
 
             if (messageMetadata == null)
-                throw new SshException(string.Format("Message type {0} is not valid.", messageType));
+                throw new SshException(string.Format(CultureInfo.CurrentCulture, "Message type {0} is not valid.", messageType));
 
             var message = messageMetadata.Type.CreateInstance<Message>();
 

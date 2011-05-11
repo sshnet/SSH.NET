@@ -8,6 +8,7 @@ using Renci.SshClient.Security;
 using System.Security.Cryptography;
 using System.Security;
 using Renci.SshClient.Common;
+using System.Globalization;
 
 namespace Renci.SshClient
 {
@@ -70,6 +71,9 @@ namespace Renci.SshClient
         /// <param name="fileName">Name of the file.</param>
         public PrivateKeyFile(string fileName)
         {
+            if (string.IsNullOrEmpty(fileName))
+                throw new ArgumentNullException("fileName");
+
             using (var keyFile = File.Open(fileName, FileMode.Open))
             {
                 this.Open(keyFile, null);
@@ -83,6 +87,9 @@ namespace Renci.SshClient
         /// <param name="passPhrase">The pass phrase.</param>
         public PrivateKeyFile(string fileName, string passPhrase)
         {
+            if (string.IsNullOrEmpty(fileName))
+                throw new ArgumentNullException("fileName");
+
             using (var keyFile = File.Open(fileName, FileMode.Open))
             {
                 this.Open(keyFile, passPhrase);
@@ -106,6 +113,9 @@ namespace Renci.SshClient
         /// <param name="passPhrase">The pass phrase.</param>
         private void Open(Stream privateKey, string passPhrase)
         {
+            if (privateKey == null)
+                throw new ArgumentNullException("privateKey");
+
             Match privateKeyMatch = null;
 
             using (StreamReader sr = new StreamReader(privateKey))
@@ -174,7 +184,7 @@ namespace Renci.SshClient
                         }
                         break;
                     default:
-                        throw new SshException(string.Format("Unknown private key cipher \"{0}\".", cipherName));
+                        throw new SshException(string.Format(CultureInfo.CurrentCulture, "Unknown private key cipher \"{0}\".", cipherName));
                 }
             }
             else
@@ -191,7 +201,7 @@ namespace Renci.SshClient
                     this._key = new CryptoPrivateKeyDss();
                     break;
                 default:
-                    throw new NotSupportedException(string.Format("Key '{0}' is not supported.", keyName));
+                    throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "Key '{0}' is not supported.", keyName));
             }
 
             this._key.Load(decryptedData);

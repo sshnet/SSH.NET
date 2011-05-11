@@ -4,6 +4,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using Renci.SshClient;
+using System.Globalization;
 
 namespace Renci.SshClient.Common
 {
@@ -201,7 +202,7 @@ namespace Renci.SshClient.Common
 
             if (length > int.MaxValue)
             {
-                throw new NotSupportedException(string.Format("String that longer that {0} are not supported.", int.MaxValue));
+                throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "String that longer that {0} are not supported.", int.MaxValue));
             }
 
             return Encoding.ASCII.GetString(this.ReadBytes(length));
@@ -217,7 +218,7 @@ namespace Renci.SshClient.Common
 
             if (length > int.MaxValue)
             {
-                throw new NotSupportedException(string.Format("String that longer that {0} are not supported.", int.MaxValue));
+                throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "String that longer that {0} are not supported.", int.MaxValue));
             }
 
             return this.ReadBytes(length);

@@ -145,6 +145,10 @@ namespace Renci.SshNet
                     {
                         var asyncResult = this._input.BeginRead(buffer, 0, buffer.Length, delegate(IAsyncResult result) 
                         {
+                            //  If input stream is closed and disposed already dont finish reading the stream
+                            if (this._input == null)
+                                return;
+
                             var read = this._input.EndRead(result);
                             if (read > 0)
                             {
@@ -222,8 +226,7 @@ namespace Renci.SshNet
         {
             if (this._outputStream != null)
             {
-                //this._channelOutput.Write(this._channelOutput.Encoding.GetString(e.Data));
-                this._extendedOutputStream.Write(e.Data, 0, e.Data.Length);
+                this._outputStream.Write(e.Data, 0, e.Data.Length);
             }
         }
 
@@ -237,8 +240,10 @@ namespace Renci.SshNet
 
             if (this._channel.IsOpen)
                 this._channel.Close();
+
             this._channelClosedWaitHandle.Set();
-            this._input.Close();
+            
+            this._input.Dispose();
             this._input = null;
 
             this._dataReaderTask.Wait();            

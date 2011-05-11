@@ -28,6 +28,10 @@ namespace Renci.SshClient.Security.Cryptography
             get { return this._blockSize; }
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CfbMode"/> class.
+        /// </summary>
+        /// <param name="cipher">The cipher.</param>
         public CfbMode(CipherBase cipher)
             : base(cipher)
         {

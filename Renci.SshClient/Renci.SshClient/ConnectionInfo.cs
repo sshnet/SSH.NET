@@ -7,6 +7,7 @@ using Renci.SshClient.Messages;
 using Renci.SshClient.Messages.Authentication;
 using Renci.SshClient.Common;
 using System.Threading;
+using System.Net;
 namespace Renci.SshClient
 {
     /// <summary>
@@ -201,6 +202,15 @@ namespace Renci.SshClient
         protected ConnectionInfo(string host, int port, string username)
             : this()
         {
+            if (string.IsNullOrEmpty(host))
+                throw new ArgumentNullException("host");
+
+            if (port < IPEndPoint.MinPort)
+                throw new ArgumentOutOfRangeException("port");
+
+            if (port > IPEndPoint.MaxPort)
+                throw new ArgumentOutOfRangeException("port");
+
             this.Host = host;
             this.Port = port;
             this.Username = username;
@@ -213,6 +223,9 @@ namespace Renci.SshClient
         /// <returns>true if authenticated; otherwise false.</returns>
         public bool Authenticate(Session session)
         {
+            if (session == null)
+                throw new ArgumentNullException("session");
+
             this.Session = session;
 
             this.Session.RegisterMessage("SSH_MSG_USERAUTH_FAILURE");
@@ -260,7 +273,7 @@ namespace Renci.SshClient
         {
             this.Session.WaitHandle(eventWaitHandle);
         }
-        
+
         /// <summary>
         /// Handles the UserAuthenticationFailureReceived event of the session.
         /// </summary>

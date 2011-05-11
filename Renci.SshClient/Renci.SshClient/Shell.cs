@@ -14,7 +14,7 @@ namespace Renci.SshClient
     /// <summary>
     /// Represents instance of the SSH shell object
     /// </summary>
-    public class Shell
+    public class Shell : IDisposable
     {
         private readonly Session _session;
 
@@ -129,7 +129,7 @@ namespace Renci.SshClient
             this._session.ErrorOccured += Session_ErrorOccured;
 
             this._channel.Open();
-            this._channel.SendPseudoTerminalRequest(this._terminalName, this._columns, this._columns, this._width, this._height, this._terminalMode);
+            this._channel.SendPseudoTerminalRequest(this._terminalName, this._columns, this._rows, this._width, this._height, this._terminalMode);
             this._channel.SendShellRequest();
 
             this._channelClosedWaitHandle = new AutoResetEvent(false);
@@ -257,5 +257,60 @@ namespace Renci.SshClient
 
             this._channel = null;
         }
+
+
+        #region IDisposable Members
+
+        private bool _disposed = false;
+
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged ResourceMessages.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources
+        /// </summary>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged ResourceMessages.</param>
+        protected virtual void Dispose(bool disposing)
+        {
+            // Check to see if Dispose has already been called.
+            if (!this._disposed)
+            {
+                // If disposing equals true, dispose all managed
+                // and unmanaged ResourceMessages.
+                if (disposing)
+                {
+                    if (this._channelClosedWaitHandle != null)
+                    {
+                        this._channelClosedWaitHandle.Dispose();
+                        this._channelClosedWaitHandle = null;
+                    }
+                }
+
+                // Note disposing has been done.
+                this._disposed = true;
+            }
+        }
+
+        /// <summary>
+        /// Releases unmanaged resources and performs other cleanup operations before the
+        /// <see cref="Session"/> is reclaimed by garbage collection.
+        /// </summary>
+        ~Shell()
+        {
+            // Do not re-create Dispose clean-up code here.
+            // Calling Dispose(false) is optimal in terms of
+            // readability and maintainability.
+            Dispose(false);
+        }
+
+        #endregion
+
     }
 }

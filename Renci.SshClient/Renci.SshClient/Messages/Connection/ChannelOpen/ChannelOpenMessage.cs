@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 
 namespace Renci.SshClient.Messages.Connection
 {
@@ -95,7 +96,7 @@ namespace Renci.SshClient.Messages.Connection
             }
             else
             {
-                throw new NotSupportedException(string.Format("Channel type '{0}' is not supported.", channelName));
+                throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "Channel type '{0}' is not supported.", channelName));
             }
 
             this.Info.Load(bytes);

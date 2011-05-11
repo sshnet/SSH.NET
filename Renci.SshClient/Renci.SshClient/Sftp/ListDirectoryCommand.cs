@@ -2,6 +2,7 @@
 using System.Linq;
 using Renci.SshClient.Common;
 using Renci.SshClient.Sftp.Messages;
+using System.Globalization;
 
 namespace Renci.SshClient.Sftp
 {
@@ -46,11 +47,11 @@ namespace Renci.SshClient.Sftp
             base.OnName(files);
 
             var seperator = "/";
-            if (this._path.EndsWith(seperator))
+            if (this._path[this._path.Length - 1] == '/')
                 seperator = string.Empty;
 
             var sftpFiles = from f in files
-                            select new SftpFile(this.SftpSession, string.Format("{0}{1}{2}", this._path, seperator, f.Key), f.Value);
+                            select new SftpFile(this.SftpSession, string.Format(CultureInfo.InvariantCulture, "{0}{1}{2}", this._path, seperator, f.Key), f.Value);
 
             this._files.AddRange(sftpFiles);
 
@@ -63,7 +64,7 @@ namespace Renci.SshClient.Sftp
 
             if (statusCode == StatusCodes.NoSuchFile)
             {
-                throw new SshFileNotFoundException(string.Format("Path '{0}' is not found.", this._path));
+                throw new SshFileNotFoundException(string.Format(CultureInfo.CurrentCulture, "Path '{0}' is not found.", this._path));
             }
 
             if (statusCode == StatusCodes.Eof)

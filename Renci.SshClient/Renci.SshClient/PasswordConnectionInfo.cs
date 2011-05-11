@@ -117,7 +117,7 @@ namespace Renci.SshClient
             {
                 this.Session.UnRegisterMessage("SSH_MSG_USERAUTH_PASSWD_CHANGEREQ");
 
-                var eventTask = Task.Factory.StartNew(() =>
+                Task.Factory.StartNew(() =>
                 {
                     try
                     {

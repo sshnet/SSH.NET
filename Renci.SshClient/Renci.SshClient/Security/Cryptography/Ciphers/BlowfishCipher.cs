@@ -317,8 +317,8 @@ namespace Renci.SshClient.Security.Cryptography
             if (inputCount != this.BlockSize)
                 throw new ArgumentException("inputCount");
 
-            uint xl = CipherBase.BE_To_UInt32(inputBuffer, inputOffset);
-            uint xr = CipherBase.BE_To_UInt32(inputBuffer, inputOffset + 4);
+            uint xl = CipherBase.BigEndianToUInt32(inputBuffer, inputOffset);
+            uint xr = CipherBase.BigEndianToUInt32(inputBuffer, inputOffset + 4);
 
             xl ^= P[0];
 
@@ -330,8 +330,8 @@ namespace Renci.SshClient.Security.Cryptography
 
             xr ^= P[ROUNDS + 1];
 
-            CipherBase.UInt32_To_BE(xr, outputBuffer, outputOffset);
-            CipherBase.UInt32_To_BE(xl, outputBuffer, outputOffset + 4);
+            CipherBase.UInt32ToBigEndian(xr, outputBuffer, outputOffset);
+            CipherBase.UInt32ToBigEndian(xl, outputBuffer, outputOffset + 4);
             
             return this.BlockSize;
         }
@@ -341,8 +341,8 @@ namespace Renci.SshClient.Security.Cryptography
             if (inputCount != this.BlockSize)
                 throw new ArgumentException("inputCount");
 
-            uint xl = CipherBase.BE_To_UInt32(inputBuffer, inputOffset);
-            uint xr = CipherBase.BE_To_UInt32(inputBuffer, inputOffset + 4);
+            uint xl = CipherBase.BigEndianToUInt32(inputBuffer, inputOffset);
+            uint xr = CipherBase.BigEndianToUInt32(inputBuffer, inputOffset + 4);
 
             xl ^= P[ROUNDS + 1];
 
@@ -354,8 +354,8 @@ namespace Renci.SshClient.Security.Cryptography
 
             xr ^= P[0];
 
-            CipherBase.UInt32_To_BE(xr, outputBuffer, outputOffset);
-            CipherBase.UInt32_To_BE(xl, outputBuffer, outputOffset + 4);
+            CipherBase.UInt32ToBigEndian(xr, outputBuffer, outputOffset);
+            CipherBase.UInt32ToBigEndian(xl, outputBuffer, outputOffset + 4);
 
             return this.BlockSize;
         }

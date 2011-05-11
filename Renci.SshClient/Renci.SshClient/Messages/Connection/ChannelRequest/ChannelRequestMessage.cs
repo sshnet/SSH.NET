@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 
 namespace Renci.SshClient.Messages.Connection
 {
@@ -116,7 +117,7 @@ namespace Renci.SshClient.Messages.Connection
             }
             else
             {
-                throw new NotSupportedException(string.Format("Request '{0}' is not supported.", requestName));
+                throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "Request '{0}' is not supported.", requestName));
             }
 
             this.Info.Load(bytes);

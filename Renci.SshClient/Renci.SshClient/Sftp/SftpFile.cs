@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security;
 using Renci.SshClient.Sftp.Messages;
+using System.Globalization;
 
 namespace Renci.SshClient.Sftp
 {
@@ -350,7 +351,7 @@ namespace Renci.SshClient.Sftp
         /// <param name="mode">The mode.</param>
         public void SetPermissions(ushort mode)
         {
-            var modeBytes = mode.ToString().ToArray();
+            var modeBytes = mode.ToString(CultureInfo.InvariantCulture).ToArray();
 
             var permission = (modeBytes[0] & 0x0F) * 8 * 8 + (modeBytes[1] & 0x0F) * 8 + (modeBytes[2] & 0x0F);
 
@@ -518,7 +519,7 @@ namespace Renci.SshClient.Sftp
         /// </returns>
         public override string ToString()
         {
-            return string.Format("Name {0}, Size {1}, User ID {2}, Group ID {3}, Accessed {4}, Modified {5}", this.Name, this.Size, this.UserId, this.GroupId, this.LastAccessTime, this.LastWriteTime);
+            return string.Format(CultureInfo.CurrentCulture, "Name {0}, Size {1}, User ID {2}, Group ID {3}, Accessed {4}, Modified {5}", this.Name, this.Size, this.UserId, this.GroupId, this.LastAccessTime, this.LastWriteTime);
         }
     }
 }

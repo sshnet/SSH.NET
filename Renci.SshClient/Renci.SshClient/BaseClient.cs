@@ -80,6 +80,9 @@ namespace Renci.SshClient
         /// <param name="connectionInfo">The connection info.</param>
         public BaseClient(ConnectionInfo connectionInfo)
         {
+            if (connectionInfo == null)
+                throw new ArgumentNullException("connectionInfo");
+
             this.ConnectionInfo = connectionInfo;
             this.Session = new Session(connectionInfo);
         }

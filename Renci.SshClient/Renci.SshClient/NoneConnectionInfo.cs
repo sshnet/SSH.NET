@@ -15,8 +15,9 @@ namespace Renci.SshClient
     {
         private EventWaitHandle _authenticationCompleted = new AutoResetEvent(false);
 
-        private Exception _exception;
-
+        /// <summary>
+        /// Gets list of allowed authentications.
+        /// </summary>
         public IEnumerable<string> AllowedAuthentications { get; private set; }
 
         /// <summary>
@@ -34,7 +35,6 @@ namespace Renci.SshClient
         /// </summary>
         /// <param name="host">Connection host.</param>
         /// <param name="username">Connection username.</param>
-        /// <param name="password">Connection password.</param>
         public NoneConnectionInfo(string host, string username)
             : this(host, 22, username)
         {
@@ -47,7 +47,6 @@ namespace Renci.SshClient
         /// <param name="host">Connection host.</param>
         /// <param name="port">Connection port.</param>
         /// <param name="username">Connection username.</param>
-        /// <param name="password">Connection password.</param>
         public NoneConnectionInfo(string host, int port, string username)
             : base(host, port, username)
         {
@@ -61,11 +60,6 @@ namespace Renci.SshClient
             this.SendMessage(new RequestMessageNone(ServiceNames.Connection, this.Username));
 
             this.WaitHandle(this._authenticationCompleted);
-
-            if (this._exception != null)
-            {
-                throw this._exception;
-            }
         }
 
         /// <summary>

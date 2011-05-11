@@ -5,6 +5,7 @@ using Renci.SshClient.Channels;
 using Renci.SshClient.Messages.Connection;
 using Renci.SshClient.Common;
 using System.Diagnostics;
+using System.Globalization;
 
 namespace Renci.SshClient
 {
@@ -46,7 +47,7 @@ namespace Renci.SshClient
                 //  If request  failed don't handle channel opening for this request
                 this.Session.ChannelOpenReceived -= Session_ChannelOpening;
 
-                throw new SshException(string.Format("Port forwarding for '{0}' port '{1}' failed to start.", this.Host, this.Port));
+                throw new SshException(string.Format(CultureInfo.CurrentCulture, "Port forwarding for '{0}' port '{1}' failed to start.", this.Host, this.Port));
             }
             else
             {

@@ -25,7 +25,7 @@ namespace Renci.SshClient.Sftp.Messages
             for (int i = 0; i < this.Count; i++)
             {
                 var fileName = this.ReadString();
-                var fullName = this.ReadString();   //  This field value has meaningless information
+                this.ReadString();   //  This field value has meaningless information
                 var attributes = this.ReadAttributes();
 
                 this.Files.Add(fileName, attributes);

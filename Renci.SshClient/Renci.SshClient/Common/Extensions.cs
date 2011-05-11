@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System;
+using System.Globalization;
 
 namespace Renci.SshClient
 {
@@ -83,7 +84,7 @@ namespace Renci.SshClient
         {
             foreach (var b in bytes)
             {
-                Debug.Write(string.Format("0x{0:x2}, ", b));
+                Debug.Write(string.Format(CultureInfo.CurrentCulture, "0x{0:x2}, ", b));
             }
             Debug.WriteLine(string.Empty);
         }

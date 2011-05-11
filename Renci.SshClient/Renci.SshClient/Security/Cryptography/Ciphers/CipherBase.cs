@@ -67,124 +67,212 @@ namespace Renci.SshClient.Security.Cryptography
 
         #region Packing functions
 
-        protected static void UInt32_To_BE(uint n, byte[] bs)
+        /// <summary>
+        /// Populates buffer with big endian number representation.
+        /// </summary>
+        /// <param name="number">The number to convert.</param>
+        /// <param name="buffer">The buffer.</param>
+        protected static void UInt32ToBigEndian(uint number, byte[] buffer)
         {
-            bs[0] = (byte)(n >> 24);
-            bs[1] = (byte)(n >> 16);
-            bs[2] = (byte)(n >> 8);
-            bs[3] = (byte)(n);
+            buffer[0] = (byte)(number >> 24);
+            buffer[1] = (byte)(number >> 16);
+            buffer[2] = (byte)(number >> 8);
+            buffer[3] = (byte)(number);
         }
 
-        protected static void UInt32_To_BE(uint n, byte[] bs, int off)
+        /// <summary>
+        /// Populates buffer with big endian number representation.
+        /// </summary>
+        /// <param name="number">The number to convert.</param>
+        /// <param name="buffer">The buffer.</param>
+        /// <param name="offset">The buffer offset.</param>
+        protected static void UInt32ToBigEndian(uint number, byte[] buffer, int offset)
         {
-            bs[off] = (byte)(n >> 24);
-            bs[++off] = (byte)(n >> 16);
-            bs[++off] = (byte)(n >> 8);
-            bs[++off] = (byte)(n);
+            buffer[offset] = (byte)(number >> 24);
+            buffer[++offset] = (byte)(number >> 16);
+            buffer[++offset] = (byte)(number >> 8);
+            buffer[++offset] = (byte)(number);
         }
 
-        protected static uint BE_To_UInt32(byte[] bs)
+        /// <summary>
+        /// Converts big endian bytes into number.
+        /// </summary>
+        /// <param name="buffer">The buffer.</param>
+        /// <returns></returns>
+        protected static uint BigEndianToUInt32(byte[] buffer)
         {
-            uint n = (uint)bs[0] << 24;
-            n |= (uint)bs[1] << 16;
-            n |= (uint)bs[2] << 8;
-            n |= (uint)bs[3];
+            uint n = (uint)buffer[0] << 24;
+            n |= (uint)buffer[1] << 16;
+            n |= (uint)buffer[2] << 8;
+            n |= (uint)buffer[3];
             return n;
         }
 
-        protected static uint BE_To_UInt32(byte[] bs, int off)
+        /// <summary>
+        /// Converts big endian bytes into number.
+        /// </summary>
+        /// <param name="buffer">The buffer.</param>
+        /// <param name="offset">The buffer offset.</param>
+        /// <returns></returns>
+        protected static uint BigEndianToUInt32(byte[] buffer, int offset)
         {
-            uint n = (uint)bs[off] << 24;
-            n |= (uint)bs[++off] << 16;
-            n |= (uint)bs[++off] << 8;
-            n |= (uint)bs[++off];
+            uint n = (uint)buffer[offset] << 24;
+            n |= (uint)buffer[++offset] << 16;
+            n |= (uint)buffer[++offset] << 8;
+            n |= (uint)buffer[++offset];
             return n;
         }
 
-        protected static ulong BE_To_UInt64(byte[] bs)
+        /// <summary>
+        /// Converts big endian bytes into number.
+        /// </summary>
+        /// <param name="buffer">The buffer.</param>
+        /// <returns></returns>
+        protected static ulong BigEndianToUInt64(byte[] buffer)
         {
-            uint hi = BE_To_UInt32(bs);
-            uint lo = BE_To_UInt32(bs, 4);
+            uint hi = BigEndianToUInt32(buffer);
+            uint lo = BigEndianToUInt32(buffer, 4);
             return ((ulong)hi << 32) | (ulong)lo;
         }
 
-        protected static ulong BE_To_UInt64(byte[] bs, int off)
+        /// <summary>
+        /// Converts big endian bytes into number.
+        /// </summary>
+        /// <param name="buffer">The buffer.</param>
+        /// <param name="offset">The buffer offset.</param>
+        /// <returns></returns>
+        protected static ulong BigEndianToUInt64(byte[] buffer, int offset)
         {
-            uint hi = BE_To_UInt32(bs, off);
-            uint lo = BE_To_UInt32(bs, off + 4);
+            uint hi = BigEndianToUInt32(buffer, offset);
+            uint lo = BigEndianToUInt32(buffer, offset + 4);
             return ((ulong)hi << 32) | (ulong)lo;
         }
 
-        protected static void UInt64_To_BE(ulong n, byte[] bs)
+        /// <summary>
+        /// Populates buffer with big endian number representation.
+        /// </summary>
+        /// <param name="number">The number to convert.</param>
+        /// <param name="buffer">The buffer.</param>
+        protected static void UInt64ToBigEndian(ulong number, byte[] buffer)
         {
-            UInt32_To_BE((uint)(n >> 32), bs);
-            UInt32_To_BE((uint)(n), bs, 4);
+            UInt32ToBigEndian((uint)(number >> 32), buffer);
+            UInt32ToBigEndian((uint)(number), buffer, 4);
         }
 
-        protected static void UInt64_To_BE(ulong n, byte[] bs, int off)
+        /// <summary>
+        /// Populates buffer with big endian number representation.
+        /// </summary>
+        /// <param name="number">The number to convert.</param>
+        /// <param name="buffer">The buffer.</param>
+        /// <param name="offset">The buffer offset.</param>
+        protected static void UInt64ToBigEndian(ulong number, byte[] buffer, int offset)
         {
-            UInt32_To_BE((uint)(n >> 32), bs, off);
-            UInt32_To_BE((uint)(n), bs, off + 4);
+            UInt32ToBigEndian((uint)(number >> 32), buffer, offset);
+            UInt32ToBigEndian((uint)(number), buffer, offset + 4);
         }
 
-        protected static void UInt32_To_LE(uint n, byte[] bs)
+        /// <summary>
+        /// Populates buffer with little endian number representation.
+        /// </summary>
+        /// <param name="number">The number to convert.</param>
+        /// <param name="buffer">The buffer.</param>
+        protected static void UInt32ToLittleEndian(uint number, byte[] buffer)
         {
-            bs[0] = (byte)(n);
-            bs[1] = (byte)(n >> 8);
-            bs[2] = (byte)(n >> 16);
-            bs[3] = (byte)(n >> 24);
+            buffer[0] = (byte)(number);
+            buffer[1] = (byte)(number >> 8);
+            buffer[2] = (byte)(number >> 16);
+            buffer[3] = (byte)(number >> 24);
         }
 
-        protected static void UInt32_To_LE(uint n, byte[] bs, int off)
+        /// <summary>
+        /// Populates buffer with little endian number representation.
+        /// </summary>
+        /// <param name="number">The number to convert.</param>
+        /// <param name="buffer">The buffer.</param>
+        /// <param name="offset">The buffer offset.</param>
+        protected static void UInt32ToLittleEndian(uint number, byte[] buffer, int offset)
         {
-            bs[off] = (byte)(n);
-            bs[++off] = (byte)(n >> 8);
-            bs[++off] = (byte)(n >> 16);
-            bs[++off] = (byte)(n >> 24);
+            buffer[offset] = (byte)(number);
+            buffer[++offset] = (byte)(number >> 8);
+            buffer[++offset] = (byte)(number >> 16);
+            buffer[++offset] = (byte)(number >> 24);
         }
 
-        protected static uint LE_To_UInt32(byte[] bs)
+        /// <summary>
+        /// Converts little endian bytes into number.
+        /// </summary>
+        /// <param name="buffer">The buffer.</param>
+        /// <returns></returns>
+        protected static uint LittleEndianToUInt32(byte[] buffer)
         {
-            uint n = (uint)bs[0];
-            n |= (uint)bs[1] << 8;
-            n |= (uint)bs[2] << 16;
-            n |= (uint)bs[3] << 24;
+            uint n = (uint)buffer[0];
+            n |= (uint)buffer[1] << 8;
+            n |= (uint)buffer[2] << 16;
+            n |= (uint)buffer[3] << 24;
             return n;
         }
 
-        protected static uint LE_To_UInt32(byte[] bs, int off)
+        /// <summary>
+        /// Converts little endian bytes into number.
+        /// </summary>
+        /// <param name="buffer">The buffer.</param>
+        /// <param name="offset">The buffer offset.</param>
+        /// <returns></returns>
+        protected static uint LittleEndianToUInt32(byte[] buffer, int offset)
         {
-            uint n = (uint)bs[off];
-            n |= (uint)bs[++off] << 8;
-            n |= (uint)bs[++off] << 16;
-            n |= (uint)bs[++off] << 24;
+            uint n = (uint)buffer[offset];
+            n |= (uint)buffer[++offset] << 8;
+            n |= (uint)buffer[++offset] << 16;
+            n |= (uint)buffer[++offset] << 24;
             return n;
         }
 
-        protected static ulong LE_To_UInt64(byte[] bs)
+        /// <summary>
+        /// Converts little endian bytes into number.
+        /// </summary>
+        /// <param name="buffer">The buffer.</param>
+        /// <returns></returns>
+        protected static ulong LittleEndianToUInt64(byte[] buffer)
         {
-            uint lo = LE_To_UInt32(bs);
-            uint hi = LE_To_UInt32(bs, 4);
+            uint lo = LittleEndianToUInt32(buffer);
+            uint hi = LittleEndianToUInt32(buffer, 4);
             return ((ulong)hi << 32) | (ulong)lo;
         }
 
-        protected static ulong LE_To_UInt64(byte[] bs, int off)
+        /// <summary>
+        /// Converts little endian bytes into number.
+        /// </summary>
+        /// <param name="buffer">The buffer.</param>
+        /// <param name="offset">The buffer offset.</param>
+        /// <returns></returns>
+        protected static ulong LittleEndianToUInt64(byte[] buffer, int offset)
         {
-            uint lo = LE_To_UInt32(bs, off);
-            uint hi = LE_To_UInt32(bs, off + 4);
+            uint lo = LittleEndianToUInt32(buffer, offset);
+            uint hi = LittleEndianToUInt32(buffer, offset + 4);
             return ((ulong)hi << 32) | (ulong)lo;
         }
 
-        protected static void UInt64_To_LE(ulong n, byte[] bs)
+        /// <summary>
+        /// Populates buffer with little endian number representation.
+        /// </summary>
+        /// <param name="number">The number to convert.</param>
+        /// <param name="buffer">The buffer.</param>
+        protected static void UInt64ToLittleEndian(ulong number, byte[] buffer)
         {
-            UInt32_To_LE((uint)(n), bs);
-            UInt32_To_LE((uint)(n >> 32), bs, 4);
+            UInt32ToLittleEndian((uint)(number), buffer);
+            UInt32ToLittleEndian((uint)(number >> 32), buffer, 4);
         }
 
-        protected static void UInt64_To_LE(ulong n, byte[] bs, int off)
+        /// <summary>
+        /// Populates buffer with little endian number representation.
+        /// </summary>
+        /// <param name="number">The number to convert.</param>
+        /// <param name="buffer">The buffer.</param>
+        /// <param name="offset">The buffer offset.</param>
+        protected static void UInt64ToLittleEndian(ulong number, byte[] buffer, int offset)
         {
-            UInt32_To_LE((uint)(n), bs, off);
-            UInt32_To_LE((uint)(n >> 32), bs, off + 4);
+            UInt32ToLittleEndian((uint)(number), buffer, offset);
+            UInt32ToLittleEndian((uint)(number >> 32), buffer, offset + 4);
         }
 
         #endregion

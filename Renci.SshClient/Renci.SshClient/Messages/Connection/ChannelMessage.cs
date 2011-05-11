@@ -1,4 +1,5 @@
-﻿namespace Renci.SshClient.Messages.Connection
+﻿using System.Globalization;
+namespace Renci.SshClient.Messages.Connection
 {
     /// <summary>
     /// Base class for all channel specific SSH messages.
@@ -37,7 +38,7 @@
         /// </returns>
         public override string ToString()
         {
-            return string.Format("{0} : #{1}", base.ToString(), this.LocalChannelNumber);
+            return string.Format(CultureInfo.CurrentCulture, "{0} : #{1}", base.ToString(), this.LocalChannelNumber);
         }
     }
 }

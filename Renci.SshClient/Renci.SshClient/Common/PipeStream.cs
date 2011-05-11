@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Threading;
+    using System.Globalization;
 
     /// <summary>
     /// PipeStream is a thread-safe read/write data stream for use between two threads in a 
@@ -102,16 +103,6 @@
         #region Stream overide methods
 
         ///<summary>
-        ///Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        ///</summary>
-        ///<filterpriority>2</filterpriority>
-        public new void Dispose()
-        {
-            // clear the internal buffer
-            _buffer.Clear();
-        }
-
-        ///<summary>
         ///When overridden in a derived class, clears all buffers for this stream and causes any buffered data to be written to the underlying device.
         ///</summary>
         ///
@@ -177,7 +168,7 @@
             if (offset < 0 || count < 0)
                 throw new ArgumentOutOfRangeException("offset", "offset or count is negative.");
             if (BlockLastReadBuffer && count >= _maxBufferLength)
-                throw new ArgumentException(String.Format("count({0}) > mMaxBufferLength({1})", count, _maxBufferLength));
+                throw new ArgumentException(String.Format(CultureInfo.CurrentCulture, "count({0}) > mMaxBufferLength({1})", count, _maxBufferLength));
 
             if (count == 0)
                 return 0;

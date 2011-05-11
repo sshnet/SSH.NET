@@ -109,20 +109,10 @@ namespace Renci.SshClient.Tests.SshClientTests
                     //},
                     (counter) =>
                     {
-                        var start = DateTime.Now;
-                        try
-                        {
-
-                            var cmd = client.CreateCommand(string.Format("wget -O- http://localhost:{0}", boundport));
-                            var result = cmd.Execute();
-                            var end = DateTime.Now;
-                            Debug.WriteLine(string.Format("Length: {0}", result.Length));
-                        }
-                        catch (Exception exp)
-                        {
-
-                            throw;
-                        }
+                        var cmd = client.CreateCommand(string.Format("wget -O- http://localhost:{0}", boundport));
+                        var result = cmd.Execute();
+                        var end = DateTime.Now;
+                        Debug.WriteLine(string.Format("Length: {0}", result.Length));
                     }
                 );
             }

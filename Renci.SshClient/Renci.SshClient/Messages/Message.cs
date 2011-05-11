@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Renci.SshClient.Common;
+using System.Globalization;
 
 namespace Renci.SshClient.Messages
 {
@@ -17,8 +18,6 @@ namespace Renci.SshClient.Messages
         /// <returns>SSH message object</returns>
         internal static T Load<T>(byte[] data) where T : Message, new()
         {
-            var messageType = data.FirstOrDefault();
-
             T message = new T();
 
             message.LoadBytes(data);
@@ -53,7 +52,7 @@ namespace Renci.SshClient.Messages
             var messageAttribute = this.GetType().GetCustomAttributes(typeof(MessageAttribute), true).SingleOrDefault() as MessageAttribute;
 
             if (messageAttribute == null)
-                throw new SshException(string.Format("Type '{0}' is not a valid message type.", this.GetType().AssemblyQualifiedName));
+                throw new SshException(string.Format(CultureInfo.CurrentCulture, "Type '{0}' is not a valid message type.", this.GetType().AssemblyQualifiedName));
 
             var data = new List<byte>(base.GetBytes());
 
@@ -73,7 +72,7 @@ namespace Renci.SshClient.Messages
             var messageAttribute = this.GetType().GetCustomAttributes(typeof(MessageAttribute), true).SingleOrDefault() as MessageAttribute;
 
             if (messageAttribute == null)
-                return string.Format("'{0}' without Message attribute.", this.GetType().FullName);
+                return string.Format(CultureInfo.CurrentCulture, "'{0}' without Message attribute.", this.GetType().FullName);
 
             return messageAttribute.Name;
         }

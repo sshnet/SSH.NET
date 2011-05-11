@@ -5,11 +5,11 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Renci.SshClient.Channels;
-using Renci.SshClient.Common;
-using Renci.SshClient.Messages.Connection;
+using Renci.SshNet.Channels;
+using Renci.SshNet.Common;
+using Renci.SshNet.Messages.Connection;
 
-namespace Renci.SshClient
+namespace Renci.SshNet
 {
     /// <summary>
     /// Represents instance of the SSH shell object

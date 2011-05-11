@@ -1,8 +1,8 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Renci.SshClient.Security;
-using Renci.SshClient.Tests.Properties;
+using Renci.SshNet.Security;
+using Renci.SshNet.Tests.Properties;
 
-namespace Renci.SshClient.Tests.Security
+namespace Renci.SshNet.Tests.Security
 {
     [TestClass]
     public class TestKeyExchange

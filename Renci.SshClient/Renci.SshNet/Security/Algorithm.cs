@@ -1,4 +1,4 @@
-﻿namespace Renci.SshClient.Security
+﻿namespace Renci.SshNet.Security
 {
     /// <summary>
     /// Represents the abstract base class from which all implementations of algorithms must inherit.

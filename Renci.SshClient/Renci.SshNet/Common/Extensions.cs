@@ -5,7 +5,7 @@ using System.Linq;
 using System;
 using System.Globalization;
 
-namespace Renci.SshClient
+namespace Renci.SshNet
 {
     /// <summary>
     /// Collection of different extension method

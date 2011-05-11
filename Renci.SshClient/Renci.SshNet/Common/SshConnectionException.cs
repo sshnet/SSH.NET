@@ -1,7 +1,8 @@
 ﻿using System;
-using Renci.SshClient.Messages.Transport;
+using Renci.SshNet.Messages.Transport;
+using System.Runtime.Serialization;
 
-namespace Renci.SshClient.Common
+namespace Renci.SshNet.Common
 {
     /// <summary>
     /// The exception that is thrown when connection was terminated.
@@ -12,7 +13,14 @@ namespace Renci.SshClient.Common
         /// <summary>
         /// Gets the disconnect reason if provided by the server or client. Otherwise None.
         /// </summary>
-        public DisconnectReasons DisconnectReason { get; private set; }
+        public DisconnectReason DisconnectReason { get; private set; }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SshConnectionException"/> class.
+        /// </summary>
+        public SshConnectionException()
+        {
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SshConnectionException"/> class.
@@ -21,7 +29,7 @@ namespace Renci.SshClient.Common
         public SshConnectionException(string message)
             : base(message)
         {
-            this.DisconnectReason = DisconnectReasons.None;
+            this.DisconnectReason = DisconnectReason.None;
         }
 
         /// <summary>
@@ -29,7 +37,7 @@ namespace Renci.SshClient.Common
         /// </summary>
         /// <param name="message">The message.</param>
         /// <param name="disconnectReasonCode">The disconnect reason code.</param>
-        public SshConnectionException(string message, DisconnectReasons disconnectReasonCode)
+        public SshConnectionException(string message, DisconnectReason disconnectReasonCode)
             : base(message)
         {
             this.DisconnectReason = disconnectReasonCode;
@@ -41,10 +49,33 @@ namespace Renci.SshClient.Common
         /// <param name="message">The message.</param>
         /// <param name="disconnectReasonCode">The disconnect reason code.</param>
         /// <param name="inner">The inner.</param>
-        public SshConnectionException(string message, DisconnectReasons disconnectReasonCode, Exception inner)
+        public SshConnectionException(string message, DisconnectReason disconnectReasonCode, Exception inner)
             : base(message, inner)
         {
             this.DisconnectReason = disconnectReasonCode;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SshConnectionException"/> class.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        /// <param name="innerException">The inner exception.</param>
+        public SshConnectionException(string message, Exception innerException) :
+            base(message, innerException)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SshConnectionException"/> class.
+        /// </summary>
+        /// <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo"/> that holds the serialized object data about the exception being thrown.</param>
+        /// <param name="context">The <see cref="T:System.Runtime.Serialization.StreamingContext"/> that contains contextual information about the source or destination.</param>
+        /// <exception cref="T:System.ArgumentNullException">The <paramref name="info"/> parameter is null. </exception>
+        ///   
+        /// <exception cref="T:System.Runtime.Serialization.SerializationException">The class name is null or <see cref="P:System.Exception.HResult"/> is zero (0). </exception>
+        protected SshConnectionException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
         }
 
         /// <summary>

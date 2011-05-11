@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
 
-namespace Renci.SshClient.Messages.Transport
+namespace Renci.SshNet.Messages.Transport
 {
     /// <summary>
     /// Represents SSH_MSG_KEXDH_INIT message.

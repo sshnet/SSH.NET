@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace Renci.SshClient.Messages.Authentication
+namespace Renci.SshNet.Messages.Authentication
 {
     /// <summary>
     /// Represents "keyboard-interactive" SSH_MSG_USERAUTH_REQUEST message.
@@ -36,7 +36,7 @@ namespace Renci.SshClient.Messages.Authentication
         /// </summary>
         /// <param name="serviceName">Name of the service.</param>
         /// <param name="username">Authentication username.</param>
-        public RequestMessageKeyboardInteractive(ServiceNames serviceName, string username)
+        public RequestMessageKeyboardInteractive(ServiceName serviceName, string username)
             : base(serviceName, username)
         {
             this.Language = string.Empty;

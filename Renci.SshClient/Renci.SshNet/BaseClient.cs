@@ -1,9 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Threading;
-using Renci.SshClient.Common;
+using Renci.SshNet.Common;
 
-namespace Renci.SshClient
+namespace Renci.SshNet
 {
     /// <summary>
     /// Serves as base class for client implementations, provides common client functionality.
@@ -167,7 +167,7 @@ namespace Renci.SshClient
         /// <summary>
         /// Ensures that client is connected.
         /// </summary>
-        /// <exception cref="Renci.SshClient.Common.SshConnectionException">When client not connected.</exception>
+        /// <exception cref="Renci.SshNet.Common.SshConnectionException">When client not connected.</exception>
         protected void EnsureConnection()
         {
             if (!this.Session.IsConnected)

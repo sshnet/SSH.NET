@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Renci.SshClient.Sftp.Messages;
+using Renci.SshNet.Sftp.Messages;
 using System.Threading;
 
-namespace Renci.SshClient.Sftp
+namespace Renci.SshNet.Sftp
 {
     internal class RealPathCommand : SftpCommand
     {

@@ -4,13 +4,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
-using Renci.SshClient.Security;
+using Renci.SshNet.Security;
 using System.Security.Cryptography;
 using System.Security;
-using Renci.SshClient.Common;
+using Renci.SshNet.Common;
 using System.Globalization;
 
-namespace Renci.SshClient
+namespace Renci.SshNet
 {
     /// <summary>
     /// old private key information/

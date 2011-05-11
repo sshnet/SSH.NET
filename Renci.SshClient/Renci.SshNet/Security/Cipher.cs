@@ -2,7 +2,7 @@
 using System.Linq;
 using System;
 
-namespace Renci.SshClient.Security
+namespace Renci.SshNet.Security
 {
     /// <summary>
     /// Represents the abstract base class from which all implementations of cipher must inherit.

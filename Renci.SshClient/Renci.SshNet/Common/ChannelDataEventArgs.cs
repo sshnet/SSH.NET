@@ -1,7 +1,7 @@
-﻿namespace Renci.SshClient.Common
+﻿namespace Renci.SshNet.Common
 {
     /// <summary>
-    /// Provides data for <see cref="Renci.SshClient.Channels.Channel.DataReceived"/> event and <see cref="Renci.SshClient.Channels.Channel.ExtendedDataReceived"/> events.
+    /// Provides data for <see cref="Renci.SshNet.Channels.Channel.DataReceived"/> event and <see cref="Renci.SshNet.Channels.Channel.ExtendedDataReceived"/> events.
     /// </summary>
     internal class ChannelDataEventArgs : ChannelEventArgs
     {

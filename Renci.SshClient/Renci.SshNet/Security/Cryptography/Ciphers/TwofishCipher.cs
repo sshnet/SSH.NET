@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Renci.SshClient.Security.Cryptography.Ciphers
+namespace Renci.SshNet.Security.Cryptography.Ciphers
 {
     internal class TwofishCipher : CipherBase
     {

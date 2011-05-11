@@ -1,8 +1,8 @@
 ﻿using System.IO;
 using System.Linq;
-using Renci.SshClient.Sftp.Messages;
+using Renci.SshNet.Sftp.Messages;
 
-namespace Renci.SshClient.Sftp
+namespace Renci.SshNet.Sftp
 {
     internal class DownloadFileCommand : SftpCommand
     {

@@ -1,10 +1,10 @@
 ﻿using System;
-using Renci.SshClient.Messages.Connection;
+using Renci.SshNet.Messages.Connection;
 
-namespace Renci.SshClient.Common
+namespace Renci.SshNet.Common
 {
     /// <summary>
-    /// Provides data for <see cref="Renci.SshClient.Channels.Channel.RequestReceived"/> event.
+    /// Provides data for <see cref="Renci.SshNet.Channels.Channel.RequestReceived"/> event.
     /// </summary>
     internal class ChannelRequestEventArgs : EventArgs
     {

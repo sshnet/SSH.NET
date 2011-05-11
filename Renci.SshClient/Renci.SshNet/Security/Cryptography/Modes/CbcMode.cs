@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Globalization;
 
-namespace Renci.SshClient.Security.Cryptography
+namespace Renci.SshNet.Security.Cryptography
 {
     /// <summary>
     /// Represents the class for the CBC Block Cipher.
@@ -60,7 +61,7 @@ namespace Renci.SshClient.Security.Cryptography
                 throw new ArgumentException("Invalid output buffer");
 
             if (inputCount != this._blockSize)
-                throw new ArgumentException(string.Format("inputCount must be {0}.", this._blockSize));
+                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "inputCount must be {0}.", this._blockSize));
 
             for (int i = 0; i < this._blockSize; i++)
             {
@@ -94,7 +95,7 @@ namespace Renci.SshClient.Security.Cryptography
                 throw new ArgumentException("Invalid output buffer");
 
             if (inputCount != this._blockSize)
-                throw new ArgumentException(string.Format("inputCount must be {0}.", this._blockSize));
+                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "inputCount must be {0}.", this._blockSize));
 
             Array.Copy(inputBuffer, inputOffset, this._nextIV, 0, this._nextIV.Length);
 

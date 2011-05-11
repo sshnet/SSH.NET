@@ -4,12 +4,12 @@ using System.Linq;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
-using Renci.SshClient.Tests.Properties;
+using Renci.SshNet.Tests.Properties;
 using System.Security.Authentication;
-using Renci.SshClient.Common;
+using Renci.SshNet.Common;
 using System.Net;
 
-namespace Renci.SshClient.Tests
+namespace Renci.SshNet.Tests
 {
     [TestClass]
     public class ConnectionTest

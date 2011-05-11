@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using Renci.SshClient.Common;
+using Renci.SshNet.Common;
 
-namespace Renci.SshClient.Security
+namespace Renci.SshNet.Security
 {
     /// <summary>
     /// Represents base class for private keys

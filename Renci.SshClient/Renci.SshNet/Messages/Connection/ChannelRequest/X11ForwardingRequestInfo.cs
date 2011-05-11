@@ -1,4 +1,4 @@
-﻿namespace Renci.SshClient.Messages.Connection
+﻿namespace Renci.SshNet.Messages.Connection
 {
     /// <summary>
     /// Represents "x11-req" type channel request information

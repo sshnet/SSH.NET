@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Renci.SshClient.Messages.Transport
+namespace Renci.SshNet.Messages.Transport
 {
     /// <summary>
     /// Represents SSH_MSG_SERVICE_REQUEST message.
@@ -14,13 +14,13 @@ namespace Renci.SshClient.Messages.Transport
         /// <value>
         /// The name of the service.
         /// </value>
-        public ServiceNames ServiceName { get; private set; }
+        public ServiceName ServiceName { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ServiceRequestMessage"/> class.
         /// </summary>
         /// <param name="serviceName">Name of the service.</param>
-        public ServiceRequestMessage(ServiceNames serviceName)
+        public ServiceRequestMessage(ServiceName serviceName)
         {
             this.ServiceName = serviceName;
         }
@@ -40,10 +40,10 @@ namespace Renci.SshClient.Messages.Transport
         {
             switch (this.ServiceName)
             {
-                case ServiceNames.UserAuthentication:
+                case ServiceName.UserAuthentication:
                     this.Write("ssh-userauth");
                     break;
-                case ServiceNames.Connection:
+                case ServiceName.Connection:
                     this.Write("ssh-connection");
                     break;
                 default:

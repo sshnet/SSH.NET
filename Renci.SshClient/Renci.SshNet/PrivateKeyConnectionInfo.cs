@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Collections.ObjectModel;
 using System.Threading;
-using Renci.SshClient.Messages.Authentication;
-using Renci.SshClient.Messages;
-using Renci.SshClient.Common;
+using Renci.SshNet.Messages.Authentication;
+using Renci.SshNet.Messages;
+using Renci.SshNet.Common;
 
-namespace Renci.SshClient
+namespace Renci.SshNet
 {
     /// <summary>
     /// Provides connection information when private key authentication method is used
@@ -75,7 +75,7 @@ namespace Renci.SshClient
                 this._publicKeyRequestMessageResponseWaitHandle.Reset();
                 this._isSignatureRequired = false;
 
-                var message = new RequestMessagePublicKey(ServiceNames.Connection, this.Username, keyFile.AlgorithmName, keyFile.PublicKey);
+                var message = new RequestMessagePublicKey(ServiceName.Connection, this.Username, keyFile.AlgorithmName, keyFile.PublicKey);
 
                 if (this.KeyFiles.Count < 2)
                 {
@@ -94,7 +94,7 @@ namespace Renci.SshClient
                 {
                     this._publicKeyRequestMessageResponseWaitHandle.Reset();
 
-                    var signatureMessage = new RequestMessagePublicKey(ServiceNames.Connection, this.Username, keyFile.AlgorithmName, keyFile.PublicKey);
+                    var signatureMessage = new RequestMessagePublicKey(ServiceName.Connection, this.Username, keyFile.AlgorithmName, keyFile.PublicKey);
 
                     var signatureData = new SignatureData(message, this.Session.SessionId).GetBytes();
 

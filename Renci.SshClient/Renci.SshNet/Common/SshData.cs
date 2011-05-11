@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Text;
-using Renci.SshClient;
 using System.Globalization;
 
-namespace Renci.SshClient.Common
+namespace Renci.SshNet.Common
 {
     /// <summary>
     /// Base ssh data serialization type
@@ -74,10 +73,10 @@ namespace Renci.SshClient.Common
         /// <summary>
         /// Loads data from specified bytes.
         /// </summary>
-        /// <param name="bytes">Bytes array.</param>
-        public void Load(byte[] bytes)
+        /// <param name="value">Bytes array.</param>
+        public void Load(byte[] value)
         {
-            this.LoadBytes(bytes);
+            this.LoadBytes(value);
             this.LoadData();
         }
 

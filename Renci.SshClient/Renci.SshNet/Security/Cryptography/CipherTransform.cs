@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Security.Cryptography;
+using System.Globalization;
 
-namespace Renci.SshClient.Security.Cryptography
+namespace Renci.SshNet.Security.Cryptography
 {
     /// <summary>
     /// 
@@ -101,7 +102,7 @@ namespace Renci.SshClient.Security.Cryptography
                         length += this._blockCipher.DecryptBlock(inputBuffer, inputOffset + this._blockSize * i, this._blockSize, outputBuffer, outputOffset + this._blockSize * i);
                         break;
                     default:
-                        throw new ArgumentException(string.Format("TransformMode '{0}' is not supported.", this.TransformMode));
+                        throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "TransformMode '{0}' is not supported.", this.TransformMode));
                 }
             }
 

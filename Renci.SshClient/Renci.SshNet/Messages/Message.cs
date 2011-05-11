@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Renci.SshClient.Common;
+using Renci.SshNet.Common;
 using System.Globalization;
 
-namespace Renci.SshClient.Messages
+namespace Renci.SshNet.Messages
 {
     /// <summary>
     /// Base class for all SSH protocol messages

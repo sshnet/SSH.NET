@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Renci.SshClient.Common;
-using Renci.SshClient.Tests.Properties;
+using Renci.SshNet.Common;
+using Renci.SshNet.Tests.Properties;
 
-namespace Renci.SshClient.Tests.SftpClientTests
+namespace Renci.SshNet.Tests.SftpClientTests
 {
     [TestClass]
     public class DeleteDirectoryTest
@@ -73,6 +73,7 @@ namespace Renci.SshClient.Tests.SftpClientTests
                 sftp.Connect();
 
                 sftp.CreateDirectory("abcdef");
+                sftp.DeleteDirectory("abcdef");
 
                 sftp.Disconnect();
             }

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Renci.SshClient.Compression
+namespace Renci.SshNet.Compression
 {
     /// <summary>
     /// Represents "zlib" compression implementation

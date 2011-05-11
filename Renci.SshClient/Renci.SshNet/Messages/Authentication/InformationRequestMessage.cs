@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
-using Renci.SshClient.Common;
+using Renci.SshNet.Common;
 
-namespace Renci.SshClient.Messages.Authentication
+namespace Renci.SshNet.Messages.Authentication
 {
     /// <summary>
     /// Represents SSH_MSG_USERAUTH_INFO_REQUEST message.

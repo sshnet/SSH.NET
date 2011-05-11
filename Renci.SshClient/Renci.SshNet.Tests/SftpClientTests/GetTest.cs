@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Renci.SshClient.Tests.Properties;
+using Renci.SshNet.Tests.Properties;
 using System.IO;
 
-namespace Renci.SshClient.Tests.SftpClientTests
+namespace Renci.SshNet.Tests.SftpClientTests
 {
     [TestClass]
     public class GetTest

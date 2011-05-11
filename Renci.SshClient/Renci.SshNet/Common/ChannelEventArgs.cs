@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Renci.SshClient.Common
+namespace Renci.SshNet.Common
 {
     /// <summary>
     /// Base class for all channel related events.

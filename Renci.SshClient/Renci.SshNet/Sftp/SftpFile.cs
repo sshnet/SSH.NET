@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Security;
-using Renci.SshClient.Sftp.Messages;
+using Renci.SshNet.Sftp.Messages;
 using System.Globalization;
 
-namespace Renci.SshClient.Sftp
+namespace Renci.SshNet.Sftp
 {
     /// <summary>
     /// Represents SFTP file information

@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using Renci.SshClient.Security;
-using Renci.SshClient.Compression;
-using Renci.SshClient.Messages;
-using Renci.SshClient.Messages.Authentication;
-using Renci.SshClient.Common;
+using Renci.SshNet.Security;
+using Renci.SshNet.Compression;
+using Renci.SshNet.Messages;
+using Renci.SshNet.Messages.Authentication;
+using Renci.SshNet.Common;
 using System.Threading;
 using System.Net;
-namespace Renci.SshClient
+namespace Renci.SshNet
 {
     /// <summary>
     /// Represents remote connection infroamtion base class.

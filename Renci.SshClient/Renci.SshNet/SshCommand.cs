@@ -4,14 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Renci.SshClient.Channels;
-using Renci.SshClient.Common;
-using Renci.SshClient.Messages;
-using Renci.SshClient.Messages.Connection;
-using Renci.SshClient.Messages.Transport;
+using Renci.SshNet.Channels;
+using Renci.SshNet.Common;
+using Renci.SshNet.Messages;
+using Renci.SshNet.Messages.Connection;
+using Renci.SshNet.Messages.Transport;
 using System.Globalization;
 
-namespace Renci.SshClient
+namespace Renci.SshNet
 {
     /// <summary>
     /// Represents SSH command that can be executed.
@@ -50,7 +50,7 @@ namespace Renci.SshClient
         /// <summary>
         /// Gets the command exit status.
         /// </summary>
-        public uint ExitStatus { get; private set; }
+        public int ExitStatus { get; private set; }
 
         /// <summary>
         /// Gets the output stream.
@@ -143,8 +143,8 @@ namespace Renci.SshClient
         /// <param name="callback">An optional asynchronous callback, to be called when the command execution is complete.</param>
         /// <param name="state">A user-provided object that distinguishes this particular asynchronous read request from other requests.</param>
         /// <returns>An <see cref="System.IAsyncResult"/> that represents the asynchronous command execution, which could still be pending.</returns>
-        /// <exception cref="Renci.SshClient.Common.SshConnectionException">Client is not connected.</exception>
-        /// <exception cref="Renci.SshClient.Common.SshOperationTimeoutException">Operation has timed out.</exception>
+        /// <exception cref="Renci.SshNet.Common.SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="Renci.SshNet.Common.SshOperationTimeoutException">Operation has timed out.</exception>
         public IAsyncResult BeginExecute(AsyncCallback callback, object state)
         {
             //  Prevent from executing BeginExecute before calling EndExecute
@@ -189,8 +189,8 @@ namespace Renci.SshClient
         /// <param name="callback">An optional asynchronous callback, to be called when the command execution is complete.</param>
         /// <param name="state">A user-provided object that distinguishes this particular asynchronous read request from other requests.</param>
         /// <returns>An <see cref="System.IAsyncResult"/> that represents the asynchronous command execution, which could still be pending.</returns>
-        /// <exception cref="Renci.SshClient.Common.SshConnectionException">Client is not connected.</exception>
-        /// <exception cref="Renci.SshClient.Common.SshOperationTimeoutException">Operation has timed out.</exception>
+        /// <exception cref="Renci.SshNet.Common.SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="Renci.SshNet.Common.SshOperationTimeoutException">Operation has timed out.</exception>
         public IAsyncResult BeginExecute(string commandText, AsyncCallback callback, object state)
         {
             this.CommandText = commandText;
@@ -227,8 +227,8 @@ namespace Renci.SshClient
         /// Executes command specified by <see cref="CommandText"/> property.
         /// </summary>
         /// <returns>Command execution result</returns>
-        /// <exception cref="Renci.SshClient.Common.SshConnectionException">Client is not connected.</exception>
-        /// <exception cref="Renci.SshClient.Common.SshOperationTimeoutException">Operation has timed out.</exception>
+        /// <exception cref="Renci.SshNet.Common.SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="Renci.SshNet.Common.SshOperationTimeoutException">Operation has timed out.</exception>
         public string Execute()
         {
             return this.EndExecute(this.BeginExecute(null, null));
@@ -247,8 +247,8 @@ namespace Renci.SshClient
         /// </summary>
         /// <param name="commandText">The command text.</param>
         /// <returns>Command execution result</returns>
-        /// <exception cref="Renci.SshClient.Common.SshConnectionException">Client is not connected.</exception>
-        /// <exception cref="Renci.SshClient.Common.SshOperationTimeoutException">Operation has timed out.</exception>
+        /// <exception cref="Renci.SshNet.Common.SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="Renci.SshNet.Common.SshOperationTimeoutException">Operation has timed out.</exception>
         public string Execute(string commandText)
         {
             this.CommandText = commandText;
@@ -262,13 +262,31 @@ namespace Renci.SshClient
             this._channel.ExtendedDataReceived += Channel_ExtendedDataReceived;
             this._channel.RequestReceived += Channel_RequestReceived;
             this._channel.Closed += Channel_Closed;
+            
+            //  Dispose of streams if already exists
+            if (this.OutputStream != null)
+            {
+                this.OutputStream.Dispose();
+                this.OutputStream = null;
+            }
+
+            if (this.ExtendedOutputStream != null)
+            {
+                this.ExtendedOutputStream.Dispose();
+                this.ExtendedOutputStream = null;
+            }
+
+            //  Initialize output streams and StringBuilders
             this.OutputStream = new PipeStream();
             this.ExtendedOutputStream = new PipeStream();
+
+            this._result = null; 
+            this._error = null;
         }
 
         private void Session_Disconnected(object sender, EventArgs e)
         {
-            this._exception = new SshConnectionException("An established connection was aborted by the software in your host machine.", DisconnectReasons.ConnectionLost);
+            this._exception = new SshConnectionException("An established connection was aborted by the software in your host machine.", DisconnectReason.ConnectionLost);
 
             this._sessionErrorOccuredWaitHandle.Set();
         }
@@ -281,11 +299,6 @@ namespace Renci.SshClient
         }
 
         private void Channel_Closed(object sender, Common.ChannelEventArgs e)
-        {
-            Cancel1();
-        }
-
-        private void Cancel1()
         {
             if (this.OutputStream != null)
             {
@@ -314,7 +327,7 @@ namespace Renci.SshClient
             {
                 ExitStatusRequestInfo exitStatusInfo = e.Info as ExitStatusRequestInfo;
 
-                this.ExitStatus = exitStatusInfo.ExitStatus;
+                this.ExitStatus = (int)exitStatusInfo.ExitStatus;
 
                 replyMessage = new ChannelSuccessMessage(this._channel.LocalChannelNumber);
             }

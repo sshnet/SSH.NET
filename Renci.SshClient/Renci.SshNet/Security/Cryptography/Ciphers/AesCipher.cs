@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Renci.SshClient.Security.Cryptography
+namespace Renci.SshNet.Security.Cryptography
 {
     internal class AesCipher : CipherBase
     {

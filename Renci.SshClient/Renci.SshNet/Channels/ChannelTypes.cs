@@ -1,5 +1,5 @@
 ﻿
-namespace Renci.SshClient.Channels
+namespace Renci.SshNet.Channels
 {
     /// <summary>
     /// Lists channel types as defined by the protocol.

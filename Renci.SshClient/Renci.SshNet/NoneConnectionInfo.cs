@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using Renci.SshClient.Messages.Authentication;
-using Renci.SshClient.Messages;
+using Renci.SshNet.Messages.Authentication;
+using Renci.SshNet.Messages;
 
-namespace Renci.SshClient
+namespace Renci.SshNet
 {
     /// <summary>
     /// Provides connection information when password authentication method is used
@@ -57,7 +57,7 @@ namespace Renci.SshClient
         /// </summary>
         protected override void OnAuthenticate()
         {
-            this.SendMessage(new RequestMessageNone(ServiceNames.Connection, this.Username));
+            this.SendMessage(new RequestMessageNone(ServiceName.Connection, this.Username));
 
             this.WaitHandle(this._authenticationCompleted);
         }

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Renci.SshClient.Sftp.Messages
+namespace Renci.SshNet.Sftp.Messages
 {
     /// <summary>
     /// Represents SFTP File attribute.

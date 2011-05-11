@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Renci.SshClient.Tests.Security.Cryptography
+namespace Renci.SshNet.Tests.Security.Cryptography
 {
     [TestClass]
     public class TestAes
@@ -20,7 +20,7 @@ namespace Renci.SshClient.Tests.Security.Cryptography
             var encodedResult = new byte[input.Length];
             var decodedResult = new byte[input.Length];
 
-            var cipher = new Renci.SshClient.Security.Cryptography.Aes(128);
+            var cipher = new Renci.SshNet.Security.Cryptography.Aes(128);
             cipher.Mode = System.Security.Cryptography.CipherMode.CBC;
             cipher.Padding = System.Security.Cryptography.PaddingMode.None;
             var enc = cipher.CreateEncryptor(key, iv);
@@ -44,7 +44,7 @@ namespace Renci.SshClient.Tests.Security.Cryptography
             var encodedResult = new byte[input.Length];
             var decodedResult = new byte[input.Length];
 
-            var cipher = new Renci.SshClient.Security.Cryptography.Aes(192);
+            var cipher = new Renci.SshNet.Security.Cryptography.Aes(192);
             cipher.Mode = System.Security.Cryptography.CipherMode.CBC;
             cipher.Padding = System.Security.Cryptography.PaddingMode.None;
             var enc = cipher.CreateEncryptor(key, iv);
@@ -68,7 +68,7 @@ namespace Renci.SshClient.Tests.Security.Cryptography
             var encodedResult = new byte[input.Length];
             var decodedResult = new byte[input.Length];
 
-            var cipher = new Renci.SshClient.Security.Cryptography.Aes(256);
+            var cipher = new Renci.SshNet.Security.Cryptography.Aes(256);
             cipher.Mode = System.Security.Cryptography.CipherMode.CBC;
             cipher.Padding = System.Security.Cryptography.PaddingMode.None;
             var enc = cipher.CreateEncryptor(key, iv);
@@ -92,7 +92,7 @@ namespace Renci.SshClient.Tests.Security.Cryptography
             var encodedResult = new byte[input.Length];
             var decodedResult = new byte[input.Length];
 
-            var cipher = new Renci.SshClient.Security.Cryptography.Aes(128);
+            var cipher = new Renci.SshNet.Security.Cryptography.Aes(128);
             cipher.Mode = System.Security.Cryptography.CipherMode.CFB;
             cipher.Padding = System.Security.Cryptography.PaddingMode.None;
             var enc = cipher.CreateEncryptor(key, iv);
@@ -116,7 +116,7 @@ namespace Renci.SshClient.Tests.Security.Cryptography
             var encodedResult = new byte[input.Length];
             var decodedResult = new byte[input.Length];
 
-            var cipher = new Renci.SshClient.Security.Cryptography.Aes(128);
+            var cipher = new Renci.SshNet.Security.Cryptography.Aes(128);
             cipher.Mode = System.Security.Cryptography.CipherMode.CFB;
             cipher.Padding = System.Security.Cryptography.PaddingMode.None;
             var enc = cipher.CreateEncryptor(key, iv);
@@ -140,7 +140,7 @@ namespace Renci.SshClient.Tests.Security.Cryptography
             var encodedResult = new byte[input.Length];
             var decodedResult = new byte[input.Length];
 
-            var cipher = new Renci.SshClient.Security.Cryptography.Aes(128);
+            var cipher = new Renci.SshNet.Security.Cryptography.Aes(128);
             cipher.Mode = System.Security.Cryptography.CipherMode.CFB;
             cipher.Padding = System.Security.Cryptography.PaddingMode.None;
             var enc = cipher.CreateEncryptor(key, iv);

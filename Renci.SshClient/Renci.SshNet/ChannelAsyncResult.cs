@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 
-namespace Renci.SshClient
+namespace Renci.SshNet
 {
     /// <summary>
     /// Provides additional information for asynchronous command execution

@@ -1,9 +1,9 @@
 ﻿using System;
 
-namespace Renci.SshClient
+namespace Renci.SshNet
 {
     /// <summary>
-    /// Provides data for <see cref="Renci.SshClient.ForwardedPort.Exception"/> event.
+    /// Provides data for <see cref="Renci.SshNet.ForwardedPort.Exception"/> event.
     /// </summary>
     public class ExceptionEventArgs : EventArgs
     {

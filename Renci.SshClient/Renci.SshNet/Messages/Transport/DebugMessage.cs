@@ -1,5 +1,5 @@
 ﻿
-namespace Renci.SshClient.Messages.Transport
+namespace Renci.SshNet.Messages.Transport
 {
     /// <summary>
     /// Represents SSH_MSG_DEBUG message.

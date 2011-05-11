@@ -3,14 +3,14 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using Renci.SshClient.Channels;
-using Renci.SshClient.Common;
-using Renci.SshClient.Sftp.Messages;
+using Renci.SshNet.Channels;
+using Renci.SshNet.Common;
+using Renci.SshNet.Sftp.Messages;
 using System.Diagnostics;
 using System.Collections.Generic;
 using System.Globalization;
 
-namespace Renci.SshClient.Sftp
+namespace Renci.SshNet.Sftp
 {
     internal class SftpSession : IDisposable
     {
@@ -113,7 +113,7 @@ namespace Renci.SshClient.Sftp
         {
             var fullPath = path;
 
-            if (path[0] == '/' && this.WorkingDirectory != null)
+            if (path[0] != '/' && this.WorkingDirectory != null)
             {
                 if (this.WorkingDirectory[this.WorkingDirectory.Length - 1] == '/')
                 {
@@ -150,7 +150,7 @@ namespace Renci.SshClient.Sftp
             else
             {
                 var slash = string.Empty;
-                if (!canonizedPath.EndsWith("/"))
+                if (canonizedPath[canonizedPath.Length - 1] != '/')
                     slash = "/";
                 return string.Format(CultureInfo.InvariantCulture, "{0}{1}{2}", canonizedPath, slash, pathParts[pathParts.Length - 1]);
             }

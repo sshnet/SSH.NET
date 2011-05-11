@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Numerics;
 using System.Security.Cryptography;
-using Renci.SshClient.Messages.Transport;
+using Renci.SshNet.Messages.Transport;
 using System.Diagnostics;
-using Renci.SshClient.Messages;
+using Renci.SshNet.Messages;
 
-namespace Renci.SshClient.Security
+namespace Renci.SshNet.Security
 {
     /// <summary>
     /// Represents base class for Diffie Hellman key exchange algorithm

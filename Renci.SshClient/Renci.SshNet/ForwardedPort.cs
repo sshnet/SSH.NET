@@ -1,7 +1,7 @@
 ﻿using System;
-using Renci.SshClient.Common;
+using Renci.SshNet.Common;
 
-namespace Renci.SshClient
+namespace Renci.SshNet
 {
     /// <summary>
     /// Base class for port forwarding functionality.
@@ -89,7 +89,7 @@ namespace Renci.SshClient
         }
 
         /// <summary>
-        /// Raises <see cref="Renci.SshClient.ForwardedPort.Exception"/> event.
+        /// Raises <see cref="Renci.SshNet.ForwardedPort.Exception"/> event.
         /// </summary>
         /// <param name="execption">The exception.</param>
         protected void RaiseExceptionEvent(Exception execption)
@@ -101,7 +101,7 @@ namespace Renci.SshClient
         }
 
         /// <summary>
-        /// Raises <see cref="Renci.SshClient.ForwardedPort.RequestReceived"/> event.
+        /// Raises <see cref="Renci.SshNet.ForwardedPort.RequestReceived"/> event.
         /// </summary>
         /// <param name="host">Request originator host.</param>
         /// <param name="port">Request originator port.</param>

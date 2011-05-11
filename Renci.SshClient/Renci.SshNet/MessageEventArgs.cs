@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Renci.SshClient
+namespace Renci.SshNet
 {
     /// <summary>
     /// Provides data for message events.

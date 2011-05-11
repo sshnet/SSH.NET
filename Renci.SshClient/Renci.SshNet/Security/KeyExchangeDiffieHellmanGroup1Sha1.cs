@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Security.Cryptography;
-using Renci.SshClient.Common;
-using Renci.SshClient.Messages;
-using Renci.SshClient.Messages.Transport;
+using Renci.SshNet.Common;
+using Renci.SshNet.Messages;
+using Renci.SshNet.Messages.Transport;
 using System.Globalization;
 
-namespace Renci.SshClient.Security
+namespace Renci.SshNet.Security
 {
     /// <summary>
     /// Represents "diffie-hellman-group1-sha1" algorithm implementation.

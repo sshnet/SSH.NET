@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace Renci.SshClient.Sftp.Messages
+namespace Renci.SshNet.Sftp.Messages
 {
     internal class RmDirMessage : SftpRequestMessage
     {

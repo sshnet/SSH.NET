@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Renci.SshClient.Common;
-using Renci.SshClient.Sftp.Messages;
+using Renci.SshNet.Common;
+using Renci.SshNet.Sftp.Messages;
 using System.Globalization;
 
-namespace Renci.SshClient.Sftp
+namespace Renci.SshNet.Sftp
 {
     internal class ListDirectoryCommand : SftpCommand
     {

@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Renci.SshClient.Channels;
-using Renci.SshClient.Messages.Connection;
-using Renci.SshClient.Common;
+using Renci.SshNet.Channels;
+using Renci.SshNet.Messages.Connection;
+using Renci.SshNet.Common;
 using System.Diagnostics;
 using System.Globalization;
 
-namespace Renci.SshClient
+namespace Renci.SshNet
 {
     /// <summary>
     /// Provides functionality for remote port forwarding
@@ -38,7 +38,7 @@ namespace Renci.SshClient
             this.Session.ChannelOpenReceived += Session_ChannelOpening;
 
             //  Send global request to start direct tcpip
-            this.Session.SendMessage(new GlobalRequestMessage(GlobalRequestNames.TcpIpForward, true, this.BoundHost, this.BoundPort));
+            this.Session.SendMessage(new GlobalRequestMessage(GlobalRequestName.TcpIpForward, true, this.BoundHost, this.BoundPort));
 
             this.Session.WaitHandle(this._globalRequestResponse);
 
@@ -67,7 +67,7 @@ namespace Renci.SshClient
                 return;
 
             //  Send global request to cancel direct tcpip
-            this.Session.SendMessage(new GlobalRequestMessage(GlobalRequestNames.CancelTcpIpForward, true, this.BoundHost, this.BoundPort));
+            this.Session.SendMessage(new GlobalRequestMessage(GlobalRequestName.CancelTcpIpForward, true, this.BoundHost, this.BoundPort));
 
             this.Session.WaitHandle(this._globalRequestResponse);
 

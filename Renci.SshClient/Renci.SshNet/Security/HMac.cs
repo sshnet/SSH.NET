@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Security.Cryptography;
 
-namespace Renci.SshClient.Security
+namespace Renci.SshNet.Security
 {
     /// <summary>
     /// Represents base class for hash algorithm classes

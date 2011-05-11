@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using Renci.SshClient.Common;
-using Renci.SshClient.Sftp.Messages;
+using Renci.SshNet.Common;
+using Renci.SshNet.Sftp.Messages;
 using System.Threading;
 
-namespace Renci.SshClient.Sftp
+namespace Renci.SshNet.Sftp
 {
     /// <summary>
     /// Base class for all SFTP Commands

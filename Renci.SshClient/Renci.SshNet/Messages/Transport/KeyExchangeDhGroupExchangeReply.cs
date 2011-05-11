@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Numerics;
 
-namespace Renci.SshClient.Messages.Transport
+namespace Renci.SshNet.Messages.Transport
 {
     /// <summary>
     /// Represents SSH_MSG_KEX_DH_GEX_REPLY message.

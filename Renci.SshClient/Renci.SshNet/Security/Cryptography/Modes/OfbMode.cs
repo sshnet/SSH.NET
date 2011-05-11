@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Globalization;
 
-namespace Renci.SshClient.Security.Cryptography
+namespace Renci.SshNet.Security.Cryptography
 {
     /// <summary>
     /// Represents the class for the OFB Block Cipher.
@@ -59,7 +60,7 @@ namespace Renci.SshClient.Security.Cryptography
                 throw new ArgumentException("Invalid output buffer");
 
             if (inputCount != this._blockSize)
-                throw new ArgumentException(string.Format("inputCount must be {0}.", this._blockSize));
+                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "inputCount must be {0}.", this._blockSize));
 
             this.Cipher.EncryptBlock(this._iv, 0, this._iv.Length, this._ivOutput, 0);
 
@@ -94,7 +95,7 @@ namespace Renci.SshClient.Security.Cryptography
                 throw new ArgumentException("Invalid output buffer");
 
             if (inputCount != this._blockSize)
-                throw new ArgumentException(string.Format("inputCount must be {0}.", this._blockSize));
+                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "inputCount must be {0}.", this._blockSize));
 
             this.Cipher.EncryptBlock(this._iv, 0, this._iv.Length, this._ivOutput, 0);
 

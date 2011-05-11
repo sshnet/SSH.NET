@@ -1,7 +1,7 @@
-﻿namespace Renci.SshClient.Common
+﻿namespace Renci.SshNet.Common
 {
     /// <summary>
-    /// Provides data for <see cref="Renci.SshClient.Channels.Channel.OpenFailed"/> event.
+    /// Provides data for <see cref="Renci.SshNet.Channels.Channel.OpenFailed"/> event.
     /// </summary>
     internal class ChannelOpenFailedEventArgs : ChannelEventArgs
     {

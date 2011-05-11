@@ -2,9 +2,9 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
-using Renci.SshClient.Channels;
+using Renci.SshNet.Channels;
 
-namespace Renci.SshClient
+namespace Renci.SshNet
 {
     /// <summary>
     /// Provides functionality for local port forwarding

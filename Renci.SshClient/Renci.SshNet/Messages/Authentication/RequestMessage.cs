@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 
-namespace Renci.SshClient.Messages.Authentication
+namespace Renci.SshNet.Messages.Authentication
 {
     /// <summary>
     /// Represents SSH_MSG_USERAUTH_REQUEST message. Server as a base message for other user authentication requests.
@@ -20,7 +20,7 @@ namespace Renci.SshClient.Messages.Authentication
         /// <value>
         /// The name of the service.
         /// </value>
-        public ServiceNames ServiceName { get; private set; }
+        public ServiceName ServiceName { get; private set; }
 
         /// <summary>
         /// Gets the name of the authentication method.
@@ -35,7 +35,7 @@ namespace Renci.SshClient.Messages.Authentication
         /// </summary>
         /// <param name="serviceName">Name of the service.</param>
         /// <param name="username">Authentication username.</param>
-        public RequestMessage(ServiceNames serviceName, string username)
+        public RequestMessage(ServiceName serviceName, string username)
         {
             this.ServiceName = serviceName;
             this.Username = username;
@@ -57,10 +57,10 @@ namespace Renci.SshClient.Messages.Authentication
             this.Write(this.Username, Encoding.UTF8);
             switch (this.ServiceName)
             {
-                case ServiceNames.UserAuthentication:
+                case ServiceName.UserAuthentication:
                     this.Write("ssh-userauth", Encoding.UTF8);
                     break;
-                case ServiceNames.Connection:
+                case ServiceName.Connection:
                     this.Write("ssh-connection", Encoding.UTF8);
                     break;
                 default:

@@ -5,7 +5,7 @@ using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
 
-namespace Renci.SshClient.Tests.Security
+namespace Renci.SshNet.Tests.Security
 {
     [TestClass]
     public class TestPrivateKeyFile

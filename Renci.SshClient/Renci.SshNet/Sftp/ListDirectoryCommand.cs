@@ -47,7 +47,7 @@ namespace Renci.SshNet.Sftp
             base.OnName(files);
 
             var seperator = "/";
-            if (this._path[this._path.Length - 1] == '/')
+            if (!string.IsNullOrEmpty(this._path) && this._path[this._path.Length - 1] == '/')
                 seperator = string.Empty;
 
             var sftpFiles = from f in files

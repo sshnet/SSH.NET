@@ -113,7 +113,7 @@ namespace Renci.SshNet.Sftp
         {
             var fullPath = path;
 
-            if (path[0] != '/' && this.WorkingDirectory != null)
+            if (!string.IsNullOrEmpty(path) && path[0] != '/' && this.WorkingDirectory != null)
             {
                 if (this.WorkingDirectory[this.WorkingDirectory.Length - 1] == '/')
                 {

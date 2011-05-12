@@ -262,7 +262,9 @@ namespace Renci.SshNet
             this.EnsureConnection();
 
             var inputStream = new MemoryStream();
-            new StreamWriter(inputStream, encoding).Write(input);
+            var writer = new StreamWriter(inputStream, encoding);
+            writer.Write(input);
+            writer.Flush();
             inputStream.Seek(0, SeekOrigin.Begin);
 
             return this.CreateShell(inputStream, output, extendedOutput, terminalName, columns, rows, width, height, terminalMode, bufferSize);

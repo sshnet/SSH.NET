@@ -34,6 +34,8 @@ namespace Renci.SshNet
 
         private bool _hasError;
 
+        private object _endExecuteLock = new object();
+
         /// <summary>
         /// Gets the command text.
         /// </summary>
@@ -204,22 +206,31 @@ namespace Renci.SshNet
         /// <returns></returns>
         public string EndExecute(IAsyncResult asyncResult)
         {
-            CommandAsyncResult channelAsyncResult = asyncResult as CommandAsyncResult;
+            if (this._asyncResult == asyncResult && this._asyncResult != null)
+            {
+                lock (this._endExecuteLock)
+                {
+                    if (this._asyncResult != null)
+                    {
+                        //  Make sure that operation completed if not wait for it to finish
+                        this.WaitHandle(this._asyncResult.AsyncWaitHandle);
 
-            if (channelAsyncResult == null)
-                throw new ArgumentException("Not valid 'asynchResult' parameter.");
+                        this._channel.Close();
 
-            channelAsyncResult.ValidateCommand(this);
+                        this._channel = null;
 
-            //  Make sure that operation completed if not wait for it to finish
-            this.WaitHandle(this._asyncResult.AsyncWaitHandle);
-
-            this._channel.Close();
-
-            this._channel = null;
-
-            this._asyncResult = null;
-
+                        this._asyncResult = null;
+                    }
+                    else
+                    {
+                        throw new ArgumentException("Either the IAsyncResult object did not come from the corresponding async method on this type, or EndExecute was called multiple times with the same IAsyncResult.");
+                    }
+                }
+            }
+            else
+            {
+                throw new ArgumentException("Either the IAsyncResult object did not come from the corresponding async method on this type, or EndExecute was called multiple times with the same IAsyncResult.");
+            }
             return this.Result;
         }
 
@@ -237,10 +248,28 @@ namespace Renci.SshNet
         /// <summary>
         /// Cancels command execution in asynchronous scenarios. CURRENTLY NOT IMPLEMENTED.
         /// </summary>
-        public void Cancel()
-        {
-            throw new NotImplementedException();
-        }
+        //public void Cancel()
+        //{
+        //    if (this._channel != null && this._channel.IsOpen)
+        //    {
+        //        //this._channel.SendData(Encoding.ASCII.GetBytes("~."));
+        //        this._channel.SendExecRequest("\0x03");
+
+        //        //this._channel.SendSignalRequest("ABRT");
+        //        //this._channel.SendSignalRequest("ALRM");
+        //        //this._channel.SendSignalRequest("FPE");
+        //        //this._channel.SendSignalRequest("HUP");
+        //        //this._channel.SendSignalRequest("ILL");
+        //        //this._channel.SendSignalRequest("INT");
+        //        //this._channel.SendSignalRequest("PIPE");
+        //        //this._channel.SendSignalRequest("QUIT");
+        //        //this._channel.SendSignalRequest("SEGV");
+        //        //this._channel.SendSignalRequest("TERM");
+        //        //this._channel.SendSignalRequest("SEGV");
+        //        //this._channel.SendSignalRequest("USR1");
+        //        //this._channel.SendSignalRequest("USR2");
+        //    }
+        //}
 
         /// <summary>
         /// Executes the specified command text.
@@ -262,7 +291,7 @@ namespace Renci.SshNet
             this._channel.ExtendedDataReceived += Channel_ExtendedDataReceived;
             this._channel.RequestReceived += Channel_RequestReceived;
             this._channel.Closed += Channel_Closed;
-            
+
             //  Dispose of streams if already exists
             if (this.OutputStream != null)
             {
@@ -280,7 +309,7 @@ namespace Renci.SshNet
             this.OutputStream = new PipeStream();
             this.ExtendedOutputStream = new PipeStream();
 
-            this._result = null; 
+            this._result = null;
             this._error = null;
         }
 
@@ -311,12 +340,13 @@ namespace Renci.SshNet
             }
 
             this._asyncResult.IsCompleted = true;
+
             if (this._callback != null)
             {
                 //  Execute callback on different thread
                 Task.Factory.StartNew(() => { this._callback(this._asyncResult); });
             }
-            ((EventWaitHandle)_asyncResult.AsyncWaitHandle).Set();
+            ((EventWaitHandle)this._asyncResult.AsyncWaitHandle).Set();
         }
 
         private void Channel_RequestReceived(object sender, Common.ChannelRequestEventArgs e)

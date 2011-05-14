@@ -55,15 +55,6 @@ namespace Renci.SshNet.Sftp
         {
             this.SftpSession.WaitHandle(result.AsyncWaitHandle, this.CommandTimeout);
 
-            if (this._callback != null)
-            {
-                //  Execute callback on new pool thread
-                Task.Factory.StartNew(() =>
-                {
-                    this._callback(result);
-                });
-            }
-
             if (this._error != null)
                 throw this._error;
 
@@ -200,6 +191,16 @@ namespace Renci.SshNet.Sftp
 
         protected void CompleteExecution()
         {
+            //  Call callback if exists
+            if (this._callback != null)
+            {
+                //  Execute callback on new pool thread
+                Task.Factory.StartNew(() =>
+                {
+                    this._callback(this.AsyncResult);
+                });
+            }
+
             this.AsyncResult.Complete();
 
             this.SftpSession.AttributesMessageReceived -= SftpSession_AttributesMessageReceived;

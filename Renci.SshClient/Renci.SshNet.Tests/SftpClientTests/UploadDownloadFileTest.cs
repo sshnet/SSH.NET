@@ -307,6 +307,87 @@ namespace Renci.SshNet.Tests.SftpClientTests
             }
         }
 
+		[TestMethod]
+		[TestCategory("Sftp")]
+		[Description("Test that delegates passed to BeginUploadFile, BeginDownloadFile and BeginListDirectory are actually called.")]
+		public void Test_Sftp_Ensure_Async_Delegates_Called_For_BeginFileUpload_BeginFileDownload_BeginListDirectory()
+		{
+			using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+			{
+				sftp.Connect();
+
+				string remoteFileName = Path.GetRandomFileName();
+				string localFileName = Path.GetRandomFileName();
+				bool uploadDelegateCalled = false;
+				bool downloadDelegateCalled = false;
+				bool listDirectoryDelegateCalled = false;
+				IAsyncResult asyncResult;
+
+
+				// Test for BeginUploadFile.
+
+				CreateTestFile(localFileName, 1);
+
+				using (var fileStream = File.OpenRead(localFileName))
+				{
+					asyncResult = sftp.BeginUploadFile(fileStream, remoteFileName, delegate(IAsyncResult ar)
+					{
+						sftp.EndUploadFile(ar);
+						uploadDelegateCalled = true;
+
+					}, null);
+
+					while (!asyncResult.IsCompleted)
+					{
+						Thread.Sleep(500);
+					}
+				}
+
+				File.Delete(localFileName);
+
+				Assert.IsTrue(uploadDelegateCalled, "BeginUploadFile");
+
+				// Test for BeginDownloadFile.
+
+				asyncResult = null;
+				using (var fileStream = File.OpenWrite(localFileName))
+				{
+					asyncResult = sftp.BeginDownloadFile(remoteFileName, fileStream, delegate(IAsyncResult ar)
+					{
+						sftp.EndDownloadFile(ar);
+						downloadDelegateCalled = true;
+
+					}, null);
+
+					while (!asyncResult.IsCompleted)
+					{
+						Thread.Sleep(500);
+					}
+				}
+
+				File.Delete(localFileName);
+
+				Assert.IsTrue(downloadDelegateCalled, "BeginDownloadFile");
+
+				// Test for BeginListDirectory.
+
+				asyncResult = null;
+				asyncResult = sftp.BeginListDirectory(sftp.WorkingDirectory, delegate(IAsyncResult ar)
+				{
+					sftp.EndListDirectory(ar);
+					listDirectoryDelegateCalled = true;
+
+				}, null);
+
+				while (!asyncResult.IsCompleted)
+				{
+					Thread.Sleep(500);
+				}
+
+				Assert.IsTrue(listDirectoryDelegateCalled, "BeginListDirectory");
+			}
+		}
+
         /// <summary>
         /// Creates the test file.
         /// </summary>

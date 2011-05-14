@@ -132,21 +132,21 @@ namespace Renci.SshNet.Tests
             }
         }
 
-        [TestMethod]
+		[WorkItem(703), TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
         public void Test_ConnectionInfo_NullHost()
         {
             var connectionInfo = new PasswordConnectionInfo(null, null, null);
         }
 
-        [TestMethod]
+		[WorkItem(703), TestMethod]
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void Test_ConnectionInfo_SmallPortNumber()
         {
             var connectionInfo = new PasswordConnectionInfo(Resources.HOST, IPEndPoint.MinPort - 1, null, null);
         }
 
-        [TestMethod]
+		[WorkItem(703), TestMethod]
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void Test_ConnectionInfo_BigPortNumber()
         {

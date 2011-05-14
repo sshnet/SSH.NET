@@ -350,7 +350,7 @@ namespace Renci.SshNet.Tests.SshClientTests
         }
 
 
-        [TestMethod]
+		[WorkItem(703), TestMethod]
         [ExpectedException(typeof(ArgumentException))]
         public void Test_EndExecute_Before_BeginExecute()
         {

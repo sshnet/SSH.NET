@@ -10,7 +10,7 @@ namespace Renci.SshNet.Tests.Security
     [TestClass]
     public class TestPrivateKeyFile
     {
-        [TestMethod]
+		[WorkItem(703), TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
         public void Test_PrivateKeyFile_EmptyFileName()
         {
@@ -18,7 +18,7 @@ namespace Renci.SshNet.Tests.Security
             var keyFile = new PrivateKeyFile(fileName);
         }
 
-        [TestMethod]
+		[WorkItem(703), TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
         public void Test_PrivateKeyFile_StreamIsNull()
         {

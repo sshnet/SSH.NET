@@ -308,7 +308,7 @@ namespace Renci.SshNet.Tests.SshClientTests
         /// <summary>
         /// Tests for Issue 563.
         /// </summary>
-        [TestMethod]
+        [WorkItem(563), TestMethod]
         public void Test_Execute_Command_Same_Object_Different_Commands()
         {
             using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))

@@ -79,5 +79,21 @@ namespace Renci.SshNet.Tests.SftpClientTests
             }
         }
 
+		[TestMethod]
+		[TestCategory("Sftp")]
+		[Description("Test passing null to DeleteDirectory.")]		
+		[ExpectedException(typeof(ArgumentNullException))]
+		public void Test_Sftp_DeleteDirectory_Null()
+		{
+			using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+			{
+				sftp.Connect();
+
+				sftp.DeleteDirectory(null);
+
+				sftp.Disconnect();
+			}
+		}
+
     }
 }

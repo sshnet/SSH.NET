@@ -388,6 +388,34 @@ namespace Renci.SshNet.Tests.SftpClientTests
 			}
 		}
 
+		[TestMethod]
+		[TestCategory("Sftp")]
+		[Description("Test passing null to BeginUploadFile")]
+		[ExpectedException(typeof(ArgumentNullException))]
+		public void Test_Sftp_BeginUploadFile_Null()
+		{
+			using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+			{
+				sftp.Connect();
+				sftp.BeginUploadFile(null, null, null, null);
+				sftp.Disconnect();
+			}
+		}
+
+		[TestMethod]
+		[TestCategory("Sftp")]
+		[Description("Test passing null to BeginDownloadFile")]
+		[ExpectedException(typeof(ArgumentNullException))]
+		public void Test_Sftp_BeginDownloadFile_Null()
+		{
+			using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+			{
+				sftp.Connect();
+				sftp.BeginDownloadFile(null, null, null, null);
+				sftp.Disconnect();
+			}
+		}
+
         /// <summary>
         /// Creates the test file.
         /// </summary>

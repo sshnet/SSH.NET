@@ -119,6 +119,29 @@ namespace Renci.SshNet.Tests.SftpClientTests
             }
         }
 
+		[TestMethod]
+		[TestCategory("Sftp")]
+		[Description("Test passing null to ListDirectory.")]
+		[ExpectedException(typeof(ArgumentNullException))]
+		public void Test_Sftp_ListDirectory_Null()
+		{
+			using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+			{
+				sftp.Connect();
+
+				var files = sftp.ListDirectory(null);
+
+				Assert.IsTrue(files.Count() > 0);
+
+				foreach (var file in files)
+				{
+					Debug.WriteLine(file.FullName);
+				}
+
+				sftp.Disconnect();
+			}
+		}
+
         [TestMethod]
         [TestCategory("Sftp")]
         public void Test_Sftp_ListDirectory_HugeDirectory()
@@ -209,5 +232,21 @@ namespace Renci.SshNet.Tests.SftpClientTests
                 sftp.Disconnect();
             }
         }
+
+		[TestMethod]
+		[TestCategory("Sftp")]
+		[Description("Test passing null to ChangeDirectory.")]
+		[ExpectedException(typeof(ArgumentNullException))]
+		public void Test_Sftp_ChangeDirectory_Null()
+		{
+			using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+			{
+				sftp.Connect();
+
+				sftp.ChangeDirectory(null);
+
+				sftp.Disconnect();
+			}
+		}
     }
 }

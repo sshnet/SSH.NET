@@ -139,6 +139,30 @@ namespace Renci.SshNet.Tests
             var connectionInfo = new PasswordConnectionInfo(null, null, null);
         }
 
+		[TestMethod]
+		[Description("Test passing whitespace to host parameter.")]
+		[ExpectedException(typeof(ArgumentException))]
+		public void Test_ConnectionInfo_Host_Is_Whitespace()
+		{
+			var connectionInfo = new PasswordConnectionInfo(" ", Resources.USERNAME,Resources.PASSWORD);
+		}
+
+		[TestMethod]
+		[Description("Test passing whitespace to username parameter.")]
+		[ExpectedException(typeof(ArgumentException))]
+		public void Test_ConnectionInfo_Username_Is_Whitespace()
+		{
+			var connectionInfo = new PasswordConnectionInfo(Resources.HOST, " ", Resources.PASSWORD);
+		}
+
+		[TestMethod]
+		[Description("Test passing whitespace to password parameter.")]
+		[ExpectedException(typeof(ArgumentException))]
+		public void Test_ConnectionInfo_Password_Is_Whitespace()
+		{
+			var connectionInfo = new PasswordConnectionInfo(Resources.HOST, Resources.USERNAME, " ");
+		}
+
 		[WorkItem(703), TestMethod]
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void Test_ConnectionInfo_SmallPortNumber()

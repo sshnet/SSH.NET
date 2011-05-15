@@ -118,6 +118,70 @@ namespace Renci.SshNet.Tests.SshClientTests
             }
         }
 
+		[TestMethod]
+		[Description("Test passing null to AddForwardedPort hosts (local).")]
+		[ExpectedException(typeof(ArgumentNullException))]
+		public void Test_AddForwardedPort_Local_Hosts_Are_Null()
+		{
+
+			using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+			{
+				client.Connect();
+				var port1 = client.AddForwardedPort<ForwardedPortLocal>(null, 8080 , null, 80);
+				client.Disconnect();
+			}
+		}
+
+		[TestMethod]
+		[Description("Test passing null to AddForwardedPort hosts (remote).")]
+		public void Test_AddForwardedPort_Remote_Hosts_Are_Null()
+		{
+			using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+			{
+				client.Connect();
+				var port1 = client.AddForwardedPort<ForwardedPortRemote>(null, 8080, null, 80);
+				client.Disconnect();
+			}
+		}
+
+		[TestMethod]
+		[Description("Test passing string.Empty to AddForwardedPort host (remote).")]
+		[ExpectedException(typeof(ArgumentException))]
+		public void Test_AddForwardedPort_Remote_Hosts_Are_Empty()
+		{
+			using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+			{
+				client.Connect();
+				var port1 = client.AddForwardedPort<ForwardedPortRemote>(string.Empty, 8080, string.Empty, 80);
+				client.Disconnect();
+			}
+		}
+
+		[TestMethod]
+		[Description("Test passing string.Empty to AddForwardedPort host (local).")]
+		public void Test_AddForwardedPort_Local_Hosts_Are_Empty()
+		{
+			using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+			{
+				client.Connect();
+				var port1 = client.AddForwardedPort<ForwardedPortLocal>(string.Empty, 8080, string.Empty, 80);
+				client.Disconnect();
+			}
+		}
+
+		[TestMethod]
+		[Description("Test passing invalid port numbers to AddForwardedPort.")]
+		[ExpectedException(typeof(ArgumentOutOfRangeException))]
+		public void Test_AddForwardedPort_Invalid_PortNumber()
+		{
+			using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+			{
+				client.Connect();
+				var port1 = client.AddForwardedPort<ForwardedPortRemote>("localhost", IPEndPoint.MaxPort+1, "www.renci.org", IPEndPoint.MaxPort+1);
+				client.Disconnect();
+			}
+		}
+
         private static byte[] ReadStream(Stream stream)
         {
             byte[] buffer = new byte[1024];

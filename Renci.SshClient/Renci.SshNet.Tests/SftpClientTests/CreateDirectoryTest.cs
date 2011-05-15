@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Renci.SshNet.Common;
 using Renci.SshNet.Tests.Properties;
+using System;
 
 namespace Renci.SshNet.Tests.SftpClientTests
 {
@@ -101,5 +102,17 @@ namespace Renci.SshNet.Tests.SftpClientTests
                 sftp.Disconnect();
             }
         }
+
+		[TestMethod]
+		[TestCategory("Sftp")]
+		[Description("Test passing null to CreateDirectory.")]
+		[ExpectedException(typeof(ArgumentNullException))]
+		public void Test_Sftp_CreateDirectory_Null()
+		{
+			using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+			{
+				sftp.CreateDirectory(null);
+			}
+		}
     }
 }

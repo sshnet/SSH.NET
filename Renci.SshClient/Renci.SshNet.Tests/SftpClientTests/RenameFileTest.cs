@@ -50,6 +50,22 @@ namespace Renci.SshNet.Tests.SftpClientTests
             }
         }
 
+		[TestMethod]
+		[TestCategory("Sftp")]
+		[Description("Test passing null to RenameFile.")]
+		[ExpectedException(typeof(ArgumentNullException))]
+		public void Test_Sftp_RenameFile_Null()
+		{
+			using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+			{
+				sftp.Connect();
+
+				sftp.RenameFile(null, null);
+
+				sftp.Disconnect();
+			}
+		}
+
         /// <summary>
         /// Creates the test file.
         /// </summary>

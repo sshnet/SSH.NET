@@ -68,5 +68,20 @@ namespace Renci.SshNet.Tests.SftpClientTests
             }
         }
 
+		[TestMethod]
+		[TestCategory("Sftp")]
+		[Description("Test passing null to Get.")]
+		[ExpectedException(typeof(ArgumentNullException))]
+		public void Test_Get_File_Null()
+		{
+			using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+			{
+				sftp.Connect();
+
+				var file = sftp.Get(null);
+
+				sftp.Disconnect();
+			}
+		}
     }
 }

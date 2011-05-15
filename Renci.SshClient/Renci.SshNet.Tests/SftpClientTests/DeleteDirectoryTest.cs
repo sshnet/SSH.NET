@@ -54,6 +54,9 @@ namespace Renci.SshNet.Tests.SftpClientTests
         [ExpectedException(typeof(SshPermissionDeniedException))]
         public void Test_Sftp_DeleteDirectory_Which_No_Permissions()
         {
+			if (Resources.USERNAME == "root")
+				Assert.Fail("Must not run this test as root!");
+
             using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
             {
                 sftp.Connect();

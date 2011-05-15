@@ -104,6 +104,9 @@ namespace Renci.SshNet.Tests.SftpClientTests
         [TestCategory("Sftp")]
         public void Test_Sftp_Download_Forbidden()
         {
+			if (Resources.USERNAME == "root")
+				Assert.Fail("Must not run this test as root!");
+
             using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
             {
                 sftp.Connect();

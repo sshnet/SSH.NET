@@ -182,6 +182,30 @@ namespace Renci.SshNet.Tests.SshClientTests
 			}
 		}
 
+		[TestMethod]
+		[Description("Test passing null to constructor of PortForwardEventArgs.")]
+		[ExpectedException(typeof(ArgumentNullException))]
+		public void Test_PortForwardEventArgs_Host_Null()
+		{
+			var args = new PortForwardEventArgs(null, 80);
+		}
+
+		[TestMethod]
+		[Description("Test passing string.Empty to constructor of PortForwardEventArgs.")]
+		[ExpectedException(typeof(ArgumentException))]
+		public void Test_PortForwardEventArgs_Host_Empty()
+		{
+			var args = new PortForwardEventArgs(string.Empty, 80);
+		}
+
+		[TestMethod]
+		[Description("Test passing an invalid port to constructor of PortForwardEventArgs.")]
+		[ExpectedException(typeof(ArgumentOutOfRangeException))]
+		public void Test_PortForwardEventArgs_Port_Invalid()
+		{
+			var args = new PortForwardEventArgs("string", IPEndPoint.MaxPort + 1);
+		}
+
         private static byte[] ReadStream(Stream stream)
         {
             byte[] buffer = new byte[1024];

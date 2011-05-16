@@ -29,7 +29,7 @@ namespace Renci.SshNet.Tests.SftpClientTests
 		[TestMethod]
 		[TestCategory("Sftp")]
 		[Description("Test passing null to DeleteFile.")]
-		[ExpectedException(typeof(ArgumentNullException))]
+		[ExpectedException(typeof(ArgumentException))]
 		public void Test_Sftp_DeleteFile_Null()
 		{
 			using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))

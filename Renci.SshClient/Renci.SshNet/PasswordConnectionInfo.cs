@@ -61,6 +61,9 @@ namespace Renci.SshNet
         public PasswordConnectionInfo(string host, int port, string username, string password)
             : base(host, port, username)
         {
+            if (password == null)
+                throw new ArgumentNullException("password");
+
             this._password = password;
             this._requestMessage = new RequestMessagePassword(ServiceName.Connection, this.Username, password);
         }

@@ -109,7 +109,7 @@ namespace Renci.SshNet.Tests.SftpClientTests
 		[TestMethod]
 		[TestCategory("Sftp")]
 		[Description("Test passing null to CreateDirectory.")]
-		[ExpectedException(typeof(ArgumentNullException))]
+		[ExpectedException(typeof(ArgumentException))]
 		public void Test_Sftp_CreateDirectory_Null()
 		{
 			using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))

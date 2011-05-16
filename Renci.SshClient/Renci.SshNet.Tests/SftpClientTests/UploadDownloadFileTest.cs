@@ -391,33 +391,89 @@ namespace Renci.SshNet.Tests.SftpClientTests
 			}
 		}
 
-		[TestMethod]
-		[TestCategory("Sftp")]
-		[Description("Test passing null to BeginUploadFile")]
-		[ExpectedException(typeof(ArgumentNullException))]
-		public void Test_Sftp_BeginUploadFile_Null()
-		{
-			using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
-			{
-				sftp.Connect();
-				sftp.BeginUploadFile(null, null, null, null);
-				sftp.Disconnect();
-			}
-		}
+        [TestMethod]
+        [TestCategory("Sftp")]
+        [Description("Test passing null to BeginUploadFile")]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void Test_Sftp_BeginUploadFile_StreamIsNull()
+        {
+            using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            {
+                sftp.Connect();
+                sftp.BeginUploadFile(null, "aaaaa", null, null);
+                sftp.Disconnect();
+            }
+        }
 
-		[TestMethod]
-		[TestCategory("Sftp")]
-		[Description("Test passing null to BeginDownloadFile")]
-		[ExpectedException(typeof(ArgumentNullException))]
-		public void Test_Sftp_BeginDownloadFile_Null()
-		{
-			using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
-			{
-				sftp.Connect();
-				sftp.BeginDownloadFile(null, null, null, null);
-				sftp.Disconnect();
-			}
-		}
+        [TestMethod]
+        [TestCategory("Sftp")]
+        [Description("Test passing null to BeginUploadFile")]
+        [ExpectedException(typeof(ArgumentException))]
+        public void Test_Sftp_BeginUploadFile_FileNameIsWhiteSpace()
+        {
+            using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            {
+                sftp.Connect();
+                sftp.BeginUploadFile(new MemoryStream(), "   ", null, null);
+                sftp.Disconnect();
+            }
+        }
+
+        [TestMethod]
+        [TestCategory("Sftp")]
+        [Description("Test passing null to BeginUploadFile")]
+        [ExpectedException(typeof(ArgumentException))]
+        public void Test_Sftp_BeginUploadFile_FileNameIsNull()
+        {
+            using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            {
+                sftp.Connect();
+                sftp.BeginUploadFile(new MemoryStream(), null, null, null);
+                sftp.Disconnect();
+            }
+        }
+
+        [TestMethod]
+        [TestCategory("Sftp")]
+        [Description("Test passing null to BeginDownloadFile")]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void Test_Sftp_BeginDownloadFile_StreamIsNull()
+        {
+            using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            {
+                sftp.Connect();
+                sftp.BeginDownloadFile("aaaa", null, null, null);
+                sftp.Disconnect();
+            }
+        }
+
+        [TestMethod]
+        [TestCategory("Sftp")]
+        [Description("Test passing null to BeginDownloadFile")]
+        [ExpectedException(typeof(ArgumentException))]
+        public void Test_Sftp_BeginDownloadFile_FileNameIsWhiteSpace()
+        {
+            using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            {
+                sftp.Connect();
+                sftp.BeginDownloadFile("   ", new MemoryStream(), null, null);
+                sftp.Disconnect();
+            }
+        }
+
+        [TestMethod]
+        [TestCategory("Sftp")]
+        [Description("Test passing null to BeginDownloadFile")]
+        [ExpectedException(typeof(ArgumentException))]
+        public void Test_Sftp_BeginDownloadFile_FileNameIsNull()
+        {
+            using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            {
+                sftp.Connect();
+                sftp.BeginDownloadFile(null, new MemoryStream(), null, null);
+                sftp.Disconnect();
+            }
+        }
 
         /// <summary>
         /// Creates the test file.

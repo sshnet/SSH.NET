@@ -112,6 +112,24 @@ namespace Renci.SshNet
         /// </returns>
         public T AddForwardedPort<T>(string boundHost, uint boundPort, string connectedHost, uint connectedPort) where T : ForwardedPort, new()
         {
+            if (boundHost == null)
+                throw new ArgumentNullException("boundHost");
+
+            if (connectedHost == null)
+                throw new ArgumentNullException("connectedHost");
+
+            if (!boundHost.IsValidHost())
+                throw new ArgumentException("boundHost");
+
+            if (!boundPort.IsValidPort())
+                throw new ArgumentOutOfRangeException("boundPort");
+
+            if (!connectedHost.IsValidHost())
+                throw new ArgumentException("connectedHost");
+
+            if (!connectedPort.IsValidPort())
+                throw new ArgumentOutOfRangeException("connectedPort");
+
             //  Ensure that connection is established.
             this.EnsureConnection();
 

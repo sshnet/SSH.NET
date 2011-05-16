@@ -4,6 +4,8 @@ using System.Diagnostics;
 using System.Linq;
 using System;
 using System.Globalization;
+using System.Text.RegularExpressions;
+using System.Net;
 
 namespace Renci.SshNet
 {
@@ -19,7 +21,7 @@ namespace Renci.SshNet
         /// <param name="compareList">The collection to compare with</param>
         /// <param name="comparer">The comparer object to use to compare each item in the collection.  If null uses EqualityComparer(T).Default</param>
         /// <returns>True if the two collections contain all the same items in the same order</returns>
-        public static bool IsEqualTo<TSource>(this IEnumerable<TSource> value, IEnumerable<TSource> compareList, IEqualityComparer<TSource> comparer)
+        internal static bool IsEqualTo<TSource>(this IEnumerable<TSource> value, IEnumerable<TSource> compareList, IEqualityComparer<TSource> comparer)
         {
             if (value == compareList)
             {
@@ -71,7 +73,7 @@ namespace Renci.SshNet
         /// <param name="value">The current instance object</param>
         /// <param name="compareList">The collection to compare with</param>
         /// <returns>True if the two collections contain all the same items in the same order</returns>
-        public static bool IsEqualTo<TSource>(this IEnumerable<TSource> value, IEnumerable<TSource> compareList)
+        internal static bool IsEqualTo<TSource>(this IEnumerable<TSource> value, IEnumerable<TSource> compareList)
         {
             return IsEqualTo(value, compareList, null);
         }
@@ -80,7 +82,7 @@ namespace Renci.SshNet
         /// Prints out 
         /// </summary>
         /// <param name="bytes">The bytes.</param>
-        public static void DebugPrint(this IEnumerable<byte> bytes)
+        internal static void DebugPrint(this IEnumerable<byte> bytes)
         {
             foreach (var b in bytes)
             {
@@ -94,7 +96,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="data">The data.</param>
         /// <returns></returns>
-        public static IEnumerable<byte> TrimLeadingZero(this IEnumerable<byte> data)
+        internal static IEnumerable<byte> TrimLeadingZero(this IEnumerable<byte> data)
         {
             bool leadingZero = true;
             foreach (var item in data)
@@ -130,7 +132,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="value">The number to convert.</param>
         /// <returns>An array of bytes with length 2.</returns>
-        public static byte[] GetBytes(this UInt16 value)
+        internal static byte[] GetBytes(this UInt16 value)
         {
             return new byte[] { (byte)(value >> 8), (byte)(value & 0xFF) };
         }
@@ -140,7 +142,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="value">The number to convert.</param>
         /// <returns>An array of bytes with length 4.</returns>
-        public static byte[] GetBytes(this UInt32 value)
+        internal static byte[] GetBytes(this UInt32 value)
         {
             return new byte[] { (byte)(value >> 24), (byte)(value >> 16), (byte)(value >> 8), (byte)(value & 0xFF) };
         }
@@ -150,7 +152,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="value">The number to convert.</param>
         /// <returns>An array of bytes with length 8.</returns>
-        public static byte[] GetBytes(this UInt64 value)
+        internal static byte[] GetBytes(this UInt64 value)
         {
             return new byte[] { (byte)(value >> 56), (byte)(value >> 48), (byte)(value >> 40), (byte)(value >> 32), (byte)(value >> 24), (byte)(value >> 16), (byte)(value >> 8), (byte)(value & 0xFF) };
         }
@@ -160,9 +162,39 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="value">The number to convert.</param>
         /// <returns>An array of bytes with length 8.</returns>
-        public static byte[] GetBytes(this Int64 value)
+        internal static byte[] GetBytes(this Int64 value)
         {
             return new byte[] { (byte)(value >> 56), (byte)(value >> 48), (byte)(value >> 40), (byte)(value >> 32), (byte)(value >> 24), (byte)(value >> 16), (byte)(value >> 8), (byte)(value & 0xFF) };
+        }
+
+        private static Regex _rehost = new Regex(@"^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$|^(([a-zA-Z]|[a-zA-Z][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z]|[A-Za-z][A-Za-z0-9\-]*[A-Za-z0-9])$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+        internal static bool IsValidHost(this string value)
+        {
+            if (value == null)
+                return false;
+
+            return _rehost.Match(value).Success;
+        }
+
+        internal static bool IsValidPort(this uint value)
+        {
+            if (value < IPEndPoint.MinPort)
+                return false;
+
+            if (value > IPEndPoint.MaxPort)
+                return false;
+            return true;
+        }
+
+        internal static bool IsValidPort(this int value)
+        {
+            if (value < IPEndPoint.MinPort)
+                return false;
+
+            if (value > IPEndPoint.MaxPort)
+                return false;
+            return true;
         }
     }
 }

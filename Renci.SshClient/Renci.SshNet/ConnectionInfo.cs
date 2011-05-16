@@ -202,14 +202,14 @@ namespace Renci.SshNet
         protected ConnectionInfo(string host, int port, string username)
             : this()
         {
-            if (string.IsNullOrEmpty(host))
-                throw new ArgumentNullException("host");
+            if (!host.IsValidHost())
+                throw new ArgumentException("host");
 
-            if (port < IPEndPoint.MinPort)
+            if (!port.IsValidPort())
                 throw new ArgumentOutOfRangeException("port");
 
-            if (port > IPEndPoint.MaxPort)
-                throw new ArgumentOutOfRangeException("port");
+            if (string.IsNullOrWhiteSpace(username))
+                throw new ArgumentException("username");
 
             this.Host = host;
             this.Port = port;

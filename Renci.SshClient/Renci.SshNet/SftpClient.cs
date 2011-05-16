@@ -113,6 +113,9 @@ namespace Renci.SshNet
         /// <param name="path">New directory path.</param>
         public void ChangeDirectory(string path)
         {
+            if (path == null)
+                throw new ArgumentNullException("path");
+
             //  Ensure that connection is established.
             this.EnsureConnection();
 
@@ -126,6 +129,9 @@ namespace Renci.SshNet
         /// <param name="mode">The mode.</param>
         public void ChangePermissions(string path, ushort mode)
         {
+            if (path == null)
+                throw new ArgumentNullException("path");
+
             //  Ensure that connection is established.
             this.EnsureConnection();
 
@@ -142,6 +148,9 @@ namespace Renci.SshNet
         /// <exception cref="Renci.SshNet.Common.SshException"></exception>
         public void CreateDirectory(string path)
         {
+            if (string.IsNullOrWhiteSpace(path))
+                throw new ArgumentException(path);
+
             //  Ensure that connection is established.
             this.EnsureConnection();
 
@@ -160,6 +169,9 @@ namespace Renci.SshNet
         /// <param name="path">Directory to be deleted path.</param>
         public void DeleteDirectory(string path)
         {
+            if (string.IsNullOrWhiteSpace(path))
+                throw new ArgumentException("path");
+
             //  Ensure that connection is established.
             this.EnsureConnection();
 
@@ -179,6 +191,9 @@ namespace Renci.SshNet
         /// <param name="path">File to be deleted path.</param>
         public void DeleteFile(string path)
         {
+            if (string.IsNullOrWhiteSpace(path))
+                throw new ArgumentException("path");
+
             //  Ensure that connection is established.
             this.EnsureConnection();
 
@@ -199,6 +214,12 @@ namespace Renci.SshNet
         /// <param name="newPath">Path to the new file location.</param>
         public void RenameFile(string oldPath, string newPath)
         {
+            if (oldPath == null)
+                throw new ArgumentNullException("oldPath");
+
+            if (newPath == null)
+                throw new ArgumentNullException("newPath");
+            
             //  Ensure that connection is established.
             this.EnsureConnection();
 
@@ -221,6 +242,12 @@ namespace Renci.SshNet
         /// <param name="linkPath">The new path.</param>
         public void SymbolicLink(string path, string linkPath)
         {
+            if (string.IsNullOrWhiteSpace(path))
+                throw new ArgumentException("path");
+
+            if (string.IsNullOrWhiteSpace(linkPath))
+                throw new ArgumentException("linkPath");
+
             //  Ensure that connection is established.
             this.EnsureConnection();
 
@@ -255,6 +282,9 @@ namespace Renci.SshNet
         /// <returns>An <see cref="IAsyncResult"/> that references the asynchronous operation.</returns>
         public IAsyncResult BeginListDirectory(string path, AsyncCallback asyncCallback, object state)
         {
+            if (path == null)
+                throw new ArgumentNullException("path");
+
             //  Ensure that connection is established.
             this.EnsureConnection();
 
@@ -299,6 +329,9 @@ namespace Renci.SshNet
         /// <returns></returns>
         public SftpFile Get(string path)
         {
+            if (path == null)
+                throw new ArgumentNullException("path");
+
             //  Ensure that connection is established.
             this.EnsureConnection();
 
@@ -333,6 +366,12 @@ namespace Renci.SshNet
         /// <returns>An <see cref="IAsyncResult"/> that references the asynchronous operation.</returns>
         public IAsyncResult BeginDownloadFile(string path, Stream output, AsyncCallback asyncCallback, object state)
         {
+            if (string.IsNullOrWhiteSpace(path))
+                throw new ArgumentException("path");
+
+            if (output == null)
+                throw new ArgumentNullException("output");
+
             //  Ensure that connection is established.
             this.EnsureConnection();
 
@@ -386,6 +425,12 @@ namespace Renci.SshNet
         /// <returns>An <see cref="IAsyncResult"/> that references the asynchronous operation.</returns>
         public IAsyncResult BeginUploadFile(Stream input, string path, AsyncCallback asyncCallback, object state)
         {
+            if (input == null)
+                throw new ArgumentNullException("input");
+
+            if (string.IsNullOrWhiteSpace(path))
+                throw new ArgumentException("path");
+
             //  Ensure that connection is established.
             this.EnsureConnection();
 

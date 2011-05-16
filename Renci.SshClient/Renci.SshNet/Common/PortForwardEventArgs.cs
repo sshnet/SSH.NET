@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Renci.SshNet.Common
 {
@@ -27,6 +24,15 @@ namespace Renci.SshNet.Common
         /// <param name="port">The port.</param>
         public PortForwardEventArgs(string host, uint port)
         {
+            if (host == null)
+                throw new ArgumentNullException("host");
+
+            if (!host.IsValidHost())
+                throw new ArgumentException("host");
+
+            if (!port.IsValidPort())
+                throw new ArgumentOutOfRangeException("port");
+
             this.OriginatorHost = host;
             this.OriginatorPort = port;
         }

@@ -15,7 +15,6 @@ namespace Renci.SshNet.Tests.SftpClientTests
     [TestClass]
     public class UploadDownloadFileTest
     {
-
         [TestInitialize()]
         public void CleanCurrentFolder()
         {
@@ -149,7 +148,7 @@ namespace Renci.SshNet.Tests.SftpClientTests
                 {
                     using (var ms = new MemoryStream())
                     {
-                        sftp.UploadFile(ms, remoteFileName);
+                        sftp.DownloadFile(remoteFileName, ms);
                     }
                 }
                 catch (SshFileNotFoundException)
@@ -474,6 +473,40 @@ namespace Renci.SshNet.Tests.SftpClientTests
                 sftp.Disconnect();
             }
         }
+
+        [TestMethod]
+        [TestCategory("Sftp")]
+        [ExpectedException(typeof(ArgumentException))]
+        public void Test_Sftp_EndUploadFile_Invalid_Async_Handle()
+        {
+            using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            {
+                sftp.Connect();
+                var async1 = sftp.BeginListDirectory("/", null, null);
+                var filename = Path.GetTempFileName();
+                this.CreateTestFile(filename, 100);
+                var async2 = sftp.BeginUploadFile(File.OpenRead(filename), "test", null, null);
+                sftp.EndUploadFile(async1);
+            }
+        }
+
+        [TestMethod]
+        [TestCategory("Sftp")]
+        [ExpectedException(typeof(ArgumentException))]
+        public void Test_Sftp_EndDownloadFile_Invalid_Async_Handle()
+        {
+            using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            {
+                sftp.Connect();
+                var filename = Path.GetTempFileName();
+                this.CreateTestFile(filename, 1);
+                sftp.UploadFile(File.OpenRead(filename), "test123");
+                var async1 = sftp.BeginListDirectory("/", null, null);
+                var async2 = sftp.BeginDownloadFile("test123", new MemoryStream(), null, null);
+                sftp.EndDownloadFile(async1);
+            }
+        }
+
 
         /// <summary>
         /// Creates the test file.

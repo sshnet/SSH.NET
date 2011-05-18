@@ -17,6 +17,11 @@ namespace Renci.SshNet
         private SftpSession _sftpSession;
 
         /// <summary>
+        /// Keeps track of all async command execution
+        /// </summary>
+        private Dictionary<SftpAsyncResult, SftpCommand> _asyncCommands = new Dictionary<SftpAsyncResult, SftpCommand>();
+
+        /// <summary>
         /// Gets or sets the operation timeout.
         /// </summary>
         /// <value>The operation timeout.</value>
@@ -219,7 +224,7 @@ namespace Renci.SshNet
 
             if (newPath == null)
                 throw new ArgumentNullException("newPath");
-            
+
             //  Ensure that connection is established.
             this.EnsureConnection();
 
@@ -294,7 +299,14 @@ namespace Renci.SshNet
 
             cmd.CommandTimeout = this.OperationTimeout;
 
-            return cmd.BeginExecute(asyncCallback, state);
+            var async = cmd.BeginExecute(asyncCallback, state);
+
+            lock (this._asyncCommands)
+            {
+                this._asyncCommands.Add(async, cmd);
+            }
+
+            return async;
         }
 
         /// <summary>
@@ -304,22 +316,38 @@ namespace Renci.SshNet
         /// <returns>List of files</returns>
         public IEnumerable<SftpFile> EndListDirectory(IAsyncResult asyncResult)
         {
-            var sftpAsyncResult = asyncResult as SftpAsyncResult;
+            var sftpAsync = asyncResult as SftpAsyncResult;
 
-            if (sftpAsyncResult == null)
+            if (this._asyncCommands.ContainsKey(sftpAsync))
             {
-                throw new InvalidOperationException("Not valid IAsyncResult object.");
+                lock (this._asyncCommands)
+                {
+                    if (this._asyncCommands.ContainsKey(sftpAsync))
+                    {
+                        var cmd = this._asyncCommands[sftpAsync] as ListDirectoryCommand;
+
+                        if (cmd != null)
+                        {
+                            try
+                            {
+                                this._asyncCommands.Remove(sftpAsync);
+
+                                cmd.EndExecute(sftpAsync);
+
+                                var files = cmd.Files;
+
+                                return files;
+                            }
+                            finally
+                            {
+                                cmd.Dispose();
+                            }
+                        }
+                    }
+                }
             }
 
-            var cmd = sftpAsyncResult.GetCommand<ListDirectoryCommand>();
-
-            cmd.EndExecute(sftpAsyncResult);
-
-            var files = cmd.Files;
-
-            cmd.Dispose();
-
-            return files;
+            throw new ArgumentException("Either the IAsyncResult object did not come from the corresponding async method on this type, or EndListDirectory was called multiple times with the same IAsyncResult.");
         }
 
         /// <summary>
@@ -381,7 +409,14 @@ namespace Renci.SshNet
 
             cmd.CommandTimeout = this.OperationTimeout;
 
-            return cmd.BeginExecute(asyncCallback, state);
+            var async = cmd.BeginExecute(asyncCallback, state);
+
+            lock (this._asyncCommands)
+            {
+                this._asyncCommands.Add(async, cmd);
+            }
+
+            return async;
         }
 
         /// <summary>
@@ -390,19 +425,36 @@ namespace Renci.SshNet
         /// <param name="asyncResult">The pending asynchronous SFTP request.</param>
         public void EndDownloadFile(IAsyncResult asyncResult)
         {
-            var sftpAsyncResult = asyncResult as SftpAsyncResult;
+            var sftpAsync = asyncResult as SftpAsyncResult;
 
-            if (sftpAsyncResult == null)
+            if (this._asyncCommands.ContainsKey(sftpAsync))
             {
-                throw new InvalidOperationException("Not valid IAsyncResult object.");
+                lock (this._asyncCommands)
+                {
+                    if (this._asyncCommands.ContainsKey(sftpAsync))
+                    {
+                        var cmd = this._asyncCommands[sftpAsync] as DownloadFileCommand;
+
+                        if (cmd != null)
+                        {
+                            try
+                            {
+                                this._asyncCommands.Remove(sftpAsync);
+
+                                cmd.EndExecute(sftpAsync);
+
+                                return;
+                            }
+                            finally
+                            {
+                                cmd.Dispose();
+                            }
+                        }
+                    }
+                }
             }
 
-            var cmd = sftpAsyncResult.GetCommand<DownloadFileCommand>();
-
-            cmd.EndExecute(sftpAsyncResult);
-
-            cmd.Dispose();
-
+            throw new ArgumentException("Either the IAsyncResult object did not come from the corresponding async method on this type, or EndDownloadFile was called multiple times with the same IAsyncResult.");
         }
 
         /// <summary>
@@ -440,7 +492,14 @@ namespace Renci.SshNet
 
             cmd.CommandTimeout = this.OperationTimeout;
 
-            return cmd.BeginExecute(asyncCallback, state);
+            var async = cmd.BeginExecute(asyncCallback, state);
+
+            lock (this._asyncCommands)
+            {
+                this._asyncCommands.Add(async, cmd);
+            }
+
+            return async;
         }
 
         /// <summary>
@@ -449,18 +508,36 @@ namespace Renci.SshNet
         /// <param name="asyncResult">The pending asynchronous SFTP request.</param>
         public void EndUploadFile(IAsyncResult asyncResult)
         {
-            var sftpAsyncResult = asyncResult as SftpAsyncResult;
+            var sftpAsync = asyncResult as SftpAsyncResult;
 
-            if (sftpAsyncResult == null)
+            if (this._asyncCommands.ContainsKey(sftpAsync))
             {
-                throw new InvalidOperationException("Not valid IAsyncResult object.");
+                lock (this._asyncCommands)
+                {
+                    if (this._asyncCommands.ContainsKey(sftpAsync))
+                    {
+                        var cmd = this._asyncCommands[sftpAsync] as UploadFileCommand;
+
+                        if (cmd != null)
+                        {
+                            try
+                            {
+                                this._asyncCommands.Remove(sftpAsync);
+
+                                cmd.EndExecute(sftpAsync);
+
+                                return;
+                            }
+                            finally
+                            {
+                                cmd.Dispose();
+                            }
+                        }
+                    }
+                }
             }
 
-            var cmd = sftpAsyncResult.GetCommand<UploadFileCommand>();
-
-            cmd.EndExecute(sftpAsyncResult);
-
-            cmd.Dispose();
+            throw new ArgumentException("Either the IAsyncResult object did not come from the corresponding async method on this type, or EndUploadFile was called multiple times with the same IAsyncResult.");
         }
 
         /// <summary>
@@ -498,6 +575,16 @@ namespace Renci.SshNet
             {
                 this._sftpSession.Dispose();
                 this._sftpSession = null;
+            }
+
+            if (this._asyncCommands != null)
+            {
+                foreach (var command in this._asyncCommands.Values)
+                {
+                    command.Dispose();
+                }
+
+                this._asyncCommands = null;
             }
 
             base.Dispose(disposing);

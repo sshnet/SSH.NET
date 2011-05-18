@@ -220,18 +220,13 @@ namespace Renci.SshNet
                         this._channel = null;
 
                         this._asyncResult = null;
-                    }
-                    else
-                    {
-                        throw new ArgumentException("Either the IAsyncResult object did not come from the corresponding async method on this type, or EndExecute was called multiple times with the same IAsyncResult.");
+
+                        return this.Result;
                     }
                 }
             }
-            else
-            {
-                throw new ArgumentException("Either the IAsyncResult object did not come from the corresponding async method on this type, or EndExecute was called multiple times with the same IAsyncResult.");
-            }
-            return this.Result;
+
+            throw new ArgumentException("Either the IAsyncResult object did not come from the corresponding async method on this type, or EndExecute was called multiple times with the same IAsyncResult.");
         }
 
         /// <summary>

@@ -13,11 +13,7 @@ namespace Renci.SshNet.Sftp
     /// </summary>
     internal abstract class SftpCommand : IDisposable
     {
-        private AsyncCallback _callback;
-
         private uint _requestId;
-
-        private Exception _error;
 
         private bool _handleCloseMessageSent;
 
@@ -32,6 +28,7 @@ namespace Renci.SshNet.Sftp
         public SftpCommand(SftpSession sftpSession)
         {
             this.SftpSession = sftpSession;
+
             this.SftpSession.AttributesMessageReceived += SftpSession_AttributesMessageReceived;
             this.SftpSession.DataMessageReceived += SftpSession_DataMessageReceived;
             this.SftpSession.HandleMessageReceived += SftpSession_HandleMessageReceived;
@@ -42,9 +39,7 @@ namespace Renci.SshNet.Sftp
 
         public SftpAsyncResult BeginExecute(AsyncCallback callback, object state)
         {
-            this._callback = callback;
-
-            this.AsyncResult = new SftpAsyncResult(this, state);
+            this.AsyncResult = new SftpAsyncResult(this.SftpSession, this.CommandTimeout, callback, state);
 
             this.OnExecute();
 
@@ -53,11 +48,7 @@ namespace Renci.SshNet.Sftp
 
         public void EndExecute(SftpAsyncResult result)
         {
-            this.SftpSession.WaitHandle(result.AsyncWaitHandle, this.CommandTimeout);
-
-            if (this._error != null)
-                throw this._error;
-
+            result.EndInvoke();
         }
 
         public void Execute()
@@ -191,23 +182,14 @@ namespace Renci.SshNet.Sftp
 
         protected void CompleteExecution()
         {
-            //  Call callback if exists
-            if (this._callback != null)
-            {
-                //  Execute callback on new pool thread
-                Task.Factory.StartNew(() =>
-                {
-                    this._callback(this.AsyncResult);
-                });
-            }
-
-            this.AsyncResult.Complete();
-
             this.SftpSession.AttributesMessageReceived -= SftpSession_AttributesMessageReceived;
             this.SftpSession.DataMessageReceived -= SftpSession_DataMessageReceived;
             this.SftpSession.HandleMessageReceived -= SftpSession_HandleMessageReceived;
             this.SftpSession.NameMessageReceived -= SftpSession_NameMessageReceived;
             this.SftpSession.StatusMessageReceived -= SftpSession_StatusMessageReceived;
+            this.SftpSession.ErrorOccured -= SftpSession_ErrorOccured;
+
+            this.AsyncResult.SetAsCompleted(null, false);
         }
 
         private void SftpSession_StatusMessageReceived(object sender, MessageEventArgs<StatusMessage> e)
@@ -232,8 +214,7 @@ namespace Renci.SshNet.Sftp
                  e.Message.StatusCode == StatusCodes.BadMessage ||
                  e.Message.StatusCode == StatusCodes.NoConnection ||
                  e.Message.StatusCode == StatusCodes.ConnectionLost ||
-                 e.Message.StatusCode == StatusCodes.OperationUnsupported
-                 )
+                 e.Message.StatusCode == StatusCodes.OperationUnsupported)
                 {
                     //  Throw an exception if it was not handled by the command
                     throw new SshException(e.Message.ErrorMessage);
@@ -275,9 +256,7 @@ namespace Renci.SshNet.Sftp
 
         private void SftpSession_ErrorOccured(object sender, ErrorEventArgs e)
         {
-            this._error = e.GetException();
-
-            this.CompleteExecution();
+            this.AsyncResult.SetAsCompleted(e.GetException(), false);
         }
 
         private void SendMessage(SftpRequestMessage message)
@@ -287,7 +266,6 @@ namespace Renci.SshNet.Sftp
             
             this.SftpSession.SendMessage(message);
         }
-
 
         #region IDisposable Members
 
@@ -323,17 +301,10 @@ namespace Renci.SshNet.Sftp
                     this.SftpSession.NameMessageReceived -= SftpSession_NameMessageReceived;
                     this.SftpSession.StatusMessageReceived -= SftpSession_StatusMessageReceived;
                     this.SftpSession.ErrorOccured -= SftpSession_ErrorOccured;
-
-                    // Dispose managed ResourceMessages.
-                    if (this.AsyncResult != null)
-                    {
-                        this.AsyncResult.Dispose();
-                        this.AsyncResult = null;
-                    }
                 }
 
                 // Note disposing has been done.
-                _isDisposed = true;
+                this._isDisposed = true;
             }
         }
 

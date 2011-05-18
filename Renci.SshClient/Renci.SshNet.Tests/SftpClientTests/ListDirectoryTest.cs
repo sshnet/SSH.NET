@@ -248,5 +248,21 @@ namespace Renci.SshNet.Tests.SftpClientTests
 				sftp.Disconnect();
 			}
 		}
+
+        [TestMethod]
+        [TestCategory("Sftp")]
+        [Description("Test calling EndListDirectory method more then once.")]
+        [ExpectedException(typeof(ArgumentException))]
+        public void Test_Sftp_Call_EndListDirectory_Twice()
+        {
+            using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            {
+                sftp.Connect();
+                var ar = sftp.BeginListDirectory("/", null, null);
+                var result = sftp.EndListDirectory(ar);
+                var result1 = sftp.EndListDirectory(ar);
+            }
+        }
+
     }
 }

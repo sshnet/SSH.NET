@@ -2,6 +2,7 @@
 {
     internal enum Flags
     {
+        None = 0x00000000,
         /// <summary>
         /// SSH_FXF_READ
         /// </summary>

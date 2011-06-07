@@ -22,7 +22,7 @@ namespace Renci.SshNet.Common
         /// </summary>
         /// <param name="host">The host.</param>
         /// <param name="port">The port.</param>
-        public PortForwardEventArgs(string host, uint port)
+        internal PortForwardEventArgs(string host, uint port)
         {
             if (host == null)
                 throw new ArgumentNullException("host");

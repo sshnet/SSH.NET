@@ -3,6 +3,8 @@ using System.Linq;
 using System.Collections.Generic;
 using System.IO;
 using Renci.SshNet.Sftp;
+using System.Text;
+using Renci.SshNet.Common;
 
 namespace Renci.SshNet
 {
@@ -140,7 +142,7 @@ namespace Renci.SshNet
             //  Ensure that connection is established.
             this.EnsureConnection();
 
-            var file = this._sftpSession.GetSftpFile(path);
+            var file = this.Get(path);
 
             file.SetPermissions(mode);
         }
@@ -161,11 +163,12 @@ namespace Renci.SshNet
 
             var fullPath = this._sftpSession.GetCanonicalPath(path);
 
-            var cmd = new CreateDirectoryCommand(this._sftpSession, fullPath);
+            using (var cmd = new CreateDirectoryCommand(this._sftpSession, fullPath))
+            {
+                cmd.CommandTimeout = this.OperationTimeout;
 
-            cmd.CommandTimeout = this.OperationTimeout;
-
-            cmd.Execute();
+                cmd.Execute();
+            }
         }
 
         /// <summary>
@@ -360,18 +363,23 @@ namespace Renci.SshNet
             if (path == null)
                 throw new ArgumentNullException("path");
 
-            //  Ensure that connection is established.
-            this.EnsureConnection();
-
             var fullPath = this._sftpSession.GetCanonicalPath(path);
 
-            var cmd = new StatusCommand(this._sftpSession, fullPath);
+            using (var cmd = new StatusCommand(this._sftpSession, fullPath))
+            {
+                cmd.CommandTimeout = this.OperationTimeout;
 
-            cmd.CommandTimeout = this.OperationTimeout;
+                cmd.Execute();
 
-            cmd.Execute();
-
-            return cmd.File;
+                if (cmd.Attributes == null)
+                {
+                    return null;
+                }
+                else
+                {
+                    return new SftpFile(this._sftpSession, fullPath, cmd.Attributes);
+                }
+            }
         }
 
         /// <summary>
@@ -539,6 +547,505 @@ namespace Renci.SshNet
 
             throw new ArgumentException("Either the IAsyncResult object did not come from the corresponding async method on this type, or EndUploadFile was called multiple times with the same IAsyncResult.");
         }
+
+        #region File Methods
+
+        /// <summary>
+        /// Appends lines to a file, and then closes the file.
+        /// </summary>
+        /// <param name="path">The file to append the lines to. The file is created if it does not already exist.</param>
+        /// <param name="contents">The lines to append to the file.</param>
+        public void AppendAllLines(string path, IEnumerable<string> contents)
+        {
+            using (var stream = this.AppendText(path))
+            {
+                foreach (var line in contents)
+                {
+                    stream.WriteLine(line);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Appends lines to a file by using a specified encoding, and then closes the file.
+        /// </summary>
+        /// <param name="path">The file to append the lines to. The file is created if it does not already exist.</param>
+        /// <param name="contents">The lines to append to the file.</param>
+        /// <param name="encoding">The character encoding to use.</param>
+        public void AppendAllLines(string path, IEnumerable<string> contents, Encoding encoding)
+        {
+            using (var stream = this.AppendText(path, encoding))
+            {
+                foreach (var line in contents)
+                {
+                    stream.WriteLine(line);
+                }
+            }
+        }
+
+        /// <summary>
+        ///  Opens a file, appends the specified string to the file, and then closes the file. 
+        ///  If the file does not exist, this method creates a file, writes the specified string to the file, then closes the file.
+        /// </summary>
+        /// <param name="path">The file to append the specified string to.</param>
+        /// <param name="contents">The string to append to the file.</param>
+        public void AppendAllText(string path, string contents)
+        {
+            using (var stream = this.AppendText(path))
+            {
+                stream.Write(contents);
+            }
+        }
+
+        /// <summary>
+        /// Opens a file, appends the specified string to the file, and then closes the file.
+        /// If the file does not exist, this method creates a file, writes the specified string to the file, then closes the file.
+        /// </summary>
+        /// <param name="path">The file to append the specified string to.</param>
+        /// <param name="contents">The string to append to the file.</param>
+        /// <param name="encoding">The character encoding to use.</param>
+        public void AppendAllText(string path, string contents, Encoding encoding)
+        {
+            using (var stream = this.AppendText(path, encoding))
+            {
+                stream.Write(contents);
+            }
+        }
+
+        /// <summary>
+        /// Creates a <see cref="System.IO.StreamWriter"/> that appends UTF-8 encoded text to an existing file.
+        /// </summary>
+        /// <param name="path">The path to the file to append to.</param>
+        /// <returns>A StreamWriter that appends UTF-8 encoded text to an existing file.</returns>
+        public StreamWriter AppendText(string path)
+        {
+            return this.AppendText(path, Encoding.UTF8);
+        }
+
+        /// <summary>
+        /// Creates a <see cref="System.IO.StreamWriter"/> that appends UTF-8 encoded text to an existing file.
+        /// </summary>
+        /// <param name="path">The path to the file to append to.</param>
+        /// <param name="encoding">The character encoding to use.</param>
+        /// <returns>
+        /// A StreamWriter that appends UTF-8 encoded text to an existing file.
+        /// </returns>
+        public StreamWriter AppendText(string path, Encoding encoding)
+        {
+            return new StreamWriter(new SftpFileStream(this._sftpSession, path, FileMode.Append, FileAccess.Write), encoding);
+        }
+
+        /// <summary>
+        /// Creates or overwrites a file in the specified path.
+        /// </summary>
+        /// <param name="path">The path and name of the file to create.</param>
+        /// <returns>A <see cref="SftpFileStream"/> that provides read/write access to the file specified in path</returns>
+        public SftpFileStream Create(string path)
+        {
+            return new SftpFileStream(this._sftpSession, path, FileMode.Create, FileAccess.ReadWrite);
+        }
+
+        /// <summary>
+        /// Creates or overwrites the specified file.
+        /// </summary>
+        /// <param name="path">The path and name of the file to create.</param>
+        /// <param name="bufferSize">The number of bytes buffered for reads and writes to the file.</param>
+        /// <returns>A <see cref="SftpFileStream"/> that provides read/write access to the file specified in path</returns>
+        public SftpFileStream Create(string path, int bufferSize)
+        {
+            return new SftpFileStream(this._sftpSession, path, FileMode.Create, FileAccess.ReadWrite, bufferSize);
+        }
+
+        /// <summary>
+        /// Creates or opens a file for writing UTF-8 encoded text.
+        /// </summary>
+        /// <param name="path">The file to be opened for writing.</param>
+        /// <returns>A <see cref="System.IO.StreamWriter"/> that writes to the specified file using UTF-8 encoding.</returns>
+        public StreamWriter CreateText(string path)
+        {
+            return new StreamWriter(this.OpenWrite(path), Encoding.UTF8);
+        }
+
+        /// <summary>
+        /// Creates or opens a file for writing UTF-8 encoded text.
+        /// </summary>
+        /// <param name="path">The file to be opened for writing.</param>
+        /// <param name="encoding">The character encoding to use.</param>
+        /// <returns> A <see cref="System.IO.StreamWriter"/> that writes to the specified file using UTF-8 encoding. </returns>
+        public StreamWriter CreateText(string path, Encoding encoding)
+        {
+            return new StreamWriter(this.OpenWrite(path), encoding);
+        }
+
+        /// <summary>
+        /// Deletes the specified file or directory. An exception is not thrown if the specified file does not exist.
+        /// </summary>
+        /// <param name="path">The name of the file or directory to be deleted. Wildcard characters are not supported.</param>
+        public void Delete(string path)
+        {
+            var file = this.Get(path);
+
+            if (file == null)
+            {
+                throw new SshFileNotFoundException(path);
+            }
+
+            file.Delete();
+        }
+
+        /// <summary>
+        /// Determines whether the specified file exists.
+        /// </summary>
+        /// <param name="path">The file to check.</param>
+        /// <returns><c>true</c> if path contains the name of an existing file; otherwise, <c>false</c>.</returns>
+        public bool Exists(string path)
+        {
+            var file = this.Get(path);
+
+            return file != null;
+        }
+
+        /// <summary>
+        /// Gets the System.IO.FileAttributes of the file on the path.
+        /// </summary>
+        /// <param name="path">The path to the file.</param>
+        /// <returns>The System.IO.FileAttributes of the file on the path.</returns>
+        public FileAttributes GetAttributes(string path)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Returns the date and time the specified file or directory was last accessed.
+        /// </summary>
+        /// <param name="path">The file or directory for which to obtain access date and time information.</param>
+        /// <returns>A <see cref="System.DateTime"/> structure set to the date and time that the specified file or directory was last accessed. This value is expressed in local time.</returns>
+        public DateTime GetLastAccessTime(string path)
+        {
+            var file = this.Get(path);
+            return file.LastAccessTime;
+        }
+
+        /// <summary>
+        /// Returns the date and time, in coordinated universal time (UTC), that the specified file or directory was last accessed.
+        /// </summary>
+        /// <param name="path">The file or directory for which to obtain access date and time information.</param>
+        /// <returns>A <see cref="System.DateTime"/> structure set to the date and time that the specified file or directory was last accessed. This value is expressed in UTC time.</returns>
+        public DateTime GetLastAccessTimeUtc(string path)
+        {
+            var file = this.Get(path);
+            return file.LastAccessTime.ToUniversalTime();
+        }
+
+        /// <summary>
+        /// Returns the date and time the specified file or directory was last written to.
+        /// </summary>
+        /// <param name="path">The file or directory for which to obtain write date and time information.</param>
+        /// <returns>A <see cref="System.DateTime"/> structure set to the date and time that the specified file or directory was last written to. This value is expressed in local time.</returns>
+        public DateTime GetLastWriteTime(string path)
+        {
+            var file = this.Get(path);
+            return file.LastWriteTime;
+        }
+
+        /// <summary>
+        /// Returns the date and time, in coordinated universal time (UTC), that the specified file or directory was last written to.
+        /// </summary>
+        /// <param name="path">The file or directory for which to obtain write date and time information.</param>
+        /// <returns>A <see cref="System.DateTime"/> structure set to the date and time that the specified file or directory was last written to. This value is expressed in UTC time.</returns>
+        public DateTime GetLastWriteTimeUtc(string path)
+        {
+            var file = this.Get(path);
+            return file.LastWriteTime.ToUniversalTime();
+        }
+
+        /// <summary>
+        /// Opens a <see cref="SftpFileStream"/> on the specified path with read/write access.
+        /// </summary>
+        /// <param name="path">The file to open.</param>
+        /// <param name="mode">A <see cref="System.IO.FileMode"/> value that specifies whether a file is created if one does not exist, and determines whether the contents of existing files are retained or overwritten.</param>
+        /// <returns>An unshared <see cref="SftpFileStream"/> that provides access to the specified file, with the specified mode and access.</returns>
+        public SftpFileStream Open(string path, FileMode mode)
+        {
+            return new SftpFileStream(this._sftpSession, path, mode, FileAccess.ReadWrite);
+        }
+
+        /// <summary>
+        /// Opens a <see cref="SftpFileStream"/> on the specified path, with the specified mode and access.
+        /// </summary>
+        /// <param name="path">The file to open.</param>
+        /// <param name="mode">A <see cref="System.IO.FileMode"/> value that specifies whether a file is created if one does not exist, and determines whether the contents of existing files are retained or overwritten.</param>
+        /// <param name="access">A <see cref="System.IO.FileAccess"/> value that specifies the operations that can be performed on the file.</param>
+        /// <returns>An unshared <see cref="SftpFileStream"/> that provides access to the specified file, with the specified mode and access.</returns>
+        public SftpFileStream Open(string path, FileMode mode, FileAccess access)
+        {
+            return new SftpFileStream(this._sftpSession, path, mode, access);
+        }
+
+        /// <summary>
+        /// Opens an existing file for reading.
+        /// </summary>
+        /// <param name="path">The file to be opened for reading.</param>
+        /// <returns>A read-only System.IO.FileStream on the specified path.</returns>
+        public SftpFileStream OpenRead(string path)
+        {
+            return new SftpFileStream(this._sftpSession, path, FileMode.Open, FileAccess.Read);
+        }
+
+        /// <summary>
+        /// Opens an existing UTF-8 encoded text file for reading.
+        /// </summary>
+        /// <param name="path">The file to be opened for reading.</param>
+        /// <returns>A <see cref="System.IO.StreamReader"/> on the specified path.</returns>
+        public StreamReader OpenText(string path)
+        {
+            return new StreamReader(this.OpenRead(path), Encoding.UTF8);
+        }
+
+        /// <summary>
+        /// Opens an existing file for writing.
+        /// </summary>
+        /// <param name="path">The file to be opened for writing.</param>
+        /// <returns>An unshared <see cref="SftpFileStream"/> object on the specified path with <see cref="System.IO.FileAccess.Write"/> access.</returns>
+        public SftpFileStream OpenWrite(string path)
+        {
+            return new SftpFileStream(this._sftpSession, path, FileMode.OpenOrCreate, FileAccess.Write);
+        }
+
+        /// <summary>
+        /// Opens a binary file, reads the contents of the file into a byte array, and then closes the file.
+        /// </summary>
+        /// <param name="path">The file to open for reading.</param>
+        /// <returns>A byte array containing the contents of the file.</returns>
+        public byte[] ReadAllBytes(string path)
+        {
+            using (var stream = this.OpenRead(path))
+            {
+                var buffer = new byte[stream.Length];
+                stream.Read(buffer, 0, buffer.Length);
+                return buffer;
+            }
+        }
+
+        /// <summary>
+        /// Opens a text file, reads all lines of the file, and then closes the file.
+        /// </summary>
+        /// <param name="path">The file to open for reading.</param>
+        /// <returns>A string array containing all lines of the file.</returns>
+        public string[] ReadAllLines(string path)
+        {
+            return this.ReadAllLines(path, Encoding.UTF8);
+        }
+
+        /// <summary>
+        /// Opens a file, reads all lines of the file with the specified encoding, and then closes the file.
+        /// </summary>
+        /// <param name="path">The file to open for reading.</param>
+        /// <param name="encoding">The encoding applied to the contents of the file.</param>
+        /// <returns>A string array containing all lines of the file.</returns>
+        public string[] ReadAllLines(string path, Encoding encoding)
+        {
+            var lines = new List<string>();
+            using (var stream = new StreamReader(this.OpenRead(path), encoding))
+            {
+                while (!stream.EndOfStream)
+                {
+                    lines.Add(stream.ReadLine());
+                }
+            }
+            return lines.ToArray();
+        }
+
+        /// <summary>
+        /// Opens a text file, reads all lines of the file, and then closes the file.
+        /// </summary>
+        /// <param name="path">The file to open for reading.</param>
+        /// <returns>A string containing all lines of the file.</returns>
+        public string ReadAllText(string path)
+        {
+            return this.ReadAllText(path, Encoding.UTF8);
+        }
+
+        /// <summary>
+        /// Opens a file, reads all lines of the file with the specified encoding, and then closes the file.
+        /// </summary>
+        /// <param name="path">The file to open for reading.</param>
+        /// <param name="encoding">The encoding applied to the contents of the file.</param>
+        /// <returns>A string containing all lines of the file.</returns>
+        public string ReadAllText(string path, Encoding encoding)
+        {
+            var lines = new List<string>();
+            using (var stream = new StreamReader(this.OpenRead(path), encoding))
+            {
+                return stream.ReadToEnd();
+            }
+        }
+
+        /// <summary>
+        /// Reads the lines of a file.
+        /// </summary>
+        /// <param name="path">The file to read.</param>
+        /// <returns>The lines of the file.</returns>
+        public IEnumerable<string> ReadLines(string path)
+        {
+            return this.ReadAllLines(path);
+        }
+
+        /// <summary>
+        /// Read the lines of a file that has a specified encoding.
+        /// </summary>
+        /// <param name="path">The file to read.</param>
+        /// <param name="encoding">The encoding that is applied to the contents of the file.</param>
+        /// <returns>The lines of the file.</returns>
+        public IEnumerable<string> ReadLines(string path, Encoding encoding)
+        {
+            return this.ReadAllLines(path, encoding);
+        }
+
+        /// <summary>
+        /// Sets the date and time the specified file was last accessed.
+        /// </summary>
+        /// <param name="path">The file for which to set the access date and time information.</param>
+        /// <param name="lastAccessTime">A <see cref="System.DateTime"/> containing the value to set for the last access date and time of path. This value is expressed in local time.</param>
+        public void SetLastAccessTime(string path, DateTime lastAccessTime)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Sets the date and time, in coordinated universal time (UTC), that the specified file was last accessed.
+        /// </summary>
+        /// <param name="path">The file for which to set the access date and time information.</param>
+        /// <param name="lastAccessTimeUtc">A <see cref="System.DateTime"/> containing the value to set for the last access date and time of path. This value is expressed in UTC time.</param>
+        public void SetLastAccessTimeUtc(string path, DateTime lastAccessTimeUtc)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Sets the date and time that the specified file was last written to.
+        /// </summary>
+        /// <param name="path">The file for which to set the date and time information.</param>
+        /// <param name="lastWriteTime">A System.DateTime containing the value to set for the last write date and time of path. This value is expressed in local time.</param>
+        public void SetLastWriteTime(string path, DateTime lastWriteTime)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Sets the date and time, in coordinated universal time (UTC), that the specified file was last written to.
+        /// </summary>
+        /// <param name="path">The file for which to set the date and time information.</param>
+        /// <param name="lastWriteTimeUtc">A System.DateTime containing the value to set for the last write date and time of path. This value is expressed in UTC time.</param>
+        public void SetLastWriteTimeUtc(string path, DateTime lastWriteTimeUtc)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Creates a new file, writes the specified byte array to the file, and then closes the file. If the target file already exists, it is overwritten.
+        /// </summary>
+        /// <param name="path">The file to write to.</param>
+        /// <param name="bytes">The bytes to write to the file.</param>
+        public void WriteAllBytes(string path, byte[] bytes)
+        {
+            using (var stream = this.OpenWrite(path))
+            {
+                stream.Write(bytes, 0, bytes.Length);
+            }
+        }
+
+        /// <summary>
+        /// Creates a new file, writes a collection of strings to the file, and then closes the file.
+        /// </summary>
+        /// <param name="path">The file to write to.</param>
+        /// <param name="contents">The lines to write to the file.</param>
+        public void WriteAllLines(string path, IEnumerable<string> contents)
+        {
+            this.WriteAllLines(path, contents, Encoding.UTF8);
+        }
+
+        /// <summary>
+        /// Creates a new file, write the specified string array to the file, and then closes the file.
+        /// </summary>
+        /// <param name="path">The file to write to.</param>
+        /// <param name="contents">The string array to write to the file.</param>
+        public void WriteAllLines(string path, string[] contents)
+        {
+            this.WriteAllLines(path, contents, Encoding.UTF8);
+        }
+
+        /// <summary>
+        /// Creates a new file by using the specified encoding, writes a collection of strings to the file, and then closes the file.
+        /// </summary>
+        /// <param name="path">The file to write to.</param>
+        /// <param name="contents">The lines to write to the file.</param>
+        /// <param name="encoding">The character encoding to use.</param>
+        public void WriteAllLines(string path, IEnumerable<string> contents, Encoding encoding)
+        {
+            using (var stream = this.CreateText(path, encoding))
+            {
+                foreach (var line in contents)
+                {
+                    stream.WriteLine(line);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Creates a new file, writes the specified string array to the file by using the specified encoding, and then closes the file.
+        /// </summary>
+        /// <param name="path">The file to write to.</param>
+        /// <param name="contents">The string array to write to the file.</param>
+        /// <param name="encoding">An <see cref="System.Text.Encoding"/> object that represents the character encoding applied to the string array.</param>
+        public void WriteAllLines(string path, string[] contents, Encoding encoding)
+        {
+            using (var stream = this.CreateText(path, encoding))
+            {
+                foreach (var line in contents)
+                {
+                    stream.WriteLine(line);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Creates a new file, writes the specified string to the file, and then closes the file. If the target file already exists, it is overwritten.
+        /// </summary>
+        /// <param name="path">The file to write to.</param>
+        /// <param name="contents">The string to write to the file.</param>
+        public void WriteAllText(string path, string contents)
+        {
+            using (var stream = this.CreateText(path))
+            {
+                stream.Write(contents);
+            }
+        }
+
+        /// <summary>
+        /// Creates a new file, writes the specified string to the file using the specified encoding, and then closes the file. If the target file already exists, it is overwritten.
+        /// </summary>
+        /// <param name="path">The file to write to.</param>
+        /// <param name="contents">The string to write to the file.</param>
+        /// <param name="encoding">The encoding to apply to the string.</param>
+        public void WriteAllText(string path, string contents, Encoding encoding)
+        {
+            using (var stream = this.CreateText(path, encoding))
+            {
+                stream.Write(contents);
+            }
+        }
+
+        //public FileSecurity GetAccessControl(string path);
+        //public FileSecurity GetAccessControl(string path, AccessControlSections includeSections);
+        //public DateTime GetCreationTime(string path);
+        //public DateTime GetCreationTimeUtc(string path);
+        //public void SetAccessControl(string path, FileSecurity fileSecurity);
+        //public void SetAttributes(string path, FileAttributes fileAttributes);
+        //public void SetCreationTime(string path, DateTime creationTime);
+        //public void SetCreationTimeUtc(string path, DateTime creationTimeUtc);
+
+        #endregion
 
         /// <summary>
         /// Called when client is connected to the server.

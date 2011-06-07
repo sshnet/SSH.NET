@@ -56,9 +56,11 @@ namespace Renci.SshNet.Sftp.Messages
 
             var flag = this.ReadUInt32();
 
+
             if ((flag & 0x00000001) == 0x00000001)   //  SSH_FILEXFER_ATTR_SIZE
             {
                 attributes.Size = this.ReadUInt64();
+
             }
 
             if ((flag & 0x00000002) == 0x00000002)   //  SSH_FILEXFER_ATTR_UIDGID

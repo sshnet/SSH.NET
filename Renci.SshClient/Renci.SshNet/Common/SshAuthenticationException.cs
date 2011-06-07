@@ -12,6 +12,9 @@ namespace Renci.SshNet.Common
     [Serializable]
     public class SshAuthenticationException : SshException
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SshAuthenticationException"/> class.
+        /// </summary>
         public SshAuthenticationException()
         {
 

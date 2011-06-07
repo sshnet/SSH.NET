@@ -128,7 +128,13 @@
     <Compile Include="Security\Cryptography\Modes\OfbMode.cs" />
     <Compile Include="Security\Cryptography\TransformMode.cs" />
     <Compile Include="Security\Cryptography\Ciphers\DesCipher.cs" />
+    <Compile Include="Sftp\CloseCommand.cs" />
+    <Compile Include="Sftp\OpenCommand.cs" />
+    <Compile Include="Sftp\ReadCommand.cs" />
     <Compile Include="Sftp\SetFileStatusCommand.cs" />
+    <Compile Include="Sftp\SetStatusCommand.cs" />
+    <Compile Include="Sftp\SftpFileAttributes.cs" />
+    <Compile Include="Sftp\SftpFileStream.cs" />
     <Compile Include="Sftp\StatusCommand.cs" />
     <Compile Include="Sftp\SymbolicLinkCommand.cs" />
     <Compile Include="Sftp\Messages\SftpRequestMessage.cs" />
@@ -162,6 +168,7 @@
     <Compile Include="Sftp\SftpSession.cs" />
     <Compile Include="Sftp\UploadFileCommand.cs" />
     <Compile Include="BaseClient.cs" />
+    <Compile Include="Sftp\WriteCommand.cs" />
     <Compile Include="SshCommand.cs" />
     <Compile Include="MessageEventArgs.cs" />
     <Compile Include="ChannelAsyncResult.cs" />

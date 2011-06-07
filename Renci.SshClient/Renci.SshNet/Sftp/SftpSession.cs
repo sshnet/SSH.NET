@@ -156,20 +156,69 @@ namespace Renci.SshNet.Sftp
             }
         }
 
-        /// <summary>
-        /// Gets the file reference from the server.
-        /// </summary>
-        /// <param name="path">The path.</param>
-        /// <returns></returns>
-        public SftpFile GetSftpFile(string path)
+        public byte[] OpenFile(string path, Flags flags)
         {
-            using (var cmd = new RealPathCommand(this, path))
+            using (var cmd = new OpenCommand(this, path, flags))
             {
                 cmd.CommandTimeout = this._operationTimeout;
 
                 cmd.Execute();
 
-                return cmd.Files.FirstOrDefault();
+                return cmd.Handle;
+            }
+        }
+
+        public void CloseHandle(byte[] handle)
+        {
+            using (var cmd = new CloseCommand(this, handle))
+            {
+                cmd.CommandTimeout = this._operationTimeout;
+
+                cmd.Execute();
+            }
+        }
+
+        public void Write(byte[] handle, ulong offset, byte[] data)
+        {
+            using (var cmd = new WriteCommand(this, handle, offset, data))
+            {
+                cmd.CommandTimeout = this._operationTimeout;
+
+                cmd.Execute();
+            }
+        }
+
+        public byte[] Read(byte[] handle, ulong offset, uint length)
+        {
+            using (var cmd = new ReadCommand(this, handle, offset, length))
+            {
+                cmd.CommandTimeout = this._operationTimeout;
+
+                cmd.Execute();
+
+                return cmd.Data;
+            }
+        }
+
+        public SftpFileAttributes GetFileAttributes(byte[] handle)
+        {
+            using (var cmd = new StatusCommand(this, handle))
+            {
+                cmd.CommandTimeout = this._operationTimeout;
+
+                cmd.Execute();
+
+                return cmd.Attributes;
+            }
+        }
+
+        public void SetFileAttributes(byte[] handle, SftpFileAttributes attributes)
+        {
+            using (var cmd = new SetStatusCommand(this, handle, attributes))
+            {
+                cmd.CommandTimeout = this._operationTimeout;
+
+                cmd.Execute();
             }
         }
 

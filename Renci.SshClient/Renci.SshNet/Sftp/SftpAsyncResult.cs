@@ -81,6 +81,9 @@ namespace Renci.SshNet.Sftp
                 Task.Factory.StartNew(() => { this._asyncCallback(this); });
         }
 
+        /// <summary>
+        /// Ends asynchronous operation invocation.
+        /// </summary>
         public void EndInvoke()
         {
             // This method assumes that only 1 thread calls EndInvoke 

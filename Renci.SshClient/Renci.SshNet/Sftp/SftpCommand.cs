@@ -125,7 +125,7 @@ namespace Renci.SshNet.Sftp
             this.SendMessage(new SetStatMessage(this.SftpSession.NextRequestId, path, attributes));
         }
 
-        protected void SendFSetStatMessage(byte[] handle, SftpFileAttributes attributes)
+        protected void SendSetStatMessage(byte[] handle, SftpFileAttributes attributes)
         {
             this.SendMessage(new FSetStatMessage(this.SftpSession.NextRequestId, handle, attributes));
         }
@@ -163,6 +163,11 @@ namespace Renci.SshNet.Sftp
         protected void SendStatMessage(string path)
         {
             this.SendMessage(new StatMessage(this.SftpSession.NextRequestId, path));
+        }
+
+        protected void SendStatMessage(byte[] handle)
+        {
+            this.SendMessage(new FStatMessage(this.SftpSession.NextRequestId, handle));
         }
 
         protected void SendRenameMessage(string oldPath, string newPath)

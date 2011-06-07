@@ -71,6 +71,9 @@ namespace Renci.SshNet.Sftp
         /// <param name="attributes">Attributes of the directory or file.</param>
         internal SftpFile(SftpSession sftpSession, string fullName, SftpFileAttributes attributes)
         {
+            if (attributes == null)
+                throw new ArgumentNullException("attributes");
+
             this._sftpSession = sftpSession;
 
             this.Name = fullName.Substring(fullName.LastIndexOf('/') + 1);

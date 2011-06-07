@@ -134,7 +134,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="path">File(s) path, may match multiple files.</param>
         /// <param name="mode">The mode.</param>
-        public void ChangePermissions(string path, ushort mode)
+        public void ChangePermissions(string path, short mode)
         {
             if (path == null)
                 throw new ArgumentNullException("path");
@@ -706,16 +706,6 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Gets the System.IO.FileAttributes of the file on the path.
-        /// </summary>
-        /// <param name="path">The path to the file.</param>
-        /// <returns>The System.IO.FileAttributes of the file on the path.</returns>
-        public FileAttributes GetAttributes(string path)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
         /// Returns the date and time the specified file or directory was last accessed.
         /// </summary>
         /// <param name="path">The file or directory for which to obtain access date and time information.</param>
@@ -1036,12 +1026,35 @@ namespace Renci.SshNet
             }
         }
 
+        /// <summary>
+        /// Gets the <see cref="SftpFileAttributes"/> of the file on the path.
+        /// </summary>
+        /// <param name="path">The path to the file.</param>
+        /// <returns>The <see cref="SftpFileAttributes"/> of the file on the path.</returns>
+        public SftpFileAttributes GetAttributes(string path)
+        {
+            var fullPath = this._sftpSession.GetCanonicalPath(path);
+
+            return this._sftpSession.GetFileAttributes(fullPath);
+        }
+
+        /// <summary>
+        /// Sets the specified <see cref="SftpFileAttributes"/> of the file on the specified path.
+        /// </summary>
+        /// <param name="path">The path to the file.</param>
+        /// <param name="fileAttributes">The desired <see cref="SftpFileAttributes"/>.</param>
+        public void SetAttributes(string path, SftpFileAttributes fileAttributes)
+        {
+            var fullPath = this._sftpSession.GetCanonicalPath(path);
+
+            this._sftpSession.SetFileAttributes(fullPath, fileAttributes);
+        }
+
         //public FileSecurity GetAccessControl(string path);
         //public FileSecurity GetAccessControl(string path, AccessControlSections includeSections);
         //public DateTime GetCreationTime(string path);
         //public DateTime GetCreationTimeUtc(string path);
         //public void SetAccessControl(string path, FileSecurity fileSecurity);
-        //public void SetAttributes(string path, FileAttributes fileAttributes);
         //public void SetCreationTime(string path, DateTime creationTime);
         //public void SetCreationTimeUtc(string path, DateTime creationTimeUtc);
 

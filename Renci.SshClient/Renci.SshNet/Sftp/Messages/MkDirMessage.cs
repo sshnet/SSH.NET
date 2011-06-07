@@ -13,14 +13,14 @@
 
         public MkDirMessage()
         {
-            this.Attributes = new SftpFileAttributes();
+            this.Attributes = SftpFileAttributes.Empty;
         }
 
         public MkDirMessage(uint requestId, string path)
             : base(requestId)
         {
             this.Path = path;
-            this.Attributes = new SftpFileAttributes();
+            this.Attributes = SftpFileAttributes.Empty;
         }
 
         public MkDirMessage(uint requestId, string path, SftpFileAttributes attributes)

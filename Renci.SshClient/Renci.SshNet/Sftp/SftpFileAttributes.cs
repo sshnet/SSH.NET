@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Globalization;
 
 namespace Renci.SshNet.Sftp
 {
-    public class SftpFileAttributes1
+    public class SftpFileAttributes
     {
         #region Bitmask constats
 
@@ -50,7 +51,7 @@ namespace Renci.SshNet.Sftp
         private static UInt32 S_IXOTH = 0x0001;  //	others have execute permission
 
         #endregion
-        
+
         private bool _isBitFiledsBitSet;
         private bool _isUIDBitSet;
         private bool _isGroupIDBitSet;
@@ -78,7 +79,7 @@ namespace Renci.SshNet.Sftp
         /// <value>
         /// The size of the current file in bytes.
         /// </value>
-        public long Size { get; private set; }
+        public long Size { get; set; }
 
         /// <summary>
         /// Gets or sets file user id.
@@ -345,7 +346,19 @@ namespace Renci.SshNet.Sftp
             }
         }
 
-        internal SftpFileAttributes1(DateTime lastAccessTime, DateTime lastWriteTime, long size, int userId, int groupId, uint permissions)
+        private static SftpFileAttributes _empty = new SftpFileAttributes(DateTime.MinValue, DateTime.MinValue, -1, -1, -1, 0, null);
+        /// <summary>
+        /// Gets the empty SftpFileAttributes instance.
+        /// </summary>
+        public static SftpFileAttributes Empty
+        {
+            get
+            {
+                return SftpFileAttributes._empty;
+            }
+        }
+
+        internal SftpFileAttributes(DateTime lastAccessTime, DateTime lastWriteTime, long size, int userId, int groupId, uint permissions, IDictionary<string, string> extensions)
         {
             this.LastAccessTime = lastAccessTime;
             this.LastWriteTime = lastWriteTime;
@@ -353,6 +366,31 @@ namespace Renci.SshNet.Sftp
             this.UserId = userId;
             this.GroupId = groupId;
             this.Permissions = permissions;
+            this.Extensions = extensions;
+        }
+
+        public void SetPermissions(short mode)
+        {
+            if (mode < 0 || mode > 999)
+            {
+                throw new ArgumentOutOfRangeException("mode");
+            }
+
+            var modeBytes = mode.ToString(CultureInfo.InvariantCulture).PadLeft(3,'0').ToArray();
+
+            var permission = (modeBytes[0] & 0x0F) * 8 * 8 + (modeBytes[1] & 0x0F) * 8 + (modeBytes[2] & 0x0F);
+
+            this.OwnerCanRead = (permission & S_IRUSR) == S_IRUSR;
+            this.OwnerCanWrite = (permission & S_IWUSR) == S_IWUSR;
+            this.OwnerCanExecute = (permission & S_IXUSR) == S_IXUSR;
+
+            this.GroupCanRead = (permission & S_IRGRP) == S_IRGRP;
+            this.GroupCanWrite = (permission & S_IWGRP) == S_IWGRP;
+            this.GroupCanExecute = (permission & S_IXGRP) == S_IXGRP;
+
+            this.OthersCanRead = (permission & S_IROTH) == S_IROTH;
+            this.OthersCanWrite = (permission & S_IWOTH) == S_IWOTH;
+            this.OthersCanExecute = (permission & S_IXOTH) == S_IXOTH;
         }
     }
 }

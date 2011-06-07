@@ -131,7 +131,6 @@
     <Compile Include="Sftp\CloseCommand.cs" />
     <Compile Include="Sftp\OpenCommand.cs" />
     <Compile Include="Sftp\ReadCommand.cs" />
-    <Compile Include="Sftp\SetFileStatusCommand.cs" />
     <Compile Include="Sftp\SetStatusCommand.cs" />
     <Compile Include="Sftp\SftpFileAttributes.cs" />
     <Compile Include="Sftp\SftpFileStream.cs" />
@@ -187,7 +186,6 @@
     <Compile Include="Security\CipherTripleDES.cs" />
     <Compile Include="Compression\Compressor.cs" />
     <Compile Include="Sftp\Messages\AceMasks.cs" />
-    <Compile Include="Sftp\Messages\Attributes.cs" />
     <Compile Include="Sftp\Messages\AttributesMessage.cs" />
     <Compile Include="Sftp\Messages\CloseMessage.cs" />
     <Compile Include="Sftp\Messages\DataMessage.cs" />

@@ -25,7 +25,7 @@ namespace Renci.SshNet.Sftp.Messages
         {
             this.Filename = fileName;
             this.Flags = flags;
-            this.Attributes = new SftpFileAttributes();
+            this.Attributes = SftpFileAttributes.Empty;
         }
 
         public OpenMessage(uint requestId, string fileName, Flags flags, SftpFileAttributes attributes)

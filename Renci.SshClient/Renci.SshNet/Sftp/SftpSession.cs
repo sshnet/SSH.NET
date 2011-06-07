@@ -212,6 +212,18 @@ namespace Renci.SshNet.Sftp
             }
         }
 
+        public SftpFileAttributes GetFileAttributes(string path)
+        {
+            using (var cmd = new StatusCommand(this, path))
+            {
+                cmd.CommandTimeout = this._operationTimeout;
+
+                cmd.Execute();
+
+                return cmd.Attributes;
+            }
+        }
+
         public void SetFileAttributes(byte[] handle, SftpFileAttributes attributes)
         {
             using (var cmd = new SetStatusCommand(this, handle, attributes))
@@ -221,6 +233,17 @@ namespace Renci.SshNet.Sftp
                 cmd.Execute();
             }
         }
+
+        public void SetFileAttributes(string path, SftpFileAttributes attributes)
+        {
+            using (var cmd = new SetStatusCommand(this, path, attributes))
+            {
+                cmd.CommandTimeout = this._operationTimeout;
+
+                cmd.Execute();
+            }
+        }
+
 
         internal void SendMessage(SftpMessage sftpMessage)
         {

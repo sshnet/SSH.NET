@@ -109,10 +109,9 @@ namespace Renci.SshNet.Sftp
                     //  Update file attributes
                     this._attributes = this._session.GetFileAttributes(this._handle);
 
-                    if (this._attributes != null && this._attributes.Size.HasValue)
+                    if (this._attributes != null && this._attributes.Size > -1)
                     {
-                        //  TODO: Test file size that greater then long.Max
-                        return (long)this._attributes.Size.Value;
+                        return this._attributes.Size;
                     }
                     else
                     {
@@ -291,7 +290,7 @@ namespace Renci.SshNet.Sftp
             if (mode == FileMode.Append)
             {
                 //  TODO:   Validate Size property value exists
-                this._position = (long)this._attributes.Size.Value;
+                this._position = this._attributes.Size;
             }
         }
 
@@ -681,7 +680,7 @@ namespace Renci.SshNet.Sftp
                             newPosn = this._position + offset;
                             break;
                         case SeekOrigin.End:
-                            newPosn = ((long)this._attributes.Size.Value) - offset;
+                            newPosn = this._attributes.Size - offset;
                             break;
                         default:
                             break;
@@ -726,7 +725,6 @@ namespace Renci.SshNet.Sftp
                     this._bufferLen = 0;
 
                     // Seek to the new position.
-                    //newPosn = FileMethods.Seek(this._handle, offset, origin);
                     switch (origin)
                     {
                         case SeekOrigin.Begin:
@@ -736,16 +734,17 @@ namespace Renci.SshNet.Sftp
                             newPosn = this._position + offset;
                             break;
                         case SeekOrigin.End:
-                            newPosn = ((long)this._attributes.Size.Value) - offset;
+                            newPosn = this._attributes.Size - offset;
                             break;
                         default:
                             break;
                     }
 
-                    if (newPosn == -1)
+                    if (newPosn < 0)
                     {
                         throw new EndOfStreamException();
                     }
+
                     this._position = newPosn;
                 }
                 return this._position;
@@ -779,7 +778,7 @@ namespace Renci.SshNet.Sftp
                 // Setup this object for writing.
                 this.SetupWrite();
 
-                this._attributes.Size = (ulong)value;
+                this._attributes.Size = value;
 
                 this._session.SetFileAttributes(this._handle, this._attributes);
             }

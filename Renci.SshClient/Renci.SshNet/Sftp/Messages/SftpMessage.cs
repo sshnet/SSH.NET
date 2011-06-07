@@ -52,42 +52,48 @@ namespace Renci.SshNet.Sftp.Messages
 
         protected SftpFileAttributes ReadAttributes()
         {
-            var attributes = new SftpFileAttributes();
 
             var flag = this.ReadUInt32();
 
+            long size = -1;
+            int userId = -1;
+            int groupId = -1;
+            uint permissions = 0;
+            var accessTime = DateTime.MinValue;
+            var modifyTime = DateTime.MinValue;
+            IDictionary<string, string> extensions = null;
 
             if ((flag & 0x00000001) == 0x00000001)   //  SSH_FILEXFER_ATTR_SIZE
             {
-                attributes.Size = this.ReadUInt64();
-
+                size = (long)this.ReadUInt64();
             }
 
             if ((flag & 0x00000002) == 0x00000002)   //  SSH_FILEXFER_ATTR_UIDGID
             {
-                attributes.UserId = this.ReadUInt32();
+                userId = (int)this.ReadUInt32();
 
-                attributes.GroupId = this.ReadUInt32();
+                groupId = (int)this.ReadUInt32();
             }
 
             if ((flag & 0x00000004) == 0x00000004)   //  SSH_FILEXFER_ATTR_PERMISSIONS
             {
-                attributes.Permissions = this.ReadUInt32();
+                permissions = this.ReadUInt32();
             }
 
             if ((flag & 0x00000008) == 0x00000008)   //  SSH_FILEXFER_ATTR_ACMODTIME
             {
                 var time = this.ReadUInt32();
-                attributes.AccessTime = DateTime.FromFileTime((time + 11644473600) * 10000000);
+                accessTime = DateTime.FromFileTime((time + 11644473600) * 10000000);
                 time = this.ReadUInt32();
-                attributes.ModifyTime = DateTime.FromFileTime((time + 11644473600) * 10000000);
+                modifyTime = DateTime.FromFileTime((time + 11644473600) * 10000000);
             }
 
             if ((flag & 0x80000000) == 0x80000000)   //  SSH_FILEXFER_ATTR_ACMODTIME
             {
                 var extendedCount = this.ReadUInt32();
-                attributes.Extensions = this.ReadExtensionPair();
+                extensions = this.ReadExtensionPair();
             }
+            var attributes = new SftpFileAttributes(accessTime, modifyTime, size, userId, groupId, permissions, extensions);
 
             return attributes;
         }
@@ -103,12 +109,12 @@ namespace Renci.SshNet.Sftp.Messages
             {
                 UInt32 flag = 0;
 
-                if (attributes.Size.HasValue)
+                if (attributes.Size > -1)
                 {
                     flag |= 0x00000001;
                 }
 
-                if (attributes.UserId.HasValue && attributes.GroupId.HasValue)
+                if (attributes.UserId > -1 && attributes.GroupId > -1)
                 {
                     flag |= 0x00000002;
                 }
@@ -118,7 +124,7 @@ namespace Renci.SshNet.Sftp.Messages
                     flag |= 0x00000004;
                 }
 
-                if (attributes.AccessTime.HasValue && attributes.ModifyTime.HasValue)
+                if (attributes.LastAccessTime > DateTime.MinValue && attributes.LastWriteTime > DateTime.MinValue)
                 {
                     flag |= 0x00000008;
                 }
@@ -130,15 +136,15 @@ namespace Renci.SshNet.Sftp.Messages
 
                 this.Write(flag);
 
-                if (attributes.Size.HasValue)
+                if (attributes.Size > -1)
                 {
-                    this.Write(attributes.Size.Value);
+                    this.Write((UInt64)attributes.Size);
                 }
 
-                if (attributes.UserId.HasValue && attributes.GroupId.HasValue)
+                if (attributes.UserId > -1 && attributes.GroupId > -1)
                 {
-                    this.Write(attributes.UserId.Value);
-                    this.Write(attributes.GroupId.Value);
+                    this.Write((UInt32)attributes.UserId);
+                    this.Write((UInt32)attributes.GroupId);
                 }
 
                 if (attributes.Permissions  > 0)
@@ -146,11 +152,11 @@ namespace Renci.SshNet.Sftp.Messages
                     this.Write(attributes.Permissions);
                 }
 
-                if (attributes.AccessTime.HasValue && attributes.ModifyTime.HasValue)
+                if (attributes.LastAccessTime > DateTime.MinValue && attributes.LastWriteTime > DateTime.MinValue)
                 {
-                    uint time = (uint)(attributes.AccessTime.Value.ToFileTime() / 10000000 - 11644473600);
+                    uint time = (uint)(attributes.LastAccessTime.ToFileTime() / 10000000 - 11644473600);
                     this.Write(time);
-                    time = (uint)(attributes.ModifyTime.Value.ToFileTime() / 10000000 - 11644473600);
+                    time = (uint)(attributes.LastWriteTime.ToFileTime() / 10000000 - 11644473600);
                     this.Write(time);
                 }
 

@@ -63,6 +63,7 @@
     <Compile Include="Security\TestHostKey.cs" />
     <Compile Include="Security\TestKeyExchange.cs" />
     <Compile Include="Security\TestPrivateKeyFile.cs" />
+    <Compile Include="SftpClientTests\ChangeDirectory.cs" />
     <Compile Include="SftpClientTests\CreateDirectoryTest.cs" />
     <Compile Include="SftpClientTests\DeleteDirectoryTest.cs" />
     <Compile Include="SftpClientTests\DeleteFileTest.cs" />

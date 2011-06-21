@@ -864,7 +864,7 @@ namespace Renci.SshNet.Sftp
                         // Yes: write the data directly to the file.
                         var data = new byte[tempLen];
 
-                        Buffer.BlockCopy(this._buffer, offset, data, 0, tempLen);
+                        Buffer.BlockCopy(buffer, offset, data, 0, tempLen);
 
                         this._session.Write(this._handle, (ulong)this.Position, data);
                     }

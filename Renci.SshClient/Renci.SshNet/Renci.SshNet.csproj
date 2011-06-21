@@ -129,6 +129,7 @@
     <Compile Include="Security\Cryptography\TransformMode.cs" />
     <Compile Include="Security\Cryptography\Ciphers\DesCipher.cs" />
     <Compile Include="Sftp\CloseCommand.cs" />
+    <Compile Include="Sftp\FileExistsCommand.cs" />
     <Compile Include="Sftp\OpenCommand.cs" />
     <Compile Include="Sftp\OpenDirectoryCommand.cs" />
     <Compile Include="Sftp\ReadCommand.cs" />

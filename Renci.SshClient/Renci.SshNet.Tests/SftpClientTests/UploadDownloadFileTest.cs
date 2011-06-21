@@ -88,7 +88,7 @@ namespace Renci.SshNet.Tests.SftpClientTests
                         sftp.UploadFile(file, remoteFileName);
                     }
                 }
-                catch (SshPermissionDeniedException)
+                catch (SftpPermissionDeniedException)
                 {
                     exceptionOccured = true;
                 }
@@ -121,7 +121,7 @@ namespace Renci.SshNet.Tests.SftpClientTests
                         sftp.UploadFile(ms, remoteFileName);
                     }
                 }
-                catch (SshPermissionDeniedException)
+                catch (SftpPermissionDeniedException)
                 {
                     exceptionOccured = true;
                 }
@@ -151,7 +151,7 @@ namespace Renci.SshNet.Tests.SftpClientTests
                         sftp.DownloadFile(remoteFileName, ms);
                     }
                 }
-                catch (SshFileNotFoundException)
+                catch (SftpPathNotFoundException)
                 {
                     exceptionOccured = true;
                 }

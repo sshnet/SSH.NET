@@ -36,7 +36,7 @@ namespace Renci.SshNet.Tests.SftpClientTests
 
         [TestMethod]
         [TestCategory("Sftp")]
-        [ExpectedException(typeof(SshFileNotFoundException))]
+        [ExpectedException(typeof(SftpPathNotFoundException))]
         public void Test_Sftp_DeleteDirectory_Which_Doesnt_Exists()
         {
             using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
@@ -51,7 +51,7 @@ namespace Renci.SshNet.Tests.SftpClientTests
 
         [TestMethod]
         [TestCategory("Sftp")]
-        [ExpectedException(typeof(SshPermissionDeniedException))]
+        [ExpectedException(typeof(SftpPermissionDeniedException))]
         public void Test_Sftp_DeleteDirectory_Which_No_Permissions()
         {
 			if (Resources.USERNAME == "root")

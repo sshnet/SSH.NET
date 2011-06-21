@@ -49,7 +49,7 @@ namespace Renci.SshNet.Tests.SftpClientTests
 
         [TestMethod]
         [TestCategory("Sftp")]
-        [ExpectedException(typeof(SshPermissionDeniedException))]
+        [ExpectedException(typeof(SftpPermissionDeniedException))]
         public void Test_Sftp_CreateDirectory_In_Forbidden_Directory()
         {
 			if (Resources.USERNAME == "root")
@@ -67,7 +67,7 @@ namespace Renci.SshNet.Tests.SftpClientTests
 
         [TestMethod]
         [TestCategory("Sftp")]
-        [ExpectedException(typeof(SshFileNotFoundException))]
+        [ExpectedException(typeof(SftpPathNotFoundException))]
         public void Test_Sftp_CreateDirectory_Invalid_Path()
         {
             using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))

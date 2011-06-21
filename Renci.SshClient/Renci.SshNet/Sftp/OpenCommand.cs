@@ -43,7 +43,7 @@ namespace Renci.SshNet.Sftp
 
             if (statusCode == StatusCodes.NoSuchFile)
             {
-                throw new SshFileNotFoundException(string.Format(CultureInfo.CurrentCulture, "Path '{0}' is not found.", this._path));
+                throw new SftpPathNotFoundException(string.Format(CultureInfo.CurrentCulture, "Path '{0}' is not found.", this._path));
             }
         }
     }

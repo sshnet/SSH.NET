@@ -209,11 +209,11 @@ namespace Renci.SshNet.Sftp
 
                 if (e.Message.StatusCode == StatusCodes.PermissionDenied)
                 {
-                    throw new SshPermissionDeniedException(e.Message.ErrorMessage);
+                    throw new SftpPermissionDeniedException(e.Message.ErrorMessage);
                 }
                 else if (e.Message.StatusCode == StatusCodes.NoSuchFile)
                 {
-                    throw new SshFileNotFoundException(e.Message.ErrorMessage);
+                    throw new SftpPathNotFoundException(e.Message.ErrorMessage);
                 }
                 else if (e.Message.StatusCode == StatusCodes.Failure ||
                  e.Message.StatusCode == StatusCodes.BadMessage ||

@@ -7,48 +7,48 @@ using System.Runtime.Serialization;
 namespace Renci.SshNet.Common
 {
     /// <summary>
-    /// The exception that is thrown when operation permission is denied.
+    /// The exception that is thrown when file or directory is not found.
     /// </summary>
     [Serializable]
-    public class SshPermissionDeniedException : SshException
+    public class SftpPathNotFoundException : SshException
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="SshPermissionDeniedException"/> class.
+        /// Initializes a new instance of the <see cref="SftpPathNotFoundException"/> class.
         /// </summary>
-        public SshPermissionDeniedException()
+        public SftpPathNotFoundException()
         {
 
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SshPermissionDeniedException"/> class.
+        /// Initializes a new instance of the <see cref="SftpPathNotFoundException"/> class.
         /// </summary>
         /// <param name="message">The message.</param>
-        public SshPermissionDeniedException(string message)
+        public SftpPathNotFoundException(string message)
             : base(message)
         {
 
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SshPermissionDeniedException"/> class.
+        /// Initializes a new instance of the <see cref="SftpPathNotFoundException"/> class.
         /// </summary>
         /// <param name="message">The message.</param>
         /// <param name="innerException">The inner exception.</param>
-        public SshPermissionDeniedException(string message, Exception innerException) :
+        public SftpPathNotFoundException(string message, Exception innerException) :
             base(message, innerException)
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SshPermissionDeniedException"/> class.
+        /// Initializes a new instance of the <see cref="SftpPathNotFoundException"/> class.
         /// </summary>
         /// <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo"/> that holds the serialized object data about the exception being thrown.</param>
         /// <param name="context">The <see cref="T:System.Runtime.Serialization.StreamingContext"/> that contains contextual information about the source or destination.</param>
         /// <exception cref="T:System.ArgumentNullException">The <paramref name="info"/> parameter is null. </exception>
         ///   
         /// <exception cref="T:System.Runtime.Serialization.SerializationException">The class name is null or <see cref="P:System.Exception.HResult"/> is zero (0). </exception>
-        protected SshPermissionDeniedException(SerializationInfo info, StreamingContext context)
+        protected SftpPathNotFoundException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
         }

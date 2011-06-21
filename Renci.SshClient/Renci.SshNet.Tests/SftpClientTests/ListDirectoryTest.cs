@@ -41,7 +41,7 @@ namespace Renci.SshNet.Tests.SftpClientTests
 
         [TestMethod]
         [TestCategory("Sftp")]
-        [ExpectedException(typeof(SshPermissionDeniedException))]
+        [ExpectedException(typeof(SftpPermissionDeniedException))]
         public void Test_Sftp_ListDirectory_Permission_Denied()
         {
             using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
@@ -60,7 +60,7 @@ namespace Renci.SshNet.Tests.SftpClientTests
 
         [TestMethod]
         [TestCategory("Sftp")]
-        [ExpectedException(typeof(SshFileNotFoundException))]
+        [ExpectedException(typeof(SftpPathNotFoundException))]
         public void Test_Sftp_ListDirectory_Not_Exists()
         {
             using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))

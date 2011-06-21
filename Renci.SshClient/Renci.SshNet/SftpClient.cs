@@ -151,7 +151,7 @@ namespace Renci.SshNet
         /// Creates remote directory specified by path.
         /// </summary>
         /// <param name="path">Directory path to create.</param>
-        /// <exception cref="Renci.SshNet.Common.SshPermissionDeniedException"></exception>
+        /// <exception cref="Renci.SshNet.Common.SftpPermissionDeniedException"></exception>
         /// <exception cref="Renci.SshNet.Common.SshException"></exception>
         public void CreateDirectory(string path)
         {
@@ -687,7 +687,7 @@ namespace Renci.SshNet
 
             if (file == null)
             {
-                throw new SshFileNotFoundException(path);
+                throw new SftpPathNotFoundException(path);
             }
 
             file.Delete();

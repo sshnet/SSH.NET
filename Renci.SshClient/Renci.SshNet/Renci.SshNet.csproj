@@ -76,10 +76,10 @@
     <Compile Include="Common\PortForwardEventArgs.cs" />
     <Compile Include="Common\SshAuthenticationException.cs" />
     <Compile Include="Common\SshConnectionException.cs" />
-    <Compile Include="Common\SshFileNotFoundException.cs" />
+    <Compile Include="Common\SftpPathNotFoundException.cs" />
     <Compile Include="Common\SshOperationTimeoutException.cs" />
     <Compile Include="Common\SshPassPhraseNullOrEmptyException.cs" />
-    <Compile Include="Common\SshPermissionDeniedException.cs" />
+    <Compile Include="Common\SftpPermissionDeniedException.cs" />
     <Compile Include="KeyboardInteractiveConnectionInfo.cs" />
     <Compile Include="Messages\Authentication\RequestMessageKeyboardInteractive.cs" />
     <Compile Include="Messages\Authentication\RequestMessageNone.cs" />

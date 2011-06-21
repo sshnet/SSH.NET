@@ -24,7 +24,7 @@ namespace Renci.SshNet.Tests.SftpClientTests
 
         [TestMethod]
         [TestCategory("Sftp")]
-        [ExpectedException(typeof(SshFileNotFoundException))]
+        [ExpectedException(typeof(SftpPathNotFoundException))]
         public void Test_Sftp_ChangeDirectory_Root_Dont_Exists()
         {
             using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
@@ -36,7 +36,7 @@ namespace Renci.SshNet.Tests.SftpClientTests
 
         [TestMethod]
         [TestCategory("Sftp")]
-        [ExpectedException(typeof(SshFileNotFoundException))]
+        [ExpectedException(typeof(SftpPathNotFoundException))]
         public void Test_Sftp_ChangeDirectory_Root_With_Slash_Dont_Exists()
         {
             using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
@@ -48,7 +48,7 @@ namespace Renci.SshNet.Tests.SftpClientTests
 
         [TestMethod]
         [TestCategory("Sftp")]
-        [ExpectedException(typeof(SshFileNotFoundException))]
+        [ExpectedException(typeof(SftpPathNotFoundException))]
         public void Test_Sftp_ChangeDirectory_Subfolder_Dont_Exists()
         {
             using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
@@ -60,7 +60,7 @@ namespace Renci.SshNet.Tests.SftpClientTests
 
         [TestMethod]
         [TestCategory("Sftp")]
-        [ExpectedException(typeof(SshFileNotFoundException))]
+        [ExpectedException(typeof(SftpPathNotFoundException))]
         public void Test_Sftp_ChangeDirectory_Subfolder_With_Slash_Dont_Exists()
         {
             using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))

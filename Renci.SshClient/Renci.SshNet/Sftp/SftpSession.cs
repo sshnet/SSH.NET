@@ -122,105 +122,6 @@ namespace Renci.SshNet.Sftp
             this.WorkingDirectory = fullPath;
         }
 
-        /// <summary>
-        /// Resolves path into absolute path on the server.
-        /// </summary>
-        /// <param name="path">PAth to resolve..</param>
-        /// <returns>Absolute path</returns>
-        public string GetCanonicalPath(string path)
-        {
-            var fullPath = path;
-
-            if (!string.IsNullOrEmpty(path) && path[0] != '/' && this.WorkingDirectory != null)
-            {
-                if (this.WorkingDirectory[this.WorkingDirectory.Length - 1] == '/')
-                {
-                    fullPath = string.Format(CultureInfo.InvariantCulture, "{0}{1}", this.WorkingDirectory, path);
-                }
-                else
-                {
-                    fullPath = string.Format(CultureInfo.InvariantCulture, "{0}/{1}", this.WorkingDirectory, path);
-                }
-            }
-
-            var canonizedPath = this.GetRealPath(fullPath);
-
-            if (!string.IsNullOrEmpty(canonizedPath))
-                return canonizedPath;
-
-            //  Check for special cases
-            if (fullPath.EndsWith("/.", StringComparison.InvariantCultureIgnoreCase) ||
-                fullPath.EndsWith("/..", StringComparison.InvariantCultureIgnoreCase) ||
-                fullPath.Equals("/", StringComparison.InvariantCultureIgnoreCase) ||
-                fullPath.IndexOf('/') < 0)
-                return fullPath;
-
-            var pathParts = fullPath.Split(new char[] { '/' });
-
-            var partialFullPath = string.Join("/", pathParts, 0, pathParts.Length - 1);
-
-            if (string.IsNullOrEmpty(partialFullPath))
-                partialFullPath = "/";
-
-            canonizedPath = this.GetRealPath(partialFullPath);
-
-            if (string.IsNullOrEmpty(canonizedPath))
-            {
-                return fullPath;
-            }
-            else
-            {
-                var slash = string.Empty;
-                if (canonizedPath[canonizedPath.Length - 1] != '/')
-                    slash = "/";
-                return string.Format(CultureInfo.InvariantCulture, "{0}{1}{2}", canonizedPath, slash, pathParts[pathParts.Length - 1]);
-            }
-        }
-
-        public byte[] OpenFile(string path, Flags flags)
-        {
-            using (var cmd = new OpenCommand(this, path, flags))
-            {
-                cmd.CommandTimeout = this._operationTimeout;
-
-                cmd.Execute();
-
-                return cmd.Handle;
-            }
-        }
-
-        public void CloseHandle(byte[] handle)
-        {
-            using (var cmd = new CloseCommand(this, handle))
-            {
-                cmd.CommandTimeout = this._operationTimeout;
-
-                cmd.Execute();
-            }
-        }
-
-        public void Write(byte[] handle, ulong offset, byte[] data)
-        {
-            using (var cmd = new WriteCommand(this, handle, offset, data))
-            {
-                cmd.CommandTimeout = this._operationTimeout;
-
-                cmd.Execute();
-            }
-        }
-
-        public byte[] Read(byte[] handle, ulong offset, uint length)
-        {
-            using (var cmd = new ReadCommand(this, handle, offset, length))
-            {
-                cmd.CommandTimeout = this._operationTimeout;
-
-                cmd.Execute();
-
-                return cmd.Data;
-            }
-        }
-
         public SftpFileAttributes GetFileAttributes(byte[] handle)
         {
             using (var cmd = new StatusCommand(this, handle))
@@ -264,7 +165,6 @@ namespace Renci.SshNet.Sftp
                 cmd.Execute();
             }
         }
-
 
         internal void SendMessage(SftpMessage sftpMessage)
         {
@@ -418,6 +318,117 @@ namespace Renci.SshNet.Sftp
             {
                 //  throw time out error
                 throw new SshOperationTimeoutException(string.Format(CultureInfo.CurrentCulture, "Sftp operation has timed out."));
+            }
+        }
+
+        /// <summary>
+        /// Resolves path into absolute path on the server.
+        /// </summary>
+        /// <param name="path">Path to resolve.</param>
+        /// <returns>Absolute path</returns>
+        internal string GetCanonicalPath(string path)
+        {
+            var fullPath = path;
+
+            if (!string.IsNullOrEmpty(path) && path[0] != '/' && this.WorkingDirectory != null)
+            {
+                if (this.WorkingDirectory[this.WorkingDirectory.Length - 1] == '/')
+                {
+                    fullPath = string.Format(CultureInfo.InvariantCulture, "{0}{1}", this.WorkingDirectory, path);
+                }
+                else
+                {
+                    fullPath = string.Format(CultureInfo.InvariantCulture, "{0}/{1}", this.WorkingDirectory, path);
+                }
+            }
+
+            var canonizedPath = this.GetRealPath(fullPath);
+
+            if (!string.IsNullOrEmpty(canonizedPath))
+                return canonizedPath;
+
+            //  Check for special cases
+            if (fullPath.EndsWith("/.", StringComparison.InvariantCultureIgnoreCase) ||
+                fullPath.EndsWith("/..", StringComparison.InvariantCultureIgnoreCase) ||
+                fullPath.Equals("/", StringComparison.InvariantCultureIgnoreCase) ||
+                fullPath.IndexOf('/') < 0)
+                return fullPath;
+
+            var pathParts = fullPath.Split(new char[] { '/' });
+
+            var partialFullPath = string.Join("/", pathParts, 0, pathParts.Length - 1);
+
+            if (string.IsNullOrEmpty(partialFullPath))
+                partialFullPath = "/";
+
+            canonizedPath = this.GetRealPath(partialFullPath);
+
+            if (string.IsNullOrEmpty(canonizedPath))
+            {
+                return fullPath;
+            }
+            else
+            {
+                var slash = string.Empty;
+                if (canonizedPath[canonizedPath.Length - 1] != '/')
+                    slash = "/";
+                return string.Format(CultureInfo.InvariantCulture, "{0}{1}{2}", canonizedPath, slash, pathParts[pathParts.Length - 1]);
+            }
+        }
+
+        internal byte[] OpenFile(string path, Flags flags)
+        {
+            using (var cmd = new OpenCommand(this, path, flags))
+            {
+                cmd.CommandTimeout = this._operationTimeout;
+
+                cmd.Execute();
+
+                return cmd.Handle;
+            }
+        }
+
+        internal void CloseHandle(byte[] handle)
+        {
+            using (var cmd = new CloseCommand(this, handle))
+            {
+                cmd.CommandTimeout = this._operationTimeout;
+
+                cmd.Execute();
+            }
+        }
+
+        internal void Write(byte[] handle, ulong offset, byte[] data)
+        {
+            using (var cmd = new WriteCommand(this, handle, offset, data))
+            {
+                cmd.CommandTimeout = this._operationTimeout;
+
+                cmd.Execute();
+            }
+        }
+
+        internal byte[] Read(byte[] handle, ulong offset, uint length)
+        {
+            using (var cmd = new ReadCommand(this, handle, offset, length))
+            {
+                cmd.CommandTimeout = this._operationTimeout;
+
+                cmd.Execute();
+
+                return cmd.Data;
+            }
+        }
+
+        internal bool FileExistsCommand(string path, Flags flags)
+        {
+            using (var cmd = new FileExistsCommand(this, path, flags))
+            {
+                cmd.CommandTimeout = this._operationTimeout;
+
+                cmd.Execute();
+
+                return cmd.Exists;
             }
         }
 

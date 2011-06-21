@@ -265,8 +265,14 @@ namespace Renci.SshNet.Sftp
                     flags |= Flags.Append;
                     break;
                 case FileMode.Create:
-                    flags |= Flags.CreateNew;
-                    flags |= Flags.Truncate;
+                    if (this._session.FileExistsCommand(this._path, flags | Flags.Truncate))
+                    {
+                        flags |= Flags.Truncate;  
+                    }
+                    else 
+                    {
+                        flags |= Flags.CreateNew;
+                    }
                     break;
                 case FileMode.CreateNew:
                     flags |= Flags.CreateNew;

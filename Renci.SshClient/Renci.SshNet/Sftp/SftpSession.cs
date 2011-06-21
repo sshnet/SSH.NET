@@ -101,7 +101,25 @@ namespace Renci.SshNet.Sftp
 
         public void ChangeDirectory(string path)
         {
-            this.WorkingDirectory = this.GetCanonicalPath(path);
+            var fullPath = this.GetCanonicalPath(path);
+
+            //  Open directory
+            using (var openCmd = new OpenDirectoryCommand(this, fullPath))
+            {
+                openCmd.CommandTimeout = this._operationTimeout;
+
+                //  Try to open directory and throw an exception if can't
+                openCmd.Execute();
+
+                using (SftpCommand closeCmd = new CloseCommand(this, openCmd.Handle))
+                {
+                    closeCmd.CommandTimeout = this._operationTimeout;
+
+                    closeCmd.Execute();
+                }
+            }
+
+            this.WorkingDirectory = fullPath;
         }
 
         /// <summary>
@@ -140,6 +158,9 @@ namespace Renci.SshNet.Sftp
             var pathParts = fullPath.Split(new char[] { '/' });
 
             var partialFullPath = string.Join("/", pathParts, 0, pathParts.Length - 1);
+
+            if (string.IsNullOrEmpty(partialFullPath))
+                partialFullPath = "/";
 
             canonizedPath = this.GetRealPath(partialFullPath);
 

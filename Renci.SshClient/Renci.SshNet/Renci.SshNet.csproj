@@ -130,6 +130,7 @@
     <Compile Include="Security\Cryptography\Ciphers\DesCipher.cs" />
     <Compile Include="Sftp\CloseCommand.cs" />
     <Compile Include="Sftp\OpenCommand.cs" />
+    <Compile Include="Sftp\OpenDirectoryCommand.cs" />
     <Compile Include="Sftp\ReadCommand.cs" />
     <Compile Include="Sftp\SetStatusCommand.cs" />
     <Compile Include="Sftp\SftpFileAttributes.cs" />

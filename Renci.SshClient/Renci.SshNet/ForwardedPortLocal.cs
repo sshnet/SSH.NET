@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using Renci.SshNet.Channels;
+using System.Threading;
 
 namespace Renci.SshNet
 {
@@ -67,8 +68,6 @@ namespace Renci.SshNet
                 {
                     this.RaiseExceptionEvent(exp);
                 }
-
-                this.Stop();
             });
 
             this.IsStarted = true;
@@ -80,6 +79,7 @@ namespace Renci.SshNet
         public override void Stop()
         {
             base.Stop();
+
             //  If port not started you cant stop it
             if (!this.IsStarted)
                 return;
@@ -89,7 +89,6 @@ namespace Renci.SshNet
 
             this.IsStarted = false;
         }
-
 
         #region IDisposable Members
 

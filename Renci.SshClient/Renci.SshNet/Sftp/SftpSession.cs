@@ -5,10 +5,11 @@ using System.Text;
 using System.Threading;
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
-using Renci.SshNet.Sftp.Messages;
 using System.Diagnostics;
 using System.Collections.Generic;
 using System.Globalization;
+using Renci.SshNet.Sftp.Responses;
+using Renci.SshNet.Sftp.Requests;
 
 namespace Renci.SshNet.Sftp
 {
@@ -17,6 +18,8 @@ namespace Renci.SshNet.Sftp
         private Session _session;
 
         private ChannelSession _channel;
+
+        private Dictionary<uint, SftpRequest> _requests = new Dictionary<uint, SftpRequest>();
 
         private List<byte> _data = new List<byte>(32 * 1024);
 
@@ -54,15 +57,15 @@ namespace Renci.SshNet.Sftp
 
         #region SFTP messages
 
-        internal event EventHandler<MessageEventArgs<StatusMessage>> StatusMessageReceived;
+        //internal event EventHandler<MessageEventArgs<StatusMessage>> StatusMessageReceived;
 
-        internal event EventHandler<MessageEventArgs<DataMessage>> DataMessageReceived;
+        //internal event EventHandler<MessageEventArgs<DataMessage>> DataMessageReceived;
 
-        internal event EventHandler<MessageEventArgs<HandleMessage>> HandleMessageReceived;
+        //internal event EventHandler<MessageEventArgs<HandleMessage>> HandleMessageReceived;
 
-        internal event EventHandler<MessageEventArgs<NameMessage>> NameMessageReceived;
+        //internal event EventHandler<MessageEventArgs<NameMessage>> NameMessageReceived;
 
-        internal event EventHandler<MessageEventArgs<AttributesMessage>> AttributesMessageReceived;
+        //internal event EventHandler<MessageEventArgs<AttributesMessage>> AttributesMessageReceived;
 
         #endregion
 
@@ -84,14 +87,14 @@ namespace Renci.SshNet.Sftp
 
             this._channel.SendSubsystemRequest("sftp");
 
-            this.SendMessage(new InitMessage(3));
+            this.SendMessage(new SftpInitRequest(3));
 
             this.WaitHandle(this._sftpVersionConfirmed, this._operationTimeout);
 
             this.ProtocolVersion = 3;
 
             //  Resolve current directory
-            this.WorkingDirectory = this.GetRealPath(".");
+            this.WorkingDirectory = this.RequestRealPath(".").Keys.First();
         }
 
         public void Disconnect()
@@ -103,72 +106,11 @@ namespace Renci.SshNet.Sftp
         {
             var fullPath = this.GetCanonicalPath(path);
 
-            //  Open directory
-            using (var openCmd = new OpenDirectoryCommand(this, fullPath))
-            {
-                openCmd.CommandTimeout = this._operationTimeout;
+            var handle = this.RequestOpenDir(fullPath);
 
-                //  Try to open directory and throw an exception if can't
-                openCmd.Execute();
-
-                using (SftpCommand closeCmd = new CloseCommand(this, openCmd.Handle))
-                {
-                    closeCmd.CommandTimeout = this._operationTimeout;
-
-                    closeCmd.Execute();
-                }
-            }
+            this.RequestClose(handle);
 
             this.WorkingDirectory = fullPath;
-        }
-
-        public SftpFileAttributes GetFileAttributes(byte[] handle)
-        {
-            using (var cmd = new StatusCommand(this, handle))
-            {
-                cmd.CommandTimeout = this._operationTimeout;
-
-                cmd.Execute();
-
-                return cmd.Attributes;
-            }
-        }
-
-        public SftpFileAttributes GetFileAttributes(string path)
-        {
-            using (var cmd = new StatusCommand(this, path))
-            {
-                cmd.CommandTimeout = this._operationTimeout;
-
-                cmd.Execute();
-
-                return cmd.Attributes;
-            }
-        }
-
-        public void SetFileAttributes(byte[] handle, SftpFileAttributes attributes)
-        {
-            using (var cmd = new SetStatusCommand(this, handle, attributes))
-            {
-                cmd.CommandTimeout = this._operationTimeout;
-
-                cmd.Execute();
-            }
-        }
-
-        public void SetFileAttributes(string path, SftpFileAttributes attributes)
-        {
-            using (var cmd = new SetStatusCommand(this, path, attributes))
-            {
-                cmd.CommandTimeout = this._operationTimeout;
-
-                cmd.Execute();
-            }
-        }
-
-        internal void SendMessage(SftpMessage sftpMessage)
-        {
-            this._session.SendMessage(new SftpDataMessage(this._channel.RemoteChannelNumber, sftpMessage));
         }
 
         private void Channel_DataReceived(object sender, Common.ChannelDataEventArgs e)
@@ -199,11 +141,25 @@ namespace Renci.SshNet.Sftp
                 this._data.RemoveRange(0, packetLength);
 
                 //  Load SFTP Message and handle it
-                dynamic sftpMessage = SftpMessage.Load(packetData);
+                dynamic response = SftpMessage.Load(packetData);
 
                 try
                 {
-                    this.HandleMessage(sftpMessage);
+                    if (response is SftpVersionResponse)
+                    {
+                        if (response.Version == 3)
+                        {
+                            this._sftpVersionConfirmed.Set();
+                        }
+                        else
+                        {
+                            throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "Server SFTP version {0} is not supported.", response.Version));
+                        }
+                    }
+                    else
+                    {
+                        this.HandleResponse(response);
+                    }
                 }
                 catch (Exception exp)
                 {
@@ -213,91 +169,19 @@ namespace Renci.SshNet.Sftp
             }
         }
 
-        #region Handle SFTP incoming messages and raise appropriate events
-
-        private void HandleMessage(VersionMessage message)
+        private void SendRequest(SftpRequest request)
         {
-            if (message.Version == 3)
+            lock (this._requests)
             {
-                this._sftpVersionConfirmed.Set();
+                this._requests.Add(request.RequestId, request);
             }
-            else
-            {
-                throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "Server SFTP version {0} is not supported.", message.Version));
-            }
+
+            this._session.SendMessage(new SftpDataMessage(this._channel.RemoteChannelNumber, request));
         }
 
-        private void HandleMessage(StatusMessage message)
+        internal void SendMessage(SftpMessage sftpMessage)
         {
-            if (this.StatusMessageReceived != null)
-            {
-                this.StatusMessageReceived(this, new MessageEventArgs<StatusMessage>(message));
-            }
-        }
-
-        private void HandleMessage(DataMessage message)
-        {
-            if (this.DataMessageReceived != null)
-            {
-                this.DataMessageReceived(this, new MessageEventArgs<DataMessage>(message));
-            }
-        }
-
-        private void HandleMessage(HandleMessage message)
-        {
-            if (this.HandleMessageReceived != null)
-            {
-                this.HandleMessageReceived(this, new MessageEventArgs<HandleMessage>(message));
-            }
-        }
-
-        private void HandleMessage(NameMessage message)
-        {
-            if (this.NameMessageReceived != null)
-            {
-                this.NameMessageReceived(this, new MessageEventArgs<NameMessage>(message));
-            }
-        }
-
-        private void HandleMessage(AttributesMessage message)
-        {
-            if (this.AttributesMessageReceived != null)
-            {
-                this.AttributesMessageReceived(this, new MessageEventArgs<AttributesMessage>(message));
-            }
-        }
-
-        private void HandleMessage(ExtendedMessage message)
-        {
-            //  Extended messages currently not supported, send appropriate status message
-            this.SendMessage(new StatusMessage(message.RequestId, StatusCodes.OperationUnsupported, "Extended messages are not supported", string.Empty));
-        }
-
-        #endregion
-
-        private string GetRealPath(string path)
-        {
-            using (var cmd = new RealPathCommand(this, path))
-            {
-                cmd.CommandTimeout = this._operationTimeout;
-
-                cmd.Execute();
-
-                if (cmd.Files == null)
-                    return null;
-                else
-                    return cmd.Files.First().FullName;
-            }
-        }
-
-        private void Session_Disconnected(object sender, EventArgs e)
-        {
-            this.RaiseError(new SshException("Connection was lost"));
-        }
-
-        private void Session_ErrorOccured(object sender, ErrorEventArgs e)
-        {
-            this.RaiseError(e.GetException());
+            this._session.SendMessage(new SftpDataMessage(this._channel.RemoteChannelNumber, sftpMessage));
         }
 
         internal void WaitHandle(WaitHandle waitHandle, TimeSpan operationTimeout)
@@ -342,7 +226,14 @@ namespace Renci.SshNet.Sftp
                 }
             }
 
-            var canonizedPath = this.GetRealPath(fullPath);
+            var canonizedPath = string.Empty;
+
+            var realPathFiles = this.RequestRealPath(fullPath, true);
+            
+            if ( realPathFiles != null)
+            {
+                canonizedPath = realPathFiles.Keys.First();
+            }
 
             if (!string.IsNullOrEmpty(canonizedPath))
                 return canonizedPath;
@@ -361,7 +252,15 @@ namespace Renci.SshNet.Sftp
             if (string.IsNullOrEmpty(partialFullPath))
                 partialFullPath = "/";
 
-            canonizedPath = this.GetRealPath(partialFullPath);
+            //canonizedPath = this.RequestRealPath(partialFullPath).First().FullName;
+
+            realPathFiles = this.RequestRealPath(partialFullPath, true);
+
+            if (realPathFiles != null)
+            {
+                canonizedPath = realPathFiles.Keys.First();
+            }
+
 
             if (string.IsNullOrEmpty(canonizedPath))
             {
@@ -376,60 +275,653 @@ namespace Renci.SshNet.Sftp
             }
         }
 
-        internal byte[] OpenFile(string path, Flags flags)
-        {
-            using (var cmd = new OpenCommand(this, path, flags))
-            {
-                cmd.CommandTimeout = this._operationTimeout;
-
-                cmd.Execute();
-
-                return cmd.Handle;
-            }
-        }
-
-        internal void CloseHandle(byte[] handle)
-        {
-            using (var cmd = new CloseCommand(this, handle))
-            {
-                cmd.CommandTimeout = this._operationTimeout;
-
-                cmd.Execute();
-            }
-        }
-
-        internal void Write(byte[] handle, ulong offset, byte[] data)
-        {
-            using (var cmd = new WriteCommand(this, handle, offset, data))
-            {
-                cmd.CommandTimeout = this._operationTimeout;
-
-                cmd.Execute();
-            }
-        }
-
-        internal byte[] Read(byte[] handle, ulong offset, uint length)
-        {
-            using (var cmd = new ReadCommand(this, handle, offset, length))
-            {
-                cmd.CommandTimeout = this._operationTimeout;
-
-                cmd.Execute();
-
-                return cmd.Data;
-            }
-        }
-
         internal bool FileExistsCommand(string path, Flags flags)
         {
-            using (var cmd = new FileExistsCommand(this, path, flags))
+            var handle = this.RequestOpen(path, flags, true);
+            if (handle == null)
             {
-                cmd.CommandTimeout = this._operationTimeout;
-
-                cmd.Execute();
-
-                return cmd.Exists;
+                return false;
             }
+            else
+            {
+                this.RequestClose(handle);
+
+                return true;
+            }
+        }
+
+        #region SFTP API functions
+
+        //#define SSH_FXP_INIT                1
+        //#define SSH_FXP_VERSION             2
+
+        /// <summary>
+        /// Performs SSH_FXP_OPEN request
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <param name="flags">The flags.</param>
+        /// <param name="nullOnError">if set to <c>true</c> returns null instead of throwing an exception.</param>
+        /// <returns></returns>
+        internal byte[] RequestOpen(string path, Flags flags, bool nullOnError = false)
+        {
+            byte[] handle = null;
+
+            using (var wait = new AutoResetEvent(false))
+            {
+                var request = new SftpOpenRequest(this.NextRequestId, path, flags,
+                    (response) =>
+                    {
+                        handle = response.Handle;
+                        wait.Set();
+                    },
+                    (response) =>
+                    {
+                        if (nullOnError)
+                        {
+                            wait.Set();
+                        }
+                        else
+                        {
+                            this.ThrowSftpException(response);
+                        }
+                    });
+
+                this.SendRequest(request);
+
+                this.WaitHandle(wait, this._operationTimeout);
+            }
+
+            return handle;
+        }
+
+        /// <summary>
+        /// Performs SSH_FXP_CLOSE request.
+        /// </summary>
+        /// <param name="handle">The handle.</param>
+        internal void RequestClose(byte[] handle)
+        {
+            using (var wait = new AutoResetEvent(false))
+            {
+                var request = new SftpCloseRequest(this.NextRequestId, handle,
+                    (response) =>
+                    {
+                        if (response.StatusCode == StatusCodes.Ok)
+                        {
+                            wait.Set();
+                        }
+                        else
+                        {
+                            this.ThrowSftpException(response);
+                        }
+                    });
+
+                this.SendRequest(request);
+
+                this.WaitHandle(wait, this._operationTimeout);
+            }
+        }
+
+        /// <summary>
+        /// Performs SSH_FXP_READ request.
+        /// </summary>
+        /// <param name="handle">The handle.</param>
+        /// <param name="offset">The offset.</param>
+        /// <param name="length">The length.</param>
+        /// <returns>data array; null if EOF</returns>
+        internal byte[] RequestRead(byte[] handle, UInt64 offset, UInt32 length)
+        {
+            byte[] data = null;
+
+            using (var wait = new AutoResetEvent(false))
+            {
+                var request = new SftpReadRequest(this.NextRequestId, handle, offset, length,
+                    (response) =>
+                    {
+                        data = response.Data;
+                        wait.Set();
+                    },
+                    (response) =>
+                    {
+                        if (response.StatusCode == StatusCodes.Eof)
+                        {
+                            wait.Set();
+                        }
+                        else
+                        {
+                            this.ThrowSftpException(response);
+                        }
+                    });
+
+                this.SendRequest(request);
+
+                this.WaitHandle(wait, this._operationTimeout);
+            }
+
+            return data;
+        }
+
+        /// <summary>
+        /// Performs SSH_FXP_WRITE request.
+        /// </summary>
+        /// <param name="handle">The handle.</param>
+        /// <param name="offset">The offset.</param>
+        /// <param name="data">The data.</param>
+        internal void RequestWrite(byte[] handle, UInt64 offset, byte[] data)
+        {
+            using (var wait = new AutoResetEvent(false))
+            {
+                var request = new SftpWriteRequest(this.NextRequestId, handle, offset, data,
+                    (response) =>
+                    {
+                        if (response.StatusCode == StatusCodes.Ok)
+                        {
+                            wait.Set();
+                        }
+                        else
+                        {
+                            this.ThrowSftpException(response);
+                        }
+                    });
+
+                this.SendRequest(request);
+
+                this.WaitHandle(wait, this._operationTimeout);
+            }
+        }
+
+        /// <summary>
+        /// Performs SSH_FXP_LSTAT request.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <param name="nullOnError">if set to <c>true</c> returns null instead of throwing an exception.</param>
+        /// <returns>
+        /// File attributes
+        /// </returns>
+        internal SftpFileAttributes RequestLStat(string path, bool nullOnError = false)
+        {
+            SftpFileAttributes attributes = null;
+            using (var wait = new AutoResetEvent(false))
+            {
+                var request = new SftpLStatRequest(this.NextRequestId, path,
+                    (response) =>
+                    {
+                        attributes = response.Attributes;
+                        wait.Set();
+                    },
+                    (response) =>
+                    {
+                        this.ThrowSftpException(response);
+                    });
+
+                this.SendRequest(request);
+
+                this.WaitHandle(wait, this._operationTimeout);
+            }
+
+            return attributes;
+        }
+
+        /// <summary>
+        /// Performs SSH_FXP_FSTAT request.
+        /// </summary>
+        /// <param name="handle">The handle.</param>
+        /// <param name="nullOnError">if set to <c>true</c> returns null instead of throwing an exception.</param>
+        /// <returns>
+        /// File attributes
+        /// </returns>
+        internal SftpFileAttributes RequestFStat(byte[] handle, bool nullOnError = false)
+        {
+            SftpFileAttributes attributes = null;
+            using (var wait = new AutoResetEvent(false))
+            {
+                var request = new SftpFStatRequest(this.NextRequestId, handle,
+                    (response) =>
+                    {
+                        attributes = response.Attributes;
+                        wait.Set();
+                    },
+                    (response) =>
+                    {
+                        this.ThrowSftpException(response);
+                    });
+
+                this.SendRequest(request);
+
+                this.WaitHandle(wait, this._operationTimeout);
+            }
+
+            return attributes;
+        }
+
+        /// <summary>
+        /// Performs SSH_FXP_SETSTAT request.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <param name="attributes">The attributes.</param>
+        internal void RequestSetStat(string path, SftpFileAttributes attributes)
+        {
+            using (var wait = new AutoResetEvent(false))
+            {
+                var request = new SftpSetStatRequest(this.NextRequestId, path, attributes,
+                    (response) =>
+                    {
+                        if (response.StatusCode == StatusCodes.Ok)
+                        {
+                            wait.Set();
+                        }
+                        else
+                        {
+                            this.ThrowSftpException(response);
+                        }
+                    });
+
+                this.SendRequest(request);
+
+                this.WaitHandle(wait, this._operationTimeout);
+            }
+        }
+
+        /// <summary>
+        /// Performs SSH_FXP_FSETSTAT request.
+        /// </summary>
+        /// <param name="handle">The handle.</param>
+        /// <param name="attributes">The attributes.</param>
+        internal void RequestFSetStat(byte[] handle, SftpFileAttributes attributes)
+        {
+            using (var wait = new AutoResetEvent(false))
+            {
+                var request = new SftpFSetStatRequest(this.NextRequestId, handle, attributes,
+                    (response) =>
+                    {
+                        if (response.StatusCode == StatusCodes.Ok)
+                        {
+                            wait.Set();
+                        }
+                        else
+                        {
+                            this.ThrowSftpException(response);
+                        }
+                    });
+
+                this.SendRequest(request);
+
+                this.WaitHandle(wait, this._operationTimeout);
+            }
+        }
+
+        /// <summary>
+        /// Performs SSH_FXP_OPENDIR request
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <param name="nullOnError">if set to <c>true</c> returns null instead of throwing an exception.</param>
+        /// <returns></returns>
+        internal byte[] RequestOpenDir(string path, bool nullOnError = false)
+        {
+            byte[] handle = null;
+
+            using (var wait = new AutoResetEvent(false))
+            {
+                var request = new SftpOpenDirRequest(this.NextRequestId, path,
+                    (response) =>
+                    {
+                        handle = response.Handle;
+                        wait.Set();
+                    },
+                    (response) =>
+                    {
+                        if (nullOnError)
+                        {
+                            wait.Set();
+                        }
+                        else
+                        {
+                            this.ThrowSftpException(response);
+                        }
+                    });
+
+                this.SendRequest(request);
+
+                this.WaitHandle(wait, this._operationTimeout);
+            }
+
+            return handle;
+        }
+
+        /// <summary>
+        /// Performs SSH_FXP_READDIR request
+        /// </summary>
+        /// <param name="handle">The handle.</param>
+        /// <returns></returns>
+        internal IDictionary<string, SftpFileAttributes> RequestReadDir(byte[] handle)
+        {
+            IDictionary<string, SftpFileAttributes> result = null;
+
+            using (var wait = new AutoResetEvent(false))
+            {
+                var request = new SftpReadDirRequest(this.NextRequestId, handle,
+                    (response) =>
+                    {
+                        result = response.Files;
+                        wait.Set();
+                    },
+                    (response) =>
+                    {
+                        if (response.StatusCode == StatusCodes.Eof)
+                        {
+                            wait.Set();
+                        }
+                        else
+                        {
+                            this.ThrowSftpException(response);
+                        }
+                    });
+
+                this.SendRequest(request);
+
+                this.WaitHandle(wait, this._operationTimeout);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Performs SSH_FXP_REMOVE request.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        internal void RequestRemove(string path)
+        {
+            using (var wait = new AutoResetEvent(false))
+            {
+                var request = new SftpRemoveRequest(this.NextRequestId, path,
+                    (response) =>
+                    {
+                        if (response.StatusCode == StatusCodes.Ok)
+                        {
+                            wait.Set();
+                        }
+                        else
+                        {
+                            this.ThrowSftpException(response);
+                        }
+                    });
+
+                this.SendRequest(request);
+
+                this.WaitHandle(wait, this._operationTimeout);
+            }
+        }
+
+        /// <summary>
+        /// Performs SSH_FXP_MKDIR request.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        internal void RequestMkDir(string path)
+        {
+            using (var wait = new AutoResetEvent(false))
+            {
+                var request = new SftpMkDirRequest(this.NextRequestId, path,
+                    (response) =>
+                    {
+                        if (response.StatusCode == StatusCodes.Ok)
+                        {
+                            wait.Set();
+                        }
+                        else
+                        {
+                            this.ThrowSftpException(response);
+                        }
+                    });
+
+                this.SendRequest(request);
+
+                this.WaitHandle(wait, this._operationTimeout);
+            }
+        }
+
+        /// <summary>
+        /// Performs SSH_FXP_RMDIR request.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        internal void RequestRmDir(string path)
+        {
+            using (var wait = new AutoResetEvent(false))
+            {
+                var request = new SftpRmDirRequest(this.NextRequestId, path,
+                    (response) =>
+                    {
+                        if (response.StatusCode == StatusCodes.Ok)
+                        {
+                            wait.Set();
+                        }
+                        else
+                        {
+                            this.ThrowSftpException(response);
+                        }
+                    });
+
+                this.SendRequest(request);
+
+                this.WaitHandle(wait, this._operationTimeout);
+            }
+        }
+
+        /// <summary>
+        /// Performs SSH_FXP_REALPATH request
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <param name="nullOnError">if set to <c>true</c> returns null instead of throwing an exception.</param>
+        /// <returns></returns>
+        internal IDictionary<string, SftpFileAttributes> RequestRealPath(string path, bool nullOnError = false)
+        {
+            IDictionary<string, SftpFileAttributes> result = null;
+
+            using (var wait = new AutoResetEvent(false))
+            {
+                var request = new SftpRealPathRequest(this.NextRequestId, path,
+                    (response) =>
+                    {
+                        result = response.Files;
+
+                        wait.Set();
+                    },
+                    (response) =>
+                    {
+                        if (nullOnError)
+                        {
+                            wait.Set();
+                        }
+                        else
+                        {
+                            this.ThrowSftpException(response);
+                        }
+                    });
+
+                this.SendRequest(request);
+
+                this.WaitHandle(wait, this._operationTimeout);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Performs SSH_FXP_STAT request.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <param name="nullOnError">if set to <c>true</c> returns null instead of throwing an exception.</param>
+        /// <returns>
+        /// File attributes
+        /// </returns>
+        internal SftpFileAttributes RequestStat(string path, bool nullOnError = false)
+        {
+            SftpFileAttributes attributes = null;
+            using (var wait = new AutoResetEvent(false))
+            {
+                var request = new SftpStatRequest(this.NextRequestId, path,
+                    (response) =>
+                    {
+                        attributes = response.Attributes;
+                        wait.Set();
+                    },
+                    (response) =>
+                    {
+                        if (nullOnError)
+                        {
+                            wait.Set();
+                        }
+                        else
+                        {
+                            this.ThrowSftpException(response);
+                        }
+                    });
+
+                this.SendRequest(request);
+
+                this.WaitHandle(wait, this._operationTimeout);
+            }
+
+            return attributes;
+        }
+
+        /// <summary>
+        /// Performs SSH_FXP_RENAME request.
+        /// </summary>
+        /// <param name="oldPath">The old path.</param>
+        /// <param name="newPath">The new path.</param>
+        internal void RequestRename(string oldPath, string newPath)
+        {
+            using (var wait = new AutoResetEvent(false))
+            {
+                var request = new SftpRenameRequest(this.NextRequestId, oldPath, newPath,
+                    (response) =>
+                    {
+                        if (response.StatusCode == StatusCodes.Ok)
+                        {
+                            wait.Set();
+                        }
+                        else
+                        {
+                            this.ThrowSftpException(response);
+                        }
+                    });
+
+                this.SendRequest(request);
+
+                this.WaitHandle(wait, this._operationTimeout);
+            }
+        }
+
+        /// <summary>
+        /// Performs SSH_FXP_READLINK request.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <param name="nullOnError">if set to <c>true</c> returns null instead of throwing an exception.</param>
+        /// <returns></returns>
+        internal IDictionary<string, SftpFileAttributes> RequestReadLink(string path, bool nullOnError = false)
+        {
+            IDictionary<string, SftpFileAttributes> result = null;
+
+            using (var wait = new AutoResetEvent(false))
+            {
+                var request = new SftpReadLinkRequest(this.NextRequestId, path,
+                    (response) =>
+                    {
+                        result = response.Files;
+
+                        wait.Set();
+                    },
+                    (response) =>
+                    {
+                        if (nullOnError)
+                        {
+                            wait.Set();
+                        }
+                        else
+                        {
+                            this.ThrowSftpException(response);
+                        }
+                    });
+
+                this.SendRequest(request);
+
+                this.WaitHandle(wait, this._operationTimeout);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Performs SSH_FXP_SYMLINK request.
+        /// </summary>
+        /// <param name="linkpath">The linkpath.</param>
+        /// <param name="targetpath">The targetpath.</param>
+        internal void RequestSymLink(string linkpath, string targetpath)
+        {
+            using (var wait = new AutoResetEvent(false))
+            {
+                var request = new SftpSymLinkRequest(this.NextRequestId, linkpath, targetpath,
+                    (response) =>
+                    {
+                        if (response.StatusCode == StatusCodes.Ok)
+                        {
+                            wait.Set();
+                        }
+                        else
+                        {
+                            this.ThrowSftpException(response);
+                        }
+                    });
+
+                this.SendRequest(request);
+
+                this.WaitHandle(wait, this._operationTimeout);
+            }
+        }
+
+        #endregion
+
+        private void ThrowSftpException(SftpStatusResponse response)
+        {
+            if (response.StatusCode == StatusCodes.PermissionDenied)
+            {
+                throw new SftpPermissionDeniedException(response.ErrorMessage);
+            }
+            else if (response.StatusCode == StatusCodes.NoSuchFile)
+            {
+                throw new SftpPathNotFoundException(response.ErrorMessage);
+            }
+            else
+            {
+                throw new SshException(response.ErrorMessage);
+            }
+        }
+
+        private void HandleResponse(SftpResponse response)
+        {
+            SftpRequest request = null;
+            lock (this._requests)
+            {
+                this._requests.TryGetValue(response.ResponseId, out request);
+                if (request != null)
+                {
+                    this._requests.Remove(response.ResponseId);
+                }
+            }
+
+            if (request == null)
+                throw new InvalidOperationException("Invalid response.");
+
+            request.Complete(response);
+        }
+
+        private void Session_Disconnected(object sender, EventArgs e)
+        {
+            this.RaiseError(new SshException("Connection was lost"));
+        }
+
+        private void Session_ErrorOccured(object sender, ErrorEventArgs e)
+        {
+            this.RaiseError(e.GetException());
         }
 
         private void RaiseError(Exception error)

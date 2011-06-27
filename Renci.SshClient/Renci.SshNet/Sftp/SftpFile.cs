@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Security;
-using Renci.SshNet.Sftp.Messages;
 using System.Globalization;
 
 namespace Renci.SshNet.Sftp
@@ -14,6 +13,9 @@ namespace Renci.SshNet.Sftp
     {
         private SftpSession _sftpSession;
 
+        /// <summary>
+        /// Gets the file attributes.
+        /// </summary>
         public SftpFileAttributes Attributes { get; private set; }
 
         /// <summary>
@@ -408,28 +410,13 @@ namespace Renci.SshNet.Sftp
         /// </summary>
         public void Delete()
         {
-            SftpCommand cmd = null;
-            try
+            if (this.IsDirectory)
             {
-                if (this.IsDirectory)
-                {
-                    cmd = new RemoveDirectoryCommand(this._sftpSession, this.FullName);
-                }
-                else
-                {
-                    cmd = new RemoveFileCommand(this._sftpSession, this.FullName);
-                }
-
-                cmd.CommandTimeout = TimeSpan.FromSeconds(30);
-
-                cmd.Execute();
+                this._sftpSession.RequestRmDir(this.FullName);
             }
-            finally
+            else
             {
-                if (cmd != null)
-                {
-                    cmd.Dispose();
-                }
+                this._sftpSession.RequestRemove(this.FullName);
             }
         }
 
@@ -439,12 +426,7 @@ namespace Renci.SshNet.Sftp
         /// <param name="destFileName">The path to move the file to, which can specify a different file name.</param>
         public void MoveTo(string destFileName)
         {
-            using (var setCmd = new RenameFileCommand(this._sftpSession, this.FullName, destFileName))
-            {
-                setCmd.CommandTimeout = TimeSpan.FromSeconds(30);
-
-                setCmd.Execute();
-            }
+            this._sftpSession.RequestRename(this.FullName, destFileName);
         }
 
         /// <summary>
@@ -452,12 +434,7 @@ namespace Renci.SshNet.Sftp
         /// </summary>
         public void UpdateStatus()
         {
-            using (var setCmd = new SetStatusCommand(this._sftpSession, this.FullName, this.Attributes))
-            {
-                setCmd.CommandTimeout = TimeSpan.FromSeconds(30);
-
-                setCmd.Execute();
-            }
+            this._sftpSession.RequestSetStat(this.FullName, this.Attributes);
         }
 
 

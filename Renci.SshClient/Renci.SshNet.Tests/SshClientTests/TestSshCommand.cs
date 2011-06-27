@@ -64,7 +64,7 @@ namespace Renci.SshNet.Tests.SshClientTests
 			}
 		}
 
-		//[TestMethod]
+		[TestMethod]
 		public void Test_MultipleThread_10000_MultipleSessions()
 		{
 			using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
@@ -83,7 +83,7 @@ namespace Renci.SshNet.Tests.SshClientTests
 			}
 		}
 
-		//[TestMethod]
+		[TestMethod]
 		public void Test_MultipleThread_10000_MultipleConnections()
 		{
 			try

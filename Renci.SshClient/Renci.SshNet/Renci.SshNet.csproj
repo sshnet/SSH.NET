@@ -63,6 +63,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Common\AsyncResult.cs" />
     <Compile Include="Common\AuthenticationBannerEventArgs.cs" />
     <Compile Include="Common\AuthenticationEventArgs.cs" />
     <Compile Include="Common\AuthenticationPasswordChangeEventArgs.cs" />
@@ -128,17 +129,50 @@
     <Compile Include="Security\Cryptography\Modes\OfbMode.cs" />
     <Compile Include="Security\Cryptography\TransformMode.cs" />
     <Compile Include="Security\Cryptography\Ciphers\DesCipher.cs" />
-    <Compile Include="Sftp\CloseCommand.cs" />
-    <Compile Include="Sftp\FileExistsCommand.cs" />
-    <Compile Include="Sftp\OpenCommand.cs" />
-    <Compile Include="Sftp\OpenDirectoryCommand.cs" />
-    <Compile Include="Sftp\ReadCommand.cs" />
-    <Compile Include="Sftp\SetStatusCommand.cs" />
+    <Compile Include="Sftp\Flags.cs" />
+    <Compile Include="Sftp\SftpDataMessage.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Sftp\SftpDownloadAsyncResult.cs" />
+    <Compile Include="Sftp\SftpListDirectoryAsyncResult.cs" />
+    <Compile Include="Sftp\SftpMessage.cs" />
+    <Compile Include="Sftp\SftpMessageTypes.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Sftp\SftpUploadAsyncResult.cs" />
+    <Compile Include="Sftp\StatusCodes.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Sftp\Requests\SftpCloseRequest.cs" />
+    <Compile Include="Sftp\Requests\SftpFSetStatRequest.cs" />
+    <Compile Include="Sftp\Requests\SftpFStatRequest.cs" />
+    <Compile Include="Sftp\Requests\SftpInitRequest.cs" />
+    <Compile Include="Sftp\Requests\SftpLStatRequest.cs" />
+    <Compile Include="Sftp\Requests\SftpMkDirRequest.cs" />
+    <Compile Include="Sftp\Requests\SftpOpenDirRequest.cs" />
+    <Compile Include="Sftp\Requests\SftpOpenRequest.cs" />
+    <Compile Include="Sftp\Requests\SftpReadDirRequest.cs" />
+    <Compile Include="Sftp\Requests\SftpReadLinkRequest.cs" />
+    <Compile Include="Sftp\Requests\SftpReadRequest.cs" />
+    <Compile Include="Sftp\Requests\SftpRealPathRequest.cs" />
+    <Compile Include="Sftp\Requests\SftpRemoveRequest.cs" />
+    <Compile Include="Sftp\Requests\SftpRenameRequest.cs" />
+    <Compile Include="Sftp\Requests\SftpRmDirRequest.cs" />
+    <Compile Include="Sftp\Requests\SftpSetStatRequest.cs" />
+    <Compile Include="Sftp\Requests\SftpStatRequest.cs" />
+    <Compile Include="Sftp\Requests\SftpSymLinkRequest.cs" />
+    <Compile Include="Sftp\Responses\SftpVersionResponse.cs" />
+    <Compile Include="Sftp\Requests\SftpWriteRequest.cs" />
+    <Compile Include="Sftp\Responses\SftpAttrsResponse.cs" />
+    <Compile Include="Sftp\Responses\SftpDataResponse.cs" />
+    <Compile Include="Sftp\Responses\SftpExtendedReplyResponse.cs" />
+    <Compile Include="Sftp\Responses\SftpHandleResponse.cs" />
+    <Compile Include="Sftp\Requests\SftpRequest.cs" />
+    <Compile Include="Sftp\Responses\SftpNameResponse.cs" />
+    <Compile Include="Sftp\Responses\SftpResponse.cs" />
+    <Compile Include="Sftp\Responses\SftpStatusResponse.cs" />
     <Compile Include="Sftp\SftpFileAttributes.cs" />
     <Compile Include="Sftp\SftpFileStream.cs" />
-    <Compile Include="Sftp\StatusCommand.cs" />
-    <Compile Include="Sftp\SymbolicLinkCommand.cs" />
-    <Compile Include="Sftp\Messages\SftpRequestMessage.cs" />
     <Compile Include="Messages\Transport\KeyExchangeDhGroupExchangeGroup.cs" />
     <Compile Include="Messages\Transport\KeyExchangeDhGroupExchangeInit.cs" />
     <Compile Include="Messages\Transport\KeyExchangeDhGroupExchangeReply.cs" />
@@ -156,20 +190,9 @@
     <Compile Include="Security\KeyExchangeDiffieHellmanGroup14Sha1.cs" />
     <Compile Include="Security\KeyExchangeDiffieHellmanGroupExchangeSha1.cs" />
     <Compile Include="SftpClient.cs" />
-    <Compile Include="Sftp\CreateDirectoryCommand.cs" />
-    <Compile Include="Sftp\DownloadFileCommand.cs" />
-    <Compile Include="Sftp\ListDirectoryCommand.cs" />
-    <Compile Include="Sftp\RealPathCommand.cs" />
-    <Compile Include="Sftp\RemoveDirectoryCommand.cs" />
-    <Compile Include="Sftp\RemoveFileCommand.cs" />
-    <Compile Include="Sftp\RenameFileCommand.cs" />
-    <Compile Include="Sftp\SftpAsyncResult.cs" />
-    <Compile Include="Sftp\SftpCommand.cs" />
     <Compile Include="Sftp\SftpFile.cs" />
     <Compile Include="Sftp\SftpSession.cs" />
-    <Compile Include="Sftp\UploadFileCommand.cs" />
     <Compile Include="BaseClient.cs" />
-    <Compile Include="Sftp\WriteCommand.cs" />
     <Compile Include="SshCommand.cs" />
     <Compile Include="MessageEventArgs.cs" />
     <Compile Include="ChannelAsyncResult.cs" />
@@ -187,41 +210,6 @@
     <Compile Include="Security\CipherAESCBC.cs" />
     <Compile Include="Security\CipherTripleDES.cs" />
     <Compile Include="Compression\Compressor.cs" />
-    <Compile Include="Sftp\Messages\AceMasks.cs" />
-    <Compile Include="Sftp\Messages\AttributesMessage.cs" />
-    <Compile Include="Sftp\Messages\CloseMessage.cs" />
-    <Compile Include="Sftp\Messages\DataMessage.cs" />
-    <Compile Include="Sftp\Messages\ExtendedMessage.cs" />
-    <Compile Include="Sftp\Messages\ExtendedReplyMessage.cs" />
-    <Compile Include="Sftp\Messages\Flags.cs" />
-    <Compile Include="Sftp\Messages\FSetStatMessage.cs" />
-    <Compile Include="Sftp\Messages\FStatMessage.cs" />
-    <Compile Include="Sftp\Messages\HandleMessage.cs" />
-    <Compile Include="Sftp\Messages\InitMessage.cs" />
-    <Compile Include="Sftp\Messages\SymLinkMessage.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Sftp\Messages\LStatMessage.cs" />
-    <Compile Include="Sftp\Messages\MkDirMessage.cs" />
-    <Compile Include="Sftp\Messages\NameMessage.cs" />
-    <Compile Include="Sftp\Messages\OpenDirMessage.cs" />
-    <Compile Include="Sftp\Messages\OpenMessage.cs" />
-    <Compile Include="Sftp\Messages\ReadDirMessage.cs" />
-    <Compile Include="Sftp\Messages\ReadLinkMessage.cs" />
-    <Compile Include="Sftp\Messages\ReadMessage.cs" />
-    <Compile Include="Sftp\Messages\RealPathMessage.cs" />
-    <Compile Include="Sftp\Messages\RemoveMessage.cs" />
-    <Compile Include="Sftp\Messages\RenameMessage.cs" />
-    <Compile Include="Sftp\Messages\RmDirMessage.cs" />
-    <Compile Include="Sftp\Messages\SetStatMessage.cs" />
-    <Compile Include="Sftp\Messages\SftpDataMessage.cs" />
-    <Compile Include="Sftp\Messages\SftpMessage.cs" />
-    <Compile Include="Sftp\Messages\SftpMessageTypes.cs" />
-    <Compile Include="Sftp\Messages\StatMessage.cs" />
-    <Compile Include="Sftp\Messages\StatusCodes.cs" />
-    <Compile Include="Sftp\Messages\StatusMessage.cs" />
-    <Compile Include="Sftp\Messages\VersionMessage.cs" />
-    <Compile Include="Sftp\Messages\WriteMessage.cs" />
     <Compile Include="Compression\Zlib.cs" />
     <Compile Include="Compression\ZlibOpenSsh.cs" />
     <Compile Include="Security\CryptoKey.cs" />
@@ -324,6 +312,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Documentation\SshClient.shfbproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Sftp\Messages\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

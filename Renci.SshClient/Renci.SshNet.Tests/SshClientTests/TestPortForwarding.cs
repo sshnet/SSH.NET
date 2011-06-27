@@ -5,6 +5,7 @@ using System.Net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Renci.SshNet.Tests.Properties;
 using Renci.SshNet.Common;
+using System.Threading;
 
 namespace Renci.SshNet.Tests.SshClientTests
 {
@@ -170,7 +171,7 @@ namespace Renci.SshNet.Tests.SshClientTests
 			using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
 			{
 				client.Connect();
-				var port1 = client.AddForwardedPort<ForwardedPortRemote>("", 8082, "www.renci.org", 80);
+				var port1 = client.AddForwardedPort<ForwardedPortRemote>(8082, "www.renci.org", 80);
 				port1.Exception += delegate(object sender, ExceptionEventArgs e)
 				{
 					Assert.Fail(e.Exception.ToString());
@@ -191,6 +192,8 @@ namespace Renci.SshNet.Tests.SshClientTests
 						Debug.WriteLine(string.Format("Length: {0}", result.Length));
 					}
 				);
+				Thread.Sleep(1000 * 100);
+				port1.Stop();
 			}
 		}
 

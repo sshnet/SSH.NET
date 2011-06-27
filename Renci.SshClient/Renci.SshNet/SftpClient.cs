@@ -5,6 +5,8 @@ using System.IO;
 using Renci.SshNet.Sftp;
 using System.Text;
 using Renci.SshNet.Common;
+using System.Threading.Tasks;
+using System.Globalization;
 
 namespace Renci.SshNet
 {
@@ -17,11 +19,6 @@ namespace Renci.SshNet
         /// Holds SftpSession instance that used to communicate to the SFTP server
         /// </summary>
         private SftpSession _sftpSession;
-
-        /// <summary>
-        /// Keeps track of all async command execution
-        /// </summary>
-        private Dictionary<SftpAsyncResult, SftpCommand> _asyncCommands = new Dictionary<SftpAsyncResult, SftpCommand>();
 
         /// <summary>
         /// Gets or sets the operation timeout.
@@ -163,12 +160,7 @@ namespace Renci.SshNet
 
             var fullPath = this._sftpSession.GetCanonicalPath(path);
 
-            using (var cmd = new CreateDirectoryCommand(this._sftpSession, fullPath))
-            {
-                cmd.CommandTimeout = this.OperationTimeout;
-
-                cmd.Execute();
-            }
+            this._sftpSession.RequestMkDir(fullPath);
         }
 
         /// <summary>
@@ -185,12 +177,7 @@ namespace Renci.SshNet
 
             var fullPath = this._sftpSession.GetCanonicalPath(path);
 
-            using (var cmd = new RemoveDirectoryCommand(this._sftpSession, fullPath))
-            {
-                cmd.CommandTimeout = this.OperationTimeout;
-
-                cmd.Execute();
-            }
+            this._sftpSession.RequestRmDir(fullPath);
         }
 
         /// <summary>
@@ -207,12 +194,7 @@ namespace Renci.SshNet
 
             var fullPath = this._sftpSession.GetCanonicalPath(path);
 
-            using (var cmd = new RemoveFileCommand(this._sftpSession, fullPath))
-            {
-                cmd.CommandTimeout = this.OperationTimeout;
-
-                cmd.Execute();
-            }
+            this._sftpSession.RequestRemove(fullPath);
         }
 
         /// <summary>
@@ -235,12 +217,7 @@ namespace Renci.SshNet
 
             var newFullPath = this._sftpSession.GetCanonicalPath(newPath);
 
-            using (var cmd = new RenameFileCommand(this._sftpSession, oldFullPath, newFullPath))
-            {
-                cmd.CommandTimeout = this.OperationTimeout;
-
-                cmd.Execute();
-            }
+            this._sftpSession.RequestRename(oldFullPath, newFullPath);
         }
 
         /// <summary>
@@ -263,12 +240,7 @@ namespace Renci.SshNet
 
             var linkFullPath = this._sftpSession.GetCanonicalPath(linkPath);
 
-            using (var cmd = new SymbolicLinkCommand(this._sftpSession, fullPath, linkFullPath))
-            {
-                cmd.CommandTimeout = this.OperationTimeout;
-
-                cmd.Execute();
-            }
+            this._sftpSession.RequestSymLink(fullPath, linkFullPath);
         }
 
         /// <summary>
@@ -278,7 +250,7 @@ namespace Renci.SshNet
         /// <returns>List of directory entries</returns>
         public IEnumerable<SftpFile> ListDirectory(string path)
         {
-            return this.EndListDirectory(this.BeginListDirectory(path, null, null));
+            return InternalListDirectory(path, null);
         }
 
         /// <summary>
@@ -287,70 +259,46 @@ namespace Renci.SshNet
         /// <param name="path">The path.</param>
         /// <param name="asyncCallback">The method to be called when the asynchronous write operation is completed.</param>
         /// <param name="state">A user-provided object that distinguishes this particular asynchronous write request from other requests.</param>
-        /// <returns>An <see cref="IAsyncResult"/> that references the asynchronous operation.</returns>
+        /// <returns>
+        /// An <see cref="IAsyncResult"/> that references the asynchronous operation.
+        /// </returns>
         public IAsyncResult BeginListDirectory(string path, AsyncCallback asyncCallback, object state)
         {
-            if (path == null)
-                throw new ArgumentNullException("path");
+            var asyncResult = new SftpListDirectoryAsyncResult(asyncCallback, state);
 
-            //  Ensure that connection is established.
-            this.EnsureConnection();
-
-            var fullPath = this._sftpSession.GetCanonicalPath(path);
-
-            var cmd = new ListDirectoryCommand(this._sftpSession, fullPath);
-
-            cmd.CommandTimeout = this.OperationTimeout;
-
-            var async = cmd.BeginExecute(asyncCallback, state);
-
-            lock (this._asyncCommands)
+            Task.Factory.StartNew(() =>
             {
-                this._asyncCommands.Add(async, cmd);
-            }
+                try
+                {
+                    var result = this.InternalListDirectory(path, asyncResult);
 
-            return async;
+                    asyncResult.SetAsCompleted(result, false);
+                }
+                catch (Exception exp)
+                {
+                    asyncResult.SetAsCompleted(exp, false);
+                }
+            });
+
+            return asyncResult;
         }
 
         /// <summary>
         /// Ends an asynchronous operation of retrieving list of files in remote directory.
         /// </summary>
         /// <param name="asyncResult">The pending asynchronous SFTP request.</param>
-        /// <returns>List of files</returns>
+        /// <returns>
+        /// List of files
+        /// </returns>
         public IEnumerable<SftpFile> EndListDirectory(IAsyncResult asyncResult)
         {
-            var sftpAsync = asyncResult as SftpAsyncResult;
+            var ar = asyncResult as SftpListDirectoryAsyncResult;
 
-            if (this._asyncCommands.ContainsKey(sftpAsync))
-            {
-                lock (this._asyncCommands)
-                {
-                    if (this._asyncCommands.ContainsKey(sftpAsync))
-                    {
-                        var cmd = this._asyncCommands[sftpAsync] as ListDirectoryCommand;
+            if (ar == null || ar.EndInvokeCalled)
+                throw new ArgumentException("Either the IAsyncResult object did not come from the corresponding async method on this type, or EndExecute was called multiple times with the same IAsyncResult.");
 
-                        if (cmd != null)
-                        {
-                            try
-                            {
-                                this._asyncCommands.Remove(sftpAsync);
-
-                                cmd.EndExecute(sftpAsync);
-
-                                var files = cmd.Files;
-
-                                return files;
-                            }
-                            finally
-                            {
-                                cmd.Dispose();
-                            }
-                        }
-                    }
-                }
-            }
-
-            throw new ArgumentException("Either the IAsyncResult object did not come from the corresponding async method on this type, or EndListDirectory was called multiple times with the same IAsyncResult.");
+            // Wait for operation to complete, then return result or throw exception
+            return ar.EndInvoke();
         }
 
         /// <summary>
@@ -365,20 +313,42 @@ namespace Renci.SshNet
 
             var fullPath = this._sftpSession.GetCanonicalPath(path);
 
-            using (var cmd = new StatusCommand(this._sftpSession, fullPath))
+            var attributes = this._sftpSession.RequestLStat(fullPath);
+
+            return new SftpFile(this._sftpSession, fullPath, attributes);
+        }
+
+        /// <summary>
+        /// Checks whether file pr directory exists;
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <returns><c>true</c> if directory or file exists; otherwise <c>false</c>.</returns>
+        public bool Exists(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path))
+                throw new ArgumentException("path");
+
+            //  Ensure that connection is established.
+            this.EnsureConnection();
+
+            var fullPath = this._sftpSession.GetCanonicalPath(path);
+
+            //  Try to open as a file
+            var handle = this._sftpSession.RequestOpen(fullPath, Flags.Read, true);
+
+            if (handle == null)
             {
-                cmd.CommandTimeout = this.OperationTimeout;
+                handle = this._sftpSession.RequestOpenDir(fullPath, true);
+            }
 
-                cmd.Execute();
-
-                if (cmd.Attributes == null)
-                {
-                    return null;
-                }
-                else
-                {
-                    return new SftpFile(this._sftpSession, fullPath, cmd.Attributes);
-                }
+            if (handle == null)
+            {
+                return false;
+            }
+            else
+            {
+                this._sftpSession.RequestClose(handle);
+                return true;
             }
         }
 
@@ -389,7 +359,7 @@ namespace Renci.SshNet
         /// <param name="output">Stream to write the file into.</param>
         public void DownloadFile(string path, Stream output)
         {
-            this.EndDownloadFile(this.BeginDownloadFile(path, output, null, null));
+            this.InternalDownloadFile(path, output, null);
         }
 
         /// <summary>
@@ -411,20 +381,23 @@ namespace Renci.SshNet
             //  Ensure that connection is established.
             this.EnsureConnection();
 
-            var fullPath = this._sftpSession.GetCanonicalPath(path);
+            var asyncResult = new SftpDownloadAsyncResult(asyncCallback, state);
 
-            var cmd = new DownloadFileCommand(this._sftpSession, this.BufferSize, fullPath, output);
-
-            cmd.CommandTimeout = this.OperationTimeout;
-
-            var async = cmd.BeginExecute(asyncCallback, state);
-
-            lock (this._asyncCommands)
+            Task.Factory.StartNew(() =>
             {
-                this._asyncCommands.Add(async, cmd);
-            }
+                try
+                {
+                    this.InternalDownloadFile(path, output, asyncResult);
 
-            return async;
+                    asyncResult.SetAsCompleted(null, false);
+                }
+                catch (Exception exp)
+                {
+                    asyncResult.SetAsCompleted(exp, false);
+                }
+            });
+
+            return asyncResult;
         }
 
         /// <summary>
@@ -433,36 +406,13 @@ namespace Renci.SshNet
         /// <param name="asyncResult">The pending asynchronous SFTP request.</param>
         public void EndDownloadFile(IAsyncResult asyncResult)
         {
-            var sftpAsync = asyncResult as SftpAsyncResult;
+            var ar = asyncResult as SftpDownloadAsyncResult;
 
-            if (this._asyncCommands.ContainsKey(sftpAsync))
-            {
-                lock (this._asyncCommands)
-                {
-                    if (this._asyncCommands.ContainsKey(sftpAsync))
-                    {
-                        var cmd = this._asyncCommands[sftpAsync] as DownloadFileCommand;
+            if (ar == null || ar.EndInvokeCalled)
+                throw new ArgumentException("Either the IAsyncResult object did not come from the corresponding async method on this type, or EndExecute was called multiple times with the same IAsyncResult.");
 
-                        if (cmd != null)
-                        {
-                            try
-                            {
-                                this._asyncCommands.Remove(sftpAsync);
-
-                                cmd.EndExecute(sftpAsync);
-
-                                return;
-                            }
-                            finally
-                            {
-                                cmd.Dispose();
-                            }
-                        }
-                    }
-                }
-            }
-
-            throw new ArgumentException("Either the IAsyncResult object did not come from the corresponding async method on this type, or EndDownloadFile was called multiple times with the same IAsyncResult.");
+            // Wait for operation to complete, then return result or throw exception
+            ar.EndInvoke();
         }
 
         /// <summary>
@@ -472,7 +422,7 @@ namespace Renci.SshNet
         /// <param name="path">Remote file path.</param>
         public void UploadFile(Stream input, string path)
         {
-            this.EndUploadFile(this.BeginUploadFile(input, path, null, null));
+            this.InternalUploadFile(input, path, null);
         }
 
         /// <summary>
@@ -494,20 +444,23 @@ namespace Renci.SshNet
             //  Ensure that connection is established.
             this.EnsureConnection();
 
-            var fullPath = this._sftpSession.GetCanonicalPath(path);
+            var asyncResult = new SftpUploadAsyncResult(asyncCallback, state);
 
-            var cmd = new UploadFileCommand(this._sftpSession, this.BufferSize, fullPath, input);
-
-            cmd.CommandTimeout = this.OperationTimeout;
-
-            var async = cmd.BeginExecute(asyncCallback, state);
-
-            lock (this._asyncCommands)
+            Task.Factory.StartNew(() =>
             {
-                this._asyncCommands.Add(async, cmd);
-            }
+                try
+                {
+                    this.InternalUploadFile(input, path, asyncResult);
 
-            return async;
+                    asyncResult.SetAsCompleted(null, false);
+                }
+                catch (Exception exp)
+                {
+                    asyncResult.SetAsCompleted(exp, false);
+                }
+            });
+
+            return asyncResult;
         }
 
         /// <summary>
@@ -516,36 +469,13 @@ namespace Renci.SshNet
         /// <param name="asyncResult">The pending asynchronous SFTP request.</param>
         public void EndUploadFile(IAsyncResult asyncResult)
         {
-            var sftpAsync = asyncResult as SftpAsyncResult;
+            var ar = asyncResult as SftpUploadAsyncResult;
 
-            if (this._asyncCommands.ContainsKey(sftpAsync))
-            {
-                lock (this._asyncCommands)
-                {
-                    if (this._asyncCommands.ContainsKey(sftpAsync))
-                    {
-                        var cmd = this._asyncCommands[sftpAsync] as UploadFileCommand;
+            if (ar == null || ar.EndInvokeCalled)
+                throw new ArgumentException("Either the IAsyncResult object did not come from the corresponding async method on this type, or EndExecute was called multiple times with the same IAsyncResult.");
 
-                        if (cmd != null)
-                        {
-                            try
-                            {
-                                this._asyncCommands.Remove(sftpAsync);
-
-                                cmd.EndExecute(sftpAsync);
-
-                                return;
-                            }
-                            finally
-                            {
-                                cmd.Dispose();
-                            }
-                        }
-                    }
-                }
-            }
-
-            throw new ArgumentException("Either the IAsyncResult object did not come from the corresponding async method on this type, or EndUploadFile was called multiple times with the same IAsyncResult.");
+            // Wait for operation to complete, then return result or throw exception
+            ar.EndInvoke();
         }
 
         #region File Methods
@@ -691,18 +621,6 @@ namespace Renci.SshNet
             }
 
             file.Delete();
-        }
-
-        /// <summary>
-        /// Determines whether the specified file exists.
-        /// </summary>
-        /// <param name="path">The file to check.</param>
-        /// <returns><c>true</c> if path contains the name of an existing file; otherwise, <c>false</c>.</returns>
-        public bool Exists(string path)
-        {
-            var file = this.Get(path);
-
-            return file != null;
         }
 
         /// <summary>
@@ -1035,7 +953,7 @@ namespace Renci.SshNet
         {
             var fullPath = this._sftpSession.GetCanonicalPath(path);
 
-            return this._sftpSession.GetFileAttributes(fullPath);
+            return this._sftpSession.RequestLStat(fullPath);
         }
 
         /// <summary>
@@ -1047,7 +965,7 @@ namespace Renci.SshNet
         {
             var fullPath = this._sftpSession.GetCanonicalPath(path);
 
-            this._sftpSession.SetFileAttributes(fullPath, fileAttributes);
+            this._sftpSession.RequestSetStat(fullPath, fileAttributes);
         }
 
         //public FileSecurity GetAccessControl(string path);
@@ -1059,6 +977,132 @@ namespace Renci.SshNet
         //public void SetCreationTimeUtc(string path, DateTime creationTimeUtc);
 
         #endregion
+
+        private IEnumerable<SftpFile> InternalListDirectory(string path, SftpListDirectoryAsyncResult asynchResult)
+        {
+            if (path == null)
+                throw new ArgumentNullException("path");
+
+            //  Ensure that connection is established.
+            this.EnsureConnection();
+
+            var fullPath = this._sftpSession.GetCanonicalPath(path);
+
+            var handle = this._sftpSession.RequestOpenDir(fullPath);
+
+            var basePath = fullPath;
+
+            if (!basePath.EndsWith("/"))
+                basePath = string.Format("{0}/", fullPath);
+
+            var result = new List<SftpFile>();
+
+            var files = this._sftpSession.RequestReadDir(handle);
+
+            while (files != null)
+            {
+                result.AddRange(from f in files
+                                select new SftpFile(this._sftpSession, string.Format(CultureInfo.InvariantCulture, "{0}{1}", basePath, f.Key), f.Value));
+
+                if (asynchResult != null)
+                {
+                    asynchResult.Update(result.Count);
+                }
+
+                files = this._sftpSession.RequestReadDir(handle);
+            }
+
+            return result;
+        }
+
+        private void InternalDownloadFile(string path, Stream output, SftpDownloadAsyncResult asynchResult)
+        {
+            if (output == null)
+                throw new ArgumentNullException("output");
+
+            if (string.IsNullOrWhiteSpace(path))
+                throw new ArgumentException("path");
+
+            //  Ensure that connection is established.
+            this.EnsureConnection();
+
+            var fullPath = this._sftpSession.GetCanonicalPath(path);
+
+            var handle = this._sftpSession.RequestOpen(fullPath, Flags.Read);
+
+            ulong offset = 0;
+
+            var data = this._sftpSession.RequestRead(handle, offset, this.BufferSize);
+            //  Read data while available
+            while (data != null)
+            {
+                output.Write(data, 0, data.Length);
+
+                output.Flush();
+
+                offset += (ulong)data.Length;
+
+                //  Call callback to report number of bytes read
+                if (asynchResult != null)
+                {
+                    asynchResult.Update(offset);
+                }
+
+                data = this._sftpSession.RequestRead(handle, offset, this.BufferSize);
+            }
+
+            this._sftpSession.RequestClose(handle);
+        }
+
+        private void InternalUploadFile(Stream input, string path, SftpUploadAsyncResult asynchResult)
+        {
+            if (input == null)
+                throw new ArgumentNullException("input");
+
+            if (string.IsNullOrWhiteSpace(path))
+                throw new ArgumentException("path");
+
+            //  Ensure that connection is established.
+            this.EnsureConnection();
+
+            var fullPath = this._sftpSession.GetCanonicalPath(path);
+
+            var handle = this._sftpSession.RequestOpen(fullPath, Flags.Write | Flags.CreateNewOrOpen | Flags.Truncate);
+
+            ulong offset = 0;
+
+            var buffer = new byte[this.BufferSize];
+
+            var uploadCompleted = false;
+
+            do
+            {
+                var bytesRead = input.Read(buffer, 0, buffer.Length);
+
+                if (bytesRead < this.BufferSize)
+                {
+                    var data = new byte[bytesRead];
+                    Array.Copy(buffer, data, bytesRead);
+                    this._sftpSession.RequestWrite(handle, offset, data);
+                    uploadCompleted = true;
+                }
+                else
+                {
+                    this._sftpSession.RequestWrite(handle, offset, buffer);
+                }
+
+                offset += (uint)bytesRead;
+
+                //  Call callback to report number of bytes read
+                if (asynchResult != null)
+                {
+                    asynchResult.Update(offset);
+                }
+
+            } while (!uploadCompleted);
+
+            this._sftpSession.RequestClose(handle);
+        }
 
         /// <summary>
         /// Called when client is connected to the server.
@@ -1095,16 +1139,6 @@ namespace Renci.SshNet
             {
                 this._sftpSession.Dispose();
                 this._sftpSession = null;
-            }
-
-            if (this._asyncCommands != null)
-            {
-                foreach (var command in this._asyncCommands.Values)
-                {
-                    command.Dispose();
-                }
-
-                this._asyncCommands = null;
             }
 
             base.Dispose(disposing);

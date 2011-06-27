@@ -69,6 +69,7 @@ namespace Renci.SshNet.Tests.SftpClientTests
 
         [TestMethod]
         [TestCategory("Sftp")]
+        [ExpectedException(typeof(SftpPermissionDeniedException))]
         public void Test_Sftp_Upload_Forbidden()
         {
             using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
@@ -79,32 +80,23 @@ namespace Renci.SshNet.Tests.SftpClientTests
                 string remoteFileName = "/etc/audit/ddd";
 
                 this.CreateTestFile(uploadedFileName, 1);
-                var exceptionOccured = false;
 
-                try
+                using (var file = File.OpenRead(uploadedFileName))
                 {
-                    using (var file = File.OpenRead(uploadedFileName))
-                    {
-                        sftp.UploadFile(file, remoteFileName);
-                    }
-                }
-                catch (SftpPermissionDeniedException)
-                {
-                    exceptionOccured = true;
+                    sftp.UploadFile(file, remoteFileName);
                 }
 
                 sftp.Disconnect();
-
-                Assert.IsTrue(exceptionOccured);
             }
         }
 
         [TestMethod]
         [TestCategory("Sftp")]
+        [ExpectedException(typeof(SftpPermissionDeniedException))]
         public void Test_Sftp_Download_Forbidden()
         {
-			if (Resources.USERNAME == "root")
-				Assert.Fail("Must not run this test as root!");
+            if (Resources.USERNAME == "root")
+                Assert.Fail("Must not run this test as root!");
 
             using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
             {
@@ -112,28 +104,18 @@ namespace Renci.SshNet.Tests.SftpClientTests
 
                 string remoteFileName = "/root/install.log";
 
-                var exceptionOccured = false;
-
-                try
+                using (var ms = new MemoryStream())
                 {
-                    using (var ms = new MemoryStream())
-                    {
-                        sftp.UploadFile(ms, remoteFileName);
-                    }
-                }
-                catch (SftpPermissionDeniedException)
-                {
-                    exceptionOccured = true;
+                    sftp.UploadFile(ms, remoteFileName);
                 }
 
                 sftp.Disconnect();
-
-                Assert.IsTrue(exceptionOccured);
             }
         }
 
         [TestMethod]
         [TestCategory("Sftp")]
+        [ExpectedException(typeof(SftpPathNotFoundException))]
         public void Test_Sftp_Download_File_Not_Exists()
         {
             using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
@@ -141,24 +123,12 @@ namespace Renci.SshNet.Tests.SftpClientTests
                 sftp.Connect();
 
                 string remoteFileName = "/xxx/eee/yyy";
-
-                var exceptionOccured = false;
-
-                try
+                using (var ms = new MemoryStream())
                 {
-                    using (var ms = new MemoryStream())
-                    {
-                        sftp.DownloadFile(remoteFileName, ms);
-                    }
-                }
-                catch (SftpPathNotFoundException)
-                {
-                    exceptionOccured = true;
+                    sftp.DownloadFile(remoteFileName, ms);
                 }
 
                 sftp.Disconnect();
-
-                Assert.IsTrue(exceptionOccured);
             }
         }
 
@@ -197,7 +167,11 @@ namespace Renci.SshNet.Tests.SftpClientTests
                 {
                     var testInfo = testInfoList[remoteFile];
                     testInfo.UploadedFile = File.OpenRead(testInfo.UploadedFileName);
-                    testInfo.UploadResult = sftp.BeginUploadFile(testInfo.UploadedFile, remoteFile, null, null);
+
+                    testInfo.UploadResult = sftp.BeginUploadFile(testInfo.UploadedFile, 
+                        remoteFile,
+                        null, 
+                        null) as SftpUploadAsyncResult;
 
 
                     uploadWaitHandles.Add(testInfo.UploadResult.AsyncWaitHandle);
@@ -212,9 +186,7 @@ namespace Renci.SshNet.Tests.SftpClientTests
 
                     foreach (var testInfo in testInfoList.Values)
                     {
-                        SftpAsyncResult sftpResult = testInfo.UploadResult as SftpAsyncResult;
-
-                        testInfo.UploadedBytes = sftpResult.UploadedBytes;
+                        var sftpResult = testInfo.UploadResult;
 
                         if (!testInfo.UploadResult.IsCompleted)
                         {
@@ -241,7 +213,10 @@ namespace Renci.SshNet.Tests.SftpClientTests
                 {
                     var testInfo = testInfoList[remoteFile];
                     testInfo.DownloadedFile = File.OpenWrite(testInfo.DownloadedFileName);
-                    testInfo.DownloadResult = sftp.BeginDownloadFile(remoteFile, testInfo.DownloadedFile, null, null);
+                    testInfo.DownloadResult = sftp.BeginDownloadFile(remoteFile, 
+                        testInfo.DownloadedFile,
+                        null, 
+                        null) as SftpDownloadAsyncResult;
 
                     downloadWaitHandles.Add(testInfo.DownloadResult.AsyncWaitHandle);
                 }
@@ -255,9 +230,7 @@ namespace Renci.SshNet.Tests.SftpClientTests
 
                     foreach (var testInfo in testInfoList.Values)
                     {
-                        SftpAsyncResult sftpResult = testInfo.DownloadResult as SftpAsyncResult;
-
-                        testInfo.DownloadedBytes = sftpResult.DownloadedBytes;
+                        var sftpResult = testInfo.DownloadResult;
 
                         if (!testInfo.DownloadResult.IsCompleted)
                         {
@@ -280,7 +253,7 @@ namespace Renci.SshNet.Tests.SftpClientTests
 
                     testInfo.DownloadedHash = CalculateMD5(testInfo.DownloadedFileName);
 
-                    if (!(testInfo.UploadedBytes > 0 && testInfo.DownloadedBytes > 0 && testInfo.DownloadedBytes == testInfo.UploadedBytes))
+                    if (!(testInfo.UploadResult.UploadedBytes > 0 && testInfo.DownloadResult.DownloadedBytes > 0 && testInfo.DownloadResult.DownloadedBytes == testInfo.UploadResult.UploadedBytes))
                     {
                         uploadDownloadSizeOk = false;
                     }
@@ -309,86 +282,86 @@ namespace Renci.SshNet.Tests.SftpClientTests
             }
         }
 
-		[TestMethod]
-		[TestCategory("Sftp")]
-		[Description("Test that delegates passed to BeginUploadFile, BeginDownloadFile and BeginListDirectory are actually called.")]
-		public void Test_Sftp_Ensure_Async_Delegates_Called_For_BeginFileUpload_BeginFileDownload_BeginListDirectory()
-		{
-			using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
-			{
-				sftp.Connect();
+        [TestMethod]
+        [TestCategory("Sftp")]
+        [Description("Test that delegates passed to BeginUploadFile, BeginDownloadFile and BeginListDirectory are actually called.")]
+        public void Test_Sftp_Ensure_Async_Delegates_Called_For_BeginFileUpload_BeginFileDownload_BeginListDirectory()
+        {
+            using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            {
+                sftp.Connect();
 
-				string remoteFileName = Path.GetRandomFileName();
-				string localFileName = Path.GetRandomFileName();
-				bool uploadDelegateCalled = false;
-				bool downloadDelegateCalled = false;
-				bool listDirectoryDelegateCalled = false;
-				IAsyncResult asyncResult;
+                string remoteFileName = Path.GetRandomFileName();
+                string localFileName = Path.GetRandomFileName();
+                bool uploadDelegateCalled = false;
+                bool downloadDelegateCalled = false;
+                bool listDirectoryDelegateCalled = false;
+                IAsyncResult asyncResult;
 
 
-				// Test for BeginUploadFile.
+                // Test for BeginUploadFile.
 
-				CreateTestFile(localFileName, 1);
+                CreateTestFile(localFileName, 1);
 
-				using (var fileStream = File.OpenRead(localFileName))
-				{
-					asyncResult = sftp.BeginUploadFile(fileStream, remoteFileName, delegate(IAsyncResult ar)
-					{
-						sftp.EndUploadFile(ar);
-						uploadDelegateCalled = true;
+                using (var fileStream = File.OpenRead(localFileName))
+                {
+                    asyncResult = sftp.BeginUploadFile(fileStream, remoteFileName, delegate(IAsyncResult ar)
+                    {
+                        sftp.EndUploadFile(ar);
+                        uploadDelegateCalled = true;
 
-					}, null);
+                    }, null);
 
-					while (!asyncResult.IsCompleted)
-					{
-						Thread.Sleep(500);
-					}
-				}
+                    while (!asyncResult.IsCompleted)
+                    {
+                        Thread.Sleep(500);
+                    }
+                }
 
-				File.Delete(localFileName);
+                File.Delete(localFileName);
 
-				Assert.IsTrue(uploadDelegateCalled, "BeginUploadFile");
+                Assert.IsTrue(uploadDelegateCalled, "BeginUploadFile");
 
-				// Test for BeginDownloadFile.
+                // Test for BeginDownloadFile.
 
-				asyncResult = null;
-				using (var fileStream = File.OpenWrite(localFileName))
-				{
-					asyncResult = sftp.BeginDownloadFile(remoteFileName, fileStream, delegate(IAsyncResult ar)
-					{
-						sftp.EndDownloadFile(ar);
-						downloadDelegateCalled = true;
+                asyncResult = null;
+                using (var fileStream = File.OpenWrite(localFileName))
+                {
+                    asyncResult = sftp.BeginDownloadFile(remoteFileName, fileStream, delegate(IAsyncResult ar)
+                    {
+                        sftp.EndDownloadFile(ar);
+                        downloadDelegateCalled = true;
 
-					}, null);
+                    }, null);
 
-					while (!asyncResult.IsCompleted)
-					{
-						Thread.Sleep(500);
-					}
-				}
+                    while (!asyncResult.IsCompleted)
+                    {
+                        Thread.Sleep(500);
+                    }
+                }
 
-				File.Delete(localFileName);
+                File.Delete(localFileName);
 
-				Assert.IsTrue(downloadDelegateCalled, "BeginDownloadFile");
+                Assert.IsTrue(downloadDelegateCalled, "BeginDownloadFile");
 
-				// Test for BeginListDirectory.
+                // Test for BeginListDirectory.
 
-				asyncResult = null;
-				asyncResult = sftp.BeginListDirectory(sftp.WorkingDirectory, delegate(IAsyncResult ar)
-				{
-					sftp.EndListDirectory(ar);
-					listDirectoryDelegateCalled = true;
+                asyncResult = null;
+                asyncResult = sftp.BeginListDirectory(sftp.WorkingDirectory, delegate(IAsyncResult ar)
+                {
+                    sftp.EndListDirectory(ar);
+                    listDirectoryDelegateCalled = true;
 
-				}, null);
+                }, null);
 
-				while (!asyncResult.IsCompleted)
-				{
-					Thread.Sleep(500);
-				}
+                while (!asyncResult.IsCompleted)
+                {
+                    Thread.Sleep(500);
+                }
 
-				Assert.IsTrue(listDirectoryDelegateCalled, "BeginListDirectory");
-			}
-		}
+                Assert.IsTrue(listDirectoryDelegateCalled, "BeginListDirectory");
+            }
+        }
 
         [TestMethod]
         [TestCategory("Sftp")]
@@ -556,9 +529,9 @@ namespace Renci.SshNet.Tests.SftpClientTests
 
             public string DownloadedFileName { get; set; }
 
-            public ulong UploadedBytes { get; set; }
+            //public ulong UploadedBytes { get; set; }
 
-            public ulong DownloadedBytes { get; set; }
+            //public ulong DownloadedBytes { get; set; }
 
             public FileStream UploadedFile { get; set; }
 
@@ -568,9 +541,9 @@ namespace Renci.SshNet.Tests.SftpClientTests
 
             public string DownloadedHash { get; set; }
 
-            public IAsyncResult UploadResult { get; set; }
+            public SftpUploadAsyncResult UploadResult { get; set; }
 
-            public IAsyncResult DownloadResult { get; set; }
+            public SftpDownloadAsyncResult DownloadResult { get; set; }
         }
     }
 }

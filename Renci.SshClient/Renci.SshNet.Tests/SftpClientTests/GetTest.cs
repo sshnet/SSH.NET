@@ -5,6 +5,7 @@ using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Renci.SshNet.Tests.Properties;
 using System.IO;
+using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Tests.SftpClientTests
 {
@@ -39,14 +40,14 @@ namespace Renci.SshNet.Tests.SftpClientTests
 
         [TestMethod]
         [TestCategory("Sftp")]
+        [ExpectedException(typeof(SftpPathNotFoundException))]
         public void Test_Get_Invalid_Directory()
         {
             using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
             {
                 sftp.Connect();
-                var directory = sftp.Get("/xyz");
 
-                Assert.IsNull(directory);
+                sftp.Get("/xyz");
             }
         }
 

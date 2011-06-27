@@ -6,6 +6,9 @@ using System.Globalization;
 
 namespace Renci.SshNet.Sftp
 {
+    /// <summary>
+    /// Contains SFTP file attributes.
+    /// </summary>
     public class SftpFileAttributes
     {
         #region Bitmask constats
@@ -369,6 +372,10 @@ namespace Renci.SshNet.Sftp
             this.Extensions = extensions;
         }
 
+        /// <summary>
+        /// Sets the permissions.
+        /// </summary>
+        /// <param name="mode">The mode.</param>
         public void SetPermissions(short mode)
         {
             if (mode < 0 || mode > 999)

@@ -72,7 +72,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Occurs when an error occurred.
         /// </summary>
-        public event EventHandler<ErrorEventArgs> ErrorOccurred;
+        public event EventHandler<ExceptionEventArgs> ErrorOccurred;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BaseClient"/> class.
@@ -177,7 +177,7 @@ namespace Renci.SshNet
                 throw new SshConnectionException("Client not connected.");
         }
 
-        private void Session_ErrorOccured(object sender, System.IO.ErrorEventArgs e)
+        private void Session_ErrorOccured(object sender, ExceptionEventArgs e)
         {
             if (this.ErrorOccurred != null)
             {

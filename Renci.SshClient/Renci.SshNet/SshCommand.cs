@@ -315,9 +315,9 @@ namespace Renci.SshNet
             this._sessionErrorOccuredWaitHandle.Set();
         }
 
-        private void Session_ErrorOccured(object sender, ErrorEventArgs e)
+        private void Session_ErrorOccured(object sender, ExceptionEventArgs e)
         {
-            this._exception = e.GetException();
+            this._exception = e.Exception;
 
             this._sessionErrorOccuredWaitHandle.Set();
         }

@@ -31,7 +31,7 @@ namespace Renci.SshNet.Sftp
 
         private TimeSpan _operationTimeout;
 
-        public event EventHandler<ErrorEventArgs> ErrorOccured;
+        public event EventHandler<ExceptionEventArgs> ErrorOccured;
 
         /// <summary>
         /// Gets remote working directory.
@@ -919,9 +919,9 @@ namespace Renci.SshNet.Sftp
             this.RaiseError(new SshException("Connection was lost"));
         }
 
-        private void Session_ErrorOccured(object sender, ErrorEventArgs e)
+        private void Session_ErrorOccured(object sender, ExceptionEventArgs e)
         {
-            this.RaiseError(e.GetException());
+            this.RaiseError(e.Exception);
         }
 
         private void RaiseError(Exception error)
@@ -932,7 +932,7 @@ namespace Renci.SshNet.Sftp
 
             if (this.ErrorOccured != null)
             {
-                this.ErrorOccured(this, new ErrorEventArgs(error));
+                this.ErrorOccured(this, new ExceptionEventArgs(error));
             }
         }
 

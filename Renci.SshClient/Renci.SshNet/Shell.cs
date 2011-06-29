@@ -75,7 +75,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Occurs when an error occurred.
         /// </summary>
-        public event EventHandler<ErrorEventArgs> ErrorOccurred;
+        public event EventHandler<ExceptionEventArgs> ErrorOccurred;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Shell"/> class.
@@ -167,7 +167,7 @@ namespace Renci.SshNet
                 }
                 catch (Exception exp)
                 {
-                    this.RaiseError(new ErrorEventArgs(exp));
+                    this.RaiseError(new ExceptionEventArgs(exp));
                 }
             });
 
@@ -196,12 +196,12 @@ namespace Renci.SshNet
             }
         }
 
-        private void Session_ErrorOccured(object sender, ErrorEventArgs e)
+        private void Session_ErrorOccured(object sender, ExceptionEventArgs e)
         {
             this.RaiseError(e);
         }
 
-        private void RaiseError(ErrorEventArgs e)
+        private void RaiseError(ExceptionEventArgs e)
         {
             if (this.ErrorOccurred != null)
             {

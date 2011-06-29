@@ -235,7 +235,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Occurs when an error occurred.
         /// </summary>
-        public event EventHandler<ErrorEventArgs> ErrorOccured;
+        public event EventHandler<ExceptionEventArgs> ErrorOccured;
 
         /// <summary>
         /// Occurs when session has been disconnected form the server.
@@ -1585,7 +1585,7 @@ namespace Renci.SshNet
 
             if (this.ErrorOccured != null)
             {
-                this.ErrorOccured(this, new ErrorEventArgs(exp));
+                this.ErrorOccured(this, new ExceptionEventArgs(exp));
             }
 
             if (connectionException != null && connectionException.DisconnectReason != DisconnectReason.ConnectionLost)

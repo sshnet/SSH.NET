@@ -117,10 +117,10 @@ namespace Renci.SshNet
         /// Handles session ErrorOccured event.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="System.IO.ErrorEventArgs"/> instance containing the event data.</param>
-        private void Session_ErrorOccured(object sender, System.IO.ErrorEventArgs e)
+        /// <param name="e">The <see cref="ExceptionEventArgs"/> instance containing the event data.</param>
+        private void Session_ErrorOccured(object sender, ExceptionEventArgs e)
         {
-            this.RaiseExceptionEvent(e.GetException());
+            this.RaiseExceptionEvent(e.Exception);
         }
     }
 }

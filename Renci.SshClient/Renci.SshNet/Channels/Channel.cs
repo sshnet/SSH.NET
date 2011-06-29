@@ -461,7 +461,7 @@ namespace Renci.SshNet.Channels
             this._disconnectedWaitHandle.Set();
         }
 
-        private void Session_ErrorOccured(object sender, System.IO.ErrorEventArgs e)
+        private void Session_ErrorOccured(object sender, ExceptionEventArgs e)
         {
             this._errorOccuredWaitHandle.Set();
         }

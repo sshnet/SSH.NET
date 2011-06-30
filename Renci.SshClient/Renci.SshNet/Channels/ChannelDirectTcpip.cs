@@ -3,7 +3,6 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
-using System.Threading.Tasks;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Connection;
 
@@ -12,7 +11,7 @@ namespace Renci.SshNet.Channels
     /// <summary>
     /// Implements "direct-tcpip" SSH channel.
     /// </summary>
-    internal class ChannelDirectTcpip : Channel
+    internal partial class ChannelDirectTcpip : Channel
     {
         public EventWaitHandle _channelEof = new AutoResetEvent(false);
 
@@ -70,7 +69,10 @@ namespace Renci.SshNet.Channels
             //  Start reading data from the port and send to channel
             EventWaitHandle readerTaskError = new AutoResetEvent(false);
 
-            var readerTask = Task.Factory.StartNew(() =>
+            var readerTaskCompleted = new ManualResetEvent(false);
+            Exception exception = null;
+
+            this.ExecuteThread(() =>
             {
                 try
                 {
@@ -109,10 +111,14 @@ namespace Renci.SshNet.Channels
                         }
                     }
                 }
-                catch (Exception)
+                catch (Exception exp)
                 {
                     readerTaskError.Set();
-                    throw;
+                    exception = exp;
+                }
+                finally
+                {
+                    readerTaskCompleted.Set();
                 }
             });
 
@@ -124,7 +130,10 @@ namespace Renci.SshNet.Channels
             this._socket = null;
 
             //  Wait for task to finish and will throw any errors if any
-            readerTask.Wait();
+            readerTaskCompleted.WaitOne();
+
+            if (exception != null)
+                throw exception;
         }
 
         /// <summary>
@@ -160,6 +169,8 @@ namespace Renci.SshNet.Channels
 
             this._channelEof.Set();
         }
+
+        partial void ExecuteThread(Action action);
 
         protected override void Dispose(bool disposing)
         {

@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Connection;
@@ -14,7 +13,7 @@ namespace Renci.SshNet
     /// <summary>
     /// Represents instance of the SSH shell object
     /// </summary>
-    public class Shell : IDisposable
+    public partial class Shell : IDisposable
     {
         private readonly Session _session;
 
@@ -36,7 +35,7 @@ namespace Renci.SshNet
 
         private string _terminalMode;
 
-        private Task _dataReaderTask;
+        private EventWaitHandle _dataReaderTaskCompleted;
 
         private Stream _outputStream;
 
@@ -135,15 +134,16 @@ namespace Renci.SshNet
             this._channelClosedWaitHandle = new AutoResetEvent(false);
 
             //  Start input stream listener
-            this._dataReaderTask = Task.Factory.StartNew(() =>
+            this._dataReaderTaskCompleted = new ManualResetEvent(false);
+            this.ExecuteThread(() =>
             {
                 try
                 {
                     var buffer = new byte[this._bufferSize];
-                    
+
                     while (this._channel.IsOpen)
                     {
-                        var asyncResult = this._input.BeginRead(buffer, 0, buffer.Length, delegate(IAsyncResult result) 
+                        var asyncResult = this._input.BeginRead(buffer, 0, buffer.Length, delegate(IAsyncResult result)
                         {
                             //  If input stream is closed and disposed already dont finish reading the stream
                             if (this._input == null)
@@ -157,7 +157,7 @@ namespace Renci.SshNet
 
                         }, null);
 
-                        EventWaitHandle.WaitAny(new WaitHandle[] {asyncResult.AsyncWaitHandle, this._channelClosedWaitHandle});
+                        EventWaitHandle.WaitAny(new WaitHandle[] { asyncResult.AsyncWaitHandle, this._channelClosedWaitHandle });
 
                         if (asyncResult.IsCompleted)
                             continue;
@@ -168,6 +168,10 @@ namespace Renci.SshNet
                 catch (Exception exp)
                 {
                     this.RaiseError(new ExceptionEventArgs(exp));
+                }
+                finally
+                {
+                    this._dataReaderTaskCompleted.Set();
                 }
             });
 
@@ -235,18 +239,21 @@ namespace Renci.SshNet
             if (this.Stopping != null)
             {
                 //  Handle event on different thread
-                Task.Factory.StartNew(() => { this.Stopping(this, new EventArgs()); });                
+                this.ExecuteThread(() => { this.Stopping(this, new EventArgs()); });
             }
 
             if (this._channel.IsOpen)
                 this._channel.Close();
 
             this._channelClosedWaitHandle.Set();
-            
+
             this._input.Dispose();
             this._input = null;
 
-            this._dataReaderTask.Wait();            
+            //  TODO:   Add timeout to WaitOne method
+            this._dataReaderTaskCompleted.WaitOne();
+            this._dataReaderTaskCompleted.Dispose();
+            this._dataReaderTaskCompleted = null;
 
             this._channel.DataReceived -= Channel_DataReceived;
             this._channel.ExtendedDataReceived -= Channel_ExtendedDataReceived;
@@ -257,12 +264,13 @@ namespace Renci.SshNet
             if (this.Stopped != null)
             {
                 //  Handle event on different thread
-                Task.Factory.StartNew(() => { this.Stopped(this, new EventArgs()); });                
+                this.ExecuteThread(() => { this.Stopped(this, new EventArgs()); });
             }
 
             this._channel = null;
         }
 
+        partial void ExecuteThread(Action action);
 
         #region IDisposable Members
 
@@ -295,6 +303,12 @@ namespace Renci.SshNet
                     {
                         this._channelClosedWaitHandle.Dispose();
                         this._channelClosedWaitHandle = null;
+                    }
+
+                    if (this._dataReaderTaskCompleted != null)
+                    {
+                        this._dataReaderTaskCompleted.Dispose();
+                        this._dataReaderTaskCompleted = null;
                     }
                 }
 

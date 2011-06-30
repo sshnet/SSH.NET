@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using Renci.SshNet.Messages.Authentication;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages;
@@ -13,7 +12,7 @@ namespace Renci.SshNet
     /// <summary>
     /// Provides connection information when password authentication method is used
     /// </summary>
-    public class PasswordConnectionInfo : ConnectionInfo, IDisposable
+    public partial class PasswordConnectionInfo : ConnectionInfo, IDisposable
     {
         private EventWaitHandle _authenticationCompleted = new AutoResetEvent(false);
 
@@ -120,7 +119,7 @@ namespace Renci.SshNet
             {
                 this.Session.UnRegisterMessage("SSH_MSG_USERAUTH_PASSWD_CHANGEREQ");
 
-                Task.Factory.StartNew(() =>
+                this.ExecuteThread(() =>
                 {
                     try
                     {
@@ -143,6 +142,8 @@ namespace Renci.SshNet
                 });
             }
         }
+
+        partial void ExecuteThread(Action action);
 
         #region IDisposable Members
 

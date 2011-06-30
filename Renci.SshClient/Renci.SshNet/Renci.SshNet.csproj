@@ -62,6 +62,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Channels\ChannelDirectTcpip.NET40.cs" />
     <Compile Include="Common\AsyncResult.cs" />
     <Compile Include="Common\AuthenticationBannerEventArgs.cs" />
     <Compile Include="Common\AuthenticationEventArgs.cs" />
@@ -75,6 +76,9 @@
     <Compile Include="Common\ChannelEventArgs.cs" />
     <Compile Include="Common\ChannelOpenFailedEventArgs.cs" />
     <Compile Include="Common\ChannelRequestEventArgs.cs" />
+    <Compile Include="Common\SemaphoreLight.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Common\SftpPathNotFoundException.NET40.cs" />
     <Compile Include="Common\SftpPermissionDeniedException.NET40.cs" />
     <Compile Include="Common\SshAuthenticationException.NET40.cs" />
@@ -91,6 +95,23 @@
     <Compile Include="Common\SshOperationTimeoutException.NET40.cs" />
     <Compile Include="Common\SshPassPhraseNullOrEmptyException.cs" />
     <Compile Include="Common\SftpPermissionDeniedException.cs" />
+    <Compile Include="ForwardedPortLocal.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Security\Cryptography\Aes.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Security\Cryptography\Serpent.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Shell.NET40.cs" />
+    <Compile Include="SftpClient.NET40.cs" />
+    <Compile Include="PasswordConnectionInfo.NET40.cs" />
+    <Compile Include="KeyboardInteractiveConnectionInfo.NET40.cs" />
+    <Compile Include="ForwardedPortRemote.NET40.cs" />
+    <Compile Include="ForwardedPortLocal.NET40.cs" />
+    <Compile Include="SshCommand.NET40.cs" />
+    <Compile Include="Session.NET40.cs" />
     <Compile Include="KeyboardInteractiveConnectionInfo.cs" />
     <Compile Include="Messages\Authentication\RequestMessageKeyboardInteractive.cs" />
     <Compile Include="Messages\Authentication\RequestMessageNone.cs" />
@@ -117,7 +138,6 @@
     <Compile Include="Security\CipherAESCTR.cs" />
     <Compile Include="Security\CipherCast.cs" />
     <Compile Include="Security\CipherSerpent.cs" />
-    <Compile Include="Security\Cryptography\Aes.cs" />
     <Compile Include="Security\Cryptography\Cast.cs" />
     <Compile Include="Security\Cryptography\Ciphers\AesCipher.cs" />
     <Compile Include="Security\Cryptography\Blowfish.cs" />
@@ -131,7 +151,6 @@
     <Compile Include="Security\Cryptography\Modes\ModeBase.cs" />
     <Compile Include="Security\Cryptography\Modes\CbcMode.cs" />
     <Compile Include="Security\Cryptography\Ciphers\CipherBase.cs" />
-    <Compile Include="Security\Cryptography\Serpent.cs" />
     <Compile Include="Security\Cryptography\TripleDes.cs" />
     <Compile Include="Security\Cryptography\Ciphers\TripleDesCipher.cs" />
     <Compile Include="Security\Cryptography\Modes\CtrMode.cs" />
@@ -211,7 +230,6 @@
     <Compile Include="Channels\ChannelSession.cs" />
     <Compile Include="Common\SshException.cs" />
     <Compile Include="ForwardedPort.cs" />
-    <Compile Include="ForwardedPortLocal.cs" />
     <Compile Include="ForwardedPortRemote.cs" />
     <Compile Include="Messages\Connection\GlobalRequestName.cs" />
     <Compile Include="Security\Algorithm.cs" />

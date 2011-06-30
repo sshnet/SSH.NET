@@ -5,7 +5,6 @@ using System.IO;
 using Renci.SshNet.Sftp;
 using System.Text;
 using Renci.SshNet.Common;
-using System.Threading.Tasks;
 using System.Globalization;
 
 namespace Renci.SshNet
@@ -13,7 +12,7 @@ namespace Renci.SshNet
     /// <summary>
     /// 
     /// </summary>
-    public class SftpClient : BaseClient
+    public partial class SftpClient : BaseClient
     {
         /// <summary>
         /// Holds SftpSession instance that used to communicate to the SFTP server
@@ -266,7 +265,7 @@ namespace Renci.SshNet
         {
             var asyncResult = new SftpListDirectoryAsyncResult(asyncCallback, state);
 
-            Task.Factory.StartNew(() =>
+            this.ExecuteThread(() =>
             {
                 try
                 {
@@ -383,7 +382,7 @@ namespace Renci.SshNet
 
             var asyncResult = new SftpDownloadAsyncResult(asyncCallback, state);
 
-            Task.Factory.StartNew(() =>
+            this.ExecuteThread(() =>
             {
                 try
                 {
@@ -446,7 +445,7 @@ namespace Renci.SshNet
 
             var asyncResult = new SftpUploadAsyncResult(asyncCallback, state);
 
-            Task.Factory.StartNew(() =>
+            this.ExecuteThread(() =>
             {
                 try
                 {
@@ -1103,6 +1102,8 @@ namespace Renci.SshNet
 
             this._sftpSession.RequestClose(handle);
         }
+
+        partial void ExecuteThread(Action action);
 
         /// <summary>
         /// Called when client is connected to the server.

@@ -8,7 +8,6 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
-using System.Threading.Tasks;
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
 using Renci.SshNet.Compression;
@@ -24,7 +23,7 @@ namespace Renci.SshNet
     /// <summary>
     /// Provides functionality to connect and interact with SSH server.
     /// </summary>
-    public class Session : IDisposable
+    public partial class Session : IDisposable
     {
         /// <summary>
         /// Specifies maximum packet size defined by the protocol.
@@ -46,7 +45,7 @@ namespace Renci.SshNet
         /// <remarks>
         /// Some server may restrict number to prevent authentication attacks
         /// </remarks>
-        private static SemaphoreSlim _authenticationConnection = new SemaphoreSlim(3);
+        private static SemaphoreLight _authenticationConnection = new SemaphoreLight(3);
 
         /// <summary>
         /// Holds metada about session messages
@@ -61,7 +60,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Holds reference to task that listens for incoming messages
         /// </summary>
-        private Task _messageListener;
+        private EventWaitHandle _messageListenerCompleted;
 
         /// <summary>
         /// Specifies outbound packet number
@@ -117,12 +116,12 @@ namespace Renci.SshNet
 
         private Compressor _clientCompression;
 
-        private SemaphoreSlim _sessionSemaphore;
+        private SemaphoreLight _sessionSemaphore;
         /// <summary>
         /// Gets the session semaphore that controls session channels.
         /// </summary>
         /// <value>The session semaphore.</value>
-        public SemaphoreSlim SessionSemaphore
+        public SemaphoreLight SessionSemaphore
         {
             get
             {
@@ -132,7 +131,7 @@ namespace Renci.SshNet
                     {
                         if (this._sessionSemaphore == null)
                         {
-                            this._sessionSemaphore = new SemaphoreSlim(this.ConnectionInfo.MaxSessions);
+                            this._sessionSemaphore = new SemaphoreLight(this.ConnectionInfo.MaxSessions);
                         }
                     }
                 }
@@ -173,7 +172,7 @@ namespace Renci.SshNet
         {
             get
             {
-                return this._socket != null && this._socket.Connected && this._isAuthenticated && this._messageListener.Status == TaskStatus.Running;
+                return this._socket != null && this._socket.Connected && this._isAuthenticated && this._messageListenerCompleted != null;
             }
         }
 
@@ -492,7 +491,19 @@ namespace Renci.SshNet
                     this.RegisterMessage("SSH_MSG_USERAUTH_BANNER");
 
                     //  Start incoming request listener
-                    this._messageListener = Task.Factory.StartNew(() => { this.MessageListener(); }, TaskCreationOptions.LongRunning);
+                    this._messageListenerCompleted = new ManualResetEvent(false);
+
+                    this.ExecuteThread(() =>
+                    {
+                        try
+                        {
+                            this.MessageListener();
+                        }
+                        finally
+                        {
+                            this._messageListenerCompleted.Set();
+                        }
+                    });
 
                     //  Wait for key exchange to be completed
                     this.WaitHandle(this._keyExchangeCompletedWaitHandle);
@@ -844,11 +855,12 @@ namespace Renci.SshNet
                         this._socket.Disconnect(true);
 
                         //  When socket is disconnected wait for listener to finish
-                        if (this._messageListener != null)
+                        if (this._messageListenerCompleted != null)
                         {
                             //  Wait for listener task to finish
-                            this._messageListener.Wait();
-                            this._messageListener = null;
+                            this._messageListenerCompleted.WaitOne();
+                            this._messageListenerCompleted.Dispose();
+                            this._messageListenerCompleted = null;
                         }
 
                         this._socket.Dispose();
@@ -1495,12 +1507,7 @@ namespace Renci.SshNet
         /// <param name="messageName">Name of the message.</param>
         public void RegisterMessage(string messageName)
         {
-            lock (this._messagesMetadata)
-            {
-                Parallel.ForEach(
-                    from m in this._messagesMetadata where m.Name == messageName select m,
-                    (item) => { item.Enabled = true; item.Activated = true; });
-            }
+            this.InternalRegisterMessage(messageName);
         }
 
         /// <summary>
@@ -1509,12 +1516,7 @@ namespace Renci.SshNet
         /// <param name="messageName">Name of the message.</param>
         public void UnRegisterMessage(string messageName)
         {
-            lock (this._messagesMetadata)
-            {
-                Parallel.ForEach(
-                    from m in this._messagesMetadata where m.Name == messageName select m,
-                    (item) => { item.Enabled = false; item.Activated = false; });
-            }
+            this.InternalUnRegisterMessage(messageName);
         }
 
         /// <summary>
@@ -1537,7 +1539,13 @@ namespace Renci.SshNet
             return message;
         }
 
+        partial void InternalRegisterMessage(string messageName);
+
+        partial void InternalUnRegisterMessage(string messageName);
+
         #endregion
+
+        partial void ExecuteThread(Action action);
 
         /// <summary>
         /// Listens for incoming message from the server and handles them. This method run as a task on separate thread.
@@ -1632,12 +1640,12 @@ namespace Renci.SshNet
                         this._socket = null;
                     }
 
-                    if (this._messageListener != null)
+                    if (this._messageListenerCompleted != null)
                     {
                         //  Wait for socket to be closed and for task to complete before disposing a task
-                        this._messageListener.Wait();
-                        this._messageListener.Dispose();
-                        this._messageListener = null;
+                        this._messageListenerCompleted.WaitOne();
+                        this._messageListenerCompleted.Dispose();
+                        this._messageListenerCompleted = null;
                     }
 
                     if (this._serviceAccepted != null)
@@ -1650,12 +1658,6 @@ namespace Renci.SshNet
                     {
                         this._exceptionWaitHandle.Dispose();
                         this._exceptionWaitHandle = null;
-                    }
-
-                    if (this._sessionSemaphore != null)
-                    {
-                        this._sessionSemaphore.Dispose();
-                        this._sessionSemaphore = null;
                     }
 
                     if (this._keyExchangeCompletedWaitHandle != null)

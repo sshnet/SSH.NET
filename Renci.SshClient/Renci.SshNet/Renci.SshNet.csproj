@@ -56,7 +56,6 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Numerics" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
@@ -69,6 +68,9 @@
     <Compile Include="Common\AuthenticationPasswordChangeEventArgs.cs" />
     <Compile Include="Common\AuthenticationPromptEventArgs.cs" />
     <Compile Include="Common\AuthenticationPrompt.cs" />
+    <Compile Include="Common\BigInteger.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Common\ChannelDataEventArgs.cs" />
     <Compile Include="Common\ChannelEventArgs.cs" />
     <Compile Include="Common\ChannelOpenFailedEventArgs.cs" />
@@ -201,7 +203,6 @@
     <Compile Include="Channels\ChannelForwardedTcpip.cs" />
     <Compile Include="Channels\ChannelSession.cs" />
     <Compile Include="Common\SshException.cs" />
-    <Compile Include="ExceptionEventArgs.cs" />
     <Compile Include="ForwardedPort.cs" />
     <Compile Include="ForwardedPortLocal.cs" />
     <Compile Include="ForwardedPortRemote.cs" />

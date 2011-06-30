@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
 using System.Text;
 using System.Globalization;
 
@@ -227,7 +226,7 @@ namespace Renci.SshNet.Common
         /// Reads next mpint data type from internal buffer.
         /// </summary>
         /// <returns>mpint read.</returns>
-        protected BigInteger ReadBigInteger()
+        protected BigInteger ReadBigInt()
         {
             var length = this.ReadUInt32();
 

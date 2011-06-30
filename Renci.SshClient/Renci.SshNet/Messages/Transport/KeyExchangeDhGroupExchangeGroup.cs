@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Numerics;
+using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Messages.Transport
 {
@@ -33,8 +33,8 @@ namespace Renci.SshNet.Messages.Transport
         /// </summary>
         protected override void LoadData()
         {
-            this.SafePrime = this.ReadBigInteger();
-            this.SubGroup = this.ReadBigInteger();
+            this.SafePrime = this.ReadBigInt();
+            this.SubGroup = this.ReadBigInt();
         }
 
         /// <summary>

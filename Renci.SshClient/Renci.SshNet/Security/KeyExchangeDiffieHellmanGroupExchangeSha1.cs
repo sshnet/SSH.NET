@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using Renci.SshNet.Messages.Transport;
 using System.Security.Cryptography;
-using System.Numerics;
 using Renci.SshNet.Messages;
 using Renci.SshNet.Common;
 using System.Diagnostics;

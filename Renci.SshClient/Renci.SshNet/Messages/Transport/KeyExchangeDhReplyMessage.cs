@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Numerics;
+using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Messages.Transport
 {
@@ -33,7 +33,7 @@ namespace Renci.SshNet.Messages.Transport
         {
             this.ResetReader();
             this.HostKey = this.ReadBinaryString();
-            this.F = this.ReadBigInteger();
+            this.F = this.ReadBigInt();
             this.Signature = this.ReadBinaryString();
         }
 

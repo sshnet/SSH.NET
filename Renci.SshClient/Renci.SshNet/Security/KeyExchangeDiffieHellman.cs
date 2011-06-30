@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Numerics;
 using System.Security.Cryptography;
 using Renci.SshNet.Messages.Transport;
 using System.Diagnostics;
 using Renci.SshNet.Messages;
+using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Security
 {
@@ -117,7 +117,7 @@ namespace Renci.SshNet.Security
                 _randomizer.GetBytes(bytesArray);
                 bytesArray[bytesArray.Length - 1] = (byte)(bytesArray[bytesArray.Length - 1] & 0x7F);   //  Ensure not a negative value
                 this._randomValue = new BigInteger(bytesArray);
-                this._clientExchangeValue = System.Numerics.BigInteger.ModPow(this._group, this._randomValue, this._prime);
+                this._clientExchangeValue = BigInteger.ModPow(this._group, this._randomValue, this._prime);
 
             } while (this._clientExchangeValue < 1 || this._clientExchangeValue > ((this._prime - 1)));
         }
@@ -132,7 +132,7 @@ namespace Renci.SshNet.Security
         {
             this._serverExchangeValue = serverExchangeValue;
             this._hostKey = hostKey;
-            this.SharedKey = System.Numerics.BigInteger.ModPow(serverExchangeValue, this._randomValue, this._prime);
+            this.SharedKey = BigInteger.ModPow(serverExchangeValue, this._randomValue, this._prime);
             this._signature = signature;
         }
     }

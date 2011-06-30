@@ -75,6 +75,12 @@
     <Compile Include="Common\ChannelEventArgs.cs" />
     <Compile Include="Common\ChannelOpenFailedEventArgs.cs" />
     <Compile Include="Common\ChannelRequestEventArgs.cs" />
+    <Compile Include="Common\SftpPathNotFoundException.NET40.cs" />
+    <Compile Include="Common\SftpPermissionDeniedException.NET40.cs" />
+    <Compile Include="Common\SshAuthenticationException.NET40.cs" />
+    <Compile Include="Common\SshConnectionException.NET40.cs" />
+    <Compile Include="Common\SshException.NET40.cs" />
+    <Compile Include="Common\SshPassPhraseNullOrEmptyException.NET40.cs" />
     <Compile Include="Common\ExceptionEventArgs.cs" />
     <Compile Include="Common\PipeStream.cs" />
     <Compile Include="Common\PortForwardEventArgs.cs" />
@@ -82,6 +88,7 @@
     <Compile Include="Common\SshConnectionException.cs" />
     <Compile Include="Common\SftpPathNotFoundException.cs" />
     <Compile Include="Common\SshOperationTimeoutException.cs" />
+    <Compile Include="Common\SshOperationTimeoutException.NET40.cs" />
     <Compile Include="Common\SshPassPhraseNullOrEmptyException.cs" />
     <Compile Include="Common\SftpPermissionDeniedException.cs" />
     <Compile Include="KeyboardInteractiveConnectionInfo.cs" />

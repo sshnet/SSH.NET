@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Net;
 using System.Net.Sockets;
-using System.Threading.Tasks;
 using Renci.SshNet.Channels;
 using System.Threading;
 
@@ -10,11 +9,11 @@ namespace Renci.SshNet
     /// <summary>
     /// Provides functionality for local port forwarding
     /// </summary>
-    public class ForwardedPortLocal : ForwardedPort, IDisposable
+    public partial class ForwardedPortLocal : ForwardedPort, IDisposable
     {
         private TcpListener _listener;
 
-        private Task _listenerTask;
+        private EventWaitHandle _listenerTaskCompleted;
 
         /// <summary>
         /// Starts local port forwarding.
@@ -30,7 +29,8 @@ namespace Renci.SshNet
             this._listener = new TcpListener(ep);
             this._listener.Start();
 
-            this._listenerTask = Task.Factory.StartNew(() =>
+            this._listenerTaskCompleted = new ManualResetEvent(false);
+            this.ExecuteThread(() =>
             {
                 try
                 {
@@ -38,7 +38,7 @@ namespace Renci.SshNet
                     {
                         var socket = this._listener.AcceptSocket();
 
-                        Task.Factory.StartNew(() =>
+                        this.ExecuteThread(() =>
                         {
                             try
                             {
@@ -68,6 +68,10 @@ namespace Renci.SshNet
                 {
                     this.RaiseExceptionEvent(exp);
                 }
+                finally
+                {
+                    this._listenerTaskCompleted.Set();
+                }
             });
 
             this.IsStarted = true;
@@ -85,10 +89,15 @@ namespace Renci.SshNet
                 return;
 
             this._listener.Stop();
-            this._listenerTask.Wait();
+            //  TODO:   Add timeout to WaitOne method
+            this._listenerTaskCompleted.WaitOne();
+            this._listenerTaskCompleted.Dispose();
+            this._listenerTaskCompleted = null;
 
             this.IsStarted = false;
         }
+
+        partial void ExecuteThread(Action action);
 
         #region IDisposable Members
 
@@ -118,10 +127,10 @@ namespace Renci.SshNet
                 if (disposing)
                 {
                     // Dispose managed ResourceMessages.
-                    if (this._listenerTask != null)
+                    if (this._listenerTaskCompleted != null)
                     {
-                        this._listenerTask.Dispose();
-                        this._listenerTask = null;
+                        this._listenerTaskCompleted.Dispose();
+                        this._listenerTaskCompleted = null;
                     }
                 }
 

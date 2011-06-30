@@ -3,7 +3,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages;
@@ -16,7 +15,7 @@ namespace Renci.SshNet
     /// <summary>
     /// Represents SSH command that can be executed.
     /// </summary>
-    public class SshCommand : IDisposable
+    public partial class SshCommand : IDisposable
     {
         private Encoding _encoding;
 
@@ -338,8 +337,8 @@ namespace Renci.SshNet
 
             if (this._callback != null)
             {
-                //  Execute callback on different thread
-                Task.Factory.StartNew(() => { this._callback(this._asyncResult); });
+                //  Execute callback on different thread                
+                this.ExecuteThread(() => { this._callback(this._asyncResult); });
             }
             ((EventWaitHandle)this._asyncResult.AsyncWaitHandle).Set();
         }
@@ -415,6 +414,8 @@ namespace Renci.SshNet
                 throw new SshOperationTimeoutException(string.Format(CultureInfo.CurrentCulture, "Command '{0}' has timed out.", this.CommandText));
             }
         }
+        
+        partial void ExecuteThread(Action action);
 
         #region IDisposable Members
 

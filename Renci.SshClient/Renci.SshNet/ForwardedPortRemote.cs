@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading;
-using System.Threading.Tasks;
 using Renci.SshNet.Channels;
 using Renci.SshNet.Messages.Connection;
 using Renci.SshNet.Common;
@@ -12,7 +11,7 @@ namespace Renci.SshNet
     /// <summary>
     /// Provides functionality for remote port forwarding
     /// </summary>
-    public class ForwardedPortRemote : ForwardedPort, IDisposable
+    public partial class ForwardedPortRemote : ForwardedPort, IDisposable
     {
         private bool _requestStatus;
 
@@ -86,7 +85,7 @@ namespace Renci.SshNet
             {
                 if (info.ConnectedAddress == this.BoundHost && info.ConnectedPort == this.BoundPort)
                 {
-                    Task.Factory.StartNew(() =>
+                    this.ExecuteThread(() =>
                     {
                         try
                         {
@@ -120,6 +119,8 @@ namespace Renci.SshNet
 
             this._globalRequestResponse.Set();
         }
+
+        partial void ExecuteThread(Action action);
 
         #region IDisposable Members
 

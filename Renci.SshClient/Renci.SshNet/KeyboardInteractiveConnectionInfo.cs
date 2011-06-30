@@ -6,14 +6,13 @@ using System.Threading;
 using Renci.SshNet.Messages.Authentication;
 using Renci.SshNet.Messages;
 using Renci.SshNet.Common;
-using System.Threading.Tasks;
 
 namespace Renci.SshNet
 {
     /// <summary>
     /// Provides connection information when keyboard interactive authentication method is used
     /// </summary>
-    public class KeyboardInteractiveConnectionInfo : ConnectionInfo, IDisposable
+    public partial class KeyboardInteractiveConnectionInfo : ConnectionInfo, IDisposable
     {
         private EventWaitHandle _authenticationCompleted = new AutoResetEvent(false);
 
@@ -113,7 +112,7 @@ namespace Renci.SshNet
             {
                 var eventArgs = new AuthenticationPromptEventArgs(this.Username, informationRequestMessage.Instruction, informationRequestMessage.Language, informationRequestMessage.Prompts);
 
-                Task.Factory.StartNew(() =>
+                this.ExecuteThread(() =>
                 {
                     try
                     {
@@ -140,6 +139,8 @@ namespace Renci.SshNet
                 });
             }
         }
+
+        partial void ExecuteThread(Action action);
 
         #region IDisposable Members
 

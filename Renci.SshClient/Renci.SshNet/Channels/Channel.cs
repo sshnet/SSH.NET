@@ -146,7 +146,7 @@ namespace Renci.SshNet.Channels
         /// Gets the session semaphore to control number of session channels
         /// </summary>
         /// <value>The session semaphore.</value>
-        protected SemaphoreSlim SessionSemaphore
+        protected SemaphoreLight SessionSemaphore
         {
             get
             {

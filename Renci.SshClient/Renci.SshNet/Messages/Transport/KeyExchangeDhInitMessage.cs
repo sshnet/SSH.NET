@@ -1,4 +1,4 @@
-﻿using System.Numerics;
+﻿using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Messages.Transport
 {
@@ -28,7 +28,7 @@ namespace Renci.SshNet.Messages.Transport
         protected override void LoadData()
         {
             this.ResetReader();
-            this.E = this.ReadBigInteger();
+            this.E = this.ReadBigInt();
         }
 
         /// <summary>

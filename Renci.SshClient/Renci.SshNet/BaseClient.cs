@@ -78,6 +78,7 @@ namespace Renci.SshNet
         /// Initializes a new instance of the <see cref="BaseClient"/> class.
         /// </summary>
         /// <param name="connectionInfo">The connection info.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="connectionInfo"/> is null.</exception>
         public BaseClient(ConnectionInfo connectionInfo)
         {
             if (connectionInfo == null)

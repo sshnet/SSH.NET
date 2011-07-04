@@ -33,6 +33,7 @@ namespace Renci.SshNet
         /// Initializes a new instance of the <see cref="SshClient"/> class.
         /// </summary>
         /// <param name="connectionInfo">The connection info.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="connectionInfo"/> is null.</exception>
         public SshClient(ConnectionInfo connectionInfo)
             : base(connectionInfo)
         {
@@ -45,6 +46,9 @@ namespace Renci.SshNet
         /// <param name="port">Connection port.</param>
         /// <param name="username">Authentication username.</param>
         /// <param name="password">Authentication password.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="password"/> is null.</exception>
+        /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, or <paramref name="username"/> is null or contains whitespace characters.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="port"/> is not within <see cref="System.Net.IPEndPoint.MinPort"/> and <see cref="System.Net.IPEndPoint.MaxPort"/>.</exception>
         public SshClient(string host, int port, string username, string password)
             : this(new PasswordConnectionInfo(host, port, username, password))
         {
@@ -56,6 +60,8 @@ namespace Renci.SshNet
         /// <param name="host">Connection host.</param>
         /// <param name="username">Authentication username.</param>
         /// <param name="password">Authentication password.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="password"/> is null.</exception>
+        /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, or <paramref name="username"/> is null or contains whitespace characters.</exception>
         public SshClient(string host, string username, string password)
             : this(host, 22, username, password)
         {
@@ -68,6 +74,9 @@ namespace Renci.SshNet
         /// <param name="port">Connection port.</param>
         /// <param name="username">Authentication username.</param>
         /// <param name="keyFiles">Authentication private key file(s) .</param>
+        /// <exception cref="ArgumentNullException"><paramref name="keyFiles"/> is null.</exception>
+        /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, -or- <paramref name="username"/> is null or contains whitespace characters.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="port"/> is not within <see cref="System.Net.IPEndPoint.MinPort"/> and <see cref="System.Net.IPEndPoint.MaxPort"/>.</exception>
         public SshClient(string host, int port, string username, params PrivateKeyFile[] keyFiles)
             : this(new PrivateKeyConnectionInfo(host, port, username, keyFiles))
         {
@@ -79,6 +88,8 @@ namespace Renci.SshNet
         /// <param name="host">Connection host.</param>
         /// <param name="username">Authentication username.</param>
         /// <param name="keyFiles">Authentication private key file(s) .</param>
+        /// <exception cref="ArgumentNullException"><paramref name="keyFiles"/> is null.</exception>
+        /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, -or- <paramref name="username"/> is null or contains whitespace characters.</exception>
         public SshClient(string host, string username, params PrivateKeyFile[] keyFiles)
             : this(host, 22, username, keyFiles)
         {
@@ -110,6 +121,10 @@ namespace Renci.SshNet
         /// <returns>
         /// Forwarded port
         /// </returns>
+        /// <exception cref="ArgumentNullException"><paramref name="boundHost"/> or <paramref name="connectedHost"/> is null.</exception>
+        /// <exception cref="ArgumentException"><paramref name="boundHost"/> or <paramref name="connectedHost"/> is invalid.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="boundPort"/> or <paramref name="connectedPort"/> is not within <see cref="System.Net.IPEndPoint.MinPort"/> and <see cref="System.Net.IPEndPoint.MaxPort"/>.</exception>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
         public T AddForwardedPort<T>(string boundHost, uint boundPort, string connectedHost, uint connectedPort) where T : ForwardedPort, new()
         {
             if (boundHost == null)
@@ -154,6 +169,10 @@ namespace Renci.SshNet
         /// <param name="connectedHost">The connected host.</param>
         /// <param name="connectedPort">The connected port.</param>
         /// <returns></returns>
+        /// <exception cref="ArgumentNullException"><paramref name="boundHost"/> or <paramref name="connectedHost"/> is null.</exception>
+        /// <exception cref="ArgumentException"><paramref name="boundHost"/> or <paramref name="connectedHost"/> is invalid.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="boundPort"/> or <paramref name="connectedPort"/> is not within <see cref="System.Net.IPEndPoint.MinPort"/> and <see cref="System.Net.IPEndPoint.MaxPort"/>.</exception>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
         public T AddForwardedPort<T>(uint boundPort, string connectedHost, uint connectedPort) where T : ForwardedPort, new()
         {
             return this.AddForwardedPort<T>("localhost", boundPort, connectedHost, connectedPort);

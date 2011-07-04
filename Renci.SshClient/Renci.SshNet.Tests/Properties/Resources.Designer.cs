@@ -97,7 +97,7 @@ namespace Renci.SshNet.Tests.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to oleg-centos.edc.renci.org.
+        ///   Looks up a localized string similar to home.cabalsystems.com.
         /// </summary>
         internal static string HOST {
             get {
@@ -132,7 +132,7 @@ namespace Renci.SshNet.Tests.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 22.
+        ///   Looks up a localized string similar to 64622.
         /// </summary>
         internal static string PORT {
             get {

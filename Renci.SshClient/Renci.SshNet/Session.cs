@@ -416,32 +416,7 @@ namespace Renci.SshNet
                     if (this.IsConnected)
                         return;
 
-                    var ep = new IPEndPoint(Dns.GetHostAddresses(this.ConnectionInfo.Host)[0], this.ConnectionInfo.Port);
-                    this._socket = new Socket(ep.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-
-                    var socketBufferSize = 2 * MAXIMUM_PACKET_SIZE;
-                    this._socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.NoDelay, true);
-                    this._socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.SendBuffer, socketBufferSize);
-                    this._socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveBuffer, socketBufferSize);
-
-                    //  Connect socket with 5 seconds timeout
-                    var connectResult = this._socket.BeginConnect(ep, null, null);
-
-                    connectResult.AsyncWaitHandle.WaitOne(this.ConnectionInfo.Timeout);
-
-                    //  Build list of available messages while connecting
-                    this._messagesMetadata = (from type in this.GetType().Assembly.GetTypes()
-                                              from messageAttribute in type.GetCustomAttributes(false).OfType<MessageAttribute>()
-                                              select new MessageMetadata
-                                              {
-                                                  Name = messageAttribute.Name,
-                                                  Number = messageAttribute.Number,
-                                                  Enabled = false,
-                                                  Activated = false,
-                                                  Type = type,
-                                              }).ToList();
-
-                    this._socket.EndConnect(connectResult);
+                    this.OpenSocket();
 
                     Match versionMatch = null;
                     //  Get server version from the server,
@@ -476,7 +451,7 @@ namespace Renci.SshNet
                         throw new SshConnectionException(string.Format(CultureInfo.CurrentCulture, "Server version '{0}' is not supported.", version), DisconnectReason.ProtocolVersionNotSupported);
                     }
 
-                    this.Write(Encoding.ASCII.GetBytes(string.Format(CultureInfo.InvariantCulture, "{0}\x0D\x0A", this.ClientVersion)));
+                    this.Write(Renci.SshNet.Common.ASCIIEncoding.Current.GetBytes(string.Format(CultureInfo.InvariantCulture, "{0}\x0D\x0A", this.ClientVersion)));
 
                     //  Register Transport response messages
                     this.RegisterMessage("SSH_MSG_DISCONNECT");
@@ -1431,38 +1406,9 @@ namespace Renci.SshNet
         /// <returns></returns>
         private byte[] Read(int length)
         {
-            var buffer = new byte[length];
-            var offset = 0;
-            int receivedTotal = 0;  // how many bytes is already received
+            byte[] buffer = new byte[length];
 
-            do
-            {
-                try
-                {
-                    var receivedBytes = this._socket.Receive(buffer, offset + receivedTotal, length - receivedTotal, SocketFlags.None);
-                    if (receivedBytes > 0)
-                    {
-                        receivedTotal += receivedBytes;
-                        continue;
-                    }
-                    else
-                    {
-                        throw new SshConnectionException("An established connection was aborted by the software in your host machine.", DisconnectReason.ConnectionLost);
-                    }
-                }
-                catch (SocketException exp)
-                {
-                    if (exp.SocketErrorCode == SocketError.WouldBlock ||
-                        exp.SocketErrorCode == SocketError.IOPending ||
-                        exp.SocketErrorCode == SocketError.NoBufferSpaceAvailable)
-                    {
-                        // socket buffer is probably empty, wait and try again
-                        Thread.Sleep(30);
-                    }
-                    else
-                        throw;  // any serious error occurred
-                }
-            } while (receivedTotal < length);
+            this.InternalRead(length, ref buffer);
 
             return buffer;
         }
@@ -1471,31 +1417,7 @@ namespace Renci.SshNet
         /// Writes the specified data to the server.
         /// </summary>
         /// <param name="data">The data.</param>
-        private void Write(byte[] data)
-        {
-            int sent = 0;  // how many bytes is already sent
-            int length = data.Length;
-
-            do
-            {
-                try
-                {
-                    sent += this._socket.Send(data, sent, length - sent, SocketFlags.None);
-                }
-                catch (SocketException ex)
-                {
-                    if (ex.SocketErrorCode == SocketError.WouldBlock ||
-                        ex.SocketErrorCode == SocketError.IOPending ||
-                        ex.SocketErrorCode == SocketError.NoBufferSpaceAvailable)
-                    {
-                        // socket buffer is probably full, wait and try again
-                        Thread.Sleep(30);
-                    }
-                    else
-                        throw;  // any serious error occurr
-                }
-            } while (sent < length);
-        }
+        partial void Write(byte[] data);
 
         #endregion
 
@@ -1546,6 +1468,10 @@ namespace Renci.SshNet
         #endregion
 
         partial void ExecuteThread(Action action);
+
+        partial void OpenSocket();
+
+        partial void InternalRead(int length, ref byte[] buffer);
 
         /// <summary>
         /// Listens for incoming message from the server and handles them. This method run as a task on separate thread.

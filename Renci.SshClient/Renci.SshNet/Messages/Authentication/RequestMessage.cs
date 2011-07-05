@@ -66,7 +66,7 @@ namespace Renci.SshNet.Messages.Authentication
                 default:
                     throw new NotSupportedException("Not supported service name");
             }
-            this.Write(this.MethodName, Encoding.ASCII);
+            this.Write(this.MethodName, Renci.SshNet.Common.ASCIIEncoding.Current);
         }
     }
 }

@@ -11,7 +11,7 @@ namespace Renci.SshNet.Channels
     /// <summary>
     /// Implements "forwarded-tcpip" SSH channel.
     /// </summary>
-    internal class ChannelForwardedTcpip : Channel
+    internal partial class ChannelForwardedTcpip : Channel
     {
         private Socket _socket;
 
@@ -57,10 +57,7 @@ namespace Renci.SshNet.Channels
                 //  Get buffer in memory for data exchange
                 buffer = new byte[this.PacketSize - 9];
 
-                var ep = new IPEndPoint(Dns.GetHostEntry(connectedHost).AddressList[0], (int)connectedPort);
-                this._socket = new Socket(ep.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-                this._socket.Connect(ep);
-                this._socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.NoDelay, 1);
+                this.OpenSocket(connectedHost, connectedPort);
 
                 //  Send channel open confirmation message
                 this.SendMessage(new ChannelOpenConfirmationMessage(this.RemoteChannelNumber, this.LocalWindowSize, this.PacketSize, this.LocalChannelNumber));
@@ -78,7 +75,9 @@ namespace Renci.SshNet.Channels
             {
                 try
                 {
-                    var read = this._socket.Receive(buffer);
+                    int read = 0;
+                    this.InternalSocketReceive(buffer, ref read);
+
                     if (read > 0)
                     {
                         this.SendMessage(new ChannelDataMessage(this.RemoteChannelNumber, buffer.Take(read).ToArray()));
@@ -112,6 +111,8 @@ namespace Renci.SshNet.Channels
             this.Close();
         }
 
+        partial void OpenSocket(string connectedHost, uint connectedPort);
+
         /// <summary>
         /// Called when channel data is received.
         /// </summary>
@@ -121,8 +122,12 @@ namespace Renci.SshNet.Channels
             base.OnData(data);
 
             //  Read data from the channel and send it to the port
-            this._socket.Send(data);
+            this.InternalSocketSend(data);
         }
+
+        partial void InternalSocketSend(byte[] data);
+        
+        partial void InternalSocketReceive(byte[] buffer, ref int read);
 
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources

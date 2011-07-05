@@ -63,6 +63,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Channels\ChannelDirectTcpip.NET40.cs" />
+    <Compile Include="Channels\ChannelForwardedTcpip.NET40.cs" />
+    <Compile Include="Common\ASCIIEncoding.cs" />
+    <Compile Include="Common\ASCIIEncoding.NET40.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Common\AsyncResult.cs" />
     <Compile Include="Common\AuthenticationBannerEventArgs.cs" />
     <Compile Include="Common\AuthenticationEventArgs.cs" />
@@ -98,10 +103,103 @@
     <Compile Include="ForwardedPortLocal.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Security\Algorithm.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Security\Cipher.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Security\CipherAESCBC.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Security\CipherAESCTR.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Security\CipherBlowfish.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Security\CipherCast.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Security\CipherDES.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Security\CipherSerpent.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Security\CipherTripleDES.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Security\Cryptography\Aes.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Security\Cryptography\Blowfish.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Security\Cryptography\Cast.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Security\Cryptography\CipherTransform.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Security\Cryptography\Des.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Security\Cryptography\Serpent.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Security\Cryptography\TransformMode.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Security\Cryptography\TripleDes.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Security\CryptoKey.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Security\CryptoPrivateKey.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Security\CryptoPrivateKeyDss.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Security\CryptoPrivateKeyRsa.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Security\CryptoPublicKey.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Security\CryptoPublicKeyDss.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Security\CryptoPublicKeyRsa.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Security\HMac.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Security\HMacMD5.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Security\HMacSha1.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Security\KeyExchange.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Security\KeyExchangeDiffieHellman.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Security\KeyExchangeDiffieHellmanGroup14Sha1.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Security\KeyExchangeDiffieHellmanGroup1Sha1.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Security\KeyExchangeDiffieHellmanGroupExchangeSha1.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Security\KeyExchangeDiffieHellmanGroupExchangeSha256.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Shell.NET40.cs" />
@@ -134,29 +232,19 @@
     <Compile Include="Messages\Connection\ChannelRequest\XonXoffRequestInfo.cs" />
     <Compile Include="Messages\MessageAttribute.cs" />
     <Compile Include="NoneConnectionInfo.cs" />
-    <Compile Include="Security\CipherBlowfish.cs" />
-    <Compile Include="Security\CipherAESCTR.cs" />
-    <Compile Include="Security\CipherCast.cs" />
-    <Compile Include="Security\CipherSerpent.cs" />
-    <Compile Include="Security\Cryptography\Cast.cs" />
     <Compile Include="Security\Cryptography\Ciphers\AesCipher.cs" />
-    <Compile Include="Security\Cryptography\Blowfish.cs" />
     <Compile Include="Security\Cryptography\Ciphers\BlowfishCipher.cs" />
     <Compile Include="Security\Cryptography\Ciphers\CastCipher.cs" />
     <Compile Include="Security\Cryptography\Ciphers\SerpentCipher.cs" />
     <Compile Include="Security\Cryptography\Ciphers\TwofishCipher.cs" />
     <Compile Include="Security\Cryptography\Modes\CfbMode.cs" />
     <Compile Include="Security\Cryptography\Modes\CipherModeEx.cs" />
-    <Compile Include="Security\Cryptography\CipherTransform.cs" />
     <Compile Include="Security\Cryptography\Modes\ModeBase.cs" />
     <Compile Include="Security\Cryptography\Modes\CbcMode.cs" />
     <Compile Include="Security\Cryptography\Ciphers\CipherBase.cs" />
-    <Compile Include="Security\Cryptography\TripleDes.cs" />
     <Compile Include="Security\Cryptography\Ciphers\TripleDesCipher.cs" />
     <Compile Include="Security\Cryptography\Modes\CtrMode.cs" />
-    <Compile Include="Security\Cryptography\Des.cs" />
     <Compile Include="Security\Cryptography\Modes\OfbMode.cs" />
-    <Compile Include="Security\Cryptography\TransformMode.cs" />
     <Compile Include="Security\Cryptography\Ciphers\DesCipher.cs" />
     <Compile Include="Sftp\Flags.cs" />
     <Compile Include="Sftp\SftpDataMessage.cs">
@@ -208,16 +296,6 @@
     <Compile Include="Messages\Transport\KeyExchangeDhGroupExchangeRequest.cs" />
     <Compile Include="PasswordConnectionInfo.cs" />
     <Compile Include="PrivateKeyConnectionInfo.cs" />
-    <Compile Include="Security\CipherDES.cs" />
-    <Compile Include="Security\KeyExchangeDiffieHellmanGroupExchangeSha256.cs" />
-    <Compile Include="Security\HMac.cs" />
-    <Compile Include="Security\HMacMD5.cs" />
-    <Compile Include="Security\HMacSha1.cs" />
-    <Compile Include="Security\KeyExchangeDiffieHellman.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Security\KeyExchangeDiffieHellmanGroup14Sha1.cs" />
-    <Compile Include="Security\KeyExchangeDiffieHellmanGroupExchangeSha1.cs" />
     <Compile Include="SftpClient.cs" />
     <Compile Include="Sftp\SftpFile.cs" />
     <Compile Include="Sftp\SftpSession.cs" />
@@ -232,22 +310,9 @@
     <Compile Include="ForwardedPort.cs" />
     <Compile Include="ForwardedPortRemote.cs" />
     <Compile Include="Messages\Connection\GlobalRequestName.cs" />
-    <Compile Include="Security\Algorithm.cs" />
-    <Compile Include="Security\Cipher.cs" />
-    <Compile Include="Security\CipherAESCBC.cs" />
-    <Compile Include="Security\CipherTripleDES.cs" />
     <Compile Include="Compression\Compressor.cs" />
     <Compile Include="Compression\Zlib.cs" />
     <Compile Include="Compression\ZlibOpenSsh.cs" />
-    <Compile Include="Security\CryptoKey.cs" />
-    <Compile Include="Security\CryptoPrivateKey.cs" />
-    <Compile Include="Security\CryptoPrivateKeyDss.cs" />
-    <Compile Include="Security\CryptoPrivateKeyRsa.cs" />
-    <Compile Include="Security\CryptoPublicKey.cs" />
-    <Compile Include="Security\CryptoPublicKeyDss.cs" />
-    <Compile Include="Security\CryptoPublicKeyRsa.cs" />
-    <Compile Include="Security\KeyExchange.cs" />
-    <Compile Include="Security\KeyExchangeDiffieHellmanGroup1Sha1.cs" />
     <Compile Include="PrivateKeyFile.cs" />
     <Compile Include="Messages\Connection\ChannelMessage.cs" />
     <Compile Include="Channels\Channel.cs" />

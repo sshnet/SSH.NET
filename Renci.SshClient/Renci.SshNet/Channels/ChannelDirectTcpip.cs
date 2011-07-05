@@ -83,7 +83,8 @@ namespace Renci.SshNet.Channels
                         try
                         {
 
-                            var read = this._socket.Receive(buffer);
+                            var read = 0;
+                            this.InternalSocketReceive(buffer, ref read);
                             if (read > 0)
                             {
                                 this.SendMessage(new ChannelDataMessage(this.RemoteChannelNumber, buffer.Take(read).ToArray()));
@@ -144,7 +145,7 @@ namespace Renci.SshNet.Channels
         {
             base.OnData(data);
 
-            this._socket.Send(data, 0, data.Length, SocketFlags.None);
+            this.InternalSocketSend(data);
         }
 
         /// <summary>
@@ -171,6 +172,10 @@ namespace Renci.SshNet.Channels
         }
 
         partial void ExecuteThread(Action action);
+
+        partial void InternalSocketReceive(byte[] buffer, ref int read);
+
+        partial void InternalSocketSend(byte[] data);
 
         protected override void Dispose(bool disposing)
         {

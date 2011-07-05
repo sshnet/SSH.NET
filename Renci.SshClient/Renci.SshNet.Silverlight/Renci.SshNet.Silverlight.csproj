@@ -80,6 +80,9 @@
     <Compile Include="..\Renci.SshNet\Channels\ChannelTypes.cs">
       <Link>Channels\ChannelTypes.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\Common\ASCIIEncoding.cs">
+      <Link>Common\ASCIIEncoding.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\Common\AsyncResult.cs">
       <Link>Common\AsyncResult.cs</Link>
     </Compile>
@@ -97,6 +100,9 @@
     </Compile>
     <Compile Include="..\Renci.SshNet\Common\AuthenticationPromptEventArgs.cs">
       <Link>Common\AuthenticationPromptEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Common\BigInteger.cs">
+      <Link>Common\BigInteger.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Common\ChannelDataEventArgs.cs">
       <Link>Common\ChannelDataEventArgs.cs</Link>
@@ -121,6 +127,9 @@
     </Compile>
     <Compile Include="..\Renci.SshNet\Common\PortForwardEventArgs.cs">
       <Link>Common\PortForwardEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Common\SemaphoreLight.cs">
+      <Link>Common\SemaphoreLight.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Common\SftpPathNotFoundException.cs">
       <Link>Common\SftpPathNotFoundException.cs</Link>
@@ -157,9 +166,6 @@
     </Compile>
     <Compile Include="..\Renci.SshNet\ConnectionInfo.cs">
       <Link>ConnectionInfo.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet\ExceptionEventArgs.cs">
-      <Link>ExceptionEventArgs.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\ForwardedPort.cs">
       <Link>ForwardedPort.cs</Link>
@@ -659,6 +665,7 @@
     <Compile Include="..\Renci.SshNet\SshCommand.cs">
       <Link>SshCommand.cs</Link>
     </Compile>
+    <Compile Include="Common\ASCIIEncoding.Silverlight.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Silverlight\$(SilverlightVersion)\Microsoft.Silverlight.CSharp.targets" />

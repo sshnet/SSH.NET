@@ -203,7 +203,7 @@ namespace Renci.SshNet.Common
                 throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "String that longer that {0} are not supported.", int.MaxValue));
             }
 
-            return Encoding.ASCII.GetString(this.ReadBytes(length));
+            return Renci.SshNet.Common.ASCIIEncoding.Current.GetString(this.ReadBytes(length));
         }
 
         /// <summary>
@@ -348,7 +348,7 @@ namespace Renci.SshNet.Common
         /// <param name="data">string data to write.</param>
         protected void Write(string data)
         {
-            this.Write(data, Encoding.ASCII);
+            this.Write(data, Renci.SshNet.Common.ASCIIEncoding.Current);
         }
 
         /// <summary>

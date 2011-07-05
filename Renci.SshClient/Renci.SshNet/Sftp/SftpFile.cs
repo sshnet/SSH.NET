@@ -29,6 +29,9 @@ namespace Renci.SshNet.Sftp
             if (attributes == null)
                 throw new ArgumentNullException("attributes");
 
+            if (fullName == null)
+                throw new ArgumentNullException("fullName");
+
             this._sftpSession = sftpSession;
             this.Attributes = attributes;
 

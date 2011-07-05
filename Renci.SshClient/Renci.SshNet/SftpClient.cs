@@ -153,12 +153,6 @@ namespace Renci.SshNet
         /// <exception cref="SshException">A SSH error where <see cref="SshException.Message"/> is the message from the remote host.</exception>
         public void ChangePermissions(string path, short mode)
         {
-            if (path == null)
-                throw new ArgumentNullException("path");
-
-            //  Ensure that connection is established.
-            this.EnsureConnection();
-
             var file = this.Get(path);
 
             file.SetPermissions(mode);
@@ -353,6 +347,9 @@ namespace Renci.SshNet
         {
             if (path == null)
                 throw new ArgumentNullException("path");
+
+            //  Ensure that connection is established.
+            this.EnsureConnection();
 
             var fullPath = this._sftpSession.GetCanonicalPath(path);
 
@@ -560,6 +557,9 @@ namespace Renci.SshNet
         /// <param name="contents">The lines to append to the file.</param>
         public void AppendAllLines(string path, IEnumerable<string> contents)
         {
+            if (contents == null)
+                throw new ArgumentNullException("contents");
+
             using (var stream = this.AppendText(path))
             {
                 foreach (var line in contents)
@@ -577,6 +577,9 @@ namespace Renci.SshNet
         /// <param name="encoding">The character encoding to use.</param>
         public void AppendAllLines(string path, IEnumerable<string> contents, Encoding encoding)
         {
+            if (contents == null)
+                throw new ArgumentNullException("contents");
+
             using (var stream = this.AppendText(path, encoding))
             {
                 foreach (var line in contents)
@@ -635,6 +638,9 @@ namespace Renci.SshNet
         /// </returns>
         public StreamWriter AppendText(string path, Encoding encoding)
         {
+            if (encoding == null)
+                throw new ArgumentNullException("encoding");
+
             return new StreamWriter(new SftpFileStream(this._sftpSession, path, FileMode.Append, FileAccess.Write), encoding);
         }
 
@@ -688,11 +694,6 @@ namespace Renci.SshNet
         {
             var file = this.Get(path);
 
-            if (file == null)
-            {
-                throw new SftpPathNotFoundException(path);
-            }
-
             file.Delete();
         }
 
@@ -704,6 +705,7 @@ namespace Renci.SshNet
         public DateTime GetLastAccessTime(string path)
         {
             var file = this.Get(path);
+
             return file.LastAccessTime;
         }
 
@@ -715,6 +717,7 @@ namespace Renci.SshNet
         public DateTime GetLastAccessTimeUtc(string path)
         {
             var file = this.Get(path);
+
             return file.LastAccessTime.ToUniversalTime();
         }
 
@@ -726,6 +729,7 @@ namespace Renci.SshNet
         public DateTime GetLastWriteTime(string path)
         {
             var file = this.Get(path);
+
             return file.LastWriteTime;
         }
 
@@ -737,6 +741,7 @@ namespace Renci.SshNet
         public DateTime GetLastWriteTimeUtc(string path)
         {
             var file = this.Get(path);
+
             return file.LastWriteTime.ToUniversalTime();
         }
 

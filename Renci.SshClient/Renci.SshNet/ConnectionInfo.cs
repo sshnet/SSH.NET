@@ -132,10 +132,10 @@ namespace Renci.SshNet
 
             this.Encryptions = new Dictionary<string, Type>()
             {
-                {"3des-cbc", typeof(CipherTripleDES)},
-                {"aes128-cbc", typeof(CipherAES128CBC)},
-                {"aes192-cbc", typeof(CipherAES192CBC)},
-                {"aes256-cbc", typeof(CipherAES256CBC)},                
+                {"3des-cbc", typeof(CipherTripleDes192Cbc)},
+                {"aes128-cbc", typeof(CipherAes128Cbc)},
+                {"aes192-cbc", typeof(CipherAes192Cbc)},
+                {"aes256-cbc", typeof(CipherAes256Cbc)},                
                 {"blowfish-cbc", typeof(CipherBlowfish)},               
                 //{"twofish-cbc", typeof(...)},
                 //{"twofish192-cbc", typeof(...)},
@@ -148,11 +148,11 @@ namespace Renci.SshNet
                 //{"arcfour256", typeof(...)},
                 //{"arcfour", typeof(...)},
                 //{"idea-cbc", typeof(...)},
-                {"cast128-cbc", typeof(CipherCast)},
+                {"cast128-cbc", typeof(CipherCast128Cbc)},
                 //{"rijndael-cbc@lysator.liu.se", typeof(...)},                
-                {"aes128-ctr", typeof(CipherAES128CTR)},
-                {"aes192-ctr", typeof(CipherAES192CTR)},
-                {"aes256-ctr", typeof(CipherAES256CTR)},
+                {"aes128-ctr", typeof(CipherAes128Ctr)},
+                {"aes192-ctr", typeof(CipherAes192Ctr)},
+                {"aes256-ctr", typeof(CipherAes256Ctr)},
             };
 
             this.HmacAlgorithms = new Dictionary<string, Type>()

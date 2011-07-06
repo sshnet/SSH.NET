@@ -1,14 +1,19 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System;
+using Renci.SshNet.Security.Cryptography;
 
 namespace Renci.SshNet.Security
 {
     /// <summary>
     /// Represents the abstract base class from which all implementations of cipher must inherit.
     /// </summary>
-    public abstract class Cipher : Algorithm, IDisposable
+    public abstract class Cipher : Algorithm
     {
+        private ModeBase _encryptor;
+
+        private ModeBase _decryptor;
+
         /// <summary>
         /// Gets or sets the block size, in bits, of the cipher operation.
         /// </summary>
@@ -51,48 +56,72 @@ namespace Renci.SshNet.Security
         /// </summary>
         /// <param name="data">The data.</param>
         /// <returns>Encrypted data</returns>
-        public abstract byte[] Encrypt(byte[] data);
+        public byte[] Encrypt(byte[] data)
+        {
+            if (this._encryptor == null)
+            {
+                this._encryptor = this.CreateEncryptor();
+            }
+
+            var output = new byte[data.Length];
+
+            if (data.Length % this.BlockSize > 0)
+                throw new ArgumentException("data");
+
+            var writtenBytes = 0;
+            for (int i = 0; i < data.Length / this.BlockSize; i++)
+            {
+                writtenBytes += this._encryptor.EncryptBlock(data, i * this.BlockSize, this.BlockSize, output, i * this.BlockSize);
+            }
+
+            if (writtenBytes < data.Length)
+            {
+                throw new InvalidOperationException("Encryption error.");
+            }
+
+            return output;
+        }
 
         /// <summary>
         /// Decrypts the specified data.
         /// </summary>
         /// <param name="data">The data.</param>
         /// <returns>Decrypted data</returns>
-        public abstract byte[] Decrypt(byte[] data);
-        
-        #region IDisposable Members
-
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public void Dispose()
+        public byte[] Decrypt(byte[] data)
         {
-            Dispose(true);
+            if (this._decryptor == null)
+            {
+                this._decryptor = this.CreateDecryptor();
+            }
 
-            GC.SuppressFinalize(this);
+            var output = new byte[data.Length];
+
+            if (data.Length % this.BlockSize > 0)
+                throw new ArgumentException("data");
+
+            var writtenBytes = 0;
+            for (int i = 0; i < data.Length / this.BlockSize; i++)
+            {
+                writtenBytes += this._decryptor.DecryptBlock(data, i * this.BlockSize, this.BlockSize, output, i * this.BlockSize);
+            }
+
+            if (writtenBytes < data.Length)
+            {
+                throw new InvalidOperationException("Encryption error.");
+            }
+            return output;
         }
 
         /// <summary>
-        /// Releases unmanaged and - optionally - managed resources
+        /// Creates the encryptor.
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-        protected virtual void Dispose(bool disposing)
-        {
-        }
+        /// <returns></returns>
+        protected abstract ModeBase CreateEncryptor();
 
         /// <summary>
-        /// Releases unmanaged resources and performs other cleanup operations before the
-        /// <see cref="Cipher"/> is reclaimed by garbage collection.
+        /// Creates the decryptor.
         /// </summary>
-        ~Cipher()
-        {
-            // Do not re-create Dispose clean-up code here.
-            // Calling Dispose(false) is optimal in terms of
-            // readability and maintainability.
-            Dispose(false);
-        }
-
-        #endregion
-
+        /// <returns></returns>
+        protected abstract ModeBase CreateDecryptor();
     }
 }

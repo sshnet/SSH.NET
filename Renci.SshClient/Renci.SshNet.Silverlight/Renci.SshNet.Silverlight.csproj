@@ -50,6 +50,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.CSharp, Version=2.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="mscorlib" />
     <Reference Include="System.Windows" />
     <Reference Include="system" />
@@ -395,35 +396,26 @@
     <Compile Include="..\Renci.SshNet\Security\Cipher.cs">
       <Link>Security\Cipher.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\Security\CipherAESCBC.cs">
-      <Link>Security\CipherAESCBC.cs</Link>
+    <Compile Include="..\Renci.SshNet\Security\CipherAesCbc.cs">
+      <Link>Security\CipherAesCbc.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\Security\CipherAESCTR.cs">
-      <Link>Security\CipherAESCTR.cs</Link>
+    <Compile Include="..\Renci.SshNet\Security\CipherAesCtr.cs">
+      <Link>Security\CipherAesCtr.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Security\CipherBlowfish.cs">
       <Link>Security\CipherBlowfish.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\Security\CipherCast.cs">
-      <Link>Security\CipherCast.cs</Link>
+    <Compile Include="..\Renci.SshNet\Security\CipherCastCbc.cs">
+      <Link>Security\CipherCastCbc.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\Security\CipherDES.cs">
-      <Link>Security\CipherDES.cs</Link>
+    <Compile Include="..\Renci.SshNet\Security\CipherDesCbc.cs">
+      <Link>Security\CipherDesCbc.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Security\CipherSerpent.cs">
       <Link>Security\CipherSerpent.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\Security\CipherTripleDES.cs">
-      <Link>Security\CipherTripleDES.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet\Security\Cryptography\Aes.cs">
-      <Link>Security\Cryptography\Aes.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet\Security\Cryptography\Blowfish.cs">
-      <Link>Security\Cryptography\Blowfish.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet\Security\Cryptography\Cast.cs">
-      <Link>Security\Cryptography\Cast.cs</Link>
+    <Compile Include="..\Renci.SshNet\Security\CipherTripleDesCbc.cs">
+      <Link>Security\CipherTripleDesCbc.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Security\Cryptography\Ciphers\AesCipher.cs">
       <Link>Security\Cryptography\Ciphers\AesCipher.cs</Link>
@@ -449,12 +441,6 @@
     <Compile Include="..\Renci.SshNet\Security\Cryptography\Ciphers\TwofishCipher.cs">
       <Link>Security\Cryptography\Ciphers\TwofishCipher.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\Security\Cryptography\CipherTransform.cs">
-      <Link>Security\Cryptography\CipherTransform.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet\Security\Cryptography\Des.cs">
-      <Link>Security\Cryptography\Des.cs</Link>
-    </Compile>
     <Compile Include="..\Renci.SshNet\Security\Cryptography\Modes\CbcMode.cs">
       <Link>Security\Cryptography\Modes\CbcMode.cs</Link>
     </Compile>
@@ -472,15 +458,6 @@
     </Compile>
     <Compile Include="..\Renci.SshNet\Security\Cryptography\Modes\OfbMode.cs">
       <Link>Security\Cryptography\Modes\OfbMode.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet\Security\Cryptography\Serpent.cs">
-      <Link>Security\Cryptography\Serpent.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet\Security\Cryptography\TransformMode.cs">
-      <Link>Security\Cryptography\TransformMode.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet\Security\Cryptography\TripleDes.cs">
-      <Link>Security\Cryptography\TripleDes.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Security\CryptoKey.cs">
       <Link>Security\CryptoKey.cs</Link>
@@ -505,9 +482,6 @@
     </Compile>
     <Compile Include="..\Renci.SshNet\Security\HMac.cs">
       <Link>Security\HMac.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet\Security\HMacMD5.cs">
-      <Link>Security\HMacMD5.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Security\HMacSha1.cs">
       <Link>Security\HMacSha1.cs</Link>

@@ -126,7 +126,7 @@ namespace Renci.SshNet
 
             if (!privateKeyMatch.Success)
             {
-                throw new InvalidDataException("Invalid private key file.");
+                throw new SshException("Invalid private key file.");
             }
 
             var keyName = privateKeyMatch.Result("${keyName}");
@@ -147,45 +147,33 @@ namespace Renci.SshNet
                 for (int i = 0; i < binarySalt.Length; i++)
                     binarySalt[i] = Convert.ToByte(salt.Substring(i * 2, 2), 16);
 
+                Cipher cipher = null;
                 switch (cipherName)
                 {
                     case "DES-EDE3-CBC":
-                        using (var cipher = new CipherTripleDES())
-                        {
-                            decryptedData = DecryptKey(cipher, binaryData, passPhrase, binarySalt);
-                        }
+                        cipher = new CipherTripleDes192Cbc();
                         break;
                     case "DES-CBC":
                         //  TODO:   Not tested
-                        using (var cipher = new CipherDES())
-                        {
-                            decryptedData = DecryptKey(cipher, binaryData, passPhrase, binarySalt);
-                        }
+                        cipher = new CipherDes64Cbc();
                         break;
                     case "AES-128-CBC":
                         //  TODO:   Not tested
-                        using (var cipher = new CipherAES128CBC())
-                        {
-                            decryptedData = DecryptKey(cipher, binaryData, passPhrase, binarySalt);
-                        }
+                        cipher = new CipherAes128Cbc();
                         break;
                     case "AES-192-CBC":
                         //  TODO:   Not tested
-                        using (var cipher = new CipherAES192CBC())
-                        {
-                            decryptedData = DecryptKey(cipher, binaryData, passPhrase, binarySalt);
-                        }
+                        cipher = new CipherAes192Cbc();
                         break;
                     case "AES-256-CBC":
                         //  TODO:   Not tested
-                        using (var cipher = new CipherAES256CBC())
-                        {
-                            decryptedData = DecryptKey(cipher, binaryData, passPhrase, binarySalt);
-                        }
+                        cipher = new CipherAes256Cbc();
                         break;
                     default:
                         throw new SshException(string.Format(CultureInfo.CurrentCulture, "Unknown private key cipher \"{0}\".", cipherName));
                 }
+
+                decryptedData = DecryptKey(cipher, binaryData, passPhrase, binarySalt);
             }
             else
             {

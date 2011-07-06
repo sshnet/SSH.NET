@@ -124,9 +124,9 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="boundHost"/> or <paramref name="connectedHost"/> is null.</exception>
         /// <exception cref="ArgumentException"><paramref name="boundHost"/> or <paramref name="connectedHost"/> is invalid.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="boundPort"/> or <paramref name="connectedPort"/> is not within <see cref="System.Net.IPEndPoint.MinPort"/> and <see cref="System.Net.IPEndPoint.MaxPort"/>.</exception>
-        /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="Renci.SshNet.Common.SshConnectionException">Client is not connected.</exception>
         public T AddForwardedPort<T>(string boundHost, uint boundPort, string connectedHost, uint connectedPort) where T : ForwardedPort, new()
-        {
+        {            
             if (boundHost == null)
                 throw new ArgumentNullException("boundHost");
 
@@ -169,12 +169,12 @@ namespace Renci.SshNet
         /// <param name="connectedHost">The connected host.</param>
         /// <param name="connectedPort">The connected port.</param>
         /// <returns></returns>
-        /// <exception cref="ArgumentNullException"><paramref name="boundHost"/> or <paramref name="connectedHost"/> is null.</exception>
-        /// <exception cref="ArgumentException"><paramref name="boundHost"/> or <paramref name="connectedHost"/> is invalid.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="connectedHost"/> is null.</exception>
+        /// <exception cref="ArgumentException"><paramref name="boundPort"/>, <paramref name="connectedPort"/> or <paramref name="connectedHost"/> is invalid.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="boundPort"/> or <paramref name="connectedPort"/> is not within <see cref="System.Net.IPEndPoint.MinPort"/> and <see cref="System.Net.IPEndPoint.MaxPort"/>.</exception>
-        /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="Renci.SshNet.Common.SshConnectionException">Client is not connected.</exception>
         public T AddForwardedPort<T>(uint boundPort, string connectedHost, uint connectedPort) where T : ForwardedPort, new()
-        {
+        {            
             return this.AddForwardedPort<T>("localhost", boundPort, connectedHost, connectedPort);
         }
 

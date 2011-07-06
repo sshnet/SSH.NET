@@ -9,14 +9,9 @@ namespace Renci.SshNet.Security
     /// <summary>
     /// Represents base class for AES based encryption.
     /// </summary>
-    public abstract class CipherAESCTR : Cipher
+    public abstract class CipherAesCtr : Cipher
     {
-        private SymmetricAlgorithm _algorithm;
-
-        private ICryptoTransform _encryptor;
-
-        private ICryptoTransform _decryptor;
-
+        private readonly int _keySize;
         /// <summary>
         /// Gets or sets the key size, in bits, of the secret key used by the cipher.
         /// </summary>
@@ -27,7 +22,7 @@ namespace Renci.SshNet.Security
         {
             get
             {
-                return this._algorithm.KeySize;
+                return this._keySize / 8;
             }
         }
 
@@ -41,115 +36,42 @@ namespace Renci.SshNet.Security
         {
             get
             {
-                return this._algorithm.BlockSize / 8;
+                return 16;
             }
         }
 
         /// <summary>
-        /// Gets the size of the key bits.
-        /// </summary>
-        /// <value>
-        /// The size of the key bits.
-        /// </value>
-        protected int KeyBitsSize { get; private set; }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CipherAESCBC"/> class.
+        /// Initializes a new instance of the <see cref="CipherAesCtr"/> class.
         /// </summary>
         /// <param name="keyBitsSize">Size of the key bits.</param>
-        public CipherAESCTR(int keyBitsSize)
+        public CipherAesCtr(int keyBitsSize)
         {
-            this.KeyBitsSize = keyBitsSize;
-            this._algorithm = new Cryptography.Aes(keyBitsSize);
-            this._algorithm.KeySize = keyBitsSize;
-            this._algorithm.Mode = (CipherMode)CipherModeEx.CTR;
-            this._algorithm.Padding = System.Security.Cryptography.PaddingMode.None;
+            this._keySize = keyBitsSize;
         }
 
         /// <summary>
-        /// Encrypts the specified data.
+        /// Creates the encryptor.
         /// </summary>
-        /// <param name="data">The data.</param>
-        /// <returns>
-        /// Encrypted data
-        /// </returns>
-        public override byte[] Encrypt(byte[] data)
+        /// <returns></returns>
+        protected override ModeBase CreateEncryptor()
         {
-            if (this._encryptor == null)
-            {
-                this._encryptor = this._algorithm.CreateEncryptor(this.Key.Take(this.KeySize / 8).ToArray(), this.Vector.Take(this.BlockSize).ToArray());
-            }
-
-            var output = new byte[data.Length];
-            var writtenBytes = this._encryptor.TransformBlock(data, 0, data.Length, output, 0);
-
-            if (writtenBytes < data.Length)
-            {
-                throw new InvalidOperationException("Encryption error.");
-            }
-
-            return output;
+            return new CtrMode(new AesCipher(this.Key.Take(this._keySize / 8).ToArray(), this.Vector.Take(this.BlockSize).ToArray()));
         }
 
         /// <summary>
-        /// Decrypts the specified data.
+        /// Creates the decryptor.
         /// </summary>
-        /// <param name="data">The data.</param>
-        /// <returns>
-        /// Decrypted data
-        /// </returns>
-        public override byte[] Decrypt(byte[] data)
+        /// <returns></returns>
+        protected override ModeBase CreateDecryptor()
         {
-            if (this._decryptor == null)
-            {
-                this._decryptor = this._algorithm.CreateDecryptor(this.Key.Take(this.KeySize / 8).ToArray(), this.Vector.Take(this.BlockSize).ToArray());
-            }
-
-            var output = new byte[data.Length];
-            var writtenBytes = this._decryptor.TransformBlock(data, 0, data.Length, output, 0);
-
-            if (writtenBytes < data.Length)
-            {
-                throw new InvalidOperationException("Encryption error.");
-            }
-            return output;
-        }
-
-        private bool _isDisposed = false;
-
-        /// <summary>
-        /// Releases unmanaged and - optionally - managed resources
-        /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-        protected override void Dispose(bool disposing)
-        {
-            // Check to see if Dispose has already been called.
-            if (!this._isDisposed)
-            {
-                // If disposing equals true, dispose all managed
-                // and unmanaged resources.
-                if (disposing)
-                {
-                    // Dispose managed resources.
-                    if (this._algorithm != null)
-                    {
-                        this._algorithm.Dispose();
-                        this._algorithm = null;
-                    }
-                }
-
-                // Note disposing has been done.
-                this._isDisposed = true;
-            }
-
-            base.Dispose(disposing);
+            return new CtrMode(new AesCipher(this.Key.Take(this._keySize / 8).ToArray(), this.Vector.Take(this.BlockSize).ToArray()));
         }
     }
 
     /// <summary>
     /// Represents AES 128 bit encryption.
     /// </summary>
-    public class CipherAES128CTR : CipherAESCTR
+    public class CipherAes128Ctr : CipherAesCtr
     {
         /// <summary>
         /// Gets algorithm name.
@@ -160,9 +82,9 @@ namespace Renci.SshNet.Security
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CipherAES192CBC"/> class.
+        /// Initializes a new instance of the <see cref="CipherAes192Cbc"/> class.
         /// </summary>
-        public CipherAES128CTR()
+        public CipherAes128Ctr()
             : base(128)
         {
 
@@ -172,7 +94,7 @@ namespace Renci.SshNet.Security
     /// <summary>
     /// Represents AES 192 bit encryption.
     /// </summary>
-    public class CipherAES192CTR : CipherAESCTR
+    public class CipherAes192Ctr : CipherAesCtr
     {
         /// <summary>
         /// Gets algorithm name.
@@ -183,9 +105,9 @@ namespace Renci.SshNet.Security
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CipherAES192CBC"/> class.
+        /// Initializes a new instance of the <see cref="CipherAes192Cbc"/> class.
         /// </summary>
-        public CipherAES192CTR()
+        public CipherAes192Ctr()
             : base(192)
         {
 
@@ -195,7 +117,7 @@ namespace Renci.SshNet.Security
     /// <summary>
     /// Represents AES 256 bit encryption.
     /// </summary>
-    public class CipherAES256CTR : CipherAESCTR
+    public class CipherAes256Ctr : CipherAesCtr
     {
         /// <summary>
         /// Gets algorithm name.
@@ -206,9 +128,9 @@ namespace Renci.SshNet.Security
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CipherAES192CBC"/> class.
+        /// Initializes a new instance of the <see cref="CipherAes192Cbc"/> class.
         /// </summary>
-        public CipherAES256CTR()
+        public CipherAes256Ctr()
             : base(256)
         {
 

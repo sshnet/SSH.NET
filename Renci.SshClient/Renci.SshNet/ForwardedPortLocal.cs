@@ -76,7 +76,7 @@ namespace Renci.SshNet
 
         /// <summary>
         /// Releases unmanaged resources and performs other cleanup operations before the
-        /// <see cref="Channel"/> is reclaimed by garbage collection.
+        /// <see cref="ForwardedPortLocal"/> is reclaimed by garbage collection.
         /// </summary>
         ~ForwardedPortLocal()
         {

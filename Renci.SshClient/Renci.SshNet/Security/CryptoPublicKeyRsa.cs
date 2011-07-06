@@ -125,7 +125,7 @@ namespace Renci.SshNet.Security
                         j = i1 | i2 | i3 | i4;
 
                         tmp = new byte[j];
-                        Array.Copy(sig, i, tmp, 0, j);
+                        Array.Copy(sig, (int)i, tmp, 0, (int)j);
                         sig = tmp;
                     }
 

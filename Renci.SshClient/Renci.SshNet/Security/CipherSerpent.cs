@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Security.Cryptography;
+using Renci.SshNet.Security.Cryptography;
 
 namespace Renci.SshNet.Security
 {
@@ -11,12 +12,7 @@ namespace Renci.SshNet.Security
     /// </summary>
     public abstract class CipherSerpentCBC : Cipher
     {
-        private SymmetricAlgorithm _algorithm;
-
-        private ICryptoTransform _encryptor;
-
-        private ICryptoTransform _decryptor;
-
+        private readonly int _keySize;
         /// <summary>
         /// Gets or sets the key size, in bits, of the secret key used by the cipher.
         /// </summary>
@@ -27,7 +23,7 @@ namespace Renci.SshNet.Security
         {
             get
             {
-                return this._algorithm.KeySize;
+                return this._keySize;
             }
         }
 
@@ -41,17 +37,9 @@ namespace Renci.SshNet.Security
         {
             get
             {
-                return this._algorithm.BlockSize / 8;
+                return 16;
             }
         }
-
-        /// <summary>
-        /// Gets the size of the key bits.
-        /// </summary>
-        /// <value>
-        /// The size of the key bits.
-        /// </value>
-        protected int KeyBitsSize { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CipherSerpentCBC"/> class.
@@ -59,90 +47,25 @@ namespace Renci.SshNet.Security
         /// <param name="keyBitsSize">Size of the key bits.</param>
         public CipherSerpentCBC(int keyBitsSize)
         {
-            this.KeyBitsSize = keyBitsSize;
-            this._algorithm = new Cryptography.Serpent(keyBitsSize);
-            this._algorithm.KeySize = keyBitsSize;
-            this._algorithm.Mode = System.Security.Cryptography.CipherMode.CBC;
-            this._algorithm.Padding = System.Security.Cryptography.PaddingMode.None;
+            this._keySize = keyBitsSize;
         }
 
         /// <summary>
-        /// Encrypts the specified data.
+        /// Creates the encryptor.
         /// </summary>
-        /// <param name="data">The data.</param>
-        /// <returns>
-        /// Encrypted data
-        /// </returns>
-        public override byte[] Encrypt(byte[] data)
+        /// <returns></returns>
+        protected override ModeBase CreateEncryptor()
         {
-            if (this._encryptor == null)
-            {
-                this._encryptor = this._algorithm.CreateEncryptor(this.Key.Take(this.KeySize / 8).ToArray(), this.Vector.Take(this.BlockSize).ToArray());
-            }
-
-            var output = new byte[data.Length];
-            var writtenBytes = this._encryptor.TransformBlock(data, 0, data.Length, output, 0);
-
-            if (writtenBytes < data.Length)
-            {
-                throw new InvalidOperationException("Encryption error.");
-            }
-
-            return output;
+            return new CbcMode(new SerpentCipher(this.Key.Take(this.KeySize / 8).ToArray(), this.Vector.Take(this.BlockSize).ToArray()));
         }
 
         /// <summary>
-        /// Decrypts the specified data.
+        /// Creates the decryptor.
         /// </summary>
-        /// <param name="data">The data.</param>
-        /// <returns>
-        /// Decrypted data
-        /// </returns>
-        public override byte[] Decrypt(byte[] data)
+        /// <returns></returns>
+        protected override ModeBase CreateDecryptor()
         {
-            if (this._decryptor == null)
-            {
-                this._decryptor = this._algorithm.CreateDecryptor(this.Key.Take(this.KeySize / 8).ToArray(), this.Vector.Take(this.BlockSize).ToArray());
-            }
-
-            var output = new byte[data.Length];
-            var writtenBytes = this._decryptor.TransformBlock(data, 0, data.Length, output, 0);
-
-            if (writtenBytes < data.Length)
-            {
-                throw new InvalidOperationException("Encryption error.");
-            }
-            return output;
-        }
-
-        private bool _isDisposed = false;
-
-        /// <summary>
-        /// Releases unmanaged and - optionally - managed resources
-        /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-        protected override void Dispose(bool disposing)
-        {
-            // Check to see if Dispose has already been called.
-            if (!this._isDisposed)
-            {
-                // If disposing equals true, dispose all managed
-                // and unmanaged resources.
-                if (disposing)
-                {
-                    // Dispose managed resources.
-                    if (this._algorithm != null)
-                    {
-                        this._algorithm.Dispose();
-                        this._algorithm = null;
-                    }
-                }
-
-                // Note disposing has been done.
-                this._isDisposed = true;
-            }
-
-            base.Dispose(disposing);
+            return new CbcMode(new SerpentCipher(this.Key.Take(this.KeySize / 8).ToArray(), this.Vector.Take(this.BlockSize).ToArray()));
         }
     }
 

@@ -8,18 +8,11 @@ using Renci.SshNet.Security.Cryptography;
 namespace Renci.SshNet.Security
 {
     /// <summary>
-    /// Represents base class for AES based encryption.
+    /// Represents base class for DES-CBC encryption.
     /// </summary>
-    public class CipherBlowfish : Cipher
+    public abstract class CipherDesCbc : Cipher
     {
-        /// <summary>
-        /// Gets algorithm name.
-        /// </summary>
-        public override string Name
-        {
-            get { return "blowfish-cbc"; }
-        }
-
+        private readonly int _keySize;
         /// <summary>
         /// Gets or sets the key size, in bits, of the secret key used by the cipher.
         /// </summary>
@@ -30,7 +23,7 @@ namespace Renci.SshNet.Security
         {
             get
             {
-                return 16 * 8;
+                return 0;
             }
         }
 
@@ -49,12 +42,21 @@ namespace Renci.SshNet.Security
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="CipherDesCbc"/> class.
+        /// </summary>
+        /// <param name="keySize">Size of the key.</param>
+        public CipherDesCbc(int keySize)
+        {
+            this._keySize = keySize;
+        }
+
+        /// <summary>
         /// Creates the encryptor.
         /// </summary>
         /// <returns></returns>
         protected override ModeBase CreateEncryptor()
         {
-            return new CbcMode(new BlowfishCipher(this.Key.Take(this.KeySize / 8).ToArray(), this.Vector.Take(this.BlockSize).ToArray()));
+            return new CbcMode(new DesCipher(this.Key.Take(this.KeySize / 8).ToArray(), this.Vector.Take(this.BlockSize).ToArray()));
         }
 
         /// <summary>
@@ -63,7 +65,31 @@ namespace Renci.SshNet.Security
         /// <returns></returns>
         protected override ModeBase CreateDecryptor()
         {
-            return new CbcMode(new BlowfishCipher(this.Key.Take(this.KeySize / 8).ToArray(), this.Vector.Take(this.BlockSize).ToArray()));
+            return new CbcMode(new DesCipher(this.Key.Take(this.KeySize / 8).ToArray(), this.Vector.Take(this.BlockSize).ToArray()));
         }
     }
+
+    /// <summary>
+    /// Represents class for DES-64 CBC encryption.
+    /// </summary>
+    public class CipherDes64Cbc : CipherDesCbc
+    {
+        /// <summary>
+        /// Gets algorithm name.
+        /// </summary>
+        public override string Name
+        {
+            get { return "des-cbc"; }
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CipherDesCbc"/> class.
+        /// </summary>
+        public CipherDes64Cbc()
+            : base(64)
+        {
+
+        }
+    }
+
 }

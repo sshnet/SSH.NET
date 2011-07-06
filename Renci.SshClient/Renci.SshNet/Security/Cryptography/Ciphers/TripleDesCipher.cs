@@ -11,8 +11,13 @@ namespace Renci.SshNet.Security.Cryptography
     /// </summary>
     public class TripleDesCipher : DesCipher
     {
-        private byte[] _pass1;
-        private byte[] _pass2;
+        private readonly int[] _encryptionKey1;
+        private readonly int[] _encryptionKey2;
+        private readonly int[] _encryptionKey3;
+
+        private readonly int[] _decryptionKey1;
+        private readonly int[] _decryptionKey2;
+        private readonly int[] _decryptionKey3;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TripleDesCipher"/> class.
@@ -22,6 +27,31 @@ namespace Renci.SshNet.Security.Cryptography
         public TripleDesCipher(byte[] key, byte[] iv)
             : base(key, iv)
         {
+            var part1 = new byte[8];
+            var part2 = new byte[8];
+
+            Array.Copy(key, 0, part1, 0, 8);
+            Array.Copy(key, 8, part2, 0, 8);
+
+            this._encryptionKey1 = GenerateWorkingKey(true, part1);
+            this._decryptionKey1 = GenerateWorkingKey(false, part1);
+
+            this._encryptionKey2 = GenerateWorkingKey(false, part2);
+            this._decryptionKey2 = GenerateWorkingKey(true, part2);
+
+            if (this.Key.Length == 24)
+            {
+                var part3 = new byte[8];
+                Array.Copy(key, 16, part3, 0, 8);
+
+                this._encryptionKey3 = GenerateWorkingKey(true, part3);
+                this._decryptionKey3 = GenerateWorkingKey(false, part3);
+            }
+            else
+            {
+                this._encryptionKey3 = this._encryptionKey1;
+                this._decryptionKey3 = this._decryptionKey1;
+            }
         }
 
         /// <summary>
@@ -43,14 +73,11 @@ namespace Renci.SshNet.Security.Cryptography
             if ((outputOffset + this.BlockSize) > outputBuffer.Length)
                 throw new IndexOutOfRangeException("output buffer too short");
 
-            if (this._pass1 == null)
-                this._pass1 = new byte[this.BlockSize];
-            if (this._pass2 == null)
-                this._pass2 = new byte[this.BlockSize];
+            byte[] temp = new byte[this.BlockSize];
 
-            DesCipher.DesFunc(this.EncryptionKey, inputBuffer, inputOffset, this._pass1, 0);
-            DesCipher.DesFunc(this.EncryptionKey, this._pass1, 0, this._pass2, 0);
-            DesCipher.DesFunc(this.EncryptionKey, this._pass2, 0, outputBuffer, outputOffset);
+            DesCipher.DesFunc(this._encryptionKey1, inputBuffer, inputOffset, temp, 0);
+            DesCipher.DesFunc(this._encryptionKey2, temp, 0, temp, 0);
+            DesCipher.DesFunc(this._encryptionKey3, temp, 0, outputBuffer, outputOffset);
 
             return this.BlockSize;
         }
@@ -74,9 +101,11 @@ namespace Renci.SshNet.Security.Cryptography
             if ((outputOffset + this.BlockSize) > outputBuffer.Length)
                 throw new IndexOutOfRangeException("output buffer too short");
 
-            DesCipher.DesFunc(this.DecryptionKey, inputBuffer, inputOffset, this._pass1, 0);
-            DesCipher.DesFunc(this.DecryptionKey, this._pass1, 0, this._pass2, 0);
-            DesCipher.DesFunc(this.DecryptionKey, this._pass2, 0, outputBuffer, outputOffset);
+            byte[] temp = new byte[this.BlockSize];
+
+            DesCipher.DesFunc(this._decryptionKey3, inputBuffer, inputOffset, temp, 0);
+            DesCipher.DesFunc(this._decryptionKey2, temp, 0, temp, 0);
+            DesCipher.DesFunc(this._decryptionKey1, temp, 0, outputBuffer, outputOffset);
 
             return this.BlockSize;
         }

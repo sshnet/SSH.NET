@@ -109,49 +109,25 @@
     <Compile Include="Security\Cipher.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Security\CipherAESCBC.cs">
+    <Compile Include="Security\CipherAesCbc.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Security\CipherAESCTR.cs">
+    <Compile Include="Security\CipherAesCtr.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Security\CipherBlowfish.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Security\CipherCast.cs">
+    <Compile Include="Security\CipherCastCbc.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Security\CipherDES.cs">
+    <Compile Include="Security\CipherDesCbc.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Security\CipherSerpent.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Security\CipherTripleDES.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Security\Cryptography\Aes.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Security\Cryptography\Blowfish.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Security\Cryptography\Cast.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Security\Cryptography\CipherTransform.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Security\Cryptography\Des.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Security\Cryptography\Serpent.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Security\Cryptography\TransformMode.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Security\Cryptography\TripleDes.cs">
+    <Compile Include="Security\CipherTripleDesCbc.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Security\CryptoKey.cs">

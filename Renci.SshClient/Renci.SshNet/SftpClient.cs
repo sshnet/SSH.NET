@@ -129,7 +129,7 @@ namespace Renci.SshNet
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="SftpPermissionDeniedException">Permission to change directory denied by remote host -or- a SSH command was denied by the server.</exception>
         /// <exception cref="SftpPathNotFoundException">The path in <paramref name="path"/> was not found on the remote host.</exception>
-        /// <exception cref="SshException">A SSH error where <see cref="SshException.Message"/> is the message from the remote host.</exception>
+        /// <exception cref="SshException">A SSH error where <see cref="P:SshException.Message"/> is the message from the remote host.</exception>
         public void ChangeDirectory(string path)
         {
             if (path == null)
@@ -150,7 +150,7 @@ namespace Renci.SshNet
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="SftpPermissionDeniedException">Permission to change permission on the path(s) was denied by the remote host -or- a SSH command was denied by the server.</exception>
         /// <exception cref="SftpPathNotFoundException">The path in <paramref name="path"/> was not found on the remote host.</exception>
-        /// <exception cref="SshException">A SSH error where <see cref="SshException.Message"/> is the message from the remote host.</exception>
+        /// <exception cref="SshException">A SSH error where <see cref="P:SshException.Message"/> is the message from the remote host.</exception>
         public void ChangePermissions(string path, short mode)
         {
             var file = this.Get(path);
@@ -165,7 +165,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentException"><paramref name="path"/> is null or contains whitespace characters.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="Renci.SshNet.Common.SftpPermissionDeniedException">Permission to create the directory was denied by the remote host -or- a SSH command was denied by the server.</exception>
-        /// <exception cref="Renci.SshNet.Common.SshException">A SSH error where <see cref="SshException.Message"/> is the message from the remote host.</exception>
+        /// <exception cref="Renci.SshNet.Common.SshException">A SSH error where <see cref="P:SshException.Message"/> is the message from the remote host.</exception>
         public void CreateDirectory(string path)
         {
             if (string.IsNullOrWhiteSpace(path))
@@ -186,7 +186,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentException"><paramref name="path"/> is null or contains whitespace characters.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="Renci.SshNet.Common.SftpPermissionDeniedException">Permission to delete the directory was denied by the remote host -or- a SSH command was denied by the server.</exception>
-        /// <exception cref="Renci.SshNet.Common.SshException">A SSH error where <see cref="SshException.Message"/> is the message from the remote host.</exception>
+        /// <exception cref="Renci.SshNet.Common.SshException">A SSH error where <see cref="P:SshException.Message"/> is the message from the remote host.</exception>
         public void DeleteDirectory(string path)
         {
             if (string.IsNullOrWhiteSpace(path))
@@ -207,7 +207,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentException"><paramref name="path"/> is null or contains whitespace characters.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="Renci.SshNet.Common.SftpPermissionDeniedException">Permission to delete the file was denied by the remote host -or- a SSH command was denied by the server.</exception>
-        /// <exception cref="Renci.SshNet.Common.SshException">A SSH error where <see cref="SshException.Message"/> is the message from the remote host.</exception>
+        /// <exception cref="Renci.SshNet.Common.SshException">A SSH error where <see cref="P:SshException.Message"/> is the message from the remote host.</exception>
         public void DeleteFile(string path)
         {
             if (string.IsNullOrWhiteSpace(path))
@@ -229,7 +229,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="oldPath"/> or <paramref name="newPath"/> is null.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="Renci.SshNet.Common.SftpPermissionDeniedException">Permission to rename the file was denied by the remote host -or- a SSH command was denied by the server.</exception>
-        /// <exception cref="Renci.SshNet.Common.SshException">A SSH error where <see cref="SshException.Message"/> is the message from the remote host.</exception>
+        /// <exception cref="Renci.SshNet.Common.SshException">A SSH error where <see cref="P:SshException.Message"/> is the message from the remote host.</exception>
         public void RenameFile(string oldPath, string newPath)
         {
             if (oldPath == null)
@@ -253,10 +253,10 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="path">The old path.</param>
         /// <param name="linkPath">The new path.</param>
-        /// <exception cref="ArgumentException"><paramref name="path"/> or <paramref name="linkedpath"/> is null or contains whitespace characters.</exception>
+        /// <exception cref="ArgumentException"><paramref name="path"/> or <paramref name="linkPath"/> is null or contains whitespace characters.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="Renci.SshNet.Common.SftpPermissionDeniedException">Permission to create the symbolic link was denied by the remote host -or- a SSH command was denied by the server.</exception>
-        /// <exception cref="Renci.SshNet.Common.SshException">A SSH error where <see cref="SshException.Message"/> is the message from the remote host.</exception>
+        /// <exception cref="Renci.SshNet.Common.SshException">A SSH error where <see cref="P:SshException.Message"/> is the message from the remote host.</exception>
         public void SymbolicLink(string path, string linkPath)
         {
             if (string.IsNullOrWhiteSpace(path))
@@ -283,7 +283,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="path"/> is null.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="Renci.SshNet.Common.SftpPermissionDeniedException">Permission to list the contents of the directory was denied by the remote host -or- a SSH command was denied by the server.</exception>
-        /// <exception cref="Renci.SshNet.Common.SshException">A SSH error where <see cref="SshException.Message"/> is the message from the remote host.</exception>
+        /// <exception cref="Renci.SshNet.Common.SshException">A SSH error where <see cref="P:SshException.Message"/> is the message from the remote host.</exception>
         public IEnumerable<SftpFile> ListDirectory(string path)
         {
             return InternalListDirectory(path, null);
@@ -366,7 +366,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentException"><paramref name="path"/> is null or contains whitespace characters.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="Renci.SshNet.Common.SftpPermissionDeniedException">Permission to perform the operation was denied by the remote host -or- a SSH command was denied by the server.</exception>
-        /// <exception cref="Renci.SshNet.Common.SshException">A SSH error where <see cref="SshException.Message"/> is the message from the remote host.</exception>
+        /// <exception cref="Renci.SshNet.Common.SshException">A SSH error where <see cref="P:SshException.Message"/> is the message from the remote host.</exception>
         public bool Exists(string path)
         {
             if (string.IsNullOrWhiteSpace(path))
@@ -405,7 +405,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentException"><paramref name="path"/> is null or contains whitespace characters.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="Renci.SshNet.Common.SftpPermissionDeniedException">Permission to perform the operation was denied by the remote host -or- a SSH command was denied by the server.</exception>
-        /// <exception cref="Renci.SshNet.Common.SshException">A SSH error where <see cref="SshException.Message"/> is the message from the remote host.</exception>
+        /// <exception cref="Renci.SshNet.Common.SshException">A SSH error where <see cref="P:SshException.Message"/> is the message from the remote host.</exception>
         /// <remarks>Method calls made by this method to <paramref name="output"/>, may under certain conditions result in exceptions thrown by the stream.</remarks>
         public void DownloadFile(string path, Stream output)
         {
@@ -424,7 +424,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentException"><paramref name="path"/> is null or contains whitespace characters.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="Renci.SshNet.Common.SftpPermissionDeniedException">Permission to perform the operation was denied by the remote host -or- a SSH command was denied by the server.</exception>
-        /// <exception cref="Renci.SshNet.Common.SshException">A SSH error where <see cref="SshException.Message"/> is the message from the remote host.</exception>
+        /// <exception cref="Renci.SshNet.Common.SshException">A SSH error where <see cref="P:SshException.Message"/> is the message from the remote host.</exception>
         /// <remarks>Method calls made by this method to <paramref name="output"/>, may under certain conditions result in exceptions thrown by the stream.</remarks>
         public IAsyncResult BeginDownloadFile(string path, Stream output, AsyncCallback asyncCallback, object state)
         {
@@ -481,7 +481,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentException"><paramref name="path"/> is null or contains whitespace characters.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="Renci.SshNet.Common.SftpPermissionDeniedException">Permission to upload the file was denied by the remote host -or- a SSH command was denied by the server.</exception>
-        /// <exception cref="Renci.SshNet.Common.SshException">A SSH error where <see cref="SshException.Message"/> is the message from the remote host.</exception>
+        /// <exception cref="Renci.SshNet.Common.SshException">A SSH error where <see cref="P:SshException.Message"/> is the message from the remote host.</exception>
         /// <remarks>Method calls made by this method to <paramref name="input"/>, may under certain conditions result in exceptions thrown by the stream.</remarks>
         public void UploadFile(Stream input, string path)
         {
@@ -500,7 +500,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentException"><paramref name="path"/> is null or contains whitespace characters.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="Renci.SshNet.Common.SftpPermissionDeniedException">Permission to list the contents of the directory was denied by the remote host -or- a SSH command was denied by the server.</exception>
-        /// <exception cref="Renci.SshNet.Common.SshException">A SSH error where <see cref="SshException.Message"/> is the message from the remote host.</exception>
+        /// <exception cref="Renci.SshNet.Common.SshException">A SSH error where <see cref="P:SshException.Message"/> is the message from the remote host.</exception>
         /// <remarks>Method calls made by this method to <paramref name="input"/>, may under certain conditions result in exceptions thrown by the stream.</remarks>
         public IAsyncResult BeginUploadFile(Stream input, string path, AsyncCallback asyncCallback, object state)
         {

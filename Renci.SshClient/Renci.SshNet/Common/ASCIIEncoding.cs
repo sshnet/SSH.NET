@@ -23,6 +23,9 @@ using System.Text;
 
 namespace Renci.SshNet.Common
 {
+    /// <summary>
+    /// Represents an ASCII character encoding of Unicode characters.
+    /// </summary>
     public partial class ASCIIEncoding : Encoding
     {
         // Magic number used by Windows for "ASCII".
@@ -166,7 +169,7 @@ namespace Renci.SshNet.Common
         ///   <paramref name="s"/> is null.-or- <paramref name="bytes"/> is null. </exception>
         ///   
         /// <exception cref="T:System.ArgumentOutOfRangeException">
-        ///   <paramref name="charIndex"/> or <paramref name="charCount"/> or <paramref name="byteIndex"/> is less than zero.-or- <paramref name="charIndex"/> and <paramref name="charCount"/> do not denote a valid range in <paramref name="chars"/>.-or- <paramref name="byteIndex"/> is not a valid index in <paramref name="bytes"/>. </exception>
+        ///   <paramref name="charIndex"/> or <paramref name="charCount"/> or <paramref name="byteIndex"/> is less than zero.-or- <paramref name="charIndex"/> and <paramref name="charCount"/> do not denote a valid range in <paramref name="bytes"/>.-or- <paramref name="byteIndex"/> is not a valid index in <paramref name="bytes"/>. </exception>
         ///   
         /// <exception cref="T:System.ArgumentException">
         ///   <paramref name="bytes"/> does not have enough capacity from <paramref name="byteIndex"/> to the end of the array to accommodate the resulting bytes. </exception>
@@ -263,7 +266,7 @@ namespace Renci.SshNet.Common
         ///   <paramref name="bytes"/> is null.-or- <paramref name="chars"/> is null. </exception>
         ///   
         /// <exception cref="T:System.ArgumentOutOfRangeException">
-        ///   <paramref name="byteIndex"/> or <paramref name="byteCount"/> or <paramref name="charIndex"/> is less than zero.-or- <paramref name="byteindex"/> and <paramref name="byteCount"/> do not denote a valid range in <paramref name="bytes"/>.-or- <paramref name="charIndex"/> is not a valid index in <paramref name="chars"/>. </exception>
+        ///   <paramref name="byteIndex"/> or <paramref name="byteCount"/> or <paramref name="charIndex"/> is less than zero.-or- <paramref name="byteIndex"/> and <paramref name="byteCount"/> do not denote a valid range in <paramref name="bytes"/>.-or- <paramref name="charIndex"/> is not a valid index in <paramref name="chars"/>. </exception>
         ///   
         /// <exception cref="T:System.ArgumentException">
         ///   <paramref name="chars"/> does not have enough capacity from <paramref name="charIndex"/> to the end of the array to accommodate the resulting characters. </exception>

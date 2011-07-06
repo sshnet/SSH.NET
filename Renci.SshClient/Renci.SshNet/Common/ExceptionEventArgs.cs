@@ -6,7 +6,7 @@ using System.Text;
 namespace Renci.SshNet.Common
 {
     /// <summary>
-    /// Provides data for the <see cref="ErrorOccured"/> event.
+    /// Provides data for the ErrorOccured events.
     /// </summary>
     public class ExceptionEventArgs : EventArgs
     {

@@ -6,6 +6,9 @@ using System.Threading;
 
 namespace Renci.SshNet.Common
 {
+    /// <summary>
+    /// Light implementation of SemaphoreSlim.
+    /// </summary>
     public class SemaphoreLight
     {
         private object _lock = new object();

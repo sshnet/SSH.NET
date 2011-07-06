@@ -1112,18 +1112,6 @@ namespace Renci.SshNet
             }
 
             //  Dispose of old ciphers and hash algorithms
-            if (this._serverCipher != null)
-            {
-                this._serverCipher.Dispose();
-                this._serverCipher = null;
-            }
-
-            if (this._clientCipher != null)
-            {
-                this._clientCipher.Dispose();
-                this._clientCipher = null;
-            }
-
             if (this._serverMac != null)
             {
                 this._serverMac.Dispose();
@@ -1590,18 +1578,6 @@ namespace Renci.SshNet
                     {
                         this._keyExchangeCompletedWaitHandle.Dispose();
                         this._keyExchangeCompletedWaitHandle = null;
-                    }
-
-                    if (this._serverCipher != null)
-                    {
-                        this._serverCipher.Dispose();
-                        this._serverCipher = null;
-                    }
-
-                    if (this._clientCipher != null)
-                    {
-                        this._clientCipher.Dispose();
-                        this._clientCipher = null;
                     }
 
                     if (this._serverMac != null)

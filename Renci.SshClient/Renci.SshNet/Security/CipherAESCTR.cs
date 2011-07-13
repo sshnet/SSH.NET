@@ -22,7 +22,7 @@ namespace Renci.SshNet.Security
         {
             get
             {
-                return this._keySize / 8;
+                return this._keySize;
             }
         }
 

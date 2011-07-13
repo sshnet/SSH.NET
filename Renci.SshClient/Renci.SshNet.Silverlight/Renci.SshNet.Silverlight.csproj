@@ -441,6 +441,12 @@
     <Compile Include="..\Renci.SshNet\Security\Cryptography\Ciphers\TwofishCipher.cs">
       <Link>Security\Cryptography\Ciphers\TwofishCipher.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Cryptography\HMAC.cs">
+      <Link>Security\Cryptography\HMAC.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Cryptography\MD5.cs">
+      <Link>Security\Cryptography\MD5.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\Security\Cryptography\Modes\CbcMode.cs">
       <Link>Security\Cryptography\Modes\CbcMode.cs</Link>
     </Compile>
@@ -482,6 +488,9 @@
     </Compile>
     <Compile Include="..\Renci.SshNet\Security\HMac.cs">
       <Link>Security\HMac.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\HMacMD5.cs">
+      <Link>Security\HMacMD5.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Security\HMacSha1.cs">
       <Link>Security\HMacSha1.cs</Link>

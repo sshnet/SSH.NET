@@ -12,7 +12,7 @@ namespace Renci.SshNet.Security
         /// <summary>
         /// Instance of initialized hash algorithm that being used
         /// </summary>
-        protected abstract HMAC Hash { get; }
+        protected abstract KeyedHashAlgorithm Hash { get; }
 
         /// <summary>
         /// Initializes algorithm with specified key.

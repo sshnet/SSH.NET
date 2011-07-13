@@ -7,11 +7,14 @@ namespace Renci.SshNet.Security
     /// <summary>
     /// Represents SHA1 implementation of hashing algorithm
     /// </summary>
-    internal class HMacSha1 : HMac
+    public class HMacSha1 : HMac
     {
-        private HMACSHA1 _hash;
+        private KeyedHashAlgorithm _hash;
 
-        protected override HMAC Hash
+        /// <summary>
+        /// Instance of initialized hash algorithm that being used
+        /// </summary>
+        protected override KeyedHashAlgorithm Hash
         {
             get { return this._hash; }
         }
@@ -33,6 +36,10 @@ namespace Renci.SshNet.Security
             this._hash = new HMACSHA1(key.Take(20).ToArray());
         }
 
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources
+        /// </summary>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged ResourceMessages.</param>
         protected override void Dispose(bool disposing)
         {
             // Dispose managed ResourceMessages.

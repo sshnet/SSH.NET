@@ -7,11 +7,14 @@ namespace Renci.SshNet.Security
     /// <summary>
     /// Represents MD5 implementation of hashing algorithm
     /// </summary>
-    internal class HMacMD5 : HMac
+    public class HMacMD5 : HMac
     {
-        private HMACMD5 _hash;
+        private KeyedHashAlgorithm _hash;
 
-        protected override HMAC Hash
+        /// <summary>
+        /// Instance of initialized hash algorithm that being used
+        /// </summary>
+        protected override KeyedHashAlgorithm Hash
         {
             get { return this._hash; }
         }
@@ -30,9 +33,13 @@ namespace Renci.SshNet.Security
         /// <param name="key">The hash key.</param>
         public override void Init(IEnumerable<byte> key)
         {
-            this._hash = new HMACMD5(key.Take(16).ToArray());
+            this._hash = new Renci.SshNet.Security.Cryptography.HMAC<Renci.SshNet.Security.Cryptography.MD5>(key.Take(16).ToArray());
         }
 
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources
+        /// </summary>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged ResourceMessages.</param>
         protected override void Dispose(bool disposing)
         {
             // Dispose managed ResourceMessages.

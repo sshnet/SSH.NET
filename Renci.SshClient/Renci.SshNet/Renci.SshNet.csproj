@@ -130,6 +130,12 @@
     <Compile Include="Security\CipherTripleDesCbc.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Security\Cryptography\HMAC.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Security\Cryptography\MD5.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Security\CryptoKey.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -157,9 +163,7 @@
     <Compile Include="Security\HMacMD5.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Security\HMacSha1.cs">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="Security\HMacSha1.cs" />
     <Compile Include="Security\KeyExchange.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -381,7 +385,6 @@
   <ItemGroup>
     <Content Include="Documentation\SshClient.shfbproj" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

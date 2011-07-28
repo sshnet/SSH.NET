@@ -7,13 +7,14 @@ using System.Security.Cryptography;
 using Renci.SshNet.Messages;
 using Renci.SshNet.Common;
 using System.Diagnostics;
+using Renci.SshNet.Security.Cryptography;
 
 namespace Renci.SshNet.Security
 {
     /// <summary>
     /// Represents "diffie-hellman-group-exchange-sha256" algorithm implementation.
     /// </summary>
-    internal class KeyExchangeDiffieHellmanGroupExchangeSha256 : KeyExchangeDiffieHellman
+    public class KeyExchangeDiffieHellmanGroupExchangeSha256 : KeyExchangeDiffieHellman
     {
         /// <summary>
         /// Gets algorithm name.
@@ -89,14 +90,9 @@ namespace Renci.SshNet.Security
         /// </returns>
         protected override byte[] Hash(IEnumerable<byte> hashBytes)
         {
-            using (var md = new SHA256CryptoServiceProvider())
+            using (var md = new SHA256Hash())
             {
-                using (var cs = new System.Security.Cryptography.CryptoStream(System.IO.Stream.Null, md, System.Security.Cryptography.CryptoStreamMode.Write))
-                {
-                    var hashData = hashBytes.ToArray();
-                    cs.Write(hashData, 0, hashData.Length);
-                }
-                return md.Hash;
+                return md.ComputeHash(hashBytes.ToArray());
             }
         }
 

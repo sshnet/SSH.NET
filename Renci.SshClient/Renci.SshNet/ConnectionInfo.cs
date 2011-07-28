@@ -170,7 +170,10 @@ namespace Renci.SshNet
             this.HostKeyAlgorithms = new Dictionary<string, Type>()
             {
                 {"ssh-rsa", typeof(CryptoPublicKeyRsa)},
+#if SILVERLIGHT
+#else
                 {"ssh-dss", typeof(CryptoPublicKeyDss)}, 
+#endif
             };
 
             this.AuthenticationMethods = new Dictionary<string, Type>()

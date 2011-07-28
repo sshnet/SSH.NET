@@ -74,10 +74,29 @@ namespace Renci.SshNet.Common
 
         private static readonly uint[] _zero = new uint[1];
         private static readonly uint[] _one = new uint[1] { 1 };
-        
+
         //LSB on [0]
         private readonly uint[] _data;
         private readonly short _sign;
+
+        public int NumberOfBits
+        {
+            get
+            {
+                var lastByte = this._data[this._data.Length - 1];
+                if (this._sign < 0)
+                    lastByte = ~lastByte;
+                var counter = 32;
+                var t = 2147483648;
+                for (; counter > 0; counter--)
+                {
+                    if ((lastByte & t) > 0)
+                        break;
+                    t >>= 1;
+                }
+                return (this._data.Length - 1) * 32 + counter;
+            }
+        }
 
         #region Constractors
 
@@ -2271,12 +2290,63 @@ namespace Renci.SshNet.Common
                     result = result * value;
                     result = result % modulus;
                 }
+
                 if (exponent.IsOne)
                     break;
+
                 value = value * value;
                 value = value % modulus;
                 exponent >>= 1;
             }
+            return result;
+        }
+
+        /// <summary>
+        /// Mods the inverse.
+        /// </summary>
+        /// <param name="bi">The bi.</param>
+        /// <param name="modulus">The modulus.</param>
+        /// <returns></returns>
+        public static BigInteger ModInverse(BigInteger bi, BigInteger modulus)
+        {
+            BigInteger a = modulus, b = bi % modulus;
+            BigInteger p0 = 0, p1 = 1;
+
+            while (!b.IsZero)
+            {
+                if (b.IsOne)
+                    return p1;
+
+                p0 += (a / b) * p1;
+                a %= b;
+
+                if (a.IsZero)
+                    break;
+
+                if (a.IsOne)
+                    return modulus - p0;
+
+                p1 += (b / a) * p0;
+                b %= a;
+
+            }
+            return 0;
+        }
+
+        /// <summary>
+        /// Returns positive remainder that results from division with two specified <see cref="BigInteger"/> values.
+        /// </summary>
+        /// <param name="dividend">The value to be divided.</param>
+        /// <param name="divisor">The value to divide by.</param>
+        /// <returns>
+        /// Positive remainder that results from the division.
+        /// </returns>
+        public static BigInteger PositiveMod(BigInteger dividend, BigInteger divisor)
+        {
+            var result = dividend % divisor;
+            if (result < 0)
+                result += divisor;
+
             return result;
         }
 
@@ -2836,6 +2906,8 @@ namespace Renci.SshNet.Common
             var baseNumber = 10;
             switch (style)
             {
+                case NumberStyles.None:
+                    break;
                 case NumberStyles.HexNumber:
                 case NumberStyles.AllowHexSpecifier:
                     baseNumber = 16;
@@ -2853,7 +2925,6 @@ namespace Renci.SshNet.Common
                 case NumberStyles.Currency:
                 case NumberStyles.Float:
                 case NumberStyles.Integer:
-                case NumberStyles.None:
                 case NumberStyles.Number:
                 default:
                     throw new NotSupportedException(string.Format("Style '{0}' is not supported.", style));

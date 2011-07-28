@@ -33,7 +33,7 @@ namespace Renci.SshNet.Security
         /// <param name="key">The hash key.</param>
         public override void Init(IEnumerable<byte> key)
         {
-            this._hash = new HMACSHA1(key.Take(20).ToArray());
+            this._hash = new Renci.SshNet.Security.Cryptography.HMAC<Renci.SshNet.Security.Cryptography.SHA1Hash>(key.Take(20).ToArray());
         }
 
         /// <summary>

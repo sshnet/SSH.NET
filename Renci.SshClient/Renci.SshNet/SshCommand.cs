@@ -157,10 +157,12 @@ namespace Renci.SshNet
             //  Create new AsyncResult object
             this._asyncResult = new CommandAsyncResult(this)
             {
-                AsyncWaitHandle = new EventWaitHandle(false, EventResetMode.ManualReset),
+                AsyncWaitHandle = new ManualResetEvent(false),
                 IsCompleted = false,
                 AsyncState = state,
             };
+
+            
 
             //  When command re-executed again, create a new channel
             if (this._channel != null)

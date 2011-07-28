@@ -9,6 +9,7 @@ using System.Security.Cryptography;
 using System.Security;
 using Renci.SshNet.Common;
 using System.Globalization;
+using Renci.SshNet.Security.Cryptography;
 
 namespace Renci.SshNet
 {
@@ -189,9 +190,12 @@ namespace Renci.SshNet
                 case "RSA":
                     this._key = new CryptoPrivateKeyRsa();
                     break;
+#if SILVERLIGHT
+#else
                 case "DSA":
                     this._key = new CryptoPrivateKeyDss();
                     break;
+#endif
                 default:
                     throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "Key '{0}' is not supported.", keyName));
             }
@@ -211,7 +215,7 @@ namespace Renci.SshNet
         {
             List<byte> cipherKey = new List<byte>();
 
-            using (var md5 = new MD5CryptoServiceProvider())
+            using (var md5 = new MD5Hash())
             {
                 var passwordBytes = Encoding.UTF8.GetBytes(passPhrase);
 

@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using Renci.SshNet.Common;
+using Renci.SshNet.Security.Cryptography;
 
 namespace Renci.SshNet.Security
 {
@@ -102,19 +103,20 @@ namespace Renci.SshNet.Security
         public override byte[] GetSignature(IEnumerable<byte> key)
         {
             var data = key.ToArray();
+            //using (var sha1 = new Renci.SshNet.Security.Cryptography.SHA1Hash())
             using (var sha1 = new System.Security.Cryptography.SHA1CryptoServiceProvider())
             {
-                DSAParameters dsaKeyInfo = new DSAParameters();
-
                 using (var cs = new System.Security.Cryptography.CryptoStream(System.IO.Stream.Null, sha1, System.Security.Cryptography.CryptoStreamMode.Write))
                 {
-                    dsaKeyInfo.X = this._privateKey.TrimLeadingZero().ToArray();
-                    dsaKeyInfo.P = this._p.TrimLeadingZero().ToArray();
-                    dsaKeyInfo.Q = this._q.TrimLeadingZero().ToArray();
-                    dsaKeyInfo.G = this._g.TrimLeadingZero().ToArray();
-
                     cs.Write(data, 0, data.Length);
                 }
+
+                var dsaKeyInfo = new System.Security.Cryptography.DSAParameters();
+
+                dsaKeyInfo.X = this._privateKey.TrimLeadingZero().ToArray();
+                dsaKeyInfo.P = this._p.TrimLeadingZero().ToArray();
+                dsaKeyInfo.Q = this._q.TrimLeadingZero().ToArray();
+                dsaKeyInfo.G = this._g.TrimLeadingZero().ToArray();
 
                 using (var DSA = new System.Security.Cryptography.DSACryptoServiceProvider())
                 {

@@ -37,7 +37,11 @@ namespace Renci.SshNet
 
         private static RNGCryptoServiceProvider _randomizer = new System.Security.Cryptography.RNGCryptoServiceProvider();
 
+#if SILVERLIGHT
+        private static Regex _serverVersionRe = new Regex("^SSH-(?<protoversion>[^-]+)-(?<softwareversion>.+)( SP.+)?$");
+#else
         private static Regex _serverVersionRe = new Regex("^SSH-(?<protoversion>[^-]+)-(?<softwareversion>.+)( SP.+)?$", RegexOptions.Compiled);
+#endif
 
         /// <summary>
         /// Controls how many authentication attempts can take place at the same time.

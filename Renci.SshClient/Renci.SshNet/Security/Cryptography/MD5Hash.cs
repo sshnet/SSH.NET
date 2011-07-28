@@ -9,7 +9,7 @@ namespace Renci.SshNet.Security.Cryptography
     /// <summary>
     /// MD5 algorithm implementation
     /// </summary>
-    public class MD5 : HashAlgorithm
+    public class MD5Hash : HashAlgorithm
     {
         private byte[] _buffer = new byte[4];
         private int _bufferOffset;
@@ -79,9 +79,9 @@ namespace Renci.SshNet.Security.Cryptography
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MD5"/> class.
+        /// Initializes a new instance of the <see cref="MD5Hash"/> class.
         /// </summary>
-        public MD5()
+        public MD5Hash()
         {
             this.Initialize();
         }

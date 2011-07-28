@@ -130,10 +130,35 @@
     <Compile Include="Security\CipherTripleDesCbc.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Security\Cryptography\AsymmetricCipher.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Security\Cryptography\DigitalSignature.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Security\Cryptography\DSACipher.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Security\Cryptography\DSAParameters.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Security\Cryptography\HMAC.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Security\Cryptography\MD5.cs">
+    <Compile Include="Security\Cryptography\MD5Hash.cs" />
+    <Compile Include="Security\Cryptography\RSACipher.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Security\Cryptography\RSADigitalSignature.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Security\Cryptography\RSAPrivateKey.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Security\Cryptography\RSAPublicKey.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Security\Cryptography\SHA1Hash.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Security\CryptoKey.cs">

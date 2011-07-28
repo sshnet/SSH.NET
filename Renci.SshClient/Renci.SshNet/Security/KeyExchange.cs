@@ -291,14 +291,10 @@ namespace Renci.SshNet.Security
         /// <returns>Hashed bytes</returns>
         protected virtual byte[] Hash(IEnumerable<byte> hashBytes)
         {
-            using (var md = new SHA1CryptoServiceProvider())
+            using (var sha1 = new Renci.SshNet.Security.Cryptography.SHA1Hash())
             {
-                using (var cs = new System.Security.Cryptography.CryptoStream(System.IO.Stream.Null, md, System.Security.Cryptography.CryptoStreamMode.Write))
-                {
-                    var hashData = hashBytes.ToArray();
-                    cs.Write(hashData, 0, hashData.Length);
-                }
-                return md.Hash;
+                var hashData = hashBytes.ToArray();
+                return sha1.ComputeHash(hashData, 0, hashData.Length);
             }
         }
 

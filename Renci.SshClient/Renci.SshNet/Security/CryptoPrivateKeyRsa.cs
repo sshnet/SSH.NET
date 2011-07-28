@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
 using Renci.SshNet.Common;
+using Renci.SshNet.Security.Cryptography;
 
 namespace Renci.SshNet.Security
 {
@@ -113,40 +113,13 @@ namespace Renci.SshNet.Security
         /// <returns></returns>
         public override byte[] GetSignature(IEnumerable<byte> key)
         {
-            var data = key.ToArray();
-            using (var sha1 = new System.Security.Cryptography.SHA1CryptoServiceProvider())
+            var signature = new RSADigitalSignature(new RSAPrivateKey(this._exponent, this._modulus, this._dValue, this._dpValue, this._qValue, this._dqValue, this._pValue, this._inverseQ));
+
+            return new SignatureKeyData
             {
-                RSAParameters rsaKeyInfo = new RSAParameters();
-
-                using (var cs = new System.Security.Cryptography.CryptoStream(System.IO.Stream.Null, sha1, System.Security.Cryptography.CryptoStreamMode.Write))
-                {
-                    rsaKeyInfo.Exponent = this._exponent.TrimLeadingZero().ToArray();
-                    rsaKeyInfo.D = this._dValue.TrimLeadingZero().ToArray();
-                    rsaKeyInfo.Modulus = this._modulus.TrimLeadingZero().ToArray();
-                    rsaKeyInfo.P = this._pValue.TrimLeadingZero().ToArray();
-                    rsaKeyInfo.Q = this._qValue.TrimLeadingZero().ToArray();
-                    rsaKeyInfo.DP = this._dpValue.TrimLeadingZero().ToArray();
-                    rsaKeyInfo.DQ = this._dqValue.TrimLeadingZero().ToArray();
-                    rsaKeyInfo.InverseQ = this._inverseQ.TrimLeadingZero().ToArray();
-
-                    cs.Write(data, 0, data.Length);
-                }
-
-                using (var RSA = new System.Security.Cryptography.RSACryptoServiceProvider())
-                {
-                    RSA.ImportParameters(rsaKeyInfo);
-                    var RSAFormatter = new RSAPKCS1SignatureFormatter(RSA);
-                    RSAFormatter.SetHashAlgorithm("SHA1");
-
-                    var signature = RSAFormatter.CreateSignature(sha1);
-
-                    return new SignatureKeyData
-                    {
-                        AlgorithmName = this.Name,
-                        Signature = signature,
-                    }.GetBytes().ToArray();
-                }
-            }
+                AlgorithmName = this.Name,
+                Signature = signature.CreateSignature(key.ToArray()),
+            }.GetBytes().ToArray();
         }
 
         /// <summary>

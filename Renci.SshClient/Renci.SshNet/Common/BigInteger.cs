@@ -79,25 +79,6 @@ namespace Renci.SshNet.Common
         private readonly uint[] _data;
         private readonly short _sign;
 
-        public int NumberOfBits
-        {
-            get
-            {
-                var lastByte = this._data[this._data.Length - 1];
-                if (this._sign < 0)
-                    lastByte = ~lastByte;
-                var counter = 32;
-                var t = 2147483648;
-                for (; counter > 0; counter--)
-                {
-                    if ((lastByte & t) > 0)
-                        break;
-                    t >>= 1;
-                }
-                return (this._data.Length - 1) * 32 + counter;
-            }
-        }
-
         #region Constractors
 
         /// <summary>

@@ -157,7 +157,9 @@
     <Compile Include="Security\Cryptography\SHA1Hash.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Security\Cryptography\SHA256Hash.cs" />
+    <Compile Include="Security\Cryptography\SHA256Hash.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Security\CryptoKey.cs">
       <SubType>Code</SubType>
     </Compile>

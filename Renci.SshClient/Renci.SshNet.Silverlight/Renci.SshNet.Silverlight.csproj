@@ -417,6 +417,9 @@
     <Compile Include="..\Renci.SshNet\Security\CipherTripleDesCbc.cs">
       <Link>Security\CipherTripleDesCbc.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Cryptography\AsymmetricCipher.cs">
+      <Link>Security\Cryptography\AsymmetricCipher.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\Security\Cryptography\Ciphers\AesCipher.cs">
       <Link>Security\Cryptography\Ciphers\AesCipher.cs</Link>
     </Compile>
@@ -441,11 +444,14 @@
     <Compile Include="..\Renci.SshNet\Security\Cryptography\Ciphers\TwofishCipher.cs">
       <Link>Security\Cryptography\Ciphers\TwofishCipher.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Cryptography\DigitalSignature.cs">
+      <Link>Security\Cryptography\DigitalSignature.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\Security\Cryptography\HMAC.cs">
       <Link>Security\Cryptography\HMAC.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\Security\Cryptography\MD5.cs">
-      <Link>Security\Cryptography\MD5.cs</Link>
+    <Compile Include="..\Renci.SshNet\Security\Cryptography\MD5Hash.cs">
+      <Link>Security\Cryptography\MD5Hash.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Security\Cryptography\Modes\CbcMode.cs">
       <Link>Security\Cryptography\Modes\CbcMode.cs</Link>
@@ -465,23 +471,35 @@
     <Compile Include="..\Renci.SshNet\Security\Cryptography\Modes\OfbMode.cs">
       <Link>Security\Cryptography\Modes\OfbMode.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Cryptography\RSACipher.cs">
+      <Link>Security\Cryptography\RSACipher.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Cryptography\RSADigitalSignature.cs">
+      <Link>Security\Cryptography\RSADigitalSignature.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Cryptography\RSAPrivateKey.cs">
+      <Link>Security\Cryptography\RSAPrivateKey.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Cryptography\RSAPublicKey.cs">
+      <Link>Security\Cryptography\RSAPublicKey.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Cryptography\SHA1Hash.cs">
+      <Link>Security\Cryptography\SHA1Hash.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Cryptography\SHA256Hash.cs">
+      <Link>Security\Cryptography\SHA256Hash.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\Security\CryptoKey.cs">
       <Link>Security\CryptoKey.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Security\CryptoPrivateKey.cs">
       <Link>Security\CryptoPrivateKey.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\Security\CryptoPrivateKeyDss.cs">
-      <Link>Security\CryptoPrivateKeyDss.cs</Link>
-    </Compile>
     <Compile Include="..\Renci.SshNet\Security\CryptoPrivateKeyRsa.cs">
       <Link>Security\CryptoPrivateKeyRsa.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Security\CryptoPublicKey.cs">
       <Link>Security\CryptoPublicKey.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet\Security\CryptoPublicKeyDss.cs">
-      <Link>Security\CryptoPublicKeyDss.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Security\CryptoPublicKeyRsa.cs">
       <Link>Security\CryptoPublicKeyRsa.cs</Link>

@@ -7,17 +7,30 @@ using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Security.Cryptography
 {
+    /// <summary>
+    /// RSA algorithm implementation
+    /// </summary>
     public class RSACipher : AsymmetricCipher
     {
         private static RNGCryptoServiceProvider _randomizer = new System.Security.Cryptography.RNGCryptoServiceProvider();
 
         private RSAPublicKey _key;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RSACipher"/> class.
+        /// </summary>
+        /// <param name="hash">The hash.</param>
+        /// <param name="key">The key.</param>
         public RSACipher(HashAlgorithm hash, RSAPublicKey key)
         {
             this._key = key;
         }
 
+        /// <summary>
+        /// Transforms the specified data.
+        /// </summary>
+        /// <param name="data">The data.</param>
+        /// <returns></returns>
         public override byte[] Transform(byte[] data)
         {
             var bytes = new List<byte>(data.Reverse());
@@ -25,6 +38,11 @@ namespace Renci.SshNet.Security.Cryptography
             return this.Transform(new BigInteger(bytes.ToArray())).ToByteArray().Reverse().ToArray();
         }
 
+        /// <summary>
+        /// Transforms the specified input.
+        /// </summary>
+        /// <param name="input">The input.</param>
+        /// <returns></returns>
         public override BigInteger Transform(BigInteger input)
         {
             var privateKey = this._key as RSAPrivateKey;

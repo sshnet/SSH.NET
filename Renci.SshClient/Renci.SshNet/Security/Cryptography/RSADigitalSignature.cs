@@ -7,17 +7,30 @@ using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Security.Cryptography
 {
+    /// <summary>
+    /// Implements RSAdigital signature algorithm.
+    /// </summary>
     public class RSADigitalSignature : DigitalSignature
     {
         private HashAlgorithm _hash;
         private RSACipher _cipher;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RSADigitalSignature"/> class.
+        /// </summary>
+        /// <param name="key">The key.</param>
         public RSADigitalSignature(RSAPublicKey key)
         {
             this._hash = new SHA1Hash();
             this._cipher = new RSACipher(this._hash, key);
         }
 
+        /// <summary>
+        /// Verifies the signature.
+        /// </summary>
+        /// <param name="input">The input.</param>
+        /// <param name="signature">The signature.</param>
+        /// <returns></returns>
         public override bool VerifySignature(byte[] input, byte[] signature)
         {
             var sig = this._cipher.Transform(signature);
@@ -49,6 +62,11 @@ namespace Renci.SshNet.Security.Cryptography
             return true;
         }
 
+        /// <summary>
+        /// Creates the signature.
+        /// </summary>
+        /// <param name="input">The input.</param>
+        /// <returns></returns>
         public override byte[] CreateSignature(byte[] input)
         {
             //  Calculate hash value

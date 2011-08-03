@@ -3,6 +3,7 @@ using System.Threading;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages;
 using Renci.SshNet.Messages.Connection;
+using System.Globalization;
 
 namespace Renci.SshNet.Channels
 {
@@ -540,7 +541,21 @@ namespace Renci.SshNet.Channels
         {
             if (e.Message.LocalChannelNumber == this.LocalChannelNumber)
             {
-                this.OnRequest(e.Message.Info);
+                if (this._session.ConnectionInfo.ChannelRequests.ContainsKey(e.Message.RequestName))
+                {
+                    //  Get request specific class
+                    RequestInfo requestInfo = this._session.ConnectionInfo.ChannelRequests[e.Message.RequestName];
+
+                    //  Load request specific data
+                    requestInfo.Load(e.Message.RequestData);
+
+                    //  Raise request specific event
+                    this.OnRequest(requestInfo);
+                }
+                else
+                {
+                    throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "Request '{0}' is not supported.", e.Message.RequestName));
+                }
             }
         }
 

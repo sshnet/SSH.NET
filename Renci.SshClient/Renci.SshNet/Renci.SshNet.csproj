@@ -103,6 +103,8 @@
     <Compile Include="ForwardedPortLocal.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Messages\Connection\ChannelRequest\EndOfWriteRequestInfo.cs" />
+    <Compile Include="Messages\Connection\ChannelRequest\KeepAliveRequestInfo.cs" />
     <Compile Include="Security\Algorithm.cs">
       <SubType>Code</SubType>
     </Compile>

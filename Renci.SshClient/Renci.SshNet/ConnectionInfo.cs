@@ -8,6 +8,7 @@ using Renci.SshNet.Messages.Authentication;
 using Renci.SshNet.Common;
 using System.Threading;
 using System.Net;
+using Renci.SshNet.Messages.Connection;
 namespace Renci.SshNet
 {
     /// <summary>
@@ -67,6 +68,11 @@ namespace Renci.SshNet
         /// Gets supported compression algorithms for this connection.
         /// </summary>
         public IDictionary<string, Type> CompressionAlgorithms { get; private set; }
+
+        /// <summary>
+        /// Gets supported channel requests for this connection.
+        /// </summary>
+        public IDictionary<string, RequestInfo> ChannelRequests { get; private set; }
 
         /// <summary>
         /// Gets connection host.
@@ -194,6 +200,22 @@ namespace Renci.SshNet
                 {"zlib@openssh.com", typeof(ZlibOpenSsh)}, 
             };
 
+            this.ChannelRequests = new Dictionary<string, RequestInfo>()
+            {
+                {EnvironmentVariableRequestInfo.NAME, new EnvironmentVariableRequestInfo()}, 
+                {ExecRequestInfo.NAME, new ExecRequestInfo()}, 
+                {ExitSignalRequestInfo.NAME, new ExitSignalRequestInfo()}, 
+                {ExitStatusRequestInfo.NAME, new ExitStatusRequestInfo()}, 
+                {PseudoTerminalRequestInfo.NAME, new PseudoTerminalRequestInfo()}, 
+                {ShellRequestInfo.NAME, new ShellRequestInfo()}, 
+                {SignalRequestInfo.NAME, new SignalRequestInfo()}, 
+                {SubsystemRequestInfo.NAME, new SubsystemRequestInfo()}, 
+                {WindowChangeRequestInfo.NAME, new WindowChangeRequestInfo()}, 
+                {X11ForwardingRequestInfo.NAME, new X11ForwardingRequestInfo()}, 
+                {XonXoffRequestInfo.NAME, new XonXoffRequestInfo()}, 
+                {EndOfWriteRequestInfo.NAME, new EndOfWriteRequestInfo()}, 
+                {KeepAliveRequestInfo.NAME, new KeepAliveRequestInfo()}, 
+            };
         }
 
         /// <summary>

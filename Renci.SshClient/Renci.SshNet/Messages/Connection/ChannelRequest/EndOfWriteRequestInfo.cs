@@ -1,0 +1,34 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace Renci.SshNet.Messages.Connection
+{
+    public class EndOfWriteRequestInfo : RequestInfo
+    {
+        /// <summary>
+        /// Channel request name
+        /// </summary>
+        public const string NAME = "eow@openssh.com";
+
+        /// <summary>
+        /// Gets the name of the request.
+        /// </summary>
+        /// <value>
+        /// The name of the request.
+        /// </value>
+        public override string RequestName
+        {
+            get { return EndOfWriteRequestInfo.NAME; }
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EndOfWriteRequestInfo"/> class.
+        /// </summary>
+        public EndOfWriteRequestInfo()
+        {
+            this.WantReply = false;
+        }
+    }
+}

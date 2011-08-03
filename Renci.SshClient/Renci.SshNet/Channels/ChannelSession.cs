@@ -7,7 +7,7 @@ using System.Globalization;
 namespace Renci.SshNet.Channels
 {
     /// <summary>
-    /// Implements "forwarded-tcpip" SSH channel.
+    /// Implements Session SSH channel.
     /// </summary>
     internal class ChannelSession : Channel
     {
@@ -270,6 +270,37 @@ namespace Renci.SshNet.Channels
 
             return true;
         }
+
+        /// <summary>
+        /// Sends eow@openssh.com request.
+        /// </summary>
+        /// <returns>true if request was successful; otherwise false.</returns>
+        public bool SendEndOfWriteRequest()
+        {
+            this._channelRequestResponse.Reset();
+
+            this.SendMessage(new ChannelRequestMessage(this.RemoteChannelNumber, new EndOfWriteRequestInfo()));
+
+            this._channelRequestResponse.WaitOne();
+
+            return this._channelRequestSucces;
+        }
+
+        /// <summary>
+        /// Sends keepalive@openssh.com request.
+        /// </summary>
+        /// <returns>true if request was successful; otherwise false.</returns>
+        public bool SendKeepAliveRequest()
+        {
+            this._channelRequestResponse.Reset();
+
+            this.SendMessage(new ChannelRequestMessage(this.RemoteChannelNumber, new KeepAliveRequestInfo()));
+
+            this._channelRequestResponse.WaitOne();
+
+            return this._channelRequestSucces;
+        }
+
 
         /// <summary>
         /// Called when channel request was successful

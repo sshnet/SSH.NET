@@ -2,47 +2,27 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Security.Cryptography;
 
-namespace Renci.SshNet.Security.Cryptography
+namespace Renci.SshNet.Security.Cryptography.Ciphers
 {
-	/// <summary>
-	/// Represents the class for the DES algorithm.
-	/// </summary>
-	public class DesCipher : CipherBase
+    /// <summary>
+    /// Implements DES cipher algorithm.
+    /// </summary>
+	public class DesCipher : BlockCipher
 	{
-		private int[] _encryptionKey;
+		private readonly int[] _encryptionKey;
+
+		private readonly int[] _decryptionKey;
+
 		/// <summary>
-		/// Gets the encryption key.
+		/// Gets the size of the block in bytes.
 		/// </summary>
-		protected int[] EncryptionKey
+		/// <value>
+		/// The size of the block in bytes.
+		/// </value>
+		public override int BlockSize
 		{
-			get
-			{
-				if (this._encryptionKey == null)
-				{ 
-					this._encryptionKey = DesCipher.GenerateWorkingKey(true, this.Key);                    
-				}
-
-				return this._encryptionKey;
-			}
-		}
-
-		private int[] _decryptionKey;
-		/// <summary>
-		/// Gets the decryption key.
-		/// </summary>
-		protected int[] DecryptionKey
-		{
-			get
-			{
-				if (this._decryptionKey == null)
-				{
-					this._decryptionKey = DesCipher.GenerateWorkingKey(true, this.Key);
-				}
-
-				return this._decryptionKey;
-			}
+			get { return 8; }
 		}
 
 		#region Static tables
@@ -250,24 +230,16 @@ namespace Renci.SshNet.Security.Cryptography
 		#endregion
 
 		/// <summary>
-		/// Gets the size of the block.
-		/// </summary>
-		/// <value>
-		/// The size of the block.
-		/// </value>
-		public override int BlockSize
-		{
-			get { return 8; }
-		}
-
-		/// <summary>
 		/// Initializes a new instance of the <see cref="DesCipher"/> class.
 		/// </summary>
 		/// <param name="key">The key.</param>
-		/// <param name="iv">The iv.</param>
-		public DesCipher(byte[] key, byte[] iv)
-			: base(key, iv)
+		/// <param name="mode">The mode.</param>
+		/// <param name="padding">The padding.</param>
+		public DesCipher(byte[] key, CipherMode mode, CipherPadding padding)
+			: base(key, mode, padding)
 		{
+			this._encryptionKey = GenerateWorkingKey(true, key);
+			this._decryptionKey = GenerateWorkingKey(false, key);
 		}
 
 		/// <summary>
@@ -289,7 +261,7 @@ namespace Renci.SshNet.Security.Cryptography
 			if ((outputOffset + this.BlockSize) > outputBuffer.Length)
 				throw new IndexOutOfRangeException("output buffer too short");
 
-			DesCipher.DesFunc(this.EncryptionKey, inputBuffer, inputOffset, outputBuffer, outputOffset);
+			DesCipher.DesFunc(this._encryptionKey, inputBuffer, inputOffset, outputBuffer, outputOffset);
 
 			return this.BlockSize;
 		}
@@ -313,9 +285,25 @@ namespace Renci.SshNet.Security.Cryptography
 			if ((outputOffset + this.BlockSize) > outputBuffer.Length)
 				throw new IndexOutOfRangeException("output buffer too short");
 
-			DesCipher.DesFunc(this.DecryptionKey, inputBuffer, inputOffset, outputBuffer, outputOffset);
+			DesCipher.DesFunc(this._decryptionKey, inputBuffer, inputOffset, outputBuffer, outputOffset);
 
 			return this.BlockSize;
+			throw new NotImplementedException();
+		}
+
+        /// <summary>
+        /// Validates the size of the key.
+        /// </summary>
+        /// <param name="keySize">Size of the key.</param>
+        /// <returns>
+        /// true if keySize is valid; otherwise false
+        /// </returns>
+		protected override bool ValidateKeySize(int keySize)
+		{
+			if (keySize == 56)
+				return true;
+			else
+				return false;
 		}
 
 		/// <summary>
@@ -427,8 +415,8 @@ namespace Renci.SshNet.Security.Cryptography
 		/// <param name="outOff">The out off.</param>
 		protected static void DesFunc(int[] wKey, byte[] input, int inOff, byte[] outBytes, int outOff)
 		{
-			uint left = CipherBase.BigEndianToUInt32(input, inOff);
-			uint right = CipherBase.BigEndianToUInt32(input, inOff + 4);
+			uint left = BigEndianToUInt32(input, inOff);
+			uint right = BigEndianToUInt32(input, inOff + 4);
 			uint work;
 
 			work = ((left >> 4) ^ right) & 0x0f0f0f0f;
@@ -497,10 +485,8 @@ namespace Renci.SshNet.Security.Cryptography
 			left ^= work;
 			right ^= (work << 4);
 
-			CipherBase.UInt32ToBigEndian(right, outBytes, outOff);
-			CipherBase.UInt32ToBigEndian(left, outBytes, outOff + 4);
+			UInt32ToBigEndian(right, outBytes, outOff);
+			UInt32ToBigEndian(left, outBytes, outOff + 4);
 		}
-
-
 	}
 }

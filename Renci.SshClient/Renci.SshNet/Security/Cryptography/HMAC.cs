@@ -10,7 +10,7 @@ namespace Renci.SshNet.Security.Cryptography
     /// Provides HMAC algorithm implementation.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class HMAC<T> : KeyedHashAlgorithm where T : HashAlgorithm, new()
+    public class HMac<T> : KeyedHashAlgorithm where T : HashAlgorithm, new()
     {
         private HashAlgorithm _hash;
         private bool _isHashing;
@@ -35,7 +35,7 @@ namespace Renci.SshNet.Security.Cryptography
         /// Rfc 2104.
         /// </summary>
         /// <param name="key">The key.</param>
-        public HMAC(byte[] key)
+        public HMac(byte[] key)
         {
             // Create the hash algorithms.
             this._hash = new T();

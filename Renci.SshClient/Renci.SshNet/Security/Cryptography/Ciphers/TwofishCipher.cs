@@ -5,16 +5,33 @@ using System.Text;
 
 namespace Renci.SshNet.Security.Cryptography.Ciphers
 {
-    internal class TwofishCipher : CipherBase
-    {
+    /// <summary>
+    /// Implements Twofish cipher algorithm
+    /// </summary>
+	public class TwofishCipher : BlockCipher
+	{
+        /// <summary>
+        /// Gets the size of the block in bytes.
+        /// </summary>
+        /// <value>
+        /// The size of the block in bytes.
+        /// </value>
         public override int BlockSize
         {
             get { return 16; }
         }
 
-        public TwofishCipher(byte[] key, byte[] iv)
-            : base(key, iv)
-        {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TwofishCipher"/> class.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <param name="mode">The mode.</param>
+        /// <param name="padding">The padding.</param>
+		public TwofishCipher(byte[] key, CipherMode mode, CipherPadding padding)
+			: base(key, mode, padding)
+		{
+			//  TODO:   Refactor this algorithm
+
             // calculate the MDS matrix
             int[] m1 = new int[2];
             int[] mX = new int[2];
@@ -48,9 +65,19 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
             this.k64Cnt = (key.Length / 8); // pre-padded ?
             this.SetKey(key);
-        }
+		}
 
-
+        /// <summary>
+        /// Encrypts the specified region of the input byte array and copies the encrypted data to the specified region of the output byte array.
+        /// </summary>
+        /// <param name="inputBuffer">The input data to encrypt.</param>
+        /// <param name="inputOffset">The offset into the input byte array from which to begin using data.</param>
+        /// <param name="inputCount">The number of bytes in the input byte array to use as data.</param>
+        /// <param name="outputBuffer">The output to which to write encrypted data.</param>
+        /// <param name="outputOffset">The offset into the output byte array from which to begin writing data.</param>
+        /// <returns>
+        /// The number of bytes encrypted.
+        /// </returns>
         public override int EncryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
         {
             int x0 = BytesTo32Bits(inputBuffer, inputOffset) ^ gSubKeys[INPUT_WHITEN];
@@ -83,6 +110,17 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             return this.BlockSize;
         }
 
+        /// <summary>
+        /// Decrypts the specified region of the input byte array and copies the decrypted data to the specified region of the output byte array.
+        /// </summary>
+        /// <param name="inputBuffer">The input data to decrypt.</param>
+        /// <param name="inputOffset">The offset into the input byte array from which to begin using data.</param>
+        /// <param name="inputCount">The number of bytes in the input byte array to use as data.</param>
+        /// <param name="outputBuffer">The output to which to write decrypted data.</param>
+        /// <param name="outputOffset">The offset into the output byte array from which to begin writing data.</param>
+        /// <returns>
+        /// The number of bytes decrypted.
+        /// </returns>
         public override int DecryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
         {
             int x2 = BytesTo32Bits(inputBuffer, inputOffset) ^ gSubKeys[OUTPUT_WHITEN];
@@ -113,6 +151,21 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             Bits32ToBytes(x3 ^ gSubKeys[INPUT_WHITEN + 3], outputBuffer, outputOffset + 12);
 
             return this.BlockSize;
+        }
+
+        /// <summary>
+        /// Validates the size of the key.
+        /// </summary>
+        /// <param name="keySize">Size of the key.</param>
+        /// <returns>
+        /// true if keySize is valid; otherwise false
+        /// </returns>
+        protected override bool ValidateKeySize(int keySize)
+        {
+            if (keySize == 128 || keySize == 192 || keySize == 256)
+                return true;
+            else
+                return false;
         }
 
         #region Static Definition Tables
@@ -580,6 +633,5 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             b[offset + 2] = (byte)(inData >> 16);
             b[offset + 3] = (byte)(inData >> 24);
         }
-
     }
 }

@@ -17,6 +17,8 @@ using Renci.SshNet.Messages.Connection;
 using Renci.SshNet.Messages.Transport;
 using Renci.SshNet.Security;
 using System.Globalization;
+using Renci.SshNet.Security.Cryptography.Ciphers;
+using Renci.SshNet.Security.Cryptography;
 
 namespace Renci.SshNet
 {
@@ -108,13 +110,13 @@ namespace Renci.SshNet
 
         private KeyExchange _keyExchange;
 
-        private HMac _serverMac;
+        private HashAlgorithm _serverMac;
 
-        private HMac _clientMac;
+        private HashAlgorithm _clientMac;
 
-        private Cipher _clientCipher;
+        private BlockCipher _clientCipher;
 
-        private Cipher _serverCipher;
+        private BlockCipher _serverCipher;
 
         private Compressor _serverDecompression;
 

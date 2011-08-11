@@ -3,13 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Renci.SshNet.Security.Cryptography
+namespace Renci.SshNet.Security.Cryptography.Ciphers
 {
-    internal class BlowfishCipher : CipherBase
-    {
-        #region Static reference tables
+	/// <summary>
+	/// 
+	/// </summary>
+	public class BlowfishCipher : BlockCipher
+	{
+		#region Static reference tables
 
-        private readonly static uint[] KP =
+		private readonly static uint[] KP =
 		{
 			0x243F6A88, 0x85A308D3, 0x13198A2E, 0x03707344,
 			0xA4093822, 0x299F31D0, 0x082EFA98, 0xEC4E6C89,
@@ -17,7 +20,7 @@ namespace Renci.SshNet.Security.Cryptography
 			0xC0AC29B7, 0xC97C50DD, 0x3F84D5B5, 0xB5470917,
 			0x9216D5D9, 0x8979FB1B
 		},
-        KS0 =
+		KS0 =
 		{
 			0xD1310BA6, 0x98DFB5AC, 0x2FFD72DB, 0xD01ADFB7,
 			0xB8E1AFED, 0x6A267E96, 0xBA7C9045, 0xF12C7F99,
@@ -84,7 +87,7 @@ namespace Renci.SshNet.Security.Cryptography
 			0xB6636521, 0xE7B9F9B6, 0xFF34052E, 0xC5855664,
 			0x53B02D5D, 0xA99F8FA1, 0x08BA4799, 0x6E85076A
 		},
-        KS1 =
+		KS1 =
 		{
 			0x4B7A70E9, 0xB5B32944, 0xDB75092E, 0xC4192623,
 			0xAD6EA6B0, 0x49A7DF7D, 0x9CEE60B8, 0x8FEDB266,
@@ -151,7 +154,7 @@ namespace Renci.SshNet.Security.Cryptography
 			0xC5C43465, 0x713E38D8, 0x3D28F89E, 0xF16DFF20,
 			0x153E21E7, 0x8FB03D4A, 0xE6E39F2B, 0xDB83ADF7
 		},
-        KS2 =
+		KS2 =
 		{
 			0xE93D5A68, 0x948140F7, 0xF64C261C, 0x94692934,
 			0x411520F7, 0x7602D4F7, 0xBCF46B2E, 0xD4A20068,
@@ -218,7 +221,7 @@ namespace Renci.SshNet.Security.Cryptography
 			0x6FD5C7E7, 0x56E14EC4, 0x362ABFCE, 0xDDC6C837,
 			0xD79A3234, 0x92638212, 0x670EFA8E, 0x406000E0
 		},
-        KS3 =
+		KS3 =
 		{
 			0x3A39CE37, 0xD3FAF5CF, 0xABC27737, 0x5AC52D1B,
 			0x5CB0679E, 0x4FA33742, 0xD3822740, 0x99BC9BBE,
@@ -286,188 +289,239 @@ namespace Renci.SshNet.Security.Cryptography
 			0xB74E6132, 0xCE77E25B, 0x578FDFE3, 0x3AC372E6
 		};
 
-        #endregion
+		#endregion
 
-        private static readonly int ROUNDS = 16;
-        private static readonly int SBOX_SK = 256;
-        private static readonly int P_SZ = ROUNDS + 2;
+		private static readonly int ROUNDS = 16;
+		private static readonly int SBOX_SK = 256;
+		private static readonly int P_SZ = ROUNDS + 2;
 
-        private readonly uint[] S0, S1, S2, S3;     // the s-boxes
-        private readonly uint[] P;                  // the p-array
+		private readonly uint[] S0, S1, S2, S3;     // the s-boxes
+		private readonly uint[] P;                  // the p-array
 
-        public BlowfishCipher(byte[] key, byte[] iv)
-            : base(key, iv)
-        {
-            S0 = new uint[SBOX_SK];
-            S1 = new uint[SBOX_SK];
-            S2 = new uint[SBOX_SK];
-            S3 = new uint[SBOX_SK];
-            P = new uint[P_SZ];
+		/// <summary>
+		/// Gets the size of the block in bytes.
+		/// </summary>
+		/// <value>
+		/// The size of the block in bytes.
+		/// </value>
+		public override int BlockSize
+		{
+			get { return 8; }
+		}
 
-            this.SetKey(key);
-        }
+		/// <summary>
+		/// Initializes a new instance of the <see cref="BlowfishCipher"/> class.
+		/// </summary>
+		/// <param name="key">The key.</param>
+		/// <param name="mode">The mode.</param>
+		/// <param name="padding">The padding.</param>
+		public BlowfishCipher(byte[] key, CipherMode mode, CipherPadding padding)
+			: base(key, mode, padding)
+		{
+			//  TODO:   Refactor this algorithm
 
-        public override int BlockSize
-        {
-            get { return 8; }
-        }
+			S0 = new uint[SBOX_SK];
+			S1 = new uint[SBOX_SK];
+			S2 = new uint[SBOX_SK];
+			S3 = new uint[SBOX_SK];
+			P = new uint[P_SZ];
 
-        public override int EncryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
-        {
-            if (inputCount != this.BlockSize)
-                throw new ArgumentException("inputCount");
+			this.SetKey(key);
+		}
 
-            uint xl = CipherBase.BigEndianToUInt32(inputBuffer, inputOffset);
-            uint xr = CipherBase.BigEndianToUInt32(inputBuffer, inputOffset + 4);
+		/// <summary>
+		/// Encrypts the specified region of the input byte array and copies the encrypted data to the specified region of the output byte array.
+		/// </summary>
+		/// <param name="inputBuffer">The input data to encrypt.</param>
+		/// <param name="inputOffset">The offset into the input byte array from which to begin using data.</param>
+		/// <param name="inputCount">The number of bytes in the input byte array to use as data.</param>
+		/// <param name="outputBuffer">The output to which to write encrypted data.</param>
+		/// <param name="outputOffset">The offset into the output byte array from which to begin writing data.</param>
+		/// <returns>
+		/// The number of bytes encrypted.
+		/// </returns>
+		public override int EncryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
+		{
+			if (inputCount != this.BlockSize)
+				throw new ArgumentException("inputCount");
 
-            xl ^= P[0];
+			uint xl = BigEndianToUInt32(inputBuffer, inputOffset);
+			uint xr = BigEndianToUInt32(inputBuffer, inputOffset + 4);
 
-            for (int i = 1; i < ROUNDS; i += 2)
-            {
-                xr ^= F(xl) ^ P[i];
-                xl ^= F(xr) ^ P[i + 1];
-            }
+			xl ^= P[0];
 
-            xr ^= P[ROUNDS + 1];
+			for (int i = 1; i < ROUNDS; i += 2)
+			{
+				xr ^= F(xl) ^ P[i];
+				xl ^= F(xr) ^ P[i + 1];
+			}
 
-            CipherBase.UInt32ToBigEndian(xr, outputBuffer, outputOffset);
-            CipherBase.UInt32ToBigEndian(xl, outputBuffer, outputOffset + 4);
-            
-            return this.BlockSize;
-        }
+			xr ^= P[ROUNDS + 1];
 
-        public override int DecryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
-        {
-            if (inputCount != this.BlockSize)
-                throw new ArgumentException("inputCount");
+			UInt32ToBigEndian(xr, outputBuffer, outputOffset);
+			UInt32ToBigEndian(xl, outputBuffer, outputOffset + 4);
 
-            uint xl = CipherBase.BigEndianToUInt32(inputBuffer, inputOffset);
-            uint xr = CipherBase.BigEndianToUInt32(inputBuffer, inputOffset + 4);
+			return this.BlockSize;
+		}
 
-            xl ^= P[ROUNDS + 1];
+		/// <summary>
+		/// Decrypts the specified region of the input byte array and copies the decrypted data to the specified region of the output byte array.
+		/// </summary>
+		/// <param name="inputBuffer">The input data to decrypt.</param>
+		/// <param name="inputOffset">The offset into the input byte array from which to begin using data.</param>
+		/// <param name="inputCount">The number of bytes in the input byte array to use as data.</param>
+		/// <param name="outputBuffer">The output to which to write decrypted data.</param>
+		/// <param name="outputOffset">The offset into the output byte array from which to begin writing data.</param>
+		/// <returns>
+		/// The number of bytes decrypted.
+		/// </returns>
+		public override int DecryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
+		{
+			if (inputCount != this.BlockSize)
+				throw new ArgumentException("inputCount");
 
-            for (int i = ROUNDS; i > 0; i -= 2)
-            {
-                xr ^= F(xl) ^ P[i];
-                xl ^= F(xr) ^ P[i - 1];
-            }
+			uint xl = BigEndianToUInt32(inputBuffer, inputOffset);
+			uint xr = BigEndianToUInt32(inputBuffer, inputOffset + 4);
 
-            xr ^= P[0];
+			xl ^= P[ROUNDS + 1];
 
-            CipherBase.UInt32ToBigEndian(xr, outputBuffer, outputOffset);
-            CipherBase.UInt32ToBigEndian(xl, outputBuffer, outputOffset + 4);
+			for (int i = ROUNDS; i > 0; i -= 2)
+			{
+				xr ^= F(xl) ^ P[i];
+				xl ^= F(xr) ^ P[i - 1];
+			}
 
-            return this.BlockSize;
-        }
+			xr ^= P[0];
 
-        private uint F(uint x)
-        {
-            return (((S0[x >> 24] + S1[(x >> 16) & 0xff]) ^ S2[(x >> 8) & 0xff]) + S3[x & 0xff]);
-        }
+			UInt32ToBigEndian(xr, outputBuffer, outputOffset);
+			UInt32ToBigEndian(xl, outputBuffer, outputOffset + 4);
+
+			return this.BlockSize;
+		}
 
         /// <summary>
-        /// apply the encryption cycle to each value pair in the table.
+        /// Validates the size of the key.
         /// </summary>
-        /// <param name="xl">The xl.</param>
-        /// <param name="xr">The xr.</param>
-        /// <param name="table">The table.</param>
-        private void ProcessTable(uint xl, uint xr, uint[] table)
-        {
-            int size = table.Length;
+        /// <param name="keySize">Size of the key.</param>
+        /// <returns>
+        /// true if keySize is valid; otherwise false
+        /// </returns>
+		protected override bool ValidateKeySize(int keySize)
+		{
+			if (keySize >= 1 && keySize <= 448)
+				return true;
+			else
+				return false;
+		}
 
-            for (int s = 0; s < size; s += 2)
-            {
-                xl ^= P[0];
+		private uint F(uint x)
+		{
+			return (((S0[x >> 24] + S1[(x >> 16) & 0xff]) ^ S2[(x >> 8) & 0xff]) + S3[x & 0xff]);
+		}
 
-                for (int i = 1; i < ROUNDS; i += 2)
-                {
-                    xr ^= F(xl) ^ P[i];
-                    xl ^= F(xr) ^ P[i + 1];
-                }
+		/// <summary>
+		/// apply the encryption cycle to each value pair in the table.
+		/// </summary>
+		/// <param name="xl">The xl.</param>
+		/// <param name="xr">The xr.</param>
+		/// <param name="table">The table.</param>
+		private void ProcessTable(uint xl, uint xr, uint[] table)
+		{
+			int size = table.Length;
 
-                xr ^= P[ROUNDS + 1];
+			for (int s = 0; s < size; s += 2)
+			{
+				xl ^= P[0];
 
-                table[s] = xr;
-                table[s + 1] = xl;
+				for (int i = 1; i < ROUNDS; i += 2)
+				{
+					xr ^= F(xl) ^ P[i];
+					xl ^= F(xr) ^ P[i + 1];
+				}
 
-                xr = xl;            // end of cycle swap
-                xl = table[s];
-            }
-        }
+				xr ^= P[ROUNDS + 1];
 
-        private void SetKey(byte[] key)
-        {
-            /*
-            * - comments are from _Applied Crypto_, Schneier, p338
-            * please be careful comparing the two, AC numbers the
-            * arrays from 1, the enclosed code from 0.
-            *
-            * (1)
-            * Initialise the S-boxes and the P-array, with a fixed string
-            * This string contains the hexadecimal digits of pi (3.141...)
-            */
-            Array.Copy(KS0, 0, S0, 0, SBOX_SK);
-            Array.Copy(KS1, 0, S1, 0, SBOX_SK);
-            Array.Copy(KS2, 0, S2, 0, SBOX_SK);
-            Array.Copy(KS3, 0, S3, 0, SBOX_SK);
+				table[s] = xr;
+				table[s + 1] = xl;
 
-            Array.Copy(KP, 0, P, 0, P_SZ);
+				xr = xl;            // end of cycle swap
+				xl = table[s];
+			}
+		}
 
-            /*
-            * (2)
-            * Now, XOR P[0] with the first 32 bits of the key, XOR P[1] with the
-            * second 32-bits of the key, and so on for all bits of the key
-            * (up to P[17]).  Repeatedly cycle through the key bits until the
-            * entire P-array has been XOR-ed with the key bits
-            */
-            int keyLength = key.Length;
-            int keyIndex = 0;
+		private void SetKey(byte[] key)
+		{
+			/*
+			* - comments are from _Applied Crypto_, Schneier, p338
+			* please be careful comparing the two, AC numbers the
+			* arrays from 1, the enclosed code from 0.
+			*
+			* (1)
+			* Initialise the S-boxes and the P-array, with a fixed string
+			* This string contains the hexadecimal digits of pi (3.141...)
+			*/
+			Array.Copy(KS0, 0, S0, 0, SBOX_SK);
+			Array.Copy(KS1, 0, S1, 0, SBOX_SK);
+			Array.Copy(KS2, 0, S2, 0, SBOX_SK);
+			Array.Copy(KS3, 0, S3, 0, SBOX_SK);
 
-            for (int i = 0; i < P_SZ; i++)
-            {
-                // Get the 32 bits of the key, in 4 * 8 bit chunks
-                uint data = 0x0000000;
-                for (int j = 0; j < 4; j++)
-                {
-                    // create a 32 bit block
-                    data = (data << 8) | (uint)key[keyIndex++];
+			Array.Copy(KP, 0, P, 0, P_SZ);
 
-                    // wrap when we get to the end of the key
-                    if (keyIndex >= keyLength)
-                    {
-                        keyIndex = 0;
-                    }
-                }
-                // XOR the newly created 32 bit chunk onto the P-array
-                P[i] ^= data;
-            }
+			/*
+			* (2)
+			* Now, XOR P[0] with the first 32 bits of the key, XOR P[1] with the
+			* second 32-bits of the key, and so on for all bits of the key
+			* (up to P[17]).  Repeatedly cycle through the key bits until the
+			* entire P-array has been XOR-ed with the key bits
+			*/
+			int keyLength = key.Length;
+			int keyIndex = 0;
 
-            /*
-            * (3)
-            * Encrypt the all-zero string with the Blowfish algorithm, using
-            * the subkeys described in (1) and (2)
-            *
-            * (4)
-            * Replace P1 and P2 with the output of step (3)
-            *
-            * (5)
-            * Encrypt the output of step(3) using the Blowfish algorithm,
-            * with the modified subkeys.
-            *
-            * (6)
-            * Replace P3 and P4 with the output of step (5)
-            *
-            * (7)
-            * Continue the process, replacing all elements of the P-array
-            * and then all four S-boxes in order, with the output of the
-            * continuously changing Blowfish algorithm
-            */
+			for (int i = 0; i < P_SZ; i++)
+			{
+				// Get the 32 bits of the key, in 4 * 8 bit chunks
+				uint data = 0x0000000;
+				for (int j = 0; j < 4; j++)
+				{
+					// create a 32 bit block
+					data = (data << 8) | (uint)key[keyIndex++];
 
-            ProcessTable(0, 0, P);
-            ProcessTable(P[P_SZ - 2], P[P_SZ - 1], S0);
-            ProcessTable(S0[SBOX_SK - 2], S0[SBOX_SK - 1], S1);
-            ProcessTable(S1[SBOX_SK - 2], S1[SBOX_SK - 1], S2);
-            ProcessTable(S2[SBOX_SK - 2], S2[SBOX_SK - 1], S3);
-        }
-    }
+					// wrap when we get to the end of the key
+					if (keyIndex >= keyLength)
+					{
+						keyIndex = 0;
+					}
+				}
+				// XOR the newly created 32 bit chunk onto the P-array
+				P[i] ^= data;
+			}
+
+			/*
+			* (3)
+			* Encrypt the all-zero string with the Blowfish algorithm, using
+			* the subkeys described in (1) and (2)
+			*
+			* (4)
+			* Replace P1 and P2 with the output of step (3)
+			*
+			* (5)
+			* Encrypt the output of step(3) using the Blowfish algorithm,
+			* with the modified subkeys.
+			*
+			* (6)
+			* Replace P3 and P4 with the output of step (5)
+			*
+			* (7)
+			* Continue the process, replacing all elements of the P-array
+			* and then all four S-boxes in order, with the output of the
+			* continuously changing Blowfish algorithm
+			*/
+
+			ProcessTable(0, 0, P);
+			ProcessTable(P[P_SZ - 2], P[P_SZ - 1], S0);
+			ProcessTable(S0[SBOX_SK - 2], S0[SBOX_SK - 1], S1);
+			ProcessTable(S1[SBOX_SK - 2], S1[SBOX_SK - 1], S2);
+			ProcessTable(S2[SBOX_SK - 2], S2[SBOX_SK - 1], S3);
+		}
+	}
 }

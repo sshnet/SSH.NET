@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Renci.SshNet.Security;
@@ -9,10 +10,14 @@ using Renci.SshNet.Common;
 using System.Threading;
 using System.Net;
 using Renci.SshNet.Messages.Connection;
+using Renci.SshNet.Security.Cryptography.Ciphers;
+using System.Security.Cryptography;
+using Renci.SshNet.Security.Cryptography;
+using Renci.SshNet.Security.Cryptography.Ciphers.Modes;
 namespace Renci.SshNet
 {
     /// <summary>
-    /// Represents remote connection infroamtion base class.
+    /// Represents remote connection information base class.
     /// </summary>
     public abstract class ConnectionInfo
     {
@@ -47,12 +52,12 @@ namespace Renci.SshNet
         /// <summary>
         /// Gets supported encryptions for this connection.
         /// </summary>
-        public IDictionary<string, Type> Encryptions { get; private set; }
+        public IDictionary<string, CipherInfo> Encryptions { get; private set; }
 
         /// <summary>
         /// Gets supported hash algorithms for this connection.
         /// </summary>
-        public IDictionary<string, Type> HmacAlgorithms { get; private set; }
+        public IDictionary<string, Func<byte[], HashAlgorithm>> HmacAlgorithms { get; private set; }
 
         /// <summary>
         /// Gets supported host key algorithms for this connection.
@@ -136,35 +141,35 @@ namespace Renci.SshNet
                 {"diffie-hellman-group1-sha1", typeof(KeyExchangeDiffieHellmanGroup1Sha1)},
             };
 
-            this.Encryptions = new Dictionary<string, Type>()
+            this.Encryptions = new Dictionary<string, CipherInfo>()
             {
-                {"3des-cbc", typeof(CipherTripleDes192Cbc)},
-                {"aes128-cbc", typeof(CipherAes128Cbc)},
-                {"aes192-cbc", typeof(CipherAes192Cbc)},
-                {"aes256-cbc", typeof(CipherAes256Cbc)},                
-                {"blowfish-cbc", typeof(CipherBlowfish)},               
-                //{"twofish-cbc", typeof(...)},
-                //{"twofish192-cbc", typeof(...)},
-                //{"twofish128-cbc", typeof(...)},
-                //{"twofish256-cbc", typeof(...)},
-                //{"serpent256-cbc", typeof(CipherSerpent256CBC)},
-                //{"serpent192-cbc", typeof(...)},
-                //{"serpent128-cbc", typeof(...)},
-                //{"arcfour128", typeof(...)},
-                //{"arcfour256", typeof(...)},
-                //{"arcfour", typeof(...)},
-                //{"idea-cbc", typeof(...)},
-                {"cast128-cbc", typeof(CipherCast128Cbc)},
-                //{"rijndael-cbc@lysator.liu.se", typeof(...)},                
-                {"aes128-ctr", typeof(CipherAes128Ctr)},
-                {"aes192-ctr", typeof(CipherAes192Ctr)},
-                {"aes256-ctr", typeof(CipherAes256Ctr)},
+                {"3des-cbc", new CipherInfo(192, (key, iv)=>{ return new TripleDesCipher(key, new CbcCipherMode(iv), null); }) },
+                {"aes128-cbc", new CipherInfo(128, (key, iv)=>{ return new AesCipher(key, new CbcCipherMode(iv), null); }) },
+                {"aes192-cbc", new CipherInfo(192, (key, iv)=>{ return new AesCipher(key, new CbcCipherMode(iv), null); }) },
+                {"aes256-cbc", new CipherInfo(256, (key, iv)=>{ return new AesCipher(key, new CbcCipherMode(iv), null); }) },
+                {"blowfish-cbc", new CipherInfo(128, (key, iv)=>{ return new BlowfishCipher(key, new CbcCipherMode(iv), null); }) },
+                ////{"twofish-cbc", typeof(...)},
+                ////{"twofish192-cbc", typeof(...)},
+                ////{"twofish128-cbc", typeof(...)},
+                ////{"twofish256-cbc", typeof(...)},
+                ////{"serpent256-cbc", typeof(CipherSerpent256CBC)},
+                ////{"serpent192-cbc", typeof(...)},
+                ////{"serpent128-cbc", typeof(...)},
+                ////{"arcfour128", typeof(...)},
+                ////{"arcfour256", typeof(...)},
+                ////{"arcfour", typeof(...)},
+                ////{"idea-cbc", typeof(...)},
+                {"cast128-cbc", new CipherInfo(128, (key, iv)=>{ return new CastCipher(key, new CbcCipherMode(iv), null); }) },
+                ////{"rijndael-cbc@lysator.liu.se", typeof(...)},                
+                {"aes128-ctr", new CipherInfo(128, (key, iv)=>{ return new AesCipher(key, new CtrCipherMode(iv), null); }) },
+                {"aes192-ctr", new CipherInfo(192, (key, iv)=>{ return new AesCipher(key, new CtrCipherMode(iv), null); }) },
+                {"aes256-ctr", new CipherInfo(256, (key, iv)=>{ return new AesCipher(key, new CtrCipherMode(iv), null); }) },
             };
 
-            this.HmacAlgorithms = new Dictionary<string, Type>()
+            this.HmacAlgorithms = new Dictionary<string, Func<byte[], HashAlgorithm>>()
             {
-                {"hmac-md5", typeof(HMacMD5)},
-                {"hmac-sha1", typeof(HMacSha1)},
+                {"hmac-md5", (key) => { return new HMac<MD5Hash>(key.Take(16).ToArray());}},
+                {"hmac-sha1", (key) => { return new HMac<SHA1Hash>(key.Take(20).ToArray());}},
                 //{"umac-64@openssh.com", typeof(HMacSha1)},
                 //{"hmac-ripemd160", typeof(HMacSha1)},
                 //{"hmac-ripemd160@openssh.com", typeof(HMacSha1)},
@@ -176,10 +181,7 @@ namespace Renci.SshNet
             this.HostKeyAlgorithms = new Dictionary<string, Type>()
             {
                 {"ssh-rsa", typeof(CryptoPublicKeyRsa)},
-#if SILVERLIGHT
-#else
                 {"ssh-dss", typeof(CryptoPublicKeyDss)}, 
-#endif
             };
 
             this.AuthenticationMethods = new Dictionary<string, Type>()

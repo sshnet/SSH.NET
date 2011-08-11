@@ -5,13 +5,14 @@ using System.Linq;
 using System.Security.Cryptography;
 using Renci.SshNet.Common;
 using Renci.SshNet.Security.Cryptography;
+using Renci.SshNet.Security.Cryptography.Ciphers;
 
 namespace Renci.SshNet.Security
 {
     /// <summary>
     /// Represents RSA public key
     /// </summary>
-    internal class CryptoPublicKeyRsa : CryptoPublicKey
+    public class CryptoPublicKeyRsa : CryptoPublicKey
     {
         private byte[] _modulus;
 
@@ -111,7 +112,7 @@ namespace Renci.SshNet.Security
                 sig = tmp;
             }
 
-            var sig1 = new RSADigitalSignature(new RSAPublicKey(this._exponent, this._modulus));
+            var sig1 = new RsaDigitalSignature(this._exponent, this._modulus);
 
             return sig1.VerifySignature(hash.ToArray(), sig);
 

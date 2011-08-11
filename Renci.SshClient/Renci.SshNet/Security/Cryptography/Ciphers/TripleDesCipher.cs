@@ -2,12 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Security.Cryptography;
 
-namespace Renci.SshNet.Security.Cryptography
+namespace Renci.SshNet.Security.Cryptography.Ciphers
 {
     /// <summary>
-    /// Represents the class for the 3DES algorithm.
+    /// Implements 3DES cipher algorithm.
     /// </summary>
     public class TripleDesCipher : DesCipher
     {
@@ -23,9 +22,10 @@ namespace Renci.SshNet.Security.Cryptography
         /// Initializes a new instance of the <see cref="TripleDesCipher"/> class.
         /// </summary>
         /// <param name="key">The key.</param>
-        /// <param name="iv">The iv.</param>
-        public TripleDesCipher(byte[] key, byte[] iv)
-            : base(key, iv)
+        /// <param name="mode">The mode.</param>
+        /// <param name="padding">The padding.</param>
+        public TripleDesCipher(byte[] key, CipherMode mode, CipherPadding padding)
+            : base(key, mode, padding)
         {
             var part1 = new byte[8];
             var part2 = new byte[8];
@@ -39,7 +39,7 @@ namespace Renci.SshNet.Security.Cryptography
             this._encryptionKey2 = GenerateWorkingKey(false, part2);
             this._decryptionKey2 = GenerateWorkingKey(true, part2);
 
-            if (this.Key.Length == 24)
+            if (key.Length == 24)
             {
                 var part3 = new byte[8];
                 Array.Copy(key, 16, part3, 0, 8);
@@ -52,6 +52,7 @@ namespace Renci.SshNet.Security.Cryptography
                 this._encryptionKey3 = this._encryptionKey1;
                 this._decryptionKey3 = this._decryptionKey1;
             }
+
         }
 
         /// <summary>
@@ -108,6 +109,21 @@ namespace Renci.SshNet.Security.Cryptography
             DesCipher.DesFunc(this._decryptionKey1, temp, 0, outputBuffer, outputOffset);
 
             return this.BlockSize;
+        }
+
+        /// <summary>
+        /// Validates the size of the key.
+        /// </summary>
+        /// <param name="keySize">Size of the key.</param>
+        /// <returns>
+        /// true if keySize is valid; otherwise false
+        /// </returns>
+        protected override bool ValidateKeySize(int keySize)
+        {
+            if (keySize == 128 || keySize == 128 + 64)
+                return true;
+            else
+                return false;
         }
     }
 }

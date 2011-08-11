@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using Renci.SshNet.Common;
 using Renci.SshNet.Security.Cryptography;
+using Renci.SshNet.Security.Cryptography.Ciphers;
 
 namespace Renci.SshNet.Security
 {
@@ -113,7 +114,7 @@ namespace Renci.SshNet.Security
         /// <returns></returns>
         public override byte[] GetSignature(IEnumerable<byte> key)
         {
-            var signature = new RSADigitalSignature(new RSAPrivateKey(this._exponent, this._modulus, this._dValue, this._dpValue, this._qValue, this._dqValue, this._pValue, this._inverseQ));
+            var signature = new RsaDigitalSignature(this._exponent, this._modulus, this._dValue, this._dpValue, this._dqValue, this._inverseQ, this._pValue, this._qValue);
 
             return new SignatureKeyData
             {

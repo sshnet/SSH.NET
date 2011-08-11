@@ -6,6 +6,8 @@ using Renci.SshNet.Common;
 using Renci.SshNet.Compression;
 using Renci.SshNet.Messages;
 using Renci.SshNet.Messages.Transport;
+using Renci.SshNet.Security.Cryptography.Ciphers;
+using Renci.SshNet.Security.Cryptography;
 
 namespace Renci.SshNet.Security
 {
@@ -14,13 +16,13 @@ namespace Renci.SshNet.Security
     /// </summary>
     public abstract class KeyExchange : Algorithm, IDisposable
     {
-        private Type _clientCipherType;
+        private CipherInfo _clientCipherInfo;
 
-        private Type _serverCipherType;
+        private CipherInfo _serverCipherInfo;
 
-        private Type _cientHmacAlgorithmType;
+        private Func<byte[], HashAlgorithm> _cientHmacAlgorithmType;
 
-        private Type _serverHmacAlgorithmType;
+        private Func<byte[], HashAlgorithm> _serverHmacAlgorithmType;
 
         private Type _compressionType;
 
@@ -131,8 +133,8 @@ namespace Renci.SshNet.Security
                 throw new SshConnectionException("Decompression algorithm not found", DisconnectReason.KeyExchangeFailed);
             }
 
-            this._clientCipherType = session.ConnectionInfo.Encryptions[clientEncryptionAlgorithmName];
-            this._serverCipherType = session.ConnectionInfo.Encryptions[clientEncryptionAlgorithmName];
+            this._clientCipherInfo = session.ConnectionInfo.Encryptions[clientEncryptionAlgorithmName];
+            this._serverCipherInfo = session.ConnectionInfo.Encryptions[clientEncryptionAlgorithmName];
             this._cientHmacAlgorithmType = session.ConnectionInfo.HmacAlgorithms[clientHmacAlgorithmName];
             this._serverHmacAlgorithmType = session.ConnectionInfo.HmacAlgorithms[serverHmacAlgorithmName];
             this._compressionType = session.ConnectionInfo.CompressionAlgorithms[compressionAlgorithmName];
@@ -159,13 +161,10 @@ namespace Renci.SshNet.Security
         /// Creates the server side cipher to use.
         /// </summary>
         /// <returns></returns>
-        public Cipher CreateServerCipher()
+        public BlockCipher CreateServerCipher()
         {
             //  Resolve Session ID
             var sessionId = this.Session.SessionId ?? this.ExchangeHash;
-
-            //  Create server cipher
-            var serverCipher = this._serverCipherType.CreateInstance<Cipher>();
 
             //  Calculate server to client initial IV
             var serverVector = this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'B', sessionId));
@@ -173,24 +172,20 @@ namespace Renci.SshNet.Security
             //  Calculate server to client encryption
             var serverKey = this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'D', sessionId));
 
-            serverKey = this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, serverKey, serverCipher.KeySize / 8);
-
-            serverCipher.Init(serverKey, serverVector);
-
-            return serverCipher;
+            serverKey = this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, serverKey, this._serverCipherInfo.KeySize / 8);
+            
+            //  Create server cipher
+            return this._serverCipherInfo.Cipher(serverKey, serverVector);
         }
 
         /// <summary>
         /// Creates the client side cipher to use.
         /// </summary>
         /// <returns></returns>
-        public Cipher CreateClientCipher()
+        public BlockCipher CreateClientCipher()
         {
             //  Resolve Session ID
             var sessionId = this.Session.SessionId ?? this.ExchangeHash;
-
-            //  Create client cipher
-            var clientCipher = this._clientCipherType.CreateInstance<Cipher>();
 
             //  Calculate client to server initial IV
             var clientVector = this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'A', sessionId));
@@ -198,45 +193,46 @@ namespace Renci.SshNet.Security
             //  Calculate client to server encryption
             var clientKey = this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'C', sessionId));
 
-            clientKey = this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, clientKey, clientCipher.KeySize / 8);
+            clientKey = this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, clientKey, this._clientCipherInfo.KeySize / 8);
 
-            clientCipher.Init(clientKey, clientVector);
-
-            return clientCipher;
+            //  Create client cipher
+            return this._clientCipherInfo.Cipher(clientKey, clientVector);
         }
 
         /// <summary>
         /// Creates the server side hash algorithm to use.
         /// </summary>
         /// <returns></returns>
-        public HMac CreateServerHash()
+        public HashAlgorithm CreateServerHash()
         {
             //  Resolve Session ID
             var sessionId = this.Session.SessionId ?? this.ExchangeHash;
 
             //  Create server HMac
-            var serverHMac = this._serverHmacAlgorithmType.CreateInstance<HMac>();
+            //var serverHMac = this._serverHmacAlgorithmType.CreateInstance<HMac>();
 
-            serverHMac.Init(this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'F', sessionId)));
+            //serverHMac.Init(this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'F', sessionId)));
 
-            return serverHMac;
+            //return serverHMac;
+            return this._serverHmacAlgorithmType(this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'F', sessionId)));
         }
 
         /// <summary>
         /// Creates the client side hash algorithm to use.
         /// </summary>
         /// <returns></returns>
-        public HMac CreateClientHash()
+        public HashAlgorithm CreateClientHash()
         {
             //  Resolve Session ID
             var sessionId = this.Session.SessionId ?? this.ExchangeHash;
 
             //  Create client HMac
-            var clientHMac = this._cientHmacAlgorithmType.CreateInstance<HMac>();
+            //var clientHMac = this._cientHmacAlgorithmType.CreateInstance<HMac>();
 
-            clientHMac.Init(this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'E', sessionId)));
+            //clientHMac.Init(this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'E', sessionId)));
 
-            return clientHMac;
+            //return clientHMac;
+            return this._cientHmacAlgorithmType(this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'E', sessionId)));
         }
 
         /// <summary>

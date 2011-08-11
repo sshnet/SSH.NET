@@ -4,13 +4,14 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using Renci.SshNet.Common;
+using Renci.SshNet.Security.Cryptography;
 
 namespace Renci.SshNet.Security
 {
     /// <summary>
     /// Represents DSS public key
     /// </summary>
-    internal class CryptoPublicKeyDss : CryptoPublicKey
+    public class CryptoPublicKeyDss : CryptoPublicKey
     {
         private byte[] _p;
         private byte[] _q;
@@ -98,55 +99,34 @@ namespace Renci.SshNet.Security
         /// </returns>
         public override bool VerifySignature(IEnumerable<byte> hash, IEnumerable<byte> signature)
         {
-            using (var sha1 = new SHA1CryptoServiceProvider())
+
+            long i = 0;
+            long j = 0;
+            byte[] tmp;
+            var sig = signature.ToArray();
+            if (sig[0] == 0 && sig[1] == 0 && sig[2] == 0)
             {
-                using (var cs = new CryptoStream(System.IO.Stream.Null, sha1, CryptoStreamMode.Write))
-                {
-                    var data = hash.ToArray();
-                    cs.Write(data, 0, data.Length);
-                }
+                long i1 = (sig[i++] << 24) & 0xff000000;
+                long i2 = (sig[i++] << 16) & 0x00ff0000;
+                long i3 = (sig[i++] << 8) & 0x0000ff00;
+                long i4 = (sig[i++]) & 0x000000ff;
+                j = i1 | i2 | i3 | i4;
 
-                using (var dsa = new DSACryptoServiceProvider())
-                {
-                    dsa.ImportParameters(new DSAParameters
-                    {
-                        Y = _publicKey.TrimLeadingZero().ToArray(),
-                        P = _p.TrimLeadingZero().ToArray(),
-                        Q = _q.TrimLeadingZero().ToArray(),
-                        G = _g.TrimLeadingZero().ToArray(),
-                    });
-                    var dsaDeformatter = new DSASignatureDeformatter(dsa);
-                    dsaDeformatter.SetHashAlgorithm("SHA1");
+                i += j;
 
-                    long i = 0;
-                    long j = 0;
-                    byte[] tmp;
+                i1 = (sig[i++] << 24) & 0xff000000;
+                i2 = (sig[i++] << 16) & 0x00ff0000;
+                i3 = (sig[i++] << 8) & 0x0000ff00;
+                i4 = (sig[i++]) & 0x000000ff;
+                j = i1 | i2 | i3 | i4;
 
-                    var sig = signature.ToArray();
-                    if (sig[0] == 0 && sig[1] == 0 && sig[2] == 0)
-                    {
-                        long i1 = (sig[i++] << 24) & 0xff000000;
-                        long i2 = (sig[i++] << 16) & 0x00ff0000;
-                        long i3 = (sig[i++] << 8) & 0x0000ff00;
-                        long i4 = (sig[i++]) & 0x000000ff;
-                        j = i1 | i2 | i3 | i4;
-
-                        i += j;
-
-                        i1 = (sig[i++] << 24) & 0xff000000;
-                        i2 = (sig[i++] << 16) & 0x00ff0000;
-                        i3 = (sig[i++] << 8) & 0x0000ff00;
-                        i4 = (sig[i++]) & 0x000000ff;
-                        j = i1 | i2 | i3 | i4;
-
-                        tmp = new byte[j];
-                        Array.Copy(sig, (int)i, tmp, 0, (int)j);
-                        sig = tmp;
-                    }
-
-                    return dsaDeformatter.VerifySignature(sha1, sig);
-                }
+                tmp = new byte[j];
+                Array.Copy(sig, (int)i, tmp, 0, (int)j);
+                sig = tmp;
             }
+
+            var sig1 = new DsaDigitalSignature(_p, _q, _g, null, _publicKey);
+            return sig1.VerifySignature(hash.ToArray(), sig);
         }
 
         /// <summary>

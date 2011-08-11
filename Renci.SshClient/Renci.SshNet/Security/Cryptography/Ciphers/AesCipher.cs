@@ -3,115 +3,26 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Renci.SshNet.Security.Cryptography
+namespace Renci.SshNet.Security.Cryptography.Ciphers
 {
-	internal class AesCipher : CipherBase
+	/// <summary>
+	/// 
+	/// </summary>
+	public class AesCipher : BlockCipher
 	{
-		private int ROUNDS;
-
-		private byte[] _key;
-
-		private uint[,] _encryptionKey;
-		private uint[,] EncryptionKey
-		{
-			get
-			{
-				if (this._encryptionKey == null)
-				{
-					this._encryptionKey = this.GenerateWorkingKey(true, this._key);
-				}
-				return this._encryptionKey;
-			}
-		}
-
-		private uint[,] _decryptionKey;
-		private uint[,] DecryptionKey
-		{
-			get
-			{
-				if (this._decryptionKey == null)
-				{
-					this._decryptionKey = this.GenerateWorkingKey(false, this._key);
-				}
-				return this._decryptionKey;
-			}
-		}
-
-		private uint C0, C1, C2, C3;
-
-		/// <summary>
-		/// Gets the size of the block.
-		/// </summary>
-		/// <value>
-		/// The size of the block.
-		/// </value>
-		public override int BlockSize { get { return 16; } } // 128 bit block size
-
-		/* multiply four bytes in GF(2^8) by 'x' {02} in parallel */
-
 		private const uint m1 = 0x80808080;
 
 		private const uint m2 = 0x7f7f7f7f;
 
 		private const uint m3 = 0x0000001b;
+				
+		private int _rounds;
 
-		public AesCipher(byte[] key, byte[] iv)
-			: base(key, iv)
-		{
-			this._key = key;
-		}
+		private uint[,] _encryptionKey;
 
-		public override int EncryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
-		{
-			if (this.EncryptionKey == null)
-			{
-				throw new InvalidOperationException("AES engine not initialized");
-			}
+		private uint[,] _decryptionKey;
 
-			if ((inputOffset + (32 / 2)) > inputBuffer.Length)
-			{
-				throw new IndexOutOfRangeException("input buffer too short");
-			}
-
-			if ((outputOffset + (32 / 2)) > outputBuffer.Length)
-			{
-				throw new IndexOutOfRangeException("output buffer too short");
-			}
-
-			this.UnPackBlock(inputBuffer, inputOffset);
-
-			this.EncryptBlock(this.EncryptionKey);
-
-			this.PackBlock(outputBuffer, outputOffset);
-
-			return this.BlockSize;
-		}
-
-		public override int DecryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
-		{
-			if (this.DecryptionKey == null)
-			{
-				throw new InvalidOperationException("AES engine not initialized");
-			}
-
-			if ((inputOffset + (32 / 2)) > inputBuffer.Length)
-			{
-				throw new IndexOutOfRangeException("input buffer too short");
-			}
-
-			if ((outputOffset + (32 / 2)) > outputBuffer.Length)
-			{
-				throw new IndexOutOfRangeException("output buffer too short");
-			}
-
-			this.UnPackBlock(inputBuffer, inputOffset);
-
-			this.DecryptBlock(this.DecryptionKey);
-
-			this.PackBlock(outputBuffer, outputOffset);
-
-			return this.BlockSize;
-		}
+		private uint C0, C1, C2, C3;
 
 		#region Static Definition Tables
 
@@ -646,6 +557,167 @@ namespace Renci.SshNet.Security.Cryptography
 
 		#endregion
 
+		/// <summary>
+		/// Gets the size of the block in bytes.
+		/// </summary>
+		/// <value>
+		/// The size of the block in bytes.
+		/// </value>
+		public override int BlockSize
+		{
+			get { return 16; }
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="AesCipher"/> class.
+		/// </summary>
+		/// <param name="key">The key.</param>
+		/// <param name="mode">The mode.</param>
+		/// <param name="padding">The padding.</param>
+		public AesCipher(byte[] key, CipherMode mode, CipherPadding padding)
+			: base(key, mode, padding)
+		{
+			this._encryptionKey = this.GenerateWorkingKey(true, key);
+			this._decryptionKey = this.GenerateWorkingKey(false, key);
+		}
+
+		/// <summary>
+		/// Encrypts the specified region of the input byte array and copies the encrypted data to the specified region of the output byte array.
+		/// </summary>
+		/// <param name="inputBuffer">The input data to encrypt.</param>
+		/// <param name="inputOffset">The offset into the input byte array from which to begin using data.</param>
+		/// <param name="inputCount">The number of bytes in the input byte array to use as data.</param>
+		/// <param name="outputBuffer">The output to which to write encrypted data.</param>
+		/// <param name="outputOffset">The offset into the output byte array from which to begin writing data.</param>
+		/// <returns>
+		/// The number of bytes encrypted.
+		/// </returns>
+		public override int EncryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
+		{
+			if ((inputOffset + (32 / 2)) > inputBuffer.Length)
+			{
+				throw new IndexOutOfRangeException("input buffer too short");
+			}
+
+			if ((outputOffset + (32 / 2)) > outputBuffer.Length)
+			{
+				throw new IndexOutOfRangeException("output buffer too short");
+			}
+
+			this.UnPackBlock(inputBuffer, inputOffset);
+
+			this.EncryptBlock(this._encryptionKey);
+
+			this.PackBlock(outputBuffer, outputOffset);
+
+			return this.BlockSize;
+		}
+
+		/// <summary>
+		/// Decrypts the specified region of the input byte array and copies the decrypted data to the specified region of the output byte array.
+		/// </summary>
+		/// <param name="inputBuffer">The input data to decrypt.</param>
+		/// <param name="inputOffset">The offset into the input byte array from which to begin using data.</param>
+		/// <param name="inputCount">The number of bytes in the input byte array to use as data.</param>
+		/// <param name="outputBuffer">The output to which to write decrypted data.</param>
+		/// <param name="outputOffset">The offset into the output byte array from which to begin writing data.</param>
+		/// <returns>
+		/// The number of bytes decrypted.
+		/// </returns>
+		public override int DecryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
+		{
+			if ((inputOffset + (32 / 2)) > inputBuffer.Length)
+			{
+				throw new IndexOutOfRangeException("input buffer too short");
+			}
+
+			if ((outputOffset + (32 / 2)) > outputBuffer.Length)
+			{
+				throw new IndexOutOfRangeException("output buffer too short");
+			}
+
+			this.UnPackBlock(inputBuffer, inputOffset);
+
+			this.DecryptBlock(this._decryptionKey);
+
+			this.PackBlock(outputBuffer, outputOffset);
+
+			return this.BlockSize;
+		}
+
+		/// <summary>
+		/// Validates the size of the key.
+		/// </summary>
+		/// <param name="keySize">Size of the key.</param>
+		/// <returns>
+		/// true if keySize is valid; otherwise false
+		/// </returns>
+		protected override bool ValidateKeySize(int keySize)
+		{
+			if (keySize == 256 ||
+				keySize == 192 ||
+				keySize == 128)
+				return true;
+			else
+				return false;
+		}
+
+		private uint[,] GenerateWorkingKey(bool isEncryption, byte[] key)
+		{
+			int KC = key.Length / 4;  // key length in words
+
+			if (((KC != 4) && (KC != 6) && (KC != 8)) || ((KC * 4) != key.Length))
+				throw new ArgumentException("Key length not 128/192/256 bits.");
+
+			_rounds = KC + 6;  // This is not always true for the generalized Rijndael that allows larger block sizes
+			uint[,] W = new uint[_rounds + 1, 4];   // 4 words in a block
+
+			//
+			// copy the key into the round key array
+			//
+
+			int t = 0;
+
+			for (int i = 0; i < key.Length; t++)
+			{
+				W[t >> 2, t & 3] = LittleEndianToUInt32(key, i);
+				i += 4;
+			}
+
+			//
+			// while not enough round key material calculated
+			// calculate new values
+			//
+			int k = (_rounds + 1) << 2;
+			for (int i = KC; (i < k); i++)
+			{
+				uint temp = W[(i - 1) >> 2, (i - 1) & 3];
+				if ((i % KC) == 0)
+				{
+					temp = SubWord(Shift(temp, 8)) ^ rcon[(i / KC) - 1];
+				}
+				else if ((KC > 6) && ((i % KC) == 4))
+				{
+					temp = SubWord(temp);
+				}
+
+				W[i >> 2, i & 3] = W[(i - KC) >> 2, (i - KC) & 3] ^ temp;
+			}
+
+			if (!isEncryption)
+			{
+				for (int j = 1; j < _rounds; j++)
+				{
+					for (int i = 0; i < 4; i++)
+					{
+						W[j, i] = InvMcol(W[j, i]);
+					}
+				}
+			}
+
+			return W;
+		}
+
 		private uint Shift(uint r, int shift)
 		{
 			return (r >> shift) | (r << (32 - shift));
@@ -684,87 +756,20 @@ namespace Renci.SshNet.Security.Cryptography
 				| (((uint)S[(x >> 24) & 255]) << 24);
 		}
 
-		/**
-		* Calculate the necessary round keys
-		* The number of calculations depends on key size and block size
-		* AES specified a fixed block size of 128 bits and key sizes 128/192/256 bits
-		* This code is written assuming those are the only possible values
-		*/
-		private uint[,] GenerateWorkingKey(bool isEncryption, byte[] key)
-		{
-			int KC = key.Length / 4;  // key length in words
-
-			if (((KC != 4) && (KC != 6) && (KC != 8)) || ((KC * 4) != key.Length))
-				throw new ArgumentException("Key length not 128/192/256 bits.");
-
-			ROUNDS = KC + 6;  // This is not always true for the generalized Rijndael that allows larger block sizes
-			uint[,] W = new uint[ROUNDS + 1, 4];   // 4 words in a block
-
-			//
-			// copy the key into the round key array
-			//
-
-			int t = 0;
-
-			for (int i = 0; i < key.Length; t++)
-			{
-				W[t >> 2, t & 3] = CipherBase.LittleEndianToUInt32(key, i);
-				i += 4;
-			}
-
-			//
-			// while not enough round key material calculated
-			// calculate new values
-			//
-			int k = (ROUNDS + 1) << 2;
-			for (int i = KC; (i < k); i++)
-			{
-				uint temp = W[(i - 1) >> 2, (i - 1) & 3];
-				if ((i % KC) == 0)
-				{
-					temp = SubWord(Shift(temp, 8)) ^ rcon[(i / KC) - 1];
-				}
-				else if ((KC > 6) && ((i % KC) == 4))
-				{
-					temp = SubWord(temp);
-				}
-
-				W[i >> 2, i & 3] = W[(i - KC) >> 2, (i - KC) & 3] ^ temp;
-			}
-
-			if (!isEncryption)
-			{
-				for (int j = 1; j < ROUNDS; j++)
-				{
-					for (int i = 0; i < 4; i++)
-					{
-						W[j, i] = InvMcol(W[j, i]);
-					}
-				}
-			}
-
-			return W;
-		}
-
-		private bool IsPartialBlockOkay
-		{
-			get { return false; }
-		}
-
 		private void UnPackBlock(byte[] bytes, int off)
 		{
-			C0 = CipherBase.LittleEndianToUInt32(bytes, off);
-			C1 = CipherBase.LittleEndianToUInt32(bytes, off + 4);
-			C2 = CipherBase.LittleEndianToUInt32(bytes, off + 8);
-			C3 = CipherBase.LittleEndianToUInt32(bytes, off + 12);
+			C0 = LittleEndianToUInt32(bytes, off);
+			C1 = LittleEndianToUInt32(bytes, off + 4);
+			C2 = LittleEndianToUInt32(bytes, off + 8);
+			C3 = LittleEndianToUInt32(bytes, off + 12);
 		}
 
 		private void PackBlock(byte[] bytes, int off)
 		{
-			CipherBase.UInt32ToLittleEndian(C0, bytes, off);
-			CipherBase.UInt32ToLittleEndian(C1, bytes, off + 4);
-			CipherBase.UInt32ToLittleEndian(C2, bytes, off + 8);
-			CipherBase.UInt32ToLittleEndian(C3, bytes, off + 12);
+			UInt32ToLittleEndian(C0, bytes, off);
+			UInt32ToLittleEndian(C1, bytes, off + 4);
+			UInt32ToLittleEndian(C2, bytes, off + 8);
+			UInt32ToLittleEndian(C3, bytes, off + 12);
 		}
 
 		private void EncryptBlock(uint[,] KW)
@@ -777,7 +782,7 @@ namespace Renci.SshNet.Security.Cryptography
 			C2 ^= KW[0, 2];
 			C3 ^= KW[0, 3];
 
-			for (r = 1; r < ROUNDS - 1; )
+			for (r = 1; r < _rounds - 1; )
 			{
 				r0 = T0[C0 & 255] ^ T1[(C1 >> 8) & 255] ^ T2[(C2 >> 16) & 255] ^ T3[C3 >> 24] ^ KW[r, 0];
 				r1 = T0[C1 & 255] ^ T1[(C2 >> 8) & 255] ^ T2[(C3 >> 16) & 255] ^ T3[C0 >> 24] ^ KW[r, 1];
@@ -807,12 +812,12 @@ namespace Renci.SshNet.Security.Cryptography
 			int r;
 			uint r0, r1, r2, r3;
 
-			C0 ^= KW[ROUNDS, 0];
-			C1 ^= KW[ROUNDS, 1];
-			C2 ^= KW[ROUNDS, 2];
-			C3 ^= KW[ROUNDS, 3];
+			C0 ^= KW[_rounds, 0];
+			C1 ^= KW[_rounds, 1];
+			C2 ^= KW[_rounds, 2];
+			C3 ^= KW[_rounds, 3];
 
-			for (r = ROUNDS - 1; r > 1; )
+			for (r = _rounds - 1; r > 1; )
 			{
 				r0 = Tinv0[C0 & 255] ^ Tinv1[(C3 >> 8) & 255] ^ Tinv2[(C2 >> 16) & 255] ^ Tinv3[C1 >> 24] ^ KW[r, 0];
 				r1 = Tinv0[C1 & 255] ^ Tinv1[(C0 >> 8) & 255] ^ Tinv2[(C3 >> 16) & 255] ^ Tinv3[C2 >> 24] ^ KW[r, 1];
@@ -836,5 +841,6 @@ namespace Renci.SshNet.Security.Cryptography
 			C2 = (uint)Si[r2 & 255] ^ (((uint)Si[(r1 >> 8) & 255]) << 8) ^ (((uint)Si[(r0 >> 16) & 255]) << 16) ^ (((uint)Si[r3 >> 24]) << 24) ^ KW[0, 2];
 			C3 = (uint)Si[r3 & 255] ^ (((uint)Si[(r2 >> 8) & 255]) << 8) ^ (((uint)Si[(r1 >> 16) & 255]) << 16) ^ (((uint)Si[r0 >> 24]) << 24) ^ KW[0, 3];
 		}
+
 	}
 }

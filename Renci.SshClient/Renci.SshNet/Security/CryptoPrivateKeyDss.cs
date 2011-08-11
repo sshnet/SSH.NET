@@ -102,37 +102,13 @@ namespace Renci.SshNet.Security
         /// <returns></returns>
         public override byte[] GetSignature(IEnumerable<byte> key)
         {
-            var data = key.ToArray();
-            //using (var sha1 = new Renci.SshNet.Security.Cryptography.SHA1Hash())
-            using (var sha1 = new System.Security.Cryptography.SHA1CryptoServiceProvider())
+            var ss1 = new DsaDigitalSignature(this._p, this._q, this._g, this._privateKey, null);
+            var signature = ss1.CreateSignature(key.ToArray());
+            return new SignatureKeyData
             {
-                using (var cs = new System.Security.Cryptography.CryptoStream(System.IO.Stream.Null, sha1, System.Security.Cryptography.CryptoStreamMode.Write))
-                {
-                    cs.Write(data, 0, data.Length);
-                }
-
-                var dsaKeyInfo = new System.Security.Cryptography.DSAParameters();
-
-                dsaKeyInfo.X = this._privateKey.TrimLeadingZero().ToArray();
-                dsaKeyInfo.P = this._p.TrimLeadingZero().ToArray();
-                dsaKeyInfo.Q = this._q.TrimLeadingZero().ToArray();
-                dsaKeyInfo.G = this._g.TrimLeadingZero().ToArray();
-
-                using (var DSA = new System.Security.Cryptography.DSACryptoServiceProvider())
-                {
-                    DSA.ImportParameters(dsaKeyInfo);
-                    var DSAFormatter = new DSASignatureFormatter(DSA);
-                    DSAFormatter.SetHashAlgorithm("SHA1");
-
-                    var signature = DSAFormatter.CreateSignature(sha1);
-
-                    return new SignatureKeyData
-                    {
-                        AlgorithmName = this.Name,
-                        Signature = signature,
-                    }.GetBytes().ToArray();
-                }
-            }
+                AlgorithmName = this.Name,
+                Signature = signature,
+            }.GetBytes().ToArray();
         }
 
         /// <summary>

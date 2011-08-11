@@ -5,6 +5,7 @@ using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Renci.SshNet.Security;
 using Renci.SshNet.Tests.Properties;
+using Renci.SshNet.Security.Cryptography;
 
 namespace Renci.SshNet.Tests.Security
 {
@@ -16,7 +17,7 @@ namespace Renci.SshNet.Tests.Security
         {
             var connectionInfo = new PasswordConnectionInfo(Resources.HOST, 22, Resources.USERNAME, Resources.PASSWORD);
             connectionInfo.HmacAlgorithms.Clear();
-            connectionInfo.HmacAlgorithms.Add("hmac-md5", typeof(HMacMD5));
+            connectionInfo.HmacAlgorithms.Add("hmac-md5", (key) => { return new HMac<MD5Hash>(key.Take(16).ToArray());});
 
             using (var client = new SshClient(connectionInfo))
             {
@@ -30,7 +31,7 @@ namespace Renci.SshNet.Tests.Security
         {
             var connectionInfo = new PasswordConnectionInfo(Resources.HOST, 22, Resources.USERNAME, Resources.PASSWORD);
             connectionInfo.HmacAlgorithms.Clear();
-            connectionInfo.HmacAlgorithms.Add("hmac-sha1", typeof(HMacSha1));
+            connectionInfo.HmacAlgorithms.Add("hmac-sha1", (key) => { return new HMac<SHA1Hash>(key.Take(20).ToArray()); });
 
             using (var client = new SshClient(connectionInfo))
             {

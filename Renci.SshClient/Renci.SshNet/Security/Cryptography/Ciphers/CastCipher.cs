@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Renci.SshNet.Security.Cryptography
+namespace Renci.SshNet.Security.Cryptography.Ciphers
 {
-    internal class CastCipher : CipherBase
+    /// <summary>
+    /// Implements CAST cipher algorithm
+    /// </summary>
+    public class CastCipher : BlockCipher
     {
-
         internal static readonly int MAX_ROUNDS = 16;
         internal static readonly int RED_ROUNDS = 12;
 
@@ -16,52 +18,102 @@ namespace Renci.SshNet.Security.Cryptography
 
         private int _rounds = MAX_ROUNDS;
 
+        /// <summary>
+        /// Gets the size of the block in bytes.
+        /// </summary>
+        /// <value>
+        /// The size of the block in bytes.
+        /// </value>
         public override int BlockSize
         {
             get { return 8; }
         }
 
-        public CastCipher(byte[] key, byte[] iv)
-            : base(key, iv)
-        {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CastCipher"/> class.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <param name="mode">The mode.</param>
+        /// <param name="padding">The padding.</param>
+        public CastCipher(byte[] key, CipherMode mode, CipherPadding padding)
+			: base(key, mode, padding)
+		{
+            //  TODO:   Refactor this algorithm
             this.SetKey(key);
         }
 
+        /// <summary>
+        /// Encrypts the specified region of the input byte array and copies the encrypted data to the specified region of the output byte array.
+        /// </summary>
+        /// <param name="inputBuffer">The input data to encrypt.</param>
+        /// <param name="inputOffset">The offset into the input byte array from which to begin using data.</param>
+        /// <param name="inputCount">The number of bytes in the input byte array to use as data.</param>
+        /// <param name="outputBuffer">The output to which to write encrypted data.</param>
+        /// <param name="outputOffset">The offset into the output byte array from which to begin writing data.</param>
+        /// <returns>
+        /// The number of bytes encrypted.
+        /// </returns>
         public override int EncryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
         {
             // process the input block
             // batch the units up into a 32 bit chunk and go for it
             // the array is in bytes, the increment is 8x8 bits = 64
 
-            uint L0 = CipherBase.BigEndianToUInt32(inputBuffer, inputOffset);
-            uint R0 = CipherBase.BigEndianToUInt32(inputBuffer, inputOffset + 4);
+            uint L0 = BigEndianToUInt32(inputBuffer, inputOffset);
+            uint R0 = BigEndianToUInt32(inputBuffer, inputOffset + 4);
 
             uint[] result = new uint[2];
-            CAST_Encipher(L0, R0, result);
+            CastEncipher(L0, R0, result);
 
             // now stuff them into the destination block
-            CipherBase.UInt32ToBigEndian(result[0], outputBuffer, outputOffset);
-            CipherBase.UInt32ToBigEndian(result[1], outputBuffer, outputOffset + 4);
+            UInt32ToBigEndian(result[0], outputBuffer, outputOffset);
+            UInt32ToBigEndian(result[1], outputBuffer, outputOffset + 4);
 
             return this.BlockSize;
         }
 
+        /// <summary>
+        /// Decrypts the specified region of the input byte array and copies the decrypted data to the specified region of the output byte array.
+        /// </summary>
+        /// <param name="inputBuffer">The input data to decrypt.</param>
+        /// <param name="inputOffset">The offset into the input byte array from which to begin using data.</param>
+        /// <param name="inputCount">The number of bytes in the input byte array to use as data.</param>
+        /// <param name="outputBuffer">The output to which to write decrypted data.</param>
+        /// <param name="outputOffset">The offset into the output byte array from which to begin writing data.</param>
+        /// <returns>
+        /// The number of bytes decrypted.
+        /// </returns>
         public override int DecryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
         {
             // process the input block
             // batch the units up into a 32 bit chunk and go for it
             // the array is in bytes, the increment is 8x8 bits = 64
-            uint L16 = CipherBase.BigEndianToUInt32(inputBuffer, inputOffset);
-            uint R16 = CipherBase.BigEndianToUInt32(inputBuffer, inputOffset + 4);
+            uint L16 = BigEndianToUInt32(inputBuffer, inputOffset);
+            uint R16 = BigEndianToUInt32(inputBuffer, inputOffset + 4);
 
             uint[] result = new uint[2];
-            CAST_Decipher(L16, R16, result);
+            CastDecipher(L16, R16, result);
 
             // now stuff them into the destination block
-            CipherBase.UInt32ToBigEndian(result[0], outputBuffer, outputOffset);
-            CipherBase.UInt32ToBigEndian(result[1], outputBuffer, outputOffset + 4);
+            UInt32ToBigEndian(result[0], outputBuffer, outputOffset);
+            UInt32ToBigEndian(result[1], outputBuffer, outputOffset + 4);
 
             return this.BlockSize;
+        }
+
+        /// <summary>
+        /// Validates the size of the key.
+        /// </summary>
+        /// <param name="keySize">Size of the key.</param>
+        /// <returns>
+        /// true if keySize is valid; otherwise false
+        /// </returns>
+        protected override bool ValidateKeySize(int keySize)
+        {
+            if (keySize >= 40 && keySize <= 128 && keySize % 8 == 0)
+                return true;
+            else
+                return false;
         }
 
         #region Static Definition Tables
@@ -101,7 +153,7 @@ namespace Renci.SshNet.Security.Cryptography
 			0xbd91e046, 0x9a56456e, 0xdc39200c, 0x20c8c571, 0x962bda1c, 0xe1e696ff, 0xb141ab08, 0x7cca89b9,
 			0x1a69e783, 0x02cc4843, 0xa2f7c579, 0x429ef47d, 0x427b169c, 0x5ac9f049, 0xdd8f0f00, 0x5c8165bf
 		},
-		S2 =
+        S2 =
 		{
 			0x1f201094, 0xef0ba75b, 0x69e3cf7e, 0x393f4380, 0xfe61cf7a, 0xeec5207a, 0x55889c94, 0x72fc0651,
 			0xada7ef79, 0x4e1d7235, 0xd55a63ce, 0xde0436ba, 0x99c430ef, 0x5f0c0794, 0x18dcdb7d, 0xa1d6eff3,
@@ -136,7 +188,7 @@ namespace Renci.SshNet.Security.Cryptography
 			0x8f5ea2b3, 0xfc184642, 0x0a036b7a, 0x4fb089bd, 0x649da589, 0xa345415e, 0x5c038323, 0x3e5d3bb9,
 			0x43d79572, 0x7e6dd07c, 0x06dfdf1e, 0x6c6cc4ef, 0x7160a539, 0x73bfbe70, 0x83877605, 0x4523ecf1
 		},
-		S3 =
+        S3 =
 		{
 			0x8defc240, 0x25fa5d9f, 0xeb903dbf, 0xe810c907, 0x47607fff, 0x369fe44b, 0x8c1fc644, 0xaececa90,
 			0xbeb1f9bf, 0xeefbcaea, 0xe8cf1950, 0x51df07ae, 0x920e8806, 0xf0ad0548, 0xe13c8d83, 0x927010d5,
@@ -171,7 +223,7 @@ namespace Renci.SshNet.Security.Cryptography
 			0x282f9350, 0x8334b362, 0xd91d1120, 0x2b6d8da0, 0x642b1e31, 0x9c305a00, 0x52bce688, 0x1b03588a,
 			0xf7baefd5, 0x4142ed9c, 0xa4315c11, 0x83323ec5, 0xdfef4636, 0xa133c501, 0xe9d3531c, 0xee353783
 		},
-		S4 =
+        S4 =
 		{
 			0x9db30420, 0x1fb6e9de, 0xa7be7bef, 0xd273a298, 0x4a4f7bdb, 0x64ad8c57, 0x85510443, 0xfa020ed1,
 			0x7e287aff, 0xe60fb663, 0x095f35a1, 0x79ebf120, 0xfd059d43, 0x6497b7b1, 0xf3641f63, 0x241e4adf,
@@ -206,7 +258,7 @@ namespace Renci.SshNet.Security.Cryptography
 			0x8644213e, 0xb7dc59d0, 0x7965291f, 0xccd6fd43, 0x41823979, 0x932bcdf6, 0xb657c34d, 0x4edfd282,
 			0x7ae5290c, 0x3cb9536b, 0x851e20fe, 0x9833557e, 0x13ecf0b0, 0xd3ffb372, 0x3f85c5c1, 0x0aef7ed2
 		},
-		S5 =
+        S5 =
 		{
 			0x7ec90c04, 0x2c6e74b9, 0x9b0e66df, 0xa6337911, 0xb86a7fff, 0x1dd358f5, 0x44dd9d44, 0x1731167f,
 			0x08fbf1fa, 0xe7f511cc, 0xd2051b00, 0x735aba00, 0x2ab722d8, 0x386381cb, 0xacf6243a, 0x69befd7a,
@@ -241,7 +293,7 @@ namespace Renci.SshNet.Security.Cryptography
 			0xd6cd2595, 0x68ff1ebf, 0x7555442c, 0xf19f06be, 0xf9e0659a, 0xeeb9491d, 0x34010718, 0xbb30cab8,
 			0xe822fe15, 0x88570983, 0x750e6249, 0xda627e55, 0x5e76ffa8, 0xb1534546, 0x6d47de08, 0xefe9e7d4
 		},
-		S6 =
+        S6 =
 		{
 			0xf6fa8f9d, 0x2cac6ce1, 0x4ca34867, 0xe2337f7c, 0x95db08e7, 0x016843b4, 0xeced5cbc, 0x325553ac,
 			0xbf9f0960, 0xdfa1e2ed, 0x83f0579d, 0x63ed86b9, 0x1ab6a6b8, 0xde5ebe39, 0xf38ff732, 0x8989b138,
@@ -276,7 +328,7 @@ namespace Renci.SshNet.Security.Cryptography
 			0x3b4cbf9f, 0x4a5de3ab, 0xe6051d35, 0xa0e1d855, 0xd36b4cf1, 0xf544edeb, 0xb0e93524, 0xbebb8fbd,
 			0xa2d762cf, 0x49c92f54, 0x38b5f331, 0x7128a454, 0x48392905, 0xa65b1db8, 0x851c97bd, 0xd675cf2f
 		},
-		S7 =
+        S7 =
 		{
 			0x85e04019, 0x332bf567, 0x662dbfff, 0xcfc65693, 0x2a8d7f6f, 0xab9bc912, 0xde6008a1, 0x2028da1f,
 			0x0227bce7, 0x4d642916, 0x18fac300, 0x50f18b82, 0x2cb2cb11, 0xb232e75c, 0x4b3695f2, 0xb28707de,
@@ -311,7 +363,7 @@ namespace Renci.SshNet.Security.Cryptography
 			0x91da55f4, 0x40a230f3, 0xd1988f35, 0xb6e318d2, 0x3ffa50bc, 0x3d40f021, 0xc3c0bdae, 0x4958c24c,
 			0x518f36b2, 0x84b1d370, 0x0fedce83, 0x878ddada, 0xf2a279c7, 0x94e01be8, 0x90716f4b, 0x954b8aa3
 		},
-		S8 =
+        S8 =
 		{
 			0xe216300d, 0xbbddfffc, 0xa7ebdabd, 0x35648095, 0x7789f8b7, 0xe6c1121b, 0x0e241600, 0x052ce8b5,
 			0x11a9cfb0, 0xe5952f11, 0xece7990a, 0x9386d174, 0x2a42931c, 0x76e38111, 0xb12def3a, 0x37ddddfc,
@@ -371,14 +423,14 @@ namespace Renci.SshNet.Security.Cryptography
                 _rounds = RED_ROUNDS;
             }
 
-            int [] z = new int[16];
-            int [] x = new int[16];
+            int[] z = new int[16];
+            int[] x = new int[16];
 
             uint z03, z47, z8B, zCF;
             uint x03, x47, x8B, xCF;
 
             /* copy the key into x */
-            for (int i=0; i< key.Length; i++)
+            for (int i = 0; i < key.Length; i++)
             {
                 x[i] = (int)(key[i] & 0xff);
             }
@@ -393,138 +445,138 @@ namespace Renci.SshNet.Security.Cryptography
             x8B = IntsTo32bits(x, 0x8);
             xCF = IntsTo32bits(x, 0xC);
 
-            z03 = x03 ^S5[x[0xD]] ^S6[x[0xF]] ^S7[x[0xC]] ^S8[x[0xE]] ^S7[x[0x8]];
+            z03 = x03 ^ S5[x[0xD]] ^ S6[x[0xF]] ^ S7[x[0xC]] ^ S8[x[0xE]] ^ S7[x[0x8]];
 
             Bits32ToInts(z03, z, 0x0);
-            z47 = x8B ^S5[z[0x0]] ^S6[z[0x2]] ^S7[z[0x1]] ^S8[z[0x3]] ^S8[x[0xA]];
+            z47 = x8B ^ S5[z[0x0]] ^ S6[z[0x2]] ^ S7[z[0x1]] ^ S8[z[0x3]] ^ S8[x[0xA]];
             Bits32ToInts(z47, z, 0x4);
-            z8B = xCF ^S5[z[0x7]] ^S6[z[0x6]] ^S7[z[0x5]] ^S8[z[0x4]] ^S5[x[0x9]];
+            z8B = xCF ^ S5[z[0x7]] ^ S6[z[0x6]] ^ S7[z[0x5]] ^ S8[z[0x4]] ^ S5[x[0x9]];
             Bits32ToInts(z8B, z, 0x8);
-            zCF = x47 ^S5[z[0xA]] ^S6[z[0x9]] ^S7[z[0xB]] ^S8[z[0x8]] ^S6[x[0xB]];
+            zCF = x47 ^ S5[z[0xA]] ^ S6[z[0x9]] ^ S7[z[0xB]] ^ S8[z[0x8]] ^ S6[x[0xB]];
             Bits32ToInts(zCF, z, 0xC);
-            _Km[ 1]= S5[z[0x8]] ^ S6[z[0x9]] ^ S7[z[0x7]] ^ S8[z[0x6]] ^ S5[z[0x2]];
-            _Km[ 2]= S5[z[0xA]] ^ S6[z[0xB]] ^ S7[z[0x5]] ^ S8[z[0x4]] ^ S6[z[0x6]];
-            _Km[ 3]= S5[z[0xC]] ^ S6[z[0xD]] ^ S7[z[0x3]] ^ S8[z[0x2]] ^ S7[z[0x9]];
-            _Km[ 4]= S5[z[0xE]] ^ S6[z[0xF]] ^ S7[z[0x1]] ^ S8[z[0x0]] ^ S8[z[0xC]];
+            _Km[1] = S5[z[0x8]] ^ S6[z[0x9]] ^ S7[z[0x7]] ^ S8[z[0x6]] ^ S5[z[0x2]];
+            _Km[2] = S5[z[0xA]] ^ S6[z[0xB]] ^ S7[z[0x5]] ^ S8[z[0x4]] ^ S6[z[0x6]];
+            _Km[3] = S5[z[0xC]] ^ S6[z[0xD]] ^ S7[z[0x3]] ^ S8[z[0x2]] ^ S7[z[0x9]];
+            _Km[4] = S5[z[0xE]] ^ S6[z[0xF]] ^ S7[z[0x1]] ^ S8[z[0x0]] ^ S8[z[0xC]];
 
             z03 = IntsTo32bits(z, 0x0);
             z47 = IntsTo32bits(z, 0x4);
             z8B = IntsTo32bits(z, 0x8);
             zCF = IntsTo32bits(z, 0xC);
-            x03 = z8B ^S5[z[0x5]] ^S6[z[0x7]] ^S7[z[0x4]] ^S8[z[0x6]] ^S7[z[0x0]];
+            x03 = z8B ^ S5[z[0x5]] ^ S6[z[0x7]] ^ S7[z[0x4]] ^ S8[z[0x6]] ^ S7[z[0x0]];
             Bits32ToInts(x03, x, 0x0);
-            x47 = z03 ^S5[x[0x0]] ^S6[x[0x2]] ^S7[x[0x1]] ^S8[x[0x3]] ^S8[z[0x2]];
+            x47 = z03 ^ S5[x[0x0]] ^ S6[x[0x2]] ^ S7[x[0x1]] ^ S8[x[0x3]] ^ S8[z[0x2]];
             Bits32ToInts(x47, x, 0x4);
-            x8B = z47 ^S5[x[0x7]] ^S6[x[0x6]] ^S7[x[0x5]] ^S8[x[0x4]] ^S5[z[0x1]];
+            x8B = z47 ^ S5[x[0x7]] ^ S6[x[0x6]] ^ S7[x[0x5]] ^ S8[x[0x4]] ^ S5[z[0x1]];
             Bits32ToInts(x8B, x, 0x8);
-            xCF = zCF ^S5[x[0xA]] ^S6[x[0x9]] ^S7[x[0xB]] ^S8[x[0x8]] ^S6[z[0x3]];
+            xCF = zCF ^ S5[x[0xA]] ^ S6[x[0x9]] ^ S7[x[0xB]] ^ S8[x[0x8]] ^ S6[z[0x3]];
             Bits32ToInts(xCF, x, 0xC);
-            _Km[ 5]= S5[x[0x3]] ^ S6[x[0x2]] ^ S7[x[0xC]] ^ S8[x[0xD]] ^ S5[x[0x8]];
-            _Km[ 6]= S5[x[0x1]] ^ S6[x[0x0]] ^ S7[x[0xE]] ^ S8[x[0xF]] ^ S6[x[0xD]];
-            _Km[ 7]= S5[x[0x7]] ^ S6[x[0x6]] ^ S7[x[0x8]] ^ S8[x[0x9]] ^ S7[x[0x3]];
-            _Km[ 8]= S5[x[0x5]] ^ S6[x[0x4]] ^ S7[x[0xA]] ^ S8[x[0xB]] ^ S8[x[0x7]];
+            _Km[5] = S5[x[0x3]] ^ S6[x[0x2]] ^ S7[x[0xC]] ^ S8[x[0xD]] ^ S5[x[0x8]];
+            _Km[6] = S5[x[0x1]] ^ S6[x[0x0]] ^ S7[x[0xE]] ^ S8[x[0xF]] ^ S6[x[0xD]];
+            _Km[7] = S5[x[0x7]] ^ S6[x[0x6]] ^ S7[x[0x8]] ^ S8[x[0x9]] ^ S7[x[0x3]];
+            _Km[8] = S5[x[0x5]] ^ S6[x[0x4]] ^ S7[x[0xA]] ^ S8[x[0xB]] ^ S8[x[0x7]];
 
             x03 = IntsTo32bits(x, 0x0);
             x47 = IntsTo32bits(x, 0x4);
             x8B = IntsTo32bits(x, 0x8);
             xCF = IntsTo32bits(x, 0xC);
-            z03 = x03 ^S5[x[0xD]] ^S6[x[0xF]] ^S7[x[0xC]] ^S8[x[0xE]] ^S7[x[0x8]];
+            z03 = x03 ^ S5[x[0xD]] ^ S6[x[0xF]] ^ S7[x[0xC]] ^ S8[x[0xE]] ^ S7[x[0x8]];
             Bits32ToInts(z03, z, 0x0);
-            z47 = x8B ^S5[z[0x0]] ^S6[z[0x2]] ^S7[z[0x1]] ^S8[z[0x3]] ^S8[x[0xA]];
+            z47 = x8B ^ S5[z[0x0]] ^ S6[z[0x2]] ^ S7[z[0x1]] ^ S8[z[0x3]] ^ S8[x[0xA]];
             Bits32ToInts(z47, z, 0x4);
-            z8B = xCF ^S5[z[0x7]] ^S6[z[0x6]] ^S7[z[0x5]] ^S8[z[0x4]] ^S5[x[0x9]];
+            z8B = xCF ^ S5[z[0x7]] ^ S6[z[0x6]] ^ S7[z[0x5]] ^ S8[z[0x4]] ^ S5[x[0x9]];
             Bits32ToInts(z8B, z, 0x8);
-            zCF = x47 ^S5[z[0xA]] ^S6[z[0x9]] ^S7[z[0xB]] ^S8[z[0x8]] ^S6[x[0xB]];
+            zCF = x47 ^ S5[z[0xA]] ^ S6[z[0x9]] ^ S7[z[0xB]] ^ S8[z[0x8]] ^ S6[x[0xB]];
             Bits32ToInts(zCF, z, 0xC);
-            _Km[ 9]= S5[z[0x3]] ^ S6[z[0x2]] ^ S7[z[0xC]] ^ S8[z[0xD]] ^ S5[z[0x9]];
-            _Km[10]= S5[z[0x1]] ^ S6[z[0x0]] ^ S7[z[0xE]] ^ S8[z[0xF]] ^ S6[z[0xc]];
-            _Km[11]= S5[z[0x7]] ^ S6[z[0x6]] ^ S7[z[0x8]] ^ S8[z[0x9]] ^ S7[z[0x2]];
-            _Km[12]= S5[z[0x5]] ^ S6[z[0x4]] ^ S7[z[0xA]] ^ S8[z[0xB]] ^ S8[z[0x6]];
+            _Km[9] = S5[z[0x3]] ^ S6[z[0x2]] ^ S7[z[0xC]] ^ S8[z[0xD]] ^ S5[z[0x9]];
+            _Km[10] = S5[z[0x1]] ^ S6[z[0x0]] ^ S7[z[0xE]] ^ S8[z[0xF]] ^ S6[z[0xc]];
+            _Km[11] = S5[z[0x7]] ^ S6[z[0x6]] ^ S7[z[0x8]] ^ S8[z[0x9]] ^ S7[z[0x2]];
+            _Km[12] = S5[z[0x5]] ^ S6[z[0x4]] ^ S7[z[0xA]] ^ S8[z[0xB]] ^ S8[z[0x6]];
 
             z03 = IntsTo32bits(z, 0x0);
             z47 = IntsTo32bits(z, 0x4);
             z8B = IntsTo32bits(z, 0x8);
             zCF = IntsTo32bits(z, 0xC);
-            x03 = z8B ^S5[z[0x5]] ^S6[z[0x7]] ^S7[z[0x4]] ^S8[z[0x6]] ^S7[z[0x0]];
+            x03 = z8B ^ S5[z[0x5]] ^ S6[z[0x7]] ^ S7[z[0x4]] ^ S8[z[0x6]] ^ S7[z[0x0]];
             Bits32ToInts(x03, x, 0x0);
-            x47 = z03 ^S5[x[0x0]] ^S6[x[0x2]] ^S7[x[0x1]] ^S8[x[0x3]] ^S8[z[0x2]];
+            x47 = z03 ^ S5[x[0x0]] ^ S6[x[0x2]] ^ S7[x[0x1]] ^ S8[x[0x3]] ^ S8[z[0x2]];
             Bits32ToInts(x47, x, 0x4);
-            x8B = z47 ^S5[x[0x7]] ^S6[x[0x6]] ^S7[x[0x5]] ^S8[x[0x4]] ^S5[z[0x1]];
+            x8B = z47 ^ S5[x[0x7]] ^ S6[x[0x6]] ^ S7[x[0x5]] ^ S8[x[0x4]] ^ S5[z[0x1]];
             Bits32ToInts(x8B, x, 0x8);
-            xCF = zCF ^S5[x[0xA]] ^S6[x[0x9]] ^S7[x[0xB]] ^S8[x[0x8]] ^S6[z[0x3]];
+            xCF = zCF ^ S5[x[0xA]] ^ S6[x[0x9]] ^ S7[x[0xB]] ^ S8[x[0x8]] ^ S6[z[0x3]];
             Bits32ToInts(xCF, x, 0xC);
-            _Km[13]= S5[x[0x8]] ^ S6[x[0x9]] ^ S7[x[0x7]] ^ S8[x[0x6]] ^ S5[x[0x3]];
-            _Km[14]= S5[x[0xA]] ^ S6[x[0xB]] ^ S7[x[0x5]] ^ S8[x[0x4]] ^ S6[x[0x7]];
-            _Km[15]= S5[x[0xC]] ^ S6[x[0xD]] ^ S7[x[0x3]] ^ S8[x[0x2]] ^ S7[x[0x8]];
-            _Km[16]= S5[x[0xE]] ^ S6[x[0xF]] ^ S7[x[0x1]] ^ S8[x[0x0]] ^ S8[x[0xD]];
+            _Km[13] = S5[x[0x8]] ^ S6[x[0x9]] ^ S7[x[0x7]] ^ S8[x[0x6]] ^ S5[x[0x3]];
+            _Km[14] = S5[x[0xA]] ^ S6[x[0xB]] ^ S7[x[0x5]] ^ S8[x[0x4]] ^ S6[x[0x7]];
+            _Km[15] = S5[x[0xC]] ^ S6[x[0xD]] ^ S7[x[0x3]] ^ S8[x[0x2]] ^ S7[x[0x8]];
+            _Km[16] = S5[x[0xE]] ^ S6[x[0xF]] ^ S7[x[0x1]] ^ S8[x[0x0]] ^ S8[x[0xD]];
 
             x03 = IntsTo32bits(x, 0x0);
             x47 = IntsTo32bits(x, 0x4);
             x8B = IntsTo32bits(x, 0x8);
             xCF = IntsTo32bits(x, 0xC);
-            z03 = x03 ^S5[x[0xD]] ^S6[x[0xF]] ^S7[x[0xC]] ^S8[x[0xE]] ^S7[x[0x8]];
+            z03 = x03 ^ S5[x[0xD]] ^ S6[x[0xF]] ^ S7[x[0xC]] ^ S8[x[0xE]] ^ S7[x[0x8]];
             Bits32ToInts(z03, z, 0x0);
-            z47 = x8B ^S5[z[0x0]] ^S6[z[0x2]] ^S7[z[0x1]] ^S8[z[0x3]] ^S8[x[0xA]];
+            z47 = x8B ^ S5[z[0x0]] ^ S6[z[0x2]] ^ S7[z[0x1]] ^ S8[z[0x3]] ^ S8[x[0xA]];
             Bits32ToInts(z47, z, 0x4);
-            z8B = xCF ^S5[z[0x7]] ^S6[z[0x6]] ^S7[z[0x5]] ^S8[z[0x4]] ^S5[x[0x9]];
+            z8B = xCF ^ S5[z[0x7]] ^ S6[z[0x6]] ^ S7[z[0x5]] ^ S8[z[0x4]] ^ S5[x[0x9]];
             Bits32ToInts(z8B, z, 0x8);
-            zCF = x47 ^S5[z[0xA]] ^S6[z[0x9]] ^S7[z[0xB]] ^S8[z[0x8]] ^S6[x[0xB]];
+            zCF = x47 ^ S5[z[0xA]] ^ S6[z[0x9]] ^ S7[z[0xB]] ^ S8[z[0x8]] ^ S6[x[0xB]];
             Bits32ToInts(zCF, z, 0xC);
-            _Kr[ 1]=(int)((S5[z[0x8]]^S6[z[0x9]]^S7[z[0x7]]^S8[z[0x6]] ^ S5[z[0x2]])&0x1f);
-            _Kr[ 2]=(int)((S5[z[0xA]]^S6[z[0xB]]^S7[z[0x5]]^S8[z[0x4]] ^ S6[z[0x6]])&0x1f);
-            _Kr[ 3]=(int)((S5[z[0xC]]^S6[z[0xD]]^S7[z[0x3]]^S8[z[0x2]] ^ S7[z[0x9]])&0x1f);
-            _Kr[ 4]=(int)((S5[z[0xE]]^S6[z[0xF]]^S7[z[0x1]]^S8[z[0x0]] ^ S8[z[0xC]])&0x1f);
+            _Kr[1] = (int)((S5[z[0x8]] ^ S6[z[0x9]] ^ S7[z[0x7]] ^ S8[z[0x6]] ^ S5[z[0x2]]) & 0x1f);
+            _Kr[2] = (int)((S5[z[0xA]] ^ S6[z[0xB]] ^ S7[z[0x5]] ^ S8[z[0x4]] ^ S6[z[0x6]]) & 0x1f);
+            _Kr[3] = (int)((S5[z[0xC]] ^ S6[z[0xD]] ^ S7[z[0x3]] ^ S8[z[0x2]] ^ S7[z[0x9]]) & 0x1f);
+            _Kr[4] = (int)((S5[z[0xE]] ^ S6[z[0xF]] ^ S7[z[0x1]] ^ S8[z[0x0]] ^ S8[z[0xC]]) & 0x1f);
 
             z03 = IntsTo32bits(z, 0x0);
             z47 = IntsTo32bits(z, 0x4);
             z8B = IntsTo32bits(z, 0x8);
             zCF = IntsTo32bits(z, 0xC);
-            x03 = z8B ^S5[z[0x5]] ^S6[z[0x7]] ^S7[z[0x4]] ^S8[z[0x6]] ^S7[z[0x0]];
+            x03 = z8B ^ S5[z[0x5]] ^ S6[z[0x7]] ^ S7[z[0x4]] ^ S8[z[0x6]] ^ S7[z[0x0]];
             Bits32ToInts(x03, x, 0x0);
-            x47 = z03 ^S5[x[0x0]] ^S6[x[0x2]] ^S7[x[0x1]] ^S8[x[0x3]] ^S8[z[0x2]];
+            x47 = z03 ^ S5[x[0x0]] ^ S6[x[0x2]] ^ S7[x[0x1]] ^ S8[x[0x3]] ^ S8[z[0x2]];
             Bits32ToInts(x47, x, 0x4);
-            x8B = z47 ^S5[x[0x7]] ^S6[x[0x6]] ^S7[x[0x5]] ^S8[x[0x4]] ^S5[z[0x1]];
+            x8B = z47 ^ S5[x[0x7]] ^ S6[x[0x6]] ^ S7[x[0x5]] ^ S8[x[0x4]] ^ S5[z[0x1]];
             Bits32ToInts(x8B, x, 0x8);
-            xCF = zCF ^S5[x[0xA]] ^S6[x[0x9]] ^S7[x[0xB]] ^S8[x[0x8]] ^S6[z[0x3]];
+            xCF = zCF ^ S5[x[0xA]] ^ S6[x[0x9]] ^ S7[x[0xB]] ^ S8[x[0x8]] ^ S6[z[0x3]];
             Bits32ToInts(xCF, x, 0xC);
-            _Kr[ 5]=(int)((S5[x[0x3]]^S6[x[0x2]]^S7[x[0xC]]^S8[x[0xD]]^S5[x[0x8]])&0x1f);
-            _Kr[ 6]=(int)((S5[x[0x1]]^S6[x[0x0]]^S7[x[0xE]]^S8[x[0xF]]^S6[x[0xD]])&0x1f);
-            _Kr[ 7]=(int)((S5[x[0x7]]^S6[x[0x6]]^S7[x[0x8]]^S8[x[0x9]]^S7[x[0x3]])&0x1f);
-            _Kr[ 8]=(int)((S5[x[0x5]]^S6[x[0x4]]^S7[x[0xA]]^S8[x[0xB]]^S8[x[0x7]])&0x1f);
+            _Kr[5] = (int)((S5[x[0x3]] ^ S6[x[0x2]] ^ S7[x[0xC]] ^ S8[x[0xD]] ^ S5[x[0x8]]) & 0x1f);
+            _Kr[6] = (int)((S5[x[0x1]] ^ S6[x[0x0]] ^ S7[x[0xE]] ^ S8[x[0xF]] ^ S6[x[0xD]]) & 0x1f);
+            _Kr[7] = (int)((S5[x[0x7]] ^ S6[x[0x6]] ^ S7[x[0x8]] ^ S8[x[0x9]] ^ S7[x[0x3]]) & 0x1f);
+            _Kr[8] = (int)((S5[x[0x5]] ^ S6[x[0x4]] ^ S7[x[0xA]] ^ S8[x[0xB]] ^ S8[x[0x7]]) & 0x1f);
 
             x03 = IntsTo32bits(x, 0x0);
             x47 = IntsTo32bits(x, 0x4);
             x8B = IntsTo32bits(x, 0x8);
             xCF = IntsTo32bits(x, 0xC);
-            z03 = x03 ^S5[x[0xD]] ^S6[x[0xF]] ^S7[x[0xC]] ^S8[x[0xE]] ^S7[x[0x8]];
+            z03 = x03 ^ S5[x[0xD]] ^ S6[x[0xF]] ^ S7[x[0xC]] ^ S8[x[0xE]] ^ S7[x[0x8]];
             Bits32ToInts(z03, z, 0x0);
-            z47 = x8B ^S5[z[0x0]] ^S6[z[0x2]] ^S7[z[0x1]] ^S8[z[0x3]] ^S8[x[0xA]];
+            z47 = x8B ^ S5[z[0x0]] ^ S6[z[0x2]] ^ S7[z[0x1]] ^ S8[z[0x3]] ^ S8[x[0xA]];
             Bits32ToInts(z47, z, 0x4);
-            z8B = xCF ^S5[z[0x7]] ^S6[z[0x6]] ^S7[z[0x5]] ^S8[z[0x4]] ^S5[x[0x9]];
+            z8B = xCF ^ S5[z[0x7]] ^ S6[z[0x6]] ^ S7[z[0x5]] ^ S8[z[0x4]] ^ S5[x[0x9]];
             Bits32ToInts(z8B, z, 0x8);
-            zCF = x47 ^S5[z[0xA]] ^S6[z[0x9]] ^S7[z[0xB]] ^S8[z[0x8]] ^S6[x[0xB]];
+            zCF = x47 ^ S5[z[0xA]] ^ S6[z[0x9]] ^ S7[z[0xB]] ^ S8[z[0x8]] ^ S6[x[0xB]];
             Bits32ToInts(zCF, z, 0xC);
-            _Kr[ 9]=(int)((S5[z[0x3]]^S6[z[0x2]]^S7[z[0xC]]^S8[z[0xD]]^S5[z[0x9]])&0x1f);
-            _Kr[10]=(int)((S5[z[0x1]]^S6[z[0x0]]^S7[z[0xE]]^S8[z[0xF]]^S6[z[0xc]])&0x1f);
-            _Kr[11]=(int)((S5[z[0x7]]^S6[z[0x6]]^S7[z[0x8]]^S8[z[0x9]]^S7[z[0x2]])&0x1f);
-            _Kr[12]=(int)((S5[z[0x5]]^S6[z[0x4]]^S7[z[0xA]]^S8[z[0xB]]^S8[z[0x6]])&0x1f);
+            _Kr[9] = (int)((S5[z[0x3]] ^ S6[z[0x2]] ^ S7[z[0xC]] ^ S8[z[0xD]] ^ S5[z[0x9]]) & 0x1f);
+            _Kr[10] = (int)((S5[z[0x1]] ^ S6[z[0x0]] ^ S7[z[0xE]] ^ S8[z[0xF]] ^ S6[z[0xc]]) & 0x1f);
+            _Kr[11] = (int)((S5[z[0x7]] ^ S6[z[0x6]] ^ S7[z[0x8]] ^ S8[z[0x9]] ^ S7[z[0x2]]) & 0x1f);
+            _Kr[12] = (int)((S5[z[0x5]] ^ S6[z[0x4]] ^ S7[z[0xA]] ^ S8[z[0xB]] ^ S8[z[0x6]]) & 0x1f);
 
             z03 = IntsTo32bits(z, 0x0);
             z47 = IntsTo32bits(z, 0x4);
             z8B = IntsTo32bits(z, 0x8);
             zCF = IntsTo32bits(z, 0xC);
-            x03 = z8B ^S5[z[0x5]] ^S6[z[0x7]] ^S7[z[0x4]] ^S8[z[0x6]] ^S7[z[0x0]];
+            x03 = z8B ^ S5[z[0x5]] ^ S6[z[0x7]] ^ S7[z[0x4]] ^ S8[z[0x6]] ^ S7[z[0x0]];
             Bits32ToInts(x03, x, 0x0);
-            x47 = z03 ^S5[x[0x0]] ^S6[x[0x2]] ^S7[x[0x1]] ^S8[x[0x3]] ^S8[z[0x2]];
+            x47 = z03 ^ S5[x[0x0]] ^ S6[x[0x2]] ^ S7[x[0x1]] ^ S8[x[0x3]] ^ S8[z[0x2]];
             Bits32ToInts(x47, x, 0x4);
-            x8B = z47 ^S5[x[0x7]] ^S6[x[0x6]] ^S7[x[0x5]] ^S8[x[0x4]] ^S5[z[0x1]];
+            x8B = z47 ^ S5[x[0x7]] ^ S6[x[0x6]] ^ S7[x[0x5]] ^ S8[x[0x4]] ^ S5[z[0x1]];
             Bits32ToInts(x8B, x, 0x8);
-            xCF = zCF ^S5[x[0xA]] ^S6[x[0x9]] ^S7[x[0xB]] ^S8[x[0x8]] ^S6[z[0x3]];
+            xCF = zCF ^ S5[x[0xA]] ^ S6[x[0x9]] ^ S7[x[0xB]] ^ S8[x[0x8]] ^ S6[z[0x3]];
             Bits32ToInts(xCF, x, 0xC);
-            _Kr[13]=(int)((S5[x[0x8]]^S6[x[0x9]]^S7[x[0x7]]^S8[x[0x6]]^S5[x[0x3]])&0x1f);
-            _Kr[14]=(int)((S5[x[0xA]]^S6[x[0xB]]^S7[x[0x5]]^S8[x[0x4]]^S6[x[0x7]])&0x1f);
-            _Kr[15]=(int)((S5[x[0xC]]^S6[x[0xD]]^S7[x[0x3]]^S8[x[0x2]]^S7[x[0x8]])&0x1f);
-            _Kr[16]=(int)((S5[x[0xE]]^S6[x[0xF]]^S7[x[0x1]]^S8[x[0x0]]^S8[x[0xD]])&0x1f);
+            _Kr[13] = (int)((S5[x[0x8]] ^ S6[x[0x9]] ^ S7[x[0x7]] ^ S8[x[0x6]] ^ S5[x[0x3]]) & 0x1f);
+            _Kr[14] = (int)((S5[x[0xA]] ^ S6[x[0xB]] ^ S7[x[0x5]] ^ S8[x[0x4]] ^ S6[x[0x7]]) & 0x1f);
+            _Kr[15] = (int)((S5[x[0xC]] ^ S6[x[0xD]] ^ S7[x[0x3]] ^ S8[x[0x2]] ^ S7[x[0x8]]) & 0x1f);
+            _Kr[16] = (int)((S5[x[0xE]] ^ S6[x[0xF]] ^ S7[x[0x1]] ^ S8[x[0x0]] ^ S8[x[0xD]]) & 0x1f);
         }
 
         /**
@@ -536,11 +588,11 @@ namespace Renci.SshNet.Security.Cryptography
         * @param Kri        the rotation value to be used
         *
         */
-        internal static uint F1(uint D, uint Kmi, int Kri)
+        private static uint F1(uint D, uint Kmi, int Kri)
         {
             uint I = Kmi + D;
-            I = I << Kri | (I >> (32-Kri));
-            return ((S1[(I>>24)&0xff]^S2[(I>>16)&0xff])-S3[(I>>8)&0xff])+S4[I&0xff];
+            I = I << Kri | (I >> (32 - Kri));
+            return ((S1[(I >> 24) & 0xff] ^ S2[(I >> 16) & 0xff]) - S3[(I >> 8) & 0xff]) + S4[I & 0xff];
         }
 
         /**
@@ -552,11 +604,11 @@ namespace Renci.SshNet.Security.Cryptography
         * @param Kri        the rotation value to be used
         *
         */
-        internal static uint F2(uint D, uint Kmi, int Kri)
+        private static uint F2(uint D, uint Kmi, int Kri)
         {
             uint I = Kmi ^ D;
-            I = I << Kri | (I >> (32-Kri));
-            return ((S1[(I>>24)&0xff]-S2[(I>>16)&0xff])+S3[(I>>8)&0xff])^S4[I&0xff];
+            I = I << Kri | (I >> (32 - Kri));
+            return ((S1[(I >> 24) & 0xff] - S2[(I >> 16) & 0xff]) + S3[(I >> 8) & 0xff]) ^ S4[I & 0xff];
         }
 
         /**
@@ -568,11 +620,11 @@ namespace Renci.SshNet.Security.Cryptography
         * @param Kri        the rotation value to be used
         *
         */
-        internal static uint F3(uint D, uint Kmi, int Kri)
+        private static uint F3(uint D, uint Kmi, int Kri)
         {
             uint I = Kmi - D;
-            I = I << Kri | (I >> (32-Kri));
-            return ((S1[(I>>24)&0xff]+S2[(I>>16)&0xff])^S3[(I>>8)&0xff])-S4[I&0xff];
+            I = I << Kri | (I >> (32 - Kri));
+            return ((S1[(I >> 24) & 0xff] + S2[(I >> 16) & 0xff]) ^ S3[(I >> 8) & 0xff]) - S4[I & 0xff];
         }
 
         /**
@@ -581,7 +633,7 @@ namespace Renci.SshNet.Security.Cryptography
         * @param L0    the LH-32bits of the plaintext block
         * @param R0    the RH-32bits of the plaintext block
         */
-        internal void CAST_Encipher(uint L0, uint R0, uint[] result)
+        private void CastEncipher(uint L0, uint R0, uint[] result)
         {
             uint Lp = L0;        // the previous value, equiv to L[i-1]
             uint Rp = R0;        // equivalent to R[i-1]
@@ -592,7 +644,7 @@ namespace Renci.SshNet.Security.Cryptography
             */
             uint Li = L0, Ri = R0;
 
-            for (int i = 1; i<=_rounds ; i++)
+            for (int i = 1; i <= _rounds; i++)
             {
                 Lp = Li;
                 Rp = Ri;
@@ -600,24 +652,24 @@ namespace Renci.SshNet.Security.Cryptography
                 Li = Rp;
                 switch (i)
                 {
-                    case  1:
-                    case  4:
-                    case  7:
+                    case 1:
+                    case 4:
+                    case 7:
                     case 10:
                     case 13:
                     case 16:
                         Ri = Lp ^ F1(Rp, _Km[i], _Kr[i]);
                         break;
-                    case  2:
-                    case  5:
-                    case  8:
+                    case 2:
+                    case 5:
+                    case 8:
                     case 11:
                     case 14:
                         Ri = Lp ^ F2(Rp, _Km[i], _Kr[i]);
                         break;
-                    case  3:
-                    case  6:
-                    case  9:
+                    case 3:
+                    case 6:
+                    case 9:
                     case 12:
                     case 15:
                         Ri = Lp ^ F3(Rp, _Km[i], _Kr[i]);
@@ -631,7 +683,7 @@ namespace Renci.SshNet.Security.Cryptography
             return;
         }
 
-        internal void CAST_Decipher(uint L16, uint R16, uint[] result)
+        private void CastDecipher(uint L16, uint R16, uint[] result)
         {
             uint Lp = L16;        // the previous value, equiv to L[i-1]
             uint Rp = R16;        // equivalent to R[i-1]
@@ -650,24 +702,24 @@ namespace Renci.SshNet.Security.Cryptography
                 Li = Rp;
                 switch (i)
                 {
-                    case  1:
-                    case  4:
-                    case  7:
+                    case 1:
+                    case 4:
+                    case 7:
                     case 10:
                     case 13:
                     case 16:
                         Ri = Lp ^ F1(Rp, _Km[i], _Kr[i]);
                         break;
-                    case  2:
-                    case  5:
-                    case  8:
+                    case 2:
+                    case 5:
+                    case 8:
                     case 11:
                     case 14:
                         Ri = Lp ^ F2(Rp, _Km[i], _Kr[i]);
                         break;
-                    case  3:
-                    case  6:
-                    case  9:
+                    case 3:
+                    case 6:
+                    case 9:
                     case 12:
                     case 15:
                         Ri = Lp ^ F3(Rp, _Km[i], _Kr[i]);
@@ -681,20 +733,21 @@ namespace Renci.SshNet.Security.Cryptography
             return;
         }
 
-        internal static void Bits32ToInts(uint inData, int[] b, int offset)
+        private static void Bits32ToInts(uint inData, int[] b, int offset)
         {
-            b[offset + 3] = (int) (inData & 0xff);
-            b[offset + 2] = (int) ((inData >> 8) & 0xff);
-            b[offset + 1] = (int) ((inData >> 16) & 0xff);
-            b[offset]     = (int) ((inData >> 24) & 0xff);
+            b[offset + 3] = (int)(inData & 0xff);
+            b[offset + 2] = (int)((inData >> 8) & 0xff);
+            b[offset + 1] = (int)((inData >> 16) & 0xff);
+            b[offset] = (int)((inData >> 24) & 0xff);
         }
 
-        internal static uint IntsTo32bits(int[] b, int i)
+        private static uint IntsTo32bits(int[] b, int i)
         {
-            return (uint)(((b[i]   & 0xff) << 24) |
-                ((b[i+1] & 0xff) << 16) |
-                ((b[i+2] & 0xff) << 8) |
-                ((b[i+3] & 0xff)));
+            return (uint)(((b[i] & 0xff) << 24) |
+                ((b[i + 1] & 0xff) << 16) |
+                ((b[i + 2] & 0xff) << 8) |
+                ((b[i + 3] & 0xff)));
         }
+
     }
 }

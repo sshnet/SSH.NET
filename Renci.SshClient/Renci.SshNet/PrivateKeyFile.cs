@@ -10,6 +10,9 @@ using System.Security;
 using Renci.SshNet.Common;
 using System.Globalization;
 using Renci.SshNet.Security.Cryptography;
+using Renci.SshNet.Security.Cryptography.Ciphers;
+using Renci.SshNet.Security.Cryptography.Ciphers.Modes;
+using Renci.SshNet.Security.Cryptography.Ciphers.Paddings;
 
 namespace Renci.SshNet
 {
@@ -152,27 +155,30 @@ namespace Renci.SshNet
                 for (int i = 0; i < binarySalt.Length; i++)
                     binarySalt[i] = Convert.ToByte(salt.Substring(i * 2, 2), 16);
 
-                Cipher cipher = null;
+                CipherInfo cipher = null;
                 switch (cipherName)
                 {
                     case "DES-EDE3-CBC":
-                        cipher = new CipherTripleDes192Cbc();
+                        cipher = new CipherInfo(192, (key, iv) => { return new TripleDesCipher(key, new CbcCipherMode(iv), new PKCS7Padding()); });
+                        break;
+                    case "DES-EDE3-CFB":
+                        cipher = new CipherInfo(192, (key, iv) => { return new TripleDesCipher(key, new CfbCipherMode(iv), new PKCS7Padding()); });
                         break;
                     case "DES-CBC":
                         //  TODO:   Not tested
-                        cipher = new CipherDes64Cbc();
+                        cipher = new CipherInfo(64, (key, iv) => { return new DesCipher(key, new CbcCipherMode(iv), new PKCS7Padding()); });
                         break;
                     case "AES-128-CBC":
                         //  TODO:   Not tested
-                        cipher = new CipherAes128Cbc();
+                        cipher = new CipherInfo(128, (key, iv) => { return new AesCipher(key, new CbcCipherMode(iv), new PKCS7Padding()); });
                         break;
                     case "AES-192-CBC":
                         //  TODO:   Not tested
-                        cipher = new CipherAes192Cbc();
+                        cipher = new CipherInfo(192, (key, iv) => { return new AesCipher(key, new CbcCipherMode(iv), new PKCS7Padding()); });
                         break;
                     case "AES-256-CBC":
                         //  TODO:   Not tested
-                        cipher = new CipherAes256Cbc();
+                        cipher = new CipherInfo(256, (key, iv) => { return new AesCipher(key, new CbcCipherMode(iv), new PKCS7Padding()); });
                         break;
                     default:
                         throw new SshException(string.Format(CultureInfo.CurrentCulture, "Unknown private key cipher \"{0}\".", cipherName));
@@ -190,12 +196,9 @@ namespace Renci.SshNet
                 case "RSA":
                     this._key = new CryptoPrivateKeyRsa();
                     break;
-#if SILVERLIGHT
-#else
                 case "DSA":
                     this._key = new CryptoPrivateKeyDss();
                     break;
-#endif
                 default:
                     throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "Key '{0}' is not supported.", keyName));
             }
@@ -206,12 +209,12 @@ namespace Renci.SshNet
         /// <summary>
         /// Decrypts encrypted private key file data.
         /// </summary>
-        /// <param name="cipher">Encryption cipher.</param>
+        /// <param name="cipherInfo">The cipher info.</param>
         /// <param name="cipherData">Encrypted data.</param>
         /// <param name="passPhrase">Decryption pass phrase.</param>
         /// <param name="binarySalt">Decryption binary salt.</param>
         /// <returns></returns>
-        public static IEnumerable<byte> DecryptKey(Cipher cipher, byte[] cipherData, string passPhrase, byte[] binarySalt)
+        public static IEnumerable<byte> DecryptKey(CipherInfo cipherInfo, byte[] cipherData, string passPhrase, byte[] binarySalt)
         {
             List<byte> cipherKey = new List<byte>();
 
@@ -225,7 +228,7 @@ namespace Renci.SshNet
 
                 cipherKey.AddRange(hash);
 
-                while (cipherKey.Count < cipher.KeySize / 8)
+                while (cipherKey.Count < cipherInfo.KeySize / 8)
                 {
                     hash = hash.Concat(initVector);
 
@@ -235,7 +238,7 @@ namespace Renci.SshNet
                 }
             }
 
-            cipher.Init(cipherKey, binarySalt);
+            var cipher = cipherInfo.Cipher(cipherKey.ToArray(), binarySalt);
 
             return cipher.Decrypt(cipherData);
         }

@@ -77,6 +77,8 @@ namespace Renci.SshNet
         /// Initializes a new instance of the <see cref="PrivateKeyFile"/> class.
         /// </summary>
         /// <param name="fileName">Name of the file.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="fileName"/> is null or empty.</exception>
+        /// <remarks>This method calls <see cref="System.IO.File.Open(string, System.IO.FileMode)"/> internally, this method does not catch exceptions from <see cref="System.IO.File.Open(string, System.IO.FileMode)"/>.</remarks>
         public PrivateKeyFile(string fileName)
         {
             if (string.IsNullOrEmpty(fileName))
@@ -93,6 +95,8 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="fileName">Name of the file.</param>
         /// <param name="passPhrase">The pass phrase.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="fileName"/> is null or empty, or <paramref name="passPhrase"/> is null.</exception>
+        /// <remarks>This method calls <see cref="System.IO.File.Open(string, System.IO.FileMode)"/> internally, this method does not catch exceptions from <see cref="System.IO.File.Open(string, System.IO.FileMode)"/>.</remarks>
         public PrivateKeyFile(string fileName, string passPhrase)
         {
             if (string.IsNullOrEmpty(fileName))
@@ -109,6 +113,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="privateKey">The private key.</param>
         /// <param name="passPhrase">The pass phrase.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="privateKey"/> or <paramref name="passPhrase"/> is null.</exception>
         public PrivateKeyFile(Stream privateKey, string passPhrase)
         {
             this.Open(privateKey, passPhrase);
@@ -214,8 +219,15 @@ namespace Renci.SshNet
         /// <param name="passPhrase">Decryption pass phrase.</param>
         /// <param name="binarySalt">Decryption binary salt.</param>
         /// <returns></returns>
+        /// <exception cref="ArgumentNullException"><paramref name="cipherInfo"/>, <paramref name="cipherData"/>, <paramref name="passPhrase"/> or <paramref name="binarySalt"/> is null.</exception>
         public static IEnumerable<byte> DecryptKey(CipherInfo cipherInfo, byte[] cipherData, string passPhrase, byte[] binarySalt)
         {
+            if (cipherInfo == null)
+                throw new ArgumentNullException("cipherInfo");
+            
+            if (cipherData == null)
+                throw new ArgumentNullException("cipherData");
+
             List<byte> cipherKey = new List<byte>();
 
             using (var md5 = new MD5Hash())

@@ -24,6 +24,7 @@ namespace Renci.SshNet.Sftp
         /// <param name="sftpSession">The SFTP session.</param>
         /// <param name="fullName">Full path of the directory or file.</param>
         /// <param name="attributes">Attributes of the directory or file.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="sftpSession"/> or <paramref name="fullName"/> is null.</exception>
         internal SftpFile(SftpSession sftpSession, string fullName, SftpFileAttributes attributes)
         {
             if (attributes == null)

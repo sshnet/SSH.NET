@@ -457,6 +457,7 @@ namespace Renci.SshNet.Sftp
         /// Clears all buffers for this stream and causes any buffered data to be written to the file.
         /// </summary>
         /// <exception cref="T:System.IO.IOException">An I/O error occurs. </exception>
+        /// <exception cref="ObjectDisposedException">Stream is closed.</exception>
         public override void Flush()
         {
             lock (this._lock)
@@ -591,6 +592,7 @@ namespace Renci.SshNet.Sftp
         /// <exception cref="T:System.NotSupportedException">The stream does not support reading. </exception>
         ///   
         /// <exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed. </exception>
+        /// <exception cref="System.IO.IOException">Read operation failed.</exception>
         public override int ReadByte()
         {
             // Lock down the file stream while we do this.
@@ -767,6 +769,7 @@ namespace Renci.SshNet.Sftp
         /// <exception cref="T:System.NotSupportedException">The stream does not support both writing and seeking, such as if the stream is constructed from a pipe or console output. </exception>
         ///   
         /// <exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed. </exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="value"/> must be greater than zero.</exception>
         public override void SetLength(long value)
         {
             // Validate the parameters and setup the object for writing.

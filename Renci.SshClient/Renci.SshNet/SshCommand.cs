@@ -146,6 +146,9 @@ namespace Renci.SshNet
         /// <returns>An <see cref="System.IAsyncResult"/> that represents the asynchronous command execution, which could still be pending.</returns>
         /// <exception cref="Renci.SshNet.Common.SshConnectionException">Client is not connected.</exception>
         /// <exception cref="Renci.SshNet.Common.SshOperationTimeoutException">Operation has timed out.</exception>
+        /// <exception cref="InvalidOperationException">Asynchronous operation is already in progress.</exception>
+        /// <exception cref="SshException">Invalid operation.</exception>
+        /// <exception cref="ArgumentException">CommandText property is empty.</exception>
         public IAsyncResult BeginExecute(AsyncCallback callback, object state)
         {
             //  Prevent from executing BeginExecute before calling EndExecute
@@ -163,7 +166,7 @@ namespace Renci.SshNet
             };
 
             
-
+            // TODO: kenneth_aa (2011-08-16) - Need better explanation for this, to make a good exception documentation.
             //  When command re-executed again, create a new channel
             if (this._channel != null)
             {
@@ -174,7 +177,7 @@ namespace Renci.SshNet
 
             if (string.IsNullOrEmpty(this.CommandText))
                 throw new ArgumentException("CommandText property is empty.");
-
+            // TODO: What happens if callback is null?
             this._callback = callback;
 
             this._channel.Open();
@@ -205,6 +208,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         /// <returns></returns>
+        /// <exception cref="ArgumentException">Either the IAsyncResult object did not come from the corresponding async method on this type, or EndExecute was called multiple times with the same IAsyncResult.</exception>
         public string EndExecute(IAsyncResult asyncResult)
         {
             if (this._asyncResult == asyncResult && this._asyncResult != null)
@@ -396,6 +400,8 @@ namespace Renci.SshNet
             }
         }
 
+        /// <exception cref="SshOperationTimeoutException">Command '{0}' has timed out.</exception>
+        /// <remarks>The actual command will be included in the exception message.</remarks>
         private void WaitHandle(WaitHandle waitHandle)
         {
             var waitHandles = new WaitHandle[]

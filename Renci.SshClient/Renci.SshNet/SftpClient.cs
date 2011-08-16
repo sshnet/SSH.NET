@@ -326,6 +326,7 @@ namespace Renci.SshNet
         /// <returns>
         /// List of files
         /// </returns>
+        /// <exception cref="ArgumentException">Either the IAsyncResult object (<paramref name="asyncResult"/>) did not come from the corresponding async method on this type, or EndExecute was called multiple times with the same IAsyncResult.</exception>
         public IEnumerable<SftpFile> EndListDirectory(IAsyncResult asyncResult)
         {
             var ar = asyncResult as SftpListDirectoryAsyncResult;
@@ -555,6 +556,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="path">The file to append the lines to. The file is created if it does not already exist.</param>
         /// <param name="contents">The lines to append to the file.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="path"/> or <paramref name="contents"/> is null.</exception>
         public void AppendAllLines(string path, IEnumerable<string> contents)
         {
             if (contents == null)
@@ -575,6 +577,7 @@ namespace Renci.SshNet
         /// <param name="path">The file to append the lines to. The file is created if it does not already exist.</param>
         /// <param name="contents">The lines to append to the file.</param>
         /// <param name="encoding">The character encoding to use.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="path"/>, <paramref name="contents"/> or <paramref name="encoding"/> is null.</exception>
         public void AppendAllLines(string path, IEnumerable<string> contents, Encoding encoding)
         {
             if (contents == null)
@@ -595,6 +598,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="path">The file to append the specified string to.</param>
         /// <param name="contents">The string to append to the file.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="path"/> or <paramref name="contents"/> is null.</exception>
         public void AppendAllText(string path, string contents)
         {
             using (var stream = this.AppendText(path))
@@ -610,6 +614,7 @@ namespace Renci.SshNet
         /// <param name="path">The file to append the specified string to.</param>
         /// <param name="contents">The string to append to the file.</param>
         /// <param name="encoding">The character encoding to use.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="path"/>, <paramref name="contents"/> or <paramref name="encoding"/> is null.</exception>
         public void AppendAllText(string path, string contents, Encoding encoding)
         {
             using (var stream = this.AppendText(path, encoding))
@@ -623,6 +628,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="path">The path to the file to append to.</param>
         /// <returns>A StreamWriter that appends UTF-8 encoded text to an existing file.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="path"/> is null.</exception>
         public StreamWriter AppendText(string path)
         {
             return this.AppendText(path, Encoding.UTF8);
@@ -636,6 +642,7 @@ namespace Renci.SshNet
         /// <returns>
         /// A StreamWriter that appends UTF-8 encoded text to an existing file.
         /// </returns>
+        /// <exception cref="ArgumentNullException"><paramref name="path"/> or <paramref name="encoding"/> is null.</exception>
         public StreamWriter AppendText(string path, Encoding encoding)
         {
             if (encoding == null)
@@ -893,6 +900,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="path">The file for which to set the access date and time information.</param>
         /// <param name="lastAccessTime">A <see cref="System.DateTime"/> containing the value to set for the last access date and time of path. This value is expressed in local time.</param>
+        [Obsolete("Note: This method currently throws NotImplementedException because it has not yet been implemented.")]
         public void SetLastAccessTime(string path, DateTime lastAccessTime)
         {
             throw new NotImplementedException();
@@ -903,6 +911,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="path">The file for which to set the access date and time information.</param>
         /// <param name="lastAccessTimeUtc">A <see cref="System.DateTime"/> containing the value to set for the last access date and time of path. This value is expressed in UTC time.</param>
+        [Obsolete("Note: This method currently throws NotImplementedException because it has not yet been implemented.")]
         public void SetLastAccessTimeUtc(string path, DateTime lastAccessTimeUtc)
         {
             throw new NotImplementedException();
@@ -913,6 +922,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="path">The file for which to set the date and time information.</param>
         /// <param name="lastWriteTime">A System.DateTime containing the value to set for the last write date and time of path. This value is expressed in local time.</param>
+        [Obsolete("Note: This method currently throws NotImplementedException because it has not yet been implemented.")]
         public void SetLastWriteTime(string path, DateTime lastWriteTime)
         {
             throw new NotImplementedException();
@@ -923,6 +933,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="path">The file for which to set the date and time information.</param>
         /// <param name="lastWriteTimeUtc">A System.DateTime containing the value to set for the last write date and time of path. This value is expressed in UTC time.</param>
+        [Obsolete("Note: This method currently throws NotImplementedException because it has not yet been implemented.")]
         public void SetLastWriteTimeUtc(string path, DateTime lastWriteTimeUtc)
         {
             throw new NotImplementedException();

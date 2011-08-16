@@ -16,56 +16,20 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
         private bool _isPrivate;
 
-        private BigInteger _exponent;
-
-        private BigInteger _modulus;
-        private BigInteger _d;
-        private BigInteger _dp;
-        private BigInteger _dq;
-        private BigInteger _inverseQ;
-        private BigInteger _p;
-        private BigInteger _q;
+        private RsaKey _key;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RsaCipher"/> class.
         /// </summary>
-        /// <param name="exponent">The exponent.</param>
-        /// <param name="modulus">The modulus.</param>
-        public RsaCipher(BigInteger exponent, BigInteger modulus)
+        /// <param name="key">The RSA key.</param>
+        public RsaCipher(RsaKey key)
         {
-            //if (key == null)
-            //    throw new ArgumentNullException("key");
-            //this._publicKey = key;
-            this._exponent = exponent;
-            this._modulus = modulus;
-            this._isPrivate = false;
-        }
+            if (key == null)
+                throw new ArgumentNullException("key");
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="RsaCipher"/> class.
-        /// </summary>
-        /// <param name="exponent">The exponent.</param>
-        /// <param name="modulus">The modulus.</param>
-        /// <param name="d">The d.</param>
-        /// <param name="dp">The dp.</param>
-        /// <param name="dq">The dq.</param>
-        /// <param name="inverseQ">The inverse Q.</param>
-        /// <param name="p">The p.</param>
-        /// <param name="q">The q.</param>
-        public RsaCipher(BigInteger exponent, BigInteger modulus, BigInteger d, BigInteger dp, BigInteger dq, BigInteger inverseQ, BigInteger p, BigInteger q)
-        {
-            //if (key == null)
-            //    throw new ArgumentNullException("key");
-            //this._privateKey = key;
-            this._exponent = exponent;
-            this._modulus = modulus;
-            this._d = d;
-            this._dp = dp;
-            this._dq = dq;
-            this._inverseQ = inverseQ;
-            this._p = p;
-            this._q = q;
-            this._isPrivate = true;
+            this._key = key;
+
+            this._isPrivate = !this._key.D.IsZero;
         }
 
         /// <summary>
@@ -101,7 +65,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             {
                 BigInteger random = BigInteger.One;
 
-                var max = this._modulus - 1;
+                var max = this._key.Modulus - 1;
 
                 while (random <= BigInteger.One || random >= max)
                 {
@@ -112,29 +76,28 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                     random = new BigInteger(bytesArray.Reverse().ToArray());
                 }
 
-                BigInteger blindedInput = BigInteger.PositiveMod((BigInteger.ModPow(random, this._exponent, this._modulus) * input), this._modulus);
+                BigInteger blindedInput = BigInteger.PositiveMod((BigInteger.ModPow(random, this._key.Exponent, this._key.Modulus) * input), this._key.Modulus);
 
                 // mP = ((input Mod p) ^ dP)) Mod p
-                var mP = BigInteger.ModPow((blindedInput % this._p), this._dp, this._p);
+                var mP = BigInteger.ModPow((blindedInput % this._key.P), this._key.DP, this._key.P);
 
                 // mQ = ((input Mod q) ^ dQ)) Mod q
-                var mQ = BigInteger.ModPow((blindedInput % this._q), this._dq, this._q);
+                var mQ = BigInteger.ModPow((blindedInput % this._key.Q), this._key.DQ, this._key.Q);
 
-                var h = BigInteger.PositiveMod(((mP - mQ) * this._inverseQ), this._p);
+                var h = BigInteger.PositiveMod(((mP - mQ) * this._key.InverseQ), this._key.P);
 
-                var m = h * this._q + mQ;
+                var m = h * this._key.Q + mQ;
 
-                BigInteger rInv = BigInteger.ModInverse(random, this._modulus);
+                BigInteger rInv = BigInteger.ModInverse(random, this._key.Modulus);
 
-                result = BigInteger.PositiveMod((m * rInv), this._modulus);
+                result = BigInteger.PositiveMod((m * rInv), this._key.Modulus);
             }
             else
             {
-                result = BigInteger.ModPow(input, this._exponent, this._modulus);
+                result = BigInteger.ModPow(input, this._key.Exponent, this._key.Modulus);
             }
             
             return result.ToByteArray().Reverse().ToArray();
         }
-
     }
 }

@@ -55,7 +55,6 @@
   <ItemGroup>
     <Compile Include="ConnectionTest.cs" />
     <Compile Include="Security\TestCipher.cs" />
-    <Compile Include="Security\TestCryptoKey.cs" />
     <Compile Include="Security\TestHMac.cs" />
     <Compile Include="Security\TestHostKey.cs" />
     <Compile Include="Security\TestKeyExchange.cs" />

@@ -17,13 +17,13 @@ namespace Renci.SshNet.Security.Cryptography
         /// <param name="input">The input.</param>
         /// <param name="signature">The signature.</param>
         /// <returns></returns>
-        public abstract bool VerifySignature(byte[] input, byte[] signature);
+        public abstract bool Verify(byte[] input, byte[] signature);
 
         /// <summary>
         /// Creates the signature.
         /// </summary>
         /// <param name="input">The input.</param>
         /// <returns></returns>
-        public abstract byte[] CreateSignature(byte[] input);
+        public abstract byte[] Sign(byte[] input);
     }
 }

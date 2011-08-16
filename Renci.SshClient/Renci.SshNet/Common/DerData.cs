@@ -8,7 +8,7 @@ namespace Renci.SshNet.Common
     /// <summary>
     /// Base class for DER encoded data.
     /// </summary>
-    public abstract class DerData
+    public class DerData
     {
         private const byte CONSTRUCTED = 0x20;
 
@@ -44,13 +44,48 @@ namespace Renci.SshNet.Common
         private List<byte> _data;
 
         private int _readerIndex = 0;
+        private int _lastIndex;
 
-        public byte[] Encode()
+        /// <summary>
+        /// Gets a value indicating whether end of data is reached.
+        /// </summary>
+        /// <value>
+        /// 	<c>true</c> if end of data is reached; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsEndOfData
+        {
+            get
+            {
+                return this._readerIndex >= this._lastIndex;
+            }
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DerData"/> class.
+        /// </summary>
+        public DerData()
         {
             this._data = new List<byte>();
+        }
 
-            this.SaveData();
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DerData"/> class.
+        /// </summary>
+        /// <param name="data">DER encoded data.</param>
+        public DerData(byte[] data)
+        {
+            this._data = new List<byte>(data);
+            var dataType = this.ReadByte();
+            var length = this.ReadLength();
+            this._lastIndex = this._readerIndex + length;
+        }
 
+        /// <summary>
+        /// Encodes written data as DER byte array.
+        /// </summary>
+        /// <returns></returns>
+        public byte[] Encode()
+        {
             var length = this._data.Count();
             var lengthBytes = this.GetLength(length);
 
@@ -60,31 +95,11 @@ namespace Renci.SshNet.Common
             return this._data.ToArray();
         }
 
-        public void Decode(byte[] data)
-        {
-            this._data = new List<byte>(data);
-            this._readerIndex = 0;
-            var dataType = this.ReadByte();
-            var length = this.ReadLength();
-
-            this.LoadData();
-        }
-
-        /// <summary>
-        /// Called when type specific data need to be loaded.
-        /// </summary>
-        protected abstract void LoadData();
-
-        /// <summary>
-        /// Called when type specific data need to be saved.
-        /// </summary>
-        protected abstract void SaveData();
-
         /// <summary>
         /// Reads next mpint data type from internal buffer.
         /// </summary>
         /// <returns>mpint read.</returns>
-        protected BigInteger ReadBigInt()
+        public BigInteger ReadBigInteger()
         {
             var type = this.ReadByte();
             if (type != INTEGER)
@@ -98,10 +113,40 @@ namespace Renci.SshNet.Common
         }
 
         /// <summary>
-        /// Writes uint32 data into internal buffer.
+        /// Reads next int data type from internal buffer.
         /// </summary>
-        /// <param name="data">uint32 data to write.</param>
-        protected void Write(UInt32 data)
+        /// <returns>int read.</returns>
+        public int ReadInteger()
+        {
+            var type = this.ReadByte();
+            if (type != INTEGER)
+                throw new InvalidOperationException("Invalid data type, INTEGER(02) is expected.");
+
+            var length = this.ReadLength();
+
+            var data = this.ReadBytes(length);
+
+            if (length > 4)
+                throw new InvalidOperationException("Integer type cannot occupy more then 4 bytes");
+
+            var result = 0;
+            var shift = (length - 1) * 8;
+            for (int i = 0; i < length; i++)
+            {
+                result |= data[i] << shift;
+                shift -= 8;
+            }
+
+            //return (int)(data[0] << 56 | data[1] << 48 | data[2] << 40 | data[3] << 32 | data[4] << 24 | data[5] << 16 | data[6] << 8 | data[7]);
+
+            return result;
+        }
+
+        /// <summary>
+        /// Writes UInt32 data into internal buffer.
+        /// </summary>
+        /// <param name="data">UInt32 data to write.</param>
+        public void Write(UInt32 data)
         {
             var bytes = data.GetBytes();
             this._data.Add(INTEGER);
@@ -110,7 +155,11 @@ namespace Renci.SshNet.Common
             this.WriteBytes(bytes);
         }
 
-        protected void Write(BigInteger data)
+        /// <summary>
+        /// Writes BigInteger data into internal buffer.
+        /// </summary>
+        /// <param name="data">BigInteger data to write.</param>
+        public void Write(BigInteger data)
         {
             var bytes = data.ToByteArray().Reverse().ToList();
             this._data.Add(INTEGER);
@@ -119,7 +168,11 @@ namespace Renci.SshNet.Common
             this.WriteBytes(bytes);
         }
 
-        protected void Write(DerData data)
+        /// <summary>
+        /// Writes DerData data into internal buffer.
+        /// </summary>
+        /// <param name="data">DerData data to write.</param>
+        public void Write(DerData data)
         {
             throw new NotImplementedException();
         }
@@ -208,9 +261,5 @@ namespace Renci.SshNet.Common
             this._readerIndex += length;
             return result;
         }
-
-
-
-
     }
 }

@@ -13,30 +13,23 @@ namespace Renci.SshNet.Security.Cryptography
     /// </summary>
     public class DsaDigitalSignature : DigitalSignature
     {
-        private BigInteger _p;
-        private BigInteger _q;
-        private BigInteger _g;
-        private BigInteger _privateKey;
-        private BigInteger _publicKey;
+        private static RNGCryptoServiceProvider _randomizer = new System.Security.Cryptography.RNGCryptoServiceProvider();
+        
         private HashAlgorithm _hash;
+
+        private DsaKey _key;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DsaDigitalSignature"/> class.
         /// </summary>
-        /// <param name="p">The p.</param>
-        /// <param name="q">The q.</param>
-        /// <param name="g">The g.</param>
-        /// <param name="privateKey">The private key.</param>
-        /// <param name="publicKey">The public key.</param>
-        public DsaDigitalSignature(byte[] p, byte[] q, byte[] g, byte[] privateKey, byte[] publicKey)
+        /// <param name="key">The DSA key.</param>
+        public DsaDigitalSignature(DsaKey key)
         {
-            this._p = new BigInteger(p.Reverse().ToArray());
-            this._q = new BigInteger(q.Reverse().ToArray());
-            this._g = new BigInteger(g.Reverse().ToArray());
-            if (privateKey != null)
-                this._privateKey = new BigInteger(privateKey.Reverse().ToArray());
-            if (publicKey != null)
-                this._publicKey = new BigInteger(publicKey.Reverse().ToArray());
+            if (key == null)
+                throw new ArgumentNullException("key");
+
+            this._key = key;
+
             this._hash = new SHA1Hash();
         }
 
@@ -46,7 +39,7 @@ namespace Renci.SshNet.Security.Cryptography
         /// <param name="input">The input.</param>
         /// <param name="signature">The signature.</param>
         /// <returns></returns>
-        public override bool VerifySignature(byte[] input, byte[] signature)
+        public override bool Verify(byte[] input, byte[] signature)
         {
             var hashInput = this._hash.ComputeHash(input);
 
@@ -69,26 +62,26 @@ namespace Renci.SshNet.Security.Cryptography
             BigInteger s = new BigInteger(sBytes);
 
             //  Reject the signature if 0 < r < q or 0 < s < q is not satisfied.
-            if (r <= 0 || r >= this._q)
+            if (r <= 0 || r >= this._key.Q)
                 return false;
 
-            if (s <= 0 || s >= this._q)
+            if (s <= 0 || s >= this._key.Q)
                 return false;
 
             //  Calculate w = s−1 mod q
-            BigInteger w = BigInteger.ModInverse(s, this._q);
+            BigInteger w = BigInteger.ModInverse(s, this._key.Q);
 
             //  Calculate u1 = H(m)·w mod q
-            BigInteger u1 = hm * w % this._q;
+            BigInteger u1 = hm * w % this._key.Q;
 
             //  Calculate u2 = r * w mod q
-            BigInteger u2 = r * w % this._q;
+            BigInteger u2 = r * w % this._key.Q;
 
-            u1 = BigInteger.ModPow(this._g, u1, this._p);
-            u2 = BigInteger.ModPow(this._publicKey, u2, this._p);
+            u1 = BigInteger.ModPow(this._key.G, u1, this._key.P);
+            u2 = BigInteger.ModPow(this._key.Y, u2, this._key.P);
 
             //  Calculate v = ((g pow u1 * y pow u2) mod p) mod q
-            BigInteger v = ((u1 * u2) % this._p) % this._q;
+            BigInteger v = ((u1 * u2) % this._key.P) % this._key.Q;
 
             //  The signature is valid if v = r
             return v == r;
@@ -99,7 +92,7 @@ namespace Renci.SshNet.Security.Cryptography
         /// </summary>
         /// <param name="input">The input.</param>
         /// <returns></returns>
-        public override byte[] CreateSignature(byte[] input)
+        public override byte[] Sign(byte[] input)
         {
             var hashInput = this._hash.ComputeHash(input);
 
@@ -114,26 +107,30 @@ namespace Renci.SshNet.Security.Cryptography
 
                 do
                 {
-                    //  TODO:   Take random function to base class
+                    //  TODO:   Take random function to BigInteger
+
                     //  Generate a random per-message value k where 0 < k < q
                     do
                     {
-                        //k = new BigInteger(q.BitLength, random);
-                        k = BigInteger.Parse("980263959677973875983479554308083464979482795347", System.Globalization.NumberStyles.None, CultureInfo.InvariantCulture);
+                        var bytesArray = new byte[20];
+                        _randomizer.GetBytes(bytesArray);
+
+                        bytesArray[bytesArray.Length - 1] = (byte)(bytesArray[bytesArray.Length - 1] & 0x7F);   //  Ensure not a negative value
+                        k = new BigInteger(bytesArray.Reverse().ToArray());
                     }
-                    while (k <= 0 || k >= this._q);
+                    while (k <= 0 || k >= this._key.Q);
 
                     //  Calculate r = ((g pow k) mod p) mod q
-                    r = BigInteger.ModPow(this._g, k, this._p) % this._q;
+                    r = BigInteger.ModPow(this._key.G, k, this._key.P) % this._key.Q;
 
                     //      In the unlikely case that r = 0, start again with a different random k
                 } while (r.IsZero);
 
 
                 //  Calculate s = ((k pow −1)(H(m) + x*r)) mod q
-                k = (BigInteger.ModInverse(k, this._q) * (m + this._privateKey * r));
+                k = (BigInteger.ModInverse(k, this._key.Q) * (m + this._key.X * r));
 
-                s = k % this._q;
+                s = k % this._key.Q;
 
                 //  In the unlikely case that s = 0, start again with a different random k
             } while (s.IsZero);

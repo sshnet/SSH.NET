@@ -16,26 +16,9 @@ namespace Renci.SshNet.Security.Cryptography
         /// <summary>
         /// Initializes a new instance of the <see cref="RsaDigitalSignature"/> class.
         /// </summary>
-        /// <param name="exponent">The exponent.</param>
-        /// <param name="modulus">The modulus.</param>
-        /// <param name="d">The D value.</param>
-        /// <param name="dp">The DP value.</param>
-        /// <param name="dq">The DQ value.</param>
-        /// <param name="inverseQ">The InverseQ value.</param>
-        /// <param name="p">The P value.</param>
-        /// <param name="q">The Q value.</param>
-        public RsaDigitalSignature(byte[] exponent, byte[] modulus, byte[] d, byte[] dp, byte[] dq, byte[] inverseQ, byte[] p, byte[] q)
-            : base(new SHA1Hash(), new RsaCipher(new BigInteger(exponent.Reverse().ToArray()), new BigInteger(modulus.Reverse().ToArray()), new BigInteger(d.Reverse().ToArray()), new BigInteger(dp.Reverse().ToArray()), new BigInteger(dq.Reverse().ToArray()), new BigInteger(inverseQ.Reverse().ToArray()), new BigInteger(p.Reverse().ToArray()), new BigInteger(q.Reverse().ToArray())))
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="RsaDigitalSignature"/> class.
-        /// </summary>
-        /// <param name="exponent">The exponent.</param>
-        /// <param name="modulus">The modulus.</param>
-        public RsaDigitalSignature(byte[] exponent, byte[] modulus)
-            : base(new SHA1Hash(), new RsaCipher(new BigInteger(exponent.Reverse().ToArray()), new BigInteger(modulus.Reverse().ToArray())))
+        /// <param name="rsaKey">The RSA key.</param>
+        public RsaDigitalSignature(RsaKey rsaKey)
+            : base(new SHA1Hash(), new RsaCipher(rsaKey))
         {
         }
     }

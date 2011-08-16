@@ -110,6 +110,7 @@
     <Compile Include="Security\Algorithm.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Security\CertificateHostAlgorithm.cs" />
     <Compile Include="Security\Cryptography\CipherDigitalSignature.cs" />
     <Compile Include="Security\Cryptography\Ciphers\AesCipher.cs" />
     <Compile Include="Security\Cryptography\Ciphers\Arc4Cipher.cs" />
@@ -129,6 +130,15 @@
     <Compile Include="Security\Cryptography\Ciphers\RsaCipher.cs" />
     <Compile Include="Security\Cryptography\Ciphers\SerpentCipher.cs" />
     <Compile Include="Security\Cryptography\DsaDigitalSignature.cs" />
+    <Compile Include="Security\Cryptography\DsaKey.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Security\Cryptography\Key.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Security\Cryptography\RsaKey.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Security\Cryptography\StreamCipher.cs" />
     <Compile Include="Security\Cryptography\SymmetricCipher.cs" />
     <Compile Include="Security\Cryptography\Ciphers\TripleDesCipher.cs" />
@@ -151,27 +161,7 @@
     <Compile Include="Security\Cryptography\Hashes\SHA256Hash.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Security\CryptoKey.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Security\CryptoPrivateKey.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Security\CryptoPrivateKeyDss.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Security\CryptoPrivateKeyRsa.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Security\CryptoPublicKey.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Security\CryptoPublicKeyDss.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Security\CryptoPublicKeyRsa.cs">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="Security\HostAlgorithm.cs" />
     <Compile Include="Security\KeyExchange.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -190,6 +180,7 @@
     <Compile Include="Security\KeyExchangeDiffieHellmanGroupExchangeSha256.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Security\KeyHostAlgorithm.cs" />
     <Compile Include="Shell.NET40.cs" />
     <Compile Include="SftpClient.NET40.cs" />
     <Compile Include="PasswordConnectionInfo.NET40.cs" />

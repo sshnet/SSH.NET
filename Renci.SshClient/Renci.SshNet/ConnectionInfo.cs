@@ -251,6 +251,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="session">The session to be authenticated.</param>
         /// <returns>true if authenticated; otherwise false.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="session"/> is null.</exception>
         public bool Authenticate(Session session)
         {
             if (session == null)

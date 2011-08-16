@@ -108,6 +108,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Starts this shell.
         /// </summary>
+        /// <exception cref="SshException">Shell is started.</exception>
         public void Start()
         {
             if (this.IsStarted)
@@ -186,6 +187,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Stops this shell.
         /// </summary>
+        /// <exception cref="SshException">Shell is not started.</exception>
         public void Stop()
         {
             if (!this.IsStarted)

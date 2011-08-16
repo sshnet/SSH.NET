@@ -5,6 +5,7 @@ using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Renci.SshNet.Security;
 using Renci.SshNet.Tests.Properties;
+using Renci.SshNet.Security.Cryptography;
 
 namespace Renci.SshNet.Tests.Security
 {
@@ -16,8 +17,8 @@ namespace Renci.SshNet.Tests.Security
         {
             var connectionInfo = new PasswordConnectionInfo(Resources.HOST, 22, Resources.USERNAME, Resources.PASSWORD);
             connectionInfo.HostKeyAlgorithms.Clear();
-            connectionInfo.HostKeyAlgorithms.Add("ssh-rsa", typeof(CryptoPublicKeyRsa));
-
+            connectionInfo.HostKeyAlgorithms.Add("ssh-rsa", (data) => { return new KeyHostAlgorithm("ssh-rsa", new RsaKey(), data); });
+            
             using (var client = new SshClient(connectionInfo))
             {
                 client.Connect();
@@ -30,7 +31,7 @@ namespace Renci.SshNet.Tests.Security
         {
             var connectionInfo = new PasswordConnectionInfo(Resources.HOST, 22, Resources.USERNAME, Resources.PASSWORD);
             connectionInfo.HostKeyAlgorithms.Clear();
-            connectionInfo.HostKeyAlgorithms.Add("ssh-dss", typeof(CryptoPublicKeyDss));
+            connectionInfo.HostKeyAlgorithms.Add("ssh-dss", (data) => { return new KeyHostAlgorithm("ssh-dss", new DsaKey(), data); });
 
             using (var client = new SshClient(connectionInfo))
             {

@@ -27,42 +27,10 @@ namespace Renci.SshNet
         private static Regex _privateKeyRegex = new Regex(@"^-----BEGIN (?<keyName>\w+) PRIVATE KEY-----\r?\n(Proc-Type: 4,ENCRYPTED\r?\nDEK-Info: (?<cipherName>[A-Z0-9-]+),(?<salt>[A-F0-9]{16})\r?\n\r?\n)?(?<data>([a-zA-Z0-9/+=]{1,64}\r?\n)+)-----END \k<keyName> PRIVATE KEY-----.*", RegexOptions.Compiled | RegexOptions.Multiline);
 #endif
 
-        private CryptoPrivateKey _key;
-
         /// <summary>
-        /// Gets the name of private key algorithm.
+        /// Gets the host key.
         /// </summary>
-        /// <value>
-        /// The name of the algorithm.
-        /// </value>
-        public string AlgorithmName
-        {
-            get
-            {
-                return this._key.Name;
-            }
-        }
-
-        /// <summary>
-        /// Gets the public key.
-        /// </summary>
-        public byte[] PublicKey
-        {
-            get
-            {
-                return this._key.GetPublicKey().GetBytes().ToArray();
-            }
-        }
-
-        /// <summary>
-        /// Gets the signature.
-        /// </summary>
-        /// <param name="sessionId">The session id.</param>
-        /// <returns>Signature data</returns>
-        public byte[] GetSignature(IEnumerable<byte> sessionId)
-        {
-            return this._key.GetSignature(sessionId);
-        }
+        public HostAlgorithm HostKey;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PrivateKeyFile"/> class.
@@ -199,16 +167,14 @@ namespace Renci.SshNet
             switch (keyName)
             {
                 case "RSA":
-                    this._key = new CryptoPrivateKeyRsa();
+                    this.HostKey = new KeyHostAlgorithm("ssh-rsa", new RsaKey(decryptedData.ToArray()));
                     break;
                 case "DSA":
-                    this._key = new CryptoPrivateKeyDss();
+                    this.HostKey = new KeyHostAlgorithm("ssh-dss", new DsaKey(decryptedData.ToArray()));
                     break;
                 default:
                     throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "Key '{0}' is not supported.", keyName));
             }
-
-            this._key.Load(decryptedData);
         }
 
         /// <summary>
@@ -224,9 +190,12 @@ namespace Renci.SshNet
         {
             if (cipherInfo == null)
                 throw new ArgumentNullException("cipherInfo");
-            
+
             if (cipherData == null)
                 throw new ArgumentNullException("cipherData");
+
+            if (binarySalt == null)
+                throw new ArgumentNullException("binarySalt");
 
             List<byte> cipherKey = new List<byte>();
 

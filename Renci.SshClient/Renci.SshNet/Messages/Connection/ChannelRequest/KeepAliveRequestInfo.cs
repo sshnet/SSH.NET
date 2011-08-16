@@ -5,6 +5,9 @@ using System.Text;
 
 namespace Renci.SshNet.Messages.Connection
 {
+    /// <summary>
+    /// Represents "keepalive@openssh.com" type channel request information
+    /// </summary>
     public class KeepAliveRequestInfo : RequestInfo
     {
         /// <summary>

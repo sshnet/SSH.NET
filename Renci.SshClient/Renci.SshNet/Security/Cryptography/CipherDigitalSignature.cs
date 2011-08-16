@@ -22,6 +22,12 @@ namespace Renci.SshNet.Security.Cryptography
         /// <param name="cipher">The cipher.</param>
         public CipherDigitalSignature(HashAlgorithm hash, AsymmetricCipher cipher)
         {
+            if (hash == null)
+                throw new ArgumentNullException("hash");
+
+            if (cipher == null)
+                throw new ArgumentNullException("cipher");
+
             this._hash = hash;
             this._cipher = cipher;
         }
@@ -32,7 +38,7 @@ namespace Renci.SshNet.Security.Cryptography
         /// <param name="input">The input.</param>
         /// <param name="signature">The signature.</param>
         /// <returns></returns>
-        public override bool VerifySignature(byte[] input, byte[] signature)
+        public override bool Verify(byte[] input, byte[] signature)
         {
             var sig = this._cipher.Decrypt(signature);
 
@@ -68,7 +74,7 @@ namespace Renci.SshNet.Security.Cryptography
         /// </summary>
         /// <param name="input">The input.</param>
         /// <returns></returns>
-        public override byte[] CreateSignature(byte[] input)
+        public override byte[] Sign(byte[] input)
         {
             //  Calculate hash value
             var hashData = this.Hash(input);
@@ -103,6 +109,7 @@ namespace Renci.SshNet.Security.Cryptography
 
         protected static List<byte> DerEncode(byte[] hashData)
         {
+            //  TODO:   Replace with DER Encoding
             //  TODO:   Replace with algorithm code
             var algorithm = new byte[] { 6, 5, 43, 14, 3, 2, 26 };
             var algorithmParams = new byte[] { 5, 0 };

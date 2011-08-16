@@ -75,14 +75,14 @@ namespace Renci.SshNet
                 this._publicKeyRequestMessageResponseWaitHandle.Reset();
                 this._isSignatureRequired = false;
 
-                var message = new RequestMessagePublicKey(ServiceName.Connection, this.Username, keyFile.AlgorithmName, keyFile.PublicKey);
+                var message = new RequestMessagePublicKey(ServiceName.Connection, this.Username, keyFile.HostKey.Name, keyFile.HostKey.Data);
 
                 if (this.KeyFiles.Count < 2)
                 {
                     //  If only one key file provided then send signature for very first request
                     var signatureData = new SignatureData(message, this.Session.SessionId).GetBytes();
 
-                    message.Signature = keyFile.GetSignature(signatureData);
+                    message.Signature = keyFile.HostKey.Sign(signatureData);
                 }
 
                 //  Send public key authentication request
@@ -94,11 +94,11 @@ namespace Renci.SshNet
                 {
                     this._publicKeyRequestMessageResponseWaitHandle.Reset();
 
-                    var signatureMessage = new RequestMessagePublicKey(ServiceName.Connection, this.Username, keyFile.AlgorithmName, keyFile.PublicKey);
+                    var signatureMessage = new RequestMessagePublicKey(ServiceName.Connection, this.Username, keyFile.HostKey.Name, keyFile.HostKey.Data);
 
                     var signatureData = new SignatureData(message, this.Session.SessionId).GetBytes();
 
-                    signatureMessage.Signature = keyFile.GetSignature(signatureData);
+                    signatureMessage.Signature = keyFile.HostKey.Sign(signatureData);
 
                     //  Send public key authentication request with signature
                     this.SendMessage(signatureMessage);

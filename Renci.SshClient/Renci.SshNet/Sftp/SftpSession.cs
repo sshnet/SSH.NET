@@ -229,8 +229,8 @@ namespace Renci.SshNet.Sftp
             var canonizedPath = string.Empty;
 
             var realPathFiles = this.RequestRealPath(fullPath, true);
-            
-            if ( realPathFiles != null)
+
+            if (realPathFiles != null)
             {
                 canonizedPath = realPathFiles.Keys.First();
             }
@@ -370,7 +370,7 @@ namespace Renci.SshNet.Sftp
         /// <returns>data array; null if EOF</returns>
         internal byte[] RequestRead(byte[] handle, UInt64 offset, UInt32 length)
         {
-            byte[] data = null;
+            byte[] data = new byte[0];
 
             using (var wait = new AutoResetEvent(false))
             {

@@ -300,7 +300,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// </returns>
 		protected override bool ValidateKeySize(int keySize)
 		{
-			if (keySize == 56)
+			if (keySize == 64)
 				return true;
 			else
 				return false;

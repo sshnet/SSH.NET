@@ -88,11 +88,11 @@ namespace Renci.SshNet.Security
         /// <returns>
         /// Hashed bytes
         /// </returns>
-        protected override byte[] Hash(IEnumerable<byte> hashBytes)
+        protected override byte[] Hash(byte[] hashBytes)
         {
             using (var md = new SHA256Hash())
             {
-                return md.ComputeHash(hashBytes.ToArray());
+                return md.ComputeHash(hashBytes);
             }
         }
 

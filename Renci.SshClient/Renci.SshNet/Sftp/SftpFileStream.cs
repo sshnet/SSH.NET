@@ -295,63 +295,8 @@ namespace Renci.SshNet.Sftp
 
             if (mode == FileMode.Append)
             {
-                //  TODO:   Validate Size property value exists
                 this._position = this._attributes.Size;
             }
-        }
-
-        internal SftpFileStream(SftpSession session, byte[] handle, FileAccess access)
-            : this(session, handle, access, true, 4096, false)
-        {
-            // Nothing to do here.
-        }
-
-        internal SftpFileStream(SftpSession session, byte[] handle, FileAccess access, bool ownsHandle)
-            : this(session, handle, access, ownsHandle, 4096, false)
-        {
-            // Nothing to do here.
-        }
-
-        internal SftpFileStream(SftpSession session, byte[] handle, FileAccess access, bool ownsHandle, int bufferSize)
-            : this(session, handle, access, ownsHandle, bufferSize, false)
-        {
-            // Nothing to do here.
-        }
-
-        internal SftpFileStream(SftpSession session, byte[] handle, FileAccess access, bool ownsHandle, int bufferSize, bool isAsync)
-        {
-            //  TODO:   See if it make sense to have "handle" constructors
-
-            // Validate the parameters.
-            if (bufferSize <= 0)
-            {
-                throw new ArgumentOutOfRangeException("bufferSize");
-            }
-            if (access < FileAccess.Read || access > FileAccess.ReadWrite)
-            {
-                throw new ArgumentOutOfRangeException("access");
-            }
-
-            // Initialize the object state.
-            this._handle = handle;
-            this._access = access;
-            this._ownsHandle = ownsHandle;
-            this._isAsync = isAsync;
-            this._bufferSize = bufferSize;
-            this._buffer = new byte[bufferSize];
-            this._bufferPosn = 0;
-            this._bufferLen = 0;
-            this._bufferOwnedByWrite = false;
-            this._canSeek = true;
-            this._position = 0; //  Assumption is that no other object uses the same file handle
-
-            this._attributes = this._session.RequestFStat(this._handle);
-
-            //if (mode == FileMode.Append)
-            //{
-            //    //  TODO:   Validate Size property value exists
-            //    this._position = (long)this._attributes.Size.Value;
-            //}
         }
 
         /// <summary>

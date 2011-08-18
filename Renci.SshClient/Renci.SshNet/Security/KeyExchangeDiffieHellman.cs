@@ -73,15 +73,9 @@ namespace Renci.SshNet.Security
         {
             var exchangeHash = this.CalculateHash();
 
-            //  TODO:   See how to improve this area
-
-            var bytes = this._hostKey;
-
             var length = (uint)(this._hostKey[0] << 24 | this._hostKey[1] << 16 | this._hostKey[2] << 8 | this._hostKey[3]);
 
-            var algorithmName = Renci.SshNet.Common.ASCIIEncoding.Current.GetString(bytes.Skip(4).Take((int)length).ToArray());
-
-            var data = bytes.Skip(4 + algorithmName.Length);
+            var algorithmName = Renci.SshNet.Common.ASCIIEncoding.Current.GetString(this._hostKey, 4, (int)length);
 
             var key = this.Session.ConnectionInfo.HostKeyAlgorithms[algorithmName](this._hostKey);
 

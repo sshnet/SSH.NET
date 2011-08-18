@@ -27,7 +27,7 @@ namespace Renci.SshNet.Messages.Transport
         /// <summary>
         /// Gets session cookie.
         /// </summary>
-        public IEnumerable<byte> Cookie { get; private set; }
+        public byte[] Cookie { get; private set; }
 
         /// <summary>
         /// Gets or sets supported key exchange algorithms.

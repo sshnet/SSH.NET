@@ -85,8 +85,7 @@ namespace Renci.SshNet
                 return;
 
             this._listener.Stop();
-            //  TODO:   Add timeout to WaitOne method
-            this._listenerTaskCompleted.WaitOne();
+            this._listenerTaskCompleted.WaitOne(this.Session.ConnectionInfo.Timeout);
             this._listenerTaskCompleted.Dispose();
             this._listenerTaskCompleted = null;
 

@@ -1100,6 +1100,8 @@ namespace Renci.SshNet
 
                 files = this._sftpSession.RequestReadDir(handle);
             }
+            
+            this._sftpSession.RequestClose(handle);
 
             return result;
         }

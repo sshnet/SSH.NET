@@ -32,7 +32,7 @@ namespace Renci.SshNet.Common
             }
         }
 
-        private IEnumerable<byte> _loadedData;
+        private byte[] _loadedData;
 
         /// <summary>
         /// Gets the index that represents zero in current data type.
@@ -93,7 +93,7 @@ namespace Renci.SshNet.Common
         /// Loads data bytes into internal buffer.
         /// </summary>
         /// <param name="bytes">The bytes.</param>
-        protected void LoadBytes(IEnumerable<byte> bytes)
+        protected void LoadBytes(byte[] bytes)
         {
             this.ResetReader();
             this._loadedData = bytes;

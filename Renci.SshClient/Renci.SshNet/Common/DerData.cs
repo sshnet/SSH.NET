@@ -225,15 +225,11 @@ namespace Renci.SshNet.Common
                 }
             }
 
-
-
             this._data.Add(OBJECTIDENTIFIER);
             var length = this.GetLength(bytes.Count);
             this.WriteBytes(length);
             this.WriteBytes(bytes);
         }
-
-
 
         /// <summary>
         /// Writes NULL data into internal buffer.

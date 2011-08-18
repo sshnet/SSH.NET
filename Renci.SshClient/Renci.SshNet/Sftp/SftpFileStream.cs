@@ -875,8 +875,7 @@ namespace Renci.SshNet.Sftp
                     else
                     {
                         // No: copy the data to the write buffer first.
-                        Array.Copy(buffer, offset, this._buffer,
-                                   this._bufferPosn, tempLen);
+                        Array.Copy(buffer, offset, this._buffer, this._bufferPosn, tempLen);
                         this._bufferPosn += tempLen;
                     }
 

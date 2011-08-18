@@ -18,7 +18,7 @@ namespace Renci.SshNet.Security.Cryptography
         /// </summary>
         /// <param name="rsaKey">The RSA key.</param>
         public RsaDigitalSignature(RsaKey rsaKey)
-            : base(new SHA1Hash(), new RsaCipher(rsaKey))
+            : base(new SHA1Hash(), new ObjectIdentifier(1, 3, 14, 3, 2, 26), new RsaCipher(rsaKey))
         {
         }
     }

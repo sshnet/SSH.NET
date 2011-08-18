@@ -252,8 +252,7 @@ namespace Renci.SshNet
             this._input.Dispose();
             this._input = null;
 
-            //  TODO:   Add timeout to WaitOne method
-            this._dataReaderTaskCompleted.WaitOne();
+            this._dataReaderTaskCompleted.WaitOne(this._session.ConnectionInfo.Timeout);
             this._dataReaderTaskCompleted.Dispose();
             this._dataReaderTaskCompleted = null;
 

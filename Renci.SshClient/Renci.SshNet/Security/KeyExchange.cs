@@ -285,11 +285,10 @@ namespace Renci.SshNet.Security
         /// </summary>
         /// <param name="hashBytes">Data to hash.</param>
         /// <returns>Hashed bytes</returns>
-        protected virtual byte[] Hash(IEnumerable<byte> hashBytes)
+        protected virtual byte[] Hash(byte[] hashData)
         {
             using (var sha1 = new Renci.SshNet.Security.Cryptography.SHA1Hash())
             {
-                var hashData = hashBytes.ToArray();
                 return sha1.ComputeHash(hashData, 0, hashData.Length);
             }
         }
@@ -311,7 +310,7 @@ namespace Renci.SshNet.Security
         /// <param name="key">The key.</param>
         /// <param name="size">The size.</param>
         /// <returns></returns>
-        private byte[] GenerateSessionKey(BigInteger sharedKey, byte[] exchangeHash, IEnumerable<byte> key, int size)
+        private byte[] GenerateSessionKey(BigInteger sharedKey, byte[] exchangeHash, byte[] key, int size)
         {
             var result = new List<byte>(key);
             while (size > result.Count)
@@ -335,7 +334,7 @@ namespace Renci.SshNet.Security
         /// <param name="p">The p.</param>
         /// <param name="sessionId">The session id.</param>
         /// <returns></returns>
-        private IEnumerable<byte> GenerateSessionKey(BigInteger sharedKey, IEnumerable<byte> exchangeHash, char p, IEnumerable<byte> sessionId)
+        private byte[] GenerateSessionKey(BigInteger sharedKey, byte[] exchangeHash, char p, byte[] sessionId)
         {
             return new _SessionKeyGeneration
             {
@@ -349,9 +348,9 @@ namespace Renci.SshNet.Security
         private class _SessionKeyGeneration : SshData
         {
             public BigInteger SharedKey { get; set; }
-            public IEnumerable<byte> ExchangeHash { get; set; }
+            public byte[] ExchangeHash { get; set; }
             public char Char { get; set; }
-            public IEnumerable<byte> SessionId { get; set; }
+            public byte[] SessionId { get; set; }
 
             protected override void LoadData()
             {
@@ -370,8 +369,8 @@ namespace Renci.SshNet.Security
         private class _SessionKeyAdjustment : SshData
         {
             public BigInteger SharedKey { get; set; }
-            public IEnumerable<byte> ExcahngeHash { get; set; }
-            public IEnumerable<byte> Key { get; set; }
+            public byte[] ExcahngeHash { get; set; }
+            public byte[] Key { get; set; }
 
             protected override void LoadData()
             {

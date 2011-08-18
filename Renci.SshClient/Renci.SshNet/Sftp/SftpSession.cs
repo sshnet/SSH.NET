@@ -252,8 +252,6 @@ namespace Renci.SshNet.Sftp
             if (string.IsNullOrEmpty(partialFullPath))
                 partialFullPath = "/";
 
-            //canonizedPath = this.RequestRealPath(partialFullPath).First().FullName;
-
             realPathFiles = this.RequestRealPath(partialFullPath, true);
 
             if (realPathFiles != null)

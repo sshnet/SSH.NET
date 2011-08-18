@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Security.Cryptography;
+using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Security.Cryptography
 {
@@ -15,12 +16,14 @@ namespace Renci.SshNet.Security.Cryptography
 
         private AsymmetricCipher _cipher;
 
+        private ObjectIdentifier _oid;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="CipherDigitalSignature"/> class.
         /// </summary>
         /// <param name="hash">The hash.</param>
         /// <param name="cipher">The cipher.</param>
-        public CipherDigitalSignature(HashAlgorithm hash, AsymmetricCipher cipher)
+        public CipherDigitalSignature(HashAlgorithm hash, ObjectIdentifier oid, AsymmetricCipher cipher)
         {
             if (hash == null)
                 throw new ArgumentNullException("hash");
@@ -30,6 +33,7 @@ namespace Renci.SshNet.Security.Cryptography
 
             this._hash = hash;
             this._cipher = cipher;
+            this._oid = oid;
         }
 
         /// <summary>
@@ -57,10 +61,10 @@ namespace Renci.SshNet.Security.Cryptography
 
             var expected = DerEncode(hashData);
 
-            if (expected.Count != sig1.Length)
+            if (expected.Length != sig1.Length)
                 return false;
 
-            for (int i = 0; i < expected.Count; i++)
+            for (int i = 0; i < expected.Length; i++)
             {
                 if (expected[i] != sig1[i])
                     return false;
@@ -80,19 +84,17 @@ namespace Renci.SshNet.Security.Cryptography
             var hashData = this.Hash(input);
 
             //  Calculate DER string
-
-            //  Resolve algorithm identifier
-            var dd = DerEncode(hashData);
+            var derEncodedHash = DerEncode(hashData);
 
             //  Calculate signature
             var rsaInputBlockSize = new byte[255];
             rsaInputBlockSize[0] = 0x01;
-            for (int i = 1; i < rsaInputBlockSize.Length - dd.Count - 1; i++)
+            for (int i = 1; i < rsaInputBlockSize.Length - derEncodedHash.Length - 1; i++)
             {
                 rsaInputBlockSize[i] = 0xFF;
             }
 
-            Array.Copy(dd.ToArray(), 0, rsaInputBlockSize, rsaInputBlockSize.Length - dd.Count, dd.Count);
+            Array.Copy(derEncodedHash, 0, rsaInputBlockSize, rsaInputBlockSize.Length - derEncodedHash.Length, derEncodedHash.Length);
 
             return this._cipher.Encrypt(rsaInputBlockSize).TrimLeadingZero().ToArray();
         }
@@ -107,25 +109,23 @@ namespace Renci.SshNet.Security.Cryptography
             return this._hash.ComputeHash(input);
         }
 
-        protected static List<byte> DerEncode(byte[] hashData)
+        /// <summary>
+        /// Encodes hash using DER.
+        /// </summary>
+        /// <param name="hashData">The hash data.</param>
+        /// <returns>DER Encoded byte array</returns>
+        protected byte[] DerEncode(byte[] hashData)
         {
-            //  TODO:   Replace with DER Encoding
-            //  TODO:   Replace with algorithm code
-            var algorithm = new byte[] { 6, 5, 43, 14, 3, 2, 26 };
-            var algorithmParams = new byte[] { 5, 0 };
+            var data = new DerData();
 
-            var dd = new List<byte>(algorithm);
-            dd.AddRange(algorithmParams);
-            dd.Insert(0, (byte)dd.Count);
-            dd.Insert(0, 48);
+            var alg = new DerData();
+            alg.Write(this._oid);
+            alg.WriteNull();
 
-            dd.Add(4);
-            dd.Add((byte)hashData.Length);
-            dd.AddRange(hashData);
+            data.Write(alg);
+            data.Write(hashData);
 
-            dd.Insert(0, (byte)dd.Count);
-            dd.Insert(0, 48);
-            return dd;
+            return data.Encode();
         }
     }
 }

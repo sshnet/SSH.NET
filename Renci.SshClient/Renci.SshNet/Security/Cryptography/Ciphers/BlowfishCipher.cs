@@ -318,6 +318,11 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 		public BlowfishCipher(byte[] key, CipherMode mode, CipherPadding padding)
 			: base(key, mode, padding)
 		{
+			var keySize = key.Length * 8;
+
+			if (keySize < 1 || keySize > 448)
+				throw new ArgumentException(string.Format("KeySize '{0}' is not valid for this algorithm.", keySize));
+
 			//  TODO:   Refactor this algorithm
 
 			S0 = new uint[SBOX_SK];
@@ -397,21 +402,6 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 			UInt32ToBigEndian(xl, outputBuffer, outputOffset + 4);
 
 			return this.BlockSize;
-		}
-
-        /// <summary>
-        /// Validates the size of the key.
-        /// </summary>
-        /// <param name="keySize">Size of the key.</param>
-        /// <returns>
-        /// true if keySize is valid; otherwise false
-        /// </returns>
-		protected override bool ValidateKeySize(int keySize)
-		{
-			if (keySize >= 1 && keySize <= 448)
-				return true;
-			else
-				return false;
 		}
 
 		private uint F(uint x)

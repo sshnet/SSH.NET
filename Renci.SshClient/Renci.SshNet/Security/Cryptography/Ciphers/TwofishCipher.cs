@@ -30,6 +30,11 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 		public TwofishCipher(byte[] key, CipherMode mode, CipherPadding padding)
 			: base(key, mode, padding)
 		{
+            var keySize = key.Length * 8;
+
+            if (!(keySize == 128 || keySize == 192 || keySize == 256))
+                throw new ArgumentException(string.Format("KeySize '{0}' is not valid for this algorithm.", keySize));
+
 			//  TODO:   Refactor this algorithm
 
             // calculate the MDS matrix
@@ -50,20 +55,16 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 mX[1] = Mx_X(j) & 0xff;
                 mY[1] = Mx_Y(j) & 0xff;
 
-                gMDS0[i] = m1[P_00] | mX[P_00] << 8 |
-                            mY[P_00] << 16 | mY[P_00] << 24;
+                gMDS0[i] = m1[P_00] | mX[P_00] << 8 | mY[P_00] << 16 | mY[P_00] << 24;
 
-                gMDS1[i] = mY[P_10] | mY[P_10] << 8 |
-                            mX[P_10] << 16 | m1[P_10] << 24;
+                gMDS1[i] = mY[P_10] | mY[P_10] << 8 | mX[P_10] << 16 | m1[P_10] << 24;
 
-                gMDS2[i] = mX[P_20] | mY[P_20] << 8 |
-                            m1[P_20] << 16 | mY[P_20] << 24;
+                gMDS2[i] = mX[P_20] | mY[P_20] << 8 | m1[P_20] << 16 | mY[P_20] << 24;
 
-                gMDS3[i] = mX[P_30] | m1[P_30] << 8 |
-                            mY[P_30] << 16 | mX[P_30] << 24;
+                gMDS3[i] = mX[P_30] | m1[P_30] << 8 | mY[P_30] << 16 | mX[P_30] << 24;
             }
 
-            this.k64Cnt = (key.Length / 8); // pre-padded ?
+            this.k64Cnt = key.Length / 8; // pre-padded ?
             this.SetKey(key);
 		}
 
@@ -151,21 +152,6 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             Bits32ToBytes(x3 ^ gSubKeys[INPUT_WHITEN + 3], outputBuffer, outputOffset + 12);
 
             return this.BlockSize;
-        }
-
-        /// <summary>
-        /// Validates the size of the key.
-        /// </summary>
-        /// <param name="keySize">Size of the key.</param>
-        /// <returns>
-        /// true if keySize is valid; otherwise false
-        /// </returns>
-        protected override bool ValidateKeySize(int keySize)
-        {
-            if (keySize == 128 || keySize == 192 || keySize == 256)
-                return true;
-            else
-                return false;
         }
 
         #region Static Definition Tables
@@ -488,9 +474,9 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             {
                 case 1:
                     result = gMDS0[(P[P_01, b0] & 0xff) ^ M_b0(k0)] ^
-                            gMDS1[(P[P_11, b1] & 0xff) ^ M_b1(k0)] ^
-                            gMDS2[(P[P_21, b2] & 0xff) ^ M_b2(k0)] ^
-                            gMDS3[(P[P_31, b3] & 0xff) ^ M_b3(k0)];
+                             gMDS1[(P[P_11, b1] & 0xff) ^ M_b1(k0)] ^
+                             gMDS2[(P[P_21, b2] & 0xff) ^ M_b2(k0)] ^
+                             gMDS3[(P[P_31, b3] & 0xff) ^ M_b3(k0)];
                     break;
                 case 0: /* 256 bits of key */
                     b0 = (P[P_04, b0] & 0xff) ^ M_b0(k3);

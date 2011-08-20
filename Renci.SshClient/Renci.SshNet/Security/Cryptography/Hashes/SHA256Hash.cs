@@ -91,7 +91,7 @@ namespace Renci.SshNet.Security.Cryptography
 		public SHA256Hash()
 		{
 			this._buffer = new byte[4];
-			this.Initialize();
+            this.InternalInitialize();
 		}
 
 		/// <summary>
@@ -179,23 +179,27 @@ namespace Renci.SshNet.Security.Cryptography
 		/// </summary>
 		public override void Initialize()
 		{
-			//this.Reset();
-			this._byteCount = 0;
-			this._bufferOffset = 0;
-			Array.Clear(this._buffer, 0, this._buffer.Length);
-
-			H1 = 0x6a09e667;
-			H2 = 0xbb67ae85;
-			H3 = 0x3c6ef372;
-			H4 = 0xa54ff53a;
-			H5 = 0x510e527f;
-			H6 = 0x9b05688c;
-			H7 = 0x1f83d9ab;
-			H8 = 0x5be0cd19;
-
-			this._offset = 0;
-			Array.Clear(X, 0, X.Length);
+            this.InternalInitialize();
 		}
+
+        private void InternalInitialize()
+        {
+            this._byteCount = 0;
+            this._bufferOffset = 0;
+            Array.Clear(this._buffer, 0, this._buffer.Length);
+
+            H1 = 0x6a09e667;
+            H2 = 0xbb67ae85;
+            H3 = 0x3c6ef372;
+            H4 = 0xa54ff53a;
+            H5 = 0x510e527f;
+            H6 = 0x9b05688c;
+            H7 = 0x1f83d9ab;
+            H8 = 0x5be0cd19;
+
+            this._offset = 0;
+            Array.Clear(X, 0, X.Length);
+        }
 
 		private void Update(byte input)
 		{

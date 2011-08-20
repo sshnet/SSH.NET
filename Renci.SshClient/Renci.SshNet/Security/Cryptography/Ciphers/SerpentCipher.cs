@@ -39,6 +39,11 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 		{
 			//  TODO:   Refactor this algorithm
 
+            var keySize = key.Length * 8;
+
+            if (!(keySize == 128 || keySize == 192 || keySize == 256))
+                throw new ArgumentException(string.Format("KeySize '{0}' is not valid for this algorithm.", keySize));
+
 			this._workingKey = this.MakeWorkingKey(key);
 		}
 
@@ -195,21 +200,6 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 			WordToBytes(X0 ^ this._workingKey[0], outputBuffer, outputOffset + 12);
 
 			return this.BlockSize;
-		}
-
-        /// <summary>
-        /// Validates the size of the key.
-        /// </summary>
-        /// <param name="keySize">Size of the key.</param>
-        /// <returns>
-        /// true if keySize is valid; otherwise false
-        /// </returns>
-		protected override bool ValidateKeySize(int keySize)
-		{
-			if (keySize == 128 || keySize == 192 || keySize == 256)
-				return true;
-			else
-				return false;
 		}
 
 		/**

@@ -10,10 +10,8 @@ namespace Renci.SshNet.Security.Cryptography
     /// <summary>
     /// Implements digital signature where where asymmetric cipher is used,
     /// </summary>
-    public class CipherDigitalSignature : DigitalSignature
+    public abstract class CipherDigitalSignature : DigitalSignature
     {
-        private HashAlgorithm _hash;
-
         private AsymmetricCipher _cipher;
 
         private ObjectIdentifier _oid;
@@ -21,17 +19,13 @@ namespace Renci.SshNet.Security.Cryptography
         /// <summary>
         /// Initializes a new instance of the <see cref="CipherDigitalSignature"/> class.
         /// </summary>
-        /// <param name="hash">The hash.</param>
+        /// <param name="oid">The object identifier.</param>
         /// <param name="cipher">The cipher.</param>
-        public CipherDigitalSignature(HashAlgorithm hash, ObjectIdentifier oid, AsymmetricCipher cipher)
+        public CipherDigitalSignature(ObjectIdentifier oid, AsymmetricCipher cipher)
         {
-            if (hash == null)
-                throw new ArgumentNullException("hash");
-
             if (cipher == null)
                 throw new ArgumentNullException("cipher");
 
-            this._hash = hash;
             this._cipher = cipher;
             this._oid = oid;
         }
@@ -104,10 +98,7 @@ namespace Renci.SshNet.Security.Cryptography
         /// </summary>
         /// <param name="input">The input.</param>
         /// <returns></returns>
-        protected byte[] Hash(byte[] input)
-        {
-            return this._hash.ComputeHash(input);
-        }
+        protected abstract byte[] Hash(byte[] input);
 
         /// <summary>
         /// Encodes hash using DER.

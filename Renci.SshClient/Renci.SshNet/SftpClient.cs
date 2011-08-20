@@ -1124,8 +1124,9 @@ namespace Renci.SshNet
             ulong offset = 0;
 
             var data = this._sftpSession.RequestRead(handle, offset, this.BufferSize);
+
             //  Read data while available
-            while (data != null)
+            while (data.Length > 0)
             {
                 output.Write(data, 0, data.Length);
 

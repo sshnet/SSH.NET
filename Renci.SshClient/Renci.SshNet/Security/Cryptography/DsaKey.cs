@@ -10,34 +10,64 @@ namespace Renci.SshNet.Security
     /// <summary>
     /// Contains DSA private and public key
     /// </summary>
-    public class DsaKey : Key
+    public class DsaKey : Key, IDisposable
     {
         /// <summary>
-        /// Gets public key Y.
+        /// Gets the P.
         /// </summary>
-        public BigInteger Y { get; private set; }
-
-        /// <summary>
-        /// Gets private key X.
-        /// </summary>
-        public BigInteger X { get; private set; }
-
-        /// <summary>
-        /// Gets the G.
-        /// </summary>
-        public BigInteger G { get; private set; }
+        public BigInteger P
+        {
+            get
+            {
+                return this._privateKey[0];
+            }
+        }
 
         /// <summary>
         /// Gets the Q.
         /// </summary>
-        public BigInteger Q { get; private set; }
+        public BigInteger Q
+        {
+            get
+            {
+                return this._privateKey[1];
+            }
+        }
 
         /// <summary>
-        /// Gets the P.
+        /// Gets the G.
         /// </summary>
-        public BigInteger P { get; private set; }
+        public BigInteger G
+        {
+            get
+            {
+                return this._privateKey[2];
+            }
+        }
 
-        private DigitalSignature _digitalSignature;
+        /// <summary>
+        /// Gets public key Y.
+        /// </summary>
+        public BigInteger Y
+        {
+            get
+            {
+                return this._privateKey[3];
+            }
+        }
+
+        /// <summary>
+        /// Gets private key X.
+        /// </summary>
+        public BigInteger X
+        {
+            get
+            {
+                return this._privateKey[4];
+            }
+        }
+
+        private DsaDigitalSignature _digitalSignature;
         /// <summary>
         /// Gets the digital signature.
         /// </summary>
@@ -69,37 +99,8 @@ namespace Renci.SshNet.Security
             {
                 if (value.Length != 4)
                     throw new InvalidOperationException("Invalid public key.");
-
-                this.P = value[0];
-                this.Q = value[1];
-                this.G = value[2];
-                this.Y = value[3];
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the private.
-        /// </summary>
-        /// <value>
-        /// The private.
-        /// </value>
-        protected override BigInteger[] Private
-        {
-            get
-            {
-                //return new BigInteger[] { this.P, this.Q, this.G, this.Y, this.X };
-                return new BigInteger[] { this.P, this.Q, this.G, this.X };
-            }
-            set
-            {
-                if (value.Length != 5)
-                    throw new InvalidOperationException("Invalid private key.");
-
-                this.P = value[0];
-                this.Q = value[1];
-                this.G = value[2];
-                this.Y = value[3];
-                this.X = value[4];
+                
+                this._privateKey = value;
             }
         }
 
@@ -109,7 +110,7 @@ namespace Renci.SshNet.Security
         public DsaKey()
             : base()
         {
-
+            this._privateKey = new BigInteger[5];
         }
 
         /// <summary>
@@ -119,7 +120,62 @@ namespace Renci.SshNet.Security
         public DsaKey(byte[] data)
             : base(data)
         {
-
+            if (this._privateKey.Length != 5)
+                throw new InvalidOperationException("Invalid private key.");
         }
+            
+        #region IDisposable Members
+
+        private bool _isDisposed = false;
+
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged ResourceMessages.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources
+        /// </summary>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged ResourceMessages.</param>
+        protected virtual void Dispose(bool disposing)
+        {
+            // Check to see if Dispose has already been called.
+            if (!this._isDisposed)
+            {
+                // If disposing equals true, dispose all managed
+                // and unmanaged ResourceMessages.
+                if (disposing)
+                {
+                    // Dispose managed ResourceMessages.
+                    if (this._digitalSignature != null)
+                    {
+                        this._digitalSignature.Dispose();
+                        this._digitalSignature = null;
+                    }
+                }
+
+                // Note disposing has been done.
+                this._isDisposed = true;
+            }
+        }
+
+        /// <summary>
+        /// Releases unmanaged resources and performs other cleanup operations before the
+        /// <see cref="SshCommand"/> is reclaimed by garbage collection.
+        /// </summary>
+        ~DsaKey()
+        {
+            // Do not re-create Dispose clean-up code here.
+            // Calling Dispose(false) is optimal in terms of
+            // readability and maintainability.
+            Dispose(false);
+        }
+
+        #endregion
     }
 }

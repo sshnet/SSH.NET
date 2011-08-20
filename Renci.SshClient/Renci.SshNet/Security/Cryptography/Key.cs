@@ -13,6 +13,11 @@ namespace Renci.SshNet.Security
     public abstract class Key
     {
         /// <summary>
+        /// Specifies array of big integers that represent private key
+        /// </summary>
+        protected BigInteger[] _privateKey;
+
+        /// <summary>
         /// Gets the key specific digital signature.
         /// </summary>
         protected abstract DigitalSignature DigitalSignature { get; }
@@ -24,14 +29,6 @@ namespace Renci.SshNet.Security
         /// The public.
         /// </value>
         public abstract BigInteger[] Public { get; set; }
-
-        /// <summary>
-        /// Gets or sets the private key.
-        /// </summary>
-        /// <value>
-        /// The private.
-        /// </value>
-        protected abstract BigInteger[] Private { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Key"/> class.
@@ -51,7 +48,7 @@ namespace Renci.SshNet.Security
                 keys.Add(der.ReadBigInteger());
             }
 
-            this.Private = keys.ToArray();
+            this._privateKey = keys.ToArray();
         }
 
         /// <summary>

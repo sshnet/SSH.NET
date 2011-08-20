@@ -71,17 +71,5 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         {
             throw new NotImplementedException();
         }
-
-        /// <summary>
-        /// Validates the size of the key.
-        /// </summary>
-        /// <param name="keySize">Size of the key.</param>
-        /// <returns>
-        /// true if keySize is valid; otherwise false
-        /// </returns>
-        protected override bool ValidateKeySize(int keySize)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

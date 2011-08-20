@@ -96,8 +96,8 @@ namespace Renci.SshNet.Security.Cryptography
 		public SHA1Hash()
 		{
 			this._buffer = new byte[4];
-			this.Initialize();
-		}
+            this.InternalInitialize();
+        }
 
 		/// <summary>
 		/// Routes data written to the object into the hash algorithm for computing the hash.
@@ -181,20 +181,24 @@ namespace Renci.SshNet.Security.Cryptography
 		/// </summary>
 		public override void Initialize()
 		{
-			this._byteCount = 0;
-			this._bufferOffset = 0;
-			Array.Clear(this._buffer, 0, this._buffer.Length);
-
-			H1 = 0x67452301;
-			H2 = 0xefcdab89;
-			H3 = 0x98badcfe;
-			H4 = 0x10325476;
-			H5 = 0xc3d2e1f0;
-
-			this._offset = 0;
-			Array.Clear(_hashValue, 0, _hashValue.Length);
-
+            this.InternalInitialize();
 		}
+
+        private void InternalInitialize()
+        {
+            this._byteCount = 0;
+            this._bufferOffset = 0;
+            Array.Clear(this._buffer, 0, this._buffer.Length);
+
+            H1 = 0x67452301;
+            H2 = 0xefcdab89;
+            H3 = 0x98badcfe;
+            H4 = 0x10325476;
+            H5 = 0xc3d2e1f0;
+
+            this._offset = 0;
+            Array.Clear(_hashValue, 0, _hashValue.Length);
+        }
 
 		private void Update(byte input)
 		{

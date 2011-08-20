@@ -36,8 +36,13 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <param name="mode">The mode.</param>
         /// <param name="padding">The padding.</param>
         public CastCipher(byte[] key, CipherMode mode, CipherPadding padding)
-			: base(key, mode, padding)
-		{
+            : base(key, mode, padding)
+        {
+            var keySize = key.Length * 8;
+
+            if (!(keySize >= 40 && keySize <= 128 && keySize % 8 == 0))
+                throw new ArgumentException(string.Format("KeySize '{0}' is not valid for this algorithm.", keySize));
+
             //  TODO:   Refactor this algorithm
             this.SetKey(key);
         }
@@ -99,21 +104,6 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             UInt32ToBigEndian(result[1], outputBuffer, outputOffset + 4);
 
             return this.BlockSize;
-        }
-
-        /// <summary>
-        /// Validates the size of the key.
-        /// </summary>
-        /// <param name="keySize">Size of the key.</param>
-        /// <returns>
-        /// true if keySize is valid; otherwise false
-        /// </returns>
-        protected override bool ValidateKeySize(int keySize)
-        {
-            if (keySize >= 40 && keySize <= 128 && keySize % 8 == 0)
-                return true;
-            else
-                return false;
         }
 
         #region Static Definition Tables

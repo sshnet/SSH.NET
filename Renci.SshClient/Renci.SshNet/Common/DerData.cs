@@ -194,7 +194,7 @@ namespace Renci.SshNet.Common
         /// <summary>
         /// Writes OBJECTIDENTIFIER data into internal buffer.
         /// </summary>
-        /// <param name="identifiers">The identifiers.</param>
+        /// <param name="identifier">The identifier.</param>
         public void Write(ObjectIdentifier identifier)
         {
             var temp = new ulong[identifier.Identifiers.Length - 1];

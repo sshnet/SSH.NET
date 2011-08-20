@@ -10,9 +10,9 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
     /// </summary>
 	public class DesCipher : BlockCipher
 	{
-		private readonly int[] _encryptionKey;
+		private int[] _encryptionKey;
 
-		private readonly int[] _decryptionKey;
+		private int[] _decryptionKey;
 
 		/// <summary>
 		/// Gets the size of the block in bytes.
@@ -238,8 +238,6 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 		public DesCipher(byte[] key, CipherMode mode, CipherPadding padding)
 			: base(key, mode, padding)
 		{
-			this._encryptionKey = GenerateWorkingKey(true, key);
-			this._decryptionKey = GenerateWorkingKey(false, key);
 		}
 
 		/// <summary>
@@ -260,6 +258,11 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
 			if ((outputOffset + this.BlockSize) > outputBuffer.Length)
 				throw new IndexOutOfRangeException("output buffer too short");
+
+            if (this._encryptionKey == null)
+            {
+                this._encryptionKey = GenerateWorkingKey(true, this.Key);
+            }
 
 			DesCipher.DesFunc(this._encryptionKey, inputBuffer, inputOffset, outputBuffer, outputOffset);
 
@@ -285,25 +288,14 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 			if ((outputOffset + this.BlockSize) > outputBuffer.Length)
 				throw new IndexOutOfRangeException("output buffer too short");
 
+            if (this._decryptionKey == null)
+            {
+                this._decryptionKey = GenerateWorkingKey(false, this.Key);
+            }
+
 			DesCipher.DesFunc(this._decryptionKey, inputBuffer, inputOffset, outputBuffer, outputOffset);
 
 			return this.BlockSize;
-			throw new NotImplementedException();
-		}
-
-        /// <summary>
-        /// Validates the size of the key.
-        /// </summary>
-        /// <param name="keySize">Size of the key.</param>
-        /// <returns>
-        /// true if keySize is valid; otherwise false
-        /// </returns>
-		protected override bool ValidateKeySize(int keySize)
-		{
-			if (keySize == 64)
-				return true;
-			else
-				return false;
 		}
 
 		/// <summary>
@@ -312,8 +304,10 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 		/// <param name="encrypting">if set to <c>true</c> [encrypting].</param>
 		/// <param name="key">The key.</param>
 		/// <returns></returns>
-		protected static int[] GenerateWorkingKey(bool encrypting, byte[] key)
+		protected int[] GenerateWorkingKey(bool encrypting, byte[] key)
 		{
+            this.ValidateKey();
+
 			int[] newKey = new int[32];
 			bool[] pc1m = new bool[56];
 			bool[] pcr = new bool[56];
@@ -391,22 +385,33 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 				i1 = newKey[i];
 				i2 = newKey[i + 1];
 
-				newKey[i] = (int)((uint)((i1 & 0x00fc0000) << 6) |
+				newKey[i] = (int)  ((uint)((i1 & 0x00fc0000) << 6) |
 									(uint)((i1 & 0x00000fc0) << 10) |
 									((uint)(i2 & 0x00fc0000) >> 10) |
 									((uint)(i2 & 0x00000fc0) >> 6));
 
 				newKey[i + 1] = (int)((uint)((i1 & 0x0003f000) << 12) |
-										(uint)((i1 & 0x0000003f) << 16) |
-										((uint)(i2 & 0x0003f000) >> 4) |
-										(uint)(i2 & 0x0000003f));
+									  (uint)((i1 & 0x0000003f) << 16) |
+									  ((uint)(i2 & 0x0003f000) >> 4) |
+									   (uint)(i2 & 0x0000003f));
 			}
 
 			return newKey;
 		}
 
+        /// <summary>
+        /// Validates the key.
+        /// </summary>
+        protected virtual void ValidateKey()
+        {
+            var keySize = this.Key.Length * 8;
+            
+            if (!(keySize == 64))
+                throw new ArgumentException(string.Format("KeySize '{0}' is not valid for this algorithm.", keySize));
+        }
+
 		/// <summary>
-		/// Perfoms DES function.
+		/// Performs DES function.
 		/// </summary>
 		/// <param name="wKey">The w key.</param>
 		/// <param name="input">The input.</param>

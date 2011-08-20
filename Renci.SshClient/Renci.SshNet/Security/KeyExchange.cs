@@ -283,8 +283,10 @@ namespace Renci.SshNet.Security
         /// <summary>
         /// Hashes the specified data bytes.
         /// </summary>
-        /// <param name="hashBytes">Data to hash.</param>
-        /// <returns>Hashed bytes</returns>
+        /// <param name="hashData">The hash data.</param>
+        /// <returns>
+        /// Hashed bytes
+        /// </returns>
         protected virtual byte[] Hash(byte[] hashData)
         {
             using (var sha1 = new Renci.SshNet.Security.Cryptography.SHA1Hash())

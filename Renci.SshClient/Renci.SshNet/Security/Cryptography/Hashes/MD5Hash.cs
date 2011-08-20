@@ -83,7 +83,7 @@ namespace Renci.SshNet.Security.Cryptography
         /// </summary>
         public MD5Hash()
         {
-            this.Initialize();
+            this.InternalInitialize();
         }
 
         /// <summary>
@@ -164,6 +164,11 @@ namespace Renci.SshNet.Security.Cryptography
         /// Initializes an implementation of the <see cref="T:System.Security.Cryptography.HashAlgorithm"/> class.
         /// </summary>
         public override void Initialize()
+        {
+            this.InternalInitialize();
+        }
+
+        private void InternalInitialize()
         {
             this._byteCount = 0;
             this._bufferOffset = 0;

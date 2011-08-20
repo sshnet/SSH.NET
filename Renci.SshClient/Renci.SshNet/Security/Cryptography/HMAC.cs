@@ -16,6 +16,7 @@ namespace Renci.SshNet.Security.Cryptography
         private bool _isHashing;
         private byte[] _innerPadding;
         private byte[] _outerPadding;
+        private byte[] _key;
 
         /// <summary>
         /// Gets the size of the block.
@@ -42,9 +43,9 @@ namespace Renci.SshNet.Security.Cryptography
 
             this.HashSizeValue = this._hash.HashSize;
 
-            this.Key = key;
+            this._key = key;
 
-            this.Initialize();
+            this.InternalInitialize();
         }
 
         /// <summary>
@@ -52,38 +53,13 @@ namespace Renci.SshNet.Security.Cryptography
         /// </summary>
         public override byte[] Key
         {
-            get { return (byte[])KeyValue.Clone(); }
+            get
+            {
+                return (byte[])KeyValue.Clone();
+            }
             set
             {
-                if (this._isHashing)
-                {
-                    throw new Exception("Cannot change key during hash operation");
-                }
-                if (value.Length > this.BlockSize)
-                {
-                    this.KeyValue = this._hash.ComputeHash(value);
-                    // No need to call Initialize, ComputeHash does it automatically.
-                }
-                else
-                {
-                    this.KeyValue = value.Clone() as byte[];
-                }
-
-                this._innerPadding = new byte[this.BlockSize];
-                this._outerPadding = new byte[this.BlockSize];
-
-                // Compute inner and outer padding.
-                int i = 0;
-                for (i = 0; i < 64; i++)
-                {
-                    this._innerPadding[i] = 0x36;
-                    this._outerPadding[i] = 0x5C;
-                }
-                for (i = 0; i < this.KeyValue.Length; i++)
-                {
-                    this._innerPadding[i] ^= this.KeyValue[i];
-                    this._outerPadding[i] ^= this.KeyValue[i];
-                }
+                this.SetKey(value);
             }
         }
 
@@ -92,7 +68,7 @@ namespace Renci.SshNet.Security.Cryptography
         /// </summary>
         public override void Initialize()
         {
-            this._isHashing = false;
+            this.InternalInitialize();
         }
 
         /// <summary>
@@ -137,6 +113,45 @@ namespace Renci.SshNet.Security.Cryptography
             this._isHashing = false;
 
             return this._hash.Hash;
-        }        
+        }
+
+        private void InternalInitialize()
+        {
+            this._isHashing = false;
+            this.SetKey(this._key);
+        }
+
+        private void SetKey(byte[] value)
+        {
+            if (this._isHashing)
+            {
+                throw new Exception("Cannot change key during hash operation");
+            }
+            if (value.Length > this.BlockSize)
+            {
+                this.KeyValue = this._hash.ComputeHash(value);
+                // No need to call Initialize, ComputeHash does it automatically.
+            }
+            else
+            {
+                this.KeyValue = value.Clone() as byte[];
+            }
+
+            this._innerPadding = new byte[this.BlockSize];
+            this._outerPadding = new byte[this.BlockSize];
+
+            // Compute inner and outer padding.
+            int i = 0;
+            for (i = 0; i < 64; i++)
+            {
+                this._innerPadding[i] = 0x36;
+                this._outerPadding[i] = 0x5C;
+            }
+            for (i = 0; i < this.KeyValue.Length; i++)
+            {
+                this._innerPadding[i] ^= this.KeyValue[i];
+                this._outerPadding[i] ^= this.KeyValue[i];
+            }
+        }
     }
 }

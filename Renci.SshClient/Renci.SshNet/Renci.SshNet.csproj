@@ -182,6 +182,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Security\KeyHostAlgorithm.cs" />
+    <Compile Include="SubsystemSession.cs" />
     <Compile Include="Shell.NET40.cs" />
     <Compile Include="SftpClient.NET40.cs" />
     <Compile Include="PasswordConnectionInfo.NET40.cs" />

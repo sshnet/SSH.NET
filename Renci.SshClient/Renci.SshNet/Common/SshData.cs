@@ -354,8 +354,12 @@ namespace Renci.SshNet.Common
         /// </summary>
         /// <param name="data">string data to write.</param>
         /// <param name="encoding">String text encoding to use.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="data"/> is null.</exception>
         protected void Write(string data, Encoding encoding)
         {
+            if (data == null)
+                throw new ArgumentNullException("data");
+
             this.Write((uint)data.Length);
             this.Write(encoding.GetBytes(data));
         }
@@ -373,8 +377,12 @@ namespace Renci.SshNet.Common
         /// Writes string data into internal buffer.
         /// </summary>
         /// <param name="data">string data to write.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="data"/> is null.</exception>
         protected void WriteBinaryString(byte[] data)
         {
+            if (data == null)
+                throw new ArgumentNullException("data");
+
             this.Write((uint)data.Length);
             this._data.AddRange(data);
         }

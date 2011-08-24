@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Globalization;
 
 namespace Renci.SshNet.Security.Cryptography.Ciphers
 {
@@ -602,13 +603,15 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <param name="key">The key.</param>
         /// <param name="mode">The mode.</param>
         /// <param name="padding">The padding.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="key"/> is null.</exception>
+        /// <exception cref="ArgumentException">Keysize is not valid for this algorithm.</exception>
         public AesCipher(byte[] key, CipherMode mode, CipherPadding padding)
             : base(key, mode, padding)
         {
             var keySize = key.Length * 8;
 
             if (!(keySize == 256 || keySize == 192 || keySize == 128))
-                throw new ArgumentException(string.Format("KeySize '{0}' is not valid for this algorithm.", keySize));
+                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "KeySize '{0}' is not valid for this algorithm.", keySize));
         }
 
         /// <summary>
@@ -622,8 +625,16 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <returns>
         /// The number of bytes encrypted.
         /// </returns>
+        /// <exception cref="ArgumentNullException"><paramref name="inputBuffer"/> or <paramref name="outputBuffer"/> is null.</exception>
+        /// <exception cref="IndexOutOfRangeException"><paramref name="inputBuffer"/> or <paramref name="outputBuffer"/> is too short.</exception>
         public override int EncryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
         {
+            if (inputBuffer == null)
+                throw new ArgumentNullException("inputBuffer");
+
+            if (outputBuffer == null)
+                throw new ArgumentNullException("outputBuffer");
+
             if ((inputOffset + (32 / 2)) > inputBuffer.Length)
             {
                 throw new IndexOutOfRangeException("input buffer too short");
@@ -654,8 +665,16 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <returns>
         /// The number of bytes decrypted.
         /// </returns>
+        /// <exception cref="ArgumentNullException"><paramref name="inputBuffer"/> or <paramref name="outputBuffer"/> is null.</exception>
+        /// <exception cref="IndexOutOfRangeException"><paramref name="inputBuffer"/> or <paramref name="outputBuffer"/> is too short.</exception>
         public override int DecryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
         {
+            if (inputBuffer == null)
+                throw new ArgumentNullException("inputBuffer");
+
+            if (outputBuffer == null)
+                throw new ArgumentNullException("outputBuffer");
+
             if ((inputOffset + (32 / 2)) > inputBuffer.Length)
             {
                 throw new IndexOutOfRangeException("input buffer too short");

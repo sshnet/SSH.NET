@@ -19,8 +19,12 @@ namespace Renci.SshNet.Security.Cryptography
         /// Initializes a new instance of the <see cref="SymmetricCipher"/> class.
         /// </summary>
         /// <param name="key">The key.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="key"/> is null.</exception>
         protected SymmetricCipher(byte[] key)
         {
+            if (key == null)
+                throw new ArgumentNullException("key");
+
             this.Key = key;
         }
 

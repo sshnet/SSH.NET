@@ -213,14 +213,14 @@ namespace Renci.SshNet.Common
         /// <returns>string read</returns>
         protected string ReadString()
         {
-            var length = (int)this.ReadUInt32();
+            var length = this.ReadUInt32();
 
-            if (length > int.MaxValue)
+            if (length > (uint)int.MaxValue)
             {
                 throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "Strings longer than {0} is not supported.", int.MaxValue));
             }
 
-            return Renci.SshNet.Common.ASCIIEncoding.Current.GetString(this.ReadBytes(length));
+            return Renci.SshNet.Common.ASCIIEncoding.Current.GetString(this.ReadBytes((int)length));
         }
 
         /// <summary>
@@ -229,14 +229,14 @@ namespace Renci.SshNet.Common
         /// <returns>string read</returns>
         protected byte[] ReadBinaryString()
         {
-            var length = (int)this.ReadUInt32();
+            var length = this.ReadUInt32();
 
-            if (length > int.MaxValue)
+            if (length > (uint)int.MaxValue)
             {
                 throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "Strings longer than {0} is not supported.", int.MaxValue));
             }
 
-            return this.ReadBytes(length);
+            return this.ReadBytes((int)length);
         }
         
         /// <summary>

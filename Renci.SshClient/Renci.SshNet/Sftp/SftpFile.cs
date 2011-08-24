@@ -431,6 +431,12 @@ namespace Renci.SshNet.Sftp
         public void MoveTo(string destFileName)
         {
             this._sftpSession.RequestRename(this.FullName, destFileName);
+
+            var fullPath = this._sftpSession.GetCanonicalPath(destFileName);
+
+            this.Name = fullPath.Substring(fullPath.LastIndexOf('/') + 1);
+
+            this.FullName = fullPath;
         }
 
         /// <summary>

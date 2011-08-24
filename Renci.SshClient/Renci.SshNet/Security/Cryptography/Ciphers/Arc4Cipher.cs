@@ -14,6 +14,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// Initializes a new instance of the <see cref="Arc4Cipher"/> class.
         /// </summary>
         /// <param name="key">The key.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="key"/> is null.</exception>
         public Arc4Cipher(byte[] key)
             : base(key)
         {

@@ -182,8 +182,12 @@ namespace Renci.SshNet
         /// Stops and removes the forwarded port from the list.
         /// </summary>
         /// <param name="port">Forwarded port.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="port"/> is null.</exception>
         public void RemoveForwardedPort(ForwardedPort port)
         {
+            if (port == null)
+                throw new ArgumentNullException("port");
+
             //  Stop port forwarding before removing it
             port.Stop();
 

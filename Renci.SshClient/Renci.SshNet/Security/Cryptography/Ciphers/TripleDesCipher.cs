@@ -24,6 +24,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <param name="key">The key.</param>
         /// <param name="mode">The mode.</param>
         /// <param name="padding">The padding.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="key"/> is null.</exception>
         public TripleDesCipher(byte[] key, CipherMode mode, CipherPadding padding)
             : base(key, mode, padding)
         {

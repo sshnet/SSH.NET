@@ -29,6 +29,7 @@ namespace Renci.SshNet.Security.Cryptography
         /// <param name="key">The key.</param>
         /// <param name="mode">Cipher mode.</param>
         /// <param name="padding">Cipher padding.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="key"/> is null.</exception>
         protected BlockCipher(byte[] key, CipherMode mode, CipherPadding padding)
             : base(key)
         {

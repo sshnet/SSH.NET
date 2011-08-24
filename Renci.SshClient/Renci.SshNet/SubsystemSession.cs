@@ -51,9 +51,19 @@ namespace Renci.SshNet.Sftp
         //internal event EventHandler<MessageEventArgs<AttributesMessage>> AttributesMessageReceived;
 
         #endregion
-
+        
+        /// <summary>
+        /// Initializes a new instance of the SubsystemSession class.
+        /// </summary>
+        /// <exception cref="ArgumentNullException"><paramref name="session"/> or <paramref name="subsystemName"/> is null.</exception>
         public SubsystemSession(Session session, string subsystemName, TimeSpan operationTimeout)
         {
+            if (session == null)
+                throw new ArgumentNullException("session");
+
+            if (subsystemName == null)
+                throw new ArgumentNullException("subsystemName");
+                
             this._session = session;
             this._subsystemName = subsystemName;
             this._operationTimeout = operationTimeout;

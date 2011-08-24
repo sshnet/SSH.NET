@@ -20,6 +20,7 @@ namespace Renci.SshNet.Common
         /// the initial number of requests that can be granted concurrently.
         /// </summary>
         /// <param name="initialCount">The initial number of requests for the semaphore that can be granted concurrently.</param>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="initialCount"/> is a negative number.</exception>
         public SemaphoreLight(int initialCount)
         {
             if (initialCount < 0 )

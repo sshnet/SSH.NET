@@ -127,7 +127,7 @@
         ///<exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed. </exception><filterpriority>1</filterpriority>
         public override long Seek(long offset, SeekOrigin origin)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         ///<summary>
@@ -139,7 +139,7 @@
         ///<exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed. </exception><filterpriority>2</filterpriority>
         public override void SetLength(long value)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         ///<summary>
@@ -160,9 +160,9 @@
         public override int Read(byte[] buffer, int offset, int count)
         {
             if (offset != 0)
-                throw new NotImplementedException("Offsets with value of non-zero are not supported");
+                throw new NotSupportedException("Offsets with value of non-zero are not supported");
             if (buffer == null)
-                throw new ArgumentException("Buffer is null");
+                throw new ArgumentNullException("Buffer is null");
             if (offset + count > buffer.Length)
                 throw new ArgumentException("The sum of offset and count is greater than the buffer length. ");
             if (offset < 0 || count < 0)
@@ -217,7 +217,7 @@
         public override void Write(byte[] buffer, int offset, int count)
         {
             if (buffer == null)
-                throw new ArgumentException("Buffer is null");
+                throw new ArgumentNullException("Buffer is null");
             if (offset + count > buffer.Length)
                 throw new ArgumentException("The sum of offset and count is greater than the buffer length. ");
             if (offset < 0 || count < 0)
@@ -305,7 +305,7 @@
         public override long Position
         {
             get { return 0; }
-            set { throw new NotImplementedException(); }
+            set { throw new NotSupportedException(); }
         }
 
         #endregion

@@ -656,6 +656,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="path">The path and name of the file to create.</param>
         /// <returns>A <see cref="SftpFileStream"/> that provides read/write access to the file specified in path</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="path"/> is null.</exception>
         public SftpFileStream Create(string path)
         {
             return new SftpFileStream(this._sftpSession, path, FileMode.Create, FileAccess.ReadWrite);
@@ -667,6 +668,7 @@ namespace Renci.SshNet
         /// <param name="path">The path and name of the file to create.</param>
         /// <param name="bufferSize">The number of bytes buffered for reads and writes to the file.</param>
         /// <returns>A <see cref="SftpFileStream"/> that provides read/write access to the file specified in path</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="path"/> is null.</exception>
         public SftpFileStream Create(string path, int bufferSize)
         {
             return new SftpFileStream(this._sftpSession, path, FileMode.Create, FileAccess.ReadWrite, bufferSize);
@@ -677,6 +679,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="path">The file to be opened for writing.</param>
         /// <returns>A <see cref="System.IO.StreamWriter"/> that writes to the specified file using UTF-8 encoding.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="path"/> is null.</exception>
         public StreamWriter CreateText(string path)
         {
             return new StreamWriter(this.OpenWrite(path), Encoding.UTF8);
@@ -688,6 +691,7 @@ namespace Renci.SshNet
         /// <param name="path">The file to be opened for writing.</param>
         /// <param name="encoding">The character encoding to use.</param>
         /// <returns> A <see cref="System.IO.StreamWriter"/> that writes to the specified file using UTF-8 encoding. </returns>
+        /// <exception cref="ArgumentNullException"><paramref name="path"/> is null.</exception>
         public StreamWriter CreateText(string path, Encoding encoding)
         {
             return new StreamWriter(this.OpenWrite(path), encoding);
@@ -697,6 +701,7 @@ namespace Renci.SshNet
         /// Deletes the specified file or directory. An exception is not thrown if the specified file does not exist.
         /// </summary>
         /// <param name="path">The name of the file or directory to be deleted. Wildcard characters are not supported.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="path"/> is null.</exception>
         public void Delete(string path)
         {
             var file = this.Get(path);
@@ -709,6 +714,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="path">The file or directory for which to obtain access date and time information.</param>
         /// <returns>A <see cref="System.DateTime"/> structure set to the date and time that the specified file or directory was last accessed. This value is expressed in local time.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="path"/> is null.</exception>
         public DateTime GetLastAccessTime(string path)
         {
             var file = this.Get(path);
@@ -721,6 +727,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="path">The file or directory for which to obtain access date and time information.</param>
         /// <returns>A <see cref="System.DateTime"/> structure set to the date and time that the specified file or directory was last accessed. This value is expressed in UTC time.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="path"/> is null.</exception>
         public DateTime GetLastAccessTimeUtc(string path)
         {
             var file = this.Get(path);
@@ -733,6 +740,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="path">The file or directory for which to obtain write date and time information.</param>
         /// <returns>A <see cref="System.DateTime"/> structure set to the date and time that the specified file or directory was last written to. This value is expressed in local time.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="path"/> is null.</exception>
         public DateTime GetLastWriteTime(string path)
         {
             var file = this.Get(path);
@@ -745,6 +753,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="path">The file or directory for which to obtain write date and time information.</param>
         /// <returns>A <see cref="System.DateTime"/> structure set to the date and time that the specified file or directory was last written to. This value is expressed in UTC time.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="path"/> is null.</exception>
         public DateTime GetLastWriteTimeUtc(string path)
         {
             var file = this.Get(path);
@@ -758,6 +767,7 @@ namespace Renci.SshNet
         /// <param name="path">The file to open.</param>
         /// <param name="mode">A <see cref="System.IO.FileMode"/> value that specifies whether a file is created if one does not exist, and determines whether the contents of existing files are retained or overwritten.</param>
         /// <returns>An unshared <see cref="SftpFileStream"/> that provides access to the specified file, with the specified mode and access.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="path"/> is null.</exception>
         public SftpFileStream Open(string path, FileMode mode)
         {
             return new SftpFileStream(this._sftpSession, path, mode, FileAccess.ReadWrite);
@@ -770,6 +780,7 @@ namespace Renci.SshNet
         /// <param name="mode">A <see cref="System.IO.FileMode"/> value that specifies whether a file is created if one does not exist, and determines whether the contents of existing files are retained or overwritten.</param>
         /// <param name="access">A <see cref="System.IO.FileAccess"/> value that specifies the operations that can be performed on the file.</param>
         /// <returns>An unshared <see cref="SftpFileStream"/> that provides access to the specified file, with the specified mode and access.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="path"/> is null.</exception>
         public SftpFileStream Open(string path, FileMode mode, FileAccess access)
         {
             return new SftpFileStream(this._sftpSession, path, mode, access);
@@ -780,6 +791,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="path">The file to be opened for reading.</param>
         /// <returns>A read-only System.IO.FileStream on the specified path.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="path"/> is null.</exception>
         public SftpFileStream OpenRead(string path)
         {
             return new SftpFileStream(this._sftpSession, path, FileMode.Open, FileAccess.Read);
@@ -790,6 +802,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="path">The file to be opened for reading.</param>
         /// <returns>A <see cref="System.IO.StreamReader"/> on the specified path.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="path"/> is null.</exception>
         public StreamReader OpenText(string path)
         {
             return new StreamReader(this.OpenRead(path), Encoding.UTF8);
@@ -800,6 +813,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="path">The file to be opened for writing.</param>
         /// <returns>An unshared <see cref="SftpFileStream"/> object on the specified path with <see cref="System.IO.FileAccess.Write"/> access.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="path"/> is null.</exception>
         public SftpFileStream OpenWrite(string path)
         {
             return new SftpFileStream(this._sftpSession, path, FileMode.OpenOrCreate, FileAccess.Write);
@@ -810,6 +824,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="path">The file to open for reading.</param>
         /// <returns>A byte array containing the contents of the file.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="path"/> is null.</exception>
         public byte[] ReadAllBytes(string path)
         {
             using (var stream = this.OpenRead(path))
@@ -825,6 +840,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="path">The file to open for reading.</param>
         /// <returns>A string array containing all lines of the file.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="path"/> is null.</exception>
         public string[] ReadAllLines(string path)
         {
             return this.ReadAllLines(path, Encoding.UTF8);
@@ -836,6 +852,7 @@ namespace Renci.SshNet
         /// <param name="path">The file to open for reading.</param>
         /// <param name="encoding">The encoding applied to the contents of the file.</param>
         /// <returns>A string array containing all lines of the file.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="path"/> is null.</exception>
         public string[] ReadAllLines(string path, Encoding encoding)
         {
             var lines = new List<string>();
@@ -854,6 +871,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="path">The file to open for reading.</param>
         /// <returns>A string containing all lines of the file.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="path"/> is null.</exception>
         public string ReadAllText(string path)
         {
             return this.ReadAllText(path, Encoding.UTF8);
@@ -865,6 +883,7 @@ namespace Renci.SshNet
         /// <param name="path">The file to open for reading.</param>
         /// <param name="encoding">The encoding applied to the contents of the file.</param>
         /// <returns>A string containing all lines of the file.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="path"/> is null.</exception>
         public string ReadAllText(string path, Encoding encoding)
         {
             var lines = new List<string>();
@@ -879,6 +898,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="path">The file to read.</param>
         /// <returns>The lines of the file.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="path"/> is null.</exception>
         public IEnumerable<string> ReadLines(string path)
         {
             return this.ReadAllLines(path);
@@ -890,6 +910,7 @@ namespace Renci.SshNet
         /// <param name="path">The file to read.</param>
         /// <param name="encoding">The encoding that is applied to the contents of the file.</param>
         /// <returns>The lines of the file.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="path"/> is null.</exception>
         public IEnumerable<string> ReadLines(string path, Encoding encoding)
         {
             return this.ReadAllLines(path, encoding);
@@ -944,6 +965,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="path">The file to write to.</param>
         /// <param name="bytes">The bytes to write to the file.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="path"/> is null.</exception>
         public void WriteAllBytes(string path, byte[] bytes)
         {
             using (var stream = this.OpenWrite(path))
@@ -957,6 +979,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="path">The file to write to.</param>
         /// <param name="contents">The lines to write to the file.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="path"/> is null.</exception>
         public void WriteAllLines(string path, IEnumerable<string> contents)
         {
             this.WriteAllLines(path, contents, Encoding.UTF8);
@@ -967,6 +990,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="path">The file to write to.</param>
         /// <param name="contents">The string array to write to the file.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="path"/> is null.</exception>
         public void WriteAllLines(string path, string[] contents)
         {
             this.WriteAllLines(path, contents, Encoding.UTF8);
@@ -978,6 +1002,7 @@ namespace Renci.SshNet
         /// <param name="path">The file to write to.</param>
         /// <param name="contents">The lines to write to the file.</param>
         /// <param name="encoding">The character encoding to use.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="path"/> is null.</exception>
         public void WriteAllLines(string path, IEnumerable<string> contents, Encoding encoding)
         {
             using (var stream = this.CreateText(path, encoding))
@@ -995,6 +1020,7 @@ namespace Renci.SshNet
         /// <param name="path">The file to write to.</param>
         /// <param name="contents">The string array to write to the file.</param>
         /// <param name="encoding">An <see cref="System.Text.Encoding"/> object that represents the character encoding applied to the string array.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="path"/> is null.</exception>
         public void WriteAllLines(string path, string[] contents, Encoding encoding)
         {
             using (var stream = this.CreateText(path, encoding))
@@ -1011,6 +1037,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="path">The file to write to.</param>
         /// <param name="contents">The string to write to the file.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="path"/> is null.</exception>
         public void WriteAllText(string path, string contents)
         {
             using (var stream = this.CreateText(path))
@@ -1025,6 +1052,7 @@ namespace Renci.SshNet
         /// <param name="path">The file to write to.</param>
         /// <param name="contents">The string to write to the file.</param>
         /// <param name="encoding">The encoding to apply to the string.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="path"/> is null.</exception>
         public void WriteAllText(string path, string contents, Encoding encoding)
         {
             using (var stream = this.CreateText(path, encoding))
@@ -1038,6 +1066,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="path">The path to the file.</param>
         /// <returns>The <see cref="SftpFileAttributes"/> of the file on the path.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="path"/> is null.</exception>
         public SftpFileAttributes GetAttributes(string path)
         {
             var fullPath = this._sftpSession.GetCanonicalPath(path);
@@ -1050,6 +1079,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="path">The path to the file.</param>
         /// <param name="fileAttributes">The desired <see cref="SftpFileAttributes"/>.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="path"/> is null.</exception>
         public void SetAttributes(string path, SftpFileAttributes fileAttributes)
         {
             var fullPath = this._sftpSession.GetCanonicalPath(path);
@@ -1057,6 +1087,7 @@ namespace Renci.SshNet
             this._sftpSession.RequestSetStat(fullPath, fileAttributes);
         }
 
+        // Please don't forget this when you implement these methods: <exception cref="ArgumentNullException"><paramref name="path"/> is null.</exception>
         //public FileSecurity GetAccessControl(string path);
         //public FileSecurity GetAccessControl(string path, AccessControlSections includeSections);
         //public DateTime GetCreationTime(string path);

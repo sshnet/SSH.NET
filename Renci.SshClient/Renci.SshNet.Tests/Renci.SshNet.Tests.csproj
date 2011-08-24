@@ -67,6 +67,8 @@
     <Compile Include="SftpClientTests\GetTest.cs" />
     <Compile Include="SftpClientTests\ListDirectoryTest.cs" />
     <Compile Include="SftpClientTests\RenameFileTest.cs" />
+    <Compile Include="SftpClientTests\SftpFileStreamTest.cs" />
+    <Compile Include="SftpClientTests\SftpFileTest.cs" />
     <Compile Include="SftpClientTests\UploadDownloadFileTest.cs" />
     <Compile Include="SshClientTests\TestPortForwarding.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

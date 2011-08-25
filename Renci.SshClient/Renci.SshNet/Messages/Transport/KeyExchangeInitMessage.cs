@@ -35,7 +35,7 @@ namespace Renci.SshNet.Messages.Transport
         /// <value>
         /// Supported key exchange algorithms.
         /// </value>
-        public IEnumerable<string> KeyExchangeAlgorithms { get; set; }
+        public string[] KeyExchangeAlgorithms { get; set; }
 
         /// <summary>
         /// Gets or sets supported server host key algorithms.
@@ -43,7 +43,7 @@ namespace Renci.SshNet.Messages.Transport
         /// <value>
         /// Supported server host key algorithms.
         /// </value>
-        public IEnumerable<string> ServerHostKeyAlgorithms { get; set; }
+        public string[] ServerHostKeyAlgorithms { get; set; }
 
         /// <summary>
         /// Gets or sets supported encryption algorithms client to server.
@@ -51,7 +51,7 @@ namespace Renci.SshNet.Messages.Transport
         /// <value>
         /// Supported encryption algorithms client to server.
         /// </value>
-        public IEnumerable<string> EncryptionAlgorithmsClientToServer { get; set; }
+        public string[] EncryptionAlgorithmsClientToServer { get; set; }
 
         /// <summary>
         /// Gets or sets supported encryption algorithms server to client.
@@ -59,7 +59,7 @@ namespace Renci.SshNet.Messages.Transport
         /// <value>
         /// Supported encryption algorithms server to client.
         /// </value>
-        public IEnumerable<string> EncryptionAlgorithmsServerToClient { get; set; }
+        public string[] EncryptionAlgorithmsServerToClient { get; set; }
 
         /// <summary>
         /// Gets or sets supported hash algorithms client to server.
@@ -67,7 +67,7 @@ namespace Renci.SshNet.Messages.Transport
         /// <value>
         /// Supported hash algorithms client to server.
         /// </value>
-        public IEnumerable<string> MacAlgorithmsClientToServer { get; set; }
+        public string[] MacAlgorithmsClientToServer { get; set; }
 
         /// <summary>
         /// Gets or sets supported hash algorithms server to client.
@@ -75,7 +75,7 @@ namespace Renci.SshNet.Messages.Transport
         /// <value>
         /// Supported hash algorithms server to client.
         /// </value>
-        public IEnumerable<string> MacAlgorithmsServerToClient { get; set; }
+        public string[] MacAlgorithmsServerToClient { get; set; }
 
         /// <summary>
         /// Gets or sets supported compression algorithms client to server.
@@ -83,7 +83,7 @@ namespace Renci.SshNet.Messages.Transport
         /// <value>
         /// Supported compression algorithms client to server.
         /// </value>
-        public IEnumerable<string> CompressionAlgorithmsClientToServer { get; set; }
+        public string[] CompressionAlgorithmsClientToServer { get; set; }
 
         /// <summary>
         /// Gets or sets supported compression algorithms server to client.
@@ -91,7 +91,7 @@ namespace Renci.SshNet.Messages.Transport
         /// <value>
         /// Supported compression algorithms server to client.
         /// </value>
-        public IEnumerable<string> CompressionAlgorithmsServerToClient { get; set; }
+        public string[] CompressionAlgorithmsServerToClient { get; set; }
 
         /// <summary>
         /// Gets or sets supported languages client to server.
@@ -99,7 +99,7 @@ namespace Renci.SshNet.Messages.Transport
         /// <value>
         /// Supported languages client to server.
         /// </value>
-        public IEnumerable<string> LanguagesClientToServer { get; set; }
+        public string[] LanguagesClientToServer { get; set; }
 
         /// <summary>
         /// Gets or sets supported languages server to client.
@@ -107,7 +107,7 @@ namespace Renci.SshNet.Messages.Transport
         /// <value>
         /// The languages server to client.
         /// </value>
-        public IEnumerable<string> LanguagesServerToClient { get; set; }
+        public string[] LanguagesServerToClient { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether first key exchange packet follows.

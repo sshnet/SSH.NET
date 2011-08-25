@@ -256,7 +256,7 @@ namespace Renci.SshNet.Common
         /// Reads next name-list data type from internal buffer.
         /// </summary>
         /// <returns></returns>
-        protected IEnumerable<string> ReadNamesList()
+        protected string[] ReadNamesList()
         {
             var namesList = this.ReadString();
             return namesList.Split(',');
@@ -402,7 +402,7 @@ namespace Renci.SshNet.Common
         /// Writes name-list data into internal buffer.
         /// </summary>
         /// <param name="data">name-list data to write.</param>
-        protected void Write(IEnumerable<string> data)
+        protected void Write(string[] data)
         {
             this.Write(string.Join(",", data));
         }

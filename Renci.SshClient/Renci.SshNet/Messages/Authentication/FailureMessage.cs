@@ -15,7 +15,7 @@ namespace Renci.SshNet.Messages.Authentication
         /// <value>
         /// The allowed authentications.
         /// </value>
-        public IEnumerable<string> AllowedAuthentications { get; set; }
+        public string[] AllowedAuthentications { get; set; }
 
         /// <summary>
         /// Gets failure message.

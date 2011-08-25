@@ -201,14 +201,14 @@ namespace Renci.SshNet
                 {
                     this._clientInitMessage = new KeyExchangeInitMessage()
                     {
-                        KeyExchangeAlgorithms = this.ConnectionInfo.KeyExchangeAlgorithms.Keys,
-                        ServerHostKeyAlgorithms = this.ConnectionInfo.HostKeyAlgorithms.Keys,
-                        EncryptionAlgorithmsClientToServer = this.ConnectionInfo.Encryptions.Keys,
-                        EncryptionAlgorithmsServerToClient = this.ConnectionInfo.Encryptions.Keys,
-                        MacAlgorithmsClientToServer = this.ConnectionInfo.HmacAlgorithms.Keys,
-                        MacAlgorithmsServerToClient = this.ConnectionInfo.HmacAlgorithms.Keys,
-                        CompressionAlgorithmsClientToServer = this.ConnectionInfo.CompressionAlgorithms.Keys,
-                        CompressionAlgorithmsServerToClient = this.ConnectionInfo.CompressionAlgorithms.Keys,
+                        KeyExchangeAlgorithms = this.ConnectionInfo.KeyExchangeAlgorithms.Keys.ToArray(),
+                        ServerHostKeyAlgorithms = this.ConnectionInfo.HostKeyAlgorithms.Keys.ToArray(),
+                        EncryptionAlgorithmsClientToServer = this.ConnectionInfo.Encryptions.Keys.ToArray(),
+                        EncryptionAlgorithmsServerToClient = this.ConnectionInfo.Encryptions.Keys.ToArray(),
+                        MacAlgorithmsClientToServer = this.ConnectionInfo.HmacAlgorithms.Keys.ToArray(),
+                        MacAlgorithmsServerToClient = this.ConnectionInfo.HmacAlgorithms.Keys.ToArray(),
+                        CompressionAlgorithmsClientToServer = this.ConnectionInfo.CompressionAlgorithms.Keys.ToArray(),
+                        CompressionAlgorithmsServerToClient = this.ConnectionInfo.CompressionAlgorithms.Keys.ToArray(),
                         LanguagesClientToServer = new string[] { string.Empty },
                         LanguagesServerToClient = new string[] { string.Empty },
                         FirstKexPacketFollows = false,

@@ -79,6 +79,24 @@ namespace Renci.SshNet.Common
         private readonly uint[] _data;
         private readonly short _sign;
 
+        public int BitLength
+        {
+            get
+            {
+                if (this._sign == 0)
+                    return 0;
+
+                var msbIndex = this._data.Length - 1;
+                
+                while (this._data[msbIndex] == 0)
+                    msbIndex--;
+                
+                var msbBitCount = BitScanBackward(this._data[msbIndex]) + 1;
+
+                return msbIndex * 4 * 8 + msbBitCount + ((this._sign > 0) ? 0 : 1);
+            }
+        }
+
         #region Constractors
 
         /// <summary>

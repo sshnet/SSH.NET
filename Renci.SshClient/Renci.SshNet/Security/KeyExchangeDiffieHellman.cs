@@ -106,7 +106,10 @@ namespace Renci.SshNet.Security
             if (this._prime.IsZero)
                 throw new ArgumentNullException("_prime");
 
-            var bytesArray = new byte[128];
+            var bitLength = this._prime.BitLength;
+
+            var bytesArray = new byte[bitLength / 8 + (((bitLength & 8) > 0) ? 1 : 0)];
+
             do
             {
                 _randomizer.GetBytes(bytesArray);

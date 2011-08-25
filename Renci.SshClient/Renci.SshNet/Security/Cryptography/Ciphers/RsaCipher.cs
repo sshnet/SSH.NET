@@ -66,10 +66,13 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 BigInteger random = BigInteger.One;
 
                 var max = this._key.Modulus - 1;
+                
+                var bitLength = this._key.Modulus.BitLength;
+
+                var bytesArray = new byte[bitLength / 8 + (((bitLength & 8) > 0) ? 1 : 0)];
 
                 while (random <= BigInteger.One || random >= max)
                 {
-                    var bytesArray = new byte[256];
                     _randomizer.GetBytes(bytesArray);
 
                     bytesArray[bytesArray.Length - 1] = (byte)(bytesArray[bytesArray.Length - 1] & 0x7F);   //  Ensure not a negative value

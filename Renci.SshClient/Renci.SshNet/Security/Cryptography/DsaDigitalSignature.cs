@@ -110,9 +110,12 @@ namespace Renci.SshNet.Security.Cryptography
                     //  TODO:   Take random function to BigInteger
 
                     //  Generate a random per-message value k where 0 < k < q
+                    var bitLength = this._key.Q.BitLength;
+
+                    var bytesArray = new byte[bitLength / 8 + (((bitLength & 8) > 0) ? 1 : 0)];
+                    
                     do
                     {
-                        var bytesArray = new byte[20];
                         _randomizer.GetBytes(bytesArray);
 
                         bytesArray[bytesArray.Length - 1] = (byte)(bytesArray[bytesArray.Length - 1] & 0x7F);   //  Ensure not a negative value

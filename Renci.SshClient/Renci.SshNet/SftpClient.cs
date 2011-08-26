@@ -168,7 +168,7 @@ namespace Renci.SshNet
         /// <exception cref="Renci.SshNet.Common.SshException">A SSH error where <see cref="P:SshException.Message"/> is the message from the remote host.</exception>
         public void CreateDirectory(string path)
         {
-            if (string.IsNullOrWhiteSpace(path))
+            if (path.IsNullOrWhiteSpace())
                 throw new ArgumentException(path);
 
             //  Ensure that connection is established.
@@ -189,7 +189,7 @@ namespace Renci.SshNet
         /// <exception cref="Renci.SshNet.Common.SshException">A SSH error where <see cref="P:SshException.Message"/> is the message from the remote host.</exception>
         public void DeleteDirectory(string path)
         {
-            if (string.IsNullOrWhiteSpace(path))
+            if (path.IsNullOrWhiteSpace())
                 throw new ArgumentException("path");
 
             //  Ensure that connection is established.
@@ -210,7 +210,7 @@ namespace Renci.SshNet
         /// <exception cref="Renci.SshNet.Common.SshException">A SSH error where <see cref="P:SshException.Message"/> is the message from the remote host.</exception>
         public void DeleteFile(string path)
         {
-            if (string.IsNullOrWhiteSpace(path))
+            if (path.IsNullOrWhiteSpace())
                 throw new ArgumentException("path");
 
             //  Ensure that connection is established.
@@ -259,10 +259,10 @@ namespace Renci.SshNet
         /// <exception cref="Renci.SshNet.Common.SshException">A SSH error where <see cref="P:SshException.Message"/> is the message from the remote host.</exception>
         public void SymbolicLink(string path, string linkPath)
         {
-            if (string.IsNullOrWhiteSpace(path))
+            if (path.IsNullOrWhiteSpace())
                 throw new ArgumentException("path");
 
-            if (string.IsNullOrWhiteSpace(linkPath))
+            if (linkPath.IsNullOrWhiteSpace())
                 throw new ArgumentException("linkPath");
 
             //  Ensure that connection is established.
@@ -370,7 +370,7 @@ namespace Renci.SshNet
         /// <exception cref="Renci.SshNet.Common.SshException">A SSH error where <see cref="P:SshException.Message"/> is the message from the remote host.</exception>
         public bool Exists(string path)
         {
-            if (string.IsNullOrWhiteSpace(path))
+            if (path.IsNullOrWhiteSpace())
                 throw new ArgumentException("path");
 
             //  Ensure that connection is established.
@@ -429,7 +429,7 @@ namespace Renci.SshNet
         /// <remarks>Method calls made by this method to <paramref name="output"/>, may under certain conditions result in exceptions thrown by the stream.</remarks>
         public IAsyncResult BeginDownloadFile(string path, Stream output, AsyncCallback asyncCallback, object state)
         {
-            if (string.IsNullOrWhiteSpace(path))
+            if (path.IsNullOrWhiteSpace())
                 throw new ArgumentException("path");
 
             if (output == null)
@@ -508,7 +508,7 @@ namespace Renci.SshNet
             if (input == null)
                 throw new ArgumentNullException("input");
 
-            if (string.IsNullOrWhiteSpace(path))
+            if (path.IsNullOrWhiteSpace())
                 throw new ArgumentException("path");
 
             //  Ensure that connection is established.
@@ -1142,7 +1142,7 @@ namespace Renci.SshNet
             if (output == null)
                 throw new ArgumentNullException("output");
 
-            if (string.IsNullOrWhiteSpace(path))
+            if (path.IsNullOrWhiteSpace())
                 throw new ArgumentException("path");
 
             //  Ensure that connection is established.
@@ -1182,7 +1182,7 @@ namespace Renci.SshNet
             if (input == null)
                 throw new ArgumentNullException("input");
 
-            if (string.IsNullOrWhiteSpace(path))
+            if (path.IsNullOrWhiteSpace())
                 throw new ArgumentException("path");
 
             //  Ensure that connection is established.

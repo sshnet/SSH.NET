@@ -201,24 +201,25 @@ namespace Renci.SshNet.Sftp
                 this._data.RemoveRange(0, packetLength);
 
                 //  Load SFTP Message and handle it
-                dynamic response = SftpMessage.Load(packetData);
+                var response = SftpMessage.Load(packetData);
 
                 try
                 {
-                    if (response is SftpVersionResponse)
+                    var versionResponse = response as SftpVersionResponse;
+                    if (versionResponse != null)
                     {
-                        if (response.Version == 3)
+                        if (versionResponse.Version == 3)
                         {
                             this._sftpVersionConfirmed.Set();
                         }
                         else
                         {
-                            throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "Server SFTP version {0} is not supported.", response.Version));
+                            throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "Server SFTP version {0} is not supported.", versionResponse.Version));
                         }
                     }
                     else
                     {
-                        this.HandleResponse(response);
+                        this.HandleResponse(response as SftpResponse);
                     }
                 }
                 catch (Exception exp)

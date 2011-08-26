@@ -6,6 +6,9 @@ using Renci.SshNet.Messages;
 using Renci.SshNet.Common;
 using System.Threading;
 using Renci.SshNet.Messages.Transport;
+using System.Reflection;
+using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Renci.SshNet
 {
@@ -14,6 +17,53 @@ namespace Renci.SshNet
     /// </summary>
     public partial class Session
     {
+        private static readonly Dictionary<Type, MethodInfo> _handlers;
+
+        static Session()
+        {
+            _handlers = new Dictionary<Type, MethodInfo>();
+
+            foreach (var method in typeof(Session).GetMethods(BindingFlags.Instance | BindingFlags.NonPublic).Where(x => x.Name == "HandleMessage"))
+            {
+                if (method.IsGenericMethod) continue;
+
+                var args = method.GetParameters();
+                if (args.Length != 1) continue;
+
+                var argType = args[0].ParameterType;
+                if (!argType.IsSubclassOf(typeof(Message))) continue;
+
+                _handlers.Add(argType, method);
+            }
+        }
+
+        /// <summary>
+        /// Handles SSH messages.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        partial void HandleMessageCore(Message message)
+        {
+            Debug.Assert(message != null);
+
+            MethodInfo method;
+
+            if (_handlers.TryGetValue(message.GetType(), out method))
+            {
+                try
+                {
+                    method.Invoke(this, new object[] { message });
+                }
+                catch (TargetInvocationException ex)
+                {
+                    throw ex.InnerException ?? ex;
+                }
+            }
+            else
+            {
+                HandleMessage(message);
+            }
+        }
+
         partial void ExecuteThread(Action action)
         {
             ThreadPool.QueueUserWorkItem((o) => { action(); });
@@ -41,99 +91,6 @@ namespace Renci.SshNet
                     m.Activated = false;
                 }
             }
-        }
-
-        partial void OpenSocket()
-        {
-            var ep = new IPEndPoint(Dns.GetHostAddresses(this.ConnectionInfo.Host)[0], this.ConnectionInfo.Port);
-            this._socket = new Socket(ep.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-
-            var socketBufferSize = 2 * MAXIMUM_PACKET_SIZE;
-
-            this._socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.NoDelay, true);
-            this._socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.SendBuffer, socketBufferSize);
-            this._socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveBuffer, socketBufferSize);
-
-
-            //  Connect socket with 5 seconds timeout
-            var connectResult = this._socket.BeginConnect(ep, null, null);
-
-            connectResult.AsyncWaitHandle.WaitOne(this.ConnectionInfo.Timeout);
-
-            //  Build list of available messages while connecting
-            this._messagesMetadata = (from type in this.GetType().Assembly.GetTypes()
-                                      from messageAttribute in type.GetCustomAttributes(false).OfType<MessageAttribute>()
-                                      select new MessageMetadata
-                                      {
-                                          Name = messageAttribute.Name,
-                                          Number = messageAttribute.Number,
-                                          Enabled = false,
-                                          Activated = false,
-                                          Type = type,
-                                      }).ToList();
-
-            this._socket.EndConnect(connectResult);
-        }
-
-        partial void InternalRead(int length, ref byte[] buffer)
-        {
-            var offset = 0;
-            int receivedTotal = 0;  // how many bytes is already received
-
-            do
-            {
-                try
-                {
-                    var receivedBytes = this._socket.Receive(buffer, offset + receivedTotal, length - receivedTotal, SocketFlags.None);
-                    if (receivedBytes > 0)
-                    {
-                        receivedTotal += receivedBytes;
-                        continue;
-                    }
-                    else
-                    {
-                        throw new SshConnectionException("An established connection was aborted by the software in your host machine.", DisconnectReason.ConnectionLost);
-                    }
-                }
-                catch (SocketException exp)
-                {
-                    if (exp.SocketErrorCode == SocketError.WouldBlock ||
-                        exp.SocketErrorCode == SocketError.IOPending ||
-                        exp.SocketErrorCode == SocketError.NoBufferSpaceAvailable)
-                    {
-                        // socket buffer is probably empty, wait and try again
-                        Thread.Sleep(30);
-                    }
-                    else
-                        throw;  // any serious error occurred
-                }
-            } while (receivedTotal < length);
-        }
-
-        partial void Write(byte[] data)
-        {
-            int sent = 0;  // how many bytes is already sent
-            int length = data.Length;
-
-            do
-            {
-                try
-                {
-                    sent += this._socket.Send(data, sent, length - sent, SocketFlags.None);
-                }
-                catch (SocketException ex)
-                {
-                    if (ex.SocketErrorCode == SocketError.WouldBlock ||
-                        ex.SocketErrorCode == SocketError.IOPending ||
-                        ex.SocketErrorCode == SocketError.NoBufferSpaceAvailable)
-                    {
-                        // socket buffer is probably full, wait and try again
-                        Thread.Sleep(30);
-                    }
-                    else
-                        throw;  // any serious error occurr
-                }
-            } while (sent < length);
         }
     }
 }

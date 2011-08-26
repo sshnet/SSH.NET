@@ -83,6 +83,7 @@
     <Compile Include="Common\ChannelOpenFailedEventArgs.cs" />
     <Compile Include="Common\ChannelRequestEventArgs.cs" />
     <Compile Include="Common\DerData.cs" />
+    <Compile Include="Common\Extensions.NET40.cs" />
     <Compile Include="Common\ObjectIdentifier.cs" />
     <Compile Include="Common\SemaphoreLight.cs">
       <SubType>Code</SubType>
@@ -368,6 +369,7 @@
     <None Include="Documentation\Content\HowTo.Connect.aml" />
     <None Include="Documentation\Content\Reference.aml" />
     <None Include="Documentation\Renci.SshClient.content" />
+    <Compile Include="Session.NET.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Documentation\SshClient.shfbproj" />

@@ -8,8 +8,8 @@
     <ProjectGuid>{DD1C552F-7F48-4269-ABB3-2E4C89B7E43A}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Renci.SshNet.NET35</RootNamespace>
-    <AssemblyName>Renci.SshNet.NET35</AssemblyName>
+    <RootNamespace>Renci.SshNet</RootNamespace>
+    <AssemblyName>Renci.SshNet</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SccProjectName>SAK</SccProjectName>
@@ -546,6 +546,9 @@
     </Compile>
     <Compile Include="..\Renci.SshNet\Session.cs">
       <Link>Session.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Session.NET.cs">
+      <Link>Session.NET.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\SftpClient.cs">
       <Link>SftpClient.cs</Link>

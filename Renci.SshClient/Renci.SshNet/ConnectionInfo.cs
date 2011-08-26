@@ -244,7 +244,7 @@ namespace Renci.SshNet
             if (!port.IsValidPort())
                 throw new ArgumentOutOfRangeException("port");
 
-            if (string.IsNullOrWhiteSpace(username))
+            if (username.IsNullOrWhiteSpace())
                 throw new ArgumentException("username");
 
             this.Host = host;

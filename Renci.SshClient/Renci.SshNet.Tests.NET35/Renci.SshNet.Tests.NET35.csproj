@@ -1,0 +1,147 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>
+    </ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{007CE8B3-7827-4AD0-AACD-860505638ABE}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Renci.SshNet.Tests</RootNamespace>
+    <AssemblyName>Renci.SshNet.Tests.NET35</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+    <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <CodeAnalysisDependentAssemblyPaths Condition=" '$(VS100COMNTOOLS)' != '' " Include="$(VS100COMNTOOLS)..\IDE\PrivateAssemblies">
+      <Visible>False</Visible>
+    </CodeAnalysisDependentAssemblyPaths>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\Renci.SshNet.Tests\ConnectionTest.cs">
+      <Link>ConnectionTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Security\Cryptography\Ciphers.cs">
+      <Link>Security\Cryptography\Ciphers.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Security\TestCipher.cs">
+      <Link>Security\TestCipher.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Security\TestHMac.cs">
+      <Link>Security\TestHMac.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Security\TestHostKey.cs">
+      <Link>Security\TestHostKey.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Security\TestKeyExchange.cs">
+      <Link>Security\TestKeyExchange.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Security\TestPrivateKeyFile.cs">
+      <Link>Security\TestPrivateKeyFile.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\SftpClientTests\ChangeDirectory.cs">
+      <Link>SftpClientTests\ChangeDirectory.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\SftpClientTests\CreateDirectoryTest.cs">
+      <Link>SftpClientTests\CreateDirectoryTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\SftpClientTests\DeleteDirectoryTest.cs">
+      <Link>SftpClientTests\DeleteDirectoryTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\SftpClientTests\DeleteFileTest.cs">
+      <Link>SftpClientTests\DeleteFileTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\SftpClientTests\GetTest.cs">
+      <Link>SftpClientTests\GetTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\SftpClientTests\ListDirectoryTest.cs">
+      <Link>SftpClientTests\ListDirectoryTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\SftpClientTests\RenameFileTest.cs">
+      <Link>SftpClientTests\RenameFileTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\SftpClientTests\SftpFileStreamTest.cs">
+      <Link>SftpClientTests\SftpFileStreamTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\SftpClientTests\SftpFileTest.cs">
+      <Link>SftpClientTests\SftpFileTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\SftpClientTests\UploadDownloadFileTest.cs">
+      <Link>SftpClientTests\UploadDownloadFileTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\SshClientTests\TestPortForwarding.cs">
+      <Link>SshClientTests\TestPortForwarding.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\SshClientTests\TestShell.cs">
+      <Link>SshClientTests\TestShell.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\SshClientTests\TestSshCommand.cs">
+      <Link>SshClientTests\TestSshCommand.cs</Link>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="SshClientTests\TestPortForwarding.NET35.cs" />
+    <Compile Include="SshClientTests\TestSshCommand.NET35.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Renci.SshNet.NET35\Renci.SshNet.NET35.csproj">
+      <Project>{DD1C552F-7F48-4269-ABB3-2E4C89B7E43A}</Project>
+      <Name>Renci.SshNet.NET35</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" ProjectLinkReference="c45379b9-17b1-4e89-bc2e-6d41726413e8" />
+    </VisualStudio>
+  </ProjectExtensions>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

@@ -810,6 +810,8 @@ namespace Renci.SshNet
             this._isDisconnectMessageSent = true;
         }
 
+        partial void HandleMessageCore(Message message);
+
         /// <summary>
         /// Handles the message.
         /// </summary>
@@ -1482,10 +1484,8 @@ namespace Renci.SshNet
                     {
                         throw new NullReferenceException("The 'message' variable cannot be null");
                     }
-                    else
-                    {
-                        this.HandleMessage((dynamic)message);
-                    }
+                    
+                    this.HandleMessageCore(message);
                 }
             }
             catch (Exception exp)

@@ -12,7 +12,7 @@ namespace Renci.SshNet
     /// <summary>
     /// Collection of different extension method
     /// </summary>
-    public static class Extensions
+    public static partial class Extensions
     {
         /// <summary>
         /// Checks whether a collection is the same as another collection
@@ -215,5 +215,6 @@ namespace Renci.SshNet
                 return false;
             return true;
         }
+
     }
 }

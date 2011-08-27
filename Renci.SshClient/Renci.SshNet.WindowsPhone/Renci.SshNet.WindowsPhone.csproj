@@ -74,6 +74,9 @@
     <Compile Include="..\Renci.SshNet\Channels\ChannelTypes.cs">
       <Link>Channels\ChannelTypes.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\CipherInfo.cs">
+      <Link>CipherInfo.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\Common\AsyncResult.cs">
       <Link>Common\AsyncResult.cs</Link>
     </Compile>
@@ -92,6 +95,9 @@
     <Compile Include="..\Renci.SshNet\Common\AuthenticationPromptEventArgs.cs">
       <Link>Common\AuthenticationPromptEventArgs.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\Common\BigInteger.cs">
+      <Link>Common\BigInteger.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\Common\ChannelDataEventArgs.cs">
       <Link>Common\ChannelDataEventArgs.cs</Link>
     </Compile>
@@ -104,17 +110,26 @@
     <Compile Include="..\Renci.SshNet\Common\ChannelRequestEventArgs.cs">
       <Link>Common\ChannelRequestEventArgs.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\Common\DerData.cs">
+      <Link>Common\DerData.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\Common\ExceptionEventArgs.cs">
       <Link>Common\ExceptionEventArgs.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Common\Extensions.cs">
       <Link>Common\Extensions.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\Common\ObjectIdentifier.cs">
+      <Link>Common\ObjectIdentifier.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\Common\PipeStream.cs">
       <Link>Common\PipeStream.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Common\PortForwardEventArgs.cs">
       <Link>Common\PortForwardEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Common\SemaphoreLight.cs">
+      <Link>Common\SemaphoreLight.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Common\SftpPathNotFoundException.cs">
       <Link>Common\SftpPathNotFoundException.cs</Link>
@@ -151,9 +166,6 @@
     </Compile>
     <Compile Include="..\Renci.SshNet\ConnectionInfo.cs">
       <Link>ConnectionInfo.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet\ExceptionEventArgs.cs">
-      <Link>ExceptionEventArgs.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\ForwardedPort.cs">
       <Link>ForwardedPort.cs</Link>
@@ -257,6 +269,9 @@
     <Compile Include="..\Renci.SshNet\Messages\Connection\ChannelRequest\ChannelRequestMessage.cs">
       <Link>Messages\Connection\ChannelRequest\ChannelRequestMessage.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\Messages\Connection\ChannelRequest\EndOfWriteRequestInfo.cs">
+      <Link>Messages\Connection\ChannelRequest\EndOfWriteRequestInfo.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\Messages\Connection\ChannelRequest\EnvironmentVariableRequestInfo.cs">
       <Link>Messages\Connection\ChannelRequest\EnvironmentVariableRequestInfo.cs</Link>
     </Compile>
@@ -268,6 +283,9 @@
     </Compile>
     <Compile Include="..\Renci.SshNet\Messages\Connection\ChannelRequest\ExitStatusRequestInfo.cs">
       <Link>Messages\Connection\ChannelRequest\ExitStatusRequestInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Messages\Connection\ChannelRequest\KeepAliveRequestInfo.cs">
+      <Link>Messages\Connection\ChannelRequest\KeepAliveRequestInfo.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Messages\Connection\ChannelRequest\PseudoTerminalInfo.cs">
       <Link>Messages\Connection\ChannelRequest\PseudoTerminalInfo.cs</Link>
@@ -380,41 +398,26 @@
     <Compile Include="..\Renci.SshNet\Security\Algorithm.cs">
       <Link>Security\Algorithm.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\Security\Cipher.cs">
-      <Link>Security\Cipher.cs</Link>
+    <Compile Include="..\Renci.SshNet\Security\CertificateHostAlgorithm.cs">
+      <Link>Security\CertificateHostAlgorithm.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\Security\CipherAESCBC.cs">
-      <Link>Security\CipherAESCBC.cs</Link>
+    <Compile Include="..\Renci.SshNet\Security\Cryptography\AsymmetricCipher.cs">
+      <Link>Security\Cryptography\AsymmetricCipher.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\Security\CipherAESCTR.cs">
-      <Link>Security\CipherAESCTR.cs</Link>
+    <Compile Include="..\Renci.SshNet\Security\Cryptography\BlockCipher.cs">
+      <Link>Security\Cryptography\BlockCipher.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\Security\CipherBlowfish.cs">
-      <Link>Security\CipherBlowfish.cs</Link>
+    <Compile Include="..\Renci.SshNet\Security\Cryptography\Cipher.cs">
+      <Link>Security\Cryptography\Cipher.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\Security\CipherCast.cs">
-      <Link>Security\CipherCast.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet\Security\CipherDES.cs">
-      <Link>Security\CipherDES.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet\Security\CipherSerpent.cs">
-      <Link>Security\CipherSerpent.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet\Security\CipherTripleDES.cs">
-      <Link>Security\CipherTripleDES.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet\Security\Cryptography\Aes.cs">
-      <Link>Security\Cryptography\Aes.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet\Security\Cryptography\Blowfish.cs">
-      <Link>Security\Cryptography\Blowfish.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet\Security\Cryptography\Cast.cs">
-      <Link>Security\Cryptography\Cast.cs</Link>
+    <Compile Include="..\Renci.SshNet\Security\Cryptography\CipherDigitalSignature.cs">
+      <Link>Security\Cryptography\CipherDigitalSignature.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Security\Cryptography\Ciphers\AesCipher.cs">
       <Link>Security\Cryptography\Ciphers\AesCipher.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Cryptography\Ciphers\Arc4Cipher.cs">
+      <Link>Security\Cryptography\Ciphers\Arc4Cipher.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Security\Cryptography\Ciphers\BlowfishCipher.cs">
       <Link>Security\Cryptography\Ciphers\BlowfishCipher.cs</Link>
@@ -422,11 +425,32 @@
     <Compile Include="..\Renci.SshNet\Security\Cryptography\Ciphers\CastCipher.cs">
       <Link>Security\Cryptography\Ciphers\CastCipher.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\Security\Cryptography\Ciphers\CipherBase.cs">
-      <Link>Security\Cryptography\Ciphers\CipherBase.cs</Link>
+    <Compile Include="..\Renci.SshNet\Security\Cryptography\Ciphers\CipherMode.cs">
+      <Link>Security\Cryptography\Ciphers\CipherMode.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Cryptography\Ciphers\CipherPadding.cs">
+      <Link>Security\Cryptography\Ciphers\CipherPadding.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Security\Cryptography\Ciphers\DesCipher.cs">
       <Link>Security\Cryptography\Ciphers\DesCipher.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Cryptography\Ciphers\Modes\CbcCipherMode.cs">
+      <Link>Security\Cryptography\Ciphers\Modes\CbcCipherMode.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Cryptography\Ciphers\Modes\CfbCipherMode.cs">
+      <Link>Security\Cryptography\Ciphers\Modes\CfbCipherMode.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Cryptography\Ciphers\Modes\CtrCipherMode.cs">
+      <Link>Security\Cryptography\Ciphers\Modes\CtrCipherMode.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Cryptography\Ciphers\Modes\OfbCipherMode.cs">
+      <Link>Security\Cryptography\Ciphers\Modes\OfbCipherMode.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Cryptography\Ciphers\Paddings\PKCS7Padding.cs">
+      <Link>Security\Cryptography\Ciphers\Paddings\PKCS7Padding.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Cryptography\Ciphers\RsaCipher.cs">
+      <Link>Security\Cryptography\Ciphers\RsaCipher.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Security\Cryptography\Ciphers\SerpentCipher.cs">
       <Link>Security\Cryptography\Ciphers\SerpentCipher.cs</Link>
@@ -437,68 +461,44 @@
     <Compile Include="..\Renci.SshNet\Security\Cryptography\Ciphers\TwofishCipher.cs">
       <Link>Security\Cryptography\Ciphers\TwofishCipher.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\Security\Cryptography\CipherTransform.cs">
-      <Link>Security\Cryptography\CipherTransform.cs</Link>
+    <Compile Include="..\Renci.SshNet\Security\Cryptography\DigitalSignature.cs">
+      <Link>Security\Cryptography\DigitalSignature.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\Security\Cryptography\Des.cs">
-      <Link>Security\Cryptography\Des.cs</Link>
+    <Compile Include="..\Renci.SshNet\Security\Cryptography\DsaDigitalSignature.cs">
+      <Link>Security\Cryptography\DsaDigitalSignature.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\Security\Cryptography\Modes\CbcMode.cs">
-      <Link>Security\Cryptography\Modes\CbcMode.cs</Link>
+    <Compile Include="..\Renci.SshNet\Security\Cryptography\DsaKey.cs">
+      <Link>Security\Cryptography\DsaKey.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\Security\Cryptography\Modes\CfbMode.cs">
-      <Link>Security\Cryptography\Modes\CfbMode.cs</Link>
+    <Compile Include="..\Renci.SshNet\Security\Cryptography\Hashes\MD5Hash.cs">
+      <Link>Security\Cryptography\Hashes\MD5Hash.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\Security\Cryptography\Modes\CipherModeEx.cs">
-      <Link>Security\Cryptography\Modes\CipherModeEx.cs</Link>
+    <Compile Include="..\Renci.SshNet\Security\Cryptography\Hashes\SHA1Hash.cs">
+      <Link>Security\Cryptography\Hashes\SHA1Hash.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\Security\Cryptography\Modes\CtrMode.cs">
-      <Link>Security\Cryptography\Modes\CtrMode.cs</Link>
+    <Compile Include="..\Renci.SshNet\Security\Cryptography\Hashes\SHA256Hash.cs">
+      <Link>Security\Cryptography\Hashes\SHA256Hash.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\Security\Cryptography\Modes\ModeBase.cs">
-      <Link>Security\Cryptography\Modes\ModeBase.cs</Link>
+    <Compile Include="..\Renci.SshNet\Security\Cryptography\HMac.cs">
+      <Link>Security\Cryptography\HMac.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\Security\Cryptography\Modes\OfbMode.cs">
-      <Link>Security\Cryptography\Modes\OfbMode.cs</Link>
+    <Compile Include="..\Renci.SshNet\Security\Cryptography\Key.cs">
+      <Link>Security\Cryptography\Key.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\Security\Cryptography\Serpent.cs">
-      <Link>Security\Cryptography\Serpent.cs</Link>
+    <Compile Include="..\Renci.SshNet\Security\Cryptography\RsaDigitalSignature.cs">
+      <Link>Security\Cryptography\RsaDigitalSignature.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\Security\Cryptography\TransformMode.cs">
-      <Link>Security\Cryptography\TransformMode.cs</Link>
+    <Compile Include="..\Renci.SshNet\Security\Cryptography\RsaKey.cs">
+      <Link>Security\Cryptography\RsaKey.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\Security\Cryptography\TripleDes.cs">
-      <Link>Security\Cryptography\TripleDes.cs</Link>
+    <Compile Include="..\Renci.SshNet\Security\Cryptography\StreamCipher.cs">
+      <Link>Security\Cryptography\StreamCipher.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\Security\CryptoKey.cs">
-      <Link>Security\CryptoKey.cs</Link>
+    <Compile Include="..\Renci.SshNet\Security\Cryptography\SymmetricCipher.cs">
+      <Link>Security\Cryptography\SymmetricCipher.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\Security\CryptoPrivateKey.cs">
-      <Link>Security\CryptoPrivateKey.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet\Security\CryptoPrivateKeyDss.cs">
-      <Link>Security\CryptoPrivateKeyDss.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet\Security\CryptoPrivateKeyRsa.cs">
-      <Link>Security\CryptoPrivateKeyRsa.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet\Security\CryptoPublicKey.cs">
-      <Link>Security\CryptoPublicKey.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet\Security\CryptoPublicKeyDss.cs">
-      <Link>Security\CryptoPublicKeyDss.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet\Security\CryptoPublicKeyRsa.cs">
-      <Link>Security\CryptoPublicKeyRsa.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet\Security\HMac.cs">
-      <Link>Security\HMac.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet\Security\HMacMD5.cs">
-      <Link>Security\HMacMD5.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet\Security\HMacSha1.cs">
-      <Link>Security\HMacSha1.cs</Link>
+    <Compile Include="..\Renci.SshNet\Security\HostAlgorithm.cs">
+      <Link>Security\HostAlgorithm.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Security\KeyExchange.cs">
       <Link>Security\KeyExchange.cs</Link>
@@ -517,6 +517,9 @@
     </Compile>
     <Compile Include="..\Renci.SshNet\Security\KeyExchangeDiffieHellmanGroupExchangeSha256.cs">
       <Link>Security\KeyExchangeDiffieHellmanGroupExchangeSha256.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\KeyHostAlgorithm.cs">
+      <Link>Security\KeyHostAlgorithm.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Session.cs">
       <Link>Session.cs</Link>
@@ -653,6 +656,10 @@
     <Compile Include="..\Renci.SshNet\SshCommand.cs">
       <Link>SshCommand.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\SubsystemSession.cs">
+      <Link>SubsystemSession.cs</Link>
+    </Compile>
+    <Compile Include="Common\Extensions.WP.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\Silverlight for Phone\$(TargetFrameworkVersion)\Microsoft.Silverlight.$(TargetFrameworkProfile).Overrides.targets" />

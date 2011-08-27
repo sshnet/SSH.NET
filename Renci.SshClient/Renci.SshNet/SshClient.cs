@@ -201,7 +201,7 @@ namespace Renci.SshNet
         /// <returns><see cref="SshCommand"/> object.</returns>
         public SshCommand CreateCommand(string commandText)
         {
-            return this.CreateCommand(commandText, Renci.SshNet.Common.ASCIIEncoding.Current);
+            return this.CreateCommand(commandText, Encoding.UTF8);
         }
 
         /// <summary>

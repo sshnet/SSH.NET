@@ -20,9 +20,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Renci.SshNet.NET35", "Renci
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Renci.SshNet.Tests.NET35", "Renci.SshNet.Tests.NET35\Renci.SshNet.Tests.NET35.csproj", "{007CE8B3-7827-4AD0-AACD-860505638ABE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Renci.SshNet.WindowsPhone", "Renci.SshNet.WindowsPhone\Renci.SshNet.WindowsPhone.csproj", "{3AD3EDF0-702E-4A91-8735-DCE4659AA54C}"
+EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 6
+		SccNumberOfProjects = 7
 		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
 		SccTeamFoundationServer = https://tfs.codeplex.com/tfs/tfs11
 		SccLocalPath0 = .
@@ -41,6 +43,9 @@ Global
 		SccProjectUniqueName5 = Renci.SshNet.Tests.NET35\\Renci.SshNet.Tests.NET35.csproj
 		SccProjectName5 = Renci.SshNet.Tests.NET35
 		SccLocalPath5 = Renci.SshNet.Tests.NET35
+		SccProjectUniqueName6 = Renci.SshNet.WindowsPhone\\Renci.SshNet.WindowsPhone.csproj
+		SccProjectName6 = Renci.SshNet.WindowsPhone
+		SccLocalPath6 = Renci.SshNet.WindowsPhone
 	EndGlobalSection
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = Renci.SshNet1.vsmdi
@@ -114,6 +119,16 @@ Global
 		{007CE8B3-7827-4AD0-AACD-860505638ABE}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{007CE8B3-7827-4AD0-AACD-860505638ABE}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{007CE8B3-7827-4AD0-AACD-860505638ABE}.Release|x86.ActiveCfg = Release|Any CPU
+		{3AD3EDF0-702E-4A91-8735-DCE4659AA54C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3AD3EDF0-702E-4A91-8735-DCE4659AA54C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3AD3EDF0-702E-4A91-8735-DCE4659AA54C}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{3AD3EDF0-702E-4A91-8735-DCE4659AA54C}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{3AD3EDF0-702E-4A91-8735-DCE4659AA54C}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{3AD3EDF0-702E-4A91-8735-DCE4659AA54C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3AD3EDF0-702E-4A91-8735-DCE4659AA54C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3AD3EDF0-702E-4A91-8735-DCE4659AA54C}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{3AD3EDF0-702E-4A91-8735-DCE4659AA54C}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{3AD3EDF0-702E-4A91-8735-DCE4659AA54C}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

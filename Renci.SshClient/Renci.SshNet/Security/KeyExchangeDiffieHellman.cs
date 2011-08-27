@@ -75,7 +75,7 @@ namespace Renci.SshNet.Security
 
             var length = (uint)(this._hostKey[0] << 24 | this._hostKey[1] << 16 | this._hostKey[2] << 8 | this._hostKey[3]);
 
-            var algorithmName = Renci.SshNet.Common.ASCIIEncoding.Current.GetString(this._hostKey, 4, (int)length);
+            var algorithmName = Encoding.UTF8.GetString(this._hostKey, 4, (int)length);
 
             var key = this.Session.ConnectionInfo.HostKeyAlgorithms[algorithmName](this._hostKey);
 

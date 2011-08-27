@@ -70,12 +70,6 @@
     <Compile Include="..\Renci.SshNet\CipherInfo.cs">
       <Link>CipherInfo.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\Common\ASCIIEncoding.cs">
-      <Link>Common\ASCIIEncoding.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet\Common\ASCIIEncoding.NET40.cs">
-      <Link>Common\ASCIIEncoding.NET40.cs</Link>
-    </Compile>
     <Compile Include="..\Renci.SshNet\Common\AsyncResult.cs">
       <Link>Common\AsyncResult.cs</Link>
     </Compile>
@@ -444,9 +438,6 @@
     </Compile>
     <Compile Include="..\Renci.SshNet\Security\Cryptography\Ciphers\CastCipher.cs">
       <Link>Security\Cryptography\Ciphers\CastCipher.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet\Security\Cryptography\Ciphers\CipherBase.cs">
-      <Link>Security\Cryptography\Ciphers\CipherBase.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Security\Cryptography\Ciphers\CipherMode.cs">
       <Link>Security\Cryptography\Ciphers\CipherMode.cs</Link>

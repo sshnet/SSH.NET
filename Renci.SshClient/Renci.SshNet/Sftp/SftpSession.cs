@@ -31,7 +31,7 @@ namespace Renci.SshNet.Sftp
         /// </summary>
         public int ProtocolVersion { get; private set; }
 
-        private uint _requestId;
+        private long _requestId;
         /// <summary>
         /// Gets the next request id for sftp session.
         /// </summary>
@@ -39,7 +39,7 @@ namespace Renci.SshNet.Sftp
         {
             get
             {
-                return this._requestId++;
+                return ((uint)Interlocked.Increment(ref this._requestId));
             }
         }
 

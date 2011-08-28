@@ -86,7 +86,7 @@ namespace Renci.SshNet.Sftp
         /// <value>
         /// The size of the current file in bytes.
         /// </value>
-        public long Size
+        public long Length
         {
             get
             {
@@ -447,7 +447,6 @@ namespace Renci.SshNet.Sftp
             this._sftpSession.RequestSetStat(this.FullName, this.Attributes);
         }
 
-
         /// <summary>
         /// Returns a <see cref="System.String"/> that represents this instance.
         /// </summary>
@@ -456,7 +455,7 @@ namespace Renci.SshNet.Sftp
         /// </returns>
         public override string ToString()
         {
-            return string.Format(CultureInfo.CurrentCulture, "Name {0}, Size {1}, User ID {2}, Group ID {3}, Accessed {4}, Modified {5}", this.Name, this.Size, this.UserId, this.GroupId, this.LastAccessTime, this.LastWriteTime);
+            return string.Format(CultureInfo.CurrentCulture, "Name {0}, Length {1}, User ID {2}, Group ID {3}, Accessed {4}, Modified {5}", this.Name, this.Length, this.UserId, this.GroupId, this.LastAccessTime, this.LastWriteTime);
         }
     }
 }

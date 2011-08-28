@@ -38,29 +38,18 @@ namespace Renci.SshNet.Security.Cryptography
         /// <returns></returns>
         public override bool Verify(byte[] input, byte[] signature)
         {
-            var sig = this._cipher.Decrypt(signature);
-
-            //  TODO:   Ensure that only 1 or 2 types are supported
-            var position = 1;
-            while (position < sig.Length && sig[position] != 0)
-                position++;
-            position++;
-
-
-            var sig1 = new byte[sig.Length - position];
-
-            Array.Copy(sig, position, sig1, 0, sig1.Length);
+            var encryptedSignature = this._cipher.Decrypt(signature);
 
             var hashData = this.Hash(input);
 
             var expected = DerEncode(hashData);
 
-            if (expected.Length != sig1.Length)
+            if (expected.Length != encryptedSignature.Length)
                 return false;
 
             for (int i = 0; i < expected.Length; i++)
             {
-                if (expected[i] != sig1[i])
+                if (expected[i] != encryptedSignature[i])
                     return false;
             }
 
@@ -80,17 +69,7 @@ namespace Renci.SshNet.Security.Cryptography
             //  Calculate DER string
             var derEncodedHash = DerEncode(hashData);
 
-            //  Calculate signature
-            var rsaInputBlockSize = new byte[255];
-            rsaInputBlockSize[0] = 0x01;
-            for (int i = 1; i < rsaInputBlockSize.Length - derEncodedHash.Length - 1; i++)
-            {
-                rsaInputBlockSize[i] = 0xFF;
-            }
-
-            Array.Copy(derEncodedHash, 0, rsaInputBlockSize, rsaInputBlockSize.Length - derEncodedHash.Length, derEncodedHash.Length);
-
-            return this._cipher.Encrypt(rsaInputBlockSize).TrimLeadingZero().ToArray();
+            return this._cipher.Encrypt(derEncodedHash).TrimLeadingZero().ToArray();
         }
 
         /// <summary>

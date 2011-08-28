@@ -39,7 +39,17 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <returns></returns>
         public override byte[] Encrypt(byte[] data)
         {
-            return this.Transform(data);
+            //  Calculate signature
+            var paddedBlock = new byte[this._key.Modulus.BitLength / 8 - 1];
+            paddedBlock[0] = 0x01;
+            for (int i = 1; i < paddedBlock.Length - data.Length - 1; i++)
+            {
+                paddedBlock[i] = 0xFF;
+            }
+
+            Array.Copy(data, 0, paddedBlock, paddedBlock.Length - data.Length, data.Length);
+
+            return this.Transform(paddedBlock);
         }
 
         /// <summary>
@@ -47,9 +57,24 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// </summary>
         /// <param name="data">The data.</param>
         /// <returns></returns>
+        /// <exception cref="NotSupportedException">Thrown when decrypted block type is not supported.</exception>
         public override byte[] Decrypt(byte[] data)
         {
-            return this.Transform(data);
+            var paddedBlock = this.Transform(data);
+
+            if (paddedBlock[0] != 1 || paddedBlock[0] != 2)
+                throw new NotSupportedException("Only block type 01 or 02 are supported.");
+
+            var position = 1;
+            while (position < paddedBlock.Length && paddedBlock[position] != 0)
+                position++;
+            position++;
+
+            var result = new byte[paddedBlock.Length - position];
+
+            Array.Copy(paddedBlock, position, result, 0, result.Length);
+
+            return result;
         }
 
         private byte[] Transform(byte[] data)

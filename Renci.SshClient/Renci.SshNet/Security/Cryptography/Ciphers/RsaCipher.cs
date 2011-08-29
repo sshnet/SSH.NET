@@ -62,7 +62,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         {
             var paddedBlock = this.Transform(data);
 
-            if (paddedBlock[0] != 1 || paddedBlock[0] != 2)
+            if (paddedBlock[0] != 1 && paddedBlock[0] != 2)
                 throw new NotSupportedException("Only block type 01 or 02 are supported.");
 
             var position = 1;

@@ -393,7 +393,8 @@ namespace Renci.SshNet
         internal Session(ConnectionInfo connectionInfo)
         {
             this.ConnectionInfo = connectionInfo;
-            this.ClientVersion = string.Format(CultureInfo.CurrentCulture, "SSH-2.0-Renci.SshNet.SshClient.{0}", this.GetType().Assembly.GetName().Version);
+            //this.ClientVersion = string.Format(CultureInfo.CurrentCulture, "SSH-2.0-Renci.SshNet.SshClient.{0}", this.GetType().Assembly.GetName().Version);
+            this.ClientVersion = string.Format(CultureInfo.CurrentCulture, "SSH-2.0-Renci.SshNet.SshClient.0.0.1");
         }
 
         /// <summary>
@@ -422,30 +423,40 @@ namespace Renci.SshNet
                     if (this.IsConnected)
                         return;
 
-                    this.OpenSocket();
+                    //  Build list of available messages while connecting
+                    this._messagesMetadata = (from type in this.GetType().Assembly.GetTypes()
+                                              from messageAttribute in type.GetCustomAttributes(false).OfType<MessageAttribute>()
+                                              select new MessageMetadata
+                                              {
+                                                  Name = messageAttribute.Name,
+                                                  Number = messageAttribute.Number,
+                                                  Enabled = false,
+                                                  Activated = false,
+                                                  Type = type,
+                                              }).ToList();
+
+                    this.SocketConnect();
 
                     Match versionMatch = null;
+
                     //  Get server version from the server,
                     //  ignore text lines which are sent before if any
-                    using (var ns = new NetworkStream(this._socket))
+                    while (true)
                     {
-                        using (var sr = new StreamReader(ns))
+                        string serverVersion = string.Empty;
+                        this.SocketReadLine(ref serverVersion);
+
+                        this.ServerVersion = serverVersion;
+                        if (string.IsNullOrEmpty(this.ServerVersion))
                         {
-                            while (true)
-                            {
-                                this.ServerVersion = sr.ReadLine();
-                                if (string.IsNullOrEmpty(this.ServerVersion))
-                                {
-                                    throw new InvalidOperationException("Server string is null or empty.");
-                                }
+                            throw new InvalidOperationException("Server string is null or empty.");
+                        }
 
-                                versionMatch = _serverVersionRe.Match(this.ServerVersion);
+                        versionMatch = _serverVersionRe.Match(this.ServerVersion);
 
-                                if (versionMatch.Success)
-                                {
-                                    break;
-                                }
-                            }
+                        if (versionMatch.Success)
+                        {
+                            break;
                         }
                     }
 
@@ -457,7 +468,7 @@ namespace Renci.SshNet
                         throw new SshConnectionException(string.Format(CultureInfo.CurrentCulture, "Server version '{0}' is not supported.", version), DisconnectReason.ProtocolVersionNotSupported);
                     }
 
-                    this.Write(Encoding.UTF8.GetBytes(string.Format(CultureInfo.InvariantCulture, "{0}\x0D\x0A", this.ClientVersion)));
+                    this.SocketWrite(Encoding.UTF8.GetBytes(string.Format(CultureInfo.InvariantCulture, "{0}\x0D\x0A", this.ClientVersion)));
 
                     //  Register Transport response messages
                     this.RegisterMessage("SSH_MSG_DISCONNECT");
@@ -685,7 +696,7 @@ namespace Renci.SshNet
 
                 if (this._clientMac == null)
                 {
-                    this.Write(packetData);
+                    this.SocketWrite(packetData);
                 }
                 else
                 {
@@ -695,7 +706,7 @@ namespace Renci.SshNet
                     packetData.CopyTo(data, 0);
                     hash.CopyTo(data, packetData.Length);
 
-                    this.Write(data);
+                    this.SocketWrite(data);
                 }
 
                 this._outboundPacketSequence++;
@@ -835,7 +846,7 @@ namespace Renci.SshNet
                 {
                     if (this._socket != null)
                     {
-                        this._socket.Disconnect(true);
+                        this.SocketDisconnect();
 
                         //  When socket is disconnected wait for listener to finish
                         if (this._messageListenerCompleted != null)
@@ -1393,8 +1404,6 @@ namespace Renci.SshNet
 
         #endregion
 
-        #region Read & Write operations
-
         /// <summary>
         /// Reads the specified length of bytes from the server
         /// </summary>
@@ -1404,18 +1413,10 @@ namespace Renci.SshNet
         {
             byte[] buffer = new byte[length];
 
-            this.InternalRead(length, ref buffer);
+            this.SocketRead(length, ref buffer);
 
             return buffer;
         }
-
-        /// <summary>
-        /// Writes the specified data to the server.
-        /// </summary>
-        /// <param name="data">The data.</param>
-        partial void Write(byte[] data);
-
-        #endregion
 
         #region Message loading functions
 
@@ -1465,9 +1466,19 @@ namespace Renci.SshNet
 
         partial void ExecuteThread(Action action);
 
-        partial void OpenSocket();
+        partial void SocketConnect();
 
-        partial void InternalRead(int length, ref byte[] buffer);
+        partial void SocketDisconnect();
+
+        partial void SocketRead(int length, ref byte[] buffer);
+
+        partial void SocketReadLine(ref string response);
+
+        /// <summary>
+        /// Writes the specified data to the server.
+        /// </summary>
+        /// <param name="data">The data.</param>
+        partial void SocketWrite(byte[] data);
 
         /// <summary>
         /// Listens for incoming message from the server and handles them. This method run as a task on separate thread.
@@ -1484,7 +1495,7 @@ namespace Renci.SshNet
                     {
                         throw new NullReferenceException("The 'message' variable cannot be null");
                     }
-                    
+
                     this.HandleMessageCore(message);
                 }
             }

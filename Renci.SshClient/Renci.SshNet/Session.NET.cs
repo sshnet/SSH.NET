@@ -6,12 +6,13 @@ using Renci.SshNet.Messages;
 using Renci.SshNet.Common;
 using System.Threading;
 using Renci.SshNet.Messages.Transport;
+using System.IO;
 
 namespace Renci.SshNet
 {
-	public partial class Session
-	{
-        partial void OpenSocket()
+    public partial class Session
+    {
+        partial void SocketConnect()
         {
             var ep = new IPEndPoint(Dns.GetHostAddresses(this.ConnectionInfo.Host)[0], this.ConnectionInfo.Port);
             this._socket = new Socket(ep.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
@@ -22,28 +23,33 @@ namespace Renci.SshNet
             this._socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.SendBuffer, socketBufferSize);
             this._socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveBuffer, socketBufferSize);
 
-
-            //  Connect socket with 5 seconds timeout
+            //  Connect socket with specified timeout
             var connectResult = this._socket.BeginConnect(ep, null, null);
 
             connectResult.AsyncWaitHandle.WaitOne(this.ConnectionInfo.Timeout);
 
-            //  Build list of available messages while connecting
-            this._messagesMetadata = (from type in this.GetType().Assembly.GetTypes()
-                                      from messageAttribute in type.GetCustomAttributes(false).OfType<MessageAttribute>()
-                                      select new MessageMetadata
-                                      {
-                                          Name = messageAttribute.Name,
-                                          Number = messageAttribute.Number,
-                                          Enabled = false,
-                                          Activated = false,
-                                          Type = type,
-                                      }).ToList();
-
             this._socket.EndConnect(connectResult);
         }
 
-        partial void InternalRead(int length, ref byte[] buffer)
+        partial void SocketDisconnect()
+        {
+            this._socket.Disconnect(true);
+        }
+
+        partial void SocketReadLine(ref string response)
+        {
+            //  Get server version from the server,
+            //  ignore text lines which are sent before if any
+            using (var ns = new NetworkStream(this._socket))
+            {
+                using (var sr = new StreamReader(ns))
+                {
+                    response = sr.ReadLine();
+                }
+            }
+        }
+
+        partial void SocketRead(int length, ref byte[] buffer)
         {
             var offset = 0;
             int receivedTotal = 0;  // how many bytes is already received
@@ -78,7 +84,7 @@ namespace Renci.SshNet
             } while (receivedTotal < length);
         }
 
-        partial void Write(byte[] data)
+        partial void SocketWrite(byte[] data)
         {
             int sent = 0;  // how many bytes is already sent
             int length = data.Length;

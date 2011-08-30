@@ -219,8 +219,7 @@ namespace Renci.SshNet.Common
             {
                 throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "Strings longer than {0} is not supported.", int.MaxValue));
             }
-
-            return Encoding.UTF8.GetString(this.ReadBytes((int)length));
+            return Encoding.UTF8.GetString(this.ReadBytes((int)length), 0, (int)length);
         }
 
         /// <summary>
@@ -238,7 +237,7 @@ namespace Renci.SshNet.Common
 
             return this.ReadBytes((int)length);
         }
-        
+
         /// <summary>
         /// Reads next mpint data type from internal buffer.
         /// </summary>

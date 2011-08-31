@@ -108,7 +108,7 @@ namespace Renci.SshNet.Security
 
             var bitLength = this._prime.BitLength;
 
-            var bytesArray = new byte[bitLength / 8 + (((bitLength & 8) > 0) ? 1 : 0)];
+            var bytesArray = new byte[bitLength / 8 + (((bitLength % 8) > 0) ? 1 : 0)];
 
             do
             {

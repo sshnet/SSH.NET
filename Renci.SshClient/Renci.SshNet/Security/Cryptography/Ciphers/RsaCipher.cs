@@ -94,7 +94,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 
                 var bitLength = this._key.Modulus.BitLength;
 
-                var bytesArray = new byte[bitLength / 8 + (((bitLength & 8) > 0) ? 1 : 0)];
+                var bytesArray = new byte[bitLength / 8 + (((bitLength % 8) > 0) ? 1 : 0)];
 
                 while (random <= BigInteger.One || random >= max)
                 {

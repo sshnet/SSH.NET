@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
+using System.Threading;
 
 namespace Renci.SshNet.Sftp
 {
@@ -797,7 +798,10 @@ namespace Renci.SshNet.Sftp
 
                         Buffer.BlockCopy(this._buffer, 0, data, 0, this._bufferPosn);
 
-                        this._session.RequestWrite(this._handle, (ulong)this.Position, data);
+                        using (var wait = new AutoResetEvent(false))
+                        {
+                            this._session.RequestWrite(this._handle, (ulong)this.Position, data, wait);
+                        }
 
                         this._bufferPosn = 0;
                         tempLen = this._bufferSize;
@@ -815,7 +819,10 @@ namespace Renci.SshNet.Sftp
 
                         Buffer.BlockCopy(buffer, offset, data, 0, tempLen);
 
-                        this._session.RequestWrite(this._handle, (ulong)this.Position, data);
+                        using (var wait = new AutoResetEvent(false))
+                        {
+                            this._session.RequestWrite(this._handle, (ulong)this.Position, data, wait);
+                        }
                     }
                     else
                     {
@@ -838,7 +845,10 @@ namespace Renci.SshNet.Sftp
 
                     Buffer.BlockCopy(this._buffer, 0, data, 0, this._bufferPosn);
 
-                    this._session.RequestWrite(this._handle, (ulong)this.Position, data);
+                    using (var wait = new AutoResetEvent(false))
+                    {
+                        this._session.RequestWrite(this._handle, (ulong)this.Position, data, wait);
+                    }
 
                     this._bufferPosn = 0;
                 }
@@ -869,7 +879,10 @@ namespace Renci.SshNet.Sftp
 
                     Buffer.BlockCopy(this._buffer, 0, data, 0, this._bufferPosn);
 
-                    this._session.RequestWrite(this._handle, (ulong)this.Position, data);
+                    using (var wait = new AutoResetEvent(false))
+                    {
+                        this._session.RequestWrite(this._handle, (ulong)this.Position, data, wait);
+                    }
 
                     this._bufferPosn = 0;
                 }
@@ -933,7 +946,10 @@ namespace Renci.SshNet.Sftp
 
                 Buffer.BlockCopy(this._buffer, 0, data, 0, this._bufferPosn);
 
-                this._session.RequestWrite(this._handle, (ulong)(this.Position - this._bufferPosn), data);
+                using (var wait = new AutoResetEvent(false))
+                {
+                    this._session.RequestWrite(this._handle, (ulong)(this.Position - this._bufferPosn), data, wait);
+                }
 
                 this._bufferPosn = 0;
             }

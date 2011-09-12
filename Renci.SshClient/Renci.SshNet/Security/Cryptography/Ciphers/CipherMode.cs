@@ -13,12 +13,17 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <summary>
         /// Gets the cipher.
         /// </summary>
-        protected BlockCipher Cipher { get; private set; }
+        protected BlockCipher Cipher;
 
         /// <summary>
         /// Gets the IV vector.
         /// </summary>
-        protected byte[] IV { get; private set; }
+        protected byte[] IV;
+
+        /// <summary>
+        /// Holds block size of the cipher.
+        /// </summary>
+        protected int _blockSize;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CipherMode"/> class.
@@ -30,13 +35,14 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         }
 
         /// <summary>
-        /// Inits the specified cipher.
+        /// Initializes the specified cipher mode.
         /// </summary>
         /// <param name="cipher">The cipher.</param>
         internal void Init(BlockCipher cipher)
         {
             this.Cipher = cipher;
-            this.IV = this.IV.Take(cipher.BlockSize).ToArray();
+            this._blockSize = cipher.BlockSize;
+            this.IV = this.IV.Take(this._blockSize).ToArray();
         }
 
         /// <summary>

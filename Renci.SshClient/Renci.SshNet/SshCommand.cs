@@ -165,9 +165,7 @@ namespace Renci.SshNet
                 AsyncState = state,
             };
 
-            
-            // TODO: kenneth_aa (2011-08-16) - Need better explanation for this, to make a good exception documentation.
-            //  When command re-executed again, create a new channel
+                        //  When command re-executed again, create a new channel
             if (this._channel != null)
             {
                 throw new SshException("Invalid operation.");
@@ -177,7 +175,7 @@ namespace Renci.SshNet
 
             if (string.IsNullOrEmpty(this.CommandText))
                 throw new ArgumentException("CommandText property is empty.");
-            // TODO: What happens if callback is null?
+
             this._callback = callback;
 
             this._channel.Open();

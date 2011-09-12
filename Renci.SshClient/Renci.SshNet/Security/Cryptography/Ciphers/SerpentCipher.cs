@@ -5,9 +5,9 @@ using System.Text;
 
 namespace Renci.SshNet.Security.Cryptography.Ciphers
 {
-    /// <summary>
-    /// Implements Serpent cipher algorithm.
-    /// </summary>
+	/// <summary>
+	/// Implements Serpent cipher algorithm.
+	/// </summary>
 	public class SerpentCipher : BlockCipher
 	{
 		private static readonly int ROUNDS = 32;
@@ -17,34 +17,22 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
 		private int X0, X1, X2, X3;    // registers
 
-        /// <summary>
-        /// Gets the size of the block in bytes.
-        /// </summary>
-        /// <value>
-        /// The size of the block in bytes.
-        /// </value>
-		public override int BlockSize
-		{
-			get { return 16; }
-		}
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="SerpentCipher"/> class.
-        /// </summary>
-        /// <param name="key">The key.</param>
-        /// <param name="mode">The mode.</param>
-        /// <param name="padding">The padding.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="key"/> is null.</exception>
-        /// <exception cref="ArgumentException">Keysize is not valid for this algorithm.</exception>
+		/// <summary>
+		/// Initializes a new instance of the <see cref="SerpentCipher"/> class.
+		/// </summary>
+		/// <param name="key">The key.</param>
+		/// <param name="mode">The mode.</param>
+		/// <param name="padding">The padding.</param>
+		/// <exception cref="ArgumentNullException"><paramref name="key"/> is null.</exception>
+		/// <exception cref="ArgumentException">Keysize is not valid for this algorithm.</exception>
 		public SerpentCipher(byte[] key, CipherMode mode, CipherPadding padding)
-			: base(key, mode, padding)
+			: base(key, 16, mode, padding)
 		{
 			//  TODO:   Refactor this algorithm
+			var keySize = key.Length * 8;
 
-            var keySize = key.Length * 8;
-
-            if (!(keySize == 128 || keySize == 192 || keySize == 256))
-                throw new ArgumentException(string.Format("KeySize '{0}' is not valid for this algorithm.", keySize));
+			if (!(keySize == 128 || keySize == 192 || keySize == 256))
+				throw new ArgumentException(string.Format("KeySize '{0}' is not valid for this algorithm.", keySize));
 
 			this._workingKey = this.MakeWorkingKey(key);
 		}

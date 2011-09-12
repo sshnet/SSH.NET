@@ -6,6 +6,7 @@ using Renci.SshNet.Sftp;
 using System.Text;
 using Renci.SshNet.Common;
 using System.Globalization;
+using System.Threading;
 
 namespace Renci.SshNet
 {
@@ -1131,7 +1132,7 @@ namespace Renci.SshNet
 
                 files = this._sftpSession.RequestReadDir(handle);
             }
-            
+
             this._sftpSession.RequestClose(handle);
 
             return result;
@@ -1206,12 +1207,15 @@ namespace Renci.SshNet
                 {
                     var data = new byte[bytesRead];
                     Array.Copy(buffer, data, bytesRead);
-                    this._sftpSession.RequestWrite(handle, offset, data);
+                    using (var wait = new AutoResetEvent(false))
+                    {
+                        this._sftpSession.RequestWrite(handle, offset, data, wait);
+                    }
                     uploadCompleted = true;
                 }
                 else
                 {
-                    this._sftpSession.RequestWrite(handle, offset, buffer);
+                    this._sftpSession.RequestWrite(handle, offset, buffer, null);
                 }
 
                 offset += (uint)bytesRead;

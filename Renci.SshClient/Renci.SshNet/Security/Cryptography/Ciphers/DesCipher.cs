@@ -5,25 +5,14 @@ using System.Text;
 
 namespace Renci.SshNet.Security.Cryptography.Ciphers
 {
-    /// <summary>
-    /// Implements DES cipher algorithm.
-    /// </summary>
+	/// <summary>
+	/// Implements DES cipher algorithm.
+	/// </summary>
 	public class DesCipher : BlockCipher
 	{
 		private int[] _encryptionKey;
 
 		private int[] _decryptionKey;
-
-		/// <summary>
-		/// Gets the size of the block in bytes.
-		/// </summary>
-		/// <value>
-		/// The size of the block in bytes.
-		/// </value>
-		public override int BlockSize
-		{
-			get { return 8; }
-		}
 
 		#region Static tables
 
@@ -235,9 +224,9 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 		/// <param name="key">The key.</param>
 		/// <param name="mode">The mode.</param>
 		/// <param name="padding">The padding.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="key"/> is null.</exception>
+		/// <exception cref="ArgumentNullException"><paramref name="key"/> is null.</exception>
 		public DesCipher(byte[] key, CipherMode mode, CipherPadding padding)
-			: base(key, mode, padding)
+			: base(key, 8, mode, padding)
 		{
 		}
 
@@ -260,10 +249,10 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 			if ((outputOffset + this.BlockSize) > outputBuffer.Length)
 				throw new IndexOutOfRangeException("output buffer too short");
 
-            if (this._encryptionKey == null)
-            {
-                this._encryptionKey = GenerateWorkingKey(true, this.Key);
-            }
+			if (this._encryptionKey == null)
+			{
+				this._encryptionKey = GenerateWorkingKey(true, this.Key);
+			}
 
 			DesCipher.DesFunc(this._encryptionKey, inputBuffer, inputOffset, outputBuffer, outputOffset);
 
@@ -289,10 +278,10 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 			if ((outputOffset + this.BlockSize) > outputBuffer.Length)
 				throw new IndexOutOfRangeException("output buffer too short");
 
-            if (this._decryptionKey == null)
-            {
-                this._decryptionKey = GenerateWorkingKey(false, this.Key);
-            }
+			if (this._decryptionKey == null)
+			{
+				this._decryptionKey = GenerateWorkingKey(false, this.Key);
+			}
 
 			DesCipher.DesFunc(this._decryptionKey, inputBuffer, inputOffset, outputBuffer, outputOffset);
 
@@ -307,7 +296,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 		/// <returns></returns>
 		protected int[] GenerateWorkingKey(bool encrypting, byte[] key)
 		{
-            this.ValidateKey();
+			this.ValidateKey();
 
 			int[] newKey = new int[32];
 			bool[] pc1m = new bool[56];
@@ -400,16 +389,16 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 			return newKey;
 		}
 
-        /// <summary>
-        /// Validates the key.
-        /// </summary>
-        protected virtual void ValidateKey()
-        {
-            var keySize = this.Key.Length * 8;
-            
-            if (!(keySize == 64))
-                throw new ArgumentException(string.Format("KeySize '{0}' is not valid for this algorithm.", keySize));
-        }
+		/// <summary>
+		/// Validates the key.
+		/// </summary>
+		protected virtual void ValidateKey()
+		{
+			var keySize = this.Key.Length * 8;
+			
+			if (!(keySize == 64))
+				throw new ArgumentException(string.Format("KeySize '{0}' is not valid for this algorithm.", keySize));
+		}
 
 		/// <summary>
 		/// Performs DES function.

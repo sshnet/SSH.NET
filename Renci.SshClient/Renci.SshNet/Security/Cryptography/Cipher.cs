@@ -48,9 +48,9 @@ namespace Renci.SshNet.Security.Cryptography
         protected static void UInt32ToBigEndian(uint number, byte[] buffer, int offset)
         {
             buffer[offset] = (byte)(number >> 24);
-            buffer[++offset] = (byte)(number >> 16);
-            buffer[++offset] = (byte)(number >> 8);
-            buffer[++offset] = (byte)(number);
+            buffer[offset + 1] = (byte)(number >> 16);
+            buffer[offset + 2] = (byte)(number >> 8);
+            buffer[offset + 3] = (byte)(number);
         }
 
         /// <summary>
@@ -76,9 +76,9 @@ namespace Renci.SshNet.Security.Cryptography
         protected static uint BigEndianToUInt32(byte[] buffer, int offset)
         {
             uint n = (uint)buffer[offset] << 24;
-            n |= (uint)buffer[++offset] << 16;
-            n |= (uint)buffer[++offset] << 8;
-            n |= (uint)buffer[++offset];
+            n |= (uint)buffer[offset + 1] << 16;
+            n |= (uint)buffer[offset + 2] << 8;
+            n |= (uint)buffer[offset + 3];
             return n;
         }
 
@@ -152,9 +152,9 @@ namespace Renci.SshNet.Security.Cryptography
         protected static void UInt32ToLittleEndian(uint number, byte[] buffer, int offset)
         {
             buffer[offset] = (byte)(number);
-            buffer[++offset] = (byte)(number >> 8);
-            buffer[++offset] = (byte)(number >> 16);
-            buffer[++offset] = (byte)(number >> 24);
+            buffer[offset + 1] = (byte)(number >> 8);
+            buffer[offset + 2] = (byte)(number >> 16);
+            buffer[offset + 3] = (byte)(number >> 24);
         }
 
         /// <summary>
@@ -180,9 +180,9 @@ namespace Renci.SshNet.Security.Cryptography
         protected static uint LittleEndianToUInt32(byte[] buffer, int offset)
         {
             uint n = (uint)buffer[offset];
-            n |= (uint)buffer[++offset] << 8;
-            n |= (uint)buffer[++offset] << 16;
-            n |= (uint)buffer[++offset] << 24;
+            n |= (uint)buffer[offset + 1] << 8;
+            n |= (uint)buffer[offset + 2] << 16;
+            n |= (uint)buffer[offset + 3] << 24;
             return n;
         }
 

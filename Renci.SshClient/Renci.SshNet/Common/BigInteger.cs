@@ -79,6 +79,12 @@ namespace Renci.SshNet.Common
         private readonly uint[] _data;
         private readonly short _sign;
 
+        /// <summary>
+        /// Gets number of bits used by the number.
+        /// </summary>
+        /// <value>
+        /// The number of the bit used.
+        /// </value>
         public int BitLength
         {
             get

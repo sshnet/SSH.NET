@@ -369,34 +369,34 @@ namespace Renci.SshNet.Sftp
         /// </summary>
         /// <param name="handle">The handle.</param>
         /// <param name="offset">The offset.</param>
-        /// <param name="data">The data.</param>
-        internal void RequestWrite(byte[] handle, UInt64 offset, byte[] data)
+        /// <param name="data">The data to send.</param>
+        /// <param name="wait">The wait event handle if needed.</param>
+        internal void RequestWrite(byte[] handle, UInt64 offset, byte[] data, EventWaitHandle wait)
         {
             var maximumDataSize = 1024 * 32 - 38;
 
             if (data.Length < maximumDataSize + 1)
             {
-                using (var wait = new AutoResetEvent(false))
-                {
-                    var request = new SftpWriteRequest(this.NextRequestId, handle, offset, data,
-                        (response) =>
+                var request = new SftpWriteRequest(this.NextRequestId, handle, offset, data,
+                    (response) =>
+                    {
+                        if (response.StatusCode == StatusCodes.Ok)
                         {
-                            if (response.StatusCode == StatusCodes.Ok)
-                            {
+                            if (wait != null)
                                 wait.Set();
-                            }
-                            else
-                            {
-                                this.ThrowSftpException(response);
-                            }
-                        });
+                        }
+                        else
+                        {
+                            this.ThrowSftpException(response);
+                        }
+                    });
 
-                    this.SendRequest(request);
+                this.SendRequest(request);
 
+                if (wait != null)
                     this.WaitHandle(wait, this._operationTimeout);
-                }
             }
-            else 
+            else
             {
                 var block = data.Length / maximumDataSize + 1;
 
@@ -407,25 +407,24 @@ namespace Renci.SshNet.Sftp
 
                     Buffer.BlockCopy(data, i * maximumDataSize, blockBuffer, 0, blockBufferSize);
 
-                    using (var wait = new AutoResetEvent(false))
-                    {
-                        var request = new SftpWriteRequest(this.NextRequestId, handle, offset + (ulong)(i * maximumDataSize), blockBuffer,
-                            (response) =>
+                    var request = new SftpWriteRequest(this.NextRequestId, handle, offset + (ulong)(i * maximumDataSize), blockBuffer,
+                        (response) =>
+                        {
+                            if (response.StatusCode == StatusCodes.Ok)
                             {
-                                if (response.StatusCode == StatusCodes.Ok)
-                                {
+                                if (wait != null)
                                     wait.Set();
-                                }
-                                else
-                                {
-                                    this.ThrowSftpException(response);
-                                }
-                            });
+                            }
+                            else
+                            {
+                                this.ThrowSftpException(response);
+                            }
+                        });
 
-                        this.SendRequest(request);
+                    this.SendRequest(request);
 
+                    if (wait != null)
                         this.WaitHandle(wait, this._operationTimeout);
-                    }
                 }
             }
         }

@@ -587,17 +587,6 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         #endregion
 
         /// <summary>
-        /// Gets the size of the block in bytes.
-        /// </summary>
-        /// <value>
-        /// The size of the block in bytes.
-        /// </value>
-        public override int BlockSize
-        {
-            get { return 16; }
-        }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="AesCipher"/> class.
         /// </summary>
         /// <param name="key">The key.</param>
@@ -606,7 +595,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <exception cref="ArgumentNullException"><paramref name="key"/> is null.</exception>
         /// <exception cref="ArgumentException">Keysize is not valid for this algorithm.</exception>
         public AesCipher(byte[] key, CipherMode mode, CipherPadding padding)
-            : base(key, mode, padding)
+            : base(key, 16, mode, padding)
         {
             var keySize = key.Length * 8;
 

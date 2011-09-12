@@ -487,7 +487,33 @@ namespace Renci.SshNet
         /// <remarks>Method calls made by this method to <paramref name="input"/>, may under certain conditions result in exceptions thrown by the stream.</remarks>
         public void UploadFile(Stream input, string path)
         {
-            this.InternalUploadFile(input, path, null);
+            this.UploadFile(input, path, true);
+        }
+
+        /// <summary>
+        /// Uploads stream into remote file..
+        /// </summary>
+        /// <param name="input">Data input stream.</param>
+        /// <param name="path">Remote file path.</param>
+        /// <param name="canOverride">if set to <c>true</c> then existing file will be overwritten.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="input"/> is null.</exception>
+        /// <exception cref="ArgumentException"><paramref name="path"/> is null or contains whitespace characters.</exception>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="Renci.SshNet.Common.SftpPermissionDeniedException">Permission to upload the file was denied by the remote host -or- a SSH command was denied by the server.</exception>
+        /// <exception cref="Renci.SshNet.Common.SshException">A SSH error where <see cref="P:SshException.Message"/> is the message from the remote host.</exception>
+        /// <remarks>
+        /// Method calls made by this method to <paramref name="input"/>, may under certain conditions result in exceptions thrown by the stream.
+        /// </remarks>
+        public void UploadFile(Stream input, string path, bool canOverride)
+        {
+            var flags = Flags.Write | Flags.Truncate;
+
+            if (canOverride)
+                flags |= Flags.CreateNewOrOpen;
+            else
+                flags |= Flags.CreateNew;
+
+            this.InternalUploadFile(input, path, null, flags);
         }
 
         /// <summary>
@@ -521,7 +547,7 @@ namespace Renci.SshNet
             {
                 try
                 {
-                    this.InternalUploadFile(input, path, asyncResult);
+                    this.InternalUploadFile(input, path, asyncResult, Flags.Write | Flags.CreateNewOrOpen | Flags.Truncate);
 
                     asyncResult.SetAsCompleted(null, false);
                 }
@@ -1178,7 +1204,7 @@ namespace Renci.SshNet
             this._sftpSession.RequestClose(handle);
         }
 
-        private void InternalUploadFile(Stream input, string path, SftpUploadAsyncResult asynchResult)
+        private void InternalUploadFile(Stream input, string path, SftpUploadAsyncResult asynchResult, Flags flags)
         {
             if (input == null)
                 throw new ArgumentNullException("input");
@@ -1191,7 +1217,7 @@ namespace Renci.SshNet
 
             var fullPath = this._sftpSession.GetCanonicalPath(path);
 
-            var handle = this._sftpSession.RequestOpen(fullPath, Flags.Write | Flags.CreateNewOrOpen | Flags.Truncate);
+            var handle = this._sftpSession.RequestOpen(fullPath, flags);
 
             ulong offset = 0;
 

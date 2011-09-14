@@ -761,7 +761,7 @@ namespace Renci.SshNet
 
                 if (serverHash != null)
                 {
-                    Array.Copy(nextBlocks, nextBlocks.Length - serverHash.Length, serverHash, 0, serverHash.Length);
+                    Buffer.BlockCopy(nextBlocks, nextBlocks.Length - serverHash.Length, serverHash, 0, serverHash.Length);
                     nextBlocks = nextBlocks.Take(nextBlocks.Length - serverHash.Length).ToArray();
                 }
 
@@ -778,7 +778,7 @@ namespace Renci.SshNet
             var paddingLength = data[4];
 
             var messagePayload = new byte[packetLength - paddingLength - 1];
-            Array.Copy(data, 5, messagePayload, 0, messagePayload.Length);
+            Buffer.BlockCopy(data, 5, messagePayload, 0, messagePayload.Length);
 
             if (this._serverDecompression != null)
             {

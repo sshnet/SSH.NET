@@ -514,7 +514,7 @@ namespace Renci.SshNet.Sftp
                     }
 
                     // Copy stream data to the caller's buffer.
-                    Array.Copy(this._buffer, this._bufferPosn, buffer, offset, tempLen);
+                    Buffer.BlockCopy(this._buffer, this._bufferPosn, buffer, offset, tempLen);
 
                     // Advance to the next buffer positions.
                     readLen += tempLen;
@@ -827,7 +827,7 @@ namespace Renci.SshNet.Sftp
                     else
                     {
                         // No: copy the data to the write buffer first.
-                        Array.Copy(buffer, offset, this._buffer, this._bufferPosn, tempLen);
+                        Buffer.BlockCopy(buffer, offset, this._buffer, this._bufferPosn, tempLen);
                         this._bufferPosn += tempLen;
                     }
 

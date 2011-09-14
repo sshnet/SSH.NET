@@ -44,6 +44,7 @@
 * ***************************************************************************/
 
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
@@ -93,10 +94,10 @@ namespace Renci.SshNet.Common
                     return 0;
 
                 var msbIndex = this._data.Length - 1;
-                
+
                 while (this._data[msbIndex] == 0)
                     msbIndex--;
-                
+
                 var msbBitCount = BitScanBackward(this._data[msbIndex]) + 1;
 
                 return msbIndex * 4 * 8 + msbBitCount + ((this._sign > 0) ? 0 : 1);
@@ -3123,6 +3124,7 @@ namespace Renci.SshNet.Common
         private static byte[] Resize(byte[] v, int len)
         {
             byte[] res = new byte[len];
+            Buffer.BlockCopy(v, 0, res, 0, Math.Min(v.Length, len));
             Array.Copy(v, res, Math.Min(v.Length, len));
             return res;
         }
@@ -3130,7 +3132,7 @@ namespace Renci.SshNet.Common
         private static uint[] Resize(uint[] v, int len)
         {
             uint[] res = new uint[len];
-            Array.Copy(v, res, Math.Min(v.Length, len));
+            Buffer.BlockCopy(v, 0, res, 0, Math.Min(v.Length, len) * sizeof(uint));
             return res;
         }
 

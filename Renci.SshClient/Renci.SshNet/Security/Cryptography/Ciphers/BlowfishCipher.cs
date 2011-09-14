@@ -441,12 +441,12 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 			* Initialise the S-boxes and the P-array, with a fixed string
 			* This string contains the hexadecimal digits of pi (3.141...)
 			*/
-			Array.Copy(KS0, 0, S0, 0, SBOX_SK);
-			Array.Copy(KS1, 0, S1, 0, SBOX_SK);
-			Array.Copy(KS2, 0, S2, 0, SBOX_SK);
-			Array.Copy(KS3, 0, S3, 0, SBOX_SK);
+			Buffer.BlockCopy(KS0, 0, S0, 0, SBOX_SK * sizeof(uint));
+			Buffer.BlockCopy(KS1, 0, S1, 0, SBOX_SK * sizeof(uint));
+			Buffer.BlockCopy(KS2, 0, S2, 0, SBOX_SK * sizeof(uint));
+			Buffer.BlockCopy(KS3, 0, S3, 0, SBOX_SK * sizeof(uint));
 
-			Array.Copy(KP, 0, P, 0, P_SZ);
+			Buffer.BlockCopy(KP, 0, P, 0, P_SZ * sizeof(uint));
 
 			/*
 			* (2)

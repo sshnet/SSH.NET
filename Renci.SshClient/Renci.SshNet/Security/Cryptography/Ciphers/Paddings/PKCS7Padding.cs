@@ -21,7 +21,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers.Paddings
             var numOfPaddedBytes = blockSize - (input.Length % blockSize);
 
             var output = new byte[input.Length + numOfPaddedBytes];
-            Array.Copy(input, output, input.Length);
+            Buffer.BlockCopy(input, 0, output, 0, input.Length);
             for (int i = 0; i < numOfPaddedBytes; i++)
             {
                 output[input.Length + i] = output[input.Length - 1];

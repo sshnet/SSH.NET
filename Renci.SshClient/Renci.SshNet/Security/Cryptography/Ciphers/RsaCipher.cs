@@ -47,7 +47,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 paddedBlock[i] = 0xFF;
             }
 
-            Array.Copy(data, 0, paddedBlock, paddedBlock.Length - data.Length, data.Length);
+            Buffer.BlockCopy(data, 0, paddedBlock, paddedBlock.Length - data.Length, data.Length);
 
             return this.Transform(paddedBlock);
         }
@@ -72,7 +72,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
             var result = new byte[paddedBlock.Length - position];
 
-            Array.Copy(paddedBlock, position, result, 0, result.Length);
+            Buffer.BlockCopy(paddedBlock, position, result, 0, result.Length);
 
             return result;
         }

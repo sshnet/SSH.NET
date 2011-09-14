@@ -1232,7 +1232,7 @@ namespace Renci.SshNet
                 if (bytesRead < this.BufferSize)
                 {
                     var data = new byte[bytesRead];
-                    Array.Copy(buffer, data, bytesRead);
+                    Buffer.BlockCopy(buffer, 0, data, 0, bytesRead); 
                     using (var wait = new AutoResetEvent(false))
                     {
                         this._sftpSession.RequestWrite(handle, offset, data, wait);

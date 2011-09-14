@@ -54,8 +54,8 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 var part1 = new byte[8];
                 var part2 = new byte[8];
 
-                Array.Copy(this.Key, 0, part1, 0, 8);
-                Array.Copy(this.Key, 8, part2, 0, 8);
+                Buffer.BlockCopy(this.Key, 0, part1, 0, 8);
+                Buffer.BlockCopy(this.Key, 8, part2, 0, 8);
 
                 this._encryptionKey1 = this.GenerateWorkingKey(true, part1);
 
@@ -64,7 +64,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 if (this.Key.Length == 24)
                 {
                     var part3 = new byte[8];
-                    Array.Copy(this.Key, 16, part3, 0, 8);
+                    Buffer.BlockCopy(this.Key, 16, part3, 0, 8);
 
                     this._encryptionKey3 = this.GenerateWorkingKey(true, part3);
                 }
@@ -107,8 +107,8 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 var part1 = new byte[8];
                 var part2 = new byte[8];
 
-                Array.Copy(this.Key, 0, part1, 0, 8);
-                Array.Copy(this.Key, 8, part2, 0, 8);
+                Buffer.BlockCopy(this.Key, 0, part1, 0, 8);
+                Buffer.BlockCopy(this.Key, 8, part2, 0, 8);
 
                 this._decryptionKey1 = this.GenerateWorkingKey(false, part1);
                 this._decryptionKey2 = this.GenerateWorkingKey(true, part2);
@@ -116,7 +116,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 if (this.Key.Length == 24)
                 {
                     var part3 = new byte[8];
-                    Array.Copy(this.Key, 16, part3, 0, 8);
+                    Buffer.BlockCopy(this.Key, 16, part3, 0, 8);
 
                     this._decryptionKey3 = this.GenerateWorkingKey(false, part3);
                 }

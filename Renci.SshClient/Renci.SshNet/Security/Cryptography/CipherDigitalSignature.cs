@@ -44,16 +44,10 @@ namespace Renci.SshNet.Security.Cryptography
 
             var expected = DerEncode(hashData);
 
-            if (expected.Length != encryptedSignature.Length)
+            if (expected.SequenceEqual(encryptedSignature))
+                return true;
+            else
                 return false;
-
-            for (int i = 0; i < expected.Length; i++)
-            {
-                if (expected[i] != encryptedSignature[i])
-                    return false;
-            }
-
-            return true;
         }
 
         /// <summary>

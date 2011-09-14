@@ -239,7 +239,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 				kPad[i] = RotateLeft(kPad[i - 8] ^ kPad[i - 5] ^ kPad[i - 3] ^ kPad[i - 1] ^ PHI ^ (i - 8), 11);
 			}
 
-			Array.Copy(kPad, 8, w, 0, 8);
+            Buffer.BlockCopy(kPad, 8, w, 0, 8);
 
 			//
 			// compute w8 to w136

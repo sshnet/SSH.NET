@@ -1,4 +1,6 @@
-﻿namespace Renci.SshNet.Messages.Connection
+﻿using System.Text;
+
+namespace Renci.SshNet.Messages.Connection
 {
     /// <summary>
     /// Represents "exec" type channel request information
@@ -61,7 +63,7 @@
         {
             base.SaveData();
 
-            this.Write(this.Command);
+            this.Write(this.Command, Encoding.UTF8);
         }
     }
 }

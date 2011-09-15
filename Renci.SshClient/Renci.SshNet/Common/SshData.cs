@@ -359,8 +359,9 @@ namespace Renci.SshNet.Common
             if (data == null)
                 throw new ArgumentNullException("data");
 
-            this.Write((uint)data.Length);
-            this.Write(encoding.GetBytes(data));
+            var bytes = encoding.GetBytes(data);
+            this.Write((uint)bytes.Length);
+            this.Write(bytes);
         }
 
         /// <summary>

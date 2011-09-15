@@ -532,11 +532,38 @@ namespace Renci.SshNet
         /// <remarks>Method calls made by this method to <paramref name="input"/>, may under certain conditions result in exceptions thrown by the stream.</remarks>
         public IAsyncResult BeginUploadFile(Stream input, string path, AsyncCallback asyncCallback, object state)
         {
+            return this.BeginUploadFile(input, path, true, asyncCallback, state);
+        }
+
+        /// <summary>
+        /// Begins an asynchronous uploading the steam into remote file.
+        /// </summary>
+        /// <param name="input">Data input stream.</param>
+        /// <param name="path">Remote file path.</param>
+        /// <param name="canOverride">if set to <c>true</c> then existing file will be overwritten.</param>
+        /// <param name="asyncCallback">The method to be called when the asynchronous write operation is completed.</param>
+        /// <param name="state">A user-provided object that distinguishes this particular asynchronous write request from other requests.</param>
+        /// <returns>An <see cref="IAsyncResult"/> that references the asynchronous operation.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="input"/> is null.</exception>
+        /// <exception cref="ArgumentException"><paramref name="path"/> is null or contains whitespace characters.</exception>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="Renci.SshNet.Common.SftpPermissionDeniedException">Permission to list the contents of the directory was denied by the remote host -or- a SSH command was denied by the server.</exception>
+        /// <exception cref="Renci.SshNet.Common.SshException">A SSH error where <see cref="P:SshException.Message"/> is the message from the remote host.</exception>
+        /// <remarks>Method calls made by this method to <paramref name="input"/>, may under certain conditions result in exceptions thrown by the stream.</remarks>
+        public IAsyncResult BeginUploadFile(Stream input, string path, bool canOverride, AsyncCallback asyncCallback, object state)
+        {
             if (input == null)
                 throw new ArgumentNullException("input");
 
             if (path.IsNullOrWhiteSpace())
                 throw new ArgumentException("path");
+
+            var flags = Flags.Write | Flags.Truncate;
+
+            if (canOverride)
+                flags |= Flags.CreateNewOrOpen;
+            else
+                flags |= Flags.CreateNew;
 
             //  Ensure that connection is established.
             this.EnsureConnection();
@@ -547,7 +574,7 @@ namespace Renci.SshNet
             {
                 try
                 {
-                    this.InternalUploadFile(input, path, asyncResult, Flags.Write | Flags.CreateNewOrOpen | Flags.Truncate);
+                    this.InternalUploadFile(input, path, asyncResult, flags);
 
                     asyncResult.SetAsCompleted(null, false);
                 }

@@ -15,8 +15,6 @@ namespace Renci.SshNet.Sftp.Requests
 
         public string Path { get; private set; }
 
-        private HashSet<SftpResponse> _actions = new HashSet<SftpResponse>();
-
         public SftpRealPathRequest(uint requestId, string path, Action<SftpNameResponse> nameAction, Action<SftpStatusResponse> statusAction)
             : base(requestId, statusAction)
         {

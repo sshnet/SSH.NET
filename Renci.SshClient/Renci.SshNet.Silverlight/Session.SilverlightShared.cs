@@ -152,11 +152,6 @@ namespace Renci.SshNet
             this.receiveEvent.Set();
         }
 
-        partial void HandleMessageCore(Message message)
-        {
-            this.HandleMessage((dynamic)message);
-        }
-
         partial void ExecuteThread(Action action)
         {
             ThreadPool.QueueUserWorkItem((o) => { action(); });

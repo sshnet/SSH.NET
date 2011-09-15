@@ -119,6 +119,9 @@
     <Compile Include="..\Renci.SshNet\Common\Extensions.cs">
       <Link>Common\Extensions.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet.Silverlight\Common\Extensions.SilverlightShared.cs">
+      <Link>Common\Extensions.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\Common\ObjectIdentifier.cs">
       <Link>Common\ObjectIdentifier.cs</Link>
     </Compile>
@@ -389,6 +392,9 @@
     <Compile Include="..\Renci.SshNet\PasswordConnectionInfo.cs">
       <Link>PasswordConnectionInfo.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet.Silverlight\PasswordConnectionInfo.SilverlightShared.cs">
+      <Link>PasswordConnectionInfo.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\PrivateKeyConnectionInfo.cs">
       <Link>PrivateKeyConnectionInfo.cs</Link>
     </Compile>
@@ -524,8 +530,14 @@
     <Compile Include="..\Renci.SshNet\Session.cs">
       <Link>Session.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet.Silverlight\Session.SilverlightShared.cs">
+      <Link>Session.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\SftpClient.cs">
       <Link>SftpClient.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Silverlight\SftpClient.SilverlightShared.cs">
+      <Link>Session.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Sftp\Flags.cs">
       <Link>Sftp\Flags.cs</Link>
@@ -656,17 +668,23 @@
     <Compile Include="..\Renci.SshNet\SshCommand.cs">
       <Link>SshCommand.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet.Silverlight\SshCommand.SilverlightShared.cs">
+      <Link>SshCommand.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\SubsystemSession.cs">
       <Link>SubsystemSession.cs</Link>
     </Compile>
-    <Compile Include="Common\Extensions.WP.cs" />
+    <Compile Include="Common\Extensions.WP.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Session.WP.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\Silverlight for Phone\$(TargetFrameworkVersion)\Microsoft.Silverlight.$(TargetFrameworkProfile).Overrides.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\Silverlight for Phone\$(TargetFrameworkVersion)\Microsoft.Silverlight.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties ProjectLinkReference="2f5f8c90-0bd1-424f-997c-7bc6280919d1" ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" />
+      <UserProperties ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" ProjectLinkReference="77C294BB-1DC2-49DC-BE16-963F8F22794D" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

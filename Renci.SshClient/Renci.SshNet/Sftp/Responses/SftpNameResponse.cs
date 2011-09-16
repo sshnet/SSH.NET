@@ -14,11 +14,11 @@ namespace Renci.SshNet.Sftp.Responses
 
         public uint Count { get; private set; }
 
-        public IDictionary<string, SftpFileAttributes> Files { get; private set; }
+        public KeyValuePair<string, SftpFileAttributes>[] Files { get; private set; }
 
         public SftpNameResponse()
         {
-            this.Files = new Dictionary<string, SftpFileAttributes>();
+            this.Files = new KeyValuePair<string,SftpFileAttributes>[0];
         }
 
         protected override void LoadData()
@@ -26,14 +26,14 @@ namespace Renci.SshNet.Sftp.Responses
             base.LoadData();
             
             this.Count = this.ReadUInt32();
+            this.Files = new KeyValuePair<string, SftpFileAttributes>[this.Count];
             
             for (int i = 0; i < this.Count; i++)
             {
                 var fileName = this.ReadString();
                 this.ReadString();   //  This field value has meaningless information
                 var attributes = this.ReadAttributes();
-
-                this.Files.Add(fileName, attributes);
+                this.Files[i] = new KeyValuePair<string, SftpFileAttributes>(fileName, attributes);
             }
         }
     }

@@ -105,7 +105,7 @@ namespace Renci.SshNet.Sftp
 
             if (realPathFiles != null)
             {
-                canonizedPath = realPathFiles.Keys.First();
+                canonizedPath = realPathFiles.First().Key;                
             }
 
             if (!string.IsNullOrEmpty(canonizedPath))
@@ -129,9 +129,8 @@ namespace Renci.SshNet.Sftp
 
             if (realPathFiles != null)
             {
-                canonizedPath = realPathFiles.Keys.First();
+                canonizedPath = realPathFiles.First().Key;
             }
-
 
             if (string.IsNullOrEmpty(canonizedPath))
             {
@@ -170,7 +169,7 @@ namespace Renci.SshNet.Sftp
             this.ProtocolVersion = 3;
 
             //  Resolve current directory
-            this.WorkingDirectory = this.RequestRealPath(".").Keys.First();
+            this.WorkingDirectory = this.RequestRealPath(".").First().Key;
         }
 
         protected override void OnDataReceived(uint dataTypeCode, byte[] data)
@@ -592,9 +591,9 @@ namespace Renci.SshNet.Sftp
         /// </summary>
         /// <param name="handle">The handle.</param>
         /// <returns></returns>
-        internal IDictionary<string, SftpFileAttributes> RequestReadDir(byte[] handle)
+        internal KeyValuePair<string, SftpFileAttributes>[] RequestReadDir(byte[] handle)
         {
-            IDictionary<string, SftpFileAttributes> result = null;
+            KeyValuePair<string, SftpFileAttributes>[] result = null;
 
             using (var wait = new AutoResetEvent(false))
             {
@@ -711,9 +710,9 @@ namespace Renci.SshNet.Sftp
         /// <param name="path">The path.</param>
         /// <param name="nullOnError">if set to <c>true</c> returns null instead of throwing an exception.</param>
         /// <returns></returns>
-        internal IDictionary<string, SftpFileAttributes> RequestRealPath(string path, bool nullOnError = false)
+        internal KeyValuePair<string, SftpFileAttributes>[] RequestRealPath(string path, bool nullOnError = false)
         {
-            IDictionary<string, SftpFileAttributes> result = null;
+            KeyValuePair<string, SftpFileAttributes>[] result = null;
 
             using (var wait = new AutoResetEvent(false))
             {
@@ -817,9 +816,9 @@ namespace Renci.SshNet.Sftp
         /// <param name="path">The path.</param>
         /// <param name="nullOnError">if set to <c>true</c> returns null instead of throwing an exception.</param>
         /// <returns></returns>
-        internal IDictionary<string, SftpFileAttributes> RequestReadLink(string path, bool nullOnError = false)
+        internal KeyValuePair<string, SftpFileAttributes>[] RequestReadLink(string path, bool nullOnError = false)
         {
-            IDictionary<string, SftpFileAttributes> result = null;
+            KeyValuePair<string, SftpFileAttributes>[] result = null;
 
             using (var wait = new AutoResetEvent(false))
             {

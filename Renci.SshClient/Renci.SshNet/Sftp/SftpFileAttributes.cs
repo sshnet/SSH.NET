@@ -66,7 +66,7 @@ namespace Renci.SshNet.Sftp
         /// <value>
         /// The time that the current file or directory was last accessed.
         /// </value>
-        public DateTime LastAccessTime { get; private set; }
+        public DateTime LastAccessTime { get; set; }
 
         /// <summary>
         /// Gets or sets the time when the current file or directory was last written to.
@@ -74,7 +74,7 @@ namespace Renci.SshNet.Sftp
         /// <value>
         /// The time the current file was last written.
         /// </value>
-        public DateTime LastWriteTime { get; private set; }
+        public DateTime LastWriteTime { get; set; }
 
         /// <summary>
         /// Gets or sets the size, in bytes, of the current file.

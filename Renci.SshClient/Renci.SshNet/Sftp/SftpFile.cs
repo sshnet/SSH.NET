@@ -64,6 +64,10 @@ namespace Renci.SshNet.Sftp
             {
                 return this.Attributes.LastAccessTime;
             }
+            set
+            {
+                this.Attributes.LastAccessTime = value;
+            }
         }
 
         /// <summary>
@@ -77,6 +81,10 @@ namespace Renci.SshNet.Sftp
             get
             {
                 return this.Attributes.LastWriteTime;
+            }
+            set
+            {
+                this.Attributes.LastWriteTime = value;
             }
         }
 

@@ -116,9 +116,13 @@
     <Compile Include="Common\SshOperationTimeoutException.NET40.cs" />
     <Compile Include="Common\SshPassPhraseNullOrEmptyException.cs" />
     <Compile Include="Common\SshPassPhraseNullOrEmptyException.NET40.cs" />
+    <Compile Include="Compression\CompressionMode.cs" />
     <Compile Include="Compression\Compressor.cs" />
     <Compile Include="Compression\Zlib.cs" />
     <Compile Include="Compression\ZlibOpenSsh.cs" />
+    <Compile Include="Compression\ZlibStream.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="ConnectionInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -394,7 +398,6 @@
   <ItemGroup>
     <Content Include="Documentation\SshClient.shfbproj" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

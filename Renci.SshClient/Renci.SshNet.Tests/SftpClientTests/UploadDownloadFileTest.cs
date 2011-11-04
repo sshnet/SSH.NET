@@ -77,7 +77,7 @@ namespace Renci.SshNet.Tests.SftpClientTests
                 sftp.Connect();
 
                 string uploadedFileName = Path.GetTempFileName();
-                string remoteFileName = "/etc/audit/ddd";
+                string remoteFileName = "/root/1";
 
                 this.CreateTestFile(uploadedFileName, 1);
 
@@ -102,7 +102,7 @@ namespace Renci.SshNet.Tests.SftpClientTests
             {
                 sftp.Connect();
 
-                string remoteFileName = "/root/install.log";
+                string remoteFileName = "/root/.profile";
 
                 using (var ms = new MemoryStream())
                 {

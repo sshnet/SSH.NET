@@ -48,7 +48,7 @@ namespace Renci.SshNet.Tests.SftpClientTests
             {
                 sftp.Connect();
 
-                var files = sftp.ListDirectory("/etc/audit");
+                var files = sftp.ListDirectory("/root");
                 foreach (var file in files)
                 {
                     Debug.WriteLine(file.FullName);

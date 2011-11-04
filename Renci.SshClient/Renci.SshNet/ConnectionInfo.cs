@@ -203,9 +203,9 @@ namespace Renci.SshNet
 
             this.CompressionAlgorithms = new Dictionary<string, Type>()
             {
-                //{"none", null}, 
+                {"none", null}, 
                 //{"zlib", typeof(Zlib)}, 
-                {"zlib@openssh.com", typeof(ZlibOpenSsh)}, 
+                //{"zlib@openssh.com", typeof(ZlibOpenSsh)}, 
             };
 
             this.ChannelRequests = new Dictionary<string, RequestInfo>()

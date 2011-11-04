@@ -23,6 +23,8 @@ namespace Renci.SshNet
             this._socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.SendBuffer, socketBufferSize);
             this._socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveBuffer, socketBufferSize);
 
+            this.log.TraceEvent(System.Diagnostics.TraceEventType.Verbose, 1, string.Format("Initiating connect to '{0}:{1}'.", this.ConnectionInfo.Host, this.ConnectionInfo.Port));
+
             //  Connect socket with specified timeout
             var connectResult = this._socket.BeginConnect(ep, null, null);
 

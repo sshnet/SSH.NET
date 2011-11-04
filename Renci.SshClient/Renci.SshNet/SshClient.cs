@@ -222,7 +222,11 @@ namespace Renci.SshNet
         /// Creates and executes the command.
         /// </summary>
         /// <param name="commandText">The command text.</param>
-        /// <returns></returns>
+        /// <returns>Returns an instance of <see cref="SshCommand"/> with execution results.</returns>
+        /// <remarks>This method internally uses asynchronous calls.</remarks>
+        /// <exception cref="ArgumentException">CommandText property is empty.</exception>
+        /// <exception cref="SshException">Invalid Operation - An existing channel was used to execute this command.</exception>
+        /// <exception cref="InvalidOperationException">Asynchronous operation is already in progress.</exception>
         public SshCommand RunCommand(string commandText)
         {
             var cmd = this.CreateCommand(commandText);
@@ -243,7 +247,7 @@ namespace Renci.SshNet
         /// <param name="height">The height.</param>
         /// <param name="terminalMode">The terminal mode.</param>
         /// <param name="bufferSize">Size of the internal read buffer.</param>
-        /// <returns></returns>
+        /// <returns>Returns a representation of a <see cref="Shell"/> object.</returns>
         public Shell CreateShell(Stream input, Stream output, Stream extendedOutput, string terminalName, uint columns, uint rows, uint width, uint height, string terminalMode, int bufferSize)
         {
             //  Ensure that connection is established.
@@ -264,7 +268,7 @@ namespace Renci.SshNet
         /// <param name="width">The width.</param>
         /// <param name="height">The height.</param>
         /// <param name="terminalMode">The terminal mode.</param>
-        /// <returns></returns>
+        /// <returns>Returns a representation of a <see cref="Shell"/> object.</returns>
         public Shell CreateShell(Stream input, Stream output, Stream extendedOutput, string terminalName, uint columns, uint rows, uint width, uint height, string terminalMode)
         {
             return this.CreateShell(input, output, extendedOutput, terminalName, columns, rows, width, height, terminalMode, 1024);
@@ -276,7 +280,7 @@ namespace Renci.SshNet
         /// <param name="input">The input.</param>
         /// <param name="output">The output.</param>
         /// <param name="extendedOutput">The extended output.</param>
-        /// <returns></returns>
+        /// <returns>Returns a representation of a <see cref="Shell"/> object.</returns>
         public Shell CreateShell(Stream input, Stream output, Stream extendedOutput)
         {
             return this.CreateShell(input, output, extendedOutput, string.Empty, 0, 0, 0, 0, string.Empty, 1024);
@@ -296,7 +300,7 @@ namespace Renci.SshNet
         /// <param name="height">The height.</param>
         /// <param name="terminalMode">The terminal mode.</param>
         /// <param name="bufferSize">Size of the internal read buffer.</param>
-        /// <returns></returns>
+        /// <returns>Returns a representation of a <see cref="Shell"/> object.</returns>
         public Shell CreateShell(Encoding encoding, string input, Stream output, Stream extendedOutput, string terminalName, uint columns, uint rows, uint width , uint height , string terminalMode, int bufferSize)
         {
             //  Ensure that connection is established.
@@ -324,7 +328,7 @@ namespace Renci.SshNet
         /// <param name="width">The width.</param>
         /// <param name="height">The height.</param>
         /// <param name="terminalMode">The terminal mode.</param>
-        /// <returns></returns>
+        /// <returns>Returns a representation of a <see cref="Shell"/> object.</returns>
         public Shell CreateShell(Encoding encoding, string input, Stream output, Stream extendedOutput, string terminalName, uint columns, uint rows, uint width, uint height, string terminalMode)
         {
             return this.CreateShell(encoding, input, output, extendedOutput, terminalName, columns, rows, width, height, terminalMode, 1024);
@@ -337,7 +341,7 @@ namespace Renci.SshNet
         /// <param name="input">The input.</param>
         /// <param name="output">The output.</param>
         /// <param name="extendedOutput">The extended output.</param>
-        /// <returns></returns>
+        /// <returns>Returns a representation of a <see cref="Shell"/> object.</returns>
         public Shell CreateShell(Encoding encoding, string input, Stream output, Stream extendedOutput)
         {
             return this.CreateShell(encoding, input, output, extendedOutput, string.Empty, 0, 0, 0, 0, string.Empty, 1024);

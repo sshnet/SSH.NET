@@ -106,7 +106,7 @@ namespace Renci.SshNet.Tests.SftpClientTests
 
                 using (var ms = new MemoryStream())
                 {
-                    sftp.UploadFile(ms, remoteFileName);
+                    sftp.DownloadFile(remoteFileName, ms);
                 }
 
                 sftp.Disconnect();

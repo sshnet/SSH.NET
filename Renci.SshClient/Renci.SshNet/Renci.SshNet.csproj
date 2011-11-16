@@ -85,6 +85,7 @@
     <Compile Include="Common\ChannelEventArgs.cs" />
     <Compile Include="Common\ChannelOpenFailedEventArgs.cs" />
     <Compile Include="Common\ChannelRequestEventArgs.cs" />
+    <Compile Include="Common\NetConfServerException.NET40.cs" />
     <Compile Include="Common\DerData.cs" />
     <Compile Include="Common\ExceptionEventArgs.cs" />
     <Compile Include="Common\Extensions.cs">
@@ -93,6 +94,7 @@
     <Compile Include="Common\Extensions.NET40.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Common\NetConfServerException.cs" />
     <Compile Include="Common\ObjectIdentifier.cs" />
     <Compile Include="Common\PipeStream.cs" />
     <Compile Include="Common\PortForwardEventArgs.cs">
@@ -219,6 +221,8 @@
     <Compile Include="Messages\Transport\ServiceAcceptMessage.cs" />
     <Compile Include="Messages\Transport\ServiceRequestMessage.cs" />
     <Compile Include="Messages\Transport\UnimplementedMessage.cs" />
+    <Compile Include="NetConfClient.cs" />
+    <Compile Include="Netconf\NetConfSession.cs" />
     <Compile Include="NoneConnectionInfo.cs" />
     <Compile Include="PasswordConnectionInfo.cs" />
     <Compile Include="PasswordConnectionInfo.NET40.cs" />

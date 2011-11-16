@@ -28,7 +28,7 @@ namespace Renci.SshNet
             //  Connect socket with specified timeout
             var connectResult = this._socket.BeginConnect(ep, null, null);
 
-            connectResult.AsyncWaitHandle.WaitOne(this.ConnectionInfo.Timeout);
+            connectResult.AsyncWaitHandle.WaitOne(this.ConnectionInfo.Timeout, false);
 
             this._socket.EndConnect(connectResult);
         }

@@ -588,6 +588,11 @@ namespace Renci.SshNet
         /// </summary>
         public void Disconnect()
         {
+            this._isDisconnecting = true;
+
+            //  If socket still open try to send disconnect message to the server
+            this.SendDisconnect(DisconnectReason.ByApplication, "Connection terminated by the client.");
+
             this.Dispose();
         }
 
@@ -1579,13 +1584,9 @@ namespace Renci.SshNet
                 // and unmanaged ResourceMessages.
                 if (disposing)
                 {
-                    this._isDisconnecting = true;
 
                     if (this._socket != null)
                     {
-                        //  If socket still open try to send disconnect message to the server
-                        this.SendDisconnect(DisconnectReason.ByApplication, "Connection terminated by the client.");
-
                         this._socket.Dispose();
                         this._socket = null;
                     }

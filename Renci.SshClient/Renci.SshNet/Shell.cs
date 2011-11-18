@@ -306,6 +306,12 @@ namespace Renci.SshNet
                         this._channelClosedWaitHandle = null;
                     }
 
+                    if (this._channel != null)
+                    {
+                        this._channel.Dispose();
+                        this._channel = null;
+                    }
+
                     if (this._dataReaderTaskCompleted != null)
                     {
                         this._dataReaderTaskCompleted.Dispose();

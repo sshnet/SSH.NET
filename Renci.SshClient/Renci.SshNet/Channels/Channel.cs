@@ -201,6 +201,15 @@ namespace Renci.SshNet.Channels
         /// </summary>
         public virtual void Close()
         {
+            //  Send EOF message first when channel need to be closed
+            this.SendMessage(new ChannelEofMessage(this.RemoteChannelNumber));
+
+            //  Send message to close the channel on the server
+            this.SendMessage(new ChannelCloseMessage(this.RemoteChannelNumber));
+
+            //  Wait for channel to be closed
+            this._session.WaitHandle(this._channelClosedWaitHandle);
+
             this.Dispose();
         }
 
@@ -598,7 +607,7 @@ namespace Renci.SshNet.Channels
         /// </summary>
         public void Dispose()
         {
-            Dispose(true);
+            this.Dispose(true);
 
             GC.SuppressFinalize(this);
         }
@@ -616,15 +625,6 @@ namespace Renci.SshNet.Channels
                 // and unmanaged resources.
                 if (disposing)
                 {
-                    //  Send EOF message first when channel need to be closed
-                    this.SendMessage(new ChannelEofMessage(this.RemoteChannelNumber));
-
-                    //  Send message to close the channel on the server
-                    this.SendMessage(new ChannelCloseMessage(this.RemoteChannelNumber));
-
-                    //  Wait for channel to be closed
-                    this._session.WaitHandle(this._channelClosedWaitHandle);
-
                     // Dispose managed resources.
                     if (this._channelClosedWaitHandle != null)
                     {
@@ -678,7 +678,7 @@ namespace Renci.SshNet.Channels
             // Do not re-create Dispose clean-up code here.
             // Calling Dispose(false) is optimal in terms of
             // readability and maintainability.
-            Dispose(false);
+            this.Dispose(false);
         }
 
         #endregion

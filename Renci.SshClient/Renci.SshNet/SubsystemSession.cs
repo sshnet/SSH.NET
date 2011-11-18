@@ -14,7 +14,7 @@ using Renci.SshNet.Messages.Connection;
 
 namespace Renci.SshNet.Sftp
 {
-    internal abstract class SubsystemSession : IDisposable
+    public abstract class SubsystemSession : IDisposable
     {
         private Session _session;
 
@@ -86,13 +86,8 @@ namespace Renci.SshNet.Sftp
 
         public void Disconnect()
         {
-            this.Dispose();
+            this._channel.Close();
         }
-
-        //public void SendData(byte[] data)
-        //{
-        //    this._session.SendMessage(new ChannelDataMessage(this._channel.RemoteChannelNumber, data));
-        //}
 
         public void SendData(ChannelDataMessage message)
         {

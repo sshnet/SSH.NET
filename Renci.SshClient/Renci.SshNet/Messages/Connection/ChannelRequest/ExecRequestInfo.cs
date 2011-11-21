@@ -63,7 +63,7 @@ namespace Renci.SshNet.Messages.Connection
         {
             base.SaveData();
 
-            this.Write(this.Command, Encoding.UTF8);
+            this.Write(this.Command);
         }
     }
 }

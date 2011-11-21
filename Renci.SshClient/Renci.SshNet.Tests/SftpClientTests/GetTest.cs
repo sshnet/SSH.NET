@@ -84,5 +84,24 @@ namespace Renci.SshNet.Tests.SftpClientTests
 				sftp.Disconnect();
 			}
 		}
+
+        [TestMethod]
+        [TestCategory("Sftp")]
+        public void Test_Get_International_File()
+        {
+            using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            {
+                sftp.Connect();
+
+                sftp.UploadFile(new MemoryStream(), "test-üöä-");
+
+                var file = sftp.Get("test-üöä-");
+
+                Assert.AreEqual("/home/tester/test-üöä-", file.FullName);
+                Assert.IsTrue(file.IsRegularFile);
+                Assert.IsFalse(file.IsDirectory);
+            }
+        }
+
     }
 }

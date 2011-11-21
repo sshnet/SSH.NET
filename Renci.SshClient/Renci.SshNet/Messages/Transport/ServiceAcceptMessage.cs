@@ -21,7 +21,7 @@ namespace Renci.SshNet.Messages.Transport
         /// </summary>
         protected override void LoadData()
         {
-            var serviceName = this.ReadString();
+            var serviceName = this.ReadAsciiString();
             switch (serviceName)
             {
                 case "ssh-userauth":

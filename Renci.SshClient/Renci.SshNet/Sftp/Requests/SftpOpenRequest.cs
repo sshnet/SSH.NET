@@ -43,6 +43,7 @@ namespace Renci.SshNet.Sftp.Requests
         protected override void SaveData()
         {
             base.SaveData();
+
             this.Write(this.Filename);
             this.Write((uint)this.Flags);
             this.Write(this.Attributes);

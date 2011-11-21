@@ -54,7 +54,7 @@
         {
             base.LoadData();
 
-            this.SubsystemName = this.ReadString();
+            this.SubsystemName = this.ReadAsciiString();
         }
 
         /// <summary>
@@ -64,7 +64,7 @@
         {
             base.SaveData();
 
-            this.Write(this.SubsystemName);
+            this.WriteAscii(this.SubsystemName);
         }
     }
 }

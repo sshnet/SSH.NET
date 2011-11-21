@@ -72,7 +72,7 @@ namespace Renci.SshNet.Messages.Connection
         /// </summary>
         protected override void LoadData()
         {
-            var channelName = this.ReadString();
+            var channelName = this.ReadAsciiString();
             this.LocalChannelNumber = this.ReadUInt32();
             this.InitialWindowSize = this.ReadUInt32();
             this.MaximumPacketSize = this.ReadUInt32();
@@ -108,7 +108,7 @@ namespace Renci.SshNet.Messages.Connection
         /// </summary>
         protected override void SaveData()
         {
-            this.Write(this.ChannelType);
+            this.WriteAscii(this.ChannelType);
             this.Write(this.LocalChannelNumber);
             this.Write(this.InitialWindowSize);
             this.Write(this.MaximumPacketSize);

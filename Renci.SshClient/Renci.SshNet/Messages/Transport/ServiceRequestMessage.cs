@@ -41,10 +41,10 @@ namespace Renci.SshNet.Messages.Transport
             switch (this.ServiceName)
             {
                 case ServiceName.UserAuthentication:
-                    this.Write("ssh-userauth");
+                    this.WriteAscii("ssh-userauth");
                     break;
                 case ServiceName.Connection:
-                    this.Write("ssh-connection");
+                    this.WriteAscii("ssh-connection");
                     break;
                 default:
                     throw new NotSupportedException("Not supported service name");

@@ -85,7 +85,7 @@ namespace Renci.SshNet.Messages.Authentication
             {
                 this.Write(true);
             }
-            this.Write(this.PublicKeyAlgorithmName);
+            this.WriteAscii(this.PublicKeyAlgorithmName);
             this.WriteBinaryString(this.PublicKeyData);
             if (this.Signature != null)
                 this.WriteBinaryString(this.Signature);

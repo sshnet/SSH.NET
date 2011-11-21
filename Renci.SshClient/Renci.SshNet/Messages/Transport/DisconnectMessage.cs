@@ -58,7 +58,7 @@ namespace Renci.SshNet.Messages.Transport
         protected override void SaveData()
         {
             this.Write((uint)this.ReasonCode);
-            this.Write(this.Description, Encoding.UTF8);
+            this.Write(this.Description);
             this.Write(this.Language ?? "en");
         }
     }

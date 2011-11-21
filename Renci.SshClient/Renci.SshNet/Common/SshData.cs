@@ -11,6 +11,14 @@ namespace Renci.SshNet.Common
     /// </summary>
     public abstract class SshData
     {
+        private static Encoding _ascii = new ASCIIEncoding();
+
+#if SILVERLIGHT
+        private static Encoding _utf8 = Encoding.UTF8;
+#else
+        private static Encoding _utf8 = Encoding.Default;
+#endif
+
         /// <summary>
         /// Data byte array that hold message unencrypted data
         /// </summary>
@@ -211,6 +219,21 @@ namespace Renci.SshNet.Common
         /// Reads next string data type from internal buffer.
         /// </summary>
         /// <returns>string read</returns>
+        protected string ReadAsciiString()
+        {
+            var length = this.ReadUInt32();
+
+            if (length > (uint)int.MaxValue)
+            {
+                throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "Strings longer than {0} is not supported.", int.MaxValue));
+            }
+            return _ascii.GetString(this.ReadBytes((int)length), 0, (int)length);
+        }
+
+        /// <summary>
+        /// Reads next string data type from internal buffer.
+        /// </summary>
+        /// <returns>string read</returns>
         protected string ReadString()
         {
             var length = this.ReadUInt32();
@@ -219,8 +242,9 @@ namespace Renci.SshNet.Common
             {
                 throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "Strings longer than {0} is not supported.", int.MaxValue));
             }
-            return Encoding.UTF8.GetString(this.ReadBytes((int)length), 0, (int)length);
+            return _utf8.GetString(this.ReadBytes((int)length), 0, (int)length);
         }
+
 
         /// <summary>
         /// Reads next string data type from internal buffer.
@@ -349,28 +373,32 @@ namespace Renci.SshNet.Common
         }
 
         /// <summary>
-        /// Writes string data into internal buffer.
+        /// Writes string data into internal buffer using default encoding.
         /// </summary>
         /// <param name="data">string data to write.</param>
-        /// <param name="encoding">String text encoding to use.</param>
         /// <exception cref="ArgumentNullException"><paramref name="data"/> is null.</exception>
-        protected void Write(string data, Encoding encoding)
+        protected void Write(string data)
         {
             if (data == null)
                 throw new ArgumentNullException("data");
 
-            var bytes = encoding.GetBytes(data);
+            var bytes = _utf8.GetBytes(data);
             this.Write((uint)bytes.Length);
             this.Write(bytes);
         }
 
         /// <summary>
-        /// Writes string data into internal buffer.
+        /// Writes string data into internal buffer as ASCII.
         /// </summary>
         /// <param name="data">string data to write.</param>
-        protected void Write(string data)
+        protected void WriteAscii(string data)
         {
-            this.Write(data, Encoding.UTF8);
+            if (data == null)
+                throw new ArgumentNullException("data");
+
+            var bytes = _ascii.GetBytes(data);
+            this.Write((uint)bytes.Length);
+            this.Write(bytes);
         }
 
         /// <summary>
@@ -404,7 +432,7 @@ namespace Renci.SshNet.Common
         /// <param name="data">name-list data to write.</param>
         protected void Write(string[] data)
         {
-            this.Write(string.Join(",", data));
+            this.WriteAscii(string.Join(",", data));
         }
 
         /// <summary>
@@ -415,8 +443,8 @@ namespace Renci.SshNet.Common
         {
             foreach (var item in data)
             {
-                this.Write(item.Key);
-                this.Write(item.Value);
+                this.WriteAscii(item.Key);
+                this.WriteAscii(item.Value);
             }
         }
     }

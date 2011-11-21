@@ -73,7 +73,7 @@ namespace Renci.SshNet.Messages.Connection
         /// </summary>
         protected override void LoadData()
         {
-            var requestName = this.ReadString();
+            var requestName = this.ReadAsciiString();
             switch (requestName)
             {
                 case "tcpip-forward":
@@ -99,10 +99,10 @@ namespace Renci.SshNet.Messages.Connection
             switch (this.RequestName)
             {
                 case GlobalRequestName.TcpIpForward:
-                    this.Write("tcpip-forward");
+                    this.WriteAscii("tcpip-forward");
                     break;
                 case GlobalRequestName.CancelTcpIpForward:
-                    this.Write("cancel-tcpip-forward");
+                    this.WriteAscii("cancel-tcpip-forward");
                     break;
                 default:
                     break;

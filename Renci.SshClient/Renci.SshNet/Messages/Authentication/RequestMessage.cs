@@ -54,19 +54,19 @@ namespace Renci.SshNet.Messages.Authentication
         /// </summary>
         protected override void SaveData()
         {
-            this.Write(this.Username, Encoding.UTF8);
+            this.Write(this.Username);
             switch (this.ServiceName)
             {
                 case ServiceName.UserAuthentication:
-                    this.Write("ssh-userauth", Encoding.UTF8);
+                    this.WriteAscii("ssh-userauth");
                     break;
                 case ServiceName.Connection:
-                    this.Write("ssh-connection", Encoding.UTF8);
+                    this.WriteAscii("ssh-connection");
                     break;
                 default:
                     throw new NotSupportedException("Not supported service name");
             }
-            this.Write(this.MethodName);
+            this.WriteAscii(this.MethodName);
         }
     }
 }

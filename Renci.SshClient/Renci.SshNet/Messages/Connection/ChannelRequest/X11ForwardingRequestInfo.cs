@@ -85,7 +85,7 @@
             base.LoadData();
 
             this.IsSingleConnection = this.ReadBoolean();
-            this.AuthenticationProtocol = this.ReadString();
+            this.AuthenticationProtocol = this.ReadAsciiString();
             this.AuthenticationCookie = this.ReadBinaryString();
             this.ScreenNumber = this.ReadUInt32();
         }
@@ -98,7 +98,7 @@
             base.SaveData();
 
             this.Write(this.IsSingleConnection);
-            this.Write(this.AuthenticationProtocol);
+            this.WriteAscii(this.AuthenticationProtocol);
             this.WriteBinaryString(this.AuthenticationCookie);
             this.Write(this.ScreenNumber);
         }

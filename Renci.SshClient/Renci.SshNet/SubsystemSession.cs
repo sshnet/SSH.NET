@@ -14,6 +14,9 @@ using Renci.SshNet.Messages.Connection;
 
 namespace Renci.SshNet.Sftp
 {
+    /// <summary>
+    /// Base class for SSH subsystem implementations
+    /// </summary>
     public abstract class SubsystemSession : IDisposable
     {
         private Session _session;
@@ -26,10 +29,19 @@ namespace Renci.SshNet.Sftp
 
         private EventWaitHandle _errorOccuredWaitHandle = new AutoResetEvent(false);
 
+        /// <summary>
+        /// Specifies a timeout to wait for operation to complete
+        /// </summary>
         protected TimeSpan _operationTimeout;
 
-        public event EventHandler<ExceptionEventArgs> ErrorOccured;
+        /// <summary>
+        /// Occurs when an error occurred.
+        /// </summary>
+        public event EventHandler<ExceptionEventArgs> ErrorOccurred;
 
+        /// <summary>
+        /// Gets the channel number.
+        /// </summary>
         protected uint ChannelNumber
         {
             get
@@ -37,21 +49,7 @@ namespace Renci.SshNet.Sftp
                 return this._channel.RemoteChannelNumber;
             }
         }
-
-        #region SFTP messages
-
-        //internal event EventHandler<MessageEventArgs<StatusMessage>> StatusMessageReceived;
-
-        //internal event EventHandler<MessageEventArgs<DataMessage>> DataMessageReceived;
-
-        //internal event EventHandler<MessageEventArgs<HandleMessage>> HandleMessageReceived;
-
-        //internal event EventHandler<MessageEventArgs<NameMessage>> NameMessageReceived;
-
-        //internal event EventHandler<MessageEventArgs<AttributesMessage>> AttributesMessageReceived;
-
-        #endregion
-        
+       
         /// <summary>
         /// Initializes a new instance of the SubsystemSession class.
         /// </summary>
@@ -69,6 +67,9 @@ namespace Renci.SshNet.Sftp
             this._operationTimeout = operationTimeout;
         }
 
+        /// <summary>
+        /// Connects subsystem on SSH channel.
+        /// </summary>
         public void Connect()
         {
             this._channel = this._session.CreateChannel<ChannelSession>();
@@ -84,29 +85,48 @@ namespace Renci.SshNet.Sftp
             this.OnChannelOpen();
         }
 
+        /// <summary>
+        /// Disconnects subsystem channel.
+        /// </summary>
         public void Disconnect()
         {
             this._channel.Close();
         }
 
+        /// <summary>
+        /// Sends data to the subsystem.
+        /// </summary>
+        /// <param name="message">The message.</param>
         public void SendData(ChannelDataMessage message)
         {
             this._session.SendMessage(message);
         }
 
+        /// <summary>
+        /// Called when channel is open.
+        /// </summary>
         protected abstract void OnChannelOpen();
 
+        /// <summary>
+        /// Called when data is received.
+        /// </summary>
+        /// <param name="dataTypeCode">The data type code.</param>
+        /// <param name="data">The data.</param>
         protected abstract void OnDataReceived(uint dataTypeCode, byte[] data);
 
+        /// <summary>
+        /// Raises the error.
+        /// </summary>
+        /// <param name="error">The error.</param>
         protected void RaiseError(Exception error)
         {
             this._exception = error;
 
             this._errorOccuredWaitHandle.Set();
 
-            if (this.ErrorOccured != null)
+            if (this.ErrorOccurred != null)
             {
-                this.ErrorOccured(this, new ExceptionEventArgs(error));
+                this.ErrorOccurred(this, new ExceptionEventArgs(error));
             }
         }
 

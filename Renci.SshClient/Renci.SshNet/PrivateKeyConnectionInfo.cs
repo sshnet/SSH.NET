@@ -177,10 +177,10 @@ namespace Renci.SshNet
                 this.WriteBinaryString(this._sessionId);
                 this.Write((byte)50);
                 this.Write(this._message.Username);
-                this.Write("ssh-connection");
-                this.Write("publickey");
+                this.WriteAscii("ssh-connection");
+                this.WriteAscii("publickey");
                 this.Write((byte)1);
-                this.Write(this._message.PublicKeyAlgorithmName);
+                this.WriteAscii(this._message.PublicKeyAlgorithmName);
                 this.WriteBinaryString(this._message.PublicKeyData);
             }
         }

@@ -54,7 +54,7 @@
         {
             base.LoadData();
 
-            this.SignalName = this.ReadString();
+            this.SignalName = this.ReadAsciiString();
         }
 
         /// <summary>
@@ -64,7 +64,7 @@
         {
             base.SaveData();
 
-            this.Write(this.SignalName);
+            this.WriteAscii(this.SignalName);
         }
     }
 }

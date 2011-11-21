@@ -65,11 +65,11 @@ namespace Renci.SshNet.Messages.Authentication
 
             this.Write(!string.IsNullOrEmpty(this.NewPassword));
 
-            this.Write(this.Password, Encoding.UTF8);
+            this.Write(this.Password);
 
             if (!string.IsNullOrEmpty(this.NewPassword))
             {
-                this.Write(this.NewPassword, Encoding.UTF8);
+                this.Write(this.NewPassword);
             }
         }
     }

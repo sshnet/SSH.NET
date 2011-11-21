@@ -31,7 +31,7 @@ namespace Renci.SshNet.Sftp.Requests
         protected override void SaveData()
         {
             base.SaveData();
-            this.Write(this.Path, Encoding.UTF8);
+            this.Write(this.Path);
         }
     }
 }

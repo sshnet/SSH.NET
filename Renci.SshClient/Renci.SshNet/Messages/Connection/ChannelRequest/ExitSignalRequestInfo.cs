@@ -79,7 +79,7 @@ namespace Renci.SshNet.Messages.Connection
         {
             base.LoadData();
 
-            this.SignalName = this.ReadString();
+            this.SignalName = this.ReadAsciiString();
             this.CoreDumped = this.ReadBoolean();
             this.ErrorMessage = this.ReadString();
             this.Language = this.ReadString();
@@ -92,10 +92,10 @@ namespace Renci.SshNet.Messages.Connection
         {
             base.SaveData();
 
-            this.Write(this.SignalName);
+            this.WriteAscii(this.SignalName);
             this.Write(this.CoreDumped);
             this.Write(this.ErrorMessage);
-            this.Write(this.Language, Encoding.UTF8);
+            this.Write(this.Language);
         }
 
     }

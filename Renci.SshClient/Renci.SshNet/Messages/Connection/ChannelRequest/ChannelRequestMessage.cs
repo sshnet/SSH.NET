@@ -49,7 +49,7 @@ namespace Renci.SshNet.Messages.Connection
         {
             base.LoadData();
 
-            this.RequestName = this.ReadString();
+            this.RequestName = this.ReadAsciiString();
             this.RequestData = this.ReadBytes();
         }
 
@@ -60,7 +60,7 @@ namespace Renci.SshNet.Messages.Connection
         {
             base.SaveData();
 
-            this.Write(this.RequestName);
+            this.WriteAscii(this.RequestName);
             this.Write(this.RequestData);
         }
     }

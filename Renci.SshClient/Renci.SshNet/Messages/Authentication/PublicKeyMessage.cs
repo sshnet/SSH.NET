@@ -27,7 +27,7 @@ namespace Renci.SshNet.Messages.Authentication
         /// </summary>
         protected override void LoadData()
         {
-            this.PublicKeyAlgorithmName = this.ReadString();
+            this.PublicKeyAlgorithmName = this.ReadAsciiString();
             this.PublicKeyData = this.ReadBinaryString();
         }
 
@@ -36,7 +36,7 @@ namespace Renci.SshNet.Messages.Authentication
         /// </summary>
         protected override void SaveData()
         {
-            this.Write(this.PublicKeyAlgorithmName);
+            this.WriteAscii(this.PublicKeyAlgorithmName);
             this.WriteBinaryString(this.PublicKeyData);
         }
     }

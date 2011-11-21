@@ -109,7 +109,7 @@
             this.Rows = this.ReadUInt32();
             this.PixelWidth = this.ReadUInt32();
             this.PixelHeight = this.ReadUInt32();
-            this.TerminalMode = this.ReadString();
+            this.TerminalMode = this.ReadAsciiString();
         }
 
         /// <summary>
@@ -124,7 +124,7 @@
             this.Write(this.Rows);
             this.Write(this.Rows);
             this.Write(this.PixelHeight);
-            this.Write(this.TerminalMode);
+            this.WriteAscii(this.TerminalMode);
 
         }
     }

@@ -52,7 +52,7 @@ namespace Renci.SshNet.Messages.Authentication
 
             this.Write(this.Language);
 
-            this.Write(this.SubMethods, Encoding.UTF8);
+            this.Write(this.SubMethods);
         }
     }
 }

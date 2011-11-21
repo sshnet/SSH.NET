@@ -83,10 +83,10 @@ namespace Renci.SshNet.Messages.Authentication
         {
             base.SaveData();
 
-            this.Write(this.PublicKeyAlgorithm);
+            this.WriteAscii(this.PublicKeyAlgorithm);
             this.WriteBinaryString(this.PublicHostKey);
             this.Write(this.ClientHostName);
-            this.Write(this.ClientUsername, Encoding.UTF8);
+            this.Write(this.ClientUsername);
 
             if (this.Signature != null)
                 this.WriteBinaryString(this.Signature);

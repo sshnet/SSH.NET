@@ -32,7 +32,7 @@ namespace Renci.SshNet.Messages.Authentication
         /// </summary>
         protected override void SaveData()
         {
-            this.Write(this.Message, Encoding.UTF8);
+            this.Write(this.Message);
             this.Write(this.Language);
         }
     }

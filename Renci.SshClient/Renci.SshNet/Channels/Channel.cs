@@ -197,13 +197,19 @@ namespace Renci.SshNet.Channels
         }
 
         /// <summary>
+        /// Sends the SSH_MSG_CHANNEL_EOF message.
+        /// </summary>
+        internal void SendEof()
+        {
+            //  Send EOF message first when channel need to be closed
+            this.SendMessage(new ChannelEofMessage(this.RemoteChannelNumber));
+        }
+
+        /// <summary>
         /// Closes the channel.
         /// </summary>
         public virtual void Close()
         {
-            //  Send EOF message first when channel need to be closed
-            this.SendMessage(new ChannelEofMessage(this.RemoteChannelNumber));
-
             //  Send message to close the channel on the server
             this.SendMessage(new ChannelCloseMessage(this.RemoteChannelNumber));
 

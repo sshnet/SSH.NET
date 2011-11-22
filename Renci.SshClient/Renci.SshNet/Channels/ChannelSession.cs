@@ -190,6 +190,22 @@ namespace Renci.SshNet.Channels
         }
 
         /// <summary>
+        /// Sends the exec request.
+        /// </summary>
+        /// <param name="breakLength">Length of the break.</param>
+        /// <returns>true if request was successful; otherwise false.</returns>
+        public bool SendBreakRequest(uint breakLength)
+        {
+            this._channelRequestResponse.Reset();
+
+            this.SendMessage(new ChannelRequestMessage(this.RemoteChannelNumber, new BreakRequestInfo(breakLength)));
+
+            this._channelRequestResponse.WaitOne();
+
+            return this._channelRequestSucces;
+        }
+
+        /// <summary>
         /// Sends the subsystem request.
         /// </summary>
         /// <param name="subsystem">The subsystem.</param>
@@ -300,7 +316,6 @@ namespace Renci.SshNet.Channels
 
             return this._channelRequestSucces;
         }
-
 
         /// <summary>
         /// Called when channel request was successful

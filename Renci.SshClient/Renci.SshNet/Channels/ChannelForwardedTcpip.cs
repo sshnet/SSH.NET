@@ -106,12 +106,18 @@ namespace Renci.SshNet.Channels
                 }
             }
 
-            this.SendMessage(new ChannelEofMessage(this.RemoteChannelNumber));
-
             this.Close();
         }
 
         partial void OpenSocket(string connectedHost, uint connectedPort);
+
+        public override void Close()
+        {
+            //  Send EOF message first when channel need to be closed
+            this.SendMessage(new ChannelEofMessage(this.RemoteChannelNumber));
+
+            base.Close();
+        }
 
         /// <summary>
         /// Called when channel data is received.

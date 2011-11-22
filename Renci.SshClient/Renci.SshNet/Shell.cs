@@ -198,6 +198,8 @@ namespace Renci.SshNet
             //  If channel is open then close it to cause Channel_Closed method to be called
             if (this._channel != null && this._channel.IsOpen)
             {
+                this._channel.SendEof();
+
                 this._channel.Close();
             }
         }
@@ -245,7 +247,11 @@ namespace Renci.SshNet
             }
 
             if (this._channel.IsOpen)
+            {
+                this._channel.SendEof();
+
                 this._channel.Close();
+            }
 
             this._channelClosedWaitHandle.Set();
 

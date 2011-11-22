@@ -198,6 +198,7 @@ namespace Renci.SshNet
         public IAsyncResult BeginExecute(string commandText, AsyncCallback callback, object state)
         {
             this.CommandText = commandText;
+
             return BeginExecute(callback, state);
         }
 
@@ -218,7 +219,12 @@ namespace Renci.SshNet
                         //  Make sure that operation completed if not wait for it to finish
                         this.WaitHandle(this._asyncResult.AsyncWaitHandle);
 
-                        this._channel.Close();
+                        if (this._channel.IsOpen)
+                        {
+                            this._channel.SendEof();
+
+                            this._channel.Close();
+                        }
 
                         this._channel = null;
 
@@ -244,30 +250,15 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Cancels command execution in asynchronous scenarios. CURRENTLY NOT IMPLEMENTED.
+        /// Cancels command execution in asynchronous scenarios. 
         /// </summary>
-        //public void Cancel()
-        //{
-        //    if (this._channel != null && this._channel.IsOpen)
-        //    {
-        //        //this._channel.SendData(Encoding.ASCII.GetBytes("~."));
-        //        this._channel.SendExecRequest("\0x03");
-
-        //        //this._channel.SendSignalRequest("ABRT");
-        //        //this._channel.SendSignalRequest("ALRM");
-        //        //this._channel.SendSignalRequest("FPE");
-        //        //this._channel.SendSignalRequest("HUP");
-        //        //this._channel.SendSignalRequest("ILL");
-        //        //this._channel.SendSignalRequest("INT");
-        //        //this._channel.SendSignalRequest("PIPE");
-        //        //this._channel.SendSignalRequest("QUIT");
-        //        //this._channel.SendSignalRequest("SEGV");
-        //        //this._channel.SendSignalRequest("TERM");
-        //        //this._channel.SendSignalRequest("SEGV");
-        //        //this._channel.SendSignalRequest("USR1");
-        //        //this._channel.SendSignalRequest("USR2");
-        //    }
-        //}
+        public void CancelAsync()
+        {
+            if (this._channel != null && this._channel.IsOpen && this._asyncResult != null)
+            {
+                this._channel.Close();
+            }
+        }
 
         /// <summary>
         /// Executes the specified command text.
@@ -279,6 +270,7 @@ namespace Renci.SshNet
         public string Execute(string commandText)
         {
             this.CommandText = commandText;
+
             return this.Execute();
         }
 
@@ -385,7 +377,6 @@ namespace Renci.SshNet
             if (this.OutputStream != null)
             {
                 this.OutputStream.Write(e.Data, 0, e.Data.Length);
-                //this._outputSteamWriter.Write(this._encoding.GetString(e.Data, 0, e.Data.Length));
                 this.OutputStream.Flush();
             }
 

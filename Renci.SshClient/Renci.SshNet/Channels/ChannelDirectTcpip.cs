@@ -137,6 +137,14 @@ namespace Renci.SshNet.Channels
                 throw exception;
         }
 
+        public override void Close()
+        {
+            //  Send EOF message first when channel need to be closed
+            this.SendMessage(new ChannelEofMessage(this.RemoteChannelNumber));
+
+            base.Close();
+        }
+
         /// <summary>
         /// Called when channel data is received.
         /// </summary>

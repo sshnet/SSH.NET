@@ -90,6 +90,8 @@ namespace Renci.SshNet.Sftp
         /// </summary>
         public void Disconnect()
         {
+            this._channel.SendEof();
+
             this._channel.Close();
         }
 

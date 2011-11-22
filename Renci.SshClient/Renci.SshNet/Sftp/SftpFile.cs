@@ -89,6 +89,42 @@ namespace Renci.SshNet.Sftp
         }
 
         /// <summary>
+        /// Gets or sets the time, in coordinated universal time (UTC), the current file or directory was last accessed.
+        /// </summary>
+        /// <value>
+        /// The time that the current file or directory was last accessed.
+        /// </value>
+        public DateTime LastAccessTimeUtc
+        {
+            get
+            {
+                return this.Attributes.LastAccessTime.ToUniversalTime();
+            }
+            set
+            {
+                this.Attributes.LastAccessTime = value.ToLocalTime();
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the time, in coordinated universal time (UTC), when the current file or directory was last written to.
+        /// </summary>
+        /// <value>
+        /// The time the current file was last written.
+        /// </value>
+        public DateTime LastWriteTimeUtc
+        {
+            get
+            {
+                return this.Attributes.LastWriteTime.ToUniversalTime();
+            }
+            set
+            {
+                this.Attributes.LastWriteTime = value.ToLocalTime();
+            }
+        }
+
+        /// <summary>
         /// Gets or sets the size, in bytes, of the current file.
         /// </summary>
         /// <value>

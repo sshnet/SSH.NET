@@ -20,11 +20,11 @@ namespace Renci.SshNet
 {
     public partial class Session
     {
-        private AutoResetEvent autoEvent = new AutoResetEvent(false);
-        private AutoResetEvent sendEvent = new AutoResetEvent(false);
-        private AutoResetEvent receiveEvent = new AutoResetEvent(false);
+        private AutoResetEvent _autoEvent = new AutoResetEvent(false);
+        private AutoResetEvent _sendEvent = new AutoResetEvent(false);
+        private AutoResetEvent _receiveEvent = new AutoResetEvent(false);
 
-        private bool isConnected = false;
+        private bool _isConnected = false;
 
         partial void SocketConnect()
         {
@@ -38,7 +38,7 @@ namespace Renci.SshNet
             args.Completed += new EventHandler<SocketAsyncEventArgs>(OnConnect);
 
             this._socket.ConnectAsync(args);
-            autoEvent.WaitOne(this.ConnectionInfo.Timeout);
+            this._autoEvent.WaitOne(this.ConnectionInfo.Timeout);
 
             if (args.SocketError != SocketError.Success)
                 throw new SocketException((int)args.SocketError);
@@ -51,8 +51,11 @@ namespace Renci.SshNet
 
         partial void SocketReadLine(ref string response)
         {
+            //  TODO:   Improve this function, currently will not work with server that send multiple lines as a first string
+
             var buffer = new byte[1024];
-            StringBuilder sb = new StringBuilder();
+
+            StringBuilder result = new StringBuilder();
 
             do
             {
@@ -63,17 +66,25 @@ namespace Renci.SshNet
                 args.Completed += new EventHandler<SocketAsyncEventArgs>(OnReceive);
                 this._socket.ReceiveAsync(args);
 
-                this.receiveEvent.WaitOne(this.ConnectionInfo.Timeout);
+                this._receiveEvent.WaitOne(this.ConnectionInfo.Timeout);
 
-                sb.Append(Encoding.UTF8.GetString(buffer, 0, args.BytesTransferred));
+                char lastChar = (char)buffer[0];
+                for (int i = 1; i < args.BytesTransferred; i++)
+                {
+                    char newChar = (char)buffer[i];
+                    if (lastChar == '\r' && newChar == '\n')
+                        break;
+
+                    result.Append(lastChar);
+                    lastChar = newChar;
+                }
 
                 if (args.BytesTransferred < buffer.Length)
                     break;
 
             } while (true);
 
-            response = sb.ToString();
-
+            response = result.ToString();
         }
 
         partial void SocketRead(int length, ref byte[] buffer)
@@ -90,7 +101,7 @@ namespace Renci.SshNet
                     args.Completed += new EventHandler<SocketAsyncEventArgs>(OnReceive);
                     this._socket.ReceiveAsync(args);
 
-                    this.receiveEvent.WaitOne(this.ConnectionInfo.Timeout);
+                    this._receiveEvent.WaitOne(this.ConnectionInfo.Timeout);
 
                     if (args.SocketError == SocketError.WouldBlock ||
                         args.SocketError == SocketError.IOPending ||
@@ -121,7 +132,7 @@ namespace Renci.SshNet
 
         partial void SocketWrite(byte[] data)
         {
-            if (isConnected)
+            if (this._isConnected)
             {
                 SocketAsyncEventArgs args = new SocketAsyncEventArgs();
                 args.SetBuffer(data, 0, data.Length);
@@ -138,18 +149,18 @@ namespace Renci.SshNet
 
         private void OnConnect(object sender, SocketAsyncEventArgs e)
         {
-            autoEvent.Set();
-            isConnected = (e.SocketError == SocketError.Success);
+            this._autoEvent.Set();
+            this._isConnected = (e.SocketError == SocketError.Success);
         }
 
         private void OnSend(object sender, SocketAsyncEventArgs e)
         {
-            this.sendEvent.Set();
+            this._sendEvent.Set();
         }
 
         private void OnReceive(object sender, SocketAsyncEventArgs e)
         {
-            this.receiveEvent.Set();
+            this._receiveEvent.Set();
         }
 
         partial void ExecuteThread(Action action)

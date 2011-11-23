@@ -7,11 +7,19 @@ using Renci.SshNet.Common;
 using System.Threading;
 using Renci.SshNet.Messages.Transport;
 using System.IO;
+using System.Diagnostics;
 
 namespace Renci.SshNet
 {
     public partial class Session
     {
+        private TraceSource _log =
+#if DEBUG
+            new TraceSource("SshNet.Logging", SourceLevels.All);
+#else
+            new TraceSource("SshNet.Logging");
+#endif
+
         partial void SocketConnect()
         {
             var ep = new IPEndPoint(Dns.GetHostAddresses(this.ConnectionInfo.Host)[0], this.ConnectionInfo.Port);
@@ -23,7 +31,7 @@ namespace Renci.SshNet
             this._socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.SendBuffer, socketBufferSize);
             this._socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveBuffer, socketBufferSize);
 
-            this.log.TraceEvent(System.Diagnostics.TraceEventType.Verbose, 1, string.Format("Initiating connect to '{0}:{1}'.", this.ConnectionInfo.Host, this.ConnectionInfo.Port));
+            this.Log(string.Format("Initiating connect to '{0}:{1}'.", this.ConnectionInfo.Host, this.ConnectionInfo.Port));
 
             //  Connect socket with specified timeout
             var connectResult = this._socket.BeginConnect(ep, null, null);
@@ -110,6 +118,11 @@ namespace Renci.SshNet
                         throw;  // any serious error occurr
                 }
             } while (sent < length);
+        }
+
+        partial void Log(string text)
+        {
+            this._log.TraceEvent(System.Diagnostics.TraceEventType.Verbose, 1, text);
         }
     }
 }

@@ -19,7 +19,6 @@ using Renci.SshNet.Security;
 using System.Globalization;
 using Renci.SshNet.Security.Cryptography.Ciphers;
 using Renci.SshNet.Security.Cryptography;
-using System.Diagnostics;
 
 namespace Renci.SshNet
 {
@@ -28,14 +27,6 @@ namespace Renci.SshNet
     /// </summary>
     public partial class Session : IDisposable
     {
-
-        internal TraceSource log = 
-#if DEBUG
-        new TraceSource("SshNet.Logging", SourceLevels.All);
-#else
-        new TraceSource("SshNet.Logging");
-#endif
-        
         /// <summary>
         /// Specifies maximum packet size defined by the protocol.
         /// </summary>
@@ -474,7 +465,7 @@ namespace Renci.SshNet
 
                     var softwareName = versionMatch.Result("${softwareversion}");
 
-                    this.log.TraceEvent(System.Diagnostics.TraceEventType.Verbose, 1, string.Format("Server version '{0}' on '{1}'.", version, softwareName));
+                    this.Log(string.Format("Server version '{0}' on '{1}'.", version, softwareName));
 
                     if (!(version.Equals("2.0") || version.Equals("1.99")))
                     {
@@ -654,7 +645,7 @@ namespace Renci.SshNet
             if (this._socket == null || !this._socket.Connected)
                 return;
 
-            this.log.TraceEvent(System.Diagnostics.TraceEventType.Verbose, 1, string.Format("SendMessage to server '{0}': '{1}'.", message.GetType().Name, message.ToString()));
+            this.Log(string.Format("SendMessage to server '{0}': '{1}'.", message.GetType().Name, message.ToString()));
 
             //  Messages can be sent by different thread so we need to synchronize it            
             var paddingMultiplier = this._clientCipher == null ? (byte)8 : (byte)this._clientCipher.BlockSize;    //    Should be recalculate base on cipher min length if cipher specified
@@ -1030,8 +1021,8 @@ namespace Renci.SshNet
         /// <param name="message"><see cref="DisconnectMessage"/> message.</param>
         protected virtual void OnDisconnectReceived(DisconnectMessage message)
         {
+            this.Log("Disconnect received.");
 
-            log.TraceInformation("Disconnect received.");
             if (this.DisconnectReceived != null)
             {
                 this.DisconnectReceived(this, new MessageEventArgs<DisconnectMessage>(message));
@@ -1477,7 +1468,7 @@ namespace Renci.SshNet
 
             message.Load(data);
 
-            this.log.TraceEvent(System.Diagnostics.TraceEventType.Verbose, 1, "ReceiveMessage from server: '{0}': '{1}'.", message.GetType().Name, message.ToString());
+            this.Log(string.Format("ReceiveMessage from server: '{0}': '{1}'.", message.GetType().Name, message.ToString()));
 
             return message;
         }
@@ -1497,6 +1488,8 @@ namespace Renci.SshNet
         partial void SocketRead(int length, ref byte[] buffer);
 
         partial void SocketReadLine(ref string response);
+
+        partial void Log(string text);
 
         /// <summary>
         /// Writes the specified data to the server.

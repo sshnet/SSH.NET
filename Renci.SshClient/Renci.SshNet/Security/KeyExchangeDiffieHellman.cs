@@ -108,13 +108,10 @@ namespace Renci.SshNet.Security
 
             var bitLength = this._prime.BitLength;
 
-            var bytesArray = new byte[bitLength / 8 + (((bitLength % 8) > 0) ? 1 : 0)];
-
             do
             {
-                _randomizer.GetBytes(bytesArray);
-                bytesArray[bytesArray.Length - 1] = (byte)(bytesArray[bytesArray.Length - 1] & 0x7F);   //  Ensure not a negative value
-                this._randomValue = new BigInteger(bytesArray);
+                this._randomValue = BigInteger.Random(bitLength);
+
                 this._clientExchangeValue = BigInteger.ModPow(this._group, this._randomValue, this._prime);
 
             } while (this._clientExchangeValue < 1 || this._clientExchangeValue > ((this._prime - 1)));

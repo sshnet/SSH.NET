@@ -34,7 +34,6 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             if (!(keySize >= 40 && keySize <= 128 && keySize % 8 == 0))
                 throw new ArgumentException(string.Format("KeySize '{0}' is not valid for this algorithm.", keySize));
 
-            //  TODO:   Refactor this algorithm
             this.SetKey(key);
         }
 
@@ -59,7 +58,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             uint R0 = BigEndianToUInt32(inputBuffer, inputOffset + 4);
 
             uint[] result = new uint[2];
-            CastEncipher(L0, R0, result);
+            this.CastEncipher(L0, R0, result);
 
             // now stuff them into the destination block
             UInt32ToBigEndian(result[0], outputBuffer, outputOffset);
@@ -88,7 +87,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             uint R16 = BigEndianToUInt32(inputBuffer, inputOffset + 4);
 
             uint[] result = new uint[2];
-            CastDecipher(L16, R16, result);
+            this.CastDecipher(L16, R16, result);
 
             // now stuff them into the destination block
             UInt32ToBigEndian(result[0], outputBuffer, outputOffset);

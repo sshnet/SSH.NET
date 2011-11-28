@@ -94,14 +94,9 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 
                 var bitLength = this._key.Modulus.BitLength;
 
-                var bytesArray = new byte[bitLength / 8 + (((bitLength % 8) > 0) ? 1 : 0)];
-
                 while (random <= BigInteger.One || random >= max)
                 {
-                    _randomizer.GetBytes(bytesArray);
-
-                    bytesArray[bytesArray.Length - 1] = (byte)(bytesArray[bytesArray.Length - 1] & 0x7F);   //  Ensure not a negative value
-                    random = new BigInteger(bytesArray.Reverse().ToArray());
+                    random = BigInteger.Random(bitLength);
                 }
 
                 BigInteger blindedInput = BigInteger.PositiveMod((BigInteger.ModPow(random, this._key.Exponent, this._key.Modulus) * input), this._key.Modulus);

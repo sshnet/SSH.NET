@@ -291,12 +291,15 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
 		#endregion
 
-		private static readonly int ROUNDS = 16;
-		private static readonly int SBOX_SK = 256;
-		private static readonly int P_SZ = ROUNDS + 2;
+		private static readonly int _rounds = 16;
 
-		private readonly uint[] S0, S1, S2, S3;     // the s-boxes
-		private readonly uint[] P;                  // the p-array
+		private static readonly int _sboxSk = 256;
+
+		private static readonly int _pSize = _rounds + 2;
+
+		private readonly uint[] _s0, _s1, _s2, _s3;     // the s-boxes
+
+		private readonly uint[] _p;                  // the p-array
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="BlowfishCipher"/> class.
@@ -314,13 +317,15 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 			if (keySize < 1 || keySize > 448)
 				throw new ArgumentException(string.Format("KeySize '{0}' is not valid for this algorithm.", keySize));
 
-			//  TODO:   Refactor this algorithm
+			this._s0 = new uint[_sboxSk];
 
-			S0 = new uint[SBOX_SK];
-			S1 = new uint[SBOX_SK];
-			S2 = new uint[SBOX_SK];
-			S3 = new uint[SBOX_SK];
-			P = new uint[P_SZ];
+			this._s1 = new uint[_sboxSk];
+
+			this._s2 = new uint[_sboxSk];
+
+			this._s3 = new uint[_sboxSk];
+
+			this._p = new uint[_pSize];
 
 			this.SetKey(key);
 		}
@@ -344,15 +349,15 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 			uint xl = BigEndianToUInt32(inputBuffer, inputOffset);
 			uint xr = BigEndianToUInt32(inputBuffer, inputOffset + 4);
 
-			xl ^= P[0];
+			xl ^= this._p[0];
 
-			for (int i = 1; i < ROUNDS; i += 2)
+			for (int i = 1; i < _rounds; i += 2)
 			{
-				xr ^= F(xl) ^ P[i];
-				xl ^= F(xr) ^ P[i + 1];
+				xr ^= F(xl) ^ this._p[i];
+				xl ^= F(xr) ^ this._p[i + 1];
 			}
 
-			xr ^= P[ROUNDS + 1];
+			xr ^= this._p[_rounds + 1];
 
 			UInt32ToBigEndian(xr, outputBuffer, outputOffset);
 			UInt32ToBigEndian(xl, outputBuffer, outputOffset + 4);
@@ -379,15 +384,15 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 			uint xl = BigEndianToUInt32(inputBuffer, inputOffset);
 			uint xr = BigEndianToUInt32(inputBuffer, inputOffset + 4);
 
-			xl ^= P[ROUNDS + 1];
+			xl ^= this._p[_rounds + 1];
 
-			for (int i = ROUNDS; i > 0; i -= 2)
+			for (int i = _rounds; i > 0; i -= 2)
 			{
-				xr ^= F(xl) ^ P[i];
-				xl ^= F(xr) ^ P[i - 1];
+				xr ^= F(xl) ^ this._p[i];
+				xl ^= F(xr) ^ this._p[i - 1];
 			}
 
-			xr ^= P[0];
+			xr ^= this._p[0];
 
 			UInt32ToBigEndian(xr, outputBuffer, outputOffset);
 			UInt32ToBigEndian(xl, outputBuffer, outputOffset + 4);
@@ -397,37 +402,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
 		private uint F(uint x)
 		{
-			return (((S0[x >> 24] + S1[(x >> 16) & 0xff]) ^ S2[(x >> 8) & 0xff]) + S3[x & 0xff]);
-		}
-
-		/// <summary>
-		/// apply the encryption cycle to each value pair in the table.
-		/// </summary>
-		/// <param name="xl">The xl.</param>
-		/// <param name="xr">The xr.</param>
-		/// <param name="table">The table.</param>
-		private void ProcessTable(uint xl, uint xr, uint[] table)
-		{
-			int size = table.Length;
-
-			for (int s = 0; s < size; s += 2)
-			{
-				xl ^= P[0];
-
-				for (int i = 1; i < ROUNDS; i += 2)
-				{
-					xr ^= F(xl) ^ P[i];
-					xl ^= F(xr) ^ P[i + 1];
-				}
-
-				xr ^= P[ROUNDS + 1];
-
-				table[s] = xr;
-				table[s + 1] = xl;
-
-				xr = xl;            // end of cycle swap
-				xl = table[s];
-			}
+			return (((this._s0[x >> 24] + this._s1[(x >> 16) & 0xff]) ^ this._s2[(x >> 8) & 0xff]) + this._s3[x & 0xff]);
 		}
 
 		private void SetKey(byte[] key)
@@ -441,12 +416,12 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 			* Initialise the S-boxes and the P-array, with a fixed string
 			* This string contains the hexadecimal digits of pi (3.141...)
 			*/
-			Buffer.BlockCopy(KS0, 0, S0, 0, SBOX_SK * sizeof(uint));
-			Buffer.BlockCopy(KS1, 0, S1, 0, SBOX_SK * sizeof(uint));
-			Buffer.BlockCopy(KS2, 0, S2, 0, SBOX_SK * sizeof(uint));
-			Buffer.BlockCopy(KS3, 0, S3, 0, SBOX_SK * sizeof(uint));
+			Buffer.BlockCopy(KS0, 0, this._s0, 0, _sboxSk * sizeof(uint));
+			Buffer.BlockCopy(KS1, 0, this._s1, 0, _sboxSk * sizeof(uint));
+			Buffer.BlockCopy(KS2, 0, this._s2, 0, _sboxSk * sizeof(uint));
+			Buffer.BlockCopy(KS3, 0, this._s3, 0, _sboxSk * sizeof(uint));
 
-			Buffer.BlockCopy(KP, 0, P, 0, P_SZ * sizeof(uint));
+			Buffer.BlockCopy(KP, 0, this._p, 0, _pSize * sizeof(uint));
 
 			/*
 			* (2)
@@ -458,7 +433,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 			int keyLength = key.Length;
 			int keyIndex = 0;
 
-			for (int i = 0; i < P_SZ; i++)
+			for (int i = 0; i < _pSize; i++)
 			{
 				// Get the 32 bits of the key, in 4 * 8 bit chunks
 				uint data = 0x0000000;
@@ -474,7 +449,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 					}
 				}
 				// XOR the newly created 32 bit chunk onto the P-array
-				P[i] ^= data;
+				this._p[i] ^= data;
 			}
 
 			/*
@@ -498,11 +473,42 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 			* continuously changing Blowfish algorithm
 			*/
 
-			ProcessTable(0, 0, P);
-			ProcessTable(P[P_SZ - 2], P[P_SZ - 1], S0);
-			ProcessTable(S0[SBOX_SK - 2], S0[SBOX_SK - 1], S1);
-			ProcessTable(S1[SBOX_SK - 2], S1[SBOX_SK - 1], S2);
-			ProcessTable(S2[SBOX_SK - 2], S2[SBOX_SK - 1], S3);
+			ProcessTable(0, 0, this._p);
+			ProcessTable(this._p[_pSize - 2], this._p[_pSize - 1], this._s0);
+			ProcessTable(this._s0[_sboxSk - 2], this._s0[_sboxSk - 1], this._s1);
+			ProcessTable(this._s1[_sboxSk - 2], this._s1[_sboxSk - 1], this._s2);
+			ProcessTable(this._s2[_sboxSk - 2], this._s2[_sboxSk - 1], this._s3);
 		}
+
+		/// <summary>
+		/// apply the encryption cycle to each value pair in the table.
+		/// </summary>
+		/// <param name="xl">The xl.</param>
+		/// <param name="xr">The xr.</param>
+		/// <param name="table">The table.</param>
+		private void ProcessTable(uint xl, uint xr, uint[] table)
+		{
+			int size = table.Length;
+
+			for (int s = 0; s < size; s += 2)
+			{
+				xl ^= _p[0];
+
+				for (int i = 1; i < _rounds; i += 2)
+				{
+					xr ^= F(xl) ^ _p[i];
+					xl ^= F(xr) ^ _p[i + 1];
+				}
+
+				xr ^= _p[_rounds + 1];
+
+				table[s] = xr;
+				table[s + 1] = xl;
+
+				xr = xl;            // end of cycle swap
+				xl = table[s];
+			}
+		}
+
 	}
 }

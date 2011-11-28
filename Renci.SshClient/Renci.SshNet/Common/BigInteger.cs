@@ -51,6 +51,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Text;
 using System.Threading;
+using System.Security.Cryptography;
 
 /*
 Optimization
@@ -69,6 +70,8 @@ namespace Renci.SshNet.Common
     /// </summary>
     public struct BigInteger : IComparable, IFormattable, IComparable<BigInteger>, IEquatable<BigInteger>
     {
+        private static RNGCryptoServiceProvider _randomizer = new System.Security.Cryptography.RNGCryptoServiceProvider();
+
         private const ulong _BASE = 0x100000000;
         private const Int32 _DECIMALSIGNMASK = unchecked((Int32)0x80000000);
         private const int _BIAS = 1075;
@@ -1958,6 +1961,19 @@ namespace Renci.SshNet.Common
             uint low = (uint)other;
 
             return LongCompare(low, high);
+        }
+
+        /// <summary>
+        /// Generates random BigInteger number
+        /// </summary>
+        /// <param name="bitLength">Length of random number in bits.</param>
+        /// <returns></returns>
+        public static BigInteger Random(int bitLength)
+        {
+            var bytesArray = new byte[bitLength / 8 + (((bitLength % 8) > 0) ? 1 : 0)];
+            _randomizer.GetBytes(bytesArray);
+            bytesArray[bytesArray.Length - 1] = (byte)(bytesArray[bytesArray.Length - 1] & 0x7F);   //  Ensure not a negative value
+            return new BigInteger(bytesArray.ToArray());
         }
 
         /// <summary>

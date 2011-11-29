@@ -69,6 +69,7 @@
     <Compile Include="Common\ChannelEventArgs.cs" />
     <Compile Include="Common\ChannelOpenFailedEventArgs.cs" />
     <Compile Include="Common\ChannelRequestEventArgs.cs" />
+    <Compile Include="Common\HostKeyEventArgs.cs" />
     <Compile Include="Common\NetConfServerException.NET40.cs" />
     <Compile Include="Common\DerData.cs" />
     <Compile Include="Common\ExceptionEventArgs.cs" />

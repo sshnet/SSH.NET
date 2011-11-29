@@ -62,6 +62,11 @@ namespace Renci.SshNet.Security
         }
 
         /// <summary>
+        /// Occurs when host key received.
+        /// </summary>
+        public event EventHandler<HostKeyEventArgs> HostKeyReceived;
+
+        /// <summary>
         /// Starts key exchange algorithm
         /// </summary>
         /// <param name="session">The session.</param>
@@ -208,11 +213,6 @@ namespace Renci.SshNet.Security
             //  Resolve Session ID
             var sessionId = this.Session.SessionId ?? this.ExchangeHash;
 
-            //  Create server HMac
-            //var serverHMac = this._serverHmacAlgorithmType.CreateInstance<HMac>();
-
-            //serverHMac.Init(this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'F', sessionId)));
-
             //return serverHMac;
             return this._serverHmacAlgorithmType(this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'F', sessionId)));
         }
@@ -225,11 +225,6 @@ namespace Renci.SshNet.Security
         {
             //  Resolve Session ID
             var sessionId = this.Session.SessionId ?? this.ExchangeHash;
-
-            //  Create client HMac
-            //var clientHMac = this._cientHmacAlgorithmType.CreateInstance<HMac>();
-
-            //clientHMac.Init(this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'E', sessionId)));
 
             //return clientHMac;
             return this._cientHmacAlgorithmType(this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'E', sessionId)));
@@ -267,6 +262,24 @@ namespace Renci.SshNet.Security
             return decompressor;
         }
 
+        /// <summary>
+        /// Determines whether the specified host key can be trusted.
+        /// </summary>
+        /// <param name="hostKey">The host key.</param>
+        /// <returns>
+        ///   <c>true</c> if the specified host key can be trusted; otherwise, <c>false</c>.
+        /// </returns>
+        protected bool CanTrustHostKey(byte[] hostKey)
+        {
+            var args = new HostKeyEventArgs(hostKey);
+
+            if (this.HostKeyReceived != null)
+            {
+                this.HostKeyReceived(this, args);
+            }
+
+            return args.CanTrust;
+        }
 
         /// <summary>
         /// Validates the exchange hash.

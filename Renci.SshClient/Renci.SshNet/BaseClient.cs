@@ -75,6 +75,11 @@ namespace Renci.SshNet
         public event EventHandler<ExceptionEventArgs> ErrorOccurred;
 
         /// <summary>
+        /// Occurs when host key received.
+        /// </summary>
+        public event EventHandler<HostKeyEventArgs> HostKeyReceived;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="BaseClient"/> class.
         /// </summary>
         /// <param name="connectionInfo">The connection info.</param>
@@ -101,8 +106,9 @@ namespace Renci.SshNet
             }
 
             this.Session = new Session(this.ConnectionInfo);
-            this.Session.Connect();
+            this.Session.HostKeyReceived += Session_HostKeyReceived;
             this.Session.ErrorOccured += Session_ErrorOccured;
+            this.Session.Connect();
 
             this.OnConnected();
         }
@@ -186,6 +192,14 @@ namespace Renci.SshNet
             }
         }
 
+        private void Session_HostKeyReceived(object sender, HostKeyEventArgs e)
+        {
+            if (this.HostKeyReceived != null)
+            {
+                this.HostKeyReceived(this, e);
+            }
+        }
+
         #region IDisposable Members
 
         private bool _isDisposed = false;
@@ -215,12 +229,14 @@ namespace Renci.SshNet
                 {
                     // Dispose managed ResourceMessages.
                     this.Session.ErrorOccured -= Session_ErrorOccured;
+                    this.Session.HostKeyReceived -= Session_HostKeyReceived;
 
                     if (this.Session != null)
                     {
                         this.Session.Dispose();
                         this.Session = null;
                     }
+
                     if (this._keepAliveTimer != null)
                     {
                         this._keepAliveTimer.Dispose();

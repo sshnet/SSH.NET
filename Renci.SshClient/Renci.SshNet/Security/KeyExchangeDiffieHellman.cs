@@ -71,15 +71,22 @@ namespace Renci.SshNet.Security
         /// </returns>
         protected override bool ValidateExchangeHash()
         {
-            var exchangeHash = this.CalculateHash();
+            if (this.CanTrustHostKey(this._hostKey))
+            {
+                var exchangeHash = this.CalculateHash();
 
-            var length = (uint)(this._hostKey[0] << 24 | this._hostKey[1] << 16 | this._hostKey[2] << 8 | this._hostKey[3]);
+                var length = (uint)(this._hostKey[0] << 24 | this._hostKey[1] << 16 | this._hostKey[2] << 8 | this._hostKey[3]);
 
-            var algorithmName = Encoding.UTF8.GetString(this._hostKey, 4, (int)length);
+                var algorithmName = Encoding.UTF8.GetString(this._hostKey, 4, (int)length);
 
-            var key = this.Session.ConnectionInfo.HostKeyAlgorithms[algorithmName](this._hostKey);
+                var key = this.Session.ConnectionInfo.HostKeyAlgorithms[algorithmName](this._hostKey);
 
-            return key.VerifySignature(exchangeHash, this._signature);
+                return key.VerifySignature(exchangeHash, this._signature);
+            }
+            else
+            {
+                return false;
+            }
         }
 
         /// <summary>

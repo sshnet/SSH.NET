@@ -247,6 +247,11 @@ namespace Renci.SshNet
         /// </summary>
         public event EventHandler<EventArgs> Disconnected;
 
+        /// <summary>
+        /// Occurs when host key received.
+        /// </summary>
+        public event EventHandler<HostKeyEventArgs> HostKeyReceived;
+
         #region Message events
 
         /// <summary>
@@ -625,7 +630,7 @@ namespace Renci.SshNet
             var index = EventWaitHandle.WaitAny(waitHandles, this.ConnectionInfo.Timeout);
 
             if (index < 1)
-            {
+            {                
                 throw this._exception;
             }
             else if (index > 1)
@@ -1122,6 +1127,8 @@ namespace Renci.SshNet
             //  Create instance of key exchange algorithm that will be used
             this._keyExchange = this.ConnectionInfo.KeyExchangeAlgorithms[keyExchangeAlgorithmName].CreateInstance<KeyExchange>();
 
+            this._keyExchange.HostKeyReceived += KeyExchange_HostKeyReceived;
+
             //  Start the algorithm implementation
             this._keyExchange.Start(this, message);
 
@@ -1167,6 +1174,7 @@ namespace Renci.SshNet
             //  Dispose of old KeyExchange object as it is no longer needed.
             if (this._keyExchange != null)
             {
+                this._keyExchange.HostKeyReceived -= KeyExchange_HostKeyReceived;
                 this._keyExchange.Dispose();
                 this._keyExchange = null;
             }
@@ -1417,6 +1425,14 @@ namespace Renci.SshNet
 
         #endregion
 
+        private void KeyExchange_HostKeyReceived(object sender, HostKeyEventArgs e)
+        {
+            if (this.HostKeyReceived != null)
+            {
+                this.HostKeyReceived(this, e);
+            }
+        }
+
         /// <summary>
         /// Reads the specified length of bytes from the server
         /// </summary>
@@ -1624,6 +1640,7 @@ namespace Renci.SshNet
 
                     if (this._keyExchange != null)
                     {
+                        this._keyExchange.HostKeyReceived -= KeyExchange_HostKeyReceived;
                         this._keyExchange.Dispose();
                         this._keyExchange = null;
                     }

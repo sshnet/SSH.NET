@@ -429,16 +429,7 @@ namespace Renci.SshNet
                         return;
 
                     //  Build list of available messages while connecting
-                    this._messagesMetadata = (from type in this.GetType().Assembly.GetTypes()
-                                              from messageAttribute in type.GetCustomAttributes(false).OfType<MessageAttribute>()
-                                              select new MessageMetadata
-                                              {
-                                                  Name = messageAttribute.Name,
-                                                  Number = messageAttribute.Number,
-                                                  Enabled = false,
-                                                  Activated = false,
-                                                  Type = type,
-                                              }).ToList();
+                    this._messagesMetadata = GetMessagesMetadata();
 
                     this.SocketConnect();
 
@@ -630,7 +621,7 @@ namespace Renci.SshNet
             var index = EventWaitHandle.WaitAny(waitHandles, this.ConnectionInfo.Timeout);
 
             if (index < 1)
-            {                
+            {
                 throw this._exception;
             }
             else if (index > 1)
@@ -729,6 +720,49 @@ namespace Renci.SshNet
 
                 Monitor.Pulse(this._socket);
             }
+        }
+
+        private static IEnumerable<MessageMetadata> GetMessagesMetadata()
+        {
+            return new MessageMetadata[] 
+                { 
+                    new MessageMetadata { Name = "SSH_MSG_NEWKEYS", Number = 21, Enabled = false, Activated = false, Type = typeof(NewKeysMessage), },
+                    new MessageMetadata { Name = "SSH_MSG_REQUEST_FAILURE", Number = 82, Enabled = false, Activated = false, Type = typeof(RequestFailureMessage), },
+                    new MessageMetadata { Name = "SSH_MSG_KEXINIT", Number = 20, Enabled = false, Activated = false, Type = typeof(KeyExchangeInitMessage), },
+                    new MessageMetadata { Name = "SSH_MSG_CHANNEL_OPEN_FAILURE", Number = 92, Enabled = false, Activated = false, Type = typeof(ChannelOpenFailureMessage), },
+                    new MessageMetadata { Name = "SSH_MSG_CHANNEL_FAILURE", Number = 100, Enabled = false, Activated = false, Type = typeof(ChannelFailureMessage), },
+                    new MessageMetadata { Name = "SSH_MSG_CHANNEL_EXTENDED_DATA", Number = 95, Enabled = false, Activated = false, Type = typeof(ChannelExtendedDataMessage), },
+                    new MessageMetadata { Name = "SSH_MSG_CHANNEL_DATA", Number = 94, Enabled = false, Activated = false, Type = typeof(ChannelDataMessage), },
+                    new MessageMetadata { Name = "SSH_MSG_USERAUTH_REQUEST", Number = 50, Enabled = false, Activated = false, Type = typeof(RequestMessage), },
+                    new MessageMetadata { Name = "SSH_MSG_CHANNEL_REQUEST", Number = 98, Enabled = false, Activated = false, Type = typeof(ChannelRequestMessage), },
+                    new MessageMetadata { Name = "SSH_MSG_USERAUTH_BANNER", Number = 53, Enabled = false, Activated = false, Type = typeof(BannerMessage), },
+                    new MessageMetadata { Name = "SSH_MSG_USERAUTH_INFO_RESPONSE", Number = 61, Enabled = false, Activated = false, Type = typeof(InformationResponseMessage), },
+                    new MessageMetadata { Name = "SSH_MSG_USERAUTH_FAILURE", Number = 51, Enabled = false, Activated = false, Type = typeof(FailureMessage), },
+                    new MessageMetadata { Name = "SSH_MSG_DEBUG", Number = 4, Enabled = false, Activated = false, Type = typeof(DebugMessage), },
+                    new MessageMetadata { Name = "SSH_MSG_KEXDH_INIT", Number = 30, Enabled = false, Activated = false, Type = typeof(KeyExchangeDhInitMessage), },
+                    new MessageMetadata { Name = "SSH_MSG_GLOBAL_REQUEST", Number = 80, Enabled = false, Activated = false, Type = typeof(GlobalRequestMessage), },
+                    new MessageMetadata { Name = "SSH_MSG_CHANNEL_OPEN", Number = 90, Enabled = false, Activated = false, Type = typeof(ChannelOpenMessage), },
+                    new MessageMetadata { Name = "SSH_MSG_CHANNEL_OPEN_CONFIRMATION", Number = 91, Enabled = false, Activated = false, Type = typeof(ChannelOpenConfirmationMessage), },
+                    new MessageMetadata { Name = "SSH_MSG_USERAUTH_INFO_REQUEST", Number = 60, Enabled = false, Activated = false, Type = typeof(InformationRequestMessage), },
+                    new MessageMetadata { Name = "SSH_MSG_UNIMPLEMENTED", Number = 3, Enabled = false, Activated = false, Type = typeof(UnimplementedMessage), },
+                    new MessageMetadata { Name = "SSH_MSG_REQUEST_SUCCESS", Number = 81, Enabled = false, Activated = false, Type = typeof(RequestSuccessMessage), },
+                    new MessageMetadata { Name = "SSH_MSG_CHANNEL_SUCCESS", Number = 99, Enabled = false, Activated = false, Type = typeof(ChannelSuccessMessage), },
+                    new MessageMetadata { Name = "SSH_MSG_USERAUTH_PASSWD_CHANGEREQ", Number = 60, Enabled = false, Activated = false, Type = typeof(PasswordChangeRequiredMessage), },
+                    new MessageMetadata { Name = "SSH_MSG_DISCONNECT", Number = 1, Enabled = false, Activated = false, Type = typeof(DisconnectMessage), },
+                    new MessageMetadata { Name = "SSH_MSG_SERVICE_REQUEST", Number = 5, Enabled = false, Activated = false, Type = typeof(ServiceRequestMessage), },
+                    new MessageMetadata { Name = "SSH_MSG_KEX_DH_GEX_REQUEST", Number = 34, Enabled = false, Activated = false, Type = typeof(KeyExchangeDhGroupExchangeRequest), },
+                    new MessageMetadata { Name = "SSH_MSG_KEX_DH_GEX_GROUP", Number = 31, Enabled = false, Activated = false, Type = typeof(KeyExchangeDhGroupExchangeGroup), },
+                    new MessageMetadata { Name = "SSH_MSG_USERAUTH_SUCCESS", Number = 52, Enabled = false, Activated = false, Type = typeof(SuccessMessage), },
+                    new MessageMetadata { Name = "SSH_MSG_USERAUTH_PK_OK", Number = 60, Enabled = false, Activated = false, Type = typeof(PublicKeyMessage), },
+                    new MessageMetadata { Name = "SSH_MSG_IGNORE", Number = 2, Enabled = false, Activated = false, Type = typeof(IgnoreMessage), },
+                    new MessageMetadata { Name = "SSH_MSG_CHANNEL_WINDOW_ADJUST", Number = 93, Enabled = false, Activated = false, Type = typeof(ChannelWindowAdjustMessage), },
+                    new MessageMetadata { Name = "SSH_MSG_CHANNEL_EOF", Number = 96, Enabled = false, Activated = false, Type = typeof(ChannelEofMessage), },
+                    new MessageMetadata { Name = "SSH_MSG_CHANNEL_CLOSE", Number = 97, Enabled = false, Activated = false, Type = typeof(ChannelCloseMessage), },
+                    new MessageMetadata { Name = "SSH_MSG_SERVICE_ACCEPT", Number = 6, Enabled = false, Activated = false, Type = typeof(ServiceAcceptMessage), },
+                    new MessageMetadata { Name = "SSH_MSG_KEXDH_REPLY", Number = 31, Enabled = false, Activated = false, Type = typeof(KeyExchangeDhReplyMessage), },
+                    new MessageMetadata { Name = "SSH_MSG_KEX_DH_GEX_INIT", Number = 32, Enabled = false, Activated = false, Type = typeof(KeyExchangeDhGroupExchangeInit), },
+                    new MessageMetadata { Name = "SSH_MSG_KEX_DH_GEX_REPLY", Number = 33, Enabled = false, Activated = false, Type = typeof(KeyExchangeDhGroupExchangeReply), },
+                };
         }
 
         /// <summary>

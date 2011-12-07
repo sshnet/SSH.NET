@@ -53,6 +53,9 @@
     <Compile Include="..\Renci.SshNet.Tests\ConnectionTest.cs">
       <Link>ConnectionTest.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\ScpClientTests\UploadDownloadTest.cs">
+      <Link>ScpClientTests\UploadDownloadTest.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Security\Cryptography\Ciphers.cs">
       <Link>Security\Cryptography\Ciphers.cs</Link>
     </Compile>
@@ -134,7 +137,7 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" ProjectLinkReference="c45379b9-17b1-4e89-bc2e-6d41726413e8" />
+      <UserProperties ProjectLinkReference="c45379b9-17b1-4e89-bc2e-6d41726413e8" ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

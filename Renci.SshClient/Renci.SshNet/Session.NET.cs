@@ -122,7 +122,7 @@ namespace Renci.SshNet
 
         partial void Log(string text)
         {
-            this._log.TraceEvent(System.Diagnostics.TraceEventType.Verbose, 1, text);
+            //this._log.TraceEvent(System.Diagnostics.TraceEventType.Verbose, 1, text);
         }
     }
 }

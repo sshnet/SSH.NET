@@ -225,10 +225,10 @@ namespace Renci.SshNet
         /// <returns>Returns an instance of <see cref="SshCommand"/> with execution results.</returns>
         /// <remarks>This method internally uses asynchronous calls.</remarks>
         /// <exception cref="ArgumentException">CommandText property is empty.</exception>
-        /// <exception cref="SshException">Invalid Operation - An existing channel was used to execute this command.</exception>
+        /// <exception cref="Renci.SshNet.Common.SshException">Invalid Operation - An existing channel was used to execute this command.</exception>
         /// <exception cref="InvalidOperationException">Asynchronous operation is already in progress.</exception>
         public SshCommand RunCommand(string commandText)
-        {
+        {            
             var cmd = this.CreateCommand(commandText);
             cmd.Execute();
             return cmd;

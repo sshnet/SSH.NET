@@ -59,6 +59,9 @@
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
     </Compile>
+    <Compile Include="ScpClientTests\UploadDownloadTest.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Security\Cryptography\Ciphers.cs" />
     <Compile Include="Security\TestCipher.cs" />
     <Compile Include="Security\TestHMac.cs" />

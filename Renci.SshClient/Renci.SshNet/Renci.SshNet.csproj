@@ -85,6 +85,18 @@
     <Compile Include="Common\PortForwardEventArgs.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Common\ScpDownloadEventArgs.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Common\ScpException.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Common\ScpException.NET40.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Common\ScpUploadEventArgs.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Common\SemaphoreLight.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -113,6 +125,10 @@
     <Compile Include="ConnectionInfo.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="ScpClient.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ScpClient.NET.cs" />
     <Compile Include="ForwardedPort.cs" />
     <Compile Include="ForwardedPortLocal.cs">
       <SubType>Code</SubType>

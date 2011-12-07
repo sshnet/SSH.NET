@@ -12,6 +12,21 @@ namespace Renci.SshNet.Common
     {
         private readonly char _fallbackChar;
 
+        private static char[] _byteToChar;
+
+        static ASCIIEncoding()
+        {
+            if (_byteToChar == null)
+            {
+                _byteToChar = new char[128];
+                var ch = '\0';
+                for (byte i = 0; i < 128; i++)
+                {
+                    _byteToChar[i] = ch++;
+                }
+            }
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ASCIIEncoding"/> class.
         /// </summary>
@@ -112,7 +127,7 @@ namespace Renci.SshNet.Common
         ///   <paramref name="bytes"/> is null.-or- <paramref name="chars"/> is null. </exception>
         ///   
         /// <exception cref="T:System.ArgumentOutOfRangeException">
-        ///   <paramref name="byteIndex"/> or <paramref name="byteCount"/> or <paramref name="charIndex"/> is less than zero.-or- <paramref name="byteindex"/> and <paramref name="byteCount"/> do not denote a valid range in <paramref name="bytes"/>.-or- <paramref name="charIndex"/> is not a valid index in <paramref name="chars"/>. </exception>
+        ///   <paramref name="byteIndex"/> or <paramref name="byteCount"/> or <paramref name="charIndex"/> is less than zero.-or- <paramref name="byteIndex"/> and <paramref name="byteCount"/> do not denote a valid range in <paramref name="bytes"/>.-or- <paramref name="charIndex"/> is not a valid index in <paramref name="chars"/>. </exception>
         ///   
         /// <exception cref="T:System.ArgumentException">
         ///   <paramref name="chars"/> does not have enough capacity from <paramref name="charIndex"/> to the end of the array to accommodate the resulting characters. </exception>
@@ -131,7 +146,7 @@ namespace Renci.SshNet.Common
                 }
                 else 
                 {
-                    ch = (char)b;
+                    ch = _byteToChar[b];
                 }
 
                 chars[i + charIndex] = ch;

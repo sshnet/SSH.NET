@@ -216,7 +216,7 @@ namespace Renci.SshNet.Channels
             //  Wait for channel to be closed
             this._session.WaitHandle(this._channelClosedWaitHandle);
 
-            this.Dispose();
+            //this.Dispose();
         }
 
         #region Channel virtual methods

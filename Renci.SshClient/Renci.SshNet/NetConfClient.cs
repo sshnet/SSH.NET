@@ -9,6 +9,7 @@ using System.Globalization;
 using System.Threading;
 using Renci.SshNet.NetConf;
 using System.Xml;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Renci.SshNet
 {
@@ -21,6 +22,8 @@ namespace Renci.SshNet
         /// Holds SftpSession instance that used to communicate to the SFTP server
         /// </summary>
         private NetConfSession _netConfSession;
+
+        private bool _disposeConnectionInfo;
 
         /// <summary>
         /// Gets or sets the operation timeout.
@@ -52,9 +55,11 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="password"/> is null.</exception>
         /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, or <paramref name="username"/> is null or contains whitespace characters.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="port"/> is not within <see cref="System.Net.IPEndPoint.MinPort"/> and <see cref="System.Net.IPEndPoint.MaxPort"/>.</exception>
+        [SuppressMessage("Microsoft.Reliability", "CA2000:DisposeObjectsBeforeLosingScope", Justification = "Disposed in Dispose(bool) method.")]
         public NetConfClient(string host, int port, string username, string password)
             : this(new PasswordConnectionInfo(host, port, username, password))
         {
+            this._disposeConnectionInfo = true;
         }
 
         /// <summary>
@@ -80,9 +85,11 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="keyFiles"/> is null.</exception>
         /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, -or- <paramref name="username"/> is null or contains whitespace characters.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="port"/> is not within <see cref="System.Net.IPEndPoint.MinPort"/> and <see cref="System.Net.IPEndPoint.MaxPort"/>.</exception>
+        [SuppressMessage("Microsoft.Reliability", "CA2000:DisposeObjectsBeforeLosingScope", Justification = "Disposed in Dispose(bool) method.")]
         public NetConfClient(string host, int port, string username, params PrivateKeyFile[] keyFiles)
             : this(new PrivateKeyConnectionInfo(host, port, username, keyFiles))
         {
+            this._disposeConnectionInfo = true;
         }
 
         /// <summary>
@@ -185,6 +192,10 @@ namespace Renci.SshNet
             }
 
             base.Dispose(disposing);
+
+            if (this._disposeConnectionInfo)
+                ((IDisposable)this.ConnectionInfo).Dispose();
+
         }
     }
 }

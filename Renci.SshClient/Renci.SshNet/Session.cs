@@ -580,7 +580,7 @@ namespace Renci.SshNet
             //  If socket still open try to send disconnect message to the server
             this.SendDisconnect(DisconnectReason.ByApplication, "Connection terminated by the client.");
 
-            this.Dispose();
+            //this.Dispose();
         }
 
         internal T CreateChannel<T>() where T : Channel, new()

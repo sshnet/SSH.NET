@@ -7,6 +7,7 @@ using Renci.SshNet.Tests.Properties;
 using System.IO;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
+using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Tests.ScpClientTests
 {
@@ -259,12 +260,12 @@ namespace Renci.SshNet.Tests.ScpClientTests
                 var uploadedFiles = uploadFilenames.ToDictionary((filename) => Path.GetFileName(filename), (filename) => 0L);
                 var downloadedFiles = uploadFilenames.ToDictionary((filename) => string.Format("{0}.down", Path.GetFileName(filename)), (filename) => 0L);
 
-                scp.Uploading += delegate(object sender, Common.ScpUploadEventArgs e)
+                scp.Uploading += delegate(object sender, ScpUploadEventArgs e)
                 {
                     uploadedFiles[e.Filename] = e.Uploaded;
                 };
 
-                scp.Downloading += delegate(object sender, Common.ScpDownloadEventArgs e)
+                scp.Downloading += delegate(object sender, ScpDownloadEventArgs e)
                 {
                     downloadedFiles[string.Format("{0}.down", e.Filename)] = e.Downloaded;
                 };

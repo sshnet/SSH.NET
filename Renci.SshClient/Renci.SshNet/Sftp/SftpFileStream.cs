@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using System.Threading;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Renci.SshNet.Sftp
 {
@@ -74,10 +75,10 @@ namespace Renci.SshNet.Sftp
         /// Gets the length in bytes of the stream.
         /// </summary>
         /// <returns>A long value representing the length of the stream in bytes.</returns>
-        ///   
         /// <exception cref="T:System.NotSupportedException">A class derived from Stream does not support seeking. </exception>
-        ///   
         /// <exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed. </exception>
+        /// <exception cref="T:System.IO.IOException">IO operation failed. </exception>
+        [SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations", Justification = "Be design this is the exception that stream need to throw.")]
         public override long Length
         {
             get

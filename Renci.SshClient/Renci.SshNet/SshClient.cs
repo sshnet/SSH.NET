@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Collections.ObjectModel;
 using System.Text;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Renci.SshNet
 {
@@ -15,6 +16,10 @@ namespace Renci.SshNet
         /// Holds the list of forwarded ports
         /// </summary>
         private List<ForwardedPort> _forwardedPorts = new List<ForwardedPort>();
+
+        private bool _disposeConnectionInfo;
+        
+        private Stream _inputStream;
 
         /// <summary>
         /// Gets the list of forwarded ports.
@@ -49,9 +54,11 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="password"/> is null.</exception>
         /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, or <paramref name="username"/> is null or contains whitespace characters.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="port"/> is not within <see cref="System.Net.IPEndPoint.MinPort"/> and <see cref="System.Net.IPEndPoint.MaxPort"/>.</exception>
+        [SuppressMessage("Microsoft.Reliability", "CA2000:DisposeObjectsBeforeLosingScope", Justification="Disposed in Dispose(bool) method.")]
         public SshClient(string host, int port, string username, string password)
             : this(new PasswordConnectionInfo(host, port, username, password))
         {
+            this._disposeConnectionInfo = true;
         }
 
         /// <summary>
@@ -77,9 +84,11 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="keyFiles"/> is null.</exception>
         /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, -or- <paramref name="username"/> is null or contains whitespace characters.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="port"/> is not within <see cref="System.Net.IPEndPoint.MinPort"/> and <see cref="System.Net.IPEndPoint.MaxPort"/>.</exception>
+        [SuppressMessage("Microsoft.Reliability", "CA2000:DisposeObjectsBeforeLosingScope", Justification = "Disposed in Dispose(bool) method.")]
         public SshClient(string host, int port, string username, params PrivateKeyFile[] keyFiles)
             : this(new PrivateKeyConnectionInfo(host, port, username, keyFiles))
         {
+            this._disposeConnectionInfo = true;
         }
 
         /// <summary>
@@ -306,13 +315,13 @@ namespace Renci.SshNet
             //  Ensure that connection is established.
             this.EnsureConnection();
 
-            var inputStream = new MemoryStream();
-            var writer = new StreamWriter(inputStream, encoding);
+            this._inputStream = new MemoryStream();
+            var writer = new StreamWriter(this._inputStream, encoding);
             writer.Write(input);
             writer.Flush();
-            inputStream.Seek(0, SeekOrigin.Begin);
+            this._inputStream.Seek(0, SeekOrigin.Begin);
 
-            return this.CreateShell(inputStream, output, extendedOutput, terminalName, columns, rows, width, height, terminalMode, bufferSize);
+            return this.CreateShell(this._inputStream, output, extendedOutput, terminalName, columns, rows, width, height, terminalMode, bufferSize);
         }
 
         /// <summary>
@@ -347,5 +356,22 @@ namespace Renci.SshNet
             return this.CreateShell(encoding, input, output, extendedOutput, string.Empty, 0, 0, 0, 0, string.Empty, 1024);
         }
 
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources
+        /// </summary>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged ResourceMessages.</param>
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+
+            if (this._disposeConnectionInfo)
+                ((IDisposable)this.ConnectionInfo).Dispose();
+
+            if (this._inputStream != null)
+            {
+                this._inputStream.Dispose();
+                this._inputStream = null;
+            }
+        }
     }
 }

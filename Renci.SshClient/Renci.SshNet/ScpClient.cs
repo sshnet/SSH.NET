@@ -9,6 +9,7 @@ using Renci.SshNet.Messages.Connection;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Renci.SshNet
 {
@@ -24,6 +25,8 @@ namespace Renci.SshNet
         private static Regex _timestampRe = new Regex(@"T(?<mtime>\d+) 0 (?<atime>\d+) 0");
 
         private static char[] _byteToChar;
+
+        private bool _disposeConnectionInfo;
 
         /// <summary>
         /// Gets or sets the operation timeout.
@@ -82,9 +85,11 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="password"/> is null.</exception>
         /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, or <paramref name="username"/> is null or contains whitespace characters.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="port"/> is not within <see cref="System.Net.IPEndPoint.MinPort"/> and <see cref="System.Net.IPEndPoint.MaxPort"/>.</exception>
+        [SuppressMessage("Microsoft.Reliability", "CA2000:DisposeObjectsBeforeLosingScope", Justification = "Disposed in Dispose(bool) method.")]
         public ScpClient(string host, int port, string username, string password)
             : this(new PasswordConnectionInfo(host, port, username, password))
         {
+            this._disposeConnectionInfo = true;
         }
 
         /// <summary>
@@ -110,9 +115,11 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="keyFiles"/> is null.</exception>
         /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, -or- <paramref name="username"/> is null or contains whitespace characters.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="port"/> is not within <see cref="System.Net.IPEndPoint.MinPort"/> and <see cref="System.Net.IPEndPoint.MaxPort"/>.</exception>
+        [SuppressMessage("Microsoft.Reliability", "CA2000:DisposeObjectsBeforeLosingScope", Justification = "Disposed in Dispose(bool) method.")]
         public ScpClient(string host, int port, string username, params PrivateKeyFile[] keyFiles)
             : this(new PrivateKeyConnectionInfo(host, port, username, keyFiles))
         {
+            this._disposeConnectionInfo = true;
         }
 
         /// <summary>
@@ -371,6 +378,18 @@ namespace Renci.SshNet
                 throw new ScpException(sb.ToString());
 
             return sb.ToString();
+        }
+
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources
+        /// </summary>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged ResourceMessages.</param>
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+
+            if (this._disposeConnectionInfo)
+                ((IDisposable)this.ConnectionInfo).Dispose();
         }
     }
 }

@@ -123,7 +123,7 @@ namespace Renci.SshNet
 
             this.OnDisconnecting();
 
-            this.Dispose();
+            this.Session.Disconnect();
 
             this.OnDisconnected();
         }

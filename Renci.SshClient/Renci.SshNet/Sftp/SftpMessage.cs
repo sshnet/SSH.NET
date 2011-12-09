@@ -9,10 +9,6 @@ namespace Renci.SshNet.Sftp
 {
     internal abstract class SftpMessage : SshData
     {
-        private delegate T LoadFunc<out T>(byte[] data);
-
-        private static IDictionary<SftpMessageTypes, LoadFunc<SftpMessage>> _sftpMessageTypes = new Dictionary<SftpMessageTypes, LoadFunc<SftpMessage>>();
-
         public new static SftpMessage Load(byte[] data)
         {
             var messageType = (SftpMessageTypes)data.FirstOrDefault();
@@ -26,18 +22,6 @@ namespace Renci.SshNet.Sftp
             {
                 return 1;
             }
-        }
-
-        static SftpMessage()
-        {
-            //  Register only messages that can be received by the client
-            SftpMessage._sftpMessageTypes.Add(SftpMessageTypes.Version, new LoadFunc<SftpMessage>(Load<SftpVersionResponse>));
-            SftpMessage._sftpMessageTypes.Add(SftpMessageTypes.Status, new LoadFunc<SftpMessage>(Load<SftpStatusResponse>));
-            SftpMessage._sftpMessageTypes.Add(SftpMessageTypes.Data, new LoadFunc<SftpMessage>(Load<SftpDataResponse>));
-            SftpMessage._sftpMessageTypes.Add(SftpMessageTypes.Handle, new LoadFunc<SftpMessage>(Load<SftpHandleResponse>));
-            SftpMessage._sftpMessageTypes.Add(SftpMessageTypes.Name, new LoadFunc<SftpMessage>(Load<SftpNameResponse>));
-            SftpMessage._sftpMessageTypes.Add(SftpMessageTypes.Attrs, new LoadFunc<SftpMessage>(Load<SftpAttrsResponse>));
-            SftpMessage._sftpMessageTypes.Add(SftpMessageTypes.Extended, new LoadFunc<SftpMessage>(Load<SftpExtendedReplyResponse>));
         }
 
         public abstract SftpMessageTypes SftpMessageType { get; }
@@ -170,19 +154,34 @@ namespace Renci.SshNet.Sftp
 
         private static SftpMessage Load(byte[] data, SftpMessageTypes messageType)
         {
-            if (SftpMessage._sftpMessageTypes.ContainsKey(messageType))
-            {
-                return SftpMessage._sftpMessageTypes[messageType](data);
-            }
-            else
-            {
-                throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "Message type '{0}' is not registered.", messageType));
-            }
-        }
+            SftpMessage message = null;
 
-        private static T Load<T>(byte[] data) where T : SftpMessage, new()
-        {
-            T message = new T();
+            switch (messageType)
+            {
+                case SftpMessageTypes.Version:
+                    message = new SftpVersionResponse();
+                    break;
+                case SftpMessageTypes.Status:
+                    message = new SftpStatusResponse();
+                    break;
+                case SftpMessageTypes.Data:
+                    message = new SftpDataResponse();
+                    break;
+                case SftpMessageTypes.Handle:
+                    message = new SftpHandleResponse();
+                    break;
+                case SftpMessageTypes.Name:
+                    message = new SftpNameResponse();
+                    break;
+                case SftpMessageTypes.Attrs:
+                    message = new SftpAttrsResponse();
+                    break;
+                case SftpMessageTypes.ExtendedReply:
+                    message = new SftpExtendedReplyResponse();
+                    break;
+                default:
+                    throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "Message type '{0}' is not supported.", messageType));
+            }
 
             message.LoadBytes(data);
 

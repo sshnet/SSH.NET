@@ -11,25 +11,6 @@ namespace Renci.SshNet.Messages
     public abstract class Message : SshData
     {
         /// <summary>
-        /// Loads the specified data.
-        /// </summary>
-        /// <typeparam name="T">SSH message type</typeparam>
-        /// <param name="data">Message data.</param>
-        /// <returns>SSH message object</returns>
-        internal static T Load<T>(byte[] data) where T : Message, new()
-        {
-            T message = new T();
-
-            message.LoadBytes(data);
-
-            message.ResetReader();
-
-            message.LoadData();
-
-            return message;
-        }
-
-        /// <summary>
         /// Gets the index that represents zero in current data type.
         /// </summary>
         /// <value>

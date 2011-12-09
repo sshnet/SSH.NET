@@ -39,23 +39,18 @@ namespace Renci.SshNet.Sftp
         {
             get
             {
+#if WINDOWS_PHONE
+                lock (this)
+                {
+                    this._requestId++;
+                }
+
+                return (uint)this._requestId;
+#else
                 return ((uint)Interlocked.Increment(ref this._requestId));
+#endif
             }
         }
-
-        #region SFTP messages
-
-        //internal event EventHandler<MessageEventArgs<StatusMessage>> StatusMessageReceived;
-
-        //internal event EventHandler<MessageEventArgs<DataMessage>> DataMessageReceived;
-
-        //internal event EventHandler<MessageEventArgs<HandleMessage>> HandleMessageReceived;
-
-        //internal event EventHandler<MessageEventArgs<NameMessage>> NameMessageReceived;
-
-        //internal event EventHandler<MessageEventArgs<AttributesMessage>> AttributesMessageReceived;
-
-        #endregion
 
         public SftpSession(Session session, TimeSpan operationTimeout)
             : base(session, "sftp", operationTimeout)

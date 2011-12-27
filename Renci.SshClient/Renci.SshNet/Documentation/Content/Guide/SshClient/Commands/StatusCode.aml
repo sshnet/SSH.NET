@@ -3,7 +3,7 @@
   <developerWhitePaperDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
       <title>Execution errors</title>
       <content>
-      	When command is executed you can retrive command execution exit status by accessing <codeEntityReference>P:Renci.SshClient.SshCommand.ExitStatus</codeEntityReference> property.
+      	When command is executed you can retrive command execution exit status by accessing <codeEntityReference>P:Renci.SshNet.SshCommand.ExitStatus</codeEntityReference> property.
         <para>See examples below:</para>
         <codeExample>
           <list class="ordered">
@@ -24,8 +24,8 @@
         </codeExample>
       </content>
     <relatedTopics>
-	    <codeEntityReference>P:Renci.SshClient.SshCommand.ExitStatus</codeEntityReference>
-		<codeEntityReference>T:Renci.SshClient.SshCommand</codeEntityReference>
+	    <codeEntityReference>P:Renci.SshNet.SshCommand.ExitStatus</codeEntityReference>
+		<codeEntityReference>T:Renci.SshNet.SshCommand</codeEntityReference>
     </relatedTopics>
   </developerWhitePaperDocument>
 </topic>

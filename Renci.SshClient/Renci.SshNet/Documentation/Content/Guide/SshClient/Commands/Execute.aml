@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<topic id="8a17ee42-3139-4278-a17c-3fff875e226a" revisionNumber="1">
-  <developerSDKTechnologyOverviewTechnologySummaryDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
+<topic id="c8a66a6b-b82a-4b61-93ea-82e281c345df" revisionNumber="1">
+  <developerHowToDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
     <!--
     <summary>
       <para>Optional summary abstract</para>
@@ -9,35 +9,30 @@
     <introduction>
       <para>Required introduction</para>
     </introduction>
-    <keywords>
-      <content>
-        <para>Keyword content</para>
-      </content>
-    </keywords>
-    <namespaces>
-      <content>
-        <para>Namespaces content</para>
-      </content>
-    </namespaces>
-    <!-- <relatedTechnologies>Optional related technologies info</relatedTechnologies> -->
-    <background>
-      <content>
-        <para>Background content</para>
-      </content>
-    </background>
-    <implementingTechnologyNameClasses>
-      <title>"Implementing [Technology Name] Classes" title</title>
-      <content>
-        <para>Implementation content</para>
-      </content>
-    </implementingTechnologyNameClasses>
-    <technologyNameClassesAtAGlance>
-      <title>"[Technology Name] Classes at a Glance" title</title>
-      <content>
-        <para>At a Glance content</para>
-      </content>
-    </technologyNameClassesAtAGlance>
-    <!-- <whatsNew>Optional "what's new" information</whatsNew> -->
+    <!-- Optional procedures followed by optional code example but must have
+         at least one procedure or code example -->
+    <procedure>
+      <title>Procedure title</title>
+      <steps class="ordered">
+        <step>
+          <content>
+            <para>First step</para>
+          </content>
+        </step>
+        <step>
+          <content>
+            <para>Second step</para>
+          </content>
+        </step>
+      </steps>
+      <!-- <conclusion>Optional conclusion</conclusion> -->
+    </procedure>
+    <!-- <codeExample>Optional code example</codeExample> -->
+    <!-- <buildInstructions>Optional instructions for building a
+         code example.</buildInstructions> -->
+    <!-- <robustProgramming>Optional discussion of error handling and other
+         issues related to writing solid code.</robustProgramming> -->
+    <!-- <security>Optional discussion of security issues.</security> -->
     <relatedTopics>
       <!-- One or more of the following:
            - A local link
@@ -71,5 +66,5 @@
       <codeEntityReference>M:TestDoc.TestClass.SecondMethod(System.Int32,System.String)</codeEntityReference>
       -->
     </relatedTopics>
-  </developerSDKTechnologyOverviewTechnologySummaryDocument>
+  </developerHowToDocument>
 </topic>

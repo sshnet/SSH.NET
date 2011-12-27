@@ -5,7 +5,7 @@
       <para>Library support multiple command execution at once. However there are some limitation to be aware of.
       While you can run multiple commands on multiple threads at the same time usually only 10 commands are executed at the same time.
       This is due to server default limitation which allows only 10 session channels top be open at the same time.
-      This limitation can be change on the server level, if so you can you <codeEntityReference>T:Renci.SshClient.ConnectionInfo</codeEntityReference> object to increase or decrease this value.
+      This limitation can be change on the server level, if so you can you <codeEntityReference>T:Renci.SshNet.ConnectionInfo</codeEntityReference> object to increase or decrease this value.
       This rule is only true when you try to run multiple commands on the same connection.
       Of course if you will be using multiple connection this rul does not apply.
       </para>

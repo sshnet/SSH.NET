@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<topic id="37443441-b0d5-444f-a2d0-330ad8b95995" revisionNumber="1">
+  <developerConceptualDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <introduction>
+      <para>
+        This topic describes how to perform different operations using <codeEntityReference>E:Renci.SshNet.SshClient</codeEntityReference>.
+      </para>
+      <list class="bullet">
+        <listItem>
+          <para>
+            <link xlink:href="2337d96d-7638-438e-b980-96e87b807265">Command execution.</link>
+          </para>
+        </listItem>
+
+        <listItem>
+          <para>
+            <link xlink:href="f4ce1bdd-403f-45ec-a622-86c05a4bd913">Port Forwarding.</link>
+          </para>
+        </listItem>
+
+        <listItem>
+          <para>
+            <link xlink:href="86bd5fce-2370-4730-b956-364885f7ed6a">Shell functionality.</link>
+          </para>
+        </listItem>
+	</list>
+    </introduction>
+    <relatedTopics>
+    </relatedTopics>
+  </developerConceptualDocument>
+</topic>

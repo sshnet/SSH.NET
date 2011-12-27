@@ -1,0 +1,59 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<topic id="281ac0c3-0d6c-4bf2-ae64-db6862d6fff5" revisionNumber="1">
+  <developerConceptualDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <introduction>
+      <para>
+        This section will describe how to establish connection using interactive authentication method.
+      </para>
+      <list class="bullet">
+        <listItem>
+          <para>
+            <link xlink:href="#UseKeyboardInteractiveConnectionInfoSection">Use KeyboardInteractiveConnectionInfo to connect.</link>
+          </para>
+        </listItem>
+      </list>
+    </introduction>
+    <section address="UseKeyboardInteractiveConnectionInfoSection">
+      <title>Use KeyboardInteractiveConnectionInfo to connect</title>
+      <content>
+        <para>
+          Some server support only interactive method of authentication, even if they still use username and password.
+          For this scenario you must use <codeEntityReference>T:Renci.SshNet.KeyboardInteractiveConnectionInfo</codeEntityReference> object.
+          For this case you need to handle <codeEntityReference>E:Renci.SshNet.KeyboardInteractiveConnectionInfo.AuthenticationPrompt</codeEntityReference> event.
+          This event can be raised more then once if server needs to. For example, first time to ask you for yousername and second for the password but there could be other scenarious where more questions will need to be answered for authentication to complete.
+        </para>
+        <code language="cs" title="Use username and password to connect example">
+          <![CDATA[  
+
+							var connectionInfo = new KeyboardInteractiveConnectionInfo("host", "username");
+							connectionInfo.AuthenticationPrompt += delegate(object sender, AuthenticationPromptEventArgs e)
+							{
+							Console.WriteLine(e.Instruction);
+
+							foreach (var prompt in e.Prompts)
+							{
+							Console.WriteLine(prompt.Request);
+							prompt.Response = Console.ReadLine();
+							}
+							};
+
+							using (var client = new SshClient(connectionInfo))
+							{
+							client.Connect();
+							
+							...
+							
+							client.Disconnect();
+							}
+      
+]]>
+        </code>
+      </content>
+    </section>
+    <relatedTopics>
+      <codeEntityReference>T:Renci.SshNet.KeyboardInteractiveConnectionInfo</codeEntityReference>
+      <codeEntityReference>T:Renci.SshNet.SshClient</codeEntityReference>
+      <codeEntityReference>M:Renci.SshNet.SshBaseClient.Connect()</codeEntityReference>
+    </relatedTopics>
+  </developerConceptualDocument>
+</topic>

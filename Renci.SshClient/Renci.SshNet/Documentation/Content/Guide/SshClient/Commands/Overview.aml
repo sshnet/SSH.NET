@@ -1,0 +1,327 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<topic id="2337d96d-7638-438e-b980-96e87b807265" revisionNumber="1">
+	<developerConceptualDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
+		<introduction>
+			<para>
+				This topic describes how execute commands on remote host using <codeEntityReference>T:Renci.SshNet.SshClient</codeEntityReference>.
+			</para>
+			<list class="bullet">
+				<listItem>
+					<para>
+						<link xlink:href="#CommandExecutionOverviewSection">Command execution overview.</link>
+					</para>
+				</listItem>
+
+				<listItem>
+					<para>
+						<link xlink:href="#SimpleCommandExecutionSection">Simple command execution.</link>
+					</para>
+				</listItem>
+
+				<listItem>
+					<para>
+						<link xlink:href="#UsingSshCommandSection">Using SshCommand object.</link>
+					</para>
+				</listItem>
+
+				<listItem>
+					<para>
+						<link xlink:href="#ReuseSshCommandSection">Reuse SshCommand object.</link>
+					</para>
+				</listItem>
+
+				<listItem>
+					<para>
+						<link xlink:href="#CommandExecutionTimeoutSection">Command execution timeout.</link>
+					</para>
+				</listItem>
+
+				<listItem>
+					<para>
+						<link xlink:href="#HandleCommandOutputSection">Handle command output.</link>
+					</para>
+					<list class="bullet">
+						<listItem>
+							<para>
+								<link xlink:href="#GetExecutionResultSection">Get execution result.</link>
+							</para>
+						</listItem>
+						<listItem>
+							<para>
+								<link xlink:href="#ReadOutputStreamSection">Read OutputStream.</link>
+							</para>
+						</listItem>
+
+						<listItem>
+							<para>
+								<link xlink:href="#ReadExtendedOutputStreamSection">Read ExtendedOutputStream.</link>
+							</para>
+						</listItem>
+						<listItem>
+							<para>
+								<link xlink:href="#HandleExitStatusSection">Handle exit status.</link>
+							</para>
+						</listItem>
+					</list>
+				</listItem>
+
+				<listItem>
+					<para>
+						<link xlink:href="#CommandExecutionTimeoutSection">Asynchronous command execution.</link>
+					</para>
+				</listItem>
+
+				<listItem>
+					<para>
+						<link xlink:href="#CommandExecutionTimeoutSection">Cancel asynchronous command execution.</link>
+					</para>
+				</listItem>
+
+			</list>
+		</introduction>
+
+		<section address="CommandExecutionOverviewSection">
+			<title>Command execution overview</title>
+			<content>
+				<para>
+					Command execution feature simulates scenario where single command line can be executed on the remote host.
+					SshClient takes command text as it is and passes it to the remote host for execution.
+					If command cannot be executed on the remote host the <codeEntityReference>P:Renci.SshNet.SshCommand.Error</codeEntityReference> property will have a description why the execution failed and <codeEntityReference>P:Renci.SshNet.SshCommand.ExitStatus</codeEntityReference> property will have value other then 0.
+					One command execution is not aware of previouse executions so if you execute first "cd /etc" and then next command "ls -l", it will not list you the content of "etc" folder.
+					This is due to the fact that only one command can be executed on one channel.
+					Command execution running in the context of default shell specified by remote host.
+				</para>
+			</content>
+		</section>
+
+		<section address="SimpleCommandExecutionSection">
+			<title>Simple command execution</title>
+			<content>
+				<para>
+					To run simple command you dont have to use <codeEntityReference>T:Renci.SshNet.SshCommand</codeEntityReference> but simply provide command text to <codeEntityReference>M:Renci.SshNet.SshClient.RunCommand(System.String)</codeEntityReference> method.
+				</para>
+				<code language="cs" title="Execute simple command example">
+					<![CDATA[  
+
+			using (var client = new SshClient("host", "username", "password"))
+			{
+					client.Connect();
+			
+					client.RunCommand("touch abc.txt");
+			
+					client.Disconnect();
+			}
+			
+]]>
+				</code>
+			</content>
+		</section>
+
+		<section address="UsingSshCommandSection">
+			<title>Using SshCommand object</title>
+			<content>
+				<para>
+					For more complex scenarious where you need more control over command execution you need will need to create <codeEntityReference>T:Renci.SshNet.SshCommand</codeEntityReference> to execute a command.
+					You can create a command without executing it by calling <codeEntityReference>M:Renci.SshNet.SshClient.CreateCommand(System.String)</codeEntityReference> method.
+				</para>
+				<code language="cs" title="Create SshCommand object example">
+					<![CDATA[  
+					
+					var command = ssh.CreateCommand("touch abc.txt");
+					
+]]>
+				</code>
+				<para>
+					Once <codeEntityReference>T:Renci.SshNet.SshCommand</codeEntityReference> object  is created you can execute a command by calling <codeEntityReference>M:Renci.SshNet.SshCommand.Execute</codeEntityReference> method.
+				</para>
+				<code language="cs" title="Execute SshCommand object example">
+					<![CDATA[  
+					
+					
+					var command = ssh.CreateCommand("touch abc.txt");
+					
+					command.Execute();
+										
+]]>
+				</code>
+			</content>
+		</section>
+
+		<section address="ReuseSshCommandSection">
+			<title>Reuse SshCommand object</title>
+			<content>
+				<para>
+					Once <codeEntityReference>T:Renci.SshNet.SshCommand</codeEntityReference> object is created you can use it multiple times to run either same command or new one.
+					<alert class="note">
+						<para>Even so the object is the same, it still will not remeber prior command execution.</para>
+					</alert>
+
+				</para>
+				<code language="cs" title="Execute simple command example">
+					<![CDATA[  
+
+			using (var client = new SshClient("host", "username", "password"))
+			{
+					client.Connect();
+			
+					var cmd = client.CreateCommand("date");
+					
+					cmd.Execute();
+					
+					Console.WriteLine(cmd.Result);
+					
+					cmd.Execute("ls -l");
+					
+					Console.WriteLine(cmd.Result);
+
+					client.Disconnect();
+			}
+			
+]]>
+				</code>
+			</content>
+		</section>
+		
+		<section address="CommandExecutionTimeoutSection">
+			<title>Command execution timeout</title>
+			<content>
+				<para>
+				</para>
+				<code language="cs" title="Execute simple command example">
+					<![CDATA[  
+			
+]]>
+				</code>
+			</content>
+		</section>
+
+		<section address="HandleCommandOutputSection">
+			<title>Handle command output</title>
+			<content>
+				<para>
+					When command executes the result execution stored in <codeEntityReference>P:Renci.SshNet.SshCommand.Result</codeEntityReference> property.
+					If you execute command asynchronously then you can access command result as it becomes available using <codeEntityReference>P:Renci.SshNet.SshCommand.OutputStream</codeEntityReference> property.
+				</para>
+			</content>
+			<sections>
+
+				<section address="GetExecutionResultSection">
+					<title>Get execution result</title>
+					<content>
+						<para>
+							To get command execution output you can get <codeEntityReference>P:Renci.SshNet.SshCommand.Result</codeEntityReference> property value after command finished execution.
+						</para>
+						<code language="cs" title="Using Result property example">
+							<![CDATA[  
+			
+							using (var client = new SshClient("host", "username", "password"))
+							{
+									client.Connect();
+									
+									var cmd = client.RunCommand("ls -l");
+									
+									Console.WriteLine(cmd.Result);
+									
+									client.Disconnect();
+							
+							}
+							
+]]>
+						</code>
+					</content>
+				</section>
+
+				<section address="ReadOutputStreamSection">
+					<title>Read OutputStream</title>
+					<content>
+						<para>
+							In asynchronous scenrio you can access avaialble command execution output by reading <codeEntityReference>P:Renci.SshNet.SshCommand.OutputStream</codeEntityReference> property.
+							This stream will have data as it becomes available.
+							This output stream will contain command raw output as it returned by the remote host so it will require some proccessing before it can be presented to the user.
+						</para>
+						<code language="cs" title="Read OutputStream property example">
+							<![CDATA[  
+			
+							using (var ssh = new SshClient(connectionInfo))
+							{
+									ssh.Connect();
+									var cmd = ssh.CreateCommand("ls -l");   //  very long list
+									var asynch = cmd.BeginExecute(delegate(IAsyncResult ar)
+									{
+											Console.WriteLine("Finished.");
+									}, null);
+
+									var reader = new StreamReader(cmd.OutputStream);
+
+									while (!asynch.IsCompleted)
+									{
+											var result = reader.ReadToEnd();
+											if (string.IsNullOrEmpty(result))
+													continue;
+											Console.Write(result);
+									}
+									cmd.EndExecute(asynch);
+							}
+							
+]]>
+						</code>
+					</content>
+				</section>
+
+				<section address="ReadExtendedOutputStreamSection">
+					<title>Read ExtendedOutputStream</title>
+					<content>
+						<para>
+              If some command that you execute writes any debug output then it can be retreived by reading <codeEntityReference>P:Renci.SshNet.SshCommand.ExtendedOutputStream</codeEntityReference> property similar to <codeEntityReference>P:Renci.SshNet.SshCommand.OutputStream</codeEntityReference>.
+            </para>
+            <code language="cs" title="Read ExtendedOutputStream property example">
+              <![CDATA[  
+			
+            using (var ssh = new SshClient(connectionInfo))
+            {
+                ssh.Connect();
+                var cmd = ssh.CreateCommand("echo 12345; echo 654321 >&2");
+                var result = cmd.Execute();
+
+                Console.Write(result);
+
+                var reader = new StreamReader(cmd.ExtendedOutputStream);
+                Console.WriteLine("DEBUG:");
+                Console.Write(reader.ReadToEnd());
+            }							
+]]>
+            </code>
+          </content>
+				</section>
+
+				<section address="HandleExitStatusSection">
+					<title>Handle exit status</title>
+					<content>
+						<para>
+              All commands, after execution report execution status back to the client. Usually zero value means that executed succesfully and otherwise not zero.
+              In some cases return code need to be analized to perform further action. Command execution exit return code located in <codeEntityReference>P:Renci.SshNet.SshCommand.ExtendedOutputStream</codeEntityReference> property similar to <codeEntityReference>P:Renci.SshNet.SshCommand.ExitStatus</codeEntityReference> property.
+						</para>
+            <code language="cs" title="Use ExitStatus property example">
+              <![CDATA[  
+			
+            using (var ssh = new SshClient(connectionInfo))
+            {
+                ssh.Connect();
+                var cmd = ssh.CreateCommand("echo 'debug output test';exit 12");
+                var result = cmd.Execute();
+
+                Console.Write(result);
+                Console.Write(cmd.ExitStatus);
+            }
+]]>
+            </code>
+          </content>
+				</section>
+			</sections>
+		</section>
+    
+		<relatedTopics>
+			<codeEntityReference qualifyHint="true" autoUpgrade="true">M:Renci.SshNet.SshClient.RunCommand(System.String)</codeEntityReference>
+		</relatedTopics>
+	</developerConceptualDocument>
+</topic>

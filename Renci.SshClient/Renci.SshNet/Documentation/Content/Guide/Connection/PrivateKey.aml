@@ -1,0 +1,201 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<topic id="c233e412-0ea1-422f-8337-e5d1231b71e5" revisionNumber="1">
+  <developerConceptualDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <introduction>
+      <para>
+        This topic describes hot to connect to the remote host using private key file.
+        <!--
+        To connect to remote server using private key you need to provide <codeEntityReference>T:Renci.SshNet.PrivateKeyFile</codeEntityReference> object which points to file that contains private key information.-->
+      </para>
+      <list class="bullet">
+        <listItem>
+          <para>
+            <link xlink:href="#PrivateKeyGenerationSection">Private Key file generation.</link>
+          </para>
+        </listItem>
+        <listItem>
+          <para>
+            <link xlink:href="#PrivateKeyExamplesSection">Private Key file examples.</link>
+          </para>
+        </listItem>
+        <listItem>
+          <para>
+            <link xlink:href="#CreatePrivateKeyFileInstanceSection">Create PrivateKeyFile instance.</link>
+          </para>
+        </listItem>
+        <listItem>
+          <para>
+            <link xlink:href="#UsePrivateKeyFileInstanceSection">Using PrivateKeyFile instance.</link>
+          </para>
+        </listItem>
+        <listItem>
+          <para>
+            <link xlink:href="#MultiplePrivateKeyFilesSection">Using multiple private key files.</link>
+          </para>
+        </listItem>
+      </list>
+    </introduction>
+
+
+    <section address="PrivateKeyGenerationSection">
+      <title>Private Key file generation</title>
+      <content>
+        <para>
+          Before using private key for authentication you need to create one and configure remote host to accept it.
+          Typically it can be done by executing following command on the remote host.
+        </para>
+        <code language="text" title="Private key generation example">
+          ssh-keygen -t rsa
+        </code>
+      </content>
+    </section>
+
+    <section address="PrivateKeyExamplesSection">
+      <title>Private Key file examples</title>
+      <content>
+        <para>
+          To use private key for authentication, private key must be generated. Typecally it can be done un remote host by issue <command>ssh-keygen -t rsa</command> command.
+          Below are some private key examples:
+        </para>
+        <code language="text" title="Private RSA key example">
+            <![CDATA[
+-----BEGIN RSA PRIVATE KEY-----
+MIIEoQIBAAKCAQEAuTtXn+BatX1oJuvhqfJZw5jc/pcIxJUPmuoFCH3+bXfKBJ/9
+4ixNETzZBasyvT/ozboAbCG3qcJOYxf2BEeTAIXe1jLAoTd1GKCwMvZOyjnsPN95
+/lChwfdnBbMzpZYTGfoUylXme/mzjjLu/J0qXgR5lyk9HFT+x5YEtRl8VSHiDkLK
+TZ37dwhsqgcs+PkfvYMUK+C8evnfE0tgWgKZk0Eatl87nLWyVXB4LzhSDtGKLCPA
+OgrX7fYfplDwJ2WK1N6nG0FnxW1HhDeSK7e2TbAa2vZQgvFXMWnO4O/NZKp4COpO
+ReyliWhdtKAjr/+cD4yDfPjhjjKOYfxbvdRG4QIBIwKCAQAqVrTxV9o4HKoXhl93
+TVZYl/f/rX5Y0Z0quSW4zFdpendRg6e+qwpNFTjrWlS9ivNiOSSrAGR+ktAWpmQe
+PD7bjFAw9ahfXSIUQfxja3+5Mc+Y4p+KlhZYOIyTlqy4Ik2CR8o84G8yR7QDPteK
+Mo1XUXrguPgGedPV2SWlvK60XyAXqsewDhi7SeImZomKzbh33SXjVxakzHfa8BEU
+eIIeR9oFlQMuYdo4GrHhFO2T+g/gqw/kVd1zkeEwt06fZVDErVwp+twewxxvwrk4
+CKUCzavfhDfi5sJ5YdzhDBRgkyBgJI+f15dKyqqOiAparV9+uzrD6vIuNnlVoqQA
+iugLAoGBAPBliy32e83nshBknBn5HOK2rO3a1zHxvYr/NzITXtdZOjatNyfXtkwi
+Ll/el5tZhJvKe9nItSI/4w7mvlvXZfW8h3MR0qb8at4jWa8ya2hwEerqaJonqjjb
++eBhg27ltZIQRk8Bv6ApXTAWkc+dFGhEIysokDQX7V72Bdrizup1AoGBAMVBLHK0
+5IFb8x7danlAmDX6bqCObId4Pce2OeONFIj1jIowvCXaE0t9zU4X5SdN5ujqu4Dq
+XgzUdNeKcJxWpFO74MDRxT3CbMz36fikJnvxWl/+q0HalYuCY8gm14VYcThUBAro
+3c941INueybGNLIA9jc7RMnsFtyVTvNYpaU9AoGAFJr9TRUgjf3qsPKuS15+0Zqh
+G7OsC5hgtCSBEuu3rA72XHU/Pe3rDdcLSgvD2h2dpvQZPo2L3l0/WQx2t2o78H3f
+uWftfAcB2Iav6nIJNNZn75BvXaug4E1ej5NUaJdYtL+Q/3UtrqR1s6opwVabWWTt
+ElPvGmhzboodwk30en8CgYAyuPzNCfGdm00lMZ8JPH7pTwaBDq4xdrDM9FgHUCna
+E0FlXP0uTgT2J6nSQKijtPI75JadfhgvL1E+vTLmX2wViBU45XvcrlZ92Vlr0nBL
+wbgnUB1otIzauyD49AuIsFegxSWcZ8QCJmKIMlouir0X1FyR3Apfzv6Qfio+kyNH
+vwKBgQCtwxojkzUSfV3zDt6bYSLBzgXgo/Zr9lS+gSggP72DzINmW2gbA0fkM2Zu
+JltcfakKv4gVX/1zooz+7t+4bj6dqt+bl7hYz0VnTSDZGuo5LKDif/4gSGrdblC2
+QLTuX2HjWCZdsue7mRwL7cXR4zlIoE99+Ryhdxvc5wHSfYr/JA==
+-----END RSA PRIVATE KEY-----
+]]>
+          </code>
+      </content>
+    </section>
+
+
+    <section address="CreatePrivateKeyFileInstanceSection">
+      <title>Create PrivateKeyFile instance</title>
+      <content>
+        <para>
+          To specify private key you need to intsantiate <codeEntityReference>T:Renci.SshNet.PrivateKeyFile</codeEntityReference> object.
+          Some private key require passphrase to be specified.
+          <alert class="note">
+            <para>
+              If private key requires a passphrase but it was not specified then <codeEntityReference>T:Renci.SshNet.Common.SshPassPhraseNullOrEmptyException</codeEntityReference> exception will be thrown.
+            </para>
+          </alert>
+        </para>
+        <code language="cs" title="Create PrivateKeyFile without providing passphrase">
+            var keyFile = new PrivateKeyFile(File.OpenRead(@"rsa_pass_key.txt"));
+          </code>
+
+          <code language="cs" title="Create PrivateKeyFile by providing passphrase">
+            var keyFile = new PrivateKeyFile(File.OpenRead(@"rsa_pass_key.txt"), "tester")
+          </code>
+      </content>
+    </section>
+
+    <section address="UsePrivateKeyFileInstanceSection">
+      <title>Using PrivateKeyFile instance</title>
+      <content>
+        <para>
+          You can pass <codeEntityReference>T:Renci.SshNet.PrivateKeyFile</codeEntityReference> object to client constructor or when creating <codeEntityReference>T:Renci.SshNet.PrivateKeyConnectionInfo</codeEntityReference> object.
+        </para>
+        <code language="cs" title="Provide PrivateKeyFile instance to PrivateKeyConnectionInfo example">
+            var keyFile = new PrivateKeyFile(File.OpenRead(@"rsa_pass_key.txt"));
+            var connectionInfo = new PrivateKeyConnectionInfo("server", 22, "tester", keyFile);
+          </code>
+
+          <code language="cs" title="Provide PrivateKeyFile instance to SshClient example">
+            var keyFile = new PrivateKeyFile(File.OpenRead(@"rsa_pass_key.txt"), "tester")
+            using (var client = new SshClient("host", "username", keyFile))
+            {
+            }
+          </code>
+      </content>
+    </section>
+
+    <section address="MultiplePrivateKeyFilesSection">
+      <title>Using multiple private key files</title>
+      <content>
+        <para>
+          In some scenarious you might want to provide multiple private key to authenticate user. In this case you create PrivateKeyFile as described <link xlink:href="#CreatePrivateKeyFileInstanceSection">here</link> and then pass those file to either client or <codeEntityReference>T:Renci.SshNet.PrivateKeyConnectionInfo</codeEntityReference> constructor.
+        </para>
+        <code language="cs" title="Provide multiple PrivateKeyFile instances example">
+            var keyFile1 = new PrivateKeyFile(File.OpenRead(@"rsa_pass_key1.txt"));
+            var keyFile2 = new PrivateKeyFile(File.OpenRead(@"rsa_pass_key2.txt"));
+            var connectionInfo = new PrivateKeyConnectionInfo("server", 22, "tester", keyFile1, keyFile2);
+          </code>
+      </content>
+    </section>
+
+
+    <!--    <content>
+      <para>
+      
+      Some private key are encrypted using passphrase. You can specify passphrase by creating private key using <codeEntityReference qualifyHint="true" autoUpgrade="true">M:Renci.SshNet.PrivateKeyFile.#ctor(Stream, String)</codeEntityReference> or <codeEntityReference qualifyHint="true" autoUpgrade="true">M:Renci.SshNet.PrivateKeyFile.#ctor(System.String, System.String)</codeEntityReference> constructors.
+      Test <codeEntityReference qualifyHint="true" autoUpgrade="true">M:Renci.SshNet.PrivateKeyFile.#ctor</codeEntityReference>      
+      </para>
+      <codeExample>
+        <list class="ordered">
+          <listItem>
+            <para>Providing private key directly in the client constructor</para>
+            <code language="cs">
+              using (var client = new SshClient("host", "username", new PrivateKeyFile(File.OpenRead(@"private.key"))))
+              {
+              client.Connect();
+              client.Disconnect();
+              }
+            </code>
+          </listItem>
+          <listItem>
+            <para>Providing private key and passphrase directly in the client constructor</para>
+            <code language="cs">
+              using (var client = new SshClient("host", "username", new PrivateKeyFile(File.OpenRead(@"private.key"), "passphrase")))
+              {
+              client.Connect();
+              client.Disconnect();
+              }
+            </code>
+          </listItem>
+          <listItem>
+            <para>Providing private key and passphrase directly using <codeEntityReference>T:Renci.SshNet.PrivateKeyConnectionInfo</codeEntityReference> object.</para>
+            <code language="cs">
+              var connectionInfo = new PrivateKeyConnectionInfo("host", 1234, "username", new PrivateKeyFile(File.OpenRead(@"rsa_pass_key.txt"), "tester"));
+              using (var client = new SshClient(connectionInfo))
+              {
+              client.Connect();
+              client.Disconnect();
+              }
+            </code>
+          </listItem>
+        </list>
+      </codeExample>
+    </content>
+-->
+    <relatedTopics>
+      <codeEntityReference>T:Renci.SshNet.PrivateKeyConnectionInfo</codeEntityReference>
+      <codeEntityReference>T:Renci.SshNet.SshClient</codeEntityReference>
+      <codeEntityReference>M:Renci.SshNet.SshBaseClient.Connect()</codeEntityReference>
+    </relatedTopics>
+  </developerConceptualDocument>
+</topic>

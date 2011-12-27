@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<topic id="f4ce1bdd-403f-45ec-a622-86c05a4bd913" revisionNumber="1">
+  <developerHowToDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <introduction>
+      <para>Port forwarding supported for remote and local ports.</para>
+      <para>Multiple port can be forwarded simultaneously.</para>
+      <para>To start port forwarding you need to create an <codeEntityReference>T:Renci.SshNet.ForwardedPortLocal</codeEntityReference> or <codeEntityReference>T:Renci.SshNet.ForwardedPortRemote </codeEntityReference> object.
+      Once port object is created you can use <codeEntityReference>M:Renci.SshNet.ForwardedPort.Start</codeEntityReference> start port forwarding or <codeEntityReference>M:Renci.SshNet.ForwardedPort.Stop</codeEntityReference> to stop it.
+      </para>
+      
+<alert class="tip">
+  <para>An exception can be thrown while port is forwarded. When this happens an <codeEntityReference>E:Renci.SshNet.ForwardedPort.Exception</codeEntityReference> event is raised.</para>
+</alert>
+
+    </introduction>
+  </developerHowToDocument>
+</topic>

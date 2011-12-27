@@ -3,8 +3,8 @@
   <developerHowToDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
       <title>Command execution</title>
       <content>
-      	When you need to terminte the command after specific time has passed you can use <codeEntityReference>P:Renci.SshClient.SshCommand.CommandTimeout</codeEntityReference> property.
-      	To specify time out property you must to create <codeEntityReference>T:Renci.SshClient.SshCommand</codeEntityReference> first.
+      	When you need to terminte the command after specific time has passed you can use <codeEntityReference>P:Renci.SshNet.SshCommand.CommandTimeout</codeEntityReference> property.
+      	To specify time out property you must to create <codeEntityReference>T:Renci.SshNet.SshCommand</codeEntityReference> first.
         <para>See examples below:</para>
         <codeExample>
           <list class="ordered">
@@ -25,8 +25,8 @@
         </codeExample>
       </content>
     <relatedTopics>
-		<codeEntityReference>P:Renci.SshClient.SshCommand.CommandTimeout</codeEntityReference>
-		<codeEntityReference>T:Renci.SshClient.SshCommand</codeEntityReference>
+		<codeEntityReference>P:Renci.SshNet.SshCommand.CommandTimeout</codeEntityReference>
+		<codeEntityReference>T:Renci.SshNet.SshCommand</codeEntityReference>
     </relatedTopics>
   </developerHowToDocument>
 </topic>

@@ -1,0 +1,145 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<topic id="96751e69-1f9f-417f-8532-c8344b9e98c8" revisionNumber="1">
+  <developerConceptualDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
+		<introduction>
+			<para>
+				This topic describes how transfer file using <codeEntityReference>T:Renci.SshNet.SftpClient</codeEntityReference>.
+			</para>
+			<list class="bullet">
+				<listItem>
+					<para>
+						<link xlink:href="#PathSection">Path resolution.</link>
+					</para>
+				</listItem>					
+				<listItem>
+					<para>
+						<link xlink:href="#DirectoryOperationsSection">Directory operations.</link>
+					</para>
+					<list class="bullet">
+						<listItem>
+							<para>
+								<link xlink:href="#CreateDirectorySection">Create directory.</link>
+							</para>
+						</listItem>					
+						<listItem>
+							<para>
+								<link xlink:href="#DeleteDirectorySection">Delete directory.</link>
+							</para>
+						</listItem>					
+						<listItem>
+							<para>
+								<link xlink:href="#ChangeDirectorySection">Change directory.</link>
+							</para>
+						</listItem>					
+						<listItem>
+							<para>
+								<link xlink:href="#ListDirectorySection">List directory.</link>
+							</para>
+						</listItem>					
+					</list>
+				</listItem>
+
+				<listItem>
+					<para>
+						<link xlink:href="#FileOperationSection">File operations.</link>
+					</para>
+					<list class="bullet">
+						<listItem>
+							<para>
+								<link xlink:href="#UploadFileSection">Upload file.</link>
+							</para>
+						</listItem>					
+						<listItem>
+							<para>
+								<link xlink:href="#DownloadFileSection">Download file.</link>
+							</para>
+						</listItem>					
+					</list>
+				</listItem>
+
+				<listItem>
+					<para>
+						<link xlink:href="#CreateSymbolicLinkSection">Create symbolic link.</link>
+					</para>
+				</listItem>
+
+				<listItem>
+					<para>
+						<link xlink:href="#SftpFileSection">SftpFile class.</link>
+					</para>
+				</listItem>
+
+				<listItem>
+					<para>
+						<link xlink:href="#SftpFileStreamSection">SftpFileStream class.</link>
+					</para>
+				</listItem>
+
+			</list>
+		</introduction>
+    <!-- Add one or more top-level section elements.  These are collapsible.
+         If using <autoOutline />, add an address attribute to identify it
+         and specify a title so that it can be jumped to with a hyperlink. -->
+    <section address="Section1">
+      <title>Optional section title</title>
+      <content>
+        <!-- Uncomment this to create a sub-section outline
+        <autoOutline /> -->
+        <para>Add one or more sections with content</para>
+      </content>
+      <!-- If a section contains a sections element, its content creates
+           sub-sections.  These are not collapsible.
+      <sections>
+          <section address="SubSection1">
+              <title>Sub-section 1</title>
+              <content>
+                  <para>Sub-section content.</para>
+              </content>
+          </section>
+          <section address="SubSection2">
+              <title>Sub-section 2</title>
+              <content>
+                  <para>Sub-section content.</para>
+              </content>
+          </section>
+      </sections> -->
+    </section>
+    <relatedTopics>
+      <!-- One or more of the following:
+           - A local link
+           - An external link
+           - A code entity reference
+
+      <link xlink:href="Other Topic's ID"/>
+      <link xlink:href="Other Topic's ID">Link inner text</link>
+
+      <externalLink>
+          <linkText>Link text</linkText>
+          <linkAlternateText>Optional alternate link text</linkAlternateText>
+          <linkUri>URI</linkUri>
+      </externalLink>
+
+      <codeEntityReference>API member ID</codeEntityReference>
+
+      Examples:
+
+      <link xlink:href="00e97994-e9e6-46e0-b420-5be86b2f8270" />
+      <link xlink:href="00e97994-e9e6-46e0-b420-5be86b2f8278">Some other topic</link>
+
+      <externalLink>
+          <linkText>SHFB on CodePlex</linkText>
+          <linkAlternateText>Go to CodePlex</linkAlternateText>
+          <linkUri>http://shfb.codeplex.com</linkUri>
+      </externalLink>
+
+      <codeEntityReference>T:TestDoc.TestClass</codeEntityReference>
+      <codeEntityReference>P:TestDoc.TestClass.SomeProperty</codeEntityReference>
+      <codeEntityReference>M:TestDoc.TestClass.#ctor</codeEntityReference>
+      <codeEntityReference>M:TestDoc.TestClass.#ctor(System.String,System.Int32)</codeEntityReference>
+      <codeEntityReference>M:TestDoc.TestClass.ToString</codeEntityReference>
+      <codeEntityReference>M:TestDoc.TestClass.FirstMethod</codeEntityReference>
+      <codeEntityReference>M:TestDoc.TestClass.SecondMethod(System.Int32,System.String)</codeEntityReference>
+      -->
+    </relatedTopics>
+  </developerConceptualDocument>
+</topic>

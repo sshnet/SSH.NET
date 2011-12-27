@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<topic id="bb9dec7b-fe99-46f4-8ee9-92936a976730" revisionNumber="1">
+  <developerConceptualDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <introduction>
+      <para>
+        Most of the errors are handled by the library and throw as <codeEntityReference>T:Renci.SshNet.Common.SshException</codeEntityReference> based exception. But sometimes there are errors that could occur on internal lister thread.
+        If such error occurs then <codeEntityReference>E:Renci.SshNet.BaseClient.ErrorOccurred</codeEntityReference> event is raised.
+      </para>
+      <list class="bullet">
+        <listItem>
+          <para>
+            <link xlink:href="#HandleErrorOccurredSection">Handle ErrorOccurred event.</link>
+          </para>
+        </listItem>
+      </list>
+    </introduction>
+
+    <section address="HandleErrorOccurredSection">
+      <title>Handle ErrorOccurred event</title>
+      <content>
+        <para>
+          Below is an example of how to handle <codeEntityReference>E:Renci.SshNet.BaseClient.ErrorOccurred</codeEntityReference> event.
+        </para>
+        <code language="cs" title="Display unhandled errors to console example">
+          <![CDATA[  
+
+              using (var client = new SshClient(connectionInfo))
+              {
+				client.ErrorOccurred += delegate(object sender, ExceptionEventArgs e)
+		        {
+			        Console.WriteLine("Error occured: " + e.Exception.ToString());
+		        };
+		        
+                client.Connect();
+		        
+		        ...
+
+                client.Disconnect();
+              }
+              
+]]>
+        </code>
+      </content>
+    </section>
+    <relatedTopics>
+     
+    </relatedTopics>
+  </developerConceptualDocument>
+</topic>

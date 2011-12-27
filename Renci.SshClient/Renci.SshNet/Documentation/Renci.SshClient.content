@@ -1,26 +1,52 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Topics>
   <Topic id="43d0362a-d340-4c2e-acc8-96d666ec2727" visible="True" title="SSH.NET Library">
-    <Topic id="8a17ee42-3139-4278-a17c-3fff875e226a" visible="True" title="Programming Guide">
+    <Topic id="6deba9ac-263a-4db7-bcc3-1a36c6aebd00" visible="True" noFile="true" title="Programming Guide">
+      <Topic id="ef6ffc84-f410-4682-9366-e9fe2a73ea52" visible="True" title="Overview" />
       <Topic id="356eeabc-aafa-4a2a-a9ab-5247b9658296" visible="True" title="Connecting to the server" tocTitle="Connection">
         <Topic id="b7b599b2-8bc2-4276-b9a2-d73eee2426ab" visible="True" title="Using password to connect" tocTitle="Password" />
-        <Topic id="d8708a7b-7e9e-4f93-9a82-05db5c0e2e1d" visible="True" title="Password Change" />
         <Topic id="c233e412-0ea1-422f-8337-e5d1231b71e5" visible="True" title="Using private key to connects" tocTitle="Private Key" />
-        <Topic id="301e13a5-2711-4156-bd64-ce9f0cf2da04" visible="True" title="Server Prompt" />
         <Topic id="281ac0c3-0d6c-4bf2-ae64-db6862d6fff5" visible="True" title="Interactive" />
-        <Topic id="cb9a63e0-efaf-4334-b05f-e802925f9f6a" visible="True" title="Timeout" />
       </Topic>
-      <Topic id="2337d96d-7638-438e-b980-96e87b807265" visible="True" title="Command Execution">
-        <Topic id="eb8e4d77-8fc9-42e9-b8e8-c152b595d5c9" visible="True" tocTitle="Multitasking" />
-        <Topic id="3e7487ed-9a0c-4442-8b31-14e291a7c648" visible="True" title="Asynchronous Execution" />
-        <Topic id="8fdc3979-5d00-4749-8dd4-a0e66d14a976" visible="True" title="Exit Status Code" />
-        <Topic id="6df8e431-0da0-4fd3-9e26-3871030ab3af" visible="True" title="Error handling" tocTitle="Errors" />
-        <Topic id="b9451bd3-f759-4964-8f42-b48b06c19dca" visible="True" tocTitle="Timeout" />
+      <Topic id="bb9dec7b-fe99-46f4-8ee9-92936a976730" visible="True" title="Error Handling" />
+      <Topic id="37443441-b0d5-444f-a2d0-330ad8b95995" visible="True" title="SshClient">
+        <Topic id="2337d96d-7638-438e-b980-96e87b807265" visible="True" title="Commands" />
+        <Topic id="f4ce1bdd-403f-45ec-a622-86c05a4bd913" visible="True" title="Port Forwarding" />
+        <Topic id="86bd5fce-2370-4730-b956-364885f7ed6a" visible="True" title="Shell" />
       </Topic>
-      <Topic id="addfc69b-01c2-49cc-8e4d-9c8bada86d6c" visible="True" title="SFtp" />
-      <Topic id="f4ce1bdd-403f-45ec-a622-86c05a4bd913" visible="True" tocTitle="Port Forwarding">
-        <Topic id="07e8ea92-89dd-45ab-a35f-34a3202243e1" visible="True" tocTitle="Local" />
-        <Topic id="a28b7535-bc8c-4635-a60a-d9067e60f1c9" visible="True" tocTitle="Remote" />
+      <Topic id="8a496881-8cba-4347-8a57-8c047fc04be9" visible="True" noFile="true" title="SftpClient">
+        <Topic id="20a326ed-82f7-4586-844c-b3da4a82c2cd" visible="True" />
+        <Topic id="96751e69-1f9f-417f-8532-c8344b9e98c8" visible="True" title="SFTP Operations" />
+        <Topic id="4f283f0d-d2b7-4927-ae65-f08910756d5c" visible="True" />
+        <Topic id="9f109050-db57-43a3-a1ab-866e0de5dc10" visible="True" />
+      </Topic>
+      <Topic id="c75434ce-77e7-4bb1-b4d6-91df0323f7ac" visible="True" noFile="true" title="ScpClient">
+        <Topic id="09cd9117-2327-423a-8952-cf6d6f56b71d" visible="True" />
+      </Topic>
+      <Topic id="9c263af4-7dde-4635-a6b9-48dcbb72ba99" visible="True" noFile="true" title="NetConfClient">
+        <Topic id="9aff6aff-8781-481c-be0c-132e1391f01d" visible="True" />
+      </Topic>
+      <Topic id="2caf2c47-37c7-45a3-803a-20b84a45f1e3" visible="False" noFile="true" title="INTERNAL *** WAML Examples">
+        <Topic id="396d199f-c7b7-4cb9-bc73-783d7f2ecefe" visible="True" />
+        <Topic id="f420f2a1-78b3-497c-9e3a-14a5979f1084" visible="True" />
+        <Topic id="05567b19-aa51-49f7-988d-67670b811038" visible="True" />
+        <Topic id="bbdd9ae8-8d56-4f4a-83b1-20e9216e4e12" visible="True" />
+        <Topic id="8428e797-f619-41d2-8e46-942bfead99f2" visible="True" />
+        <Topic id="023c35b2-3de2-4dfa-9be6-4f10181c601e" visible="True" />
+        <Topic id="ad689b4d-7366-422e-84dc-939db82e12c9" visible="True" />
+        <Topic id="3f82c416-814e-43a7-9294-496cc2e55567" visible="True" />
+        <Topic id="e08b4962-d97e-4561-96ba-8466273d6761" visible="True" />
+        <Topic id="0c1962c2-b821-41f3-b959-f7bbe729f583" visible="True" />
+        <Topic id="1f92ed11-0656-4f02-9e29-553b8e6392a7" visible="True" />
+        <Topic id="84af527a-0ae7-4f62-86d7-fd9de6288169" visible="True" />
+        <Topic id="74c28d89-3b0f-4821-ad5f-fc7adf40228d" visible="True" />
+        <Topic id="cb2c19e0-7248-42de-b077-b4e9b85c1d59" visible="True" />
+        <Topic id="6397d99e-f0ef-4f0d-bfb2-90b9dc0c14a5" visible="True" />
+        <Topic id="51e8c3b5-07b2-40aa-8748-e8b0d23570c0" visible="True" />
+        <Topic id="ed2bb40f-0863-4555-9d25-22afbd55f6ff" visible="True" />
+        <Topic id="0bdaecdc-a6d4-43cb-92ed-35d2398428f4" visible="True" />
+        <Topic id="07ca784c-20eb-4e11-8b80-3124a7995c26" visible="True" />
+        <Topic id="59a0250d-cacf-4b27-9a73-9afc184b66da" visible="True" />
       </Topic>
     </Topic>
     <Topic id="8e553ec7-3a42-4bd1-9252-b9b3c957b454" visible="True" apiParentMode="InsertAsChild" title="Programming Reference" />

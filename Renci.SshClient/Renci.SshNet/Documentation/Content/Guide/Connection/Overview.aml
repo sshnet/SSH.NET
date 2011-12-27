@@ -1,0 +1,311 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<topic id="356eeabc-aafa-4a2a-a9ab-5247b9658296" revisionNumber="1">
+  <developerConceptualDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <introduction>
+      <para>
+        This topic describes how to establish connection to the remote host and handle different events that can occur while connecting.
+      </para>
+      <list class="bullet">
+        <listItem>
+          <para>
+            <link xlink:href="#ConnectionOverviewSection">Connection overview.</link>
+          </para>
+        </listItem>
+        <listItem>
+          <para>
+            <link xlink:href="#ConnectionEventsSection">Connection events.</link>
+          </para>
+          <list class="bullet">
+            <listItem>
+              <para>
+                <link xlink:href="#AuthenticationBannerSection">Authentication Banner.</link>
+              </para>
+            </listItem>
+            <listItem>
+              <para>
+                <link xlink:href="#HostKeyVerificationSection">Host Key Verification.</link>
+              </para>
+            </listItem>            
+          </list>
+        </listItem>
+        <listItem>
+          <para>
+            <link xlink:href="#ConnectionTimeoutSection">Connection timeout.</link>
+          </para>
+        </listItem>
+        <listItem>
+          <para>
+            <link xlink:href="b7b599b2-8bc2-4276-b9a2-d73eee2426ab">Pasword authentication.</link>
+          </para>
+        </listItem>
+        <listItem>
+          <para>
+            <link xlink:href="c233e412-0ea1-422f-8337-e5d1231b71e5">Private key authentication.</link>
+          </para>
+        </listItem>
+        <listItem>
+          <para>
+            <link xlink:href="281ac0c3-0d6c-4bf2-ae64-db6862d6fff5">Interactive authentication.</link>
+          </para>
+        </listItem>
+      </list>
+    </introduction>
+
+    <section address="ConnectionOverviewSection">
+      <title>Connection overview</title>
+      <content>
+        <para>
+          To work with any server you need to establish a connection first.
+          To establish connection you need to provide <codeEntityReference>T:Renci.SshNet.SshBaseClient</codeEntityReference> inherited class with right credential.
+          All <codeEntityReference>T:Renci.SshNet.SshBaseClient</codeEntityReference> inherited classes can accept <codeEntityReference>T:Renci.SshNet.ConnectionInfo</codeEntityReference> inherited class as parameter that contains authentication information.
+          You can also provide authentication information to <codeEntityReference>T:Renci.SshNet.SshBaseClient</codeEntityReference> inherited class directly, but in this case you won't be able to handle any connection specific events that might occur and need your attention.
+        </para>
+      </content>
+    </section>
+
+    <section address="ConnectionEventsSection">
+      <title>Connection events</title>
+      <content>
+        <para>
+          Different events can occur while you establishing connection.
+          Some events are specific to connection method you using, private key or password for example,
+          and some are generic to all types of authentication method.
+        </para>
+
+      </content>
+      <sections>
+
+        <section address="AuthenticationBannerSection">
+          <title>Authentication Banner</title>
+          <content>
+            <para>
+              Some server might display a text when user logs in. If you want to display or analyze this text you need to handle <codeEntityReference>E:Renci.SshNet.ConnectionInfo.AuthenticationBanner</codeEntityReference> event.
+            </para>
+            <code language="cs" title="Handle AuthenticationBanner event example">
+            <![CDATA[  
+              
+              var connectionInfo = new PasswordConnectionInfo("host", "username", "password");
+              
+              connectionInfo.AuthenticationBanner += delegate(object sender, AuthenticationBannerEventArgs e)
+              {
+                  Console.WriteLine(e.BannerMessage);
+              };
+
+              using (var client = new SshClient(connectionInfo))
+              {
+                client.Connect();
+                
+                ....
+                
+                client.Disconnect();
+              }              
+              
+            ]]>
+            </code>
+          </content>
+        </section>
+        <section address="HostKeyVerificationSection">
+          <title>Host Key Verification</title>
+          <content>
+            <para>
+              If host key need to be verified then you need to handle <codeEntityReference>E:Renci.SshNet.BaseClient.HostKeyReceived</codeEntityReference> event.
+            </para>
+            <code language="cs" title="Handle HostKeyReceived event example">
+              <![CDATA[  
+            
+          var connectionInfo = new PasswordConnectionInfo("host", "username", "password");
+          
+			    using (var ssh = new SshClient(connectionInfo))
+			    {
+				      ssh.HostKeyReceived += delegate(object sender, HostKeyEventArgs e)
+				      {
+					        var sb = new StringBuilder();
+					        foreach (var b in e.FingerPrint)
+					        {
+						          sb.AppendFormat("{0:x}:", b);
+					        }
+                  
+					        Console.WriteLine("Can trust this fingerprint: {0}", sb);
+                  
+					        var key = Console.ReadKey();
+					        if (key.KeyChar == 'Y')
+						          e.CanTrust = true;
+					        else
+						          e.CanTrust = false;
+				      };
+
+				      ssh.Connect();
+        
+              ...
+        
+				      ssh.Disconnect();
+			    }
+
+]]>
+            </code>
+          </content>
+        </section>
+      </sections>
+    </section>
+
+    <section address="ConnectionTimeoutSection">
+      <title>Connection timeout</title>
+      <content>
+        <para>
+          When connection is too slow or operation that you about to run will take a long time then you neen to change default timeout value.
+          To change that you need to set <codeEntityReference>P:Renci.SshNet.ConnectionInfo.Timeout</codeEntityReference> property.
+        </para>
+        <code language="cs" title="Handle HostKeyReceived event example">
+<![CDATA[  
+
+          var connectionInfo = new PasswordConnectionInfo("host", "username", "password");
+          
+          connectionInfo.Timeout = TimeSpan.FromSeconds(30);
+          
+          using (var client = new SshClient(connectionInfo))
+          {
+              client.Connect();
+          
+              ...
+          
+              client.Disconnect();
+          }
+]]>
+        </code>
+
+      </content>
+    </section>
+
+
+
+
+    <!--    
+    <content>
+      <para>
+      To perform any operation you need to establish the connection first. This library supports <b>password</b>, <b>private key</b> and <b>ineractive</b> authentication methods.
+	  All authentication methods inherit from <codeEntityReference>T:Renci.SshNet.ConnectionInfo</codeEntityReference> class and therefore share common set of features.
+	</para>
+    </content>  
+    
+    <section>
+      <title>Establish connection</title>
+      <content>
+        To establish connection you need to provide valid credentials. Both <codeEntityReference>T:Renci.SshNet.SshClient</codeEntityReference> and <codeEntityReference>T:Renci.SshNet.SftpClient</codeEntityReference> accept same paramters. See examples below:
+        <codeExample>
+          <list class="ordered">
+            <listItem>
+              <para>Connecting using username and password to server's default port</para>
+              <code language="cs">
+                using (var client = new SshClient("host", "username", "password"))
+                {
+                  client.Connect();
+                  client.Disconnect();
+                }
+              </code>
+            </listItem>
+            <listItem>
+              <para>Connecting using username and password to server's port 1234</para>
+              <code language="cs">
+                using (var client = new SftpClient("host", 1234, "username", "password"))
+                {
+                  client.Connect();
+                  client.Disconnect();
+                }
+              </code>
+            </listItem>
+
+            <listItem>
+              <para>Connecting using username and private key to server's default port</para>
+              <code language="cs">
+                using (var client = new SshClient("host", "username", new PrivateKeyFile(File.OpenRead(@"private.key"))))
+                {
+                  client.Connect();
+                  client.Disconnect();
+                }
+              </code>
+            </listItem>
+            <listItem>
+              <para>Connecting using username and private key to server's port 1234</para>
+              <code language="cs">
+                using (var client = new SftpClient("host", 1234, "username", new PrivateKeyFile(File.OpenRead(@"private.key"))))
+                {
+                  client.Connect();
+                  client.Disconnect();
+                }
+              </code>
+            </listItem>
+
+          </list>
+        </codeExample>
+      </content>
+    </section>
+
+    <section>
+      <title>
+        Using ConnectionInfo object to connect.
+      </title>
+      <content>
+        <para>
+          In more complex scenarious when additional parameters are needed during connection phase you can use <codeEntityReference>T:Renci.SshNet.ConnectionInfo</codeEntityReference> inherited object.
+          <codeEntityReference>T:Renci.SshNet.ConnectionInfo</codeEntityReference> is an abstact class and you need to use one of the inhertied classes.
+          Which class to use depends on how you want to connect to the server.
+          To connect using private key you need to use <codeEntityReference>T:Renci.SshNet.PrivateKeyConnectionInfo</codeEntityReference> object.
+          To connect using username and password combination use <codeEntityReference>T:Renci.SshNet.PasswordConnectionInfo</codeEntityReference>.
+          If you have an interactive scenario you need to use <codeEntityReference>T:Renci.SshNet.KeyboardInteractiveConnectionInfo</codeEntityReference>.
+        </para>
+        <para>See some usage examples below:</para>
+        <codeExample>
+          <list class="ordered">
+            <listItem>
+              <para>
+                Use <codeEntityReference>T:Renci.SshNet.PasswordConnectionInfo</codeEntityReference> objet to provide username and password.
+              </para>
+              <code language="cs">
+                var connectionInfo = new PasswordConnectionInfo("host", "username", "password");
+                using (var client = new SshClient(connectionInfo))
+                {
+                  client.Connect();
+                  client.Disconnect();
+                }
+              </code>
+            </listItem>
+            <listItem>
+              <para>
+                Use <codeEntityReference>T:Renci.SshNet.PrivateKeyConnectionInfo</codeEntityReference> objet to provide username and private key file
+              </para>
+              <code language="cs">
+                var connectionInfo = new PrivateKeyConnectionInfo("host", "username", new PrivateKeyFile(File.OpenRead(@"private.key")));
+                using (var client = new SshClient(connectionInfo))
+                {
+                  client.Connect();
+                  client.Disconnect();
+                }
+              </code>
+            </listItem>
+            <listItem>
+              <para>
+                Use <codeEntityReference>T:Renci.SshNet.PrivateKeyConnectionInfo</codeEntityReference> objet to provide username and private key file with passphrase.
+              </para>
+              <code language="cs">
+                var connectionInfo = new PrivateKeyConnectionInfo("host", "username", new PrivateKeyFile(File.OpenRead(@"private.key"), "passphrase"));
+                using (var client = new SshClient(connectionInfo))
+                {
+                  client.Connect();
+                  client.Disconnect();
+                }
+              </code>
+            </listItem>
+          </list>
+        </codeExample>
+      </content>
+    </section>
+-->
+    <relatedTopics>
+      <codeEntityReference>T:Renci.SshNet.ConnectionInfo</codeEntityReference>
+      <codeEntityReference>T:Renci.SshNet.PrivateKeyConnectionInfo</codeEntityReference>
+      <codeEntityReference>T:Renci.SshNet.PasswordConnectionInfo</codeEntityReference>
+      <codeEntityReference>T:Renci.SshNet.SshClient</codeEntityReference>
+      <codeEntityReference>M:Renci.SshNet.SshBaseClient.Connect</codeEntityReference>
+    </relatedTopics>
+  </developerConceptualDocument>
+</topic>

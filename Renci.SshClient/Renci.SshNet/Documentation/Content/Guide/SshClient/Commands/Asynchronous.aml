@@ -4,9 +4,9 @@
       <title>Execut command asynchronously</title>
       <content>
       	If you need to execute long running command you might want to execute it in asynchronously.
-      	To execute command asynchronously you need to create command first and then call <codeEntityReference>M:Renci.SshClient.SshCommand.BeginExecute(System.AsyncCallback, System.Object)</codeEntityReference> method
+      	To execute command asynchronously you need to create command first and then call <codeEntityReference>M:Renci.SshNet.SshCommand.BeginExecute(System.AsyncCallback, System.Object)</codeEntityReference> method
 			<alert class="note">
-			  <para>If an exception occures while command is being executed it will be thrown when <codeEntityReference>M:Renci.SshClient.SshCommand.EndExecute(System.IAsyncResult)</codeEntityReference> is called.</para>
+			  <para>If an exception occures while command is being executed it will be thrown when <codeEntityReference>M:Renci.SshNet.SshCommand.EndExecute(System.IAsyncResult)</codeEntityReference> is called.</para>
 			</alert>
         <para>See examples below:</para>
         <codeExample>
@@ -33,9 +33,9 @@
         </codeExample>
       </content>
     <relatedTopics>
-	    <codeEntityReference>M:Renci.SshClient.SshCommand.BeginExecute(System.AsyncCallback, System.Object)</codeEntityReference>
-	    <codeEntityReference>M:Renci.SshClient.SshCommand.EndExecute(System.IAsyncResult)</codeEntityReference>
-		<codeEntityReference>T:Renci.SshClient.SshCommand</codeEntityReference>
+	    <codeEntityReference>M:Renci.SshNet.SshCommand.BeginExecute(System.AsyncCallback, System.Object)</codeEntityReference>
+	    <codeEntityReference>M:Renci.SshNet.SshCommand.EndExecute(System.IAsyncResult)</codeEntityReference>
+		<codeEntityReference>T:Renci.SshNet.SshCommand</codeEntityReference>
     </relatedTopics>
   </developerSDKTechnologyOverviewOrientationDocument>
 </topic>

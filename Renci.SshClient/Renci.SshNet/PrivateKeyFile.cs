@@ -27,13 +27,13 @@ namespace Renci.SshNet
 #else
         private static Regex _privateKeyRegex = new Regex(@"^-----BEGIN (?<keyName>\w+) PRIVATE KEY-----\r?\n(Proc-Type: 4,ENCRYPTED\r?\nDEK-Info: (?<cipherName>[A-Z0-9-]+),(?<salt>[A-F0-9]+)\r?\n\r?\n)?(?<data>([a-zA-Z0-9/+=]{1,64}\r?\n)+)-----END \k<keyName> PRIVATE KEY-----.*", RegexOptions.Compiled | RegexOptions.Multiline);
 #endif
-        
+
         private Key _key;
 
         /// <summary>
         /// Gets the host key.
         /// </summary>
-        public HostAlgorithm HostKey;
+        public HostAlgorithm HostKey { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PrivateKeyFile"/> class.
@@ -144,7 +144,7 @@ namespace Renci.SshNet
                     case "DES-CBC":
                         cipher = new CipherInfo(64, (key, iv) => { return new DesCipher(key, new CbcCipherMode(iv), new PKCS7Padding()); });
                         break;
-                        //  TODO:   Implement more private key ciphers
+                    //  TODO:   Implement more private key ciphers
                     //case "AES-128-CBC":
                     //    cipher = new CipherInfo(128, (key, iv) => { return new AesCipher(key, new CbcCipherMode(iv), new PKCS7Padding()); });
                     //    break;

@@ -23,8 +23,8 @@
         </codeExample>
       </content>
     <relatedTopics>
-	    <codeEntityReference>T:Renci.SshClient.SshClient</codeEntityReference>
-		<codeEntityReference>T:Renci.SshClient.ForwardedPortLocal</codeEntityReference>
+	    <codeEntityReference>T:Renci.SshNet.SshClient</codeEntityReference>
+		<codeEntityReference>T:Renci.SshNet.ForwardedPortLocal</codeEntityReference>
     </relatedTopics>
   </developerHowToDocument>
 </topic>

@@ -26,9 +26,9 @@ namespace Renci.SshNet
 
         private bool _isConnected = false;
 
-        partial void SocketConnect()
+        partial void SocketConnect(string host, int port)
         {
-            var ep = new DnsEndPoint(this.ConnectionInfo.Host, this.ConnectionInfo.Port);
+            var ep = new DnsEndPoint(host, port);
             this._socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
             SocketAsyncEventArgs args = new SocketAsyncEventArgs();

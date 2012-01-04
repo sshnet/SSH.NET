@@ -61,7 +61,99 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, or <paramref name="username"/> is null or contains whitespace characters.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="port"/> is not within <see cref="f:IPEndPoint.MinPort"/> and <see cref="f:IPEndPoint.MaxPort"/>.</exception>
         public PasswordConnectionInfo(string host, int port, string username, string password)
-            : base(host, port, username)
+            : this(host, port, username, password, ProxyTypes.None, string.Empty, 0, string.Empty, string.Empty)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PasswordConnectionInfo"/> class.
+        /// </summary>
+        /// <param name="host">Connection host.</param>
+        /// <param name="port">The port.</param>
+        /// <param name="username">Connection username.</param>
+        /// <param name="password">Connection password.</param>
+        /// <param name="proxyType">Type of the proxy.</param>
+        /// <param name="proxyHost">The proxy host.</param>
+        /// <param name="proxyPort">The proxy port.</param>
+        public PasswordConnectionInfo(string host, int port, string username, string password, ProxyTypes proxyType, string proxyHost, int proxyPort)
+            : this(host, port, username, password, proxyType, proxyHost, proxyPort, string.Empty, string.Empty)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PasswordConnectionInfo"/> class.
+        /// </summary>
+        /// <param name="host">Connection host.</param>
+        /// <param name="port">The port.</param>
+        /// <param name="username">Connection username.</param>
+        /// <param name="password">Connection password.</param>
+        /// <param name="proxyType">Type of the proxy.</param>
+        /// <param name="proxyHost">The proxy host.</param>
+        /// <param name="proxyPort">The proxy port.</param>
+        /// <param name="proxyUsername">The proxy username.</param>
+        public PasswordConnectionInfo(string host, int port, string username, string password, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername)
+            : this(host, port, username, password, proxyType, proxyHost, proxyPort, proxyUsername, string.Empty)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PasswordConnectionInfo"/> class.
+        /// </summary>
+        /// <param name="host">Connection host.</param>
+        /// <param name="username">Connection username.</param>
+        /// <param name="password">Connection password.</param>
+        /// <param name="proxyType">Type of the proxy.</param>
+        /// <param name="proxyHost">The proxy host.</param>
+        /// <param name="proxyPort">The proxy port.</param>
+        public PasswordConnectionInfo(string host, string username, string password, ProxyTypes proxyType, string proxyHost, int proxyPort)
+            : this(host, 22, username, password, proxyType, proxyHost, proxyPort, string.Empty, string.Empty)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PasswordConnectionInfo"/> class.
+        /// </summary>
+        /// <param name="host">Connection host.</param>
+        /// <param name="username">Connection username.</param>
+        /// <param name="password">Connection password.</param>
+        /// <param name="proxyType">Type of the proxy.</param>
+        /// <param name="proxyHost">The proxy host.</param>
+        /// <param name="proxyPort">The proxy port.</param>
+        /// <param name="proxyUsername">The proxy username.</param>
+        public PasswordConnectionInfo(string host, string username, string password, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername)
+            : this(host, 22, username, password, proxyType, proxyHost, proxyPort, proxyUsername, string.Empty)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PasswordConnectionInfo"/> class.
+        /// </summary>
+        /// <param name="host">Connection host.</param>
+        /// <param name="port">The port.</param>
+        /// <param name="username">Connection username.</param>
+        /// <param name="password">Connection password.</param>
+        /// <param name="proxyType">Type of the proxy.</param>
+        /// <param name="proxyHost">The proxy host.</param>
+        /// <param name="proxyPort">The proxy port.</param>
+        /// <param name="proxyUsername">The proxy username.</param>
+        public PasswordConnectionInfo(string host, string username, string password, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername, string proxyPassword)
+            : this(host, 22, username, password, proxyType, proxyHost, proxyPort, proxyUsername, proxyPassword)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PasswordConnectionInfo"/> class.
+        /// </summary>
+        /// <param name="host">Connection host.</param>
+        /// <param name="port">The port.</param>
+        /// <param name="username">Connection username.</param>
+        /// <param name="password">Connection password.</param>
+        /// <param name="proxyType">Type of the proxy.</param>
+        /// <param name="proxyHost">The proxy host.</param>
+        /// <param name="proxyPort">The proxy port.</param>
+        /// <param name="proxyUsername">The proxy username.</param>
+        public PasswordConnectionInfo(string host, int port, string username, string password, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername, string proxyPassword)
+            : base(host, port, username, proxyType, proxyHost, proxyPort, proxyUsername, proxyPassword)
         {
             if (password == null)
                 throw new ArgumentNullException("password");

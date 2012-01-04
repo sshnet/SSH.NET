@@ -20,9 +20,9 @@ namespace Renci.SshNet
             new TraceSource("SshNet.Logging");
 #endif
 
-        partial void SocketConnect()
+        partial void SocketConnect(string host, int port)
         {
-            var ep = new IPEndPoint(Dns.GetHostAddresses(this.ConnectionInfo.Host)[0], this.ConnectionInfo.Port);
+            var ep = new IPEndPoint(Dns.GetHostAddresses(host)[0], port);
             this._socket = new Socket(ep.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
             var socketBufferSize = 2 * MAXIMUM_PACKET_SIZE;

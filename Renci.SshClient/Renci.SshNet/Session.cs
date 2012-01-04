@@ -431,7 +431,23 @@ namespace Renci.SshNet
                     //  Build list of available messages while connecting
                     this._messagesMetadata = GetMessagesMetadata();
 
-                    this.SocketConnect();
+                    switch (this.ConnectionInfo.ProxyType)
+                    {
+                        case ProxyTypes.None:
+                            this.SocketConnect(this.ConnectionInfo.Host, this.ConnectionInfo.Port);
+                            break;
+                        case ProxyTypes.Socks4:
+                            this.SocketConnect(this.ConnectionInfo.ProxyHost, this.ConnectionInfo.ProxyPort);
+                            this.ConnectSocks4(this._socket);
+                            break;
+                        case ProxyTypes.Socks5:
+                            this.SocketConnect(this.ConnectionInfo.ProxyHost, this.ConnectionInfo.ProxyPort);
+                            this.ConnectSocks5(this._socket);
+                            break;
+                        default:
+                            break;
+                    }
+
 
                     Match versionMatch = null;
 
@@ -1531,7 +1547,7 @@ namespace Renci.SshNet
 
         partial void ExecuteThread(Action action);
 
-        partial void SocketConnect();
+        partial void SocketConnect(string host, int port);
 
         partial void SocketDisconnect();
 
@@ -1570,6 +1586,249 @@ namespace Renci.SshNet
             {
                 this.RaiseError(exp);
             }
+        }
+
+        private byte SocketReadByte()
+        {
+            byte[] buffer = null;
+
+            this.SocketRead(1, ref buffer);
+
+            return buffer[0];
+        }
+
+        private void SocketWriteByte(byte data)
+        {
+            this.SocketWrite(new byte[] { data });
+        }
+
+        private void ConnectSocks4(Socket socket)
+        {
+            //  Send socks version number
+            this.SocketWriteByte(0x04);
+
+            //  Send command code
+            this.SocketWriteByte(0x01);
+
+            //  Send port
+            this.SocketWriteByte((byte)(this.ConnectionInfo.Port / 0xFF));
+            this.SocketWriteByte((byte)(this.ConnectionInfo.Port % 0xFF));
+
+            //  Send IP
+            IPAddress ipAddress;
+#if SILVERLIGHT
+            if (!IPAddress.TryParse(this.ConnectionInfo.Host, out ipAddress))
+            {
+                throw new ProxyException("SOCKS4: Silverlight supports only IP addresses.");
+            }
+#else
+            ipAddress = Dns.GetHostAddresses(this.ConnectionInfo.Host).First();
+#endif
+            this.SocketWrite(ipAddress.GetAddressBytes());
+
+            //  Send username
+            var username = new Renci.SshNet.Common.ASCIIEncoding().GetBytes(this.ConnectionInfo.ProxyUsername);
+            this.SocketWrite(username);
+            this.SocketWriteByte(0x00);
+
+            //  Read 0
+            if (this.SocketReadByte() != 0)
+            {
+                throw new ProxyException("SOCKS4: Null is expected.");
+            }
+
+            //  Read response code
+            var code = this.SocketReadByte();
+
+            switch (code)
+            {
+                case 0x5a:
+                    break;
+                case 0x5b:
+                    throw new ProxyException("SOCKS4: Connection rejected.");
+                case 0x5c:
+                    throw new ProxyException("SOCKS4: Client is not running identd or not reachable from the server.");
+                case 0x5d:
+                    throw new ProxyException("SOCKS4: Client's identd could not confirm the user ID string in the request.");
+                default:
+                    throw new ProxyException("SOCKS4: Not valid response.");
+            }
+
+            byte[] dummyBuffer = null;
+
+            //  Read 2 bytes to be ignored
+            this.SocketRead(2, ref dummyBuffer);
+
+            //  Read 4 bytes to be ignored
+            this.SocketRead(4, ref dummyBuffer);
+        }
+
+        private void ConnectSocks5(Socket socket)
+        {
+            //  Send socks version number
+            this.SocketWriteByte(0x05);
+
+            //  Send number of supported authentication methods
+            this.SocketWriteByte(0x02);
+
+            //  Send supported authentication methods
+            this.SocketWriteByte(0x00); //  No authentication
+            this.SocketWriteByte(0x02); //  Username/Password
+
+            var socksVersion = this.SocketReadByte();
+            if (socksVersion != 0x05)
+                throw new ProxyException(string.Format("SOCKS Version '{0}' is not supported.", socksVersion));
+
+            var authenticationMethod = this.SocketReadByte();
+            switch (authenticationMethod)
+            {
+                case 0x00:
+                    break;
+                case 0x02:
+
+                    //  Send version
+                    this.SocketWriteByte(0x01);
+
+                    var encoding = new Renci.SshNet.Common.ASCIIEncoding();
+
+                    var username = encoding.GetBytes(this.ConnectionInfo.ProxyUsername);
+
+                    if (username.Length > byte.MaxValue)
+                        throw new ProxyException("Proxy username is too long.");
+
+                    //  Send username length
+                    this.SocketWriteByte((byte)username.Length);
+
+                    //  Send username
+                    this.SocketWrite(username);
+
+                    var password = encoding.GetBytes(this.ConnectionInfo.ProxyPassword);
+
+                    if (password.Length > byte.MaxValue)
+                        throw new ProxyException("Proxy password is too long.");
+
+                    //  Send username length
+                    this.SocketWriteByte((byte)password.Length);
+
+                    //  Send username
+                    this.SocketWrite(password);
+
+                    var serverVersion = this.SocketReadByte();
+
+                    if (serverVersion != 1)
+                        throw new ProxyException("SOCKS5: Server authentication version is not valid.");
+
+                    var statusCode = this.SocketReadByte();
+                    if (statusCode != 0)
+                        throw new ProxyException("SOCKS5: Username/Password authentication failed.");
+
+                    break;
+                case 0xFF:
+                    throw new ProxyException("SOCKS5: No acceptable authentication methods were offered.");
+                default:
+                    break;
+            }
+
+            //  Send socks version number
+            this.SocketWriteByte(0x05);
+
+            //  Send command code
+            this.SocketWriteByte(0x01); //  establish a TCP/IP stream connection
+
+            //  Send reserved, must be 0x00
+            this.SocketWriteByte(0x00);
+
+            IPAddress ip;
+#if SILVERLIGHT
+            if (!IPAddress.TryParse(this.ConnectionInfo.Host, out ip))
+            {
+                throw new ProxyException("SOCKS4: Silverlight supports only IP addresses.");
+            }
+#else
+            ip = Dns.GetHostAddresses(this.ConnectionInfo.Host).First();
+#endif
+
+            //  Send address type and address
+            if (ip.AddressFamily == AddressFamily.InterNetwork)
+            {
+                this.SocketWriteByte(0x01);
+                var address = ip.GetAddressBytes();
+                this.SocketWrite(address);
+            }
+            else if (ip.AddressFamily == AddressFamily.InterNetworkV6)
+            {
+                this.SocketWriteByte(0x04);
+                var address = ip.GetAddressBytes();
+                this.SocketWrite(address);
+            }
+            else
+            {
+                throw new ProxyException(string.Format("SOCKS5: IP address '{0}' is not supported.", ip));
+            }
+
+            //  Send port
+            this.SocketWriteByte((byte)(this.ConnectionInfo.Port / 0xFF));
+            this.SocketWriteByte((byte)(this.ConnectionInfo.Port % 0xFF));
+
+            //  Read Server SOCKS5 version
+            if (this.SocketReadByte() != 5)
+            {
+                throw new ProxyException("SOCKS5: Version 5 is expected.");
+            }
+
+            //  Read response code
+            var status = this.SocketReadByte();
+
+            switch (status)
+            {
+                case 0x00:
+                    break;
+                case 0x01:
+                    throw new ProxyException("SOCKS5: General failure.");
+                case 0x02:
+                    throw new ProxyException("SOCKS5: Connection not allowed by ruleset.");
+                case 0x03:
+                    throw new ProxyException("SOCKS5: Network unreachable.");
+                case 0x04:
+                    throw new ProxyException("SOCKS5: Host unreachable.");
+                case 0x05:
+                    throw new ProxyException("SOCKS5: Connection refused by destination host.");
+                case 0x06:
+                    throw new ProxyException("SOCKS5: TTL expired.");
+                case 0x07:
+                    throw new ProxyException("SOCKS5: Command not supported or protocol error.");
+                case 0x08:
+                    throw new ProxyException("SOCKS5: Address type not supported.");
+                default:
+                    throw new ProxyException("SOCKS4: Not valid response.");
+            }
+
+            //  Read 0
+            if (this.SocketReadByte() != 0)
+            {
+                throw new ProxyException("SOCKS5: 0 byte is expected.");
+            }
+
+            var addressType = this.SocketReadByte();
+            byte[] responseIp = null;
+
+            switch (addressType)
+            {
+                case 0x01:
+                    this.SocketRead(4, ref responseIp);
+                    break;
+                case 0x04:
+                    this.SocketRead(16, ref responseIp);
+                    break;
+                default:
+                    throw new ProxyException(string.Format("Address type '{0}' is not supported.", addressType));
+            }
+
+            byte[] port = null;
+
+            //  Read 2 bytes to be ignored
+            this.SocketRead(2, ref port);
+
         }
 
         /// <summary>

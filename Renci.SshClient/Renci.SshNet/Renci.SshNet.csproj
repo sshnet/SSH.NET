@@ -69,6 +69,10 @@
     <Compile Include="Common\ChannelEventArgs.cs" />
     <Compile Include="Common\ChannelOpenFailedEventArgs.cs" />
     <Compile Include="Common\ChannelRequestEventArgs.cs" />
+    <Compile Include="Common\ProxyException.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Common\ProxyException.NET40.cs" />
     <Compile Include="Common\HostKeyEventArgs.cs" />
     <Compile Include="Common\NetConfServerException.NET40.cs" />
     <Compile Include="Common\DerData.cs" />
@@ -123,6 +127,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="ConnectionInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ProxyTypes.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="ScpClient.cs">

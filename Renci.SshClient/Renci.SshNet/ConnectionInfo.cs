@@ -14,12 +14,14 @@ using Renci.SshNet.Security.Cryptography.Ciphers;
 using System.Security.Cryptography;
 using Renci.SshNet.Security.Cryptography;
 using Renci.SshNet.Security.Cryptography.Ciphers.Modes;
+using System.Net.Sockets;
+using System.Text;
 namespace Renci.SshNet
 {
     /// <summary>
     /// Represents remote connection information base class.
     /// </summary>
-    public abstract class ConnectionInfo
+    public abstract partial class ConnectionInfo
     {
         /// <summary>
         /// Gets connection name
@@ -93,6 +95,34 @@ namespace Renci.SshNet
         /// Gets connection username.
         /// </summary>
         public string Username { get; private set; }
+
+        /// <summary>
+        /// Gets proxy type.
+        /// </summary>
+        /// <value>
+        /// The type of the proxy.
+        /// </value>
+        public ProxyTypes ProxyType { get; private set; }
+
+        /// <summary>
+        /// Gets proxy connection host.
+        /// </summary>
+        public string ProxyHost { get; private set; }
+
+        /// <summary>
+        /// Gets proxy connection port.
+        /// </summary>
+        public int ProxyPort { get; private set; }
+
+        /// <summary>
+        /// Gets proxy connection username.
+        /// </summary>
+        public string ProxyUsername { get; private set; }
+
+        /// <summary>
+        /// Gets proxy connection password.
+        /// </summary>
+        public string ProxyPassword { get; private set; }
 
         /// <summary>
         /// Gets or sets connection timeout.
@@ -232,17 +262,30 @@ namespace Renci.SshNet
         /// <param name="host">Connection host.</param>
         /// <param name="port">Connection port.</param>
         /// <param name="username">Connection username.</param>
+        /// <param name="proxyType">Type of the proxy.</param>
+        /// <param name="proxyHost">The proxy host.</param>
+        /// <param name="proxyPort">The proxy port.</param>
+        /// <param name="proxyUsername">The proxy username.</param>
+        /// <param name="proxyPassword">The proxy password.</param>
         /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, or <paramref name="username"/> is null or contains whitespace characters.</exception>
+        ///   
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="port"/> is not within <see cref="IPEndPoint.MinPort"/> and <see cref="IPEndPoint.MaxPort"/>.</exception>
+        ///   
         /// <exception cref="ArgumentException"><paramref name="username"/> is null or empty.</exception>
-        protected ConnectionInfo(string host, int port, string username)
+        protected ConnectionInfo(string host, int port, string username, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername, string proxyPassword)
             : this()
         {
             if (!host.IsValidHost())
                 throw new ArgumentException("host");
 
+            if (!string.IsNullOrEmpty(proxyHost) && !proxyHost.IsValidHost())
+                throw new ArgumentException("proxyHost");
+
             if (!port.IsValidPort())
                 throw new ArgumentOutOfRangeException("port");
+
+            if (!proxyPort.IsValidPort())
+                throw new ArgumentOutOfRangeException("proxyPort");
 
             if (username.IsNullOrWhiteSpace())
                 throw new ArgumentException("username");
@@ -250,7 +293,38 @@ namespace Renci.SshNet
             this.Host = host;
             this.Port = port;
             this.Username = username;
+
+            this.ProxyType = proxyType;
+            this.ProxyHost = proxyHost;
+            this.ProxyPort = proxyPort;
+            this.ProxyUsername = proxyUsername;
+            this.ProxyPassword = proxyPassword;
         }
+
+        //internal Socket CreateSocket()
+        //{
+        //    Socket socket = null;
+
+        //    CreateSocket(ref socket);
+
+        //    switch (this.ProxyType)
+        //    {
+        //        case ProxyTypes.None:
+        //            break;
+        //        case ProxyTypes.Socks4:
+        //            ConnectSocks4(socket);
+        //            break;
+        //        case ProxyTypes.Socks5:
+        //            ConnectSocks5(socket);
+        //            break;
+        //        default:
+        //            break;
+        //    }
+
+        //    return socket;
+        //}
+
+        //partial void CreateSocket(ref Socket socket);
 
         /// <summary>
         /// Authenticates the specified session.

@@ -41,18 +41,12 @@ namespace Renci.SshNet.Channels
 
         }
 
-        /// <summary>
-        /// Binds channel to specified remote host.
-        /// </summary>
-        /// <param name="remoteHost">The remote host.</param>
-        /// <param name="port">The port.</param>
-        /// <param name="socket">The socket.</param>
-        public void Bind(string remoteHost, uint port, Socket socket)
+        public void Open(string remoteHost, uint port, Socket socket)
         {
             this._socket = socket;
 
             IPEndPoint ep = socket.RemoteEndPoint as IPEndPoint;
-            
+
 
             if (!this.IsConnected)
             {
@@ -65,10 +59,21 @@ namespace Renci.SshNet.Channels
 
             //  Wait for channel to open
             this.WaitHandle(this._channelOpen);
+        }
+
+        /// <summary>
+        /// Binds channel to specified remote host.
+        /// </summary>
+        /// <param name="remoteHost">The remote host.</param>
+        /// <param name="port">The port.</param>
+        /// <param name="socket">The socket.</param>
+        public void Bind()
+        {
+            //  Cannot bind if channel is not open
+            if (!this.IsOpen)
+                return;
 
             //  Start reading data from the port and send to channel
-            EventWaitHandle readerTaskError = new AutoResetEvent(false);
-
             var readerTaskCompleted = new ManualResetEvent(false);
             Exception exception = null;
 
@@ -103,7 +108,7 @@ namespace Renci.SshNet.Channels
                                 // socket buffer is probably empty, wait and try again
                                 Thread.Sleep(30);
                             }
-                            else if (exp.SocketErrorCode == SocketError.ConnectionAborted)
+                            else if (exp.SocketErrorCode == SocketError.ConnectionAborted || exp.SocketErrorCode == SocketError.ConnectionReset)
                             {
                                 break;
                             }
@@ -114,7 +119,6 @@ namespace Renci.SshNet.Channels
                 }
                 catch (Exception exp)
                 {
-                    readerTaskError.Set();
                     exception = exp;
                 }
                 finally
@@ -125,13 +129,11 @@ namespace Renci.SshNet.Channels
 
             //  Channel was open and we MUST receive EOF notification, 
             //  data transfer can take longer then connection specified timeout
-            System.Threading.WaitHandle.WaitAny(new WaitHandle[] { this._channelEof, readerTaskError });
+            //  If listener thread is finished then socket was closed
+            System.Threading.WaitHandle.WaitAny(new WaitHandle[] { this._channelEof, readerTaskCompleted });
 
             this._socket.Dispose();
             this._socket = null;
-
-            //  Wait for task to finish and will throw any errors if any
-            readerTaskCompleted.WaitOne();
 
             if (exception != null)
                 throw exception;
@@ -169,12 +171,26 @@ namespace Renci.SshNet.Channels
             this._channelOpen.Set();
         }
 
+        protected override void OnOpenFailure(uint reasonCode, string description, string language)
+        {
+            base.OnOpenFailure(reasonCode, description, language);
+
+            this._channelOpen.Set();
+        }
+
         /// <summary>
         /// Called when channel has no more data to receive.
         /// </summary>
         protected override void OnEof()
         {
             base.OnEof();
+
+            this._channelEof.Set();
+        }
+
+        protected override void OnClose()
+        {
+            base.OnClose();
 
             this._channelEof.Set();
         }

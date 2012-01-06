@@ -1,12 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Threading;
 
 namespace Renci.SshNet
 {
-    /// <summary>
-    /// Provides functionality for local port forwarding
-    /// </summary>
-    public partial class ForwardedPortLocal : ForwardedPort, IDisposable
+    public partial class ForwardedPortDynamic : ForwardedPort
     {
         private EventWaitHandle _listenerTaskCompleted;
 
@@ -21,59 +21,24 @@ namespace Renci.SshNet
         public uint BoundPort { get; protected set; }
 
         /// <summary>
-        /// Gets the forwarded host.
+        /// Initializes a new instance of the <see cref="ForwardedPortDynamic"/> class.
         /// </summary>
-        public string Host { get; protected set; }
-
-        /// <summary>
-        /// Gets the forwarded port.
-        /// </summary>
-        public uint Port { get; protected set; }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ForwardedPortLocal"/> class.
-        /// </summary>
-        /// <param name="boundPort">The bound port.</param>
-        /// <param name="host">The host.</param>
         /// <param name="port">The port.</param>
-        public ForwardedPortLocal(uint boundPort, string host, uint port)
-            : this(string.Empty, boundPort, host, port)
+        public ForwardedPortDynamic(uint port)
+            : this(string.Empty, port)
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ForwardedPortLocal"/> class.
+        /// Initializes a new instance of the <see cref="ForwardedPortDynamic"/> class.
         /// </summary>
-        /// <param name="boundHost">The bound host.</param>
-        /// <param name="boundPort">The bound port.</param>
         /// <param name="host">The host.</param>
         /// <param name="port">The port.</param>
-        public ForwardedPortLocal(string boundHost, uint boundPort, string host, uint port)
+        public ForwardedPortDynamic(string host, uint port)
         {
-            if (boundHost == null)
-                throw new ArgumentNullException("boundHost");
-
-            if (host == null)
-                throw new ArgumentNullException("host");
-
-            if (!boundHost.IsValidHost())
-                throw new ArgumentException("boundHost");
-
-            if (!boundPort.IsValidPort())
-                throw new ArgumentOutOfRangeException("boundPort");
-
-            if (!host.IsValidHost())
-                throw new ArgumentException("host");
-
-            if (!port.IsValidPort())
-                throw new ArgumentOutOfRangeException("port");
-
-            this.BoundHost = boundHost;
-            this.BoundPort = boundPort;
-            this.Host = host;
-            this.Port = port;
+            this.BoundHost = host;
+            this.BoundPort = port;
         }
-
 
         /// <summary>
         /// Starts local port forwarding.
@@ -98,7 +63,7 @@ namespace Renci.SshNet
         partial void InternalStop();
 
         partial void ExecuteThread(Action action);
-
+    
         #region IDisposable Members
 
         private bool _isDisposed = false;
@@ -143,7 +108,7 @@ namespace Renci.SshNet
         /// Releases unmanaged resources and performs other cleanup operations before the
         /// <see cref="ForwardedPortLocal"/> is reclaimed by garbage collection.
         /// </summary>
-        ~ForwardedPortLocal()
+        ~ForwardedPortDynamic()
         {
             // Do not re-create Dispose clean-up code here.
             // Calling Dispose(false) is optimal in terms of
@@ -152,5 +117,5 @@ namespace Renci.SshNet
         }
 
         #endregion
-    }
+}
 }

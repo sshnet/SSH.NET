@@ -17,26 +17,6 @@ namespace Renci.SshNet
         internal Session Session { get; set; }
 
         /// <summary>
-        /// Gets the bound host.
-        /// </summary>
-        public string BoundHost { get; internal set; }
-
-        /// <summary>
-        /// Gets the bound port.
-        /// </summary>
-        public uint BoundPort { get; internal set; }
-
-        /// <summary>
-        /// Gets the forwarded host.
-        /// </summary>
-        public string Host { get; internal set; }
-
-        /// <summary>
-        /// Gets the forwarded port.
-        /// </summary>
-        public uint Port { get; internal set; }
-
-        /// <summary>
         /// Gets or sets a value indicating whether port forwarding started.
         /// </summary>
         /// <value>

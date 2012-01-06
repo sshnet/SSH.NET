@@ -1,15 +1,9 @@
 ﻿using System;
-using System.Net.Sockets;
-using System.Net;
 using System.Threading;
-using Renci.SshNet.Channels;
 
 namespace Renci.SshNet
 {
-    /// <summary>
-    /// Provides functionality for local port forwarding
-    /// </summary>
-    public partial class ForwardedPortLocal
+    public partial class ForwardedPortDynamic
     {
         partial void ExecuteThread(Action action)
         {

@@ -18,6 +18,65 @@ namespace Renci.SshNet
         private EventWaitHandle _globalRequestResponse = new AutoResetEvent(false);
 
         /// <summary>
+        /// Gets the bound host.
+        /// </summary>
+        public string BoundHost { get; protected set; }
+
+        /// <summary>
+        /// Gets the bound port.
+        /// </summary>
+        public uint BoundPort { get; protected set; }
+
+        /// <summary>
+        /// Gets the forwarded host.
+        /// </summary>
+        public string Host { get; protected set; }
+
+        /// <summary>
+        /// Gets the forwarded port.
+        /// </summary>
+        public uint Port { get; protected set; }
+
+        public ForwardedPortRemote(uint boundPort, string host, uint port)
+            : this(string.Empty, boundPort, host, port)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ForwardedPortRemote"/> class.
+        /// </summary>
+        /// <param name="boundHost">The bound host.</param>
+        /// <param name="boundPort">The bound port.</param>
+        /// <param name="host">The host.</param>
+        /// <param name="port">The port.</param>
+        public ForwardedPortRemote(string boundHost, uint boundPort, string host, uint port)
+        {
+            if (boundHost == null)
+                throw new ArgumentNullException("boundHost");
+
+            if (host == null)
+                throw new ArgumentNullException("host");
+
+            if (!boundHost.IsValidHost())
+                throw new ArgumentException("boundHost");
+
+            if (!boundPort.IsValidPort())
+                throw new ArgumentOutOfRangeException("boundPort");
+
+            if (!host.IsValidHost())
+                throw new ArgumentException("host");
+
+            if (!port.IsValidPort())
+                throw new ArgumentOutOfRangeException("port");
+
+            this.BoundHost = boundHost;
+            this.BoundPort = boundPort;
+            this.Host = host;
+            this.Port = port;
+        }
+
+
+        /// <summary>
         /// Starts remote port forwarding.
         /// </summary>
         public override void Start()

@@ -129,6 +129,14 @@
     <Compile Include="ConnectionInfo.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="ForwardedPortDynamic.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ForwardedPortDynamic.NET.cs" />
+    <Compile Include="ForwardedPortDynamic.NET40.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ForwardedPortLocal.NET.cs" />
     <Compile Include="ProxyTypes.cs">
       <SubType>Code</SubType>
     </Compile>

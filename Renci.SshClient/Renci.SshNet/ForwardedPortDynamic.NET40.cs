@@ -3,10 +3,7 @@ using System.Threading.Tasks;
 
 namespace Renci.SshNet
 {
-    /// <summary>
-    /// Provides functionality for local port forwarding
-    /// </summary>
-    public partial class ForwardedPortLocal 
+    public partial class ForwardedPortDynamic
     {
         partial void ExecuteThread(Action action)
         {

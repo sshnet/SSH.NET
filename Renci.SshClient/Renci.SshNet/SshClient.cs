@@ -120,71 +120,20 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Adds forwarded port to the list.
+        /// Adds the forwarded port.
         /// </summary>
-        /// <typeparam name="T">Type of forwarded port to add</typeparam>
-        /// <param name="boundHost">The bound host.</param>
-        /// <param name="boundPort">The bound port.</param>
-        /// <param name="connectedHost">The connected host.</param>
-        /// <param name="connectedPort">The connected port.</param>
-        /// <returns>
-        /// Forwarded port
-        /// </returns>
-        /// <exception cref="ArgumentNullException"><paramref name="boundHost"/> or <paramref name="connectedHost"/> is null.</exception>
-        /// <exception cref="ArgumentException"><paramref name="boundHost"/> or <paramref name="connectedHost"/> is invalid.</exception>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="boundPort"/> or <paramref name="connectedPort"/> is not within <see cref="System.Net.IPEndPoint.MinPort"/> and <see cref="System.Net.IPEndPoint.MaxPort"/>.</exception>
-        /// <exception cref="Renci.SshNet.Common.SshConnectionException">Client is not connected.</exception>
-        public T AddForwardedPort<T>(string boundHost, uint boundPort, string connectedHost, uint connectedPort) where T : ForwardedPort, new()
-        {            
-            if (boundHost == null)
-                throw new ArgumentNullException("boundHost");
-
-            if (connectedHost == null)
-                throw new ArgumentNullException("connectedHost");
-
-            if (!boundHost.IsValidHost())
-                throw new ArgumentException("boundHost");
-
-            if (!boundPort.IsValidPort())
-                throw new ArgumentOutOfRangeException("boundPort");
-
-            if (!connectedHost.IsValidHost())
-                throw new ArgumentException("connectedHost");
-
-            if (!connectedPort.IsValidPort())
-                throw new ArgumentOutOfRangeException("connectedPort");
-
+        /// <param name="port">The port.</param>
+        public void AddForwardedPort(ForwardedPort port) 
+        {
             //  Ensure that connection is established.
             this.EnsureConnection();
 
-            T port = new T();
+            if (port.Session != null && port.Session != this.Session)
+                throw new InvalidOperationException("Forwarded port is already added to a different client.");
 
             port.Session = this.Session;
-            port.BoundHost = boundHost;
-            port.BoundPort = boundPort;
-            port.Host = connectedHost;
-            port.Port = connectedPort;
 
             this._forwardedPorts.Add(port);
-
-            return port;
-        }
-
-        /// <summary>
-        /// Adds forwarded port to the list bound to "localhost".
-        /// </summary>
-        /// <typeparam name="T">Type of forwarded port to add</typeparam>
-        /// <param name="boundPort">The bound port.</param>
-        /// <param name="connectedHost">The connected host.</param>
-        /// <param name="connectedPort">The connected port.</param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentNullException"><paramref name="connectedHost"/> is null.</exception>
-        /// <exception cref="ArgumentException"><paramref name="boundPort"/>, <paramref name="connectedPort"/> or <paramref name="connectedHost"/> is invalid.</exception>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="boundPort"/> or <paramref name="connectedPort"/> is not within <see cref="System.Net.IPEndPoint.MinPort"/> and <see cref="System.Net.IPEndPoint.MaxPort"/>.</exception>
-        /// <exception cref="Renci.SshNet.Common.SshConnectionException">Client is not connected.</exception>
-        public T AddForwardedPort<T>(uint boundPort, string connectedHost, uint connectedPort) where T : ForwardedPort, new()
-        {            
-            return this.AddForwardedPort<T>("localhost", boundPort, connectedHost, connectedPort);
         }
 
         /// <summary>
@@ -199,6 +148,8 @@ namespace Renci.SshNet
 
             //  Stop port forwarding before removing it
             port.Stop();
+
+            port.Session = null;
 
             this._forwardedPorts.Remove(port);
         }

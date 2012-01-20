@@ -1590,7 +1590,7 @@ namespace Renci.SshNet
 
         private byte SocketReadByte()
         {
-            byte[] buffer = null;
+            byte[] buffer = new byte[1];
 
             this.SocketRead(1, ref buffer);
 
@@ -1654,7 +1654,7 @@ namespace Renci.SshNet
                     throw new ProxyException("SOCKS4: Not valid response.");
             }
 
-            byte[] dummyBuffer = null;
+            byte[] dummyBuffer = new byte[4];
 
             //  Read 2 bytes to be ignored
             this.SocketRead(2, ref dummyBuffer);
@@ -1810,7 +1810,7 @@ namespace Renci.SshNet
             }
 
             var addressType = this.SocketReadByte();
-            byte[] responseIp = null;
+            byte[] responseIp = new byte[16];
 
             switch (addressType)
             {
@@ -1824,7 +1824,7 @@ namespace Renci.SshNet
                     throw new ProxyException(string.Format("Address type '{0}' is not supported.", addressType));
             }
 
-            byte[] port = null;
+            byte[] port = new byte[2];
 
             //  Read 2 bytes to be ignored
             this.SocketRead(2, ref port);

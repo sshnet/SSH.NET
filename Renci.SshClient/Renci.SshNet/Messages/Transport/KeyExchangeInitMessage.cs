@@ -8,7 +8,7 @@ namespace Renci.SshNet.Messages.Transport
     /// Represents SSH_MSG_KEXINIT message.
     /// </summary>
     [Message("SSH_MSG_KEXINIT", 20)]
-    public class KeyExchangeInitMessage : Message
+    public class KeyExchangeInitMessage : Message, IKeyExchangedAllowed
     {
         private static RNGCryptoServiceProvider _randomizer = new System.Security.Cryptography.RNGCryptoServiceProvider();
 

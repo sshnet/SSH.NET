@@ -62,11 +62,8 @@ namespace Renci.SshNet.Channels
         }
 
         /// <summary>
-        /// Binds channel to specified remote host.
+        /// Binds channel to remote host.
         /// </summary>
-        /// <param name="remoteHost">The remote host.</param>
-        /// <param name="port">The port.</param>
-        /// <param name="socket">The socket.</param>
         public void Bind()
         {
             //  Cannot bind if channel is not open

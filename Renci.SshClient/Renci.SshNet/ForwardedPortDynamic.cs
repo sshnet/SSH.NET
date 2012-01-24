@@ -6,7 +6,10 @@ using System.Threading;
 
 namespace Renci.SshNet
 {
-    public partial class ForwardedPortDynamic : ForwardedPort
+    /// <summary>
+    /// Provides functionality for dynamic port forwarding
+    /// </summary>
+    public partial class ForwardedPortDynamic : ForwardedPort, IDisposable
     {
         private EventWaitHandle _listenerTaskCompleted;
 
@@ -63,7 +66,7 @@ namespace Renci.SshNet
         partial void InternalStop();
 
         partial void ExecuteThread(Action action);
-    
+
         #region IDisposable Members
 
         private bool _isDisposed = false;
@@ -117,5 +120,5 @@ namespace Renci.SshNet
         }
 
         #endregion
-}
+    }
 }

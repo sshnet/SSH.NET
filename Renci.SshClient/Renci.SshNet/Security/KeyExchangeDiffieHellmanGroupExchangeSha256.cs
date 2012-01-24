@@ -21,7 +21,7 @@ namespace Renci.SshNet.Security
         /// </summary>
         public override string Name
         {
-            get { return "diffie-hellman-group-exchange-sha1"; }
+            get { return "diffie-hellman-group-exchange-sha256"; }
         }
 
         /// <summary>
@@ -39,7 +39,7 @@ namespace Renci.SshNet.Security
             this.Session.MessageReceived += Session_MessageReceived;
 
             //  1. send SSH_MSG_KEY_DH_GEX_REQUEST
-            this.Session.SendMessage(new KeyExchangeDhGroupExchangeRequest(1024,1024,1024));
+            this.SendMessage(new KeyExchangeDhGroupExchangeRequest(1024,1024,1024));
             
         }
 
@@ -112,7 +112,7 @@ namespace Renci.SshNet.Security
                 this.PopulateClientExchangeValue();
 
                 //  3. Send SSH_MSG_KEX_DH_GEX_INIT
-                this.Session.SendMessage(new KeyExchangeDhGroupExchangeInit(this._clientExchangeValue));
+                this.SendMessage(new KeyExchangeDhGroupExchangeInit(this._clientExchangeValue));
             }
             var replyMessage = e.Message as KeyExchangeDhGroupExchangeReply;
 

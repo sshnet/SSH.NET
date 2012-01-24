@@ -323,17 +323,17 @@ namespace Renci.SshNet
         {
             if (length == buffer.Length)
             {
-                this.Session.SendMessage(new ChannelDataMessage(channel.RemoteChannelNumber, buffer));
+                channel.SendData(buffer);
             }
             else
             {
-                this.Session.SendMessage(new ChannelDataMessage(channel.RemoteChannelNumber, buffer.Take(length).ToArray()));
+                channel.SendData(buffer.Take(length).ToArray());
             }
         }
 
         private void SendData(ChannelSession channel, byte[] buffer)
         {
-            this.Session.SendMessage(new ChannelDataMessage(channel.RemoteChannelNumber, buffer));
+            channel.SendData(buffer);
         }
 
         private static int ReadByte(Stream stream)

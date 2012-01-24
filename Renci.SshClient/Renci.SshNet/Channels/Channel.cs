@@ -205,6 +205,11 @@ namespace Renci.SshNet.Channels
             this.SendMessage(new ChannelEofMessage(this.RemoteChannelNumber));
         }
 
+        internal void SendData(byte[] buffer)
+        {
+            this.SendMessage(new ChannelDataMessage(this.RemoteChannelNumber, buffer));
+        }
+
         /// <summary>
         /// Closes the channel.
         /// </summary>
@@ -215,8 +220,6 @@ namespace Renci.SshNet.Channels
 
             //  Wait for channel to be closed
             this._session.WaitHandle(this._channelClosedWaitHandle);
-
-            //this.Dispose();
         }
 
         #region Channel virtual methods

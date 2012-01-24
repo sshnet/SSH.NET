@@ -35,14 +35,6 @@ namespace Renci.SshNet
         public event EventHandler<PortForwardEventArgs> RequestReceived;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Port"/> class.
-        /// </summary>
-        internal ForwardedPort()
-        {
-
-        }
-
-        /// <summary>
         /// Starts port forwarding.
         /// </summary>
         public virtual void Start()

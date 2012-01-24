@@ -137,6 +137,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="ForwardedPortLocal.NET.cs" />
+    <Compile Include="Messages\Transport\IKeyExchangedAllowed.cs" />
     <Compile Include="ProxyTypes.cs">
       <SubType>Code</SubType>
     </Compile>

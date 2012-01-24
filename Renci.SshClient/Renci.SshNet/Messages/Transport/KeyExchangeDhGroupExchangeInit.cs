@@ -10,7 +10,7 @@ namespace Renci.SshNet.Messages.Transport
     /// Represents SSH_MSG_KEX_DH_GEX_INIT message.
     /// </summary>
     [Message("SSH_MSG_KEX_DH_GEX_INIT", 32)]
-    internal class KeyExchangeDhGroupExchangeInit : Message
+    internal class KeyExchangeDhGroupExchangeInit : Message, IKeyExchangedAllowed
     {
         /// <summary>
         /// Gets the E value.

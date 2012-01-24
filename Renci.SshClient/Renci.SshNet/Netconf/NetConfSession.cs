@@ -82,13 +82,14 @@ namespace Renci.SshNet.NetConf
                 command.AppendFormat("\n#{0}\n", rpc.InnerXml.Length);
                 command.Append(rpc.InnerXml);
                 command.Append("\n##\n");
-                SendData(new ChannelDataMessage(this.ChannelNumber, Encoding.UTF8.GetBytes(command.ToString())));
+                this.SendData(Encoding.UTF8.GetBytes(command.ToString()));
+
                 this.WaitHandle(this._rpcReplyReceived, this._operationTimeout);
                 reply.LoadXml(_rpcReply.ToString());
             }
             else
             {
-                SendData(new ChannelDataMessage(this.ChannelNumber, Encoding.UTF8.GetBytes(rpc.InnerXml + _prompt)));
+                this.SendData(Encoding.UTF8.GetBytes(rpc.InnerXml + _prompt));
                 this.WaitHandle(this._rpcReplyReceived, this._operationTimeout);
                 reply.LoadXml(_rpcReply.ToString());
             }
@@ -108,7 +109,7 @@ namespace Renci.SshNet.NetConf
         {            
             string message = string.Format("{0}{1}", this.ClientCapabilities.InnerXml, _prompt);
 
-            this.SendData(new ChannelDataMessage(this.ChannelNumber, Encoding.UTF8.GetBytes(message)));
+            this.SendData(Encoding.UTF8.GetBytes(message));
 
             this.WaitHandle(this._serverCapabilitiesConfirmed, this._operationTimeout);
         }

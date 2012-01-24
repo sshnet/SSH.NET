@@ -4,7 +4,7 @@
     /// Represents SSH_MSG_KEXINIT message.
     /// </summary>
     [Message("SSH_MSG_NEWKEYS", 21)]
-    public class NewKeysMessage : Message
+    public class NewKeysMessage : Message, IKeyExchangedAllowed
     {
         /// <summary>
         /// Called when type specific data need to be loaded.

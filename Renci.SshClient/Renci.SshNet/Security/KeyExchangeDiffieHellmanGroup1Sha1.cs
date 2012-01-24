@@ -12,7 +12,7 @@ namespace Renci.SshNet.Security
     /// <summary>
     /// Represents "diffie-hellman-group1-sha1" algorithm implementation.
     /// </summary>
-    internal class KeyExchangeDiffieHellmanGroup1Sha1 : KeyExchangeDiffieHellman
+    public class KeyExchangeDiffieHellmanGroup1Sha1 : KeyExchangeDiffieHellman
     {
         /// <summary>
         /// Gets algorithm name.
@@ -68,7 +68,7 @@ namespace Renci.SshNet.Security
 
             this.PopulateClientExchangeValue();
 
-            this.Session.SendMessage(new KeyExchangeDhInitMessage(this._clientExchangeValue));
+            this.SendMessage(new KeyExchangeDhInitMessage(this._clientExchangeValue));
 
         }
 

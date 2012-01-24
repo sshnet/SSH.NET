@@ -81,6 +81,8 @@ namespace Renci.SshNet.Security
 
                 var key = this.Session.ConnectionInfo.HostKeyAlgorithms[algorithmName](this._hostKey);
 
+                this.Session.ConnectionInfo.CurrentHostKeyAlgorithm = algorithmName;
+
                 return key.VerifySignature(exchangeHash, this._signature);
             }
             else

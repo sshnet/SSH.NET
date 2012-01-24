@@ -6,7 +6,7 @@ namespace Renci.SshNet.Messages.Transport
     /// Represents SSH_MSG_DISCONNECT message.
     /// </summary>
     [Message("SSH_MSG_DISCONNECT", 1)]
-    public class DisconnectMessage : Message
+    public class DisconnectMessage : Message, IKeyExchangedAllowed
     {
         /// <summary>
         /// Gets disconnect reason code.

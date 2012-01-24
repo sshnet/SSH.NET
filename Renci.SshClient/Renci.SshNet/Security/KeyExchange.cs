@@ -88,6 +88,8 @@ namespace Renci.SshNet.Security
                 throw new SshConnectionException("Client encryption algorithm not found", DisconnectReason.KeyExchangeFailed);
             }
 
+            session.ConnectionInfo.CurrentClientEncryption = clientEncryptionAlgorithmName;
+
             //  Determine encryption algorithm
             var serverDecryptionAlgorithmName = (from b in session.ConnectionInfo.Encryptions.Keys
                                                  from a in message.EncryptionAlgorithmsServerToClient
@@ -97,6 +99,8 @@ namespace Renci.SshNet.Security
             {
                 throw new SshConnectionException("Server decryption algorithm not found", DisconnectReason.KeyExchangeFailed);
             }
+
+            session.ConnectionInfo.CurrentServerEncryption = serverDecryptionAlgorithmName;
 
             //  Determine client hmac algorithm
             var clientHmacAlgorithmName = (from b in session.ConnectionInfo.HmacAlgorithms.Keys
@@ -108,6 +112,8 @@ namespace Renci.SshNet.Security
                 throw new SshConnectionException("Server HMAC algorithm not found", DisconnectReason.KeyExchangeFailed);
             }
 
+            session.ConnectionInfo.CurrentClientHmacAlgorithm = clientHmacAlgorithmName;
+
             //  Determine server hmac algorithm
             var serverHmacAlgorithmName = (from b in session.ConnectionInfo.HmacAlgorithms.Keys
                                            from a in message.MacAlgorithmsServerToClient
@@ -117,6 +123,8 @@ namespace Renci.SshNet.Security
             {
                 throw new SshConnectionException("Server HMAC algorithm not found", DisconnectReason.KeyExchangeFailed);
             }
+
+            session.ConnectionInfo.CurrentServerHmacAlgorithm = serverHmacAlgorithmName;
 
             //  Determine compression algorithm
             var compressionAlgorithmName = (from b in session.ConnectionInfo.CompressionAlgorithms.Keys
@@ -128,6 +136,8 @@ namespace Renci.SshNet.Security
                 throw new SshConnectionException("Compression algorithm not found", DisconnectReason.KeyExchangeFailed);
             }
 
+            session.ConnectionInfo.CurrentClientCompressionAlgorithm = compressionAlgorithmName;
+
             //  Determine decompression algorithm
             var decompressionAlgorithmName = (from b in session.ConnectionInfo.CompressionAlgorithms.Keys
                                               from a in message.CompressionAlgorithmsServerToClient
@@ -137,6 +147,8 @@ namespace Renci.SshNet.Security
             {
                 throw new SshConnectionException("Decompression algorithm not found", DisconnectReason.KeyExchangeFailed);
             }
+
+            session.ConnectionInfo.CurrentServerCompressionAlgorithm = decompressionAlgorithmName;
 
             this._clientCipherInfo = session.ConnectionInfo.Encryptions[clientEncryptionAlgorithmName];
             this._serverCipherInfo = session.ConnectionInfo.Encryptions[clientEncryptionAlgorithmName];

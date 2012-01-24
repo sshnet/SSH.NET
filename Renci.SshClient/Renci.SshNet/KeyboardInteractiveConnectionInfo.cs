@@ -154,7 +154,7 @@ namespace Renci.SshNet
         {
             this.Session.RegisterMessage("SSH_MSG_USERAUTH_INFO_REQUEST");
 
-            this.Session.SendMessage(this._requestMessage);
+            this.SendMessage(this._requestMessage);
 
             this.WaitHandle(this._authenticationCompleted);
 

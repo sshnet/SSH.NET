@@ -270,7 +270,7 @@ namespace Renci.SshNet
 
         partial void SendData(ChannelSession channel, string command)
         {
-            this.Session.SendMessage(new ChannelDataMessage(channel.RemoteChannelNumber, System.Text.Encoding.Default.GetBytes(command)));
+            channel.SendData(System.Text.Encoding.Default.GetBytes(command));
         }
     }
 }

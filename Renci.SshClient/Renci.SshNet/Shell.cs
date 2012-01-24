@@ -153,7 +153,7 @@ namespace Renci.SshNet
                             var read = this._input.EndRead(result);
                             if (read > 0)
                             {
-                                this._session.SendMessage(new ChannelDataMessage(this._channel.RemoteChannelNumber, buffer.Take(read).ToArray()));
+                                this._channel.SendData(buffer.Take(read).ToArray());
                             }
 
                         }, null);

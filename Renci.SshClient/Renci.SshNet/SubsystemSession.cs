@@ -98,10 +98,10 @@ namespace Renci.SshNet.Sftp
         /// <summary>
         /// Sends data to the subsystem.
         /// </summary>
-        /// <param name="message">The message.</param>
-        public void SendData(ChannelDataMessage message)
+        /// <param name="data">The data to be sent.</param>
+        public void SendData(byte[] data)
         {
-            this._session.SendMessage(message);
+            this._channel.SendData(data);
         }
 
         /// <summary>

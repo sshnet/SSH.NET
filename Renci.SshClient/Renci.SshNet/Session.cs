@@ -94,6 +94,11 @@ namespace Renci.SshNet
         private EventWaitHandle _keyExchangeCompletedWaitHandle = new ManualResetEvent(false);
 
         /// <summary>
+        /// WaitHandle to signal that key exchange is in progress.
+        /// </summary>
+        private bool _keyExchangeInProgress = false;
+
+        /// <summary>
         /// Exception that need to be thrown by waiting thread
         /// </summary>
         private Exception _exception;
@@ -657,6 +662,12 @@ namespace Renci.SshNet
             if (this._socket == null || !this._socket.Connected)
                 return;
 
+            if (this._keyExchangeInProgress && !(message is IKeyExchangedAllowed))
+            { 
+                //  Wait for key exchange to be completed
+                this.WaitHandle(this._keyExchangeCompletedWaitHandle);
+            }
+
             this.Log(string.Format("SendMessage to server '{0}': '{1}'.", message.GetType().Name, message.ToString()));
 
             //  Messages can be sent by different thread so we need to synchronize it            
@@ -1155,6 +1166,8 @@ namespace Renci.SshNet
         /// <param name="message"><see cref="KeyExchangeInitMessage"/> message.</param>
         protected virtual void OnKeyExchangeInitReceived(KeyExchangeInitMessage message)
         {
+            this._keyExchangeInProgress = true;
+
             this._keyExchangeCompletedWaitHandle.Reset();
 
             //  Disable all registered messages except key exchange related
@@ -1176,6 +1189,8 @@ namespace Renci.SshNet
 
             //  Create instance of key exchange algorithm that will be used
             this._keyExchange = this.ConnectionInfo.KeyExchangeAlgorithms[keyExchangeAlgorithmName].CreateInstance<KeyExchange>();
+
+            this.ConnectionInfo.CurrentKeyExchangeAlgorithm = keyExchangeAlgorithmName;
 
             this._keyExchange.HostKeyReceived += KeyExchange_HostKeyReceived;
 
@@ -1243,6 +1258,8 @@ namespace Renci.SshNet
 
             //  Signal that key exchange completed
             this._keyExchangeCompletedWaitHandle.Set();
+
+            this._keyExchangeInProgress = false;
         }
 
         /// <summary>

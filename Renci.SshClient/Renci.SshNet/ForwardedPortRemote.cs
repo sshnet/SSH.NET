@@ -37,6 +37,12 @@ namespace Renci.SshNet
         /// </summary>
         public uint Port { get; protected set; }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ForwardedPortRemote"/> class.
+        /// </summary>
+        /// <param name="boundPort">The bound port.</param>
+        /// <param name="host">The host.</param>
+        /// <param name="port">The port.</param>
         public ForwardedPortRemote(uint boundPort, string host, uint port)
             : this(string.Empty, boundPort, host, port)
         {

@@ -70,7 +70,14 @@ namespace Renci.SshNet.Sftp
 
         internal void SendMessage(SftpMessage sftpMessage)
         {
-            this.SendData(new SftpDataMessage(this.ChannelNumber, sftpMessage));
+            var messageData = sftpMessage.GetBytes();
+
+            var data = new byte[4 + messageData.Length];
+
+            ((uint)messageData.Length).GetBytes().CopyTo(data, 0);
+            messageData.CopyTo(data, 4);
+
+            this.SendData(data);
         }
 
         /// <summary>
@@ -245,7 +252,18 @@ namespace Renci.SshNet.Sftp
                 this._requests.Add(request.RequestId, request);
             }
 
-            this.SendData(new SftpDataMessage(this.ChannelNumber, request));
+            this.SendMessage(request);
+            //this.SendData(new SftpDataMessage(this.ChannelNumber, request));
+
+            //var messageData = request.GetBytes();
+
+            //var data = new byte[4 + messageData.Length];
+
+            //((uint)messageData.Length).GetBytes().CopyTo(data, 0);
+            //messageData.CopyTo(data, 4);
+
+            //this.SendData(data);
+
         }
 
         #region SFTP API functions

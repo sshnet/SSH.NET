@@ -154,6 +154,46 @@ namespace Renci.SshNet
         public event EventHandler<AuthenticationBannerEventArgs> AuthenticationBanner;
 
         /// <summary>
+        /// Gets the current key exchange algorithm.
+        /// </summary>
+        public string CurrentKeyExchangeAlgorithm { get; internal set; }
+
+        /// <summary>
+        /// Gets the current server encryption.
+        /// </summary>
+        public string CurrentServerEncryption { get; internal set; }
+
+        /// <summary>
+        /// Gets the current client encryption.
+        /// </summary>
+        public string CurrentClientEncryption { get; internal set; }
+
+        /// <summary>
+        /// Gets the current server hash algorithm.
+        /// </summary>
+        public string CurrentServerHmacAlgorithm { get; internal set; }
+
+        /// <summary>
+        /// Gets the current client hash algorithm.
+        /// </summary>
+        public string CurrentClientHmacAlgorithm { get; internal set; }
+
+        /// <summary>
+        /// Gets the current host key algorithm.
+        /// </summary>
+        public string CurrentHostKeyAlgorithm { get; internal set; }
+
+        /// <summary>
+        /// Gets the current server compression algorithm.
+        /// </summary>
+        public string CurrentServerCompressionAlgorithm { get; internal set; }
+
+        /// <summary>
+        /// Gets the current client compression algorithm.
+        /// </summary>
+        public string CurrentClientCompressionAlgorithm { get; internal set; }
+
+        /// <summary>
         /// Prevents a default instance of the <see cref="ConnectionInfo"/> class from being created.
         /// </summary>
         private ConnectionInfo()
@@ -300,31 +340,6 @@ namespace Renci.SshNet
             this.ProxyUsername = proxyUsername;
             this.ProxyPassword = proxyPassword;
         }
-
-        //internal Socket CreateSocket()
-        //{
-        //    Socket socket = null;
-
-        //    CreateSocket(ref socket);
-
-        //    switch (this.ProxyType)
-        //    {
-        //        case ProxyTypes.None:
-        //            break;
-        //        case ProxyTypes.Socks4:
-        //            ConnectSocks4(socket);
-        //            break;
-        //        case ProxyTypes.Socks5:
-        //            ConnectSocks5(socket);
-        //            break;
-        //        default:
-        //            break;
-        //    }
-
-        //    return socket;
-        //}
-
-        //partial void CreateSocket(ref Socket socket);
 
         /// <summary>
         /// Authenticates the specified session.

@@ -129,13 +129,13 @@ namespace Renci.SshNet
         /// Initializes a new instance of the <see cref="PasswordConnectionInfo"/> class.
         /// </summary>
         /// <param name="host">Connection host.</param>
-        /// <param name="port">The port.</param>
         /// <param name="username">Connection username.</param>
         /// <param name="password">Connection password.</param>
         /// <param name="proxyType">Type of the proxy.</param>
         /// <param name="proxyHost">The proxy host.</param>
         /// <param name="proxyPort">The proxy port.</param>
         /// <param name="proxyUsername">The proxy username.</param>
+        /// <param name="proxyPassword">The proxy password.</param>
         public PasswordConnectionInfo(string host, string username, string password, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername, string proxyPassword)
             : this(host, 22, username, password, proxyType, proxyHost, proxyPort, proxyUsername, proxyPassword)
         {
@@ -152,6 +152,7 @@ namespace Renci.SshNet
         /// <param name="proxyHost">The proxy host.</param>
         /// <param name="proxyPort">The proxy port.</param>
         /// <param name="proxyUsername">The proxy username.</param>
+        /// <param name="proxyPassword">The proxy password.</param>
         public PasswordConnectionInfo(string host, int port, string username, string password, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername, string proxyPassword)
             : base(host, port, username, proxyType, proxyHost, proxyPort, proxyUsername, proxyPassword)
         {

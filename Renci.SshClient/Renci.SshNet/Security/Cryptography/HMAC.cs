@@ -153,5 +153,16 @@ namespace Renci.SshNet.Security.Cryptography
                 this._outerPadding[i] ^= this.KeyValue[i];
             }
         }
+
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+
+            if (this._hash != null)
+            {
+                this._hash.Clear();
+                this._hash = null;
+            }
+        }
     }
 }

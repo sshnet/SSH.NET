@@ -110,6 +110,9 @@ namespace Renci.SshNet.Security.Cryptography
                     //  Generate a random per-message value k where 0 < k < q
                     var bitLength = this._key.Q.BitLength;
 
+                    if (this._key.Q < BigInteger.Zero)
+                        throw new SshException("Invalid DSA key.");
+
                     while (k <= 0 || k >= this._key.Q)
                     {
                         k = BigInteger.Random(bitLength);

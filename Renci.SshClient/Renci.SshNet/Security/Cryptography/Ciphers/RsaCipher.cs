@@ -94,6 +94,9 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 
                 var bitLength = this._key.Modulus.BitLength;
 
+                if (max < BigInteger.One)
+                    throw new SshException("Invalid RSA key.");
+
                 while (random <= BigInteger.One || random >= max)
                 {
                     random = BigInteger.Random(bitLength);

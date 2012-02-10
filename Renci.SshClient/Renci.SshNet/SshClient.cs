@@ -18,7 +18,7 @@ namespace Renci.SshNet
         private List<ForwardedPort> _forwardedPorts = new List<ForwardedPort>();
 
         private bool _disposeConnectionInfo;
-        
+
         private Stream _inputStream;
 
         /// <summary>
@@ -54,7 +54,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="password"/> is null.</exception>
         /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, or <paramref name="username"/> is null or contains whitespace characters.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="port"/> is not within <see cref="System.Net.IPEndPoint.MinPort"/> and <see cref="System.Net.IPEndPoint.MaxPort"/>.</exception>
-        [SuppressMessage("Microsoft.Reliability", "CA2000:DisposeObjectsBeforeLosingScope", Justification="Disposed in Dispose(bool) method.")]
+        [SuppressMessage("Microsoft.Reliability", "CA2000:DisposeObjectsBeforeLosingScope", Justification = "Disposed in Dispose(bool) method.")]
         public SshClient(string host, int port, string username, string password)
             : this(new PasswordConnectionInfo(host, port, username, password))
         {
@@ -123,7 +123,7 @@ namespace Renci.SshNet
         /// Adds the forwarded port.
         /// </summary>
         /// <param name="port">The port.</param>
-        public void AddForwardedPort(ForwardedPort port) 
+        public void AddForwardedPort(ForwardedPort port)
         {
             //  Ensure that connection is established.
             this.EnsureConnection();
@@ -188,7 +188,7 @@ namespace Renci.SshNet
         /// <exception cref="Renci.SshNet.Common.SshException">Invalid Operation - An existing channel was used to execute this command.</exception>
         /// <exception cref="InvalidOperationException">Asynchronous operation is already in progress.</exception>
         public SshCommand RunCommand(string commandText)
-        {            
+        {
             var cmd = this.CreateCommand(commandText);
             cmd.Execute();
             return cmd;
@@ -261,7 +261,7 @@ namespace Renci.SshNet
         /// <param name="terminalMode">The terminal mode.</param>
         /// <param name="bufferSize">Size of the internal read buffer.</param>
         /// <returns>Returns a representation of a <see cref="Shell"/> object.</returns>
-        public Shell CreateShell(Encoding encoding, string input, Stream output, Stream extendedOutput, string terminalName, uint columns, uint rows, uint width , uint height , string terminalMode, int bufferSize)
+        public Shell CreateShell(Encoding encoding, string input, Stream output, Stream extendedOutput, string terminalName, uint columns, uint rows, uint width, uint height, string terminalMode, int bufferSize)
         {
             //  Ensure that connection is established.
             this.EnsureConnection();
@@ -306,6 +306,26 @@ namespace Renci.SshNet
         {
             return this.CreateShell(encoding, input, output, extendedOutput, string.Empty, 0, 0, 0, 0, string.Empty, 1024);
         }
+
+        /// <summary>
+        /// Creates the shell stream.
+        /// </summary>
+        /// <param name="terminalName">Name of the terminal.</param>
+        /// <param name="columns">The columns.</param>
+        /// <param name="rows">The rows.</param>
+        /// <param name="width">The width.</param>
+        /// <param name="height">The height.</param>
+        /// <param name="terminalMode">The terminal mode.</param>
+        /// <param name="bufferSize">Size of the buffer.</param>
+        /// <returns></returns>
+        public ShellStream CreateShellStream(string terminalName, uint columns, uint rows, uint width, uint height, string terminalMode, int bufferSize)
+        {
+            //  Ensure that connection is established.
+            this.EnsureConnection();
+
+            return new ShellStream(this.Session, terminalName, columns, rows, width, height, terminalMode, bufferSize);
+        }
+
 
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources

@@ -213,6 +213,7 @@ namespace Renci.SshNet
 
             this.Encryptions = new Dictionary<string, CipherInfo>()
             {
+                {"aes256-ctr", new CipherInfo(256, (key, iv)=>{ return new AesCipher(key, new CtrCipherMode(iv), null); }) },
                 {"3des-cbc", new CipherInfo(192, (key, iv)=>{ return new TripleDesCipher(key, new CbcCipherMode(iv), null); }) },
                 {"aes128-cbc", new CipherInfo(128, (key, iv)=>{ return new AesCipher(key, new CbcCipherMode(iv), null); }) },
                 {"aes192-cbc", new CipherInfo(192, (key, iv)=>{ return new AesCipher(key, new CbcCipherMode(iv), null); }) },
@@ -233,7 +234,6 @@ namespace Renci.SshNet
                 ////{"rijndael-cbc@lysator.liu.se", typeof(...)},                
                 {"aes128-ctr", new CipherInfo(128, (key, iv)=>{ return new AesCipher(key, new CtrCipherMode(iv), null); }) },
                 {"aes192-ctr", new CipherInfo(192, (key, iv)=>{ return new AesCipher(key, new CtrCipherMode(iv), null); }) },
-                {"aes256-ctr", new CipherInfo(256, (key, iv)=>{ return new AesCipher(key, new CtrCipherMode(iv), null); }) },
             };
 
             this.HmacAlgorithms = new Dictionary<string, Func<byte[], HashAlgorithm>>()

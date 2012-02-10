@@ -388,6 +388,9 @@
     </Compile>
     <Compile Include="Shell.cs" />
     <Compile Include="Shell.NET40.cs" />
+    <Compile Include="ShellStream.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="SshClient.cs" />
     <Compile Include="SshCommand.cs" />
     <Compile Include="SshCommand.NET40.cs" />

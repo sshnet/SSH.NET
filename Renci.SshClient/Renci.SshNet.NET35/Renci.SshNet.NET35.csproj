@@ -192,6 +192,9 @@
     <Compile Include="..\Renci.SshNet\Common\SshPassPhraseNullOrEmptyException.NET40.cs">
       <Link>Common\SshPassPhraseNullOrEmptyException.NET40.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\Common\TerminalModes.cs">
+      <Link>Common\TerminalModes.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\Compression\CompressionMode.cs">
       <Link>Compression\CompressionMode.cs</Link>
     </Compile>

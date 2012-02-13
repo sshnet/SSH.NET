@@ -115,6 +115,9 @@
     <Compile Include="Common\SshOperationTimeoutException.NET40.cs" />
     <Compile Include="Common\SshPassPhraseNullOrEmptyException.cs" />
     <Compile Include="Common\SshPassPhraseNullOrEmptyException.NET40.cs" />
+    <Compile Include="Common\TerminalModes.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Compression\CompressionMode.cs" />
     <Compile Include="Compression\Compressor.cs" />
     <Compile Include="Compression\Zlib.cs" />

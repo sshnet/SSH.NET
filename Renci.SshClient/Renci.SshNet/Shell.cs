@@ -129,7 +129,8 @@ namespace Renci.SshNet
             this._session.ErrorOccured += Session_ErrorOccured;
 
             this._channel.Open();
-            this._channel.SendPseudoTerminalRequest(this._terminalName, this._columns, this._rows, this._width, this._height, this._terminalMode);
+            //  TODO:   Terminal mode is ignored as this functionality will be obsolete
+            this._channel.SendPseudoTerminalRequest(this._terminalName, this._columns, this._rows, this._width, this._height);
             this._channel.SendShellRequest();
 
             this._channelClosedWaitHandle = new AutoResetEvent(false);

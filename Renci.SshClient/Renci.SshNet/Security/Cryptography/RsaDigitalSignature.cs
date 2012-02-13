@@ -65,7 +65,7 @@ namespace Renci.SshNet.Security.Cryptography
                     // Dispose managed ResourceMessages.
                     if (this._hash != null)
                     {
-                        this._hash.Dispose();
+                        this._hash.Clear();
                         this._hash = null;
                     }
                 }

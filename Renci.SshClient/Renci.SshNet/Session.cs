@@ -1938,13 +1938,13 @@ namespace Renci.SshNet
 
                     if (this._serverMac != null)
                     {
-                        this._serverMac.Dispose();
+                        this._serverMac.Clear();
                         this._serverMac = null;
                     }
 
                     if (this._clientMac != null)
                     {
-                        this._clientMac.Dispose();
+                        this._clientMac.Clear();
                         this._clientMac = null;
                     }
 

@@ -4,6 +4,7 @@ using System.IO;
 using System.Collections.ObjectModel;
 using System.Text;
 using System.Diagnostics.CodeAnalysis;
+using Renci.SshNet.Common;
 
 namespace Renci.SshNet
 {
@@ -315,15 +316,15 @@ namespace Renci.SshNet
         /// <param name="rows">The rows.</param>
         /// <param name="width">The width.</param>
         /// <param name="height">The height.</param>
-        /// <param name="terminalMode">The terminal mode.</param>
         /// <param name="bufferSize">Size of the buffer.</param>
+        /// <param name="terminalModes">The terminal modes.</param>
         /// <returns></returns>
-        public ShellStream CreateShellStream(string terminalName, uint columns, uint rows, uint width, uint height, string terminalMode, int bufferSize)
+        public ShellStream CreateShellStream(string terminalName, uint columns, uint rows, uint width, uint height, int bufferSize, params KeyValuePair<TerminalModes, uint>[] terminalModeValues)
         {
             //  Ensure that connection is established.
             this.EnsureConnection();
 
-            return new ShellStream(this.Session, terminalName, columns, rows, width, height, terminalMode, bufferSize);
+            return new ShellStream(this.Session, terminalName, columns, rows, width, height, bufferSize, terminalModeValues);
         }
 
 

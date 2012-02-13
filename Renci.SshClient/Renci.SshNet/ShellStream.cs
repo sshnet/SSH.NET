@@ -21,6 +21,14 @@ namespace Renci.SshNet
 
         private int _bufferSize;
 
+        private EventWaitHandle _expectedTextWaitHandle = new AutoResetEvent(false);
+
+        private string _expectedText;
+
+        private int _expectedIndex;
+
+        private StringBuilder _expectedBuffer;
+
         /// <summary>
         /// Occurs when an error occurred.
         /// </summary>
@@ -57,9 +65,9 @@ namespace Renci.SshNet
         /// <param name="rows">The rows.</param>
         /// <param name="width">The width.</param>
         /// <param name="height">The height.</param>
-        /// <param name="terminalMode">The terminal mode.</param>
         /// <param name="bufferSize">Size of the buffer.</param>
-        internal ShellStream(Session session, string terminalName, uint columns, uint rows, uint width, uint height, string terminalMode, int bufferSize)
+        /// <param name="terminalModeValues">The terminal mode values.</param>
+        internal ShellStream(Session session, string terminalName, uint columns, uint rows, uint width, uint height, int bufferSize, params KeyValuePair<TerminalModes, uint>[] terminalModeValues)
         {
             this._session = session;
 
@@ -77,8 +85,18 @@ namespace Renci.SshNet
             this._session.ErrorOccured += Session_ErrorOccured;
 
             this._channel.Open();
-            this._channel.SendPseudoTerminalRequest(terminalName, columns, rows, width, height, terminalMode);
+            this._channel.SendPseudoTerminalRequest(terminalName, columns, rows, width, height, terminalModeValues);
             this._channel.SendShellRequest();
+        }
+
+        public void Expect(string expected, TimeSpan timeout)
+        {
+            this._expectedText = expected;
+            this._expectedIndex = 0;
+
+            this._expectedTextWaitHandle.WaitOne(timeout);
+
+            this._expectedText = null;
         }
 
         #region Stream overide methods
@@ -252,8 +270,11 @@ namespace Renci.SshNet
         /// <exception cref="T:System.IO.IOException">An I/O error occurs. </exception>
         public override void Flush()
         {
-            this._channel.SendData(this._outgoing.ToArray());
-            this._outgoing.Clear();
+            if (this._outgoing.Count > 0)
+            {
+                this._channel.SendData(this._outgoing.ToArray());
+                this._outgoing.Clear();
+            }
         }
 
         /// <summary>
@@ -264,16 +285,22 @@ namespace Renci.SshNet
         {
             base.Dispose(disposing);
 
-            if (this._channel.IsOpen)
+            if (this._channel != null)
             {
-                this._channel.SendEof();
+                if (this._channel.IsOpen)
+                {
+                    this._channel.SendEof();
 
-                this._channel.Close();
+                    this._channel.Close();
+                }
+
+                //  TODO:   Check why this._channel could be null here, had an exception thrown here
+                this._channel.DataReceived -= Channel_DataReceived;
+                this._channel.Closed -= Channel_Closed;
+
+                this._channel = null;
             }
 
-            this._channel.DataReceived -= Channel_DataReceived;
-            //this._channel.ExtendedDataReceived -= Channel_ExtendedDataReceived;
-            this._channel.Closed -= Channel_Closed;
             this._session.Disconnected -= Session_Disconnected;
             this._session.ErrorOccured -= Session_ErrorOccured;
 
@@ -282,9 +309,6 @@ namespace Renci.SshNet
                 this.DataAvailableWaitHandle.Dispose();
                 this.DataAvailableWaitHandle = null;
             }
-
-
-            this._channel = null;
         }
 
         #endregion
@@ -299,6 +323,25 @@ namespace Renci.SshNet
 
                 for (int i = 0; i < e.Data.Length; i++)
                 {
+                    if (this._expectedText != null)
+                    {
+                        if (this._expectedText[_expectedIndex] == e.Data[i])
+                        {
+                            //  Expected character found
+                            this._expectedIndex++;
+
+                            //  Check if expected text is completely found
+                            if (this._expectedIndex == this._expectedText.Length)
+                            {
+                                this._expectedTextWaitHandle.Set();
+                            }
+                        }
+                        else
+                        {
+                            //  Still waiting for first expected character
+                            this._expectedIndex = 0;
+                        }
+                    }
                     this._incoming.Enqueue(e.Data[i]);
                 }
 

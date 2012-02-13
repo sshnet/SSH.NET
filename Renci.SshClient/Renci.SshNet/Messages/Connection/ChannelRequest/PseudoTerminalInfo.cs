@@ -1,4 +1,7 @@
-﻿namespace Renci.SshNet.Messages.Connection
+﻿using System;
+using Renci.SshNet.Common;
+using System.Collections.Generic;
+namespace Renci.SshNet.Messages.Connection
 {
     /// <summary>
     /// Represents "pty-req" type channel request information
@@ -67,7 +70,7 @@
         /// <value>
         /// The terminal mode.
         /// </value>
-        public string TerminalMode { get; set; }
+        public KeyValuePair<TerminalModes, uint>[] TerminalModeValues { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PseudoTerminalRequestInfo"/> class.
@@ -86,7 +89,7 @@
         /// <param name="width">The width.</param>
         /// <param name="height">The height.</param>
         /// <param name="terminalMode">The terminal mode.</param>
-        public PseudoTerminalRequestInfo(string environmentVariable, uint columns, uint rows, uint width, uint height, string terminalMode)
+        public PseudoTerminalRequestInfo(string environmentVariable, uint columns, uint rows, uint width, uint height, params KeyValuePair<TerminalModes, uint>[] terminalModeValues)
             : this()
         {
             this.EnvironmentVariable = environmentVariable;
@@ -94,7 +97,7 @@
             this.Rows = rows;
             this.PixelWidth = width;
             this.PixelHeight = height;
-            this.TerminalMode = terminalMode;
+            this.TerminalModeValues = terminalModeValues;
         }
 
         /// <summary>
@@ -109,7 +112,15 @@
             this.Rows = this.ReadUInt32();
             this.PixelWidth = this.ReadUInt32();
             this.PixelHeight = this.ReadUInt32();
-            this.TerminalMode = this.ReadAsciiString();
+
+            var length = this.ReadUInt32();
+
+            this.TerminalModeValues = new KeyValuePair<TerminalModes, uint>[(length - 1) / 5];
+            for (int i = 0; i < length; i++)
+            {
+                var keyValue = new KeyValuePair<TerminalModes, uint>((TerminalModes)this.ReadByte(), this.ReadUInt32());
+                this.TerminalModeValues[i] = keyValue;
+            }
         }
 
         /// <summary>
@@ -124,8 +135,15 @@
             this.Write(this.Rows);
             this.Write(this.Rows);
             this.Write(this.PixelHeight);
-            this.WriteAscii(this.TerminalMode);
 
+            this.Write((uint)this.TerminalModeValues.Length * 5 + 1);
+
+            foreach (var item in this.TerminalModeValues)
+            {
+                this.Write((byte)item.Key);
+                this.Write((uint)item.Value);                
+            }
+            this.Write((byte)0);
         }
     }
 }

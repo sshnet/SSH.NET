@@ -3,6 +3,7 @@ using System.Threading;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Connection;
 using System.Globalization;
+using System.Collections.Generic;
 
 namespace Renci.SshNet.Channels
 {
@@ -111,11 +112,11 @@ namespace Renci.SshNet.Channels
         /// <param name="height">The height.</param>
         /// <param name="terminalMode">The terminal mode.</param>
         /// <returns>true if request was successful; otherwise false.</returns>
-        public bool SendPseudoTerminalRequest(string environmentVariable, uint columns, uint rows, uint width, uint height, string terminalMode)
+        public bool SendPseudoTerminalRequest(string environmentVariable, uint columns, uint rows, uint width, uint height, params KeyValuePair<TerminalModes, uint>[] terminalModeValues)
         {
             this._channelRequestResponse.Reset();
 
-            this.SendMessage(new ChannelRequestMessage(this.RemoteChannelNumber, new PseudoTerminalRequestInfo(environmentVariable, columns, rows, width, height, terminalMode)));
+            this.SendMessage(new ChannelRequestMessage(this.RemoteChannelNumber, new PseudoTerminalRequestInfo(environmentVariable, columns, rows, width, height, terminalModeValues)));
 
             this._channelRequestResponse.WaitOne();
 

@@ -154,6 +154,9 @@
     <Compile Include="..\Renci.SshNet\Common\SftpPermissionDeniedException.cs">
       <Link>Common\SftpPermissionDeniedException.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\Common\ShellDataEventArgs.cs">
+      <Link>Common\ShellDataEventArgs.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\Common\SshAuthenticationException.cs">
       <Link>Common\SshAuthenticationException.cs</Link>
     </Compile>
@@ -192,6 +195,9 @@
     </Compile>
     <Compile Include="..\Renci.SshNet\ConnectionInfo.cs">
       <Link>ConnectionInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\ExpectAction.cs">
+      <Link>ExpectAction.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\ForwardedPort.cs">
       <Link>ForwardedPort.cs</Link>

@@ -158,6 +158,9 @@
     <Compile Include="..\Renci.SshNet\Common\SftpPermissionDeniedException.cs">
       <Link>Common\SftpPermissionDeniedException.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\Common\ShellDataEventArgs.cs">
+      <Link>Common\ShellDataEventArgs.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\Common\SshAuthenticationException.cs">
       <Link>Common\SshAuthenticationException.cs</Link>
     </Compile>
@@ -196,6 +199,9 @@
     </Compile>
     <Compile Include="..\Renci.SshNet\ConnectionInfo.cs">
       <Link>ConnectionInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\ExpectAction.cs">
+      <Link>ExpectAction.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\ForwardedPort.cs">
       <Link>ForwardedPort.cs</Link>
@@ -724,7 +730,7 @@
       <FlavorProperties GUID="{A1591282-1198-4647-A2B1-27E5FF5F6F3B}">
         <SilverlightProjectProperties />
       </FlavorProperties>
-      <UserProperties ProjectLinkReference="2f5f8c90-0bd1-424f-997c-7bc6280919d1" ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" />
+      <UserProperties ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" ProjectLinkReference="2f5f8c90-0bd1-424f-997c-7bc6280919d1" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

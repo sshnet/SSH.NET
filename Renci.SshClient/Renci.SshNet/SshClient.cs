@@ -317,7 +317,7 @@ namespace Renci.SshNet
         /// <param name="width">The width.</param>
         /// <param name="height">The height.</param>
         /// <param name="bufferSize">Size of the buffer.</param>
-        /// <param name="terminalModes">The terminal modes.</param>
+        /// <param name="terminalModeValues">The terminal mode values.</param>
         /// <returns></returns>
         public ShellStream CreateShellStream(string terminalName, uint columns, uint rows, uint width, uint height, int bufferSize, params KeyValuePair<TerminalModes, uint>[] terminalModeValues)
         {

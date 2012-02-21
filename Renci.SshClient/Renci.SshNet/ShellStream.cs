@@ -10,60 +10,377 @@ using System.Text.RegularExpressions;
 
 namespace Renci.SshNet
 {
-    public enum LineMatchModes
-    {
-        Everything,
-        Compleated,
-        Partial,
-    }
-
+    /// <summary>
+    /// Contains operation for working with SSH Shell.
+    /// </summary>
     public class ShellStream : Stream
     {
-        int _maxLines = 0;
-
-        List<string> _compleatedLines;
-        StringBuilder _currentLine;
-
-        Regex[] _patternMatchers = null;
-        LineMatchModes _lineMatchMode;
-        int _patternMatcherIndex;
-        string _patternCaptureBuffer;
+        //  TODO:   Replace reading into StringBuilder with reading into Stack or byte array for better efficiency.
 
         private readonly Session _session;
+
         private ChannelSession _channel;
 
-        public delegate void DataReceivedHandler(byte[] data);
-        public event DataReceivedHandler DataReceived;
+        private Encoding _encoding;
 
-        public delegate void LineReadHandler(string Line);
-        public event LineReadHandler LineRead;
+        private StringBuilder _dataBuffer;
 
+        /// <summary>
+        /// Occurs when data was received.
+        /// </summary>
+        public event EventHandler<ShellDataEventArgs> DataReceived;
+
+        /// <summary>
+        /// Occurs when an error occurred.
+        /// </summary>
         public event EventHandler<ExceptionEventArgs> ErrorOccurred;
+
+        /// <summary>
+        /// Gets a value that indicates whether data is available on the <see cref="ShellStream"/> to be read.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if data is available to be read; otherwise, <c>false</c>.
+        /// </value>
+        public bool DataAvailable
+        {
+            get
+            {
+                return this._dataBuffer.Length > 0;
+            }
+        }
 
         internal ShellStream(Session session, string terminalName, uint columns, uint rows, uint width, uint height, int maxLines, params KeyValuePair<TerminalModes, uint>[] terminalModeValues)
         {
+            this._dataBuffer = new StringBuilder();
+            this._encoding = new Renci.SshNet.Common.ASCIIEncoding();
             this._session = session;
 
-            _compleatedLines = new List<string>();
-            _currentLine = new StringBuilder();
-
             this._channel = this._session.CreateChannel<ChannelSession>();
-            this._channel.DataReceived += new EventHandler<ChannelDataEventArgs>(_channel_DataReceived);
-            this._channel.Closed += new EventHandler<ChannelEventArgs>(_channel_Closed);
-            this._session.Disconnected += new EventHandler<EventArgs>(_session_Disconnected);
-            this._session.ErrorOccured += new EventHandler<ExceptionEventArgs>(_session_ErrorOccured);
+            this._channel.DataReceived += new EventHandler<ChannelDataEventArgs>(Channel_DataReceived);
+            this._channel.Closed += new EventHandler<ChannelEventArgs>(Channel_Closed);
+            this._session.Disconnected += new EventHandler<EventArgs>(Session_Disconnected);
+            this._session.ErrorOccured += new EventHandler<ExceptionEventArgs>(Session_ErrorOccured);
 
             this._channel.Open();
             this._channel.SendPseudoTerminalRequest(terminalName, columns, rows, width, height, terminalModeValues);
             this._channel.SendShellRequest();
         }
 
-        void _session_ErrorOccured(object sender, ExceptionEventArgs e)
+        #region Stream overide methods
+
+        /// <summary>
+        /// Gets a value indicating whether the current stream supports reading.
+        /// </summary>
+        /// <returns>true if the stream supports reading; otherwise, false.</returns>
+        public override bool CanRead
+        {
+            get { return true; }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether the current stream supports seeking.
+        /// </summary>
+        /// <returns>true if the stream supports seeking; otherwise, false.</returns>
+        public override bool CanSeek
+        {
+            get { return false; }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether the current stream supports writing.
+        /// </summary>
+        /// <returns>true if the stream supports writing; otherwise, false.</returns>
+        public override bool CanWrite
+        {
+            get { return true; }
+        }
+
+        /// <summary>
+        /// Clears all buffers for this stream and causes any buffered data to be written to the underlying device.
+        /// </summary>
+        /// <exception cref="T:System.IO.IOException">An I/O error occurs. </exception>
+        public override void Flush()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Gets the length in bytes of the stream.
+        /// </summary>
+        /// <returns>A long value representing the length of the stream in bytes.</returns>
+        ///   
+        /// <exception cref="T:System.NotSupportedException">A class derived from Stream does not support seeking. </exception>
+        ///   
+        /// <exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed. </exception>
+        public override long Length
+        {
+            get { return this._dataBuffer.Length; }
+        }
+
+        /// <summary>
+        /// Gets or sets the position within the current stream.
+        /// </summary>
+        /// <returns>The current position within the stream.</returns>
+        ///   
+        /// <exception cref="T:System.IO.IOException">An I/O error occurs. </exception>
+        ///   
+        /// <exception cref="T:System.NotSupportedException">The stream does not support seeking. </exception>
+        ///   
+        /// <exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed. </exception>
+        public override long Position
+        {
+            get { return 0; }
+            set { throw new NotSupportedException(); }
+        }
+
+        /// <summary>
+        /// Reads a sequence of bytes from the current stream and advances the position within the stream by the number of bytes read.
+        /// </summary>
+        /// <param name="buffer">An array of bytes. When this method returns, the buffer contains the specified byte array with the values between <paramref name="offset"/> and (<paramref name="offset"/> + <paramref name="count"/> - 1) replaced by the bytes read from the current source.</param>
+        /// <param name="offset">The zero-based byte offset in <paramref name="buffer"/> at which to begin storing the data read from the current stream.</param>
+        /// <param name="count">The maximum number of bytes to be read from the current stream.</param>
+        /// <returns>
+        /// The total number of bytes read into the buffer. This can be less than the number of bytes requested if that many bytes are not currently available, or zero (0) if the end of the stream has been reached.
+        /// </returns>
+        /// <exception cref="T:System.ArgumentException">The sum of <paramref name="offset"/> and <paramref name="count"/> is larger than the buffer length. </exception>
+        ///   
+        /// <exception cref="T:System.ArgumentNullException">
+        ///   <paramref name="buffer"/> is null. </exception>
+        ///   
+        /// <exception cref="T:System.ArgumentOutOfRangeException">
+        ///   <paramref name="offset"/> or <paramref name="count"/> is negative. </exception>
+        ///   
+        /// <exception cref="T:System.IO.IOException">An I/O error occurs. </exception>
+        ///   
+        /// <exception cref="T:System.NotSupportedException">The stream does not support reading. </exception>
+        ///   
+        /// <exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed. </exception>
+        public override int Read(byte[] buffer, int offset, int count)
+        {
+            var data = this._encoding.GetBytes(this._dataBuffer.ToString().ToCharArray(), 0, Math.Min(count, this._dataBuffer.Length));
+
+            if (data.Length > 0)
+            {
+                Array.Copy(data, 0, buffer, offset, data.Length);
+                this._dataBuffer.Remove(0, data.Length);
+            }
+
+            return data.Length;
+        }
+
+        /// <summary>
+        /// This method is not supported.
+        /// </summary>
+        /// <param name="offset">A byte offset relative to the <paramref name="origin"/> parameter.</param>
+        /// <param name="origin">A value of type <see cref="T:System.IO.SeekOrigin"/> indicating the reference point used to obtain the new position.</param>
+        /// <returns>
+        /// The new position within the current stream.
+        /// </returns>
+        /// <exception cref="T:System.IO.IOException">An I/O error occurs. </exception>
+        ///   
+        /// <exception cref="T:System.NotSupportedException">The stream does not support seeking, such as if the stream is constructed from a pipe or console output. </exception>
+        ///   
+        /// <exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed. </exception>
+        public override long Seek(long offset, System.IO.SeekOrigin origin)
+        {
+            throw new NotSupportedException();
+        }
+
+        /// <summary>
+        /// This method is not supported.
+        /// </summary>
+        /// <param name="value">The desired length of the current stream in bytes.</param>
+        /// <exception cref="T:System.IO.IOException">An I/O error occurs. </exception>
+        ///   
+        /// <exception cref="T:System.NotSupportedException">The stream does not support both writing and seeking, such as if the stream is constructed from a pipe or console output. </exception>
+        ///   
+        /// <exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed. </exception>
+        public override void SetLength(long value)
+        {
+            throw new NotSupportedException();
+        }
+
+        /// <summary>
+        /// Writes a sequence of bytes to the current stream and advances the current position within this stream by the number of bytes written.
+        /// </summary>
+        /// <param name="buffer">An array of bytes. This method copies <paramref name="count"/> bytes from <paramref name="buffer"/> to the current stream.</param>
+        /// <param name="offset">The zero-based byte offset in <paramref name="buffer"/> at which to begin copying bytes to the current stream.</param>
+        /// <param name="count">The number of bytes to be written to the current stream.</param>
+        /// <exception cref="T:System.ArgumentException">The sum of <paramref name="offset"/> and <paramref name="count"/> is greater than the buffer length. </exception>
+        ///   
+        /// <exception cref="T:System.ArgumentNullException">
+        ///   <paramref name="buffer"/> is null. </exception>
+        ///   
+        /// <exception cref="T:System.ArgumentOutOfRangeException">
+        ///   <paramref name="offset"/> or <paramref name="count"/> is negative. </exception>
+        ///   
+        /// <exception cref="T:System.IO.IOException">An I/O error occurs. </exception>
+        ///   
+        /// <exception cref="T:System.NotSupportedException">The stream does not support writing. </exception>
+        ///   
+        /// <exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed. </exception>
+        public override void Write(byte[] buffer, int offset, int count)
+        {
+            this._channel.SendData(buffer.Skip(offset).Take(count).ToArray());
+        }
+
+        #endregion
+
+        /// <summary>
+        /// Expects the specified expression and performs action when one is found.
+        /// </summary>
+        /// <param name="expectActions">The expected expressions and actions to perform.</param>
+        public void Expect(params ExpectAction[] expectActions)
+        {
+            var expectedFound = false;
+
+            lock (this._dataBuffer)
+            {
+                do
+                {
+                    if (this._dataBuffer.Length > 0)
+                    {
+                        foreach (var expectAction in expectActions)
+                        {
+                            var match = expectAction.Expect.Match(this._dataBuffer.ToString());
+                            if (match.Success)
+                            {
+                                var result = this._dataBuffer.ToString().Substring(0, match.Index + match.Length);
+
+                                //  Clean buffer up to expected text
+                                this._dataBuffer.Remove(0, match.Index + match.Length);
+
+                                expectAction.Action(result);
+                                expectedFound = true;
+                            }
+                        }
+
+                        if (!expectedFound)
+                            Monitor.Wait(this._dataBuffer);
+                    }
+                    else
+                    {
+                        Monitor.Wait(this._dataBuffer);
+                    }
+                }
+                while (!expectedFound);
+            }
+        }
+
+        /// <summary>
+        /// Expects the expression specified by text.
+        /// </summary>
+        /// <param name="text">The text to expect.</param>
+        /// <returns></returns>
+        public string Expect(string text)
+        {
+            return this.Expect(new Regex(Regex.Escape(text)));
+        }
+
+        /// <summary>
+        /// Expects the expression specified by regular expression.
+        /// </summary>
+        /// <param name="regex">The regular expresssion to expect.</param>
+        /// <returns>Text available in the shell that contains all the text that ends with expected expression.</returns>
+        public string Expect(Regex regex)
+        {
+            var result = string.Empty;
+            lock (this._dataBuffer)
+            {
+                var match = regex.Match(this._dataBuffer.ToString());
+                while (!match.Success)
+                {
+                    Monitor.Wait(this._dataBuffer);
+                    match = regex.Match(this._dataBuffer.ToString());
+                }
+
+                result = this._dataBuffer.ToString().Substring(0, match.Index + match.Length);
+
+                //  Clean buffer up to expected text
+                this._dataBuffer.Remove(0, match.Index + match.Length);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Reads the line from the shell. If line is not available it will block the execution and will wait for new line.
+        /// </summary>
+        /// <returns></returns>
+        public string ReadLine()
+        {
+            string result = string.Empty;
+            lock (this._dataBuffer)
+            {
+                var index = this._dataBuffer.ToString().IndexOf("\r\n");
+                while (index < 0)
+                {
+                    Monitor.Wait(this._dataBuffer);
+                    index = this._dataBuffer.ToString().IndexOf("\r\n");
+                }
+
+                result = this._dataBuffer.ToString().Substring(0, index);
+
+                this._dataBuffer.Remove(0, index);
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Reads text available in the shell.
+        /// </summary>
+        /// <returns></returns>
+        public string Read()
+        {
+            string result = this._dataBuffer.ToString();
+            lock (this._dataBuffer)
+            {
+                this._dataBuffer.Length = 0;
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Writes the specified text to the shell.
+        /// </summary>
+        /// <param name="text">The text.</param>
+        public void Write(string text)
+        {
+            var data = this._encoding.GetBytes(text);
+            this._channel.SendData(data);
+        }
+
+        /// <summary>
+        /// Writes the line to the shell.
+        /// </summary>
+        /// <param name="line">The line.</param>
+        public void WriteLine(string line)
+        {
+            var commandText = string.Format("{0}{1}", line, "\r\n");
+            this.Write(commandText);
+        }
+
+        /// <summary>
+        /// Releases the unmanaged resources used by the <see cref="T:System.IO.Stream"/> and optionally releases the managed resources.
+        /// </summary>
+        /// <param name="disposing">true to release both managed and unmanaged resources; false to release only unmanaged resources.</param>
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+
+            if (this._channel != null)
+            {
+                this._channel.Dispose();
+                this._channel = null;
+            }
+        }
+
+        private void Session_ErrorOccured(object sender, ExceptionEventArgs e)
         {
             this.OnRaiseError(e);
         }
 
-        void _session_Disconnected(object sender, EventArgs e)
+        private void Session_Disconnected(object sender, EventArgs e)
         {
             //  If channel is open then close it to cause Channel_Closed method to be called
             if (this._channel != null && this._channel.IsOpen)
@@ -74,56 +391,22 @@ namespace Renci.SshNet
             }
         }
 
-        void _channel_Closed(object sender, ChannelEventArgs e)
+        private void Channel_Closed(object sender, ChannelEventArgs e)
         {
+            //  TODO:   Do we need to call dispose here ??
             this.Dispose();
         }
 
-        void _channel_DataReceived(object sender, ChannelDataEventArgs e)
+        private void Channel_DataReceived(object sender, ChannelDataEventArgs e)
         {
-            lock (this._compleatedLines)
+            lock (this._dataBuffer)
             {
-                OnDataReceived(e.Data);
+                this._dataBuffer.Append(this._encoding.GetString(e.Data, 0, e.Data.Length));
 
-                int startingBufferCount = this._compleatedLines.Count();
-
-                for (int bufferOffset = 0; bufferOffset < e.Data.Length; bufferOffset++)
-                {
-                    // we got a line terminator, save the last line to the line queue
-                    if (e.Data[bufferOffset] == '\n')
-                    {
-                        // Check if there was a \r preceading the \n and remove it
-                        if (this._currentLine.Length > 0 && _currentLine[_currentLine.Length - 1] == '\r')
-                            this._currentLine.Remove(_currentLine.Length - 1, 1);
-
-                        // move the current line to the end of the line buffer
-                        string lineBuffer = _currentLine.ToString();
-                        this._compleatedLines.Add(lineBuffer);
-                        this._currentLine.Clear();
-
-                        // raise a OnLineRead event
-                        OnLineRead(lineBuffer);
-                    }
-                    else
-                    {
-                        // Everything else, add it to the current line
-                        this._currentLine.Append((char)e.Data[bufferOffset]);
-                    }
-                }
-
-                // If there are any pattern matchers defined, from an existing call to ReadLines, check to see if any of the new lines match it
-                if (this._patternMatchers != null)
-                {
-                    string results = ExtractCaptureBuffer(this._compleatedLines, this._patternMatchers, out this._patternMatcherIndex, _currentLine, this._lineMatchMode, startingBufferCount);
-                    if (results != null)
-                    {
-                        this._patternCaptureBuffer = results;
-                        // Signal ReadLines to continue
-                        Monitor.Pulse(this._compleatedLines);
-                    }
-                }
+                Monitor.Pulse(this._dataBuffer);
             }
 
+            this.OnDataReceived(e.Data);
         }
 
         private void OnRaiseError(ExceptionEventArgs e)
@@ -132,281 +415,10 @@ namespace Renci.SshNet
                 this.ErrorOccurred(this, e);
         }
 
-        #region Not Implemented Stream Methods
-
-        public override long Seek(long offset, SeekOrigin origin)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void SetLength(long value)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Flush()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override long Length
-        {
-            get { throw new NotImplementedException(); }
-        }
-
-        public override long Position
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public override int Read(byte[] buffer, int offset, int count)
-        {
-            throw new NotImplementedException();
-        }
-
-        #endregion
-
-        #region Generic overridden Stream methods
-        public override bool CanRead
-        {
-            get
-            {
-                return (false);
-            }
-        }
-
-        public override bool CanSeek
-        {
-            get
-            {
-                return (false);
-            }
-        }
-
-        public override bool CanWrite
-        {
-            get
-            {
-                return (true);
-            }
-        }
-
-        public override void Write(byte[] buffer, int offset, int count)
-        {
-            if (offset != 0 && count != buffer.Length)
-            {
-                byte[] constrainedBuffer = new byte[count - offset];
-
-                Array.Copy(buffer, offset, constrainedBuffer, 0, count - offset);
-
-                this._channel.SendData(constrainedBuffer);
-            }
-            else
-                this._channel.SendData(buffer);
-        }
-
-        #endregion
-
-        public void Write(string line)
-        {
-            byte[] dataToSend = Encoding.ASCII.GetBytes(line);
-
-            this.Write(dataToSend, 0, dataToSend.Length);
-        }
-
-        public void WriteLine(string line)
-        {
-            this.Write(line + '\n');
-        }
-
-        public void WriteLine()
-        {
-            this.Write("\n");
-        }
-
-
         private void OnDataReceived(byte[] data)
         {
-            if (DataReceived != null)
-                DataReceived(data);
-        }
-
-        private void OnLineRead(string line)
-        {
-            if (LineRead != null)
-                LineRead(line);
-        }
-
-        public void Clear()
-        {
-            this._compleatedLines.Clear();
-            this._currentLine.Clear();
-        }
-
-        public string ExpectLine()
-        {
-            string result = ExpectLine(Timeout.Infinite);
-
-            return (result);
-        }
-
-        public string ExpectLine(int millisecondTimeout)
-        {
-            Regex matchAnything = new Regex("");
-
-            string result = Expect(matchAnything, millisecondTimeout, LineMatchModes.Compleated);
-
-            return (result);
-        }
-
-        public string TryExpectLine()
-        {
-            string result = ExpectLine(0);
-
-            return (result);
-        }
-
-        public string Expect(string SearchPattern, int millisecondTimeout, LineMatchModes MatchMode)
-        {
-            Regex searchPattern = new Regex(Regex.Escape(SearchPattern));
-
-            string result = Expect(searchPattern, millisecondTimeout, MatchMode);
-
-            return (result);
-        }
-
-        public string Expect(Regex SearchPattern, int millisecondTimeout, LineMatchModes MatchMode)
-        {
-            int patternIndex = 0;
-            Regex[] searchPatternsArray = { SearchPattern };
-
-            string result = Expect(searchPatternsArray, out patternIndex, millisecondTimeout, MatchMode);
-
-            return (result);
-        }
-
-        public string Expect(Regex[] searchPatterns, out Regex matchedPattern, int millisecondTimeout, LineMatchModes matchMode)
-        {
-            int matchedIndex = 0;
-
-            string results = Expect(searchPatterns, out matchedIndex, millisecondTimeout, matchMode);
-
-            matchedPattern = searchPatterns[matchedIndex];
-
-            return (results);
-        }
-
-        public string Expect(out Regex matchedPattern, int millisecondTimeout, LineMatchModes matchMode, params Regex[] searchPatterns)
-        {
-            string result = Expect(searchPatterns, out matchedPattern, millisecondTimeout, matchMode);
-
-            return (result);
-        }
-
-        public string Expect(Regex[] searchPatterns, out int matchedIndex, int millisecondTimeout, LineMatchModes matchMode)
-        {
-            lock (this._compleatedLines)
-            {
-                string result = ExtractCaptureBuffer(this._compleatedLines, searchPatterns, out matchedIndex, _currentLine, matchMode, 0);
-                if (result != null)
-                    return (result);
-                else
-                {
-                    this._patternMatchers = searchPatterns;
-                    this._lineMatchMode = matchMode;
-
-                    bool dataAvalableFlag = Monitor.Wait(this._compleatedLines, millisecondTimeout);
-
-                    this._patternMatchers = null;
-
-                    if (dataAvalableFlag)
-                    {
-                        matchedIndex = this._patternMatcherIndex;
-                        result = this._patternCaptureBuffer;
-
-                        this._patternCaptureBuffer = null;
-
-                        return (result);
-
-                    }
-                    else
-                        return (null);
-                }
-            }
-        }
-
-        public string ReadAll()
-        {
-            lock (this._compleatedLines)
-            {
-
-                if (this._currentLine.Length > 0)
-                {
-                    this._currentLine.Insert(0,'\n');
-                    this._currentLine.Insert(0, String.Join("\n", this._compleatedLines));
-                }
-                
-                string results = this._currentLine.ToString();
-
-                this.Clear();
-
-                return (results);
-            }
-        }
-
-        private string ExtractCaptureBuffer(List<string> lineBufferToMatch, Regex[] matchedPatterns, out int matchedIndex, StringBuilder currentLine, LineMatchModes matchMode, int startIndex)
-        {
-            // Check the line buffer to see if a compleated line matches
-            if (matchMode == LineMatchModes.Compleated || matchMode == LineMatchModes.Everything)
-            {
-                for (int lineNumber = startIndex; lineNumber < lineBufferToMatch.Count; lineNumber++)
-                {
-                    for (int matcherIndex = 0; matcherIndex < matchedPatterns.Length; matcherIndex++)
-                    {
-                        if (matchedPatterns[matcherIndex].IsMatch(lineBufferToMatch[lineNumber]))
-                        {
-                            matchedIndex = matcherIndex;
-
-                            string[] result = lineBufferToMatch.GetRange(0, lineNumber + 1).ToArray();
-
-                            lineBufferToMatch.RemoveRange(0, lineNumber + 1);
-
-
-                            return (String.Join("\n", result));
-                        }
-                    }
-                }
-            }
-
-            if (matchMode == LineMatchModes.Partial || matchMode == LineMatchModes.Everything)
-            {
-                for (int matcherIndex = 0; matcherIndex < matchedPatterns.Length; matcherIndex++)
-                {
-                    if (matchedPatterns[matcherIndex].IsMatch(currentLine.ToString()))
-                    {
-                        matchedIndex = matcherIndex;
-
-                        StringBuilder results = new StringBuilder();
-                        results.AppendLine(String.Join("\n", lineBufferToMatch.ToArray()));
-
-                        results.Append(currentLine.ToString());
-
-                        this.Clear();
-
-                        return (results.ToString());
-                    }
-                }
-            }
-
-            matchedIndex = 0;
-            return (null);
+            if (this.DataReceived != null)
+                this.DataReceived(this, new ShellDataEventArgs(data));
         }
     }
 }

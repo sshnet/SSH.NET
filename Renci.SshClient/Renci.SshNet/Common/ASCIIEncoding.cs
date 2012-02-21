@@ -79,7 +79,7 @@ namespace Renci.SshNet.Common
         /// <exception cref="T:System.Text.EncoderFallbackException">A fallback occurred (see Understanding Encodings for complete explanation)-and-<see cref="P:System.Text.Encoding.EncoderFallback"/> is set to <see cref="T:System.Text.EncoderExceptionFallback"/>.</exception>
         public override int GetBytes(char[] chars, int charIndex, int charCount, byte[] bytes, int byteIndex)
         {
-            for (int i = 0; i < charCount; i++)
+            for (int i = 0; i < charCount && i < chars.Length; i++)
             {
                 var b = (byte)chars[i + charIndex];
 

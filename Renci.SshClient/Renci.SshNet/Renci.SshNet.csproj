@@ -104,6 +104,7 @@
     <Compile Include="Common\SftpPathNotFoundException.NET40.cs" />
     <Compile Include="Common\SftpPermissionDeniedException.cs" />
     <Compile Include="Common\SftpPermissionDeniedException.NET40.cs" />
+    <Compile Include="Common\ShellDataEventArgs.cs" />
     <Compile Include="Common\SshAuthenticationException.cs" />
     <Compile Include="Common\SshAuthenticationException.NET40.cs" />
     <Compile Include="Common\SshConnectionException.cs" />
@@ -126,6 +127,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="ConnectionInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ExpectAction.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="ForwardedPortDynamic.cs">

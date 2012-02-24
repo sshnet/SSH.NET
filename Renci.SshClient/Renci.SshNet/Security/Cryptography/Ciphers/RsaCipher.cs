@@ -40,7 +40,10 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         public override byte[] Encrypt(byte[] data)
         {
             //  Calculate signature
-            var paddedBlock = new byte[this._key.Modulus.BitLength / 8 - 1];
+            var bitLength = this._key.Modulus.BitLength;
+
+            var paddedBlock = new byte[bitLength / 8 + (bitLength % 8 > 0 ? 1 : 0) - 1];
+
             paddedBlock[0] = 0x01;
             for (int i = 1; i < paddedBlock.Length - data.Length - 1; i++)
             {

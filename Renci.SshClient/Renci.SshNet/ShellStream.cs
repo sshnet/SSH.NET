@@ -15,15 +15,17 @@ namespace Renci.SshNet
     /// </summary>
     public class ShellStream : Stream
     {
-        //  TODO:   Replace reading into StringBuilder with reading into Stack or byte array for better efficiency.
-
         private readonly Session _session;
+
+        private readonly int _bufferSize = 1024;
 
         private ChannelSession _channel;
 
         private Encoding _encoding;
 
-        private StringBuilder _dataBuffer;
+        private Queue<byte> _incoming;
+
+        private Queue<byte> _outgoing;
 
         /// <summary>
         /// Occurs when data was received.
@@ -45,15 +47,16 @@ namespace Renci.SshNet
         {
             get
             {
-                return this._dataBuffer.Length > 0;
+                return this._incoming.Count > 0;
             }
         }
 
         internal ShellStream(Session session, string terminalName, uint columns, uint rows, uint width, uint height, int maxLines, params KeyValuePair<TerminalModes, uint>[] terminalModeValues)
         {
-            this._dataBuffer = new StringBuilder();
             this._encoding = new Renci.SshNet.Common.ASCIIEncoding();
             this._session = session;
+            this._incoming = new Queue<byte>();
+            this._outgoing = new Queue<byte>();
 
             this._channel = this._session.CreateChannel<ChannelSession>();
             this._channel.DataReceived += new EventHandler<ChannelDataEventArgs>(Channel_DataReceived);
@@ -101,7 +104,8 @@ namespace Renci.SshNet
         /// <exception cref="T:System.IO.IOException">An I/O error occurs. </exception>
         public override void Flush()
         {
-            throw new NotImplementedException();
+            this._channel.SendData(this._outgoing.ToArray());
+            this._outgoing.Clear();
         }
 
         /// <summary>
@@ -114,7 +118,7 @@ namespace Renci.SshNet
         /// <exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed. </exception>
         public override long Length
         {
-            get { return this._dataBuffer.Length; }
+            get { return this._incoming.Count; }
         }
 
         /// <summary>
@@ -157,15 +161,14 @@ namespace Renci.SshNet
         /// <exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed. </exception>
         public override int Read(byte[] buffer, int offset, int count)
         {
-            var data = this._encoding.GetBytes(this._dataBuffer.ToString().ToCharArray(), 0, Math.Min(count, this._dataBuffer.Length));
+            var i = 0;
 
-            if (data.Length > 0)
+            for (; i < count && this._incoming.Count > 0; i++)
             {
-                Array.Copy(data, 0, buffer, offset, data.Length);
-                this._dataBuffer.Remove(0, data.Length);
+                buffer[offset + i] = this._incoming.Dequeue();
             }
 
-            return data.Length;
+            return i;
         }
 
         /// <summary>
@@ -221,7 +224,16 @@ namespace Renci.SshNet
         /// <exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed. </exception>
         public override void Write(byte[] buffer, int offset, int count)
         {
-            this._channel.SendData(buffer.Skip(offset).Take(count).ToArray());
+            foreach (var b in buffer.Skip(offset).Take(count).ToArray())
+            {
+                if (this._outgoing.Count < this._bufferSize)
+                {
+                    this._outgoing.Enqueue(b);
+                    continue;
+                }
+
+                this.Flush();
+            }
         }
 
         #endregion
@@ -233,22 +245,30 @@ namespace Renci.SshNet
         public void Expect(params ExpectAction[] expectActions)
         {
             var expectedFound = false;
+            var text = string.Empty;
 
-            lock (this._dataBuffer)
+            lock (this._incoming)
             {
                 do
                 {
-                    if (this._dataBuffer.Length > 0)
+                    if (this._incoming.Count > 0)
+                        text = this._encoding.GetString(this._incoming.ToArray());
+
+                    if (text.Length > 0)
                     {
                         foreach (var expectAction in expectActions)
                         {
-                            var match = expectAction.Expect.Match(this._dataBuffer.ToString());
+                            var match = expectAction.Expect.Match(text);
+
                             if (match.Success)
                             {
-                                var result = this._dataBuffer.ToString().Substring(0, match.Index + match.Length);
+                                var result = text.Substring(0, match.Index + match.Length);
 
-                                //  Clean buffer up to expected text
-                                this._dataBuffer.Remove(0, match.Index + match.Length);
+                                for (int i = 0; i < match.Index + match.Length; i++)
+                                {
+                                    //  Remove processed items from the queue
+                                    this._incoming.Dequeue();
+                                }
 
                                 expectAction.Action(result);
                                 expectedFound = true;
@@ -256,11 +276,11 @@ namespace Renci.SshNet
                         }
 
                         if (!expectedFound)
-                            Monitor.Wait(this._dataBuffer);
+                            Monitor.Wait(this._incoming);
                     }
                     else
                     {
-                        Monitor.Wait(this._dataBuffer);
+                        Monitor.Wait(this._incoming);
                     }
                 }
                 while (!expectedFound);
@@ -284,23 +304,32 @@ namespace Renci.SshNet
         /// <returns>Text available in the shell that contains all the text that ends with expected expression.</returns>
         public string Expect(Regex regex)
         {
-            var result = string.Empty;
-            lock (this._dataBuffer)
+            var text = string.Empty;
+
+            lock (this._incoming)
             {
-                var match = regex.Match(this._dataBuffer.ToString());
+                if (this._incoming.Count > 0)
+                    text = this._encoding.GetString(this._incoming.ToArray());
+
+                var match = regex.Match(text.ToString());
                 while (!match.Success)
                 {
-                    Monitor.Wait(this._dataBuffer);
-                    match = regex.Match(this._dataBuffer.ToString());
+                    Monitor.Wait(this._incoming);
+
+                    if (this._incoming.Count > 0)
+                        text = this._encoding.GetString(this._incoming.ToArray());
+
+                    match = regex.Match(text.ToString());
                 }
 
-                result = this._dataBuffer.ToString().Substring(0, match.Index + match.Length);
-
-                //  Clean buffer up to expected text
-                this._dataBuffer.Remove(0, match.Index + match.Length);
+                for (int i = 0; i < match.Index + match.Length; i++)
+                {
+                    //  Remove processed items from the queue
+                    this._incoming.Dequeue();
+                }
             }
 
-            return result;
+            return text;
         }
 
         /// <summary>
@@ -309,21 +338,33 @@ namespace Renci.SshNet
         /// <returns></returns>
         public string ReadLine()
         {
-            string result = string.Empty;
-            lock (this._dataBuffer)
+            var text = string.Empty;
+
+            lock (this._incoming)
             {
-                var index = this._dataBuffer.ToString().IndexOf("\r\n");
+                if (this._incoming.Count > 0)
+                    text = this._encoding.GetString(this._incoming.ToArray());
+
+                var index = text.ToString().IndexOf("\r\n");
                 while (index < 0)
                 {
-                    Monitor.Wait(this._dataBuffer);
-                    index = this._dataBuffer.ToString().IndexOf("\r\n");
+                    Monitor.Wait(this._incoming);
+                    if (this._incoming.Count > 0)
+                    text = this._encoding.GetString(this._incoming.ToArray());
+
+                    index = text.ToString().IndexOf("\r\n");
                 }
 
-                result = this._dataBuffer.ToString().Substring(0, index);
+                text = text.Substring(0, index);
 
-                this._dataBuffer.Remove(0, index);
+                for (int i = 0; i < index + 2; i++)
+                {
+                    //  Remove processed items from the queue
+                    this._incoming.Dequeue();
+                }
+
             }
-            return result;
+            return text.ToString();
         }
 
         /// <summary>
@@ -332,12 +373,16 @@ namespace Renci.SshNet
         /// <returns></returns>
         public string Read()
         {
-            string result = this._dataBuffer.ToString();
-            lock (this._dataBuffer)
+            var text = string.Empty;
+
+            lock (this._incoming)
             {
-                this._dataBuffer.Length = 0;
+                if (this._incoming.Count > 0)
+                    text = this._encoding.GetString(this._incoming.ToArray());
+
+                this._incoming.Clear();
             }
-            return result;
+            return text.ToString();
         }
 
         /// <summary>
@@ -399,11 +444,14 @@ namespace Renci.SshNet
 
         private void Channel_DataReceived(object sender, ChannelDataEventArgs e)
         {
-            lock (this._dataBuffer)
+            lock (this._incoming)
             {
-                this._dataBuffer.Append(this._encoding.GetString(e.Data, 0, e.Data.Length));
+                foreach (var b in e.Data)
+                {
+                    _incoming.Enqueue(b);
+                }
 
-                Monitor.Pulse(this._dataBuffer);
+                Monitor.Pulse(this._incoming);
             }
 
             this.OnDataReceived(e.Data);

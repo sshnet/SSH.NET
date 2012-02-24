@@ -8,6 +8,8 @@ using System.Threading;
 using Renci.SshNet.Messages.Transport;
 using System.IO;
 using System.Diagnostics;
+using System.Text;
+using System.Collections.Generic;
 
 namespace Renci.SshNet
 {
@@ -48,15 +50,22 @@ namespace Renci.SshNet
 
         partial void SocketReadLine(ref string response)
         {
-            //  Get server version from the server,
-            //  ignore text lines which are sent before if any
-            using (var ns = new NetworkStream(this._socket))
+            var encoding = new Renci.SshNet.Common.ASCIIEncoding();
+
+            var line = new StringBuilder();
+            //  Read data 2 bytes at a time to find end of line and leave any unhandled information in the buffer to be processed later
+            var buffer = new List<byte>();
+
+            var data = new byte[1];
+            do
             {
-                using (var sr = new StreamReader(ns))
-                {
-                    response = sr.ReadLine();
-                }
+                this._socket.Receive(data);
+
+                buffer.Add(data[0]);
             }
+            while (!(buffer.Count > 2 && buffer[buffer.Count - 1] == 0x0A && buffer[buffer.Count - 2] == 0x0D));
+            
+            response = encoding.GetString(buffer.Take(buffer.Count - 2).ToArray());
         }
 
         partial void SocketRead(int length, ref byte[] buffer)

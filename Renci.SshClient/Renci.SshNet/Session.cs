@@ -407,6 +407,7 @@ namespace Renci.SshNet
             this.ClientVersion = string.Format(CultureInfo.CurrentCulture, "SSH-2.0-Renci.SshNet.SshClient.0.0.1");
         }
 
+
         /// <summary>
         /// Connects to the server.
         /// </summary>
@@ -448,6 +449,10 @@ namespace Renci.SshNet
                         case ProxyTypes.Socks5:
                             this.SocketConnect(this.ConnectionInfo.ProxyHost, this.ConnectionInfo.ProxyPort);
                             this.ConnectSocks5(this._socket);
+                            break;
+                        case ProxyTypes.Http:
+                            this.SocketConnect(this.ConnectionInfo.ProxyHost, this.ConnectionInfo.ProxyPort);
+                            this.ConnectHttp(this._socket);
                             break;
                         default:
                             break;
@@ -548,17 +553,30 @@ namespace Renci.SshNet
 
                         if (!this._isAuthenticated)
                         {
-                            //  Ensure that authentication method is allowed
-                            if (!noneConnectionInfo.AllowedAuthentications.Contains(this.ConnectionInfo.Name))
+                            //  TODO:   Replace this logic here with multiple authentication suppurt
+                            var supportedConnectionInfos = (from c in new[] { this.ConnectionInfo }
+                                                            where noneConnectionInfo.AllowedAuthentications.Contains(this.ConnectionInfo.Name)
+                                                            select c).ToList();
+
+                            if (supportedConnectionInfos.Count > 0)
+                            {
+                                foreach (var connectionInfo in supportedConnectionInfos)
+                                {
+                                    //  Authenticate using provided connection info object
+                                    connectionInfo.Authenticate(this);
+
+                                    if (connectionInfo.IsAuthenticated)
+                                    {
+                                        this._isAuthenticated = this.ConnectionInfo.IsAuthenticated;
+                                        this.ConnectionInfo = connectionInfo;
+                                        break;
+                                    }
+                                }
+                            }
+                            else 
                             {
                                 throw new SshAuthenticationException("User authentication method is not supported.");
                             }
-
-                            //  In future, if more then one authentication methods are supported perform the check here.
-                            //  Authenticate using provided connection info object
-                            this.ConnectionInfo.Authenticate(this);
-
-                            this._isAuthenticated = this.ConnectionInfo.IsAuthenticated;
                         }
                     }
 
@@ -663,7 +681,7 @@ namespace Renci.SshNet
                 return;
 
             if (this._keyExchangeInProgress && !(message is IKeyExchangedAllowed))
-            { 
+            {
                 //  Wait for key exchange to be completed
                 this.WaitHandle(this._keyExchangeCompletedWaitHandle);
             }
@@ -1846,6 +1864,11 @@ namespace Renci.SshNet
             //  Read 2 bytes to be ignored
             this.SocketRead(2, ref port);
 
+        }
+
+        private void ConnectHttp(Socket socket)
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>

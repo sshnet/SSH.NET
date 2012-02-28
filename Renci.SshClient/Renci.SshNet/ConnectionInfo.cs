@@ -1,51 +1,25 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
+using System.Linq;
+using System.Text;
 using Renci.SshNet.Security;
-using Renci.SshNet.Compression;
-using Renci.SshNet.Messages;
-using Renci.SshNet.Messages.Authentication;
-using Renci.SshNet.Common;
-using System.Threading;
-using System.Net;
 using Renci.SshNet.Messages.Connection;
-using Renci.SshNet.Security.Cryptography.Ciphers;
 using System.Security.Cryptography;
+using Renci.SshNet.Common;
+using Renci.SshNet.Messages.Authentication;
 using Renci.SshNet.Security.Cryptography;
 using Renci.SshNet.Security.Cryptography.Ciphers.Modes;
-using System.Net.Sockets;
-using System.Text;
+using Renci.SshNet.Security.Cryptography.Ciphers;
+using System.Collections.ObjectModel;
+using System.Net;
+
 namespace Renci.SshNet
 {
     /// <summary>
-    /// Represents remote connection information base class.
+    /// Represents remote connection information class.
     /// </summary>
-    public abstract partial class ConnectionInfo
+    public class ConnectionInfo
     {
-        /// <summary>
-        /// Gets connection name
-        /// </summary>
-        public abstract string Name { get; }
-
-        /// <summary>
-        /// Gets a value indicating whether connection is authenticated.
-        /// </summary>
-        /// <value>
-        /// 	<c>true</c> if connection is authenticated; otherwise, <c>false</c>.
-        /// </value>
-        public bool IsAuthenticated { get; private set; }
-
-        /// <summary>
-        /// Gets the authentication error message.
-        /// </summary>
-        public string ErrorMessage { get; private set; }
-
-        /// <summary>
-        /// Gets reference to the session object.
-        /// </summary>
-        protected Session Session { get; private set; }
-
         /// <summary>
         /// Gets supported key exchange algorithms for this connection.
         /// </summary>
@@ -69,7 +43,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Gets supported authentication methods for this connection.
         /// </summary>
-        public IDictionary<string, Type> AuthenticationMethods { get; private set; }
+        public IEnumerable<AuthenticationMethod> AuthenticationMethods { get; private set; }
 
         /// <summary>
         /// Gets supported compression algorithms for this connection.
@@ -80,6 +54,14 @@ namespace Renci.SshNet
         /// Gets supported channel requests for this connection.
         /// </summary>
         public IDictionary<string, RequestInfo> ChannelRequests { get; private set; }
+
+        /// <summary>
+        /// Gets a value indicating whether connection is authenticated.
+        /// </summary>
+        /// <value>
+        /// 	<c>true</c> if connection is authenticated; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsAuthenticated { get; private set; }
 
         /// <summary>
         /// Gets connection host.
@@ -194,10 +176,39 @@ namespace Renci.SshNet
         public string CurrentClientCompressionAlgorithm { get; internal set; }
 
         /// <summary>
-        /// Prevents a default instance of the <see cref="ConnectionInfo"/> class from being created.
+        /// Initializes a new instance of the <see cref="ConnectionInfo"/> class.
         /// </summary>
-        private ConnectionInfo()
+        /// <param name="host">Connection host.</param>
+        /// <param name="port">Connection port.</param>
+        /// <param name="username">Connection username.</param>
+        /// <param name="proxyType">Type of the proxy.</param>
+        /// <param name="proxyHost">The proxy host.</param>
+        /// <param name="proxyPort">The proxy port.</param>
+        /// <param name="proxyUsername">The proxy username.</param>
+        /// <param name="proxyPassword">The proxy password.</param>
+        /// <param name="authenticationMethods">The authentication methods.</param>
+        /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, or <paramref name="username"/> is null or contains whitespace characters.</exception>
+        ///   
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="port"/> is not within <see cref="IPEndPoint.MinPort"/> and <see cref="IPEndPoint.MaxPort"/>.</exception>
+        ///   
+        /// <exception cref="ArgumentException"><paramref name="username"/> is null or empty.</exception>
+        public ConnectionInfo(string host, int port, string username, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername, string proxyPassword, params AuthenticationMethod[] authenticationMethods)
         {
+            if (!host.IsValidHost())
+                throw new ArgumentException("host");
+
+            if (!string.IsNullOrEmpty(proxyHost) && !proxyHost.IsValidHost())
+                throw new ArgumentException("proxyHost");
+
+            if (!port.IsValidPort())
+                throw new ArgumentOutOfRangeException("port");
+
+            if (!proxyPort.IsValidPort())
+                throw new ArgumentOutOfRangeException("proxyPort");
+
+            if (username.IsNullOrWhiteSpace())
+                throw new ArgumentException("username");
+
             //  Set default connection values
             this.Timeout = TimeSpan.FromSeconds(30);
             this.RetryAttempts = 10;
@@ -260,17 +271,6 @@ namespace Renci.SshNet
                 //{"pgp-sign-dss", () => { ... },
             };
 
-            this.AuthenticationMethods = new Dictionary<string, Type>()
-            {
-                {"none", typeof(ConnectionInfo)},
-                {"publickey", typeof(PrivateKeyConnectionInfo)},
-                {"password", typeof(PasswordConnectionInfo)},
-                {"keyboard-interactive", typeof(KeyboardInteractiveConnectionInfo)},
-                //{"hostbased", typeof(...)},                
-                //{"gssapi-keyex", typeof(...)},                
-                //{"gssapi-with-mic", typeof(...)},
-            };
-
             this.CompressionAlgorithms = new Dictionary<string, Type>()
             {
                 {"none", null}, 
@@ -294,41 +294,6 @@ namespace Renci.SshNet
                 {EndOfWriteRequestInfo.NAME, new EndOfWriteRequestInfo()}, 
                 {KeepAliveRequestInfo.NAME, new KeepAliveRequestInfo()}, 
             };
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ConnectionInfo"/> class.
-        /// </summary>
-        /// <param name="host">Connection host.</param>
-        /// <param name="port">Connection port.</param>
-        /// <param name="username">Connection username.</param>
-        /// <param name="proxyType">Type of the proxy.</param>
-        /// <param name="proxyHost">The proxy host.</param>
-        /// <param name="proxyPort">The proxy port.</param>
-        /// <param name="proxyUsername">The proxy username.</param>
-        /// <param name="proxyPassword">The proxy password.</param>
-        /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, or <paramref name="username"/> is null or contains whitespace characters.</exception>
-        ///   
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="port"/> is not within <see cref="IPEndPoint.MinPort"/> and <see cref="IPEndPoint.MaxPort"/>.</exception>
-        ///   
-        /// <exception cref="ArgumentException"><paramref name="username"/> is null or empty.</exception>
-        protected ConnectionInfo(string host, int port, string username, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername, string proxyPassword)
-            : this()
-        {
-            if (!host.IsValidHost())
-                throw new ArgumentException("host");
-
-            if (!string.IsNullOrEmpty(proxyHost) && !proxyHost.IsValidHost())
-                throw new ArgumentException("proxyHost");
-
-            if (!port.IsValidPort())
-                throw new ArgumentOutOfRangeException("port");
-
-            if (!proxyPort.IsValidPort())
-                throw new ArgumentOutOfRangeException("proxyPort");
-
-            if (username.IsNullOrWhiteSpace())
-                throw new ArgumentException("username");
 
             this.Host = host;
             this.Port = port;
@@ -339,6 +304,8 @@ namespace Renci.SshNet
             this.ProxyPort = proxyPort;
             this.ProxyUsername = proxyUsername;
             this.ProxyPassword = proxyPassword;
+
+            this.AuthenticationMethods = authenticationMethods;
         }
 
         /// <summary>
@@ -349,98 +316,50 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="session"/> is null.</exception>
         public bool Authenticate(Session session)
         {
+            var authenticated = AuthenticationResult.Failure;
+
             if (session == null)
                 throw new ArgumentNullException("session");
 
-            this.Session = session;
+            session.RegisterMessage("SSH_MSG_USERAUTH_FAILURE");
+            session.RegisterMessage("SSH_MSG_USERAUTH_SUCCESS");
+            session.RegisterMessage("SSH_MSG_USERAUTH_BANNER");
 
-            this.Session.RegisterMessage("SSH_MSG_USERAUTH_FAILURE");
-            this.Session.RegisterMessage("SSH_MSG_USERAUTH_SUCCESS");
-            this.Session.RegisterMessage("SSH_MSG_USERAUTH_BANNER");
+            session.UserAuthenticationBannerReceived += Session_UserAuthenticationBannerReceived;
 
-            this.Session.UserAuthenticationFailureReceived += Session_UserAuthenticationFailureReceived;
-            this.Session.UserAuthenticationSuccessReceived += Session_UserAuthenticationSuccessMessageReceived;
-            this.Session.UserAuthenticationBannerReceived += Session_UserAuthenticationBannerMessageReceived;
-            this.Session.MessageReceived += Session_MessageReceived;
+            //  Try to authenticate against none
+            var noneAuthenticationMethod = new NoneAuthenticationMethod(this.Host, this.Port, this.Username);
 
-            this.OnAuthenticate();
+            authenticated = noneAuthenticationMethod.Authenticate(session);
 
-            this.Session.UserAuthenticationFailureReceived -= Session_UserAuthenticationFailureReceived;
-            this.Session.UserAuthenticationSuccessReceived -= Session_UserAuthenticationSuccessMessageReceived;
-            this.Session.UserAuthenticationBannerReceived -= Session_UserAuthenticationBannerMessageReceived;
-            this.Session.MessageReceived -= Session_MessageReceived;
+            if (authenticated != AuthenticationResult.Success)
+            {
+                foreach (var authenticationMethod in this.AuthenticationMethods.Where((a) => noneAuthenticationMethod.AllowedAuthentications.Contains(a.Name)))
+                {
+                    authenticated = authenticationMethod.Authenticate(session);
 
-            this.Session.UnRegisterMessage("SSH_MSG_USERAUTH_FAILURE");
-            this.Session.UnRegisterMessage("SSH_MSG_USERAUTH_SUCCESS");
-            this.Session.UnRegisterMessage("SSH_MSG_USERAUTH_BANNER");
+                    if (authenticated == AuthenticationResult.Success)
+                        break;
+                }
+            }
 
-            return this.IsAuthenticated;
+            session.UserAuthenticationBannerReceived -= Session_UserAuthenticationBannerReceived;
+
+            session.UnRegisterMessage("SSH_MSG_USERAUTH_FAILURE");
+            session.UnRegisterMessage("SSH_MSG_USERAUTH_SUCCESS");
+            session.UnRegisterMessage("SSH_MSG_USERAUTH_BANNER");
+
+            this.IsAuthenticated = authenticated == AuthenticationResult.Success;
+
+            return authenticated == AuthenticationResult.Success;
         }
 
-        /// <summary>
-        /// Called when connection needs to be authenticated.
-        /// </summary>
-        protected abstract void OnAuthenticate();
-
-        /// <summary>
-        /// Sends SSH message to the server.
-        /// </summary>
-        /// <param name="message">The message.</param>
-        protected void SendMessage(Message message)
-        {
-            this.Session.SendMessage(message);
-        }
-
-        /// <summary>
-        /// Waits the handle to signal.
-        /// </summary>
-        /// <param name="eventWaitHandle">The event wait handle.</param>
-        protected void WaitHandle(WaitHandle eventWaitHandle)
-        {
-            this.Session.WaitHandle(eventWaitHandle);
-        }
-
-        /// <summary>
-        /// Handles the UserAuthenticationFailureReceived event of the session.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The event data.</param>
-        protected virtual void Session_UserAuthenticationFailureReceived(object sender, MessageEventArgs<FailureMessage> e)
-        {
-            this.ErrorMessage = e.Message.Message;
-            this.IsAuthenticated = false;
-        }
-
-        /// <summary>
-        /// Handles the UserAuthenticationSuccessMessageReceived event of the session.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The event data.</param>
-        protected virtual void Session_UserAuthenticationSuccessMessageReceived(object sender, MessageEventArgs<SuccessMessage> e)
-        {
-            this.IsAuthenticated = true;
-        }
-
-        /// <summary>
-        /// Handles the UserAuthenticationBannerMessageReceived event of the session.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The event data.</param>
-        protected virtual void Session_UserAuthenticationBannerMessageReceived(object sender, MessageEventArgs<BannerMessage> e)
+        private void Session_UserAuthenticationBannerReceived(object sender, MessageEventArgs<BannerMessage> e)
         {
             if (this.AuthenticationBanner != null)
             {
                 this.AuthenticationBanner(this, new AuthenticationBannerEventArgs(this.Username, e.Message.Message, e.Message.Language));
             }
-        }
-
-        /// <summary>
-        /// Handles the MessageReceived event of the session.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The event data.</param>
-        protected virtual void Session_MessageReceived(object sender, MessageEventArgs<Message> e)
-        {
         }
     }
 }

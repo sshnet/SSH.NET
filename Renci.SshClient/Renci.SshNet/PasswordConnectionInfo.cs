@@ -2,37 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading;
-using Renci.SshNet.Messages.Authentication;
 using Renci.SshNet.Common;
-using Renci.SshNet.Messages;
 
 namespace Renci.SshNet
 {
     /// <summary>
     /// Provides connection information when password authentication method is used
     /// </summary>
-    public partial class PasswordConnectionInfo : ConnectionInfo, IDisposable
+    public class PasswordConnectionInfo : ConnectionInfo, IDisposable
     {
-        private EventWaitHandle _authenticationCompleted = new AutoResetEvent(false);
-
-        private Exception _exception;
-
-        private RequestMessage _requestMessage;
-
-        private string _password;
-
-        /// <summary>
-        /// Gets connection name
-        /// </summary>
-        public override string Name
-        {
-            get
-            {
-                return this._requestMessage.MethodName;
-            }
-        }
-
         /// <summary>
         /// Occurs when user's password has expired and needs to be changed.
         /// </summary>
@@ -154,92 +132,21 @@ namespace Renci.SshNet
         /// <param name="proxyUsername">The proxy username.</param>
         /// <param name="proxyPassword">The proxy password.</param>
         public PasswordConnectionInfo(string host, int port, string username, string password, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername, string proxyPassword)
-            : base(host, port, username, proxyType, proxyHost, proxyPort, proxyUsername, proxyPassword)
+            : base(host, port, username, proxyType, proxyHost, proxyPort, proxyUsername, proxyPassword, new PasswordAuthenticationMethod(host, port, username, password))
         {
-            if (password == null)
-                throw new ArgumentNullException("password");
-
-            this._password = password;
-            this._requestMessage = new RequestMessagePassword(ServiceName.Connection, this.Username, password);
-        }
-
-        /// <summary>
-        /// Called when connection needs to be authenticated.
-        /// </summary>
-        protected override void OnAuthenticate()
-        {
-            this.Session.RegisterMessage("SSH_MSG_USERAUTH_PASSWD_CHANGEREQ");
-
-            this.SendMessage(this._requestMessage);
-
-            this.WaitHandle(this._authenticationCompleted);
-
-            if (this._exception != null)
+            foreach (var authenticationMethod in this.AuthenticationMethods.OfType<PasswordAuthenticationMethod>())
             {
-                throw this._exception;
+                authenticationMethod.PasswordExpired += AuthenticationMethod_PasswordExpired;
             }
         }
 
-        /// <summary>
-        /// Handles the UserAuthenticationSuccessMessageReceived event of the session.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The event data.</param>
-        protected override void Session_UserAuthenticationSuccessMessageReceived(object sender, MessageEventArgs<SuccessMessage> e)
+        private void AuthenticationMethod_PasswordExpired(object sender, AuthenticationPasswordChangeEventArgs e)
         {
-            base.Session_UserAuthenticationSuccessMessageReceived(sender, e);
-            this._authenticationCompleted.Set();
-        }
-
-        /// <summary>
-        /// Handles the UserAuthenticationFailureReceived event of the session.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The event data.</param>
-        protected override void Session_UserAuthenticationFailureReceived(object sender, MessageEventArgs<FailureMessage> e)
-        {
-            base.Session_UserAuthenticationFailureReceived(sender, e);
-            this._authenticationCompleted.Set();
-        }
-
-        /// <summary>
-        /// Handles the MessageReceived event of the session.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The event data.</param>
-        protected override void Session_MessageReceived(object sender, MessageEventArgs<Message> e)
-        {
-            base.Session_MessageReceived(sender, e);
-
-            if (e.Message is PasswordChangeRequiredMessage)
+            if (this.PasswordExpired != null)
             {
-                this.Session.UnRegisterMessage("SSH_MSG_USERAUTH_PASSWD_CHANGEREQ");
-
-                this.ExecuteThread(() =>
-                {
-                    try
-                    {
-                        var eventArgs = new AuthenticationPasswordChangeEventArgs(this.Username);
-
-                        //  Raise an event to allow user to supply a new password
-                        if (this.PasswordExpired != null)
-                        {
-                            this.PasswordExpired(this, eventArgs);
-                        }
-
-                        //  Send new authentication request with new password
-                        this.SendMessage(new RequestMessagePassword(ServiceName.Connection, this.Username, this._password, eventArgs.NewPassword));
-                    }
-                    catch (Exception exp)
-                    {
-                        this._exception = exp;
-                        this._authenticationCompleted.Set();
-                    }
-                });
+                this.PasswordExpired(sender, e);
             }
         }
-
-        partial void ExecuteThread(Action action);
 
         #region IDisposable Members
 
@@ -269,10 +176,12 @@ namespace Renci.SshNet
                 if (disposing)
                 {
                     // Dispose managed resources.
-                    if (this._authenticationCompleted != null)
+                    if (this.AuthenticationMethods != null)
                     {
-                        this._authenticationCompleted.Dispose();
-                        this._authenticationCompleted = null;
+                        foreach (var authenticationMethods in this.AuthenticationMethods.OfType<IDisposable>())
+                        {
+                            authenticationMethods.Dispose();
+                        }
                     }
                 }
 

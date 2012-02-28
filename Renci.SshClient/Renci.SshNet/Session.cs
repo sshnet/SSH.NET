@@ -544,41 +544,7 @@ namespace Renci.SshNet
                         throw new SshException("Username is not specified.");
                     }
 
-                    //  Try authenticate using none method
-                    using (var noneConnectionInfo = new NoneConnectionInfo(this.ConnectionInfo.Host, this.ConnectionInfo.Port, this.ConnectionInfo.Username))
-                    {
-                        noneConnectionInfo.Authenticate(this);
-
-                        this._isAuthenticated = noneConnectionInfo.IsAuthenticated;
-
-                        if (!this._isAuthenticated)
-                        {
-                            //  TODO:   Replace this logic here with multiple authentication suppurt
-                            var supportedConnectionInfos = (from c in new[] { this.ConnectionInfo }
-                                                            where noneConnectionInfo.AllowedAuthentications.Contains(this.ConnectionInfo.Name)
-                                                            select c).ToList();
-
-                            if (supportedConnectionInfos.Count > 0)
-                            {
-                                foreach (var connectionInfo in supportedConnectionInfos)
-                                {
-                                    //  Authenticate using provided connection info object
-                                    connectionInfo.Authenticate(this);
-
-                                    if (connectionInfo.IsAuthenticated)
-                                    {
-                                        this._isAuthenticated = this.ConnectionInfo.IsAuthenticated;
-                                        this.ConnectionInfo = connectionInfo;
-                                        break;
-                                    }
-                                }
-                            }
-                            else 
-                            {
-                                throw new SshAuthenticationException("User authentication method is not supported.");
-                            }
-                        }
-                    }
+                    this._isAuthenticated = this.ConnectionInfo.Authenticate(this);
 
                     if (!this._isAuthenticated)
                     {

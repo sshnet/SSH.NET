@@ -88,7 +88,7 @@ namespace Renci.SshNet.Messages.Connection
         /// <param name="rows">The rows.</param>
         /// <param name="width">The width.</param>
         /// <param name="height">The height.</param>
-        /// <param name="terminalMode">The terminal mode.</param>
+        /// <param name="terminalModeValues">The terminal mode values.</param>
         public PseudoTerminalRequestInfo(string environmentVariable, uint columns, uint rows, uint width, uint height, params KeyValuePair<TerminalModes, uint>[] terminalModeValues)
             : this()
         {

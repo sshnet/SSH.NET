@@ -2,9 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading;
-using Renci.SshNet.Messages.Authentication;
-using Renci.SshNet.Messages;
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet
@@ -12,25 +9,8 @@ namespace Renci.SshNet
     /// <summary>
     /// Provides connection information when keyboard interactive authentication method is used
     /// </summary>
-    public partial class KeyboardInteractiveConnectionInfo : ConnectionInfo, IDisposable
+    public class KeyboardInteractiveConnectionInfo : ConnectionInfo, IDisposable
     {
-        private EventWaitHandle _authenticationCompleted = new AutoResetEvent(false);
-
-        private Exception _exception;
-
-        private RequestMessage _requestMessage;
-
-        /// <summary>
-        /// Gets connection name
-        /// </summary>
-        public override string Name
-        {
-            get
-            {
-                return this._requestMessage.MethodName;
-            }
-        }
-
         /// <summary>
         /// Occurs when server prompts for more authentication information.
         /// </summary>
@@ -142,93 +122,23 @@ namespace Renci.SshNet
         /// <param name="proxyUsername">The proxy username.</param>
         /// <param name="proxyPassword">The proxy password.</param>
         public KeyboardInteractiveConnectionInfo(string host, int port, string username, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername, string proxyPassword)
-            : base(host, port, username, proxyType, proxyHost, proxyPort, proxyUsername, proxyPassword)
+            : base(host, port, username, proxyType, proxyHost, proxyPort, proxyUsername, proxyPassword, new KeyboardInteractiveAuthenticationMethod(host, port, username))
         {
-            this._requestMessage = new RequestMessageKeyboardInteractive(ServiceName.Connection, username);
+            foreach (var authenticationMethod in this.AuthenticationMethods.OfType<KeyboardInteractiveAuthenticationMethod>())
+            {
+                authenticationMethod.AuthenticationPrompt += AuthenticationMethod_AuthenticationPrompt;
+            }
+
         }
 
-        /// <summary>
-        /// Called when connection needs to be authenticated.
-        /// </summary>
-        protected override void OnAuthenticate()
+        private void AuthenticationMethod_AuthenticationPrompt(object sender, AuthenticationPromptEventArgs e)
         {
-            this.Session.RegisterMessage("SSH_MSG_USERAUTH_INFO_REQUEST");
-
-            this.SendMessage(this._requestMessage);
-
-            this.WaitHandle(this._authenticationCompleted);
-
-            this.Session.UnRegisterMessage("SSH_MSG_USERAUTH_INFO_REQUEST");
-
-            if (this._exception != null)
+            if (this.AuthenticationPrompt != null)
             {
-                throw this._exception;
+                this.AuthenticationPrompt(sender, e);
             }
         }
 
-        /// <summary>
-        /// Handles the UserAuthenticationSuccessMessageReceived event of the session.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The event data.</param>
-        protected override void Session_UserAuthenticationSuccessMessageReceived(object sender, MessageEventArgs<SuccessMessage> e)
-        {
-            base.Session_UserAuthenticationSuccessMessageReceived(sender, e);
-            this._authenticationCompleted.Set();
-        }
-
-        /// <summary>
-        /// Handles the UserAuthenticationFailureReceived event of the session.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The event data.</param>
-        protected override void Session_UserAuthenticationFailureReceived(object sender, MessageEventArgs<FailureMessage> e)
-        {
-            base.Session_UserAuthenticationFailureReceived(sender, e);
-            this._authenticationCompleted.Set();
-        }
-
-        /// <summary>
-        /// Handles the MessageReceived event of the session.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The event data.</param>
-        protected override void Session_MessageReceived(object sender, MessageEventArgs<Message> e)
-        {
-            var informationRequestMessage = e.Message as InformationRequestMessage;
-            if (informationRequestMessage != null)
-            {
-                var eventArgs = new AuthenticationPromptEventArgs(this.Username, informationRequestMessage.Instruction, informationRequestMessage.Language, informationRequestMessage.Prompts);
-
-                this.ExecuteThread(() =>
-                {
-                    try
-                    {
-                        if (this.AuthenticationPrompt != null)
-                        {
-                            this.AuthenticationPrompt(this, eventArgs);
-                        }
-
-                        var informationResponse = new InformationResponseMessage();
-
-                        foreach (var response in from r in eventArgs.Prompts orderby r.Id ascending select r.Response)
-                        {
-                            informationResponse.Responses.Add(response);
-                        }
-
-                        //  Send information response message
-                        this.SendMessage(informationResponse);
-                    }
-                    catch (Exception exp)
-                    {
-                        this._exception = exp;
-                        this._authenticationCompleted.Set();
-                    }
-                });
-            }
-        }
-
-        partial void ExecuteThread(Action action);
 
         #region IDisposable Members
 
@@ -258,10 +168,12 @@ namespace Renci.SshNet
                 if (disposing)
                 {
                     // Dispose managed resources.
-                    if (this._authenticationCompleted != null)
+                    if (this.AuthenticationMethods != null)
                     {
-                        this._authenticationCompleted.Dispose();
-                        this._authenticationCompleted = null;
+                        foreach (var authenticationMethods in this.AuthenticationMethods.OfType<IDisposable>())
+                        {
+                            authenticationMethods.Dispose();
+                        }
                     }
                 }
 
@@ -272,7 +184,7 @@ namespace Renci.SshNet
 
         /// <summary>
         /// Releases unmanaged resources and performs other cleanup operations before the
-        /// <see cref="KeyboardInteractiveConnectionInfo"/> is reclaimed by garbage collection.
+        /// <see cref="PasswordConnectionInfo"/> is reclaimed by garbage collection.
         /// </summary>
         ~KeyboardInteractiveConnectionInfo()
         {

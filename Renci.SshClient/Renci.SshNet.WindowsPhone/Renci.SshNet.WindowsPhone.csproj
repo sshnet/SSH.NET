@@ -49,6 +49,12 @@
     <Reference Include="mscorlib.extensions" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Renci.SshNet\AuthenticationMethod.cs">
+      <Link>AuthenticationMethod.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\AuthenticationResult.cs">
+      <Link>AuthenticationResult.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\BaseClient.cs">
       <Link>BaseClient.cs</Link>
     </Compile>
@@ -210,6 +216,12 @@
     </Compile>
     <Compile Include="..\Renci.SshNet\ForwardedPortRemote.cs">
       <Link>ForwardedPortRemote.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\KeyboardInteractiveAuthenticationMethod.cs">
+      <Link>KeyboardInteractiveAuthenticationMethod.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Silverlight\KeyboardInteractiveAuthenticationMethod.SilverlightShared.cs">
+      <Link>PasswordAuthenticationMethod.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\KeyboardInteractiveConnectionInfo.cs">
       <Link>KeyboardInteractiveConnectionInfo.cs</Link>
@@ -424,14 +436,20 @@
     <Compile Include="..\Renci.SshNet\Messages\Transport\UnimplementedMessage.cs">
       <Link>Messages\Transport\UnimplementedMessage.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\NoneConnectionInfo.cs">
-      <Link>NoneConnectionInfo.cs</Link>
+    <Compile Include="..\Renci.SshNet\NoneAuthenticationMethod.cs">
+      <Link>NoneAuthenticationMethod.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\PasswordAuthenticationMethod.cs">
+      <Link>PasswordAuthenticationMethod.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Silverlight\PasswordAuthenticationMethod.SilverlightShared.cs">
+      <Link>PasswordAuthenticationMethod.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\PasswordConnectionInfo.cs">
       <Link>PasswordConnectionInfo.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet.Silverlight\PasswordConnectionInfo.SilverlightShared.cs">
-      <Link>PasswordConnectionInfo.cs</Link>
+    <Compile Include="..\Renci.SshNet\PrivateKeyAuthenticationMethod.cs">
+      <Link>PrivateKeyAuthenticationMethod.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\PrivateKeyConnectionInfo.cs">
       <Link>PrivateKeyConnectionInfo.cs</Link>

@@ -56,6 +56,12 @@
     <Reference Include="System.Windows.Browser" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Renci.SshNet\AuthenticationMethod.cs">
+      <Link>AuthenticationMethod.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\AuthenticationResult.cs">
+      <Link>AuthenticationResult.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\BaseClient.cs">
       <Link>BaseClient.cs</Link>
     </Compile>
@@ -214,6 +220,9 @@
     </Compile>
     <Compile Include="..\Renci.SshNet\ForwardedPortRemote.cs">
       <Link>ForwardedPortRemote.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\KeyboardInteractiveAuthenticationMethod.cs">
+      <Link>KeyboardInteractiveAuthenticationMethod.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\KeyboardInteractiveConnectionInfo.cs">
       <Link>KeyboardInteractiveConnectionInfo.cs</Link>
@@ -428,11 +437,17 @@
     <Compile Include="..\Renci.SshNet\Messages\Transport\UnimplementedMessage.cs">
       <Link>Messages\Transport\UnimplementedMessage.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\NoneConnectionInfo.cs">
-      <Link>NoneConnectionInfo.cs</Link>
+    <Compile Include="..\Renci.SshNet\NoneAuthenticationMethod.cs">
+      <Link>NoneAuthenticationMethod.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\PasswordAuthenticationMethod.cs">
+      <Link>PasswordAuthenticationMethod.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\PasswordConnectionInfo.cs">
       <Link>PasswordConnectionInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\PrivateKeyAuthenticationMethod.cs">
+      <Link>PrivateKeyAuthenticationMethod.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\PrivateKeyConnectionInfo.cs">
       <Link>PrivateKeyConnectionInfo.cs</Link>
@@ -716,7 +731,8 @@
     <Compile Include="Common\Extensions.SilverlightShared.cs" />
     <Compile Include="ForwardedPortLocal.SilverlightShared.cs" />
     <Compile Include="ForwardedPortRemote.SilverlightShared.cs" />
-    <Compile Include="PasswordConnectionInfo.SilverlightShared.cs" />
+    <Compile Include="KeyboardInteractiveAuthenticationMethod.SilverlightShared.cs" />
+    <Compile Include="PasswordAuthenticationMethod.SilverlightShared.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ScpClient.SilverlightShared.cs" />
     <Compile Include="Session.SilverlightBrowser.cs" />
@@ -730,7 +746,7 @@
       <FlavorProperties GUID="{A1591282-1198-4647-A2B1-27E5FF5F6F3B}">
         <SilverlightProjectProperties />
       </FlavorProperties>
-      <UserProperties ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" ProjectLinkReference="2f5f8c90-0bd1-424f-997c-7bc6280919d1" />
+      <UserProperties ProjectLinkReference="2f5f8c90-0bd1-424f-997c-7bc6280919d1" ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

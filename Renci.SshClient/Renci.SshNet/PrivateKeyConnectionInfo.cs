@@ -129,7 +129,7 @@ namespace Renci.SshNet
         /// <param name="proxyPassword">The proxy password.</param>
         /// <param name="keyFiles">The key files.</param>
         public PrivateKeyConnectionInfo(string host, int port, string username, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername, string proxyPassword, params PrivateKeyFile[] keyFiles)
-            : base(host, port, username, proxyType, proxyHost, proxyPort, proxyUsername, proxyPassword, new PrivateKeyAuthenticationMethod(host, port, username, keyFiles))
+            : base(host, port, username, proxyType, proxyHost, proxyPort, proxyUsername, proxyPassword, new PrivateKeyAuthenticationMethod(username, keyFiles))
         {
             this.KeyFiles = new Collection<PrivateKeyFile>(keyFiles);
         }

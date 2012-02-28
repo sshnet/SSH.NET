@@ -41,8 +41,8 @@ namespace Renci.SshNet
         /// <param name="port">The port.</param>
         /// <param name="username">The username.</param>
         /// <param name="keyFiles">The key files.</param>
-        public PrivateKeyAuthenticationMethod(string host, int port, string username, params PrivateKeyFile[] keyFiles)
-            : base(host, port, username)
+        public PrivateKeyAuthenticationMethod(string username, params PrivateKeyFile[] keyFiles)
+            : base(username)
         {
             this.KeyFiles = new Collection<PrivateKeyFile>(keyFiles);
         }

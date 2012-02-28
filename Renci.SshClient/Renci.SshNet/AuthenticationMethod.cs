@@ -17,16 +17,6 @@ namespace Renci.SshNet
         public abstract string Name { get; }
 
         /// <summary>
-        /// Gets connection host.
-        /// </summary>
-        public string Host { get; private set; }
-
-        /// <summary>
-        /// Gets connection port.
-        /// </summary>
-        public int Port { get; private set; }
-
-        /// <summary>
         /// Gets connection username.
         /// </summary>
         public string Username { get; private set; }
@@ -39,22 +29,12 @@ namespace Renci.SshNet
         /// <summary>
         /// Initializes a new instance of the <see cref="AuthenticationMethod"/> class.
         /// </summary>
-        /// <param name="host">The host.</param>
-        /// <param name="port">The port.</param>
         /// <param name="username">The username.</param>
-        protected AuthenticationMethod(string host, int port, string username)
+        protected AuthenticationMethod(string username)
         {
-            if (!host.IsValidHost())
-                throw new ArgumentException("host");
-
-            if (!port.IsValidPort())
-                throw new ArgumentOutOfRangeException("port");
-
             if (username.IsNullOrWhiteSpace())
                 throw new ArgumentException("username");
 
-            this.Host = host;
-            this.Port = port;
             this.Username = username;
         }
 

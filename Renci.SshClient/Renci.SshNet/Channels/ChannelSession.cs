@@ -110,8 +110,10 @@ namespace Renci.SshNet.Channels
         /// <param name="rows">The rows.</param>
         /// <param name="width">The width.</param>
         /// <param name="height">The height.</param>
-        /// <param name="terminalMode">The terminal mode.</param>
-        /// <returns>true if request was successful; otherwise false.</returns>
+        /// <param name="terminalModeValues">The terminal mode values.</param>
+        /// <returns>
+        /// true if request was successful; otherwise false.
+        /// </returns>
         public bool SendPseudoTerminalRequest(string environmentVariable, uint columns, uint rows, uint width, uint height, params KeyValuePair<TerminalModes, uint>[] terminalModeValues)
         {
             this._channelRequestResponse.Reset();

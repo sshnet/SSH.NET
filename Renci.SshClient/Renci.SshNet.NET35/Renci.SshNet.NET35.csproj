@@ -39,6 +39,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Renci.SshNet\AuthenticationMethod.cs">
+      <Link>AuthenticationMethod.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\AuthenticationResult.cs">
+      <Link>AuthenticationResult.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\BaseClient.cs">
       <Link>BaseClient.cs</Link>
     </Compile>
@@ -236,6 +242,9 @@
     </Compile>
     <Compile Include="..\Renci.SshNet\ForwardedPortRemote.cs">
       <Link>ForwardedPortRemote.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\KeyboardInteractiveAuthenticationMethod.cs">
+      <Link>KeyboardInteractiveAuthenticationMethod.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\KeyboardInteractiveConnectionInfo.cs">
       <Link>KeyboardInteractiveConnectionInfo.cs</Link>
@@ -456,11 +465,17 @@
     <Compile Include="..\Renci.SshNet\Netconf\NetConfSession.cs">
       <Link>Netconf\NetConfSession.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\NoneConnectionInfo.cs">
-      <Link>NoneConnectionInfo.cs</Link>
+    <Compile Include="..\Renci.SshNet\NoneAuthenticationMethod.cs">
+      <Link>NoneAuthenticationMethod.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\PasswordAuthenticationMethod.cs">
+      <Link>PasswordAuthenticationMethod.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\PasswordConnectionInfo.cs">
       <Link>PasswordConnectionInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\PrivateKeyAuthenticationMethod.cs">
+      <Link>PrivateKeyAuthenticationMethod.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\PrivateKeyConnectionInfo.cs">
       <Link>PrivateKeyConnectionInfo.cs</Link>
@@ -752,8 +767,8 @@
     <Compile Include="ForwardedPortDynamic.NET35.cs" />
     <Compile Include="ForwardedPortLocal.NET35.cs" />
     <Compile Include="ForwardedPortRemote.NET35.cs" />
-    <Compile Include="KeyboardInteractiveConnectionInfo.NET35.cs" />
-    <Compile Include="PasswordConnectionInfo.NET35.cs" />
+    <Compile Include="KeyboardInteractiveAuthenticationMethod.NET35.cs" />
+    <Compile Include="PasswordAuthenticationMethod.NET35.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Session.NET35.cs" />
     <Compile Include="SftpClient.NET35.cs" />
@@ -763,7 +778,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties ProjectLinkReference="2f5f8c90-0bd1-424f-997c-7bc6280919d1" ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" />
+      <UserProperties ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" ProjectLinkReference="2f5f8c90-0bd1-424f-997c-7bc6280919d1" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

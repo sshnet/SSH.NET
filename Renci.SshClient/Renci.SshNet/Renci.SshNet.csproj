@@ -41,6 +41,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AuthenticationMethod.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AuthenticationResult.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="BaseClient.cs" />
     <Compile Include="ChannelAsyncResult.cs" />
     <Compile Include="Channels\Channel.cs" />
@@ -126,9 +132,19 @@
     <Compile Include="Compression\ZlibStream.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="ConnectionInfo.cs">
+    <Compile Include="ConnectionInfo.cs" />
+    <Compile Include="KeyboardInteractiveAuthenticationMethod.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="KeyboardInteractiveAuthenticationMethod.NET40.cs" />
+    <Compile Include="KeyboardInteractiveConnectionInfo.cs" />
+    <Compile Include="NoneAuthenticationMethod.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PasswordAuthenticationMethod.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PasswordAuthenticationMethod.NET40.cs" />
     <Compile Include="ExpectAction.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -141,6 +157,11 @@
     </Compile>
     <Compile Include="ForwardedPortLocal.NET.cs" />
     <Compile Include="Messages\Transport\IKeyExchangedAllowed.cs" />
+    <Compile Include="PasswordConnectionInfo.cs" />
+    <Compile Include="PrivateKeyAuthenticationMethod.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PrivateKeyConnectionInfo.cs" />
     <Compile Include="ProxyTypes.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -157,8 +178,6 @@
     </Compile>
     <Compile Include="ForwardedPortRemote.cs" />
     <Compile Include="ForwardedPortRemote.NET40.cs" />
-    <Compile Include="KeyboardInteractiveConnectionInfo.cs" />
-    <Compile Include="KeyboardInteractiveConnectionInfo.NET40.cs" />
     <Compile Include="MessageEventArgs.cs" />
     <Compile Include="Messages\Authentication\BannerMessage.cs" />
     <Compile Include="Messages\Authentication\FailureMessage.cs" />
@@ -244,10 +263,6 @@
     <Compile Include="Messages\Transport\UnimplementedMessage.cs" />
     <Compile Include="NetConfClient.cs" />
     <Compile Include="Netconf\NetConfSession.cs" />
-    <Compile Include="NoneConnectionInfo.cs" />
-    <Compile Include="PasswordConnectionInfo.cs" />
-    <Compile Include="PasswordConnectionInfo.NET40.cs" />
-    <Compile Include="PrivateKeyConnectionInfo.cs" />
     <Compile Include="PrivateKeyFile.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Security\Algorithm.cs">

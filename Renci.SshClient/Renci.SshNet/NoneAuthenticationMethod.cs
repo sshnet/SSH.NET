@@ -34,21 +34,10 @@ namespace Renci.SshNet
         /// Initializes a new instance of the <see cref="KeyboardInteractiveConnectionInfo"/> class.
         /// </summary>
         /// <param name="host">The host.</param>
-        /// <param name="username">The username.</param>
-        public NoneAuthenticationMethod(string host, string username)
-            : this(host, 22, username)
-        {
-
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="KeyboardInteractiveConnectionInfo"/> class.
-        /// </summary>
-        /// <param name="host">The host.</param>
         /// <param name="port">The port.</param>
         /// <param name="username">The username.</param>
-        public NoneAuthenticationMethod(string host, int port, string username)
-            : base(host, port, username)
+        public NoneAuthenticationMethod(string username)
+            : base(username)
         {
 
         }

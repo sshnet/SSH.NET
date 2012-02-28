@@ -46,8 +46,8 @@ namespace Renci.SshNet
         /// <param name="port">The port.</param>
         /// <param name="username">The username.</param>
         /// <param name="password">The password.</param>
-        public PasswordAuthenticationMethod(string host, int port, string username, string password)
-            : base(host, port, username)
+        public PasswordAuthenticationMethod(string username, string password)
+            : base(username)
         {
             if (password == null)
                 throw new ArgumentNullException("password");

@@ -132,7 +132,7 @@ namespace Renci.SshNet
         /// <param name="proxyUsername">The proxy username.</param>
         /// <param name="proxyPassword">The proxy password.</param>
         public PasswordConnectionInfo(string host, int port, string username, string password, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername, string proxyPassword)
-            : base(host, port, username, proxyType, proxyHost, proxyPort, proxyUsername, proxyPassword, new PasswordAuthenticationMethod(host, port, username, password))
+            : base(host, port, username, proxyType, proxyHost, proxyPort, proxyUsername, proxyPassword, new PasswordAuthenticationMethod(username, password))
         {
             foreach (var authenticationMethod in this.AuthenticationMethods.OfType<PasswordAuthenticationMethod>())
             {

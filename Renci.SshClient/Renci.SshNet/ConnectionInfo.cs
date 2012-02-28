@@ -178,6 +178,29 @@ namespace Renci.SshNet
         /// <summary>
         /// Initializes a new instance of the <see cref="ConnectionInfo"/> class.
         /// </summary>
+        /// <param name="host">The host.</param>
+        /// <param name="username">The username.</param>
+        /// <param name="authenticationMethods">The authentication methods.</param>
+        public ConnectionInfo(string host, string username, params AuthenticationMethod[] authenticationMethods)
+            : this(host, 22, username, ProxyTypes.None, string.Empty, 0, string.Empty, string.Empty, authenticationMethods)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ConnectionInfo"/> class.
+        /// </summary>
+        /// <param name="host">The host.</param>
+        /// <param name="port">The port.</param>
+        /// <param name="username">The username.</param>
+        /// <param name="authenticationMethods">The authentication methods.</param>
+        public ConnectionInfo(string host, int port, string username, params AuthenticationMethod[] authenticationMethods)
+            : this(host, port, username, ProxyTypes.None, string.Empty, 0, string.Empty, string.Empty, authenticationMethods)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ConnectionInfo"/> class.
+        /// </summary>
         /// <param name="host">Connection host.</param>
         /// <param name="port">Connection port.</param>
         /// <param name="username">Connection username.</param>
@@ -328,7 +351,7 @@ namespace Renci.SshNet
             session.UserAuthenticationBannerReceived += Session_UserAuthenticationBannerReceived;
 
             //  Try to authenticate against none
-            var noneAuthenticationMethod = new NoneAuthenticationMethod(this.Host, this.Port, this.Username);
+            var noneAuthenticationMethod = new NoneAuthenticationMethod(this.Username);
 
             authenticated = noneAuthenticationMethod.Authenticate(session);
 

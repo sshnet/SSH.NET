@@ -43,8 +43,8 @@ namespace Renci.SshNet
         /// <param name="host">The host.</param>
         /// <param name="port">The port.</param>
         /// <param name="username">The username.</param>
-        public KeyboardInteractiveAuthenticationMethod(string host, int port, string username)
-            : base(host, port, username)
+        public KeyboardInteractiveAuthenticationMethod(string username)
+            : base(username)
         {
             this._requestMessage = new RequestMessageKeyboardInteractive(ServiceName.Connection, username);
         }

@@ -27,6 +27,11 @@ namespace Renci.SshNet
         public string ErrorMessage { get; private set; }
 
         /// <summary>
+        /// Gets list of allowed authentications.
+        /// </summary>
+        public IEnumerable<string> AllowedAuthentications { get; protected set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="AuthenticationMethod"/> class.
         /// </summary>
         /// <param name="username">The username.</param>

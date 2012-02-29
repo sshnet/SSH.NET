@@ -407,7 +407,6 @@ namespace Renci.SshNet
             this.ClientVersion = string.Format(CultureInfo.CurrentCulture, "SSH-2.0-Renci.SshNet.SshClient.0.0.1");
         }
 
-
         /// <summary>
         /// Connects to the server.
         /// </summary>
@@ -1834,7 +1833,74 @@ namespace Renci.SshNet
 
         private void ConnectHttp(Socket socket)
         {
-            throw new NotImplementedException();
+            var httpResponseRe = new Regex(@"HTTP/(?<version>\d[.]\d) (?<statusCode>\d{3}) (?<reasonPhrase>.+)$");
+            var httpHeaderRe = new Regex(@"(?<fieldName>[^\[\]()<>@,;:\""/?={} \t]+):(?<fieldValue>.+)?");
+
+            var encoding = new Renci.SshNet.Common.ASCIIEncoding();
+
+            this.SocketWrite(encoding.GetBytes(string.Format("CONNECT {0}:{1} HTTP/1.0\r\n", this.ConnectionInfo.Host, this.ConnectionInfo.Port)));
+            
+            //  Sent proxy authorization is specified
+            if (!string.IsNullOrEmpty(this.ConnectionInfo.ProxyUsername))
+            {
+                var authorization = string.Format("Proxy-Authorization: Basic {0}\r\n",
+                    Convert.ToBase64String(encoding.GetBytes(string.Format("{0}:{1}", this.ConnectionInfo.ProxyUsername, this.ConnectionInfo.ProxyPassword)))
+                    );
+                this.SocketWrite(encoding.GetBytes(authorization));
+            }
+
+            this.SocketWrite(encoding.GetBytes("\r\n"));
+
+            var statusCode = 0;
+            var response = string.Empty;
+            var contentLength = 0;
+
+            while (true)
+            {
+                this.SocketReadLine(ref response);
+
+                System.Diagnostics.Debug.WriteLine(response);
+
+                var match = httpResponseRe.Match(response);
+
+                if (match.Success)
+                {
+                    statusCode = int.Parse(match.Result("${statusCode}"));
+                    continue;
+                }
+                else
+                {
+                    match = httpHeaderRe.Match(response);
+                    if (match.Success)
+                    {
+                        var fieldName = match.Result("${fieldName}");
+                        if (fieldName.Equals("Content-Length", StringComparison.InvariantCultureIgnoreCase))
+                        {
+                            contentLength = int.Parse(match.Result("${fieldValue}"));
+                        }
+                        continue;
+                    }
+                }
+
+                //  Read response body if specified
+                if (string.IsNullOrEmpty(response) && contentLength > 0)
+                {
+                    var contentBody = new byte[contentLength];
+                    this.SocketRead(contentLength, ref contentBody);
+                    var text = encoding.GetString(contentBody);
+                }
+
+                if (statusCode == 200 && string.IsNullOrEmpty(response))
+                {
+                    //  Once all HTTP header information is read, exit
+                    break;
+                }
+                else
+                {
+                    var reasonPhrase = match.Result("${reasonPhrase}");
+                    throw new ProxyException(string.Format("HTTP: Status code {0}, Reason \"{1}\"", statusCode, reasonPhrase));
+                }
+            }
         }
 
         /// <summary>

@@ -173,14 +173,14 @@ namespace Renci.SshNet.Tests
 		[ExpectedException(typeof(ArgumentOutOfRangeException))]
 		public void Test_ConnectionInfo_SmallPortNumber()
 		{
-			var connectionInfo = new PasswordConnectionInfo(Resources.HOST, IPEndPoint.MinPort - 1, null, null);
+			var connectionInfo = new PasswordConnectionInfo(Resources.HOST, IPEndPoint.MinPort - 1, Resources.USERNAME, Resources.PASSWORD);
 		}
 
 		[WorkItem(703), TestMethod]
 		[ExpectedException(typeof(ArgumentOutOfRangeException))]
 		public void Test_ConnectionInfo_BigPortNumber()
 		{
-			var connectionInfo = new PasswordConnectionInfo(Resources.HOST, IPEndPoint.MaxPort + 1, null, null);
+			var connectionInfo = new PasswordConnectionInfo(Resources.HOST, IPEndPoint.MaxPort + 1, Resources.USERNAME, Resources.PASSWORD);
 		}
 
 	}

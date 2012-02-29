@@ -62,11 +62,10 @@ namespace Renci.SshNet
                 this._socket.Receive(data);
 
                 buffer.Add(data[0]);
-                Debug.WriteLine(data[0]);
             }
-            while (!(buffer.Count > 2 && buffer[buffer.Count - 1] == 0x0A));
+            while (!(buffer.Count > 1 && buffer[buffer.Count - 1] == 0x0A));
 
-            if (buffer[buffer.Count - 2] == 0x0D)
+            if (buffer.Count > 1 && buffer[buffer.Count - 2] == 0x0D)
                 response = encoding.GetString(buffer.Take(buffer.Count - 2).ToArray());
             else
                 response = encoding.GetString(buffer.Take(buffer.Count - 1).ToArray());

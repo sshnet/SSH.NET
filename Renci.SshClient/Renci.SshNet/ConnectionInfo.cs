@@ -355,15 +355,27 @@ namespace Renci.SshNet
 
             authenticated = noneAuthenticationMethod.Authenticate(session);
 
-            if (authenticated != AuthenticationResult.Success)
-            {
-                foreach (var authenticationMethod in this.AuthenticationMethods.Where((a) => noneAuthenticationMethod.AllowedAuthentications.Contains(a.Name)))
-                {
-                    authenticated = authenticationMethod.Authenticate(session);
+            var allowedAuthentications = noneAuthenticationMethod.AllowedAuthentications;
 
-                    if (authenticated == AuthenticationResult.Success)
-                        break;
+            while (authenticated != AuthenticationResult.Success)
+            {
+                //  Find first authentication method
+                var method = this.AuthenticationMethods.Where((a) => allowedAuthentications.Contains(a.Name)).FirstOrDefault();
+
+                if (method == null)
+                    throw new SshAuthenticationException("No suitable authentication method found to complete authentication.");
+
+                authenticated = method.Authenticate(session);
+
+                if (authenticated == AuthenticationResult.PartialSuccess)
+                {
+                    //  If further authentication is required then continue to try another method
+                    allowedAuthentications = method.AllowedAuthentications;
+                    continue;
                 }
+
+                //  If authentication was successful or failure, exit
+                break;
             }
 
             session.UserAuthenticationBannerReceived -= Session_UserAuthenticationBannerReceived;

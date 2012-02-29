@@ -26,11 +26,6 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Gets list of allowed authentications.
-        /// </summary>
-        public IEnumerable<string> AllowedAuthentications { get; private set; }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="KeyboardInteractiveConnectionInfo"/> class.
         /// </summary>
         /// <param name="host">The host.</param>
@@ -75,7 +70,6 @@ namespace Renci.SshNet
                 this._authenticationResult = AuthenticationResult.PartialSuccess;
             else
                 this._authenticationResult = AuthenticationResult.Failure;
-
 
             //  Copy allowed authentication methods
             this.AllowedAuthentications = e.Message.AllowedAuthentications.ToList();

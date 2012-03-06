@@ -38,7 +38,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Gets supported host key algorithms for this connection.
         /// </summary>
-        public IDictionary<string, Func<byte[], HostAlgorithm>> HostKeyAlgorithms { get; private set; }
+        public IDictionary<string, Func<byte[], KeyHostAlgorithm>> HostKeyAlgorithms { get; private set; }
 
         /// <summary>
         /// Gets supported authentication methods for this connection.
@@ -282,7 +282,7 @@ namespace Renci.SshNet
                 //{"none", typeof(...)},
             };
 
-            this.HostKeyAlgorithms = new Dictionary<string, Func<byte[], HostAlgorithm>>()
+            this.HostKeyAlgorithms = new Dictionary<string, Func<byte[], KeyHostAlgorithm>>()
             {
                 {"ssh-rsa", (data) => { return new KeyHostAlgorithm("ssh-rsa", new RsaKey(), data); }},
                 {"ssh-dss", (data) => { return new KeyHostAlgorithm("ssh-dss", new DsaKey(), data); }},

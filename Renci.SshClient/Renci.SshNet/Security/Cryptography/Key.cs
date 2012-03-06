@@ -31,6 +31,14 @@ namespace Renci.SshNet.Security
         public abstract BigInteger[] Public { get; set; }
 
         /// <summary>
+        /// Gets the length of the key.
+        /// </summary>
+        /// <value>
+        /// The length of the key.
+        /// </value>
+        public abstract int KeyLength { get; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="Key"/> class.
         /// </summary>
         /// <param name="data">DER encoded private key data.</param>

@@ -118,6 +118,20 @@ namespace Renci.SshNet.Security
             }
         }
 
+        /// <summary>
+        /// Gets the length of the key.
+        /// </summary>
+        /// <value>
+        /// The length of the key.
+        /// </value>
+        public override int KeyLength
+        {
+            get
+            {
+                return this.Modulus.BitLength;
+            }
+        }
+
         private RsaDigitalSignature _digitalSignature;
         /// <summary>
         /// Gets the digital signature.

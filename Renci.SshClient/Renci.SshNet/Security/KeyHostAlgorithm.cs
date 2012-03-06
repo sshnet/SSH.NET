@@ -12,7 +12,11 @@ namespace Renci.SshNet.Security
     /// </summary>
     public class KeyHostAlgorithm : HostAlgorithm
     {
-        private Key _key;
+
+        /// <summary>
+        /// Gets the key.
+        /// </summary>
+        public Key Key { get; private set; }
 
         /// <summary>
         /// Gets the public key data.
@@ -21,7 +25,7 @@ namespace Renci.SshNet.Security
         {
             get
             {
-                return new SshKeyData(this.Name, this._key.Public).GetBytes();
+                return new SshKeyData(this.Name, this.Key.Public).GetBytes();
             }
         }
 
@@ -33,7 +37,7 @@ namespace Renci.SshNet.Security
         public KeyHostAlgorithm(string name, Key key)
             : base(name)
         {
-            this._key = key;
+            this.Key = key;
         }
 
         /// <summary>
@@ -45,11 +49,11 @@ namespace Renci.SshNet.Security
         public KeyHostAlgorithm(string name, Key key, byte[] data)
             : base(name)
         {
-            this._key = key;
+            this.Key = key;
 
             var sshKey = new SshKeyData();
             sshKey.Load(data);
-            this._key.Public = sshKey.Keys;
+            this.Key.Public = sshKey.Keys;
         }
 
         /// <summary>
@@ -59,7 +63,7 @@ namespace Renci.SshNet.Security
         /// <returns></returns>
         public override byte[] Sign(byte[] data)
         {
-            return new SignatureKeyData(this.Name, this._key.Sign(data)).GetBytes().ToArray();
+            return new SignatureKeyData(this.Name, this.Key.Sign(data)).GetBytes().ToArray();
         }
 
         /// <summary>
@@ -73,7 +77,7 @@ namespace Renci.SshNet.Security
             var signatureData = new SignatureKeyData();
             signatureData.Load(signature);
 
-            return this._key.VerifySignature(data, signatureData.Signature);
+            return this.Key.VerifySignature(data, signatureData.Signature);
         }
 
         private class SshKeyData : SshData

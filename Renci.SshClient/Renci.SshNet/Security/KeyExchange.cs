@@ -277,13 +277,13 @@ namespace Renci.SshNet.Security
         /// <summary>
         /// Determines whether the specified host key can be trusted.
         /// </summary>
-        /// <param name="hostKey">The host key.</param>
+        /// <param name="host">The host algorithm.</param>
         /// <returns>
-        ///   <c>true</c> if the specified host key can be trusted; otherwise, <c>false</c>.
+        ///   <c>true</c> if the specified host can be trusted; otherwise, <c>false</c>.
         /// </returns>
-        protected bool CanTrustHostKey(byte[] hostKey)
+        protected bool CanTrustHostKey(KeyHostAlgorithm host)
         {
-            var args = new HostKeyEventArgs(hostKey);
+            var args = new HostKeyEventArgs(host);
 
             if (this.HostKeyReceived != null)
             {

@@ -67,6 +67,20 @@ namespace Renci.SshNet.Security
             }
         }
 
+        /// <summary>
+        /// Gets the length of the key.
+        /// </summary>
+        /// <value>
+        /// The length of the key.
+        /// </value>
+        public override int KeyLength
+        {
+            get
+            {
+                return this.P.BitLength;
+            }
+        }
+
         private DsaDigitalSignature _digitalSignature;
         /// <summary>
         /// Gets the digital signature.
@@ -99,7 +113,7 @@ namespace Renci.SshNet.Security
             {
                 if (value.Length != 4)
                     throw new InvalidOperationException("Invalid public key.");
-                
+
                 this._privateKey = value;
             }
         }
@@ -123,7 +137,7 @@ namespace Renci.SshNet.Security
             if (this._privateKey.Length != 5)
                 throw new InvalidOperationException("Invalid private key.");
         }
-            
+
         #region IDisposable Members
 
         private bool _isDisposed = false;

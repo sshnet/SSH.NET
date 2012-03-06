@@ -1887,7 +1887,6 @@ namespace Renci.SshNet
                 {
                     var contentBody = new byte[contentLength];
                     this.SocketRead(contentLength, ref contentBody);
-                    var text = encoding.GetString(contentBody);
                 }
 
                 if (statusCode == 200 && string.IsNullOrEmpty(response))

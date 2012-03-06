@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Renci.SshNet.Security.Cryptography;
+using Renci.SshNet.Security;
 
 namespace Renci.SshNet.Common
 {
@@ -30,18 +31,28 @@ namespace Renci.SshNet.Common
         public byte[] FingerPrint { get; private set; }
 
         /// <summary>
+        /// Gets the length of the key in bits.
+        /// </summary>
+        /// <value>
+        /// The length of the key in bits.
+        /// </value>
+        public int KeyLength { get; private set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="HostKeyEventArgs"/> class.
         /// </summary>
-        /// <param name="hostKey">The host key.</param>
-        public HostKeyEventArgs(byte[] hostKey)
+        /// <param name="host">The host.</param>
+        public HostKeyEventArgs(KeyHostAlgorithm host)
         {
             this.CanTrust = true;   //  Set default value
 
-            this.HostKey = hostKey;
+            this.HostKey = host.Data;
+
+            this.KeyLength = host.Key.KeyLength;
 
             using (var md5 = new MD5Hash())
             {
-                this.FingerPrint = md5.ComputeHash(hostKey);
+                this.FingerPrint = md5.ComputeHash(host.Data);
             }
         }
     }

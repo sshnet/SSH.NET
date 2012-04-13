@@ -171,6 +171,16 @@ namespace Renci.SshNet
         public string CurrentServerCompressionAlgorithm { get; internal set; }
 
         /// <summary>
+        /// Gets the server version.
+        /// </summary>
+        public string ServerVersion { get; internal set; }
+
+        /// <summary>
+        /// Get the client version.
+        /// </summary>
+        public string ClientVersion { get; internal set; }
+
+        /// <summary>
         /// Gets the current client compression algorithm.
         /// </summary>
         public string CurrentClientCompressionAlgorithm { get; internal set; }

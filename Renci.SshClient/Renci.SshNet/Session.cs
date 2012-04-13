@@ -481,6 +481,10 @@ namespace Renci.SshNet
                         }
                     }
 
+                    //  Set connection versions
+                    this.ConnectionInfo.ServerVersion = this.ServerVersion;
+                    this.ConnectionInfo.ClientVersion = this.ClientVersion;
+
                     //  Get server SSH version
                     var version = versionMatch.Result("${protoversion}");
 

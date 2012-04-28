@@ -170,8 +170,17 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="filename">Remote host file name.</param>
         /// <param name="destination">The stream where to download remote file.</param>
+        /// <exception cref="ArgumentException"><paramref name="filename"/> is null or contains whitespace characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="destination"/> is null.</exception>
+        /// <remarks>Method calls made by this method to <paramref name="destination"/>, may under certain conditions result in exceptions thrown by the stream.</remarks>
         public void Download(string filename, Stream destination)
         {
+            if (filename.IsNullOrWhiteSpace())
+                throw new ArgumentException("filename");
+
+            if (destination == null)
+                throw new ArgumentNullException("destination");
+
             using (var input = new PipeStream())
             using (var channel = this.Session.CreateChannel<ChannelSession>())
             {

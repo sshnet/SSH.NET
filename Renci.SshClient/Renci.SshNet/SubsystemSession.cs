@@ -46,6 +46,7 @@ namespace Renci.SshNet.Sftp
         {
             get
             {
+                //  UNDONE:   _channel.RemoteChannelNumber may be called before _channel is set.
                 return this._channel.RemoteChannelNumber;
             }
         }

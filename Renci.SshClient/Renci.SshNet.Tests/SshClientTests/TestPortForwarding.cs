@@ -18,6 +18,7 @@ namespace Renci.SshNet.Tests.SshClientTests
 		[TestMethod]
 		[WorkItem(713)]
 		[Owner("kenneth_aa")]
+        [TestCategory("PortForwarding")]
 		[Description("Test if calling Stop on ForwardedPortLocal instance causes wait.")]
 		public void Test_PortForwarding_Local_Stop_Hangs_On_Wait()
 		{

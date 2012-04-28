@@ -14,6 +14,8 @@ namespace Renci.SshNet.Tests.Security
     public class TestCipher
     {
         [TestMethod]
+        [Owner("olegkap")]
+        [TestCategory("Cipher")]
         public void Test_Cipher_TripleDESCBC_Connection()
         {
             var connectionInfo = new PasswordConnectionInfo(Resources.HOST, 22, Resources.USERNAME, Resources.PASSWORD);
@@ -28,6 +30,8 @@ namespace Renci.SshNet.Tests.Security
         }
 
         [TestMethod]
+        [Owner("olegkap")]
+        [TestCategory("Cipher")]
         public void Test_Cipher_AEes128CBC_Connection()
         {
             var connectionInfo = new PasswordConnectionInfo(Resources.HOST, 22, Resources.USERNAME, Resources.PASSWORD);
@@ -42,6 +46,8 @@ namespace Renci.SshNet.Tests.Security
         }
 
         [TestMethod]
+        [Owner("olegkap")]
+        [TestCategory("Cipher")]
         public void Test_Cipher_Aes192CBC_Connection()
         {
             var connectionInfo = new PasswordConnectionInfo(Resources.HOST, 22, Resources.USERNAME, Resources.PASSWORD);
@@ -56,6 +62,8 @@ namespace Renci.SshNet.Tests.Security
         }
 
         [TestMethod]
+        [Owner("olegkap")]
+        [TestCategory("Cipher")]
         public void Test_Cipher_Aes256CBC_Connection()
         {
             var connectionInfo = new PasswordConnectionInfo(Resources.HOST, 22, Resources.USERNAME, Resources.PASSWORD);
@@ -70,6 +78,8 @@ namespace Renci.SshNet.Tests.Security
         }
 
         [TestMethod]
+        [Owner("olegkap")]
+        [TestCategory("Cipher")]
         public void Test_Cipher_Aes128CTR_Connection()
         {
             var connectionInfo = new PasswordConnectionInfo(Resources.HOST, 22, Resources.USERNAME, Resources.PASSWORD);
@@ -84,6 +94,8 @@ namespace Renci.SshNet.Tests.Security
         }
 
         [TestMethod]
+        [Owner("olegkap")]
+        [TestCategory("Cipher")]
         public void Test_Cipher_Aes192CTR_Connection()
         {
             var connectionInfo = new PasswordConnectionInfo(Resources.HOST, 22, Resources.USERNAME, Resources.PASSWORD);
@@ -98,6 +110,8 @@ namespace Renci.SshNet.Tests.Security
         }
 
         [TestMethod]
+        [Owner("olegkap")]
+        [TestCategory("Cipher")]
         public void Test_Cipher_Aes256CTR_Connection()
         {
             var connectionInfo = new PasswordConnectionInfo(Resources.HOST, 22, Resources.USERNAME, Resources.PASSWORD);
@@ -112,6 +126,8 @@ namespace Renci.SshNet.Tests.Security
         }
 
         [TestMethod]
+        [Owner("olegkap")]
+        [TestCategory("Cipher")]
         public void Test_Cipher_BlowfishCBC_Connection()
         {
             var connectionInfo = new PasswordConnectionInfo(Resources.HOST, 22, Resources.USERNAME, Resources.PASSWORD);
@@ -126,6 +142,8 @@ namespace Renci.SshNet.Tests.Security
         }
 
         [TestMethod]
+        [Owner("olegkap")]
+        [TestCategory("Cipher")]
         public void Test_Cipher_Cast128CBC_Connection()
         {
             var connectionInfo = new PasswordConnectionInfo(Resources.HOST, 22, Resources.USERNAME, Resources.PASSWORD);

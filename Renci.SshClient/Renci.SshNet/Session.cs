@@ -412,6 +412,7 @@ namespace Renci.SshNet
         /// </summary>
         public void Connect()
         {
+            //   TODO: Add exception documentation for Proxy.
             if (this.ConnectionInfo == null)
             {
                 throw new ArgumentNullException("connectionInfo");

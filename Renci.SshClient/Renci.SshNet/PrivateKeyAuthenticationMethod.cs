@@ -41,9 +41,11 @@ namespace Renci.SshNet
         /// <param name="port">The port.</param>
         /// <param name="username">The username.</param>
         /// <param name="keyFiles">The key files.</param>
+        /// <exception cref="ArgumentException"><paramref name="username"/> is whitespace or null.</exception>
         public PrivateKeyAuthenticationMethod(string username, params PrivateKeyFile[] keyFiles)
             : base(username)
         {
+            //  TODO:   Should throw on keyFiles == null here?
             this.KeyFiles = new Collection<PrivateKeyFile>(keyFiles);
         }
 

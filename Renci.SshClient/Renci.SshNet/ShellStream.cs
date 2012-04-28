@@ -335,7 +335,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Reads the line from the shell. If line is not available it will block the execution and will wait for new line.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The line read from the shell.</returns>
         public string ReadLine()
         {
             var text = string.Empty;
@@ -370,7 +370,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Reads text available in the shell.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The text available in the shell.</returns>
         public string Read()
         {
             var text = string.Empty;
@@ -388,7 +388,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Writes the specified text to the shell.
         /// </summary>
-        /// <param name="text">The text.</param>
+        /// <param name="text">The text to be written to the shell.</param>
         public void Write(string text)
         {
             var data = this._encoding.GetBytes(text);
@@ -398,7 +398,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Writes the line to the shell.
         /// </summary>
-        /// <param name="line">The line.</param>
+        /// <param name="line">The line to be written to the shell.</param>
         public void WriteLine(string line)
         {
             var commandText = string.Format("{0}{1}", line, "\r\n");

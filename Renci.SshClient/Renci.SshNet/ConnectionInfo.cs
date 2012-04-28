@@ -208,6 +208,8 @@ namespace Renci.SshNet
         {
         }
 
+        //  TODO: DOCS Add exception documentation for this class.
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ConnectionInfo"/> class.
         /// </summary>
@@ -230,7 +232,7 @@ namespace Renci.SshNet
             if (!host.IsValidHost())
                 throw new ArgumentException("host");
 
-            if (!string.IsNullOrEmpty(proxyHost) && !proxyHost.IsValidHost())
+            if (string.IsNullOrEmpty(proxyHost) && !proxyHost.IsValidHost())
                 throw new ArgumentException("proxyHost");
 
             if (!port.IsValidPort())
@@ -347,6 +349,7 @@ namespace Renci.SshNet
         /// <param name="session">The session to be authenticated.</param>
         /// <returns>true if authenticated; otherwise false.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="session"/> is null.</exception>
+        /// <exception cref="SshAuthenticationException">No suitable authentication method found to complete authentication.</exception>
         public bool Authenticate(Session session)
         {
             var authenticated = AuthenticationResult.Failure;

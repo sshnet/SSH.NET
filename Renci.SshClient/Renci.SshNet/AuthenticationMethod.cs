@@ -35,6 +35,7 @@ namespace Renci.SshNet
         /// Initializes a new instance of the <see cref="AuthenticationMethod"/> class.
         /// </summary>
         /// <param name="username">The username.</param>
+        /// <exception cref="ArgumentException"><paramref name="username"/> is whitespace or null.</exception>
         protected AuthenticationMethod(string username)
         {
             if (username.IsNullOrWhiteSpace())

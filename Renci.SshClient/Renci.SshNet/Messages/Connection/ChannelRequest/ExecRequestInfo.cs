@@ -40,9 +40,13 @@ namespace Renci.SshNet.Messages.Connection
         /// Initializes a new instance of the <see cref="ExecRequestInfo"/> class.
         /// </summary>
         /// <param name="command">The command.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="command"/> is null.</exception>
         public ExecRequestInfo(string command)
             : this()
         {
+            if (command == null)
+                throw new System.ArgumentNullException("command");
+
             this.Command = command;
         }
 

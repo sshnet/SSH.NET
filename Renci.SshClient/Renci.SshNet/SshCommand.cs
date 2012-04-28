@@ -124,10 +124,14 @@ namespace Renci.SshNet
         /// <param name="session">The session.</param>
         /// <param name="commandText">The command text.</param>
         /// <param name="encoding">The encoding.</param>
+        /// <exception cref="ArgumentNullException">Either <paramref name="session"/>, <paramref name="commandText"/> or <paramref name="encoding"/> is null.</exception>
         internal SshCommand(Session session, string commandText, Encoding encoding)
         {
             if (session == null)
                 throw new ArgumentNullException("session");
+
+            if (commandText == null)
+                throw new ArgumentNullException("commandText");
 
             this._encoding = encoding;
             this._session = session;

@@ -31,6 +31,7 @@ namespace Renci.SshNet
         /// <param name="host">The host.</param>
         /// <param name="port">The port.</param>
         /// <param name="username">The username.</param>
+        /// <exception cref="ArgumentException"><paramref name="username"/> is whitespace or null.</exception>
         public NoneAuthenticationMethod(string username)
             : base(username)
         {
@@ -42,8 +43,12 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="session">The session.</param>
         /// <returns></returns>
+        /// <exception cref="ArgumentNullException"><paramref name="session"/> is null.</exception>
         public override AuthenticationResult Authenticate(Session session)
         {
+            if (session == null)
+                throw new ArgumentNullException("session");
+
             session.UserAuthenticationSuccessReceived += Session_UserAuthenticationSuccessReceived;
             session.UserAuthenticationFailureReceived += Session_UserAuthenticationFailureReceived;
 

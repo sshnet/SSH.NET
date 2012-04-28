@@ -43,6 +43,7 @@ namespace Renci.SshNet
         /// <param name="host">The host.</param>
         /// <param name="port">The port.</param>
         /// <param name="username">The username.</param>
+        /// <exception cref="ArgumentException"><paramref name="username"/> is whitespace or null.</exception>
         public KeyboardInteractiveAuthenticationMethod(string username)
             : base(username)
         {

@@ -351,6 +351,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="path">The path.</param>
         /// <returns></returns>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="path"/> is null.</exception>
         public SftpFile Get(string path)
         {
@@ -763,6 +764,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="path">The name of the file or directory to be deleted. Wildcard characters are not supported.</param>
         /// <exception cref="ArgumentNullException"><paramref name="path"/> is null.</exception>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
         public void Delete(string path)
         {
             var file = this.Get(path);
@@ -776,6 +778,7 @@ namespace Renci.SshNet
         /// <param name="path">The file or directory for which to obtain access date and time information.</param>
         /// <returns>A <see cref="System.DateTime"/> structure set to the date and time that the specified file or directory was last accessed. This value is expressed in local time.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="path"/> is null.</exception>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
         public DateTime GetLastAccessTime(string path)
         {
             var file = this.Get(path);
@@ -789,6 +792,7 @@ namespace Renci.SshNet
         /// <param name="path">The file or directory for which to obtain access date and time information.</param>
         /// <returns>A <see cref="System.DateTime"/> structure set to the date and time that the specified file or directory was last accessed. This value is expressed in UTC time.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="path"/> is null.</exception>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
         public DateTime GetLastAccessTimeUtc(string path)
         {
             var file = this.Get(path);
@@ -802,6 +806,7 @@ namespace Renci.SshNet
         /// <param name="path">The file or directory for which to obtain write date and time information.</param>
         /// <returns>A <see cref="System.DateTime"/> structure set to the date and time that the specified file or directory was last written to. This value is expressed in local time.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="path"/> is null.</exception>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
         public DateTime GetLastWriteTime(string path)
         {
             var file = this.Get(path);
@@ -815,6 +820,7 @@ namespace Renci.SshNet
         /// <param name="path">The file or directory for which to obtain write date and time information.</param>
         /// <returns>A <see cref="System.DateTime"/> structure set to the date and time that the specified file or directory was last written to. This value is expressed in UTC time.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="path"/> is null.</exception>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
         public DateTime GetLastWriteTimeUtc(string path)
         {
             var file = this.Get(path);
@@ -1159,6 +1165,8 @@ namespace Renci.SshNet
 
         #endregion
 
+        /// <exception cref="ArgumentNullException"><paramref name="path"/> is null.</exception>
+        /// <exception cref="SshConnectionException">Client not connected.</exception>
         private IEnumerable<SftpFile> InternalListDirectory(string path, SftpListDirectoryAsyncResult asynchResult)
         {
             if (path == null)
@@ -1198,6 +1206,9 @@ namespace Renci.SshNet
             return result;
         }
 
+        /// <exception cref="ArgumentNullException"><paramref name="path"/> is null or contains whitespace.</exception>
+        /// <exception cref="ArgumentException"><paramref name="output"/> is null.</exception>
+        /// <exception cref="SshConnectionException">Client not connected.</exception>
         private void InternalDownloadFile(string path, Stream output, SftpDownloadAsyncResult asynchResult)
         {
             if (output == null)
@@ -1238,6 +1249,9 @@ namespace Renci.SshNet
             this._sftpSession.RequestClose(handle);
         }
 
+        /// <exception cref="ArgumentNullException"><paramref name="input"/> is null.</exception>
+        /// <exception cref="ArgumentException"><paramref name="path"/> is null or contains whitespace.</exception>
+        /// <exception cref="SshConnectionException">Client not connected.</exception>
         private void InternalUploadFile(Stream input, string path, SftpUploadAsyncResult asynchResult, Flags flags)
         {
             if (input == null)

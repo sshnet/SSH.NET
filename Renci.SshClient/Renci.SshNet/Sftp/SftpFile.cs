@@ -472,8 +472,11 @@ namespace Renci.SshNet.Sftp
         /// Moves a specified file to a new location on remote machine, providing the option to specify a new file name.
         /// </summary>
         /// <param name="destFileName">The path to move the file to, which can specify a different file name.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="destFileName"/> is null.</exception>
         public void MoveTo(string destFileName)
         {
+            if (destFileName == null)
+                throw new ArgumentNullException("destFileName");
             this._sftpSession.RequestRename(this.FullName, destFileName);
 
             var fullPath = this._sftpSession.GetCanonicalPath(destFileName);

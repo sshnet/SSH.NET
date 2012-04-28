@@ -9,6 +9,8 @@ namespace Renci.SshNet.Tests.Security
     {
 
         [TestMethod]
+        [Owner("olegkap")]
+        [TestCategory("Key Exchange")]
         public void Test_KeyExchange_GroupExchange_Sha1_Connection()
         {
             var connectionInfo = new PasswordConnectionInfo(Resources.HOST, 22, Resources.USERNAME, Resources.PASSWORD);
@@ -23,6 +25,8 @@ namespace Renci.SshNet.Tests.Security
         }
 
         [TestMethod]
+        [Owner("olegkap")]
+        [TestCategory("Key Exchange")]
         public void Test_KeyExchange_Group14_Sha1_Connection()
         {
             var connectionInfo = new PasswordConnectionInfo(Resources.HOST, 22, Resources.USERNAME, Resources.PASSWORD);
@@ -37,6 +41,8 @@ namespace Renci.SshNet.Tests.Security
         }
 
         [TestMethod]
+        [Owner("olegkap")]
+        [TestCategory("Key Exchange")]
         public void Test_KeyExchange_Group1_Sha1_Connection()
         {
             var connectionInfo = new PasswordConnectionInfo(Resources.HOST, 22, Resources.USERNAME, Resources.PASSWORD);
@@ -51,6 +57,8 @@ namespace Renci.SshNet.Tests.Security
         }
 
         [TestMethod]
+        [Owner("olegkap")]
+        [TestCategory("Key Exchange")]
         public void Test_KeyExchange_GroupExchange_Sha256_Connection()
         {
             var connectionInfo = new PasswordConnectionInfo(Resources.HOST, 22, Resources.USERNAME, Resources.PASSWORD);
@@ -65,6 +73,8 @@ namespace Renci.SshNet.Tests.Security
         }
 
         [TestMethod]
+        [Owner("olegkap")]
+        [TestCategory("Key Exchange")]
         public void Test_KeyExchange_Rekeying()
         {
             var connectionInfo = new PasswordConnectionInfo(Resources.HOST, 22, Resources.USERNAME, Resources.PASSWORD);

@@ -13,6 +13,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Renci.SshNet
 {
+    //  TODO:   Please help with documentation here, as I don't know the details, specially for the methods not documented.
     /// <summary>
     /// 
     /// </summary>
@@ -110,6 +111,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Gets NetConf server capabilities.
         /// </summary>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
         public XmlDocument ServerCapabilities 
         {
             get
@@ -122,6 +124,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Gets NetConf client capabilities.
         /// </summary>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
         public XmlDocument ClientCapabilities
         {
             get
@@ -133,6 +136,8 @@ namespace Renci.SshNet
 
         public bool AutomaticMessageIdHandling { get; set; }
 
+        
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
         public XmlDocument SendReceiveRpc(XmlDocument rpc)
         {
             this.EnsureConnection();

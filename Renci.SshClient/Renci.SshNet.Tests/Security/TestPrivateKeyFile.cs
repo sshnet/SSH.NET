@@ -27,6 +27,8 @@ namespace Renci.SshNet.Tests.Security
 		}
 
 		[TestMethod]
+        [Owner("olegkap")]
+        [TestCategory("PrivateKey")]
 		public void Test_PrivateKey_RSA()
 		{
 			var key = @"-----BEGIN RSA PRIVATE KEY-----
@@ -59,7 +61,9 @@ Q4K/6SzJfIzSl/oYoB8xT0LY58qtBEurTZE81mmmiHV/gw6w+fQW
 			new PrivateKeyFile(new MemoryStream(Encoding.ASCII.GetBytes(key)));
 		}
 
-		[TestMethod]
+        [TestMethod]
+        [Owner("olegkap")]
+        [TestCategory("PrivateKey")]
 		public void Test_PrivateKey_RSA_DES_CBC()
 		{
 			var key = @"-----BEGIN RSA PRIVATE KEY-----
@@ -95,7 +99,9 @@ uhSoNyRY0/VZgE+fJ7P0Y5hzgnBDncVH5j57G0q4KTiTBDfuHBTLw+h5Htd5VBGS
 			new PrivateKeyFile(new MemoryStream(Encoding.ASCII.GetBytes(key)), "12345");
 		}
 
-		[TestMethod]
+        [TestMethod]
+        [Owner("olegkap")]
+        [TestCategory("PrivateKey")]
 		public void Test_PrivateKey_RSA_DES_EDE3_CBC()
 		{
 			var key = @"-----BEGIN RSA PRIVATE KEY-----
@@ -131,7 +137,9 @@ bIk+F6YypdWnYjwQMr0e/RBZDVvsFH0XgHESq8hLEFXa6kWzQPIaVw==
 			new PrivateKeyFile(new MemoryStream(Encoding.ASCII.GetBytes(key)), "12345");
 		}
 
-		//[TestMethod]
+        //[TestMethod]
+        //[Owner("olegkap")]
+        //[TestCategory("PrivateKey")]
 		public void Test_PrivateKey_RSA_AES_128_CBC()
 		{
 			var key = @"-----BEGIN RSA PRIVATE KEY-----
@@ -168,6 +176,8 @@ TGwZ2mF2ZKxS3eXVHOKysreLIQQOeMi+rlHAMAfzu5PTQhaYhhFZ2oPBmPsYYrJD
 		}
 
 		//[TestMethod]
+        //[Owner("olegkap")]
+        //[TestCategory("PrivateKey")]
 		public void Test_PrivateKey_RSA_AES_192_CBC()
 		{
 			var key = @"-----BEGIN RSA PRIVATE KEY-----
@@ -203,7 +213,9 @@ BcBcYCqd1X+JFQxp7fID+EGxlMfTjdZM4c51y67EHzMquZSiLEGBQgE8KiJclsIN
 			new PrivateKeyFile(new MemoryStream(Encoding.ASCII.GetBytes(key)), "12345");
 		}
 
-		//[TestMethod]
+        //[TestMethod]
+        //[Owner("olegkap")]
+        //[TestCategory("PrivateKey")]
 		public void Test_PrivateKey_RSA_AES_256_CBC()
 		{
 			var key = @"-----BEGIN RSA PRIVATE KEY-----
@@ -239,7 +251,9 @@ XPIab5czlgSLYA/U9nEg2XU21hKD2kRH1OF0WSlpNhN2SJFViVqlC3v36MgHoWNh
 			new PrivateKeyFile(new MemoryStream(Encoding.ASCII.GetBytes(key)), "12345");
 		}
 
-		//[TestMethod]
+        //[TestMethod]
+        //[Owner("olegkap")]
+        //[TestCategory("PrivateKey")]
 		public void Test_PrivateKey_RSA_DES_EDE3_CFB()
 		{
 			var key = @"-----BEGIN RSA PRIVATE KEY-----

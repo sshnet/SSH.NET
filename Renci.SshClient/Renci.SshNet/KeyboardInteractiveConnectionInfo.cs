@@ -16,6 +16,8 @@ namespace Renci.SshNet
         /// </summary>
         public event EventHandler<AuthenticationPromptEventArgs> AuthenticationPrompt;
 
+        //  TODO: DOCS Add exception documentation for this class.
+
         /// <summary>
         /// Initializes a new instance of the <see cref="KeyboardInteractiveConnectionInfo"/> class.
         /// </summary>

@@ -18,6 +18,9 @@ namespace Renci.SshNet
         /// </summary>
         private List<ForwardedPort> _forwardedPorts = new List<ForwardedPort>();
 
+        /// <summary>
+        /// If true, causes the connectionInfo object to be disposed.
+        /// </summary>
         private bool _disposeConnectionInfo;
 
         private Stream _inputStream;
@@ -124,8 +127,14 @@ namespace Renci.SshNet
         /// Adds the forwarded port.
         /// </summary>
         /// <param name="port">The port.</param>
+        /// <exception cref="InvalidOperationException">Forwarded port is already added to a different client.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="port"/> is null.</exception>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
         public void AddForwardedPort(ForwardedPort port)
         {
+            if (port == null)
+                throw new ArgumentNullException("port");
+
             //  Ensure that connection is established.
             this.EnsureConnection();
 
@@ -160,6 +169,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="commandText">The command text.</param>
         /// <returns><see cref="SshCommand"/> object.</returns>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
         public SshCommand CreateCommand(string commandText)
         {
             return this.CreateCommand(commandText, Encoding.UTF8);
@@ -171,6 +181,8 @@ namespace Renci.SshNet
         /// <param name="commandText">The command text.</param>
         /// <param name="encoding">The encoding to use for results.</param>
         /// <returns><see cref="SshCommand"/> object which uses specified encoding.</returns>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="commandText"/> or <paramref name="encoding"/> is null.</exception>
         public SshCommand CreateCommand(string commandText, Encoding encoding)
         {
             //  Ensure that connection is established.
@@ -188,6 +200,8 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentException">CommandText property is empty.</exception>
         /// <exception cref="Renci.SshNet.Common.SshException">Invalid Operation - An existing channel was used to execute this command.</exception>
         /// <exception cref="InvalidOperationException">Asynchronous operation is already in progress.</exception>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="commandText"/> is null.</exception>
         public SshCommand RunCommand(string commandText)
         {
             var cmd = this.CreateCommand(commandText);

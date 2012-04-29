@@ -151,6 +151,7 @@ namespace Renci.SshNet
             return SendReceiveRpc(rpc);
         }
 
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
         public XmlDocument SendCloseRpc()
         {
             this.EnsureConnection();

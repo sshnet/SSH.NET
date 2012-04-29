@@ -37,8 +37,6 @@ namespace Renci.SshNet
         /// <summary>
         /// Initializes a new instance of the <see cref="PrivateKeyAuthenticationMethod"/> class.
         /// </summary>
-        /// <param name="host">The host.</param>
-        /// <param name="port">The port.</param>
         /// <param name="username">The username.</param>
         /// <param name="keyFiles">The key files.</param>
         /// <exception cref="ArgumentException"><paramref name="username"/> is whitespace or null.</exception>

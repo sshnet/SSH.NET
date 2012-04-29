@@ -40,8 +40,6 @@ namespace Renci.SshNet
         /// <summary>
         /// Initializes a new instance of the <see cref="KeyboardInteractiveAuthenticationMethod"/> class.
         /// </summary>
-        /// <param name="host">The host.</param>
-        /// <param name="port">The port.</param>
         /// <param name="username">The username.</param>
         /// <exception cref="ArgumentException"><paramref name="username"/> is whitespace or null.</exception>
         public KeyboardInteractiveAuthenticationMethod(string username)

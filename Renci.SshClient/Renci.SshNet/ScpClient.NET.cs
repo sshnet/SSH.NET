@@ -59,7 +59,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="directoryInfo">Local directory to upload.</param>
         /// <param name="filename">Remote host directory name.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="ArgumentNullException"/> or <paramref name="filename"/> is null.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="directoryInfo"/> or <paramref name="filename"/> is null.</exception>
         public void Upload(DirectoryInfo directoryInfo, string filename)
         {
             if (directoryInfo == null)

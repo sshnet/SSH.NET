@@ -192,7 +192,7 @@ namespace Renci.SshNet
         /// <param name="username">The username.</param>
         /// <param name="authenticationMethods">The authentication methods.</param>
         public ConnectionInfo(string host, string username, params AuthenticationMethod[] authenticationMethods)
-            : this(host, 22, username, ProxyTypes.None, string.Empty, 0, string.Empty, string.Empty, authenticationMethods)
+            : this(host, 22, username, ProxyTypes.None, null, 0, null, null, authenticationMethods)
         {
         }
 
@@ -204,7 +204,7 @@ namespace Renci.SshNet
         /// <param name="username">The username.</param>
         /// <param name="authenticationMethods">The authentication methods.</param>
         public ConnectionInfo(string host, int port, string username, params AuthenticationMethod[] authenticationMethods)
-            : this(host, port, username, ProxyTypes.None, string.Empty, 0, string.Empty, string.Empty, authenticationMethods)
+            : this(host, port, username, ProxyTypes.None, null, 0, null, null, authenticationMethods)
         {
         }
 
@@ -232,14 +232,17 @@ namespace Renci.SshNet
             if (!host.IsValidHost())
                 throw new ArgumentException("host");
 
-            if (string.IsNullOrEmpty(proxyHost) && !proxyHost.IsValidHost())
-                throw new ArgumentException("proxyHost");
+            if (proxyType != ProxyTypes.None)
+            {
+                if (string.IsNullOrEmpty(proxyHost) && !proxyHost.IsValidHost())
+                    throw new ArgumentException("proxyHost");
+
+                if (!proxyPort.IsValidPort())
+                    throw new ArgumentOutOfRangeException("proxyPort");
+            }
 
             if (!port.IsValidPort())
                 throw new ArgumentOutOfRangeException("port");
-
-            if (!proxyPort.IsValidPort())
-                throw new ArgumentOutOfRangeException("proxyPort");
 
             if (username.IsNullOrWhiteSpace())
                 throw new ArgumentException("username");

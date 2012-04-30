@@ -171,6 +171,12 @@ tM7dZpB+reWl9L5e2L8=
   <data name="PORT" xml:space="preserve">
     <value>22</value>
   </data>
+  <data name="PROXY_HOST" xml:space="preserve">
+    <value>proxy.oleg-centos.edc.renci.org</value>
+  </data>
+  <data name="PROXY_PORT" xml:space="preserve">
+    <value>8123</value>
+  </data>
   <data name="RSA_KEY_WITHOUT_PASS" xml:space="preserve">
     <value>-----BEGIN RSA PRIVATE KEY-----
 MIIEogIBAAKCAQEA8ZsD8jgH7ySXnd4dprEFFkJ+zs1ne81E8febjR8hekiKrc+D

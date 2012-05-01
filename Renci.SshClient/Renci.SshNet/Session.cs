@@ -917,7 +917,7 @@ namespace Renci.SshNet
                         if (this._messageListenerCompleted != null)
                         {
                             //  Wait for listener task to finish
-                            this._messageListenerCompleted.WaitOne();
+                            this.WaitHandle(this._messageListenerCompleted);
                             this._messageListenerCompleted.Dispose();
                             this._messageListenerCompleted = null;
                         }

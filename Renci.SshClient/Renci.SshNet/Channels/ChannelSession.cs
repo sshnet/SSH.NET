@@ -119,8 +119,8 @@ namespace Renci.SshNet.Channels
             this._channelRequestResponse.Reset();
 
             this.SendMessage(new ChannelRequestMessage(this.RemoteChannelNumber, new PseudoTerminalRequestInfo(environmentVariable, columns, rows, width, height, terminalModeValues)));
-
-            this._channelRequestResponse.WaitOne();
+            
+            this.WaitHandle(this._channelRequestResponse);
 
             return this._channelRequestSucces;
         }
@@ -139,7 +139,7 @@ namespace Renci.SshNet.Channels
 
             this.SendMessage(new ChannelRequestMessage(this.RemoteChannelNumber, new X11ForwardingRequestInfo(isSingleConnection, protocol, cookie, screenNumber)));
 
-            this._channelRequestResponse.WaitOne();
+            this.WaitHandle(this._channelRequestResponse);
 
             return this._channelRequestSucces;
         }
@@ -156,7 +156,7 @@ namespace Renci.SshNet.Channels
 
             this.SendMessage(new ChannelRequestMessage(this.RemoteChannelNumber, new EnvironmentVariableRequestInfo(variableName, variableValue)));
 
-            this._channelRequestResponse.WaitOne();
+            this.WaitHandle(this._channelRequestResponse);
 
             return this._channelRequestSucces;
         }
@@ -171,7 +171,7 @@ namespace Renci.SshNet.Channels
 
             this.SendMessage(new ChannelRequestMessage(this.RemoteChannelNumber, new ShellRequestInfo()));
 
-            this._channelRequestResponse.WaitOne();
+            this.WaitHandle(this._channelRequestResponse);
 
             return this._channelRequestSucces;
         }
@@ -187,7 +187,7 @@ namespace Renci.SshNet.Channels
 
             this.SendMessage(new ChannelRequestMessage(this.RemoteChannelNumber, new ExecRequestInfo(command)));
 
-            this._channelRequestResponse.WaitOne();
+            this.WaitHandle(this._channelRequestResponse);
 
             return this._channelRequestSucces;
         }
@@ -203,7 +203,7 @@ namespace Renci.SshNet.Channels
 
             this.SendMessage(new ChannelRequestMessage(this.RemoteChannelNumber, new BreakRequestInfo(breakLength)));
 
-            this._channelRequestResponse.WaitOne();
+            this.WaitHandle(this._channelRequestResponse);
 
             return this._channelRequestSucces;
         }
@@ -219,7 +219,7 @@ namespace Renci.SshNet.Channels
 
             this.SendMessage(new ChannelRequestMessage(this.RemoteChannelNumber, new SubsystemRequestInfo(subsystem)));
 
-            this._channelRequestResponse.WaitOne();
+            this.WaitHandle(this._channelRequestResponse);
 
             return this._channelRequestSucces;
         }
@@ -300,7 +300,7 @@ namespace Renci.SshNet.Channels
 
             this.SendMessage(new ChannelRequestMessage(this.RemoteChannelNumber, new EndOfWriteRequestInfo()));
 
-            this._channelRequestResponse.WaitOne();
+            this.WaitHandle(this._channelRequestResponse);
 
             return this._channelRequestSucces;
         }
@@ -315,7 +315,7 @@ namespace Renci.SshNet.Channels
 
             this.SendMessage(new ChannelRequestMessage(this.RemoteChannelNumber, new KeepAliveRequestInfo()));
 
-            this._channelRequestResponse.WaitOne();
+            this.WaitHandle(this._channelRequestResponse);
 
             return this._channelRequestSucces;
         }

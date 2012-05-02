@@ -439,10 +439,10 @@
     <None Include="Documentation\Content\Guide\SshClient\PortForwarding\Remote.aml" />
     <None Include="Documentation\Content\Guide\SshClient\Shell\Overview.aml" />
     <None Include="Documentation\Content\Reference.aml" />
-    <None Include="Documentation\Renci.SshClient.content" />
+    <None Include="Documentation\Renci.SshNet.content" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Documentation\SshClient.shfbproj" />
+    <Content Include="Documentation\SshNet.shfbproj" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

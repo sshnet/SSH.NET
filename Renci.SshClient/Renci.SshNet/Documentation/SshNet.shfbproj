@@ -97,7 +97,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|Win32' ">
   </PropertyGroup>
   <ItemGroup>
-    <ContentLayout Include="Renci.SshClient.content" />
+    <ContentLayout Include="Renci.SshNet.content" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Content\" />

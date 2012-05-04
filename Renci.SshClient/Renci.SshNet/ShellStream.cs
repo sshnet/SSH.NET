@@ -238,11 +238,21 @@ namespace Renci.SshNet
 
         #endregion
 
-        /// <summary>
+                /// <summary>
         /// Expects the specified expression and performs action when one is found.
         /// </summary>
         /// <param name="expectActions">The expected expressions and actions to perform.</param>
         public void Expect(params ExpectAction[] expectActions)
+        {
+            this.Expect(TimeSpan.Zero, expectActions);
+        }
+
+        /// <summary>
+        /// Expects the specified expression and performs action when one is found.
+        /// </summary>
+        /// <param name="timeout">Time to wait for input.</param>
+        /// <param name="expectActions">The expected expressions and actions to perform, if the specified time elapsed and expected condition have not met, that method will exit without executing any action.</param>
+        public void Expect(TimeSpan timeout, params ExpectAction[] expectActions)
         {
             var expectedFound = false;
             var text = string.Empty;
@@ -274,13 +284,16 @@ namespace Renci.SshNet
                                 expectedFound = true;
                             }
                         }
-
-                        if (!expectedFound)
-                            Monitor.Wait(this._incoming);
                     }
-                    else
+
+                    if (!expectedFound)
                     {
-                        Monitor.Wait(this._incoming);
+                        if (timeout == TimeSpan.Zero)
+                        {
+                            Monitor.Wait(this._incoming);
+                        }
+                        else if (!Monitor.Wait(this._incoming, timeout))
+                            return;
                     }
                 }
                 while (!expectedFound);
@@ -291,8 +304,21 @@ namespace Renci.SshNet
         /// Expects the expression specified by text.
         /// </summary>
         /// <param name="text">The text to expect.</param>
-        /// <returns></returns>
+        /// <returns>
+        /// Text available in the shell that ends with expected text.
+        /// </returns>
         public string Expect(string text)
+        {
+            return this.Expect(new Regex(Regex.Escape(text)), TimeSpan.Zero);
+        }
+
+        /// <summary>
+        /// Expects the expression specified by text.
+        /// </summary>
+        /// <param name="text">The text to expect.</param>
+        /// <param name="timeout">Time to wait for input.</param>
+        /// Text available in the shell that ends with expected text, if the specified time elapsed returns null.
+        public string Expect(string text, TimeSpan timeout)
         {
             return this.Expect(new Regex(Regex.Escape(text)));
         }
@@ -300,9 +326,22 @@ namespace Renci.SshNet
         /// <summary>
         /// Expects the expression specified by regular expression.
         /// </summary>
-        /// <param name="regex">The regular expresssion to expect.</param>
+        /// <param name="regex">The regular expression to expect.</param>
         /// <returns>Text available in the shell that contains all the text that ends with expected expression.</returns>
         public string Expect(Regex regex)
+        {
+            return this.Expect(regex, TimeSpan.Zero);
+        }
+
+        /// <summary>
+        /// Expects the expression specified by regular expression.
+        /// </summary>
+        /// <param name="regex">The regular expression to expect.</param>
+        /// <param name="timeout">Time to wait for input.</param>
+        /// <returns>
+        /// Text available in the shell that contains all the text that ends with expected expression, if the specified time elapsed returns null.
+        /// </returns>
+        public string Expect(Regex regex, TimeSpan timeout)
         {
             var text = string.Empty;
 
@@ -314,7 +353,12 @@ namespace Renci.SshNet
                 var match = regex.Match(text.ToString());
                 while (!match.Success)
                 {
-                    Monitor.Wait(this._incoming);
+                    if (timeout == TimeSpan.Zero)
+                    {
+                        Monitor.Wait(this._incoming);
+                    }
+                    else if (!Monitor.Wait(this._incoming, timeout))
+                        return null;
 
                     if (this._incoming.Count > 0)
                         text = this._encoding.GetString(this._incoming.ToArray(), 0, this._incoming.Count);
@@ -338,6 +382,18 @@ namespace Renci.SshNet
         /// <returns>The line read from the shell.</returns>
         public string ReadLine()
         {
+            return this.ReadLine(TimeSpan.Zero);
+        }
+
+        /// <summary>
+        /// Reads the line from the shell. If line is not available it will block the execution and will wait for new line.
+        /// </summary>
+        /// <param name="timeout">Time to wait for input.</param>
+        /// <returns>
+        /// The line read from the shell, if the specified time elapsed returns null.
+        /// </returns>
+        public string ReadLine(TimeSpan timeout)
+        {
             var text = string.Empty;
 
             lock (this._incoming)
@@ -348,7 +404,13 @@ namespace Renci.SshNet
                 var index = text.ToString().IndexOf("\r\n");
                 while (index < 0)
                 {
-                    Monitor.Wait(this._incoming);
+                    if (timeout == TimeSpan.Zero)
+                    {
+                        Monitor.Wait(this._incoming);
+                    }
+                    else if (!Monitor.Wait(this._incoming, timeout))
+                        return null;
+
                     if (this._incoming.Count > 0)
                         text = this._encoding.GetString(this._incoming.ToArray(), 0, this._incoming.Count);
 

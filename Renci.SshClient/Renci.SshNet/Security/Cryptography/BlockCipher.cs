@@ -52,7 +52,8 @@ namespace Renci.SshNet.Security.Cryptography
             this._mode = mode;
             this._padding = padding;
 
-            this._mode.Init(this);
+            if (this._mode != null)
+                this._mode.Init(this);
         }
 
         /// <summary>

@@ -282,6 +282,7 @@
     <Compile Include="Security\Cryptography\Ciphers\Modes\CfbCipherMode.cs" />
     <Compile Include="Security\Cryptography\Ciphers\Modes\CtrCipherMode.cs" />
     <Compile Include="Security\Cryptography\Ciphers\Modes\OfbCipherMode.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Paddings\PKCS5Padding.cs" />
     <Compile Include="Security\Cryptography\Ciphers\Paddings\PKCS7Padding.cs" />
     <Compile Include="Security\Cryptography\Ciphers\RsaCipher.cs">
       <SubType>Code</SubType>

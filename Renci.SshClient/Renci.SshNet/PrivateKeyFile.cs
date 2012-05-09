@@ -23,9 +23,9 @@ namespace Renci.SshNet
     public class PrivateKeyFile : IDisposable
     {
 #if SILVERLIGHT
-        private static Regex _privateKeyRegex = new Regex(@"^-----BEGIN (?<keyName>\w+) PRIVATE KEY-----\r?\n(Proc-Type: 4,ENCRYPTED\r?\nDEK-Info: (?<cipherName>[A-Z0-9-]+),(?<salt>[A-F0-9]+)\r?\n\r?\n)?(?<data>([a-zA-Z0-9/+=]{1,72}\r?\n)+)-----END \k<keyName> PRIVATE KEY-----.*", RegexOptions.Multiline);
+		private static Regex _privateKeyRegex = new Regex(@"^-+ *BEGIN (?<keyName>\w+( \w+)*) PRIVATE KEY *-+\r?\n(Proc-Type: 4,ENCRYPTED\r?\nDEK-Info: (?<cipherName>[A-Z0-9-]+),(?<salt>[A-F0-9]+)\r?\n\r?\n)?(?<data>([a-zA-Z0-9/+=]{1,72}\r?\n)+)-+ *END \k<keyName> PRIVATE KEY *-+", RegexOptions.Multiline);
 #else
-        private static Regex _privateKeyRegex = new Regex(@"^-----BEGIN (?<keyName>\w+) PRIVATE KEY-----\r?\n(Proc-Type: 4,ENCRYPTED\r?\nDEK-Info: (?<cipherName>[A-Z0-9-]+),(?<salt>[A-F0-9]+)\r?\n\r?\n)?(?<data>([a-zA-Z0-9/+=]{1,72}\r?\n)+)-----END \k<keyName> PRIVATE KEY-----.*", RegexOptions.Compiled | RegexOptions.Multiline);
+        private static Regex _privateKeyRegex = new Regex(@"^-+ *BEGIN (?<keyName>\w+( \w+)*) PRIVATE KEY *-+\r?\n(Proc-Type: 4,ENCRYPTED\r?\nDEK-Info: (?<cipherName>[A-Z0-9-]+),(?<salt>[A-F0-9]+)\r?\n\r?\n)?(?<data>([a-zA-Z0-9/+=]{1,72}\r?\n)+)-+ *END \k<keyName> PRIVATE KEY *-+", RegexOptions.Compiled | RegexOptions.Multiline);
 #endif
 
         private Key _key;
@@ -146,13 +146,13 @@ namespace Renci.SshNet
                         break;
                     //  TODO:   Implement more private key ciphers
                     //case "AES-128-CBC":
-                    //    cipher = new CipherInfo(128, (key, iv) => { return new AesCipher(key, new CbcCipherMode(iv), new PKCS7Padding()); });
+                    //    cipher = new CipherInfo(128, (key, iv) => { return new AesCipher(key, new CbcCipherMode(iv), new PKCS5Padding()); });
                     //    break;
                     //case "AES-192-CBC":
-                    //    cipher = new CipherInfo(192, (key, iv) => { return new AesCipher(key, new CbcCipherMode(iv), new PKCS7Padding()); });
+                    //    cipher = new CipherInfo(192, (key, iv) => { return new AesCipher(key, new CbcCipherMode(iv), new PKCS5Padding()); });
                     //    break;
                     //case "AES-256-CBC":
-                    //    cipher = new CipherInfo(256, (key, iv) => { return new AesCipher(key, new CbcCipherMode(iv), new PKCS7Padding()); });
+                    //    cipher = new CipherInfo(256, (key, iv) => { return new AesCipher(key, new CbcCipherMode(iv), new PKCS5Padding()); });
                     //    break;
                     default:
                         throw new SshException(string.Format(CultureInfo.CurrentCulture, "Private key cipher \"{0}\" is not supported.", cipherName));
@@ -175,9 +175,101 @@ namespace Renci.SshNet
                     this._key = new DsaKey(decryptedData.ToArray());
                     this.HostKey = new KeyHostAlgorithm("ssh-dss", this._key);
                     break;
+                case "SSH2 ENCRYPTED":
+                    var reader = new SshDataReader(decryptedData);
+                    var magicNumber = reader.ReadUInt32();
+                    if (magicNumber != 0x3f6ff9eb)
+                    {
+                        throw new SshException("Invalid SSH2 private key.");
+                    }
+
+                    var totalLength = reader.ReadUInt32(); //  Read total bytes length including magic number
+                    var keyType = reader.ReadString();
+                    var ssh2CipherName = reader.ReadString();
+                    var blobSize = (int)reader.ReadUInt32();
+
+                    byte[] keyData = null;
+                    if (ssh2CipherName == "none")
+                    {
+                        keyData = reader.ReadBytes(blobSize);
+                    }
+                    //else if (ssh2CipherName == "3des-cbc")
+                    //{
+                    //    var key = GetCipherKey(passPhrase, 192 / 8);
+                    //    var ssh2Сipher = new TripleDesCipher(key, null, null);
+                    //    keyData = ssh2Сipher.Decrypt(reader.ReadBytes(blobSize));
+                    //}
+                    else
+                    {
+                        throw new SshException(string.Format("Cipher method '{0}' is not supported.", cipherName));
+                    }
+
+                    reader = new SshDataReader(keyData);
+
+                    var decryptedLength = reader.ReadUInt32();
+
+                    if (decryptedLength + 4 != blobSize)
+                        throw new SshException("Invalid passphrase.");
+
+                    if (keyType == "if-modn{sign{rsa-pkcs1-sha1},encrypt{rsa-pkcs1v2-oaep}}")
+                    {
+                        var exponent = reader.ReadBigIntWithBits();//e
+                        var d = reader.ReadBigIntWithBits();//d
+                        var modulus = reader.ReadBigIntWithBits();//n
+                        var inverseQ = reader.ReadBigIntWithBits();//u
+                        var q = reader.ReadBigIntWithBits();//p
+                        var p = reader.ReadBigIntWithBits();//q
+                        this._key = new RsaKey(modulus, exponent, d, p, q, inverseQ);
+                        this.HostKey = new KeyHostAlgorithm("ssh-rsa", this._key);
+                    }
+                    else if (keyType == "dl-modp{sign{dsa-nist-sha1},dh{plain}}")
+                    {
+                        var zero = reader.ReadUInt32();
+                        if (zero != 0)
+                        {
+                            throw new SshException("Invalid private key");
+                        }
+                        var p = reader.ReadBigIntWithBits();
+                        var g = reader.ReadBigIntWithBits();
+                        var q = reader.ReadBigIntWithBits();
+                        var y = reader.ReadBigIntWithBits();
+                        var x = reader.ReadBigIntWithBits();
+                        this._key = new DsaKey(p, q, g, y, x);
+                        this.HostKey = new KeyHostAlgorithm("ssh-dss", this._key);
+                    }
+                    else
+                    {
+                        throw new NotSupportedException(string.Format("Key type '{0}' is not supported.", keyType));
+                    }
+                    break;
                 default:
                     throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "Key '{0}' is not supported.", keyName));
             }
+        }
+
+        private static byte[] GetCipherKey(string passphrase, int length)
+        {
+            List<byte> cipherKey = new List<byte>();
+
+            using (var md5 = new MD5Hash())
+            {
+                byte[] passwordBytes = Encoding.UTF8.GetBytes(passphrase);
+
+                var hash = md5.ComputeHash(passwordBytes.ToArray()).AsEnumerable();
+
+                cipherKey.AddRange(hash);
+
+                while (cipherKey.Count < length)
+                {
+                    hash = passwordBytes.Concat(hash);
+
+                    hash = md5.ComputeHash(hash.ToArray());
+
+                    cipherKey.AddRange(hash);
+                }
+            }
+
+            return cipherKey.Take(length).ToArray();
         }
 
         /// <summary>
@@ -189,7 +281,7 @@ namespace Renci.SshNet
         /// <param name="binarySalt">Decryption binary salt.</param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"><paramref name="cipherInfo"/>, <paramref name="cipherData"/>, <paramref name="passPhrase"/> or <paramref name="binarySalt"/> is null.</exception>
-        public static byte[] DecryptKey(CipherInfo cipherInfo, byte[] cipherData, string passPhrase, byte[] binarySalt)
+        private static byte[] DecryptKey(CipherInfo cipherInfo, byte[] cipherData, string passPhrase, byte[] binarySalt)
         {
             if (cipherInfo == null)
                 throw new ArgumentNullException("cipherInfo");
@@ -280,5 +372,53 @@ namespace Renci.SshNet
         }
 
         #endregion
+
+        private class SshDataReader : SshData
+        {
+            public SshDataReader(byte[] data)
+            {
+                this.LoadBytes(data);
+            }
+
+            public UInt32 ReadUInt32()
+            {
+                return base.ReadUInt32();
+            }
+
+            public string ReadString()
+            {
+                return base.ReadString();
+            }
+
+            public byte[] ReadBytes(int length)
+            {
+                return base.ReadBytes(length);
+            }
+
+            /// <summary>
+            /// Reads next mpint data type from internal buffer where length specified in bits.
+            /// </summary>
+            /// <returns>mpint read.</returns>
+            public BigInteger ReadBigIntWithBits()
+            {
+                var length = (int)base.ReadUInt32();
+
+                length = (int)(length + 7) / 8;
+
+                var data = base.ReadBytes(length);
+                var bytesArray = new byte[data.Length + 1];
+                Buffer.BlockCopy(data, 0, bytesArray, 1, data.Length);
+
+                return new BigInteger(bytesArray.Reverse().ToArray());
+            }
+
+            protected override void LoadData()
+            {
+            }
+
+            protected override void SaveData()
+            {
+            }
+        }
     }
 }

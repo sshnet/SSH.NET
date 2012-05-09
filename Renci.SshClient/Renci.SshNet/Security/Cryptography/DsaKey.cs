@@ -138,6 +138,20 @@ namespace Renci.SshNet.Security
                 throw new InvalidOperationException("Invalid private key.");
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DsaKey"/> class.
+        /// </summary>
+        /// <param name="keys">The keys.</param>
+        public DsaKey(BigInteger p, BigInteger q, BigInteger g, BigInteger y, BigInteger x)
+        {
+            this._privateKey = new BigInteger[5];
+            this._privateKey[0] = p;
+            this._privateKey[1] = q;
+            this._privateKey[2] = g;
+            this._privateKey[3] = y;
+            this._privateKey[4] = x;
+        }        
+
         #region IDisposable Members
 
         private bool _isDisposed = false;

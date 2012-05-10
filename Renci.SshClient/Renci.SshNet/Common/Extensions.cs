@@ -187,6 +187,9 @@ namespace Renci.SshNet
             if (value == null)
                 return false;
 
+            if (value == string.Empty)
+                return true;
+
             if (_rehost.Match(value).Success)
                 return true;
 

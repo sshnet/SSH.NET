@@ -129,8 +129,12 @@ namespace Renci.SshNet.Channels
             //  If listener thread is finished then socket was closed
             System.Threading.WaitHandle.WaitAny(new WaitHandle[] { this._channelEof, readerTaskCompleted });
 
-            this._socket.Dispose();
-            this._socket = null;
+            //  Close socket if still open
+            if (this._socket != null)
+            {
+                this._socket.Dispose();
+                this._socket = null;
+            }
 
             if (exception != null)
                 throw exception;
@@ -138,6 +142,13 @@ namespace Renci.SshNet.Channels
 
         public override void Close()
         {
+            //  Close socket if still open
+            if (this._socket != null)
+            {
+                this._socket.Dispose();
+                this._socket = null;
+            }
+
             //  Send EOF message first when channel need to be closed
             this.SendMessage(new ChannelEofMessage(this.RemoteChannelNumber));
 

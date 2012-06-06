@@ -59,7 +59,11 @@ namespace Renci.SshNet
             var data = new byte[1];
             do
             {
-                this._socket.Receive(data);
+                var received = this._socket.Receive(data);
+
+                //  If zero bytes received then exit
+                if (received == 0)
+                    break;
 
                 buffer.Add(data[0]);
             }

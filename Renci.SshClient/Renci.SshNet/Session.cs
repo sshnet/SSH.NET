@@ -183,7 +183,7 @@ namespace Renci.SshNet
         {
             get
             {
-                return this._socket != null && this._socket.Connected && this._isAuthenticated && this._messageListenerCompleted != null;
+                return (!this._isDisconnecting && this._socket != null && this._socket.Connected && this._isAuthenticated && this._messageListenerCompleted != null) && !(this._socket.Poll(10, SelectMode.SelectRead));
             }
         }
 
@@ -1844,7 +1844,7 @@ namespace Renci.SshNet
             var encoding = new Renci.SshNet.Common.ASCIIEncoding();
 
             this.SocketWrite(encoding.GetBytes(string.Format("CONNECT {0}:{1} HTTP/1.0\r\n", this.ConnectionInfo.Host, this.ConnectionInfo.Port)));
-            
+
             //  Sent proxy authorization is specified
             if (!string.IsNullOrEmpty(this.ConnectionInfo.ProxyUsername))
             {

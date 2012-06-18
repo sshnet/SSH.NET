@@ -61,6 +61,7 @@
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
     </Compile>
+    <Compile Include="ScpClientTests\UploadDownloadTest.NET40.cs" />
     <Compile Include="ScpClientTests\UploadDownloadTest.cs">
       <SubType>Code</SubType>
     </Compile>

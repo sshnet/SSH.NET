@@ -97,9 +97,15 @@ namespace Renci.SshNet
                 }
                 catch (SocketException exp)
                 {
-                    if (exp.SocketErrorCode == SocketError.WouldBlock ||
-                        exp.SocketErrorCode == SocketError.IOPending ||
-                        exp.SocketErrorCode == SocketError.NoBufferSpaceAvailable)
+                    if (exp.SocketErrorCode == SocketError.ConnectionAborted)
+                    {
+                        buffer = new byte[length];
+                        this.Disconnect();
+                        return;
+                    }
+                    else if (exp.SocketErrorCode == SocketError.WouldBlock ||
+                       exp.SocketErrorCode == SocketError.IOPending ||
+                       exp.SocketErrorCode == SocketError.NoBufferSpaceAvailable)
                     {
                         // socket buffer is probably empty, wait and try again
                         Thread.Sleep(30);

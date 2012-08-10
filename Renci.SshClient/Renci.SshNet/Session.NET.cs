@@ -67,9 +67,14 @@ namespace Renci.SshNet
 
                 buffer.Add(data[0]);
             }
-            while (!(buffer.Count > 1 && buffer[buffer.Count - 1] == 0x0A));
+            while (!(buffer.Count > 1 && (buffer[buffer.Count - 1] == 0x0A || buffer[buffer.Count - 1] == 0x00)));
 
-            if (buffer.Count > 1 && buffer[buffer.Count - 2] == 0x0D)
+            // Return an empty version string if the buffer consists of a 0x00 character.
+            if (buffer[buffer.Count - 1] == 0x00)
+            {
+                response = string.Empty;
+            }
+            else if (buffer.Count > 1 && buffer[buffer.Count - 2] == 0x0D)
                 response = encoding.GetString(buffer.Take(buffer.Count - 2).ToArray());
             else
                 response = encoding.GetString(buffer.Take(buffer.Count - 1).ToArray());

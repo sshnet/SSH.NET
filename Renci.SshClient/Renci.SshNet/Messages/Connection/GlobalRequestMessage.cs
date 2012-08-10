@@ -74,21 +74,24 @@ namespace Renci.SshNet.Messages.Connection
         protected override void LoadData()
         {
             var requestName = this.ReadAsciiString();
+
+            this.WantReply = this.ReadBoolean();
+
             switch (requestName)
             {
                 case "tcpip-forward":
                     this.RequestName = GlobalRequestName.TcpIpForward;
+                    this.AddressToBind = this.ReadString();
+                    this.PortToBind = this.ReadUInt32();
                     break;
                 case "cancel-tcpip-forward":
                     this.RequestName = GlobalRequestName.CancelTcpIpForward;
+                    this.AddressToBind = this.ReadString();
+                    this.PortToBind = this.ReadUInt32();
                     break;
                 default:
                     break;
             }
-
-            this.WantReply = this.ReadBoolean();
-            this.AddressToBind = this.ReadString();
-            this.PortToBind = this.ReadUInt32();
         }
 
         /// <summary>

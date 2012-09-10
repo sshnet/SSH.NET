@@ -56,6 +56,7 @@
     <Compile Include="AuthenticationMethodDerivativesTest.cs" />
     <Compile Include="Common\PipeStreamTest.cs" />
     <Compile Include="ConnectionTest.cs" />
+    <Compile Include="Common\DerDataTest.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
@@ -101,6 +102,9 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Shadow Include="Test References\Renci.SshNet.accessor" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

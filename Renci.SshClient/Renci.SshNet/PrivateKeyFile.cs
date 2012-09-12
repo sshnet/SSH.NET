@@ -55,7 +55,7 @@ namespace Renci.SshNet
             if (string.IsNullOrEmpty(fileName))
                 throw new ArgumentNullException("fileName");
 
-            using (var keyFile = File.Open(fileName, FileMode.Open))
+            using (var keyFile = File.OpenRead(fileName))
             {
                 this.Open(keyFile, null);
             }
@@ -73,7 +73,7 @@ namespace Renci.SshNet
             if (string.IsNullOrEmpty(fileName))
                 throw new ArgumentNullException("fileName");
 
-            using (var keyFile = File.Open(fileName, FileMode.Open))
+            using (var keyFile = File.OpenRead(fileName))
             {
                 this.Open(keyFile, passPhrase);
             }

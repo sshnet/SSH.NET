@@ -385,7 +385,7 @@ namespace Renci.SshNet.Sftp
         /// <param name="wait">The wait event handle if needed.</param>
         internal void RequestWrite(byte[] handle, UInt64 offset, byte[] data, EventWaitHandle wait)
         {
-            var maximumDataSize = 1024 * 32 - 38;
+            var maximumDataSize = 1024 * 32 - 52;
 
             if (data.Length < maximumDataSize + 1)
             {

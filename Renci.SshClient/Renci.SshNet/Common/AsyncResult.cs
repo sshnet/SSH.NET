@@ -90,7 +90,7 @@ namespace Renci.SshNet.Common
 
             // Operation is done: if an exception occurred, throw it
             if (this._exception != null)
-                throw this._exception;
+                throw new SshException(this._exception.Message, this._exception);
         }
 
         #region Implementation of IAsyncResult

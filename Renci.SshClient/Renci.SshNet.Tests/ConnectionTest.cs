@@ -11,194 +11,194 @@ using System.Net;
 
 namespace Renci.SshNet.Tests
 {
-	[TestClass]
-	public class ConnectionTest
-	{
-		[TestMethod]
+    [TestClass]
+    public class ConnectionTest
+    {
+        [TestMethod]
         [TestCategory("Authentication")]
-		public void Test_Connect_Using_Correct_Password()
-		{
-			using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
-			{
-				client.Connect();
-				client.Disconnect();
-			}
-		}
+        public void Test_Connect_Using_Correct_Password()
+        {
+            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            {
+                client.Connect();
+                client.Disconnect();
+            }
+        }
 
         [TestMethod]
         [TestCategory("Authentication")]
-		[ExpectedException(typeof(SshAuthenticationException))]
-		public void Test_Connect_Using_Invalid_Password()
-		{
-			using (var client = new SshClient(Resources.HOST, Resources.USERNAME, "invalid password"))
-			{
-				client.Connect();
-				client.Disconnect();
-			}
-		}
+        [ExpectedException(typeof(SshAuthenticationException))]
+        public void Test_Connect_Using_Invalid_Password()
+        {
+            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, "invalid password"))
+            {
+                client.Connect();
+                client.Disconnect();
+            }
+        }
 
         [TestMethod]
         [TestCategory("Authentication")]
-		public void Test_Connect_Using_Rsa_Key_Without_PassPhrase()
-		{
-			MemoryStream keyFileStream = new MemoryStream(Encoding.ASCII.GetBytes(Resources.RSA_KEY_WITHOUT_PASS));
-			using (var client = new SshClient(Resources.HOST, Resources.USERNAME, new PrivateKeyFile(keyFileStream)))
-			{
-				client.Connect();
-				client.Disconnect();
-			}
-		}
+        public void Test_Connect_Using_Rsa_Key_Without_PassPhrase()
+        {
+            MemoryStream keyFileStream = new MemoryStream(Encoding.ASCII.GetBytes(Resources.RSA_KEY_WITHOUT_PASS));
+            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, new PrivateKeyFile(keyFileStream)))
+            {
+                client.Connect();
+                client.Disconnect();
+            }
+        }
 
         [TestMethod]
         [TestCategory("Authentication")]
-		public void Test_Connect_Using_RsaKey_With_PassPhrase()
-		{
-			MemoryStream keyFileStream = new MemoryStream(Encoding.ASCII.GetBytes(Resources.RSA_KEY_WITH_PASS));
-			using (var client = new SshClient(Resources.HOST, Resources.USERNAME, new PrivateKeyFile(keyFileStream, Resources.PASSWORD)))
-			{
-				client.Connect();
-				client.Disconnect();
-			}
-		}
+        public void Test_Connect_Using_RsaKey_With_PassPhrase()
+        {
+            MemoryStream keyFileStream = new MemoryStream(Encoding.ASCII.GetBytes(Resources.RSA_KEY_WITH_PASS));
+            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, new PrivateKeyFile(keyFileStream, Resources.PASSWORD)))
+            {
+                client.Connect();
+                client.Disconnect();
+            }
+        }
 
         [TestMethod]
         [TestCategory("Authentication")]
-		[ExpectedException(typeof(SshPassPhraseNullOrEmptyException))]
-		public void Test_Connect_Using_Key_With_Empty_PassPhrase()
-		{
-			MemoryStream keyFileStream = new MemoryStream(Encoding.ASCII.GetBytes(Resources.RSA_KEY_WITH_PASS));
-			using (var client = new SshClient(Resources.HOST, Resources.USERNAME, new PrivateKeyFile(keyFileStream, null)))
-			{
-				client.Connect();
-				client.Disconnect();
-			}
-		}
+        [ExpectedException(typeof(SshPassPhraseNullOrEmptyException))]
+        public void Test_Connect_Using_Key_With_Empty_PassPhrase()
+        {
+            MemoryStream keyFileStream = new MemoryStream(Encoding.ASCII.GetBytes(Resources.RSA_KEY_WITH_PASS));
+            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, new PrivateKeyFile(keyFileStream, null)))
+            {
+                client.Connect();
+                client.Disconnect();
+            }
+        }
 
         [TestMethod]
         [TestCategory("Authentication")]
-		public void Test_Connect_Using_DsaKey_Without_PassPhrase()
-		{
-			MemoryStream keyFileStream = new MemoryStream(Encoding.ASCII.GetBytes(Resources.DSA_KEY_WITHOUT_PASS));
-			using (var client = new SshClient(Resources.HOST, Resources.USERNAME, new PrivateKeyFile(keyFileStream)))
-			{
-				client.Connect();
-				client.Disconnect();
-			}
-		}
+        public void Test_Connect_Using_DsaKey_Without_PassPhrase()
+        {
+            MemoryStream keyFileStream = new MemoryStream(Encoding.ASCII.GetBytes(Resources.DSA_KEY_WITHOUT_PASS));
+            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, new PrivateKeyFile(keyFileStream)))
+            {
+                client.Connect();
+                client.Disconnect();
+            }
+        }
 
         [TestMethod]
         [TestCategory("Authentication")]
-		public void Test_Connect_Using_DsaKey_With_PassPhrase()
-		{
-			MemoryStream keyFileStream = new MemoryStream(Encoding.ASCII.GetBytes(Resources.DSA_KEY_WITH_PASS));
-			using (var client = new SshClient(Resources.HOST, Resources.USERNAME, new PrivateKeyFile(keyFileStream, Resources.PASSWORD)))
-			{
-				client.Connect();
-				client.Disconnect();
-			}
-		}
+        public void Test_Connect_Using_DsaKey_With_PassPhrase()
+        {
+            MemoryStream keyFileStream = new MemoryStream(Encoding.ASCII.GetBytes(Resources.DSA_KEY_WITH_PASS));
+            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, new PrivateKeyFile(keyFileStream, Resources.PASSWORD)))
+            {
+                client.Connect();
+                client.Disconnect();
+            }
+        }
 
         [TestMethod]
         [TestCategory("Authentication")]
-		[ExpectedException(typeof(SshAuthenticationException))]
-		public void Test_Connect_Using_Invalid_PrivateKey()
-		{
-			MemoryStream keyFileStream = new MemoryStream(Encoding.ASCII.GetBytes(Resources.INVALID_KEY));
-			using (var client = new SshClient(Resources.HOST, Resources.USERNAME, new PrivateKeyFile(keyFileStream)))
-			{
-				client.Connect();
-				client.Disconnect();
-			}
-		}
+        [ExpectedException(typeof(SshAuthenticationException))]
+        public void Test_Connect_Using_Invalid_PrivateKey()
+        {
+            MemoryStream keyFileStream = new MemoryStream(Encoding.ASCII.GetBytes(Resources.INVALID_KEY));
+            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, new PrivateKeyFile(keyFileStream)))
+            {
+                client.Connect();
+                client.Disconnect();
+            }
+        }
 
         [TestMethod]
         [TestCategory("Authentication")]
-		public void Test_Connect_Using_Multiple_PrivateKeys()
-		{
-			using (var client = new SshClient(Resources.HOST, Resources.USERNAME,
-				new PrivateKeyFile(new MemoryStream(Encoding.ASCII.GetBytes(Resources.INVALID_KEY))),
-				new PrivateKeyFile(new MemoryStream(Encoding.ASCII.GetBytes(Resources.DSA_KEY_WITH_PASS)), Resources.PASSWORD),
-				new PrivateKeyFile(new MemoryStream(Encoding.ASCII.GetBytes(Resources.RSA_KEY_WITH_PASS)), Resources.PASSWORD),
-				new PrivateKeyFile(new MemoryStream(Encoding.ASCII.GetBytes(Resources.RSA_KEY_WITHOUT_PASS))),
-				new PrivateKeyFile(new MemoryStream(Encoding.ASCII.GetBytes(Resources.DSA_KEY_WITHOUT_PASS)))
-				))
-			{
-				client.Connect();
-				client.Disconnect();
-			}
-		}
+        public void Test_Connect_Using_Multiple_PrivateKeys()
+        {
+            using (var client = new SshClient(Resources.HOST, Resources.USERNAME,
+                new PrivateKeyFile(new MemoryStream(Encoding.ASCII.GetBytes(Resources.INVALID_KEY))),
+                new PrivateKeyFile(new MemoryStream(Encoding.ASCII.GetBytes(Resources.DSA_KEY_WITH_PASS)), Resources.PASSWORD),
+                new PrivateKeyFile(new MemoryStream(Encoding.ASCII.GetBytes(Resources.RSA_KEY_WITH_PASS)), Resources.PASSWORD),
+                new PrivateKeyFile(new MemoryStream(Encoding.ASCII.GetBytes(Resources.RSA_KEY_WITHOUT_PASS))),
+                new PrivateKeyFile(new MemoryStream(Encoding.ASCII.GetBytes(Resources.DSA_KEY_WITHOUT_PASS)))
+                ))
+            {
+                client.Connect();
+                client.Disconnect();
+            }
+        }
 
 
         [TestMethod]
         [TestCategory("Authentication")]
-		public void Test_Connect_Then_Reconnect()
-		{
-			using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
-			{
-				client.Connect();
-				client.Disconnect();
-				client.Connect();
-				client.Disconnect();
-			}
-		}
+        public void Test_Connect_Then_Reconnect()
+        {
+            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            {
+                client.Connect();
+                client.Disconnect();
+                client.Connect();
+                client.Disconnect();
+            }
+        }
 
         [WorkItem(703), TestMethod]
         [TestCategory("PasswordConnectionInfo")]
-		[ExpectedException(typeof(ArgumentException))]
-		public void Test_ConnectionInfo_Host_Is_Null()
-		{
-			var connectionInfo = new PasswordConnectionInfo(null, "username", "password");
-		}
+        [ExpectedException(typeof(ArgumentException))]
+        public void Test_ConnectionInfo_Host_Is_Null()
+        {
+            var connectionInfo = new PasswordConnectionInfo(null, Resources.USERNAME, Resources.PASSWORD);
+        }
 
         [WorkItem(703), TestMethod]
         [TestCategory("PasswordConnectionInfo")]
-		[ExpectedException(typeof(ArgumentException))]
-		public void Test_ConnectionInfo_Username_Is_Null()
-		{
-			var connectionInfo = new PasswordConnectionInfo("host", null, "password");
-		}
+        [ExpectedException(typeof(ArgumentException))]
+        public void Test_ConnectionInfo_Username_Is_Null()
+        {
+            var connectionInfo = new PasswordConnectionInfo(Resources.HOST, null, Resources.PASSWORD);
+        }
 
         [WorkItem(703), TestMethod]
         [TestCategory("PasswordConnectionInfo")]
-		[ExpectedException(typeof(ArgumentNullException))]
-		public void Test_ConnectionInfo_Password_Is_Null()
-		{
-			var connectionInfo = new PasswordConnectionInfo("host", "username", null);
-		}
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void Test_ConnectionInfo_Password_Is_Null()
+        {
+            var connectionInfo = new PasswordConnectionInfo(Resources.HOST, Resources.USERNAME, null);
+        }
 
-		[TestMethod]
+        [TestMethod]
         [TestCategory("PasswordConnectionInfo")]
-		[Description("Test passing whitespace to host parameter.")]
-		[ExpectedException(typeof(ArgumentException))]
-		public void Test_ConnectionInfo_Host_Is_Whitespace()
-		{
-			var connectionInfo = new PasswordConnectionInfo(" ", Resources.USERNAME,Resources.PASSWORD);
-		}
+        [Description("Test passing whitespace to host parameter.")]
+        [ExpectedException(typeof(ArgumentException))]
+        public void Test_ConnectionInfo_Host_Is_Whitespace()
+        {
+            var connectionInfo = new PasswordConnectionInfo(" ", Resources.USERNAME,Resources.PASSWORD);
+        }
 
-		[TestMethod]
+        [TestMethod]
         [TestCategory("PasswordConnectionInfo")]
-		[Description("Test passing whitespace to username parameter.")]
-		[ExpectedException(typeof(ArgumentException))]
-		public void Test_ConnectionInfo_Username_Is_Whitespace()
-		{
-			var connectionInfo = new PasswordConnectionInfo(Resources.HOST, " ", Resources.PASSWORD);
-		}
+        [Description("Test passing whitespace to username parameter.")]
+        [ExpectedException(typeof(ArgumentException))]
+        public void Test_ConnectionInfo_Username_Is_Whitespace()
+        {
+            var connectionInfo = new PasswordConnectionInfo(Resources.HOST, " ", Resources.PASSWORD);
+        }
 
-		[WorkItem(703), TestMethod]
+        [WorkItem(703), TestMethod]
         [TestCategory("PasswordConnectionInfo")]
-		[ExpectedException(typeof(ArgumentOutOfRangeException))]
-		public void Test_ConnectionInfo_SmallPortNumber()
-		{
-			var connectionInfo = new PasswordConnectionInfo(Resources.HOST, IPEndPoint.MinPort - 1, Resources.USERNAME, Resources.PASSWORD);
-		}
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public void Test_ConnectionInfo_SmallPortNumber()
+        {
+            var connectionInfo = new PasswordConnectionInfo(Resources.HOST, IPEndPoint.MinPort - 1, Resources.USERNAME, Resources.PASSWORD);
+        }
 
-		[WorkItem(703), TestMethod]
+        [WorkItem(703), TestMethod]
         [TestCategory("PasswordConnectionInfo")]
-		[ExpectedException(typeof(ArgumentOutOfRangeException))]
-		public void Test_ConnectionInfo_BigPortNumber()
-		{
-			var connectionInfo = new PasswordConnectionInfo(Resources.HOST, IPEndPoint.MaxPort + 1, Resources.USERNAME, Resources.PASSWORD);
-		}
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public void Test_ConnectionInfo_BigPortNumber()
+        {
+            var connectionInfo = new PasswordConnectionInfo(Resources.HOST, IPEndPoint.MaxPort + 1, Resources.USERNAME, Resources.PASSWORD);
+        }
 
         [TestMethod]
         [TestCategory("ConnectionInfo")]
@@ -207,7 +207,7 @@ namespace Renci.SshNet.Tests
         [ExpectedException(typeof(ArgumentException))]
         public void Test_ConnectionInfo_ProxyHost_Null()
         {
-            new ConnectionInfo(Resources.HOST, 22, Resources.USERNAME, ProxyTypes.None, null, 22, Resources.USERNAME, Resources.PASSWORD, null);
+            new ConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, ProxyTypes.None, null, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD, null);
         }
 
         [TestMethod]
@@ -217,7 +217,7 @@ namespace Renci.SshNet.Tests
         [ExpectedException(typeof(ArgumentException))]
         public void Test_ConnectionInfo_ProxyHost_Empty()
         {
-            new ConnectionInfo(Resources.HOST, 22, Resources.USERNAME, ProxyTypes.None, string.Empty, 22, Resources.USERNAME, Resources.PASSWORD, null);
+            new ConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, ProxyTypes.None, string.Empty, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD, null);
         }
 
         [TestMethod]
@@ -227,7 +227,7 @@ namespace Renci.SshNet.Tests
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void Test_ConnectionInfo_ProxyPort_Large()
         {
-            new ConnectionInfo(Resources.HOST, 22, Resources.USERNAME, ProxyTypes.None, Resources.HOST, int.MaxValue, Resources.USERNAME, Resources.PASSWORD, null);
+            new ConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, ProxyTypes.None, Resources.HOST, int.MaxValue, Resources.USERNAME, Resources.PASSWORD, null);
         }
 
         [TestMethod]
@@ -237,7 +237,7 @@ namespace Renci.SshNet.Tests
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void Test_ConnectionInfo_ProxyPort_Small()
         {
-            new ConnectionInfo(Resources.HOST, 22, Resources.USERNAME, ProxyTypes.None, Resources.HOST, int.MinValue, Resources.USERNAME, Resources.PASSWORD, null);
+            new ConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, ProxyTypes.None, Resources.HOST, int.MinValue, Resources.USERNAME, Resources.PASSWORD, null);
         }
 
         [TestMethod]
@@ -246,7 +246,7 @@ namespace Renci.SshNet.Tests
         [Owner("Kenneth_aa")]
         public void Test_ConnectionInfo_ProxyPort_Valid()
         {
-            new ConnectionInfo(Resources.HOST, 22, Resources.USERNAME, ProxyTypes.None, Resources.HOST, 22, Resources.USERNAME, Resources.PASSWORD, null);
+            new ConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, ProxyTypes.None, Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD, null);
         }
 
         [TestMethod]
@@ -256,7 +256,7 @@ namespace Renci.SshNet.Tests
         [ExpectedException(typeof(ArgumentException))]
         public void Test_ConnectionInfo_Host_Null()
         {
-            new ConnectionInfo(null, 22, Resources.USERNAME, ProxyTypes.None, Resources.HOST, 22, Resources.USERNAME, Resources.PASSWORD, null);
+            new ConnectionInfo(null, int.Parse(Resources.PORT), Resources.USERNAME, ProxyTypes.None, Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD, null);
         }
 
         [TestMethod]
@@ -266,7 +266,7 @@ namespace Renci.SshNet.Tests
         [ExpectedException(typeof(ArgumentException))]
         public void Test_ConnectionInfo_Host_Empty()
         {
-            new ConnectionInfo(string.Empty, 22, Resources.USERNAME, ProxyTypes.None, Resources.HOST, 22, Resources.USERNAME, Resources.PASSWORD, null);
+            new ConnectionInfo(string.Empty, int.Parse(Resources.PORT), Resources.USERNAME, ProxyTypes.None, Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD, null);
         }
 
         [TestMethod]
@@ -275,7 +275,7 @@ namespace Renci.SshNet.Tests
         [Owner("Kenneth_aa")]
         public void Test_ConnectionInfo_Host_Valid()
         {
-            new ConnectionInfo(Resources.HOST, 22, Resources.USERNAME, ProxyTypes.None, Resources.HOST, 22, Resources.USERNAME, Resources.PASSWORD, null);
+            new ConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, ProxyTypes.None, Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD, null);
         }
 
         [TestMethod]
@@ -285,7 +285,7 @@ namespace Renci.SshNet.Tests
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void Test_ConnectionInfo_Port_Large()
         {
-            new ConnectionInfo(Resources.HOST, int.MaxValue, Resources.USERNAME, ProxyTypes.None, Resources.HOST, 22, Resources.USERNAME, Resources.PASSWORD, null);
+            new ConnectionInfo(Resources.HOST, int.MaxValue, Resources.USERNAME, ProxyTypes.None, Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD, null);
         }
 
         [TestMethod]
@@ -295,7 +295,7 @@ namespace Renci.SshNet.Tests
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void Test_ConnectionInfo_Port_Small()
         {
-            new ConnectionInfo(Resources.HOST, int.MinValue, Resources.USERNAME, ProxyTypes.None, Resources.HOST, 22, Resources.USERNAME, Resources.PASSWORD, null);
+            new ConnectionInfo(Resources.HOST, int.MinValue, Resources.USERNAME, ProxyTypes.None, Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD, null);
         }
 
         [TestMethod]
@@ -304,7 +304,7 @@ namespace Renci.SshNet.Tests
         [Owner("Kenneth_aa")]
         public void Test_ConnectionInfo_Port_Valid()
         {
-            new ConnectionInfo(Resources.HOST, 22, Resources.USERNAME, ProxyTypes.None, Resources.HOST, 22, Resources.USERNAME, Resources.PASSWORD, null);
+            new ConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, ProxyTypes.None, Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD, null);
         }
 
         [TestMethod]
@@ -314,7 +314,7 @@ namespace Renci.SshNet.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void Test_ConnectionInfo_Authenticate_Null()
         {
-            var ret = new ConnectionInfo(Resources.HOST, 22, Resources.USERNAME, ProxyTypes.None, Resources.HOST, 22, Resources.USERNAME, Resources.PASSWORD, null);
+            var ret = new ConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, ProxyTypes.None, Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD, null);
             ret.Authenticate(null);
         }
 
@@ -332,7 +332,7 @@ namespace Renci.SshNet.Tests
 
             var connectionInfo = new PasswordAuthenticationMethod(Resources.USERNAME, Resources.PASSWORD);
 
-            using (SftpClient client = new SftpClient(Resources.HOST, Int32.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD))
+            using (SftpClient client = new SftpClient(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD))
             {
                 client.Connect();
                 Assert.AreEqual<bool>(true, client.IsConnected, "IsConnected is not true after Connect() was called.");
@@ -342,5 +342,5 @@ namespace Renci.SshNet.Tests
                 Assert.AreEqual<bool>(false, client.IsConnected, "IsConnected is true after Disconnect() was called.");
             }
         }
-	}
+    }
 }

@@ -77,6 +77,7 @@
     <Compile Include="SftpClientTests\DeleteDirectoryTest.cs" />
     <Compile Include="SftpClientTests\DeleteFileTest.cs" />
     <Compile Include="SftpClientTests\GetTest.cs" />
+    <Compile Include="SftpClientTests\GlobalScapeSftpServerTest.cs" />
     <Compile Include="SftpClientTests\ListDirectoryTest.cs" />
     <Compile Include="SftpClientTests\ProxyTest.cs" />
     <Compile Include="SftpClientTests\RenameFileTest.cs" />

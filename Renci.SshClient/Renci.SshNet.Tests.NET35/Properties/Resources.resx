@@ -112,10 +112,10 @@
     <value>2.0</value>
   </resheader>
   <resheader name="reader">
-    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <resheader name="writer">
-    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="DSA_KEY_WITHOUT_PASS" xml:space="preserve">
     <value>-----BEGIN DSA PRIVATE KEY-----
@@ -149,7 +149,7 @@ D8DHbFwAT2mUv1QxRXYJO1y4pENboEzT6LUqxJgE+ae/F/29g2RD9DhtwqKqWjhM
 -----END DSA PRIVATE KEY-----</value>
   </data>
   <data name="HOST" xml:space="preserve">
-    <value>oleg-centos.edc.renci.org</value>
+    <value>127.0.0.1</value>
   </data>
   <data name="INVALID_KEY" xml:space="preserve">
     <value>-----BEGIN DSA PRIVATE KEY-----

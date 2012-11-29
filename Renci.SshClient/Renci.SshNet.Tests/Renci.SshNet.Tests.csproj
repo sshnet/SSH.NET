@@ -14,6 +14,10 @@
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -77,12 +81,12 @@
     <Compile Include="SftpClientTests\DeleteDirectoryTest.cs" />
     <Compile Include="SftpClientTests\DeleteFileTest.cs" />
     <Compile Include="SftpClientTests\GetTest.cs" />
-    <Compile Include="SftpClientTests\GlobalScapeSftpServerTest.cs" />
     <Compile Include="SftpClientTests\ListDirectoryTest.cs" />
     <Compile Include="SftpClientTests\ProxyTest.cs" />
     <Compile Include="SftpClientTests\RenameFileTest.cs" />
     <Compile Include="SftpClientTests\SftpFileStreamTest.cs" />
     <Compile Include="SftpClientTests\SftpFileTest.cs" />
+    <Compile Include="SftpClientTests\SynchronizeDirectoriesTest.cs" />
     <Compile Include="SftpClientTests\UploadDownloadFileTest.cs" />
     <Compile Include="SshClientTests\ProxyTest.cs" />
     <Compile Include="SshClientTests\TestPortForwarding.NET40.cs" />
@@ -102,6 +106,7 @@
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

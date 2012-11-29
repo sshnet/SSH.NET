@@ -15,6 +15,10 @@
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <TargetFrameworkProfile />
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -96,6 +100,9 @@
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\SftpClientTests\SftpFileTest.cs">
       <Link>SftpClientTests\SftpFileTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\SftpClientTests\SynchronizeDirectoriesTest.cs">
+      <Link>SftpClientTests\SynchronizeDirectoriesTest.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\SftpClientTests\UploadDownloadFileTest.cs">
       <Link>SftpClientTests\UploadDownloadFileTest.cs</Link>

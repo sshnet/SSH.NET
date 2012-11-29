@@ -149,7 +149,7 @@ D8DHbFwAT2mUv1QxRXYJO1y4pENboEzT6LUqxJgE+ae/F/29g2RD9DhtwqKqWjhM
 -----END DSA PRIVATE KEY-----</value>
   </data>
   <data name="HOST" xml:space="preserve">
-    <value>oleg-centos.edc.renci.org</value>
+    <value>127.0.0.1</value>
   </data>
   <data name="INVALID_KEY" xml:space="preserve">
     <value>-----BEGIN DSA PRIVATE KEY-----
@@ -172,7 +172,7 @@ tM7dZpB+reWl9L5e2L8=
     <value>22</value>
   </data>
   <data name="PROXY_HOST" xml:space="preserve">
-    <value>proxy.oleg-centos.edc.renci.org</value>
+    <value>127.0.0.1</value>
   </data>
   <data name="PROXY_PORT" xml:space="preserve">
     <value>8123</value>

@@ -19,7 +19,7 @@ namespace Renci.SshNet.Tests.SftpClientTests
             using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
             {
                 client.Connect();
-                client.RunCommand("rm -rf *");
+                //client.RunCommand("rm -rf *");
                 client.Disconnect();
             }
         }

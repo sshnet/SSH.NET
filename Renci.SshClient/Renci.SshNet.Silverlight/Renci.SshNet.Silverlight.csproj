@@ -17,6 +17,10 @@
     <SilverlightApplication>false</SilverlightApplication>
     <ValidateXaml>true</ValidateXaml>
     <ThrowErrorsInValidation>true</ThrowErrorsInValidation>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
   </PropertyGroup>
   <!-- This property group is only here to support building this project using the 
        MSBuild 3.5 toolset. In order to work correctly with this older toolset, it needs 
@@ -706,6 +710,9 @@
     </Compile>
     <Compile Include="..\Renci.SshNet\Sftp\SftpSession.cs">
       <Link>Sftp\SftpSession.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Sftp\SftpSynchronizeDirectoriesAsyncResult.cs">
+      <Link>Sftp\SftpSynchronizeDirectoriesAsyncResult.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Sftp\SftpUploadAsyncResult.cs">
       <Link>Sftp\SftpUploadAsyncResult.cs</Link>

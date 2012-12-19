@@ -28,7 +28,7 @@ namespace Renci.SshNet
             if (!IPAddress.TryParse(this.ConnectionInfo.Host, out addr))
                 addr = Dns.GetHostAddresses(host).First();
 
-            var ep = new IPEndPoint(addr, port); 
+            var ep = new IPEndPoint(addr, port);
             this._socket = new Socket(ep.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
             var socketBufferSize = 2 * MAXIMUM_PACKET_SIZE;
@@ -63,7 +63,12 @@ namespace Renci.SshNet
             var data = new byte[1];
             do
             {
-                var received = this._socket.Receive(data);
+                var asyncResult = this._socket.BeginReceive(data, 0, data.Length, SocketFlags.None, null, null);
+
+                if (!asyncResult.AsyncWaitHandle.WaitOne(this.ConnectionInfo.Timeout))
+                    throw new SshOperationTimeoutException("Socket read operation has timed out");
+
+                var received = this._socket.EndReceive(asyncResult);
 
                 //  If zero bytes received then exit
                 if (received == 0)
@@ -118,7 +123,7 @@ namespace Renci.SshNet
                         //
                         // Adding a check for this._isDisconnecting causes ReceiveMessage() to throw SshConnectionException: "Bad packet length {0}".
                         //
-						throw new SshConnectionException("An established connection was aborted by the software in your host machine.", DisconnectReason.ConnectionLost);
+                        throw new SshConnectionException("An established connection was aborted by the software in your host machine.", DisconnectReason.ConnectionLost);
                     }
                 }
                 catch (SocketException exp)

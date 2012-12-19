@@ -55,7 +55,7 @@ namespace Renci.SshNet
             if (string.IsNullOrEmpty(fileName))
                 throw new ArgumentNullException("fileName");
 
-            using (var keyFile = File.OpenRead(fileName))
+            using (var keyFile = File.Open(fileName, FileMode.Open))
             {
                 this.Open(keyFile, null);
             }
@@ -73,7 +73,7 @@ namespace Renci.SshNet
             if (string.IsNullOrEmpty(fileName))
                 throw new ArgumentNullException("fileName");
 
-            using (var keyFile = File.OpenRead(fileName))
+            using (var keyFile = File.Open(fileName, FileMode.Open))
             {
                 this.Open(keyFile, passPhrase);
             }
@@ -121,7 +121,7 @@ namespace Renci.SshNet
 
             var binaryData = System.Convert.FromBase64String(data);
 
-            byte[] decryptedData;
+            byte[] decryptedData = null;
 
             if (!string.IsNullOrEmpty(cipherName) && !string.IsNullOrEmpty(salt))
             {
@@ -144,16 +144,15 @@ namespace Renci.SshNet
                     case "DES-CBC":
                         cipher = new CipherInfo(64, (key, iv) => { return new DesCipher(key, new CbcCipherMode(iv), new PKCS7Padding()); });
                         break;
-                    //  TODO:   Implement more private key ciphers
-                    //case "AES-128-CBC":
-                    //    cipher = new CipherInfo(128, (key, iv) => { return new AesCipher(key, new CbcCipherMode(iv), new PKCS5Padding()); });
-                    //    break;
-                    //case "AES-192-CBC":
-                    //    cipher = new CipherInfo(192, (key, iv) => { return new AesCipher(key, new CbcCipherMode(iv), new PKCS5Padding()); });
-                    //    break;
-                    //case "AES-256-CBC":
-                    //    cipher = new CipherInfo(256, (key, iv) => { return new AesCipher(key, new CbcCipherMode(iv), new PKCS5Padding()); });
-                    //    break;
+                    case "AES-128-CBC":
+                        cipher = new CipherInfo(128, (key, iv) => { return new AesCipher(key, new CbcCipherMode(iv), new PKCS7Padding()); });
+                        break;
+                    case "AES-192-CBC":
+                        cipher = new CipherInfo(192, (key, iv) => { return new AesCipher(key, new CbcCipherMode(iv), new PKCS7Padding()); });
+                        break;
+                    case "AES-256-CBC":
+                        cipher = new CipherInfo(256, (key, iv) => { return new AesCipher(key, new CbcCipherMode(iv), new PKCS5Padding()); });
+                        break;
                     default:
                         throw new SshException(string.Format(CultureInfo.CurrentCulture, "Private key cipher \"{0}\" is not supported.", cipherName));
                 }
@@ -298,7 +297,8 @@ namespace Renci.SshNet
             {
                 var passwordBytes = Encoding.UTF8.GetBytes(passPhrase);
 
-                var initVector = passwordBytes.Concat(binarySalt);
+                //  Use 8 bytes binary salkt
+                var initVector = passwordBytes.Concat(binarySalt.Take(8));
 
                 var hash = md5.ComputeHash(initVector.ToArray()).AsEnumerable();
 

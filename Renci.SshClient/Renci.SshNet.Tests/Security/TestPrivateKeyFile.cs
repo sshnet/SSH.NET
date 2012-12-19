@@ -7,31 +7,31 @@ using System.IO;
 
 namespace Renci.SshNet.Tests.Security
 {
-	[TestClass]
-	public class TestPrivateKeyFile
-	{
-		[WorkItem(703), TestMethod]
-		[ExpectedException(typeof(ArgumentNullException))]
-		public void Test_PrivateKeyFile_EmptyFileName()
-		{
-			string fileName = string.Empty;
-			var keyFile = new PrivateKeyFile(fileName);
-		}
+    [TestClass]
+    public class TestPrivateKeyFile
+    {
+        [WorkItem(703), TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void Test_PrivateKeyFile_EmptyFileName()
+        {
+            string fileName = string.Empty;
+            var keyFile = new PrivateKeyFile(fileName);
+        }
 
-		[WorkItem(703), TestMethod]
-		[ExpectedException(typeof(ArgumentNullException))]
-		public void Test_PrivateKeyFile_StreamIsNull()
-		{
-			Stream stream = null;
-			var keyFile = new PrivateKeyFile(stream);
-		}
+        [WorkItem(703), TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void Test_PrivateKeyFile_StreamIsNull()
+        {
+            Stream stream = null;
+            var keyFile = new PrivateKeyFile(stream);
+        }
 
-		[TestMethod]
+        [TestMethod]
         [Owner("olegkap")]
         [TestCategory("PrivateKey")]
-		public void Test_PrivateKey_RSA()
-		{
-			var key = @"-----BEGIN RSA PRIVATE KEY-----
+        public void Test_PrivateKey_RSA()
+        {
+            var key = @"-----BEGIN RSA PRIVATE KEY-----
 MIIEowIBAAKCAQEAoWv7yqk9zX9O5dG/+wOQbUnU8vlpwrfc/EFTKvOUY4GHOJ93
 AodLRJshNxI0fQZnPWwSEdsFlB5y3NoJg13uGNWBikMlgj01Zzz6QTfnmpmvgWD2
 30A5/METbBIIbXNk4Fx9jo9vMhpxn+yTOOq0grMicMfXaBL6xabUBogHVwpOmi50
@@ -58,15 +58,15 @@ VL2veQKBgDpWFdCFgdE6ucaQuOSj4PbVCT2hTHuhuArP0NfSklcfeeGQedJfVupV
 baH2S2V/3qOgcLO8pEZTSzEeX/QbcJzqjMz0yj0KQssGDxkbmlYltk2ZEM2DRM0B
 Q4K/6SzJfIzSl/oYoB8xT0LY58qtBEurTZE81mmmiHV/gw6w+fQW
 -----END RSA PRIVATE KEY-----";
-			new PrivateKeyFile(new MemoryStream(Encoding.ASCII.GetBytes(key)));
-		}
+            new PrivateKeyFile(new MemoryStream(Encoding.ASCII.GetBytes(key)));
+        }
 
         [TestMethod]
         [Owner("olegkap")]
         [TestCategory("PrivateKey")]
-		public void Test_PrivateKey_RSA_DES_CBC()
-		{
-			var key = @"-----BEGIN RSA PRIVATE KEY-----
+        public void Test_PrivateKey_RSA_DES_CBC()
+        {
+            var key = @"-----BEGIN RSA PRIVATE KEY-----
 Proc-Type: 4,ENCRYPTED
 DEK-Info: DES-CBC,BD35E157CDD07CAD
 
@@ -96,15 +96,15 @@ FC4FTxZnnoDnnVg5sC8rYB6avD/MiomOUGOlHgM3MMk/Ta7fmioauCUBR5oXa/We
 uhSoNyRY0/VZgE+fJ7P0Y5hzgnBDncVH5j57G0q4KTiTBDfuHBTLw+h5Htd5VBGS
 5PwhKfrAvIwetRWMyRhfjixPDtcWZ2jx20fWCVxpPp+3MxBtuMgn7A==
 -----END RSA PRIVATE KEY-----";
-			new PrivateKeyFile(new MemoryStream(Encoding.ASCII.GetBytes(key)), "12345");
-		}
+            new PrivateKeyFile(new MemoryStream(Encoding.ASCII.GetBytes(key)), "12345");
+        }
 
         [TestMethod]
         [Owner("olegkap")]
         [TestCategory("PrivateKey")]
-		public void Test_PrivateKey_RSA_DES_EDE3_CBC()
-		{
-			var key = @"-----BEGIN RSA PRIVATE KEY-----
+        public void Test_PrivateKey_RSA_DES_EDE3_CBC()
+        {
+            var key = @"-----BEGIN RSA PRIVATE KEY-----
 Proc-Type: 4,ENCRYPTED
 DEK-Info: DES-EDE3-CBC,AF373EFF708479DF
 
@@ -134,53 +134,55 @@ vaZAkxmIZc4rVeZEV8N14i9HfzmfjLM69wiMjfpO3H9nwzHHLhZCnzp483yTGKbc
 EGa4dkBt3eYQDPkiK68vTt6fUfAWtiqhjmHCpOi+bZF/EfbTmz1zGIRNscFOl1Ln
 bIk+F6YypdWnYjwQMr0e/RBZDVvsFH0XgHESq8hLEFXa6kWzQPIaVw==
 -----END RSA PRIVATE KEY-----";
-			new PrivateKeyFile(new MemoryStream(Encoding.ASCII.GetBytes(key)), "12345");
-		}
+            new PrivateKeyFile(new MemoryStream(Encoding.ASCII.GetBytes(key)), "12345");
+        }
 
-        //[TestMethod]
-        //[Owner("olegkap")]
-        //[TestCategory("PrivateKey")]
-		public void Test_PrivateKey_RSA_AES_128_CBC()
-		{
-			var key = @"-----BEGIN RSA PRIVATE KEY-----
+        [TestMethod]
+        [Owner("olegkap")]
+        [TestCategory("PrivateKey")]
+        public void Test_PrivateKey_RSA_AES_128_CBC()
+        {
+            var key = @"
+-----BEGIN RSA PRIVATE KEY-----
 Proc-Type: 4,ENCRYPTED
-DEK-Info: AES-128-CBC,AD7A2024C208E41F91C191B89AB9515A
+DEK-Info: AES-128-CBC,A8B993177AE83E5476797236484F7CB6
 
-TFSgpmvpdkk1noN8C3hhiVMIW6aQ9sLhTbw/vrOh6Atp3/DgmgNOjXrClWXrZi6C
-dyEV/ohLL12FCSkhEz5yl88IeSG0SA970zPoBrCi0OAyc40kQe/oQOHPg948BYcp
-MIhJRYdbc6yZJC7umyteIaDg4BT2u9C1512JI/7CV1JzzfdYxFNpRVqW06wOdz/2
-IdtbusQsHRU0faGP6F3VMRLuCkS/l96K7orXQofpLw78f8siyNFqOvTrZNsIjErl
-OXnY3k77SEtcfJ+Gji7BZBNHmDPG4mFacFGotypYb422C3ENCIrjFa5JsU5IGVe+
-3YDaZySq7JkgsFF3owwQvJycO0IDO8WgyYhDTFkWLL5bLU+R1bqvWxVq0WtLJO0n
-B4katSG+kxhFFE85k2hmEOQjsWNvQD7EbPwQBXQUr80/sPFhfzm228z8aeLa/9nb
-WCNg9ilEx7QAjc7i3RfqcJ9O4svZy5JUV5K1oe5CsTmTGfQiG93R8RNA/coRcv36
-iw3jldW+otB22hHxktrQIhPz3cRocVvr3xSe+2RsWrOOuCaJrrduPnlFTUHt3gRD
-yBWoA6AD+Bt+0yW7TFpbR77rz2svcgoJ64wrA2sG0OtUlMzG52IX69pWA6tRKbdJ
-rGj/j/9fIQi83bAUXpWG/gA4hL18+QiNAfyk3fmMtOvp58fyoWYguLAc794ar0jJ
-HAseTc1RzBzRp2Ic/LwIQyxOwNBM0KXuVoyJjkFg6qNudVrIv0PSIPuu84Ro4dbn
-HN+a7O/SQXk3NOSN4N/XSbBpu8tZVq94w3mPoNXcsnObeN/Br4cr0pGlm8sJJNbh
-HZSAz+MxqXmpwPr7UUd3jmtnYmOgE89H7k2nayj06J2a7EgbzaXCeeXUg+IJN1xi
-o1TMU4uQgX0XgChnRZ1Uo8ksAqWAEvgFypexFulNxHPCnLrjWOIA8nyt9Ue8T/SO
-eEVsSLNhUuQsn+TiKgP4f4JaXMl2tchzSth2Gv2QEReMb1ftzIH41VZndhJlxmAE
-o1AButj+5+d6oBuJo8rueRUz6invlv9FUXQWaDEjpFXACmXC+KtZ5rBa8oP9yak5
-Hh1GxVYHCs0WGyWdIRgW44oVWIfEBGLer2G9krhnZNF4lbyG8SuGhju+LYRe726Y
-/Un1r/6+nykMNsAgR0vjnYkwx1Qd2mm8L8eLkz/Q7BsZLpChLqHv5HnXNuXqTsFB
-orWBELQQsvLU69j70h3KK549gGPO4KBX8VrMaj0tIss7PYQub7lbyhNFXlfHy+xN
-4EZntnj3gf0eqxsqduq6rP18vhaE3onIJ2I6twR+ivTulacNHxSH0/ieh+QCB9Bw
-3gggWZ9Trf7QvyGEqzewfYMZ0RjagascnFFVjyTtPLn6jfaIoxSxMy7kcyIYHxPu
-3qgLtO+AW6bY4VuT3cJroNrdrnGTXiGzim5TWDw2EcuLUpA8p3G+0RnSgM/EyjVQ
-dZo8roiKvKSpdVS6cWsScyAvecq+fXTGzd95DDj15/feWP/4vk4WjTeSEr95k2cq
-TGwZ2mF2ZKxS3eXVHOKysreLIQQOeMi+rlHAMAfzu5PTQhaYhhFZ2oPBmPsYYrJD
------END RSA PRIVATE KEY-----";
-			new PrivateKeyFile(new MemoryStream(Encoding.ASCII.GetBytes(key)), "12345");
-		}
+tgMoS/2KhL+p/KslJVfX1RYiJtu3MlHA9gLu4Cq+yG63Yo4eLJmxV11CxSFGhamx
+mPhSh6KDxj5VV1BQm6jsY4sabZARZRuwwFnpGOHUsGCU7zfY3GTDhYfCHDhjXuhy
+LBloxq+5DafcagqFG1AZyJEJV0ZxGb0jbxWU13frKIEr5WvUbNN/XamBo2UffmNu
+Mumc/tl0sFih134PNAPvG53R99vuup5aAe7L72OmLEU3UqEH8Sm6i1Y0XKV/CB3I
+BoO7lsu8bk+QWl0ZsPULXEejub+P12Q08ySM6wXHDsTex6D09vIYZsoaG0lzbglJ
+LnMAXkVzvJOup5wYJgtpDJG1p1QtEvYjV94wyRoGWz9+7Nc9NlhgTeV02u6c2y0m
+GZ/ok7Jkc1HGLi9N3MIdLQ56l25DChZv0VqS95tmoRrtAnxXpk5MVsSVdBH8OC7E
+DyE++sdw6E5w3B596xJaJFnt3mz3+l5OdXd1/nASx3Oklq+nQ9GA2CKvOUYrQBqn
+JO30lMTm77iFXXUTitXFN7Z5KLNoBV8exHKhWTEqKq+BjBTrUx9y/gDQ3Bz/T1hN
+iuBtesIt5UdCpXKpG6klqfMZPDbRZCWCf6Kuby8+Lw5yCPgI6L5Wj2y69Cnbjva5
+1vbmVQkXmjBUlM29huE9iI9Qsoc2Ws0TflXaHpO5ovN0mhuU9UpTXNwwIZbsGZBI
+Fa8tToU8Z+xV/cktHJdwuFGWL9MwMvc6JdvRI/AZ9CVe/bahXlp/ETIX3xCs1dmm
+MU+xh9t+fje8Ms7HNmHmbS4SQPnf0GA9BaQsA7HzblzE/xYh0nrLirXGVagUv7UJ
+OPqBvxtrIbSbpgHjDkXcYlF1qdYBaTsh3CaDLcShBPz9GlC9XFh2S4imtJy+ESz9
+wRtZMEZ4R9LchrK8ElEQbPvv2M9UsjLEi70idWKcHAuws05/IIQ6AgRnRoiuRb5Q
+d71Hcbwt9X16PrfRSYRMNKoNmWQwTUvGFmIOc8HQYUPvHxdbTJYwha9rl+jecdd+
+ExoUx0xhR+bXWoFPMqRzvGrFEOfjZ+JycSInhY/3cop7+m1xEk3nlc2ZH0Bm2E73
+R1fkmJoj5/StLh2sNr+PCCVd2k70X/jfrgLvHqCtQPkdNlJnEV0tFchyaGealxCX
+JtsAHIH4YgE5Ojnxb3aFJAsELKzTHYalR2pz1rwR1LWeT2bBpGq7R7Mh2tUg7BKc
+1I9JfgzGi8X2+o+UHnzXPoVEEY1Snxkbni2jmQ06uoLaTow3qwUPExGE2J7CMOxZ
+KYUy2T1aGGnIIzhYPslPU5BPEPmTDukk76B5Rvam0fvXwE4mv4YR0kb/XHYN7cEl
+InDGFKnTcgLJfU/B+IxVoG9ZYIndlCgia1YMeXR+mqX0EdzCYmFxMNqW6QD5uzoC
+LTNOQtqwiDAvWbLZcqkzT6YnGjN6TBJEnVY4nvZRpyHxFN5qcQnjfMNqc/V47H0u
+GHy3G9CPTezdd7CGtb2sfDrls446rS8R9Zm15/2Y8sxysYXGZC/yv8a4QTnJn4lX
+omJXeM2qa9U4lK44MhtHj+eLveKQokkJEHN1yeRUMWcbb4r2QSzbpwjjfna0QKBP
+-----END RSA PRIVATE KEY-----
+";
+            new PrivateKeyFile(new MemoryStream(Encoding.ASCII.GetBytes(key)), "tester");
+        }
 
-		//[TestMethod]
-        //[Owner("olegkap")]
-        //[TestCategory("PrivateKey")]
-		public void Test_PrivateKey_RSA_AES_192_CBC()
-		{
-			var key = @"-----BEGIN RSA PRIVATE KEY-----
+        [TestMethod]
+        [Owner("olegkap")]
+        [TestCategory("PrivateKey")]
+        public void Test_PrivateKey_RSA_AES_192_CBC()
+        {
+            var key = @"-----BEGIN RSA PRIVATE KEY-----
 Proc-Type: 4,ENCRYPTED
 DEK-Info: AES-192-CBC,0E34605476FC4C57886CE6350CD6F61E
 
@@ -210,15 +212,15 @@ VcueeowDqsPawOj2YaaifvOzzsoP4C6Uu7K8UwAXE7gnKRWjIB4EJZLEaTXBpIUM
 BcBcYCqd1X+JFQxp7fID+EGxlMfTjdZM4c51y67EHzMquZSiLEGBQgE8KiJclsIN
 /PjY3hlwcZpyTEnqTYLnhL5SG/1fskUWPLaJ66u+aGoo9bcfOq9AE0yzPsl6MCes
 -----END RSA PRIVATE KEY-----";
-			new PrivateKeyFile(new MemoryStream(Encoding.ASCII.GetBytes(key)), "12345");
-		}
+            new PrivateKeyFile(new MemoryStream(Encoding.ASCII.GetBytes(key)), "12345");
+        }
 
-        //[TestMethod]
-        //[Owner("olegkap")]
-        //[TestCategory("PrivateKey")]
-		public void Test_PrivateKey_RSA_AES_256_CBC()
-		{
-			var key = @"-----BEGIN RSA PRIVATE KEY-----
+        [TestMethod]
+        [Owner("olegkap")]
+        [TestCategory("PrivateKey")]
+        public void Test_PrivateKey_RSA_AES_256_CBC()
+        {
+            var key = @"-----BEGIN RSA PRIVATE KEY-----
 Proc-Type: 4,ENCRYPTED
 DEK-Info: AES-256-CBC,063DE67AE11456C89BCE9D4A21BE3DFB
 
@@ -248,15 +250,15 @@ BJ5wnBZnRnsRaIMehDQmTjioMcyHBSMqId+LYQp+KFpBXqXQTEjJPnq+t4o2FF/N
 t/HXRv+fmDQk5hJbCPICydcVSRyrbzxKkppVceEf9NwkBT1MBsOZIFJ3s3A9I72n
 XPIab5czlgSLYA/U9nEg2XU21hKD2kRH1OF0WSlpNhN2SJFViVqlC3v36MgHoWNh
 -----END RSA PRIVATE KEY-----";
-			new PrivateKeyFile(new MemoryStream(Encoding.ASCII.GetBytes(key)), "12345");
-		}
+            new PrivateKeyFile(new MemoryStream(Encoding.ASCII.GetBytes(key)), "12345");
+        }
 
         //[TestMethod]
         //[Owner("olegkap")]
         //[TestCategory("PrivateKey")]
-		public void Test_PrivateKey_RSA_DES_EDE3_CFB()
-		{
-			var key = @"-----BEGIN RSA PRIVATE KEY-----
+        public void Test_PrivateKey_RSA_DES_EDE3_CFB()
+        {
+            var key = @"-----BEGIN RSA PRIVATE KEY-----
 Proc-Type: 4,ENCRYPTED
 DEK-Info: DES-EDE3-CFB,81C75CC63A21DFFB
 
@@ -274,8 +276,8 @@ x5JF/eg3xq8weaZrFqq7r5uIhDYI7/sexxL9M/8nyV8COUYkDxxISbNpoDuCKbv8
 fyIX92mGQtM8D7YftvCbEr8kw1fga9XhkDdOEuBzKZyIAD50xE39rFFMNNq8l8/Y
 Gxo8zq0rW/IsrwvhWLLGtvmy68Be+WAi/mDHf6x4
 -----END RSA PRIVATE KEY-----";
-			new PrivateKeyFile(new MemoryStream(Encoding.ASCII.GetBytes(key)), "1234567890");
-		}
+            new PrivateKeyFile(new MemoryStream(Encoding.ASCII.GetBytes(key)), "1234567890");
+        }
 
-	}
+    }
 }

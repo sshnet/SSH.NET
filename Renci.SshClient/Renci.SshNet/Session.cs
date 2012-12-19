@@ -1627,7 +1627,8 @@ namespace Renci.SshNet
                 throw new ProxyException("SOCKS4: Silverlight supports only IP addresses.");
             }
 #else
-            ipAddress = Dns.GetHostAddresses(this.ConnectionInfo.Host).First();
+            if (!IPAddress.TryParse(this.ConnectionInfo.Host, out ipAddress))
+                ipAddress = Dns.GetHostAddresses(this.ConnectionInfo.Host).First();
 #endif
             this.SocketWrite(ipAddress.GetAddressBytes());
 
@@ -1750,7 +1751,8 @@ namespace Renci.SshNet
                 throw new ProxyException("SOCKS4: Silverlight supports only IP addresses.");
             }
 #else
-            ip = Dns.GetHostAddresses(this.ConnectionInfo.Host).First();
+            if (!IPAddress.TryParse(this.ConnectionInfo.Host, out ip))
+                ip = Dns.GetHostAddresses(this.ConnectionInfo.Host).First();
 #endif
 
             //  Send address type and address

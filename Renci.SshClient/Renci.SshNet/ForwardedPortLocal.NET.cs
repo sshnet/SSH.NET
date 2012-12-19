@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Net.Sockets;
 using System.Net;
 using System.Threading;
@@ -20,7 +21,11 @@ namespace Renci.SshNet
             if (this.IsStarted)
                 return;
 
-            var ep = new IPEndPoint(Dns.GetHostAddresses(this.BoundHost)[0], (int)this.BoundPort);
+            IPAddress addr;
+            if (!IPAddress.TryParse(this.BoundHost, out addr))
+                addr = Dns.GetHostAddresses(this.BoundHost).First();
+
+            var ep = new IPEndPoint(addr, (int)this.BoundPort); 
 
             this._listener = new TcpListener(ep);
             this._listener.Start();

@@ -320,7 +320,7 @@ namespace Renci.SshNet
         /// Text available in the shell that ends with expected text, if the specified time elapsed returns null.
         public string Expect(string text, TimeSpan timeout)
         {
-            return this.Expect(new Regex(Regex.Escape(text)));
+            return this.Expect(new Regex(Regex.Escape(text)), timeout);
         }
 
         /// <summary>

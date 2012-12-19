@@ -57,7 +57,10 @@ namespace Renci.SshNet
         /// </summary>
         public virtual void Stop()
         {
-            this.Session.ErrorOccured -= Session_ErrorOccured;
+            if (this.Session != null)
+            {
+                this.Session.ErrorOccured -= Session_ErrorOccured;
+            }
         }
 
         /// <summary>

@@ -90,6 +90,8 @@ namespace Renci.SshNet
             // Check to see if Dispose has already been called.
             if (!this._isDisposed)
             {
+                this.InternalStop();
+
                 // If disposing equals true, dispose all managed
                 // and unmanaged ResourceMessages.
                 if (disposing)

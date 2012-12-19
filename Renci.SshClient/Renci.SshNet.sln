@@ -21,30 +21,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Renci.SshNet.WindowsPhone", "Renci.SshNet.WindowsPhone\Renci.SshNet.WindowsPhone.csproj", "{3AD3EDF0-702E-4A91-8735-DCE4659AA54C}"
 EndProject
 Global
-	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 7
-		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccTeamFoundationServer = https://tfs.codeplex.com/tfs/tfs11
-		SccLocalPath0 = .
-		SccProjectUniqueName1 = Renci.SshNet\\Renci.SshNet.csproj
-		SccProjectName1 = Renci.SshNet
-		SccLocalPath1 = Renci.SshNet
-		SccProjectUniqueName2 = Renci.SshNet.Tests\\Renci.SshNet.Tests.csproj
-		SccProjectName2 = Renci.SshNet.Tests
-		SccLocalPath2 = Renci.SshNet.Tests
-		SccProjectUniqueName3 = Renci.SshNet.Silverlight\\Renci.SshNet.Silverlight.csproj
-		SccProjectName3 = Renci.SshNet.Silverlight
-		SccLocalPath3 = Renci.SshNet.Silverlight
-		SccProjectUniqueName4 = Renci.SshNet.NET35\\Renci.SshNet.NET35.csproj
-		SccProjectName4 = Renci.SshNet.NET35
-		SccLocalPath4 = Renci.SshNet.NET35
-		SccProjectUniqueName5 = Renci.SshNet.Tests.NET35\\Renci.SshNet.Tests.NET35.csproj
-		SccProjectName5 = Renci.SshNet.Tests.NET35
-		SccLocalPath5 = Renci.SshNet.Tests.NET35
-		SccProjectUniqueName6 = Renci.SshNet.WindowsPhone\\Renci.SshNet.WindowsPhone.csproj
-		SccProjectName6 = Renci.SshNet.WindowsPhone
-		SccLocalPath6 = Renci.SshNet.WindowsPhone
-	EndGlobalSection
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = Renci.SshNet1.vsmdi
 	EndGlobalSection

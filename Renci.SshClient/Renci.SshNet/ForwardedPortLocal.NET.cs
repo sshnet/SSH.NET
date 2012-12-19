@@ -12,6 +12,7 @@ namespace Renci.SshNet
     public partial class ForwardedPortLocal
     {
         private TcpListener _listener;
+        private object _listenerLocker = new object();
 
         partial void InternalStart()
         {
@@ -31,6 +32,12 @@ namespace Renci.SshNet
                 {
                     while (true)
                     {
+                        lock (this._listenerLocker)
+                        {
+                            if (this._listener == null)
+                                break;
+                        }
+
                         var socket = this._listener.AcceptSocket();
 
                         this.ExecuteThread(() =>
@@ -80,7 +87,11 @@ namespace Renci.SshNet
             if (!this.IsStarted)
                 return;
 
-            this._listener.Stop();
+            lock (this._listenerLocker)
+            {
+                this._listener.Stop();
+                this._listener = null;
+            }
             this._listenerTaskCompleted.WaitOne(this.Session.ConnectionInfo.Timeout);
             this._listenerTaskCompleted.Dispose();
             this._listenerTaskCompleted = null;

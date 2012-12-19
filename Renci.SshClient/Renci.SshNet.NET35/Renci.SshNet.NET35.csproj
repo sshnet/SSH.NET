@@ -634,6 +634,9 @@
     <Compile Include="..\Renci.SshNet\SftpClient.cs">
       <Link>SftpClient.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\SftpClient.NET.cs">
+      <Link>SftpClient.NET.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\Sftp\Flags.cs">
       <Link>Sftp\Flags.cs</Link>
     </Compile>

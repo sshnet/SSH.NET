@@ -6,7 +6,10 @@ using Renci.SshNet.Common;
 using System.IO;
 
 namespace Renci.SshNet.Sftp
-{    
+{
+    /// <summary>
+    /// Encapsulates the results of an asynchronous directory synchronization operation.
+    /// </summary>
     public class SftpSynchronizeDirectoriesAsyncResult : AsyncResult<IEnumerable<FileInfo>>
     {
         /// <summary>

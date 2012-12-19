@@ -183,12 +183,7 @@ namespace Renci.SshNet
         {
             get
             {
-                return (!this._isDisconnecting
-                    && this._socket != null
-                    && this._socket.Connected
-                    && this._isAuthenticated
-                    && this._messageListenerCompleted != null);
-                    //&& !(this._socket.Poll(10, SelectMode.SelectRead));
+                return (!this._isDisconnecting && this._socket != null && this._socket.Connected && this._isAuthenticated && this._messageListenerCompleted != null) && !(this._socket.Poll(10, SelectMode.SelectRead));
             }
         }
 

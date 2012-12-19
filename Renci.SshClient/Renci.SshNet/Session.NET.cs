@@ -24,7 +24,11 @@ namespace Renci.SshNet
 
         partial void SocketConnect(string host, int port)
         {
-            var ep = new IPEndPoint(Dns.GetHostAddresses(host)[0], port);
+            IPAddress addr;
+            if (!IPAddress.TryParse(this.ConnectionInfo.Host, out addr))
+                addr = Dns.GetHostAddresses(host).First();
+
+            var ep = new IPEndPoint(addr, port); 
             this._socket = new Socket(ep.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
             var socketBufferSize = 2 * MAXIMUM_PACKET_SIZE;

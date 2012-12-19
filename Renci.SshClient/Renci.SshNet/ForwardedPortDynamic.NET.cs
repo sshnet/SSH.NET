@@ -24,7 +24,8 @@ namespace Renci.SshNet
             var ip = IPAddress.Any;
             if (!string.IsNullOrEmpty(this.BoundHost))
             {
-                ip = Dns.GetHostAddresses(this.BoundHost)[0];
+                if (IPAddress.TryParse(this.BoundHost, out ip) == false)
+                    ip = Dns.GetHostAddresses(this.BoundHost)[0];
             }
 
             var ep = new IPEndPoint(ip, (int)this.BoundPort);

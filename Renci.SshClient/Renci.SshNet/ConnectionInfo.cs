@@ -373,10 +373,12 @@ namespace Renci.SshNet
 
             var allowedAuthentications = noneAuthenticationMethod.AllowedAuthentications;
 
+            var triedAuthentications = new List<string>();
             while (authenticated != AuthenticationResult.Success)
             {
                 //  Find first authentication method
-                var method = this.AuthenticationMethods.Where((a) => allowedAuthentications.Contains(a.Name)).FirstOrDefault();
+                var method = this.AuthenticationMethods.Where((a) => allowedAuthentications.Contains(a.Name) && !triedAuthentications.Contains(a.Name)).FirstOrDefault();
+                triedAuthentications.Add(method.Name);
 
                 if (method == null)
                     throw new SshAuthenticationException("No suitable authentication method found to complete authentication.");

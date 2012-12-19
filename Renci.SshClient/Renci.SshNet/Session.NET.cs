@@ -42,7 +42,10 @@ namespace Renci.SshNet
             //  Connect socket with specified timeout
             var connectResult = this._socket.BeginConnect(ep, null, null);
 
-            connectResult.AsyncWaitHandle.WaitOne(this.ConnectionInfo.Timeout, false);
+            if (!connectResult.AsyncWaitHandle.WaitOne(this.ConnectionInfo.Timeout, false))
+            {
+                throw new SshOperationTimeoutException("Connection Could Not Be Established");
+            }
 
             this._socket.EndConnect(connectResult);
         }

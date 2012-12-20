@@ -64,6 +64,11 @@ namespace Renci.SshNet
         private Socket _socket;
 
         /// <summary>
+        /// Holds locker object for the socket
+        /// </summary>
+        private object _socketLock = new object();
+
+        /// <summary>
         /// Holds reference to task that listens for incoming messages
         /// </summary>
         private EventWaitHandle _messageListenerCompleted;
@@ -700,8 +705,11 @@ namespace Renci.SshNet
             paddingBytes.CopyTo(packetData, 4 + 1 + messageData.Length);
 
             //  Lock handling of _outboundPacketSequence since it must be sent sequently to server
-            lock (this._socket)
+            lock (this._socketLock)
             {
+                if (this._socket == null || !this._socket.Connected)
+                    return;
+
                 //  Calculate packet hash
                 var hashData = new byte[4 + packetData.Length];
                 this._outboundPacketSequence.GetBytes().CopyTo(hashData, 0);
@@ -909,21 +917,11 @@ namespace Renci.SshNet
             //  Shutdown and disconnect from the socket
             if (this._socket != null)
             {
-                lock (this._socket)
+                lock (this._socketLock)
                 {
                     if (this._socket != null)
                     {
                         this.SocketDisconnect();
-
-                        //  When socket is disconnected wait for listener to finish
-                        if (this._messageListenerCompleted != null)
-                        {
-                            //  Wait for listener task to finish
-                            this.WaitHandle(this._messageListenerCompleted);
-                            this._messageListenerCompleted.Dispose();
-                            this._messageListenerCompleted = null;
-                        }
-
                         this._socket.Dispose();
                         this._socket = null;
                     }
@@ -1077,7 +1075,7 @@ namespace Renci.SshNet
         /// <param name="message"><see cref="DisconnectMessage"/> message.</param>
         protected virtual void OnDisconnectReceived(DisconnectMessage message)
         {
-            this.Log("Disconnect received.");
+            this.Log(string.Format("Disconnect received: {0} {1}", message.ReasonCode, message.Description));
 
             if (this.DisconnectReceived != null)
             {
@@ -1579,7 +1577,7 @@ namespace Renci.SshNet
         {
             try
             {
-                while (this._socket.Connected)
+                while (this._socket != null && this._socket.Connected)
                 {
                     var message = this.ReceiveMessage();
 

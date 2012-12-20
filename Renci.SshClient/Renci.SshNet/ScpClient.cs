@@ -234,7 +234,7 @@ namespace Renci.SshNet
         {
             var length = source.Length;
 
-            this.SendData(channel, string.Format("C0644 {0} {1}\n", length, filename));
+            this.SendData(channel, string.Format("C0644 {0} {1}\n", length, Path.GetFileName(filename)));
 
             var buffer = new byte[this.BufferSize];
 

@@ -519,6 +519,9 @@
     <Compile Include="..\Renci.SshNet\Security\Cryptography\Ciphers\Paddings\PKCS7Padding.cs">
       <Link>Security\Cryptography\Ciphers\Paddings\PKCS7Padding.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Cryptography\Ciphers\Paddings\PKCS5Padding.cs">
+      <Link>Security\Cryptography\Ciphers\Paddings\PKCS5Padding.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\Security\Cryptography\Ciphers\RsaCipher.cs">
       <Link>Security\Cryptography\Ciphers\RsaCipher.cs</Link>
     </Compile>

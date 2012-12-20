@@ -102,6 +102,16 @@ namespace Renci.SshNet.Channels
             this.SessionSemaphore.Release();
         }
 
+        protected override void Close(bool wait)
+        {
+            base.Close(wait);
+
+            if (!wait)
+            {
+                this.SessionSemaphore.Release();
+            }
+        }
+
         /// <summary>
         /// Sends the pseudo terminal request.
         /// </summary>

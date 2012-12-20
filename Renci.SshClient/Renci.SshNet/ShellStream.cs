@@ -238,7 +238,7 @@ namespace Renci.SshNet
 
         #endregion
 
-                /// <summary>
+        /// <summary>
         /// Expects the specified expression and performs action when one is found.
         /// </summary>
         /// <param name="expectActions">The expected expressions and actions to perform.</param>

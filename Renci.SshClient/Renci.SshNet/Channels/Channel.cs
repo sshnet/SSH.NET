@@ -217,15 +217,7 @@ namespace Renci.SshNet.Channels
         /// </summary>
         public virtual void Close()
         {
-            //  Send message to close the channel on the server
-            if (!_closeMessageSent)
-            {
-                this.SendMessage(new ChannelCloseMessage(this.RemoteChannelNumber));
-                this._closeMessageSent = true;
-            }
-
-            //  Wait for channel to be closed
-            this._session.WaitHandle(this._channelClosedWaitHandle);
+            this.Close(true);
         }
 
         #region Channel virtual methods
@@ -322,28 +314,8 @@ namespace Renci.SshNet.Channels
         /// </summary>
         protected virtual void OnClose()
         {
-            //  No more channel messages are allowed after Close message received
-            this._session.ChannelOpenReceived -= OnChannelOpen;
-            this._session.ChannelOpenConfirmationReceived -= OnChannelOpenConfirmation;
-            this._session.ChannelOpenFailureReceived -= OnChannelOpenFailure;
-            this._session.ChannelWindowAdjustReceived -= OnChannelWindowAdjust;
-            this._session.ChannelDataReceived -= OnChannelData;
-            this._session.ChannelExtendedDataReceived -= OnChannelExtendedData;
-            this._session.ChannelEofReceived -= OnChannelEof;
-            this._session.ChannelCloseReceived -= OnChannelClose;
-            this._session.ChannelRequestReceived -= OnChannelRequest;
-            this._session.ChannelSuccessReceived -= OnChannelSuccess;
-            this._session.ChannelFailureReceived -= OnChannelFailure;
-            this._session.ErrorOccured -= Session_ErrorOccured;
-            this._session.Disconnected -= Session_Disconnected;
+            this.Close(false);
 
-            //  Send close message to channel to confirm channel closing
-            if (!_closeMessageSent)
-            {
-                this.SendMessage(new ChannelCloseMessage(this.RemoteChannelNumber));
-                this._closeMessageSent = true;
-            }
-            
             if (this.Closed != null)
             {
                 this.Closed(this, new ChannelEventArgs(this.LocalChannelNumber));
@@ -484,6 +456,40 @@ namespace Renci.SshNet.Channels
         {
             this._session.WaitHandle(waitHandle);
         }
+
+        protected virtual void Close(bool wait)
+        {
+            if (!wait)
+            {
+                this._session.ChannelOpenReceived -= OnChannelOpen;
+                this._session.ChannelOpenConfirmationReceived -= OnChannelOpenConfirmation;
+                this._session.ChannelOpenFailureReceived -= OnChannelOpenFailure;
+                this._session.ChannelWindowAdjustReceived -= OnChannelWindowAdjust;
+                this._session.ChannelDataReceived -= OnChannelData;
+                this._session.ChannelExtendedDataReceived -= OnChannelExtendedData;
+                this._session.ChannelEofReceived -= OnChannelEof;
+                this._session.ChannelCloseReceived -= OnChannelClose;
+                this._session.ChannelRequestReceived -= OnChannelRequest;
+                this._session.ChannelSuccessReceived -= OnChannelSuccess;
+                this._session.ChannelFailureReceived -= OnChannelFailure;
+                this._session.ErrorOccured -= Session_ErrorOccured;
+                this._session.Disconnected -= Session_Disconnected;
+            }
+
+            //  Send message to close the channel on the server
+            if (!_closeMessageSent)
+            {
+                this.SendMessage(new ChannelCloseMessage(this.RemoteChannelNumber));
+                this._closeMessageSent = true;
+            }
+
+            //  Wait for channel to be closed
+            if (wait)
+            {
+                this._session.WaitHandle(this._channelClosedWaitHandle);
+            }
+        }
+
 
         private void Session_Disconnected(object sender, EventArgs e)
         {
@@ -652,6 +658,8 @@ namespace Renci.SshNet.Channels
                 // and unmanaged resources.
                 if (disposing)
                 {
+                    this.Close(false);
+
                     // Dispose managed resources.
                     if (this._channelClosedWaitHandle != null)
                     {

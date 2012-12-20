@@ -19,16 +19,16 @@ namespace Renci.SshNet.NetConf
 {
     internal class NetConfSession : SubsystemSession
     {
+        private StringBuilder _data = new StringBuilder();
+
         private bool _usingFramingProtocol = false;
-        
+
         private const string _prompt = "]]>]]>";
-        
-        private List<byte> _data = new List<byte>(16 * 1024);
-        
+
         private EventWaitHandle _serverCapabilitiesConfirmed = new AutoResetEvent(false);
-        
+
         private EventWaitHandle _rpcReplyReceived = new AutoResetEvent(false);
-        
+
         private StringBuilder _rpcReply = new StringBuilder();
 
         private int _messageId = 0;
@@ -65,6 +65,8 @@ namespace Renci.SshNet.NetConf
 
         public XmlDocument SendReceiveRpc(XmlDocument rpc, bool automaticMessageIdHandling)
         {
+            this._data.Clear();
+
             XmlNamespaceManager ns = null;
             if (automaticMessageIdHandling)
             {
@@ -99,14 +101,16 @@ namespace Renci.SshNet.NetConf
                 string reply_id = rpc.SelectSingleNode("/nc:rpc/@message-id", ns).Value;
                 if (reply_id != _messageId.ToString())
                 {
-                    throw new NetConfServerException("The rpc message id does not match the rpc-reply message id."); 
+                    throw new NetConfServerException("The rpc message id does not match the rpc-reply message id.");
                 }
             }
             return reply;
         }
 
         protected override void OnChannelOpen()
-        {            
+        {
+            this._data.Clear();
+
             string message = string.Format("{0}{1}", this.ClientCapabilities.InnerXml, _prompt);
 
             this.SendData(Encoding.UTF8.GetBytes(message));
@@ -120,12 +124,17 @@ namespace Renci.SshNet.NetConf
 
             if (this.ServerCapabilities == null)   // This must be server capabilities, old protocol
             {
-                if (!chunk.EndsWith(_prompt))
+                this._data.Append(chunk);  
+
+                if (!chunk.Contains(_prompt))
                 {
-                    throw new NetConfServerException("Server capabilities is not the first message received");
+                    return;
                 }
                 try
                 {
+                    chunk = this._data.ToString(); 
+                    this._data.Clear();
+
                     this.ServerCapabilities = new XmlDocument();
                     this.ServerCapabilities.LoadXml(chunk.Replace(_prompt, ""));
                 }
@@ -135,11 +144,11 @@ namespace Renci.SshNet.NetConf
                 }
 
                 XmlNamespaceManager ns = new XmlNamespaceManager(this.ServerCapabilities.NameTable);
-                
+
                 ns.AddNamespace("nc", "urn:ietf:params:xml:ns:netconf:base:1.0");
-                
+
                 this._usingFramingProtocol = (this.ServerCapabilities.SelectSingleNode("/nc:hello/nc:capabilities/nc:capability[text()='urn:ietf:params:netconf:base:1.1']", ns) != null);
-                
+
                 this._serverCapabilitiesConfirmed.Set();
             }
             else if (this._usingFramingProtocol)
@@ -164,10 +173,17 @@ namespace Renci.SshNet.NetConf
             }
             else  // Old protocol
             {
-                if (!chunk.EndsWith(_prompt))
+                this._data.Append(chunk);
+
+                if (!chunk.Contains(_prompt))
                 {
-                    throw new NetConfServerException("Server XML message does not end with the prompt " + _prompt);
+                    return;
+                    //throw new NetConfServerException("Server XML message does not end with the prompt " + _prompt);
                 }
+                
+                chunk = this._data.ToString();
+                this._data.Clear();
+
                 this._rpcReply.Append(chunk.Replace(_prompt, ""));
                 this._rpcReplyReceived.Set();
             }

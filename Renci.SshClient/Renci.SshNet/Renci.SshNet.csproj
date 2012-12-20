@@ -357,6 +357,9 @@
     </Compile>
     <Compile Include="SftpClient.NET40.cs" />
     <Compile Include="Sftp\Flags.cs" />
+    <Compile Include="Sftp\Requests\PosixRenameRequest.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Sftp\Requests\SftpCloseRequest.cs" />
     <Compile Include="Sftp\Requests\SftpFSetStatRequest.cs" />
     <Compile Include="Sftp\Requests\SftpFStatRequest.cs" />
@@ -377,6 +380,9 @@
     <Compile Include="Sftp\Requests\SftpStatRequest.cs" />
     <Compile Include="Sftp\Requests\SftpSymLinkRequest.cs" />
     <Compile Include="Sftp\Requests\SftpWriteRequest.cs" />
+    <Compile Include="Sftp\Requests\StatVfsRequest.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Sftp\Responses\SftpAttrsResponse.cs" />
     <Compile Include="Sftp\Responses\SftpDataResponse.cs" />
     <Compile Include="Sftp\Responses\SftpExtendedReplyResponse.cs" />
@@ -385,6 +391,9 @@
     <Compile Include="Sftp\Responses\SftpResponse.cs" />
     <Compile Include="Sftp\Responses\SftpStatusResponse.cs" />
     <Compile Include="Sftp\Responses\SftpVersionResponse.cs" />
+    <Compile Include="Sftp\Responses\StatVfsResponse.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Sftp\SftpDataMessage.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -392,6 +401,9 @@
     <Compile Include="Sftp\SftpFile.cs" />
     <Compile Include="Sftp\SftpFileAttributes.cs" />
     <Compile Include="Sftp\SftpFileStream.cs" />
+    <Compile Include="Sftp\SftpFileSystemInformation.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Sftp\SftpListDirectoryAsyncResult.cs" />
     <Compile Include="Sftp\SftpMessage.cs" />
     <Compile Include="Sftp\SftpMessageTypes.cs">

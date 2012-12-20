@@ -253,23 +253,9 @@ namespace Renci.SshNet.Sftp
             }
 
             this.SendMessage(request);
-            //this.SendData(new SftpDataMessage(this.ChannelNumber, request));
-
-            //var messageData = request.GetBytes();
-
-            //var data = new byte[4 + messageData.Length];
-
-            //((uint)messageData.Length).GetBytes().CopyTo(data, 0);
-            //messageData.CopyTo(data, 4);
-
-            //this.SendData(data);
-
         }
 
         #region SFTP API functions
-
-        //#define SSH_FXP_INIT                1
-        //#define SSH_FXP_VERSION             2
 
         /// <summary>
         /// Performs SSH_FXP_OPEN request
@@ -888,6 +874,72 @@ namespace Renci.SshNet.Sftp
 
                 this.WaitHandle(wait, this._operationTimeout);
             }
+        }
+
+        /// <summary>
+        /// Performs posix-rename@openssh.com extended request.
+        /// </summary>
+        /// <param name="oldPath">The old path.</param>
+        /// <param name="newPath">The new path.</param>
+        internal void RequestPosixRename(string oldPath, string newPath)
+        {
+            using (var wait = new AutoResetEvent(false))
+            {
+                var request = new PosixRenameRequest(this.NextRequestId, oldPath, newPath,
+                    (response) =>
+                    {
+                        if (response.StatusCode == StatusCodes.Ok)
+                        {
+                            wait.Set();
+                        }
+                        else
+                        {
+                            ThrowSftpException(response);
+                        }
+                    });
+
+                this.SendRequest(request);
+
+                this.WaitHandle(wait, this._operationTimeout);
+            }
+        }
+
+        /// <summary>
+        /// Performs statvfs@openssh.com extended request.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <param name="nullOnError">if set to <c>true</c> [null on error].</param>
+        /// <returns></returns>
+        internal SftpFileSytemInformation RequestStatVfs(string path, bool nullOnError = false)
+        {
+            SftpFileSytemInformation information = null;
+            using (var wait = new AutoResetEvent(false))
+            {
+                var request = new StatVfsRequest(this.NextRequestId, path,
+                    (response) =>
+                    {
+                        information = response.OfType<StatVfsResponse>().Information;
+                        wait.Set();
+                    },
+                    (response) =>
+                    {
+                        if (nullOnError)
+                        {
+                            wait.Set();
+                        }
+                        else
+                        {
+                            ThrowSftpException(response);
+                        }
+
+                    });
+
+                this.SendRequest(request);
+
+                this.WaitHandle(wait, this._operationTimeout);
+            }
+
+            return information;
         }
 
         #endregion

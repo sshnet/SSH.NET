@@ -480,6 +480,12 @@ namespace Renci.SshNet
                 this._channel.Dispose();
                 this._channel = null;
             }
+
+            if (this._session != null)
+            {
+                this._session.Disconnected -= new EventHandler<EventArgs>(Session_Disconnected);
+                this._session.ErrorOccured -= new EventHandler<ExceptionEventArgs>(Session_ErrorOccured);
+            }
         }
 
         private void Session_ErrorOccured(object sender, ExceptionEventArgs e)

@@ -240,6 +240,22 @@ namespace Renci.SshNet
         /// <exception cref="Renci.SshNet.Common.SshException">A SSH error where <see cref="P:SshException.Message"/> is the message from the remote host.</exception>
         public void RenameFile(string oldPath, string newPath)
         {
+            this.RenameFile(oldPath, newPath, false);
+        }
+
+        /// <summary>
+        /// Renames remote file from old path to new path.
+        /// </summary>
+        /// <param name="oldPath">Path to the old file location.</param>
+        /// <param name="newPath">Path to the new file location.</param>
+        /// <param name="isPosix">if set to <c>true</c> then perform a posix rename.</param>
+        /// <exception cref="System.ArgumentNullException">oldPath</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="oldPath" /> is <b>null</b>. <para>-or-</para> or <paramref name="newPath" /> is <b>null</b>.</exception>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="Renci.SshNet.Common.SftpPermissionDeniedException">Permission to rename the file was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
+        /// <exception cref="Renci.SshNet.Common.SshException">A SSH error where <see cref="P:SshException.Message" /> is the message from the remote host.</exception>
+        public void RenameFile(string oldPath, string newPath, bool isPosix)
+        {
             if (oldPath == null)
                 throw new ArgumentNullException("oldPath");
 
@@ -253,7 +269,14 @@ namespace Renci.SshNet
 
             var newFullPath = this._sftpSession.GetCanonicalPath(newPath);
 
-            this._sftpSession.RequestRename(oldFullPath, newFullPath);
+            if (isPosix)
+            {
+                this._sftpSession.RequestPosixRename(oldFullPath, newFullPath);
+            }
+            else
+            {
+                this._sftpSession.RequestRename(oldFullPath, newFullPath);
+            }
         }
 
         /// <summary>
@@ -609,6 +632,26 @@ namespace Renci.SshNet
 
             // Wait for operation to complete, then return result or throw exception
             ar.EndInvoke();
+        }
+
+        /// <summary>
+        /// Gets status using statvfs@openssh.com request.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <returns></returns>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="path"/> is <b>null</b>.</exception>
+        public SftpFileSytemInformation GetStatus(string path)
+        {
+            if (path == null)
+                throw new ArgumentNullException("path");
+
+            //  Ensure that connection is established.
+            this.EnsureConnection();
+
+            var fullPath = this._sftpSession.GetCanonicalPath(path);
+
+            return this._sftpSession.RequestStatVfs(fullPath);
         }
 
         #region File Methods

@@ -183,7 +183,9 @@ namespace Renci.SshNet
         {
             get
             {
-                return (!this._isDisconnecting && this._socket != null && this._socket.Connected && this._isAuthenticated && this._messageListenerCompleted != null) && !(this._socket.Poll(10, SelectMode.SelectRead));
+                var isSocketConnected = false;
+                IsSocketConnected(ref isSocketConnected);
+                return isSocketConnected;
             }
         }
 
@@ -1551,6 +1553,8 @@ namespace Renci.SshNet
         #endregion
 
         partial void ExecuteThread(Action action);
+
+        partial void IsSocketConnected(ref bool isConnected);
 
         partial void SocketConnect(string host, int port);
 

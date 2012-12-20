@@ -26,6 +26,11 @@ namespace Renci.SshNet
 
         private bool _isConnected = false;
 
+        partial void IsSocketConnected(ref bool isConnected)
+        {
+            isConnected = (!this._isDisconnecting && this._socket != null && this._socket.Connected && this._isAuthenticated && this._messageListenerCompleted != null && this._isConnected);
+        }
+
         partial void SocketConnect(string host, int port)
         {
             var ep = new DnsEndPoint(host, port);
@@ -94,39 +99,39 @@ namespace Renci.SshNet
 
             do
             {
-                    SocketAsyncEventArgs args = new SocketAsyncEventArgs();
-                    args.SetBuffer(buffer, offset + receivedTotal, length - receivedTotal);
-                    args.UserToken = this._socket;
-                    args.RemoteEndPoint = this._socket.RemoteEndPoint;
-                    args.Completed += new EventHandler<SocketAsyncEventArgs>(OnReceive);
-                    this._socket.ReceiveAsync(args);
+                SocketAsyncEventArgs args = new SocketAsyncEventArgs();
+                args.SetBuffer(buffer, offset + receivedTotal, length - receivedTotal);
+                args.UserToken = this._socket;
+                args.RemoteEndPoint = this._socket.RemoteEndPoint;
+                args.Completed += new EventHandler<SocketAsyncEventArgs>(OnReceive);
+                this._socket.ReceiveAsync(args);
 
-                    this._receiveEvent.WaitOne(this.ConnectionInfo.Timeout);
+                this._receiveEvent.WaitOne(this.ConnectionInfo.Timeout);
 
-                    if (args.SocketError == SocketError.WouldBlock ||
-                        args.SocketError == SocketError.IOPending ||
-                        args.SocketError == SocketError.NoBufferSpaceAvailable)
-                    {
-                        // socket buffer is probably empty, wait and try again
-                        Thread.Sleep(30);
-                        continue;
-                    }
-                    else if (args.SocketError != SocketError.Success)
-                    {
-                        throw new SocketException((int)args.SocketError);
-                    }
+                if (args.SocketError == SocketError.WouldBlock ||
+                    args.SocketError == SocketError.IOPending ||
+                    args.SocketError == SocketError.NoBufferSpaceAvailable)
+                {
+                    // socket buffer is probably empty, wait and try again
+                    Thread.Sleep(30);
+                    continue;
+                }
+                else if (args.SocketError != SocketError.Success)
+                {
+                    throw new SocketException((int)args.SocketError);
+                }
 
-                    var receivedBytes = args.BytesTransferred;
+                var receivedBytes = args.BytesTransferred;
 
-                    if (receivedBytes > 0)
-                    {
-                        receivedTotal += receivedBytes;
-                        continue;
-                    }
-                    else
-                    {
-                        throw new SshConnectionException("An established connection was aborted by the software in your host machine.", DisconnectReason.ConnectionLost);
-                    }
+                if (receivedBytes > 0)
+                {
+                    receivedTotal += receivedBytes;
+                    continue;
+                }
+                else
+                {
+                    throw new SshConnectionException("An established connection was aborted by the software in your host machine.", DisconnectReason.ConnectionLost);
+                }
             } while (receivedTotal < length);
         }
 
@@ -174,8 +179,8 @@ namespace Renci.SshNet
             {
                 foreach (var item in from m in this._messagesMetadata where m.Name == messageName select m)
                 {
-                    item.Enabled = true; 
-                    item.Activated = true; 
+                    item.Enabled = true;
+                    item.Activated = true;
                 }
             }
         }

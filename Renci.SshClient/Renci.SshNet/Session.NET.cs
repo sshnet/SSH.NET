@@ -22,6 +22,11 @@ namespace Renci.SshNet
             new TraceSource("SshNet.Logging");
 #endif
 
+        partial void IsSocketConnected(ref bool isConnected)
+        {
+            isConnected = (!this._isDisconnecting && this._socket != null && this._socket.Connected && this._isAuthenticated && this._messageListenerCompleted != null) && !(this._socket.Poll(10, SelectMode.SelectRead));
+        }
+
         partial void SocketConnect(string host, int port)
         {
             IPAddress addr;

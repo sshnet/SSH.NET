@@ -151,7 +151,7 @@ namespace Renci.SshNet
                         cipher = new CipherInfo(192, (key, iv) => { return new AesCipher(key, new CbcCipherMode(iv), new PKCS7Padding()); });
                         break;
                     case "AES-256-CBC":
-                        cipher = new CipherInfo(256, (key, iv) => { return new AesCipher(key, new CbcCipherMode(iv), new PKCS5Padding()); });
+                        cipher = new CipherInfo(256, (key, iv) => { return new AesCipher(key, new CbcCipherMode(iv), new PKCS7Padding()); });
                         break;
                     default:
                         throw new SshException(string.Format(CultureInfo.CurrentCulture, "Private key cipher \"{0}\" is not supported.", cipherName));

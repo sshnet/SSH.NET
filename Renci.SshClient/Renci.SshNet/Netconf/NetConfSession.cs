@@ -23,7 +23,7 @@ namespace Renci.SshNet.NetConf
         
         private const string _prompt = "]]>]]>";
         
-        private List<byte> _data = new List<byte>(32 * 1024);
+        private List<byte> _data = new List<byte>(16 * 1024);
         
         private EventWaitHandle _serverCapabilitiesConfirmed = new AutoResetEvent(false);
         

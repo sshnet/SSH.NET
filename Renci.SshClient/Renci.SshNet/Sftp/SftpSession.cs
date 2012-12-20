@@ -17,7 +17,7 @@ namespace Renci.SshNet.Sftp
     {
         private Dictionary<uint, SftpRequest> _requests = new Dictionary<uint, SftpRequest>();
 
-        private List<byte> _data = new List<byte>(32 * 1024);
+        private List<byte> _data = new List<byte>(16 * 1024);
 
         private EventWaitHandle _sftpVersionConfirmed = new AutoResetEvent(false);
 
@@ -385,7 +385,7 @@ namespace Renci.SshNet.Sftp
         /// <param name="wait">The wait event handle if needed.</param>
         internal void RequestWrite(byte[] handle, UInt64 offset, byte[] data, EventWaitHandle wait)
         {
-            var maximumDataSize = 1024 * 32 - 52;
+            var maximumDataSize = 1024 * 16;
 
             if (data.Length < maximumDataSize + 1)
             {

@@ -61,7 +61,7 @@ namespace Renci.SshNet
             : base(connectionInfo)
         {
             this.OperationTimeout = new TimeSpan(0, 0, 0, 0, -1);
-            this.BufferSize = 1024 * 32 - 52;
+            this.BufferSize = 1024 * 16;
 
             if (_byteToChar == null)
             {

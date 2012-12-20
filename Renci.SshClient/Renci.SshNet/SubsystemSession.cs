@@ -40,6 +40,11 @@ namespace Renci.SshNet.Sftp
         public event EventHandler<ExceptionEventArgs> ErrorOccurred;
 
         /// <summary>
+        /// Occurs when session has been disconnected form the server.
+        /// </summary>
+        public event EventHandler<EventArgs> Disconnected;
+
+        /// <summary>
         /// Gets the channel number.
         /// </summary>
         protected uint ChannelNumber
@@ -161,6 +166,11 @@ namespace Renci.SshNet.Sftp
 
         private void Session_Disconnected(object sender, EventArgs e)
         {
+            if (this.Disconnected != null)
+            {
+                this.Disconnected(this, new EventArgs());
+            }
+
             this.RaiseError(new SshException("Connection was lost"));
         }
 

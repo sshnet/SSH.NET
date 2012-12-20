@@ -5,6 +5,7 @@ using System.Text;
 using System.IO;
 using System.Threading;
 using System.Diagnostics.CodeAnalysis;
+using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Sftp
 {
@@ -240,6 +241,7 @@ namespace Renci.SshNet.Sftp
             this._bufferOwnedByWrite = false;
             this._canSeek = true;
             this._position = 0;
+            this._session.Disconnected += Session_Disconnected;
 
             var flags = Flags.None;
 
@@ -487,9 +489,9 @@ namespace Renci.SshNet.Sftp
                         this._bufferPosn = 0;
 
                         var data = this._session.RequestRead(this._handle, (ulong)this.Position, (uint)this._bufferSize);
-                        
+
                         this._bufferLen = data.Length;
-                        
+
                         Buffer.BlockCopy(data, 0, this._buffer, 0, this._bufferLen);
 
                         if (this._bufferLen < 0)
@@ -902,20 +904,30 @@ namespace Renci.SshNet.Sftp
         {
             base.Dispose(disposing);
 
-            lock (this._lock)
+            if (this._session != null)
             {
-                if (this._handle != null)
+                lock (this._lock)
                 {
-                    if (this._bufferOwnedByWrite)
+                    if (this._session != null)
                     {
-                        this.FlushWriteBuffer();
-                    }
+                        if (this._handle != null)
+                        {
+                            if (this._bufferOwnedByWrite)
+                            {
+                                this.FlushWriteBuffer();
+                            }
 
-                    if (this._ownsHandle)
-                    {
-                        this._session.RequestClose(this._handle);
+                            if (this._ownsHandle)
+                            {
+                                this._session.RequestClose(this._handle);
+                            }
+
+                            this._handle = null;
+                        }
+
+                        this._session.Disconnected -= Session_Disconnected;
+                        this._session = null;
                     }
-                    this._handle = null;
                 }
             }
         }
@@ -993,6 +1005,15 @@ namespace Renci.SshNet.Sftp
             {
                 this.FlushReadBuffer();
                 this._bufferOwnedByWrite = true;
+            }
+        }
+
+        private void Session_Disconnected(object sender, EventArgs e)
+        {
+            lock (this._lock)
+            {
+                this._session.Disconnected -= Session_Disconnected;
+                this._session = null;
             }
         }
     }

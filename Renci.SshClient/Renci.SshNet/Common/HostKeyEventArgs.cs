@@ -26,6 +26,11 @@ namespace Renci.SshNet.Common
         public byte[] HostKey { get; private set; }
 
         /// <summary>
+        /// Gets the host key name.
+        /// </summary>
+        public string HostKeyName{ get; private set; }
+
+        /// <summary>
         /// Gets the finger print.
         /// </summary>
         public byte[] FingerPrint { get; private set; }
@@ -47,6 +52,8 @@ namespace Renci.SshNet.Common
             this.CanTrust = true;   //  Set default value
 
             this.HostKey = host.Data;
+
+            this.HostKeyName = host.Name;
 
             this.KeyLength = host.Key.KeyLength;
 

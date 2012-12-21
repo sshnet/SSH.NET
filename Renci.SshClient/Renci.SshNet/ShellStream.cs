@@ -163,9 +163,12 @@ namespace Renci.SshNet
         {
             var i = 0;
 
-            for (; i < count && this._incoming.Count > 0; i++)
+            lock (this._incoming)
             {
-                buffer[offset + i] = this._incoming.Dequeue();
+                for (; i < count && this._incoming.Count > 0; i++)
+                {
+                    buffer[offset + i] = this._incoming.Dequeue();
+                }
             }
 
             return i;

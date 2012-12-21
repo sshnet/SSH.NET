@@ -743,7 +743,7 @@ namespace Renci.SshNet
 
                 this._outboundPacketSequence++;
 
-                Monitor.Pulse(this._socket);
+                Monitor.Pulse(this._socketLock);
             }
         }
 

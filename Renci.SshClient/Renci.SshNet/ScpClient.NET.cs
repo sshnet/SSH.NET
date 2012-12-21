@@ -45,7 +45,7 @@ namespace Renci.SshNet
                 channel.Open();
 
                 //  Send channel command request
-                channel.SendExecRequest(string.Format("scp -qt \"{0}\"", filename));
+                channel.SendExecRequest(string.Format("scp -t \"{0}\"", filename));
 
                 this.CheckReturnCode(input);
 
@@ -83,7 +83,7 @@ namespace Renci.SshNet
                 channel.Open();
 
                 //  Send channel command request
-                channel.SendExecRequest(string.Format("scp -qrt \"{0}\"", filename));
+                channel.SendExecRequest(string.Format("scp -rt \"{0}\"", filename));
                 this.CheckReturnCode(input);
 
                 this.InternalUpload(channel, input, directoryInfo, filename);
@@ -120,7 +120,7 @@ namespace Renci.SshNet
                 channel.Open();
 
                 //  Send channel command request
-                channel.SendExecRequest(string.Format("scp -qpf \"{0}\"", filename));
+                channel.SendExecRequest(string.Format("scp -pf \"{0}\"", filename));
                 this.SendConfirmation(channel); //  Send reply
 
                 this.InternalDownload(channel, input, fileInfo);
@@ -157,7 +157,7 @@ namespace Renci.SshNet
                 channel.Open();
 
                 //  Send channel command request
-                channel.SendExecRequest(string.Format("scp -qprf \"{0}\"", directoryName));
+                channel.SendExecRequest(string.Format("scp -prf \"{0}\"", directoryName));
                 this.SendConfirmation(channel); //  Send reply
 
                 this.InternalDownload(channel, input, directoryInfo);

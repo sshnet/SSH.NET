@@ -156,7 +156,7 @@ namespace Renci.SshNet
                 channel.Open();
 
                 //  Send channel command request
-                channel.SendExecRequest(string.Format("scp -qt \"{0}\"", filename));
+                channel.SendExecRequest(string.Format("scp -t \"{0}\"", filename));
                 this.CheckReturnCode(input);
 
                 this.InternalFileUpload(channel, input, source, filename);
@@ -195,7 +195,7 @@ namespace Renci.SshNet
                 channel.Open();
 
                 //  Send channel command request
-                channel.SendExecRequest(string.Format("scp -qf \"{0}\"", filename));
+                channel.SendExecRequest(string.Format("scp -f \"{0}\"", filename));
                 this.SendConfirmation(channel); //  Send reply
 
                 var message = ReadString(input);

@@ -1316,6 +1316,9 @@ namespace Renci.SshNet
 
             var uploadCompleted = false;
 
+            var expectedResponses = 0;
+            var expectedResponsesLock = new object();
+
             do
             {
                 var bytesRead = input.Read(buffer, 0, buffer.Length);
@@ -1326,13 +1329,45 @@ namespace Renci.SshNet
                     Buffer.BlockCopy(buffer, 0, data, 0, bytesRead);
                     using (var wait = new AutoResetEvent(false))
                     {
-                        this._sftpSession.RequestWrite(handle, offset, data, wait);
+                        this._sftpSession.RequestWrite(handle, offset, data, wait, (s) =>
+                        {
+                            if (s.StatusCode == StatusCodes.Ok)
+                            {
+                                lock (expectedResponsesLock)
+                                {
+                                    expectedResponses--;
+                                    System.Diagnostics.Debug.WriteLine(expectedResponses);
+                                    Monitor.Pulse(expectedResponsesLock);
+                                }
+                            }
+                        });
+                        lock (expectedResponsesLock)
+                        {
+                            expectedResponses++;
+                            System.Diagnostics.Debug.WriteLine(expectedResponses);
+                        }
                     }
                     uploadCompleted = true;
                 }
                 else
                 {
-                    this._sftpSession.RequestWrite(handle, offset, buffer, null);
+                    this._sftpSession.RequestWrite(handle, offset, buffer, null, (s) =>
+                    {
+                        if (s.StatusCode == StatusCodes.Ok)
+                        {
+                            lock (expectedResponsesLock)
+                            {
+                                expectedResponses--;
+                                System.Diagnostics.Debug.WriteLine(expectedResponses);
+                                Monitor.Pulse(expectedResponsesLock);
+                            }
+                        }
+                    });
+                    lock (expectedResponsesLock)
+                    {
+                        expectedResponses++;
+                        System.Diagnostics.Debug.WriteLine(expectedResponses);
+                    }
                 }
 
                 offset += (uint)bytesRead;
@@ -1344,6 +1379,14 @@ namespace Renci.SshNet
                 }
 
             } while (!uploadCompleted);
+
+            while (expectedResponses > 0)
+            {
+                lock (expectedResponsesLock)
+                {
+                    Monitor.Wait(expectedResponsesLock);
+                }
+            }
 
             this._sftpSession.RequestClose(handle);
         }

@@ -212,7 +212,7 @@ namespace Renci.SshNet.Sftp
             {
                 throw new ArgumentNullException("path");
             }
-            if (bufferSize <= 0)
+            if (bufferSize <= 0 || bufferSize > 16 * 1024)
             {
                 throw new ArgumentOutOfRangeException("bufferSize");
             }

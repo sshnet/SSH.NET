@@ -107,7 +107,7 @@ namespace Renci.SshNet.Sftp
 
             if (realPathFiles != null)
             {
-                canonizedPath = realPathFiles.First().Key;                
+                canonizedPath = realPathFiles.First().Key;
             }
 
             if (!string.IsNullOrEmpty(canonizedPath))
@@ -369,62 +369,31 @@ namespace Renci.SshNet.Sftp
         /// <param name="offset">The offset.</param>
         /// <param name="data">The data to send.</param>
         /// <param name="wait">The wait event handle if needed.</param>
-        internal void RequestWrite(byte[] handle, UInt64 offset, byte[] data, EventWaitHandle wait)
+        internal void RequestWrite(byte[] handle, UInt64 offset, byte[] data, EventWaitHandle wait, Action<SftpStatusResponse> writeCompleted = null)
         {
-            var maximumDataSize = 1024 * 16;
-
-            if (data.Length < maximumDataSize + 1)
-            {
-                var request = new SftpWriteRequest(this.NextRequestId, handle, offset, data,
-                    (response) =>
-                    {
-                        if (response.StatusCode == StatusCodes.Ok)
-                        {
-                            if (wait != null)
-                                wait.Set();
-                        }
-                        else
-                        {
-                            this.ThrowSftpException(response);
-                        }
-                    });
-
-                this.SendRequest(request);
-
-                if (wait != null)
-                    this.WaitHandle(wait, this._operationTimeout);
-            }
-            else
-            {
-                var block = data.Length / maximumDataSize + 1;
-
-                for (int i = 0; i < block; i++)
+            var request = new SftpWriteRequest(this.NextRequestId, handle, offset, data,
+                (response) =>
                 {
-                    var blockBufferSize = Math.Min(data.Length - maximumDataSize * i, maximumDataSize);
-                    var blockBuffer = new byte[blockBufferSize];
+                    if (writeCompleted != null)
+                    {
+                        writeCompleted(response);
+                    }
 
-                    Buffer.BlockCopy(data, i * maximumDataSize, blockBuffer, 0, blockBufferSize);
+                    if (response.StatusCode == StatusCodes.Ok)
+                    {
+                        if (wait != null)
+                            wait.Set();
+                    }
+                    else
+                    {
+                        this.ThrowSftpException(response);
+                    }
+                });
 
-                    var request = new SftpWriteRequest(this.NextRequestId, handle, offset + (ulong)(i * maximumDataSize), blockBuffer,
-                        (response) =>
-                        {
-                            if (response.StatusCode == StatusCodes.Ok)
-                            {
-                                if (wait != null)
-                                    wait.Set();
-                            }
-                            else
-                            {
-                                this.ThrowSftpException(response);
-                            }
-                        });
+            this.SendRequest(request);
 
-                    this.SendRequest(request);
-
-                    if (wait != null)
-                        this.WaitHandle(wait, this._operationTimeout);
-                }
-            }
+            if (wait != null)
+                this.WaitHandle(wait, this._operationTimeout);
         }
 
         /// <summary>

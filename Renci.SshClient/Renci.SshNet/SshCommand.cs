@@ -417,7 +417,7 @@ namespace Renci.SshNet
             {
                 throw this._exception;
             }
-            else if (index > 1)
+            else if (index == System.Threading.WaitHandle.WaitTimeout)
             {
                 //  throw time out error
                 throw new SshOperationTimeoutException(string.Format(CultureInfo.CurrentCulture, "Command '{0}' has timed out.", this.CommandText));

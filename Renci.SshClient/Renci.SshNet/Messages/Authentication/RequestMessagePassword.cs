@@ -24,12 +24,12 @@ namespace Renci.SshNet.Messages.Authentication
         /// <summary>
         /// Gets authentication password.
         /// </summary>
-        public string Password { get; private set; }
+        public byte[] Password { get; private set; }
 
         /// <summary>
         /// Gets new authentication password.
         /// </summary>
-        public string NewPassword { get; private set; }
+        public byte[] NewPassword { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RequestMessagePassword"/> class.
@@ -37,10 +37,10 @@ namespace Renci.SshNet.Messages.Authentication
         /// <param name="serviceName">Name of the service.</param>
         /// <param name="username">Authentication username.</param>
         /// <param name="password">Authentication password.</param>
-        public RequestMessagePassword(ServiceName serviceName, string username, string password)
+        public RequestMessagePassword(ServiceName serviceName, string username, byte[] password)
             : base(serviceName, username)
         {
-            this.Password = password ?? string.Empty;
+            this.Password = password;
         }
 
         /// <summary>
@@ -50,10 +50,10 @@ namespace Renci.SshNet.Messages.Authentication
         /// <param name="username">Authentication username.</param>
         /// <param name="password">Authentication password.</param>
         /// <param name="newPassword">New authentication password.</param>
-        public RequestMessagePassword(ServiceName serviceName, string username, string password, string newPassword)
+        public RequestMessagePassword(ServiceName serviceName, string username, byte[] password, byte[] newPassword)
             : this(serviceName, username, password)
         {
-            this.NewPassword = newPassword ?? string.Empty;
+            this.NewPassword = newPassword;
         }
 
         /// <summary>
@@ -63,12 +63,14 @@ namespace Renci.SshNet.Messages.Authentication
         {
             base.SaveData();
 
-            this.Write(!string.IsNullOrEmpty(this.NewPassword));
+            this.Write(this.NewPassword != null);
 
+            this.Write((uint)this.Password.Length);
             this.Write(this.Password);
 
-            if (!string.IsNullOrEmpty(this.NewPassword))
+            if (this.NewPassword != null)
             {
+                this.Write((uint)this.NewPassword.Length);
                 this.Write(this.NewPassword);
             }
         }

@@ -163,7 +163,7 @@ namespace Renci.SshNet.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void Test_ConnectionInfo_Password_Is_Null()
         {
-            var connectionInfo = new PasswordConnectionInfo(Resources.HOST, Resources.USERNAME, null);
+            var connectionInfo = new PasswordConnectionInfo(Resources.HOST, Resources.USERNAME, (string)null);
         }
 
         [TestMethod]

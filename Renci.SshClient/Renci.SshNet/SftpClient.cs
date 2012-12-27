@@ -1314,43 +1314,23 @@ namespace Renci.SshNet
 
             var buffer = new byte[this.BufferSize];
 
-            var uploadCompleted = false;
-
+            var bytesRead = input.Read(buffer, 0, buffer.Length);
             var expectedResponses = 0;
             var expectedResponsesLock = new object();
 
             do
             {
-                var bytesRead = input.Read(buffer, 0, buffer.Length);
-
-                if (bytesRead < this.BufferSize)
+                if (bytesRead > 0)
                 {
-                    var data = new byte[bytesRead];
-                    Buffer.BlockCopy(buffer, 0, data, 0, bytesRead);
-                    using (var wait = new AutoResetEvent(false))
+                    if (bytesRead < this.BufferSize)
                     {
-                        this._sftpSession.RequestWrite(handle, offset, data, wait, (s) =>
-                        {
-                            if (s.StatusCode == StatusCodes.Ok)
-                            {
-                                lock (expectedResponsesLock)
-                                {
-                                    expectedResponses--;
-                                    System.Diagnostics.Debug.WriteLine(expectedResponses);
-                                    Monitor.Pulse(expectedResponsesLock);
-                                }
-                            }
-                        });
-                        lock (expectedResponsesLock)
-                        {
-                            expectedResponses++;
-                            System.Diagnostics.Debug.WriteLine(expectedResponses);
-                        }
+                        //  Replace buffer for last chunk of data
+                        var data = new byte[bytesRead];
+                        Buffer.BlockCopy(buffer, 0, data, 0, bytesRead);
+                        buffer = data;
                     }
-                    uploadCompleted = true;
-                }
-                else
-                {
+
+                    var writtenBytes = offset + (ulong)buffer.Length;
                     this._sftpSession.RequestWrite(handle, offset, buffer, null, (s) =>
                     {
                         if (s.StatusCode == StatusCodes.Ok)
@@ -1358,7 +1338,13 @@ namespace Renci.SshNet
                             lock (expectedResponsesLock)
                             {
                                 expectedResponses--;
-                                System.Diagnostics.Debug.WriteLine(expectedResponses);
+
+                                //  Call callback to report number of bytes written
+                                if (asynchResult != null)
+                                {
+                                    asynchResult.Update(offset);
+                                }
+
                                 Monitor.Pulse(expectedResponsesLock);
                             }
                         }
@@ -1366,27 +1352,22 @@ namespace Renci.SshNet
                     lock (expectedResponsesLock)
                     {
                         expectedResponses++;
-                        System.Diagnostics.Debug.WriteLine(expectedResponses);
+                    }
+
+
+                    offset += (uint)bytesRead;
+
+                    bytesRead = input.Read(buffer, 0, buffer.Length);
+                }
+                else if (expectedResponses > 0)
+                {
+                    //  Wait for expectedResponses to change
+                    lock (expectedResponsesLock)
+                    {
+                        Monitor.Wait(expectedResponsesLock);
                     }
                 }
-
-                offset += (uint)bytesRead;
-
-                //  Call callback to report number of bytes read
-                if (asynchResult != null)
-                {
-                    asynchResult.Update(offset);
-                }
-
-            } while (!uploadCompleted);
-
-            while (expectedResponses > 0)
-            {
-                lock (expectedResponsesLock)
-                {
-                    Monitor.Wait(expectedResponsesLock);
-                }
-            }
+            } while (expectedResponses > 0);
 
             this._sftpSession.RequestClose(handle);
         }

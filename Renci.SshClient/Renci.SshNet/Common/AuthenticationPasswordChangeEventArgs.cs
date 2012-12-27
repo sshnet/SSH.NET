@@ -16,7 +16,7 @@ namespace Renci.SshNet.Common
         /// <value>
         /// The new password.
         /// </value>
-        public string NewPassword { get; set; }
+        public byte[] NewPassword { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AuthenticationPasswordChangeEventArgs"/> class.

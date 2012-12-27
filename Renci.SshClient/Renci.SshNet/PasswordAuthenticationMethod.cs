@@ -24,7 +24,7 @@ namespace Renci.SshNet
 
         private RequestMessage _requestMessage;
 
-        private string _password;
+        private byte[] _password;
 
         /// <summary>
         /// Gets authentication method name
@@ -47,6 +47,18 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentException"><paramref name="username"/> is whitespace or null.</exception>
         /// <exception cref="ArgumentException"><paramref name="password"/> is null.</exception>
         public PasswordAuthenticationMethod(string username, string password)
+            : this(username, Encoding.UTF8.GetBytes(password))
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PasswordAuthenticationMethod"/> class.
+        /// </summary>
+        /// <param name="username">The username.</param>
+        /// <param name="password">The password.</param>
+        /// <exception cref="ArgumentException"><paramref name="username"/> is whitespace or null.</exception>
+        /// <exception cref="ArgumentException"><paramref name="password"/> is null.</exception>
+        public PasswordAuthenticationMethod(string username, byte[] password)
             : base(username)
         {
             if (password == null)
@@ -54,7 +66,7 @@ namespace Renci.SshNet
 
             this._password = password;
 
-            this._requestMessage = new RequestMessagePassword(ServiceName.Connection, this.Username, password);
+            this._requestMessage = new RequestMessagePassword(ServiceName.Connection, this.Username, this._password);
         }
 
         /// <summary>
@@ -75,7 +87,7 @@ namespace Renci.SshNet
             session.SendMessage(this._requestMessage);
 
             session.WaitHandle(this._authenticationCompleted);
-
+            
             session.UserAuthenticationSuccessReceived -= Session_UserAuthenticationSuccessReceived;
             session.UserAuthenticationFailureReceived -= Session_UserAuthenticationFailureReceived;
             session.MessageReceived -= Session_MessageReceived;

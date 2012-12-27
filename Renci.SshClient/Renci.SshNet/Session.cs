@@ -640,7 +640,7 @@ namespace Renci.SshNet
             {
                 throw this._exception;
             }
-            else if (index > 1)
+            else if (index == System.Threading.WaitHandle.WaitTimeout)
             {
                 this.SendDisconnect(DisconnectReason.ByApplication, "Operation timeout");
 

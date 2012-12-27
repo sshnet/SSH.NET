@@ -67,7 +67,7 @@ namespace Renci.SshNet.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void Password_Test_Pass_Null_Password()
         {
-            new PasswordAuthenticationMethod("valid", null);
+            new PasswordAuthenticationMethod("valid", (string)null);
         }
 
         [TestMethod]

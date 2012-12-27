@@ -122,7 +122,7 @@ namespace Renci.SshNet
                         {
                             using (var file = File.OpenRead(localFile.FullName))
                             {
-                                this.InternalUploadFile(file, remoteFileName, null, uploadFlag);
+                                this.InternalUploadFile(file, remoteFileName, uploadFlag, null);
                             }
 
                             uploadedFiles.Add(localFile);

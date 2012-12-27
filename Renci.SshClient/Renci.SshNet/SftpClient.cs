@@ -310,14 +310,17 @@ namespace Renci.SshNet
         /// Retrieves list of files in remote directory.
         /// </summary>
         /// <param name="path">The path.</param>
-        /// <returns>List of directory entries</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="path"/> is <b>null</b>.</exception>
+        /// <param name="listCallback">The list callback.</param>
+        /// <returns>
+        /// List of directory entries
+        /// </returns>
+        /// <exception cref="ArgumentNullException"><paramref name="path" /> is <b>null</b>.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="Renci.SshNet.Common.SftpPermissionDeniedException">Permission to list the contents of the directory was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
-        /// <exception cref="Renci.SshNet.Common.SshException">A SSH error where <see cref="P:SshException.Message"/> is the message from the remote host.</exception>
-        public IEnumerable<SftpFile> ListDirectory(string path)
+        /// <exception cref="Renci.SshNet.Common.SshException">A SSH error where <see cref="P:SshException.Message" /> is the message from the remote host.</exception>
+        public IEnumerable<SftpFile> ListDirectory(string path, Action<int> listCallback = null)
         {
-            return InternalListDirectory(path, null);
+            return InternalListDirectory(path, listCallback);
         }
 
         /// <summary>
@@ -329,7 +332,7 @@ namespace Renci.SshNet
         /// <returns>
         /// An <see cref="IAsyncResult"/> that references the asynchronous operation.
         /// </returns>
-        public IAsyncResult BeginListDirectory(string path, AsyncCallback asyncCallback, object state)
+        public IAsyncResult BeginListDirectory(string path, AsyncCallback asyncCallback, object state, Action<int> listCallback = null)
         {
             var asyncResult = new SftpListDirectoryAsyncResult(asyncCallback, state);
 
@@ -337,7 +340,15 @@ namespace Renci.SshNet
             {
                 try
                 {
-                    var result = this.InternalListDirectory(path, asyncResult);
+                    var result = this.InternalListDirectory(path, (count) =>
+                    {
+                        asyncResult.Update(count);
+
+                        if (listCallback != null)
+                        {
+                            listCallback(count);
+                        }
+                    });
 
                     asyncResult.SetAsCompleted(result, false);
                 }
@@ -434,15 +445,18 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="path">File to download.</param>
         /// <param name="output">Stream to write the file into.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="output"/> is <b>null</b>.</exception>
-        /// <exception cref="ArgumentException"><paramref name="path"/> is <b>null</b> or contains whitespace characters.</exception>
+        /// <param name="downloadCallback">The download callback.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="output" /> is <b>null</b>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="path" /> is <b>null</b> or contains whitespace characters.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="Renci.SshNet.Common.SftpPermissionDeniedException">Permission to perform the operation was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
-        /// <exception cref="Renci.SshNet.Common.SshException">A SSH error where <see cref="P:SshException.Message"/> is the message from the remote host.</exception>
-        /// <remarks>Method calls made by this method to <paramref name="output"/>, may under certain conditions result in exceptions thrown by the stream.</remarks>
-        public void DownloadFile(string path, Stream output)
+        /// <exception cref="Renci.SshNet.Common.SshException">A SSH error where <see cref="P:SshException.Message" /> is the message from the remote host.</exception>
+        /// <remarks>
+        /// Method calls made by this method to <paramref name="output" />, may under certain conditions result in exceptions thrown by the stream.
+        /// </remarks>
+        public void DownloadFile(string path, Stream output, Action<ulong> downloadCallback = null)
         {
-            this.InternalDownloadFile(path, output, null);
+            this.InternalDownloadFile(path, output, downloadCallback);
         }
 
         /// <summary>
@@ -459,7 +473,7 @@ namespace Renci.SshNet
         /// <exception cref="Renci.SshNet.Common.SftpPermissionDeniedException">Permission to perform the operation was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
         /// <exception cref="Renci.SshNet.Common.SshException">A SSH error where <see cref="P:SshException.Message"/> is the message from the remote host.</exception>
         /// <remarks>Method calls made by this method to <paramref name="output"/>, may under certain conditions result in exceptions thrown by the stream.</remarks>
-        public IAsyncResult BeginDownloadFile(string path, Stream output, AsyncCallback asyncCallback, object state)
+        public IAsyncResult BeginDownloadFile(string path, Stream output, AsyncCallback asyncCallback, object state, Action<ulong> downloadCallback = null)
         {
             if (path.IsNullOrWhiteSpace())
                 throw new ArgumentException("path");
@@ -476,7 +490,15 @@ namespace Renci.SshNet
             {
                 try
                 {
-                    this.InternalDownloadFile(path, output, asyncResult);
+                    this.InternalDownloadFile(path, output, (offset) =>
+                    {
+                        asyncResult.Update(offset);
+
+                        if (downloadCallback != null)
+                        {
+                            downloadCallback(offset);
+                        }
+                    });
 
                     asyncResult.SetAsCompleted(null, false);
                 }
@@ -510,15 +532,18 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="input">Data input stream.</param>
         /// <param name="path">Remote file path.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="input"/> is <b>null</b>.</exception>
-        /// <exception cref="ArgumentException"><paramref name="path"/> is <b>null</b> or contains whitespace characters.</exception>
+        /// <param name="uploadCallback">The upload callback.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="input" /> is <b>null</b>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="path" /> is <b>null</b> or contains whitespace characters.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="Renci.SshNet.Common.SftpPermissionDeniedException">Permission to upload the file was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
-        /// <exception cref="Renci.SshNet.Common.SshException">A SSH error where <see cref="P:SshException.Message"/> is the message from the remote host.</exception>
-        /// <remarks>Method calls made by this method to <paramref name="input"/>, may under certain conditions result in exceptions thrown by the stream.</remarks>
-        public void UploadFile(Stream input, string path)
+        /// <exception cref="Renci.SshNet.Common.SshException">A SSH error where <see cref="P:SshException.Message" /> is the message from the remote host.</exception>
+        /// <remarks>
+        /// Method calls made by this method to <paramref name="input" />, may under certain conditions result in exceptions thrown by the stream.
+        /// </remarks>
+        public void UploadFile(Stream input, string path, Action<ulong> uploadCallback = null)
         {
-            this.UploadFile(input, path, true);
+            this.UploadFile(input, path, true, uploadCallback);
         }
 
         /// <summary>
@@ -527,15 +552,16 @@ namespace Renci.SshNet
         /// <param name="input">Data input stream.</param>
         /// <param name="path">Remote file path.</param>
         /// <param name="canOverride">if set to <c>true</c> then existing file will be overwritten.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="input"/> is <b>null</b>.</exception>
-        /// <exception cref="ArgumentException"><paramref name="path"/> is <b>null</b> or contains whitespace characters.</exception>
+        /// <param name="uploadCallback">The upload callback.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="input" /> is <b>null</b>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="path" /> is <b>null</b> or contains whitespace characters.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="Renci.SshNet.Common.SftpPermissionDeniedException">Permission to upload the file was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
-        /// <exception cref="Renci.SshNet.Common.SshException">A SSH error where <see cref="P:SshException.Message"/> is the message from the remote host.</exception>
+        /// <exception cref="Renci.SshNet.Common.SshException">A SSH error where <see cref="P:SshException.Message" /> is the message from the remote host.</exception>
         /// <remarks>
-        /// Method calls made by this method to <paramref name="input"/>, may under certain conditions result in exceptions thrown by the stream.
+        /// Method calls made by this method to <paramref name="input" />, may under certain conditions result in exceptions thrown by the stream.
         /// </remarks>
-        public void UploadFile(Stream input, string path, bool canOverride)
+        public void UploadFile(Stream input, string path, bool canOverride, Action<ulong> uploadCallback = null)
         {
             var flags = Flags.Write | Flags.Truncate;
 
@@ -544,7 +570,7 @@ namespace Renci.SshNet
             else
                 flags |= Flags.CreateNew;
 
-            this.InternalUploadFile(input, path, null, flags);
+            this.InternalUploadFile(input, path, flags, uploadCallback);
         }
 
         /// <summary>
@@ -561,9 +587,9 @@ namespace Renci.SshNet
         /// <exception cref="Renci.SshNet.Common.SftpPermissionDeniedException">Permission to list the contents of the directory was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
         /// <exception cref="Renci.SshNet.Common.SshException">A SSH error where <see cref="P:SshException.Message"/> is the message from the remote host.</exception>
         /// <remarks>Method calls made by this method to <paramref name="input"/>, may under certain conditions result in exceptions thrown by the stream.</remarks>
-        public IAsyncResult BeginUploadFile(Stream input, string path, AsyncCallback asyncCallback, object state)
+        public IAsyncResult BeginUploadFile(Stream input, string path, AsyncCallback asyncCallback, object state, Action<ulong> uploadCallback = null)
         {
-            return this.BeginUploadFile(input, path, true, asyncCallback, state);
+            return this.BeginUploadFile(input, path, true, asyncCallback, state, uploadCallback);
         }
 
         /// <summary>
@@ -581,7 +607,7 @@ namespace Renci.SshNet
         /// <exception cref="Renci.SshNet.Common.SftpPermissionDeniedException">Permission to list the contents of the directory was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
         /// <exception cref="Renci.SshNet.Common.SshException">A SSH error where <see cref="P:SshException.Message"/> is the message from the remote host.</exception>
         /// <remarks>Method calls made by this method to <paramref name="input"/>, may under certain conditions result in exceptions thrown by the stream.</remarks>
-        public IAsyncResult BeginUploadFile(Stream input, string path, bool canOverride, AsyncCallback asyncCallback, object state)
+        public IAsyncResult BeginUploadFile(Stream input, string path, bool canOverride, AsyncCallback asyncCallback, object state, Action<ulong> uploadCallback = null)
         {
             if (input == null)
                 throw new ArgumentNullException("input");
@@ -605,7 +631,16 @@ namespace Renci.SshNet
             {
                 try
                 {
-                    this.InternalUploadFile(input, path, asyncResult, flags);
+                    this.InternalUploadFile(input, path, flags, (offset) =>
+                    {
+                        asyncResult.Update(offset);
+
+                        if (uploadCallback != null)
+                        {
+                            uploadCallback(offset);
+                        }
+
+                    });
 
                     asyncResult.SetAsCompleted(null, false);
                 }
@@ -1208,9 +1243,16 @@ namespace Renci.SshNet
 
         #endregion
 
-        /// <exception cref="ArgumentNullException"><paramref name="path"/> is <b>null</b>.</exception>
+        /// <summary>
+        /// Internals the list directory.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <param name="asynchResult">The asynch result.</param>
+        /// <returns></returns>
+        /// <exception cref="System.ArgumentNullException">path</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="path" /> is <b>null</b>.</exception>
         /// <exception cref="SshConnectionException">Client not connected.</exception>
-        private IEnumerable<SftpFile> InternalListDirectory(string path, SftpListDirectoryAsyncResult asynchResult)
+        private IEnumerable<SftpFile> InternalListDirectory(string path, Action<int> listCallback)
         {
             if (path == null)
                 throw new ArgumentNullException("path");
@@ -1236,9 +1278,11 @@ namespace Renci.SshNet
                 result.AddRange(from f in files
                                 select new SftpFile(this._sftpSession, string.Format(CultureInfo.InvariantCulture, "{0}{1}", basePath, f.Key), f.Value));
 
-                if (asynchResult != null)
+                //  Call callback to report number of files read
+                if (listCallback != null)
                 {
-                    asynchResult.Update(result.Count);
+                    //  Execute callback on different thread                
+                    this.ExecuteThread(() => { listCallback(result.Count); });
                 }
 
                 files = this._sftpSession.RequestReadDir(handle);
@@ -1249,10 +1293,18 @@ namespace Renci.SshNet
             return result;
         }
 
-        /// <exception cref="ArgumentNullException"><paramref name="path"/> is <b>null</b> or contains whitespace.</exception>
-        /// <exception cref="ArgumentException"><paramref name="output"/> is <b>null</b>.</exception>
+        /// <summary>
+        /// Internals the download file.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <param name="output">The output.</param>
+        /// <param name="downloadCallback">The download callback.</param>
+        /// <exception cref="System.ArgumentNullException">output</exception>
+        /// <exception cref="System.ArgumentException">path</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="path" /> is <b>null</b> or contains whitespace.</exception>
+        /// <exception cref="ArgumentException"><paramref name="output" /> is <b>null</b>.</exception>
         /// <exception cref="SshConnectionException">Client not connected.</exception>
-        private void InternalDownloadFile(string path, Stream output, SftpDownloadAsyncResult asynchResult)
+        private void InternalDownloadFile(string path, Stream output, Action<ulong> downloadCallback)
         {
             if (output == null)
                 throw new ArgumentNullException("output");
@@ -1281,9 +1333,10 @@ namespace Renci.SshNet
                 offset += (ulong)data.Length;
 
                 //  Call callback to report number of bytes read
-                if (asynchResult != null)
+                if (downloadCallback != null)
                 {
-                    asynchResult.Update(offset);
+                    //  Execute callback on different thread                
+                    this.ExecuteThread(() => { downloadCallback(offset); });
                 }
 
                 data = this._sftpSession.RequestRead(handle, offset, this.BufferSize);
@@ -1292,10 +1345,19 @@ namespace Renci.SshNet
             this._sftpSession.RequestClose(handle);
         }
 
-        /// <exception cref="ArgumentNullException"><paramref name="input"/> is <b>null</b>.</exception>
-        /// <exception cref="ArgumentException"><paramref name="path"/> is <b>null</b> or contains whitespace.</exception>
+        /// <summary>
+        /// Internals the upload file.
+        /// </summary>
+        /// <param name="input">The input.</param>
+        /// <param name="path">The path.</param>
+        /// <param name="flags">The flags.</param>
+        /// <param name="uploadCallback">The upload callback.</param>
+        /// <exception cref="System.ArgumentNullException">input</exception>
+        /// <exception cref="System.ArgumentException">path</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="input" /> is <b>null</b>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="path" /> is <b>null</b> or contains whitespace.</exception>
         /// <exception cref="SshConnectionException">Client not connected.</exception>
-        private void InternalUploadFile(Stream input, string path, SftpUploadAsyncResult asynchResult, Flags flags)
+        private void InternalUploadFile(Stream input, string path, Flags flags, Action<ulong> uploadCallback)
         {
             if (input == null)
                 throw new ArgumentNullException("input");
@@ -1340,9 +1402,10 @@ namespace Renci.SshNet
                                 expectedResponses--;
 
                                 //  Call callback to report number of bytes written
-                                if (asynchResult != null)
+                                if (uploadCallback != null)
                                 {
-                                    asynchResult.Update(offset);
+                                    //  Execute callback on different thread                
+                                    this.ExecuteThread(() => { uploadCallback(writtenBytes); });
                                 }
 
                                 Monitor.Pulse(expectedResponsesLock);
@@ -1353,7 +1416,6 @@ namespace Renci.SshNet
                     {
                         expectedResponses++;
                     }
-
 
                     offset += (uint)bytesRead;
 

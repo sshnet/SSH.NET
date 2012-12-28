@@ -60,6 +60,49 @@ namespace Renci.SshNet.Sftp
         private bool _isGroupIDBitSet;
         private bool _isStickyBitSet;
 
+        private DateTime _originalLastAccessTime;
+        private DateTime _originalLastWriteTime;
+        private long _originalSize;
+        private int _originalUserId;
+        private int _originalGroupId;
+        private uint _originalPermissions;
+        private IDictionary<string, string> _originalExtensions;
+
+        internal bool IsLastAccessTimeChanged
+        {
+            get { return this._originalLastAccessTime != this.LastAccessTime; }
+        }
+
+        internal bool IsLastWriteTimeChanged
+        {
+            get { return this._originalLastWriteTime != this.LastWriteTime; }
+        }
+
+        internal bool IsSizeChanged
+        {
+            get { return this._originalSize != this.Size; }
+        }
+
+        internal bool IsUserIdChanged
+        {
+            get { return this._originalUserId != this.UserId; }
+        }
+
+        internal bool IsGroupIdChanged
+        {
+            get { return this._originalGroupId != this.GroupId; }
+        }
+
+        internal bool IsPermissionsChanged
+        {
+            get { return this._originalPermissions != this.Permissions; }
+        }
+
+        internal bool IsExtensionsChanged
+        {
+            get { return this._originalExtensions != null && this.Extensions != null && !this._originalExtensions.SequenceEqual(this.Extensions); }
+        }
+
         /// <summary>
         /// Gets or sets the time the current file or directory was last accessed.
         /// </summary>
@@ -304,7 +347,6 @@ namespace Renci.SshNet.Sftp
 
                 return permission;
             }
-
             private set
             {
                 this._isBitFiledsBitSet = ((value & S_IFMT) == S_IFMT);
@@ -349,27 +391,19 @@ namespace Renci.SshNet.Sftp
             }
         }
 
-        private static SftpFileAttributes _empty = new SftpFileAttributes(DateTime.MinValue, DateTime.MinValue, -1, -1, -1, 0, null);
-        /// <summary>
-        /// Gets the empty SftpFileAttributes instance.
-        /// </summary>
-        public static SftpFileAttributes Empty
+        internal SftpFileAttributes()
         {
-            get
-            {
-                return SftpFileAttributes._empty;
-            }
         }
 
         internal SftpFileAttributes(DateTime lastAccessTime, DateTime lastWriteTime, long size, int userId, int groupId, uint permissions, IDictionary<string, string> extensions)
         {
-            this.LastAccessTime = lastAccessTime;
-            this.LastWriteTime = lastWriteTime;
-            this.Size = size;
-            this.UserId = userId;
-            this.GroupId = groupId;
-            this.Permissions = permissions;
-            this.Extensions = extensions;
+            this.LastAccessTime = this._originalLastAccessTime = lastAccessTime;
+            this.LastWriteTime = this._originalLastWriteTime = lastWriteTime;
+            this.Size = this._originalSize = size;
+            this.UserId = this._originalUserId = userId;
+            this.GroupId = this._originalGroupId = groupId;
+            this.Permissions = this._originalPermissions = permissions;
+            this.Extensions = this._originalExtensions = extensions;
         }
 
         /// <summary>
@@ -383,7 +417,7 @@ namespace Renci.SshNet.Sftp
                 throw new ArgumentOutOfRangeException("mode");
             }
 
-            var modeBytes = mode.ToString(CultureInfo.InvariantCulture).PadLeft(3,'0').ToArray();
+            var modeBytes = mode.ToString(CultureInfo.InvariantCulture).PadLeft(3, '0').ToArray();
 
             var permission = (modeBytes[0] & 0x0F) * 8 * 8 + (modeBytes[1] & 0x0F) * 8 + (modeBytes[2] & 0x0F);
 

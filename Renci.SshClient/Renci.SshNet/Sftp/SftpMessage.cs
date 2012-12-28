@@ -94,50 +94,50 @@ namespace Renci.SshNet.Sftp
             {
                 UInt32 flag = 0;
 
-                if (attributes.Size > -1)
+                if (attributes.IsSizeChanged && attributes.IsRegularFile)
                 {
                     flag |= 0x00000001;
                 }
 
-                if (attributes.UserId > -1 && attributes.GroupId > -1)
+                if (attributes.IsUserIdChanged|| attributes.IsGroupIdChanged)
                 {
                     flag |= 0x00000002;
                 }
 
-                if (attributes.Permissions > 0)
+                if (attributes.IsPermissionsChanged)
                 {
                     flag |= 0x00000004;
                 }
 
-                if (attributes.LastAccessTime > DateTime.MinValue && attributes.LastWriteTime > DateTime.MinValue)
+                if (attributes.IsLastAccessTimeChanged || attributes.IsLastWriteTimeChanged)
                 {
                     flag |= 0x00000008;
                 }
 
-                if (attributes.Extensions != null)
+                if (attributes.IsExtensionsChanged)
                 {
                     flag |= 0x80000000;
                 }
 
                 this.Write(flag);
 
-                if (attributes.Size > -1)
+                if (attributes.IsSizeChanged && attributes.IsRegularFile)
                 {
                     this.Write((UInt64)attributes.Size);
                 }
 
-                if (attributes.UserId > -1 && attributes.GroupId > -1)
+                if (attributes.IsUserIdChanged|| attributes.IsGroupIdChanged)
                 {
                     this.Write((UInt32)attributes.UserId);
                     this.Write((UInt32)attributes.GroupId);
                 }
 
-                if (attributes.Permissions > 0)
+                if (attributes.IsPermissionsChanged)
                 {
                     this.Write(attributes.Permissions);
                 }
 
-                if (attributes.LastAccessTime > DateTime.MinValue && attributes.LastWriteTime > DateTime.MinValue)
+                if (attributes.IsLastAccessTimeChanged || attributes.IsLastWriteTimeChanged)
                 {
                     uint time = (uint)(attributes.LastAccessTime.ToFileTime() / 10000000 - 11644473600);
                     this.Write(time);
@@ -145,7 +145,7 @@ namespace Renci.SshNet.Sftp
                     this.Write(time);
                 }
 
-                if (attributes.Extensions != null)
+                if (attributes.IsExtensionsChanged)
                 {
                     this.Write(attributes.Extensions);
                 }

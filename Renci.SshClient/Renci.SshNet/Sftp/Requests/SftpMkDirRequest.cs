@@ -21,7 +21,7 @@ namespace Renci.SshNet.Sftp.Requests
             : base(requestId, statusAction)
         {
             this.Path = path;
-            this.Attributes = SftpFileAttributes.Empty;
+            this.Attributes = new SftpFileAttributes();
         }
 
         public SftpMkDirRequest(uint requestId, string path, SftpFileAttributes attributes, Action<SftpStatusResponse> statusAction)

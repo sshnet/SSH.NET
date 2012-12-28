@@ -25,6 +25,8 @@ namespace Renci.SshNet.Sftp
 
         private EventWaitHandle _sftpVersionConfirmed = new AutoResetEvent(false);
 
+        private IDictionary<string, string> _supportedExtensions;
+
         /// <summary>
         /// Gets remote working directory.
         /// </summary>
@@ -217,6 +219,7 @@ namespace Renci.SshNet.Sftp
                     if (versionResponse != null)
                     {
                         this.ProtocolVersion = versionResponse.Version;
+                        this._supportedExtensions = versionResponse.Extentions;
 
                         this._sftpVersionConfirmed.Set();
                     }
@@ -862,7 +865,7 @@ namespace Renci.SshNet.Sftp
         }
 
         #endregion
-        
+
         #region SFTP Extended API functions
 
         /// <summary>
@@ -891,6 +894,9 @@ namespace Renci.SshNet.Sftp
                             ThrowSftpException(response);
                         }
                     });
+
+                if (!this._supportedExtensions.ContainsKey(request.Name))
+                    throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "Extension method {0} currently not supported by the server.", request.Name));
 
                 this.SendRequest(request);
 
@@ -934,12 +940,99 @@ namespace Renci.SshNet.Sftp
 
                     });
 
+                if (!this._supportedExtensions.ContainsKey(request.Name))
+                    throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "Extension method {0} currently not supported by the server.", request.Name));
+
                 this.SendRequest(request);
 
                 this.WaitHandle(wait, this._operationTimeout);
             }
 
             return information;
+        }
+
+        /// <summary>
+        /// Performs fstatvfs@openssh.com extended request.
+        /// </summary>
+        /// <param name="handle">The file handle.</param>
+        /// <param name="nullOnError">if set to <c>true</c> [null on error].</param>
+        /// <returns></returns>
+        /// <exception cref="System.NotSupportedException"></exception>
+        internal SftpFileSytemInformation RequestFStatVfs(byte[] handle, bool nullOnError = false)
+        {
+            if (this.ProtocolVersion < 3)
+            {
+                throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "SSH_FXP_EXTENDED operation is not supported in {0} version that server operates in.", this.ProtocolVersion));
+            }
+
+            SftpFileSytemInformation information = null;
+            using (var wait = new AutoResetEvent(false))
+            {
+                var request = new FStatVfsRequest(this.ProtocolVersion, this.NextRequestId, handle,
+                    (response) =>
+                    {
+                        information = response.GetReply<StatVfsReplyInfo>().Information;
+
+                        wait.Set();
+                    },
+                    (response) =>
+                    {
+                        if (nullOnError)
+                        {
+                            wait.Set();
+                        }
+                        else
+                        {
+                            ThrowSftpException(response);
+                        }
+
+                    });
+
+                if (!this._supportedExtensions.ContainsKey(request.Name))
+                    throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "Extension method {0} currently not supported by the server.", request.Name));
+
+                this.SendRequest(request);
+
+                this.WaitHandle(wait, this._operationTimeout);
+            }
+
+            return information;
+        }
+
+        /// <summary>
+        /// Performs hardlink@openssh.com extended request.
+        /// </summary>
+        /// <param name="oldPath">The old path.</param>
+        /// <param name="newPath">The new path.</param>
+        internal void HardLink(string oldPath, string newPath)
+        {
+            if (this.ProtocolVersion < 3)
+            {
+                throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "SSH_FXP_EXTENDED operation is not supported in {0} version that server operates in.", this.ProtocolVersion));
+            }
+
+            using (var wait = new AutoResetEvent(false))
+            {
+                var request = new HardLinkRequest(this.ProtocolVersion, this.NextRequestId, oldPath, newPath,
+                    (response) =>
+                    {
+                        if (response.StatusCode == StatusCodes.Ok)
+                        {
+                            wait.Set();
+                        }
+                        else
+                        {
+                            ThrowSftpException(response);
+                        }
+                    });
+
+                if (!this._supportedExtensions.ContainsKey(request.Name))
+                    throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "Extension method {0} currently not supported by the server.", request.Name));
+
+                this.SendRequest(request);
+
+                this.WaitHandle(wait, this._operationTimeout);
+            }
         }
 
         #endregion

@@ -131,6 +131,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="ConnectionInfo.cs" />
+    <Compile Include="Security\KeyExchangeDiffieHellmanGroupSha1.cs" />
     <Compile Include="SftpClient.NET.cs" />
     <Compile Include="KeyboardInteractiveAuthenticationMethod.cs">
       <SubType>Code</SubType>

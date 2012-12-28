@@ -9,11 +9,11 @@ namespace Renci.SshNet.Sftp
 {
     internal abstract class SftpMessage : SshData
     {
-        public new static SftpMessage Load(byte[] data)
+        public new static SftpMessage Load(uint protocolVersion, byte[] data)
         {
             var messageType = (SftpMessageTypes)data.FirstOrDefault();
 
-            return Load(data, messageType);
+            return Load(protocolVersion, data, messageType);
         }
 
         protected override int ZeroReaderIndex
@@ -152,7 +152,7 @@ namespace Renci.SshNet.Sftp
             }
         }
 
-        private static SftpMessage Load(byte[] data, SftpMessageTypes messageType)
+        private static SftpMessage Load(uint protocolVersion, byte[] data, SftpMessageTypes messageType)
         {
             SftpMessage message = null;
 
@@ -162,22 +162,22 @@ namespace Renci.SshNet.Sftp
                     message = new SftpVersionResponse();
                     break;
                 case SftpMessageTypes.Status:
-                    message = new SftpStatusResponse();
+                    message = new SftpStatusResponse(protocolVersion);
                     break;
                 case SftpMessageTypes.Data:
-                    message = new SftpDataResponse();
+                    message = new SftpDataResponse(protocolVersion);
                     break;
                 case SftpMessageTypes.Handle:
-                    message = new SftpHandleResponse();
+                    message = new SftpHandleResponse(protocolVersion);
                     break;
                 case SftpMessageTypes.Name:
-                    message = new SftpNameResponse();
+                    message = new SftpNameResponse(protocolVersion);
                     break;
                 case SftpMessageTypes.Attrs:
-                    message = new SftpAttrsResponse();
+                    message = new SftpAttrsResponse(protocolVersion);
                     break;
                 case SftpMessageTypes.ExtendedReply:
-                    message = new SftpExtendedReplyResponse();
+                    message = new SftpExtendedReplyResponse(protocolVersion);
                     break;
                 default:
                     throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "Message type '{0}' is not supported.", messageType));

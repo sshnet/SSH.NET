@@ -17,8 +17,8 @@ namespace Renci.SshNet.Sftp.Requests
 
         public string NewPath { get; private set; }
 
-        public SftpRenameRequest(uint requestId, string oldPath, string newPath, Action<SftpStatusResponse> statusAction)
-            : base(requestId, statusAction)
+        public SftpRenameRequest(uint protocolVersion, uint requestId, string oldPath, string newPath, Action<SftpStatusResponse> statusAction)
+            : base(protocolVersion, requestId, statusAction)
         {
             this.OldPath = oldPath;
             this.NewPath = newPath;

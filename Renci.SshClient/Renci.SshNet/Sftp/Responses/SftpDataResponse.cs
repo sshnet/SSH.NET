@@ -16,6 +16,11 @@ namespace Renci.SshNet.Sftp.Responses
 
         public bool IsEof { get; set; }
 
+        public SftpDataResponse(uint protocolVersion)
+            : base(protocolVersion)
+        {
+        }
+
         protected override void LoadData()
         {
             base.LoadData();

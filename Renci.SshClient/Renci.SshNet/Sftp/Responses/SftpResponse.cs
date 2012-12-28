@@ -9,6 +9,13 @@ namespace Renci.SshNet.Sftp.Responses
     {
         public uint ResponseId { get; private set; }
 
+        public uint ProtocolVersion { get; private set; }
+
+        public SftpResponse(uint protocolVersion)
+        {
+            this.ProtocolVersion = protocolVersion;
+        }
+
         protected override void LoadData()
         {
             base.LoadData();

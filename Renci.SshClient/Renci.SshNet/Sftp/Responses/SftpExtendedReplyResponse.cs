@@ -11,5 +11,10 @@ namespace Renci.SshNet.Sftp.Responses
         {
             get { return SftpMessageTypes.ExtendedReply; }
         }
+
+        public SftpExtendedReplyResponse(uint protocolVersion)
+            : base(protocolVersion)
+        {
+        }
     }
 }

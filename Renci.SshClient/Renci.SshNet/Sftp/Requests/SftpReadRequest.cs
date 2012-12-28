@@ -19,8 +19,8 @@ namespace Renci.SshNet.Sftp.Requests
 
         public UInt32 Length { get; private set; }
 
-        public SftpReadRequest(uint requestId, byte[] handle, UInt64 offset, UInt32 length, Action<SftpDataResponse> dataAction, Action<SftpStatusResponse> statusAction)
-            : base(requestId, statusAction)
+        public SftpReadRequest(uint protocolVersion, uint requestId, byte[] handle, UInt64 offset, UInt32 length, Action<SftpDataResponse> dataAction, Action<SftpStatusResponse> statusAction)
+            : base(protocolVersion, requestId, statusAction)
         {
             this.Handle = handle;
             this.Offset = offset;

@@ -16,9 +16,10 @@ namespace Renci.SshNet.Sftp.Responses
 
         public KeyValuePair<string, SftpFileAttributes>[] Files { get; private set; }
 
-        public SftpNameResponse()
+        public SftpNameResponse(uint protocolVersion)
+            : base(protocolVersion)
         {
-            this.Files = new KeyValuePair<string,SftpFileAttributes>[0];
+            this.Files = new KeyValuePair<string, SftpFileAttributes>[0];
         }
 
         protected override void LoadData()

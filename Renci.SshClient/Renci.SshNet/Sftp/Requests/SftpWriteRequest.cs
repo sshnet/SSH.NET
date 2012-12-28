@@ -19,8 +19,8 @@ namespace Renci.SshNet.Sftp.Requests
 
         public byte[] Data { get; private set; }
 
-        public SftpWriteRequest(uint requestId, byte[] handle, UInt64 offset, byte[] data, Action<SftpStatusResponse> statusAction)
-            : base(requestId, statusAction)
+        public SftpWriteRequest(uint protocolVersion, uint requestId, byte[] handle, UInt64 offset, byte[] data, Action<SftpStatusResponse> statusAction)
+            : base(protocolVersion, requestId, statusAction)
         {
             this.Handle = handle;
             this.Offset = offset;

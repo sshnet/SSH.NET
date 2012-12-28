@@ -16,8 +16,8 @@ namespace Renci.SshNet.Sftp.Requests
 
         public string NewPath { get; private set; }
 
-        public PosixRenameRequest(uint requestId, string oldPath, string newPath, Action<SftpStatusResponse> statusAction)
-            : base(requestId, statusAction)
+        public PosixRenameRequest(uint protocolVersion, uint requestId, string oldPath, string newPath, Action<SftpStatusResponse> statusAction)
+            : base(protocolVersion, requestId, statusAction)
         {
             this.OldPath = oldPath;
             this.NewPath = newPath;

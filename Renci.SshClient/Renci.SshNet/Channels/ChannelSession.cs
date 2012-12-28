@@ -81,8 +81,6 @@ namespace Renci.SshNet.Channels
         {
             this._failedOpenAttempts++;
 
-            Debug.WriteLine(string.Format(CultureInfo.CurrentCulture, "Local channel: {0} attempts: {1}.", this.LocalChannelNumber, this._failedOpenAttempts));
-
             this.SessionSemaphore.Release();
 
             this._channelOpenResponseWaitHandle.Set();

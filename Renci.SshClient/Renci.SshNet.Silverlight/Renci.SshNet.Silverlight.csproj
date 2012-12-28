@@ -612,6 +612,9 @@
     <Compile Include="..\Renci.SshNet\Sftp\Requests\ExtendedRequests\StatVfsRequest.cs">
       <Link>Sftp\Requests\ExtendedRequests\StatVfsRequest.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\Sftp\Requests\SftpBlockRequest.cs">
+      <Link>Sftp\Requests\SftpBlockRequest.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\Sftp\Requests\SftpCloseRequest.cs">
       <Link>Sftp\Requests\SftpCloseRequest.cs</Link>
     </Compile>
@@ -626,6 +629,9 @@
     </Compile>
     <Compile Include="..\Renci.SshNet\Sftp\Requests\SftpInitRequest.cs">
       <Link>Sftp\Requests\SftpInitRequest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Sftp\Requests\SftpLinkRequest.cs">
+      <Link>Sftp\Requests\SftpLinkRequest.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Sftp\Requests\SftpLStatRequest.cs">
       <Link>Sftp\Requests\SftpLStatRequest.cs</Link>
@@ -671,6 +677,9 @@
     </Compile>
     <Compile Include="..\Renci.SshNet\Sftp\Requests\SftpSymLinkRequest.cs">
       <Link>Sftp\Requests\SftpSymLinkRequest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Sftp\Requests\SftpUnblockRequest.cs">
+      <Link>Sftp\Requests\SftpUnblockRequest.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Sftp\Requests\SftpWriteRequest.cs">
       <Link>Sftp\Requests\SftpWriteRequest.cs</Link>

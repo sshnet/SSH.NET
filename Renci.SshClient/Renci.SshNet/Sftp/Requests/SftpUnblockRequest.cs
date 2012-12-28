@@ -25,7 +25,6 @@ namespace Renci.SshNet.Sftp.Requests
             this.Handle = handle;
             this.Offset = offset;
             this.Length = length;
-            this.SetAction(dataAction);
         }
 
         protected override void LoadData()

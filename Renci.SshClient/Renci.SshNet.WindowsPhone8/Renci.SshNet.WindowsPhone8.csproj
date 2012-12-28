@@ -653,6 +653,12 @@
     <Compile Include="..\Renci.SshNet\Sftp\Flags.cs">
       <Link>Sftp\Flags.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\Sftp\Requests\ExtendedRequests\FStatVfsRequest.cs">
+      <Link>Sftp\Requests\ExtendedRequests\FStatVfsRequest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Sftp\Requests\ExtendedRequests\HardLinkRequest.cs">
+      <Link>Sftp\Requests\ExtendedRequests\HardLinkRequest.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\Sftp\Requests\ExtendedRequests\PosixRenameRequest.cs">
       <Link>Sftp\Requests\ExtendedRequests\PosixRenameRequest.cs</Link>
     </Compile>

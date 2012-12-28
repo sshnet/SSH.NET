@@ -610,11 +610,17 @@
     <Compile Include="..\Renci.SshNet\Sftp\Flags.cs">
       <Link>Sftp\Flags.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\Sftp\Requests\PosixRenameRequest.cs">
-      <Link>Sftp\Requests\PosixRenameRequest.cs</Link>
+    <Compile Include="..\Renci.SshNet\Sftp\Requests\ExtendedRequests\PosixRenameRequest.cs">
+      <Link>Sftp\Requests\ExtendedRequests\PosixRenameRequest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Sftp\Requests\ExtendedRequests\StatVfsRequest.cs">
+      <Link>Sftp\Requests\ExtendedRequests\StatVfsRequest.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Sftp\Requests\SftpCloseRequest.cs">
       <Link>Sftp\Requests\SftpCloseRequest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Sftp\Requests\SftpExtendedRequest.cs">
+      <Link>Sftp\Requests\SftpExtendedRequest.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Sftp\Requests\SftpFSetStatRequest.cs">
       <Link>Sftp\Requests\SftpFSetStatRequest.cs</Link>
@@ -673,8 +679,11 @@
     <Compile Include="..\Renci.SshNet\Sftp\Requests\SftpWriteRequest.cs">
       <Link>Sftp\Requests\SftpWriteRequest.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\Sftp\Requests\StatVfsRequest.cs">
-      <Link>Sftp\Requests\StatVfsRequest.cs</Link>
+    <Compile Include="..\Renci.SshNet\Sftp\Responses\ExtendedReplies\ExtendedReplyInfo.cs">
+      <Link>Sftp\Responses\ExtendedReplies\ExtendedReplyInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Sftp\Responses\ExtendedReplies\StatVfsReplyInfo.cs">
+      <Link>Sftp\Responses\ExtendedReplies\StatVfsReplyInfo.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Sftp\Responses\SftpAttrsResponse.cs">
       <Link>Sftp\Responses\SftpAttrsResponse.cs</Link>
@@ -699,9 +708,6 @@
     </Compile>
     <Compile Include="..\Renci.SshNet\Sftp\Responses\SftpVersionResponse.cs">
       <Link>Sftp\Responses\SftpVersionResponse.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet\Sftp\Responses\StatVfsResponse.cs">
-      <Link>Sftp\Responses\StatVfsResponse.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Sftp\SftpDataMessage.cs">
       <Link>Sftp\SftpDataMessage.cs</Link>

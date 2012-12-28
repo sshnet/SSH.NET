@@ -20,7 +20,7 @@ namespace Renci.SshNet.Sftp.Requests
         public SftpFileAttributes Attributes { get; private set; }
 
         public SftpOpenRequest(uint requestId, string fileName, Flags flags, Action<SftpHandleResponse> handleAction, Action<SftpStatusResponse> statusAction)
-            : this(requestId, fileName, flags, SftpFileAttributes.Empty, handleAction, statusAction)
+            : this(requestId, fileName, flags, new SftpFileAttributes(), handleAction, statusAction)
         {
         }
 

@@ -17,15 +17,15 @@ namespace Renci.SshNet.Sftp.Requests
 
         public SftpFileAttributes Attributes { get; private set; }
 
-        public SftpMkDirRequest(uint requestId, string path, Action<SftpStatusResponse> statusAction)
-            : base(requestId, statusAction)
+        public SftpMkDirRequest(uint protocolVersion, uint requestId, string path, Action<SftpStatusResponse> statusAction)
+            : base(protocolVersion, requestId, statusAction)
         {
             this.Path = path;
             this.Attributes = new SftpFileAttributes();
         }
 
-        public SftpMkDirRequest(uint requestId, string path, SftpFileAttributes attributes, Action<SftpStatusResponse> statusAction)
-            : base(requestId, statusAction)
+        public SftpMkDirRequest(uint protocolVersion, uint requestId, string path, SftpFileAttributes attributes, Action<SftpStatusResponse> statusAction)
+            : base(protocolVersion, requestId, statusAction)
         {
             this.Path = path;
             this.Attributes = attributes;

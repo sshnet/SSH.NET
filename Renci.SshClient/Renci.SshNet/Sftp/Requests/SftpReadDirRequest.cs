@@ -15,8 +15,8 @@ namespace Renci.SshNet.Sftp.Requests
 
         public byte[] Handle { get; private set; }
 
-        public SftpReadDirRequest(uint requestId, byte[] handle, Action<SftpNameResponse> nameAction, Action<SftpStatusResponse> statusAction)
-            : base(requestId, statusAction)
+        public SftpReadDirRequest(uint protocolVersion, uint requestId, byte[] handle, Action<SftpNameResponse> nameAction, Action<SftpStatusResponse> statusAction)
+            : base(protocolVersion, requestId, statusAction)
         {
             this.Handle = handle;
             this.SetAction(nameAction);

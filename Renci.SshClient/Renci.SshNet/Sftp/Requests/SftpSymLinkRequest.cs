@@ -17,8 +17,8 @@ namespace Renci.SshNet.Sftp.Requests
 
         public string ExistingPath { get; set; }
 
-        public SftpSymLinkRequest(uint requestId, string newLinkPath, string existingPath, Action<SftpStatusResponse> statusAction)
-            : base(requestId, statusAction)
+        public SftpSymLinkRequest(uint protocolVersion, uint requestId, string newLinkPath, string existingPath, Action<SftpStatusResponse> statusAction)
+            : base(protocolVersion, requestId, statusAction)
         {
             this.NewLinkPath = newLinkPath;
             this.ExistingPath = existingPath;

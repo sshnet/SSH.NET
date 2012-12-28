@@ -15,8 +15,8 @@ namespace Renci.SshNet.Sftp.Requests
 
         public string Path { get; private set; }
 
-        public SftpRmDirRequest(uint requestId, string path, Action<SftpStatusResponse> statusAction)
-            : base(requestId, statusAction)
+        public SftpRmDirRequest(uint protocolVersion, uint requestId, string path, Action<SftpStatusResponse> statusAction)
+            : base(protocolVersion, requestId, statusAction)
         {
             this.Path = path;
         }

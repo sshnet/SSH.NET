@@ -17,8 +17,8 @@ namespace Renci.SshNet.Sftp.Requests
 
         public SftpFileAttributes Attributes { get; private set; }
 
-        public SftpSetStatRequest(uint requestId, string path, SftpFileAttributes attributes, Action<SftpStatusResponse> statusAction)
-            : base(requestId, statusAction)
+        public SftpSetStatRequest(uint protocolVersion, uint requestId, string path, SftpFileAttributes attributes, Action<SftpStatusResponse> statusAction)
+            : base(protocolVersion, requestId, statusAction)
         {
             this.Path = path;
             this.Attributes = attributes;

@@ -4,6 +4,11 @@
     {
         public SftpFileSytemInformation Information { get; private set; }
 
+        public StatVfsResponse()
+            : base(0)
+        {
+        }
+
         protected override void LoadData()
         {
             base.LoadData();

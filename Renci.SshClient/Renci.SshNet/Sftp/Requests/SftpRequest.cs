@@ -17,10 +17,13 @@ namespace Renci.SshNet.Sftp.Requests
         private Action<SftpNameResponse> _nameAction;
 
         public uint RequestId { get; private set; }
+        
+        public uint ProtocolVersion { get; private set; }
 
-        public SftpRequest(uint requestId, Action<SftpStatusResponse> statusAction)
+        public SftpRequest(uint protocolVersion, uint requestId, Action<SftpStatusResponse> statusAction)
         {
             this.RequestId = requestId;
+            this.ProtocolVersion = protocolVersion;
             this._statusAction = statusAction;
         }
 

@@ -15,8 +15,8 @@ namespace Renci.SshNet.Sftp.Requests
 
         public string Filename { get; private set; }
 
-        public SftpRemoveRequest(uint requestId, string filename, Action<SftpStatusResponse> statusAction)
-            : base(requestId, statusAction)
+        public SftpRemoveRequest(uint protocolVersion, uint requestId, string filename, Action<SftpStatusResponse> statusAction)
+            : base(protocolVersion, requestId, statusAction)
         {
             this.Filename = filename;
         }

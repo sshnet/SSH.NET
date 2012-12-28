@@ -15,8 +15,8 @@ namespace Renci.SshNet.Sftp.Requests
 
         public byte[] Handle { get; private set; }
 
-        public SftpCloseRequest(uint requestId, byte[] handle, Action<SftpStatusResponse> statusAction)
-            : base(requestId, statusAction)
+        public SftpCloseRequest(uint protocolVersion, uint requestId, byte[] handle, Action<SftpStatusResponse> statusAction)
+            : base(protocolVersion, requestId, statusAction)
         {
             this.Handle = handle;
         }

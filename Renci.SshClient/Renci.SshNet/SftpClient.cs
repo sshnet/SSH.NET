@@ -1448,7 +1448,7 @@ namespace Renci.SshNet
             this._sftpSession.Connect();
 
             //  Resolve current running version
-            this.ProtocolVersion = this._sftpSession.ProtocolVersion;
+            this.ProtocolVersion = (int)this._sftpSession.ProtocolVersion;
         }
 
         /// <summary>

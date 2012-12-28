@@ -358,6 +358,8 @@
     </Compile>
     <Compile Include="SftpClient.NET40.cs" />
     <Compile Include="Sftp\Flags.cs" />
+    <Compile Include="Sftp\Requests\SftpUnblockRequest.cs" />
+    <Compile Include="Sftp\Requests\SftpBlockRequest.cs" />
     <Compile Include="Sftp\Requests\SftpExtendedRequest.cs" />
     <Compile Include="Sftp\Requests\ExtendedRequests\PosixRenameRequest.cs">
       <SubType>Code</SubType>
@@ -366,6 +368,7 @@
     <Compile Include="Sftp\Requests\SftpFSetStatRequest.cs" />
     <Compile Include="Sftp\Requests\SftpFStatRequest.cs" />
     <Compile Include="Sftp\Requests\SftpInitRequest.cs" />
+    <Compile Include="Sftp\Requests\SftpLinkRequest.cs" />
     <Compile Include="Sftp\Requests\SftpLStatRequest.cs" />
     <Compile Include="Sftp\Requests\SftpMkDirRequest.cs" />
     <Compile Include="Sftp\Requests\SftpOpenDirRequest.cs" />

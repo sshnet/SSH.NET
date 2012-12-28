@@ -84,6 +84,19 @@ namespace Renci.SshNet.Sftp
         /// </summary>
         SymLink = 20,
         /// <summary>
+        /// SSH_FXP_LINK
+        /// </summary>
+        Link = 21,
+        /// <summary>
+        /// SSH_FXP_BLOCK
+        /// </summary>
+        Block = 22,
+        /// <summary>
+        /// SSH_FXP_UNBLOCK
+        /// </summary>
+        Unblock = 23,
+
+        /// <summary>
         /// SSH_FXP_STATUS
         /// </summary>
         Status = 101,

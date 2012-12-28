@@ -861,6 +861,10 @@ namespace Renci.SshNet.Sftp
             }
         }
 
+        #endregion
+        
+        #region SFTP Extended API functions
+
         /// <summary>
         /// Performs posix-rename@openssh.com extended request.
         /// </summary>
@@ -913,7 +917,8 @@ namespace Renci.SshNet.Sftp
                 var request = new StatVfsRequest(this.ProtocolVersion, this.NextRequestId, path,
                     (response) =>
                     {
-                        information = response.OfType<StatVfsResponse>().Information;
+                        information = response.GetReply<StatVfsReplyInfo>().Information;
+
                         wait.Set();
                     },
                     (response) =>

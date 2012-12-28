@@ -1868,8 +1868,6 @@ namespace Renci.SshNet
             {
                 this.SocketReadLine(ref response);
 
-                System.Diagnostics.Debug.WriteLine(response);
-
                 var match = httpResponseRe.Match(response);
 
                 if (match.Success)

@@ -47,15 +47,8 @@ namespace Renci.SshNet.Sftp
         /// <summary>
         /// Gets the channel number.
         /// </summary>
-        protected uint ChannelNumber
-        {
-            get
-            {
-                //  UNDONE:   _channel.RemoteChannelNumber may be called before _channel is set.
-                return this._channel.RemoteChannelNumber;
-            }
-        }
-       
+        protected uint ChannelNumber { get; private set; }
+
         /// <summary>
         /// Initializes a new instance of the SubsystemSession class.
         /// </summary>
@@ -67,7 +60,7 @@ namespace Renci.SshNet.Sftp
 
             if (subsystemName == null)
                 throw new ArgumentNullException("subsystemName");
-                
+
             this._session = session;
             this._subsystemName = subsystemName;
             this._operationTimeout = operationTimeout;
@@ -85,6 +78,8 @@ namespace Renci.SshNet.Sftp
             this._channel.DataReceived += Channel_DataReceived;
 
             this._channel.Open();
+
+            this.ChannelNumber = this._channel.RemoteChannelNumber;
 
             this._channel.SendSubsystemRequest(_subsystemName);
 

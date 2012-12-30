@@ -42,7 +42,9 @@ namespace Renci.SshNet
         public PrivateKeyAuthenticationMethod(string username, params PrivateKeyFile[] keyFiles)
             : base(username)
         {
-            //  TODO:   Should throw on keyFiles == null here?
+            if (keyFiles == null)
+                throw new ArgumentNullException("keyFiles");
+
             this.KeyFiles = new Collection<PrivateKeyFile>(keyFiles);
         }
 

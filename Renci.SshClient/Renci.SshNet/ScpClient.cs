@@ -144,6 +144,9 @@ namespace Renci.SshNet
         /// <param name="filename">Remote host file name.</param>
         public void Upload(Stream source, string filename)
         {
+            //  Ensure that connection is established.
+            this.EnsureConnection();
+
             using (var input = new PipeStream())
             using (var channel = this.Session.CreateChannel<ChannelSession>())
             {
@@ -181,7 +184,8 @@ namespace Renci.SshNet
             if (destination == null)
                 throw new ArgumentNullException("destination");
 
-            //  UNDONE:   Should call EnsureConnection here to keep it consistent? If you add the call, please add to comment: <exception cref="SshConnectionException">Client is not connected.</exception>
+            //  Ensure that connection is established.
+            this.EnsureConnection();
 
             using (var input = new PipeStream())
             using (var channel = this.Session.CreateChannel<ChannelSession>())

@@ -28,10 +28,11 @@ namespace Renci.SshNet
             if (fileInfo == null)
                 throw new ArgumentNullException("fileInfo");
 
-            if (filename == null)
-                throw new ArgumentNullException("filename"); //  TODO:   Should add IsNullOrWhitespace for this filename parameter?
+            if (string.IsNullOrEmpty(filename))
+                throw new ArgumentException("filename");
 
-            //  UNDONE:   EnsureConnection?
+            //  Ensure that connection is established.
+            this.EnsureConnection();
 
             using (var input = new PipeStream())
             using (var channel = this.Session.CreateChannel<ChannelSession>())
@@ -66,10 +67,11 @@ namespace Renci.SshNet
             if (directoryInfo == null)
                 throw new ArgumentNullException("directoryInfo");
 
-            if (filename == null)
-                throw new ArgumentNullException("filename"); //  TODO:   Should add IsNullOrWhitespace for this filename parameter?
+            if (string.IsNullOrEmpty(filename))
+                throw new ArgumentException("filename");
 
-            //  UNDONE:   EnsureConnection?
+            //  Ensure that connection is established.
+            this.EnsureConnection();
 
             using (var input = new PipeStream())
             using (var channel = this.Session.CreateChannel<ChannelSession>())
@@ -103,10 +105,11 @@ namespace Renci.SshNet
             if (fileInfo == null)
                 throw new ArgumentNullException("fileInfo");
 
-            if (filename == null)
-                throw new ArgumentNullException("filename"); //  TODO:   Should add IsNullOrWhitespace for this filename parameter?
+            if (string.IsNullOrEmpty(filename))
+                throw new ArgumentException("filename");
 
-            //  UNDONE:   EnsureConnection?
+            //  Ensure that connection is established.
+            this.EnsureConnection();
 
             using (var input = new PipeStream())
             using (var channel = this.Session.CreateChannel<ChannelSession>())
@@ -140,10 +143,11 @@ namespace Renci.SshNet
             if (directoryInfo == null)
                 throw new ArgumentNullException("directoryInfo");
 
-            if (directoryName == null)
-                throw new ArgumentNullException("directoryName"); //  TODO:   Should add IsNullOrWhitespace for this filename parameter?
+            if (string.IsNullOrEmpty(directoryName))
+                throw new ArgumentException("directoryName");
 
-            //  UNDONE:   EnsureConnection?
+            //  Ensure that connection is established.
+            this.EnsureConnection();
 
             using (var input = new PipeStream())
             using (var channel = this.Session.CreateChannel<ChannelSession>())

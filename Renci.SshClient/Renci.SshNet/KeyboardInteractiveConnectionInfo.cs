@@ -24,7 +24,7 @@ namespace Renci.SshNet
         /// <param name="host">The host.</param>
         /// <param name="username">The username.</param>
         public KeyboardInteractiveConnectionInfo(string host, string username)
-            : this(host, 22, username, ProxyTypes.None, string.Empty, 0, string.Empty, string.Empty)
+            : this(host, ConnectionInfo.DEFAULT_PORT, username, ProxyTypes.None, string.Empty, 0, string.Empty, string.Empty)
         {
 
         }
@@ -79,7 +79,7 @@ namespace Renci.SshNet
         /// <param name="proxyHost">The proxy host.</param>
         /// <param name="proxyPort">The proxy port.</param>
         public KeyboardInteractiveConnectionInfo(string host, string username, ProxyTypes proxyType, string proxyHost, int proxyPort)
-            : this(host, 22, username, proxyType, proxyHost, proxyPort, string.Empty, string.Empty)
+            : this(host, ConnectionInfo.DEFAULT_PORT, username, proxyType, proxyHost, proxyPort, string.Empty, string.Empty)
         {
         }
 
@@ -93,7 +93,7 @@ namespace Renci.SshNet
         /// <param name="proxyPort">The proxy port.</param>
         /// <param name="proxyUsername">The proxy username.</param>
         public KeyboardInteractiveConnectionInfo(string host, string username, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername)
-            : this(host, 22, username, proxyType, proxyHost, proxyPort, proxyUsername, string.Empty)
+            : this(host, ConnectionInfo.DEFAULT_PORT, username, proxyType, proxyHost, proxyPort, proxyUsername, string.Empty)
         {
         }
 
@@ -108,7 +108,7 @@ namespace Renci.SshNet
         /// <param name="proxyUsername">The proxy username.</param>
         /// <param name="proxyPassword">The proxy password.</param>
         public KeyboardInteractiveConnectionInfo(string host, string username, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername, string proxyPassword)
-            : this(host, 22, username, proxyType, proxyHost, proxyPort, proxyUsername, proxyPassword)
+            : this(host, ConnectionInfo.DEFAULT_PORT, username, proxyType, proxyHost, proxyPort, proxyUsername, proxyPassword)
         {
         }
 

@@ -20,6 +20,8 @@ namespace Renci.SshNet
     /// </summary>
     public class ConnectionInfo
     {
+        internal static int DEFAULT_PORT = 2222;
+
         /// <summary>
         /// Gets supported key exchange algorithms for this connection.
         /// </summary>
@@ -192,7 +194,7 @@ namespace Renci.SshNet
         /// <param name="username">The username.</param>
         /// <param name="authenticationMethods">The authentication methods.</param>
         public ConnectionInfo(string host, string username, params AuthenticationMethod[] authenticationMethods)
-            : this(host, 22, username, ProxyTypes.None, null, 0, null, null, authenticationMethods)
+            : this(host, ConnectionInfo.DEFAULT_PORT, username, ProxyTypes.None, null, 0, null, null, authenticationMethods)
         {
         }
 

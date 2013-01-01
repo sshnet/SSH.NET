@@ -20,7 +20,7 @@ namespace Renci.SshNet
     /// </summary>
     public class ConnectionInfo
     {
-        internal static int DEFAULT_PORT = 2222;
+        internal static int DEFAULT_PORT = 22;
 
         /// <summary>
         /// Gets supported key exchange algorithms for this connection.

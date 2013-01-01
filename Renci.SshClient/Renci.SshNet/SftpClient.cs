@@ -93,7 +93,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="password"/> is <b>null</b>.</exception>
         /// <exception cref="ArgumentException"><paramref name="host"/> is invalid. <para>-or-</para> <paramref name="username"/> is <b>null</b> contains whitespace characters.</exception>
         public SftpClient(string host, string username, string password)
-            : this(host, 22, username, password)
+            : this(host, ConnectionInfo.DEFAULT_PORT, username, password)
         {
         }
 
@@ -123,7 +123,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="keyFiles"/> is <b>null</b>.</exception>
         /// <exception cref="ArgumentException"><paramref name="host"/> is invalid. <para>-or-</para> <paramref name="username"/> is <b>null</b> or contains whitespace characters.</exception>
         public SftpClient(string host, string username, params PrivateKeyFile[] keyFiles)
-            : this(host, 22, username, keyFiles)
+            : this(host, ConnectionInfo.DEFAULT_PORT, username, keyFiles)
         {
         }
 

@@ -23,7 +23,7 @@ namespace Renci.SshNet
         /// <param name="username">Connection username.</param>
         /// <param name="password">Connection password.</param>
         public PasswordConnectionInfo(string host, string username, string password)
-            : this(host, 22, username, Encoding.UTF8.GetBytes(password))
+            : this(host, ConnectionInfo.DEFAULT_PORT, username, Encoding.UTF8.GetBytes(password))
         {
 
         }
@@ -84,7 +84,7 @@ namespace Renci.SshNet
         /// <param name="proxyHost">The proxy host.</param>
         /// <param name="proxyPort">The proxy port.</param>
         public PasswordConnectionInfo(string host, string username, string password, ProxyTypes proxyType, string proxyHost, int proxyPort)
-            : this(host, 22, username, Encoding.UTF8.GetBytes(password), proxyType, proxyHost, proxyPort, string.Empty, string.Empty)
+            : this(host, ConnectionInfo.DEFAULT_PORT, username, Encoding.UTF8.GetBytes(password), proxyType, proxyHost, proxyPort, string.Empty, string.Empty)
         {
         }
 
@@ -99,7 +99,7 @@ namespace Renci.SshNet
         /// <param name="proxyPort">The proxy port.</param>
         /// <param name="proxyUsername">The proxy username.</param>
         public PasswordConnectionInfo(string host, string username, string password, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername)
-            : this(host, 22, username, Encoding.UTF8.GetBytes(password), proxyType, proxyHost, proxyPort, proxyUsername, string.Empty)
+            : this(host, ConnectionInfo.DEFAULT_PORT, username, Encoding.UTF8.GetBytes(password), proxyType, proxyHost, proxyPort, proxyUsername, string.Empty)
         {
         }
 
@@ -115,7 +115,7 @@ namespace Renci.SshNet
         /// <param name="proxyUsername">The proxy username.</param>
         /// <param name="proxyPassword">The proxy password.</param>
         public PasswordConnectionInfo(string host, string username, string password, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername, string proxyPassword)
-            : this(host, 22, username, Encoding.UTF8.GetBytes(password), proxyType, proxyHost, proxyPort, proxyUsername, proxyPassword)
+            : this(host, ConnectionInfo.DEFAULT_PORT, username, Encoding.UTF8.GetBytes(password), proxyType, proxyHost, proxyPort, proxyUsername, proxyPassword)
         {
         }
 
@@ -126,7 +126,7 @@ namespace Renci.SshNet
         /// <param name="username">Connection username.</param>
         /// <param name="password">Connection password.</param>
         public PasswordConnectionInfo(string host, string username, byte[] password)
-            : this(host, 22, username, password)
+            : this(host, ConnectionInfo.DEFAULT_PORT, username, password)
         {
 
         }
@@ -187,7 +187,7 @@ namespace Renci.SshNet
         /// <param name="proxyHost">The proxy host.</param>
         /// <param name="proxyPort">The proxy port.</param>
         public PasswordConnectionInfo(string host, string username, byte[] password, ProxyTypes proxyType, string proxyHost, int proxyPort)
-            : this(host, 22, username, password, proxyType, proxyHost, proxyPort, string.Empty, string.Empty)
+            : this(host, ConnectionInfo.DEFAULT_PORT, username, password, proxyType, proxyHost, proxyPort, string.Empty, string.Empty)
         {
         }
 
@@ -202,7 +202,7 @@ namespace Renci.SshNet
         /// <param name="proxyPort">The proxy port.</param>
         /// <param name="proxyUsername">The proxy username.</param>
         public PasswordConnectionInfo(string host, string username, byte[] password, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername)
-            : this(host, 22, username, password, proxyType, proxyHost, proxyPort, proxyUsername, string.Empty)
+            : this(host, ConnectionInfo.DEFAULT_PORT, username, password, proxyType, proxyHost, proxyPort, proxyUsername, string.Empty)
         {
         }
 
@@ -218,7 +218,7 @@ namespace Renci.SshNet
         /// <param name="proxyUsername">The proxy username.</param>
         /// <param name="proxyPassword">The proxy password.</param>
         public PasswordConnectionInfo(string host, string username, byte[] password, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername, string proxyPassword)
-            : this(host, 22, username, password, proxyType, proxyHost, proxyPort, proxyUsername, proxyPassword)
+            : this(host, ConnectionInfo.DEFAULT_PORT, username, password, proxyType, proxyHost, proxyPort, proxyUsername, proxyPassword)
         {
         }
 

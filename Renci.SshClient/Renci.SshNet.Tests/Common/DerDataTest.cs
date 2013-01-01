@@ -55,45 +55,47 @@ namespace Renci.SshNet.Tests.Common
         //
         #endregion
 
-        [TestMethod]
-        [TestCategory("DER")]
-        [Description("Long form, test example given in 8.1.3.5")]
-        [Owner("Kenneth_aa")]
-        [DeploymentItem("Renci.SshNet.dll")]
-        public void Test_Der_GetLength_LongForm_MustNotFail()
-        {
-            // Taken from example in 8.1.3.5
-            // L = 201 can be encoded as: 
-            //         1 0 0 0 0 0 0 1
-            //         1 1 0 0 1 0 0 1
-            int length = 201; 
-            byte[] expected = new byte[2]
-            {
-                0x81, // 1 0 0 0 0 0 0 1
-                0xC9  // 1 1 0 0 1 0 0 1
-            };
+        //  TODO:   Restore those tests
+
+        //[TestMethod]
+        //[TestCategory("DER")]
+        //[Description("Long form, test example given in 8.1.3.5")]
+        //[Owner("Kenneth_aa")]
+        //[DeploymentItem("Renci.SshNet.dll")]
+        //public void Test_Der_GetLength_LongForm_MustNotFail()
+        //{
+        //    // Taken from example in 8.1.3.5
+        //    // L = 201 can be encoded as: 
+        //    //         1 0 0 0 0 0 0 1
+        //    //         1 1 0 0 1 0 0 1
+        //    int length = 201; 
+        //    byte[] expected = new byte[2]
+        //    {
+        //        0x81, // 1 0 0 0 0 0 0 1
+        //        0xC9  // 1 1 0 0 1 0 0 1
+        //    };
             
-            byte[] actual = Helper_GetLength(length);
-            Helper_CompareByteArray(expected, actual);
-            Assert.Inconclusive("Verify the correctness of this test method.");
-        }
+        //    byte[] actual = Helper_GetLength(length);
+        //    Helper_CompareByteArray(expected, actual);
+        //    Assert.Inconclusive("Verify the correctness of this test method.");
+        //}
 
-        [TestMethod]
-        [TestCategory("DER")]
-        [Description("Short form, test example given in 8.1.3.5")]
-        [Owner("Kenneth_aa")]
-        [DeploymentItem("Renci.SshNet.dll")]
-        public void Test_Der_GetLength_ShortForm_MustNotFail()
-        {
-            int length = 127;
-            byte[] expected = new byte[1]
-            {
-                0x7F // 0 1 1 1 1 1 1 1
-            };
+        //[TestMethod]
+        //[TestCategory("DER")]
+        //[Description("Short form, test example given in 8.1.3.5")]
+        //[Owner("Kenneth_aa")]
+        //[DeploymentItem("Renci.SshNet.dll")]
+        //public void Test_Der_GetLength_ShortForm_MustNotFail()
+        //{
+        //    int length = 127;
+        //    byte[] expected = new byte[1]
+        //    {
+        //        0x7F // 0 1 1 1 1 1 1 1
+        //    };
 
-            byte[] actual = Helper_GetLength(length);
-            Helper_CompareByteArray(expected, actual);
-        }
+        //    byte[] actual = Helper_GetLength(length);
+        //    Helper_CompareByteArray(expected, actual);
+        //}
 
         /// <summary>
         /// Compares 2 byte arrays.
@@ -108,13 +110,13 @@ namespace Renci.SshNet.Tests.Common
                 Assert.AreEqual<byte>(expected[i], actual[i], "Byte mismatch at index {0}", i);
         }
 
-        /// <summary>
-        /// Wrapper for calling DerData.GetLength()
-        /// </summary>
-        byte[] Helper_GetLength(int length)
-        {
-            DerData_Accessor target = new DerData_Accessor();
-            return target.GetLength(length);
-        }
+        ///// <summary>
+        ///// Wrapper for calling DerData.GetLength()
+        ///// </summary>
+        //byte[] Helper_GetLength(int length)
+        //{
+        //    DerData_Accessor target = new DerData_Accessor();
+        //    return target.GetLength(length);
+        //}
     }
 }

@@ -141,6 +141,24 @@ namespace Renci.SshNet.Tests.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to proxy.oleg-centos.edc.renci.org.
+        /// </summary>
+        internal static string PROXY_HOST {
+            get {
+                return ResourceManager.GetString("PROXY_HOST", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 8123.
+        /// </summary>
+        internal static string PROXY_PORT {
+            get {
+                return ResourceManager.GetString("PROXY_PORT", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to -----BEGIN RSA PRIVATE KEY-----
         ///Proc-Type: 4,ENCRYPTED
         ///DEK-Info: DES-EDE3-CBC,B3475536EDD1B442

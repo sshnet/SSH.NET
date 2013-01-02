@@ -1,0 +1,13 @@
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Renci.SshNet.Tests.Common;
+
+namespace Renci.SshNet.Tests.Classes.Messages.Transport
+{
+    /// <summary>
+    /// Represents SSH_MSG_SERVICE_ACCEPT message.
+    /// </summary>
+    [TestClass]
+    public class ServiceAcceptMessageTest : TestBase
+    {
+    }
+}

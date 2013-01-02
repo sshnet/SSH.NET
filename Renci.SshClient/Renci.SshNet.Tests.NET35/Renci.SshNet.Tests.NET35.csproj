@@ -15,10 +15,6 @@
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <TargetFrameworkProfile />
-    <SccProjectName>SAK</SccProjectName>
-    <SccLocalPath>SAK</SccLocalPath>
-    <SccAuxPath>SAK</SccAuxPath>
-    <SccProvider>SAK</SccProvider>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -50,80 +46,627 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\Renci.SshNet.Tests\ConnectionTest.cs">
-      <Link>ConnectionTest.cs</Link>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\ChannelAsyncResultTest.cs">
+      <Link>Classes\ChannelAsyncResultTest.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\ScpClientTests\UploadDownloadTest.cs">
-      <Link>ScpClientTests\UploadDownloadTest.cs</Link>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelDirectTcpipTest.cs">
+      <Link>Classes\Channels\ChannelDirectTcpipTest.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\Security\Cryptography\Ciphers.cs">
-      <Link>Security\Cryptography\Ciphers.cs</Link>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelForwardedTcpipTest.cs">
+      <Link>Classes\Channels\ChannelForwardedTcpipTest.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\Security\TestCipher.cs">
-      <Link>Security\TestCipher.cs</Link>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelSessionTest.cs">
+      <Link>Classes\Channels\ChannelSessionTest.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\Security\TestHMac.cs">
-      <Link>Security\TestHMac.cs</Link>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\CipherInfoTest.cs">
+      <Link>Classes\CipherInfoTest.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\Security\TestHostKey.cs">
-      <Link>Security\TestHostKey.cs</Link>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Common\ASCIIEncodingTest.cs">
+      <Link>Classes\Common\ASCIIEncodingTest.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\Security\TestKeyExchange.cs">
-      <Link>Security\TestKeyExchange.cs</Link>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Common\AuthenticationBannerEventArgsTest.cs">
+      <Link>Classes\Common\AuthenticationBannerEventArgsTest.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\Security\TestPrivateKeyFile.cs">
-      <Link>Security\TestPrivateKeyFile.cs</Link>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Common\AuthenticationPasswordChangeEventArgsTest.cs">
+      <Link>Classes\Common\AuthenticationPasswordChangeEventArgsTest.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\SftpClientTests\ChangeDirectory.cs">
-      <Link>SftpClientTests\ChangeDirectory.cs</Link>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Common\AuthenticationPromptEventArgsTest.cs">
+      <Link>Classes\Common\AuthenticationPromptEventArgsTest.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\SftpClientTests\CreateDirectoryTest.cs">
-      <Link>SftpClientTests\CreateDirectoryTest.cs</Link>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Common\AuthenticationPromptTest.cs">
+      <Link>Classes\Common\AuthenticationPromptTest.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\SftpClientTests\DeleteDirectoryTest.cs">
-      <Link>SftpClientTests\DeleteDirectoryTest.cs</Link>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Common\BigIntegerTest.cs">
+      <Link>Classes\Common\BigIntegerTest.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\SftpClientTests\DeleteFileTest.cs">
-      <Link>SftpClientTests\DeleteFileTest.cs</Link>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Common\ChannelDataEventArgsTest.cs">
+      <Link>Classes\Common\ChannelDataEventArgsTest.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\SftpClientTests\GetTest.cs">
-      <Link>SftpClientTests\GetTest.cs</Link>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Common\ChannelEventArgsTest.cs">
+      <Link>Classes\Common\ChannelEventArgsTest.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\SftpClientTests\ListDirectoryTest.cs">
-      <Link>SftpClientTests\ListDirectoryTest.cs</Link>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Common\ChannelOpenFailedEventArgsTest.cs">
+      <Link>Classes\Common\ChannelOpenFailedEventArgsTest.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\SftpClientTests\RenameFileTest.cs">
-      <Link>SftpClientTests\RenameFileTest.cs</Link>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Common\ChannelRequestEventArgsTest.cs">
+      <Link>Classes\Common\ChannelRequestEventArgsTest.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\SftpClientTests\SftpFileStreamTest.cs">
-      <Link>SftpClientTests\SftpFileStreamTest.cs</Link>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Common\DerDataTest.cs">
+      <Link>Classes\Common\DerDataTest.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\SftpClientTests\SftpFileTest.cs">
-      <Link>SftpClientTests\SftpFileTest.cs</Link>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Common\ExceptionEventArgsTest.cs">
+      <Link>Classes\Common\ExceptionEventArgsTest.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\SftpClientTests\SynchronizeDirectoriesTest.cs">
-      <Link>SftpClientTests\SynchronizeDirectoriesTest.cs</Link>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Common\HostKeyEventArgsTest.cs">
+      <Link>Classes\Common\HostKeyEventArgsTest.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\SftpClientTests\UploadDownloadFileTest.cs">
-      <Link>SftpClientTests\UploadDownloadFileTest.cs</Link>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Common\NetConfServerExceptionTest.cs">
+      <Link>Classes\Common\NetConfServerExceptionTest.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\SshClientTests\TestPortForwarding.cs">
-      <Link>SshClientTests\TestPortForwarding.cs</Link>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Common\ObjectIdentifierTest.cs">
+      <Link>Classes\Common\ObjectIdentifierTest.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\SshClientTests\TestShell.cs">
-      <Link>SshClientTests\TestShell.cs</Link>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Common\PipeStreamTest.cs">
+      <Link>Classes\Common\PipeStreamTest.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\SshClientTests\TestSshCommand.cs">
-      <Link>SshClientTests\TestSshCommand.cs</Link>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Common\PortForwardEventArgsTest.cs">
+      <Link>Classes\Common\PortForwardEventArgsTest.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Common\ProxyExceptionTest.cs">
+      <Link>Classes\Common\ProxyExceptionTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Common\ProxyExceptionTest.NET40.cs">
+      <Link>Classes\Common\ProxyExceptionTest.NET40.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Common\ScpDownloadEventArgsTest.cs">
+      <Link>Classes\Common\ScpDownloadEventArgsTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Common\ScpExceptionTest.cs">
+      <Link>Classes\Common\ScpExceptionTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Common\ScpUploadEventArgsTest.cs">
+      <Link>Classes\Common\ScpUploadEventArgsTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Common\SemaphoreLightTest.cs">
+      <Link>Classes\Common\SemaphoreLightTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Common\SftpPathNotFoundExceptionTest.cs">
+      <Link>Classes\Common\SftpPathNotFoundExceptionTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Common\SftpPermissionDeniedExceptionTest.cs">
+      <Link>Classes\Common\SftpPermissionDeniedExceptionTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Common\ShellDataEventArgsTest.cs">
+      <Link>Classes\Common\ShellDataEventArgsTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Common\SshAuthenticationExceptionTest.cs">
+      <Link>Classes\Common\SshAuthenticationExceptionTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Common\SshConnectionExceptionTest.cs">
+      <Link>Classes\Common\SshConnectionExceptionTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Common\SshExceptionTest.cs">
+      <Link>Classes\Common\SshExceptionTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Common\SshOperationTimeoutExceptionTest.cs">
+      <Link>Classes\Common\SshOperationTimeoutExceptionTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Common\SshPassPhraseNullOrEmptyExceptionTest.cs">
+      <Link>Classes\Common\SshPassPhraseNullOrEmptyExceptionTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Compression\ZlibOpenSshTest.cs">
+      <Link>Classes\Compression\ZlibOpenSshTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Compression\ZlibStreamTest.cs">
+      <Link>Classes\Compression\ZlibStreamTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Compression\ZlibTest.cs">
+      <Link>Classes\Compression\ZlibTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\ConnectionInfoTest.cs">
+      <Link>Classes\ConnectionInfoTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\ExpectActionTest.cs">
+      <Link>Classes\ExpectActionTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\ForwardedPortDynamicTest.cs">
+      <Link>Classes\ForwardedPortDynamicTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\ForwardedPortLocalTest.cs">
+      <Link>Classes\ForwardedPortLocalTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\ForwardedPortRemoteTest.cs">
+      <Link>Classes\ForwardedPortRemoteTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\KeyboardInteractiveAuthenticationMethodTest.cs">
+      <Link>Classes\KeyboardInteractiveAuthenticationMethodTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\KeyboardInteractiveConnectionInfoTest.cs">
+      <Link>Classes\KeyboardInteractiveConnectionInfoTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\MessageEventArgsTest.cs">
+      <Link>Classes\MessageEventArgsTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Authentication\BannerMessageTest.cs">
+      <Link>Classes\Messages\Authentication\BannerMessageTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Authentication\FailureMessageTest.cs">
+      <Link>Classes\Messages\Authentication\FailureMessageTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Authentication\InformationRequestMessageTest.cs">
+      <Link>Classes\Messages\Authentication\InformationRequestMessageTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Authentication\InformationResponseMessageTest.cs">
+      <Link>Classes\Messages\Authentication\InformationResponseMessageTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Authentication\PasswordChangeRequiredMessageTest.cs">
+      <Link>Classes\Messages\Authentication\PasswordChangeRequiredMessageTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Authentication\PublicKeyMessageTest.cs">
+      <Link>Classes\Messages\Authentication\PublicKeyMessageTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Authentication\RequestMessageHostTest.cs">
+      <Link>Classes\Messages\Authentication\RequestMessageHostTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Authentication\RequestMessageKeyboardInteractiveTest.cs">
+      <Link>Classes\Messages\Authentication\RequestMessageKeyboardInteractiveTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Authentication\RequestMessageNoneTest.cs">
+      <Link>Classes\Messages\Authentication\RequestMessageNoneTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Authentication\RequestMessagePasswordTest.cs">
+      <Link>Classes\Messages\Authentication\RequestMessagePasswordTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Authentication\RequestMessagePublicKeyTest.cs">
+      <Link>Classes\Messages\Authentication\RequestMessagePublicKeyTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Authentication\RequestMessageTest.cs">
+      <Link>Classes\Messages\Authentication\RequestMessageTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Authentication\SuccessMessageTest.cs">
+      <Link>Classes\Messages\Authentication\SuccessMessageTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Connection\ChannelCloseMessageTest.cs">
+      <Link>Classes\Messages\Connection\ChannelCloseMessageTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Connection\ChannelDataMessageTest.cs">
+      <Link>Classes\Messages\Connection\ChannelDataMessageTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Connection\ChannelEofMessageTest.cs">
+      <Link>Classes\Messages\Connection\ChannelEofMessageTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Connection\ChannelExtendedDataMessageTest.cs">
+      <Link>Classes\Messages\Connection\ChannelExtendedDataMessageTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Connection\ChannelFailureMessageTest.cs">
+      <Link>Classes\Messages\Connection\ChannelFailureMessageTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Connection\ChannelOpenConfirmationMessageTest.cs">
+      <Link>Classes\Messages\Connection\ChannelOpenConfirmationMessageTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Connection\ChannelOpenFailureMessageTest.cs">
+      <Link>Classes\Messages\Connection\ChannelOpenFailureMessageTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Connection\ChannelOpen\ChannelOpenMessageTest.cs">
+      <Link>Classes\Messages\Connection\ChannelOpen\ChannelOpenMessageTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Connection\ChannelOpen\DirectTcpipChannelInfoTest.cs">
+      <Link>Classes\Messages\Connection\ChannelOpen\DirectTcpipChannelInfoTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Connection\ChannelOpen\ForwardedTcpipChannelInfoTest.cs">
+      <Link>Classes\Messages\Connection\ChannelOpen\ForwardedTcpipChannelInfoTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Connection\ChannelOpen\SessionChannelOpenInfoTest.cs">
+      <Link>Classes\Messages\Connection\ChannelOpen\SessionChannelOpenInfoTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Connection\ChannelOpen\X11ChannelOpenInfoTest.cs">
+      <Link>Classes\Messages\Connection\ChannelOpen\X11ChannelOpenInfoTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Connection\ChannelRequest\BreakRequestInfoTest.cs">
+      <Link>Classes\Messages\Connection\ChannelRequest\BreakRequestInfoTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Connection\ChannelRequest\ChannelRequestMessageTest.cs">
+      <Link>Classes\Messages\Connection\ChannelRequest\ChannelRequestMessageTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Connection\ChannelRequest\EndOfWriteRequestInfoTest.cs">
+      <Link>Classes\Messages\Connection\ChannelRequest\EndOfWriteRequestInfoTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Connection\ChannelRequest\EnvironmentVariableRequestInfoTest.cs">
+      <Link>Classes\Messages\Connection\ChannelRequest\EnvironmentVariableRequestInfoTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Connection\ChannelRequest\ExecRequestInfoTest.cs">
+      <Link>Classes\Messages\Connection\ChannelRequest\ExecRequestInfoTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Connection\ChannelRequest\ExitSignalRequestInfoTest.cs">
+      <Link>Classes\Messages\Connection\ChannelRequest\ExitSignalRequestInfoTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Connection\ChannelRequest\ExitStatusRequestInfoTest.cs">
+      <Link>Classes\Messages\Connection\ChannelRequest\ExitStatusRequestInfoTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Connection\ChannelRequest\KeepAliveRequestInfoTest.cs">
+      <Link>Classes\Messages\Connection\ChannelRequest\KeepAliveRequestInfoTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Connection\ChannelRequest\PseudoTerminalInfoTest.cs">
+      <Link>Classes\Messages\Connection\ChannelRequest\PseudoTerminalInfoTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Connection\ChannelRequest\ShellRequestInfoTest.cs">
+      <Link>Classes\Messages\Connection\ChannelRequest\ShellRequestInfoTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Connection\ChannelRequest\SignalRequestInfoTest.cs">
+      <Link>Classes\Messages\Connection\ChannelRequest\SignalRequestInfoTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Connection\ChannelRequest\SubsystemRequestInfoTest.cs">
+      <Link>Classes\Messages\Connection\ChannelRequest\SubsystemRequestInfoTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Connection\ChannelRequest\WindowChangeRequestInfoTest.cs">
+      <Link>Classes\Messages\Connection\ChannelRequest\WindowChangeRequestInfoTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Connection\ChannelRequest\X11ForwardingRequestInfoTest.cs">
+      <Link>Classes\Messages\Connection\ChannelRequest\X11ForwardingRequestInfoTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Connection\ChannelRequest\XonXoffRequestInfoTest.cs">
+      <Link>Classes\Messages\Connection\ChannelRequest\XonXoffRequestInfoTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Connection\ChannelSuccessMessageTest.cs">
+      <Link>Classes\Messages\Connection\ChannelSuccessMessageTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Connection\ChannelWindowAdjustMessageTest.cs">
+      <Link>Classes\Messages\Connection\ChannelWindowAdjustMessageTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Connection\GlobalRequestMessageTest.cs">
+      <Link>Classes\Messages\Connection\GlobalRequestMessageTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Connection\RequestFailureMessageTest.cs">
+      <Link>Classes\Messages\Connection\RequestFailureMessageTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Connection\RequestSuccessMessageTest.cs">
+      <Link>Classes\Messages\Connection\RequestSuccessMessageTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Transport\DebugMessageTest.cs">
+      <Link>Classes\Messages\Transport\DebugMessageTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Transport\DisconnectMessageTest.cs">
+      <Link>Classes\Messages\Transport\DisconnectMessageTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Transport\IgnoreMessageTest.cs">
+      <Link>Classes\Messages\Transport\IgnoreMessageTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Transport\KeyExchangeDhGroupExchangeGroupTest.cs">
+      <Link>Classes\Messages\Transport\KeyExchangeDhGroupExchangeGroupTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Transport\KeyExchangeDhGroupExchangeInitTest.cs">
+      <Link>Classes\Messages\Transport\KeyExchangeDhGroupExchangeInitTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Transport\KeyExchangeDhGroupExchangeReplyTest.cs">
+      <Link>Classes\Messages\Transport\KeyExchangeDhGroupExchangeReplyTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Transport\KeyExchangeDhGroupExchangeRequestTest.cs">
+      <Link>Classes\Messages\Transport\KeyExchangeDhGroupExchangeRequestTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Transport\KeyExchangeDhInitMessageTest.cs">
+      <Link>Classes\Messages\Transport\KeyExchangeDhInitMessageTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Transport\KeyExchangeDhReplyMessageTest.cs">
+      <Link>Classes\Messages\Transport\KeyExchangeDhReplyMessageTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Transport\KeyExchangeInitMessageTest.cs">
+      <Link>Classes\Messages\Transport\KeyExchangeInitMessageTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Transport\NewKeysMessageTest.cs">
+      <Link>Classes\Messages\Transport\NewKeysMessageTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Transport\ServiceAcceptMessageTest.cs">
+      <Link>Classes\Messages\Transport\ServiceAcceptMessageTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Transport\ServiceRequestMessageTest.cs">
+      <Link>Classes\Messages\Transport\ServiceRequestMessageTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Transport\UnimplementedMessageTest.cs">
+      <Link>Classes\Messages\Transport\UnimplementedMessageTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\NetConfClientTest.cs">
+      <Link>Classes\NetConfClientTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Netconf\NetConfSessionTest.cs">
+      <Link>Classes\Netconf\NetConfSessionTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\NoneAuthenticationMethodTest.cs">
+      <Link>Classes\NoneAuthenticationMethodTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\PasswordAuthenticationMethodTest.cs">
+      <Link>Classes\PasswordAuthenticationMethodTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\PasswordConnectionInfoTest.cs">
+      <Link>Classes\PasswordConnectionInfoTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\PrivateKeyAuthenticationMethodTest.cs">
+      <Link>Classes\PrivateKeyAuthenticationMethodTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\PrivateKeyConnectionInfoTest.cs">
+      <Link>Classes\PrivateKeyConnectionInfoTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\PrivateKeyFileTest.cs">
+      <Link>Classes\PrivateKeyFileTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\ScpClientTest.cs">
+      <Link>Classes\ScpClientTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Security\CertificateHostAlgorithmTest.cs">
+      <Link>Classes\Security\CertificateHostAlgorithmTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Security\Cryptography\Ciphers\AesCipherTest.cs">
+      <Link>Classes\Security\Cryptography\Ciphers\AesCipherTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Security\Cryptography\Ciphers\Arc4CipherTest.cs">
+      <Link>Classes\Security\Cryptography\Ciphers\Arc4CipherTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Security\Cryptography\Ciphers\BlowfishCipherTest.cs">
+      <Link>Classes\Security\Cryptography\Ciphers\BlowfishCipherTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Security\Cryptography\Ciphers\CastCipherTest.cs">
+      <Link>Classes\Security\Cryptography\Ciphers\CastCipherTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Security\Cryptography\Ciphers\DesCipherTest.cs">
+      <Link>Classes\Security\Cryptography\Ciphers\DesCipherTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Security\Cryptography\Ciphers\Modes\CbcCipherModeTest.cs">
+      <Link>Classes\Security\Cryptography\Ciphers\Modes\CbcCipherModeTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Security\Cryptography\Ciphers\Modes\CfbCipherModeTest.cs">
+      <Link>Classes\Security\Cryptography\Ciphers\Modes\CfbCipherModeTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Security\Cryptography\Ciphers\Modes\CtrCipherModeTest.cs">
+      <Link>Classes\Security\Cryptography\Ciphers\Modes\CtrCipherModeTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Security\Cryptography\Ciphers\Modes\OfbCipherModeTest.cs">
+      <Link>Classes\Security\Cryptography\Ciphers\Modes\OfbCipherModeTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Security\Cryptography\Ciphers\Paddings\PKCS5PaddingTest.cs">
+      <Link>Classes\Security\Cryptography\Ciphers\Paddings\PKCS5PaddingTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Security\Cryptography\Ciphers\Paddings\PKCS7PaddingTest.cs">
+      <Link>Classes\Security\Cryptography\Ciphers\Paddings\PKCS7PaddingTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Security\Cryptography\Ciphers\RsaCipherTest.cs">
+      <Link>Classes\Security\Cryptography\Ciphers\RsaCipherTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Security\Cryptography\Ciphers\SerpentCipherTest.cs">
+      <Link>Classes\Security\Cryptography\Ciphers\SerpentCipherTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Security\Cryptography\Ciphers\TripleDesCipherTest.cs">
+      <Link>Classes\Security\Cryptography\Ciphers\TripleDesCipherTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Security\Cryptography\Ciphers\TwofishCipherTest.cs">
+      <Link>Classes\Security\Cryptography\Ciphers\TwofishCipherTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Security\Cryptography\DsaDigitalSignatureTest.cs">
+      <Link>Classes\Security\Cryptography\DsaDigitalSignatureTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Security\Cryptography\DsaKeyTest.cs">
+      <Link>Classes\Security\Cryptography\DsaKeyTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Security\Cryptography\Hashes\MD5HashTest.cs">
+      <Link>Classes\Security\Cryptography\Hashes\MD5HashTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Security\Cryptography\Hashes\SHA1HashTest.cs">
+      <Link>Classes\Security\Cryptography\Hashes\SHA1HashTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Security\Cryptography\Hashes\SHA256HashTest.cs">
+      <Link>Classes\Security\Cryptography\Hashes\SHA256HashTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Security\Cryptography\HMacTest.cs">
+      <Link>Classes\Security\Cryptography\HMacTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Security\Cryptography\RsaDigitalSignatureTest.cs">
+      <Link>Classes\Security\Cryptography\RsaDigitalSignatureTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Security\Cryptography\RsaKeyTest.cs">
+      <Link>Classes\Security\Cryptography\RsaKeyTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Security\KeyExchangeDiffieHellmanGroup14Sha1Test.cs">
+      <Link>Classes\Security\KeyExchangeDiffieHellmanGroup14Sha1Test.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Security\KeyExchangeDiffieHellmanGroup1Sha1Test.cs">
+      <Link>Classes\Security\KeyExchangeDiffieHellmanGroup1Sha1Test.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Security\KeyExchangeDiffieHellmanGroupExchangeSha1Test.cs">
+      <Link>Classes\Security\KeyExchangeDiffieHellmanGroupExchangeSha1Test.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Security\KeyExchangeDiffieHellmanGroupExchangeSha256Test.cs">
+      <Link>Classes\Security\KeyExchangeDiffieHellmanGroupExchangeSha256Test.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Security\KeyHostAlgorithmTest.cs">
+      <Link>Classes\Security\KeyHostAlgorithmTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\SessionTest.cs">
+      <Link>Classes\SessionTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\SftpClientTest.ChangeDirectory.cs">
+      <Link>Classes\SftpClientTest.ChangeDirectory.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\SftpClientTest.CreateDirectory.cs">
+      <Link>Classes\SftpClientTest.CreateDirectory.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\SftpClientTest.cs">
+      <Link>Classes\SftpClientTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\SftpClientTest.DeleteDirectory.cs">
+      <Link>Classes\SftpClientTest.DeleteDirectory.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\SftpClientTest.DeleteFile.cs">
+      <Link>Classes\SftpClientTest.DeleteFile.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\SftpClientTest.Download.cs">
+      <Link>Classes\SftpClientTest.Download.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\SftpClientTest.ListDirectory.cs">
+      <Link>Classes\SftpClientTest.ListDirectory.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\SftpClientTest.RenameFile.cs">
+      <Link>Classes\SftpClientTest.RenameFile.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\SftpClientTest.SynchronizeDirectories.cs">
+      <Link>Classes\SftpClientTest.SynchronizeDirectories.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\SftpClientTest.Upload.cs">
+      <Link>Classes\SftpClientTest.Upload.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\Requests\ExtendedRequests\FStatVfsRequestTest.cs">
+      <Link>Classes\Sftp\Requests\ExtendedRequests\FStatVfsRequestTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\Requests\ExtendedRequests\HardLinkRequestTest.cs">
+      <Link>Classes\Sftp\Requests\ExtendedRequests\HardLinkRequestTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\Requests\ExtendedRequests\PosixRenameRequestTest.cs">
+      <Link>Classes\Sftp\Requests\ExtendedRequests\PosixRenameRequestTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\Requests\ExtendedRequests\StatVfsRequestTest.cs">
+      <Link>Classes\Sftp\Requests\ExtendedRequests\StatVfsRequestTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\Requests\SftpBlockRequestTest.cs">
+      <Link>Classes\Sftp\Requests\SftpBlockRequestTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\Requests\SftpCloseRequestTest.cs">
+      <Link>Classes\Sftp\Requests\SftpCloseRequestTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\Requests\SftpFSetStatRequestTest.cs">
+      <Link>Classes\Sftp\Requests\SftpFSetStatRequestTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\Requests\SftpFStatRequestTest.cs">
+      <Link>Classes\Sftp\Requests\SftpFStatRequestTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\Requests\SftpInitRequestTest.cs">
+      <Link>Classes\Sftp\Requests\SftpInitRequestTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\Requests\SftpLinkRequestTest.cs">
+      <Link>Classes\Sftp\Requests\SftpLinkRequestTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\Requests\SftpLStatRequestTest.cs">
+      <Link>Classes\Sftp\Requests\SftpLStatRequestTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\Requests\SftpMkDirRequestTest.cs">
+      <Link>Classes\Sftp\Requests\SftpMkDirRequestTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\Requests\SftpOpenDirRequestTest.cs">
+      <Link>Classes\Sftp\Requests\SftpOpenDirRequestTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\Requests\SftpOpenRequestTest.cs">
+      <Link>Classes\Sftp\Requests\SftpOpenRequestTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\Requests\SftpReadDirRequestTest.cs">
+      <Link>Classes\Sftp\Requests\SftpReadDirRequestTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\Requests\SftpReadLinkRequestTest.cs">
+      <Link>Classes\Sftp\Requests\SftpReadLinkRequestTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\Requests\SftpReadRequestTest.cs">
+      <Link>Classes\Sftp\Requests\SftpReadRequestTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\Requests\SftpRealPathRequestTest.cs">
+      <Link>Classes\Sftp\Requests\SftpRealPathRequestTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\Requests\SftpRemoveRequestTest.cs">
+      <Link>Classes\Sftp\Requests\SftpRemoveRequestTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\Requests\SftpRenameRequestTest.cs">
+      <Link>Classes\Sftp\Requests\SftpRenameRequestTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\Requests\SftpRmDirRequestTest.cs">
+      <Link>Classes\Sftp\Requests\SftpRmDirRequestTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\Requests\SftpSetStatRequestTest.cs">
+      <Link>Classes\Sftp\Requests\SftpSetStatRequestTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\Requests\SftpStatRequestTest.cs">
+      <Link>Classes\Sftp\Requests\SftpStatRequestTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\Requests\SftpSymLinkRequestTest.cs">
+      <Link>Classes\Sftp\Requests\SftpSymLinkRequestTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\Requests\SftpUnblockRequestTest.cs">
+      <Link>Classes\Sftp\Requests\SftpUnblockRequestTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\Requests\SftpWriteRequestTest.cs">
+      <Link>Classes\Sftp\Requests\SftpWriteRequestTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\Responses\ExtendedReplies\StatVfsReplyInfoTest.cs">
+      <Link>Classes\Sftp\Responses\ExtendedReplies\StatVfsReplyInfoTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\Responses\SftpAttrsResponseTest.cs">
+      <Link>Classes\Sftp\Responses\SftpAttrsResponseTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\Responses\SftpDataResponseTest.cs">
+      <Link>Classes\Sftp\Responses\SftpDataResponseTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\Responses\SftpExtendedReplyResponseTest.cs">
+      <Link>Classes\Sftp\Responses\SftpExtendedReplyResponseTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\Responses\SftpHandleResponseTest.cs">
+      <Link>Classes\Sftp\Responses\SftpHandleResponseTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\Responses\SftpNameResponseTest.cs">
+      <Link>Classes\Sftp\Responses\SftpNameResponseTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\Responses\SftpStatusResponseTest.cs">
+      <Link>Classes\Sftp\Responses\SftpStatusResponseTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\Responses\SftpVersionResponseTest.cs">
+      <Link>Classes\Sftp\Responses\SftpVersionResponseTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpDataMessageTest.cs">
+      <Link>Classes\Sftp\SftpDataMessageTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpDownloadAsyncResultTest.cs">
+      <Link>Classes\Sftp\SftpDownloadAsyncResultTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileAttributesTest.cs">
+      <Link>Classes\Sftp\SftpFileAttributesTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileSystemInformationTest.cs">
+      <Link>Classes\Sftp\SftpFileSystemInformationTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileTest.cs">
+      <Link>Classes\Sftp\SftpFileTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpListDirectoryAsyncResultTest.cs">
+      <Link>Classes\Sftp\SftpListDirectoryAsyncResultTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpSessionTest.cs">
+      <Link>Classes\Sftp\SftpSessionTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpSynchronizeDirectoriesAsyncResultTest.cs">
+      <Link>Classes\Sftp\SftpSynchronizeDirectoriesAsyncResultTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpUploadAsyncResultTest.cs">
+      <Link>Classes\Sftp\SftpUploadAsyncResultTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\ShellStream.cs">
+      <Link>Classes\ShellStream.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\ShellTestTest.cs">
+      <Link>Classes\ShellTestTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\SshClientTest.cs">
+      <Link>Classes\SshClientTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\SshCommandTest.cs">
+      <Link>Classes\SshCommandTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Common\TestBase.cs">
+      <Link>Common\TestBase.cs</Link>
+    </Compile>
+    <Compile Include="Classes\ForwardedPortRemote.NET35.cs" />
+    <Compile Include="Classes\ForwardedPortLocal.NET35.cs" />
+    <Compile Include="Classes\SshCommandTest.NET35.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="SshClientTests\TestPortForwarding.NET35.cs" />
-    <Compile Include="SshClientTests\TestSshCommand.NET35.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Renci.SshNet.NET35\Renci.SshNet.NET35.csproj">
@@ -135,12 +678,14 @@
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" ProjectLinkReference="c45379b9-17b1-4e89-bc2e-6d41726413e8" />
+      <UserProperties ProjectLinkReference="c45379b9-17b1-4e89-bc2e-6d41726413e8" ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

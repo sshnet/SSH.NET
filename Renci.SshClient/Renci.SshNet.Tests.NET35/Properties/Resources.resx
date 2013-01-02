@@ -112,10 +112,10 @@
     <value>2.0</value>
   </resheader>
   <resheader name="reader">
-    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <resheader name="writer">
-    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="DSA_KEY_WITHOUT_PASS" xml:space="preserve">
     <value>-----BEGIN DSA PRIVATE KEY-----
@@ -170,6 +170,12 @@ tM7dZpB+reWl9L5e2L8=
   </data>
   <data name="PORT" xml:space="preserve">
     <value>22</value>
+  </data>
+  <data name="PROXY_HOST" xml:space="preserve">
+    <value>proxy.oleg-centos.edc.renci.org</value>
+  </data>
+  <data name="PROXY_PORT" xml:space="preserve">
+    <value>8123</value>
   </data>
   <data name="RSA_KEY_WITHOUT_PASS" xml:space="preserve">
     <value>-----BEGIN RSA PRIVATE KEY-----

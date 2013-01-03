@@ -264,36 +264,30 @@ namespace Renci.SshNet
 
             do
             {
-                byte[] textData = null;
                 lock (this._incoming)
                 {
-                    textData = this._incoming.ToArray();
-                }
+                    if (this._incoming.Count > 0)
+                        text = this._encoding.GetString(this._incoming.ToArray(), 0, this._incoming.Count);
 
-                if (textData.Length > 0)
-                    text = this._encoding.GetString(textData, 0, textData.Length);
-
-                if (text.Length > 0)
-                {
-                    foreach (var expectAction in expectActions)
+                    if (text.Length > 0)
                     {
-                        var match = expectAction.Expect.Match(text);
-
-                        if (match.Success)
+                        foreach (var expectAction in expectActions)
                         {
-                            var result = text.Substring(0, match.Index + match.Length);
+                            var match = expectAction.Expect.Match(text);
 
-                            lock (this._incoming)
+                            if (match.Success)
                             {
+                                var result = text.Substring(0, match.Index + match.Length);
+
                                 for (int i = 0; i < match.Index + match.Length; i++)
                                 {
                                     //  Remove processed items from the queue
                                     this._incoming.Dequeue();
                                 }
-                            }
 
-                            expectAction.Action(result);
-                            expectedFound = true;
+                                expectAction.Action(result);
+                                expectedFound = true;
+                            }
                         }
                     }
                 }
@@ -375,42 +369,37 @@ namespace Renci.SshNet
             {
                 do
                 {
-                    byte[] textData = null;
                     lock (this._incoming)
                     {
-                        textData = this._incoming.ToArray();
-                    }
 
-                    if (textData.Length > 0)
-                        text = this._encoding.GetString(textData, 0, textData.Length);
+                        if (this._incoming.Count > 0)
+                            text = this._encoding.GetString(this._incoming.ToArray(), 0, this._incoming.Count);
 
-                    if (text.Length > 0)
-                    {
-                        foreach (var expectAction in expectActions)
+                        if (text.Length > 0)
                         {
-                            var match = expectAction.Expect.Match(text);
-
-                            if (match.Success)
+                            foreach (var expectAction in expectActions)
                             {
-                                var result = text.Substring(0, match.Index + match.Length);
+                                var match = expectAction.Expect.Match(text);
 
-                                lock (this._incoming)
+                                if (match.Success)
                                 {
+                                    var result = text.Substring(0, match.Index + match.Length);
+
                                     for (int i = 0; i < match.Index + match.Length; i++)
                                     {
                                         //  Remove processed items from the queue
                                         this._incoming.Dequeue();
                                     }
-                                }
 
-                                expectAction.Action(result);
+                                    expectAction.Action(result);
 
-                                if (callback != null)
-                                {
-                                    callback(asyncResult);
+                                    if (callback != null)
+                                    {
+                                        callback(asyncResult);
+                                    }
+                                    ((EventWaitHandle)asyncResult.AsyncWaitHandle).Set();
+                                    break;
                                 }
-                                ((EventWaitHandle)asyncResult.AsyncWaitHandle).Set();
-                                break;
                             }
                         }
                     }
@@ -498,20 +487,29 @@ namespace Renci.SshNet
         /// </returns>
         public string Expect(Regex regex, TimeSpan timeout)
         {
+            //  TODO:   Refactor this method, will deda lock
             var text = string.Empty;
 
-            byte[] textData = null;
-            lock (this._incoming)
+            while (true)
             {
-                textData = this._incoming.ToArray();
-            }
+                lock (this._incoming)
+                {
+                    if (this._incoming.Count > 0)
+                        text = this._encoding.GetString(this._incoming.ToArray(), 0, this._incoming.Count);
 
-            if (textData.Length > 0)
-                text = this._encoding.GetString(textData, 0, textData.Length);
+                    var match = regex.Match(text.ToString());
 
-            var match = regex.Match(text.ToString());
-            while (!match.Success)
-            {
+                    if (match.Success)
+                    {
+                        //  Remove processed items from the queue
+                        for (int i = 0; i < match.Index + match.Length; i++)
+                        {
+                            this._incoming.Dequeue();
+                        }
+                        break;
+                    }
+                }
+
                 if (timeout != null)
                 {
                     if (!this._dataReceived.WaitOne(timeout))
@@ -524,24 +522,6 @@ namespace Renci.SshNet
                     this._dataReceived.WaitOne();
                 }
 
-                lock (this._incoming)
-                {
-                    textData = this._incoming.ToArray();
-                }
-
-                if (textData.Length > 0)
-                    text = this._encoding.GetString(textData, 0, textData.Length);
-
-                match = regex.Match(text.ToString());
-            }
-
-            lock (this._incoming)
-            {
-                for (int i = 0; i < match.Index + match.Length; i++)
-                {
-                    //  Remove processed items from the queue
-                    this._incoming.Dequeue();
-                }
             }
 
             return text;
@@ -567,19 +547,28 @@ namespace Renci.SshNet
         {
             var text = string.Empty;
 
-            byte[] textData = null;
-            lock (this._incoming)
+            while (true)
             {
-                textData = this._incoming.ToArray();
-            }
+                lock (this._incoming)
+                {
+                    if (this._incoming.Count > 0)
+                        text = this._encoding.GetString(this._incoming.ToArray(), 0, this._incoming.Count);
 
-            if (textData.Length > 0)
-                text = this._encoding.GetString(textData, 0, textData.Length);
+                    var index = text.IndexOf("\r\n");
 
+                    if (index >= 0)
+                    {
+                        text = text.Substring(0, index);
 
-            var index = text.ToString().IndexOf("\r\n");
-            while (index < 0)
-            {
+                        //  Remove processed items from the queue
+                        for (int i = 0; i < index + 2; i++)
+                        {
+                            this._incoming.Dequeue();
+                        }
+                        break;
+                    }
+                }
+
                 if (timeout != null)
                 {
                     if (!this._dataReceived.WaitOne(timeout))
@@ -592,30 +581,9 @@ namespace Renci.SshNet
                     this._dataReceived.WaitOne();
                 }
 
-                lock (this._incoming)
-                {
-                    textData = this._incoming.ToArray();
-                }
-
-                if (textData.Length > 0)
-                    text = this._encoding.GetString(textData, 0, textData.Length);
-
-
-                index = text.ToString().IndexOf("\r\n");
             }
 
-            text = text.Substring(0, index);
-
-            //  Remove processed items from the queue
-            lock (this._incoming)
-            {
-                for (int i = 0; i < index + 2; i++)
-                {
-                    this._incoming.Dequeue();
-                }
-            }
-
-            return text.ToString();
+            return text;
         }
 
         /// <summary>
@@ -626,15 +594,11 @@ namespace Renci.SshNet
         {
             var text = string.Empty;
 
-            byte[] textData = null;
             lock (this._incoming)
             {
-                textData = this._incoming.ToArray();
+                text = this._encoding.GetString(this._incoming.ToArray(), 0, this._incoming.Count);
                 this._incoming.Clear();
             }
-
-            if (textData.Length > 0)
-                text = this._encoding.GetString(textData, 0, textData.Length);
 
             return text.ToString();
         }

@@ -139,9 +139,13 @@ namespace Renci.SshNet.Security
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DsaKey"/> class.
+        /// Initializes a new instance of the <see cref="DsaKey" /> class.
         /// </summary>
-        /// <param name="keys">The keys.</param>
+        /// <param name="p">The p.</param>
+        /// <param name="q">The q.</param>
+        /// <param name="g">The g.</param>
+        /// <param name="y">The y.</param>
+        /// <param name="x">The x.</param>
         public DsaKey(BigInteger p, BigInteger q, BigInteger g, BigInteger y, BigInteger x)
         {
             this._privateKey = new BigInteger[5];

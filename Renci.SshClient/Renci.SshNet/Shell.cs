@@ -7,6 +7,7 @@ using System.Threading;
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Connection;
+using System.Collections.Generic;
 
 namespace Renci.SshNet
 {
@@ -33,7 +34,7 @@ namespace Renci.SshNet
 
         private uint _height;
 
-        private string _terminalMode;
+        private IDictionary<TerminalModes, uint> _terminalModes;
 
         private EventWaitHandle _dataReaderTaskCompleted;
 
@@ -90,7 +91,7 @@ namespace Renci.SshNet
         /// <param name="height">The height.</param>
         /// <param name="terminalMode">The terminal mode.</param>
         /// <param name="bufferSize">Size of the buffer for output stream.</param>
-        internal Shell(Session session, Stream input, Stream output, Stream extendedOutput, string terminalName, uint columns, uint rows, uint width, uint height, string terminalMode, int bufferSize)
+        internal Shell(Session session, Stream input, Stream output, Stream extendedOutput, string terminalName, uint columns, uint rows, uint width, uint height, IDictionary<TerminalModes, uint> terminalModes, int bufferSize)
         {
             this._session = session;
             this._input = input;
@@ -101,7 +102,7 @@ namespace Renci.SshNet
             this._rows = rows;
             this._width = width;
             this._height = height;
-            this._terminalMode = terminalMode;
+            this._terminalModes = terminalModes;
             this._bufferSize = bufferSize;
         }
 
@@ -129,8 +130,7 @@ namespace Renci.SshNet
             this._session.ErrorOccured += Session_ErrorOccured;
 
             this._channel.Open();
-            //  TODO:   Terminal mode is ignored as this functionality will be obsolete
-            this._channel.SendPseudoTerminalRequest(this._terminalName, this._columns, this._rows, this._width, this._height);
+            this._channel.SendPseudoTerminalRequest(this._terminalName, this._columns, this._rows, this._width, this._height, this._terminalModes);
             this._channel.SendShellRequest();
 
             this._channelClosedWaitHandle = new AutoResetEvent(false);

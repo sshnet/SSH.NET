@@ -329,8 +329,9 @@ namespace Renci.SshNet
         /// <param name="path">The path.</param>
         /// <param name="asyncCallback">The method to be called when the asynchronous write operation is completed.</param>
         /// <param name="state">A user-provided object that distinguishes this particular asynchronous write request from other requests.</param>
+        /// <param name="listCallback">The list callback.</param>
         /// <returns>
-        /// An <see cref="IAsyncResult"/> that references the asynchronous operation.
+        /// An <see cref="IAsyncResult" /> that references the asynchronous operation.
         /// </returns>
         public IAsyncResult BeginListDirectory(string path, AsyncCallback asyncCallback, object state, Action<int> listCallback = null)
         {
@@ -466,13 +467,20 @@ namespace Renci.SshNet
         /// <param name="output">The output.</param>
         /// <param name="asyncCallback">The method to be called when the asynchronous write operation is completed.</param>
         /// <param name="state">A user-provided object that distinguishes this particular asynchronous write request from other requests.</param>
-        /// <returns>An <see cref="IAsyncResult"/> that references the asynchronous operation.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="output"/> is <b>null</b>.</exception>
-        /// <exception cref="ArgumentException"><paramref name="path"/> is <b>null</b> or contains whitespace characters.</exception>
+        /// <param name="downloadCallback">The download callback.</param>
+        /// <returns>
+        /// An <see cref="IAsyncResult" /> that references the asynchronous operation.
+        /// </returns>
+        /// <exception cref="System.ArgumentException">path</exception>
+        /// <exception cref="System.ArgumentNullException">output</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="output" /> is <b>null</b>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="path" /> is <b>null</b> or contains whitespace characters.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="Renci.SshNet.Common.SftpPermissionDeniedException">Permission to perform the operation was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
-        /// <exception cref="Renci.SshNet.Common.SshException">A SSH error where <see cref="P:SshException.Message"/> is the message from the remote host.</exception>
-        /// <remarks>Method calls made by this method to <paramref name="output"/>, may under certain conditions result in exceptions thrown by the stream.</remarks>
+        /// <exception cref="Renci.SshNet.Common.SshException">A SSH error where <see cref="P:SshException.Message" /> is the message from the remote host.</exception>
+        /// <remarks>
+        /// Method calls made by this method to <paramref name="output" />, may under certain conditions result in exceptions thrown by the stream.
+        /// </remarks>
         public IAsyncResult BeginDownloadFile(string path, Stream output, AsyncCallback asyncCallback, object state, Action<ulong> downloadCallback = null)
         {
             if (path.IsNullOrWhiteSpace())
@@ -1247,7 +1255,7 @@ namespace Renci.SshNet
         /// Internals the list directory.
         /// </summary>
         /// <param name="path">The path.</param>
-        /// <param name="asynchResult">The asynch result.</param>
+        /// <param name="listCallback">The list callback.</param>
         /// <returns></returns>
         /// <exception cref="System.ArgumentNullException">path</exception>
         /// <exception cref="ArgumentNullException"><paramref name="path" /> is <b>null</b>.</exception>

@@ -220,15 +220,15 @@ namespace Renci.SshNet
         /// <param name="rows">The rows.</param>
         /// <param name="width">The width.</param>
         /// <param name="height">The height.</param>
-        /// <param name="terminalMode">The terminal mode.</param>
+        /// <param name="terminalModes">The terminal mode.</param>
         /// <param name="bufferSize">Size of the internal read buffer.</param>
         /// <returns>Returns a representation of a <see cref="Shell"/> object.</returns>
-        public Shell CreateShell(Stream input, Stream output, Stream extendedOutput, string terminalName, uint columns, uint rows, uint width, uint height, string terminalMode, int bufferSize)
+        public Shell CreateShell(Stream input, Stream output, Stream extendedOutput, string terminalName, uint columns, uint rows, uint width, uint height, IDictionary<TerminalModes, uint> terminalModes, int bufferSize)
         {
             //  Ensure that connection is established.
             this.EnsureConnection();
 
-            return new Shell(this.Session, input, output, extendedOutput, terminalName, columns, rows, width, height, terminalMode, bufferSize);
+            return new Shell(this.Session, input, output, extendedOutput, terminalName, columns, rows, width, height, terminalModes, bufferSize);
         }
 
         /// <summary>
@@ -242,11 +242,11 @@ namespace Renci.SshNet
         /// <param name="rows">The rows.</param>
         /// <param name="width">The width.</param>
         /// <param name="height">The height.</param>
-        /// <param name="terminalMode">The terminal mode.</param>
+        /// <param name="terminalModes">The terminal mode.</param>
         /// <returns>Returns a representation of a <see cref="Shell"/> object.</returns>
-        public Shell CreateShell(Stream input, Stream output, Stream extendedOutput, string terminalName, uint columns, uint rows, uint width, uint height, string terminalMode)
+        public Shell CreateShell(Stream input, Stream output, Stream extendedOutput, string terminalName, uint columns, uint rows, uint width, uint height, IDictionary<TerminalModes, uint> terminalModes)
         {
-            return this.CreateShell(input, output, extendedOutput, terminalName, columns, rows, width, height, terminalMode, 1024);
+            return this.CreateShell(input, output, extendedOutput, terminalName, columns, rows, width, height, terminalModes, 1024);
         }
 
         /// <summary>
@@ -258,7 +258,7 @@ namespace Renci.SshNet
         /// <returns>Returns a representation of a <see cref="Shell"/> object.</returns>
         public Shell CreateShell(Stream input, Stream output, Stream extendedOutput)
         {
-            return this.CreateShell(input, output, extendedOutput, string.Empty, 0, 0, 0, 0, string.Empty, 1024);
+            return this.CreateShell(input, output, extendedOutput, string.Empty, 0, 0, 0, 0, null, 1024);
         }
 
         /// <summary>
@@ -273,21 +273,18 @@ namespace Renci.SshNet
         /// <param name="rows">The rows.</param>
         /// <param name="width">The width.</param>
         /// <param name="height">The height.</param>
-        /// <param name="terminalMode">The terminal mode.</param>
+        /// <param name="terminalModes">The terminal mode.</param>
         /// <param name="bufferSize">Size of the internal read buffer.</param>
         /// <returns>Returns a representation of a <see cref="Shell"/> object.</returns>
-        public Shell CreateShell(Encoding encoding, string input, Stream output, Stream extendedOutput, string terminalName, uint columns, uint rows, uint width, uint height, string terminalMode, int bufferSize)
+        public Shell CreateShell(Encoding encoding, string input, Stream output, Stream extendedOutput, string terminalName, uint columns, uint rows, uint width, uint height, IDictionary<TerminalModes, uint> terminalModes, int bufferSize)
         {
-            //  Ensure that connection is established.
-            this.EnsureConnection();
-
             this._inputStream = new MemoryStream();
             var writer = new StreamWriter(this._inputStream, encoding);
             writer.Write(input);
             writer.Flush();
             this._inputStream.Seek(0, SeekOrigin.Begin);
 
-            return this.CreateShell(this._inputStream, output, extendedOutput, terminalName, columns, rows, width, height, terminalMode, bufferSize);
+            return this.CreateShell(this._inputStream, output, extendedOutput, terminalName, columns, rows, width, height, terminalModes, bufferSize);
         }
 
         /// <summary>
@@ -304,9 +301,9 @@ namespace Renci.SshNet
         /// <param name="height">The height.</param>
         /// <param name="terminalMode">The terminal mode.</param>
         /// <returns>Returns a representation of a <see cref="Shell"/> object.</returns>
-        public Shell CreateShell(Encoding encoding, string input, Stream output, Stream extendedOutput, string terminalName, uint columns, uint rows, uint width, uint height, string terminalMode)
+        public Shell CreateShell(Encoding encoding, string input, Stream output, Stream extendedOutput, string terminalName, uint columns, uint rows, uint width, uint height, IDictionary<TerminalModes, uint> terminalModes)
         {
-            return this.CreateShell(encoding, input, output, extendedOutput, terminalName, columns, rows, width, height, terminalMode, 1024);
+            return this.CreateShell(encoding, input, output, extendedOutput, terminalName, columns, rows, width, height, terminalModes, 1024);
         }
 
         /// <summary>
@@ -319,7 +316,7 @@ namespace Renci.SshNet
         /// <returns>Returns a representation of a <see cref="Shell"/> object.</returns>
         public Shell CreateShell(Encoding encoding, string input, Stream output, Stream extendedOutput)
         {
-            return this.CreateShell(encoding, input, output, extendedOutput, string.Empty, 0, 0, 0, 0, string.Empty, 1024);
+            return this.CreateShell(encoding, input, output, extendedOutput, string.Empty, 0, 0, 0, 0, null, 1024);
         }
 
         /// <summary>
@@ -333,14 +330,29 @@ namespace Renci.SshNet
         /// <param name="bufferSize">Size of the buffer.</param>
         /// <param name="terminalModeValues">The terminal mode values.</param>
         /// <returns></returns>
-        public ShellStream CreateShellStream(string terminalName, uint columns, uint rows, uint width, uint height, int bufferSize, params KeyValuePair<TerminalModes, uint>[] terminalModeValues)
+        public ShellStream CreateShellStream(string terminalName, uint columns, uint rows, uint width, uint height, int bufferSize)
+        {
+            return this.CreateShellStream(terminalName, columns, rows, width, height, bufferSize);
+        }
+
+        /// <summary>
+        /// Creates the shell stream.
+        /// </summary>
+        /// <param name="terminalName">Name of the terminal.</param>
+        /// <param name="columns">The columns.</param>
+        /// <param name="rows">The rows.</param>
+        /// <param name="width">The width.</param>
+        /// <param name="height">The height.</param>
+        /// <param name="bufferSize">Size of the buffer.</param>
+        /// <param name="terminalModeValues">The terminal mode values.</param>
+        /// <returns></returns>
+        public ShellStream CreateShellStream(string terminalName, uint columns, uint rows, uint width, uint height, int bufferSize, IDictionary<TerminalModes, uint> terminalModeValues)
         {
             //  Ensure that connection is established.
             this.EnsureConnection();
 
             return new ShellStream(this.Session, terminalName, columns, rows, width, height, bufferSize, terminalModeValues);
         }
-
 
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources

@@ -51,7 +51,7 @@ namespace Renci.SshNet
             }
         }
 
-        internal ShellStream(Session session, string terminalName, uint columns, uint rows, uint width, uint height, int maxLines, params KeyValuePair<TerminalModes, uint>[] terminalModeValues)
+        internal ShellStream(Session session, string terminalName, uint columns, uint rows, uint width, uint height, int maxLines, IDictionary<TerminalModes, uint> terminalModeValues)
         {
             this._encoding = new Renci.SshNet.Common.ASCIIEncoding();
             this._session = session;

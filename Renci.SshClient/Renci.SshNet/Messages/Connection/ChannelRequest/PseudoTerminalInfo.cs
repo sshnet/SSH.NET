@@ -70,7 +70,7 @@ namespace Renci.SshNet.Messages.Connection
         /// <value>
         /// The terminal mode.
         /// </value>
-        public KeyValuePair<TerminalModes, uint>[] TerminalModeValues { get; set; }
+        public IDictionary<TerminalModes, uint> TerminalModeValues { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PseudoTerminalRequestInfo"/> class.
@@ -89,7 +89,7 @@ namespace Renci.SshNet.Messages.Connection
         /// <param name="width">The width.</param>
         /// <param name="height">The height.</param>
         /// <param name="terminalModeValues">The terminal mode values.</param>
-        public PseudoTerminalRequestInfo(string environmentVariable, uint columns, uint rows, uint width, uint height, params KeyValuePair<TerminalModes, uint>[] terminalModeValues)
+        public PseudoTerminalRequestInfo(string environmentVariable, uint columns, uint rows, uint width, uint height, IDictionary<TerminalModes, uint> terminalModeValues)
             : this()
         {
             this.EnvironmentVariable = environmentVariable;
@@ -98,29 +98,6 @@ namespace Renci.SshNet.Messages.Connection
             this.PixelWidth = width;
             this.PixelHeight = height;
             this.TerminalModeValues = terminalModeValues;
-        }
-
-        /// <summary>
-        /// Called when type specific data need to be loaded.
-        /// </summary>
-        protected override void LoadData()
-        {
-            base.LoadData();
-
-            this.EnvironmentVariable = this.ReadString();
-            this.Columns = this.ReadUInt32();
-            this.Rows = this.ReadUInt32();
-            this.PixelWidth = this.ReadUInt32();
-            this.PixelHeight = this.ReadUInt32();
-
-            var length = this.ReadUInt32();
-
-            this.TerminalModeValues = new KeyValuePair<TerminalModes, uint>[(length - 1) / 5];
-            for (int i = 0; i < length; i++)
-            {
-                var keyValue = new KeyValuePair<TerminalModes, uint>((TerminalModes)this.ReadByte(), this.ReadUInt32());
-                this.TerminalModeValues[i] = keyValue;
-            }
         }
 
         /// <summary>
@@ -136,14 +113,21 @@ namespace Renci.SshNet.Messages.Connection
             this.Write(this.Rows);
             this.Write(this.PixelHeight);
 
-            this.Write((uint)this.TerminalModeValues.Length * 5 + 1);
-
-            foreach (var item in this.TerminalModeValues)
+            if (this.TerminalModeValues != null)
             {
-                this.Write((byte)item.Key);
-                this.Write((uint)item.Value);                
+                this.Write((uint)this.TerminalModeValues.Count * (1 + 4) + 1);
+
+                foreach (var item in this.TerminalModeValues)
+                {
+                    this.Write((byte)item.Key);
+                    this.Write(item.Value);
+                }
+                this.Write((byte)0);
             }
-            this.Write((byte)0);
+            else
+            {
+                this.Write((uint)0);
+            }
         }
     }
 }

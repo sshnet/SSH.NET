@@ -122,7 +122,7 @@ namespace Renci.SshNet.Channels
         /// <returns>
         /// true if request was successful; otherwise false.
         /// </returns>
-        public bool SendPseudoTerminalRequest(string environmentVariable, uint columns, uint rows, uint width, uint height, params KeyValuePair<TerminalModes, uint>[] terminalModeValues)
+        public bool SendPseudoTerminalRequest(string environmentVariable, uint columns, uint rows, uint width, uint height, IDictionary<TerminalModes, uint> terminalModeValues)
         {
             this._channelRequestResponse.Reset();
 

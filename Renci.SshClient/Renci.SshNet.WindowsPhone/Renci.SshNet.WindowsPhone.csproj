@@ -205,6 +205,9 @@
     <Compile Include="..\Renci.SshNet\ExpectAction.cs">
       <Link>ExpectAction.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\ExpectAsyncResult.cs">
+      <Link>ExpectAsyncResult.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\ForwardedPort.cs">
       <Link>ForwardedPort.cs</Link>
     </Compile>
@@ -763,8 +766,14 @@
     <Compile Include="..\Renci.SshNet\Shell.cs">
       <Link>Shell.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet.Silverlight\Shell.SilverlightShared.cs">
+      <Link>Shell.SilverlightShared.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\ShellStream.cs">
       <Link>ShellStream.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Silverlight\ShellStream.SilverlightShared.cs">
+      <Link>ShellStream.SilverlightShared.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\SshClient.cs">
       <Link>SshClient.cs</Link>
@@ -788,7 +797,7 @@
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\Silverlight for Phone\$(TargetFrameworkVersion)\Microsoft.Silverlight.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" ProjectLinkReference="2f5f8c90-0bd1-424f-997c-7bc6280919d1" />
+      <UserProperties ProjectLinkReference="2f5f8c90-0bd1-424f-997c-7bc6280919d1" ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

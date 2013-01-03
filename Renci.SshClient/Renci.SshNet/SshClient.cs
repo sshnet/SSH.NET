@@ -332,7 +332,7 @@ namespace Renci.SshNet
         /// <returns></returns>
         public ShellStream CreateShellStream(string terminalName, uint columns, uint rows, uint width, uint height, int bufferSize)
         {
-            return this.CreateShellStream(terminalName, columns, rows, width, height, bufferSize);
+            return this.CreateShellStream(terminalName, columns, rows, width, height, bufferSize, null);
         }
 
         /// <summary>

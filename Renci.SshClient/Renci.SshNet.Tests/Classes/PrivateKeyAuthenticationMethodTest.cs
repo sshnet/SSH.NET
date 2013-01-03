@@ -12,6 +12,7 @@ namespace Renci.SshNet.Tests.Classes
     {
         [TestMethod]
         [TestCategory("AuthenticationMethod")]
+        [TestCategory("PrivateKeyAuthenticationMethod")]
         [Owner("Kenneth_aa")]
         [Description("PrivateKeyAuthenticationMethod: Pass null as username, null as password.")]
         [ExpectedException(typeof(ArgumentException))]
@@ -22,6 +23,18 @@ namespace Renci.SshNet.Tests.Classes
 
         [TestMethod]
         [TestCategory("AuthenticationMethod")]
+        [TestCategory("PrivateKeyAuthenticationMethod")]
+        [Owner("olegkap")]
+        [Description("PrivateKeyAuthenticationMethod: Pass valid username, null as password.")]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void PrivateKey_Test_Pass_PrivateKey_Null()
+        {
+            new PrivateKeyAuthenticationMethod("username", null);
+        }
+
+        [TestMethod]
+        [TestCategory("AuthenticationMethod")]
+        [TestCategory("PrivateKeyAuthenticationMethod")]
         [Owner("Kenneth_aa")]
         [Description("PrivateKeyAuthenticationMethod: Pass String.Empty as username, null as password.")]
         [ExpectedException(typeof(ArgumentException))]

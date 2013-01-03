@@ -55,9 +55,6 @@ namespace Renci.SshNet
         /// <returns></returns>
         public override AuthenticationResult Authenticate(Session session)
         {
-            if (this.KeyFiles == null)
-                return AuthenticationResult.Failure;
-
             session.UserAuthenticationSuccessReceived += Session_UserAuthenticationSuccessReceived;
             session.UserAuthenticationFailureReceived += Session_UserAuthenticationFailureReceived;
             session.MessageReceived += Session_MessageReceived;

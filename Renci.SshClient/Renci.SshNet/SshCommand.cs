@@ -411,16 +411,14 @@ namespace Renci.SshNet
                     waitHandle,
                 };
 
-            var index = EventWaitHandle.WaitAny(waitHandles, this.CommandTimeout);
-
-            if (index < 1)
+            switch (EventWaitHandle.WaitAny(waitHandles, this.CommandTimeout))
             {
-                throw this._exception;
-            }
-            else if (index == System.Threading.WaitHandle.WaitTimeout)
-            {
-                //  throw time out error
-                throw new SshOperationTimeoutException(string.Format(CultureInfo.CurrentCulture, "Command '{0}' has timed out.", this.CommandText));
+                case 0:
+                    throw this._exception;
+                case System.Threading.WaitHandle.WaitTimeout:
+                    throw new SshOperationTimeoutException(string.Format(CultureInfo.CurrentCulture, "Command '{0}' has timed out.", this.CommandText));
+                default:
+                    break;
             }
         }
         

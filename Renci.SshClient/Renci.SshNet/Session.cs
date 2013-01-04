@@ -634,17 +634,15 @@ namespace Renci.SshNet
                     waitHandle,
                 };
 
-            var index = EventWaitHandle.WaitAny(waitHandles, this.ConnectionInfo.Timeout);
-
-            if (index < 1)
+            switch (EventWaitHandle.WaitAny(waitHandles, this.ConnectionInfo.Timeout))
             {
-                throw this._exception;
-            }
-            else if (index == System.Threading.WaitHandle.WaitTimeout)
-            {
-                this.SendDisconnect(DisconnectReason.ByApplication, "Operation timeout");
-
-                throw new SshOperationTimeoutException("Session operation has timed out");
+                case 0:
+                    throw this._exception;
+                case System.Threading.WaitHandle.WaitTimeout:
+                    this.SendDisconnect(DisconnectReason.ByApplication, "Operation timeout");
+                    throw new SshOperationTimeoutException("Session operation has timed out");
+                default:
+                    break;
             }
         }
 

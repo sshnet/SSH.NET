@@ -29,6 +29,8 @@ namespace Renci.SshNet.Sftp
 
         private EventWaitHandle _errorOccuredWaitHandle = new AutoResetEvent(false);
 
+        private EventWaitHandle _channelClosedWaitHandle = new AutoResetEvent(false);
+
         /// <summary>
         /// Specifies a timeout to wait for operation to complete
         /// </summary>
@@ -76,6 +78,7 @@ namespace Renci.SshNet.Sftp
             this._session.ErrorOccured += Session_ErrorOccured;
             this._session.Disconnected += Session_Disconnected;
             this._channel.DataReceived += Channel_DataReceived;
+            this._channel.Closed += Channel_Closed;
 
             this._channel.Open();
 
@@ -138,24 +141,30 @@ namespace Renci.SshNet.Sftp
             this.OnDataReceived(e.DataTypeCode, e.Data);
         }
 
+        private void Channel_Closed(object sender, Common.ChannelEventArgs e)
+        {
+            this._channelClosedWaitHandle.Set();
+        }
+
         internal void WaitHandle(WaitHandle waitHandle, TimeSpan operationTimeout)
         {
             var waitHandles = new WaitHandle[]
                 {
                     this._errorOccuredWaitHandle,
+                    this._channelClosedWaitHandle,
                     waitHandle,
                 };
 
-            var index = EventWaitHandle.WaitAny(waitHandles, operationTimeout);
-
-            if (index < 1)
+            switch (EventWaitHandle.WaitAny(waitHandles, operationTimeout))
             {
-                throw this._exception;
-            }
-            else if (index == System.Threading.WaitHandle.WaitTimeout)
-            {
-                //  throw time out error
-                throw new SshOperationTimeoutException(string.Format(CultureInfo.CurrentCulture, "Sftp operation has timed out."));
+                case 0:
+                    throw this._exception;
+                case 1:
+                    throw new SshException("Channel was closed.");
+                case System.Threading.WaitHandle.WaitTimeout:
+                    throw new SshOperationTimeoutException(string.Format(CultureInfo.CurrentCulture, "Operation has timed out."));
+                default:
+                    break;
             }
         }
 

@@ -1,75 +1,82 @@
-﻿using System;
+﻿using Renci.SshNet.Common;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Common
 {
     /// <summary>
-    /// Light implementation of SemaphoreSlim.
-    /// </summary>
-    public class SemaphoreLightTest
+    ///This is a test class for SemaphoreLightTest and is intended
+    ///to contain all SemaphoreLightTest Unit Tests
+    ///</summary>
+    [TestClass()]
+    public class SemaphoreLightTest : TestBase
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="SemaphoreLightTest"/> class, specifying
-        /// the initial number of requests that can be granted concurrently.
-        /// </summary>
-        /// <param name="initialCount">The initial number of requests for the semaphore that can be granted concurrently.</param>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="initialCount"/> is a negative number.</exception>
-        //    public SemaphoreLight(int initialCount)
-        //    {
-        //        if (initialCount < 0 )
-        //            throw new ArgumentOutOfRangeException("The initial argument is negative");
+        ///A test for SemaphoreLight Constructor
+        ///</summary>
+        [TestMethod()]
+        public void SemaphoreLightConstructorTest()
+        {
+            int initialCount = 0; // TODO: Initialize to an appropriate value
+            SemaphoreLight target = new SemaphoreLight(initialCount);
+            Assert.Inconclusive("TODO: Implement code to verify target");
+        }
 
-        //        this._currentCount = initialCount;
-        //    }
+        /// <summary>
+        ///A test for Release
+        ///</summary>
+        [TestMethod()]
+        public void ReleaseTest()
+        {
+            int initialCount = 0; // TODO: Initialize to an appropriate value
+            SemaphoreLight target = new SemaphoreLight(initialCount); // TODO: Initialize to an appropriate value
+            int expected = 0; // TODO: Initialize to an appropriate value
+            int actual;
+            actual = target.Release();
+            Assert.AreEqual(expected, actual);
+            Assert.Inconclusive("Verify the correctness of this test method.");
+        }
 
-        //    /// <summary>
-        //    /// Gets the current count of the <see cref="SemaphoreLight"/>.
-        //    /// </summary>
-        //    public int CurrentCount { get { return this._currentCount; } }
+        /// <summary>
+        ///A test for Release
+        ///</summary>
+        [TestMethod()]
+        public void ReleaseTest1()
+        {
+            int initialCount = 0; // TODO: Initialize to an appropriate value
+            SemaphoreLight target = new SemaphoreLight(initialCount); // TODO: Initialize to an appropriate value
+            int releaseCount = 0; // TODO: Initialize to an appropriate value
+            int expected = 0; // TODO: Initialize to an appropriate value
+            int actual;
+            actual = target.Release(releaseCount);
+            Assert.AreEqual(expected, actual);
+            Assert.Inconclusive("Verify the correctness of this test method.");
+        }
 
-        //    /// <summary>
-        //    /// Exits the <see cref="SemaphoreLight"/> once.
-        //    /// </summary>
-        //    /// <returns>The previous count of the <see cref="SemaphoreLight"/>.</returns>
-        //    public int Release()
-        //    {
-        //        return this.Release(1);
-        //    }
+        /// <summary>
+        ///A test for Wait
+        ///</summary>
+        [TestMethod()]
+        public void WaitTest()
+        {
+            int initialCount = 0; // TODO: Initialize to an appropriate value
+            SemaphoreLight target = new SemaphoreLight(initialCount); // TODO: Initialize to an appropriate value
+            target.Wait();
+            Assert.Inconclusive("A method that does not return a value cannot be verified.");
+        }
 
-        //    /// <summary>
-        //    /// Exits the <see cref="SemaphoreLight"/> a specified number of times.
-        //    /// </summary>
-        //    /// <param name="releaseCount">The number of times to exit the semaphore.</param>
-        //    /// <returns>The previous count of the <see cref="SemaphoreLight"/>.</returns>
-        //    public int Release(int releaseCount)
-        //    {
-        //        var oldCount = this._currentCount;
-
-        //        lock (this._lock)
-        //        {
-        //            this._currentCount += releaseCount;
-
-        //            Monitor.Pulse(this._lock);
-        //        }
-
-        //        return oldCount;
-        //    }
-
-        //    /// <summary>
-        //    /// Blocks the current thread until it can enter the <see cref="SemaphoreLight"/>.
-        //    /// </summary>
-        //    public void Wait()
-        //    {
-        //        lock (this._lock)
-        //        {
-        //            while (this._currentCount < 1)
-        //            {
-        //                Monitor.Wait(this._lock);
-        //            }
-
-        //            this._currentCount--;
-
-        //            Monitor.Pulse(this._lock);
-        //        }
-        //    }
+        /// <summary>
+        ///A test for CurrentCount
+        ///</summary>
+        [TestMethod()]
+        public void CurrentCountTest()
+        {
+            int initialCount = 0; // TODO: Initialize to an appropriate value
+            SemaphoreLight target = new SemaphoreLight(initialCount); // TODO: Initialize to an appropriate value
+            int actual;
+            actual = target.CurrentCount;
+            Assert.Inconclusive("Verify the correctness of this test method.");
+        }
     }
 }

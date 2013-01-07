@@ -1,26 +1,36 @@
-﻿using Renci.SshNet.Tests.Common;
+﻿using Renci.SshNet.Messages.Connection;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Messages.Connection
 {
     /// <summary>
-    /// Represents SSH_MSG_CHANNEL_CLOSE message.
-    /// </summary>
+    ///This is a test class for ChannelCloseMessageTest and is intended
+    ///to contain all ChannelCloseMessageTest Unit Tests
+    ///</summary>
+    [TestClass()]
     public class ChannelCloseMessageTest : TestBase
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="ChannelCloseMessage"/> class.
-        /// </summary>
-        //public ChannelCloseMessage()
-        //{
-        //}
+        ///A test for ChannelCloseMessage Constructor
+        ///</summary>
+        [TestMethod()]
+        public void ChannelCloseMessageConstructorTest()
+        {
+            ChannelCloseMessage target = new ChannelCloseMessage();
+            Assert.Inconclusive("TODO: Implement code to verify target");
+        }
 
-        ///// <summary>
-        ///// Initializes a new instance of the <see cref="ChannelCloseMessage"/> class.
-        ///// </summary>
-        ///// <param name="localChannelNumber">The local channel number.</param>
-        //public ChannelCloseMessage(uint localChannelNumber)
-        //{
-        //    LocalChannelNumber = localChannelNumber;
-        //}
+        /// <summary>
+        ///A test for ChannelCloseMessage Constructor
+        ///</summary>
+        [TestMethod()]
+        public void ChannelCloseMessageConstructorTest1()
+        {
+            uint localChannelNumber = 0; // TODO: Initialize to an appropriate value
+            ChannelCloseMessage target = new ChannelCloseMessage(localChannelNumber);
+            Assert.Inconclusive("TODO: Implement code to verify target");
+        }
     }
 }

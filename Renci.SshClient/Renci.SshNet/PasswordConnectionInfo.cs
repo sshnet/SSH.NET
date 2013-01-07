@@ -9,11 +9,19 @@ namespace Renci.SshNet
     /// <summary>
     /// Provides connection information when password authentication method is used
     /// </summary>
+    /// <remarks>
+    ///     Connect to the server using PasswordConnectionInfo object
+    ///     <code source="..\Examples\PasswordConnectionInfo.cs" region="ConnectUsingPasswordConnectionInfo" language="C#" title="Connect using PasswordConnectionInfo object" />
+    /// </remarks>
     public class PasswordConnectionInfo : ConnectionInfo, IDisposable
     {
         /// <summary>
         /// Occurs when user's password has expired and needs to be changed.
         /// </summary>
+        /// <example>
+        ///     This is an example of how to change expired password during connection phase.
+        ///     <code source="..\Examples\PasswordConnectionInfo.cs" region="ChangePasswordWhenConnecting" language="C#" title="Change password when connecting" />
+        /// </example>
         public event EventHandler<AuthenticationPasswordChangeEventArgs> PasswordExpired;
 
         /// <summary>

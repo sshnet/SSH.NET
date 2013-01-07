@@ -1,20 +1,25 @@
-﻿using Renci.SshNet.Tests.Common;
+﻿using Renci.SshNet.Messages.Authentication;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using Renci.SshNet.Tests.Common;
 
-namespace Renci.SshNet.Tests.Classes.Messages.Authentication
-{
+namespace Renci.SshNet.Tests.Messages.Authentication
+{   
     /// <summary>
-    /// Represents SSH_MSG_USERAUTH_BANNER message.
-    /// </summary>
+    ///This is a test class for BannerMessageTest and is intended
+    ///to contain all BannerMessageTest Unit Tests
+    ///</summary>
+    [TestClass()]
     public class BannerMessageTest : TestBase
     {
         /// <summary>
-        /// Gets banner message.
-        /// </summary>
-        public string Message { get; private set; }
-
-        /// <summary>
-        /// Gets banner language.
-        /// </summary>
-        public string Language { get; private set; }
+        ///A test for BannerMessage Constructor
+        ///</summary>
+        [TestMethod()]
+        public void BannerMessageConstructorTest()
+        {
+            BannerMessage target = new BannerMessage();
+            Assert.Inconclusive("TODO: Implement code to verify target");
+        }
     }
 }

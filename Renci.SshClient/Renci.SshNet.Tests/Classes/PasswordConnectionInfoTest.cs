@@ -12,6 +12,19 @@ namespace Renci.SshNet.Tests.Classes
     [TestClass]
     public class PasswordConnectionInfoTest : TestBase
     {
+        [TestMethod]
+        [TestCategory("PasswordConnectionInfo")]
+        [ExpectedException(typeof(ArgumentException))]
+        public void Test_ConnectionInfo()
+        {
+            #region ExampleConnectionInfo
+            var connectionInfo = new PasswordConnectionInfo(Resources.HOST, Resources.USERNAME, Resources.PASSWORD);
+            #endregion
+
+            Assert.AreEqual(connectionInfo.Host, Resources.HOST);
+            Assert.AreEqual(connectionInfo.Username, Resources.USERNAME);
+        }
+
         [WorkItem(703), TestMethod]
         [TestCategory("PasswordConnectionInfo")]
         [ExpectedException(typeof(ArgumentException))]
@@ -119,5 +132,265 @@ namespace Renci.SshNet.Tests.Classes
                 client.Disconnect();
             }
         }
+
+        /// <summary>
+        ///A test for Dispose
+        ///</summary>
+        [TestMethod()]
+        public void DisposeTest()
+        {
+            string host = string.Empty; // TODO: Initialize to an appropriate value
+            string username = string.Empty; // TODO: Initialize to an appropriate value
+            byte[] password = null; // TODO: Initialize to an appropriate value
+            PasswordConnectionInfo target = new PasswordConnectionInfo(host, username, password); // TODO: Initialize to an appropriate value
+            target.Dispose();
+            Assert.Inconclusive("A method that does not return a value cannot be verified.");
+        }
+
+        /// <summary>
+        ///A test for PasswordConnectionInfo Constructor
+        ///</summary>
+        [TestMethod()]
+        public void PasswordConnectionInfoConstructorTest()
+        {
+            string host = string.Empty; // TODO: Initialize to an appropriate value
+            int port = 0; // TODO: Initialize to an appropriate value
+            string username = string.Empty; // TODO: Initialize to an appropriate value
+            byte[] password = null; // TODO: Initialize to an appropriate value
+            ProxyTypes proxyType = new ProxyTypes(); // TODO: Initialize to an appropriate value
+            string proxyHost = string.Empty; // TODO: Initialize to an appropriate value
+            int proxyPort = 0; // TODO: Initialize to an appropriate value
+            string proxyUsername = string.Empty; // TODO: Initialize to an appropriate value
+            string proxyPassword = string.Empty; // TODO: Initialize to an appropriate value
+            PasswordConnectionInfo target = new PasswordConnectionInfo(host, port, username, password, proxyType, proxyHost, proxyPort, proxyUsername, proxyPassword);
+            Assert.Inconclusive("TODO: Implement code to verify target");
+        }
+
+        /// <summary>
+        ///A test for PasswordConnectionInfo Constructor
+        ///</summary>
+        [TestMethod()]
+        public void PasswordConnectionInfoConstructorTest1()
+        {
+            string host = string.Empty; // TODO: Initialize to an appropriate value
+            string username = string.Empty; // TODO: Initialize to an appropriate value
+            byte[] password = null; // TODO: Initialize to an appropriate value
+            ProxyTypes proxyType = new ProxyTypes(); // TODO: Initialize to an appropriate value
+            string proxyHost = string.Empty; // TODO: Initialize to an appropriate value
+            int proxyPort = 0; // TODO: Initialize to an appropriate value
+            string proxyUsername = string.Empty; // TODO: Initialize to an appropriate value
+            string proxyPassword = string.Empty; // TODO: Initialize to an appropriate value
+            PasswordConnectionInfo target = new PasswordConnectionInfo(host, username, password, proxyType, proxyHost, proxyPort, proxyUsername, proxyPassword);
+            Assert.Inconclusive("TODO: Implement code to verify target");
+        }
+
+        /// <summary>
+        ///A test for PasswordConnectionInfo Constructor
+        ///</summary>
+        [TestMethod()]
+        public void PasswordConnectionInfoConstructorTest2()
+        {
+            string host = string.Empty; // TODO: Initialize to an appropriate value
+            string username = string.Empty; // TODO: Initialize to an appropriate value
+            byte[] password = null; // TODO: Initialize to an appropriate value
+            ProxyTypes proxyType = new ProxyTypes(); // TODO: Initialize to an appropriate value
+            string proxyHost = string.Empty; // TODO: Initialize to an appropriate value
+            int proxyPort = 0; // TODO: Initialize to an appropriate value
+            string proxyUsername = string.Empty; // TODO: Initialize to an appropriate value
+            PasswordConnectionInfo target = new PasswordConnectionInfo(host, username, password, proxyType, proxyHost, proxyPort, proxyUsername);
+            Assert.Inconclusive("TODO: Implement code to verify target");
+        }
+
+        /// <summary>
+        ///A test for PasswordConnectionInfo Constructor
+        ///</summary>
+        [TestMethod()]
+        public void PasswordConnectionInfoConstructorTest3()
+        {
+            string host = string.Empty; // TODO: Initialize to an appropriate value
+            string username = string.Empty; // TODO: Initialize to an appropriate value
+            byte[] password = null; // TODO: Initialize to an appropriate value
+            ProxyTypes proxyType = new ProxyTypes(); // TODO: Initialize to an appropriate value
+            string proxyHost = string.Empty; // TODO: Initialize to an appropriate value
+            int proxyPort = 0; // TODO: Initialize to an appropriate value
+            PasswordConnectionInfo target = new PasswordConnectionInfo(host, username, password, proxyType, proxyHost, proxyPort);
+            Assert.Inconclusive("TODO: Implement code to verify target");
+        }
+
+        /// <summary>
+        ///A test for PasswordConnectionInfo Constructor
+        ///</summary>
+        [TestMethod()]
+        public void PasswordConnectionInfoConstructorTest4()
+        {
+            string host = string.Empty; // TODO: Initialize to an appropriate value
+            int port = 0; // TODO: Initialize to an appropriate value
+            string username = string.Empty; // TODO: Initialize to an appropriate value
+            byte[] password = null; // TODO: Initialize to an appropriate value
+            ProxyTypes proxyType = new ProxyTypes(); // TODO: Initialize to an appropriate value
+            string proxyHost = string.Empty; // TODO: Initialize to an appropriate value
+            int proxyPort = 0; // TODO: Initialize to an appropriate value
+            string proxyUsername = string.Empty; // TODO: Initialize to an appropriate value
+            PasswordConnectionInfo target = new PasswordConnectionInfo(host, port, username, password, proxyType, proxyHost, proxyPort, proxyUsername);
+            Assert.Inconclusive("TODO: Implement code to verify target");
+        }
+
+        /// <summary>
+        ///A test for PasswordConnectionInfo Constructor
+        ///</summary>
+        [TestMethod()]
+        public void PasswordConnectionInfoConstructorTest5()
+        {
+            string host = string.Empty; // TODO: Initialize to an appropriate value
+            int port = 0; // TODO: Initialize to an appropriate value
+            string username = string.Empty; // TODO: Initialize to an appropriate value
+            byte[] password = null; // TODO: Initialize to an appropriate value
+            ProxyTypes proxyType = new ProxyTypes(); // TODO: Initialize to an appropriate value
+            string proxyHost = string.Empty; // TODO: Initialize to an appropriate value
+            int proxyPort = 0; // TODO: Initialize to an appropriate value
+            PasswordConnectionInfo target = new PasswordConnectionInfo(host, port, username, password, proxyType, proxyHost, proxyPort);
+            Assert.Inconclusive("TODO: Implement code to verify target");
+        }
+
+        /// <summary>
+        ///A test for PasswordConnectionInfo Constructor
+        ///</summary>
+        [TestMethod()]
+        public void PasswordConnectionInfoConstructorTest6()
+        {
+            string host = string.Empty; // TODO: Initialize to an appropriate value
+            int port = 0; // TODO: Initialize to an appropriate value
+            string username = string.Empty; // TODO: Initialize to an appropriate value
+            byte[] password = null; // TODO: Initialize to an appropriate value
+            PasswordConnectionInfo target = new PasswordConnectionInfo(host, port, username, password);
+            Assert.Inconclusive("TODO: Implement code to verify target");
+        }
+
+        /// <summary>
+        ///A test for PasswordConnectionInfo Constructor
+        ///</summary>
+        [TestMethod()]
+        public void PasswordConnectionInfoConstructorTest7()
+        {
+            string host = string.Empty; // TODO: Initialize to an appropriate value
+            string username = string.Empty; // TODO: Initialize to an appropriate value
+            byte[] password = null; // TODO: Initialize to an appropriate value
+            PasswordConnectionInfo target = new PasswordConnectionInfo(host, username, password);
+            Assert.Inconclusive("TODO: Implement code to verify target");
+        }
+
+        /// <summary>
+        ///A test for PasswordConnectionInfo Constructor
+        ///</summary>
+        [TestMethod()]
+        public void PasswordConnectionInfoConstructorTest8()
+        {
+            string host = string.Empty; // TODO: Initialize to an appropriate value
+            string username = string.Empty; // TODO: Initialize to an appropriate value
+            string password = string.Empty; // TODO: Initialize to an appropriate value
+            ProxyTypes proxyType = new ProxyTypes(); // TODO: Initialize to an appropriate value
+            string proxyHost = string.Empty; // TODO: Initialize to an appropriate value
+            int proxyPort = 0; // TODO: Initialize to an appropriate value
+            string proxyUsername = string.Empty; // TODO: Initialize to an appropriate value
+            string proxyPassword = string.Empty; // TODO: Initialize to an appropriate value
+            PasswordConnectionInfo target = new PasswordConnectionInfo(host, username, password, proxyType, proxyHost, proxyPort, proxyUsername, proxyPassword);
+            Assert.Inconclusive("TODO: Implement code to verify target");
+        }
+
+        /// <summary>
+        ///A test for PasswordConnectionInfo Constructor
+        ///</summary>
+        [TestMethod()]
+        public void PasswordConnectionInfoConstructorTest9()
+        {
+            string host = string.Empty; // TODO: Initialize to an appropriate value
+            string username = string.Empty; // TODO: Initialize to an appropriate value
+            string password = string.Empty; // TODO: Initialize to an appropriate value
+            ProxyTypes proxyType = new ProxyTypes(); // TODO: Initialize to an appropriate value
+            string proxyHost = string.Empty; // TODO: Initialize to an appropriate value
+            int proxyPort = 0; // TODO: Initialize to an appropriate value
+            string proxyUsername = string.Empty; // TODO: Initialize to an appropriate value
+            PasswordConnectionInfo target = new PasswordConnectionInfo(host, username, password, proxyType, proxyHost, proxyPort, proxyUsername);
+            Assert.Inconclusive("TODO: Implement code to verify target");
+        }
+
+        /// <summary>
+        ///A test for PasswordConnectionInfo Constructor
+        ///</summary>
+        [TestMethod()]
+        public void PasswordConnectionInfoConstructorTest10()
+        {
+            string host = string.Empty; // TODO: Initialize to an appropriate value
+            string username = string.Empty; // TODO: Initialize to an appropriate value
+            string password = string.Empty; // TODO: Initialize to an appropriate value
+            ProxyTypes proxyType = new ProxyTypes(); // TODO: Initialize to an appropriate value
+            string proxyHost = string.Empty; // TODO: Initialize to an appropriate value
+            int proxyPort = 0; // TODO: Initialize to an appropriate value
+            PasswordConnectionInfo target = new PasswordConnectionInfo(host, username, password, proxyType, proxyHost, proxyPort);
+            Assert.Inconclusive("TODO: Implement code to verify target");
+        }
+
+        /// <summary>
+        ///A test for PasswordConnectionInfo Constructor
+        ///</summary>
+        [TestMethod()]
+        public void PasswordConnectionInfoConstructorTest11()
+        {
+            string host = string.Empty; // TODO: Initialize to an appropriate value
+            int port = 0; // TODO: Initialize to an appropriate value
+            string username = string.Empty; // TODO: Initialize to an appropriate value
+            string password = string.Empty; // TODO: Initialize to an appropriate value
+            ProxyTypes proxyType = new ProxyTypes(); // TODO: Initialize to an appropriate value
+            string proxyHost = string.Empty; // TODO: Initialize to an appropriate value
+            int proxyPort = 0; // TODO: Initialize to an appropriate value
+            string proxyUsername = string.Empty; // TODO: Initialize to an appropriate value
+            PasswordConnectionInfo target = new PasswordConnectionInfo(host, port, username, password, proxyType, proxyHost, proxyPort, proxyUsername);
+            Assert.Inconclusive("TODO: Implement code to verify target");
+        }
+
+        /// <summary>
+        ///A test for PasswordConnectionInfo Constructor
+        ///</summary>
+        [TestMethod()]
+        public void PasswordConnectionInfoConstructorTest12()
+        {
+            string host = string.Empty; // TODO: Initialize to an appropriate value
+            int port = 0; // TODO: Initialize to an appropriate value
+            string username = string.Empty; // TODO: Initialize to an appropriate value
+            string password = string.Empty; // TODO: Initialize to an appropriate value
+            ProxyTypes proxyType = new ProxyTypes(); // TODO: Initialize to an appropriate value
+            string proxyHost = string.Empty; // TODO: Initialize to an appropriate value
+            int proxyPort = 0; // TODO: Initialize to an appropriate value
+            PasswordConnectionInfo target = new PasswordConnectionInfo(host, port, username, password, proxyType, proxyHost, proxyPort);
+            Assert.Inconclusive("TODO: Implement code to verify target");
+        }
+
+        /// <summary>
+        ///A test for PasswordConnectionInfo Constructor
+        ///</summary>
+        [TestMethod()]
+        public void PasswordConnectionInfoConstructorTest13()
+        {
+            string host = string.Empty; // TODO: Initialize to an appropriate value
+            int port = 0; // TODO: Initialize to an appropriate value
+            string username = string.Empty; // TODO: Initialize to an appropriate value
+            string password = string.Empty; // TODO: Initialize to an appropriate value
+            PasswordConnectionInfo target = new PasswordConnectionInfo(host, port, username, password);
+            Assert.Inconclusive("TODO: Implement code to verify target");
+        }
+
+        /// <summary>
+        ///A test for PasswordConnectionInfo Constructor
+        ///</summary>
+        [TestMethod()]
+        public void PasswordConnectionInfoConstructorTest14()
+        {
+            string host = string.Empty; // TODO: Initialize to an appropriate value
+            string username = string.Empty; // TODO: Initialize to an appropriate value
+            string password = string.Empty; // TODO: Initialize to an appropriate value
+            PasswordConnectionInfo target = new PasswordConnectionInfo(host, username, password);
+            Assert.Inconclusive("TODO: Implement code to verify target");
+        }
+
     }
 }

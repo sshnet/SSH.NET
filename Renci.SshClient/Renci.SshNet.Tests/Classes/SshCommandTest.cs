@@ -312,6 +312,175 @@ namespace Renci.SshNet.Tests.Classes
             }
         }
 
+        /// <summary>
+        ///A test for BeginExecute
+        ///</summary>
+        [TestMethod()]
+        public void BeginExecuteTest()
+        {
+            Session session = null; // TODO: Initialize to an appropriate value
+            string commandText = string.Empty; // TODO: Initialize to an appropriate value
+            Encoding encoding = null; // TODO: Initialize to an appropriate value
+            SshCommand target = new SshCommand(session, commandText, encoding); // TODO: Initialize to an appropriate value
+            AsyncCallback callback = null; // TODO: Initialize to an appropriate value
+            object state = null; // TODO: Initialize to an appropriate value
+            IAsyncResult expected = null; // TODO: Initialize to an appropriate value
+            IAsyncResult actual;
+            actual = target.BeginExecute(callback, state);
+            Assert.AreEqual(expected, actual);
+            Assert.Inconclusive("Verify the correctness of this test method.");
+        }
+
+        /// <summary>
+        ///A test for BeginExecute
+        ///</summary>
+        [TestMethod()]
+        public void BeginExecuteTest1()
+        {
+            Session session = null; // TODO: Initialize to an appropriate value
+            string commandText = string.Empty; // TODO: Initialize to an appropriate value
+            Encoding encoding = null; // TODO: Initialize to an appropriate value
+            SshCommand target = new SshCommand(session, commandText, encoding); // TODO: Initialize to an appropriate value
+            string commandText1 = string.Empty; // TODO: Initialize to an appropriate value
+            AsyncCallback callback = null; // TODO: Initialize to an appropriate value
+            object state = null; // TODO: Initialize to an appropriate value
+            IAsyncResult expected = null; // TODO: Initialize to an appropriate value
+            IAsyncResult actual;
+            actual = target.BeginExecute(commandText1, callback, state);
+            Assert.AreEqual(expected, actual);
+            Assert.Inconclusive("Verify the correctness of this test method.");
+        }
+
+        /// <summary>
+        ///A test for CancelAsync
+        ///</summary>
+        [TestMethod()]
+        public void CancelAsyncTest()
+        {
+            Session session = null; // TODO: Initialize to an appropriate value
+            string commandText = string.Empty; // TODO: Initialize to an appropriate value
+            Encoding encoding = null; // TODO: Initialize to an appropriate value
+            SshCommand target = new SshCommand(session, commandText, encoding); // TODO: Initialize to an appropriate value
+            target.CancelAsync();
+            Assert.Inconclusive("A method that does not return a value cannot be verified.");
+        }
+
+        /// <summary>
+        ///A test for Dispose
+        ///</summary>
+        [TestMethod()]
+        public void DisposeTest()
+        {
+            Session session = null; // TODO: Initialize to an appropriate value
+            string commandText = string.Empty; // TODO: Initialize to an appropriate value
+            Encoding encoding = null; // TODO: Initialize to an appropriate value
+            SshCommand target = new SshCommand(session, commandText, encoding); // TODO: Initialize to an appropriate value
+            target.Dispose();
+            Assert.Inconclusive("A method that does not return a value cannot be verified.");
+        }
+
+        /// <summary>
+        ///A test for EndExecute
+        ///</summary>
+        [TestMethod()]
+        public void EndExecuteTest()
+        {
+            Session session = null; // TODO: Initialize to an appropriate value
+            string commandText = string.Empty; // TODO: Initialize to an appropriate value
+            Encoding encoding = null; // TODO: Initialize to an appropriate value
+            SshCommand target = new SshCommand(session, commandText, encoding); // TODO: Initialize to an appropriate value
+            IAsyncResult asyncResult = null; // TODO: Initialize to an appropriate value
+            string expected = string.Empty; // TODO: Initialize to an appropriate value
+            string actual;
+            actual = target.EndExecute(asyncResult);
+            Assert.AreEqual(expected, actual);
+            Assert.Inconclusive("Verify the correctness of this test method.");
+        }
+
+        /// <summary>
+        ///A test for Execute
+        ///</summary>
+        [TestMethod()]
+        public void ExecuteTest()
+        {
+            Session session = null; // TODO: Initialize to an appropriate value
+            string commandText = string.Empty; // TODO: Initialize to an appropriate value
+            Encoding encoding = null; // TODO: Initialize to an appropriate value
+            SshCommand target = new SshCommand(session, commandText, encoding); // TODO: Initialize to an appropriate value
+            string expected = string.Empty; // TODO: Initialize to an appropriate value
+            string actual;
+            actual = target.Execute();
+            Assert.AreEqual(expected, actual);
+            Assert.Inconclusive("Verify the correctness of this test method.");
+        }
+
+        /// <summary>
+        ///A test for Execute
+        ///</summary>
+        [TestMethod()]
+        public void ExecuteTest1()
+        {
+            Session session = null; // TODO: Initialize to an appropriate value
+            string commandText = string.Empty; // TODO: Initialize to an appropriate value
+            Encoding encoding = null; // TODO: Initialize to an appropriate value
+            SshCommand target = new SshCommand(session, commandText, encoding); // TODO: Initialize to an appropriate value
+            string commandText1 = string.Empty; // TODO: Initialize to an appropriate value
+            string expected = string.Empty; // TODO: Initialize to an appropriate value
+            string actual;
+            actual = target.Execute(commandText1);
+            Assert.AreEqual(expected, actual);
+            Assert.Inconclusive("Verify the correctness of this test method.");
+        }
+
+        /// <summary>
+        ///A test for CommandTimeout
+        ///</summary>
+        [TestMethod()]
+        public void CommandTimeoutTest()
+        {
+            Session session = null; // TODO: Initialize to an appropriate value
+            string commandText = string.Empty; // TODO: Initialize to an appropriate value
+            Encoding encoding = null; // TODO: Initialize to an appropriate value
+            SshCommand target = new SshCommand(session, commandText, encoding); // TODO: Initialize to an appropriate value
+            TimeSpan expected = new TimeSpan(); // TODO: Initialize to an appropriate value
+            TimeSpan actual;
+            target.CommandTimeout = expected;
+            actual = target.CommandTimeout;
+            Assert.AreEqual(expected, actual);
+            Assert.Inconclusive("Verify the correctness of this test method.");
+        }
+
+        /// <summary>
+        ///A test for Error
+        ///</summary>
+        [TestMethod()]
+        public void ErrorTest()
+        {
+            Session session = null; // TODO: Initialize to an appropriate value
+            string commandText = string.Empty; // TODO: Initialize to an appropriate value
+            Encoding encoding = null; // TODO: Initialize to an appropriate value
+            SshCommand target = new SshCommand(session, commandText, encoding); // TODO: Initialize to an appropriate value
+            string actual;
+            actual = target.Error;
+            Assert.Inconclusive("Verify the correctness of this test method.");
+        }
+
+        /// <summary>
+        ///A test for Result
+        ///</summary>
+        [TestMethod()]
+        public void ResultTest()
+        {
+            Session session = null; // TODO: Initialize to an appropriate value
+            string commandText = string.Empty; // TODO: Initialize to an appropriate value
+            Encoding encoding = null; // TODO: Initialize to an appropriate value
+            SshCommand target = new SshCommand(session, commandText, encoding); // TODO: Initialize to an appropriate value
+            string actual;
+            actual = target.Result;
+            Assert.Inconclusive("Verify the correctness of this test method.");
+        }
+
+
         private static bool ExecuteTestCommand(SshClient s)
         {
             var testValue = Guid.NewGuid().ToString();

@@ -280,5 +280,63 @@ Gxo8zq0rW/IsrwvhWLLGtvmy68Be+WAi/mDHf6x4
 -----END RSA PRIVATE KEY-----";
             new PrivateKeyFile(new MemoryStream(Encoding.ASCII.GetBytes(key)), "1234567890");
         }
+
+        /// <summary>
+        ///A test for Dispose
+        ///</summary>
+        [TestMethod()]
+        public void DisposeTest()
+        {
+            Stream privateKey = null; // TODO: Initialize to an appropriate value
+            PrivateKeyFile target = new PrivateKeyFile(privateKey); // TODO: Initialize to an appropriate value
+            target.Dispose();
+            Assert.Inconclusive("A method that does not return a value cannot be verified.");
+        }
+
+        /// <summary>
+        ///A test for PrivateKeyFile Constructor
+        ///</summary>
+        [TestMethod()]
+        public void PrivateKeyFileConstructorTest()
+        {
+            Stream privateKey = null; // TODO: Initialize to an appropriate value
+            string passPhrase = string.Empty; // TODO: Initialize to an appropriate value
+            PrivateKeyFile target = new PrivateKeyFile(privateKey, passPhrase);
+            Assert.Inconclusive("TODO: Implement code to verify target");
+        }
+
+        /// <summary>
+        ///A test for PrivateKeyFile Constructor
+        ///</summary>
+        [TestMethod()]
+        public void PrivateKeyFileConstructorTest1()
+        {
+            string fileName = string.Empty; // TODO: Initialize to an appropriate value
+            string passPhrase = string.Empty; // TODO: Initialize to an appropriate value
+            PrivateKeyFile target = new PrivateKeyFile(fileName, passPhrase);
+            Assert.Inconclusive("TODO: Implement code to verify target");
+        }
+
+        /// <summary>
+        ///A test for PrivateKeyFile Constructor
+        ///</summary>
+        [TestMethod()]
+        public void PrivateKeyFileConstructorTest2()
+        {
+            string fileName = string.Empty; // TODO: Initialize to an appropriate value
+            PrivateKeyFile target = new PrivateKeyFile(fileName);
+            Assert.Inconclusive("TODO: Implement code to verify target");
+        }
+
+        /// <summary>
+        ///A test for PrivateKeyFile Constructor
+        ///</summary>
+        [TestMethod()]
+        public void PrivateKeyFileConstructorTest3()
+        {
+            Stream privateKey = null; // TODO: Initialize to an appropriate value
+            PrivateKeyFile target = new PrivateKeyFile(privateKey);
+            Assert.Inconclusive("TODO: Implement code to verify target");
+        }
     }
 }

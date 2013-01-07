@@ -16,7 +16,7 @@ namespace Renci.SshNet.Tests.Classes
     {
         [TestMethod]
         [WorkItem(713)]
-        [Owner("kenneth_aa")]
+        [Owner("Kenneth_aa")]
         [TestCategory("PortForwarding")]
         [Description("Test if calling Stop on ForwardedPortLocal instance causes wait.")]
         public void Test_PortForwarding_Local_Stop_Hangs_On_Wait()
@@ -101,6 +101,75 @@ namespace Renci.SshNet.Tests.Classes
                 client.AddForwardedPort(port1);
                 client.Disconnect();
             }
+        }
+
+        /// <summary>
+        ///A test for ForwardedPortLocal Constructor
+        ///</summary>
+        [TestMethod()]
+        public void ForwardedPortLocalConstructorTest()
+        {
+            string boundHost = string.Empty; // TODO: Initialize to an appropriate value
+            uint boundPort = 0; // TODO: Initialize to an appropriate value
+            string host = string.Empty; // TODO: Initialize to an appropriate value
+            uint port = 0; // TODO: Initialize to an appropriate value
+            ForwardedPortLocal target = new ForwardedPortLocal(boundHost, boundPort, host, port);
+            Assert.Inconclusive("TODO: Implement code to verify target");
+        }
+
+        /// <summary>
+        ///A test for ForwardedPortLocal Constructor
+        ///</summary>
+        [TestMethod()]
+        public void ForwardedPortLocalConstructorTest1()
+        {
+            uint boundPort = 0; // TODO: Initialize to an appropriate value
+            string host = string.Empty; // TODO: Initialize to an appropriate value
+            uint port = 0; // TODO: Initialize to an appropriate value
+            ForwardedPortLocal target = new ForwardedPortLocal(boundPort, host, port);
+            Assert.Inconclusive("TODO: Implement code to verify target");
+        }
+
+        /// <summary>
+        ///A test for Stop
+        ///</summary>
+        [TestMethod()]
+        public void StopTest()
+        {
+            uint boundPort = 0; // TODO: Initialize to an appropriate value
+            string host = string.Empty; // TODO: Initialize to an appropriate value
+            uint port = 0; // TODO: Initialize to an appropriate value
+            ForwardedPortLocal target = new ForwardedPortLocal(boundPort, host, port); // TODO: Initialize to an appropriate value
+            target.Stop();
+            Assert.Inconclusive("A method that does not return a value cannot be verified.");
+        }
+
+        /// <summary>
+        ///A test for Start
+        ///</summary>
+        [TestMethod()]
+        public void StartTest()
+        {
+            uint boundPort = 0; // TODO: Initialize to an appropriate value
+            string host = string.Empty; // TODO: Initialize to an appropriate value
+            uint port = 0; // TODO: Initialize to an appropriate value
+            ForwardedPortLocal target = new ForwardedPortLocal(boundPort, host, port); // TODO: Initialize to an appropriate value
+            target.Start();
+            Assert.Inconclusive("A method that does not return a value cannot be verified.");
+        }
+
+        /// <summary>
+        ///A test for Dispose
+        ///</summary>
+        [TestMethod()]
+        public void DisposeTest()
+        {
+            uint boundPort = 0; // TODO: Initialize to an appropriate value
+            string host = string.Empty; // TODO: Initialize to an appropriate value
+            uint port = 0; // TODO: Initialize to an appropriate value
+            ForwardedPortLocal target = new ForwardedPortLocal(boundPort, host, port); // TODO: Initialize to an appropriate value
+            target.Dispose();
+            Assert.Inconclusive("A method that does not return a value cannot be verified.");
         }
     }
 }

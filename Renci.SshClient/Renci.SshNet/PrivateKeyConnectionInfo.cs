@@ -9,6 +9,10 @@ namespace Renci.SshNet
     /// <summary>
     /// Provides connection information when private key authentication method is used
     /// </summary>
+    /// <example>
+    ///     Key examples
+    ///     <code source="..\Examples\PrivateKeyConnectionInfo.cs" region="ConnectUsingPrivateKeyConnectionInfo" language="C#" title="Connection example" />
+    /// </example>
     public class PrivateKeyConnectionInfo : ConnectionInfo, IDisposable
     {
         /// <summary>

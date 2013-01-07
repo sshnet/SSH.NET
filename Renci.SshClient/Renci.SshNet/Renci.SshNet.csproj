@@ -131,6 +131,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="ConnectionInfo.cs" />
+    <Compile Include="Examples\PasswordConnectionInfo.cs" />
+    <Compile Include="Examples\PrivateKeyConnectionInfo.cs" />
+    <Compile Include="Examples\PrivateKeyFile.cs" />
+    <Compile Include="Examples\SshClient.cs" />
     <Compile Include="ShellStream.NET40.cs" />
     <Compile Include="ExpectAsyncResult.cs" />
     <Compile Include="Security\KeyExchangeDiffieHellmanGroupSha1.cs" />
@@ -432,6 +436,7 @@
     </Compile>
     <Compile Include="SshClient.cs" />
     <Compile Include="SshCommand.cs" />
+    <Compile Include="Examples\SshCommand.cs" />
     <Compile Include="SshCommand.NET40.cs" />
     <Compile Include="SubsystemSession.cs" />
   </ItemGroup>

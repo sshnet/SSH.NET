@@ -38,5 +38,79 @@ namespace Renci.SshNet.Tests.Classes.Security
                 client.Disconnect();
             }
         }
+
+        /// <summary>
+        ///A test for KeyHostAlgorithm Constructor
+        ///</summary>
+        [TestMethod()]
+        public void KeyHostAlgorithmConstructorTest()
+        {
+            string name = string.Empty; // TODO: Initialize to an appropriate value
+            Key key = null; // TODO: Initialize to an appropriate value
+            KeyHostAlgorithm target = new KeyHostAlgorithm(name, key);
+            Assert.Inconclusive("TODO: Implement code to verify target");
+        }
+
+        /// <summary>
+        ///A test for KeyHostAlgorithm Constructor
+        ///</summary>
+        [TestMethod()]
+        public void KeyHostAlgorithmConstructorTest1()
+        {
+            string name = string.Empty; // TODO: Initialize to an appropriate value
+            Key key = null; // TODO: Initialize to an appropriate value
+            byte[] data = null; // TODO: Initialize to an appropriate value
+            KeyHostAlgorithm target = new KeyHostAlgorithm(name, key, data);
+            Assert.Inconclusive("TODO: Implement code to verify target");
+        }
+
+        /// <summary>
+        ///A test for Sign
+        ///</summary>
+        [TestMethod()]
+        public void SignTest()
+        {
+            string name = string.Empty; // TODO: Initialize to an appropriate value
+            Key key = null; // TODO: Initialize to an appropriate value
+            KeyHostAlgorithm target = new KeyHostAlgorithm(name, key); // TODO: Initialize to an appropriate value
+            byte[] data = null; // TODO: Initialize to an appropriate value
+            byte[] expected = null; // TODO: Initialize to an appropriate value
+            byte[] actual;
+            actual = target.Sign(data);
+            Assert.AreEqual(expected, actual);
+            Assert.Inconclusive("Verify the correctness of this test method.");
+        }
+
+        /// <summary>
+        ///A test for VerifySignature
+        ///</summary>
+        [TestMethod()]
+        public void VerifySignatureTest()
+        {
+            string name = string.Empty; // TODO: Initialize to an appropriate value
+            Key key = null; // TODO: Initialize to an appropriate value
+            KeyHostAlgorithm target = new KeyHostAlgorithm(name, key); // TODO: Initialize to an appropriate value
+            byte[] data = null; // TODO: Initialize to an appropriate value
+            byte[] signature = null; // TODO: Initialize to an appropriate value
+            bool expected = false; // TODO: Initialize to an appropriate value
+            bool actual;
+            actual = target.VerifySignature(data, signature);
+            Assert.AreEqual(expected, actual);
+            Assert.Inconclusive("Verify the correctness of this test method.");
+        }
+
+        /// <summary>
+        ///A test for Data
+        ///</summary>
+        [TestMethod()]
+        public void DataTest()
+        {
+            string name = string.Empty; // TODO: Initialize to an appropriate value
+            Key key = null; // TODO: Initialize to an appropriate value
+            KeyHostAlgorithm target = new KeyHostAlgorithm(name, key); // TODO: Initialize to an appropriate value
+            byte[] actual;
+            actual = target.Data;
+            Assert.Inconclusive("Verify the correctness of this test method.");
+        }
     }
 }

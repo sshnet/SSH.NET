@@ -213,7 +213,7 @@ namespace Renci.SshNet
         //  TODO: DOCS Add exception documentation for this class.
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ConnectionInfo"/> class.
+        /// Initializes a new instance of the <see cref="ConnectionInfo" /> class.
         /// </summary>
         /// <param name="host">Connection host.</param>
         /// <param name="port">Connection port.</param>
@@ -224,11 +224,11 @@ namespace Renci.SshNet
         /// <param name="proxyUsername">The proxy username.</param>
         /// <param name="proxyPassword">The proxy password.</param>
         /// <param name="authenticationMethods">The authentication methods.</param>
-        /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, or <paramref name="username"/> is null or contains whitespace characters.</exception>
-        ///   
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="port"/> is not within <see cref="IPEndPoint.MinPort"/> and <see cref="IPEndPoint.MaxPort"/>.</exception>
-        ///   
-        /// <exception cref="ArgumentException"><paramref name="username"/> is null or empty.</exception>
+        /// <exception cref="System.ArgumentException">host</exception>
+        /// <exception cref="System.ArgumentOutOfRangeException">proxyPort</exception>
+        /// <exception cref="ArgumentException"><paramref name="host" /> is invalid, or <paramref name="username" /> is null or contains whitespace characters.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="port" /> is not within <see cref="IPEndPoint.MinPort" /> and <see cref="IPEndPoint.MaxPort" />.</exception>
+        /// <exception cref="ArgumentException"><paramref name="host" /> is invalid, or <paramref name="username" /> is null or contains whitespace characters.</exception>
         public ConnectionInfo(string host, int port, string username, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername, string proxyPassword, params AuthenticationMethod[] authenticationMethods)
         {
             if (!host.IsValidHost())
@@ -380,10 +380,10 @@ namespace Renci.SshNet
             {
                 //  Find first authentication method
                 var method = this.AuthenticationMethods.Where((a) => allowedAuthentications.Contains(a.Name) && !triedAuthentications.Contains(a.Name)).FirstOrDefault();
-                triedAuthentications.Add(method.Name);
-
                 if (method == null)
                     throw new SshAuthenticationException("No suitable authentication method found to complete authentication.");
+
+                triedAuthentications.Add(method.Name);
 
                 authenticated = method.Authenticate(session);
 

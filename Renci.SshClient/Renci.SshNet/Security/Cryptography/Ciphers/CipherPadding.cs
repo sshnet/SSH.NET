@@ -15,7 +15,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// </summary>
         /// <param name="blockSize">Size of the block.</param>
         /// <param name="input">The input.</param>
-        /// <returns></returns>
+        /// <returns>Padded data array.</returns>
         public abstract byte[] Pad(int blockSize, byte[] input);
     }
 }

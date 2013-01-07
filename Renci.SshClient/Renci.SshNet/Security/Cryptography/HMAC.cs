@@ -9,7 +9,7 @@ namespace Renci.SshNet.Security.Cryptography
     /// <summary>
     /// Provides HMAC algorithm implementation.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T">Class that implements <see cref="T:System.Security.Cryptography.HashAlgorithm" />.</typeparam>
     public class HMac<T> : KeyedHashAlgorithm where T : HashAlgorithm, new()
     {
         private HashAlgorithm _hash;
@@ -49,8 +49,9 @@ namespace Renci.SshNet.Security.Cryptography
         }
 
         /// <summary>
-        /// 
+        /// Gets or sets the key to use in the hash algorithm.
         /// </summary>
+        /// <returns>The key to use in the hash algorithm.</returns>
         public override byte[] Key
         {
             get
@@ -64,7 +65,7 @@ namespace Renci.SshNet.Security.Cryptography
         }
 
         /// <summary>
-        /// 
+        /// Initializes an implementation of the <see cref="T:System.Security.Cryptography.HashAlgorithm" /> class.
         /// </summary>
         public override void Initialize()
         {
@@ -72,11 +73,11 @@ namespace Renci.SshNet.Security.Cryptography
         }
 
         /// <summary>
-        /// 
+        /// Hashes the core.
         /// </summary>
-        /// <param name="rgb"></param>
-        /// <param name="ib"></param>
-        /// <param name="cb"></param>
+        /// <param name="rgb">The RGB.</param>
+        /// <param name="ib">The ib.</param>
+        /// <param name="cb">The cb.</param>
         protected override void HashCore(byte[] rgb, int ib, int cb)
         {
             if (!this._isHashing)
@@ -88,9 +89,11 @@ namespace Renci.SshNet.Security.Cryptography
         }
 
         /// <summary>
-        /// 
+        /// Finalizes the hash computation after the last data is processed by the cryptographic stream object.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>
+        /// The computed hash code.
+        /// </returns>
         protected override byte[] HashFinal()
         {
             if (!this._isHashing)

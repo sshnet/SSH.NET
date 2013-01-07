@@ -83,7 +83,7 @@ namespace Renci.SshNet.Common
         /// <summary>
         /// Encodes written data as DER byte array.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>DER Encoded array.</returns>
         public byte[] Encode()
         {
             var length = this._data.Count();

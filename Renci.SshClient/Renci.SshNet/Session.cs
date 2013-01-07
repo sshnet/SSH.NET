@@ -791,7 +791,8 @@ namespace Renci.SshNet
         /// <summary>
         /// Receives the message from the server.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Incoming SSH message.</returns>
+        /// <exception cref="SshConnectionException"></exception>
         private Message ReceiveMessage()
         {
             if (!this._socket.Connected)

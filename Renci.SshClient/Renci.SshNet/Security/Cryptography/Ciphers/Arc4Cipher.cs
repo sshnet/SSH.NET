@@ -57,7 +57,10 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// Encrypts the specified input.
         /// </summary>
         /// <param name="input">The input.</param>
-        /// <returns></returns>
+        /// <returns>
+        /// Encrypted data.
+        /// </returns>
+        /// <exception cref="System.NotImplementedException"></exception>
         public override byte[] Encrypt(byte[] input)
         {
             throw new NotImplementedException();
@@ -67,7 +70,10 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// Decrypts the specified input.
         /// </summary>
         /// <param name="input">The input.</param>
-        /// <returns></returns>
+        /// <returns>
+        /// Decrypted data.
+        /// </returns>
+        /// <exception cref="System.NotImplementedException"></exception>
         public override byte[] Decrypt(byte[] input)
         {
             throw new NotImplementedException();

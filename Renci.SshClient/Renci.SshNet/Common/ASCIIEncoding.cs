@@ -6,7 +6,7 @@ using System.Text;
 namespace Renci.SshNet.Common
 {
     /// <summary>
-    /// 
+    /// Implementation of ASCII Encoding
     /// </summary>
     public class ASCIIEncoding : Encoding
     {

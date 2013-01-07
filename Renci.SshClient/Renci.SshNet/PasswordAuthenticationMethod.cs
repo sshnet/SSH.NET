@@ -73,9 +73,15 @@ namespace Renci.SshNet
         /// Authenticates the specified session.
         /// </summary>
         /// <param name="session">The session to authenticate.</param>
-        /// <returns></returns>
+        /// <returns>
+        /// Result of authentication  process.
+        /// </returns>
+        /// <exception cref="System.ArgumentNullException"><paramref name="session" /> is null.</exception>
         public override AuthenticationResult Authenticate(Session session)
         {
+            if (session == null)
+                throw new ArgumentNullException("session");
+
             this._session = session;
 
             session.UserAuthenticationSuccessReceived += Session_UserAuthenticationSuccessReceived;

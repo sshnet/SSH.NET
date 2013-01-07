@@ -27,7 +27,7 @@ namespace Renci.SshNet.Messages
         /// <summary>
         /// Gets data bytes array
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Byte array representation of the message</returns>
         public override byte[] GetBytes()
         {
             var messageAttribute = this.GetType().GetCustomAttributes(typeof(MessageAttribute), true).SingleOrDefault() as MessageAttribute;

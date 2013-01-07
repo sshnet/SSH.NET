@@ -154,7 +154,7 @@ namespace Renci.SshNet.Security
             this._privateKey[2] = g;
             this._privateKey[3] = y;
             this._privateKey[4] = x;
-        }        
+        }
 
         #region IDisposable Members
 

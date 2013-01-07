@@ -35,7 +35,9 @@ namespace Renci.SshNet.Security.Cryptography
         /// </summary>
         /// <param name="input">The input.</param>
         /// <param name="signature">The signature.</param>
-        /// <returns></returns>
+        /// <returns>
+        ///   <c>True</c> if signature was successfully verified; otherwise <c>false</c>.
+        /// </returns>
         public override bool Verify(byte[] input, byte[] signature)
         {
             var encryptedSignature = this._cipher.Decrypt(signature);
@@ -54,7 +56,9 @@ namespace Renci.SshNet.Security.Cryptography
         /// Creates the signature.
         /// </summary>
         /// <param name="input">The input.</param>
-        /// <returns></returns>
+        /// <returns>
+        /// Signed input data.
+        /// </returns>
         public override byte[] Sign(byte[] input)
         {
             //  Calculate hash value
@@ -70,7 +74,7 @@ namespace Renci.SshNet.Security.Cryptography
         /// Hashes the specified input.
         /// </summary>
         /// <param name="input">The input.</param>
-        /// <returns></returns>
+        /// <returns>Hashed data.</returns>
         protected abstract byte[] Hash(byte[] input);
 
         /// <summary>

@@ -24,8 +24,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Renci.SshNet.Silverlight5",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Renci.SshNet.WindowsPhone8", "Renci.SshNet.WindowsPhone8\Renci.SshNet.WindowsPhone8.csproj", "{4A6CA785-1C8A-47FE-98C0-30C675A9328B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{EFAF2072-A01F-4970-878A-AAD40326AFD2}"
-EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = Renci.SshNet1.vsmdi
@@ -155,20 +153,6 @@ Global
 		{4A6CA785-1C8A-47FE-98C0-30C675A9328B}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{4A6CA785-1C8A-47FE-98C0-30C675A9328B}.Release|x64.ActiveCfg = Release|Any CPU
 		{4A6CA785-1C8A-47FE-98C0-30C675A9328B}.Release|x86.ActiveCfg = Release|Any CPU
-		{EFAF2072-A01F-4970-878A-AAD40326AFD2}.Debug|Any CPU.ActiveCfg = Debug|x86
-		{EFAF2072-A01F-4970-878A-AAD40326AFD2}.Debug|ARM.ActiveCfg = Debug|x86
-		{EFAF2072-A01F-4970-878A-AAD40326AFD2}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
-		{EFAF2072-A01F-4970-878A-AAD40326AFD2}.Debug|Mixed Platforms.Build.0 = Debug|x86
-		{EFAF2072-A01F-4970-878A-AAD40326AFD2}.Debug|x64.ActiveCfg = Debug|x86
-		{EFAF2072-A01F-4970-878A-AAD40326AFD2}.Debug|x86.ActiveCfg = Debug|x86
-		{EFAF2072-A01F-4970-878A-AAD40326AFD2}.Debug|x86.Build.0 = Debug|x86
-		{EFAF2072-A01F-4970-878A-AAD40326AFD2}.Release|Any CPU.ActiveCfg = Release|x86
-		{EFAF2072-A01F-4970-878A-AAD40326AFD2}.Release|ARM.ActiveCfg = Release|x86
-		{EFAF2072-A01F-4970-878A-AAD40326AFD2}.Release|Mixed Platforms.ActiveCfg = Release|x86
-		{EFAF2072-A01F-4970-878A-AAD40326AFD2}.Release|Mixed Platforms.Build.0 = Release|x86
-		{EFAF2072-A01F-4970-878A-AAD40326AFD2}.Release|x64.ActiveCfg = Release|x86
-		{EFAF2072-A01F-4970-878A-AAD40326AFD2}.Release|x86.ActiveCfg = Release|x86
-		{EFAF2072-A01F-4970-878A-AAD40326AFD2}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -192,10 +192,10 @@
         }
 
         /// <summary>
-        /// Returns true if there are 
+        /// Returns true if there are
         /// </summary>
-        /// <param name="count"></param>
-        /// <returns></returns>
+        /// <param name="count">The count.</param>
+        /// <returns><c>True</c> if data available; otherwise<c>false</c>.</returns>
         private bool ReadAvailable(int count)
         {
             return (this.Length >= count || this._isFlushed) &&

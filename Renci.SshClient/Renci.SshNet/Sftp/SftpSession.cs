@@ -268,7 +268,7 @@ namespace Renci.SshNet.Sftp
         /// <param name="path">The path.</param>
         /// <param name="flags">The flags.</param>
         /// <param name="nullOnError">if set to <c>true</c> returns null instead of throwing an exception.</param>
-        /// <returns></returns>
+        /// <returns>File handle.</returns>
         internal byte[] RequestOpen(string path, Flags flags, bool nullOnError = false)
         {
             byte[] handle = null;
@@ -526,7 +526,7 @@ namespace Renci.SshNet.Sftp
         /// </summary>
         /// <param name="path">The path.</param>
         /// <param name="nullOnError">if set to <c>true</c> returns null instead of throwing an exception.</param>
-        /// <returns></returns>
+        /// <returns>File handle.</returns>
         internal byte[] RequestOpenDir(string path, bool nullOnError = false)
         {
             byte[] handle = null;

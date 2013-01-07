@@ -22,6 +22,12 @@ namespace Renci.SshNet.Security
             get { return "diffie-hellman-group14-sha1"; }
         }
 
+        /// <summary>
+        /// Gets the group prime.
+        /// </summary>
+        /// <value>
+        /// The group prime.
+        /// </value>
         public override BigInteger GroupPrime
         {
             get

@@ -84,7 +84,7 @@ namespace Renci.SshNet
         /// <param name="password">Authentication password.</param>
         /// <exception cref="ArgumentNullException"><paramref name="password"/> is null.</exception>
         /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, or <paramref name="username"/> is null or contains whitespace characters.</exception>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="port"/> is not within <see cref="System.Net.IPEndPoint.MinPort"/> and <see cref="System.Net.IPEndPoint.MaxPort"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="port"/> is not within <see cref="F:System.Net.IPEndPoint.MinPort"/> and <see cref="System.Net.IPEndPoint.MaxPort"/>.</exception>
         [SuppressMessage("Microsoft.Reliability", "CA2000:DisposeObjectsBeforeLosingScope", Justification = "Disposed in Dispose(bool) method.")]
         public ScpClient(string host, int port, string username, string password)
             : this(new PasswordConnectionInfo(host, port, username, password))
@@ -114,7 +114,7 @@ namespace Renci.SshNet
         /// <param name="keyFiles">Authentication private key file(s) .</param>
         /// <exception cref="ArgumentNullException"><paramref name="keyFiles"/> is null.</exception>
         /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, -or- <paramref name="username"/> is null or contains whitespace characters.</exception>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="port"/> is not within <see cref="System.Net.IPEndPoint.MinPort"/> and <see cref="System.Net.IPEndPoint.MaxPort"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="port"/> is not within <see cref="F:System.Net.IPEndPoint.MinPort"/> and <see cref="System.Net.IPEndPoint.MaxPort"/>.</exception>
         [SuppressMessage("Microsoft.Reliability", "CA2000:DisposeObjectsBeforeLosingScope", Justification = "Disposed in Dispose(bool) method.")]
         public ScpClient(string host, int port, string username, params PrivateKeyFile[] keyFiles)
             : this(new PrivateKeyConnectionInfo(host, port, username, keyFiles))

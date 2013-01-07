@@ -7,7 +7,7 @@ using System.IO;
 namespace Renci.SshNet.Compression
 {
     /// <summary>
-    /// 
+    /// Implements Zlib compression algorithm.
     /// </summary>
     public class ZlibStream
     {
@@ -35,6 +35,12 @@ namespace Renci.SshNet.Compression
             //this._baseStream.FlushMode = Ionic.Zlib.FlushType.Partial;
         }
 
+        /// <summary>
+        /// Writes the specified buffer.
+        /// </summary>
+        /// <param name="buffer">The buffer.</param>
+        /// <param name="offset">The offset.</param>
+        /// <param name="count">The count.</param>
         public void Write(byte[] buffer, int offset, int count)
         {
             //this._baseStream.Write(buffer, offset, count);

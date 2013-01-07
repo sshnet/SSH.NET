@@ -1,29 +1,44 @@
-﻿namespace Renci.SshNet.Tests.Classes.Compression
-{
-    public class ZlibStreamTest
+﻿using Renci.SshNet.Compression;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.IO;
+using Renci.SshNet.Tests.Common;
+
+namespace Renci.SshNet.Tests.Classes.Compression
+{   
+    /// <summary>
+    ///This is a test class for ZlibStreamTest and is intended
+    ///to contain all ZlibStreamTest Unit Tests
+    ///</summary>
+    [TestClass()]
+    public class ZlibStreamTest : TestBase
     {
-        //private readonly Ionic.Zlib.ZlibStream _baseStream;
+        /// <summary>
+        ///A test for ZlibStream Constructor
+        ///</summary>
+        [TestMethod()]
+        public void ZlibStreamConstructorTest()
+        {
+            Stream stream = null; // TODO: Initialize to an appropriate value
+            CompressionMode mode = new CompressionMode(); // TODO: Initialize to an appropriate value
+            ZlibStream target = new ZlibStream(stream, mode);
+            Assert.Inconclusive("TODO: Implement code to verify target");
+        }
 
-        //public ZlibStream(Stream stream, CompressionMode mode)
-        //{
-        //    //switch (mode)
-        //    //{
-        //    //    case CompressionMode.Compress:
-        //    //        this._baseStream = new Ionic.Zlib.ZlibStream(stream, Ionic.Zlib.CompressionMode.Compress, Ionic.Zlib.CompressionLevel.Default);
-        //    //        break;
-        //    //    case CompressionMode.Decompress:
-        //    //        this._baseStream = new Ionic.Zlib.ZlibStream(stream, Ionic.Zlib.CompressionMode.Decompress, Ionic.Zlib.CompressionLevel.Default);
-        //    //        break;
-        //    //    default:
-        //    //        break;
-        //    //}
-
-        //    //this._baseStream.FlushMode = Ionic.Zlib.FlushType.Partial;
-        //}
-
-        //public void Write(byte[] buffer, int offset, int count)
-        //{
-        //    //this._baseStream.Write(buffer, offset, count);
-        //}
+        /// <summary>
+        ///A test for Write
+        ///</summary>
+        [TestMethod()]
+        public void WriteTest()
+        {
+            Stream stream = null; // TODO: Initialize to an appropriate value
+            CompressionMode mode = new CompressionMode(); // TODO: Initialize to an appropriate value
+            ZlibStream target = new ZlibStream(stream, mode); // TODO: Initialize to an appropriate value
+            byte[] buffer = null; // TODO: Initialize to an appropriate value
+            int offset = 0; // TODO: Initialize to an appropriate value
+            int count = 0; // TODO: Initialize to an appropriate value
+            target.Write(buffer, offset, count);
+            Assert.Inconclusive("A method that does not return a value cannot be verified.");
+        }
     }
 }

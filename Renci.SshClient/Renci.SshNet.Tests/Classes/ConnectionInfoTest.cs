@@ -108,5 +108,123 @@ namespace Renci.SshNet.Tests.Classes
             var ret = new ConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, ProxyTypes.None, Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD, null);
             ret.Authenticate(null);
         }
+
+        /// <summary>
+        ///A test for Timeout
+        ///</summary>
+        [TestMethod()]
+        public void TimeoutTest()
+        {
+            string host = string.Empty; // TODO: Initialize to an appropriate value
+            string username = string.Empty; // TODO: Initialize to an appropriate value
+            AuthenticationMethod[] authenticationMethods = null; // TODO: Initialize to an appropriate value
+            ConnectionInfo target = new ConnectionInfo(host, username, authenticationMethods); // TODO: Initialize to an appropriate value
+            TimeSpan expected = new TimeSpan(); // TODO: Initialize to an appropriate value
+            TimeSpan actual;
+            target.Timeout = expected;
+            actual = target.Timeout;
+            Assert.AreEqual(expected, actual);
+            Assert.Inconclusive("Verify the correctness of this test method.");
+        }
+
+        /// <summary>
+        ///A test for RetryAttempts
+        ///</summary>
+        [TestMethod()]
+        public void RetryAttemptsTest()
+        {
+            string host = string.Empty; // TODO: Initialize to an appropriate value
+            string username = string.Empty; // TODO: Initialize to an appropriate value
+            AuthenticationMethod[] authenticationMethods = null; // TODO: Initialize to an appropriate value
+            ConnectionInfo target = new ConnectionInfo(host, username, authenticationMethods); // TODO: Initialize to an appropriate value
+            int expected = 0; // TODO: Initialize to an appropriate value
+            int actual;
+            target.RetryAttempts = expected;
+            actual = target.RetryAttempts;
+            Assert.AreEqual(expected, actual);
+            Assert.Inconclusive("Verify the correctness of this test method.");
+        }
+
+        /// <summary>
+        ///A test for MaxSessions
+        ///</summary>
+        [TestMethod()]
+        public void MaxSessionsTest()
+        {
+            string host = string.Empty; // TODO: Initialize to an appropriate value
+            string username = string.Empty; // TODO: Initialize to an appropriate value
+            AuthenticationMethod[] authenticationMethods = null; // TODO: Initialize to an appropriate value
+            ConnectionInfo target = new ConnectionInfo(host, username, authenticationMethods); // TODO: Initialize to an appropriate value
+            int expected = 0; // TODO: Initialize to an appropriate value
+            int actual;
+            target.MaxSessions = expected;
+            actual = target.MaxSessions;
+            Assert.AreEqual(expected, actual);
+            Assert.Inconclusive("Verify the correctness of this test method.");
+        }
+
+        /// <summary>
+        ///A test for Authenticate
+        ///</summary>
+        [TestMethod()]
+        public void AuthenticateTest()
+        {
+            string host = string.Empty; // TODO: Initialize to an appropriate value
+            string username = string.Empty; // TODO: Initialize to an appropriate value
+            AuthenticationMethod[] authenticationMethods = null; // TODO: Initialize to an appropriate value
+            ConnectionInfo target = new ConnectionInfo(host, username, authenticationMethods); // TODO: Initialize to an appropriate value
+            Session session = null; // TODO: Initialize to an appropriate value
+            bool expected = false; // TODO: Initialize to an appropriate value
+            bool actual;
+            actual = target.Authenticate(session);
+            Assert.AreEqual(expected, actual);
+            Assert.Inconclusive("Verify the correctness of this test method.");
+        }
+
+        /// <summary>
+        ///A test for ConnectionInfo Constructor
+        ///</summary>
+        [TestMethod()]
+        public void ConnectionInfoConstructorTest()
+        {
+            string host = string.Empty; // TODO: Initialize to an appropriate value
+            int port = 0; // TODO: Initialize to an appropriate value
+            string username = string.Empty; // TODO: Initialize to an appropriate value
+            ProxyTypes proxyType = new ProxyTypes(); // TODO: Initialize to an appropriate value
+            string proxyHost = string.Empty; // TODO: Initialize to an appropriate value
+            int proxyPort = 0; // TODO: Initialize to an appropriate value
+            string proxyUsername = string.Empty; // TODO: Initialize to an appropriate value
+            string proxyPassword = string.Empty; // TODO: Initialize to an appropriate value
+            AuthenticationMethod[] authenticationMethods = null; // TODO: Initialize to an appropriate value
+            ConnectionInfo target = new ConnectionInfo(host, port, username, proxyType, proxyHost, proxyPort, proxyUsername, proxyPassword, authenticationMethods);
+            Assert.Inconclusive("TODO: Implement code to verify target");
+        }
+
+        /// <summary>
+        ///A test for ConnectionInfo Constructor
+        ///</summary>
+        [TestMethod()]
+        public void ConnectionInfoConstructorTest1()
+        {
+            string host = string.Empty; // TODO: Initialize to an appropriate value
+            int port = 0; // TODO: Initialize to an appropriate value
+            string username = string.Empty; // TODO: Initialize to an appropriate value
+            AuthenticationMethod[] authenticationMethods = null; // TODO: Initialize to an appropriate value
+            ConnectionInfo target = new ConnectionInfo(host, port, username, authenticationMethods);
+            Assert.Inconclusive("TODO: Implement code to verify target");
+        }
+
+        /// <summary>
+        ///A test for ConnectionInfo Constructor
+        ///</summary>
+        [TestMethod()]
+        public void ConnectionInfoConstructorTest2()
+        {
+            string host = string.Empty; // TODO: Initialize to an appropriate value
+            string username = string.Empty; // TODO: Initialize to an appropriate value
+            AuthenticationMethod[] authenticationMethods = null; // TODO: Initialize to an appropriate value
+            ConnectionInfo target = new ConnectionInfo(host, username, authenticationMethods);
+            Assert.Inconclusive("TODO: Implement code to verify target");
+        }
     }
 }

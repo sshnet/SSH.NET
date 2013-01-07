@@ -1,13 +1,25 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Renci.SshNet.Messages.Transport;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Messages.Transport
 {
     /// <summary>
-    /// Represents SSH_MSG_KEXDH_REPLY message.
-    /// </summary>
-    [TestClass]
+    ///This is a test class for KeyExchangeDhReplyMessageTest and is intended
+    ///to contain all KeyExchangeDhReplyMessageTest Unit Tests
+    ///</summary>
+    [TestClass()]
     public class KeyExchangeDhReplyMessageTest : TestBase
     {
+        /// <summary>
+        ///A test for KeyExchangeDhReplyMessage Constructor
+        ///</summary>
+        [TestMethod()]
+        public void KeyExchangeDhReplyMessageConstructorTest()
+        {
+            KeyExchangeDhReplyMessage target = new KeyExchangeDhReplyMessage();
+            Assert.Inconclusive("TODO: Implement code to verify target");
+        }
     }
 }

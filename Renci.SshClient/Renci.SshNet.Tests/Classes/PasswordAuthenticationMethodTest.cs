@@ -83,5 +83,73 @@ namespace Renci.SshNet.Tests.Classes
                 Assert.AreEqual<bool>(false, client.IsConnected, "IsConnected is true after Disconnect() was called.");
             }
         }
+
+        /// <summary>
+        ///A test for Name
+        ///</summary>
+        [TestMethod()]
+        public void NameTest()
+        {
+            string username = string.Empty; // TODO: Initialize to an appropriate value
+            byte[] password = null; // TODO: Initialize to an appropriate value
+            PasswordAuthenticationMethod target = new PasswordAuthenticationMethod(username, password); // TODO: Initialize to an appropriate value
+            string actual;
+            actual = target.Name;
+            Assert.Inconclusive("Verify the correctness of this test method.");
+        }
+
+        /// <summary>
+        ///A test for Dispose
+        ///</summary>
+        [TestMethod()]
+        public void DisposeTest()
+        {
+            string username = string.Empty; // TODO: Initialize to an appropriate value
+            byte[] password = null; // TODO: Initialize to an appropriate value
+            PasswordAuthenticationMethod target = new PasswordAuthenticationMethod(username, password); // TODO: Initialize to an appropriate value
+            target.Dispose();
+            Assert.Inconclusive("A method that does not return a value cannot be verified.");
+        }
+
+        /// <summary>
+        ///A test for Authenticate
+        ///</summary>
+        [TestMethod()]
+        public void AuthenticateTest()
+        {
+            string username = string.Empty; // TODO: Initialize to an appropriate value
+            byte[] password = null; // TODO: Initialize to an appropriate value
+            PasswordAuthenticationMethod target = new PasswordAuthenticationMethod(username, password); // TODO: Initialize to an appropriate value
+            Session session = null; // TODO: Initialize to an appropriate value
+            AuthenticationResult expected = new AuthenticationResult(); // TODO: Initialize to an appropriate value
+            AuthenticationResult actual;
+            actual = target.Authenticate(session);
+            Assert.AreEqual(expected, actual);
+            Assert.Inconclusive("Verify the correctness of this test method.");
+        }
+
+        /// <summary>
+        ///A test for PasswordAuthenticationMethod Constructor
+        ///</summary>
+        [TestMethod()]
+        public void PasswordAuthenticationMethodConstructorTest()
+        {
+            string username = string.Empty; // TODO: Initialize to an appropriate value
+            byte[] password = null; // TODO: Initialize to an appropriate value
+            PasswordAuthenticationMethod target = new PasswordAuthenticationMethod(username, password);
+            Assert.Inconclusive("TODO: Implement code to verify target");
+        }
+
+        /// <summary>
+        ///A test for PasswordAuthenticationMethod Constructor
+        ///</summary>
+        [TestMethod()]
+        public void PasswordAuthenticationMethodConstructorTest1()
+        {
+            string username = string.Empty; // TODO: Initialize to an appropriate value
+            string password = string.Empty; // TODO: Initialize to an appropriate value
+            PasswordAuthenticationMethod target = new PasswordAuthenticationMethod(username, password);
+            Assert.Inconclusive("TODO: Implement code to verify target");
+        }
     }
 }

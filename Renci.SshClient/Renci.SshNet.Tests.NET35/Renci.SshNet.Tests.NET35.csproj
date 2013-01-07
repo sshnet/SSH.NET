@@ -39,6 +39,8 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.XML" />
+    <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
     <CodeAnalysisDependentAssemblyPaths Condition=" '$(VS100COMNTOOLS)' != '' " Include="$(VS100COMNTOOLS)..\IDE\PrivateAssemblies">
@@ -46,6 +48,21 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Renci.SshNet.Tests\BlockCipherTest.cs">
+      <Link>BlockCipherTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\CipherDigitalSignatureTest.cs">
+      <Link>CipherDigitalSignatureTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\CipherTest.cs">
+      <Link>CipherTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\AuthenticationMethodTest.cs">
+      <Link>Classes\AuthenticationMethodTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\BaseClientTest.cs">
+      <Link>Classes\BaseClientTest.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\ChannelAsyncResultTest.cs">
       <Link>Classes\ChannelAsyncResultTest.cs</Link>
     </Compile>
@@ -61,8 +78,14 @@
     <Compile Include="..\Renci.SshNet.Tests\Classes\CipherInfoTest.cs">
       <Link>Classes\CipherInfoTest.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\CommandAsyncResultTest.cs">
+      <Link>Classes\CommandAsyncResultTest.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Common\ASCIIEncodingTest.cs">
       <Link>Classes\Common\ASCIIEncodingTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Common\AsyncResultTest.cs">
+      <Link>Classes\Common\AsyncResultTest.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Common\AuthenticationBannerEventArgsTest.cs">
       <Link>Classes\Common\AuthenticationBannerEventArgsTest.cs</Link>
@@ -115,9 +138,6 @@
     <Compile Include="..\Renci.SshNet.Tests\Classes\Common\ProxyExceptionTest.cs">
       <Link>Classes\Common\ProxyExceptionTest.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\Classes\Common\ProxyExceptionTest.NET40.cs">
-      <Link>Classes\Common\ProxyExceptionTest.NET40.cs</Link>
-    </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Common\ScpDownloadEventArgsTest.cs">
       <Link>Classes\Common\ScpDownloadEventArgsTest.cs</Link>
     </Compile>
@@ -145,6 +165,9 @@
     <Compile Include="..\Renci.SshNet.Tests\Classes\Common\SshConnectionExceptionTest.cs">
       <Link>Classes\Common\SshConnectionExceptionTest.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Common\SshDataTest.cs">
+      <Link>Classes\Common\SshDataTest.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Common\SshExceptionTest.cs">
       <Link>Classes\Common\SshExceptionTest.cs</Link>
     </Compile>
@@ -153,6 +176,9 @@
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Common\SshPassPhraseNullOrEmptyExceptionTest.cs">
       <Link>Classes\Common\SshPassPhraseNullOrEmptyExceptionTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Compression\CompressorTest.cs">
+      <Link>Classes\Compression\CompressorTest.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Compression\ZlibOpenSshTest.cs">
       <Link>Classes\Compression\ZlibOpenSshTest.cs</Link>
@@ -177,6 +203,9 @@
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\ForwardedPortRemoteTest.cs">
       <Link>Classes\ForwardedPortRemoteTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\ForwardedPortTest.cs">
+      <Link>Classes\ForwardedPortTest.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\KeyboardInteractiveAuthenticationMethodTest.cs">
       <Link>Classes\KeyboardInteractiveAuthenticationMethodTest.cs</Link>
@@ -241,11 +270,17 @@
     <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Connection\ChannelFailureMessageTest.cs">
       <Link>Classes\Messages\Connection\ChannelFailureMessageTest.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Connection\ChannelMessageTest.cs">
+      <Link>Classes\Messages\Connection\ChannelMessageTest.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Connection\ChannelOpenConfirmationMessageTest.cs">
       <Link>Classes\Messages\Connection\ChannelOpenConfirmationMessageTest.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Connection\ChannelOpenFailureMessageTest.cs">
       <Link>Classes\Messages\Connection\ChannelOpenFailureMessageTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Connection\ChannelOpenInfoTest.cs">
+      <Link>Classes\Messages\Connection\ChannelOpenInfoTest.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Connection\ChannelOpen\ChannelOpenMessageTest.cs">
       <Link>Classes\Messages\Connection\ChannelOpen\ChannelOpenMessageTest.cs</Link>
@@ -261,6 +296,9 @@
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Connection\ChannelOpen\X11ChannelOpenInfoTest.cs">
       <Link>Classes\Messages\Connection\ChannelOpen\X11ChannelOpenInfoTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Connection\ChannelRequestMessageTest.cs">
+      <Link>Classes\Messages\Connection\ChannelRequestMessageTest.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Connection\ChannelRequest\BreakRequestInfoTest.cs">
       <Link>Classes\Messages\Connection\ChannelRequest\BreakRequestInfoTest.cs</Link>
@@ -319,8 +357,17 @@
     <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Connection\RequestFailureMessageTest.cs">
       <Link>Classes\Messages\Connection\RequestFailureMessageTest.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Connection\RequestInfoTest.cs">
+      <Link>Classes\Messages\Connection\RequestInfoTest.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Connection\RequestSuccessMessageTest.cs">
       <Link>Classes\Messages\Connection\RequestSuccessMessageTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\MessageAttributeTest.cs">
+      <Link>Classes\Messages\MessageAttributeTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\MessageTest.cs">
+      <Link>Classes\Messages\MessageTest.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Transport\DebugMessageTest.cs">
       <Link>Classes\Messages\Transport\DebugMessageTest.cs</Link>
@@ -405,6 +452,12 @@
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Security\Cryptography\Ciphers\CastCipherTest.cs">
       <Link>Classes\Security\Cryptography\Ciphers\CastCipherTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Security\Cryptography\Ciphers\CipherModeTest.cs">
+      <Link>Classes\Security\Cryptography\Ciphers\CipherModeTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Security\Cryptography\Ciphers\CipherPaddingTest.cs">
+      <Link>Classes\Security\Cryptography\Ciphers\CipherPaddingTest.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Security\Cryptography\Ciphers\DesCipherTest.cs">
       <Link>Classes\Security\Cryptography\Ciphers\DesCipherTest.cs</Link>
@@ -643,8 +696,8 @@
     <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpUploadAsyncResultTest.cs">
       <Link>Classes\Sftp\SftpUploadAsyncResultTest.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\Classes\ShellStream.cs">
-      <Link>Classes\ShellStream.cs</Link>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\ShellStreamTest.cs">
+      <Link>Classes\ShellStreamTest.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\ShellTestTest.cs">
       <Link>Classes\ShellTestTest.cs</Link>
@@ -657,6 +710,30 @@
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Common\TestBase.cs">
       <Link>Common\TestBase.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\DigitalSignatureTest.cs">
+      <Link>DigitalSignatureTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\DsaDigitalSignatureTest.cs">
+      <Link>DsaDigitalSignatureTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\HMacTest.cs">
+      <Link>HMacTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\MD5HashTest.cs">
+      <Link>MD5HashTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\RsaDigitalSignatureTest.cs">
+      <Link>RsaDigitalSignatureTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\SHA1HashTest.cs">
+      <Link>SHA1HashTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\SHA256HashTest.cs">
+      <Link>SHA256HashTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\SymmetricCipherTest.cs">
+      <Link>SymmetricCipherTest.cs</Link>
     </Compile>
     <Compile Include="Classes\ForwardedPortRemote.NET35.cs" />
     <Compile Include="Classes\ForwardedPortLocal.NET35.cs" />
@@ -685,7 +762,7 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties ProjectLinkReference="c45379b9-17b1-4e89-bc2e-6d41726413e8" ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" />
+      <UserProperties ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" ProjectLinkReference="c45379b9-17b1-4e89-bc2e-6d41726413e8" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

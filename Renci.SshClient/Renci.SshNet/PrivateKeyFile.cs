@@ -18,8 +18,12 @@ using System.Diagnostics.CodeAnalysis;
 namespace Renci.SshNet
 {
     /// <summary>
-    /// old private key information/
+    /// Represents private key information
     /// </summary>
+    /// <example>
+    ///     Key examples
+    ///     <code source="..\Examples\PrivateKeyFile.cs" region="RSAKeyExample" language="C#" title="Private RSA key example" />
+    /// </example>
     public class PrivateKeyFile : IDisposable
     {
 #if SILVERLIGHT

@@ -6,10 +6,18 @@ using System.IO;
 
 namespace Renci.SshNet.Compression
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class ZlibStream
     {
         //private readonly Ionic.Zlib.ZlibStream _baseStream;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ZlibStream" /> class.
+        /// </summary>
+        /// <param name="stream">The stream.</param>
+        /// <param name="mode">The mode.</param>
         public ZlibStream(Stream stream, CompressionMode mode)
         {
             //switch (mode)

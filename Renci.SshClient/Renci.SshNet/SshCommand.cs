@@ -147,11 +147,15 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="callback">An optional asynchronous callback, to be called when the command execution is complete.</param>
         /// <param name="state">A user-provided object that distinguishes this particular asynchronous read request from other requests.</param>
-        /// <returns>An <see cref="System.IAsyncResult"/> that represents the asynchronous command execution, which could still be pending.</returns>
+        /// <returns>
+        /// An <see cref="System.IAsyncResult" /> that represents the asynchronous command execution, which could still be pending.
+        /// </returns>
+        /// <exception cref="System.InvalidOperationException">Asynchronous operation is already in progress.</exception>
+        /// <exception cref="SshException">Invalid operation.</exception>
+        /// <exception cref="System.ArgumentException">CommandText property is empty.</exception>
         /// <exception cref="Renci.SshNet.Common.SshConnectionException">Client is not connected.</exception>
         /// <exception cref="Renci.SshNet.Common.SshOperationTimeoutException">Operation has timed out.</exception>
         /// <exception cref="InvalidOperationException">Asynchronous operation is already in progress.</exception>
-        /// <exception cref="SshException">Invalid operation.</exception>
         /// <exception cref="ArgumentException">CommandText property is empty.</exception>
         public IAsyncResult BeginExecute(AsyncCallback callback, object state)
         {
@@ -169,7 +173,7 @@ namespace Renci.SshNet
                 AsyncState = state,
             };
 
-                        //  When command re-executed again, create a new channel
+            //  When command re-executed again, create a new channel
             if (this._channel != null)
             {
                 throw new SshException("Invalid operation.");
@@ -191,12 +195,14 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Begins an asynchronous command execution.
+        /// Begins an asynchronous command execution. 22
         /// </summary>
         /// <param name="commandText">The command text.</param>
         /// <param name="callback">An optional asynchronous callback, to be called when the command execution is complete.</param>
         /// <param name="state">A user-provided object that distinguishes this particular asynchronous read request from other requests.</param>
-        /// <returns>An <see cref="System.IAsyncResult"/> that represents the asynchronous command execution, which could still be pending.</returns>
+        /// <returns>
+        /// An <see cref="System.IAsyncResult" /> that represents the asynchronous command execution, which could still be pending.
+        /// </returns>
         /// <exception cref="Renci.SshNet.Common.SshConnectionException">Client is not connected.</exception>
         /// <exception cref="Renci.SshNet.Common.SshOperationTimeoutException">Operation has timed out.</exception>
         public IAsyncResult BeginExecute(string commandText, AsyncCallback callback, object state)
@@ -421,7 +427,7 @@ namespace Renci.SshNet
                     break;
             }
         }
-        
+
         partial void ExecuteThread(Action action);
 
         #region IDisposable Members

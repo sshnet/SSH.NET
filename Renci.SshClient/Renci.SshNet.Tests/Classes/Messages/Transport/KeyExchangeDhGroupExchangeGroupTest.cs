@@ -1,28 +1,25 @@
-﻿using Renci.SshNet.Common;
-
+﻿using Renci.SshNet.Messages.Transport;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Messages.Transport
 {
     /// <summary>
-    /// Represents SSH_MSG_KEX_DH_GEX_GROUP message.
-    /// </summary>
+    ///This is a test class for KeyExchangeDhGroupExchangeGroupTest and is intended
+    ///to contain all KeyExchangeDhGroupExchangeGroupTest Unit Tests
+    ///</summary>
+    [TestClass()]
     public class KeyExchangeDhGroupExchangeGroupTest : TestBase
     {
         /// <summary>
-        /// Gets or sets the safe prime.
-        /// </summary>
-        /// <value>
-        /// The safe prime.
-        /// </value>
-        public BigInteger SafePrime { get; private set; }
-
-        /// <summary>
-        /// Gets or sets the generator for subgroup in GF(p).
-        /// </summary>
-        /// <value>
-        /// The sub group.
-        /// </value>
-        public BigInteger SubGroup { get; private set; }
+        ///A test for KeyExchangeDhGroupExchangeGroup Constructor
+        ///</summary>
+        [TestMethod()]
+        public void KeyExchangeDhGroupExchangeGroupConstructorTest()
+        {
+            KeyExchangeDhGroupExchangeGroup target = new KeyExchangeDhGroupExchangeGroup();
+            Assert.Inconclusive("TODO: Implement code to verify target");
+        }
     }
 }

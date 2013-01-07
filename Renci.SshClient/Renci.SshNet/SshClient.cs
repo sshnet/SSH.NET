@@ -12,7 +12,7 @@ namespace Renci.SshNet
     /// Provides client connection to SSH server.
     /// </summary>
     public class SshClient : BaseClient
-    {
+   { 
         /// <summary>
         /// Holds the list of forwarded ports
         /// </summary>
@@ -40,8 +40,12 @@ namespace Renci.SshNet
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SshClient"/> class.
-        /// </summary>
+        /// </summar>y
         /// <param name="connectionInfo">The connection info.</param>
+        /// <example>
+        ///     Connect to the server using PasswordConnectionInfo object
+        ///     <code source="..\Examples\PasswordConnectionInfo.cs" region="ConnectUsingPasswordConnectionInfo" language="C#" title="Connect using PasswordConnectionInfo object" />
+        /// </example>
         /// <exception cref="ArgumentNullException"><paramref name="connectionInfo"/> is null.</exception>
         public SshClient(ConnectionInfo connectionInfo)
             : base(connectionInfo)
@@ -58,7 +62,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="password"/> is null.</exception>
         /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, or <paramref name="username"/> is null or contains whitespace characters.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="port"/> is not within <see cref="System.Net.IPEndPoint.MinPort"/> and <see cref="System.Net.IPEndPoint.MaxPort"/>.</exception>
-        [SuppressMessage("Microsoft.Reliability", "CA2000:DisposeObjectsBeforeLosingScope", Justification = "Disposed in Dispose(bool) method.")]
+        [SuppressMessage("Microsoft.Reliability", "C2A000:DisposeObjectsBeforeLosingScope", Justification = "Disposed in Dispose(bool) method.")]
         public SshClient(string host, int port, string username, string password)
             : this(new PasswordConnectionInfo(host, port, username, password))
         {
@@ -71,6 +75,10 @@ namespace Renci.SshNet
         /// <param name="host">Connection host.</param>
         /// <param name="username">Authentication username.</param>
         /// <param name="password">Authentication password.</param>
+        /// <example>
+        ///     Connect to server using username and password combination
+        ///     <code source="..\Examples\SshClient.cs" region="CreateSshClientWithUsernamePassword" language="C#" title="Connect using username and password" />
+        /// </example>
         /// <exception cref="ArgumentNullException"><paramref name="password"/> is null.</exception>
         /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, or <paramref name="username"/> is null or contains whitespace characters.</exception>
         public SshClient(string host, string username, string password)
@@ -101,6 +109,12 @@ namespace Renci.SshNet
         /// <param name="host">Connection host.</param>
         /// <param name="username">Authentication username.</param>
         /// <param name="keyFiles">Authentication private key file(s) .</param>
+        /// <example>
+        ///     Connect to server using private key
+        ///     <code source="..\Examples\SshClient.cs" region="ConnectUsingPrivateKey" language="C#" title="Connect using private key" />
+        ///     Connect to server using private key and pass phrase
+        ///     <code source="..\Examples\SshClient.cs" region="ConnectUsingPrivateKeyAndPassphrase" language="C#" title="Connect using private key and pass phrase" />
+        /// </example>
         /// <exception cref="ArgumentNullException"><paramref name="keyFiles"/> is null.</exception>
         /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, -or- <paramref name="username"/> is null or contains whitespace characters.</exception>
         public SshClient(string host, string username, params PrivateKeyFile[] keyFiles)

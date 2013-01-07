@@ -205,6 +205,188 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         /// <summary>
+        ///A test for OperationTimeout
+        ///</summary>
+        [TestMethod()]
+        public void OperationTimeoutTest()
+        {
+            ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
+            ScpClient target = new ScpClient(connectionInfo); // TODO: Initialize to an appropriate value
+            TimeSpan expected = new TimeSpan(); // TODO: Initialize to an appropriate value
+            TimeSpan actual;
+            target.OperationTimeout = expected;
+            actual = target.OperationTimeout;
+            Assert.AreEqual(expected, actual);
+            Assert.Inconclusive("Verify the correctness of this test method.");
+        }
+
+        /// <summary>
+        ///A test for BufferSize
+        ///</summary>
+        [TestMethod()]
+        public void BufferSizeTest()
+        {
+            ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
+            ScpClient target = new ScpClient(connectionInfo); // TODO: Initialize to an appropriate value
+            uint expected = 0; // TODO: Initialize to an appropriate value
+            uint actual;
+            target.BufferSize = expected;
+            actual = target.BufferSize;
+            Assert.AreEqual(expected, actual);
+            Assert.Inconclusive("Verify the correctness of this test method.");
+        }
+
+        /// <summary>
+        ///A test for Upload
+        ///</summary>
+        [TestMethod()]
+        public void UploadTest()
+        {
+            ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
+            ScpClient target = new ScpClient(connectionInfo); // TODO: Initialize to an appropriate value
+            DirectoryInfo directoryInfo = null; // TODO: Initialize to an appropriate value
+            string filename = string.Empty; // TODO: Initialize to an appropriate value
+            target.Upload(directoryInfo, filename);
+            Assert.Inconclusive("A method that does not return a value cannot be verified.");
+        }
+
+        /// <summary>
+        ///A test for Upload
+        ///</summary>
+        [TestMethod()]
+        public void UploadTest1()
+        {
+            ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
+            ScpClient target = new ScpClient(connectionInfo); // TODO: Initialize to an appropriate value
+            FileInfo fileInfo = null; // TODO: Initialize to an appropriate value
+            string filename = string.Empty; // TODO: Initialize to an appropriate value
+            target.Upload(fileInfo, filename);
+            Assert.Inconclusive("A method that does not return a value cannot be verified.");
+        }
+
+        /// <summary>
+        ///A test for Upload
+        ///</summary>
+        [TestMethod()]
+        public void UploadTest2()
+        {
+            ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
+            ScpClient target = new ScpClient(connectionInfo); // TODO: Initialize to an appropriate value
+            Stream source = null; // TODO: Initialize to an appropriate value
+            string filename = string.Empty; // TODO: Initialize to an appropriate value
+            target.Upload(source, filename);
+            Assert.Inconclusive("A method that does not return a value cannot be verified.");
+        }
+
+        /// <summary>
+        ///A test for Download
+        ///</summary>
+        [TestMethod()]
+        public void DownloadTest()
+        {
+            ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
+            ScpClient target = new ScpClient(connectionInfo); // TODO: Initialize to an appropriate value
+            string directoryName = string.Empty; // TODO: Initialize to an appropriate value
+            DirectoryInfo directoryInfo = null; // TODO: Initialize to an appropriate value
+            target.Download(directoryName, directoryInfo);
+            Assert.Inconclusive("A method that does not return a value cannot be verified.");
+        }
+
+        /// <summary>
+        ///A test for Download
+        ///</summary>
+        [TestMethod()]
+        public void DownloadTest1()
+        {
+            ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
+            ScpClient target = new ScpClient(connectionInfo); // TODO: Initialize to an appropriate value
+            string filename = string.Empty; // TODO: Initialize to an appropriate value
+            FileInfo fileInfo = null; // TODO: Initialize to an appropriate value
+            target.Download(filename, fileInfo);
+            Assert.Inconclusive("A method that does not return a value cannot be verified.");
+        }
+
+        /// <summary>
+        ///A test for Download
+        ///</summary>
+        [TestMethod()]
+        public void DownloadTest2()
+        {
+            ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
+            ScpClient target = new ScpClient(connectionInfo); // TODO: Initialize to an appropriate value
+            string filename = string.Empty; // TODO: Initialize to an appropriate value
+            Stream destination = null; // TODO: Initialize to an appropriate value
+            target.Download(filename, destination);
+            Assert.Inconclusive("A method that does not return a value cannot be verified.");
+        }
+
+        /// <summary>
+        ///A test for ScpClient Constructor
+        ///</summary>
+        [TestMethod()]
+        public void ScpClientConstructorTest()
+        {
+            string host = string.Empty; // TODO: Initialize to an appropriate value
+            string username = string.Empty; // TODO: Initialize to an appropriate value
+            PrivateKeyFile[] keyFiles = null; // TODO: Initialize to an appropriate value
+            ScpClient target = new ScpClient(host, username, keyFiles);
+            Assert.Inconclusive("TODO: Implement code to verify target");
+        }
+
+        /// <summary>
+        ///A test for ScpClient Constructor
+        ///</summary>
+        [TestMethod()]
+        public void ScpClientConstructorTest1()
+        {
+            string host = string.Empty; // TODO: Initialize to an appropriate value
+            int port = 0; // TODO: Initialize to an appropriate value
+            string username = string.Empty; // TODO: Initialize to an appropriate value
+            PrivateKeyFile[] keyFiles = null; // TODO: Initialize to an appropriate value
+            ScpClient target = new ScpClient(host, port, username, keyFiles);
+            Assert.Inconclusive("TODO: Implement code to verify target");
+        }
+
+        /// <summary>
+        ///A test for ScpClient Constructor
+        ///</summary>
+        [TestMethod()]
+        public void ScpClientConstructorTest2()
+        {
+            string host = string.Empty; // TODO: Initialize to an appropriate value
+            string username = string.Empty; // TODO: Initialize to an appropriate value
+            string password = string.Empty; // TODO: Initialize to an appropriate value
+            ScpClient target = new ScpClient(host, username, password);
+            Assert.Inconclusive("TODO: Implement code to verify target");
+        }
+
+        /// <summary>
+        ///A test for ScpClient Constructor
+        ///</summary>
+        [TestMethod()]
+        public void ScpClientConstructorTest3()
+        {
+            string host = string.Empty; // TODO: Initialize to an appropriate value
+            int port = 0; // TODO: Initialize to an appropriate value
+            string username = string.Empty; // TODO: Initialize to an appropriate value
+            string password = string.Empty; // TODO: Initialize to an appropriate value
+            ScpClient target = new ScpClient(host, port, username, password);
+            Assert.Inconclusive("TODO: Implement code to verify target");
+        }
+
+        /// <summary>
+        ///A test for ScpClient Constructor
+        ///</summary>
+        [TestMethod()]
+        public void ScpClientConstructorTest4()
+        {
+            ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
+            ScpClient target = new ScpClient(connectionInfo);
+            Assert.Inconclusive("TODO: Implement code to verify target");
+        }
+
+
+        /// <summary>
         /// Creates the test file.
         /// </summary>
         /// <param name="fileName">Name of the file.</param>

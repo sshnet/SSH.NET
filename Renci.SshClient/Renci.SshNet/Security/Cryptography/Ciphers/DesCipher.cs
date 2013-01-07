@@ -288,12 +288,12 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 			return this.BlockSize;
 		}
 
-		/// <summary>
-		/// Generates the working key.
-		/// </summary>
-		/// <param name="encrypting">if set to <c>true</c> [encrypting].</param>
-		/// <param name="key">The key.</param>
-		/// <returns></returns>
+        /// <summary>
+        /// Generates the working key.
+        /// </summary>
+        /// <param name="encrypting">if set to <c>true</c> [encrypting].</param>
+        /// <param name="key">The key.</param>
+        /// <returns>Generated working key.</returns>
 		protected int[] GenerateWorkingKey(bool encrypting, byte[] key)
 		{
 			this.ValidateKey();

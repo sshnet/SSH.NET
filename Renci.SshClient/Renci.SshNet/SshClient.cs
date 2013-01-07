@@ -12,7 +12,7 @@ namespace Renci.SshNet
     /// Provides client connection to SSH server.
     /// </summary>
     public class SshClient : BaseClient
-   { 
+    {
         /// <summary>
         /// Holds the list of forwarded ports
         /// </summary>
@@ -39,8 +39,8 @@ namespace Renci.SshNet
         #region Constructors
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SshClient"/> class.
-        /// </summar>y
+        /// Initializes a new instance of the <see cref="SshClient" /> class.
+        /// </summary>
         /// <param name="connectionInfo">The connection info.</param>
         /// <example>
         ///     Connect to the server using PasswordConnectionInfo object
@@ -61,7 +61,7 @@ namespace Renci.SshNet
         /// <param name="password">Authentication password.</param>
         /// <exception cref="ArgumentNullException"><paramref name="password"/> is null.</exception>
         /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, or <paramref name="username"/> is null or contains whitespace characters.</exception>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="port"/> is not within <see cref="System.Net.IPEndPoint.MinPort"/> and <see cref="System.Net.IPEndPoint.MaxPort"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="port"/> is not within <see cref="F:System.Net.IPEndPoint.MinPort"/> and <see cref="System.Net.IPEndPoint.MaxPort"/>.</exception>
         [SuppressMessage("Microsoft.Reliability", "C2A000:DisposeObjectsBeforeLosingScope", Justification = "Disposed in Dispose(bool) method.")]
         public SshClient(string host, int port, string username, string password)
             : this(new PasswordConnectionInfo(host, port, username, password))
@@ -95,7 +95,7 @@ namespace Renci.SshNet
         /// <param name="keyFiles">Authentication private key file(s) .</param>
         /// <exception cref="ArgumentNullException"><paramref name="keyFiles"/> is null.</exception>
         /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, -or- <paramref name="username"/> is null or contains whitespace characters.</exception>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="port"/> is not within <see cref="System.Net.IPEndPoint.MinPort"/> and <see cref="System.Net.IPEndPoint.MaxPort"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="port"/> is not within <see cref="F:System.Net.IPEndPoint.MinPort"/> and <see cref="System.Net.IPEndPoint.MaxPort"/>.</exception>
         [SuppressMessage("Microsoft.Reliability", "CA2000:DisposeObjectsBeforeLosingScope", Justification = "Disposed in Dispose(bool) method.")]
         public SshClient(string host, int port, string username, params PrivateKeyFile[] keyFiles)
             : this(new PrivateKeyConnectionInfo(host, port, username, keyFiles))
@@ -212,7 +212,7 @@ namespace Renci.SshNet
         /// <returns>Returns an instance of <see cref="SshCommand"/> with execution results.</returns>
         /// <remarks>This method internally uses asynchronous calls.</remarks>
         /// <exception cref="ArgumentException">CommandText property is empty.</exception>
-        /// <exception cref="Renci.SshNet.Common.SshException">Invalid Operation - An existing channel was used to execute this command.</exception>
+        /// <exception cref="T:Renci.SshNet.Common.SshException">Invalid Operation - An existing channel was used to execute this command.</exception>
         /// <exception cref="InvalidOperationException">Asynchronous operation is already in progress.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="commandText"/> is null.</exception>
@@ -236,7 +236,9 @@ namespace Renci.SshNet
         /// <param name="height">The height.</param>
         /// <param name="terminalModes">The terminal mode.</param>
         /// <param name="bufferSize">Size of the internal read buffer.</param>
-        /// <returns>Returns a representation of a <see cref="Shell"/> object.</returns>
+        /// <returns>
+        /// Returns a representation of a <see cref="Shell" /> object.
+        /// </returns>
         public Shell CreateShell(Stream input, Stream output, Stream extendedOutput, string terminalName, uint columns, uint rows, uint width, uint height, IDictionary<TerminalModes, uint> terminalModes, int bufferSize)
         {
             //  Ensure that connection is established.
@@ -257,7 +259,9 @@ namespace Renci.SshNet
         /// <param name="width">The width.</param>
         /// <param name="height">The height.</param>
         /// <param name="terminalModes">The terminal mode.</param>
-        /// <returns>Returns a representation of a <see cref="Shell"/> object.</returns>
+        /// <returns>
+        /// Returns a representation of a <see cref="Shell" /> object.
+        /// </returns>
         public Shell CreateShell(Stream input, Stream output, Stream extendedOutput, string terminalName, uint columns, uint rows, uint width, uint height, IDictionary<TerminalModes, uint> terminalModes)
         {
             return this.CreateShell(input, output, extendedOutput, terminalName, columns, rows, width, height, terminalModes, 1024);
@@ -269,7 +273,9 @@ namespace Renci.SshNet
         /// <param name="input">The input.</param>
         /// <param name="output">The output.</param>
         /// <param name="extendedOutput">The extended output.</param>
-        /// <returns>Returns a representation of a <see cref="Shell"/> object.</returns>
+        /// <returns>
+        /// Returns a representation of a <see cref="Shell" /> object.
+        /// </returns>
         public Shell CreateShell(Stream input, Stream output, Stream extendedOutput)
         {
             return this.CreateShell(input, output, extendedOutput, string.Empty, 0, 0, 0, 0, null, 1024);
@@ -289,7 +295,9 @@ namespace Renci.SshNet
         /// <param name="height">The height.</param>
         /// <param name="terminalModes">The terminal mode.</param>
         /// <param name="bufferSize">Size of the internal read buffer.</param>
-        /// <returns>Returns a representation of a <see cref="Shell"/> object.</returns>
+        /// <returns>
+        /// Returns a representation of a <see cref="Shell" /> object.
+        /// </returns>
         public Shell CreateShell(Encoding encoding, string input, Stream output, Stream extendedOutput, string terminalName, uint columns, uint rows, uint width, uint height, IDictionary<TerminalModes, uint> terminalModes, int bufferSize)
         {
             this._inputStream = new MemoryStream();
@@ -313,8 +321,10 @@ namespace Renci.SshNet
         /// <param name="rows">The rows.</param>
         /// <param name="width">The width.</param>
         /// <param name="height">The height.</param>
-        /// <param name="terminalMode">The terminal mode.</param>
-        /// <returns>Returns a representation of a <see cref="Shell"/> object.</returns>
+        /// <param name="terminalModes">The terminal modes.</param>
+        /// <returns>
+        /// Returns a representation of a <see cref="Shell" /> object.
+        /// </returns>
         public Shell CreateShell(Encoding encoding, string input, Stream output, Stream extendedOutput, string terminalName, uint columns, uint rows, uint width, uint height, IDictionary<TerminalModes, uint> terminalModes)
         {
             return this.CreateShell(encoding, input, output, extendedOutput, terminalName, columns, rows, width, height, terminalModes, 1024);
@@ -327,7 +337,9 @@ namespace Renci.SshNet
         /// <param name="input">The input.</param>
         /// <param name="output">The output.</param>
         /// <param name="extendedOutput">The extended output.</param>
-        /// <returns>Returns a representation of a <see cref="Shell"/> object.</returns>
+        /// <returns>
+        /// Returns a representation of a <see cref="Shell" /> object.
+        /// </returns>
         public Shell CreateShell(Encoding encoding, string input, Stream output, Stream extendedOutput)
         {
             return this.CreateShell(encoding, input, output, extendedOutput, string.Empty, 0, 0, 0, 0, null, 1024);
@@ -342,8 +354,9 @@ namespace Renci.SshNet
         /// <param name="width">The width.</param>
         /// <param name="height">The height.</param>
         /// <param name="bufferSize">Size of the buffer.</param>
-        /// <param name="terminalModeValues">The terminal mode values.</param>
-        /// <returns></returns>
+        /// <returns>
+        /// Reference to Created ShellStream object.
+        /// </returns>
         public ShellStream CreateShellStream(string terminalName, uint columns, uint rows, uint width, uint height, int bufferSize)
         {
             return this.CreateShellStream(terminalName, columns, rows, width, height, bufferSize, null);
@@ -359,7 +372,9 @@ namespace Renci.SshNet
         /// <param name="height">The height.</param>
         /// <param name="bufferSize">Size of the buffer.</param>
         /// <param name="terminalModeValues">The terminal mode values.</param>
-        /// <returns></returns>
+        /// <returns>
+        /// Reference to Created ShellStream object.
+        /// </returns>
         public ShellStream CreateShellStream(string terminalName, uint columns, uint rows, uint width, uint height, int bufferSize, IDictionary<TerminalModes, uint> terminalModeValues)
         {
             //  Ensure that connection is established.

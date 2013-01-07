@@ -7,7 +7,7 @@ using System.Globalization;
 namespace Renci.SshNet.Security.Cryptography.Ciphers
 {
     /// <summary>
-    /// 
+    /// AES cipher implementation.
     /// </summary>
     public class AesCipher : BlockCipher
     {

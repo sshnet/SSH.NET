@@ -35,7 +35,7 @@ namespace Renci.SshNet.Security
         /// Signs the specified data.
         /// </summary>
         /// <param name="data">The data.</param>
-        /// <returns></returns>
+        /// <returns>Signed data.</returns>
         public abstract byte[] Sign(byte[] data);
 
         /// <summary>
@@ -43,7 +43,7 @@ namespace Renci.SshNet.Security
         /// </summary>
         /// <param name="data">The data.</param>
         /// <param name="signature">The signature.</param>
-        /// <returns></returns>
+        /// <returns><c>True</c> is signature was successfully verifies; otherwise <c>false</c>.</returns>
         public abstract bool VerifySignature(byte[] data, byte[] signature);
     }
 }

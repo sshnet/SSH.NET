@@ -18,15 +18,36 @@ namespace Renci.SshNet
     {
         #region SynchronizeDirectories
 
+        /// <summary>
+        /// Synchronizes the directories.
+        /// </summary>
+        /// <param name="sourcePath">The source path.</param>
+        /// <param name="destinationPath">The destination path.</param>
+        /// <param name="searchPattern">The search pattern.</param>
+        /// <returns>List of uploaded files.</returns>
         public IEnumerable<FileInfo> SynchronizeDirectories(string sourcePath, string destinationPath, string searchPattern)
         {
             return InternalSynchronizeDirectories(sourcePath, destinationPath, searchPattern, null);
         }
 
+        /// <summary>
+        /// Begins the synchronize directories.
+        /// </summary>
+        /// <param name="sourcePath">The source path.</param>
+        /// <param name="destinationPath">The destination path.</param>
+        /// <param name="searchPattern">The search pattern.</param>
+        /// <param name="asyncCallback">The async callback.</param>
+        /// <param name="state">The state.</param>
+        /// <returns>
+        /// An <see cref="System.IAsyncResult" /> that represents the asynchronous directory synchronization.
+        /// </returns>
+        /// <exception cref="System.ArgumentNullException">sourceDir</exception>
+        /// <exception cref="System.ArgumentException">destDir</exception>
         public IAsyncResult BeginSynchronizeDirectories(string sourcePath, string destinationPath, string searchPattern, AsyncCallback asyncCallback, object state)
         {
             if (sourcePath == null)
                 throw new ArgumentNullException("sourceDir");
+
             if (destinationPath.IsNullOrWhiteSpace())
                 throw new ArgumentException("destDir");
 
@@ -52,6 +73,12 @@ namespace Renci.SshNet
             return asyncResult;
         }
 
+        /// <summary>
+        /// Ends the synchronize directories.
+        /// </summary>
+        /// <param name="asyncResult">The async result.</param>
+        /// <returns>List of uploaded files.</returns>
+        /// <exception cref="System.ArgumentException">Either the IAsyncResult object did not come from the corresponding async method on this type, or EndExecute was called multiple times with the same IAsyncResult.</exception>
         public IEnumerable<FileInfo> EndSynchronizeDirectories(IAsyncResult asyncResult)
         {
             var ar = asyncResult as SftpSynchronizeDirectoriesAsyncResult;

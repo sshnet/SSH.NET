@@ -6,7 +6,7 @@ using System.Text;
 namespace Renci.SshNet.Security.Cryptography
 {
     /// <summary>
-    /// 
+    /// Base class of stream cipher algorithms.
     /// </summary>
     public abstract class StreamCipher : SymmetricCipher
     {

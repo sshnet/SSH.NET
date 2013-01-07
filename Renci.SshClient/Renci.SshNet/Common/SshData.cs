@@ -59,7 +59,7 @@ namespace Renci.SshNet.Common
         /// <summary>
         /// Gets data bytes array
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Byte array representation of data structure.</returns>
         public virtual byte[] GetBytes()
         {
             this._data = new List<byte>();
@@ -278,7 +278,7 @@ namespace Renci.SshNet.Common
         /// <summary>
         /// Reads next name-list data type from internal buffer.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>String array or read data..</returns>
         protected string[] ReadNamesList()
         {
             var namesList = this.ReadString();
@@ -288,7 +288,7 @@ namespace Renci.SshNet.Common
         /// <summary>
         /// Reads next extension-pair data type from internal buffer.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Extensions pair dictionary.</returns>
         protected IDictionary<string, string> ReadExtensionPair()
         {
             Dictionary<string, string> result = new Dictionary<string, string>();

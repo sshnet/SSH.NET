@@ -48,7 +48,7 @@ namespace Renci.SshNet
         /// Authenticates the specified session.
         /// </summary>
         /// <param name="session">The session to authenticate.</param>
-        /// <returns></returns>
+        /// <returns>Result of authentication  process.</returns>
         public abstract AuthenticationResult Authenticate(Session session);
     }
 }

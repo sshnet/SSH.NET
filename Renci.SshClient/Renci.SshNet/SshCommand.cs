@@ -216,7 +216,8 @@ namespace Renci.SshNet
         /// Waits for the pending asynchronous command execution to complete.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
-        /// <returns></returns>
+        /// <returns>Command execution result.</returns>
+        /// <exception cref="System.ArgumentException">Either the IAsyncResult object did not come from the corresponding async method on this type, or EndExecute was called multiple times with the same IAsyncResult.</exception>
         /// <exception cref="ArgumentException">Either the IAsyncResult object did not come from the corresponding async method on this type, or EndExecute was called multiple times with the same IAsyncResult.</exception>
         public string EndExecute(IAsyncResult asyncResult)
         {

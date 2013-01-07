@@ -48,15 +48,6 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\Renci.SshNet.Tests\BlockCipherTest.cs">
-      <Link>BlockCipherTest.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\CipherDigitalSignatureTest.cs">
-      <Link>CipherDigitalSignatureTest.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\CipherTest.cs">
-      <Link>CipherTest.cs</Link>
-    </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\AuthenticationMethodTest.cs">
       <Link>Classes\AuthenticationMethodTest.cs</Link>
     </Compile>
@@ -296,9 +287,6 @@
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Connection\ChannelOpen\X11ChannelOpenInfoTest.cs">
       <Link>Classes\Messages\Connection\ChannelOpen\X11ChannelOpenInfoTest.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Connection\ChannelRequestMessageTest.cs">
-      <Link>Classes\Messages\Connection\ChannelRequestMessageTest.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Connection\ChannelRequest\BreakRequestInfoTest.cs">
       <Link>Classes\Messages\Connection\ChannelRequest\BreakRequestInfoTest.cs</Link>
@@ -678,9 +666,6 @@
     <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest.cs">
       <Link>Classes\Sftp\SftpFileStreamTest.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileSystemInformationTest.cs">
-      <Link>Classes\Sftp\SftpFileSystemInformationTest.cs</Link>
-    </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileTest.cs">
       <Link>Classes\Sftp\SftpFileTest.cs</Link>
     </Compile>
@@ -711,30 +696,6 @@
     <Compile Include="..\Renci.SshNet.Tests\Common\TestBase.cs">
       <Link>Common\TestBase.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\DigitalSignatureTest.cs">
-      <Link>DigitalSignatureTest.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\DsaDigitalSignatureTest.cs">
-      <Link>DsaDigitalSignatureTest.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\HMacTest.cs">
-      <Link>HMacTest.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\MD5HashTest.cs">
-      <Link>MD5HashTest.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\RsaDigitalSignatureTest.cs">
-      <Link>RsaDigitalSignatureTest.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\SHA1HashTest.cs">
-      <Link>SHA1HashTest.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\SHA256HashTest.cs">
-      <Link>SHA256HashTest.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\SymmetricCipherTest.cs">
-      <Link>SymmetricCipherTest.cs</Link>
-    </Compile>
     <Compile Include="Classes\ForwardedPortRemote.NET35.cs" />
     <Compile Include="Classes\ForwardedPortLocal.NET35.cs" />
     <Compile Include="Classes\SshCommandTest.NET35.cs" />
@@ -762,7 +723,7 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" ProjectLinkReference="c45379b9-17b1-4e89-bc2e-6d41726413e8" />
+      <UserProperties ProjectLinkReference="c45379b9-17b1-4e89-bc2e-6d41726413e8" ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

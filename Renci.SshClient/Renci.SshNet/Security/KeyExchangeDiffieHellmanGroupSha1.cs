@@ -14,6 +14,12 @@ namespace Renci.SshNet.Security
     /// </summary>
     public abstract class KeyExchangeDiffieHellmanGroupSha1 : KeyExchangeDiffieHellman
     {
+        /// <summary>
+        /// Gets the group prime.
+        /// </summary>
+        /// <value>
+        /// The group prime.
+        /// </value>
         public abstract BigInteger GroupPrime { get; }
 
         /// <summary>

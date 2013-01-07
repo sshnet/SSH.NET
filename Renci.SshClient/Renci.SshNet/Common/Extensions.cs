@@ -99,7 +99,7 @@ namespace Renci.SshNet
         /// Trims the leading zero from bytes array.
         /// </summary>
         /// <param name="data">The data.</param>
-        /// <returns></returns>
+        /// <returns>Data without leading zeros.</returns>
         internal static IEnumerable<byte> TrimLeadingZero(this IEnumerable<byte> data)
         {
             bool leadingZero = true;

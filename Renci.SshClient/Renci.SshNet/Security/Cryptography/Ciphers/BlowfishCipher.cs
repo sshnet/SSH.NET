@@ -6,8 +6,8 @@ using System.Text;
 namespace Renci.SshNet.Security.Cryptography.Ciphers
 {
 	/// <summary>
-	/// 
-	/// </summary>
+    /// Blowfish cipher implementation.
+    /// </summary>
 	public class BlowfishCipher : BlockCipher
 	{
 		#region Static reference tables

@@ -60,7 +60,9 @@ namespace Renci.SshNet.Security
         /// Signs the specified data.
         /// </summary>
         /// <param name="data">The data.</param>
-        /// <returns></returns>
+        /// <returns>
+        /// Signed data.
+        /// </returns>
         public override byte[] Sign(byte[] data)
         {
             return new SignatureKeyData(this.Name, this.Key.Sign(data)).GetBytes().ToArray();
@@ -71,7 +73,9 @@ namespace Renci.SshNet.Security
         /// </summary>
         /// <param name="data">The data.</param>
         /// <param name="signature">The signature.</param>
-        /// <returns></returns>
+        /// <returns>
+        ///   <c>True</c> is signature was successfully verifies; otherwise <c>false</c>.
+        /// </returns>
         public override bool VerifySignature(byte[] data, byte[] signature)
         {
             var signatureData = new SignatureKeyData();

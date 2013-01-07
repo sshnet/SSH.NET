@@ -314,7 +314,9 @@ namespace Renci.SshNet
         /// Begins the expect.
         /// </summary>
         /// <param name="expectActions">The expect actions.</param>
-        /// <returns></returns>
+        /// <returns>
+        /// An <see cref="IAsyncResult" /> that references the asynchronous operation.
+        /// </returns>
         public IAsyncResult BeginExpect(params ExpectAction[] expectActions)
         {
             return this.BeginExpect(TimeSpan.Zero, null, null, expectActions);
@@ -324,9 +326,10 @@ namespace Renci.SshNet
         /// Begins the expect.
         /// </summary>
         /// <param name="callback">The callback.</param>
-        /// <param name="state">The state.</param>
         /// <param name="expectActions">The expect actions.</param>
-        /// <returns></returns>
+        /// <returns>
+        /// An <see cref="IAsyncResult" /> that references the asynchronous operation.
+        /// </returns>
         public IAsyncResult BeginExpect(AsyncCallback callback, params ExpectAction[] expectActions)
         {
             return this.BeginExpect(TimeSpan.Zero, callback, null, expectActions);
@@ -338,7 +341,9 @@ namespace Renci.SshNet
         /// <param name="callback">The callback.</param>
         /// <param name="state">The state.</param>
         /// <param name="expectActions">The expect actions.</param>
-        /// <returns></returns>
+        /// <returns>
+        /// An <see cref="IAsyncResult" /> that references the asynchronous operation.
+        /// </returns>
         public IAsyncResult BeginExpect(AsyncCallback callback, object state, params ExpectAction[] expectActions)
         {
             return this.BeginExpect(TimeSpan.Zero, callback, state, expectActions);
@@ -351,7 +356,9 @@ namespace Renci.SshNet
         /// <param name="callback">The callback.</param>
         /// <param name="state">The state.</param>
         /// <param name="expectActions">The expect actions.</param>
-        /// <returns></returns>
+        /// <returns>
+        /// An <see cref="IAsyncResult" /> that references the asynchronous operation.
+        /// </returns>
         public IAsyncResult BeginExpect(TimeSpan timeout, AsyncCallback callback, object state, params ExpectAction[] expectActions)
         {
             var text = string.Empty;
@@ -461,7 +468,9 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="text">The text to expect.</param>
         /// <param name="timeout">Time to wait for input.</param>
+        /// <returns>
         /// Text available in the shell that ends with expected text, if the specified time elapsed returns null.
+        /// </returns>
         public string Expect(string text, TimeSpan timeout)
         {
             return this.Expect(new Regex(Regex.Escape(text)), timeout);
@@ -635,6 +644,12 @@ namespace Renci.SshNet
             {
                 this._channel.Dispose();
                 this._channel = null;
+            }
+
+            if (this._dataReceived != null)
+            {
+                this._dataReceived.Dispose();
+                this._dataReceived = null;
             }
 
             if (this._session != null)

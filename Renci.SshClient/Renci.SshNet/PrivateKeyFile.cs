@@ -207,13 +207,15 @@ namespace Renci.SshNet
                         throw new SshException(string.Format("Cipher method '{0}' is not supported.", cipherName));
                     }
 
+                    //  TODO:   Create two specific data types to avoid using SshDataReader class
+
                     reader = new SshDataReader(keyData);
 
                     var decryptedLength = reader.ReadUInt32();
 
                     if (decryptedLength + 4 != blobSize)
                         throw new SshException("Invalid passphrase.");
-
+                    
                     if (keyType == "if-modn{sign{rsa-pkcs1-sha1},encrypt{rsa-pkcs1v2-oaep}}")
                     {
                         var exponent = reader.ReadBigIntWithBits();//e
@@ -282,8 +284,9 @@ namespace Renci.SshNet
         /// <param name="cipherData">Encrypted data.</param>
         /// <param name="passPhrase">Decryption pass phrase.</param>
         /// <param name="binarySalt">Decryption binary salt.</param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentNullException"><paramref name="cipherInfo"/>, <paramref name="cipherData"/>, <paramref name="passPhrase"/> or <paramref name="binarySalt"/> is null.</exception>
+        /// <returns>Decrypted byte array.</returns>
+        /// <exception cref="System.ArgumentNullException">cipherInfo</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="cipherInfo" />, <paramref name="cipherData" />, <paramref name="passPhrase" /> or <paramref name="binarySalt" /> is null.</exception>
         private static byte[] DecryptKey(CipherInfo cipherInfo, byte[] cipherData, string passPhrase, byte[] binarySalt)
         {
             if (cipherInfo == null)
@@ -384,17 +387,17 @@ namespace Renci.SshNet
                 this.LoadBytes(data);
             }
 
-            public UInt32 ReadUInt32()
+            public new UInt32 ReadUInt32()
             {
                 return base.ReadUInt32();
             }
 
-            public string ReadString()
+            public new string ReadString()
             {
                 return base.ReadString();
             }
 
-            public byte[] ReadBytes(int length)
+            public new byte[] ReadBytes(int length)
             {
                 return base.ReadBytes(length);
             }

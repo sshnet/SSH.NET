@@ -52,7 +52,9 @@ namespace Renci.SshNet
         /// Authenticates the specified session.
         /// </summary>
         /// <param name="session">The session to authenticate.</param>
-        /// <returns></returns>
+        /// <returns>
+        /// Result of authentication  process.
+        /// </returns>
         public override AuthenticationResult Authenticate(Session session)
         {
             session.UserAuthenticationSuccessReceived += Session_UserAuthenticationSuccessReceived;

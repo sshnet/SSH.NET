@@ -29,7 +29,9 @@ namespace Renci.SshNet.Security.Cryptography
         /// Hashes the specified input.
         /// </summary>
         /// <param name="input">The input.</param>
-        /// <returns></returns>
+        /// <returns>
+        /// Hashed data.
+        /// </returns>
         protected override byte[] Hash(byte[] input)
         {
             return this._hash.ComputeHash(input);

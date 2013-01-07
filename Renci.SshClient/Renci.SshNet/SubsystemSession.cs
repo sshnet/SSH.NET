@@ -54,7 +54,11 @@ namespace Renci.SshNet.Sftp
         /// <summary>
         /// Initializes a new instance of the SubsystemSession class.
         /// </summary>
-        /// <exception cref="ArgumentNullException"><paramref name="session"/> or <paramref name="subsystemName"/> is null.</exception>
+        /// <param name="session">The session.</param>
+        /// <param name="subsystemName">Name of the subsystem.</param>
+        /// <param name="operationTimeout">The operation timeout.</param>
+        /// <exception cref="System.ArgumentNullException">session</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="session" /> or <paramref name="subsystemName" /> is null.</exception>
         public SubsystemSession(Session session, string subsystemName, TimeSpan operationTimeout)
         {
             if (session == null)
@@ -226,6 +230,12 @@ namespace Renci.SshNet.Sftp
                     {
                         this._errorOccuredWaitHandle.Dispose();
                         this._errorOccuredWaitHandle = null;
+                    }
+
+                    if (this._channelClosedWaitHandle != null)
+                    {
+                        this._channelClosedWaitHandle.Dispose();
+                        this._channelClosedWaitHandle = null;
                     }
                 }
 

@@ -9,7 +9,7 @@ namespace Renci.SshNet.Sftp
 {
     internal abstract class SftpMessage : SshData
     {
-        public new static SftpMessage Load(uint protocolVersion, byte[] data)
+        public static SftpMessage Load(uint protocolVersion, byte[] data)
         {
             var messageType = (SftpMessageTypes)data.FirstOrDefault();
 

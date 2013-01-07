@@ -177,7 +177,7 @@ namespace Renci.SshNet.Security
         /// <summary>
         /// Creates the server side cipher to use.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Server cipher.</returns>
         public BlockCipher CreateServerCipher()
         {
             //  Resolve Session ID
@@ -198,7 +198,7 @@ namespace Renci.SshNet.Security
         /// <summary>
         /// Creates the client side cipher to use.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Client cipher.</returns>
         public BlockCipher CreateClientCipher()
         {
             //  Resolve Session ID
@@ -219,7 +219,7 @@ namespace Renci.SshNet.Security
         /// <summary>
         /// Creates the server side hash algorithm to use.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Hash algorithm</returns>
         public HashAlgorithm CreateServerHash()
         {
             //  Resolve Session ID
@@ -232,7 +232,7 @@ namespace Renci.SshNet.Security
         /// <summary>
         /// Creates the client side hash algorithm to use.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Hash algorithm</returns>
         public HashAlgorithm CreateClientHash()
         {
             //  Resolve Session ID
@@ -245,7 +245,7 @@ namespace Renci.SshNet.Security
         /// <summary>
         /// Creates the compression algorithm to use to deflate data.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Compression method.</returns>
         public Compressor CreateCompressor()
         {
             if (this._compressionType == null)
@@ -261,7 +261,7 @@ namespace Renci.SshNet.Security
         /// <summary>
         /// Creates the compression algorithm to use to inflate data.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Compression method.</returns>
         public Compressor CreateDecompressor()
         {
             if (this._compressionType == null)

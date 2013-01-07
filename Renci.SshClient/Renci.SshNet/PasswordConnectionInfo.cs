@@ -10,8 +10,8 @@ namespace Renci.SshNet
     /// Provides connection information when password authentication method is used
     /// </summary>
     /// <remarks>
-    ///     Connect to the server using PasswordConnectionInfo object
-    ///     <code source="..\Examples\PasswordConnectionInfo.cs" region="ConnectUsingPasswordConnectionInfo" language="C#" title="Connect using PasswordConnectionInfo object" />
+    /// Connect to the server using PasswordConnectionInfo object
+    /// <code source="..\Examples\PasswordConnectionInfo.cs" region="ConnectUsingPasswordConnectionInfo" language="C#" title="Connect using PasswordConnectionInfo object" />
     /// </remarks>
     public class PasswordConnectionInfo : ConnectionInfo, IDisposable
     {
@@ -45,7 +45,7 @@ namespace Renci.SshNet
         /// <param name="password">Connection password.</param>
         /// <exception cref="ArgumentNullException"><paramref name="password"/> is null.</exception>
         /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, or <paramref name="username"/> is null or contains whitespace characters.</exception>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="port"/> is not within <see cref="f:IPEndPoint.MinPort"/> and <see cref="f:IPEndPoint.MaxPort"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="port"/> is not within <see cref="F:System.Net.IPEndPoint.MinPort"/> and <see cref="F:System.Net.IPEndPoint.MaxPort"/>.</exception>
         public PasswordConnectionInfo(string host, int port, string username, string password)
             : this(host, port, username, Encoding.UTF8.GetBytes(password), ProxyTypes.None, string.Empty, 0, string.Empty, string.Empty)
         {
@@ -140,15 +140,15 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PasswordConnectionInfo"/> class.
+        /// Initializes a new instance of the <see cref="PasswordConnectionInfo" /> class.
         /// </summary>
         /// <param name="host">Connection host.</param>
         /// <param name="port">Connection port.</param>
         /// <param name="username">Connection username.</param>
         /// <param name="password">Connection password.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="password"/> is null.</exception>
-        /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, or <paramref name="username"/> is null or contains whitespace characters.</exception>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="port"/> is not within <see cref="f:IPEndPoint.MinPort"/> and <see cref="f:IPEndPoint.MaxPort"/>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="password" /> is null.</exception>
+        /// <exception cref="ArgumentException"><paramref name="host" /> is invalid, or <paramref name="username" /> is null or contains whitespace characters.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="port" /> is not within <see cref="F:System.Net.IPEndPoint.MinPort" /> and <see cref="F:System.Net.IPEndPoint.MaxPort" />.</exception>
         public PasswordConnectionInfo(string host, int port, string username, byte[] password)
             : this(host, port, username, password, ProxyTypes.None, string.Empty, 0, string.Empty, string.Empty)
         {

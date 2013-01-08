@@ -181,7 +181,7 @@
                     Monitor.Wait(this._buffer);
 
                 // fill the read buffer
-                for (; readLength < count && Length > 0; readLength++)
+                for (; readLength < count && Length > 0 && this._buffer.Count > 0; readLength++)
                 {
                     buffer[readLength] = this._buffer.Dequeue();
                 }

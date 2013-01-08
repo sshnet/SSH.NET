@@ -279,7 +279,7 @@ namespace Renci.SshNet
                             {
                                 var result = text.Substring(0, match.Index + match.Length);
 
-                                for (int i = 0; i < match.Index + match.Length; i++)
+                                for (int i = 0; i < match.Index + match.Length && this._incoming.Count > 0; i++)
                                 {
                                     //  Remove processed items from the queue
                                     this._incoming.Dequeue();
@@ -392,7 +392,7 @@ namespace Renci.SshNet
                                 {
                                     var result = text.Substring(0, match.Index + match.Length);
 
-                                    for (int i = 0; i < match.Index + match.Length; i++)
+                                    for (int i = 0; i < match.Index + match.Length && this._incoming.Count > 0; i++)
                                     {
                                         //  Remove processed items from the queue
                                         this._incoming.Dequeue();
@@ -410,6 +410,7 @@ namespace Renci.SshNet
                             }
                         }
                     }
+
                     if (timeout != null)
                     {
                         if (!this._dataReceived.WaitOne(timeout))
@@ -511,7 +512,7 @@ namespace Renci.SshNet
                     if (match.Success)
                     {
                         //  Remove processed items from the queue
-                        for (int i = 0; i < match.Index + match.Length; i++)
+                        for (int i = 0; i < match.Index + match.Length && this._incoming.Count > 0; i++)
                         {
                             this._incoming.Dequeue();
                         }
@@ -570,7 +571,7 @@ namespace Renci.SshNet
                         text = text.Substring(0, index);
 
                         //  Remove processed items from the queue
-                        for (int i = 0; i < index + 2; i++)
+                        for (int i = 0; i < index + 2 && this._incoming.Count > 0; i++)
                         {
                             this._incoming.Dequeue();
                         }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Renci.SshNet.Common;
 using Renci.SshNet.Tests.Common;
 using Renci.SshNet.Tests.Properties;
 using System;
@@ -14,16 +15,78 @@ namespace Renci.SshNet.Tests.Classes
     {
         [TestMethod]
         [TestCategory("PasswordConnectionInfo")]
-        [ExpectedException(typeof(ArgumentException))]
-        public void Test_ConnectionInfo()
+        public void Test_PasswordConnectionInfo()
         {
-            #region ExampleConnectionInfo
-            var connectionInfo = new PasswordConnectionInfo(Resources.HOST, Resources.USERNAME, Resources.PASSWORD);
+            var host = Resources.HOST;
+            var username = Resources.USERNAME;
+            var password = Resources.PASSWORD;
+
+            #region Example PasswordConnectionInfo
+            var connectionInfo = new PasswordConnectionInfo(host, username, password);
+            using (var client = new SftpClient(connectionInfo))
+            {
+                client.Connect();
+                //  Do something here
+                client.Disconnect();
+            }
             #endregion
 
             Assert.AreEqual(connectionInfo.Host, Resources.HOST);
             Assert.AreEqual(connectionInfo.Username, Resources.USERNAME);
         }
+
+        [TestMethod]
+        [TestCategory("PasswordConnectionInfo")]
+        public void Test_PasswordConnectionInfo_PasswordExpired()
+        {
+            var host = Resources.HOST;
+            var username = Resources.USERNAME;
+            var password = Resources.PASSWORD;
+
+            #region Example PasswordConnectionInfo PasswordExpired
+            var connectionInfo = new PasswordConnectionInfo("host", "username", "password");
+            var encoding = new Renci.SshNet.Common.ASCIIEncoding();
+            connectionInfo.PasswordExpired += delegate(object sender, AuthenticationPasswordChangeEventArgs e)
+            {
+                e.NewPassword = encoding.GetBytes("123456");
+            };
+
+            using (var client = new SshClient(connectionInfo))
+            {
+                client.Connect();
+
+                client.Disconnect();
+            }
+            #endregion
+
+            Assert.Inconclusive();
+        }
+        [TestMethod]
+        [TestCategory("PasswordConnectionInfo")]
+        public void Test_PasswordConnectionInfo_AuthenticationBanner()
+        {
+            var host = Resources.HOST;
+            var username = Resources.USERNAME;
+            var password = Resources.PASSWORD;
+
+            #region Example PasswordConnectionInfo AuthenticationBanner
+            var connectionInfo = new PasswordConnectionInfo(host, username, password);
+            connectionInfo.AuthenticationBanner += delegate(object sender, AuthenticationBannerEventArgs e)
+            {
+                Console.WriteLine(e.BannerMessage);
+            };
+            using (var client = new SftpClient(connectionInfo))
+            {
+                client.Connect();
+                //  Do something here
+                client.Disconnect();
+            }
+            #endregion
+
+            Assert.AreEqual(connectionInfo.Host, Resources.HOST);
+            Assert.AreEqual(connectionInfo.Username, Resources.USERNAME);
+        }
+
 
         [WorkItem(703), TestMethod]
         [TestCategory("PasswordConnectionInfo")]

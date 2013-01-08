@@ -8,6 +8,44 @@ namespace Renci.SshNet.Tests.Classes
 {
     public partial class SshCommandTest
     {
+
+        public void Test_MultipleThread_Example_MultipleConnections()
+        {
+            var host = Resources.HOST;
+            var username = Resources.USERNAME;
+            var password = Resources.PASSWORD;
+
+            try
+            {
+                #region Example SshCommand RunCommand Parallel
+                System.Threading.Tasks.Parallel.For(0, 10000,
+                    () =>
+                    {
+                        var client = new SshClient(host, username, password);
+                        client.Connect();
+                        return client;
+                    },
+                    (int counter, ParallelLoopState pls, SshClient client) =>
+                    {
+                        var result = client.RunCommand("echo 123");
+                        Debug.WriteLine(string.Format("TestMultipleThreadMultipleConnections #{0}", counter));
+                        return client;
+                    },
+                    (SshClient client) =>
+                    {
+                        client.Disconnect();
+                        client.Dispose();
+                    }
+                );
+                #endregion
+
+            }
+            catch (Exception exp)
+            {
+                Assert.Fail(exp.ToString());
+            }
+        }
+
         //[TestMethod]
         public void Test_MultipleThread_10000_MultipleConnections()
         {

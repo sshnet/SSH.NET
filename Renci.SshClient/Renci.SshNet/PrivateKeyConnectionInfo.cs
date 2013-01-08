@@ -10,9 +10,8 @@ namespace Renci.SshNet
     /// Provides connection information when private key authentication method is used
     /// </summary>
     /// <example>
-    ///     Key examples
-    ///     <code source="..\Examples\PrivateKeyConnectionInfo.cs" region="ConnectUsingPrivateKeyConnectionInfo" language="C#" title="Connection example" />
-    /// </example>
+    ///   <code source="..\..\Renci.SshNet.Tests\Classes\PrivateKeyConnectionInfoTest.cs" region="Example PrivateKeyConnectionInfo PrivateKeyFile" language="C#" title="Connect using private key" />
+    ///   </example>
     public class PrivateKeyConnectionInfo : ConnectionInfo, IDisposable
     {
         /// <summary>
@@ -26,6 +25,10 @@ namespace Renci.SshNet
         /// <param name="host">Connection host.</param>
         /// <param name="username">Connection username.</param>
         /// <param name="keyFiles">Connection key files.</param>
+        /// <example>
+        ///     <code source="..\..\Renci.SshNet.Tests\Classes\PrivateKeyConnectionInfoTest.cs" region="Example PrivateKeyConnectionInfo PrivateKeyFile" language="C#" title="Connect using private key" />
+        ///     <code source="..\..\Renci.SshNet.Tests\Classes\PrivateKeyConnectionInfoTest.cs" region="Example PrivateKeyConnectionInfo PrivateKeyFile Multiple" language="C#" title="Connect using multiple private key" />
+        /// </example>
         public PrivateKeyConnectionInfo(string host, string username, params PrivateKeyFile[] keyFiles)
             : this(host, ConnectionInfo.DEFAULT_PORT, username, ProxyTypes.None, string.Empty, 0, string.Empty, string.Empty, keyFiles)
         {

@@ -59,7 +59,7 @@ namespace Renci.SshNet
 
                 if (this._keepAliveTimer == null)
                 {
-                    this._keepAliveTimer = new Timer((state) => 
+                    this._keepAliveTimer = new Timer((state) =>
                     {
                         this.SendKeepAlive();
                     });
@@ -72,11 +72,17 @@ namespace Renci.SshNet
         /// <summary>
         /// Occurs when an error occurred.
         /// </summary>
+        /// <example>
+        ///   <code source="..\..\Renci.SshNet.Tests\Classes\SshClientTest.cs" region="Example SshClient Connect ErrorOccurred" language="C#" title="Handle ErrorOccurred event" />
+        /// </example>
         public event EventHandler<ExceptionEventArgs> ErrorOccurred;
 
         /// <summary>
         /// Occurs when host key received.
         /// </summary>
+        /// <example>
+        ///   <code source="..\..\Renci.SshNet.Tests\Classes\SshClientTest.cs" region="Example SshClient Connect HostKeyReceived" language="C#" title="Handle HostKeyReceived event" />
+        /// </example>
         public event EventHandler<HostKeyEventArgs> HostKeyReceived;
 
         /// <summary>
@@ -173,7 +179,7 @@ namespace Renci.SshNet
         {
 
         }
-        
+
         /// <summary>
         /// Ensures that client is connected.
         /// </summary>

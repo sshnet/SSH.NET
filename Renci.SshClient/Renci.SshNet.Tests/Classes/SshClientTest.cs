@@ -2,9 +2,11 @@
 using Renci.SshNet.Common;
 using Renci.SshNet.Tests.Common;
 using Renci.SshNet.Tests.Properties;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Linq;
 
 namespace Renci.SshNet.Tests.Classes
 {
@@ -18,11 +20,95 @@ namespace Renci.SshNet.Tests.Classes
         [TestCategory("Authentication")]
         public void Test_Connect_Using_Correct_Password()
         {
-            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            var host = Resources.HOST;
+            var username = Resources.USERNAME;
+            var password = Resources.PASSWORD;
+
+            #region Example SshClient(host, username) Connect
+            using (var client = new SshClient(host, username, password))
             {
                 client.Connect();
+                //  Do something here
                 client.Disconnect();
             }
+            #endregion
+        }
+
+        [TestMethod]
+        [TestCategory("Authentication")]
+        public void Test_Connect_Handle_HostKeyReceived()
+        {
+            var host = Resources.HOST;
+            var username = Resources.USERNAME;
+            var password = Resources.PASSWORD;
+
+            #region Example SshClient Connect HostKeyReceived
+            using (var client = new SshClient(host, username, password))
+            {
+                client.HostKeyReceived += delegate(object sender, HostKeyEventArgs e)
+                {
+                    if (e.FingerPrint.SequenceEqual(new byte[] { 0x00, 0x01, 0x02, 0x03 }))
+                    {
+                        e.CanTrust = true;
+                    }
+                    else
+                    {
+                        e.CanTrust = false;
+                    }
+                };
+                client.Connect();
+                //  Do something here
+                client.Disconnect();
+            }
+            #endregion
+            Assert.Inconclusive();
+        }
+
+        [TestMethod]
+        [TestCategory("Authentication")]
+        public void Test_Connect_Timeout()
+        {
+            var host = Resources.HOST;
+            var username = Resources.USERNAME;
+            var password = Resources.PASSWORD;
+
+            #region Example SshClient Connect Timeout
+            var connectionInfo = new PasswordConnectionInfo(host, username, password);
+
+            connectionInfo.Timeout = TimeSpan.FromSeconds(30);
+
+            using (var client = new SshClient(connectionInfo))
+            {
+                client.Connect();
+                //  Do something here
+                client.Disconnect();
+            }
+            #endregion
+            Assert.Inconclusive();
+        }
+
+        [TestMethod]
+        [TestCategory("Authentication")]
+        public void Test_Connect_Handle_ErrorOccurred()
+        {
+            var host = Resources.HOST;
+            var username = Resources.USERNAME;
+            var password = Resources.PASSWORD;
+
+            #region Example SshClient Connect ErrorOccurred
+            using (var client = new SshClient(host, username, password))
+            {
+                client.ErrorOccurred += delegate(object sender, ExceptionEventArgs e)
+                {
+                    Console.WriteLine("Error occured: " + e.Exception.ToString());
+                };
+
+                client.Connect();
+                //  Do something here
+                client.Disconnect();
+            }
+            #endregion
+            Assert.Inconclusive();
         }
 
         [TestMethod]
@@ -41,24 +127,35 @@ namespace Renci.SshNet.Tests.Classes
         [TestCategory("Authentication")]
         public void Test_Connect_Using_Rsa_Key_Without_PassPhrase()
         {
+            var host = Resources.HOST;
+            var username = Resources.USERNAME;
             MemoryStream keyFileStream = new MemoryStream(Encoding.ASCII.GetBytes(Resources.RSA_KEY_WITHOUT_PASS));
-            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, new PrivateKeyFile(keyFileStream)))
+
+            #region Example SshClient(host, username) Connect PrivateKeyFile
+            using (var client = new SshClient(host, username, new PrivateKeyFile(keyFileStream)))
             {
                 client.Connect();
                 client.Disconnect();
             }
+            #endregion
         }
 
         [TestMethod]
         [TestCategory("Authentication")]
         public void Test_Connect_Using_RsaKey_With_PassPhrase()
         {
+            var host = Resources.HOST;
+            var username = Resources.USERNAME;
+            var passphrase = Resources.PASSWORD;
             MemoryStream keyFileStream = new MemoryStream(Encoding.ASCII.GetBytes(Resources.RSA_KEY_WITH_PASS));
-            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, new PrivateKeyFile(keyFileStream, Resources.PASSWORD)))
+
+            #region Example SshClient(host, username) Connect PrivateKeyFile PassPhrase
+            using (var client = new SshClient(host, username, new PrivateKeyFile(keyFileStream, passphrase)))
             {
                 client.Connect();
                 client.Disconnect();
             }
+            #endregion
         }
 
         [TestMethod]

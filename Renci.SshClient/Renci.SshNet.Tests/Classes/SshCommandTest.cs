@@ -28,15 +28,113 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
+        public void Test_Run_SingleCommand()
+        {
+            var host = Resources.HOST;
+            var username = Resources.USERNAME;
+            var password = Resources.PASSWORD;
+
+            using (var client = new SshClient(host, username, password))
+            {
+                #region Example SshCommand RunCommand Result
+                client.Connect();
+
+                var testValue = Guid.NewGuid().ToString();
+                var command = client.RunCommand(string.Format("echo {0}", testValue));
+                var result = command.Result;
+                result = result.Substring(0, result.Length - 1);    //  Remove \n character returned by command
+
+                client.Disconnect();
+                #endregion
+
+                Assert.IsTrue(result.Equals(testValue));
+            }
+        }
+
+        [TestMethod]
         public void Test_Execute_SingleCommand()
         {
-            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            var host = Resources.HOST;
+            var username = Resources.USERNAME;
+            var password = Resources.PASSWORD;
+
+            using (var client = new SshClient(host, username, password))
             {
+                #region Example SshCommand CreateCommand Execute
                 client.Connect();
-                var result = ExecuteTestCommand(client);
+
+                var testValue = Guid.NewGuid().ToString();
+                var command = string.Format("echo {0}", testValue);
+                var cmd = client.CreateCommand(command);
+                var result = cmd.Execute();
+                result = result.Substring(0, result.Length - 1);    //  Remove \n character returned by command
+
+                client.Disconnect();
+                #endregion
+
+                Assert.IsTrue(result.Equals(testValue));
+            }
+        }
+
+        [TestMethod]
+        public void Test_Execute_OutputStream()
+        {
+            var host = Resources.HOST;
+            var username = Resources.USERNAME;
+            var password = Resources.PASSWORD;
+
+            using (var client = new SshClient(host, username, password))
+            {
+                #region Example SshCommand CreateCommand Execute OutputStream
+                client.Connect();
+
+                var cmd = client.CreateCommand("ls -l");   //  very long list
+                var asynch = cmd.BeginExecute();
+
+                var reader = new StreamReader(cmd.OutputStream);
+
+                while (!asynch.IsCompleted)
+                {
+                    var result = reader.ReadToEnd();
+                    if (string.IsNullOrEmpty(result))
+                        continue;
+                    Console.Write(result);
+                }
+                cmd.EndExecute(asynch);
+
+                client.Disconnect();
+                #endregion
+
+                Assert.Inconclusive();
+            }
+        }
+
+        [TestMethod]
+        public void Test_Execute_ExtendedOutputStream()
+        {
+            var host = Resources.HOST;
+            var username = Resources.USERNAME;
+            var password = Resources.PASSWORD;
+
+            using (var client = new SshClient(host, username, password))
+            {
+                #region Example SshCommand CreateCommand Execute ExtendedOutputStream
+
+                client.Connect();
+                var cmd = client.CreateCommand("echo 12345; echo 654321 >&2");
+                var result = cmd.Execute();
+
+                Console.Write(result);
+
+                var reader = new StreamReader(cmd.ExtendedOutputStream);
+                Console.WriteLine("DEBUG:");
+                Console.Write(reader.ReadToEnd());
+
                 client.Disconnect();
 
-                Assert.IsTrue(result);
+                #endregion
+
+                Assert.Inconclusive();
             }
         }
 
@@ -46,11 +144,13 @@ namespace Renci.SshNet.Tests.Classes
         {
             using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
             {
+                #region Example SshCommand CreateCommand Execute CommandTimeout
                 client.Connect();
                 var cmd = client.CreateCommand("sleep 10s");
                 cmd.CommandTimeout = TimeSpan.FromSeconds(5);
                 cmd.Execute();
                 client.Disconnect();
+                #endregion
             }
         }
 
@@ -147,12 +247,17 @@ namespace Renci.SshNet.Tests.Classes
         {
             using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
             {
+                #region Example SshCommand RunCommand ExitStatus
                 client.Connect();
 
                 var cmd = client.RunCommand("exit 128");
-                Assert.IsTrue(cmd.ExitStatus == 128);
+                
+                Console.WriteLine(cmd.ExitStatus);
 
                 client.Disconnect();
+                #endregion
+
+                Assert.IsTrue(cmd.ExitStatus == 128);
             }
         }
 
@@ -318,18 +423,58 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod()]
         public void BeginExecuteTest()
         {
-            Session session = null; // TODO: Initialize to an appropriate value
-            string commandText = string.Empty; // TODO: Initialize to an appropriate value
-            Encoding encoding = null; // TODO: Initialize to an appropriate value
-            SshCommand target = new SshCommand(session, commandText, encoding); // TODO: Initialize to an appropriate value
-            AsyncCallback callback = null; // TODO: Initialize to an appropriate value
-            object state = null; // TODO: Initialize to an appropriate value
-            IAsyncResult expected = null; // TODO: Initialize to an appropriate value
-            IAsyncResult actual;
-            actual = target.BeginExecute(callback, state);
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verify the correctness of this test method.");
+            string expected = "123\n";
+            string result;
+
+            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            {
+                #region Example SshCommand CreateCommand BeginExecute IsCompleted EndExecute
+
+                client.Connect();
+
+                var cmd = client.CreateCommand("sleep 15s;echo 123"); // Perform long running task
+
+                var asynch = cmd.BeginExecute();
+
+                while (!asynch.IsCompleted)
+                {
+                    //  Waiting for command to complete...
+                    Thread.Sleep(2000);
+                }
+                result = cmd.EndExecute(asynch);
+                client.Disconnect();
+
+                #endregion
+
+                Assert.IsNotNull(asynch);
+                Assert.AreEqual(expected, result);
+            }
         }
+
+        [TestMethod]
+        public void Test_Execute_Invalid_Command()
+        {
+            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            {
+                #region Example SshCommand CreateCommand Error
+
+                client.Connect();
+
+                var cmd = client.CreateCommand(";");
+                cmd.Execute();
+                if (!string.IsNullOrEmpty(cmd.Error))
+                {
+                    Console.WriteLine(cmd.Error);
+                }
+
+                client.Disconnect();
+
+                #endregion
+
+                Assert.Inconclusive();
+            }
+        }
+
 
         /// <summary>
         ///A test for BeginExecute

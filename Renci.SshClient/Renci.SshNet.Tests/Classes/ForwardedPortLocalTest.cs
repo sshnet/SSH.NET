@@ -5,6 +5,7 @@ using Renci.SshNet.Tests.Properties;
 using System;
 using System.Diagnostics;
 using System.Net;
+using System.Threading;
 
 namespace Renci.SshNet.Tests.Classes
 {
@@ -101,6 +102,32 @@ namespace Renci.SshNet.Tests.Classes
                 client.AddForwardedPort(port1);
                 client.Disconnect();
             }
+        }
+
+        /// <summary>
+        ///A test for ForwardedPortRemote Constructor
+        ///</summary>
+        [TestMethod()]
+        public void Test_ForwardedPortRemote()
+        {
+            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            {
+                #region Example SshClient AddForwardedPort Start Stop ForwardedPortLocal
+                client.Connect();
+                var port = new ForwardedPortLocal(8082, "www.cnn.com", 80);
+                client.AddForwardedPort(port);
+                port.Exception += delegate(object sender, ExceptionEventArgs e)
+                {
+                    Console.WriteLine(e.Exception.ToString());
+                };
+                port.Start();
+
+                Thread.Sleep(1000 * 60 * 20); //	Wait 20 minutes for port to be forwarded
+
+                port.Stop();
+                #endregion
+            }
+            Assert.Inconclusive("TODO: Implement code to verify target");
         }
 
         /// <summary>

@@ -131,10 +131,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="ConnectionInfo.cs" />
-    <Compile Include="Examples\PasswordConnectionInfo.cs" />
-    <Compile Include="Examples\PrivateKeyConnectionInfo.cs" />
-    <Compile Include="Examples\PrivateKeyFile.cs" />
-    <Compile Include="Examples\SshClient.cs" />
     <Compile Include="ShellStream.NET40.cs" />
     <Compile Include="ExpectAsyncResult.cs" />
     <Compile Include="Security\KeyExchangeDiffieHellmanGroupSha1.cs" />
@@ -436,37 +432,10 @@
     </Compile>
     <Compile Include="SshClient.cs" />
     <Compile Include="SshCommand.cs" />
-    <Compile Include="Examples\SshCommand.cs" />
     <Compile Include="SshCommand.NET40.cs" />
     <Compile Include="SubsystemSession.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Documentation\Content\About.aml" />
-    <None Include="Documentation\Content\Guide\Connection\Interactive.aml" />
-    <None Include="Documentation\Content\Guide\Connection\Overview.aml" />
-    <None Include="Documentation\Content\Guide\Connection\Password.aml" />
-    <None Include="Documentation\Content\Guide\Connection\PrivateKey.aml" />
-    <None Include="Documentation\Content\Guide\Errors.aml" />
-    <None Include="Documentation\Content\Guide\NetConfClient\Overview.aml" />
-    <None Include="Documentation\Content\Guide\Overview.aml" />
-    <None Include="Documentation\Content\Guide\ScpClient\Overview.aml" />
-    <None Include="Documentation\Content\Guide\SftpClient\Overview.aml" />
-    <None Include="Documentation\Content\Guide\SftpClient\SftpFile.aml" />
-    <None Include="Documentation\Content\Guide\SftpClient\SftpFileStream.aml" />
-    <None Include="Documentation\Content\Guide\SftpClient\SftpOperations.aml" />
-    <None Include="Documentation\Content\Guide\SshClient\Commands\Asynchronous.aml" />
-    <None Include="Documentation\Content\Guide\SshClient\Commands\Errors.aml" />
-    <None Include="Documentation\Content\Guide\SshClient\Commands\Execute.aml" />
-    <None Include="Documentation\Content\Guide\SshClient\Commands\Multitasking.aml" />
-    <None Include="Documentation\Content\Guide\SshClient\Commands\Overview.aml" />
-    <None Include="Documentation\Content\Guide\SshClient\Commands\StatusCode.aml" />
-    <None Include="Documentation\Content\Guide\SshClient\Commands\Timeout.aml" />
-    <None Include="Documentation\Content\Guide\SshClient\Overview.aml" />
-    <None Include="Documentation\Content\Guide\SshClient\PortForwarding\Local.aml" />
-    <None Include="Documentation\Content\Guide\SshClient\PortForwarding\Overview.aml" />
-    <None Include="Documentation\Content\Guide\SshClient\PortForwarding\Remote.aml" />
-    <None Include="Documentation\Content\Guide\SshClient\Shell\Overview.aml" />
-    <None Include="Documentation\Content\Reference.aml" />
     <None Include="Documentation\Renci.SshNet.content" />
   </ItemGroup>
   <ItemGroup>

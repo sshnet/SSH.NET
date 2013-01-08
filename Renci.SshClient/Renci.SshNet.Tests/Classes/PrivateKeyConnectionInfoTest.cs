@@ -1,5 +1,8 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Renci.SshNet.Tests.Common;
+using Renci.SshNet.Tests.Properties;
+using System.IO;
+using System.Text;
 
 namespace Renci.SshNet.Tests.Classes
 {
@@ -8,7 +11,52 @@ namespace Renci.SshNet.Tests.Classes
     /// </summary>
     [TestClass]
     public class PrivateKeyConnectionInfoTest : TestBase
-    {        
+    {
+        [TestMethod]
+        [TestCategory("PrivateKeyConnectionInfo")]
+        public void Test_PrivateKeyConnectionInfo()
+        {
+            var host = Resources.HOST;
+            var username = Resources.USERNAME;
+            MemoryStream keyFileStream = new MemoryStream(Encoding.ASCII.GetBytes(Resources.RSA_KEY_WITHOUT_PASS));
+
+            #region Example PrivateKeyConnectionInfo PrivateKeyFile
+            var connectionInfo = new PrivateKeyConnectionInfo(host, username, new PrivateKeyFile(keyFileStream));
+            using (var client = new SshClient(connectionInfo))
+            {
+                client.Connect();
+                client.Disconnect();
+            }
+            #endregion
+
+            Assert.AreEqual(connectionInfo.Host, Resources.HOST);
+            Assert.AreEqual(connectionInfo.Username, Resources.USERNAME);
+        }
+
+        [TestMethod]
+        [TestCategory("PrivateKeyConnectionInfo")]
+        public void Test_PrivateKeyConnectionInfo_MultiplePrivateKey()
+        {
+            var host = Resources.HOST;
+            var username = Resources.USERNAME;
+            MemoryStream keyFileStream1 = new MemoryStream(Encoding.ASCII.GetBytes(Resources.RSA_KEY_WITHOUT_PASS));
+            MemoryStream keyFileStream2 = new MemoryStream(Encoding.ASCII.GetBytes(Resources.RSA_KEY_WITHOUT_PASS));
+
+            #region Example PrivateKeyConnectionInfo PrivateKeyFile Multiple
+            var connectionInfo = new PrivateKeyConnectionInfo(host, username, 
+                new PrivateKeyFile(keyFileStream1), 
+                new PrivateKeyFile(keyFileStream2));
+            using (var client = new SshClient(connectionInfo))
+            {
+                client.Connect();
+                client.Disconnect();
+            }
+            #endregion
+
+            Assert.AreEqual(connectionInfo.Host, Resources.HOST);
+            Assert.AreEqual(connectionInfo.Username, Resources.USERNAME);
+        }
+
         /// <summary>
         ///A test for Dispose
         ///</summary>

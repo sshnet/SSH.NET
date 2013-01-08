@@ -43,8 +43,10 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="connectionInfo">The connection info.</param>
         /// <example>
-        ///     Connect to the server using PasswordConnectionInfo object
-        ///     <code source="..\Examples\PasswordConnectionInfo.cs" region="ConnectUsingPasswordConnectionInfo" language="C#" title="Connect using PasswordConnectionInfo object" />
+        ///     <code source="..\..\Renci.SshNet.Tests\Classes\PasswordConnectionInfoTest.cs" region="Example PasswordConnectionInfo" language="C#" title="Connect using PasswordConnectionInfo object" />
+        ///     <code source="..\..\Renci.SshNet.Tests\Classes\PasswordConnectionInfoTest.cs" region="Example PasswordConnectionInfo PasswordExpired" language="C#" title="Connect using PasswordConnectionInfo object with passwod change option" />
+        ///     <code source="..\..\Renci.SshNet.Tests\Classes\PrivateKeyConnectionInfoTest.cs" region="Example PrivateKeyConnectionInfo PrivateKeyFile" language="C#" title="Connect using PrivateKeyConnectionInfo" />
+        ///     <code source="..\..\Renci.SshNet.Tests\Classes\SshClientTest.cs" region="Example SshClient Connect Timeout" language="C#" title="Specify connection timeout when connecting" />
         /// </example>
         /// <exception cref="ArgumentNullException"><paramref name="connectionInfo"/> is null.</exception>
         public SshClient(ConnectionInfo connectionInfo)
@@ -76,8 +78,7 @@ namespace Renci.SshNet
         /// <param name="username">Authentication username.</param>
         /// <param name="password">Authentication password.</param>
         /// <example>
-        ///     Connect to server using username and password combination
-        ///     <code source="..\Examples\SshClient.cs" region="CreateSshClientWithUsernamePassword" language="C#" title="Connect using username and password" />
+        ///     <code source="..\..\Renci.SshNet.Tests\Classes\SshClientTest.cs" region="Example SshClient(host, username) Connect" language="C#" title="Connect using username and password" />
         /// </example>
         /// <exception cref="ArgumentNullException"><paramref name="password"/> is null.</exception>
         /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, or <paramref name="username"/> is null or contains whitespace characters.</exception>
@@ -93,6 +94,10 @@ namespace Renci.SshNet
         /// <param name="port">Connection port.</param>
         /// <param name="username">Authentication username.</param>
         /// <param name="keyFiles">Authentication private key file(s) .</param>
+        /// <example>
+        ///     <code source="..\..\Renci.SshNet.Tests\Classes\SshClientTest.cs" region="Example SshClient(host, username) Connect PrivateKeyFile" language="C#" title="Connect using username and private key" />
+        ///     <code source="..\..\Renci.SshNet.Tests\Classes\SshClientTest.cs" region="Example SshClient(host, username) Connect PrivateKeyFile PassPhrase" language="C#" title="Connect using username and private key and pass phrase" />
+        /// </example>
         /// <exception cref="ArgumentNullException"><paramref name="keyFiles"/> is null.</exception>
         /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, -or- <paramref name="username"/> is null or contains whitespace characters.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="port"/> is not within <see cref="F:System.Net.IPEndPoint.MinPort"/> and <see cref="System.Net.IPEndPoint.MaxPort"/>.</exception>
@@ -110,10 +115,8 @@ namespace Renci.SshNet
         /// <param name="username">Authentication username.</param>
         /// <param name="keyFiles">Authentication private key file(s) .</param>
         /// <example>
-        ///     Connect to server using private key
-        ///     <code source="..\Examples\SshClient.cs" region="ConnectUsingPrivateKey" language="C#" title="Connect using private key" />
-        ///     Connect to server using private key and pass phrase
-        ///     <code source="..\Examples\SshClient.cs" region="ConnectUsingPrivateKeyAndPassphrase" language="C#" title="Connect using private key and pass phrase" />
+        ///     <code source="..\..\Renci.SshNet.Tests\Classes\SshClientTest.cs" region="Example SshClient(host, username) Connect PrivateKeyFile" language="C#" title="Connect using private key" />
+        ///     <code source="..\..\Renci.SshNet.Tests\Classes\SshClientTest.cs" region="Example SshClient(host, username) Connect PrivateKeyFile PassPhrase" language="C#" title="Connect using private key and pass phrase" />
         /// </example>
         /// <exception cref="ArgumentNullException"><paramref name="keyFiles"/> is null.</exception>
         /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, -or- <paramref name="username"/> is null or contains whitespace characters.</exception>
@@ -141,6 +144,10 @@ namespace Renci.SshNet
         /// Adds the forwarded port.
         /// </summary>
         /// <param name="port">The port.</param>
+        /// <example>
+        ///     <code source="..\..\Renci.SshNet.Tests\Classes\ForwardedPortRemoteTest.cs" region="Example SshClient AddForwardedPort Start Stop ForwardedPortRemote" language="C#" title="Remote port forwarding" />
+        ///     <code source="..\..\Renci.SshNet.Tests\Classes\ForwardedPortLocalTest.cs" region="Example SshClient AddForwardedPort Start Stop ForwardedPortLocal" language="C#" title="Local port forwarding" />
+        /// </example>
         /// <exception cref="InvalidOperationException">Forwarded port is already added to a different client.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="port"/> is null.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
@@ -211,6 +218,10 @@ namespace Renci.SshNet
         /// <param name="commandText">The command text.</param>
         /// <returns>Returns an instance of <see cref="SshCommand"/> with execution results.</returns>
         /// <remarks>This method internally uses asynchronous calls.</remarks>
+        /// <example>
+        ///     <code source="..\..\Renci.SshNet.Tests\Classes\SshCommandTest.cs" region="Example SshCommand RunCommand Result" language="C#" title="Running simple command" />
+        ///     <code source="..\..\Renci.SshNet.Tests\Classes\SshCommandTest.NET40.cs" region="Example SshCommand RunCommand Parallel" language="C#" title="Run many commands in parallel" />
+        /// </example>
         /// <exception cref="ArgumentException">CommandText property is empty.</exception>
         /// <exception cref="T:Renci.SshNet.Common.SshException">Invalid Operation - An existing channel was used to execute this command.</exception>
         /// <exception cref="InvalidOperationException">Asynchronous operation is already in progress.</exception>

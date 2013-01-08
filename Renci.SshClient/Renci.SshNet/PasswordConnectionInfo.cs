@@ -9,27 +9,33 @@ namespace Renci.SshNet
     /// <summary>
     /// Provides connection information when password authentication method is used
     /// </summary>
-    /// <remarks>
-    /// Connect to the server using PasswordConnectionInfo object
-    /// <code source="..\Examples\PasswordConnectionInfo.cs" region="ConnectUsingPasswordConnectionInfo" language="C#" title="Connect using PasswordConnectionInfo object" />
-    /// </remarks>
+    /// <example>
+    ///     <code source="..\..\Renci.SshNet.Tests\Classes\PasswordConnectionInfoTest.cs" region="Example PasswordConnectionInfo" language="C#" title="Connect using username and password" />
+    ///     <code source="..\..\Renci.SshNet.Tests\Classes\PasswordConnectionInfoTest.cs" region="Example PasswordConnectionInfo PasswordExpired" language="C#" title="Change password when connecting" />
+    ///     <code source="..\..\Renci.SshNet.Tests\Classes\PasswordConnectionInfoTest.cs" region="Example PasswordConnectionInfo AuthenticationBanner" language="C#" title="Display authentication banner" />
+    /// </example>
     public class PasswordConnectionInfo : ConnectionInfo, IDisposable
     {
         /// <summary>
         /// Occurs when user's password has expired and needs to be changed.
         /// </summary>
         /// <example>
-        ///     This is an example of how to change expired password during connection phase.
-        ///     <code source="..\Examples\PasswordConnectionInfo.cs" region="ChangePasswordWhenConnecting" language="C#" title="Change password when connecting" />
+        ///     <code source="..\..\Renci.SshNet.Tests\Classes\PasswordConnectionInfoTest.cs" region="Example PasswordConnectionInfo PasswordExpired" language="C#" title="Change password when connecting" />
         /// </example>
         public event EventHandler<AuthenticationPasswordChangeEventArgs> PasswordExpired;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PasswordConnectionInfo"/> class.
+        /// Initializes a new instance of the <see cref="PasswordConnectionInfo" /> class.
         /// </summary>
         /// <param name="host">Connection host.</param>
         /// <param name="username">Connection username.</param>
         /// <param name="password">Connection password.</param>
+        /// <example>
+        ///     <code source="..\..\Renci.SshNet.Tests\Classes\PasswordConnectionInfoTest.cs" region="Example PasswordConnectionInfo" language="C#" title="Connect using username and password" />
+        /// </example>
+        /// <exception cref="ArgumentNullException"><paramref name="password"/> is null.</exception>
+        /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, or <paramref name="username"/> is null or contains whitespace characters.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="port"/> is not within <see cref="F:System.Net.IPEndPoint.MinPort"/> and <see cref="F:System.Net.IPEndPoint.MaxPort"/>.</exception>
         public PasswordConnectionInfo(string host, string username, string password)
             : this(host, ConnectionInfo.DEFAULT_PORT, username, Encoding.UTF8.GetBytes(password))
         {

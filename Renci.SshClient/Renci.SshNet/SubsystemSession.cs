@@ -190,7 +190,7 @@ namespace Renci.SshNet.Sftp
         #region IDisposable Members
 
         private bool _isDisposed = false;
-
+        
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
@@ -245,8 +245,7 @@ namespace Renci.SshNet.Sftp
         }
 
         /// <summary>
-        /// Releases unmanaged resources and performs other cleanup operations before the
-        /// <see cref="SftpSession"/> is reclaimed by garbage collection.
+        /// Finalizes an instance of the <see cref="SubsystemSession" /> class.
         /// </summary>
         ~SubsystemSession()
         {

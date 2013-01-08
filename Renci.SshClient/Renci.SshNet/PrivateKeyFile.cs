@@ -21,8 +21,7 @@ namespace Renci.SshNet
     /// Represents private key information
     /// </summary>
     /// <example>
-    ///     Key examples
-    ///     <code source="..\Examples\PrivateKeyFile.cs" region="RSAKeyExample" language="C#" title="Private RSA key example" />
+    ///     <code source="..\..\Renci.SshNet.Tests\Data\Key.RSA.txt" language="Text" title="Private RSA key example" />
     /// </example>
     public class PrivateKeyFile : IDisposable
     {

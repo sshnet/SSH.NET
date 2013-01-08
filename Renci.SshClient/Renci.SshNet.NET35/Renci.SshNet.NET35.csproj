@@ -222,21 +222,6 @@
     <Compile Include="..\Renci.SshNet\ConnectionInfo.cs">
       <Link>ConnectionInfo.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\Examples\PasswordConnectionInfo.cs">
-      <Link>Examples\PasswordConnectionInfo.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet\Examples\PrivateKeyConnectionInfo.cs">
-      <Link>Examples\PrivateKeyConnectionInfo.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet\Examples\PrivateKeyFile.cs">
-      <Link>Examples\PrivateKeyFile.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet\Examples\SshClient.cs">
-      <Link>Examples\SshClient.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet\Examples\SshCommand.cs">
-      <Link>Examples\SshCommand.cs</Link>
-    </Compile>
     <Compile Include="..\Renci.SshNet\ExpectAction.cs">
       <Link>ExpectAction.cs</Link>
     </Compile>
@@ -845,7 +830,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" ProjectLinkReference="2f5f8c90-0bd1-424f-997c-7bc6280919d1" />
+      <UserProperties ProjectLinkReference="2f5f8c90-0bd1-424f-997c-7bc6280919d1" ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

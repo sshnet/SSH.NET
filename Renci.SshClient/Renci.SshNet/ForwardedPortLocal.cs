@@ -36,6 +36,9 @@ namespace Renci.SshNet
         /// <param name="boundPort">The bound port.</param>
         /// <param name="host">The host.</param>
         /// <param name="port">The port.</param>
+        /// <example>
+        ///     <code source="..\..\Renci.SshNet.Tests\Classes\ForwardedPortLocalTest.cs" region="Example SshClient AddForwardedPort Start Stop ForwardedPortLocal" language="C#" title="Local port forwarding" />
+        /// </example>
         public ForwardedPortLocal(uint boundPort, string host, uint port)
             : this(string.Empty, boundPort, host, port)
         {

@@ -309,7 +309,13 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Data\Key.RSA.txt" />
+    <EmbeddedResource Include="Data\Key.RSA.Encrypted.Aes.256.CBC.12345.txt" />
+    <EmbeddedResource Include="Data\Key.RSA.Encrypted.Des.Ede3.CBC.12345.txt" />
+    <EmbeddedResource Include="Data\Key.RSA.Encrypted.Aes.192.CBC.12345.txt" />
+    <EmbeddedResource Include="Data\Key.RSA.Encrypted.Aes.128.CBC.12345.txt" />
+    <EmbeddedResource Include="Data\Key.RSA.Encrypted.Des.Ede3.CFB.1234567890.txt" />
+    <EmbeddedResource Include="Data\Key.RSA.Encrypted.Des.CBC.12345.txt" />
+    <EmbeddedResource Include="Data\Key.RSA.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

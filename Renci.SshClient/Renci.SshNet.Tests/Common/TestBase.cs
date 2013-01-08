@@ -1,12 +1,14 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
+using System.Reflection;
 
 namespace Renci.SshNet.Tests.Common
 {
     [TestClass]
     public abstract class TestBase
     {
+        private static Assembly _executingAssembly = Assembly.GetExecutingAssembly();
         [TestInitialize()]
         public void Init()
         {
@@ -44,6 +46,11 @@ namespace Renci.SshNet.Tests.Common
                     testFile.Write(buffer, 0, buffer.Length);
                 }
             }
+        }
+
+        protected Stream GetData(string name)
+        {
+            return _executingAssembly.GetManifestResourceStream(string.Format("Renci.SshNet.Tests.Data.{0}", name));
         }
     }
 }

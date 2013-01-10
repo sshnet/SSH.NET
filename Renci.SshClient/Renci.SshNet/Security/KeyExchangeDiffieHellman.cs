@@ -16,8 +16,6 @@ namespace Renci.SshNet.Security
     /// </summary>
     public abstract class KeyExchangeDiffieHellman : KeyExchange
     {
-        private static RNGCryptoServiceProvider _randomizer = new System.Security.Cryptography.RNGCryptoServiceProvider();
-
         /// <summary>
         /// Specifies key exchange group number.
         /// </summary>

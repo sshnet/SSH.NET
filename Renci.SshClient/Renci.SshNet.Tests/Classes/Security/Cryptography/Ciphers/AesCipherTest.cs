@@ -137,6 +137,23 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
                 client.Disconnect();
             }
         }
+
+        [TestMethod]
+        [Owner("olegkap")]
+        [TestCategory("Cipher")]
+        public void Test_Cipher_Arcfour_Connection()
+        {
+            var connectionInfo = new PasswordConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD);
+            connectionInfo.Encryptions.Clear();
+            connectionInfo.Encryptions.Add("arcfour", new CipherInfo(128, (key, iv) => { return new Arc4Cipher(key, false); }));
+
+            using (var client = new SshClient(connectionInfo))
+            {
+                client.Connect();
+                client.Disconnect();
+            }
+        }
+
         /// <summary>
         ///A test for DecryptBlock
         ///</summary>

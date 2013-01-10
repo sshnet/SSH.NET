@@ -21,7 +21,18 @@ namespace Renci.SshNet.Security.Cryptography
         /// <value>
         /// The size of the block in bytes.
         /// </value>
-        protected readonly int _blockSize;
+        protected readonly byte _blockSize;
+
+        /// <summary>
+        /// Gets the minimum data size.
+        /// </summary>
+        /// <value>
+        /// The minimum data size.
+        /// </value>
+        public override byte MinimumSize
+        {
+            get { return this.BlockSize; }
+        }
 
         /// <summary>
         /// Gets the size of the block.
@@ -29,7 +40,7 @@ namespace Renci.SshNet.Security.Cryptography
         /// <value>
         /// The size of the block.
         /// </value>
-        public int BlockSize
+        public byte BlockSize
         {
             get
             {
@@ -45,7 +56,7 @@ namespace Renci.SshNet.Security.Cryptography
         /// <param name="mode">Cipher mode.</param>
         /// <param name="padding">Cipher padding.</param>
         /// <exception cref="ArgumentNullException"><paramref name="key"/> is null.</exception>
-        protected BlockCipher(byte[] key, int blockSize, CipherMode mode, CipherPadding padding)
+        protected BlockCipher(byte[] key, byte blockSize, CipherMode mode, CipherPadding padding)
             : base(key)
         {
             this._blockSize = blockSize;

@@ -42,6 +42,34 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
             }
         }
 
+        [TestMethod]
+        public void Test_HMac_RIPEMD160_Connection()
+        {
+            var connectionInfo = new PasswordConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD);
+            connectionInfo.HmacAlgorithms.Clear();
+            connectionInfo.HmacAlgorithms.Add("hmac-ripemd160", (key) => { return new HMac<RIPEMD160Hash>(key.Take(20).ToArray()); });
+
+            using (var client = new SshClient(connectionInfo))
+            {
+                client.Connect();
+                client.Disconnect();
+            }
+        }
+
+        [TestMethod]
+        public void Test_HMac_RIPEMD160_OPENSSH_Connection()
+        {
+            var connectionInfo = new PasswordConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD);
+            connectionInfo.HmacAlgorithms.Clear();
+            connectionInfo.HmacAlgorithms.Add("hmac-ripemd160@openssh.com", (key) => { return new HMac<RIPEMD160Hash>(key.Take(20).ToArray()); });
+
+            using (var client = new SshClient(connectionInfo))
+            {
+                client.Connect();
+                client.Disconnect();
+            }
+        }
+
         /// <summary>
         ///A test for HMac`1 Constructor
         ///</summary>

@@ -226,11 +226,9 @@ namespace Renci.SshNet
 
                     currentDirectoryFullName = new DirectoryInfo(currentDirectoryFullName).Parent.FullName;
 
-                    //if (currentDirectoryFullName == startDirectoryFullName)
                     if (directoryCounter == 0)
                         break;
-                    else
-                        continue;
+                    continue;
                 }
 
                 var match = _directoryInfoRe.Match(message);
@@ -284,9 +282,8 @@ namespace Renci.SshNet
                     fileInfo.LastAccessTime = accessedTime;
                     fileInfo.LastWriteTime = modifiedTime;
 
-                    if (fileSystemInfo is FileInfo)
+                    if (directoryCounter == 0)
                         break;
-
                     continue;
                 }
 

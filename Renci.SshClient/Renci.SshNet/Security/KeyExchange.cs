@@ -178,7 +178,7 @@ namespace Renci.SshNet.Security
         /// Creates the server side cipher to use.
         /// </summary>
         /// <returns>Server cipher.</returns>
-        public BlockCipher CreateServerCipher()
+        public Cipher CreateServerCipher()
         {
             //  Resolve Session ID
             var sessionId = this.Session.SessionId ?? this.ExchangeHash;
@@ -199,7 +199,7 @@ namespace Renci.SshNet.Security
         /// Creates the client side cipher to use.
         /// </summary>
         /// <returns>Client cipher.</returns>
-        public BlockCipher CreateClientCipher()
+        public Cipher CreateClientCipher()
         {
             //  Resolve Session ID
             var sessionId = this.Session.SessionId ?? this.ExchangeHash;

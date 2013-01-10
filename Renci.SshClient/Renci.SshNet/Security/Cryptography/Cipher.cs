@@ -11,6 +11,14 @@ namespace Renci.SshNet.Security.Cryptography
     public abstract class Cipher
     {
         /// <summary>
+        /// Gets the minimum data size.
+        /// </summary>
+        /// <value>
+        /// The minimum data size.
+        /// </value>
+        public abstract byte MinimumSize { get; }
+
+        /// <summary>
         /// Encrypts the specified input.
         /// </summary>
         /// <param name="input">The input.</param>

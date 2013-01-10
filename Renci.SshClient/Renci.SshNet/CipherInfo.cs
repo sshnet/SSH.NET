@@ -22,14 +22,14 @@ namespace Renci.SshNet
         /// <summary>
         /// Gets the cipher.
         /// </summary>
-        public Func<byte[], byte[], BlockCipher> Cipher { get; private set; }
+        public Func<byte[], byte[], Cipher> Cipher { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CipherInfo"/> class.
         /// </summary>
         /// <param name="keySize">Size of the key.</param>
         /// <param name="cipher">The cipher.</param>
-        public CipherInfo(int keySize, Func<byte[], byte[], BlockCipher> cipher)
+        public CipherInfo(int keySize, Func<byte[], byte[], Cipher> cipher)
         {
             this.KeySize = keySize;
             this.Cipher = (key, iv) => (cipher(key.Take(this.KeySize / 8).ToArray(), iv));

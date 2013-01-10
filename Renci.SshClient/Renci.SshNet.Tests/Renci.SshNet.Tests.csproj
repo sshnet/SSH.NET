@@ -294,6 +294,7 @@
     <Compile Include="Classes\Sftp\SftpSynchronizeDirectoriesAsyncResultTest.cs" />
     <Compile Include="Classes\Sftp\SftpUploadAsyncResultTest.cs" />
     <Compile Include="Classes\Sftp\SubsystemSessionTest.cs" />
+    <Compile Include="Classes\Security\Cryptography\Hashes\RIPEMD160HashTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Renci.SshNet\Renci.SshNet.csproj">

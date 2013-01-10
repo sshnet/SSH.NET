@@ -131,6 +131,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="ConnectionInfo.cs" />
+    <Compile Include="Security\Cryptography\Hashes\RIPEMD160Hash.cs" />
     <Compile Include="ShellStream.NET40.cs" />
     <Compile Include="ExpectAsyncResult.cs" />
     <Compile Include="Security\KeyExchangeDiffieHellmanGroupSha1.cs" />

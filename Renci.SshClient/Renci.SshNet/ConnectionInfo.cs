@@ -266,6 +266,9 @@ namespace Renci.SshNet
                 {"diffie-hellman-group-exchange-sha1", typeof(KeyExchangeDiffieHellmanGroupExchangeSha1)},
                 {"diffie-hellman-group14-sha1", typeof(KeyExchangeDiffieHellmanGroup14Sha1)},
                 {"diffie-hellman-group1-sha1", typeof(KeyExchangeDiffieHellmanGroup1Sha1)},
+                //{"ecdh-sha2-nistp256", typeof(...)},
+                //{"ecdh-sha2-nistp384", typeof(...)},
+                //{"ecdh-sha2-nistp521", typeof(...)},
             };
 
             this.Encryptions = new Dictionary<string, CipherInfo>()
@@ -279,12 +282,15 @@ namespace Renci.SshNet
                 ////{"twofish-cbc", typeof(...)},
                 ////{"twofish192-cbc", typeof(...)},
                 ////{"twofish128-cbc", typeof(...)},
+                //{"twofish256-cbc", new CipherInfo(256, (key, iv)=>{ return new TwofishCipher(key, new CbcCipherMode(iv), null); }) },
                 ////{"twofish256-cbc", typeof(...)},
                 ////{"serpent256-cbc", typeof(CipherSerpent256CBC)},
                 ////{"serpent192-cbc", typeof(...)},
                 ////{"serpent128-cbc", typeof(...)},
                 ////{"arcfour128", typeof(...)},
-                ////{"arcfour256", typeof(...)},
+                {"arcfour", new CipherInfo(128, (key, iv)=>{ return new Arc4Cipher(key, false); }) },
+                {"arcfour128", new CipherInfo(128, (key, iv)=>{ return new Arc4Cipher(key, true); }) },
+                {"arcfour256", new CipherInfo(256, (key, iv)=>{ return new Arc4Cipher(key, true); }) },
                 ////{"arcfour", typeof(...)},
                 ////{"idea-cbc", typeof(...)},
                 {"cast128-cbc", new CipherInfo(128, (key, iv)=>{ return new CastCipher(key, new CbcCipherMode(iv), null); }) },
@@ -297,11 +303,15 @@ namespace Renci.SshNet
             {
                 {"hmac-md5", (key) => { return new HMac<MD5Hash>(key.Take(16).ToArray());}},
                 {"hmac-sha1", (key) => { return new HMac<SHA1Hash>(key.Take(20).ToArray());}},
+                //{"hmac-sha2-256", typeof(...)},
+                //{"hmac-sha2-256-96", typeof(...)},
+                //{"hmac-sha2-512", typeof(...)},
+                //{"hmac-sha2-512-96", typeof(...)},
                 //{"umac-64@openssh.com", typeof(HMacSha1)},
-                //{"hmac-ripemd160", typeof(HMacSha1)},
-                //{"hmac-ripemd160@openssh.com", typeof(HMacSha1)},
-                //{"hmac-md5-96", typeof(...)},
-                //{"hmac-sha1-96", typeof(...)},
+                {"hmac-ripemd160", (key) => { return new HMac<RIPEMD160Hash>(key.Take(20).ToArray());}},
+                {"hmac-ripemd160@openssh.com", (key) => { return new HMac<RIPEMD160Hash>(key.Take(20).ToArray());}},
+                //{"hmac-md5-96", (key) => { return new HMac<MD5Hash>(key.Take(12).ToArray());}},
+                //{"hmac-sha1-96", (key) => { return new HMac<SHA1Hash96>(key.Take(12).ToArray());}},
                 //{"none", typeof(...)},
             };
 
@@ -309,6 +319,7 @@ namespace Renci.SshNet
             {
                 {"ssh-rsa", (data) => { return new KeyHostAlgorithm("ssh-rsa", new RsaKey(), data); }},
                 {"ssh-dss", (data) => { return new KeyHostAlgorithm("ssh-dss", new DsaKey(), data); }},
+                //{"ecdsa-sha2-nistp256 "}
                 //{"x509v3-sign-rsa", () => { ... },
                 //{"x509v3-sign-dss", () => { ... },
                 //{"spki-sign-rsa", () => { ... },
@@ -323,6 +334,7 @@ namespace Renci.SshNet
                 //{"zlib", typeof(Zlib)}, 
                 //{"zlib@openssh.com", typeof(ZlibOpenSsh)}, 
             };
+
 
             this.ChannelRequests = new Dictionary<string, RequestInfo>()
             {

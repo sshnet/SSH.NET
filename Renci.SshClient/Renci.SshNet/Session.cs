@@ -124,9 +124,9 @@ namespace Renci.SshNet
 
         private HashAlgorithm _clientMac;
 
-        private BlockCipher _clientCipher;
+        private Cipher _clientCipher;
 
-        private BlockCipher _serverCipher;
+        private Cipher _serverCipher;
 
         private Compressor _serverDecompression;
 
@@ -664,7 +664,7 @@ namespace Renci.SshNet
             this.Log(string.Format("SendMessage to server '{0}': '{1}'.", message.GetType().Name, message.ToString()));
 
             //  Messages can be sent by different thread so we need to synchronize it            
-            var paddingMultiplier = this._clientCipher == null ? (byte)8 : (byte)this._clientCipher.BlockSize;    //    Should be recalculate base on cipher min length if cipher specified
+            var paddingMultiplier = this._clientCipher == null ? (byte)8 : Math.Max((byte)8, this._serverCipher.MinimumSize);    //    Should be recalculate base on cipher min length if cipher specified
 
             var messageData = message.GetBytes();
 
@@ -799,7 +799,7 @@ namespace Renci.SshNet
                 return null;
 
             //  No lock needed since all messages read by only one thread
-            var blockSize = this._serverCipher == null ? (byte)8 : (byte)this._serverCipher.BlockSize;
+            var blockSize = this._serverCipher == null ? (byte)8 : Math.Max((byte)8, this._serverCipher.MinimumSize);
 
             //  Read packet length first
             var firstBlock = this.Read(blockSize);

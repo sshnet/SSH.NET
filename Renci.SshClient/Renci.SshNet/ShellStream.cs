@@ -106,6 +106,10 @@ namespace Renci.SshNet
         /// <exception cref="T:System.IO.IOException">An I/O error occurs. </exception>
         public override void Flush()
         {
+            if (this._channel == null)
+            {
+                throw new ObjectDisposedException("ShellStream");
+            }
             this._channel.SendData(this._outgoing.ToArray());
             this._outgoing.Clear();
         }
@@ -619,6 +623,11 @@ namespace Renci.SshNet
         /// <param name="text">The text to be written to the shell.</param>
         public void Write(string text)
         {
+            if (this._channel == null)
+            {
+                throw new ObjectDisposedException("ShellStream");
+            }
+
             var data = this._encoding.GetBytes(text);
             this._channel.SendData(data);
         }

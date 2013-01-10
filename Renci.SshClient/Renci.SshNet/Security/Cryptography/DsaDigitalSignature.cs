@@ -13,8 +13,6 @@ namespace Renci.SshNet.Security.Cryptography
     /// </summary>
     public class DsaDigitalSignature : DigitalSignature, IDisposable
     {
-        private static RNGCryptoServiceProvider _randomizer = new System.Security.Cryptography.RNGCryptoServiceProvider();
-        
         private HashAlgorithm _hash;
 
         private DsaKey _key;

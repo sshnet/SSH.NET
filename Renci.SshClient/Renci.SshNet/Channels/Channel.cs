@@ -479,8 +479,14 @@ namespace Renci.SshNet.Channels
             //  Send message to close the channel on the server
             if (!_closeMessageSent)
             {
-                this.SendMessage(new ChannelCloseMessage(this.RemoteChannelNumber));
-                this._closeMessageSent = true;
+                lock (this)
+                {
+                    if (!_closeMessageSent)
+                    {
+                        this.SendMessage(new ChannelCloseMessage(this.RemoteChannelNumber));
+                        this._closeMessageSent = true;
+                    }
+                }
             }
 
             //  Wait for channel to be closed

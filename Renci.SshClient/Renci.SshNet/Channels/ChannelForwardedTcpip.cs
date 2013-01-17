@@ -71,8 +71,8 @@ namespace Renci.SshNet.Channels
             }
 
             //  Start reading data from the port and send to channel
-            while (this._socket.Connected || this.IsConnected)
-            {
+            while (this._socket != null && this._socket.Connected && this._socket.Poll(1, SelectMode.SelectRead) && this._socket.Available > 0)
+                {
                 try
                 {
                     int read = 0;

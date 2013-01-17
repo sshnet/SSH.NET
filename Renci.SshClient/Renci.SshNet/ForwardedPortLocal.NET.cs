@@ -58,6 +58,8 @@ namespace Renci.SshNet
                                 channel.Open(this.Host, this.Port, socket);
 
                                 channel.Bind();
+
+                                channel.Close();
                             }
                             catch (Exception exp)
                             {

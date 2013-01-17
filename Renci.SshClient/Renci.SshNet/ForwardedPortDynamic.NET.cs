@@ -72,16 +72,13 @@ namespace Renci.SshNet
                                     }
 
                                     channel.Bind();
-                                }
 
+                                    channel.Close();
+                                }
                             }
                             catch (Exception exp)
                             {
                                 this.RaiseExceptionEvent(exp);
-                            }
-                            finally
-                            {
-                                socket.Close();
                             }
                         });
                     }

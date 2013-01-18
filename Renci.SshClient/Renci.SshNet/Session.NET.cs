@@ -24,9 +24,8 @@ namespace Renci.SshNet
 
         partial void IsSocketConnected(ref bool isConnected)
         {
-            //isConnected = (!this._isDisconnecting && this._socket != null && this._socket.Connected && this._isAuthenticated && this._messageListenerCompleted != null) && !(this._socket.Poll(10, SelectMode.SelectRead));
-            isConnected = (!this._isDisconnecting && this._socket != null && this._socket.Connected && this._isAuthenticated && this._messageListenerCompleted != null) 
-                && !(this._socket.Poll(1, SelectMode.SelectRead) && this._socket.Available == 0);
+                isConnected = (!this._isDisconnecting && this._socket != null && this._socket.Connected && this._isAuthenticated && this._messageListenerCompleted != null)
+                    && this._socket.Poll(-1, SelectMode.SelectWrite);
         }
 
         partial void SocketConnect(string host, int port)

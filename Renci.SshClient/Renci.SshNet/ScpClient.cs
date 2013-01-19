@@ -144,9 +144,6 @@ namespace Renci.SshNet
         /// <param name="filename">Remote host file name.</param>
         public void Upload(Stream source, string filename)
         {
-            //  Ensure that connection is established.
-            this.EnsureConnection();
-
             using (var input = new PipeStream())
             using (var channel = this.Session.CreateChannel<ChannelSession>())
             {
@@ -183,9 +180,6 @@ namespace Renci.SshNet
 
             if (destination == null)
                 throw new ArgumentNullException("destination");
-
-            //  Ensure that connection is established.
-            this.EnsureConnection();
 
             using (var input = new PipeStream())
             using (var channel = this.Session.CreateChannel<ChannelSession>())

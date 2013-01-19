@@ -116,7 +116,6 @@ namespace Renci.SshNet
         {
             get
             {
-                this.EnsureConnection();
                 return this._netConfSession.ServerCapabilities;
             }
         }
@@ -129,7 +128,6 @@ namespace Renci.SshNet
         {
             get
             {
-                this.EnsureConnection();
                 return this._netConfSession.ClientCapabilities;
             }
         }
@@ -150,7 +148,6 @@ namespace Renci.SshNet
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         public XmlDocument SendReceiveRpc(XmlDocument rpc)
         {
-            this.EnsureConnection();
             return this._netConfSession.SendReceiveRpc(rpc, this.AutomaticMessageIdHandling);
         }
 
@@ -173,8 +170,6 @@ namespace Renci.SshNet
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         public XmlDocument SendCloseRpc()
         {
-            this.EnsureConnection();
-
             XmlDocument rpc = new XmlDocument();
 
             rpc.LoadXml("<?xml version=\"1.0\" encoding=\"UTF-8\"?><rpc message-id=\"6666\" xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\"><close-session/></rpc>");

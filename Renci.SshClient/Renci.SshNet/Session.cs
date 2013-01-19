@@ -652,8 +652,8 @@ namespace Renci.SshNet
         /// <param name="message">The message.</param>
         internal void SendMessage(Message message)
         {
-            if (this._socket == null || !this._socket.Connected)
-                return;
+            if (!this.IsConnected)
+                throw new SshConnectionException("Client not connected.");
 
             if (this._keyExchangeInProgress && !(message is IKeyExchangedAllowed))
             {

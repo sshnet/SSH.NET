@@ -31,9 +31,6 @@ namespace Renci.SshNet
             if (string.IsNullOrEmpty(filename))
                 throw new ArgumentException("filename");
 
-            //  Ensure that connection is established.
-            this.EnsureConnection();
-
             using (var input = new PipeStream())
             using (var channel = this.Session.CreateChannel<ChannelSession>())
             {
@@ -70,9 +67,6 @@ namespace Renci.SshNet
             if (string.IsNullOrEmpty(filename))
                 throw new ArgumentException("filename");
 
-            //  Ensure that connection is established.
-            this.EnsureConnection();
-
             using (var input = new PipeStream())
             using (var channel = this.Session.CreateChannel<ChannelSession>())
             {
@@ -108,9 +102,6 @@ namespace Renci.SshNet
             if (string.IsNullOrEmpty(filename))
                 throw new ArgumentException("filename");
 
-            //  Ensure that connection is established.
-            this.EnsureConnection();
-
             using (var input = new PipeStream())
             using (var channel = this.Session.CreateChannel<ChannelSession>())
             {
@@ -145,9 +136,6 @@ namespace Renci.SshNet
 
             if (string.IsNullOrEmpty(directoryName))
                 throw new ArgumentException("directoryName");
-
-            //  Ensure that connection is established.
-            this.EnsureConnection();
 
             using (var input = new PipeStream())
             using (var channel = this.Session.CreateChannel<ChannelSession>())

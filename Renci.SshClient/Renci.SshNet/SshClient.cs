@@ -156,9 +156,6 @@ namespace Renci.SshNet
             if (port == null)
                 throw new ArgumentNullException("port");
 
-            //  Ensure that connection is established.
-            this.EnsureConnection();
-
             if (port.Session != null && port.Session != this.Session)
                 throw new InvalidOperationException("Forwarded port is already added to a different client.");
 
@@ -206,9 +203,6 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="commandText"/> or <paramref name="encoding"/> is null.</exception>
         public SshCommand CreateCommand(string commandText, Encoding encoding)
         {
-            //  Ensure that connection is established.
-            this.EnsureConnection();
-
             return new SshCommand(this.Session, commandText, encoding);
         }
 
@@ -252,9 +246,6 @@ namespace Renci.SshNet
         /// </returns>
         public Shell CreateShell(Stream input, Stream output, Stream extendedOutput, string terminalName, uint columns, uint rows, uint width, uint height, IDictionary<TerminalModes, uint> terminalModes, int bufferSize)
         {
-            //  Ensure that connection is established.
-            this.EnsureConnection();
-
             return new Shell(this.Session, input, output, extendedOutput, terminalName, columns, rows, width, height, terminalModes, bufferSize);
         }
 
@@ -388,9 +379,6 @@ namespace Renci.SshNet
         /// </returns>
         public ShellStream CreateShellStream(string terminalName, uint columns, uint rows, uint width, uint height, int bufferSize, IDictionary<TerminalModes, uint> terminalModeValues)
         {
-            //  Ensure that connection is established.
-            this.EnsureConnection();
-
             return new ShellStream(this.Session, terminalName, columns, rows, width, height, bufferSize, terminalModeValues);
         }
 

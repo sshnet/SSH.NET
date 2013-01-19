@@ -180,17 +180,7 @@ namespace Renci.SshNet
 
         }
 
-        /// <summary>
-        /// Ensures that client is connected.
-        /// </summary>
-        /// <exception cref="Renci.SshNet.Common.SshConnectionException">When client not connected.</exception>
-        protected void EnsureConnection()
-        {
-            if (!this.Session.IsConnected)
-                throw new SshConnectionException("Client not connected.");
-        }
-
-        private void Session_ErrorOccured(object sender, ExceptionEventArgs e)
+         private void Session_ErrorOccured(object sender, ExceptionEventArgs e)
         {
             if (this.ErrorOccurred != null)
             {

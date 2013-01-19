@@ -142,10 +142,7 @@ namespace Renci.SshNet
         {
             if (path == null)
                 throw new ArgumentNullException("path");
-            
-            //  Ensure that connection is established.
-            this.EnsureConnection();
-            
+
             this._sftpSession.ChangeDirectory(path);
         }
 
@@ -179,9 +176,6 @@ namespace Renci.SshNet
             if (path.IsNullOrWhiteSpace())
                 throw new ArgumentException(path);
 
-            //  Ensure that connection is established.
-            this.EnsureConnection();
-
             var fullPath = this._sftpSession.GetCanonicalPath(path);
 
             this._sftpSession.RequestMkDir(fullPath);
@@ -200,9 +194,6 @@ namespace Renci.SshNet
             if (path.IsNullOrWhiteSpace())
                 throw new ArgumentException("path");
 
-            //  Ensure that connection is established.
-            this.EnsureConnection();
-
             var fullPath = this._sftpSession.GetCanonicalPath(path);
 
             this._sftpSession.RequestRmDir(fullPath);
@@ -220,9 +211,6 @@ namespace Renci.SshNet
         {
             if (path.IsNullOrWhiteSpace())
                 throw new ArgumentException("path");
-
-            //  Ensure that connection is established.
-            this.EnsureConnection();
 
             var fullPath = this._sftpSession.GetCanonicalPath(path);
 
@@ -262,9 +250,6 @@ namespace Renci.SshNet
             if (newPath == null)
                 throw new ArgumentNullException("newPath");
 
-            //  Ensure that connection is established.
-            this.EnsureConnection();
-
             var oldFullPath = this._sftpSession.GetCanonicalPath(oldPath);
 
             var newFullPath = this._sftpSession.GetCanonicalPath(newPath);
@@ -295,9 +280,6 @@ namespace Renci.SshNet
 
             if (linkPath.IsNullOrWhiteSpace())
                 throw new ArgumentException("linkPath");
-
-            //  Ensure that connection is established.
-            this.EnsureConnection();
 
             var fullPath = this._sftpSession.GetCanonicalPath(path);
 
@@ -394,9 +376,6 @@ namespace Renci.SshNet
             if (path == null)
                 throw new ArgumentNullException("path");
 
-            //  Ensure that connection is established.
-            this.EnsureConnection();
-
             var fullPath = this._sftpSession.GetCanonicalPath(path);
 
             var attributes = this._sftpSession.RequestLStat(fullPath);
@@ -417,9 +396,6 @@ namespace Renci.SshNet
         {
             if (path.IsNullOrWhiteSpace())
                 throw new ArgumentException("path");
-
-            //  Ensure that connection is established.
-            this.EnsureConnection();
 
             var fullPath = this._sftpSession.GetCanonicalPath(path);
 
@@ -489,9 +465,6 @@ namespace Renci.SshNet
 
             if (output == null)
                 throw new ArgumentNullException("output");
-
-            //  Ensure that connection is established.
-            this.EnsureConnection();
 
             var asyncResult = new SftpDownloadAsyncResult(asyncCallback, state);
 
@@ -643,9 +616,6 @@ namespace Renci.SshNet
             else
                 flags |= Flags.CreateNew;
 
-            //  Ensure that connection is established.
-            this.EnsureConnection();
-
             var asyncResult = new SftpUploadAsyncResult(asyncCallback, state);
 
             this.ExecuteThread(() =>
@@ -703,9 +673,6 @@ namespace Renci.SshNet
         {
             if (path == null)
                 throw new ArgumentNullException("path");
-
-            //  Ensure that connection is established.
-            this.EnsureConnection();
 
             var fullPath = this._sftpSession.GetCanonicalPath(path);
 
@@ -1280,9 +1247,6 @@ namespace Renci.SshNet
             if (path == null)
                 throw new ArgumentNullException("path");
 
-            //  Ensure that connection is established.
-            this.EnsureConnection();
-
             var fullPath = this._sftpSession.GetCanonicalPath(path);
 
             var handle = this._sftpSession.RequestOpenDir(fullPath);
@@ -1335,9 +1299,6 @@ namespace Renci.SshNet
             if (path.IsNullOrWhiteSpace())
                 throw new ArgumentException("path");
 
-            //  Ensure that connection is established.
-            this.EnsureConnection();
-
             var fullPath = this._sftpSession.GetCanonicalPath(path);
 
             var handle = this._sftpSession.RequestOpen(fullPath, Flags.Read);
@@ -1387,9 +1348,6 @@ namespace Renci.SshNet
 
             if (path.IsNullOrWhiteSpace())
                 throw new ArgumentException("path");
-
-            //  Ensure that connection is established.
-            this.EnsureConnection();
 
             var fullPath = this._sftpSession.GetCanonicalPath(path);
 

@@ -51,9 +51,6 @@ namespace Renci.SshNet
             if (destinationPath.IsNullOrWhiteSpace())
                 throw new ArgumentException("destDir");
 
-            //  Ensure that connection is established.
-            this.EnsureConnection();
-
             var asyncResult = new SftpSynchronizeDirectoriesAsyncResult(asyncCallback, state);
 
             this.ExecuteThread(() =>

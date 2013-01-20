@@ -12,6 +12,17 @@ namespace Renci.SshNet.Sftp
     public class SftpUploadAsyncResult : AsyncResult
     {
         /// <summary>
+        /// Gets or sets a value indicating whether to cancel asynchronous upload operation
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if upload operation to be canceled; otherwise, <c>false</c>.
+        /// </value>
+        /// <remarks>
+        /// Upload operation will be canceled after finishing uploading current buffer.
+        /// </remarks>
+        public bool IsUploadCanceled { get; set; }
+
+        /// <summary>
         /// Gets the number of uploaded bytes.
         /// </summary>
         public ulong UploadedBytes { get; private set; }

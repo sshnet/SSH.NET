@@ -12,6 +12,17 @@ namespace Renci.SshNet.Sftp
     public class SftpDownloadAsyncResult :  AsyncResult
     {
         /// <summary>
+        /// Gets or sets a value indicating whether to cancel asynchronous download operation.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if download operation to be canceled; otherwise, <c>false</c>.
+        /// </value>
+        /// <remarks>
+        /// Download operation will be canceled after finishing uploading current buffer.
+        /// </remarks>
+        public bool IsDownloadCanceled { get; set; }
+
+        /// <summary>
         /// Gets the number of downloaded bytes.
         /// </summary>
         public ulong DownloadedBytes { get; private set; }

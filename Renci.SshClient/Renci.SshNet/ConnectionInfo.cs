@@ -304,15 +304,15 @@ namespace Renci.SshNet
             {
                 {"hmac-md5", (key) => { return new HMac<MD5Hash>(key.Take(16).ToArray());}},
                 {"hmac-sha1", (key) => { return new HMac<SHA1Hash>(key.Take(20).ToArray());}},
-                //{"hmac-sha2-256", typeof(...)},
-                //{"hmac-sha2-256-96", typeof(...)},
+                {"hmac-sha2-256", (key) => { return new HMac<SHA256Hash>(key.Take(32).ToArray());}},
+                {"hmac-sha2-256-96", (key) => { return new HMac<SHA256Hash>(key.Take(32).ToArray(), 96);}},
                 //{"hmac-sha2-512", typeof(...)},
                 //{"hmac-sha2-512-96", typeof(...)},
                 //{"umac-64@openssh.com", typeof(HMacSha1)},
                 {"hmac-ripemd160", (key) => { return new HMac<RIPEMD160Hash>(key.Take(20).ToArray());}},
-                {"hmac-ripemd160@openssh.com", (key) => { return new HMac<RIPEMD160Hash>(key.Take(20).ToArray());}},
-                //{"hmac-md5-96", (key) => { return new HMac<MD5Hash>(key.Take(12).ToArray());}},
-                //{"hmac-sha1-96", (key) => { return new HMac<SHA1Hash96>(key.Take(12).ToArray());}},
+                {"hmac-ripemd160@openssh.com", (key) => { return new HMac<RIPEMD160Hash>(key.Take(20).ToArray());}},                
+                {"hmac-md5-96", (key) => { return new HMac<MD5Hash>(key.Take(16).ToArray(), 96);}},
+                {"hmac-sha1-96", (key) => { return new HMac<SHA1Hash>(key.Take(20).ToArray(), 96);}},
                 //{"none", typeof(...)},
             };
 

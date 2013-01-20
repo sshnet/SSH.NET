@@ -32,21 +32,36 @@ namespace Renci.SshNet.Security.Cryptography
             }
         }
 
+        private HMac()
+        {
+            // Create the hash algorithms.
+            this._hash = new T();
+        }
+
         /// <summary>
         /// Rfc 2104.
         /// </summary>
         /// <param name="key">The key.</param>
-        public HMac(byte[] key)
+        public HMac(byte[] key, int hashSizeValue)
+            : this()
         {
-            // Create the hash algorithms.
-            this._hash = new T();
+            this.HashSizeValue = hashSizeValue;
 
+            this._key = key;
+
+            this.InternalInitialize();
+        }
+
+        public HMac(byte[] key)
+            : this()
+        {
             this.HashSizeValue = this._hash.HashSize;
 
             this._key = key;
 
             this.InternalInitialize();
         }
+
 
         /// <summary>
         /// Gets or sets the key to use in the hash algorithm.
@@ -115,7 +130,7 @@ namespace Renci.SshNet.Security.Cryptography
 
             this._isHashing = false;
 
-            return this._hash.Hash;
+            return this._hash.Hash.Take(12).ToArray();
         }
 
         private void InternalInitialize()
@@ -145,7 +160,7 @@ namespace Renci.SshNet.Security.Cryptography
 
             // Compute inner and outer padding.
             int i = 0;
-            for (i = 0; i < 64; i++)
+            for (i = 0; i < this.BlockSize; i++)
             {
                 this._innerPadding[i] = 0x36;
                 this._outerPadding[i] = 0x5C;

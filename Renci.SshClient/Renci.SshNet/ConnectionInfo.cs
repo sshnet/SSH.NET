@@ -12,6 +12,7 @@ using Renci.SshNet.Security.Cryptography.Ciphers.Modes;
 using Renci.SshNet.Security.Cryptography.Ciphers;
 using System.Collections.ObjectModel;
 using System.Net;
+using Renci.SshNet.Compression;
 
 namespace Renci.SshNet
 {
@@ -269,6 +270,9 @@ namespace Renci.SshNet
                 //{"ecdh-sha2-nistp256", typeof(...)},
                 //{"ecdh-sha2-nistp384", typeof(...)},
                 //{"ecdh-sha2-nistp521", typeof(...)},
+                //"gss-group1-sha1-toWM5Slw5Ew8Mqkay+al2g==" - WinSSHD
+                //"gss-gex-sha1-toWM5Slw5Ew8Mqkay+al2g==" - WinSSHD
+
             };
 
             this.Encryptions = new Dictionary<string, CipherInfo>()
@@ -279,19 +283,16 @@ namespace Renci.SshNet
                 {"aes192-cbc", new CipherInfo(192, (key, iv)=>{ return new AesCipher(key, new CbcCipherMode(iv), null); }) },
                 {"aes256-cbc", new CipherInfo(256, (key, iv)=>{ return new AesCipher(key, new CbcCipherMode(iv), null); }) },
                 {"blowfish-cbc", new CipherInfo(128, (key, iv)=>{ return new BlowfishCipher(key, new CbcCipherMode(iv), null); }) },
-                ////{"twofish-cbc", typeof(...)},
-                ////{"twofish192-cbc", typeof(...)},
-                ////{"twofish128-cbc", typeof(...)},
-                //{"twofish256-cbc", new CipherInfo(256, (key, iv)=>{ return new TwofishCipher(key, new CbcCipherMode(iv), null); }) },
-                ////{"twofish256-cbc", typeof(...)},
+                {"twofish-cbc", new CipherInfo(256, (key, iv)=>{ return new TwofishCipher(key, new CbcCipherMode(iv), null); }) },
+                {"twofish192-cbc", new CipherInfo(192, (key, iv)=>{ return new TwofishCipher(key, new CbcCipherMode(iv), null); }) },
+                {"twofish128-cbc", new CipherInfo(128, (key, iv)=>{ return new TwofishCipher(key, new CbcCipherMode(iv), null); }) },
+                {"twofish256-cbc", new CipherInfo(256, (key, iv)=>{ return new TwofishCipher(key, new CbcCipherMode(iv), null); }) },
                 ////{"serpent256-cbc", typeof(CipherSerpent256CBC)},
                 ////{"serpent192-cbc", typeof(...)},
                 ////{"serpent128-cbc", typeof(...)},
-                ////{"arcfour128", typeof(...)},
                 {"arcfour", new CipherInfo(128, (key, iv)=>{ return new Arc4Cipher(key, false); }) },
                 {"arcfour128", new CipherInfo(128, (key, iv)=>{ return new Arc4Cipher(key, true); }) },
                 {"arcfour256", new CipherInfo(256, (key, iv)=>{ return new Arc4Cipher(key, true); }) },
-                ////{"arcfour", typeof(...)},
                 ////{"idea-cbc", typeof(...)},
                 {"cast128-cbc", new CipherInfo(128, (key, iv)=>{ return new CastCipher(key, new CbcCipherMode(iv), null); }) },
                 ////{"rijndael-cbc@lysator.liu.se", typeof(...)},                
@@ -330,9 +331,9 @@ namespace Renci.SshNet
 
             this.CompressionAlgorithms = new Dictionary<string, Type>()
             {
-                {"none", null}, 
-                //{"zlib", typeof(Zlib)}, 
                 //{"zlib@openssh.com", typeof(ZlibOpenSsh)}, 
+                //{"zlib", typeof(Zlib)}, 
+                {"none", null}, 
             };
 
 

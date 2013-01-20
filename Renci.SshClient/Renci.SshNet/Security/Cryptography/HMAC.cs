@@ -130,7 +130,7 @@ namespace Renci.SshNet.Security.Cryptography
 
             this._isHashing = false;
 
-            return this._hash.Hash.Take(12).ToArray();
+            return this._hash.Hash;
         }
 
         private void InternalInitialize()

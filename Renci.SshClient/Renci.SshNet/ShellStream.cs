@@ -55,7 +55,7 @@ namespace Renci.SshNet
 
         internal ShellStream(Session session, string terminalName, uint columns, uint rows, uint width, uint height, int maxLines, IDictionary<TerminalModes, uint> terminalModeValues)
         {
-            this._encoding = new Renci.SshNet.Common.ASCIIEncoding();
+            this._encoding = session.ConnectionInfo.Encoding;
             this._session = session;
             this._incoming = new Queue<byte>();
             this._outgoing = new Queue<byte>();
@@ -368,70 +368,77 @@ namespace Renci.SshNet
             var text = string.Empty;
 
             //  Create new AsyncResult object
-            var asyncResult = new ExpectAsyncResult(this)
-            {
-                AsyncWaitHandle = new ManualResetEvent(false),
-                IsCompleted = false,
-                AsyncState = state,
-            };
+            var asyncResult = new ExpectAsyncResult(callback, state);
 
             //  Execute callback on different thread                
             this.ExecuteThread(() =>
             {
-                do
+                string expectActionResult = null;
+                try
                 {
-                    lock (this._incoming)
+
+                    do
                     {
-
-                        if (this._incoming.Count > 0)
-                            text = this._encoding.GetString(this._incoming.ToArray(), 0, this._incoming.Count);
-
-                        if (text.Length > 0)
+                        lock (this._incoming)
                         {
-                            foreach (var expectAction in expectActions)
+
+                            if (this._incoming.Count > 0)
+                                text = this._encoding.GetString(this._incoming.ToArray(), 0, this._incoming.Count);
+
+                            if (text.Length > 0)
                             {
-                                var match = expectAction.Expect.Match(text);
-
-                                if (match.Success)
+                                foreach (var expectAction in expectActions)
                                 {
-                                    var result = text.Substring(0, match.Index + match.Length);
+                                    var match = expectAction.Expect.Match(text);
 
-                                    for (int i = 0; i < match.Index + match.Length && this._incoming.Count > 0; i++)
+                                    if (match.Success)
                                     {
-                                        //  Remove processed items from the queue
-                                        this._incoming.Dequeue();
-                                    }
+                                        var result = text.Substring(0, match.Index + match.Length);
 
-                                    expectAction.Action(result);
+                                        for (int i = 0; i < match.Index + match.Length && this._incoming.Count > 0; i++)
+                                        {
+                                            //  Remove processed items from the queue
+                                            this._incoming.Dequeue();
+                                        }
 
-                                    if (callback != null)
-                                    {
-                                        callback(asyncResult);
+                                        expectAction.Action(result);
+
+                                        if (callback != null)
+                                        {
+                                            callback(asyncResult);
+                                        }
+                                        expectActionResult = result;
                                     }
-                                    ((EventWaitHandle)asyncResult.AsyncWaitHandle).Set();
-                                    break;
                                 }
                             }
                         }
-                    }
 
-                    if (timeout != null)
-                    {
-                        if (!this._dataReceived.WaitOne(timeout))
-                        {
-                            if (callback != null)
-                            {
-                                callback(asyncResult);
-                            }
-                            ((EventWaitHandle)asyncResult.AsyncWaitHandle).Set();
+                        if (expectActionResult != null)
                             break;
+
+                        if (timeout != null)
+                        {
+                            if (!this._dataReceived.WaitOne(timeout))
+                            {
+                                if (callback != null)
+                                {
+                                    callback(asyncResult);
+                                }
+                                break;
+                            }
                         }
-                    }
-                    else
-                    {
-                        this._dataReceived.WaitOne();
-                    }
-                } while (true);
+                        else
+                        {
+                            this._dataReceived.WaitOne();
+                        }
+                    } while (true);
+
+                    asyncResult.SetAsCompleted(expectActionResult, true);
+                }
+                catch (Exception exp)
+                {
+                    asyncResult.SetAsCompleted(exp, true);
+                }
             });
 
             return asyncResult;
@@ -442,18 +449,15 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="asyncResult">The async result.</param>
         /// <exception cref="System.ArgumentException">Either the IAsyncResult object did not come from the corresponding async method on this type, or EndExecute was called multiple times with the same IAsyncResult.</exception>
-        public void EndExpect(IAsyncResult asyncResult)
+        public string EndExpect(IAsyncResult asyncResult)
         {
-            var expectAsyncResult = asyncResult as ExpectAsyncResult;
-            if (expectAsyncResult != null && expectAsyncResult.ShellStream == this)
-            {
-                //  Make sure that operation completed if not wait for it to finish
-                this.WaitHandle(asyncResult.AsyncWaitHandle);
+            var ar = asyncResult as ExpectAsyncResult;
 
-                return;
-            }
+            if (ar == null || ar.EndInvokeCalled)
+                throw new ArgumentException("Either the IAsyncResult object did not come from the corresponding async method on this type, or EndExecute was called multiple times with the same IAsyncResult.");
 
-            throw new ArgumentException("Either the IAsyncResult object did not come from the corresponding async method on this type, or EndExecute was called multiple times with the same IAsyncResult.");
+            // Wait for operation to complete, then return result or throw exception
+            return ar.EndInvoke();
         }
 
         /// <summary>
@@ -465,7 +469,7 @@ namespace Renci.SshNet
         /// </returns>
         public string Expect(string text)
         {
-            return this.Expect(new Regex(Regex.Escape(text)), TimeSpan.Zero);
+            return this.Expect(new Regex(Regex.Escape(text)), TimeSpan.FromMilliseconds(-1));
         }
 
         /// <summary>
@@ -511,7 +515,7 @@ namespace Renci.SshNet
                     if (this._incoming.Count > 0)
                         text = this._encoding.GetString(this._incoming.ToArray(), 0, this._incoming.Count);
 
-                    var match = regex.Match(text.ToString());
+                    var match = regex.Match(text);
 
                     if (match.Success)
                     {

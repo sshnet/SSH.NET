@@ -51,6 +51,8 @@ namespace Renci.SshNet.Sftp
         /// </summary>
         protected uint ChannelNumber { get; private set; }
 
+        protected Encoding Encoding { get; private set; }
+
         /// <summary>
         /// Initializes a new instance of the SubsystemSession class.
         /// </summary>
@@ -59,7 +61,7 @@ namespace Renci.SshNet.Sftp
         /// <param name="operationTimeout">The operation timeout.</param>
         /// <exception cref="System.ArgumentNullException">session</exception>
         /// <exception cref="ArgumentNullException"><paramref name="session" /> or <paramref name="subsystemName" /> is null.</exception>
-        public SubsystemSession(Session session, string subsystemName, TimeSpan operationTimeout)
+        public SubsystemSession(Session session, string subsystemName, TimeSpan operationTimeout, Encoding encoding)
         {
             if (session == null)
                 throw new ArgumentNullException("session");
@@ -70,6 +72,7 @@ namespace Renci.SshNet.Sftp
             this._session = session;
             this._subsystemName = subsystemName;
             this._operationTimeout = operationTimeout;
+            this.Encoding = encoding;
         }
 
         /// <summary>

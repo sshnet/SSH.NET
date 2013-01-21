@@ -1432,7 +1432,7 @@ namespace Renci.SshNet
         {
             base.OnConnected();
 
-            this._sftpSession = new SftpSession(this.Session, this.OperationTimeout);
+            this._sftpSession = new SftpSession(this.Session, this.OperationTimeout, this.ConnectionInfo.Encoding);
 
             this._sftpSession.Connect();
 

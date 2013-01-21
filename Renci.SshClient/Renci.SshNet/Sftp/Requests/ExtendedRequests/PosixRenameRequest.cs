@@ -1,5 +1,6 @@
 ﻿using System;
 using Renci.SshNet.Sftp.Responses;
+using System.Text;
 
 namespace Renci.SshNet.Sftp.Requests
 {
@@ -19,18 +20,21 @@ namespace Renci.SshNet.Sftp.Requests
 
         public string NewPath { get; private set; }
 
-        public PosixRenameRequest(uint protocolVersion, uint requestId, string oldPath, string newPath, Action<SftpStatusResponse> statusAction)
+        public Encoding Encoding { get; private set; }
+
+        public PosixRenameRequest(uint protocolVersion, uint requestId, string oldPath, string newPath, Encoding encoding, Action<SftpStatusResponse> statusAction)
             : base(protocolVersion, requestId, statusAction)
         {
             this.OldPath = oldPath;
             this.NewPath = newPath;
+            this.Encoding = encoding;
         }
 
         protected override void SaveData()
         {
             base.SaveData();
-            this.Write(this.OldPath);
-            this.Write(this.NewPath);
+            this.Write(this.OldPath, this.Encoding);
+            this.Write(this.NewPath, this.Encoding);
         }
     }
 }

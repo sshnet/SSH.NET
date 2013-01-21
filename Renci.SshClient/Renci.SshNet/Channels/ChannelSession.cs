@@ -4,6 +4,7 @@ using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Connection;
 using System.Globalization;
 using System.Collections.Generic;
+using System.Text;
 
 namespace Renci.SshNet.Channels
 {
@@ -193,7 +194,7 @@ namespace Renci.SshNet.Channels
         {
             this._channelRequestResponse.Reset();
 
-            this.SendMessage(new ChannelRequestMessage(this.RemoteChannelNumber, new ExecRequestInfo(command)));
+            this.SendMessage(new ChannelRequestMessage(this.RemoteChannelNumber, new ExecRequestInfo(command, this.ConnectionInfo.Encoding)));
 
             this.WaitHandle(this._channelRequestResponse);
 

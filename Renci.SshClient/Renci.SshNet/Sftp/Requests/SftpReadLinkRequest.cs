@@ -15,23 +15,26 @@ namespace Renci.SshNet.Sftp.Requests
 
         public string Path { get; private set; }
 
-        public SftpReadLinkRequest(uint protocolVersion, uint requestId, string path, Action<SftpNameResponse> nameAction, Action<SftpStatusResponse> statusAction)
+        public Encoding Encoding { get; private set; }
+
+        public SftpReadLinkRequest(uint protocolVersion, uint requestId, string path, Encoding encoding, Action<SftpNameResponse> nameAction, Action<SftpStatusResponse> statusAction)
             : base(protocolVersion, requestId, statusAction)
         {
             this.Path = path;
+            this.Encoding = encoding;
             this.SetAction(nameAction);
         }
 
         protected override void LoadData()
         {
             base.LoadData();
-            this.Path = this.ReadString();
+            this.Path = this.ReadString(this.Encoding);
         }
 
         protected override void SaveData()
         {
             base.SaveData();
-            this.Write(this.Path);
+            this.Write(this.Path, this.Encoding);
         }
     }
 }

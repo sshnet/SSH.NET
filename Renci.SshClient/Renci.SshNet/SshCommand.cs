@@ -17,8 +17,6 @@ namespace Renci.SshNet
     /// </summary>
     public partial class SshCommand : IDisposable
     {
-        private Encoding _encoding;
-
         private Session _session;
 
         private ChannelSession _channel;
@@ -93,7 +91,7 @@ namespace Renci.SshNet
 
                 if (this.OutputStream != null && this.OutputStream.Length > 0)
                 {
-                    using (var sr = new StreamReader(this.OutputStream, this._encoding))
+                    using (var sr = new StreamReader(this.OutputStream, this._session.ConnectionInfo.Encoding))
                     {
                         this._result.Append(sr.ReadToEnd());
                     }
@@ -123,7 +121,7 @@ namespace Renci.SshNet
 
                     if (this.ExtendedOutputStream != null && this.ExtendedOutputStream.Length > 0)
                     {
-                        using (var sr = new StreamReader(this.ExtendedOutputStream, this._encoding))
+                        using (var sr = new StreamReader(this.ExtendedOutputStream, this._session.ConnectionInfo.Encoding))
                         {
                             this._error.Append(sr.ReadToEnd());
                         }
@@ -143,7 +141,7 @@ namespace Renci.SshNet
         /// <param name="commandText">The command text.</param>
         /// <param name="encoding">The encoding.</param>
         /// <exception cref="ArgumentNullException">Either <paramref name="session"/>, <paramref name="commandText"/> or <paramref name="encoding"/> is null.</exception>
-        internal SshCommand(Session session, string commandText, Encoding encoding)
+        internal SshCommand(Session session, string commandText)
         {
             if (session == null)
                 throw new ArgumentNullException("session");
@@ -151,7 +149,6 @@ namespace Renci.SshNet
             if (commandText == null)
                 throw new ArgumentNullException("commandText");
 
-            this._encoding = encoding;
             this._session = session;
             this.CommandText = commandText;
             this.CommandTimeout = new TimeSpan(0, 0, 0, 0, -1);

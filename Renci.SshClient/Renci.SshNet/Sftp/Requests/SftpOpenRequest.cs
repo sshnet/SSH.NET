@@ -19,17 +19,20 @@ namespace Renci.SshNet.Sftp.Requests
 
         public SftpFileAttributes Attributes { get; private set; }
 
-        public SftpOpenRequest(uint protocolVersion, uint requestId, string fileName, Flags flags, Action<SftpHandleResponse> handleAction, Action<SftpStatusResponse> statusAction)
-            : this(protocolVersion, requestId, fileName, flags, new SftpFileAttributes(), handleAction, statusAction)
+        public Encoding Encoding { get; private set; }
+
+        public SftpOpenRequest(uint protocolVersion, uint requestId, string fileName, Encoding encoding, Flags flags, Action<SftpHandleResponse> handleAction, Action<SftpStatusResponse> statusAction)
+            : this(protocolVersion, requestId, fileName, encoding, flags, new SftpFileAttributes(), handleAction, statusAction)
         {
         }
 
-        public SftpOpenRequest(uint protocolVersion, uint requestId, string fileName, Flags flags, SftpFileAttributes attributes, Action<SftpHandleResponse> handleAction, Action<SftpStatusResponse> statusAction)
+        public SftpOpenRequest(uint protocolVersion, uint requestId, string fileName, Encoding encoding, Flags flags, SftpFileAttributes attributes, Action<SftpHandleResponse> handleAction, Action<SftpStatusResponse> statusAction)
             : base(protocolVersion, requestId, statusAction)
         {
             this.Filename = fileName;
             this.Flags = flags;
             this.Attributes = attributes;
+            this.Encoding = encoding;
 
             this.SetAction(handleAction);
         }
@@ -44,7 +47,7 @@ namespace Renci.SshNet.Sftp.Requests
         {
             base.SaveData();
 
-            this.Write(this.Filename);
+            this.Write(this.Filename, this.Encoding);
             this.Write((uint)this.Flags);
             this.Write(this.Attributes);
         }

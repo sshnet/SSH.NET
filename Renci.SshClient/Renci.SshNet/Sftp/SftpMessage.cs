@@ -4,16 +4,17 @@ using System.Linq;
 using Renci.SshNet.Common;
 using System.Globalization;
 using Renci.SshNet.Sftp.Responses;
+using System.Text;
 
 namespace Renci.SshNet.Sftp
 {
     internal abstract class SftpMessage : SshData
     {
-        public static SftpMessage Load(uint protocolVersion, byte[] data)
+        public static SftpMessage Load(uint protocolVersion, byte[] data, Encoding encoding)
         {
             var messageType = (SftpMessageTypes)data.FirstOrDefault();
 
-            return Load(protocolVersion, data, messageType);
+            return Load(protocolVersion, data, messageType, encoding);
         }
 
         protected override int ZeroReaderIndex
@@ -152,7 +153,7 @@ namespace Renci.SshNet.Sftp
             }
         }
 
-        private static SftpMessage Load(uint protocolVersion, byte[] data, SftpMessageTypes messageType)
+        private static SftpMessage Load(uint protocolVersion, byte[] data, SftpMessageTypes messageType, Encoding encoding)
         {
             SftpMessage message = null;
 
@@ -171,7 +172,7 @@ namespace Renci.SshNet.Sftp
                     message = new SftpHandleResponse(protocolVersion);
                     break;
                 case SftpMessageTypes.Name:
-                    message = new SftpNameResponse(protocolVersion);
+                    message = new SftpNameResponse(protocolVersion, encoding);
                     break;
                 case SftpMessageTypes.Attrs:
                     message = new SftpAttrsResponse(protocolVersion);

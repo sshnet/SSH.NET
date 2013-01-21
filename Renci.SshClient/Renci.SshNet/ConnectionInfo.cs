@@ -121,6 +121,14 @@ namespace Renci.SshNet
         public TimeSpan Timeout { get; set; }
 
         /// <summary>
+        /// Gets or sets the default encoding.
+        /// </summary>
+        /// <value>
+        /// The default encoding.
+        /// </value>
+        public Encoding Encoding { get; set; }
+
+        /// <summary>
         /// Gets or sets number of retry attempts when session channel creation failed.
         /// </summary>
         /// <value>
@@ -260,6 +268,7 @@ namespace Renci.SshNet
             this.Timeout = TimeSpan.FromSeconds(30);
             this.RetryAttempts = 10;
             this.MaxSessions = 10;
+            this.Encoding = Encoding.UTF8;
 
             this.KeyExchangeAlgorithms = new Dictionary<string, Type>()
             {

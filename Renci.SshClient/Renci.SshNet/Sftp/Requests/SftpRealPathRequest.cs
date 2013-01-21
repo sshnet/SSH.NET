@@ -15,7 +15,9 @@ namespace Renci.SshNet.Sftp.Requests
 
         public string Path { get; private set; }
 
-        public SftpRealPathRequest(uint protocolVersion, uint requestId, string path, Action<SftpNameResponse> nameAction, Action<SftpStatusResponse> statusAction)
+        public Encoding Encoding { get; private set; }
+
+        public SftpRealPathRequest(uint protocolVersion, uint requestId, string path, Encoding encoding, Action<SftpNameResponse> nameAction, Action<SftpStatusResponse> statusAction)
             : base(protocolVersion, requestId, statusAction)
         {
             if (nameAction == null)
@@ -25,6 +27,7 @@ namespace Renci.SshNet.Sftp.Requests
                 throw new ArgumentNullException("status");
 
             this.Path = path;
+            this.Encoding = encoding;
             this.SetAction(nameAction);
             
         }
@@ -32,7 +35,7 @@ namespace Renci.SshNet.Sftp.Requests
         protected override void SaveData()
         {
             base.SaveData();
-            this.Write(this.Path);
+            this.Write(this.Path, this.Encoding);
         }
     }
 }

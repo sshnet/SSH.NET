@@ -190,7 +190,7 @@ namespace Renci.SshNet
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         public SshCommand CreateCommand(string commandText)
         {
-            return this.CreateCommand(commandText, Encoding.UTF8);
+            return this.CreateCommand(commandText, this.ConnectionInfo.Encoding);
         }
 
         /// <summary>
@@ -199,11 +199,13 @@ namespace Renci.SshNet
         /// <param name="commandText">The command text.</param>
         /// <param name="encoding">The encoding to use for results.</param>
         /// <returns><see cref="SshCommand"/> object which uses specified encoding.</returns>
+        /// <remarks>TThis method will change current default encoding.</remarks>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="commandText"/> or <paramref name="encoding"/> is null.</exception>
         public SshCommand CreateCommand(string commandText, Encoding encoding)
         {
-            return new SshCommand(this.Session, commandText, encoding);
+            this.ConnectionInfo.Encoding = encoding;
+            return new SshCommand(this.Session, commandText);
         }
 
         /// <summary>

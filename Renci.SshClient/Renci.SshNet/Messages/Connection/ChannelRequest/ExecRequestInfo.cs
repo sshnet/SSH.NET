@@ -26,7 +26,18 @@ namespace Renci.SshNet.Messages.Connection
         /// <summary>
         /// Gets command to execute.
         /// </summary>
+        /// <value>
+        /// The command.
+        /// </value>
         public string Command { get; private set; }
+
+        /// <summary>
+        /// Gets the encoding.
+        /// </summary>
+        /// <value>
+        /// The encoding.
+        /// </value>
+        public Encoding Encoding { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ExecRequestInfo"/> class.
@@ -41,13 +52,14 @@ namespace Renci.SshNet.Messages.Connection
         /// </summary>
         /// <param name="command">The command.</param>
         /// <exception cref="System.ArgumentNullException"><paramref name="command"/> is null.</exception>
-        public ExecRequestInfo(string command)
+        public ExecRequestInfo(string command, Encoding encoding)
             : this()
         {
             if (command == null)
                 throw new System.ArgumentNullException("command");
 
             this.Command = command;
+            this.Encoding = encoding;
         }
 
         /// <summary>
@@ -67,7 +79,7 @@ namespace Renci.SshNet.Messages.Connection
         {
             base.SaveData();
 
-            this.Write(this.Command);
+            this.Write(this.Command, this.Encoding);
         }
     }
 }

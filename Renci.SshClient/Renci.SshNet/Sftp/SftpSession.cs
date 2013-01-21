@@ -58,8 +58,8 @@ namespace Renci.SshNet.Sftp
             }
         }
 
-        public SftpSession(Session session, TimeSpan operationTimeout)
-            : base(session, "sftp", operationTimeout)
+        public SftpSession(Session session, TimeSpan operationTimeout, Encoding encoding)
+            : base(session, "sftp", operationTimeout, encoding)
         {
         }
 
@@ -211,7 +211,7 @@ namespace Renci.SshNet.Sftp
                 this._data.RemoveRange(0, packetLength);
 
                 //  Load SFTP Message and handle it
-                var response = SftpMessage.Load(this.ProtocolVersion, packetData);
+                var response = SftpMessage.Load(this.ProtocolVersion, packetData, this.Encoding);
 
                 try
                 {
@@ -275,7 +275,7 @@ namespace Renci.SshNet.Sftp
 
             using (var wait = new AutoResetEvent(false))
             {
-                var request = new SftpOpenRequest(this.ProtocolVersion, this.NextRequestId, path, flags,
+                var request = new SftpOpenRequest(this.ProtocolVersion, this.NextRequestId, path, this.Encoding, flags,
                     (response) =>
                     {
                         handle = response.Handle;
@@ -414,7 +414,7 @@ namespace Renci.SshNet.Sftp
             SftpFileAttributes attributes = null;
             using (var wait = new AutoResetEvent(false))
             {
-                var request = new SftpLStatRequest(this.ProtocolVersion, this.NextRequestId, path,
+                var request = new SftpLStatRequest(this.ProtocolVersion, this.NextRequestId, path, this.Encoding,
                     (response) =>
                     {
                         attributes = response.Attributes;
@@ -474,7 +474,7 @@ namespace Renci.SshNet.Sftp
         {
             using (var wait = new AutoResetEvent(false))
             {
-                var request = new SftpSetStatRequest(this.ProtocolVersion, this.NextRequestId, path, attributes,
+                var request = new SftpSetStatRequest(this.ProtocolVersion, this.NextRequestId, path, this.Encoding, attributes,
                     (response) =>
                     {
                         if (response.StatusCode == StatusCodes.Ok)
@@ -533,7 +533,7 @@ namespace Renci.SshNet.Sftp
 
             using (var wait = new AutoResetEvent(false))
             {
-                var request = new SftpOpenDirRequest(this.ProtocolVersion, this.NextRequestId, path,
+                var request = new SftpOpenDirRequest(this.ProtocolVersion, this.NextRequestId, path, this.Encoding,
                     (response) =>
                     {
                         handle = response.Handle;
@@ -604,7 +604,7 @@ namespace Renci.SshNet.Sftp
         {
             using (var wait = new AutoResetEvent(false))
             {
-                var request = new SftpRemoveRequest(this.ProtocolVersion, this.NextRequestId, path,
+                var request = new SftpRemoveRequest(this.ProtocolVersion, this.NextRequestId, path, this.Encoding,
                     (response) =>
                     {
                         if (response.StatusCode == StatusCodes.Ok)
@@ -631,7 +631,7 @@ namespace Renci.SshNet.Sftp
         {
             using (var wait = new AutoResetEvent(false))
             {
-                var request = new SftpMkDirRequest(this.ProtocolVersion, this.NextRequestId, path,
+                var request = new SftpMkDirRequest(this.ProtocolVersion, this.NextRequestId, path, this.Encoding,
                     (response) =>
                     {
                         if (response.StatusCode == StatusCodes.Ok)
@@ -658,7 +658,7 @@ namespace Renci.SshNet.Sftp
         {
             using (var wait = new AutoResetEvent(false))
             {
-                var request = new SftpRmDirRequest(this.ProtocolVersion, this.NextRequestId, path,
+                var request = new SftpRmDirRequest(this.ProtocolVersion, this.NextRequestId, path, this.Encoding,
                     (response) =>
                     {
                         if (response.StatusCode == StatusCodes.Ok)
@@ -689,7 +689,7 @@ namespace Renci.SshNet.Sftp
 
             using (var wait = new AutoResetEvent(false))
             {
-                var request = new SftpRealPathRequest(this.ProtocolVersion, this.NextRequestId, path,
+                var request = new SftpRealPathRequest(this.ProtocolVersion, this.NextRequestId, path, this.Encoding,
                     (response) =>
                     {
                         result = response.Files;
@@ -729,7 +729,7 @@ namespace Renci.SshNet.Sftp
             SftpFileAttributes attributes = null;
             using (var wait = new AutoResetEvent(false))
             {
-                var request = new SftpStatRequest(this.ProtocolVersion, this.NextRequestId, path,
+                var request = new SftpStatRequest(this.ProtocolVersion, this.NextRequestId, path, this.Encoding,
                     (response) =>
                     {
                         attributes = response.Attributes;
@@ -768,7 +768,7 @@ namespace Renci.SshNet.Sftp
             }
             using (var wait = new AutoResetEvent(false))
             {
-                var request = new SftpRenameRequest(this.ProtocolVersion, this.NextRequestId, oldPath, newPath,
+                var request = new SftpRenameRequest(this.ProtocolVersion, this.NextRequestId, oldPath, newPath, this.Encoding,
                     (response) =>
                     {
                         if (response.StatusCode == StatusCodes.Ok)
@@ -804,7 +804,7 @@ namespace Renci.SshNet.Sftp
 
             using (var wait = new AutoResetEvent(false))
             {
-                var request = new SftpReadLinkRequest(this.ProtocolVersion, this.NextRequestId, path,
+                var request = new SftpReadLinkRequest(this.ProtocolVersion, this.NextRequestId, path, this.Encoding,
                     (response) =>
                     {
                         result = response.Files;
@@ -845,7 +845,7 @@ namespace Renci.SshNet.Sftp
 
             using (var wait = new AutoResetEvent(false))
             {
-                var request = new SftpSymLinkRequest(this.ProtocolVersion, this.NextRequestId, linkpath, targetpath,
+                var request = new SftpSymLinkRequest(this.ProtocolVersion, this.NextRequestId, linkpath, targetpath, this.Encoding,
                     (response) =>
                     {
                         if (response.StatusCode == StatusCodes.Ok)
@@ -882,7 +882,7 @@ namespace Renci.SshNet.Sftp
 
             using (var wait = new AutoResetEvent(false))
             {
-                var request = new PosixRenameRequest(this.ProtocolVersion, this.NextRequestId, oldPath, newPath,
+                var request = new PosixRenameRequest(this.ProtocolVersion, this.NextRequestId, oldPath, newPath, this.Encoding,
                     (response) =>
                     {
                         if (response.StatusCode == StatusCodes.Ok)
@@ -920,7 +920,7 @@ namespace Renci.SshNet.Sftp
             SftpFileSytemInformation information = null;
             using (var wait = new AutoResetEvent(false))
             {
-                var request = new StatVfsRequest(this.ProtocolVersion, this.NextRequestId, path,
+                var request = new StatVfsRequest(this.ProtocolVersion, this.NextRequestId, path, this.Encoding,
                     (response) =>
                     {
                         information = response.GetReply<StatVfsReplyInfo>().Information;

@@ -484,8 +484,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             Session session = null; // TODO: Initialize to an appropriate value
             string commandText = string.Empty; // TODO: Initialize to an appropriate value
-            Encoding encoding = null; // TODO: Initialize to an appropriate value
-            SshCommand target = new SshCommand(session, commandText, encoding); // TODO: Initialize to an appropriate value
+            SshCommand target = new SshCommand(session, commandText); // TODO: Initialize to an appropriate value
             string commandText1 = string.Empty; // TODO: Initialize to an appropriate value
             AsyncCallback callback = null; // TODO: Initialize to an appropriate value
             object state = null; // TODO: Initialize to an appropriate value
@@ -504,8 +503,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             Session session = null; // TODO: Initialize to an appropriate value
             string commandText = string.Empty; // TODO: Initialize to an appropriate value
-            Encoding encoding = null; // TODO: Initialize to an appropriate value
-            SshCommand target = new SshCommand(session, commandText, encoding); // TODO: Initialize to an appropriate value
+            SshCommand target = new SshCommand(session, commandText); // TODO: Initialize to an appropriate value
             target.CancelAsync();
             Assert.Inconclusive("A method that does not return a value cannot be verified.");
         }
@@ -518,8 +516,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             Session session = null; // TODO: Initialize to an appropriate value
             string commandText = string.Empty; // TODO: Initialize to an appropriate value
-            Encoding encoding = null; // TODO: Initialize to an appropriate value
-            SshCommand target = new SshCommand(session, commandText, encoding); // TODO: Initialize to an appropriate value
+            SshCommand target = new SshCommand(session, commandText); // TODO: Initialize to an appropriate value
             target.Dispose();
             Assert.Inconclusive("A method that does not return a value cannot be verified.");
         }
@@ -532,8 +529,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             Session session = null; // TODO: Initialize to an appropriate value
             string commandText = string.Empty; // TODO: Initialize to an appropriate value
-            Encoding encoding = null; // TODO: Initialize to an appropriate value
-            SshCommand target = new SshCommand(session, commandText, encoding); // TODO: Initialize to an appropriate value
+            SshCommand target = new SshCommand(session, commandText); // TODO: Initialize to an appropriate value
             IAsyncResult asyncResult = null; // TODO: Initialize to an appropriate value
             string expected = string.Empty; // TODO: Initialize to an appropriate value
             string actual;
@@ -550,8 +546,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             Session session = null; // TODO: Initialize to an appropriate value
             string commandText = string.Empty; // TODO: Initialize to an appropriate value
-            Encoding encoding = null; // TODO: Initialize to an appropriate value
-            SshCommand target = new SshCommand(session, commandText, encoding); // TODO: Initialize to an appropriate value
+            SshCommand target = new SshCommand(session, commandText); // TODO: Initialize to an appropriate value
             string expected = string.Empty; // TODO: Initialize to an appropriate value
             string actual;
             actual = target.Execute();
@@ -567,8 +562,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             Session session = null; // TODO: Initialize to an appropriate value
             string commandText = string.Empty; // TODO: Initialize to an appropriate value
-            Encoding encoding = null; // TODO: Initialize to an appropriate value
-            SshCommand target = new SshCommand(session, commandText, encoding); // TODO: Initialize to an appropriate value
+            SshCommand target = new SshCommand(session, commandText); // TODO: Initialize to an appropriate value
             string commandText1 = string.Empty; // TODO: Initialize to an appropriate value
             string expected = string.Empty; // TODO: Initialize to an appropriate value
             string actual;
@@ -585,8 +579,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             Session session = null; // TODO: Initialize to an appropriate value
             string commandText = string.Empty; // TODO: Initialize to an appropriate value
-            Encoding encoding = null; // TODO: Initialize to an appropriate value
-            SshCommand target = new SshCommand(session, commandText, encoding); // TODO: Initialize to an appropriate value
+            SshCommand target = new SshCommand(session, commandText); // TODO: Initialize to an appropriate value
             TimeSpan expected = new TimeSpan(); // TODO: Initialize to an appropriate value
             TimeSpan actual;
             target.CommandTimeout = expected;
@@ -603,8 +596,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             Session session = null; // TODO: Initialize to an appropriate value
             string commandText = string.Empty; // TODO: Initialize to an appropriate value
-            Encoding encoding = null; // TODO: Initialize to an appropriate value
-            SshCommand target = new SshCommand(session, commandText, encoding); // TODO: Initialize to an appropriate value
+            SshCommand target = new SshCommand(session, commandText); // TODO: Initialize to an appropriate value
             string actual;
             actual = target.Error;
             Assert.Inconclusive("Verify the correctness of this test method.");
@@ -618,8 +610,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             Session session = null; // TODO: Initialize to an appropriate value
             string commandText = string.Empty; // TODO: Initialize to an appropriate value
-            Encoding encoding = null; // TODO: Initialize to an appropriate value
-            SshCommand target = new SshCommand(session, commandText, encoding); // TODO: Initialize to an appropriate value
+            SshCommand target = new SshCommand(session, commandText); // TODO: Initialize to an appropriate value
             string actual;
             actual = target.Result;
             Assert.Inconclusive("Verify the correctness of this test method.");

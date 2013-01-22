@@ -20,9 +20,9 @@ namespace Renci.SshNet.Security
 
         private CipherInfo _serverCipherInfo;
 
-        private Func<byte[], HashAlgorithm> _cientHmacAlgorithmType;
+        private HashInfo _clientHashInfo;
 
-        private Func<byte[], HashAlgorithm> _serverHmacAlgorithmType;
+        private HashInfo _serverHashInfo;
 
         private Type _compressionType;
 
@@ -152,8 +152,8 @@ namespace Renci.SshNet.Security
 
             this._clientCipherInfo = session.ConnectionInfo.Encryptions[clientEncryptionAlgorithmName];
             this._serverCipherInfo = session.ConnectionInfo.Encryptions[clientEncryptionAlgorithmName];
-            this._cientHmacAlgorithmType = session.ConnectionInfo.HmacAlgorithms[clientHmacAlgorithmName];
-            this._serverHmacAlgorithmType = session.ConnectionInfo.HmacAlgorithms[serverHmacAlgorithmName];
+            this._clientHashInfo = session.ConnectionInfo.HmacAlgorithms[clientHmacAlgorithmName];
+            this._serverHashInfo = session.ConnectionInfo.HmacAlgorithms[serverHmacAlgorithmName];
             this._compressionType = session.ConnectionInfo.CompressionAlgorithms[compressionAlgorithmName];
             this._decompressionType = session.ConnectionInfo.CompressionAlgorithms[decompressionAlgorithmName];
         }
@@ -225,8 +225,12 @@ namespace Renci.SshNet.Security
             //  Resolve Session ID
             var sessionId = this.Session.SessionId ?? this.ExchangeHash;
 
+            var serverKey = this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'F', sessionId));
+
+            serverKey = this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, serverKey, this._serverHashInfo.KeySize / 8);
+
             //return serverHMac;
-            return this._serverHmacAlgorithmType(this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'F', sessionId)));
+            return this._serverHashInfo.HashAlgorithm(serverKey);
         }
 
         /// <summary>
@@ -238,8 +242,12 @@ namespace Renci.SshNet.Security
             //  Resolve Session ID
             var sessionId = this.Session.SessionId ?? this.ExchangeHash;
 
+            var clientKey = this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'E', sessionId));
+            
+            clientKey = this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, clientKey, this._clientHashInfo.KeySize / 8);
+
             //return clientHMac;
-            return this._cientHmacAlgorithmType(this.Hash(this.GenerateSessionKey(this.SharedKey, this.ExchangeHash, 'E', sessionId)));
+            return this._clientHashInfo.HashAlgorithm(clientKey);
         }
 
         /// <summary>

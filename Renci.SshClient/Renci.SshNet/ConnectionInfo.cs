@@ -36,7 +36,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Gets supported hash algorithms for this connection.
         /// </summary>
-        public IDictionary<string, Func<byte[], HashAlgorithm>> HmacAlgorithms { get; private set; }
+        public IDictionary<string, HashInfo> HmacAlgorithms { get; private set; }
 
         /// <summary>
         /// Gets supported host key algorithms for this connection.
@@ -276,6 +276,7 @@ namespace Renci.SshNet
                 {"diffie-hellman-group-exchange-sha1", typeof(KeyExchangeDiffieHellmanGroupExchangeSha1)},
                 {"diffie-hellman-group14-sha1", typeof(KeyExchangeDiffieHellmanGroup14Sha1)},
                 {"diffie-hellman-group1-sha1", typeof(KeyExchangeDiffieHellmanGroup1Sha1)},
+                //{"ecdh-sha2-nistp256", typeof(KeyExchangeEllipticCurveDiffieHellman)},
                 //{"ecdh-sha2-nistp256", typeof(...)},
                 //{"ecdh-sha2-nistp384", typeof(...)},
                 //{"ecdh-sha2-nistp521", typeof(...)},
@@ -309,19 +310,19 @@ namespace Renci.SshNet
                 {"aes192-ctr", new CipherInfo(192, (key, iv)=>{ return new AesCipher(key, new CtrCipherMode(iv), null); }) },
             };
 
-            this.HmacAlgorithms = new Dictionary<string, Func<byte[], HashAlgorithm>>()
+            this.HmacAlgorithms = new Dictionary<string, HashInfo>()
             {
-                {"hmac-md5", (key) => { return new HMac<MD5Hash>(key.Take(16).ToArray());}},
-                {"hmac-sha1", (key) => { return new HMac<SHA1Hash>(key.Take(20).ToArray());}},
-                {"hmac-sha2-256", (key) => { return new HMac<SHA256Hash>(key.Take(32).ToArray());}},
-                {"hmac-sha2-256-96", (key) => { return new HMac<SHA256Hash>(key.Take(32).ToArray(), 96);}},
-                //{"hmac-sha2-512", typeof(...)},
-                //{"hmac-sha2-512-96", typeof(...)},
+                {"hmac-md5", new HashInfo(16 * 8, (key)=>{ return new HMac<MD5Hash>(key); }) },
+                {"hmac-sha1", new HashInfo(20 * 8, (key)=>{ return new HMac<SHA1Hash>(key); }) },
+                {"hmac-sha2-256", new HashInfo(32 * 8, (key)=>{ return new HMac<SHA256Hash>(key); }) },
+                {"hmac-sha2-256-96", new HashInfo(32 * 8, (key)=>{ return new HMac<SHA256Hash>(key, 96); }) },
+                //{"hmac-sha2-512", new HashInfo(64 * 8, (key)=>{ return new HMac<SHA512Hash>(key); }) },
+                //{"hmac-sha2-512-96", new HashInfo(64 * 8, (key)=>{ return new HMac<SHA512Hash>(key, 96); }) },
                 //{"umac-64@openssh.com", typeof(HMacSha1)},
-                {"hmac-ripemd160", (key) => { return new HMac<RIPEMD160Hash>(key.Take(20).ToArray());}},
-                {"hmac-ripemd160@openssh.com", (key) => { return new HMac<RIPEMD160Hash>(key.Take(20).ToArray());}},                
-                {"hmac-md5-96", (key) => { return new HMac<MD5Hash>(key.Take(16).ToArray(), 96);}},
-                {"hmac-sha1-96", (key) => { return new HMac<SHA1Hash>(key.Take(20).ToArray(), 96);}},
+                {"hmac-ripemd160", new HashInfo(160, (key)=>{ return new HMac<RIPEMD160Hash>(key); }) },
+                {"hmac-ripemd160@openssh.com", new HashInfo(160, (key)=>{ return new HMac<RIPEMD160Hash>(key); }) },
+                {"hmac-md5-96", new HashInfo(16 * 8, (key)=>{ return new HMac<MD5Hash>(key, 96); }) },
+                {"hmac-sha1-96", new HashInfo(20 * 8, (key)=>{ return new HMac<SHA1Hash>(key, 96); }) },
                 //{"none", typeof(...)},
             };
 

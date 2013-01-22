@@ -113,7 +113,7 @@ namespace Renci.SshNet.Security.Cryptography
         {
             if (!this._isHashing)
             {
-                this._hash.TransformBlock(this._innerPadding, 0, 64, this._innerPadding, 0);
+                this._hash.TransformBlock(this._innerPadding, 0, this.BlockSize, this._innerPadding, 0);
                 this._isHashing = true;
             }
 
@@ -130,7 +130,7 @@ namespace Renci.SshNet.Security.Cryptography
 
             this._isHashing = false;
 
-            return this._hash.Hash;
+            return this._hash.Hash.Take(this.HashSize / 8).ToArray();
         }
 
         private void InternalInitialize()

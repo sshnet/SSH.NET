@@ -11,10 +11,11 @@ namespace Renci.SshNet.Security.Cryptography
     /// </summary>
     public class RIPEMD160Hash : HashAlgorithm
     {
+        private const int DIGEST_SIZE = 20;
+
         private byte[] _buffer;
         private int _bufferOffset;
         private long _byteCount;
-        private const int DIGEST_SIZE = 20;
         private int _offset;
         private int H0, H1, H2, H3, H4; // IV's
         private int[] X = new int[16];

@@ -6,9 +6,9 @@ using System.Security.Cryptography;
 
 namespace Renci.SshNet.Security.Cryptography
 {
-    public class SHA512Hash : SHA2HashBase
+    public class SHA384Hash : SHA2HashBase
     {
-        private const int DIGEST_SIZE = 64;
+        private const int DIGEST_SIZE = 48;
 
         /// <summary>
         /// Gets the size, in bits, of the computed hash code.
@@ -58,8 +58,6 @@ namespace Renci.SshNet.Security.Cryptography
             SHA2HashBase.UInt64_To_BE(H4, output, 24);
             SHA2HashBase.UInt64_To_BE(H5, output, 32);
             SHA2HashBase.UInt64_To_BE(H6, output, 40);
-            SHA2HashBase.UInt64_To_BE(H7, output, 48);
-            SHA2HashBase.UInt64_To_BE(H8, output, 56);
 
             this.Initialize();
 
@@ -70,18 +68,18 @@ namespace Renci.SshNet.Security.Cryptography
         {
             base.Initialize();
 
-            /* SHA-512 initial hash value
-             * The first 64 bits of the fractional parts of the square roots
-             * of the first eight prime numbers
-             */
-            H1 = 0x6a09e667f3bcc908;
-            H2 = 0xbb67ae8584caa73b;
-            H3 = 0x3c6ef372fe94f82b;
-            H4 = 0xa54ff53a5f1d36f1;
-            H5 = 0x510e527fade682d1;
-            H6 = 0x9b05688c2b3e6c1f;
-            H7 = 0x1f83d9abfb41bd6b;
-            H8 = 0x5be0cd19137e2179;
+            /* SHA-384 initial hash value
+                * The first 64 bits of the fractional parts of the square roots
+                * of the 9th through 16th prime numbers
+                */
+            H1 = 0xcbbb9d5dc1059ed8;
+            H2 = 0x629a292a367cd507;
+            H3 = 0x9159015a3070dd17;
+            H4 = 0x152fecd8f70e5939;
+            H5 = 0x67332667ffc00b31;
+            H6 = 0x8eb44a8768581511;
+            H7 = 0xdb0c2e0d64f98fa7;
+            H8 = 0x47b5481dbefa4fa4;
         }
     }
 }

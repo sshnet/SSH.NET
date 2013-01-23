@@ -13,10 +13,9 @@ namespace Renci.SshNet.Security.Cryptography
     public class HMac<T> : KeyedHashAlgorithm where T : HashAlgorithm, new()
     {
         private HashAlgorithm _hash;
-        private bool _isHashing;
+        //private bool _isHashing;
         private byte[] _innerPadding;
         private byte[] _outerPadding;
-        private byte[] _key;
 
         /// <summary>
         /// Gets the size of the block.
@@ -36,6 +35,7 @@ namespace Renci.SshNet.Security.Cryptography
         {
             // Create the hash algorithms.
             this._hash = new T();
+            this.HashSizeValue = this._hash.HashSize;
         }
 
         /// <summary>
@@ -43,21 +43,15 @@ namespace Renci.SshNet.Security.Cryptography
         /// </summary>
         /// <param name="key">The key.</param>
         public HMac(byte[] key, int hashSizeValue)
-            : this()
+            : this(key)
         {
             this.HashSizeValue = hashSizeValue;
-
-            this._key = key;
-
-            this.InternalInitialize();
         }
 
         public HMac(byte[] key)
             : this()
         {
-            this.HashSizeValue = this._hash.HashSize;
-
-            this._key = key;
+            base.KeyValue = key;
 
             this.InternalInitialize();
         }
@@ -71,7 +65,7 @@ namespace Renci.SshNet.Security.Cryptography
         {
             get
             {
-                return (byte[])KeyValue.Clone();
+                return (byte[])base.KeyValue.Clone();
             }
             set
             {
@@ -95,11 +89,6 @@ namespace Renci.SshNet.Security.Cryptography
         /// <param name="cb">The cb.</param>
         protected override void HashCore(byte[] rgb, int ib, int cb)
         {
-            if (!this._isHashing)
-            {
-                this._hash.TransformBlock(this._innerPadding, 0, this.BlockSize, this._innerPadding, 0);
-                this._isHashing = true;
-            }
             this._hash.TransformBlock(rgb, ib, cb, rgb, ib);
         }
 
@@ -111,12 +100,6 @@ namespace Renci.SshNet.Security.Cryptography
         /// </returns>
         protected override byte[] HashFinal()
         {
-            if (!this._isHashing)
-            {
-                this._hash.TransformBlock(this._innerPadding, 0, this.BlockSize, this._innerPadding, 0);
-                this._isHashing = true;
-            }
-
             // Finalize the original hash.
             this._hash.TransformFinalBlock(new byte[0], 0, 0);
 
@@ -128,23 +111,18 @@ namespace Renci.SshNet.Security.Cryptography
             // Write the inner hash and finalize the hash.            
             this._hash.TransformFinalBlock(hashValue, 0, hashValue.Length);
 
-            this._isHashing = false;
-
             return this._hash.Hash.Take(this.HashSize / 8).ToArray();
         }
 
         private void InternalInitialize()
         {
-            this._isHashing = false;
-            this.SetKey(this._key);
+            this.SetKey(base.KeyValue);
         }
 
         private void SetKey(byte[] value)
         {
-            if (this._isHashing)
-            {
-                throw new Exception("Cannot change key during hash operation");
-            }
+            this._hash.Initialize();
+
             if (value.Length > this.BlockSize)
             {
                 this.KeyValue = this._hash.ComputeHash(value);
@@ -160,16 +138,18 @@ namespace Renci.SshNet.Security.Cryptography
 
             // Compute inner and outer padding.
             int i = 0;
-            for (i = 0; i < this.BlockSize; i++)
+            for (i = 0; i < this.KeyValue.Length; i++)
+            {
+                this._innerPadding[i] = (byte)(0x36 ^ this.KeyValue[i]);
+                this._outerPadding[i] = (byte)(0x5C ^ this.KeyValue[i]);
+            }
+            for (i = this.KeyValue.Length; i < this.BlockSize; i++)
             {
                 this._innerPadding[i] = 0x36;
                 this._outerPadding[i] = 0x5C;
             }
-            for (i = 0; i < this.KeyValue.Length; i++)
-            {
-                this._innerPadding[i] ^= this.KeyValue[i];
-                this._outerPadding[i] ^= this.KeyValue[i];
-            }
+
+            this._hash.TransformBlock(this._innerPadding, 0, this.BlockSize, this._innerPadding, 0);
         }
 
         /// <summary>

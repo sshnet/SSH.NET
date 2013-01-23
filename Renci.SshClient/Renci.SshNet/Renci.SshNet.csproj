@@ -132,6 +132,8 @@
     </Compile>
     <Compile Include="ConnectionInfo.cs" />
     <Compile Include="HashInfo.cs" />
+    <Compile Include="Security\Cryptography\Hashes\SHA384Hash.cs" />
+    <Compile Include="Security\Cryptography\Hashes\SHA2HashBase.cs" />
     <Compile Include="Security\Cryptography\Hashes\SHA512Hash.cs" />
     <Compile Include="Security\Cryptography\Hashes\RIPEMD160Hash.cs" />
     <Compile Include="ShellStream.NET40.cs" />

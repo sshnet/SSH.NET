@@ -9,7 +9,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
     /// <summary>
     /// AES cipher implementation.
     /// </summary>
-    public class AesCipher : BlockCipher
+    public sealed class AesCipher : BlockCipher
     {
         private const uint m1 = 0x80808080;
 

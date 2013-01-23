@@ -19,7 +19,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
         {
             var connectionInfo = new PasswordConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD);
             connectionInfo.HmacAlgorithms.Clear();
-            connectionInfo.HmacAlgorithms.Add("hmac-md5", (key) => { return new HMac<MD5Hash>(key.Take(16).ToArray()); });
+            connectionInfo.HmacAlgorithms.Add("hmac-md5", new HashInfo(16 * 8, (key) => { return new HMac<MD5Hash>(key); }));
 
             using (var client = new SshClient(connectionInfo))
             {
@@ -33,7 +33,63 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
         {
             var connectionInfo = new PasswordConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD);
             connectionInfo.HmacAlgorithms.Clear();
-            connectionInfo.HmacAlgorithms.Add("hmac-sha1", (key) => { return new HMac<SHA1Hash>(key.Take(20).ToArray()); });
+            connectionInfo.HmacAlgorithms.Add("hmac-sha1", new HashInfo(20 * 8, (key) => { return new HMac<SHA1Hash>(key); }));
+
+            using (var client = new SshClient(connectionInfo))
+            {
+                client.Connect();
+                client.Disconnect();
+            }
+        }
+
+        [TestMethod]
+        public void Test_HMac_MD5_96_Connection()
+        {
+            var connectionInfo = new PasswordConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD);
+            connectionInfo.HmacAlgorithms.Clear();
+            connectionInfo.HmacAlgorithms.Add("hmac-md5", new HashInfo(16 * 8, (key) => { return new HMac<MD5Hash>(key, 96); }));
+
+            using (var client = new SshClient(connectionInfo))
+            {
+                client.Connect();
+                client.Disconnect();
+            }
+        }
+
+        [TestMethod]
+        public void Test_HMac_Sha1_96_Connection()
+        {
+            var connectionInfo = new PasswordConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD);
+            connectionInfo.HmacAlgorithms.Clear();
+            connectionInfo.HmacAlgorithms.Add("hmac-sha1", new HashInfo(20 * 8, (key) => { return new HMac<SHA1Hash>(key, 96); }));
+
+            using (var client = new SshClient(connectionInfo))
+            {
+                client.Connect();
+                client.Disconnect();
+            }
+        }
+
+        [TestMethod]
+        public void Test_HMac_Sha256_Connection()
+        {
+            var connectionInfo = new PasswordConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD);
+            connectionInfo.HmacAlgorithms.Clear();
+            connectionInfo.HmacAlgorithms.Add("hmac-sha2-256", new HashInfo(32 * 8, (key) => { return new HMac<SHA256Hash>(key); }));
+
+            using (var client = new SshClient(connectionInfo))
+            {
+                client.Connect();
+                client.Disconnect();
+            }
+        }
+
+        [TestMethod]
+        public void Test_HMac_Sha256_96_Connection()
+        {
+            var connectionInfo = new PasswordConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD);
+            connectionInfo.HmacAlgorithms.Clear();
+            connectionInfo.HmacAlgorithms.Add("hmac-sha2-256-96", new HashInfo(32 * 8, (key) => { return new HMac<SHA256Hash>(key, 96); }));
 
             using (var client = new SshClient(connectionInfo))
             {
@@ -47,7 +103,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
         {
             var connectionInfo = new PasswordConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD);
             connectionInfo.HmacAlgorithms.Clear();
-            connectionInfo.HmacAlgorithms.Add("hmac-ripemd160", (key) => { return new HMac<RIPEMD160Hash>(key.Take(20).ToArray()); });
+            connectionInfo.HmacAlgorithms.Add("hmac-ripemd160", new HashInfo(160, (key) => { return new HMac<RIPEMD160Hash>(key); }));
 
             using (var client = new SshClient(connectionInfo))
             {
@@ -61,7 +117,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
         {
             var connectionInfo = new PasswordConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD);
             connectionInfo.HmacAlgorithms.Clear();
-            connectionInfo.HmacAlgorithms.Add("hmac-ripemd160@openssh.com", (key) => { return new HMac<RIPEMD160Hash>(key.Take(20).ToArray()); });
+            connectionInfo.HmacAlgorithms.Add("hmac-ripemd160@openssh.com", new HashInfo(160, (key) => { return new HMac<RIPEMD160Hash>(key); }));
 
             using (var client = new SshClient(connectionInfo))
             {

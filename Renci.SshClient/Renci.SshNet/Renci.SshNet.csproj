@@ -131,11 +131,19 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="ConnectionInfo.cs" />
-    <Compile Include="HashInfo.cs" />
-    <Compile Include="Security\Cryptography\Hashes\SHA384Hash.cs" />
-    <Compile Include="Security\Cryptography\Hashes\SHA2HashBase.cs" />
-    <Compile Include="Security\Cryptography\Hashes\SHA512Hash.cs" />
+    <Compile Include="HashInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Security\Cryptography\Hashes\RIPEMD160Hash.cs" />
+    <Compile Include="Security\Cryptography\Hashes\SHA2HashBase.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Security\Cryptography\Hashes\SHA384Hash.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Security\Cryptography\Hashes\SHA512Hash.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="ShellStream.NET40.cs" />
     <Compile Include="ExpectAsyncResult.cs" />
     <Compile Include="Security\KeyExchangeDiffieHellmanGroupSha1.cs" />

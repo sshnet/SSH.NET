@@ -8,10 +8,9 @@ using System;
 // associated with an assembly.
 [assembly: AssemblyTitle("SshNet")]
 [assembly: AssemblyDescription("")]
-[assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Renci")]
 [assembly: AssemblyProduct("SSH.NET")]
-[assembly: AssemblyCopyright("Copyright © Renci 2011")]
+[assembly: AssemblyCopyright("Copyright © Renci 2013")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -33,7 +32,13 @@ using System;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("0.1")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: AssemblyVersion("2013.1.8")]
+[assembly: AssemblyFileVersion("2013.1.8")]
+[assembly: AssemblyInformationalVersion("2013.1.8")]
 [assembly: CLSCompliant(false)]
 [assembly: InternalsVisibleTo("Renci.SshNet.Tests")]
+#if DEBUG
+[assembly: AssemblyConfiguration("Debug")]
+#else
+[assembly: AssemblyConfiguration("Release")]
+#endif

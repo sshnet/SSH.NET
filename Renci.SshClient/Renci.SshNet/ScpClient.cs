@@ -142,7 +142,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="source">Stream to upload.</param>
         /// <param name="filename">Remote host file name.</param>
-        public void Upload(Stream source, string filename)
+        public void Upload(Stream source, string path)
         {
             using (var input = new PipeStream())
             using (var channel = this.Session.CreateChannel<ChannelSession>())
@@ -155,11 +155,28 @@ namespace Renci.SshNet
 
                 channel.Open();
 
+                var pathParts = path.Split('\\', '/');
+
                 //  Send channel command request
-                channel.SendExecRequest(string.Format("scp -t \"{0}\"", filename));
+                channel.SendExecRequest(string.Format("scp -rt \"{0}\"", pathParts[0]));
                 this.CheckReturnCode(input);
 
-                this.InternalFileUpload(channel, input, source, filename);
+                //  Prepare directory structure
+                for (int i = 0; i < pathParts.Length - 1; i++)
+                {
+                    this.InternalSetTimestamp(channel, input, DateTime.UtcNow, DateTime.UtcNow);
+                    this.SendData(channel, string.Format("D0755 0 {0}\n", pathParts[i]));
+                    this.CheckReturnCode(input);
+                }
+
+                this.InternalUpload(channel, input, source, pathParts.Last());
+
+                //  Finish directory structure
+                for (int i = 0; i < pathParts.Length - 1; i++)
+                {
+                    this.SendData(channel, "E\n");
+                    this.CheckReturnCode(input);
+                }
 
                 channel.Close();
             }
@@ -208,7 +225,7 @@ namespace Renci.SshNet
                     var length = long.Parse(match.Result("${length}"));
                     var fileName = match.Result("${filename}");
 
-                    this.InternalFileDownload(channel, input, destination, fileName, length);
+                    this.InternalDownload(channel, input, destination, fileName, length);
                 }
                 else
                 {
@@ -228,11 +245,11 @@ namespace Renci.SshNet
             this.CheckReturnCode(input);
         }
 
-        private void InternalFileUpload(ChannelSession channel, Stream input, Stream source, string filename)
+        private void InternalUpload(ChannelSession channel, Stream input, Stream source, string filename)
         {
             var length = source.Length;
 
-            this.SendData(channel, string.Format("C0644 {0} {1}\n", length, Path.GetFileName(filename)));
+            this.SendData(channel, string.Format("C0644 {0} {1}\n", length, filename));
 
             var buffer = new byte[this.BufferSize];
 
@@ -255,7 +272,7 @@ namespace Renci.SshNet
             this.CheckReturnCode(input);
         }
 
-        private void InternalFileDownload(ChannelSession channel, Stream input, Stream output, string filename, long length)
+        private void InternalDownload(ChannelSession channel, Stream input, Stream output, string filename, long length)
         {
             var buffer = new byte[Math.Min(length, this.BufferSize)];
             var needToRead = length;

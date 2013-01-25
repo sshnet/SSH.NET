@@ -706,7 +706,7 @@ namespace Renci.SshNet
             lock (this._socketLock)
             {
                 if (this._socket == null || !this._socket.Connected)
-                    return;
+                    throw new SshConnectionException("Client not connected.");
 
                 //  Calculate packet hash
                 var hashData = new byte[4 + packetData.Length];

@@ -384,6 +384,17 @@ namespace Renci.SshNet
             return new ShellStream(this.Session, terminalName, columns, rows, width, height, bufferSize, terminalModeValues);
         }
 
+        protected override void OnDisconnected()
+        {
+            base.OnDisconnected();
+
+            foreach (var forwardedPort in this._forwardedPorts.ToArray())
+            {
+                this.RemoveForwardedPort(forwardedPort);
+            }
+
+        }
+
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources
         /// </summary>

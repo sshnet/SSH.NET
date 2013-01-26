@@ -165,7 +165,11 @@ namespace Renci.SshNet.Sftp
             switch (EventWaitHandle.WaitAny(waitHandles, operationTimeout))
             {
                 case 0:
-                    throw this._exception;
+                    {
+                        var exception = this._exception;
+                        this._exception = null;
+                        throw exception;
+                    }
                 case 1:
                     throw new SshException("Channel was closed.");
                 case System.Threading.WaitHandle.WaitTimeout:

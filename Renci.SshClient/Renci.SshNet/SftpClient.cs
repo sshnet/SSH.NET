@@ -442,6 +442,53 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="path">The path.</param>
         /// <param name="output">The output.</param>
+        /// <returns>
+        /// An <see cref="IAsyncResult" /> that references the asynchronous operation.
+        /// </returns>
+        /// <exception cref="System.ArgumentException">path</exception>
+        /// <exception cref="System.ArgumentNullException">output</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="output" /> is <b>null</b>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="path" /> is <b>null</b> or contains whitespace characters.</exception>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="Renci.SshNet.Common.SftpPermissionDeniedException">Permission to perform the operation was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
+        /// <exception cref="T:Renci.SshNet.Common.SshException">A SSH error where <see cref="P:System.Exception.Message" /> is the message from the remote host.</exception>
+        /// <remarks>
+        /// Method calls made by this method to <paramref name="output" />, may under certain conditions result in exceptions thrown by the stream.
+        /// </remarks>
+        public IAsyncResult BeginDownloadFile(string path, Stream output)
+        {
+            return this.BeginDownloadFile(path, output, null, null, null);
+        }
+
+        /// <summary>
+        /// Begins an asynchronous file downloading into the stream.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <param name="output">The output.</param>
+        /// <param name="asyncCallback">The method to be called when the asynchronous write operation is completed.</param>
+        /// <returns>
+        /// An <see cref="IAsyncResult" /> that references the asynchronous operation.
+        /// </returns>
+        /// <exception cref="System.ArgumentException">path</exception>
+        /// <exception cref="System.ArgumentNullException">output</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="output" /> is <b>null</b>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="path" /> is <b>null</b> or contains whitespace characters.</exception>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="Renci.SshNet.Common.SftpPermissionDeniedException">Permission to perform the operation was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
+        /// <exception cref="T:Renci.SshNet.Common.SshException">A SSH error where <see cref="P:System.Exception.Message" /> is the message from the remote host.</exception>
+        /// <remarks>
+        /// Method calls made by this method to <paramref name="output" />, may under certain conditions result in exceptions thrown by the stream.
+        /// </remarks>
+        public IAsyncResult BeginDownloadFile(string path, Stream output, AsyncCallback asyncCallback)
+        {
+            return this.BeginDownloadFile(path, output, asyncCallback, null, null);
+        }
+
+        /// <summary>
+        /// Begins an asynchronous file downloading into the stream.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <param name="output">The output.</param>
         /// <param name="asyncCallback">The method to be called when the asynchronous write operation is completed.</param>
         /// <param name="state">A user-provided object that distinguishes this particular asynchronous write request from other requests.</param>
         /// <param name="downloadCallback">The download callback.</param>
@@ -553,6 +600,49 @@ namespace Renci.SshNet
                 flags |= Flags.CreateNew;
 
             this.InternalUploadFile(input, path, flags, null, uploadCallback);
+        }
+
+        /// <summary>
+        /// Begins an asynchronous uploading the steam into remote file.
+        /// </summary>
+        /// <param name="input">Data input stream.</param>
+        /// <param name="path">Remote file path.</param>
+        /// <returns>
+        /// An <see cref="IAsyncResult" /> that references the asynchronous operation.
+        /// </returns>
+        /// <exception cref="ArgumentNullException"><paramref name="input" /> is <b>null</b>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="path" /> is <b>null</b> or contains whitespace characters.</exception>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="Renci.SshNet.Common.SftpPermissionDeniedException">Permission to list the contents of the directory was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
+        /// <exception cref="T:Renci.SshNet.Common.SshException">A SSH error where <see cref="P:System.Exception.Message" /> is the message from the remote host.</exception>
+        /// <remarks>
+        /// Method calls made by this method to <paramref name="input" />, may under certain conditions result in exceptions thrown by the stream.
+        /// </remarks>
+        public IAsyncResult BeginUploadFile(Stream input, string path)
+        {
+            return this.BeginUploadFile(input, path, true, null, null, null);
+        }
+
+        /// <summary>
+        /// Begins an asynchronous uploading the steam into remote file.
+        /// </summary>
+        /// <param name="input">Data input stream.</param>
+        /// <param name="path">Remote file path.</param>
+        /// <param name="asyncCallback">The method to be called when the asynchronous write operation is completed.</param>
+        /// <returns>
+        /// An <see cref="IAsyncResult" /> that references the asynchronous operation.
+        /// </returns>
+        /// <exception cref="ArgumentNullException"><paramref name="input" /> is <b>null</b>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="path" /> is <b>null</b> or contains whitespace characters.</exception>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="Renci.SshNet.Common.SftpPermissionDeniedException">Permission to list the contents of the directory was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
+        /// <exception cref="T:Renci.SshNet.Common.SshException">A SSH error where <see cref="P:System.Exception.Message" /> is the message from the remote host.</exception>
+        /// <remarks>
+        /// Method calls made by this method to <paramref name="input" />, may under certain conditions result in exceptions thrown by the stream.
+        /// </remarks>
+        public IAsyncResult BeginUploadFile(Stream input, string path, AsyncCallback asyncCallback)
+        {
+            return this.BeginUploadFile(input, path, true, asyncCallback, null, null);
         }
 
         /// <summary>

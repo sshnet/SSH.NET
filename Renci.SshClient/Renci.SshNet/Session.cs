@@ -637,7 +637,11 @@ namespace Renci.SshNet
             switch (EventWaitHandle.WaitAny(waitHandles, this.ConnectionInfo.Timeout))
             {
                 case 0:
-                    throw this._exception;
+                    {
+                        var exception = this._exception;
+                        this._exception = null;
+                        throw exception;
+                    }
                 case System.Threading.WaitHandle.WaitTimeout:
                     this.SendDisconnect(DisconnectReason.ByApplication, "Operation timeout");
                     throw new SshOperationTimeoutException("Session operation has timed out");

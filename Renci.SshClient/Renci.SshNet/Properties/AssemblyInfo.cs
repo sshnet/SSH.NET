@@ -32,9 +32,9 @@ using System;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("2013.1.8")]
-[assembly: AssemblyFileVersion("2013.1.8")]
-[assembly: AssemblyInformationalVersion("2013.1.8")]
+[assembly: AssemblyVersion("2013.1.27")]
+[assembly: AssemblyFileVersion("2013.1.27")]
+[assembly: AssemblyInformationalVersion("2013.1.27")]
 [assembly: CLSCompliant(false)]
 [assembly: InternalsVisibleTo("Renci.SshNet.Tests")]
 #if DEBUG

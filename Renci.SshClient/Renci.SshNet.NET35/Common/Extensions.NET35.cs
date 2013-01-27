@@ -78,5 +78,15 @@ namespace Renci.SshNet
             value.Length = 0;
             value.Capacity = 16;
         }
+
+        internal static bool CanRead(this Socket socket)
+        {
+            return socket.Connected && socket.Poll(-1, SelectMode.SelectRead) && socket.Available > 0;
+        }
+
+        internal static bool CanWrite(this Socket socket)
+        {
+            return socket.Connected && socket.Poll(-1, SelectMode.SelectWrite);
+        }
     }
 }

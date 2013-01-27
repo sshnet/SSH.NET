@@ -22,7 +22,7 @@ namespace Renci.SshNet.Tests.Classes.Messages.Transport
             var output = m.GetBytes();
 
             //  Skip first 17 bytes since 16 bytes are randomly generated
-            Assert.IsTrue(input.SequenceEqual(output));
+            Assert.IsTrue(input.SequenceEqual(output.Skip(17)));
         }
     }
 }

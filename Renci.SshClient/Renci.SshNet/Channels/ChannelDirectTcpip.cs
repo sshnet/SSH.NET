@@ -77,7 +77,7 @@ namespace Renci.SshNet.Channels
             {
                 var buffer = new byte[this.PacketSize - 9];
 
-                while (this._socket != null && this._socket.Connected && this._socket.Poll(1, SelectMode.SelectRead) && this._socket.Available > 0)
+                while (this._socket != null && this._socket.CanRead())
                 {
                     try
                     {

@@ -66,5 +66,16 @@ namespace Renci.SshNet.Common
 
             algorithm.Clear();
         }
+
+        internal static bool CanRead(this Socket socket)
+        {
+            return socket.Connected;
+        }
+
+        internal static bool CanWrite(this Socket socket)
+        {
+            return socket.Connected;
+        }
+
     }
 }

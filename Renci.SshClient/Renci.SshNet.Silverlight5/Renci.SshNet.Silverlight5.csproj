@@ -40,6 +40,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
+    <DocumentationFile>Bin\Debug\Renci.SshNet.Silverlight.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -140,6 +141,9 @@
     </Compile>
     <Compile Include="..\Renci.SshNet\Common\Extensions.cs">
       <Link>Common\Extensions.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Silverlight\Common\Extensions.SilverlightShared.cs">
+      <Link>Common\Extensions.SilverlightShared.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Common\HostKeyEventArgs.cs">
       <Link>Common\HostKeyEventArgs.cs</Link>
@@ -804,7 +808,6 @@
     <Compile Include="..\Renci.SshNet\SubsystemSession.cs">
       <Link>SubsystemSession.cs</Link>
     </Compile>
-    <Compile Include="Common\Extensions.SilverlightShared.cs" />
     <Compile Include="ForwardedPortLocal.SilverlightShared.cs" />
     <Compile Include="ForwardedPortRemote.SilverlightShared.cs" />
     <Compile Include="KeyboardInteractiveAuthenticationMethod.SilverlightShared.cs" />
@@ -822,7 +825,7 @@
       <FlavorProperties GUID="{A1591282-1198-4647-A2B1-27E5FF5F6F3B}">
         <SilverlightProjectProperties />
       </FlavorProperties>
-      <UserProperties ProjectLinkReference="2f5f8c90-0bd1-424f-997c-7bc6280919d1" ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" />
+      <UserProperties ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" ProjectLinkReference="2f5f8c90-0bd1-424f-997c-7bc6280919d1" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

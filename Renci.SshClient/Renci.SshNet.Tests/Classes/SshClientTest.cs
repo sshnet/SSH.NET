@@ -41,12 +41,14 @@ namespace Renci.SshNet.Tests.Classes
             var host = Resources.HOST;
             var username = Resources.USERNAME;
             var password = Resources.PASSWORD;
+            var hostKeyValidated = false;
 
             #region Example SshClient Connect HostKeyReceived
             using (var client = new SshClient(host, username, password))
             {
                 client.HostKeyReceived += delegate(object sender, HostKeyEventArgs e)
                 {
+                    hostKeyValidated = true;
                     if (e.FingerPrint.SequenceEqual(new byte[] { 0x00, 0x01, 0x02, 0x03 }))
                     {
                         e.CanTrust = true;
@@ -61,7 +63,8 @@ namespace Renci.SshNet.Tests.Classes
                 client.Disconnect();
             }
             #endregion
-            Assert.Inconclusive();
+
+            Assert.IsTrue(hostKeyValidated);
         }
 
         [TestMethod]
@@ -94,6 +97,7 @@ namespace Renci.SshNet.Tests.Classes
             var host = Resources.HOST;
             var username = Resources.USERNAME;
             var password = Resources.PASSWORD;
+            var exceptionOccured = false;
 
             #region Example SshClient Connect ErrorOccurred
             using (var client = new SshClient(host, username, password))
@@ -101,6 +105,7 @@ namespace Renci.SshNet.Tests.Classes
                 client.ErrorOccurred += delegate(object sender, ExceptionEventArgs e)
                 {
                     Console.WriteLine("Error occured: " + e.Exception.ToString());
+                    exceptionOccured = true;
                 };
 
                 client.Connect();
@@ -108,7 +113,7 @@ namespace Renci.SshNet.Tests.Classes
                 client.Disconnect();
             }
             #endregion
-            Assert.Inconclusive();
+            Assert.IsTrue(exceptionOccured);
         }
 
         [TestMethod]

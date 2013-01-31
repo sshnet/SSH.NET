@@ -149,7 +149,7 @@ D8DHbFwAT2mUv1QxRXYJO1y4pENboEzT6LUqxJgE+ae/F/29g2RD9DhtwqKqWjhM
 -----END DSA PRIVATE KEY-----</value>
   </data>
   <data name="HOST" xml:space="preserve">
-    <value>oleg-centos.edc.renci.org</value>
+    <value>192.168.10.192</value>
   </data>
   <data name="INVALID_KEY" xml:space="preserve">
     <value>-----BEGIN DSA PRIVATE KEY-----

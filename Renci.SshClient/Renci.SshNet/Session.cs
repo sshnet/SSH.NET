@@ -1625,16 +1625,7 @@ namespace Renci.SshNet
             this.SocketWriteByte((byte)(this.ConnectionInfo.Port % 0xFF));
 
             //  Send IP
-            IPAddress ipAddress;
-#if SILVERLIGHT
-            if (!IPAddress.TryParse(this.ConnectionInfo.Host, out ipAddress))
-            {
-                throw new ProxyException("SOCKS4: Silverlight supports only IP addresses.");
-            }
-#else
-            if (!IPAddress.TryParse(this.ConnectionInfo.Host, out ipAddress))
-                ipAddress = Dns.GetHostAddresses(this.ConnectionInfo.Host).First();
-#endif
+            IPAddress ipAddress = this.ConnectionInfo.Host.GetIPAddress();
             this.SocketWrite(ipAddress.GetAddressBytes());
 
             //  Send username
@@ -1749,16 +1740,7 @@ namespace Renci.SshNet
             //  Send reserved, must be 0x00
             this.SocketWriteByte(0x00);
 
-            IPAddress ip;
-#if SILVERLIGHT
-            if (!IPAddress.TryParse(this.ConnectionInfo.Host, out ip))
-            {
-                throw new ProxyException("SOCKS4: Silverlight supports only IP addresses.");
-            }
-#else
-            if (!IPAddress.TryParse(this.ConnectionInfo.Host, out ip))
-                ip = Dns.GetHostAddresses(this.ConnectionInfo.Host).First();
-#endif
+            IPAddress ip = this.ConnectionInfo.Host.GetIPAddress();
 
             //  Send address type and address
             if (ip.AddressFamily == AddressFamily.InterNetwork)

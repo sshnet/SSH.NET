@@ -40,7 +40,7 @@ namespace Renci.SshNet.Channels
         /// </summary>
         /// <param name="connectedHost">The connected host.</param>
         /// <param name="connectedPort">The connected port.</param>
-        public void Bind(string connectedHost, uint connectedPort)
+        public void Bind(IPAddress connectedHost, uint connectedPort)
         {
             byte[] buffer = null;
 
@@ -109,7 +109,7 @@ namespace Renci.SshNet.Channels
             this.Close();
         }
 
-        partial void OpenSocket(string connectedHost, uint connectedPort);
+        partial void OpenSocket(IPAddress connectedHost, uint connectedPort);
 
         public override void Close()
         {

@@ -30,9 +30,7 @@ namespace Renci.SshNet
 
         partial void SocketConnect(string host, int port)
         {
-            IPAddress addr;
-            if (!IPAddress.TryParse(host, out addr))
-                addr = Dns.GetHostAddresses(host).First();
+            IPAddress addr = host.GetIPAddress();
 
             var ep = new IPEndPoint(addr, port);
             this._socket = new Socket(ep.AddressFamily, SocketType.Stream, ProtocolType.Tcp);

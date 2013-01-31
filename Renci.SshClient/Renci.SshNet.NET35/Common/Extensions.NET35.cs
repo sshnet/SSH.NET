@@ -15,20 +15,6 @@ namespace Renci.SshNet
     public static partial class Extensions
     {
         /// <summary>
-        /// Determines whether [is null or white space] [the specified value].
-        /// </summary>
-        /// <param name="value">The value.</param>
-        /// <returns>
-        ///   <c>true</c> if [is null or white space] [the specified value]; otherwise, <c>false</c>.
-        /// </returns>
-        internal static bool IsNullOrWhiteSpace(this string value)
-        {
-            if (string.IsNullOrEmpty(value)) return true;
-
-            return value.All(char.IsWhiteSpace);
-        }
-
-        /// <summary>
         /// Disposes the specified socket.
         /// </summary>
         /// <param name="socket">The socket.</param>
@@ -77,16 +63,6 @@ namespace Renci.SshNet
         {
             value.Length = 0;
             value.Capacity = 16;
-        }
-
-        internal static bool CanRead(this Socket socket)
-        {
-            return socket.Connected && socket.Poll(-1, SelectMode.SelectRead) && socket.Available > 0;
-        }
-
-        internal static bool CanWrite(this Socket socket)
-        {
-            return socket.Connected && socket.Poll(-1, SelectMode.SelectWrite);
         }
     }
 }

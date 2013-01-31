@@ -52,6 +52,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
+    <DocumentationFile>Bin\Release\Renci.SshNet.Silverlight.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp, Version=5.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
@@ -442,6 +443,12 @@
     <Compile Include="..\Renci.SshNet\Messages\Transport\KeyExchangeDhReplyMessage.cs">
       <Link>Messages\Transport\KeyExchangeDhReplyMessage.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\Messages\Transport\KeyExchangeEcdhInitMessage.cs">
+      <Link>Messages\Transport\KeyExchangeEcdhInitMessage.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Messages\Transport\KeyExchangeEcdhReplyMessage.cs">
+      <Link>Messages\Transport\KeyExchangeEcdhReplyMessage.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\Messages\Transport\KeyExchangeInitMessage.cs">
       <Link>Messages\Transport\KeyExchangeInitMessage.cs</Link>
     </Compile>
@@ -621,6 +628,9 @@
     </Compile>
     <Compile Include="..\Renci.SshNet\Security\KeyExchangeDiffieHellmanGroupSha1.cs">
       <Link>Security\KeyExchangeDiffieHellmanGroupSha1.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\KeyExchangeEllipticCurveDiffieHellman.cs">
+      <Link>Security\KeyExchangeEllipticCurveDiffieHellman.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Security\KeyHostAlgorithm.cs">
       <Link>Security\KeyHostAlgorithm.cs</Link>

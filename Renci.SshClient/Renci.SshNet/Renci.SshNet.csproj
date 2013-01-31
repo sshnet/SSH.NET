@@ -69,6 +69,7 @@
     <Compile Include="Common\ChannelEventArgs.cs" />
     <Compile Include="Common\ChannelOpenFailedEventArgs.cs" />
     <Compile Include="Common\ChannelRequestEventArgs.cs" />
+    <Compile Include="Common\Extensions.NET.cs" />
     <Compile Include="Common\ProxyException.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -78,9 +79,6 @@
     <Compile Include="Common\DerData.cs" />
     <Compile Include="Common\ExceptionEventArgs.cs" />
     <Compile Include="Common\Extensions.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Common\Extensions.NET40.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Common\NetConfServerException.cs" />
@@ -131,9 +129,12 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="ConnectionInfo.cs" />
+    <Compile Include="ForwardedPortRemote.NET.cs" />
     <Compile Include="HashInfo.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Messages\Transport\KeyExchangeEcdhInitMessage.cs" />
+    <Compile Include="Messages\Transport\KeyExchangeEcdhReplyMessage.cs" />
     <Compile Include="Security\Cryptography\Hashes\RIPEMD160Hash.cs" />
     <Compile Include="Security\Cryptography\Hashes\SHA2HashBase.cs">
       <SubType>Code</SubType>
@@ -144,6 +145,7 @@
     <Compile Include="Security\Cryptography\Hashes\SHA512Hash.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Security\KeyExchangeEllipticCurveDiffieHellman.cs" />
     <Compile Include="ShellStream.NET40.cs" />
     <Compile Include="ExpectAsyncResult.cs" />
     <Compile Include="Security\KeyExchangeDiffieHellmanGroupSha1.cs" />

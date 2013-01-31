@@ -29,6 +29,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Release\Renci.SshNet.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -116,6 +117,9 @@
     </Compile>
     <Compile Include="..\Renci.SshNet\Common\Extensions.cs">
       <Link>Common\Extensions.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Common\Extensions.NET.cs">
+      <Link>Common\Extensions.NET.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Common\HostKeyEventArgs.cs">
       <Link>Common\HostKeyEventArgs.cs</Link>
@@ -245,6 +249,9 @@
     </Compile>
     <Compile Include="..\Renci.SshNet\ForwardedPortRemote.cs">
       <Link>ForwardedPortRemote.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\ForwardedPortRemote.NET.cs">
+      <Link>ForwardedPortRemote.NET.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\HashInfo.cs">
       <Link>HashInfo.cs</Link>
@@ -450,6 +457,12 @@
     <Compile Include="..\Renci.SshNet\Messages\Transport\KeyExchangeDhReplyMessage.cs">
       <Link>Messages\Transport\KeyExchangeDhReplyMessage.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\Messages\Transport\KeyExchangeEcdhInitMessage.cs">
+      <Link>Messages\Transport\KeyExchangeEcdhInitMessage.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Messages\Transport\KeyExchangeEcdhReplyMessage.cs">
+      <Link>Messages\Transport\KeyExchangeEcdhReplyMessage.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\Messages\Transport\KeyExchangeInitMessage.cs">
       <Link>Messages\Transport\KeyExchangeInitMessage.cs</Link>
     </Compile>
@@ -638,6 +651,9 @@
     </Compile>
     <Compile Include="..\Renci.SshNet\Security\KeyExchangeDiffieHellmanGroupSha1.cs">
       <Link>Security\KeyExchangeDiffieHellmanGroupSha1.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\KeyExchangeEllipticCurveDiffieHellman.cs">
+      <Link>Security\KeyExchangeEllipticCurveDiffieHellman.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Security\KeyHostAlgorithm.cs">
       <Link>Security\KeyHostAlgorithm.cs</Link>

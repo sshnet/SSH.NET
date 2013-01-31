@@ -40,6 +40,7 @@
     <NoConfig>true</NoConfig>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>Bin\Release\Renci.SshNet.WindowsPhone.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System.Windows" />
@@ -428,6 +429,12 @@
     <Compile Include="..\Renci.SshNet\Messages\Transport\KeyExchangeDhReplyMessage.cs">
       <Link>Messages\Transport\KeyExchangeDhReplyMessage.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\Messages\Transport\KeyExchangeEcdhInitMessage.cs">
+      <Link>Messages\Transport\KeyExchangeEcdhInitMessage.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Messages\Transport\KeyExchangeEcdhReplyMessage.cs">
+      <Link>Messages\Transport\KeyExchangeEcdhReplyMessage.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\Messages\Transport\KeyExchangeInitMessage.cs">
       <Link>Messages\Transport\KeyExchangeInitMessage.cs</Link>
     </Compile>
@@ -610,6 +617,9 @@
     </Compile>
     <Compile Include="..\Renci.SshNet\Security\KeyExchangeDiffieHellmanGroupSha1.cs">
       <Link>Security\KeyExchangeDiffieHellmanGroupSha1.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\KeyExchangeEllipticCurveDiffieHellman.cs">
+      <Link>Security\KeyExchangeEllipticCurveDiffieHellman.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Security\KeyHostAlgorithm.cs">
       <Link>Security\KeyHostAlgorithm.cs</Link>
@@ -813,7 +823,7 @@
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\Silverlight for Phone\$(TargetFrameworkVersion)\Microsoft.Silverlight.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" ProjectLinkReference="2f5f8c90-0bd1-424f-997c-7bc6280919d1" />
+      <UserProperties ProjectLinkReference="2f5f8c90-0bd1-424f-997c-7bc6280919d1" ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

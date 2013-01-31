@@ -22,7 +22,7 @@ namespace Renci.SshNet.Tests.Classes
             using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
             {
                 client.Connect();
-                var port1 = new ForwardedPortRemote(null, 8080, null, 80);
+                var port1 = new ForwardedPortRemote((string)null, 8080, (string)null, 80);
                 client.AddForwardedPort(port1);
                 client.Disconnect();
             }

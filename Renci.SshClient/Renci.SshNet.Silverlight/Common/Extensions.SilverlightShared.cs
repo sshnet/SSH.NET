@@ -6,6 +6,7 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Security.Cryptography;
 using System.Diagnostics;
+using System.Net;
 
 namespace Renci.SshNet.Common
 {
@@ -77,5 +78,14 @@ namespace Renci.SshNet.Common
             return socket.Connected;
         }
 
+        internal static IPAddress GetIPAddress(this string host)
+        {
+            IPAddress ipAddress;
+            if (!IPAddress.TryParse(host, out ipAddress))
+            {
+                throw new ProxyException("Silverlight supports only IP addresses.");
+            }
+            return ipAddress;
+        }
     }
 }

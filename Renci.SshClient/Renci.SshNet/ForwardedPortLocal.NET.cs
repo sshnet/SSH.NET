@@ -21,10 +21,7 @@ namespace Renci.SshNet
             if (this.IsStarted)
                 return;
 
-            IPAddress addr;
-            if (!IPAddress.TryParse(this.BoundHost, out addr))
-                addr = Dns.GetHostAddresses(this.BoundHost).First();
-
+            IPAddress addr = this.BoundHost.GetIPAddress();
             var ep = new IPEndPoint(addr, (int)this.BoundPort); 
 
             this._listener = new TcpListener(ep);

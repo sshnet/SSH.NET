@@ -17,6 +17,7 @@ namespace Renci.SshNet
     /// </summary>
     public partial class ScpClient
     {
+        private Regex _rootPath = new Regex(@"^(/|[A-Z][:])", RegexOptions.Compiled | RegexOptions.IgnoreCase);
         /// <summary>
         /// Uploads the specified file or directory to the remote host.
         /// </summary>
@@ -42,38 +43,55 @@ namespace Renci.SshNet
 
                 channel.Open();
 
+                var isRootPath = _rootPath.Match(path);
+
                 var pathParts = path.Split('\\', '/');
+                var targetPath = path;
 
-                //  Send channel command request
-                channel.SendExecRequest(string.Format("scp -rt \"{0}\"", pathParts[0]));
-                this.CheckReturnCode(input);
-
-                //  Prepare directory structure
-                for (int i = 0; i < pathParts.Length - 1; i++)
+                if (isRootPath.Success)
                 {
-                    this.InternalSetTimestamp(channel, input, fileSystemInfo.LastWriteTimeUtc, fileSystemInfo.LastAccessTimeUtc);
-                    this.SendData(channel, string.Format("D0755 0 {0}\n", pathParts[i]));
+                    //  Send channel command request
+                    channel.SendExecRequest(string.Format("scp -rt \"{0}\"", path));
                     this.CheckReturnCode(input);
+                }
+                else
+                {
+                    targetPath = pathParts.Last();
+
+                    //  Send channel command request
+                    channel.SendExecRequest(string.Format("scp -rt \"{0}\"", pathParts[0]));
+                    this.CheckReturnCode(input);
+
+                    //  Prepare directory structure
+                    for (int i = 0; i < pathParts.Length - 1; i++)
+                    {
+                        this.InternalSetTimestamp(channel, input, fileSystemInfo.LastWriteTimeUtc, fileSystemInfo.LastAccessTimeUtc);
+                        this.SendData(channel, string.Format("D0755 0 {0}\n", pathParts[i]));
+                        this.CheckReturnCode(input);
+                    }
                 }
 
                 if (fileSystemInfo is FileInfo)
                 {
-                    this.InternalUpload(channel, input, fileSystemInfo as FileInfo, pathParts.Last());
+                    this.InternalUpload(channel, input, fileSystemInfo as FileInfo, targetPath);
                 }
                 else if (fileSystemInfo is DirectoryInfo)
                 {
-                    this.InternalUpload(channel, input, fileSystemInfo as DirectoryInfo, pathParts.Last());
+                    this.InternalUpload(channel, input, fileSystemInfo as DirectoryInfo, targetPath);
                 }
                 else
                 {
                     throw new NotSupportedException(string.Format("Type '{0}' is not supported.", fileSystemInfo.GetType().FullName));
                 }
 
-                //  Finish directory structure
-                for (int i = 0; i < pathParts.Length - 1; i++)
+                if (!isRootPath.Success)
                 {
-                    this.SendData(channel, "E\n");
-                    this.CheckReturnCode(input);
+                    //  Finish directory structure
+                    for (int i = 0; i < pathParts.Length - 1; i++)
+                    {
+                        this.SendData(channel, "E\n");
+                        this.CheckReturnCode(input);
+                    }
                 }
 
                 channel.Close();

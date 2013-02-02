@@ -264,6 +264,9 @@ namespace Renci.SshNet
             if (username.IsNullOrWhiteSpace())
                 throw new ArgumentException("username");
 
+            if (authenticationMethods == null || authenticationMethods.Length < 1)
+                throw new ArgumentException("authenticationMethods");
+
             //  Set default connection values
             this.Timeout = TimeSpan.FromSeconds(30);
             this.RetryAttempts = 10;

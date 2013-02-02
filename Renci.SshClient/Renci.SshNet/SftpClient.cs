@@ -397,23 +397,14 @@ namespace Renci.SshNet
             if (path.IsNullOrWhiteSpace())
                 throw new ArgumentException("path");
 
-            var fullPath = this._sftpSession.GetCanonicalPath(path);
+            var fullPath = this._sftpSession.GetFullRemotePath(path);
 
-            //  Try to open as a file
-            var handle = this._sftpSession.RequestOpen(fullPath, Flags.Read, true);
-
-            if (handle == null)
-            {
-                handle = this._sftpSession.RequestOpenDir(fullPath, true);
-            }
-
-            if (handle == null)
+            if (this._sftpSession.RequestRealPath(fullPath, true) == null)
             {
                 return false;
             }
             else
             {
-                this._sftpSession.RequestClose(handle);
                 return true;
             }
         }

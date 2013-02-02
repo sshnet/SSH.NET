@@ -1508,7 +1508,7 @@ namespace Renci.SshNet
                         Monitor.Wait(expectedResponsesLock);
                     }
                 }
-            } while (expectedResponses > 0);
+            } while (expectedResponses > 0 || bytesRead > 0);
 
             this._sftpSession.RequestClose(handle);
         }

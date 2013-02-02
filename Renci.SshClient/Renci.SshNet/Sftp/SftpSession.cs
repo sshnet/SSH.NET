@@ -93,19 +93,7 @@ namespace Renci.SshNet.Sftp
         /// <returns>Absolute path</returns>
         internal string GetCanonicalPath(string path)
         {
-            var fullPath = path;
-
-            if (!string.IsNullOrEmpty(path) && path[0] != '/' && this.WorkingDirectory != null)
-            {
-                if (this.WorkingDirectory[this.WorkingDirectory.Length - 1] == '/')
-                {
-                    fullPath = string.Format(CultureInfo.InvariantCulture, "{0}{1}", this.WorkingDirectory, path);
-                }
-                else
-                {
-                    fullPath = string.Format(CultureInfo.InvariantCulture, "{0}/{1}", this.WorkingDirectory, path);
-                }
-            }
+            var fullPath = GetFullRemotePath(path);
 
             var canonizedPath = string.Empty;
 
@@ -153,19 +141,22 @@ namespace Renci.SshNet.Sftp
             }
         }
 
-        internal bool FileExistsCommand(string path, Flags flags)
+        internal string GetFullRemotePath(string path)
         {
-            var handle = this.RequestOpen(path, flags, true);
-            if (handle == null)
-            {
-                return false;
-            }
-            else
-            {
-                this.RequestClose(handle);
+            var fullPath = path;
 
-                return true;
+            if (!string.IsNullOrEmpty(path) && path[0] != '/' && this.WorkingDirectory != null)
+            {
+                if (this.WorkingDirectory[this.WorkingDirectory.Length - 1] == '/')
+                {
+                    fullPath = string.Format(CultureInfo.InvariantCulture, "{0}{1}", this.WorkingDirectory, path);
+                }
+                else
+                {
+                    fullPath = string.Format(CultureInfo.InvariantCulture, "{0}/{1}", this.WorkingDirectory, path);
+                }
             }
+            return fullPath;
         }
 
         protected override void OnChannelOpen()

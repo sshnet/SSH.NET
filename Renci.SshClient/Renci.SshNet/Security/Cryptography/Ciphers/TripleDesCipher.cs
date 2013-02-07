@@ -8,14 +8,18 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
     /// <summary>
     /// Implements 3DES cipher algorithm.
     /// </summary>
-    public class TripleDesCipher : DesCipher
+    public sealed class TripleDesCipher : DesCipher
     {
         private int[] _encryptionKey1;
+
         private int[] _encryptionKey2;
+
         private int[] _encryptionKey3;
 
         private int[] _decryptionKey1;
+
         private int[] _decryptionKey2;
+
         private int[] _decryptionKey3;
 
         /// <summary>

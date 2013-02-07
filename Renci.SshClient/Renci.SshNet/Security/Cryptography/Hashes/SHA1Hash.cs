@@ -6,7 +6,7 @@ namespace Renci.SshNet.Security.Cryptography
 	/// <summary>
 	/// SHA1 algorithm implementation
 	/// </summary>
-	public class SHA1Hash : HashAlgorithm
+	public sealed class SHA1Hash : HashAlgorithm
 	{
 		private const int DIGEST_SIZE = 20;
 
@@ -159,17 +159,17 @@ namespace Renci.SshNet.Security.Cryptography
 				this.ProcessBlock();
 			}
 
-			_hashValue[14] = (uint)((ulong)bitLength >> 32);
-			_hashValue[15] = (uint)((ulong)bitLength);
+			this._hashValue[14] = (uint)((ulong)bitLength >> 32);
+            this._hashValue[15] = (uint)((ulong)bitLength);
 
 
 			this.ProcessBlock();
 
-			UInt32_To__BE(H1, output, 0);
-			UInt32_To__BE(H2, output, 0 + 4);
-			UInt32_To__BE(H3, output, 0 + 8);
-			UInt32_To__BE(H4, output, 0 + 12);
-			UInt32_To__BE(H5, output, 0 + 16);
+            UInt32ToBigEndian(H1, output, 0);
+            UInt32ToBigEndian(H2, output, 4);
+            UInt32ToBigEndian(H3, output, 8);
+            UInt32ToBigEndian(H4, output, 12);
+            UInt32ToBigEndian(H5, output, 16);
 
             this.Initialize();
 
@@ -186,9 +186,13 @@ namespace Renci.SshNet.Security.Cryptography
 
         private void InternalInitialize()
         {
+            var i = 0;
             this._byteCount = 0;
             this._bufferOffset = 0;
-            Array.Clear(this._buffer, 0, this._buffer.Length);
+            for (i = 0; i < 4; i++)
+            {
+                this._buffer[i] = 0;
+            }
 
             H1 = 0x67452301;
             H2 = 0xefcdab89;
@@ -197,7 +201,10 @@ namespace Renci.SshNet.Security.Cryptography
             H5 = 0xc3d2e1f0;
 
             this._offset = 0;
-            Array.Clear(_hashValue, 0, _hashValue.Length);
+            for (i = 0; i != this._hashValue.Length; i++)
+            {
+                this._hashValue[i] = 0;
+            }
         }
 
 		private void Update(byte input)
@@ -215,7 +222,7 @@ namespace Renci.SshNet.Security.Cryptography
 
 		private void ProcessWord(byte[] input, int inOff)
 		{
-			_hashValue[this._offset] = BE_To__UInt32(input, inOff);
+            this._hashValue[this._offset] = BigEndianToUInt32(input, inOff);
 
 			if (++this._offset == 16)
 			{
@@ -263,94 +270,272 @@ namespace Renci.SshNet.Security.Cryptography
 			//
 			int idx = 0;
 
-			for (int j = 0; j < 4; j++)
-			{
-				// E = rotateLeft(A, 5) + F(B, C, D) + E + X[idx++] + Y1
-				// B = rotateLeft(B, 30)
-				E += (A << 5 | (A >> 27)) + F(B, C, D) + _hashValue[idx++] + Y1;
-				B = B << 30 | (B >> 2);
+            // E = rotateLeft(A, 5) + F(B, C, D) + E + X[idx++] + Y1
+            // B = rotateLeft(B, 30)
+            E += (A << 5 | (A >> 27)) + F(B, C, D) + _hashValue[idx++] + Y1;
+            B = B << 30 | (B >> 2);
 
-				D += (E << 5 | (E >> 27)) + F(A, B, C) + _hashValue[idx++] + Y1;
-				A = A << 30 | (A >> 2);
+            D += (E << 5 | (E >> 27)) + F(A, B, C) + _hashValue[idx++] + Y1;
+            A = A << 30 | (A >> 2);
 
-				C += (D << 5 | (D >> 27)) + F(E, A, B) + _hashValue[idx++] + Y1;
-				E = E << 30 | (E >> 2);
+            C += (D << 5 | (D >> 27)) + F(E, A, B) + _hashValue[idx++] + Y1;
+            E = E << 30 | (E >> 2);
 
-				B += (C << 5 | (C >> 27)) + F(D, E, A) + _hashValue[idx++] + Y1;
-				D = D << 30 | (D >> 2);
+            B += (C << 5 | (C >> 27)) + F(D, E, A) + _hashValue[idx++] + Y1;
+            D = D << 30 | (D >> 2);
 
-				A += (B << 5 | (B >> 27)) + F(C, D, E) + _hashValue[idx++] + Y1;
-				C = C << 30 | (C >> 2);
-			}
+            A += (B << 5 | (B >> 27)) + F(C, D, E) + _hashValue[idx++] + Y1;
+            C = C << 30 | (C >> 2);
+            // E = rotateLeft(A, 5) + F(B, C, D) + E + X[idx++] + Y1
+            // B = rotateLeft(B, 30)
+            E += (A << 5 | (A >> 27)) + F(B, C, D) + _hashValue[idx++] + Y1;
+            B = B << 30 | (B >> 2);
 
+            D += (E << 5 | (E >> 27)) + F(A, B, C) + _hashValue[idx++] + Y1;
+            A = A << 30 | (A >> 2);
+
+            C += (D << 5 | (D >> 27)) + F(E, A, B) + _hashValue[idx++] + Y1;
+            E = E << 30 | (E >> 2);
+
+            B += (C << 5 | (C >> 27)) + F(D, E, A) + _hashValue[idx++] + Y1;
+            D = D << 30 | (D >> 2);
+
+            A += (B << 5 | (B >> 27)) + F(C, D, E) + _hashValue[idx++] + Y1;
+            C = C << 30 | (C >> 2);
+            // E = rotateLeft(A, 5) + F(B, C, D) + E + X[idx++] + Y1
+            // B = rotateLeft(B, 30)
+            E += (A << 5 | (A >> 27)) + F(B, C, D) + _hashValue[idx++] + Y1;
+            B = B << 30 | (B >> 2);
+
+            D += (E << 5 | (E >> 27)) + F(A, B, C) + _hashValue[idx++] + Y1;
+            A = A << 30 | (A >> 2);
+
+            C += (D << 5 | (D >> 27)) + F(E, A, B) + _hashValue[idx++] + Y1;
+            E = E << 30 | (E >> 2);
+
+            B += (C << 5 | (C >> 27)) + F(D, E, A) + _hashValue[idx++] + Y1;
+            D = D << 30 | (D >> 2);
+
+            A += (B << 5 | (B >> 27)) + F(C, D, E) + _hashValue[idx++] + Y1;
+            C = C << 30 | (C >> 2);
+            // E = rotateLeft(A, 5) + F(B, C, D) + E + X[idx++] + Y1
+            // B = rotateLeft(B, 30)
+            E += (A << 5 | (A >> 27)) + F(B, C, D) + _hashValue[idx++] + Y1;
+            B = B << 30 | (B >> 2);
+
+            D += (E << 5 | (E >> 27)) + F(A, B, C) + _hashValue[idx++] + Y1;
+            A = A << 30 | (A >> 2);
+
+            C += (D << 5 | (D >> 27)) + F(E, A, B) + _hashValue[idx++] + Y1;
+            E = E << 30 | (E >> 2);
+
+            B += (C << 5 | (C >> 27)) + F(D, E, A) + _hashValue[idx++] + Y1;
+            D = D << 30 | (D >> 2);
+
+            A += (B << 5 | (B >> 27)) + F(C, D, E) + _hashValue[idx++] + Y1;
+            C = C << 30 | (C >> 2);
 			//
 			// round 2
 			//
-			for (int j = 0; j < 4; j++)
-			{
-				// E = rotateLeft(A, 5) + H(B, C, D) + E + X[idx++] + Y2
-				// B = rotateLeft(B, 30)
-				E += (A << 5 | (A >> 27)) + H(B, C, D) + _hashValue[idx++] + Y2;
-				B = B << 30 | (B >> 2);
+            // E = rotateLeft(A, 5) + H(B, C, D) + E + X[idx++] + Y2
+            // B = rotateLeft(B, 30)
+            E += (A << 5 | (A >> 27)) + H(B, C, D) + _hashValue[idx++] + Y2;
+            B = B << 30 | (B >> 2);
 
-				D += (E << 5 | (E >> 27)) + H(A, B, C) + _hashValue[idx++] + Y2;
-				A = A << 30 | (A >> 2);
+            D += (E << 5 | (E >> 27)) + H(A, B, C) + _hashValue[idx++] + Y2;
+            A = A << 30 | (A >> 2);
 
-				C += (D << 5 | (D >> 27)) + H(E, A, B) + _hashValue[idx++] + Y2;
-				E = E << 30 | (E >> 2);
+            C += (D << 5 | (D >> 27)) + H(E, A, B) + _hashValue[idx++] + Y2;
+            E = E << 30 | (E >> 2);
 
-				B += (C << 5 | (C >> 27)) + H(D, E, A) + _hashValue[idx++] + Y2;
-				D = D << 30 | (D >> 2);
+            B += (C << 5 | (C >> 27)) + H(D, E, A) + _hashValue[idx++] + Y2;
+            D = D << 30 | (D >> 2);
 
-				A += (B << 5 | (B >> 27)) + H(C, D, E) + _hashValue[idx++] + Y2;
-				C = C << 30 | (C >> 2);
-			}
+            A += (B << 5 | (B >> 27)) + H(C, D, E) + _hashValue[idx++] + Y2;
+            C = C << 30 | (C >> 2);
+            // E = rotateLeft(A, 5) + H(B, C, D) + E + X[idx++] + Y2
+            // B = rotateLeft(B, 30)
+            E += (A << 5 | (A >> 27)) + H(B, C, D) + _hashValue[idx++] + Y2;
+            B = B << 30 | (B >> 2);
+
+            D += (E << 5 | (E >> 27)) + H(A, B, C) + _hashValue[idx++] + Y2;
+            A = A << 30 | (A >> 2);
+
+            C += (D << 5 | (D >> 27)) + H(E, A, B) + _hashValue[idx++] + Y2;
+            E = E << 30 | (E >> 2);
+
+            B += (C << 5 | (C >> 27)) + H(D, E, A) + _hashValue[idx++] + Y2;
+            D = D << 30 | (D >> 2);
+
+            A += (B << 5 | (B >> 27)) + H(C, D, E) + _hashValue[idx++] + Y2;
+            C = C << 30 | (C >> 2);
+            // E = rotateLeft(A, 5) + H(B, C, D) + E + X[idx++] + Y2
+            // B = rotateLeft(B, 30)
+            E += (A << 5 | (A >> 27)) + H(B, C, D) + _hashValue[idx++] + Y2;
+            B = B << 30 | (B >> 2);
+
+            D += (E << 5 | (E >> 27)) + H(A, B, C) + _hashValue[idx++] + Y2;
+            A = A << 30 | (A >> 2);
+
+            C += (D << 5 | (D >> 27)) + H(E, A, B) + _hashValue[idx++] + Y2;
+            E = E << 30 | (E >> 2);
+
+            B += (C << 5 | (C >> 27)) + H(D, E, A) + _hashValue[idx++] + Y2;
+            D = D << 30 | (D >> 2);
+
+            A += (B << 5 | (B >> 27)) + H(C, D, E) + _hashValue[idx++] + Y2;
+            C = C << 30 | (C >> 2);
+            // E = rotateLeft(A, 5) + H(B, C, D) + E + X[idx++] + Y2
+            // B = rotateLeft(B, 30)
+            E += (A << 5 | (A >> 27)) + H(B, C, D) + _hashValue[idx++] + Y2;
+            B = B << 30 | (B >> 2);
+
+            D += (E << 5 | (E >> 27)) + H(A, B, C) + _hashValue[idx++] + Y2;
+            A = A << 30 | (A >> 2);
+
+            C += (D << 5 | (D >> 27)) + H(E, A, B) + _hashValue[idx++] + Y2;
+            E = E << 30 | (E >> 2);
+
+            B += (C << 5 | (C >> 27)) + H(D, E, A) + _hashValue[idx++] + Y2;
+            D = D << 30 | (D >> 2);
+
+            A += (B << 5 | (B >> 27)) + H(C, D, E) + _hashValue[idx++] + Y2;
+            C = C << 30 | (C >> 2);
 
 			//
 			// round 3
-			//
-			for (int j = 0; j < 4; j++)
-			{
-				// E = rotateLeft(A, 5) + G(B, C, D) + E + X[idx++] + Y3
-				// B = rotateLeft(B, 30)
-				E += (A << 5 | (A >> 27)) + G(B, C, D) + _hashValue[idx++] + Y3;
-				B = B << 30 | (B >> 2);
+            // E = rotateLeft(A, 5) + G(B, C, D) + E + X[idx++] + Y3
+            // B = rotateLeft(B, 30)
+            E += (A << 5 | (A >> 27)) + G(B, C, D) + _hashValue[idx++] + Y3;
+            B = B << 30 | (B >> 2);
 
-				D += (E << 5 | (E >> 27)) + G(A, B, C) + _hashValue[idx++] + Y3;
-				A = A << 30 | (A >> 2);
+            D += (E << 5 | (E >> 27)) + G(A, B, C) + _hashValue[idx++] + Y3;
+            A = A << 30 | (A >> 2);
 
-				C += (D << 5 | (D >> 27)) + G(E, A, B) + _hashValue[idx++] + Y3;
-				E = E << 30 | (E >> 2);
+            C += (D << 5 | (D >> 27)) + G(E, A, B) + _hashValue[idx++] + Y3;
+            E = E << 30 | (E >> 2);
 
-				B += (C << 5 | (C >> 27)) + G(D, E, A) + _hashValue[idx++] + Y3;
-				D = D << 30 | (D >> 2);
+            B += (C << 5 | (C >> 27)) + G(D, E, A) + _hashValue[idx++] + Y3;
+            D = D << 30 | (D >> 2);
 
-				A += (B << 5 | (B >> 27)) + G(C, D, E) + _hashValue[idx++] + Y3;
-				C = C << 30 | (C >> 2);
-			}
+            A += (B << 5 | (B >> 27)) + G(C, D, E) + _hashValue[idx++] + Y3;
+            C = C << 30 | (C >> 2);
+            // E = rotateLeft(A, 5) + G(B, C, D) + E + X[idx++] + Y3
+            // B = rotateLeft(B, 30)
+            E += (A << 5 | (A >> 27)) + G(B, C, D) + _hashValue[idx++] + Y3;
+            B = B << 30 | (B >> 2);
 
-			//
+            D += (E << 5 | (E >> 27)) + G(A, B, C) + _hashValue[idx++] + Y3;
+            A = A << 30 | (A >> 2);
+
+            C += (D << 5 | (D >> 27)) + G(E, A, B) + _hashValue[idx++] + Y3;
+            E = E << 30 | (E >> 2);
+
+            B += (C << 5 | (C >> 27)) + G(D, E, A) + _hashValue[idx++] + Y3;
+            D = D << 30 | (D >> 2);
+
+            A += (B << 5 | (B >> 27)) + G(C, D, E) + _hashValue[idx++] + Y3;
+            C = C << 30 | (C >> 2);
+            // E = rotateLeft(A, 5) + G(B, C, D) + E + X[idx++] + Y3
+            // B = rotateLeft(B, 30)
+            E += (A << 5 | (A >> 27)) + G(B, C, D) + _hashValue[idx++] + Y3;
+            B = B << 30 | (B >> 2);
+
+            D += (E << 5 | (E >> 27)) + G(A, B, C) + _hashValue[idx++] + Y3;
+            A = A << 30 | (A >> 2);
+
+            C += (D << 5 | (D >> 27)) + G(E, A, B) + _hashValue[idx++] + Y3;
+            E = E << 30 | (E >> 2);
+
+            B += (C << 5 | (C >> 27)) + G(D, E, A) + _hashValue[idx++] + Y3;
+            D = D << 30 | (D >> 2);
+
+            A += (B << 5 | (B >> 27)) + G(C, D, E) + _hashValue[idx++] + Y3;
+            C = C << 30 | (C >> 2);
+            // E = rotateLeft(A, 5) + G(B, C, D) + E + X[idx++] + Y3
+            // B = rotateLeft(B, 30)
+            E += (A << 5 | (A >> 27)) + G(B, C, D) + _hashValue[idx++] + Y3;
+            B = B << 30 | (B >> 2);
+
+            D += (E << 5 | (E >> 27)) + G(A, B, C) + _hashValue[idx++] + Y3;
+            A = A << 30 | (A >> 2);
+
+            C += (D << 5 | (D >> 27)) + G(E, A, B) + _hashValue[idx++] + Y3;
+            E = E << 30 | (E >> 2);
+
+            B += (C << 5 | (C >> 27)) + G(D, E, A) + _hashValue[idx++] + Y3;
+            D = D << 30 | (D >> 2);
+
+            A += (B << 5 | (B >> 27)) + G(C, D, E) + _hashValue[idx++] + Y3;
+            C = C << 30 | (C >> 2);
+
+            //
 			// round 4
 			//
-			for (int j = 0; j < 4; j++)
-			{
-				// E = rotateLeft(A, 5) + H(B, C, D) + E + X[idx++] + Y4
-				// B = rotateLeft(B, 30)
-				E += (A << 5 | (A >> 27)) + H(B, C, D) + _hashValue[idx++] + Y4;
-				B = B << 30 | (B >> 2);
+            // E = rotateLeft(A, 5) + H(B, C, D) + E + X[idx++] + Y4
+            // B = rotateLeft(B, 30)
+            E += (A << 5 | (A >> 27)) + H(B, C, D) + _hashValue[idx++] + Y4;
+            B = B << 30 | (B >> 2);
 
-				D += (E << 5 | (E >> 27)) + H(A, B, C) + _hashValue[idx++] + Y4;
-				A = A << 30 | (A >> 2);
+            D += (E << 5 | (E >> 27)) + H(A, B, C) + _hashValue[idx++] + Y4;
+            A = A << 30 | (A >> 2);
 
-				C += (D << 5 | (D >> 27)) + H(E, A, B) + _hashValue[idx++] + Y4;
-				E = E << 30 | (E >> 2);
+            C += (D << 5 | (D >> 27)) + H(E, A, B) + _hashValue[idx++] + Y4;
+            E = E << 30 | (E >> 2);
 
-				B += (C << 5 | (C >> 27)) + H(D, E, A) + _hashValue[idx++] + Y4;
-				D = D << 30 | (D >> 2);
+            B += (C << 5 | (C >> 27)) + H(D, E, A) + _hashValue[idx++] + Y4;
+            D = D << 30 | (D >> 2);
 
-				A += (B << 5 | (B >> 27)) + H(C, D, E) + _hashValue[idx++] + Y4;
-				C = C << 30 | (C >> 2);
-			}
+            A += (B << 5 | (B >> 27)) + H(C, D, E) + _hashValue[idx++] + Y4;
+            C = C << 30 | (C >> 2);
+            // E = rotateLeft(A, 5) + H(B, C, D) + E + X[idx++] + Y4
+            // B = rotateLeft(B, 30)
+            E += (A << 5 | (A >> 27)) + H(B, C, D) + _hashValue[idx++] + Y4;
+            B = B << 30 | (B >> 2);
+
+            D += (E << 5 | (E >> 27)) + H(A, B, C) + _hashValue[idx++] + Y4;
+            A = A << 30 | (A >> 2);
+
+            C += (D << 5 | (D >> 27)) + H(E, A, B) + _hashValue[idx++] + Y4;
+            E = E << 30 | (E >> 2);
+
+            B += (C << 5 | (C >> 27)) + H(D, E, A) + _hashValue[idx++] + Y4;
+            D = D << 30 | (D >> 2);
+
+            A += (B << 5 | (B >> 27)) + H(C, D, E) + _hashValue[idx++] + Y4;
+            C = C << 30 | (C >> 2);
+            // E = rotateLeft(A, 5) + H(B, C, D) + E + X[idx++] + Y4
+            // B = rotateLeft(B, 30)
+            E += (A << 5 | (A >> 27)) + H(B, C, D) + _hashValue[idx++] + Y4;
+            B = B << 30 | (B >> 2);
+
+            D += (E << 5 | (E >> 27)) + H(A, B, C) + _hashValue[idx++] + Y4;
+            A = A << 30 | (A >> 2);
+
+            C += (D << 5 | (D >> 27)) + H(E, A, B) + _hashValue[idx++] + Y4;
+            E = E << 30 | (E >> 2);
+
+            B += (C << 5 | (C >> 27)) + H(D, E, A) + _hashValue[idx++] + Y4;
+            D = D << 30 | (D >> 2);
+
+            A += (B << 5 | (B >> 27)) + H(C, D, E) + _hashValue[idx++] + Y4;
+            C = C << 30 | (C >> 2);
+            // E = rotateLeft(A, 5) + H(B, C, D) + E + X[idx++] + Y4
+            // B = rotateLeft(B, 30)
+            E += (A << 5 | (A >> 27)) + H(B, C, D) + _hashValue[idx++] + Y4;
+            B = B << 30 | (B >> 2);
+
+            D += (E << 5 | (E >> 27)) + H(A, B, C) + _hashValue[idx++] + Y4;
+            A = A << 30 | (A >> 2);
+
+            C += (D << 5 | (D >> 27)) + H(E, A, B) + _hashValue[idx++] + Y4;
+            E = E << 30 | (E >> 2);
+
+            B += (C << 5 | (C >> 27)) + H(D, E, A) + _hashValue[idx++] + Y4;
+            D = D << 30 | (D >> 2);
+
+            A += (B << 5 | (B >> 27)) + H(C, D, E) + _hashValue[idx++] + Y4;
+            C = C << 30 | (C >> 2);
 
 			H1 += A;
 			H2 += B;
@@ -362,10 +547,13 @@ namespace Renci.SshNet.Security.Cryptography
 			// reset start of the buffer.
 			//
 			this._offset = 0;
-			Array.Clear(_hashValue, 0, 16);
+            for (int i = 0; i < this._hashValue.Length; i++)
+            {
+                this._hashValue[i] = 0;
+            }
 		}
 
-		private static uint BE_To__UInt32(byte[] bs, int off)
+        private static uint BigEndianToUInt32(byte[] bs, int off)
 		{
 			uint n = (uint)bs[off] << 24;
 			n |= (uint)bs[++off] << 16;
@@ -374,8 +562,7 @@ namespace Renci.SshNet.Security.Cryptography
 			return n;
 		}
 
-		private static void UInt32_To__BE
-			(uint n, byte[] bs, int off)
+        private static void UInt32ToBigEndian(uint n, byte[] bs, int off)
 		{
 			bs[off] = (byte)(n >> 24);
 			bs[++off] = (byte)(n >> 16);

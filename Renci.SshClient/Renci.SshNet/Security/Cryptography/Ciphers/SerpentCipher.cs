@@ -8,9 +8,10 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 	/// <summary>
 	/// Implements Serpent cipher algorithm.
 	/// </summary>
-	public class SerpentCipher : BlockCipher
+	public sealed class SerpentCipher : BlockCipher
 	{
 		private static readonly int ROUNDS = 32;
+
 		private static readonly int PHI = unchecked((int)0x9E3779B9);       // (Sqrt(5) - 1) * 2**31
 
 		private int[] _workingKey;
@@ -321,23 +322,23 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 			return w;
 		}
 
-		private int RotateLeft(int x, int bits)
+		private static int RotateLeft(int x, int bits)
 		{
 			return ((x << bits) | (int)((uint)x >> (32 - bits)));
 		}
 
-		private int RotateRight(int x, int bits)
+        private static int RotateRight(int x, int bits)
 		{
 			return ((int)((uint)x >> bits) | (x << (32 - bits)));
 		}
 
-		private int BytesToWord(byte[] src, int srcOff)
+        private static int BytesToWord(byte[] src, int srcOff)
 		{
 			return (((src[srcOff] & 0xff) << 24) | ((src[srcOff + 1] & 0xff) << 16) |
 			((src[srcOff + 2] & 0xff) << 8) | ((src[srcOff + 3] & 0xff)));
 		}
 
-		private void WordToBytes(int word, byte[] dst, int dstOff)
+        private static void WordToBytes(int word, byte[] dst, int dstOff)
 		{
 			dst[dstOff + 3] = (byte)(word);
 			dst[dstOff + 2] = (byte)((uint)word >> 8);
@@ -369,10 +370,14 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 		/* We hereby give permission for information in this file to be */
 		/* used freely subject only to acknowledgement of its origin.    */
 
-		/**
-		* S0 - { 3, 8,15, 1,10, 6, 5,11,14,13, 4, 2, 7, 0, 9,12 } - 15 terms.
-		*/
-		private void Sb0(int a, int b, int c, int d)
+        /// <summary>
+        /// S0 - { 3, 8,15, 1,10, 6, 5,11,14,13, 4, 2, 7, 0, 9,12 } - 15 terms.
+        /// </summary>
+        /// <param name="a">A.</param>
+        /// <param name="b">The b.</param>
+        /// <param name="c">The c.</param>
+        /// <param name="d">The d.</param>
+        private void Sb0(int a, int b, int c, int d)
 		{
 			int t1 = a ^ d;
 			int t3 = c ^ t1;
@@ -385,10 +390,14 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 			this._x0 = t12 ^ (~t7);
 		}
 
-		/**
-		* InvSO - {13, 3,11, 0,10, 6, 5,12, 1,14, 4, 7,15, 9, 8, 2 } - 15 terms.
-		*/
-		private void Ib0(int a, int b, int c, int d)
+        /// <summary>
+        /// InvSO - {13, 3,11, 0,10, 6, 5,12, 1,14, 4, 7,15, 9, 8, 2 } - 15 terms.
+        /// </summary>
+        /// <param name="a">A.</param>
+        /// <param name="b">The b.</param>
+        /// <param name="c">The c.</param>
+        /// <param name="d">The d.</param>
+        private void Ib0(int a, int b, int c, int d)
 		{
 			int t1 = ~a;
 			int t2 = a ^ b;
@@ -401,10 +410,14 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 			this._x0 = this._x3 ^ (t5 ^ t8);
 		}
 
-		/**
-		* S1 - {15,12, 2, 7, 9, 0, 5,10, 1,11,14, 8, 6,13, 3, 4 } - 14 terms.
-		*/
-		private void Sb1(int a, int b, int c, int d)
+        /// <summary>
+        /// S1 - {15,12, 2, 7, 9, 0, 5,10, 1,11,14, 8, 6,13, 3, 4 } - 14 terms.
+        /// </summary>
+        /// <param name="a">A.</param>
+        /// <param name="b">The b.</param>
+        /// <param name="c">The c.</param>
+        /// <param name="d">The d.</param>
+        private void Sb1(int a, int b, int c, int d)
 		{
 			int t2 = b ^ (~a);
 			int t5 = c ^ (a | t2);
@@ -417,10 +430,14 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 			this._x0 = t5 ^ (t8 & t11);
 		}
 
-		/**
-		* InvS1 - { 5, 8, 2,14,15, 6,12, 3,11, 4, 7, 9, 1,13,10, 0 } - 14 steps.
-		*/
-		private void Ib1(int a, int b, int c, int d)
+        /// <summary>
+        /// InvS1 - { 5, 8, 2,14,15, 6,12, 3,11, 4, 7, 9, 1,13,10, 0 } - 14 steps.
+        /// </summary>
+        /// <param name="a">A.</param>
+        /// <param name="b">The b.</param>
+        /// <param name="c">The c.</param>
+        /// <param name="d">The d.</param>
+        private void Ib1(int a, int b, int c, int d)
 		{
 			int t1 = b ^ d;
 			int t3 = a ^ (b & t1);
@@ -435,10 +452,14 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 			this._x2 = t4 ^ (t10 | t11);
 		}
 
-		/**
-		* S2 - { 8, 6, 7, 9, 3,12,10,15,13, 1,14, 4, 0,11, 5, 2 } - 16 terms.
-		*/
-		private void Sb2(int a, int b, int c, int d)
+        /// <summary>
+        /// S2 - { 8, 6, 7, 9, 3,12,10,15,13, 1,14, 4, 0,11, 5, 2 } - 16 terms.
+        /// </summary>
+        /// <param name="a">A.</param>
+        /// <param name="b">The b.</param>
+        /// <param name="c">The c.</param>
+        /// <param name="d">The d.</param>
+        private void Sb2(int a, int b, int c, int d)
 		{
 			int t1 = ~a;
 			int t2 = b ^ d;
@@ -452,10 +473,14 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 			this._x1 = (t2 ^ this._x3) ^ (this._x2 ^ (d | t1));
 		}
 
-		/**
-		* InvS2 - {12, 9,15, 4,11,14, 1, 2, 0, 3, 6,13, 5, 8,10, 7 } - 16 steps.
-		*/
-		private void Ib2(int a, int b, int c, int d)
+        /// <summary>
+        /// InvS2 - {12, 9,15, 4,11,14, 1, 2, 0, 3, 6,13, 5, 8,10, 7 } - 16 steps.
+        /// </summary>
+        /// <param name="a">A.</param>
+        /// <param name="b">The b.</param>
+        /// <param name="c">The c.</param>
+        /// <param name="d">The d.</param>
+        private void Ib2(int a, int b, int c, int d)
 		{
 			int t1 = b ^ d;
 			int t2 = ~t1;
@@ -473,10 +498,14 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 			this._x2 = (d & t11) ^ (t3 ^ t12);
 		}
 
-		/**
-		* S3 - { 0,15,11, 8,12, 9, 6, 3,13, 1, 2, 4,10, 7, 5,14 } - 16 terms.
-		*/
-		private void Sb3(int a, int b, int c, int d)
+        /// <summary>
+        /// S3 - { 0,15,11, 8,12, 9, 6, 3,13, 1, 2, 4,10, 7, 5,14 } - 16 terms.
+        /// </summary>
+        /// <param name="a">A.</param>
+        /// <param name="b">The b.</param>
+        /// <param name="c">The c.</param>
+        /// <param name="d">The d.</param>
+        private void Sb3(int a, int b, int c, int d)
 		{
 			int t1 = a ^ b;
 			int t2 = a & c;
@@ -494,10 +523,14 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 			this._x3 = (b | d) ^ (t4 ^ t12);
 		}
 
-		/**
-		* InvS3 - { 0, 9,10, 7,11,14, 6,13, 3, 5,12, 2, 4, 8,15, 1 } - 15 terms
-		*/
-		private void Ib3(int a, int b, int c, int d)
+        /// <summary>
+        /// InvS3 - { 0, 9,10, 7,11,14, 6,13, 3, 5,12, 2, 4, 8,15, 1 } - 15 terms
+        /// </summary>
+        /// <param name="a">A.</param>
+        /// <param name="b">The b.</param>
+        /// <param name="c">The c.</param>
+        /// <param name="d">The d.</param>
+        private void Ib3(int a, int b, int c, int d)
 		{
 			int t1 = a | b;
 			int t2 = b ^ c;
@@ -515,10 +548,14 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 			this._x1 = this._x3 ^ (this._x0 ^ t11);
 		}
 
-		/**
-		* S4 - { 1,15, 8, 3,12, 0,11, 6, 2, 5, 4,10, 9,14, 7,13 } - 15 terms.
-		*/
-		private void Sb4(int a, int b, int c, int d)
+        /// <summary>
+        /// S4 - { 1,15, 8, 3,12, 0,11, 6, 2, 5, 4,10, 9,14, 7,13 } - 15 terms.
+        /// </summary>
+        /// <param name="a">A.</param>
+        /// <param name="b">The b.</param>
+        /// <param name="c">The c.</param>
+        /// <param name="d">The d.</param>
+        private void Sb4(int a, int b, int c, int d)
 		{
 			int t1 = a ^ d;
 			int t2 = d & t1;
@@ -535,10 +572,14 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 			this._x1 = (a ^ t3) ^ (t10 & this._x2);
 		}
 
-		/**
-		* InvS4 - { 5, 0, 8, 3,10, 9, 7,14, 2,12,11, 6, 4,15,13, 1 } - 15 terms.
-		*/
-		private void Ib4(int a, int b, int c, int d)
+        /// <summary>
+        /// InvS4 - { 5, 0, 8, 3,10, 9, 7,14, 2,12,11, 6, 4,15,13, 1 } - 15 terms.
+        /// </summary>
+        /// <param name="a">A.</param>
+        /// <param name="b">The b.</param>
+        /// <param name="c">The c.</param>
+        /// <param name="d">The d.</param>
+        private void Ib4(int a, int b, int c, int d)
 		{
 			int t1 = c | d;
 			int t2 = a & t1;
@@ -555,10 +596,14 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 			this._x2 = (t3 & t11) ^ (this._x1 ^ t7);
 		}
 
-		/**
-		* S5 - {15, 5, 2,11, 4,10, 9,12, 0, 3,14, 8,13, 6, 7, 1 } - 16 terms.
-		*/
-		private void Sb5(int a, int b, int c, int d)
+        /// <summary>
+        /// S5 - {15, 5, 2,11, 4,10, 9,12, 0, 3,14, 8,13, 6, 7, 1 } - 16 terms.
+        /// </summary>
+        /// <param name="a">A.</param>
+        /// <param name="b">The b.</param>
+        /// <param name="c">The c.</param>
+        /// <param name="d">The d.</param>
+        private void Sb5(int a, int b, int c, int d)
 		{
 			int t1 = ~a;
 			int t2 = a ^ b;
@@ -576,10 +621,14 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 			this._x3 = (b ^ t7) ^ (this._x1 & t12);
 		}
 
-		/**
-		* InvS5 - { 8,15, 2, 9, 4, 1,13,14,11, 6, 5, 3, 7,12,10, 0 } - 16 terms.
-		*/
-		private void Ib5(int a, int b, int c, int d)
+        /// <summary>
+        /// InvS5 - { 8,15, 2, 9, 4, 1,13,14,11, 6, 5, 3, 7,12,10, 0 } - 16 terms.
+        /// </summary>
+        /// <param name="a">A.</param>
+        /// <param name="b">The b.</param>
+        /// <param name="c">The c.</param>
+        /// <param name="d">The d.</param>
+        private void Ib5(int a, int b, int c, int d)
 		{
 			int t1 = ~c;
 			int t2 = b & t1;
@@ -596,10 +645,14 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 			this._x2 = (b & t10) ^ (t4 | (a ^ c));
 		}
 
-		/**
-		* S6 - { 7, 2,12, 5, 8, 4, 6,11,14, 9, 1,15,13, 3,10, 0 } - 15 terms.
-		*/
-		private void Sb6(int a, int b, int c, int d)
+        /// <summary>
+        /// S6 - { 7, 2,12, 5, 8, 4, 6,11,14, 9, 1,15,13, 3,10, 0 } - 15 terms.
+        /// </summary>
+        /// <param name="a">A.</param>
+        /// <param name="b">The b.</param>
+        /// <param name="c">The c.</param>
+        /// <param name="d">The d.</param>
+        private void Sb6(int a, int b, int c, int d)
 		{
 			int t1 = ~a;
 			int t2 = a ^ d;
@@ -616,10 +669,14 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 			this._x3 = (~t5) ^ (t3 & t11);
 		}
 
-		/**
-		* InvS6 - {15,10, 1,13, 5, 3, 6, 0, 4, 9,14, 7, 2,12, 8,11 } - 15 terms.
-		*/
-		private void Ib6(int a, int b, int c, int d)
+        /// <summary>
+        /// InvS6 - {15,10, 1,13, 5, 3, 6, 0, 4, 9,14, 7, 2,12, 8,11 } - 15 terms.
+        /// </summary>
+        /// <param name="a">A.</param>
+        /// <param name="b">The b.</param>
+        /// <param name="c">The c.</param>
+        /// <param name="d">The d.</param>
+        private void Ib6(int a, int b, int c, int d)
 		{
 			int t1 = ~a;
 			int t2 = a ^ b;
@@ -636,10 +693,14 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 			this._x2 = (d & t1) ^ (t3 ^ t11);
 		}
 
-		/**
-		* S7 - { 1,13,15, 0,14, 8, 2,11, 7, 4,12,10, 9, 3, 5, 6 } - 16 terms.
-		*/
-		private void Sb7(int a, int b, int c, int d)
+        /// <summary>
+        /// S7 - { 1,13,15, 0,14, 8, 2,11, 7, 4,12,10, 9, 3, 5, 6 } - 16 terms.
+        /// </summary>
+        /// <param name="a">A.</param>
+        /// <param name="b">The b.</param>
+        /// <param name="c">The c.</param>
+        /// <param name="d">The d.</param>
+        private void Sb7(int a, int b, int c, int d)
 		{
 			int t1 = b ^ c;
 			int t2 = c & t1;
@@ -657,10 +718,14 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 			this._x0 = (~t11) ^ (this._x3 & this._x2);
 		}
 
-		/**
-		* InvS7 - { 3, 0, 6,13, 9,14,15, 8, 5,12,11, 7,10, 1, 4, 2 } - 17 terms.
-		*/
-		private void Ib7(int a, int b, int c, int d)
+        /// <summary>
+        /// InvS7 - { 3, 0, 6,13, 9,14,15, 8, 5,12,11, 7,10, 1, 4, 2 } - 17 terms.
+        /// </summary>
+        /// <param name="a">A.</param>
+        /// <param name="b">The b.</param>
+        /// <param name="c">The c.</param>
+        /// <param name="d">The d.</param>
+        private void Ib7(int a, int b, int c, int d)
 		{
 			int t3 = c | (a & b);
 			int t4 = d & (a | b);
@@ -673,9 +738,9 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 			this._x2 = (t3 ^ this._x1) ^ (this._x0 ^ (a & this._x3));
 		}
 
-		/**
-		* Apply the linear transformation to the register set.
-		*/
+        /// <summary>
+        /// Apply the linear transformation to the register set.
+        /// </summary>
 		private void LT()
 		{
 			int x0 = RotateLeft(this._x0, 13);
@@ -689,9 +754,9 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 			this._x2 = RotateLeft(x2 ^ this._x3 ^ (this._x1 << 7), 22);
 		}
 
-		/**
-		* Apply the inverse of the linear transformation to the register set.
-		*/
+        /// <summary>
+        /// Apply the inverse of the linear transformation to the register set.
+        /// </summary>
 		private void InverseLT()
 		{
 			int x2 = RotateRight(this._x2, 22) ^ this._x3 ^ (this._x1 << 7);

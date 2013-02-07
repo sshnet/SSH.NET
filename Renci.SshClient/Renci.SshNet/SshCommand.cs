@@ -484,11 +484,7 @@ namespace Renci.SshNet
             switch (EventWaitHandle.WaitAny(waitHandles, this.CommandTimeout))
             {
                 case 0:
-                    {
-                        var exception = this._exception;
-                        this._exception = null;
-                        throw exception;
-                    }
+                    throw this._exception;
                 case System.Threading.WaitHandle.WaitTimeout:
                     throw new SshOperationTimeoutException(string.Format(CultureInfo.CurrentCulture, "Command '{0}' has timed out.", this.CommandText));
                 default:

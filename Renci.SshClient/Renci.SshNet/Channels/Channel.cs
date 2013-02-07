@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages;
@@ -12,13 +13,15 @@ namespace Renci.SshNet.Channels
     /// </summary>
     internal abstract class Channel : IDisposable
     {
-        private EventWaitHandle _channelClosedWaitHandle = new AutoResetEvent(false);
+        private EventWaitHandle _channelClosedWaitHandle = new ManualResetEvent(false);
 
-        private EventWaitHandle _channelWindowAdjustWaitHandle = new AutoResetEvent(false);
+        private EventWaitHandle _channelServerWindowAdjustWaitHandle = new ManualResetEvent(false);
 
         private EventWaitHandle _errorOccuredWaitHandle = new ManualResetEvent(false);
 
         private EventWaitHandle _disconnectedWaitHandle = new ManualResetEvent(false);
+
+        private object _serverWindowSizeLock = new object();
 
         private bool _closeMessageSent = false;
 
@@ -266,7 +269,11 @@ namespace Renci.SshNet.Channels
         /// <param name="bytesToAdd">The bytes to add.</param>
         protected virtual void OnWindowAdjust(uint bytesToAdd)
         {
-            this.ServerWindowSize += bytesToAdd;
+            lock (this._serverWindowSizeLock)
+            {
+                this.ServerWindowSize += bytesToAdd;
+            }
+            this._channelServerWindowAdjustWaitHandle.Set();
         }
 
         /// <summary>
@@ -410,20 +417,36 @@ namespace Renci.SshNet.Channels
         /// Sends channel data message to the servers.
         /// </summary>
         /// <remarks>This method takes care of managing the window size.</remarks>
-        /// <param name="message">Channel data message.</param>
+        /// <param name="message">Channel data message.</param>        
         protected void SendMessage(ChannelDataMessage message)
         {
             //  Send channel messages only while channel is open
             if (!this.IsOpen)
                 return;
 
-            if (this.ServerWindowSize < 1)
+            var messageLength = message.Data.Length;
+            do
             {
-                //  Wait for window to be adjust
-                this._session.WaitHandle(this._channelWindowAdjustWaitHandle);
-            }
+                lock (this._serverWindowSizeLock)
+                {
+                    var serverWindowSize = this.ServerWindowSize;
+                    if (serverWindowSize < messageLength)
+                    {
+                        //  Wait for window to be big enough for this message
+                        this._channelServerWindowAdjustWaitHandle.Reset();
+                    }
+                    else
+                    {
+                        this.ServerWindowSize -= (uint)messageLength;
+                        break;
+                    }
+                }
 
-            this.ServerWindowSize -= (uint)message.Data.Length;
+                //  Wait for window to change
+                this.WaitHandle(this._channelServerWindowAdjustWaitHandle);
+
+            } while (true);
+
             this._session.SendMessage(message);
         }
 
@@ -438,13 +461,29 @@ namespace Renci.SshNet.Channels
             if (!this.IsOpen)
                 return;
 
-            if (this.ServerWindowSize < 1)
+            var messageLength = message.Data.Length;
+            do
             {
-                //  Wait for window to be adjust
-                this._session.WaitHandle(this._channelWindowAdjustWaitHandle);
-            }
+                lock (this._serverWindowSizeLock)
+                {
+                    var serverWindowSize = this.ServerWindowSize;
+                    if (serverWindowSize < messageLength)
+                    {
+                        //  Wait for window to be big enough for this message
+                        this._channelServerWindowAdjustWaitHandle.Reset();
+                    }
+                    else
+                    {
+                        this.ServerWindowSize -= (uint)messageLength;
+                        break;
+                    }
+                }
 
-            this.ServerWindowSize -= (uint)message.Data.Length;
+                //  Wait for window to change
+                this.WaitHandle(this._channelServerWindowAdjustWaitHandle);
+
+            } while (true);
+
             this._session.SendMessage(message);
         }
 
@@ -496,7 +535,6 @@ namespace Renci.SshNet.Channels
             }
         }
 
-
         private void Session_Disconnected(object sender, EventArgs e)
         {
             //  If objected is disposed or being disposed don't handle this event
@@ -546,8 +584,6 @@ namespace Renci.SshNet.Channels
             if (e.Message.LocalChannelNumber == this.LocalChannelNumber)
             {
                 this.OnWindowAdjust(e.Message.BytesToAdd);
-
-                this._channelWindowAdjustWaitHandle.Set();
             }
         }
 
@@ -672,10 +708,10 @@ namespace Renci.SshNet.Channels
                         this._channelClosedWaitHandle.Dispose();
                         this._channelClosedWaitHandle = null;
                     }
-                    if (this._channelWindowAdjustWaitHandle != null)
+                    if (this._channelServerWindowAdjustWaitHandle != null)
                     {
-                        this._channelWindowAdjustWaitHandle.Dispose();
-                        this._channelWindowAdjustWaitHandle = null;
+                        this._channelServerWindowAdjustWaitHandle.Dispose();
+                        this._channelServerWindowAdjustWaitHandle = null;
                     }
                     if (this._errorOccuredWaitHandle != null)
                     {

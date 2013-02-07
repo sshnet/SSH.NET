@@ -91,7 +91,7 @@ namespace Renci.SshNet
         /// <summary>
         /// WaitHandle to signal that exception was thrown by another thread.
         /// </summary>
-        private EventWaitHandle _exceptionWaitHandle = new AutoResetEvent(false);
+        private EventWaitHandle _exceptionWaitHandle = new ManualResetEvent(false);
 
         /// <summary>
         /// WaitHandle to signal that key exchange was completed.
@@ -637,11 +637,7 @@ namespace Renci.SshNet
             switch (EventWaitHandle.WaitAny(waitHandles, this.ConnectionInfo.Timeout))
             {
                 case 0:
-                    {
-                        var exception = this._exception;
-                        this._exception = null;
-                        throw exception;
-                    }
+                    throw this._exception;
                 case System.Threading.WaitHandle.WaitTimeout:
                     this.SendDisconnect(DisconnectReason.ByApplication, "Operation timeout");
                     throw new SshOperationTimeoutException("Session operation has timed out");

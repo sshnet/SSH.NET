@@ -49,6 +49,7 @@ namespace Renci.SshNet.Tests.Classes
                 client.HostKeyReceived += delegate(object sender, HostKeyEventArgs e)
                 {
                     hostKeyValidated = true;
+
                     if (e.FingerPrint.SequenceEqual(new byte[] { 0x00, 0x01, 0x02, 0x03 }))
                     {
                         e.CanTrust = true;

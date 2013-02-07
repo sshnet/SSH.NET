@@ -186,7 +186,10 @@ namespace Renci.SshNet.Security.Cryptography
         {
             this._byteCount = 0;
             this._bufferOffset = 0;
-            Array.Clear(this._buffer, 0, this._buffer.Length);
+            for (int i = 0; i < this._buffer.Length; i++)
+            {
+                this._buffer[i] = 0;
+            }
 
             H1 = 0x6a09e667;
             H2 = 0xbb67ae85;
@@ -198,7 +201,10 @@ namespace Renci.SshNet.Security.Cryptography
             H8 = 0x5be0cd19;
 
             this._offset = 0;
-            Array.Clear(X, 0, X.Length);
+            for (int i = 0; i < this.X.Length; i++)
+            {
+                this.X[i] = 0;
+            }
         }
 
 		private void Update(byte input)
@@ -339,7 +345,10 @@ namespace Renci.SshNet.Security.Cryptography
 			// reset the offset and clean out the word buffer.
 			//
 			this._offset = 0;
-			Array.Clear(X, 0, 16);
+            for (int i = 0; i < this.X.Length; i++)
+            {
+                this.X[i] = 0;
+            }
 		}
 
 		private static uint Sum1Ch(uint x, uint y, uint z)
@@ -366,10 +375,9 @@ namespace Renci.SshNet.Security.Cryptography
 			return ((x >> 17) | (x << 15)) ^ ((x >> 19) | (x << 13)) ^ (x >> 10);
 		}
 
-		/* SHA-256 Constants
-		* (represent the first 32 bits of the fractional parts of the
-		* cube roots of the first sixty-four prime numbers)
-		*/
+        /// <summary>
+        /// The SHA-256 Constants (represent the first 32 bits of the fractional parts of the cube roots of the first sixty-four prime numbers)
+        /// </summary>
 		private static readonly uint[] K = {
 			0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5,
 			0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
@@ -388,6 +396,5 @@ namespace Renci.SshNet.Security.Cryptography
 			0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208,
 			0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
 		};
-
 	}
 }

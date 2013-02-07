@@ -9,7 +9,7 @@ namespace Renci.SshNet.Security.Cryptography
     /// <summary>
     /// MD5 algorithm implementation
     /// </summary>
-    public class MD5Hash : HashAlgorithm
+    public sealed class MD5Hash : HashAlgorithm
     {
         private byte[] _buffer = new byte[4];
         private int _bufferOffset;
@@ -170,9 +170,13 @@ namespace Renci.SshNet.Security.Cryptography
 
         private void InternalInitialize()
         {
+            var i = 0;
             this._byteCount = 0;
             this._bufferOffset = 0;
-            Array.Clear(this._buffer, 0, this._buffer.Length);
+            for (i = 0; i < 4; i++)
+            {
+                this._buffer[i] = 0;
+            }
 
             H1 = unchecked((int)0x67452301);
             H2 = unchecked((int)0xefcdab89);
@@ -180,8 +184,7 @@ namespace Renci.SshNet.Security.Cryptography
             H4 = unchecked((int)0x10325476);
 
             this._offset = 0;
-
-            for (int i = 0; i != this._hashValue.Length; i++)
+            for (i = 0; i != this._hashValue.Length; i++)
             {
                 this._hashValue[i] = 0;
             }
@@ -254,7 +257,7 @@ namespace Renci.SshNet.Security.Cryptography
         /*
         * rotate int x left n bits.
         */
-        private int RotateLeft(int x, int n)
+        private static int RotateLeft(int x, int n)
         {
             return (x << n) | (int)((uint)x >> (32 - n));
         }
@@ -262,22 +265,22 @@ namespace Renci.SshNet.Security.Cryptography
         /*
         * F, G, H and I are the basic MD5 functions.
         */
-        private int F(int u, int v, int w)
+        private static int F(int u, int v, int w)
         {
             return (u & v) | (~u & w);
         }
 
-        private int G(int u, int v, int w)
+        private static int G(int u, int v, int w)
         {
             return (u & w) | (v & ~w);
         }
 
-        private int H(int u, int v, int w)
+        private static int H(int u, int v, int w)
         {
             return u ^ v ^ w;
         }
 
-        private int K(int u, int v, int w)
+        private static int K(int u, int v, int w)
         {
             return v ^ (u | ~w);
         }
@@ -383,6 +386,5 @@ namespace Renci.SshNet.Security.Cryptography
                 this._hashValue[i] = 0;
             }
         }
-
     }
 }

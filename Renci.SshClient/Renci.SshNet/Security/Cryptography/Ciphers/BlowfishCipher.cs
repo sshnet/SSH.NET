@@ -8,7 +8,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 	/// <summary>
     /// Blowfish cipher implementation.
     /// </summary>
-	public class BlowfishCipher : BlockCipher
+	public sealed class BlowfishCipher : BlockCipher
 	{
 		#region Static reference tables
 
@@ -297,9 +297,15 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
 		private static readonly int _pSize = _rounds + 2;
 
-		private readonly uint[] _s0, _s1, _s2, _s3;     // the s-boxes
+        /// <summary>
+        /// The s-boxes
+        /// </summary>
+		private readonly uint[] _s0, _s1, _s2, _s3;
 
-		private readonly uint[] _p;                  // the p-array
+        /// <summary>
+        /// The p-array
+        /// </summary>
+		private readonly uint[] _p;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="BlowfishCipher"/> class.
@@ -509,6 +515,5 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 				xl = table[s];
 			}
 		}
-
 	}
 }

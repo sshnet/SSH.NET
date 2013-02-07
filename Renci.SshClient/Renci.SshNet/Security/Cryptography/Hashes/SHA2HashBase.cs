@@ -102,7 +102,10 @@ namespace Renci.SshNet.Security.Cryptography
             }
 
             this._offset = 0;
-            Array.Clear(X, 0, X.Length);
+            for (int i = 0; i < this.X.Length; i++)
+            {
+                this.X[i] = 0;
+            }
         }
 
         protected void Finish()
@@ -242,7 +245,10 @@ namespace Renci.SshNet.Security.Cryptography
             // reset the offset and clean out the word buffer.
             //
             this._offset = 0;
-            Array.Clear(X, 0, 16);
+            for (int i = 0; i < this.X.Length; i++)
+            {
+                this.X[i] = 0;
+            }
         }
 
         /// <summary>

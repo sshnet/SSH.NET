@@ -17,7 +17,7 @@ namespace Renci.SshNet
     /// </summary>
     public partial class ScpClient
     {
-        private Regex _rootPath = new Regex(@"^(/|[A-Z][:])", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static Regex _rootPath = new Regex(@"^(/|[A-Z][:])", RegexOptions.Compiled | RegexOptions.IgnoreCase);
         /// <summary>
         /// Uploads the specified file or directory to the remote host.
         /// </summary>

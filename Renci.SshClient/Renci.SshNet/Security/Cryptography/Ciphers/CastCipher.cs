@@ -8,13 +8,21 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
     /// <summary>
     /// Implements CAST cipher algorithm
     /// </summary>
-    public class CastCipher : BlockCipher
+    public sealed class CastCipher : BlockCipher
     {
         internal static readonly int MAX_ROUNDS = 16;
+
         internal static readonly int RED_ROUNDS = 12;
 
-        private int[] _kr = new int[17];        // the rotating round key
-        private uint[] _km = new uint[17];        // the masking round key
+        /// <summary>
+        /// The rotating round key
+        /// </summary>
+        private int[] _kr = new int[17];
+
+        /// <summary>
+        /// The masking round key
+        /// </summary>
+        private uint[] _km = new uint[17];
 
         private int _rounds = MAX_ROUNDS;
 
@@ -381,12 +389,10 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
         #endregion
 
-        /*
-        * Creates the subkeys using the same nomenclature
-        * as described in RFC2144.
-        *
-        * See section 2.4
-        */
+        /// <summary>
+        /// Sets the subkeys using the same nomenclatureas described in RFC2144.
+        /// </summary>
+        /// <param name="key">The key.</param>
         private void SetKey(byte[] key)
         {
             /*
@@ -559,15 +565,13 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             this._kr[16] = (int)((S5[x[0xE]] ^ S6[x[0xF]] ^ S7[x[0x1]] ^ S8[x[0x0]] ^ S8[x[0xD]]) & 0x1f);
         }
 
-        /**
-        * The first of the three processing functions for the
-        * encryption and decryption.
-        *
-        * @param D            the input to be processed
-        * @param Kmi        the mask to be used from Km[n]
-        * @param Kri        the rotation value to be used
-        *
-        */
+        /// <summary>
+        /// The first of the three processing functions for the encryption and decryption.
+        /// </summary>
+        /// <param name="D">The input to be processed.</param>
+        /// <param name="Kmi">The mask to be used from Km[n].</param>
+        /// <param name="Kri">The rotation value to be used.</param>
+        /// <returns></returns>
         private static uint F1(uint D, uint Kmi, int Kri)
         {
             uint I = Kmi + D;
@@ -575,15 +579,13 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             return ((S1[(I >> 24) & 0xff] ^ S2[(I >> 16) & 0xff]) - S3[(I >> 8) & 0xff]) + S4[I & 0xff];
         }
 
-        /**
-        * The second of the three processing functions for the
-        * encryption and decryption.
-        *
-        * @param D            the input to be processed
-        * @param Kmi        the mask to be used from Km[n]
-        * @param Kri        the rotation value to be used
-        *
-        */
+        /// <summary>
+        /// The second of the three processing functions for the encryption and decryption.
+        /// </summary>
+        /// <param name="D">The input to be processed.</param>
+        /// <param name="Kmi">The mask to be used from Km[n].</param>
+        /// <param name="Kri">The rotation value to be used.</param>
+        /// <returns></returns>
         private static uint F2(uint D, uint Kmi, int Kri)
         {
             uint I = Kmi ^ D;
@@ -591,15 +593,13 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             return ((S1[(I >> 24) & 0xff] - S2[(I >> 16) & 0xff]) + S3[(I >> 8) & 0xff]) ^ S4[I & 0xff];
         }
 
-        /**
-        * The third of the three processing functions for the
-        * encryption and decryption.
-        *
-        * @param D            the input to be processed
-        * @param Kmi        the mask to be used from Km[n]
-        * @param Kri        the rotation value to be used
-        *
-        */
+        /// <summary>
+        /// The third of the three processing functions for the encryption and decryption.
+        /// </summary>
+        /// <param name="D">The input to be processed.</param>
+        /// <param name="Kmi">The mask to be used from Km[n].</param>
+        /// <param name="Kri">The rotation value to be used.</param>
+        /// <returns></returns>
         private static uint F3(uint D, uint Kmi, int Kri)
         {
             uint I = Kmi - D;
@@ -607,12 +607,12 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             return ((S1[(I >> 24) & 0xff] + S2[(I >> 16) & 0xff]) ^ S3[(I >> 8) & 0xff]) - S4[I & 0xff];
         }
 
-        /**
-        * Does the 16 rounds to encrypt the block.
-        *
-        * @param L0    the LH-32bits of the plaintext block
-        * @param R0    the RH-32bits of the plaintext block
-        */
+        /// <summary>
+        /// Does the 16 rounds to encrypt the block.
+        /// </summary>
+        /// <param name="L0">The LH-32bits of the plaintext block.</param>
+        /// <param name="R0">The RH-32bits of the plaintext block.</param>
+        /// <param name="result">The result.</param>
         private void CastEncipher(uint L0, uint R0, uint[] result)
         {
             uint Lp = L0;        // the previous value, equiv to L[i-1]

@@ -19,37 +19,9 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
         private int _rounds;
 
-        private uint[,] _encryptionKey;
-        /// <summary>
-        /// Gets the encryption key.
-        /// </summary>
-        protected uint[,] EncryptionKey
-        {
-            get
-            {
-                if (this._encryptionKey == null)
-                {
-                    this._encryptionKey = this.GenerateWorkingKey(true, this.Key);
-                }
-                return this._encryptionKey;
-            }
-        }
+        private uint[] _encryptionKey;
 
-        private uint[,] _decryptionKey;
-        /// <summary>
-        /// Gets the encryption key.
-        /// </summary>
-        protected uint[,] DecryptionKey
-        {
-            get
-            {
-                if (this._decryptionKey == null)
-                {
-                    this._decryptionKey = this.GenerateWorkingKey(false, this.Key);
-                }
-                return this._decryptionKey;
-            }
-        }
+        private uint[] _decryptionKey;
 
         private uint C0, C1, C2, C3;
 
@@ -634,9 +606,14 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 throw new IndexOutOfRangeException("output buffer too short");
             }
 
+            if (this._encryptionKey == null)
+            {
+                this._encryptionKey = this.GenerateWorkingKey(true, this.Key);
+            }
+
             this.UnPackBlock(inputBuffer, inputOffset);
 
-            this.EncryptBlock(this.EncryptionKey);
+            this.EncryptBlock(this._encryptionKey);
 
             this.PackBlock(outputBuffer, outputOffset);
 
@@ -674,16 +651,21 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 throw new IndexOutOfRangeException("output buffer too short");
             }
 
+            if (this._decryptionKey == null)
+            {
+                this._decryptionKey = this.GenerateWorkingKey(false, this.Key);
+            }
+
             this.UnPackBlock(inputBuffer, inputOffset);
 
-            this.DecryptBlock(this.DecryptionKey);
+            this.DecryptBlock(this._decryptionKey);
 
             this.PackBlock(outputBuffer, outputOffset);
 
             return this.BlockSize;
         }
 
-        private uint[,] GenerateWorkingKey(bool isEncryption, byte[] key)
+        private uint[] GenerateWorkingKey(bool isEncryption, byte[] key)
         {
             int KC = key.Length / 4;  // key length in words
 
@@ -691,7 +673,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 throw new ArgumentException("Key length not 128/192/256 bits.");
 
             _rounds = KC + 6;  // This is not always true for the generalized Rijndael that allows larger block sizes
-            uint[,] W = new uint[_rounds + 1, 4];   // 4 words in a block
+            uint[] W = new uint[(_rounds + 1) *  4];   // 4 words in a block
 
             //
             // copy the key into the round key array
@@ -701,7 +683,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
             for (int i = 0; i < key.Length; t++)
             {
-                W[t >> 2, t & 3] = LittleEndianToUInt32(key, i);
+                W[(t >> 2) * 4 + (t & 3)] = LittleEndianToUInt32(key, i);
                 i += 4;
             }
 
@@ -712,7 +694,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             int k = (_rounds + 1) << 2;
             for (int i = KC; (i < k); i++)
             {
-                uint temp = W[(i - 1) >> 2, (i - 1) & 3];
+                uint temp = W[((i - 1) >> 2) * 4 + ((i - 1) & 3)];
                 if ((i % KC) == 0)
                 {
                     temp = SubWord(Shift(temp, 8)) ^ rcon[(i / KC) - 1];
@@ -722,7 +704,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                     temp = SubWord(temp);
                 }
 
-                W[i >> 2, i & 3] = W[(i - KC) >> 2, (i - KC) & 3] ^ temp;
+                W[(i >> 2) * 4 + (i & 3)] = W[((i - KC) >> 2) * 4 + ((i - KC) & 3)] ^ temp;
             }
 
             if (!isEncryption)
@@ -731,7 +713,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 {
                     for (int i = 0; i < 4; i++)
                     {
-                        W[j, i] = InvMcol(W[j, i]);
+                        W[j * 4 + i] = InvMcol(W[j * 4 + i]);
                     }
                 }
             }
@@ -783,74 +765,74 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             UInt32ToLittleEndian(C3, bytes, off + 12);
         }
 
-        private void EncryptBlock(uint[,] KW)
+        private void EncryptBlock(uint[] KW)
         {
             int r;
             uint r0, r1, r2, r3;
 
-            C0 ^= KW[0, 0];
-            C1 ^= KW[0, 1];
-            C2 ^= KW[0, 2];
-            C3 ^= KW[0, 3];
+            C0 ^= KW[0 * 4 + 0];
+            C1 ^= KW[0 * 4 + 1];
+            C2 ^= KW[0 * 4 + 2];
+            C3 ^= KW[0 * 4 + 3];
 
             for (r = 1; r < _rounds - 1; )
             {
-                r0 = T0[C0 & 255] ^ T1[(C1 >> 8) & 255] ^ T2[(C2 >> 16) & 255] ^ T3[C3 >> 24] ^ KW[r, 0];
-                r1 = T0[C1 & 255] ^ T1[(C2 >> 8) & 255] ^ T2[(C3 >> 16) & 255] ^ T3[C0 >> 24] ^ KW[r, 1];
-                r2 = T0[C2 & 255] ^ T1[(C3 >> 8) & 255] ^ T2[(C0 >> 16) & 255] ^ T3[C1 >> 24] ^ KW[r, 2];
-                r3 = T0[C3 & 255] ^ T1[(C0 >> 8) & 255] ^ T2[(C1 >> 16) & 255] ^ T3[C2 >> 24] ^ KW[r++, 3];
-                C0 = T0[r0 & 255] ^ T1[(r1 >> 8) & 255] ^ T2[(r2 >> 16) & 255] ^ T3[r3 >> 24] ^ KW[r, 0];
-                C1 = T0[r1 & 255] ^ T1[(r2 >> 8) & 255] ^ T2[(r3 >> 16) & 255] ^ T3[r0 >> 24] ^ KW[r, 1];
-                C2 = T0[r2 & 255] ^ T1[(r3 >> 8) & 255] ^ T2[(r0 >> 16) & 255] ^ T3[r1 >> 24] ^ KW[r, 2];
-                C3 = T0[r3 & 255] ^ T1[(r0 >> 8) & 255] ^ T2[(r1 >> 16) & 255] ^ T3[r2 >> 24] ^ KW[r++, 3];
+                r0 = T0[C0 & 255] ^ T1[(C1 >> 8) & 255] ^ T2[(C2 >> 16) & 255] ^ T3[C3 >> 24] ^ KW[r * 4 + 0];
+                r1 = T0[C1 & 255] ^ T1[(C2 >> 8) & 255] ^ T2[(C3 >> 16) & 255] ^ T3[C0 >> 24] ^ KW[r * 4 + 1];
+                r2 = T0[C2 & 255] ^ T1[(C3 >> 8) & 255] ^ T2[(C0 >> 16) & 255] ^ T3[C1 >> 24] ^ KW[r * 4 + 2];
+                r3 = T0[C3 & 255] ^ T1[(C0 >> 8) & 255] ^ T2[(C1 >> 16) & 255] ^ T3[C2 >> 24] ^ KW[r++ * 4 + 3];
+                C0 = T0[r0 & 255] ^ T1[(r1 >> 8) & 255] ^ T2[(r2 >> 16) & 255] ^ T3[r3 >> 24] ^ KW[r * 4 + 0];
+                C1 = T0[r1 & 255] ^ T1[(r2 >> 8) & 255] ^ T2[(r3 >> 16) & 255] ^ T3[r0 >> 24] ^ KW[r * 4 + 1];
+                C2 = T0[r2 & 255] ^ T1[(r3 >> 8) & 255] ^ T2[(r0 >> 16) & 255] ^ T3[r1 >> 24] ^ KW[r * 4 + 2];
+                C3 = T0[r3 & 255] ^ T1[(r0 >> 8) & 255] ^ T2[(r1 >> 16) & 255] ^ T3[r2 >> 24] ^ KW[r++ * 4 + 3];
             }
 
-            r0 = T0[C0 & 255] ^ T1[(C1 >> 8) & 255] ^ T2[(C2 >> 16) & 255] ^ T3[C3 >> 24] ^ KW[r, 0];
-            r1 = T0[C1 & 255] ^ T1[(C2 >> 8) & 255] ^ T2[(C3 >> 16) & 255] ^ T3[C0 >> 24] ^ KW[r, 1];
-            r2 = T0[C2 & 255] ^ T1[(C3 >> 8) & 255] ^ T2[(C0 >> 16) & 255] ^ T3[C1 >> 24] ^ KW[r, 2];
-            r3 = T0[C3 & 255] ^ T1[(C0 >> 8) & 255] ^ T2[(C1 >> 16) & 255] ^ T3[C2 >> 24] ^ KW[r++, 3];
+            r0 = T0[C0 & 255] ^ T1[(C1 >> 8) & 255] ^ T2[(C2 >> 16) & 255] ^ T3[C3 >> 24] ^ KW[r * 4 + 0];
+            r1 = T0[C1 & 255] ^ T1[(C2 >> 8) & 255] ^ T2[(C3 >> 16) & 255] ^ T3[C0 >> 24] ^ KW[r * 4 + 1];
+            r2 = T0[C2 & 255] ^ T1[(C3 >> 8) & 255] ^ T2[(C0 >> 16) & 255] ^ T3[C1 >> 24] ^ KW[r * 4 + 2];
+            r3 = T0[C3 & 255] ^ T1[(C0 >> 8) & 255] ^ T2[(C1 >> 16) & 255] ^ T3[C2 >> 24] ^ KW[r++ * 4 + 3];
 
             // the final round's table is a simple function of S so we don't use a whole other four tables for it
 
-            C0 = (uint)S[r0 & 255] ^ (((uint)S[(r1 >> 8) & 255]) << 8) ^ (((uint)S[(r2 >> 16) & 255]) << 16) ^ (((uint)S[r3 >> 24]) << 24) ^ KW[r, 0];
-            C1 = (uint)S[r1 & 255] ^ (((uint)S[(r2 >> 8) & 255]) << 8) ^ (((uint)S[(r3 >> 16) & 255]) << 16) ^ (((uint)S[r0 >> 24]) << 24) ^ KW[r, 1];
-            C2 = (uint)S[r2 & 255] ^ (((uint)S[(r3 >> 8) & 255]) << 8) ^ (((uint)S[(r0 >> 16) & 255]) << 16) ^ (((uint)S[r1 >> 24]) << 24) ^ KW[r, 2];
-            C3 = (uint)S[r3 & 255] ^ (((uint)S[(r0 >> 8) & 255]) << 8) ^ (((uint)S[(r1 >> 16) & 255]) << 16) ^ (((uint)S[r2 >> 24]) << 24) ^ KW[r, 3];
+            C0 = (uint)S[r0 & 255] ^ (((uint)S[(r1 >> 8) & 255]) << 8) ^ (((uint)S[(r2 >> 16) & 255]) << 16) ^ (((uint)S[r3 >> 24]) << 24) ^ KW[r * 4 + 0];
+            C1 = (uint)S[r1 & 255] ^ (((uint)S[(r2 >> 8) & 255]) << 8) ^ (((uint)S[(r3 >> 16) & 255]) << 16) ^ (((uint)S[r0 >> 24]) << 24) ^ KW[r * 4 + 1];
+            C2 = (uint)S[r2 & 255] ^ (((uint)S[(r3 >> 8) & 255]) << 8) ^ (((uint)S[(r0 >> 16) & 255]) << 16) ^ (((uint)S[r1 >> 24]) << 24) ^ KW[r * 4 + 2];
+            C3 = (uint)S[r3 & 255] ^ (((uint)S[(r0 >> 8) & 255]) << 8) ^ (((uint)S[(r1 >> 16) & 255]) << 16) ^ (((uint)S[r2 >> 24]) << 24) ^ KW[r * 4 + 3];
         }
 
-        private void DecryptBlock(uint[,] KW)
+        private void DecryptBlock(uint[] KW)
         {
             int r;
             uint r0, r1, r2, r3;
 
-            C0 ^= KW[_rounds, 0];
-            C1 ^= KW[_rounds, 1];
-            C2 ^= KW[_rounds, 2];
-            C3 ^= KW[_rounds, 3];
+            C0 ^= KW[_rounds * 4 + 0];
+            C1 ^= KW[_rounds * 4 + 1];
+            C2 ^= KW[_rounds * 4 + 2];
+            C3 ^= KW[_rounds * 4 + 3];
 
             for (r = _rounds - 1; r > 1; )
             {
-                r0 = Tinv0[C0 & 255] ^ Tinv1[(C3 >> 8) & 255] ^ Tinv2[(C2 >> 16) & 255] ^ Tinv3[C1 >> 24] ^ KW[r, 0];
-                r1 = Tinv0[C1 & 255] ^ Tinv1[(C0 >> 8) & 255] ^ Tinv2[(C3 >> 16) & 255] ^ Tinv3[C2 >> 24] ^ KW[r, 1];
-                r2 = Tinv0[C2 & 255] ^ Tinv1[(C1 >> 8) & 255] ^ Tinv2[(C0 >> 16) & 255] ^ Tinv3[C3 >> 24] ^ KW[r, 2];
-                r3 = Tinv0[C3 & 255] ^ Tinv1[(C2 >> 8) & 255] ^ Tinv2[(C1 >> 16) & 255] ^ Tinv3[C0 >> 24] ^ KW[r--, 3];
-                C0 = Tinv0[r0 & 255] ^ Tinv1[(r3 >> 8) & 255] ^ Tinv2[(r2 >> 16) & 255] ^ Tinv3[r1 >> 24] ^ KW[r, 0];
-                C1 = Tinv0[r1 & 255] ^ Tinv1[(r0 >> 8) & 255] ^ Tinv2[(r3 >> 16) & 255] ^ Tinv3[r2 >> 24] ^ KW[r, 1];
-                C2 = Tinv0[r2 & 255] ^ Tinv1[(r1 >> 8) & 255] ^ Tinv2[(r0 >> 16) & 255] ^ Tinv3[r3 >> 24] ^ KW[r, 2];
-                C3 = Tinv0[r3 & 255] ^ Tinv1[(r2 >> 8) & 255] ^ Tinv2[(r1 >> 16) & 255] ^ Tinv3[r0 >> 24] ^ KW[r--, 3];
+                r0 = Tinv0[C0 & 255] ^ Tinv1[(C3 >> 8) & 255] ^ Tinv2[(C2 >> 16) & 255] ^ Tinv3[C1 >> 24] ^ KW[r * 4 + 0];
+                r1 = Tinv0[C1 & 255] ^ Tinv1[(C0 >> 8) & 255] ^ Tinv2[(C3 >> 16) & 255] ^ Tinv3[C2 >> 24] ^ KW[r * 4 + 1];
+                r2 = Tinv0[C2 & 255] ^ Tinv1[(C1 >> 8) & 255] ^ Tinv2[(C0 >> 16) & 255] ^ Tinv3[C3 >> 24] ^ KW[r * 4 + 2];
+                r3 = Tinv0[C3 & 255] ^ Tinv1[(C2 >> 8) & 255] ^ Tinv2[(C1 >> 16) & 255] ^ Tinv3[C0 >> 24] ^ KW[r-- * 4 + 3];
+                C0 = Tinv0[r0 & 255] ^ Tinv1[(r3 >> 8) & 255] ^ Tinv2[(r2 >> 16) & 255] ^ Tinv3[r1 >> 24] ^ KW[r * 4 + 0];
+                C1 = Tinv0[r1 & 255] ^ Tinv1[(r0 >> 8) & 255] ^ Tinv2[(r3 >> 16) & 255] ^ Tinv3[r2 >> 24] ^ KW[r * 4 + 1];
+                C2 = Tinv0[r2 & 255] ^ Tinv1[(r1 >> 8) & 255] ^ Tinv2[(r0 >> 16) & 255] ^ Tinv3[r3 >> 24] ^ KW[r * 4 + 2];
+                C3 = Tinv0[r3 & 255] ^ Tinv1[(r2 >> 8) & 255] ^ Tinv2[(r1 >> 16) & 255] ^ Tinv3[r0 >> 24] ^ KW[r-- * 4 + 3];
             }
 
-            r0 = Tinv0[C0 & 255] ^ Tinv1[(C3 >> 8) & 255] ^ Tinv2[(C2 >> 16) & 255] ^ Tinv3[C1 >> 24] ^ KW[r, 0];
-            r1 = Tinv0[C1 & 255] ^ Tinv1[(C0 >> 8) & 255] ^ Tinv2[(C3 >> 16) & 255] ^ Tinv3[C2 >> 24] ^ KW[r, 1];
-            r2 = Tinv0[C2 & 255] ^ Tinv1[(C1 >> 8) & 255] ^ Tinv2[(C0 >> 16) & 255] ^ Tinv3[C3 >> 24] ^ KW[r, 2];
-            r3 = Tinv0[C3 & 255] ^ Tinv1[(C2 >> 8) & 255] ^ Tinv2[(C1 >> 16) & 255] ^ Tinv3[C0 >> 24] ^ KW[r, 3];
+            r0 = Tinv0[C0 & 255] ^ Tinv1[(C3 >> 8) & 255] ^ Tinv2[(C2 >> 16) & 255] ^ Tinv3[C1 >> 24] ^ KW[r * 4 + 0];
+            r1 = Tinv0[C1 & 255] ^ Tinv1[(C0 >> 8) & 255] ^ Tinv2[(C3 >> 16) & 255] ^ Tinv3[C2 >> 24] ^ KW[r * 4 + 1];
+            r2 = Tinv0[C2 & 255] ^ Tinv1[(C1 >> 8) & 255] ^ Tinv2[(C0 >> 16) & 255] ^ Tinv3[C3 >> 24] ^ KW[r * 4 + 2];
+            r3 = Tinv0[C3 & 255] ^ Tinv1[(C2 >> 8) & 255] ^ Tinv2[(C1 >> 16) & 255] ^ Tinv3[C0 >> 24] ^ KW[r * 4 + 3];
 
             // the final round's table is a simple function of Si so we don't use a whole other four tables for it
 
-            C0 = (uint)Si[r0 & 255] ^ (((uint)Si[(r3 >> 8) & 255]) << 8) ^ (((uint)Si[(r2 >> 16) & 255]) << 16) ^ (((uint)Si[r1 >> 24]) << 24) ^ KW[0, 0];
-            C1 = (uint)Si[r1 & 255] ^ (((uint)Si[(r0 >> 8) & 255]) << 8) ^ (((uint)Si[(r3 >> 16) & 255]) << 16) ^ (((uint)Si[r2 >> 24]) << 24) ^ KW[0, 1];
-            C2 = (uint)Si[r2 & 255] ^ (((uint)Si[(r1 >> 8) & 255]) << 8) ^ (((uint)Si[(r0 >> 16) & 255]) << 16) ^ (((uint)Si[r3 >> 24]) << 24) ^ KW[0, 2];
-            C3 = (uint)Si[r3 & 255] ^ (((uint)Si[(r2 >> 8) & 255]) << 8) ^ (((uint)Si[(r1 >> 16) & 255]) << 16) ^ (((uint)Si[r0 >> 24]) << 24) ^ KW[0, 3];
+            C0 = (uint)Si[r0 & 255] ^ (((uint)Si[(r3 >> 8) & 255]) << 8) ^ (((uint)Si[(r2 >> 16) & 255]) << 16) ^ (((uint)Si[r1 >> 24]) << 24) ^ KW[0 * 4 + 0];
+            C1 = (uint)Si[r1 & 255] ^ (((uint)Si[(r0 >> 8) & 255]) << 8) ^ (((uint)Si[(r3 >> 16) & 255]) << 16) ^ (((uint)Si[r2 >> 24]) << 24) ^ KW[0 * 4 + 1];
+            C2 = (uint)Si[r2 & 255] ^ (((uint)Si[(r1 >> 8) & 255]) << 8) ^ (((uint)Si[(r0 >> 16) & 255]) << 16) ^ (((uint)Si[r3 >> 24]) << 24) ^ KW[0 * 4 + 2];
+            C3 = (uint)Si[r3 & 255] ^ (((uint)Si[(r2 >> 8) & 255]) << 8) ^ (((uint)Si[(r1 >> 16) & 255]) << 16) ^ (((uint)Si[r0 >> 24]) << 24) ^ KW[0 * 4 + 3];
         }
     }
 }

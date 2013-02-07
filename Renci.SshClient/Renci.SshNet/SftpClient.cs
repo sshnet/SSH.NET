@@ -143,6 +143,9 @@ namespace Renci.SshNet
             if (path == null)
                 throw new ArgumentNullException("path");
 
+            if (this._sftpSession == null)
+                throw new SshConnectionException("Client not connected.");
+
             this._sftpSession.ChangeDirectory(path);
         }
 
@@ -176,6 +179,9 @@ namespace Renci.SshNet
             if (path.IsNullOrWhiteSpace())
                 throw new ArgumentException(path);
 
+            if (this._sftpSession == null)
+                throw new SshConnectionException("Client not connected.");
+
             var fullPath = this._sftpSession.GetCanonicalPath(path);
 
             this._sftpSession.RequestMkDir(fullPath);
@@ -194,6 +200,9 @@ namespace Renci.SshNet
             if (path.IsNullOrWhiteSpace())
                 throw new ArgumentException("path");
 
+            if (this._sftpSession == null)
+                throw new SshConnectionException("Client not connected.");
+
             var fullPath = this._sftpSession.GetCanonicalPath(path);
 
             this._sftpSession.RequestRmDir(fullPath);
@@ -211,6 +220,9 @@ namespace Renci.SshNet
         {
             if (path.IsNullOrWhiteSpace())
                 throw new ArgumentException("path");
+
+            if (this._sftpSession == null)
+                throw new SshConnectionException("Client not connected.");
 
             var fullPath = this._sftpSession.GetCanonicalPath(path);
 
@@ -250,6 +262,9 @@ namespace Renci.SshNet
             if (newPath == null)
                 throw new ArgumentNullException("newPath");
 
+            if (this._sftpSession == null)
+                throw new SshConnectionException("Client not connected.");
+
             var oldFullPath = this._sftpSession.GetCanonicalPath(oldPath);
 
             var newFullPath = this._sftpSession.GetCanonicalPath(newPath);
@@ -280,6 +295,9 @@ namespace Renci.SshNet
 
             if (linkPath.IsNullOrWhiteSpace())
                 throw new ArgumentException("linkPath");
+
+            if (this._sftpSession == null)
+                throw new SshConnectionException("Client not connected.");
 
             var fullPath = this._sftpSession.GetCanonicalPath(path);
 
@@ -376,6 +394,9 @@ namespace Renci.SshNet
             if (path == null)
                 throw new ArgumentNullException("path");
 
+            if (this._sftpSession == null)
+                throw new SshConnectionException("Client not connected.");
+
             var fullPath = this._sftpSession.GetCanonicalPath(path);
 
             var attributes = this._sftpSession.RequestLStat(fullPath);
@@ -396,6 +417,9 @@ namespace Renci.SshNet
         {
             if (path.IsNullOrWhiteSpace())
                 throw new ArgumentException("path");
+
+            if (this._sftpSession == null)
+                throw new SshConnectionException("Client not connected.");
 
             var fullPath = this._sftpSession.GetFullRemotePath(path);
 
@@ -754,6 +778,9 @@ namespace Renci.SshNet
         {
             if (path == null)
                 throw new ArgumentNullException("path");
+
+            if (this._sftpSession == null)
+                throw new SshConnectionException("Client not connected.");
 
             var fullPath = this._sftpSession.GetCanonicalPath(path);
 
@@ -1285,6 +1312,9 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="path"/> is <b>null</b>.</exception>
         public SftpFileAttributes GetAttributes(string path)
         {
+            if (this._sftpSession == null)
+                throw new SshConnectionException("Client not connected.");
+
             var fullPath = this._sftpSession.GetCanonicalPath(path);
 
             return this._sftpSession.RequestLStat(fullPath);
@@ -1298,6 +1328,9 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="path"/> is <b>null</b>.</exception>
         public void SetAttributes(string path, SftpFileAttributes fileAttributes)
         {
+            if (this._sftpSession == null)
+                throw new SshConnectionException("Client not connected.");
+
             var fullPath = this._sftpSession.GetCanonicalPath(path);
 
             this._sftpSession.RequestSetStat(fullPath, fileAttributes);
@@ -1327,6 +1360,9 @@ namespace Renci.SshNet
         {
             if (path == null)
                 throw new ArgumentNullException("path");
+
+            if (this._sftpSession == null)
+                throw new SshConnectionException("Client not connected.");
 
             var fullPath = this._sftpSession.GetCanonicalPath(path);
 
@@ -1379,6 +1415,9 @@ namespace Renci.SshNet
 
             if (path.IsNullOrWhiteSpace())
                 throw new ArgumentException("path");
+
+            if (this._sftpSession == null)
+                throw new SshConnectionException("Client not connected.");
 
             var fullPath = this._sftpSession.GetCanonicalPath(path);
 
@@ -1434,6 +1473,9 @@ namespace Renci.SshNet
             if (path.IsNullOrWhiteSpace())
                 throw new ArgumentException("path");
 
+            if (this._sftpSession == null)
+                throw new SshConnectionException("Client not connected.");
+
             var fullPath = this._sftpSession.GetCanonicalPath(path);
 
             var handle = this._sftpSession.RequestOpen(fullPath, flags);
@@ -1444,7 +1486,7 @@ namespace Renci.SshNet
 
             var bytesRead = input.Read(buffer, 0, buffer.Length);
             var expectedResponses = 0;
-            var expectedResponsesLock = new object();
+            var responseReceivedWaitHandle = new AutoResetEvent(false);
 
             do
             {
@@ -1467,25 +1509,18 @@ namespace Renci.SshNet
                     {
                         if (s.StatusCode == StatusCodes.Ok)
                         {
-                            lock (expectedResponsesLock)
+                            expectedResponses--;
+                            responseReceivedWaitHandle.Set();
+
+                            //  Call callback to report number of bytes written
+                            if (uploadCallback != null)
                             {
-                                expectedResponses--;
-
-                                //  Call callback to report number of bytes written
-                                if (uploadCallback != null)
-                                {
-                                    //  Execute callback on different thread                
-                                    this.ExecuteThread(() => { uploadCallback(writtenBytes); });
-                                }
-
-                                Monitor.Pulse(expectedResponsesLock);
+                                //  Execute callback on different thread                
+                                this.ExecuteThread(() => { uploadCallback(writtenBytes); });
                             }
                         }
                     });
-                    lock (expectedResponsesLock)
-                    {
-                        expectedResponses++;
-                    }
+                    expectedResponses++;
 
                     offset += (uint)bytesRead;
 
@@ -1494,10 +1529,7 @@ namespace Renci.SshNet
                 else if (expectedResponses > 0)
                 {
                     //  Wait for expectedResponses to change
-                    lock (expectedResponsesLock)
-                    {
-                        Monitor.Wait(expectedResponsesLock);
-                    }
+                    this._sftpSession.WaitHandle(responseReceivedWaitHandle, this.OperationTimeout);
                 }
             } while (expectedResponses > 0 || bytesRead > 0);
 

@@ -27,9 +27,9 @@ namespace Renci.SshNet.Sftp
 
         private Exception _exception;
 
-        private EventWaitHandle _errorOccuredWaitHandle = new AutoResetEvent(false);
+        private EventWaitHandle _errorOccuredWaitHandle = new ManualResetEvent(false);
 
-        private EventWaitHandle _channelClosedWaitHandle = new AutoResetEvent(false);
+        private EventWaitHandle _channelClosedWaitHandle = new ManualResetEvent(false);
 
         /// <summary>
         /// Specifies a timeout to wait for operation to complete
@@ -165,11 +165,7 @@ namespace Renci.SshNet.Sftp
             switch (EventWaitHandle.WaitAny(waitHandles, operationTimeout))
             {
                 case 0:
-                    {
-                        var exception = this._exception;
-                        this._exception = null;
-                        throw exception;
-                    }
+                    throw this._exception;
                 case 1:
                     throw new SshException("Channel was closed.");
                 case System.Threading.WaitHandle.WaitTimeout:
@@ -197,7 +193,7 @@ namespace Renci.SshNet.Sftp
         #region IDisposable Members
 
         private bool _isDisposed = false;
-        
+
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>

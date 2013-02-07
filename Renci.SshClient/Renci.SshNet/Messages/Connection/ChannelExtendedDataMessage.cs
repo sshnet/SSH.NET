@@ -28,9 +28,11 @@
         /// Initializes a new instance of the <see cref="ChannelExtendedDataMessage"/> class.
         /// </summary>
         /// <param name="localChannelNumber">The local channel number.</param>
-        public ChannelExtendedDataMessage(uint localChannelNumber)
+        public ChannelExtendedDataMessage(uint localChannelNumber, uint dataTypeCode, byte[] data)
         {
             this.LocalChannelNumber = localChannelNumber;
+            this.DataTypeCode = dataTypeCode;
+            this.Data = data;
         }
 
         /// <summary>

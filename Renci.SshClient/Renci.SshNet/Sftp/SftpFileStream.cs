@@ -209,6 +209,9 @@ namespace Renci.SshNet.Sftp
         internal SftpFileStream(SftpSession session, string path, FileMode mode, FileAccess access, int bufferSize, bool useAsync)
         {
             // Validate the parameters.
+            if (session == null)
+                throw new SshConnectionException("Client not connected.");
+
             if (path == null)
             {
                 throw new ArgumentNullException("path");

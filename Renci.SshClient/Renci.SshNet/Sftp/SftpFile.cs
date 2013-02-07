@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security;
 using System.Globalization;
+using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Sftp
 {
@@ -27,6 +28,9 @@ namespace Renci.SshNet.Sftp
         /// <exception cref="ArgumentNullException"><paramref name="sftpSession"/> or <paramref name="fullName"/> is null.</exception>
         internal SftpFile(SftpSession sftpSession, string fullName, SftpFileAttributes attributes)
         {
+            if (sftpSession == null)
+                throw new SshConnectionException("Client not connected.");
+
             if (attributes == null)
                 throw new ArgumentNullException("attributes");
 

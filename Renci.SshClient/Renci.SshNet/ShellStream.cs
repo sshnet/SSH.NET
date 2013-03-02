@@ -281,10 +281,7 @@ namespace Renci.SshNet
                 {
                     if (this._incoming.Count > 0)
                     {
-                        lock (this._encoding)
-                        {
-                            text = this._encoding.GetString(this._incoming.ToArray(), 0, this._incoming.Count);
-                        }
+                        text = this._encoding.GetString(this._incoming.ToArray(), 0, this._incoming.Count);
                     }
 
                     if (text.Length > 0)
@@ -398,10 +395,7 @@ namespace Renci.SshNet
 
                             if (this._incoming.Count > 0)
                             {
-                                lock (this._encoding)
-                                {
-                                    text = this._encoding.GetString(this._incoming.ToArray(), 0, this._incoming.Count);
-                                }
+                                text = this._encoding.GetString(this._incoming.ToArray(), 0, this._incoming.Count);
                             }
 
                             if (text.Length > 0)
@@ -533,10 +527,7 @@ namespace Renci.SshNet
                 {
                     if (this._incoming.Count > 0)
                     {
-                        lock (this._encoding)
-                        {
-                            text = this._encoding.GetString(this._incoming.ToArray(), 0, this._incoming.Count);
-                        }
+                        text = this._encoding.GetString(this._incoming.ToArray(), 0, this._incoming.Count);
                     }
 
                     var match = regex.Match(text);
@@ -595,10 +586,7 @@ namespace Renci.SshNet
                 {
                     if (this._incoming.Count > 0)
                     {
-                        lock (this._encoding)
-                        {
-                            text = this._encoding.GetString(this._incoming.ToArray(), 0, this._incoming.Count);
-                        }
+                        text = this._encoding.GetString(this._incoming.ToArray(), 0, this._incoming.Count);
                     }
 
                     var index = text.IndexOf("\r\n");
@@ -643,10 +631,7 @@ namespace Renci.SshNet
 
             lock (this._incoming)
             {
-                lock (this._encoding)
-                {
-                    text = this._encoding.GetString(this._incoming.ToArray(), 0, this._incoming.Count);
-                }
+                text = this._encoding.GetString(this._incoming.ToArray(), 0, this._incoming.Count);
                 this._incoming.Clear();
             }
 
@@ -740,9 +725,12 @@ namespace Renci.SshNet
 
         private void Channel_DataReceived(object sender, ChannelDataEventArgs e)
         {
-            foreach (var b in e.Data)
+            lock (this._incoming)
             {
-                _incoming.Enqueue(b);
+                foreach (var b in e.Data)
+                {
+                    this._incoming.Enqueue(b);
+                }
             }
 
             this._dataReceived.Set();

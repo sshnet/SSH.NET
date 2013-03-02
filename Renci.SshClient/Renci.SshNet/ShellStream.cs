@@ -49,7 +49,10 @@ namespace Renci.SshNet
         {
             get
             {
-                return this._incoming.Count > 0;
+                lock (this._incoming)
+                {
+                    return this._incoming.Count > 0;
+                }
             }
         }
 
@@ -124,7 +127,13 @@ namespace Renci.SshNet
         /// <exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed. </exception>
         public override long Length
         {
-            get { return this._incoming.Count; }
+            get
+            {
+                lock (this._incoming)
+                {
+                    return this._incoming.Count;
+                }
+            }
         }
 
         /// <summary>
@@ -271,7 +280,12 @@ namespace Renci.SshNet
                 lock (this._incoming)
                 {
                     if (this._incoming.Count > 0)
-                        text = this._encoding.GetString(this._incoming.ToArray(), 0, this._incoming.Count);
+                    {
+                        lock (this._encoding)
+                        {
+                            text = this._encoding.GetString(this._incoming.ToArray(), 0, this._incoming.Count);
+                        }
+                    }
 
                     if (text.Length > 0)
                     {
@@ -383,7 +397,12 @@ namespace Renci.SshNet
                         {
 
                             if (this._incoming.Count > 0)
-                                text = this._encoding.GetString(this._incoming.ToArray(), 0, this._incoming.Count);
+                            {
+                                lock (this._encoding)
+                                {
+                                    text = this._encoding.GetString(this._incoming.ToArray(), 0, this._incoming.Count);
+                                }
+                            }
 
                             if (text.Length > 0)
                             {
@@ -513,7 +532,12 @@ namespace Renci.SshNet
                 lock (this._incoming)
                 {
                     if (this._incoming.Count > 0)
-                        text = this._encoding.GetString(this._incoming.ToArray(), 0, this._incoming.Count);
+                    {
+                        lock (this._encoding)
+                        {
+                            text = this._encoding.GetString(this._incoming.ToArray(), 0, this._incoming.Count);
+                        }
+                    }
 
                     var match = regex.Match(text);
 
@@ -570,7 +594,12 @@ namespace Renci.SshNet
                 lock (this._incoming)
                 {
                     if (this._incoming.Count > 0)
-                        text = this._encoding.GetString(this._incoming.ToArray(), 0, this._incoming.Count);
+                    {
+                        lock (this._encoding)
+                        {
+                            text = this._encoding.GetString(this._incoming.ToArray(), 0, this._incoming.Count);
+                        }
+                    }
 
                     var index = text.IndexOf("\r\n");
 
@@ -614,7 +643,10 @@ namespace Renci.SshNet
 
             lock (this._incoming)
             {
-                text = this._encoding.GetString(this._incoming.ToArray(), 0, this._incoming.Count);
+                lock (this._encoding)
+                {
+                    text = this._encoding.GetString(this._incoming.ToArray(), 0, this._incoming.Count);
+                }
                 this._incoming.Clear();
             }
 

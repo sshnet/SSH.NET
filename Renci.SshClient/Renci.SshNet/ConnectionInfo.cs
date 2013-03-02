@@ -410,7 +410,7 @@ namespace Renci.SshNet
             var triedAuthentications = new List<string>();
             while (authenticated != AuthenticationResult.Success)
             {
-                //  Find first authentication method
+                // Find first authentication method
                 var method = this.AuthenticationMethods.Where((a) => allowedAuthentications.Contains(a.Name) && !triedAuthentications.Contains(a.Name)).FirstOrDefault();
                 if (method == null)
                     throw new SshAuthenticationException("No suitable authentication method found to complete authentication.");
@@ -421,13 +421,16 @@ namespace Renci.SshNet
 
                 if (authenticated == AuthenticationResult.PartialSuccess)
                 {
-                    //  If further authentication is required then continue to try another method
+                    // If further authentication is required then continue to try another method
                     allowedAuthentications = method.AllowedAuthentications;
                     continue;
                 }
 
-                //  If authentication was successful or failure, exit
-                break;
+                // If authentication Fail, and all the authentication have been tried.
+                if (authenticated == AuthenticationResult.Failure && (triedAuthentications.Count() == allowedAuthentications.Count()))
+                {
+                    break;
+                }
             }
 
             session.UserAuthenticationBannerReceived -= Session_UserAuthenticationBannerReceived;

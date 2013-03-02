@@ -451,15 +451,15 @@ namespace Renci.SshNet
                             break;
                         case ProxyTypes.Socks4:
                             this.SocketConnect(this.ConnectionInfo.ProxyHost, this.ConnectionInfo.ProxyPort);
-                            this.ConnectSocks4(this._socket);
+                            this.ConnectSocks4();
                             break;
                         case ProxyTypes.Socks5:
                             this.SocketConnect(this.ConnectionInfo.ProxyHost, this.ConnectionInfo.ProxyPort);
-                            this.ConnectSocks5(this._socket);
+                            this.ConnectSocks5();
                             break;
                         case ProxyTypes.Http:
                             this.SocketConnect(this.ConnectionInfo.ProxyHost, this.ConnectionInfo.ProxyPort);
-                            this.ConnectHttp(this._socket);
+                            this.ConnectHttp();
                             break;
                         default:
                             break;
@@ -1608,7 +1608,7 @@ namespace Renci.SshNet
             this.SocketWrite(new byte[] { data });
         }
 
-        private void ConnectSocks4(Socket socket)
+        private void ConnectSocks4()
         {
             //  Send socks version number
             this.SocketWriteByte(0x04);
@@ -1661,7 +1661,7 @@ namespace Renci.SshNet
             this.SocketRead(4, ref dummyBuffer);
         }
 
-        private void ConnectSocks5(Socket socket)
+        private void ConnectSocks5()
         {
             //  Send socks version number
             this.SocketWriteByte(0x05);
@@ -1821,7 +1821,7 @@ namespace Renci.SshNet
 
         }
 
-        private void ConnectHttp(Socket socket)
+        private void ConnectHttp()
         {
             var httpResponseRe = new Regex(@"HTTP/(?<version>\d[.]\d) (?<statusCode>\d{3}) (?<reasonPhrase>.+)$");
             var httpHeaderRe = new Regex(@"(?<fieldName>[^\[\]()<>@,;:\""/?={} \t]+):(?<fieldValue>.+)?");
@@ -1834,14 +1834,14 @@ namespace Renci.SshNet
             if (!string.IsNullOrEmpty(this.ConnectionInfo.ProxyUsername))
             {
                 var authorization = string.Format("Proxy-Authorization: Basic {0}\r\n",
-                    Convert.ToBase64String(encoding.GetBytes(string.Format("{0}:{1}", this.ConnectionInfo.ProxyUsername, this.ConnectionInfo.ProxyPassword)))
-                    );
+                                                  Convert.ToBase64String(encoding.GetBytes(string.Format("{0}:{1}", this.ConnectionInfo.ProxyUsername, this.ConnectionInfo.ProxyPassword)))
+                                                  );
                 this.SocketWrite(encoding.GetBytes(authorization));
             }
 
             this.SocketWrite(encoding.GetBytes("\r\n"));
 
-            var statusCode = 0;
+            HttpStatusCode statusCode = HttpStatusCode.OK;
             var response = string.Empty;
             var contentLength = 0;
 
@@ -1853,21 +1853,20 @@ namespace Renci.SshNet
 
                 if (match.Success)
                 {
-                    statusCode = int.Parse(match.Result("${statusCode}"));
+                    statusCode = (HttpStatusCode)int.Parse(match.Result("${statusCode}"));
                     continue;
                 }
-                else
+
+                // continue on parsing message headers coming from the server
+                match = httpHeaderRe.Match(response);
+                if (match.Success)
                 {
-                    match = httpHeaderRe.Match(response);
-                    if (match.Success)
+                    var fieldName = match.Result("${fieldName}");
+                    if (fieldName.Equals("Content-Length", StringComparison.InvariantCultureIgnoreCase))
                     {
-                        var fieldName = match.Result("${fieldName}");
-                        if (fieldName.Equals("Content-Length", StringComparison.InvariantCultureIgnoreCase))
-                        {
-                            contentLength = int.Parse(match.Result("${fieldValue}"));
-                        }
-                        continue;
+                        contentLength = int.Parse(match.Result("${fieldValue}"));
                     }
+                    continue;
                 }
 
                 //  Read response body if specified
@@ -1877,15 +1876,12 @@ namespace Renci.SshNet
                     this.SocketRead(contentLength, ref contentBody);
                 }
 
-                if (statusCode == 200 && string.IsNullOrEmpty(response))
+                switch (statusCode)
                 {
-                    //  Once all HTTP header information is read, exit
-                    break;
-                }
-                else
-                {
-                    var reasonPhrase = match.Result("${reasonPhrase}");
-                    throw new ProxyException(string.Format("HTTP: Status code {0}, Reason \"{1}\"", statusCode, reasonPhrase));
+                    case HttpStatusCode.OK:
+                        break;
+                    default:
+                        throw new ProxyException(string.Format("HTTP: Status code {0}, \"{1}\"", statusCode, statusCode));
                 }
             }
         }

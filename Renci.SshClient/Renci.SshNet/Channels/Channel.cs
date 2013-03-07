@@ -498,25 +498,9 @@ namespace Renci.SshNet.Channels
 
         protected virtual void Close(bool wait)
         {
-            if (!wait)
-            {
-                this._session.ChannelOpenReceived -= OnChannelOpen;
-                this._session.ChannelOpenConfirmationReceived -= OnChannelOpenConfirmation;
-                this._session.ChannelOpenFailureReceived -= OnChannelOpenFailure;
-                this._session.ChannelWindowAdjustReceived -= OnChannelWindowAdjust;
-                this._session.ChannelDataReceived -= OnChannelData;
-                this._session.ChannelExtendedDataReceived -= OnChannelExtendedData;
-                this._session.ChannelEofReceived -= OnChannelEof;
-                this._session.ChannelCloseReceived -= OnChannelClose;
-                this._session.ChannelRequestReceived -= OnChannelRequest;
-                this._session.ChannelSuccessReceived -= OnChannelSuccess;
-                this._session.ChannelFailureReceived -= OnChannelFailure;
-                this._session.ErrorOccured -= Session_ErrorOccured;
-                this._session.Disconnected -= Session_Disconnected;
-            }
-
             //  Send message to close the channel on the server
-            if (!_closeMessageSent)
+            //  Ignore sending close message during dispose object phase
+            if (!_closeMessageSent && this._isDisposing)
             {
                 lock (this)
                 {
@@ -677,6 +661,8 @@ namespace Renci.SshNet.Channels
 
         private bool _isDisposed = false;
 
+        private bool _isDisposing = false;
+
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
@@ -692,7 +678,7 @@ namespace Renci.SshNet.Channels
         /// </summary>
         /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
-        {
+        {            
             // Check to see if Dispose has already been called.
             if (!this._isDisposed)
             {
@@ -700,6 +686,8 @@ namespace Renci.SshNet.Channels
                 // and unmanaged resources.
                 if (disposing)
                 {
+                    this._isDisposing = true;
+
                     this.Close(false);
 
                     // Dispose managed resources.
@@ -742,7 +730,10 @@ namespace Renci.SshNet.Channels
 
 
                 // Note disposing has been done.
-                _isDisposed = true;
+                this._isDisposed = true;
+
+                this._isDisposing = false;
+
             }
         }
 

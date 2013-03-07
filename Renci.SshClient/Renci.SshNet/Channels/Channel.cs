@@ -519,8 +519,18 @@ namespace Renci.SshNet.Channels
             }
         }
 
+        protected virtual void OnDisconnected()
+        {
+        }
+
+        protected virtual void OnErrorOccured(Exception exp)
+        {
+        }
+
         private void Session_Disconnected(object sender, EventArgs e)
         {
+            this.OnDisconnected();
+
             //  If objected is disposed or being disposed don't handle this event
             if (this._isDisposed)
                 return;
@@ -530,6 +540,8 @@ namespace Renci.SshNet.Channels
 
         private void Session_ErrorOccured(object sender, ExceptionEventArgs e)
         {
+            this.OnErrorOccured(e.Exception);
+
             //  If objected is disposed or being disposed don't handle this event
             if (this._isDisposed)
                 return;

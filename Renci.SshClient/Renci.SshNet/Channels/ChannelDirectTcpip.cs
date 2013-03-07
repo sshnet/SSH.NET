@@ -194,6 +194,22 @@ namespace Renci.SshNet.Channels
             this._channelEof.Set();
         }
 
+        protected override void OnErrorOccured(Exception exp)
+        {
+            base.OnErrorOccured(exp);
+
+            //  If error occured, no more data can be received
+            this._channelEof.Set();
+        }
+
+        protected override void OnDisconnected()
+        {
+            base.OnDisconnected();
+
+            //  If disconnected, no more data can be received
+            this._channelEof.Set();
+        }
+
         partial void ExecuteThread(Action action);
 
         partial void InternalSocketReceive(byte[] buffer, ref int read);

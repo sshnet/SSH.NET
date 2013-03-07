@@ -27,6 +27,9 @@ namespace Renci.SshNet
             this._listener = new TcpListener(ep);
             this._listener.Start();
 
+            this.Session.ErrorOccured += Session_ErrorOccured;
+            this.Session.Disconnected += Session_Disconnected;
+
             this._listenerTaskCompleted = new ManualResetEvent(false);
             this.ExecuteThread(() =>
             {
@@ -101,6 +104,16 @@ namespace Renci.SshNet
             this._listenerTaskCompleted = null;
 
             this.IsStarted = false;
+        }
+
+        private void Session_ErrorOccured(object sender, Common.ExceptionEventArgs e)
+        {
+            this._listener.Stop();
+        }
+
+        private void Session_Disconnected(object sender, EventArgs e)
+        {
+            this._listener.Stop();
         }
     }
 }

@@ -499,8 +499,8 @@ namespace Renci.SshNet.Channels
         protected virtual void Close(bool wait)
         {
             //  Send message to close the channel on the server
-            //  Ignore sending close message during dispose object phase
-            if (!_closeMessageSent && this._isDisposing)
+            //  Ignore sending close message when client not connected
+            if (!_closeMessageSent && this.IsConnected)
             {
                 lock (this)
                 {
@@ -661,8 +661,6 @@ namespace Renci.SshNet.Channels
 
         private bool _isDisposed = false;
 
-        private bool _isDisposing = false;
-
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
@@ -686,8 +684,6 @@ namespace Renci.SshNet.Channels
                 // and unmanaged resources.
                 if (disposing)
                 {
-                    this._isDisposing = true;
-
                     this.Close(false);
 
                     // Dispose managed resources.
@@ -731,9 +727,6 @@ namespace Renci.SshNet.Channels
 
                 // Note disposing has been done.
                 this._isDisposed = true;
-
-                this._isDisposing = false;
-
             }
         }
 

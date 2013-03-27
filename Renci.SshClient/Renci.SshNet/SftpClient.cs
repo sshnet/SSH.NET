@@ -1509,7 +1509,7 @@ namespace Renci.SshNet
                     {
                         if (s.StatusCode == StatusCodes.Ok)
                         {
-                            expectedResponses--;
+                            Interlocked.Decrement(ref expectedResponses); 
                             responseReceivedWaitHandle.Set();
 
                             //  Call callback to report number of bytes written
@@ -1520,7 +1520,7 @@ namespace Renci.SshNet
                             }
                         }
                     });
-                    expectedResponses++;
+                    Interlocked.Increment(ref expectedResponses);
 
                     offset += (uint)bytesRead;
 

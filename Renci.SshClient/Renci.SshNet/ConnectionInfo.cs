@@ -419,7 +419,7 @@ namespace Renci.SshNet
 
                 authenticated = method.Authenticate(session);
 
-                if (authenticated == AuthenticationResult.PartialSuccess)
+                if (authenticated == AuthenticationResult.PartialSuccess || (method.AllowedAuthentications != null && method.AllowedAuthentications.Count() < allowedAuthentications.Count()))
                 {
                     // If further authentication is required then continue to try another method
                     allowedAuthentications = method.AllowedAuthentications;

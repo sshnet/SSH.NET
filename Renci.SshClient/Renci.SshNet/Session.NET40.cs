@@ -22,7 +22,7 @@ namespace Renci.SshNet
 
         partial void ExecuteThread(Action action)
         {
-            Task.Factory.StartNew(action, TaskCreationOptions.LongRunning);
+            ThreadPool.QueueUserWorkItem((o) => { action(); });
         }
 
         partial void InternalRegisterMessage(string messageName)

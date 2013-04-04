@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Renci.SshNet
@@ -10,7 +11,7 @@ namespace Renci.SshNet
     {
         partial void ExecuteThread(Action action)
         {
-            Task.Factory.StartNew(action);
+            ThreadPool.QueueUserWorkItem((o) => { action(); });
         }
     }
 }

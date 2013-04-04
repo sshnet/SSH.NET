@@ -1481,9 +1481,10 @@ namespace Renci.SshNet
 
         private void KeyExchange_HostKeyReceived(object sender, HostKeyEventArgs e)
         {
-            if (this.HostKeyReceived != null)
+            var handler = this.HostKeyReceived;
+            if (handler != null)
             {
-                this.HostKeyReceived(this, e);
+                handler(this, e);
             }
         }
 

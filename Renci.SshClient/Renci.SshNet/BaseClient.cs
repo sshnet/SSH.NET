@@ -182,17 +182,19 @@ namespace Renci.SshNet
 
          private void Session_ErrorOccured(object sender, ExceptionEventArgs e)
         {
-            if (this.ErrorOccurred != null)
+            var handler = this.ErrorOccurred;
+            if (handler != null)
             {
-                this.ErrorOccurred(this, e);
+                handler(this, e);
             }
         }
 
         private void Session_HostKeyReceived(object sender, HostKeyEventArgs e)
         {
-            if (this.HostKeyReceived != null)
+            var handler = this.HostKeyReceived;
+            if (handler != null)
             {
-                this.HostKeyReceived(this, e);
+                handler(this, e);
             }
         }
 

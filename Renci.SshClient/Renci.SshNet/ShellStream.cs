@@ -740,14 +740,20 @@ namespace Renci.SshNet
 
         private void OnRaiseError(ExceptionEventArgs e)
         {
-            if (this.ErrorOccurred != null)
-                this.ErrorOccurred(this, e);
+            var handler = this.ErrorOccurred;
+            if (handler != null)
+            {
+                handler(this, e);
+            }
         }
 
         private void OnDataReceived(byte[] data)
         {
-            if (this.DataReceived != null)
-                this.DataReceived(this, new ShellDataEventArgs(data));
+            var handler = this.DataReceived;
+            if (handler != null)
+            {
+                handler(this, new ShellDataEventArgs(data));
+            }
         }
     }
 }

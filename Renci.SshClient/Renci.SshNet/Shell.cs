@@ -212,9 +212,10 @@ namespace Renci.SshNet
 
         private void RaiseError(ExceptionEventArgs e)
         {
-            if (this.ErrorOccurred != null)
+            var handler = this.ErrorOccurred;
+            if (handler != null)
             {
-                this.ErrorOccurred(this, e);
+                handler(this, e);
             }
         }
 

@@ -81,6 +81,8 @@ namespace Renci.SshNet
             {
                 response = string.Empty;
             }
+            else if (buffer.Count == 0) 
+                response = string.Empty;
             else if (buffer.Count > 1 && buffer[buffer.Count - 2] == 0x0D)
                 response = encoding.GetString(buffer.ToArray(), 0, buffer.Count - 2);
             else

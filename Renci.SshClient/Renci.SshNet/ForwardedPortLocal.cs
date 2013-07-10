@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using System.Net;
 
 namespace Renci.SshNet
 {
@@ -9,12 +10,12 @@ namespace Renci.SshNet
     public partial class ForwardedPortLocal : ForwardedPort, IDisposable
     {
         private EventWaitHandle _listenerTaskCompleted;
-
+		
         /// <summary>
         /// Gets the bound host.
         /// </summary>
         public string BoundHost { get; protected set; }
-
+		
         /// <summary>
         /// Gets the bound port.
         /// </summary>
@@ -43,6 +44,16 @@ namespace Renci.SshNet
             : this(string.Empty, boundPort, host, port)
         {
         }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ForwardedPortLocal"/> class.
+        /// </summary>
+        /// <param name="host">The host.</param>
+        /// <param name="port">The port.</param>
+		public ForwardedPortLocal(string boundHost, string host, uint port)
+			: this(boundHost, 0, host, port) 
+		{
+		}
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ForwardedPortLocal"/> class.

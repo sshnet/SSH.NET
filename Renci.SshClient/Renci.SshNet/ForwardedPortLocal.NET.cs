@@ -26,6 +26,8 @@ namespace Renci.SshNet
 
             this._listener = new TcpListener(ep);
             this._listener.Start();
+            //  Update bound port if original was passed as zero
+			this.BoundPort = (uint) ((IPEndPoint) _listener.LocalEndpoint).Port;
 
             this.Session.ErrorOccured += Session_ErrorOccured;
             this.Session.Disconnected += Session_Disconnected;

@@ -180,18 +180,21 @@ namespace Renci.SshNet.Channels
         /// <summary>
         /// Called when channel has no more data to receive.
         /// </summary>
-        protected override void OnEof()
-        {
-            base.OnEof();
+        protected override void OnEof() {
+	        base.OnEof();
 
-            this._channelEof.Set();
+            EventWaitHandle channelEof = this._channelEof;
+            if (channelEof != null)
+                channelEof.Set();
         }
 
         protected override void OnClose()
         {
             base.OnClose();
 
-            this._channelEof.Set();
+            EventWaitHandle channelEof = this._channelEof;
+            if (channelEof != null)
+                channelEof.Set();
         }
 
         protected override void OnErrorOccured(Exception exp)
@@ -199,7 +202,9 @@ namespace Renci.SshNet.Channels
             base.OnErrorOccured(exp);
 
             //  If error occured, no more data can be received
-            this._channelEof.Set();
+            EventWaitHandle channelEof = this._channelEof;
+            if (channelEof != null)
+                channelEof.Set();
         }
 
         protected override void OnDisconnected()
@@ -207,7 +212,9 @@ namespace Renci.SshNet.Channels
             base.OnDisconnected();
 
             //  If disconnected, no more data can be received
-            this._channelEof.Set();
+            EventWaitHandle channelEof = this._channelEof;
+            if (channelEof != null)
+                channelEof.Set();
         }
 
         partial void ExecuteThread(Action action);

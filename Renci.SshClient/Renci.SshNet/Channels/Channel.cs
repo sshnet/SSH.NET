@@ -531,22 +531,26 @@ namespace Renci.SshNet.Channels
         {
             this.OnDisconnected();
 
-            //  If objected is disposed or being disposed don't handle this event
+            //  If object is disposed or being disposed don't handle this event
             if (this._isDisposed)
                 return;
 
-            this._disconnectedWaitHandle.Set();
+            EventWaitHandle disconnectedWaitHandle = this._disconnectedWaitHandle;
+            if (disconnectedWaitHandle != null)
+                disconnectedWaitHandle.Set();
         }
 
         private void Session_ErrorOccured(object sender, ExceptionEventArgs e)
         {
             this.OnErrorOccured(e.Exception);
 
-            //  If objected is disposed or being disposed don't handle this event
+            //  If object is disposed or being disposed don't handle this event
             if (this._isDisposed)
                 return;
 
-            this._errorOccuredWaitHandle.Set();
+            EventWaitHandle errorOccuredWaitHandle = this._errorOccuredWaitHandle;
+            if (errorOccuredWaitHandle != null)
+                errorOccuredWaitHandle.Set();
         }
 
         #region Channel message event handlers

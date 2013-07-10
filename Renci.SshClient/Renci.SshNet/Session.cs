@@ -1842,11 +1842,11 @@ namespace Renci.SshNet
 
             this.SocketWrite(encoding.GetBytes("\r\n"));
 
-            HttpStatusCode statusCode = HttpStatusCode.OK;
+            HttpStatusCode statusCode = (HttpStatusCode)0;
             var response = string.Empty;
             var contentLength = 0;
 
-            while (true)
+            while (statusCode != HttpStatusCode.OK)
             {
                 this.SocketReadLine(ref response);
 

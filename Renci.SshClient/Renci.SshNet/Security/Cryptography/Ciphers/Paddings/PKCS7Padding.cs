@@ -26,7 +26,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers.Paddings
             Buffer.BlockCopy(input, 0, output, 0, input.Length);
             for (int i = 0; i < numOfPaddedBytes; i++)
             {
-                output[input.Length + i] = output[input.Length - 1];
+                output[input.Length + i] = (byte)numOfPaddedBytes;
             }
 
             return output;

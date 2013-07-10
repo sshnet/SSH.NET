@@ -309,7 +309,7 @@ namespace Renci.SshNet
 
                 if (!expectedFound)
                 {
-                    if (timeout != null)
+                    if (timeout.Ticks > 0)
                     {
                         if (!this._dataReceived.WaitOne(timeout))
                         {
@@ -429,7 +429,7 @@ namespace Renci.SshNet
                         if (expectActionResult != null)
                             break;
 
-                        if (timeout != null)
+                        if (timeout.Ticks > 0)
                         {
                             if (!this._dataReceived.WaitOne(timeout))
                             {
@@ -543,7 +543,7 @@ namespace Renci.SshNet
                     }
                 }
 
-                if (timeout != null)
+                if (timeout.Ticks > 0)
                 {
                     if (!this._dataReceived.WaitOne(timeout))
                     {
@@ -604,7 +604,7 @@ namespace Renci.SshNet
                     }
                 }
 
-                if (timeout != null)
+                if (timeout.Ticks > 0)
                 {
                     if (!this._dataReceived.WaitOne(timeout))
                     {

@@ -18,7 +18,7 @@ namespace Renci.SshNet.Channels
             var ep = new IPEndPoint(connectedHost, (int)connectedPort);
             this._socket = new Socket(ep.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
             this._socket.Connect(ep);
-            this._socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.NoDelay, 1);
+            this._socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.NoDelay, 1);
         }
 
         partial void InternalSocketReceive(byte[] buffer, ref int read)

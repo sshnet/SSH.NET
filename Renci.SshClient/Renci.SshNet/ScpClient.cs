@@ -141,7 +141,7 @@ namespace Renci.SshNet
         /// Uploads the specified stream to the remote host.
         /// </summary>
         /// <param name="source">Stream to upload.</param>
-        /// <param name="filename">Remote host file name.</param>
+        /// <param name="path">Remote host file name.</param>
         public void Upload(Stream source, string path)
         {
             using (var input = new PipeStream())
@@ -155,28 +155,20 @@ namespace Renci.SshNet
 
                 channel.Open();
 
-                var pathParts = path.Split('\\', '/');
-
-                //  Send channel command request
-                channel.SendExecRequest(string.Format("scp -rt \"{0}\"", pathParts[0]));
-                this.CheckReturnCode(input);
-
-                //  Prepare directory structure
-                for (int i = 0; i < pathParts.Length - 1; i++)
+                int pathEnd = path.LastIndexOfAny(new[] { '\\', '/' });
+                if (pathEnd != -1)
                 {
-                    this.InternalSetTimestamp(channel, input, DateTime.UtcNow, DateTime.UtcNow);
-                    this.SendData(channel, string.Format("D0755 0 {0}\n", pathParts[i]));
+                    // split the path from the file
+                    string pathOnly = path.Substring(0, pathEnd);
+                    string fileOnly = path.Substring(pathEnd + 1);
+                    //  Send channel command request
+                    channel.SendExecRequest(string.Format("scp -t \"{0}\"", pathOnly));
                     this.CheckReturnCode(input);
+
+                    path = fileOnly;
                 }
 
-                this.InternalUpload(channel, input, source, pathParts.Last());
-
-                //  Finish directory structure
-                for (int i = 0; i < pathParts.Length - 1; i++)
-                {
-                    this.SendData(channel, "E\n");
-                    this.CheckReturnCode(input);
-                }
+                this.InternalUpload(channel, input, source, path);
 
                 channel.Close();
             }

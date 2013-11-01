@@ -617,7 +617,8 @@ namespace Renci.SshNet.Channels
             {
                 this.OnClose();
 
-                this._channelClosedWaitHandle.Set();
+                if (this._channelClosedWaitHandle != null)
+                    this._channelClosedWaitHandle.Set();
             }
         }
 

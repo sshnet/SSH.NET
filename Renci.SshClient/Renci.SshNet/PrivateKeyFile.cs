@@ -54,14 +54,8 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="fileName"/> is null or empty.</exception>
         /// <remarks>This method calls <see cref="System.IO.File.Open(string, System.IO.FileMode)"/> internally, this method does not catch exceptions from <see cref="System.IO.File.Open(string, System.IO.FileMode)"/>.</remarks>
         public PrivateKeyFile(string fileName)
+            : this(fileName, null)
         {
-            if (string.IsNullOrEmpty(fileName))
-                throw new ArgumentNullException("fileName");
-
-            using (var keyFile = File.Open(fileName, FileMode.Open, FileAccess.Read))
-            {
-                this.Open(keyFile, null);
-            }
         }
 
         /// <summary>
@@ -76,7 +70,7 @@ namespace Renci.SshNet
             if (string.IsNullOrEmpty(fileName))
                 throw new ArgumentNullException("fileName");
 
-            using (var keyFile = File.Open(fileName, FileMode.Open, FileAccess.Read))
+            using (var keyFile = File.Open(fileName, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
                 this.Open(keyFile, passPhrase);
             }

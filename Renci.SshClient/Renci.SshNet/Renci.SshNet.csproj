@@ -331,7 +331,7 @@
     <Compile Include="Security\Cryptography\Hashes\SHA256Hash.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Security\Cryptography\HMac.cs">
+    <Compile Include="Security\Cryptography\HMAC.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Security\Cryptography\Key.cs">

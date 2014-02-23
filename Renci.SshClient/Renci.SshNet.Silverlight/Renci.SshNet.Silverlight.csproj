@@ -578,8 +578,8 @@
     <Compile Include="..\Renci.SshNet\Security\Cryptography\Hashes\SHA512Hash.cs">
       <Link>Security\Cryptography\Hashes\SHA512Hash.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\Security\Cryptography\HMac.cs">
-      <Link>Security\Cryptography\HMac.cs</Link>
+    <Compile Include="..\Renci.SshNet\Security\Cryptography\HMAC.cs">
+      <Link>Security\Cryptography\HMAC.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Security\Cryptography\Key.cs">
       <Link>Security\Cryptography\Key.cs</Link>

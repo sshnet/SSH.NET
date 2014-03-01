@@ -224,6 +224,9 @@
     <Compile Include="Classes\ForwardedPortLocalTest.NET40.cs" />
     <Compile Include="Classes\SshCommandTest.NET40.cs" />
     <Compile Include="Classes\ScpClientTest.NET40.cs" />
+    <Compile Include="Common\AsyncSocketListener.cs" />
+    <Compile Include="Common\HttpProxyStub.cs" />
+    <Compile Include="Common\HttpRequest.cs" />
     <Compile Include="Common\TestBase.cs" />
     <Compile Include="Classes\ForwardedPortTest.cs" />
     <Compile Include="Classes\Compression\CompressorTest.cs" />
@@ -321,6 +324,9 @@
     <EmbeddedResource Include="Data\Key.RSA.Encrypted.Des.Ede3.CFB.1234567890.txt" />
     <EmbeddedResource Include="Data\Key.RSA.Encrypted.Des.CBC.12345.txt" />
     <EmbeddedResource Include="Data\Key.RSA.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Classes\SessionTest.HttpProxy.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

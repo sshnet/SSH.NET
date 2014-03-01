@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -17,7 +16,6 @@ using Renci.SshNet.Messages.Connection;
 using Renci.SshNet.Messages.Transport;
 using Renci.SshNet.Security;
 using System.Globalization;
-using Renci.SshNet.Security.Cryptography.Ciphers;
 using Renci.SshNet.Security.Cryptography;
 
 namespace Renci.SshNet
@@ -407,8 +405,12 @@ namespace Renci.SshNet
         /// Initializes a new instance of the <see cref="Session"/> class.
         /// </summary>
         /// <param name="connectionInfo">The connection info.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="connectionInfo"/> is <c>null</c>.</exception>
         internal Session(ConnectionInfo connectionInfo)
         {
+            if (connectionInfo == null)
+                throw new ArgumentNullException("connectionInfo");
+
             this.ConnectionInfo = connectionInfo;
             //this.ClientVersion = string.Format(CultureInfo.CurrentCulture, "SSH-2.0-Renci.SshNet.SshClient.{0}", this.GetType().Assembly.GetName().Version);
             this.ClientVersion = string.Format(CultureInfo.CurrentCulture, "SSH-2.0-Renci.SshNet.SshClient.0.0.1");
@@ -419,12 +421,6 @@ namespace Renci.SshNet
         /// </summary>
         public void Connect()
         {
-            //   TODO: Add exception documentation for Proxy.
-            if (this.ConnectionInfo == null)
-            {
-                throw new ArgumentNullException("connectionInfo");
-            }
-
             if (this.IsConnected)
                 return;
 
@@ -1842,47 +1838,53 @@ namespace Renci.SshNet
 
             this.SocketWrite(encoding.GetBytes("\r\n"));
 
-            HttpStatusCode statusCode = (HttpStatusCode)0;
+            HttpStatusCode? statusCode = null;
             var response = string.Empty;
             var contentLength = 0;
 
-            while (statusCode != HttpStatusCode.OK)
+            while (true)
             {
                 this.SocketReadLine(ref response);
 
-                var match = httpResponseRe.Match(response);
-
-                if (match.Success)
+                if (statusCode == null)
                 {
-                    statusCode = (HttpStatusCode)int.Parse(match.Result("${statusCode}"));
-                    continue;
+                    var statusMatch = httpResponseRe.Match(response);
+                    if (statusMatch.Success)
+                    {
+                        var httpStatusCode = statusMatch.Result("${statusCode}");
+                        statusCode = (HttpStatusCode) int.Parse(httpStatusCode);
+                        if (statusCode != HttpStatusCode.OK)
+                        {
+                            var reasonPhrase = statusMatch.Result("${reasonPhrase}");
+                            throw new ProxyException(string.Format("HTTP: Status code {0}, \"{1}\"", httpStatusCode,
+                                reasonPhrase));
+                        }
+                        continue;
+                    }
                 }
 
                 // continue on parsing message headers coming from the server
-                match = httpHeaderRe.Match(response);
-                if (match.Success)
+                var headerMatch = httpHeaderRe.Match(response);
+                if (headerMatch.Success)
                 {
-                    var fieldName = match.Result("${fieldName}");
+                    var fieldName = headerMatch.Result("${fieldName}");
                     if (fieldName.Equals("Content-Length", StringComparison.InvariantCultureIgnoreCase))
                     {
-                        contentLength = int.Parse(match.Result("${fieldValue}"));
+                        contentLength = int.Parse(headerMatch.Result("${fieldValue}"));
                     }
                     continue;
                 }
 
-                //  Read response body if specified
-                if (string.IsNullOrEmpty(response) && contentLength > 0)
+                // check if we've reached the CRLF which separates request line and headers from the message body
+                if (response.Length == 0)
                 {
-                    var contentBody = new byte[contentLength];
-                    this.SocketRead(contentLength, ref contentBody);
-                }
-
-                switch (statusCode)
-                {
-                    case HttpStatusCode.OK:
-                        break;
-                    default:
-                        throw new ProxyException(string.Format("HTTP: Status code {0}, \"{1}\"", statusCode, statusCode));
+                    //  read response body if specified
+                    if (contentLength > 0)
+                    {
+                        var contentBody = new byte[contentLength];
+                        SocketRead(contentLength, ref contentBody);
+                    }
+                    break;
                 }
             }
         }

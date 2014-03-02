@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+    <metadata>
+        <id>SSH.NET</id>
+        <version>2014.3.8</version>
+        <title>SSH.NET</title>
+        <authors>Renci</authors>
+        <owners>olegkap</owners>
+        <licenseUrl>http://sshnet.codeplex.com/license</licenseUrl>
+        <projectUrl>http://sshnet.codeplex.com/</projectUrl>
+        <requireLicenseAcceptance>true</requireLicenseAcceptance>
+        <description>This project was inspired by Sharp.SSH library which was ported from Java.  This library is a complete rewrite using .NET, without any third party dependencies and to utilize the parallelism as much as possible to allow best performance you can get.  SSH.NET supports .NET 3.5, .NET 4.0, Silverlight 4.0, Silverlight 5.0, Windows Phone 7.1 and Windows Phone 8.</description>
+        <releaseNotes>New Features:
+
+    * Added callbacks to UploadFile, DownloadFile and ListDirectory in SftpClient (issue #1324)
+    * Allow a given private key file to be used concurrently
+
+Breaking changes:
+
+    * Assembly is now named Renci.SshNet for all supported frameworks
+    * The Renci.SshNet assemblies for .NET and Silverlight are now strong-named (issue #1802)
+
+Fixes:
+
+    * Correct casing of Security/Cryptography/HMAC.cs to fix build on Linux (issue #1505)
+    * HTTP proxy hangs (issue #1890)
+    * Wrong parameters to SetSocketOption leads to SocketException under Mono (issue #1799)
+    * Incorrect check for timeout values (issue #1620)
+    * Wrong PKCS7 padding in DES algorithm (issue #1580)
+    * OverflowException on empty server response (issue #1562)
+    * Event handle leak (issue #1761)
+    * Write access required for private key file</releaseNotes>
+        <summary>A Secure Shell (SSH) library for .NET, optimized for parallelism.</summary>
+        <copyright>2012-2014, RENCI</copyright>
+        <language>en-US</language>
+        <tags>ssh .net40 sftp .net35 wp71 wp8 silverlight windowsphone</tags>
+    </metadata>
+</package>

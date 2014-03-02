@@ -24,7 +24,78 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Renci.SshNet.Silverlight5",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Renci.SshNet.WindowsPhone8", "Renci.SshNet.WindowsPhone8\Renci.SshNet.WindowsPhone8.csproj", "{4A6CA785-1C8A-47FE-98C0-30C675A9328B}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{2D6CAE62-D053-476F-9BDD-2B1F27FA9C5D}"
+	ProjectSection(SolutionItems) = preProject
+		Build\build.cmd = Build\build.cmd
+		Build\build.proj = Build\build.proj
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "nuget", "nuget", "{94EE3919-19FA-4D9B-8DA9-249050B15232}"
+	ProjectSection(SolutionItems) = preProject
+		Build\nuget\SSH.NET.nuspec = Build\nuget\SSH.NET.nuspec
+	EndProjectSection
+EndProject
+Project("{911E67C6-3D85-4FCE-B560-20A9C3E3FF48}") = "nuget", "Build\nuget\nuget.exe", "{8BE48567-6BDA-43D7-811D-9C30CCB3B7F2}"
+	ProjectSection(DebuggerProjectSystem) = preProject
+		PortSupplier = 00000000-0000-0000-0000-000000000000
+		Executable = D:\Development\sshnet\Renci.SshClient\Build\nuget\nuget.exe
+		RemoteMachine = MOTHER
+		StartingDirectory = D:\Development\sshnet\Renci.SshClient\Build\nuget
+		Environment = Default
+		LaunchingEngine = 00000000-0000-0000-0000-000000000000
+		LaunchSQLEngine = No
+		AttachLaunchAction = No
+	EndProjectSection
+EndProject
 Global
+	GlobalSection(TeamFoundationVersionControl) = preSolution
+		SccNumberOfProjects = 8
+		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccTeamFoundationServer = https://tfs.codeplex.com/tfs/tfs11
+		SccProjectUniqueName0 = Renci.SshNet\\Renci.SshNet.csproj
+		SccProjectName0 = Renci.SshNet
+		SccAuxPath0 = https://tfs.codeplex.com/tfs/tfs11
+		SccLocalPath0 = Renci.SshNet
+		SccProvider0 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccProjectUniqueName1 = Renci.SshNet.Tests\\Renci.SshNet.Tests.csproj
+		SccProjectName1 = Renci.SshNet.Tests
+		SccAuxPath1 = https://tfs.codeplex.com/tfs/tfs11
+		SccLocalPath1 = Renci.SshNet.Tests
+		SccProvider1 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccProjectUniqueName2 = Renci.SshNet.Silverlight\\Renci.SshNet.Silverlight.csproj
+		SccProjectName2 = Renci.SshNet.Silverlight
+		SccAuxPath2 = https://tfs.codeplex.com/tfs/tfs11
+		SccLocalPath2 = Renci.SshNet.Silverlight
+		SccProvider2 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccProjectUniqueName3 = Renci.SshNet.NET35\\Renci.SshNet.NET35.csproj
+		SccProjectName3 = Renci.SshNet.NET35
+		SccAuxPath3 = https://tfs.codeplex.com/tfs/tfs11
+		SccLocalPath3 = Renci.SshNet.NET35
+		SccProvider3 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccProjectUniqueName4 = Renci.SshNet.Tests.NET35\\Renci.SshNet.Tests.NET35.csproj
+		SccProjectName4 = Renci.SshNet.Tests.NET35
+		SccAuxPath4 = https://tfs.codeplex.com/tfs/tfs11
+		SccLocalPath4 = Renci.SshNet.Tests.NET35
+		SccProvider4 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccProjectUniqueName5 = Renci.SshNet.WindowsPhone\\Renci.SshNet.WindowsPhone.csproj
+		SccProjectName5 = Renci.SshNet.WindowsPhone
+		SccAuxPath5 = https://tfs.codeplex.com/tfs/tfs11
+		SccLocalPath5 = Renci.SshNet.WindowsPhone
+		SccProvider5 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccProjectUniqueName6 = Renci.SshNet.Silverlight5\\Renci.SshNet.Silverlight5.csproj
+		SccProjectName6 = Renci.SshNet.Silverlight5
+		SccAuxPath6 = https://tfs.codeplex.com/tfs/tfs11
+		SccLocalPath6 = Renci.SshNet.Silverlight5
+		SccProvider6 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccProjectUniqueName7 = Renci.SshNet.WindowsPhone8\\Renci.SshNet.WindowsPhone8.csproj
+		SccProjectName7 = Renci.SshNet.WindowsPhone8
+		SccAuxPath7 = https://tfs.codeplex.com/tfs/tfs11
+		SccLocalPath7 = Renci.SshNet.WindowsPhone8
+		SccProvider7 = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+	EndGlobalSection
+	GlobalSection(TestCaseManagementSettings) = postSolution
+		CategoryFile = Renci.SshNet1.vsmdi
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|ARM = Debug|ARM
@@ -150,11 +221,22 @@ Global
 		{4A6CA785-1C8A-47FE-98C0-30C675A9328B}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{4A6CA785-1C8A-47FE-98C0-30C675A9328B}.Release|x64.ActiveCfg = Release|Any CPU
 		{4A6CA785-1C8A-47FE-98C0-30C675A9328B}.Release|x86.ActiveCfg = Release|Any CPU
+		{8BE48567-6BDA-43D7-811D-9C30CCB3B7F2}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{8BE48567-6BDA-43D7-811D-9C30CCB3B7F2}.Debug|ARM.ActiveCfg = Debug|x86
+		{8BE48567-6BDA-43D7-811D-9C30CCB3B7F2}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{8BE48567-6BDA-43D7-811D-9C30CCB3B7F2}.Debug|x64.ActiveCfg = Debug|x86
+		{8BE48567-6BDA-43D7-811D-9C30CCB3B7F2}.Debug|x86.ActiveCfg = Debug|x86
+		{8BE48567-6BDA-43D7-811D-9C30CCB3B7F2}.Release|Any CPU.ActiveCfg = Debug|x86
+		{8BE48567-6BDA-43D7-811D-9C30CCB3B7F2}.Release|ARM.ActiveCfg = Debug|x86
+		{8BE48567-6BDA-43D7-811D-9C30CCB3B7F2}.Release|Mixed Platforms.ActiveCfg = Debug|x86
+		{8BE48567-6BDA-43D7-811D-9C30CCB3B7F2}.Release|x64.ActiveCfg = Debug|x86
+		{8BE48567-6BDA-43D7-811D-9C30CCB3B7F2}.Release|x86.ActiveCfg = Debug|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
-	GlobalSection(TestCaseManagementSettings) = postSolution
-		CategoryFile = Renci.SshNet1.vsmdi
+	GlobalSection(NestedProjects) = preSolution
+		{94EE3919-19FA-4D9B-8DA9-249050B15232} = {2D6CAE62-D053-476F-9BDD-2B1F27FA9C5D}
+		{8BE48567-6BDA-43D7-811D-9C30CCB3B7F2} = {94EE3919-19FA-4D9B-8DA9-249050B15232}
 	EndGlobalSection
 EndGlobal

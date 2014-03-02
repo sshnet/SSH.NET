@@ -36,6 +36,12 @@
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Release\Renci.SshNet.xml</DocumentationFile>
   </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>..\Renci.SshNet.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -455,6 +461,9 @@
     <Compile Include="SubsystemSession.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\Renci.SshNet.snk">
+      <Link>Renci.SshNet.snk</Link>
+    </None>
     <None Include="Documentation\Renci.SshNet.content" />
   </ItemGroup>
   <ItemGroup>

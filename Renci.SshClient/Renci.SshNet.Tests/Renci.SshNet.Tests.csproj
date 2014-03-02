@@ -312,7 +312,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Renci.SshNet\Renci.SshNet.csproj">
       <Project>{2F5F8C90-0BD1-424F-997C-7BC6280919D1}</Project>
-      <Name>Renci.SshClient</Name>
+      <Name>Renci.SshNet</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

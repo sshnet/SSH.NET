@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using Renci.SshNet.Sftp.Responses;
 
@@ -21,10 +19,9 @@ namespace Renci.SshNet.Sftp.Requests
             : base(protocolVersion, requestId, statusAction)
         {
             if (nameAction == null)
-                throw new ArgumentNullException("name");
-
+                throw new ArgumentNullException("nameAction");
             if (statusAction == null)
-                throw new ArgumentNullException("status");
+                throw new ArgumentNullException("statusAction");
 
             this.Path = path;
             this.Encoding = encoding;

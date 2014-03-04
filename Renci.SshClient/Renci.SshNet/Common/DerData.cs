@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace Renci.SshNet.Common
 {
@@ -41,10 +40,10 @@ namespace Renci.SshNet.Common
         //private const byte APPLICATION = 0x40;
         //private const byte TAGGED = 0x80;
 
-        private List<byte> _data;
+        private readonly List<byte> _data;
 
-        private int _readerIndex = 0;
-        private int _lastIndex;
+        private int _readerIndex;
+        private readonly int _lastIndex;
 
         /// <summary>
         /// Gets a value indicating whether end of data is reached.
@@ -271,10 +270,7 @@ namespace Renci.SshNet.Common
 
                 return data;
             }
-            else
-            {
-                return new byte[] { (byte)length };
-            }
+            return new byte[] { (byte)length };
         }
 
         private int ReadLength()

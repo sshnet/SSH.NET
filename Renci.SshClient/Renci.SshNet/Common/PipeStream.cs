@@ -162,7 +162,7 @@
             if (offset != 0)
                 throw new NotSupportedException("Offsets with value of non-zero are not supported");
             if (buffer == null)
-                throw new ArgumentNullException("Buffer is null");
+                throw new ArgumentNullException("buffer");
             if (offset + count > buffer.Length)
                 throw new ArgumentException("The sum of offset and count is greater than the buffer length. ");
             if (offset < 0 || count < 0)
@@ -217,7 +217,7 @@
         public override void Write(byte[] buffer, int offset, int count)
         {
             if (buffer == null)
-                throw new ArgumentNullException("Buffer is null");
+                throw new ArgumentNullException("buffer");
             if (offset + count > buffer.Length)
                 throw new ArgumentException("The sum of offset and count is greater than the buffer length. ");
             if (offset < 0 || count < 0)

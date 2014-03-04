@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Renci.SshNet
+﻿namespace Renci.SshNet
 {
     /// <summary>
     /// Specifies the type of proxy client will use to connect to server.

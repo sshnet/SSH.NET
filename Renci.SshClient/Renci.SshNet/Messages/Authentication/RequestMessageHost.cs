@@ -1,6 +1,4 @@
-﻿using System.Text;
-
-namespace Renci.SshNet.Messages.Authentication
+﻿namespace Renci.SshNet.Messages.Authentication
 {
     /// <summary>
     /// Represents "hostbased" SSH_MSG_USERAUTH_REQUEST message.

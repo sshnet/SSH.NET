@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 
 namespace Renci.SshNet.Common
@@ -11,7 +8,7 @@ namespace Renci.SshNet.Common
     /// </summary>
     public class SemaphoreLight
     {
-        private object _lock = new object();
+        private readonly object _lock = new object();
 
         private int _currentCount;
 
@@ -24,7 +21,7 @@ namespace Renci.SshNet.Common
         public SemaphoreLight(int initialCount)
         {
             if (initialCount < 0 )
-                throw new ArgumentOutOfRangeException("The initial argument is negative");
+                throw new ArgumentOutOfRangeException("initialCount", "The value cannot be negative.");
 
             this._currentCount = initialCount;
         }

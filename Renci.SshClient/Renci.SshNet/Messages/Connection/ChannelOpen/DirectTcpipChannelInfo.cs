@@ -18,7 +18,7 @@
         /// </value>
         public override string ChannelType
         {
-            get { return DirectTcpipChannelInfo.NAME; }
+            get { return NAME; }
         }
 
         /// <summary>

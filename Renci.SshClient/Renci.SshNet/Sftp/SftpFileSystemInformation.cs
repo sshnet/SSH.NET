@@ -5,7 +5,7 @@
     /// </summary>
     public class SftpFileSytemInformation
     {
-        private ulong _flag;
+        private readonly ulong _flag;
 
         private const ulong SSH_FXE_STATVFS_ST_RDONLY = 0x1;
 

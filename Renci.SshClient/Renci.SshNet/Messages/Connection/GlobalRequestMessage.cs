@@ -89,8 +89,6 @@ namespace Renci.SshNet.Messages.Connection
                     this.AddressToBind = this.ReadString();
                     this.PortToBind = this.ReadUInt32();
                     break;
-                default:
-                    break;
             }
         }
 
@@ -107,8 +105,6 @@ namespace Renci.SshNet.Messages.Connection
                 case GlobalRequestName.CancelTcpIpForward:
                     this.WriteAscii("cancel-tcpip-forward");
                     break;
-                default:
-                    break;
             }
 
             this.Write(this.WantReply);
@@ -119,8 +115,6 @@ namespace Renci.SshNet.Messages.Connection
                 case GlobalRequestName.CancelTcpIpForward:
                     this.Write(this.AddressToBind);
                     this.Write(this.PortToBind);
-                    break;
-                default:
                     break;
             }
         }

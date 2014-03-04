@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Renci.SshNet.Messages.Authentication
+﻿namespace Renci.SshNet.Messages.Authentication
 {
     /// <summary>
     /// Represents "publickey" SSH_MSG_USERAUTH_REQUEST message.

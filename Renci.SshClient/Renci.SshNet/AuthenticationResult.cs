@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Renci.SshNet
+﻿namespace Renci.SshNet
 {
     /// <summary>
     /// Represents possible authentication methods results

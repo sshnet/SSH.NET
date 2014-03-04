@@ -1,7 +1,4 @@
-﻿using System;
-using Renci.SshNet.Common;
-
-namespace Renci.SshNet.Messages.Transport
+﻿namespace Renci.SshNet.Messages.Transport
 {
     /// <summary>
     /// Represents SSH_MSG_KEXECDH_REPLY message.

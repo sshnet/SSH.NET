@@ -21,7 +21,7 @@ namespace Renci.SshNet
         /// </summary>
         private SftpSession _sftpSession;
 
-        private bool _disposeConnectionInfo;
+        private readonly bool _disposeConnectionInfo;
 
         /// <summary>
         /// Gets or sets the operation timeout.
@@ -427,10 +427,7 @@ namespace Renci.SshNet
             {
                 return false;
             }
-            else
-            {
-                return true;
-            }
+            return true;
         }
 
         /// <summary>
@@ -1129,7 +1126,6 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="path"/> is <b>null</b>.</exception>
         public string ReadAllText(string path, Encoding encoding)
         {
-            var lines = new List<string>();
             using (var stream = new StreamReader(this.OpenRead(path), encoding))
             {
                 return stream.ReadToEnd();
@@ -1402,11 +1398,10 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="path">The path.</param>
         /// <param name="output">The output.</param>
+        /// <param name="asyncResult">An <see cref="IAsyncResult"/> that references the asynchronous request.</param>
         /// <param name="downloadCallback">The download callback.</param>
-        /// <exception cref="System.ArgumentNullException">output</exception>
-        /// <exception cref="System.ArgumentException">path</exception>
-        /// <exception cref="ArgumentNullException"><paramref name="path" /> is <b>null</b> or contains whitespace.</exception>
-        /// <exception cref="ArgumentException"><paramref name="output" /> is <b>null</b>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="output" /> is <b>null</b>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="path" /> is <b>null</b> or contains whitespace.</exception>
         /// <exception cref="SshConnectionException">Client not connected.</exception>
         private void InternalDownloadFile(string path, Stream output, SftpDownloadAsyncResult asyncResult, Action<ulong> downloadCallback)
         {
@@ -1443,7 +1438,7 @@ namespace Renci.SshNet
                 //  Call callback to report number of bytes read
                 if (downloadCallback != null)
                 {
-                    //  Execute callback on different thread                
+                    //  Execute callback on different thread
                     this.ExecuteThread(() => { downloadCallback(offset); });
                 }
 
@@ -1459,9 +1454,8 @@ namespace Renci.SshNet
         /// <param name="input">The input.</param>
         /// <param name="path">The path.</param>
         /// <param name="flags">The flags.</param>
+        /// <param name="asyncResult">An <see cref="IAsyncResult"/> that references the asynchronous request.</param>
         /// <param name="uploadCallback">The upload callback.</param>
-        /// <exception cref="System.ArgumentNullException">input</exception>
-        /// <exception cref="System.ArgumentException">path</exception>
         /// <exception cref="ArgumentNullException"><paramref name="input" /> is <b>null</b>.</exception>
         /// <exception cref="ArgumentException"><paramref name="path" /> is <b>null</b> or contains whitespace.</exception>
         /// <exception cref="SshConnectionException">Client not connected.</exception>

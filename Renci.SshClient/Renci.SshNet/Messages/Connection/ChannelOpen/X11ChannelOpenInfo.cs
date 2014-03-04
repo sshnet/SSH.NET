@@ -18,7 +18,7 @@
         /// </value>
         public override string ChannelType
         {
-            get { return X11ChannelOpenInfo.NAME; }
+            get { return NAME; }
         }
 
         /// <summary>

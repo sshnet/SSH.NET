@@ -120,8 +120,8 @@ namespace Renci.SshNet.Common
             {
                 if (this._asyncWaitHandle == null)
                 {
-                    Boolean done = this.IsCompleted;
-                    ManualResetEvent mre = new ManualResetEvent(done);
+                    var done = this.IsCompleted;
+                    var mre = new ManualResetEvent(done);
                     if (Interlocked.CompareExchange(ref this._asyncWaitHandle, mre, null) != null)
                     {
                         // Another thread created this object's event; dispose the event we just created
@@ -168,7 +168,8 @@ namespace Renci.SshNet.Common
         /// <param name="state">The state.</param>
         public AsyncResult(AsyncCallback asyncCallback, Object state)
             : base(asyncCallback, state)
-        { }
+        {
+        }
 
         /// <summary>
         /// Marks asynchronous operation as completed.

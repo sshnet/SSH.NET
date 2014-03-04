@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.IO;
 using System.Threading;
 using System.Diagnostics.CodeAnalysis;
@@ -17,25 +14,25 @@ namespace Renci.SshNet.Sftp
         //  TODO:   Add security method to set userid, groupid and other permission settings
         // Internal state.
         private byte[] _handle;
-        private FileAccess _access;
-        private bool _ownsHandle;
-        private bool _isAsync;
+        private readonly FileAccess _access;
+        private readonly bool _ownsHandle;
+        private readonly bool _isAsync;
         private string _path;
         private SftpSession _session;
 
         // Buffer information.
-        private int _bufferSize;
-        private byte[] _buffer;
+        private readonly int _bufferSize;
+        private readonly byte[] _buffer;
         private int _bufferPosn;
         private int _bufferLen;
         private long _position;
         private bool _bufferOwnedByWrite;
-        private bool _canSeek;
+        private readonly bool _canSeek;
         private ulong _serverFilePosition;
 
         private SftpFileAttributes _attributes;
 
-        private object _lock = new object();
+        private readonly object _lock = new object();
 
         /// <summary>
         /// Gets a value indicating whether the current stream supports reading.
@@ -115,10 +112,7 @@ namespace Renci.SshNet.Sftp
                     {
                         return this._attributes.Size;
                     }
-                    else
-                    {
-                        throw new IOException("Seek operation failed.");
-                    }
+                    throw new IOException("Seek operation failed.");
                 }
             }
         }
@@ -262,8 +256,6 @@ namespace Renci.SshNet.Sftp
                     flags |= Flags.Read;
                     flags |= Flags.Write;
                     break;
-                default:
-                    break;
             }
 
             switch (mode)
@@ -293,8 +285,6 @@ namespace Renci.SshNet.Sftp
                 case FileMode.Truncate:
                     flags |= Flags.Truncate;
                     break;
-                default:
-                    break;
             }
 
             if (this._handle == null)
@@ -316,87 +306,6 @@ namespace Renci.SshNet.Sftp
         ~SftpFileStream()
         {
             this.Dispose(false);
-        }
-
-        /// <summary>
-        /// Begins an asynchronous read operation.
-        /// </summary>
-        /// <param name="buffer">The buffer to read the data into.</param>
-        /// <param name="offset">The byte offset in <paramref name="buffer"/> at which to begin writing data read from the stream.</param>
-        /// <param name="count">The maximum number of bytes to read.</param>
-        /// <param name="callback">An optional asynchronous callback, to be called when the read is complete.</param>
-        /// <param name="state">A user-provided object that distinguishes this particular asynchronous read request from other requests.</param>
-        /// <returns>
-        /// An <see cref="T:System.IAsyncResult"/> that represents the asynchronous read, which could still be pending.
-        /// </returns>
-        /// <exception cref="T:System.IO.IOException">Attempted an asynchronous read past the end of the stream, or a disk error occurs. </exception>
-        ///   
-        /// <exception cref="T:System.ArgumentException">One or more of the arguments is invalid. </exception>
-        ///   
-        /// <exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed. </exception>
-        ///   
-        /// <exception cref="T:System.NotSupportedException">The current Stream implementation does not support the read operation. </exception>
-        public override IAsyncResult BeginRead(byte[] buffer, int offset, int count, AsyncCallback callback, Object state)
-        {
-            return base.BeginRead(buffer, offset, count, callback, state);
-        }
-
-        /// <summary>
-        /// Waits for the pending asynchronous read to complete.
-        /// </summary>
-        /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
-        /// <returns>
-        /// The number of bytes read from the stream, between zero (0) and the number of bytes you requested. Streams return zero (0) only at the end of the stream, otherwise, they should block until at least one byte is available.
-        /// </returns>
-        /// <exception cref="T:System.ArgumentNullException">
-        ///   <paramref name="asyncResult"/> is null. </exception>
-        ///   
-        /// <exception cref="T:System.ArgumentException">
-        ///   <paramref name="asyncResult"/> did not originate from a <see cref="M:System.IO.Stream.BeginRead(System.Byte[],System.Int32,System.Int32,System.AsyncCallback,System.Object)"/> method on the current stream. </exception>
-        ///   
-        /// <exception cref="T:System.IO.IOException">The stream is closed or an internal error has occurred.</exception>
-        public override int EndRead(IAsyncResult asyncResult)
-        {
-            return base.EndRead(asyncResult);
-        }
-
-        /// <summary>
-        /// Begins an asynchronous write operation.
-        /// </summary>
-        /// <param name="buffer">The buffer to write data from.</param>
-        /// <param name="offset">The byte offset in <paramref name="buffer"/> from which to begin writing.</param>
-        /// <param name="count">The maximum number of bytes to write.</param>
-        /// <param name="callback">An optional asynchronous callback, to be called when the write is complete.</param>
-        /// <param name="state">A user-provided object that distinguishes this particular asynchronous write request from other requests.</param>
-        /// <returns>
-        /// An IAsyncResult that represents the asynchronous write, which could still be pending.
-        /// </returns>
-        /// <exception cref="T:System.IO.IOException">Attempted an asynchronous write past the end of the stream, or a disk error occurs. </exception>
-        ///   
-        /// <exception cref="T:System.ArgumentException">One or more of the arguments is invalid. </exception>
-        ///   
-        /// <exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed. </exception>
-        ///   
-        /// <exception cref="T:System.NotSupportedException">The current Stream implementation does not support the write operation. </exception>
-        public override IAsyncResult BeginWrite(byte[] buffer, int offset, int count, AsyncCallback callback, Object state)
-        {
-            return base.BeginWrite(buffer, offset, count, callback, state);
-        }
-
-        /// <summary>
-        /// Ends an asynchronous write operation.
-        /// </summary>
-        /// <param name="asyncResult">A reference to the outstanding asynchronous I/O request.</param>
-        /// <exception cref="T:System.ArgumentNullException">
-        ///   <paramref name="asyncResult"/> is null. </exception>
-        ///   
-        /// <exception cref="T:System.ArgumentException">
-        ///   <paramref name="asyncResult"/> did not originate from a <see cref="M:System.IO.Stream.BeginWrite(System.Byte[],System.Int32,System.Int32,System.AsyncCallback,System.Object)"/> method on the current stream. </exception>
-        ///   
-        /// <exception cref="T:System.IO.IOException">The stream is closed or an internal error has occurred.</exception>
-        public override void EndWrite(IAsyncResult asyncResult)
-        {
-            base.EndWrite(asyncResult);
         }
 
         /// <summary>
@@ -460,24 +369,15 @@ namespace Renci.SshNet.Sftp
         public override int Read(byte[] buffer, int offset, int count)
         {
             int readLen = 0;
-            int tempLen;
 
             if (buffer == null)
-            {
                 throw new ArgumentNullException("buffer");
-            }
-            else if (offset < 0)
-            {
+            if (offset < 0)
                 throw new ArgumentOutOfRangeException("offset");
-            }
-            else if (count < 0)
-            {
+            if (count < 0)
                 throw new ArgumentOutOfRangeException("count");
-            }
-            else if ((buffer.Length - offset) < count)
-            {
+            if ((buffer.Length - offset) < count)
                 throw new ArgumentException("Invalid array range.");
-            }
 
             // Lock down the file stream while we do this.
             lock (this._lock)
@@ -489,7 +389,7 @@ namespace Renci.SshNet.Sftp
                 while (count > 0)
                 {
                     // How much data do we have available in the buffer?
-                    tempLen = this._bufferLen - this._bufferPosn;
+                    var tempLen = this._bufferLen - this._bufferPosn;
                     if (tempLen <= 0)
                     {
                         this._bufferPosn = 0;
@@ -507,14 +407,11 @@ namespace Renci.SshNet.Sftp
                             //  TODO:   Add SFTP error code or message if possible
                             throw new IOException("Read operation failed.");
                         }
-                        else if (this._bufferLen == 0)
+                        if (this._bufferLen == 0)
                         {
                             break;
                         }
-                        else
-                        {
-                            tempLen = this._bufferLen;
-                        }
+                        tempLen = this._bufferLen;
                     }
 
                     // Don't read more than the caller wants.
@@ -574,7 +471,7 @@ namespace Renci.SshNet.Sftp
                         //  TODO:   Add SFTP error code or message if possible
                         throw new IOException("Read operation failed.");
                     }
-                    else if (this._bufferLen == 0)
+                    if (this._bufferLen == 0)
                     {
                         // We've reached EOF.
                         return -1;
@@ -624,7 +521,7 @@ namespace Renci.SshNet.Sftp
                 {
                     return offset;
                 }
-                else if (origin == SeekOrigin.Current && offset == 0)
+                if (origin == SeekOrigin.Current && offset == 0)
                 {
                     return this._position;
                 }
@@ -647,8 +544,6 @@ namespace Renci.SshNet.Sftp
                             break;
                         case SeekOrigin.End:
                             newPosn = this._attributes.Size - offset;
-                            break;
-                        default:
                             break;
                     }
 
@@ -702,8 +597,6 @@ namespace Renci.SshNet.Sftp
                             break;
                         case SeekOrigin.End:
                             newPosn = this._attributes.Size - offset;
-                            break;
-                        default:
                             break;
                     }
 
@@ -773,25 +666,14 @@ namespace Renci.SshNet.Sftp
         /// <exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed. </exception>
         public override void Write(byte[] buffer, int offset, int count)
         {
-            int tempLen;
-
-            // Validate the parameters
             if (buffer == null)
-            {
                 throw new ArgumentNullException("buffer");
-            }
-            else if (offset < 0)
-            {
+            if (offset < 0)
                 throw new ArgumentOutOfRangeException("offset");
-            }
-            else if (count < 0)
-            {
+            if (count < 0)
                 throw new ArgumentOutOfRangeException("count");
-            }
-            else if ((buffer.Length - offset) < count)
-            {
+            if ((buffer.Length - offset) < count)
                 throw new ArgumentException("Invalid array range.");
-            }
 
             // Lock down the file stream while we do this.
             lock (this._lock)
@@ -803,7 +685,7 @@ namespace Renci.SshNet.Sftp
                 while (count > 0)
                 {
                     // Determine how many bytes we can write to the buffer.
-                    tempLen = this._bufferSize - this._bufferPosn;
+                    var tempLen = this._bufferSize - this._bufferPosn;
                     if (tempLen <= 0)
                     {
                         var data = new byte[this._bufferPosn];
@@ -875,9 +757,7 @@ namespace Renci.SshNet.Sftp
         /// </summary>
         /// <param name="value">The byte to write to the stream.</param>
         /// <exception cref="T:System.IO.IOException">An I/O error occurs. </exception>
-        ///   
         /// <exception cref="T:System.NotSupportedException">The stream does not support writing, or the stream is already closed. </exception>
-        ///   
         /// <exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed. </exception>
         public override void WriteByte(byte value)
         {

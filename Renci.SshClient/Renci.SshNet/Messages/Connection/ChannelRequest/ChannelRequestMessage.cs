@@ -1,7 +1,4 @@
-﻿using System;
-using System.Globalization;
-
-namespace Renci.SshNet.Messages.Connection
+﻿namespace Renci.SshNet.Messages.Connection
 {
     /// <summary>
     /// Represents SSH_MSG_CHANNEL_REQUEST message.

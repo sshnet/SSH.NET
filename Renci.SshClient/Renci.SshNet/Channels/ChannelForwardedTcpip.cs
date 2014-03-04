@@ -30,9 +30,7 @@ namespace Renci.SshNet.Channels
         /// Initializes a new instance of the <see cref="ChannelForwardedTcpip"/> class.
         /// </summary>
         public ChannelForwardedTcpip()
-            : base()
         {
-
         }
 
         /// <summary>
@@ -42,7 +40,7 @@ namespace Renci.SshNet.Channels
         /// <param name="connectedPort">The connected port.</param>
         public void Bind(IPAddress connectedHost, uint connectedPort)
         {
-            byte[] buffer = null;
+            byte[] buffer;
 
             this.ServerWindowSize = this.LocalWindowSize;
 
@@ -75,7 +73,7 @@ namespace Renci.SshNet.Channels
                 {
                 try
                 {
-                    int read = 0;
+                    var read = 0;
                     this.InternalSocketReceive(buffer, ref read);
 
                     if (read > 0)

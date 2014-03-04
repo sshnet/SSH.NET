@@ -36,17 +36,14 @@ namespace Renci.SshNet.Channels
         /// Initializes a new instance of the <see cref="ChannelDirectTcpip"/> class.
         /// </summary>
         public ChannelDirectTcpip()
-            : base()
         {
-
         }
 
         public void Open(string remoteHost, uint port, Socket socket)
         {
             this._socket = socket;
 
-            IPEndPoint ep = socket.RemoteEndPoint as IPEndPoint;
-
+            var ep = socket.RemoteEndPoint as IPEndPoint;
 
             if (!this.IsConnected)
             {

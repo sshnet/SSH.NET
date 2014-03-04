@@ -1,5 +1,4 @@
 ﻿using System.Security.Cryptography;
-using System;
 
 namespace Renci.SshNet.Security.Cryptography
 {
@@ -20,11 +19,11 @@ namespace Renci.SshNet.Security.Cryptography
 
 		private uint H1, H2, H3, H4, H5;
 		
-		private uint[] _hashValue = new uint[80];
+		private readonly uint[] _hashValue = new uint[80];
 		
 		private int _offset;
 
-		private byte[] _buffer;
+		private readonly byte[] _buffer;
 
 		private int _bufferOffset;
 
@@ -186,10 +185,9 @@ namespace Renci.SshNet.Security.Cryptography
 
         private void InternalInitialize()
         {
-            var i = 0;
             this._byteCount = 0;
             this._bufferOffset = 0;
-            for (i = 0; i < 4; i++)
+            for (var i = 0; i < 4; i++)
             {
                 this._buffer[i] = 0;
             }
@@ -201,7 +199,7 @@ namespace Renci.SshNet.Security.Cryptography
             H5 = 0xc3d2e1f0;
 
             this._offset = 0;
-            for (i = 0; i != this._hashValue.Length; i++)
+            for (var i = 0; i != this._hashValue.Length; i++)
             {
                 this._hashValue[i] = 0;
             }

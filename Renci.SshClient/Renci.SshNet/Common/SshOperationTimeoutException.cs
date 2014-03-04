@@ -12,7 +12,6 @@ namespace Renci.SshNet.Common
         /// </summary>
         public SshOperationTimeoutException()
         {
-
         }
 
         /// <summary>
@@ -22,7 +21,6 @@ namespace Renci.SshNet.Common
         public SshOperationTimeoutException(string message)
             : base(message)
         {
-
         }
 
         /// <summary>

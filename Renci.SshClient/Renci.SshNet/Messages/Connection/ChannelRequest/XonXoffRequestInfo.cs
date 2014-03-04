@@ -18,7 +18,7 @@
         /// </value>
         public override string RequestName
         {
-            get { return XonXoffRequestInfo.NAME; }
+            get { return NAME; }
         }
 
         /// <summary>

@@ -1,15 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Renci.SshNet.Sftp.Responses;
-using System.Threading;
 
 namespace Renci.SshNet.Sftp.Requests
 {
     internal abstract class SftpRequest : SftpMessage
     {
-        private Action<SftpStatusResponse> _statusAction;
+        private readonly Action<SftpStatusResponse> _statusAction;
         private Action<SftpAttrsResponse> _attrsAction;
         private Action<SftpDataResponse> _dataAction;
         private Action<SftpExtendedReplyResponse> _extendedReplyAction;

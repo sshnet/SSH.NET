@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-
-namespace Renci.SshNet.Compression
+﻿namespace Renci.SshNet.Compression
 {
     /// <summary>
     /// Represents "zlib@openssh.org" compression implementation

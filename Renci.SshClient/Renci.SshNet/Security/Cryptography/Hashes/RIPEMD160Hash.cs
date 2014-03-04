@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
+﻿using System.Security.Cryptography;
 
 namespace Renci.SshNet.Security.Cryptography
 {
@@ -13,12 +9,12 @@ namespace Renci.SshNet.Security.Cryptography
     {
         private const int DIGEST_SIZE = 20;
 
-        private byte[] _buffer;
+        private readonly byte[] _buffer;
         private int _bufferOffset;
         private long _byteCount;
         private int _offset;
         private int H0, H1, H2, H3, H4; // IV's
-        private int[] X = new int[16];
+        private readonly int[] X = new int[16];
 
         /// <summary>
         /// Gets the size, in bits, of the computed hash code.

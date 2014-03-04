@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Renci.SshNet.Common;
-using Renci.SshNet.Security.Cryptography;
-
-namespace Renci.SshNet.Security
+﻿namespace Renci.SshNet.Security
 {
     /// <summary>
     /// Base class for SSH host algorithms.

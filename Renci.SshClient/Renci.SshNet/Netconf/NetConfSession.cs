@@ -1,17 +1,8 @@
 ﻿using System;
-using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading;
-using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
-using System.Diagnostics;
-using System.Collections.Generic;
-using System.Globalization;
-using Renci.SshNet.Sftp.Responses;
-using Renci.SshNet.Sftp.Requests;
 using Renci.SshNet.Sftp;
-using Renci.SshNet.Messages.Connection;
 using System.Xml;
 using System.Text.RegularExpressions;
 
@@ -19,9 +10,9 @@ namespace Renci.SshNet.NetConf
 {
     internal class NetConfSession : SubsystemSession
     {
-        private StringBuilder _data = new StringBuilder();
+        private readonly StringBuilder _data = new StringBuilder();
 
-        private bool _usingFramingProtocol = false;
+        private bool _usingFramingProtocol;
 
         private const string _prompt = "]]>]]>";
 
@@ -31,7 +22,7 @@ namespace Renci.SshNet.NetConf
 
         private StringBuilder _rpcReply = new StringBuilder();
 
-        private int _messageId = 0;
+        private int _messageId;
 
         /// <summary>
         /// Gets NetConf server capabilities.

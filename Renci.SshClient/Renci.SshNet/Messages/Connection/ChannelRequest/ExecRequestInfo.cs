@@ -20,7 +20,7 @@ namespace Renci.SshNet.Messages.Connection
         /// </value>
         public override string RequestName
         {
-            get { return ExecRequestInfo.NAME; }
+            get { return NAME; }
         }
 
         /// <summary>
@@ -51,12 +51,15 @@ namespace Renci.SshNet.Messages.Connection
         /// Initializes a new instance of the <see cref="ExecRequestInfo"/> class.
         /// </summary>
         /// <param name="command">The command.</param>
-        /// <exception cref="System.ArgumentNullException"><paramref name="command"/> is null.</exception>
+        /// <param name="encoding">The character encoding to use.</param>
+        /// <exception cref="System.ArgumentNullException"><paramref name="command"/> or <paramref name="encoding"/> is null.</exception>
         public ExecRequestInfo(string command, Encoding encoding)
             : this()
         {
             if (command == null)
                 throw new System.ArgumentNullException("command");
+            if (encoding == null)
+                throw new System.ArgumentNullException("encoding");
 
             this.Command = command;
             this.Encoding = encoding;

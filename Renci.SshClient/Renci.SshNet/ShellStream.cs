@@ -17,15 +17,15 @@ namespace Renci.SshNet
     {
         private readonly Session _session;
 
-        private readonly int _bufferSize = 1024;
+        private const int _bufferSize = 1024;
 
         private ChannelSession _channel;
 
-        private Encoding _encoding;
+        private readonly Encoding _encoding;
 
-        private Queue<byte> _incoming;
+        private readonly Queue<byte> _incoming;
 
-        private Queue<byte> _outgoing;
+        private readonly Queue<byte> _outgoing;
 
         private AutoResetEvent _dataReceived = new AutoResetEvent(false);
 
@@ -64,10 +64,10 @@ namespace Renci.SshNet
             this._outgoing = new Queue<byte>();
 
             this._channel = this._session.CreateChannel<ChannelSession>();
-            this._channel.DataReceived += new EventHandler<ChannelDataEventArgs>(Channel_DataReceived);
-            this._channel.Closed += new EventHandler<ChannelEventArgs>(Channel_Closed);
-            this._session.Disconnected += new EventHandler<EventArgs>(Session_Disconnected);
-            this._session.ErrorOccured += new EventHandler<ExceptionEventArgs>(Session_ErrorOccured);
+            this._channel.DataReceived += Channel_DataReceived;
+            this._channel.Closed += Channel_Closed;
+            this._session.Disconnected += Session_Disconnected;
+            this._session.ErrorOccured += Session_ErrorOccured;
 
             this._channel.Open();
             this._channel.SendPseudoTerminalRequest(terminalName, columns, rows, width, height, terminalModeValues);
@@ -202,7 +202,7 @@ namespace Renci.SshNet
         /// <exception cref="T:System.NotSupportedException">The stream does not support seeking, such as if the stream is constructed from a pipe or console output. </exception>
         ///   
         /// <exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed. </exception>
-        public override long Seek(long offset, System.IO.SeekOrigin origin)
+        public override long Seek(long offset, SeekOrigin origin)
         {
             throw new NotSupportedException();
         }
@@ -244,7 +244,7 @@ namespace Renci.SshNet
         {
             foreach (var b in buffer.Skip(offset).Take(count).ToArray())
             {
-                if (this._outgoing.Count < this._bufferSize)
+                if (this._outgoing.Count < _bufferSize)
                 {
                     this._outgoing.Enqueue(b);
                     continue;
@@ -627,7 +627,7 @@ namespace Renci.SshNet
         /// <returns>The text available in the shell.</returns>
         public string Read()
         {
-            var text = string.Empty;
+            string text;
 
             lock (this._incoming)
             {
@@ -635,7 +635,7 @@ namespace Renci.SshNet
                 this._incoming.Clear();
             }
 
-            return text.ToString();
+            return text;
         }
 
         /// <summary>
@@ -685,8 +685,8 @@ namespace Renci.SshNet
 
             if (this._session != null)
             {
-                this._session.Disconnected -= new EventHandler<EventArgs>(Session_Disconnected);
-                this._session.ErrorOccured -= new EventHandler<ExceptionEventArgs>(Session_ErrorOccured);
+                this._session.Disconnected -= Session_Disconnected;
+                this._session.ErrorOccured -= Session_ErrorOccured;
             }
         }
 

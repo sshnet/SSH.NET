@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Net;
@@ -13,7 +12,7 @@ namespace Renci.SshNet
     public partial class ForwardedPortDynamic
     {
         private TcpListener _listener;
-        private object _listenerLocker = new object();
+        private readonly object _listenerLocker = new object();
 
         partial void InternalStart()
         {
@@ -192,8 +191,8 @@ namespace Renci.SshNet
 
                 var addressType = stream.ReadByte();
 
-                IPAddress ipAddress = null;
-                byte[] addressBuffer = null;
+                IPAddress ipAddress;
+                byte[] addressBuffer;
                 switch (addressType)
                 {
                     case 0x01:
@@ -210,7 +209,7 @@ namespace Renci.SshNet
                             addressBuffer = new byte[length];
                             stream.Read(addressBuffer, 0, addressBuffer.Length);
 
-                            ipAddress = IPAddress.Parse(new Renci.SshNet.Common.ASCIIEncoding().GetString(addressBuffer));
+                            ipAddress = IPAddress.Parse(new Common.ASCIIEncoding().GetString(addressBuffer));
                         }
                         break;
                     case 0x04:

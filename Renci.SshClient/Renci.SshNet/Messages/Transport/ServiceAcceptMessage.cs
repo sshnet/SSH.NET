@@ -30,8 +30,6 @@ namespace Renci.SshNet.Messages.Transport
                 case "ssh-connection":
                     this.ServiceName = ServiceName.Connection;
                     break;
-                default:
-                    break;
             }
         }
 

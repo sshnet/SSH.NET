@@ -91,71 +91,69 @@ namespace Renci.SshNet.Sftp
                 this.Write((uint)0);
                 return;
             }
-            else
+
+            UInt32 flag = 0;
+
+            if (attributes.IsSizeChanged && attributes.IsRegularFile)
             {
-                UInt32 flag = 0;
+                flag |= 0x00000001;
+            }
 
-                if (attributes.IsSizeChanged && attributes.IsRegularFile)
-                {
-                    flag |= 0x00000001;
-                }
+            if (attributes.IsUserIdChanged|| attributes.IsGroupIdChanged)
+            {
+                flag |= 0x00000002;
+            }
 
-                if (attributes.IsUserIdChanged|| attributes.IsGroupIdChanged)
-                {
-                    flag |= 0x00000002;
-                }
+            if (attributes.IsPermissionsChanged)
+            {
+                flag |= 0x00000004;
+            }
 
-                if (attributes.IsPermissionsChanged)
-                {
-                    flag |= 0x00000004;
-                }
+            if (attributes.IsLastAccessTimeChanged || attributes.IsLastWriteTimeChanged)
+            {
+                flag |= 0x00000008;
+            }
 
-                if (attributes.IsLastAccessTimeChanged || attributes.IsLastWriteTimeChanged)
-                {
-                    flag |= 0x00000008;
-                }
+            if (attributes.IsExtensionsChanged)
+            {
+                flag |= 0x80000000;
+            }
 
-                if (attributes.IsExtensionsChanged)
-                {
-                    flag |= 0x80000000;
-                }
+            this.Write(flag);
 
-                this.Write(flag);
+            if (attributes.IsSizeChanged && attributes.IsRegularFile)
+            {
+                this.Write((UInt64)attributes.Size);
+            }
 
-                if (attributes.IsSizeChanged && attributes.IsRegularFile)
-                {
-                    this.Write((UInt64)attributes.Size);
-                }
+            if (attributes.IsUserIdChanged|| attributes.IsGroupIdChanged)
+            {
+                this.Write((UInt32)attributes.UserId);
+                this.Write((UInt32)attributes.GroupId);
+            }
 
-                if (attributes.IsUserIdChanged|| attributes.IsGroupIdChanged)
-                {
-                    this.Write((UInt32)attributes.UserId);
-                    this.Write((UInt32)attributes.GroupId);
-                }
+            if (attributes.IsPermissionsChanged)
+            {
+                this.Write(attributes.Permissions);
+            }
 
-                if (attributes.IsPermissionsChanged)
-                {
-                    this.Write(attributes.Permissions);
-                }
+            if (attributes.IsLastAccessTimeChanged || attributes.IsLastWriteTimeChanged)
+            {
+                var time = (uint)(attributes.LastAccessTime.ToFileTime() / 10000000 - 11644473600);
+                this.Write(time);
+                time = (uint)(attributes.LastWriteTime.ToFileTime() / 10000000 - 11644473600);
+                this.Write(time);
+            }
 
-                if (attributes.IsLastAccessTimeChanged || attributes.IsLastWriteTimeChanged)
-                {
-                    uint time = (uint)(attributes.LastAccessTime.ToFileTime() / 10000000 - 11644473600);
-                    this.Write(time);
-                    time = (uint)(attributes.LastWriteTime.ToFileTime() / 10000000 - 11644473600);
-                    this.Write(time);
-                }
-
-                if (attributes.IsExtensionsChanged)
-                {
-                    this.Write(attributes.Extensions);
-                }
+            if (attributes.IsExtensionsChanged)
+            {
+                this.Write(attributes.Extensions);
             }
         }
 
         private static SftpMessage Load(uint protocolVersion, byte[] data, SftpMessageTypes messageType, Encoding encoding)
         {
-            SftpMessage message = null;
+            SftpMessage message;
 
             switch (messageType)
             {

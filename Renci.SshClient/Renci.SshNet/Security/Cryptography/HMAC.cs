@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
 using System.Security.Cryptography;
 
 namespace Renci.SshNet.Security.Cryptography
@@ -42,12 +39,17 @@ namespace Renci.SshNet.Security.Cryptography
         /// Rfc 2104.
         /// </summary>
         /// <param name="key">The key.</param>
+        /// <param name="hashSizeValue">The size, in bits, of the computed hash code.</param>
         public HMac(byte[] key, int hashSizeValue)
             : this(key)
         {
             this.HashSizeValue = hashSizeValue;
         }
 
+        /// <summary>
+        /// Rfc 2104.
+        /// </summary>
+        /// <param name="key">The key.</param>
         public HMac(byte[] key)
             : this()
         {
@@ -130,20 +132,19 @@ namespace Renci.SshNet.Security.Cryptography
             }
             else
             {
-                this.KeyValue = value.Clone() as byte[];
+                this.KeyValue = (byte[]) value.Clone();
             }
 
             this._innerPadding = new byte[this.BlockSize];
             this._outerPadding = new byte[this.BlockSize];
 
             // Compute inner and outer padding.
-            int i = 0;
-            for (i = 0; i < this.KeyValue.Length; i++)
+            for (var i = 0; i < this.KeyValue.Length; i++)
             {
                 this._innerPadding[i] = (byte)(0x36 ^ this.KeyValue[i]);
                 this._outerPadding[i] = (byte)(0x5C ^ this.KeyValue[i]);
             }
-            for (i = this.KeyValue.Length; i < this.BlockSize; i++)
+            for (var i = this.KeyValue.Length; i < this.BlockSize; i++)
             {
                 this._innerPadding[i] = 0x36;
                 this._outerPadding[i] = 0x5C;

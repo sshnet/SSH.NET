@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 
 namespace Renci.SshNet
@@ -69,7 +66,7 @@ namespace Renci.SshNet
 
         #region IDisposable Members
 
-        private bool _isDisposed = false;
+        private bool _isDisposed;
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged ResourceMessages.

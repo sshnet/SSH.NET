@@ -1,14 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Renci.SshNet.Channels;
 using System.IO;
 using Renci.SshNet.Common;
-using Renci.SshNet.Messages.Connection;
 using System.Text.RegularExpressions;
-using System.Threading;
-using System.Diagnostics;
 
 namespace Renci.SshNet
 {
@@ -17,29 +11,27 @@ namespace Renci.SshNet
     /// </summary>
     public partial class ScpClient
     {
-        private static Regex _rootPath = new Regex(@"^(/|[A-Z][:])", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex _directoryInfoRe = new Regex(@"D(?<mode>\d{4}) (?<length>\d+) (?<filename>.+)");
+        private static readonly Regex _timestampRe = new Regex(@"T(?<mtime>\d+) 0 (?<atime>\d+) 0");
 
         /// <summary>
         /// Uploads the specified file to the remote host.
         /// </summary>
         /// <param name="fileInfo">The file system info.</param>
         /// <param name="path">The path.</param>
-        /// <exception cref="System.ArgumentNullException">fileSystemInfo</exception>
-        /// <exception cref="System.ArgumentException">path</exception>
-        /// <exception cref="System.NotSupportedException"></exception>
-        /// <exception cref="ArgumentNullException"><paramref name="fileInfo" /> or <paramref name="filename" /> is null.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="fileInfo" /> is null.</exception>
+        /// <exception cref="ArgumentException"><paramref name="path"/> is null or empty.</exception>
         public void Upload(FileInfo fileInfo, string path)
         {
             if (fileInfo == null)
-                throw new ArgumentNullException("fileSystemInfo");
-
+                throw new ArgumentNullException("fileInfo");
             if (string.IsNullOrEmpty(path))
                 throw new ArgumentException("path");
 
             using (var input = new PipeStream())
             using (var channel = this.Session.CreateChannel<ChannelSession>())
             {
-                channel.DataReceived += delegate(object sender, Common.ChannelDataEventArgs e)
+                channel.DataReceived += delegate(object sender, ChannelDataEventArgs e)
                 {
                     input.Write(e.Data, 0, e.Data.Length);
                     input.Flush();
@@ -62,20 +54,19 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="directoryInfo">The directory info.</param>
         /// <param name="path">The path.</param>
-        /// <exception cref="System.ArgumentNullException">fileSystemInfo</exception>
-        /// <exception cref="System.ArgumentException">path</exception>
+        /// <exception cref="ArgumentNullException">fileSystemInfo</exception>
+        /// <exception cref="ArgumentException"><paramref name="path"/> is null or empty.</exception>
         public void Upload(DirectoryInfo directoryInfo, string path)
         {
             if (directoryInfo == null)
-                throw new ArgumentNullException("fileSystemInfo");
-
+                throw new ArgumentNullException("directoryInfo");
             if (string.IsNullOrEmpty(path))
                 throw new ArgumentException("path");
 
             using (var input = new PipeStream())
             using (var channel = this.Session.CreateChannel<ChannelSession>())
             {
-                channel.DataReceived += delegate(object sender, Common.ChannelDataEventArgs e)
+                channel.DataReceived += delegate(object sender, ChannelDataEventArgs e)
                 {
                     input.Write(e.Data, 0, e.Data.Length);
                     input.Flush();
@@ -91,7 +82,7 @@ namespace Renci.SshNet
                 this.SendData(channel, string.Format("D0755 0 {0}\n", Path.GetFileName(path)));
                 this.CheckReturnCode(input);
 
-                this.InternalUpload(channel, input, directoryInfo as DirectoryInfo, directoryInfo.Name);
+                this.InternalUpload(channel, input, directoryInfo);
 
                 this.SendData(channel, "E\n");
                 this.CheckReturnCode(input);
@@ -105,19 +96,19 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="filename">Remote host file name.</param>
         /// <param name="fileInfo">Local file information.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="fileInfo"/> or <paramref name="filename"/> is null.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="fileInfo"/> is null.</exception>
+        /// <exception cref="ArgumentException"><paramref name="filename"/> is null or empty.</exception>
         public void Download(string filename, FileInfo fileInfo)
         {
-            if (fileInfo == null)
-                throw new ArgumentNullException("fileInfo");
-
             if (string.IsNullOrEmpty(filename))
                 throw new ArgumentException("filename");
+            if (fileInfo == null)
+                throw new ArgumentNullException("fileInfo");
 
             using (var input = new PipeStream())
             using (var channel = this.Session.CreateChannel<ChannelSession>())
             {
-                channel.DataReceived += delegate(object sender, Common.ChannelDataEventArgs e)
+                channel.DataReceived += delegate(object sender, ChannelDataEventArgs e)
                 {
                     input.Write(e.Data, 0, e.Data.Length);
                     input.Flush();
@@ -140,19 +131,19 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="directoryName">Remote host directory name.</param>
         /// <param name="directoryInfo">Local directory information.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="directoryInfo"/> or <paramref name="directoryName"/> is null.</exception>
+        /// <exception cref="ArgumentException"><paramref name="directoryName"/> is null or empty.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="directoryInfo"/> is null.</exception>
         public void Download(string directoryName, DirectoryInfo directoryInfo)
         {
-            if (directoryInfo == null)
-                throw new ArgumentNullException("directoryInfo");
-
             if (string.IsNullOrEmpty(directoryName))
                 throw new ArgumentException("directoryName");
+            if (directoryInfo == null)
+                throw new ArgumentNullException("directoryInfo");
 
             using (var input = new PipeStream())
             using (var channel = this.Session.CreateChannel<ChannelSession>())
             {
-                channel.DataReceived += delegate(object sender, Common.ChannelDataEventArgs e)
+                channel.DataReceived += delegate(object sender, ChannelDataEventArgs e)
                 {
                     input.Write(e.Data, 0, e.Data.Length);
                     input.Flush();
@@ -179,7 +170,7 @@ namespace Renci.SshNet
             }
         }
 
-        private void InternalUpload(ChannelSession channel, Stream input, DirectoryInfo directoryInfo, string directoryName)
+        private void InternalUpload(ChannelSession channel, Stream input, DirectoryInfo directoryInfo)
         {
             //  Upload files
             var files = directoryInfo.GetFiles();
@@ -196,7 +187,7 @@ namespace Renci.SshNet
                 this.SendData(channel, string.Format("D0755 0 {0}\n", directory.Name));
                 this.CheckReturnCode(input);
 
-                this.InternalUpload(channel, input, directory, directory.Name);
+                this.InternalUpload(channel, input, directory);
 
                 this.SendData(channel, "E\n");
                 this.CheckReturnCode(input);

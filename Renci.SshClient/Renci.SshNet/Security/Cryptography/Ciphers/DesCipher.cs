@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Renci.SshNet.Security.Cryptography.Ciphers
 {
@@ -254,7 +251,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 				this._encryptionKey = GenerateWorkingKey(true, this.Key);
 			}
 
-			DesCipher.DesFunc(this._encryptionKey, inputBuffer, inputOffset, outputBuffer, outputOffset);
+			DesFunc(this._encryptionKey, inputBuffer, inputOffset, outputBuffer, outputOffset);
 
 			return this.BlockSize;
 		}
@@ -283,7 +280,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 				this._decryptionKey = GenerateWorkingKey(false, this.Key);
 			}
 
-			DesCipher.DesFunc(this._decryptionKey, inputBuffer, inputOffset, outputBuffer, outputOffset);
+			DesFunc(this._decryptionKey, inputBuffer, inputOffset, outputBuffer, outputOffset);
 
 			return this.BlockSize;
 		}

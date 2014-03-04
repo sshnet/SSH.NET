@@ -4,15 +4,11 @@ using System.Linq;
 using System.Text;
 using Renci.SshNet.Security;
 using Renci.SshNet.Messages.Connection;
-using System.Security.Cryptography;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Authentication;
 using Renci.SshNet.Security.Cryptography;
 using Renci.SshNet.Security.Cryptography.Ciphers.Modes;
 using Renci.SshNet.Security.Cryptography.Ciphers;
-using System.Collections.ObjectModel;
-using System.Net;
-using Renci.SshNet.Compression;
 
 namespace Renci.SshNet
 {

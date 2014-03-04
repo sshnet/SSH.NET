@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Security.Cryptography;
-
-namespace Renci.SshNet.Security.Cryptography
+﻿namespace Renci.SshNet.Security.Cryptography
 {
     public class SHA384Hash : SHA2HashBase
     {

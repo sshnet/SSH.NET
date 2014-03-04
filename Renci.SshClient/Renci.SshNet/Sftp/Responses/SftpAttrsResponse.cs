@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Renci.SshNet.Sftp.Responses
+﻿namespace Renci.SshNet.Sftp.Responses
 {
     internal class SftpAttrsResponse : SftpResponse
     {

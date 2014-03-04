@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Renci.SshNet.Common;
 using Renci.SshNet.Security.Cryptography;
 
@@ -43,8 +40,7 @@ namespace Renci.SshNet.Security
             {
                 if (this._privateKey.Length > 2)
                     return this._privateKey[2];
-                else
-                    return BigInteger.Zero;
+                return BigInteger.Zero;
             }
         }
 
@@ -57,8 +53,7 @@ namespace Renci.SshNet.Security
             {
                 if (this._privateKey.Length > 3)
                     return this._privateKey[3];
-                else
-                    return BigInteger.Zero;
+                return BigInteger.Zero;
             }
         }
 
@@ -71,8 +66,7 @@ namespace Renci.SshNet.Security
             {
                 if (this._privateKey.Length > 4)
                     return this._privateKey[4];
-                else
-                    return BigInteger.Zero;
+                return BigInteger.Zero;
             }
         }
 
@@ -85,8 +79,7 @@ namespace Renci.SshNet.Security
             {
                 if (this._privateKey.Length > 5)
                     return this._privateKey[5];
-                else
-                    return BigInteger.Zero;
+                return BigInteger.Zero;
             }
         }
 
@@ -99,8 +92,7 @@ namespace Renci.SshNet.Security
             {
                 if (this._privateKey.Length > 6)
                     return this._privateKey[6];
-                else
-                    return BigInteger.Zero;
+                return BigInteger.Zero;
             }
         }
 
@@ -113,8 +105,7 @@ namespace Renci.SshNet.Security
             {
                 if (this._privateKey.Length > 7)
                     return this._privateKey[7];
-                else
-                    return BigInteger.Zero;
+                return BigInteger.Zero;
             }
         }
 
@@ -218,7 +209,7 @@ namespace Renci.SshNet.Security
 
         #region IDisposable Members
 
-        private bool _isDisposed = false;
+        private bool _isDisposed;
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged ResourceMessages.

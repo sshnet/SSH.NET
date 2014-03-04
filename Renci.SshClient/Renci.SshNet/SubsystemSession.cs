@@ -1,16 +1,9 @@
 ﻿using System;
-using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading;
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
-using System.Diagnostics;
-using System.Collections.Generic;
 using System.Globalization;
-using Renci.SshNet.Sftp.Responses;
-using Renci.SshNet.Sftp.Requests;
-using Renci.SshNet.Messages.Connection;
 
 namespace Renci.SshNet.Sftp
 {
@@ -19,9 +12,9 @@ namespace Renci.SshNet.Sftp
     /// </summary>
     public abstract class SubsystemSession : IDisposable
     {
-        private Session _session;
+        private readonly Session _session;
 
-        private string _subsystemName;
+        private readonly string _subsystemName;
 
         private ChannelSession _channel;
 
@@ -51,6 +44,9 @@ namespace Renci.SshNet.Sftp
         /// </summary>
         protected uint ChannelNumber { get; private set; }
 
+        /// <summary>
+        /// Gets the character encoding to use.
+        /// </summary>
         protected Encoding Encoding { get; private set; }
 
         /// <summary>
@@ -59,15 +55,16 @@ namespace Renci.SshNet.Sftp
         /// <param name="session">The session.</param>
         /// <param name="subsystemName">Name of the subsystem.</param>
         /// <param name="operationTimeout">The operation timeout.</param>
-        /// <exception cref="System.ArgumentNullException">session</exception>
-        /// <exception cref="ArgumentNullException"><paramref name="session" /> or <paramref name="subsystemName" /> is null.</exception>
+        /// <param name="encoding">The character encoding to use.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="session" /> or <paramref name="subsystemName" /> or <paramref name="encoding"/>is null.</exception>
         public SubsystemSession(Session session, string subsystemName, TimeSpan operationTimeout, Encoding encoding)
         {
             if (session == null)
                 throw new ArgumentNullException("session");
-
             if (subsystemName == null)
                 throw new ArgumentNullException("subsystemName");
+            if (encoding == null)
+                throw new ArgumentNullException("encoding");
 
             this._session = session;
             this._subsystemName = subsystemName;
@@ -143,12 +140,12 @@ namespace Renci.SshNet.Sftp
             }
         }
 
-        private void Channel_DataReceived(object sender, Common.ChannelDataEventArgs e)
+        private void Channel_DataReceived(object sender, ChannelDataEventArgs e)
         {
             this.OnDataReceived(e.DataTypeCode, e.Data);
         }
 
-        private void Channel_Closed(object sender, Common.ChannelEventArgs e)
+        private void Channel_Closed(object sender, ChannelEventArgs e)
         {
             this._channelClosedWaitHandle.Set();
         }
@@ -159,7 +156,7 @@ namespace Renci.SshNet.Sftp
                 {
                     this._errorOccuredWaitHandle,
                     this._channelClosedWaitHandle,
-                    waitHandle,
+                    waitHandle
                 };
 
             switch (EventWaitHandle.WaitAny(waitHandles, operationTimeout))
@@ -170,8 +167,6 @@ namespace Renci.SshNet.Sftp
                     throw new SshException("Channel was closed.");
                 case System.Threading.WaitHandle.WaitTimeout:
                     throw new SshOperationTimeoutException(string.Format(CultureInfo.CurrentCulture, "Operation has timed out."));
-                default:
-                    break;
             }
         }
 
@@ -192,7 +187,7 @@ namespace Renci.SshNet.Sftp
 
         #region IDisposable Members
 
-        private bool _isDisposed = false;
+        private bool _isDisposed;
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
@@ -216,7 +211,6 @@ namespace Renci.SshNet.Sftp
                 if (this._channel != null)
                 {
                     this._channel.DataReceived -= Channel_DataReceived;
-
                     this._channel.Dispose();
                     this._channel = null;
                 }

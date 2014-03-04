@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Renci.SshNet.Common;
 using Renci.SshNet.Security.Cryptography;
 
@@ -122,7 +119,6 @@ namespace Renci.SshNet.Security
         /// Initializes a new instance of the <see cref="DsaKey"/> class.
         /// </summary>
         public DsaKey()
-            : base()
         {
             this._privateKey = new BigInteger[5];
         }
@@ -158,7 +154,7 @@ namespace Renci.SshNet.Security
 
         #region IDisposable Members
 
-        private bool _isDisposed = false;
+        private bool _isDisposed;
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged ResourceMessages.

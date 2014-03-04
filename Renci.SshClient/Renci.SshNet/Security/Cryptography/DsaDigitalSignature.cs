@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Security.Cryptography;
 using Renci.SshNet.Common;
-using System.Globalization;
 
 namespace Renci.SshNet.Security.Cryptography
 {
@@ -15,7 +12,7 @@ namespace Renci.SshNet.Security.Cryptography
     {
         private HashAlgorithm _hash;
 
-        private DsaKey _key;
+        private readonly DsaKey _key;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DsaDigitalSignature" /> class.
@@ -103,8 +100,8 @@ namespace Renci.SshNet.Security.Cryptography
 
             BigInteger m = new BigInteger(hashInput.Reverse().Concat(new byte[] { 0 }).ToArray());
 
-            BigInteger s = BigInteger.Zero;
-            BigInteger r = BigInteger.Zero;
+            BigInteger s;
+            BigInteger r;
 
             do
             {
@@ -144,7 +141,7 @@ namespace Renci.SshNet.Security.Cryptography
         
         #region IDisposable Members
 
-        private bool _isDisposed = false;
+        private bool _isDisposed;
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged ResourceMessages.

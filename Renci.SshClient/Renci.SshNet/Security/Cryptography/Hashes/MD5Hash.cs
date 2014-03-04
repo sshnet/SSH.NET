@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 
 namespace Renci.SshNet.Security.Cryptography
 {
@@ -11,11 +7,11 @@ namespace Renci.SshNet.Security.Cryptography
     /// </summary>
     public sealed class MD5Hash : HashAlgorithm
     {
-        private byte[] _buffer = new byte[4];
+        private readonly byte[] _buffer = new byte[4];
         private int _bufferOffset;
         private long _byteCount;
         private int H1, H2, H3, H4;         // IV's
-        private int[] _hashValue = new int[16];
+        private readonly int[] _hashValue = new int[16];
         private int _offset;
 
         /// <summary>
@@ -170,10 +166,9 @@ namespace Renci.SshNet.Security.Cryptography
 
         private void InternalInitialize()
         {
-            var i = 0;
             this._byteCount = 0;
             this._bufferOffset = 0;
-            for (i = 0; i < 4; i++)
+            for (var i = 0; i < 4; i++)
             {
                 this._buffer[i] = 0;
             }
@@ -184,7 +179,7 @@ namespace Renci.SshNet.Security.Cryptography
             H4 = unchecked((int)0x10325476);
 
             this._offset = 0;
-            for (i = 0; i != this._hashValue.Length; i++)
+            for (var i = 0; i != this._hashValue.Length; i++)
             {
                 this._hashValue[i] = 0;
             }
@@ -225,34 +220,34 @@ namespace Renci.SshNet.Security.Cryptography
         //
         // round 1 left rotates
         //
-        private static readonly int S11 = 7;
-        private static readonly int S12 = 12;
-        private static readonly int S13 = 17;
-        private static readonly int S14 = 22;
+        private const int S11 = 7;
+        private const int S12 = 12;
+        private const int S13 = 17;
+        private const int S14 = 22;
 
         //
         // round 2 left rotates
         //
-        private static readonly int S21 = 5;
-        private static readonly int S22 = 9;
-        private static readonly int S23 = 14;
-        private static readonly int S24 = 20;
+        private const int S21 = 5;
+        private const int S22 = 9;
+        private const int S23 = 14;
+        private const int S24 = 20;
 
         //
         // round 3 left rotates
         //
-        private static readonly int S31 = 4;
-        private static readonly int S32 = 11;
-        private static readonly int S33 = 16;
-        private static readonly int S34 = 23;
+        private const int S31 = 4;
+        private const int S32 = 11;
+        private const int S33 = 16;
+        private const int S34 = 23;
 
         //
         // round 4 left rotates
         //
-        private static readonly int S41 = 6;
-        private static readonly int S42 = 10;
-        private static readonly int S43 = 15;
-        private static readonly int S44 = 21;
+        private const int S41 = 6;
+        private const int S42 = 10;
+        private const int S43 = 15;
+        private const int S44 = 21;
 
         /*
         * rotate int x left n bits.

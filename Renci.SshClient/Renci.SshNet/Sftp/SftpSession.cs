@@ -1,11 +1,8 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
-using System.Diagnostics;
 using System.Collections.Generic;
 using System.Globalization;
 using Renci.SshNet.Sftp.Responses;
@@ -19,9 +16,9 @@ namespace Renci.SshNet.Sftp
 
         private const int MINIMUM_SUPPORTED_VERSION = 0;
 
-        private Dictionary<uint, SftpRequest> _requests = new Dictionary<uint, SftpRequest>();
+        private readonly Dictionary<uint, SftpRequest> _requests = new Dictionary<uint, SftpRequest>();
 
-        private List<byte> _data = new List<byte>(16 * 1024);
+        private readonly List<byte> _data = new List<byte>(16 * 1024);
 
         private EventWaitHandle _sftpVersionConfirmed = new AutoResetEvent(false);
 
@@ -132,13 +129,11 @@ namespace Renci.SshNet.Sftp
             {
                 return fullPath;
             }
-            else
-            {
-                var slash = string.Empty;
-                if (canonizedPath[canonizedPath.Length - 1] != '/')
-                    slash = "/";
-                return string.Format(CultureInfo.InvariantCulture, "{0}{1}{2}", canonizedPath, slash, pathParts[pathParts.Length - 1]);
-            }
+
+            var slash = string.Empty;
+            if (canonizedPath[canonizedPath.Length - 1] != '/')
+                slash = "/";
+            return string.Format(CultureInfo.InvariantCulture, "{0}{1}{2}", canonizedPath, slash, pathParts[pathParts.Length - 1]);
         }
 
         internal string GetFullRemotePath(string path)
@@ -268,12 +263,12 @@ namespace Renci.SshNet.Sftp
             using (var wait = new AutoResetEvent(false))
             {
                 var request = new SftpOpenRequest(this.ProtocolVersion, this.NextRequestId, path, this.Encoding, flags,
-                    (response) =>
+                    response =>
                     {
                         handle = response.Handle;
                         wait.Set();
                     },
-                    (response) =>
+                    response =>
                     {
                         exception = this.GetSftpException(response);
                         wait.Set();
@@ -331,7 +326,7 @@ namespace Renci.SshNet.Sftp
         {
             SshException exception = null;
 
-            byte[] data = new byte[0];
+            var data = new byte[0];
 
             using (var wait = new AutoResetEvent(false))
             {
@@ -370,6 +365,7 @@ namespace Renci.SshNet.Sftp
         /// <param name="offset">The offset.</param>
         /// <param name="data">The data to send.</param>
         /// <param name="wait">The wait event handle if needed.</param>
+        /// <param name="writeCompleted">The callback to invoke when the write has completed.</param>
         internal void RequestWrite(byte[] handle, UInt64 offset, byte[] data, EventWaitHandle wait, Action<SftpStatusResponse> writeCompleted = null)
         {
             SshException exception = null;
@@ -1092,7 +1088,7 @@ namespace Renci.SshNet.Sftp
 
         private void HandleResponse(SftpResponse response)
         {
-            SftpRequest request = null;
+            SftpRequest request;
             lock (this._requests)
             {
                 this._requests.TryGetValue(response.ResponseId, out request);

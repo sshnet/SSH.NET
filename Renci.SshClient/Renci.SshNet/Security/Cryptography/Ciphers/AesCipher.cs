@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Globalization;
 
 namespace Renci.SshNet.Security.Cryptography.Ciphers
@@ -60,7 +57,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 			225, 248, 152,  17, 105, 217, 142, 148,
 			155,  30, 135, 233, 206,  85,  40, 223,
 			140, 161, 137,  13, 191, 230,  66, 104,
-			65, 153,  45,  15, 176,  84, 187,  22,
+			65, 153,  45,  15, 176,  84, 187,  22
 		};
 
         // The inverse S-box
@@ -97,7 +94,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 			160, 224,  59,  77, 174,  42, 245, 176,
 			200, 235, 187,  60, 131,  83, 153,  97,
 			23,  43,   4, 126, 186, 119, 214,  38,
-			225, 105,  20,  99,  85,  33,  12, 125,
+			225, 105,  20,  99,  85,  33,  12, 125
 		};
 
         // vector used in calculating key schedule (powers of x in GF(256))

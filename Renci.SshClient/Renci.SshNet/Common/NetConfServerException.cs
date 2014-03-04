@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Renci.SshNet.Common
 {
@@ -15,7 +12,6 @@ namespace Renci.SshNet.Common
         /// </summary>
         public NetConfServerException()
         {
-
         }
 
         /// <summary>
@@ -25,7 +21,6 @@ namespace Renci.SshNet.Common
         public NetConfServerException(string message)
             : base(message)
         {
-
         }
 
         /// <summary>

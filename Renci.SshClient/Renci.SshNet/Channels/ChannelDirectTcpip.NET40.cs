@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using System;
+﻿using System;
 using System.Net.Sockets;
 using System.Threading;
 
@@ -12,7 +11,7 @@ namespace Renci.SshNet.Channels
     {
         partial void ExecuteThread(Action action)
         {
-            ThreadPool.QueueUserWorkItem((o) => { action(); });
+            ThreadPool.QueueUserWorkItem(o => action());
         }
 
         partial void InternalSocketReceive(byte[] buffer, ref int read)

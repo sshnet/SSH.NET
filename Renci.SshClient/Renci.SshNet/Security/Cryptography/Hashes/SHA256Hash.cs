@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 
 namespace Renci.SshNet.Security.Cryptography
 {
@@ -15,11 +11,11 @@ namespace Renci.SshNet.Security.Cryptography
 
 		private uint H1, H2, H3, H4, H5, H6, H7, H8;
 
-		private uint[] X = new uint[64];
+		private readonly uint[] X = new uint[64];
 
 		private int _offset;
 
-		private byte[] _buffer;
+		private readonly byte[] _buffer;
 
 		private int _bufferOffset;
 

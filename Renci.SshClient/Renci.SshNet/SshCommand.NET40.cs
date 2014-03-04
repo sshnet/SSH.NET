@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Renci.SshNet
 {
@@ -12,7 +11,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name=" action"/> is null.</exception>
         partial void ExecuteThread(Action action)
         {
-            ThreadPool.QueueUserWorkItem((o) => { action(); });
+            ThreadPool.QueueUserWorkItem(o => action());
         }
     }
 }

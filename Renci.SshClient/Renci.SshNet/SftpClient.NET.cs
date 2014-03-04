@@ -3,11 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.IO;
 using Renci.SshNet.Sftp;
-using System.Text;
-using Renci.SshNet.Common;
 using System.Globalization;
-using System.Threading;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Renci.SshNet
 {
@@ -41,13 +37,12 @@ namespace Renci.SshNet
         /// <returns>
         /// An <see cref="System.IAsyncResult" /> that represents the asynchronous directory synchronization.
         /// </returns>
-        /// <exception cref="System.ArgumentNullException">sourceDir</exception>
-        /// <exception cref="System.ArgumentException">destDir</exception>
+        /// <exception cref="System.ArgumentNullException"><paramref name="sourcePath"/> is <c>null</c>.</exception>
+        /// <exception cref="System.ArgumentException"><paramref name="destinationPath"/> is <c>null</c> or contains only whitespace.</exception>
         public IAsyncResult BeginSynchronizeDirectories(string sourcePath, string destinationPath, string searchPattern, AsyncCallback asyncCallback, object state)
         {
             if (sourcePath == null)
-                throw new ArgumentNullException("sourceDir");
-
+                throw new ArgumentNullException("sourcePath");
             if (destinationPath.IsNullOrWhiteSpace())
                 throw new ArgumentException("destDir");
 
@@ -105,70 +100,63 @@ namespace Renci.SshNet
             var sourceFiles = sourceDirectory.GetFiles(searchPattern);
 #endif
 
-            if (sourceFiles == null || sourceFiles.Count() <= 0)
+            if (sourceFiles == null || !sourceFiles.Any())
                 return uploadedFiles;
 
-            try
-            {
-                #region Existing Files at The Destination
+            #region Existing Files at The Destination
 
-                var destFiles = InternalListDirectory(destinationPath, null);
-                Dictionary<string, SftpFile> destDict = new Dictionary<string, SftpFile>();
-                foreach (var destFile in destFiles)
+            var destFiles = InternalListDirectory(destinationPath, null);
+            Dictionary<string, SftpFile> destDict = new Dictionary<string, SftpFile>();
+            foreach (var destFile in destFiles)
+            {
+                if (destFile.IsDirectory)
+                    continue;
+                destDict.Add(destFile.Name, destFile);
+            }
+
+            #endregion
+
+            #region Upload the difference
+
+            const Flags uploadFlag = Flags.Write | Flags.Truncate | Flags.CreateNewOrOpen;
+            foreach (var localFile in sourceFiles)
+            {
+                bool isDifferent = !destDict.ContainsKey(localFile.Name);
+
+                if (!isDifferent)
                 {
-                    if (destFile.IsDirectory)
-                        continue;
-                    destDict.Add(destFile.Name, destFile);
+                    SftpFile temp = destDict[localFile.Name];
+                    //  TODO:   Use md5 to detect a difference
+                    //ltang: File exists at the destination => Using filesize to detect the difference
+                    isDifferent = localFile.Length != temp.Length;
                 }
 
-                #endregion
-
-                #region Upload the difference
-
-                bool isDifferent = false;
-                Flags uploadFlag = Flags.Write | Flags.Truncate | Flags.CreateNewOrOpen;
-                foreach (var localFile in sourceFiles)
+                if (isDifferent)
                 {
-                    isDifferent = !destDict.ContainsKey(localFile.Name);
-
-                    if (!isDifferent)
+                    var remoteFileName = string.Format(CultureInfo.InvariantCulture, @"{0}/{1}", destinationPath, localFile.Name);
+                    try
                     {
-                        SftpFile temp = destDict[localFile.Name];
-                        //  TODO:   Use md5 to detect a difference
-                        //ltang: File exists at the destination => Using filesize to detect the difference
-                        isDifferent = localFile.Length != temp.Length;
+                        using (var file = File.OpenRead(localFile.FullName))
+                        {
+                            this.InternalUploadFile(file, remoteFileName, uploadFlag, null, null);
+                        }
+
+                        uploadedFiles.Add(localFile);
+
+                        if (asynchResult != null)
+                        {
+                            asynchResult.Update(uploadedFiles.Count);
+                        }
                     }
-
-                    if (isDifferent)
+                    catch (Exception ex)
                     {
-                        var remoteFileName = string.Format(CultureInfo.InvariantCulture, @"{0}/{1}", destinationPath, localFile.Name);
-                        try
-                        {
-                            using (var file = File.OpenRead(localFile.FullName))
-                            {
-                                this.InternalUploadFile(file, remoteFileName, uploadFlag, null, null);
-                            }
-
-                            uploadedFiles.Add(localFile);
-
-                            if (asynchResult != null)
-                            {
-                                asynchResult.Update(uploadedFiles.Count);
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            throw new Exception(string.Format("Failed to upload {0} to {1}", localFile.FullName, remoteFileName), ex);
-                        }
+                        throw new Exception(string.Format("Failed to upload {0} to {1}", localFile.FullName, remoteFileName), ex);
                     }
                 }
+            }
 
-                #endregion
-            }
-            catch
-            {
-                throw;
-            }
+            #endregion
+
             return uploadedFiles;
         }
 

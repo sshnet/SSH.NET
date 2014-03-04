@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Renci.SshNet.Common
+﻿namespace Renci.SshNet.Common
 {
     /// <summary>
     /// Specifies the initial assignments of the opcode values that are used in the 'encoded terminal modes' valu

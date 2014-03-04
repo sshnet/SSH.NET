@@ -1,7 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System;
 using System.Globalization;
 using System.Text.RegularExpressions;
@@ -24,46 +22,40 @@ namespace Renci.SshNet
         internal static bool IsEqualTo<TSource>(this IEnumerable<TSource> value, IEnumerable<TSource> compareList, IEqualityComparer<TSource> comparer)
         {
             if (value == compareList)
-            {
                 return true;
-            }
-            else if (value == null || compareList == null)
-            {
+            if (value == null || compareList == null)
                 return false;
-            }
-            else
+
+            if (comparer == null)
             {
-                if (comparer == null)
+                comparer = EqualityComparer<TSource>.Default;
+            }
+
+            var enumerator1 = value.GetEnumerator();
+            var enumerator2 = compareList.GetEnumerator();
+
+            bool enum1HasValue = enumerator1.MoveNext();
+            bool enum2HasValue = enumerator2.MoveNext();
+
+            try
+            {
+                while (enum1HasValue && enum2HasValue)
                 {
-                    comparer = EqualityComparer<TSource>.Default;
-                }
-
-                IEnumerator<TSource> enumerator1 = value.GetEnumerator();
-                IEnumerator<TSource> enumerator2 = compareList.GetEnumerator();
-
-                bool enum1HasValue = enumerator1.MoveNext();
-                bool enum2HasValue = enumerator2.MoveNext();
-
-                try
-                {
-                    while (enum1HasValue && enum2HasValue)
+                    if (!comparer.Equals(enumerator1.Current, enumerator2.Current))
                     {
-                        if (!comparer.Equals(enumerator1.Current, enumerator2.Current))
-                        {
-                            return false;
-                        }
-
-                        enum1HasValue = enumerator1.MoveNext();
-                        enum2HasValue = enumerator2.MoveNext();
+                        return false;
                     }
 
-                    return !(enum1HasValue || enum2HasValue);
+                    enum1HasValue = enumerator1.MoveNext();
+                    enum2HasValue = enumerator2.MoveNext();
                 }
-                finally
-                {
-                    if (enumerator1 != null) enumerator1.Dispose();
-                    if (enumerator2 != null) enumerator2.Dispose();
-                }
+
+                return !(enum1HasValue || enum2HasValue);
+            }
+            finally
+            {
+                enumerator1.Dispose();
+                enumerator2.Dispose();
             }
         }
 
@@ -109,10 +101,7 @@ namespace Renci.SshNet
                 {
                     continue;
                 }
-                else
-                {
-                    leadingZero = false;
-                }
+                leadingZero = false;
 
                 yield return item;
             }
@@ -176,9 +165,9 @@ namespace Renci.SshNet
 
         private static Regex _reIPv6 = new Regex(@"^(((?=(?>.*?::)(?!.*::)))(::)?([0-9A-F]{1,4}::?){0,5}|([0-9A-F]{1,4}:){6})(\2([0-9A-F]{1,4}(::?|$)){0,2}|((25[0-5]|(2[0-4]|1\d|[1-9])?\d)(\.|$)){4}|[0-9A-F]{1,4}:[0-9A-F]{1,4})(?<![^:]:|\.)\z", RegexOptions.IgnoreCase);
 #else
-        private static Regex _rehost = new Regex(@"^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$|^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private static readonly Regex _rehost = new Regex(@"^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$|^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
-        private static Regex _reIPv6 = new Regex(@"^(((?=(?>.*?::)(?!.*::)))(::)?([0-9A-F]{1,4}::?){0,5}|([0-9A-F]{1,4}:){6})(\2([0-9A-F]{1,4}(::?|$)){0,2}|((25[0-5]|(2[0-4]|1\d|[1-9])?\d)(\.|$)){4}|[0-9A-F]{1,4}:[0-9A-F]{1,4})(?<![^:]:|\.)\z", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private static readonly Regex _reIPv6 = new Regex(@"^(((?=(?>.*?::)(?!.*::)))(::)?([0-9A-F]{1,4}::?){0,5}|([0-9A-F]{1,4}:){6})(\2([0-9A-F]{1,4}(::?|$)){0,2}|((25[0-5]|(2[0-4]|1\d|[1-9])?\d)(\.|$)){4}|[0-9A-F]{1,4}:[0-9A-F]{1,4})(?<![^:]:|\.)\z", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
 #endif
 

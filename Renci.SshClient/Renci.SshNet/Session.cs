@@ -35,12 +35,12 @@ namespace Renci.SshNet
         /// </summary>
         protected const int MAXIMUM_PAYLOAD_SIZE = 1024 * 32;
 
-        private static RNGCryptoServiceProvider _randomizer = new System.Security.Cryptography.RNGCryptoServiceProvider();
+        private static readonly RNGCryptoServiceProvider _randomizer = new RNGCryptoServiceProvider();
 
 #if SILVERLIGHT
-        private static Regex _serverVersionRe = new Regex("^SSH-(?<protoversion>[^-]+)-(?<softwareversion>.+)( SP.+)?$");
+        private static readonly Regex _serverVersionRe = new Regex("^SSH-(?<protoversion>[^-]+)-(?<softwareversion>.+)( SP.+)?$");
 #else
-        private static Regex _serverVersionRe = new Regex("^SSH-(?<protoversion>[^-]+)-(?<softwareversion>.+)( SP.+)?$", RegexOptions.Compiled);
+        private static readonly Regex _serverVersionRe = new Regex("^SSH-(?<protoversion>[^-]+)-(?<softwareversion>.+)( SP.+)?$", RegexOptions.Compiled);
 #endif
 
         /// <summary>
@@ -49,7 +49,7 @@ namespace Renci.SshNet
         /// <remarks>
         /// Some server may restrict number to prevent authentication attacks
         /// </remarks>
-        private static SemaphoreLight _authenticationConnection = new SemaphoreLight(3);
+        private static readonly SemaphoreLight _authenticationConnection = new SemaphoreLight(3);
 
         /// <summary>
         /// Holds metada about session messages
@@ -64,7 +64,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Holds locker object for the socket
         /// </summary>
-        private object _socketLock = new object();
+        private readonly object _socketLock = new object();
 
         /// <summary>
         /// Holds reference to task that listens for incoming messages
@@ -74,12 +74,12 @@ namespace Renci.SshNet
         /// <summary>
         /// Specifies outbound packet number
         /// </summary>
-        private volatile UInt32 _outboundPacketSequence = 0;
+        private volatile UInt32 _outboundPacketSequence;
 
         /// <summary>
         /// Specifies incoming packet number
         /// </summary>
-        private UInt32 _inboundPacketSequence = 0;
+        private UInt32 _inboundPacketSequence;
 
         /// <summary>
         /// WaitHandle to signal that last service request was accepted
@@ -99,7 +99,7 @@ namespace Renci.SshNet
         /// <summary>
         /// WaitHandle to signal that key exchange is in progress.
         /// </summary>
-        private bool _keyExchangeInProgress = false;
+        private bool _keyExchangeInProgress;
 
         /// <summary>
         /// Exception that need to be thrown by waiting thread
@@ -209,7 +209,7 @@ namespace Renci.SshNet
             {
                 if (this._clientInitMessage == null)
                 {
-                    this._clientInitMessage = new KeyExchangeInitMessage()
+                    this._clientInitMessage = new KeyExchangeInitMessage
                     {
                         KeyExchangeAlgorithms = this.ConnectionInfo.KeyExchangeAlgorithms.Keys.ToArray(),
                         ServerHostKeyAlgorithms = this.ConnectionInfo.HostKeyAlgorithms.Keys.ToArray(),
@@ -457,12 +457,10 @@ namespace Renci.SshNet
                             this.SocketConnect(this.ConnectionInfo.ProxyHost, this.ConnectionInfo.ProxyPort);
                             this.ConnectHttp();
                             break;
-                        default:
-                            break;
                     }
 
 
-                    Match versionMatch = null;
+                    Match versionMatch;
 
                     //  Get server version from the server,
                     //  ignore text lines which are sent before if any
@@ -637,8 +635,6 @@ namespace Renci.SshNet
                 case System.Threading.WaitHandle.WaitTimeout:
                     this.SendDisconnect(DisconnectReason.ByApplication, "Operation timeout");
                     throw new SshOperationTimeoutException("Session operation has timed out");
-                default:
-                    break;
             }
         }
 
@@ -657,7 +653,7 @@ namespace Renci.SshNet
                 this.WaitHandle(this._keyExchangeCompletedWaitHandle);
             }
 
-            this.Log(string.Format("SendMessage to server '{0}': '{1}'.", message.GetType().Name, message.ToString()));
+            this.Log(string.Format("SendMessage to server '{0}': '{1}'.", message.GetType().Name, message));
 
             //  Messages can be sent by different thread so we need to synchronize it            
             var paddingMultiplier = this._clientCipher == null ? (byte)8 : Math.Max((byte)8, this._serverCipher.MinimumSize);    //    Should be recalculate base on cipher min length if cipher specified
@@ -666,7 +662,7 @@ namespace Renci.SshNet
 
             if (messageData.Length > Session.MAXIMUM_PAYLOAD_SIZE)
             {
-                throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Payload cannot be more then {0} bytes.", Session.MAXIMUM_PAYLOAD_SIZE));
+                throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Payload cannot be more than {0} bytes.", Session.MAXIMUM_PAYLOAD_SIZE));
             }
 
             if (this._clientCompression != null)
@@ -780,7 +776,7 @@ namespace Renci.SshNet
                     new MessageMetadata { Name = "SSH_MSG_SERVICE_ACCEPT", Number = 6, Enabled = false, Activated = false, Type = typeof(ServiceAcceptMessage), },
                     new MessageMetadata { Name = "SSH_MSG_KEXDH_REPLY", Number = 31, Enabled = false, Activated = false, Type = typeof(KeyExchangeDhReplyMessage), },
                     new MessageMetadata { Name = "SSH_MSG_KEX_DH_GEX_INIT", Number = 32, Enabled = false, Activated = false, Type = typeof(KeyExchangeDhGroupExchangeInit), },
-                    new MessageMetadata { Name = "SSH_MSG_KEX_DH_GEX_REPLY", Number = 33, Enabled = false, Activated = false, Type = typeof(KeyExchangeDhGroupExchangeReply), },
+                    new MessageMetadata { Name = "SSH_MSG_KEX_DH_GEX_REPLY", Number = 33, Enabled = false, Activated = false, Type = typeof(KeyExchangeDhGroupExchangeReply), }
                 };
         }
 
@@ -1535,7 +1531,7 @@ namespace Renci.SshNet
 
             message.Load(data);
 
-            this.Log(string.Format("ReceiveMessage from server: '{0}': '{1}'.", message.GetType().Name, message.ToString()));
+            this.Log(string.Format("ReceiveMessage from server: '{0}': '{1}'.", message.GetType().Name, message));
 
             return message;
         }
@@ -1593,7 +1589,7 @@ namespace Renci.SshNet
 
         private byte SocketReadByte()
         {
-            byte[] buffer = new byte[1];
+            var buffer = new byte[1];
 
             this.SocketRead(1, ref buffer);
 
@@ -1720,8 +1716,6 @@ namespace Renci.SshNet
                     break;
                 case 0xFF:
                     throw new ProxyException("SOCKS5: No acceptable authentication methods were offered.");
-                default:
-                    break;
             }
 
             //  Send socks version number
@@ -1797,7 +1791,7 @@ namespace Renci.SshNet
             }
 
             var addressType = this.SocketReadByte();
-            byte[] responseIp = new byte[16];
+            var responseIp = new byte[16];
 
             switch (addressType)
             {
@@ -1811,11 +1805,10 @@ namespace Renci.SshNet
                     throw new ProxyException(string.Format("Address type '{0}' is not supported.", addressType));
             }
 
-            byte[] port = new byte[2];
+            var port = new byte[2];
 
             //  Read 2 bytes to be ignored
             this.SocketRead(2, ref port);
-
         }
 
         private void ConnectHttp()
@@ -1919,7 +1912,7 @@ namespace Renci.SshNet
 
         #region IDisposable Members
 
-        private bool _disposed = false;
+        private bool _disposed;
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged ResourceMessages.

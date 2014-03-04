@@ -18,7 +18,7 @@
         /// </value>
         public override string ChannelType
         {
-            get { return ForwardedTcpipChannelInfo.NAME; }
+            get { return NAME; }
         }
 
         /// <summary>

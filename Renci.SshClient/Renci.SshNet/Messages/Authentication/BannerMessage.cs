@@ -1,6 +1,4 @@
-﻿using System.Text;
-
-namespace Renci.SshNet.Messages.Authentication
+﻿namespace Renci.SshNet.Messages.Authentication
 {
     /// <summary>
     /// Represents SSH_MSG_USERAUTH_BANNER message.

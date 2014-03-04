@@ -18,7 +18,7 @@
         /// </value>
         public override string ChannelType
         {
-            get { return SessionChannelOpenInfo.NAME; }
+            get { return NAME; }
         }
     }
 }

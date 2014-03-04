@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Security.Cryptography;
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Security.Cryptography
@@ -12,9 +9,9 @@ namespace Renci.SshNet.Security.Cryptography
     /// </summary>
     public abstract class CipherDigitalSignature : DigitalSignature
     {
-        private AsymmetricCipher _cipher;
+        private readonly AsymmetricCipher _cipher;
 
-        private ObjectIdentifier _oid;
+        private readonly ObjectIdentifier _oid;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CipherDigitalSignature"/> class.
@@ -41,15 +38,9 @@ namespace Renci.SshNet.Security.Cryptography
         public override bool Verify(byte[] input, byte[] signature)
         {
             var encryptedSignature = this._cipher.Decrypt(signature);
-
             var hashData = this.Hash(input);
-
             var expected = DerEncode(hashData);
-
-            if (expected.SequenceEqual(encryptedSignature))
-                return true;
-            else
-                return false;
+            return expected.SequenceEqual(encryptedSignature);
         }
 
         /// <summary>

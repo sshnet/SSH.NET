@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Threading;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages;
@@ -21,9 +20,9 @@ namespace Renci.SshNet.Channels
 
         private EventWaitHandle _disconnectedWaitHandle = new ManualResetEvent(false);
 
-        private object _serverWindowSizeLock = new object();
+        private readonly object _serverWindowSizeLock = new object();
 
-        private bool _closeMessageSent = false;
+        private bool _closeMessageSent;
 
         private uint _initialWindowSize = 0x100000;
 
@@ -676,7 +675,7 @@ namespace Renci.SshNet.Channels
 
         #region IDisposable Members
 
-        private bool _isDisposed = false;
+        private bool _isDisposed;
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.

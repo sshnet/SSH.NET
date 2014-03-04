@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Renci.SshNet.Common
+﻿namespace Renci.SshNet.Common
 {
     /// <summary>
     /// Provides prompt information when <see cref="Renci.SshNet.KeyboardInteractiveConnectionInfo.AuthenticationPrompt"/> is raised

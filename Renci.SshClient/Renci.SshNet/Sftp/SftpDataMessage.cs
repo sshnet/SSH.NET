@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Renci.SshNet.Messages.Connection;
+﻿using Renci.SshNet.Messages.Connection;
 
 namespace Renci.SshNet.Sftp
 {
@@ -19,6 +16,5 @@ namespace Renci.SshNet.Sftp
             messageData.CopyTo(data, 4);
             this.Data = data;
         }
-
     }
 }

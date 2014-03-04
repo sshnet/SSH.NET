@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Renci.SshNet.Messages.Authentication
+﻿namespace Renci.SshNet.Messages.Authentication
 {
     /// <summary>
     /// Represents "none" SSH_MSG_USERAUTH_REQUEST message.
@@ -32,14 +27,6 @@ namespace Renci.SshNet.Messages.Authentication
         public RequestMessageNone(ServiceName serviceName, string username)
             : base(serviceName, username)
         {
-        }
-
-        /// <summary>
-        /// Called when type specific data need to be saved.
-        /// </summary>
-        protected override void SaveData()
-        {
-            base.SaveData();
         }
     }
 }

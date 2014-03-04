@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Sftp
@@ -35,7 +32,6 @@ namespace Renci.SshNet.Sftp
         public SftpDownloadAsyncResult(AsyncCallback asyncCallback, Object state)
             : base(asyncCallback, state)
         {
-
         }
 
         /// <summary>

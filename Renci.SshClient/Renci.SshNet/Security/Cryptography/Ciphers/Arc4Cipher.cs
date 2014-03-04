@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Renci.SshNet.Security.Cryptography.Ciphers
 {
@@ -10,7 +7,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
     /// </summary>
     public sealed class Arc4Cipher : StreamCipher
     {
-        private readonly static int STATE_LENGTH = 256;
+        private static readonly int STATE_LENGTH = 256;
 
         /// <summary>
         ///  Holds the state of the RC4 engine

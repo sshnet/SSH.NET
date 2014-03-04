@@ -1,13 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Security.Cryptography;
 using Renci.SshNet.Messages.Transport;
-using System.Diagnostics;
 using Renci.SshNet.Messages;
 using Renci.SshNet.Common;
-using Renci.SshNet.Security.Cryptography;
 using System.Globalization;
 
 namespace Renci.SshNet.Security
@@ -107,14 +102,14 @@ namespace Renci.SshNet.Security
             //3. Output (d,Q).
             
             BigInteger p;
-            BigInteger.TryParse("00FFFFFFFF00000001000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFF", System.Globalization.NumberStyles.AllowHexSpecifier, CultureInfo.CurrentCulture, out p);
+            BigInteger.TryParse("00FFFFFFFF00000001000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFF", NumberStyles.AllowHexSpecifier, CultureInfo.CurrentCulture, out p);
 
 
 
             BigInteger n;
-            BigInteger.TryParse("00FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFC7634D81F4372DDF581A0DB248B0A77AECEC196ACCC52973", System.Globalization.NumberStyles.AllowHexSpecifier, CultureInfo.CurrentCulture, out n);
+            BigInteger.TryParse("00FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFC7634D81F4372DDF581A0DB248B0A77AECEC196ACCC52973", NumberStyles.AllowHexSpecifier, CultureInfo.CurrentCulture, out n);
             BigInteger G;
-            BigInteger.TryParse("00036B17D1F2E12C4247F8BCE6E563A440F277037D812DEB33A0F4A13945D898C296", System.Globalization.NumberStyles.AllowHexSpecifier, CultureInfo.CurrentCulture, out G);
+            BigInteger.TryParse("00036B17D1F2E12C4247F8BCE6E563A440F277037D812DEB33A0F4A13945D898C296", NumberStyles.AllowHexSpecifier, CultureInfo.CurrentCulture, out G);
 
             BigInteger d;
 
@@ -259,7 +254,7 @@ namespace Renci.SshNet.Security
 
             protected override void LoadData()
             {
-                throw new System.NotImplementedException();
+                throw new NotImplementedException();
             }
 
             protected override void SaveData()

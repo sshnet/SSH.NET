@@ -18,15 +18,12 @@ namespace Renci.SshNet.Messages.Transport
         /// <summary>
         /// Initializes a new instance of the <see cref="KeyExchangeEcdhInitMessage"/> class.
         /// </summary>
-        /// <param name="clientExchangeValue">The client exchange value.</param>
-        public KeyExchangeEcdhInitMessage(BigInteger d, BigInteger Q)
+        public KeyExchangeEcdhInitMessage(BigInteger d, BigInteger q)
         {
-            var a = d.ToByteArray().Reverse();
-            var b = Q.ToByteArray().Reverse();
             var data = new List<byte>();
             data.Add(0x04);
             data.AddRange(d.ToByteArray().Reverse());
-            data.AddRange(Q.ToByteArray().Reverse());
+            data.AddRange(q.ToByteArray().Reverse());
             this.QC = data.ToArray();
         }
 

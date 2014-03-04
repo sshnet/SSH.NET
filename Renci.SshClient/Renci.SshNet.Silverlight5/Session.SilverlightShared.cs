@@ -12,9 +12,9 @@ namespace Renci.SshNet
 {
     public partial class Session
     {
-        private AutoResetEvent _autoEvent = new AutoResetEvent(false);
-        private AutoResetEvent _sendEvent = new AutoResetEvent(false);
-        private AutoResetEvent _receiveEvent = new AutoResetEvent(false);
+        private readonly AutoResetEvent _autoEvent = new AutoResetEvent(false);
+        private readonly AutoResetEvent _sendEvent = new AutoResetEvent(false);
+        private readonly AutoResetEvent _receiveEvent = new AutoResetEvent(false);
 
         private bool _isConnected = false;
 
@@ -28,7 +28,7 @@ namespace Renci.SshNet
             var ep = new DnsEndPoint(host, port);
             this._socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
-            SocketAsyncEventArgs args = new SocketAsyncEventArgs();
+            var args = new SocketAsyncEventArgs();
 
             args.UserToken = this._socket;
             args.RemoteEndPoint = ep;

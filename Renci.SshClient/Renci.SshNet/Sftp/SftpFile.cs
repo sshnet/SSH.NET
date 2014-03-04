@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Security;
 using System.Globalization;
 using Renci.SshNet.Common;
 
@@ -12,7 +10,7 @@ namespace Renci.SshNet.Sftp
     /// </summary>
     public class SftpFile
     {
-        private SftpSession _sftpSession;
+        private readonly SftpSession _sftpSession;
 
         /// <summary>
         /// Gets the file attributes.

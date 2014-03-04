@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Renci.SshNet.Channels;
 using System.IO;
 using Renci.SshNet.Common;
-using Renci.SshNet.Messages.Connection;
 using System.Text.RegularExpressions;
 using System.Threading;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Renci.SshNet
@@ -18,15 +15,11 @@ namespace Renci.SshNet
     /// </summary>
     public partial class ScpClient : BaseClient
     {
-        private static Regex _fileInfoRe = new Regex(@"C(?<mode>\d{4}) (?<length>\d+) (?<filename>.+)");
-
-        private static Regex _directoryInfoRe = new Regex(@"D(?<mode>\d{4}) (?<length>\d+) (?<filename>.+)");
-
-        private static Regex _timestampRe = new Regex(@"T(?<mtime>\d+) 0 (?<atime>\d+) 0");
+        private static readonly Regex _fileInfoRe = new Regex(@"C(?<mode>\d{4}) (?<length>\d+) (?<filename>.+)");
 
         private static char[] _byteToChar;
 
-        private bool _disposeConnectionInfo;
+        private readonly bool _disposeConnectionInfo;
 
         /// <summary>
         /// Gets or sets the operation timeout.
@@ -147,7 +140,7 @@ namespace Renci.SshNet
             using (var input = new PipeStream())
             using (var channel = this.Session.CreateChannel<ChannelSession>())
             {
-                channel.DataReceived += delegate(object sender, Common.ChannelDataEventArgs e)
+                channel.DataReceived += delegate(object sender, ChannelDataEventArgs e)
                 {
                     input.Write(e.Data, 0, e.Data.Length);
                     input.Flush();
@@ -193,7 +186,7 @@ namespace Renci.SshNet
             using (var input = new PipeStream())
             using (var channel = this.Session.CreateChannel<ChannelSession>())
             {
-                channel.DataReceived += delegate(object sender, Common.ChannelDataEventArgs e)
+                channel.DataReceived += delegate(object sender, ChannelDataEventArgs e)
                 {
                     input.Write(e.Data, 0, e.Data.Length);
                     input.Flush();
@@ -315,7 +308,7 @@ namespace Renci.SshNet
 
         private void SendConfirmation(ChannelSession channel, byte errorCode, string message)
         {
-            this.SendData(channel, new byte[] { errorCode });
+            this.SendData(channel, new[] { errorCode });
             this.SendData(channel, string.Format("{0}\n", message));
         }
 
@@ -371,7 +364,7 @@ namespace Renci.SshNet
         {
             var hasError = false;
 
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
 
             var b = ReadByte(stream);
 

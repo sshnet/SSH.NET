@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Renci.SshNet.Security.Cryptography.Ciphers
 {
@@ -17,12 +14,12 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <summary>
         /// The rotating round key
         /// </summary>
-        private int[] _kr = new int[17];
+        private readonly int[] _kr = new int[17];
 
         /// <summary>
         /// The masking round key
         /// </summary>
-        private uint[] _km = new uint[17];
+        private readonly uint[] _km = new uint[17];
 
         private int _rounds = MAX_ROUNDS;
 
@@ -659,8 +656,6 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
             result[0] = Ri;
             result[1] = Li;
-
-            return;
         }
 
         private void CastDecipher(uint L16, uint R16, uint[] result)
@@ -709,8 +704,6 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
             result[0] = Ri;
             result[1] = Li;
-
-            return;
         }
 
         private static void Bits32ToInts(uint inData, int[] b, int offset)

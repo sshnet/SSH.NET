@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Renci.SshNet.Security.Cryptography.Ciphers;
 
 namespace Renci.SshNet.Security.Cryptography
@@ -11,9 +8,9 @@ namespace Renci.SshNet.Security.Cryptography
     /// </summary>
     public abstract class BlockCipher : SymmetricCipher
     {
-        private CipherMode _mode;
+        private readonly CipherMode _mode;
 
-        private CipherPadding _padding;
+        private readonly CipherPadding _padding;
 
         /// <summary>
         /// Gets the size of the block in bytes.
@@ -82,10 +79,7 @@ namespace Renci.SshNet.Security.Cryptography
                 {
                     throw new ArgumentException("data");
                 }
-                else
-                {
-                    data = this._padding.Pad(this._blockSize, data);
-                }
+                data = this._padding.Pad(this._blockSize, data);
             }
 
             var writtenBytes = 0;
@@ -124,10 +118,7 @@ namespace Renci.SshNet.Security.Cryptography
                     {
                         throw new ArgumentException("data");
                     }
-                    else
-                    {
-                        data = this._padding.Pad(this._blockSize, data);
-                    }
+                    data = this._padding.Pad(this._blockSize, data);
                 }
             }
 
@@ -143,7 +134,6 @@ namespace Renci.SshNet.Security.Cryptography
                 else
                 {
                     writtenBytes += this._mode.DecryptBlock(data, i * this._blockSize, this._blockSize, output, i * this._blockSize);
-
                 }
             }
 

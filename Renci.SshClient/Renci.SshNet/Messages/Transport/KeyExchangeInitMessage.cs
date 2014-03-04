@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Security.Cryptography;
 
 namespace Renci.SshNet.Messages.Transport
@@ -10,7 +9,7 @@ namespace Renci.SshNet.Messages.Transport
     [Message("SSH_MSG_KEXINIT", 20)]
     public class KeyExchangeInitMessage : Message, IKeyExchangedAllowed
     {
-        private static RNGCryptoServiceProvider _randomizer = new System.Security.Cryptography.RNGCryptoServiceProvider();
+        private static readonly RNGCryptoServiceProvider _randomizer = new RNGCryptoServiceProvider();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="KeyExchangeInitMessage"/> class.

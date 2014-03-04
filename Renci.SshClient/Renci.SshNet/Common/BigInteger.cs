@@ -46,11 +46,7 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
-using System.Text;
-using System.Threading;
 using System.Security.Cryptography;
 
 /*
@@ -70,14 +66,14 @@ namespace Renci.SshNet.Common
     /// </summary>
     public struct BigInteger : IComparable, IFormattable, IComparable<BigInteger>, IEquatable<BigInteger>
     {
-        private static RNGCryptoServiceProvider _randomizer = new System.Security.Cryptography.RNGCryptoServiceProvider();
+        private static readonly RNGCryptoServiceProvider _randomizer = new RNGCryptoServiceProvider();
 
         private const ulong _BASE = 0x100000000;
         private const Int32 _DECIMALSIGNMASK = unchecked((Int32)0x80000000);
         private const int _BIAS = 1075;
 
         private static readonly uint[] _zero = new uint[1];
-        private static readonly uint[] _one = new uint[1] { 1 };
+        private static readonly uint[] _one = new uint[] { 1 };
 
         //LSB on [0]
         private readonly uint[] _data;
@@ -2641,7 +2637,7 @@ namespace Renci.SshNet.Common
         /// </returns>
         public string ToString(string format, IFormatProvider provider)
         {
-            if (format == null || format == "")
+            if (string.IsNullOrEmpty(format))
                 return ToString(10, provider);
 
             switch (format[0])
@@ -2676,7 +2672,7 @@ namespace Renci.SshNet.Common
         /// null or is not in a format that is compliant with style. This parameter is
         /// passed uninitialized.</param>
         /// <returns>true if the value parameter was converted successfully; otherwise, false.</returns>
-        public static bool TryParse(string value, System.Globalization.NumberStyles style, CultureInfo cultureInfo, out BigInteger result)
+        public static bool TryParse(string value, NumberStyles style, CultureInfo cultureInfo, out BigInteger result)
         {
             Exception ex;
             return Parse(value, true, style, cultureInfo, out result, out ex);

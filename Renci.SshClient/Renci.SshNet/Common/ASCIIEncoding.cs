@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Text;
 
 namespace Renci.SshNet.Common
 {
@@ -12,7 +9,7 @@ namespace Renci.SshNet.Common
     {
         private readonly char _fallbackChar;
 
-        private static char[] _byteToChar;
+        private static readonly char[] _byteToChar;
 
         static ASCIIEncoding()
         {

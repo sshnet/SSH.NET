@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading;
 using Renci.SshNet.Channels;
@@ -17,7 +16,7 @@ namespace Renci.SshNet
     /// </summary>
     public partial class SshCommand : IDisposable
     {
-        private Session _session;
+        private readonly Session _session;
 
         private ChannelSession _channel;
 
@@ -31,7 +30,7 @@ namespace Renci.SshNet
 
         private bool _hasError;
 
-        private object _endExecuteLock = new object();
+        private readonly object _endExecuteLock = new object();
 
         /// <summary>
         /// Gets the command text.
@@ -129,8 +128,7 @@ namespace Renci.SshNet
 
                     return this._error.ToString();
                 }
-                else
-                    return string.Empty;
+                return string.Empty;
             }
         }
 
@@ -139,13 +137,11 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="session">The session.</param>
         /// <param name="commandText">The command text.</param>
-        /// <param name="encoding">The encoding.</param>
-        /// <exception cref="ArgumentNullException">Either <paramref name="session"/>, <paramref name="commandText"/> or <paramref name="encoding"/> is null.</exception>
+        /// <exception cref="ArgumentNullException">Either <paramref name="session"/>, <paramref name="commandText"/> is null.</exception>
         internal SshCommand(Session session, string commandText)
         {
             if (session == null)
                 throw new ArgumentNullException("session");
-
             if (commandText == null)
                 throw new ArgumentNullException("commandText");
 
@@ -399,7 +395,7 @@ namespace Renci.SshNet
             this._sessionErrorOccuredWaitHandle.Set();
         }
 
-        private void Channel_Closed(object sender, Common.ChannelEventArgs e)
+        private void Channel_Closed(object sender, ChannelEventArgs e)
         {
             if (this.OutputStream != null)
             {
@@ -415,13 +411,13 @@ namespace Renci.SshNet
 
             if (this._callback != null)
             {
-                //  Execute callback on different thread                
-                this.ExecuteThread(() => { this._callback(this._asyncResult); });
+                //  Execute callback on different thread
+                this.ExecuteThread(() => this._callback(this._asyncResult));
             }
             ((EventWaitHandle)this._asyncResult.AsyncWaitHandle).Set();
         }
 
-        private void Channel_RequestReceived(object sender, Common.ChannelRequestEventArgs e)
+        private void Channel_RequestReceived(object sender, ChannelRequestEventArgs e)
         {
             Message replyMessage = new ChannelFailureMessage(this._channel.LocalChannelNumber);
 
@@ -440,7 +436,7 @@ namespace Renci.SshNet
             }
         }
 
-        private void Channel_ExtendedDataReceived(object sender, Common.ChannelDataEventArgs e)
+        private void Channel_ExtendedDataReceived(object sender, ChannelDataEventArgs e)
         {
             if (this.ExtendedOutputStream != null)
             {
@@ -454,7 +450,7 @@ namespace Renci.SshNet
             }
         }
 
-        private void Channel_DataReceived(object sender, Common.ChannelDataEventArgs e)
+        private void Channel_DataReceived(object sender, ChannelDataEventArgs e)
         {
             if (this.OutputStream != null)
             {
@@ -478,7 +474,7 @@ namespace Renci.SshNet
             var waitHandles = new WaitHandle[]
                 {
                     this._sessionErrorOccuredWaitHandle,
-                    waitHandle,
+                    waitHandle
                 };
 
             switch (EventWaitHandle.WaitAny(waitHandles, this.CommandTimeout))
@@ -487,8 +483,6 @@ namespace Renci.SshNet
                     throw this._exception;
                 case System.Threading.WaitHandle.WaitTimeout:
                     throw new SshOperationTimeoutException(string.Format(CultureInfo.CurrentCulture, "Command '{0}' has timed out.", this.CommandText));
-                default:
-                    break;
             }
         }
 
@@ -496,7 +490,7 @@ namespace Renci.SshNet
 
         #region IDisposable Members
 
-        private bool _isDisposed = false;
+        private bool _isDisposed;
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged ResourceMessages.

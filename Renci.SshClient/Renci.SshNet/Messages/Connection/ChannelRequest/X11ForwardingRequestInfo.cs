@@ -18,7 +18,7 @@
         /// </value>
         public override string RequestName
         {
-            get { return X11ForwardingRequestInfo.NAME; }
+            get { return NAME; }
         }
 
         /// <summary>

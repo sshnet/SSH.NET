@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Renci.SshNet.Security.Cryptography.Ciphers
 {
@@ -338,10 +335,10 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         private const int SK_BUMP = 0x01010101;
         private const int SK_ROTL = 9;
 
-        private int[] gMDS0 = new int[MAX_KEY_BITS];
-        private int[] gMDS1 = new int[MAX_KEY_BITS];
-        private int[] gMDS2 = new int[MAX_KEY_BITS];
-        private int[] gMDS3 = new int[MAX_KEY_BITS];
+        private readonly int[] gMDS0 = new int[MAX_KEY_BITS];
+        private readonly int[] gMDS1 = new int[MAX_KEY_BITS];
+        private readonly int[] gMDS2 = new int[MAX_KEY_BITS];
+        private readonly int[] gMDS3 = new int[MAX_KEY_BITS];
 
         /**
         * gSubKeys[] and gSBox[] are eventually used in the
@@ -376,9 +373,9 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             * maximum of 32 bytes ( 256 bits ), so the range
             * for k64Cnt is 1..4
             */
-            for (int i = 0, p = 0; i < k64Cnt; i++)
+            for (int i = 0; i < k64Cnt; i++)
             {
-                p = i * 8;
+                var p = i * 8;
 
                 k32e[i] = BytesTo32Bits(key, p);
                 k32o[i] = BytesTo32Bits(key, p + 4);

@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Renci.SshNet.Messages.Connection
 {
@@ -23,7 +20,7 @@ namespace Renci.SshNet.Messages.Connection
         /// </value>
         public override string RequestName
         {
-            get { return BreakRequestInfo.NAME; }
+            get { return NAME; }
         }
 
         /// <summary>

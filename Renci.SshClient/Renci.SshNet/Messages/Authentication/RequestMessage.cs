@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Text;
 
 namespace Renci.SshNet.Messages.Authentication
 {

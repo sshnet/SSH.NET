@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
+﻿using System.Security.Cryptography;
 
 namespace Renci.SshNet.Security.Cryptography
 {
@@ -13,11 +9,11 @@ namespace Renci.SshNet.Security.Cryptography
     {
         protected ulong H1, H2, H3, H4, H5, H6, H7, H8;
 
-        private ulong[] X = new ulong[80];
+        private readonly ulong[] X = new ulong[80];
 
         private int _offset;
 
-        private byte[] _buffer;
+        private readonly byte[] _buffer;
 
         private int _bufferOffset;
 

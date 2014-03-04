@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Renci.SshNet.Common;
@@ -35,7 +34,6 @@ namespace Renci.SshNet
         /// </example>
         /// <exception cref="ArgumentNullException"><paramref name="password"/> is null.</exception>
         /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, or <paramref name="username"/> is null or contains whitespace characters.</exception>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="port"/> is not within <see cref="F:System.Net.IPEndPoint.MinPort"/> and <see cref="F:System.Net.IPEndPoint.MaxPort"/>.</exception>
         public PasswordConnectionInfo(string host, string username, string password)
             : this(host, ConnectionInfo.DEFAULT_PORT, username, Encoding.UTF8.GetBytes(password))
         {
@@ -267,7 +265,7 @@ namespace Renci.SshNet
 
         #region IDisposable Members
 
-        private bool isDisposed = false;
+        private bool _isDisposed;
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
@@ -286,7 +284,7 @@ namespace Renci.SshNet
         protected virtual void Dispose(bool disposing)
         {
             // Check to see if Dispose has already been called.
-            if (!this.isDisposed)
+            if (!this._isDisposed)
             {
                 // If disposing equals true, dispose all managed
                 // and unmanaged resources.
@@ -303,7 +301,7 @@ namespace Renci.SshNet
                 }
 
                 // Note disposing has been done.
-                isDisposed = true;
+                _isDisposed = true;
             }
         }
 

@@ -1,6 +1,4 @@
-﻿using Renci.SshNet.Common;
-
-namespace Renci.SshNet.Sftp.Responses
+﻿namespace Renci.SshNet.Sftp.Responses
 {
     internal class StatVfsReplyInfo : ExtendedReplyInfo
     {

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Collections.ObjectModel;
 using System.Text;
 using System.Diagnostics.CodeAnalysis;
 using Renci.SshNet.Common;
@@ -16,12 +15,12 @@ namespace Renci.SshNet
         /// <summary>
         /// Holds the list of forwarded ports
         /// </summary>
-        private List<ForwardedPort> _forwardedPorts = new List<ForwardedPort>();
+        private readonly List<ForwardedPort> _forwardedPorts = new List<ForwardedPort>();
 
         /// <summary>
         /// If true, causes the connectionInfo object to be disposed.
         /// </summary>
-        private bool _disposeConnectionInfo;
+        private readonly bool _disposeConnectionInfo;
 
         private Stream _inputStream;
 
@@ -384,6 +383,9 @@ namespace Renci.SshNet
             return new ShellStream(this.Session, terminalName, columns, rows, width, height, bufferSize, terminalModeValues);
         }
 
+        /// <summary>
+        /// Stops forwarded ports.
+        /// </summary>
         protected override void OnDisconnected()
         {
             base.OnDisconnected();

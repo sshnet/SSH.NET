@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Renci.SshNet.Security
 {
@@ -25,7 +22,6 @@ namespace Renci.SshNet.Security
         public CertificateHostAlgorithm(string name)
             : base(name)
         {
-
         }
 
         /// <summary>
@@ -50,6 +46,5 @@ namespace Renci.SshNet.Security
         {
             throw new NotImplementedException();
         }
-
     }
 }

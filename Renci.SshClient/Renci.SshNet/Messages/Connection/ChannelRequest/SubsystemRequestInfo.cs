@@ -18,7 +18,7 @@
         /// </value>
         public override string RequestName
         {
-            get { return SubsystemRequestInfo.NAME; }
+            get { return NAME; }
         }
 
         /// <summary>

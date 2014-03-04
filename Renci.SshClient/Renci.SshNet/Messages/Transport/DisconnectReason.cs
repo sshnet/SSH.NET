@@ -3,7 +3,7 @@
     /// <summary>
     /// Provides list of disconnect reason as specified by the protocol.
     /// </summary>
-    public enum DisconnectReason : int
+    public enum DisconnectReason
     {
         /// <summary>
         /// Disconnect reason is not provided.

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Threading;
 using Renci.SshNet.Common;
 
@@ -36,8 +35,7 @@ namespace Renci.SshNet
             {
                 if (this.Session == null)
                     return false;
-                else
-                    return this.Session.IsConnected;
+                return this.Session.IsConnected;
             }
         }
 
@@ -59,10 +57,7 @@ namespace Renci.SshNet
 
                 if (this._keepAliveTimer == null)
                 {
-                    this._keepAliveTimer = new Timer((state) =>
-                    {
-                        this.SendKeepAlive();
-                    });
+                    this._keepAliveTimer = new Timer(state => this.SendKeepAlive());
                 }
 
                 this._keepAliveTimer.Change(this._keepAliveInterval, this._keepAliveInterval);
@@ -200,7 +195,7 @@ namespace Renci.SshNet
 
         #region IDisposable Members
 
-        private bool _isDisposed = false;
+        private bool _isDisposed;
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged ResourceMessages.

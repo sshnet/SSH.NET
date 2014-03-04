@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Security.Cryptography;
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Security.Cryptography.Ciphers
@@ -12,9 +10,9 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
     /// </summary>
     public class RsaCipher : AsymmetricCipher
     {
-        private bool _isPrivate;
+        private readonly bool _isPrivate;
 
-        private RsaKey _key;
+        private readonly RsaKey _key;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RsaCipher"/> class.
@@ -26,7 +24,6 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 throw new ArgumentNullException("key");
 
             this._key = key;
-
             this._isPrivate = !this._key.D.IsZero;
         }
 

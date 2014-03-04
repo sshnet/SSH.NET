@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Renci.SshNet.Security.Cryptography.Ciphers
 {
@@ -291,13 +288,13 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
 		#endregion
 
-		private static readonly int _rounds = 16;
+	    private const int _rounds = 16;
 
-		private static readonly int _sboxSk = 256;
+	    private const int _sboxSk = 256;
 
-		private static readonly int _pSize = _rounds + 2;
+	    private const int _pSize = _rounds + 2;
 
-        /// <summary>
+	    /// <summary>
         /// The s-boxes
         /// </summary>
 		private readonly uint[] _s0, _s1, _s2, _s3;

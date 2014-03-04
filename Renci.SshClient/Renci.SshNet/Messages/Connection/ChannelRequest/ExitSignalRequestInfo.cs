@@ -1,5 +1,4 @@
-﻿using System.Text;
-namespace Renci.SshNet.Messages.Connection
+﻿namespace Renci.SshNet.Messages.Connection
 {
     /// <summary>
     /// Represents "exit-signal" type channel request information
@@ -19,7 +18,7 @@ namespace Renci.SshNet.Messages.Connection
         /// </value>
         public override string RequestName
         {
-            get { return ExitSignalRequestInfo.NAME; }
+            get { return NAME; }
         }
 
         /// <summary>

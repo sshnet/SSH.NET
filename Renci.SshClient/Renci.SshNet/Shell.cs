@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Linq;
-using System.Diagnostics;
 using System.IO;
-using System.Text;
 using System.Threading;
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
-using Renci.SshNet.Messages.Connection;
 using System.Collections.Generic;
 
 namespace Renci.SshNet
@@ -24,31 +21,31 @@ namespace Renci.SshNet
 
         private Stream _input;
 
-        private string _terminalName;
+        private readonly string _terminalName;
 
-        private uint _columns;
+        private readonly uint _columns;
 
-        private uint _rows;
+        private readonly uint _rows;
 
-        private uint _width;
+        private readonly uint _width;
 
-        private uint _height;
+        private readonly uint _height;
 
-        private IDictionary<TerminalModes, uint> _terminalModes;
+        private readonly IDictionary<TerminalModes, uint> _terminalModes;
 
         private EventWaitHandle _dataReaderTaskCompleted;
 
-        private Stream _outputStream;
+        private readonly Stream _outputStream;
 
-        private Stream _extendedOutputStream;
+        private readonly Stream _extendedOutputStream;
 
-        private int _bufferSize;
+        private readonly int _bufferSize;
 
         /// <summary>
         /// Gets a value indicating whether this shell is started.
         /// </summary>
         /// <value>
-        /// 	<c>true</c> if started is started; otherwise, <c>false</c>.
+        /// <c>true</c> if started is started; otherwise, <c>false</c>.
         /// </value>
         public bool IsStarted { get; private set; }
 
@@ -89,7 +86,7 @@ namespace Renci.SshNet
         /// <param name="rows">The rows.</param>
         /// <param name="width">The width.</param>
         /// <param name="height">The height.</param>
-        /// <param name="terminalMode">The terminal mode.</param>
+        /// <param name="terminalModes">The terminal modes.</param>
         /// <param name="bufferSize">Size of the buffer for output stream.</param>
         internal Shell(Session session, Stream input, Stream output, Stream extendedOutput, string terminalName, uint columns, uint rows, uint width, uint height, IDictionary<TerminalModes, uint> terminalModes, int bufferSize)
         {
@@ -163,8 +160,7 @@ namespace Renci.SshNet
 
                         if (asyncResult.IsCompleted)
                             continue;
-                        else
-                            break;
+                        break;
                     }
                 }
                 catch (Exception exp)
@@ -219,12 +215,12 @@ namespace Renci.SshNet
             }
         }
 
-        private void Session_Disconnected(object sender, System.EventArgs e)
+        private void Session_Disconnected(object sender, EventArgs e)
         {
             this.Stop();
         }
 
-        private void Channel_ExtendedDataReceived(object sender, Common.ChannelDataEventArgs e)
+        private void Channel_ExtendedDataReceived(object sender, ChannelDataEventArgs e)
         {
             if (this._extendedOutputStream != null)
             {
@@ -232,7 +228,7 @@ namespace Renci.SshNet
             }
         }
 
-        private void Channel_DataReceived(object sender, Common.ChannelDataEventArgs e)
+        private void Channel_DataReceived(object sender, ChannelDataEventArgs e)
         {
             if (this._outputStream != null)
             {
@@ -240,12 +236,12 @@ namespace Renci.SshNet
             }
         }
 
-        private void Channel_Closed(object sender, Common.ChannelEventArgs e)
+        private void Channel_Closed(object sender, ChannelEventArgs e)
         {
             if (this.Stopping != null)
             {
                 //  Handle event on different thread
-                this.ExecuteThread(() => { this.Stopping(this, new EventArgs()); });
+                this.ExecuteThread(() => this.Stopping(this, new EventArgs()));
             }
 
             if (this._channel.IsOpen)
@@ -273,7 +269,7 @@ namespace Renci.SshNet
             if (this.Stopped != null)
             {
                 //  Handle event on different thread
-                this.ExecuteThread(() => { this.Stopped(this, new EventArgs()); });
+                this.ExecuteThread(() => this.Stopped(this, new EventArgs()));
             }
 
             this._channel = null;
@@ -283,7 +279,7 @@ namespace Renci.SshNet
 
         #region IDisposable Members
 
-        private bool _disposed = false;
+        private bool _disposed;
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged ResourceMessages.

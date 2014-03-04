@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Renci.SshNet.Messages.Authentication;
 
 namespace Renci.SshNet.Common
 {

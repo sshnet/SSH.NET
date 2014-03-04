@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -22,9 +21,9 @@ namespace Renci.SshNet
 
         private Exception _exception;
 
-        private RequestMessage _requestMessage;
+        private readonly RequestMessage _requestMessage;
 
-        private byte[] _password;
+        private readonly byte[] _password;
 
         /// <summary>
         /// Gets authentication method name
@@ -161,7 +160,7 @@ namespace Renci.SshNet
 
         #region IDisposable Members
 
-        private bool isDisposed = false;
+        private bool _isDisposed;
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
@@ -180,7 +179,7 @@ namespace Renci.SshNet
         protected virtual void Dispose(bool disposing)
         {
             // Check to see if Dispose has already been called.
-            if (!this.isDisposed)
+            if (!this._isDisposed)
             {
                 // If disposing equals true, dispose all managed
                 // and unmanaged resources.
@@ -195,7 +194,7 @@ namespace Renci.SshNet
                 }
 
                 // Note disposing has been done.
-                isDisposed = true;
+                _isDisposed = true;
             }
         }
 

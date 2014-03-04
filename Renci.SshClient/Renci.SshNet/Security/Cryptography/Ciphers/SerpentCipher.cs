@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Renci.SshNet.Security.Cryptography.Ciphers
 {
@@ -10,11 +7,11 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 	/// </summary>
 	public sealed class SerpentCipher : BlockCipher
 	{
-		private static readonly int ROUNDS = 32;
+	    private const int ROUNDS = 32;
 
-		private static readonly int PHI = unchecked((int)0x9E3779B9);       // (Sqrt(5) - 1) * 2**31
+	    private const int PHI = unchecked((int) 0x9E3779B9); // (Sqrt(5) - 1) * 2**31
 
-		private int[] _workingKey;
+	    private readonly int[] _workingKey;
 
 		private int _x0, _x1, _x2, _x3;    // registers
 
@@ -204,7 +201,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 			// pad key to 256 bits
 			//
 			int[] kPad = new int[16];
-			int off = 0;
+			int off;
 			int length = 0;
 
 			for (off = key.Length - 4; off > 0; off -= 4)

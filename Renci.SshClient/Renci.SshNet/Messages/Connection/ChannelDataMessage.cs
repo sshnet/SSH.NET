@@ -18,9 +18,7 @@
         /// Initializes a new instance of the <see cref="ChannelDataMessage"/> class.
         /// </summary>
         public ChannelDataMessage()
-            : base()
         {
-
         }
 
         /// <summary>

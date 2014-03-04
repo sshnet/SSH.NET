@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Renci.SshNet.Common;
 using System.IO;
 
@@ -25,7 +23,6 @@ namespace Renci.SshNet.Sftp
         public SftpSynchronizeDirectoriesAsyncResult(AsyncCallback asyncCallback, Object state)
             : base(asyncCallback, state)
         {
-
         }
 
         /// <summary>

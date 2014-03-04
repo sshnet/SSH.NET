@@ -11,12 +11,12 @@ namespace Renci.SshNet.Common
     /// </summary>
     public abstract class SshData
     {
-        private static Encoding _ascii = new ASCIIEncoding();
+        private static readonly Encoding _ascii = new ASCIIEncoding();
 
 #if SILVERLIGHT
-        private static Encoding _utf8 = Encoding.UTF8;
+        private static readonly Encoding _utf8 = Encoding.UTF8;
 #else
-        private static Encoding _utf8 = Encoding.Default;
+        private static readonly Encoding _utf8 = Encoding.Default;
 #endif
 
         /// <summary>
@@ -401,10 +401,19 @@ namespace Renci.SshNet.Common
             this.Write(data, SshData._utf8);
         }
 
+        /// <summary>
+        /// Writes string data into internal buffer using the specified encoding.
+        /// </summary>
+        /// <param name="data">string data to write.</param>
+        /// <param name="encoding">The character encoding to use.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="data"/> is null.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="encoding"/> is null.</exception>
         protected void Write(string data, Encoding encoding)
         {
             if (data == null)
                 throw new ArgumentNullException("data");
+            if (encoding == null)
+                throw new ArgumentNullException("encoding");
 
             var bytes = encoding.GetBytes(data);
             this.Write((uint)bytes.Length);
@@ -444,7 +453,6 @@ namespace Renci.SshNet.Common
         {
             this.WriteAscii(string.Join(",", data));
         }
-
 
         /// <summary>
         /// Writes extension-pair data into internal buffer.

@@ -52,7 +52,7 @@ namespace Renci.SshNet
 
             session.SendMessage(new RequestMessageNone(ServiceName.Connection, this.Username));
 
-            session.WaitHandle(this._authenticationCompleted);
+            session.WaitOnHandle(this._authenticationCompleted);
 
             session.UserAuthenticationSuccessReceived -= Session_UserAuthenticationSuccessReceived;
             session.UserAuthenticationFailureReceived -= Session_UserAuthenticationFailureReceived;

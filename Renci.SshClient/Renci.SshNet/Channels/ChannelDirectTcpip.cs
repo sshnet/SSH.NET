@@ -55,7 +55,7 @@ namespace Renci.SshNet.Channels
                                                         new DirectTcpipChannelInfo(remoteHost, port, ep.Address.ToString(), (uint)ep.Port)));
 
             //  Wait for channel to open
-            this.WaitHandle(this._channelOpen);
+            this.WaitOnHandle(this._channelOpen);
         }
 
         /// <summary>

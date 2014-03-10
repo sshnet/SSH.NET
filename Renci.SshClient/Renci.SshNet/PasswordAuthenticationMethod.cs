@@ -91,7 +91,7 @@ namespace Renci.SshNet
 
             session.SendMessage(this._requestMessage);
 
-            session.WaitHandle(this._authenticationCompleted);
+            session.WaitOnHandle(this._authenticationCompleted);
             
             session.UserAuthenticationSuccessReceived -= Session_UserAuthenticationSuccessReceived;
             session.UserAuthenticationFailureReceived -= Session_UserAuthenticationFailureReceived;

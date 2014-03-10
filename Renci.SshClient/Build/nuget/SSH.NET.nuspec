@@ -22,6 +22,7 @@ Breaking changes:
 
 Fixes:
 
+	* Connection dropped by server due to invalid DSA signature (issue #1918)
     * Correct casing of Security/Cryptography/HMAC.cs to fix build on Linux (issue #1505)
     * HTTP proxy hangs (issue #1890)
     * Wrong parameters to SetSocketOption leads to SocketException under Mono (issue #1799)

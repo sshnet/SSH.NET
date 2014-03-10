@@ -694,9 +694,9 @@ namespace Renci.SshNet
         /// Waits for the handle to be signaled or for an error to occurs.
         /// </summary>
         /// <param name="waitHandle">The wait handle.</param>
-        protected void WaitHandle(WaitHandle waitHandle)
+        protected void WaitOnHandle(WaitHandle waitHandle)
         {
-            this._session.WaitHandle(waitHandle);
+            this._session.WaitOnHandle(waitHandle);
         }
 
         partial void ExecuteThread(Action action);

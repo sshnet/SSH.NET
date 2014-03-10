@@ -63,7 +63,7 @@ namespace Renci.SshNet
 
             session.SendMessage(this._requestMessage);
 
-            session.WaitHandle(this._authenticationCompleted);
+            session.WaitOnHandle(this._authenticationCompleted);
 
             session.UnRegisterMessage("SSH_MSG_USERAUTH_INFO_REQUEST");
 

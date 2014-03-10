@@ -81,7 +81,7 @@ namespace Renci.SshNet
                 //  Send public key authentication request
                 session.SendMessage(message);
 
-                session.WaitHandle(this._authenticationCompleted);
+                session.WaitOnHandle(this._authenticationCompleted);
 
                 if (this._isSignatureRequired)
                 {
@@ -97,7 +97,7 @@ namespace Renci.SshNet
                     session.SendMessage(signatureMessage);
                 }
 
-                session.WaitHandle(this._authenticationCompleted);
+                session.WaitOnHandle(this._authenticationCompleted);
 
                 if (this._authenticationResult == AuthenticationResult.Success)
                 {

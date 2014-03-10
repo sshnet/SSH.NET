@@ -77,13 +77,13 @@ namespace Renci.SshNet.NetConf
                 command.Append("\n##\n");
                 this.SendData(Encoding.UTF8.GetBytes(command.ToString()));
 
-                this.WaitHandle(this._rpcReplyReceived, this._operationTimeout);
+                this.WaitOnHandle(this._rpcReplyReceived, this._operationTimeout);
                 reply.LoadXml(_rpcReply.ToString());
             }
             else
             {
                 this.SendData(Encoding.UTF8.GetBytes(rpc.InnerXml + _prompt));
-                this.WaitHandle(this._rpcReplyReceived, this._operationTimeout);
+                this.WaitOnHandle(this._rpcReplyReceived, this._operationTimeout);
                 reply.LoadXml(_rpcReply.ToString());
             }
             if (automaticMessageIdHandling)
@@ -106,7 +106,7 @@ namespace Renci.SshNet.NetConf
 
             this.SendData(Encoding.UTF8.GetBytes(message));
 
-            this.WaitHandle(this._serverCapabilitiesConfirmed, this._operationTimeout);
+            this.WaitOnHandle(this._serverCapabilitiesConfirmed, this._operationTimeout);
         }
 
         protected override void OnDataReceived(uint dataTypeCode, byte[] data)

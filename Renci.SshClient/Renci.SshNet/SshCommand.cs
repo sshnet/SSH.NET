@@ -282,7 +282,7 @@ namespace Renci.SshNet
                     if (this._asyncResult != null)
                     {
                         //  Make sure that operation completed if not wait for it to finish
-                        this.WaitHandle(this._asyncResult.AsyncWaitHandle);
+                        this.WaitOnHandle(this._asyncResult.AsyncWaitHandle);
 
                         if (this._channel.IsOpen)
                         {
@@ -469,19 +469,19 @@ namespace Renci.SshNet
 
         /// <exception cref="SshOperationTimeoutException">Command '{0}' has timed out.</exception>
         /// <remarks>The actual command will be included in the exception message.</remarks>
-        private void WaitHandle(WaitHandle waitHandle)
+        private void WaitOnHandle(WaitHandle waitHandle)
         {
-            var waitHandles = new WaitHandle[]
+            var waitHandles = new[]
                 {
                     this._sessionErrorOccuredWaitHandle,
                     waitHandle
                 };
 
-            switch (EventWaitHandle.WaitAny(waitHandles, this.CommandTimeout))
+            switch (WaitHandle.WaitAny(waitHandles, this.CommandTimeout))
             {
                 case 0:
                     throw this._exception;
-                case System.Threading.WaitHandle.WaitTimeout:
+                case WaitHandle.WaitTimeout:
                     throw new SshOperationTimeoutException(string.Format(CultureInfo.CurrentCulture, "Command '{0}' has timed out.", this.CommandText));
             }
         }

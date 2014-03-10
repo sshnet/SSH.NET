@@ -1,9 +1,9 @@
 ﻿using System;
+using System.Globalization;
 using System.Text;
 using System.Threading;
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
-using System.Globalization;
 
 namespace Renci.SshNet.Sftp
 {
@@ -13,15 +13,10 @@ namespace Renci.SshNet.Sftp
     public abstract class SubsystemSession : IDisposable
     {
         private readonly Session _session;
-
         private readonly string _subsystemName;
-
         private ChannelSession _channel;
-
         private Exception _exception;
-
         private EventWaitHandle _errorOccuredWaitHandle = new ManualResetEvent(false);
-
         private EventWaitHandle _channelClosedWaitHandle = new ManualResetEvent(false);
 
         /// <summary>
@@ -99,7 +94,6 @@ namespace Renci.SshNet.Sftp
         public void Disconnect()
         {
             this._channel.SendEof();
-
             this._channel.Close();
         }
 
@@ -132,12 +126,10 @@ namespace Renci.SshNet.Sftp
         {
             this._exception = error;
 
-            this._errorOccuredWaitHandle.Set();
-
-            if (this.ErrorOccurred != null)
-            {
-                this.ErrorOccurred(this, new ExceptionEventArgs(error));
-            }
+            var errorOccuredWaitHandle = _errorOccuredWaitHandle;
+            if (errorOccuredWaitHandle != null)
+                errorOccuredWaitHandle.Set();
+            SignalErrorOccurred(error);
         }
 
         private void Channel_DataReceived(object sender, ChannelDataEventArgs e)
@@ -147,7 +139,9 @@ namespace Renci.SshNet.Sftp
 
         private void Channel_Closed(object sender, ChannelEventArgs e)
         {
-            this._channelClosedWaitHandle.Set();
+            var channelClosedWaitHandle = _channelClosedWaitHandle;
+            if (channelClosedWaitHandle != null)
+                channelClosedWaitHandle.Set();
         }
 
         internal void WaitOnHandle(WaitHandle waitHandle, TimeSpan operationTimeout)
@@ -172,17 +166,31 @@ namespace Renci.SshNet.Sftp
 
         private void Session_Disconnected(object sender, EventArgs e)
         {
-            if (this.Disconnected != null)
-            {
-                this.Disconnected(this, new EventArgs());
-            }
-
+            SignalDisconnected();
             this.RaiseError(new SshException("Connection was lost"));
         }
 
         private void Session_ErrorOccured(object sender, ExceptionEventArgs e)
         {
             this.RaiseError(e.Exception);
+        }
+
+        private void SignalErrorOccurred(Exception error)
+        {
+            var errorOccurred = ErrorOccurred;
+            if (errorOccurred != null)
+            {
+                errorOccurred(this, new ExceptionEventArgs(error));
+            }
+        }
+
+        private void SignalDisconnected()
+        {
+            var disconnected = Disconnected;
+            if (disconnected != null)
+            {
+                disconnected(this, new EventArgs());
+            }
         }
 
         #region IDisposable Members
@@ -195,7 +203,6 @@ namespace Renci.SshNet.Sftp
         public void Dispose()
         {
             Dispose(true);
-
             GC.SuppressFinalize(this);
         }
 
@@ -211,6 +218,7 @@ namespace Renci.SshNet.Sftp
                 if (this._channel != null)
                 {
                     this._channel.DataReceived -= Channel_DataReceived;
+                    this._channel.Closed -= Channel_Closed;
                     this._channel.Dispose();
                     this._channel = null;
                 }

@@ -9,9 +9,15 @@ namespace Renci.SshNet
     /// </summary>
     public abstract class BaseClient : IDisposable
     {
-        private TimeSpan _keepAliveInterval;
+        private static readonly TimeSpan Infinite = new TimeSpan(0, 0, 0, 0, -1);
 
+        /// <summary>
+        /// Holds value indicating whether the connection info is owned by this client.
+        /// </summary>
+        private readonly bool _ownsConnectionInfo;
+        private TimeSpan _keepAliveInterval;
         private Timer _keepAliveTimer;
+        private ConnectionInfo _connectionInfo;
 
         /// <summary>
         /// Gets current session.
@@ -21,46 +27,77 @@ namespace Renci.SshNet
         /// <summary>
         /// Gets the connection info.
         /// </summary>
-        public ConnectionInfo ConnectionInfo { get; private set; }
+        /// <value>
+        /// The connection info.
+        /// </value>
+        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
+        public ConnectionInfo ConnectionInfo
+        {
+            get
+            {
+                CheckDisposed();
+                return _connectionInfo;
+            }
+            private set
+            {
+                _connectionInfo = value;
+            }
+        }
 
         /// <summary>
         /// Gets a value indicating whether this client is connected to the server.
         /// </summary>
         /// <value>
-        /// 	<c>true</c> if this client is connected; otherwise, <c>false</c>.
+        /// <c>true</c> if this client is connected; otherwise, <c>false</c>.
         /// </value>
+        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         public bool IsConnected
         {
             get
             {
-                if (this.Session == null)
-                    return false;
-                return this.Session.IsConnected;
+                CheckDisposed();
+                return this.Session != null && this.Session.IsConnected;
             }
         }
 
         /// <summary>
-        /// Gets or sets the keep alive interval in seconds.
+        /// Gets or sets the keep-alive interval.
         /// </summary>
         /// <value>
-        /// The keep alive interval in seconds.
+        /// The keep-alive interval. Specify negative one (-1) milliseconds to disable the
+        /// keep-alive. This is the default value.
         /// </value>
+        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         public TimeSpan KeepAliveInterval
         {
             get
             {
+                CheckDisposed();
                 return this._keepAliveInterval;
             }
             set
             {
-                this._keepAliveInterval = value;
+                CheckDisposed();
 
-                if (this._keepAliveTimer == null)
+                if (value == _keepAliveInterval)
+                    return;
+
+                if (value == Infinite)
                 {
-                    this._keepAliveTimer = new Timer(state => this.SendKeepAlive());
+                    // stop the timer when the value is -1 milliseconds
+                    StopKeepAliveTimer();
                 }
-
-                this._keepAliveTimer.Change(this._keepAliveInterval, this._keepAliveInterval);
+                else
+                {
+                    // change the due time and interval of the timer if has already
+                    // been created (which means the client is connected)
+                    // 
+                    // if the client is not yet connected, then the timer will be
+                    // created with the new interval when Connect() is invoked
+                    if (_keepAliveTimer != null)
+                        _keepAliveTimer.Change(value, value);
+                }
+                this._keepAliveInterval = value;
             }
         }
 
@@ -84,63 +121,68 @@ namespace Renci.SshNet
         /// Initializes a new instance of the <see cref="BaseClient"/> class.
         /// </summary>
         /// <param name="connectionInfo">The connection info.</param>
+        /// <param name="ownsConnectionInfo">Specified whether this instance owns the connection info.</param>
         /// <exception cref="ArgumentNullException"><paramref name="connectionInfo"/> is null.</exception>
-        public BaseClient(ConnectionInfo connectionInfo)
+        /// <remarks>
+        /// If <paramref name="ownsConnectionInfo"/> is <c>true</c>, then the
+        /// connection info will be disposed when this instance is disposed.
+        /// </remarks>
+        protected BaseClient(ConnectionInfo connectionInfo, bool ownsConnectionInfo)
         {
             if (connectionInfo == null)
                 throw new ArgumentNullException("connectionInfo");
 
-            this.ConnectionInfo = connectionInfo;
-            this.Session = new Session(connectionInfo);
+            ConnectionInfo = connectionInfo;
+            _ownsConnectionInfo = ownsConnectionInfo;
+            _keepAliveInterval = Infinite;
         }
 
         /// <summary>
         /// Connects client to the server.
         /// </summary>
+        /// <exception cref="InvalidOperationException">The client is already connected.</exception>
+        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         public void Connect()
         {
-            this.OnConnecting();
+            CheckDisposed();
 
-            if (this.IsConnected)
-            {
-                this.Session.Disconnect();
-            }
+            if (Session != null && Session.IsConnected)
+                throw new InvalidOperationException("The client is already connected.");
 
-            this.Session = new Session(this.ConnectionInfo);
-            this.Session.HostKeyReceived += Session_HostKeyReceived;
-            this.Session.ErrorOccured += Session_ErrorOccured;
-            this.Session.Connect();
-
-            this.OnConnected();
+            OnConnecting();
+            Session = new Session(ConnectionInfo);
+            Session.HostKeyReceived += Session_HostKeyReceived;
+            Session.ErrorOccured += Session_ErrorOccured;
+            Session.Connect();
+            StartKeepAliveTimer();
+            OnConnected();
         }
 
         /// <summary>
         /// Disconnects client from the server.
         /// </summary>
+        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         public void Disconnect()
         {
-            if (!this.IsConnected)
-                return;
+            CheckDisposed();
 
-            this.OnDisconnecting();
-
-            this.Session.Disconnect();
-
-            this.OnDisconnected();
+            OnDisconnecting();
+            StopKeepAliveTimer();
+            if (Session != null)
+                Session.Disconnect();
+            OnDisconnected();
         }
 
         /// <summary>
         /// Sends keep-alive message to the server.
         /// </summary>
+        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         public void SendKeepAlive()
         {
-            if (this.Session == null)
-                return;
+            CheckDisposed();
 
-            if (!this.Session.IsConnected)
-                return;
-
-            this.Session.SendKeepAlive();
+            if (Session != null && Session.IsConnected)
+                Session.SendKeepAlive();
         }
 
         /// <summary>
@@ -148,7 +190,6 @@ namespace Renci.SshNet
         /// </summary>
         protected virtual void OnConnecting()
         {
-
         }
 
         /// <summary>
@@ -156,7 +197,6 @@ namespace Renci.SshNet
         /// </summary>
         protected virtual void OnConnected()
         {
-
         }
 
         /// <summary>
@@ -164,7 +204,8 @@ namespace Renci.SshNet
         /// </summary>
         protected virtual void OnDisconnecting()
         {
-
+            if (Session != null)
+                Session.OnDisconnecting();
         }
 
         /// <summary>
@@ -172,10 +213,9 @@ namespace Renci.SshNet
         /// </summary>
         protected virtual void OnDisconnected()
         {
-
         }
 
-         private void Session_ErrorOccured(object sender, ExceptionEventArgs e)
+        private void Session_ErrorOccured(object sender, ExceptionEventArgs e)
         {
             var handler = this.ErrorOccurred;
             if (handler != null)
@@ -203,7 +243,6 @@ namespace Renci.SshNet
         public void Dispose()
         {
             Dispose(true);
-
             GC.SuppressFinalize(this);
         }
 
@@ -220,26 +259,40 @@ namespace Renci.SshNet
                 // and unmanaged ResourceMessages.
                 if (disposing)
                 {
-                    // Dispose managed ResourceMessages.
-                    this.Session.ErrorOccured -= Session_ErrorOccured;
-                    this.Session.HostKeyReceived -= Session_HostKeyReceived;
+                    // stop sending keep-alive messages before we close the
+                    // session
+                    StopKeepAliveTimer();
 
                     if (this.Session != null)
                     {
+                        this.Session.ErrorOccured -= Session_ErrorOccured;
+                        this.Session.HostKeyReceived -= Session_HostKeyReceived;
                         this.Session.Dispose();
                         this.Session = null;
                     }
 
-                    if (this._keepAliveTimer != null)
+                    if (_ownsConnectionInfo && _connectionInfo != null)
                     {
-                        this._keepAliveTimer.Dispose();
-                        this._keepAliveTimer = null;
+                        var connectionInfoDisposable = _connectionInfo as IDisposable;
+                        if (connectionInfoDisposable != null)
+                            connectionInfoDisposable.Dispose();
+                        _connectionInfo = null;
                     }
                 }
 
                 // Note disposing has been done.
                 _isDisposed = true;
             }
+        }
+
+        /// <summary>
+        /// Check if the current instance is disposed.
+        /// </summary>
+        /// <exception cref="ObjectDisposedException">THe current instance is disposed.</exception>
+        protected void CheckDisposed()
+        {
+            if (_isDisposed)
+                throw new ObjectDisposedException(GetType().FullName);
         }
 
         /// <summary>
@@ -255,5 +308,38 @@ namespace Renci.SshNet
         }
 
         #endregion
+
+        /// <summary>
+        /// Stops the keep-alive timer, and waits until all timer callbacks have been
+        /// executed.
+        /// </summary>
+        private void StopKeepAliveTimer()
+        {
+            if (_keepAliveTimer == null)
+                return;
+
+            var timerDisposed = new ManualResetEvent(false);
+            _keepAliveTimer.Dispose(timerDisposed);
+            timerDisposed.WaitOne();
+            timerDisposed.Dispose();
+            _keepAliveTimer = null;
+        }
+
+        /// <summary>
+        /// Starts the keep-alive timer.
+        /// </summary>
+        /// <remarks>
+        /// When <see cref="KeepAliveInterval"/> is negative one (-1) milliseconds, then
+        /// the timer will not be started.
+        /// </remarks>
+        private void StartKeepAliveTimer()
+        {
+            if (_keepAliveInterval == Infinite)
+                return;
+
+            if (_keepAliveTimer == null)
+                _keepAliveTimer = new Timer(state => this.SendKeepAlive());
+            _keepAliveTimer.Change(_keepAliveInterval, _keepAliveInterval);
+        }
     }
 }

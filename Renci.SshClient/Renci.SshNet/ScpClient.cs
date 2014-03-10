@@ -16,21 +16,23 @@ namespace Renci.SshNet
     public partial class ScpClient : BaseClient
     {
         private static readonly Regex _fileInfoRe = new Regex(@"C(?<mode>\d{4}) (?<length>\d+) (?<filename>.+)");
-
         private static char[] _byteToChar;
-
-        private readonly bool _disposeConnectionInfo;
 
         /// <summary>
         /// Gets or sets the operation timeout.
         /// </summary>
-        /// <value>The operation timeout.</value>
+        /// <value>
+        /// The timeout to wait until an operation completes. The default value is negative
+        /// one (-1) milliseconds, which indicates an infinite time-out period.
+        /// </value>
         public TimeSpan OperationTimeout { get; set; }
 
         /// <summary>
         /// Gets or sets the size of the buffer.
         /// </summary>
-        /// <value>The size of the buffer.</value>
+        /// <value>
+        /// The size of the buffer. The default buffer size is 16384 bytes.
+        /// </value>
         public uint BufferSize { get; set; }
 
         /// <summary>
@@ -51,21 +53,8 @@ namespace Renci.SshNet
         /// <param name="connectionInfo">The connection info.</param>
         /// <exception cref="ArgumentNullException"><paramref name="connectionInfo"/> is null.</exception>
         public ScpClient(ConnectionInfo connectionInfo)
-            : base(connectionInfo)
+            : this(connectionInfo, false)
         {
-            this.OperationTimeout = new TimeSpan(0, 0, 0, 0, -1);
-            this.BufferSize = 1024 * 16;
-
-            if (_byteToChar == null)
-            {
-                _byteToChar = new char[128];
-                var ch = '\0';
-                for (int i = 0; i < 128; i++)
-                {
-                    _byteToChar[i] = ch++;
-                }
-            }
-
         }
 
         /// <summary>
@@ -80,9 +69,8 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="port"/> is not within <see cref="F:System.Net.IPEndPoint.MinPort"/> and <see cref="System.Net.IPEndPoint.MaxPort"/>.</exception>
         [SuppressMessage("Microsoft.Reliability", "CA2000:DisposeObjectsBeforeLosingScope", Justification = "Disposed in Dispose(bool) method.")]
         public ScpClient(string host, int port, string username, string password)
-            : this(new PasswordConnectionInfo(host, port, username, password))
+            : this(new PasswordConnectionInfo(host, port, username, password), true)
         {
-            this._disposeConnectionInfo = true;
         }
 
         /// <summary>
@@ -110,9 +98,8 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="port"/> is not within <see cref="F:System.Net.IPEndPoint.MinPort"/> and <see cref="System.Net.IPEndPoint.MaxPort"/>.</exception>
         [SuppressMessage("Microsoft.Reliability", "CA2000:DisposeObjectsBeforeLosingScope", Justification = "Disposed in Dispose(bool) method.")]
         public ScpClient(string host, int port, string username, params PrivateKeyFile[] keyFiles)
-            : this(new PrivateKeyConnectionInfo(host, port, username, keyFiles))
+            : this(new PrivateKeyConnectionInfo(host, port, username, keyFiles), true)
         {
-            this._disposeConnectionInfo = true;
         }
 
         /// <summary>
@@ -126,6 +113,33 @@ namespace Renci.SshNet
         public ScpClient(string host, string username, params PrivateKeyFile[] keyFiles)
             : this(host, ConnectionInfo.DEFAULT_PORT, username, keyFiles)
         {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ScpClient"/> class.
+        /// </summary>
+        /// <param name="connectionInfo">The connection info.</param>
+        /// <param name="ownsConnectionInfo">Specified whether this instance owns the connection info.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="connectionInfo"/> is null.</exception>
+        /// <remarks>
+        /// If <paramref name="ownsConnectionInfo"/> is <c>true</c>, then the
+        /// connection info will be disposed when this instance is disposed.
+        /// </remarks>
+        private ScpClient(ConnectionInfo connectionInfo, bool ownsConnectionInfo)
+            : base(connectionInfo, ownsConnectionInfo)
+        {
+            this.OperationTimeout = new TimeSpan(0, 0, 0, 0, -1);
+            this.BufferSize = 1024 * 16;
+
+            if (_byteToChar == null)
+            {
+                _byteToChar = new char[128];
+                var ch = '\0';
+                for (int i = 0; i < 128; i++)
+                {
+                    _byteToChar[i] = ch++;
+                }
+            }
         }
 
         #endregion
@@ -389,18 +403,6 @@ namespace Renci.SshNet
                 throw new ScpException(sb.ToString());
 
             return sb.ToString();
-        }
-
-        /// <summary>
-        /// Releases unmanaged and - optionally - managed resources
-        /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged ResourceMessages.</param>
-        protected override void Dispose(bool disposing)
-        {
-            base.Dispose(disposing);
-
-            if (this._disposeConnectionInfo)
-                ((IDisposable)this.ConnectionInfo).Dispose();
         }
     }
 }

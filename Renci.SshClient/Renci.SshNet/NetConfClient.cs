@@ -13,16 +13,17 @@ namespace Renci.SshNet
     public partial class NetConfClient : BaseClient
     {
         /// <summary>
-        /// Holds SftpSession instance that used to communicate to the SFTP server
+        /// Holds <see cref="NetConfSession"/> instance that used to communicate to the server
         /// </summary>
         private NetConfSession _netConfSession;
-
-        private readonly bool _disposeConnectionInfo;
 
         /// <summary>
         /// Gets or sets the operation timeout.
         /// </summary>
-        /// <value>The operation timeout.</value>
+        /// <value>
+        /// The timeout to wait until an operation completes. The default value is negative
+        /// one (-1) milliseconds, which indicates an infinite time-out period.
+        /// </value>
         public TimeSpan OperationTimeout { get; set; }
 
         #region Constructors
@@ -33,10 +34,8 @@ namespace Renci.SshNet
         /// <param name="connectionInfo">The connection info.</param>
         /// <exception cref="ArgumentNullException"><paramref name="connectionInfo"/> is null.</exception>
         public NetConfClient(ConnectionInfo connectionInfo)
-            : base(connectionInfo)
+            : this(connectionInfo, false)
         {
-            this.AutomaticMessageIdHandling = true;
-            this.OperationTimeout = new TimeSpan(0, 0, 0, 0, -1);
         }
 
         /// <summary>
@@ -51,9 +50,8 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="port"/> is not within <see cref="F:System.Net.IPEndPoint.MinPort"/> and <see cref="System.Net.IPEndPoint.MaxPort"/>.</exception>
         [SuppressMessage("Microsoft.Reliability", "CA2000:DisposeObjectsBeforeLosingScope", Justification = "Disposed in Dispose(bool) method.")]
         public NetConfClient(string host, int port, string username, string password)
-            : this(new PasswordConnectionInfo(host, port, username, password))
+            : this(new PasswordConnectionInfo(host, port, username, password), true)
         {
-            this._disposeConnectionInfo = true;
         }
 
         /// <summary>
@@ -81,9 +79,8 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="port"/> is not within <see cref="F:System.Net.IPEndPoint.MinPort"/> and <see cref="System.Net.IPEndPoint.MaxPort"/>.</exception>
         [SuppressMessage("Microsoft.Reliability", "CA2000:DisposeObjectsBeforeLosingScope", Justification = "Disposed in Dispose(bool) method.")]
         public NetConfClient(string host, int port, string username, params PrivateKeyFile[] keyFiles)
-            : this(new PrivateKeyConnectionInfo(host, port, username, keyFiles))
+            : this(new PrivateKeyConnectionInfo(host, port, username, keyFiles), true)
         {
-            this._disposeConnectionInfo = true;
         }
 
         /// <summary>
@@ -99,6 +96,23 @@ namespace Renci.SshNet
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NetConfClient"/> class.
+        /// </summary>
+        /// <param name="connectionInfo">The connection info.</param>
+        /// <param name="ownsConnectionInfo">Specified whether this instance owns the connection info.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="connectionInfo"/> is null.</exception>
+        /// <remarks>
+        /// If <paramref name="ownsConnectionInfo"/> is <c>true</c>, then the
+        /// connection info will be disposed when this instance is disposed.
+        /// </remarks>
+        private NetConfClient(ConnectionInfo connectionInfo, bool ownsConnectionInfo)
+            : base(connectionInfo, ownsConnectionInfo)
+        {
+            this.OperationTimeout = new TimeSpan(0, 0, 0, 0, -1);
+            this.AutomaticMessageIdHandling = true;
+        }
+
         #endregion
 
         /// <summary>
@@ -107,10 +121,7 @@ namespace Renci.SshNet
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         public XmlDocument ServerCapabilities 
         {
-            get
-            {
-                return this._netConfSession.ServerCapabilities;
-            }
+            get { return this._netConfSession.ServerCapabilities; }
         }
 
         /// <summary>
@@ -119,17 +130,16 @@ namespace Renci.SshNet
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         public XmlDocument ClientCapabilities
         {
-            get
-            {
-                return this._netConfSession.ClientCapabilities;
-            }
+            get { return this._netConfSession.ClientCapabilities; }
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether [automatic message id handling].
+        /// Gets or sets a value indicating whether automatic message id handling is
+        /// enabled.
         /// </summary>
         /// <value>
-        /// <c>true</c> if [automatic message id handling]; otherwise, <c>false</c>.
+        /// <c>true</c> if automatic message id handling is enabled; otherwise, <c>false</c>.
+        /// The default value is <c>true</c>.
         /// </value>
         public bool AutomaticMessageIdHandling { get; set; }
 
@@ -163,10 +173,8 @@ namespace Renci.SshNet
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         public XmlDocument SendCloseRpc()
         {
-            XmlDocument rpc = new XmlDocument();
-
+            var rpc = new XmlDocument();
             rpc.LoadXml("<?xml version=\"1.0\" encoding=\"UTF-8\"?><rpc message-id=\"6666\" xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\"><close-session/></rpc>");
-
             return this._netConfSession.SendReceiveRpc(rpc, this.AutomaticMessageIdHandling);
         }
 
@@ -178,8 +186,7 @@ namespace Renci.SshNet
             base.OnConnected();
 
             this._netConfSession = new NetConfSession(this.Session, this.OperationTimeout);
-
-            this._netConfSession.Connect();            
+            this._netConfSession.Connect();
         }
 
         /// <summary>
@@ -205,10 +212,6 @@ namespace Renci.SshNet
             }
 
             base.Dispose(disposing);
-
-            if (this._disposeConnectionInfo)
-                ((IDisposable)this.ConnectionInfo).Dispose();
-
         }
     }
 }

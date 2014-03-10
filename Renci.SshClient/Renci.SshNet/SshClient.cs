@@ -15,12 +15,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Holds the list of forwarded ports
         /// </summary>
-        private readonly List<ForwardedPort> _forwardedPorts = new List<ForwardedPort>();
-
-        /// <summary>
-        /// If true, causes the connectionInfo object to be disposed.
-        /// </summary>
-        private readonly bool _disposeConnectionInfo;
+        private readonly List<ForwardedPort> _forwardedPorts;
 
         private Stream _inputStream;
 
@@ -49,7 +44,7 @@ namespace Renci.SshNet
         /// </example>
         /// <exception cref="ArgumentNullException"><paramref name="connectionInfo"/> is null.</exception>
         public SshClient(ConnectionInfo connectionInfo)
-            : base(connectionInfo)
+            : this(connectionInfo, false)
         {
         }
 
@@ -65,9 +60,8 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="port"/> is not within <see cref="F:System.Net.IPEndPoint.MinPort"/> and <see cref="System.Net.IPEndPoint.MaxPort"/>.</exception>
         [SuppressMessage("Microsoft.Reliability", "C2A000:DisposeObjectsBeforeLosingScope", Justification = "Disposed in Dispose(bool) method.")]
         public SshClient(string host, int port, string username, string password)
-            : this(new PasswordConnectionInfo(host, port, username, password))
+            : this(new PasswordConnectionInfo(host, port, username, password), true)
         {
-            this._disposeConnectionInfo = true;
         }
 
         /// <summary>
@@ -102,9 +96,8 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="port"/> is not within <see cref="F:System.Net.IPEndPoint.MinPort"/> and <see cref="System.Net.IPEndPoint.MaxPort"/>.</exception>
         [SuppressMessage("Microsoft.Reliability", "CA2000:DisposeObjectsBeforeLosingScope", Justification = "Disposed in Dispose(bool) method.")]
         public SshClient(string host, int port, string username, params PrivateKeyFile[] keyFiles)
-            : this(new PrivateKeyConnectionInfo(host, port, username, keyFiles))
+            : this(new PrivateKeyConnectionInfo(host, port, username, keyFiles), true)
         {
-            this._disposeConnectionInfo = true;
         }
 
         /// <summary>
@@ -122,6 +115,22 @@ namespace Renci.SshNet
         public SshClient(string host, string username, params PrivateKeyFile[] keyFiles)
             : this(host, ConnectionInfo.DEFAULT_PORT, username, keyFiles)
         {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SshClient"/> class.
+        /// </summary>
+        /// <param name="connectionInfo">The connection info.</param>
+        /// <param name="ownsConnectionInfo">Specified whether this instance owns the connection info.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="connectionInfo"/> is null.</exception>
+        /// <remarks>
+        /// If <paramref name="ownsConnectionInfo"/> is <c>true</c>, then the
+        /// connection info will be disposed when this instance is disposed.
+        /// </remarks>
+        private SshClient(ConnectionInfo connectionInfo, bool ownsConnectionInfo)
+            : base(connectionInfo, ownsConnectionInfo)
+        {
+            _forwardedPorts = new List<ForwardedPort>();
         }
 
         #endregion
@@ -404,9 +413,6 @@ namespace Renci.SshNet
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);
-
-            if (this._disposeConnectionInfo)
-                ((IDisposable)this.ConnectionInfo).Dispose();
 
             if (this._inputStream != null)
             {

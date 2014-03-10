@@ -13,12 +13,9 @@ namespace Renci.SshNet.Channels
     /// </summary>
     internal partial class ChannelDirectTcpip : Channel
     {
-        public EventWaitHandle _channelEof = new AutoResetEvent(false);
-
+        private EventWaitHandle _channelEof = new AutoResetEvent(false);
         private EventWaitHandle _channelOpen = new AutoResetEvent(false);
-
         private EventWaitHandle _channelData = new AutoResetEvent(false);
-
         private Socket _socket;
 
         /// <summary>
@@ -112,10 +109,10 @@ namespace Renci.SshNet.Channels
                 exception = exp;
             }
 
-            //  Channel was open and we MUST receive EOF notification, 
-            //  data transfer can take longer then connection specified timeout
+            //  Channel was open and we MUST receive EOF notification,
+            //  data transfer can take longer than connection specified timeout
             //  If listener thread is finished then socket was closed
-            System.Threading.WaitHandle.WaitAny(new WaitHandle[] { this._channelEof });
+            WaitHandle.WaitAny(new WaitHandle[] {_channelEof});
 
             //  Close socket if still open
             if (this._socket != null)
@@ -180,7 +177,7 @@ namespace Renci.SshNet.Channels
         protected override void OnEof() {
 	        base.OnEof();
 
-            EventWaitHandle channelEof = this._channelEof;
+            var channelEof = this._channelEof;
             if (channelEof != null)
                 channelEof.Set();
         }
@@ -189,7 +186,7 @@ namespace Renci.SshNet.Channels
         {
             base.OnClose();
 
-            EventWaitHandle channelEof = this._channelEof;
+            var channelEof = this._channelEof;
             if (channelEof != null)
                 channelEof.Set();
         }
@@ -199,7 +196,7 @@ namespace Renci.SshNet.Channels
             base.OnErrorOccured(exp);
 
             //  If error occured, no more data can be received
-            EventWaitHandle channelEof = this._channelEof;
+            var channelEof = this._channelEof;
             if (channelEof != null)
                 channelEof.Set();
         }
@@ -209,7 +206,7 @@ namespace Renci.SshNet.Channels
             base.OnDisconnected();
 
             //  If disconnected, no more data can be received
-            EventWaitHandle channelEof = this._channelEof;
+            var channelEof = this._channelEof;
             if (channelEof != null)
                 channelEof.Set();
         }

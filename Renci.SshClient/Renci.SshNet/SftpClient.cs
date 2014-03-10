@@ -1523,7 +1523,7 @@ namespace Renci.SshNet
                 else if (expectedResponses > 0)
                 {
                     //  Wait for expectedResponses to change
-                    this._sftpSession.WaitHandle(responseReceivedWaitHandle, this.OperationTimeout);
+                    this._sftpSession.WaitOnHandle(responseReceivedWaitHandle, this.OperationTimeout);
                 }
             } while (expectedResponses > 0 || bytesRead > 0);
 

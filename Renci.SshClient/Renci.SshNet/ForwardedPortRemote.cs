@@ -109,7 +109,7 @@ namespace Renci.SshNet
             //  Send global request to start direct tcpip
             this.Session.SendMessage(new GlobalRequestMessage(GlobalRequestName.TcpIpForward, true, this.BoundHost, this.BoundPort));
 
-            this.Session.WaitHandle(this._globalRequestResponse);
+            this.Session.WaitOnHandle(this._globalRequestResponse);
 
             if (!this._requestStatus)
             {
@@ -135,7 +135,7 @@ namespace Renci.SshNet
             //  Send global request to cancel direct tcpip
             this.Session.SendMessage(new GlobalRequestMessage(GlobalRequestName.CancelTcpIpForward, true, this.BoundHost, this.BoundPort));
 
-            this.Session.WaitHandle(this._globalRequestResponse);
+            this.Session.WaitOnHandle(this._globalRequestResponse);
 
             this.Session.RequestSuccessReceived -= Session_RequestSuccess;
             this.Session.RequestFailureReceived -= Session_RequestFailure;

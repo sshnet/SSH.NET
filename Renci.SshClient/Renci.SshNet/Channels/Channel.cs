@@ -442,7 +442,7 @@ namespace Renci.SshNet.Channels
                 }
 
                 //  Wait for window to change
-                this.WaitHandle(this._channelServerWindowAdjustWaitHandle);
+                this.WaitOnHandle(this._channelServerWindowAdjustWaitHandle);
 
             } while (true);
 
@@ -479,7 +479,7 @@ namespace Renci.SshNet.Channels
                 }
 
                 //  Wait for window to change
-                this.WaitHandle(this._channelServerWindowAdjustWaitHandle);
+                this.WaitOnHandle(this._channelServerWindowAdjustWaitHandle);
 
             } while (true);
 
@@ -490,9 +490,9 @@ namespace Renci.SshNet.Channels
         /// Waits for the handle to be signaled or for an error to occurs.
         /// </summary>
         /// <param name="waitHandle">The wait handle.</param>
-        protected void WaitHandle(WaitHandle waitHandle)
+        protected void WaitOnHandle(WaitHandle waitHandle)
         {
-            this._session.WaitHandle(waitHandle);
+            this._session.WaitOnHandle(waitHandle);
         }
 
         protected virtual void Close(bool wait)
@@ -514,7 +514,7 @@ namespace Renci.SshNet.Channels
             //  Wait for channel to be closed
             if (wait)
             {
-                this._session.WaitHandle(this._channelClosedWaitHandle);
+                this._session.WaitOnHandle(this._channelClosedWaitHandle);
             }
         }
 

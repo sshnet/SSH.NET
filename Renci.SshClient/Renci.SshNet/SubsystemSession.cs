@@ -150,22 +150,22 @@ namespace Renci.SshNet.Sftp
             this._channelClosedWaitHandle.Set();
         }
 
-        internal void WaitHandle(WaitHandle waitHandle, TimeSpan operationTimeout)
+        internal void WaitOnHandle(WaitHandle waitHandle, TimeSpan operationTimeout)
         {
-            var waitHandles = new WaitHandle[]
+            var waitHandles = new[]
                 {
                     this._errorOccuredWaitHandle,
                     this._channelClosedWaitHandle,
                     waitHandle
                 };
 
-            switch (EventWaitHandle.WaitAny(waitHandles, operationTimeout))
+            switch (WaitHandle.WaitAny(waitHandles, operationTimeout))
             {
                 case 0:
                     throw this._exception;
                 case 1:
                     throw new SshException("Channel was closed.");
-                case System.Threading.WaitHandle.WaitTimeout:
+                case WaitHandle.WaitTimeout:
                     throw new SshOperationTimeoutException(string.Format(CultureInfo.CurrentCulture, "Operation has timed out."));
             }
         }

@@ -529,7 +529,7 @@ namespace Renci.SshNet
                     });
 
                     //  Wait for key exchange to be completed
-                    this.WaitHandle(this._keyExchangeCompletedWaitHandle);
+                    this.WaitOnHandle(this._keyExchangeCompletedWaitHandle);
 
                     //  If sessionId is not set then its not connected
                     if (this.SessionId == null)
@@ -542,7 +542,7 @@ namespace Renci.SshNet
                     this.SendMessage(new ServiceRequestMessage(ServiceName.UserAuthentication));
 
                     //  Wait for service to be accepted
-                    this.WaitHandle(this._serviceAccepted);
+                    this.WaitOnHandle(this._serviceAccepted);
 
                     if (string.IsNullOrEmpty(this.ConnectionInfo.Username))
                     {
@@ -620,19 +620,19 @@ namespace Renci.SshNet
         /// Waits for handle to signal while checking other handles as well including timeout check to prevent waiting for ever
         /// </summary>
         /// <param name="waitHandle">The wait handle.</param>
-        internal void WaitHandle(WaitHandle waitHandle)
+        internal void WaitOnHandle(WaitHandle waitHandle)
         {
-            var waitHandles = new WaitHandle[]
+            var waitHandles = new[]
                 {
                     this._exceptionWaitHandle,
-                    waitHandle,
+                    waitHandle
                 };
 
-            switch (EventWaitHandle.WaitAny(waitHandles, this.ConnectionInfo.Timeout))
+            switch (WaitHandle.WaitAny(waitHandles, this.ConnectionInfo.Timeout))
             {
                 case 0:
                     throw this._exception;
-                case System.Threading.WaitHandle.WaitTimeout:
+                case WaitHandle.WaitTimeout:
                     this.SendDisconnect(DisconnectReason.ByApplication, "Operation timeout");
                     throw new SshOperationTimeoutException("Session operation has timed out");
             }
@@ -650,7 +650,7 @@ namespace Renci.SshNet
             if (this._keyExchangeInProgress && !(message is IKeyExchangedAllowed))
             {
                 //  Wait for key exchange to be completed
-                this.WaitHandle(this._keyExchangeCompletedWaitHandle);
+                this.WaitOnHandle(this._keyExchangeCompletedWaitHandle);
             }
 
             this.Log(string.Format("SendMessage to server '{0}': '{1}'.", message.GetType().Name, message));

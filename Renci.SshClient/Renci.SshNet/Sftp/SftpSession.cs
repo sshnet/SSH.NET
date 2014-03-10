@@ -158,7 +158,7 @@ namespace Renci.SshNet.Sftp
         {
             this.SendMessage(new SftpInitRequest(MAXIMUM_SUPPORTED_VERSION));
 
-            this.WaitHandle(this._sftpVersionConfirmed, this._operationTimeout);
+            this.WaitOnHandle(this._sftpVersionConfirmed, this._operationTimeout);
 
             if (this.ProtocolVersion > MAXIMUM_SUPPORTED_VERSION || this.ProtocolVersion < MINIMUM_SUPPORTED_VERSION)
             {
@@ -276,7 +276,7 @@ namespace Renci.SshNet.Sftp
 
                 this.SendRequest(request);
 
-                this.WaitHandle(wait, this._operationTimeout);
+                this.WaitOnHandle(wait, this._operationTimeout);
             }
 
             if (!nullOnError && exception != null)
@@ -306,7 +306,7 @@ namespace Renci.SshNet.Sftp
 
                 this.SendRequest(request);
 
-                this.WaitHandle(wait, this._operationTimeout);
+                this.WaitOnHandle(wait, this._operationTimeout);
             }
 
             if (exception != null)
@@ -347,7 +347,7 @@ namespace Renci.SshNet.Sftp
 
                 this.SendRequest(request);
 
-                this.WaitHandle(wait, this._operationTimeout);
+                this.WaitOnHandle(wait, this._operationTimeout);
             }
 
             if (exception != null)
@@ -386,7 +386,7 @@ namespace Renci.SshNet.Sftp
             this.SendRequest(request);
 
             if (wait != null)
-                this.WaitHandle(wait, this._operationTimeout);
+                this.WaitOnHandle(wait, this._operationTimeout);
 
             if (exception != null)
             {
@@ -423,7 +423,7 @@ namespace Renci.SshNet.Sftp
 
                 this.SendRequest(request);
 
-                this.WaitHandle(wait, this._operationTimeout);
+                this.WaitOnHandle(wait, this._operationTimeout);
             }
 
             if (exception != null)
@@ -463,7 +463,7 @@ namespace Renci.SshNet.Sftp
 
                 this.SendRequest(request);
 
-                this.WaitHandle(wait, this._operationTimeout);
+                this.WaitOnHandle(wait, this._operationTimeout);
             }
 
             if (exception != null)
@@ -494,7 +494,7 @@ namespace Renci.SshNet.Sftp
 
                 this.SendRequest(request);
 
-                this.WaitHandle(wait, this._operationTimeout);
+                this.WaitOnHandle(wait, this._operationTimeout);
             }
 
             if (exception != null)
@@ -523,7 +523,7 @@ namespace Renci.SshNet.Sftp
 
                 this.SendRequest(request);
 
-                this.WaitHandle(wait, this._operationTimeout);
+                this.WaitOnHandle(wait, this._operationTimeout);
             }
 
             if (exception != null)
@@ -560,7 +560,7 @@ namespace Renci.SshNet.Sftp
 
                 this.SendRequest(request);
 
-                this.WaitHandle(wait, this._operationTimeout);
+                this.WaitOnHandle(wait, this._operationTimeout);
             }
 
             if (!nullOnError && exception != null)
@@ -601,7 +601,7 @@ namespace Renci.SshNet.Sftp
 
                 this.SendRequest(request);
 
-                this.WaitHandle(wait, this._operationTimeout);
+                this.WaitOnHandle(wait, this._operationTimeout);
             }
 
             if (exception != null)
@@ -631,7 +631,7 @@ namespace Renci.SshNet.Sftp
 
                 this.SendRequest(request);
 
-                this.WaitHandle(wait, this._operationTimeout);
+                this.WaitOnHandle(wait, this._operationTimeout);
             }
 
             if (exception != null)
@@ -659,7 +659,7 @@ namespace Renci.SshNet.Sftp
 
                 this.SendRequest(request);
 
-                this.WaitHandle(wait, this._operationTimeout);
+                this.WaitOnHandle(wait, this._operationTimeout);
             }
 
             if (exception != null)
@@ -687,7 +687,7 @@ namespace Renci.SshNet.Sftp
 
                 this.SendRequest(request);
 
-                this.WaitHandle(wait, this._operationTimeout);
+                this.WaitOnHandle(wait, this._operationTimeout);
             }
 
             if (exception != null)
@@ -724,7 +724,7 @@ namespace Renci.SshNet.Sftp
 
                 this.SendRequest(request);
 
-                this.WaitHandle(wait, this._operationTimeout);
+                this.WaitOnHandle(wait, this._operationTimeout);
             }
 
             if (!nullOnError && exception != null)
@@ -765,7 +765,7 @@ namespace Renci.SshNet.Sftp
 
                 this.SendRequest(request);
 
-                this.WaitHandle(wait, this._operationTimeout);
+                this.WaitOnHandle(wait, this._operationTimeout);
             }
 
             if (!nullOnError && exception != null)
@@ -801,7 +801,7 @@ namespace Renci.SshNet.Sftp
 
                 this.SendRequest(request);
 
-                this.WaitHandle(wait, this._operationTimeout);
+                this.WaitOnHandle(wait, this._operationTimeout);
             }
 
             if (exception != null)
@@ -844,7 +844,7 @@ namespace Renci.SshNet.Sftp
 
                 this.SendRequest(request);
 
-                this.WaitHandle(wait, this._operationTimeout);
+                this.WaitOnHandle(wait, this._operationTimeout);
             }
 
             if (!nullOnError && exception != null)
@@ -880,7 +880,7 @@ namespace Renci.SshNet.Sftp
 
                 this.SendRequest(request);
 
-                this.WaitHandle(wait, this._operationTimeout);
+                this.WaitOnHandle(wait, this._operationTimeout);
             }
 
             if (exception != null)
@@ -921,7 +921,7 @@ namespace Renci.SshNet.Sftp
 
                 this.SendRequest(request);
 
-                this.WaitHandle(wait, this._operationTimeout);
+                this.WaitOnHandle(wait, this._operationTimeout);
             }
 
             if (exception != null)
@@ -967,7 +967,7 @@ namespace Renci.SshNet.Sftp
 
                 this.SendRequest(request);
 
-                this.WaitHandle(wait, this._operationTimeout);
+                this.WaitOnHandle(wait, this._operationTimeout);
             }
 
             if (!nullOnError && exception != null)
@@ -1016,7 +1016,7 @@ namespace Renci.SshNet.Sftp
 
                 this.SendRequest(request);
 
-                this.WaitHandle(wait, this._operationTimeout);
+                this.WaitOnHandle(wait, this._operationTimeout);
             }
             
             if (!nullOnError && exception != null)
@@ -1055,7 +1055,7 @@ namespace Renci.SshNet.Sftp
 
                 this.SendRequest(request);
 
-                this.WaitHandle(wait, this._operationTimeout);
+                this.WaitOnHandle(wait, this._operationTimeout);
             }
 
             if (exception != null)

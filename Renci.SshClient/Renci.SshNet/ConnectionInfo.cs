@@ -58,7 +58,7 @@ namespace Renci.SshNet
         /// Gets a value indicating whether connection is authenticated.
         /// </summary>
         /// <value>
-        /// 	<c>true</c> if connection is authenticated; otherwise, <c>false</c>.
+        /// <c>true</c> if connection is authenticated; otherwise, <c>false</c>.
         /// </value>
         public bool IsAuthenticated { get; private set; }
 
@@ -70,6 +70,9 @@ namespace Renci.SshNet
         /// <summary>
         /// Gets connection port.
         /// </summary>
+        /// <value>
+        /// The connection port. The default value is 22.
+        /// </value>
         public int Port { get; private set; }
 
         /// <summary>
@@ -109,7 +112,7 @@ namespace Renci.SshNet
         /// Gets or sets connection timeout.
         /// </summary>
         /// <value>
-        /// Connection timeout.
+        /// The connection timeout. The default value is 30 seconds.
         /// </value>
         /// <example>
         ///   <code source="..\..\Renci.SshNet.Tests\Classes\SshClientTest.cs" region="Example SshClient Connect Timeout" language="C#" title="Specify connection timeout" />
@@ -117,10 +120,10 @@ namespace Renci.SshNet
         public TimeSpan Timeout { get; set; }
 
         /// <summary>
-        /// Gets or sets the default encoding.
+        /// Gets or sets the character encoding.
         /// </summary>
         /// <value>
-        /// The default encoding.
+        /// The character encoding. The default is <see cref="System.Text.Encoding.UTF8"/>.
         /// </value>
         public Encoding Encoding { get; set; }
 
@@ -128,7 +131,8 @@ namespace Renci.SshNet
         /// Gets or sets number of retry attempts when session channel creation failed.
         /// </summary>
         /// <value>
-        /// Number of retry attempts.
+        /// The number of retry attempts when session channel creation failed. The default
+        /// value is 10.
         /// </value>
         public int RetryAttempts { get; set; }
 
@@ -136,7 +140,8 @@ namespace Renci.SshNet
         /// Gets or sets maximum number of session channels to be open simultaneously.
         /// </summary>
         /// <value>
-        /// The max sessions.
+        /// The maximum number of session channels to be open simultaneously. The default
+        /// value is 10.
         /// </value>
         public int MaxSessions { get; set; }
 

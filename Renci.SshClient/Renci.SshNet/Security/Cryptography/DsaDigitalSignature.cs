@@ -136,9 +136,19 @@ namespace Renci.SshNet.Security.Cryptography
             } while (s.IsZero);
 
             //  The signature is (r, s)
-            return r.ToByteArray().Reverse().TrimLeadingZero().Concat(s.ToByteArray().Reverse().TrimLeadingZero()).ToArray();
+            var signature = new byte[40];
+
+            // issue #1918: pad part with zero's on the left if length is less than 20
+            var rBytes = r.ToByteArray().Reverse().TrimLeadingZero().ToArray();
+            Array.Copy(rBytes, 0, signature, 20 - rBytes.Length, rBytes.Length);
+
+            // issue #1918: pad part with zero's on the left if length is less than 20
+            var sBytes = s.ToByteArray().Reverse().TrimLeadingZero().ToArray();
+            Array.Copy(sBytes, 0, signature, 40 - sBytes.Length, sBytes.Length);
+
+            return signature;
         }
-        
+
         #region IDisposable Members
 
         private bool _isDisposed;
@@ -192,6 +202,5 @@ namespace Renci.SshNet.Security.Cryptography
         }
 
         #endregion
-
     }
 }

@@ -19,15 +19,25 @@ namespace Renci.SshNet
             new TraceSource("SshNet.Logging");
 #endif
 
+        /// <summary>
+        /// Gets a value indicating whether the socket is connected.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if the socket is connected; otherwise, <c>false</c>.
+        /// </value>
         partial void IsSocketConnected(ref bool isConnected)
         {
-                isConnected = (!this._isDisconnecting && this._socket != null && this._socket.Connected && this._isAuthenticated && this._messageListenerCompleted != null)
-                    && this._socket.Poll(-1, SelectMode.SelectWrite);
+            isConnected = (_socket != null && _socket.Connected);
+            if (isConnected)
+            {
+                var connectionClosedOrDataAvailable = _socket.Poll(1000, SelectMode.SelectRead);
+                isConnected = !(connectionClosedOrDataAvailable && _socket.Available == 0);
+            }
         }
 
         partial void SocketConnect(string host, int port)
         {
-            const int socketBufferSize = 2 * MAXIMUM_PACKET_SIZE;
+            const int socketBufferSize = 2 * MaximumPacketSize;
 
             var addr = host.GetIPAddress();
 
@@ -53,12 +63,12 @@ namespace Renci.SshNet
 
         partial void SocketDisconnect()
         {
-            this._socket.Disconnect(true);
+            _socket.Disconnect(true);
         }
 
         partial void SocketReadLine(ref string response)
         {
-            var encoding = new Renci.SshNet.Common.ASCIIEncoding();
+            var encoding = new ASCIIEncoding();
 
             //  Read data one byte at a time to find end of line and leave any unhandled information in the buffer to be processed later
             var buffer = new List<byte>();
@@ -113,6 +123,7 @@ namespace Renci.SshNet
                         receivedTotal += receivedBytes;
                         continue;
                     }
+
                     // 2012-09-11: Kenneth_aa
                     // When Disconnect or Dispose is called, this throws SshConnectionException(), which...
                     // 1 - goes up to ReceiveMessage() 
@@ -123,7 +134,10 @@ namespace Renci.SshNet
                     //
                     // Adding a check for this._isDisconnecting causes ReceiveMessage() to throw SshConnectionException: "Bad packet length {0}".
                     //
-                    throw new SshConnectionException("An established connection was aborted by the software in your host machine.", DisconnectReason.ConnectionLost);
+
+                    if (_isDisconnecting)
+                        throw new SshConnectionException("An established connection was aborted by the software in your host machine.", DisconnectReason.ConnectionLost);
+                    throw new SshConnectionException("An established connection was aborted by the server.", DisconnectReason.ConnectionLost);
                 }
                 catch (SocketException exp)
                 {

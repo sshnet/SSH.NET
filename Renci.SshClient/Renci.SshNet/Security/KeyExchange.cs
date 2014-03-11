@@ -150,7 +150,7 @@ namespace Renci.SshNet.Security
             session.ConnectionInfo.CurrentServerCompressionAlgorithm = decompressionAlgorithmName;
 
             this._clientCipherInfo = session.ConnectionInfo.Encryptions[clientEncryptionAlgorithmName];
-            this._serverCipherInfo = session.ConnectionInfo.Encryptions[clientEncryptionAlgorithmName];
+            this._serverCipherInfo = session.ConnectionInfo.Encryptions[serverDecryptionAlgorithmName];
             this._clientHashInfo = session.ConnectionInfo.HmacAlgorithms[clientHmacAlgorithmName];
             this._serverHashInfo = session.ConnectionInfo.HmacAlgorithms[serverHmacAlgorithmName];
             this._compressionType = session.ConnectionInfo.CompressionAlgorithms[compressionAlgorithmName];

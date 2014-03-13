@@ -1579,7 +1579,21 @@ namespace Renci.SshNet
 
             ulong offset = 0;
 
-            var data = this._sftpSession.RequestRead(handle, offset, this.BufferSize);
+            // a SSH_FXP_DATA message has 13 bytes of header info:
+            // bytes 1 to 4: packet length
+            // byte 5: message type
+            // bytes 6 to 9: response id
+            // bytes 10 to 13: length of payload‏
+            //
+            // some ssh servers limit the size of the payload of a SSH_MSG_CHANNEL_DATA
+            // response to 16 KB; if we requested 16 KB of data, then the SSH_FXP_DATA
+            // payload of the SSH_MSG_CHANNEL_DATA message would be too big (16 KB + 13 bytes), and
+            // as a result, the ssh server would split this into two responses:
+            // one containing 16384 bytes (13 bytes header, and 16371 bytes file data)
+            // and one with the remaining 13 bytes
+            var readLength = _bufferSize - 13;
+
+            var data = this._sftpSession.RequestRead(handle, offset, readLength);
 
             //  Read data while available
             while (data.Length > 0)
@@ -1601,7 +1615,7 @@ namespace Renci.SshNet
                     this.ExecuteThread(() => { downloadCallback(offset); });
                 }
 
-                data = this._sftpSession.RequestRead(handle, offset, this.BufferSize);
+                data = this._sftpSession.RequestRead(handle, offset, readLength);
             }
 
             this._sftpSession.RequestClose(handle);
@@ -1635,7 +1649,7 @@ namespace Renci.SshNet
 
             ulong offset = 0;
 
-            var buffer = new byte[this.BufferSize];
+            var buffer = new byte[_bufferSize];
 
             var bytesRead = input.Read(buffer, 0, buffer.Length);
             var expectedResponses = 0;
@@ -1649,7 +1663,7 @@ namespace Renci.SshNet
 
                 if (bytesRead > 0)
                 {
-                    if (bytesRead < this.BufferSize)
+                    if (bytesRead < _bufferSize)
                     {
                         //  Replace buffer for last chunk of data
                         var data = new byte[bytesRead];
@@ -1668,7 +1682,7 @@ namespace Renci.SshNet
                             //  Call callback to report number of bytes written
                             if (uploadCallback != null)
                             {
-                                //  Execute callback on different thread                
+                                //  Execute callback on different thread
                                 this.ExecuteThread(() => { uploadCallback(writtenBytes); });
                             }
                         }

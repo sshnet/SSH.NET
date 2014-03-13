@@ -190,7 +190,7 @@ namespace Renci.SshNet
         ///         <description>The SSH_MSG_DISCONNECT message - which is used to disconnect from the server - has been sent.</description>
         ///     </item>
         ///     <item>
-        ///         <description>The user has not been authenticated successfully.</description>
+        ///         <description>The client has not been authenticated successfully.</description>
         ///     </item>
         ///     <item>
         ///         <description>The listener thread - which is used to receive messages from the server - has stopped.</description>
@@ -216,9 +216,11 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Gets or sets the session id.
+        /// Gets the session id.
         /// </summary>
-        /// <value>The session id.</value>
+        /// <value>
+        /// The session id, or <c>null</c> if the client has not been authenticated.
+        /// </value>
         public byte[] SessionId { get; private set; }
 
         private Message _clientInitMessage;
@@ -1141,15 +1143,13 @@ namespace Renci.SshNet
         {
             this.Log(string.Format("Disconnect received: {0} {1}", message.ReasonCode, message.Description));
 
-            if (this.DisconnectReceived != null)
-            {
-                this.DisconnectReceived(this, new MessageEventArgs<DisconnectMessage>(message));
-            }
+            var disconnectReceived = DisconnectReceived;
+            if (disconnectReceived != null)
+                disconnectReceived(this, new MessageEventArgs<DisconnectMessage>(message));
 
-            if (this.Disconnected != null)
-            {
-                this.Disconnected(this, new EventArgs());
-            }
+            var disconnected = Disconnected;
+            if (disconnected != null)
+                disconnected(this, new EventArgs());
         }
 
         /// <summary>
@@ -1158,10 +1158,9 @@ namespace Renci.SshNet
         /// <param name="message"><see cref="IgnoreMessage"/> message.</param>
         protected virtual void OnIgnoreReceived(IgnoreMessage message)
         {
-            if (this.IgnoreReceived != null)
-            {
-                this.IgnoreReceived(this, new MessageEventArgs<IgnoreMessage>(message));
-            }
+            var handlers = IgnoreReceived;
+            if (handlers != null)
+                handlers(this, new MessageEventArgs<IgnoreMessage>(message));
         }
 
         /// <summary>
@@ -1170,10 +1169,9 @@ namespace Renci.SshNet
         /// <param name="message"><see cref="UnimplementedMessage"/> message.</param>
         protected virtual void OnUnimplementedReceived(UnimplementedMessage message)
         {
-            if (this.UnimplementedReceived != null)
-            {
-                this.UnimplementedReceived(this, new MessageEventArgs<UnimplementedMessage>(message));
-            }
+            var handlers = UnimplementedReceived;
+            if (handlers != null)
+                handlers(this, new MessageEventArgs<UnimplementedMessage>(message));
         }
 
         /// <summary>
@@ -1182,10 +1180,9 @@ namespace Renci.SshNet
         /// <param name="message"><see cref="DebugMessage"/> message.</param>
         protected virtual void OnDebugReceived(DebugMessage message)
         {
-            if (this.DebugReceived != null)
-            {
-                this.DebugReceived(this, new MessageEventArgs<DebugMessage>(message));
-            }
+            var handlers = DebugReceived;
+            if (handlers != null)
+                handlers(this, new MessageEventArgs<DebugMessage>(message));
         }
 
         /// <summary>
@@ -1194,10 +1191,9 @@ namespace Renci.SshNet
         /// <param name="message"><see cref="ServiceRequestMessage"/> message.</param>
         protected virtual void OnServiceRequestReceived(ServiceRequestMessage message)
         {
-            if (this.ServiceRequestReceived != null)
-            {
-                this.ServiceRequestReceived(this, new MessageEventArgs<ServiceRequestMessage>(message));
-            }
+            var handlers = ServiceRequestReceived;
+            if (handlers != null)
+                handlers(this, new MessageEventArgs<ServiceRequestMessage>(message));
         }
 
         /// <summary>
@@ -1206,10 +1202,9 @@ namespace Renci.SshNet
         /// <param name="message"><see cref="ServiceAcceptMessage"/> message.</param>
         protected virtual void OnServiceAcceptReceived(ServiceAcceptMessage message)
         {
-            if (this.ServiceAcceptReceived != null)
-            {
-                this.ServiceAcceptReceived(this, new MessageEventArgs<ServiceAcceptMessage>(message));
-            }
+            var handlers = ServiceAcceptReceived;
+            if (handlers != null)
+                handlers(this, new MessageEventArgs<ServiceAcceptMessage>(message));
         }
 
         /// <summary>
@@ -1249,10 +1244,9 @@ namespace Renci.SshNet
             //  Start the algorithm implementation
             this._keyExchange.Start(this, message);
 
-            if (this.KeyExchangeInitReceived != null)
-            {
-                this.KeyExchangeInitReceived(this, new MessageEventArgs<KeyExchangeInitMessage>(message));
-            }
+            var keyExchangeInitReceived = KeyExchangeInitReceived;
+            if (keyExchangeInitReceived != null)
+                keyExchangeInitReceived(this, new MessageEventArgs<KeyExchangeInitMessage>(message));
         }
 
         /// <summary>
@@ -1303,10 +1297,9 @@ namespace Renci.SshNet
                     messageMetadata.Enabled = true;
             }
 
-            if (this.NewKeysReceived != null)
-            {
-                this.NewKeysReceived(this, new MessageEventArgs<NewKeysMessage>(message));
-            }
+            var newKeysReceived = NewKeysReceived;
+            if (newKeysReceived != null)
+                newKeysReceived(this, new MessageEventArgs<NewKeysMessage>(message));
 
             //  Signal that key exchange completed
             this._keyExchangeCompletedWaitHandle.Set();
@@ -1328,10 +1321,9 @@ namespace Renci.SshNet
         /// <param name="message"><see cref="RequestMessage"/> message.</param>
         protected virtual void OnUserAuthenticationRequestReceived(RequestMessage message)
         {
-            if (this.UserAuthenticationRequestReceived != null)
-            {
-                this.UserAuthenticationRequestReceived(this, new MessageEventArgs<RequestMessage>(message));
-            }
+            var handlers = UserAuthenticationRequestReceived;
+            if (handlers != null)
+                handlers(this, new MessageEventArgs<RequestMessage>(message));
         }
 
         /// <summary>
@@ -1340,10 +1332,9 @@ namespace Renci.SshNet
         /// <param name="message"><see cref="FailureMessage"/> message.</param>
         protected virtual void OnUserAuthenticationFailureReceived(FailureMessage message)
         {
-            if (this.UserAuthenticationFailureReceived != null)
-            {
-                this.UserAuthenticationFailureReceived(this, new MessageEventArgs<FailureMessage>(message));
-            }
+            var handlers = UserAuthenticationFailureReceived;
+            if (handlers != null)
+                handlers(this, new MessageEventArgs<FailureMessage>(message));
         }
 
         /// <summary>
@@ -1352,10 +1343,9 @@ namespace Renci.SshNet
         /// <param name="message"><see cref="SuccessMessage"/> message.</param>
         protected virtual void OnUserAuthenticationSuccessReceived(SuccessMessage message)
         {
-            if (this.UserAuthenticationSuccessReceived != null)
-            {
-                this.UserAuthenticationSuccessReceived(this, new MessageEventArgs<SuccessMessage>(message));
-            }
+            var handlers = UserAuthenticationSuccessReceived;
+            if (handlers != null)
+                handlers(this, new MessageEventArgs<SuccessMessage>(message));
         }
 
         /// <summary>
@@ -1364,10 +1354,9 @@ namespace Renci.SshNet
         /// <param name="message"><see cref="BannerMessage"/> message.</param>
         protected virtual void OnUserAuthenticationBannerReceived(BannerMessage message)
         {
-            if (this.UserAuthenticationBannerReceived != null)
-            {
-                this.UserAuthenticationBannerReceived(this, new MessageEventArgs<BannerMessage>(message));
-            }
+            var handlers = UserAuthenticationBannerReceived;
+            if (handlers != null)
+                handlers(this, new MessageEventArgs<BannerMessage>(message));
         }
 
         /// <summary>
@@ -1376,10 +1365,9 @@ namespace Renci.SshNet
         /// <param name="message"><see cref="GlobalRequestMessage"/> message.</param>
         protected virtual void OnGlobalRequestReceived(GlobalRequestMessage message)
         {
-            if (this.GlobalRequestReceived != null)
-            {
-                this.GlobalRequestReceived(this, new MessageEventArgs<GlobalRequestMessage>(message));
-            }
+            var handlers = GlobalRequestReceived;
+            if (handlers != null)
+                handlers(this, new MessageEventArgs<GlobalRequestMessage>(message));
         }
 
         /// <summary>
@@ -1388,10 +1376,9 @@ namespace Renci.SshNet
         /// <param name="message"><see cref="RequestSuccessMessage"/> message.</param>
         protected virtual void OnRequestSuccessReceived(RequestSuccessMessage message)
         {
-            if (this.RequestSuccessReceived != null)
-            {
-                this.RequestSuccessReceived(this, new MessageEventArgs<RequestSuccessMessage>(message));
-            }
+            var handlers = RequestSuccessReceived;
+            if (handlers != null)
+                handlers(this, new MessageEventArgs<RequestSuccessMessage>(message));
         }
 
         /// <summary>
@@ -1400,10 +1387,9 @@ namespace Renci.SshNet
         /// <param name="message"><see cref="RequestFailureMessage"/> message.</param>
         protected virtual void OnRequestFailureReceived(RequestFailureMessage message)
         {
-            if (this.RequestFailureReceived != null)
-            {
-                this.RequestFailureReceived(this, new MessageEventArgs<RequestFailureMessage>(message));
-            }
+            var handlers = RequestFailureReceived;
+            if (handlers != null)
+                handlers(this, new MessageEventArgs<RequestFailureMessage>(message));
         }
 
         /// <summary>
@@ -1412,10 +1398,9 @@ namespace Renci.SshNet
         /// <param name="message"><see cref="ChannelOpenMessage"/> message.</param>
         protected virtual void OnChannelOpenReceived(ChannelOpenMessage message)
         {
-            if (this.ChannelOpenReceived != null)
-            {
-                this.ChannelOpenReceived(this, new MessageEventArgs<ChannelOpenMessage>(message));
-            }
+            var handlers = ChannelOpenReceived;
+            if (handlers != null)
+                handlers(this, new MessageEventArgs<ChannelOpenMessage>(message));
         }
 
         /// <summary>
@@ -1424,10 +1409,9 @@ namespace Renci.SshNet
         /// <param name="message"><see cref="ChannelOpenConfirmationMessage"/> message.</param>
         protected virtual void OnChannelOpenConfirmationReceived(ChannelOpenConfirmationMessage message)
         {
-            if (this.ChannelOpenConfirmationReceived != null)
-            {
-                this.ChannelOpenConfirmationReceived(this, new MessageEventArgs<ChannelOpenConfirmationMessage>(message));
-            }
+            var handlers = ChannelOpenConfirmationReceived;
+            if (handlers != null)
+                handlers(this, new MessageEventArgs<ChannelOpenConfirmationMessage>(message));
         }
 
         /// <summary>
@@ -1436,10 +1420,9 @@ namespace Renci.SshNet
         /// <param name="message"><see cref="ChannelOpenFailureMessage"/> message.</param>
         protected virtual void OnChannelOpenFailureReceived(ChannelOpenFailureMessage message)
         {
-            if (this.ChannelOpenFailureReceived != null)
-            {
-                this.ChannelOpenFailureReceived(this, new MessageEventArgs<ChannelOpenFailureMessage>(message));
-            }
+            var handlers = ChannelOpenFailureReceived;
+            if (handlers != null)
+                handlers(this, new MessageEventArgs<ChannelOpenFailureMessage>(message));
         }
 
         /// <summary>
@@ -1448,10 +1431,9 @@ namespace Renci.SshNet
         /// <param name="message"><see cref="ChannelWindowAdjustMessage"/> message.</param>
         protected virtual void OnChannelWindowAdjustReceived(ChannelWindowAdjustMessage message)
         {
-            if (this.ChannelWindowAdjustReceived != null)
-            {
-                this.ChannelWindowAdjustReceived(this, new MessageEventArgs<ChannelWindowAdjustMessage>(message));
-            }
+            var handlers = ChannelWindowAdjustReceived;
+            if (handlers != null)
+                handlers(this, new MessageEventArgs<ChannelWindowAdjustMessage>(message));
         }
 
         /// <summary>
@@ -1460,10 +1442,9 @@ namespace Renci.SshNet
         /// <param name="message"><see cref="ChannelDataMessage"/> message.</param>
         protected virtual void OnChannelDataReceived(ChannelDataMessage message)
         {
-            if (this.ChannelDataReceived != null)
-            {
-                this.ChannelDataReceived(this, new MessageEventArgs<ChannelDataMessage>(message));
-            }
+            var handlers = ChannelDataReceived;
+            if (handlers != null)
+                handlers(this, new MessageEventArgs<ChannelDataMessage>(message));
         }
 
         /// <summary>
@@ -1472,10 +1453,9 @@ namespace Renci.SshNet
         /// <param name="message"><see cref="ChannelExtendedDataMessage"/> message.</param>
         protected virtual void OnChannelExtendedDataReceived(ChannelExtendedDataMessage message)
         {
-            if (this.ChannelExtendedDataReceived != null)
-            {
-                this.ChannelExtendedDataReceived(this, new MessageEventArgs<ChannelExtendedDataMessage>(message));
-            }
+            var handlers = ChannelExtendedDataReceived;
+            if (handlers != null)
+                handlers(this, new MessageEventArgs<ChannelExtendedDataMessage>(message));
         }
 
         /// <summary>
@@ -1484,10 +1464,9 @@ namespace Renci.SshNet
         /// <param name="message"><see cref="ChannelCloseMessage"/> message.</param>
         protected virtual void OnChannelEofReceived(ChannelEofMessage message)
         {
-            if (this.ChannelEofReceived != null)
-            {
-                this.ChannelEofReceived(this, new MessageEventArgs<ChannelEofMessage>(message));
-            }
+            var handlers = ChannelEofReceived;
+            if (handlers != null)
+                handlers(this, new MessageEventArgs<ChannelEofMessage>(message));
         }
 
         /// <summary>
@@ -1496,10 +1475,9 @@ namespace Renci.SshNet
         /// <param name="message"><see cref="ChannelCloseMessage"/> message.</param>
         protected virtual void OnChannelCloseReceived(ChannelCloseMessage message)
         {
-            if (this.ChannelCloseReceived != null)
-            {
-                this.ChannelCloseReceived(this, new MessageEventArgs<ChannelCloseMessage>(message));
-            }
+            var handlers = ChannelCloseReceived;
+            if (handlers != null)
+                handlers(this, new MessageEventArgs<ChannelCloseMessage>(message));
         }
 
         /// <summary>
@@ -1508,10 +1486,9 @@ namespace Renci.SshNet
         /// <param name="message"><see cref="ChannelRequestMessage"/> message.</param>
         protected virtual void OnChannelRequestReceived(ChannelRequestMessage message)
         {
-            if (this.ChannelRequestReceived != null)
-            {
-                this.ChannelRequestReceived(this, new MessageEventArgs<ChannelRequestMessage>(message));
-            }
+            var handlers = ChannelRequestReceived;
+            if (handlers != null)
+                handlers(this, new MessageEventArgs<ChannelRequestMessage>(message));
         }
 
         /// <summary>
@@ -1520,10 +1497,9 @@ namespace Renci.SshNet
         /// <param name="message"><see cref="ChannelSuccessMessage"/> message.</param>
         protected virtual void OnChannelSuccessReceived(ChannelSuccessMessage message)
         {
-            if (this.ChannelSuccessReceived != null)
-            {
-                this.ChannelSuccessReceived(this, new MessageEventArgs<ChannelSuccessMessage>(message));
-            }
+            var handlers = ChannelSuccessReceived;
+            if (handlers != null)
+                handlers(this, new MessageEventArgs<ChannelSuccessMessage>(message));
         }
 
         /// <summary>
@@ -1532,10 +1508,9 @@ namespace Renci.SshNet
         /// <param name="message"><see cref="ChannelFailureMessage"/> message.</param>
         protected virtual void OnChannelFailureReceived(ChannelFailureMessage message)
         {
-            if (this.ChannelFailureReceived != null)
-            {
-                this.ChannelFailureReceived(this, new MessageEventArgs<ChannelFailureMessage>(message));
-            }
+            var handlers = ChannelFailureReceived;
+            if (handlers != null)
+                handlers(this, new MessageEventArgs<ChannelFailureMessage>(message));
         }
 
         /// <summary>
@@ -1544,21 +1519,18 @@ namespace Renci.SshNet
         /// <param name="message"><see cref="Message"/> message.</param>
         protected virtual void OnMessageReceived(Message message)
         {
-            if (this.MessageReceived != null)
-            {
-                this.MessageReceived(this, new MessageEventArgs<Message>(message));
-            }
+            var handlers = MessageReceived;
+            if (handlers != null)
+                handlers(this, new MessageEventArgs<Message>(message));
         }
 
         #endregion
 
         private void KeyExchange_HostKeyReceived(object sender, HostKeyEventArgs e)
         {
-            var handler = this.HostKeyReceived;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
+            var handlers = HostKeyReceived;
+            if (handlers != null)
+                handlers(this, e);
         }
 
         /// <summary>
@@ -1650,6 +1622,9 @@ namespace Renci.SshNet
         /// <param name="data">The data.</param>
         partial void SocketWrite(byte[] data);
 
+        /// <summary>
+        /// Disconnects and disposes the socket.
+        /// </summary>
         private void SocketDisconnectAndDispose()
         {
             if (_socket != null)
@@ -1664,7 +1639,6 @@ namespace Renci.SshNet
                     }
                 }
             }
-
         }
 
         /// <summary>
@@ -2007,7 +1981,9 @@ namespace Renci.SshNet
 
             this._exceptionWaitHandle.Set();
 
-            SignalErrorOccurred(exp);
+            var errorOccured = ErrorOccured;
+            if (errorOccured != null)
+                errorOccured(this, new ExceptionEventArgs(exp));
 
             if (connectionException != null && connectionException.DisconnectReason != DisconnectReason.ConnectionLost)
             {
@@ -2025,6 +2001,8 @@ namespace Renci.SshNet
                 _exceptionWaitHandle.Reset();
             if (_keyExchangeCompletedWaitHandle != null)
                 _keyExchangeCompletedWaitHandle.Reset();
+            if (_messageListenerCompleted != null)
+                _messageListenerCompleted.Reset();
 
             SessionId = null;
             _isDisconnectMessageSent = false;
@@ -2032,15 +2010,6 @@ namespace Renci.SshNet
             _isAuthenticated = false;
             _exception = null;
             _keyExchangeInProgress = false;
-        }
-
-        private void SignalErrorOccurred(Exception error)
-        {
-            var errorOccurred = ErrorOccured;
-            if (errorOccurred != null)
-            {
-                errorOccurred(this, new ExceptionEventArgs(error));
-            }
         }
 
         #region IDisposable Members

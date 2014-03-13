@@ -17,12 +17,14 @@
 
 Breaking changes:
 
-    * Assembly is now named Renci.SshNet for all supported frameworks
+    * Assembly name is now Renci.SshNet for all supported frameworks
     * The Renci.SshNet assemblies for .NET and Silverlight are now strong-named (issue #1802)
 
 Fixes:
 
-	* Connection dropped by server due to invalid DSA signature (issue #1918)
+    * Unobserved exception rethrown by finalizer thread (issue #1298)
+    * Client cipher is used to decrypt server messages (issue #1917)
+    * Connection dropped by server due to invalid DSA signature (issue #1918)
     * Correct casing of Security/Cryptography/HMAC.cs to fix build on Linux (issue #1505)
     * HTTP proxy hangs (issue #1890)
     * Wrong parameters to SetSocketOption leads to SocketException under Mono (issue #1799)

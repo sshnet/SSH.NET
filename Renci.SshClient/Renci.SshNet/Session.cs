@@ -235,7 +235,6 @@ namespace Renci.SshNet
         public byte[] SessionId { get; private set; }
 
         private Message _clientInitMessage;
-
         /// <summary>
         /// Gets the client init message.
         /// </summary>
@@ -588,12 +587,8 @@ namespace Renci.SshNet
                         throw new SshException("Username is not specified.");
                     }
 
-                    this._isAuthenticated = this.ConnectionInfo.Authenticate(this);
-
-                    if (!this._isAuthenticated)
-                    {
-                        throw new SshAuthenticationException("User cannot be authenticated.");
-                    }
+                    this.ConnectionInfo.Authenticate(this);
+                    this._isAuthenticated = true;
 
                     //  Register Connection messages
                     this.RegisterMessage("SSH_MSG_GLOBAL_REQUEST");

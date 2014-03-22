@@ -50,7 +50,7 @@ namespace Renci.SshNet
                         {
                             try
                             {
-                                using (var channel = this.Session.CreateChannel<ChannelDirectTcpip>())
+                                using (var channel = this.Session.CreateClientChannel<ChannelDirectTcpip>())
                                 {
                                     var version = new byte[1];
 

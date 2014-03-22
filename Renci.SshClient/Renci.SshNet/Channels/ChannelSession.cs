@@ -9,7 +9,7 @@ namespace Renci.SshNet.Channels
     /// <summary>
     /// Implements Session SSH channel.
     /// </summary>
-    internal class ChannelSession : Channel
+    internal class ChannelSession : ClientChannel
     {
         /// <summary>
         /// Counts faile channel open attempts
@@ -323,7 +323,7 @@ namespace Renci.SshNet.Channels
             {
                 //  Ensure that channels are available
                 this.SessionSemaphore.Wait();
-                this.SendMessage(new ChannelOpenMessage(this.LocalChannelNumber, this.LocalWindowSize, this.PacketSize, new SessionChannelOpenInfo()));
+                this.SendMessage(new ChannelOpenMessage(this.LocalChannelNumber, this.LocalWindowSize, this.LocalPacketSize, new SessionChannelOpenInfo()));
             }
         }
 

@@ -16,7 +16,7 @@ namespace Renci.SshNet.Tests.Classes
             var proxyEndPoint = new IPEndPoint(IPAddress.Loopback, 8123);
             var serverEndPoint = new IPEndPoint(IPAddress.Loopback, 8122);
 
-            using (var proxyStub = new HttpProxyStub(proxyEndPoint, "A"))
+            using (var proxyStub = new HttpProxyStub(proxyEndPoint))
             {
                 proxyStub.Responses.Add(Encoding.ASCII.GetBytes("HTTP/1.0 501 Custom\r\n"));
                 proxyStub.Start();
@@ -43,7 +43,7 @@ namespace Renci.SshNet.Tests.Classes
             var proxyEndPoint = new IPEndPoint(IPAddress.Loopback, 8123);
             var serverEndPoint = new IPEndPoint(IPAddress.Loopback, 8122);
 
-            using (var proxyStub = new HttpProxyStub(proxyEndPoint, "B"))
+            using (var proxyStub = new HttpProxyStub(proxyEndPoint))
             {
                 proxyStub.Responses.Add(Encoding.ASCII.GetBytes("HTTP/1.0 200 OK\r\n"));
                 proxyStub.Responses.Add(Encoding.ASCII.GetBytes("Content-Type: application/octet-stream\r\n"));
@@ -73,7 +73,7 @@ namespace Renci.SshNet.Tests.Classes
             var proxyEndPoint = new IPEndPoint(IPAddress.Loopback, 8123);
             var serverEndPoint = new IPEndPoint(IPAddress.Loopback, 8122);
 
-            using (var proxyStub = new HttpProxyStub(proxyEndPoint, "B"))
+            using (var proxyStub = new HttpProxyStub(proxyEndPoint))
             {
                 proxyStub.Responses.Add(Encoding.ASCII.GetBytes("HTTP/1.0 200 OK\r\n"));
                 proxyStub.Responses.Add(Encoding.ASCII.GetBytes("Content-Length: 13\r\n"));
@@ -105,7 +105,7 @@ namespace Renci.SshNet.Tests.Classes
             var proxyEndPoint = new IPEndPoint(IPAddress.Loopback, 8123);
             var serverEndPoint = new IPEndPoint(IPAddress.Loopback, 8122);
 
-            using (var proxyStub = new HttpProxyStub(proxyEndPoint, "A"))
+            using (var proxyStub = new HttpProxyStub(proxyEndPoint))
             {
                 proxyStub.Responses.Add(Encoding.ASCII.GetBytes("HTTP/1.0 501 Custom\r\n"));
                 proxyStub.Start();
@@ -132,7 +132,7 @@ namespace Renci.SshNet.Tests.Classes
             var proxyEndPoint = new IPEndPoint(IPAddress.Loopback, 8123);
             var serverEndPoint = new IPEndPoint(IPAddress.Loopback, 8122);
 
-            using (var proxyStub = new HttpProxyStub(proxyEndPoint, "A"))
+            using (var proxyStub = new HttpProxyStub(proxyEndPoint))
             {
                 proxyStub.Responses.Add(Encoding.ASCII.GetBytes("HTTP/1.0 501 Custom\r\n"));
                 proxyStub.Start();
@@ -161,7 +161,7 @@ namespace Renci.SshNet.Tests.Classes
             var proxyEndPoint = new IPEndPoint(IPAddress.Loopback, 8123);
             var serverEndPoint = new IPEndPoint(IPAddress.Loopback, 8122);
 
-            using (var proxyStub = new HttpProxyStub(proxyEndPoint, "A"))
+            using (var proxyStub = new HttpProxyStub(proxyEndPoint))
             {
                 proxyStub.Responses.Add(Encoding.ASCII.GetBytes("HTTP/1.0 501 Custom\r\n"));
                 proxyStub.Start();
@@ -189,7 +189,7 @@ namespace Renci.SshNet.Tests.Classes
             var proxyEndPoint = new IPEndPoint(IPAddress.Loopback, 8123);
             var serverEndPoint = new IPEndPoint(IPAddress.Loopback, 8122);
 
-            using (var proxyStub = new HttpProxyStub(proxyEndPoint, "A"))
+            using (var proxyStub = new HttpProxyStub(proxyEndPoint))
             {
                 proxyStub.Responses.Add(Encoding.ASCII.GetBytes("HTTP/1.0 501 Custom\r\n"));
                 proxyStub.Start();

@@ -63,7 +63,7 @@ namespace Renci.SshNet
             this._incoming = new Queue<byte>();
             this._outgoing = new Queue<byte>();
 
-            this._channel = this._session.CreateChannel<ChannelSession>();
+            this._channel = this._session.CreateClientChannel<ChannelSession>();
             this._channel.DataReceived += Channel_DataReceived;
             this._channel.Closed += Channel_Closed;
             this._session.Disconnected += Session_Disconnected;

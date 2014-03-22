@@ -28,12 +28,23 @@ namespace Renci.SshNet
         /// <summary>
         /// Specifies maximum packet size defined by the protocol.
         /// </summary>
-        protected const int MaximumPacketSize = 35000;
+        private const int MaximumSshPacketSize = LocalChannelDataPacketSize + 3000;
 
         /// <summary>
-        /// Specifies maximum payload size defined by the protocol.
+        /// Holds the initial local window size for the channels.
         /// </summary>
-        protected const int MaximumPayloadSize = 1024 * 32;
+        /// <value>
+        /// 2 MB.
+        /// </value>
+        private const int InitialLocalWindowSize = 0x200000;
+
+        /// <summary>
+        /// Holds the maximum size of channel data packets that we receive.
+        /// </summary>
+        /// <value>
+        /// 64 KB.
+        /// </value>
+        private const int LocalChannelDataPacketSize = 1024*64;
 
         private static readonly RNGCryptoServiceProvider Randomizer = new RNGCryptoServiceProvider();
 
@@ -224,6 +235,7 @@ namespace Renci.SshNet
         public byte[] SessionId { get; private set; }
 
         private Message _clientInitMessage;
+
         /// <summary>
         /// Gets the client init message.
         /// </summary>
@@ -643,17 +655,23 @@ namespace Renci.SshNet
             }
         }
 
-        internal T CreateChannel<T>() where T : Channel, new()
-        {
-            return CreateChannel<T>(0, 0x100000, 0x8000);
-        }
-
-        internal T CreateChannel<T>(uint serverChannelNumber, uint windowSize, uint packetSize) where T : Channel, new()
+        internal T CreateClientChannel<T>() where T : ClientChannel, new()
         {
             var channel = new T();
             lock (this)
             {
-                channel.Initialize(this, serverChannelNumber, windowSize, packetSize);
+                channel.Initialize(this, InitialLocalWindowSize, LocalChannelDataPacketSize);
+            }
+            return channel;
+        }
+
+        internal T CreateServerChannel<T>(uint remoteChannelNumber, uint remoteWindowSize, uint remoteChannelDataPacketSize) where T : ServerChannel, new()
+        {
+            var channel = new T();
+            lock (this)
+            {
+                channel.Initialize(this, InitialLocalWindowSize, LocalChannelDataPacketSize, remoteChannelNumber, remoteWindowSize,
+                    remoteChannelDataPacketSize);
             }
             return channel;
         }
@@ -748,11 +766,6 @@ namespace Renci.SshNet
 
             var messageData = message.GetBytes();
 
-            if (messageData.Length > MaximumPayloadSize)
-            {
-                throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Payload cannot be more than {0} bytes.", MaximumPayloadSize));
-            }
-
             if (this._clientCompression != null)
             {
                 messageData = this._clientCompression.Compress(messageData);
@@ -799,9 +812,9 @@ namespace Renci.SshNet
                     packetData = this._clientCipher.Encrypt(packetData);
                 }
 
-                if (packetData.Length > MaximumPacketSize)
+                if (packetData.Length > MaximumSshPacketSize)
                 {
-                    throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Packet is too big. Maximum packet size is {0} bytes.", MaximumPacketSize));
+                    throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Packet is too big. Maximum packet size is {0} bytes.", MaximumSshPacketSize));
                 }
 
                 if (this._clientMac == null)
@@ -889,7 +902,7 @@ namespace Renci.SshNet
             var packetLength = (uint)(firstBlock[0] << 24 | firstBlock[1] << 16 | firstBlock[2] << 8 | firstBlock[3]);
 
             //  Test packet minimum and maximum boundaries
-            if (packetLength < Math.Max((byte)16, blockSize) - 4 || packetLength > MaximumPacketSize - 4)
+            if (packetLength < Math.Max((byte)16, blockSize) - 4 || packetLength > MaximumSshPacketSize - 4)
                 throw new SshConnectionException(string.Format(CultureInfo.CurrentCulture, "Bad packet length {0}", packetLength), DisconnectReason.ProtocolError);
 
             //  Read rest of the packet data

@@ -55,11 +55,32 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Gets or sets the size of the buffer.
+        /// Gets or sets the maximum size of the buffer in bytes.
         /// </summary>
         /// <value>
-        /// The size of the buffer. The default buffer size is 16384 bytes.
+        /// The size of the buffer. The default buffer size is 65536 bytes (64 KB).
         /// </value>
+        /// <remarks>
+        /// <para>
+        /// For write operations, this limits the size of the payload for
+        /// individual SSH_FXP_WRITE messages. The actual size is always
+        /// capped at the maximum packet size supported by the peer
+        /// (minus the size of protocol fields).
+        /// </para>
+        /// <para>
+        /// For read operations, this controls the size of the payload which
+        /// is requested from the peer in each SSH_FXP_READ message. The peer
+        /// will send the requested number of bytes in one or more SSH_FXP_DATA
+        /// messages. To optimize the size of the SSH packets sent by the peer,
+        /// the actual requested size will take into account the size of the
+        /// SSH_FXP_DATA protocol fields.
+        /// </para>
+        /// <para>
+        /// The size of the each indivual SSH_FXP_DATA message is limited to the
+        /// local maximum packet size of the channel, which is set to <c>64 KB</c>
+        /// for SSH.NET. However, the peer can limit this even further.
+        /// </para>
+        /// </remarks>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         public uint BufferSize
         {
@@ -191,7 +212,7 @@ namespace Renci.SshNet
             : base(connectionInfo, ownsConnectionInfo)
         {
             this.OperationTimeout = new TimeSpan(0, 0, 0, 0, -1);
-            this.BufferSize = 1024 * 16;
+            this.BufferSize = 1024 * 64;
         }
 
         #endregion
@@ -432,7 +453,7 @@ namespace Renci.SshNet
             {
                 try
                 {
-                    var result = this.InternalListDirectory(path, (count) =>
+                    var result = this.InternalListDirectory(path, count =>
                     {
                         asyncResult.Update(count);
 
@@ -629,7 +650,7 @@ namespace Renci.SshNet
             {
                 try
                 {
-                    this.InternalDownloadFile(path, output, asyncResult, (offset) =>
+                    this.InternalDownloadFile(path, output, asyncResult, offset =>
                     {
                         asyncResult.Update(offset);
 
@@ -830,7 +851,7 @@ namespace Renci.SshNet
             {
                 try
                 {
-                    this.InternalUploadFile(input, path, flags, asyncResult, (offset) =>
+                    this.InternalUploadFile(input, path, flags, asyncResult, offset =>
                     {
                         asyncResult.Update(offset);
 
@@ -1157,7 +1178,7 @@ namespace Renci.SshNet
         {
             CheckDisposed();
 
-            return new SftpFileStream(this._sftpSession, path, mode, access);
+            return new SftpFileStream(this._sftpSession, path, mode, access, (int) _bufferSize);
         }
 
         /// <summary>
@@ -1195,7 +1216,8 @@ namespace Renci.SshNet
         {
             CheckDisposed();
 
-            return new SftpFileStream(this._sftpSession, path, FileMode.OpenOrCreate, FileAccess.Write);
+            return new SftpFileStream(this._sftpSession, path, FileMode.OpenOrCreate, FileAccess.Write,
+                (int) _bufferSize);
         }
 
         /// <summary>
@@ -1540,8 +1562,8 @@ namespace Renci.SshNet
                 //  Call callback to report number of files read
                 if (listCallback != null)
                 {
-                    //  Execute callback on different thread                
-                    this.ExecuteThread(() => { listCallback(result.Count); });
+                    //  Execute callback on different thread
+                    this.ExecuteThread(() => listCallback(result.Count));
                 }
 
                 files = this._sftpSession.RequestReadDir(handle);
@@ -1579,21 +1601,9 @@ namespace Renci.SshNet
 
             ulong offset = 0;
 
-            // a SSH_FXP_DATA message has 13 bytes of header info:
-            // bytes 1 to 4: packet length
-            // byte 5: message type
-            // bytes 6 to 9: response id
-            // bytes 10 to 13: length of payload‏
-            //
-            // some ssh servers limit the size of the payload of a SSH_MSG_CHANNEL_DATA
-            // response to 16 KB; if we requested 16 KB of data, then the SSH_FXP_DATA
-            // payload of the SSH_MSG_CHANNEL_DATA message would be too big (16 KB + 13 bytes), and
-            // as a result, the ssh server would split this into two responses:
-            // one containing 16384 bytes (13 bytes header, and 16371 bytes file data)
-            // and one with the remaining 13 bytes
-            var readLength = _bufferSize - 13;
+            var optimalReadLength = _sftpSession.CalculateOptimalReadLength(_bufferSize);
 
-            var data = this._sftpSession.RequestRead(handle, offset, readLength);
+            var data = this._sftpSession.RequestRead(handle, offset, optimalReadLength);
 
             //  Read data while available
             while (data.Length > 0)
@@ -1615,7 +1625,7 @@ namespace Renci.SshNet
                     this.ExecuteThread(() => { downloadCallback(offset); });
                 }
 
-                data = this._sftpSession.RequestRead(handle, offset, readLength);
+                data = this._sftpSession.RequestRead(handle, offset, optimalReadLength);
             }
 
             this._sftpSession.RequestClose(handle);
@@ -1649,7 +1659,8 @@ namespace Renci.SshNet
 
             ulong offset = 0;
 
-            var buffer = new byte[_bufferSize];
+            // create buffer of optimal length
+            var buffer = new byte[_sftpSession.CalculateOptimalWriteLength(_bufferSize, handle)];
 
             var bytesRead = input.Read(buffer, 0, buffer.Length);
             var expectedResponses = 0;
@@ -1663,7 +1674,7 @@ namespace Renci.SshNet
 
                 if (bytesRead > 0)
                 {
-                    if (bytesRead < _bufferSize)
+                    if (bytesRead < buffer.Length)
                     {
                         //  Replace buffer for last chunk of data
                         var data = new byte[bytesRead];
@@ -1672,7 +1683,7 @@ namespace Renci.SshNet
                     }
 
                     var writtenBytes = offset + (ulong)buffer.Length;
-                    this._sftpSession.RequestWrite(handle, offset, buffer, null, (s) =>
+                    this._sftpSession.RequestWrite(handle, offset, buffer, null, s =>
                     {
                         if (s.StatusCode == StatusCodes.Ok)
                         {
@@ -1683,7 +1694,7 @@ namespace Renci.SshNet
                             if (uploadCallback != null)
                             {
                                 //  Execute callback on different thread
-                                this.ExecuteThread(() => { uploadCallback(writtenBytes); });
+                                this.ExecuteThread(() => uploadCallback(writtenBytes));
                             }
                         }
                     });

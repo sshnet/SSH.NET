@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Text;
 using System.Threading;
+using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
 using System.Collections.Generic;
 using System.Globalization;
@@ -1065,6 +1066,54 @@ namespace Renci.SshNet.Sftp
         }
 
         #endregion
+
+        /// <summary>
+        /// Calculates the optimal size of the buffer to read data from the channel.
+        /// </summary>
+        /// <param name="bufferSize">The buffer size configured on the client.</param>
+        /// <returns>
+        /// The optimal size of the buffer to read data from the channel.
+        /// </returns>
+        internal uint CalculateOptimalReadLength(uint bufferSize)
+        {
+            // a SSH_FXP_DATA message has 13 bytes of protocol fields:
+            // bytes 1 to 4: packet length
+            // byte 5: message type
+            // bytes 6 to 9: response id
+            // bytes 10 to 13: length of payload‏
+            //
+            // most ssh servers limit the size of the payload of a SSH_MSG_CHANNEL_DATA
+            // response to 16 KB; if we requested 16 KB of data, then the SSH_FXP_DATA
+            // payload of the SSH_MSG_CHANNEL_DATA message would be too big (16 KB + 13 bytes), and
+            // as a result, the ssh server would split this into two responses:
+            // one containing 16384 bytes (13 bytes header, and 16371 bytes file data)
+            // and one with the remaining 13 bytes of file data
+            const uint lengthOfNonDataProtocolFields = 13u;
+            var maximumPacketSize = Channel.LocalPacketSize;
+            return Math.Min(bufferSize, maximumPacketSize) - lengthOfNonDataProtocolFields;
+        }
+
+        /// <summary>
+        /// Calculates the optimal size of the buffer to write data on the channel.
+        /// </summary>
+        /// <param name="bufferSize">The buffer size configured on the client.</param>
+        /// <param name="handle">The file handle.</param>
+        /// <returns>
+        /// The optimal size of the buffer to write data on the channel.
+        /// </returns>
+        internal uint CalculateOptimalWriteLength(uint bufferSize, byte[] handle)
+        {
+            // 1-4: package length of SSH_FXP_WRITE message
+            // 5: message type
+            // 6-9: request id
+            // 10-13: handle length
+            // <handle>
+            // 14-21: offset
+            // 22-25: data length
+            var lengthOfNonDataProtocolFields = 25u + (uint)handle.Length;
+            var maximumPacketSize = Channel.RemotePacketSize;
+            return Math.Min(bufferSize, maximumPacketSize) - lengthOfNonDataProtocolFields;
+        }
 
         private SshException GetSftpException(SftpStatusResponse response)
         {

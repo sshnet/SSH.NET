@@ -146,10 +146,11 @@ namespace Renci.SshNet
 
         private void Session_ChannelOpening(object sender, MessageEventArgs<ChannelOpenMessage> e)
         {
-            //  Ensure that this is corresponding request
-            var info = e.Message.Info as ForwardedTcpipChannelInfo;
+            var channelOpenMessage = e.Message;
+            var info = channelOpenMessage.Info as ForwardedTcpipChannelInfo;
             if (info != null)
             {
+                //  Ensure this is the corresponding request
                 if (info.ConnectedAddress == this.BoundHost && info.ConnectedPort == this.BoundPort)
                 {
                     this.ExecuteThread(() =>
@@ -158,7 +159,9 @@ namespace Renci.SshNet
                         {
                             this.RaiseRequestReceived(info.OriginatorAddress, info.OriginatorPort);
 
-                            var channel = this.Session.CreateChannel<ChannelForwardedTcpip>(e.Message.LocalChannelNumber, e.Message.InitialWindowSize, e.Message.MaximumPacketSize);
+                            var channel = this.Session.CreateServerChannel<ChannelForwardedTcpip>(
+                                channelOpenMessage.LocalChannelNumber, channelOpenMessage.InitialWindowSize,
+                                channelOpenMessage.MaximumPacketSize);
                             channel.Bind(this.HostAddress, this.Port);
                         }
                         catch (Exception exp)

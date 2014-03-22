@@ -9,15 +9,13 @@ namespace Renci.SshNet.Tests.Common
     public class HttpProxyStub : IDisposable
     {
         private readonly IPEndPoint _endPoint;
-        private readonly string _id;
         private AsyncSocketListener _listener;
         private HttpRequestParser _httpRequestParser;
         private readonly IList<byte[]> _responses;
 
-        public HttpProxyStub(IPEndPoint endPoint, string id)
+        public HttpProxyStub(IPEndPoint endPoint)
         {
             _endPoint = endPoint;
-            _id = id;
             _responses = new List<byte[]>();
         }
 
@@ -40,7 +38,7 @@ namespace Renci.SshNet.Tests.Common
         {
             _httpRequestParser = new HttpRequestParser();
 
-            _listener = new AsyncSocketListener(_endPoint, _id);
+            _listener = new AsyncSocketListener(_endPoint);
             _listener.BytesReceived += OnBytesReceived;
             _listener.Start();
         }

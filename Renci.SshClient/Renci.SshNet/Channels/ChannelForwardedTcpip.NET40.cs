@@ -6,7 +6,7 @@ namespace Renci.SshNet.Channels
     /// <summary>
     /// Implements "forwarded-tcpip" SSH channel.
     /// </summary>
-    internal partial class ChannelForwardedTcpip : Channel
+    internal partial class ChannelForwardedTcpip : ServerChannel
     {
         partial void OpenSocket(IPAddress connectedHost, uint connectedPort)
         {

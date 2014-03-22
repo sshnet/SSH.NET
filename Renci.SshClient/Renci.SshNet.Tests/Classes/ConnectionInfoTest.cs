@@ -174,10 +174,7 @@ namespace Renci.SshNet.Tests.Classes
             AuthenticationMethod[] authenticationMethods = null; // TODO: Initialize to an appropriate value
             ConnectionInfo target = new ConnectionInfo(host, username, authenticationMethods); // TODO: Initialize to an appropriate value
             Session session = null; // TODO: Initialize to an appropriate value
-            bool expected = false; // TODO: Initialize to an appropriate value
-            bool actual;
-            actual = target.Authenticate(session);
-            Assert.AreEqual(expected, actual);
+            target.Authenticate(session);
             Assert.Inconclusive("Verify the correctness of this test method.");
         }
 

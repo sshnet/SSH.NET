@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading;
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
+using Renci.SshNet.Messages.Connection;
 
 namespace Renci.SshNet.Sftp
 {
@@ -35,9 +36,15 @@ namespace Renci.SshNet.Sftp
         public event EventHandler<EventArgs> Disconnected;
 
         /// <summary>
-        /// Gets the channel number.
+        /// Gets the channel associated with this session.
         /// </summary>
-        protected uint ChannelNumber { get; private set; }
+        /// <value>
+        /// The channel associated with this session.
+        /// </value>
+        internal ChannelSession Channel
+        {
+            get { return _channel; }
+        }
 
         /// <summary>
         /// Gets the character encoding to use.
@@ -52,7 +59,7 @@ namespace Renci.SshNet.Sftp
         /// <param name="operationTimeout">The operation timeout.</param>
         /// <param name="encoding">The character encoding to use.</param>
         /// <exception cref="ArgumentNullException"><paramref name="session" /> or <paramref name="subsystemName" /> or <paramref name="encoding"/>is null.</exception>
-        public SubsystemSession(Session session, string subsystemName, TimeSpan operationTimeout, Encoding encoding)
+        protected SubsystemSession(Session session, string subsystemName, TimeSpan operationTimeout, Encoding encoding)
         {
             if (session == null)
                 throw new ArgumentNullException("session");
@@ -72,19 +79,14 @@ namespace Renci.SshNet.Sftp
         /// </summary>
         public void Connect()
         {
-            this._channel = this._session.CreateChannel<ChannelSession>();
+            this._channel = this._session.CreateClientChannel<ChannelSession>();
 
             this._session.ErrorOccured += Session_ErrorOccured;
             this._session.Disconnected += Session_Disconnected;
             this._channel.DataReceived += Channel_DataReceived;
             this._channel.Closed += Channel_Closed;
-
             this._channel.Open();
-
-            this.ChannelNumber = this._channel.RemoteChannelNumber;
-
             this._channel.SendSubsystemRequest(_subsystemName);
-
             this.OnChannelOpen();
         }
 

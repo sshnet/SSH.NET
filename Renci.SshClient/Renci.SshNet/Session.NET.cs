@@ -37,7 +37,7 @@ namespace Renci.SshNet
 
         partial void SocketConnect(string host, int port)
         {
-            const int socketBufferSize = 2 * MaximumPacketSize;
+            const int socketBufferSize = 2 * MaximumSshPacketSize;
 
             var addr = host.GetIPAddress();
 
@@ -187,6 +187,7 @@ namespace Renci.SshNet
             } while (sent < length);
         }
 
+        [Conditional("DEBUG")]
         partial void Log(string text)
         {
             this._log.TraceEvent(TraceEventType.Verbose, 1, text);

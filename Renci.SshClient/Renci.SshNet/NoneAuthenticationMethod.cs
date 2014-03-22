@@ -24,7 +24,7 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="KeyboardInteractiveConnectionInfo"/> class.
+        /// Initializes a new instance of the <see cref="NoneAuthenticationMethod"/> class.
         /// </summary>
         /// <param name="username">The username.</param>
         /// <exception cref="ArgumentException"><paramref name="username"/> is whitespace or null.</exception>

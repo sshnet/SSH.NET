@@ -22,13 +22,13 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Debug\Renci.SshNet.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
+    <DebugType>none</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
@@ -65,6 +65,8 @@
     <Compile Include="Channels\ChannelForwardedTcpip.NET40.cs" />
     <Compile Include="Channels\ChannelSession.cs" />
     <Compile Include="Channels\ChannelTypes.cs" />
+    <Compile Include="Channels\ClientChannel.cs" />
+    <Compile Include="Channels\ServerChannel.cs" />
     <Compile Include="CipherInfo.cs" />
     <Compile Include="Common\ASCIIEncoding.cs" />
     <Compile Include="Common\AsyncResult.cs" />
@@ -78,6 +80,7 @@
     </Compile>
     <Compile Include="Common\ChannelDataEventArgs.cs" />
     <Compile Include="Common\ChannelEventArgs.cs" />
+    <Compile Include="Common\ChannelOpenConfirmedEventArgs.cs" />
     <Compile Include="Common\ChannelOpenFailedEventArgs.cs" />
     <Compile Include="Common\ChannelRequestEventArgs.cs" />
     <Compile Include="Common\Extensions.NET.cs" />

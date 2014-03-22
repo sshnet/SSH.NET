@@ -54,7 +54,7 @@ namespace Renci.SshNet
 
                                 this.RaiseRequestReceived(originatorEndPoint.Address.ToString(), (uint)originatorEndPoint.Port);
 
-                                using (var channel = this.Session.CreateChannel<ChannelDirectTcpip>())
+                                using (var channel = this.Session.CreateClientChannel<ChannelDirectTcpip>())
                                 {
                                     channel.Open(this.Host, this.Port, socket);
 

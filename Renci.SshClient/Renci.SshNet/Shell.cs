@@ -119,7 +119,7 @@ namespace Renci.SshNet
                 this.Starting(this, new EventArgs());
             }
 
-            this._channel = this._session.CreateChannel<ChannelSession>();
+            this._channel = this._session.CreateClientChannel<ChannelSession>();
             this._channel.DataReceived += Channel_DataReceived;
             this._channel.ExtendedDataReceived += Channel_ExtendedDataReceived;
             this._channel.Closed += Channel_Closed;

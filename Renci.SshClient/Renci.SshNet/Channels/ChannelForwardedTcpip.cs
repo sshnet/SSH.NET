@@ -11,7 +11,7 @@ namespace Renci.SshNet.Channels
     /// <summary>
     /// Implements "forwarded-tcpip" SSH channel.
     /// </summary>
-    internal partial class ChannelForwardedTcpip : Channel
+    internal partial class ChannelForwardedTcpip : ServerChannel
     {
         private Socket _socket;
 
@@ -42,8 +42,6 @@ namespace Renci.SshNet.Channels
         {
             byte[] buffer;
 
-            this.ServerWindowSize = this.LocalWindowSize;
-
             if (!this.IsConnected)
             {
                 throw new SshException("Session is not connected.");
@@ -53,12 +51,12 @@ namespace Renci.SshNet.Channels
             try
             {
                 //  Get buffer in memory for data exchange
-                buffer = new byte[this.PacketSize - 9];
+                buffer = new byte[this.RemotePacketSize];
 
                 this.OpenSocket(connectedHost, connectedPort);
 
                 //  Send channel open confirmation message
-                this.SendMessage(new ChannelOpenConfirmationMessage(this.RemoteChannelNumber, this.LocalWindowSize, this.PacketSize, this.LocalChannelNumber));
+                this.SendMessage(new ChannelOpenConfirmationMessage(this.RemoteChannelNumber, this.LocalWindowSize, this.LocalPacketSize, this.LocalChannelNumber));
             }
             catch (Exception exp)
             {

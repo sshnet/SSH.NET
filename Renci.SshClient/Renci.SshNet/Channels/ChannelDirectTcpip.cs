@@ -11,7 +11,7 @@ namespace Renci.SshNet.Channels
     /// <summary>
     /// Implements "direct-tcpip" SSH channel.
     /// </summary>
-    internal partial class ChannelDirectTcpip : Channel
+    internal partial class ChannelDirectTcpip : ClientChannel
     {
         private EventWaitHandle _channelEof = new AutoResetEvent(false);
         private EventWaitHandle _channelOpen = new AutoResetEvent(false);
@@ -48,7 +48,7 @@ namespace Renci.SshNet.Channels
             }
 
             //  Open channel
-            this.SendMessage(new ChannelOpenMessage(this.LocalChannelNumber, this.LocalWindowSize, this.PacketSize,
+            this.SendMessage(new ChannelOpenMessage(this.LocalChannelNumber, this.LocalWindowSize, this.LocalPacketSize,
                                                         new DirectTcpipChannelInfo(remoteHost, port, ep.Address.ToString(), (uint)ep.Port)));
 
             //  Wait for channel to open
@@ -69,7 +69,7 @@ namespace Renci.SshNet.Channels
 
             try
             {
-                var buffer = new byte[this.PacketSize - 9];
+                var buffer = new byte[this.RemotePacketSize];
 
                 while (this._socket != null && this._socket.CanRead())
                 {

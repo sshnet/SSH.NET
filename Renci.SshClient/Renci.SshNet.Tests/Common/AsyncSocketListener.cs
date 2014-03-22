@@ -8,7 +8,6 @@ namespace Renci.SshNet.Tests.Common
     public class AsyncSocketListener : IDisposable
     {
         private readonly IPEndPoint _endPoint;
-        private readonly string _id;
         private readonly ManualResetEvent _acceptCallbackDone;
         private Socket _listener;
         private Thread _receiveThread;
@@ -18,10 +17,9 @@ namespace Renci.SshNet.Tests.Common
 
         public event BytesReceivedHandler BytesReceived;
 
-        public AsyncSocketListener(IPEndPoint endPoint, string id)
+        public AsyncSocketListener(IPEndPoint endPoint)
         {
             _endPoint = endPoint;
-            _id = id;
             _acceptCallbackDone = new ManualResetEvent(false);
         }
 

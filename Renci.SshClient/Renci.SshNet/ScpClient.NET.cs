@@ -29,7 +29,7 @@ namespace Renci.SshNet
                 throw new ArgumentException("path");
 
             using (var input = new PipeStream())
-            using (var channel = this.Session.CreateChannel<ChannelSession>())
+            using (var channel = this.Session.CreateClientChannel<ChannelSession>())
             {
                 channel.DataReceived += delegate(object sender, ChannelDataEventArgs e)
                 {
@@ -64,7 +64,7 @@ namespace Renci.SshNet
                 throw new ArgumentException("path");
 
             using (var input = new PipeStream())
-            using (var channel = this.Session.CreateChannel<ChannelSession>())
+            using (var channel = this.Session.CreateClientChannel<ChannelSession>())
             {
                 channel.DataReceived += delegate(object sender, ChannelDataEventArgs e)
                 {
@@ -106,7 +106,7 @@ namespace Renci.SshNet
                 throw new ArgumentNullException("fileInfo");
 
             using (var input = new PipeStream())
-            using (var channel = this.Session.CreateChannel<ChannelSession>())
+            using (var channel = this.Session.CreateClientChannel<ChannelSession>())
             {
                 channel.DataReceived += delegate(object sender, ChannelDataEventArgs e)
                 {
@@ -141,7 +141,7 @@ namespace Renci.SshNet
                 throw new ArgumentNullException("directoryInfo");
 
             using (var input = new PipeStream())
-            using (var channel = this.Session.CreateChannel<ChannelSession>())
+            using (var channel = this.Session.CreateClientChannel<ChannelSession>())
             {
                 channel.DataReceived += delegate(object sender, ChannelDataEventArgs e)
                 {

@@ -27,13 +27,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
+    <DebugType>none</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Release\Renci.SshNet.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\Renci.SshNet.xml</DocumentationFile>
     <NoWarn>1591</NoWarn>
   </PropertyGroup>
   <PropertyGroup>
@@ -81,6 +81,12 @@
     <Compile Include="..\Renci.SshNet\Channels\ChannelTypes.cs">
       <Link>Channels\ChannelTypes.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\Channels\ClientChannel.cs">
+      <Link>Channels\ClientChannel.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Channels\ServerChannel.cs">
+      <Link>Channels\ServerChannel.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\CipherInfo.cs">
       <Link>CipherInfo.cs</Link>
     </Compile>
@@ -113,6 +119,9 @@
     </Compile>
     <Compile Include="..\Renci.SshNet\Common\ChannelEventArgs.cs">
       <Link>Common\ChannelEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Common\ChannelOpenConfirmedEventArgs.cs">
+      <Link>Common\ChannelOpenConfirmedEventArgs.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Common\ChannelOpenFailedEventArgs.cs">
       <Link>Common\ChannelOpenFailedEventArgs.cs</Link>

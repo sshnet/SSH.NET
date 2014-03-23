@@ -1,13 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Clean;CreatePackage" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-    <PropertyGroup>
-        <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
-        <BuildRoot>$(MSBuildThisFileDirectory)</BuildRoot>
-        <NuGetExe>$(BuildRoot)nuget\nuget.exe</NuGetExe>
-    </PropertyGroup>
-
+	<PropertyGroup>
+		<Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
+		<BuildRoot>$(MSBuildThisFileDirectory)</BuildRoot>
+		<NuGetExe>$(BuildRoot)nuget\nuget.exe</NuGetExe>
+	</PropertyGroup>
+	<ItemGroup>
+		<TargetFramework Include=".NET Framework 3.5">
+			<Project>Renci.SshNet.NET35</Project>
+			<Moniker>net35</Moniker>
+		</TargetFramework>
+		<TargetFramework Include=".NET Framework 4.0">
+			<Project>Renci.SshNet</Project>
+			<Moniker>net40</Moniker>
+		</TargetFramework>
+		<TargetFramework Include="Windows Phone 7.1">
+			<Project>Renci.SshNet.WindowsPhone</Project>
+			<Moniker>sl4-windowsphone71</Moniker>
+		</TargetFramework>
+		<TargetFramework Include="Windows Phone 8.0">
+			<Project>Renci.SshNet.WindowsPhone8</Project>
+			<Moniker>windowsphone8</Moniker>
+		</TargetFramework>
+		<TargetFramework Include="Silverlight 4">
+			<Project>Renci.SshNet.Silverlight</Project>
+			<Moniker>sl4</Moniker>
+		</TargetFramework>
+		<TargetFramework Include="Silverlight 5">
+			<Project>Renci.SshNet.Silverlight5</Project>
+			<Moniker>sl5</Moniker>
+		</TargetFramework>
+	</ItemGroup>
 	<Target Name="Clean">
-		<RemoveDir Directories="$(MSBuildThisFileDirectory)target" />
+		<RemoveDir Directories="$(MSBuildThisFileDirectory)target"/>
 	</Target>
 	
     <Target Name="Build">
@@ -16,60 +41,18 @@
 				<Properties>Configuration=Release</Properties>
 			</ProjectToBuild>
 		</ItemGroup>
-		<MSBuild Projects="@(ProjectToBuild)" Targets="Rebuild" />
+		<MSBuild Projects="@(ProjectToBuild)" Targets="Rebuild"/>
 	</Target>
 	
 	<Target Name="CreatePackage" DependsOnTargets="CopyBuildOutputToPackage">
-		<Exec Command="$(NuGetExe) pack $(MSBuildThisFileDirectory)nuget\SSH.NET.nuspec -OutputDirectory &quot;$(MSBuildThisFileDirectory)target&quot; -BasePath &quot;$(MSBuildThisFileDirectory)target\package&quot; -NonInteractive" />
+		<Exec Command="$(NuGetExe) pack $(MSBuildThisFileDirectory)nuget\SSH.NET.nuspec -OutputDirectory &quot;$(MSBuildThisFileDirectory)target&quot; -BasePath &quot;$(MSBuildThisFileDirectory)target\package&quot; -NonInteractive"/>
 	</Target>
-	
-	<Target Name="CopyBuildOutputToPackage" DependsOnTargets="CopyNet40BuildOutputToPackage;CopyNet35BuildOutputToPackage;CopyWindowsPhone71BuildOutputToPackage;CopyWindowsPhone8BuildOutputToPackage;CopySilverlight4BuildOutputToPackage;CopySilverlight5BuildOutputToPackage" />
-	
-	<Target Name="CopyNet40BuildOutputToPackage" DependsOnTargets="Build">
+	<Target Name="CopyBuildOutputToPackage" DependsOnTargets="Build" Outputs="%(TargetFramework.Identity)">
 		<ItemGroup>
-			<Net40BuildOutput Include="$(MSBuildThisFileDirectory)..\Renci.SshNet\bin\$(Configuration)\Renci.SshNet.dll" />
-			<Net40BuildOutput Include="$(MSBuildThisFileDirectory)..\Renci.SshNet\bin\$(Configuration)\Renci.SshNet.xml" />
+			<BuildOutput Remove="@(BuildOutput)"/>
+			<BuildOutput Include="$(MSBuildThisFileDirectory)..\%(TargetFramework.Project)\bin\$(Configuration)\Renci.SshNet.dll"/>
+			<BuildOutput Include="$(MSBuildThisFileDirectory)..\%(TargetFramework.Project)\bin\$(Configuration)\Renci.SshNet.xml"/>
 		</ItemGroup>
-		<Copy SourceFiles="@(Net40BuildOutput)" DestinationFolder="$(MSBuildThisFileDirectory)target\package\lib\net40" />
-	</Target>
-	
-	<Target Name="CopyNet35BuildOutputToPackage" DependsOnTargets="Build">
-		<ItemGroup>
-			<Net35BuildOutput Include="$(MSBuildThisFileDirectory)..\Renci.SshNet.NET35\bin\$(Configuration)\Renci.SshNet.dll" />
-			<Net35BuildOutput Include="$(MSBuildThisFileDirectory)..\Renci.SshNet.NET35\bin\$(Configuration)\Renci.SshNet.xml" />
-		</ItemGroup>
-		<Copy SourceFiles="@(Net35BuildOutput)" DestinationFolder="$(MSBuildThisFileDirectory)target\package\lib\net35" />
-	</Target>
-	
-	<Target Name="CopyWindowsPhone71BuildOutputToPackage" DependsOnTargets="Build">
-		<ItemGroup>
-			<WindowsPhone71BuildOutput Include="$(MSBuildThisFileDirectory)..\Renci.SshNet.WindowsPhone\bin\$(Configuration)\Renci.SshNet.dll" />
-			<WindowsPhone71BuildOutput Include="$(MSBuildThisFileDirectory)..\Renci.SshNet.WindowsPhone\bin\$(Configuration)\Renci.SshNet.xml" />
-		</ItemGroup>
-		<Copy SourceFiles="@(WindowsPhone71BuildOutput)" DestinationFolder="$(MSBuildThisFileDirectory)target\package\lib\sl4-windowsphone71" />
-	</Target>
-	
-	<Target Name="CopyWindowsPhone8BuildOutputToPackage" DependsOnTargets="Build">
-		<ItemGroup>
-			<WindowsPhone8BuildOutput Include="$(MSBuildThisFileDirectory)..\Renci.SshNet.WindowsPhone8\bin\$(Configuration)\Renci.SshNet.dll" />
-			<WindowsPhone8BuildOutput Include="$(MSBuildThisFileDirectory)..\Renci.SshNet.WindowsPhone8\bin\$(Configuration)\Renci.SshNet.xml" />
-		</ItemGroup>
-		<Copy SourceFiles="@(WindowsPhone8BuildOutput)" DestinationFolder="$(MSBuildThisFileDirectory)target\package\lib\windowsphone8" />
-	</Target>
-	
-	<Target Name="CopySilverlight4BuildOutputToPackage" DependsOnTargets="Build">
-		<ItemGroup>
-			<Silverlight4BuildOutput Include="$(MSBuildThisFileDirectory)..\Renci.SshNet.Silverlight\bin\$(Configuration)\Renci.SshNet.dll" />
-			<Silverlight4BuildOutput Include="$(MSBuildThisFileDirectory)..\Renci.SshNet.Silverlight\bin\$(Configuration)\Renci.SshNet.xml" />
-		</ItemGroup>
-		<Copy SourceFiles="@(Silverlight4BuildOutput)" DestinationFolder="$(MSBuildThisFileDirectory)target\package\lib\sl4" />
-	</Target>
-	
-	<Target Name="CopySilverlight5BuildOutputToPackage" DependsOnTargets="Build">
-		<ItemGroup>
-			<Silverlight5BuildOutput Include="$(MSBuildThisFileDirectory)..\Renci.SshNet.Silverlight5\bin\$(Configuration)\Renci.SshNet.dll" />
-			<Silverlight5BuildOutput Include="$(MSBuildThisFileDirectory)..\Renci.SshNet.Silverlight5\bin\$(Configuration)\Renci.SshNet.xml" />
-		</ItemGroup>
-		<Copy SourceFiles="@(Silverlight5BuildOutput)" DestinationFolder="$(MSBuildThisFileDirectory)target\package\lib\sl5" />
+		<Copy SourceFiles="@(BuildOutput)" DestinationFolder="$(MSBuildThisFileDirectory)target\package\lib\%(TargetFramework.Moniker)"/>
 	</Target>
 </Project>

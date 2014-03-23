@@ -272,6 +272,9 @@
       <AutoGen>True</AutoGen>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="..\Renci.SshNet\Properties\CommonAssemblyInfo.cs">
+      <Link>Properties\CommonAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="Classes\Common\ProxyExceptionTest.cs" />
     <Compile Include="Classes\Common\ScpDownloadEventArgsTest.cs" />
     <Compile Include="Classes\Common\ScpExceptionTest.cs" />

@@ -433,7 +433,7 @@ namespace Renci.SshNet
             }
         }
 
-        private bool TryAuthenticate(Session session, ICollection<string> allowedAuthenticationMethods, IList<AuthenticationMethod> failedAuthenticationMethods, ref SshAuthenticationException authenticationException)
+        private bool TryAuthenticate(Session session, IList<string> allowedAuthenticationMethods, IList<AuthenticationMethod> failedAuthenticationMethods, ref SshAuthenticationException authenticationException)
         {
             if (!allowedAuthenticationMethods.Any())
             {
@@ -447,7 +447,7 @@ namespace Renci.SshNet
             var matchingAuthenticationMethods = AuthenticationMethods.Where(a => allowedAuthenticationMethods.Contains(a.Name)).ToList();
             if (!matchingAuthenticationMethods.Any())
             {
-                authenticationException = new SshAuthenticationException(string.Format("No suitable authentication method found to complete authentication ({0}).", string.Join(",", allowedAuthenticationMethods)));
+                authenticationException = new SshAuthenticationException(string.Format("No suitable authentication method found to complete authentication ({0}).", string.Join(",", allowedAuthenticationMethods.ToArray())));
                 return false;
             }
 

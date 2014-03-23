@@ -16,12 +16,12 @@
           * Added callbacks to UploadFile, DownloadFile and ListDirectory in SftpClient (issue #1324)
           * Allow a given private key file to be used concurrently
           * Performance improvements:
-          - optimization of payload size for both read and write operations (SftpClient only)
-          - increase window size from 1MB to 2MB
-          - increase buffer size from 16KB to 64KB for SftpClient
-          - take into account the maximum remote packet size of the channel for write operations
-          - increase maximum size of packets that we can receive from 32 KB to 64 KB
-          * Import exception message for authentication failures.
+            - optimization of payload size for both read and write operations (SftpClient only)
+            - increase window size from 1MB to 2MB
+            - increase buffer size from 16KB to 64KB for SftpClient
+            - take into account the maximum remote packet size of the channel for write operations
+            - increase maximum size of packets that we can receive from 32 KB to 64 KB
+          * Improve exception message for authentication failures
 
           Breaking changes:
 
@@ -31,7 +31,7 @@
           Fixes:
 
           * No connection possible with the same auth method requested multiple times (issue #1930)
-          * Unobserved exception rethrown by finalizer thread (issue #1298)
+          * Unobserved exception rethrown by finalizer thread (issue #1298 and #1587)
           * Client cipher is used to decrypt server messages (issue #1917)
           * Connection dropped by server due to invalid DSA signature (issue #1918)
           * Correct casing of Security/Cryptography/HMAC.cs to fix build on Linux (issue #1505)
@@ -41,6 +41,7 @@
           * Wrong PKCS7 padding in DES algorithm (issue #1580)
           * OverflowException on empty server response (issue #1562)
           * Event handle leak (issue #1761)
+          * SftpFileStream is very slow (issue #1919)
           * Write access required for private key file</releaseNotes>
         <summary>A Secure Shell (SSH) library for .NET, optimized for parallelism.</summary>
         <copyright>2012-2014, RENCI</copyright>

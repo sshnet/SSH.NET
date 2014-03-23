@@ -870,6 +870,9 @@
     <Compile Include="KeyboardInteractiveAuthenticationMethod.NET35.cs" />
     <Compile Include="PasswordAuthenticationMethod.NET35.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="..\Renci.SshNet\Properties\CommonAssemblyInfo.cs">
+      <Link>Properties\CommonAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="Session.NET35.cs" />
     <Compile Include="SftpClient.NET35.cs" />
     <Compile Include="Shell.NET35.cs" />

@@ -1,7 +1,7 @@
 ﻿namespace Renci.SshNet.Common
 {
     /// <summary>
-    /// Provides data for <see cref="Renci.SshNet.Channels.Channel.OpenConfirmed"/> event.
+    /// Provides data for <see cref="Renci.SshNet.Channels.ClientChannel.OpenConfirmed"/> event.
     /// </summary>
     internal class ChannelOpenConfirmedEventArgs : ChannelEventArgs
     {

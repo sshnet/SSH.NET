@@ -16,11 +16,11 @@
           * Added callbacks to UploadFile, DownloadFile and ListDirectory in SftpClient (issue #1324)
           * Allow a given private key file to be used concurrently
           * Performance improvements:
-            - optimization of payload size for both read and write operations (SftpClient only)
-            - increase window size from 1MB to 2MB
-            - increase buffer size from 16KB to 64KB for SftpClient
-            - take into account the maximum remote packet size of the channel for write operations
-            - increase maximum size of packets that we can receive from 32 KB to 64 KB
+          - optimization of payload size for both read and write operations (SftpClient only)
+          - increase window size from 1MB to 2MB
+          - increase buffer size from 16KB to 64KB for SftpClient
+          - take into account the maximum remote packet size of the channel for write operations
+          - increase maximum size of packets that we can receive from 32 KB to 64 KB
           * Improve exception message for authentication failures
 
           Breaking changes:
@@ -30,6 +30,7 @@
 
           Fixes:
 
+          * Timeout sending data to server with low window size (issue #1706)
           * No connection possible with the same auth method requested multiple times (issue #1930)
           * Unobserved exception rethrown by finalizer thread (issue #1298 and #1587)
           * Client cipher is used to decrypt server messages (issue #1917)

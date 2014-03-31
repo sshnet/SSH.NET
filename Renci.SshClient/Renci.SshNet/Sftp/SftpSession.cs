@@ -1101,6 +1101,9 @@ namespace Renci.SshNet.Sftp
         /// <returns>
         /// The optimal size of the buffer to write data on the channel.
         /// </returns>
+        /// <remarks>
+        /// Currently, we do not take the remote window size into account.
+        /// </remarks>
         internal uint CalculateOptimalWriteLength(uint bufferSize, byte[] handle)
         {
             // 1-4: package length of SSH_FXP_WRITE message

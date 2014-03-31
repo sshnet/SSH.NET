@@ -36,7 +36,7 @@ namespace Renci.SshNet
         /// <value>
         /// 2 MB.
         /// </value>
-        private const int InitialLocalWindowSize = 0x200000;
+        private const int InitialLocalWindowSize = LocalChannelDataPacketSize * 32;
 
         /// <summary>
         /// Holds the maximum size of channel data packets that we receive.

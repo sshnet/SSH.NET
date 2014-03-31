@@ -30,6 +30,7 @@
 
           Fixes:
 
+          * Stuck loop on key exchange using arcfour encryption (issue #1922)
           * Timeout sending data to server with low window size (issue #1706)
           * No connection possible with the same auth method requested multiple times (issue #1930)
           * Unobserved exception rethrown by finalizer thread (issue #1298 and #1587)

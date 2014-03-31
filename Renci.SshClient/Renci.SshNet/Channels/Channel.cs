@@ -1,4 +1,4 @@
-﻿using System;
+﻿ using System;
 using System.Threading;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages;
@@ -360,7 +360,7 @@ namespace Renci.SshNet.Channels
         /// <param name="message">The message.</param>
         protected void SendMessage(Message message)
         {
-            //  Send channel messages only while channel is open
+            // send channel messages only while channel is open
             if (!this.IsOpen)
                 return;
 
@@ -373,99 +373,109 @@ namespace Renci.SshNet.Channels
         /// <param name="message">The message to send.</param>
         private void SendMessage(ChannelCloseMessage message)
         {
-            //  Send channel messages only while channel is open
+            // send channel messages only while channel is open
             if (!this.IsOpen)
                 return;
 
             this._session.SendMessage(message);
 
-            //  When channel close message is sent channel considered to be closed
+            // when channel close message is sent channel considered to be closed
             this.IsOpen = false;
         }
 
         /// <summary>
         /// Sends channel data message to the servers.
         /// </summary>
-        /// <remarks>This method takes care of managing the window size.</remarks>
         /// <param name="message">Channel data message.</param>
-        /// <exception cref="InvalidOperationException">The data of <paramref name="message"/> exceeds the maximum packet size of the channel.</exception>
+        /// <remarks>
+        /// <para>
+        /// When the data of the message exceeds the maximum packet size or the remote window
+        /// size does not allow the full message to be sent, then this method will send the
+        /// data in multiple chunks and will only wait for the remote window size to be adjusted
+        /// when its zero.
+        /// </para>
+        /// <para>
+        /// This is done to support SSH servers will a small window size that do not agressively
+        /// increase their window size. We need to take into account that there may be SSH
+        /// servers that only increase their window size when it has reached zero.
+        /// </para>
+        /// </remarks>
         protected void SendMessage(ChannelDataMessage message)
         {
-            //  Send channel messages only while channel is open
+            // send channel messages only while channel is open
             if (!this.IsOpen)
                 return;
 
-            var messageLength = message.Data.Length;
+            var totalDataLength = (uint) message.Data.Length;
+            var totalDataSent = 0u;
 
-            // RFC4254:
-            // The maximum amount of data allowed is determined by the maximum packet size
-            // for the channel
-            //
-            // there's some ambiguity in the RFC, but most ssh implementations take only the
-            // data into account for determining the size of a packet; the 4 bytes for the
-            // packet length and the 9 bytes of the header are not considered part of the
-            // data
-            if (messageLength > RemotePacketSize)
-                throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture,
-                    "The payload of the data message is {0} bytes while the maximum packet size of the channel is {1} bytes.",
-                    messageLength, RemotePacketSize));
-
-            do
+            var totalBytesToSend = totalDataLength;
+            while (totalBytesToSend > 0)
             {
-                lock (this._serverWindowSizeLock)
+                var dataThatCanBeSentInMessage = GetDataLengthThatCanBeSentInMessage(totalBytesToSend);
+                if (dataThatCanBeSentInMessage == totalDataLength)
                 {
-                    var serverWindowSize = this.RemoteWindowSize;
-                    if (serverWindowSize < messageLength)
-                    {
-                        //  Wait for window to be big enough for this message
-                        this._channelServerWindowAdjustWaitHandle.Reset();
-                    }
-                    else
-                    {
-                        this.RemoteWindowSize -= (uint)messageLength;
-                        break;
-                    }
+                    // we can send the message in one chunk
+                    this._session.SendMessage(message);
                 }
-                //  Wait for window to change
-                this.WaitOnHandle(this._channelServerWindowAdjustWaitHandle);
-            } while (true);
-
-            this._session.SendMessage(message);
+                else
+                {
+                    // we need to send the message in multiple chunks
+                    var dataToSend = new byte[dataThatCanBeSentInMessage];
+                    Array.Copy(message.Data, totalDataSent, dataToSend, 0, dataThatCanBeSentInMessage);
+                    this._session.SendMessage(new ChannelDataMessage(message.LocalChannelNumber, dataToSend));
+                }
+                totalDataSent += dataThatCanBeSentInMessage;
+                totalBytesToSend -= dataThatCanBeSentInMessage;
+            }
         }
 
         /// <summary>
         /// Sends channel extended data message to the servers.
         /// </summary>
-        /// <remarks>This method takes care of managing the window size.</remarks>
         /// <param name="message">Channel data message.</param>
+        /// <remarks>
+        /// <para>
+        /// When the data of the message exceeds the maximum packet size or the remote window
+        /// size does not allow the full message to be sent, then this method will send the
+        /// data in multiple chunks and will only wait for the remote window size to be adjusted
+        /// when its zero.
+        /// </para>
+        /// <para>
+        /// This is done to support SSH servers will a small window size that do not agressively
+        /// increase their window size. We need to take into account that there may be SSH
+        /// servers that only increase their window size when it has reached zero.
+        /// </para>
+        /// </remarks>
         protected void SendMessage(ChannelExtendedDataMessage message)
         {
-            //  Send channel messages only while channel is open
+            // end channel messages only while channel is open
             if (!this.IsOpen)
                 return;
 
-            var messageLength = message.Data.Length;
-            do
-            {
-                lock (this._serverWindowSizeLock)
-                {
-                    var serverWindowSize = this.RemoteWindowSize;
-                    if (serverWindowSize < messageLength)
-                    {
-                        //  Wait for window to be big enough for this message
-                        this._channelServerWindowAdjustWaitHandle.Reset();
-                    }
-                    else
-                    {
-                        this.RemoteWindowSize -= (uint)messageLength;
-                        break;
-                    }
-                }
-                //  Wait for window to change
-                this.WaitOnHandle(this._channelServerWindowAdjustWaitHandle);
-            } while (true);
+            var totalDataLength = (uint) message.Data.Length;
+            var totalDataSent = 0u;
 
-            this._session.SendMessage(message);
+            var totalBytesToSend = totalDataLength;
+            while (totalBytesToSend > 0)
+            {
+                var dataThatCanBeSentInMessage = GetDataLengthThatCanBeSentInMessage(totalBytesToSend);
+                if (dataThatCanBeSentInMessage == totalDataLength)
+                {
+                    // we can send the message in one chunk
+                    this._session.SendMessage(message);
+                }
+                else
+                {
+                    // we need to send the message in multiple chunks
+                    var dataToSend = new byte[dataThatCanBeSentInMessage];
+                    Array.Copy(message.Data, totalDataSent, dataToSend, 0, dataThatCanBeSentInMessage);
+                    this._session.SendMessage(new ChannelExtendedDataMessage(message.LocalChannelNumber,
+                        message.DataTypeCode, dataToSend));
+                }
+                totalDataSent += dataThatCanBeSentInMessage;
+                totalBytesToSend -= dataThatCanBeSentInMessage;
+            }
         }
 
         /// <summary>
@@ -479,8 +489,8 @@ namespace Renci.SshNet.Channels
 
         protected virtual void Close(bool wait)
         {
-            //  Send message to close the channel on the server
-            //  Ignore sending close message when client not connected
+            // send message to close the channel on the server
+            // ignore sending close message when client not connected
             if (!_closeMessageSent && this.IsConnected)
             {
                 lock (this)
@@ -498,7 +508,7 @@ namespace Renci.SshNet.Channels
                 IsOpen = false;
             }
 
-            //  Wait for channel to be closed
+            // wait for channel to be closed
             if (wait)
             {
                 WaitOnHandle(this._channelClosedWaitHandle);
@@ -635,6 +645,38 @@ namespace Renci.SshNet.Channels
                 this.SendMessage(new ChannelWindowAdjustMessage(this.RemoteChannelNumber, this._initialWindowSize - this.LocalWindowSize));
                 this.LocalWindowSize = this._initialWindowSize;
             }
+        }
+
+        /// <summary>
+        /// Determines the length of data that currently can be sent in a single message.
+        /// </summary>
+        /// <param name="messageLength">The length of the message that must be sent.</param>
+        /// <returns>
+        /// The actual data length that currently can be sent.
+        /// </returns>
+        private uint GetDataLengthThatCanBeSentInMessage(uint messageLength)
+        {
+            do
+            {
+                lock (this._serverWindowSizeLock)
+                {
+                    var serverWindowSize = RemoteWindowSize;
+                    if (serverWindowSize == 0)
+                    {
+                        // allow us to be signal when remote window size is adjusted
+                        this._channelServerWindowAdjustWaitHandle.Reset();
+                    }
+                    else
+                    {
+                        var bytesThatCanBeSent = Math.Min(Math.Min(RemotePacketSize, messageLength),
+                            serverWindowSize);
+                        this.RemoteWindowSize -= bytesThatCanBeSent;
+                        return bytesThatCanBeSent;
+                    }
+                }
+                // wait for remote window size to change
+                this.WaitOnHandle(this._channelServerWindowAdjustWaitHandle);
+            } while (true);
         }
 
         private InvalidOperationException CreateRemoteChannelInfoNotAvailableException()

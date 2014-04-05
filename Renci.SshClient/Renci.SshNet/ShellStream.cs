@@ -659,7 +659,7 @@ namespace Renci.SshNet
         /// <param name="line">The line to be written to the shell.</param>
         public void WriteLine(string line)
         {
-            var commandText = string.Format("{0}{1}", line, "\r\n");
+            var commandText = string.Format("{0}{1}", line, "\r");
             this.Write(commandText);
         }
 
@@ -728,12 +728,11 @@ namespace Renci.SshNet
             lock (this._incoming)
             {
                 foreach (var b in e.Data)
-                {
                     this._incoming.Enqueue(b);
-                }
             }
 
-            this._dataReceived.Set();
+            if (_dataReceived != null)
+                _dataReceived.Set();
 
             this.OnDataReceived(e.Data);
         }

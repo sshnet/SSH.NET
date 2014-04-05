@@ -30,6 +30,8 @@
 
           Fixes:
 
+          * Remove linefeed from WriteLine method in Shellstream class (issue #1584)
+          * Disable logging of messages in release builds (issue #1767)
           * Stuck loop on key exchange using arcfour encryption (issue #1922)
           * Timeout sending data to server with low window size (issue #1706)
           * No connection possible with the same auth method requested multiple times (issue #1930)

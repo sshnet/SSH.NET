@@ -406,8 +406,8 @@ namespace Renci.SshNet.Channels
             if (!this.IsOpen)
                 return;
 
-            var totalDataLength = (uint) message.Data.Length;
-            var totalDataSent = 0u;
+            var totalDataLength = message.Data.Length;
+            var totalDataSent = 0;
 
             var totalBytesToSend = totalDataLength;
             while (totalBytesToSend > 0)
@@ -453,8 +453,8 @@ namespace Renci.SshNet.Channels
             if (!this.IsOpen)
                 return;
 
-            var totalDataLength = (uint) message.Data.Length;
-            var totalDataSent = 0u;
+            var totalDataLength = message.Data.Length;
+            var totalDataSent = 0;
 
             var totalBytesToSend = totalDataLength;
             while (totalBytesToSend > 0)
@@ -654,7 +654,7 @@ namespace Renci.SshNet.Channels
         /// <returns>
         /// The actual data length that currently can be sent.
         /// </returns>
-        private uint GetDataLengthThatCanBeSentInMessage(uint messageLength)
+        private int GetDataLengthThatCanBeSentInMessage(int messageLength)
         {
             do
             {
@@ -668,10 +668,10 @@ namespace Renci.SshNet.Channels
                     }
                     else
                     {
-                        var bytesThatCanBeSent = Math.Min(Math.Min(RemotePacketSize, messageLength),
+                        var bytesThatCanBeSent = Math.Min(Math.Min(RemotePacketSize, (uint) messageLength),
                             serverWindowSize);
                         this.RemoteWindowSize -= bytesThatCanBeSent;
-                        return bytesThatCanBeSent;
+                        return (int) bytesThatCanBeSent;
                     }
                 }
                 // wait for remote window size to change

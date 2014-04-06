@@ -47,6 +47,11 @@ Project("{911E67C6-3D85-4FCE-B560-20A9C3E3FF48}") = "nuget", "Build\nuget\nuget.
 		AttachLaunchAction = No
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "sandcastle", "sandcastle", "{A6C3FFD3-16A5-44D3-8C1F-3613D6DD17D1}"
+	ProjectSection(SolutionItems) = preProject
+		Build\sandcastle\SSH.NET.shfbproj = Build\sandcastle\SSH.NET.shfbproj
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
 		SccNumberOfProjects = 8
@@ -237,6 +242,7 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{94EE3919-19FA-4D9B-8DA9-249050B15232} = {2D6CAE62-D053-476F-9BDD-2B1F27FA9C5D}
+		{A6C3FFD3-16A5-44D3-8C1F-3613D6DD17D1} = {2D6CAE62-D053-476F-9BDD-2B1F27FA9C5D}
 		{8BE48567-6BDA-43D7-811D-9C30CCB3B7F2} = {94EE3919-19FA-4D9B-8DA9-249050B15232}
 	EndGlobalSection
 EndGlobal

@@ -10,7 +10,13 @@
         <projectUrl>http://sshnet.codeplex.com/</projectUrl>
         <requireLicenseAcceptance>true</requireLicenseAcceptance>
         <description>This project was inspired by Sharp.SSH library which was ported from Java.  This library is a complete rewrite using .NET, without any third party dependencies and to utilize the parallelism as much as possible to allow best performance you can get.  SSH.NET supports .NET 3.5, .NET 4.0, Silverlight 4.0, Silverlight 5.0, Windows Phone 7.1 and Windows Phone 8.</description>
-        <releaseNotes>New Features:
+        <releaseNotes>2014.4.6-beta2
+==============
+
+2014.4.6-beta1
+==============
+
+New Features:
 
     * Added callbacks to UploadFile, DownloadFile and ListDirectory in SftpClient (issue #1324)
     * Allow a given private key file to be used concurrently
@@ -29,6 +35,7 @@ Breaking changes:
 
 Fixes:
 
+    * Incorrect copyright in assemblies (issue #1764)
     * Remove linefeed from WriteLine method in Shellstream class (issue #1584)
     * Disable logging of messages in release builds (issue #1767)
     * Stuck loop on key exchange using arcfour encryption (issue #1922)

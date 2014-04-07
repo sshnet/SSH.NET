@@ -13,6 +13,11 @@
         <releaseNotes>2014.4.6-beta2
 ==============
 
+Fixes:
+
+    * Client channels are no longer closed on dispose (issue #1943)
+
+
 2014.4.6-beta1
 ==============
 

@@ -96,6 +96,8 @@ namespace Renci.SshNet.Channels
                     session.ChannelOpenFailureReceived -= OnChannelOpenFailure;
                 }
             }
+
+            base.Dispose(disposing);
         }
     }
 }

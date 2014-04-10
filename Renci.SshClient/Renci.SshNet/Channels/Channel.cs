@@ -712,6 +712,18 @@ namespace Renci.SshNet.Channels
                 {
                     this.Close(false);
 
+                    //  Ensure that all events are detached from current instance
+                    this._session.ChannelWindowAdjustReceived -= OnChannelWindowAdjust;
+                    this._session.ChannelDataReceived -= OnChannelData;
+                    this._session.ChannelExtendedDataReceived -= OnChannelExtendedData;
+                    this._session.ChannelEofReceived -= OnChannelEof;
+                    this._session.ChannelCloseReceived -= OnChannelClose;
+                    this._session.ChannelRequestReceived -= OnChannelRequest;
+                    this._session.ChannelSuccessReceived -= OnChannelSuccess;
+                    this._session.ChannelFailureReceived -= OnChannelFailure;
+                    this._session.ErrorOccured -= Session_ErrorOccured;
+                    this._session.Disconnected -= Session_Disconnected;
+
                     // Dispose managed resources.
                     if (this._channelClosedWaitHandle != null)
                     {
@@ -734,18 +746,6 @@ namespace Renci.SshNet.Channels
                         this._disconnectedWaitHandle = null;
                     }
                 }
-
-                //  Ensure that all events are detached from current instance
-                this._session.ChannelWindowAdjustReceived -= OnChannelWindowAdjust;
-                this._session.ChannelDataReceived -= OnChannelData;
-                this._session.ChannelExtendedDataReceived -= OnChannelExtendedData;
-                this._session.ChannelEofReceived -= OnChannelEof;
-                this._session.ChannelCloseReceived -= OnChannelClose;
-                this._session.ChannelRequestReceived -= OnChannelRequest;
-                this._session.ChannelSuccessReceived -= OnChannelSuccess;
-                this._session.ChannelFailureReceived -= OnChannelFailure;
-                this._session.ErrorOccured -= Session_ErrorOccured;
-                this._session.Disconnected -= Session_Disconnected;
 
                 // Note disposing has been done.
                 this._isDisposed = true;

@@ -671,8 +671,16 @@ namespace Renci.SshNet
         {
             base.Dispose(disposing);
 
+            if (this._session != null)
+            {
+                this._session.Disconnected -= Session_Disconnected;
+                this._session.ErrorOccured -= Session_ErrorOccured;
+            }
+
             if (this._channel != null)
             {
+                this._channel.DataReceived -= Channel_DataReceived;
+                this._channel.Closed -= Channel_Closed;
                 this._channel.Dispose();
                 this._channel = null;
             }
@@ -681,12 +689,6 @@ namespace Renci.SshNet
             {
                 this._dataReceived.Dispose();
                 this._dataReceived = null;
-            }
-
-            if (this._session != null)
-            {
-                this._session.Disconnected -= Session_Disconnected;
-                this._session.ErrorOccured -= Session_ErrorOccured;
             }
         }
 

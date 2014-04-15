@@ -16,11 +16,11 @@ namespace Renci.SshNet
         private readonly AutoResetEvent _sendEvent = new AutoResetEvent(false);
         private readonly AutoResetEvent _receiveEvent = new AutoResetEvent(false);
 
-        private bool _isConnected = false;
+        private bool _isConnected;
 
         partial void IsSocketConnected(ref bool isConnected)
         {
-            isConnected = (!this._isDisconnecting && this._socket != null && this._socket.Connected && this._isAuthenticated && this._messageListenerCompleted != null && this._isConnected);
+            isConnected = (this._socket != null && this._socket.Connected && _isConnected);
         }
 
         partial void SocketConnect(string host, int port)
@@ -29,10 +29,9 @@ namespace Renci.SshNet
             this._socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
             var args = new SocketAsyncEventArgs();
-
             args.UserToken = this._socket;
             args.RemoteEndPoint = ep;
-            args.Completed += new EventHandler<SocketAsyncEventArgs>(OnConnect);
+            args.Completed += OnConnect;
 
             this._socket.ConnectAsync(args);
             this._autoEvent.WaitOne(this.ConnectionInfo.Timeout);
@@ -52,23 +51,23 @@ namespace Renci.SshNet
 
             var buffer = new byte[1024];
 
-            StringBuilder result = new StringBuilder();
+            var result = new StringBuilder();
 
             do
             {
-                SocketAsyncEventArgs args = new SocketAsyncEventArgs();
+                var args = new SocketAsyncEventArgs();
                 args.SetBuffer(buffer, 0, buffer.Length);
                 args.UserToken = this._socket;
                 args.RemoteEndPoint = this._socket.RemoteEndPoint;
-                args.Completed += new EventHandler<SocketAsyncEventArgs>(OnReceive);
+                args.Completed += OnReceive;
                 this._socket.ReceiveAsync(args);
 
                 this._receiveEvent.WaitOne(this.ConnectionInfo.Timeout);
 
-                char lastChar = (char)buffer[0];
-                for (int i = 1; i < args.BytesTransferred; i++)
+                var lastChar = (char)buffer[0];
+                for (var i = 1; i < args.BytesTransferred; i++)
                 {
-                    char newChar = (char)buffer[i];
+                    var newChar = (char)buffer[i];
                     if (lastChar == '\r' && newChar == '\n')
                         break;
 
@@ -86,16 +85,15 @@ namespace Renci.SshNet
 
         partial void SocketRead(int length, ref byte[] buffer)
         {
-            var offset = 0;
-            int receivedTotal = 0;  // how many bytes is already received
+            var receivedTotal = 0;  // how many bytes is already received
 
             do
             {
-                SocketAsyncEventArgs args = new SocketAsyncEventArgs();
-                args.SetBuffer(buffer, offset + receivedTotal, length - receivedTotal);
+                var args = new SocketAsyncEventArgs();
+                args.SetBuffer(buffer, receivedTotal, length - receivedTotal);
                 args.UserToken = this._socket;
                 args.RemoteEndPoint = this._socket.RemoteEndPoint;
-                args.Completed += new EventHandler<SocketAsyncEventArgs>(OnReceive);
+                args.Completed += OnReceive;
                 this._socket.ReceiveAsync(args);
 
                 this._receiveEvent.WaitOne(this.ConnectionInfo.Timeout);
@@ -120,10 +118,9 @@ namespace Renci.SshNet
                     receivedTotal += receivedBytes;
                     continue;
                 }
-                else
-                {
-                    throw new SshConnectionException("An established connection was aborted by the software in your host machine.", DisconnectReason.ConnectionLost);
-                }
+                throw new SshConnectionException(
+                    "An established connection was aborted by the software in your host machine.",
+                    DisconnectReason.ConnectionLost);
             } while (receivedTotal < length);
         }
 
@@ -131,11 +128,11 @@ namespace Renci.SshNet
         {
             if (this._isConnected)
             {
-                SocketAsyncEventArgs args = new SocketAsyncEventArgs();
+                var args = new SocketAsyncEventArgs();
                 args.SetBuffer(data, 0, data.Length);
                 args.UserToken = this._socket;
                 args.RemoteEndPoint = this._socket.RemoteEndPoint;
-                args.Completed += new EventHandler<SocketAsyncEventArgs>(OnSend);
+                args.Completed += OnSend;
 
                 this._socket.SendAsync(args);
             }
@@ -162,7 +159,7 @@ namespace Renci.SshNet
 
         partial void ExecuteThread(Action action)
         {
-            ThreadPool.QueueUserWorkItem((o) => { action(); });
+            ThreadPool.QueueUserWorkItem(o => action());
         }
 
         partial void InternalRegisterMessage(string messageName)

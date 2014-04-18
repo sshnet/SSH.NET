@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Clean;CreatePackage;GenerateHelpFile" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="4.0" DefaultTargets="Clean;CreatePackage;GenerateHelpFile;GenerateSourceZip" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 	<PropertyGroup>
 		<Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
 		<BuildRoot>$(MSBuildThisFileDirectory)</BuildRoot>
 		<NuGetExe>$(BuildRoot)nuget\nuget.exe</NuGetExe>
+		<MSBuildCommunityTasksPath>$(MSBuildThisFileDirectory)msbuild</MSBuildCommunityTasksPath>
 	</PropertyGroup>
 	<ItemGroup>
 		<TargetFramework Include=".NET Framework 3.5">
@@ -31,6 +32,7 @@
 			<Moniker>sl5</Moniker>
 		</TargetFramework>
 	</ItemGroup>
+	<Import Project="$(MSBuildCommunityTasksPath)\MSBuild.Community.Tasks.Targets"/>
 	<Target Name="Clean">
 		<RemoveDir Directories="$(MSBuildThisFileDirectory)target"/>
 	</Target>
@@ -57,5 +59,16 @@
 	</Target>
 	<Target Name="GenerateHelpFile" DependsOnTargets="Build">
 		<MSBuild Projects="$(MSBuildThisFileDirectory)sandcastle\SSH.NET.shfbproj"/>
+	</Target>
+	
+	<Target Name="GenerateSourceZip">
+		<ItemGroup>
+			<SourceFiles Include="$(MSBuildThisFileDirectory)..\Renci.SshNet\**" Exclude="$(MSBuildThisFileDirectory)..\Renci.SshNet\bin\**;$(MSBuildThisFileDirectory)..\Renci.SshNet\obj\**"/>
+		</ItemGroup>
+		<Zip
+			Files="@(SourceFiles)"
+			WorkingDirectory="$(MSBuildThisFileDirectory).."
+			ZipFileName="$(MSBuildThisFileDirectory)target\Renci.SshNet.zip"
+			ZipLevel="9" />
 	</Target>
 </Project>

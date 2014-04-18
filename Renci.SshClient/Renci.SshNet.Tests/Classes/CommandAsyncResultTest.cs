@@ -18,8 +18,7 @@ namespace Renci.SshNet.Tests
         [TestMethod()]
         public void BytesSentTest()
         {
-            SshCommand command = null; // TODO: Initialize to an appropriate value
-            CommandAsyncResult target = new CommandAsyncResult(command); // TODO: Initialize to an appropriate value
+            CommandAsyncResult target = new CommandAsyncResult(); // TODO: Initialize to an appropriate value
             int expected = 0; // TODO: Initialize to an appropriate value
             int actual;
             target.BytesSent = expected;
@@ -34,8 +33,7 @@ namespace Renci.SshNet.Tests
         [TestMethod()]
         public void BytesReceivedTest()
         {
-            SshCommand command = null; // TODO: Initialize to an appropriate value
-            CommandAsyncResult target = new CommandAsyncResult(command); // TODO: Initialize to an appropriate value
+            CommandAsyncResult target = new CommandAsyncResult(); // TODO: Initialize to an appropriate value
             int expected = 0; // TODO: Initialize to an appropriate value
             int actual;
             target.BytesReceived = expected;

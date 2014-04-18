@@ -61,9 +61,6 @@
     <Compile Include="..\Renci.SshNet\BaseClient.cs">
       <Link>BaseClient.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\ChannelAsyncResult.cs">
-      <Link>ChannelAsyncResult.cs</Link>
-    </Compile>
     <Compile Include="..\Renci.SshNet\Channels\Channel.cs">
       <Link>Channels\Channel.cs</Link>
     </Compile>
@@ -87,6 +84,9 @@
     </Compile>
     <Compile Include="..\Renci.SshNet\CipherInfo.cs">
       <Link>CipherInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\CommandAsyncResult.cs">
+      <Link>CommandAsyncResult.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Common\ASCIIEncoding.cs">
       <Link>Common\ASCIIEncoding.cs</Link>

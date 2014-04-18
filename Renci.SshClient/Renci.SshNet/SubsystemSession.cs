@@ -4,7 +4,6 @@ using System.Text;
 using System.Threading;
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
-using Renci.SshNet.Messages.Connection;
 
 namespace Renci.SshNet.Sftp
 {

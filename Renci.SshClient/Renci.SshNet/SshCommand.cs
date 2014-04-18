@@ -217,12 +217,12 @@ namespace Renci.SshNet
             }
 
             //  Create new AsyncResult object
-            this._asyncResult = new CommandAsyncResult(this)
-            {
-                AsyncWaitHandle = new ManualResetEvent(false),
-                IsCompleted = false,
-                AsyncState = state,
-            };
+            this._asyncResult = new CommandAsyncResult
+                {
+                    AsyncWaitHandle = new ManualResetEvent(false),
+                    IsCompleted = false,
+                    AsyncState = state,
+                };
 
             //  When command re-executed again, create a new channel
             if (this._channel != null)
@@ -423,7 +423,7 @@ namespace Renci.SshNet
 
             if (e.Info is ExitStatusRequestInfo)
             {
-                ExitStatusRequestInfo exitStatusInfo = e.Info as ExitStatusRequestInfo;
+                var exitStatusInfo = e.Info as ExitStatusRequestInfo;
 
                 this.ExitStatus = (int)exitStatusInfo.ExitStatus;
 

@@ -9,10 +9,11 @@ namespace Renci.SshNet
     public class CommandAsyncResult : IAsyncResult
     {
         /// <summary>
-        /// Gets or sets the command that async result was created for.
+        /// Initializes a new instance of the <see cref="CommandAsyncResult"/> class.
         /// </summary>
-        /// <value>The channel.</value>
-        private SshCommand _command;
+        internal CommandAsyncResult()
+        {
+        }
 
         /// <summary>
         /// Gets or sets the bytes received. If SFTP only file bytes are counted.
@@ -53,14 +54,5 @@ namespace Renci.SshNet
         public bool IsCompleted { get; internal set; }
 
         #endregion
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CommandAsyncResult"/> class.
-        /// </summary>
-        /// <param name="command">The command.</param>
-        internal CommandAsyncResult(SshCommand command)
-        {
-            this._command = command;
-        }
     }
 }

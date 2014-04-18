@@ -108,6 +108,11 @@ namespace Renci.SshNet
         private EventWaitHandle _keyExchangeCompletedWaitHandle = new ManualResetEvent(false);
 
         /// <summary>
+        /// WaitHandle to signal that bytes have been read from the socket.
+        /// </summary>
+        private EventWaitHandle _bytesReadFromSocket = new ManualResetEvent(false);
+
+        /// <summary>
         /// WaitHandle to signal that key exchange is in progress.
         /// </summary>
         private bool _keyExchangeInProgress;
@@ -2083,6 +2088,12 @@ namespace Renci.SshNet
                         this._keyExchange.HostKeyReceived -= KeyExchange_HostKeyReceived;
                         this._keyExchange.Dispose();
                         this._keyExchange = null;
+                    }
+
+                    if (_bytesReadFromSocket != null)
+                    {
+                        _bytesReadFromSocket.Dispose();
+                        _bytesReadFromSocket = null;
                     }
                 }
 

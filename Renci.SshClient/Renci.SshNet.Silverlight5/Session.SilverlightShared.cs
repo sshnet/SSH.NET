@@ -6,7 +6,6 @@ using System.Threading;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Transport;
 using System.Text;
-using Renci.SshNet.Messages;
 
 namespace Renci.SshNet
 {

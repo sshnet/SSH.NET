@@ -13,10 +13,13 @@
         <releaseNotes>2014.4.6-beta2
 ==============
 
+New Features:
+
+    * Improved accuracy of IsConnected on .NET
+
 Fixes:
 
     * Client channels are no longer closed on dispose (issue #1943)
-
 
 2014.4.6-beta1
 ==============

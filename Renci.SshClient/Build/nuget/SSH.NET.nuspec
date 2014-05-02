@@ -16,6 +16,7 @@
 New Features:
 
     * Improved accuracy of IsConnected on .NET
+    * Added support for ssh.com (SSH-2) private keys (issue #1987)
 
 Fixes:
 

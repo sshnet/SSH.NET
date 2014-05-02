@@ -147,6 +147,113 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
+        [Owner("drieseng")]
+        [TestCategory("PrivateKey")]
+        public void Test_PrivateKey_SSH2_DSA()
+        {
+            using (var stream = this.GetData("Key.SSH2.DSA.txt"))
+            {
+                new PrivateKeyFile(stream);
+            }
+        }
+
+        [TestMethod]
+        [Owner("drieseng")]
+        [TestCategory("PrivateKey")]
+        public void Test_PrivateKey_SSH2_RSA()
+        {
+            using (var stream = this.GetData("Key.SSH2.RSA.txt"))
+            {
+                new PrivateKeyFile(stream);
+            }
+        }
+
+        [TestMethod]
+        [Owner("drieseng")]
+        [TestCategory("PrivateKey")]
+        public void Test_PrivateKey_SSH2_Encrypted_DSA_DES_CBC()
+        {
+            using (var stream = this.GetData("Key.SSH2.DSA.Encrypted.Des.CBC.12345.txt"))
+            {
+                new PrivateKeyFile(stream, "12345");
+            }
+        }
+
+        [TestMethod]
+        [Owner("drieseng")]
+        [TestCategory("PrivateKey")]
+        public void Test_PrivateKey_SSH2_Encrypted_RSA_DES_CBC()
+        {
+            using (var stream = this.GetData("Key.SSH2.RSA.Encrypted.Des.CBC.12345.txt"))
+            {
+                new PrivateKeyFile(stream, "12345");
+            }
+        }
+
+        [TestMethod]
+        [Owner("drieseng")]
+        [TestCategory("PrivateKey")]
+        public void Test_PrivateKey_SSH2_Encrypted_ShouldThrowSshExceptionWhenPassphraseIsWrong()
+        {
+            using (var stream = this.GetData("Key.SSH2.RSA.Encrypted.Des.CBC.12345.txt"))
+            {
+                try
+                {
+                    new PrivateKeyFile(stream, "34567");
+                    Assert.Fail();
+                }
+                catch (SshException ex)
+                {
+                    Assert.IsInstanceOfType(ex, typeof(SshException));
+                    Assert.IsNull(ex.InnerException);
+                    Assert.AreEqual("Invalid passphrase.", ex.Message);
+                }
+            }
+        }
+
+        [TestMethod]
+        [Owner("drieseng")]
+        [TestCategory("PrivateKey")]
+        public void Test_PrivateKey_SSH2_Encrypted_ShouldThrowSshPassPhraseNullOrEmptyExceptionWhenPassphraseIsNull()
+        {
+            using (var stream = this.GetData("Key.SSH2.RSA.Encrypted.Des.CBC.12345.txt"))
+            {
+                try
+                {
+                    new PrivateKeyFile(stream, null);
+                    Assert.Fail();
+                }
+                catch (SshPassPhraseNullOrEmptyException ex)
+                {
+                    Assert.IsInstanceOfType(ex, typeof(SshPassPhraseNullOrEmptyException));
+                    Assert.IsNull(ex.InnerException);
+                    Assert.AreEqual("Private key is encrypted but passphrase is empty.", ex.Message);
+                }
+            }
+        }
+
+        [TestMethod]
+        [Owner("drieseng")]
+        [TestCategory("PrivateKey")]
+        public void Test_PrivateKey_SSH2_Encrypted_ShouldThrowSshPassPhraseNullOrEmptyExceptionWhenPassphraseIsEmpty()
+        {
+            using (var stream = this.GetData("Key.SSH2.RSA.Encrypted.Des.CBC.12345.txt"))
+            {
+                try
+                {
+                    new PrivateKeyFile(stream, string.Empty);
+                    Assert.Fail();
+                }
+                catch (SshPassPhraseNullOrEmptyException ex)
+                {
+                    Assert.IsInstanceOfType(ex, typeof(SshPassPhraseNullOrEmptyException));
+                    Assert.IsNull(ex.InnerException);
+                    Assert.AreEqual("Private key is encrypted but passphrase is empty.", ex.Message);
+                }
+            }
+        }
+
+        [TestMethod]
         [Owner("olegkap")]
         [TestCategory("PrivateKey")]
         public void Test_PrivateKey_RSA_DES_CBC()

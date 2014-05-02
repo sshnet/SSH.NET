@@ -16,17 +16,46 @@ using System.Diagnostics.CodeAnalysis;
 namespace Renci.SshNet
 {
     /// <summary>
-    /// Represents private key information
+    /// Represents private key information.
     /// </summary>
     /// <example>
     ///     <code source="..\..\Renci.SshNet.Tests\Data\Key.RSA.txt" language="Text" title="Private RSA key example" />
     /// </example>
+    /// <remarks>
+    /// <para>
+    /// Supports RSA and DSA private key in both <c>OpenSSH</c> and <c>ssh.com</c> format.
+    /// </para>
+    /// <para>
+    /// The following encryption algorithms are supported:
+    /// <list type="bullet">
+    ///     <item>
+    ///         <description>DES-EDE3-CBC</description>
+    ///     </item>
+    ///     <item>
+    ///         <description>DES-EDE3-CFB</description>
+    ///     </item>
+    ///     <item>
+    ///         <description>DES-CBC</description>
+    ///     </item>
+    ///     <item>
+    ///         <description>AES-128-CBC</description>
+    ///     </item>
+    ///     <item>
+    ///         <description>AES-192-CBC</description>
+    ///     </item>
+    ///     <item>
+    ///         <description>AES-256-CBC</description>
+    ///     </item>
+    /// </list>
+    /// </para>
+    /// </remarks>
     public class PrivateKeyFile : IDisposable
     {
+        private static readonly Regex PrivateKeyRegex = new Regex(@"^-+ *BEGIN (?<keyName>\w+( \w+)*) PRIVATE KEY *-+\r?\n((Proc-Type: 4,ENCRYPTED\r?\nDEK-Info: (?<cipherName>[A-Z0-9-]+),(?<salt>[A-F0-9]+)\r?\n\r?\n)|(Comment: ""?[^\r\n]*""?\r?\n))?(?<data>([a-zA-Z0-9/+=]{1,80}\r?\n)+)-+ *END \k<keyName> PRIVATE KEY *-+",
 #if SILVERLIGHT
-        private static readonly Regex _privateKeyRegex = new Regex(@"^-+ *BEGIN (?<keyName>\w+( \w+)*) PRIVATE KEY *-+\r?\n(Proc-Type: 4,ENCRYPTED\r?\nDEK-Info: (?<cipherName>[A-Z0-9-]+),(?<salt>[A-F0-9]+)\r?\n\r?\n)?(?<data>([a-zA-Z0-9/+=]{1,80}\r?\n)+)-+ *END \k<keyName> PRIVATE KEY *-+", RegexOptions.Multiline);
+            RegexOptions.Multiline);
 #else
-        private static readonly Regex _privateKeyRegex = new Regex(@"^-+ *BEGIN (?<keyName>\w+( \w+)*) PRIVATE KEY *-+\r?\n(Proc-Type: 4,ENCRYPTED\r?\nDEK-Info: (?<cipherName>[A-Z0-9-]+),(?<salt>[A-F0-9]+)\r?\n\r?\n)?(?<data>([a-zA-Z0-9/+=]{1,80}\r?\n)+)-+ *END \k<keyName> PRIVATE KEY *-+", RegexOptions.Compiled | RegexOptions.Multiline);
+            RegexOptions.Compiled | RegexOptions.Multiline);
 #endif
 
         private Key _key;
@@ -101,7 +130,7 @@ namespace Renci.SshNet
             using (var sr = new StreamReader(privateKey))
             {
                 var text = sr.ReadToEnd();
-                privateKeyMatch = _privateKeyRegex.Match(text);
+                privateKeyMatch = PrivateKeyRegex.Match(text);
             }
 
             if (!privateKeyMatch.Success)
@@ -177,7 +206,7 @@ namespace Renci.SshNet
                         throw new SshException("Invalid SSH2 private key.");
                     }
 
-                    var totalLength = reader.ReadUInt32(); //  Read total bytes length including magic number
+                    reader.ReadUInt32(); //  Read total bytes length including magic number
                     var keyType = reader.ReadString();
                     var ssh2CipherName = reader.ReadString();
                     var blobSize = (int)reader.ReadUInt32();
@@ -187,12 +216,15 @@ namespace Renci.SshNet
                     {
                         keyData = reader.ReadBytes(blobSize);
                     }
-                    //else if (ssh2CipherName == "3des-cbc")
-                    //{
-                    //    var key = GetCipherKey(passPhrase, 192 / 8);
-                    //    var ssh2Сipher = new TripleDesCipher(key, null, null);
-                    //    keyData = ssh2Сipher.Decrypt(reader.ReadBytes(blobSize));
-                    //}
+                    else if (ssh2CipherName == "3des-cbc")
+                    {
+                        if (string.IsNullOrEmpty(passPhrase))
+                            throw new SshPassPhraseNullOrEmptyException("Private key is encrypted but passphrase is empty.");
+
+                        var key = GetCipherKey(passPhrase, 192 / 8);
+                        var ssh2Сipher = new TripleDesCipher(key, new CbcCipherMode(new byte[8]), new PKCS7Padding());
+                        keyData = ssh2Сipher.Decrypt(reader.ReadBytes(blobSize));
+                    }
                     else
                     {
                         throw new SshException(string.Format("Cipher method '{0}' is not supported.", cipherName));
@@ -204,7 +236,7 @@ namespace Renci.SshNet
 
                     var decryptedLength = reader.ReadUInt32();
 
-                    if (decryptedLength + 4 != blobSize)
+                    if (decryptedLength > blobSize - 4)
                         throw new SshException("Invalid passphrase.");
                     
                     if (keyType == "if-modn{sign{rsa-pkcs1-sha1},encrypt{rsa-pkcs1v2-oaep}}")
@@ -245,22 +277,19 @@ namespace Renci.SshNet
 
         private static byte[] GetCipherKey(string passphrase, int length)
         {
-            List<byte> cipherKey = new List<byte>();
+            var cipherKey = new List<byte>();
 
             using (var md5 = new MD5Hash())
             {
-                byte[] passwordBytes = Encoding.UTF8.GetBytes(passphrase);
+                var passwordBytes = Encoding.UTF8.GetBytes(passphrase);
 
-                var hash = md5.ComputeHash(passwordBytes.ToArray()).AsEnumerable();
-
+                var hash = md5.ComputeHash(passwordBytes);
                 cipherKey.AddRange(hash);
 
                 while (cipherKey.Count < length)
                 {
-                    hash = passwordBytes.Concat(hash);
-
-                    hash = md5.ComputeHash(hash.ToArray());
-
+                    hash = passwordBytes.Concat(hash).ToArray();
+                    hash = md5.ComputeHash(hash);
                     cipherKey.AddRange(hash);
                 }
             }
@@ -289,25 +318,22 @@ namespace Renci.SshNet
             if (binarySalt == null)
                 throw new ArgumentNullException("binarySalt");
 
-            List<byte> cipherKey = new List<byte>();
+            var cipherKey = new List<byte>();
 
             using (var md5 = new MD5Hash())
             {
                 var passwordBytes = Encoding.UTF8.GetBytes(passPhrase);
 
-                //  Use 8 bytes binary salkt
-                var initVector = passwordBytes.Concat(binarySalt.Take(8));
+                //  Use 8 bytes binary salt
+                var initVector = passwordBytes.Concat(binarySalt.Take(8)).ToArray();
 
-                var hash = md5.ComputeHash(initVector.ToArray()).AsEnumerable();
-
+                var hash = md5.ComputeHash(initVector);
                 cipherKey.AddRange(hash);
 
                 while (cipherKey.Count < cipherInfo.KeySize / 8)
                 {
-                    hash = hash.Concat(initVector);
-
-                    hash = md5.ComputeHash(hash.ToArray());
-
+                    hash = hash.Concat(initVector).ToArray();
+                    hash = md5.ComputeHash(hash);
                     cipherKey.AddRange(hash);
                 }
             }
@@ -401,7 +427,7 @@ namespace Renci.SshNet
             {
                 var length = (int)base.ReadUInt32();
 
-                length = (int)(length + 7) / 8;
+                length = (length + 7) / 8;
 
                 var data = base.ReadBytes(length);
                 var bytesArray = new byte[data.Length + 1];

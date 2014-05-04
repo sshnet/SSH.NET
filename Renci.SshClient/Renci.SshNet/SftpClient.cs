@@ -538,13 +538,34 @@ namespace Renci.SshNet
             if (this._sftpSession == null)
                 throw new SshConnectionException("Client not connected.");
 
-            var fullPath = this._sftpSession.GetFullRemotePath(path);
+            var fullPath = this._sftpSession.GetCanonicalPath(path);
 
-            if (this._sftpSession.RequestRealPath(fullPath, true) == null)
+            // using SSH_FXP_REALPATH is not an alternative the SFTP specification has not always
+            // been clear on how the server should respond when the specified path is not present
+            // on the server:
+            // 
+            // SSH 1 to 4:
+            // No mention of how the server should respond if the path is not present on the server.
+            //
+            // SSH 5:
+            // The server SHOULD fail the request if the path is not present on the server.
+            // 
+            // SSH 6:
+            // Draft 06: The server SHOULD fail the request if the path is not present on the server.
+            // Draft 07 to 13: The server MUST NOT fail the request if the path does not exist.
+            //
+            // Note that SSH 6 (draft 06 and forward) allows for more control options, but we
+            // currently only support up to v3.
+
+            try
+            {
+                _sftpSession.RequestLStat(fullPath);
+                return true;
+            }
+            catch (SftpPathNotFoundException)
             {
                 return false;
             }
-            return true;
         }
 
         /// <summary>

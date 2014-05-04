@@ -399,11 +399,10 @@ namespace Renci.SshNet.Sftp
         /// Performs SSH_FXP_LSTAT request.
         /// </summary>
         /// <param name="path">The path.</param>
-        /// <param name="nullOnError">if set to <c>true</c> returns null instead of throwing an exception.</param>
         /// <returns>
         /// File attributes
         /// </returns>
-        internal SftpFileAttributes RequestLStat(string path, bool nullOnError = false)
+        internal SftpFileAttributes RequestLStat(string path)
         {
             SshException exception = null;
 
@@ -439,11 +438,10 @@ namespace Renci.SshNet.Sftp
         /// Performs SSH_FXP_FSTAT request.
         /// </summary>
         /// <param name="handle">The handle.</param>
-        /// <param name="nullOnError">if set to <c>true</c> returns null instead of throwing an exception.</param>
         /// <returns>
         /// File attributes
         /// </returns>
-        internal SftpFileAttributes RequestFStat(byte[] handle, bool nullOnError = false)
+        internal SftpFileAttributes RequestFStat(byte[] handle)
         {
             SshException exception = null;
             SftpFileAttributes attributes = null;

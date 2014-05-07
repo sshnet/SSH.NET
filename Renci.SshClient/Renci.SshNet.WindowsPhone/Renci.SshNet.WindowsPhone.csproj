@@ -604,6 +604,9 @@
     <Compile Include="..\Renci.SshNet\Security\Cryptography\SymmetricCipher.cs">
       <Link>Security\Cryptography\SymmetricCipher.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\Security\GroupExchangeHashData.cs">
+      <Link>Security\GroupExchangeHashData.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\Security\HostAlgorithm.cs">
       <Link>Security\HostAlgorithm.cs</Link>
     </Compile>
@@ -624,6 +627,9 @@
     </Compile>
     <Compile Include="..\Renci.SshNet\Security\KeyExchangeDiffieHellmanGroupExchangeSha256.cs">
       <Link>Security\KeyExchangeDiffieHellmanGroupExchangeSha256.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\KeyExchangeDiffieHellmanGroupExchangeShaBase.cs">
+      <Link>Security\KeyExchangeDiffieHellmanGroupExchangeShaBase.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Security\KeyExchangeDiffieHellmanGroupSha1.cs">
       <Link>Security\KeyExchangeDiffieHellmanGroupSha1.cs</Link>

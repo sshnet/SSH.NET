@@ -17,6 +17,7 @@ New Features:
 
     * Improved accuracy of IsConnected on .NET
     * Added support for ssh.com (SSH-2) private keys (issue #1987)
+    * Support an acceptable group of up to 8192 bits for SHA-1 and SHA-256 Diffie-Hellman Group and Key Exchange (issue #1973 and #1777)
 
 Fixes:
 

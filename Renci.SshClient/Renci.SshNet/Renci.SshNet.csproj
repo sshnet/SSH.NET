@@ -159,6 +159,8 @@
     <Compile Include="Security\Cryptography\Hashes\SHA512Hash.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Security\GroupExchangeHashData.cs" />
+    <Compile Include="Security\KeyExchangeDiffieHellmanGroupExchangeShaBase.cs" />
     <Compile Include="Security\KeyExchangeEllipticCurveDiffieHellman.cs" />
     <Compile Include="ShellStream.NET40.cs" />
     <Compile Include="ExpectAsyncResult.cs" />

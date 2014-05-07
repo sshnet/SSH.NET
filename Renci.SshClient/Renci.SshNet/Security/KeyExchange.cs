@@ -290,14 +290,15 @@ namespace Renci.SshNet.Security
         /// </returns>
         protected bool CanTrustHostKey(KeyHostAlgorithm host)
         {
-            var args = new HostKeyEventArgs(host);
-
-            if (this.HostKeyReceived != null)
+            var handlers = HostKeyReceived;
+            if (handlers != null)
             {
-                this.HostKeyReceived(this, args);
+                var args = new HostKeyEventArgs(host);
+                handlers(this, args);
+                return args.CanTrust;
             }
 
-            return args.CanTrust;
+            return true;
         }
 
         /// <summary>

@@ -215,7 +215,7 @@ namespace Renci.SshNet
         /// <param name="username">The username.</param>
         /// <param name="authenticationMethods">The authentication methods.</param>
         public ConnectionInfo(string host, string username, params AuthenticationMethod[] authenticationMethods)
-            : this(host, ConnectionInfo.DEFAULT_PORT, username, ProxyTypes.None, null, 0, null, null, authenticationMethods)
+            : this(host, DEFAULT_PORT, username, ProxyTypes.None, null, 0, null, null, authenticationMethods)
         {
         }
 
@@ -279,99 +279,97 @@ namespace Renci.SshNet
             this.MaxSessions = 10;
             this.Encoding = Encoding.UTF8;
 
-            this.KeyExchangeAlgorithms = new Dictionary<string, Type>()
-            {
-                {"diffie-hellman-group-exchange-sha256", typeof(KeyExchangeDiffieHellmanGroupExchangeSha256)},
-                {"diffie-hellman-group-exchange-sha1", typeof(KeyExchangeDiffieHellmanGroupExchangeSha1)},
-                {"diffie-hellman-group14-sha1", typeof(KeyExchangeDiffieHellmanGroup14Sha1)},
-                {"diffie-hellman-group1-sha1", typeof(KeyExchangeDiffieHellmanGroup1Sha1)},
-                //{"ecdh-sha2-nistp256", typeof(KeyExchangeEllipticCurveDiffieHellman)},
-                //{"ecdh-sha2-nistp256", typeof(...)},
-                //{"ecdh-sha2-nistp384", typeof(...)},
-                //{"ecdh-sha2-nistp521", typeof(...)},
-                //"gss-group1-sha1-toWM5Slw5Ew8Mqkay+al2g==" - WinSSHD
-                //"gss-gex-sha1-toWM5Slw5Ew8Mqkay+al2g==" - WinSSHD
+            this.KeyExchangeAlgorithms = new Dictionary<string, Type>
+                {
+                    {"diffie-hellman-group-exchange-sha256", typeof (KeyExchangeDiffieHellmanGroupExchangeSha256)},
+                    {"diffie-hellman-group-exchange-sha1", typeof (KeyExchangeDiffieHellmanGroupExchangeSha1)},
+                    {"diffie-hellman-group14-sha1", typeof (KeyExchangeDiffieHellmanGroup14Sha1)},
+                    {"diffie-hellman-group1-sha1", typeof (KeyExchangeDiffieHellmanGroup1Sha1)},
+                    //{"ecdh-sha2-nistp256", typeof(KeyExchangeEllipticCurveDiffieHellman)},
+                    //{"ecdh-sha2-nistp256", typeof(...)},
+                    //{"ecdh-sha2-nistp384", typeof(...)},
+                    //{"ecdh-sha2-nistp521", typeof(...)},
+                    //"gss-group1-sha1-toWM5Slw5Ew8Mqkay+al2g==" - WinSSHD
+                    //"gss-gex-sha1-toWM5Slw5Ew8Mqkay+al2g==" - WinSSHD
+                };
 
-            };
+            this.Encryptions = new Dictionary<string, CipherInfo>
+                {
+                    {"aes256-ctr", new CipherInfo(256, (key, iv) => new AesCipher(key, new CtrCipherMode(iv), null))},
+                    {"3des-cbc", new CipherInfo(192, (key, iv) => new TripleDesCipher(key, new CbcCipherMode(iv), null))},
+                    {"aes128-cbc", new CipherInfo(128, (key, iv) => new AesCipher(key, new CbcCipherMode(iv), null))},
+                    {"aes192-cbc", new CipherInfo(192, (key, iv) => new AesCipher(key, new CbcCipherMode(iv), null))},
+                    {"aes256-cbc", new CipherInfo(256, (key, iv) => new AesCipher(key, new CbcCipherMode(iv), null))},
+                    {"blowfish-cbc", new CipherInfo(128, (key, iv) => new BlowfishCipher(key, new CbcCipherMode(iv), null))},
+                    {"twofish-cbc", new CipherInfo(256, (key, iv) => new TwofishCipher(key, new CbcCipherMode(iv), null))},
+                    {"twofish192-cbc", new CipherInfo(192, (key, iv) => new TwofishCipher(key, new CbcCipherMode(iv), null))},
+                    {"twofish128-cbc", new CipherInfo(128, (key, iv) => new TwofishCipher(key, new CbcCipherMode(iv), null))},
+                    {"twofish256-cbc", new CipherInfo(256, (key, iv) => new TwofishCipher(key, new CbcCipherMode(iv), null))},
+                    ////{"serpent256-cbc", typeof(CipherSerpent256CBC)},
+                    ////{"serpent192-cbc", typeof(...)},
+                    ////{"serpent128-cbc", typeof(...)},
+                    {"arcfour", new CipherInfo(128, (key, iv) => new Arc4Cipher(key, false))},
+                    {"arcfour128", new CipherInfo(128, (key, iv) => new Arc4Cipher(key, true))},
+                    {"arcfour256", new CipherInfo(256, (key, iv) => new Arc4Cipher(key, true))},
+                    ////{"idea-cbc", typeof(...)},
+                    {"cast128-cbc", new CipherInfo(128, (key, iv) => new CastCipher(key, new CbcCipherMode(iv), null))},
+                    ////{"rijndael-cbc@lysator.liu.se", typeof(...)},                
+                    {"aes128-ctr", new CipherInfo(128, (key, iv) => new AesCipher(key, new CtrCipherMode(iv), null))},
+                    {"aes192-ctr", new CipherInfo(192, (key, iv) => new AesCipher(key, new CtrCipherMode(iv), null))},
+                };
 
-            this.Encryptions = new Dictionary<string, CipherInfo>()
-            {
-                {"aes256-ctr", new CipherInfo(256, (key, iv)=>{ return new AesCipher(key, new CtrCipherMode(iv), null); }) },
-                {"3des-cbc", new CipherInfo(192, (key, iv)=>{ return new TripleDesCipher(key, new CbcCipherMode(iv), null); }) },
-                {"aes128-cbc", new CipherInfo(128, (key, iv)=>{ return new AesCipher(key, new CbcCipherMode(iv), null); }) },
-                {"aes192-cbc", new CipherInfo(192, (key, iv)=>{ return new AesCipher(key, new CbcCipherMode(iv), null); }) },
-                {"aes256-cbc", new CipherInfo(256, (key, iv)=>{ return new AesCipher(key, new CbcCipherMode(iv), null); }) },
-                {"blowfish-cbc", new CipherInfo(128, (key, iv)=>{ return new BlowfishCipher(key, new CbcCipherMode(iv), null); }) },
-                {"twofish-cbc", new CipherInfo(256, (key, iv)=>{ return new TwofishCipher(key, new CbcCipherMode(iv), null); }) },
-                {"twofish192-cbc", new CipherInfo(192, (key, iv)=>{ return new TwofishCipher(key, new CbcCipherMode(iv), null); }) },
-                {"twofish128-cbc", new CipherInfo(128, (key, iv)=>{ return new TwofishCipher(key, new CbcCipherMode(iv), null); }) },
-                {"twofish256-cbc", new CipherInfo(256, (key, iv)=>{ return new TwofishCipher(key, new CbcCipherMode(iv), null); }) },
-                ////{"serpent256-cbc", typeof(CipherSerpent256CBC)},
-                ////{"serpent192-cbc", typeof(...)},
-                ////{"serpent128-cbc", typeof(...)},
-                {"arcfour", new CipherInfo(128, (key, iv)=>{ return new Arc4Cipher(key, false); }) },
-                {"arcfour128", new CipherInfo(128, (key, iv)=>{ return new Arc4Cipher(key, true); }) },
-                {"arcfour256", new CipherInfo(256, (key, iv)=>{ return new Arc4Cipher(key, true); }) },
-                ////{"idea-cbc", typeof(...)},
-                {"cast128-cbc", new CipherInfo(128, (key, iv)=>{ return new CastCipher(key, new CbcCipherMode(iv), null); }) },
-                ////{"rijndael-cbc@lysator.liu.se", typeof(...)},                
-                {"aes128-ctr", new CipherInfo(128, (key, iv)=>{ return new AesCipher(key, new CtrCipherMode(iv), null); }) },
-                {"aes192-ctr", new CipherInfo(192, (key, iv)=>{ return new AesCipher(key, new CtrCipherMode(iv), null); }) },
-            };
+            this.HmacAlgorithms = new Dictionary<string, HashInfo>
+                {
+                    {"hmac-md5", new HashInfo(16*8, key => new HMac<MD5Hash>(key))},
+                    {"hmac-sha1", new HashInfo(20*8, key => new HMac<SHA1Hash>(key))},
+                    {"hmac-sha2-256", new HashInfo(32*8, key => new HMac<SHA256Hash>(key))},
+                    {"hmac-sha2-256-96", new HashInfo(32*8, key => new HMac<SHA256Hash>(key, 96))},
+                    //{"hmac-sha2-512", new HashInfo(64 * 8, key => new HMac<SHA512Hash>(key))},
+                    //{"hmac-sha2-512-96", new HashInfo(64 * 8,  key => new HMac<SHA512Hash>(key, 96))},
+                    //{"umac-64@openssh.com", typeof(HMacSha1)},
+                    {"hmac-ripemd160", new HashInfo(160, key => new HMac<RIPEMD160Hash>(key))},
+                    {"hmac-ripemd160@openssh.com", new HashInfo(160, key => new HMac<RIPEMD160Hash>(key))},
+                    {"hmac-md5-96", new HashInfo(16*8, key => new HMac<MD5Hash>(key, 96))},
+                    {"hmac-sha1-96", new HashInfo(20*8, key => new HMac<SHA1Hash>(key, 96))},
+                    //{"none", typeof(...)},
+                };
 
-            this.HmacAlgorithms = new Dictionary<string, HashInfo>()
-            {
-                {"hmac-md5", new HashInfo(16 * 8, (key)=>{ return new HMac<MD5Hash>(key); }) },
-                {"hmac-sha1", new HashInfo(20 * 8, (key)=>{ return new HMac<SHA1Hash>(key); }) },
-                {"hmac-sha2-256", new HashInfo(32 * 8, (key)=>{ return new HMac<SHA256Hash>(key); }) },
-                {"hmac-sha2-256-96", new HashInfo(32 * 8, (key)=>{ return new HMac<SHA256Hash>(key, 96); }) },
-                //{"hmac-sha2-512", new HashInfo(64 * 8, (key)=>{ return new HMac<SHA512Hash>(key); }) },
-                //{"hmac-sha2-512-96", new HashInfo(64 * 8, (key)=>{ return new HMac<SHA512Hash>(key, 96); }) },
-                //{"umac-64@openssh.com", typeof(HMacSha1)},
-                {"hmac-ripemd160", new HashInfo(160, (key)=>{ return new HMac<RIPEMD160Hash>(key); }) },
-                {"hmac-ripemd160@openssh.com", new HashInfo(160, (key)=>{ return new HMac<RIPEMD160Hash>(key); }) },
-                {"hmac-md5-96", new HashInfo(16 * 8, (key)=>{ return new HMac<MD5Hash>(key, 96); }) },
-                {"hmac-sha1-96", new HashInfo(20 * 8, (key)=>{ return new HMac<SHA1Hash>(key, 96); }) },
-                //{"none", typeof(...)},
-            };
+            this.HostKeyAlgorithms = new Dictionary<string, Func<byte[], KeyHostAlgorithm>>
+                {
+                    {"ssh-rsa", data => new KeyHostAlgorithm("ssh-rsa", new RsaKey(), data)},
+                    {"ssh-dss", data => new KeyHostAlgorithm("ssh-dss", new DsaKey(), data)},
+                    //{"ecdsa-sha2-nistp256 "}
+                    //{"x509v3-sign-rsa", () => { ... },
+                    //{"x509v3-sign-dss", () => { ... },
+                    //{"spki-sign-rsa", () => { ... },
+                    //{"spki-sign-dss", () => { ... },
+                    //{"pgp-sign-rsa", () => { ... },
+                    //{"pgp-sign-dss", () => { ... },
+                };
 
-            this.HostKeyAlgorithms = new Dictionary<string, Func<byte[], KeyHostAlgorithm>>()
-            {
-                {"ssh-rsa", (data) => { return new KeyHostAlgorithm("ssh-rsa", new RsaKey(), data); }},
-                {"ssh-dss", (data) => { return new KeyHostAlgorithm("ssh-dss", new DsaKey(), data); }},
-                //{"ecdsa-sha2-nistp256 "}
-                //{"x509v3-sign-rsa", () => { ... },
-                //{"x509v3-sign-dss", () => { ... },
-                //{"spki-sign-rsa", () => { ... },
-                //{"spki-sign-dss", () => { ... },
-                //{"pgp-sign-rsa", () => { ... },
-                //{"pgp-sign-dss", () => { ... },
-            };
+            this.CompressionAlgorithms = new Dictionary<string, Type>
+                {
+                    //{"zlib@openssh.com", typeof(ZlibOpenSsh)}, 
+                    //{"zlib", typeof(Zlib)}, 
+                    {"none", null},
+                };
 
-            this.CompressionAlgorithms = new Dictionary<string, Type>()
-            {
-                //{"zlib@openssh.com", typeof(ZlibOpenSsh)}, 
-                //{"zlib", typeof(Zlib)}, 
-                {"none", null}, 
-            };
-
-
-            this.ChannelRequests = new Dictionary<string, RequestInfo>()
-            {
-                {EnvironmentVariableRequestInfo.NAME, new EnvironmentVariableRequestInfo()}, 
-                {ExecRequestInfo.NAME, new ExecRequestInfo()}, 
-                {ExitSignalRequestInfo.NAME, new ExitSignalRequestInfo()}, 
-                {ExitStatusRequestInfo.NAME, new ExitStatusRequestInfo()}, 
-                {PseudoTerminalRequestInfo.NAME, new PseudoTerminalRequestInfo()}, 
-                {ShellRequestInfo.NAME, new ShellRequestInfo()}, 
-                {SignalRequestInfo.NAME, new SignalRequestInfo()}, 
-                {SubsystemRequestInfo.NAME, new SubsystemRequestInfo()}, 
-                {WindowChangeRequestInfo.NAME, new WindowChangeRequestInfo()}, 
-                {X11ForwardingRequestInfo.NAME, new X11ForwardingRequestInfo()}, 
-                {XonXoffRequestInfo.NAME, new XonXoffRequestInfo()}, 
-                {EndOfWriteRequestInfo.NAME, new EndOfWriteRequestInfo()}, 
-                {KeepAliveRequestInfo.NAME, new KeepAliveRequestInfo()}, 
-            };
+            this.ChannelRequests = new Dictionary<string, RequestInfo>
+                {
+                    {EnvironmentVariableRequestInfo.NAME, new EnvironmentVariableRequestInfo()},
+                    {ExecRequestInfo.NAME, new ExecRequestInfo()},
+                    {ExitSignalRequestInfo.NAME, new ExitSignalRequestInfo()},
+                    {ExitStatusRequestInfo.NAME, new ExitStatusRequestInfo()},
+                    {PseudoTerminalRequestInfo.NAME, new PseudoTerminalRequestInfo()},
+                    {ShellRequestInfo.NAME, new ShellRequestInfo()},
+                    {SignalRequestInfo.NAME, new SignalRequestInfo()},
+                    {SubsystemRequestInfo.NAME, new SubsystemRequestInfo()},
+                    {WindowChangeRequestInfo.NAME, new WindowChangeRequestInfo()},
+                    {X11ForwardingRequestInfo.NAME, new X11ForwardingRequestInfo()},
+                    {XonXoffRequestInfo.NAME, new XonXoffRequestInfo()},
+                    {EndOfWriteRequestInfo.NAME, new EndOfWriteRequestInfo()},
+                    {KeepAliveRequestInfo.NAME, new KeepAliveRequestInfo()},
+                };
 
             this.Host = host;
             this.Port = port;

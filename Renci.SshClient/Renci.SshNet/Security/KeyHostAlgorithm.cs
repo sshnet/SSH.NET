@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Security
@@ -9,7 +8,6 @@ namespace Renci.SshNet.Security
     /// </summary>
     public class KeyHostAlgorithm : HostAlgorithm
     {
-
         /// <summary>
         /// Gets the key.
         /// </summary>
@@ -85,11 +83,10 @@ namespace Renci.SshNet.Security
         {
             public BigInteger[] Keys { get; private set; }
 
-            public string Name { get; private set; }
+            private string Name { get; set; }
 
             public SshKeyData()
             {
-
             }
 
             public SshKeyData(string name, params BigInteger[] keys)
@@ -127,7 +124,7 @@ namespace Renci.SshNet.Security
             /// <value>
             /// The name of the algorithm.
             /// </value>
-            public string AlgorithmName { get; private set; }
+            private string AlgorithmName { get; set; }
 
             /// <summary>
             /// Gets or sets the signature.
@@ -139,7 +136,6 @@ namespace Renci.SshNet.Security
 
             public SignatureKeyData()
             {
-
             }
 
             public SignatureKeyData(string name, byte[] signature)

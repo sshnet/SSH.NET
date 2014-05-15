@@ -17,20 +17,20 @@ namespace Renci.SshNet
         internal Session Session { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether port forwarding started.
+        /// Gets or sets a value indicating whether port forwarding is started.
         /// </summary>
         /// <value>
-        /// 	<c>true</c> if port forwarding started; otherwise, <c>false</c>.
+        /// <c>true</c> if port forwarding is started; otherwise, <c>false</c>.
         /// </value>
         public bool IsStarted { get; protected set; }
 
         /// <summary>
-        /// Occurs when exception is thrown.
+        /// Occurs when an exception is thrown.
         /// </summary>
         public event EventHandler<ExceptionEventArgs> Exception;
 
         /// <summary>
-        /// Occurs when port forwarding request received.
+        /// Occurs when a port forwarding request is received.
         /// </summary>
         public event EventHandler<PortForwardEventArgs> RequestReceived;
 
@@ -41,12 +41,12 @@ namespace Renci.SshNet
         {
             if (this.Session == null)
             {
-                throw new InvalidOperationException("Session property is null.");
+                throw new InvalidOperationException("Forwarded port is not added to a client.");
             }
 
             if (!this.Session.IsConnected)
             {
-                throw new SshConnectionException("Not connected.");
+                throw new SshConnectionException("Client not connected.");
             }
 
             this.Session.ErrorOccured += Session_ErrorOccured;
@@ -66,12 +66,13 @@ namespace Renci.SshNet
         /// <summary>
         /// Raises <see cref="Renci.SshNet.ForwardedPort.Exception"/> event.
         /// </summary>
-        /// <param name="execption">The exception.</param>
-        protected void RaiseExceptionEvent(Exception execption)
+        /// <param name="exception">The exception.</param>
+        protected void RaiseExceptionEvent(Exception exception)
         {
-            if (this.Exception != null)
+            var handlers = Exception;
+            if (handlers != null)
             {
-                this.Exception(this, new ExceptionEventArgs(execption));
+                handlers(this, new ExceptionEventArgs(exception));
             }
         }
 
@@ -82,9 +83,10 @@ namespace Renci.SshNet
         /// <param name="port">Request originator port.</param>
         protected void RaiseRequestReceived(string host, uint port)
         {
-            if (this.RequestReceived != null)
+            var handlers = RequestReceived;
+            if (handlers != null)
             {
-                this.RequestReceived(this, new PortForwardEventArgs(host, port));
+                RequestReceived(this, new PortForwardEventArgs(host, port));
             }
         }
 
@@ -95,7 +97,7 @@ namespace Renci.SshNet
         /// <param name="e">The <see cref="ExceptionEventArgs"/> instance containing the event data.</param>
         private void Session_ErrorOccured(object sender, ExceptionEventArgs e)
         {
-            this.RaiseExceptionEvent(e.Exception);
+            RaiseExceptionEvent(e.Exception);
         }
     }
 }

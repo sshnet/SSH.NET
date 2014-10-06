@@ -75,6 +75,39 @@
     <Reference Include="System.Windows.Browser" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Renci.SshNet.Silverlight\Channels\ChannelDirectTcpip.SilverlightShared.cs">
+      <Link>Channels\ChannelDirectTcpip.SilverlightShared.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Silverlight\ForwardedPortLocal.SilverlightShared.cs">
+      <Link>ForwardedPortLocal.SilverlightShared.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Silverlight\ForwardedPortRemote.SilverlightShared.cs">
+      <Link>ForwardedPortRemote.SilverlightShared.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Silverlight\KeyboardInteractiveAuthenticationMethod.SilverlightShared.cs">
+      <Link>KeyboardInteractiveAuthenticationMethod.SilverlightShared.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Silverlight\PasswordAuthenticationMethod.SilverlightShared.cs">
+      <Link>PasswordAuthenticationMethod.SilverlightShared.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Silverlight\ScpClient.SilverlightShared.cs">
+      <Link>ScpClient.SilverlightShared.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Silverlight\Session.SilverlightBrowser.cs">
+      <Link>Session.SilverlightBrowser.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Silverlight\SftpClient.SilverlightShared.cs">
+      <Link>SftpClient.SilverlightShared.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Silverlight\Shell.SilverlightShared.cs">
+      <Link>Shell.SilverlightShared.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Silverlight\ShellStream.SilverlightShared.cs">
+      <Link>ShellStream.SilverlightShared.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Silverlight\SshCommand.SilverlightShared.cs">
+      <Link>SshCommand.SilverlightShared.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\AuthenticationMethod.cs">
       <Link>AuthenticationMethod.cs</Link>
     </Compile>
@@ -822,14 +855,8 @@
     <Compile Include="..\Renci.SshNet\Shell.cs">
       <Link>Shell.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet.Silverlight\Shell.SilverlightShared.cs">
-      <Link>Shell.SilverlightShared.cs</Link>
-    </Compile>
     <Compile Include="..\Renci.SshNet\ShellStream.cs">
       <Link>ShellStream.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet.Silverlight\ShellStream.SilverlightShared.cs">
-      <Link>ShellStream.SilverlightShared.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\SshClient.cs">
       <Link>SshClient.cs</Link>
@@ -840,19 +867,11 @@
     <Compile Include="..\Renci.SshNet\SubsystemSession.cs">
       <Link>SubsystemSession.cs</Link>
     </Compile>
-    <Compile Include="ForwardedPortLocal.SilverlightShared.cs" />
-    <Compile Include="ForwardedPortRemote.SilverlightShared.cs" />
-    <Compile Include="KeyboardInteractiveAuthenticationMethod.SilverlightShared.cs" />
-    <Compile Include="PasswordAuthenticationMethod.SilverlightShared.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="..\Renci.SshNet\Properties\CommonAssemblyInfo.cs">
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="ScpClient.SilverlightShared.cs" />
-    <Compile Include="Session.SilverlightBrowser.cs" />
     <Compile Include="Session.SilverlightShared.cs" />
-    <Compile Include="SftpClient.SilverlightShared.cs" />
-    <Compile Include="SshCommand.SilverlightShared.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Renci.SshNet.snk">
@@ -865,7 +884,7 @@
       <FlavorProperties GUID="{A1591282-1198-4647-A2B1-27E5FF5F6F3B}">
         <SilverlightProjectProperties />
       </FlavorProperties>
-      <UserProperties ProjectLinkReference="2f5f8c90-0bd1-424f-997c-7bc6280919d1" ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" />
+      <UserProperties ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" ProjectLinkReference="2f5f8c90-0bd1-424f-997c-7bc6280919d1" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

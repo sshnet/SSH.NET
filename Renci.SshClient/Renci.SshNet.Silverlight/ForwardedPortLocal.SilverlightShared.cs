@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Net.Sockets;
-using System.Net;
 using System.Threading;
-using Renci.SshNet.Channels;
 
 namespace Renci.SshNet
 {
@@ -13,7 +10,7 @@ namespace Renci.SshNet
     {
         partial void ExecuteThread(Action action)
         {
-            ThreadPool.QueueUserWorkItem((o) => { action(); });
+            ThreadPool.QueueUserWorkItem((o) => action());
         }
 
         partial void InternalStart()

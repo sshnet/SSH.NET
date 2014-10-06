@@ -49,6 +49,9 @@
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+    <Reference Include="Moq">
+      <HintPath>..\packages\Moq.4.2.1409.1722\lib\net40\Moq.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -63,6 +66,13 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Classes\ClientAuthenticationTestBase.cs" />
+    <Compile Include="Classes\ClientAuthenticationTest_Failure_SingleList_AuthenticationMethodFailed.cs" />
+    <Compile Include="Classes\ClientAuthenticationTest_Failure_SingleList_AuthenticationMethodNotConfigured.cs" />
+    <Compile Include="Classes\ClientAuthenticationTest_Success_MultiList_DifferentAllowedAuthenticationsAfterPartialSuccess.cs" />
+    <Compile Include="Classes\ClientAuthenticationTest_Success_MultiList_SameAllowedAuthenticationsAfterPartialSuccess.cs" />
+    <Compile Include="Classes\ClientAuthenticationTest_Success_MultiList_SkipFailedAuthenticationMethod.cs" />
+    <Compile Include="Classes\ClientAuthenticationTest_Success_SingleList_SameAllowedAuthenticationAfterPartialSuccess.cs" />
     <Compile Include="Classes\Security\AlgorithmTest.cs" />
     <Compile Include="Classes\Security\CertificateHostAlgorithmTest.cs" />
     <Compile Include="Classes\Security\Cryptography\BlockCipherTest.cs" />
@@ -341,6 +351,7 @@
     <None Include="..\Renci.SshNet.snk">
       <Link>Renci.SshNet.snk</Link>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Data\Key.SSH2.RSA.Encrypted.Des.CBC.12345.txt" />

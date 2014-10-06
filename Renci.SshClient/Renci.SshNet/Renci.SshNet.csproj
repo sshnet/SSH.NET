@@ -75,6 +75,7 @@
     <Compile Include="Common\AuthenticationPasswordChangeEventArgs.cs" />
     <Compile Include="Common\AuthenticationPrompt.cs" />
     <Compile Include="Common\AuthenticationPromptEventArgs.cs" />
+    <Compile Include="ClientAuthentication.cs" />
     <Compile Include="Common\BigInteger.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -147,6 +148,9 @@
     <Compile Include="HashInfo.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="IAuthenticationMethod.cs" />
+    <Compile Include="IConnectionInfo.cs" />
+    <Compile Include="ISession.cs" />
     <Compile Include="Messages\Transport\KeyExchangeEcdhInitMessage.cs" />
     <Compile Include="Messages\Transport\KeyExchangeEcdhReplyMessage.cs" />
     <Compile Include="Security\Cryptography\Hashes\RIPEMD160Hash.cs" />

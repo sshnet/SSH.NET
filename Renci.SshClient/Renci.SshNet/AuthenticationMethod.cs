@@ -7,22 +7,20 @@ namespace Renci.SshNet
     /// <summary>
     /// Base class for all supported authentication methods
     /// </summary>
-    public abstract class AuthenticationMethod
+    public abstract class AuthenticationMethod : IAuthenticationMethod
     {
         /// <summary>
-        /// Gets authentication method name
+        /// Gets the name of the authentication method.
         /// </summary>
+        /// <value>
+        /// The name of the authentication method.
+        /// </value>
         public abstract string Name { get; }
 
         /// <summary>
         /// Gets connection username.
         /// </summary>
         public string Username { get; private set; }
-
-        /// <summary>
-        /// Gets the authentication error message.
-        /// </summary>
-        public string ErrorMessage { get; private set; }
 
         /// <summary>
         /// Gets list of allowed authentications.
@@ -46,7 +44,21 @@ namespace Renci.SshNet
         /// Authenticates the specified session.
         /// </summary>
         /// <param name="session">The session to authenticate.</param>
-        /// <returns>Result of authentication  process.</returns>
+        /// <returns>
+        /// The result of the authentication process.
+        /// </returns>
         public abstract AuthenticationResult Authenticate(Session session);
+
+        /// <summary>
+        /// Authenticates the specified session.
+        /// </summary>
+        /// <param name="session">The session to authenticate.</param>
+        /// <returns>
+        /// The result of the authentication process.
+        /// </returns>
+        AuthenticationResult IAuthenticationMethod.Authenticate(ISession session)
+        {
+            return Authenticate((Session) session);
+        }
     }
 }

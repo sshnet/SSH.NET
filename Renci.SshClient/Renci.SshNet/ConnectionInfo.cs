@@ -20,7 +20,7 @@ namespace Renci.SshNet
     /// This class is NOT thread-safe. Do not use the same <see cref="ConnectionInfo"/> with multiple
     /// client instances.
     /// </remarks>
-    public class ConnectionInfo
+    public class ConnectionInfo : IConnectionInfo
     {
         internal static int DEFAULT_PORT = 22;
 
@@ -392,97 +392,28 @@ namespace Renci.SshNet
         /// <exception cref="SshAuthenticationException">No suitable authentication method found to complete authentication, or permission denied.</exception>
         public void Authenticate(Session session)
         {
-            if (session == null)
-                throw new ArgumentNullException("session");
+            var clientAuthentication = new ClientAuthentication();
+            clientAuthentication.Authenticate(this, session);
+        }
 
-            session.RegisterMessage("SSH_MSG_USERAUTH_FAILURE");
-            session.RegisterMessage("SSH_MSG_USERAUTH_SUCCESS");
-            session.RegisterMessage("SSH_MSG_USERAUTH_BANNER");
-            session.UserAuthenticationBannerReceived += Session_UserAuthenticationBannerReceived;
-
-            try
+        void IConnectionInfo.UserAuthenticationBannerReceived(object sender, MessageEventArgs<BannerMessage> e)
+        {
+            var authenticationBanner = AuthenticationBanner;
+            if (authenticationBanner != null)
             {
-                // the exception to report an authentication failure with
-                SshAuthenticationException authenticationException = null;
-
-                // try to authenticate against none
-                var noneAuthenticationMethod = new NoneAuthenticationMethod(this.Username);
-
-                var authenticated = noneAuthenticationMethod.Authenticate(session);
-                if (authenticated != AuthenticationResult.Success)
-                {
-                    var failedAuthenticationMethods = new List<AuthenticationMethod>();
-                    if (TryAuthenticate(session, noneAuthenticationMethod.AllowedAuthentications.ToList(), failedAuthenticationMethods, ref authenticationException))
-                    {
-                        authenticated = AuthenticationResult.Success;
-                    }
-                }
-
-                this.IsAuthenticated = authenticated == AuthenticationResult.Success;
-                if (!IsAuthenticated)
-                    throw authenticationException;
-            }
-            finally
-            {
-                session.UserAuthenticationBannerReceived -= Session_UserAuthenticationBannerReceived;
-                session.UnRegisterMessage("SSH_MSG_USERAUTH_FAILURE");
-                session.UnRegisterMessage("SSH_MSG_USERAUTH_SUCCESS");
-                session.UnRegisterMessage("SSH_MSG_USERAUTH_BANNER");
+                authenticationBanner(this,
+                    new AuthenticationBannerEventArgs(Username, e.Message.Message, e.Message.Language));
             }
         }
 
-        private bool TryAuthenticate(Session session, IList<string> allowedAuthenticationMethods, IList<AuthenticationMethod> failedAuthenticationMethods, ref SshAuthenticationException authenticationException)
+        IAuthenticationMethod IConnectionInfo.CreateNoneAuthenticationMethod()
         {
-            if (!allowedAuthenticationMethods.Any())
-            {
-                authenticationException = new SshAuthenticationException("No authentication methods defined on SSH server.");
-                return false;
-            }
-
-            // we want to try authentication methods in the order in which they were
-            //  passed in the ctor, not the order in which the SSH server returns
-            // the allowed authentication methods
-            var matchingAuthenticationMethods = AuthenticationMethods.Where(a => allowedAuthenticationMethods.Contains(a.Name)).ToList();
-            if (!matchingAuthenticationMethods.Any())
-            {
-                authenticationException = new SshAuthenticationException(string.Format("No suitable authentication method found to complete authentication ({0}).", string.Join(",", allowedAuthenticationMethods.ToArray())));
-                return false;
-            }
-
-            foreach (var authenticationMethod in matchingAuthenticationMethods)
-            {
-                if (failedAuthenticationMethods.Contains(authenticationMethod))
-                    continue;
-
-                var authenticationResult = authenticationMethod.Authenticate(session);
-                switch (authenticationResult)
-                {
-                    case AuthenticationResult.PartialSuccess:
-                        if (TryAuthenticate(session, authenticationMethod.AllowedAuthentications.ToList(), failedAuthenticationMethods, ref authenticationException))
-                            authenticationResult = AuthenticationResult.Success;
-                        break;
-                    case AuthenticationResult.Failure:
-                        failedAuthenticationMethods.Add(authenticationMethod);
-                        authenticationException = new SshAuthenticationException(string.Format("Permission denied ({0}).", authenticationMethod.Name));
-                        break;
-                    case AuthenticationResult.Success:
-                        authenticationException = null;
-                        break;
-                }
-
-                if (authenticationResult == AuthenticationResult.Success)
-                    return true;
-            }
-
-            return false;
+            return new NoneAuthenticationMethod(Username);
         }
 
-        private void Session_UserAuthenticationBannerReceived(object sender, MessageEventArgs<BannerMessage> e)
+        IEnumerable<IAuthenticationMethod> IConnectionInfo.AuthenticationMethods
         {
-            if (this.AuthenticationBanner != null)
-            {
-                this.AuthenticationBanner(this, new AuthenticationBannerEventArgs(this.Username, e.Message.Message, e.Message.Language));
-            }
+            get { return AuthenticationMethods.Cast<IAuthenticationMethod>(); }
         }
     }
 }

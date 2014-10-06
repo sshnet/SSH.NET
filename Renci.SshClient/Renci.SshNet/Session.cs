@@ -695,10 +695,30 @@ namespace Renci.SshNet
         /// <remarks>
         /// When neither handles are signaled in time and the session is not closing, then the
         /// session is disconnected.
-        /// 
         /// </remarks>
         internal void WaitOnHandle(WaitHandle waitHandle)
         {
+            WaitOnHandle(waitHandle, ConnectionInfo.Timeout);
+        }
+
+        /// <summary>
+        /// Waits for the specified handle or the exception handle for the receive thread
+        /// to signal within the specified timeout.
+        /// </summary>
+        /// <param name="waitHandle">The wait handle.</param>
+        /// <param name="timeout">The time to wait for any of the handles to become signaled.</param>
+        /// <exception cref="SshConnectionException">A received package was invalid or failed the message integrity check.</exception>
+        /// <exception cref="SshOperationTimeoutException">None of the handles are signaled in time and the session is not disconnecting.</exception>
+        /// <exception cref="SocketException">A socket error was signaled while receiving messages from the server.</exception>
+        /// <remarks>
+        /// When neither handles are signaled in time and the session is not closing, then the
+        /// session is disconnected.
+        /// </remarks>
+        internal void WaitOnHandle(WaitHandle waitHandle, TimeSpan timeout)
+        {
+            if (waitHandle == null)
+                throw new ArgumentNullException("waitHandle");
+
             var waitHandles = new[]
                 {
                     this._exceptionWaitHandle,
@@ -706,7 +726,7 @@ namespace Renci.SshNet
                     waitHandle
                 };
 
-            switch (WaitHandle.WaitAny(waitHandles, ConnectionInfo.Timeout))
+            switch (WaitHandle.WaitAny(waitHandles, timeout))
             {
                 case 0:
                     throw this._exception;

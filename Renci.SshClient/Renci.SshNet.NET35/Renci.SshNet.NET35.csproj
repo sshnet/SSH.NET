@@ -87,6 +87,9 @@
     <Compile Include="..\Renci.SshNet\CipherInfo.cs">
       <Link>CipherInfo.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\ClientAuthentication.cs">
+      <Link>ClientAuthentication.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\CommandAsyncResult.cs">
       <Link>CommandAsyncResult.cs</Link>
     </Compile>
@@ -275,6 +278,15 @@
     </Compile>
     <Compile Include="..\Renci.SshNet\HashInfo.cs">
       <Link>HashInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\IAuthenticationMethod.cs">
+      <Link>IAuthenticationMethod.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\IConnectionInfo.cs">
+      <Link>IConnectionInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\ISession.cs">
+      <Link>ISession.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\KeyboardInteractiveAuthenticationMethod.cs">
       <Link>KeyboardInteractiveAuthenticationMethod.cs</Link>
@@ -895,7 +907,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" ProjectLinkReference="2f5f8c90-0bd1-424f-997c-7bc6280919d1" />
+      <UserProperties ProjectLinkReference="2f5f8c90-0bd1-424f-997c-7bc6280919d1" ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

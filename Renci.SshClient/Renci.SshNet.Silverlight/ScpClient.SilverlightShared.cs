@@ -1,5 +1,5 @@
-﻿using Renci.SshNet.Channels;
-using Renci.SshNet.Messages.Connection;
+﻿using System.Text;
+using Renci.SshNet.Channels;
 
 namespace Renci.SshNet
 {
@@ -8,9 +8,9 @@ namespace Renci.SshNet
     /// </summary>
     public partial class ScpClient
     {
-        partial void SendData(ChannelSession channel, string command)
+        partial void SendData(IChannelSession channel, string command)
         {
-            this.Session.SendMessage(new ChannelDataMessage(channel.RemoteChannelNumber, System.Text.Encoding.UTF8.GetBytes(command)));
+            channel.SendData(Encoding.UTF8.GetBytes(command));
         }
     }
 }

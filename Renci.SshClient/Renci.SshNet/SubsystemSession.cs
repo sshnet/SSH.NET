@@ -10,11 +10,11 @@ namespace Renci.SshNet.Sftp
     /// <summary>
     /// Base class for SSH subsystem implementations
     /// </summary>
-    public abstract class SubsystemSession : IDisposable
+    internal abstract class SubsystemSession : IDisposable
     {
-        private readonly Session _session;
+        private readonly ISession _session;
         private readonly string _subsystemName;
-        private ChannelSession _channel;
+        private IChannelSession _channel;
         private Exception _exception;
         private EventWaitHandle _errorOccuredWaitHandle = new ManualResetEvent(false);
         private EventWaitHandle _channelClosedWaitHandle = new ManualResetEvent(false);
@@ -40,7 +40,7 @@ namespace Renci.SshNet.Sftp
         /// <value>
         /// The channel associated with this session.
         /// </value>
-        internal ChannelSession Channel
+        internal IChannelSession Channel
         {
             get { return _channel; }
         }
@@ -58,7 +58,7 @@ namespace Renci.SshNet.Sftp
         /// <param name="operationTimeout">The operation timeout.</param>
         /// <param name="encoding">The character encoding to use.</param>
         /// <exception cref="ArgumentNullException"><paramref name="session" /> or <paramref name="subsystemName" /> or <paramref name="encoding"/>is null.</exception>
-        protected SubsystemSession(Session session, string subsystemName, TimeSpan operationTimeout, Encoding encoding)
+        protected SubsystemSession(ISession session, string subsystemName, TimeSpan operationTimeout, Encoding encoding)
         {
             if (session == null)
                 throw new ArgumentNullException("session");
@@ -78,7 +78,7 @@ namespace Renci.SshNet.Sftp
         /// </summary>
         public void Connect()
         {
-            this._channel = this._session.CreateClientChannel<ChannelSession>();
+            this._channel = this._session.CreateChannelSession();
 
             this._session.ErrorOccured += Session_ErrorOccured;
             this._session.Disconnected += Session_Disconnected;

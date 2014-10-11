@@ -25,6 +25,7 @@ Fixes:
     * SftpClient.Exists(string) returns true for a path that does not exist (issues #1952, #1696 and #1574)
     * ObjectDisposedException when channel is closing (issues #1942 and #1944)
     * Stack overflow during authentication when server returns same allowed methods after partial success (issue #2399)
+    * SshCommand doesn't cleanup subscribed events (issue #2295)
 
 2014.4.6-beta1
 ==============

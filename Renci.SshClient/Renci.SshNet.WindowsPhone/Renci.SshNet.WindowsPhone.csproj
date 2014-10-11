@@ -79,6 +79,12 @@
     <Compile Include="..\Renci.SshNet\Channels\ClientChannel.cs">
       <Link>Channels\ClientChannel.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\Channels\IChannel.cs">
+      <Link>Channels\IChannel.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Channels\IChannelSession.cs">
+      <Link>Channels\IChannelSession.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\Channels\ServerChannel.cs">
       <Link>Channels\ServerChannel.cs</Link>
     </Compile>

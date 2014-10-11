@@ -24,6 +24,7 @@ Fixes:
     * Client channels are no longer closed on dispose (issue #1943)
     * SftpClient.Exists(string) returns true for a path that does not exist (issues #1952, #1696 and #1574)
     * ObjectDisposedException when channel is closing (issues #1942 and #1944)
+    * Stack overflow during authentication when server returns same allowed methods after partial success (issue #2399)
 
 2014.4.6-beta1
 ==============

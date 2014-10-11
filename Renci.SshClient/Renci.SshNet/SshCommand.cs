@@ -16,9 +16,10 @@ namespace Renci.SshNet
     /// </summary>
     public partial class SshCommand : IDisposable
     {
-        private readonly Session _session;
+        private readonly ISession _session;
+        private readonly Encoding _encoding;
 
-        private ChannelSession _channel;
+        private IChannelSession _channel;
 
         private CommandAsyncResult _asyncResult;
 
@@ -90,7 +91,7 @@ namespace Renci.SshNet
 
                 if (this.OutputStream != null && this.OutputStream.Length > 0)
                 {
-                    using (var sr = new StreamReader(this.OutputStream, this._session.ConnectionInfo.Encoding))
+                    using (var sr = new StreamReader(this.OutputStream, _encoding))
                     {
                         this._result.Append(sr.ReadToEnd());
                     }
@@ -120,7 +121,7 @@ namespace Renci.SshNet
 
                     if (this.ExtendedOutputStream != null && this.ExtendedOutputStream.Length > 0)
                     {
-                        using (var sr = new StreamReader(this.ExtendedOutputStream, this._session.ConnectionInfo.Encoding))
+                        using (var sr = new StreamReader(this.ExtendedOutputStream, _encoding))
                         {
                             this._error.Append(sr.ReadToEnd());
                         }
@@ -137,16 +138,20 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="session">The session.</param>
         /// <param name="commandText">The command text.</param>
+        /// <param name="encoding">The encoding to use for the results.</param>
         /// <exception cref="ArgumentNullException">Either <paramref name="session"/>, <paramref name="commandText"/> is null.</exception>
-        internal SshCommand(Session session, string commandText)
+        internal SshCommand(ISession session, string commandText, Encoding encoding)
         {
             if (session == null)
                 throw new ArgumentNullException("session");
             if (commandText == null)
                 throw new ArgumentNullException("commandText");
+            if (encoding == null)
+                throw new ArgumentNullException("encoding");
 
             this._session = session;
             this.CommandText = commandText;
+            this._encoding = encoding;
             this.CommandTimeout = new TimeSpan(0, 0, 0, 0, -1);
 
             this._session.Disconnected += Session_Disconnected;
@@ -246,7 +251,7 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Begins an asynchronous command execution. 22
+        /// Begins an asynchronous command execution.
         /// </summary>
         /// <param name="commandText">The command text.</param>
         /// <param name="callback">An optional asynchronous callback, to be called when the command execution is complete.</param>
@@ -271,7 +276,6 @@ namespace Renci.SshNet
         /// <example>
         ///     <code source="..\..\Renci.SshNet.Tests\Classes\SshCommandTest.cs" region="Example SshCommand CreateCommand BeginExecute IsCompleted EndExecute" language="C#" title="Asynchronous Command Execution" />
         /// </example>
-        /// <exception cref="System.ArgumentException">Either the IAsyncResult object did not come from the corresponding async method on this type, or EndExecute was called multiple times with the same IAsyncResult.</exception>
         /// <exception cref="ArgumentException">Either the IAsyncResult object did not come from the corresponding async method on this type, or EndExecute was called multiple times with the same IAsyncResult.</exception>
         public string EndExecute(IAsyncResult asyncResult)
         {
@@ -284,16 +288,16 @@ namespace Renci.SshNet
                         //  Make sure that operation completed if not wait for it to finish
                         this.WaitOnHandle(this._asyncResult.AsyncWaitHandle);
 
-                        if (this._channel.IsOpen)
+                        if (_channel.IsOpen)
                         {
-                            this._channel.SendEof();
-
-                            this._channel.Close();
+                            _channel.SendEof();
+                            _channel.Close();
                         }
 
-                        this._channel = null;
+                        _channel.Dispose();
+                        _channel = null;
 
-                        this._asyncResult = null;
+                        _asyncResult = null;
 
                         return this.Result;
                     }
@@ -346,7 +350,7 @@ namespace Renci.SshNet
 
         private void CreateChannel()
         {
-            this._channel = this._session.CreateClientChannel<ChannelSession>();
+            this._channel = this._session.CreateChannelSession();
             this._channel.DataReceived += Channel_DataReceived;
             this._channel.ExtendedDataReceived += Channel_ExtendedDataReceived;
             this._channel.RequestReceived += Channel_RequestReceived;
@@ -419,15 +423,19 @@ namespace Renci.SshNet
 
         private void Channel_RequestReceived(object sender, ChannelRequestEventArgs e)
         {
-            Message replyMessage = new ChannelFailureMessage(this._channel.LocalChannelNumber);
+            Message replyMessage;
 
             if (e.Info is ExitStatusRequestInfo)
             {
                 var exitStatusInfo = e.Info as ExitStatusRequestInfo;
 
-                this.ExitStatus = (int)exitStatusInfo.ExitStatus;
+                this.ExitStatus = (int) exitStatusInfo.ExitStatus;
 
                 replyMessage = new ChannelSuccessMessage(this._channel.LocalChannelNumber);
+            }
+            else
+            {
+                replyMessage = new ChannelFailureMessage(this._channel.LocalChannelNumber);
             }
 
             if (e.Info.WantReply)
@@ -498,7 +506,6 @@ namespace Renci.SshNet
         public void Dispose()
         {
             Dispose(true);
-
             GC.SuppressFinalize(this);
         }
 
@@ -515,7 +522,6 @@ namespace Renci.SshNet
                 // and unmanaged ResourceMessages.
                 if (disposing)
                 {
-
                     this._session.Disconnected -= Session_Disconnected;
                     this._session.ErrorOccured -= Session_ErrorOccured;
 
@@ -543,11 +549,6 @@ namespace Renci.SshNet
                     // Dispose managed ResourceMessages.
                     if (this._channel != null)
                     {
-                        this._channel.DataReceived -= Channel_DataReceived;
-                        this._channel.ExtendedDataReceived -= Channel_ExtendedDataReceived;
-                        this._channel.RequestReceived -= Channel_RequestReceived;
-                        this._channel.Closed -= Channel_Closed;
-
                         this._channel.Dispose();
                         this._channel = null;
                     }

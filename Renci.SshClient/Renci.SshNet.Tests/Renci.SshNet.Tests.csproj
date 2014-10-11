@@ -240,6 +240,7 @@
     <Compile Include="Classes\ForwardedPortLocalTest.NET40.cs" />
     <Compile Include="Classes\SshCommandTest.NET40.cs" />
     <Compile Include="Classes\ScpClientTest.NET40.cs" />
+    <Compile Include="Classes\SshCommandTest_EndExecute.cs" />
     <Compile Include="Common\AsyncSocketListener.cs" />
     <Compile Include="Common\HttpProxyStub.cs" />
     <Compile Include="Common\HttpRequest.cs" />

@@ -213,7 +213,7 @@ namespace Renci.SshNet
         public SshCommand CreateCommand(string commandText, Encoding encoding)
         {
             this.ConnectionInfo.Encoding = encoding;
-            return new SshCommand(this.Session, commandText);
+            return new SshCommand(this.Session, commandText, encoding);
         }
 
         /// <summary>

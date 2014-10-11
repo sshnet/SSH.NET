@@ -15,7 +15,7 @@ namespace Renci.SshNet
     {
         private readonly Session _session;
 
-        private ChannelSession _channel;
+        private IChannelSession _channel;
 
         private EventWaitHandle _channelClosedWaitHandle;
 

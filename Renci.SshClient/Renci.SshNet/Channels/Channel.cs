@@ -10,7 +10,7 @@ namespace Renci.SshNet.Channels
     /// <summary>
     /// Represents base class for SSH channel implementations.
     /// </summary>
-    internal abstract class Channel : IDisposable
+    internal abstract class Channel : IChannel
     {
         private EventWaitHandle _channelClosedWaitHandle = new ManualResetEvent(false);
         private EventWaitHandle _channelServerWindowAdjustWaitHandle = new ManualResetEvent(false);
@@ -46,6 +46,9 @@ namespace Renci.SshNet.Channels
         /// <summary>
         /// Gets the local channel number.
         /// </summary>
+        /// <value>
+        /// The local channel number.
+        /// </value>
         public uint LocalChannelNumber { get; private set; }
 
         /// <summary>
@@ -238,15 +241,19 @@ namespace Renci.SshNet.Channels
         /// <summary>
         /// Sends the SSH_MSG_CHANNEL_EOF message.
         /// </summary>
-        internal void SendEof()
+        public void SendEof()
         {
             //  Send EOF message first when channel need to be closed
             this.SendMessage(new ChannelEofMessage(this.RemoteChannelNumber));
         }
 
-        internal void SendData(byte[] buffer)
+        /// <summary>
+        /// Sends a SSH_MSG_CHANNEL_DATA message with the specified payload.
+        /// </summary>
+        /// <param name="data">The payload to send.</param>
+        public void SendData(byte[] data)
         {
-            this.SendMessage(new ChannelDataMessage(this.RemoteChannelNumber, buffer));
+            this.SendMessage(new ChannelDataMessage(this.RemoteChannelNumber, data));
         }
 
         /// <summary>

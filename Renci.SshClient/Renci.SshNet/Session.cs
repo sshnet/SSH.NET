@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -656,6 +655,24 @@ namespace Renci.SshNet
             }
         }
 
+        /// <summary>
+        /// Create a new SSH session channel.
+        /// </summary>
+        /// <returns>
+        /// A new SSH session channel.
+        /// </returns>
+        IChannelSession ISession.CreateChannelSession()
+        {
+            return CreateClientChannel<ChannelSession>();
+        }
+
+        /// <summary>
+        /// Create a new client channel.
+        /// </summary>
+        /// <typeparam name="T">The type of the channel.</typeparam>
+        /// <returns>
+        /// A new client channel.
+        /// </returns>
         internal T CreateClientChannel<T>() where T : ClientChannel, new()
         {
             var channel = new T();
@@ -766,9 +783,24 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Sends packet message to the server.
+        /// Sends a message to the server.
         /// </summary>
-        /// <param name="message">The message.</param>
+        /// <param name="message">The message to send.</param>
+        /// <exception cref="SshConnectionException">The client is not connected.</exception>
+        /// <exception cref="SshOperationTimeoutException">The operation timed out.</exception>
+        /// <exception cref="InvalidOperationException">The size of the packet exceeds the maximum size defined by the protocol.</exception>
+        void ISession.SendMessage(Message message)
+        {
+            SendMessage(message);
+        }
+
+        /// <summary>
+        /// Sends a message to the server.
+        /// </summary>
+        /// <param name="message">The message to send.</param>
+        /// <exception cref="SshConnectionException">The client is not connected.</exception>
+        /// <exception cref="SshOperationTimeoutException">The operation timed out.</exception>
+        /// <exception cref="InvalidOperationException">The size of the packet exceeds the maximum size defined by the protocol.</exception>
         internal void SendMessage(Message message)
         {
             if (this._socket == null || !this._socket.CanWrite())
@@ -1002,7 +1034,7 @@ namespace Renci.SshNet
 
             var disconnectMessage = new DisconnectMessage(reasonCode, message);
 
-            this.SendMessage(disconnectMessage);
+            SendMessage(disconnectMessage);
 
             this._isDisconnectMessageSent = true;
         }
@@ -1586,18 +1618,18 @@ namespace Renci.SshNet
         #region Message loading functions
 
         /// <summary>
-        /// Registers SSH Message with the session.
+        /// Registers SSH message with the session.
         /// </summary>
-        /// <param name="messageName">Name of the message.</param>
+        /// <param name="messageName">The name of the message to register with the session.</param>
         public void RegisterMessage(string messageName)
         {
             this.InternalRegisterMessage(messageName);
         }
 
         /// <summary>
-        /// Removes SSH message from the session
+        /// Unregister SSH message from the session.
         /// </summary>
-        /// <param name="messageName">Name of the message.</param>
+        /// <param name="messageName">The name of the message to unregister with the session.</param>
         public void UnRegisterMessage(string messageName)
         {
             this.InternalUnRegisterMessage(messageName);

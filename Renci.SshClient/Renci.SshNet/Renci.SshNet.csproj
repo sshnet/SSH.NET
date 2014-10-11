@@ -57,6 +57,8 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="BaseClient.cs" />
+    <Compile Include="Channels\IChannel.cs" />
+    <Compile Include="Channels\IChannelSession.cs" />
     <Compile Include="CommandAsyncResult.cs" />
     <Compile Include="Channels\Channel.cs" />
     <Compile Include="Channels\ChannelDirectTcpip.cs" />

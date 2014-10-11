@@ -342,9 +342,9 @@ namespace Renci.SshNet
             }
         }
 
-        partial void SendData(ChannelSession channel, string command);
+        partial void SendData(IChannelSession channel, string command);
 
-        private void SendData(ChannelSession channel, byte[] buffer, int length)
+        private void SendData(IChannelSession channel, byte[] buffer, int length)
         {
             if (length == buffer.Length)
             {
@@ -356,7 +356,7 @@ namespace Renci.SshNet
             }
         }
 
-        private void SendData(ChannelSession channel, byte[] buffer)
+        private void SendData(IChannelSession channel, byte[] buffer)
         {
             channel.SendData(buffer);
         }

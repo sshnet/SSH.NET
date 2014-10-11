@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
+using System.Text;
 using System.Threading;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Connection;
@@ -9,7 +10,7 @@ namespace Renci.SshNet.Channels
     /// <summary>
     /// Implements Session SSH channel.
     /// </summary>
-    internal class ChannelSession : ClientChannel
+    internal class ChannelSession : ClientChannel, IChannelSession
     {
         /// <summary>
         /// Counts faile channel open attempts
@@ -112,7 +113,7 @@ namespace Renci.SshNet.Channels
         /// <param name="height">The height.</param>
         /// <param name="terminalModeValues">The terminal mode values.</param>
         /// <returns>
-        /// true if request was successful; otherwise false.
+        /// <c>true</c> if request was successful; otherwise <c>false</c>.
         /// </returns>
         public bool SendPseudoTerminalRequest(string environmentVariable, uint columns, uint rows, uint width, uint height, IDictionary<TerminalModes, uint> terminalModeValues)
         {
@@ -129,7 +130,9 @@ namespace Renci.SshNet.Channels
         /// <param name="protocol">The protocol.</param>
         /// <param name="cookie">The cookie.</param>
         /// <param name="screenNumber">The screen number.</param>
-        /// <returns>true if request was successful; otherwise false.</returns>
+        /// <returns>
+        /// <c>true</c> if request was successful; otherwise <c>false</c>.
+        /// </returns>
         public bool SendX11ForwardingRequest(bool isSingleConnection, string protocol, byte[] cookie, uint screenNumber)
         {
             this._channelRequestResponse.Reset();
@@ -143,7 +146,9 @@ namespace Renci.SshNet.Channels
         /// </summary>
         /// <param name="variableName">Name of the variable.</param>
         /// <param name="variableValue">The variable value.</param>
-        /// <returns>true if request was successful; otherwise false.</returns>
+        /// <returns>
+        /// <c>true</c> if request was successful; otherwise <c>false</c>.
+        /// </returns>
         public bool SendEnvironmentVariableRequest(string variableName, string variableValue)
         {
             this._channelRequestResponse.Reset();
@@ -155,7 +160,9 @@ namespace Renci.SshNet.Channels
         /// <summary>
         /// Sends the shell request.
         /// </summary>
-        /// <returns>true if request was successful; otherwise false.</returns>
+        /// <returns>
+        /// <c>true</c> if request was successful; otherwise <c>false</c>.
+        /// </returns>
         public bool SendShellRequest()
         {
             this._channelRequestResponse.Reset();
@@ -168,7 +175,9 @@ namespace Renci.SshNet.Channels
         /// Sends the exec request.
         /// </summary>
         /// <param name="command">The command.</param>
-        /// <returns>true if request was successful; otherwise false.</returns>
+        /// <returns>
+        /// <c>true</c> if request was successful; otherwise <c>false</c>.
+        /// </returns>
         public bool SendExecRequest(string command)
         {
             this._channelRequestResponse.Reset();
@@ -181,7 +190,9 @@ namespace Renci.SshNet.Channels
         /// Sends the exec request.
         /// </summary>
         /// <param name="breakLength">Length of the break.</param>
-        /// <returns>true if request was successful; otherwise false.</returns>
+        /// <returns>
+        /// <c>true</c> if request was successful; otherwise <c>false</c>.
+        /// </returns>
         public bool SendBreakRequest(uint breakLength)
         {
             this._channelRequestResponse.Reset();
@@ -194,7 +205,9 @@ namespace Renci.SshNet.Channels
         /// Sends the subsystem request.
         /// </summary>
         /// <param name="subsystem">The subsystem.</param>
-        /// <returns>true if request was successful; otherwise false.</returns>
+        /// <returns>
+        /// <c>true</c> if request was successful; otherwise <c>false</c>.
+        /// </returns>
         public bool SendSubsystemRequest(string subsystem)
         {
             this._channelRequestResponse.Reset();
@@ -210,7 +223,9 @@ namespace Renci.SshNet.Channels
         /// <param name="rows">The rows.</param>
         /// <param name="width">The width.</param>
         /// <param name="height">The height.</param>
-        /// <returns>true if request was successful; otherwise false.</returns>
+        /// <returns>
+        /// <c>true</c> if request was successful; otherwise <c>false</c>.
+        /// </returns>
         public bool SendWindowChangeRequest(uint columns, uint rows, uint width, uint height)
         {
             this.SendMessage(new ChannelRequestMessage(this.RemoteChannelNumber, new WindowChangeRequestInfo(columns, rows, width, height)));
@@ -221,7 +236,9 @@ namespace Renci.SshNet.Channels
         /// Sends the local flow request.
         /// </summary>
         /// <param name="clientCanDo">if set to <c>true</c> [client can do].</param>
-        /// <returns>true if request was successful; otherwise false.</returns>
+        /// <returns>
+        /// <c>true</c> if request was successful; otherwise <c>false</c>.
+        /// </returns>
         public bool SendLocalFlowRequest(bool clientCanDo)
         {
             this.SendMessage(new ChannelRequestMessage(this.RemoteChannelNumber, new XonXoffRequestInfo(clientCanDo)));
@@ -232,7 +249,9 @@ namespace Renci.SshNet.Channels
         /// Sends the signal request.
         /// </summary>
         /// <param name="signalName">Name of the signal.</param>
-        /// <returns>true if request was successful; otherwise false.</returns>
+        /// <returns>
+        /// <c>true</c> if request was successful; otherwise <c>false</c>.
+        /// </returns>
         public bool SendSignalRequest(string signalName)
         {
             this.SendMessage(new ChannelRequestMessage(this.RemoteChannelNumber, new SignalRequestInfo(signalName)));
@@ -243,7 +262,9 @@ namespace Renci.SshNet.Channels
         /// Sends the exit status request.
         /// </summary>
         /// <param name="exitStatus">The exit status.</param>
-        /// <returns>true if request was successful; otherwise false.</returns>
+        /// <returns>
+        /// <c>true</c> if request was successful; otherwise <c>false</c>.
+        /// </returns>
         public bool SendExitStatusRequest(uint exitStatus)
         {
             this.SendMessage(new ChannelRequestMessage(this.RemoteChannelNumber, new ExitStatusRequestInfo(exitStatus)));
@@ -257,7 +278,9 @@ namespace Renci.SshNet.Channels
         /// <param name="coreDumped">if set to <c>true</c> [core dumped].</param>
         /// <param name="errorMessage">The error message.</param>
         /// <param name="language">The language.</param>
-        /// <returns>true if request was successful; otherwise false.</returns>
+        /// <returns>
+        /// <c>true</c> if request was successful; otherwise <c>false</c>.
+        /// </returns>
         public bool SendExitSignalRequest(string signalName, bool coreDumped, string errorMessage, string language)
         {
             this.SendMessage(new ChannelRequestMessage(this.RemoteChannelNumber, new ExitSignalRequestInfo(signalName, coreDumped, errorMessage, language)));
@@ -267,7 +290,9 @@ namespace Renci.SshNet.Channels
         /// <summary>
         /// Sends eow@openssh.com request.
         /// </summary>
-        /// <returns>true if request was successful; otherwise false.</returns>
+        /// <returns>
+        /// <c>true</c> if request was successful; otherwise <c>false</c>.
+        /// </returns>
         public bool SendEndOfWriteRequest()
         {
             this._channelRequestResponse.Reset();
@@ -279,7 +304,9 @@ namespace Renci.SshNet.Channels
         /// <summary>
         /// Sends keepalive@openssh.com request.
         /// </summary>
-        /// <returns>true if request was successful; otherwise false.</returns>
+        /// <returns>
+        /// <c>true</c> if request was successful; otherwise <c>false</c>.
+        /// </returns>
         public bool SendKeepAliveRequest()
         {
             this._channelRequestResponse.Reset();

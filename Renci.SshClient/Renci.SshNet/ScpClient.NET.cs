@@ -295,7 +295,7 @@ namespace Renci.SshNet
             }
         }
 
-        partial void SendData(ChannelSession channel, string command)
+        partial void SendData(IChannelSession channel, string command)
         {
             channel.SendData(System.Text.Encoding.Default.GetBytes(command));
         }

@@ -19,7 +19,7 @@ namespace Renci.SshNet
 
         private const int _bufferSize = 1024;
 
-        private ChannelSession _channel;
+        private IChannelSession _channel;
 
         private readonly Encoding _encoding;
 

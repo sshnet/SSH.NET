@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Globalization;
+using System.Linq;
 using System;
 using System.Net.Sockets;
 using System.Net;
@@ -12,6 +13,10 @@ namespace Renci.SshNet
 {
     public partial class Session
     {
+        private const byte Null = 0x00;
+        private const byte CarriageReturn = 0x0d;
+        private const byte LineFeed = 0x0a;
+
         private readonly TraceSource _log =
 #if DEBUG
             new TraceSource("SshNet.Logging", SourceLevels.All);
@@ -27,9 +32,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Gets a value indicating whether the socket is connected.
         /// </summary>
-        /// <value>
-        /// <c>true</c> if the socket is connected; otherwise, <c>false</c>.
-        /// </value>
+        /// <param name="isConnected"><c>true</c> if the socket is connected; otherwise, <c>false</c></param>
         /// <remarks>
         /// <para>
         /// As a first check we verify whether <see cref="Socket.Connected"/> is
@@ -52,7 +55,7 @@ namespace Renci.SshNet
         /// </para>
         /// <para>
         /// <c>Conclusion:</c> when the return value is <c>true</c> - but no data is available for reading - then
-        ///  the socket is no longer connected.
+        /// the socket is no longer connected.
         /// </para>
         /// <para>
         /// When a <see cref="Socket"/> is used from multiple threads, there's a race condition
@@ -86,81 +89,102 @@ namespace Renci.SshNet
             }
         }
 
+        /// <summary>
+        /// Establishes a socket connection to the specified host and port.
+        /// </summary>
+        /// <param name="host">The host name of the server to connect to.</param>
+        /// <param name="port">The port to connect to.</param>
+        /// <exception cref="SshOperationTimeoutException">The connection failed to establish within the configured <see cref="Renci.SshNet.ConnectionInfo.Timeout"/>.</exception>
+        /// <exception cref="SocketException">An error occurred trying to establish the connection.</exception>
         partial void SocketConnect(string host, int port)
         {
             const int socketBufferSize = 2 * MaximumSshPacketSize;
 
-            var addr = host.GetIPAddress();
+            var ipAddress = host.GetIPAddress();
+            var timeout = ConnectionInfo.Timeout;
+            var ep = new IPEndPoint(ipAddress, port);
 
-            var ep = new IPEndPoint(addr, port);
-            this._socket = new Socket(ep.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            _socket = new Socket(ep.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            _socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.NoDelay, true);
+            _socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.SendBuffer, socketBufferSize);
+            _socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveBuffer, socketBufferSize);
 
-            this._socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.NoDelay, true);
-            this._socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.SendBuffer, socketBufferSize);
-            this._socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveBuffer, socketBufferSize);
+            Log(string.Format("Initiating connect to '{0}:{1}'.", ConnectionInfo.Host, ConnectionInfo.Port));
 
-            this.Log(string.Format("Initiating connect to '{0}:{1}'.", this.ConnectionInfo.Host, this.ConnectionInfo.Port));
+            var connectResult = _socket.BeginConnect(ep, null, null);
+            if (!connectResult.AsyncWaitHandle.WaitOne(timeout, false))
+                throw new SshOperationTimeoutException(string.Format(CultureInfo.InvariantCulture,
+                    "Connection failed to establish within {0:F0} milliseconds.", timeout.TotalMilliseconds));
 
-            //  Connect socket with specified timeout
-            var connectResult = this._socket.BeginConnect(ep, null, null);
-
-            if (!connectResult.AsyncWaitHandle.WaitOne(this.ConnectionInfo.Timeout, false))
-            {
-                throw new SshOperationTimeoutException("Connection Could Not Be Established");
-            }
-
-            this._socket.EndConnect(connectResult);
+            _socket.EndConnect(connectResult);
         }
 
+        /// <summary>
+        /// Closes the socket and allows the socket to be reused after the current connection is closed.
+        /// </summary>
+        /// <exception cref="SocketException">An error occurred when trying to access the socket.</exception>
         partial void SocketDisconnect()
         {
             _socket.Disconnect(true);
         }
 
-        partial void SocketReadLine(ref string response)
+        /// <summary>
+        /// Performs a blocking read on the socket until a line is read.
+        /// </summary>
+        /// <param name="response">The line read from the socket, or <c>null</c> when the remote server has shutdown and all data has been received.</param>
+        /// <param name="timeout">A <see cref="TimeSpan"/> that represents the time to wait until a line is read.</param>
+        /// <exception cref="SshOperationTimeoutException">The read has timed-out.</exception>
+        /// <exception cref="SocketException">An error occurred when trying to access the socket.</exception>
+        partial void SocketReadLine(ref string response, TimeSpan timeout)
         {
             var encoding = new ASCIIEncoding();
-
-            //  Read data one byte at a time to find end of line and leave any unhandled information in the buffer to be processed later
             var buffer = new List<byte>();
-
             var data = new byte[1];
+
+            // read data one byte at a time to find end of line and leave any unhandled information in the buffer
+            // to be processed by subsequent invocations
             do
             {
-                var asyncResult = this._socket.BeginReceive(data, 0, data.Length, SocketFlags.None, null, null);
+                var asyncResult = _socket.BeginReceive(data, 0, data.Length, SocketFlags.None, null, null);
+                if (!asyncResult.AsyncWaitHandle.WaitOne(timeout))
+                    throw new SshOperationTimeoutException(string.Format(CultureInfo.InvariantCulture,
+                        "Socket read operation has timed out after {0:F0} milliseconds.", timeout.TotalMilliseconds));
 
-                if (!asyncResult.AsyncWaitHandle.WaitOne(this.ConnectionInfo.Timeout))
-                    throw new SshOperationTimeoutException("Socket read operation has timed out");
+                var received = _socket.EndReceive(asyncResult);
 
-                var received = this._socket.EndReceive(asyncResult);
-
-                //  If zero bytes received then exit
                 if (received == 0)
+                    // the remote server shut down the socket
                     break;
 
                 buffer.Add(data[0]);
             }
-            while (!(buffer.Count > 0 && (buffer[buffer.Count - 1] == 0x0A || buffer[buffer.Count - 1] == 0x00)));
+            while (!(buffer.Count > 0 && (buffer[buffer.Count - 1] == LineFeed || buffer[buffer.Count - 1] == Null)));
 
-            // Return an empty version string if the buffer consists of a 0x00 character.
-            if (buffer.Count > 0 && buffer[buffer.Count - 1] == 0x00)
-            {
+            if (buffer.Count == 0)
+                response = null;
+            else if (buffer.Count == 1 && buffer[buffer.Count - 1] == 0x00)
+                // return an empty version string if the buffer consists of only a 0x00 character
                 response = string.Empty;
-            }
-            else if (buffer.Count > 1 && buffer[buffer.Count - 2] == 0x0D)
+            else if (buffer.Count > 1 && buffer[buffer.Count - 2] == CarriageReturn)
+                // strip trailing CRLF
                 response = encoding.GetString(buffer.Take(buffer.Count - 2).ToArray());
-            else
+            else if (buffer.Count > 1 && buffer[buffer.Count - 1] == LineFeed)
+                // strip trailing LF
                 response = encoding.GetString(buffer.Take(buffer.Count - 1).ToArray());
+            else
+                response = encoding.GetString(buffer.ToArray());
         }
 
         /// <summary>
-        /// Function to read <paramref name="length"/> amount of data before returning, or throwing an exception.
+        /// Performs a blocking read on the socket until <paramref name="length"/> bytes are received.
         /// </summary>
-        /// <param name="length">The amount wanted.</param>
+        /// <param name="length">The number of bytes to read.</param>
         /// <param name="buffer">The buffer to read to.</param>
-        /// <exception cref="SshConnectionException">Happens when the socket is closed.</exception>
-        /// <exception cref="Exception">Unhandled exception.</exception>
-        partial void SocketRead(int length, ref byte[] buffer)
+        /// <param name="timeout">A <see cref="TimeSpan"/> that represents the time to wait until <paramref name="length"/> bytes a read.</param>
+        /// <exception cref="SshConnectionException">The socket is closed.</exception>
+        /// <exception cref="SshOperationTimeoutException">The read has timed-out.</exception>
+        /// <exception cref="SocketException">The read failed.</exception>
+        partial void SocketRead(int length, ref byte[] buffer, TimeSpan timeout)
         {
             var receivedTotal = 0;  // how many bytes is already received
 
@@ -168,7 +192,7 @@ namespace Renci.SshNet
             {
                 try
                 {
-                    var receivedBytes = this._socket.Receive(buffer, receivedTotal, length - receivedTotal, SocketFlags.None);
+                    var receivedBytes = _socket.Receive(buffer, receivedTotal, length - receivedTotal, SocketFlags.None);
                     if (receivedBytes > 0)
                     {
                         // signal that bytes have been read from the socket
@@ -186,7 +210,7 @@ namespace Renci.SshNet
                     // 3 - MessageListener then again calls RaiseError().
                     // There the exception is checked for the exception thrown here (ConnectionLost), and if it matches it will not call Session.SendDisconnect().
                     //
-                    // Adding a check for this._isDisconnecting causes ReceiveMessage() to throw SshConnectionException: "Bad packet length {0}".
+                    // Adding a check for _isDisconnecting causes ReceiveMessage() to throw SshConnectionException: "Bad packet length {0}".
                     //
 
                     if (_isDisconnecting)
@@ -198,7 +222,7 @@ namespace Renci.SshNet
                     if (exp.SocketErrorCode == SocketError.ConnectionAborted)
                     {
                         buffer = new byte[length];
-                        this.Disconnect();
+                        Disconnect();
                         return;
                     }
 
@@ -215,16 +239,23 @@ namespace Renci.SshNet
             } while (receivedTotal < length);
         }
 
+        /// <summary>
+        /// Writes the specified data to the server.
+        /// </summary>
+        /// <param name="data">The data to write to the server.</param>
+        /// <exception cref="SshOperationTimeoutException">The write has timed-out.</exception>
+        /// <exception cref="SocketException">The write failed.</exception>
         partial void SocketWrite(byte[] data)
         {
-            var sent = 0;  // how many bytes is already sent
-            var length = data.Length;
+            var totalBytesSent = 0;  // how many bytes are already sent
+            var totalBytesToSend = data.Length;
 
             do
             {
                 try
                 {
-                    sent += this._socket.Send(data, sent, length - sent, SocketFlags.None);
+                    totalBytesSent += _socket.Send(data, totalBytesSent, totalBytesToSend - totalBytesSent,
+                        SocketFlags.None);
                 }
                 catch (SocketException ex)
                 {
@@ -238,13 +269,13 @@ namespace Renci.SshNet
                     else
                         throw;  // any serious error occurr
                 }
-            } while (sent < length);
+            } while (totalBytesSent < totalBytesToSend);
         }
 
         [Conditional("DEBUG")]
         partial void Log(string text)
         {
-            this._log.TraceEvent(TraceEventType.Verbose, 1, text);
+            _log.TraceEvent(TraceEventType.Verbose, 1, text);
         }
 
 #if ASYNC_SOCKET_READ
@@ -273,7 +304,7 @@ namespace Renci.SshNet
                         if (socketException.SocketErrorCode == SocketError.ConnectionAborted)
                         {
                             buffer = new byte[length];
-                            this.Disconnect();
+                            Disconnect();
                             return;
                         }
                     }

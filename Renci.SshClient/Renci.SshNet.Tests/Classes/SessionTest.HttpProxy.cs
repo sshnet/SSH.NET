@@ -11,6 +11,33 @@ namespace Renci.SshNet.Tests.Classes
     public partial class SessionTest
     {
         [TestMethod]
+        public void ConnectShouldThrowProxyExceptionWhenHttpProxyResponseDoesNotContainStatusLine()
+        {
+            var proxyEndPoint = new IPEndPoint(IPAddress.Loopback, 8123);
+            var serverEndPoint = new IPEndPoint(IPAddress.Loopback, 8122);
+
+            using (var proxyStub = new HttpProxyStub(proxyEndPoint))
+            {
+                proxyStub.Responses.Add(Encoding.ASCII.GetBytes("Whatever\r\n"));
+                proxyStub.Start();
+
+                using (var session = new Session(CreateConnectionInfoWithProxy(proxyEndPoint, serverEndPoint, "anon")))
+                {
+                    try
+                    {
+                        session.Connect();
+                        Assert.Fail();
+                    }
+                    catch (ProxyException ex)
+                    {
+                        Assert.IsNull(ex.InnerException);
+                        Assert.AreEqual("HTTP response does not contain status line.", ex.Message);
+                    }
+                }
+            }
+        }
+
+        [TestMethod]
         public void ConnectShouldThrowProxyExceptionWhenHttpProxyReturnsHttpStatusOtherThan200()
         {
             var proxyEndPoint = new IPEndPoint(IPAddress.Loopback, 8123);

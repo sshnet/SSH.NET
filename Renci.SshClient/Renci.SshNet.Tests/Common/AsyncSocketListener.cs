@@ -14,8 +14,10 @@ namespace Renci.SshNet.Tests.Common
         private bool _started;
 
         public delegate void BytesReceivedHandler(byte[] bytesReceived, Socket socket);
+        public delegate void ConnectedHandler(Socket socket);
 
         public event BytesReceivedHandler BytesReceived;
+        public event ConnectedHandler Connected;
 
         public AsyncSocketListener(IPEndPoint endPoint)
         {
@@ -77,6 +79,7 @@ namespace Renci.SshNet.Tests.Common
             try
             {
                 var handler = listener.EndAccept(ar);
+                SignalConnected(handler);
                 var state = new SocketStateObject(handler);
                 handler.BeginReceive(state.Buffer, 0, state.Buffer.Length, 0, ReadCallback, state);
             }
@@ -120,6 +123,13 @@ namespace Renci.SshNet.Tests.Common
             var subscribers = BytesReceived;
             if (subscribers != null)
                 subscribers(bytesReceived, client);
+        }
+
+        private void SignalConnected(Socket client)
+        {
+            var subscribers = Connected;
+            if (subscribers != null)
+                subscribers(client);
         }
 
         private class SocketStateObject

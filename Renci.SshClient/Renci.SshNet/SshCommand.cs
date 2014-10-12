@@ -294,7 +294,7 @@ namespace Renci.SshNet
                             _channel.Close();
                         }
 
-                        _channel.Dispose();
+                        UnsubscribeFromEventsAndDisposeChannel();
                         _channel = null;
 
                         _asyncResult = null;
@@ -330,6 +330,7 @@ namespace Renci.SshNet
         {
             if (this._channel != null && this._channel.IsOpen && this._asyncResult != null)
             {
+                // TODO: check with Oleg if we shouldn't dispose the channel and uninitialize it ?
                 this._channel.Close();
             }
         }
@@ -494,6 +495,19 @@ namespace Renci.SshNet
             }
         }
 
+        private void UnsubscribeFromEventsAndDisposeChannel()
+        {
+            // unsubscribe from events as we do not want to be signaled should these get fired
+            // during the dispose of the channel
+            _channel.DataReceived += Channel_DataReceived;
+            _channel.ExtendedDataReceived += Channel_ExtendedDataReceived;
+            _channel.RequestReceived += Channel_RequestReceived;
+            _channel.Closed += Channel_Closed;
+
+            // actually dispose the channel
+            _channel.Dispose();
+        }
+
         partial void ExecuteThread(Action action);
 
         #region IDisposable Members
@@ -549,7 +563,7 @@ namespace Renci.SshNet
                     // Dispose managed ResourceMessages.
                     if (this._channel != null)
                     {
-                        this._channel.Dispose();
+                        UnsubscribeFromEventsAndDisposeChannel();
                         this._channel = null;
                     }
                 }

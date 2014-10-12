@@ -15,6 +15,7 @@ namespace Renci.SshNet
         private const byte Null = 0x00;
         private const byte CarriageReturn = 0x0d;
         private const byte LineFeed = 0x0a;
+        private static readonly TimeSpan Infinite = new TimeSpan(0, 0, 0, 0, -1);
 
         private readonly AutoResetEvent _connectEvent = new AutoResetEvent(false);
         private readonly AutoResetEvent _sendEvent = new AutoResetEvent(false);
@@ -123,12 +124,12 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="length">The number of bytes to read.</param>
         /// <param name="buffer">The buffer to read to.</param>
-        /// <param name="timeout">A <see cref="TimeSpan"/> that represents the time to wait until <paramref name="length"/> bytes a read.</param>
         /// <exception cref="SshConnectionException">The socket is closed.</exception>
         /// <exception cref="SshOperationTimeoutException">The read has timed-out.</exception>
         /// <exception cref="SocketException">The read failed.</exception>
-        partial void SocketRead(int length, ref byte[] buffer, TimeSpan timeout)
+        partial void SocketRead(int length, ref byte[] buffer)
         {
+            var timeout = Infinite;
             var totalBytesReceived = 0;  // how many bytes are already received
 
             do
@@ -138,6 +139,8 @@ namespace Renci.SshNet
                 if (_socket.ReceiveAsync(args))
                 {
                     if (!_receiveEvent.WaitOne(timeout))
+                        // currently we wait indefinitely, so this exception will never be thrown
+                        // but let's leave this here anyway as we may revisit this later
                         throw new SshOperationTimeoutException(string.Format(CultureInfo.InvariantCulture,
                             "Socket read operation has timed out after {0:F0} milliseconds.", timeout.TotalMilliseconds));
                 }

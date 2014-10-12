@@ -1689,20 +1689,8 @@ namespace Renci.SshNet
         /// <param name="buffer">The buffer to read to.</param>
         /// <exception cref="SshConnectionException">The socket is closed.</exception>
         /// <exception cref="SshOperationTimeoutException">The read has timed-out.</exception>
-        private void SocketRead(int length, ref byte[] buffer)
-        {
-            SocketRead(length, ref buffer, ConnectionInfo.Timeout);
-        }
-
-        /// <summary>
-        /// Performs a blocking read on the socket until <paramref name="length"/> bytes are received.
-        /// </summary>
-        /// <param name="length">The number of bytes to read.</param>
-        /// <param name="buffer">The buffer to read to.</param>
-        /// <param name="timeout">A <see cref="TimeSpan"/> that represents the time to wait until <paramref name="length"/> bytes a read.</param>
-        /// <exception cref="SshConnectionException">The socket is closed.</exception>
-        /// <exception cref="SshOperationTimeoutException">The read has timed-out.</exception>
-        partial void SocketRead(int length, ref byte[] buffer, TimeSpan timeout);
+        /// <exception cref="SocketException">The read failed.</exception>
+        partial void SocketRead(int length, ref byte[] buffer);
 
         /// <summary>
         /// Performs a blocking read on the socket until a line is read.
@@ -1710,6 +1698,7 @@ namespace Renci.SshNet
         /// <param name="response">The line read from the socket, or <c>null</c> when the remote server has shutdown and all data has been received.</param>
         /// <param name="timeout">A <see cref="TimeSpan"/> that represents the time to wait until a line is read.</param>
         /// <exception cref="SshOperationTimeoutException">The read has timed-out.</exception>
+        /// <exception cref="SocketException">An error occurred when trying to access the socket.</exception>
         partial void SocketReadLine(ref string response, TimeSpan timeout);
 
         partial void Log(string text);
@@ -1719,6 +1708,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="data">The data to write to the server.</param>
         /// <exception cref="SshOperationTimeoutException">The write has timed-out.</exception>
+        /// <exception cref="SocketException">The write failed.</exception>
         partial void SocketWrite(byte[] data);
 
         /// <summary>

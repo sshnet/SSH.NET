@@ -180,11 +180,9 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="length">The number of bytes to read.</param>
         /// <param name="buffer">The buffer to read to.</param>
-        /// <param name="timeout">A <see cref="TimeSpan"/> that represents the time to wait until <paramref name="length"/> bytes a read.</param>
         /// <exception cref="SshConnectionException">The socket is closed.</exception>
-        /// <exception cref="SshOperationTimeoutException">The read has timed-out.</exception>
         /// <exception cref="SocketException">The read failed.</exception>
-        partial void SocketRead(int length, ref byte[] buffer, TimeSpan timeout)
+        partial void SocketRead(int length, ref byte[] buffer)
         {
             var receivedTotal = 0;  // how many bytes is already received
 

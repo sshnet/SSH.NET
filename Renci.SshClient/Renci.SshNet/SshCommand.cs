@@ -499,10 +499,10 @@ namespace Renci.SshNet
         {
             // unsubscribe from events as we do not want to be signaled should these get fired
             // during the dispose of the channel
-            _channel.DataReceived += Channel_DataReceived;
-            _channel.ExtendedDataReceived += Channel_ExtendedDataReceived;
-            _channel.RequestReceived += Channel_RequestReceived;
-            _channel.Closed += Channel_Closed;
+            _channel.DataReceived -= Channel_DataReceived;
+            _channel.ExtendedDataReceived -= Channel_ExtendedDataReceived;
+            _channel.RequestReceived -= Channel_RequestReceived;
+            _channel.Closed -= Channel_Closed;
 
             // actually dispose the channel
             _channel.Dispose();

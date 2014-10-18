@@ -15,18 +15,13 @@ namespace Renci.SshNet
     /// </summary>
     public partial class ShellStream : Stream
     {
+        private const int BufferSize = 1024;
+
         private readonly Session _session;
-
-        private const int _bufferSize = 1024;
-
-        private IChannelSession _channel;
-
         private readonly Encoding _encoding;
-
         private readonly Queue<byte> _incoming;
-
         private readonly Queue<byte> _outgoing;
-
+        private IChannelSession _channel;
         private AutoResetEvent _dataReceived = new AutoResetEvent(false);
 
         /// <summary>
@@ -49,29 +44,29 @@ namespace Renci.SshNet
         {
             get
             {
-                lock (this._incoming)
+                lock (_incoming)
                 {
-                    return this._incoming.Count > 0;
+                    return _incoming.Count > 0;
                 }
             }
         }
 
         internal ShellStream(Session session, string terminalName, uint columns, uint rows, uint width, uint height, int maxLines, IDictionary<TerminalModes, uint> terminalModeValues)
         {
-            this._encoding = session.ConnectionInfo.Encoding;
-            this._session = session;
-            this._incoming = new Queue<byte>();
-            this._outgoing = new Queue<byte>();
+            _encoding = session.ConnectionInfo.Encoding;
+            _session = session;
+            _incoming = new Queue<byte>();
+            _outgoing = new Queue<byte>();
 
-            this._channel = this._session.CreateClientChannel<ChannelSession>();
-            this._channel.DataReceived += Channel_DataReceived;
-            this._channel.Closed += Channel_Closed;
-            this._session.Disconnected += Session_Disconnected;
-            this._session.ErrorOccured += Session_ErrorOccured;
+            _channel = _session.CreateClientChannel<ChannelSession>();
+            _channel.DataReceived += Channel_DataReceived;
+            _channel.Closed += Channel_Closed;
+            _session.Disconnected += Session_Disconnected;
+            _session.ErrorOccured += Session_ErrorOccured;
 
-            this._channel.Open();
-            this._channel.SendPseudoTerminalRequest(terminalName, columns, rows, width, height, terminalModeValues);
-            this._channel.SendShellRequest();
+            _channel.Open();
+            _channel.SendPseudoTerminalRequest(terminalName, columns, rows, width, height, terminalModeValues);
+            _channel.SendShellRequest();
         }
 
         #region Stream overide methods
@@ -109,12 +104,12 @@ namespace Renci.SshNet
         /// <exception cref="T:System.IO.IOException">An I/O error occurs. </exception>
         public override void Flush()
         {
-            if (this._channel == null)
+            if (_channel == null)
             {
                 throw new ObjectDisposedException("ShellStream");
             }
-            this._channel.SendData(this._outgoing.ToArray());
-            this._outgoing.Clear();
+            _channel.SendData(_outgoing.ToArray());
+            _outgoing.Clear();
         }
 
         /// <summary>
@@ -129,9 +124,9 @@ namespace Renci.SshNet
         {
             get
             {
-                lock (this._incoming)
+                lock (_incoming)
                 {
-                    return this._incoming.Count;
+                    return _incoming.Count;
                 }
             }
         }
@@ -178,11 +173,11 @@ namespace Renci.SshNet
         {
             var i = 0;
 
-            lock (this._incoming)
+            lock (_incoming)
             {
-                for (; i < count && this._incoming.Count > 0; i++)
+                for (; i < count && _incoming.Count > 0; i++)
                 {
-                    buffer[offset + i] = this._incoming.Dequeue();
+                    buffer[offset + i] = _incoming.Dequeue();
                 }
             }
 
@@ -244,13 +239,13 @@ namespace Renci.SshNet
         {
             foreach (var b in buffer.Skip(offset).Take(count).ToArray())
             {
-                if (this._outgoing.Count < _bufferSize)
+                if (_outgoing.Count < BufferSize)
                 {
-                    this._outgoing.Enqueue(b);
+                    _outgoing.Enqueue(b);
                     continue;
                 }
 
-                this.Flush();
+                Flush();
             }
         }
 
@@ -262,7 +257,7 @@ namespace Renci.SshNet
         /// <param name="expectActions">The expected expressions and actions to perform.</param>
         public void Expect(params ExpectAction[] expectActions)
         {
-            this.Expect(TimeSpan.Zero, expectActions);
+            Expect(TimeSpan.Zero, expectActions);
         }
 
         /// <summary>
@@ -277,11 +272,11 @@ namespace Renci.SshNet
 
             do
             {
-                lock (this._incoming)
+                lock (_incoming)
                 {
-                    if (this._incoming.Count > 0)
+                    if (_incoming.Count > 0)
                     {
-                        text = this._encoding.GetString(this._incoming.ToArray(), 0, this._incoming.Count);
+                        text = _encoding.GetString(_incoming.ToArray(), 0, _incoming.Count);
                     }
 
                     if (text.Length > 0)
@@ -294,10 +289,10 @@ namespace Renci.SshNet
                             {
                                 var result = text.Substring(0, match.Index + match.Length);
 
-                                for (int i = 0; i < match.Index + match.Length && this._incoming.Count > 0; i++)
+                                for (int i = 0; i < match.Index + match.Length && _incoming.Count > 0; i++)
                                 {
                                     //  Remove processed items from the queue
-                                    this._incoming.Dequeue();
+                                    _incoming.Dequeue();
                                 }
 
                                 expectAction.Action(result);
@@ -311,14 +306,14 @@ namespace Renci.SshNet
                 {
                     if (timeout.Ticks > 0)
                     {
-                        if (!this._dataReceived.WaitOne(timeout))
+                        if (!_dataReceived.WaitOne(timeout))
                         {
                             return;
                         }
                     }
                     else
                     {
-                        this._dataReceived.WaitOne();
+                        _dataReceived.WaitOne();
                     }
                 }
             }
@@ -334,7 +329,7 @@ namespace Renci.SshNet
         /// </returns>
         public IAsyncResult BeginExpect(params ExpectAction[] expectActions)
         {
-            return this.BeginExpect(TimeSpan.Zero, null, null, expectActions);
+            return BeginExpect(TimeSpan.Zero, null, null, expectActions);
         }
 
         /// <summary>
@@ -347,7 +342,7 @@ namespace Renci.SshNet
         /// </returns>
         public IAsyncResult BeginExpect(AsyncCallback callback, params ExpectAction[] expectActions)
         {
-            return this.BeginExpect(TimeSpan.Zero, callback, null, expectActions);
+            return BeginExpect(TimeSpan.Zero, callback, null, expectActions);
         }
 
         /// <summary>
@@ -361,7 +356,7 @@ namespace Renci.SshNet
         /// </returns>
         public IAsyncResult BeginExpect(AsyncCallback callback, object state, params ExpectAction[] expectActions)
         {
-            return this.BeginExpect(TimeSpan.Zero, callback, state, expectActions);
+            return BeginExpect(TimeSpan.Zero, callback, state, expectActions);
         }
 
         /// <summary>
@@ -382,7 +377,7 @@ namespace Renci.SshNet
             var asyncResult = new ExpectAsyncResult(callback, state);
 
             //  Execute callback on different thread                
-            this.ExecuteThread(() =>
+            ExecuteThread(() =>
             {
                 string expectActionResult = null;
                 try
@@ -390,12 +385,12 @@ namespace Renci.SshNet
 
                     do
                     {
-                        lock (this._incoming)
+                        lock (_incoming)
                         {
 
-                            if (this._incoming.Count > 0)
+                            if (_incoming.Count > 0)
                             {
-                                text = this._encoding.GetString(this._incoming.ToArray(), 0, this._incoming.Count);
+                                text = _encoding.GetString(_incoming.ToArray(), 0, _incoming.Count);
                             }
 
                             if (text.Length > 0)
@@ -408,10 +403,10 @@ namespace Renci.SshNet
                                     {
                                         var result = text.Substring(0, match.Index + match.Length);
 
-                                        for (int i = 0; i < match.Index + match.Length && this._incoming.Count > 0; i++)
+                                        for (int i = 0; i < match.Index + match.Length && _incoming.Count > 0; i++)
                                         {
                                             //  Remove processed items from the queue
-                                            this._incoming.Dequeue();
+                                            _incoming.Dequeue();
                                         }
 
                                         expectAction.Action(result);
@@ -431,7 +426,7 @@ namespace Renci.SshNet
 
                         if (timeout.Ticks > 0)
                         {
-                            if (!this._dataReceived.WaitOne(timeout))
+                            if (!_dataReceived.WaitOne(timeout))
                             {
                                 if (callback != null)
                                 {
@@ -442,7 +437,7 @@ namespace Renci.SshNet
                         }
                         else
                         {
-                            this._dataReceived.WaitOne();
+                            _dataReceived.WaitOne();
                         }
                     } while (true);
 
@@ -482,7 +477,7 @@ namespace Renci.SshNet
         /// </returns>
         public string Expect(string text)
         {
-            return this.Expect(new Regex(Regex.Escape(text)), TimeSpan.FromMilliseconds(-1));
+            return Expect(new Regex(Regex.Escape(text)), TimeSpan.FromMilliseconds(-1));
         }
 
         /// <summary>
@@ -495,7 +490,7 @@ namespace Renci.SshNet
         /// </returns>
         public string Expect(string text, TimeSpan timeout)
         {
-            return this.Expect(new Regex(Regex.Escape(text)), timeout);
+            return Expect(new Regex(Regex.Escape(text)), timeout);
         }
 
         /// <summary>
@@ -505,7 +500,7 @@ namespace Renci.SshNet
         /// <returns>Text available in the shell that contains all the text that ends with expected expression.</returns>
         public string Expect(Regex regex)
         {
-            return this.Expect(regex, TimeSpan.Zero);
+            return Expect(regex, TimeSpan.Zero);
         }
 
         /// <summary>
@@ -523,11 +518,11 @@ namespace Renci.SshNet
 
             while (true)
             {
-                lock (this._incoming)
+                lock (_incoming)
                 {
-                    if (this._incoming.Count > 0)
+                    if (_incoming.Count > 0)
                     {
-                        text = this._encoding.GetString(this._incoming.ToArray(), 0, this._incoming.Count);
+                        text = _encoding.GetString(_incoming.ToArray(), 0, _incoming.Count);
                     }
 
                     var match = regex.Match(text);
@@ -535,9 +530,9 @@ namespace Renci.SshNet
                     if (match.Success)
                     {
                         //  Remove processed items from the queue
-                        for (int i = 0; i < match.Index + match.Length && this._incoming.Count > 0; i++)
+                        for (var i = 0; i < match.Index + match.Length && _incoming.Count > 0; i++)
                         {
-                            this._incoming.Dequeue();
+                            _incoming.Dequeue();
                         }
                         break;
                     }
@@ -545,14 +540,14 @@ namespace Renci.SshNet
 
                 if (timeout.Ticks > 0)
                 {
-                    if (!this._dataReceived.WaitOne(timeout))
+                    if (!_dataReceived.WaitOne(timeout))
                     {
                         return null;
                     }
                 }
                 else
                 {
-                    this._dataReceived.WaitOne();
+                    _dataReceived.WaitOne();
                 }
 
             }
@@ -566,7 +561,7 @@ namespace Renci.SshNet
         /// <returns>The line read from the shell.</returns>
         public string ReadLine()
         {
-            return this.ReadLine(TimeSpan.Zero);
+            return ReadLine(TimeSpan.Zero);
         }
 
         /// <summary>
@@ -582,23 +577,23 @@ namespace Renci.SshNet
 
             while (true)
             {
-                lock (this._incoming)
+                lock (_incoming)
                 {
-                    if (this._incoming.Count > 0)
+                    if (_incoming.Count > 0)
                     {
-                        text = this._encoding.GetString(this._incoming.ToArray(), 0, this._incoming.Count);
+                        text = _encoding.GetString(_incoming.ToArray(), 0, _incoming.Count);
                     }
 
-                    var index = text.IndexOf("\r\n");
+                    var index = text.IndexOf("\r\n", StringComparison.Ordinal);
 
                     if (index >= 0)
                     {
                         text = text.Substring(0, index);
 
                         //  Remove processed items from the queue
-                        for (int i = 0; i < index + 2 && this._incoming.Count > 0; i++)
+                        for (int i = 0; i < index + 2 && _incoming.Count > 0; i++)
                         {
-                            this._incoming.Dequeue();
+                            _incoming.Dequeue();
                         }
                         break;
                     }
@@ -606,14 +601,14 @@ namespace Renci.SshNet
 
                 if (timeout.Ticks > 0)
                 {
-                    if (!this._dataReceived.WaitOne(timeout))
+                    if (!_dataReceived.WaitOne(timeout))
                     {
                         return null;
                     }
                 }
                 else
                 {
-                    this._dataReceived.WaitOne();
+                    _dataReceived.WaitOne();
                 }
 
             }
@@ -629,10 +624,10 @@ namespace Renci.SshNet
         {
             string text;
 
-            lock (this._incoming)
+            lock (_incoming)
             {
-                text = this._encoding.GetString(this._incoming.ToArray(), 0, this._incoming.Count);
-                this._incoming.Clear();
+                text = _encoding.GetString(_incoming.ToArray(), 0, _incoming.Count);
+                _incoming.Clear();
             }
 
             return text;
@@ -644,13 +639,13 @@ namespace Renci.SshNet
         /// <param name="text">The text to be written to the shell.</param>
         public void Write(string text)
         {
-            if (this._channel == null)
+            if (_channel == null)
             {
                 throw new ObjectDisposedException("ShellStream");
             }
 
-            var data = this._encoding.GetBytes(text);
-            this._channel.SendData(data);
+            var data = _encoding.GetBytes(text);
+            _channel.SendData(data);
         }
 
         /// <summary>
@@ -660,7 +655,7 @@ namespace Renci.SshNet
         public void WriteLine(string line)
         {
             var commandText = string.Format("{0}{1}", line, "\r");
-            this.Write(commandText);
+            Write(commandText);
         }
 
         /// <summary>
@@ -671,24 +666,24 @@ namespace Renci.SshNet
         {
             base.Dispose(disposing);
 
-            if (this._session != null)
+            if (_session != null)
             {
-                this._session.Disconnected -= Session_Disconnected;
-                this._session.ErrorOccured -= Session_ErrorOccured;
+                _session.Disconnected -= Session_Disconnected;
+                _session.ErrorOccured -= Session_ErrorOccured;
             }
 
-            if (this._channel != null)
+            if (_channel != null)
             {
-                this._channel.DataReceived -= Channel_DataReceived;
-                this._channel.Closed -= Channel_Closed;
-                this._channel.Dispose();
-                this._channel = null;
+                _channel.DataReceived -= Channel_DataReceived;
+                _channel.Closed -= Channel_Closed;
+                _channel.Dispose();
+                _channel = null;
             }
 
-            if (this._dataReceived != null)
+            if (_dataReceived != null)
             {
-                this._dataReceived.Dispose();
-                this._dataReceived = null;
+                _dataReceived.Dispose();
+                _dataReceived = null;
             }
         }
 
@@ -698,50 +693,50 @@ namespace Renci.SshNet
         /// <param name="waitHandle">The wait handle.</param>
         protected void WaitOnHandle(WaitHandle waitHandle)
         {
-            this._session.WaitOnHandle(waitHandle);
+            _session.WaitOnHandle(waitHandle);
         }
 
         partial void ExecuteThread(Action action);
 
         private void Session_ErrorOccured(object sender, ExceptionEventArgs e)
         {
-            this.OnRaiseError(e);
+            OnRaiseError(e);
         }
 
         private void Session_Disconnected(object sender, EventArgs e)
         {
             //  If channel is open then close it to cause Channel_Closed method to be called
-            if (this._channel != null && this._channel.IsOpen)
+            if (_channel != null && _channel.IsOpen)
             {
-                this._channel.SendEof();
+                _channel.SendEof();
 
-                this._channel.Close();
+                _channel.Close();
             }
         }
 
         private void Channel_Closed(object sender, ChannelEventArgs e)
         {
             //  TODO:   Do we need to call dispose here ??
-            this.Dispose();
+            Dispose();
         }
 
         private void Channel_DataReceived(object sender, ChannelDataEventArgs e)
         {
-            lock (this._incoming)
+            lock (_incoming)
             {
                 foreach (var b in e.Data)
-                    this._incoming.Enqueue(b);
+                    _incoming.Enqueue(b);
             }
 
             if (_dataReceived != null)
                 _dataReceived.Set();
 
-            this.OnDataReceived(e.Data);
+            OnDataReceived(e.Data);
         }
 
         private void OnRaiseError(ExceptionEventArgs e)
         {
-            var handler = this.ErrorOccurred;
+            var handler = ErrorOccurred;
             if (handler != null)
             {
                 handler(this, e);
@@ -750,7 +745,7 @@ namespace Renci.SshNet
 
         private void OnDataReceived(byte[] data)
         {
-            var handler = this.DataReceived;
+            var handler = DataReceived;
             if (handler != null)
             {
                 handler(this, new ShellDataEventArgs(data));

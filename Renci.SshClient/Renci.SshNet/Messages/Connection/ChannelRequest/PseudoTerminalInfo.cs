@@ -25,7 +25,7 @@ namespace Renci.SshNet.Messages.Connection
         }
 
         /// <summary>
-        /// Gets or sets the environment variable.
+        /// Gets or sets the environment variable (e.g., vt100).
         /// </summary>
         /// <value>
         /// The environment variable.
@@ -33,34 +33,34 @@ namespace Renci.SshNet.Messages.Connection
         public string EnvironmentVariable { get; set; }
 
         /// <summary>
-        /// Gets or sets the columns.
+        /// Gets or sets the terminal width in columns (e.g., 80).
         /// </summary>
         /// <value>
-        /// The columns.
+        /// The terminal width in columns.
         /// </value>
         public uint Columns { get; set; }
 
         /// <summary>
-        /// Gets or sets the rows.
+        /// Gets or sets the terminal width in rows (e.g., 24).
         /// </summary>
         /// <value>
-        /// The rows.
+        /// The terminal width in rows.
         /// </value>
         public uint Rows { get; set; }
 
         /// <summary>
-        /// Gets or sets the width of the pixel.
+        /// Gets or sets the terminal width in pixels (e.g., 640).
         /// </summary>
         /// <value>
-        /// The width of the pixel.
+        /// The terminal width in pixels.
         /// </value>
         public uint PixelWidth { get; set; }
 
         /// <summary>
-        /// Gets or sets the height of the pixel.
+        /// Gets or sets the terminal height in pixels (e.g., 480).
         /// </summary>
         /// <value>
-        /// The height of the pixel.
+        /// The terminal height in pixels.
         /// </value>
         public uint PixelHeight { get; set; }
 

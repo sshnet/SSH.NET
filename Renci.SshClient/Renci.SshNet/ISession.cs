@@ -15,7 +15,7 @@ namespace Renci.SshNet
         ///// Gets or sets the connection info.
         ///// </summary>
         ///// <value>The connection info.</value>
-        //IConnectionInfo ConnectionInfo { get; }
+        IConnectionInfo ConnectionInfo { get; }
 
         /// <summary>
         /// Create a new SSH session channel.

@@ -396,6 +396,11 @@ namespace Renci.SshNet
             clientAuthentication.Authenticate(this, session);
         }
 
+        /// <summary>
+        /// Signals that an authentication banner message was received from the server.
+        /// </summary>
+        /// <param name="sender">The session in which the banner message was received.</param>
+        /// <param name="e">The banner message.{</param>
         void IConnectionInfo.UserAuthenticationBannerReceived(object sender, MessageEventArgs<BannerMessage> e)
         {
             var authenticationBanner = AuthenticationBanner;

@@ -28,6 +28,7 @@
           * Stack overflow during authentication when server returns same allowed methods after partial success (issue #2399)
           * SshCommand doesn't cleanup subscribed events (issue #2295)
           * Lines before protocol identification string are not skipped (issue #1935 and #2223)
+          * ShellStream.ReadLine produces incorrect output when reading multi-byte characters (issue #2190)
 
           2014.4.6-beta1
           ==============

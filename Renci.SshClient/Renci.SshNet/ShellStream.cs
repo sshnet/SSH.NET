@@ -15,9 +15,10 @@ namespace Renci.SshNet
     /// </summary>
     public partial class ShellStream : Stream
     {
+        private const string CrLf = "\r\n";
         private const int BufferSize = 1024;
 
-        private readonly Session _session;
+        private readonly ISession _session;
         private readonly Encoding _encoding;
         private readonly Queue<byte> _incoming;
         private readonly Queue<byte> _outgoing;
@@ -38,7 +39,7 @@ namespace Renci.SshNet
         /// Gets a value that indicates whether data is available on the <see cref="ShellStream"/> to be read.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if data is available to be read; otherwise, <c>false</c>.
+        /// <c>true</c> if data is available to be read; otherwise, <c>false</c>.
         /// </value>
         public bool DataAvailable
         {
@@ -51,14 +52,14 @@ namespace Renci.SshNet
             }
         }
 
-        internal ShellStream(Session session, string terminalName, uint columns, uint rows, uint width, uint height, int maxLines, IDictionary<TerminalModes, uint> terminalModeValues)
+        internal ShellStream(ISession session, string terminalName, uint columns, uint rows, uint width, uint height, int maxLines, IDictionary<TerminalModes, uint> terminalModeValues)
         {
             _encoding = session.ConnectionInfo.Encoding;
             _session = session;
             _incoming = new Queue<byte>();
             _outgoing = new Queue<byte>();
 
-            _channel = _session.CreateClientChannel<ChannelSession>();
+            _channel = _session.CreateChannelSession();
             _channel.DataReceived += Channel_DataReceived;
             _channel.Closed += Channel_Closed;
             _session.Disconnected += Session_Disconnected;
@@ -74,7 +75,9 @@ namespace Renci.SshNet
         /// <summary>
         /// Gets a value indicating whether the current stream supports reading.
         /// </summary>
-        /// <returns>true if the stream supports reading; otherwise, false.</returns>
+        /// <returns>
+        /// <c>true</c> if the stream supports reading; otherwise, <c>false</c>.
+        /// </returns>
         public override bool CanRead
         {
             get { return true; }
@@ -83,7 +86,9 @@ namespace Renci.SshNet
         /// <summary>
         /// Gets a value indicating whether the current stream supports seeking.
         /// </summary>
-        /// <returns>true if the stream supports seeking; otherwise, false.</returns>
+        /// <returns>
+        /// <c>true</c> if the stream supports seeking; otherwise, <c>false</c>.
+        /// </returns>
         public override bool CanSeek
         {
             get { return false; }
@@ -92,7 +97,9 @@ namespace Renci.SshNet
         /// <summary>
         /// Gets a value indicating whether the current stream supports writing.
         /// </summary>
-        /// <returns>true if the stream supports writing; otherwise, false.</returns>
+        /// <returns>
+        /// <c>true</c> if the stream supports writing; otherwise, <c>false</c>.
+        /// </returns>
         public override bool CanWrite
         {
             get { return true; }
@@ -101,7 +108,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Clears all buffers for this stream and causes any buffered data to be written to the underlying device.
         /// </summary>
-        /// <exception cref="T:System.IO.IOException">An I/O error occurs. </exception>
+        /// <exception cref="T:System.IO.IOException">An I/O error occurs.</exception>
         public override void Flush()
         {
             if (_channel == null)
@@ -116,10 +123,8 @@ namespace Renci.SshNet
         /// Gets the length in bytes of the stream.
         /// </summary>
         /// <returns>A long value representing the length of the stream in bytes.</returns>
-        ///   
-        /// <exception cref="T:System.NotSupportedException">A class derived from Stream does not support seeking. </exception>
-        ///   
-        /// <exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed. </exception>
+        /// <exception cref="T:System.NotSupportedException">A class derived from Stream does not support seeking.</exception>
+        /// <exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed.</exception>
         public override long Length
         {
             get
@@ -134,13 +139,12 @@ namespace Renci.SshNet
         /// <summary>
         /// Gets or sets the position within the current stream.
         /// </summary>
-        /// <returns>The current position within the stream.</returns>
-        ///   
-        /// <exception cref="T:System.IO.IOException">An I/O error occurs. </exception>
-        ///   
-        /// <exception cref="T:System.NotSupportedException">The stream does not support seeking. </exception>
-        ///   
-        /// <exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed. </exception>
+        /// <returns>
+        /// The current position within the stream.
+        /// </returns>
+        /// <exception cref="T:System.IO.IOException">An I/O error occurs.</exception>
+        /// <exception cref="T:System.NotSupportedException">The stream does not support seeking.</exception>
+        /// <exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed.</exception>
         public override long Position
         {
             get { return 0; }
@@ -157,18 +161,11 @@ namespace Renci.SshNet
         /// The total number of bytes read into the buffer. This can be less than the number of bytes requested if that many bytes are not currently available, or zero (0) if the end of the stream has been reached.
         /// </returns>
         /// <exception cref="T:System.ArgumentException">The sum of <paramref name="offset"/> and <paramref name="count"/> is larger than the buffer length. </exception>
-        ///   
-        /// <exception cref="T:System.ArgumentNullException">
-        ///   <paramref name="buffer"/> is null. </exception>
-        ///   
-        /// <exception cref="T:System.ArgumentOutOfRangeException">
-        ///   <paramref name="offset"/> or <paramref name="count"/> is negative. </exception>
-        ///   
-        /// <exception cref="T:System.IO.IOException">An I/O error occurs. </exception>
-        ///   
-        /// <exception cref="T:System.NotSupportedException">The stream does not support reading. </exception>
-        ///   
-        /// <exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed. </exception>
+        /// <exception cref="T:System.ArgumentNullException"><paramref name="buffer"/> is null.</exception>
+        /// <exception cref="T:System.ArgumentOutOfRangeException"><paramref name="offset"/> or <paramref name="count"/> is negative.</exception>
+        /// <exception cref="T:System.IO.IOException">An I/O error occurs.</exception>   
+        /// <exception cref="T:System.NotSupportedException">The stream does not support reading.</exception>   
+        /// <exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed.</exception>
         public override int Read(byte[] buffer, int offset, int count)
         {
             var i = 0;
@@ -192,11 +189,9 @@ namespace Renci.SshNet
         /// <returns>
         /// The new position within the current stream.
         /// </returns>
-        /// <exception cref="T:System.IO.IOException">An I/O error occurs. </exception>
-        ///   
-        /// <exception cref="T:System.NotSupportedException">The stream does not support seeking, such as if the stream is constructed from a pipe or console output. </exception>
-        ///   
-        /// <exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed. </exception>
+        /// <exception cref="T:System.IO.IOException">An I/O error occurs.</exception>
+        /// <exception cref="T:System.NotSupportedException">The stream does not support seeking, such as if the stream is constructed from a pipe or console output.</exception>
+        /// <exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed.</exception>
         public override long Seek(long offset, SeekOrigin origin)
         {
             throw new NotSupportedException();
@@ -206,11 +201,9 @@ namespace Renci.SshNet
         /// This method is not supported.
         /// </summary>
         /// <param name="value">The desired length of the current stream in bytes.</param>
-        /// <exception cref="T:System.IO.IOException">An I/O error occurs. </exception>
-        ///   
-        /// <exception cref="T:System.NotSupportedException">The stream does not support both writing and seeking, such as if the stream is constructed from a pipe or console output. </exception>
-        ///   
-        /// <exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed. </exception>
+        /// <exception cref="T:System.IO.IOException">An I/O error occurs.</exception>
+        /// <exception cref="T:System.NotSupportedException">The stream does not support both writing and seeking, such as if the stream is constructed from a pipe or console output.</exception>
+        /// <exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed.</exception>
         public override void SetLength(long value)
         {
             throw new NotSupportedException();
@@ -222,19 +215,12 @@ namespace Renci.SshNet
         /// <param name="buffer">An array of bytes. This method copies <paramref name="count"/> bytes from <paramref name="buffer"/> to the current stream.</param>
         /// <param name="offset">The zero-based byte offset in <paramref name="buffer"/> at which to begin copying bytes to the current stream.</param>
         /// <param name="count">The number of bytes to be written to the current stream.</param>
-        /// <exception cref="T:System.ArgumentException">The sum of <paramref name="offset"/> and <paramref name="count"/> is greater than the buffer length. </exception>
-        ///   
-        /// <exception cref="T:System.ArgumentNullException">
-        ///   <paramref name="buffer"/> is null. </exception>
-        ///   
-        /// <exception cref="T:System.ArgumentOutOfRangeException">
-        ///   <paramref name="offset"/> or <paramref name="count"/> is negative. </exception>
-        ///   
-        /// <exception cref="T:System.IO.IOException">An I/O error occurs. </exception>
-        ///   
-        /// <exception cref="T:System.NotSupportedException">The stream does not support writing. </exception>
-        ///   
-        /// <exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed. </exception>
+        /// <exception cref="T:System.ArgumentException">The sum of <paramref name="offset"/> and <paramref name="count"/> is greater than the buffer length.</exception>
+        /// <exception cref="T:System.ArgumentNullException"><paramref name="buffer"/> is null.</exception>
+        /// <exception cref="T:System.ArgumentOutOfRangeException"><paramref name="offset"/> or <paramref name="count"/> is negative.</exception>
+        /// <exception cref="T:System.IO.IOException">An I/O error occurs.</exception>
+        /// <exception cref="T:System.NotSupportedException">The stream does not support writing.</exception>
+        /// <exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed.</exception>
         public override void Write(byte[] buffer, int offset, int count)
         {
             foreach (var b in buffer.Skip(offset).Take(count).ToArray())
@@ -513,7 +499,6 @@ namespace Renci.SshNet
         /// </returns>
         public string Expect(Regex regex, TimeSpan timeout)
         {
-            //  TODO:   Refactor this method, will deda lock
             var text = string.Empty;
 
             while (true)
@@ -558,18 +543,20 @@ namespace Renci.SshNet
         /// <summary>
         /// Reads the line from the shell. If line is not available it will block the execution and will wait for new line.
         /// </summary>
-        /// <returns>The line read from the shell.</returns>
+        /// <returns>
+        /// The line read from the shell.
+        /// </returns>
         public string ReadLine()
         {
             return ReadLine(TimeSpan.Zero);
         }
 
         /// <summary>
-        /// Reads the line from the shell. If line is not available it will block the execution and will wait for new line.
+        /// Reads a line from the shell. If line is not available it will block the execution and will wait for new line.
         /// </summary>
         /// <param name="timeout">Time to wait for input.</param>
         /// <returns>
-        /// The line read from the shell, if the specified time elapsed returns null.
+        /// The line read from the shell, or <c>null</c> when no input is received for the specified timeout.
         /// </returns>
         public string ReadLine(TimeSpan timeout)
         {
@@ -584,17 +571,19 @@ namespace Renci.SshNet
                         text = _encoding.GetString(_incoming.ToArray(), 0, _incoming.Count);
                     }
 
-                    var index = text.IndexOf("\r\n", StringComparison.Ordinal);
+                    var index = text.IndexOf(CrLf, StringComparison.Ordinal);
 
                     if (index >= 0)
                     {
                         text = text.Substring(0, index);
 
-                        //  Remove processed items from the queue
-                        for (int i = 0; i < index + 2 && _incoming.Count > 0; i++)
-                        {
+                        // determine how many bytes to remove from buffer
+                        var bytesProcessed = _encoding.GetByteCount(text + CrLf);
+
+                        // remove processed bytes from the queue
+                        for (var i = 0; i < bytesProcessed; i++)
                             _incoming.Dequeue();
-                        }
+
                         break;
                     }
                 }
@@ -619,7 +608,9 @@ namespace Renci.SshNet
         /// <summary>
         /// Reads text available in the shell.
         /// </summary>
-        /// <returns>The text available in the shell.</returns>
+        /// <returns>
+        /// The text available in the shell.
+        /// </returns>
         public string Read()
         {
             string text;
@@ -637,8 +628,14 @@ namespace Renci.SshNet
         /// Writes the specified text to the shell.
         /// </summary>
         /// <param name="text">The text to be written to the shell.</param>
+        /// <remarks>
+        /// If <paramref name="text"/> is <c>null</c>, nothing is written.
+        /// </remarks>
         public void Write(string text)
         {
+            if (text == null)
+                return;
+
             if (_channel == null)
             {
                 throw new ObjectDisposedException("ShellStream");
@@ -652,6 +649,9 @@ namespace Renci.SshNet
         /// Writes the line to the shell.
         /// </summary>
         /// <param name="line">The line to be written to the shell.</param>
+        /// <remarks>
+        /// If <paramref name="line"/> is <c>null</c>, only the line terminator is written.
+        /// </remarks>
         public void WriteLine(string line)
         {
             var commandText = string.Format("{0}{1}", line, "\r");
@@ -687,15 +687,6 @@ namespace Renci.SshNet
             }
         }
 
-        /// <summary>
-        /// Waits for the handle to be signaled or for an error to occurs.
-        /// </summary>
-        /// <param name="waitHandle">The wait handle.</param>
-        protected void WaitOnHandle(WaitHandle waitHandle)
-        {
-            _session.WaitOnHandle(waitHandle);
-        }
-
         partial void ExecuteThread(Action action);
 
         private void Session_ErrorOccured(object sender, ExceptionEventArgs e)
@@ -709,7 +700,6 @@ namespace Renci.SshNet
             if (_channel != null && _channel.IsOpen)
             {
                 _channel.SendEof();
-
                 _channel.Close();
             }
         }

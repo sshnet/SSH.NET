@@ -651,17 +651,6 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Create a new SSH session channel.
-        /// </summary>
-        /// <returns>
-        /// A new SSH session channel.
-        /// </returns>
-        IChannelSession ISession.CreateChannelSession()
-        {
-            return CreateClientChannel<ChannelSession>();
-        }
-
-        /// <summary>
         /// Create a new client channel.
         /// </summary>
         /// <typeparam name="T">The type of the channel.</typeparam>
@@ -775,18 +764,6 @@ namespace Renci.SshNet
                     }
                     break;
             }
-        }
-
-        /// <summary>
-        /// Sends a message to the server.
-        /// </summary>
-        /// <param name="message">The message to send.</param>
-        /// <exception cref="SshConnectionException">The client is not connected.</exception>
-        /// <exception cref="SshOperationTimeoutException">The operation timed out.</exception>
-        /// <exception cref="InvalidOperationException">The size of the packet exceeds the maximum size defined by the protocol.</exception>
-        void ISession.SendMessage(Message message)
-        {
-            SendMessage(message);
         }
 
         /// <summary>
@@ -2108,7 +2085,7 @@ namespace Renci.SshNet
             _keyExchangeInProgress = false;
         }
 
-        #region IDisposable Members
+        #region IDisposable implementation
 
         private bool _disposed;
 
@@ -2197,7 +2174,43 @@ namespace Renci.SshNet
             Dispose(false);
         }
 
-        #endregion
+        #endregion IDisposable implementation
+
+        #region ISession implementation
+
+        /// <summary>
+        /// Gets or sets the connection info.
+        /// </summary>
+        /// <value>The connection info.</value>
+        IConnectionInfo ISession.ConnectionInfo
+        {
+            get { return ConnectionInfo; }
+        }
+
+        /// <summary>
+        /// Create a new SSH session channel.
+        /// </summary>
+        /// <returns>
+        /// A new SSH session channel.
+        /// </returns>
+        IChannelSession ISession.CreateChannelSession()
+        {
+            return CreateClientChannel<ChannelSession>();
+        }
+
+        /// <summary>
+        /// Sends a message to the server.
+        /// </summary>
+        /// <param name="message">The message to send.</param>
+        /// <exception cref="SshConnectionException">The client is not connected.</exception>
+        /// <exception cref="SshOperationTimeoutException">The operation timed out.</exception>
+        /// <exception cref="InvalidOperationException">The size of the packet exceeds the maximum size defined by the protocol.</exception>
+        void ISession.SendMessage(Message message)
+        {
+            SendMessage(message);
+        }
+
+        #endregion ISession implementation
 
         private class MessageMetadata
         {

@@ -32,6 +32,7 @@
           * ShellStream.ReadLine produces incorrect output when reading multi-byte characters (issue #2190)
           * Dispose and Disconnect throw SocketException when socket is not connected (issue #2148)
           * SftpClient constructor throws ArgumentException when host contains underscore (issue #1845)
+          * Signing key is missing from source download (issue #2455)
 
           2014.4.6-beta1
           ==============

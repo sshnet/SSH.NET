@@ -37,7 +37,7 @@
 		<RemoveDir Directories="$(MSBuildThisFileDirectory)target"/>
 	</Target>
 	
-    <Target Name="Build">
+	<Target Name="Build">
 		<ItemGroup>
 			<ProjectToBuild Include="$(MSBuildThisFileDirectory)..\Renci.SshNet.sln">
 				<Properties>Configuration=Release</Properties>
@@ -64,6 +64,7 @@
 	<Target Name="GenerateSourceZip">
 		<ItemGroup>
 			<SourceFiles Include="$(MSBuildThisFileDirectory)..\Renci.SshNet\**" Exclude="$(MSBuildThisFileDirectory)..\Renci.SshNet\bin\**;$(MSBuildThisFileDirectory)..\Renci.SshNet\obj\**"/>
+			<SourceFiles Include="$(MSBuildThisFileDirectory)..\Renci.SshNet.snk"/>
 		</ItemGroup>
 		<Zip
 			Files="@(SourceFiles)"

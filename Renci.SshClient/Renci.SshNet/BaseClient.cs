@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net.Sockets;
 using System.Threading;
 using Renci.SshNet.Common;
 
@@ -142,10 +143,30 @@ namespace Renci.SshNet
         /// </summary>
         /// <exception cref="InvalidOperationException">The client is already connected.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
+        /// <exception cref="SocketException">Socket connection to the SSH server or proxy server could not be established, or an error occurred while resolving the hostname.</exception>
+        /// <exception cref="SshConnectionException">SSH session could not be established.</exception>
+        /// <exception cref="SshAuthenticationException">Authentication of SSH session failed.</exception>
+        /// <exception cref="ProxyException">Failed to establish proxy connection.</exception>
         public void Connect()
         {
             CheckDisposed();
 
+            // TODO (see issue #1758):
+            // we're not stopping the keep-alive timer and disposing the session here
+            // 
+            // we could do this but there would still be side effects as concrete
+            // implementations may still hang on to the original session
+            // 
+            // therefore it would be better to actually invoke the Disconnect method
+            // (and then the Dispose on the session) but even that would have side effects
+            // eg. it would remove all forwarded ports from SshClient
+            // 
+            // I think we should modify our concrete clients to better deal with a
+            // disconnect. In case of SshClient this would mean not removing the 
+            // forwarded ports on disconnect (but only on dispose ?) and link a
+            // forwarded port with a client instead of with a session
+            //
+            // To be discussed with Oleg (or whoever is interested)
             if (Session != null && Session.IsConnected)
                 throw new InvalidOperationException("The client is already connected.");
 

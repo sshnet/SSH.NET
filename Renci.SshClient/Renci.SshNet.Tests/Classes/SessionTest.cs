@@ -5,8 +5,8 @@ using System.Net.Sockets;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Renci.SshNet.Common;
-using Renci.SshNet.Messages;
 using Renci.SshNet.Tests.Common;
+using Renci.SshNet.Tests.Properties;
 
 namespace Renci.SshNet.Tests.Classes
 {
@@ -210,114 +210,97 @@ namespace Renci.SshNet.Tests.Classes
             }
         }
 
-
-        /// <summary>
-        ///A test for SessionSemaphore
-        ///</summary>
-        [TestMethod()]
-        [Ignore]
-        public void SessionSemaphoreTest()
+        [TestMethod]
+        public void Connect_HostNameInvalid_ShouldThrowSocketExceptionWithErrorCodeHostNotFound()
         {
-            ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
-            Session target = new Session(connectionInfo); // TODO: Initialize to an appropriate value
-            SemaphoreLight actual;
-            actual = target.SessionSemaphore;
-            Assert.Inconclusive("Verify the correctness of this test method.");
+            var connectionInfo = new ConnectionInfo("invalid.", 40, "user",
+                new KeyboardInteractiveAuthenticationMethod("user"));
+            var session = new Session(connectionInfo);
+
+            try
+            {
+
+                session.Connect();
+                Assert.Fail();
+            }
+            catch (SocketException ex)
+            {
+                Assert.AreEqual(ex.ErrorCode, (int)SocketError.HostNotFound);
+            }
         }
 
-        /// <summary>
-        ///A test for IsConnected
-        ///</summary>
-        [TestMethod()]
-        [Ignore]
-        public void IsConnectedTest()
+        [TestMethod]
+        public void Connect_ProxyHostNameInvalid_ShouldThrowSocketExceptionWithErrorCodeHostNotFound()
         {
-            ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
-            Session target = new Session(connectionInfo); // TODO: Initialize to an appropriate value
-            bool actual;
-            actual = target.IsConnected;
-            Assert.Inconclusive("Verify the correctness of this test method.");
+            var connectionInfo = new ConnectionInfo("localhost", 40, "user", ProxyTypes.Http, "invalid.", 80,
+                "proxyUser", "proxyPwd", new KeyboardInteractiveAuthenticationMethod("user"));
+            var session = new Session(connectionInfo);
+
+            try
+            {
+                session.Connect();
+                Assert.Fail();
+            }
+            catch (SocketException ex)
+            {
+                Assert.AreEqual(ex.ErrorCode, (int)SocketError.HostNotFound);
+            }
         }
 
-        /// <summary>
-        ///A test for ClientInitMessage
-        ///</summary>
-        [TestMethod()]
-        [Ignore]
-        public void ClientInitMessageTest()
+        [TestMethod]
+        public void DisconnectShouldNotThrowExceptionWhenSocketIsNotConnected()
         {
-            ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
-            Session target = new Session(connectionInfo); // TODO: Initialize to an appropriate value
-            Message actual;
-            actual = target.ClientInitMessage;
-            Assert.Inconclusive("Verify the correctness of this test method.");
+            var connectionInfo = new ConnectionInfo("localhost", 6767, Resources.USERNAME,
+                new KeyboardInteractiveAuthenticationMethod(Resources.USERNAME));
+            var session = new Session(connectionInfo);
+
+            try
+            {
+                session.Connect();
+                Assert.Fail();
+            }
+            catch (SocketException)
+            {
+                session.Disconnect();
+            }
         }
 
-        /// <summary>
-        ///A test for UnRegisterMessage
-        ///</summary>
-        [TestMethod()]
-        [Ignore]
-        public void UnRegisterMessageTest()
+        [TestMethod]
+        public void DisconnectShouldNotThrowExceptionWhenConnectHasNotBeenInvoked()
         {
-            ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
-            Session target = new Session(connectionInfo); // TODO: Initialize to an appropriate value
-            string messageName = string.Empty; // TODO: Initialize to an appropriate value
-            target.UnRegisterMessage(messageName);
-            Assert.Inconclusive("A method that does not return a value cannot be verified.");
+            var connectionInfo = new ConnectionInfo("localhost", 6767, Resources.USERNAME,
+                new KeyboardInteractiveAuthenticationMethod(Resources.USERNAME));
+            var session = new Session(connectionInfo);
+
+            session.Disconnect();
         }
 
-        /// <summary>
-        ///A test for RegisterMessage
-        ///</summary>
-        [TestMethod()]
-        [Ignore]
-        public void RegisterMessageTest()
+        [TestMethod]
+        public void DisposeShouldNotThrowExceptionWhenSocketIsNotConnected()
         {
-            ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
-            Session target = new Session(connectionInfo); // TODO: Initialize to an appropriate value
-            string messageName = string.Empty; // TODO: Initialize to an appropriate value
-            target.RegisterMessage(messageName);
-            Assert.Inconclusive("A method that does not return a value cannot be verified.");
+            var connectionInfo = new ConnectionInfo("localhost", 6767, Resources.USERNAME,
+                new KeyboardInteractiveAuthenticationMethod(Resources.USERNAME));
+            var session = new Session(connectionInfo);
+
+            try
+            {
+                session.Connect();
+                Assert.Fail();
+            }
+            catch (SocketException)
+            {
+                session.Dispose();
+            }
         }
 
-        /// <summary>
-        ///A test for Dispose
-        ///</summary>
-        [TestMethod()]
-        [Ignore]
-        public void DisposeTest()
+        [TestMethod]
+        public void DisposeShouldNotThrowExceptionWhenConenectHasNotBeenInvoked()
         {
-            ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
-            Session target = new Session(connectionInfo); // TODO: Initialize to an appropriate value
-            target.Dispose();
-            Assert.Inconclusive("A method that does not return a value cannot be verified.");
-        }
+            var connectionInfo = new ConnectionInfo("localhost", 6767, Resources.USERNAME,
+                new KeyboardInteractiveAuthenticationMethod(Resources.USERNAME));
+            var session = new Session(connectionInfo);
 
-        /// <summary>
-        ///A test for Disconnect
-        ///</summary>
-        [TestMethod()]
-        [Ignore]
-        public void DisconnectTest()
-        {
-            ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
-            Session target = new Session(connectionInfo); // TODO: Initialize to an appropriate value
-            target.Disconnect();
-            Assert.Inconclusive("A method that does not return a value cannot be verified.");
-        }
-
-        /// <summary>
-        ///A test for Connect
-        ///</summary>
-        [TestMethod()]
-        [Ignore]
-        public void ConnectTest()
-        {
-            ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
-            Session target = new Session(connectionInfo); // TODO: Initialize to an appropriate value
-            target.Connect();
-            Assert.Inconclusive("A method that does not return a value cannot be verified.");
+            session.Disconnect();
         }
 
         private static ConnectionInfo CreateConnectionInfo(IPEndPoint serverEndPoint, TimeSpan timeout)

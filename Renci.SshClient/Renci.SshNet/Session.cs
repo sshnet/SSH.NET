@@ -460,6 +460,10 @@ namespace Renci.SshNet
         /// <summary>
         /// Connects to the server.
         /// </summary>
+        /// <exception cref="SocketException">Socket connection to the SSH server or proxy server could not be established, or an error occurred while resolving the hostname.</exception>
+        /// <exception cref="SshConnectionException">SSH session could not be established.</exception>
+        /// <exception cref="SshAuthenticationException">Authentication of SSH session failed.</exception>
+        /// <exception cref="ProxyException">Failed to establish proxy connection.</exception>
         public void Connect()
         {
             if (this.IsConnected)
@@ -1699,7 +1703,8 @@ namespace Renci.SshNet
                 {
                     if (_socket != null)
                     {
-                        SocketDisconnect();
+                        if (_socket.Connected)
+                            SocketDisconnect();
                         _socket.Dispose();
                         _socket = null;
                     }

@@ -224,7 +224,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="path"/> is <b>null</b>.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="SftpPermissionDeniedException">Permission to change directory denied by remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
-        /// <exception cref="SftpPathNotFoundException">The path in <paramref name="path"/> was not found on the remote host.</exception>
+        /// <exception cref="SftpPathNotFoundException"><paramref name="path"/> was not found on the remote host.</exception>
         /// <exception cref="SshException">A SSH error where <see cref="P:System.Exception.Message"/> is the message from the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         public void ChangeDirectory(string path)
@@ -248,7 +248,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="path"/> is <b>null</b>.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="SftpPermissionDeniedException">Permission to change permission on the path(s) was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
-        /// <exception cref="SftpPathNotFoundException">The path in <paramref name="path"/> was not found on the remote host.</exception>
+        /// <exception cref="SftpPathNotFoundException"><paramref name="path"/> was not found on the remote host.</exception>
         /// <exception cref="SshException">A SSH error where <see cref="P:System.Exception.Message"/> is the message from the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         public void ChangePermissions(string path, short mode)
@@ -287,7 +287,7 @@ namespace Renci.SshNet
         /// <param name="path">Directory to be deleted path.</param>
         /// <exception cref="ArgumentException"><paramref name="path"/> is <b>null</b> or contains whitespace characters.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
-        /// <exception cref="SftpPathNotFoundException"><paramref name="path"/> does not exist.</exception>
+        /// <exception cref="SftpPathNotFoundException"><paramref name="path"/> was not found on the remote host.</exception>
         /// <exception cref="SftpPermissionDeniedException">Permission to delete the directory was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
         /// <exception cref="SshException">A SSH error where <see cref="P:System.Exception.Message"/> is the message from the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
@@ -312,7 +312,7 @@ namespace Renci.SshNet
         /// <param name="path">File to be deleted path.</param>
         /// <exception cref="ArgumentException"><paramref name="path"/> is <b>null</b> or contains whitespace characters.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
-        /// <exception cref="SftpPathNotFoundException"><paramref name="path"/> does not exist.</exception>
+        /// <exception cref="SftpPathNotFoundException"><paramref name="path"/> was not found on the remote host.</exception>
         /// <exception cref="SftpPermissionDeniedException">Permission to delete the file was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
         /// <exception cref="SshException">A SSH error where <see cref="P:System.Exception.Message"/> is the message from the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
@@ -501,6 +501,7 @@ namespace Renci.SshNet
         /// <param name="path">The path.</param>
         /// <returns>Reference to <see cref="Renci.SshNet.Sftp.SftpFile"/> file object.</returns>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="SftpPathNotFoundException"><paramref name="path"/> was not found on the remote host.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="path" /> is <b>null</b>.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         public SftpFile Get(string path)
@@ -1112,7 +1113,7 @@ namespace Renci.SshNet
         /// <param name="path">The name of the file or directory to be deleted. Wildcard characters are not supported.</param>
         /// <exception cref="ArgumentNullException"><paramref name="path"/> is <b>null</b>.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
-        /// <exception cref="SftpPathNotFoundException"><paramref name="path"/> does not exist.</exception>
+        /// <exception cref="SftpPathNotFoundException"><paramref name="path"/> was not found on the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         public void Delete(string path)
         {
@@ -1505,6 +1506,7 @@ namespace Renci.SshNet
         /// <param name="path">The path to the file.</param>
         /// <returns>The <see cref="SftpFileAttributes"/> of the file on the path.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="path"/> is <b>null</b>.</exception>
+        /// <exception cref="SftpPathNotFoundException"><paramref name="path"/> was not found on the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         public SftpFileAttributes GetAttributes(string path)
         {

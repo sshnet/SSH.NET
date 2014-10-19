@@ -36,6 +36,9 @@ namespace Renci.SshNet
         /// <param name="boundPort">The bound port.</param>
         /// <param name="host">The host.</param>
         /// <param name="port">The port.</param>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="boundPort" /> is greater than <see cref="F:System.Net.IPEndPoint.MaxPort" />.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="host"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="port" /> is greater than <see cref="F:System.Net.IPEndPoint.MaxPort" />.</exception>
         /// <example>
         ///     <code source="..\..\Renci.SshNet.Tests\Classes\ForwardedPortLocalTest.cs" region="Example SshClient AddForwardedPort Start Stop ForwardedPortLocal" language="C#" title="Local port forwarding" />
         /// </example>
@@ -50,6 +53,9 @@ namespace Renci.SshNet
         /// <param name="boundHost">The bound host.</param>
         /// <param name="host">The host.</param>
         /// <param name="port">The port.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="boundHost"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="host"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="port" /> is greater than <see cref="F:System.Net.IPEndPoint.MaxPort" />.</exception>
         public ForwardedPortLocal(string boundHost, string host, uint port)
             : this(boundHost, 0, host, port) 
         {
@@ -62,6 +68,10 @@ namespace Renci.SshNet
         /// <param name="boundPort">The bound port.</param>
         /// <param name="host">The host.</param>
         /// <param name="port">The port.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="boundHost"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="host"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="boundPort" /> is greater than <see cref="F:System.Net.IPEndPoint.MaxPort" />.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="port" /> is greater than <see cref="F:System.Net.IPEndPoint.MaxPort" />.</exception>
         public ForwardedPortLocal(string boundHost, uint boundPort, string host, uint port)
         {
             if (boundHost == null)
@@ -70,17 +80,8 @@ namespace Renci.SshNet
             if (host == null)
                 throw new ArgumentNullException("host");
 
-            if (!boundHost.IsValidHost())
-                throw new ArgumentException("boundHost");
-
-            if (!boundPort.IsValidPort())
-                throw new ArgumentOutOfRangeException("boundPort");
-
-            if (!host.IsValidHost())
-                throw new ArgumentException("host");
-
-            if (!port.IsValidPort())
-                throw new ArgumentOutOfRangeException("port");
+            boundPort.ValidatePort("boundPort");
+            port.ValidatePort("port");
 
             this.BoundHost = boundHost;
             this.BoundPort = boundPort;

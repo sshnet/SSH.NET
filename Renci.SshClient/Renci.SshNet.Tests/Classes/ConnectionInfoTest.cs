@@ -1,4 +1,6 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System.Globalization;
+using System.Net;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Renci.SshNet.Tests.Common;
 using Renci.SshNet.Tests.Properties;
 using System;
@@ -13,215 +15,329 @@ namespace Renci.SshNet.Tests.Classes
     {
         [TestMethod]
         [TestCategory("ConnectionInfo")]
-        [Description("Pass null as proxy host.")]
-        [Owner("Kenneth_aa")]
-        [ExpectedException(typeof(ArgumentException))]
-        public void Test_ConnectionInfo_ProxyHost_Null()
+        public void ConstructorShouldNotThrowExceptionhenProxyTypesIsNoneAndProxyHostIsNull()
         {
-            new ConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, ProxyTypes.Http, null, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD, null);
+            const string proxyHost = null;
+
+            var connectionInfo = new ConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME,
+                ProxyTypes.None, proxyHost, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD,
+                new KeyboardInteractiveAuthenticationMethod(Resources.USERNAME));
+
+            Assert.IsNull(connectionInfo.ProxyHost);
         }
 
         [TestMethod]
         [TestCategory("ConnectionInfo")]
-        [Description("Pass too large proxy port.")]
-        [Owner("Kenneth_aa")]
-        [ExpectedException(typeof(ArgumentOutOfRangeException))]
-        public void Test_ConnectionInfo_ProxyPort_Large()
+        public void ConstructorShouldThrowArgumentNullExceptionhenProxyTypesIsNotNoneAndProxyHostIsNull()
         {
-            new ConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, ProxyTypes.Http, Resources.HOST, int.MaxValue, Resources.USERNAME, Resources.PASSWORD, null);
+            try
+            {
+                new ConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, ProxyTypes.Http, null,
+                    int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD,
+                    new KeyboardInteractiveAuthenticationMethod(Resources.USERNAME));
+                Assert.Fail();
+            }
+            catch (ArgumentNullException ex)
+            {
+                Assert.IsNull(ex.InnerException);
+                Assert.AreEqual("proxyHost", ex.ParamName);
+            }
         }
 
         [TestMethod]
         [TestCategory("ConnectionInfo")]
-        [Description("Pass too small proxy port.")]
-        [Owner("Kenneth_aa")]
-        [ExpectedException(typeof(ArgumentOutOfRangeException))]
-        public void Test_ConnectionInfo_ProxyPort_Small()
+        public void ConstructorShouldNotThrowExceptionWhenProxyTypesIsNotNoneAndProxyHostIsEmpty()
         {
-            new ConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, ProxyTypes.Http, Resources.HOST, int.MinValue, Resources.USERNAME, Resources.PASSWORD, null);
+            var proxyHost = string.Empty;
+
+            var connectionInfo = new ConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME,
+                ProxyTypes.Http, string.Empty, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD,
+                new KeyboardInteractiveAuthenticationMethod(Resources.USERNAME));
+
+            Assert.AreSame(proxyHost, connectionInfo.ProxyHost);
         }
 
         [TestMethod]
         [TestCategory("ConnectionInfo")]
-        [Description("Pass a valid proxy port.")]
-        [Owner("Kenneth_aa")]
+        public void ConstructorShouldThrowArgumentOutOfRangeExceptionWhenProxyTypesIsNotNoneAndProxyPortIsGreaterThanMaximumValue()
+        {
+            var maxPort = IPEndPoint.MaxPort;
+
+            try
+            {
+                new ConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, ProxyTypes.Http, Resources.HOST, ++maxPort, Resources.USERNAME, Resources.PASSWORD, null);
+                Assert.Fail();
+            }
+            catch (ArgumentOutOfRangeException ex)
+            {
+                Assert.IsNull(ex.InnerException);
+                Assert.AreEqual("proxyPort", ex.ParamName);
+            }
+        }
+
+        [TestMethod]
+        [TestCategory("ConnectionInfo")]
+        public void ConstructorShouldThrowArgumentOutOfRangeExceptionWhenProxyTypesIsNotNoneAndProxyPortIsLessThanMinimumValue()
+        {
+            var minPort = IPEndPoint.MinPort;
+
+            try
+            {
+                new ConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, ProxyTypes.Http, Resources.HOST, --minPort, Resources.USERNAME, Resources.PASSWORD, null);
+                Assert.Fail();
+            }
+            catch (ArgumentOutOfRangeException ex)
+            {
+                Assert.IsNull(ex.InnerException);
+                Assert.AreEqual("proxyPort", ex.ParamName);
+            }
+        }
+
+        [TestMethod]
+        [TestCategory("ConnectionInfo")]
         public void Test_ConnectionInfo_ProxyPort_Valid()
         {
-            new ConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, ProxyTypes.None, Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD, null);
+            var proxyPort = new Random().Next(IPEndPoint.MinPort, IPEndPoint.MaxPort);
+
+            var connectionInfo = new ConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME,
+                ProxyTypes.None, Resources.HOST, proxyPort, Resources.USERNAME, Resources.PASSWORD,
+                new KeyboardInteractiveAuthenticationMethod(Resources.USERNAME));
+
+            Assert.AreEqual(proxyPort, connectionInfo.ProxyPort);
         }
 
         [TestMethod]
         [TestCategory("ConnectionInfo")]
-        [Description("Pass null as host.")]
-        [Owner("Kenneth_aa")]
-        [ExpectedException(typeof(ArgumentException))]
-        public void Test_ConnectionInfo_Host_Null()
+        public void ConstructorShouldNotThrowExceptionWhenProxyTypesIsNotNoneAndProxyUsernameIsNull()
         {
-            new ConnectionInfo(null, int.Parse(Resources.PORT), Resources.USERNAME, ProxyTypes.None, Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD, null);
+            const string proxyUsername = null;
+
+            var connectionInfo = new ConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, ProxyTypes.Http,
+                    Resources.PROXY_HOST, int.Parse(Resources.PORT), proxyUsername, Resources.PASSWORD,
+                    new KeyboardInteractiveAuthenticationMethod(Resources.USERNAME));
+
+            Assert.IsNull(connectionInfo.ProxyUsername);
         }
 
         [TestMethod]
         [TestCategory("ConnectionInfo")]
-        [Description("Pass a valid host.")]
-        [Owner("Kenneth_aa")]
+        public void ConstructorShouldThrowArgumentNullExceptionhenHostIsNull()
+        {
+            try
+            {
+                new ConnectionInfo(null, int.Parse(Resources.PORT), Resources.USERNAME, ProxyTypes.None, Resources.HOST,
+                    int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD, null);
+            }
+            catch (ArgumentNullException ex)
+            {
+                Assert.IsNull(ex.InnerException);
+                Assert.AreEqual("host", ex.ParamName);
+            }
+        }
+
+        [TestMethod]
+        [TestCategory("ConnectionInfo")]
+        public void ConstructorShouldNotThrowExceptionWhenHostIsEmpty()
+        {
+            var host = string.Empty;
+
+            var connectionInfo = new ConnectionInfo(host, int.Parse(Resources.PORT), Resources.USERNAME, ProxyTypes.None,
+                Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD,
+                new KeyboardInteractiveAuthenticationMethod(Resources.USERNAME));
+
+            Assert.AreSame(host, connectionInfo.Host);
+        }
+
+        [TestMethod]
+        [TestCategory("ConnectionInfo")]
+        public void ConstructorShouldNotThrowExceptionWhenHostIsInvalidDnsName()
+        {
+            const string host = "in_valid_host.";
+
+            var connectionInfo = new ConnectionInfo(host, int.Parse(Resources.PORT), Resources.USERNAME, ProxyTypes.None,
+                Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD,
+                new KeyboardInteractiveAuthenticationMethod(Resources.USERNAME));
+
+            Assert.AreSame(host, connectionInfo.Host);
+        }
+
+        [TestMethod]
+        [TestCategory("ConnectionInfo")]
         public void Test_ConnectionInfo_Host_Valid()
         {
-            new ConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, ProxyTypes.None, Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD, null);
+            var host = new Random().Next().ToString(CultureInfo.InvariantCulture);
+
+            var connectionInfo = new ConnectionInfo(host, int.Parse(Resources.PORT), Resources.USERNAME,
+                ProxyTypes.None, Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD,
+                new KeyboardInteractiveAuthenticationMethod(Resources.USERNAME));
+
+            Assert.AreSame(host, connectionInfo.Host);
         }
 
         [TestMethod]
         [TestCategory("ConnectionInfo")]
-        [Description("Pass too large port.")]
-        [Owner("Kenneth_aa")]
-        [ExpectedException(typeof(ArgumentOutOfRangeException))]
-        public void Test_ConnectionInfo_Port_Large()
+        public void ConstructorShouldThrowArgumentOutOfRangeExceptionWhenPortIsGreaterThanMaximumValue()
         {
-            new ConnectionInfo(Resources.HOST, int.MaxValue, Resources.USERNAME, ProxyTypes.None, Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD, null);
+            const int port = IPEndPoint.MaxPort + 1;
+
+            try
+            {
+                new ConnectionInfo(Resources.HOST, port, Resources.USERNAME, ProxyTypes.None, Resources.HOST,
+                    int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD, null);
+                Assert.Fail();
+            }
+            catch (ArgumentOutOfRangeException ex)
+            {
+                Assert.IsNull(ex.InnerException);
+                Assert.AreEqual("port", ex.ParamName);
+            }
         }
 
         [TestMethod]
         [TestCategory("ConnectionInfo")]
-        [Description("Pass too small port.")]
-        [Owner("Kenneth_aa")]
-        [ExpectedException(typeof(ArgumentOutOfRangeException))]
-        public void Test_ConnectionInfo_Port_Small()
+        public void ConstructorShouldThrowArgumentOutOfRangeExceptionWhenPortIsLessThanMinimumValue()
         {
-            new ConnectionInfo(Resources.HOST, int.MinValue, Resources.USERNAME, ProxyTypes.None, Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD, null);
+            const int port = IPEndPoint.MinPort - 1;
+
+            try
+            {
+                new ConnectionInfo(Resources.HOST, port, Resources.USERNAME, ProxyTypes.None, Resources.HOST,
+                    int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD, null);
+                Assert.Fail();
+            }
+            catch (ArgumentOutOfRangeException ex)
+            {
+                Assert.IsNull(ex.InnerException);
+                Assert.AreEqual("port", ex.ParamName);
+            }
         }
 
         [TestMethod]
         [TestCategory("ConnectionInfo")]
-        [Description("Pass a valid port.")]
-        [Owner("Kenneth_aa")]
         public void Test_ConnectionInfo_Port_Valid()
         {
-            new ConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, ProxyTypes.None, Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD, null);
+            var port = new Random().Next(IPEndPoint.MinPort, IPEndPoint.MaxPort);
+
+            var connectionInfo = new ConnectionInfo(Resources.HOST, port, Resources.USERNAME, ProxyTypes.None,
+                Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD,
+                new KeyboardInteractiveAuthenticationMethod(Resources.USERNAME));
+
+            Assert.AreEqual(port, connectionInfo.Port);
         }
 
         [TestMethod]
         [TestCategory("ConnectionInfo")]
-        [Description("Pass null as session.")]
-        [Owner("Kenneth_aa")]
-        [ExpectedException(typeof(ArgumentNullException))]
-        public void Test_ConnectionInfo_Authenticate_Null()
+        public void ConstructorShouldThrowArgumentExceptionhenUsernameIsNull()
         {
-            var ret = new ConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, ProxyTypes.None, Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD, null);
-            ret.Authenticate(null);
+            const string username = null;
+
+            try
+            {
+                new ConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), username, ProxyTypes.Http, Resources.USERNAME,
+                    int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD,
+                    new KeyboardInteractiveAuthenticationMethod(Resources.USERNAME));
+                Assert.Fail();
+            }
+            catch (ArgumentNullException ex)
+            {
+                Assert.IsNull(ex.InnerException);
+                Assert.AreEqual("username", ex.ParamName);
+            }
         }
 
-        /// <summary>
-        ///A test for Timeout
-        ///</summary>
-        [TestMethod()]
-        public void TimeoutTest()
+        [TestMethod]
+        [TestCategory("ConnectionInfo")]
+        public void ConstructorShouldThrowArgumentExceptionhenUsernameIsEmpty()
         {
-            string host = string.Empty; // TODO: Initialize to an appropriate value
-            string username = string.Empty; // TODO: Initialize to an appropriate value
-            AuthenticationMethod[] authenticationMethods = null; // TODO: Initialize to an appropriate value
-            ConnectionInfo target = new ConnectionInfo(host, username, authenticationMethods); // TODO: Initialize to an appropriate value
-            TimeSpan expected = new TimeSpan(); // TODO: Initialize to an appropriate value
-            TimeSpan actual;
-            target.Timeout = expected;
-            actual = target.Timeout;
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verify the correctness of this test method.");
+            var username = string.Empty;
+
+            try
+            {
+                new ConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), username, ProxyTypes.Http, Resources.USERNAME,
+                    int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD,
+                    new KeyboardInteractiveAuthenticationMethod(Resources.USERNAME));
+                Assert.Fail();
+            }
+            catch (ArgumentException ex)
+            {
+                Assert.AreEqual(typeof(ArgumentException), ex.GetType());
+                Assert.IsNull(ex.InnerException);
+                Assert.AreEqual("username", ex.ParamName);
+            }
         }
 
-        /// <summary>
-        ///A test for RetryAttempts
-        ///</summary>
-        [TestMethod()]
-        public void RetryAttemptsTest()
+        [TestMethod]
+        [TestCategory("ConnectionInfo")]
+        public void ConstructorShouldThrowArgumentExceptionhenUsernameContainsOnlyWhitespace()
         {
-            string host = string.Empty; // TODO: Initialize to an appropriate value
-            string username = string.Empty; // TODO: Initialize to an appropriate value
-            AuthenticationMethod[] authenticationMethods = null; // TODO: Initialize to an appropriate value
-            ConnectionInfo target = new ConnectionInfo(host, username, authenticationMethods); // TODO: Initialize to an appropriate value
-            int expected = 0; // TODO: Initialize to an appropriate value
-            int actual;
-            target.RetryAttempts = expected;
-            actual = target.RetryAttempts;
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verify the correctness of this test method.");
+            const string username = " \t\r";
+
+            try
+            {
+                new ConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), username, ProxyTypes.Http, Resources.USERNAME,
+                    int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD,
+                    new KeyboardInteractiveAuthenticationMethod(Resources.USERNAME));
+                Assert.Fail();
+            }
+            catch (ArgumentException ex)
+            {
+                Assert.AreEqual(typeof (ArgumentException), ex.GetType());
+                Assert.IsNull(ex.InnerException);
+                Assert.AreEqual("username", ex.ParamName);
+            }
         }
 
-        /// <summary>
-        ///A test for MaxSessions
-        ///</summary>
-        [TestMethod()]
-        public void MaxSessionsTest()
+        [TestMethod]
+        [TestCategory("ConnectionInfo")]
+        public void ConstructorShouldThrowArgumentNullExceptionWhenAuthenticationMethodsIsNull()
         {
-            string host = string.Empty; // TODO: Initialize to an appropriate value
-            string username = string.Empty; // TODO: Initialize to an appropriate value
-            AuthenticationMethod[] authenticationMethods = null; // TODO: Initialize to an appropriate value
-            ConnectionInfo target = new ConnectionInfo(host, username, authenticationMethods); // TODO: Initialize to an appropriate value
-            int expected = 0; // TODO: Initialize to an appropriate value
-            int actual;
-            target.MaxSessions = expected;
-            actual = target.MaxSessions;
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verify the correctness of this test method.");
+            try
+            {
+                new ConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, ProxyTypes.None, Resources.HOST,
+                    int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD, null);
+                Assert.Fail();
+            }
+            catch (ArgumentNullException ex)
+            {
+                Assert.IsNull(ex.InnerException);
+                Assert.AreEqual("authenticationMethods", ex.ParamName);
+            }
         }
 
-        /// <summary>
-        ///A test for Authenticate
-        ///</summary>
-        [TestMethod()]
-        public void AuthenticateTest()
+        [TestMethod]
+        [TestCategory("ConnectionInfo")]
+        public void ConstructorShouldThrowArgumentNullExceptionWhenAuthenticationMethodsIsZeroLength()
         {
-            string host = string.Empty; // TODO: Initialize to an appropriate value
-            string username = string.Empty; // TODO: Initialize to an appropriate value
-            AuthenticationMethod[] authenticationMethods = null; // TODO: Initialize to an appropriate value
-            ConnectionInfo target = new ConnectionInfo(host, username, authenticationMethods); // TODO: Initialize to an appropriate value
-            Session session = null; // TODO: Initialize to an appropriate value
-            target.Authenticate(session);
-            Assert.Inconclusive("Verify the correctness of this test method.");
+            try
+            {
+                new ConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, ProxyTypes.None, Resources.HOST,
+                    int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD, new AuthenticationMethod[0]);
+                Assert.Fail();
+            }
+            catch (ArgumentException ex)
+            {
+                Assert.IsNull(ex.InnerException);
+                Assert.AreEqual("authenticationMethods", ex.ParamName);
+            }
         }
 
-        /// <summary>
-        ///A test for ConnectionInfo Constructor
-        ///</summary>
-        [TestMethod()]
-        public void ConnectionInfoConstructorTest()
+        [TestMethod]
+        [TestCategory("ConnectionInfo")]
+        public void AuthenticateShouldThrowArgumentNullExceptionWhenSessionIsNull()
         {
-            string host = string.Empty; // TODO: Initialize to an appropriate value
-            int port = 0; // TODO: Initialize to an appropriate value
-            string username = string.Empty; // TODO: Initialize to an appropriate value
-            ProxyTypes proxyType = new ProxyTypes(); // TODO: Initialize to an appropriate value
-            string proxyHost = string.Empty; // TODO: Initialize to an appropriate value
-            int proxyPort = 0; // TODO: Initialize to an appropriate value
-            string proxyUsername = string.Empty; // TODO: Initialize to an appropriate value
-            string proxyPassword = string.Empty; // TODO: Initialize to an appropriate value
-            AuthenticationMethod[] authenticationMethods = null; // TODO: Initialize to an appropriate value
-            ConnectionInfo target = new ConnectionInfo(host, port, username, proxyType, proxyHost, proxyPort, proxyUsername, proxyPassword, authenticationMethods);
-            Assert.Inconclusive("TODO: Implement code to verify target");
-        }
+            var ret = new ConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, ProxyTypes.None,
+                Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD,
+                new KeyboardInteractiveAuthenticationMethod(Resources.USERNAME));
 
-        /// <summary>
-        ///A test for ConnectionInfo Constructor
-        ///</summary>
-        [TestMethod()]
-        public void ConnectionInfoConstructorTest1()
-        {
-            string host = string.Empty; // TODO: Initialize to an appropriate value
-            int port = 0; // TODO: Initialize to an appropriate value
-            string username = string.Empty; // TODO: Initialize to an appropriate value
-            AuthenticationMethod[] authenticationMethods = null; // TODO: Initialize to an appropriate value
-            ConnectionInfo target = new ConnectionInfo(host, port, username, authenticationMethods);
-            Assert.Inconclusive("TODO: Implement code to verify target");
+            try
+            {
+                ret.Authenticate(null);
+            }
+            catch (ArgumentNullException ex)
+            {
+                Assert.IsNull(ex.InnerException);
+                Assert.AreEqual("session", ex.ParamName);
+            }
         }
-
-        /// <summary>
-        ///A test for ConnectionInfo Constructor
-        ///</summary>
-        [TestMethod()]
-        public void ConnectionInfoConstructorTest2()
-        {
-            string host = string.Empty; // TODO: Initialize to an appropriate value
-            string username = string.Empty; // TODO: Initialize to an appropriate value
-            AuthenticationMethod[] authenticationMethods = null; // TODO: Initialize to an appropriate value
-            ConnectionInfo target = new ConnectionInfo(host, username, authenticationMethods);
-            Assert.Inconclusive("TODO: Implement code to verify target");
-        }
-    }
+   }
 }

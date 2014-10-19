@@ -196,6 +196,7 @@
     <Compile Include="Classes\Security\KeyHostAlgorithmTest.cs" />
     <Compile Include="Classes\SessionTest.cs" />
     <Compile Include="Classes\SftpClientTest.ChangeDirectory.cs" />
+    <Compile Include="Classes\SftpClientTest.Connect.cs" />
     <Compile Include="Classes\Sftp\Requests\ExtendedRequests\FStatVfsRequestTest.cs" />
     <Compile Include="Classes\Sftp\Requests\ExtendedRequests\HardLinkRequestTest.cs" />
     <Compile Include="Classes\Sftp\Requests\ExtendedRequests\PosixRenameRequestTest.cs" />

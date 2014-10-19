@@ -214,6 +214,11 @@ namespace Renci.SshNet
         /// <param name="host">The host.</param>
         /// <param name="username">The username.</param>
         /// <param name="authenticationMethods">The authentication methods.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="host"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="host"/> is a zero-length string.</exception>
+        /// <exception cref="ArgumentException"><paramref name="username" /> is null, a zero-length string or contains only whitespace characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="authenticationMethods"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentException">No <paramref name="authenticationMethods"/> specified.</exception>
         public ConnectionInfo(string host, string username, params AuthenticationMethod[] authenticationMethods)
             : this(host, DEFAULT_PORT, username, ProxyTypes.None, null, 0, null, null, authenticationMethods)
         {
@@ -226,6 +231,11 @@ namespace Renci.SshNet
         /// <param name="port">The port.</param>
         /// <param name="username">The username.</param>
         /// <param name="authenticationMethods">The authentication methods.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="host"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="username" /> is null, a zero-length string or contains only whitespace characters.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="port" /> is not within <see cref="F:System.Net.IPEndPoint.MinPort" /> and <see cref="F:System.Net.IPEndPoint.MaxPort" />.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="authenticationMethods"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentException">No <paramref name="authenticationMethods"/> specified.</exception>
         public ConnectionInfo(string host, int port, string username, params AuthenticationMethod[] authenticationMethods)
             : this(host, port, username, ProxyTypes.None, null, 0, null, null, authenticationMethods)
         {
@@ -245,33 +255,35 @@ namespace Renci.SshNet
         /// <param name="proxyUsername">The proxy username.</param>
         /// <param name="proxyPassword">The proxy password.</param>
         /// <param name="authenticationMethods">The authentication methods.</param>
-        /// <exception cref="System.ArgumentException">host</exception>
-        /// <exception cref="System.ArgumentOutOfRangeException">proxyPort</exception>
-        /// <exception cref="ArgumentException"><paramref name="host" /> is invalid, or <paramref name="username" /> is null or contains whitespace characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="host"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="username" /> is null, a zero-length string or contains only whitespace characters.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="port" /> is not within <see cref="F:System.Net.IPEndPoint.MinPort" /> and <see cref="F:System.Net.IPEndPoint.MaxPort" />.</exception>
-        /// <exception cref="ArgumentException"><paramref name="host" /> is invalid, or <paramref name="username" /> is null or contains whitespace characters.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="proxyType"/> is not <see cref="ProxyTypes.None"/> and <paramref name="proxyHost" /> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="proxyType"/> is not <see cref="ProxyTypes.None"/> and <paramref name="proxyPort" /> is not within <see cref="F:System.Net.IPEndPoint.MinPort" /> and <see cref="F:System.Net.IPEndPoint.MaxPort" />.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="authenticationMethods"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentException">No <paramref name="authenticationMethods"/> specified.</exception>
         public ConnectionInfo(string host, int port, string username, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername, string proxyPassword, params AuthenticationMethod[] authenticationMethods)
         {
-            if (!host.IsValidHost())
-                throw new ArgumentException("host");
+            if (host == null)
+                throw new ArgumentNullException("host");
+            port.ValidatePort("port");
+
+            if (username == null)
+                throw new ArgumentNullException("username");
+            if (username.All(char.IsWhiteSpace))
+                throw new ArgumentException("Cannot be empty or contain only whitespace.", "username");
 
             if (proxyType != ProxyTypes.None)
             {
-                if (string.IsNullOrEmpty(proxyHost) && !proxyHost.IsValidHost())
-                    throw new ArgumentException("proxyHost");
-
-                if (!proxyPort.IsValidPort())
-                    throw new ArgumentOutOfRangeException("proxyPort");
+                if (proxyHost == null)
+                    throw new ArgumentNullException("proxyHost");
+                proxyPort.ValidatePort("proxyPort");
             }
 
-            if (!port.IsValidPort())
-                throw new ArgumentOutOfRangeException("port");
-
-            if (username.IsNullOrWhiteSpace())
-                throw new ArgumentException("username");
-
-            if (authenticationMethods == null || authenticationMethods.Length < 1)
-                throw new ArgumentException("authenticationMethods");
+            if (authenticationMethods == null)
+                throw new ArgumentNullException("authenticationMethods");
+            if (!authenticationMethods.Any())
+                throw new ArgumentException("At least one authentication method should be specified.", "authenticationMethods");
 
             //  Set default connection values
             this.Timeout = TimeSpan.FromSeconds(30);

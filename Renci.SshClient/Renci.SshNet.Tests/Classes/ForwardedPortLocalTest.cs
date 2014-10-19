@@ -91,17 +91,73 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
-        [Description("Test passing null to AddForwardedPort hosts (local).")]
-        [ExpectedException(typeof(ArgumentNullException))]
-        public void Test_AddForwardedPort_Local_Hosts_Are_Null()
+        public void ConstructorShouldThrowArgumentNullExceptionWhenBoundHostIsNull()
         {
-            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            try
             {
-                client.Connect();
-                var port1 = new ForwardedPortLocal(null, 8080, null, 80);
-                client.AddForwardedPort(port1);
-                client.Disconnect();
+                new ForwardedPortLocal(null, 8080, Resources.HOST, 80);
+                Assert.Fail();
             }
+            catch (ArgumentNullException ex)
+            {
+                Assert.IsNull(ex.InnerException);
+                Assert.AreEqual("boundHost", ex.ParamName);
+            }
+        }
+
+        [TestMethod]
+        public void ConstructorShouldNotThrowExceptionWhenBoundHostIsEmpty()
+        {
+            var boundHost = string.Empty;
+
+            var forwardedPort = new ForwardedPortLocal(boundHost, 8080, Resources.HOST, 80);
+
+            Assert.AreSame(boundHost, forwardedPort.BoundHost);
+        }
+
+        [TestMethod]
+        public void ConstructorShouldNotThrowExceptionWhenBoundHostIsInvalidDnsName()
+        {
+            const string boundHost = "in_valid_host.";
+
+            var forwardedPort = new ForwardedPortLocal(boundHost, 8080, Resources.HOST, 80);
+
+            Assert.AreSame(boundHost, forwardedPort.BoundHost);
+        }
+
+        [TestMethod]
+        public void ConstructorShouldThrowArgumentNullExceptionWhenHostIsNull()
+        {
+            try
+            {
+                new ForwardedPortLocal(Resources.HOST, 8080, null, 80);
+                Assert.Fail();
+            }
+            catch (ArgumentNullException ex)
+            {
+                Assert.IsNull(ex.InnerException);
+                Assert.AreEqual("host", ex.ParamName);
+            }
+        }
+
+        [TestMethod]
+        public void ConstructorShouldNotThrowExceptionWhenHostIsEmpty()
+        {
+            var host = string.Empty;
+
+            var forwardedPort = new ForwardedPortLocal(Resources.HOST, 8080, string.Empty, 80);
+
+            Assert.AreSame(host, forwardedPort.Host);
+        }
+
+        [TestMethod]
+        public void ConstructorShouldNotThrowExceptionWhenHostIsInvalidDnsName()
+        {
+            const string host = "in_valid_host.";
+
+            var forwardedPort = new ForwardedPortLocal(Resources.HOST, 8080, host, 80);
+
+            Assert.AreSame(host, forwardedPort.Host);
         }
 
         /// <summary>
@@ -128,75 +184,6 @@ namespace Renci.SshNet.Tests.Classes
                 #endregion
             }
             Assert.Inconclusive("TODO: Implement code to verify target");
-        }
-
-        /// <summary>
-        ///A test for ForwardedPortLocal Constructor
-        ///</summary>
-        [TestMethod()]
-        public void ForwardedPortLocalConstructorTest()
-        {
-            string boundHost = string.Empty; // TODO: Initialize to an appropriate value
-            uint boundPort = 0; // TODO: Initialize to an appropriate value
-            string host = string.Empty; // TODO: Initialize to an appropriate value
-            uint port = 0; // TODO: Initialize to an appropriate value
-            ForwardedPortLocal target = new ForwardedPortLocal(boundHost, boundPort, host, port);
-            Assert.Inconclusive("TODO: Implement code to verify target");
-        }
-
-        /// <summary>
-        ///A test for ForwardedPortLocal Constructor
-        ///</summary>
-        [TestMethod()]
-        public void ForwardedPortLocalConstructorTest1()
-        {
-            uint boundPort = 0; // TODO: Initialize to an appropriate value
-            string host = string.Empty; // TODO: Initialize to an appropriate value
-            uint port = 0; // TODO: Initialize to an appropriate value
-            ForwardedPortLocal target = new ForwardedPortLocal(boundPort, host, port);
-            Assert.Inconclusive("TODO: Implement code to verify target");
-        }
-
-        /// <summary>
-        ///A test for Stop
-        ///</summary>
-        [TestMethod()]
-        public void StopTest()
-        {
-            uint boundPort = 0; // TODO: Initialize to an appropriate value
-            string host = string.Empty; // TODO: Initialize to an appropriate value
-            uint port = 0; // TODO: Initialize to an appropriate value
-            ForwardedPortLocal target = new ForwardedPortLocal(boundPort, host, port); // TODO: Initialize to an appropriate value
-            target.Stop();
-            Assert.Inconclusive("A method that does not return a value cannot be verified.");
-        }
-
-        /// <summary>
-        ///A test for Start
-        ///</summary>
-        [TestMethod()]
-        public void StartTest()
-        {
-            uint boundPort = 0; // TODO: Initialize to an appropriate value
-            string host = string.Empty; // TODO: Initialize to an appropriate value
-            uint port = 0; // TODO: Initialize to an appropriate value
-            ForwardedPortLocal target = new ForwardedPortLocal(boundPort, host, port); // TODO: Initialize to an appropriate value
-            target.Start();
-            Assert.Inconclusive("A method that does not return a value cannot be verified.");
-        }
-
-        /// <summary>
-        ///A test for Dispose
-        ///</summary>
-        [TestMethod()]
-        public void DisposeTest()
-        {
-            uint boundPort = 0; // TODO: Initialize to an appropriate value
-            string host = string.Empty; // TODO: Initialize to an appropriate value
-            uint port = 0; // TODO: Initialize to an appropriate value
-            ForwardedPortLocal target = new ForwardedPortLocal(boundPort, host, port); // TODO: Initialize to an appropriate value
-            target.Dispose();
-            Assert.Inconclusive("A method that does not return a value cannot be verified.");
         }
     }
 }

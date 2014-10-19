@@ -22,19 +22,16 @@ namespace Renci.SshNet.Common
         /// </summary>
         /// <param name="host">The host.</param>
         /// <param name="port">The port.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="host"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="port" /> is not within <see cref="F:System.Net.IPEndPoint.MinPort" /> and <see cref="F:System.Net.IPEndPoint.MaxPort" />.</exception>
         internal PortForwardEventArgs(string host, uint port)
         {
             if (host == null)
                 throw new ArgumentNullException("host");
+            port.ValidatePort("port");
 
-            if (!host.IsValidHost())
-                throw new ArgumentException("host");
-
-            if (!port.IsValidPort())
-                throw new ArgumentOutOfRangeException("port");
-
-            this.OriginatorHost = host;
-            this.OriginatorPort = port;
+            OriginatorHost = host;
+            OriginatorPort = port;
         }
     }
 }

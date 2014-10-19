@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Renci.SshNet.Channels;
@@ -61,7 +60,7 @@ namespace Renci.SshNet.Tests.Classes
 
             var shellStream = CreateShellStream();
 
-            var channelDataPublishTask = Task.Factory.StartNew(() =>
+            var channelDataPublishThread = new Thread(() =>
                 {
                     _channelSessionMock.Raise(p => p.DataReceived += null,
                         new ChannelDataEventArgs(5, _encoding.GetBytes(data1)));
@@ -71,12 +70,12 @@ namespace Renci.SshNet.Tests.Classes
                     _channelSessionMock.Raise(p => p.DataReceived += null,
                         new ChannelDataEventArgs(5, _encoding.GetBytes(data3 + "\r\n")));
                 });
-
+            channelDataPublishThread.Start();
 
             Assert.AreEqual(data1 + data2, shellStream.ReadLine());
             Assert.AreEqual(data3, shellStream.ReadLine());
 
-            channelDataPublishTask.Wait();
+            channelDataPublishThread.Join();
         }
 
         [TestMethod]

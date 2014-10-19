@@ -31,6 +31,7 @@
           * Lines before protocol identification string are not skipped (issue #1935 and #2223)
           * ShellStream.ReadLine produces incorrect output when reading multi-byte characters (issue #2190)
           * Dispose and Disconnect throw SocketException when socket is not connected (issue #2148)
+          * SftpClient constructor throws ArgumentException when host contains underscore (issue #1845)
 
           2014.4.6-beta1
           ==============

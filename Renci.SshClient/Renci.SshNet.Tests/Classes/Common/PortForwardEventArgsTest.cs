@@ -3,6 +3,7 @@ using Renci.SshNet.Common;
 using Renci.SshNet.Tests.Common;
 using System;
 using System.Net;
+using Renci.SshNet.Tests.Properties;
 
 namespace Renci.SshNet.Tests.Classes.Common
 {
@@ -13,19 +14,54 @@ namespace Renci.SshNet.Tests.Classes.Common
     public class PortForwardEventArgsTest : TestBase
     {
         [TestMethod]
-        [Description("Test passing null to constructor of PortForwardEventArgs.")]
-        [ExpectedException(typeof(ArgumentNullException))]
-        public void Test_PortForwardEventArgs_Host_Null()
+        public void ConstructorShouldThrowArgumentNullExceptionWhenHostIsNull()
         {
-            var args = new PortForwardEventArgs(null, 80);
+            try
+            {
+                new PortForwardEventArgs(null, 80);
+            }
+            catch (ArgumentNullException ex)
+            {
+                Assert.IsNull(ex.InnerException);
+                Assert.AreEqual("host", ex.ParamName);
+            }
         }
 
         [TestMethod]
-        [Description("Test passing an invalid port to constructor of PortForwardEventArgs.")]
-        [ExpectedException(typeof(ArgumentOutOfRangeException))]
-        public void Test_PortForwardEventArgs_Port_Invalid()
+        public void ConstructorShouldNotThrowExceptionWhenHostIsEmpty()
         {
-            var args = new PortForwardEventArgs("string", IPEndPoint.MaxPort + 1);
+            var host = string.Empty;
+
+            var eventArgs = new PortForwardEventArgs(host, 80);
+
+            Assert.AreSame(host, eventArgs.OriginatorHost);
+        }
+
+        [TestMethod]
+        public void ConstructorShouldNotThrowExceptionWhenHostIsInvalidDnsName()
+        {
+            const string host = "in_valid_host.";
+
+            var eventArgs = new PortForwardEventArgs(host, 80);
+
+            Assert.AreSame(host, eventArgs.OriginatorHost);
+        }
+
+        [TestMethod]
+        public void ConstructorShouldThrowArgumentOutOfRangeExceptionWhenPortIsGreaterThanMaximumValue()
+        {
+            const int port = IPEndPoint.MaxPort + 1;
+
+            try
+            {
+                new PortForwardEventArgs(Resources.HOST, port);
+                Assert.Fail();
+            }
+            catch (ArgumentOutOfRangeException ex)
+            {
+                Assert.IsNull(ex.InnerException);
+                Assert.AreEqual("port", ex.ParamName);
+            }
         }
     }
 }

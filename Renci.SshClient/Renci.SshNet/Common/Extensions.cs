@@ -160,53 +160,25 @@ namespace Renci.SshNet
             return new byte[] { (byte)(value >> 56), (byte)(value >> 48), (byte)(value >> 40), (byte)(value >> 32), (byte)(value >> 24), (byte)(value >> 16), (byte)(value >> 8), (byte)(value & 0xFF) };
         }
 
-#if SILVERLIGHT
-        private static Regex _rehost = new Regex(@"^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$|^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$", RegexOptions.IgnoreCase);
-
-        private static Regex _reIPv6 = new Regex(@"^(((?=(?>.*?::)(?!.*::)))(::)?([0-9A-F]{1,4}::?){0,5}|([0-9A-F]{1,4}:){6})(\2([0-9A-F]{1,4}(::?|$)){0,2}|((25[0-5]|(2[0-4]|1\d|[1-9])?\d)(\.|$)){4}|[0-9A-F]{1,4}:[0-9A-F]{1,4})(?<![^:]:|\.)\z", RegexOptions.IgnoreCase);
-#else
-        private static readonly Regex _rehost = new Regex(@"^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$|^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-
-        private static readonly Regex _reIPv6 = new Regex(@"^(((?=(?>.*?::)(?!.*::)))(::)?([0-9A-F]{1,4}::?){0,5}|([0-9A-F]{1,4}:){6})(\2([0-9A-F]{1,4}(::?|$)){0,2}|((25[0-5]|(2[0-4]|1\d|[1-9])?\d)(\.|$)){4}|[0-9A-F]{1,4}:[0-9A-F]{1,4})(?<![^:]:|\.)\z", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-
-#endif
-
-        internal static bool IsValidHost(this string value)
+        internal static void ValidatePort(this uint value, string argument)
         {
-            if (value == null)
-                return false;
-
-            if (value == string.Empty)
-                return true;
-
-            if (_rehost.Match(value).Success)
-                return true;
-
-            if (_reIPv6.Match(value).Success)
-                return true;
-
-            return false;
+            if (value > IPEndPoint.MaxPort)
+                throw new ArgumentOutOfRangeException(argument,
+                    string.Format(CultureInfo.InvariantCulture, "Specified value cannot be greater than {0}.",
+                        IPEndPoint.MaxPort));
         }
 
-        internal static bool IsValidPort(this uint value)
+        internal static void ValidatePort(this int value, string argument)
         {
             if (value < IPEndPoint.MinPort)
-                return false;
+                throw new ArgumentOutOfRangeException(argument,
+                    string.Format(CultureInfo.InvariantCulture, "Specified value cannot be less than {0}.",
+                        IPEndPoint.MinPort));
 
             if (value > IPEndPoint.MaxPort)
-                return false;
-            return true;
+                throw new ArgumentOutOfRangeException(argument,
+                    string.Format(CultureInfo.InvariantCulture, "Specified value cannot be greater than {0}.",
+                        IPEndPoint.MaxPort));
         }
-
-        internal static bool IsValidPort(this int value)
-        {
-            if (value < IPEndPoint.MinPort)
-                return false;
-
-            if (value > IPEndPoint.MaxPort)
-                return false;
-            return true;
-        }
-
     }
 }

@@ -68,18 +68,17 @@ namespace Renci.SshNet
         /// <param name="port">The port.</param>
         /// <exception cref="ArgumentNullException"><paramref name="boundHostAddress"/> is <c>null</c>.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="hostAddress"/> is <c>null</c>.</exception>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="boundPort"/> is not a valid port.</exception>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="port"/> is not a valid port.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="boundPort" /> is greater than <see cref="F:System.Net.IPEndPoint.MaxPort" />.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="port" /> is greater than <see cref="F:System.Net.IPEndPoint.MaxPort" />.</exception>
         public ForwardedPortRemote(IPAddress boundHostAddress, uint boundPort, IPAddress hostAddress, uint port)
         {
             if (boundHostAddress == null)
                 throw new ArgumentNullException("boundHostAddress");
             if (hostAddress == null)
                 throw new ArgumentNullException("hostAddress");
-            if (!boundPort.IsValidPort())
-                throw new ArgumentOutOfRangeException("boundPort");
-            if (!port.IsValidPort())
-                throw new ArgumentOutOfRangeException("port");
+
+            boundPort.ValidatePort("boundPort");
+            port.ValidatePort("port");
 
             this.BoundHostAddress = boundHostAddress;
             this.BoundPort = boundPort;

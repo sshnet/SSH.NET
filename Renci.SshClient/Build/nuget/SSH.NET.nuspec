@@ -33,6 +33,7 @@
           * Dispose and Disconnect throw SocketException when socket is not connected (issue #2148)
           * SftpClient constructor throws ArgumentException when host contains underscore (issue #1845)
           * Signing key is missing from source download (issue #2455)
+          * Forwarded Port channels can get stuck waiting (issue #1558)
 
           2014.4.6-beta1
           ==============

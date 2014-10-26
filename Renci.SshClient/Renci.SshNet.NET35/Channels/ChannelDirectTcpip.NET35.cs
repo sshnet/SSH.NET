@@ -1,6 +1,4 @@
-﻿using System;
-using System.Net.Sockets;
-using System.Threading;
+﻿using System.Net.Sockets;
 
 namespace Renci.SshNet.Channels
 {
@@ -9,11 +7,6 @@ namespace Renci.SshNet.Channels
     /// </summary>
     internal partial class ChannelDirectTcpip
     {
-        partial void ExecuteThread(Action action)
-        {
-            ThreadPool.QueueUserWorkItem((o) => { action(); });
-        }
-
         partial void InternalSocketReceive(byte[] buffer, ref int read)
         {
             read = this._socket.Receive(buffer);

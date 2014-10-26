@@ -82,6 +82,12 @@
     <Compile Include="..\Renci.SshNet\Channels\IChannel.cs">
       <Link>Channels\IChannel.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\Channels\IChannelDirectTcpip.cs">
+      <Link>Channels\IChannelDirectTcpip.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Channels\IChannelForwardedTcpip.cs">
+      <Link>Channels\IChannelForwardedTcpip.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\Channels\IChannelSession.cs">
       <Link>Channels\IChannelSession.cs</Link>
     </Compile>
@@ -249,6 +255,9 @@
     </Compile>
     <Compile Include="..\Renci.SshNet\IConnectionInfo.cs">
       <Link>IConnectionInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\IForwardedPort.cs">
+      <Link>IForwardedPort.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\ISession.cs">
       <Link>ISession.cs</Link>

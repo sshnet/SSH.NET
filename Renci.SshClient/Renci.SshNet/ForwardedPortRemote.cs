@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading;
-using Renci.SshNet.Channels;
 using Renci.SshNet.Messages.Connection;
 using Renci.SshNet.Common;
 using System.Globalization;
@@ -158,7 +157,7 @@ namespace Renci.SshNet
                         {
                             this.RaiseRequestReceived(info.OriginatorAddress, info.OriginatorPort);
 
-                            var channel = this.Session.CreateServerChannel<ChannelForwardedTcpip>(
+                            var channel = this.Session.CreateChannelForwardedTcpip(
                                 channelOpenMessage.LocalChannelNumber, channelOpenMessage.InitialWindowSize,
                                 channelOpenMessage.MaximumPacketSize);
                             channel.Bind(this.HostAddress, this.Port);

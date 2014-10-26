@@ -6,7 +6,7 @@ namespace Renci.SshNet
     /// <summary>
     /// Provides functionality for dynamic port forwarding
     /// </summary>
-    public partial class ForwardedPortDynamic : ForwardedPort, IDisposable
+    public partial class ForwardedPortDynamic : ForwardedPort, IForwardedPort
     {
         private EventWaitHandle _listenerTaskCompleted;
 

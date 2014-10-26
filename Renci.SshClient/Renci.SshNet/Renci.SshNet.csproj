@@ -58,6 +58,8 @@
     </Compile>
     <Compile Include="BaseClient.cs" />
     <Compile Include="Channels\IChannel.cs" />
+    <Compile Include="Channels\IChannelDirectTcpip.cs" />
+    <Compile Include="Channels\IChannelForwardedTcpip.cs" />
     <Compile Include="Channels\IChannelSession.cs" />
     <Compile Include="CommandAsyncResult.cs" />
     <Compile Include="Channels\Channel.cs" />
@@ -152,6 +154,7 @@
     </Compile>
     <Compile Include="IAuthenticationMethod.cs" />
     <Compile Include="IConnectionInfo.cs" />
+    <Compile Include="IForwardedPort.cs" />
     <Compile Include="ISession.cs" />
     <Compile Include="Messages\Transport\KeyExchangeEcdhInitMessage.cs" />
     <Compile Include="Messages\Transport\KeyExchangeEcdhReplyMessage.cs" />

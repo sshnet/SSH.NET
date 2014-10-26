@@ -50,7 +50,7 @@ namespace Renci.SshNet
                         {
                             try
                             {
-                                using (var channel = this.Session.CreateClientChannel<ChannelDirectTcpip>())
+                                using (var channel = this.Session.CreateChannelDirectTcpip())
                                 {
                                     var version = new byte[1];
 
@@ -83,7 +83,7 @@ namespace Renci.SshNet
                 }
                 catch (SocketException exp)
                 {
-                    if (!(exp.SocketErrorCode == SocketError.Interrupted))
+                    if (exp.SocketErrorCode != SocketError.Interrupted)
                     {
                         this.RaiseExceptionEvent(exp);
                     }
@@ -118,7 +118,7 @@ namespace Renci.SshNet
             this.IsStarted = false;
         }
 
-        private void HandleSocks4(Socket socket, ChannelDirectTcpip channel)
+        private void HandleSocks4(Socket socket, IChannelDirectTcpip channel)
         {
             using (var stream = new NetworkStream(socket))
             {
@@ -139,7 +139,7 @@ namespace Renci.SshNet
 
                 this.RaiseRequestReceived(host, port);
 
-                channel.Open(host, port, socket);
+                channel.Open(host, port, this, socket);
 
                 stream.WriteByte(0x00);
 
@@ -157,7 +157,7 @@ namespace Renci.SshNet
             }
         }
 
-        private void HandleSocks5(Socket socket, ChannelDirectTcpip channel)
+        private void HandleSocks5(Socket socket, IChannelDirectTcpip channel)
         {
             using (var stream = new NetworkStream(socket))
             {
@@ -231,7 +231,7 @@ namespace Renci.SshNet
 
                 this.RaiseRequestReceived(host, port);
 
-                channel.Open(host, port, socket);
+                channel.Open(host, port, this, socket);
 
                 stream.WriteByte(0x05);
 

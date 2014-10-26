@@ -1,8 +1,8 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Net.Sockets;
 using System.Net;
 using System.Threading;
-using Renci.SshNet.Channels;
 
 namespace Renci.SshNet
 {
@@ -13,6 +13,7 @@ namespace Renci.SshNet
     {
         private TcpListener _listener;
         private readonly object _listenerLocker = new object();
+        private int _pendingRequests;
 
         partial void InternalStart()
         {
@@ -50,16 +51,17 @@ namespace Renci.SshNet
                         {
                             try
                             {
-                                IPEndPoint originatorEndPoint = socket.RemoteEndPoint as IPEndPoint;
+                                Interlocked.Increment(ref _pendingRequests);
 
-                                this.RaiseRequestReceived(originatorEndPoint.Address.ToString(), (uint)originatorEndPoint.Port);
+                                var originatorEndPoint = (IPEndPoint) socket.RemoteEndPoint;
 
-                                using (var channel = this.Session.CreateClientChannel<ChannelDirectTcpip>())
+                                this.RaiseRequestReceived(originatorEndPoint.Address.ToString(),
+                                    (uint) originatorEndPoint.Port);
+
+                                using (var channel = this.Session.CreateChannelDirectTcpip())
                                 {
-                                    channel.Open(this.Host, this.Port, socket);
-
+                                    channel.Open(this.Host, this.Port, this, socket);
                                     channel.Bind();
-
                                     channel.Close();
                                 }
                             }
@@ -67,12 +69,16 @@ namespace Renci.SshNet
                             {
                                 this.RaiseExceptionEvent(exp);
                             }
+                            finally
+                            {
+                                Interlocked.Decrement(ref _pendingRequests);
+                            }
                         });
                     }
                 }
                 catch (SocketException exp)
                 {
-                    if (!(exp.SocketErrorCode == SocketError.Interrupted))
+                    if (exp.SocketErrorCode != SocketError.Interrupted)
                     {
                         this.RaiseExceptionEvent(exp);
                     }
@@ -104,6 +110,18 @@ namespace Renci.SshNet
             this._listenerTaskCompleted.WaitOne(this.Session.ConnectionInfo.Timeout);
             this._listenerTaskCompleted.Dispose();
             this._listenerTaskCompleted = null;
+
+            var stopWatch = new Stopwatch();
+            stopWatch.Start();
+
+            while (stopWatch.Elapsed < this.Session.ConnectionInfo.Timeout || this.Session.ConnectionInfo.Timeout == SshNet.Session.Infinite)
+            {
+                if (Interlocked.CompareExchange(ref _pendingRequests, 0, 0) == 0)
+                    break;
+                Thread.Sleep(50);
+            }
+
+            stopWatch.Stop();
 
             this.IsStarted = false;
         }

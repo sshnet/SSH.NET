@@ -6,15 +6,26 @@ namespace Renci.SshNet
     /// <summary>
     /// Base class for port forwarding functionality.
     /// </summary>
-    public abstract class ForwardedPort
+    public abstract class ForwardedPort : IForwardedPort
     {
+        private EventHandler _closingEvent;
+
         /// <summary>
         /// Gets or sets the session.
         /// </summary>
         /// <value>
         /// The session.
         /// </value>
-        internal Session Session { get; set; }
+        internal ISession Session { get; set; }
+
+        /// <summary>
+        /// The <see cref="IForwardedPort.Closing"/> event occurs as the forward port is being stopped.
+        /// </summary>
+        event EventHandler IForwardedPort.Closing
+        {
+            add { _closingEvent += value; }
+            remove { _closingEvent -= value; }
+        }
 
         /// <summary>
         /// Gets or sets a value indicating whether port forwarding is started.
@@ -57,6 +68,8 @@ namespace Renci.SshNet
         /// </summary>
         public virtual void Stop()
         {
+            RaiseClosing();
+
             if (this.Session != null)
             {
                 this.Session.ErrorOccured -= Session_ErrorOccured;
@@ -87,6 +100,18 @@ namespace Renci.SshNet
             if (handlers != null)
             {
                 RequestReceived(this, new PortForwardEventArgs(host, port));
+            }
+        }
+
+        /// <summary>
+        /// Raises the <see cref="IForwardedPort.Closing"/> event.
+        /// </summary>
+        private void RaiseClosing()
+        {
+            var handlers = _closingEvent;
+            if (handlers != null)
+            {
+                handlers(this, new EventArgs());
             }
         }
 

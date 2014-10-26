@@ -15,7 +15,6 @@ namespace Renci.SshNet
         private const byte Null = 0x00;
         private const byte CarriageReturn = 0x0d;
         private const byte LineFeed = 0x0a;
-        private static readonly TimeSpan Infinite = new TimeSpan(0, 0, 0, 0, -1);
 
         private readonly AutoResetEvent _connectEvent = new AutoResetEvent(false);
         private readonly AutoResetEvent _sendEvent = new AutoResetEvent(false);

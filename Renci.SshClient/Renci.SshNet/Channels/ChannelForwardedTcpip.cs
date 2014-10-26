@@ -11,7 +11,7 @@ namespace Renci.SshNet.Channels
     /// <summary>
     /// Implements "forwarded-tcpip" SSH channel.
     /// </summary>
-    internal partial class ChannelForwardedTcpip : ServerChannel
+    internal partial class ChannelForwardedTcpip : ServerChannel, IChannelForwardedTcpip
     {
         private Socket _socket;
 
@@ -24,13 +24,6 @@ namespace Renci.SshNet.Channels
         public override ChannelTypes ChannelType
         {
             get { return ChannelTypes.ForwardedTcpip; }
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ChannelForwardedTcpip"/> class.
-        /// </summary>
-        public ChannelForwardedTcpip()
-        {
         }
 
         /// <summary>

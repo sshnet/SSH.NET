@@ -55,8 +55,11 @@ namespace Renci.SshNet
         public IDictionary<string, Type> CompressionAlgorithms { get; private set; }
 
         /// <summary>
-        /// Gets supported channel requests for this connection.
+        /// Gets the supported channel requests for this connection.
         /// </summary>
+        /// <value>
+        /// The supported channel requests for this connection.
+        /// </value>
         public IDictionary<string, RequestInfo> ChannelRequests { get; private set; }
 
         /// <summary>
@@ -402,10 +405,12 @@ namespace Renci.SshNet
         /// <param name="session">The session to be authenticated.</param>
         /// <exception cref="ArgumentNullException"><paramref name="session"/> is null.</exception>
         /// <exception cref="SshAuthenticationException">No suitable authentication method found to complete authentication, or permission denied.</exception>
-        public void Authenticate(Session session)
+        internal void Authenticate(ISession session)
         {
+            IsAuthenticated = false;
             var clientAuthentication = new ClientAuthentication();
             clientAuthentication.Authenticate(this, session);
+            IsAuthenticated = true;
         }
 
         /// <summary>

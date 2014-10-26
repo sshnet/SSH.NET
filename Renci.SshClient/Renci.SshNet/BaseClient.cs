@@ -10,8 +10,6 @@ namespace Renci.SshNet
     /// </summary>
     public abstract class BaseClient : IDisposable
     {
-        private static readonly TimeSpan Infinite = new TimeSpan(0, 0, 0, 0, -1);
-
         /// <summary>
         /// Holds value indicating whether the connection info is owned by this client.
         /// </summary>
@@ -83,7 +81,7 @@ namespace Renci.SshNet
                 if (value == _keepAliveInterval)
                     return;
 
-                if (value == Infinite)
+                if (value == Session.Infinite)
                 {
                     // stop the timer when the value is -1 milliseconds
                     StopKeepAliveTimer();
@@ -135,7 +133,7 @@ namespace Renci.SshNet
 
             ConnectionInfo = connectionInfo;
             _ownsConnectionInfo = ownsConnectionInfo;
-            _keepAliveInterval = Infinite;
+            _keepAliveInterval = Session.Infinite;
         }
 
         /// <summary>
@@ -355,7 +353,7 @@ namespace Renci.SshNet
         /// </remarks>
         private void StartKeepAliveTimer()
         {
-            if (_keepAliveInterval == Infinite)
+            if (_keepAliveInterval == Session.Infinite)
                 return;
 
             if (_keepAliveTimer == null)

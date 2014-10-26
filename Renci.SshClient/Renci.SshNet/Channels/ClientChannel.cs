@@ -22,7 +22,7 @@ namespace Renci.SshNet.Channels
         /// <param name="session">The session.</param>
         /// <param name="localWindowSize">Size of the window.</param>
         /// <param name="localPacketSize">Size of the packet.</param>
-        internal override void Initialize(Session session, uint localWindowSize, uint localPacketSize)
+        internal override void Initialize(ISession session, uint localWindowSize, uint localPacketSize)
         {
             base.Initialize(session, localWindowSize, localPacketSize);
             Session.ChannelOpenConfirmationReceived += OnChannelOpenConfirmation;

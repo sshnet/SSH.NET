@@ -22,7 +22,7 @@ namespace Renci.SshNet.Channels
         private uint? _remoteWindowSize;
         private uint? _remoteChannelNumber;
         private uint? _remotePacketSize;
-        private Session _session;
+        private ISession _session;
 
         /// <summary>
         /// Gets the session.
@@ -30,7 +30,7 @@ namespace Renci.SshNet.Channels
         /// <value>
         ///  Thhe session.
         /// </value>
-        protected Session Session
+        protected ISession Session
         {
             get { return _session; }
         }
@@ -191,7 +191,7 @@ namespace Renci.SshNet.Channels
         /// Gets the connection info.
         /// </summary>
         /// <value>The connection info.</value>
-        protected ConnectionInfo ConnectionInfo
+        protected IConnectionInfo ConnectionInfo
         {
             get { return this._session.ConnectionInfo; }
         }
@@ -211,7 +211,7 @@ namespace Renci.SshNet.Channels
         /// <param name="session">The session.</param>
         /// <param name="localWindowSize">Size of the window.</param>
         /// <param name="localPacketSize">Size of the packet.</param>
-        internal virtual void Initialize(Session session, uint localWindowSize, uint localPacketSize)
+        internal virtual void Initialize(ISession session, uint localWindowSize, uint localPacketSize)
         {
             _session = session;
             _initialWindowSize = localWindowSize;

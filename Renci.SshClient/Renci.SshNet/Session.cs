@@ -26,6 +26,11 @@ namespace Renci.SshNet
     public partial class Session : IDisposable, ISession
     {
         /// <summary>
+        /// Specifies an infinite waiting period.
+        /// </summary>
+        internal static readonly TimeSpan Infinite = new TimeSpan(0, 0, 0, 0, -1);
+
+        /// <summary>
         /// Specifies maximum packet size defined by the protocol.
         /// </summary>
         private const int MaximumSshPacketSize = LocalChannelDataPacketSize + 3000;
@@ -151,7 +156,9 @@ namespace Renci.SshNet
         /// <summary>
         /// Gets the session semaphore that controls session channels.
         /// </summary>
-        /// <value>The session semaphore.</value>
+        /// <value>
+        /// The session semaphore.
+        /// </value>
         public SemaphoreLight SessionSemaphore
         {
             get
@@ -178,7 +185,7 @@ namespace Renci.SshNet
         /// Gets the next channel number.
         /// </summary>
         /// <value>The next channel number.</value>
-        internal uint NextChannelNumber
+        uint ISession.NextChannelNumber
         {
             get
             {
@@ -367,73 +374,73 @@ namespace Renci.SshNet
 
         /// <summary>
         /// Occurs when <see cref="GlobalRequestMessage"/> message received
-        /// </summary>        
+        /// </summary>
         internal event EventHandler<MessageEventArgs<GlobalRequestMessage>> GlobalRequestReceived;
 
         /// <summary>
         /// Occurs when <see cref="RequestSuccessMessage"/> message received
         /// </summary>
-        internal event EventHandler<MessageEventArgs<RequestSuccessMessage>> RequestSuccessReceived;
+        public event EventHandler<MessageEventArgs<RequestSuccessMessage>> RequestSuccessReceived;
 
         /// <summary>
         /// Occurs when <see cref="RequestFailureMessage"/> message received
         /// </summary>
-        internal event EventHandler<MessageEventArgs<RequestFailureMessage>> RequestFailureReceived;
+        public event EventHandler<MessageEventArgs<RequestFailureMessage>> RequestFailureReceived;
 
         /// <summary>
         /// Occurs when <see cref="ChannelOpenMessage"/> message received
         /// </summary>
-        internal event EventHandler<MessageEventArgs<ChannelOpenMessage>> ChannelOpenReceived;
+        public event EventHandler<MessageEventArgs<ChannelOpenMessage>> ChannelOpenReceived;
 
         /// <summary>
         /// Occurs when <see cref="ChannelOpenConfirmationMessage"/> message received
         /// </summary>
-        internal event EventHandler<MessageEventArgs<ChannelOpenConfirmationMessage>> ChannelOpenConfirmationReceived;
+        public event EventHandler<MessageEventArgs<ChannelOpenConfirmationMessage>> ChannelOpenConfirmationReceived;
 
         /// <summary>
         /// Occurs when <see cref="ChannelOpenFailureMessage"/> message received
         /// </summary>
-        internal event EventHandler<MessageEventArgs<ChannelOpenFailureMessage>> ChannelOpenFailureReceived;
+        public event EventHandler<MessageEventArgs<ChannelOpenFailureMessage>> ChannelOpenFailureReceived;
 
         /// <summary>
         /// Occurs when <see cref="ChannelWindowAdjustMessage"/> message received
         /// </summary>
-        internal event EventHandler<MessageEventArgs<ChannelWindowAdjustMessage>> ChannelWindowAdjustReceived;
+        public event EventHandler<MessageEventArgs<ChannelWindowAdjustMessage>> ChannelWindowAdjustReceived;
 
         /// <summary>
         /// Occurs when <see cref="ChannelDataMessage"/> message received
         /// </summary>
-        internal event EventHandler<MessageEventArgs<ChannelDataMessage>> ChannelDataReceived;
+        public event EventHandler<MessageEventArgs<ChannelDataMessage>> ChannelDataReceived;
 
         /// <summary>
         /// Occurs when <see cref="ChannelExtendedDataMessage"/> message received
         /// </summary>
-        internal event EventHandler<MessageEventArgs<ChannelExtendedDataMessage>> ChannelExtendedDataReceived;
+        public event EventHandler<MessageEventArgs<ChannelExtendedDataMessage>> ChannelExtendedDataReceived;
 
         /// <summary>
         /// Occurs when <see cref="ChannelEofMessage"/> message received
         /// </summary>
-        internal event EventHandler<MessageEventArgs<ChannelEofMessage>> ChannelEofReceived;
+        public event EventHandler<MessageEventArgs<ChannelEofMessage>> ChannelEofReceived;
 
         /// <summary>
         /// Occurs when <see cref="ChannelCloseMessage"/> message received
         /// </summary>
-        internal event EventHandler<MessageEventArgs<ChannelCloseMessage>> ChannelCloseReceived;
+        public event EventHandler<MessageEventArgs<ChannelCloseMessage>> ChannelCloseReceived;
 
         /// <summary>
         /// Occurs when <see cref="ChannelRequestMessage"/> message received
         /// </summary>
-        internal event EventHandler<MessageEventArgs<ChannelRequestMessage>> ChannelRequestReceived;
+        public event EventHandler<MessageEventArgs<ChannelRequestMessage>> ChannelRequestReceived;
 
         /// <summary>
         /// Occurs when <see cref="ChannelSuccessMessage"/> message received
         /// </summary>
-        internal event EventHandler<MessageEventArgs<ChannelSuccessMessage>> ChannelSuccessReceived;
+        public event EventHandler<MessageEventArgs<ChannelSuccessMessage>> ChannelSuccessReceived;
 
         /// <summary>
         /// Occurs when <see cref="ChannelFailureMessage"/> message received
         /// </summary>
-        internal event EventHandler<MessageEventArgs<ChannelFailureMessage>> ChannelFailureReceived;
+        public event EventHandler<MessageEventArgs<ChannelFailureMessage>> ChannelFailureReceived;
 
         /// <summary>
         /// Occurs when message received and is not handled by any of the event handlers
@@ -688,6 +695,23 @@ namespace Renci.SshNet
         internal void SendKeepAlive()
         {
             this.SendMessage(new IgnoreMessage());
+        }
+
+        /// <summary>
+        /// Waits for the specified handle or the exception handle for the receive thread
+        /// to signal within the connection timeout.
+        /// </summary>
+        /// <param name="waitHandle">The wait handle.</param>
+        /// <exception cref="SshConnectionException">A received package was invalid or failed the message integrity check.</exception>
+        /// <exception cref="SshOperationTimeoutException">None of the handles are signaled in time and the session is not disconnecting.</exception>
+        /// <exception cref="SocketException">A socket error was signaled while receiving messages from the server.</exception>
+        /// <remarks>
+        /// When neither handles are signaled in time and the session is not closing, then the
+        /// session is disconnected.
+        /// </remarks>
+        void ISession.WaitOnHandle(WaitHandle waitHandle)
+        {
+            WaitOnHandle(waitHandle, ConnectionInfo.Timeout);
         }
 
         /// <summary>
@@ -2201,6 +2225,29 @@ namespace Renci.SshNet
         IChannelSession ISession.CreateChannelSession()
         {
             return CreateClientChannel<ChannelSession>();
+        }
+
+        /// <summary>
+        /// Create a new channel for a locally forwarded TCP/IP port.
+        /// </summary>
+        /// <returns>
+        /// A new channel for a locally forwarded TCP/IP port.
+        /// </returns>
+        IChannelDirectTcpip ISession.CreateChannelDirectTcpip()
+        {
+            return CreateClientChannel<ChannelDirectTcpip>();
+        }
+
+        /// <summary>
+        /// Creates a "forwarded-tcpip" SSH channel.
+        /// </summary>
+        /// <returns>
+        /// A new "forwarded-tcpip" SSH channel.
+        /// </returns>
+        IChannelForwardedTcpip ISession.CreateChannelForwardedTcpip(uint remoteChannelNumber, uint remoteWindowSize,
+            uint remoteChannelDataPacketSize)
+        {
+            return CreateServerChannel<ChannelForwardedTcpip>(remoteChannelNumber, remoteWindowSize, remoteChannelDataPacketSize);
         }
 
         /// <summary>

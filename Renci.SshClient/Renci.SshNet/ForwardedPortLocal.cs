@@ -13,22 +13,22 @@ namespace Renci.SshNet
         /// <summary>
         /// Gets the bound host.
         /// </summary>
-        public string BoundHost { get; protected set; }
+        public string BoundHost { get; private set; }
 
         /// <summary>
         /// Gets the bound port.
         /// </summary>
-        public uint BoundPort { get; protected set; }
+        public uint BoundPort { get; private set; }
 
         /// <summary>
         /// Gets the forwarded host.
         /// </summary>
-        public string Host { get; protected set; }
+        public string Host { get; private set; }
 
         /// <summary>
         /// Gets the forwarded port.
         /// </summary>
-        public uint Port { get; protected set; }
+        public uint Port { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ForwardedPortLocal"/> class.
@@ -103,7 +103,6 @@ namespace Renci.SshNet
         public override void Stop()
         {
             base.Stop();
-
             this.InternalStop();
         }
 
@@ -123,7 +122,6 @@ namespace Renci.SshNet
         public void Dispose()
         {
             Dispose(true);
-
             GC.SuppressFinalize(this);
         }
 

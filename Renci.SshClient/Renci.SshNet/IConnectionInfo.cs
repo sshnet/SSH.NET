@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text;
 using Renci.SshNet.Messages.Authentication;
+using Renci.SshNet.Messages.Connection;
 
 namespace Renci.SshNet
 {
@@ -10,12 +12,39 @@ namespace Renci.SshNet
     internal interface IConnectionInfo
     {
         /// <summary>
+        /// Gets the supported channel requests for this connection.
+        /// </summary>
+        /// <value>
+        /// The supported channel requests for this connection.
+        /// </value>
+        IDictionary<string, RequestInfo> ChannelRequests { get; }
+
+        /// <summary>
         /// Gets the character encoding.
         /// </summary>
         /// <value>
         /// The character encoding.
         /// </value>
         Encoding Encoding { get; }
+
+        /// <summary>
+        /// Gets the number of retry attempts when session channel creation failed.
+        /// </summary>
+        /// <value>
+        /// The number of retry attempts when session channel creation failed.
+        /// </value>
+        int RetryAttempts { get; }
+
+        /// <summary>
+        /// Gets or sets connection timeout.
+        /// </summary>
+        /// <value>
+        /// The connection timeout. The default value is 30 seconds.
+        /// </value>
+        /// <example>
+        ///   <code source="..\..\Renci.SshNet.Tests\Classes\SshClientTest.cs" region="Example SshClient Connect Timeout" language="C#" title="Specify connection timeout" />
+        /// </example>
+        TimeSpan Timeout { get; }
 
         /// <summary>
         /// Gets the supported authentication methods for this connection.

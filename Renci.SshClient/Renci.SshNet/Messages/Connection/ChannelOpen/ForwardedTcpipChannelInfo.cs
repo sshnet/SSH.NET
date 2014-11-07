@@ -6,6 +6,25 @@
     internal class ForwardedTcpipChannelInfo : ChannelOpenInfo
     {
         /// <summary>
+        /// Initializes a new <see cref="ForwardedTcpipChannelInfo"/> instance.
+        /// </summary>
+        public ForwardedTcpipChannelInfo()
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new <see cref="ForwardedTcpipChannelInfo"/> instance with the specified connector
+        /// address and port, and originator address and port.
+        /// </summary>
+        public ForwardedTcpipChannelInfo(string connectedAddress, uint connectedPort, string originatorAddress, uint originatorPort)
+        {
+            ConnectedAddress = connectedAddress;
+            ConnectedPort = connectedPort;
+            OriginatorAddress = originatorAddress;
+            OriginatorPort = originatorPort;
+        }
+
+        /// <summary>
         /// Specifies channel open type
         /// </summary>
         public const string NAME = "forwarded-tcpip";

@@ -8,7 +8,7 @@ namespace Renci.SshNet
     internal interface IForwardedPort
     {
         /// <summary>
-        /// The <see cref="Closing"/> event occurs as the forward port is being stopped.
+        /// The <see cref="Closing"/> event occurs as the forwarded port is being stopped.
         /// </summary>
         event EventHandler Closing;
     }

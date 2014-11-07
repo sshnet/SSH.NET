@@ -66,6 +66,24 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Classes\Channels\ChannelDirectTcpipTest.cs" />
+    <Compile Include="Classes\Channels\ChannelTest_Close_SessionIsNotConnectedAndChannelIsOpen.cs" />
+    <Compile Include="Classes\Channels\ChannelTest_OnSessionChannelCloseReceived_OnClose_Exception.cs" />
+    <Compile Include="Classes\Channels\ChannelTest_OnSessionChannelDataReceived_OnData_Exception.cs" />
+    <Compile Include="Classes\Channels\ChannelTest_Close_SessionIsConnectedAndChannelIsOpen.cs" />
+    <Compile Include="Classes\Channels\ChannelTest_Close_SessionIsConnectedAndChannelIsNotOpen.cs" />
+    <Compile Include="Classes\Channels\ChannelTest_Close_SessionIsNotConnectedAndChannelIsNotOpen.cs" />
+    <Compile Include="Classes\Channels\ChannelTest_OnSessionChannelCloseReceived_SessionIsConnectedAndChannelIsOpen.cs" />
+    <Compile Include="Classes\Channels\ChannelTest_OnSessionChannelEofReceived_OnEof_Exception.cs" />
+    <Compile Include="Classes\Channels\ChannelTest_OnSessionChannelExtendedDataReceived_OnExtendedData_Exception.cs" />
+    <Compile Include="Classes\Channels\ChannelTest_OnSessionChannelFailureReceived_OnFailure_Exception.cs" />
+    <Compile Include="Classes\Channels\ChannelTest_OnSessionChannelRequestReceived_OnRequest_Exception.cs" />
+    <Compile Include="Classes\Channels\ChannelTest_OnSessionChannelSuccessReceived_OnSuccess_Exception.cs" />
+    <Compile Include="Classes\Channels\ChannelTest_OnSessionChannelWindowAdjustReceived_OnWindowAdjust_Exception.cs" />
+    <Compile Include="Classes\Channels\ChannelTest_OnSessionDisconnected_OnDisconnected_Exception.cs" />
+    <Compile Include="Classes\Channels\ChannelTest_OnSessionDisconnected_SessionIsConnectedAndChannelIsOpen.cs" />
+    <Compile Include="Classes\Channels\ChannelStub.cs" />
+    <Compile Include="Classes\Channels\ChannelTest_OnSessionErrorOccurred_OnErrorOccurred_Exception.cs" />
     <Compile Include="Classes\ClientAuthenticationTestBase.cs" />
     <Compile Include="Classes\ClientAuthenticationTest_Failure_SingleList_AuthenticationMethodFailed.cs" />
     <Compile Include="Classes\ClientAuthenticationTest_Failure_SingleList_AuthenticationMethodNotConfigured.cs" />
@@ -73,6 +91,54 @@
     <Compile Include="Classes\ClientAuthenticationTest_Success_MultiList_SameAllowedAuthenticationsAfterPartialSuccess.cs" />
     <Compile Include="Classes\ClientAuthenticationTest_Success_MultiList_SkipFailedAuthenticationMethod.cs" />
     <Compile Include="Classes\ClientAuthenticationTest_Success_SingleList_SameAllowedAuthenticationAfterPartialSuccess.cs" />
+    <Compile Include="Classes\ForwardedPortDynamicTest_Dispose_PortStarted_ChannelBound.cs" />
+    <Compile Include="Classes\ForwardedPortDynamicTest_Start_SessionNotConnected.cs" />
+    <Compile Include="Classes\ForwardedPortDynamicTest_Start_SessionNull.cs" />
+    <Compile Include="Classes\ForwardedPortDynamicTest_Stop_PortDisposed.cs" />
+    <Compile Include="Classes\ForwardedPortDynamicTest_Stop_PortNeverStarted.cs" />
+    <Compile Include="Classes\ForwardedPortDynamicTest_Stop_PortStarted_ChannelBound.cs" />
+    <Compile Include="Classes\ForwardedPortDynamicTest_Stop_PortStarted_ChannelNotBound.cs" />
+    <Compile Include="Classes\ForwardedPortDynamicTest_Stop_PortStopped.cs" />
+    <Compile Include="Classes\ForwardedPortDynamicTest_Dispose_PortDisposed.cs" />
+    <Compile Include="Classes\ForwardedPortDynamicTest_Dispose_PortNeverStarted.cs" />
+    <Compile Include="Classes\ForwardedPortDynamicTest_Dispose_PortStarted_ChannelNotBound.cs" />
+    <Compile Include="Classes\ForwardedPortDynamicTest_Dispose_PortStopped.cs" />
+    <Compile Include="Classes\ForwardedPortDynamicTest_Started_SocketSendShutdownImmediately.cs" />
+    <Compile Include="Classes\ForwardedPortDynamicTest_Started_SocketVersionNotSupported.cs" />
+    <Compile Include="Classes\ForwardedPortDynamicTest_Start_PortDisposed.cs" />
+    <Compile Include="Classes\ForwardedPortDynamicTest_Start_PortNeverStarted.cs" />
+    <Compile Include="Classes\ForwardedPortDynamicTest_Start_PortStopped.cs" />
+    <Compile Include="Classes\ForwardedPortDynamicTest_Start_PortStarted.cs" />
+    <Compile Include="Classes\ForwardedPortLocalTest_Dispose_PortDisposed.cs" />
+    <Compile Include="Classes\ForwardedPortLocalTest_Dispose_PortNeverStarted.cs" />
+    <Compile Include="Classes\ForwardedPortLocalTest_Dispose_PortStarted_ChannelNotBound.cs" />
+    <Compile Include="Classes\ForwardedPortLocalTest_Dispose_PortStopped.cs" />
+    <Compile Include="Classes\ForwardedPortLocalTest_Start_PortDisposed.cs" />
+    <Compile Include="Classes\ForwardedPortLocalTest_Start_PortNeverStarted.cs" />
+    <Compile Include="Classes\ForwardedPortLocalTest_Start_PortStarted.cs" />
+    <Compile Include="Classes\ForwardedPortLocalTest_Start_PortStopped.cs" />
+    <Compile Include="Classes\ForwardedPortLocalTest_Start_SessionNotConnected.cs" />
+    <Compile Include="Classes\ForwardedPortLocalTest_Start_SessionNull.cs" />
+    <Compile Include="Classes\ForwardedPortLocalTest_Stop_PortDisposed.cs" />
+    <Compile Include="Classes\ForwardedPortLocalTest_Stop_PortNeverStarted.cs" />
+    <Compile Include="Classes\ForwardedPortLocalTest_Stop_PortStarted_ChannelBound.cs" />
+    <Compile Include="Classes\ForwardedPortLocalTest_Stop_PortStarted_ChannelNotBound.cs" />
+    <Compile Include="Classes\ForwardedPortLocalTest_Stop_PortStopped.cs" />
+    <Compile Include="Classes\ForwardedPortRemoteTest_Dispose_PortDisposed.cs" />
+    <Compile Include="Classes\ForwardedPortRemoteTest_Dispose_PortNeverStarted.cs" />
+    <Compile Include="Classes\ForwardedPortRemoteTest_Dispose_PortStarted_ChannelBound.cs" />
+    <Compile Include="Classes\ForwardedPortRemoteTest_Dispose_PortStopped.cs" />
+    <Compile Include="Classes\ForwardedPortRemoteTest_Started.cs" />
+    <Compile Include="Classes\ForwardedPortRemoteTest_Start_PortDisposed.cs" />
+    <Compile Include="Classes\ForwardedPortRemoteTest_Start_PortNeverStarted.cs" />
+    <Compile Include="Classes\ForwardedPortRemoteTest_Start_PortStarted.cs" />
+    <Compile Include="Classes\ForwardedPortRemoteTest_Start_PortStopped.cs" />
+    <Compile Include="Classes\ForwardedPortRemoteTest_Start_SessionNotConnected.cs" />
+    <Compile Include="Classes\ForwardedPortRemoteTest_Start_SessionNull.cs" />
+    <Compile Include="Classes\ForwardedPortRemoteTest_Stop_PortDisposed.cs" />
+    <Compile Include="Classes\ForwardedPortRemoteTest_Stop_PortNeverStarted.cs" />
+    <Compile Include="Classes\ForwardedPortRemoteTest_Stop_PortStarted_ChannelBound.cs" />
+    <Compile Include="Classes\ForwardedPortRemoteTest_Stop_PortStopped.cs" />
     <Compile Include="Classes\Security\AlgorithmTest.cs" />
     <Compile Include="Classes\Security\CertificateHostAlgorithmTest.cs" />
     <Compile Include="Classes\Security\Cryptography\BlockCipherTest.cs" />
@@ -104,7 +170,6 @@
     <Compile Include="Classes\AuthenticationMethodTest.cs" />
     <Compile Include="Classes\BaseClientTest.cs" />
     <Compile Include="Classes\ChannelAsyncResultTest.cs" />
-    <Compile Include="Classes\Channels\ChannelDirectTcpipTest.cs" />
     <Compile Include="Classes\Channels\ChannelForwardedTcpipTest.cs" />
     <Compile Include="Classes\Channels\ChannelSessionTest.cs" />
     <Compile Include="Classes\CipherInfoTest.cs" />
@@ -278,6 +343,7 @@
     <Compile Include="Classes\Security\KeyExchangeDiffieHellmanTest.cs" />
     <Compile Include="Classes\Security\KeyExchangeTest.cs" />
     <Compile Include="Classes\Security\KeyTest.cs" />
+    <Compile Include="Classes\ForwardedPortLocalTest_Dispose_PortStarted_ChannelBound.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>

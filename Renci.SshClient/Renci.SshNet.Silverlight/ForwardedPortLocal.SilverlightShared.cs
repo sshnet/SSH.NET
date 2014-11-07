@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 
 namespace Renci.SshNet
 {
@@ -8,17 +7,12 @@ namespace Renci.SshNet
     /// </summary>
     public partial class ForwardedPortLocal
     {
-        partial void ExecuteThread(Action action)
-        {
-            ThreadPool.QueueUserWorkItem((o) => action());
-        }
-
         partial void InternalStart()
         {
             throw new NotImplementedException();
         }
 
-        partial void InternalStop()
+        partial void InternalStop(TimeSpan timeout)
         {
             throw new NotImplementedException();
         }

@@ -6,19 +6,30 @@ namespace Renci.SshNet
     /// <summary>
     /// Provides functionality for dynamic port forwarding
     /// </summary>
-    public partial class ForwardedPortDynamic : ForwardedPort, IForwardedPort
+    public partial class ForwardedPortDynamic : ForwardedPort
     {
-        private EventWaitHandle _listenerTaskCompleted;
+        private EventWaitHandle _listenerCompleted;
 
         /// <summary>
         /// Gets the bound host.
         /// </summary>
-        public string BoundHost { get; protected set; }
+        public string BoundHost { get; private set; }
 
         /// <summary>
         /// Gets the bound port.
         /// </summary>
-        public uint BoundPort { get; protected set; }
+        public uint BoundPort { get; private set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether port forwarding is started.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if port forwarding is started; otherwise, <c>false</c>.
+        /// </value>
+        public override bool IsStarted
+        {
+            get { return _listenerCompleted != null && !_listenerCompleted.WaitOne(0); }
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ForwardedPortDynamic"/> class.
@@ -36,36 +47,73 @@ namespace Renci.SshNet
         /// <param name="port">The port.</param>
         public ForwardedPortDynamic(string host, uint port)
         {
-            this.BoundHost = host;
-            this.BoundPort = port;
+            BoundHost = host;
+            BoundPort = port;
         }
 
         /// <summary>
         /// Starts local port forwarding.
         /// </summary>
-        public override void Start()
+        protected override void StartPort()
         {
-            this.InternalStart();
+            InternalStart();
         }
 
         /// <summary>
-        /// Stops local port forwarding.
+        /// Stops local port forwarding, and waits for the specified timeout until all pending
+        /// requests are processed.
         /// </summary>
-        public override void Stop()
+        protected override void StopPort(TimeSpan timeout)
         {
-            base.Stop();
+            if (IsStarted)
+            {
+                // prevent new requests from getting processed before we signal existing
+                // channels that the port is closing
+                StopListener();
+                // signal existing channels that the port is closing
+                base.StopPort(timeout);
+            }
+            // wait for open channels to close
+            InternalStop(timeout);
+        }
 
-            this.InternalStop();
+        /// <summary>
+        /// Ensures the current instance is not disposed.
+        /// </summary>
+        /// <exception cref="ObjectDisposedException">The current instance is disposed.</exception>
+        protected override void CheckDisposed()
+        {
+            if (_isDisposed)
+                throw new ObjectDisposedException(GetType().FullName);
         }
 
         partial void InternalStart();
 
-        partial void InternalStop();
+        /// <summary>
+        /// Stops the listener.
+        /// </summary>
+        partial void StopListener();
 
+        /// <summary>
+        /// Waits for pending requests to finish, and channels to close.
+        /// </summary>
+        /// <param name="timeout">The maximum time to wait for the forwarded port to stop.</param>
+        partial void InternalStop(TimeSpan timeout);
+
+        /// <summary>
+        /// Executes the specified action in a separate thread.
+        /// </summary>
+        /// <param name="action">The action to execute.</param>
         partial void ExecuteThread(Action action);
 
         #region IDisposable Members
 
+        /// <summary>
+        /// Holds a value indicating whether the current instance is disposed.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if the current instance is disposed; otherwise, <c>false</c>.
+        /// </value>
         private bool _isDisposed;
 
         /// <summary>
@@ -74,34 +122,32 @@ namespace Renci.SshNet
         public void Dispose()
         {
             Dispose(true);
-
             GC.SuppressFinalize(this);
         }
+
+        partial void InternalDispose(bool disposing);
 
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources
         /// </summary>
         /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged ResourceMessages.</param>
-        protected virtual void Dispose(bool disposing)
+        protected override void Dispose(bool disposing)
         {
-            // Check to see if Dispose has already been called.
-            if (!this._isDisposed)
+            if (!_isDisposed)
             {
-                this.InternalStop();
+                base.Dispose(disposing);
 
-                // If disposing equals true, dispose all managed
-                // and unmanaged ResourceMessages.
                 if (disposing)
                 {
-                    // Dispose managed ResourceMessages.
-                    if (this._listenerTaskCompleted != null)
+                    if (_listenerCompleted != null)
                     {
-                        this._listenerTaskCompleted.Dispose();
-                        this._listenerTaskCompleted = null;
+                        _listenerCompleted.Dispose();
+                        _listenerCompleted = null;
                     }
                 }
 
-                // Note disposing has been done.
+                InternalDispose(disposing);
+
                 _isDisposed = true;
             }
         }

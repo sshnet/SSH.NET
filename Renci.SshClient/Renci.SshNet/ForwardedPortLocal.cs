@@ -31,6 +31,17 @@ namespace Renci.SshNet
         public uint Port { get; private set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether port forwarding is started.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if port forwarding is started; otherwise, <c>false</c>.
+        /// </value>
+        public override bool IsStarted
+        {
+            get { return _listenerTaskCompleted != null && !_listenerTaskCompleted.WaitOne(0); }
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="ForwardedPortLocal"/> class.
         /// </summary>
         /// <param name="boundPort">The bound port.</param>
@@ -92,32 +103,57 @@ namespace Renci.SshNet
         /// <summary>
         /// Starts local port forwarding.
         /// </summary>
-        public override void Start()
+        protected override void StartPort()
         {
             this.InternalStart();
         }
 
         /// <summary>
-        /// Stops local port forwarding.
+        /// Stops local port forwarding, and waits for the specified timeout until all pending
+        /// requests are processed.
         /// </summary>
-        public override void Stop()
+        protected override void StopPort(TimeSpan timeout)
         {
-            base.Stop();
-            this.InternalStop();
+            if (IsStarted)
+            {
+                // prevent new requests from getting processed before we signal existing
+                // channels that the port is closing
+                StopListener();
+                // signal existing channels that the port is closing
+                base.StopPort(timeout);
+            }
+            // wait for open channels to close
+            InternalStop(timeout);
+        }
+
+        /// <summary>
+        /// Ensures the current instance is not disposed.
+        /// </summary>
+        /// <exception cref="ObjectDisposedException">The current instance is disposed.</exception>
+        protected override void CheckDisposed()
+        {
+            if (_isDisposed)
+                throw new ObjectDisposedException(GetType().FullName);
         }
 
         partial void InternalStart();
 
-        partial void InternalStop();
+        /// <summary>
+        /// Interrupts the listener, and waits for the listener loop to finish.
+        /// </summary>
+        /// <remarks>
+        /// When the forwarded port is stopped, then any further action is skipped.
+        /// </remarks>
+        partial void StopListener();
 
-        partial void ExecuteThread(Action action);
+        partial void InternalStop(TimeSpan timeout);
 
         #region IDisposable Members
 
         private bool _isDisposed;
 
         /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged ResourceMessages.
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose()
         {
@@ -129,26 +165,21 @@ namespace Renci.SshNet
         /// Releases unmanaged and - optionally - managed resources
         /// </summary>
         /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged ResourceMessages.</param>
-        protected virtual void Dispose(bool disposing)
+        protected override void Dispose(bool disposing)
         {
-            // Check to see if Dispose has already been called.
-            if (!this._isDisposed)
+            if (!_isDisposed)
             {
-                this.InternalStop();
+                base.Dispose(disposing);
 
-                // If disposing equals true, dispose all managed
-                // and unmanaged ResourceMessages.
                 if (disposing)
                 {
-                    // Dispose managed ResourceMessages.
-                    if (this._listenerTaskCompleted != null)
+                    if (_listenerTaskCompleted != null)
                     {
-                        this._listenerTaskCompleted.Dispose();
-                        this._listenerTaskCompleted = null;
+                        _listenerTaskCompleted.Dispose();
+                        _listenerTaskCompleted = null;
                     }
                 }
 
-                // Note disposing has been done.
                 _isDisposed = true;
             }
         }

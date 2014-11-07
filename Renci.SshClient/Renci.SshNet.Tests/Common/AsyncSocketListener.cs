@@ -18,6 +18,7 @@ namespace Renci.SshNet.Tests.Common
 
         public event BytesReceivedHandler BytesReceived;
         public event ConnectedHandler Connected;
+        public event ConnectedHandler Disconnected;
 
         public AsyncSocketListener(IPEndPoint endPoint)
         {
@@ -116,6 +117,10 @@ namespace Renci.SshNet.Tests.Common
                     // when the socket is closed, an ObjectDisposedException is thrown
                 }
             }
+            else
+            {
+                SignalDisconnected(handler);
+            }
         }
 
         private void SignalBytesReceived(byte[] bytesReceived, Socket client)
@@ -128,6 +133,13 @@ namespace Renci.SshNet.Tests.Common
         private void SignalConnected(Socket client)
         {
             var subscribers = Connected;
+            if (subscribers != null)
+                subscribers(client);
+        }
+
+        private void SignalDisconnected(Socket client)
+        {
+            var subscribers = Disconnected;
             if (subscribers != null)
                 subscribers(client);
         }

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Net;
@@ -11,111 +13,233 @@ namespace Renci.SshNet
 {
     public partial class ForwardedPortDynamic
     {
-        private TcpListener _listener;
-        private readonly object _listenerLocker = new object();
+        private Socket _listener;
+        private int _pendingRequests;
 
         partial void InternalStart()
         {
-            //  If port already started don't start it again
-            if (this.IsStarted)
-                return;
-
             var ip = IPAddress.Any;
-            if (!string.IsNullOrEmpty(this.BoundHost))
+            if (!string.IsNullOrEmpty(BoundHost))
             {
-                ip = this.BoundHost.GetIPAddress();
+                ip = BoundHost.GetIPAddress();
             }
 
-            var ep = new IPEndPoint(ip, (int)this.BoundPort);
+            var ep = new IPEndPoint(ip, (int) BoundPort);
 
-            this._listener = new TcpListener(ep);
-            this._listener.Start();
+            _listener = new Socket(ep.AddressFamily, SocketType.Stream, ProtocolType.Tcp) {Blocking = true};
+            _listener.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.DontLinger, true);
+            _listener.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.NoDelay, true);
+            _listener.Bind(ep);
+            _listener.Listen(1);
 
-            this._listenerTaskCompleted = new ManualResetEvent(false);
-            this.ExecuteThread(() =>
-            {
-                try
+            Session.ErrorOccured += Session_ErrorOccured;
+            Session.Disconnected += Session_Disconnected;
+
+            _listenerCompleted = new ManualResetEvent(false);
+
+            ExecuteThread(() =>
                 {
-                    while (true)
+                    try
                     {
-                        lock (this._listenerLocker)
+                        while (true)
                         {
-                            if (this._listener == null)
-                                break;
+                            // accept new inbound connection
+                            var asyncResult = _listener.BeginAccept(AcceptCallback, _listener);
+                            // wait for the connection to be established
+                            asyncResult.AsyncWaitHandle.WaitOne();
                         }
-
-                        var socket = this._listener.AcceptSocket();
-
-                        this.ExecuteThread(() =>
-                        {
-                            try
-                            {
-                                using (var channel = this.Session.CreateChannelDirectTcpip())
-                                {
-                                    var version = new byte[1];
-
-                                    socket.Receive(version);
-
-                                    if (version[0] == 4)
-                                    {
-                                        this.HandleSocks4(socket, channel);
-                                    }
-                                    else if (version[0] == 5)
-                                    {
-                                        this.HandleSocks5(socket, channel);
-                                    }
-                                    else
-                                    {
-                                        throw new NotSupportedException(string.Format("SOCKS version {0} is not supported.", version));
-                                    }
-
-                                    channel.Bind();
-
-                                    channel.Close();
-                                }
-                            }
-                            catch (Exception exp)
-                            {
-                                this.RaiseExceptionEvent(exp);
-                            }
-                        });
                     }
-                }
-                catch (SocketException exp)
-                {
-                    if (exp.SocketErrorCode != SocketError.Interrupted)
+                    catch (ObjectDisposedException)
                     {
-                        this.RaiseExceptionEvent(exp);
+                        // BeginAccept will throw an ObjectDisposedException when the
+                        // socket is closed
                     }
-                }
-                catch (Exception exp)
-                {
-                    this.RaiseExceptionEvent(exp);
-                }
-                finally
-                {
-                    this._listenerTaskCompleted.Set();
-                }
-            });
-
-            this.IsStarted = true;
+                    catch (Exception ex)
+                    {
+                        RaiseExceptionEvent(ex);
+                    }
+                    finally
+                    {
+                        // mark listener stopped
+                        _listenerCompleted.Set();
+                    }
+                });
         }
 
-        partial void InternalStop()
+        private void Session_Disconnected(object sender, EventArgs e)
         {
-            //  If port not started you cant stop it
-            if (!this.IsStarted)
+            StopListener();
+        }
+
+        private void Session_ErrorOccured(object sender, ExceptionEventArgs e)
+        {
+            StopListener();
+        }
+
+        private void AcceptCallback(IAsyncResult ar)
+        {
+            // Get the socket that handles the client request
+            var serverSocket = (Socket) ar.AsyncState;
+
+            Socket clientSocket;
+
+            try
+            {
+                clientSocket = serverSocket.EndAccept(ar);
+            }
+            catch (ObjectDisposedException)
+            {
+                // when the socket is closed, an ObjectDisposedException is thrown
+                // by Socket.EndAccept(IAsyncResult)
+                return;
+            }
+
+            Interlocked.Increment(ref _pendingRequests);
+
+            try
+            {
+                clientSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.DontLinger, true);
+                clientSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.NoDelay, true);
+
+                using (var channel = Session.CreateChannelDirectTcpip())
+                {
+                    channel.Exception += Channel_Exception;
+
+                    var version = new byte[1];
+
+                    // create eventhandler which is to be invoked to interrupt a blocking receive
+                    // when we're closing the forwarded port
+                    EventHandler closeClientSocket = (sender, args) => CloseSocket(clientSocket);
+
+                    try
+                    {
+                        Closing += closeClientSocket;
+
+                        var bytesRead = clientSocket.Receive(version);
+                        if (bytesRead == 0)
+                        {
+                            CloseSocket(clientSocket);
+                            return;
+                        }
+
+                        if (version[0] == 4)
+                        {
+                            this.HandleSocks4(clientSocket, channel);
+                        }
+                        else if (version[0] == 5)
+                        {
+                            this.HandleSocks5(clientSocket, channel);
+                        }
+                        else
+                        {
+                            throw new NotSupportedException(string.Format("SOCKS version {0} is not supported.",
+                                version[0]));
+                        }
+
+                        // interrupt of blocking receive is now handled by channel (SOCKS4 and SOCKS5)
+                        // or no longer necessary
+                        Closing -= closeClientSocket;
+
+                        // start receiving from client socket (and sending to server)
+                        channel.Bind();
+                    }
+                    finally
+                    {
+                        channel.Close();
+                    }
+                }
+            }
+            catch (SocketException ex)
+            {
+                // ignore exception thrown by interrupting the blocking receive as part of closing
+                // the forwarded port
+                if (ex.SocketErrorCode != SocketError.Interrupted)
+                {
+                    RaiseExceptionEvent(ex);
+                }
+                CloseSocket(clientSocket);
+            }
+            catch (Exception exp)
+            {
+                RaiseExceptionEvent(exp);
+                CloseSocket(clientSocket);
+            }
+            finally
+            {
+                Interlocked.Decrement(ref _pendingRequests);
+            }
+        }
+
+        private static void CloseSocket(Socket socket)
+        {
+            if (socket.Connected)
+            {
+                socket.Shutdown(SocketShutdown.Both);
+                socket.Close();
+            }
+        }
+
+        partial void StopListener()
+        {
+            //  if the port is not started then there's nothing to stop
+            if (!IsStarted)
                 return;
 
-            lock (this._listenerLocker)
+            Session.ErrorOccured -= Session_ErrorOccured;
+            Session.Disconnected -= Session_Disconnected;
+
+            // close listener socket
+            _listener.Close();
+            // wait for listener loop to finish
+            _listenerCompleted.WaitOne();
+        }
+
+        /// <summary>
+        /// Waits for pending requests to finish, and channels to close.
+        /// </summary>
+        /// <param name="timeout">The maximum time to wait for the forwarded port to stop.</param>
+        partial void InternalStop(TimeSpan timeout)
+        {
+            if (timeout == TimeSpan.Zero)
+                return;
+
+            var stopWatch = new Stopwatch();
+            stopWatch.Start();
+
+            // break out of loop when one of the following conditions are met:
+            // * the forwarded port is restarted
+            // * all pending requests have been processed and corresponding channel are closed
+            // * the specified timeout has elapsed
+            while (!IsStarted)
             {
-                this._listener.Stop();
-                this._listener = null;
+                // break out of loop when all pending requests have been processed
+                if (Interlocked.CompareExchange(ref _pendingRequests, 0, 0) == 0)
+                    break;
+                // break out of loop when specified timeout has elapsed
+                if (stopWatch.Elapsed >= timeout && timeout != SshNet.Session.InfiniteTimeSpan)
+                    break;
+                // give channels time to process pending requests
+                Thread.Sleep(50);
             }
-            this._listenerTaskCompleted.WaitOne(this.Session.ConnectionInfo.Timeout);
-            this._listenerTaskCompleted.Dispose();
-            this._listenerTaskCompleted = null;
-            this.IsStarted = false;
+
+            stopWatch.Stop();
+        }
+
+        partial void InternalDispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (Session != null)
+                {
+                    Session.ErrorOccured -= Session_ErrorOccured;
+                    Session.Disconnected -= Session_Disconnected;
+                }
+                if (_listener != null)
+                {
+                    _listener.Dispose();
+                    _listener = null;
+                }
+            }
         }
 
         private void HandleSocks4(Socket socket, IChannelDirectTcpip channel)
@@ -141,19 +265,27 @@ namespace Renci.SshNet
 
                 channel.Open(host, port, this, socket);
 
-                stream.WriteByte(0x00);
-
-                if (channel.IsOpen)
+                using (var writeStream = new MemoryStream())
                 {
-                    stream.WriteByte(0x5a);
-                }
-                else
-                {
-                    stream.WriteByte(0x5b);
-                }
+                    writeStream.WriteByte(0x00);
 
-                stream.Write(portBuffer, 0, portBuffer.Length);
-                stream.Write(ipBuffer, 0, ipBuffer.Length);
+                    if (channel.IsOpen)
+                    {
+                        writeStream.WriteByte(0x5a);
+                    }
+                    else
+                    {
+                        writeStream.WriteByte(0x5b);
+                    }
+
+                    writeStream.Write(portBuffer, 0, portBuffer.Length);
+                    writeStream.Write(ipBuffer, 0, ipBuffer.Length);
+
+                    // write buffer to stream
+                    var writeBuffer = writeStream.ToArray();
+                    stream.Write(writeBuffer, 0, writeBuffer.Length);
+                    stream.Flush();
+                }
             }
         }
 
@@ -166,15 +298,13 @@ namespace Renci.SshNet
                 var authenticationMethods = new byte[authenticationMethodsCount];
                 stream.Read(authenticationMethods, 0, authenticationMethods.Length);
 
-                stream.WriteByte(0x05);
-
                 if (authenticationMethods.Min() == 0)
                 {
-                    stream.WriteByte(0x00);
+                    stream.Write(new byte[] { 0x05, 0x00 }, 0, 2);
                 }
                 else
                 {
-                    stream.WriteByte(0xFF);
+                    stream.Write(new byte[] { 0x05, 0xFF }, 0, 2);
                 }
 
                 var version = stream.ReadByte();
@@ -210,6 +340,10 @@ namespace Renci.SshNet
                             stream.Read(addressBuffer, 0, addressBuffer.Length);
 
                             ipAddress = IPAddress.Parse(new Common.ASCIIEncoding().GetString(addressBuffer));
+
+                            //var hostName = new Common.ASCIIEncoding().GetString(addressBuffer);
+
+                            //ipAddress = Dns.GetHostEntry(hostName).AddressList[0];
                         }
                         break;
                     case 0x04:
@@ -233,47 +367,71 @@ namespace Renci.SshNet
 
                 channel.Open(host, port, this, socket);
 
-                stream.WriteByte(0x05);
-
-                if (channel.IsOpen)
+                using (var writeStream = new MemoryStream())
                 {
-                    stream.WriteByte(0x00);
-                }
-                else
-                {
-                    stream.WriteByte(0x01);
-                }
+                    writeStream.WriteByte(0x05);
 
-                stream.WriteByte(0x00);
+                    if (channel.IsOpen)
+                    {
+                        writeStream.WriteByte(0x00);
+                    }
+                    else
+                    {
+                        writeStream.WriteByte(0x01);
+                    }
 
-                var buffer = ipAddress.GetAddressBytes();
+                    writeStream.WriteByte(0x00);
 
-                if (ipAddress.AddressFamily == AddressFamily.InterNetwork)
-                {
-                    stream.WriteByte(0x01);
-                }
-                else if (ipAddress.AddressFamily == AddressFamily.InterNetwork)
-                {
-                    stream.WriteByte(0x04);
-                }
-                else
-                {
-                    throw new NotSupportedException("Not supported address family.");
-                }
+                    if (ipAddress.AddressFamily == AddressFamily.InterNetwork)
+                    {
+                        writeStream.WriteByte(0x01);
+                    }
+                    else if (ipAddress.AddressFamily == AddressFamily.InterNetworkV6)
+                    {
+                        writeStream.WriteByte(0x04);
+                    }
+                    else
+                    {
+                        throw new NotSupportedException("Not supported address family.");
+                    }
 
-                stream.Write(buffer, 0, buffer.Length);
-                stream.Write(portBuffer, 0, portBuffer.Length);
+                    var addressBytes = ipAddress.GetAddressBytes();
+                    writeStream.Write(addressBytes, 0, addressBytes.Length);
+                    writeStream.Write(portBuffer, 0, portBuffer.Length);
+
+                    // write buffer to stream
+                    var writeBuffer = writeStream.ToArray();
+                    stream.Write(writeBuffer, 0, writeBuffer.Length);
+                    stream.Flush();
+                }
             }
         }
 
-        private static string ReadString(NetworkStream stream)
+        private void Channel_Exception(object sender, ExceptionEventArgs e)
         {
-            StringBuilder text = new StringBuilder();
-            var aa = (char)stream.ReadByte();
-            while (aa != 0)
+            RaiseExceptionEvent(e.Exception);
+        }
+
+        private static string ReadString(Stream stream)
+        {
+            var text = new StringBuilder();
+            while (true)
             {
-                text.Append(aa);
-                aa = (char)stream.ReadByte();
+                var byteRead = stream.ReadByte();
+                if (byteRead == 0)
+                {
+                    // end of the string
+                    break;
+                }
+
+                if (byteRead == -1)
+                {
+                    // the client shut down the socket
+                    break;
+                }
+
+                var c = (char) byteRead;
+                text.Append(c);
             }
             return text.ToString();
         }

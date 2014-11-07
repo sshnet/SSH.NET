@@ -6,6 +6,11 @@
     [Message("SSH_MSG_CHANNEL_OPEN_FAILURE", 92)]
     public class ChannelOpenFailureMessage : ChannelMessage
     {
+        internal const uint AdministrativelyProhibited = 1;
+        internal const uint ConnectFailed = 2;
+        internal const uint UnknownChannelType = 3;
+        internal const uint ResourceShortage = 4;
+
         /// <summary>
         /// Gets failure reason code.
         /// </summary>

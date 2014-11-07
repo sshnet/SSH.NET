@@ -28,7 +28,18 @@ namespace Renci.SshNet
         /// <summary>
         /// Specifies an infinite waiting period.
         /// </summary>
-        internal static readonly TimeSpan Infinite = new TimeSpan(0, 0, 0, 0, -1);
+        /// <remarks>
+        /// The value of this field is <c>-1</c> millisecond. 
+        /// </remarks>
+        internal static readonly TimeSpan InfiniteTimeSpan = new TimeSpan(0, 0, 0, 0, -1);
+
+        /// <summary>
+        /// Specifies an infinite waiting period.
+        /// </summary>
+        /// <remarks>
+        /// The value of this field is <c>-1</c>.
+        /// </remarks>
+        internal static readonly int Infinite = -1;
 
         /// <summary>
         /// Specifies maximum packet size defined by the protocol.
@@ -83,7 +94,7 @@ namespace Renci.SshNet
         private readonly object _socketLock = new object();
 
         /// <summary>
-        /// Holds reference to task that listens for incoming messages
+        /// Holds a <see cref="WaitHandle"/> that is signaled when the message listener loop has completed.
         /// </summary>
         private EventWaitHandle _messageListenerCompleted;
 
@@ -712,6 +723,24 @@ namespace Renci.SshNet
         void ISession.WaitOnHandle(WaitHandle waitHandle)
         {
             WaitOnHandle(waitHandle, ConnectionInfo.Timeout);
+        }
+
+        /// <summary>
+        /// Waits for the specified handle or the exception handle for the receive thread
+        /// to signal within the specified timeout.
+        /// </summary>
+        /// <param name="waitHandle">The wait handle.</param>
+        /// <param name="timeout">The time to wait for any of the handles to become signaled.</param>
+        /// <exception cref="SshConnectionException">A received package was invalid or failed the message integrity check.</exception>
+        /// <exception cref="SshOperationTimeoutException">None of the handles are signaled in time and the session is not disconnecting.</exception>
+        /// <exception cref="SocketException">A socket error was signaled while receiving messages from the server.</exception>
+        /// <remarks>
+        /// When neither handles are signaled in time and the session is not closing, then the
+        /// session is disconnected.
+        /// </remarks>
+        void ISession.WaitOnHandle(WaitHandle waitHandle, TimeSpan timeout)
+        {
+            WaitOnHandle(waitHandle, timeout);
         }
 
         /// <summary>
@@ -2214,6 +2243,11 @@ namespace Renci.SshNet
         IConnectionInfo ISession.ConnectionInfo
         {
             get { return ConnectionInfo; }
+        }
+
+        WaitHandle ISession.MessageListenerCompleted
+        {
+            get { return _messageListenerCompleted; }
         }
 
         /// <summary>

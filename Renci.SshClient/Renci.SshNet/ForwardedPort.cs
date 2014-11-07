@@ -8,8 +8,6 @@ namespace Renci.SshNet
     /// </summary>
     public abstract class ForwardedPort : IForwardedPort
     {
-        private EventHandler _closingEvent;
-
         /// <summary>
         /// Gets or sets the session.
         /// </summary>
@@ -19,12 +17,17 @@ namespace Renci.SshNet
         internal ISession Session { get; set; }
 
         /// <summary>
-        /// The <see cref="IForwardedPort.Closing"/> event occurs as the forward port is being stopped.
+        /// The <see cref="Closing"/> event occurs as the forwarded port is being stopped.
+        /// </summary>
+        internal event EventHandler Closing;
+
+        /// <summary>
+        /// The <see cref="IForwardedPort.Closing"/> event occurs as the forwarded port is being stopped.
         /// </summary>
         event EventHandler IForwardedPort.Closing
         {
-            add { _closingEvent += value; }
-            remove { _closingEvent -= value; }
+            add { Closing += value; }
+            remove { Closing -= value; }
         }
 
         /// <summary>
@@ -33,7 +36,7 @@ namespace Renci.SshNet
         /// <value>
         /// <c>true</c> if port forwarding is started; otherwise, <c>false</c>.
         /// </value>
-        public bool IsStarted { get; protected set; }
+        public abstract bool IsStarted { get; }
 
         /// <summary>
         /// Occurs when an exception is thrown.
@@ -50,31 +53,77 @@ namespace Renci.SshNet
         /// </summary>
         public virtual void Start()
         {
-            if (this.Session == null)
-            {
+            CheckDisposed();
+
+            if (IsStarted)
+                throw new InvalidOperationException("Forwarded port is already started.");
+            if (Session == null)
                 throw new InvalidOperationException("Forwarded port is not added to a client.");
-            }
-
-            if (!this.Session.IsConnected)
-            {
+            if (!Session.IsConnected)
                 throw new SshConnectionException("Client not connected.");
-            }
 
-            this.Session.ErrorOccured += Session_ErrorOccured;
+            Session.ErrorOccured += Session_ErrorOccured;
+            StartPort();
         }
 
         /// <summary>
         /// Stops port forwarding.
         /// </summary>
-        public virtual void Stop()
+        public void Stop()
+        {
+            CheckDisposed();
+
+            if (!IsStarted)
+                return;
+
+            StopPort(Session.ConnectionInfo.Timeout);
+        }
+
+        /// <summary>
+        /// Starts port forwarding.
+        /// </summary>
+        protected abstract void StartPort();
+
+        /// <summary>
+        /// Stops port forwarding, and waits for the specified timeout until all pending
+        /// requests are processed.
+        /// </summary>
+        /// <param name="timeout">The maximum amount of time to wait for pending requests to finish processing.</param>
+        protected virtual void StopPort(TimeSpan timeout)
         {
             RaiseClosing();
 
-            if (this.Session != null)
+            if (Session != null)
             {
-                this.Session.ErrorOccured -= Session_ErrorOccured;
+                Session.ErrorOccured -= Session_ErrorOccured;
             }
         }
+
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources
+        /// </summary>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged ResourceMessages.</param>
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (Session != null)
+                {
+                    Session.ErrorOccured -= Session_ErrorOccured;
+                    StopPort(Session.ConnectionInfo.Timeout);
+                }
+            }
+            else
+            {
+                StopPort(TimeSpan.Zero);
+            }
+        }
+
+        /// <summary>
+        /// Ensures the current instance is not disposed.
+        /// </summary>
+        /// <exception cref="ObjectDisposedException">The current instance is disposed.</exception>
+        protected abstract void CheckDisposed();
 
         /// <summary>
         /// Raises <see cref="Renci.SshNet.ForwardedPort.Exception"/> event.
@@ -108,10 +157,10 @@ namespace Renci.SshNet
         /// </summary>
         private void RaiseClosing()
         {
-            var handlers = _closingEvent;
+            var handlers = Closing;
             if (handlers != null)
             {
-                handlers(this, new EventArgs());
+                handlers(this, EventArgs.Empty);
             }
         }
 

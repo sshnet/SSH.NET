@@ -13,7 +13,19 @@ namespace Renci.SshNet.Channels
     /// </summary>
     internal partial class ChannelForwardedTcpip : ServerChannel, IChannelForwardedTcpip
     {
+        private readonly object _socketShutdownAndCloseLock = new object();
         private Socket _socket;
+
+        /// <summary>
+        /// Holds a value indicating whether the SSH_MSG_CHANNEL_EOF has been sent to the client.
+        /// </summary>
+        /// <value>
+        /// <c>0</c> when the SSH_MSG_CHANNEL_EOF message has not been sent to the client, and
+        /// <c>1</c> when this message was already sent.
+        /// </value>
+        private int _sentEof;
+
+        private IForwardedPort _forwardedPort;
 
         /// <summary>
         /// Gets the type of the channel.
@@ -27,53 +39,56 @@ namespace Renci.SshNet.Channels
         }
 
         /// <summary>
-        /// Binds channel to specified connected host.
+        /// Binds the channel to the specified endpoint.
         /// </summary>
-        /// <param name="connectedHost">The connected host.</param>
-        /// <param name="connectedPort">The connected port.</param>
-        public void Bind(IPAddress connectedHost, uint connectedPort)
+        /// <param name="remoteEndpoint">The endpoint to connect to.</param>
+        /// <param name="forwardedPort">The forwarded port for which the channel is opened.</param>
+        public void Bind(IPEndPoint remoteEndpoint, IForwardedPort forwardedPort)
         {
             byte[] buffer;
 
-            if (!this.IsConnected)
+            if (!IsConnected)
             {
                 throw new SshException("Session is not connected.");
             }
+
+            _forwardedPort = forwardedPort;
+            _forwardedPort.Closing += ForwardedPort_Closing;
 
             //  Try to connect to the socket 
             try
             {
                 //  Get buffer in memory for data exchange
-                buffer = new byte[this.RemotePacketSize];
+                buffer = new byte[RemotePacketSize];
 
-                this.OpenSocket(connectedHost, connectedPort);
+                OpenSocket(remoteEndpoint);
 
-                //  Send channel open confirmation message
-                this.SendMessage(new ChannelOpenConfirmationMessage(this.RemoteChannelNumber, this.LocalWindowSize, this.LocalPacketSize, this.LocalChannelNumber));
+                // send channel open confirmation message
+                SendMessage(new ChannelOpenConfirmationMessage(RemoteChannelNumber, LocalWindowSize, LocalPacketSize, LocalChannelNumber));
             }
             catch (Exception exp)
             {
-                //  Send channel open failure message
-                this.SendMessage(new ChannelOpenFailureMessage(this.RemoteChannelNumber, exp.ToString(), 2));
+                // send channel open failure message
+                SendMessage(new ChannelOpenFailureMessage(RemoteChannelNumber, exp.ToString(), 2));
 
                 throw;
             }
 
             //  Start reading data from the port and send to channel
-            while (this._socket != null && this._socket.CanRead())
+            while (_socket != null && _socket.Connected)
                 {
                 try
                 {
                     var read = 0;
-                    this.InternalSocketReceive(buffer, ref read);
+                    InternalSocketReceive(buffer, ref read);
 
                     if (read > 0)
                     {
-                        this.SendMessage(new ChannelDataMessage(this.RemoteChannelNumber, buffer.Take(read).ToArray()));
+                        SendMessage(new ChannelDataMessage(RemoteChannelNumber, buffer.Take(read).ToArray()));
                     }
                     else
                     {
-                        //  Zero bytes received when remote host shuts down the connection
+                        // server quit sending
                         break;
                     }
                 }
@@ -86,7 +101,7 @@ namespace Renci.SshNet.Channels
                         // socket buffer is probably empty, wait and try again
                         Thread.Sleep(30);
                     }
-                    else if (exp.SocketErrorCode == SocketError.ConnectionAborted)
+                    else if (exp.SocketErrorCode == SocketError.ConnectionAborted || exp.SocketErrorCode == SocketError.Interrupted)
                     {
                         break;
                     }
@@ -94,18 +109,68 @@ namespace Renci.SshNet.Channels
                         throw;  // throw any other error
                 }
             }
-
-            this.Close();
         }
 
-        partial void OpenSocket(IPAddress connectedHost, uint connectedPort);
-
-        public override void Close()
+        protected override void OnErrorOccured(Exception exp)
         {
-            //  Send EOF message first when channel need to be closed
-            this.SendMessage(new ChannelEofMessage(this.RemoteChannelNumber));
+            base.OnErrorOccured(exp);
 
-            base.Close();
+            // close the socket, hereby interrupting the blocking receive in Bind(IPEndPoint,IForwardedPort)
+            CloseSocket();
+        }
+
+        /// <summary>
+        /// Occurs as the forwarded port is being stopped.
+        /// </summary>
+        private void ForwardedPort_Closing(object sender, EventArgs eventArgs)
+        {
+            // close the socket, hereby interrupting the blocking receive in Bind(IPEndPoint,IForwardedPort)
+            CloseSocket();
+        }
+
+        partial void OpenSocket(IPEndPoint remoteEndpoint);
+
+        /// <summary>
+        /// Closes the socket, hereby interrupting the blocking receive in <see cref="Bind(IPEndPoint,IForwardedPort)"/>.
+        /// </summary>
+        private void CloseSocket()
+        {
+            if (_socket == null || !_socket.Connected)
+                return;
+
+            lock (_socketShutdownAndCloseLock)
+            {
+                if (_socket == null || !_socket.Connected)
+                    return;
+
+                _socket.Shutdown(SocketShutdown.Both);
+                _socket.Close();
+            }
+        }
+
+        /// <summary>
+        /// Closes the channel, optionally waiting for the SSH_MSG_CHANNEL_CLOSE message to
+        /// be received from the server.
+        /// </summary>
+        /// <param name="wait"><c>true</c> to wait for the SSH_MSG_CHANNEL_CLOSE message to be received from the server; otherwise, <c>false</c>.</param>
+        protected override void Close(bool wait)
+        {
+            if (_forwardedPort != null)
+            {
+                _forwardedPort.Closing -= ForwardedPort_Closing;
+                _forwardedPort = null;
+            }
+
+            // close the socket, hereby interrupting the blocking receive in Bind()
+            CloseSocket();
+
+            //  send EOF message first when channel need to be closed
+            if (IsOpen && Interlocked.CompareExchange(ref _sentEof, 1, 0) == 0)
+            {
+                SendEof();
+            }
+
+            base.Close(wait);
         }
 
         /// <summary>
@@ -116,8 +181,8 @@ namespace Renci.SshNet.Channels
         {
             base.OnData(data);
 
-            //  Read data from the channel and send it to the port
-            this.InternalSocketSend(data);
+            if (_socket != null && _socket.Connected)
+                InternalSocketSend(data);
         }
 
         partial void InternalSocketSend(byte[] data);
@@ -130,10 +195,16 @@ namespace Renci.SshNet.Channels
         /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected override void Dispose(bool disposing)
         {
-            if (this._socket != null)
+            if (_forwardedPort != null)
             {
-                this._socket.Dispose();
-                this._socket = null;
+                _forwardedPort.Closing -= ForwardedPort_Closing;
+                _forwardedPort = null;
+            }
+
+            if (_socket != null)
+            {
+                _socket.Dispose();
+                _socket = null;
             }
 
             base.Dispose(disposing);

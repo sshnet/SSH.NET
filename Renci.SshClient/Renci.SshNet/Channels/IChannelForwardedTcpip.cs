@@ -1,17 +1,29 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
+using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Channels
 {
     /// <summary>
     /// A "forwarded-tcpip" SSH channel.
     /// </summary>
-    internal interface IChannelForwardedTcpip
+    internal interface IChannelForwardedTcpip : IDisposable
     {
         /// <summary>
-        /// Binds the channel to the specified host.
+        /// Occurs when an exception is thrown while processing channel messages.
         /// </summary>
-        /// <param name="address">The IP address of the host to bind to.</param>
-        /// <param name="port">The port to bind to.</param>
-        void Bind(IPAddress address, uint port);
+        event EventHandler<ExceptionEventArgs> Exception;
+
+        /// <summary>
+        /// Binds the channel to the specified endpoint.
+        /// </summary>
+        /// <param name="remoteEndpoint">The endpoint to connect to.</param>
+        /// <param name="forwardedPort">The forwarded port for which the channel is opened.</param>
+        void Bind(IPEndPoint remoteEndpoint, IForwardedPort forwardedPort);
+
+        /// <summary>
+        /// Closes the channel.
+        /// </summary>
+        void Close();
     }
 }

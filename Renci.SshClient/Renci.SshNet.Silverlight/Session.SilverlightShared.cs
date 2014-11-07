@@ -128,7 +128,7 @@ namespace Renci.SshNet
         /// <exception cref="SocketException">The read failed.</exception>
         partial void SocketRead(int length, ref byte[] buffer)
         {
-            var timeout = Infinite;
+            var timeout = InfiniteTimeSpan;
             var totalBytesReceived = 0;  // how many bytes are already received
 
             do

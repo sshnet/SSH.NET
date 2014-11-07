@@ -9,10 +9,9 @@ namespace Renci.SshNet
     public partial class SftpClient
     {
         /// <summary>
-        /// 
+        /// Executes the specified action in a separate thread.
         /// </summary>
-        /// <param name="action"></param>
-        /// <exception cref="ArgumentNullException"><paramref name="action"/> is null.</exception>
+        /// <param name="action">The action to execute.</param>
         partial void ExecuteThread(Action action)
         {
             ThreadPool.QueueUserWorkItem(o => action());

@@ -26,7 +26,7 @@ namespace Renci.SshNet
         {
             get
             {
-                return this._forwardedPorts.AsReadOnly();
+                return _forwardedPorts.AsReadOnly();
             }
         }
 
@@ -142,7 +142,7 @@ namespace Renci.SshNet
         {
             base.OnDisconnecting();
 
-            foreach (var port in this._forwardedPorts)
+            foreach (var port in _forwardedPorts)
             {
                 port.Stop();
             }
@@ -164,12 +164,12 @@ namespace Renci.SshNet
             if (port == null)
                 throw new ArgumentNullException("port");
 
-            if (port.Session != null && port.Session != this.Session)
+            if (port.Session != null && port.Session != Session)
                 throw new InvalidOperationException("Forwarded port is already added to a different client.");
 
-            port.Session = this.Session;
+            port.Session = Session;
 
-            this._forwardedPorts.Add(port);
+            _forwardedPorts.Add(port);
         }
 
         /// <summary>
@@ -187,7 +187,7 @@ namespace Renci.SshNet
 
             port.Session = null;
 
-            this._forwardedPorts.Remove(port);
+            _forwardedPorts.Remove(port);
         }
 
         /// <summary>
@@ -198,7 +198,7 @@ namespace Renci.SshNet
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         public SshCommand CreateCommand(string commandText)
         {
-            return this.CreateCommand(commandText, this.ConnectionInfo.Encoding);
+            return CreateCommand(commandText, ConnectionInfo.Encoding);
         }
 
         /// <summary>
@@ -212,8 +212,8 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="commandText"/> or <paramref name="encoding"/> is null.</exception>
         public SshCommand CreateCommand(string commandText, Encoding encoding)
         {
-            this.ConnectionInfo.Encoding = encoding;
-            return new SshCommand(this.Session, commandText, encoding);
+            ConnectionInfo.Encoding = encoding;
+            return new SshCommand(Session, commandText, encoding);
         }
 
         /// <summary>
@@ -233,7 +233,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="commandText"/> is null.</exception>
         public SshCommand RunCommand(string commandText)
         {
-            var cmd = this.CreateCommand(commandText);
+            var cmd = CreateCommand(commandText);
             cmd.Execute();
             return cmd;
         }
@@ -256,7 +256,7 @@ namespace Renci.SshNet
         /// </returns>
         public Shell CreateShell(Stream input, Stream output, Stream extendedOutput, string terminalName, uint columns, uint rows, uint width, uint height, IDictionary<TerminalModes, uint> terminalModes, int bufferSize)
         {
-            return new Shell(this.Session, input, output, extendedOutput, terminalName, columns, rows, width, height, terminalModes, bufferSize);
+            return new Shell(Session, input, output, extendedOutput, terminalName, columns, rows, width, height, terminalModes, bufferSize);
         }
 
         /// <summary>
@@ -276,7 +276,7 @@ namespace Renci.SshNet
         /// </returns>
         public Shell CreateShell(Stream input, Stream output, Stream extendedOutput, string terminalName, uint columns, uint rows, uint width, uint height, IDictionary<TerminalModes, uint> terminalModes)
         {
-            return this.CreateShell(input, output, extendedOutput, terminalName, columns, rows, width, height, terminalModes, 1024);
+            return CreateShell(input, output, extendedOutput, terminalName, columns, rows, width, height, terminalModes, 1024);
         }
 
         /// <summary>
@@ -290,7 +290,7 @@ namespace Renci.SshNet
         /// </returns>
         public Shell CreateShell(Stream input, Stream output, Stream extendedOutput)
         {
-            return this.CreateShell(input, output, extendedOutput, string.Empty, 0, 0, 0, 0, null, 1024);
+            return CreateShell(input, output, extendedOutput, string.Empty, 0, 0, 0, 0, null, 1024);
         }
 
         /// <summary>
@@ -312,13 +312,13 @@ namespace Renci.SshNet
         /// </returns>
         public Shell CreateShell(Encoding encoding, string input, Stream output, Stream extendedOutput, string terminalName, uint columns, uint rows, uint width, uint height, IDictionary<TerminalModes, uint> terminalModes, int bufferSize)
         {
-            this._inputStream = new MemoryStream();
-            var writer = new StreamWriter(this._inputStream, encoding);
+            _inputStream = new MemoryStream();
+            var writer = new StreamWriter(_inputStream, encoding);
             writer.Write(input);
             writer.Flush();
-            this._inputStream.Seek(0, SeekOrigin.Begin);
+            _inputStream.Seek(0, SeekOrigin.Begin);
 
-            return this.CreateShell(this._inputStream, output, extendedOutput, terminalName, columns, rows, width, height, terminalModes, bufferSize);
+            return CreateShell(_inputStream, output, extendedOutput, terminalName, columns, rows, width, height, terminalModes, bufferSize);
         }
 
         /// <summary>
@@ -339,7 +339,7 @@ namespace Renci.SshNet
         /// </returns>
         public Shell CreateShell(Encoding encoding, string input, Stream output, Stream extendedOutput, string terminalName, uint columns, uint rows, uint width, uint height, IDictionary<TerminalModes, uint> terminalModes)
         {
-            return this.CreateShell(encoding, input, output, extendedOutput, terminalName, columns, rows, width, height, terminalModes, 1024);
+            return CreateShell(encoding, input, output, extendedOutput, terminalName, columns, rows, width, height, terminalModes, 1024);
         }
 
         /// <summary>
@@ -354,7 +354,7 @@ namespace Renci.SshNet
         /// </returns>
         public Shell CreateShell(Encoding encoding, string input, Stream output, Stream extendedOutput)
         {
-            return this.CreateShell(encoding, input, output, extendedOutput, string.Empty, 0, 0, 0, 0, null, 1024);
+            return CreateShell(encoding, input, output, extendedOutput, string.Empty, 0, 0, 0, 0, null, 1024);
         }
 
         /// <summary>
@@ -371,7 +371,7 @@ namespace Renci.SshNet
         /// </returns>
         public ShellStream CreateShellStream(string terminalName, uint columns, uint rows, uint width, uint height, int bufferSize)
         {
-            return this.CreateShellStream(terminalName, columns, rows, width, height, bufferSize, null);
+            return CreateShellStream(terminalName, columns, rows, width, height, bufferSize, null);
         }
 
         /// <summary>
@@ -389,7 +389,7 @@ namespace Renci.SshNet
         /// </returns>
         public ShellStream CreateShellStream(string terminalName, uint columns, uint rows, uint width, uint height, int bufferSize, IDictionary<TerminalModes, uint> terminalModeValues)
         {
-            return new ShellStream(this.Session, terminalName, columns, rows, width, height, bufferSize, terminalModeValues);
+            return new ShellStream(Session, terminalName, columns, rows, width, height, bufferSize, terminalModeValues);
         }
 
         /// <summary>
@@ -399,9 +399,9 @@ namespace Renci.SshNet
         {
             base.OnDisconnected();
 
-            foreach (var forwardedPort in this._forwardedPorts.ToArray())
+            foreach (var forwardedPort in _forwardedPorts.ToArray())
             {
-                this.RemoveForwardedPort(forwardedPort);
+                RemoveForwardedPort(forwardedPort);
             }
 
         }
@@ -414,10 +414,10 @@ namespace Renci.SshNet
         {
             base.Dispose(disposing);
 
-            if (this._inputStream != null)
+            if (_inputStream != null)
             {
-                this._inputStream.Dispose();
-                this._inputStream = null;
+                _inputStream.Dispose();
+                _inputStream = null;
             }
         }
     }

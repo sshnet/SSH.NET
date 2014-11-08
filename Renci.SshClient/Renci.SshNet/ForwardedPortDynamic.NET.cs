@@ -60,6 +60,12 @@ namespace Renci.SshNet
                     }
                     finally
                     {
+                        if (Session != null)
+                        {
+                            Session.ErrorOccured -= Session_ErrorOccured;
+                            Session.Disconnected -= Session_Disconnected;
+                        }
+
                         // mark listener stopped
                         _listenerCompleted.Set();
                     }
@@ -185,9 +191,6 @@ namespace Renci.SshNet
             if (!IsStarted)
                 return;
 
-            Session.ErrorOccured -= Session_ErrorOccured;
-            Session.Disconnected -= Session_Disconnected;
-
             // close listener socket
             _listener.Close();
             // wait for listener loop to finish
@@ -229,11 +232,6 @@ namespace Renci.SshNet
         {
             if (disposing)
             {
-                if (Session != null)
-                {
-                    Session.ErrorOccured -= Session_ErrorOccured;
-                    Session.Disconnected -= Session_Disconnected;
-                }
                 if (_listener != null)
                 {
                     _listener.Dispose();

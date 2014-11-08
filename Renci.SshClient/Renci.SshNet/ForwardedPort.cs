@@ -69,7 +69,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Stops port forwarding.
         /// </summary>
-        public void Stop()
+        public virtual void Stop()
         {
             CheckDisposed();
 
@@ -111,11 +111,8 @@ namespace Renci.SshNet
                 {
                     Session.ErrorOccured -= Session_ErrorOccured;
                     StopPort(Session.ConnectionInfo.Timeout);
+                    Session = null;
                 }
-            }
-            else
-            {
-                StopPort(TimeSpan.Zero);
             }
         }
 

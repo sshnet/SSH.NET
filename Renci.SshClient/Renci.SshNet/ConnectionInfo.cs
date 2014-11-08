@@ -19,7 +19,7 @@ namespace Renci.SshNet
     /// This class is NOT thread-safe. Do not use the same <see cref="ConnectionInfo"/> with multiple
     /// client instances.
     /// </remarks>
-    public class ConnectionInfo : IConnectionInfo
+    public class ConnectionInfo : IConnectionInfoInternal
     {
         internal static int DEFAULT_PORT = 22;
 
@@ -417,7 +417,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="sender">The session in which the banner message was received.</param>
         /// <param name="e">The banner message.{</param>
-        void IConnectionInfo.UserAuthenticationBannerReceived(object sender, MessageEventArgs<BannerMessage> e)
+        void IConnectionInfoInternal.UserAuthenticationBannerReceived(object sender, MessageEventArgs<BannerMessage> e)
         {
             var authenticationBanner = AuthenticationBanner;
             if (authenticationBanner != null)
@@ -427,12 +427,12 @@ namespace Renci.SshNet
             }
         }
 
-        IAuthenticationMethod IConnectionInfo.CreateNoneAuthenticationMethod()
+        IAuthenticationMethod IConnectionInfoInternal.CreateNoneAuthenticationMethod()
         {
             return new NoneAuthenticationMethod(Username);
         }
 
-        IEnumerable<IAuthenticationMethod> IConnectionInfo.AuthenticationMethods
+        IEnumerable<IAuthenticationMethod> IConnectionInfoInternal.AuthenticationMethods
         {
             get { return AuthenticationMethods.Cast<IAuthenticationMethod>(); }
         }

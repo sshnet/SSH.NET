@@ -10,7 +10,7 @@ namespace Renci.SshNet.Tests.Classes
     [TestClass]
     public abstract class ClientAuthenticationTestBase : TestBase
     {
-        internal Mock<IConnectionInfo> ConnectionInfoMock { get; private set; }
+        internal Mock<IConnectionInfoInternal> ConnectionInfoMock { get; private set; }
         internal Mock<ISession> SessionMock { get; private set; }
         internal Mock<IAuthenticationMethod> NoneAuthenticationMethodMock { get; private set; }
         internal Mock<IAuthenticationMethod> PasswordAuthenticationMethodMock { get; private set; }
@@ -20,7 +20,7 @@ namespace Renci.SshNet.Tests.Classes
 
         protected void CreateMocks()
         {
-            ConnectionInfoMock = new Mock<IConnectionInfo>(MockBehavior.Strict);
+            ConnectionInfoMock = new Mock<IConnectionInfoInternal>(MockBehavior.Strict);
             SessionMock = new Mock<ISession>(MockBehavior.Strict);
             NoneAuthenticationMethodMock = new Mock<IAuthenticationMethod>(MockBehavior.Strict);
             PasswordAuthenticationMethodMock = new Mock<IAuthenticationMethod>(MockBehavior.Strict);

@@ -17,6 +17,14 @@ namespace Renci.SshNet
         /// </summary>
         private readonly List<ForwardedPort> _forwardedPorts;
 
+        /// <summary>
+        /// Holds a value indicating whether the current instance is disposed.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if the current instance is disposed; otherwise, <c>false</c>.
+        /// </value>
+        private bool _isDisposed;
+
         private Stream _inputStream;
 
         /// <summary>
@@ -127,8 +135,26 @@ namespace Renci.SshNet
         /// If <paramref name="ownsConnectionInfo"/> is <c>true</c>, then the
         /// connection info will be disposed when this instance is disposed.
         /// </remarks>
-        private SshClient(ConnectionInfo connectionInfo, bool ownsConnectionInfo)
-            : base(connectionInfo, ownsConnectionInfo)
+        internal SshClient(ConnectionInfo connectionInfo, bool ownsConnectionInfo)
+            : base(connectionInfo, ownsConnectionInfo, new ServiceFactory())
+        {
+            _forwardedPorts = new List<ForwardedPort>();
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SshClient"/> class.
+        /// </summary>
+        /// <param name="connectionInfo">The connection info.</param>
+        /// <param name="ownsConnectionInfo">Specified whether this instance owns the connection info.</param>
+        /// <param name="serviceFactory">The factory to use for creating new services.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="connectionInfo"/> is null.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="serviceFactory"/> is null.</exception>
+        /// <remarks>
+        /// If <paramref name="ownsConnectionInfo"/> is <c>true</c>, then the
+        /// connection info will be disposed when this instance is disposed.
+        /// </remarks>
+        internal SshClient(ConnectionInfo connectionInfo, bool ownsConnectionInfo, IServiceFactory serviceFactory)
+            : base(connectionInfo, ownsConnectionInfo, serviceFactory)
         {
             _forwardedPorts = new List<ForwardedPort>();
         }
@@ -164,11 +190,7 @@ namespace Renci.SshNet
             if (port == null)
                 throw new ArgumentNullException("port");
 
-            if (port.Session != null && port.Session != Session)
-                throw new InvalidOperationException("Forwarded port is already added to a different client.");
-
-            port.Session = Session;
-
+            AttachForwardedPort(port);
             _forwardedPorts.Add(port);
         }
 
@@ -185,9 +207,21 @@ namespace Renci.SshNet
             //  Stop port forwarding before removing it
             port.Stop();
 
-            port.Session = null;
-
+            DetachForwardedPort(port);
             _forwardedPorts.Remove(port);
+        }
+
+        private void AttachForwardedPort(ForwardedPort port)
+        {
+            if (port.Session != null && port.Session != Session)
+                throw new InvalidOperationException("Forwarded port is already added to a different client.");
+
+            port.Session = Session;
+        }
+
+        private static void DetachForwardedPort(ForwardedPort port)
+        {
+            port.Session = null;
         }
 
         /// <summary>
@@ -399,11 +433,12 @@ namespace Renci.SshNet
         {
             base.OnDisconnected();
 
-            foreach (var forwardedPort in _forwardedPorts.ToArray())
+            for (var i = _forwardedPorts.Count - 1; i >= 0; i--)
             {
-                RemoveForwardedPort(forwardedPort);
+                var port = _forwardedPorts[i];
+                DetachForwardedPort(port);
+                _forwardedPorts.RemoveAt(i);
             }
-
         }
 
         /// <summary>
@@ -412,13 +447,23 @@ namespace Renci.SshNet
         /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged ResourceMessages.</param>
         protected override void Dispose(bool disposing)
         {
+            if (!_isDisposed)
+            {
+                if (disposing)
+                {
+                    Disconnect();
+
+                    if (_inputStream != null)
+                    {
+                        _inputStream.Dispose();
+                        _inputStream = null;
+                    }
+                }
+            }
+
             base.Dispose(disposing);
 
-            if (_inputStream != null)
-            {
-                _inputStream.Dispose();
-                _inputStream = null;
-            }
+            _isDisposed = true;
         }
     }
 }

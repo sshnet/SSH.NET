@@ -29,7 +29,7 @@ namespace Renci.SshNet
                 throw new ArgumentException("path");
 
             using (var input = new PipeStream())
-            using (var channel = this.Session.CreateClientChannel<ChannelSession>())
+            using (var channel = this.Session.CreateChannelSession())
             {
                 channel.DataReceived += delegate(object sender, ChannelDataEventArgs e)
                 {
@@ -64,7 +64,7 @@ namespace Renci.SshNet
                 throw new ArgumentException("path");
 
             using (var input = new PipeStream())
-            using (var channel = this.Session.CreateClientChannel<ChannelSession>())
+            using (var channel = this.Session.CreateChannelSession())
             {
                 channel.DataReceived += delegate(object sender, ChannelDataEventArgs e)
                 {
@@ -106,7 +106,7 @@ namespace Renci.SshNet
                 throw new ArgumentNullException("fileInfo");
 
             using (var input = new PipeStream())
-            using (var channel = this.Session.CreateClientChannel<ChannelSession>())
+            using (var channel = this.Session.CreateChannelSession())
             {
                 channel.DataReceived += delegate(object sender, ChannelDataEventArgs e)
                 {
@@ -141,7 +141,7 @@ namespace Renci.SshNet
                 throw new ArgumentNullException("directoryInfo");
 
             using (var input = new PipeStream())
-            using (var channel = this.Session.CreateClientChannel<ChannelSession>())
+            using (var channel = this.Session.CreateChannelSession())
             {
                 channel.DataReceived += delegate(object sender, ChannelDataEventArgs e)
                 {
@@ -161,7 +161,7 @@ namespace Renci.SshNet
             }
         }
 
-        private void InternalUpload(ChannelSession channel, Stream input, FileInfo fileInfo, string filename)
+        private void InternalUpload(IChannelSession channel, Stream input, FileInfo fileInfo, string filename)
         {
             this.InternalSetTimestamp(channel, input, fileInfo.LastWriteTimeUtc, fileInfo.LastAccessTimeUtc);
             using (var source = fileInfo.OpenRead())
@@ -170,7 +170,7 @@ namespace Renci.SshNet
             }
         }
 
-        private void InternalUpload(ChannelSession channel, Stream input, DirectoryInfo directoryInfo)
+        private void InternalUpload(IChannelSession channel, Stream input, DirectoryInfo directoryInfo)
         {
             //  Upload files
             var files = directoryInfo.GetFiles();
@@ -194,7 +194,7 @@ namespace Renci.SshNet
             }
         }
 
-        private void InternalDownload(ChannelSession channel, Stream input, FileSystemInfo fileSystemInfo)
+        private void InternalDownload(IChannelSession channel, Stream input, FileSystemInfo fileSystemInfo)
         {
             DateTime modifiedTime = DateTime.Now;
             DateTime accessedTime = DateTime.Now;

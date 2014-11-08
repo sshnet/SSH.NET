@@ -1,0 +1,75 @@
+﻿using System.Linq;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
+
+namespace Renci.SshNet.Tests.Classes
+{
+    [TestClass]
+    public class SshClientTest_Disconnect_ForwardedPortStarted
+    {
+        private Mock<IServiceFactory> _serviceFactoryMock;
+        private Mock<ISession> _sessionMock;
+        private Mock<ForwardedPort> _forwardedPortMock;
+        private SshClient _sshClient;
+        private ConnectionInfo _connectionInfo;
+
+        [TestInitialize]
+        public void Setup()
+        {
+            Arrange();
+            Act();
+        }
+
+        [TestCleanup]
+        public void Cleanup()
+        {
+        }
+
+        protected void Arrange()
+        {
+            _connectionInfo = new ConnectionInfo("host", "user", new NoneAuthenticationMethod("userauth"));
+
+            var sequence = new MockSequence();
+
+            _serviceFactoryMock = new Mock<IServiceFactory>(MockBehavior.Strict);
+            _sessionMock = new Mock<ISession>(MockBehavior.Strict);
+            _forwardedPortMock = new Mock<ForwardedPort>(MockBehavior.Strict);
+
+            _serviceFactoryMock.InSequence(sequence).Setup(p => p.CreateSession(_connectionInfo)).Returns(_sessionMock.Object);
+            _sessionMock.InSequence(sequence).Setup(p => p.Connect());
+            _forwardedPortMock.InSequence(sequence).Setup(p => p.Start());
+            _sessionMock.InSequence(sequence).Setup(p => p.OnDisconnecting());
+            _forwardedPortMock.InSequence(sequence).Setup(p => p.Stop());
+            _sessionMock.InSequence(sequence).Setup(p => p.Disconnect());
+
+            _sshClient = new SshClient(_connectionInfo, false, _serviceFactoryMock.Object);
+            _sshClient.Connect();
+            _sshClient.AddForwardedPort(_forwardedPortMock.Object);
+
+            _forwardedPortMock.Object.Start();
+        }
+
+        protected void Act()
+        {
+            _sshClient.Disconnect();
+        }
+
+        [TestMethod]
+        public void ForwardedPortShouldBeStopped()
+        {
+            _forwardedPortMock.Verify(p => p.Stop(), Times.Once);
+        }
+
+        [TestMethod]
+        public void ForwardedPortShouldBeRemovedFromSshClient()
+        {
+            Assert.IsFalse(_sshClient.ForwardedPorts.Any());
+        }
+
+        [TestMethod]
+        public void DisconnectOnSessionShouldBeInvokedOnce()
+        {
+            _sessionMock.Verify(p => p.Disconnect(), Times.Once);
+        }
+    }
+}

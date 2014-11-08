@@ -84,6 +84,9 @@
     <Compile Include="Classes\Channels\ChannelTest_OnSessionDisconnected_SessionIsConnectedAndChannelIsOpen.cs" />
     <Compile Include="Classes\Channels\ChannelStub.cs" />
     <Compile Include="Classes\Channels\ChannelTest_OnSessionErrorOccurred_OnErrorOccurred_Exception.cs" />
+    <Compile Include="Classes\Channels\ClientChannelStub.cs" />
+    <Compile Include="Classes\Channels\ClientChannelTest_OnSessionChannelOpenConfirmationReceived_OnOpenConfirmation_Exception.cs" />
+    <Compile Include="Classes\Channels\ClientChannelTest_OnSessionChannelOpenFailureReceived_OnOpenFailure_Exception.cs" />
     <Compile Include="Classes\ClientAuthenticationTestBase.cs" />
     <Compile Include="Classes\ClientAuthenticationTest_Failure_SingleList_AuthenticationMethodFailed.cs" />
     <Compile Include="Classes\ClientAuthenticationTest_Failure_SingleList_AuthenticationMethodNotConfigured.cs" />

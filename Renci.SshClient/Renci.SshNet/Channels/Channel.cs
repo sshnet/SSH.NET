@@ -554,11 +554,19 @@ namespace Renci.SshNet.Channels
             }
             catch (Exception ex)
             {
-                HandleChannelException(ex);
+                OnChannelException(ex);
             }
         }
 
-        private void HandleChannelException(Exception ex)
+        /// <summary>
+        /// Called when an <see cref="Exception"/> occurs while processing a channel message.
+        /// </summary>
+        /// <param name="ex">The <see cref="Exception"/>.</param>
+        /// <remarks>
+        /// This method will in turn invoke <see cref="OnErrorOccured(System.Exception)"/>, and
+        /// raise the <see cref="Exception"/> event.
+        /// </remarks>
+        protected void OnChannelException(Exception ex)
         {
             OnErrorOccured(ex);
             RaiseExceptionEvent(ex);
@@ -592,7 +600,7 @@ namespace Renci.SshNet.Channels
                 }
                 catch (Exception ex)
                 {
-                    HandleChannelException(ex);
+                    OnChannelException(ex);
                 }
             }
         }
@@ -607,7 +615,7 @@ namespace Renci.SshNet.Channels
                 }
                 catch (Exception ex)
                 {
-                    HandleChannelException(ex);
+                    OnChannelException(ex);
                 }
             }
         }
@@ -622,7 +630,7 @@ namespace Renci.SshNet.Channels
                 }
                 catch (Exception ex)
                 {
-                    HandleChannelException(ex);
+                    OnChannelException(ex);
                 }
             }
         }
@@ -637,7 +645,7 @@ namespace Renci.SshNet.Channels
                 }
                 catch (Exception ex)
                 {
-                    HandleChannelException(ex);
+                    OnChannelException(ex);
                 }
             }
         }
@@ -652,7 +660,7 @@ namespace Renci.SshNet.Channels
                 }
                 catch (Exception ex)
                 {
-                    HandleChannelException(ex);
+                    OnChannelException(ex);
                 }
 
                 var channelClosedWaitHandle = _channelClosedWaitHandle;
@@ -686,7 +694,7 @@ namespace Renci.SshNet.Channels
                 }
                 catch (Exception ex)
                 {
-                    HandleChannelException(ex);
+                    OnChannelException(ex);
                 }
             }
         }
@@ -701,7 +709,7 @@ namespace Renci.SshNet.Channels
                 }
                 catch (Exception ex)
                 {
-                    HandleChannelException(ex);
+                    OnChannelException(ex);
                 }
             }
         }
@@ -716,7 +724,7 @@ namespace Renci.SshNet.Channels
                 }
                 catch (Exception ex)
                 {
-                    HandleChannelException(ex);
+                    OnChannelException(ex);
                 }
             }
         }

@@ -14,6 +14,8 @@ namespace Renci.SshNet
         /// Holds value indicating whether the connection info is owned by this client.
         /// </summary>
         private readonly bool _ownsConnectionInfo;
+
+        private readonly IServiceFactory _serviceFactory;
         private TimeSpan _keepAliveInterval;
         private Timer _keepAliveTimer;
         private ConnectionInfo _connectionInfo;
@@ -21,7 +23,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Gets current session.
         /// </summary>
-        protected Session Session { get; private set; }
+        internal ISession Session { get; private set; }
 
         /// <summary>
         /// Gets the connection info.
@@ -81,7 +83,7 @@ namespace Renci.SshNet
                 if (value == _keepAliveInterval)
                     return;
 
-                if (value == Session.InfiniteTimeSpan)
+                if (value == SshNet.Session.InfiniteTimeSpan)
                 {
                     // stop the timer when the value is -1 milliseconds
                     StopKeepAliveTimer();
@@ -127,13 +129,33 @@ namespace Renci.SshNet
         /// connection info will be disposed when this instance is disposed.
         /// </remarks>
         protected BaseClient(ConnectionInfo connectionInfo, bool ownsConnectionInfo)
+            : this(connectionInfo, ownsConnectionInfo, new ServiceFactory())
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BaseClient"/> class.
+        /// </summary>
+        /// <param name="connectionInfo">The connection info.</param>
+        /// <param name="ownsConnectionInfo">Specified whether this instance owns the connection info.</param>
+        /// <param name="serviceFactory">The factory to use for creating new services.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="connectionInfo"/> is null.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="serviceFactory"/> is null.</exception>
+        /// <remarks>
+        /// If <paramref name="ownsConnectionInfo"/> is <c>true</c>, then the
+        /// connection info will be disposed when this instance is disposed.
+        /// </remarks>
+        internal BaseClient(ConnectionInfo connectionInfo, bool ownsConnectionInfo, IServiceFactory serviceFactory)
         {
             if (connectionInfo == null)
                 throw new ArgumentNullException("connectionInfo");
+            if (serviceFactory == null)
+                throw new ArgumentNullException("serviceFactory");
 
             ConnectionInfo = connectionInfo;
             _ownsConnectionInfo = ownsConnectionInfo;
-            _keepAliveInterval = Session.InfiniteTimeSpan;
+            _serviceFactory = serviceFactory;
+            _keepAliveInterval = SshNet.Session.InfiniteTimeSpan;
         }
 
         /// <summary>
@@ -169,7 +191,7 @@ namespace Renci.SshNet
                 throw new InvalidOperationException("The client is already connected.");
 
             OnConnecting();
-            Session = new Session(ConnectionInfo);
+            Session = _serviceFactory.CreateSession(ConnectionInfo);
             Session.HostKeyReceived += Session_HostKeyReceived;
             Session.ErrorOccured += Session_ErrorOccured;
             Session.Connect();
@@ -353,7 +375,7 @@ namespace Renci.SshNet
         /// </remarks>
         private void StartKeepAliveTimer()
         {
-            if (_keepAliveInterval == Session.InfiniteTimeSpan)
+            if (_keepAliveInterval == SshNet.Session.InfiniteTimeSpan)
                 return;
 
             if (_keepAliveTimer == null)

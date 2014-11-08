@@ -1,17 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    public class ForwardedPortRemoteTest_Dispose_PortDisposed
+    public class ForwardedPortLocalTest_Dispose_PortDisposed_NeverStarted
     {
-        private ForwardedPortRemote _forwardedPort;
-        private IPEndPoint _bindEndpoint;
-        private IPEndPoint _remoteEndpoint;
+        private ForwardedPortLocal _forwardedPort;
         private IList<EventArgs> _closingRegister;
         private IList<ExceptionEventArgs> _exceptionRegister;
 
@@ -34,13 +31,10 @@ namespace Renci.SshNet.Tests.Classes
 
         protected void Arrange()
         {
-            var random = new Random();
             _closingRegister = new List<EventArgs>();
             _exceptionRegister = new List<ExceptionEventArgs>();
-            _bindEndpoint = new IPEndPoint(IPAddress.Any, random.Next(IPEndPoint.MinPort, IPEndPoint.MaxPort));
-            _remoteEndpoint  = new IPEndPoint(IPAddress.Parse("193.168.1.5"), random.Next(IPEndPoint.MinPort, IPEndPoint.MaxPort));
 
-            _forwardedPort = new ForwardedPortRemote(_bindEndpoint.Address, (uint) _bindEndpoint.Port, _remoteEndpoint.Address, (uint) _remoteEndpoint.Port);
+            _forwardedPort = new ForwardedPortLocal("boundHost", "host", 22);
             _forwardedPort.Closing += (sender, args) => _closingRegister.Add(args);
             _forwardedPort.Exception += (sender, args) => _exceptionRegister.Add(args);
             _forwardedPort.Dispose();
@@ -49,12 +43,6 @@ namespace Renci.SshNet.Tests.Classes
         protected void Act()
         {
             _forwardedPort.Dispose();
-        }
-
-        [TestMethod]
-        public void IsStartedShouldReturnFalse()
-        {
-            Assert.IsFalse(_forwardedPort.IsStarted);
         }
 
         [TestMethod]

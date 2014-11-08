@@ -113,6 +113,7 @@
     <Compile Include="Classes\ForwardedPortDynamicTest_Start_PortStopped.cs" />
     <Compile Include="Classes\ForwardedPortDynamicTest_Start_PortStarted.cs" />
     <Compile Include="Classes\ForwardedPortLocalTest_Dispose_PortDisposed.cs" />
+    <Compile Include="Classes\ForwardedPortLocalTest_Dispose_PortDisposed_NeverStarted.cs" />
     <Compile Include="Classes\ForwardedPortLocalTest_Dispose_PortNeverStarted.cs" />
     <Compile Include="Classes\ForwardedPortLocalTest_Dispose_PortStarted_ChannelNotBound.cs" />
     <Compile Include="Classes\ForwardedPortLocalTest_Dispose_PortStopped.cs" />
@@ -305,6 +306,8 @@
     <Compile Include="Classes\ShellTestTest.cs" />
     <Compile Include="Classes\ShellStreamTest.cs" />
     <Compile Include="Classes\SshClientTest.cs" />
+    <Compile Include="Classes\SshClientTest_Disconnect_ForwardedPortStarted.cs" />
+    <Compile Include="Classes\SshClientTest_Dispose_ForwardedPortStarted.cs" />
     <Compile Include="Classes\SshCommandTest.cs" />
     <Compile Include="Classes\ForwardedPortLocalTest.NET40.cs" />
     <Compile Include="Classes\SshCommandTest.NET40.cs" />

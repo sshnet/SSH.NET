@@ -152,7 +152,7 @@ namespace Renci.SshNet
         public void Upload(Stream source, string path)
         {
             using (var input = new PipeStream())
-            using (var channel = this.Session.CreateClientChannel<ChannelSession>())
+            using (var channel = this.Session.CreateChannelSession())
             {
                 channel.DataReceived += delegate(object sender, ChannelDataEventArgs e)
                 {
@@ -198,7 +198,7 @@ namespace Renci.SshNet
                 throw new ArgumentNullException("destination");
 
             using (var input = new PipeStream())
-            using (var channel = this.Session.CreateClientChannel<ChannelSession>())
+            using (var channel = this.Session.CreateChannelSession())
             {
                 channel.DataReceived += delegate(object sender, ChannelDataEventArgs e)
                 {
@@ -235,7 +235,7 @@ namespace Renci.SshNet
             }
         }
 
-        private void InternalSetTimestamp(ChannelSession channel, Stream input, DateTime lastWriteTime, DateTime lastAccessime)
+        private void InternalSetTimestamp(IChannelSession channel, Stream input, DateTime lastWriteTime, DateTime lastAccessime)
         {
             var zeroTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
             var modificationSeconds = (long)(lastWriteTime - zeroTime).TotalSeconds;
@@ -244,7 +244,7 @@ namespace Renci.SshNet
             this.CheckReturnCode(input);
         }
 
-        private void InternalUpload(ChannelSession channel, Stream input, Stream source, string filename)
+        private void InternalUpload(IChannelSession channel, Stream input, Stream source, string filename)
         {
             var length = source.Length;
 
@@ -271,7 +271,7 @@ namespace Renci.SshNet
             this.CheckReturnCode(input);
         }
 
-        private void InternalDownload(ChannelSession channel, Stream input, Stream output, string filename, long length)
+        private void InternalDownload(IChannelSession channel, Stream input, Stream output, string filename, long length)
         {
             var buffer = new byte[Math.Min(length, this.BufferSize)];
             var needToRead = length;
@@ -315,12 +315,12 @@ namespace Renci.SshNet
             }
         }
 
-        private void SendConfirmation(ChannelSession channel)
+        private void SendConfirmation(IChannelSession channel)
         {
             this.SendData(channel, new byte[] { 0 });
         }
 
-        private void SendConfirmation(ChannelSession channel, byte errorCode, string message)
+        private void SendConfirmation(IChannelSession channel, byte errorCode, string message)
         {
             this.SendData(channel, new[] { errorCode });
             this.SendData(channel, string.Format("{0}\n", message));

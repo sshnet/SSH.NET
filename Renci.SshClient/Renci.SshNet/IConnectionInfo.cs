@@ -1,11 +1,40 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Authentication;
 using Renci.SshNet.Messages.Connection;
 
 namespace Renci.SshNet
 {
+    internal interface IConnectionInfoInternal : IConnectionInfo
+    {
+        /// <summary>
+        /// Signals that an authentication banner message was received from the server.
+        /// </summary>
+        /// <param name="sender">The session in which the banner message was received.</param>
+        /// <param name="e">The banner message.{</param>
+        void UserAuthenticationBannerReceived(object sender, MessageEventArgs<BannerMessage> e);
+
+        /// <summary>
+        /// Gets the supported authentication methods for this connection.
+        /// </summary>
+        /// <value>
+        /// The supported authentication methods for this connection.
+        /// </value>
+        IEnumerable<IAuthenticationMethod> AuthenticationMethods { get; }
+
+        /// <summary>
+        /// Creates a <see cref="NoneAuthenticationMethod"/> for the credentials represented
+        /// by the current <see cref="IConnectionInfo"/>.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="NoneAuthenticationMethod"/> for the credentials represented by the
+        /// current <see cref="IConnectionInfo"/>.
+        /// </returns>
+        IAuthenticationMethod CreateNoneAuthenticationMethod();
+    }
+
     /// <summary>
     /// Represents remote connection information.
     /// </summary>
@@ -47,28 +76,8 @@ namespace Renci.SshNet
         TimeSpan Timeout { get; }
 
         /// <summary>
-        /// Gets the supported authentication methods for this connection.
+        /// Occurs when authentication banner is sent by the server.
         /// </summary>
-        /// <value>
-        /// The supported authentication methods for this connection.
-        /// </value>
-        IEnumerable<IAuthenticationMethod> AuthenticationMethods { get; }
-
-        /// <summary>
-        /// Signals that an authentication banner message was received from the server.
-        /// </summary>
-        /// <param name="sender">The session in which the banner message was received.</param>
-        /// <param name="e">The banner message.{</param>
-        void UserAuthenticationBannerReceived(object sender, MessageEventArgs<BannerMessage> e);
-
-        /// <summary>
-        /// Creates a <see cref="NoneAuthenticationMethod"/> for the credentials represented
-        /// by the current <see cref="IConnectionInfo"/>.
-        /// </summary>
-        /// <returns>
-        /// A <see cref="NoneAuthenticationMethod"/> for the credentials represented by the
-        /// current <see cref="IConnectionInfo"/>.
-        /// </returns>
-        IAuthenticationMethod CreateNoneAuthenticationMethod();
+        event EventHandler<AuthenticationBannerEventArgs> AuthenticationBanner;
     }
 }

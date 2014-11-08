@@ -13,7 +13,7 @@ namespace Renci.SshNet
     /// </summary>
     public partial class Shell : IDisposable
     {
-        private readonly Session _session;
+        private readonly ISession _session;
 
         private IChannelSession _channel;
 
@@ -88,7 +88,7 @@ namespace Renci.SshNet
         /// <param name="height">The height.</param>
         /// <param name="terminalModes">The terminal modes.</param>
         /// <param name="bufferSize">Size of the buffer for output stream.</param>
-        internal Shell(Session session, Stream input, Stream output, Stream extendedOutput, string terminalName, uint columns, uint rows, uint width, uint height, IDictionary<TerminalModes, uint> terminalModes, int bufferSize)
+        internal Shell(ISession session, Stream input, Stream output, Stream extendedOutput, string terminalName, uint columns, uint rows, uint width, uint height, IDictionary<TerminalModes, uint> terminalModes, int bufferSize)
         {
             this._session = session;
             this._input = input;
@@ -119,7 +119,7 @@ namespace Renci.SshNet
                 this.Starting(this, new EventArgs());
             }
 
-            this._channel = this._session.CreateClientChannel<ChannelSession>();
+            this._channel = this._session.CreateChannelSession();
             this._channel.DataReceived += Channel_DataReceived;
             this._channel.ExtendedDataReceived += Channel_ExtendedDataReceived;
             this._channel.Closed += Channel_Closed;

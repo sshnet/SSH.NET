@@ -56,7 +56,7 @@ namespace Renci.SshNet.Sftp
             }
         }
 
-        public SftpSession(Session session, TimeSpan operationTimeout, Encoding encoding)
+        public SftpSession(ISession session, TimeSpan operationTimeout, Encoding encoding)
             : base(session, "sftp", operationTimeout, encoding)
         {
         }

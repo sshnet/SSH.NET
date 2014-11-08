@@ -7,7 +7,7 @@ namespace Renci.SshNet
 {
     internal class ClientAuthentication
     {
-        public void Authenticate(IConnectionInfo connectionInfo, ISession session)
+        public void Authenticate(IConnectionInfoInternal connectionInfo, ISession session)
         {
             if (connectionInfo == null)
                 throw new ArgumentNullException("connectionInfo");

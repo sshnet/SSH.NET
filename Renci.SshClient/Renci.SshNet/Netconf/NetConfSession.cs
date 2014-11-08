@@ -39,7 +39,7 @@ namespace Renci.SshNet.NetConf
         /// </summary>
         /// <param name="session">The session.</param>
         /// <param name="operationTimeout">The operation timeout.</param>
-        public NetConfSession(Session session, TimeSpan operationTimeout)
+        public NetConfSession(ISession session, TimeSpan operationTimeout)
             : base(session, "netconf", operationTimeout, Encoding.UTF8)
         {
             ClientCapabilities = new XmlDocument();

@@ -12,12 +12,12 @@ namespace Renci.SshNet
     /// <summary>
     /// Provides functionality to connect and interact with SSH server.
     /// </summary>
-    internal interface ISession
+    internal interface ISession : IDisposable
     {
-        ///// <summary>
-        ///// Gets or sets the connection info.
-        ///// </summary>
-        ///// <value>The connection info.</value>
+        /// <summary>
+        /// Gets or sets the connection info.
+        /// </summary>
+        /// <value>The connection info.</value>
         IConnectionInfo ConnectionInfo { get; }
 
         /// <summary>
@@ -54,6 +54,15 @@ namespace Renci.SshNet
         WaitHandle MessageListenerCompleted { get; }
 
         /// <summary>
+        /// Connects to the server.
+        /// </summary>
+        /// <exception cref="SocketException">Socket connection to the SSH server or proxy server could not be established, or an error occurred while resolving the hostname.</exception>
+        /// <exception cref="SshConnectionException">SSH session could not be established.</exception>
+        /// <exception cref="SshAuthenticationException">Authentication of SSH session failed.</exception>
+        /// <exception cref="ProxyException">Failed to establish proxy connection.</exception>
+        void Connect();
+
+        /// <summary>
         /// Create a new SSH session channel.
         /// </summary>
         /// <returns>
@@ -77,11 +86,30 @@ namespace Renci.SshNet
         /// </returns>
         IChannelForwardedTcpip CreateChannelForwardedTcpip(uint remoteChannelNumber, uint remoteWindowSize, uint remoteChannelDataPacketSize);
 
-       /// <summary>
+        /// <summary>
+        /// Disconnects from the server.
+        /// </summary>
+        /// <remarks>
+        /// This sends a <b>SSH_MSG_DISCONNECT</b> message to the server, waits for the
+        /// server to close the socket on its end and subsequently closes the client socket.
+        /// </remarks>
+        void Disconnect();
+
+        /// <summary>
+        /// Called when client is disconnecting from the server.
+        /// </summary>
+        void OnDisconnecting();
+
+        /// <summary>
         /// Registers SSH message with the session.
         /// </summary>
         /// <param name="messageName">The name of the message to register with the session.</param>
         void RegisterMessage(string messageName);
+
+        /// <summary>
+        /// Sends "keep alive" message to keep connection alive.
+        /// </summary>
+        void SendKeepAlive();
 
         /// <summary>
         /// Sends a message to the server.
@@ -191,6 +219,11 @@ namespace Renci.SshNet
         /// Occurs when an error occurred.
         /// </summary>
         event EventHandler<ExceptionEventArgs> ErrorOccured;
+
+        /// <summary>
+        /// Occurs when host key received.
+        /// </summary>
+        event EventHandler<HostKeyEventArgs> HostKeyReceived;
 
         /// <summary>
         /// Occurs when <see cref="RequestSuccessMessage"/> message received

@@ -23,7 +23,7 @@ namespace Renci.SshNet
     /// <summary>
     /// Provides functionality to connect and interact with SSH server.
     /// </summary>
-    public partial class Session : IDisposable, ISession
+    public partial class Session : ISession
     {
         /// <summary>
         /// Specifies an infinite waiting period.
@@ -703,7 +703,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Sends "keep alive" message to keep connection alive.
         /// </summary>
-        internal void SendKeepAlive()
+        void ISession.SendKeepAlive()
         {
             this.SendMessage(new IgnoreMessage());
         }
@@ -1405,7 +1405,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Called when client is disconnecting from the server.
         /// </summary>
-        internal void OnDisconnecting()
+        void ISession.OnDisconnecting()
         {
             _isDisconnecting = true;
         }

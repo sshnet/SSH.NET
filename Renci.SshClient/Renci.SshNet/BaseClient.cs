@@ -55,7 +55,7 @@ namespace Renci.SshNet
             get
             {
                 CheckDisposed();
-                return this.Session != null && this.Session.IsConnected;
+                return Session != null && Session.IsConnected;
             }
         }
 
@@ -72,7 +72,7 @@ namespace Renci.SshNet
             get
             {
                 CheckDisposed();
-                return this._keepAliveInterval;
+                return _keepAliveInterval;
             }
             set
             {
@@ -96,7 +96,7 @@ namespace Renci.SshNet
                     if (_keepAliveTimer != null)
                         _keepAliveTimer.Change(value, value);
                 }
-                this._keepAliveInterval = value;
+                _keepAliveInterval = value;
             }
         }
 
@@ -236,7 +236,7 @@ namespace Renci.SshNet
 
         private void Session_ErrorOccured(object sender, ExceptionEventArgs e)
         {
-            var handler = this.ErrorOccurred;
+            var handler = ErrorOccurred;
             if (handler != null)
             {
                 handler(this, e);
@@ -245,7 +245,7 @@ namespace Renci.SshNet
 
         private void Session_HostKeyReceived(object sender, HostKeyEventArgs e)
         {
-            var handler = this.HostKeyReceived;
+            var handler = HostKeyReceived;
             if (handler != null)
             {
                 handler(this, e);
@@ -272,7 +272,7 @@ namespace Renci.SshNet
         protected virtual void Dispose(bool disposing)
         {
             // Check to see if Dispose has already been called.
-            if (!this._isDisposed)
+            if (!_isDisposed)
             {
                 // If disposing equals true, dispose all managed
                 // and unmanaged ResourceMessages.
@@ -282,12 +282,12 @@ namespace Renci.SshNet
                     // session
                     StopKeepAliveTimer();
 
-                    if (this.Session != null)
+                    if (Session != null)
                     {
-                        this.Session.ErrorOccured -= Session_ErrorOccured;
-                        this.Session.HostKeyReceived -= Session_HostKeyReceived;
-                        this.Session.Dispose();
-                        this.Session = null;
+                        Session.ErrorOccured -= Session_ErrorOccured;
+                        Session.HostKeyReceived -= Session_HostKeyReceived;
+                        Session.Dispose();
+                        Session = null;
                     }
 
                     if (_ownsConnectionInfo && _connectionInfo != null)
@@ -357,7 +357,7 @@ namespace Renci.SshNet
                 return;
 
             if (_keepAliveTimer == null)
-                _keepAliveTimer = new Timer(state => this.SendKeepAlive());
+                _keepAliveTimer = new Timer(state => SendKeepAlive());
             _keepAliveTimer.Change(_keepAliveInterval, _keepAliveInterval);
         }
     }

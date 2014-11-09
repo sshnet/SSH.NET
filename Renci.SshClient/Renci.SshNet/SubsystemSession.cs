@@ -5,7 +5,7 @@ using System.Threading;
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
 
-namespace Renci.SshNet.Sftp
+namespace Renci.SshNet
 {
     /// <summary>
     /// Base class for SSH subsystem implementations
@@ -22,7 +22,7 @@ namespace Renci.SshNet.Sftp
         /// <summary>
         /// Specifies a timeout to wait for operation to complete
         /// </summary>
-        protected TimeSpan _operationTimeout;
+        protected TimeSpan OperationTimeout { get; private set; }
 
         /// <summary>
         /// Occurs when an error occurred.
@@ -67,10 +67,10 @@ namespace Renci.SshNet.Sftp
             if (encoding == null)
                 throw new ArgumentNullException("encoding");
 
-            this._session = session;
-            this._subsystemName = subsystemName;
-            this._operationTimeout = operationTimeout;
-            this.Encoding = encoding;
+            _session = session;
+            _subsystemName = subsystemName;
+            OperationTimeout = operationTimeout;
+            Encoding = encoding;
         }
 
         /// <summary>
@@ -78,15 +78,15 @@ namespace Renci.SshNet.Sftp
         /// </summary>
         public void Connect()
         {
-            this._channel = this._session.CreateChannelSession();
+            _channel = _session.CreateChannelSession();
 
-            this._session.ErrorOccured += Session_ErrorOccured;
-            this._session.Disconnected += Session_Disconnected;
-            this._channel.DataReceived += Channel_DataReceived;
-            this._channel.Closed += Channel_Closed;
-            this._channel.Open();
-            this._channel.SendSubsystemRequest(_subsystemName);
-            this.OnChannelOpen();
+            _session.ErrorOccured += Session_ErrorOccured;
+            _session.Disconnected += Session_Disconnected;
+            _channel.DataReceived += Channel_DataReceived;
+            _channel.Closed += Channel_Closed;
+            _channel.Open();
+            _channel.SendSubsystemRequest(_subsystemName);
+            OnChannelOpen();
         }
 
         /// <summary>
@@ -94,8 +94,8 @@ namespace Renci.SshNet.Sftp
         /// </summary>
         public void Disconnect()
         {
-            this._channel.SendEof();
-            this._channel.Close();
+            _channel.SendEof();
+            _channel.Close();
         }
 
         /// <summary>
@@ -104,7 +104,7 @@ namespace Renci.SshNet.Sftp
         /// <param name="data">The data to be sent.</param>
         public void SendData(byte[] data)
         {
-            this._channel.SendData(data);
+            _channel.SendData(data);
         }
 
         /// <summary>
@@ -125,7 +125,7 @@ namespace Renci.SshNet.Sftp
         /// <param name="error">The error.</param>
         protected void RaiseError(Exception error)
         {
-            this._exception = error;
+            _exception = error;
 
             var errorOccuredWaitHandle = _errorOccuredWaitHandle;
             if (errorOccuredWaitHandle != null)
@@ -135,7 +135,7 @@ namespace Renci.SshNet.Sftp
 
         private void Channel_DataReceived(object sender, ChannelDataEventArgs e)
         {
-            this.OnDataReceived(e.DataTypeCode, e.Data);
+            OnDataReceived(e.DataTypeCode, e.Data);
         }
 
         private void Channel_Closed(object sender, ChannelEventArgs e)
@@ -149,15 +149,15 @@ namespace Renci.SshNet.Sftp
         {
             var waitHandles = new[]
                 {
-                    this._errorOccuredWaitHandle,
-                    this._channelClosedWaitHandle,
+                    _errorOccuredWaitHandle,
+                    _channelClosedWaitHandle,
                     waitHandle
                 };
 
             switch (WaitHandle.WaitAny(waitHandles, operationTimeout))
             {
                 case 0:
-                    throw this._exception;
+                    throw _exception;
                 case 1:
                     throw new SshException("Channel was closed.");
                 case WaitHandle.WaitTimeout:
@@ -168,12 +168,12 @@ namespace Renci.SshNet.Sftp
         private void Session_Disconnected(object sender, EventArgs e)
         {
             SignalDisconnected();
-            this.RaiseError(new SshException("Connection was lost"));
+            RaiseError(new SshException("Connection was lost"));
         }
 
         private void Session_ErrorOccured(object sender, ExceptionEventArgs e)
         {
-            this.RaiseError(e.Exception);
+            RaiseError(e.Exception);
         }
 
         private void SignalErrorOccurred(Exception error)
@@ -214,34 +214,34 @@ namespace Renci.SshNet.Sftp
         protected virtual void Dispose(bool disposing)
         {
             // Check to see if Dispose has already been called.
-            if (!this._isDisposed)
+            if (!_isDisposed)
             {
-                if (this._channel != null)
+                if (_channel != null)
                 {
-                    this._channel.DataReceived -= Channel_DataReceived;
-                    this._channel.Closed -= Channel_Closed;
-                    this._channel.Dispose();
-                    this._channel = null;
+                    _channel.DataReceived -= Channel_DataReceived;
+                    _channel.Closed -= Channel_Closed;
+                    _channel.Dispose();
+                    _channel = null;
                 }
 
-                this._session.ErrorOccured -= Session_ErrorOccured;
-                this._session.Disconnected -= Session_Disconnected;
+                _session.ErrorOccured -= Session_ErrorOccured;
+                _session.Disconnected -= Session_Disconnected;
 
                 // If disposing equals true, dispose all managed
                 // and unmanaged resources.
                 if (disposing)
                 {
                     // Dispose managed resources.
-                    if (this._errorOccuredWaitHandle != null)
+                    if (_errorOccuredWaitHandle != null)
                     {
-                        this._errorOccuredWaitHandle.Dispose();
-                        this._errorOccuredWaitHandle = null;
+                        _errorOccuredWaitHandle.Dispose();
+                        _errorOccuredWaitHandle = null;
                     }
 
-                    if (this._channelClosedWaitHandle != null)
+                    if (_channelClosedWaitHandle != null)
                     {
-                        this._channelClosedWaitHandle.Dispose();
-                        this._channelClosedWaitHandle = null;
+                        _channelClosedWaitHandle.Dispose();
+                        _channelClosedWaitHandle = null;
                     }
                 }
 

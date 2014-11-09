@@ -43,7 +43,7 @@ namespace Renci.SshNet.Sftp
         {
             get
             {
-                return ((this._access & FileAccess.Read) != 0);
+                return ((_access & FileAccess.Read) != 0);
             }
         }
 
@@ -55,7 +55,7 @@ namespace Renci.SshNet.Sftp
         {
             get
             {
-                return this._canSeek;
+                return _canSeek;
             }
         }
 
@@ -67,7 +67,7 @@ namespace Renci.SshNet.Sftp
         {
             get
             {
-                return ((this._access & FileAccess.Write) != 0);
+                return ((_access & FileAccess.Write) != 0);
             }
         }
 
@@ -84,15 +84,15 @@ namespace Renci.SshNet.Sftp
             get
             {
                 // Validate that the object can actually do this.
-                if (!this._canSeek)
+                if (!_canSeek)
                 {
                     throw new NotSupportedException("Seek operation is not supported.");
                 }
 
                 // Lock down the file stream while we do this.
-                lock (this._lock)
+                lock (_lock)
                 {
-                    if (this._handle == null)
+                    if (_handle == null)
                     {
                         // ECMA says this should be IOException even though
                         // everywhere else uses ObjectDisposedException.
@@ -101,17 +101,17 @@ namespace Renci.SshNet.Sftp
 
                     // Flush the write buffer, because it may
                     // affect the length of the stream.
-                    if (this._bufferOwnedByWrite)
+                    if (_bufferOwnedByWrite)
                     {
-                        this.FlushWriteBuffer();
+                        FlushWriteBuffer();
                     }
 
                     //  Update file attributes
-                    this._attributes = this._session.RequestFStat(this._handle);
+                    _attributes = _session.RequestFStat(_handle);
 
-                    if (this._attributes != null && this._attributes.Size > -1)
+                    if (_attributes != null && _attributes.Size > -1)
                     {
-                        return this._attributes.Size;
+                        return _attributes.Size;
                     }
                     throw new IOException("Seek operation failed.");
                 }
@@ -132,15 +132,15 @@ namespace Renci.SshNet.Sftp
         {
             get
             {
-                if (!this._canSeek)
+                if (!_canSeek)
                 {
                     throw new NotSupportedException("Seek operation not supported.");
                 }
-                return this._position;
+                return _position;
             }
             set
             {
-                this.Seek(value, SeekOrigin.Begin);
+                Seek(value, SeekOrigin.Begin);
             }
         }
 
@@ -154,7 +154,7 @@ namespace Renci.SshNet.Sftp
         {
             get
             {
-                return this._isAsync;
+                return _isAsync;
             }
         }
 
@@ -170,8 +170,8 @@ namespace Renci.SshNet.Sftp
         {
             get
             {
-                this.Flush();
-                return this._handle;
+                Flush();
+                return _handle;
             }
         }
 
@@ -225,21 +225,21 @@ namespace Renci.SshNet.Sftp
                 throw new ArgumentOutOfRangeException("mode");
             }
 
-            this.Timeout = TimeSpan.FromSeconds(30);
-            this.Name = path;
+            Timeout = TimeSpan.FromSeconds(30);
+            Name = path;
 
             // Initialize the object state.
-            this._session = session;
-            this._access = access;
-            this._ownsHandle = true;
-            this._isAsync = useAsync;
-            this._bufferPosition = 0;
-            this._bufferLen = 0;
-            this._bufferOwnedByWrite = false;
-            this._canSeek = true;
-            this._position = 0;
-            this._serverFilePosition = 0;
-            this._session.Disconnected += Session_Disconnected;
+            _session = session;
+            _access = access;
+            _ownsHandle = true;
+            _isAsync = useAsync;
+            _bufferPosition = 0;
+            _bufferLen = 0;
+            _bufferOwnedByWrite = false;
+            _canSeek = true;
+            _position = 0;
+            _serverFilePosition = 0;
+            _session.Disconnected += Session_Disconnected;
 
             var flags = Flags.None;
 
@@ -263,8 +263,8 @@ namespace Renci.SshNet.Sftp
                     flags |= Flags.Append;
                     break;
                 case FileMode.Create:
-                    this._handle = this._session.RequestOpen(path, flags | Flags.Truncate, true);
-                    if (this._handle == null)
+                    _handle = _session.RequestOpen(path, flags | Flags.Truncate, true);
+                    if (_handle == null)
                     {
                         flags |= Flags.CreateNew;
                     }
@@ -286,20 +286,20 @@ namespace Renci.SshNet.Sftp
                     break;
             }
 
-            if (this._handle == null)
-                this._handle = this._session.RequestOpen(path, flags);
+            if (_handle == null)
+                _handle = _session.RequestOpen(path, flags);
 
-            this._attributes = this._session.RequestFStat(this._handle);
+            _attributes = _session.RequestFStat(_handle);
 
-            this._readBufferSize = (int)session.CalculateOptimalReadLength((uint)bufferSize);
-            this._readBuffer = new byte[_readBufferSize];
-            this._writeBufferSize = (int)session.CalculateOptimalWriteLength((uint)bufferSize, _handle);
-            this._writeBuffer = new byte[_writeBufferSize];
+            _readBufferSize = (int)session.CalculateOptimalReadLength((uint)bufferSize);
+            _readBuffer = new byte[_readBufferSize];
+            _writeBufferSize = (int)session.CalculateOptimalWriteLength((uint)bufferSize, _handle);
+            _writeBuffer = new byte[_writeBufferSize];
 
             if (mode == FileMode.Append)
             {
-                this._position = this._attributes.Size;
-                this._serverFilePosition = (ulong)this._attributes.Size;
+                _position = _attributes.Size;
+                _serverFilePosition = (ulong)_attributes.Size;
             }
         }
 
@@ -309,7 +309,7 @@ namespace Renci.SshNet.Sftp
         /// </summary>
         ~SftpFileStream()
         {
-            this.Dispose(false);
+            Dispose(false);
         }
 
         /// <summary>
@@ -317,7 +317,7 @@ namespace Renci.SshNet.Sftp
         /// </summary>
         public override void Close()
         {
-            this.Dispose(true);
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
 
@@ -328,17 +328,17 @@ namespace Renci.SshNet.Sftp
         /// <exception cref="ObjectDisposedException">Stream is closed.</exception>
         public override void Flush()
         {
-            lock (this._lock)
+            lock (_lock)
             {
-                if (this._handle != null)
+                if (_handle != null)
                 {
-                    if (this._bufferOwnedByWrite)
+                    if (_bufferOwnedByWrite)
                     {
-                        this.FlushWriteBuffer();
+                        FlushWriteBuffer();
                     }
                     else
                     {
-                        this.FlushReadBuffer();
+                        FlushReadBuffer();
                     }
                 }
                 else
@@ -377,38 +377,38 @@ namespace Renci.SshNet.Sftp
                 throw new ArgumentException("Invalid array range.");
 
             // Lock down the file stream while we do this.
-            lock (this._lock)
+            lock (_lock)
             {
                 // Set up for the read operation.
-                this.SetupRead();
+                SetupRead();
 
                 // Read data into the caller's buffer.
                 while (count > 0)
                 {
                     // How much data do we have available in the buffer?
-                    var tempLen = this._bufferLen - this._bufferPosition;
+                    var tempLen = _bufferLen - _bufferPosition;
                     if (tempLen <= 0)
                     {
-                        this._bufferPosition = 0;
+                        _bufferPosition = 0;
 
-                        var data = this._session.RequestRead(this._handle, (ulong)this._position, (uint)this._readBufferSize);
+                        var data = _session.RequestRead(_handle, (ulong)_position, (uint)_readBufferSize);
 
-                        this._bufferLen = data.Length;
+                        _bufferLen = data.Length;
 
-                        Buffer.BlockCopy(data, 0, this._readBuffer, 0, this._bufferLen);
-                        this._serverFilePosition = (ulong)this._position;
+                        Buffer.BlockCopy(data, 0, _readBuffer, 0, _bufferLen);
+                        _serverFilePosition = (ulong)_position;
 
-                        if (this._bufferLen < 0)
+                        if (_bufferLen < 0)
                         {
-                            this._bufferLen = 0;
+                            _bufferLen = 0;
                             //  TODO:   Add SFTP error code or message if possible
                             throw new IOException("Read operation failed.");
                         }
-                        if (this._bufferLen == 0)
+                        if (_bufferLen == 0)
                         {
                             break;
                         }
-                        tempLen = this._bufferLen;
+                        tempLen = _bufferLen;
                     }
 
                     // Don't read more than the caller wants.
@@ -418,14 +418,14 @@ namespace Renci.SshNet.Sftp
                     }
 
                     // Copy stream data to the caller's buffer.
-                    Buffer.BlockCopy(this._readBuffer, this._bufferPosition, buffer, offset, tempLen);
+                    Buffer.BlockCopy(_readBuffer, _bufferPosition, buffer, offset, tempLen);
 
                     // Advance to the next buffer positions.
                     readLen += tempLen;
                     offset += tempLen;
                     count -= tempLen;
-                    this._bufferPosition += tempLen;
-                    this._position += tempLen;
+                    _bufferPosition += tempLen;
+                    _position += tempLen;
                 }
             }
 
@@ -445,29 +445,29 @@ namespace Renci.SshNet.Sftp
         public override int ReadByte()
         {
             // Lock down the file stream while we do this.
-            lock (this._lock)
+            lock (_lock)
             {
                 // Setup the object for reading.
-                this.SetupRead();
+                SetupRead();
 
                 // Read more data into the internal buffer if necessary.
-                if (this._bufferPosition >= this._bufferLen)
+                if (_bufferPosition >= _bufferLen)
                 {
-                    this._bufferPosition = 0;
+                    _bufferPosition = 0;
 
-                    var data = this._session.RequestRead(this._handle, (ulong)this._position, (uint)this._readBufferSize);
+                    var data = _session.RequestRead(_handle, (ulong)_position, (uint)_readBufferSize);
 
-                    this._bufferLen = data.Length;
-                    Buffer.BlockCopy(data, 0, this._readBuffer, 0, this._readBufferSize);
-                    this._serverFilePosition = (ulong)this._position;
+                    _bufferLen = data.Length;
+                    Buffer.BlockCopy(data, 0, _readBuffer, 0, _readBufferSize);
+                    _serverFilePosition = (ulong)_position;
 
-                    if (this._bufferLen < 0)
+                    if (_bufferLen < 0)
                     {
-                        this._bufferLen = 0;
+                        _bufferLen = 0;
                         //  TODO:   Add SFTP error code or message if possible
                         throw new IOException("Read operation failed.");
                     }
-                    if (this._bufferLen == 0)
+                    if (_bufferLen == 0)
                     {
                         // We've reached EOF.
                         return -1;
@@ -475,8 +475,8 @@ namespace Renci.SshNet.Sftp
                 }
 
                 // Extract the next byte from the buffer.
-                ++this._position;
-                return this._readBuffer[this._bufferPosition++];
+                ++_position;
+                return _readBuffer[_bufferPosition++];
             }
         }
 
@@ -496,37 +496,37 @@ namespace Renci.SshNet.Sftp
             long newPosn = -1;
 
             // Bail out if this stream is not capable of seeking.
-            if (!this._canSeek)
+            if (!_canSeek)
             {
                 throw new NotSupportedException("Seek is not supported.");
             }
 
             // Lock down the file stream while we do this.
-            lock (this._lock)
+            lock (_lock)
             {
                 // Bail out if the handle is invalid.
-                if (this._handle == null)
+                if (_handle == null)
                 {
                     throw new ObjectDisposedException("Stream is closed.");
                 }
 
                 // Don't do anything if the position won't be moving.
-                if (origin == SeekOrigin.Begin && offset == this._position)
+                if (origin == SeekOrigin.Begin && offset == _position)
                 {
                     return offset;
                 }
                 if (origin == SeekOrigin.Current && offset == 0)
                 {
-                    return this._position;
+                    return _position;
                 }
 
-                this._attributes = this._session.RequestFStat(this._handle);
+                _attributes = _session.RequestFStat(_handle);
 
                 // The behaviour depends upon the read/write mode.
-                if (this._bufferOwnedByWrite)
+                if (_bufferOwnedByWrite)
                 {
                     // Flush the write buffer and then seek.
-                    this.FlushWriteBuffer();
+                    FlushWriteBuffer();
 
                     switch (origin)
                     {
@@ -534,10 +534,10 @@ namespace Renci.SshNet.Sftp
                             newPosn = offset;
                             break;
                         case SeekOrigin.Current:
-                            newPosn = this._position + offset;
+                            newPosn = _position + offset;
                             break;
                         case SeekOrigin.End:
-                            newPosn = this._attributes.Size - offset;
+                            newPosn = _attributes.Size - offset;
                             break;
                     }
 
@@ -545,8 +545,8 @@ namespace Renci.SshNet.Sftp
                     {
                         throw new EndOfStreamException("End of stream.");
                     }
-                    this._position = newPosn;
-                    this._serverFilePosition = (ulong)newPosn;
+                    _position = newPosn;
+                    _serverFilePosition = (ulong)newPosn;
                 }
                 else
                 {
@@ -554,31 +554,31 @@ namespace Renci.SshNet.Sftp
                     // the current read buffer bounds.
                     if (origin == SeekOrigin.Begin)
                     {
-                        newPosn = this._position - this._bufferPosition;
+                        newPosn = _position - _bufferPosition;
                         if (offset >= newPosn && offset <
-                                (newPosn + this._bufferLen))
+                                (newPosn + _bufferLen))
                         {
-                            this._bufferPosition = (int)(offset - newPosn);
-                            this._position = offset;
-                            return this._position;
+                            _bufferPosition = (int)(offset - newPosn);
+                            _position = offset;
+                            return _position;
                         }
                     }
                     else if (origin == SeekOrigin.Current)
                     {
-                        newPosn = this._position + offset;
-                        if (newPosn >= (this._position - this._bufferPosition) &&
-                           newPosn < (this._position - this._bufferPosition + this._bufferLen))
+                        newPosn = _position + offset;
+                        if (newPosn >= (_position - _bufferPosition) &&
+                           newPosn < (_position - _bufferPosition + _bufferLen))
                         {
-                            this._bufferPosition =
-                                (int)(newPosn - (this._position - this._bufferPosition));
-                            this._position = newPosn;
-                            return this._position;
+                            _bufferPosition =
+                                (int)(newPosn - (_position - _bufferPosition));
+                            _position = newPosn;
+                            return _position;
                         }
                     }
 
                     // Abandon the read buffer.
-                    this._bufferPosition = 0;
-                    this._bufferLen = 0;
+                    _bufferPosition = 0;
+                    _bufferLen = 0;
 
                     // Seek to the new position.
                     switch (origin)
@@ -587,10 +587,10 @@ namespace Renci.SshNet.Sftp
                             newPosn = offset;
                             break;
                         case SeekOrigin.Current:
-                            newPosn = this._position + offset;
+                            newPosn = _position + offset;
                             break;
                         case SeekOrigin.End:
-                            newPosn = this._attributes.Size - offset;
+                            newPosn = _attributes.Size - offset;
                             break;
                     }
 
@@ -599,9 +599,9 @@ namespace Renci.SshNet.Sftp
                         throw new EndOfStreamException();
                     }
 
-                    this._position = newPosn;
+                    _position = newPosn;
                 }
-                return this._position;
+                return _position;
             }
         }
 
@@ -620,20 +620,20 @@ namespace Renci.SshNet.Sftp
             {
                 throw new ArgumentOutOfRangeException("value");
             }
-            if (!this._canSeek)
+            if (!_canSeek)
             {
                 throw new NotSupportedException("Seek is not supported.");
             }
 
             // Lock down the file stream while we do this.
-            lock (this._lock)
+            lock (_lock)
             {
                 // Setup this object for writing.
-                this.SetupWrite();
+                SetupWrite();
 
-                this._attributes.Size = value;
+                _attributes.Size = value;
 
-                this._session.RequestFSetStat(this._handle, this._attributes);
+                _session.RequestFSetStat(_handle, _attributes);
             }
         }
 
@@ -661,30 +661,30 @@ namespace Renci.SshNet.Sftp
                 throw new ArgumentException("Invalid array range.");
 
             // Lock down the file stream while we do this.
-            lock (this._lock)
+            lock (_lock)
             {
                 // Setup this object for writing.
-                this.SetupWrite();
+                SetupWrite();
 
                 // Write data to the file stream.
                 while (count > 0)
                 {
                     // Determine how many bytes we can write to the buffer.
-                    var tempLen = this._writeBufferSize - this._bufferPosition;
+                    var tempLen = _writeBufferSize - _bufferPosition;
                     if (tempLen <= 0)
                     {
-                        var data = new byte[this._bufferPosition];
+                        var data = new byte[_bufferPosition];
 
-                        Buffer.BlockCopy(this._writeBuffer, 0, data, 0, this._bufferPosition);
+                        Buffer.BlockCopy(_writeBuffer, 0, data, 0, _bufferPosition);
 
                         using (var wait = new AutoResetEvent(false))
                         {
-                            this._session.RequestWrite(this._handle, this._serverFilePosition, data, wait);
-                            this._serverFilePosition += (ulong)data.Length;
+                            _session.RequestWrite(_handle, _serverFilePosition, data, wait);
+                            _serverFilePosition += (ulong)data.Length;
                         }
 
-                        this._bufferPosition = 0;
-                        tempLen = this._writeBufferSize;
+                        _bufferPosition = 0;
+                        tempLen = _writeBufferSize;
                     }
                     if (tempLen > count)
                     {
@@ -692,7 +692,7 @@ namespace Renci.SshNet.Sftp
                     }
 
                     // Can we short-cut the internal buffer?
-                    if (this._bufferPosition == 0 && tempLen == this._writeBufferSize)
+                    if (_bufferPosition == 0 && tempLen == _writeBufferSize)
                     {
                         // Yes: write the data directly to the file.
                         var data = new byte[tempLen];
@@ -701,38 +701,38 @@ namespace Renci.SshNet.Sftp
 
                         using (var wait = new AutoResetEvent(false))
                         {
-                            this._session.RequestWrite(this._handle, this._serverFilePosition, data, wait);
-                            this._serverFilePosition += (ulong)data.Length;
+                            _session.RequestWrite(_handle, _serverFilePosition, data, wait);
+                            _serverFilePosition += (ulong)data.Length;
                         }
                     }
                     else
                     {
                         // No: copy the data to the write buffer first.
-                        Buffer.BlockCopy(buffer, offset, _writeBuffer, this._bufferPosition, tempLen);
-                        this._bufferPosition += tempLen;
+                        Buffer.BlockCopy(buffer, offset, _writeBuffer, _bufferPosition, tempLen);
+                        _bufferPosition += tempLen;
                     }
 
                     // Advance the buffer and stream positions.
-                    this._position += tempLen;
+                    _position += tempLen;
                     offset += tempLen;
                     count -= tempLen;
                 }
 
                 // If the buffer is full, then do a speculative flush now,
                 // rather than waiting for the next call to this method.
-                if (this._bufferPosition >= _writeBufferSize)
+                if (_bufferPosition >= _writeBufferSize)
                 {
-                    var data = new byte[this._bufferPosition];
+                    var data = new byte[_bufferPosition];
 
-                    Buffer.BlockCopy(this._writeBuffer, 0, data, 0, this._bufferPosition);
+                    Buffer.BlockCopy(_writeBuffer, 0, data, 0, _bufferPosition);
 
                     using (var wait = new AutoResetEvent(false))
                     {
-                        this._session.RequestWrite(this._handle, this._serverFilePosition, data, wait);
-                        this._serverFilePosition += (ulong)data.Length;
+                        _session.RequestWrite(_handle, _serverFilePosition, data, wait);
+                        _serverFilePosition += (ulong)data.Length;
                     }
 
-                    this._bufferPosition = 0;
+                    _bufferPosition = 0;
                 }
             }
         }
@@ -747,30 +747,30 @@ namespace Renci.SshNet.Sftp
         public override void WriteByte(byte value)
         {
             // Lock down the file stream while we do this.
-            lock (this._lock)
+            lock (_lock)
             {
                 // Setup the object for writing.
-                this.SetupWrite();
+                SetupWrite();
 
                 // Flush the current buffer if it is full.
-                if (this._bufferPosition >= this._writeBufferSize)
+                if (_bufferPosition >= _writeBufferSize)
                 {
-                    var data = new byte[this._bufferPosition];
+                    var data = new byte[_bufferPosition];
 
-                    Buffer.BlockCopy(this._writeBuffer, 0, data, 0, this._bufferPosition);
+                    Buffer.BlockCopy(_writeBuffer, 0, data, 0, _bufferPosition);
 
                     using (var wait = new AutoResetEvent(false))
                     {
-                        this._session.RequestWrite(this._handle, this._serverFilePosition, data, wait);
-                        this._serverFilePosition += (ulong)data.Length;
+                        _session.RequestWrite(_handle, _serverFilePosition, data, wait);
+                        _serverFilePosition += (ulong)data.Length;
                     }
 
-                    this._bufferPosition = 0;
+                    _bufferPosition = 0;
                 }
 
                 // Write the byte into the buffer and advance the posn.
-                _writeBuffer[this._bufferPosition++] = value;
-                ++this._position;
+                _writeBuffer[_bufferPosition++] = value;
+                ++_position;
             }
         }
 
@@ -782,29 +782,29 @@ namespace Renci.SshNet.Sftp
         {
             base.Dispose(disposing);
 
-            if (this._session != null)
+            if (_session != null)
             {
-                lock (this._lock)
+                lock (_lock)
                 {
-                    if (this._session != null)
+                    if (_session != null)
                     {
-                        if (this._handle != null)
+                        if (_handle != null)
                         {
-                            if (this._bufferOwnedByWrite)
+                            if (_bufferOwnedByWrite)
                             {
-                                this.FlushWriteBuffer();
+                                FlushWriteBuffer();
                             }
 
-                            if (this._ownsHandle)
+                            if (_ownsHandle)
                             {
-                                this._session.RequestClose(this._handle);
+                                _session.RequestClose(_handle);
                             }
 
-                            this._handle = null;
+                            _handle = null;
                         }
 
-                        this._session.Disconnected -= Session_Disconnected;
-                        this._session = null;
+                        _session.Disconnected -= Session_Disconnected;
+                        _session = null;
                     }
                 }
             }
@@ -815,14 +815,14 @@ namespace Renci.SshNet.Sftp
         /// </summary>
         private void FlushReadBuffer()
         {
-            if (this._canSeek)
+            if (_canSeek)
             {
-                if (this._bufferPosition < this._bufferLen)
+                if (_bufferPosition < _bufferLen)
                 {
-                    this._position -= this._bufferPosition;
+                    _position -= _bufferPosition;
                 }
-                this._bufferPosition = 0;
-                this._bufferLen = 0;
+                _bufferPosition = 0;
+                _bufferLen = 0;
             }
         }
 
@@ -831,19 +831,19 @@ namespace Renci.SshNet.Sftp
         /// </summary>
         private void FlushWriteBuffer()
         {
-            if (this._bufferPosition > 0)
+            if (_bufferPosition > 0)
             {
-                var data = new byte[this._bufferPosition];
+                var data = new byte[_bufferPosition];
 
-                Buffer.BlockCopy(this._writeBuffer, 0, data, 0, this._bufferPosition);
+                Buffer.BlockCopy(_writeBuffer, 0, data, 0, _bufferPosition);
 
                 using (var wait = new AutoResetEvent(false))
                 {
-                    this._session.RequestWrite(this._handle, this._serverFilePosition, data, wait);
-                    this._serverFilePosition += (ulong)data.Length;
+                    _session.RequestWrite(_handle, _serverFilePosition, data, wait);
+                    _serverFilePosition += (ulong)data.Length;
                 }
 
-                this._bufferPosition = 0;
+                _bufferPosition = 0;
             }
         }
 
@@ -852,18 +852,18 @@ namespace Renci.SshNet.Sftp
         /// </summary>
         private void SetupRead()
         {
-            if ((this._access & FileAccess.Read) == 0)
+            if ((_access & FileAccess.Read) == 0)
             {
                 throw new NotSupportedException("Read not supported.");
             }
-            if (this._handle == null)
+            if (_handle == null)
             {
                 throw new ObjectDisposedException("Stream is closed.");
             }
-            if (this._bufferOwnedByWrite)
+            if (_bufferOwnedByWrite)
             {
-                this.FlushWriteBuffer();
-                this._bufferOwnedByWrite = false;
+                FlushWriteBuffer();
+                _bufferOwnedByWrite = false;
             }
         }
 
@@ -872,27 +872,27 @@ namespace Renci.SshNet.Sftp
         /// </summary>
         private void SetupWrite()
         {
-            if ((this._access & FileAccess.Write) == 0)
+            if ((_access & FileAccess.Write) == 0)
             {
                 throw new NotSupportedException("Write not supported.");
             }
-            if (this._handle == null)
+            if (_handle == null)
             {
                 throw new ObjectDisposedException("Stream is closed.");
             }
-            if (!this._bufferOwnedByWrite)
+            if (!_bufferOwnedByWrite)
             {
-                this.FlushReadBuffer();
-                this._bufferOwnedByWrite = true;
+                FlushReadBuffer();
+                _bufferOwnedByWrite = true;
             }
         }
 
         private void Session_Disconnected(object sender, EventArgs e)
         {
-            lock (this._lock)
+            lock (_lock)
             {
-                this._session.Disconnected -= Session_Disconnected;
-                this._session = null;
+                _session.Disconnected -= Session_Disconnected;
+                _session = null;
             }
         }
     }

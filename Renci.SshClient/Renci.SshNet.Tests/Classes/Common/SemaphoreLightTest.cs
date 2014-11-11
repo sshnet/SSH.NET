@@ -1,57 +1,51 @@
-﻿using Renci.SshNet.Common;
+﻿using System.Threading;
+using Renci.SshNet.Common;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Common
 {
-    /// <summary>
-    ///This is a test class for SemaphoreLightTest and is intended
-    ///to contain all SemaphoreLightTest Unit Tests
-    ///</summary>
     [TestClass()]
     public class SemaphoreLightTest : TestBase
     {
-        /// <summary>
-        ///A test for SemaphoreLight Constructor
-        ///</summary>
         [TestMethod()]
         public void SemaphoreLightConstructorTest()
         {
-            int initialCount = 0; // TODO: Initialize to an appropriate value
-            SemaphoreLight target = new SemaphoreLight(initialCount);
-            Assert.Inconclusive("TODO: Implement code to verify target");
+            var initialCount = new Random().Next(1, 10);
+            var target = new SemaphoreLight(initialCount);
+            Assert.AreEqual(initialCount, target.CurrentCount);
+        }
+
+        [TestMethod()]
+        public void Release()
+        {
+            var initialCount = new Random().Next(1, 10);
+            var target = new SemaphoreLight(initialCount);
+
+            Assert.AreEqual(initialCount, target.Release());
+            Assert.AreEqual(initialCount + 1, target.CurrentCount);
+
+            Assert.AreEqual(initialCount + 1, target.Release());
+            Assert.AreEqual(initialCount + 2, target.CurrentCount);
         }
 
         /// <summary>
         ///A test for Release
         ///</summary>
         [TestMethod()]
-        public void ReleaseTest()
+        public void Release_ReleaseCount()
         {
-            int initialCount = 0; // TODO: Initialize to an appropriate value
-            SemaphoreLight target = new SemaphoreLight(initialCount); // TODO: Initialize to an appropriate value
-            int expected = 0; // TODO: Initialize to an appropriate value
-            int actual;
-            actual = target.Release();
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verify the correctness of this test method.");
-        }
+            var initialCount = new Random().Next(1, 10);
+            var target = new SemaphoreLight(initialCount);
 
-        /// <summary>
-        ///A test for Release
-        ///</summary>
-        [TestMethod()]
-        public void ReleaseTest1()
-        {
-            int initialCount = 0; // TODO: Initialize to an appropriate value
-            SemaphoreLight target = new SemaphoreLight(initialCount); // TODO: Initialize to an appropriate value
-            int releaseCount = 0; // TODO: Initialize to an appropriate value
-            int expected = 0; // TODO: Initialize to an appropriate value
-            int actual;
-            actual = target.Release(releaseCount);
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verify the correctness of this test method.");
+            var releaseCount1 = new Random().Next(1, 10);
+            Assert.AreEqual(initialCount, target.Release(releaseCount1));
+            Assert.AreEqual(initialCount + releaseCount1, target.CurrentCount);
+
+            var releaseCount2 = new Random().Next(1, 10);
+            Assert.AreEqual(initialCount + releaseCount1, target.Release(releaseCount2));
+            Assert.AreEqual(initialCount + releaseCount1 + releaseCount2, target.CurrentCount);
         }
 
         /// <summary>
@@ -60,23 +54,41 @@ namespace Renci.SshNet.Tests.Classes.Common
         [TestMethod()]
         public void WaitTest()
         {
-            int initialCount = 0; // TODO: Initialize to an appropriate value
-            SemaphoreLight target = new SemaphoreLight(initialCount); // TODO: Initialize to an appropriate value
+            const int sleepTime = 200; 
+            const int initialCount = 2;
+            var target = new SemaphoreLight(initialCount);
+
+            var start = DateTime.Now;
+
             target.Wait();
-            Assert.Inconclusive("A method that does not return a value cannot be verified.");
+            target.Wait();
+
+            Assert.IsTrue((DateTime.Now - start).TotalMilliseconds < 50);
+
+            var releaseThread = new Thread(
+                () =>
+                    {
+                        Thread.Sleep(sleepTime);
+                        target.Release();
+                    });
+            releaseThread.Start();
+
+            target.Wait();
+
+            var end = DateTime.Now;
+            var elapsed = end - start;
+
+            Assert.IsTrue(elapsed.TotalMilliseconds > 200);
+            Assert.IsTrue(elapsed.TotalMilliseconds < 250);
         }
 
-        /// <summary>
-        ///A test for CurrentCount
-        ///</summary>
         [TestMethod()]
         public void CurrentCountTest()
         {
-            int initialCount = 0; // TODO: Initialize to an appropriate value
-            SemaphoreLight target = new SemaphoreLight(initialCount); // TODO: Initialize to an appropriate value
-            int actual;
-            actual = target.CurrentCount;
-            Assert.Inconclusive("Verify the correctness of this test method.");
+            var initialCount = new Random().Next(1, 20);
+            var target = new SemaphoreLight(initialCount);
+
+            Assert.AreEqual(initialCount, target.CurrentCount);
         }
     }
 }

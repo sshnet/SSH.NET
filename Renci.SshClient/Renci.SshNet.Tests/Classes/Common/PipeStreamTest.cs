@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System.Threading;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Renci.SshNet.Common;
 using Renci.SshNet.Tests.Common;
 using System;
@@ -59,7 +60,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         /// <summary>
         ///A test for PipeStream Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
         public void PipeStreamConstructorTest()
         {
             PipeStream target = new PipeStream();
@@ -69,7 +70,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         /// <summary>
         ///A test for Flush
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
         public void FlushTest()
         {
             PipeStream target = new PipeStream(); // TODO: Initialize to an appropriate value
@@ -77,69 +78,98 @@ namespace Renci.SshNet.Tests.Classes.Common
             Assert.Inconclusive("A method that does not return a value cannot be verified.");
         }
 
-        /// <summary>
-        ///A test for Read
-        ///</summary>
-        [TestMethod()]
-        public void ReadTest()
+        [TestMethod]
+        public void Read()
         {
-            PipeStream target = new PipeStream(); // TODO: Initialize to an appropriate value
-            byte[] buffer = null; // TODO: Initialize to an appropriate value
-            int offset = 0; // TODO: Initialize to an appropriate value
-            int count = 0; // TODO: Initialize to an appropriate value
-            int expected = 0; // TODO: Initialize to an appropriate value
-            int actual;
-            actual = target.Read(buffer, offset, count);
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verify the correctness of this test method.");
+            const int sleepTime = 100;
+
+            var target = new PipeStream();
+            target.WriteByte(0x0a);
+            target.WriteByte(0x0d);
+            target.WriteByte(0x09);
+
+            var readBuffer = new byte[2];
+            var bytesRead = target.Read(readBuffer, 0, readBuffer.Length);
+            Assert.AreEqual(2, bytesRead);
+            Assert.AreEqual(0x0a, readBuffer[0]);
+            Assert.AreEqual(0x0d, readBuffer[1]);
+
+            var writeToStreamThread = new Thread(
+                () =>
+                    {
+                        Thread.Sleep(sleepTime);
+                        var writeBuffer = new byte[] {0x05, 0x03};
+                        target.Write(writeBuffer, 0, writeBuffer.Length);
+                    });
+            writeToStreamThread.Start();
+
+            readBuffer = new byte[2];
+            bytesRead = target.Read(readBuffer, 0, readBuffer.Length);
+            Assert.AreEqual(2, bytesRead);
+            Assert.AreEqual(0x09, readBuffer[0]);
+            Assert.AreEqual(0x05, readBuffer[1]);
         }
 
-        /// <summary>
-        ///A test for Seek
-        ///</summary>
-        [TestMethod()]
-        public void SeekTest()
+        [TestMethod]
+        public void SeekShouldThrowNotSupportedException()
         {
-            PipeStream target = new PipeStream(); // TODO: Initialize to an appropriate value
-            long offset = 0; // TODO: Initialize to an appropriate value
-            SeekOrigin origin = new SeekOrigin(); // TODO: Initialize to an appropriate value
-            long expected = 0; // TODO: Initialize to an appropriate value
-            long actual;
-            actual = target.Seek(offset, origin);
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verify the correctness of this test method.");
+            const long offset = 0;
+            const SeekOrigin origin = new SeekOrigin();
+            var target = new PipeStream();
+
+            try
+            {
+                target.Seek(offset, origin);
+                Assert.Fail();
+            }
+            catch (NotSupportedException)
+            {
+            }
+
         }
 
-        /// <summary>
-        ///A test for SetLength
-        ///</summary>
-        [TestMethod()]
-        public void SetLengthTest()
+        [TestMethod]
+        public void SetLengthShouldThrowNotSupportedException()
         {
-            PipeStream target = new PipeStream(); // TODO: Initialize to an appropriate value
-            long value = 0; // TODO: Initialize to an appropriate value
-            target.SetLength(value);
-            Assert.Inconclusive("A method that does not return a value cannot be verified.");
+            var target = new PipeStream();
+
+            try
+            {
+                target.SetLength(1);
+                Assert.Fail();
+            }
+            catch (NotSupportedException)
+            {
+            }
         }
 
-        /// <summary>
-        ///A test for Write
-        ///</summary>
-        [TestMethod()]
+        [TestMethod]
         public void WriteTest()
         {
-            PipeStream target = new PipeStream(); // TODO: Initialize to an appropriate value
-            byte[] buffer = null; // TODO: Initialize to an appropriate value
-            int offset = 0; // TODO: Initialize to an appropriate value
-            int count = 0; // TODO: Initialize to an appropriate value
-            target.Write(buffer, offset, count);
-            Assert.Inconclusive("A method that does not return a value cannot be verified.");
+            var target = new PipeStream();
+
+            var writeBuffer = new byte[] {0x0a, 0x05, 0x0d};
+            target.Write(writeBuffer, 0, 2);
+
+            writeBuffer = new byte[] { 0x02, 0x04, 0x03, 0x06, 0x09 };
+            target.Write(writeBuffer, 1, 2);
+
+            var readBuffer = new byte[6];
+            var bytesRead = target.Read(readBuffer, 0, 4);
+
+            Assert.AreEqual(4, bytesRead);
+            Assert.AreEqual(0x0a, readBuffer[0]);
+            Assert.AreEqual(0x05, readBuffer[1]);
+            Assert.AreEqual(0x04, readBuffer[2]);
+            Assert.AreEqual(0x03, readBuffer[3]);
+            Assert.AreEqual(0x00, readBuffer[4]);
+            Assert.AreEqual(0x00, readBuffer[5]);
         }
 
         /// <summary>
         ///A test for BlockLastReadBuffer
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
         public void BlockLastReadBufferTest()
         {
             PipeStream target = new PipeStream(); // TODO: Initialize to an appropriate value
@@ -151,46 +181,28 @@ namespace Renci.SshNet.Tests.Classes.Common
             Assert.Inconclusive("Verify the correctness of this test method.");
         }
 
-        /// <summary>
-        ///A test for CanRead
-        ///</summary>
-        [TestMethod()]
+        [TestMethod]
         public void CanReadTest()
         {
-            PipeStream target = new PipeStream(); // TODO: Initialize to an appropriate value
-            bool actual;
-            actual = target.CanRead;
-            Assert.Inconclusive("Verify the correctness of this test method.");
+            var target = new PipeStream();
+            Assert.IsTrue(target.CanRead);
         }
 
-        /// <summary>
-        ///A test for CanSeek
-        ///</summary>
-        [TestMethod()]
+        [TestMethod]
         public void CanSeekTest()
         {
-            PipeStream target = new PipeStream(); // TODO: Initialize to an appropriate value
-            bool actual;
-            actual = target.CanSeek;
-            Assert.Inconclusive("Verify the correctness of this test method.");
+            var target = new PipeStream(); // TODO: Initialize to an appropriate value
+            Assert.IsFalse(target.CanSeek);
         }
 
-        /// <summary>
-        ///A test for CanWrite
-        ///</summary>
-        [TestMethod()]
+        [TestMethod]
         public void CanWriteTest()
         {
-            PipeStream target = new PipeStream(); // TODO: Initialize to an appropriate value
-            bool actual;
-            actual = target.CanWrite;
-            Assert.Inconclusive("Verify the correctness of this test method.");
+            var target = new PipeStream();
+            Assert.IsTrue(target.CanWrite);
         }
 
-        /// <summary>
-        ///A test for Length
-        ///</summary>
-        [TestMethod()]
+        [TestMethod]
         public void LengthTest()
         {
             PipeStream target = new PipeStream(); // TODO: Initialize to an appropriate value
@@ -202,7 +214,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         /// <summary>
         ///A test for MaxBufferLength
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
         public void MaxBufferLengthTest()
         {
             PipeStream target = new PipeStream(); // TODO: Initialize to an appropriate value
@@ -214,20 +226,31 @@ namespace Renci.SshNet.Tests.Classes.Common
             Assert.Inconclusive("Verify the correctness of this test method.");
         }
 
-        /// <summary>
-        ///A test for Position
-        ///</summary>
-        [TestMethod()]
-        public void PositionTest()
+        [TestMethod]
+        public void Position_GetterAlwaysReturnsZero()
         {
-            PipeStream target = new PipeStream(); // TODO: Initialize to an appropriate value
-            long expected = 0; // TODO: Initialize to an appropriate value
-            long actual;
-            target.Position = expected;
-            actual = target.Position;
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verify the correctness of this test method.");
+            var target = new PipeStream();
+
+            Assert.AreEqual(0, target.Position);
+            target.WriteByte(0x0a);
+            Assert.AreEqual(0, target.Position);
+            target.ReadByte();
+            Assert.AreEqual(0, target.Position);
         }
 
+        [TestMethod]
+        public void Position_SetterAlwaysThrowsNotSupportedException()
+        {
+            var target = new PipeStream();
+
+            try
+            {
+                target.Position = 0;
+                Assert.Fail();
+            }
+            catch (NotSupportedException)
+            {
+            }
+        }
     }
 }

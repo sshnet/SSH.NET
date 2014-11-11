@@ -18,6 +18,7 @@ namespace Renci.SshNet.Tests.Classes
     {
         [TestMethod]
         [TestCategory("Authentication")]
+        [TestCategory("integration")]
         public void Test_Connect_Using_Correct_Password()
         {
             var host = Resources.HOST;
@@ -36,6 +37,7 @@ namespace Renci.SshNet.Tests.Classes
 
         [TestMethod]
         [TestCategory("Authentication")]
+        [TestCategory("integration")]
         public void Test_Connect_Handle_HostKeyReceived()
         {
             var host = Resources.HOST;
@@ -70,6 +72,7 @@ namespace Renci.SshNet.Tests.Classes
 
         [TestMethod]
         [TestCategory("Authentication")]
+        [TestCategory("integration")]
         public void Test_Connect_Timeout()
         {
             var host = Resources.HOST;
@@ -93,6 +96,7 @@ namespace Renci.SshNet.Tests.Classes
 
         [TestMethod]
         [TestCategory("Authentication")]
+        [TestCategory("integration")]
         public void Test_Connect_Handle_ErrorOccurred()
         {
             var host = Resources.HOST;
@@ -119,6 +123,7 @@ namespace Renci.SshNet.Tests.Classes
 
         [TestMethod]
         [TestCategory("Authentication")]
+        [TestCategory("integration")]
         [ExpectedException(typeof(SshAuthenticationException))]
         public void Test_Connect_Using_Invalid_Password()
         {
@@ -131,6 +136,7 @@ namespace Renci.SshNet.Tests.Classes
 
         [TestMethod]
         [TestCategory("Authentication")]
+        [TestCategory("integration")]
         public void Test_Connect_Using_Rsa_Key_Without_PassPhrase()
         {
             var host = Resources.HOST;
@@ -148,6 +154,7 @@ namespace Renci.SshNet.Tests.Classes
 
         [TestMethod]
         [TestCategory("Authentication")]
+        [TestCategory("integration")]
         public void Test_Connect_Using_RsaKey_With_PassPhrase()
         {
             var host = Resources.HOST;
@@ -166,6 +173,7 @@ namespace Renci.SshNet.Tests.Classes
 
         [TestMethod]
         [TestCategory("Authentication")]
+        [TestCategory("integration")]
         [ExpectedException(typeof(SshPassPhraseNullOrEmptyException))]
         public void Test_Connect_Using_Key_With_Empty_PassPhrase()
         {
@@ -179,6 +187,7 @@ namespace Renci.SshNet.Tests.Classes
 
         [TestMethod]
         [TestCategory("Authentication")]
+        [TestCategory("integration")]
         public void Test_Connect_Using_DsaKey_Without_PassPhrase()
         {
             MemoryStream keyFileStream = new MemoryStream(Encoding.ASCII.GetBytes(Resources.DSA_KEY_WITHOUT_PASS));
@@ -191,6 +200,7 @@ namespace Renci.SshNet.Tests.Classes
 
         [TestMethod]
         [TestCategory("Authentication")]
+        [TestCategory("integration")]
         public void Test_Connect_Using_DsaKey_With_PassPhrase()
         {
             MemoryStream keyFileStream = new MemoryStream(Encoding.ASCII.GetBytes(Resources.DSA_KEY_WITH_PASS));
@@ -203,6 +213,7 @@ namespace Renci.SshNet.Tests.Classes
 
         [TestMethod]
         [TestCategory("Authentication")]
+        [TestCategory("integration")]
         [ExpectedException(typeof(SshAuthenticationException))]
         public void Test_Connect_Using_Invalid_PrivateKey()
         {
@@ -216,6 +227,7 @@ namespace Renci.SshNet.Tests.Classes
 
         [TestMethod]
         [TestCategory("Authentication")]
+        [TestCategory("integration")]
         public void Test_Connect_Using_Multiple_PrivateKeys()
         {
             using (var client = new SshClient(Resources.HOST, Resources.USERNAME,
@@ -233,6 +245,7 @@ namespace Renci.SshNet.Tests.Classes
 
         [TestMethod]
         [TestCategory("Authentication")]
+        [TestCategory("integration")]
         public void Test_Connect_Then_Reconnect()
         {
             using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
@@ -243,10 +256,63 @@ namespace Renci.SshNet.Tests.Classes
                 client.Disconnect();
             }
         }
+
+        [TestMethod]
+        public void CreateShellStream1_NeverConnected()
+        {
+            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, "invalid password"))
+            {
+                const string terminalName = "vt100";
+                const uint columns = 80;
+                const uint rows = 25;
+                const uint width = 640;
+                const uint height = 480;
+                const int bufferSize = 4096;
+
+                try
+                {
+                    client.CreateShellStream(terminalName, columns, rows, width, height, bufferSize);
+                    Assert.Fail();
+                }
+                catch (SshConnectionException ex)
+                {
+                    Assert.IsNull(ex.InnerException);
+                    Assert.AreEqual("Client not connected.", ex.Message);
+                }
+            }
+        }
+
+        [TestMethod]
+        public void CreateShellStream2_NeverConnected()
+        {
+            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, "invalid password"))
+            {
+                const string terminalName = "vt100";
+                const uint columns = 80;
+                const uint rows = 25;
+                const uint width = 640;
+                const uint height = 480;
+                var terminalModes = new Dictionary<TerminalModes, uint>();
+                const int bufferSize = 4096;
+
+                try
+                {
+                    client.CreateShellStream(terminalName, columns, rows, width, height, bufferSize, terminalModes);
+                    Assert.Fail();
+                }
+                catch (SshConnectionException ex)
+                {
+                    Assert.IsNull(ex.InnerException);
+                    Assert.AreEqual("Client not connected.", ex.Message);
+                }
+            }
+        }
+
         /// <summary>
         ///A test for CreateShellStream
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void CreateShellStreamTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -268,7 +334,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for CreateShellStream
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void CreateShellStreamTest1()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -286,10 +353,216 @@ namespace Renci.SshNet.Tests.Classes
             Assert.Inconclusive("Verify the correctness of this test method.");
         }
 
+        [TestMethod]
+        public void CreateShell1_NeverConnected()
+        {
+            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, "invalid password"))
+            {
+                var encoding = Encoding.UTF8;
+                const string input = "INPUT";
+                var output = new MemoryStream();
+                var extendedOutput = new MemoryStream();
+
+
+                try
+                {
+                    client.CreateShell(encoding, input, output, extendedOutput);
+                    Assert.Fail();
+                }
+                catch (SshConnectionException ex)
+                {
+                    Assert.IsNull(ex.InnerException);
+                    Assert.AreEqual("Client not connected.", ex.Message);
+                }
+            }
+        }
+
+        [TestMethod]
+        public void CreateShell2_NeverConnected()
+        {
+            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, "invalid password"))
+            {
+                var encoding = Encoding.UTF8;
+                const string input = "INPUT";
+                var output = new MemoryStream();
+                var extendedOutput = new MemoryStream();
+                const string terminalName = "vt100";
+                const uint columns = 80;
+                const uint rows = 25;
+                const uint width = 640;
+                const uint height = 480;
+                var terminalModes = new Dictionary<TerminalModes, uint>();
+
+                try
+                {
+                    client.CreateShell(
+                        encoding,
+                        input,
+                        output,
+                        extendedOutput,
+                        terminalName,
+                        columns,
+                        rows,
+                        width,
+                        height,
+                        terminalModes);
+                    Assert.Fail();
+                }
+                catch (SshConnectionException ex)
+                {
+                    Assert.IsNull(ex.InnerException);
+                    Assert.AreEqual("Client not connected.", ex.Message);
+                }
+            }
+        }
+
+        [TestMethod]
+        public void CreateShell3_NeverConnected()
+        {
+            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, "invalid password"))
+            {
+                var encoding = Encoding.UTF8;
+                const string input = "INPUT";
+                var output = new MemoryStream();
+                var extendedOutput = new MemoryStream();
+                const string terminalName = "vt100";
+                const uint columns = 80;
+                const uint rows = 25;
+                const uint width = 640;
+                const uint height = 480;
+                var terminalModes = new Dictionary<TerminalModes, uint>();
+                const int bufferSize = 4096;
+
+                try
+                {
+
+                    client.CreateShell(
+                        encoding,
+                        input,
+                        output,
+                        extendedOutput,
+                        terminalName,
+                        columns,
+                        rows,
+                        width,
+                        height,
+                        terminalModes,
+                        bufferSize);
+                    Assert.Fail();
+                }
+                catch (SshConnectionException ex)
+                {
+                    Assert.IsNull(ex.InnerException);
+                    Assert.AreEqual("Client not connected.", ex.Message);
+                }
+            }
+        }
+
+        [TestMethod]
+        public void CreateShell4_NeverConnected()
+        {
+            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, "invalid password"))
+            {
+                var input = new MemoryStream();
+                var output = new MemoryStream();
+                var extendedOutput = new MemoryStream();
+
+                try
+                {
+
+                    client.CreateShell(input, output, extendedOutput);
+                    Assert.Fail();
+                }
+                catch (SshConnectionException ex)
+                {
+                    Assert.IsNull(ex.InnerException);
+                    Assert.AreEqual("Client not connected.", ex.Message);
+                }
+            }
+        }
+
+        [TestMethod]
+        public void CreateShell5_NeverConnected()
+        {
+            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, "invalid password"))
+            {
+                var input = new MemoryStream();
+                var output = new MemoryStream();
+                var extendedOutput = new MemoryStream();
+                const string terminalName = "vt100";
+                const uint columns = 80;
+                const uint rows = 25;
+                const uint width = 640;
+                const uint height = 480;
+                var terminalModes = new Dictionary<TerminalModes, uint>();
+
+                try
+                {
+                    client.CreateShell(
+                        input,
+                        output,
+                        extendedOutput,
+                        terminalName,
+                        columns,
+                        rows,
+                        width,
+                        height,
+                        terminalModes);
+                    Assert.Fail();
+                }
+                catch (SshConnectionException ex)
+                {
+                    Assert.IsNull(ex.InnerException);
+                    Assert.AreEqual("Client not connected.", ex.Message);
+                }
+            }
+        }
+
+        [TestMethod]
+        public void CreateShell6_NeverConnected()
+        {
+            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, "invalid password"))
+            {
+                var input = new MemoryStream();
+                var output = new MemoryStream();
+                var extendedOutput = new MemoryStream();
+                const string terminalName = "vt100";
+                const uint columns = 80;
+                const uint rows = 25;
+                const uint width = 640;
+                const uint height = 480;
+                var terminalModes = new Dictionary<TerminalModes, uint>();
+                const int bufferSize = 4096;
+
+                try
+                {
+
+                    client.CreateShell(
+                        input,
+                        output,
+                        extendedOutput,
+                        terminalName,
+                        columns,
+                        rows,
+                        width,
+                        height,
+                        terminalModes,
+                        bufferSize);
+                    Assert.Fail();
+                }
+                catch (SshConnectionException ex)
+                {
+                    Assert.IsNull(ex.InnerException);
+                    Assert.AreEqual("Client not connected.", ex.Message);
+                }
+            }
+        }
+
         /// <summary>
         ///A test for CreateShell
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void CreateShellTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -308,7 +581,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for CreateShell
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void CreateShellTest1()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -333,7 +607,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for CreateShell
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void CreateShellTest2()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -359,7 +634,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for CreateShell
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void CreateShellTest3()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -377,7 +653,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for CreateShell
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void CreateShellTest4()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -401,7 +678,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for CreateShell
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void CreateShellTest5()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -423,10 +701,47 @@ namespace Renci.SshNet.Tests.Classes
             Assert.Inconclusive("Verify the correctness of this test method.");
         }
 
+        [TestMethod]
+        public void CreateCommand_CommandText_NeverConnected()
+        {
+            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, "invalid password"))
+            {
+                try
+                {
+                    client.CreateCommand("ls");
+                    Assert.Fail();
+                }
+                catch (SshConnectionException ex)
+                {
+                    Assert.IsNull(ex.InnerException);
+                    Assert.AreEqual("Client not connected.", ex.Message);
+                }
+            }
+        }
+
+        [TestMethod]
+        public void CreateCommand_CommandTextAndEncoding_NeverConnected()
+        {
+            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, "invalid password"))
+            {
+                try
+                {
+                    client.CreateCommand("ls", Encoding.UTF8);
+                    Assert.Fail();
+                }
+                catch (SshConnectionException ex)
+                {
+                    Assert.IsNull(ex.InnerException);
+                    Assert.AreEqual("Client not connected.", ex.Message);
+                }
+            }
+        }
+
         /// <summary>
         ///A test for CreateCommand
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void CreateCommandTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -443,7 +758,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for CreateCommand
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void CreateCommandTest1()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -456,10 +772,33 @@ namespace Renci.SshNet.Tests.Classes
             Assert.Inconclusive("Verify the correctness of this test method.");
         }
 
+
+        [TestMethod]
+        public void AddForwardedPort_NeverConnected()
+        {
+            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, "invalid password"))
+            {
+                var port = new ForwardedPortLocal(50, "host", 8080);
+
+                try
+                {
+                    client.AddForwardedPort(port);
+                    Assert.Fail();
+                }
+                catch (SshConnectionException ex)
+                {
+                    Assert.IsNull(ex.InnerException);
+                    Assert.AreEqual("Client not connected.", ex.Message);
+                }
+            }
+        }
+
+
         /// <summary>
         ///A test for AddForwardedPort
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void AddForwardedPortTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -472,7 +811,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for SshClient Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void SshClientConstructorTest()
         {
             string host = string.Empty; // TODO: Initialize to an appropriate value
@@ -485,7 +825,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for SshClient Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void SshClientConstructorTest1()
         {
             string host = string.Empty; // TODO: Initialize to an appropriate value
@@ -499,7 +840,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for SshClient Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void SshClientConstructorTest2()
         {
             string host = string.Empty; // TODO: Initialize to an appropriate value
@@ -512,7 +854,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for SshClient Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void SshClientConstructorTest3()
         {
             string host = string.Empty; // TODO: Initialize to an appropriate value
@@ -526,7 +869,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for SshClient Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void SshClientConstructorTest4()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -537,7 +881,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for RemoveForwardedPort
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void RemoveForwardedPortTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -547,10 +892,29 @@ namespace Renci.SshNet.Tests.Classes
             Assert.Inconclusive("A method that does not return a value cannot be verified.");
         }
 
+        [TestMethod]
+        public void RunCommand_CommandText_NeverConnected()
+        {
+            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, "invalid password"))
+            {
+                try
+                {
+                    client.RunCommand("ls");
+                    Assert.Fail();
+                }
+                catch (SshConnectionException ex)
+                {
+                    Assert.IsNull(ex.InnerException);
+                    Assert.AreEqual("Client not connected.", ex.Message);
+                }
+            }
+        }
+
         /// <summary>
         ///A test for RunCommand
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void RunCommandTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -566,7 +930,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for ForwardedPorts
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void ForwardedPortsTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using Renci.SshNet.Channels;
 using Renci.SshNet.Messages.Connection;
@@ -8,14 +7,22 @@ namespace Renci.SshNet.Tests.Classes.Channels
 {
     internal class ChannelStub : Channel
     {
+        /// <summary>
+        /// Initializes a new <see cref="ChannelStub"/> instance.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="localChannelNumber">The local channel number.</param>
+        /// <param name="localWindowSize">Size of the window.</param>
+        /// <param name="localPacketSize">Size of the packet.</param>
+        public ChannelStub(ISession session, uint localChannelNumber, uint localWindowSize, uint localPacketSize)
+            : base(session, localChannelNumber, localWindowSize, localPacketSize)
+        {
+            OnErrorOccurredInvocations = new List<Exception>();
+        }
+
         public override ChannelTypes ChannelType
         {
             get { return ChannelTypes.X11; }
-        }
-
-        public ChannelStub()
-        {
-            OnErrorOccurredInvocations = new List<Exception>();
         }
 
         public IList<Exception> OnErrorOccurredInvocations { get; private set; }

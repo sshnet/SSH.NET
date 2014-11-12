@@ -10,13 +10,14 @@ namespace Renci.SshNet
     /// <summary>
     /// Base class for SSH subsystem implementations
     /// </summary>
-    internal abstract class SubsystemSession : IDisposable
+    internal abstract class SubsystemSession : ISubsystemSession, IDisposable
     {
-        private readonly ISession _session;
+        private ISession _session;
         private readonly string _subsystemName;
         private IChannelSession _channel;
         private Exception _exception;
         private EventWaitHandle _errorOccuredWaitHandle = new ManualResetEvent(false);
+        private EventWaitHandle _sessionDisconnectedWaitHandle = new ManualResetEvent(false);
         private EventWaitHandle _channelClosedWaitHandle = new ManualResetEvent(false);
 
         /// <summary>
@@ -30,7 +31,7 @@ namespace Renci.SshNet
         public event EventHandler<ExceptionEventArgs> ErrorOccurred;
 
         /// <summary>
-        /// Occurs when session has been disconnected form the server.
+        /// Occurs when the server has disconnected from the session.
         /// </summary>
         public event EventHandler<EventArgs> Disconnected;
 
@@ -42,7 +43,23 @@ namespace Renci.SshNet
         /// </value>
         internal IChannelSession Channel
         {
-            get { return _channel; }
+            get
+            {
+                EnsureNotDisposed();
+
+                return _channel;
+            }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether this session is open.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if this session is open; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsOpen
+        {
+            get { return _channel != null && _channel.IsOpen; }
         }
 
         /// <summary>
@@ -78,14 +95,27 @@ namespace Renci.SshNet
         /// </summary>
         public void Connect()
         {
-            _channel = _session.CreateChannelSession();
+            EnsureNotDisposed();
+
+            if (IsOpen)
+                throw new InvalidOperationException("The session is already connected.");
+
+            // reset waithandles in case we're reconnecting
+            _errorOccuredWaitHandle.Reset();
+            _sessionDisconnectedWaitHandle.Reset();
+            _sessionDisconnectedWaitHandle.Reset();
+            _channelClosedWaitHandle.Reset();
 
             _session.ErrorOccured += Session_ErrorOccured;
             _session.Disconnected += Session_Disconnected;
+
+            _channel = _session.CreateChannelSession();
             _channel.DataReceived += Channel_DataReceived;
+            _channel.Exception += Channel_Exception;
             _channel.Closed += Channel_Closed;
             _channel.Open();
             _channel.SendSubsystemRequest(_subsystemName);
+
             OnChannelOpen();
         }
 
@@ -94,8 +124,21 @@ namespace Renci.SshNet
         /// </summary>
         public void Disconnect()
         {
-            _channel.SendEof();
-            _channel.Close();
+            if (_session != null)
+            {
+                _session.ErrorOccured -= Session_ErrorOccured;
+                _session.Disconnected -= Session_Disconnected;
+            }
+
+            if (_channel != null)
+            {
+                _channel.DataReceived -= Channel_DataReceived;
+                _channel.Exception -= Channel_Exception;
+                _channel.Closed -= Channel_Closed;
+                _channel.Close();
+                _channel.Dispose();
+                _channel = null;
+            }
         }
 
         /// <summary>
@@ -104,6 +147,9 @@ namespace Renci.SshNet
         /// <param name="data">The data to be sent.</param>
         public void SendData(byte[] data)
         {
+            EnsureNotDisposed();
+            EnsureSessionIsOpen();
+
             _channel.SendData(data);
         }
 
@@ -130,12 +176,25 @@ namespace Renci.SshNet
             var errorOccuredWaitHandle = _errorOccuredWaitHandle;
             if (errorOccuredWaitHandle != null)
                 errorOccuredWaitHandle.Set();
+
             SignalErrorOccurred(error);
         }
 
         private void Channel_DataReceived(object sender, ChannelDataEventArgs e)
         {
-            OnDataReceived(e.DataTypeCode, e.Data);
+            try
+            {
+                OnDataReceived(e.DataTypeCode, e.Data);
+            }
+            catch (Exception ex)
+            {
+                RaiseError(ex);
+            }
+        }
+
+        private void Channel_Exception(object sender, ExceptionEventArgs e)
+        {
+            RaiseError(e.Exception);
         }
 
         private void Channel_Closed(object sender, ChannelEventArgs e)
@@ -150,6 +209,7 @@ namespace Renci.SshNet
             var waitHandles = new[]
                 {
                     _errorOccuredWaitHandle,
+                    _sessionDisconnectedWaitHandle,
                     _channelClosedWaitHandle,
                     waitHandle
                 };
@@ -159,6 +219,8 @@ namespace Renci.SshNet
                 case 0:
                     throw _exception;
                 case 1:
+                    throw new SshException("Connection was closed by the server.");
+                case 2:
                     throw new SshException("Channel was closed.");
                 case WaitHandle.WaitTimeout:
                     throw new SshOperationTimeoutException(string.Format(CultureInfo.CurrentCulture, "Operation has timed out."));
@@ -167,8 +229,11 @@ namespace Renci.SshNet
 
         private void Session_Disconnected(object sender, EventArgs e)
         {
+            var sessionDisconnectedWaitHandle = _sessionDisconnectedWaitHandle;
+            if (sessionDisconnectedWaitHandle != null)
+                sessionDisconnectedWaitHandle.Set();
+
             SignalDisconnected();
-            RaiseError(new SshException("Connection was lost"));
         }
 
         private void Session_ErrorOccured(object sender, ExceptionEventArgs e)
@@ -194,6 +259,12 @@ namespace Renci.SshNet
             }
         }
 
+        private void EnsureSessionIsOpen()
+        {
+            if (!IsOpen)
+                throw new InvalidOperationException("The session is not open.");
+        }
+
         #region IDisposable Members
 
         private bool _isDisposed;
@@ -216,26 +287,22 @@ namespace Renci.SshNet
             // Check to see if Dispose has already been called.
             if (!_isDisposed)
             {
-                if (_channel != null)
-                {
-                    _channel.DataReceived -= Channel_DataReceived;
-                    _channel.Closed -= Channel_Closed;
-                    _channel.Dispose();
-                    _channel = null;
-                }
-
-                _session.ErrorOccured -= Session_ErrorOccured;
-                _session.Disconnected -= Session_Disconnected;
-
-                // If disposing equals true, dispose all managed
-                // and unmanaged resources.
                 if (disposing)
                 {
-                    // Dispose managed resources.
+                    Disconnect();
+
+                    _session = null;
+
                     if (_errorOccuredWaitHandle != null)
                     {
                         _errorOccuredWaitHandle.Dispose();
                         _errorOccuredWaitHandle = null;
+                    }
+
+                    if (_sessionDisconnectedWaitHandle != null)
+                    {
+                        _sessionDisconnectedWaitHandle.Dispose();
+                        _sessionDisconnectedWaitHandle = null;
                     }
 
                     if (_channelClosedWaitHandle != null)
@@ -245,7 +312,6 @@ namespace Renci.SshNet
                     }
                 }
 
-                // Note disposing has been done.
                 _isDisposed = true;
             }
         }
@@ -259,6 +325,12 @@ namespace Renci.SshNet
             // Calling Dispose(false) is optimal in terms of
             // readability and maintainability.
             Dispose(false);
+        }
+
+        private void EnsureNotDisposed()
+        {
+            if (_isDisposed)
+                throw new ObjectDisposedException(GetType().FullName);
         }
 
         #endregion

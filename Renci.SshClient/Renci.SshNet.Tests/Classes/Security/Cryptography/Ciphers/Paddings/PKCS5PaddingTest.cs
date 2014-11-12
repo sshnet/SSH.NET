@@ -1,9 +1,8 @@
-﻿using Renci.SshNet.Security.Cryptography.Ciphers.Paddings;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Renci.SshNet.Security.Cryptography.Ciphers.Paddings;
 using Renci.SshNet.Tests.Common;
 
-namespace Renci.SshNet.Tests
+namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers.Paddings
 {
     /// <summary>
     ///This is a test class for PKCS5PaddingTest and is intended
@@ -15,7 +14,8 @@ namespace Renci.SshNet.Tests
         /// <summary>
         ///A test for Pad
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void PadTest()
         {
             PKCS5Padding target = new PKCS5Padding(); // TODO: Initialize to an appropriate value

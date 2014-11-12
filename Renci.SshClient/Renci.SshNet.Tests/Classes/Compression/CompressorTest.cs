@@ -10,7 +10,8 @@ namespace Renci.SshNet.Tests.Classes.Compression
     ///This is a test class for CompressorTest and is intended
     ///to contain all CompressorTest Unit Tests
     ///</summary>
-    [TestClass()]
+    [TestClass]
+    [Ignore] // placeholders only
     public class CompressorTest : TestBase
     {
         internal virtual Compressor CreateCompressor()

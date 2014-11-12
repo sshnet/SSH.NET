@@ -1,9 +1,8 @@
-﻿using Renci.SshNet.Security;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Renci.SshNet.Security;
 using Renci.SshNet.Tests.Common;
 
-namespace Renci.SshNet.Tests
+namespace Renci.SshNet.Tests.Classes.Security
 {
     /// <summary>
     ///This is a test class for AlgorithmTest and is intended
@@ -22,7 +21,8 @@ namespace Renci.SshNet.Tests
         /// <summary>
         ///A test for Name
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void NameTest()
         {
             Algorithm target = CreateAlgorithm(); // TODO: Initialize to an appropriate value

@@ -8,6 +8,7 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
     /// Represents SSH_MSG_CHANNEL_REQUEST message.
     /// </summary>
     [TestClass]
+    [Ignore] // placeholders only
     public class ChannelRequestMessageTest : TestBase
     {
         /// <summary>

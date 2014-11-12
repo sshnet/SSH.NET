@@ -19,6 +19,7 @@ namespace Renci.SshNet.Tests.Classes
         [WorkItem(713)]
         [Owner("Kenneth_aa")]
         [TestCategory("PortForwarding")]
+        [TestCategory("integration")]
         [Description("Test if calling Stop on ForwardedPortLocal instance causes wait.")]
         public void Test_PortForwarding_Local_Stop_Hangs_On_Wait()
         {
@@ -163,7 +164,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for ForwardedPortRemote Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [TestCategory("integration")]
         public void Test_ForwardedPortRemote()
         {
             using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))

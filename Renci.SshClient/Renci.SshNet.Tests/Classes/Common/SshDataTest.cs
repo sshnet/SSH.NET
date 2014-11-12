@@ -10,6 +10,7 @@ namespace Renci.SshNet.Tests.Classes.Common
     ///to contain all SshDataTest Unit Tests
     ///</summary>
     [TestClass()]
+    [Ignore] // placeholder for actual test
     public class SshDataTest : TestBase
     {
         internal virtual SshData CreateSshData()

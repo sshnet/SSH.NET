@@ -15,6 +15,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
     public class HMacTest : TestBase
     {
         [TestMethod]
+        [TestCategory("integration")]
         public void Test_HMac_MD5_Connection()
         {
             var connectionInfo = new PasswordConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD);
@@ -29,6 +30,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
         }
 
         [TestMethod]
+        [TestCategory("integration")]
         public void Test_HMac_Sha1_Connection()
         {
             var connectionInfo = new PasswordConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD);
@@ -43,6 +45,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
         }
 
         [TestMethod]
+        [TestCategory("integration")]
         public void Test_HMac_MD5_96_Connection()
         {
             var connectionInfo = new PasswordConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD);
@@ -57,6 +60,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
         }
 
         [TestMethod]
+        [TestCategory("integration")]
         public void Test_HMac_Sha1_96_Connection()
         {
             var connectionInfo = new PasswordConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD);
@@ -71,6 +75,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
         }
 
         [TestMethod]
+        [TestCategory("integration")]
         public void Test_HMac_Sha256_Connection()
         {
             var connectionInfo = new PasswordConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD);
@@ -85,6 +90,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
         }
 
         [TestMethod]
+        [TestCategory("integration")]
         public void Test_HMac_Sha256_96_Connection()
         {
             var connectionInfo = new PasswordConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD);
@@ -99,6 +105,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
         }
 
         [TestMethod]
+        [TestCategory("integration")]
         public void Test_HMac_RIPEMD160_Connection()
         {
             var connectionInfo = new PasswordConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD);
@@ -113,6 +120,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
         }
 
         [TestMethod]
+        [TestCategory("integration")]
         public void Test_HMac_RIPEMD160_OPENSSH_Connection()
         {
             var connectionInfo = new PasswordConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD);

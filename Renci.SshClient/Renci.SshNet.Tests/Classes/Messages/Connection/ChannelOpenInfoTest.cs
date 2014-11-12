@@ -9,7 +9,8 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
     ///This is a test class for ChannelOpenInfoTest and is intended
     ///to contain all ChannelOpenInfoTest Unit Tests
     ///</summary>
-    [TestClass()]
+    [TestClass]
+    [Ignore] // placeholders only
     public class ChannelOpenInfoTest : TestBase
     {
         internal virtual ChannelOpenInfo CreateChannelOpenInfo()

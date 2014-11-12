@@ -15,7 +15,8 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
         /// <summary>
         ///A test for RsaDigitalSignature Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void RsaDigitalSignatureConstructorTest()
         {
             RsaKey rsaKey = null; // TODO: Initialize to an appropriate value
@@ -26,7 +27,8 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
         /// <summary>
         ///A test for Dispose
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void DisposeTest()
         {
             RsaKey rsaKey = null; // TODO: Initialize to an appropriate value

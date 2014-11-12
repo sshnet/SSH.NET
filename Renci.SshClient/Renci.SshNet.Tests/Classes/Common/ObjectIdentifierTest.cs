@@ -10,6 +10,7 @@ namespace Renci.SshNet.Tests.Classes.Common
     ///to contain all ObjectIdentifierTest Unit Tests
     ///</summary>
     [TestClass()]
+    [Ignore] // placeholder for actual test
     public class ObjectIdentifierTest : TestBase
     {
         /// <summary>

@@ -1,10 +1,9 @@
-﻿using Renci.SshNet.Security;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Renci.SshNet.Common;
+using Renci.SshNet.Security;
 using Renci.SshNet.Tests.Common;
 
-namespace Renci.SshNet.Tests
+namespace Renci.SshNet.Tests.Classes.Security
 {
     /// <summary>
     ///This is a test class for KeyTest and is intended
@@ -23,7 +22,8 @@ namespace Renci.SshNet.Tests
         /// <summary>
         ///A test for Sign
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void SignTest()
         {
             Key target = CreateKey(); // TODO: Initialize to an appropriate value
@@ -38,7 +38,8 @@ namespace Renci.SshNet.Tests
         /// <summary>
         ///A test for VerifySignature
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void VerifySignatureTest()
         {
             Key target = CreateKey(); // TODO: Initialize to an appropriate value
@@ -54,7 +55,8 @@ namespace Renci.SshNet.Tests
         /// <summary>
         ///A test for KeyLength
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void KeyLengthTest()
         {
             Key target = CreateKey(); // TODO: Initialize to an appropriate value
@@ -66,7 +68,8 @@ namespace Renci.SshNet.Tests
         /// <summary>
         ///A test for Public
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void PublicTest()
         {
             Key target = CreateKey(); // TODO: Initialize to an appropriate value

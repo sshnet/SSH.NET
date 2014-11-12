@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System.Globalization;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Renci.SshNet.Tests.Common;
 using System;
 
@@ -30,23 +31,29 @@ namespace Renci.SshNet.Tests.Classes
             new NoneAuthenticationMethod(string.Empty);
         }
 
-        /// <summary>
-        ///A test for Name
-        ///</summary>
-        [TestMethod()]
-        public void NameTest()
+        [TestMethod]
+        public void Name()
         {
-            string username = string.Empty; // TODO: Initialize to an appropriate value
-            NoneAuthenticationMethod target = new NoneAuthenticationMethod(username); // TODO: Initialize to an appropriate value
-            string actual;
-            actual = target.Name;
-            Assert.Inconclusive("Verify the correctness of this test method.");
+            var username = new Random().Next().ToString(CultureInfo.InvariantCulture);
+            var target = new NoneAuthenticationMethod(username);
+
+            Assert.AreEqual("none", target.Name);
+        }
+
+        [TestMethod]
+        public void Username()
+        {
+            var username = new Random().Next().ToString(CultureInfo.InvariantCulture);
+            var target = new NoneAuthenticationMethod(username);
+
+            Assert.AreSame(username, target.Username);
         }
 
         /// <summary>
         ///A test for Dispose
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void DisposeTest()
         {
             string username = string.Empty; // TODO: Initialize to an appropriate value
@@ -58,7 +65,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for Authenticate
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void AuthenticateTest()
         {
             string username = string.Empty; // TODO: Initialize to an appropriate value
@@ -74,7 +82,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for NoneAuthenticationMethod Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void NoneAuthenticationMethodConstructorTest()
         {
             string username = string.Empty; // TODO: Initialize to an appropriate value

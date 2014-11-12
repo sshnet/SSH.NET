@@ -14,6 +14,7 @@ namespace Renci.SshNet.Tests.Classes
     {
         [TestMethod]
         [TestCategory("KeyboardInteractiveConnectionInfo")]
+        [TestCategory("integration")]
         public void Test_KeyboardInteractiveConnectionInfo()
         {
             var host = Resources.HOST;
@@ -48,7 +49,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for Dispose
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void DisposeTest()
         {
             string host = string.Empty; // TODO: Initialize to an appropriate value
@@ -61,7 +63,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for KeyboardInteractiveConnectionInfo Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void KeyboardInteractiveConnectionInfoConstructorTest()
         {
             string host = string.Empty; // TODO: Initialize to an appropriate value
@@ -79,7 +82,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for KeyboardInteractiveConnectionInfo Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void KeyboardInteractiveConnectionInfoConstructorTest1()
         {
             string host = string.Empty; // TODO: Initialize to an appropriate value
@@ -96,7 +100,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for KeyboardInteractiveConnectionInfo Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void KeyboardInteractiveConnectionInfoConstructorTest2()
         {
             string host = string.Empty; // TODO: Initialize to an appropriate value
@@ -112,7 +117,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for KeyboardInteractiveConnectionInfo Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void KeyboardInteractiveConnectionInfoConstructorTest3()
         {
             string host = string.Empty; // TODO: Initialize to an appropriate value
@@ -127,7 +133,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for KeyboardInteractiveConnectionInfo Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void KeyboardInteractiveConnectionInfoConstructorTest4()
         {
             string host = string.Empty; // TODO: Initialize to an appropriate value
@@ -144,7 +151,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for KeyboardInteractiveConnectionInfo Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void KeyboardInteractiveConnectionInfoConstructorTest5()
         {
             string host = string.Empty; // TODO: Initialize to an appropriate value
@@ -160,7 +168,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for KeyboardInteractiveConnectionInfo Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void KeyboardInteractiveConnectionInfoConstructorTest6()
         {
             string host = string.Empty; // TODO: Initialize to an appropriate value
@@ -173,7 +182,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for KeyboardInteractiveConnectionInfo Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void KeyboardInteractiveConnectionInfoConstructorTest7()
         {
             string host = string.Empty; // TODO: Initialize to an appropriate value

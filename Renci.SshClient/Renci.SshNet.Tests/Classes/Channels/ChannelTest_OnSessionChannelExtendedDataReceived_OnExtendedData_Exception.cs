@@ -36,10 +36,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
 
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);
 
-            _sessionMock.Setup(p => p.NextChannelNumber).Returns(_localChannelNumber);
-
-            _channel = new ChannelStub();
-            _channel.Initialize(_sessionMock.Object, _localWindowSize, _localPacketSize);
+            _channel = new ChannelStub(_sessionMock.Object, _localChannelNumber, _localWindowSize, _localPacketSize);
             _channel.Exception += (sender, args) => _channelExceptionRegister.Add(args);
             _channel.OnExtendedDataException = _onExtendedDataException;
         }

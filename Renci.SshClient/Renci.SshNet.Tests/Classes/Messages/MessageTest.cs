@@ -9,7 +9,8 @@ namespace Renci.SshNet.Tests.Classes.Messages
     ///This is a test class for MessageTest and is intended
     ///to contain all MessageTest Unit Tests
     ///</summary>
-    [TestClass()]
+    [TestClass]
+    [Ignore] // placeholders only
     public class MessageTest : TestBase
     {
         internal virtual Message CreateMessage()

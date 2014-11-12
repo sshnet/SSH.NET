@@ -48,6 +48,21 @@
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="ChannelOpenFailureMessage"/> class.
+        /// </summary>
+        /// <param name="localChannelNumber">The local channel number.</param>
+        /// <param name="description">The description.</param>
+        /// <param name="reasonCode">The reason code.</param>
+        /// <param name="language">The language (RFC3066).</param>
+        public ChannelOpenFailureMessage(uint localChannelNumber, string description, uint reasonCode, string language)
+        {
+            LocalChannelNumber = localChannelNumber;
+            Description = description;
+            ReasonCode = reasonCode;
+            Language = language;
+        }
+
+        /// <summary>
         /// Called when type specific data need to be loaded.
         /// </summary>
         protected override void LoadData()

@@ -38,10 +38,10 @@ namespace Renci.SshNet.Tests.Classes.Channels
             _channelClosedRegister = new List<ChannelEventArgs>();
 
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);
-            _sessionMock.Setup(p => p.NextChannelNumber).Returns(_localChannelNumber);
+
             _sessionMock.Setup(p => p.IsConnected).Returns(true);
 
-            _channel = new ChannelStub();
+            _channel = new ChannelStub(_sessionMock.Object, _localChannelNumber, _localWindowSize, _localPacketSize);
             _channel.Closed += (sender, args) =>
                 {
                     lock (this)
@@ -49,7 +49,6 @@ namespace Renci.SshNet.Tests.Classes.Channels
                         _channelClosedRegister.Add(args);
                     }
                 };
-            _channel.Initialize(_sessionMock.Object, _localWindowSize, _localPacketSize);
             _channel.InitializeRemoteChannelInfo(_remoteChannelNumber, _remoteWindowSize, _remotePacketSize);
             _channel.SetIsOpen(true);
         }

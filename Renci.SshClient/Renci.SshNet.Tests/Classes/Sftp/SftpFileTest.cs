@@ -126,7 +126,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         /// <summary>
         ///A test for Delete
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void DeleteTest()
         {
             SftpSession sftpSession = null; // TODO: Initialize to an appropriate value
@@ -140,7 +141,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         /// <summary>
         ///A test for MoveTo
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void MoveToTest()
         {
             SftpSession sftpSession = null; // TODO: Initialize to an appropriate value
@@ -155,7 +157,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         /// <summary>
         ///A test for SetPermissions
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void SetPermissionsTest()
         {
             SftpSession sftpSession = null; // TODO: Initialize to an appropriate value
@@ -170,7 +173,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         /// <summary>
         ///A test for ToString
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void ToStringTest()
         {
             SftpSession sftpSession = null; // TODO: Initialize to an appropriate value
@@ -187,7 +191,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         /// <summary>
         ///A test for UpdateStatus
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void UpdateStatusTest()
         {
             SftpSession sftpSession = null; // TODO: Initialize to an appropriate value
@@ -201,7 +206,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         /// <summary>
         ///A test for GroupCanExecute
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void GroupCanExecuteTest()
         {
             SftpSession sftpSession = null; // TODO: Initialize to an appropriate value
@@ -219,7 +225,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         /// <summary>
         ///A test for GroupCanRead
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void GroupCanReadTest()
         {
             SftpSession sftpSession = null; // TODO: Initialize to an appropriate value
@@ -237,7 +244,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         /// <summary>
         ///A test for GroupCanWrite
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void GroupCanWriteTest()
         {
             SftpSession sftpSession = null; // TODO: Initialize to an appropriate value
@@ -255,7 +263,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         /// <summary>
         ///A test for GroupId
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void GroupIdTest()
         {
             SftpSession sftpSession = null; // TODO: Initialize to an appropriate value
@@ -273,7 +282,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         /// <summary>
         ///A test for IsBlockDevice
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void IsBlockDeviceTest()
         {
             SftpSession sftpSession = null; // TODO: Initialize to an appropriate value
@@ -288,7 +298,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         /// <summary>
         ///A test for IsCharacterDevice
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void IsCharacterDeviceTest()
         {
             SftpSession sftpSession = null; // TODO: Initialize to an appropriate value
@@ -303,7 +314,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         /// <summary>
         ///A test for IsDirectory
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void IsDirectoryTest()
         {
             SftpSession sftpSession = null; // TODO: Initialize to an appropriate value
@@ -318,7 +330,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         /// <summary>
         ///A test for IsNamedPipe
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void IsNamedPipeTest()
         {
             SftpSession sftpSession = null; // TODO: Initialize to an appropriate value
@@ -333,7 +346,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         /// <summary>
         ///A test for IsRegularFile
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void IsRegularFileTest()
         {
             SftpSession sftpSession = null; // TODO: Initialize to an appropriate value
@@ -348,7 +362,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         /// <summary>
         ///A test for IsSocket
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void IsSocketTest()
         {
             SftpSession sftpSession = null; // TODO: Initialize to an appropriate value
@@ -363,7 +378,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         /// <summary>
         ///A test for IsSymbolicLink
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void IsSymbolicLinkTest()
         {
             SftpSession sftpSession = null; // TODO: Initialize to an appropriate value
@@ -378,7 +394,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         /// <summary>
         ///A test for LastAccessTime
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void LastAccessTimeTest()
         {
             SftpSession sftpSession = null; // TODO: Initialize to an appropriate value
@@ -396,7 +413,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         /// <summary>
         ///A test for LastAccessTimeUtc
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void LastAccessTimeUtcTest()
         {
             SftpSession sftpSession = null; // TODO: Initialize to an appropriate value
@@ -414,7 +432,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         /// <summary>
         ///A test for LastWriteTime
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void LastWriteTimeTest()
         {
             SftpSession sftpSession = null; // TODO: Initialize to an appropriate value
@@ -432,7 +451,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         /// <summary>
         ///A test for LastWriteTimeUtc
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void LastWriteTimeUtcTest()
         {
             SftpSession sftpSession = null; // TODO: Initialize to an appropriate value
@@ -450,7 +470,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         /// <summary>
         ///A test for Length
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void LengthTest()
         {
             SftpSession sftpSession = null; // TODO: Initialize to an appropriate value
@@ -465,7 +486,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         /// <summary>
         ///A test for OthersCanExecute
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void OthersCanExecuteTest()
         {
             SftpSession sftpSession = null; // TODO: Initialize to an appropriate value
@@ -483,7 +505,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         /// <summary>
         ///A test for OthersCanRead
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void OthersCanReadTest()
         {
             SftpSession sftpSession = null; // TODO: Initialize to an appropriate value
@@ -501,7 +524,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         /// <summary>
         ///A test for OthersCanWrite
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void OthersCanWriteTest()
         {
             SftpSession sftpSession = null; // TODO: Initialize to an appropriate value
@@ -519,7 +543,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         /// <summary>
         ///A test for OwnerCanExecute
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void OwnerCanExecuteTest()
         {
             SftpSession sftpSession = null; // TODO: Initialize to an appropriate value
@@ -537,7 +562,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         /// <summary>
         ///A test for OwnerCanRead
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void OwnerCanReadTest()
         {
             SftpSession sftpSession = null; // TODO: Initialize to an appropriate value
@@ -555,7 +581,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         /// <summary>
         ///A test for OwnerCanWrite
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void OwnerCanWriteTest()
         {
             SftpSession sftpSession = null; // TODO: Initialize to an appropriate value
@@ -573,7 +600,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         /// <summary>
         ///A test for UserId
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void UserIdTest()
         {
             SftpSession sftpSession = null; // TODO: Initialize to an appropriate value

@@ -33,7 +33,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for Name
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void NameTest()
         {
             string username = string.Empty; // TODO: Initialize to an appropriate value
@@ -46,7 +47,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for Dispose
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void DisposeTest()
         {
             string username = string.Empty; // TODO: Initialize to an appropriate value
@@ -58,7 +60,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for Authenticate
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void AuthenticateTest()
         {
             string username = string.Empty; // TODO: Initialize to an appropriate value
@@ -74,7 +77,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for KeyboardInteractiveAuthenticationMethod Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void KeyboardInteractiveAuthenticationMethodConstructorTest()
         {
             string username = string.Empty; // TODO: Initialize to an appropriate value

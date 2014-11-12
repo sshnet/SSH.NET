@@ -153,6 +153,8 @@ namespace Renci.SshNet.Tests.Classes
 
                 sftp.Disconnect();
             }
+
+            RemoveAllFiles();
         }
 
         [TestMethod]
@@ -220,6 +222,8 @@ namespace Renci.SshNet.Tests.Classes
 
                 sftp.Disconnect();
             }
+
+            RemoveAllFiles();
         }
 
         [TestMethod]

@@ -17,6 +17,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         [Description("Test passing null to AddForwardedPort hosts (remote).")]
         [ExpectedException(typeof(ArgumentNullException))]
+        [TestCategory("integration")]
         public void Test_AddForwardedPort_Remote_Hosts_Are_Null()
         {
             using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
@@ -31,6 +32,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         [Description("Test passing invalid port numbers to AddForwardedPort.")]
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        [TestCategory("integration")]
         public void Test_AddForwardedPort_Invalid_PortNumber()
         {
             using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
@@ -45,7 +47,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for ForwardedPortRemote Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [TestCategory("integration")]
         public void Test_ForwardedPortRemote()
         {
             using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
@@ -72,7 +75,7 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for Stop
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
         public void StopTest()
         {
             uint boundPort = 0; // TODO: Initialize to an appropriate value
@@ -83,24 +86,30 @@ namespace Renci.SshNet.Tests.Classes
             Assert.Inconclusive("A method that does not return a value cannot be verified.");
         }
 
-        /// <summary>
-        ///A test for Start
-        ///</summary>
-        [TestMethod()]
-        public void StartTest()
+        [TestMethod]
+        public void Start_NotAddedToClient()
         {
-            uint boundPort = 0; // TODO: Initialize to an appropriate value
-            string host = string.Empty; // TODO: Initialize to an appropriate value
-            uint port = 0; // TODO: Initialize to an appropriate value
-            ForwardedPortRemote target = new ForwardedPortRemote(boundPort, host, port); // TODO: Initialize to an appropriate value
-            target.Start();
-            Assert.Inconclusive("A method that does not return a value cannot be verified.");
+            const int boundPort = 80;
+            string host = string.Empty;
+            const uint port = 22;
+            var target = new ForwardedPortRemote(boundPort, host, port);
+
+            try
+            {
+                target.Start();
+                Assert.Fail();
+            }
+            catch (InvalidOperationException ex)
+            {
+                Assert.IsNull(ex.InnerException);
+                Assert.AreEqual("Forwarded port is not added to a client.", ex.Message);
+            }
         }
 
         /// <summary>
         ///A test for Dispose
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
         public void DisposeTest()
         {
             uint boundPort = 0; // TODO: Initialize to an appropriate value
@@ -114,7 +123,7 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for ForwardedPortRemote Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
         public void ForwardedPortRemoteConstructorTest()
         {
             string boundHost = string.Empty; // TODO: Initialize to an appropriate value
@@ -128,7 +137,7 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for ForwardedPortRemote Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
         public void ForwardedPortRemoteConstructorTest1()
         {
             uint boundPort = 0; // TODO: Initialize to an appropriate value

@@ -14,15 +14,15 @@ using Renci.SshNet.Tests.Common;
 namespace Renci.SshNet.Tests.Classes.Channels
 {
     [TestClass]
-    public partial class ChannelDirectTcpipTestTest : TestBase
+    public class ChannelDirectTcpipTestTest : TestBase
     {
         private Mock<ISession> _sessionMock;
         private Mock<IForwardedPort> _forwardedPortMock;
+        private uint _localChannelNumber;
         private uint _localWindowSize;
         private uint _localPacketSize;
         private string _remoteHost;
         private uint _port;
-        private uint _localChannelNumber;
         private uint _remoteWindowSize;
         private uint _remotePacketSize;
         private uint _remoteChannelNumber;
@@ -49,7 +49,6 @@ namespace Renci.SshNet.Tests.Classes.Channels
         [TestMethod]
         public void SocketShouldBeClosedAndBindShouldEndWhenForwardedPortSignalsClosingEvent()
         {
-            _sessionMock.Setup(p => p.NextChannelNumber).Returns(_localChannelNumber);
             _sessionMock.Setup(p => p.IsConnected).Returns(true);
             _sessionMock.Setup(p => p.SendMessage(It.IsAny<ChannelOpenMessage>()))
                 .Callback<Message>(m => _sessionMock.Raise(p => p.ChannelOpenConfirmationReceived += null,
@@ -65,8 +64,8 @@ namespace Renci.SshNet.Tests.Classes.Channels
 
                 localPortListener.Connected += socket =>
                     {
-                        var channel = new ChannelDirectTcpip();
-                        channel.Initialize(_sessionMock.Object, _localWindowSize, _localPacketSize);
+                        var channel = new ChannelDirectTcpip(_sessionMock.Object, _localChannelNumber, _localWindowSize,
+                            _localPacketSize);
                         channel.Open(_remoteHost, _port, _forwardedPortMock.Object, socket);
 
                         var closeForwardedPortThread =
@@ -91,13 +90,15 @@ namespace Renci.SshNet.Tests.Classes.Channels
                 var buffer = new byte[16];
                 var bytesReceived = client.Receive(buffer, 0, buffer.Length, SocketFlags.None);
                 Assert.AreEqual(0, bytesReceived);
+                Assert.IsTrue(client.Connected);
+                // signal to server that we also shut down the socket at our end
+                client.Shutdown(SocketShutdown.Send);
             }
         }
 
         [TestMethod]
         public void SocketShouldBeClosedAndBindShouldEndWhenOnErrorOccurredIsInvoked()
         {
-            _sessionMock.Setup(p => p.NextChannelNumber).Returns(_localChannelNumber);
             _sessionMock.Setup(p => p.IsConnected).Returns(true);
             _sessionMock.Setup(p => p.SendMessage(It.IsAny<ChannelOpenMessage>()))
                 .Callback<Message>(m => _sessionMock.Raise(p => p.ChannelOpenConfirmationReceived += null,
@@ -113,8 +114,8 @@ namespace Renci.SshNet.Tests.Classes.Channels
 
                 localPortListener.Connected += socket =>
                 {
-                    var channel = new ChannelDirectTcpip();
-                    channel.Initialize(_sessionMock.Object, _localWindowSize, _localPacketSize);
+                    var channel = new ChannelDirectTcpip(_sessionMock.Object, _localChannelNumber, _localWindowSize,
+                        _localPacketSize);
                     channel.Open(_remoteHost, _port, _forwardedPortMock.Object, socket);
 
                     var signalSessionErrorOccurredThread =
@@ -140,13 +141,15 @@ namespace Renci.SshNet.Tests.Classes.Channels
                 var buffer = new byte[16];
                 var bytesReceived = client.Receive(buffer, 0, buffer.Length, SocketFlags.None);
                 Assert.AreEqual(0, bytesReceived);
+                Assert.IsTrue(client.Connected);
+                // signal to server that we also shut down the socket at our end
+                client.Shutdown(SocketShutdown.Send);
             }
         }
 
         [TestMethod]
         public void SocketShouldBeClosedAndEofShouldBeSentToServerWhenClientShutsDownSocket()
         {
-            _sessionMock.Setup(p => p.NextChannelNumber).Returns(_localChannelNumber);
             _sessionMock.Setup(p => p.IsConnected).Returns(true);
             _sessionMock.Setup(p => p.SendMessage(It.IsAny<ChannelOpenMessage>()))
                 .Callback<Message>(m => _sessionMock.Raise(p => p.ChannelOpenConfirmationReceived += null,
@@ -181,21 +184,22 @@ namespace Renci.SshNet.Tests.Classes.Channels
                 localPortListener.Start();
 
                 localPortListener.Connected += socket =>
-                {
-                    channel = new ChannelDirectTcpip();
-                    channel.Initialize(_sessionMock.Object, _localWindowSize, _localPacketSize);
-                    channel.Open(_remoteHost, _port, _forwardedPortMock.Object, socket);
-                    channel.Bind();
-                    channel.Close();
+                    {
+                        channel = new ChannelDirectTcpip(_sessionMock.Object, _localChannelNumber, _localWindowSize,
+                            _localPacketSize);
+                        channel.Open(_remoteHost, _port, _forwardedPortMock.Object, socket);
+                        channel.Bind();
+                        channel.Close();
 
-                    handler = socket;
+                        handler = socket;
 
-                    channelBindFinishedWaitHandle.Set();
-                };
+                        channelBindFinishedWaitHandle.Set();
+                    };
 
                 var client = new Socket(localPortEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
                 client.Connect(localPortEndPoint);
                 client.Shutdown(SocketShutdown.Send);
+                Assert.IsFalse(client.Connected);
 
                 channelBindFinishedWaitHandle.WaitOne();
 

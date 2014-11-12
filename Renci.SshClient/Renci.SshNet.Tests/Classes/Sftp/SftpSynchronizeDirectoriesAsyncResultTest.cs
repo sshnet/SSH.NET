@@ -1,9 +1,9 @@
-﻿using Renci.SshNet.Sftp;
+﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+using Renci.SshNet.Sftp;
 using Renci.SshNet.Tests.Common;
 
-namespace Renci.SshNet.Tests
+namespace Renci.SshNet.Tests.Classes.Sftp
 {
     /// <summary>
     ///This is a test class for SftpSynchronizeDirectoriesAsyncResultTest and is intended

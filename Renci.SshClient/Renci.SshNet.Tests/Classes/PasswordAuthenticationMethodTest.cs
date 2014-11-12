@@ -62,6 +62,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         [WorkItem(1140)]
         [TestCategory("BaseClient")]
+        [TestCategory("integration")]
         [Description("Test whether IsConnected is false after disconnect.")]
         [Owner("Kenneth_aa")]
         public void Test_BaseClient_IsConnected_True_After_Disconnect()
@@ -87,7 +88,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for Name
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void NameTest()
         {
             string username = string.Empty; // TODO: Initialize to an appropriate value
@@ -101,7 +103,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for Dispose
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void DisposeTest()
         {
             string username = string.Empty; // TODO: Initialize to an appropriate value
@@ -114,7 +117,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for Authenticate
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void AuthenticateTest()
         {
             string username = string.Empty; // TODO: Initialize to an appropriate value
@@ -131,7 +135,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for PasswordAuthenticationMethod Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void PasswordAuthenticationMethodConstructorTest()
         {
             string username = string.Empty; // TODO: Initialize to an appropriate value
@@ -143,7 +148,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for PasswordAuthenticationMethod Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void PasswordAuthenticationMethodConstructorTest1()
         {
             string username = string.Empty; // TODO: Initialize to an appropriate value

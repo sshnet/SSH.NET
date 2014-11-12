@@ -20,7 +20,8 @@ namespace Renci.SshNet.Tests.Classes
             Assert.Inconclusive("TODO: Implement code to verify target");
         }
 
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void MessageEventArgsConstructorTest()
         {
             MessageEventArgsConstructorTestHelper<GenericParameterHelper>();

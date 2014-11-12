@@ -12,6 +12,7 @@ namespace Renci.SshNet.Tests.Classes.Security
     public class KeyHostAlgorithmTest : TestBase
     {
         [TestMethod]
+        [TestCategory("integration")]
         public void Test_HostKey_SshRsa_Connection()
         {
             var connectionInfo = new PasswordConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD);
@@ -26,6 +27,7 @@ namespace Renci.SshNet.Tests.Classes.Security
         }
 
         [TestMethod]
+        [TestCategory("integration")]
         public void Test_HostKey_SshDss_Connection()
         {
             var connectionInfo = new PasswordConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD);
@@ -42,7 +44,8 @@ namespace Renci.SshNet.Tests.Classes.Security
         /// <summary>
         ///A test for KeyHostAlgorithm Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void KeyHostAlgorithmConstructorTest()
         {
             string name = string.Empty; // TODO: Initialize to an appropriate value
@@ -54,7 +57,8 @@ namespace Renci.SshNet.Tests.Classes.Security
         /// <summary>
         ///A test for KeyHostAlgorithm Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void KeyHostAlgorithmConstructorTest1()
         {
             string name = string.Empty; // TODO: Initialize to an appropriate value
@@ -67,7 +71,8 @@ namespace Renci.SshNet.Tests.Classes.Security
         /// <summary>
         ///A test for Sign
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void SignTest()
         {
             string name = string.Empty; // TODO: Initialize to an appropriate value
@@ -84,7 +89,8 @@ namespace Renci.SshNet.Tests.Classes.Security
         /// <summary>
         ///A test for VerifySignature
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void VerifySignatureTest()
         {
             string name = string.Empty; // TODO: Initialize to an appropriate value
@@ -102,7 +108,8 @@ namespace Renci.SshNet.Tests.Classes.Security
         /// <summary>
         ///A test for Data
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void DataTest()
         {
             string name = string.Empty; // TODO: Initialize to an appropriate value

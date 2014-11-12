@@ -17,7 +17,7 @@ namespace Renci.SshNet.Sftp
         private readonly FileAccess _access;
         private readonly bool _ownsHandle;
         private readonly bool _isAsync;
-        private SftpSession _session;
+        private ISftpSession _session;
 
         // Buffer information.
         private readonly int _readBufferSize;
@@ -28,7 +28,9 @@ namespace Renci.SshNet.Sftp
         private int _bufferLen;
         private long _position;
         private bool _bufferOwnedByWrite;
-        private readonly bool _canSeek;
+        private bool _canRead;
+        private bool _canSeek;
+        private bool _canWrite;
         private ulong _serverFilePosition;
 
         private SftpFileAttributes _attributes;
@@ -41,10 +43,7 @@ namespace Renci.SshNet.Sftp
         /// <returns>true if the stream supports reading; otherwise, false.</returns>
         public override bool CanRead
         {
-            get
-            {
-                return ((_access & FileAccess.Read) != 0);
-            }
+            get { return _canRead; }
         }
 
         /// <summary>
@@ -53,10 +52,7 @@ namespace Renci.SshNet.Sftp
         /// <returns>true if the stream supports seeking; otherwise, false.</returns>
         public override bool CanSeek
         {
-            get
-            {
-                return _canSeek;
-            }
+            get { return _canSeek; }
         }
 
         /// <summary>
@@ -65,10 +61,18 @@ namespace Renci.SshNet.Sftp
         /// <returns>true if the stream supports writing; otherwise, false.</returns>
         public override bool CanWrite
         {
-            get
-            {
-                return ((_access & FileAccess.Write) != 0);
-            }
+            get { return _canWrite; }
+        }
+
+        /// <summary>
+        /// Indicates whether timeout properties are usable for <see cref="SftpFileStream"/>.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> in all cases.
+        /// </value>
+        public override bool CanTimeout
+        {
+            get { return true; }
         }
 
         /// <summary>
@@ -83,21 +87,13 @@ namespace Renci.SshNet.Sftp
         {
             get
             {
-                // Validate that the object can actually do this.
-                if (!_canSeek)
-                {
-                    throw new NotSupportedException("Seek operation is not supported.");
-                }
-
                 // Lock down the file stream while we do this.
                 lock (_lock)
                 {
-                    if (_handle == null)
-                    {
-                        // ECMA says this should be IOException even though
-                        // everywhere else uses ObjectDisposedException.
-                        throw new IOException("Stream is closed.");
-                    }
+                    CheckSessionIsOpen();
+
+                    if (!CanSeek)
+                        throw new NotSupportedException("Seek operation is not supported.");
 
                     // Flush the write buffer, because it may
                     // affect the length of the stream.
@@ -132,10 +128,9 @@ namespace Renci.SshNet.Sftp
         {
             get
             {
-                if (!_canSeek)
-                {
+                CheckSessionIsOpen();
+                if (!CanSeek)
                     throw new NotSupportedException("Seek operation not supported.");
-                }
                 return _position;
             }
             set
@@ -183,26 +178,12 @@ namespace Renci.SshNet.Sftp
         /// </value>
         public TimeSpan Timeout { get; set; }
 
-        /// <summary>
-        /// Initializes a new <see cref="SftpFileStream"/> instance with a read and write buffer
-        /// of 4 KB.
-        /// </summary>
-        internal SftpFileStream(SftpSession session, string path, FileMode mode)
-            : this(session, path, mode, FileAccess.ReadWrite)
-        {
-        }
-
-        internal SftpFileStream(SftpSession session, string path, FileMode mode, FileAccess access)
-            : this(session, path, mode, access, 4096)
-        {
-        }
-
-        internal SftpFileStream(SftpSession session, string path, FileMode mode, FileAccess access, int bufferSize)
+        internal SftpFileStream(ISftpSession session, string path, FileMode mode, FileAccess access, int bufferSize)
             : this(session, path, mode, access, bufferSize, false)
         {
         }
 
-        internal SftpFileStream(SftpSession session, string path, FileMode mode, FileAccess access, int bufferSize, bool useAsync)
+        internal SftpFileStream(ISftpSession session, string path, FileMode mode, FileAccess access, int bufferSize, bool useAsync)
         {
             // Validate the parameters.
             if (session == null)
@@ -236,10 +217,11 @@ namespace Renci.SshNet.Sftp
             _bufferPosition = 0;
             _bufferLen = 0;
             _bufferOwnedByWrite = false;
+            _canRead = ((_access & FileAccess.Read) != 0);
             _canSeek = true;
+            _canWrite = ((_access & FileAccess.Write) != 0);
             _position = 0;
             _serverFilePosition = 0;
-            _session.Disconnected += Session_Disconnected;
 
             var flags = Flags.None;
 
@@ -330,20 +312,15 @@ namespace Renci.SshNet.Sftp
         {
             lock (_lock)
             {
-                if (_handle != null)
+                CheckSessionIsOpen();
+
+                if (_bufferOwnedByWrite)
                 {
-                    if (_bufferOwnedByWrite)
-                    {
-                        FlushWriteBuffer();
-                    }
-                    else
-                    {
-                        FlushReadBuffer();
-                    }
+                    FlushWriteBuffer();
                 }
                 else
                 {
-                    throw new ObjectDisposedException("Stream is closed.");
+                    FlushReadBuffer();
                 }
             }
         }
@@ -379,6 +356,8 @@ namespace Renci.SshNet.Sftp
             // Lock down the file stream while we do this.
             lock (_lock)
             {
+                CheckSessionIsOpen();
+
                 // Set up for the read operation.
                 SetupRead();
 
@@ -447,6 +426,8 @@ namespace Renci.SshNet.Sftp
             // Lock down the file stream while we do this.
             lock (_lock)
             {
+                CheckSessionIsOpen();
+
                 // Setup the object for reading.
                 SetupRead();
 
@@ -495,20 +476,13 @@ namespace Renci.SshNet.Sftp
         {
             long newPosn = -1;
 
-            // Bail out if this stream is not capable of seeking.
-            if (!_canSeek)
-            {
-                throw new NotSupportedException("Seek is not supported.");
-            }
-
             // Lock down the file stream while we do this.
             lock (_lock)
             {
-                // Bail out if the handle is invalid.
-                if (_handle == null)
-                {
-                    throw new ObjectDisposedException("Stream is closed.");
-                }
+                CheckSessionIsOpen();
+
+                if (!CanSeek)
+                    throw new NotSupportedException("Seek is not supported.");
 
                 // Don't do anything if the position won't be moving.
                 if (origin == SeekOrigin.Begin && offset == _position)
@@ -615,24 +589,19 @@ namespace Renci.SshNet.Sftp
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="value"/> must be greater than zero.</exception>
         public override void SetLength(long value)
         {
-            // Validate the parameters and setup the object for writing.
             if (value < 0)
-            {
                 throw new ArgumentOutOfRangeException("value");
-            }
-            if (!_canSeek)
-            {
-                throw new NotSupportedException("Seek is not supported.");
-            }
 
             // Lock down the file stream while we do this.
             lock (_lock)
             {
-                // Setup this object for writing.
+                CheckSessionIsOpen();
+
+                if (!CanSeek)
+                    throw new NotSupportedException("Seek is not supported.");
+
                 SetupWrite();
-
                 _attributes.Size = value;
-
                 _session.RequestFSetStat(_handle, _attributes);
             }
         }
@@ -663,6 +632,8 @@ namespace Renci.SshNet.Sftp
             // Lock down the file stream while we do this.
             lock (_lock)
             {
+                CheckSessionIsOpen();
+
                 // Setup this object for writing.
                 SetupWrite();
 
@@ -749,6 +720,8 @@ namespace Renci.SshNet.Sftp
             // Lock down the file stream while we do this.
             lock (_lock)
             {
+                CheckSessionIsOpen();
+
                 // Setup the object for writing.
                 SetupWrite();
 
@@ -784,27 +757,36 @@ namespace Renci.SshNet.Sftp
 
             if (_session != null)
             {
-                lock (_lock)
+                if (disposing)
                 {
-                    if (_session != null)
+                    lock (_lock)
                     {
-                        if (_handle != null)
+                        if (_session != null)
                         {
-                            if (_bufferOwnedByWrite)
+                            _canRead = false;
+                            _canSeek = false;
+                            _canWrite = false;
+
+                            if (_handle != null)
                             {
-                                FlushWriteBuffer();
+                                if (_session.IsOpen)
+                                {
+                                    if (_bufferOwnedByWrite)
+                                    {
+                                        FlushWriteBuffer();
+                                    }
+
+                                    if (_ownsHandle)
+                                    {
+                                        _session.RequestClose(_handle);
+                                    }
+                                }
+
+                                _handle = null;
                             }
 
-                            if (_ownsHandle)
-                            {
-                                _session.RequestClose(_handle);
-                            }
-
-                            _handle = null;
+                            _session = null;
                         }
-
-                        _session.Disconnected -= Session_Disconnected;
-                        _session = null;
                     }
                 }
             }
@@ -852,14 +834,9 @@ namespace Renci.SshNet.Sftp
         /// </summary>
         private void SetupRead()
         {
-            if ((_access & FileAccess.Read) == 0)
-            {
+            if (!CanRead)
                 throw new NotSupportedException("Read not supported.");
-            }
-            if (_handle == null)
-            {
-                throw new ObjectDisposedException("Stream is closed.");
-            }
+
             if (_bufferOwnedByWrite)
             {
                 FlushWriteBuffer();
@@ -872,14 +849,9 @@ namespace Renci.SshNet.Sftp
         /// </summary>
         private void SetupWrite()
         {
-            if ((_access & FileAccess.Write) == 0)
-            {
+            if ((!CanWrite))
                 throw new NotSupportedException("Write not supported.");
-            }
-            if (_handle == null)
-            {
-                throw new ObjectDisposedException("Stream is closed.");
-            }
+
             if (!_bufferOwnedByWrite)
             {
                 FlushReadBuffer();
@@ -887,13 +859,12 @@ namespace Renci.SshNet.Sftp
             }
         }
 
-        private void Session_Disconnected(object sender, EventArgs e)
+        private void CheckSessionIsOpen()
         {
-            lock (_lock)
-            {
-                _session.Disconnected -= Session_Disconnected;
-                _session = null;
-            }
+            if (_session == null)
+                throw new ObjectDisposedException(GetType().FullName);
+            if (!_session.IsOpen)
+                throw new ObjectDisposedException(GetType().FullName, "Cannot access a closed SFTP session.");
         }
     }
 }

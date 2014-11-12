@@ -28,6 +28,7 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
+        [TestCategory("integration")]
         public void Test_Run_SingleCommand()
         {
             var host = Resources.HOST;
@@ -52,6 +53,7 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
+        [TestCategory("integration")]
         public void Test_Execute_SingleCommand()
         {
             var host = Resources.HOST;
@@ -77,6 +79,7 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
+        [TestCategory("integration")]
         public void Test_Execute_OutputStream()
         {
             var host = Resources.HOST;
@@ -110,6 +113,7 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
+        [TestCategory("integration")]
         public void Test_Execute_ExtendedOutputStream()
         {
             var host = Resources.HOST;
@@ -139,6 +143,7 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
+        [TestCategory("integration")]
         [ExpectedException(typeof(SshOperationTimeoutException))]
         public void Test_Execute_Timeout()
         {
@@ -155,6 +160,7 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
+        [TestCategory("integration")]
         public void Test_Execute_Infinite_Timeout()
         {
             using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
@@ -167,6 +173,7 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
+        [TestCategory("integration")]
         public void Test_Execute_InvalidCommand()
         {
             using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
@@ -186,6 +193,7 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
+        [TestCategory("integration")]
         public void Test_Execute_InvalidCommand_Then_Execute_ValidCommand()
         {
             using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
@@ -208,6 +216,7 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
+        [TestCategory("integration")]
         public void Test_Execute_Command_with_ExtendedOutput()
         {
             using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
@@ -226,6 +235,7 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
+        [TestCategory("integration")]
         public void Test_Execute_Command_Reconnect_Execute_Command()
         {
             using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
@@ -243,6 +253,7 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
+        [TestCategory("integration")]
         public void Test_Execute_Command_ExitStatus()
         {
             using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
@@ -262,6 +273,7 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
+        [TestCategory("integration")]
         public void Test_Execute_Command_Asynchronously()
         {
             using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
@@ -284,6 +296,7 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
+        [TestCategory("integration")]
         public void Test_Execute_Command_Asynchronously_With_Error()
         {
             using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
@@ -306,6 +319,7 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
+        [TestCategory("integration")]
         public void Test_Execute_Command_Asynchronously_With_Callback()
         {
             using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
@@ -333,6 +347,7 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
+        [TestCategory("integration")]
         public void Test_Execute_Command_Asynchronously_With_Callback_On_Different_Thread()
         {
             using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
@@ -364,6 +379,7 @@ namespace Renci.SshNet.Tests.Classes
         /// Tests for Issue 563.
         /// </summary>
         [WorkItem(563), TestMethod]
+        [TestCategory("integration")]
         public void Test_Execute_Command_Same_Object_Different_Commands()
         {
             using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
@@ -379,6 +395,7 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
+        [TestCategory("integration")]
         public void Test_Get_Result_Without_Execution()
         {
             using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
@@ -392,6 +409,7 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
+        [TestCategory("integration")]
         public void Test_Get_Error_Without_Execution()
         {
             using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
@@ -406,6 +424,7 @@ namespace Renci.SshNet.Tests.Classes
 
         [WorkItem(703), TestMethod]
         [ExpectedException(typeof(ArgumentException))]
+        [TestCategory("integration")]
         public void Test_EndExecute_Before_BeginExecute()
         {
             using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
@@ -421,6 +440,7 @@ namespace Renci.SshNet.Tests.Classes
         ///A test for BeginExecute
         ///</summary>
         [TestMethod()]
+        [TestCategory("integration")]
         public void BeginExecuteTest()
         {
             string expected = "123\n";
@@ -452,6 +472,7 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
+        [TestCategory("integration")]
         public void Test_Execute_Invalid_Command()
         {
             using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
@@ -479,7 +500,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for BeginExecute
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void BeginExecuteTest1()
         {
             Session session = null; // TODO: Initialize to an appropriate value
@@ -499,7 +521,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for CancelAsync
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void CancelAsyncTest()
         {
             Session session = null; // TODO: Initialize to an appropriate value
@@ -513,7 +536,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for Dispose
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void DisposeTest()
         {
             Session session = null; // TODO: Initialize to an appropriate value
@@ -527,7 +551,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for EndExecute
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void EndExecuteTest()
         {
             Session session = null; // TODO: Initialize to an appropriate value
@@ -545,7 +570,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for Execute
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void ExecuteTest()
         {
             Session session = null; // TODO: Initialize to an appropriate value
@@ -562,7 +588,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for Execute
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void ExecuteTest1()
         {
             Session session = null; // TODO: Initialize to an appropriate value
@@ -580,7 +607,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for CommandTimeout
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void CommandTimeoutTest()
         {
             Session session = null; // TODO: Initialize to an appropriate value
@@ -598,7 +626,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for Error
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void ErrorTest()
         {
             Session session = null; // TODO: Initialize to an appropriate value
@@ -613,7 +642,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for Result
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void ResultTest()
         {
             Session session = null; // TODO: Initialize to an appropriate value
@@ -624,7 +654,6 @@ namespace Renci.SshNet.Tests.Classes
             actual = target.Result;
             Assert.Inconclusive("Verify the correctness of this test method.");
         }
-
 
         private static bool ExecuteTestCommand(SshClient s)
         {

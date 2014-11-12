@@ -14,6 +14,7 @@ namespace Renci.SshNet.Tests.Classes
     {
         [TestMethod]
         [TestCategory("PrivateKeyConnectionInfo")]
+        [TestCategory("integration")]
         public void Test_PrivateKeyConnectionInfo()
         {
             var host = Resources.HOST;
@@ -35,6 +36,7 @@ namespace Renci.SshNet.Tests.Classes
 
         [TestMethod]
         [TestCategory("PrivateKeyConnectionInfo")]
+        [TestCategory("integration")]
         public void Test_PrivateKeyConnectionInfo_MultiplePrivateKey()
         {
             var host = Resources.HOST;
@@ -60,7 +62,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for Dispose
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void DisposeTest()
         {
             string host = string.Empty; // TODO: Initialize to an appropriate value
@@ -74,7 +77,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for PrivateKeyConnectionInfo Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void PrivateKeyConnectionInfoConstructorTest()
         {
             string host = string.Empty; // TODO: Initialize to an appropriate value
@@ -93,7 +97,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for PrivateKeyConnectionInfo Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void PrivateKeyConnectionInfoConstructorTest1()
         {
             string host = string.Empty; // TODO: Initialize to an appropriate value
@@ -111,7 +116,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for PrivateKeyConnectionInfo Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void PrivateKeyConnectionInfoConstructorTest2()
         {
             string host = string.Empty; // TODO: Initialize to an appropriate value
@@ -128,7 +134,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for PrivateKeyConnectionInfo Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void PrivateKeyConnectionInfoConstructorTest3()
         {
             string host = string.Empty; // TODO: Initialize to an appropriate value
@@ -144,7 +151,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for PrivateKeyConnectionInfo Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void PrivateKeyConnectionInfoConstructorTest4()
         {
             string host = string.Empty; // TODO: Initialize to an appropriate value
@@ -162,7 +170,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for PrivateKeyConnectionInfo Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void PrivateKeyConnectionInfoConstructorTest5()
         {
             string host = string.Empty; // TODO: Initialize to an appropriate value
@@ -179,7 +188,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for PrivateKeyConnectionInfo Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void PrivateKeyConnectionInfoConstructorTest6()
         {
             string host = string.Empty; // TODO: Initialize to an appropriate value
@@ -193,7 +203,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for PrivateKeyConnectionInfo Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void PrivateKeyConnectionInfoConstructorTest7()
         {
             string host = string.Empty; // TODO: Initialize to an appropriate value

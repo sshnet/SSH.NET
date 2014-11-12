@@ -1,9 +1,8 @@
-﻿using Renci.SshNet.Security.Cryptography.Ciphers;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Renci.SshNet.Security.Cryptography.Ciphers;
 using Renci.SshNet.Tests.Common;
 
-namespace Renci.SshNet.Tests
+namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
 {
     /// <summary>
     ///This is a test class for CipherModeTest and is intended
@@ -22,7 +21,8 @@ namespace Renci.SshNet.Tests
         /// <summary>
         ///A test for DecryptBlock
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void DecryptBlockTest()
         {
             CipherMode target = CreateCipherMode(); // TODO: Initialize to an appropriate value
@@ -41,7 +41,8 @@ namespace Renci.SshNet.Tests
         /// <summary>
         ///A test for EncryptBlock
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void EncryptBlockTest()
         {
             CipherMode target = CreateCipherMode(); // TODO: Initialize to an appropriate value

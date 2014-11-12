@@ -13,7 +13,8 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
         /// <summary>
         ///A test for DesCipher Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void DesCipherConstructorTest()
         {
             byte[] key = null; // TODO: Initialize to an appropriate value
@@ -26,7 +27,8 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
         /// <summary>
         ///A test for DecryptBlock
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void DecryptBlockTest()
         {
             byte[] key = null; // TODO: Initialize to an appropriate value
@@ -48,7 +50,8 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
         /// <summary>
         ///A test for EncryptBlock
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void EncryptBlockTest()
         {
             byte[] key = null; // TODO: Initialize to an appropriate value

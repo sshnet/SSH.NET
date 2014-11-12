@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Threading;
 using Renci.SshNet.Common;
@@ -12,9 +13,19 @@ namespace Renci.SshNet.Channels
     internal class ChannelSession : ClientChannel, IChannelSession
     {
         /// <summary>
-        /// Counts faile channel open attempts
+        /// Counts failed channel open attempts
         /// </summary>
         private int _failedOpenAttempts;
+
+        /// <summary>
+        /// Holds a value indicating whether the session semaphore has been obtained by the current
+        /// channel.
+        /// </summary>
+        /// <value>
+        /// <c>0</c> when the session semaphore has not been obtained or has already been released,
+        /// and <c>1</c> when the session has been obtained and still needs to be released.
+        /// </value>
+        private int _sessionSemaphoreObtained;
 
         /// <summary>
         /// Wait handle to signal when response was received to open the channel
@@ -24,6 +35,18 @@ namespace Renci.SshNet.Channels
         private EventWaitHandle _channelRequestResponse = new ManualResetEvent(false);
 
         private bool _channelRequestSucces;
+
+        /// <summary>
+        /// Initializes a new <see cref="ChannelSession"/> instance.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="localChannelNumber">The local channel number.</param>
+        /// <param name="localWindowSize">Size of the window.</param>
+        /// <param name="localPacketSize">Size of the packet.</param>
+        public ChannelSession(ISession session, uint localChannelNumber, uint localWindowSize, uint localPacketSize)
+            : base(session, localChannelNumber, localWindowSize, localPacketSize)
+        {
+        }
 
         /// <summary>
         /// Gets the type of the channel.
@@ -44,10 +67,19 @@ namespace Renci.SshNet.Channels
             if (!IsOpen)
             {
                 //  Try to open channel several times
-                while (_failedOpenAttempts < ConnectionInfo.RetryAttempts && !IsOpen)
+                while (!IsOpen && _failedOpenAttempts < ConnectionInfo.RetryAttempts)
                 {
                     SendChannelOpenMessage();
-                    WaitOnHandle(_channelOpenResponseWaitHandle);
+                    try
+                    {
+                        WaitOnHandle(_channelOpenResponseWaitHandle);
+                    }
+                    catch (Exception)
+                    {
+                        // avoid leaking session semaphore
+                        ReleaseSemaphore();
+                        throw;
+                    }
                 }
 
                 if (!IsOpen)
@@ -76,7 +108,7 @@ namespace Renci.SshNet.Channels
         protected override void OnOpenFailure(uint reasonCode, string description, string language)
         {
             _failedOpenAttempts++;
-            SessionSemaphore.Release();
+            ReleaseSemaphore();
             _channelOpenResponseWaitHandle.Set();
         }
 
@@ -90,16 +122,13 @@ namespace Renci.SshNet.Channels
             //  This timeout needed since when channel is closed it does not immediately becomes available
             //  but it takes time for the server to clean up resource and allow new channels to be created.
             Thread.Sleep(100);
-
-            SessionSemaphore.Release();
         }
 
         protected override void Close(bool wait)
         {
             base.Close(wait);
 
-            if (!wait)
-                SessionSemaphore.Release();
+            ReleaseSemaphore();
         }
 
         /// <summary>
@@ -345,11 +374,17 @@ namespace Renci.SshNet.Channels
         /// </summary>
         protected void SendChannelOpenMessage()
         {
-            lock (SessionSemaphore)
+            // do not allow open to be ChannelOpenMessage to be sent again until we've
+            // had a response on the previous attempt for the current channel
+            if (Interlocked.CompareExchange(ref _sessionSemaphoreObtained, 1, 0) == 0)
             {
-                //  Ensure that channels are available
                 SessionSemaphore.Wait();
-                SendMessage(new ChannelOpenMessage(LocalChannelNumber, LocalWindowSize, LocalPacketSize, new SessionChannelOpenInfo()));
+                SendMessage(
+                    new ChannelOpenMessage(
+                        LocalChannelNumber,
+                        LocalWindowSize,
+                        LocalPacketSize,
+                        new SessionChannelOpenInfo()));
             }
         }
 
@@ -359,19 +394,35 @@ namespace Renci.SshNet.Channels
         /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected override void Dispose(bool disposing)
         {
-            if (_channelOpenResponseWaitHandle != null)
-            {
-                _channelOpenResponseWaitHandle.Dispose();
-                _channelOpenResponseWaitHandle = null;
-            }
-
-            if (_channelRequestResponse != null)
-            {
-                _channelRequestResponse.Dispose();
-                _channelRequestResponse = null;
-            }
-
             base.Dispose(disposing);
+
+            if (disposing)
+            {
+                if (_channelOpenResponseWaitHandle != null)
+                {
+                    _channelOpenResponseWaitHandle.Dispose();
+                    _channelOpenResponseWaitHandle = null;
+                }
+
+                if (_channelRequestResponse != null)
+                {
+                    _channelRequestResponse.Dispose();
+                    _channelRequestResponse = null;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Releases the session semaphore.
+        /// </summary>
+        /// <remarks>
+        /// When the session semaphore has already been released, or was never obtained by
+        /// this instance, then this method does nothing.
+        /// </remarks>
+        private void ReleaseSemaphore()
+        {
+            if (Interlocked.CompareExchange(ref _sessionSemaphoreObtained, 0, 1) == 1)
+                SessionSemaphore.Release();
         }
     }
 }

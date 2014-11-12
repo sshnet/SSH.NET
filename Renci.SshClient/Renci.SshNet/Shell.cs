@@ -192,11 +192,8 @@ namespace Renci.SshNet
                 throw new SshException("Shell is not started.");
             }
 
-            //  If channel is open then close it to cause Channel_Closed method to be called
-            if (this._channel != null && this._channel.IsOpen)
+            if (this._channel != null)
             {
-                this._channel.SendEof();
-
                 this._channel.Close();
             }
         }
@@ -246,8 +243,6 @@ namespace Renci.SshNet
 
             if (this._channel.IsOpen)
             {
-                this._channel.SendEof();
-
                 this._channel.Close();
             }
 

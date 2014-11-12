@@ -7,14 +7,22 @@ namespace Renci.SshNet.Tests.Classes.Channels
 {
     internal class ClientChannelStub : ClientChannel
     {
+        /// <summary>
+        /// Initializes a new <see cref="ClientChannelStub"/> instance.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="localChannelNumber">The local channel number.</param>
+        /// <param name="localWindowSize">Size of the window.</param>
+        /// <param name="localPacketSize">Size of the packet.</param>
+        public ClientChannelStub(ISession session, uint localChannelNumber, uint localWindowSize, uint localPacketSize)
+            : base(session, localChannelNumber, localWindowSize, localPacketSize)
+        {
+            OnErrorOccurredInvocations = new List<Exception>();
+        }
+
         public override ChannelTypes ChannelType
         {
             get { return ChannelTypes.X11; }
-        }
-
-        public ClientChannelStub()
-        {
-            OnErrorOccurredInvocations = new List<Exception>();
         }
 
         public IList<Exception> OnErrorOccurredInvocations { get; private set; }

@@ -1,10 +1,10 @@
 ﻿using System.Net.Sockets;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes
 {
-    public partial class SftpClientTest : TestBase
+    [TestClass]
+    public class SftpClientTest_Connect
     {
         [TestMethod]
         public void Connect_HostNameInvalid_ShouldThrowSocketExceptionWithErrorCodeHostNotFound()

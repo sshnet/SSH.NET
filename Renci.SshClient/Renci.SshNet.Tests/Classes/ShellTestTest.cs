@@ -10,6 +10,7 @@ namespace Renci.SshNet.Tests.Classes
     /// Represents instance of the SSH shell object
     /// </summary>
     [TestClass]
+    [Ignore] // class contains just for unit tests
     public partial class ShellTestTest : TestBase
     {
         /// <summary>

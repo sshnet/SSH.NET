@@ -1,20 +1,16 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Renci.SshNet.Common;
-using Renci.SshNet.Tests.Common;
-using Renci.SshNet.Tests.Properties;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Threading;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Renci.SshNet.Common;
+using Renci.SshNet.Tests.Properties;
 
-namespace Renci.SshNet.Tests.SshClientTests
+namespace Renci.SshNet.Tests.Classes
 {
-    /// <summary>
-    /// Summary description for UnitTest1
-    /// </summary>
-    [TestClass]
-    public partial class ForwardedPortRemoteTest : TestBase
+    public partial class ForwardedPortRemoteTest
     {
         [TestMethod]
+        [TestCategory("integration")]
         public void Test_PortForwarding_Remote()
         {
             //  ******************************************************************

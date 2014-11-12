@@ -30,6 +30,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
         [TestMethod]
         [Owner("olegkap")]
         [TestCategory("Cipher")]
+        [TestCategory("integration")]
         public void Test_Cipher_BlowfishCBC_Connection()
         {
             var connectionInfo = new PasswordConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD);
@@ -46,7 +47,8 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
         /// <summary>
         ///A test for BlowfishCipher Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void BlowfishCipherConstructorTest()
         {
             byte[] key = null; // TODO: Initialize to an appropriate value
@@ -59,7 +61,8 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
         /// <summary>
         ///A test for DecryptBlock
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void DecryptBlockTest()
         {
             byte[] key = null; // TODO: Initialize to an appropriate value
@@ -81,7 +84,8 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
         /// <summary>
         ///A test for EncryptBlock
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void EncryptBlockTest()
         {
             byte[] key = null; // TODO: Initialize to an appropriate value

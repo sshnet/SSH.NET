@@ -1,35 +1,34 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System;
+using System.Globalization;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes
 {
-    /// <summary>
-    /// Provides functionality for dynamic port forwarding
-    /// </summary>
     [TestClass]
-    public partial class ForwardedPortDynamicTest : TestBase
+    public class ForwardedPortDynamicTest : TestBase
     {
-        /// <summary>
-        ///A test for ForwardedPortDynamic Constructor
-        ///</summary>
         [TestMethod()]
-        public void ForwardedPortDynamicConstructorTest()
+        public void Constructor_HostAndPort()
         {
-            string host = string.Empty; // TODO: Initialize to an appropriate value
-            uint port = 0; // TODO: Initialize to an appropriate value
-            ForwardedPortDynamic target = new ForwardedPortDynamic(host, port);
-            Assert.Inconclusive("TODO: Implement code to verify target");
+            var host = new Random().Next().ToString(CultureInfo.InvariantCulture);
+            var port = (uint) new Random().Next(0, int.MaxValue);
+
+            var target = new ForwardedPortDynamic(host, port);
+
+            Assert.AreSame(host, target.BoundHost);
+            Assert.AreEqual(port, target.BoundPort);
         }
 
-        /// <summary>
-        ///A test for ForwardedPortDynamic Constructor
-        ///</summary>
         [TestMethod()]
-        public void ForwardedPortDynamicConstructorTest1()
+        public void Constructor_Port()
         {
-            uint port = 0; // TODO: Initialize to an appropriate value
-            ForwardedPortDynamic target = new ForwardedPortDynamic(port);
-            Assert.Inconclusive("TODO: Implement code to verify target");
+            var port = (uint)new Random().Next(0, int.MaxValue);
+
+            var target = new ForwardedPortDynamic(port);
+
+            Assert.AreSame(string.Empty, target.BoundHost);
+            Assert.AreEqual(port, target.BoundPort);
         }
     }
 }

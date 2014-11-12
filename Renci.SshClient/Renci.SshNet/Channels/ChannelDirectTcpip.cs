@@ -17,18 +17,20 @@ namespace Renci.SshNet.Channels
 
         private EventWaitHandle _channelOpen = new AutoResetEvent(false);
         private EventWaitHandle _channelData = new AutoResetEvent(false);
-
         private IForwardedPort _forwardedPort;
         private Socket _socket;
 
         /// <summary>
-        /// Holds a value indicating whether the SSH_MSG_CHANNEL_EOF has been sent to the server.
+        /// Initializes a new <see cref="ChannelDirectTcpip"/> instance.
         /// </summary>
-        /// <value>
-        /// <c>0</c> when the SSH_MSG_CHANNEL_EOF message has not been sent to the server, and
-        /// <c>1</c> when this message was already sent.
-        /// </value>
-        private int _sentEof;
+        /// <param name="session">The session.</param>
+        /// <param name="localChannelNumber">The local channel number.</param>
+        /// <param name="localWindowSize">Size of the window.</param>
+        /// <param name="localPacketSize">Size of the packet.</param>
+        public ChannelDirectTcpip(ISession session, uint localChannelNumber, uint localWindowSize, uint localPacketSize)
+            : base(session, localChannelNumber, localWindowSize, localPacketSize)
+        {
+        }
 
         /// <summary>
         /// Gets the type of the channel.
@@ -51,7 +53,6 @@ namespace Renci.SshNet.Channels
             _socket = socket;
             _forwardedPort = forwardedPort;
             _forwardedPort.Closing += ForwardedPort_Closing;
-            _sentEof = 0;
 
             var ep = socket.RemoteEndPoint as IPEndPoint;
 
@@ -68,7 +69,10 @@ namespace Renci.SshNet.Channels
         /// </summary>
         private void ForwardedPort_Closing(object sender, EventArgs eventArgs)
         {
-            CloseSocket();
+            // shut down the socket, hereby interrupting the blocking receive in
+            // Bind(IPEndPoint,IForwardedPort) and allowing for a clean shut down
+            // of the socket
+            ShutdownSocket(SocketShutdown.Both);
         }
 
         /// <summary>
@@ -134,19 +138,25 @@ namespace Renci.SshNet.Channels
         /// </summary>
         private void CloseSocket()
         {
-            if (_socket == null || !_socket.Connected)
+            if (_socket == null)
                 return;
 
             lock (_socketShutdownAndCloseLock)
             {
-                if (_socket == null || !_socket.Connected)
+                if (_socket == null)
                     return;
 
-                _socket.Shutdown(SocketShutdown.Both);
+                // closing a socket actually disposes the socket, so we can safely dereference
+                // the field to avoid entering the lock again later
                 _socket.Close();
+                _socket = null;
             }
         }
 
+        /// <summary>
+        /// Shuts down the socket.
+        /// </summary>
+        /// <param name="how">One of the <see cref="SocketShutdown"/> values that specifies the operation that will no longer be allowed.</param>
         private void ShutdownSocket(SocketShutdown how)
         {
             if (_socket == null || !_socket.Connected)
@@ -174,16 +184,16 @@ namespace Renci.SshNet.Channels
                 _forwardedPort = null;
             }
 
-            // close the socket, hereby interrupting the blocking receive in Bind()
-            CloseSocket();
+            // shut down the socket, hereby interrupting the blocking receive in
+            // Bind(IPEndPoint,IForwardedPort) and allowing for a clean shut down
+            // of the socket
+            ShutdownSocket(SocketShutdown.Both);
 
-            //  send EOF message first when channel needs to be closed
-            if (IsOpen && Interlocked.CompareExchange(ref _sentEof, 1, 0) == 0)
-            {
-                SendEof();
-            }
-
+            // close the SSH channel, and mark the channel closed
             base.Close(wait);
+
+            // close the socket
+            CloseSocket();
         }
 
         /// <summary>
@@ -225,21 +235,12 @@ namespace Renci.SshNet.Channels
         {
             base.OnEof();
 
-            // the channel will send no more data, so signal to the client that
-            // we won't be sending anything anymore
-            ShutdownSocket(SocketShutdown.Send);
-        }
-
-        protected override void OnClose()
-        {
-            base.OnClose();
-
-            // the channel will send no more data, so signal to the client that
-            // we won't be sending anything anymore
+            // the channel will send no more data, and hence it does not make sense to receive
+            // any more data from the client to send to the remote party (and we surely won't
+            // send anything anymore)
             //
-            // we need to do this here in case the server sends the SSH_MSG_CHANNEL_CLOSE
-            // message without first sending SSH_MSG_CHANNEL_EOF
-            ShutdownSocket(SocketShutdown.Send);
+            // this will also interrupt the blocking receive in Bind()
+            ShutdownSocket(SocketShutdown.Both);
         }
 
         /// <summary>
@@ -250,8 +251,13 @@ namespace Renci.SshNet.Channels
         {
             base.OnErrorOccured(exp);
 
-            // close the socket, hereby interrupting the blocking receive in Bind()
-            CloseSocket();
+            // the session message looped has terminated, and as such we will not be able to receive any data
+            // though the channel; if we cannot receive any data through the channel, then it doesn't make
+            // sense to continue receiving data from the client.
+            // 
+            // so lets signal to the client that we will not send or receive anything anymore
+            // this will also interrupt the blocking receive in Bind()
+            ShutdownSocket(SocketShutdown.Both);
         }
 
         /// <summary>
@@ -265,8 +271,14 @@ namespace Renci.SshNet.Channels
         {
             base.OnDisconnected();
 
-            // close the socket, hereby interrupting the blocking receive in Bind()
-            CloseSocket();
+            // the channel will accept or send no more data, and hence it does not make sense
+            // to accept any more data from the client (and we surely won't send anything
+            // anymore)
+            //
+            // 
+            // so lets signal to the client that we will not send or receive anything anymore
+            // this will also interrupt the blocking receive in Bind()
+            ShutdownSocket(SocketShutdown.Both);
         }
 
         partial void InternalSocketReceive(byte[] buffer, ref int read);
@@ -275,31 +287,29 @@ namespace Renci.SshNet.Channels
 
         protected override void Dispose(bool disposing)
         {
-            // make sure we've unsubscribed from all session events before we starting disposing
+            // make sure we've unsubscribed from all session events and closed the channel
+            // before we starting disposing
             base.Dispose(disposing);
 
-            if (_forwardedPort != null)
+            if (disposing)
             {
-                _forwardedPort.Closing -= ForwardedPort_Closing;
-                _forwardedPort = null;
-            }
+                if (_socket != null)
+                {
+                    _socket.Dispose();
+                    _socket = null;
+                }
 
-            if (_socket != null)
-            {
-                _socket.Dispose();
-                _socket = null;
-            }
+                if (_channelOpen != null)
+                {
+                    _channelOpen.Dispose();
+                    _channelOpen = null;
+                }
 
-            if (_channelOpen != null)
-            {
-                _channelOpen.Dispose();
-                _channelOpen = null;
-            }
-
-            if (_channelData != null)
-            {
-                _channelData.Dispose();
-                _channelData = null;
+                if (_channelData != null)
+                {
+                    _channelData.Dispose();
+                    _channelData = null;
+                }
             }
         }
     }

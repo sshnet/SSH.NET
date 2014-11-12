@@ -15,6 +15,7 @@ namespace Renci.SshNet.Tests.Classes
     {
         [TestMethod]
         [TestCategory("PasswordConnectionInfo")]
+        [TestCategory("integration")]
         public void Test_PasswordConnectionInfo()
         {
             var host = Resources.HOST;
@@ -37,6 +38,7 @@ namespace Renci.SshNet.Tests.Classes
 
         [TestMethod]
         [TestCategory("PasswordConnectionInfo")]
+        [TestCategory("integration")]
         public void Test_PasswordConnectionInfo_PasswordExpired()
         {
             var host = Resources.HOST;
@@ -63,6 +65,7 @@ namespace Renci.SshNet.Tests.Classes
         }
         [TestMethod]
         [TestCategory("PasswordConnectionInfo")]
+        [TestCategory("integration")]
         public void Test_PasswordConnectionInfo_AuthenticationBanner()
         {
             var host = Resources.HOST;
@@ -90,10 +93,19 @@ namespace Renci.SshNet.Tests.Classes
 
         [WorkItem(703), TestMethod]
         [TestCategory("PasswordConnectionInfo")]
-        [ExpectedException(typeof(ArgumentException))]
         public void Test_ConnectionInfo_Host_Is_Null()
         {
-            var connectionInfo = new PasswordConnectionInfo(null, Resources.USERNAME, Resources.PASSWORD);
+            try
+            {
+                new PasswordConnectionInfo(null, Resources.USERNAME, Resources.PASSWORD);
+                Assert.Fail();
+            }
+            catch (ArgumentNullException ex)
+            {
+                Assert.IsNull(ex.InnerException);
+                Assert.AreEqual("host", ex.ParamName);
+            }
+
         }
 
         [WorkItem(703), TestMethod]
@@ -110,15 +122,6 @@ namespace Renci.SshNet.Tests.Classes
         public void Test_ConnectionInfo_Password_Is_Null()
         {
             var connectionInfo = new PasswordConnectionInfo(Resources.HOST, Resources.USERNAME, (string)null);
-        }
-
-        [TestMethod]
-        [TestCategory("PasswordConnectionInfo")]
-        [Description("Test passing whitespace to host parameter.")]
-        [ExpectedException(typeof(ArgumentException))]
-        public void Test_ConnectionInfo_Host_Is_Whitespace()
-        {
-            var connectionInfo = new PasswordConnectionInfo(" ", Resources.USERNAME, Resources.PASSWORD);
         }
 
         [TestMethod]
@@ -150,6 +153,7 @@ namespace Renci.SshNet.Tests.Classes
         [Owner("Kenneth_aa")]
         [Description("Test connect to remote server via a SOCKS4 proxy server.")]
         [TestCategory("Proxy")]
+        [TestCategory("integration")]
         public void Test_Ssh_Connect_Via_Socks4()
         {
             var connInfo = new PasswordConnectionInfo(Resources.HOST, Resources.USERNAME, Resources.PASSWORD, ProxyTypes.Socks4, Resources.PROXY_HOST, int.Parse(Resources.PROXY_PORT));
@@ -167,6 +171,7 @@ namespace Renci.SshNet.Tests.Classes
         [Owner("Kenneth_aa")]
         [Description("Test connect to remote server via a TCP SOCKS5 proxy server.")]
         [TestCategory("Proxy")]
+        [TestCategory("integration")]
         public void Test_Ssh_Connect_Via_TcpSocks5()
         {
             var connInfo = new PasswordConnectionInfo(Resources.HOST, Resources.USERNAME, Resources.PASSWORD, ProxyTypes.Socks5, Resources.PROXY_HOST, int.Parse(Resources.PROXY_PORT));
@@ -183,6 +188,7 @@ namespace Renci.SshNet.Tests.Classes
         [Owner("Kenneth_aa")]
         [Description("Test connect to remote server via a HTTP proxy server.")]
         [TestCategory("Proxy")]
+        [TestCategory("integration")]
         public void Test_Ssh_Connect_Via_HttpProxy()
         {
             var connInfo = new PasswordConnectionInfo(Resources.HOST, Resources.USERNAME, Resources.PASSWORD, ProxyTypes.Http, Resources.PROXY_HOST, int.Parse(Resources.PROXY_PORT));
@@ -199,7 +205,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for Dispose
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void DisposeTest()
         {
             string host = string.Empty; // TODO: Initialize to an appropriate value
@@ -213,7 +220,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for PasswordConnectionInfo Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void PasswordConnectionInfoConstructorTest()
         {
             string host = string.Empty; // TODO: Initialize to an appropriate value
@@ -232,7 +240,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for PasswordConnectionInfo Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void PasswordConnectionInfoConstructorTest1()
         {
             string host = string.Empty; // TODO: Initialize to an appropriate value
@@ -250,7 +259,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for PasswordConnectionInfo Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void PasswordConnectionInfoConstructorTest2()
         {
             string host = string.Empty; // TODO: Initialize to an appropriate value
@@ -267,7 +277,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for PasswordConnectionInfo Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void PasswordConnectionInfoConstructorTest3()
         {
             string host = string.Empty; // TODO: Initialize to an appropriate value
@@ -283,7 +294,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for PasswordConnectionInfo Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void PasswordConnectionInfoConstructorTest4()
         {
             string host = string.Empty; // TODO: Initialize to an appropriate value
@@ -301,7 +313,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for PasswordConnectionInfo Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void PasswordConnectionInfoConstructorTest5()
         {
             string host = string.Empty; // TODO: Initialize to an appropriate value
@@ -318,7 +331,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for PasswordConnectionInfo Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void PasswordConnectionInfoConstructorTest6()
         {
             string host = string.Empty; // TODO: Initialize to an appropriate value
@@ -332,7 +346,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for PasswordConnectionInfo Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void PasswordConnectionInfoConstructorTest7()
         {
             string host = string.Empty; // TODO: Initialize to an appropriate value
@@ -345,7 +360,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for PasswordConnectionInfo Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void PasswordConnectionInfoConstructorTest8()
         {
             string host = string.Empty; // TODO: Initialize to an appropriate value
@@ -363,7 +379,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for PasswordConnectionInfo Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void PasswordConnectionInfoConstructorTest9()
         {
             string host = string.Empty; // TODO: Initialize to an appropriate value
@@ -380,7 +397,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for PasswordConnectionInfo Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void PasswordConnectionInfoConstructorTest10()
         {
             string host = string.Empty; // TODO: Initialize to an appropriate value
@@ -396,7 +414,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for PasswordConnectionInfo Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void PasswordConnectionInfoConstructorTest11()
         {
             string host = string.Empty; // TODO: Initialize to an appropriate value
@@ -414,7 +433,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for PasswordConnectionInfo Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void PasswordConnectionInfoConstructorTest12()
         {
             string host = string.Empty; // TODO: Initialize to an appropriate value
@@ -431,7 +451,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for PasswordConnectionInfo Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void PasswordConnectionInfoConstructorTest13()
         {
             string host = string.Empty; // TODO: Initialize to an appropriate value
@@ -445,7 +466,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for PasswordConnectionInfo Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void PasswordConnectionInfoConstructorTest14()
         {
             string host = string.Empty; // TODO: Initialize to an appropriate value

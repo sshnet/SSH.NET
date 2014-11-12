@@ -192,11 +192,14 @@ namespace Renci.SshNet
         private bool _isDisconnectMessageSent;
 
         private uint _nextChannelNumber;
+
         /// <summary>
         /// Gets the next channel number.
         /// </summary>
-        /// <value>The next channel number.</value>
-        uint ISession.NextChannelNumber
+        /// <value>
+        /// The next channel number.
+        /// </value>
+        private uint NextChannelNumber
         {
             get
             {
@@ -204,7 +207,7 @@ namespace Renci.SshNet
 
                 lock (this)
                 {
-                    result = this._nextChannelNumber++;
+                    result = _nextChannelNumber++;
                 }
 
                 return result;
@@ -670,34 +673,6 @@ namespace Renci.SshNet
                 _messageListenerCompleted.Dispose();
                 _messageListenerCompleted = null;
             }
-        }
-
-        /// <summary>
-        /// Create a new client channel.
-        /// </summary>
-        /// <typeparam name="T">The type of the channel.</typeparam>
-        /// <returns>
-        /// A new client channel.
-        /// </returns>
-        internal T CreateClientChannel<T>() where T : ClientChannel, new()
-        {
-            var channel = new T();
-            lock (this)
-            {
-                channel.Initialize(this, InitialLocalWindowSize, LocalChannelDataPacketSize);
-            }
-            return channel;
-        }
-
-        internal T CreateServerChannel<T>(uint remoteChannelNumber, uint remoteWindowSize, uint remoteChannelDataPacketSize) where T : ServerChannel, new()
-        {
-            var channel = new T();
-            lock (this)
-            {
-                channel.Initialize(this, InitialLocalWindowSize, LocalChannelDataPacketSize, remoteChannelNumber, remoteWindowSize,
-                    remoteChannelDataPacketSize);
-            }
-            return channel;
         }
 
         /// <summary>
@@ -2258,7 +2233,7 @@ namespace Renci.SshNet
         /// </returns>
         IChannelSession ISession.CreateChannelSession()
         {
-            return CreateClientChannel<ChannelSession>();
+            return new ChannelSession(this, NextChannelNumber, InitialLocalWindowSize, LocalChannelDataPacketSize);
         }
 
         /// <summary>
@@ -2269,7 +2244,7 @@ namespace Renci.SshNet
         /// </returns>
         IChannelDirectTcpip ISession.CreateChannelDirectTcpip()
         {
-            return CreateClientChannel<ChannelDirectTcpip>();
+            return new ChannelDirectTcpip(this, NextChannelNumber, InitialLocalWindowSize, LocalChannelDataPacketSize);
         }
 
         /// <summary>
@@ -2281,7 +2256,13 @@ namespace Renci.SshNet
         IChannelForwardedTcpip ISession.CreateChannelForwardedTcpip(uint remoteChannelNumber, uint remoteWindowSize,
             uint remoteChannelDataPacketSize)
         {
-            return CreateServerChannel<ChannelForwardedTcpip>(remoteChannelNumber, remoteWindowSize, remoteChannelDataPacketSize);
+            return new ChannelForwardedTcpip(this,
+                                             NextChannelNumber,
+                                             InitialLocalWindowSize,
+                                             LocalChannelDataPacketSize,
+                                             remoteChannelNumber,
+                                             remoteWindowSize,
+                                             remoteChannelDataPacketSize);
         }
 
         /// <summary>

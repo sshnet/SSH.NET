@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages;
 
@@ -28,17 +27,16 @@ namespace Renci.SshNet.Tests.Classes.Channels
         private void Arrange()
         {
             var random = new Random();
+            _localChannelNumber = (uint)random.Next(0, int.MaxValue);
             _localWindowSize = (uint)random.Next(0, int.MaxValue);
             _localPacketSize = (uint)random.Next(0, int.MaxValue);
-            _localChannelNumber = (uint)random.Next(0, int.MaxValue);
             _channelClosedRegister = new List<ChannelEventArgs>();
 
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);
 
-            _sessionMock.Setup(p => p.NextChannelNumber).Returns(_localChannelNumber);
             _sessionMock.Setup(p => p.IsConnected).Returns(false);
 
-            _channel = new ChannelStub();
+            _channel = new ChannelStub(_sessionMock.Object, _localChannelNumber, _localWindowSize, _localPacketSize);
             _channel.Closed += (sender, args) =>
                 {
                     lock (this)
@@ -46,7 +44,6 @@ namespace Renci.SshNet.Tests.Classes.Channels
                         _channelClosedRegister.Add(args);
                     }
                 };
-            _channel.Initialize(_sessionMock.Object, _localWindowSize, _localPacketSize);
             _channel.SetIsOpen(true);
         }
 

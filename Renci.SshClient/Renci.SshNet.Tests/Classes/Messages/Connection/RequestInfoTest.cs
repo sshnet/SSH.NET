@@ -9,7 +9,8 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
     ///This is a test class for RequestInfoTest and is intended
     ///to contain all RequestInfoTest Unit Tests
     ///</summary>
-    [TestClass()]
+    [TestClass]
+    [Ignore] // placeholders only
     public class RequestInfoTest : TestBase
     {
         internal virtual RequestInfo CreateRequestInfo()

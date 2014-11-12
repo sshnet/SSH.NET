@@ -10,7 +10,7 @@ using Renci.SshNet.Tests.Common;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    public class SShCommand_EndExecute : TestBase
+    public class SshCommand_EndExecute : TestBase
     {
         private Mock<ISession> _sessionMock;
         private Mock<IChannelSession> _channelSessionMock;
@@ -60,7 +60,6 @@ namespace Renci.SshNet.Tests.Classes
                 .Returns(true)
                 .Raises(c => c.Closed += null, new ChannelEventArgs(5));
             _channelSessionMock.InSequence(seq).Setup(p => p.IsOpen).Returns(true);
-            _channelSessionMock.InSequence(seq).Setup(p => p.SendEof());
             _channelSessionMock.InSequence(seq).Setup(p => p.Close());
             _channelSessionMock.InSequence(seq).Setup(p => p.Dispose());
 

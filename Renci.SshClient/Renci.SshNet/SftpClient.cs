@@ -1048,7 +1048,7 @@ namespace Renci.SshNet
             if (encoding == null)
                 throw new ArgumentNullException("encoding");
 
-            return new StreamWriter(new SftpFileStream(this._sftpSession, path, FileMode.Append, FileAccess.Write), encoding);
+            return new StreamWriter(new SftpFileStream(this._sftpSession, path, FileMode.Append, FileAccess.Write, (int) _bufferSize), encoding);
         }
 
         /// <summary>
@@ -1062,7 +1062,7 @@ namespace Renci.SshNet
         {
             CheckDisposed();
 
-            return new SftpFileStream(this._sftpSession, path, FileMode.Create, FileAccess.ReadWrite);
+            return new SftpFileStream(this._sftpSession, path, FileMode.Create, FileAccess.ReadWrite, (int) _bufferSize);
         }
 
         /// <summary>

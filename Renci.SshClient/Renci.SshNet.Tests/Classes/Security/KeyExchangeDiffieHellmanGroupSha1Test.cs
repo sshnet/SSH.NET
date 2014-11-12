@@ -1,12 +1,10 @@
-﻿using Renci.SshNet.Security;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using Renci.SshNet;
-using Renci.SshNet.Messages.Transport;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Renci.SshNet.Common;
+using Renci.SshNet.Messages.Transport;
+using Renci.SshNet.Security;
 using Renci.SshNet.Tests.Common;
 
-namespace Renci.SshNet.Tests
+namespace Renci.SshNet.Tests.Classes.Security
 {
     /// <summary>
     ///This is a test class for KeyExchangeDiffieHellmanGroupSha1Test and is intended
@@ -25,7 +23,8 @@ namespace Renci.SshNet.Tests
         /// <summary>
         ///A test for Finish
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void FinishTest()
         {
             KeyExchangeDiffieHellmanGroupSha1 target = CreateKeyExchangeDiffieHellmanGroupSha1(); // TODO: Initialize to an appropriate value
@@ -36,7 +35,8 @@ namespace Renci.SshNet.Tests
         /// <summary>
         ///A test for Start
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void StartTest()
         {
             KeyExchangeDiffieHellmanGroupSha1 target = CreateKeyExchangeDiffieHellmanGroupSha1(); // TODO: Initialize to an appropriate value
@@ -49,7 +49,8 @@ namespace Renci.SshNet.Tests
         /// <summary>
         ///A test for GroupPrime
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void GroupPrimeTest()
         {
             KeyExchangeDiffieHellmanGroupSha1 target = CreateKeyExchangeDiffieHellmanGroupSha1(); // TODO: Initialize to an appropriate value

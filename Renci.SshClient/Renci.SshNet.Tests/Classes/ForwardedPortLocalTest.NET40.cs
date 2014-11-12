@@ -1,21 +1,17 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Renci.SshNet.Common;
-using Renci.SshNet.Tests.Common;
-using Renci.SshNet.Tests.Properties;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Renci.SshNet.Common;
+using Renci.SshNet.Tests.Properties;
 
-namespace Renci.SshNet.Tests.SshClientTests
+namespace Renci.SshNet.Tests.Classes
 {
-    /// <summary>
-    /// Summary description for UnitTest1
-    /// </summary>
-    [TestClass]
-    public partial class ForwardedPortLocalTest : TestBase
+    public partial class ForwardedPortLocalTest
     {
         [TestMethod]
+        [TestCategory("integration")]
         [ExpectedException(typeof(SshConnectionException))]
         public void Test_PortForwarding_Local_Without_Connecting()
         {
@@ -52,6 +48,7 @@ namespace Renci.SshNet.Tests.SshClientTests
         }
 
         [TestMethod]
+        [TestCategory("integration")]
         public void Test_PortForwarding_Local()
         {
             using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
@@ -90,7 +87,7 @@ namespace Renci.SshNet.Tests.SshClientTests
         private static byte[] ReadStream(Stream stream)
         {
             byte[] buffer = new byte[1024];
-            using (MemoryStream ms = new MemoryStream())
+            using (var ms = new MemoryStream())
             {
                 while (true)
                 {

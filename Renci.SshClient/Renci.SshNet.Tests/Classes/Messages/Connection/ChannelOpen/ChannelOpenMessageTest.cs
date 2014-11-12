@@ -9,7 +9,8 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
     ///This is a test class for ChannelOpenMessageTest and is intended
     ///to contain all ChannelOpenMessageTest Unit Tests
     ///</summary>
-    [TestClass()]
+    [TestClass]
+    [Ignore] // placeholders only
     public class ChannelOpenMessageTest : TestBase
     {
         /// <summary>

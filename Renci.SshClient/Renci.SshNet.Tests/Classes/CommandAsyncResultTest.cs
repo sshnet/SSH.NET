@@ -1,45 +1,32 @@
-﻿using Renci.SshNet;
+﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 using Renci.SshNet.Tests.Common;
 
-namespace Renci.SshNet.Tests
+namespace Renci.SshNet.Tests.Classes
 {
-    /// <summary>
-    ///This is a test class for CommandAsyncResultTest and is intended
-    ///to contain all CommandAsyncResultTest Unit Tests
-    ///</summary>
     [TestClass()]
     public class CommandAsyncResultTest : TestBase
     {
-        /// <summary>
-        ///A test for BytesSent
-        ///</summary>
         [TestMethod()]
         public void BytesSentTest()
         {
-            CommandAsyncResult target = new CommandAsyncResult(); // TODO: Initialize to an appropriate value
-            int expected = 0; // TODO: Initialize to an appropriate value
-            int actual;
+            var target = new CommandAsyncResult();
+            int expected = new Random().Next();
+
             target.BytesSent = expected;
-            actual = target.BytesSent;
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verify the correctness of this test method.");
+
+            Assert.AreEqual(expected, target.BytesSent);
         }
 
-        /// <summary>
-        ///A test for BytesReceived
-        ///</summary>
         [TestMethod()]
         public void BytesReceivedTest()
         {
-            CommandAsyncResult target = new CommandAsyncResult(); // TODO: Initialize to an appropriate value
-            int expected = 0; // TODO: Initialize to an appropriate value
-            int actual;
+            var target = new CommandAsyncResult();
+            var expected = new Random().Next();
+
             target.BytesReceived = expected;
-            actual = target.BytesReceived;
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verify the correctness of this test method.");
+
+            Assert.AreEqual(expected, target.BytesReceived);
         }
     }
 }

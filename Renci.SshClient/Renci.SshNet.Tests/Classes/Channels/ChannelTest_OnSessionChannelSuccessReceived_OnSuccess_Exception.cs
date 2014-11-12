@@ -28,18 +28,15 @@ namespace Renci.SshNet.Tests.Classes.Channels
         private void Arrange()
         {
             var random = new Random();
+            _localChannelNumber = (uint)random.Next(0, int.MaxValue);
             _localWindowSize = (uint)random.Next(0, 1000);
             _localPacketSize = (uint)random.Next(1001, int.MaxValue);
-            _localChannelNumber = (uint)random.Next(0, int.MaxValue);
             _onSuccessException = new SystemException();
             _channelExceptionRegister = new List<ExceptionEventArgs>();
 
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);
 
-            _sessionMock.Setup(p => p.NextChannelNumber).Returns(_localChannelNumber);
-
-            _channel = new ChannelStub();
-            _channel.Initialize(_sessionMock.Object, _localWindowSize, _localPacketSize);
+            _channel = new ChannelStub(_sessionMock.Object, _localChannelNumber, _localWindowSize, _localPacketSize);
             _channel.Exception += (sender, args) => _channelExceptionRegister.Add(args);
             _channel.OnSuccessException = _onSuccessException;
         }

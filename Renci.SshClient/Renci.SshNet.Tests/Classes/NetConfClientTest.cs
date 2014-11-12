@@ -15,7 +15,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for NetConfClient Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void NetConfClientConstructorTest()
         {
             string host = string.Empty; // TODO: Initialize to an appropriate value
@@ -28,7 +29,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for NetConfClient Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void NetConfClientConstructorTest1()
         {
             string host = string.Empty; // TODO: Initialize to an appropriate value
@@ -42,7 +44,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for NetConfClient Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void NetConfClientConstructorTest2()
         {
             string host = string.Empty; // TODO: Initialize to an appropriate value
@@ -55,7 +58,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for NetConfClient Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void NetConfClientConstructorTest3()
         {
             string host = string.Empty; // TODO: Initialize to an appropriate value
@@ -69,7 +73,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for NetConfClient Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void NetConfClientConstructorTest4()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -80,7 +85,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for SendReceiveRpc
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void SendReceiveRpcTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -96,7 +102,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for SendReceiveRpc
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void SendReceiveRpcTest1()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -112,7 +119,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for SendCloseRpc
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void SendCloseRpcTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -127,7 +135,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for ServerCapabilities
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void ServerCapabilitiesTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -140,7 +149,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for OperationTimeout
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void OperationTimeoutTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -156,7 +166,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for ClientCapabilities
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void ClientCapabilitiesTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -169,7 +180,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for AutomaticMessageIdHandling
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void AutomaticMessageIdHandlingTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value

@@ -22,7 +22,8 @@ namespace Renci.SshNet.Tests
         /// <summary>
         ///A test for DecryptBlock
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void DecryptBlockTest()
         {
             SymmetricCipher target = CreateSymmetricCipher(); // TODO: Initialize to an appropriate value
@@ -41,7 +42,8 @@ namespace Renci.SshNet.Tests
         /// <summary>
         ///A test for EncryptBlock
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void EncryptBlockTest()
         {
             SymmetricCipher target = CreateSymmetricCipher(); // TODO: Initialize to an appropriate value

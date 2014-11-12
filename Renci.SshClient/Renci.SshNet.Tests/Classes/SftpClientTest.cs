@@ -19,7 +19,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for SftpClient Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void SftpClientConstructorTest()
         {
             string host = string.Empty; // TODO: Initialize to an appropriate value
@@ -32,7 +33,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for SftpClient Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void SftpClientConstructorTest1()
         {
             string host = string.Empty; // TODO: Initialize to an appropriate value
@@ -46,7 +48,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for SftpClient Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void SftpClientConstructorTest2()
         {
             string host = string.Empty; // TODO: Initialize to an appropriate value
@@ -59,7 +62,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for SftpClient Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void SftpClientConstructorTest3()
         {
             string host = string.Empty; // TODO: Initialize to an appropriate value
@@ -73,7 +77,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for SftpClient Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void SftpClientConstructorTest4()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -84,7 +89,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for ChangePermissions
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void ChangePermissionsTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -98,7 +104,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for ChangeDirectory
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void ChangeDirectoryTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -111,7 +118,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for BeginUploadFile
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void BeginUploadFileTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -131,7 +139,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for BeginUploadFile
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void BeginUploadFileTest1()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -152,7 +161,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for BeginSynchronizeDirectories
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void BeginSynchronizeDirectoriesTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -172,7 +182,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for BeginListDirectory
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void BeginListDirectoryTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -191,7 +202,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for BeginDownloadFile
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void BeginDownloadFileTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -211,7 +223,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for AppendText
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void AppendTextTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -228,7 +241,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for AppendText
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void AppendTextTest1()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -244,7 +258,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for AppendAllText
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void AppendAllTextTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -258,7 +273,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for AppendAllText
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void AppendAllTextTest1()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -273,7 +289,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for AppendAllLines
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void AppendAllLinesTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -287,7 +304,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for AppendAllLines
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void AppendAllLinesTest1()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -302,7 +320,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for CreateText
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void CreateTextTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -319,7 +338,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for CreateText
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void CreateTextTest1()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -335,7 +355,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for CreateDirectory
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void CreateDirectoryTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -348,7 +369,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for Create
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void CreateTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -365,7 +387,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for Create
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void CreateTest1()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -381,7 +404,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for EndSynchronizeDirectories
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void EndSynchronizeDirectoriesTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -397,7 +421,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for EndListDirectory
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void EndListDirectoryTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -413,7 +438,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for EndDownloadFile
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void EndDownloadFileTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -426,7 +452,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for DownloadFile
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void DownloadFileTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -441,7 +468,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for DeleteFile
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void DeleteFileTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -454,7 +482,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for DeleteDirectory
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void DeleteDirectoryTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -467,7 +496,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for Delete
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void DeleteTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -480,7 +510,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for GetLastAccessTimeUtc
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void GetLastAccessTimeUtcTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -496,7 +527,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for GetLastAccessTime
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void GetLastAccessTimeTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -512,7 +544,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for GetAttributes
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void GetAttributesTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -528,7 +561,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for Get
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void GetTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -544,7 +578,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for Exists
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void ExistsTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -560,7 +595,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for EndUploadFile
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void EndUploadFileTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -573,7 +609,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for GetLastWriteTimeUtc
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void GetLastWriteTimeUtcTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -589,7 +626,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for GetLastWriteTime
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void GetLastWriteTimeTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -605,7 +643,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for GetStatus
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void GetStatusTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -621,7 +660,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for ListDirectory
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void ListDirectoryTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -638,7 +678,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for Open
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void OpenTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -655,7 +696,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for Open
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void OpenTest1()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -673,7 +715,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for OpenRead
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void OpenReadTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -689,7 +732,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for OpenText
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void OpenTextTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -705,7 +749,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for OpenWrite
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void OpenWriteTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -721,7 +766,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for ReadAllBytes
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void ReadAllBytesTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -737,7 +783,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for ReadAllLines
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void ReadAllLinesTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -754,7 +801,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for ReadAllLines
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void ReadAllLinesTest1()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -770,7 +818,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for ReadAllText
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void ReadAllTextTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -787,7 +836,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for ReadAllText
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void ReadAllTextTest1()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -803,7 +853,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for ReadLines
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void ReadLinesTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -819,7 +870,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for ReadLines
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void ReadLinesTest1()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -836,7 +888,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for RenameFile
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void RenameFileTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -850,7 +903,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for RenameFile
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void RenameFileTest1()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -865,7 +919,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for SetAttributes
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void SetAttributesTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -879,7 +934,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for SetLastAccessTime
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void SetLastAccessTimeTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -893,7 +949,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for SetLastAccessTimeUtc
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void SetLastAccessTimeUtcTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -907,7 +964,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for SetLastWriteTime
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void SetLastWriteTimeTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -921,7 +979,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for SetLastWriteTimeUtc
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void SetLastWriteTimeUtcTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -935,7 +994,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for SymbolicLink
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void SymbolicLinkTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -949,7 +1009,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for SynchronizeDirectories
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void SynchronizeDirectoriesTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -967,7 +1028,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for UploadFile
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void UploadFileTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -982,7 +1044,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for UploadFile
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void UploadFileTest1()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -998,7 +1061,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for WriteAllBytes
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void WriteAllBytesTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -1012,7 +1076,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for WriteAllLines
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void WriteAllLinesTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -1026,7 +1091,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for WriteAllLines
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void WriteAllLinesTest1()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -1040,7 +1106,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for WriteAllLines
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void WriteAllLinesTest2()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -1055,7 +1122,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for WriteAllLines
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void WriteAllLinesTest3()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -1070,7 +1138,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for WriteAllText
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void WriteAllTextTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -1084,7 +1153,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for WriteAllText
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void WriteAllTextTest1()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -1099,7 +1169,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for BufferSize
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void BufferSizeTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -1115,7 +1186,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for OperationTimeout
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void OperationTimeoutTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -1131,7 +1203,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for WorkingDirectory
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void WorkingDirectoryTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -1139,18 +1212,6 @@ namespace Renci.SshNet.Tests.Classes
             string actual;
             actual = target.WorkingDirectory;
             Assert.Inconclusive("Verify the correctness of this test method.");
-        }
-
-
-        protected override void OnInit()
-        {
-            base.OnInit();
-            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
-            {
-                client.Connect();
-                client.RunCommand("rm -rf *");
-                client.Disconnect();
-            }
         }
 
         protected static string CalculateMD5(string fileName)
@@ -1167,6 +1228,16 @@ namespace Renci.SshNet.Tests.Classes
                     sb.Append(retVal[i].ToString("x2"));
                 }
                 return sb.ToString();
+            }
+        }
+
+        private static void RemoveAllFiles()
+        {
+            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            {
+                client.Connect();
+                client.RunCommand("rm -rf *");
+                client.Disconnect();
             }
         }
 

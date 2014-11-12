@@ -50,6 +50,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         ///A test for GetObjectData
         ///</summary>
         [TestMethod()]
+        [Ignore] // placeholder for actual test
         public void GetObjectDataTest()
         {
             SshException target = new SshException(); // TODO: Initialize to an appropriate value

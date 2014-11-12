@@ -11,6 +11,7 @@ namespace Renci.SshNet.Tests.Classes.Common
     ///to contain all BigIntegerTest Unit Tests
     ///</summary>
     [TestClass()]
+    [Ignore] // placeholder for actual test
     public class BigIntegerTest : TestBase
     {
         /// <summary>

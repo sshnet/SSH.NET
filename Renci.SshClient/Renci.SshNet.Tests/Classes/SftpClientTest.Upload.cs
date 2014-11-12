@@ -19,6 +19,8 @@ namespace Renci.SshNet.Tests.Classes
         [TestCategory("Sftp")]
         public void Test_Sftp_Upload_And_Download_1MB_File()
         {
+            RemoveAllFiles();
+
             using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
             {
                 sftp.Connect();
@@ -85,6 +87,8 @@ namespace Renci.SshNet.Tests.Classes
         {
             var maxFiles = 10;
             var maxSize = 5;
+
+            RemoveAllFiles();
 
             using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
             {
@@ -235,6 +239,8 @@ namespace Renci.SshNet.Tests.Classes
         [Description("Test that delegates passed to BeginUploadFile, BeginDownloadFile and BeginListDirectory are actually called.")]
         public void Test_Sftp_Ensure_Async_Delegates_Called_For_BeginFileUpload_BeginFileDownload_BeginListDirectory()
         {
+            RemoveAllFiles();
+
             using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
             {
                 sftp.Connect();

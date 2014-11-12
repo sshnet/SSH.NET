@@ -6,13 +6,12 @@ using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Common
 {
-    
-    
     /// <summary>
     ///This is a test class for AsyncResultTest and is intended
     ///to contain all AsyncResultTest Unit Tests
     ///</summary>
-    [TestClass()]
+    [TestClass]
+    [Ignore] // placeholder for actual test
     public class AsyncResultTest : TestBase
     {
         /// <summary>

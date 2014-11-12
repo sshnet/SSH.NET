@@ -362,7 +362,7 @@ namespace Renci.SshNet
             //  Create new AsyncResult object
             var asyncResult = new ExpectAsyncResult(callback, state);
 
-            //  Execute callback on different thread                
+            //  Execute callback on different thread
             ExecuteThread(() =>
             {
                 string expectActionResult = null;
@@ -696,12 +696,8 @@ namespace Renci.SshNet
 
         private void Session_Disconnected(object sender, EventArgs e)
         {
-            //  If channel is open then close it to cause Channel_Closed method to be called
-            if (_channel != null && _channel.IsOpen)
-            {
-                _channel.SendEof();
+            if (_channel != null)
                 _channel.Close();
-            }
         }
 
         private void Channel_Closed(object sender, ChannelEventArgs e)

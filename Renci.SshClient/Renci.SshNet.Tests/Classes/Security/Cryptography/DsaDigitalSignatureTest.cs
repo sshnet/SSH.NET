@@ -14,7 +14,8 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
         /// <summary>
         ///A test for DsaDigitalSignature Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void DsaDigitalSignatureConstructorTest()
         {
             DsaKey key = null; // TODO: Initialize to an appropriate value
@@ -25,7 +26,8 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
         /// <summary>
         ///A test for Dispose
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void DisposeTest()
         {
             DsaKey key = null; // TODO: Initialize to an appropriate value
@@ -37,7 +39,8 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
         /// <summary>
         ///A test for Sign
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void SignTest()
         {
             DsaKey key = null; // TODO: Initialize to an appropriate value
@@ -53,7 +56,8 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
         /// <summary>
         ///A test for Verify
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void VerifyTest()
         {
             DsaKey key = null; // TODO: Initialize to an appropriate value

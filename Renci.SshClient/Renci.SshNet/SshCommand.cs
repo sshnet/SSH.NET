@@ -290,7 +290,6 @@ namespace Renci.SshNet
 
                         if (_channel.IsOpen)
                         {
-                            _channel.SendEof();
                             _channel.Close();
                         }
 

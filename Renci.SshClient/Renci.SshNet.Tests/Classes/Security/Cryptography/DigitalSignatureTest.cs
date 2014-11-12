@@ -1,9 +1,8 @@
-﻿using Renci.SshNet.Security.Cryptography;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Renci.SshNet.Security.Cryptography;
 using Renci.SshNet.Tests.Common;
 
-namespace Renci.SshNet.Tests
+namespace Renci.SshNet.Tests.Classes.Security.Cryptography
 {
     /// <summary>
     ///This is a test class for DigitalSignatureTest and is intended
@@ -22,7 +21,8 @@ namespace Renci.SshNet.Tests
         /// <summary>
         ///A test for Sign
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void SignTest()
         {
             DigitalSignature target = CreateDigitalSignature(); // TODO: Initialize to an appropriate value
@@ -37,7 +37,8 @@ namespace Renci.SshNet.Tests
         /// <summary>
         ///A test for Verify
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void VerifyTest()
         {
             DigitalSignature target = CreateDigitalSignature(); // TODO: Initialize to an appropriate value

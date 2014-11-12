@@ -15,6 +15,11 @@ namespace Renci.SshNet.Channels
         event EventHandler<ChannelDataEventArgs> DataReceived;
 
         /// <summary>
+        /// Occurs when an exception is thrown when processing channel messages.
+        /// </summary>
+        event EventHandler<ExceptionEventArgs> Exception;
+
+        /// <summary>
         /// Occurs when <see cref="ChannelExtendedDataMessage"/> message received
         /// </summary>
         event EventHandler<ChannelDataEventArgs> ExtendedDataReceived;
@@ -73,10 +78,5 @@ namespace Renci.SshNet.Channels
         /// </summary>
         /// <param name="data">The payload to send.</param>
         void SendData(byte[] data);
-
-        /// <summary>
-        /// Sends the SSH_MSG_CHANNEL_EOF message.
-        /// </summary>
-        void SendEof();
     }
 }

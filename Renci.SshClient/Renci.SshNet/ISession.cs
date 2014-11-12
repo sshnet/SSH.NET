@@ -29,14 +29,6 @@ namespace Renci.SshNet
         bool IsConnected { get; }
 
         /// <summary>
-        /// Gets the next channel number.
-        /// </summary>
-        /// <value>
-        /// The next channel number.
-        /// </value>
-        uint NextChannelNumber { get; }
-
-        /// <summary>
         /// Gets the session semaphore that controls session channels.
         /// </summary>
         /// <value>

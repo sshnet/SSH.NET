@@ -14,7 +14,8 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
         /// <summary>
         ///A test for RsaCipher Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void RsaCipherConstructorTest()
         {
             RsaKey key = null; // TODO: Initialize to an appropriate value
@@ -25,7 +26,8 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
         /// <summary>
         ///A test for Decrypt
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void DecryptTest()
         {
             RsaKey key = null; // TODO: Initialize to an appropriate value
@@ -41,7 +43,8 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
         /// <summary>
         ///A test for Encrypt
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void EncryptTest()
         {
             RsaKey key = null; // TODO: Initialize to an appropriate value

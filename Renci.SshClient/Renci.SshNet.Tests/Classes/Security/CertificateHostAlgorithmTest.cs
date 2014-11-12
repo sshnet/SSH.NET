@@ -1,9 +1,8 @@
-﻿using Renci.SshNet.Security;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Renci.SshNet.Security;
 using Renci.SshNet.Tests.Common;
 
-namespace Renci.SshNet.Tests
+namespace Renci.SshNet.Tests.Classes.Security
 {
     /// <summary>
     ///This is a test class for CertificateHostAlgorithmTest and is intended
@@ -15,7 +14,7 @@ namespace Renci.SshNet.Tests
         /// <summary>
         ///A test for CertificateHostAlgorithm Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
         public void CertificateHostAlgorithmConstructorTest()
         {
             string name = string.Empty; // TODO: Initialize to an appropriate value
@@ -26,7 +25,8 @@ namespace Renci.SshNet.Tests
         /// <summary>
         ///A test for Sign
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void SignTest()
         {
             string name = string.Empty; // TODO: Initialize to an appropriate value
@@ -42,7 +42,8 @@ namespace Renci.SshNet.Tests
         /// <summary>
         ///A test for VerifySignature
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void VerifySignatureTest()
         {
             string name = string.Empty; // TODO: Initialize to an appropriate value
@@ -59,7 +60,8 @@ namespace Renci.SshNet.Tests
         /// <summary>
         ///A test for Data
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void DataTest()
         {
             string name = string.Empty; // TODO: Initialize to an appropriate value

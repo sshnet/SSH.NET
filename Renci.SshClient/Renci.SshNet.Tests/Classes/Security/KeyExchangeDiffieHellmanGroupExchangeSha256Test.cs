@@ -1,11 +1,9 @@
-﻿using Renci.SshNet.Security;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using Renci.SshNet;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Renci.SshNet.Messages.Transport;
+using Renci.SshNet.Security;
 using Renci.SshNet.Tests.Common;
 
-namespace Renci.SshNet.Tests
+namespace Renci.SshNet.Tests.Classes.Security
 {
     /// <summary>
     ///This is a test class for KeyExchangeDiffieHellmanGroupExchangeSha256Test and is intended
@@ -27,7 +25,8 @@ namespace Renci.SshNet.Tests
         /// <summary>
         ///A test for Finish
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void FinishTest()
         {
             KeyExchangeDiffieHellmanGroupExchangeSha256 target = new KeyExchangeDiffieHellmanGroupExchangeSha256(); // TODO: Initialize to an appropriate value
@@ -38,7 +37,8 @@ namespace Renci.SshNet.Tests
         /// <summary>
         ///A test for Start
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void StartTest()
         {
             KeyExchangeDiffieHellmanGroupExchangeSha256 target = new KeyExchangeDiffieHellmanGroupExchangeSha256(); // TODO: Initialize to an appropriate value

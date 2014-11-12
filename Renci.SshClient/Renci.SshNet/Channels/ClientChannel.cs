@@ -7,6 +7,20 @@ namespace Renci.SshNet.Channels
     internal abstract class ClientChannel : Channel
     {
         /// <summary>
+        /// Initializes a new <see cref="ClientChannel"/> instance.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="localChannelNumber">The local channel number.</param>
+        /// <param name="localWindowSize">Size of the window.</param>
+        /// <param name="localPacketSize">Size of the packet.</param>
+        protected ClientChannel(ISession session, uint localChannelNumber, uint localWindowSize, uint localPacketSize)
+            : base(session, localChannelNumber, localWindowSize, localPacketSize)
+        {
+            session.ChannelOpenConfirmationReceived += OnChannelOpenConfirmation;
+            session.ChannelOpenFailureReceived += OnChannelOpenFailure;
+        }
+
+        /// <summary>
         /// Occurs when <see cref="ChannelOpenConfirmationMessage"/> message is received.
         /// </summary>
         public event EventHandler<ChannelOpenConfirmedEventArgs> OpenConfirmed;
@@ -15,19 +29,6 @@ namespace Renci.SshNet.Channels
         /// Occurs when <see cref="ChannelOpenFailureMessage"/> message received
         /// </summary>
         public event EventHandler<ChannelOpenFailedEventArgs> OpenFailed;
-
-        /// <summary>
-        /// Initializes the channel.
-        /// </summary>
-        /// <param name="session">The session.</param>
-        /// <param name="localWindowSize">Size of the window.</param>
-        /// <param name="localPacketSize">Size of the packet.</param>
-        internal override void Initialize(ISession session, uint localWindowSize, uint localPacketSize)
-        {
-            base.Initialize(session, localWindowSize, localPacketSize);
-            Session.ChannelOpenConfirmationReceived += OnChannelOpenConfirmation;
-            Session.ChannelOpenFailureReceived += OnChannelOpenFailure;
-        }
 
         /// <summary>
         /// Called when channel is opened by the server.

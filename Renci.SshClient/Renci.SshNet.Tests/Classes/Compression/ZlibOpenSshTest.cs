@@ -10,7 +10,8 @@ namespace Renci.SshNet.Tests.Classes.Compression
     ///This is a test class for ZlibOpenSshTest and is intended
     ///to contain all ZlibOpenSshTest Unit Tests
     ///</summary>
-    [TestClass()]
+    [TestClass]
+    [Ignore] // placeholders only
     public class ZlibOpenSshTest : TestBase
     {
         /// <summary>

@@ -1,9 +1,8 @@
-﻿using Renci.SshNet.Security.Cryptography.Ciphers;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Renci.SshNet.Security.Cryptography.Ciphers;
 using Renci.SshNet.Tests.Common;
 
-namespace Renci.SshNet.Tests
+namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
 {
     /// <summary>
     ///This is a test class for CipherPaddingTest and is intended
@@ -22,7 +21,8 @@ namespace Renci.SshNet.Tests
         /// <summary>
         ///A test for Pad
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void PadTest()
         {
             CipherPadding target = CreateCipherPadding(); // TODO: Initialize to an appropriate value

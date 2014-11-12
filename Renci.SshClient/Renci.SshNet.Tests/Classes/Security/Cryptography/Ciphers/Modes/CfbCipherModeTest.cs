@@ -1,9 +1,8 @@
-﻿using Renci.SshNet.Security.Cryptography.Ciphers.Modes;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Renci.SshNet.Security.Cryptography.Ciphers.Modes;
 using Renci.SshNet.Tests.Common;
 
-namespace Renci.SshNet.Tests
+namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers.Modes
 {
     /// <summary>
     ///This is a test class for CfbCipherModeTest and is intended
@@ -15,7 +14,8 @@ namespace Renci.SshNet.Tests
         /// <summary>
         ///A test for EncryptBlock
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void EncryptBlockTest()
         {
             byte[] iv = null; // TODO: Initialize to an appropriate value
@@ -35,7 +35,8 @@ namespace Renci.SshNet.Tests
         /// <summary>
         ///A test for DecryptBlock
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void DecryptBlockTest()
         {
             byte[] iv = null; // TODO: Initialize to an appropriate value
@@ -55,7 +56,8 @@ namespace Renci.SshNet.Tests
         /// <summary>
         ///A test for CfbCipherMode Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void CfbCipherModeConstructorTest()
         {
             byte[] iv = null; // TODO: Initialize to an appropriate value

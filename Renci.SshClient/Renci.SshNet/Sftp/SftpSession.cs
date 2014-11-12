@@ -10,7 +10,7 @@ using Renci.SshNet.Sftp.Requests;
 
 namespace Renci.SshNet.Sftp
 {
-    internal class SftpSession : SubsystemSession
+    internal class SftpSession : SubsystemSession, ISftpSession
     {
         private const int MaximumSupportedVersion = 3;
 
@@ -253,9 +253,9 @@ namespace Renci.SshNet.Sftp
         /// </summary>
         /// <param name="path">The path.</param>
         /// <param name="flags">The flags.</param>
-        /// <param name="nullOnError">if set to <c>true</c> returns null instead of throwing an exception.</param>
+        /// <param name="nullOnError">if set to <c>true</c> returns <c>null</c> instead of throwing an exception.</param>
         /// <returns>File handle.</returns>
-        internal byte[] RequestOpen(string path, Flags flags, bool nullOnError = false)
+        public byte[] RequestOpen(string path, Flags flags, bool nullOnError = false)
         {
             byte[] handle = null;
             SshException exception = null;
@@ -291,7 +291,7 @@ namespace Renci.SshNet.Sftp
         /// Performs SSH_FXP_CLOSE request.
         /// </summary>
         /// <param name="handle">The handle.</param>
-        internal void RequestClose(byte[] handle)
+        public void RequestClose(byte[] handle)
         {
             SshException exception = null;
 
@@ -322,7 +322,7 @@ namespace Renci.SshNet.Sftp
         /// <param name="offset">The offset.</param>
         /// <param name="length">The length.</param>
         /// <returns>data array; null if EOF</returns>
-        internal byte[] RequestRead(byte[] handle, UInt64 offset, UInt32 length)
+        public byte[] RequestRead(byte[] handle, ulong offset, uint length)
         {
             SshException exception = null;
 
@@ -366,7 +366,7 @@ namespace Renci.SshNet.Sftp
         /// <param name="data">The data to send.</param>
         /// <param name="wait">The wait event handle if needed.</param>
         /// <param name="writeCompleted">The callback to invoke when the write has completed.</param>
-        internal void RequestWrite(byte[] handle, UInt64 offset, byte[] data, EventWaitHandle wait, Action<SftpStatusResponse> writeCompleted = null)
+        public void RequestWrite(byte[] handle, ulong offset, byte[] data, AutoResetEvent wait, Action<SftpStatusResponse> writeCompleted = null)
         {
             SshException exception = null;
 
@@ -440,7 +440,7 @@ namespace Renci.SshNet.Sftp
         /// <returns>
         /// File attributes
         /// </returns>
-        internal SftpFileAttributes RequestFStat(byte[] handle)
+        public SftpFileAttributes RequestFStat(byte[] handle)
         {
             SshException exception = null;
             SftpFileAttributes attributes = null;
@@ -506,7 +506,7 @@ namespace Renci.SshNet.Sftp
         /// </summary>
         /// <param name="handle">The handle.</param>
         /// <param name="attributes">The attributes.</param>
-        internal void RequestFSetStat(byte[] handle, SftpFileAttributes attributes)
+        public void RequestFSetStat(byte[] handle, SftpFileAttributes attributes)
         {
             SshException exception = null;
 
@@ -1068,7 +1068,7 @@ namespace Renci.SshNet.Sftp
         /// <returns>
         /// The optimal size of the buffer to read data from the channel.
         /// </returns>
-        internal uint CalculateOptimalReadLength(uint bufferSize)
+        public uint CalculateOptimalReadLength(uint bufferSize)
         {
             // a SSH_FXP_DATA message has 13 bytes of protocol fields:
             // bytes 1 to 4: packet length
@@ -1098,7 +1098,7 @@ namespace Renci.SshNet.Sftp
         /// <remarks>
         /// Currently, we do not take the remote window size into account.
         /// </remarks>
-        internal uint CalculateOptimalWriteLength(uint bufferSize, byte[] handle)
+        public uint CalculateOptimalWriteLength(uint bufferSize, byte[] handle)
         {
             // 1-4: package length of SSH_FXP_WRITE message
             // 5: message type

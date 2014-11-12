@@ -15,17 +15,22 @@ namespace Renci.SshNet.Channels
     {
         private readonly object _socketShutdownAndCloseLock = new object();
         private Socket _socket;
+        private IForwardedPort _forwardedPort;
 
         /// <summary>
-        /// Holds a value indicating whether the SSH_MSG_CHANNEL_EOF has been sent to the client.
+        /// Initializes a new <see cref="ChannelForwardedTcpip"/> instance.
         /// </summary>
-        /// <value>
-        /// <c>0</c> when the SSH_MSG_CHANNEL_EOF message has not been sent to the client, and
-        /// <c>1</c> when this message was already sent.
-        /// </value>
-        private int _sentEof;
-
-        private IForwardedPort _forwardedPort;
+        /// <param name="session">The session.</param>
+        /// <param name="localChannelNumber">The local channel number.</param>
+        /// <param name="localWindowSize">Size of the window.</param>
+        /// <param name="localPacketSize">Size of the packet.</param>
+        /// <param name="remoteChannelNumber">The remote channel number.</param>
+        /// <param name="remoteWindowSize">The window size of the remote party.</param>
+        /// <param name="remotePacketSize">The maximum size of a data packet that we can send to the remote party.</param>
+        internal ChannelForwardedTcpip(ISession session, uint localChannelNumber, uint localWindowSize, uint localPacketSize, uint remoteChannelNumber, uint remoteWindowSize, uint remotePacketSize)
+            : base(session, localChannelNumber, localWindowSize, localPacketSize, remoteChannelNumber, remoteWindowSize, remotePacketSize)
+        {
+        }
 
         /// <summary>
         /// Gets the type of the channel.
@@ -69,7 +74,7 @@ namespace Renci.SshNet.Channels
             catch (Exception exp)
             {
                 // send channel open failure message
-                SendMessage(new ChannelOpenFailureMessage(RemoteChannelNumber, exp.ToString(), 2));
+                SendMessage(new ChannelOpenFailureMessage(RemoteChannelNumber, exp.ToString(), ChannelOpenFailureMessage.ConnectFailed, "en"));
 
                 throw;
             }
@@ -115,8 +120,13 @@ namespace Renci.SshNet.Channels
         {
             base.OnErrorOccured(exp);
 
-            // close the socket, hereby interrupting the blocking receive in Bind(IPEndPoint,IForwardedPort)
-            CloseSocket();
+            // the session message looped has terminated, and as such we will not be able to receive any data
+            // though the channel; if we cannot receive any data through the channel, then it doesn't make
+            // sense to continue sending data to the server.
+            // 
+            // so lets signal to the server that we will not send or receive anything anymore
+            // this will also interrupt the blocking receive in Bind()
+            ShutdownSocket(SocketShutdown.Both);
         }
 
         /// <summary>
@@ -124,16 +134,19 @@ namespace Renci.SshNet.Channels
         /// </summary>
         private void ForwardedPort_Closing(object sender, EventArgs eventArgs)
         {
-            // close the socket, hereby interrupting the blocking receive in Bind(IPEndPoint,IForwardedPort)
-            CloseSocket();
+            // shut down the socket, hereby interrupting the blocking receive in
+            // Bind(IPEndPoint,IForwardedPort) and allowing for a clean shut down
+            // of the socket
+            ShutdownSocket(SocketShutdown.Both);
         }
 
         partial void OpenSocket(IPEndPoint remoteEndpoint);
 
         /// <summary>
-        /// Closes the socket, hereby interrupting the blocking receive in <see cref="Bind(IPEndPoint,IForwardedPort)"/>.
+        /// Shuts down the socket.
         /// </summary>
-        private void CloseSocket()
+        /// <param name="how">One of the <see cref="SocketShutdown"/> values that specifies the operation that will no longer be allowed.</param>
+        private void ShutdownSocket(SocketShutdown how)
         {
             if (_socket == null || !_socket.Connected)
                 return;
@@ -143,8 +156,27 @@ namespace Renci.SshNet.Channels
                 if (_socket == null || !_socket.Connected)
                     return;
 
-                _socket.Shutdown(SocketShutdown.Both);
+                _socket.Shutdown(how);
+            }
+        }
+
+        /// <summary>
+        /// Closes the socket, hereby interrupting the blocking receive in <see cref="Bind(IPEndPoint,IForwardedPort)"/>.
+        /// </summary>
+        private void CloseSocket()
+        {
+            if (_socket == null)
+                return;
+
+            lock (_socketShutdownAndCloseLock)
+            {
+                if (_socket == null)
+                    return;
+
+                // closing a socket actually disposes the socket, so we can safely dereference
+                // the field to avoid entering the lock again later
                 _socket.Close();
+                _socket = null;
             }
         }
 
@@ -161,16 +193,16 @@ namespace Renci.SshNet.Channels
                 _forwardedPort = null;
             }
 
-            // close the socket, hereby interrupting the blocking receive in Bind()
-            CloseSocket();
+            // shut down the socket, hereby interrupting the blocking receive in
+            // Bind(IPEndPoint,IForwardedPort) and allowing for a clean shut down
+            // of the socket
+            ShutdownSocket(SocketShutdown.Send);
 
-            //  send EOF message first when channel need to be closed
-            if (IsOpen && Interlocked.CompareExchange(ref _sentEof, 1, 0) == 0)
-            {
-                SendEof();
-            }
-
+            // close the SSH channel, and mark the channel closed
             base.Close(wait);
+
+            // close the socket
+            CloseSocket();
         }
 
         /// <summary>
@@ -195,19 +227,18 @@ namespace Renci.SshNet.Channels
         /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected override void Dispose(bool disposing)
         {
-            if (_forwardedPort != null)
-            {
-                _forwardedPort.Closing -= ForwardedPort_Closing;
-                _forwardedPort = null;
-            }
-
-            if (_socket != null)
-            {
-                _socket.Dispose();
-                _socket = null;
-            }
-
+            // make sure we've unsubscribed from all session events and closed the channel
+            // before we starting disposing
             base.Dispose(disposing);
+
+            if (disposing)
+            {
+                if (_socket != null)
+                {
+                    _socket.Dispose();
+                    _socket = null;
+                }
+            }
         }
     }
 }

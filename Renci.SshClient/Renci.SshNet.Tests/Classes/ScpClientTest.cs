@@ -15,22 +15,12 @@ namespace Renci.SshNet.Tests.Classes
     [TestClass]
     public partial class ScpClientTest : TestBase
     {
-        protected override void OnInit()
-        {
-            base.OnInit();
-
-            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
-            {
-                client.Connect();
-                client.RunCommand("rm -rf *");
-                client.Disconnect();
-            }
-        }
-
         [TestMethod]
         [TestCategory("Scp")]
         public void Test_Scp_File_Upload_Download()
         {
+            RemoveAllFiles();
+
             using (var scp = new ScpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
             {
                 scp.Connect();
@@ -61,6 +51,8 @@ namespace Renci.SshNet.Tests.Classes
         [TestCategory("Scp")]
         public void Test_Scp_Stream_Upload_Download()
         {
+            RemoveAllFiles();
+
             using (var scp = new ScpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
             {
                 scp.Connect();
@@ -98,6 +90,8 @@ namespace Renci.SshNet.Tests.Classes
         [TestCategory("Scp")]
         public void Test_Scp_10MB_File_Upload_Download()
         {
+            RemoveAllFiles();
+
             using (var scp = new ScpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
             {
                 scp.Connect();
@@ -128,6 +122,8 @@ namespace Renci.SshNet.Tests.Classes
         [TestCategory("Scp")]
         public void Test_Scp_10MB_Stream_Upload_Download()
         {
+            RemoveAllFiles();
+
             using (var scp = new ScpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
             {
                 scp.Connect();
@@ -165,6 +161,8 @@ namespace Renci.SshNet.Tests.Classes
         [TestCategory("Scp")]
         public void Test_Scp_Directory_Upload_Download()
         {
+            RemoveAllFiles();
+
             using (var scp = new ScpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
             {
                 scp.Connect();
@@ -207,7 +205,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for OperationTimeout
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void OperationTimeoutTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -223,7 +222,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for BufferSize
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void BufferSizeTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -239,7 +239,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for Upload
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void UploadTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -253,7 +254,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for Upload
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void UploadTest1()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -267,7 +269,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for Upload
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void UploadTest2()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -281,7 +284,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for Download
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void DownloadTest()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -295,7 +299,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for Download
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void DownloadTest1()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -309,7 +314,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for Download
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void DownloadTest2()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -323,7 +329,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for ScpClient Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void ScpClientConstructorTest()
         {
             string host = string.Empty; // TODO: Initialize to an appropriate value
@@ -336,7 +343,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for ScpClient Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void ScpClientConstructorTest1()
         {
             string host = string.Empty; // TODO: Initialize to an appropriate value
@@ -350,7 +358,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for ScpClient Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void ScpClientConstructorTest2()
         {
             string host = string.Empty; // TODO: Initialize to an appropriate value
@@ -363,7 +372,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for ScpClient Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void ScpClientConstructorTest3()
         {
             string host = string.Empty; // TODO: Initialize to an appropriate value
@@ -377,7 +387,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for ScpClient Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void ScpClientConstructorTest4()
         {
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
@@ -385,40 +396,30 @@ namespace Renci.SshNet.Tests.Classes
             Assert.Inconclusive("TODO: Implement code to verify target");
         }
 
-
-        /// <summary>
-        /// Creates the test file.
-        /// </summary>
-        /// <param name="fileName">Name of the file.</param>
-        /// <param name="size">Size in megabytes.</param>
-        private void CreateTestFile(string fileName, int size)
-        {
-            using (var testFile = File.Create(fileName))
-            {
-                var random = new Random();
-                for (int i = 0; i < 1024 * size; i++)
-                {
-                    var buffer = new byte[1024];
-                    random.NextBytes(buffer);
-                    testFile.Write(buffer, 0, buffer.Length);
-                }
-            }
-        }
-
         protected static string CalculateMD5(string fileName)
         {
-            using (FileStream file = new FileStream(fileName, FileMode.Open))
+            using (var file = new FileStream(fileName, FileMode.Open))
             {
                 var md5 = new MD5CryptoServiceProvider();
                 byte[] retVal = md5.ComputeHash(file);
                 file.Close();
 
-                StringBuilder sb = new StringBuilder();
-                for (int i = 0; i < retVal.Length; i++)
+                var sb = new StringBuilder();
+                for (var i = 0; i < retVal.Length; i++)
                 {
-                    sb.Append(retVal[i].ToString("x2"));
+                    sb.Append(i.ToString("x2"));
                 }
                 return sb.ToString();
+            }
+        }
+
+        private static void RemoveAllFiles()
+        {
+            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            {
+                client.Connect();
+                client.RunCommand("rm -rf *");
+                client.Disconnect();
             }
         }
     }

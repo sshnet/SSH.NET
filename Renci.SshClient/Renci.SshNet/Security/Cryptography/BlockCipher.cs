@@ -71,8 +71,6 @@ namespace Renci.SshNet.Security.Cryptography
         /// <returns>Encrypted data</returns>
         public override byte[] Encrypt(byte[] data)
         {
-            var output = new byte[data.Length];
-
             if (data.Length % _blockSize > 0)
             {
                 if (_padding == null)
@@ -82,9 +80,10 @@ namespace Renci.SshNet.Security.Cryptography
                 data = _padding.Pad(_blockSize, data);
             }
 
+            var output = new byte[data.Length];
             var writtenBytes = 0;
 
-            for (int i = 0; i < data.Length / _blockSize; i++)
+            for (var i = 0; i < data.Length / _blockSize; i++)
             {
                 if (_mode == null)
                 {

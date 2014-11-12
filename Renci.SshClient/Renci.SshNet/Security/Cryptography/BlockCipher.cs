@@ -18,7 +18,7 @@ namespace Renci.SshNet.Security.Cryptography
         /// <value>
         /// The size of the block in bytes.
         /// </value>
-        protected readonly byte _blockSize;
+        private readonly byte _blockSize;
 
         /// <summary>
         /// Gets the minimum data size.
@@ -28,7 +28,7 @@ namespace Renci.SshNet.Security.Cryptography
         /// </value>
         public override byte MinimumSize
         {
-            get { return this.BlockSize; }
+            get { return BlockSize; }
         }
 
         /// <summary>
@@ -41,7 +41,7 @@ namespace Renci.SshNet.Security.Cryptography
         {
             get
             {
-                return this._blockSize;
+                return _blockSize;
             }
         }
 
@@ -56,12 +56,12 @@ namespace Renci.SshNet.Security.Cryptography
         protected BlockCipher(byte[] key, byte blockSize, CipherMode mode, CipherPadding padding)
             : base(key)
         {
-            this._blockSize = blockSize;
-            this._mode = mode;
-            this._padding = padding;
+            _blockSize = blockSize;
+            _mode = mode;
+            _padding = padding;
 
-            if (this._mode != null)
-                this._mode.Init(this);
+            if (_mode != null)
+                _mode.Init(this);
         }
 
         /// <summary>
@@ -73,26 +73,26 @@ namespace Renci.SshNet.Security.Cryptography
         {
             var output = new byte[data.Length];
 
-            if (data.Length % this._blockSize > 0)
+            if (data.Length % _blockSize > 0)
             {
-                if (this._padding == null)
+                if (_padding == null)
                 {
                     throw new ArgumentException("data");
                 }
-                data = this._padding.Pad(this._blockSize, data);
+                data = _padding.Pad(_blockSize, data);
             }
 
             var writtenBytes = 0;
 
-            for (int i = 0; i < data.Length / this._blockSize; i++)
+            for (int i = 0; i < data.Length / _blockSize; i++)
             {
-                if (this._mode == null)
+                if (_mode == null)
                 {
-                    writtenBytes += this.EncryptBlock(data, i * this._blockSize, this._blockSize, output, i * this._blockSize);
+                    writtenBytes += EncryptBlock(data, i * _blockSize, _blockSize, output, i * _blockSize);
                 }
                 else
                 {
-                    writtenBytes += this._mode.EncryptBlock(data, i * this._blockSize, this._blockSize, output, i * this._blockSize);
+                    writtenBytes += _mode.EncryptBlock(data, i * _blockSize, _blockSize, output, i * _blockSize);
                 }
             }
 
@@ -111,29 +111,27 @@ namespace Renci.SshNet.Security.Cryptography
         /// <returns>Decrypted data</returns>
         public override byte[] Decrypt(byte[] data)
         {
-            if (data.Length % this._blockSize > 0)
+            if (data.Length % _blockSize > 0)
             {
+                if (_padding == null)
                 {
-                    if (this._padding == null)
-                    {
-                        throw new ArgumentException("data");
-                    }
-                    data = this._padding.Pad(this._blockSize, data);
+                    throw new ArgumentException("data");
                 }
+                data = _padding.Pad(_blockSize, data);
             }
 
             var output = new byte[data.Length];
 
             var writtenBytes = 0;
-            for (int i = 0; i < data.Length / this._blockSize; i++)
+            for (var i = 0; i < data.Length / _blockSize; i++)
             {
-                if (this._mode == null)
+                if (_mode == null)
                 {
-                    writtenBytes += this.DecryptBlock(data, i * this._blockSize, this._blockSize, output, i * this._blockSize);
+                    writtenBytes += DecryptBlock(data, i * _blockSize, _blockSize, output, i * _blockSize);
                 }
                 else
                 {
-                    writtenBytes += this._mode.DecryptBlock(data, i * this._blockSize, this._blockSize, output, i * this._blockSize);
+                    writtenBytes += _mode.DecryptBlock(data, i * _blockSize, _blockSize, output, i * _blockSize);
                 }
             }
 

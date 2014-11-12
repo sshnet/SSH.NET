@@ -35,6 +35,7 @@
           * Signing key is missing from source download (issue #2455)
           * Forwarded Port channels can get stuck waiting (issue #1558)
           * NullReferenceException when SftpFileStream is finalized after dispose of session (issue #2013)
+          * BlockCipher.Encrypt fails if input message is not padded (issue #2547)
 
           2014.4.6-beta1
           ==============

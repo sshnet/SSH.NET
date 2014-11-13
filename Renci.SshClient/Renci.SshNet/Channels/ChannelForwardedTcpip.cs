@@ -120,13 +120,11 @@ namespace Renci.SshNet.Channels
         {
             base.OnErrorOccured(exp);
 
-            // the session message looped has terminated, and as such we will not be able to receive any data
-            // though the channel; if we cannot receive any data through the channel, then it doesn't make
-            // sense to continue sending data to the server.
-            // 
-            // so lets signal to the server that we will not send or receive anything anymore
-            // this will also interrupt the blocking receive in Bind()
-            ShutdownSocket(SocketShutdown.Both);
+            // signal to the server that we will not send anything anymore; this will also interrupt the
+            // blocking receive in Bind if the server sends FIN/ACK in time
+            //
+            // if the FIN/ACK is not sent in time, the socket will be closed in Close(bool)
+            ShutdownSocket(SocketShutdown.Send);
         }
 
         /// <summary>
@@ -134,10 +132,11 @@ namespace Renci.SshNet.Channels
         /// </summary>
         private void ForwardedPort_Closing(object sender, EventArgs eventArgs)
         {
-            // shut down the socket, hereby interrupting the blocking receive in
-            // Bind(IPEndPoint,IForwardedPort) and allowing for a clean shut down
-            // of the socket
-            ShutdownSocket(SocketShutdown.Both);
+            // signal to the server that we will not send anything anymore; this will also interrupt the
+            // blocking receive in Bind if the server sends FIN/ACK in time
+            //
+            // if the FIN/ACK is not sent in time, the socket will be closed in Close(bool)
+            ShutdownSocket(SocketShutdown.Send);
         }
 
         partial void OpenSocket(IPEndPoint remoteEndpoint);
@@ -193,9 +192,10 @@ namespace Renci.SshNet.Channels
                 _forwardedPort = null;
             }
 
-            // shut down the socket, hereby interrupting the blocking receive in
-            // Bind(IPEndPoint,IForwardedPort) and allowing for a clean shut down
-            // of the socket
+            // signal to the server that we will not send anything anymore; this will also interrupt the
+            // blocking receive in Bind if the server sends FIN/ACK in time
+            //
+            // if the FIN/ACK is not sent in time, the socket will be closed after the channel is closed
             ShutdownSocket(SocketShutdown.Send);
 
             // close the SSH channel, and mark the channel closed

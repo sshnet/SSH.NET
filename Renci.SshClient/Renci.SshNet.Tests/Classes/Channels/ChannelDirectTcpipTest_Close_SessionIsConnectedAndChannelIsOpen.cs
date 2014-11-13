@@ -144,7 +144,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
                         var bytesReceived = _client.Receive(buffer, 0, buffer.Length, SocketFlags.None);
                         if (bytesReceived == 0)
                         {
-                            //_client.Shutdown(SocketShutdown.Send);
+                            _client.Shutdown(SocketShutdown.Send);
                             _clientReceivedFinishedWaitHandle.Set();
                         }
                     }
@@ -153,36 +153,6 @@ namespace Renci.SshNet.Tests.Classes.Channels
 
             // give channel time to bind to socket
             Thread.Sleep(200);
-        }
-
-        private bool AssertExpectedMessage(ChannelOpenMessage channelOpenMessage)
-        {
-            if (channelOpenMessage == null)
-                return false;
-            if (channelOpenMessage.LocalChannelNumber != _localChannelNumber)
-                return false;
-            if (channelOpenMessage.InitialWindowSize != _localWindowSize)
-                return false;
-            if (channelOpenMessage.MaximumPacketSize != _localPacketSize)
-                return false;
-
-            var directTcpipChannelInfo = channelOpenMessage.Info as DirectTcpipChannelInfo;
-            if (directTcpipChannelInfo == null)
-                return false;
-            if (directTcpipChannelInfo.HostToConnect != _remoteHost)
-                return false;
-            if (directTcpipChannelInfo.PortToConnect != _port)
-                return false;
-
-            var clientEndpoint = _client.LocalEndPoint as IPEndPoint;
-            if (clientEndpoint == null)
-                return false;
-            if (directTcpipChannelInfo.OriginatorAddress != clientEndpoint.Address.ToString())
-                return false;
-            if (directTcpipChannelInfo.OriginatorPort != clientEndpoint.Port)
-                return false;
-
-            return true;
         }
 
         private void Act()
@@ -224,5 +194,35 @@ namespace Renci.SshNet.Tests.Classes.Channels
         {
             Assert.IsFalse(_channel.IsOpen);
         }
-     }
+
+        private bool AssertExpectedMessage(ChannelOpenMessage channelOpenMessage)
+        {
+            if (channelOpenMessage == null)
+                return false;
+            if (channelOpenMessage.LocalChannelNumber != _localChannelNumber)
+                return false;
+            if (channelOpenMessage.InitialWindowSize != _localWindowSize)
+                return false;
+            if (channelOpenMessage.MaximumPacketSize != _localPacketSize)
+                return false;
+
+            var directTcpipChannelInfo = channelOpenMessage.Info as DirectTcpipChannelInfo;
+            if (directTcpipChannelInfo == null)
+                return false;
+            if (directTcpipChannelInfo.HostToConnect != _remoteHost)
+                return false;
+            if (directTcpipChannelInfo.PortToConnect != _port)
+                return false;
+
+            var clientEndpoint = _client.LocalEndPoint as IPEndPoint;
+            if (clientEndpoint == null)
+                return false;
+            if (directTcpipChannelInfo.OriginatorAddress != clientEndpoint.Address.ToString())
+                return false;
+            if (directTcpipChannelInfo.OriginatorPort != clientEndpoint.Port)
+                return false;
+
+            return true;
+        }
+    }
 }

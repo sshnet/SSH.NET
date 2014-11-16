@@ -13,7 +13,7 @@ namespace Renci.SshNet.Channels
     /// </summary>
     internal partial class ChannelDirectTcpip : ClientChannel, IChannelDirectTcpip
     {
-        private readonly object _socketShutdownAndCloseLock = new object();
+        private readonly object _socketLock = new object();
 
         private EventWaitHandle _channelOpen = new AutoResetEvent(false);
         private EventWaitHandle _channelData = new AutoResetEvent(false);
@@ -143,7 +143,7 @@ namespace Renci.SshNet.Channels
             if (_socket == null)
                 return;
 
-            lock (_socketShutdownAndCloseLock)
+            lock (_socketLock)
             {
                 if (_socket == null)
                     return;
@@ -161,10 +161,10 @@ namespace Renci.SshNet.Channels
         /// <param name="how">One of the <see cref="SocketShutdown"/> values that specifies the operation that will no longer be allowed.</param>
         private void ShutdownSocket(SocketShutdown how)
         {
-            if (_socket == null || !_socket.Connected)
+            if (_socket == null)
                 return;
 
-            lock (_socketShutdownAndCloseLock)
+            lock (_socketLock)
             {
                 if (_socket == null || !_socket.Connected)
                     return;
@@ -208,7 +208,15 @@ namespace Renci.SshNet.Channels
             base.OnData(data);
 
             if (_socket != null && _socket.Connected)
-                InternalSocketSend(data);
+            {
+                lock (_socketLock)
+                {
+                    if (_socket != null && _socket.Connected)
+                    {
+                        InternalSocketSend(data);
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -296,8 +304,14 @@ namespace Renci.SshNet.Channels
             {
                 if (_socket != null)
                 {
-                    _socket.Dispose();
-                    _socket = null;
+                    lock (_socketLock)
+                    {
+                        if (_socket != null)
+                        {
+                            _socket.Dispose();
+                            _socket = null;
+                        }
+                    }
                 }
 
                 if (_channelOpen != null)

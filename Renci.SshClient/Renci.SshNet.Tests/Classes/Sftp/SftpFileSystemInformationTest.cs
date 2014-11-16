@@ -9,7 +9,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
     ///to contain all SftpFileSytemInformationTest Unit Tests
     ///</summary>
     [TestClass()]
-    public class SftpFileSytemInformationTest : TestBase
+    public class SftpFileSystemInformationTest : TestBase
     {
         /// <summary>
         ///A test for IsReadOnly

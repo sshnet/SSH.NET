@@ -451,7 +451,7 @@
     <Compile Include="Classes\Security\Cryptography\SymmetricCipherTest.cs" />
     <Compile Include="Classes\Sftp\SftpDownloadAsyncResultTest.cs" />
     <Compile Include="Classes\Sftp\SftpFileAttributesTest.cs" />
-    <Compile Include="Classes\Sftp\SftpFileSytemInformationTest.cs" />
+    <Compile Include="Classes\Sftp\SftpFileSystemInformationTest.cs" />
     <Compile Include="Classes\Sftp\SftpListDirectoryAsyncResultTest.cs" />
     <Compile Include="Classes\Sftp\SftpSynchronizeDirectoriesAsyncResultTest.cs" />
     <Compile Include="Classes\Sftp\SftpUploadAsyncResultTest.cs" />

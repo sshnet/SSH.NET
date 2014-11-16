@@ -309,8 +309,14 @@
     <Compile Include="..\Renci.SshNet\IForwardedPort.cs">
       <Link>IForwardedPort.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\IServiceFactory.cs">
+      <Link>IServiceFactory.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\ISession.cs">
       <Link>ISession.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\ISubsystemSession.cs">
+      <Link>ISubsystemSession.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\KeyboardInteractiveAuthenticationMethod.cs">
       <Link>KeyboardInteractiveAuthenticationMethod.cs</Link>
@@ -717,6 +723,9 @@
     <Compile Include="..\Renci.SshNet\Security\KeyHostAlgorithm.cs">
       <Link>Security\KeyHostAlgorithm.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\ServiceFactory.cs">
+      <Link>ServiceFactory.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\Session.cs">
       <Link>Session.cs</Link>
     </Compile>
@@ -731,6 +740,9 @@
     </Compile>
     <Compile Include="..\Renci.SshNet\Sftp\Flags.cs">
       <Link>Sftp\Flags.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Sftp\ISftpSession.cs">
+      <Link>Sftp\ISftpSession.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Sftp\Requests\ExtendedRequests\FStatVfsRequest.cs">
       <Link>Sftp\Requests\ExtendedRequests\FStatVfsRequest.cs</Link>
@@ -920,7 +932,7 @@
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" ProjectLinkReference="2f5f8c90-0bd1-424f-997c-7bc6280919d1" />
+      <UserProperties ProjectLinkReference="2f5f8c90-0bd1-424f-997c-7bc6280919d1" ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

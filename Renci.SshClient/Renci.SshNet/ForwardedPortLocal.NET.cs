@@ -23,7 +23,6 @@ namespace Renci.SshNet
             var ep = new IPEndPoint(addr, (int) BoundPort);
 
             _listener = new Socket(ep.AddressFamily, SocketType.Stream, ProtocolType.Tcp) {Blocking = true};
-            _listener.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.DontLinger, true);
             _listener.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.NoDelay, true);
             _listener.Bind(ep);
             _listener.Listen(1);

@@ -30,7 +30,7 @@ namespace Renci.SshNet
             _listener.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.DontLinger, true);
             _listener.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.NoDelay, true);
             _listener.Bind(ep);
-            _listener.Listen(1);
+            _listener.Listen(5);
 
             Session.ErrorOccured += Session_ErrorOccured;
             Session.Disconnected += Session_Disconnected;

@@ -155,6 +155,8 @@
     <Compile Include="Classes\ForwardedPortRemoteTest_Stop_PortNeverStarted.cs" />
     <Compile Include="Classes\ForwardedPortRemoteTest_Stop_PortStarted_ChannelBound.cs" />
     <Compile Include="Classes\ForwardedPortRemoteTest_Stop_PortStopped.cs" />
+    <Compile Include="Classes\ScpClientTest_Upload_FileInfoAndPath_SendExecRequestReturnsFalse.cs" />
+    <Compile Include="Classes\ScpClientTest_Upload_FileInfoAndPath_Success.cs" />
     <Compile Include="Classes\Security\AlgorithmTest.cs" />
     <Compile Include="Classes\Security\CertificateHostAlgorithmTest.cs" />
     <Compile Include="Classes\Security\Cryptography\BlockCipherTest.cs" />

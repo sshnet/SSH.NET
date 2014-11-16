@@ -21,9 +21,23 @@ namespace Renci.SshNet
         private ConnectionInfo _connectionInfo;
 
         /// <summary>
-        /// Gets current session.
+        /// Gets the current session.
         /// </summary>
+        /// <value>
+        /// The current session.
+        /// </value>
         internal ISession Session { get; private set; }
+
+        /// <summary>
+        /// Gets the factory for creating new services.
+        /// </summary>
+        /// <value>
+        /// The factory for creating new services.
+        /// </value>
+        internal IServiceFactory ServiceFactory
+        {
+            get { return _serviceFactory; }
+        }
 
         /// <summary>
         /// Gets the connection info.

@@ -28,7 +28,7 @@ namespace Renci.SshNet
             if (string.IsNullOrEmpty(path))
                 throw new ArgumentException("path");
 
-            using (var input = new PipeStream())
+            using (var input = ServiceFactory.CreatePipeStream())
             using (var channel = this.Session.CreateChannelSession())
             {
                 channel.DataReceived += delegate(object sender, ChannelDataEventArgs e)
@@ -39,8 +39,9 @@ namespace Renci.SshNet
 
                 channel.Open();
 
-                //  Send channel command request
-                channel.SendExecRequest(string.Format("scp -t \"{0}\"", path));
+                if (!channel.SendExecRequest(string.Format("scp -t \"{0}\"", path)))
+                    throw new SshException("Secure copy execution request was rejected by the server. Please consult the server logs.");
+
                 this.CheckReturnCode(input);
 
                 this.InternalUpload(channel, input, fileInfo, fileInfo.Name);

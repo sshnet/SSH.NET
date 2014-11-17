@@ -17,10 +17,10 @@ namespace Renci.SshNet
     public partial class SftpClient
     {
         /// <summary>
-        /// Holds the <see cref="SftpSession"/> instance that is used to communicate to the
+        /// Holds the <see cref="ISftpSession"/> instance that is used to communicate to the
         /// SFTP server.
         /// </summary>
-        private SftpSession _sftpSession;
+        private ISftpSession _sftpSession;
 
         /// <summary>
         /// Holds the operation timeout.
@@ -209,7 +209,24 @@ namespace Renci.SshNet
         /// connection info will be disposed when this instance is disposed.
         /// </remarks>
         private SftpClient(ConnectionInfo connectionInfo, bool ownsConnectionInfo)
-            : base(connectionInfo, ownsConnectionInfo)
+            : this(connectionInfo, ownsConnectionInfo, new ServiceFactory())
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SftpClient"/> class.
+        /// </summary>
+        /// <param name="connectionInfo">The connection info.</param>
+        /// <param name="ownsConnectionInfo">Specified whether this instance owns the connection info.</param>
+        /// <param name="serviceFactory">The factory to use for creating new services.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="connectionInfo"/> is null.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="serviceFactory"/> is null.</exception>
+        /// <remarks>
+        /// If <paramref name="ownsConnectionInfo"/> is <c>true</c>, then the
+        /// connection info will be disposed when this instance is disposed.
+        /// </remarks>
+        internal SftpClient(ConnectionInfo connectionInfo, bool ownsConnectionInfo, IServiceFactory serviceFactory)
+            : base(connectionInfo, ownsConnectionInfo, serviceFactory)
         {
             OperationTimeout = new TimeSpan(0, 0, 0, 0, -1);
             BufferSize = 1024 * 64;
@@ -1749,7 +1766,7 @@ namespace Renci.SshNet
         {
             base.OnConnected();
 
-            _sftpSession = new SftpSession(Session, OperationTimeout, ConnectionInfo.Encoding);
+            _sftpSession = ServiceFactory.CreateSftpSession(Session, OperationTimeout, ConnectionInfo.Encoding);
             _sftpSession.Connect();
         }
 
@@ -1760,8 +1777,7 @@ namespace Renci.SshNet
         {
             base.OnDisconnecting();
 
-            // disconnect and dispose the SFTP session
-            // the dispose is necessary since we create a new SFTP session
+            // disconnect, dispose and dereference the SFTP session since we create a new SFTP session
             // on each connect
             if (_sftpSession != null)
             {
@@ -1777,13 +1793,16 @@ namespace Renci.SshNet
         /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged ResourceMessages.</param>
         protected override void Dispose(bool disposing)
         {
-            if (_sftpSession != null)
-            {
-                _sftpSession.Dispose();
-                _sftpSession = null;
-            }
-
             base.Dispose(disposing);
+
+            if (disposing)
+            {
+                if (_sftpSession != null)
+                {
+                    _sftpSession.Dispose();
+                    _sftpSession = null;
+                }
+            }
         }
     }
 }

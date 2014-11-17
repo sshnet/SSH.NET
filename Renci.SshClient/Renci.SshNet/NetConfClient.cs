@@ -13,9 +13,9 @@ namespace Renci.SshNet
     public partial class NetConfClient : BaseClient
     {
         /// <summary>
-        /// Holds <see cref="NetConfSession"/> instance that used to communicate to the server
+        /// Holds <see cref="INetConfSession"/> instance that used to communicate to the server
         /// </summary>
-        private NetConfSession _netConfSession;
+        private INetConfSession _netConfSession;
 
         /// <summary>
         /// Gets or sets the operation timeout.
@@ -107,7 +107,24 @@ namespace Renci.SshNet
         /// connection info will be disposed when this instance is disposed.
         /// </remarks>
         private NetConfClient(ConnectionInfo connectionInfo, bool ownsConnectionInfo)
-            : base(connectionInfo, ownsConnectionInfo)
+            : this(connectionInfo, ownsConnectionInfo, new ServiceFactory())
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NetConfClient"/> class.
+        /// </summary>
+        /// <param name="connectionInfo">The connection info.</param>
+        /// <param name="ownsConnectionInfo">Specified whether this instance owns the connection info.</param>
+        /// <param name="serviceFactory">The factory to use for creating new services.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="connectionInfo"/> is null.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="serviceFactory"/> is null.</exception>
+        /// <remarks>
+        /// If <paramref name="ownsConnectionInfo"/> is <c>true</c>, then the
+        /// connection info will be disposed when this instance is disposed.
+        /// </remarks>
+        internal NetConfClient(ConnectionInfo connectionInfo, bool ownsConnectionInfo, IServiceFactory serviceFactory)
+            : base(connectionInfo, ownsConnectionInfo, serviceFactory)
         {
             this.OperationTimeout = new TimeSpan(0, 0, 0, 0, -1);
             this.AutomaticMessageIdHandling = true;
@@ -116,18 +133,22 @@ namespace Renci.SshNet
         #endregion
 
         /// <summary>
-        /// Gets NetConf server capabilities.
+        /// Gets the NetConf server capabilities.
         /// </summary>
-        /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <value>
+        /// The NetConf server capabilities.
+        /// </value>
         public XmlDocument ServerCapabilities 
         {
             get { return this._netConfSession.ServerCapabilities; }
         }
 
         /// <summary>
-        /// Gets NetConf client capabilities.
+        /// Gets the NetConf client capabilities.
         /// </summary>
-        /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <value>
+        /// The NetConf client capabilities.
+        /// </value>
         public XmlDocument ClientCapabilities
         {
             get { return this._netConfSession.ClientCapabilities; }
@@ -185,8 +206,8 @@ namespace Renci.SshNet
         {
             base.OnConnected();
 
-            this._netConfSession = new NetConfSession(this.Session, this.OperationTimeout);
-            this._netConfSession.Connect();
+            _netConfSession = ServiceFactory.CreateNetConfSession(Session, OperationTimeout);
+            _netConfSession.Connect();
         }
 
         /// <summary>
@@ -205,13 +226,16 @@ namespace Renci.SshNet
         /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged ResourceMessages.</param>
         protected override void Dispose(bool disposing)
         {
-            if (this._netConfSession != null)
-            {
-                this._netConfSession.Dispose();
-                this._netConfSession = null;
-            }
-
             base.Dispose(disposing);
+
+            if (disposing)
+            {
+                if (this._netConfSession != null)
+                {
+                    this._netConfSession.Dispose();
+                    this._netConfSession = null;
+                }
+            }
         }
     }
 }

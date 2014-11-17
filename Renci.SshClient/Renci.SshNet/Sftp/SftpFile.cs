@@ -10,7 +10,7 @@ namespace Renci.SshNet.Sftp
     /// </summary>
     public class SftpFile
     {
-        private readonly SftpSession _sftpSession;
+        private readonly ISftpSession _sftpSession;
 
         /// <summary>
         /// Gets the file attributes.
@@ -24,7 +24,7 @@ namespace Renci.SshNet.Sftp
         /// <param name="fullName">Full path of the directory or file.</param>
         /// <param name="attributes">Attributes of the directory or file.</param>
         /// <exception cref="ArgumentNullException"><paramref name="sftpSession"/> or <paramref name="fullName"/> is null.</exception>
-        internal SftpFile(SftpSession sftpSession, string fullName, SftpFileAttributes attributes)
+        internal SftpFile(ISftpSession sftpSession, string fullName, SftpFileAttributes attributes)
         {
             if (sftpSession == null)
                 throw new SshConnectionException("Client not connected.");

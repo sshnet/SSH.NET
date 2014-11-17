@@ -1,15 +1,13 @@
-﻿using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    public class SshClientTest_Disconnect_ForwardedPortStarted
+    public class SshClientTest_Dispose_Connected
     {
         private Mock<IServiceFactory> _serviceFactoryMock;
         private Mock<ISession> _sessionMock;
-        private Mock<ForwardedPort> _forwardedPortMock;
         private SshClient _sshClient;
         private ConnectionInfo _connectionInfo;
 
@@ -29,42 +27,29 @@ namespace Renci.SshNet.Tests.Classes
         {
             _connectionInfo = new ConnectionInfo("host", "user", new NoneAuthenticationMethod("userauth"));
 
-            var sequence = new MockSequence();
-
             _serviceFactoryMock = new Mock<IServiceFactory>(MockBehavior.Strict);
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);
-            _forwardedPortMock = new Mock<ForwardedPort>(MockBehavior.Strict);
 
+            var sequence = new MockSequence();
             _serviceFactoryMock.InSequence(sequence).Setup(p => p.CreateSession(_connectionInfo)).Returns(_sessionMock.Object);
             _sessionMock.InSequence(sequence).Setup(p => p.Connect());
-            _forwardedPortMock.InSequence(sequence).Setup(p => p.Start());
             _sessionMock.InSequence(sequence).Setup(p => p.OnDisconnecting());
-            _forwardedPortMock.InSequence(sequence).Setup(p => p.Stop());
             _sessionMock.InSequence(sequence).Setup(p => p.Disconnect());
             _sessionMock.InSequence(sequence).Setup(p => p.Dispose());
 
             _sshClient = new SshClient(_connectionInfo, false, _serviceFactoryMock.Object);
             _sshClient.Connect();
-            _sshClient.AddForwardedPort(_forwardedPortMock.Object);
-
-            _forwardedPortMock.Object.Start();
         }
 
         protected void Act()
         {
-            _sshClient.Disconnect();
+            _sshClient.Dispose();
         }
 
         [TestMethod]
-        public void ForwardedPortShouldBeStopped()
+        public void CreateSessionOnServiceFactoryShouldBeInvokedOnce()
         {
-            _forwardedPortMock.Verify(p => p.Stop(), Times.Once);
-        }
-
-        [TestMethod]
-        public void ForwardedPortShouldBeRemovedFromSshClient()
-        {
-            Assert.IsFalse(_sshClient.ForwardedPorts.Any());
+            _serviceFactoryMock.Verify(p => p.CreateSession(_connectionInfo), Times.Once);
         }
 
         [TestMethod]
@@ -77,6 +62,12 @@ namespace Renci.SshNet.Tests.Classes
         public void DisposeOnSessionShouldBeInvokedOnce()
         {
             _sessionMock.Verify(p => p.Dispose(), Times.Once);
+        }
+
+        [TestMethod]
+        public void OnDisconnectingOnSessionShouldBeInvokedOnce()
+        {
+            _sessionMock.Verify(p => p.OnDisconnecting(), Times.Once);
         }
     }
 }

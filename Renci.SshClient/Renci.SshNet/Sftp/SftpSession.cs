@@ -25,13 +25,19 @@ namespace Renci.SshNet.Sftp
         private IDictionary<string, string> _supportedExtensions;
 
         /// <summary>
-        /// Gets remote working directory.
+        /// Gets the remote working directory.
         /// </summary>
+        /// <value>
+        /// The remote working directory.
+        /// </value>
         public string WorkingDirectory { get; private set; }
 
         /// <summary>
-        /// Gets SFTP protocol version.
+        /// Gets the SFTP protocol version.
         /// </summary>
+        /// <value>
+        /// The SFTP protocol version.
+        /// </value>
         public uint ProtocolVersion { get; private set; }
 
         private long _requestId;
@@ -60,6 +66,10 @@ namespace Renci.SshNet.Sftp
         {
         }
 
+        /// <summary>
+        /// Changes the current working directory to the specified path.
+        /// </summary>
+        /// <param name="path">The new working directory.</param>
         public void ChangeDirectory(string path)
         {
             var fullPath = GetCanonicalPath(path);
@@ -84,11 +94,13 @@ namespace Renci.SshNet.Sftp
         }
 
         /// <summary>
-        /// Resolves path into absolute path on the server.
+        /// Resolves a given path into an absolute path on the server.
         /// </summary>
-        /// <param name="path">Path to resolve.</param>
-        /// <returns>Absolute path</returns>
-        internal string GetCanonicalPath(string path)
+        /// <param name="path">The path to resolve.</param>
+        /// <returns>
+        /// The absolute path.
+        /// </returns>
+        public string GetCanonicalPath(string path)
         {
             var fullPath = GetFullRemotePath(path);
 
@@ -401,7 +413,7 @@ namespace Renci.SshNet.Sftp
         /// <returns>
         /// File attributes
         /// </returns>
-        internal SftpFileAttributes RequestLStat(string path)
+        public SftpFileAttributes RequestLStat(string path)
         {
             SshException exception = null;
 
@@ -477,7 +489,7 @@ namespace Renci.SshNet.Sftp
         /// </summary>
         /// <param name="path">The path.</param>
         /// <param name="attributes">The attributes.</param>
-        internal void RequestSetStat(string path, SftpFileAttributes attributes)
+        public void RequestSetStat(string path, SftpFileAttributes attributes)
         {
             SshException exception = null;
 
@@ -536,7 +548,7 @@ namespace Renci.SshNet.Sftp
         /// <param name="path">The path.</param>
         /// <param name="nullOnError">if set to <c>true</c> returns null instead of throwing an exception.</param>
         /// <returns>File handle.</returns>
-        internal byte[] RequestOpenDir(string path, bool nullOnError = false)
+        public byte[] RequestOpenDir(string path, bool nullOnError = false)
         {
             SshException exception = null;
 
@@ -574,7 +586,7 @@ namespace Renci.SshNet.Sftp
         /// </summary>
         /// <param name="handle">The handle.</param>
         /// <returns></returns>
-        internal KeyValuePair<string, SftpFileAttributes>[] RequestReadDir(byte[] handle)
+        public KeyValuePair<string, SftpFileAttributes>[] RequestReadDir(byte[] handle)
         {
             SshException exception = null;
 
@@ -614,7 +626,7 @@ namespace Renci.SshNet.Sftp
         /// Performs SSH_FXP_REMOVE request.
         /// </summary>
         /// <param name="path">The path.</param>
-        internal void RequestRemove(string path)
+        public void RequestRemove(string path)
         {
             SshException exception = null;
 
@@ -642,7 +654,7 @@ namespace Renci.SshNet.Sftp
         /// Performs SSH_FXP_MKDIR request.
         /// </summary>
         /// <param name="path">The path.</param>
-        internal void RequestMkDir(string path)
+        public void RequestMkDir(string path)
         {
             SshException exception = null;
 
@@ -670,7 +682,7 @@ namespace Renci.SshNet.Sftp
         /// Performs SSH_FXP_RMDIR request.
         /// </summary>
         /// <param name="path">The path.</param>
-        internal void RequestRmDir(string path)
+        public void RequestRmDir(string path)
         {
             SshException exception = null;
 
@@ -779,7 +791,7 @@ namespace Renci.SshNet.Sftp
         /// </summary>
         /// <param name="oldPath">The old path.</param>
         /// <param name="newPath">The new path.</param>
-        internal void RequestRename(string oldPath, string newPath)
+        public void RequestRename(string oldPath, string newPath)
         {
             if (ProtocolVersion < 2)
             {
@@ -857,7 +869,7 @@ namespace Renci.SshNet.Sftp
         /// </summary>
         /// <param name="linkpath">The linkpath.</param>
         /// <param name="targetpath">The targetpath.</param>
-        internal void RequestSymLink(string linkpath, string targetpath)
+        public void RequestSymLink(string linkpath, string targetpath)
         {
             if (ProtocolVersion < 3)
             {
@@ -895,7 +907,7 @@ namespace Renci.SshNet.Sftp
         /// </summary>
         /// <param name="oldPath">The old path.</param>
         /// <param name="newPath">The new path.</param>
-        internal void RequestPosixRename(string oldPath, string newPath)
+        public void RequestPosixRename(string oldPath, string newPath)
         {
             if (ProtocolVersion < 3)
             {
@@ -933,7 +945,7 @@ namespace Renci.SshNet.Sftp
         /// <param name="path">The path.</param>
         /// <param name="nullOnError">if set to <c>true</c> [null on error].</param>
         /// <returns></returns>
-        internal SftpFileSytemInformation RequestStatVfs(string path, bool nullOnError = false)
+        public SftpFileSytemInformation RequestStatVfs(string path, bool nullOnError = false)
         {
             if (ProtocolVersion < 3)
             {

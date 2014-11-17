@@ -8,7 +8,7 @@ using System.Text.RegularExpressions;
 
 namespace Renci.SshNet.NetConf
 {
-    internal class NetConfSession : SubsystemSession
+    internal class NetConfSession : SubsystemSession, INetConfSession
     {
         private const string Prompt = "]]>]]>";
 

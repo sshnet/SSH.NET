@@ -354,6 +354,8 @@ namespace Renci.SshNet
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         public Shell CreateShell(Encoding encoding, string input, Stream output, Stream extendedOutput, string terminalName, uint columns, uint rows, uint width, uint height, IDictionary<TerminalModes, uint> terminalModes, int bufferSize)
         {
+            // TODO let shell dispose of input stream when we own the stream!
+
             _inputStream = new MemoryStream();
             var writer = new StreamWriter(_inputStream, encoding);
             writer.Write(input);
@@ -461,12 +463,12 @@ namespace Renci.SshNet
         /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged ResourceMessages.</param>
         protected override void Dispose(bool disposing)
         {
+            base.Dispose(disposing);
+
             if (!_isDisposed)
             {
                 if (disposing)
                 {
-                    Disconnect();
-
                     if (_inputStream != null)
                     {
                         _inputStream.Dispose();
@@ -474,8 +476,6 @@ namespace Renci.SshNet
                     }
                 }
             }
-
-            base.Dispose(disposing);
 
             _isDisposed = true;
         }

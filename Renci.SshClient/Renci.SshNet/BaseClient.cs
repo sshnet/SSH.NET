@@ -222,9 +222,23 @@ namespace Renci.SshNet
             CheckDisposed();
 
             OnDisconnecting();
+
+            // stop sending keep-alive messages before we close the
+            // session
             StopKeepAliveTimer();
+
+            // disconnect and dispose the SSH session
             if (Session != null)
+            {
+                // a new session is created in Connect(), so we should dispose and
+                // dereference the current session here
+                Session.ErrorOccured -= Session_ErrorOccured;
+                Session.HostKeyReceived -= Session_HostKeyReceived;
                 Session.Disconnect();
+                Session.Dispose();
+                Session = null;
+            }
+
             OnDisconnected();
         }
 
@@ -307,24 +321,11 @@ namespace Renci.SshNet
         /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged ResourceMessages.</param>
         protected virtual void Dispose(bool disposing)
         {
-            // Check to see if Dispose has already been called.
             if (!_isDisposed)
             {
-                // If disposing equals true, dispose all managed
-                // and unmanaged ResourceMessages.
                 if (disposing)
                 {
-                    // stop sending keep-alive messages before we close the
-                    // session
-                    StopKeepAliveTimer();
-
-                    if (Session != null)
-                    {
-                        Session.ErrorOccured -= Session_ErrorOccured;
-                        Session.HostKeyReceived -= Session_HostKeyReceived;
-                        Session.Dispose();
-                        Session = null;
-                    }
+                    Disconnect();
 
                     if (_ownsConnectionInfo && _connectionInfo != null)
                     {
@@ -335,7 +336,6 @@ namespace Renci.SshNet
                     }
                 }
 
-                // Note disposing has been done.
                 _isDisposed = true;
             }
         }

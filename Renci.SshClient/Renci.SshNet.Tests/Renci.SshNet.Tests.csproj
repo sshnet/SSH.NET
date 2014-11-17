@@ -155,6 +155,10 @@
     <Compile Include="Classes\ForwardedPortRemoteTest_Stop_PortNeverStarted.cs" />
     <Compile Include="Classes\ForwardedPortRemoteTest_Stop_PortStarted_ChannelBound.cs" />
     <Compile Include="Classes\ForwardedPortRemoteTest_Stop_PortStopped.cs" />
+    <Compile Include="Classes\NetConfClientTest_Dispose_Connected.cs" />
+    <Compile Include="Classes\NetConfClientTest_Dispose_Disconnected.cs" />
+    <Compile Include="Classes\NetConfClientTest_Dispose_Disposed.cs" />
+    <Compile Include="Classes\NetConfClientTest_Finalize_Connected.cs" />
     <Compile Include="Classes\ScpClientTest_Upload_FileInfoAndPath_SendExecRequestReturnsFalse.cs" />
     <Compile Include="Classes\ScpClientTest_Upload_FileInfoAndPath_Success.cs" />
     <Compile Include="Classes\Security\AlgorithmTest.cs" />
@@ -274,6 +278,10 @@
     <Compile Include="Classes\SessionTest.cs" />
     <Compile Include="Classes\SftpClientTest.ChangeDirectory.cs" />
     <Compile Include="Classes\SftpClientTest.Connect.cs" />
+    <Compile Include="Classes\SftpClientTest_Dispose_Connected.cs" />
+    <Compile Include="Classes\SftpClientTest_Dispose_Disconnected.cs" />
+    <Compile Include="Classes\SftpClientTest_Dispose_Disposed.cs" />
+    <Compile Include="Classes\SftpClientTest_Finalize_Connected.cs" />
     <Compile Include="Classes\Sftp\SftpFileStreamTest_CanRead_Closed_FileAccessRead.cs" />
     <Compile Include="Classes\Sftp\SftpFileStreamTest_CanRead_Closed_FileAccessReadWrite.cs" />
     <Compile Include="Classes\Sftp\SftpFileStreamTest_CanRead_Closed_FileAccessWrite.cs" />
@@ -348,6 +356,9 @@
     <Compile Include="Classes\ShellStreamTest.cs" />
     <Compile Include="Classes\SshClientTest.cs" />
     <Compile Include="Classes\SshClientTest_Disconnect_ForwardedPortStarted.cs" />
+    <Compile Include="Classes\SshClientTest_Dispose_Connected.cs" />
+    <Compile Include="Classes\SshClientTest_Dispose_Disconnected.cs" />
+    <Compile Include="Classes\SshClientTest_Dispose_Disposed.cs" />
     <Compile Include="Classes\SshClientTest_Dispose_ForwardedPortStarted.cs" />
     <Compile Include="Classes\SshCommandTest.cs" />
     <Compile Include="Classes\ForwardedPortLocalTest.NET40.cs" />

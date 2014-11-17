@@ -655,7 +655,7 @@ namespace Renci.SshNet
         {
             this._isDisconnecting = true;
 
-            //  send disconnect message to the server if the connection is still open
+            // send disconnect message to the server if the connection is still open
             // and the disconnect message has not yet been sent
             //
             // note that this should also cause the listener thread to be stopped as
@@ -744,10 +744,6 @@ namespace Renci.SshNet
         /// <exception cref="SshConnectionException">A received package was invalid or failed the message integrity check.</exception>
         /// <exception cref="SshOperationTimeoutException">None of the handles are signaled in time and the session is not disconnecting.</exception>
         /// <exception cref="SocketException">A socket error was signaled while receiving messages from the server.</exception>
-        /// <remarks>
-        /// When neither handles are signaled in time and the session is not closing, then the
-        /// session is disconnected.
-        /// </remarks>
         internal void WaitOnHandle(WaitHandle waitHandle, TimeSpan timeout)
         {
             if (waitHandle == null)
@@ -777,21 +773,14 @@ namespace Renci.SshNet
                     }
                     break;
                 case WaitHandle.WaitTimeout:
-                    // when the session is NOT disconnecting, then we want to disconnect
-                    // the session altogether in case of a timeout, and throw a
-                    // SshOperationTimeoutException
-                    //
                     // when the session is disconnecting, a timeout is likely when no
                     // network connectivity is available; depending on the configured
                     // timeout either the WaitAny times out first or a SocketException
                     // detailing a timeout thrown hereby completing the listener thread
                     // (which makes us end up in case 1). Either way, we do not want to
-                    // disconnect while we're already disconnecting and we do not want
-                    // to report an exception to the client when we're disconnecting
-                    // anyway
+                    // report an exception to the client when we're disconnecting anyway
                     if (!_isDisconnecting)
                     {
-                        this.Disconnect(DisconnectReason.ByApplication, "Operation timeout");
                         throw new SshOperationTimeoutException("Session operation has timed out");
                     }
                     break;

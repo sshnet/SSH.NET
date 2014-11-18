@@ -10,7 +10,7 @@ namespace Renci.SshNet
     /// <summary>
     /// Contains operation for working with NetConf server.
     /// </summary>
-    public partial class NetConfClient : BaseClient
+    public class NetConfClient : BaseClient
     {
         /// <summary>
         /// Holds <see cref="INetConfSession"/> instance that used to communicate to the server
@@ -126,8 +126,8 @@ namespace Renci.SshNet
         internal NetConfClient(ConnectionInfo connectionInfo, bool ownsConnectionInfo, IServiceFactory serviceFactory)
             : base(connectionInfo, ownsConnectionInfo, serviceFactory)
         {
-            this.OperationTimeout = new TimeSpan(0, 0, 0, 0, -1);
-            this.AutomaticMessageIdHandling = true;
+            OperationTimeout = new TimeSpan(0, 0, 0, 0, -1);
+            AutomaticMessageIdHandling = true;
         }
 
         #endregion
@@ -140,7 +140,7 @@ namespace Renci.SshNet
         /// </value>
         public XmlDocument ServerCapabilities 
         {
-            get { return this._netConfSession.ServerCapabilities; }
+            get { return _netConfSession.ServerCapabilities; }
         }
 
         /// <summary>
@@ -151,7 +151,7 @@ namespace Renci.SshNet
         /// </value>
         public XmlDocument ClientCapabilities
         {
-            get { return this._netConfSession.ClientCapabilities; }
+            get { return _netConfSession.ClientCapabilities; }
         }
 
         /// <summary>
@@ -172,7 +172,7 @@ namespace Renci.SshNet
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         public XmlDocument SendReceiveRpc(XmlDocument rpc)
         {
-            return this._netConfSession.SendReceiveRpc(rpc, this.AutomaticMessageIdHandling);
+            return _netConfSession.SendReceiveRpc(rpc, AutomaticMessageIdHandling);
         }
 
         /// <summary>
@@ -196,7 +196,7 @@ namespace Renci.SshNet
         {
             var rpc = new XmlDocument();
             rpc.LoadXml("<?xml version=\"1.0\" encoding=\"UTF-8\"?><rpc message-id=\"6666\" xmlns=\"urn:ietf:params:xml:ns:netconf:base:1.0\"><close-session/></rpc>");
-            return this._netConfSession.SendReceiveRpc(rpc, this.AutomaticMessageIdHandling);
+            return _netConfSession.SendReceiveRpc(rpc, AutomaticMessageIdHandling);
         }
 
         /// <summary>
@@ -217,7 +217,7 @@ namespace Renci.SshNet
         {
             base.OnDisconnecting();
 
-            this._netConfSession.Disconnect();
+            _netConfSession.Disconnect();
         }
 
         /// <summary>
@@ -230,10 +230,10 @@ namespace Renci.SshNet
 
             if (disposing)
             {
-                if (this._netConfSession != null)
+                if (_netConfSession != null)
                 {
-                    this._netConfSession.Dispose();
-                    this._netConfSession = null;
+                    _netConfSession.Dispose();
+                    _netConfSession = null;
                 }
             }
         }

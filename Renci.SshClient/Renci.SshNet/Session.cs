@@ -17,6 +17,7 @@ using Renci.SshNet.Messages.Transport;
 using Renci.SshNet.Security;
 using System.Globalization;
 using Renci.SshNet.Security.Cryptography;
+using ASCIIEncoding = Renci.SshNet.Common.ASCIIEncoding;
 
 namespace Renci.SshNet
 {
@@ -174,18 +175,18 @@ namespace Renci.SshNet
         {
             get
             {
-                if (this._sessionSemaphore == null)
+                if (_sessionSemaphore == null)
                 {
                     lock (this)
                     {
-                        if (this._sessionSemaphore == null)
+                        if (_sessionSemaphore == null)
                         {
-                            this._sessionSemaphore = new SemaphoreLight(this.ConnectionInfo.MaxSessions);
+                            _sessionSemaphore = new SemaphoreLight(ConnectionInfo.MaxSessions);
                         }
                     }
                 }
 
-                return this._sessionSemaphore;
+                return _sessionSemaphore;
             }
         }
 
@@ -241,7 +242,7 @@ namespace Renci.SshNet
         {
             get
             {
-                if (_isDisconnectMessageSent || !this._isAuthenticated)
+                if (_isDisconnectMessageSent || !_isAuthenticated)
                     return false;
                 if (_messageListenerCompleted == null || _messageListenerCompleted.WaitOne(0))
                     return false;
@@ -269,25 +270,25 @@ namespace Renci.SshNet
         {
             get
             {
-                if (this._clientInitMessage == null)
+                if (_clientInitMessage == null)
                 {
-                    this._clientInitMessage = new KeyExchangeInitMessage
+                    _clientInitMessage = new KeyExchangeInitMessage
                     {
-                        KeyExchangeAlgorithms = this.ConnectionInfo.KeyExchangeAlgorithms.Keys.ToArray(),
-                        ServerHostKeyAlgorithms = this.ConnectionInfo.HostKeyAlgorithms.Keys.ToArray(),
-                        EncryptionAlgorithmsClientToServer = this.ConnectionInfo.Encryptions.Keys.ToArray(),
-                        EncryptionAlgorithmsServerToClient = this.ConnectionInfo.Encryptions.Keys.ToArray(),
-                        MacAlgorithmsClientToServer = this.ConnectionInfo.HmacAlgorithms.Keys.ToArray(),
-                        MacAlgorithmsServerToClient = this.ConnectionInfo.HmacAlgorithms.Keys.ToArray(),
-                        CompressionAlgorithmsClientToServer = this.ConnectionInfo.CompressionAlgorithms.Keys.ToArray(),
-                        CompressionAlgorithmsServerToClient = this.ConnectionInfo.CompressionAlgorithms.Keys.ToArray(),
+                        KeyExchangeAlgorithms = ConnectionInfo.KeyExchangeAlgorithms.Keys.ToArray(),
+                        ServerHostKeyAlgorithms = ConnectionInfo.HostKeyAlgorithms.Keys.ToArray(),
+                        EncryptionAlgorithmsClientToServer = ConnectionInfo.Encryptions.Keys.ToArray(),
+                        EncryptionAlgorithmsServerToClient = ConnectionInfo.Encryptions.Keys.ToArray(),
+                        MacAlgorithmsClientToServer = ConnectionInfo.HmacAlgorithms.Keys.ToArray(),
+                        MacAlgorithmsServerToClient = ConnectionInfo.HmacAlgorithms.Keys.ToArray(),
+                        CompressionAlgorithmsClientToServer = ConnectionInfo.CompressionAlgorithms.Keys.ToArray(),
+                        CompressionAlgorithmsServerToClient = ConnectionInfo.CompressionAlgorithms.Keys.ToArray(),
                         LanguagesClientToServer = new[] {string.Empty},
                         LanguagesServerToClient = new[] {string.Empty},
                         FirstKexPacketFollows = false,
                         Reserved = 0
                     };
                 }
-                return this._clientInitMessage;
+                return _clientInitMessage;
             }
         }
 
@@ -473,9 +474,9 @@ namespace Renci.SshNet
             if (connectionInfo == null)
                 throw new ArgumentNullException("connectionInfo");
 
-            this.ConnectionInfo = connectionInfo;
+            ConnectionInfo = connectionInfo;
             //this.ClientVersion = string.Format(CultureInfo.CurrentCulture, "SSH-2.0-Renci.SshNet.SshClient.{0}", this.GetType().Assembly.GetName().Version);
-            this.ClientVersion = string.Format(CultureInfo.CurrentCulture, "SSH-2.0-Renci.SshNet.SshClient.0.0.1");
+            ClientVersion = string.Format(CultureInfo.CurrentCulture, "SSH-2.0-Renci.SshNet.SshClient.0.0.1");
         }
 
         /// <summary>
@@ -487,44 +488,44 @@ namespace Renci.SshNet
         /// <exception cref="ProxyException">Failed to establish proxy connection.</exception>
         public void Connect()
         {
-            if (this.IsConnected)
+            if (IsConnected)
                 return;
 
             try
             {
                 AuthenticationConnection.Wait();
 
-                if (this.IsConnected)
+                if (IsConnected)
                     return;
 
                 lock (this)
                 {
                     //  If connected don't connect again
-                    if (this.IsConnected)
+                    if (IsConnected)
                         return;
 
                     // reset connection specific information
                     Reset();
 
                     //  Build list of available messages while connecting
-                    this._messagesMetadata = GetMessagesMetadata();
+                    _messagesMetadata = GetMessagesMetadata();
 
-                    switch (this.ConnectionInfo.ProxyType)
+                    switch (ConnectionInfo.ProxyType)
                     {
                         case ProxyTypes.None:
-                            this.SocketConnect(this.ConnectionInfo.Host, this.ConnectionInfo.Port);
+                            SocketConnect(ConnectionInfo.Host, ConnectionInfo.Port);
                             break;
                         case ProxyTypes.Socks4:
-                            this.SocketConnect(this.ConnectionInfo.ProxyHost, this.ConnectionInfo.ProxyPort);
-                            this.ConnectSocks4();
+                            SocketConnect(ConnectionInfo.ProxyHost, ConnectionInfo.ProxyPort);
+                            ConnectSocks4();
                             break;
                         case ProxyTypes.Socks5:
-                            this.SocketConnect(this.ConnectionInfo.ProxyHost, this.ConnectionInfo.ProxyPort);
-                            this.ConnectSocks5();
+                            SocketConnect(ConnectionInfo.ProxyHost, ConnectionInfo.ProxyPort);
+                            ConnectSocks5();
                             break;
                         case ProxyTypes.Http:
-                            this.SocketConnect(this.ConnectionInfo.ProxyHost, this.ConnectionInfo.ProxyPort);
-                            this.ConnectHttp();
+                            SocketConnect(ConnectionInfo.ProxyHost, ConnectionInfo.ProxyPort);
+                            ConnectHttp();
                             break;
                     }
 
@@ -534,101 +535,101 @@ namespace Renci.SshNet
                     //  ignore text lines which are sent before if any
                     while (true)
                     {
-                        string serverVersion = string.Empty;
-                        this.SocketReadLine(ref serverVersion, ConnectionInfo.Timeout);
+                        var serverVersion = string.Empty;
+                        SocketReadLine(ref serverVersion, ConnectionInfo.Timeout);
                         if (serverVersion == null)
                             throw new SshConnectionException("Server response does not contain SSH protocol identification.");
                         versionMatch = ServerVersionRe.Match(serverVersion);
                         if (versionMatch.Success)
                         {
-                            this.ServerVersion = serverVersion;
+                            ServerVersion = serverVersion;
                             break;
                         }
                     }
 
                     //  Set connection versions
-                    this.ConnectionInfo.ServerVersion = this.ServerVersion;
-                    this.ConnectionInfo.ClientVersion = this.ClientVersion;
+                    ConnectionInfo.ServerVersion = ServerVersion;
+                    ConnectionInfo.ClientVersion = ClientVersion;
 
                     //  Get server SSH version
                     var version = versionMatch.Result("${protoversion}");
 
                     var softwareName = versionMatch.Result("${softwareversion}");
 
-                    this.Log(string.Format("Server version '{0}' on '{1}'.", version, softwareName));
+                    Log(string.Format("Server version '{0}' on '{1}'.", version, softwareName));
 
                     if (!(version.Equals("2.0") || version.Equals("1.99")))
                     {
                         throw new SshConnectionException(string.Format(CultureInfo.CurrentCulture, "Server version '{0}' is not supported.", version), DisconnectReason.ProtocolVersionNotSupported);
                     }
 
-                    this.SocketWrite(Encoding.UTF8.GetBytes(string.Format(CultureInfo.InvariantCulture, "{0}\x0D\x0A", this.ClientVersion)));
+                    SocketWrite(Encoding.UTF8.GetBytes(string.Format(CultureInfo.InvariantCulture, "{0}\x0D\x0A", ClientVersion)));
 
                     //  Register Transport response messages
-                    this.RegisterMessage("SSH_MSG_DISCONNECT");
-                    this.RegisterMessage("SSH_MSG_IGNORE");
-                    this.RegisterMessage("SSH_MSG_UNIMPLEMENTED");
-                    this.RegisterMessage("SSH_MSG_DEBUG");
-                    this.RegisterMessage("SSH_MSG_SERVICE_ACCEPT");
-                    this.RegisterMessage("SSH_MSG_KEXINIT");
-                    this.RegisterMessage("SSH_MSG_NEWKEYS");
+                    RegisterMessage("SSH_MSG_DISCONNECT");
+                    RegisterMessage("SSH_MSG_IGNORE");
+                    RegisterMessage("SSH_MSG_UNIMPLEMENTED");
+                    RegisterMessage("SSH_MSG_DEBUG");
+                    RegisterMessage("SSH_MSG_SERVICE_ACCEPT");
+                    RegisterMessage("SSH_MSG_KEXINIT");
+                    RegisterMessage("SSH_MSG_NEWKEYS");
 
                     //  Some server implementations might sent this message first, prior establishing encryption algorithm
-                    this.RegisterMessage("SSH_MSG_USERAUTH_BANNER");
+                    RegisterMessage("SSH_MSG_USERAUTH_BANNER");
 
                     //  Start incoming request listener
-                    this._messageListenerCompleted = new ManualResetEvent(false);
+                    _messageListenerCompleted = new ManualResetEvent(false);
 
-                    this.ExecuteThread(() =>
+                    ExecuteThread(() =>
                     {
                         try
                         {
-                            this.MessageListener();
+                            MessageListener();
                         }
                         finally
                         {
-                            this._messageListenerCompleted.Set();
+                            _messageListenerCompleted.Set();
                         }
                     });
 
                     //  Wait for key exchange to be completed
-                    this.WaitOnHandle(this._keyExchangeCompletedWaitHandle);
+                    WaitOnHandle(_keyExchangeCompletedWaitHandle);
 
                     //  If sessionId is not set then its not connected
-                    if (this.SessionId == null)
+                    if (SessionId == null)
                     {
-                        this.Disconnect();
+                        Disconnect();
                         return;
                     }
 
                     //  Request user authorization service
-                    this.SendMessage(new ServiceRequestMessage(ServiceName.UserAuthentication));
+                    SendMessage(new ServiceRequestMessage(ServiceName.UserAuthentication));
 
                     //  Wait for service to be accepted
-                    this.WaitOnHandle(this._serviceAccepted);
+                    WaitOnHandle(_serviceAccepted);
 
-                    if (string.IsNullOrEmpty(this.ConnectionInfo.Username))
+                    if (string.IsNullOrEmpty(ConnectionInfo.Username))
                     {
                         throw new SshException("Username is not specified.");
                     }
 
-                    this.ConnectionInfo.Authenticate(this);
-                    this._isAuthenticated = true;
+                    ConnectionInfo.Authenticate(this);
+                    _isAuthenticated = true;
 
                     //  Register Connection messages
-                    this.RegisterMessage("SSH_MSG_GLOBAL_REQUEST");
-                    this.RegisterMessage("SSH_MSG_REQUEST_SUCCESS");
-                    this.RegisterMessage("SSH_MSG_REQUEST_FAILURE");
-                    this.RegisterMessage("SSH_MSG_CHANNEL_OPEN_CONFIRMATION");
-                    this.RegisterMessage("SSH_MSG_CHANNEL_OPEN_FAILURE");
-                    this.RegisterMessage("SSH_MSG_CHANNEL_WINDOW_ADJUST");
-                    this.RegisterMessage("SSH_MSG_CHANNEL_EXTENDED_DATA");
-                    this.RegisterMessage("SSH_MSG_CHANNEL_REQUEST");
-                    this.RegisterMessage("SSH_MSG_CHANNEL_SUCCESS");
-                    this.RegisterMessage("SSH_MSG_CHANNEL_FAILURE");
-                    this.RegisterMessage("SSH_MSG_CHANNEL_DATA");
-                    this.RegisterMessage("SSH_MSG_CHANNEL_EOF");
-                    this.RegisterMessage("SSH_MSG_CHANNEL_CLOSE");
+                    RegisterMessage("SSH_MSG_GLOBAL_REQUEST");
+                    RegisterMessage("SSH_MSG_REQUEST_SUCCESS");
+                    RegisterMessage("SSH_MSG_REQUEST_FAILURE");
+                    RegisterMessage("SSH_MSG_CHANNEL_OPEN_CONFIRMATION");
+                    RegisterMessage("SSH_MSG_CHANNEL_OPEN_FAILURE");
+                    RegisterMessage("SSH_MSG_CHANNEL_WINDOW_ADJUST");
+                    RegisterMessage("SSH_MSG_CHANNEL_EXTENDED_DATA");
+                    RegisterMessage("SSH_MSG_CHANNEL_REQUEST");
+                    RegisterMessage("SSH_MSG_CHANNEL_SUCCESS");
+                    RegisterMessage("SSH_MSG_CHANNEL_FAILURE");
+                    RegisterMessage("SSH_MSG_CHANNEL_DATA");
+                    RegisterMessage("SSH_MSG_CHANNEL_EOF");
+                    RegisterMessage("SSH_MSG_CHANNEL_CLOSE");
 
                     Monitor.Pulse(this);
                 }
@@ -653,7 +654,7 @@ namespace Renci.SshNet
 
         private void Disconnect(DisconnectReason reason, string message)
         {
-            this._isDisconnecting = true;
+            _isDisconnecting = true;
 
             // send disconnect message to the server if the connection is still open
             // and the disconnect message has not yet been sent
@@ -680,7 +681,7 @@ namespace Renci.SshNet
         /// </summary>
         void ISession.SendKeepAlive()
         {
-            this.SendMessage(new IgnoreMessage());
+            SendMessage(new IgnoreMessage());
         }
 
         /// <summary>
@@ -751,15 +752,15 @@ namespace Renci.SshNet
 
             var waitHandles = new[]
                 {
-                    this._exceptionWaitHandle,
-                    this._messageListenerCompleted,
+                    _exceptionWaitHandle,
+                    _messageListenerCompleted,
                     waitHandle
                 };
 
             switch (WaitHandle.WaitAny(waitHandles, timeout))
             {
                 case 0:
-                    throw this._exception;
+                    throw _exception;
                 case 1:
                     // when the session is NOT disconnecting, the listener should actually
                     // never complete without setting the exception wait handle and should
@@ -796,25 +797,25 @@ namespace Renci.SshNet
         /// <exception cref="InvalidOperationException">The size of the packet exceeds the maximum size defined by the protocol.</exception>
         internal void SendMessage(Message message)
         {
-            if (this._socket == null || !this._socket.CanWrite())
+            if (_socket == null || !_socket.CanWrite())
                 throw new SshConnectionException("Client not connected.");
 
-            if (this._keyExchangeInProgress && !(message is IKeyExchangedAllowed))
+            if (_keyExchangeInProgress && !(message is IKeyExchangedAllowed))
             {
                 //  Wait for key exchange to be completed
-                this.WaitOnHandle(this._keyExchangeCompletedWaitHandle);
+                WaitOnHandle(_keyExchangeCompletedWaitHandle);
             }
 
-            this.Log(string.Format("SendMessage to server '{0}': '{1}'.", message.GetType().Name, message));
+            Log(string.Format("SendMessage to server '{0}': '{1}'.", message.GetType().Name, message));
 
             //  Messages can be sent by different thread so we need to synchronize it
-            var paddingMultiplier = this._clientCipher == null ? (byte)8 : Math.Max((byte)8, this._serverCipher.MinimumSize);    //    Should be recalculate base on cipher min length if cipher specified
+            var paddingMultiplier = _clientCipher == null ? (byte)8 : Math.Max((byte)8, _serverCipher.MinimumSize);    //    Should be recalculate base on cipher min length if cipher specified
 
             var messageData = message.GetBytes();
 
-            if (this._clientCompression != null)
+            if (_clientCompression != null)
             {
-                messageData = this._clientCompression.Compress(messageData);
+                messageData = _clientCompression.Compress(messageData);
             }
 
             var packetLength = messageData.Length + 4 + 1; //  add length bytes and padding byte
@@ -842,20 +843,20 @@ namespace Renci.SshNet
             paddingBytes.CopyTo(packetData, 4 + 1 + messageData.Length);
 
             //  Lock handling of _outboundPacketSequence since it must be sent sequently to server
-            lock (this._socketLock)
+            lock (_socketLock)
             {
-                if (this._socket == null || !this._socket.Connected)
+                if (_socket == null || !_socket.Connected)
                     throw new SshConnectionException("Client not connected.");
 
                 //  Calculate packet hash
                 var hashData = new byte[4 + packetData.Length];
-                this._outboundPacketSequence.GetBytes().CopyTo(hashData, 0);
+                _outboundPacketSequence.GetBytes().CopyTo(hashData, 0);
                 packetData.CopyTo(hashData, 4);
 
                 //  Encrypt packet data
-                if (this._clientCipher != null)
+                if (_clientCipher != null)
                 {
-                    packetData = this._clientCipher.Encrypt(packetData);
+                    packetData = _clientCipher.Encrypt(packetData);
                 }
 
                 if (packetData.Length > MaximumSshPacketSize)
@@ -863,24 +864,24 @@ namespace Renci.SshNet
                     throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Packet is too big. Maximum packet size is {0} bytes.", MaximumSshPacketSize));
                 }
 
-                if (this._clientMac == null)
+                if (_clientMac == null)
                 {
-                    this.SocketWrite(packetData);
+                    SocketWrite(packetData);
                 }
                 else
                 {
-                    var hash = this._clientMac.ComputeHash(hashData.ToArray());
+                    var hash = _clientMac.ComputeHash(hashData.ToArray());
 
-                    var data = new byte[packetData.Length + this._clientMac.HashSize / 8];
+                    var data = new byte[packetData.Length + _clientMac.HashSize / 8];
                     packetData.CopyTo(data, 0);
                     hash.CopyTo(data, packetData.Length);
 
-                    this.SocketWrite(data);
+                    SocketWrite(data);
                 }
 
-                this._outboundPacketSequence++;
+                _outboundPacketSequence++;
 
-                Monitor.Pulse(this._socketLock);
+                Monitor.Pulse(_socketLock);
             }
         }
 
@@ -935,14 +936,14 @@ namespace Renci.SshNet
         private Message ReceiveMessage()
         {
             //  No lock needed since all messages read by only one thread
-            var blockSize = this._serverCipher == null ? (byte)8 : Math.Max((byte)8, this._serverCipher.MinimumSize);
+            var blockSize = _serverCipher == null ? (byte)8 : Math.Max((byte)8, _serverCipher.MinimumSize);
 
             //  Read packet length first
-            var firstBlock = this.Read(blockSize);
+            var firstBlock = Read(blockSize);
 
-            if (this._serverCipher != null)
+            if (_serverCipher != null)
             {
-                firstBlock = this._serverCipher.Decrypt(firstBlock);
+                firstBlock = _serverCipher.Decrypt(firstBlock);
             }
 
             var packetLength = (uint)(firstBlock[0] << 24 | firstBlock[1] << 16 | firstBlock[2] << 8 | firstBlock[3]);
@@ -959,15 +960,15 @@ namespace Renci.SshNet
             firstBlock.CopyTo(data, 0);
 
             byte[] serverHash = null;
-            if (this._serverMac != null)
+            if (_serverMac != null)
             {
-                serverHash = new byte[this._serverMac.HashSize / 8];
+                serverHash = new byte[_serverMac.HashSize / 8];
                 bytesToRead += serverHash.Length;
             }
 
             if (bytesToRead > 0)
             {
-                var nextBlocks = this.Read(bytesToRead);
+                var nextBlocks = Read(bytesToRead);
 
                 if (serverHash != null)
                 {
@@ -977,9 +978,9 @@ namespace Renci.SshNet
 
                 if (nextBlocks.Length > 0)
                 {
-                    if (this._serverCipher != null)
+                    if (_serverCipher != null)
                     {
-                        nextBlocks = this._serverCipher.Decrypt(nextBlocks);
+                        nextBlocks = _serverCipher.Decrypt(nextBlocks);
                     }
                     nextBlocks.CopyTo(data, blockSize);
                 }
@@ -990,22 +991,22 @@ namespace Renci.SshNet
             var messagePayload = new byte[packetLength - paddingLength - 1];
             Buffer.BlockCopy(data, 5, messagePayload, 0, messagePayload.Length);
 
-            if (this._serverDecompression != null)
+            if (_serverDecompression != null)
             {
-                messagePayload = this._serverDecompression.Decompress(messagePayload);
+                messagePayload = _serverDecompression.Decompress(messagePayload);
             }
 
             //  Validate message against MAC
-            if (this._serverMac != null)
+            if (_serverMac != null)
             {
                 var clientHashData = new byte[4 + data.Length];
-                var lengthBytes = this._inboundPacketSequence.GetBytes();
+                var lengthBytes = _inboundPacketSequence.GetBytes();
 
                 lengthBytes.CopyTo(clientHashData, 0);
                 data.CopyTo(clientHashData, 4);
 
                 //  Calculate packet hash
-                var clientHash = this._serverMac.ComputeHash(clientHashData);
+                var clientHash = _serverMac.ComputeHash(clientHashData);
 
                 if (!serverHash.SequenceEqual(clientHash))
                 {
@@ -1013,23 +1014,23 @@ namespace Renci.SshNet
                 }
             }
 
-            this._inboundPacketSequence++;
+            _inboundPacketSequence++;
 
-            return this.LoadMessage(messagePayload);
+            return LoadMessage(messagePayload);
         }
 
         private void SendDisconnect(DisconnectReason reasonCode, string message)
         {
             // only send a disconnect message if it wasn't already sent, and we're
             // still connected
-            if (this._isDisconnectMessageSent || !IsConnected)
+            if (_isDisconnectMessageSent || !IsConnected)
                 return;
 
             var disconnectMessage = new DisconnectMessage(reasonCode, message);
 
             SendMessage(disconnectMessage);
 
-            this._isDisconnectMessageSent = true;
+            _isDisconnectMessageSent = true;
         }
 
         partial void HandleMessageCore(Message message);
@@ -1041,14 +1042,14 @@ namespace Renci.SshNet
         /// <param name="message">The message.</param>
         private void HandleMessage<T>(T message) where T : Message
         {
-            this.OnMessageReceived(message);
+            OnMessageReceived(message);
         }
 
         #region Handle transport messages
 
         private void HandleMessage(DisconnectMessage message)
         {
-            this.OnDisconnectReceived(message);
+            OnDisconnectReceived(message);
 
             //  disconnect from the socket, and dispose it
             SocketDisconnectAndDispose();
@@ -1056,40 +1057,40 @@ namespace Renci.SshNet
 
         private void HandleMessage(IgnoreMessage message)
         {
-            this.OnIgnoreReceived(message);
+            OnIgnoreReceived(message);
         }
 
         private void HandleMessage(UnimplementedMessage message)
         {
-            this.OnUnimplementedReceived(message);
+            OnUnimplementedReceived(message);
         }
 
         private void HandleMessage(DebugMessage message)
         {
-            this.OnDebugReceived(message);
+            OnDebugReceived(message);
         }
 
         private void HandleMessage(ServiceRequestMessage message)
         {
-            this.OnServiceRequestReceived(message);
+            OnServiceRequestReceived(message);
         }
 
         private void HandleMessage(ServiceAcceptMessage message)
         {
             //  TODO:   Refactor to avoid this method here
-            this.OnServiceAcceptReceived(message);
+            OnServiceAcceptReceived(message);
 
-            this._serviceAccepted.Set();
+            _serviceAccepted.Set();
         }
 
         private void HandleMessage(KeyExchangeInitMessage message)
         {
-            this.OnKeyExchangeInitReceived(message);
+            OnKeyExchangeInitReceived(message);
         }
 
         private void HandleMessage(NewKeysMessage message)
         {
-            this.OnNewKeysReceived(message);
+            OnNewKeysReceived(message);
         }
 
         #endregion
@@ -1098,22 +1099,22 @@ namespace Renci.SshNet
 
         private void HandleMessage(RequestMessage message)
         {
-            this.OnUserAuthenticationRequestReceived(message);
+            OnUserAuthenticationRequestReceived(message);
         }
 
         private void HandleMessage(FailureMessage message)
         {
-            this.OnUserAuthenticationFailureReceived(message);
+            OnUserAuthenticationFailureReceived(message);
         }
 
         private void HandleMessage(SuccessMessage message)
         {
-            this.OnUserAuthenticationSuccessReceived(message);
+            OnUserAuthenticationSuccessReceived(message);
         }
 
         private void HandleMessage(BannerMessage message)
         {
-            this.OnUserAuthenticationBannerReceived(message);
+            OnUserAuthenticationBannerReceived(message);
         }
 
         #endregion
@@ -1122,72 +1123,72 @@ namespace Renci.SshNet
 
         private void HandleMessage(GlobalRequestMessage message)
         {
-            this.OnGlobalRequestReceived(message);
+            OnGlobalRequestReceived(message);
         }
 
         private void HandleMessage(RequestSuccessMessage message)
         {
-            this.OnRequestSuccessReceived(message);
+            OnRequestSuccessReceived(message);
         }
 
         private void HandleMessage(RequestFailureMessage message)
         {
-            this.OnRequestFailureReceived(message);
+            OnRequestFailureReceived(message);
         }
 
         private void HandleMessage(ChannelOpenMessage message)
         {
-            this.OnChannelOpenReceived(message);
+            OnChannelOpenReceived(message);
         }
 
         private void HandleMessage(ChannelOpenConfirmationMessage message)
         {
-            this.OnChannelOpenConfirmationReceived(message);
+            OnChannelOpenConfirmationReceived(message);
         }
 
         private void HandleMessage(ChannelOpenFailureMessage message)
         {
-            this.OnChannelOpenFailureReceived(message);
+            OnChannelOpenFailureReceived(message);
         }
 
         private void HandleMessage(ChannelWindowAdjustMessage message)
         {
-            this.OnChannelWindowAdjustReceived(message);
+            OnChannelWindowAdjustReceived(message);
         }
 
         private void HandleMessage(ChannelDataMessage message)
         {
-            this.OnChannelDataReceived(message);
+            OnChannelDataReceived(message);
         }
 
         private void HandleMessage(ChannelExtendedDataMessage message)
         {
-            this.OnChannelExtendedDataReceived(message);
+            OnChannelExtendedDataReceived(message);
         }
 
         private void HandleMessage(ChannelEofMessage message)
         {
-            this.OnChannelEofReceived(message);
+            OnChannelEofReceived(message);
         }
 
         private void HandleMessage(ChannelCloseMessage message)
         {
-            this.OnChannelCloseReceived(message);
+            OnChannelCloseReceived(message);
         }
 
         private void HandleMessage(ChannelRequestMessage message)
         {
-            this.OnChannelRequestReceived(message);
+            OnChannelRequestReceived(message);
         }
 
         private void HandleMessage(ChannelSuccessMessage message)
         {
-            this.OnChannelSuccessReceived(message);
+            OnChannelSuccessReceived(message);
         }
 
         private void HandleMessage(ChannelFailureMessage message)
         {
-            this.OnChannelFailureReceived(message);
+            OnChannelFailureReceived(message);
         }
 
         #endregion
@@ -1200,7 +1201,7 @@ namespace Renci.SshNet
         /// <param name="message"><see cref="DisconnectMessage"/> message.</param>
         protected virtual void OnDisconnectReceived(DisconnectMessage message)
         {
-            this.Log(string.Format("Disconnect received: {0} {1}", message.ReasonCode, message.Description));
+            Log(string.Format("Disconnect received: {0} {1}", message.ReasonCode, message.Description));
 
             var disconnectReceived = DisconnectReceived;
             if (disconnectReceived != null)
@@ -1272,18 +1273,18 @@ namespace Renci.SshNet
         /// <param name="message"><see cref="KeyExchangeInitMessage"/> message.</param>
         protected virtual void OnKeyExchangeInitReceived(KeyExchangeInitMessage message)
         {
-            this._keyExchangeInProgress = true;
+            _keyExchangeInProgress = true;
 
-            this._keyExchangeCompletedWaitHandle.Reset();
+            _keyExchangeCompletedWaitHandle.Reset();
 
             //  Disable all registered messages except key exchange related
-            foreach (var messageMetadata in this._messagesMetadata)
+            foreach (var messageMetadata in _messagesMetadata)
             {
                 if (messageMetadata.Activated && messageMetadata.Number > 2 && (messageMetadata.Number < 20 || messageMetadata.Number > 30))
                     messageMetadata.Enabled = false;
             }
 
-            var keyExchangeAlgorithmName = (from c in this.ConnectionInfo.KeyExchangeAlgorithms.Keys
+            var keyExchangeAlgorithmName = (from c in ConnectionInfo.KeyExchangeAlgorithms.Keys
                                             from s in message.KeyExchangeAlgorithms
                                             where s == c
                                             select c).FirstOrDefault();
@@ -1294,14 +1295,14 @@ namespace Renci.SshNet
             }
 
             //  Create instance of key exchange algorithm that will be used
-            this._keyExchange = this.ConnectionInfo.KeyExchangeAlgorithms[keyExchangeAlgorithmName].CreateInstance<KeyExchange>();
+            _keyExchange = ConnectionInfo.KeyExchangeAlgorithms[keyExchangeAlgorithmName].CreateInstance<KeyExchange>();
 
-            this.ConnectionInfo.CurrentKeyExchangeAlgorithm = keyExchangeAlgorithmName;
+            ConnectionInfo.CurrentKeyExchangeAlgorithm = keyExchangeAlgorithmName;
 
-            this._keyExchange.HostKeyReceived += KeyExchange_HostKeyReceived;
+            _keyExchange.HostKeyReceived += KeyExchange_HostKeyReceived;
 
             //  Start the algorithm implementation
-            this._keyExchange.Start(this, message);
+            _keyExchange.Start(this, message);
 
             var keyExchangeInitReceived = KeyExchangeInitReceived;
             if (keyExchangeInitReceived != null)
@@ -1315,42 +1316,42 @@ namespace Renci.SshNet
         protected virtual void OnNewKeysReceived(NewKeysMessage message)
         {
             //  Update sessionId
-            if (this.SessionId == null)
+            if (SessionId == null)
             {
-                this.SessionId = this._keyExchange.ExchangeHash;
+                SessionId = _keyExchange.ExchangeHash;
             }
 
             //  Dispose of old ciphers and hash algorithms
-            if (this._serverMac != null)
+            if (_serverMac != null)
             {
-                this._serverMac.Clear();
-                this._serverMac = null;
+                _serverMac.Clear();
+                _serverMac = null;
             }
 
-            if (this._clientMac != null)
+            if (_clientMac != null)
             {
-                this._clientMac.Clear();
-                this._clientMac = null;
+                _clientMac.Clear();
+                _clientMac = null;
             }
 
             //  Update negotiated algorithms
-            this._serverCipher = this._keyExchange.CreateServerCipher();
-            this._clientCipher = this._keyExchange.CreateClientCipher();
-            this._serverMac = this._keyExchange.CreateServerHash();
-            this._clientMac = this._keyExchange.CreateClientHash();
-            this._clientCompression = this._keyExchange.CreateCompressor();
-            this._serverDecompression = this._keyExchange.CreateDecompressor();
+            _serverCipher = _keyExchange.CreateServerCipher();
+            _clientCipher = _keyExchange.CreateClientCipher();
+            _serverMac = _keyExchange.CreateServerHash();
+            _clientMac = _keyExchange.CreateClientHash();
+            _clientCompression = _keyExchange.CreateCompressor();
+            _serverDecompression = _keyExchange.CreateDecompressor();
 
             //  Dispose of old KeyExchange object as it is no longer needed.
-            if (this._keyExchange != null)
+            if (_keyExchange != null)
             {
-                this._keyExchange.HostKeyReceived -= KeyExchange_HostKeyReceived;
-                this._keyExchange.Dispose();
-                this._keyExchange = null;
+                _keyExchange.HostKeyReceived -= KeyExchange_HostKeyReceived;
+                _keyExchange.Dispose();
+                _keyExchange = null;
             }
 
             //  Enable all active registered messages
-            foreach (var messageMetadata in this._messagesMetadata)
+            foreach (var messageMetadata in _messagesMetadata)
             {
                 if (messageMetadata.Activated)
                     messageMetadata.Enabled = true;
@@ -1361,9 +1362,9 @@ namespace Renci.SshNet
                 newKeysReceived(this, new MessageEventArgs<NewKeysMessage>(message));
 
             //  Signal that key exchange completed
-            this._keyExchangeCompletedWaitHandle.Set();
+            _keyExchangeCompletedWaitHandle.Set();
 
-            this._keyExchangeInProgress = false;
+            _keyExchangeInProgress = false;
         }
 
         /// <summary>
@@ -1603,7 +1604,7 @@ namespace Renci.SshNet
         {
             var buffer = new byte[length];
 
-            this.SocketRead(length, ref buffer);
+            SocketRead(length, ref buffer);
 
             return buffer;
         }
@@ -1616,7 +1617,7 @@ namespace Renci.SshNet
         /// <param name="messageName">The name of the message to register with the session.</param>
         public void RegisterMessage(string messageName)
         {
-            this.InternalRegisterMessage(messageName);
+            InternalRegisterMessage(messageName);
         }
 
         /// <summary>
@@ -1625,7 +1626,7 @@ namespace Renci.SshNet
         /// <param name="messageName">The name of the message to unregister with the session.</param>
         public void UnRegisterMessage(string messageName)
         {
-            this.InternalUnRegisterMessage(messageName);
+            InternalUnRegisterMessage(messageName);
         }
 
         /// <summary>
@@ -1636,7 +1637,7 @@ namespace Renci.SshNet
         private Message LoadMessage(byte[] data)
         {
             var messageType = data[0];
-            var messageMetadata = (from m in this._messagesMetadata where m.Number == messageType && m.Enabled && m.Activated select m).SingleOrDefault();
+            var messageMetadata = (from m in _messagesMetadata where m.Number == messageType && m.Enabled && m.Activated select m).SingleOrDefault();
             if (messageMetadata == null)
                 throw new SshException(string.Format(CultureInfo.CurrentCulture, "Message type {0} is not valid.", messageType));
 
@@ -1644,7 +1645,7 @@ namespace Renci.SshNet
 
             message.Load(data);
 
-            this.Log(string.Format("ReceiveMessage from server: '{0}': '{1}'.", message.GetType().Name, message));
+            Log(string.Format("ReceiveMessage from server: '{0}': '{1}'.", message.GetType().Name, message));
 
             return message;
         }
@@ -1736,15 +1737,15 @@ namespace Renci.SshNet
         {
             try
             {
-                while (this._socket != null && this._socket.Connected)
+                while (_socket != null && _socket.Connected)
                 {
-                    var message = this.ReceiveMessage();
-                    this.HandleMessageCore(message);
+                    var message = ReceiveMessage();
+                    HandleMessageCore(message);
                 }
             }
             catch (Exception exp)
             {
-                this.RaiseError(exp);
+                RaiseError(exp);
             }
         }
 
@@ -1752,45 +1753,45 @@ namespace Renci.SshNet
         {
             var buffer = new byte[1];
 
-            this.SocketRead(1, ref buffer);
+            SocketRead(1, ref buffer);
 
             return buffer[0];
         }
 
         private void SocketWriteByte(byte data)
         {
-            this.SocketWrite(new[] {data});
+            SocketWrite(new[] {data});
         }
 
         private void ConnectSocks4()
         {
             //  Send socks version number
-            this.SocketWriteByte(0x04);
+            SocketWriteByte(0x04);
 
             //  Send command code
-            this.SocketWriteByte(0x01);
+            SocketWriteByte(0x01);
 
             //  Send port
-            this.SocketWriteByte((byte)(this.ConnectionInfo.Port / 0xFF));
-            this.SocketWriteByte((byte)(this.ConnectionInfo.Port % 0xFF));
+            SocketWriteByte((byte)(ConnectionInfo.Port / 0xFF));
+            SocketWriteByte((byte)(ConnectionInfo.Port % 0xFF));
 
             //  Send IP
-            IPAddress ipAddress = this.ConnectionInfo.Host.GetIPAddress();
-            this.SocketWrite(ipAddress.GetAddressBytes());
+            var ipAddress = ConnectionInfo.Host.GetIPAddress();
+            SocketWrite(ipAddress.GetAddressBytes());
 
             //  Send username
-            var username = new Common.ASCIIEncoding().GetBytes(this.ConnectionInfo.ProxyUsername);
-            this.SocketWrite(username);
-            this.SocketWriteByte(0x00);
+            var username = new ASCIIEncoding().GetBytes(ConnectionInfo.ProxyUsername);
+            SocketWrite(username);
+            SocketWriteByte(0x00);
 
             //  Read 0
-            if (this.SocketReadByte() != 0)
+            if (SocketReadByte() != 0)
             {
                 throw new ProxyException("SOCKS4: Null is expected.");
             }
 
             //  Read response code
-            var code = this.SocketReadByte();
+            var code = SocketReadByte();
 
             switch (code)
             {
@@ -1809,29 +1810,29 @@ namespace Renci.SshNet
             var dummyBuffer = new byte[4];
 
             //  Read 2 bytes to be ignored
-            this.SocketRead(2, ref dummyBuffer);
+            SocketRead(2, ref dummyBuffer);
 
             //  Read 4 bytes to be ignored
-            this.SocketRead(4, ref dummyBuffer);
+            SocketRead(4, ref dummyBuffer);
         }
 
         private void ConnectSocks5()
         {
             //  Send socks version number
-            this.SocketWriteByte(0x05);
+            SocketWriteByte(0x05);
 
             //  Send number of supported authentication methods
-            this.SocketWriteByte(0x02);
+            SocketWriteByte(0x02);
 
             //  Send supported authentication methods
-            this.SocketWriteByte(0x00); //  No authentication
-            this.SocketWriteByte(0x02); //  Username/Password
+            SocketWriteByte(0x00); //  No authentication
+            SocketWriteByte(0x02); //  Username/Password
 
-            var socksVersion = this.SocketReadByte();
+            var socksVersion = SocketReadByte();
             if (socksVersion != 0x05)
                 throw new ProxyException(string.Format("SOCKS Version '{0}' is not supported.", socksVersion));
 
-            var authenticationMethod = this.SocketReadByte();
+            var authenticationMethod = SocketReadByte();
             switch (authenticationMethod)
             {
                 case 0x00:
@@ -1839,38 +1840,38 @@ namespace Renci.SshNet
                 case 0x02:
 
                     //  Send version
-                    this.SocketWriteByte(0x01);
+                    SocketWriteByte(0x01);
 
-                    var encoding = new Common.ASCIIEncoding();
+                    var encoding = new ASCIIEncoding();
 
-                    var username = encoding.GetBytes(this.ConnectionInfo.ProxyUsername);
+                    var username = encoding.GetBytes(ConnectionInfo.ProxyUsername);
 
                     if (username.Length > byte.MaxValue)
                         throw new ProxyException("Proxy username is too long.");
 
                     //  Send username length
-                    this.SocketWriteByte((byte)username.Length);
+                    SocketWriteByte((byte)username.Length);
 
                     //  Send username
-                    this.SocketWrite(username);
+                    SocketWrite(username);
 
-                    var password = encoding.GetBytes(this.ConnectionInfo.ProxyPassword);
+                    var password = encoding.GetBytes(ConnectionInfo.ProxyPassword);
 
                     if (password.Length > byte.MaxValue)
                         throw new ProxyException("Proxy password is too long.");
 
                     //  Send username length
-                    this.SocketWriteByte((byte)password.Length);
+                    SocketWriteByte((byte)password.Length);
 
                     //  Send username
-                    this.SocketWrite(password);
+                    SocketWrite(password);
 
-                    var serverVersion = this.SocketReadByte();
+                    var serverVersion = SocketReadByte();
 
                     if (serverVersion != 1)
                         throw new ProxyException("SOCKS5: Server authentication version is not valid.");
 
-                    var statusCode = this.SocketReadByte();
+                    var statusCode = SocketReadByte();
                     if (statusCode != 0)
                         throw new ProxyException("SOCKS5: Username/Password authentication failed.");
 
@@ -1880,28 +1881,28 @@ namespace Renci.SshNet
             }
 
             //  Send socks version number
-            this.SocketWriteByte(0x05);
+            SocketWriteByte(0x05);
 
             //  Send command code
-            this.SocketWriteByte(0x01); //  establish a TCP/IP stream connection
+            SocketWriteByte(0x01); //  establish a TCP/IP stream connection
 
             //  Send reserved, must be 0x00
-            this.SocketWriteByte(0x00);
+            SocketWriteByte(0x00);
 
-            IPAddress ip = this.ConnectionInfo.Host.GetIPAddress();
+            var ip = ConnectionInfo.Host.GetIPAddress();
 
             //  Send address type and address
             if (ip.AddressFamily == AddressFamily.InterNetwork)
             {
-                this.SocketWriteByte(0x01);
+                SocketWriteByte(0x01);
                 var address = ip.GetAddressBytes();
-                this.SocketWrite(address);
+                SocketWrite(address);
             }
             else if (ip.AddressFamily == AddressFamily.InterNetworkV6)
             {
-                this.SocketWriteByte(0x04);
+                SocketWriteByte(0x04);
                 var address = ip.GetAddressBytes();
-                this.SocketWrite(address);
+                SocketWrite(address);
             }
             else
             {
@@ -1909,17 +1910,17 @@ namespace Renci.SshNet
             }
 
             //  Send port
-            this.SocketWriteByte((byte)(this.ConnectionInfo.Port / 0xFF));
-            this.SocketWriteByte((byte)(this.ConnectionInfo.Port % 0xFF));
+            SocketWriteByte((byte)(ConnectionInfo.Port / 0xFF));
+            SocketWriteByte((byte)(ConnectionInfo.Port % 0xFF));
 
             //  Read Server SOCKS5 version
-            if (this.SocketReadByte() != 5)
+            if (SocketReadByte() != 5)
             {
                 throw new ProxyException("SOCKS5: Version 5 is expected.");
             }
 
             //  Read response code
-            var status = this.SocketReadByte();
+            var status = SocketReadByte();
 
             switch (status)
             {
@@ -1946,21 +1947,21 @@ namespace Renci.SshNet
             }
 
             //  Read 0
-            if (this.SocketReadByte() != 0)
+            if (SocketReadByte() != 0)
             {
                 throw new ProxyException("SOCKS5: 0 byte is expected.");
             }
 
-            var addressType = this.SocketReadByte();
+            var addressType = SocketReadByte();
             var responseIp = new byte[16];
 
             switch (addressType)
             {
                 case 0x01:
-                    this.SocketRead(4, ref responseIp);
+                    SocketRead(4, ref responseIp);
                     break;
                 case 0x04:
-                    this.SocketRead(16, ref responseIp);
+                    SocketRead(16, ref responseIp);
                     break;
                 default:
                     throw new ProxyException(string.Format("Address type '{0}' is not supported.", addressType));
@@ -1969,7 +1970,7 @@ namespace Renci.SshNet
             var port = new byte[2];
 
             //  Read 2 bytes to be ignored
-            this.SocketRead(2, ref port);
+            SocketRead(2, ref port);
         }
 
         private void ConnectHttp()
@@ -1977,20 +1978,20 @@ namespace Renci.SshNet
             var httpResponseRe = new Regex(@"HTTP/(?<version>\d[.]\d) (?<statusCode>\d{3}) (?<reasonPhrase>.+)$");
             var httpHeaderRe = new Regex(@"(?<fieldName>[^\[\]()<>@,;:\""/?={} \t]+):(?<fieldValue>.+)?");
 
-            var encoding = new Common.ASCIIEncoding();
+            var encoding = new ASCIIEncoding();
 
-            this.SocketWrite(encoding.GetBytes(string.Format("CONNECT {0}:{1} HTTP/1.0\r\n", this.ConnectionInfo.Host, this.ConnectionInfo.Port)));
+            SocketWrite(encoding.GetBytes(string.Format("CONNECT {0}:{1} HTTP/1.0\r\n", ConnectionInfo.Host, ConnectionInfo.Port)));
 
             //  Sent proxy authorization is specified
-            if (!string.IsNullOrEmpty(this.ConnectionInfo.ProxyUsername))
+            if (!string.IsNullOrEmpty(ConnectionInfo.ProxyUsername))
             {
                 var authorization = string.Format("Proxy-Authorization: Basic {0}\r\n",
-                                                  Convert.ToBase64String(encoding.GetBytes(string.Format("{0}:{1}", this.ConnectionInfo.ProxyUsername, this.ConnectionInfo.ProxyPassword)))
+                                                  Convert.ToBase64String(encoding.GetBytes(string.Format("{0}:{1}", ConnectionInfo.ProxyUsername, ConnectionInfo.ProxyPassword)))
                                                   );
-                this.SocketWrite(encoding.GetBytes(authorization));
+                SocketWrite(encoding.GetBytes(authorization));
             }
 
-            this.SocketWrite(encoding.GetBytes("\r\n"));
+            SocketWrite(encoding.GetBytes("\r\n"));
 
             HttpStatusCode? statusCode = null;
             var response = string.Empty;
@@ -1998,7 +1999,7 @@ namespace Renci.SshNet
 
             while (true)
             {
-                this.SocketReadLine(ref response, ConnectionInfo.Timeout);
+                SocketReadLine(ref response, ConnectionInfo.Timeout);
                 if (response == null)
                     // server shut down socket
                     break;
@@ -2072,9 +2073,9 @@ namespace Renci.SshNet
                     return;
             }
 
-            this._exception = exp;
+            _exception = exp;
 
-            this._exceptionWaitHandle.Set();
+            _exceptionWaitHandle.Set();
 
             var errorOccured = ErrorOccured;
             if (errorOccured != null)
@@ -2082,7 +2083,7 @@ namespace Renci.SshNet
 
             if (connectionException != null && connectionException.DisconnectReason != DisconnectReason.ConnectionLost)
             {
-                this.Disconnect(connectionException.DisconnectReason, exp.ToString());
+                Disconnect(connectionException.DisconnectReason, exp.ToString());
             }
         }
 
@@ -2127,7 +2128,7 @@ namespace Renci.SshNet
         protected virtual void Dispose(bool disposing)
         {
             // Check to see if Dispose has already been called.
-            if (!this._disposed)
+            if (!_disposed)
             {
                 // If disposing equals true, dispose all managed
                 // and unmanaged ResourceMessages.
@@ -2135,41 +2136,41 @@ namespace Renci.SshNet
                 {
                     Disconnect();
 
-                    if (this._serviceAccepted != null)
+                    if (_serviceAccepted != null)
                     {
-                        this._serviceAccepted.Dispose();
-                        this._serviceAccepted = null;
+                        _serviceAccepted.Dispose();
+                        _serviceAccepted = null;
                     }
 
-                    if (this._exceptionWaitHandle != null)
+                    if (_exceptionWaitHandle != null)
                     {
-                        this._exceptionWaitHandle.Dispose();
-                        this._exceptionWaitHandle = null;
+                        _exceptionWaitHandle.Dispose();
+                        _exceptionWaitHandle = null;
                     }
 
-                    if (this._keyExchangeCompletedWaitHandle != null)
+                    if (_keyExchangeCompletedWaitHandle != null)
                     {
-                        this._keyExchangeCompletedWaitHandle.Dispose();
-                        this._keyExchangeCompletedWaitHandle = null;
+                        _keyExchangeCompletedWaitHandle.Dispose();
+                        _keyExchangeCompletedWaitHandle = null;
                     }
 
-                    if (this._serverMac != null)
+                    if (_serverMac != null)
                     {
-                        this._serverMac.Clear();
-                        this._serverMac = null;
+                        _serverMac.Clear();
+                        _serverMac = null;
                     }
 
-                    if (this._clientMac != null)
+                    if (_clientMac != null)
                     {
-                        this._clientMac.Clear();
-                        this._clientMac = null;
+                        _clientMac.Clear();
+                        _clientMac = null;
                     }
 
-                    if (this._keyExchange != null)
+                    if (_keyExchange != null)
                     {
-                        this._keyExchange.HostKeyReceived -= KeyExchange_HostKeyReceived;
-                        this._keyExchange.Dispose();
-                        this._keyExchange = null;
+                        _keyExchange.HostKeyReceived -= KeyExchange_HostKeyReceived;
+                        _keyExchange.Dispose();
+                        _keyExchange = null;
                     }
 
                     if (_bytesReadFromSocket != null)
@@ -2180,7 +2181,7 @@ namespace Renci.SshNet
                 }
 
                 // Note disposing has been done.
-                this._disposed = true;
+                _disposed = true;
             }
         }
 

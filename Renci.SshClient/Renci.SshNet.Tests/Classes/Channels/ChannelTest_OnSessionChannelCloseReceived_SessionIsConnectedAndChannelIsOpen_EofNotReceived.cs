@@ -42,7 +42,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);
 
             _sessionMock.Setup(p => p.IsConnected).Returns(true);
-            _sessionMock.Setup(p => p.SendMessage(It.Is<ChannelCloseMessage>(c => c.LocalChannelNumber == _remoteChannelNumber)));
+            _sessionMock.Setup(p => p.TrySendMessage(It.Is<ChannelCloseMessage>(c => c.LocalChannelNumber == _remoteChannelNumber))).Returns(true);
 
             _channel = new ChannelStub(_sessionMock.Object, _localChannelNumber, _localWindowSize, _localPacketSize);
             _channel.Closed += (sender, args) =>
@@ -69,18 +69,18 @@ namespace Renci.SshNet.Tests.Classes.Channels
         }
 
         [TestMethod]
-        public void SendMessageOnSessionShouldBeInvokedOnceForChannelCloseMessage()
+        public void TrySendMessageOnSessionShouldBeInvokedOnceForChannelCloseMessage()
         {
             _sessionMock.Verify(
-                p => p.SendMessage(It.Is<ChannelCloseMessage>(c => c.LocalChannelNumber == _remoteChannelNumber)),
+                p => p.TrySendMessage(It.Is<ChannelCloseMessage>(c => c.LocalChannelNumber == _remoteChannelNumber)),
                 Times.Once);
         }
 
         [TestMethod]
-        public void SendMessageOnSessionShouldNeverBeInvokedForChannelEofMessage()
+        public void TrySendMessageOnSessionShouldNeverBeInvokedForChannelEofMessage()
         {
             _sessionMock.Verify(
-                p => p.SendMessage(It.Is<ChannelEofMessage>(c => c.LocalChannelNumber == _remoteChannelNumber)),
+                p => p.TrySendMessage(It.Is<ChannelEofMessage>(c => c.LocalChannelNumber == _remoteChannelNumber)),
                 Times.Never);
         }
 

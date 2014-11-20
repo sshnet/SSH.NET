@@ -2,6 +2,7 @@
 using System.Net.Sockets;
 using System.Threading;
 using Renci.SshNet.Common;
+using Renci.SshNet.Messages.Transport;
 
 namespace Renci.SshNet
 {
@@ -16,6 +17,7 @@ namespace Renci.SshNet
         private readonly bool _ownsConnectionInfo;
 
         private readonly IServiceFactory _serviceFactory;
+        private readonly object _keepAliveLock = new object();
         private TimeSpan _keepAliveInterval;
         private Timer _keepAliveTimer;
         private ConnectionInfo _connectionInfo;
@@ -243,15 +245,34 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Sends keep-alive message to the server.
+        /// Sends a keep-alive message to the server.
         /// </summary>
+        /// <remarks>
+        /// Use <see cref="KeepAliveInterval"/> to configure the client to send a keep-alive at regular
+        /// intervals.
+        /// </remarks>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
+        [Obsolete("Use KeepAliveInterval to send a keep-alive message at regular intervals.")]
         public void SendKeepAlive()
         {
             CheckDisposed();
 
-            if (Session != null && Session.IsConnected)
-                Session.SendKeepAlive();
+            // only send keep-alive message when we still have a session
+            if (Session != null)
+            {
+                // do not send multiple keep-alive messages concurrently
+                if (Monitor.TryEnter(_keepAliveLock))
+                {
+                    try
+                    {
+                        Session.TrySendMessage(new IgnoreMessage());
+                    }
+                    finally
+                    {
+                        Monitor.Exit(_keepAliveLock);
+                    }
+                }
+            }
         }
 
         /// <summary>

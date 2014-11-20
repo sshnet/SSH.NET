@@ -158,7 +158,8 @@ namespace Renci.SshNet.Tests.Classes.Channels
                             _remoteWindowSize, _remotePacketSize, _remoteChannelNumber))));
             _sessionMock.Setup(p => p.WaitOnHandle(It.IsAny<EventWaitHandle>()))
                 .Callback<WaitHandle>(p => p.WaitOne(-1));
-            _sessionMock.Setup(p => p.SendMessage(It.IsAny<ChannelEofMessage>()))
+            _sessionMock.Setup(p => p.TrySendMessage(It.IsAny<ChannelEofMessage>()))
+                .Returns(true)
                 .Callback<Message>(
                     m => new Thread(() =>
                         {
@@ -166,7 +167,8 @@ namespace Renci.SshNet.Tests.Classes.Channels
                             _sessionMock.Raise(s => s.ChannelEofReceived += null,
                                 new MessageEventArgs<ChannelEofMessage>(new ChannelEofMessage(_localChannelNumber)));
                         }).Start());
-            _sessionMock.Setup(p => p.SendMessage(It.IsAny<ChannelCloseMessage>()))
+            _sessionMock.Setup(p => p.TrySendMessage(It.IsAny<ChannelCloseMessage>()))
+                .Returns(true)
                 .Callback<Message>(
                     m => new Thread(() =>
                         {
@@ -206,13 +208,13 @@ namespace Renci.SshNet.Tests.Classes.Channels
                 Assert.IsNotNull(handler);
                 Assert.IsFalse(handler.Connected);
 
-                _sessionMock.Verify(p => p.SendMessage(It.IsAny<ChannelEofMessage>()), Times.Once);
-                _sessionMock.Verify(p => p.SendMessage(It.IsAny<ChannelCloseMessage>()), Times.Once);
+                _sessionMock.Verify(p => p.TrySendMessage(It.IsAny<ChannelEofMessage>()), Times.Once);
+                _sessionMock.Verify(p => p.TrySendMessage(It.IsAny<ChannelCloseMessage>()), Times.Once);
 
                 channel.Close();
 
-                _sessionMock.Verify(p => p.SendMessage(It.IsAny<ChannelEofMessage>()), Times.Once);
-                _sessionMock.Verify(p => p.SendMessage(It.IsAny<ChannelCloseMessage>()), Times.Once);
+                _sessionMock.Verify(p => p.TrySendMessage(It.IsAny<ChannelEofMessage>()), Times.Once);
+                _sessionMock.Verify(p => p.TrySendMessage(It.IsAny<ChannelCloseMessage>()), Times.Once);
             }
         }
     }

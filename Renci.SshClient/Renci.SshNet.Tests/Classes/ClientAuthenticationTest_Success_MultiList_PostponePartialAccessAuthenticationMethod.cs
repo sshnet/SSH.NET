@@ -5,7 +5,7 @@ using Moq;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    public class ClientAuthenticationTest_Success_MultiList_DifferentAllowedAuthenticationsAfterPartialSuccess : ClientAuthenticationTestBase
+    public class ClientAuthenticationTest_Success_MultiList_PostponePartialAccessAuthenticationMethod : ClientAuthenticationTestBase
     {
         protected override void SetupMocks()
         {
@@ -23,24 +23,26 @@ namespace Renci.SshNet.Tests.Classes
             ConnectionInfoMock.InSequence(seq).Setup(p => p.AuthenticationMethods)
                             .Returns(new List<IAuthenticationMethod>
                 {
-                    PasswordAuthenticationMethodMock.Object,
-                    PublicKeyAuthenticationMethodMock.Object,
                     KeyboardInteractiveAuthenticationMethodMock.Object,
+                    PasswordAuthenticationMethodMock.Object,
+                    PublicKeyAuthenticationMethodMock.Object
                 });
-            NoneAuthenticationMethodMock.InSequence(seq).Setup(p => p.AllowedAuthentications).Returns(new[] { "publickey", "password" });
+            NoneAuthenticationMethodMock.InSequence(seq).Setup(p => p.AllowedAuthentications).Returns(new[] { "password" });
+            KeyboardInteractiveAuthenticationMethodMock.InSequence(seq).Setup(p => p.Name).Returns("keyboard-interactive");
             PasswordAuthenticationMethodMock.InSequence(seq).Setup(p => p.Name).Returns("password");
             PublicKeyAuthenticationMethodMock.InSequence(seq).Setup(p => p.Name).Returns("publickey");
-            KeyboardInteractiveAuthenticationMethodMock.InSequence(seq).Setup(p => p.Name).Returns("keyboard-interactive");
 
             PasswordAuthenticationMethodMock.InSequence(seq).Setup(p => p.Authenticate(SessionMock.Object))
                 .Returns(AuthenticationResult.PartialSuccess);
             PasswordAuthenticationMethodMock.InSequence(seq).Setup(p => p.AllowedAuthentications)
-                .Returns(new[] { "keyboard-interactive", "publickey" });
+                .Returns(new[] { "password", "publickey" });
+            KeyboardInteractiveAuthenticationMethodMock.InSequence(seq).Setup(p => p.Name).Returns("keyboard-interactive");
             PasswordAuthenticationMethodMock.InSequence(seq).Setup(p => p.Name).Returns("password");
             PublicKeyAuthenticationMethodMock.InSequence(seq).Setup(p => p.Name).Returns("publickey");
-            KeyboardInteractiveAuthenticationMethodMock.InSequence(seq).Setup(p => p.Name).Returns("keyboard-interactive");
 
-            PublicKeyAuthenticationMethodMock.InSequence(seq).Setup(p => p.Authenticate(SessionMock.Object)).Returns(AuthenticationResult.Success);
+            PublicKeyAuthenticationMethodMock.InSequence(seq).Setup(p => p.Authenticate(SessionMock.Object)).Returns(AuthenticationResult.Failure);
+            PublicKeyAuthenticationMethodMock.InSequence(seq).Setup(p => p.Name).Returns("publickey");
+            PasswordAuthenticationMethodMock.InSequence(seq).Setup(p => p.Authenticate(SessionMock.Object)).Returns(AuthenticationResult.Success);
 
             SessionMock.InSequence(seq).Setup(p => p.UnRegisterMessage("SSH_MSG_USERAUTH_FAILURE"));
             SessionMock.InSequence(seq).Setup(p => p.UnRegisterMessage("SSH_MSG_USERAUTH_SUCCESS"));

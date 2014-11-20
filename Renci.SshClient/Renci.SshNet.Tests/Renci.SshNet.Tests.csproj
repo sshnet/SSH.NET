@@ -66,13 +66,23 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Classes\BaseClientTest_Connected_KeepAlivesNotSentConcurrently.cs" />
     <Compile Include="Classes\Channels\ChannelDirectTcpipTest.cs" />
     <Compile Include="Classes\Channels\ChannelDirectTcpipTest_Close_SessionIsConnectedAndChannelIsOpen.cs" />
     <Compile Include="Classes\Channels\ChannelSessionTest_Close_Closed.cs" />
-    <Compile Include="Classes\Channels\ChannelSessionTest_Close_SessionIsConnectedAndChannelIsOpen_ChannelCloseReceived.cs" />
+    <Compile Include="Classes\Channels\ChannelSessionTest_Close_SessionIsConnectedAndChannelIsOpen_ChannelCloseAndChannelEofReceived_SendChannelCloseMessageFailure.cs" />
+    <Compile Include="Classes\Channels\ChannelSessionTest_Close_SessionIsConnectedAndChannelIsOpen_ChannelCloseAndChannelEofReceived_SendChannelCloseMessageSuccess.cs" />
+    <Compile Include="Classes\Channels\ChannelSessionTest_Close_SessionIsConnectedAndChannelIsOpen_ChannelCloseReceived_SendChannelCloseMessageFailure.cs" />
+    <Compile Include="Classes\Channels\ChannelSessionTest_Close_SessionIsConnectedAndChannelIsOpen_ChannelCloseReceived_SendChannelCloseMessageSuccess.cs" />
+    <Compile Include="Classes\Channels\ChannelSessionTest_Close_SessionIsConnectedAndChannelIsOpen_ChannelEofReceived_SendChannelCloseMessageFailure.cs" />
+    <Compile Include="Classes\Channels\ChannelSessionTest_Close_SessionIsConnectedAndChannelIsOpen_ChannelEofReceived_SendChannelCloseMessageSuccess.cs" />
+    <Compile Include="Classes\Channels\ChannelSessionTest_Close_SessionIsConnectedAndChannelIsOpen_NoChannelCloseOrChannelEofReceived_SendChannelEofMessageFailure.cs" />
+    <Compile Include="Classes\Channels\ChannelSessionTest_Close_SessionIsNotConnectedAndChannelIsOpen_ChannelCloseAndChannelEofReceived.cs" />
+    <Compile Include="Classes\Channels\ChannelSessionTest_Close_SessionIsNotConnectedAndChannelIsOpen_ChannelCloseReceived.cs" />
+    <Compile Include="Classes\Channels\ChannelSessionTest_Close_SessionIsNotConnectedAndChannelIsOpen_NoChannelCloseOrChannelEofReceived.cs" />
     <Compile Include="Classes\Channels\ChannelSessionTest_Disposed_Closed.cs" />
     <Compile Include="Classes\Channels\ChannelSessionTest_OnSessionChannelCloseReceived_SessionIsConnectedAndChannelIsOpen.cs" />
-    <Compile Include="Classes\Channels\ChannelSessionTest_Close_SessionIsConnectedAndChannelIsOpen.cs" />
+    <Compile Include="Classes\Channels\ChannelSessionTest_Close_SessionIsConnectedAndChannelIsOpen_NoChannelCloseOrChannelEofReceived.cs" />
     <Compile Include="Classes\Channels\ChannelSessionTest_Open_ExceptionWaitingOnOpenConfirmation.cs" />
     <Compile Include="Classes\Channels\ChannelSessionTest_Open_OnOpenFailureReceived_NoRetriesAvailable.cs" />
     <Compile Include="Classes\Channels\ChannelSessionTest_Open_OnOpenFailureReceived_RetriesAvalable.cs" />
@@ -103,6 +113,7 @@
     <Compile Include="Classes\ClientAuthenticationTest_Failure_SingleList_AuthenticationMethodFailed.cs" />
     <Compile Include="Classes\ClientAuthenticationTest_Failure_SingleList_AuthenticationMethodNotConfigured.cs" />
     <Compile Include="Classes\ClientAuthenticationTest_Success_MultiList_DifferentAllowedAuthenticationsAfterPartialSuccess.cs" />
+    <Compile Include="Classes\ClientAuthenticationTest_Success_MultiList_PostponePartialAccessAuthenticationMethod.cs" />
     <Compile Include="Classes\ClientAuthenticationTest_Success_MultiList_SameAllowedAuthenticationsAfterPartialSuccess.cs" />
     <Compile Include="Classes\ClientAuthenticationTest_Success_MultiList_SkipFailedAuthenticationMethod.cs" />
     <Compile Include="Classes\ClientAuthenticationTest_Success_SingleList_SameAllowedAuthenticationAfterPartialSuccess.cs" />

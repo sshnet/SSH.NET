@@ -99,11 +99,6 @@ namespace Renci.SshNet
         void RegisterMessage(string messageName);
 
         /// <summary>
-        /// Sends "keep alive" message to keep connection alive.
-        /// </summary>
-        void SendKeepAlive();
-
-        /// <summary>
         /// Sends a message to the server.
         /// </summary>
         /// <param name="message">The message to send.</param>
@@ -111,6 +106,20 @@ namespace Renci.SshNet
         /// <exception cref="SshOperationTimeoutException">The operation timed out.</exception>
         /// <exception cref="InvalidOperationException">The size of the packet exceeds the maximum size defined by the protocol.</exception>
         void SendMessage(Message message);
+
+        /// <summary>
+        /// Sends a message to the server.
+        /// </summary>
+        /// <param name="message">The message to send.</param>
+        /// <returns>
+        /// <c>true</c> if the message was sent to the server; otherwise, <c>false</c>.
+        /// </returns>
+        /// <exception cref="InvalidOperationException">The size of the packet exceeds the maximum size defined by the protocol.</exception>
+        /// <remarks>
+        /// This methods returns <c>false</c> when the attempt to send the message results in a
+        /// <see cref="SocketException"/> or a <see cref="SshException"/>.
+        /// </remarks>
+        bool TrySendMessage(Message message);
 
         /// <summary>
         /// Unregister SSH message from the session.

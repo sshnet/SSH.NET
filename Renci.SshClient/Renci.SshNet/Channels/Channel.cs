@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net.Sockets;
 using System.Threading;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages;
@@ -12,6 +13,10 @@ namespace Renci.SshNet.Channels
     /// </summary>
     internal abstract class Channel : IChannel
     {
+        private const int Initial = 0;
+        private const int Considered = 1;
+        private const int Sent = 2;
+
         private EventWaitHandle _channelClosedWaitHandle = new ManualResetEvent(false);
         private EventWaitHandle _channelServerWindowAdjustWaitHandle = new ManualResetEvent(false);
         private EventWaitHandle _errorOccuredWaitHandle = new ManualResetEvent(false);
@@ -23,13 +28,14 @@ namespace Renci.SshNet.Channels
         private ISession _session;
 
         /// <summary>
-        /// Holds a value indicating whether a SSH_MSG_CHANNEL_CLOSE has been sent to the other party.
+        /// Holds a value indicating whether the SSH_MSG_CHANNEL_CLOSE has been sent to the remote party.
         /// </summary>
         /// <value>
-        /// <c>true</c> when a SSH_MSG_CHANNEL_CLOSE message has been sent to the other party;
-        /// otherwise, <c>false</c>.
+        /// <c>0</c> when the SSH_MSG_CHANNEL_CLOSE message has not been sent or considered
+        /// <c>1</c> when sending a SSH_MSG_CHANNEL_CLOSE message to the remote party is under consideration
+        /// <c>2</c> when this message has been sent to the remote party
         /// </value>
-        private bool _closeMessageSent;
+        private int _closeMessageSent;
 
         /// <summary>
         /// Holds a value indicating whether a SSH_MSG_CHANNEL_CLOSE has been received from the other
@@ -51,11 +57,12 @@ namespace Renci.SshNet.Channels
         private bool _eofMessageReceived;
 
         /// <summary>
-        /// Holds a value indicating whether the SSH_MSG_CHANNEL_EOF has been sent to the other party.
+        /// Holds a value indicating whether the SSH_MSG_CHANNEL_EOF has been sent to the remote party.
         /// </summary>
         /// <value>
-        /// <c>0</c> when the SSH_MSG_CHANNEL_EOF message has not been sent to the other party, and
-        /// <c>1</c> when this message was already sent.
+        /// <c>0</c> when the SSH_MSG_CHANNEL_EOF message has not been sent or considered
+        /// <c>1</c> when sending a SSH_MSG_CHANNEL_EOF message to the remote party is under consideration
+        /// <c>2</c> when this message has been sent to the remote party
         /// </value>
         private int _eofMessageSent;
 
@@ -412,6 +419,23 @@ namespace Renci.SshNet.Channels
         }
 
         /// <summary>
+        /// Sends a message to the server.
+        /// </summary>
+        /// <param name="message">The message to send.</param>
+        /// <returns>
+        /// <c>true</c> if the message was sent to the server; otherwise, <c>false</c>.
+        /// </returns>
+        /// <exception cref="InvalidOperationException">The size of the packet exceeds the maximum size defined by the protocol.</exception>
+        /// <remarks>
+        /// This methods returns <c>false</c> when the attempt to send the message results in a
+        /// <see cref="SocketException"/> or a <see cref="SshException"/>.
+        /// </remarks>
+        private bool TrySendMessage(Message message)
+        {
+            return _session.TrySendMessage(message);
+        }
+
+        /// <summary>
         /// Sends SSH message to the server.
         /// </summary>
         /// <param name="message">The message.</param>
@@ -421,15 +445,6 @@ namespace Renci.SshNet.Channels
             if (!IsOpen)
                 return;
 
-            _session.SendMessage(message);
-        }
-
-        /// <summary>
-        /// Sends close channel message to the server, and marks the channel closed.
-        /// </summary>
-        /// <param name="message">The message to send.</param>
-        private void SendMessage(ChannelCloseMessage message)
-        {
             _session.SendMessage(message);
         }
 
@@ -555,23 +570,23 @@ namespace Renci.SshNet.Channels
             //
             // as a solution for this issue we only send a SSH_MSG_CHANNEL_EOF message if we haven't received a
             // SSH_MSG_CHANNEL_EOF or SSH_MSG_CHANNEL_CLOSE message from the remote party
-            if (!_closeMessageReceived && !_eofMessageReceived && IsOpen && IsConnected)
+            if (Interlocked.CompareExchange(ref _eofMessageSent, Considered, Initial) == Initial)
             {
-                if (Interlocked.CompareExchange(ref _eofMessageSent, 1, 0) == 0)
-                    SendMessage(new ChannelEofMessage(RemoteChannelNumber));
+                if (!_closeMessageReceived && !_eofMessageReceived && IsOpen && IsConnected)
+                {
+                    if (TrySendMessage(new ChannelEofMessage(RemoteChannelNumber)))
+                        _eofMessageSent = Sent;
+                }
             }
 
             // send message to close the channel on the server
-            // ignore sending close message when client not connected
-            if (!_closeMessageSent && IsOpen && IsConnected)
+            if (Interlocked.CompareExchange(ref _closeMessageSent, Considered, Initial) == Initial)
             {
-                lock (this)
+                // ignore sending close message when client is not connected or the channel is closed
+                if (IsOpen && IsConnected)
                 {
-                    if (!_closeMessageSent)
-                    {
-                        SendMessage(new ChannelCloseMessage(RemoteChannelNumber));
-                        _closeMessageSent = true;
-                    }
+                    if (TrySendMessage(new ChannelCloseMessage(RemoteChannelNumber)))
+                        _closeMessageSent = Sent;
                 }
             }
 
@@ -580,17 +595,17 @@ namespace Renci.SshNet.Channels
 
             // wait for channel to be closed if we actually sent a close message (either to initiate closing
             // the channel, or as response to a SSH_MSG_CHANNEL_CLOSE message sent by the server
-            if (wait && _closeMessageSent)
+            if (wait && _closeMessageSent == Sent)
             {
                 WaitOnHandle(_channelClosedWaitHandle);
             }
 
             // reset indicators in case we want to reopen the channel; these are safe to reset
             // since the channel is marked closed by now
-            _eofMessageSent = 0;
+            _eofMessageSent = Initial;
             _eofMessageReceived = false;
             _closeMessageReceived = false;
-            _closeMessageSent = false;
+            _closeMessageSent = Initial;
         }
 
         protected virtual void OnDisconnected()

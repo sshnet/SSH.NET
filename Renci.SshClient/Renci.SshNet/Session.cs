@@ -677,14 +677,6 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Sends "keep alive" message to keep connection alive.
-        /// </summary>
-        void ISession.SendKeepAlive()
-        {
-            SendMessage(new IgnoreMessage());
-        }
-
-        /// <summary>
         /// Waits for the specified handle or the exception handle for the receive thread
         /// to signal within the connection timeout.
         /// </summary>
@@ -885,6 +877,37 @@ namespace Renci.SshNet
             }
         }
 
+        /// <summary>
+        /// Sends a message to the server.
+        /// </summary>
+        /// <param name="message">The message to send.</param>
+        /// <returns>
+        /// <c>true</c> if the message was sent to the server; otherwise, <c>false</c>.
+        /// </returns>
+        /// <exception cref="InvalidOperationException">The size of the packet exceeds the maximum size defined by the protocol.</exception>
+        /// <remarks>
+        /// This methods returns <c>false</c> when the attempt to send the message results in a
+        /// <see cref="SocketException"/> or a <see cref="SshException"/>.
+        /// </remarks>
+        private bool TrySendMessage(Message message)
+        {
+            try
+            {
+                SendMessage(message);
+                return true;
+            }
+            catch (SshException ex)
+            {
+                Log(string.Format("Failure sending message server '{0}': '{1}' => {2}", message.GetType().Name, message, ex));
+                return false;
+            }
+            catch (SocketException ex)
+            {
+                Log(string.Format("Failure sending message server '{0}': '{1}' => {2}", message.GetType().Name, message, ex));
+                return false;
+            }
+        }
+
         private static IEnumerable<MessageMetadata> GetMessagesMetadata()
         {
             return new []
@@ -1028,7 +1051,8 @@ namespace Renci.SshNet
 
             var disconnectMessage = new DisconnectMessage(reasonCode, message);
 
-            SendMessage(disconnectMessage);
+            // send the disconnect message, but ignore the outcome
+            TrySendMessage(disconnectMessage);
 
             _isDisconnectMessageSent = true;
         }
@@ -2265,6 +2289,23 @@ namespace Renci.SshNet
         void ISession.SendMessage(Message message)
         {
             SendMessage(message);
+        }
+
+        /// <summary>
+        /// Sends a message to the server.
+        /// </summary>
+        /// <param name="message">The message to send.</param>
+        /// <returns>
+        /// <c>true</c> if the message was sent to the server; otherwise, <c>false</c>.
+        /// </returns>
+        /// <exception cref="InvalidOperationException">The size of the packet exceeds the maximum size defined by the protocol.</exception>
+        /// <remarks>
+        /// This methods returns <c>false</c> when the attempt to send the message results in a
+        /// <see cref="SocketException"/> or a <see cref="SshException"/>.
+        /// </remarks>
+        bool ISession.TrySendMessage(Message message)
+        {
+            return TrySendMessage(message);
         }
 
         #endregion ISession implementation

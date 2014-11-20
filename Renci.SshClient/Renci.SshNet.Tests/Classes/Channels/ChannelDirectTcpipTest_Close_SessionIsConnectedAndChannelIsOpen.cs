@@ -94,10 +94,14 @@ namespace Renci.SshNet.Tests.Classes.Channels
                     });
             _sessionMock.InSequence(sequence).Setup(p => p.IsConnected).Returns(true);
             _sessionMock.InSequence(sequence)
-                .Setup(p => p.SendMessage(It.Is<ChannelEofMessage>(m => m.LocalChannelNumber == _remoteChannelNumber)));
+                .Setup(
+                    p => p.TrySendMessage(It.Is<ChannelEofMessage>(m => m.LocalChannelNumber == _remoteChannelNumber)))
+                .Returns(true);
             _sessionMock.InSequence(sequence).Setup(p => p.IsConnected).Returns(true);
             _sessionMock.InSequence(sequence)
-                .Setup(p => p.SendMessage(It.Is<ChannelCloseMessage>(m => m.LocalChannelNumber == _remoteChannelNumber)));
+                .Setup(
+                    p => p.TrySendMessage(It.Is<ChannelCloseMessage>(m => m.LocalChannelNumber == _remoteChannelNumber)))
+                .Returns(true);
             _sessionMock.InSequence(sequence)
                 .Setup(p => p.WaitOnHandle(It.IsNotNull<WaitHandle>()))
                 .Callback<WaitHandle>(
@@ -180,13 +184,13 @@ namespace Renci.SshNet.Tests.Classes.Channels
         [TestMethod]
         public void ChannelEofMessageShouldBeSentOnce()
         {
-            _sessionMock.Verify(p => p.SendMessage(It.Is<ChannelEofMessage>(m => m.LocalChannelNumber == _remoteChannelNumber)), Times.Once);
+            _sessionMock.Verify(p => p.TrySendMessage(It.Is<ChannelEofMessage>(m => m.LocalChannelNumber == _remoteChannelNumber)), Times.Once);
         }
 
         [TestMethod]
         public void ChannelCloseMessageShouldBeSentOnce()
         {
-            _sessionMock.Verify(p => p.SendMessage(It.Is<ChannelCloseMessage>(m => m.LocalChannelNumber == _remoteChannelNumber)), Times.Once);
+            _sessionMock.Verify(p => p.TrySendMessage(It.Is<ChannelCloseMessage>(m => m.LocalChannelNumber == _remoteChannelNumber)), Times.Once);
         }
 
         [TestMethod]

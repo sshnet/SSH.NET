@@ -137,7 +137,7 @@ namespace Renci.SshNet.NetConf
             }
             else if (_usingFramingProtocol)
             {
-                int position = 0;
+                var position = 0;
 
                 for (; ; )
                 {

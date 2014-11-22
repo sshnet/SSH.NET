@@ -28,7 +28,7 @@ namespace Renci.SshNet.Messages.Connection
         /// </summary>
         protected override void LoadData()
         {
-            this.WantReply = this.ReadBoolean();
+            WantReply = ReadBoolean();
         }
 
         /// <summary>
@@ -36,7 +36,7 @@ namespace Renci.SshNet.Messages.Connection
         /// </summary>
         protected override void SaveData()
         {
-            this.Write(this.WantReply);
+            Write(WantReply);
         }
     }
 }

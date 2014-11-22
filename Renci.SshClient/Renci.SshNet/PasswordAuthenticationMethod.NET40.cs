@@ -3,7 +3,7 @@ using System.Threading;
 
 namespace Renci.SshNet
 {
-    public partial class PasswordAuthenticationMethod : AuthenticationMethod
+    public partial class PasswordAuthenticationMethod
     {
         /// <summary>
         /// Executes the specified action in a separate thread.

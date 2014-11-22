@@ -29,8 +29,8 @@ namespace Renci.SshNet
         /// <param name="hash">The hash algorithm to use for a given key.</param>
         public HashInfo(int keySize, Func<byte[], HashAlgorithm> hash)
         {
-            this.KeySize = keySize;
-            this.HashAlgorithm = key => (hash(key.Take(this.KeySize / 8).ToArray()));
+            KeySize = keySize;
+            HashAlgorithm = key => (hash(key.Take(KeySize / 8).ToArray()));
         }
     }
 }

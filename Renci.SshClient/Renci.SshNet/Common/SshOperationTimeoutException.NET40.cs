@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 namespace Renci.SshNet.Common
 {
     [Serializable]
-    public partial class SshOperationTimeoutException : SshException
+    public partial class SshOperationTimeoutException
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="SshOperationTimeoutException"/> class.

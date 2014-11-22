@@ -7,7 +7,7 @@ namespace Renci.SshNet.Common
     /// The exception that is thrown when operation permission is denied.
     /// </summary>
     [Serializable]
-    public partial class SftpPermissionDeniedException : SshException
+    public partial class SftpPermissionDeniedException
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="SftpPermissionDeniedException"/> class.

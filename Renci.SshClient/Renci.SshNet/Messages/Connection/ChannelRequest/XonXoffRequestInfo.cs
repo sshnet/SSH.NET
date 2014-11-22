@@ -34,7 +34,7 @@
         /// </summary>
         public XonXoffRequestInfo()
         {
-            this.WantReply = false;
+            WantReply = false;
         }
 
         /// <summary>
@@ -44,7 +44,7 @@
         public XonXoffRequestInfo(bool clientCanDo)
             : this()
         {
-            this.ClientCanDo = clientCanDo;
+            ClientCanDo = clientCanDo;
         }
 
         /// <summary>
@@ -54,7 +54,7 @@
         {
             base.LoadData();
 
-            this.ClientCanDo = this.ReadBoolean();
+            ClientCanDo = ReadBoolean();
         }
 
         /// <summary>
@@ -64,7 +64,7 @@
         {
             base.SaveData();
 
-            this.Write(this.ClientCanDo);
+            Write(ClientCanDo);
         }
     }
 }

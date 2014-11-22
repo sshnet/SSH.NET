@@ -77,7 +77,7 @@ namespace Renci.SshNet.Messages.Connection
         /// </summary>
         public PseudoTerminalRequestInfo()
         {
-            this.WantReply = true;
+            WantReply = true;
         }
 
         /// <summary>
@@ -92,12 +92,12 @@ namespace Renci.SshNet.Messages.Connection
         public PseudoTerminalRequestInfo(string environmentVariable, uint columns, uint rows, uint width, uint height, IDictionary<TerminalModes, uint> terminalModeValues)
             : this()
         {
-            this.EnvironmentVariable = environmentVariable;
-            this.Columns = columns;
-            this.Rows = rows;
-            this.PixelWidth = width;
-            this.PixelHeight = height;
-            this.TerminalModeValues = terminalModeValues;
+            EnvironmentVariable = environmentVariable;
+            Columns = columns;
+            Rows = rows;
+            PixelWidth = width;
+            PixelHeight = height;
+            TerminalModeValues = terminalModeValues;
         }
 
         /// <summary>
@@ -107,26 +107,26 @@ namespace Renci.SshNet.Messages.Connection
         {
             base.SaveData();
 
-            this.Write(this.EnvironmentVariable);
-            this.Write(this.Columns);
-            this.Write(this.Rows);
-            this.Write(this.Rows);
-            this.Write(this.PixelHeight);
+            Write(EnvironmentVariable);
+            Write(Columns);
+            Write(Rows);
+            Write(Rows);
+            Write(PixelHeight);
 
-            if (this.TerminalModeValues != null)
+            if (TerminalModeValues != null)
             {
-                this.Write((uint)this.TerminalModeValues.Count * (1 + 4) + 1);
+                Write((uint)TerminalModeValues.Count * (1 + 4) + 1);
 
-                foreach (var item in this.TerminalModeValues)
+                foreach (var item in TerminalModeValues)
                 {
-                    this.Write((byte)item.Key);
-                    this.Write(item.Value);
+                    Write((byte)item.Key);
+                    Write(item.Value);
                 }
-                this.Write((byte)0);
+                Write((byte)0);
             }
             else
             {
-                this.Write((uint)0);
+                Write((uint)0);
             }
         }
     }

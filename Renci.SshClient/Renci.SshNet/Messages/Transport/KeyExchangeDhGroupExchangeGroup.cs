@@ -29,8 +29,8 @@ namespace Renci.SshNet.Messages.Transport
         /// </summary>
         protected override void LoadData()
         {
-            this.SafePrime = this.ReadBigInt();
-            this.SubGroup = this.ReadBigInt();
+            SafePrime = ReadBigInt();
+            SubGroup = ReadBigInt();
         }
 
         /// <summary>
@@ -38,8 +38,8 @@ namespace Renci.SshNet.Messages.Transport
         /// </summary>
         protected override void SaveData()
         {
-            this.Write(this.SafePrime);
-            this.Write(this.SubGroup);
+            Write(SafePrime);
+            Write(SubGroup);
         }
     }
 }

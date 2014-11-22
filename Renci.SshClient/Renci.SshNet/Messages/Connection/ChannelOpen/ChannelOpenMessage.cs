@@ -19,7 +19,7 @@ namespace Renci.SshNet.Messages.Connection
         {
             get
             {
-                return this.Info.ChannelType;
+                return Info.ChannelType;
             }
         }
 
@@ -61,10 +61,10 @@ namespace Renci.SshNet.Messages.Connection
         /// <param name="info">The info.</param>
         public ChannelOpenMessage(uint channelNumber, uint initialWindowSize, uint maximumPacketSize, ChannelOpenInfo info)
         {
-            this.LocalChannelNumber = channelNumber;
-            this.InitialWindowSize = initialWindowSize;
-            this.MaximumPacketSize = maximumPacketSize;
-            this.Info = info;
+            LocalChannelNumber = channelNumber;
+            InitialWindowSize = initialWindowSize;
+            MaximumPacketSize = maximumPacketSize;
+            Info = info;
         }
 
         /// <summary>
@@ -72,34 +72,34 @@ namespace Renci.SshNet.Messages.Connection
         /// </summary>
         protected override void LoadData()
         {
-            var channelName = this.ReadAsciiString();
-            this.LocalChannelNumber = this.ReadUInt32();
-            this.InitialWindowSize = this.ReadUInt32();
-            this.MaximumPacketSize = this.ReadUInt32();
-            var bytes = this.ReadBytes();
+            var channelName = ReadAsciiString();
+            LocalChannelNumber = ReadUInt32();
+            InitialWindowSize = ReadUInt32();
+            MaximumPacketSize = ReadUInt32();
+            var bytes = ReadBytes();
 
             if (channelName == SessionChannelOpenInfo.NAME)
             {
-                this.Info = new SessionChannelOpenInfo();
+                Info = new SessionChannelOpenInfo();
             }
             else if (channelName == X11ChannelOpenInfo.NAME)
             {
-                this.Info = new X11ChannelOpenInfo();
+                Info = new X11ChannelOpenInfo();
             }
             else if (channelName == DirectTcpipChannelInfo.NAME)
             {
-                this.Info = new DirectTcpipChannelInfo();
+                Info = new DirectTcpipChannelInfo();
             }
             else if (channelName == ForwardedTcpipChannelInfo.NAME)
             {
-                this.Info = new ForwardedTcpipChannelInfo();
+                Info = new ForwardedTcpipChannelInfo();
             }
             else
             {
                 throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "Channel type '{0}' is not supported.", channelName));
             }
 
-            this.Info.Load(bytes);
+            Info.Load(bytes);
 
         }
 
@@ -108,11 +108,11 @@ namespace Renci.SshNet.Messages.Connection
         /// </summary>
         protected override void SaveData()
         {
-            this.WriteAscii(this.ChannelType);
-            this.Write(this.LocalChannelNumber);
-            this.Write(this.InitialWindowSize);
-            this.Write(this.MaximumPacketSize);
-            this.Write(this.Info.GetBytes());
+            WriteAscii(ChannelType);
+            Write(LocalChannelNumber);
+            Write(InitialWindowSize);
+            Write(MaximumPacketSize);
+            Write(Info.GetBytes());
         }
     }
 }

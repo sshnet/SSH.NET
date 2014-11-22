@@ -340,7 +340,7 @@ namespace Renci.SshNet.Sftp
         /// <exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed. </exception>
         public override int Read(byte[] buffer, int offset, int count)
         {
-            int readLen = 0;
+            var readLen = 0;
 
             if (buffer == null)
                 throw new ArgumentNullException("buffer");

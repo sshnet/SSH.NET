@@ -26,8 +26,8 @@
         /// <param name="bytesToAdd">The bytes to add.</param>
         public ChannelWindowAdjustMessage(uint localChannelNumber, uint bytesToAdd)
         {
-            this.LocalChannelNumber = localChannelNumber;
-            this.BytesToAdd = bytesToAdd;
+            LocalChannelNumber = localChannelNumber;
+            BytesToAdd = bytesToAdd;
         }
 
         /// <summary>
@@ -36,7 +36,7 @@
         protected override void LoadData()
         {
             base.LoadData();
-            this.BytesToAdd = this.ReadUInt32();
+            BytesToAdd = ReadUInt32();
         }
 
         /// <summary>
@@ -45,7 +45,7 @@
         protected override void SaveData()
         {
             base.SaveData();
-            this.Write(this.BytesToAdd);
+            Write(BytesToAdd);
         }
     }
 }

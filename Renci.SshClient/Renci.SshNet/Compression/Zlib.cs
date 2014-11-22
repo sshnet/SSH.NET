@@ -20,7 +20,7 @@
         public override void Init(Session session)
         {
             base.Init(session);
-            this.IsActive = true;
+            IsActive = true;
         }
     }
 }

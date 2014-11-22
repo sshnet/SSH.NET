@@ -30,9 +30,9 @@ namespace Renci.SshNet.Common
         /// <param name="downloaded">The number of downloaded bytes so far.</param>
         public ScpDownloadEventArgs(string filename, long size, long downloaded)
         {
-            this.Filename = filename;
-            this.Size = size;
-            this.Downloaded = downloaded;
+            Filename = filename;
+            Size = size;
+            Downloaded = downloaded;
         }
     }
 }

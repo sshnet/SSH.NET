@@ -21,14 +21,14 @@ namespace Renci.SshNet.Messages.Transport
         /// </summary>
         protected override void LoadData()
         {
-            var serviceName = this.ReadAsciiString();
+            var serviceName = ReadAsciiString();
             switch (serviceName)
             {
                 case "ssh-userauth":
-                    this.ServiceName = ServiceName.UserAuthentication;
+                    ServiceName = ServiceName.UserAuthentication;
                     break;
                 case "ssh-connection":
-                    this.ServiceName = ServiceName.Connection;
+                    ServiceName = ServiceName.Connection;
                     break;
             }
         }

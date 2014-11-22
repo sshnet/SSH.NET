@@ -25,7 +25,7 @@
         /// <param name="boundPort">The bound port.</param>
         public RequestSuccessMessage(uint boundPort)
         {
-            this.BoundPort = boundPort;
+            BoundPort = boundPort;
         }
 
         /// <summary>
@@ -33,8 +33,8 @@
         /// </summary>
         protected override void LoadData()
         {
-            if (!this.IsEndOfData)
-                this.BoundPort = this.ReadUInt32();
+            if (!IsEndOfData)
+                BoundPort = ReadUInt32();
         }
 
         /// <summary>
@@ -42,8 +42,8 @@
         /// </summary>
         protected override void SaveData()
         {
-            if (this.BoundPort != null)
-                this.Write(this.BoundPort.Value);
+            if (BoundPort != null)
+                Write(BoundPort.Value);
         }
     }
 }

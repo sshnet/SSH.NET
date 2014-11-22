@@ -32,8 +32,8 @@ namespace Renci.SshNet.Messages
         /// <param name="number">The number.</param>
         public MessageAttribute(string name, byte number)
         {
-            this.Name = name;
-            this.Number = number;
+            Name = name;
+            Number = number;
         }
     }
 }

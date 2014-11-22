@@ -24,8 +24,8 @@
         /// </summary>
         protected override void LoadData()
         {
-            this.PublicKeyAlgorithmName = this.ReadAsciiString();
-            this.PublicKeyData = this.ReadBinaryString();
+            PublicKeyAlgorithmName = ReadAsciiString();
+            PublicKeyData = ReadBinaryString();
         }
 
         /// <summary>
@@ -33,8 +33,8 @@
         /// </summary>
         protected override void SaveData()
         {
-            this.WriteAscii(this.PublicKeyAlgorithmName);
-            this.WriteBinaryString(this.PublicKeyData);
+            WriteAscii(PublicKeyAlgorithmName);
+            WriteBinaryString(PublicKeyData);
         }
     }
 }

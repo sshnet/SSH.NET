@@ -32,9 +32,9 @@
         /// <param name="data">The message data.</param>
         public ChannelExtendedDataMessage(uint localChannelNumber, uint dataTypeCode, byte[] data)
         {
-            this.LocalChannelNumber = localChannelNumber;
-            this.DataTypeCode = dataTypeCode;
-            this.Data = data;
+            LocalChannelNumber = localChannelNumber;
+            DataTypeCode = dataTypeCode;
+            Data = data;
         }
 
         /// <summary>
@@ -43,8 +43,8 @@
         protected override void LoadData()
         {
             base.LoadData();
-            this.DataTypeCode = this.ReadUInt32();
-            this.Data = this.ReadBinaryString();
+            DataTypeCode = ReadUInt32();
+            Data = ReadBinaryString();
         }
 
         /// <summary>
@@ -53,8 +53,8 @@
         protected override void SaveData()
         {
             base.SaveData();
-            this.Write(this.DataTypeCode);
-            this.WriteBinaryString(this.Data);
+            Write(DataTypeCode);
+            WriteBinaryString(Data);
         }
     }
 }

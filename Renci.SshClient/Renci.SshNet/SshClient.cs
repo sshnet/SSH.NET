@@ -84,7 +84,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="password"/> is null.</exception>
         /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, or <paramref name="username"/> is null or contains whitespace characters.</exception>
         public SshClient(string host, string username, string password)
-            : this(host, ConnectionInfo.DEFAULT_PORT, username, password)
+            : this(host, ConnectionInfo.DefaultPort, username, password)
         {
         }
 
@@ -121,7 +121,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="keyFiles"/> is null.</exception>
         /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, -or- <paramref name="username"/> is null or contains whitespace characters.</exception>
         public SshClient(string host, string username, params PrivateKeyFile[] keyFiles)
-            : this(host, ConnectionInfo.DEFAULT_PORT, username, keyFiles)
+            : this(host, ConnectionInfo.DefaultPort, username, keyFiles)
         {
         }
 

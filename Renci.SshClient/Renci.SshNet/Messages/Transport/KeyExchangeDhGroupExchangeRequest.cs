@@ -40,9 +40,9 @@ namespace Renci.SshNet.Messages.Transport
         /// <param name="maximum">The maximum.</param>
         public KeyExchangeDhGroupExchangeRequest(uint minimum, uint preferred, uint maximum)
         {
-            this.Minimum = minimum;
-            this.Preferred = preferred;
-            this.Maximum = maximum;
+            Minimum = minimum;
+            Preferred = preferred;
+            Maximum = maximum;
         }
 
         /// <summary>
@@ -50,9 +50,9 @@ namespace Renci.SshNet.Messages.Transport
         /// </summary>
         protected override void LoadData()
         {
-            this.Minimum = this.ReadUInt32();
-            this.Preferred = this.ReadUInt32();
-            this.Maximum = this.ReadUInt32();
+            Minimum = ReadUInt32();
+            Preferred = ReadUInt32();
+            Maximum = ReadUInt32();
         }
 
         /// <summary>
@@ -60,9 +60,9 @@ namespace Renci.SshNet.Messages.Transport
         /// </summary>
         protected override void SaveData()
         {
-            this.Write(this.Minimum);
-            this.Write(this.Preferred);
-            this.Write(this.Maximum);
+            Write(Minimum);
+            Write(Preferred);
+            Write(Maximum);
         }
     }
 }

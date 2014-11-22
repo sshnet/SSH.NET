@@ -50,8 +50,8 @@
         public RequestMessagePublicKey(ServiceName serviceName, string username, string keyAlgorithmName, byte[] keyData)
             : base(serviceName, username)
         {
-            this.PublicKeyAlgorithmName = keyAlgorithmName;
-            this.PublicKeyData = keyData;
+            PublicKeyAlgorithmName = keyAlgorithmName;
+            PublicKeyData = keyData;
         }
 
         /// <summary>
@@ -65,7 +65,7 @@
         public RequestMessagePublicKey(ServiceName serviceName, string username, string keyAlgorithmName, byte[] keyData, byte[] signature)
             : this(serviceName, username, keyAlgorithmName, keyData)
         {
-            this.Signature = signature;
+            Signature = signature;
         }
 
         /// <summary>
@@ -75,18 +75,18 @@
         {
             base.SaveData();
 
-            if (this.Signature == null)
+            if (Signature == null)
             {
-                this.Write(false);
+                Write(false);
             }
             else
             {
-                this.Write(true);
+                Write(true);
             }
-            this.WriteAscii(this.PublicKeyAlgorithmName);
-            this.WriteBinaryString(this.PublicKeyData);
-            if (this.Signature != null)
-                this.WriteBinaryString(this.Signature);
+            WriteAscii(PublicKeyAlgorithmName);
+            WriteBinaryString(PublicKeyData);
+            if (Signature != null)
+                WriteBinaryString(Signature);
         }
     }
 }

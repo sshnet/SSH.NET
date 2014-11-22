@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Threading;
 using Renci.SshNet.Messages.Connection;
 using Renci.SshNet.Common;

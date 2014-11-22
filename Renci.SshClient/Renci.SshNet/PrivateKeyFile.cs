@@ -71,7 +71,7 @@ namespace Renci.SshNet
         /// <param name="privateKey">The private key.</param>
         public PrivateKeyFile(Stream privateKey)
         {
-            this.Open(privateKey, null);
+            Open(privateKey, null);
         }
 
         /// <summary>
@@ -99,7 +99,7 @@ namespace Renci.SshNet
 
             using (var keyFile = File.Open(fileName, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
-                this.Open(keyFile, passPhrase);
+                Open(keyFile, passPhrase);
             }
         }
 
@@ -111,7 +111,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="privateKey"/> or <paramref name="passPhrase"/> is null.</exception>
         public PrivateKeyFile(Stream privateKey, string passPhrase)
         {
-            this.Open(privateKey, passPhrase);
+            Open(privateKey, passPhrase);
         }
 
         /// <summary>
@@ -191,12 +191,12 @@ namespace Renci.SshNet
             switch (keyName)
             {
                 case "RSA":
-                    this._key = new RsaKey(decryptedData.ToArray());
-                    this.HostKey = new KeyHostAlgorithm("ssh-rsa", this._key);
+                    _key = new RsaKey(decryptedData.ToArray());
+                    HostKey = new KeyHostAlgorithm("ssh-rsa", _key);
                     break;
                 case "DSA":
-                    this._key = new DsaKey(decryptedData.ToArray());
-                    this.HostKey = new KeyHostAlgorithm("ssh-dss", this._key);
+                    _key = new DsaKey(decryptedData.ToArray());
+                    HostKey = new KeyHostAlgorithm("ssh-dss", _key);
                     break;
                 case "SSH2 ENCRYPTED":
                     var reader = new SshDataReader(decryptedData);
@@ -247,8 +247,8 @@ namespace Renci.SshNet
                         var inverseQ = reader.ReadBigIntWithBits();//u
                         var q = reader.ReadBigIntWithBits();//p
                         var p = reader.ReadBigIntWithBits();//q
-                        this._key = new RsaKey(modulus, exponent, d, p, q, inverseQ);
-                        this.HostKey = new KeyHostAlgorithm("ssh-rsa", this._key);
+                        _key = new RsaKey(modulus, exponent, d, p, q, inverseQ);
+                        HostKey = new KeyHostAlgorithm("ssh-rsa", _key);
                     }
                     else if (keyType == "dl-modp{sign{dsa-nist-sha1},dh{plain}}")
                     {
@@ -262,8 +262,8 @@ namespace Renci.SshNet
                         var q = reader.ReadBigIntWithBits();
                         var y = reader.ReadBigIntWithBits();
                         var x = reader.ReadBigIntWithBits();
-                        this._key = new DsaKey(p, q, g, y, x);
-                        this.HostKey = new KeyHostAlgorithm("ssh-dss", this._key);
+                        _key = new DsaKey(p, q, g, y, x);
+                        HostKey = new KeyHostAlgorithm("ssh-dss", _key);
                     }
                     else
                     {
@@ -364,17 +364,17 @@ namespace Renci.SshNet
         protected virtual void Dispose(bool disposing)
         {
             // Check to see if Dispose has already been called.
-            if (!this._isDisposed)
+            if (!_isDisposed)
             {
                 // If disposing equals true, dispose all managed
                 // and unmanaged ResourceMessages.
                 if (disposing)
                 {
                     // Dispose managed ResourceMessages.
-                    if (this._key != null)
+                    if (_key != null)
                     {
-                        ((IDisposable)this._key).Dispose();
-                        this._key = null;
+                        ((IDisposable)_key).Dispose();
+                        _key = null;
                     }
                 }
 
@@ -401,7 +401,7 @@ namespace Renci.SshNet
         {
             public SshDataReader(byte[] data)
             {
-                this.LoadBytes(data);
+                LoadBytes(data);
             }
 
             public new UInt32 ReadUInt32()

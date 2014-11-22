@@ -2,12 +2,12 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 
-namespace Renci.SshNet
+namespace Renci.SshNet.Common
 {
     /// <summary>
     /// Collection of different extension method specific for .NET 4.0
     /// </summary>
-    public static partial class Extensions
+    internal static partial class Extensions
     {
         /// <summary>
         /// Determines whether [is null or white space] [the specified value].

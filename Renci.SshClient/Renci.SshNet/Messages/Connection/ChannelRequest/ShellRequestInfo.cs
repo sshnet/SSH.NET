@@ -26,7 +26,7 @@
         /// </summary>
         public ShellRequestInfo()
         {
-            this.WantReply = true;
+            WantReply = true;
         }
     }
 }

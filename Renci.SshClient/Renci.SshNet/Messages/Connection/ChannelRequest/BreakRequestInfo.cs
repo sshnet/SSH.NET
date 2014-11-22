@@ -33,7 +33,7 @@ namespace Renci.SshNet.Messages.Connection
         /// </summary>
         public BreakRequestInfo()
         {
-            this.WantReply = true;
+            WantReply = true;
         }
 
         /// <summary>
@@ -43,7 +43,7 @@ namespace Renci.SshNet.Messages.Connection
         public BreakRequestInfo(UInt32 breakLength)
             : this()
         {
-            this.BreakLength = breakLength;
+            BreakLength = breakLength;
         }
 
         /// <summary>
@@ -53,7 +53,7 @@ namespace Renci.SshNet.Messages.Connection
         {
             base.LoadData();
 
-            this.BreakLength = this.ReadUInt32();
+            BreakLength = ReadUInt32();
         }
 
         /// <summary>
@@ -63,7 +63,7 @@ namespace Renci.SshNet.Messages.Connection
         {
             base.SaveData();
 
-            this.Write(this.BreakLength);
+            Write(BreakLength);
         }
     }
 }

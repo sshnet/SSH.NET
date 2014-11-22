@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using Renci.SshNet.Channels;
 using System.IO;
 using Renci.SshNet.Common;
@@ -11,8 +12,8 @@ namespace Renci.SshNet
     /// </summary>
     public partial class ScpClient
     {
-        private static readonly Regex _directoryInfoRe = new Regex(@"D(?<mode>\d{4}) (?<length>\d+) (?<filename>.+)");
-        private static readonly Regex _timestampRe = new Regex(@"T(?<mtime>\d+) 0 (?<atime>\d+) 0");
+        private static readonly Regex DirectoryInfoRe = new Regex(@"D(?<mode>\d{4}) (?<length>\d+) (?<filename>.+)");
+        private static readonly Regex TimestampRe = new Regex(@"T(?<mtime>\d+) 0 (?<atime>\d+) 0");
 
         /// <summary>
         /// Uploads the specified file to the remote host.
@@ -29,7 +30,7 @@ namespace Renci.SshNet
                 throw new ArgumentException("path");
 
             using (var input = ServiceFactory.CreatePipeStream())
-            using (var channel = this.Session.CreateChannelSession())
+            using (var channel = Session.CreateChannelSession())
             {
                 channel.DataReceived += delegate(object sender, ChannelDataEventArgs e)
                 {
@@ -42,9 +43,9 @@ namespace Renci.SshNet
                 if (!channel.SendExecRequest(string.Format("scp -t \"{0}\"", path)))
                     throw new SshException("Secure copy execution request was rejected by the server. Please consult the server logs.");
 
-                this.CheckReturnCode(input);
+                CheckReturnCode(input);
 
-                this.InternalUpload(channel, input, fileInfo, fileInfo.Name);
+                InternalUpload(channel, input, fileInfo, fileInfo.Name);
 
                 channel.Close();
             }
@@ -65,7 +66,7 @@ namespace Renci.SshNet
                 throw new ArgumentException("path");
 
             using (var input = new PipeStream())
-            using (var channel = this.Session.CreateChannelSession())
+            using (var channel = Session.CreateChannelSession())
             {
                 channel.DataReceived += delegate(object sender, ChannelDataEventArgs e)
                 {
@@ -77,16 +78,16 @@ namespace Renci.SshNet
 
                 //  Send channel command request
                 channel.SendExecRequest(string.Format("scp -rt \"{0}\"", path));
-                this.CheckReturnCode(input);
+                CheckReturnCode(input);
 
-                this.InternalSetTimestamp(channel, input, directoryInfo.LastWriteTimeUtc, directoryInfo.LastAccessTimeUtc);
-                this.SendData(channel, string.Format("D0755 0 {0}\n", Path.GetFileName(path)));
-                this.CheckReturnCode(input);
+                InternalSetTimestamp(channel, input, directoryInfo.LastWriteTimeUtc, directoryInfo.LastAccessTimeUtc);
+                SendData(channel, string.Format("D0755 0 {0}\n", Path.GetFileName(path)));
+                CheckReturnCode(input);
 
-                this.InternalUpload(channel, input, directoryInfo);
+                InternalUpload(channel, input, directoryInfo);
 
-                this.SendData(channel, "E\n");
-                this.CheckReturnCode(input);
+                SendData(channel, "E\n");
+                CheckReturnCode(input);
 
                 channel.Close();
             }
@@ -107,7 +108,7 @@ namespace Renci.SshNet
                 throw new ArgumentNullException("fileInfo");
 
             using (var input = new PipeStream())
-            using (var channel = this.Session.CreateChannelSession())
+            using (var channel = Session.CreateChannelSession())
             {
                 channel.DataReceived += delegate(object sender, ChannelDataEventArgs e)
                 {
@@ -119,9 +120,9 @@ namespace Renci.SshNet
 
                 //  Send channel command request
                 channel.SendExecRequest(string.Format("scp -pf \"{0}\"", filename));
-                this.SendConfirmation(channel); //  Send reply
+                SendConfirmation(channel); //  Send reply
 
-                this.InternalDownload(channel, input, fileInfo);
+                InternalDownload(channel, input, fileInfo);
 
                 channel.Close();
             }
@@ -142,7 +143,7 @@ namespace Renci.SshNet
                 throw new ArgumentNullException("directoryInfo");
 
             using (var input = new PipeStream())
-            using (var channel = this.Session.CreateChannelSession())
+            using (var channel = Session.CreateChannelSession())
             {
                 channel.DataReceived += delegate(object sender, ChannelDataEventArgs e)
                 {
@@ -154,9 +155,9 @@ namespace Renci.SshNet
 
                 //  Send channel command request
                 channel.SendExecRequest(string.Format("scp -prf \"{0}\"", directoryName));
-                this.SendConfirmation(channel); //  Send reply
+                SendConfirmation(channel); //  Send reply
 
-                this.InternalDownload(channel, input, directoryInfo);
+                InternalDownload(channel, input, directoryInfo);
 
                 channel.Close();
             }
@@ -164,10 +165,10 @@ namespace Renci.SshNet
 
         private void InternalUpload(IChannelSession channel, Stream input, FileInfo fileInfo, string filename)
         {
-            this.InternalSetTimestamp(channel, input, fileInfo.LastWriteTimeUtc, fileInfo.LastAccessTimeUtc);
+            InternalSetTimestamp(channel, input, fileInfo.LastWriteTimeUtc, fileInfo.LastAccessTimeUtc);
             using (var source = fileInfo.OpenRead())
             {
-                this.InternalUpload(channel, input, source, filename);
+                InternalUpload(channel, input, source, filename);
             }
         }
 
@@ -177,28 +178,28 @@ namespace Renci.SshNet
             var files = directoryInfo.GetFiles();
             foreach (var file in files)
             {
-                this.InternalUpload(channel, input, file, file.Name);
+                InternalUpload(channel, input, file, file.Name);
             }
 
             //  Upload directories
             var directories = directoryInfo.GetDirectories();
             foreach (var directory in directories)
             {
-                this.InternalSetTimestamp(channel, input, directoryInfo.LastWriteTimeUtc, directoryInfo.LastAccessTimeUtc);
-                this.SendData(channel, string.Format("D0755 0 {0}\n", directory.Name));
-                this.CheckReturnCode(input);
+                InternalSetTimestamp(channel, input, directoryInfo.LastWriteTimeUtc, directoryInfo.LastAccessTimeUtc);
+                SendData(channel, string.Format("D0755 0 {0}\n", directory.Name));
+                CheckReturnCode(input);
 
-                this.InternalUpload(channel, input, directory);
+                InternalUpload(channel, input, directory);
 
-                this.SendData(channel, "E\n");
-                this.CheckReturnCode(input);
+                SendData(channel, "E\n");
+                CheckReturnCode(input);
             }
         }
 
         private void InternalDownload(IChannelSession channel, Stream input, FileSystemInfo fileSystemInfo)
         {
-            DateTime modifiedTime = DateTime.Now;
-            DateTime accessedTime = DateTime.Now;
+            var modifiedTime = DateTime.Now;
+            var accessedTime = DateTime.Now;
 
             var startDirectoryFullName = fileSystemInfo.FullName;
             var currentDirectoryFullName = startDirectoryFullName;
@@ -210,7 +211,7 @@ namespace Renci.SshNet
 
                 if (message == "E")
                 {
-                    this.SendConfirmation(channel); //  Send reply
+                    SendConfirmation(channel); //  Send reply
 
                     directoryCounter--;
 
@@ -221,10 +222,10 @@ namespace Renci.SshNet
                     continue;
                 }
 
-                var match = _directoryInfoRe.Match(message);
+                var match = DirectoryInfoRe.Match(message);
                 if (match.Success)
                 {
-                    this.SendConfirmation(channel); //  Send reply
+                    SendConfirmation(channel); //  Send reply
 
                     //  Read directory
                     var mode = long.Parse(match.Result("${mode}"));
@@ -249,11 +250,11 @@ namespace Renci.SshNet
                     continue;
                 }
 
-                match = _fileInfoRe.Match(message);
+                match = FileInfoRe.Match(message);
                 if (match.Success)
                 {
                     //  Read file
-                    this.SendConfirmation(channel); //  Send reply
+                    SendConfirmation(channel); //  Send reply
 
                     var mode = match.Result("${mode}");
                     var length = long.Parse(match.Result("${length}"));
@@ -266,7 +267,7 @@ namespace Renci.SshNet
 
                     using (var output = fileInfo.OpenWrite())
                     {
-                        this.InternalDownload(channel, input, output, fileName, length);
+                        InternalDownload(channel, input, output, fileName, length);
                     }
 
                     fileInfo.LastAccessTime = accessedTime;
@@ -277,11 +278,11 @@ namespace Renci.SshNet
                     continue;
                 }
 
-                match = _timestampRe.Match(message);
+                match = TimestampRe.Match(message);
                 if (match.Success)
                 {
                     //  Read timestamp
-                    this.SendConfirmation(channel); //  Send reply
+                    SendConfirmation(channel); //  Send reply
 
                     var mtime = long.Parse(match.Result("${mtime}"));
                     var atime = long.Parse(match.Result("${atime}"));
@@ -292,13 +293,13 @@ namespace Renci.SshNet
                     continue;
                 }
 
-                this.SendConfirmation(channel, 1, string.Format("\"{0}\" is not valid protocol message.", message));
+                SendConfirmation(channel, 1, string.Format("\"{0}\" is not valid protocol message.", message));
             }
         }
 
         partial void SendData(IChannelSession channel, string command)
         {
-            channel.SendData(System.Text.Encoding.Default.GetBytes(command));
+            channel.SendData(Encoding.Default.GetBytes(command));
         }
     }
 }

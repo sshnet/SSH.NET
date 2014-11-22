@@ -9,7 +9,7 @@ namespace Renci.SshNet.Messages.Transport
     [Message("SSH_MSG_KEXINIT", 20)]
     public class KeyExchangeInitMessage : Message, IKeyExchangedAllowed
     {
-        private static readonly RNGCryptoServiceProvider _randomizer = new RNGCryptoServiceProvider();
+        private static readonly RNGCryptoServiceProvider Randomizer = new RNGCryptoServiceProvider();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="KeyExchangeInitMessage"/> class.
@@ -17,8 +17,8 @@ namespace Renci.SshNet.Messages.Transport
         public KeyExchangeInitMessage()
         {
             var cookie = new byte[16];
-            _randomizer.GetBytes(cookie);
-            this.Cookie = cookie;
+            Randomizer.GetBytes(cookie);
+            Cookie = cookie;
         }
 
         #region Message Properties
@@ -131,21 +131,21 @@ namespace Renci.SshNet.Messages.Transport
         /// </summary>
         protected override void LoadData()
         {
-            this.ResetReader();
+            ResetReader();
 
-            this.Cookie = this.ReadBytes(16);
-            this.KeyExchangeAlgorithms = this.ReadNamesList();
-            this.ServerHostKeyAlgorithms = this.ReadNamesList();
-            this.EncryptionAlgorithmsClientToServer = this.ReadNamesList();
-            this.EncryptionAlgorithmsServerToClient = this.ReadNamesList();
-            this.MacAlgorithmsClientToServer = this.ReadNamesList();
-            this.MacAlgorithmsServerToClient = this.ReadNamesList();
-            this.CompressionAlgorithmsClientToServer = this.ReadNamesList();
-            this.CompressionAlgorithmsServerToClient = this.ReadNamesList();
-            this.LanguagesClientToServer = this.ReadNamesList();
-            this.LanguagesServerToClient = this.ReadNamesList();
-            this.FirstKexPacketFollows = this.ReadBoolean();
-            this.Reserved = this.ReadUInt32();
+            Cookie = ReadBytes(16);
+            KeyExchangeAlgorithms = ReadNamesList();
+            ServerHostKeyAlgorithms = ReadNamesList();
+            EncryptionAlgorithmsClientToServer = ReadNamesList();
+            EncryptionAlgorithmsServerToClient = ReadNamesList();
+            MacAlgorithmsClientToServer = ReadNamesList();
+            MacAlgorithmsServerToClient = ReadNamesList();
+            CompressionAlgorithmsClientToServer = ReadNamesList();
+            CompressionAlgorithmsServerToClient = ReadNamesList();
+            LanguagesClientToServer = ReadNamesList();
+            LanguagesServerToClient = ReadNamesList();
+            FirstKexPacketFollows = ReadBoolean();
+            Reserved = ReadUInt32();
         }
 
         /// <summary>
@@ -153,19 +153,19 @@ namespace Renci.SshNet.Messages.Transport
         /// </summary>
         protected override void SaveData()
         {
-            this.Write(this.Cookie);
-            this.Write(this.KeyExchangeAlgorithms);
-            this.Write(this.ServerHostKeyAlgorithms);
-            this.Write(this.EncryptionAlgorithmsClientToServer);
-            this.Write(this.EncryptionAlgorithmsServerToClient);
-            this.Write(this.MacAlgorithmsClientToServer);
-            this.Write(this.MacAlgorithmsServerToClient);
-            this.Write(this.CompressionAlgorithmsClientToServer);
-            this.Write(this.CompressionAlgorithmsServerToClient);
-            this.Write(this.LanguagesClientToServer);
-            this.Write(this.LanguagesServerToClient);
-            this.Write(this.FirstKexPacketFollows);
-            this.Write(this.Reserved);
+            Write(Cookie);
+            Write(KeyExchangeAlgorithms);
+            Write(ServerHostKeyAlgorithms);
+            Write(EncryptionAlgorithmsClientToServer);
+            Write(EncryptionAlgorithmsServerToClient);
+            Write(MacAlgorithmsClientToServer);
+            Write(MacAlgorithmsServerToClient);
+            Write(CompressionAlgorithmsClientToServer);
+            Write(CompressionAlgorithmsServerToClient);
+            Write(LanguagesClientToServer);
+            Write(LanguagesServerToClient);
+            Write(FirstKexPacketFollows);
+            Write(Reserved);
         }
     }
 }

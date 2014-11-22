@@ -28,10 +28,10 @@
         /// </summary>
         protected override void LoadData()
         {
-            this.ResetReader();
-            this.KS = this.ReadBinaryString();
-            this.QS = this.ReadBinaryString();
-            this.Signature = this.ReadBinaryString();
+            ResetReader();
+            KS = ReadBinaryString();
+            QS = ReadBinaryString();
+            Signature = ReadBinaryString();
         }
 
         /// <summary>
@@ -39,9 +39,9 @@
         /// </summary>
         protected override void SaveData()
         {
-            this.WriteBinaryString(this.KS);
-            this.WriteBinaryString(this.QS);
-            this.WriteBinaryString(this.Signature);
+            WriteBinaryString(KS);
+            WriteBinaryString(QS);
+            WriteBinaryString(Signature);
         }
     }
 }

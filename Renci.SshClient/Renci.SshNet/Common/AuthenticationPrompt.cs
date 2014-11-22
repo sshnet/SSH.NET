@@ -39,9 +39,9 @@
         /// <param name="request">The request.</param>
         public AuthenticationPrompt(int id, bool isEchoed, string request)
         {
-            this.Id = id;
-            this.IsEchoed = isEchoed;
-            this.Request = request;
+            Id = id;
+            IsEchoed = isEchoed;
+            Request = request;
         }
     }
 }

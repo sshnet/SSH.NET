@@ -40,7 +40,7 @@ namespace Renci.SshNet.Sftp
         /// <param name="uploadedBytes">Number of uploaded bytes.</param>
         internal void Update(ulong uploadedBytes)
         {
-            this.UploadedBytes = uploadedBytes;
+            UploadedBytes = uploadedBytes;
         }
     }
 }

@@ -19,7 +19,7 @@ namespace Renci.SshNet.Messages.Authentication
         /// </summary>
         public InformationResponseMessage()
         {
-            this.Responses = new List<string>();
+            Responses = new List<string>();
         }
 
         /// <summary>
@@ -35,10 +35,10 @@ namespace Renci.SshNet.Messages.Authentication
         /// </summary>
         protected override void SaveData()
         {
-            this.Write((UInt32)this.Responses.Count);
-            foreach (var response in this.Responses)
+            Write((UInt32)Responses.Count);
+            foreach (var response in Responses)
             {
-                this.Write(response);
+                Write(response);
             }
         }
     }

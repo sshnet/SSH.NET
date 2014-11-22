@@ -58,10 +58,10 @@
         /// <param name="originatorPort">The originator port.</param>
         public DirectTcpipChannelInfo(string hostToConnect, uint portToConnect, string originatorAddress, uint originatorPort)
         {
-            this.HostToConnect = hostToConnect;
-            this.PortToConnect = portToConnect;
-            this.OriginatorAddress = originatorAddress;
-            this.OriginatorPort = originatorPort;
+            HostToConnect = hostToConnect;
+            PortToConnect = portToConnect;
+            OriginatorAddress = originatorAddress;
+            OriginatorPort = originatorPort;
         }
 
         /// <summary>
@@ -71,10 +71,10 @@
         {
             base.LoadData();
 
-            this.HostToConnect = this.ReadString();
-            this.PortToConnect = this.ReadUInt32();
-            this.OriginatorAddress = this.ReadString();
-            this.OriginatorPort = this.ReadUInt32();
+            HostToConnect = ReadString();
+            PortToConnect = ReadUInt32();
+            OriginatorAddress = ReadString();
+            OriginatorPort = ReadUInt32();
         }
 
         /// <summary>
@@ -84,10 +84,10 @@
         {
             base.SaveData();
 
-            this.Write(this.HostToConnect);
-            this.Write(this.PortToConnect);
-            this.Write(this.OriginatorAddress);
-            this.Write(this.OriginatorPort);
+            Write(HostToConnect);
+            Write(PortToConnect);
+            Write(OriginatorAddress);
+            Write(OriginatorPort);
         }
     }
 }

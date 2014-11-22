@@ -7,7 +7,7 @@ namespace Renci.SshNet.Common
     /// The exception that is thrown when authentication failed.
     /// </summary>
     [Serializable]
-    public partial class SshAuthenticationException : SshException
+    public partial class SshAuthenticationException
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="SshAuthenticationException"/> class.

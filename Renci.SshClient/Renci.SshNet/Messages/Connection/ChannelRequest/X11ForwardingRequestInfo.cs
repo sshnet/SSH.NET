@@ -58,7 +58,7 @@
         /// </summary>
         public X11ForwardingRequestInfo()
         {
-            this.WantReply = true;
+            WantReply = true;
         }
 
         /// <summary>
@@ -71,10 +71,10 @@
         public X11ForwardingRequestInfo(bool isSingleConnection, string protocol, byte[] cookie, uint screenNumber)
             : this()
         {
-            this.IsSingleConnection = isSingleConnection;
-            this.AuthenticationProtocol = protocol;
-            this.AuthenticationCookie = cookie;
-            this.ScreenNumber = screenNumber;
+            IsSingleConnection = isSingleConnection;
+            AuthenticationProtocol = protocol;
+            AuthenticationCookie = cookie;
+            ScreenNumber = screenNumber;
         }
 
         /// <summary>
@@ -84,10 +84,10 @@
         {
             base.LoadData();
 
-            this.IsSingleConnection = this.ReadBoolean();
-            this.AuthenticationProtocol = this.ReadAsciiString();
-            this.AuthenticationCookie = this.ReadBinaryString();
-            this.ScreenNumber = this.ReadUInt32();
+            IsSingleConnection = ReadBoolean();
+            AuthenticationProtocol = ReadAsciiString();
+            AuthenticationCookie = ReadBinaryString();
+            ScreenNumber = ReadUInt32();
         }
 
         /// <summary>
@@ -97,10 +97,10 @@
         {
             base.SaveData();
 
-            this.Write(this.IsSingleConnection);
-            this.WriteAscii(this.AuthenticationProtocol);
-            this.WriteBinaryString(this.AuthenticationCookie);
-            this.Write(this.ScreenNumber);
+            Write(IsSingleConnection);
+            WriteAscii(AuthenticationProtocol);
+            WriteBinaryString(AuthenticationCookie);
+            Write(ScreenNumber);
         }
     }
 }

@@ -20,7 +20,7 @@
         /// <param name="localChannelNumber">The local channel number.</param>
         public ChannelFailureMessage(uint localChannelNumber)
         {
-            this.LocalChannelNumber = localChannelNumber;
+            LocalChannelNumber = localChannelNumber;
         }
     }
 }

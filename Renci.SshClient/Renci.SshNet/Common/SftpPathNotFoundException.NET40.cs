@@ -7,7 +7,7 @@ namespace Renci.SshNet.Common
     /// The exception that is thrown when file or directory is not found.
     /// </summary>
     [Serializable]
-    public partial class SftpPathNotFoundException : SshException
+    public partial class SftpPathNotFoundException
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="SftpPathNotFoundException"/> class.

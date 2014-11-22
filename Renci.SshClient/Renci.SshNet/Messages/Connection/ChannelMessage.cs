@@ -19,7 +19,7 @@ namespace Renci.SshNet.Messages.Connection
         /// </summary>
         protected override void LoadData()
         {
-            this.LocalChannelNumber = this.ReadUInt32();
+            LocalChannelNumber = ReadUInt32();
         }
 
         /// <summary>
@@ -27,7 +27,7 @@ namespace Renci.SshNet.Messages.Connection
         /// </summary>
         protected override void SaveData()
         {
-            this.Write(this.LocalChannelNumber);
+            Write(LocalChannelNumber);
         }
 
         /// <summary>
@@ -38,7 +38,7 @@ namespace Renci.SshNet.Messages.Connection
         /// </returns>
         public override string ToString()
         {
-            return string.Format(CultureInfo.CurrentCulture, "{0} : #{1}", base.ToString(), this.LocalChannelNumber);
+            return string.Format(CultureInfo.CurrentCulture, "{0} : #{1}", base.ToString(), LocalChannelNumber);
         }
     }
 }

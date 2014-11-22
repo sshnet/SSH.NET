@@ -35,7 +35,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="password"/> is null.</exception>
         /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, or <paramref name="username"/> is null or contains whitespace characters.</exception>
         public PasswordConnectionInfo(string host, string username, string password)
-            : this(host, ConnectionInfo.DEFAULT_PORT, username, Encoding.UTF8.GetBytes(password))
+            : this(host, DefaultPort, username, Encoding.UTF8.GetBytes(password))
         {
 
         }
@@ -96,7 +96,7 @@ namespace Renci.SshNet
         /// <param name="proxyHost">The proxy host.</param>
         /// <param name="proxyPort">The proxy port.</param>
         public PasswordConnectionInfo(string host, string username, string password, ProxyTypes proxyType, string proxyHost, int proxyPort)
-            : this(host, ConnectionInfo.DEFAULT_PORT, username, Encoding.UTF8.GetBytes(password), proxyType, proxyHost, proxyPort, string.Empty, string.Empty)
+            : this(host, DefaultPort, username, Encoding.UTF8.GetBytes(password), proxyType, proxyHost, proxyPort, string.Empty, string.Empty)
         {
         }
 
@@ -111,7 +111,7 @@ namespace Renci.SshNet
         /// <param name="proxyPort">The proxy port.</param>
         /// <param name="proxyUsername">The proxy username.</param>
         public PasswordConnectionInfo(string host, string username, string password, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername)
-            : this(host, ConnectionInfo.DEFAULT_PORT, username, Encoding.UTF8.GetBytes(password), proxyType, proxyHost, proxyPort, proxyUsername, string.Empty)
+            : this(host, DefaultPort, username, Encoding.UTF8.GetBytes(password), proxyType, proxyHost, proxyPort, proxyUsername, string.Empty)
         {
         }
 
@@ -127,7 +127,7 @@ namespace Renci.SshNet
         /// <param name="proxyUsername">The proxy username.</param>
         /// <param name="proxyPassword">The proxy password.</param>
         public PasswordConnectionInfo(string host, string username, string password, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername, string proxyPassword)
-            : this(host, ConnectionInfo.DEFAULT_PORT, username, Encoding.UTF8.GetBytes(password), proxyType, proxyHost, proxyPort, proxyUsername, proxyPassword)
+            : this(host, DefaultPort, username, Encoding.UTF8.GetBytes(password), proxyType, proxyHost, proxyPort, proxyUsername, proxyPassword)
         {
         }
 
@@ -138,7 +138,7 @@ namespace Renci.SshNet
         /// <param name="username">Connection username.</param>
         /// <param name="password">Connection password.</param>
         public PasswordConnectionInfo(string host, string username, byte[] password)
-            : this(host, ConnectionInfo.DEFAULT_PORT, username, password)
+            : this(host, DefaultPort, username, password)
         {
 
         }
@@ -199,7 +199,7 @@ namespace Renci.SshNet
         /// <param name="proxyHost">The proxy host.</param>
         /// <param name="proxyPort">The proxy port.</param>
         public PasswordConnectionInfo(string host, string username, byte[] password, ProxyTypes proxyType, string proxyHost, int proxyPort)
-            : this(host, ConnectionInfo.DEFAULT_PORT, username, password, proxyType, proxyHost, proxyPort, string.Empty, string.Empty)
+            : this(host, DefaultPort, username, password, proxyType, proxyHost, proxyPort, string.Empty, string.Empty)
         {
         }
 
@@ -214,7 +214,7 @@ namespace Renci.SshNet
         /// <param name="proxyPort">The proxy port.</param>
         /// <param name="proxyUsername">The proxy username.</param>
         public PasswordConnectionInfo(string host, string username, byte[] password, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername)
-            : this(host, ConnectionInfo.DEFAULT_PORT, username, password, proxyType, proxyHost, proxyPort, proxyUsername, string.Empty)
+            : this(host, DefaultPort, username, password, proxyType, proxyHost, proxyPort, proxyUsername, string.Empty)
         {
         }
 
@@ -230,7 +230,7 @@ namespace Renci.SshNet
         /// <param name="proxyUsername">The proxy username.</param>
         /// <param name="proxyPassword">The proxy password.</param>
         public PasswordConnectionInfo(string host, string username, byte[] password, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername, string proxyPassword)
-            : this(host, ConnectionInfo.DEFAULT_PORT, username, password, proxyType, proxyHost, proxyPort, proxyUsername, proxyPassword)
+            : this(host, DefaultPort, username, password, proxyType, proxyHost, proxyPort, proxyUsername, proxyPassword)
         {
         }
 
@@ -249,7 +249,7 @@ namespace Renci.SshNet
         public PasswordConnectionInfo(string host, int port, string username, byte[] password, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername, string proxyPassword)
             : base(host, port, username, proxyType, proxyHost, proxyPort, proxyUsername, proxyPassword, new PasswordAuthenticationMethod(username, password))
         {
-            foreach (var authenticationMethod in this.AuthenticationMethods.OfType<PasswordAuthenticationMethod>())
+            foreach (var authenticationMethod in AuthenticationMethods.OfType<PasswordAuthenticationMethod>())
             {
                 authenticationMethod.PasswordExpired += AuthenticationMethod_PasswordExpired;
             }
@@ -257,9 +257,9 @@ namespace Renci.SshNet
 
         private void AuthenticationMethod_PasswordExpired(object sender, AuthenticationPasswordChangeEventArgs e)
         {
-            if (this.PasswordExpired != null)
+            if (PasswordExpired != null)
             {
-                this.PasswordExpired(sender, e);
+                PasswordExpired(sender, e);
             }
         }
 
@@ -284,16 +284,16 @@ namespace Renci.SshNet
         protected virtual void Dispose(bool disposing)
         {
             // Check to see if Dispose has already been called.
-            if (!this._isDisposed)
+            if (!_isDisposed)
             {
                 // If disposing equals true, dispose all managed
                 // and unmanaged resources.
                 if (disposing)
                 {
                     // Dispose managed resources.
-                    if (this.AuthenticationMethods != null)
+                    if (AuthenticationMethods != null)
                     {
-                        foreach (var authenticationMethods in this.AuthenticationMethods.OfType<IDisposable>())
+                        foreach (var authenticationMethods in AuthenticationMethods.OfType<IDisposable>())
                         {
                             authenticationMethods.Dispose();
                         }

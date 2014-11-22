@@ -21,8 +21,8 @@
         /// </summary>
         protected override void LoadData()
         {
-            this.Message = this.ReadString();
-            this.Language = this.ReadString();
+            Message = ReadString();
+            Language = ReadString();
         }
 
         /// <summary>
@@ -30,8 +30,8 @@
         /// </summary>
         protected override void SaveData()
         {
-            this.Write(this.Message);
-            this.Write(this.Language);
+            Write(Message);
+            Write(Language);
         }
     }
 }

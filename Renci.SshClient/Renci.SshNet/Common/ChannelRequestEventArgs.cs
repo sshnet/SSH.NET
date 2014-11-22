@@ -19,7 +19,7 @@ namespace Renci.SshNet.Common
         /// <param name="info">Request information.</param>
         public ChannelRequestEventArgs(RequestInfo info)
         {
-            this.Info = info;
+            Info = info;
         }
     }
 }

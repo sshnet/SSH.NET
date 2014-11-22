@@ -7,7 +7,7 @@ namespace Renci.SshNet.Common
     /// The exception that is thrown when there is something wrong with the server capabilities.
     /// </summary>
     [Serializable]
-    public partial class NetConfServerException : SshException
+    public partial class NetConfServerException
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="SshAuthenticationException"/> class.

@@ -24,8 +24,8 @@
         public AuthenticationBannerEventArgs(string username, string message, string language)
             : base(username)
         {
-            this.BannerMessage = message;
-            this.Language = language;
+            BannerMessage = message;
+            Language = language;
         }
     }
 }

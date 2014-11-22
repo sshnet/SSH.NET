@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Collections.Generic;
 using System.IO;
+using Renci.SshNet.Common;
 using Renci.SshNet.Sftp;
 using System.Globalization;
 
@@ -48,11 +49,11 @@ namespace Renci.SshNet
 
             var asyncResult = new SftpSynchronizeDirectoriesAsyncResult(asyncCallback, state);
 
-            this.ExecuteThread(() =>
+            ExecuteThread(() =>
             {
                 try
                 {
-                    var result = this.InternalSynchronizeDirectories(sourcePath, destinationPath, searchPattern, asyncResult);
+                    var result = InternalSynchronizeDirectories(sourcePath, destinationPath, searchPattern, asyncResult);
 
                     asyncResult.SetAsCompleted(result, false);
                 }
@@ -90,9 +91,9 @@ namespace Renci.SshNet
             if (!Directory.Exists(sourcePath))
                 throw new FileNotFoundException(string.Format("Source directory not found: {0}", sourcePath));
 
-            IList<FileInfo> uploadedFiles = new List<FileInfo>();
+            var uploadedFiles = new List<FileInfo>();
 
-            DirectoryInfo sourceDirectory = new DirectoryInfo(sourcePath);
+            var sourceDirectory = new DirectoryInfo(sourcePath);
 
 #if SILVERLIGHT
             var sourceFiles = sourceDirectory.EnumerateFiles(searchPattern);
@@ -106,7 +107,7 @@ namespace Renci.SshNet
             #region Existing Files at The Destination
 
             var destFiles = InternalListDirectory(destinationPath, null);
-            Dictionary<string, SftpFile> destDict = new Dictionary<string, SftpFile>();
+            var destDict = new Dictionary<string, SftpFile>();
             foreach (var destFile in destFiles)
             {
                 if (destFile.IsDirectory)
@@ -121,11 +122,11 @@ namespace Renci.SshNet
             const Flags uploadFlag = Flags.Write | Flags.Truncate | Flags.CreateNewOrOpen;
             foreach (var localFile in sourceFiles)
             {
-                bool isDifferent = !destDict.ContainsKey(localFile.Name);
+                var isDifferent = !destDict.ContainsKey(localFile.Name);
 
                 if (!isDifferent)
                 {
-                    SftpFile temp = destDict[localFile.Name];
+                    var temp = destDict[localFile.Name];
                     //  TODO:   Use md5 to detect a difference
                     //ltang: File exists at the destination => Using filesize to detect the difference
                     isDifferent = localFile.Length != temp.Length;
@@ -138,7 +139,7 @@ namespace Renci.SshNet
                     {
                         using (var file = File.OpenRead(localFile.FullName))
                         {
-                            this.InternalUploadFile(file, remoteFileName, uploadFlag, null, null);
+                            InternalUploadFile(file, remoteFileName, uploadFlag, null, null);
                         }
 
                         uploadedFiles.Add(localFile);

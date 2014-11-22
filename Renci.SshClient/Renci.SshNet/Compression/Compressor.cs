@@ -31,13 +31,13 @@ namespace Renci.SshNet.Compression
         /// <summary>
         /// Initializes a new instance of the <see cref="Compressor"/> class.
         /// </summary>
-        public Compressor()
+        protected Compressor()
         {
-            this._compressorStream = new MemoryStream();
-            this._decompressorStream = new MemoryStream();
+            _compressorStream = new MemoryStream();
+            _decompressorStream = new MemoryStream();
 
-            this._compressor = new ZlibStream(this._compressorStream, CompressionMode.Compress);
-            this._decompressor = new ZlibStream(this._decompressorStream, CompressionMode.Decompress);
+            _compressor = new ZlibStream(_compressorStream, CompressionMode.Compress);
+            _decompressor = new ZlibStream(_decompressorStream, CompressionMode.Decompress);
         }
 
         /// <summary>
@@ -46,7 +46,7 @@ namespace Renci.SshNet.Compression
         /// <param name="session">The session.</param>
         public virtual void Init(Session session)
         {
-            this.Session = session;
+            Session = session;
         }
 
         /// <summary>
@@ -56,16 +56,16 @@ namespace Renci.SshNet.Compression
         /// <returns>Compressed data</returns>
         public virtual byte[] Compress(byte[] data)
         {
-            if (!this.IsActive)
+            if (!IsActive)
             {
                 return data;
             }
 
-            this._compressorStream.SetLength(0);
+            _compressorStream.SetLength(0);
 
-            this._compressor.Write(data, 0, data.Length);
+            _compressor.Write(data, 0, data.Length);
 
-            return this._compressorStream.ToArray();
+            return _compressorStream.ToArray();
         }
 
         /// <summary>
@@ -75,16 +75,16 @@ namespace Renci.SshNet.Compression
         /// <returns>Decompressed data.</returns>
         public virtual byte[] Decompress(byte[] data)
         {
-            if (!this.IsActive)
+            if (!IsActive)
             {
                 return data;
             }
 
-            this._decompressorStream.SetLength(0);
+            _decompressorStream.SetLength(0);
 
-            this._decompressor.Write(data, 0, data.Length);
+            _decompressor.Write(data, 0, data.Length);
 
-            return this._decompressorStream.ToArray();
+            return _decompressorStream.ToArray();
         }
 
         #region IDisposable Members
@@ -108,28 +108,28 @@ namespace Renci.SshNet.Compression
         protected virtual void Dispose(bool disposing)
         {
             // Check to see if Dispose has already been called.
-            if (!this._isDisposed)
+            if (!_isDisposed)
             {
                 // If disposing equals true, dispose all managed
                 // and unmanaged ResourceMessages.
                 if (disposing)
                 {
                     // Dispose managed ResourceMessages.
-                    if (this._compressorStream != null)
+                    if (_compressorStream != null)
                     {
-                        this._compressorStream.Dispose();
-                        this._compressorStream = null;
+                        _compressorStream.Dispose();
+                        _compressorStream = null;
                     }
 
-                    if (this._decompressorStream != null)
+                    if (_decompressorStream != null)
                     {
-                        this._decompressorStream.Dispose();
-                        this._decompressorStream = null;
+                        _decompressorStream.Dispose();
+                        _decompressorStream = null;
                     }
                 }
 
                 // Note disposing has been done.
-                this._isDisposed = true;
+                _isDisposed = true;
             }
         }
 

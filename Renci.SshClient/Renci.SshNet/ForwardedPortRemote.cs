@@ -134,6 +134,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Stops remote port forwarding.
         /// </summary>
+        /// <param name="timeout">The maximum amount of time to wait for pending requests to finish processing.</param>
         protected override void StopPort(TimeSpan timeout)
         {
             // if the port not started, then there's nothing to stop

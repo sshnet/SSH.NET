@@ -27,7 +27,7 @@ namespace Renci.SshNet
         /// Creates a new <see cref="ISftpSession"/> in a given <see cref="ISession"/> and with
         /// the specified operation timeout and encoding.
         /// </summary>
-        /// <param name="session">The <see cref="ISession"/> to create the <see cref="INetConfSession"/> in.</param>
+        /// <param name="session">The <see cref="ISession"/> to create the <see cref="ISftpSession"/> in.</param>
         /// <param name="operationTimeout">The operation timeout.</param>
         /// <param name="encoding">The encoding.</param>
         /// <returns>

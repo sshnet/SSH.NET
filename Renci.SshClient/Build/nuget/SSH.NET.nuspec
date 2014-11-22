@@ -30,7 +30,6 @@
           * SshCommand doesn't cleanup subscribed events (issue #2295)
           * Lines before protocol identification string are not skipped (issue #1935 and #2223)
           * ShellStream.ReadLine produces incorrect output when reading multi-byte characters (issue #2190)
-          * Dispose and Disconnect throw SocketException when socket is not connected (issue #2148)
           * SftpClient constructor throws ArgumentException when host contains underscore (issue #1845)
           * Signing key is missing from source download (issue #2455)
           * Forwarded Port channels can get stuck waiting (issue #1558)
@@ -38,6 +37,8 @@
           * BlockCipher.Encrypt fails if input message is not padded (issue #2547)
           * ScpClient: Missing files when using DirectoryUpload (issue #1382)
           * Dynamic port forwarding slows down to a crawl (issue #2010)
+          * SendKeepAlive causes SocketException when connection is dropped (issue #2029)
+          * SocketException on Dispose or Disconnect (issue #2400)
 
           2014.4.6-beta1
           ==============

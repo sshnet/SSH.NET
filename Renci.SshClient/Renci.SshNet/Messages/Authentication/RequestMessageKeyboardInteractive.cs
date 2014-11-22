@@ -37,8 +37,8 @@
         public RequestMessageKeyboardInteractive(ServiceName serviceName, string username)
             : base(serviceName, username)
         {
-            this.Language = string.Empty;
-            this.SubMethods = string.Empty;
+            Language = string.Empty;
+            SubMethods = string.Empty;
         }
 
         /// <summary>
@@ -48,9 +48,9 @@
         {
             base.SaveData();
 
-            this.Write(this.Language);
+            Write(Language);
 
-            this.Write(this.SubMethods);
+            Write(SubMethods);
         }
     }
 }

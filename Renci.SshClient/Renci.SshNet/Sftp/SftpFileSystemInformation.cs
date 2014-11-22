@@ -121,16 +121,16 @@
         /// <param name="namemax">The namemax.</param>
         internal SftpFileSytemInformation(ulong bsize, ulong frsize, ulong blocks, ulong bfree, ulong bavail, ulong files, ulong ffree, ulong favail, ulong sid, ulong flag, ulong namemax)
         {
-            this.BlockSize = frsize;
-            this.TotalBlocks = blocks;
-            this.FreeBlocks = bfree;
-            this.AvailableBlocks = bavail;
-            this.TotalNodes = files;
-            this.FreeNodes = ffree;
-            this.AvailableNodes = favail;
-            this.Sid = sid;
-            this._flag = flag;
-            this.MaxNameLenght = namemax;
+            BlockSize = frsize;
+            TotalBlocks = blocks;
+            FreeBlocks = bfree;
+            AvailableBlocks = bavail;
+            TotalNodes = files;
+            FreeNodes = ffree;
+            AvailableNodes = favail;
+            Sid = sid;
+            _flag = flag;
+            MaxNameLenght = namemax;
         }
     }
 }

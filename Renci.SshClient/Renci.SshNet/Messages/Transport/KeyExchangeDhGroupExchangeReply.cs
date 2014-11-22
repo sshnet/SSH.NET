@@ -30,9 +30,9 @@ namespace Renci.SshNet.Messages.Transport
         /// </summary>
         protected override void LoadData()
         {
-            this.HostKey = this.ReadBinaryString();
-            this.F = this.ReadBigInt();
-            this.Signature = this.ReadBinaryString();
+            HostKey = ReadBinaryString();
+            F = ReadBigInt();
+            Signature = ReadBinaryString();
         }
 
         /// <summary>
@@ -40,9 +40,9 @@ namespace Renci.SshNet.Messages.Transport
         /// </summary>
         protected override void SaveData()
         {
-            this.WriteBinaryString(this.HostKey);
-            this.Write(this.F);
-            this.WriteBinaryString(this.Signature);
+            WriteBinaryString(HostKey);
+            Write(F);
+            WriteBinaryString(Signature);
         }
     }
 }

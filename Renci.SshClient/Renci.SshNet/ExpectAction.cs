@@ -32,8 +32,8 @@ namespace Renci.SshNet
             if (action == null)
                 throw new ArgumentNullException("action");
 
-            this.Expect = expect;
-            this.Action = action;
+            Expect = expect;
+            Action = action;
         }
 
         /// <summary>
@@ -50,8 +50,8 @@ namespace Renci.SshNet
             if (action == null)
                 throw new ArgumentNullException("action");
 
-            this.Expect = new Regex(Regex.Escape(expect));
-            this.Action = action;
+            Expect = new Regex(Regex.Escape(expect));
+            Action = action;
         }
     }
 }

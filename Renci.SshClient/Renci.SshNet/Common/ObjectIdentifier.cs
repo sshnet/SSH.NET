@@ -22,7 +22,7 @@ namespace Renci.SshNet.Common
             if (identifiers.Length < 2)
                 throw new ArgumentException("identifiers");
 
-            this.Identifiers = identifiers;
+            Identifiers = identifiers;
         }
     }
 }

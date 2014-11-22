@@ -52,7 +52,7 @@ namespace Renci.SshNet
             }
         }
 
-        internal ShellStream(ISession session, string terminalName, uint columns, uint rows, uint width, uint height, int maxLines, IDictionary<TerminalModes, uint> terminalModeValues)
+        internal ShellStream(ISession session, string terminalName, uint columns, uint rows, uint width, uint height, int bufferSize, IDictionary<TerminalModes, uint> terminalModeValues)
         {
             _encoding = session.ConnectionInfo.Encoding;
             _session = session;
@@ -275,7 +275,7 @@ namespace Renci.SshNet
                             {
                                 var result = text.Substring(0, match.Index + match.Length);
 
-                                for (int i = 0; i < match.Index + match.Length && _incoming.Count > 0; i++)
+                                for (var i = 0; i < match.Index + match.Length && _incoming.Count > 0; i++)
                                 {
                                     //  Remove processed items from the queue
                                     _incoming.Dequeue();
@@ -389,7 +389,7 @@ namespace Renci.SshNet
                                     {
                                         var result = text.Substring(0, match.Index + match.Length);
 
-                                        for (int i = 0; i < match.Index + match.Length && _incoming.Count > 0; i++)
+                                        for (var i = 0; i < match.Index + match.Length && _incoming.Count > 0; i++)
                                         {
                                             //  Remove processed items from the queue
                                             _incoming.Dequeue();

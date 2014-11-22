@@ -42,7 +42,7 @@
         /// </summary>
         public EnvironmentVariableRequestInfo()
         {
-            this.WantReply = true;
+            WantReply = true;
         }
 
         /// <summary>
@@ -53,8 +53,8 @@
         public EnvironmentVariableRequestInfo(string variableName, string variableValue)
             : this()
         {
-            this.VariableName = variableName;
-            this.VariableValue = variableValue;
+            VariableName = variableName;
+            VariableValue = variableValue;
         }
 
         /// <summary>
@@ -64,8 +64,8 @@
         {
             base.LoadData();
 
-            this.VariableName = this.ReadString();
-            this.VariableValue = this.ReadString();
+            VariableName = ReadString();
+            VariableValue = ReadString();
         }
 
         /// <summary>
@@ -75,8 +75,8 @@
         {
             base.SaveData();
 
-            this.Write(this.VariableName);
-            this.Write(this.VariableValue);
+            Write(VariableName);
+            Write(VariableValue);
         }
     }
 }

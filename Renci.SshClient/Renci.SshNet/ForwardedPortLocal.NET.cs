@@ -165,7 +165,7 @@ namespace Renci.SshNet
             _listenerTaskCompleted.WaitOne();
         }
 
-        private void Session_ErrorOccured(object sender, Common.ExceptionEventArgs e)
+        private void Session_ErrorOccured(object sender, ExceptionEventArgs e)
         {
             StopListener();
         }

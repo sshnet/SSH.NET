@@ -7,7 +7,7 @@ namespace Renci.SshNet.Common
     /// The exception that is thrown when connection was terminated.
     /// </summary>
     [Serializable]
-    public partial class SshConnectionException : SshException
+    public partial class SshConnectionException
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="SshConnectionException"/> class.

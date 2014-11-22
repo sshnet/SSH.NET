@@ -7,7 +7,7 @@ namespace Renci.SshNet.Common
     /// The exception that is thrown when pass phrase for key file is empty or null
     /// </summary>
     [Serializable]
-    public partial class SshPassPhraseNullOrEmptyException : SshException
+    public partial class SshPassPhraseNullOrEmptyException
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="SshPassPhraseNullOrEmptyException"/> class.

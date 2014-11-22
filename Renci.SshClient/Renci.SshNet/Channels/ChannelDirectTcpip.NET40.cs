@@ -9,7 +9,7 @@ namespace Renci.SshNet.Channels
     {
         partial void InternalSocketReceive(byte[] buffer, ref int read)
         {
-            read = this._socket.Receive(buffer);
+            read = _socket.Receive(buffer);
         }
 
         partial void InternalSocketSend(byte[] data)

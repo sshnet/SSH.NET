@@ -34,9 +34,9 @@
         /// <param name="info">The info.</param>
         public ChannelRequestMessage(uint localChannelName, RequestInfo info)
         {
-            this.LocalChannelNumber = localChannelName;
-            this.RequestName = info.RequestName;
-            this.RequestData = info.GetBytes();
+            LocalChannelNumber = localChannelName;
+            RequestName = info.RequestName;
+            RequestData = info.GetBytes();
         }
 
         /// <summary>
@@ -46,8 +46,8 @@
         {
             base.LoadData();
 
-            this.RequestName = this.ReadAsciiString();
-            this.RequestData = this.ReadBytes();
+            RequestName = ReadAsciiString();
+            RequestData = ReadBytes();
         }
 
         /// <summary>
@@ -57,8 +57,8 @@
         {
             base.SaveData();
 
-            this.WriteAscii(this.RequestName);
-            this.Write(this.RequestData);
+            WriteAscii(RequestName);
+            Write(RequestData);
         }
     }
 }

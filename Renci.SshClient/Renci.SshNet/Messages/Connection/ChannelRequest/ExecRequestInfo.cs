@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 
 namespace Renci.SshNet.Messages.Connection
 {
@@ -44,7 +45,7 @@ namespace Renci.SshNet.Messages.Connection
         /// </summary>
         public ExecRequestInfo()
         {
-            this.WantReply = true;
+            WantReply = true;
         }
 
         /// <summary>
@@ -57,12 +58,12 @@ namespace Renci.SshNet.Messages.Connection
             : this()
         {
             if (command == null)
-                throw new System.ArgumentNullException("command");
+                throw new ArgumentNullException("command");
             if (encoding == null)
-                throw new System.ArgumentNullException("encoding");
+                throw new ArgumentNullException("encoding");
 
-            this.Command = command;
-            this.Encoding = encoding;
+            Command = command;
+            Encoding = encoding;
         }
 
         /// <summary>
@@ -72,7 +73,7 @@ namespace Renci.SshNet.Messages.Connection
         {
             base.LoadData();
 
-            this.Command = this.ReadString();
+            Command = ReadString();
         }
 
         /// <summary>
@@ -82,7 +83,7 @@ namespace Renci.SshNet.Messages.Connection
         {
             base.SaveData();
 
-            this.Write(this.Command, this.Encoding);
+            Write(Command, Encoding);
         }
     }
 }

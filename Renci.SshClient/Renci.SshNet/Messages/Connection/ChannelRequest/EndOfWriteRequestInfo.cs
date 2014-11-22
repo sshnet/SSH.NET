@@ -26,7 +26,7 @@
         /// </summary>
         public EndOfWriteRequestInfo()
         {
-            this.WantReply = false;
+            WantReply = false;
         }
     }
 }

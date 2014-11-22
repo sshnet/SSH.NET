@@ -33,17 +33,17 @@ namespace Renci.SshNet.Sftp
 
         protected override void SaveData()
         {
-            this.Write((byte)this.SftpMessageType);
+            Write((byte) SftpMessageType);
         }
 
         protected SftpFileAttributes ReadAttributes()
         {
 
-            var flag = this.ReadUInt32();
+            var flag = ReadUInt32();
 
             long size = -1;
-            int userId = -1;
-            int groupId = -1;
+            var userId = -1;
+            var groupId = -1;
             uint permissions = 0;
             var accessTime = DateTime.MinValue;
             var modifyTime = DateTime.MinValue;
@@ -51,33 +51,33 @@ namespace Renci.SshNet.Sftp
 
             if ((flag & 0x00000001) == 0x00000001)   //  SSH_FILEXFER_ATTR_SIZE
             {
-                size = (long)this.ReadUInt64();
+                size = (long)ReadUInt64();
             }
 
             if ((flag & 0x00000002) == 0x00000002)   //  SSH_FILEXFER_ATTR_UIDGID
             {
-                userId = (int)this.ReadUInt32();
+                userId = (int)ReadUInt32();
 
-                groupId = (int)this.ReadUInt32();
+                groupId = (int)ReadUInt32();
             }
 
             if ((flag & 0x00000004) == 0x00000004)   //  SSH_FILEXFER_ATTR_PERMISSIONS
             {
-                permissions = this.ReadUInt32();
+                permissions = ReadUInt32();
             }
 
             if ((flag & 0x00000008) == 0x00000008)   //  SSH_FILEXFER_ATTR_ACMODTIME
             {
-                var time = this.ReadUInt32();
+                var time = ReadUInt32();
                 accessTime = DateTime.FromFileTime((time + 11644473600) * 10000000);
-                time = this.ReadUInt32();
+                time = ReadUInt32();
                 modifyTime = DateTime.FromFileTime((time + 11644473600) * 10000000);
             }
 
             if ((flag & 0x80000000) == 0x80000000)   //  SSH_FILEXFER_ATTR_ACMODTIME
             {
-                var extendedCount = this.ReadUInt32();
-                extensions = this.ReadExtensionPair();
+                var extendedCount = ReadUInt32();
+                extensions = ReadExtensionPair();
             }
             var attributes = new SftpFileAttributes(accessTime, modifyTime, size, userId, groupId, permissions, extensions);
 
@@ -88,7 +88,7 @@ namespace Renci.SshNet.Sftp
         {
             if (attributes == null)
             {
-                this.Write((uint)0);
+                Write((uint)0);
                 return;
             }
 
@@ -119,35 +119,35 @@ namespace Renci.SshNet.Sftp
                 flag |= 0x80000000;
             }
 
-            this.Write(flag);
+            Write(flag);
 
             if (attributes.IsSizeChanged && attributes.IsRegularFile)
             {
-                this.Write((UInt64)attributes.Size);
+                Write((UInt64)attributes.Size);
             }
 
             if (attributes.IsUserIdChanged|| attributes.IsGroupIdChanged)
             {
-                this.Write((UInt32)attributes.UserId);
-                this.Write((UInt32)attributes.GroupId);
+                Write((UInt32)attributes.UserId);
+                Write((UInt32)attributes.GroupId);
             }
 
             if (attributes.IsPermissionsChanged)
             {
-                this.Write(attributes.Permissions);
+                Write(attributes.Permissions);
             }
 
             if (attributes.IsLastAccessTimeChanged || attributes.IsLastWriteTimeChanged)
             {
                 var time = (uint)(attributes.LastAccessTime.ToFileTime() / 10000000 - 11644473600);
-                this.Write(time);
+                Write(time);
                 time = (uint)(attributes.LastWriteTime.ToFileTime() / 10000000 - 11644473600);
-                this.Write(time);
+                Write(time);
             }
 
             if (attributes.IsExtensionsChanged)
             {
-                this.Write(attributes.Extensions);
+                Write(attributes.Extensions);
             }
         }
 
@@ -193,7 +193,7 @@ namespace Renci.SshNet.Sftp
 
         public override string ToString()
         {
-            return string.Format(CultureInfo.CurrentCulture, "SFTP Message : {0}", this.SftpMessageType);
+            return string.Format(CultureInfo.CurrentCulture, "SFTP Message : {0}", SftpMessageType);
         }
     }
 }

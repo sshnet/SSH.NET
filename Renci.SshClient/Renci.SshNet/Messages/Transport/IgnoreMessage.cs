@@ -16,7 +16,7 @@
         /// </summary>
         public IgnoreMessage()
         {
-            this.Data = new byte[] { };
+            Data = new byte[] { };
         }
 
         /// <summary>
@@ -25,7 +25,7 @@
         /// <param name="data">The data.</param>
         public IgnoreMessage(byte[] data)
         {
-            this.Data = data;
+            Data = data;
         }
 
         /// <summary>
@@ -33,7 +33,7 @@
         /// </summary>
         protected override void LoadData()
         {
-            this.Data = this.ReadBinaryString();
+            Data = ReadBinaryString();
         }
 
         /// <summary>
@@ -41,7 +41,7 @@
         /// </summary>
         protected override void SaveData()
         {
-            this.WriteBinaryString(this.Data);
+            WriteBinaryString(Data);
         }
     }
 }

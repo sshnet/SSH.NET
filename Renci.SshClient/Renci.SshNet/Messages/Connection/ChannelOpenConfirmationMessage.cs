@@ -44,10 +44,10 @@
         /// <param name="remoteChannelNumber">The remote channel number.</param>
         public ChannelOpenConfirmationMessage(uint localChannelNumber, uint initialWindowSize, uint maximumPacketSize, uint remoteChannelNumber)
         {
-            this.LocalChannelNumber = localChannelNumber;
-            this.InitialWindowSize = initialWindowSize;
-            this.MaximumPacketSize = maximumPacketSize;
-            this.RemoteChannelNumber = remoteChannelNumber;
+            LocalChannelNumber = localChannelNumber;
+            InitialWindowSize = initialWindowSize;
+            MaximumPacketSize = maximumPacketSize;
+            RemoteChannelNumber = remoteChannelNumber;
         }
 
         /// <summary>
@@ -56,9 +56,9 @@
         protected override void LoadData()
         {
             base.LoadData();
-            this.RemoteChannelNumber = this.ReadUInt32();
-            this.InitialWindowSize = this.ReadUInt32();
-            this.MaximumPacketSize = this.ReadUInt32();
+            RemoteChannelNumber = ReadUInt32();
+            InitialWindowSize = ReadUInt32();
+            MaximumPacketSize = ReadUInt32();
         }
 
         /// <summary>
@@ -67,9 +67,9 @@
         protected override void SaveData()
         {
             base.SaveData();
-            this.Write(this.RemoteChannelNumber);
-            this.Write(this.InitialWindowSize);
-            this.Write(this.MaximumPacketSize);
+            Write(RemoteChannelNumber);
+            Write(InitialWindowSize);
+            Write(MaximumPacketSize);
         }
     }
 }

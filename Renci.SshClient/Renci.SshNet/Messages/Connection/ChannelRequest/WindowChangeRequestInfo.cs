@@ -46,7 +46,7 @@
         /// </summary>
         public WindowChangeRequestInfo()
         {
-            this.WantReply = false;
+            WantReply = false;
         }
 
         /// <summary>
@@ -59,10 +59,10 @@
         public WindowChangeRequestInfo(uint columns, uint rows, uint width, uint height)
             : this()
         {
-            this.Columns = columns;
-            this.Rows = rows;
-            this.Width = width;
-            this.Height = height;
+            Columns = columns;
+            Rows = rows;
+            Width = width;
+            Height = height;
         }
 
         /// <summary>
@@ -72,10 +72,10 @@
         {
             base.LoadData();
 
-            this.Columns = this.ReadUInt32();
-            this.Rows = this.ReadUInt32();
-            this.Width = this.ReadUInt32();
-            this.Height = this.ReadUInt32();
+            Columns = ReadUInt32();
+            Rows = ReadUInt32();
+            Width = ReadUInt32();
+            Height = ReadUInt32();
         }
 
         /// <summary>
@@ -85,10 +85,10 @@
         {
             base.SaveData();
 
-            this.Write(this.Columns);
-            this.Write(this.Rows);
-            this.Write(this.Width);
-            this.Write(this.Height);
+            Write(Columns);
+            Write(Rows);
+            Write(Width);
+            Write(Height);
         }
     }
 }

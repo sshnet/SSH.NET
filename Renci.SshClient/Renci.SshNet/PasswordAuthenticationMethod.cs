@@ -30,7 +30,7 @@ namespace Renci.SshNet
         /// </summary>
         public override string Name
         {
-            get { return this._requestMessage.MethodName; }
+            get { return _requestMessage.MethodName; }
         }
 
         /// <summary>
@@ -63,9 +63,9 @@ namespace Renci.SshNet
             if (password == null)
                 throw new ArgumentNullException("password");
 
-            this._password = password;
+            _password = password;
 
-            this._requestMessage = new RequestMessagePassword(ServiceName.Connection, this.Username, this._password);
+            _requestMessage = new RequestMessagePassword(ServiceName.Connection, Username, _password);
         }
 
         /// <summary>
@@ -81,7 +81,7 @@ namespace Renci.SshNet
             if (session == null)
                 throw new ArgumentNullException("session");
 
-            this._session = session;
+            _session = session;
 
             session.UserAuthenticationSuccessReceived += Session_UserAuthenticationSuccessReceived;
             session.UserAuthenticationFailureReceived += Session_UserAuthenticationFailureReceived;
@@ -89,68 +89,68 @@ namespace Renci.SshNet
 
             session.RegisterMessage("SSH_MSG_USERAUTH_PASSWD_CHANGEREQ");
 
-            session.SendMessage(this._requestMessage);
+            session.SendMessage(_requestMessage);
 
-            session.WaitOnHandle(this._authenticationCompleted);
+            session.WaitOnHandle(_authenticationCompleted);
             
             session.UserAuthenticationSuccessReceived -= Session_UserAuthenticationSuccessReceived;
             session.UserAuthenticationFailureReceived -= Session_UserAuthenticationFailureReceived;
             session.MessageReceived -= Session_MessageReceived;
 
 
-            if (this._exception != null)
+            if (_exception != null)
             {
-                throw this._exception;
+                throw _exception;
             }
 
-            return this._authenticationResult;
+            return _authenticationResult;
         }
 
         private void Session_UserAuthenticationSuccessReceived(object sender, MessageEventArgs<SuccessMessage> e)
         {
-            this._authenticationResult = AuthenticationResult.Success;
+            _authenticationResult = AuthenticationResult.Success;
 
-            this._authenticationCompleted.Set();
+            _authenticationCompleted.Set();
         }
 
         private void Session_UserAuthenticationFailureReceived(object sender, MessageEventArgs<FailureMessage> e)
         {
             if (e.Message.PartialSuccess)
-                this._authenticationResult = AuthenticationResult.PartialSuccess;
+                _authenticationResult = AuthenticationResult.PartialSuccess;
             else
-                this._authenticationResult = AuthenticationResult.Failure;
+                _authenticationResult = AuthenticationResult.Failure;
 
             //  Copy allowed authentication methods
-            this.AllowedAuthentications = e.Message.AllowedAuthentications.ToList();
+            AllowedAuthentications = e.Message.AllowedAuthentications.ToList();
 
-            this._authenticationCompleted.Set();
+            _authenticationCompleted.Set();
         }
 
         private void Session_MessageReceived(object sender, MessageEventArgs<Message> e)
         {
             if (e.Message is PasswordChangeRequiredMessage)
             {
-                this._session.UnRegisterMessage("SSH_MSG_USERAUTH_PASSWD_CHANGEREQ");
+                _session.UnRegisterMessage("SSH_MSG_USERAUTH_PASSWD_CHANGEREQ");
 
-                this.ExecuteThread(() =>
+                ExecuteThread(() =>
                 {
                     try
                     {
-                        var eventArgs = new AuthenticationPasswordChangeEventArgs(this.Username);
+                        var eventArgs = new AuthenticationPasswordChangeEventArgs(Username);
 
                         //  Raise an event to allow user to supply a new password
-                        if (this.PasswordExpired != null)
+                        if (PasswordExpired != null)
                         {
-                            this.PasswordExpired(this, eventArgs);
+                            PasswordExpired(this, eventArgs);
                         }
 
                         //  Send new authentication request with new password
-                        this._session.SendMessage(new RequestMessagePassword(ServiceName.Connection, this.Username, this._password, eventArgs.NewPassword));
+                        _session.SendMessage(new RequestMessagePassword(ServiceName.Connection, Username, _password, eventArgs.NewPassword));
                     }
                     catch (Exception exp)
                     {
-                        this._exception = exp;
-                        this._authenticationCompleted.Set();
+                        _exception = exp;
+                        _authenticationCompleted.Set();
                     }
                 });
             }
@@ -179,17 +179,17 @@ namespace Renci.SshNet
         protected virtual void Dispose(bool disposing)
         {
             // Check to see if Dispose has already been called.
-            if (!this._isDisposed)
+            if (!_isDisposed)
             {
                 // If disposing equals true, dispose all managed
                 // and unmanaged resources.
                 if (disposing)
                 {
                     // Dispose managed resources.
-                    if (this._authenticationCompleted != null)
+                    if (_authenticationCompleted != null)
                     {
-                        this._authenticationCompleted.Dispose();
-                        this._authenticationCompleted = null;
+                        _authenticationCompleted.Dispose();
+                        _authenticationCompleted = null;
                     }
                 }
 

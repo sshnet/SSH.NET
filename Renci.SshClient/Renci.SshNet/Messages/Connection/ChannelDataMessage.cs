@@ -28,8 +28,8 @@
         /// <param name="data">Message data.</param>
         public ChannelDataMessage(uint localChannelNumber, byte[] data)
         {
-            this.LocalChannelNumber = localChannelNumber;
-            this.Data = data;
+            LocalChannelNumber = localChannelNumber;
+            Data = data;
         }
 
         /// <summary>
@@ -38,7 +38,7 @@
         protected override void LoadData()
         {
             base.LoadData();
-            this.Data = this.ReadBinaryString();
+            Data = ReadBinaryString();
         }
 
         /// <summary>
@@ -47,7 +47,7 @@
         protected override void SaveData()
         {
             base.SaveData();
-            this.WriteBinaryString(this.Data);
+            WriteBinaryString(Data);
         }
     }
 }

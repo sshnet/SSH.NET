@@ -23,7 +23,7 @@ namespace Renci.SshNet.Common
         /// <param name="data">The data.</param>
         public ShellDataEventArgs(byte[] data)
         {
-            this.Data = data;
+            Data = data;
         }
 
         /// <summary>
@@ -32,7 +32,7 @@ namespace Renci.SshNet.Common
         /// <param name="line">The line.</param>
         public ShellDataEventArgs(string line)
         {
-            this.Line = line;
+            Line = line;
         }
     }
 }

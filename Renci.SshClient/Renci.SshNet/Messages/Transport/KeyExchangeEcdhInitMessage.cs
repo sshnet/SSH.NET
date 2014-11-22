@@ -24,7 +24,7 @@ namespace Renci.SshNet.Messages.Transport
             data.Add(0x04);
             data.AddRange(d.ToByteArray().Reverse());
             data.AddRange(q.ToByteArray().Reverse());
-            this.QC = data.ToArray();
+            QC = data.ToArray();
         }
 
         /// <summary>
@@ -32,8 +32,8 @@ namespace Renci.SshNet.Messages.Transport
         /// </summary>
         protected override void LoadData()
         {
-            this.ResetReader();
-            this.QC = this.ReadBinaryString();
+            ResetReader();
+            QC = ReadBinaryString();
         }
 
         /// <summary>
@@ -41,7 +41,7 @@ namespace Renci.SshNet.Messages.Transport
         /// </summary>
         protected override void SaveData()
         {
-            this.WriteBinaryString(this.QC);
+            WriteBinaryString(QC);
         }
     }
 }

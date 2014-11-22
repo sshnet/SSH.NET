@@ -35,21 +35,21 @@ namespace Renci.SshNet.Messages.Authentication
         /// </summary>
         protected override void LoadData()
         {
-            this.Name = this.ReadString();
-            this.Instruction = this.ReadString();
-            this.Language = this.ReadString();
+            Name = ReadString();
+            Instruction = ReadString();
+            Language = ReadString();
 
-            var numOfPrompts = this.ReadUInt32();
+            var numOfPrompts = ReadUInt32();
             var prompts = new List<AuthenticationPrompt>();
 
-            for (int i = 0; i < numOfPrompts; i++)
+            for (var i = 0; i < numOfPrompts; i++)
             {
-                var prompt = this.ReadString();
-                var echo = this.ReadBoolean();
+                var prompt = ReadString();
+                var echo = ReadBoolean();
                 prompts.Add(new AuthenticationPrompt(i, echo, prompt));
             }
 
-            this.Prompts = prompts;
+            Prompts = prompts;
         }
 
         /// <summary>

@@ -52,7 +52,7 @@
         /// </summary>
         public ExitSignalRequestInfo()
         {
-            this.WantReply = false;
+            WantReply = false;
         }
 
         /// <summary>
@@ -65,10 +65,10 @@
         public ExitSignalRequestInfo(string signalName, bool coreDumped, string errorMessage, string language)
             : this()
         {
-            this.SignalName = signalName;
-            this.CoreDumped = coreDumped;
-            this.ErrorMessage = errorMessage;
-            this.Language = language;
+            SignalName = signalName;
+            CoreDumped = coreDumped;
+            ErrorMessage = errorMessage;
+            Language = language;
         }
 
         /// <summary>
@@ -78,10 +78,10 @@
         {
             base.LoadData();
 
-            this.SignalName = this.ReadAsciiString();
-            this.CoreDumped = this.ReadBoolean();
-            this.ErrorMessage = this.ReadString();
-            this.Language = this.ReadString();
+            SignalName = ReadAsciiString();
+            CoreDumped = ReadBoolean();
+            ErrorMessage = ReadString();
+            Language = ReadString();
         }
 
         /// <summary>
@@ -91,10 +91,10 @@
         {
             base.SaveData();
 
-            this.WriteAscii(this.SignalName);
-            this.Write(this.CoreDumped);
-            this.Write(this.ErrorMessage);
-            this.Write(this.Language);
+            WriteAscii(SignalName);
+            Write(CoreDumped);
+            Write(ErrorMessage);
+            Write(Language);
         }
 
     }

@@ -9,17 +9,17 @@ namespace Renci.SshNet.Common
     {
         private readonly char _fallbackChar;
 
-        private static readonly char[] _byteToChar;
+        private static readonly char[] ByteToChar;
 
         static ASCIIEncoding()
         {
-            if (_byteToChar == null)
+            if (ByteToChar == null)
             {
-                _byteToChar = new char[128];
+                ByteToChar = new char[128];
                 var ch = '\0';
                 for (byte i = 0; i < 128; i++)
                 {
-                    _byteToChar[i] = ch++;
+                    ByteToChar[i] = ch++;
                 }
             }
         }
@@ -29,7 +29,7 @@ namespace Renci.SshNet.Common
         /// </summary>
         public ASCIIEncoding()
         {
-            this._fallbackChar = '?';
+            _fallbackChar = '?';
         }
 
         /// <summary>
@@ -76,12 +76,12 @@ namespace Renci.SshNet.Common
         /// <exception cref="T:System.Text.EncoderFallbackException">A fallback occurred (see Understanding Encodings for complete explanation)-and-<see cref="P:System.Text.Encoding.EncoderFallback"/> is set to <see cref="T:System.Text.EncoderExceptionFallback"/>.</exception>
         public override int GetBytes(char[] chars, int charIndex, int charCount, byte[] bytes, int byteIndex)
         {
-            for (int i = 0; i < charCount && i < chars.Length; i++)
+            for (var i = 0; i < charCount && i < chars.Length; i++)
             {
                 var b = (byte)chars[i + charIndex];
 
                 if (b > 127)
-                    b = (byte)this._fallbackChar;
+                    b = (byte) _fallbackChar;
 
                 bytes[i + byteIndex] = b;
             }
@@ -132,18 +132,18 @@ namespace Renci.SshNet.Common
         /// <exception cref="T:System.Text.DecoderFallbackException">A fallback occurred (see Understanding Encodings for complete explanation)-and-<see cref="P:System.Text.Encoding.DecoderFallback"/> is set to <see cref="T:System.Text.DecoderExceptionFallback"/>.</exception>
         public override int GetChars(byte[] bytes, int byteIndex, int byteCount, char[] chars, int charIndex)
         {
-            for (int i = 0; i < byteCount; i++)
+            for (var i = 0; i < byteCount; i++)
             {
                 var b = bytes[i + byteIndex];
                 char ch;
 
                 if (b > 127)
                 {
-                    ch = this._fallbackChar;
+                    ch = _fallbackChar;
                 }
                 else 
                 {
-                    ch = _byteToChar[b];
+                    ch = ByteToChar[b];
                 }
 
                 chars[i + charIndex] = ch;

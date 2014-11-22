@@ -29,8 +29,8 @@ namespace Renci.SshNet
         /// <param name="cipher">The cipher.</param>
         public CipherInfo(int keySize, Func<byte[], byte[], Cipher> cipher)
         {
-            this.KeySize = keySize;
-            this.Cipher = (key, iv) => (cipher(key.Take(this.KeySize / 8).ToArray(), iv));
+            KeySize = keySize;
+            Cipher = (key, iv) => (cipher(key.Take(KeySize / 8).ToArray(), iv));
         }
     }
 }

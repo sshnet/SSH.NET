@@ -42,9 +42,9 @@
         /// <param name="reasonCode">The reason code.</param>
         public ChannelOpenFailureMessage(uint localChannelNumber, string description, uint reasonCode)
         {
-            this.LocalChannelNumber = localChannelNumber;
-            this.Description = description;
-            this.ReasonCode = reasonCode;
+            LocalChannelNumber = localChannelNumber;
+            Description = description;
+            ReasonCode = reasonCode;
         }
 
         /// <summary>
@@ -68,9 +68,9 @@
         protected override void LoadData()
         {
             base.LoadData();
-            this.ReasonCode = this.ReadUInt32();
-            this.Description = this.ReadString();
-            this.Language = this.ReadString();
+            ReasonCode = ReadUInt32();
+            Description = ReadString();
+            Language = ReadString();
         }
 
         /// <summary>
@@ -79,9 +79,9 @@
         protected override void SaveData()
         {
             base.SaveData();
-            this.Write(this.ReasonCode);
-            this.Write(this.Description ?? string.Empty);
-            this.Write(this.Language ?? "en");
+            Write(ReasonCode);
+            Write(Description ?? string.Empty);
+            Write(Language ?? "en");
         }
     }
 }

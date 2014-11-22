@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 namespace Renci.SshNet.Common
 {
     [Serializable]
-    public partial class ScpException : SshException
+    public partial class ScpException
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ScpException"/> class.

@@ -19,7 +19,7 @@ namespace Renci.SshNet.Messages.Transport
         /// <param name="clientExchangeValue">The client exchange value.</param>
         public KeyExchangeDhGroupExchangeInit(BigInteger clientExchangeValue)
         {
-            this.E = clientExchangeValue;
+            E = clientExchangeValue;
         }
 
         /// <summary>
@@ -27,7 +27,7 @@ namespace Renci.SshNet.Messages.Transport
         /// </summary>
         protected override void LoadData()
         {
-            this.E = this.ReadBigInt();
+            E = ReadBigInt();
         }
 
         /// <summary>
@@ -35,7 +35,7 @@ namespace Renci.SshNet.Messages.Transport
         /// </summary>
         protected override void SaveData()
         {
-            this.Write(this.E);
+            Write(E);
         }
     }
 }

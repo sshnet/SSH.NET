@@ -26,7 +26,7 @@
         /// </summary>
         public KeepAliveRequestInfo()
         {
-            this.WantReply = false;
+            WantReply = false;
         }
     }
 }

@@ -40,7 +40,7 @@ namespace Renci.SshNet.Sftp
         /// <param name="downloadedBytes">Number of downloaded bytes.</param>
         internal void Update(ulong downloadedBytes)
         {
-            this.DownloadedBytes = downloadedBytes;
+            DownloadedBytes = downloadedBytes;
         }
     }
 }

@@ -22,7 +22,7 @@ namespace Renci.SshNet.Messages.Transport
         /// <param name="serviceName">Name of the service.</param>
         public ServiceRequestMessage(ServiceName serviceName)
         {
-            this.ServiceName = serviceName;
+            ServiceName = serviceName;
         }
 
         /// <summary>
@@ -38,13 +38,13 @@ namespace Renci.SshNet.Messages.Transport
         /// </summary>
         protected override void SaveData()
         {
-            switch (this.ServiceName)
+            switch (ServiceName)
             {
                 case ServiceName.UserAuthentication:
-                    this.WriteAscii("ssh-userauth");
+                    WriteAscii("ssh-userauth");
                     break;
                 case ServiceName.Connection:
-                    this.WriteAscii("ssh-connection");
+                    WriteAscii("ssh-connection");
                     break;
                 default:
                     throw new NotSupportedException("Not supported service name");

@@ -46,17 +46,17 @@ namespace Renci.SshNet.Common
         /// <param name="host">The host.</param>
         public HostKeyEventArgs(KeyHostAlgorithm host)
         {
-            this.CanTrust = true;   //  Set default value
+            CanTrust = true;   //  Set default value
 
-            this.HostKey = host.Data;
+            HostKey = host.Data;
 
-            this.HostKeyName = host.Name;
+            HostKeyName = host.Name;
 
-            this.KeyLength = host.Key.KeyLength;
+            KeyLength = host.Key.KeyLength;
 
             using (var md5 = new MD5Hash())
             {
-                this.FingerPrint = md5.ComputeHash(host.Data);
+                FingerPrint = md5.ComputeHash(host.Data);
             }
         }
     }

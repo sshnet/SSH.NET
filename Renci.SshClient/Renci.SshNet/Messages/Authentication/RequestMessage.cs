@@ -36,8 +36,8 @@ namespace Renci.SshNet.Messages.Authentication
         /// <param name="username">Authentication username.</param>
         public RequestMessage(ServiceName serviceName, string username)
         {
-            this.ServiceName = serviceName;
-            this.Username = username;
+            ServiceName = serviceName;
+            Username = username;
         }
 
         /// <summary>
@@ -53,19 +53,19 @@ namespace Renci.SshNet.Messages.Authentication
         /// </summary>
         protected override void SaveData()
         {
-            this.Write(this.Username);
-            switch (this.ServiceName)
+            Write(Username);
+            switch (ServiceName)
             {
                 case ServiceName.UserAuthentication:
-                    this.WriteAscii("ssh-userauth");
+                    WriteAscii("ssh-userauth");
                     break;
                 case ServiceName.Connection:
-                    this.WriteAscii("ssh-connection");
+                    WriteAscii("ssh-connection");
                     break;
                 default:
                     throw new NotSupportedException("Not supported service name");
             }
-            this.WriteAscii(this.MethodName);
+            WriteAscii(MethodName);
         }
     }
 }

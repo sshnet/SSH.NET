@@ -45,7 +45,7 @@ namespace Renci.SshNet
             if (keyFiles == null)
                 throw new ArgumentNullException("keyFiles");
 
-            this.KeyFiles = new Collection<PrivateKeyFile>(keyFiles);
+            KeyFiles = new Collection<PrivateKeyFile>(keyFiles);
         }
 
         /// <summary>
@@ -63,14 +63,14 @@ namespace Renci.SshNet
 
             session.RegisterMessage("SSH_MSG_USERAUTH_PK_OK");
 
-            foreach (var keyFile in this.KeyFiles)
+            foreach (var keyFile in KeyFiles)
             {
-                this._authenticationCompleted.Reset();
-                this._isSignatureRequired = false;
+                _authenticationCompleted.Reset();
+                _isSignatureRequired = false;
 
-                var message = new RequestMessagePublicKey(ServiceName.Connection, this.Username, keyFile.HostKey.Name, keyFile.HostKey.Data);
+                var message = new RequestMessagePublicKey(ServiceName.Connection, Username, keyFile.HostKey.Name, keyFile.HostKey.Data);
 
-                if (this.KeyFiles.Count < 2)
+                if (KeyFiles.Count < 2)
                 {
                     //  If only one key file provided then send signature for very first request
                     var signatureData = new SignatureData(message, session.SessionId).GetBytes();
@@ -81,13 +81,13 @@ namespace Renci.SshNet
                 //  Send public key authentication request
                 session.SendMessage(message);
 
-                session.WaitOnHandle(this._authenticationCompleted);
+                session.WaitOnHandle(_authenticationCompleted);
 
-                if (this._isSignatureRequired)
+                if (_isSignatureRequired)
                 {
-                    this._authenticationCompleted.Reset();
+                    _authenticationCompleted.Reset();
 
-                    var signatureMessage = new RequestMessagePublicKey(ServiceName.Connection, this.Username, keyFile.HostKey.Name, keyFile.HostKey.Data);
+                    var signatureMessage = new RequestMessagePublicKey(ServiceName.Connection, Username, keyFile.HostKey.Name, keyFile.HostKey.Data);
 
                     var signatureData = new SignatureData(message, session.SessionId).GetBytes();
 
@@ -97,9 +97,9 @@ namespace Renci.SshNet
                     session.SendMessage(signatureMessage);
                 }
 
-                session.WaitOnHandle(this._authenticationCompleted);
+                session.WaitOnHandle(_authenticationCompleted);
 
-                if (this._authenticationResult == AuthenticationResult.Success)
+                if (_authenticationResult == AuthenticationResult.Success)
                 {
                     break;
                 }
@@ -111,27 +111,27 @@ namespace Renci.SshNet
 
             session.UnRegisterMessage("SSH_MSG_USERAUTH_PK_OK");
 
-            return this._authenticationResult;
+            return _authenticationResult;
         }
 
         private void Session_UserAuthenticationSuccessReceived(object sender, MessageEventArgs<SuccessMessage> e)
         {
-            this._authenticationResult = AuthenticationResult.Success;
+            _authenticationResult = AuthenticationResult.Success;
 
-            this._authenticationCompleted.Set();
+            _authenticationCompleted.Set();
         }
 
         private void Session_UserAuthenticationFailureReceived(object sender, MessageEventArgs<FailureMessage> e)
         {
             if (e.Message.PartialSuccess)
-                this._authenticationResult = AuthenticationResult.PartialSuccess;
+                _authenticationResult = AuthenticationResult.PartialSuccess;
             else
-                this._authenticationResult = AuthenticationResult.Failure;
+                _authenticationResult = AuthenticationResult.Failure;
 
             //  Copy allowed authentication methods
-            this.AllowedAuthentications = e.Message.AllowedAuthentications.ToList();
+            AllowedAuthentications = e.Message.AllowedAuthentications.ToList();
 
-            this._authenticationCompleted.Set();
+            _authenticationCompleted.Set();
         }
 
         private void Session_MessageReceived(object sender, MessageEventArgs<Message> e)
@@ -139,8 +139,8 @@ namespace Renci.SshNet
             var publicKeyMessage = e.Message as PublicKeyMessage;
             if (publicKeyMessage != null)
             {
-                this._isSignatureRequired = true;
-                this._authenticationCompleted.Set();
+                _isSignatureRequired = true;
+                _authenticationCompleted.Set();
             }
         }
 
@@ -165,17 +165,17 @@ namespace Renci.SshNet
         protected virtual void Dispose(bool disposing)
         {
             // Check to see if Dispose has already been called.
-            if (!this._isDisposed)
+            if (!_isDisposed)
             {
                 // If disposing equals true, dispose all managed
                 // and unmanaged resources.
                 if (disposing)
                 {
                     // Dispose managed resources.
-                    if (this._authenticationCompleted != null)
+                    if (_authenticationCompleted != null)
                     {
-                        this._authenticationCompleted.Dispose();
-                        this._authenticationCompleted = null;
+                        _authenticationCompleted.Dispose();
+                        _authenticationCompleted = null;
                     }
                 }
 
@@ -206,8 +206,8 @@ namespace Renci.SshNet
 
             public SignatureData(RequestMessagePublicKey message, byte[] sessionId)
             {
-                this._message = message;
-                this._sessionId = sessionId;
+                _message = message;
+                _sessionId = sessionId;
             }
 
             protected override void LoadData()
@@ -217,14 +217,14 @@ namespace Renci.SshNet
 
             protected override void SaveData()
             {
-                this.WriteBinaryString(this._sessionId);
-                this.Write((byte)50);
-                this.Write(this._message.Username);
-                this.WriteAscii("ssh-connection");
-                this.WriteAscii("publickey");
-                this.Write((byte)1);
-                this.WriteAscii(this._message.PublicKeyAlgorithmName);
-                this.WriteBinaryString(this._message.PublicKeyData);
+                WriteBinaryString(_sessionId);
+                Write((byte)50);
+                Write(_message.Username);
+                WriteAscii("ssh-connection");
+                WriteAscii("publickey");
+                Write((byte)1);
+                WriteAscii(_message.PublicKeyAlgorithmName);
+                WriteBinaryString(_message.PublicKeyData);
             }
         }
 

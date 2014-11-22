@@ -37,7 +37,7 @@ namespace Renci.SshNet
             if (username.IsNullOrWhiteSpace())
                 throw new ArgumentException("username");
 
-            this.Username = username;
+            Username = username;
         }
 
         /// <summary>

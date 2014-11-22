@@ -27,7 +27,7 @@ namespace Renci.SshNet.Common
         public SshConnectionException(string message)
             : base(message)
         {
-            this.DisconnectReason = DisconnectReason.None;
+            DisconnectReason = DisconnectReason.None;
         }
 
         /// <summary>
@@ -38,7 +38,7 @@ namespace Renci.SshNet.Common
         public SshConnectionException(string message, DisconnectReason disconnectReasonCode)
             : base(message)
         {
-            this.DisconnectReason = disconnectReasonCode;
+            DisconnectReason = disconnectReasonCode;
         }
 
         /// <summary>
@@ -50,7 +50,7 @@ namespace Renci.SshNet.Common
         public SshConnectionException(string message, DisconnectReason disconnectReasonCode, Exception inner)
             : base(message, inner)
         {
-            this.DisconnectReason = disconnectReasonCode;
+            DisconnectReason = disconnectReasonCode;
         }
 
         /// <summary>

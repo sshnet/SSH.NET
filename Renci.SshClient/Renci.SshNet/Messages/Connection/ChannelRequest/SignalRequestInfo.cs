@@ -34,7 +34,7 @@
         /// </summary>
         public SignalRequestInfo()
         {
-            this.WantReply = false;
+            WantReply = false;
         }
 
         /// <summary>
@@ -44,7 +44,7 @@
         public SignalRequestInfo(string signalName)
             : this()
         {
-            this.SignalName = signalName;
+            SignalName = signalName;
         }
 
         /// <summary>
@@ -54,7 +54,7 @@
         {
             base.LoadData();
 
-            this.SignalName = this.ReadAsciiString();
+            SignalName = ReadAsciiString();
         }
 
         /// <summary>
@@ -64,7 +64,7 @@
         {
             base.SaveData();
 
-            this.WriteAscii(this.SignalName);
+            WriteAscii(SignalName);
         }
     }
 }

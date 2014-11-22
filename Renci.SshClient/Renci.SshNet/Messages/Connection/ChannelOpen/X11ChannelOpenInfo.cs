@@ -38,8 +38,8 @@
         {
             base.LoadData();
 
-            this.OriginatorAddress = this.ReadString();
-            this.OriginatorPort = this.ReadUInt32();
+            OriginatorAddress = ReadString();
+            OriginatorPort = ReadUInt32();
         }
 
         /// <summary>
@@ -49,8 +49,8 @@
         {
             base.SaveData();
 
-            this.Write(this.OriginatorAddress);
-            this.Write(this.OriginatorPort);
+            Write(OriginatorAddress);
+            Write(OriginatorPort);
         }
     }
 }

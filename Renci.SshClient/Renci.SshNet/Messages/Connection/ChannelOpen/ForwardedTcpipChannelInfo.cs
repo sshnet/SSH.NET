@@ -67,10 +67,10 @@
         {
             base.LoadData();
 
-            this.ConnectedAddress = this.ReadString();
-            this.ConnectedPort = this.ReadUInt32();
-            this.OriginatorAddress = this.ReadString();
-            this.OriginatorPort = this.ReadUInt32();
+            ConnectedAddress = ReadString();
+            ConnectedPort = ReadUInt32();
+            OriginatorAddress = ReadString();
+            OriginatorPort = ReadUInt32();
         }
 
         /// <summary>
@@ -80,10 +80,10 @@
         {
             base.SaveData();
 
-            this.Write(this.ConnectedAddress);
-            this.Write(this.ConnectedPort);
-            this.Write(this.OriginatorAddress);
-            this.Write(this.OriginatorPort);
+            Write(ConnectedAddress);
+            Write(ConnectedPort);
+            Write(OriginatorAddress);
+            Write(OriginatorPort);
         }
     }
 }

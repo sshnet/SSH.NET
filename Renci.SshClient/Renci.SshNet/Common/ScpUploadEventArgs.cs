@@ -30,9 +30,9 @@ namespace Renci.SshNet.Common
         /// <param name="uploaded">The number of uploaded bytes so far.</param>
         public ScpUploadEventArgs(string filename, long size, long uploaded)
         {
-            this.Filename = filename;
-            this.Size = size;
-            this.Uploaded = uploaded;
+            Filename = filename;
+            Size = size;
+            Uploaded = uploaded;
         }
     }
 }

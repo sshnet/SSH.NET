@@ -38,7 +38,7 @@
         public RequestMessagePassword(ServiceName serviceName, string username, byte[] password)
             : base(serviceName, username)
         {
-            this.Password = password;
+            Password = password;
         }
 
         /// <summary>
@@ -51,7 +51,7 @@
         public RequestMessagePassword(ServiceName serviceName, string username, byte[] password, byte[] newPassword)
             : this(serviceName, username, password)
         {
-            this.NewPassword = newPassword;
+            NewPassword = newPassword;
         }
 
         /// <summary>
@@ -61,15 +61,15 @@
         {
             base.SaveData();
 
-            this.Write(this.NewPassword != null);
+            Write(NewPassword != null);
 
-            this.Write((uint)this.Password.Length);
-            this.Write(this.Password);
+            Write((uint)Password.Length);
+            Write(Password);
 
-            if (this.NewPassword != null)
+            if (NewPassword != null)
             {
-                this.Write((uint)this.NewPassword.Length);
-                this.Write(this.NewPassword);
+                Write((uint)NewPassword.Length);
+                Write(NewPassword);
             }
         }
     }

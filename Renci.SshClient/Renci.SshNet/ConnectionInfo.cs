@@ -21,7 +21,7 @@ namespace Renci.SshNet
     /// </remarks>
     public class ConnectionInfo : IConnectionInfoInternal
     {
-        internal static int DEFAULT_PORT = 22;
+        internal static int DefaultPort = 22;
 
         /// <summary>
         /// Gets supported key exchange algorithms for this connection.
@@ -222,7 +222,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="authenticationMethods"/> is <c>null</c>.</exception>
         /// <exception cref="ArgumentException">No <paramref name="authenticationMethods"/> specified.</exception>
         public ConnectionInfo(string host, string username, params AuthenticationMethod[] authenticationMethods)
-            : this(host, DEFAULT_PORT, username, ProxyTypes.None, null, 0, null, null, authenticationMethods)
+            : this(host, DefaultPort, username, ProxyTypes.None, null, 0, null, null, authenticationMethods)
         {
         }
 
@@ -288,12 +288,12 @@ namespace Renci.SshNet
                 throw new ArgumentException("At least one authentication method should be specified.", "authenticationMethods");
 
             //  Set default connection values
-            this.Timeout = TimeSpan.FromSeconds(30);
-            this.RetryAttempts = 10;
-            this.MaxSessions = 10;
-            this.Encoding = Encoding.UTF8;
+            Timeout = TimeSpan.FromSeconds(30);
+            RetryAttempts = 10;
+            MaxSessions = 10;
+            Encoding = Encoding.UTF8;
 
-            this.KeyExchangeAlgorithms = new Dictionary<string, Type>
+            KeyExchangeAlgorithms = new Dictionary<string, Type>
                 {
                     {"diffie-hellman-group-exchange-sha256", typeof (KeyExchangeDiffieHellmanGroupExchangeSha256)},
                     {"diffie-hellman-group-exchange-sha1", typeof (KeyExchangeDiffieHellmanGroupExchangeSha1)},
@@ -307,7 +307,7 @@ namespace Renci.SshNet
                     //"gss-gex-sha1-toWM5Slw5Ew8Mqkay+al2g==" - WinSSHD
                 };
 
-            this.Encryptions = new Dictionary<string, CipherInfo>
+            Encryptions = new Dictionary<string, CipherInfo>
                 {
                     {"aes256-ctr", new CipherInfo(256, (key, iv) => new AesCipher(key, new CtrCipherMode(iv), null))},
                     {"3des-cbc", new CipherInfo(192, (key, iv) => new TripleDesCipher(key, new CbcCipherMode(iv), null))},
@@ -332,7 +332,7 @@ namespace Renci.SshNet
                     {"aes192-ctr", new CipherInfo(192, (key, iv) => new AesCipher(key, new CtrCipherMode(iv), null))},
                 };
 
-            this.HmacAlgorithms = new Dictionary<string, HashInfo>
+            HmacAlgorithms = new Dictionary<string, HashInfo>
                 {
                     {"hmac-md5", new HashInfo(16*8, key => new HMac<MD5Hash>(key))},
                     {"hmac-sha1", new HashInfo(20*8, key => new HMac<SHA1Hash>(key))},
@@ -348,7 +348,7 @@ namespace Renci.SshNet
                     //{"none", typeof(...)},
                 };
 
-            this.HostKeyAlgorithms = new Dictionary<string, Func<byte[], KeyHostAlgorithm>>
+            HostKeyAlgorithms = new Dictionary<string, Func<byte[], KeyHostAlgorithm>>
                 {
                     {"ssh-rsa", data => new KeyHostAlgorithm("ssh-rsa", new RsaKey(), data)},
                     {"ssh-dss", data => new KeyHostAlgorithm("ssh-dss", new DsaKey(), data)},
@@ -361,14 +361,14 @@ namespace Renci.SshNet
                     //{"pgp-sign-dss", () => { ... },
                 };
 
-            this.CompressionAlgorithms = new Dictionary<string, Type>
+            CompressionAlgorithms = new Dictionary<string, Type>
                 {
                     //{"zlib@openssh.com", typeof(ZlibOpenSsh)}, 
                     //{"zlib", typeof(Zlib)}, 
                     {"none", null},
                 };
 
-            this.ChannelRequests = new Dictionary<string, RequestInfo>
+            ChannelRequests = new Dictionary<string, RequestInfo>
                 {
                     {EnvironmentVariableRequestInfo.NAME, new EnvironmentVariableRequestInfo()},
                     {ExecRequestInfo.NAME, new ExecRequestInfo()},
@@ -385,17 +385,17 @@ namespace Renci.SshNet
                     {KeepAliveRequestInfo.NAME, new KeepAliveRequestInfo()},
                 };
 
-            this.Host = host;
-            this.Port = port;
-            this.Username = username;
+            Host = host;
+            Port = port;
+            Username = username;
 
-            this.ProxyType = proxyType;
-            this.ProxyHost = proxyHost;
-            this.ProxyPort = proxyPort;
-            this.ProxyUsername = proxyUsername;
-            this.ProxyPassword = proxyPassword;
+            ProxyType = proxyType;
+            ProxyHost = proxyHost;
+            ProxyPort = proxyPort;
+            ProxyUsername = proxyUsername;
+            ProxyPassword = proxyPassword;
 
-            this.AuthenticationMethods = authenticationMethods;
+            AuthenticationMethods = authenticationMethods;
         }
 
         /// <summary>

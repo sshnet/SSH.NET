@@ -30,9 +30,9 @@ namespace Renci.SshNet.Messages.Transport
         /// </summary>
         protected override void LoadData()
         {
-            this.IsAlwaysDisplay = this.ReadBoolean();
-            this.Message = this.ReadString();
-            this.Language = this.ReadString();
+            IsAlwaysDisplay = ReadBoolean();
+            Message = ReadString();
+            Language = ReadString();
         }
 
         /// <summary>
@@ -40,9 +40,9 @@ namespace Renci.SshNet.Messages.Transport
         /// </summary>
         protected override void SaveData()
         {
-            this.Write(this.IsAlwaysDisplay);
-            this.Write(this.Message);
-            this.Write(this.Language);
+            Write(IsAlwaysDisplay);
+            Write(Message);
+            Write(Language);
         }
     }
 }

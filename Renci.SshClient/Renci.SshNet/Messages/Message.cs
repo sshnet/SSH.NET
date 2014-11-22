@@ -30,10 +30,10 @@ namespace Renci.SshNet.Messages
         /// <returns>Byte array representation of the message</returns>
         public override byte[] GetBytes()
         {
-            var messageAttribute = this.GetType().GetCustomAttributes(typeof(MessageAttribute), true).SingleOrDefault() as MessageAttribute;
+            var messageAttribute = GetType().GetCustomAttributes(typeof(MessageAttribute), true).SingleOrDefault() as MessageAttribute;
 
             if (messageAttribute == null)
-                throw new SshException(string.Format(CultureInfo.CurrentCulture, "Type '{0}' is not a valid message type.", this.GetType().AssemblyQualifiedName));
+                throw new SshException(string.Format(CultureInfo.CurrentCulture, "Type '{0}' is not a valid message type.", GetType().AssemblyQualifiedName));
 
             var data = new List<byte>(base.GetBytes());
 
@@ -50,10 +50,10 @@ namespace Renci.SshNet.Messages
         /// </returns>
         public override string ToString()
         {
-            var messageAttribute = this.GetType().GetCustomAttributes(typeof(MessageAttribute), true).SingleOrDefault() as MessageAttribute;
+            var messageAttribute = GetType().GetCustomAttributes(typeof(MessageAttribute), true).SingleOrDefault() as MessageAttribute;
 
             if (messageAttribute == null)
-                return string.Format(CultureInfo.CurrentCulture, "'{0}' without Message attribute.", this.GetType().FullName);
+                return string.Format(CultureInfo.CurrentCulture, "'{0}' without Message attribute.", GetType().FullName);
 
             return messageAttribute.Name;
         }

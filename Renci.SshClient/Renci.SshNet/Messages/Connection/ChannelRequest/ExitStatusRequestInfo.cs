@@ -31,7 +31,7 @@
         /// </summary>
         public ExitStatusRequestInfo()
         {
-            this.WantReply = false;
+            WantReply = false;
         }
 
         /// <summary>
@@ -41,7 +41,7 @@
         public ExitStatusRequestInfo(uint exitStatus)
             : this()
         {
-            this.ExitStatus = exitStatus;
+            ExitStatus = exitStatus;
         }
 
         /// <summary>
@@ -51,7 +51,7 @@
         {
             base.LoadData();
 
-            this.ExitStatus = this.ReadUInt32();
+            ExitStatus = ReadUInt32();
         }
 
         /// <summary>
@@ -61,7 +61,7 @@
         {
             base.SaveData();
 
-            this.Write(this.ExitStatus);
+            Write(ExitStatus);
         }
     }
 }

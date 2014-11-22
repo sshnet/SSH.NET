@@ -31,7 +31,7 @@ namespace Renci.SshNet.Sftp
         /// <param name="filesRead">The files read.</param>
         internal void Update(int filesRead)
         {
-            this.FilesRead = filesRead;
+            FilesRead = filesRead;
         }
     }
 }

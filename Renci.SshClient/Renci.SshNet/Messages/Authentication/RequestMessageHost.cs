@@ -68,10 +68,10 @@
         public RequestMessageHost(ServiceName serviceName, string username, string publicKeyAlgorithm, byte[] publicHostKey, string clientHostName, string clientUsername)
             : base(serviceName, username)
         {
-            this.PublicKeyAlgorithm = publicKeyAlgorithm;
-            this.PublicHostKey = publicHostKey;
-            this.ClientHostName = clientHostName;
-            this.ClientUsername = clientUsername;
+            PublicKeyAlgorithm = publicKeyAlgorithm;
+            PublicHostKey = publicHostKey;
+            ClientHostName = clientHostName;
+            ClientUsername = clientUsername;
         }
 
         /// <summary>
@@ -81,13 +81,13 @@
         {
             base.SaveData();
 
-            this.WriteAscii(this.PublicKeyAlgorithm);
-            this.WriteBinaryString(this.PublicHostKey);
-            this.Write(this.ClientHostName);
-            this.Write(this.ClientUsername);
+            WriteAscii(PublicKeyAlgorithm);
+            WriteBinaryString(PublicHostKey);
+            Write(ClientHostName);
+            Write(ClientUsername);
 
-            if (this.Signature != null)
-                this.WriteBinaryString(this.Signature);
+            if (Signature != null)
+                WriteBinaryString(Signature);
         }
     }
 }

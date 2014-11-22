@@ -8,6 +8,7 @@ using System.Net.Sockets;
 using System.Threading;
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
+using ASCIIEncoding = Renci.SshNet.Common.ASCIIEncoding;
 
 namespace Renci.SshNet
 {
@@ -130,11 +131,11 @@ namespace Renci.SshNet
 
                         if (version[0] == 4)
                         {
-                            this.HandleSocks4(clientSocket, channel);
+                            HandleSocks4(clientSocket, channel);
                         }
                         else if (version[0] == 5)
                         {
-                            this.HandleSocks5(clientSocket, channel);
+                            HandleSocks5(clientSocket, channel);
                         }
                         else
                         {
@@ -259,7 +260,7 @@ namespace Renci.SshNet
 
                 var host = ipAddress.ToString();
 
-                this.RaiseRequestReceived(host, port);
+                RaiseRequestReceived(host, port);
 
                 channel.Open(host, port, this, socket);
 
@@ -337,7 +338,7 @@ namespace Renci.SshNet
                             addressBuffer = new byte[length];
                             stream.Read(addressBuffer, 0, addressBuffer.Length);
 
-                            ipAddress = IPAddress.Parse(new Common.ASCIIEncoding().GetString(addressBuffer));
+                            ipAddress = IPAddress.Parse(new ASCIIEncoding().GetString(addressBuffer));
 
                             //var hostName = new Common.ASCIIEncoding().GetString(addressBuffer);
 
@@ -361,7 +362,7 @@ namespace Renci.SshNet
                 var port = (uint)(portBuffer[0] * 256 + portBuffer[1]);
                 var host = ipAddress.ToString();
 
-                this.RaiseRequestReceived(host, port);
+                RaiseRequestReceived(host, port);
 
                 channel.Open(host, port, this, socket);
 

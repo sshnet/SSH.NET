@@ -23,13 +23,13 @@ namespace Renci.SshNet.Common
             if (initialCount < 0 )
                 throw new ArgumentOutOfRangeException("initialCount", "The value cannot be negative.");
 
-            this._currentCount = initialCount;
+            _currentCount = initialCount;
         }
 
         /// <summary>
         /// Gets the current count of the <see cref="SemaphoreLight"/>.
         /// </summary>
-        public int CurrentCount { get { return this._currentCount; } }
+        public int CurrentCount { get { return _currentCount; } }
 
         /// <summary>
         /// Exits the <see cref="SemaphoreLight"/> once.
@@ -37,7 +37,7 @@ namespace Renci.SshNet.Common
         /// <returns>The previous count of the <see cref="SemaphoreLight"/>.</returns>
         public int Release()
         {
-            return this.Release(1);
+            return Release(1);
         }
 
         /// <summary>
@@ -47,13 +47,13 @@ namespace Renci.SshNet.Common
         /// <returns>The previous count of the <see cref="SemaphoreLight"/>.</returns>
         public int Release(int releaseCount)
         {
-            var oldCount = this._currentCount;
+            var oldCount = _currentCount;
 
-            lock (this._lock)
+            lock (_lock)
             {
-                this._currentCount += releaseCount;
+                _currentCount += releaseCount;
 
-                Monitor.Pulse(this._lock);
+                Monitor.Pulse(_lock);
             }
 
             return oldCount;
@@ -65,16 +65,16 @@ namespace Renci.SshNet.Common
         public void Wait()
         {
 
-            lock (this._lock)
+            lock (_lock)
             {
-                while (this._currentCount < 1)
+                while (_currentCount < 1)
                 {
-                    Monitor.Wait(this._lock);
+                    Monitor.Wait(_lock);
                 }
 
-                this._currentCount--;
+                _currentCount--;
 
-                Monitor.Pulse(this._lock);
+                Monitor.Pulse(_lock);
             }
         }
     }

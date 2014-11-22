@@ -18,7 +18,7 @@ namespace Renci.SshNet.Common
         /// <param name="exception">An System.Exception that represents the error that occurred.</param>
         public ExceptionEventArgs(Exception exception)
         {
-            this.Exception = exception;
+            Exception = exception;
         }
     }
 }

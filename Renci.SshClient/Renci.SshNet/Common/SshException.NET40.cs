@@ -7,7 +7,7 @@ namespace Renci.SshNet.Common
     /// The exception that is thrown when SSH exception occurs.
     /// </summary>
     [Serializable]
-    public partial class SshException : Exception
+    public partial class SshException
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="SshException"/> class.

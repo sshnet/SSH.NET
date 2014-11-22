@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 namespace Renci.SshNet.Common
 {
     [Serializable]
-    public partial class ProxyException : SshException
+    public partial class ProxyException
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ProxyException"/> class.

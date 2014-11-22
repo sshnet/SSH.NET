@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using Renci.SshNet.Common;
 
 namespace Renci.SshNet
 {
@@ -94,10 +95,10 @@ namespace Renci.SshNet
             boundPort.ValidatePort("boundPort");
             port.ValidatePort("port");
 
-            this.BoundHost = boundHost;
-            this.BoundPort = boundPort;
-            this.Host = host;
-            this.Port = port;
+            BoundHost = boundHost;
+            BoundPort = boundPort;
+            Host = host;
+            Port = port;
         }
 
         /// <summary>
@@ -105,7 +106,7 @@ namespace Renci.SshNet
         /// </summary>
         protected override void StartPort()
         {
-            this.InternalStart();
+            InternalStart();
         }
 
         /// <summary>

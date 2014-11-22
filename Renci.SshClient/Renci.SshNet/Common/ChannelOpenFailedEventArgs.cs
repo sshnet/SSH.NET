@@ -30,9 +30,9 @@
         public ChannelOpenFailedEventArgs(uint channelNumber, uint reasonCode, string description, string language)
             : base(channelNumber)
         {
-            this.ReasonCode = reasonCode;
-            this.Description = description;
-            this.Language = language;
+            ReasonCode = reasonCode;
+            Description = description;
+            Language = language;
         }
     }
 }

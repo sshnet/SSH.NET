@@ -1,16 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
-using System;
 using System.Globalization;
-using System.Text.RegularExpressions;
 using System.Net;
 
-namespace Renci.SshNet
+namespace Renci.SshNet.Common
 {
     /// <summary>
     /// Collection of different extension method
     /// </summary>
-    public static partial class Extensions
+    internal static partial class Extensions
     {
         /// <summary>
         /// Checks whether a collection is the same as another collection
@@ -34,8 +33,8 @@ namespace Renci.SshNet
             var enumerator1 = value.GetEnumerator();
             var enumerator2 = compareList.GetEnumerator();
 
-            bool enum1HasValue = enumerator1.MoveNext();
-            bool enum2HasValue = enumerator2.MoveNext();
+            var enum1HasValue = enumerator1.MoveNext();
+            var enum2HasValue = enumerator2.MoveNext();
 
             try
             {
@@ -94,7 +93,7 @@ namespace Renci.SshNet
         /// <returns>Data without leading zeros.</returns>
         internal static IEnumerable<byte> TrimLeadingZero(this IEnumerable<byte> data)
         {
-            bool leadingZero = true;
+            var leadingZero = true;
             foreach (var item in data)
             {
                 if (item == 0 & leadingZero)
@@ -127,7 +126,7 @@ namespace Renci.SshNet
         /// <returns>An array of bytes with length 2.</returns>
         internal static byte[] GetBytes(this UInt16 value)
         {
-            return new byte[] { (byte)(value >> 8), (byte)(value & 0xFF) };
+            return new[] {(byte) (value >> 8), (byte) (value & 0xFF)};
         }
 
         /// <summary>
@@ -137,7 +136,7 @@ namespace Renci.SshNet
         /// <returns>An array of bytes with length 4.</returns>
         internal static byte[] GetBytes(this UInt32 value)
         {
-            return new byte[] { (byte)(value >> 24), (byte)(value >> 16), (byte)(value >> 8), (byte)(value & 0xFF) };
+            return new[] {(byte) (value >> 24), (byte) (value >> 16), (byte) (value >> 8), (byte) (value & 0xFF)};
         }
 
         /// <summary>
@@ -147,7 +146,11 @@ namespace Renci.SshNet
         /// <returns>An array of bytes with length 8.</returns>
         internal static byte[] GetBytes(this UInt64 value)
         {
-            return new byte[] { (byte)(value >> 56), (byte)(value >> 48), (byte)(value >> 40), (byte)(value >> 32), (byte)(value >> 24), (byte)(value >> 16), (byte)(value >> 8), (byte)(value & 0xFF) };
+            return new[]
+                {
+                    (byte) (value >> 56), (byte) (value >> 48), (byte) (value >> 40), (byte) (value >> 32),
+                    (byte) (value >> 24), (byte) (value >> 16), (byte) (value >> 8), (byte) (value & 0xFF)
+                };
         }
 
         /// <summary>
@@ -157,7 +160,11 @@ namespace Renci.SshNet
         /// <returns>An array of bytes with length 8.</returns>
         internal static byte[] GetBytes(this Int64 value)
         {
-            return new byte[] { (byte)(value >> 56), (byte)(value >> 48), (byte)(value >> 40), (byte)(value >> 32), (byte)(value >> 24), (byte)(value >> 16), (byte)(value >> 8), (byte)(value & 0xFF) };
+            return new[]
+                {
+                    (byte) (value >> 56), (byte) (value >> 48), (byte) (value >> 40), (byte) (value >> 32),
+                    (byte) (value >> 24), (byte) (value >> 16), (byte) (value >> 8), (byte) (value & 0xFF)
+                };
         }
 
         internal static void ValidatePort(this uint value, string argument)

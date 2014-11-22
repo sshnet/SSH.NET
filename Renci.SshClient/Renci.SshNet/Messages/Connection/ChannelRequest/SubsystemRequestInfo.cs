@@ -34,7 +34,7 @@
         /// </summary>
         public SubsystemRequestInfo()
         {
-            this.WantReply = true;
+            WantReply = true;
         }
 
         /// <summary>
@@ -44,7 +44,7 @@
         public SubsystemRequestInfo(string subsystem)
             : this()
         {
-            this.SubsystemName = subsystem;
+            SubsystemName = subsystem;
         }
 
         /// <summary>
@@ -54,7 +54,7 @@
         {
             base.LoadData();
 
-            this.SubsystemName = this.ReadAsciiString();
+            SubsystemName = ReadAsciiString();
         }
 
         /// <summary>
@@ -64,7 +64,7 @@
         {
             base.SaveData();
 
-            this.WriteAscii(this.SubsystemName);
+            WriteAscii(SubsystemName);
         }
     }
 }

@@ -26,7 +26,6 @@
         /// </summary>
         public DisconnectMessage()
         {
-
         }
 
         /// <summary>
@@ -36,8 +35,8 @@
         /// <param name="message">The message.</param>
         public DisconnectMessage(DisconnectReason reasonCode, string message)
         {
-            this.ReasonCode = reasonCode;
-            this.Description = message;
+            ReasonCode = reasonCode;
+            Description = message;
         }
 
         /// <summary>
@@ -45,9 +44,9 @@
         /// </summary>
         protected override void LoadData()
         {
-            this.ReasonCode = (DisconnectReason)this.ReadUInt32();
-            this.Description = this.ReadString();
-            this.Language = this.ReadString();
+            ReasonCode = (DisconnectReason)ReadUInt32();
+            Description = ReadString();
+            Language = ReadString();
         }
 
         /// <summary>
@@ -55,9 +54,9 @@
         /// </summary>
         protected override void SaveData()
         {
-            this.Write((uint)this.ReasonCode);
-            this.Write(this.Description);
-            this.Write(this.Language ?? "en");
+            Write((uint)ReasonCode);
+            Write(Description);
+            Write(Language ?? "en");
         }
     }
 }

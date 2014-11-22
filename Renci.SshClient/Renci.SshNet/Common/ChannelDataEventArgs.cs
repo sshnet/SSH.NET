@@ -23,7 +23,7 @@
         public ChannelDataEventArgs(uint channelNumber, byte[] data)
             : base(channelNumber)
         {
-            this.Data = data;
+            Data = data;
         }
 
         /// <summary>
@@ -35,7 +35,7 @@
         public ChannelDataEventArgs(uint channelNumber, byte[] data, uint dataTypeCode)
             : this(channelNumber, data)
         {
-            this.DataTypeCode = dataTypeCode;
+            DataTypeCode = dataTypeCode;
         }
     }
 }

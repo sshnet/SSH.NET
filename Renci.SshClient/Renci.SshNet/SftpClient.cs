@@ -58,7 +58,7 @@ namespace Renci.SshNet
         /// Gets or sets the maximum size of the buffer in bytes.
         /// </summary>
         /// <value>
-        /// The size of the buffer. The default buffer size is 65536 bytes (64 KB).
+        /// The size of the buffer. The default buffer size is 32768 bytes (32 KB).
         /// </value>
         /// <remarks>
         /// <para>
@@ -229,7 +229,7 @@ namespace Renci.SshNet
             : base(connectionInfo, ownsConnectionInfo, serviceFactory)
         {
             OperationTimeout = new TimeSpan(0, 0, 0, 0, -1);
-            BufferSize = 1024 * 64;
+            BufferSize = 1024 * 32;
         }
 
         #endregion

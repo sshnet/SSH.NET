@@ -20,6 +20,11 @@
           * Added support for ssh.com (SSH-2) private keys (issue #1987)
           * Support an acceptable group of up to 8192 bits for SHA-1 and SHA-256 Diffie-Hellman Group and Key Exchange (issues #1973 and #1777)
 
+          Changes:
+
+          * Reduced default buffer size for SftpClient from 64 KB to 32 KB as a workaround for issues in specific SSH servers.
+            We'll be increasing the default buffer size again once the issues in the SSH servers are resolved.
+
           Fixes:
 
           * SftpClient is throwing undocumented exceptions (issue #2148)

@@ -11,7 +11,7 @@ using System.Runtime.InteropServices;
 
 [assembly: AssemblyVersion("2014.4.6")]
 [assembly: AssemblyFileVersion("2014.4.6")]
-[assembly: AssemblyInformationalVersion("2014.4.6-beta1")]
+[assembly: AssemblyInformationalVersion("2014.4.6-beta2")]
 [assembly: CLSCompliant(false)]
 
 // Setting ComVisible to false makes the types in this assembly not visible 

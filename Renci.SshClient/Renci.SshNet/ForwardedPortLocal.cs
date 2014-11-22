@@ -112,6 +112,7 @@ namespace Renci.SshNet
         /// Stops local port forwarding, and waits for the specified timeout until all pending
         /// requests are processed.
         /// </summary>
+        /// <param name="timeout">The maximum amount of time to wait for pending requests to finish processing.</param>
         protected override void StopPort(TimeSpan timeout)
         {
             if (IsStarted)

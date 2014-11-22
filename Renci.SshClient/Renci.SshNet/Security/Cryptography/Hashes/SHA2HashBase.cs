@@ -48,7 +48,7 @@ namespace Renci.SshNet.Security.Cryptography
         /// <summary>
         /// Initializes a new instance of the <see cref="SHA512Hash" /> class.
         /// </summary>
-        public SHA2HashBase()
+        protected SHA2HashBase()
         {
             this._buffer = new byte[8];
 

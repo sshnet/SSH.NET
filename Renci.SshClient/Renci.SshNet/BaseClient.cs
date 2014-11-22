@@ -257,22 +257,7 @@ namespace Renci.SshNet
         {
             CheckDisposed();
 
-            // only send keep-alive message when we still have a session
-            if (Session != null)
-            {
-                // do not send multiple keep-alive messages concurrently
-                if (Monitor.TryEnter(_keepAliveLock))
-                {
-                    try
-                    {
-                        Session.TrySendMessage(new IgnoreMessage());
-                    }
-                    finally
-                    {
-                        Monitor.Exit(_keepAliveLock);
-                    }
-                }
-            }
+            SendKeepAliveMessage();
         }
 
         /// <summary>
@@ -401,6 +386,26 @@ namespace Renci.SshNet
             _keepAliveTimer = null;
         }
 
+        private void SendKeepAliveMessage()
+        {
+            // do nothing if we have disposed or disconnected
+            if (Session == null)
+                return;
+
+            // do not send multiple keep-alive messages concurrently
+            if (Monitor.TryEnter(_keepAliveLock))
+            {
+                try
+                {
+                    Session.TrySendMessage(new IgnoreMessage());
+                }
+                finally
+                {
+                    Monitor.Exit(_keepAliveLock);
+                }
+            }
+        }
+
         /// <summary>
         /// Starts the keep-alive timer.
         /// </summary>
@@ -414,7 +419,7 @@ namespace Renci.SshNet
                 return;
 
             if (_keepAliveTimer == null)
-                _keepAliveTimer = new Timer(state => SendKeepAlive());
+                _keepAliveTimer = new Timer(state => SendKeepAliveMessage());
             _keepAliveTimer.Change(_keepAliveInterval, _keepAliveInterval);
         }
     }

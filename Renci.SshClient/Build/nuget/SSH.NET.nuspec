@@ -39,6 +39,7 @@
           * Dynamic port forwarding slows down to a crawl (issue #2010)
           * SendKeepAlive causes SocketException when connection is dropped (issue #2029)
           * SocketException on Dispose or Disconnect (issue #2400)
+          * Sending EOF on wrong channel number (issue #1877)
 
           2014.4.6-beta1
           ==============

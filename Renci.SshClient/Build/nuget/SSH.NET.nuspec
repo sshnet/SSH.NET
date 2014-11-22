@@ -40,6 +40,7 @@
           * SendKeepAlive causes SocketException when connection is dropped (issue #2029)
           * SocketException on Dispose or Disconnect (issue #2400)
           * Sending EOF on wrong channel number (issue #1877)
+          * ForwardedPortDynamic: Unhandled exception if client terminates socket (issue #1844)
 
           2014.4.6-beta1
           ==============

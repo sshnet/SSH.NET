@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Text;
 using Renci.SshNet.Common;
-using Renci.SshNet.NetConf;
 using Renci.SshNet.Sftp;
 
 namespace Renci.SshNet
@@ -9,7 +8,7 @@ namespace Renci.SshNet
     /// <summary>
     /// Basic factory for creating new services.
     /// </summary>
-    internal class ServiceFactory : IServiceFactory
+    internal partial class ServiceFactory : IServiceFactory
     {
         /// <summary>
         /// Creates a new <see cref="ISession"/> with the specified <see cref="ConnectionInfo"/>.
@@ -22,20 +21,6 @@ namespace Renci.SshNet
         public ISession CreateSession(ConnectionInfo connectionInfo)
         {
             return new Session(connectionInfo);
-        }
-
-        /// <summary>
-        /// Creates a new <see cref="INetConfSession"/> in a given <see cref="ISession"/>
-        /// and with the specified operation timeout.
-        /// </summary>
-        /// <param name="session">The <see cref="ISession"/> to create the <see cref="INetConfSession"/> in.</param>
-        /// <param name="operationTimeout">The operation timeout.</param>
-        /// <returns>
-        /// An <see cref="INetConfSession"/>.
-        /// </returns>
-        public INetConfSession CreateNetConfSession(ISession session, TimeSpan operationTimeout)
-        {
-            return new NetConfSession(session, operationTimeout);
         }
 
         /// <summary>

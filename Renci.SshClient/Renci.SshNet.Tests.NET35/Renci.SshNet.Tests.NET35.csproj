@@ -73,11 +73,38 @@
     <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelSessionTest_Close_Closed.cs">
       <Link>Classes\Channels\ChannelSessionTest_Close_Closed.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelSessionTest_Close_SessionIsConnectedAndChannelIsOpen.cs">
-      <Link>Classes\Channels\ChannelSessionTest_Close_SessionIsConnectedAndChannelIsOpen.cs</Link>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelSessionTest_Close_SessionIsConnectedAndChannelIsOpen_ChannelCloseAndChannelEofReceived_SendChannelCloseMessageFailure.cs">
+      <Link>Classes\Channels\ChannelSessionTest_Close_SessionIsConnectedAndChannelIsOpen_ChannelCloseAndChannelEofReceived_SendChannelCloseMessageFailure.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelSessionTest_Close_SessionIsConnectedAndChannelIsOpen_ChannelCloseReceived.cs">
-      <Link>Classes\Channels\ChannelSessionTest_Close_SessionIsConnectedAndChannelIsOpen_ChannelCloseReceived.cs</Link>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelSessionTest_Close_SessionIsConnectedAndChannelIsOpen_ChannelCloseAndChannelEofReceived_SendChannelCloseMessageSuccess.cs">
+      <Link>Classes\Channels\ChannelSessionTest_Close_SessionIsConnectedAndChannelIsOpen_ChannelCloseAndChannelEofReceived_SendChannelCloseMessageSuccess.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelSessionTest_Close_SessionIsConnectedAndChannelIsOpen_ChannelCloseReceived_SendChannelCloseMessageFailure.cs">
+      <Link>Classes\Channels\ChannelSessionTest_Close_SessionIsConnectedAndChannelIsOpen_ChannelCloseReceived_SendChannelCloseMessageFailure.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelSessionTest_Close_SessionIsConnectedAndChannelIsOpen_ChannelCloseReceived_SendChannelCloseMessageSuccess.cs">
+      <Link>Classes\Channels\ChannelSessionTest_Close_SessionIsConnectedAndChannelIsOpen_ChannelCloseReceived_SendChannelCloseMessageSuccess.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelSessionTest_Close_SessionIsConnectedAndChannelIsOpen_ChannelEofReceived_SendChannelCloseMessageFailure.cs">
+      <Link>Classes\Channels\ChannelSessionTest_Close_SessionIsConnectedAndChannelIsOpen_ChannelEofReceived_SendChannelCloseMessageFailure.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelSessionTest_Close_SessionIsConnectedAndChannelIsOpen_ChannelEofReceived_SendChannelCloseMessageSuccess.cs">
+      <Link>Classes\Channels\ChannelSessionTest_Close_SessionIsConnectedAndChannelIsOpen_ChannelEofReceived_SendChannelCloseMessageSuccess.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelSessionTest_Close_SessionIsConnectedAndChannelIsOpen_NoChannelCloseOrChannelEofReceived.cs">
+      <Link>Classes\Channels\ChannelSessionTest_Close_SessionIsConnectedAndChannelIsOpen_NoChannelCloseOrChannelEofReceived.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelSessionTest_Close_SessionIsConnectedAndChannelIsOpen_NoChannelCloseOrChannelEofReceived_SendChannelEofMessageFailure.cs">
+      <Link>Classes\Channels\ChannelSessionTest_Close_SessionIsConnectedAndChannelIsOpen_NoChannelCloseOrChannelEofReceived_SendChannelEofMessageFailure.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelSessionTest_Close_SessionIsNotConnectedAndChannelIsOpen_ChannelCloseAndChannelEofReceived.cs">
+      <Link>Classes\Channels\ChannelSessionTest_Close_SessionIsNotConnectedAndChannelIsOpen_ChannelCloseAndChannelEofReceived.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelSessionTest_Close_SessionIsNotConnectedAndChannelIsOpen_ChannelCloseReceived.cs">
+      <Link>Classes\Channels\ChannelSessionTest_Close_SessionIsNotConnectedAndChannelIsOpen_ChannelCloseReceived.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelSessionTest_Close_SessionIsNotConnectedAndChannelIsOpen_NoChannelCloseOrChannelEofReceived.cs">
+      <Link>Classes\Channels\ChannelSessionTest_Close_SessionIsNotConnectedAndChannelIsOpen_NoChannelCloseOrChannelEofReceived.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelSessionTest_Disposed_Closed.cs">
       <Link>Classes\Channels\ChannelSessionTest_Disposed_Closed.cs</Link>
@@ -1231,7 +1258,7 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" ProjectLinkReference="c45379b9-17b1-4e89-bc2e-6d41726413e8" />
+      <UserProperties ProjectLinkReference="c45379b9-17b1-4e89-bc2e-6d41726413e8" ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

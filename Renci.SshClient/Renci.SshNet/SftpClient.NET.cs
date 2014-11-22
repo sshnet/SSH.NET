@@ -10,7 +10,7 @@ namespace Renci.SshNet
     /// <summary>
     /// Implementation of the SSH File Transfer Protocol (SFTP) over SSH.
     /// </summary>
-    public partial class SftpClient : BaseClient
+    public partial class SftpClient
     {
         #region SynchronizeDirectories
 

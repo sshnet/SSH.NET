@@ -156,6 +156,7 @@
     <Compile Include="IConnectionInfo.cs" />
     <Compile Include="IForwardedPort.cs" />
     <Compile Include="IServiceFactory.cs" />
+    <Compile Include="IServiceFactory.NET.cs" />
     <Compile Include="ISession.cs" />
     <Compile Include="ISubsystemSession.cs" />
     <Compile Include="Messages\Transport\KeyExchangeEcdhInitMessage.cs" />
@@ -175,6 +176,7 @@
     <Compile Include="Security\KeyExchangeDiffieHellmanGroupExchangeShaBase.cs" />
     <Compile Include="Security\KeyExchangeEllipticCurveDiffieHellman.cs" />
     <Compile Include="ServiceFactory.cs" />
+    <Compile Include="ServiceFactory.NET.cs" />
     <Compile Include="Sftp\ISftpSession.cs" />
     <Compile Include="ShellStream.NET40.cs" />
     <Compile Include="ExpectAsyncResult.cs" />

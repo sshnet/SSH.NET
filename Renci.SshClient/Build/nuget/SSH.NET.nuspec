@@ -22,8 +22,7 @@
 
           Changes:
 
-          * Reduced default buffer size for SftpClient from 64 KB to 32 KB as a workaround for issues in specific SSH servers.
-            We'll be increasing the default buffer size again once the issues in the SSH servers are resolved.
+          * Reduced default buffer size for SftpClient from 64 KB to 32 KB as some SSH servers apply a hard limit of 64 KB at the transport level.
 
           Fixes:
 

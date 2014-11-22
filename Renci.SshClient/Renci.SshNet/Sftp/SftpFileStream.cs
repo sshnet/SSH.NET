@@ -14,7 +14,6 @@ namespace Renci.SshNet.Sftp
         //  TODO:   Add security method to set userid, groupid and other permission settings
         // Internal state.
         private byte[] _handle;
-        private readonly FileAccess _access;
         private readonly bool _ownsHandle;
         private readonly bool _isAsync;
         private ISftpSession _session;
@@ -211,15 +210,14 @@ namespace Renci.SshNet.Sftp
 
             // Initialize the object state.
             _session = session;
-            _access = access;
             _ownsHandle = true;
             _isAsync = useAsync;
             _bufferPosition = 0;
             _bufferLen = 0;
             _bufferOwnedByWrite = false;
-            _canRead = ((_access & FileAccess.Read) != 0);
+            _canRead = ((access & FileAccess.Read) != 0);
             _canSeek = true;
-            _canWrite = ((_access & FileAccess.Write) != 0);
+            _canWrite = ((access & FileAccess.Write) != 0);
             _position = 0;
             _serverFilePosition = 0;
 

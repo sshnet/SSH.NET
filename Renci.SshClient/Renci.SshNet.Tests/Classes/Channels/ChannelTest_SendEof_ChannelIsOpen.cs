@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Renci.SshNet.Common;
@@ -9,7 +8,7 @@ using Renci.SshNet.Messages.Connection;
 namespace Renci.SshNet.Tests.Classes.Channels
 {
     [TestClass]
-    public class ChannelTest_OnSessionChannelCloseReceived_SessionIsConnectedAndChannelIsOpen_EofNotReceived
+    public class ChannelTest_SendEof_ChannelIsOpen
     {
         private Mock<ISession> _sessionMock;
         private uint _localChannelNumber;
@@ -18,9 +17,9 @@ namespace Renci.SshNet.Tests.Classes.Channels
         private uint _remoteChannelNumber;
         private uint _remoteWindowSize;
         private uint _remotePacketSize;
-        private IList<ChannelEventArgs> _channelClosedRegister;
-        private IList<ExceptionEventArgs> _channelExceptionRegister;
         private ChannelStub _channel;
+        private List<ChannelEventArgs> _channelClosedRegister;
+        private IList<ExceptionEventArgs> _channelExceptionRegister;
 
         [TestInitialize]
         public void Initialize()
@@ -43,8 +42,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
 
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);
 
-            _sessionMock.Setup(p => p.IsConnected).Returns(true);
-            _sessionMock.Setup(p => p.TrySendMessage(It.Is<ChannelCloseMessage>(c => c.LocalChannelNumber == _remoteChannelNumber))).Returns(true);
+            _sessionMock.Setup(p => p.SendMessage(It.Is<ChannelEofMessage>(e => e.LocalChannelNumber == _remoteChannelNumber)));
 
             _channel = new ChannelStub(_sessionMock.Object, _localChannelNumber, _localWindowSize, _localPacketSize);
             _channel.Closed += (sender, args) => _channelClosedRegister.Add(args);
@@ -55,43 +53,27 @@ namespace Renci.SshNet.Tests.Classes.Channels
 
         private void Act()
         {
-            _sessionMock.Raise(p => p.ChannelCloseReceived += null,
-                new MessageEventArgs<ChannelCloseMessage>(new ChannelCloseMessage(_localChannelNumber)));
+            _channel.SendEof();
         }
 
         [TestMethod]
-        public void IsOpenShouldReturnFalse()
+        public void IsOpenShouldReturnTrue()
         {
-            Assert.IsFalse(_channel.IsOpen);
+            Assert.IsTrue(_channel.IsOpen);
         }
 
         [TestMethod]
-        public void TrySendMessageOnSessionShouldBeInvokedOnceForChannelCloseMessage()
+        public void SendMessageOnSessionShouldBeInvokedOnceWithChannelEofMessage()
         {
             _sessionMock.Verify(
-                p => p.TrySendMessage(It.Is<ChannelCloseMessage>(c => c.LocalChannelNumber == _remoteChannelNumber)),
+                p => p.SendMessage(It.Is<ChannelEofMessage>(e => e.LocalChannelNumber == _remoteChannelNumber)),
                 Times.Once);
         }
 
         [TestMethod]
-        public void TrySendMessageOnSessionShouldNeverBeInvokedForChannelEofMessage()
+        public void ClosedEventShouldNeverHaveFired()
         {
-            _sessionMock.Verify(
-                p => p.TrySendMessage(It.Is<ChannelEofMessage>(c => c.LocalChannelNumber == _remoteChannelNumber)),
-                Times.Never);
-        }
-
-        [TestMethod]
-        public void WaitOnHandleOnSessionShouldNeverBeInvoked()
-        {
-            _sessionMock.Verify(p => p.WaitOnHandle(It.IsAny<EventWaitHandle>()), Times.Never);
-        }
-
-        [TestMethod]
-        public void ClosedEventShouldHaveFiredOnce()
-        {
-            Assert.AreEqual(1, _channelClosedRegister.Count);
-            Assert.AreEqual(_localChannelNumber, _channelClosedRegister[0].ChannelNumber);
+            Assert.AreEqual(0, _channelClosedRegister.Count);
         }
 
         [TestMethod]

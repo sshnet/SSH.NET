@@ -86,6 +86,7 @@
     <Compile Include="Classes\Channels\ChannelSessionTest_Open_ExceptionWaitingOnOpenConfirmation.cs" />
     <Compile Include="Classes\Channels\ChannelSessionTest_Open_OnOpenFailureReceived_NoRetriesAvailable.cs" />
     <Compile Include="Classes\Channels\ChannelSessionTest_Open_OnOpenFailureReceived_RetriesAvalable.cs" />
+    <Compile Include="Classes\Channels\ChannelTest_Close_SessionIsConnectedAndChannelIsOpen_EofNotReceived_SendEofInvoked.cs" />
     <Compile Include="Classes\Channels\ChannelTest_Close_SessionIsConnectedAndChannelIsOpen_EofReceived.cs" />
     <Compile Include="Classes\Channels\ChannelTest_Close_SessionIsNotConnectedAndChannelIsOpen.cs" />
     <Compile Include="Classes\Channels\ChannelTest_OnSessionChannelCloseReceived_OnClose_Exception.cs" />
@@ -105,6 +106,8 @@
     <Compile Include="Classes\Channels\ChannelTest_OnSessionDisconnected_SessionIsConnectedAndChannelIsOpen.cs" />
     <Compile Include="Classes\Channels\ChannelStub.cs" />
     <Compile Include="Classes\Channels\ChannelTest_OnSessionErrorOccurred_OnErrorOccurred_Exception.cs" />
+    <Compile Include="Classes\Channels\ChannelTest_SendEof_ChannelIsNotOpen.cs" />
+    <Compile Include="Classes\Channels\ChannelTest_SendEof_ChannelIsOpen.cs" />
     <Compile Include="Classes\Channels\ClientChannelStub.cs" />
     <Compile Include="Classes\Channels\ClientChannelTest_OnSessionChannelOpenConfirmationReceived_OnOpenConfirmation_Exception.cs" />
     <Compile Include="Classes\Channels\ClientChannelTest_OnSessionChannelOpenFailureReceived_OnOpenFailure_Exception.cs" />

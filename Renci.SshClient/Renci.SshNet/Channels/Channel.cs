@@ -496,6 +496,19 @@ namespace Renci.SshNet.Channels
         }
 
         /// <summary>
+        /// Sends a SSH_MSG_CHANNEL_EOF message to the remote server.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">The channel is closed.</exception>
+        internal void SendEof()
+        {
+            if (!IsOpen)
+                throw CreateChannelClosedException();
+
+            _session.SendMessage(new ChannelEofMessage(RemoteChannelNumber));
+            _eofMessageSent = Sent;
+        }
+
+        /// <summary>
         /// Sends channel extended data message to the servers.
         /// </summary>
         /// <param name="message">Channel data message.</param>
@@ -850,6 +863,11 @@ namespace Renci.SshNet.Channels
         private InvalidOperationException CreateRemoteChannelInfoNotAvailableException()
         {
             throw new InvalidOperationException("The channel has not been opened, or the open has not yet been confirmed.");
+        }
+
+        private InvalidOperationException CreateChannelClosedException()
+        {
+            throw new InvalidOperationException("The channel is closed.");
         }
 
         #region IDisposable Members

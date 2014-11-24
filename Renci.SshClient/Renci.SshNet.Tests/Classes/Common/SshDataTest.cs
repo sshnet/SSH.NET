@@ -1,61 +1,52 @@
-﻿using Renci.SshNet.Common;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using Renci.SshNet.Tests.Common;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Tests.Classes.Common
 {
-    /// <summary>
-    ///This is a test class for SshDataTest and is intended
-    ///to contain all SshDataTest Unit Tests
-    ///</summary>
-    [TestClass()]
-    [Ignore] // placeholder for actual test
-    public class SshDataTest : TestBase
+    [TestClass]
+    public class SshDataTest
     {
-        internal virtual SshData CreateSshData()
+        [TestMethod]
+        public void Write_Boolean_False()
         {
-            // TODO: Instantiate an appropriate concrete class.
-            SshData target = null;
-            return target;
+            var sshData = new MySshData();
+            sshData.Load(new byte[0]);
+
+            sshData.Write(false);
+            Assert.AreEqual((byte) 0, sshData.ReadByte());
+            Assert.IsTrue(sshData.IsEndOfData);
         }
 
-        /// <summary>
-        ///A test for GetBytes
-        ///</summary>
-        [TestMethod()]
-        public void GetBytesTest()
+        [TestMethod]
+        public void Write_Boolean_True()
         {
-            SshData target = CreateSshData(); // TODO: Initialize to an appropriate value
-            byte[] expected = null; // TODO: Initialize to an appropriate value
-            byte[] actual;
-            actual = target.GetBytes();
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verify the correctness of this test method.");
+            var sshData = new MySshData();
+            sshData.Load(new byte[0]);
+
+            sshData.Write(true);
+            Assert.AreEqual((byte) 1, sshData.ReadByte());
+            Assert.IsTrue(sshData.IsEndOfData);
         }
 
-        /// <summary>
-        ///A test for Load
-        ///</summary>
-        [TestMethod()]
-        public void LoadTest()
+        private class MySshData : SshData
         {
-            SshData target = CreateSshData(); // TODO: Initialize to an appropriate value
-            byte[] value = null; // TODO: Initialize to an appropriate value
-            target.Load(value);
-            Assert.Inconclusive("A method that does not return a value cannot be verified.");
-        }
+            public new void Write(bool data)
+            {
+                base.Write(data);
+            }
 
-        /// <summary>
-        ///A test for IsEndOfData
-        ///</summary>
-        [TestMethod()]
-        public void IsEndOfDataTest()
-        {
-            SshData target = CreateSshData(); // TODO: Initialize to an appropriate value
-            bool actual;
-            actual = target.IsEndOfData;
-            Assert.Inconclusive("Verify the correctness of this test method.");
+            public new byte ReadByte()
+            {
+                return base.ReadByte();
+            }
+
+            protected override void LoadData()
+            {
+            }
+
+            protected override void SaveData()
+            {
+            }
         }
     }
 }

@@ -202,8 +202,7 @@ namespace Renci.SshNet.Common
         protected ulong ReadUInt64()
         {
             var data = ReadBytes(8);
-            return ((ulong) data[0] << 56 | (ulong) data[1] << 48 | (ulong) data[2] << 40 | (ulong) data[3] << 32 |
-                    (ulong) data[4] << 24 | (ulong) data[5] << 16 | (ulong) data[6] << 8 | data[7]);
+            return ((ulong)data[0] << 56 | (ulong)data[1] << 48 | (ulong)data[2] << 40 | (ulong)data[3] << 32 | (ulong)data[4] << 24 | (ulong)data[5] << 16 | (ulong)data[6] << 8 | data[7]);
         }
 
         /// <summary>
@@ -213,8 +212,7 @@ namespace Renci.SshNet.Common
         protected long ReadInt64()
         {
             var data = ReadBytes(8);
-            return data[0] << 56 | data[1] << 48 | data[2] << 40 | data[3] << 32 | data[4] << 24 | data[5] << 16 |
-                   data[6] << 8 | data[7];
+            return (int)(data[0] << 56 | data[1] << 48 | data[2] << 40 | data[3] << 32 | data[4] << 24 | data[5] << 16 | data[6] << 8 | data[7]);
         }
 
         /// <summary>
@@ -337,14 +335,14 @@ namespace Renci.SshNet.Common
         /// <param name="data">Boolean data to write.</param>
         protected void Write(bool data)
         {
-            Write(data ? 1 : 0);
+            Write(data ? (byte) 1 : (byte) 0);
         }
 
         /// <summary>
         /// Writes uint16 data into internal buffer.
         /// </summary>
         /// <param name="data">uint16 data to write.</param>
-        protected void Write(UInt16 data)
+        protected void Write(ushort data)
         {
             Write(data.GetBytes());
         }
@@ -353,7 +351,7 @@ namespace Renci.SshNet.Common
         /// Writes uint32 data into internal buffer.
         /// </summary>
         /// <param name="data">uint32 data to write.</param>
-        protected void Write(UInt32 data)
+        protected void Write(uint data)
         {
             Write(data.GetBytes());
         }
@@ -362,7 +360,7 @@ namespace Renci.SshNet.Common
         /// Writes uint64 data into internal buffer.
         /// </summary>
         /// <param name="data">uint64 data to write.</param>
-        protected void Write(UInt64 data)
+        protected void Write(ulong data)
         {
             Write(data.GetBytes());
         }
@@ -371,7 +369,7 @@ namespace Renci.SshNet.Common
         /// Writes int64 data into internal buffer.
         /// </summary>
         /// <param name="data">int64 data to write.</param>
-        protected void Write(Int64 data)
+        protected void Write(long data)
         {
             Write(data.GetBytes());
         }

@@ -78,5 +78,11 @@ namespace Renci.SshNet.Channels
         /// </summary>
         /// <param name="data">The payload to send.</param>
         void SendData(byte[] data);
+
+        /// <summary>
+        /// Sends a SSH_MSG_CHANNEL_EOF message to the remote server.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">The channel is closed.</exception>
+        void SendEof();
     }
 }

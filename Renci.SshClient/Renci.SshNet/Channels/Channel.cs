@@ -499,7 +499,7 @@ namespace Renci.SshNet.Channels
         /// Sends a SSH_MSG_CHANNEL_EOF message to the remote server.
         /// </summary>
         /// <exception cref="InvalidOperationException">The channel is closed.</exception>
-        internal void SendEof()
+        public void SendEof()
         {
             if (!IsOpen)
                 throw CreateChannelClosedException();

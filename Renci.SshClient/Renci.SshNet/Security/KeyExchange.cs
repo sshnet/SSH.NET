@@ -382,10 +382,42 @@ namespace Renci.SshNet.Security
 
         private class _SessionKeyGeneration : SshData
         {
+#if TUNING
+            private byte[] _sharedKey;
+
+            public BigInteger SharedKey
+            {
+                private get { return _sharedKey.ToBigInteger(); }
+                set { _sharedKey = value.ToByteArray().Reverse(); }
+            }
+#else
             public BigInteger SharedKey { get; set; }
+#endif
             public byte[] ExchangeHash { get; set; }
             public char Char { get; set; }
             public byte[] SessionId { get; set; }
+
+#if TUNING
+            /// <summary>
+            /// Gets the size of the message in bytes.
+            /// </summary>
+            /// <value>
+            /// The size of the messages in bytes.
+            /// </value>
+            protected override int BufferCapacity
+            {
+                get
+                {
+                    var capacity = base.BufferCapacity;
+                    capacity += 4; // SharedKey length
+                    capacity += _sharedKey.Length; // SharedKey
+                    capacity += ExchangeHash.Length; // ExchangeHash
+                    capacity += 1; // Char
+                    capacity += SessionId.Length; // SessionId
+                    return capacity;
+                }
+            }
+#endif
 
             protected override void LoadData()
             {
@@ -394,7 +426,11 @@ namespace Renci.SshNet.Security
 
             protected override void SaveData()
             {
+#if TUNING
+                WriteBinaryString(_sharedKey);
+#else
                 this.Write(this.SharedKey);
+#endif
                 this.Write(this.ExchangeHash);
                 this.Write((byte)this.Char);
                 this.Write(this.SessionId);
@@ -403,9 +439,40 @@ namespace Renci.SshNet.Security
 
         private class _SessionKeyAdjustment : SshData
         {
+#if TUNING
+            private byte[] _sharedKey;
+
+            public BigInteger SharedKey
+            {
+                private get { return _sharedKey.ToBigInteger(); }
+                set { _sharedKey = value.ToByteArray().Reverse(); }
+            }
+#else
             public BigInteger SharedKey { get; set; }
+#endif
             public byte[] ExcahngeHash { get; set; }
             public byte[] Key { get; set; }
+
+#if TUNING
+            /// <summary>
+            /// Gets the size of the message in bytes.
+            /// </summary>
+            /// <value>
+            /// The size of the messages in bytes.
+            /// </value>
+            protected override int BufferCapacity
+            {
+                get
+                {
+                    var capacity = base.BufferCapacity;
+                    capacity += 4; // SharedKey length
+                    capacity += _sharedKey.Length; // SharedKey
+                    capacity += ExcahngeHash.Length; // ExchangeHash
+                    capacity += Key.Length; // Key
+                    return capacity;
+                }
+            }
+#endif
 
             protected override void LoadData()
             {
@@ -414,7 +481,11 @@ namespace Renci.SshNet.Security
 
             protected override void SaveData()
             {
+#if TUNING
+                WriteBinaryString(_sharedKey);
+#else
                 this.Write(this.SharedKey);
+#endif
                 this.Write(this.ExcahngeHash);
                 this.Write(this.Key);
             }

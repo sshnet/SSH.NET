@@ -6,32 +6,47 @@ namespace Renci.SshNet.Sftp.Requests
 {
     internal class StatVfsRequest : SftpExtendedRequest
     {
-        public override SftpMessageTypes SftpMessageType
-        {
-            get { return SftpMessageTypes.Extended; }
-        }
+        private byte[] _path;
 
-        public override string Name
+        public string Path
         {
-            get { return "statvfs@openssh.com"; }
+            get { return Encoding.GetString(_path); }
+            private set { _path = Encoding.GetBytes(value); }
         }
-
-        public string Path { get; private set; }
 
         public Encoding Encoding { get; private set; }
 
-        public StatVfsRequest(uint protocolVersion, uint requestId, string path, Encoding encoding, Action<SftpExtendedReplyResponse> extendedAction, Action<SftpStatusResponse> statusAction)
-            : base(protocolVersion, requestId, statusAction)
+#if TUNING
+        /// <summary>
+        /// Gets the size of the message in bytes.
+        /// </summary>
+        /// <value>
+        /// The size of the messages in bytes.
+        /// </value>
+        protected override int BufferCapacity
         {
-            this.Path = path;
-            this.Encoding = encoding;
-            this.SetAction(extendedAction);
+            get
+            {
+                var capacity = base.BufferCapacity;
+                capacity += 4; // Path length
+                capacity += _path.Length; // Path
+                return capacity;
+            }
+        }
+#endif
+
+        public StatVfsRequest(uint protocolVersion, uint requestId, string path, Encoding encoding, Action<SftpExtendedReplyResponse> extendedAction, Action<SftpStatusResponse> statusAction)
+            : base(protocolVersion, requestId, statusAction, "statvfs@openssh.com")
+        {
+            Encoding = encoding;
+            Path = path;
+            SetAction(extendedAction);
         }
 
         protected override void SaveData()
         {
             base.SaveData();
-            this.Write(this.Path, this.Encoding);
+            WriteBinaryString(_path);
         }
     }
 }

@@ -22,7 +22,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;TUNING</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Debug\Renci.SshNet.xml</DocumentationFile>
@@ -31,7 +31,8 @@
     <DebugType>none</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>
+    </DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Release\Renci.SshNet.xml</DocumentationFile>
@@ -85,6 +86,7 @@
     </Compile>
     <Compile Include="Common\ChannelDataEventArgs.cs" />
     <Compile Include="Common\ChannelEventArgs.cs" />
+    <Compile Include="Common\ChannelExtendedDataEventArgs.cs" />
     <Compile Include="Common\ChannelOpenConfirmedEventArgs.cs" />
     <Compile Include="Common\ChannelOpenFailedEventArgs.cs" />
     <Compile Include="Common\ChannelRequestEventArgs.cs" />
@@ -178,6 +180,7 @@
     <Compile Include="ServiceFactory.cs" />
     <Compile Include="ServiceFactory.NET.cs" />
     <Compile Include="Sftp\ISftpSession.cs" />
+    <Compile Include="Common\SshDataStream.cs" />
     <Compile Include="ShellStream.NET40.cs" />
     <Compile Include="ExpectAsyncResult.cs" />
     <Compile Include="Security\KeyExchangeDiffieHellmanGroupSha1.cs" />
@@ -450,9 +453,6 @@
     <Compile Include="Sftp\Responses\SftpResponse.cs" />
     <Compile Include="Sftp\Responses\SftpStatusResponse.cs" />
     <Compile Include="Sftp\Responses\SftpVersionResponse.cs" />
-    <Compile Include="Sftp\SftpDataMessage.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Sftp\SftpDownloadAsyncResult.cs" />
     <Compile Include="Sftp\SftpFile.cs" />
     <Compile Include="Sftp\SftpFileAttributes.cs" />

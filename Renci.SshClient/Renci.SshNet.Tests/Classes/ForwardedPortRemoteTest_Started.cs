@@ -180,28 +180,6 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
-        public void ForwardedPortShouldIgnoreChannelOpenMessageWhenChannelOpenInfoIsNull()
-        {
-            var channelNumber = (uint)new Random().Next(1001, int.MaxValue);
-            var initialWindowSize = (uint)new Random().Next(0, int.MaxValue);
-            var maximumPacketSize = (uint)new Random().Next(0, int.MaxValue);
-            var channelMock = new Mock<IChannelForwardedTcpip>(MockBehavior.Strict);
-
-            _sessionMock.Setup(
-                p =>
-                    p.CreateChannelForwardedTcpip(channelNumber, initialWindowSize, maximumPacketSize)).Returns(channelMock.Object);
-
-            _sessionMock.Raise(p => p.ChannelOpenReceived += null,
-                new MessageEventArgs<ChannelOpenMessage>(new ChannelOpenMessage(channelNumber, initialWindowSize,
-                    maximumPacketSize, null)));
-
-            _sessionMock.Verify(p => p.CreateChannelForwardedTcpip(channelNumber, initialWindowSize, maximumPacketSize), Times.Never);
-
-            Assert.AreEqual(0, _closingRegister.Count);
-            Assert.AreEqual(0, _exceptionRegister.Count);
-        }
-
-        [TestMethod]
         public void ForwardedPortShouldIgnoreChannelOpenMessageWhenChannelOpenInfoIsNotForwardedTcpipChannelInfo()
         {
             var channelNumber = (uint)new Random().Next(1001, int.MaxValue);
@@ -215,7 +193,7 @@ namespace Renci.SshNet.Tests.Classes
 
             _sessionMock.Raise(p => p.ChannelOpenReceived += null,
                 new MessageEventArgs<ChannelOpenMessage>(new ChannelOpenMessage(channelNumber, initialWindowSize,
-                    maximumPacketSize, new DirectTcpipChannelInfo())));
+                    maximumPacketSize, new DirectTcpipChannelInfo("HOST", 5, "ORIGIN", 4))));
 
             _sessionMock.Verify(p => p.CreateChannelForwardedTcpip(channelNumber, initialWindowSize, maximumPacketSize), Times.Never);
 

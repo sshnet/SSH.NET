@@ -6,26 +6,12 @@
     internal class RequestMessageNone : RequestMessage
     {
         /// <summary>
-        /// Gets the name of the authentication method.
-        /// </summary>
-        /// <value>
-        /// The name of the method.
-        /// </value>
-        public override string MethodName
-        {
-            get
-            {
-                return "none";
-            }
-        }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="RequestMessagePassword"/> class.
         /// </summary>
         /// <param name="serviceName">Name of the service.</param>
         /// <param name="username">Authentication username.</param>
         public RequestMessageNone(ServiceName serviceName, string username)
-            : base(serviceName, username)
+            : base(serviceName, username, "none")
         {
         }
     }

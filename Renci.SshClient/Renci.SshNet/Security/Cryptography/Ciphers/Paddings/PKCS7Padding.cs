@@ -18,12 +18,24 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers.Paddings
         public override byte[] Pad(int blockSize, byte[] input)
         {
             var numOfPaddedBytes = blockSize - (input.Length % blockSize);
+            return Pad(input, numOfPaddedBytes);
+        }
 
-            var output = new byte[input.Length + numOfPaddedBytes];
+        /// <summary>
+        /// Pads specified input with a given number of bytes to match the block size.
+        /// </summary>
+        /// <param name="input">The input.</param>
+        /// <param name="length">The number of bytes to pad the input with.</param>
+        /// <returns>
+        /// The padded data array.
+        /// </returns>
+        public override byte[] Pad(byte[] input, int length)
+        {
+            var output = new byte[input.Length + length];
             Buffer.BlockCopy(input, 0, output, 0, input.Length);
-            for (int i = 0; i < numOfPaddedBytes; i++)
+            for (var i = 0; i < length; i++)
             {
-                output[input.Length + i] = (byte)numOfPaddedBytes;
+                output[input.Length + i] = (byte) length;
             }
 
             return output;

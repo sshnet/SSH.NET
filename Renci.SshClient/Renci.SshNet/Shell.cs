@@ -151,7 +151,11 @@ namespace Renci.SshNet
                             var read = _input.EndRead(result);
                             if (read > 0)
                             {
+#if TUNING
+                                _channel.SendData(buffer, 0, read);
+#else
                                 _channel.SendData(buffer.Take(read).ToArray());
+#endif
                             }
 
                         }, null);
@@ -217,7 +221,7 @@ namespace Renci.SshNet
             Stop();
         }
 
-        private void Channel_ExtendedDataReceived(object sender, ChannelDataEventArgs e)
+        private void Channel_ExtendedDataReceived(object sender, ChannelExtendedDataEventArgs e)
         {
             if (_extendedOutputStream != null)
             {

@@ -87,7 +87,6 @@ namespace Renci.SshNet.Tests.Classes
 
             var received = _subsystemSession.OnDataReceivedInvocations[0];
             Assert.AreEqual(_channelDataEventArgs.Data, received.Data);
-            Assert.AreEqual(_channelDataEventArgs.DataTypeCode, received.DataTypeCode);
         }
     }
 }

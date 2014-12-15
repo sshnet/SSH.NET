@@ -126,6 +126,20 @@ namespace Renci.SshNet.Messages.Transport
 
         #endregion
 
+#if TUNING
+        /// <summary>
+        /// Gets the size of the message in bytes.
+        /// </summary>
+        /// <value>
+        /// <c>-1</c> to indicate that the size of the message cannot be determined,
+        /// or is too costly to calculate.
+        /// </value>
+        protected override int BufferCapacity
+        {
+            get { return -1; }
+        }
+#endif
+
         /// <summary>
         /// Called when type specific data need to be loaded.
         /// </summary>

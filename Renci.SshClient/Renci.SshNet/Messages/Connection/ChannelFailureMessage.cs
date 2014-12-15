@@ -19,8 +19,8 @@
         /// </summary>
         /// <param name="localChannelNumber">The local channel number.</param>
         public ChannelFailureMessage(uint localChannelNumber)
+            : base(localChannelNumber)
         {
-            LocalChannelNumber = localChannelNumber;
         }
     }
 }

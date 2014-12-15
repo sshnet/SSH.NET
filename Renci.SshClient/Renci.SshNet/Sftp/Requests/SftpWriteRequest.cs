@@ -16,20 +16,60 @@ namespace Renci.SshNet.Sftp.Requests
 
         public byte[] Data { get; private set; }
 
-        public SftpWriteRequest(uint protocolVersion, uint requestId, byte[] handle, UInt64 offset, byte[] data, Action<SftpStatusResponse> statusAction)
+#if TUNING
+        public int Length { get; private set; }
+
+        protected override int BufferCapacity
+        {
+            get
+            {
+                var capacity = base.BufferCapacity;
+                capacity += 4; // Handle length
+                capacity += Handle.Length; // Handle
+                capacity += 8; // Offset length
+                capacity += 4; // Data length
+                capacity += Length; // Data
+                return capacity;
+            }
+        }
+#endif
+
+        public SftpWriteRequest(uint protocolVersion,
+                                uint requestId,
+                                byte[] handle,
+                                UInt64 offset,
+                                byte[] data,
+#if TUNING
+                                int length,
+#endif
+                                Action<SftpStatusResponse> statusAction)
             : base(protocolVersion, requestId, statusAction)
         {
             this.Handle = handle;
             this.Offset = offset;
             this.Data = data;
+#if TUNING
+            this.Length = length;
+#endif
         }
 
         protected override void LoadData()
         {
             base.LoadData();
+#if TUNING
+            this.Handle = this.ReadBinary();
+#else
             this.Handle = this.ReadBinaryString();
+#endif
             this.Offset = this.ReadUInt64();
+#if TUNING
+            this.Data = this.ReadBinary();
+#else
             this.Data = this.ReadBinaryString();
+#endif
+#if TUNING
+            this.Length = this.Data.Length;
+#endif
         }
 
         protected override void SaveData()
@@ -37,7 +77,11 @@ namespace Renci.SshNet.Sftp.Requests
             base.SaveData();
             this.WriteBinaryString(this.Handle);
             this.Write(this.Offset);
+#if TUNING
+            this.WriteBinary(this.Data, 0, Length);
+#else
             this.WriteBinaryString(this.Data);
+#endif
         }
     }
 }

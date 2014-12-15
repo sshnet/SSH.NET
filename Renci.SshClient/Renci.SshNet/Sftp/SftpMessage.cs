@@ -1,6 +1,11 @@
 ﻿using System;
+#if !TUNING
 using System.Collections.Generic;
+#endif
+using System.IO;
+#if !TUNING
 using System.Linq;
+#endif
 using Renci.SshNet.Common;
 using System.Globalization;
 using Renci.SshNet.Sftp.Responses;
@@ -12,7 +17,11 @@ namespace Renci.SshNet.Sftp
     {
         public static SftpMessage Load(uint protocolVersion, byte[] data, Encoding encoding)
         {
+#if TUNING
+            var messageType = (SftpMessageTypes) data[4]; // skip packet length bytes
+#else
             var messageType = (SftpMessageTypes)data.FirstOrDefault();
+#endif
 
             return Load(protocolVersion, data, messageType, encoding);
         }
@@ -21,9 +30,28 @@ namespace Renci.SshNet.Sftp
         {
             get
             {
+#if TUNING
+                // 4 bytes for the length of the SFTP data
+                // 1 byte for the SFTP message type
+                return 5;
+#else
                 return 1;
+#endif
             }
         }
+
+#if TUNING
+        /// <summary>
+        /// Gets the size of the message in bytes.
+        /// </summary>
+        /// <value>
+        /// The size of the messages in bytes.
+        /// </value>
+        protected override int BufferCapacity
+        {
+            get { return ZeroReaderIndex; }
+        }
+#endif
 
         public abstract SftpMessageTypes SftpMessageType { get; }
 
@@ -36,9 +64,44 @@ namespace Renci.SshNet.Sftp
             Write((byte) SftpMessageType);
         }
 
+#if TUNING
+        /// <summary>
+        /// Writes the current message to the specified <see cref="SshDataStream"/>.
+        /// </summary>
+        /// <param name="stream">The <see cref="SshDataStream"/> to write the message to.</param>
+        protected override void WriteBytes(SshDataStream stream)
+        {
+            const int sizeOfDataLengthBytes = 4;
+
+            var startPosition = stream.Position;
+
+            // skip 4 bytes for the length of the SFTP message data
+            stream.Seek(sizeOfDataLengthBytes, SeekOrigin.Current);
+
+            // write the SFTP message data to the stream
+            base.WriteBytes(stream);
+
+            // save where we were positioned when we finished writing the SSH message data
+            var endPosition = stream.Position;
+
+            // determine the length of the SSH message data
+            var dataLength = endPosition - startPosition - sizeOfDataLengthBytes;
+
+            // write the length of the SFTP message where we were positioned before we started
+            // writing the SFTP message data
+            stream.Position = startPosition;
+            stream.Write((uint) dataLength);
+
+            // move back to we were positioned when we finished writing the SFTP message data
+            stream.Position = endPosition;
+        }
+#endif
+
         protected SftpFileAttributes ReadAttributes()
         {
-
+#if TUNING
+            return SftpFileAttributes.FromBytes(DataStream);
+#else
             var flag = ReadUInt32();
 
             long size = -1;
@@ -82,8 +145,10 @@ namespace Renci.SshNet.Sftp
             var attributes = new SftpFileAttributes(accessTime, modifyTime, size, userId, groupId, permissions, extensions);
 
             return attributes;
+#endif
         }
 
+#if !TUNING
         protected void Write(SftpFileAttributes attributes)
         {
             if (attributes == null)
@@ -150,6 +215,7 @@ namespace Renci.SshNet.Sftp
                 Write(attributes.Extensions);
             }
         }
+#endif
 
         private static SftpMessage Load(uint protocolVersion, byte[] data, SftpMessageTypes messageType, Encoding encoding)
         {
@@ -182,11 +248,15 @@ namespace Renci.SshNet.Sftp
                     throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "Message type '{0}' is not supported.", messageType));
             }
 
+#if TUNING
+            message.Load(data);
+#else
             message.LoadBytes(data);
 
             message.ResetReader();
 
             message.LoadData();
+#endif
 
             return message;
         }

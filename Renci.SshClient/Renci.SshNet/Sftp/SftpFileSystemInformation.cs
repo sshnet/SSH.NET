@@ -1,21 +1,30 @@
-﻿namespace Renci.SshNet.Sftp
+﻿using Renci.SshNet.Common;
+
+namespace Renci.SshNet.Sftp
 {
     /// <summary>
     /// Contains File system information exposed by statvfs@openssh.com request.
     /// </summary>
     public class SftpFileSytemInformation
     {
-        private readonly ulong _flag;
+        internal const ulong SSH_FXE_STATVFS_ST_RDONLY = 0x1;
+        internal const ulong SSH_FXE_STATVFS_ST_NOSUID = 0x2;
 
-        private const ulong SSH_FXE_STATVFS_ST_RDONLY = 0x1;
-
-        private const ulong SSH_FXE_STATVFS_ST_NOSUID = 0x2;
+        private ulong _flag;
 
         /// <summary>
-        /// Gets the size of the block.
+        /// Gets the file system block size.
         /// </summary>
         /// <value>
-        /// The size of the block.
+        /// The file system block size.
+        /// </value>
+        public ulong FileSystemBlockSize { get; private set; }
+
+        /// <summary>
+        /// Gets the fundamental file system size of the block.
+        /// </summary>
+        /// <value>
+        /// The fundamental file system block size.
         /// </value>
         public ulong BlockSize { get; private set; }
 
@@ -121,6 +130,7 @@
         /// <param name="namemax">The namemax.</param>
         internal SftpFileSytemInformation(ulong bsize, ulong frsize, ulong blocks, ulong bfree, ulong bavail, ulong files, ulong ffree, ulong favail, ulong sid, ulong flag, ulong namemax)
         {
+            FileSystemBlockSize = bsize;
             BlockSize = frsize;
             TotalBlocks = blocks;
             FreeBlocks = bfree;

@@ -8,7 +8,7 @@ namespace Renci.SshNet.Sftp.Responses
 
         public uint ProtocolVersion { get; private set; }
 
-        public SftpResponse(uint protocolVersion)
+        protected SftpResponse(uint protocolVersion)
         {
             this.ProtocolVersion = protocolVersion;
         }

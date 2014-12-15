@@ -6,20 +6,6 @@
     internal class RequestMessagePassword : RequestMessage
     {
         /// <summary>
-        /// Gets the name of the authentication method.
-        /// </summary>
-        /// <value>
-        /// The name of the method.
-        /// </value>
-        public override string MethodName
-        {
-            get
-            {
-                return "password";
-            }
-        }
-
-        /// <summary>
         /// Gets authentication password.
         /// </summary>
         public byte[] Password { get; private set; }
@@ -29,6 +15,33 @@
         /// </summary>
         public byte[] NewPassword { get; private set; }
 
+#if TUNING
+        /// <summary>
+        /// Gets the size of the message in bytes.
+        /// </summary>
+        /// <value>
+        /// The size of the messages in bytes.
+        /// </value>
+        protected override int BufferCapacity
+        {
+            get
+            {
+                var capacity = base.BufferCapacity;
+                capacity += 1; // NewPassword flag
+                capacity += 4; // Password length
+                capacity += Password.Length; // Password
+
+                if (NewPassword != null)
+                {
+                    capacity += 4; // NewPassword length
+                    capacity += NewPassword.Length; // NewPassword
+                }
+
+                return capacity;
+            }
+        }
+#endif
+
         /// <summary>
         /// Initializes a new instance of the <see cref="RequestMessagePassword"/> class.
         /// </summary>
@@ -36,7 +49,7 @@
         /// <param name="username">Authentication username.</param>
         /// <param name="password">Authentication password.</param>
         public RequestMessagePassword(ServiceName serviceName, string username, byte[] password)
-            : base(serviceName, username)
+            : base(serviceName, username, "password")
         {
             Password = password;
         }
@@ -62,14 +75,10 @@
             base.SaveData();
 
             Write(NewPassword != null);
-
-            Write((uint)Password.Length);
-            Write(Password);
-
+            WriteBinaryString(Password);
             if (NewPassword != null)
             {
-                Write((uint)NewPassword.Length);
-                Write(NewPassword);
+                WriteBinaryString(NewPassword);
             }
         }
     }

@@ -86,14 +86,15 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// Encrypts the specified input.
         /// </summary>
         /// <param name="input">The input.</param>
+        /// <param name="offset">The zero-based offset in <paramref name="input"/> at which to begin encrypting.</param>
+        /// <param name="length">The number of bytes to encrypt from <paramref name="input"/>.</param>
         /// <returns>
         /// Encrypted data.
         /// </returns>
-        /// <exception cref="System.NotImplementedException"></exception>
-        public override byte[] Encrypt(byte[] input)
+        public override byte[] Encrypt(byte[] input, int offset, int length)
         {
-            var output = new byte[input.Length];
-            this.ProcessBytes(input, 0, input.Length, output, 0);
+            var output = new byte[length];
+            this.ProcessBytes(input, offset, length, output, 0);
             return output;
         }
 
@@ -104,7 +105,6 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <returns>
         /// Decrypted data.
         /// </returns>
-        /// <exception cref="System.NotImplementedException"></exception>
         public override byte[] Decrypt(byte[] input)
         {
             var output = new byte[input.Length];

@@ -1,4 +1,5 @@
 ﻿using System;
+using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Messages.Connection
 {
@@ -8,13 +9,25 @@ namespace Renci.SshNet.Messages.Connection
     [Message("SSH_MSG_GLOBAL_REQUEST", 80)]
     public class GlobalRequestMessage : Message
     {
+#if TUNING
+        private byte[] _requestName;
+        private byte[] _addressToBind;
+#endif
+
         /// <summary>
         /// Gets the name of the request.
         /// </summary>
         /// <value>
         /// The name of the request.
         /// </value>
+#if TUNING
+        public GlobalRequestName RequestName
+        {
+            get { return _requestName.ToGlobalRequestName(); }
+        }
+#else
         public GlobalRequestName RequestName { get; private set; }
+#endif
 
         /// <summary>
         /// Gets a value indicating whether message reply should be sent..
@@ -27,13 +40,44 @@ namespace Renci.SshNet.Messages.Connection
         /// <summary>
         /// Gets the address to bind to.
         /// </summary>
+#if TUNING
+        public string AddressToBind
+        {
+            get { return Utf8.GetString(_addressToBind); }
+            private set { _addressToBind = Utf8.GetBytes(value); }
+        }
+#else
         public string AddressToBind { get; private set; }
         //  TODO:   Extract AddressToBind property to be in different class and GlobalREquestMessage to be a base class fo it.
+#endif
 
         /// <summary>
         /// Gets port number to bind to.
         /// </summary>
         public UInt32 PortToBind { get; private set; }
+
+#if TUNING
+        /// <summary>
+        /// Gets the size of the message in bytes.
+        /// </summary>
+        /// <value>
+        /// The size of the messages in bytes.
+        /// </value>
+        protected override int BufferCapacity
+        {
+            get
+            {
+                var capacity = base.BufferCapacity;
+                capacity += 4; // RequestName length
+                capacity += _requestName.Length; // RequestName
+                capacity += 1; // WantReply
+                capacity += 4; // AddressToBind length
+                capacity += _addressToBind.Length; // AddressToBind
+                capacity += 4; // PortToBind
+                return capacity;
+            }
+        }
+#endif
 
         /// <summary>
         /// Initializes a new instance of the <see cref="GlobalRequestMessage"/> class.
@@ -43,6 +87,7 @@ namespace Renci.SshNet.Messages.Connection
 
         }
 
+#if !TUNING
         /// <summary>
         /// Initializes a new instance of the <see cref="GlobalRequestMessage"/> class.
         /// </summary>
@@ -53,6 +98,7 @@ namespace Renci.SshNet.Messages.Connection
             RequestName = requestName;
             WantReply = wantReply;
         }
+#endif
 
         /// <summary>
         /// Initializes a new instance of the <see cref="GlobalRequestMessage"/> class.
@@ -62,8 +108,14 @@ namespace Renci.SshNet.Messages.Connection
         /// <param name="addressToBind">The address to bind.</param>
         /// <param name="portToBind">The port to bind.</param>
         public GlobalRequestMessage(GlobalRequestName requestName, bool wantReply, string addressToBind, uint portToBind)
+#if !TUNING
             : this(requestName, wantReply)
+#endif
         {
+#if TUNING
+            _requestName = requestName.ToArray();
+            WantReply = wantReply;
+#endif
             AddressToBind = addressToBind;
             PortToBind = portToBind;
         }
@@ -73,10 +125,18 @@ namespace Renci.SshNet.Messages.Connection
         /// </summary>
         protected override void LoadData()
         {
+#if TUNING
+            _requestName = ReadBinary();
+#else
             var requestName = ReadAsciiString();
+#endif
 
             WantReply = ReadBoolean();
 
+#if TUNING
+            _addressToBind = ReadBinary();
+            PortToBind = ReadUInt32();
+#else
             switch (requestName)
             {
                 case "tcpip-forward":
@@ -90,6 +150,7 @@ namespace Renci.SshNet.Messages.Connection
                     PortToBind = ReadUInt32();
                     break;
             }
+#endif
         }
 
         /// <summary>
@@ -97,6 +158,9 @@ namespace Renci.SshNet.Messages.Connection
         /// </summary>
         protected override void SaveData()
         {
+#if TUNING
+            WriteBinaryString(_requestName);
+#else
             switch (RequestName)
             {
                 case GlobalRequestName.TcpIpForward:
@@ -106,9 +170,14 @@ namespace Renci.SshNet.Messages.Connection
                     WriteAscii("cancel-tcpip-forward");
                     break;
             }
+#endif
 
             Write(WantReply);
 
+#if TUNING
+            WriteBinaryString(_addressToBind);
+            Write(PortToBind);
+#else
             switch (RequestName)
             {
                 case GlobalRequestName.TcpIpForward:
@@ -117,6 +186,7 @@ namespace Renci.SshNet.Messages.Connection
                     Write(PortToBind);
                     break;
             }
+#endif
         }
     }
 }

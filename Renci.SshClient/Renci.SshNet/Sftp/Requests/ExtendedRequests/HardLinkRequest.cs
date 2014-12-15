@@ -5,32 +5,54 @@ namespace Renci.SshNet.Sftp.Requests
 {
     internal class HardLinkRequest : SftpExtendedRequest
     {
-        public override SftpMessageTypes SftpMessageType
+        private byte[] _oldPath;
+        private byte[] _newPath;
+
+        public string OldPath
         {
-            get { return SftpMessageTypes.Extended; }
-        }
-        
-        public override string Name
-        {
-            get { return "hardlink@openssh.com"; }
+            get { return Utf8.GetString(_oldPath); }
+            private set { _oldPath = Utf8.GetBytes(value); }
         }
 
-        public string OldPath { get; private set; }
+        public string NewPath
+        {
+            get { return Utf8.GetString(_newPath); }
+            private set { _newPath = Utf8.GetBytes(value); }
+        }
 
-        public string NewPath { get; private set; }
+#if TUNING
+        /// <summary>
+        /// Gets the size of the message in bytes.
+        /// </summary>
+        /// <value>
+        /// The size of the messages in bytes.
+        /// </value>
+        protected override int BufferCapacity
+        {
+            get
+            {
+                var capacity = base.BufferCapacity;
+                capacity += 4; // OldPath length
+                capacity += _oldPath.Length; // OldPath
+                capacity += 4; // NewPath length
+                capacity += _newPath.Length; // NewPath
+                return capacity;
+            }
+        }
+#endif
 
         public HardLinkRequest(uint protocolVersion, uint requestId, string oldPath, string newPath, Action<SftpStatusResponse> statusAction)
-            : base(protocolVersion, requestId, statusAction)
+            : base(protocolVersion, requestId, statusAction, "hardlink@openssh.com")
         {
-            this.OldPath = oldPath;
-            this.NewPath = newPath;
+            OldPath = oldPath;
+            NewPath = newPath;
         }
 
         protected override void SaveData()
         {
             base.SaveData();
-            this.Write(this.OldPath);
-            this.Write(this.NewPath);
+            WriteBinaryString(_oldPath);
+            WriteBinaryString(_newPath);
         }
     }
 }

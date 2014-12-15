@@ -19,7 +19,7 @@
         /// Initializes a new instance of the <see cref="HostAlgorithm"/> class.
         /// </summary>
         /// <param name="name">The host key name.</param>
-        public HostAlgorithm(string name)
+        protected HostAlgorithm(string name)
         {
             this.Name = name;
         }

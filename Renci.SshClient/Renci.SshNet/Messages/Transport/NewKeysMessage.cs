@@ -1,7 +1,9 @@
-﻿namespace Renci.SshNet.Messages.Transport
+﻿using System;
+
+namespace Renci.SshNet.Messages.Transport
 {
     /// <summary>
-    /// Represents SSH_MSG_KEXINIT message.
+    /// Represents SSH_MSG_NEWKEYS message.
     /// </summary>
     [Message("SSH_MSG_NEWKEYS", 21)]
     public class NewKeysMessage : Message, IKeyExchangedAllowed

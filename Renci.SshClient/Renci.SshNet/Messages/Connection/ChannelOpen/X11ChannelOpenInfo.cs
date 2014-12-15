@@ -1,10 +1,16 @@
-﻿namespace Renci.SshNet.Messages.Connection
+﻿using System;
+
+namespace Renci.SshNet.Messages.Connection
 {
     /// <summary>
     /// Used to open "x11" channel type
     /// </summary>
     internal class X11ChannelOpenInfo : ChannelOpenInfo
     {
+#if TUNING
+        private byte[] _originatorAddress;
+#endif
+
         /// <summary>
         /// Specifies channel open type
         /// </summary>
@@ -24,12 +30,62 @@
         /// <summary>
         /// Gets the originator address.
         /// </summary>
+#if TUNING
+        public string OriginatorAddress
+        {
+            get { return Utf8.GetString(_originatorAddress); }
+            private set { _originatorAddress = Utf8.GetBytes(value); }
+        }
+#else
         public string OriginatorAddress { get; private set; }
+#endif
 
         /// <summary>
         /// Gets the originator port.
         /// </summary>
         public uint OriginatorPort { get; private set; }
+
+#if TUNING
+        /// <summary>
+        /// Gets the size of the message in bytes.
+        /// </summary>
+        /// <value>
+        /// The size of the messages in bytes.
+        /// </value>
+        protected override int BufferCapacity
+        {
+            get
+            {
+                var capacity = base.BufferCapacity;
+                capacity += 4; // OriginatorAddress length
+                capacity += _originatorAddress.Length; // OriginatorAddress
+                capacity += 4; // OriginatorPort
+                return capacity;
+            }
+        }
+#endif
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="X11ChannelOpenInfo"/> class from the
+        /// specified data.
+        /// </summary>
+        /// <exception cref="ArgumentNullException"><paramref name="data"/> is <c>null</c>.</exception>
+        public X11ChannelOpenInfo(byte[] data)
+        {
+            Load(data);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="X11ChannelOpenInfo"/> class with the
+        /// specified originator address and port.
+        /// </summary>
+        /// <param name="originatorAddress">The originator address.</param>
+        /// <param name="originatorPort">The originator port.</param>
+        public X11ChannelOpenInfo(string originatorAddress, uint originatorPort)
+        {
+            OriginatorAddress = originatorAddress;
+            OriginatorPort = originatorPort;
+        }
 
         /// <summary>
         /// Called when type specific data need to be loaded.
@@ -38,7 +94,11 @@
         {
             base.LoadData();
 
+#if TUNING
+            _originatorAddress = ReadBinary();
+#else
             OriginatorAddress = ReadString();
+#endif
             OriginatorPort = ReadUInt32();
         }
 
@@ -49,7 +109,11 @@
         {
             base.SaveData();
 
+#if TUNING
+            WriteBinaryString(_originatorAddress);
+#else
             Write(OriginatorAddress);
+#endif
             Write(OriginatorPort);
         }
     }

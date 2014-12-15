@@ -26,18 +26,6 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
         ///A test for GlobalRequestMessage Constructor
         ///</summary>
         [TestMethod()]
-        public void GlobalRequestMessageConstructorTest1()
-        {
-            GlobalRequestName requestName = new GlobalRequestName(); // TODO: Initialize to an appropriate value
-            bool wantReply = false; // TODO: Initialize to an appropriate value
-            GlobalRequestMessage target = new GlobalRequestMessage(requestName, wantReply);
-            Assert.Inconclusive("TODO: Implement code to verify target");
-        }
-
-        /// <summary>
-        ///A test for GlobalRequestMessage Constructor
-        ///</summary>
-        [TestMethod()]
         public void GlobalRequestMessageConstructorTest2()
         {
             GlobalRequestName requestName = new GlobalRequestName(); // TODO: Initialize to an appropriate value

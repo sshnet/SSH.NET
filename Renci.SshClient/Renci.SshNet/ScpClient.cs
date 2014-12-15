@@ -364,6 +364,9 @@ namespace Renci.SshNet
 
         private void SendData(IChannelSession channel, byte[] buffer, int length)
         {
+#if TUNING
+            channel.SendData(buffer, 0, length);
+#else
             if (length == buffer.Length)
             {
                 channel.SendData(buffer);
@@ -372,6 +375,7 @@ namespace Renci.SshNet
             {
                 channel.SendData(buffer.Take(length).ToArray());
             }
+#endif
         }
 
         private void SendData(IChannelSession channel, byte[] buffer)

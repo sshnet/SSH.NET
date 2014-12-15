@@ -27,12 +27,25 @@
         /// </value>
         public uint MaximumPacketSize { get; private set; }
 
+#if TUNING
+        protected override int BufferCapacity
+        {
+            get
+            {
+                var capacity = base.BufferCapacity;
+                capacity += 4; // RemoteChannelNumber
+                capacity += 4; // InitialWindowSize
+                capacity += 4; // MaximumPacketSize
+                return capacity;
+            }
+        }
+#endif
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ChannelOpenConfirmationMessage"/> class.
         /// </summary>
         public ChannelOpenConfirmationMessage()
         {
-
         }
 
         /// <summary>
@@ -43,8 +56,8 @@
         /// <param name="maximumPacketSize">Maximum size of the packet.</param>
         /// <param name="remoteChannelNumber">The remote channel number.</param>
         public ChannelOpenConfirmationMessage(uint localChannelNumber, uint initialWindowSize, uint maximumPacketSize, uint remoteChannelNumber)
+            : base(localChannelNumber)
         {
-            LocalChannelNumber = localChannelNumber;
             InitialWindowSize = initialWindowSize;
             MaximumPacketSize = maximumPacketSize;
             RemoteChannelNumber = remoteChannelNumber;

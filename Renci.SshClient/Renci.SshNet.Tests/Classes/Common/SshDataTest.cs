@@ -9,30 +9,35 @@ namespace Renci.SshNet.Tests.Classes.Common
         [TestMethod]
         public void Write_Boolean_False()
         {
-            var sshData = new MySshData();
-            sshData.Load(new byte[0]);
+            var sshData = new BoolSshData(false);
+            
+            var bytes = sshData.GetBytes();
 
-            sshData.Write(false);
-            Assert.AreEqual((byte) 0, sshData.ReadByte());
-            Assert.IsTrue(sshData.IsEndOfData);
+            Assert.AreEqual((byte) 0, bytes[0]);
         }
 
         [TestMethod]
         public void Write_Boolean_True()
         {
-            var sshData = new MySshData();
-            sshData.Load(new byte[0]);
+            var sshData = new BoolSshData(true);
 
-            sshData.Write(true);
-            Assert.AreEqual((byte) 1, sshData.ReadByte());
-            Assert.IsTrue(sshData.IsEndOfData);
+            var bytes = sshData.GetBytes();
+
+            Assert.AreEqual((byte) 1, bytes[0]);
         }
 
-        private class MySshData : SshData
+        private class BoolSshData : SshData
         {
-            public new void Write(bool data)
+            private readonly bool _value;
+
+            public BoolSshData(bool value)
             {
-                base.Write(data);
+                _value = value;
+            }
+
+            public new bool IsEndOfData
+            {
+                get { return base.IsEndOfData; }
             }
 
             public new byte ReadByte()
@@ -46,6 +51,7 @@ namespace Renci.SshNet.Tests.Classes.Common
 
             protected override void SaveData()
             {
+                Write(_value);
             }
         }
     }

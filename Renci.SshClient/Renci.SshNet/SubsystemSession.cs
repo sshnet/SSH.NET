@@ -163,9 +163,8 @@ namespace Renci.SshNet
         /// <summary>
         /// Called when data is received.
         /// </summary>
-        /// <param name="dataTypeCode">The data type code.</param>
         /// <param name="data">The data.</param>
-        protected abstract void OnDataReceived(uint dataTypeCode, byte[] data);
+        protected abstract void OnDataReceived(byte[] data);
 
         /// <summary>
         /// Raises the error.
@@ -186,7 +185,7 @@ namespace Renci.SshNet
         {
             try
             {
-                OnDataReceived(e.DataTypeCode, e.Data);
+                OnDataReceived(e.Data);
             }
             catch (Exception ex)
             {

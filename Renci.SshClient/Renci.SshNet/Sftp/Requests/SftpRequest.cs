@@ -16,7 +16,25 @@ namespace Renci.SshNet.Sftp.Requests
         
         public uint ProtocolVersion { get; private set; }
 
-        public SftpRequest(uint protocolVersion, uint requestId, Action<SftpStatusResponse> statusAction)
+#if TUNING
+        /// <summary>
+        /// Gets the size of the message in bytes.
+        /// </summary>
+        /// <value>
+        /// The size of the messages in bytes.
+        /// </value>
+        protected override int BufferCapacity
+        {
+            get
+            {
+                var capacity = base.BufferCapacity;
+                capacity += 4; // RequestId
+                return capacity;
+            }
+        }
+#endif
+
+        protected SftpRequest(uint protocolVersion, uint requestId, Action<SftpStatusResponse> statusAction)
         {
             this.RequestId = requestId;
             this.ProtocolVersion = protocolVersion;

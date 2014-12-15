@@ -8,12 +8,17 @@
         {
             base.LoadData();
 
-            this.Information = new SftpFileSytemInformation(this.ReadUInt64(), this.ReadUInt64(),
-                                                                     this.ReadUInt64(), this.ReadUInt64(),
-                                                                     this.ReadUInt64(), this.ReadUInt64(),
-                                                                     this.ReadUInt64(), this.ReadUInt64(),
-                                                                     this.ReadUInt64(), this.ReadUInt64(),
-                                                                     this.ReadUInt64());
+            this.Information = new SftpFileSytemInformation(this.ReadUInt64(),
+                                                            this.ReadUInt64(),
+                                                            this.ReadUInt64(),
+                                                            this.ReadUInt64(),
+                                                            this.ReadUInt64(),
+                                                            this.ReadUInt64(),
+                                                            this.ReadUInt64(),
+                                                            this.ReadUInt64(),
+                                                            this.ReadUInt64(),
+                                                            this.ReadUInt64(),
+                                                            this.ReadUInt64());
         }
 
         protected override void SaveData()

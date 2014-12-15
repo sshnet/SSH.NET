@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Renci.SshNet.Common;
 using Renci.SshNet.Security.Cryptography;
 using Renci.SshNet.Tests.Common;
 using System;

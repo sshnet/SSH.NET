@@ -803,6 +803,9 @@ namespace Renci.SshNet
             //  Messages can be sent by different thread so we need to synchronize it
             var paddingMultiplier = _clientCipher == null ? (byte)8 : Math.Max((byte)8, _serverCipher.MinimumSize);    //    Should be recalculate base on cipher min length if cipher specified
 
+#if TUNING
+            var packetData = message.GetPacket(paddingMultiplier, _clientCompression);
+#else
             var messageData = message.GetBytes();
 
             if (_clientCompression != null)
@@ -833,6 +836,7 @@ namespace Renci.SshNet
             var paddingBytes = new byte[paddingLength];
             Randomizer.GetBytes(paddingBytes);
             paddingBytes.CopyTo(packetData, 4 + 1 + messageData.Length);
+#endif
 
             //  Lock handling of _outboundPacketSequence since it must be sent sequently to server
             lock (_socketLock)
@@ -840,15 +844,33 @@ namespace Renci.SshNet
                 if (_socket == null || !_socket.Connected)
                     throw new SshConnectionException("Client not connected.");
 
+#if TUNING
+                byte[] hash = null;
+                var packetDataOffset = 4; // first four bytes are reserved for outbound packet sequence
+
+                if (_clientMac != null)
+                {
+                    // write outbound packet sequence to start of packet data
+                    _outboundPacketSequence.Write(packetData, 0);
+                    //  calculate packet hash
+                    hash = _clientMac.ComputeHash(packetData);
+                }
+#else
                 //  Calculate packet hash
                 var hashData = new byte[4 + packetData.Length];
                 _outboundPacketSequence.GetBytes().CopyTo(hashData, 0);
                 packetData.CopyTo(hashData, 4);
+#endif
 
                 //  Encrypt packet data
                 if (_clientCipher != null)
                 {
+#if TUNING
+                    packetData = _clientCipher.Encrypt(packetData, packetDataOffset, (packetData.Length - packetDataOffset));
+                    packetDataOffset = 0;
+#else
                     packetData = _clientCipher.Encrypt(packetData);
+#endif
                 }
 
                 if (packetData.Length > MaximumSshPacketSize)
@@ -856,17 +878,31 @@ namespace Renci.SshNet
                     throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Packet is too big. Maximum packet size is {0} bytes.", MaximumSshPacketSize));
                 }
 
+#if TUNING
+                var packetLength = packetData.Length - packetDataOffset;
+                if (hash == null)
+                {
+                    SocketWrite(packetData, packetDataOffset, packetLength);
+                }
+#else
                 if (_clientMac == null)
                 {
                     SocketWrite(packetData);
                 }
+#endif
                 else
                 {
+#if TUNING
+                    var data = new byte[packetLength + (_clientMac.HashSize / 8)];
+                    Buffer.BlockCopy(packetData, packetDataOffset, data, 0, packetLength);
+                    Buffer.BlockCopy(hash, 0, data, packetLength, hash.Length);
+#else
                     var hash = _clientMac.ComputeHash(hashData.ToArray());
 
                     var data = new byte[packetData.Length + _clientMac.HashSize / 8];
                     packetData.CopyTo(data, 0);
                     hash.CopyTo(data, packetData.Length);
+#endif
 
                     SocketWrite(data);
                 }
@@ -958,6 +994,10 @@ namespace Renci.SshNet
         /// <exception cref="SshConnectionException"></exception>
         private Message ReceiveMessage()
         {
+#if TUNING
+            const int inboundPacketSequenceLength = 4;
+#endif
+
             //  No lock needed since all messages read by only one thread
             var blockSize = _serverCipher == null ? (byte)8 : Math.Max((byte)8, _serverCipher.MinimumSize);
 
@@ -978,9 +1018,15 @@ namespace Renci.SshNet
             //  Read rest of the packet data
             var bytesToRead = (int)(packetLength - (blockSize - 4));
 
+#if TUNING
+            var data = new byte[bytesToRead + blockSize + inboundPacketSequenceLength];
+            _inboundPacketSequence.Write(data, 0);
+            Buffer.BlockCopy(firstBlock, 0, data, inboundPacketSequenceLength, firstBlock.Length);
+#else
             var data = new byte[bytesToRead + blockSize];
 
             firstBlock.CopyTo(data, 0);
+#endif
 
             byte[] serverHash = null;
             if (_serverMac != null)
@@ -1005,23 +1051,34 @@ namespace Renci.SshNet
                     {
                         nextBlocks = _serverCipher.Decrypt(nextBlocks);
                     }
+#if TUNING
+                    nextBlocks.CopyTo(data, blockSize + inboundPacketSequenceLength);
+#else
                     nextBlocks.CopyTo(data, blockSize);
+#endif
                 }
             }
 
+#if TUNING
+            var paddingLength = data[inboundPacketSequenceLength + 4];
+#else
             var paddingLength = data[4];
+#endif
 
-            var messagePayload = new byte[packetLength - paddingLength - 1];
+            var messagePayloadLength = (int) (packetLength - paddingLength - 1);
+#if TUNING
+            const int messagePayloadOffset = inboundPacketSequenceLength + 4 + 1;
+#else
+            var messagePayload = new byte[messagePayloadLength];
             Buffer.BlockCopy(data, 5, messagePayload, 0, messagePayload.Length);
-
-            if (_serverDecompression != null)
-            {
-                messagePayload = _serverDecompression.Decompress(messagePayload);
-            }
+#endif
 
             //  Validate message against MAC
             if (_serverMac != null)
             {
+#if TUNING
+                var clientHash = _serverMac.ComputeHash(data);
+#else
                 var clientHashData = new byte[4 + data.Length];
                 var lengthBytes = _inboundPacketSequence.GetBytes();
 
@@ -1030,6 +1087,7 @@ namespace Renci.SshNet
 
                 //  Calculate packet hash
                 var clientHash = _serverMac.ComputeHash(clientHashData);
+#endif
 
                 if (!serverHash.SequenceEqual(clientHash))
                 {
@@ -1037,9 +1095,22 @@ namespace Renci.SshNet
                 }
             }
 
+            if (_serverDecompression != null)
+            {
+#if TUNING
+                data = _serverDecompression.Decompress(data, inboundPacketSequenceLength + 4 + 1, messagePayloadLength);
+#else
+                messagePayload = _serverDecompression.Decompress(messagePayload);
+#endif
+            }
+
             _inboundPacketSequence++;
 
+#if TUNING
+            return LoadMessage(data, messagePayloadOffset);
+#else
             return LoadMessage(messagePayload);
+#endif
         }
 
         private void SendDisconnect(DisconnectReason reasonCode, string message)
@@ -1653,6 +1724,32 @@ namespace Renci.SshNet
             InternalUnRegisterMessage(messageName);
         }
 
+#if TUNING
+        /// <summary>
+        /// Loads a message from a given buffer.
+        /// </summary>
+        /// <param name="data">An array of bytes from which to construct the message.</param>
+        /// <param name="offset">The zero-based byte offset in <paramref name="data"/> at which to begin reading.</param>
+        /// <returns>
+        /// A message constructed from <paramref name="data"/>.
+        /// </returns>
+        /// <exception cref="SshException">The type of the message is not supported.</exception>
+        private Message LoadMessage(byte[] data, int offset)
+        {
+            var messageType = data[offset];
+            var messageMetadata = (from m in _messagesMetadata where m.Number == messageType && m.Enabled && m.Activated select m).FirstOrDefault();
+            if (messageMetadata == null)
+                throw new SshException(string.Format(CultureInfo.CurrentCulture, "Message type {0} is not valid.", messageType));
+
+            var message = messageMetadata.Type.CreateInstance<Message>();
+
+            message.Load(data, offset);
+
+            Log(string.Format("ReceiveMessage from server: '{0}': '{1}'.", message.GetType().Name, message));
+
+            return message;
+        }
+#else
         /// <summary>
         /// Loads the message.
         /// </summary>
@@ -1673,6 +1770,7 @@ namespace Renci.SshNet
 
             return message;
         }
+#endif
 
         partial void InternalRegisterMessage(string messageName);
 
@@ -1733,6 +1831,16 @@ namespace Renci.SshNet
         /// <exception cref="SshOperationTimeoutException">The write has timed-out.</exception>
         /// <exception cref="SocketException">The write failed.</exception>
         partial void SocketWrite(byte[] data);
+
+        /// <summary>
+        /// Writes the specified data to the server.
+        /// </summary>
+        /// <param name="data">The data to write to the server.</param>
+        /// <param name="offset">The zero-based offset in <paramref name="data"/> at which to begin taking data from.</param>
+        /// <param name="length">The number of bytes of <paramref name="data"/> to write.</param>
+        /// <exception cref="SshOperationTimeoutException">The write has timed-out.</exception>
+        /// <exception cref="SocketException">The write failed.</exception>
+        partial void SocketWrite(byte[] data, int offset, int length);
 
         /// <summary>
         /// Disconnects and disposes the socket.

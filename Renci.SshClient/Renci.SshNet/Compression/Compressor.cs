@@ -56,14 +56,33 @@ namespace Renci.SshNet.Compression
         /// <returns>Compressed data</returns>
         public virtual byte[] Compress(byte[] data)
         {
+            return Compress(data, 0, data.Length);
+        }
+
+        /// <summary>
+        /// Compresses the specified data.
+        /// </summary>
+        /// <param name="data">Data to compress.</param>
+        /// <param name="offset">The zero-based byte offset in <paramref name="data"/> at which to begin reading the data to compress. </param>
+        /// <param name="length">The number of bytes to be compressed. </param>
+        /// <returns>
+        /// The compressed data.
+        /// </returns>
+        public virtual byte[] Compress(byte[] data, int offset, int length)
+        {
             if (!IsActive)
             {
-                return data;
+                if (offset == 0 && length == data.Length)
+                    return data;
+
+                var buffer = new byte[length];
+                Buffer.BlockCopy(data, offset, buffer, 0, length);
+                return buffer;
             }
 
             _compressorStream.SetLength(0);
 
-            _compressor.Write(data, 0, data.Length);
+            _compressor.Write(data, offset, length);
 
             return _compressorStream.ToArray();
         }
@@ -72,17 +91,38 @@ namespace Renci.SshNet.Compression
         /// Decompresses the specified data.
         /// </summary>
         /// <param name="data">Compressed data.</param>
-        /// <returns>Decompressed data.</returns>
+        /// <returns>
+        /// The decompressed data.
+        /// </returns>
         public virtual byte[] Decompress(byte[] data)
+        {
+            return Decompress(data, 0, data.Length);
+        }
+
+        /// <summary>
+        /// Decompresses the specified data.
+        /// </summary>
+        /// <param name="data">Compressed data.</param>
+        /// <param name="offset">The zero-based byte offset in <paramref name="data"/> at which to begin reading the data to decompress. </param>
+        /// <param name="length">The number of bytes to be read from the compressed data. </param>
+        /// <returns>
+        /// The decompressed data.
+        /// </returns>
+        public virtual byte[] Decompress(byte[] data, int offset, int length)
         {
             if (!IsActive)
             {
-                return data;
+                if (offset == 0 && length == data.Length)
+                    return data;
+
+                var buffer = new byte[length];
+                Buffer.BlockCopy(data, offset, buffer, 0, length);
+                return buffer;
             }
 
             _decompressorStream.SetLength(0);
 
-            _decompressor.Write(data, 0, data.Length);
+            _decompressor.Write(data, offset, length);
 
             return _decompressorStream.ToArray();
         }

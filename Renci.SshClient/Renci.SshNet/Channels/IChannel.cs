@@ -22,7 +22,7 @@ namespace Renci.SshNet.Channels
         /// <summary>
         /// Occurs when <see cref="ChannelExtendedDataMessage"/> message received
         /// </summary>
-        event EventHandler<ChannelDataEventArgs> ExtendedDataReceived;
+        event EventHandler<ChannelExtendedDataEventArgs> ExtendedDataReceived;
 
         /// <summary>
         /// Occurs when <see cref="ChannelRequestMessage"/> message received
@@ -78,6 +78,28 @@ namespace Renci.SshNet.Channels
         /// </summary>
         /// <param name="data">The payload to send.</param>
         void SendData(byte[] data);
+
+#if TUNING
+        /// <summary>
+        /// Sends a SSH_MSG_CHANNEL_DATA message with the specified payload.
+        /// </summary>
+        /// <param name="data">An array of <see cref="byte"/> containing the payload to send.</param>
+        /// <param name="offset">The zero-based offset in <paramref name="data"/> at which to begin taking data from.</param>
+        /// <param name="size">The number of bytes of <paramref name="data"/> to send.</param>
+        /// <remarks>
+        /// <para>
+        /// When the size of the data to send exceeds the maximum packet size or the remote window
+        /// size does not allow the full data to be sent, then this method will send the data in
+        /// multiple chunks and will wait for the remote window size to be adjusted when it's zero.
+        /// </para>
+        /// <para>
+        /// This is done to support SSH servers will a small window size that do not agressively
+        /// increase their window size. We need to take into account that there may be SSH servers
+        /// that only increase their window size when it has reached zero.
+        /// </para>
+        /// </remarks>
+        void SendData(byte[] data, int offset, int size);
+#endif
 
         /// <summary>
         /// Sends a SSH_MSG_CHANNEL_EOF message to the remote server.

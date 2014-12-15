@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+#if !SILVERLIGHT
+using System.Diagnostics;
+#endif
 using System.Globalization;
 using System.Net;
 using Renci.SshNet.Messages;

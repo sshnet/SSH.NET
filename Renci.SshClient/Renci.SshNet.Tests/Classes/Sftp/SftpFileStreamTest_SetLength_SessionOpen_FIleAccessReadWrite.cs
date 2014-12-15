@@ -33,11 +33,11 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         {
             var random = new Random();
             _path = random.Next().ToString(CultureInfo.InvariantCulture);
-            _handle = new[] { (byte)random.Next(byte.MinValue, byte.MaxValue) };
-            _fileAttributes = new SftpFileAttributes();
-            _bufferSize = (uint)random.Next(1, 1000);
-            _readBufferSize = (uint)random.Next(0, 1000);
-            _writeBufferSize = (uint)random.Next(0, 1000);
+            _handle = new[] {(byte) random.Next(byte.MinValue, byte.MaxValue)};
+            _fileAttributes = SftpFileAttributes.Empty;
+            _bufferSize = (uint) random.Next(1, 1000);
+            _readBufferSize = (uint) random.Next(0, 1000);
+            _writeBufferSize = (uint) random.Next(0, 1000);
             _length = random.Next();
 
             _sftpSessionMock = new Mock<ISftpSession>(MockBehavior.Strict);

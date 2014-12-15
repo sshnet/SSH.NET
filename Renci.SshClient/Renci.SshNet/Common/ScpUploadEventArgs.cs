@@ -26,7 +26,7 @@ namespace Renci.SshNet.Common
         /// Initializes a new instance of the <see cref="ScpUploadEventArgs"/> class.
         /// </summary>
         /// <param name="filename">The uploaded filename.</param>
-        /// <param name="size">The the uploaded file size.</param>
+        /// <param name="size">The uploaded file size.</param>
         /// <param name="uploaded">The number of uploaded bytes so far.</param>
         public ScpUploadEventArgs(string filename, long size, long uploaded)
         {

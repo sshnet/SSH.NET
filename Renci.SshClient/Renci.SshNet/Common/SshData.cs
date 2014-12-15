@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+#if !TUNING
 using System.Linq;
+#endif
 using System.Text;
 using System.Globalization;
 
@@ -11,20 +13,31 @@ namespace Renci.SshNet.Common
     /// </summary>
     public abstract class SshData
     {
-        private static readonly Encoding Ascii = new ASCIIEncoding();
+        internal const int DefaultCapacity = 64;
+
+        internal static readonly Encoding Ascii = new ASCIIEncoding();
 
 #if SILVERLIGHT
-        private static readonly Encoding Utf8 = Encoding.UTF8;
+        internal static readonly Encoding Utf8 = Encoding.UTF8;
 #else
-        private static readonly Encoding Utf8 = Encoding.Default;
+        internal static readonly Encoding Utf8 = Encoding.Default;
 #endif
 
+#if TUNING
+        private SshDataStream _stream;
+
+        protected SshDataStream DataStream
+        {
+            get { return _stream; }
+        }
+#else
         /// <summary>
         /// Data byte array that hold message unencrypted data
         /// </summary>
         private List<byte> _data;
 
         private int _readerIndex;
+#endif
 
         /// <summary>
         /// Gets a value indicating whether all data from the buffer has been read.
@@ -32,15 +45,22 @@ namespace Renci.SshNet.Common
         /// <value>
         /// 	<c>true</c> if this instance is end of data; otherwise, <c>false</c>.
         /// </value>
-        public bool IsEndOfData
+        protected bool IsEndOfData
         {
             get
             {
+#if TUNING
+                return _stream.Position >= _stream.Length;
+#else
                 return _readerIndex >= _data.Count();
+#endif
             }
         }
 
         private byte[] _loadedData;
+#if TUNING
+        private int _offset;
+#endif
 
         /// <summary>
         /// Gets the index that represents zero in current data type.
@@ -56,23 +76,64 @@ namespace Renci.SshNet.Common
             }
         }
 
+#if TUNING
+        /// <summary>
+        /// Gets the size of the message in bytes.
+        /// </summary>
+        /// <value>
+        /// The size of the messages in bytes.
+        /// </value>
+        protected virtual int BufferCapacity
+        {
+            get { return 0; }
+        }
+#endif
+
         /// <summary>
         /// Gets data bytes array
         /// </summary>
         /// <returns>Byte array representation of data structure.</returns>
-        public virtual byte[] GetBytes()
+        public
+#if !TUNING
+        virtual
+#endif
+        byte[] GetBytes()
         {
+#if TUNING
+            var messageLength = BufferCapacity;
+            var capacity = messageLength != -1 ? messageLength : DefaultCapacity;
+            var dataStream = new SshDataStream(capacity);
+            WriteBytes(dataStream);
+            return dataStream.ToArray();
+#else
             _data = new List<byte>();
 
             SaveData();
 
             return _data.ToArray();
+#endif
         }
+
+#if TUNING
+        /// <summary>
+        /// Writes the current message to the specified <see cref="SshDataStream"/>.
+        /// </summary>
+        /// <param name="stream">The <see cref="SshDataStream"/> to write the message to.</param>
+        protected virtual void WriteBytes(SshDataStream stream)
+        {
+            _stream = stream;
+            SaveData();
+        }
+#endif
 
         internal T OfType<T>() where T : SshData, new()
         {
             var result = new T();
+#if TUNING
+            result.LoadBytes(_loadedData, _offset);
+#else
             result.LoadBytes(_loadedData);
+#endif
             result.LoadData();
             return result;
         }
@@ -84,12 +145,30 @@ namespace Renci.SshNet.Common
         /// <exception cref="ArgumentNullException"><paramref name="value"/> is null.</exception>
         public void Load(byte[] value)
         {
+#if TUNING
+            Load(value, 0);
+#else
             if (value == null)
                 throw new ArgumentNullException("value");
 
             LoadBytes(value);
             LoadData();
+#endif
         }
+
+#if TUNING
+        /// <summary>
+        /// Loads data from the specified buffer.
+        /// </summary>
+        /// <param name="value">Bytes array.</param>
+        /// <param name="offset">The zero-based offset in <paramref name="value"/> at which to begin reading SSH data.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="value"/> is null.</exception>
+        public void Load(byte[] value, int offset)
+        {
+            LoadBytes(value, offset);
+            LoadData();
+        }
+#endif
 
         /// <summary>
         /// Called when type specific data need to be loaded.
@@ -108,6 +187,9 @@ namespace Renci.SshNet.Common
         /// <exception cref="ArgumentNullException"><paramref name="bytes"/> is null.</exception>
         protected void LoadBytes(byte[] bytes)
         {
+#if TUNING
+            LoadBytes(bytes, 0);
+#else
             // Note about why I check for null here, and in Load(byte[]) in this class.
             // This method is called by several other classes, such as SshNet.Messages.Message, SshNet.Sftp.SftpMessage.
             if (bytes == null)
@@ -116,14 +198,39 @@ namespace Renci.SshNet.Common
             ResetReader();
             _loadedData = bytes;
             _data = new List<byte>(bytes);
+#endif
         }
+
+#if TUNING
+        /// <summary>
+        /// Loads data bytes into internal buffer.
+        /// </summary>
+        /// <param name="bytes">The bytes.</param>
+        /// <param name="offset">The zero-based offset in <paramref name="bytes"/> at which to begin reading SSH data.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="bytes"/> is null.</exception>
+        protected void LoadBytes(byte[] bytes, int offset)
+        {
+            if (bytes == null)
+                throw new ArgumentNullException("bytes");
+
+            _loadedData = bytes;
+            _offset = offset;
+
+            _stream = new SshDataStream(bytes);
+            ResetReader();
+        }
+#endif
 
         /// <summary>
         /// Resets internal data reader index.
         /// </summary>
         protected void ResetReader()
         {
+#if TUNING
+            _stream.Position = ZeroReaderIndex + _offset;
+#else
             _readerIndex = ZeroReaderIndex;  //  Set to 1 to skip first byte which specifies message type
+#endif
         }
 
         /// <summary>
@@ -132,9 +239,16 @@ namespace Renci.SshNet.Common
         /// <returns>An array of bytes containing the remaining data in the internal buffer.</returns>
         protected byte[] ReadBytes()
         {
+#if TUNING
+            var bytesLength = (int) (_stream.Length - _stream.Position);
+            var data = new byte[bytesLength];
+            _stream.Read(data, 0, bytesLength);
+            return data;
+#else
             var data = new byte[_data.Count - _readerIndex];
             _data.CopyTo(_readerIndex, data, 0, data.Length);
             return data;
+#endif
         }
 
         /// <summary>
@@ -148,6 +262,16 @@ namespace Renci.SshNet.Common
             // Note that this also prevents allocating non-relevant lengths, such as if length is greater than _data.Count but less than int.MaxValue.
             // For the nerds, the condition translates to: if (length > data.Count && length < int.MaxValue)
             // Which probably would cause all sorts of exception, most notably OutOfMemoryException.
+
+#if TUNING
+            var data = new byte[length];
+            var bytesRead = _stream.Read(data, 0, length);
+
+            if (bytesRead < length)
+                throw new ArgumentOutOfRangeException("length");
+
+            return data;
+#else
             if (length > _data.Count)
                 throw new ArgumentOutOfRangeException("length");
 
@@ -155,6 +279,7 @@ namespace Renci.SshNet.Common
             _data.CopyTo(_readerIndex, result, 0, length);
             _readerIndex += length;
             return result;
+#endif
         }
 
         /// <summary>
@@ -163,7 +288,14 @@ namespace Renci.SshNet.Common
         /// <returns>Byte read.</returns>
         protected byte ReadByte()
         {
+#if TUNING
+            var byteRead = _stream.ReadByte();
+            if (byteRead == -1)
+                throw new InvalidOperationException("Attempt to read past the end of the SSH data stream.");
+            return (byte) byteRead;
+#else
             return ReadBytes(1).FirstOrDefault();
+#endif
         }
 
         /// <summary>
@@ -215,6 +347,7 @@ namespace Renci.SshNet.Common
             return (int)(data[0] << 56 | data[1] << 48 | data[2] << 40 | data[3] << 32 | data[4] << 24 | data[5] << 16 | data[6] << 8 | data[7]);
         }
 
+#if !TUNING
         /// <summary>
         /// Reads next string data type from internal buffer.
         /// </summary>
@@ -229,6 +362,7 @@ namespace Renci.SshNet.Common
             }
             return Ascii.GetString(ReadBytes((int)length), 0, (int)length);
         }
+#endif
 
         /// <summary>
         /// Reads next string data type from internal buffer.
@@ -254,7 +388,25 @@ namespace Renci.SshNet.Common
             return encoding.GetString(ReadBytes((int)length), 0, (int)length);
         }
 
+#if TUNING
+        /// <summary>
+        /// Reads next data type as byte array from internal buffer.
+        /// </summary>
+        /// <returns>
+        /// The bytes read.
+        /// </returns>
+        protected byte[] ReadBinary()
+        {
+            var length = ReadUInt32();
 
+            if (length > int.MaxValue)
+            {
+                throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "Data longer than {0} is not supported.", int.MaxValue));
+            }
+
+            return ReadBytes((int) length);
+        }
+#else
         /// <summary>
         /// Reads next string data type from internal buffer.
         /// </summary>
@@ -270,6 +422,7 @@ namespace Renci.SshNet.Common
 
             return ReadBytes((int)length);
         }
+#endif
 
         /// <summary>
         /// Reads next mpint data type from internal buffer.
@@ -281,7 +434,11 @@ namespace Renci.SshNet.Common
 
             var data = ReadBytes((int)length);
 
+#if TUNING
+            return new BigInteger(data.Reverse());
+#else
             return new BigInteger(data.Reverse().ToArray());
+#endif
         }
 
         /// <summary>
@@ -301,7 +458,7 @@ namespace Renci.SshNet.Common
         protected IDictionary<string, string> ReadExtensionPair()
         {
             var result = new Dictionary<string, string>();
-            while (_readerIndex < _data.Count)
+            while (!IsEndOfData)
             {
                 var extensionName = ReadString();
                 var extensionData = ReadString();
@@ -310,6 +467,17 @@ namespace Renci.SshNet.Common
             return result;
         }
 
+#if TUNING
+        /// <summary>
+        /// Writes bytes array data into internal buffer.
+        /// </summary>
+        /// <param name="data">Byte array data to write.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="data"/> is null.</exception>
+        protected void Write(byte[] data)
+        {
+            _stream.Write(data, 0, data.Length);
+        }
+#else
         /// <summary>
         /// Writes bytes array data into internal buffer.
         /// </summary>
@@ -319,6 +487,24 @@ namespace Renci.SshNet.Common
         {
             _data.AddRange(data);
         }
+#endif
+
+#if TUNING
+        /// <summary>
+        /// Writes a sequence of bytes to the current SSH data stream and advances the current position
+        /// within this stream by the number of bytes written.
+        /// </summary>
+        /// <param name="buffer">An array of bytes. This method write <paramref name="count"/> bytes from buffer to the current SSH data stream.</param>
+        /// <param name="offset">The zero-based offset in <paramref name="buffer"/> at which to begin writing bytes to the SSH data stream.</param>
+        /// <param name="count">The number of bytes to be written to the current SSH data stream.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is null.</exception>
+        /// <exception cref="ArgumentException">The sum of <paramref name="offset"/> and <paramref name="count"/> is greater than the buffer length.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> or <paramref name="count"/> is negative.</exception>
+        protected void Write(byte[] buffer, int offset, int count)
+        {
+            _stream.Write(buffer, offset, count);
+        }
+#endif
 
         /// <summary>
         /// Writes byte data into internal buffer.
@@ -326,7 +512,11 @@ namespace Renci.SshNet.Common
         /// <param name="data">Byte data to write.</param>
         protected void Write(byte data)
         {
+#if TUNING
+            _stream.WriteByte(data);
+#else
             _data.Add(data);
+#endif
         }
 
         /// <summary>
@@ -409,10 +599,50 @@ namespace Renci.SshNet.Common
                 throw new ArgumentNullException("encoding");
 
             var bytes = encoding.GetBytes(data);
+#if TUNING
+            var bytesLength = bytes.Length;
+            Write((uint) bytesLength);
+            Write(bytes, 0, bytesLength);
+#else
             Write((uint)bytes.Length);
             Write(bytes);
+#endif
         }
 
+#if TUNING
+        /// <summary>
+        /// Writes data into internal buffer.
+        /// </summary>
+        /// <param name="buffer">The data to write.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is null.</exception>
+        protected void WriteBinaryString(byte[] buffer)
+        {
+            if (buffer == null)
+                throw new ArgumentNullException("buffer");
+
+            var bufferLength = buffer.Length;
+            Write((uint)bufferLength);
+            Write(buffer, 0, bufferLength);
+        }
+
+        /// <summary>
+        /// Writes data into internal buffer.
+        /// </summary>
+        /// <param name="buffer">An array of bytes. This method write <paramref name="count"/> bytes from buffer to the current SSH data stream.</param>
+        /// <param name="offset">The zero-based byte offset in <paramref name="buffer"/> at which to begin writing bytes to the SSH data stream.</param>
+        /// <param name="count">The number of bytes to be written to the current SSH data stream.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is null.</exception>
+        /// <exception cref="ArgumentException">The sum of <paramref name="offset"/> and <paramref name="count"/> is greater than the buffer length.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> or <paramref name="count"/> is negative.</exception>
+        protected void WriteBinary(byte[] buffer, int offset, int count)
+        {
+            if (buffer == null)
+                throw new ArgumentNullException("buffer");
+
+            Write((uint) count);
+            Write(buffer, offset, count);
+        }
+#else
         /// <summary>
         /// Writes string data into internal buffer.
         /// </summary>
@@ -426,6 +656,7 @@ namespace Renci.SshNet.Common
             Write((uint)data.Length);
             _data.AddRange(data);
         }
+#endif
 
         /// <summary>
         /// Writes mpint data into internal buffer.
@@ -433,9 +664,16 @@ namespace Renci.SshNet.Common
         /// <param name="data">mpint data to write.</param>
         protected void Write(BigInteger data)
         {
+#if TUNING
+            var bytes = data.ToByteArray().Reverse();
+            var bytesLength = bytes.Length;
+            Write((uint) bytesLength);
+            Write(bytes, 0, bytesLength);
+#else
             var bytes = data.ToByteArray().Reverse().ToList();
             Write((uint)bytes.Count);
             Write(bytes);
+#endif
         }
 
         /// <summary>

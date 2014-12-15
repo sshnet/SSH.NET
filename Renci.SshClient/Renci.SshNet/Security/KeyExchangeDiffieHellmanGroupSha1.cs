@@ -1,4 +1,5 @@
-﻿using Renci.SshNet.Common;
+﻿using System;
+using Renci.SshNet.Common;
 using Renci.SshNet.Messages;
 using Renci.SshNet.Messages.Transport;
 
@@ -90,9 +91,31 @@ namespace Renci.SshNet.Security
 
         private class _ExchangeHashData : SshData
         {
-            public string ServerVersion { get; set; }
+#if TUNING
+            private byte[] _serverVersion;
+            private byte[] _clientVersion;
+            private byte[] _clientExchangeValue;
+            private byte[] _serverExchangeValue;
+            private byte[] _sharedKey;
 
+            public string ServerVersion
+            {
+                private get { return Utf8.GetString(_serverVersion); }
+                set { _serverVersion = Utf8.GetBytes(value); }
+            }
+#else
+            public string ServerVersion { get; set; }
+#endif
+
+#if TUNING
+            public string ClientVersion
+            {
+                private get { return Utf8.GetString(_clientVersion); }
+                set { _clientVersion = Utf8.GetBytes(value); }
+            }
+#else
             public string ClientVersion { get; set; }
+#endif
 
             public byte[] ClientPayload { get; set; }
 
@@ -100,11 +123,68 @@ namespace Renci.SshNet.Security
 
             public byte[] HostKey { get; set; }
 
+#if TUNING
+            public BigInteger ClientExchangeValue
+            {
+                private get { return _clientExchangeValue.ToBigInteger(); }
+                set { _clientExchangeValue = value.ToByteArray().Reverse(); }
+            }
+#else
             public BigInteger ClientExchangeValue { get; set; }
+#endif
 
+#if TUNING
+            public BigInteger ServerExchangeValue
+            {
+                private get { return _serverExchangeValue.ToBigInteger(); }
+                set { _serverExchangeValue = value.ToByteArray().Reverse(); }
+            }
+#else
             public BigInteger ServerExchangeValue { get; set; }
+#endif
 
+#if TUNING
+            public BigInteger SharedKey
+            {
+                private get { return _sharedKey.ToBigInteger(); }
+                set { _sharedKey = value.ToByteArray().Reverse(); }
+            }
+#else
             public BigInteger SharedKey { get; set; }
+#endif
+
+#if TUNING
+            /// <summary>
+            /// Gets the size of the message in bytes.
+            /// </summary>
+            /// <value>
+            /// The size of the messages in bytes.
+            /// </value>
+            protected override int BufferCapacity
+            {
+                get
+                {
+                    var capacity = base.BufferCapacity;
+                    capacity += 4; // ClientVersion length
+                    capacity += _clientVersion.Length; // ClientVersion
+                    capacity += 4; // ServerVersion length
+                    capacity += _serverVersion.Length; // ServerVersion
+                    capacity += 4; // ClientPayload length
+                    capacity += ClientPayload.Length; // ClientPayload
+                    capacity += 4; // ServerPayload length
+                    capacity += ServerPayload.Length; // ServerPayload
+                    capacity += 4; // HostKey length
+                    capacity += HostKey.Length; // HostKey
+                    capacity += 4; // ClientExchangeValue length
+                    capacity += _clientExchangeValue.Length; // ClientExchangeValue
+                    capacity += 4; // ServerExchangeValue length
+                    capacity += _serverExchangeValue.Length; // ServerExchangeValue
+                    capacity += 4; // SharedKey length
+                    capacity += _sharedKey.Length; // SharedKey
+                    return capacity;
+                }
+            }
+#endif
 
             protected override void LoadData()
             {
@@ -113,14 +193,25 @@ namespace Renci.SshNet.Security
 
             protected override void SaveData()
             {
+#if TUNING
+                WriteBinaryString(_clientVersion);
+                WriteBinaryString(_serverVersion);
+#else
                 this.Write(this.ClientVersion);
                 this.Write(this.ServerVersion);
+#endif
                 this.WriteBinaryString(this.ClientPayload);
                 this.WriteBinaryString(this.ServerPayload);
                 this.WriteBinaryString(this.HostKey);
+#if TUNING
+                WriteBinaryString(_clientExchangeValue);
+                WriteBinaryString(_serverExchangeValue);
+                WriteBinaryString(_sharedKey);
+#else
                 this.Write(this.ClientExchangeValue);
                 this.Write(this.ServerExchangeValue);
                 this.Write(this.SharedKey);
+#endif
             }
         }
     }

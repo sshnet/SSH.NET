@@ -1717,6 +1717,9 @@ namespace Renci.SshNet
 
                 if (bytesRead > 0)
                 {
+#if TUNING
+                    var writtenBytes = offset + (ulong) bytesRead;
+#else
                     if (bytesRead < buffer.Length)
                     {
                         //  Replace buffer for last chunk of data
@@ -1726,7 +1729,13 @@ namespace Renci.SshNet
                     }
 
                     var writtenBytes = offset + (ulong)buffer.Length;
+#endif
+
+#if TUNING
+                    _sftpSession.RequestWrite(handle, offset, buffer, bytesRead, null, s =>
+#else
                     _sftpSession.RequestWrite(handle, offset, buffer, null, s =>
+#endif
                     {
                         if (s.StatusCode == StatusCodes.Ok)
                         {
@@ -1743,7 +1752,7 @@ namespace Renci.SshNet
                     });
                     Interlocked.Increment(ref expectedResponses);
 
-                    offset += (uint)bytesRead;
+                    offset += (ulong) bytesRead;
 
                     bytesRead = input.Read(buffer, 0, buffer.Length);
                 }

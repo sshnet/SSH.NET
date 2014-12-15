@@ -20,7 +20,19 @@ namespace Renci.SshNet.Security.Cryptography
         /// </summary>
         /// <param name="input">The input.</param>
         /// <returns>Encrypted data.</returns>
-        public abstract byte[] Encrypt(byte[] input);
+        public byte[] Encrypt(byte[] input)
+        {
+            return Encrypt(input, 0, input.Length);
+        }
+
+        /// <summary>
+        /// Encrypts the specified input.
+        /// </summary>
+        /// <param name="input">The input.</param>
+        /// <param name="offset">The zero-based offset in <paramref name="input"/> at which to begin encrypting.</param>
+        /// <param name="length">The number of bytes to encrypt from <paramref name="input"/>.</param>
+        /// <returns>Encrypted data.</returns>
+        public abstract byte[] Encrypt(byte[] input, int offset, int length);
 
         /// <summary>
         /// Decrypts the specified input.

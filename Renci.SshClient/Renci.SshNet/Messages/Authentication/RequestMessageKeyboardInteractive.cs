@@ -6,28 +6,35 @@
     internal class RequestMessageKeyboardInteractive : RequestMessage
     {
         /// <summary>
-        /// Gets the name of the authentication method.
-        /// </summary>
-        /// <value>
-        /// The name of the method.
-        /// </value>
-        public override string MethodName
-        {
-            get
-            {
-                return "keyboard-interactive";
-            }
-        }
-
-        /// <summary>
         /// Gets message language.
         /// </summary>
-        public string Language { get; private set; }
+        public byte[] Language { get; private set; }
 
         /// <summary>
         /// Gets authentication sub methods.
         /// </summary>
-        public string SubMethods { get; private set; }
+        public byte[] SubMethods { get; private set; }
+
+#if TUNING
+        /// <summary>
+        /// Gets the size of the message in bytes.
+        /// </summary>
+        /// <value>
+        /// The size of the messages in bytes.
+        /// </value>
+        protected override int BufferCapacity
+        {
+            get
+            {
+                var capacity = base.BufferCapacity;
+                capacity += 4; // Language length
+                capacity += Language.Length; // Language
+                capacity += 4; // SubMethods length
+                capacity += SubMethods.Length; // SubMethods
+                return capacity;
+            }
+        }
+#endif
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RequestMessageKeyboardInteractive"/> class.
@@ -35,10 +42,10 @@
         /// <param name="serviceName">Name of the service.</param>
         /// <param name="username">Authentication username.</param>
         public RequestMessageKeyboardInteractive(ServiceName serviceName, string username)
-            : base(serviceName, username)
+            : base(serviceName, username, "keyboard-interactive")
         {
-            Language = string.Empty;
-            SubMethods = string.Empty;
+            Language = new byte[0];
+            SubMethods = new byte[0];
         }
 
         /// <summary>
@@ -48,9 +55,8 @@
         {
             base.SaveData();
 
-            Write(Language);
-
-            Write(SubMethods);
+            WriteBinaryString(Language);
+            WriteBinaryString(SubMethods);
         }
     }
 }

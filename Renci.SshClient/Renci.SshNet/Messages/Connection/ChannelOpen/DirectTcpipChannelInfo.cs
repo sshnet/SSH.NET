@@ -1,10 +1,17 @@
-﻿namespace Renci.SshNet.Messages.Connection
+﻿using System;
+
+namespace Renci.SshNet.Messages.Connection
 {
     /// <summary>
     /// Used to open "direct-tcpip" channel type
     /// </summary>
     internal class DirectTcpipChannelInfo : ChannelOpenInfo
     {
+#if TUNING
+        private byte[] _hostToConnect;
+        private byte[] _originatorAddress;
+#endif
+
         /// <summary>
         /// Specifies channel open type
         /// </summary>
@@ -24,7 +31,15 @@
         /// <summary>
         /// Gets the host to connect.
         /// </summary>
+#if TUNING
+        public string HostToConnect
+        {
+            get { return Utf8.GetString(_hostToConnect); }
+            private set { _hostToConnect = Utf8.GetBytes(value); }
+        }
+#else
         public string HostToConnect { get; private set; }
+#endif
 
         /// <summary>
         /// Gets the port to connect.
@@ -34,19 +49,52 @@
         /// <summary>
         /// Gets the originator address.
         /// </summary>
+#if TUNING
+        public string OriginatorAddress
+        {
+            get { return Utf8.GetString(_originatorAddress); }
+            private set { _originatorAddress = Utf8.GetBytes(value); }
+        }
+#else
         public string OriginatorAddress { get; private set; }
+#endif
 
         /// <summary>
         /// Gets the originator port.
         /// </summary>
         public uint OriginatorPort { get; private set; }
 
+#if TUNING
         /// <summary>
-        /// Initializes a new instance of the <see cref="DirectTcpipChannelInfo"/> class.
+        /// Gets the size of the message in bytes.
         /// </summary>
-        public DirectTcpipChannelInfo()
+        /// <value>
+        /// The size of the messages in bytes.
+        /// </value>
+        protected override int BufferCapacity
         {
+            get
+            {
+                var capacity = base.BufferCapacity;
+                capacity += 4; // HostToConnect length
+                capacity += _hostToConnect.Length; // HostToConnect
+                capacity += 4; // PortToConnect
+                capacity += 4; // OriginatorAddress length
+                capacity += _originatorAddress.Length; // OriginatorAddress
+                capacity += 4; // OriginatorPort
+                return capacity;
+            }
+        }
+#endif
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DirectTcpipChannelInfo"/> class from the
+        /// specified data.
+        /// </summary>
+        /// <exception cref="ArgumentNullException"><paramref name="data"/> is <c>null</c>.</exception>
+        public DirectTcpipChannelInfo(byte[] data)
+        {
+            Load(data);
         }
 
         /// <summary>
@@ -71,9 +119,17 @@
         {
             base.LoadData();
 
+#if TUNING
+            _hostToConnect = ReadBinary();
+#else
             HostToConnect = ReadString();
+#endif
             PortToConnect = ReadUInt32();
+#if TUNING
+            _originatorAddress = ReadBinary();
+#else
             OriginatorAddress = ReadString();
+#endif
             OriginatorPort = ReadUInt32();
         }
 
@@ -84,9 +140,17 @@
         {
             base.SaveData();
 
+#if TUNING
+            WriteBinaryString(_hostToConnect);
+#else
             Write(HostToConnect);
+#endif
             Write(PortToConnect);
+#if TUNING
+            WriteBinaryString(_originatorAddress);
+#else
             Write(OriginatorAddress);
+#endif
             Write(OriginatorPort);
         }
     }

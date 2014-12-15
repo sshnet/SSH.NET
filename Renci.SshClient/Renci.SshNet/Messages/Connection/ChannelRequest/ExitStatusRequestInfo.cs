@@ -26,6 +26,18 @@
         /// </summary>
         public uint ExitStatus { get; private set; }
 
+#if TUNING
+        protected override int BufferCapacity
+        {
+            get
+            {
+                 var capacity = base.BufferCapacity;
+                capacity += 4; // ExitStatus
+                return capacity;
+            }
+        }
+#endif
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ExitStatusRequestInfo"/> class.
         /// </summary>

@@ -28,6 +28,24 @@ namespace Renci.SshNet.Messages.Connection
         /// </summary>
         public UInt32 BreakLength { get; private set; }
 
+#if TUNING
+        /// <summary>
+        /// Gets the size of the message in bytes.
+        /// </summary>
+        /// <value>
+        /// The size of the messages in bytes.
+        /// </value>
+        protected override int BufferCapacity
+        {
+            get
+            {
+                var capacity = base.BufferCapacity;
+                capacity += 4; // BreakLength
+                return capacity;
+            }
+        }
+#endif
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ExecRequestInfo"/> class.
         /// </summary>

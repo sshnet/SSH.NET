@@ -6,35 +6,57 @@ namespace Renci.SshNet.Sftp.Requests
 {
     internal class PosixRenameRequest : SftpExtendedRequest
     {
-        public override SftpMessageTypes SftpMessageType
+        private byte[] _oldPath;
+        private byte[] _newPath;
+
+        public string OldPath
         {
-            get { return SftpMessageTypes.Extended; }
-        }
-        
-        public override string Name
-        {
-            get { return "posix-rename@openssh.com"; }
+            get { return Encoding.GetString(_oldPath); }
+            private set { _oldPath = Encoding.GetBytes(value); }
         }
 
-        public string OldPath { get; private set; }
-
-        public string NewPath { get; private set; }
+        public string NewPath
+        {
+            get { return Encoding.GetString(_newPath); }
+            private set { _newPath = Encoding.GetBytes(value); }
+        }
 
         public Encoding Encoding { get; private set; }
 
-        public PosixRenameRequest(uint protocolVersion, uint requestId, string oldPath, string newPath, Encoding encoding, Action<SftpStatusResponse> statusAction)
-            : base(protocolVersion, requestId, statusAction)
+#if TUNING
+        /// <summary>
+        /// Gets the size of the message in bytes.
+        /// </summary>
+        /// <value>
+        /// The size of the messages in bytes.
+        /// </value>
+        protected override int BufferCapacity
         {
-            this.OldPath = oldPath;
-            this.NewPath = newPath;
-            this.Encoding = encoding;
+            get
+            {
+                var capacity = base.BufferCapacity;
+                capacity += 4; // OldPath length
+                capacity += _oldPath.Length; // OldPath
+                capacity += 4; // NewPath length
+                capacity += _newPath.Length; // NewPath
+                return capacity;
+            }
+        }
+#endif
+
+        public PosixRenameRequest(uint protocolVersion, uint requestId, string oldPath, string newPath, Encoding encoding, Action<SftpStatusResponse> statusAction)
+            : base(protocolVersion, requestId, statusAction, "posix-rename@openssh.com")
+        {
+            Encoding = encoding;
+            OldPath = oldPath;
+            NewPath = newPath;
         }
 
         protected override void SaveData()
         {
             base.SaveData();
-            this.Write(this.OldPath, this.Encoding);
-            this.Write(this.NewPath, this.Encoding);
+            WriteBinaryString(_oldPath);
+            WriteBinaryString(_newPath);
         }
     }
 }

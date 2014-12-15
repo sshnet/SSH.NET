@@ -103,7 +103,7 @@ namespace Renci.SshNet.NetConf
             WaitOnHandle(_serverCapabilitiesConfirmed, OperationTimeout);
         }
 
-        protected override void OnDataReceived(uint dataTypeCode, byte[] data)
+        protected override void OnDataReceived(byte[] data)
         {
             var chunk = Encoding.UTF8.GetString(data);
 

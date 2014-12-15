@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Renci.SshNet.Sftp.Responses
 {
@@ -23,7 +22,11 @@ namespace Renci.SshNet.Sftp.Responses
 
         protected override void SaveData()
         {
-            throw new InvalidOperationException();
+            base.SaveData();
+
+            Write(Version);
+            if (Extentions != null)
+                Write(Extentions);
         }
 
     }

@@ -5,20 +5,29 @@ namespace Renci.SshNet.Sftp.Requests
 {
     internal class FStatVfsRequest : SftpExtendedRequest
     {
-        public override SftpMessageTypes SftpMessageType
-        {
-            get { return SftpMessageTypes.Extended; }
-        }
-
-        public override string Name
-        {
-            get { return "fstatvfs@openssh.com"; }
-        }
-
         public byte[] Handle { get; private set; }
 
+#if TUNING
+        /// <summary>
+        /// Gets the size of the message in bytes.
+        /// </summary>
+        /// <value>
+        /// The size of the messages in bytes.
+        /// </value>
+        protected override int BufferCapacity
+        {
+            get
+            {
+                var capacity = base.BufferCapacity;
+                capacity += 4; // Handle length
+                capacity += Handle.Length; // Handle
+                return capacity;
+            }
+        }
+#endif
+
         public FStatVfsRequest(uint protocolVersion, uint requestId, byte[] handle, Action<SftpExtendedReplyResponse> extendedAction, Action<SftpStatusResponse> statusAction)
-            : base(protocolVersion, requestId, statusAction)
+            : base(protocolVersion, requestId, statusAction, "fstatvfs@openssh.com")
         {
             this.Handle = handle;
             this.SetAction(extendedAction);

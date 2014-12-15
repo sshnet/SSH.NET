@@ -24,7 +24,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;TUNING</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -355,7 +355,6 @@
     <Compile Include="Classes\Sftp\Responses\SftpNameResponseTest.cs" />
     <Compile Include="Classes\Sftp\Responses\SftpStatusResponseTest.cs" />
     <Compile Include="Classes\Sftp\Responses\SftpVersionResponseTest.cs" />
-    <Compile Include="Classes\Sftp\SftpDataMessageTest.cs" />
     <Compile Include="Classes\Sftp\SftpFileStreamTest_Dispose_Disposed.cs" />
     <Compile Include="Classes\Sftp\SftpFileStreamTest_Finalize_SessionOpen.cs" />
     <Compile Include="Classes\Sftp\SftpFileStreamTest_SetLength_Closed.cs" />
@@ -365,7 +364,9 @@
     <Compile Include="Classes\Sftp\SftpFileStreamTest_SetLength_SessionOpen_FIleAccessReadWrite.cs" />
     <Compile Include="Classes\Sftp\SftpFileStreamTest_SetLength_SessionOpen_FIleAccessWrite.cs" />
     <Compile Include="Classes\Sftp\SftpFileTest.cs" />
-    <Compile Include="Classes\Sftp\SftpSessionTest.cs" />
+    <Compile Include="Classes\Sftp\SftpSessionTest_Connected_RequestRead.cs" />
+    <Compile Include="Classes\Sftp\SftpSessionTest_Connected_RequestStatVfs.cs" />
+    <Compile Include="Classes\Sftp\SftpVersionResponseBuilder.cs" />
     <Compile Include="Classes\ShellTestTest.cs" />
     <Compile Include="Classes\ShellStreamTest.cs" />
     <Compile Include="Classes\SshClientTest.cs" />
@@ -467,7 +468,6 @@
     <Compile Include="Classes\Messages\Connection\RequestFailureMessageTest.cs" />
     <Compile Include="Classes\Messages\Connection\RequestInfoTest.cs" />
     <Compile Include="Classes\Messages\Authentication\RequestMessagePublicKeyTest.cs" />
-    <Compile Include="Classes\Messages\Authentication\RequestMessageTest.cs" />
     <Compile Include="Classes\Messages\Connection\RequestSuccessMessageTest.cs" />
     <Compile Include="Classes\Messages\Transport\ServiceAcceptMessageTest.cs" />
     <Compile Include="Classes\Messages\Transport\ServiceRequestMessageTest.cs" />

@@ -5,24 +5,53 @@ namespace Renci.SshNet.Sftp.Requests
 {
     internal abstract class SftpExtendedRequest : SftpRequest
     {
-        public const string NAME = "posix-rename@openssh.com";
+        private byte[] _nameBytes;
+        private string _name;
 
         public override SftpMessageTypes SftpMessageType
         {
             get { return SftpMessageTypes.Extended; }
         }
 
-        public abstract string Name { get; }
+        public string Name
+        {
+            get { return _name; }
+            private set
+            {
+                _name = value;
+                _nameBytes = Utf8.GetBytes(value);
+            }
+        }
 
-        public SftpExtendedRequest(uint protocolVersion, uint requestId, Action<SftpStatusResponse> statusAction)
+#if TUNING
+        /// <summary>
+        /// Gets the size of the message in bytes.
+        /// </summary>
+        /// <value>
+        /// The size of the messages in bytes.
+        /// </value>
+        protected override int BufferCapacity
+        {
+            get
+            {
+                var capacity = base.BufferCapacity;
+                capacity += 4; // Name length
+                capacity += _nameBytes.Length; // Name
+                return capacity;
+            }
+        }
+#endif
+
+        protected SftpExtendedRequest(uint protocolVersion, uint requestId, Action<SftpStatusResponse> statusAction, string name)
             : base(protocolVersion, requestId, statusAction)
         {
+            Name = name;
         }
 
         protected override void SaveData()
         {
             base.SaveData();
-            this.Write(this.Name);
+            this.WriteBinaryString(_nameBytes);
         }
     }
 }

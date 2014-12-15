@@ -100,7 +100,7 @@ namespace Renci.SshNet.Tests.Classes
                         _sessionMock.Raise(s => s.RequestSuccessReceived += null,
                             new MessageEventArgs<RequestSuccessMessage>(new RequestSuccessMessage())));
             _sessionMock.Setup(p => p.WaitOnHandle(It.IsAny<WaitHandle>()));
-            _sessionMock.Setup(p => p.SendMessage(It.Is<ChannelOpenFailureMessage>(c => c.LocalChannelNumber == _remoteChannelNumberWhileClosing && c.ReasonCode == ChannelOpenFailureMessage.AdministrativelyProhibited && c.Description == string.Empty && c.Language == null)));
+            _sessionMock.Setup(p => p.SendMessage(It.Is<ChannelOpenFailureMessage>(c => c.LocalChannelNumber == _remoteChannelNumberWhileClosing && c.ReasonCode == ChannelOpenFailureMessage.AdministrativelyProhibited && c.Description == string.Empty && c.Language == "en")));
             _sessionMock.Setup(p => p.CreateChannelForwardedTcpip(_remoteChannelNumberStarted, _remoteWindowSizeStarted, _remotePacketSizeStarted)).Returns(_channelMock.Object);
             _channelMock.Setup(
                 p =>

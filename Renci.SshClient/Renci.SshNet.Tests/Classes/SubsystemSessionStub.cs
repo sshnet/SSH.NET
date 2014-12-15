@@ -34,9 +34,9 @@ namespace Renci.SshNet.Tests.Classes
                 throw OnChannelOpenException;
         }
 
-        protected override void OnDataReceived(uint dataTypeCode, byte[] data)
+        protected override void OnDataReceived(byte[] data)
         {
-            OnDataReceivedInvocations.Add(new ChannelDataEventArgs(0, data, dataTypeCode));
+            OnDataReceivedInvocations.Add(new ChannelDataEventArgs(0, data));
 
             if (OnDataReceivedException != null)
                 throw OnDataReceivedException;

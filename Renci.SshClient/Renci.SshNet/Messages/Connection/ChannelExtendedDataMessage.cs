@@ -16,6 +16,26 @@
         /// </summary>
         public byte[] Data { get; private set; }
 
+#if TUNING
+        /// <summary>
+        /// Gets the size of the message in bytes.
+        /// </summary>
+        /// <value>
+        /// The size of the messages in bytes.
+        /// </value>
+        protected override int BufferCapacity
+        {
+            get
+            {
+                var capacity = base.BufferCapacity;
+                capacity += 4; // DataTypeCode
+                capacity += 4; // Data length
+                capacity += Data.Length; // Data
+                return capacity;
+            }
+        }
+#endif
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ChannelExtendedDataMessage"/> class.
         /// </summary>
@@ -31,8 +51,8 @@
         /// <param name="dataTypeCode">The message data type code.</param>
         /// <param name="data">The message data.</param>
         public ChannelExtendedDataMessage(uint localChannelNumber, uint dataTypeCode, byte[] data)
+            : base(localChannelNumber)
         {
-            LocalChannelNumber = localChannelNumber;
             DataTypeCode = dataTypeCode;
             Data = data;
         }
@@ -44,7 +64,11 @@
         {
             base.LoadData();
             DataTypeCode = ReadUInt32();
+#if TUNING
+            Data = ReadBinary();
+#else
             Data = ReadBinaryString();
+#endif
         }
 
         /// <summary>

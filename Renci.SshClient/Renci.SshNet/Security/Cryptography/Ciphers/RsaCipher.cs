@@ -1,6 +1,8 @@
 ﻿using System;
+#if !TUNING
 using System.Collections.Generic;
 using System.Linq;
+#endif
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Security.Cryptography.Ciphers
@@ -31,8 +33,10 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// Encrypts the specified data.
         /// </summary>
         /// <param name="data">The data.</param>
+        /// <param name="offset">The zero-based offset in <paramref name="data"/> at which to begin encrypting.</param>
+        /// <param name="length">The number of bytes to encrypt from <paramref name="data"/>.</param>
         /// <returns>Encrypted data.</returns>
-        public override byte[] Encrypt(byte[] data)
+        public override byte[] Encrypt(byte[] data, int offset, int length)
         {
             //  Calculate signature
             var bitLength = this._key.Modulus.BitLength;
@@ -40,12 +44,12 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             var paddedBlock = new byte[bitLength / 8 + (bitLength % 8 > 0 ? 1 : 0) - 1];
 
             paddedBlock[0] = 0x01;
-            for (int i = 1; i < paddedBlock.Length - data.Length - 1; i++)
+            for (int i = 1; i < paddedBlock.Length - length - 1; i++)
             {
                 paddedBlock[i] = 0xFF;
             }
 
-            Buffer.BlockCopy(data, 0, paddedBlock, paddedBlock.Length - data.Length, data.Length);
+            Buffer.BlockCopy(data, offset, paddedBlock, paddedBlock.Length - length, length);
 
             return this.Transform(paddedBlock);
         }
@@ -80,10 +84,18 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
         private byte[] Transform(byte[] data)
         {
+#if TUNING
+            Array.Reverse(data);
+
+            var inputBytes = new byte[data.Length + 1];
+            Buffer.BlockCopy(data, 0, inputBytes, 0, data.Length);
+#else
             var bytes = new List<byte>(data.Reverse());
             bytes.Add(0);
+            var inputBytes = bytes.ToArray();
+#endif
 
-            var input = new BigInteger(bytes.ToArray());
+            var input = new BigInteger(inputBytes);
 
             BigInteger result;
 
@@ -123,8 +135,12 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             {
                 result = BigInteger.ModPow(input, this._key.Exponent, this._key.Modulus);
             }
-            
+
+#if TUNING
+            return result.ToByteArray().Reverse();
+#else
             return result.ToByteArray().Reverse().ToArray();
+#endif
         }
     }
 }

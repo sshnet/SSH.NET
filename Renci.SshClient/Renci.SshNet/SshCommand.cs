@@ -444,7 +444,7 @@ namespace Renci.SshNet
             }
         }
 
-        private void Channel_ExtendedDataReceived(object sender, ChannelDataEventArgs e)
+        private void Channel_ExtendedDataReceived(object sender, ChannelExtendedDataEventArgs e)
         {
             if (this.ExtendedOutputStream != null)
             {

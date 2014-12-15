@@ -6,31 +6,73 @@ namespace Renci.SshNet.Sftp.Requests
 {
     internal class SftpOpenRequest : SftpRequest
     {
+#if TUNING
+        private byte[] _fileName;
+        private byte[] _attributes;
+#endif
+
         public override SftpMessageTypes SftpMessageType
         {
             get { return SftpMessageTypes.Open; }
         }
 
+#if TUNING
+        public string Filename
+        {
+            get { return Encoding.GetString(_fileName); }
+            private set { _fileName = Encoding.GetBytes(value); }
+        }
+#else
         public string Filename { get; private set; }
+#endif
 
         public Flags Flags { get; private set; }
 
+#if TUNING
+        public SftpFileAttributes Attributes
+        {
+            get { return SftpFileAttributes.FromBytes(_attributes); }
+            private set { _attributes = value.GetBytes(); }
+        }
+#else
         public SftpFileAttributes Attributes { get; private set; }
+#endif
 
         public Encoding Encoding { get; private set; }
 
+#if TUNING
+        /// <summary>
+        /// Gets the size of the message in bytes.
+        /// </summary>
+        /// <value>
+        /// The size of the messages in bytes.
+        /// </value>
+        protected override int BufferCapacity
+        {
+            get
+            {
+                var capacity = base.BufferCapacity;
+                capacity += 4; // FileName length
+                capacity += _fileName.Length; // FileName
+                capacity += 4; // Flags
+                capacity += _attributes.Length; // Attributes
+                return capacity;
+            }
+        }
+#endif
+
         public SftpOpenRequest(uint protocolVersion, uint requestId, string fileName, Encoding encoding, Flags flags, Action<SftpHandleResponse> handleAction, Action<SftpStatusResponse> statusAction)
-            : this(protocolVersion, requestId, fileName, encoding, flags, new SftpFileAttributes(), handleAction, statusAction)
+            : this(protocolVersion, requestId, fileName, encoding, flags, SftpFileAttributes.Empty, handleAction, statusAction)
         {
         }
 
-        public SftpOpenRequest(uint protocolVersion, uint requestId, string fileName, Encoding encoding, Flags flags, SftpFileAttributes attributes, Action<SftpHandleResponse> handleAction, Action<SftpStatusResponse> statusAction)
+        private SftpOpenRequest(uint protocolVersion, uint requestId, string fileName, Encoding encoding, Flags flags, SftpFileAttributes attributes, Action<SftpHandleResponse> handleAction, Action<SftpStatusResponse> statusAction)
             : base(protocolVersion, requestId, statusAction)
         {
+            this.Encoding = encoding;
             this.Filename = fileName;
             this.Flags = flags;
             this.Attributes = attributes;
-            this.Encoding = encoding;
 
             this.SetAction(handleAction);
         }
@@ -45,9 +87,17 @@ namespace Renci.SshNet.Sftp.Requests
         {
             base.SaveData();
 
+#if TUNING
+            WriteBinaryString(_fileName);
+#else
             this.Write(this.Filename, this.Encoding);
+#endif
             this.Write((uint)this.Flags);
+#if TUNING
+            this.Write(_attributes);
+#else
             this.Write(this.Attributes);
+#endif
         }
     }
 }

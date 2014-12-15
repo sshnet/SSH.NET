@@ -12,5 +12,15 @@
         /// <param name="input">The input.</param>
         /// <returns>Padded data array.</returns>
         public abstract byte[] Pad(int blockSize, byte[] input);
+
+        /// <summary>
+        /// Pads specified input with a given number of bytes to match the block size.
+        /// </summary>
+        /// <param name="input">The input.</param>
+        /// <param name="length">The number of bytes to pad the input with.</param>
+        /// <returns>
+        /// The padded data array.
+        /// </returns>
+        public abstract byte[] Pad(byte[] input, int length);
     }
 }

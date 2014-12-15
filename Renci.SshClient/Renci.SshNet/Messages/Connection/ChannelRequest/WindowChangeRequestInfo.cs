@@ -41,6 +41,27 @@
         /// </summary>
         public uint Height { get; private set; }
 
+#if TUNING
+        /// <summary>
+        /// Gets the size of the message in bytes.
+        /// </summary>
+        /// <value>
+        /// The size of the messages in bytes.
+        /// </value>
+        protected override int BufferCapacity
+        {
+            get
+            {
+                var capacity = base.BufferCapacity;
+                capacity += 4; // Columns
+                capacity += 4; // Rows
+                capacity += 4; // Width
+                capacity += 4; // Height
+                return capacity;
+            }
+        }
+#endif
+
         /// <summary>
         /// Initializes a new instance of the <see cref="WindowChangeRequestInfo"/> class.
         /// </summary>

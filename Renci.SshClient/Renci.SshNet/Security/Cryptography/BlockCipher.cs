@@ -68,34 +68,38 @@ namespace Renci.SshNet.Security.Cryptography
         /// Encrypts the specified data.
         /// </summary>
         /// <param name="data">The data.</param>
+        /// <param name="offset">The zero-based offset in <paramref name="data"/> at which to begin encrypting.</param>
+        /// <param name="length">The number of bytes to encrypt from <paramref name="data"/>.</param>
         /// <returns>Encrypted data</returns>
-        public override byte[] Encrypt(byte[] data)
+        public override byte[] Encrypt(byte[] data, int offset, int length)
         {
-            if (data.Length % _blockSize > 0)
+            if (length % _blockSize > 0)
             {
                 if (_padding == null)
                 {
                     throw new ArgumentException("data");
                 }
-                data = _padding.Pad(_blockSize, data);
+                var paddingLength = _blockSize - (length % _blockSize);
+                data = _padding.Pad(data, paddingLength);
+                length += paddingLength;
             }
 
-            var output = new byte[data.Length];
+            var output = new byte[length];
             var writtenBytes = 0;
 
-            for (var i = 0; i < data.Length / _blockSize; i++)
+            for (var i = 0; i < length / _blockSize; i++)
             {
                 if (_mode == null)
                 {
-                    writtenBytes += EncryptBlock(data, i * _blockSize, _blockSize, output, i * _blockSize);
+                    writtenBytes += EncryptBlock(data, offset + (i * _blockSize), _blockSize, output, i * _blockSize);
                 }
                 else
                 {
-                    writtenBytes += _mode.EncryptBlock(data, i * _blockSize, _blockSize, output, i * _blockSize);
+                    writtenBytes += _mode.EncryptBlock(data, offset + (i * _blockSize), _blockSize, output, i * _blockSize);
                 }
             }
 
-            if (writtenBytes < data.Length)
+            if (writtenBytes < length)
             {
                 throw new InvalidOperationException("Encryption error.");
             }

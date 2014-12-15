@@ -1,4 +1,6 @@
-﻿namespace Renci.SshNet.Messages.Transport
+﻿using System;
+
+namespace Renci.SshNet.Messages.Transport
 {
     /// <summary>
     /// Represents SSH_MSG_UNIMPLEMENTED message.
@@ -18,6 +20,7 @@
         /// </summary>
         protected override void SaveData()
         {
+            throw new NotImplementedException();
         }
     }
 }

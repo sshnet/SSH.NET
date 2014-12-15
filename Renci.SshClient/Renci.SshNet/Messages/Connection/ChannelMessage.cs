@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+
 namespace Renci.SshNet.Messages.Connection
 {
     /// <summary>
@@ -13,6 +14,40 @@ namespace Renci.SshNet.Messages.Connection
         /// The local channel number.
         /// </value>
         public uint LocalChannelNumber { get; protected set; }
+
+#if TUNING
+        /// <summary>
+        /// Gets the size of the message in bytes.
+        /// </summary>
+        /// <value>
+        /// The size of the messages in bytes.
+        /// </value>
+        protected override int BufferCapacity
+        {
+            get
+            {
+                var capacity = base.BufferCapacity;
+                capacity += 4; // LocalChannelNumber
+                return capacity;
+            }
+        }
+#endif
+
+        /// <summary>
+        /// Initializes a new <see cref="ChannelMessage"/>.
+        /// </summary>
+        protected ChannelMessage()
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new <see cref="ChannelMessage"/> with the specified local channel number.
+        /// </summary>
+        /// <param name="localChannelNumber">The local channel number.</param>
+        protected ChannelMessage(uint localChannelNumber)
+        {
+            LocalChannelNumber = localChannelNumber;
+        }
 
         /// <summary>
         /// Called when type specific data need to be loaded.

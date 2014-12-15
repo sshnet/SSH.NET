@@ -89,7 +89,11 @@ namespace Renci.SshNet.Channels
 
                     if (read > 0)
                     {
+#if TUNING
+                        SendData(buffer, 0, read);
+#else
                         SendMessage(new ChannelDataMessage(RemoteChannelNumber, buffer.Take(read).ToArray()));
+#endif
                     }
                     else
                     {

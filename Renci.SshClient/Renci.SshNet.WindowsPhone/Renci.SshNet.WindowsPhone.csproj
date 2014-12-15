@@ -28,7 +28,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>Bin\Debug</OutputPath>
-    <DefineConstants>DEBUG;TRACE;SILVERLIGHT;WINDOWS_PHONE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;SILVERLIGHT;WINDOWS_PHONE;TUNING</DefineConstants>
     <NoStdLib>true</NoStdLib>
     <NoConfig>true</NoConfig>
     <ErrorReport>prompt</ErrorReport>
@@ -39,7 +39,7 @@
     <DebugType>none</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>Bin\Release</OutputPath>
-    <DefineConstants>TRACE;SILVERLIGHT;WINDOWS_PHONE</DefineConstants>
+    <DefineConstants>TRACE;SILVERLIGHT;WINDOWS_PHONE;TUNING</DefineConstants>
     <NoStdLib>true</NoStdLib>
     <NoConfig>true</NoConfig>
     <ErrorReport>prompt</ErrorReport>
@@ -133,6 +133,9 @@
     <Compile Include="..\Renci.SshNet\Common\ChannelEventArgs.cs">
       <Link>Common\ChannelEventArgs.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\Common\ChannelExtendedDataEventArgs.cs">
+      <Link>Common\ChannelExtendedDataEventArgs.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\Common\ChannelOpenConfirmedEventArgs.cs">
       <Link>Common\ChannelOpenConfirmedEventArgs.cs</Link>
     </Compile>
@@ -198,6 +201,9 @@
     </Compile>
     <Compile Include="..\Renci.SshNet\Common\SshData.cs">
       <Link>Common\SshData.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Common\SshDataStream.cs">
+      <Link>Common\SshDataStream.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Common\SshException.cs">
       <Link>Common\SshException.cs</Link>
@@ -807,9 +813,6 @@
     </Compile>
     <Compile Include="..\Renci.SshNet\Sftp\Responses\SftpVersionResponse.cs">
       <Link>Sftp\Responses\SftpVersionResponse.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet\Sftp\SftpDataMessage.cs">
-      <Link>Sftp\SftpDataMessage.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Sftp\SftpDownloadAsyncResult.cs">
       <Link>Sftp\SftpDownloadAsyncResult.cs</Link>

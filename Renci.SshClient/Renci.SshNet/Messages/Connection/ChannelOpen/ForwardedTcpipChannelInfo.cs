@@ -56,7 +56,7 @@ namespace Renci.SshNet.Messages.Connection
 #if TUNING
         public string ConnectedAddress
         {
-            get { return Utf8.GetString(_connectedAddress); }
+            get { return Utf8.GetString(_connectedAddress, 0, _connectedAddress.Length); }
             private set { _connectedAddress = Utf8.GetBytes(value); }
         }
 #else
@@ -74,7 +74,7 @@ namespace Renci.SshNet.Messages.Connection
 #if TUNING
         public string OriginatorAddress
         {
-            get { return Utf8.GetString(_originatorAddress); }
+            get { return Utf8.GetString(_originatorAddress, 0, _originatorAddress.Length); }
             private set { _originatorAddress = Utf8.GetBytes(value); }
         }
 #else

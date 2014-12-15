@@ -36,7 +36,7 @@ namespace Renci.SshNet.Messages.Connection
 #if TUNING
         public string SubsystemName
         {
-            get { return Ascii.GetString(_subsystemName); }
+            get { return Ascii.GetString(_subsystemName, 0, _subsystemName.Length); }
             private set { _subsystemName = Ascii.GetBytes(value); }
         }
 #else

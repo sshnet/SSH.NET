@@ -138,7 +138,7 @@ namespace Renci.SshNet.Messages.Connection
 #if TUNING
             _infoBytes = ReadBytes();
 
-            var channelName = Ascii.GetString(ChannelType);
+            var channelName = Ascii.GetString(ChannelType, 0, ChannelType.Length);
 #else
             var _infoBytes = ReadBytes();
 #endif

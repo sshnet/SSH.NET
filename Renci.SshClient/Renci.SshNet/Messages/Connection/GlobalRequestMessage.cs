@@ -43,7 +43,7 @@ namespace Renci.SshNet.Messages.Connection
 #if TUNING
         public string AddressToBind
         {
-            get { return Utf8.GetString(_addressToBind); }
+            get { return Utf8.GetString(_addressToBind, 0, _addressToBind.Length); }
             private set { _addressToBind = Utf8.GetBytes(value); }
         }
 #else

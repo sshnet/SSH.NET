@@ -13,7 +13,8 @@ namespace Renci.SshNet
         {
             if (message == null)
                 throw new ArgumentNullException("message");
-            else if (message is DisconnectMessage)
+
+            if (message is DisconnectMessage)
                 this.HandleMessage((DisconnectMessage)message);
             else if (message is IgnoreMessage)
                 this.HandleMessage((IgnoreMessage)message);

@@ -113,7 +113,7 @@ namespace Renci.SshNet.Security
 #if TUNING
             private string Name
             {
-                get { return Utf8.GetString(_name); }
+                get { return Utf8.GetString(_name, 0, _name.Length); }
                 set { _name = Utf8.GetBytes(value); }
             }
 #else

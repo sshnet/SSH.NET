@@ -35,7 +35,7 @@
 #if TUNING
         public string VariableName
         {
-            get { return Utf8.GetString(_variableName); }
+            get { return Utf8.GetString(_variableName, 0, _variableName.Length); }
         }
 #else
         public string VariableName { get; set; }
@@ -50,7 +50,7 @@
 #if TUNING
         public string VariableValue
         {
-            get { return Utf8.GetString(_variableValue); }
+            get { return Utf8.GetString(_variableValue, 0, _variableValue.Length); }
         }
 #else
         public string VariableValue { get; set; }

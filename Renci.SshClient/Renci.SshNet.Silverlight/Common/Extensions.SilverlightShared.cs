@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Net.Sockets;
 using System.Threading;
 using System.Security.Cryptography;
@@ -13,7 +11,7 @@ namespace Renci.SshNet.Common
     /// <summary>
     /// Collection of different extension method specific for Silverlight
     /// </summary>
-    public static partial class Extensions
+    internal static partial class Extensions
     {
         /// <summary>
         /// Determines whether [is null or white space] [the specified value].

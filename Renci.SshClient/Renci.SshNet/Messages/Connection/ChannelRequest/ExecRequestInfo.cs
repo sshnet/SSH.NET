@@ -37,7 +37,7 @@ namespace Renci.SshNet.Messages.Connection
 #if TUNING
         public string Command
         {
-            get { return Encoding.GetString(_command); }
+            get { return Encoding.GetString(_command, 0, _command.Length); }
         }
 #else
         public string Command { get; private set; }

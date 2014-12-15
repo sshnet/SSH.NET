@@ -19,7 +19,7 @@ namespace Renci.SshNet.Messages.Authentication
 #if TUNING
         public string Message
         {
-            get { return Utf8.GetString(_message); }
+            get { return Utf8.GetString(_message, 0, _message.Length); }
         }
 #else
         public string Message { get; private set; }
@@ -31,7 +31,7 @@ namespace Renci.SshNet.Messages.Authentication
 #if TUNING
         public string Language
         {
-            get { return Utf8.GetString(_language); }
+            get { return Utf8.GetString(_language, 0, _language.Length); }
         }
 #else
         public string Language { get; private set; }

@@ -31,7 +31,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>Bin\Debug</OutputPath>
-    <DefineConstants>DEBUG;TRACE;SILVERLIGHT;WINDOWS_PHONE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;SILVERLIGHT;WINDOWS_PHONE;TUNING</DefineConstants>
     <NoStdLib>true</NoStdLib>
     <NoConfig>true</NoConfig>
     <ErrorReport>prompt</ErrorReport>
@@ -43,7 +43,7 @@
     <DebugType>none</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>Bin\Release</OutputPath>
-    <DefineConstants>TRACE;SILVERLIGHT;WINDOWS_PHONE</DefineConstants>
+    <DefineConstants>TRACE;SILVERLIGHT;WINDOWS_PHONE;TUNING</DefineConstants>
     <NoStdLib>true</NoStdLib>
     <NoConfig>true</NoConfig>
     <ErrorReport>prompt</ErrorReport>
@@ -101,6 +101,9 @@
   <ItemGroup>
     <Compile Include="..\Renci.SshNet.Silverlight\Channels\ChannelDirectTcpip.SilverlightShared.cs">
       <Link>ChannelDirectTcpip.SilverlightShared.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.WindowsPhone\Common\Extensions.WP.cs">
+      <Link>Common\Extensions.WP.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\AuthenticationMethod.cs">
       <Link>AuthenticationMethod.cs</Link>
@@ -183,6 +186,9 @@
     <Compile Include="..\Renci.SshNet\Common\ChannelEventArgs.cs">
       <Link>Common\ChannelEventArgs.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\Common\ChannelExtendedDataEventArgs.cs">
+      <Link>Common\ChannelExtendedDataEventArgs.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\Common\ChannelOpenConfirmedEventArgs.cs">
       <Link>Common\ChannelOpenConfirmedEventArgs.cs</Link>
     </Compile>
@@ -248,6 +254,9 @@
     </Compile>
     <Compile Include="..\Renci.SshNet\Common\SshData.cs">
       <Link>Common\SshData.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Common\SshDataStream.cs">
+      <Link>Common\SshDataStream.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Common\SshException.cs">
       <Link>Common\SshException.cs</Link>
@@ -858,9 +867,6 @@
     <Compile Include="..\Renci.SshNet\Sftp\Responses\SftpVersionResponse.cs">
       <Link>Sftp\Responses\SftpVersionResponse.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\Sftp\SftpDataMessage.cs">
-      <Link>Sftp\SftpDataMessage.cs</Link>
-    </Compile>
     <Compile Include="..\Renci.SshNet\Sftp\SftpDownloadAsyncResult.cs">
       <Link>Sftp\SftpDownloadAsyncResult.cs</Link>
     </Compile>
@@ -918,9 +924,6 @@
     <Compile Include="..\Renci.SshNet\SubsystemSession.cs">
       <Link>SubsystemSession.cs</Link>
     </Compile>
-    <Compile Include="Common\Extensions.WP.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="ForwardedPortLocal.SilverlightShared.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="..\Renci.SshNet\Properties\CommonAssemblyInfo.cs">
@@ -932,7 +935,7 @@
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties ProjectLinkReference="2f5f8c90-0bd1-424f-997c-7bc6280919d1" ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" />
+      <UserProperties ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" ProjectLinkReference="2f5f8c90-0bd1-424f-997c-7bc6280919d1" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -18,7 +18,7 @@ namespace Renci.SshNet.Sftp.Requests
 #if TUNING
         public string NewLinkPath
         {
-            get { return Utf8.GetString(_newLinkPath); }
+            get { return Utf8.GetString(_newLinkPath, 0, _newLinkPath.Length); }
             private set { _newLinkPath = Utf8.GetBytes(value); }
         }
 #else
@@ -28,7 +28,7 @@ namespace Renci.SshNet.Sftp.Requests
 #if TUNING
         public string ExistingPath
         {
-            get { return Utf8.GetString(_existingPath); }
+            get { return Utf8.GetString(_existingPath, 0, _existingPath.Length); }
             private set { _existingPath = Utf8.GetBytes(value); }
         }
 #else

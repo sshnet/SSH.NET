@@ -33,7 +33,7 @@ namespace Renci.SshNet.Messages.Connection
 #if TUNING
         public string OriginatorAddress
         {
-            get { return Utf8.GetString(_originatorAddress); }
+            get { return Utf8.GetString(_originatorAddress, 0, _originatorAddress.Length); }
             private set { _originatorAddress = Utf8.GetBytes(value); }
         }
 #else

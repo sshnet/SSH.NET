@@ -34,7 +34,7 @@
 #if TUNING
         public string SignalName
         {
-            get { return Ascii.GetString(_signalName); }
+            get { return Ascii.GetString(_signalName, 0, _signalName.Length); }
             private set { _signalName = Ascii.GetBytes(value); }
         }
 #else

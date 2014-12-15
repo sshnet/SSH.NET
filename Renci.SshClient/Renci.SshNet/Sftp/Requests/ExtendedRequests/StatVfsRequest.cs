@@ -10,7 +10,7 @@ namespace Renci.SshNet.Sftp.Requests
 
         public string Path
         {
-            get { return Encoding.GetString(_path); }
+            get { return Encoding.GetString(_path, 0, _path.Length); }
             private set { _path = Encoding.GetBytes(value); }
         }
 

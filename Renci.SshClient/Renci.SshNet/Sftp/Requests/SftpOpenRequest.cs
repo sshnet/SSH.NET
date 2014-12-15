@@ -19,7 +19,7 @@ namespace Renci.SshNet.Sftp.Requests
 #if TUNING
         public string Filename
         {
-            get { return Encoding.GetString(_fileName); }
+            get { return Encoding.GetString(_fileName, 0, _fileName.Length); }
             private set { _fileName = Encoding.GetBytes(value); }
         }
 #else

@@ -25,7 +25,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;TUNING</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -33,7 +33,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;TUNING</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>0</WarningLevel>
   </PropertyGroup>
@@ -529,9 +529,6 @@
     <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Authentication\RequestMessagePublicKeyTest.cs">
       <Link>Classes\Messages\Authentication\RequestMessagePublicKeyTest.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Authentication\RequestMessageTest.cs">
-      <Link>Classes\Messages\Authentication\RequestMessageTest.cs</Link>
-    </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Messages\Authentication\SuccessMessageTest.cs">
       <Link>Classes\Messages\Authentication\SuccessMessageTest.cs</Link>
     </Compile>
@@ -955,9 +952,6 @@
     <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\Responses\SftpVersionResponseTest.cs">
       <Link>Classes\Sftp\Responses\SftpVersionResponseTest.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpDataMessageTest.cs">
-      <Link>Classes\Sftp\SftpDataMessageTest.cs</Link>
-    </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpDownloadAsyncResultTest.cs">
       <Link>Classes\Sftp\SftpDownloadAsyncResultTest.cs</Link>
     </Compile>
@@ -1072,14 +1066,20 @@
     <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpListDirectoryAsyncResultTest.cs">
       <Link>Classes\Sftp\SftpListDirectoryAsyncResultTest.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpSessionTest.cs">
-      <Link>Classes\Sftp\SftpSessionTest.cs</Link>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpSessionTest_Connected_RequestRead.cs">
+      <Link>Classes\Sftp\SftpSessionTest_Connected_RequestRead.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpSessionTest_Connected_RequestStatVfs.cs">
+      <Link>Classes\Sftp\SftpSessionTest_Connected_RequestStatVfs.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpSynchronizeDirectoriesAsyncResultTest.cs">
       <Link>Classes\Sftp\SftpSynchronizeDirectoriesAsyncResultTest.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpUploadAsyncResultTest.cs">
       <Link>Classes\Sftp\SftpUploadAsyncResultTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpVersionResponseBuilder.cs">
+      <Link>Classes\Sftp\SftpVersionResponseBuilder.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\ShellStreamTest.cs">
       <Link>Classes\ShellStreamTest.cs</Link>
@@ -1258,7 +1258,7 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties ProjectLinkReference="c45379b9-17b1-4e89-bc2e-6d41726413e8" ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" />
+      <UserProperties ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" ProjectLinkReference="c45379b9-17b1-4e89-bc2e-6d41726413e8" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

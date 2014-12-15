@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.Net;
 using Renci.SshNet.Messages;
@@ -41,7 +40,7 @@ namespace Renci.SshNet.Common
 
         internal static ServiceName ToServiceName(this byte[] data)
         {
-            var sshServiceName = SshData.Ascii.GetString(data);
+            var sshServiceName = SshData.Ascii.GetString(data, 0, data.Length);
             switch (sshServiceName)
             {
                 case "ssh-userauth":
@@ -55,7 +54,7 @@ namespace Renci.SshNet.Common
 
         internal static GlobalRequestName ToGlobalRequestName(this byte[] data)
         {
-            var sshGlobalRequestName = SshData.Ascii.GetString(data);
+            var sshGlobalRequestName = SshData.Ascii.GetString(data, 0, data.Length);
             switch (sshGlobalRequestName)
             {
                 case "tcpip-forward":

@@ -10,13 +10,13 @@ namespace Renci.SshNet.Sftp.Requests
 
         public string OldPath
         {
-            get { return Utf8.GetString(_oldPath); }
+            get { return Utf8.GetString(_oldPath, 0, _oldPath.Length); }
             private set { _oldPath = Utf8.GetBytes(value); }
         }
 
         public string NewPath
         {
-            get { return Utf8.GetString(_newPath); }
+            get { return Utf8.GetString(_newPath, 0, _newPath.Length); }
             private set { _newPath = Utf8.GetBytes(value); }
         }
 

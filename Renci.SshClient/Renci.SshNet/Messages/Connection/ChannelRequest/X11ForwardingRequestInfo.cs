@@ -42,7 +42,7 @@
 #if TUNING
         public string AuthenticationProtocol
         {
-            get { return Ascii.GetString(_authenticationProtocol); }
+            get { return Ascii.GetString(_authenticationProtocol, 0, _authenticationProtocol.Length); }
             private set { _authenticationProtocol = Ascii.GetBytes(value); }
         }
 #else

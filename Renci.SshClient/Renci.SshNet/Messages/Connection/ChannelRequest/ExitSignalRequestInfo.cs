@@ -36,7 +36,7 @@
 #if TUNING
         public string SignalName
         {
-            get { return Ascii.GetString(_signalName); }
+            get { return Ascii.GetString(_signalName, 0, _signalName.Length); }
             private set { _signalName = Ascii.GetBytes(value); }
         }
 #else
@@ -57,7 +57,7 @@
 #if TUNING
         public string ErrorMessage
         {
-            get { return Utf8.GetString(_errorMessage); }
+            get { return Utf8.GetString(_errorMessage, 0, _errorMessage.Length); }
             private set { _errorMessage = Utf8.GetBytes(value); }
         }
 #else
@@ -70,7 +70,7 @@
 #if TUNING
         public string Language
         {
-            get { return Utf8.GetString(_language); }
+            get { return Utf8.GetString(_language, 0, _language.Length); }
             private set { _language = Utf8.GetBytes(value); }
         }
 #else

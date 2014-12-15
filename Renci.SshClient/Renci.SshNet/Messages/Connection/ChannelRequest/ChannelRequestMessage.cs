@@ -85,7 +85,7 @@
 
 #if TUNING
             _requestNameBytes = ReadBinary();
-            _requestName = Ascii.GetString(_requestNameBytes);
+            _requestName = Ascii.GetString(_requestNameBytes, 0, _requestNameBytes.Length);
 #else
             RequestName = ReadAsciiString();
 #endif

@@ -18,7 +18,7 @@ namespace Renci.SshNet.Security
 #if TUNING
         public string ServerVersion
         {
-            private get { return Utf8.GetString(_serverVersion); }
+            private get { return Utf8.GetString(_serverVersion, 0, _serverVersion.Length); }
             set { _serverVersion = Utf8.GetBytes(value); }
         }
 #else
@@ -28,7 +28,7 @@ namespace Renci.SshNet.Security
 #if TUNING
         public string ClientVersion
         {
-            private get { return Utf8.GetString(_clientVersion); }
+            private get { return Utf8.GetString(_clientVersion, 0, _clientVersion.Length); }
             set { _clientVersion = Utf8.GetBytes(value); }
         }
 #else

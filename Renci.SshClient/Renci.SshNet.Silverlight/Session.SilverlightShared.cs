@@ -176,17 +176,19 @@ namespace Renci.SshNet
         /// Writes the specified data to the server.
         /// </summary>
         /// <param name="data">The data to write to the server.</param>
+        /// <param name="offset">The zero-based offset in <paramref name="data"/> at which to begin taking data from.</param>
+        /// <param name="length">The number of bytes of <paramref name="data"/> to write.</param>
         /// <exception cref="SshOperationTimeoutException">The write has timed-out.</exception>
         /// <exception cref="SocketException">The write failed.</exception>
-        partial void SocketWrite(byte[] data)
+        private void SocketWrite(byte[] data, int offset, int length)
         {
             var timeout = ConnectionInfo.Timeout;
             var totalBytesSent = 0;  // how many bytes are already sent
-            var totalBytesToSend = data.Length;
+            var totalBytesToSend = length;
 
             do
             {
-                var args = CreateSocketAsyncEventArgs(_sendEvent, data, 0, totalBytesToSend - totalBytesSent);
+                var args = CreateSocketAsyncEventArgs(_sendEvent, data, offset + totalBytesSent, totalBytesToSend - totalBytesSent);
                 if (_socket.SendAsync(args))
                 {
                     if (!_sendEvent.WaitOne(timeout))

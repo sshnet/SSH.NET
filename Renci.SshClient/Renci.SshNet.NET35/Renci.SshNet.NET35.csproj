@@ -22,7 +22,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;TUNING</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -30,7 +30,7 @@
     <DebugType>none</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;TUNING</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Release\Renci.SshNet.xml</DocumentationFile>
@@ -135,6 +135,9 @@
     <Compile Include="..\Renci.SshNet\Common\ChannelEventArgs.cs">
       <Link>Common\ChannelEventArgs.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\Common\ChannelExtendedDataEventArgs.cs">
+      <Link>Common\ChannelExtendedDataEventArgs.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\Common\ChannelOpenConfirmedEventArgs.cs">
       <Link>Common\ChannelOpenConfirmedEventArgs.cs</Link>
     </Compile>
@@ -221,6 +224,9 @@
     </Compile>
     <Compile Include="..\Renci.SshNet\Common\SshData.cs">
       <Link>Common\SshData.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Common\SshDataStream.cs">
+      <Link>Common\SshDataStream.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Common\SshException.cs">
       <Link>Common\SshException.cs</Link>
@@ -861,9 +867,6 @@
     <Compile Include="..\Renci.SshNet\Sftp\Responses\SftpVersionResponse.cs">
       <Link>Sftp\Responses\SftpVersionResponse.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\Sftp\SftpDataMessage.cs">
-      <Link>Sftp\SftpDataMessage.cs</Link>
-    </Compile>
     <Compile Include="..\Renci.SshNet\Sftp\SftpDownloadAsyncResult.cs">
       <Link>Sftp\SftpDownloadAsyncResult.cs</Link>
     </Compile>
@@ -943,7 +946,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties ProjectLinkReference="2f5f8c90-0bd1-424f-997c-7bc6280919d1" ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" />
+      <UserProperties ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" ProjectLinkReference="2f5f8c90-0bd1-424f-997c-7bc6280919d1" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

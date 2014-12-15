@@ -19,7 +19,7 @@ namespace Renci.SshNet.Sftp.Requests
 #if TUNING
         public string OldPath
         {
-            get { return Encoding.GetString(_oldPath); }
+            get { return Encoding.GetString(_oldPath, 0, _oldPath.Length); }
             private set { _oldPath = Encoding.GetBytes(value); }
         }
 #else
@@ -29,7 +29,7 @@ namespace Renci.SshNet.Sftp.Requests
 #if TUNING
         public string NewPath
         {
-            get { return Encoding.GetString(_newPath); }
+            get { return Encoding.GetString(_newPath, 0, _newPath.Length); }
             private set { _newPath = Encoding.GetBytes(value); }
         }
 #else

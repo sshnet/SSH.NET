@@ -27,18 +27,18 @@ namespace Renci.SshNet.Security
         protected override byte[] CalculateHash()
         {
             var hashData = new _ExchangeHashData
-            {
-                ClientVersion = this.Session.ClientVersion,
-                ServerVersion = this.Session.ServerVersion,
-                ClientPayload = this._clientPayload,
-                ServerPayload = this._serverPayload,
-                HostKey = this._hostKey,
-                ClientExchangeValue = this._clientExchangeValue,
-                ServerExchangeValue = this._serverExchangeValue,
-                SharedKey = this.SharedKey,
-            }.GetBytes();
+                {
+                    ClientVersion = Session.ClientVersion,
+                    ServerVersion = Session.ServerVersion,
+                    ClientPayload = _clientPayload,
+                    ServerPayload = _serverPayload,
+                    HostKey = _hostKey,
+                    ClientExchangeValue = _clientExchangeValue,
+                    ServerExchangeValue = _serverExchangeValue,
+                    SharedKey = SharedKey,
+                }.GetBytes();
 
-            return this.Hash(hashData);
+            return Hash(hashData);
         }
 
         /// <summary>
@@ -50,17 +50,17 @@ namespace Renci.SshNet.Security
         {
             base.Start(session, message);
 
-            this.Session.RegisterMessage("SSH_MSG_KEXDH_REPLY");
+            Session.RegisterMessage("SSH_MSG_KEXDH_REPLY");
 
-            this.Session.MessageReceived += Session_MessageReceived;
+            Session.MessageReceived += Session_MessageReceived;
 
-            this._prime = this.GroupPrime;
+            _prime = GroupPrime;
 
-            this._group = new BigInteger(new byte[] { 2 });
+            _group = new BigInteger(new byte[] { 2 });
 
-            this.PopulateClientExchangeValue();
+            PopulateClientExchangeValue();
 
-            this.SendMessage(new KeyExchangeDhInitMessage(this._clientExchangeValue));
+            SendMessage(new KeyExchangeDhInitMessage(_clientExchangeValue));
 
         }
 
@@ -71,7 +71,7 @@ namespace Renci.SshNet.Security
         {
             base.Finish();
 
-            this.Session.MessageReceived -= Session_MessageReceived;
+            Session.MessageReceived -= Session_MessageReceived;
         }
 
         private void Session_MessageReceived(object sender, MessageEventArgs<Message> e)
@@ -80,12 +80,12 @@ namespace Renci.SshNet.Security
             if (message != null)
             {
                 //  Unregister message once received
-                this.Session.UnRegisterMessage("SSH_MSG_KEXDH_REPLY");
+                Session.UnRegisterMessage("SSH_MSG_KEXDH_REPLY");
 
-                this.HandleServerDhReply(message.HostKey, message.F, message.Signature);
+                HandleServerDhReply(message.HostKey, message.F, message.Signature);
 
                 //  When SSH_MSG_KEXDH_REPLY received key exchange is completed
-                this.Finish();
+                Finish();
             }
         }
 
@@ -188,7 +188,7 @@ namespace Renci.SshNet.Security
 
             protected override void LoadData()
             {
-                throw new System.NotImplementedException();
+                throw new NotImplementedException();
             }
 
             protected override void SaveData()
@@ -197,20 +197,20 @@ namespace Renci.SshNet.Security
                 WriteBinaryString(_clientVersion);
                 WriteBinaryString(_serverVersion);
 #else
-                this.Write(this.ClientVersion);
-                this.Write(this.ServerVersion);
+                Write(ClientVersion);
+                Write(ServerVersion);
 #endif
-                this.WriteBinaryString(this.ClientPayload);
-                this.WriteBinaryString(this.ServerPayload);
-                this.WriteBinaryString(this.HostKey);
+                WriteBinaryString(ClientPayload);
+                WriteBinaryString(ServerPayload);
+                WriteBinaryString(HostKey);
 #if TUNING
                 WriteBinaryString(_clientExchangeValue);
                 WriteBinaryString(_serverExchangeValue);
                 WriteBinaryString(_sharedKey);
 #else
-                this.Write(this.ClientExchangeValue);
-                this.Write(this.ServerExchangeValue);
-                this.Write(this.SharedKey);
+                Write(ClientExchangeValue);
+                Write(ServerExchangeValue);
+                Write(SharedKey);
 #endif
             }
         }

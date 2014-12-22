@@ -217,13 +217,6 @@ namespace Renci.SshNet
                 }
                 catch (SocketException exp)
                 {
-                    if (exp.SocketErrorCode == SocketError.ConnectionAborted)
-                    {
-                        buffer = new byte[length];
-                        Disconnect();
-                        return;
-                    }
-
                     if (exp.SocketErrorCode == SocketError.WouldBlock ||
                         exp.SocketErrorCode == SocketError.IOPending ||
                         exp.SocketErrorCode == SocketError.NoBufferSpaceAvailable)
@@ -232,7 +225,9 @@ namespace Renci.SshNet
                         Thread.Sleep(30);
                     }
                     else
-                        throw;  // any serious error occurred
+                    {
+                        throw new SshConnectionException(exp.Message, DisconnectReason.ConnectionLost, exp);
+                    }
                 }
             } while (receivedTotal < length);
         }

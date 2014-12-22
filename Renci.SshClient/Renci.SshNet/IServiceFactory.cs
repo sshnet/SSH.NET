@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text;
 using Renci.SshNet.Common;
+using Renci.SshNet.Security;
 using Renci.SshNet.Sftp;
 
 namespace Renci.SshNet
@@ -10,6 +12,8 @@ namespace Renci.SshNet
     /// </summary>
     internal partial interface IServiceFactory
     {
+        IClientAuthentication CreateClientAuthentication();
+
         /// <summary>
         /// Creates a new <see cref="ISession"/> with the specified <see cref="ConnectionInfo"/>.
         /// </summary>
@@ -39,5 +43,19 @@ namespace Renci.SshNet
         /// A <see cref="PipeStream"/>.
         /// </returns>
         PipeStream CreatePipeStream();
+
+        /// <summary>
+        /// Negotiates a key exchange algorithm, and creates a <see cref="IKeyExchange" /> for the negotiated
+        /// algorithm.
+        /// </summary>
+        /// <param name="clientAlgorithms">A <see cref="IDictionary{String, Type}"/> of the key exchange algorithms supported by the client where the key is the name of the algorithm, and the value is the type implementing this algorithm.</param>
+        /// <param name="serverAlgorithms">The names of the key exchange algorithms supported by the SSH server.</param>
+        /// <returns>
+        /// A <see cref="IKeyExchange"/> that was negotiated between client and server.
+        /// </returns>
+        /// <exception cref="ArgumentNullException"><paramref name="clientAlgorithms"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="serverAlgorithms"/> is <c>null</c>.</exception>
+        /// <exception cref="SshConnectionException">No key exchange algorithm is supported by both client and server.</exception>
+        IKeyExchange CreateKeyExchange(IDictionary<string, Type> clientAlgorithms, string[] serverAlgorithms);
     }
 }

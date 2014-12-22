@@ -402,12 +402,17 @@ namespace Renci.SshNet
         /// Authenticates the specified session.
         /// </summary>
         /// <param name="session">The session to be authenticated.</param>
+        /// <param name="serviceFactory">The factory to use for creating new services.</param>
         /// <exception cref="ArgumentNullException"><paramref name="session"/> is null.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="serviceFactory"/> is <c>null</c>.</exception>
         /// <exception cref="SshAuthenticationException">No suitable authentication method found to complete authentication, or permission denied.</exception>
-        internal void Authenticate(ISession session)
+        internal void Authenticate(ISession session, IServiceFactory serviceFactory)
         {
+            if (serviceFactory == null)
+                throw new ArgumentNullException("serviceFactory");
+
             IsAuthenticated = false;
-            var clientAuthentication = new ClientAuthentication();
+            var clientAuthentication = serviceFactory.CreateClientAuthentication();
             clientAuthentication.Authenticate(this, session);
             IsAuthenticated = true;
         }

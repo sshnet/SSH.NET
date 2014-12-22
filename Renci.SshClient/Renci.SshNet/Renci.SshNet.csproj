@@ -154,6 +154,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="IAuthenticationMethod.cs" />
+    <Compile Include="IClientAuthentication.cs" />
     <Compile Include="IConnectionInfo.cs" />
     <Compile Include="IForwardedPort.cs" />
     <Compile Include="IServiceFactory.cs" />
@@ -174,6 +175,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Security\GroupExchangeHashData.cs" />
+    <Compile Include="Security\IKeyExchange.cs" />
     <Compile Include="Security\KeyExchangeDiffieHellmanGroupExchangeShaBase.cs" />
     <Compile Include="Security\KeyExchangeEllipticCurveDiffieHellman.cs" />
     <Compile Include="ServiceFactory.cs" />

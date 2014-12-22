@@ -155,8 +155,8 @@ namespace Renci.SshNet
         /// <param name="connectionInfo">The connection info.</param>
         /// <param name="ownsConnectionInfo">Specified whether this instance owns the connection info.</param>
         /// <param name="serviceFactory">The factory to use for creating new services.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="connectionInfo"/> is null.</exception>
-        /// <exception cref="ArgumentNullException"><paramref name="serviceFactory"/> is null.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="connectionInfo"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="serviceFactory"/> is <c>null</c>.</exception>
         /// <remarks>
         /// If <paramref name="ownsConnectionInfo"/> is <c>true</c>, then the
         /// connection info will be disposed when this instance is disposed.

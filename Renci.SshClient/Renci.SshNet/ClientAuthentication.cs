@@ -5,7 +5,7 @@ using Renci.SshNet.Common;
 
 namespace Renci.SshNet
 {
-    internal class ClientAuthentication
+    internal class ClientAuthentication : IClientAuthentication
     {
         public void Authenticate(IConnectionInfoInternal connectionInfo, ISession session)
         {

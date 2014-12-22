@@ -112,6 +112,7 @@
     <Compile Include="Classes\Channels\ClientChannelTest_OnSessionChannelOpenConfirmationReceived_OnOpenConfirmation_Exception.cs" />
     <Compile Include="Classes\Channels\ClientChannelTest_OnSessionChannelOpenFailureReceived_OnOpenFailure_Exception.cs" />
     <Compile Include="Classes\CipherInfoTest.cs" />
+    <Compile Include="Classes\ClientAuthenticationTest.cs" />
     <Compile Include="Classes\ClientAuthenticationTestBase.cs" />
     <Compile Include="Classes\ClientAuthenticationTest_Failure_SingleList_AuthenticationMethodFailed.cs" />
     <Compile Include="Classes\ClientAuthenticationTest_Failure_SingleList_AuthenticationMethodNotConfigured.cs" />
@@ -120,6 +121,8 @@
     <Compile Include="Classes\ClientAuthenticationTest_Success_MultiList_SameAllowedAuthenticationsAfterPartialSuccess.cs" />
     <Compile Include="Classes\ClientAuthenticationTest_Success_MultiList_SkipFailedAuthenticationMethod.cs" />
     <Compile Include="Classes\ClientAuthenticationTest_Success_SingleList_SameAllowedAuthenticationAfterPartialSuccess.cs" />
+    <Compile Include="Classes\ConnectionInfoTest_Authenticate_Failure.cs" />
+    <Compile Include="Classes\ConnectionInfoTest_Authenticate_Success.cs" />
     <Compile Include="Classes\ForwardedPortDynamicTest_Dispose_PortStarted_ChannelBound.cs" />
     <Compile Include="Classes\ForwardedPortDynamicTest_Start_SessionNotConnected.cs" />
     <Compile Include="Classes\ForwardedPortDynamicTest_Start_SessionNull.cs" />
@@ -169,6 +172,8 @@
     <Compile Include="Classes\ForwardedPortRemoteTest_Stop_PortNeverStarted.cs" />
     <Compile Include="Classes\ForwardedPortRemoteTest_Stop_PortStarted_ChannelBound.cs" />
     <Compile Include="Classes\ForwardedPortRemoteTest_Stop_PortStopped.cs" />
+    <Compile Include="Classes\Messages\Transport\KeyExchangeDhGroupExchangeGroupBuilder.cs" />
+    <Compile Include="Classes\Messages\Transport\KeyExchangeDhGroupExchangeReplyBuilder.cs" />
     <Compile Include="Classes\NetConfClientTest_Dispose_Connected.cs" />
     <Compile Include="Classes\NetConfClientTest_Dispose_Disconnected.cs" />
     <Compile Include="Classes\NetConfClientTest_Dispose_Disposed.cs" />
@@ -214,6 +219,16 @@
     <Compile Include="Classes\Common\PortForwardEventArgsTest.cs" />
     <Compile Include="Classes\Compression\ZlibTest.cs" />
     <Compile Include="Classes\ConnectionInfoTest.cs" />
+    <Compile Include="Classes\SessionTest_Connected.cs" />
+    <Compile Include="Classes\SessionTest_ConnectedBase.cs" />
+    <Compile Include="Classes\SessionTest_Connected_ConnectionReset.cs" />
+    <Compile Include="Classes\SessionTest_Connected_Disconnect.cs" />
+    <Compile Include="Classes\SessionTest_Connected_ServerSendsDisconnectMessage.cs" />
+    <Compile Include="Classes\SessionTest_Connected_ServerSendsBadPacket.cs" />
+    <Compile Include="Classes\SessionTest_Connected_ServerSendsDisconnectMessageAndShutsDownSocket.cs" />
+    <Compile Include="Classes\SessionTest_Connected_ServerShutsDownSocket.cs" />
+    <Compile Include="Classes\SessionTest_NotConnected.cs" />
+    <Compile Include="Classes\SessionTest_SocketConnected_BadPacketAndDispose.cs" />
     <Compile Include="Classes\SftpClientTest.SynchronizeDirectories.cs" />
     <Compile Include="Classes\SftpClientTest.cs" />
     <Compile Include="Classes\SftpClientTest.Download.cs" />

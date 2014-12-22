@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
 using System.Net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using Renci.SshNet.Tests.Common;
 using Renci.SshNet.Tests.Properties;
 using System;
@@ -323,20 +324,23 @@ namespace Renci.SshNet.Tests.Classes
 
         [TestMethod]
         [TestCategory("ConnectionInfo")]
-        public void AuthenticateShouldThrowArgumentNullExceptionWhenSessionIsNull()
+        public void AuthenticateShouldThrowArgumentNullExceptionWhenServiceFactoryIsNull()
         {
-            var ret = new ConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, ProxyTypes.None,
+            var connectionInfo = new ConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, ProxyTypes.None,
                 Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD,
                 new KeyboardInteractiveAuthenticationMethod(Resources.USERNAME));
+            var session = new Mock<ISession>(MockBehavior.Strict).Object;
+            IServiceFactory serviceFactory = null;
 
             try
             {
-                ret.Authenticate(null);
+                connectionInfo.Authenticate(session, serviceFactory);
+                Assert.Fail();
             }
             catch (ArgumentNullException ex)
             {
                 Assert.IsNull(ex.InnerException);
-                Assert.AreEqual("session", ex.ParamName);
+                Assert.AreEqual("serviceFactory", ex.ParamName);
             }
         }
    }

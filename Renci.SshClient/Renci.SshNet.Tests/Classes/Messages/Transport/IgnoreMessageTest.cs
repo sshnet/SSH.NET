@@ -1,36 +1,95 @@
-﻿using Renci.SshNet.Messages.Transport;
+﻿using System;
+using System.Linq;
+using Renci.SshNet.Common;
+using Renci.SshNet.Messages.Transport;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Messages.Transport
 {
-    /// <summary>
-    ///This is a test class for IgnoreMessageTest and is intended
-    ///to contain all IgnoreMessageTest Unit Tests
-    ///</summary>
-    [TestClass()]
-    public class IgnoreMessageTest : TestBase
+    [TestClass]
+    public class IgnoreMessageTest
     {
-        /// <summary>
-        ///A test for IgnoreMessage Constructor
-        ///</summary>
-        [TestMethod()]
-        public void IgnoreMessageConstructorTest()
+        private Random _random;
+        private byte[] _data;
+
+        [TestInitialize]
+        public void Init()
         {
-            IgnoreMessage target = new IgnoreMessage();
-            Assert.Inconclusive("TODO: Implement code to verify target");
+            _random = new Random();
+            _data = new byte[_random.Next(1, 10)];
+            _random.NextBytes(_data);
         }
 
-        /// <summary>
-        ///A test for IgnoreMessage Constructor
-        ///</summary>
-        [TestMethod()]
-        public void IgnoreMessageConstructorTest1()
+        [TestMethod]
+        public void DefaultConstructor()
         {
-            byte[] data = null; // TODO: Initialize to an appropriate value
-            IgnoreMessage target = new IgnoreMessage(data);
-            Assert.Inconclusive("TODO: Implement code to verify target");
+            var target = new IgnoreMessage();
+            Assert.IsNotNull(target.Data);
+            Assert.AreEqual(0, target.Data.Length);
+        }
+
+        [TestMethod]
+        public void Constructor_Data()
+        {
+            var target = new IgnoreMessage(_data);
+            Assert.AreSame(_data, target.Data);
+        }
+
+        [TestMethod]
+        public void Constructor_Data_ShouldThrowArgumentNullExceptionWhenDataIsNull()
+        {
+            byte[] data = null;
+
+            try
+            {
+                new IgnoreMessage(data);
+                Assert.Fail();
+            }
+            catch (ArgumentNullException ex)
+            {
+                Assert.IsNull(ex.InnerException);
+                Assert.AreEqual("data", ex.ParamName);
+            }
+        }
+
+        [TestMethod]
+        public void GetBytes()
+        {
+            var request = new IgnoreMessage(_data);
+
+            var bytes = request.GetBytes();
+
+            var expectedBytesLength = 0;
+            expectedBytesLength += 1; // Type
+            expectedBytesLength += 4; // Data length
+            expectedBytesLength += _data.Length; // Data
+
+            Assert.AreEqual(expectedBytesLength, bytes.Length);
+
+            var sshDataStream = new SshDataStream(bytes);
+
+            Assert.AreEqual(IgnoreMessage.MessageNumber, sshDataStream.ReadByte());
+            Assert.AreEqual((uint) _data.Length, sshDataStream.ReadUInt32());
+
+            var actualData = new byte[_data.Length];
+            sshDataStream.Read(actualData, 0, actualData.Length);
+            Assert.IsTrue(_data.SequenceEqual(actualData));
+
+            Assert.IsTrue(sshDataStream.IsEndOfData);
+        }
+
+        [TestMethod]
+        public void Load()
+        {
+            var ignoreMessage = new IgnoreMessage(_data);
+            var bytes = ignoreMessage.GetBytes();
+            var target = new IgnoreMessage();
+
+            target.Load(bytes);
+
+            Assert.IsNotNull(target.Data);
+            Assert.AreEqual(_data.Length, target.Data.Length);
+            Assert.IsTrue(target.Data.SequenceEqual(_data));
         }
     }
 }

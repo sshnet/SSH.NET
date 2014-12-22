@@ -61,18 +61,6 @@ namespace Renci.SshNet.Tests.Classes.Common
         }
 
         /// <summary>
-        ///A test for SshConnectionException Constructor
-        ///</summary>
-        [TestMethod()]
-        public void SshConnectionExceptionConstructorTest4()
-        {
-            string message = string.Empty; // TODO: Initialize to an appropriate value
-            Exception innerException = null; // TODO: Initialize to an appropriate value
-            SshConnectionException target = new SshConnectionException(message, innerException);
-            Assert.Inconclusive("TODO: Implement code to verify target");
-        }
-
-        /// <summary>
         ///A test for GetObjectData
         ///</summary>
         [TestMethod()]

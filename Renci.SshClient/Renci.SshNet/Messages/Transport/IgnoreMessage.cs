@@ -1,22 +1,26 @@
-﻿namespace Renci.SshNet.Messages.Transport
+﻿using System;
+
+namespace Renci.SshNet.Messages.Transport
 {
     /// <summary>
     /// Represents SSH_MSG_IGNORE message.
     /// </summary>
-    [Message("SSH_MSG_IGNORE", 2)]
+    [Message("SSH_MSG_IGNORE", MessageNumber)]
     public class IgnoreMessage : Message
     {
+        internal const byte MessageNumber = 2;
+
         /// <summary>
         /// Gets ignore message data if any.
         /// </summary>
         public byte[] Data { get; private set; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="IgnoreMessage"/> class.
+        /// Initializes a new instance of the <see cref="IgnoreMessage"/> class
         /// </summary>
         public IgnoreMessage()
         {
-            Data = new byte[] { };
+            Data = new byte[0];
         }
 
 #if TUNING
@@ -44,6 +48,9 @@
         /// <param name="data">The data.</param>
         public IgnoreMessage(byte[] data)
         {
+            if (data == null)
+                throw new ArgumentNullException("data");
+
             Data = data;
         }
 

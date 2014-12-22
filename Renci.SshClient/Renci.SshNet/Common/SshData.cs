@@ -337,16 +337,6 @@ namespace Renci.SshNet.Common
             return ((ulong)data[0] << 56 | (ulong)data[1] << 48 | (ulong)data[2] << 40 | (ulong)data[3] << 32 | (ulong)data[4] << 24 | (ulong)data[5] << 16 | (ulong)data[6] << 8 | data[7]);
         }
 
-        /// <summary>
-        /// Reads next int64 data type from internal buffer.
-        /// </summary>
-        /// <returns>int64 read</returns>
-        protected long ReadInt64()
-        {
-            var data = ReadBytes(8);
-            return (int)(data[0] << 56 | data[1] << 48 | data[2] << 40 | data[3] << 32 | data[4] << 24 | data[5] << 16 | data[6] << 8 | data[7]);
-        }
-
 #if !TUNING
         /// <summary>
         /// Reads next string data type from internal buffer.
@@ -379,6 +369,9 @@ namespace Renci.SshNet.Common
         /// <returns>string read</returns>
         protected string ReadString(Encoding encoding)
         {
+#if TUNING
+            return _stream.ReadString(encoding);
+#else
             var length = ReadUInt32();
 
             if (length > int.MaxValue)
@@ -386,6 +379,7 @@ namespace Renci.SshNet.Common
                 throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "Strings longer than {0} is not supported.", int.MaxValue));
             }
             return encoding.GetString(ReadBytes((int)length), 0, (int)length);
+#endif
         }
 
 #if TUNING
@@ -397,14 +391,7 @@ namespace Renci.SshNet.Common
         /// </returns>
         protected byte[] ReadBinary()
         {
-            var length = ReadUInt32();
-
-            if (length > int.MaxValue)
-            {
-                throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "Data longer than {0} is not supported.", int.MaxValue));
-            }
-
-            return ReadBytes((int) length);
+            return _stream.ReadBinary();
         }
 #else
         /// <summary>
@@ -423,23 +410,6 @@ namespace Renci.SshNet.Common
             return ReadBytes((int)length);
         }
 #endif
-
-        /// <summary>
-        /// Reads next mpint data type from internal buffer.
-        /// </summary>
-        /// <returns>mpint read.</returns>
-        protected BigInteger ReadBigInt()
-        {
-            var length = ReadUInt32();
-
-            var data = ReadBytes((int)length);
-
-#if TUNING
-            return new BigInteger(data.Reverse());
-#else
-            return new BigInteger(data.Reverse().ToArray());
-#endif
-        }
 
         /// <summary>
         /// Reads next name-list data type from internal buffer.
@@ -475,7 +445,7 @@ namespace Renci.SshNet.Common
         /// <exception cref="ArgumentNullException"><paramref name="data"/> is null.</exception>
         protected void Write(byte[] data)
         {
-            _stream.Write(data, 0, data.Length);
+            _stream.Write(data);
         }
 #else
         /// <summary>
@@ -529,21 +499,16 @@ namespace Renci.SshNet.Common
         }
 
         /// <summary>
-        /// Writes uint16 data into internal buffer.
-        /// </summary>
-        /// <param name="data">uint16 data to write.</param>
-        protected void Write(ushort data)
-        {
-            Write(data.GetBytes());
-        }
-
-        /// <summary>
         /// Writes uint32 data into internal buffer.
         /// </summary>
         /// <param name="data">uint32 data to write.</param>
         protected void Write(uint data)
         {
+#if TUNING
+            _stream.Write(data);
+#else
             Write(data.GetBytes());
+#endif
         }
 
         /// <summary>
@@ -552,26 +517,11 @@ namespace Renci.SshNet.Common
         /// <param name="data">uint64 data to write.</param>
         protected void Write(ulong data)
         {
+#if TUNING
+            _stream.Write(data);
+#else
             Write(data.GetBytes());
-        }
-
-        /// <summary>
-        /// Writes int64 data into internal buffer.
-        /// </summary>
-        /// <param name="data">int64 data to write.</param>
-        protected void Write(long data)
-        {
-            Write(data.GetBytes());
-        }
-
-
-        /// <summary>
-        /// Writes string data into internal buffer as ASCII.
-        /// </summary>
-        /// <param name="data">string data to write.</param>
-        protected void WriteAscii(string data)
-        {
-            Write(data, Ascii);
+#endif
         }
 
         /// <summary>
@@ -593,17 +543,16 @@ namespace Renci.SshNet.Common
         /// <exception cref="ArgumentNullException"><paramref name="encoding"/> is null.</exception>
         protected void Write(string data, Encoding encoding)
         {
+#if TUNING
+            _stream.Write(data, encoding);
+#else
             if (data == null)
                 throw new ArgumentNullException("data");
             if (encoding == null)
                 throw new ArgumentNullException("encoding");
 
             var bytes = encoding.GetBytes(data);
-#if TUNING
-            var bytesLength = bytes.Length;
-            Write((uint) bytesLength);
-            Write(bytes, 0, bytesLength);
-#else
+
             Write((uint)bytes.Length);
             Write(bytes);
 #endif
@@ -617,12 +566,7 @@ namespace Renci.SshNet.Common
         /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is null.</exception>
         protected void WriteBinaryString(byte[] buffer)
         {
-            if (buffer == null)
-                throw new ArgumentNullException("buffer");
-
-            var bufferLength = buffer.Length;
-            Write((uint)bufferLength);
-            Write(buffer, 0, bufferLength);
+            _stream.WriteBinary(buffer);
         }
 
         /// <summary>
@@ -636,11 +580,7 @@ namespace Renci.SshNet.Common
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> or <paramref name="count"/> is negative.</exception>
         protected void WriteBinary(byte[] buffer, int offset, int count)
         {
-            if (buffer == null)
-                throw new ArgumentNullException("buffer");
-
-            Write((uint) count);
-            Write(buffer, offset, count);
+            _stream.WriteBinary(buffer, offset, count);
         }
 #else
         /// <summary>
@@ -665,10 +605,7 @@ namespace Renci.SshNet.Common
         protected void Write(BigInteger data)
         {
 #if TUNING
-            var bytes = data.ToByteArray().Reverse();
-            var bytesLength = bytes.Length;
-            Write((uint) bytesLength);
-            Write(bytes, 0, bytesLength);
+            _stream.Write(data);
 #else
             var bytes = data.ToByteArray().Reverse().ToList();
             Write((uint)bytes.Count);
@@ -682,7 +619,7 @@ namespace Renci.SshNet.Common
         /// <param name="data">name-list data to write.</param>
         protected void Write(string[] data)
         {
-            WriteAscii(string.Join(",", data));
+            Write(string.Join(",", data), Ascii);
         }
 
         /// <summary>
@@ -693,8 +630,8 @@ namespace Renci.SshNet.Common
         {
             foreach (var item in data)
             {
-                WriteAscii(item.Key);
-                WriteAscii(item.Value);
+                Write(item.Key, Ascii);
+                Write(item.Value, Ascii);
             }
         }
     }

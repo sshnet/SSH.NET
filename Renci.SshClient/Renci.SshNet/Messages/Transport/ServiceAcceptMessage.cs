@@ -6,9 +6,11 @@ namespace Renci.SshNet.Messages.Transport
     /// <summary>
     /// Represents SSH_MSG_SERVICE_ACCEPT message.
     /// </summary>
-    [Message("SSH_MSG_SERVICE_ACCEPT", 6)]
+    [Message("SSH_MSG_SERVICE_ACCEPT", MessageNumber)]
     public class ServiceAcceptMessage : Message
     {
+        internal const byte MessageNumber = 6;
+
         /// <summary>
         /// Gets the name of the service.
         /// </summary>

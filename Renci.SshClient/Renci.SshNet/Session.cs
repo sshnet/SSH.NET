@@ -63,7 +63,9 @@ namespace Renci.SshNet
         /// </value>
         private const int LocalChannelDataPacketSize = 1024*64;
 
+#if !TUNING
         private static readonly RNGCryptoServiceProvider Randomizer = new RNGCryptoServiceProvider();
+#endif
 
 #if SILVERLIGHT
         private static readonly Regex ServerVersionRe = new Regex("^SSH-(?<protoversion>[^-]+)-(?<softwareversion>.+)( SP.+)?$");
@@ -149,7 +151,7 @@ namespace Renci.SshNet
         /// </summary>
         private bool _isDisconnecting;
 
-        private KeyExchange _keyExchange;
+        private IKeyExchange _keyExchange;
 
         private HashAlgorithm _serverMac;
 
@@ -164,6 +166,11 @@ namespace Renci.SshNet
         private Compressor _clientCompression;
 
         private SemaphoreLight _sessionSemaphore;
+
+        /// <summary>
+        /// Holds the factory to use for creating new services.
+        /// </summary>
+        private readonly IServiceFactory _serviceFactory;
 
         /// <summary>
         /// Gets the session semaphore that controls session channels.
@@ -225,6 +232,9 @@ namespace Renci.SshNet
         /// This methods returns true in all but the following cases:
         /// <list type="bullet">
         ///     <item>
+        ///         <description>The <see cref="Session"/> is disposed.</description>
+        ///     </item>
+        ///     <item>
         ///         <description>The SSH_MSG_DISCONNECT message - which is used to disconnect from the server - has been sent.</description>
         ///     </item>
         ///     <item>
@@ -242,7 +252,7 @@ namespace Renci.SshNet
         {
             get
             {
-                if (_isDisconnectMessageSent || !_isAuthenticated)
+                if (_disposed || _isDisconnectMessageSent || !_isAuthenticated)
                     return false;
                 if (_messageListenerCompleted == null || _messageListenerCompleted.WaitOne(0))
                     return false;
@@ -468,15 +478,20 @@ namespace Renci.SshNet
         /// Initializes a new instance of the <see cref="Session"/> class.
         /// </summary>
         /// <param name="connectionInfo">The connection info.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="connectionInfo"/> is <c>null</c>.</exception>
-        internal Session(ConnectionInfo connectionInfo)
+        /// <param name="serviceFactory">The factory to use for creating new services.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="serviceFactory"/> is <c>null</c>.</exception>
+        internal Session(ConnectionInfo connectionInfo, IServiceFactory serviceFactory)
         {
             if (connectionInfo == null)
                 throw new ArgumentNullException("connectionInfo");
+            if (serviceFactory == null)
+                throw new ArgumentNullException("serviceFactory");
 
             ConnectionInfo = connectionInfo;
             //this.ClientVersion = string.Format(CultureInfo.CurrentCulture, "SSH-2.0-Renci.SshNet.SshClient.{0}", this.GetType().Assembly.GetName().Version);
-            ClientVersion = string.Format(CultureInfo.CurrentCulture, "SSH-2.0-Renci.SshNet.SshClient.0.0.1");
+            ClientVersion = "SSH-2.0-Renci.SshNet.SshClient.0.0.1";
+            _serviceFactory = serviceFactory;
+            _messageListenerCompleted = new ManualResetEvent(true);
         }
 
         /// <summary>
@@ -538,7 +553,7 @@ namespace Renci.SshNet
                         var serverVersion = string.Empty;
                         SocketReadLine(ref serverVersion, ConnectionInfo.Timeout);
                         if (serverVersion == null)
-                            throw new SshConnectionException("Server response does not contain SSH protocol identification.");
+                            throw new SshConnectionException("Server response does not contain SSH protocol identification.", DisconnectReason.ProtocolError);
                         versionMatch = ServerVersionRe.Match(serverVersion);
                         if (versionMatch.Success)
                         {
@@ -577,20 +592,11 @@ namespace Renci.SshNet
                     //  Some server implementations might sent this message first, prior establishing encryption algorithm
                     RegisterMessage("SSH_MSG_USERAUTH_BANNER");
 
-                    //  Start incoming request listener
-                    _messageListenerCompleted = new ManualResetEvent(false);
+                    // mark the message listener threads as started
+                    _messageListenerCompleted.Reset();
 
-                    ExecuteThread(() =>
-                    {
-                        try
-                        {
-                            MessageListener();
-                        }
-                        finally
-                        {
-                            _messageListenerCompleted.Set();
-                        }
-                    });
+                    //  Start incoming request listener
+                    ExecuteThread(MessageListener);
 
                     //  Wait for key exchange to be completed
                     WaitOnHandle(_keyExchangeCompletedWaitHandle);
@@ -613,7 +619,7 @@ namespace Renci.SshNet
                         throw new SshException("Username is not specified.");
                     }
 
-                    ConnectionInfo.Authenticate(this);
+                    ConnectionInfo.Authenticate(this, _serviceFactory);
                     _isAuthenticated = true;
 
                     //  Register Connection messages
@@ -650,6 +656,14 @@ namespace Renci.SshNet
         public void Disconnect()
         {
             Disconnect(DisconnectReason.ByApplication, "Connection terminated by the client.");
+
+            // at this point, we are sure that the listener thread will stop as we've
+            // disconnected the socket, so lets wait until the message listener thread
+            // has completed
+            if (_messageListenerCompleted != null)
+            {
+                _messageListenerCompleted.WaitOne();
+            }
         }
 
         private void Disconnect(DisconnectReason reason, string message)
@@ -661,19 +675,13 @@ namespace Renci.SshNet
             //
             // note that this should also cause the listener thread to be stopped as
             // the server should respond by closing the socket
-            SendDisconnect(reason, message);
+            if (reason == DisconnectReason.ByApplication)
+            {
+                SendDisconnect(reason, message);
+            }
 
             // disconnect socket, and dispose it
             SocketDisconnectAndDispose();
-
-            if (_messageListenerCompleted != null)
-            {
-                // at this point, we are sure that the listener thread will stop
-                // as we've disconnected the socket
-                _messageListenerCompleted.WaitOne();
-                _messageListenerCompleted.Dispose();
-                _messageListenerCompleted = null;
-            }
         }
 
         /// <summary>
@@ -691,24 +699,6 @@ namespace Renci.SshNet
         void ISession.WaitOnHandle(WaitHandle waitHandle)
         {
             WaitOnHandle(waitHandle, ConnectionInfo.Timeout);
-        }
-
-        /// <summary>
-        /// Waits for the specified handle or the exception handle for the receive thread
-        /// to signal within the specified timeout.
-        /// </summary>
-        /// <param name="waitHandle">The wait handle.</param>
-        /// <param name="timeout">The time to wait for any of the handles to become signaled.</param>
-        /// <exception cref="SshConnectionException">A received package was invalid or failed the message integrity check.</exception>
-        /// <exception cref="SshOperationTimeoutException">None of the handles are signaled in time and the session is not disconnecting.</exception>
-        /// <exception cref="SocketException">A socket error was signaled while receiving messages from the server.</exception>
-        /// <remarks>
-        /// When neither handles are signaled in time and the session is not closing, then the
-        /// session is disconnected.
-        /// </remarks>
-        void ISession.WaitOnHandle(WaitHandle waitHandle, TimeSpan timeout)
-        {
-            WaitOnHandle(waitHandle, timeout);
         }
 
         /// <summary>
@@ -754,17 +744,7 @@ namespace Renci.SshNet
                 case 0:
                     throw _exception;
                 case 1:
-                    // when the session is NOT disconnecting, the listener should actually
-                    // never complete without setting the exception wait handle and should
-                    // end up in case 0... 
-                    //
-                    // when the session is disconnecting, the completion of the listener
-                    // should not be considered an error (quite the oppposite actually)
-                    if (!_isDisconnecting)
-                    {
-                        throw new SshConnectionException("Client not connected.");
-                    }
-                    break;
+                    throw new SshConnectionException("Client not connected.");
                 case WaitHandle.WaitTimeout:
                     // when the session is disconnecting, a timeout is likely when no
                     // network connectivity is available; depending on the configured
@@ -1013,7 +993,7 @@ namespace Renci.SshNet
 
             //  Test packet minimum and maximum boundaries
             if (packetLength < Math.Max((byte)16, blockSize) - 4 || packetLength > MaximumSshPacketSize - 4)
-                throw new SshConnectionException(string.Format(CultureInfo.CurrentCulture, "Bad packet length {0}", packetLength), DisconnectReason.ProtocolError);
+                throw new SshConnectionException(string.Format(CultureInfo.CurrentCulture, "Bad packet length: {0}.", packetLength), DisconnectReason.ProtocolError);
 
             //  Read rest of the packet data
             var bytesToRead = (int)(packetLength - (blockSize - 4));
@@ -1145,9 +1125,7 @@ namespace Renci.SshNet
         private void HandleMessage(DisconnectMessage message)
         {
             OnDisconnectReceived(message);
-
-            //  disconnect from the socket, and dispose it
-            SocketDisconnectAndDispose();
+            Disconnect(message.ReasonCode, message.Description);
         }
 
         private void HandleMessage(IgnoreMessage message)
@@ -1298,6 +1276,9 @@ namespace Renci.SshNet
         {
             Log(string.Format("Disconnect received: {0} {1}", message.ReasonCode, message.Description));
 
+            _exception = new SshConnectionException(string.Format(CultureInfo.InvariantCulture, "The connection was closed by the server: {0} ({1}).", message.Description, message.ReasonCode), message.ReasonCode);
+            _exceptionWaitHandle.Set();
+
             var disconnectReceived = DisconnectReceived;
             if (disconnectReceived != null)
                 disconnectReceived(this, new MessageEventArgs<DisconnectMessage>(message));
@@ -1379,20 +1360,10 @@ namespace Renci.SshNet
                     messageMetadata.Enabled = false;
             }
 
-            var keyExchangeAlgorithmName = (from c in ConnectionInfo.KeyExchangeAlgorithms.Keys
-                                            from s in message.KeyExchangeAlgorithms
-                                            where s == c
-                                            select c).FirstOrDefault();
+            _keyExchange = _serviceFactory.CreateKeyExchange(ConnectionInfo.KeyExchangeAlgorithms,
+                                                             message.KeyExchangeAlgorithms);
 
-            if (keyExchangeAlgorithmName == null)
-            {
-                throw new SshConnectionException("Failed to negotiate key exchange algorithm.", DisconnectReason.KeyExchangeFailed);
-            }
-
-            //  Create instance of key exchange algorithm that will be used
-            _keyExchange = ConnectionInfo.KeyExchangeAlgorithms[keyExchangeAlgorithmName].CreateInstance<KeyExchange>();
-
-            ConnectionInfo.CurrentKeyExchangeAlgorithm = keyExchangeAlgorithmName;
+            ConnectionInfo.CurrentKeyExchangeAlgorithm = _keyExchange.Name;
 
             _keyExchange.HostKeyReceived += KeyExchange_HostKeyReceived;
 
@@ -1872,6 +1843,11 @@ namespace Renci.SshNet
             {
                 RaiseError(exp);
             }
+            finally
+            {
+                // signal that the message listener thread has stopped
+                _messageListenerCompleted.Set();
+            }
         }
 
         private byte SocketReadByte()
@@ -2206,7 +2182,7 @@ namespace Renci.SshNet
             if (errorOccured != null)
                 errorOccured(this, new ExceptionEventArgs(exp));
 
-            if (connectionException != null && connectionException.DisconnectReason != DisconnectReason.ConnectionLost)
+            if (connectionException != null)
             {
                 Disconnect(connectionException.DisconnectReason, exp.ToString());
             }
@@ -2223,7 +2199,7 @@ namespace Renci.SshNet
             if (_keyExchangeCompletedWaitHandle != null)
                 _keyExchangeCompletedWaitHandle.Reset();
             if (_messageListenerCompleted != null)
-                _messageListenerCompleted.Reset();
+                _messageListenerCompleted.Set();
 
             SessionId = null;
             _isDisconnectMessageSent = false;
@@ -2302,6 +2278,12 @@ namespace Renci.SshNet
                     {
                         _bytesReadFromSocket.Dispose();
                         _bytesReadFromSocket = null;
+                    }
+
+                    if (_messageListenerCompleted != null)
+                    {
+                        _messageListenerCompleted.Dispose();
+                        _messageListenerCompleted = null;
                     }
                 }
 

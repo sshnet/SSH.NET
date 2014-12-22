@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using Renci.SshNet.Common;
 using Renci.SshNet.Tests.Common;
 using Renci.SshNet.Tests.Properties;
@@ -16,6 +17,52 @@ namespace Renci.SshNet.Tests.Classes
     [TestClass]
     public partial class SessionTest : TestBase
     {
+        private Mock<IServiceFactory> _serviceFactoryMock;
+
+        protected override void OnInit()
+        {
+            base.OnInit();
+
+            _serviceFactoryMock = new Mock<IServiceFactory>(MockBehavior.Strict);
+        }
+
+        [TestMethod]
+        public void ConstructorShouldThrowArgumentNullExceptionWhenConnectionInfoIsNull()
+        {
+            ConnectionInfo connectionInfo = null;
+            var serviceFactory = new Mock<IServiceFactory>(MockBehavior.Strict).Object;
+
+            try
+            {
+                new Session(connectionInfo, serviceFactory);
+                Assert.Fail();
+            }
+            catch (ArgumentNullException ex)
+            {
+                Assert.IsNull(ex.InnerException);
+                Assert.AreEqual("connectionInfo", ex.ParamName);
+            }
+        }
+
+        [TestMethod]
+        public void ConstructorShouldThrowArgumentNullExceptionWhenServiceFactoryIsNull()
+        {
+            var serverEndPoint = new IPEndPoint(IPAddress.Loopback, 8122);
+            var connectionInfo = CreateConnectionInfo(serverEndPoint, TimeSpan.FromSeconds(5));
+            IServiceFactory serviceFactory = null;
+
+            try
+            {
+                new Session(connectionInfo, serviceFactory);
+                Assert.Fail();
+            }
+            catch (ArgumentNullException ex)
+            {
+                Assert.IsNull(ex.InnerException);
+                Assert.AreEqual("serviceFactory", ex.ParamName);
+            }
+        }
+
         [TestMethod]
         public void ConnectShouldSkipLinesBeforeProtocolIdentificationString()
         {
@@ -24,16 +71,16 @@ namespace Renci.SshNet.Tests.Classes
 
             using (var serverStub = new AsyncSocketListener(serverEndPoint))
             {
-                serverStub.Connected += (socket) =>
-                {
-                    socket.Send(Encoding.ASCII.GetBytes("\r\n"));
-                    socket.Send(Encoding.ASCII.GetBytes("WELCOME banner\r\n"));
-                    socket.Send(Encoding.ASCII.GetBytes("SSH-666-SshStub\r\n"));
-                    socket.Shutdown(SocketShutdown.Send);
-                };
+                serverStub.Connected += socket =>
+                    {
+                        socket.Send(Encoding.ASCII.GetBytes("\r\n"));
+                        socket.Send(Encoding.ASCII.GetBytes("WELCOME banner\r\n"));
+                        socket.Send(Encoding.ASCII.GetBytes("SSH-666-SshStub\r\n"));
+                        socket.Shutdown(SocketShutdown.Send);
+                    };
                 serverStub.Start();
 
-                using (var session = new Session(connectionInfo))
+                using (var session = new Session(connectionInfo, _serviceFactoryMock.Object))
                 {
                     try
                     {
@@ -59,16 +106,16 @@ namespace Renci.SshNet.Tests.Classes
 
             using (var serverStub = new AsyncSocketListener(serverEndPoint))
             {
-                serverStub.Connected += (socket) =>
-                {
-                    socket.Send(Encoding.ASCII.GetBytes("\r\n"));
-                    socket.Send(Encoding.ASCII.GetBytes("WELCOME banner\r\n"));
-                    socket.Send(Encoding.ASCII.GetBytes("SSH-666-SshStub"));
-                    socket.Shutdown(SocketShutdown.Send);
-                };
+                serverStub.Connected += socket =>
+                    {
+                        socket.Send(Encoding.ASCII.GetBytes("\r\n"));
+                        socket.Send(Encoding.ASCII.GetBytes("WELCOME banner\r\n"));
+                        socket.Send(Encoding.ASCII.GetBytes("SSH-666-SshStub"));
+                        socket.Shutdown(SocketShutdown.Send);
+                    };
                 serverStub.Start();
 
-                using (var session = new Session(connectionInfo))
+                using (var session = new Session(connectionInfo, _serviceFactoryMock.Object))
                 {
                     try
                     {
@@ -95,15 +142,15 @@ namespace Renci.SshNet.Tests.Classes
 
             using (var serverStub = new AsyncSocketListener(serverEndPoint))
             {
-                serverStub.Connected += (socket) =>
-                {
-                    socket.Send(Encoding.ASCII.GetBytes("\r\n"));
-                    socket.Send(Encoding.ASCII.GetBytes("WELCOME banner\r\n"));
-                    clientSocket = socket;
-                };
+                serverStub.Connected += socket =>
+                    {
+                        socket.Send(Encoding.ASCII.GetBytes("\r\n"));
+                        socket.Send(Encoding.ASCII.GetBytes("WELCOME banner\r\n"));
+                        clientSocket = socket;
+                    };
                 serverStub.Start();
 
-                using (var session = new Session(CreateConnectionInfo(serverEndPoint, TimeSpan.FromMilliseconds(500))))
+                using (var session = new Session(CreateConnectionInfo(serverEndPoint, TimeSpan.FromMilliseconds(500)), _serviceFactoryMock.Object))
                 {
                     try
                     {
@@ -133,15 +180,15 @@ namespace Renci.SshNet.Tests.Classes
             // response ends with CRLF
             using (var serverStub = new AsyncSocketListener(serverEndPoint))
             {
-                serverStub.Connected += (socket) =>
-                {
-                    socket.Send(Encoding.ASCII.GetBytes("\r\n"));
-                    socket.Send(Encoding.ASCII.GetBytes("WELCOME banner\r\n"));
-                    socket.Shutdown(SocketShutdown.Send);
-                };
+                serverStub.Connected += socket =>
+                    {
+                        socket.Send(Encoding.ASCII.GetBytes("\r\n"));
+                        socket.Send(Encoding.ASCII.GetBytes("WELCOME banner\r\n"));
+                        socket.Shutdown(SocketShutdown.Send);
+                    };
                 serverStub.Start();
 
-                using (var session = new Session(CreateConnectionInfo(serverEndPoint, TimeSpan.FromSeconds(5))))
+                using (var session = new Session(CreateConnectionInfo(serverEndPoint, TimeSpan.FromSeconds(5)), _serviceFactoryMock.Object))
                 {
                     try
                     {
@@ -159,15 +206,15 @@ namespace Renci.SshNet.Tests.Classes
             // response does not end with CRLF
             using (var serverStub = new AsyncSocketListener(serverEndPoint))
             {
-                serverStub.Connected += (socket) =>
-                {
-                    socket.Send(Encoding.ASCII.GetBytes("\r\n"));
-                    socket.Send(Encoding.ASCII.GetBytes("WELCOME banner"));
-                    socket.Shutdown(SocketShutdown.Send);
-                };
+                serverStub.Connected += socket =>
+                    {
+                        socket.Send(Encoding.ASCII.GetBytes("\r\n"));
+                        socket.Send(Encoding.ASCII.GetBytes("WELCOME banner"));
+                        socket.Shutdown(SocketShutdown.Send);
+                    };
                 serverStub.Start();
 
-                using (var session = new Session(CreateConnectionInfo(serverEndPoint, TimeSpan.FromSeconds(5))))
+                using (var session = new Session(CreateConnectionInfo(serverEndPoint, TimeSpan.FromSeconds(5)), _serviceFactoryMock.Object))
                 {
                     try
                     {
@@ -185,16 +232,16 @@ namespace Renci.SshNet.Tests.Classes
             // last line is empty
             using (var serverStub = new AsyncSocketListener(serverEndPoint))
             {
-                serverStub.Connected += (socket) =>
-                {
-                    socket.Send(Encoding.ASCII.GetBytes("\r\n"));
-                    socket.Send(Encoding.ASCII.GetBytes("WELCOME banner\r\n"));
-                    socket.Send(Encoding.ASCII.GetBytes("\r\n"));
-                    socket.Shutdown(SocketShutdown.Send);
-                };
+                serverStub.Connected += socket =>
+                    {
+                        socket.Send(Encoding.ASCII.GetBytes("\r\n"));
+                        socket.Send(Encoding.ASCII.GetBytes("WELCOME banner\r\n"));
+                        socket.Send(Encoding.ASCII.GetBytes("\r\n"));
+                        socket.Shutdown(SocketShutdown.Send);
+                    };
                 serverStub.Start();
 
-                using (var session = new Session(CreateConnectionInfo(serverEndPoint, TimeSpan.FromSeconds(5))))
+                using (var session = new Session(CreateConnectionInfo(serverEndPoint, TimeSpan.FromSeconds(5)), _serviceFactoryMock.Object))
                 {
                     try
                     {
@@ -215,11 +262,10 @@ namespace Renci.SshNet.Tests.Classes
         {
             var connectionInfo = new ConnectionInfo("invalid.", 40, "user",
                 new KeyboardInteractiveAuthenticationMethod("user"));
-            var session = new Session(connectionInfo);
+            var session = new Session(connectionInfo, _serviceFactoryMock.Object);
 
             try
             {
-
                 session.Connect();
                 Assert.Fail();
             }
@@ -234,7 +280,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             var connectionInfo = new ConnectionInfo("localhost", 40, "user", ProxyTypes.Http, "invalid.", 80,
                 "proxyUser", "proxyPwd", new KeyboardInteractiveAuthenticationMethod("user"));
-            var session = new Session(connectionInfo);
+            var session = new Session(connectionInfo, _serviceFactoryMock.Object);
 
             try
             {
@@ -252,7 +298,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             var connectionInfo = new ConnectionInfo("localhost", 6767, Resources.USERNAME,
                 new KeyboardInteractiveAuthenticationMethod(Resources.USERNAME));
-            var session = new Session(connectionInfo);
+            var session = new Session(connectionInfo, _serviceFactoryMock.Object);
 
             try
             {
@@ -270,7 +316,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             var connectionInfo = new ConnectionInfo("localhost", 6767, Resources.USERNAME,
                 new KeyboardInteractiveAuthenticationMethod(Resources.USERNAME));
-            var session = new Session(connectionInfo);
+            var session = new Session(connectionInfo, _serviceFactoryMock.Object);
 
             session.Disconnect();
         }
@@ -280,7 +326,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             var connectionInfo = new ConnectionInfo("localhost", 6767, Resources.USERNAME,
                 new KeyboardInteractiveAuthenticationMethod(Resources.USERNAME));
-            var session = new Session(connectionInfo);
+            var session = new Session(connectionInfo, _serviceFactoryMock.Object);
 
             try
             {
@@ -298,7 +344,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             var connectionInfo = new ConnectionInfo("localhost", 6767, Resources.USERNAME,
                 new KeyboardInteractiveAuthenticationMethod(Resources.USERNAME));
-            var session = new Session(connectionInfo);
+            var session = new Session(connectionInfo, _serviceFactoryMock.Object);
 
             session.Disconnect();
         }

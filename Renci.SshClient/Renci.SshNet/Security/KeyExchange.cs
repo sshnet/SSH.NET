@@ -13,7 +13,7 @@ namespace Renci.SshNet.Security
     /// <summary>
     /// Represents base class for different key exchange algorithm implementations
     /// </summary>
-    public abstract class KeyExchange : Algorithm, IDisposable
+    public abstract class KeyExchange : Algorithm, IKeyExchange
     {
         private CipherInfo _clientCipherInfo;
 
@@ -44,6 +44,7 @@ namespace Renci.SshNet.Security
         public BigInteger SharedKey { get; protected set; }
 
         private byte[] _exchangeHash;
+
         /// <summary>
         /// Gets the exchange hash.
         /// </summary>

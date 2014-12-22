@@ -52,15 +52,5 @@ namespace Renci.SshNet.Common
         {
             DisconnectReason = disconnectReasonCode;
         }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="SshConnectionException"/> class.
-        /// </summary>
-        /// <param name="message">The message.</param>
-        /// <param name="innerException">The inner exception.</param>
-        public SshConnectionException(string message, Exception innerException) :
-            base(message, innerException)
-        {
-        }
     }
 }

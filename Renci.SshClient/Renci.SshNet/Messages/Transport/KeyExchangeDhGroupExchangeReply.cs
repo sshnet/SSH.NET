@@ -6,9 +6,11 @@ namespace Renci.SshNet.Messages.Transport
     /// <summary>
     /// Represents SSH_MSG_KEX_DH_GEX_REPLY message.
     /// </summary>
-    [Message("SSH_MSG_KEX_DH_GEX_REPLY", 33)]
+    [Message("SSH_MSG_KEX_DH_GEX_REPLY", MessageNumber)]
     internal class KeyExchangeDhGroupExchangeReply : Message
     {
+        internal const byte MessageNumber = 33;
+
 #if TUNING
         private byte[] _fBytes;
 #endif

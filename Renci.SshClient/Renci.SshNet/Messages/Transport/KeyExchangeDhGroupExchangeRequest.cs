@@ -5,9 +5,11 @@ namespace Renci.SshNet.Messages.Transport
     /// <summary>
     /// Represents SSH_MSG_KEX_DH_GEX_REQUEST message.
     /// </summary>
-    [Message("SSH_MSG_KEX_DH_GEX_REQUEST", 34)]
+    [Message("SSH_MSG_KEX_DH_GEX_REQUEST", MessageNumber)]
     internal class KeyExchangeDhGroupExchangeRequest : Message, IKeyExchangedAllowed
     {
+        internal const byte MessageNumber = 34;
+
         /// <summary>
         /// Gets or sets the minimal size in bits of an acceptable group.
         /// </summary>

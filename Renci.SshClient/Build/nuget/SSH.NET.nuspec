@@ -10,7 +10,20 @@
         <projectUrl>http://sshnet.codeplex.com/</projectUrl>
         <requireLicenseAcceptance>true</requireLicenseAcceptance>
         <description>This project was inspired by Sharp.SSH library which was ported from Java.  This library is a complete rewrite using .NET, without any third party dependencies and to utilize the parallelism as much as possible to allow best performance you can get.  SSH.NET supports .NET 3.5, .NET 4.0, Silverlight 4.0, Silverlight 5.0, Windows Phone 7.1 and Windows Phone 8.</description>
-        <releaseNotes>2014.4.6-beta2
+        <releaseNotes>2014.4.6-beta3
+==============
+
+New Features:
+
+    * Overall performance improvements
+
+Fixes:
+
+    * Partial reads from stream assume end (issue #1516)
+    * Session.Disconnect() hangs forever (issue #2591)
+    * SshData.ReadInt64() is broken (issue #2579)
+
+2014.4.6-beta2
 ==============
 
 New Features:

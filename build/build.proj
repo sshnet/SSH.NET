@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Clean;CreatePackage;GenerateHelpFile;GenerateSourceZip" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<PropertyGroup>
+		<Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
+		<BuildRoot>$(MSBuildThisFileDirectory)</BuildRoot>
+		<NuGetExe>$(BuildRoot)nuget\nuget.exe</NuGetExe>
+		<MSBuildCommunityTasksPath>$(MSBuildThisFileDirectory)msbuild</MSBuildCommunityTasksPath>
+	</PropertyGroup>
+	<ItemGroup>
+		<TargetFramework Include=".NET Framework 3.5">
+			<Project>Renci.SshNet.NET35</Project>
+			<Moniker>net35</Moniker>
+		</TargetFramework>
+		<TargetFramework Include=".NET Framework 4.0">
+			<Project>Renci.SshNet</Project>
+			<Moniker>net40</Moniker>
+		</TargetFramework>
+		<TargetFramework Include="Windows Phone 7.1">
+			<Project>Renci.SshNet.WindowsPhone</Project>
+			<Moniker>sl4-windowsphone71</Moniker>
+		</TargetFramework>
+		<TargetFramework Include="Windows Phone 8.0">
+			<Project>Renci.SshNet.WindowsPhone8</Project>
+			<Moniker>windowsphone8</Moniker>
+		</TargetFramework>
+		<TargetFramework Include="Silverlight 4">
+			<Project>Renci.SshNet.Silverlight</Project>
+			<Moniker>sl4</Moniker>
+		</TargetFramework>
+		<TargetFramework Include="Silverlight 5">
+			<Project>Renci.SshNet.Silverlight5</Project>
+			<Moniker>sl5</Moniker>
+		</TargetFramework>
+	</ItemGroup>
+	<Import Project="$(MSBuildCommunityTasksPath)\MSBuild.Community.Tasks.Targets"/>
+	<Target Name="Clean">
+		<RemoveDir Directories="$(MSBuildThisFileDirectory)target"/>
+	</Target>
+	
+	<Target Name="Build">
+		<ItemGroup>
+			<ProjectToBuild Include="$(MSBuildThisFileDirectory)..\Renci.SshNet.sln">
+				<Properties>Configuration=Release</Properties>
+			</ProjectToBuild>
+		</ItemGroup>
+		<MSBuild Projects="@(ProjectToBuild)" Targets="Rebuild"/>
+	</Target>
+	
+	<Target Name="CreatePackage" DependsOnTargets="CopyBuildOutputToPackage">
+		<Exec Command="$(NuGetExe) pack $(MSBuildThisFileDirectory)nuget\SSH.NET.nuspec -OutputDirectory &quot;$(MSBuildThisFileDirectory)target&quot; -BasePath &quot;$(MSBuildThisFileDirectory)target\package&quot; -NonInteractive"/>
+	</Target>
+	<Target Name="CopyBuildOutputToPackage" DependsOnTargets="Build" Outputs="%(TargetFramework.Identity)">
+		<ItemGroup>
+			<BuildOutput Remove="@(BuildOutput)"/>
+			<BuildOutput Include="$(MSBuildThisFileDirectory)..\%(TargetFramework.Project)\bin\$(Configuration)\Renci.SshNet.dll"/>
+			<BuildOutput Include="$(MSBuildThisFileDirectory)..\%(TargetFramework.Project)\bin\$(Configuration)\Renci.SshNet.xml"/>
+		</ItemGroup>
+		<Copy SourceFiles="@(BuildOutput)" DestinationFolder="$(MSBuildThisFileDirectory)target\package\lib\%(TargetFramework.Moniker)"/>
+	</Target>
+	<Target Name="GenerateHelpFile" DependsOnTargets="Build">
+		<MSBuild Projects="$(MSBuildThisFileDirectory)sandcastle\SSH.NET.shfbproj"/>
+	</Target>
+	
+	<Target Name="GenerateSourceZip">
+		<ItemGroup>
+			<SourceFiles Include="$(MSBuildThisFileDirectory)..\Renci.SshNet\**" Exclude="$(MSBuildThisFileDirectory)..\Renci.SshNet\bin\**;$(MSBuildThisFileDirectory)..\Renci.SshNet\obj\**"/>
+			<SourceFiles Include="$(MSBuildThisFileDirectory)..\Renci.SshNet.snk"/>
+		</ItemGroup>
+		<Zip
+			Files="@(SourceFiles)"
+			WorkingDirectory="$(MSBuildThisFileDirectory).."
+			ZipFileName="$(MSBuildThisFileDirectory)target\Renci.SshNet.zip"
+			ZipLevel="9" />
+	</Target>
+</Project>

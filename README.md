@@ -28,4 +28,4 @@ This project was inspired by **Sharp.SSH** library which was ported from java an
 * Windows Phone 7.1 
 * Windows Phone 8.0
 
-![NDepend](http://download-codeplex.sec.s-msft.com/Download?ProjectName=sshnet&DownloadId=629750)
+[![NDepend](http://download-codeplex.sec.s-msft.com/Download?ProjectName=sshnet&DownloadId=629750)](http://ndepend.com)

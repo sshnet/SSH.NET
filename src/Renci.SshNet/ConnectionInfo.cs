@@ -334,17 +334,17 @@ namespace Renci.SshNet
 
             HmacAlgorithms = new Dictionary<string, HashInfo>
                 {
-                    {"hmac-md5", new HashInfo(16*8, key => new HMac<MD5Hash>(key))},
-                    {"hmac-sha1", new HashInfo(20*8, key => new HMac<SHA1Hash>(key))},
-                    {"hmac-sha2-256", new HashInfo(32*8, key => new HMac<SHA256Hash>(key))},
-                    {"hmac-sha2-256-96", new HashInfo(32*8, key => new HMac<SHA256Hash>(key, 96))},
-                    //{"hmac-sha2-512", new HashInfo(64 * 8, key => new HMac<SHA512Hash>(key))},
-                    //{"hmac-sha2-512-96", new HashInfo(64 * 8,  key => new HMac<SHA512Hash>(key, 96))},
+                    {"hmac-md5", new HashInfo(16*8, HashAlgorithmFactory.CreateHMACMD5)},
+                    {"hmac-md5-96", new HashInfo(16*8, key => HashAlgorithmFactory.CreateHMACMD5(key, 96))},
+                    {"hmac-sha1", new HashInfo(20*8, HashAlgorithmFactory.CreateHMACSHA1)},
+                    {"hmac-sha1-96", new HashInfo(20*8, key => HashAlgorithmFactory.CreateHMACSHA1(key, 96))},
+                    {"hmac-sha2-256", new HashInfo(32*8, HashAlgorithmFactory.CreateHMACSHA256)},
+                    {"hmac-sha2-256-96", new HashInfo(32*8, key => HashAlgorithmFactory.CreateHMACSHA256(key, 96))},
+                    {"hmac-sha2-512", new HashInfo(64 * 8, HashAlgorithmFactory.CreateHMACSHA512)},
+                    {"hmac-sha2-512-96", new HashInfo(64 * 8,  key => HashAlgorithmFactory.CreateHMACSHA512(key, 96))},
                     //{"umac-64@openssh.com", typeof(HMacSha1)},
-                    {"hmac-ripemd160", new HashInfo(160, key => new HMac<RIPEMD160Hash>(key))},
-                    {"hmac-ripemd160@openssh.com", new HashInfo(160, key => new HMac<RIPEMD160Hash>(key))},
-                    {"hmac-md5-96", new HashInfo(16*8, key => new HMac<MD5Hash>(key, 96))},
-                    {"hmac-sha1-96", new HashInfo(20*8, key => new HMac<SHA1Hash>(key, 96))},
+                    {"hmac-ripemd160", new HashInfo(160, HashAlgorithmFactory.CreateHMACRIPEMD160)},
+                    {"hmac-ripemd160@openssh.com", new HashInfo(160, HashAlgorithmFactory.CreateHMACRIPEMD160)},
                     //{"none", typeof(...)},
                 };
 

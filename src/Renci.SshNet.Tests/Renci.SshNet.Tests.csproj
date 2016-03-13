@@ -44,7 +44,7 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="Moq">
-      <HintPath>..\packages\Moq.4.2.1409.1722\lib\net40\Moq.dll</HintPath>
+      <HintPath>..\..\packages\Moq.4.2.1409.1722\lib\net40\Moq.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
@@ -289,9 +289,6 @@
     <Compile Include="Classes\Security\Cryptography\Ciphers\TwofishCipherTest.cs" />
     <Compile Include="Classes\Security\Cryptography\DsaDigitalSignatureTest.cs" />
     <Compile Include="Classes\Security\Cryptography\DsaKeyTest.cs" />
-    <Compile Include="Classes\Security\Cryptography\Hashes\MD5HashTest.cs" />
-    <Compile Include="Classes\Security\Cryptography\Hashes\SHA1HashTest.cs" />
-    <Compile Include="Classes\Security\Cryptography\Hashes\SHA256HashTest.cs" />
     <Compile Include="Classes\Security\Cryptography\HMacTest.cs" />
     <Compile Include="Classes\Security\Cryptography\RsaDigitalSignatureTest.cs" />
     <Compile Include="Classes\Security\Cryptography\RsaKeyTest.cs" />
@@ -489,7 +486,6 @@
     <Compile Include="Classes\Sftp\SftpListDirectoryAsyncResultTest.cs" />
     <Compile Include="Classes\Sftp\SftpSynchronizeDirectoriesAsyncResultTest.cs" />
     <Compile Include="Classes\Sftp\SftpUploadAsyncResultTest.cs" />
-    <Compile Include="Classes\Security\Cryptography\Hashes\RIPEMD160HashTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Renci.SshNet\Renci.SshNet.csproj">

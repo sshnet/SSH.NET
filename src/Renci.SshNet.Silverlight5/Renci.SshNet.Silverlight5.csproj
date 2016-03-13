@@ -29,7 +29,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>Bin\Debug</OutputPath>
-    <DefineConstants>TRACE;DEBUG;SILVERLIGHT;TUNING</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;SILVERLIGHT;TUNING;FEATURE_HASH_SHA1;FEATURE_HASH_SHA256;FEATURE_HMAC_SHA1;FEATURE_HMAC_SHA256</DefineConstants>
     <NoStdLib>true</NoStdLib>
     <NoConfig>true</NoConfig>
     <ErrorReport>prompt</ErrorReport>
@@ -41,7 +41,7 @@
     <DebugType>none</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>Bin\Release</OutputPath>
-    <DefineConstants>TRACE;SILVERLIGHT;TUNING</DefineConstants>
+    <DefineConstants>TRACE;SILVERLIGHT;TUNING;FEATURE_HASH_SHA1;FEATURE_HASH_SHA256;FEATURE_HMAC_SHA1;FEATURE_HMAC_SHA256</DefineConstants>
     <NoStdLib>true</NoStdLib>
     <NoConfig>true</NoConfig>
     <ErrorReport>prompt</ErrorReport>
@@ -62,6 +62,10 @@
       <HintPath>C:\Program Files (x86)\Microsoft SDKs\Silverlight\v5.0\Libraries\Client\Microsoft.CSharp.dll</HintPath>
     </Reference>
     <Reference Include="mscorlib" />
+    <Reference Include="Renci.Security.Cryptography, Version=1.0.0.0, Culture=neutral, PublicKeyToken=50c6375d29e47192, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Renci.Security.Cryptography.1.0.0\lib\sl5\Renci.Security.Cryptography.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="system" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml" />
@@ -653,29 +657,23 @@
     <Compile Include="..\Renci.SshNet\Security\Cryptography\DsaKey.cs">
       <Link>Security\Cryptography\DsaKey.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\Security\Cryptography\Hashes\MD5Hash.cs">
-      <Link>Security\Cryptography\Hashes\MD5Hash.cs</Link>
+    <Compile Include="..\Renci.SshNet\Security\Cryptography\HashAlgorithmFactory.cs">
+      <Link>Security\Cryptography\HashAlgorithmFactory.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\Security\Cryptography\Hashes\RIPEMD160Hash.cs">
-      <Link>Security\Cryptography\Hashes\RIPEMD160Hash.cs</Link>
+    <Compile Include="..\Renci.SshNet\Security\Cryptography\HMACMD5.cs">
+      <Link>Security\Cryptography\HMACMD5.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\Security\Cryptography\Hashes\SHA1Hash.cs">
-      <Link>Security\Cryptography\Hashes\SHA1Hash.cs</Link>
+    <Compile Include="..\Renci.SshNet\Security\Cryptography\HMACSHA1.cs">
+      <Link>Security\Cryptography\HMACSHA1.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\Security\Cryptography\Hashes\SHA256Hash.cs">
-      <Link>Security\Cryptography\Hashes\SHA256Hash.cs</Link>
+    <Compile Include="..\Renci.SshNet\Security\Cryptography\HMACSHA256.cs">
+      <Link>Security\Cryptography\HMACSHA256.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\Security\Cryptography\Hashes\SHA2HashBase.cs">
-      <Link>Security\Cryptography\Hashes\SHA2HashBase.cs</Link>
+    <Compile Include="..\Renci.SshNet\Security\Cryptography\HMACSHA384.cs">
+      <Link>Security\Cryptography\HMACSHA384.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\Security\Cryptography\Hashes\SHA384Hash.cs">
-      <Link>Security\Cryptography\Hashes\SHA384Hash.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet\Security\Cryptography\Hashes\SHA512Hash.cs">
-      <Link>Security\Cryptography\Hashes\SHA512Hash.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet\Security\Cryptography\HMac.cs">
-      <Link>Security\Cryptography\HMac.cs</Link>
+    <Compile Include="..\Renci.SshNet\Security\Cryptography\HMACSHA512.cs">
+      <Link>Security\Cryptography\HMACSHA512.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Security\Cryptography\Key.cs">
       <Link>Security\Cryptography\Key.cs</Link>
@@ -920,6 +918,7 @@
     <None Include="..\Renci.SshNet.snk">
       <Link>Renci.SshNet.snk</Link>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Silverlight\$(SilverlightVersion)\Microsoft.Silverlight.CSharp.targets" />
   <ProjectExtensions>
@@ -927,7 +926,7 @@
       <FlavorProperties GUID="{A1591282-1198-4647-A2B1-27E5FF5F6F3B}">
         <SilverlightProjectProperties />
       </FlavorProperties>
-      <UserProperties ProjectLinkReference="2f5f8c90-0bd1-424f-997c-7bc6280919d1" ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" />
+      <UserProperties ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" ProjectLinkReference="2f5f8c90-0bd1-424f-997c-7bc6280919d1" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

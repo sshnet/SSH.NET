@@ -479,6 +479,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="connectionInfo">The connection info.</param>
         /// <param name="serviceFactory">The factory to use for creating new services.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="connectionInfo"/> is <c>null</c>.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="serviceFactory"/> is <c>null</c>.</exception>
         internal Session(ConnectionInfo connectionInfo, IServiceFactory serviceFactory)
         {
@@ -487,9 +488,8 @@ namespace Renci.SshNet
             if (serviceFactory == null)
                 throw new ArgumentNullException("serviceFactory");
 
-            ConnectionInfo = connectionInfo;
-            //this.ClientVersion = string.Format(CultureInfo.CurrentCulture, "SSH-2.0-Renci.SshNet.SshClient.{0}", this.GetType().Assembly.GetName().Version);
             ClientVersion = "SSH-2.0-Renci.SshNet.SshClient.0.0.1";
+            ConnectionInfo = connectionInfo;
             _serviceFactory = serviceFactory;
             _messageListenerCompleted = new ManualResetEvent(true);
         }
@@ -1361,7 +1361,7 @@ namespace Renci.SshNet
             }
 
             _keyExchange = _serviceFactory.CreateKeyExchange(ConnectionInfo.KeyExchangeAlgorithms,
-                                                             message.KeyExchangeAlgorithms);
+                message.KeyExchangeAlgorithms);
 
             ConnectionInfo.CurrentKeyExchangeAlgorithm = _keyExchange.Name;
 

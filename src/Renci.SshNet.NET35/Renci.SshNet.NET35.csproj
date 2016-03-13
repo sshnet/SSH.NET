@@ -18,7 +18,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;TUNING</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;TUNING;FEATURE_HASH_MD5;FEATURE_HASH_SHA1;FEATURE_HASH_SHA256;FEATURE_HASH_SHA384;FEATURE_HASH_SHA512;FEATURE_HASH_RIPEMD160;FEATURE_HMAC_MD5;FEATURE_HMAC_SHA1;FEATURE_HMAC_SHA256;FEATURE_HMAC_SHA384;FEATURE_HMAC_SHA512;FEATURE_HMAC_RIPEMD160</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -26,7 +26,7 @@
     <DebugType>none</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;TUNING</DefineConstants>
+    <DefineConstants>TRACE;TUNING;FEATURE_HASH_MD5;FEATURE_HASH_SHA1;FEATURE_HASH_SHA256;FEATURE_HASH_SHA384;FEATURE_HASH_SHA512;FEATURE_HASH_RIPEMD160;FEATURE_HMAC_MD5;FEATURE_HMAC_SHA1;FEATURE_HMAC_SHA256;FEATURE_HMAC_SHA384;FEATURE_HMAC_SHA512;FEATURE_HMAC_RIPEMD160</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Release\Renci.SshNet.xml</DocumentationFile>
@@ -653,29 +653,23 @@
     <Compile Include="..\Renci.SshNet\Security\Cryptography\DsaKey.cs">
       <Link>Security\Cryptography\DsaKey.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\Security\Cryptography\Hashes\MD5Hash.cs">
-      <Link>Security\Cryptography\Hashes\MD5Hash.cs</Link>
+    <Compile Include="..\Renci.SshNet\Security\Cryptography\HashAlgorithmFactory.cs">
+      <Link>Security\Cryptography\HashAlgorithmFactory.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\Security\Cryptography\Hashes\RIPEMD160Hash.cs">
-      <Link>Security\Cryptography\Hashes\RIPEMD160Hash.cs</Link>
+    <Compile Include="..\Renci.SshNet\Security\Cryptography\HMACMD5.cs">
+      <Link>Security\Cryptography\HMACMD5.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\Security\Cryptography\Hashes\SHA1Hash.cs">
-      <Link>Security\Cryptography\Hashes\SHA1Hash.cs</Link>
+    <Compile Include="..\Renci.SshNet\Security\Cryptography\HMACSHA1.cs">
+      <Link>Security\Cryptography\HMACSHA1.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\Security\Cryptography\Hashes\SHA256Hash.cs">
-      <Link>Security\Cryptography\Hashes\SHA256Hash.cs</Link>
+    <Compile Include="..\Renci.SshNet\Security\Cryptography\HMACSHA256.cs">
+      <Link>Security\Cryptography\HMACSHA256.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\Security\Cryptography\Hashes\SHA2HashBase.cs">
-      <Link>Security\Cryptography\Hashes\SHA2HashBase.cs</Link>
+    <Compile Include="..\Renci.SshNet\Security\Cryptography\HMACSHA384.cs">
+      <Link>Security\Cryptography\HMACSHA384.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\Security\Cryptography\Hashes\SHA384Hash.cs">
-      <Link>Security\Cryptography\Hashes\SHA384Hash.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet\Security\Cryptography\Hashes\SHA512Hash.cs">
-      <Link>Security\Cryptography\Hashes\SHA512Hash.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet\Security\Cryptography\HMAC.cs">
-      <Link>Security\Cryptography\HMAC.cs</Link>
+    <Compile Include="..\Renci.SshNet\Security\Cryptography\HMACSHA512.cs">
+      <Link>Security\Cryptography\HMACSHA512.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Security\Cryptography\Key.cs">
       <Link>Security\Cryptography\Key.cs</Link>
@@ -948,7 +942,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" ProjectLinkReference="2f5f8c90-0bd1-424f-997c-7bc6280919d1" />
+      <UserProperties ProjectLinkReference="2f5f8c90-0bd1-424f-997c-7bc6280919d1" ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

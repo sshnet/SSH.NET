@@ -92,7 +92,9 @@ namespace Renci.SshNet.Tests.Classes
                     ServerSocket.Send(newKeys, 4, newKeys.Length - 4, SocketFlags.None);
                 };
 
-            _serviceFactoryMock.Setup(p => p.CreateKeyExchange(ConnectionInfo.KeyExchangeAlgorithms, new[] { _keyExchangeAlgorithm })).Returns(_keyExchangeMock.Object);
+            _serviceFactoryMock.Setup(
+                p =>
+                    p.CreateKeyExchange(ConnectionInfo.KeyExchangeAlgorithms, new[] {_keyExchangeAlgorithm})).Returns(_keyExchangeMock.Object);
             _keyExchangeMock.Setup(p => p.Name).Returns(_keyExchangeAlgorithm);
             _keyExchangeMock.Setup(p => p.Start(Session, It.IsAny<KeyExchangeInitMessage>()));
             _keyExchangeMock.Setup(p => p.ExchangeHash).Returns(SessionId);

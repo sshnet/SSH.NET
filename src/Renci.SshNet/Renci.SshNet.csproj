@@ -12,17 +12,13 @@
     <AssemblyName>Renci.SshNet</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <SccProjectName>SAK</SccProjectName>
-    <SccLocalPath>SAK</SccLocalPath>
-    <SccAuxPath>SAK</SccAuxPath>
-    <SccProvider>SAK</SccProvider>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;TUNING</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;TUNING;FEATURE_HASH_MD5;FEATURE_HASH_SHA1;FEATURE_HASH_SHA256;FEATURE_HASH_SHA384;FEATURE_HASH_SHA512;FEATURE_HASH_RIPEMD160;FEATURE_HMAC_MD5;FEATURE_HMAC_SHA1;FEATURE_HMAC_SHA256;FEATURE_HMAC_SHA384;FEATURE_HMAC_SHA512;FEATURE_HMAC_RIPEMD160</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Debug\Renci.SshNet.xml</DocumentationFile>
@@ -31,7 +27,7 @@
     <DebugType>none</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TUNING</DefineConstants>
+    <DefineConstants>TUNING;FEATURE_HASH_MD5;FEATURE_HASH_SHA1;FEATURE_HASH_SHA256;FEATURE_HASH_SHA384;FEATURE_HASH_SHA512;FEATURE_HASH_RIPEMD160;FEATURE_HMAC_MD5;FEATURE_HMAC_SHA1;FEATURE_HMAC_SHA256;FEATURE_HMAC_SHA384;FEATURE_HMAC_SHA512;FEATURE_HMAC_RIPEMD160</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Release\Renci.SshNet.xml</DocumentationFile>
@@ -164,16 +160,12 @@
     <Compile Include="Messages\Transport\KeyExchangeEcdhInitMessage.cs" />
     <Compile Include="Messages\Transport\KeyExchangeEcdhReplyMessage.cs" />
     <Compile Include="Netconf\INetConfSession.cs" />
-    <Compile Include="Security\Cryptography\Hashes\RIPEMD160Hash.cs" />
-    <Compile Include="Security\Cryptography\Hashes\SHA2HashBase.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Security\Cryptography\Hashes\SHA384Hash.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Security\Cryptography\Hashes\SHA512Hash.cs">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="Security\Cryptography\HashAlgorithmFactory.cs" />
+    <Compile Include="Security\Cryptography\HMACMD5.cs" />
+    <Compile Include="Security\Cryptography\HMACSHA1.cs" />
+    <Compile Include="Security\Cryptography\HMACSHA256.cs" />
+    <Compile Include="Security\Cryptography\HMACSHA384.cs" />
+    <Compile Include="Security\Cryptography\HMACSHA512.cs" />
     <Compile Include="Security\GroupExchangeHashData.cs" />
     <Compile Include="Security\IKeyExchange.cs" />
     <Compile Include="Security\KeyExchangeDiffieHellmanGroupExchangeShaBase.cs" />
@@ -353,18 +345,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Security\Cryptography\DsaKey.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Security\Cryptography\Hashes\MD5Hash.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Security\Cryptography\Hashes\SHA1Hash.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Security\Cryptography\Hashes\SHA256Hash.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Security\Cryptography\HMAC.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Security\Cryptography\Key.cs">

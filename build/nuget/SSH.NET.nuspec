@@ -2,15 +2,22 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>SSH.NET</id>
-        <version>2014.4.6-beta2</version>
+        <version>2014.4.6-beta4</version>
         <title>SSH.NET</title>
         <authors>Renci</authors>
-        <owners>olegkap</owners>
+        <owners>olegkap,drieseng</owners>
         <licenseUrl>http://sshnet.codeplex.com/license</licenseUrl>
         <projectUrl>http://sshnet.codeplex.com/</projectUrl>
         <requireLicenseAcceptance>true</requireLicenseAcceptance>
         <description>This project was inspired by Sharp.SSH library which was ported from Java.  This library is a complete rewrite using .NET, without any third party dependencies and to utilize the parallelism as much as possible to allow best performance you can get.  SSH.NET supports .NET 3.5, .NET 4.0, Silverlight 4.0, Silverlight 5.0, Windows Phone 7.1 and Windows Phone 8.</description>
-        <releaseNotes>2014.4.6-beta3
+        <releaseNotes>2014.4.6-beta4
+==============
+
+New Features:
+
+    * Added support for HMAC-SHA512 (hmac-sha2-512 and hmac-sha2-512-96)
+
+2014.4.6-beta3
 ==============
 
 New Features:
@@ -102,5 +109,19 @@ Fixes:
         <copyright>2012-2014, RENCI</copyright>
         <language>en-US</language>
         <tags>ssh .net40 sftp .net35 wp71 wp8 silverlight windowsphone</tags>
+		<dependencies>
+			<group targetFramework="sl4">
+				<dependency id="Renci.Security.Cryptography" version="1.0.0" />
+			</group>
+			<group targetFramework="sl5">
+				<dependency id="Renci.Security.Cryptography" version="1.0.0" />
+			</group>
+			<group targetFramework="wp7">
+				<dependency id="Renci.Security.Cryptography" version="1.0.0" />
+			</group>
+			<group targetFramework="wp80">
+				<dependency id="Renci.Security.Cryptography" version="1.0.0" />
+			</group>
+		</dependencies>
     </metadata>
 </package>

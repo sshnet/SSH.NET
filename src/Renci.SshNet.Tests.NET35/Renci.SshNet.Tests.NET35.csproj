@@ -14,11 +14,6 @@
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <TargetFrameworkProfile />
-    <SccProjectName>SAK</SccProjectName>
-    <SccLocalPath>SAK</SccLocalPath>
-    <SccAuxPath>SAK</SccAuxPath>
-    <SccProvider>SAK</SccProvider>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -46,7 +41,7 @@
   <ItemGroup>
     <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="Moq">
-      <HintPath>..\packages\Moq.4.2.1409.1722\lib\net35\Moq.dll</HintPath>
+      <HintPath>..\..\packages\Moq.4.2.1409.1722\lib\net35\Moq.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
@@ -774,18 +769,6 @@
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Security\Cryptography\DsaKeyTest.cs">
       <Link>Classes\Security\Cryptography\DsaKeyTest.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\Classes\Security\Cryptography\Hashes\MD5HashTest.cs">
-      <Link>Classes\Security\Cryptography\Hashes\MD5HashTest.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\Classes\Security\Cryptography\Hashes\RIPEMD160HashTest.cs">
-      <Link>Classes\Security\Cryptography\Hashes\RIPEMD160HashTest.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\Classes\Security\Cryptography\Hashes\SHA1HashTest.cs">
-      <Link>Classes\Security\Cryptography\Hashes\SHA1HashTest.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\Classes\Security\Cryptography\Hashes\SHA256HashTest.cs">
-      <Link>Classes\Security\Cryptography\Hashes\SHA256HashTest.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Security\Cryptography\HMacTest.cs">
       <Link>Classes\Security\Cryptography\HMacTest.cs</Link>

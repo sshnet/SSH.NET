@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Transport;
@@ -70,6 +71,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="clientAlgorithms">A <see cref="IDictionary{String, Type}"/> of the key exchange algorithms supported by the client where key is the name of the algorithm, and value is the type implementing this algorithm.</param>
         /// <param name="serverAlgorithms">The names of the key exchange algorithms supported by the SSH server.</param>
+        /// <param name="hashAlgorithmFactory">The factory to use for creating <see cref="HashAlgorithm"/> instances.</param>
         /// <returns>
         /// A <see cref="IKeyExchange"/> that was negotiated between client and server.
         /// </returns>
@@ -94,7 +96,7 @@ namespace Renci.SshNet
                 throw new SshConnectionException("Failed to negotiate key exchange algorithm.", DisconnectReason.KeyExchangeFailed);
             }
 
-            return keyExchangeAlgorithmType.CreateInstance<KeyExchange>();
+            return keyExchangeAlgorithmType.CreateInstance<IKeyExchange>();
         }
     }
 }

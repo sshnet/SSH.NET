@@ -16,15 +16,10 @@ namespace Renci.SshNet.Security
     public abstract class KeyExchange : Algorithm, IKeyExchange
     {
         private CipherInfo _clientCipherInfo;
-
         private CipherInfo _serverCipherInfo;
-
         private HashInfo _clientHashInfo;
-
         private HashInfo _serverHashInfo;
-
         private Type _compressionType;
-
         private Type _decompressionType;
 
         /// <summary>
@@ -287,7 +282,7 @@ namespace Renci.SshNet.Security
         /// </summary>
         /// <param name="host">The host algorithm.</param>
         /// <returns>
-        ///   <c>true</c> if the specified host can be trusted; otherwise, <c>false</c>.
+        /// <c>true</c> if the specified host can be trusted; otherwise, <c>false</c>.
         /// </returns>
         protected bool CanTrustHostKey(KeyHostAlgorithm host)
         {
@@ -323,7 +318,7 @@ namespace Renci.SshNet.Security
         /// </returns>
         protected virtual byte[] Hash(byte[] hashData)
         {
-            using (var sha1 = new SHA1Hash())
+            using (var sha1 = HashAlgorithmFactory.CreateSHA1())
             {
                 return sha1.ComputeHash(hashData, 0, hashData.Length);
             }

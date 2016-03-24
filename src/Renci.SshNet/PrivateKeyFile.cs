@@ -279,7 +279,7 @@ namespace Renci.SshNet
         {
             var cipherKey = new List<byte>();
 
-            using (var md5 = new MD5Hash())
+            using (var md5 = HashAlgorithmFactory.CreateMD5())
             {
                 var passwordBytes = Encoding.UTF8.GetBytes(passphrase);
 
@@ -320,7 +320,7 @@ namespace Renci.SshNet
 
             var cipherKey = new List<byte>();
 
-            using (var md5 = new MD5Hash())
+            using (var md5 = HashAlgorithmFactory.CreateMD5())
             {
                 var passwordBytes = Encoding.UTF8.GetBytes(passPhrase);
 
@@ -353,7 +353,6 @@ namespace Renci.SshNet
         public void Dispose()
         {
             Dispose(true);
-
             GC.SuppressFinalize(this);
         }
 

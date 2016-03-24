@@ -24,9 +24,9 @@ namespace Renci.SshNet.Security
         /// </returns>
         protected override byte[] Hash(byte[] hashBytes)
         {
-            using (var md = new SHA256Hash())
+            using (var sha256 = HashAlgorithmFactory.CreateSHA256())
             {
-                return md.ComputeHash(hashBytes);
+                return sha256.ComputeHash(hashBytes);
             }
         }
     }

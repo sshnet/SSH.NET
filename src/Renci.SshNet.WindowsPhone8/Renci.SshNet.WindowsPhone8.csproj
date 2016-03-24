@@ -12,26 +12,18 @@
     <RootNamespace>Renci.SshNet</RootNamespace>
     <AssemblyName>Renci.SshNet</AssemblyName>
     <TargetFrameworkVersion>v8.0</TargetFrameworkVersion>
-    <SilverlightVersion>
-    </SilverlightVersion>
-    <TargetFrameworkProfile>
-    </TargetFrameworkProfile>
     <TargetFrameworkIdentifier>WindowsPhone</TargetFrameworkIdentifier>
     <SilverlightApplication>false</SilverlightApplication>
     <ValidateXaml>true</ValidateXaml>
     <ThrowErrorsInValidation>true</ThrowErrorsInValidation>
     <MinimumVisualStudioVersion>11.0</MinimumVisualStudioVersion>
-    <SccProjectName>SAK</SccProjectName>
-    <SccLocalPath>SAK</SccLocalPath>
-    <SccAuxPath>SAK</SccAuxPath>
-    <SccProvider>SAK</SccProvider>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>Bin\Debug</OutputPath>
-    <DefineConstants>TRACE;DEBUG;SILVERLIGHT;WINDOWS_PHONE;TUNING</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;SILVERLIGHT;WINDOWS_PHONE;TUNING;FEATURE_HASH_SHA1;FEATURE_HASH_SHA256;FEATURE_HMAC_SHA1;FEATURE_HMAC_SHA256</DefineConstants>
     <NoStdLib>true</NoStdLib>
     <NoConfig>true</NoConfig>
     <ErrorReport>prompt</ErrorReport>
@@ -43,7 +35,7 @@
     <DebugType>none</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>Bin\Release</OutputPath>
-    <DefineConstants>TRACE;SILVERLIGHT;WINDOWS_PHONE;TUNING</DefineConstants>
+    <DefineConstants>TRACE;SILVERLIGHT;WINDOWS_PHONE;TUNING;FEATURE_HASH_SHA1;FEATURE_HASH_SHA256;FEATURE_HMAC_SHA1;FEATURE_HMAC_SHA256</DefineConstants>
     <NoStdLib>true</NoStdLib>
     <NoConfig>true</NoConfig>
     <ErrorReport>prompt</ErrorReport>
@@ -660,29 +652,23 @@
     <Compile Include="..\Renci.SshNet\Security\Cryptography\DsaKey.cs">
       <Link>Security\Cryptography\DsaKey.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\Security\Cryptography\Hashes\MD5Hash.cs">
-      <Link>Security\Cryptography\Hashes\MD5Hash.cs</Link>
+    <Compile Include="..\Renci.SshNet\Security\Cryptography\HashAlgorithmFactory.cs">
+      <Link>Security\Cryptography\HashAlgorithmFactory.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\Security\Cryptography\Hashes\RIPEMD160Hash.cs">
-      <Link>Security\Cryptography\Hashes\RIPEMD160Hash.cs</Link>
+    <Compile Include="..\Renci.SshNet\Security\Cryptography\HMACMD5.cs">
+      <Link>Security\Cryptography\HMACMD5.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\Security\Cryptography\Hashes\SHA1Hash.cs">
-      <Link>Security\Cryptography\Hashes\SHA1Hash.cs</Link>
+    <Compile Include="..\Renci.SshNet\Security\Cryptography\HMACSHA1.cs">
+      <Link>Security\Cryptography\HMACSHA1.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\Security\Cryptography\Hashes\SHA256Hash.cs">
-      <Link>Security\Cryptography\Hashes\SHA256Hash.cs</Link>
+    <Compile Include="..\Renci.SshNet\Security\Cryptography\HMACSHA256.cs">
+      <Link>Security\Cryptography\HMACSHA256.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\Security\Cryptography\Hashes\SHA2HashBase.cs">
-      <Link>Security\Cryptography\Hashes\SHA2HashBase.cs</Link>
+    <Compile Include="..\Renci.SshNet\Security\Cryptography\HMACSHA384.cs">
+      <Link>Security\Cryptography\HMACSHA384.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\Security\Cryptography\Hashes\SHA384Hash.cs">
-      <Link>Security\Cryptography\Hashes\SHA384Hash.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet\Security\Cryptography\Hashes\SHA512Hash.cs">
-      <Link>Security\Cryptography\Hashes\SHA512Hash.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet\Security\Cryptography\HMAC.cs">
-      <Link>Security\Cryptography\HMAC.cs</Link>
+    <Compile Include="..\Renci.SshNet\Security\Cryptography\HMACSHA512.cs">
+      <Link>Security\Cryptography\HMACSHA512.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Security\Cryptography\Key.cs">
       <Link>Security\Cryptography\Key.cs</Link>
@@ -937,11 +923,20 @@
     </Compile>
     <Compile Include="Session.WP.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Renci.Security.Cryptography, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Renci.Security.Cryptography.1.0.0\lib\wp8\Renci.Security.Cryptography.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).$(TargetFrameworkVersion).Overrides.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties ProjectLinkReference="2f5f8c90-0bd1-424f-997c-7bc6280919d1" ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" />
+      <UserProperties ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" ProjectLinkReference="2f5f8c90-0bd1-424f-997c-7bc6280919d1" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

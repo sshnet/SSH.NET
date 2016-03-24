@@ -26,7 +26,7 @@ namespace Renci.SshNet.Security.Cryptography
 
             this._key = key;
 
-            this._hash = new SHA1Hash();
+            this._hash = HashAlgorithmFactory.CreateSHA1();
         }
 
         /// <summary>

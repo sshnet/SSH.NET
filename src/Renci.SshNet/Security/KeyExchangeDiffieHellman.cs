@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Text;
 using Renci.SshNet.Messages.Transport;
 using Renci.SshNet.Common;

@@ -19,7 +19,7 @@ namespace Renci.SshNet.Security.Cryptography
         public RsaDigitalSignature(RsaKey rsaKey)
             : base(new ObjectIdentifier(1, 3, 14, 3, 2, 26), new RsaCipher(rsaKey))
         {
-            this._hash = new SHA1Hash();
+            this._hash = HashAlgorithmFactory.CreateSHA1();
         }
 
         /// <summary>

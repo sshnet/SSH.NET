@@ -293,15 +293,6 @@ namespace Renci.SshNet.Sftp
         }
 
         /// <summary>
-        /// Closes the current stream and releases any resources (such as sockets and file handles) associated with the current stream.
-        /// </summary>
-        public override void Close()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        /// <summary>
         /// Clears all buffers for this stream and causes any buffered data to be written to the file.
         /// </summary>
         /// <exception cref="T:System.IO.IOException">An I/O error occurs. </exception>

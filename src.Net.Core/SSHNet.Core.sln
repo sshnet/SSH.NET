@@ -10,7 +10,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		global.json = global.json
 	EndProjectSection
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Renci.SshNet.NetCore", "src\Renci.SshNet.NetCore\Renci.SshNet.NetCore.xproj", "{3356F953-689C-4DC1-B692-B38FBF4C771C}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "SSHNet.Core", "src\SSHNet.Core\SSHNet.Core.xproj", "{3356F953-689C-4DC1-B692-B38FBF4C771C}"
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "test", "src\test\test.xproj", "{80E8E9B1-5C00-434E-8DCB-3FADCADBD217}"
 EndProject
@@ -35,19 +35,5 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{3356F953-689C-4DC1-B692-B38FBF4C771C} = {6112100F-A21C-4F42-87B3-ADE7ECAD116D}
 		{80E8E9B1-5C00-434E-8DCB-3FADCADBD217} = {6112100F-A21C-4F42-87B3-ADE7ECAD116D}
-	EndGlobalSection
-	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 3
-		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccTeamFoundationServer = http://172.17.7.58:8080/tfs/microcollection
-		SccLocalPath0 = .
-		SccProjectUniqueName1 = src\\Renci.SshNet.NetCore\\Renci.SshNet.NetCore.xproj
-		SccProjectTopLevelParentUniqueName1 = Renci.SshNet.NetCore.sln
-		SccProjectName1 = src/Renci.SshNet.NetCore
-		SccLocalPath1 = src\\Renci.SshNet.NetCore
-		SccProjectUniqueName2 = src\\test\\test.xproj
-		SccProjectTopLevelParentUniqueName2 = Renci.SshNet.NetCore.sln
-		SccProjectName2 = src/test
-		SccLocalPath2 = src\\test
 	EndGlobalSection
 EndGlobal

@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Topics>
+  <Topic id="43d0362a-d340-4c2e-acc8-96d666ec2727" visible="True" isExpanded="true" title="SSH.NET Library">
+    <Topic id="6deba9ac-263a-4db7-bcc3-1a36c6aebd00" visible="True" noFile="true" isExpanded="true" isSelected="true" title="Programming Guide">
+      <Topic id="ef6ffc84-f410-4682-9366-e9fe2a73ea52" visible="True" title="Overview" />
+      <Topic id="356eeabc-aafa-4a2a-a9ab-5247b9658296" visible="True" title="Connecting to the server" tocTitle="Connection">
+        <Topic id="b7b599b2-8bc2-4276-b9a2-d73eee2426ab" visible="True" title="Using password to connect" tocTitle="Password" />
+        <Topic id="c233e412-0ea1-422f-8337-e5d1231b71e5" visible="True" title="Using private key to connects" tocTitle="Private Key" />
+        <Topic id="281ac0c3-0d6c-4bf2-ae64-db6862d6fff5" visible="True" title="Interactive" />
+      </Topic>
+      <Topic id="bb9dec7b-fe99-46f4-8ee9-92936a976730" visible="True" title="Error Handling" />
+      <Topic id="37443441-b0d5-444f-a2d0-330ad8b95995" visible="True" title="SshClient">
+        <Topic id="2337d96d-7638-438e-b980-96e87b807265" visible="True" title="Commands" />
+        <Topic id="f4ce1bdd-403f-45ec-a622-86c05a4bd913" visible="True" title="Port Forwarding" />
+        <Topic id="86bd5fce-2370-4730-b956-364885f7ed6a" visible="True" title="Shell" />
+      </Topic>
+      <Topic id="8a496881-8cba-4347-8a57-8c047fc04be9" visible="True" noFile="true" title="SftpClient">
+        <Topic id="20a326ed-82f7-4586-844c-b3da4a82c2cd" visible="True" />
+        <Topic id="96751e69-1f9f-417f-8532-c8344b9e98c8" visible="True" title="SFTP Operations" />
+        <Topic id="4f283f0d-d2b7-4927-ae65-f08910756d5c" visible="True" />
+        <Topic id="9f109050-db57-43a3-a1ab-866e0de5dc10" visible="True" />
+      </Topic>
+      <Topic id="c75434ce-77e7-4bb1-b4d6-91df0323f7ac" visible="True" noFile="true" title="ScpClient">
+        <Topic id="09cd9117-2327-423a-8952-cf6d6f56b71d" visible="True" />
+      </Topic>
+      <Topic id="9c263af4-7dde-4635-a6b9-48dcbb72ba99" visible="True" noFile="true" isExpanded="true" title="NetConfClient">
+        <Topic id="9aff6aff-8781-481c-be0c-132e1391f01d" visible="True" />
+      </Topic>
+    </Topic>
+    <Topic id="8e553ec7-3a42-4bd1-9252-b9b3c957b454" visible="True" apiParentMode="InsertAsChild" title="Programming Reference" />
+  </Topic>
+</Topics>

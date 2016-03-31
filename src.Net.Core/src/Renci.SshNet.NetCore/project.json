@@ -1,0 +1,27 @@
+﻿{
+    "authors": [ "khamzatsalikhov" ],
+    "dependencies": {
+        "Microsoft.CSharp": "4.0.1-rc2-23910",
+        "Microsoft.NETCore.Portable.Compatibility": "1.0.1-rc2-23910",
+        "NETStandard.Library": "1.0.0-rc2-23910",
+        "System.Diagnostics.Tracing": "4.1.0-rc2-23910",
+        "System.Net.NameResolution": "4.0.0-rc2-23910",
+        "System.Runtime": "4.1.0-rc2-23910",
+        "System.Runtime.Serialization.Primitives": "4.1.1-rc2-23910",
+        "System.Security.Cryptography.Algorithms": "4.0.0-rc2-23907",
+        "System.Threading.Tasks.Parallel": "4.0.1-rc2-23910",
+        "System.Threading.Thread": "4.0.0-rc2-23910",
+        "System.Threading.ThreadPool": "4.0.10-rc2-23910",
+        "System.Xml.XmlDocument": "4.0.1-rc2-23910",
+        "System.Xml.XPath.XmlDocument": "4.0.1-rc2-23910"
+    },
+    "description": "Renci.SshNet.NetCore Console Application",
+    "frameworks": {
+        "dnxcore50": {
+        }
+    },
+    "licenseUrl": "",
+    "projectUrl": "",
+    "tags": [ "" ],
+    "version": "1.0.0-*"
+}

@@ -18,7 +18,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;TUNING;FEATURE_HASH_MD5;FEATURE_HASH_SHA1;FEATURE_HASH_SHA256;FEATURE_HASH_SHA384;FEATURE_HASH_SHA512;FEATURE_HASH_RIPEMD160;FEATURE_HMAC_MD5;FEATURE_HMAC_SHA1;FEATURE_HMAC_SHA256;FEATURE_HMAC_SHA384;FEATURE_HMAC_SHA512;FEATURE_HMAC_RIPEMD160</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;TUNING;FEATURE_HASH_MD5;FEATURE_HASH_SHA1;FEATURE_HASH_SHA256;FEATURE_HASH_SHA384;FEATURE_HASH_SHA512;FEATURE_HASH_RIPEMD160;FEATURE_HMAC_MD5;FEATURE_HMAC_SHA1;FEATURE_HMAC_SHA256;FEATURE_HMAC_SHA384;FEATURE_HMAC_SHA512;FEATURE_HMAC_RIPEMD160;FEATURE_THREAD_SLEEP;FEATURE_MEMORYSTREAM_GETBUFFER</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -47,6 +47,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Renci.SshNet\Abstractions\DnsAbstraction.cs">
+      <Link>Abstractions\DnsAbstraction.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Abstractions\ReflectionAbstraction.cs">
+      <Link>Abstractions\ReflectionAbstraction.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Abstractions\ThreadAbstraction.cs">
+      <Link>Abstractions\ThreadAbstraction.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\AuthenticationMethod.cs">
       <Link>AuthenticationMethod.cs</Link>
     </Compile>
@@ -916,20 +925,11 @@
     </Compile>
     <Compile Include="Channels\ChannelDirectTcpip.NET35.cs" />
     <Compile Include="Common\Extensions.NET35.cs" />
-    <Compile Include="ShellStream.NET35.cs" />
-    <Compile Include="ForwardedPortDynamic.NET35.cs" />
-    <Compile Include="ForwardedPortLocal.NET35.cs" />
-    <Compile Include="ForwardedPortRemote.NET35.cs" />
-    <Compile Include="KeyboardInteractiveAuthenticationMethod.NET35.cs" />
-    <Compile Include="PasswordAuthenticationMethod.NET35.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="..\Renci.SshNet\Properties\CommonAssemblyInfo.cs">
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Session.NET35.cs" />
-    <Compile Include="SftpClient.NET35.cs" />
-    <Compile Include="Shell.NET35.cs" />
-    <Compile Include="SshCommand.NET35.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Documentation\" />
@@ -942,7 +942,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties ProjectLinkReference="2f5f8c90-0bd1-424f-997c-7bc6280919d1" ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" />
+      <UserProperties ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" ProjectLinkReference="2f5f8c90-0bd1-424f-997c-7bc6280919d1" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

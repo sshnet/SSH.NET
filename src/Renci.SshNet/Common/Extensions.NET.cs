@@ -1,6 +1,7 @@
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using Renci.SshNet.Abstractions;
 
 namespace Renci.SshNet.Common
 {
@@ -37,7 +38,7 @@ namespace Renci.SshNet.Common
         {
             IPAddress ipAddress;
             if (!IPAddress.TryParse(host, out ipAddress))
-                ipAddress = Dns.GetHostAddresses(host).First();
+                ipAddress = DnsAbstraction.GetHostAddresses(host).First();
 
             return ipAddress;
         }

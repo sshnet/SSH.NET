@@ -90,13 +90,8 @@ namespace Renci.SshNet.Security
         {
             base.Start(session, message);
 
-#if TUNING
             _serverPayload = message.GetBytes();
             _clientPayload = Session.ClientInitMessage.GetBytes();
-#else
-            this._serverPayload = message.GetBytes().ToArray();
-            this._clientPayload = this.Session.ClientInitMessage.GetBytes().ToArray();
-#endif
         }
 
         /// <summary>

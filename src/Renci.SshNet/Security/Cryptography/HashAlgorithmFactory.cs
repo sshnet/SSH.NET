@@ -1,7 +1,18 @@
-﻿namespace Renci.SshNet.Security.Cryptography
+﻿using System.Security.Cryptography;
+
+namespace Renci.SshNet.Security.Cryptography
 {
     internal static class HashAlgorithmFactory
     {
+        public static RandomNumberGenerator CreateRandomNumberGenerator()
+        {
+#if FEATURE_RNG_CRYPTO
+            return new RNGCryptoServiceProvider();
+#else
+            return RandomNumberGenerator.Create();
+#endif
+        }
+
 #if FEATURE_HASH_MD5
         public static System.Security.Cryptography.MD5 CreateMD5()
         {

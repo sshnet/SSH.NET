@@ -16,12 +16,7 @@ namespace Renci.SshNet.Common
         internal const int DefaultCapacity = 64;
 
         internal static readonly Encoding Ascii = new ASCIIEncoding();
-
-#if SILVERLIGHT
         internal static readonly Encoding Utf8 = Encoding.UTF8;
-#else
-        internal static readonly Encoding Utf8 = Encoding.Default;
-#endif
 
 #if TUNING
         private SshDataStream _stream;
@@ -233,6 +228,19 @@ namespace Renci.SshNet.Common
 #endif
         }
 
+#if !TUNING
+        /// <summary>
+        /// Reads next mpint data type from internal buffer.
+        /// </summary>
+        /// <returns>mpint read.</returns>
+        protected BigInteger ReadBigInt()
+        {
+            var length = this.ReadUInt32();
+            var data = this.ReadBytes((int)length);
+            return new BigInteger(data.Reverse().ToArray());
+        }
+#endif
+
         /// <summary>
         /// Reads all data left in internal buffer at current position.
         /// </summary>
@@ -355,18 +363,11 @@ namespace Renci.SshNet.Common
 #endif
 
         /// <summary>
-        /// Reads next string data type from internal buffer.
+        /// Reads next string data type from internal buffer using the specific encoding.
         /// </summary>
-        /// <returns>string read</returns>
-        protected string ReadString()
-        {
-            return ReadString(Utf8);
-        }
-
-        /// <summary>
-        /// Reads next string data type from internal buffer.
-        /// </summary>
-        /// <returns>string read</returns>
+        /// <returns>
+        /// The <see cref="string"/> read.
+        /// </returns>
         protected string ReadString(Encoding encoding)
         {
 #if TUNING
@@ -417,7 +418,7 @@ namespace Renci.SshNet.Common
         /// <returns>String array or read data..</returns>
         protected string[] ReadNamesList()
         {
-            var namesList = ReadString();
+            var namesList = ReadString(Ascii);
             return namesList.Split(',');
         }
 
@@ -430,8 +431,8 @@ namespace Renci.SshNet.Common
             var result = new Dictionary<string, string>();
             while (!IsEndOfData)
             {
-                var extensionName = ReadString();
-                var extensionData = ReadString();
+                var extensionName = ReadString(Ascii);
+                var extensionData = ReadString(Ascii);
                 result.Add(extensionName, extensionData);
             }
             return result;
@@ -523,6 +524,17 @@ namespace Renci.SshNet.Common
             Write(data.GetBytes());
 #endif
         }
+
+#if !TUNING
+        /// <summary>
+        ///  Writes  string  data  into  internal  buffer  as  ASCII.
+        /// </summary>
+        /// <param name="data">string data to write.</param>
+        protected void WriteAscii(string data)
+        {  
+            Write(data, Ascii);
+        }
+#endif // !TUNING
 
         /// <summary>
         /// Writes string data into internal buffer using default encoding.

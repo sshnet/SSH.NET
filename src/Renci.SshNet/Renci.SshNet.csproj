@@ -18,7 +18,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;TUNING;FEATURE_HASH_MD5;FEATURE_HASH_SHA1;FEATURE_HASH_SHA256;FEATURE_HASH_SHA384;FEATURE_HASH_SHA512;FEATURE_HASH_RIPEMD160;FEATURE_HMAC_MD5;FEATURE_HMAC_SHA1;FEATURE_HMAC_SHA256;FEATURE_HMAC_SHA384;FEATURE_HMAC_SHA512;FEATURE_HMAC_RIPEMD160</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;TUNING;FEATURE_HASH_MD5;FEATURE_HASH_SHA1;FEATURE_HASH_SHA256;FEATURE_HASH_SHA384;FEATURE_HASH_SHA512;FEATURE_HASH_RIPEMD160;FEATURE_HMAC_MD5;FEATURE_HMAC_SHA1;FEATURE_HMAC_SHA256;FEATURE_HMAC_SHA384;FEATURE_HMAC_SHA512;FEATURE_HMAC_RIPEMD160;FEATURE_MEMORYSTREAM_GETBUFFER;FEATURE_THREAD_SLEEP</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Debug\Renci.SshNet.xml</DocumentationFile>
@@ -46,6 +46,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Abstractions\DnsAbstraction.cs" />
+    <Compile Include="Abstractions\ReflectionAbstraction.cs" />
+    <Compile Include="Abstractions\ThreadAbstraction.cs" />
     <Compile Include="AuthenticationMethod.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -174,14 +177,12 @@
     <Compile Include="ServiceFactory.NET.cs" />
     <Compile Include="Sftp\ISftpSession.cs" />
     <Compile Include="Common\SshDataStream.cs" />
-    <Compile Include="ShellStream.NET40.cs" />
     <Compile Include="ExpectAsyncResult.cs" />
     <Compile Include="Security\KeyExchangeDiffieHellmanGroupSha1.cs" />
     <Compile Include="SftpClient.NET.cs" />
     <Compile Include="KeyboardInteractiveAuthenticationMethod.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="KeyboardInteractiveAuthenticationMethod.NET40.cs" />
     <Compile Include="KeyboardInteractiveConnectionInfo.cs" />
     <Compile Include="NoneAuthenticationMethod.cs">
       <SubType>Code</SubType>
@@ -189,7 +190,6 @@
     <Compile Include="PasswordAuthenticationMethod.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="PasswordAuthenticationMethod.NET40.cs" />
     <Compile Include="ExpectAction.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -197,9 +197,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="ForwardedPortDynamic.NET.cs" />
-    <Compile Include="ForwardedPortDynamic.NET40.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="ForwardedPortLocal.NET.cs" />
     <Compile Include="Messages\Transport\IKeyExchangedAllowed.cs" />
     <Compile Include="PasswordConnectionInfo.cs" />
@@ -218,11 +215,7 @@
     <Compile Include="ForwardedPortLocal.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="ForwardedPortLocal.NET40.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="ForwardedPortRemote.cs" />
-    <Compile Include="ForwardedPortRemote.NET40.cs" />
     <Compile Include="MessageEventArgs.cs" />
     <Compile Include="Messages\Authentication\BannerMessage.cs" />
     <Compile Include="Messages\Authentication\FailureMessage.cs" />
@@ -390,7 +383,6 @@
     <Compile Include="SftpClient.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="SftpClient.NET40.cs" />
     <Compile Include="Sftp\Flags.cs" />
     <Compile Include="Sftp\Requests\ExtendedRequests\FStatVfsRequest.cs" />
     <Compile Include="Sftp\Requests\ExtendedRequests\HardLinkRequest.cs" />
@@ -455,13 +447,11 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Shell.cs" />
-    <Compile Include="Shell.NET40.cs" />
     <Compile Include="ShellStream.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="SshClient.cs" />
     <Compile Include="SshCommand.cs" />
-    <Compile Include="SshCommand.NET40.cs" />
     <Compile Include="SubsystemSession.cs" />
   </ItemGroup>
   <ItemGroup>

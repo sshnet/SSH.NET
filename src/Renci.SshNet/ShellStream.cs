@@ -7,6 +7,7 @@ using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
 using System.Threading;
 using System.Text.RegularExpressions;
+using Renci.SshNet.Abstractions;
 
 namespace Renci.SshNet
 {
@@ -363,7 +364,7 @@ namespace Renci.SshNet
             var asyncResult = new ExpectAsyncResult(callback, state);
 
             //  Execute callback on different thread
-            ExecuteThread(() =>
+            ThreadAbstraction.ExecuteThread(() =>
             {
                 string expectActionResult = null;
                 try
@@ -686,8 +687,6 @@ namespace Renci.SshNet
                 _dataReceived = null;
             }
         }
-
-        partial void ExecuteThread(Action action);
 
         private void Session_ErrorOccured(object sender, ExceptionEventArgs e)
         {

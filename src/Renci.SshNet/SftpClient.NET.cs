@@ -5,6 +5,7 @@ using System.IO;
 using Renci.SshNet.Common;
 using Renci.SshNet.Sftp;
 using System.Globalization;
+using Renci.SshNet.Abstractions;
 
 namespace Renci.SshNet
 {
@@ -49,7 +50,7 @@ namespace Renci.SshNet
 
             var asyncResult = new SftpSynchronizeDirectoriesAsyncResult(asyncCallback, state);
 
-            ExecuteThread(() =>
+            ThreadAbstraction.ExecuteThread(() =>
             {
                 try
                 {

@@ -76,6 +76,7 @@ namespace Renci.SshNet.Common
             Buffer.BlockCopy(data, 0, reversed, 0, data.Length);
             return new BigInteger(reversed.Reverse());
         }
+#endif
 
         /// <summary>
         /// Reverses the sequence of the elements in the entire one-dimensional <see cref="Array"/>.
@@ -89,7 +90,7 @@ namespace Renci.SshNet.Common
             Array.Reverse(array);
             return array;
         }
-#endif
+
 
         /// <summary>
         /// Checks whether a collection is the same as another collection

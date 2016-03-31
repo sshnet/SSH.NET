@@ -4,10 +4,10 @@ using System;
 using System.Net.Sockets;
 using System.Net;
 using Renci.SshNet.Common;
-using System.Threading;
 using Renci.SshNet.Messages.Transport;
 using System.Diagnostics;
 using System.Collections.Generic;
+using Renci.SshNet.Abstractions;
 
 namespace Renci.SshNet
 {
@@ -17,12 +17,14 @@ namespace Renci.SshNet
         private const byte CarriageReturn = 0x0d;
         private const byte LineFeed = 0x0a;
 
+#if FEATURE_DIAGNOSTICS_TRACESOURCE
         private readonly TraceSource _log =
 #if DEBUG
             new TraceSource("SshNet.Logging", SourceLevels.All);
 #else
             new TraceSource("SshNet.Logging");
-#endif
+#endif // DEBUG
+#endif // FEATURE_DIAGNOSTICS_TRACESOURCE
 
         /// <summary>
         /// Holds the lock object to ensure read access to the socket is synchronized.
@@ -111,12 +113,18 @@ namespace Renci.SshNet
 
             Log(string.Format("Initiating connect to '{0}:{1}'.", ConnectionInfo.Host, ConnectionInfo.Port));
 
+#if FEATURE_SOCKET_EAP
+            if (!_socket.ConnectAsync(ep).Wait(timeout))
+                throw new SshOperationTimeoutException(string.Format(CultureInfo.InvariantCulture,
+                    "Connection failed to establish within {0:F0} milliseconds.", timeout.TotalMilliseconds));
+#else
             var connectResult = _socket.BeginConnect(ep, null, null);
             if (!connectResult.AsyncWaitHandle.WaitOne(timeout, false))
                 throw new SshOperationTimeoutException(string.Format(CultureInfo.InvariantCulture,
                     "Connection failed to establish within {0:F0} milliseconds.", timeout.TotalMilliseconds));
 
             _socket.EndConnect(connectResult);
+#endif // FEATURE_SOCKET_ASYNC_TPL
         }
 
         /// <summary>
@@ -125,7 +133,7 @@ namespace Renci.SshNet
         /// <exception cref="SocketException">An error occurred when trying to access the socket.</exception>
         partial void SocketDisconnect()
         {
-            _socket.Disconnect(true);
+            _socket.Dispose();
         }
 
         /// <summary>
@@ -137,7 +145,6 @@ namespace Renci.SshNet
         /// <exception cref="SocketException">An error occurred when trying to access the socket.</exception>
         partial void SocketReadLine(ref string response, TimeSpan timeout)
         {
-            var encoding = new ASCIIEncoding();
             var buffer = new List<byte>();
             var data = new byte[1];
 
@@ -145,12 +152,21 @@ namespace Renci.SshNet
             // to be processed by subsequent invocations
             do
             {
+#if FEATURE_SOCKET_TAP
+                var receiveTask = _socket.ReceiveAsync(new ArraySegment<byte>(data, 0, data.Length), SocketFlags.None);
+                if (!receiveTask.Wait(timeout))
+                    throw new SshOperationTimeoutException(string.Format(CultureInfo.InvariantCulture,
+                        "Socket read operation has timed out after {0:F0} milliseconds.", timeout.TotalMilliseconds));
+
+                var received = receiveTask.Result;
+#else
                 var asyncResult = _socket.BeginReceive(data, 0, data.Length, SocketFlags.None, null, null);
                 if (!asyncResult.AsyncWaitHandle.WaitOne(timeout))
                     throw new SshOperationTimeoutException(string.Format(CultureInfo.InvariantCulture,
                         "Socket read operation has timed out after {0:F0} milliseconds.", timeout.TotalMilliseconds));
 
                 var received = _socket.EndReceive(asyncResult);
+#endif // FEATURE_SOCKET_TAP
 
                 if (received == 0)
                     // the remote server shut down the socket
@@ -167,12 +183,12 @@ namespace Renci.SshNet
                 response = string.Empty;
             else if (buffer.Count > 1 && buffer[buffer.Count - 2] == CarriageReturn)
                 // strip trailing CRLF
-                response = encoding.GetString(buffer.Take(buffer.Count - 2).ToArray());
+                response = SshData.Ascii.GetString(buffer.Take(buffer.Count - 2).ToArray());
             else if (buffer.Count > 1 && buffer[buffer.Count - 1] == LineFeed)
                 // strip trailing LF
-                response = encoding.GetString(buffer.Take(buffer.Count - 1).ToArray());
+                response = SshData.Ascii.GetString(buffer.Take(buffer.Count - 1).ToArray());
             else
-                response = encoding.GetString(buffer.ToArray());
+                response = SshData.Ascii.GetString(buffer.ToArray());
         }
 
         /// <summary>
@@ -222,7 +238,7 @@ namespace Renci.SshNet
                         exp.SocketErrorCode == SocketError.NoBufferSpaceAvailable)
                     {
                         // socket buffer is probably empty, wait and try again
-                        Thread.Sleep(30);
+                        ThreadAbstraction.Sleep(30);
                     }
                     else
                     {
@@ -259,7 +275,7 @@ namespace Renci.SshNet
                         ex.SocketErrorCode == SocketError.NoBufferSpaceAvailable)
                     {
                         // socket buffer is probably full, wait and try again
-                        Thread.Sleep(30);
+                        ThreadAbstraction.Sleep(30);
                     }
                     else
                         throw;  // any serious error occurr
@@ -270,7 +286,9 @@ namespace Renci.SshNet
         [Conditional("DEBUG")]
         partial void Log(string text)
         {
+#if FEATURE_DIAGNOSTICS_TRACESOURCE
             _log.TraceEvent(TraceEventType.Verbose, 1, text);
+#endif // FEATURE_DIAGNOSTICS_TRACESOURCE
         }
 
 #if ASYNC_SOCKET_READ

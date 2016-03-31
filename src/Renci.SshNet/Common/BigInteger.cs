@@ -48,6 +48,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Security.Cryptography;
+using Renci.SshNet.Security.Cryptography;
 
 /*
 Optimization
@@ -66,7 +67,7 @@ namespace Renci.SshNet.Common
     /// </summary>
     public struct BigInteger : IComparable, IFormattable, IComparable<BigInteger>, IEquatable<BigInteger>
     {
-        private static readonly RNGCryptoServiceProvider _randomizer = new RNGCryptoServiceProvider();
+        private static readonly RandomNumberGenerator _randomizer = HashAlgorithmFactory.CreateRandomNumberGenerator();
 
         private const ulong _BASE = 0x100000000;
         private const Int32 _DECIMALSIGNMASK = unchecked((Int32)0x80000000);

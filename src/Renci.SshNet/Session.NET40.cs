@@ -1,8 +1,6 @@
 ﻿using System.Threading.Tasks;
 using System.Linq;
-using System;
 using Renci.SshNet.Messages;
-using System.Threading;
 
 namespace Renci.SshNet
 {
@@ -14,15 +12,6 @@ namespace Renci.SshNet
         partial void HandleMessageCore(Message message)
         {
             HandleMessage((dynamic)message);
-        }
-
-        /// <summary>
-        /// Executes the specified action in a separate thread.
-        /// </summary>
-        /// <param name="action">The action to execute.</param>
-        partial void ExecuteThread(Action action)
-        {
-            ThreadPool.QueueUserWorkItem(o => action());
         }
 
         partial void InternalRegisterMessage(string messageName)

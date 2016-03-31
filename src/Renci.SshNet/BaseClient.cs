@@ -379,10 +379,7 @@ namespace Renci.SshNet
             if (_keepAliveTimer == null)
                 return;
 
-            var timerDisposed = new ManualResetEvent(false);
-            _keepAliveTimer.Dispose(timerDisposed);
-            timerDisposed.WaitOne();
-            timerDisposed.Dispose();
+            _keepAliveTimer.Dispose();
             _keepAliveTimer = null;
         }
 
@@ -418,9 +415,11 @@ namespace Renci.SshNet
             if (_keepAliveInterval == SshNet.Session.InfiniteTimeSpan)
                 return;
 
-            if (_keepAliveTimer == null)
-                _keepAliveTimer = new Timer(state => SendKeepAliveMessage());
-            _keepAliveTimer.Change(_keepAliveInterval, _keepAliveInterval);
+            if (_keepAliveTimer != null)
+                // timer is already started
+                return;
+
+            _keepAliveTimer = new Timer(state => SendKeepAliveMessage(), null, _keepAliveInterval, _keepAliveInterval);
         }
     }
 }

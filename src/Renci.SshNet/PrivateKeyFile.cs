@@ -207,8 +207,8 @@ namespace Renci.SshNet
                     }
 
                     reader.ReadUInt32(); //  Read total bytes length including magic number
-                    var keyType = reader.ReadString();
-                    var ssh2CipherName = reader.ReadString();
+                    var keyType = reader.ReadString(SshData.Ascii);
+                    var ssh2CipherName = reader.ReadString(SshData.Ascii);
                     var blobSize = (int)reader.ReadUInt32();
 
                     byte[] keyData;
@@ -408,9 +408,9 @@ namespace Renci.SshNet
                 return base.ReadUInt32();
             }
 
-            public new string ReadString()
+            public new string ReadString(Encoding encoding)
             {
-                return base.ReadString();
+                return base.ReadString(encoding);
             }
 
             public new byte[] ReadBytes(int length)

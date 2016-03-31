@@ -33,7 +33,7 @@ namespace Renci.SshNet.Sftp.Responses
             for (int i = 0; i < this.Count; i++)
             {
                 var fileName = this.ReadString(this.Encoding);
-                this.ReadString();   //  skip longname
+                this.ReadString(this.Encoding);   //  skip longname
                 var attributes = this.ReadAttributes();
                 this.Files[i] = new KeyValuePair<string, SftpFileAttributes>(fileName, attributes);
             }

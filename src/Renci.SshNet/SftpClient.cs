@@ -8,6 +8,7 @@ using Renci.SshNet.Common;
 using System.Globalization;
 using System.Threading;
 using System.Diagnostics.CodeAnalysis;
+using Renci.SshNet.Abstractions;
 
 namespace Renci.SshNet
 {
@@ -468,7 +469,7 @@ namespace Renci.SshNet
 
             var asyncResult = new SftpListDirectoryAsyncResult(asyncCallback, state);
 
-            ExecuteThread(() =>
+            ThreadAbstraction.ExecuteThread(() =>
             {
                 try
                 {
@@ -687,7 +688,7 @@ namespace Renci.SshNet
 
             var asyncResult = new SftpDownloadAsyncResult(asyncCallback, state);
 
-            ExecuteThread(() =>
+            ThreadAbstraction.ExecuteThread(() =>
             {
                 try
                 {
@@ -888,7 +889,7 @@ namespace Renci.SshNet
 
             var asyncResult = new SftpUploadAsyncResult(asyncCallback, state);
 
-            ExecuteThread(() =>
+            ThreadAbstraction.ExecuteThread(() =>
             {
                 try
                 {
@@ -1606,7 +1607,7 @@ namespace Renci.SshNet
                 if (listCallback != null)
                 {
                     //  Execute callback on different thread
-                    ExecuteThread(() => listCallback(result.Count));
+                    ThreadAbstraction.ExecuteThread(() => listCallback(result.Count));
                 }
 
                 files = _sftpSession.RequestReadDir(handle);
@@ -1665,7 +1666,7 @@ namespace Renci.SshNet
                 if (downloadCallback != null)
                 {
                     //  Execute callback on different thread
-                    ExecuteThread(() => { downloadCallback(offset); });
+                    ThreadAbstraction.ExecuteThread(() => { downloadCallback(offset); });
                 }
 
                 data = _sftpSession.RequestRead(handle, offset, optimalReadLength);
@@ -1746,7 +1747,7 @@ namespace Renci.SshNet
                             if (uploadCallback != null)
                             {
                                 //  Execute callback on different thread
-                                ExecuteThread(() => uploadCallback(writtenBytes));
+                                ThreadAbstraction.ExecuteThread(() => uploadCallback(writtenBytes));
                             }
                         }
                     });
@@ -1765,8 +1766,6 @@ namespace Renci.SshNet
 
             _sftpSession.RequestClose(handle);
         }
-
-        partial void ExecuteThread(Action action);
 
         /// <summary>
         /// Called when client is connected to the server.

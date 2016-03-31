@@ -16,8 +16,8 @@ using Renci.SshNet.Messages.Connection;
 using Renci.SshNet.Messages.Transport;
 using Renci.SshNet.Security;
 using System.Globalization;
+using Renci.SshNet.Abstractions;
 using Renci.SshNet.Security.Cryptography;
-using ASCIIEncoding = Renci.SshNet.Common.ASCIIEncoding;
 
 namespace Renci.SshNet
 {
@@ -64,7 +64,7 @@ namespace Renci.SshNet
         private const int LocalChannelDataPacketSize = 1024*64;
 
 #if !TUNING
-        private static readonly RNGCryptoServiceProvider Randomizer = new RNGCryptoServiceProvider();
+        private static readonly RandomNumberGenerator Randomizer = HashAlgorithmFactory.CreateRandomNumberGenerator();
 #endif
 
 #if SILVERLIGHT
@@ -596,7 +596,7 @@ namespace Renci.SshNet
                     _messageListenerCompleted.Reset();
 
                     //  Start incoming request listener
-                    ExecuteThread(MessageListener);
+                    ThreadAbstraction.ExecuteThread(MessageListener);
 
                     //  Wait for key exchange to be completed
                     WaitOnHandle(_keyExchangeCompletedWaitHandle);
@@ -1390,13 +1390,13 @@ namespace Renci.SshNet
             //  Dispose of old ciphers and hash algorithms
             if (_serverMac != null)
             {
-                _serverMac.Clear();
+                _serverMac.Dispose();
                 _serverMac = null;
             }
 
             if (_clientMac != null)
             {
-                _clientMac.Clear();
+                _clientMac.Dispose();
                 _clientMac = null;
             }
 
@@ -1749,8 +1749,6 @@ namespace Renci.SshNet
 
         #endregion
 
-        partial void ExecuteThread(Action action);
-
         /// <summary>
         /// Gets a value indicating whether the socket is connected.
         /// </summary>
@@ -1881,7 +1879,7 @@ namespace Renci.SshNet
             SocketWrite(ipAddress.GetAddressBytes());
 
             //  Send username
-            var username = new ASCIIEncoding().GetBytes(ConnectionInfo.ProxyUsername);
+            var username = SshData.Ascii.GetBytes(ConnectionInfo.ProxyUsername);
             SocketWrite(username);
             SocketWriteByte(0x00);
 
@@ -1943,9 +1941,7 @@ namespace Renci.SshNet
                     //  Send version
                     SocketWriteByte(0x01);
 
-                    var encoding = new ASCIIEncoding();
-
-                    var username = encoding.GetBytes(ConnectionInfo.ProxyUsername);
+                    var username = SshData.Ascii.GetBytes(ConnectionInfo.ProxyUsername);
 
                     if (username.Length > byte.MaxValue)
                         throw new ProxyException("Proxy username is too long.");
@@ -1956,7 +1952,7 @@ namespace Renci.SshNet
                     //  Send username
                     SocketWrite(username);
 
-                    var password = encoding.GetBytes(ConnectionInfo.ProxyPassword);
+                    var password = SshData.Ascii.GetBytes(ConnectionInfo.ProxyPassword);
 
                     if (password.Length > byte.MaxValue)
                         throw new ProxyException("Proxy password is too long.");
@@ -2079,20 +2075,18 @@ namespace Renci.SshNet
             var httpResponseRe = new Regex(@"HTTP/(?<version>\d[.]\d) (?<statusCode>\d{3}) (?<reasonPhrase>.+)$");
             var httpHeaderRe = new Regex(@"(?<fieldName>[^\[\]()<>@,;:\""/?={} \t]+):(?<fieldValue>.+)?");
 
-            var encoding = new ASCIIEncoding();
-
-            SocketWrite(encoding.GetBytes(string.Format("CONNECT {0}:{1} HTTP/1.0\r\n", ConnectionInfo.Host, ConnectionInfo.Port)));
+            SocketWrite(SshData.Ascii.GetBytes(string.Format("CONNECT {0}:{1} HTTP/1.0\r\n", ConnectionInfo.Host, ConnectionInfo.Port)));
 
             //  Sent proxy authorization is specified
             if (!string.IsNullOrEmpty(ConnectionInfo.ProxyUsername))
             {
                 var authorization = string.Format("Proxy-Authorization: Basic {0}\r\n",
-                                                  Convert.ToBase64String(encoding.GetBytes(string.Format("{0}:{1}", ConnectionInfo.ProxyUsername, ConnectionInfo.ProxyPassword)))
+                                                  Convert.ToBase64String(SshData.Ascii.GetBytes(string.Format("{0}:{1}", ConnectionInfo.ProxyUsername, ConnectionInfo.ProxyPassword)))
                                                   );
-                SocketWrite(encoding.GetBytes(authorization));
+                SocketWrite(SshData.Ascii.GetBytes(authorization));
             }
 
-            SocketWrite(encoding.GetBytes("\r\n"));
+            SocketWrite(SshData.Ascii.GetBytes("\r\n"));
 
             HttpStatusCode? statusCode = null;
             var response = string.Empty;
@@ -2128,7 +2122,7 @@ namespace Renci.SshNet
                 if (headerMatch.Success)
                 {
                     var fieldName = headerMatch.Result("${fieldName}");
-                    if (fieldName.Equals("Content-Length", StringComparison.InvariantCultureIgnoreCase))
+                    if (fieldName.Equals("Content-Length", StringComparison.OrdinalIgnoreCase))
                     {
                         contentLength = int.Parse(headerMatch.Result("${fieldValue}"));
                     }
@@ -2257,13 +2251,13 @@ namespace Renci.SshNet
 
                     if (_serverMac != null)
                     {
-                        _serverMac.Clear();
+                        _serverMac.Dispose();
                         _serverMac = null;
                     }
 
                     if (_clientMac != null)
                     {
-                        _clientMac.Clear();
+                        _clientMac.Dispose();
                         _clientMac = null;
                     }
 

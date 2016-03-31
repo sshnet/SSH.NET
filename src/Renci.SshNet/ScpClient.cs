@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Linq;
 using System.Text;
 using Renci.SshNet.Channels;
 using System.IO;
 using Renci.SshNet.Common;
 using System.Text.RegularExpressions;
-using System.Threading;
 using System.Diagnostics.CodeAnalysis;
+using Renci.SshNet.Abstractions;
 
 namespace Renci.SshNet
 {
@@ -389,7 +388,7 @@ namespace Renci.SshNet
 
             while (b < 0)
             {
-                Thread.Sleep(100);
+                ThreadAbstraction.Sleep(100);
                 b = stream.ReadByte();
             }
 

@@ -213,11 +213,6 @@ namespace Renci.SshNet
                 } while (totalBytesSent < totalBytesToSend);
         }
 
-        partial void ExecuteThread(Action action)
-        {
-            ThreadPool.QueueUserWorkItem(o => action());
-        }
-
         partial void InternalRegisterMessage(string messageName)
         {
             lock (_messagesMetadata)

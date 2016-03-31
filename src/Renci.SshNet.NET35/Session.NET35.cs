@@ -60,11 +60,6 @@ namespace Renci.SshNet
             }
         }
 
-        partial void ExecuteThread(Action action)
-        {
-            ThreadPool.QueueUserWorkItem((o) => { action(); });
-        }
-
         partial void InternalRegisterMessage(string messageName)
         {
             lock (this._messagesMetadata)

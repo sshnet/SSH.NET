@@ -82,7 +82,7 @@ namespace Renci.SshNet.Common
             {
                 // If the operation isn't done, wait for it
                 AsyncWaitHandle.WaitOne();
-                AsyncWaitHandle.Close();
+                AsyncWaitHandle.Dispose();
                 _asyncWaitHandle = null;  // Allow early GC
             }
 
@@ -125,7 +125,7 @@ namespace Renci.SshNet.Common
                     if (Interlocked.CompareExchange(ref _asyncWaitHandle, mre, null) != null)
                     {
                         // Another thread created this object's event; dispose the event we just created
-                        mre.Close();
+                        mre.Dispose();
                     }
                     else
                     {

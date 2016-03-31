@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Connection;
 
@@ -115,7 +115,7 @@ namespace Renci.SshNet.Channels
                         case SocketError.IOPending:
                         case SocketError.NoBufferSpaceAvailable:
                             // socket buffer is probably empty, wait and try again
-                            Thread.Sleep(30);
+                            ThreadAbstraction.Sleep(30);
                             break;
                         case SocketError.ConnectionAborted:
                         case SocketError.ConnectionReset:
@@ -154,7 +154,7 @@ namespace Renci.SshNet.Channels
 
                 // closing a socket actually disposes the socket, so we can safely dereference
                 // the field to avoid entering the lock again later
-                _socket.Close();
+                _socket.Dispose();
                 _socket = null;
             }
         }

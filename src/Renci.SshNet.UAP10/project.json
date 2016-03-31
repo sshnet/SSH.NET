@@ -1,0 +1,18 @@
+﻿{
+  "dependencies": {
+    "Microsoft.NETCore.UniversalWindowsPlatform": "5.2.0-rc3-23931-00",
+    "Renci.Security.Cryptography": "1.0.0",
+    "System.Xml.XPath.XmlDocument": "4.0.1-rc3-23931-00"
+  },
+  "frameworks": {
+    "uap10.0": { }
+  },
+  "runtimes": {
+    "win10-arm": {},
+    "win10-arm-aot": {},
+    "win10-x86": {},
+    "win10-x86-aot": {},
+    "win10-x64": {},
+    "win10-x64-aot": {}
+  }
+}

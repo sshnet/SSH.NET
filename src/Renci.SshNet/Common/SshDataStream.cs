@@ -210,11 +210,25 @@ namespace Renci.SshNet.Common
             return data;
         }
 
+        /// <summary>
+        /// Writes the stream contents to a byte array, regardless of the <see cref="MemoryStream.Position"/>.
+        /// </summary>
+        /// <returns>
+        /// This method returns a copy of the contents of the <see cref="SshDataStream"/> as a byte array.
+        /// If the current instance was constructed on a provided byte array, a copy of the section of the array to which this instance has access is returned.
+        /// TODO
+        /// </returns>
         public override byte[] ToArray()
         {
             if (Capacity == Length)
             {
+#if FEATURE_MEMORYSTREAM_GETBUFFER
                 return GetBuffer();
+#else
+                ArraySegment<byte> buffer;
+                if (TryGetBuffer(out buffer))
+                    return buffer.Array;
+#endif
             }
             return base.ToArray();
         }

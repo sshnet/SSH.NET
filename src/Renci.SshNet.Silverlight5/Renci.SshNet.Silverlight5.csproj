@@ -29,7 +29,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>Bin\Debug</OutputPath>
-    <DefineConstants>TRACE;DEBUG;SILVERLIGHT;TUNING;FEATURE_HASH_SHA1;FEATURE_HASH_SHA256;FEATURE_HMAC_SHA1;FEATURE_HMAC_SHA256</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;SILVERLIGHT;TUNING;FEATURE_HASH_SHA1;FEATURE_HASH_SHA256;FEATURE_HMAC_SHA1;FEATURE_HMAC_SHA256;FEATURE_RNG_CRYPTO;FEATURE_THREAD_SLEEP;FEATURE_MEMORYSTREAM_GETBUFFER</DefineConstants>
     <NoStdLib>true</NoStdLib>
     <NoConfig>true</NoConfig>
     <ErrorReport>prompt</ErrorReport>
@@ -57,10 +57,7 @@
     <AssemblyOriginatorKeyFile>..\Renci.SshNet.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.CSharp, Version=5.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Program Files (x86)\Microsoft SDKs\Silverlight\v5.0\Libraries\Client\Microsoft.CSharp.dll</HintPath>
-    </Reference>
+    <Reference Include="Microsoft.CSharp, Version=5.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="mscorlib" />
     <Reference Include="Renci.Security.Cryptography, Version=1.0.0.0, Culture=neutral, PublicKeyToken=50c6375d29e47192, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Renci.Security.Cryptography.1.0.0\lib\sl5\Renci.Security.Cryptography.dll</HintPath>
@@ -78,15 +75,6 @@
     <Compile Include="..\Renci.SshNet.Silverlight\ForwardedPortLocal.SilverlightShared.cs">
       <Link>ForwardedPortLocal.SilverlightShared.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet.Silverlight\ForwardedPortRemote.SilverlightShared.cs">
-      <Link>ForwardedPortRemote.SilverlightShared.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet.Silverlight\KeyboardInteractiveAuthenticationMethod.SilverlightShared.cs">
-      <Link>KeyboardInteractiveAuthenticationMethod.SilverlightShared.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet.Silverlight\PasswordAuthenticationMethod.SilverlightShared.cs">
-      <Link>PasswordAuthenticationMethod.SilverlightShared.cs</Link>
-    </Compile>
     <Compile Include="..\Renci.SshNet.Silverlight\ScpClient.SilverlightShared.cs">
       <Link>ScpClient.SilverlightShared.cs</Link>
     </Compile>
@@ -96,17 +84,11 @@
     <Compile Include="..\Renci.SshNet.Silverlight\Session.SilverlightShared.cs">
       <Link>Session.SilverlightShared.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet.Silverlight\SftpClient.SilverlightShared.cs">
-      <Link>SftpClient.SilverlightShared.cs</Link>
+    <Compile Include="..\Renci.SshNet\Abstractions\ReflectionAbstraction.cs">
+      <Link>Abstractions\ReflectionAbstraction.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet.Silverlight\Shell.SilverlightShared.cs">
-      <Link>Shell.SilverlightShared.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet.Silverlight\ShellStream.SilverlightShared.cs">
-      <Link>ShellStream.SilverlightShared.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet.Silverlight\SshCommand.SilverlightShared.cs">
-      <Link>SshCommand.SilverlightShared.cs</Link>
+    <Compile Include="..\Renci.SshNet\Abstractions\ThreadAbstraction.cs">
+      <Link>Abstractions\ThreadAbstraction.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\AuthenticationMethod.cs">
       <Link>AuthenticationMethod.cs</Link>
@@ -926,7 +908,7 @@
       <FlavorProperties GUID="{A1591282-1198-4647-A2B1-27E5FF5F6F3B}">
         <SilverlightProjectProperties />
       </FlavorProperties>
-      <UserProperties ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" ProjectLinkReference="2f5f8c90-0bd1-424f-997c-7bc6280919d1" />
+      <UserProperties ProjectLinkReference="2f5f8c90-0bd1-424f-997c-7bc6280919d1" ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

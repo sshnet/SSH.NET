@@ -101,12 +101,6 @@ namespace Renci.SshNet
         /// <param name="timeout">The maximum time to wait for the forwarded port to stop.</param>
         partial void InternalStop(TimeSpan timeout);
 
-        /// <summary>
-        /// Executes the specified action in a separate thread.
-        /// </summary>
-        /// <param name="action">The action to execute.</param>
-        partial void ExecuteThread(Action action);
-
         #region IDisposable Members
 
         /// <summary>

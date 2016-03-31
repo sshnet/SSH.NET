@@ -1,10 +1,10 @@
 ﻿using System;
-using System.Linq;
 using System.IO;
 using System.Threading;
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
 using System.Collections.Generic;
+using Renci.SshNet.Abstractions;
 
 namespace Renci.SshNet
 {
@@ -134,7 +134,7 @@ namespace Renci.SshNet
 
             //  Start input stream listener
             _dataReaderTaskCompleted = new ManualResetEvent(false);
-            ExecuteThread(() =>
+            ThreadAbstraction.ExecuteThread(() =>
             {
                 try
                 {
@@ -142,6 +142,22 @@ namespace Renci.SshNet
 
                     while (_channel.IsOpen)
                     {
+#if FEATURE_STREAM_ASYNC_TPL
+                        var readTask = _input.ReadAsync(buffer, 0, buffer.Length);
+                        var readWaitHandle = ((IAsyncResult) readTask).AsyncWaitHandle;
+
+                        if (WaitHandle.WaitAny(new[] {readWaitHandle, _channelClosedWaitHandle}) == 0)
+                        {
+                            var read = readTask.Result;
+#if TUNING
+                            _channel.SendData(buffer, 0, read);
+#else
+                            _channel.SendData(buffer.Take(read).ToArray());
+#endif
+                            continue;
+                        }
+
+#else
                         var asyncResult = _input.BeginRead(buffer, 0, buffer.Length, delegate(IAsyncResult result)
                         {
                             //  If input stream is closed and disposed already dont finish reading the stream
@@ -164,6 +180,7 @@ namespace Renci.SshNet
 
                         if (asyncResult.IsCompleted)
                             continue;
+#endif // FEATURE_STREAM_ASYNC_TPL
                         break;
                     }
                 }
@@ -242,7 +259,7 @@ namespace Renci.SshNet
             if (Stopping != null)
             {
                 //  Handle event on different thread
-                ExecuteThread(() => Stopping(this, new EventArgs()));
+                ThreadAbstraction.ExecuteThread(() => Stopping(this, new EventArgs()));
             }
 
             if (_channel.IsOpen)
@@ -268,13 +285,11 @@ namespace Renci.SshNet
             if (Stopped != null)
             {
                 //  Handle event on different thread
-                ExecuteThread(() => Stopped(this, new EventArgs()));
+                ThreadAbstraction.ExecuteThread(() => Stopped(this, new EventArgs()));
             }
 
             _channel = null;
         }
-
-        partial void ExecuteThread(Action action);
 
         #region IDisposable Members
 

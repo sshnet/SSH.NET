@@ -126,9 +126,9 @@ namespace Renci.SshNet.Sftp
                 return canonizedPath;
 
             //  Check for special cases
-            if (fullPath.EndsWith("/.", StringComparison.InvariantCultureIgnoreCase) ||
-                fullPath.EndsWith("/..", StringComparison.InvariantCultureIgnoreCase) ||
-                fullPath.Equals("/", StringComparison.InvariantCultureIgnoreCase) ||
+            if (fullPath.EndsWith("/.", StringComparison.OrdinalIgnoreCase) ||
+                fullPath.EndsWith("/..", StringComparison.OrdinalIgnoreCase) ||
+                fullPath.Equals("/", StringComparison.OrdinalIgnoreCase) ||
                 fullPath.IndexOf('/') < 0)
                 return fullPath;
 

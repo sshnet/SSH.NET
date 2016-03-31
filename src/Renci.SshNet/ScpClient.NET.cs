@@ -299,7 +299,7 @@ namespace Renci.SshNet
 
         partial void SendData(IChannelSession channel, string command)
         {
-            channel.SendData(Encoding.Default.GetBytes(command));
+            channel.SendData(SshData.Utf8.GetBytes(command));
         }
     }
 }

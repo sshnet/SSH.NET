@@ -6,9 +6,9 @@ using System.Text;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using Renci.SshNet.Abstractions;
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
-using ASCIIEncoding = Renci.SshNet.Common.ASCIIEncoding;
 
 namespace Renci.SshNet
 {
@@ -38,16 +38,22 @@ namespace Renci.SshNet
 
             _listenerCompleted = new ManualResetEvent(false);
 
-            ExecuteThread(() =>
+            ThreadAbstraction.ExecuteThread(() =>
                 {
                     try
                     {
                         while (true)
                         {
+#if FEATURE_SOCKET_EAP
+                            StartAccept();
+
+                            // TODO: wait for signal to stop
+#else
                             // accept new inbound connection
                             var asyncResult = _listener.BeginAccept(AcceptCallback, _listener);
                             // wait for the connection to be established
                             asyncResult.AsyncWaitHandle.WaitOne();
+#endif // FEATURE_SOCKET_EAP
                         }
                     }
                     catch (ObjectDisposedException)
@@ -83,6 +89,32 @@ namespace Renci.SshNet
             StopListener();
         }
 
+#if FEATURE_SOCKET_EAP
+        private void StartAccept()
+        {
+            var args = new SocketAsyncEventArgs();
+            args.Completed += AcceptCompleted;
+
+            if (!_listener.AcceptAsync(args))
+            {
+                AcceptCompleted(null, args);
+            }
+        }
+
+        private void AcceptCompleted(object sender, SocketAsyncEventArgs acceptAsyncEventArgs)
+        {
+            if (acceptAsyncEventArgs.SocketError != SocketError.Success)
+            {
+                StartAccept();
+                acceptAsyncEventArgs.AcceptSocket.Dispose();
+                return;
+            }
+
+            StartAccept();
+
+            ProcessAccept(acceptAsyncEventArgs.AcceptSocket);
+        }
+#else
         private void AcceptCallback(IAsyncResult ar)
         {
             // Get the socket that handles the client request
@@ -101,12 +133,18 @@ namespace Renci.SshNet
                 return;
             }
 
+            ProcessAccept(clientSocket);
+        }
+#endif // FEATURE_SOCKET_EAP
+
+        private void ProcessAccept(Socket remoteSocket)
+        {
             Interlocked.Increment(ref _pendingRequests);
 
             try
             {
-                clientSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.DontLinger, true);
-                clientSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.NoDelay, true);
+                remoteSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.DontLinger, true);
+                remoteSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.NoDelay, true);
 
                 using (var channel = Session.CreateChannelDirectTcpip())
                 {
@@ -116,26 +154,26 @@ namespace Renci.SshNet
 
                     // create eventhandler which is to be invoked to interrupt a blocking receive
                     // when we're closing the forwarded port
-                    EventHandler closeClientSocket = (sender, args) => CloseSocket(clientSocket);
+                    EventHandler closeClientSocket = (_, args) => CloseSocket(remoteSocket);
 
                     try
                     {
                         Closing += closeClientSocket;
 
-                        var bytesRead = clientSocket.Receive(version);
+                        var bytesRead = remoteSocket.Receive(version);
                         if (bytesRead == 0)
                         {
-                            CloseSocket(clientSocket);
+                            CloseSocket(remoteSocket);
                             return;
                         }
 
                         if (version[0] == 4)
                         {
-                            HandleSocks4(clientSocket, channel);
+                            HandleSocks4(remoteSocket, channel);
                         }
                         else if (version[0] == 5)
                         {
-                            HandleSocks5(clientSocket, channel);
+                            HandleSocks5(remoteSocket, channel);
                         }
                         else
                         {
@@ -164,12 +202,12 @@ namespace Renci.SshNet
                 {
                     RaiseExceptionEvent(ex);
                 }
-                CloseSocket(clientSocket);
+                CloseSocket(remoteSocket);
             }
             catch (Exception exp)
             {
                 RaiseExceptionEvent(exp);
-                CloseSocket(clientSocket);
+                CloseSocket(remoteSocket);
             }
             finally
             {
@@ -182,7 +220,7 @@ namespace Renci.SshNet
             if (socket.Connected)
             {
                 socket.Shutdown(SocketShutdown.Both);
-                socket.Close();
+                socket.Dispose();
             }
         }
 
@@ -193,7 +231,7 @@ namespace Renci.SshNet
                 return;
 
             // close listener socket
-            _listener.Close();
+            _listener.Dispose();
             // wait for listener loop to finish
             _listenerCompleted.WaitOne();
         }
@@ -223,7 +261,7 @@ namespace Renci.SshNet
                 if (stopWatch.Elapsed >= timeout && timeout != SshNet.Session.InfiniteTimeSpan)
                     break;
                 // give channels time to process pending requests
-                Thread.Sleep(50);
+                ThreadAbstraction.Sleep(50);
             }
 
             stopWatch.Stop();
@@ -338,7 +376,7 @@ namespace Renci.SshNet
                             addressBuffer = new byte[length];
                             stream.Read(addressBuffer, 0, addressBuffer.Length);
 
-                            ipAddress = IPAddress.Parse(new ASCIIEncoding().GetString(addressBuffer));
+                            ipAddress = IPAddress.Parse(SshData.Ascii.GetString(addressBuffer));
 
                             //var hostName = new Common.ASCIIEncoding().GetString(addressBuffer);
 

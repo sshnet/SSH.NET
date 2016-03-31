@@ -8,6 +8,7 @@ using Renci.SshNet.Messages;
 using Renci.SshNet.Messages.Connection;
 using Renci.SshNet.Messages.Transport;
 using System.Globalization;
+using Renci.SshNet.Abstractions;
 
 namespace Renci.SshNet
 {
@@ -416,7 +417,7 @@ namespace Renci.SshNet
             if (this._callback != null)
             {
                 //  Execute callback on different thread
-                this.ExecuteThread(() => this._callback(this._asyncResult));
+                ThreadAbstraction.ExecuteThread(() => this._callback(this._asyncResult));
             }
             ((EventWaitHandle)this._asyncResult.AsyncWaitHandle).Set();
         }
@@ -506,8 +507,6 @@ namespace Renci.SshNet
             // actually dispose the channel
             _channel.Dispose();
         }
-
-        partial void ExecuteThread(Action action);
 
         #region IDisposable Members
 

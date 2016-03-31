@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading;
+using Renci.SshNet.Abstractions;
 using Renci.SshNet.Messages;
 using Renci.SshNet.Messages.Authentication;
 using Renci.SshNet.Common;
@@ -108,7 +109,7 @@ namespace Renci.SshNet
             {
                 var eventArgs = new AuthenticationPromptEventArgs(this.Username, informationRequestMessage.Instruction, informationRequestMessage.Language, informationRequestMessage.Prompts);
 
-                this.ExecuteThread(() =>
+                ThreadAbstraction.ExecuteThread(() =>
                 {
                     try
                     {
@@ -135,8 +136,6 @@ namespace Renci.SshNet
                 });
             }
         }
-
-        partial void ExecuteThread(Action action);
 
         #region IDisposable Members
 
@@ -191,6 +190,5 @@ namespace Renci.SshNet
         }
 
         #endregion
-
     }
 }

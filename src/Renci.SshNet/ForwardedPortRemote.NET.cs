@@ -1,4 +1,4 @@
-﻿using System.Net;
+﻿using Renci.SshNet.Abstractions;
 
 namespace Renci.SshNet
 {
@@ -29,7 +29,10 @@ namespace Renci.SshNet
         /// <param name="host">The host.</param>
         /// <param name="port">The port.</param>
         public ForwardedPortRemote(string boundHost, uint boundPort, string host, uint port)
-            : this(Dns.GetHostEntry(boundHost).AddressList[0], boundPort, Dns.GetHostEntry(host).AddressList[0], port)
+            : this(DnsAbstraction.GetHostEntry(boundHost).AddressList[0],
+                   boundPort,
+                   DnsAbstraction.GetHostEntry(host).AddressList[0],
+                   port)
         {
         }
     }

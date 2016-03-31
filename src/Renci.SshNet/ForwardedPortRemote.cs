@@ -4,6 +4,7 @@ using Renci.SshNet.Messages.Connection;
 using Renci.SshNet.Common;
 using System.Globalization;
 using System.Net;
+using Renci.SshNet.Abstractions;
 
 namespace Renci.SshNet
 {
@@ -170,7 +171,7 @@ namespace Renci.SshNet
                 if (elapsed >= timeout && timeout != SshNet.Session.InfiniteTimeSpan)
                     break;
                 // give channels time to process pending requests
-                Thread.Sleep(50);
+                ThreadAbstraction.Sleep(50);
             }
         }
 
@@ -199,7 +200,7 @@ namespace Renci.SshNet
                         return;
                     }
 
-                    ExecuteThread(() =>
+                    ThreadAbstraction.ExecuteThread(() =>
                         {
                             Interlocked.Increment(ref _pendingRequests);
 
@@ -248,8 +249,6 @@ namespace Renci.SshNet
 
             _globalRequestResponse.Set();
         }
-
-        partial void ExecuteThread(Action action);
 
         #region IDisposable Members
 

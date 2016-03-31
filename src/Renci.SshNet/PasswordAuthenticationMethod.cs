@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Text;
 using System.Threading;
+using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Authentication;
 using Renci.SshNet.Messages;
@@ -132,7 +133,7 @@ namespace Renci.SshNet
             {
                 _session.UnRegisterMessage("SSH_MSG_USERAUTH_PASSWD_CHANGEREQ");
 
-                ExecuteThread(() =>
+                ThreadAbstraction.ExecuteThread(() =>
                 {
                     try
                     {
@@ -155,8 +156,6 @@ namespace Renci.SshNet
                 });
             }
         }
-
-        partial void ExecuteThread(Action action);
 
         #region IDisposable Members
 
@@ -211,6 +210,5 @@ namespace Renci.SshNet
         }
 
         #endregion
-
     }
 }

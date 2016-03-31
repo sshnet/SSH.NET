@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Net.Sockets;
 using System.Net;
 using System.Threading;
+using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet
@@ -14,8 +15,6 @@ namespace Renci.SshNet
     {
         private Socket _listener;
         private int _pendingRequests;
-
-        partial void ExecuteThread(Action action);
 
         partial void InternalStart()
         {
@@ -35,16 +34,19 @@ namespace Renci.SshNet
 
             _listenerTaskCompleted = new ManualResetEvent(false);
 
-            ExecuteThread(() =>
+            ThreadAbstraction.ExecuteThread(() =>
                 {
                     try
                     {
                         while (true)
                         {
+#if FEATURE_SOCKET_EAP
+#else
                             // accept new inbound connection
                             var asyncResult = _listener.BeginAccept(AcceptCallback, _listener);
                             // wait for the connection to be established
                             asyncResult.AsyncWaitHandle.WaitOne();
+#endif // FEATURE_SOCKET_EAP
                         }
                     }
                     catch (ObjectDisposedException)
@@ -64,10 +66,36 @@ namespace Renci.SshNet
                 });
         }
 
+#if FEATURE_SOCKET_EAP
+        private void StartAccept()
+        {
+            var args = new SocketAsyncEventArgs();
+            args.Completed += AcceptCompleted;
+
+            if (!_listener.AcceptAsync(args))
+            {
+                AcceptCompleted(null, args);
+            }
+        }
+
+        private void AcceptCompleted(object sender, SocketAsyncEventArgs acceptAsyncEventArgs)
+        {
+            if (acceptAsyncEventArgs.SocketError != SocketError.Success)
+            {
+                StartAccept();
+                acceptAsyncEventArgs.AcceptSocket.Dispose();
+                return;
+            }
+
+            StartAccept();
+
+            ProcessAccept(acceptAsyncEventArgs.AcceptSocket);
+        }
+#else
         private void AcceptCallback(IAsyncResult ar)
         {
             // Get the socket that handles the client request
-            var serverSocket = (Socket)ar.AsyncState;
+            var serverSocket = (Socket) ar.AsyncState;
 
             Socket clientSocket;
 
@@ -82,6 +110,12 @@ namespace Renci.SshNet
                 return;
             }
 
+            ProcessAccept(clientSocket);
+        }
+#endif // FEATURE_SOCKET_EAP
+
+        private void ProcessAccept(Socket clientSocket)
+        {
             Interlocked.Increment(ref _pendingRequests);
 
             try
@@ -118,7 +152,7 @@ namespace Renci.SshNet
             if (socket.Connected)
             {
                 socket.Shutdown(SocketShutdown.Both);
-                socket.Close();
+                socket.Dispose();
             }
         }
 
@@ -139,7 +173,7 @@ namespace Renci.SshNet
                 if (stopWatch.Elapsed >= timeout && timeout != SshNet.Session.InfiniteTimeSpan)
                     break;
                 // give channels time to process pending requests
-                Thread.Sleep(50);
+                ThreadAbstraction.Sleep(50);
             }
 
             stopWatch.Stop();
@@ -160,7 +194,7 @@ namespace Renci.SshNet
             Session.ErrorOccured -= Session_ErrorOccured;
 
             // close listener socket
-            _listener.Close();
+            _listener.Dispose();
             // wait for listener loop to finish
             _listenerTaskCompleted.WaitOne();
         }

@@ -53,8 +53,6 @@ Project("{911E67C6-3D85-4FCE-B560-20A9C3E3FF48}") = "nuget", "Build\nuget\nuget.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Renci.SshNet.UAP10", "Renci.SshNet.UAP10\Renci.SshNet.UAP10.csproj", "{EC212E04-A372-4B95-B45B-C0D4A739EF80}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "App1", "App1\App1.csproj", "{6290900F-5110-44AE-A8A8-92CC8E57A78D}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -183,32 +181,6 @@ Global
 		{EC212E04-A372-4B95-B45B-C0D4A739EF80}.Release|x64.Build.0 = Release|x64
 		{EC212E04-A372-4B95-B45B-C0D4A739EF80}.Release|x86.ActiveCfg = Release|x86
 		{EC212E04-A372-4B95-B45B-C0D4A739EF80}.Release|x86.Build.0 = Release|x86
-		{6290900F-5110-44AE-A8A8-92CC8E57A78D}.Debug|Any CPU.ActiveCfg = Debug|x86
-		{6290900F-5110-44AE-A8A8-92CC8E57A78D}.Debug|ARM.ActiveCfg = Debug|ARM
-		{6290900F-5110-44AE-A8A8-92CC8E57A78D}.Debug|ARM.Build.0 = Debug|ARM
-		{6290900F-5110-44AE-A8A8-92CC8E57A78D}.Debug|ARM.Deploy.0 = Debug|ARM
-		{6290900F-5110-44AE-A8A8-92CC8E57A78D}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
-		{6290900F-5110-44AE-A8A8-92CC8E57A78D}.Debug|Mixed Platforms.Build.0 = Debug|x86
-		{6290900F-5110-44AE-A8A8-92CC8E57A78D}.Debug|Mixed Platforms.Deploy.0 = Debug|x86
-		{6290900F-5110-44AE-A8A8-92CC8E57A78D}.Debug|x64.ActiveCfg = Debug|x64
-		{6290900F-5110-44AE-A8A8-92CC8E57A78D}.Debug|x64.Build.0 = Debug|x64
-		{6290900F-5110-44AE-A8A8-92CC8E57A78D}.Debug|x64.Deploy.0 = Debug|x64
-		{6290900F-5110-44AE-A8A8-92CC8E57A78D}.Debug|x86.ActiveCfg = Debug|x86
-		{6290900F-5110-44AE-A8A8-92CC8E57A78D}.Debug|x86.Build.0 = Debug|x86
-		{6290900F-5110-44AE-A8A8-92CC8E57A78D}.Debug|x86.Deploy.0 = Debug|x86
-		{6290900F-5110-44AE-A8A8-92CC8E57A78D}.Release|Any CPU.ActiveCfg = Release|x86
-		{6290900F-5110-44AE-A8A8-92CC8E57A78D}.Release|ARM.ActiveCfg = Release|ARM
-		{6290900F-5110-44AE-A8A8-92CC8E57A78D}.Release|ARM.Build.0 = Release|ARM
-		{6290900F-5110-44AE-A8A8-92CC8E57A78D}.Release|ARM.Deploy.0 = Release|ARM
-		{6290900F-5110-44AE-A8A8-92CC8E57A78D}.Release|Mixed Platforms.ActiveCfg = Release|x86
-		{6290900F-5110-44AE-A8A8-92CC8E57A78D}.Release|Mixed Platforms.Build.0 = Release|x86
-		{6290900F-5110-44AE-A8A8-92CC8E57A78D}.Release|Mixed Platforms.Deploy.0 = Release|x86
-		{6290900F-5110-44AE-A8A8-92CC8E57A78D}.Release|x64.ActiveCfg = Release|x64
-		{6290900F-5110-44AE-A8A8-92CC8E57A78D}.Release|x64.Build.0 = Release|x64
-		{6290900F-5110-44AE-A8A8-92CC8E57A78D}.Release|x64.Deploy.0 = Release|x64
-		{6290900F-5110-44AE-A8A8-92CC8E57A78D}.Release|x86.ActiveCfg = Release|x86
-		{6290900F-5110-44AE-A8A8-92CC8E57A78D}.Release|x86.Build.0 = Release|x86
-		{6290900F-5110-44AE-A8A8-92CC8E57A78D}.Release|x86.Deploy.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -74,7 +74,6 @@ FEATURE_THREAD_THREADPOOL        | ThreadPool is supported
 FEATURE_MEMORYSTREAM_GETBUFFER   | [MemoryStream] () features a [GetBuffer()](https://msdn.microsoft.com/en-us/library/system.io.memorystream.getbuffer.aspx) method which allows access to the byte array from which this stream was created, or the underlying array 
 FEATURE_MEMORYSTREAM_TRYGETBUFFER   | [MemoryStream] () features a [TryGetBuffer(out ArraySegment<byte>)](https://msdn.microsoft.com/en-us/library/system.io.memorystream.trygetbuffer.aspx) method which allows access to the byte array from which this stream was created, or the underlying array
 FEATURE_STREAM_TAP               | [Stream](https://msdn.microsoft.com/en-us/library/system.io.stream.aspx) supports Task-based Asynchronous Pattern (TAP)
-FEATURE_STREAM_EAP               | [Stream](https://msdn.microsoft.com/en-us/library/system.io.stream.aspx) supports Event-based Asynchronous Pattern (EAP)
 FEATURE_STREAM_APM               | [Stream](https://msdn.microsoft.com/en-us/library/system.io.stream.aspx) supports Asynchronous Programming Model (APM)
 FEATURE_STREAM_SYNC              | [Stream](https://msdn.microsoft.com/en-us/library/system.io.stream.aspx) supports synchronous execution
 FEATURE_SOCKET_TAP               | [Socket](https://msdn.microsoft.com/en-us/library/system.net.sockets.socket.aspx) supports Task-based Asynchronous Pattern (TAP)

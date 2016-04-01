@@ -41,6 +41,7 @@ This project was inspired by **Sharp.SSH** library which was ported from java an
 * hmac-ripemd160@openssh.com
 
 #Framework Support#
+**SSH.NET** supports the following target frameworks:
 * .NET Framework 3.5 
 * .NET Framework 4.0 
 * Silverlight 4 
@@ -48,6 +49,42 @@ This project was inspired by **Sharp.SSH** library which was ported from java an
 * Windows Phone 7.1 
 * Windows Phone 8.0
 * Universal Windows Platform 10
+
+In our codebase, we use the following conditional compilation symbols to identity features supported by a given target framework:
+
+Symbol                           | Description
+:------------------------------- | :--------------------------------------------------------------------------------
+FEATURE_RNG_CSP                  | RandomNumberGenerator can be created using default ctor of RNGCryptoServiceProvider
+FEATURE_RNG_CREATE               | RandomNumberGenerator can be created using static Create method on RandomNumberGenerator
+FEATURE_HASH_MD5                 |
+FEATURE_HASH_SHA1                |
+FEATURE_HASH_SHA256              |
+FEATURE_HASH_SHA384              |
+FEATURE_HASH_SHA512              |
+FEATURE_HASH_RIPEMD160           |
+FEATURE_HMAC_MD5                 |
+FEATURE_HMAC_SHA1                |
+FEATURE_HMAC_SHA256              |
+FEATURE_HMAC_SHA384              |
+FEATURE_HMAC_SHA512              |
+FEATURE_HMAC_RIPEMD160           |
+FEATURE_THREAD_SLEEP             | Current thread can be suspended using static Sleep method on Thread class
+FEATURE_THREAD_TAP               | Task-based Asynchronous Pattern is supported
+FEATURE_THREAD_THREADPOOL        | ThreadPool is supported
+FEATURE_MEMORYSTREAM_GETBUFFER   |
+FEATURE_STREAM_TAP               | [Stream](https://msdn.microsoft.com/en-us/library/system.io.stream.aspx) supports Task-based Asynchronous Pattern (TAP)
+FEATURE_STREAM_EAP               | [Stream](https://msdn.microsoft.com/en-us/library/system.io.stream.aspx) supports Event-based Asynchronous Pattern (EAP)
+FEATURE_STREAM_APM               | [Stream](https://msdn.microsoft.com/en-us/library/system.io.stream.aspx) supports Asynchronous Programming Model (APM)
+FEATURE_STREAM_SYNC              | [Stream](https://msdn.microsoft.com/en-us/library/system.io.stream.aspx) supports synchronous execution
+FEATURE_SOCKET_TAP               | [Socket](https://msdn.microsoft.com/en-us/library/system.net.sockets.socket.aspx) supports Task-based Asynchronous Pattern (TAP)
+FEATURE_SOCKET_EAP               | [Socket](https://msdn.microsoft.com/en-us/library/system.net.sockets.socket.aspx) supports Event-based Asynchronous Pattern (EAP)
+FEATURE_SOCKET_APM               | [Socket](https://msdn.microsoft.com/en-us/library/system.net.sockets.socket.aspx) supports Asynchronous Programming Model (APM)
+FEATURE_SOCKET_SYNC              | [Socket](https://msdn.microsoft.com/en-us/library/system.net.sockets.socket.aspx) supports synchronous execution
+FEATURE_DNS_TAP                  | [Dns](https://msdn.microsoft.com/en-us/library/system.net.dns.aspx) supports Task-based Asynchronous Pattern (TAP)
+FEATURE_DNS_EAP                  | [Dns](https://msdn.microsoft.com/en-us/library/system.net.dns.aspx) supports Event-based Asynchronous Pattern (EAP)
+FEATURE_DNS_APM                  | [Dns](https://msdn.microsoft.com/en-us/library/system.net.dns.aspx) supports Asynchronous Programming Model (APM)
+FEATURE_DNS_SYNC                 | [Dns](https://msdn.microsoft.com/en-us/library/system.net.dns.aspx) supports synchronous execution
+FEATURE_REFLECTION_TYPEINFO      |
 
 #Building SSH.NET#
 

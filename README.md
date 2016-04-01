@@ -71,7 +71,8 @@ FEATURE_HMAC_RIPEMD160           |
 FEATURE_THREAD_SLEEP             | Current thread can be suspended using static Sleep method on Thread class
 FEATURE_THREAD_TAP               | Task-based Asynchronous Pattern is supported
 FEATURE_THREAD_THREADPOOL        | ThreadPool is supported
-FEATURE_MEMORYSTREAM_GETBUFFER   |
+FEATURE_MEMORYSTREAM_GETBUFFER   | [MemoryStream] () features a [GetBuffer()](https://msdn.microsoft.com/en-us/library/system.io.memorystream.getbuffer.aspx) method which allows access to the byte array from which this stream was created, or the underlying array 
+FEATURE_MEMORYSTREAM_TRYGETBUFFER   | [MemoryStream] () features a [TryGetBuffer(out ArraySegment<byte>)](https://msdn.microsoft.com/en-us/library/system.io.memorystream.trygetbuffer.aspx) method which allows access to the byte array from which this stream was created, or the underlying array
 FEATURE_STREAM_TAP               | [Stream](https://msdn.microsoft.com/en-us/library/system.io.stream.aspx) supports Task-based Asynchronous Pattern (TAP)
 FEATURE_STREAM_EAP               | [Stream](https://msdn.microsoft.com/en-us/library/system.io.stream.aspx) supports Event-based Asynchronous Pattern (EAP)
 FEATURE_STREAM_APM               | [Stream](https://msdn.microsoft.com/en-us/library/system.io.stream.aspx) supports Asynchronous Programming Model (APM)

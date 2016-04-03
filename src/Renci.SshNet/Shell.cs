@@ -142,7 +142,7 @@ namespace Renci.SshNet
 
                     while (_channel.IsOpen)
                     {
-#if FEATURE_STREAM_TAP
+#if FEATURE_STREAM_ASYNC_TPL
                         var readTask = _input.ReadAsync(buffer, 0, buffer.Length);
                         var readWaitHandle = ((IAsyncResult) readTask).AsyncWaitHandle;
 
@@ -156,7 +156,8 @@ namespace Renci.SshNet
 #endif
                             continue;
                         }
-#elif FEATURE_STREAM_APM
+
+#else
                         var asyncResult = _input.BeginRead(buffer, 0, buffer.Length, delegate(IAsyncResult result)
                         {
                             //  If input stream is closed and disposed already dont finish reading the stream
@@ -179,9 +180,7 @@ namespace Renci.SshNet
 
                         if (asyncResult.IsCompleted)
                             continue;
-#else
-#error Async receive is not implemented.
-#endif
+#endif // FEATURE_STREAM_ASYNC_TPL
                         break;
                     }
                 }

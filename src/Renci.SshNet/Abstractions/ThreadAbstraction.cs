@@ -12,10 +12,10 @@ namespace Renci.SshNet.Abstractions
         {
 #if FEATURE_THREAD_SLEEP
             System.Threading.Thread.Sleep(millisecondsTimeout);
-#elif FEATURE_THREAD_TAP
+#elif FEATURE_TPL
             System.Threading.Tasks.Task.Delay(millisecondsTimeout).Wait();
 #else
-            #error Suspend of the current thread is not implemented.
+#error Suspend of the current thread is not implemented.
 #endif
         }
 
@@ -25,12 +25,10 @@ namespace Renci.SshNet.Abstractions
         /// <param name="action">The action to execute.</param>
         public static void ExecuteThread(Action action)
         {
-#if FEATURE_THREAD_THREADPOOL
-            System.Threading.ThreadPool.QueueUserWorkItem(o => action());
-#elif FEATURE_THREAD_TAP
+#if FEATURE_TPL
             System.Threading.Tasks.Task.Run(action);
 #else
-            #error Execution of action in a separate thread is not implemented.
+            System.Threading.ThreadPool.QueueUserWorkItem(o => action());
 #endif
         }
     }

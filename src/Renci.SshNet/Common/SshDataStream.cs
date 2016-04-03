@@ -202,7 +202,7 @@ namespace Renci.SshNet.Common
         private byte[] ReadBytes(int length)
         {
             var data = new byte[length];
-            var bytesRead = Read(data, 0, length);
+            var bytesRead = base.Read(data, 0, length);
 
             if (bytesRead < length)
                 throw new ArgumentOutOfRangeException("length");
@@ -214,19 +214,17 @@ namespace Renci.SshNet.Common
         /// Writes the stream contents to a byte array, regardless of the <see cref="MemoryStream.Position"/>.
         /// </summary>
         /// <returns>
-        /// This method returns the contents of the <see cref="SshDataStream"/> as a byte array.
+        /// This method returns a copy of the contents of the <see cref="SshDataStream"/> as a byte array.
+        /// If the current instance was constructed on a provided byte array, a copy of the section of the array to which this instance has access is returned.
+        /// TODO
         /// </returns>
-        /// <remarks>
-        /// If the current instance was constructed on a provided byte array, a copy of the section of the array
-        /// to which this instance has access is returned.
-        /// </remarks>
         public override byte[] ToArray()
         {
             if (Capacity == Length)
             {
 #if FEATURE_MEMORYSTREAM_GETBUFFER
                 return GetBuffer();
-#elif FEATURE_MEMORYSTREAM_TRYGETBUFFER
+#else
                 ArraySegment<byte> buffer;
                 if (TryGetBuffer(out buffer))
                     return buffer.Array;

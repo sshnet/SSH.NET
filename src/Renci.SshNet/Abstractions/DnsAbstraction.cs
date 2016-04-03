@@ -14,10 +14,12 @@ namespace Renci.SshNet.Abstractions
         /// </returns>
         public static IPAddress[] GetHostAddresses(string hostNameOrAddress)
         {
-#if FEATURE_DNS_ASYNC
+#if FEATURE_DNS_SYNC
+            return Dns.GetHostAddresses(hostNameOrAddress);
+#elif FEATURE_DNS_TAP
             return Dns.GetHostAddressesAsync(hostNameOrAddress).Result;
 #else
-            return Dns.GetHostAddresses(hostNameOrAddress);
+            #error Retrieving IP addresses for a given host is not implemented.
 #endif
         }
 
@@ -31,10 +33,12 @@ namespace Renci.SshNet.Abstractions
         /// </returns>
         public static IPHostEntry GetHostEntry(string hostNameOrAddress)
         {
-#if FEATURE_DNS_ASYNC
+#if FEATURE_DNS_SYNC
+            return Dns.GetHostEntry(hostNameOrAddress);
+#elif FEATURE_DNS_TAP
             return Dns.GetHostEntryAsync(hostNameOrAddress).Result;
 #else
-            return Dns.GetHostEntry(hostNameOrAddress);
+            #error Resolving host name or IP address to an IPHostEntry is not implemented.
 #endif
         }
     }

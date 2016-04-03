@@ -6,10 +6,12 @@ namespace Renci.SshNet.Security.Cryptography
     {
         public static RandomNumberGenerator CreateRandomNumberGenerator()
         {
-#if FEATURE_RNG_CRYPTO
+#if FEATURE_RNG_CREATE
+            return RandomNumberGenerator.Create();
+#elif FEATURE_RNG_CSP
             return new RNGCryptoServiceProvider();
 #else
-            return RandomNumberGenerator.Create();
+            #error Creation of RandomNumberGenerator is not implemented.
 #endif
         }
 

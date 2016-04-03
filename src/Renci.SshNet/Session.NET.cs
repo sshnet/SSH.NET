@@ -7,6 +7,7 @@ using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Transport;
 using System.Diagnostics;
 using System.Collections.Generic;
+using System.Threading;
 using Renci.SshNet.Abstractions;
 
 namespace Renci.SshNet
@@ -114,17 +115,39 @@ namespace Renci.SshNet
             Log(string.Format("Initiating connect to '{0}:{1}'.", ConnectionInfo.Host, ConnectionInfo.Port));
 
 #if FEATURE_SOCKET_EAP
-            if (!_socket.ConnectAsync(ep).Wait(timeout))
-                throw new SshOperationTimeoutException(string.Format(CultureInfo.InvariantCulture,
-                    "Connection failed to establish within {0:F0} milliseconds.", timeout.TotalMilliseconds));
-#else
+            var connectCompleted = new ManualResetEvent(false);
+            var connectAsyncEventArgs = new SocketAsyncEventArgs
+                {
+                    RemoteEndPoint = ep,
+                };
+            connectAsyncEventArgs.Completed += (sender, args) => { connectCompleted.Set(); };
+
+            if (_socket.ConnectAsync(connectAsyncEventArgs))
+            {
+                if (!connectCompleted.WaitOne(timeout, false))
+                    throw new SshOperationTimeoutException(
+                        string.Format(
+                            CultureInfo.InvariantCulture,
+                            "Connection failed to establish within {0:F0} milliseconds.",
+                            timeout.TotalMilliseconds));
+            }
+
+            if (connectAsyncEventArgs.SocketError != SocketError.Success)
+                throw new SocketException((int) connectAsyncEventArgs.SocketError);
+#elif FEATURE_SOCKET_APM
             var connectResult = _socket.BeginConnect(ep, null, null);
             if (!connectResult.AsyncWaitHandle.WaitOne(timeout, false))
                 throw new SshOperationTimeoutException(string.Format(CultureInfo.InvariantCulture,
                     "Connection failed to establish within {0:F0} milliseconds.", timeout.TotalMilliseconds));
 
             _socket.EndConnect(connectResult);
-#endif // FEATURE_SOCKET_ASYNC_TPL
+#elif FEATURE_SOCKET_TAP
+            if (!_socket.ConnectAsync(ep).Wait(timeout))
+                throw new SshOperationTimeoutException(string.Format(CultureInfo.InvariantCulture,
+                    "Connection failed to establish within {0:F0} milliseconds.", timeout.TotalMilliseconds));
+#else
+            #error Connecting socket is not implemented.
+#endif
         }
 
         /// <summary>
@@ -133,6 +156,7 @@ namespace Renci.SshNet
         /// <exception cref="SocketException">An error occurred when trying to access the socket.</exception>
         partial void SocketDisconnect()
         {
+            // TODO should disconnect instead ?!!
             _socket.Dispose();
         }
 
@@ -148,47 +172,79 @@ namespace Renci.SshNet
             var buffer = new List<byte>();
             var data = new byte[1];
 
-            // read data one byte at a time to find end of line and leave any unhandled information in the buffer
-            // to be processed by subsequent invocations
-            do
+#if FEATURE_SOCKET_EAP
+            var receiveCompleted = new AutoResetEvent(false);
+            var receiveAsyncEventArgs = new SocketAsyncEventArgs { SocketFlags = SocketFlags.None };
+            receiveAsyncEventArgs.Completed += (sender, args) => receiveCompleted.Set();
+            receiveAsyncEventArgs.SetBuffer(data, 0, data.Length);
+
+#endif // FEATURE_SOCKET_EAP
+
+            try
             {
-#if FEATURE_SOCKET_TAP
-                var receiveTask = _socket.ReceiveAsync(new ArraySegment<byte>(data, 0, data.Length), SocketFlags.None);
-                if (!receiveTask.Wait(timeout))
-                    throw new SshOperationTimeoutException(string.Format(CultureInfo.InvariantCulture,
-                        "Socket read operation has timed out after {0:F0} milliseconds.", timeout.TotalMilliseconds));
+                // read data one byte at a time to find end of line and leave any unhandled information in the buffer
+                // to be processed by subsequent invocations
+                do
+                {
+#if FEATURE_SOCKET_EAP
+                    if (_socket.ReceiveAsync(receiveAsyncEventArgs))
+                    {
+                        if (!receiveCompleted.WaitOne(timeout))
+                            throw new SshOperationTimeoutException(
+                                string.Format(
+                                    CultureInfo.InvariantCulture,
+                                    "Socket read operation has timed out after {0:F0} milliseconds.",
+                                    timeout.TotalMilliseconds));
+                    }
 
-                var received = receiveTask.Result;
-#else
-                var asyncResult = _socket.BeginReceive(data, 0, data.Length, SocketFlags.None, null, null);
-                if (!asyncResult.AsyncWaitHandle.WaitOne(timeout))
-                    throw new SshOperationTimeoutException(string.Format(CultureInfo.InvariantCulture,
-                        "Socket read operation has timed out after {0:F0} milliseconds.", timeout.TotalMilliseconds));
+                    var received = receiveAsyncEventArgs.BytesTransferred;
+#elif FEATURE_SOCKET_TAP
+                    var receiveTask = _socket.ReceiveAsync(new ArraySegment<byte>(data, 0, data.Length), SocketFlags.None);
+                    if (!receiveTask.Wait(timeout))
+                        throw new SshOperationTimeoutException(string.Format(CultureInfo.InvariantCulture,
+                            "Socket read operation has timed out after {0:F0} milliseconds.", timeout.TotalMilliseconds));
 
-                var received = _socket.EndReceive(asyncResult);
-#endif // FEATURE_SOCKET_TAP
+                    var received = receiveTask.Result;
+    #elif FEATURE_SOCKET_APM
+                    var asyncResult = _socket.BeginReceive(data, 0, data.Length, SocketFlags.None, null, null);
+                    if (!asyncResult.AsyncWaitHandle.WaitOne(timeout))
+                        throw new SshOperationTimeoutException(string.Format(CultureInfo.InvariantCulture,
+                            "Socket read operation has timed out after {0:F0} milliseconds.", timeout.TotalMilliseconds));
 
-                if (received == 0)
-                    // the remote server shut down the socket
-                    break;
+                    var received = _socket.EndReceive(asyncResult);
+    #else
+                    #error Receiving from socket is not implemented.
+    #endif
 
-                buffer.Add(data[0]);
+                    if (received == 0)
+                        // the remote server shut down the socket
+                        break;
+
+                    buffer.Add(data[0]);
+                }
+                while (!(buffer.Count > 0 && (buffer[buffer.Count - 1] == LineFeed || buffer[buffer.Count - 1] == Null)));
+
+                if (buffer.Count == 0)
+                    response = null;
+                else if (buffer.Count == 1 && buffer[buffer.Count - 1] == 0x00)
+                    // return an empty version string if the buffer consists of only a 0x00 character
+                    response = string.Empty;
+                else if (buffer.Count > 1 && buffer[buffer.Count - 2] == CarriageReturn)
+                    // strip trailing CRLF
+                    response = SshData.Ascii.GetString(buffer.Take(buffer.Count - 2).ToArray());
+                else if (buffer.Count > 1 && buffer[buffer.Count - 1] == LineFeed)
+                    // strip trailing LF
+                    response = SshData.Ascii.GetString(buffer.Take(buffer.Count - 1).ToArray());
+                else
+                    response = SshData.Ascii.GetString(buffer.ToArray());
             }
-            while (!(buffer.Count > 0 && (buffer[buffer.Count - 1] == LineFeed || buffer[buffer.Count - 1] == Null)));
-
-            if (buffer.Count == 0)
-                response = null;
-            else if (buffer.Count == 1 && buffer[buffer.Count - 1] == 0x00)
-                // return an empty version string if the buffer consists of only a 0x00 character
-                response = string.Empty;
-            else if (buffer.Count > 1 && buffer[buffer.Count - 2] == CarriageReturn)
-                // strip trailing CRLF
-                response = SshData.Ascii.GetString(buffer.Take(buffer.Count - 2).ToArray());
-            else if (buffer.Count > 1 && buffer[buffer.Count - 1] == LineFeed)
-                // strip trailing LF
-                response = SshData.Ascii.GetString(buffer.Take(buffer.Count - 1).ToArray());
-            else
-                response = SshData.Ascii.GetString(buffer.ToArray());
+            finally
+            {
+#if FEATURE_SOCKET_EAP
+                receiveAsyncEventArgs.Dispose();
+                receiveCompleted.Dispose();
+#endif // FEATURE_SOCKET_EAP
+            }
         }
 
         /// <summary>

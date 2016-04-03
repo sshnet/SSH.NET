@@ -177,7 +177,6 @@ namespace Renci.SshNet
             var receiveAsyncEventArgs = new SocketAsyncEventArgs { SocketFlags = SocketFlags.None };
             receiveAsyncEventArgs.Completed += (sender, args) => receiveCompleted.Set();
             receiveAsyncEventArgs.SetBuffer(data, 0, data.Length);
-
 #endif // FEATURE_SOCKET_EAP
 
             try

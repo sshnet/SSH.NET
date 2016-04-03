@@ -4,7 +4,8 @@ using System.Threading;
 namespace Renci.SshNet
 {
     /// <summary>
-    /// Provides functionality for dynamic port forwarding
+    /// Provides functionality for forwarding connections from the client to destination servers via the SSH server,
+    /// also known as dynamic port forwarding.
     /// </summary>
     public partial class ForwardedPortDynamic : ForwardedPort
     {

@@ -163,6 +163,8 @@ namespace Renci.SshNet
             GC.SuppressFinalize(this);
         }
 
+        partial void InternalDispose(bool disposing);
+
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources
         /// </summary>
@@ -181,6 +183,8 @@ namespace Renci.SshNet
                         _listenerTaskCompleted = null;
                     }
                 }
+
+                InternalDispose(disposing);
 
                 _isDisposed = true;
             }

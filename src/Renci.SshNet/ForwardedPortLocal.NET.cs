@@ -16,6 +16,10 @@ namespace Renci.SshNet
         private Socket _listener;
         private int _pendingRequests;
 
+#if FEATURE_SOCKET_EAP
+        private ManualResetEvent _stoppingListener;
+#endif // FEATURE_SOCKET_EAP
+
         partial void InternalStart()
         {
             var addr = BoundHost.GetIPAddress();
@@ -38,16 +42,23 @@ namespace Renci.SshNet
                 {
                     try
                     {
+#if FEATURE_SOCKET_EAP
+                        _stoppingListener = new ManualResetEvent(false);
+                        StartAccept();
+                        _stoppingListener.WaitOne();
+#elif FEATURE_SOCKET_APM
                         while (true)
                         {
-#if FEATURE_SOCKET_EAP
-#else
                             // accept new inbound connection
                             var asyncResult = _listener.BeginAccept(AcceptCallback, _listener);
                             // wait for the connection to be established
                             asyncResult.AsyncWaitHandle.WaitOne();
-#endif // FEATURE_SOCKET_EAP
                         }
+#elif FEATURE_SOCKET_TAP
+                        #error Accepting new socket connections is not implemented.
+#else
+                        #error Accepting new socket connections is not implemented.
+#endif
                     }
                     catch (ObjectDisposedException)
                     {
@@ -91,7 +102,7 @@ namespace Renci.SshNet
 
             ProcessAccept(acceptAsyncEventArgs.AcceptSocket);
         }
-#else
+#elif FEATURE_SOCKET_APM
         private void AcceptCallback(IAsyncResult ar)
         {
             // Get the socket that handles the client request
@@ -112,7 +123,7 @@ namespace Renci.SshNet
 
             ProcessAccept(clientSocket);
         }
-#endif // FEATURE_SOCKET_EAP
+#endif
 
         private void ProcessAccept(Socket clientSocket)
         {
@@ -193,10 +204,34 @@ namespace Renci.SshNet
             Session.Disconnected -= Session_Disconnected;
             Session.ErrorOccured -= Session_ErrorOccured;
 
+#if FEATURE_SOCKET_EAP
+            _stoppingListener.Set();
+#endif // FEATURE_SOCKET_EAP
+
             // close listener socket
             _listener.Dispose();
             // wait for listener loop to finish
             _listenerTaskCompleted.WaitOne();
+        }
+
+        partial void InternalDispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (_listener != null)
+                {
+                    _listener.Dispose();
+                    _listener = null;
+                }
+
+#if FEATURE_SOCKET_EAP
+                if (_stoppingListener != null)
+                {
+                    _stoppingListener.Dispose();
+                    _stoppingListener = null;
+                }
+#endif // FEATURE_SOCKET_EAP
+            }
         }
 
         private void Session_ErrorOccured(object sender, ExceptionEventArgs e)

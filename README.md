@@ -72,7 +72,7 @@ FEATURE_THREAD_SLEEP             | Current thread can be suspended using static 
 FEATURE_THREAD_TAP               | Task-based Asynchronous Pattern is supported
 FEATURE_THREAD_THREADPOOL        | ThreadPool is supported
 FEATURE_MEMORYSTREAM_GETBUFFER   | [MemoryStream] () features a [GetBuffer()](https://msdn.microsoft.com/en-us/library/system.io.memorystream.getbuffer.aspx) method which allows access to the byte array from which this stream was created, or the underlying array 
-FEATURE_MEMORYSTREAM_TRYGETBUFFER   | [MemoryStream] () features a [TryGetBuffer(out ArraySegment<byte>)](https://msdn.microsoft.com/en-us/library/system.io.memorystream.trygetbuffer.aspx) method which allows access to the byte array from which this stream was created, or the underlying array
+FEATURE_MEMORYSTREAM_TRYGETBUFFER| [MemoryStream] () features a [TryGetBuffer(out ArraySegment<byte>)](https://msdn.microsoft.com/en-us/library/system.io.memorystream.trygetbuffer.aspx) method which allows access to the byte array from which this stream was created, or the underlying array
 FEATURE_STREAM_TAP               | [Stream](https://msdn.microsoft.com/en-us/library/system.io.stream.aspx) supports Task-based Asynchronous Pattern (TAP)
 FEATURE_STREAM_APM               | [Stream](https://msdn.microsoft.com/en-us/library/system.io.stream.aspx) supports Asynchronous Programming Model (APM)
 FEATURE_STREAM_SYNC              | [Stream](https://msdn.microsoft.com/en-us/library/system.io.stream.aspx) supports synchronous execution
@@ -80,6 +80,7 @@ FEATURE_SOCKET_TAP               | [Socket](https://msdn.microsoft.com/en-us/lib
 FEATURE_SOCKET_EAP               | [Socket](https://msdn.microsoft.com/en-us/library/system.net.sockets.socket.aspx) supports Event-based Asynchronous Pattern (EAP)
 FEATURE_SOCKET_APM               | [Socket](https://msdn.microsoft.com/en-us/library/system.net.sockets.socket.aspx) supports Asynchronous Programming Model (APM)
 FEATURE_SOCKET_SYNC              | [Socket](https://msdn.microsoft.com/en-us/library/system.net.sockets.socket.aspx) supports synchronous execution
+FEATURE_SOCKET_POLL              | [Socket](https://msdn.microsoft.com/en-us/library/system.net.sockets.socket.aspx) features a [Poll(Int32,SelectMode)](https://msdn.microsoft.com/en-us/library/system.net.sockets.socket.poll.aspx) method
 FEATURE_DNS_TAP                  | [Dns](https://msdn.microsoft.com/en-us/library/system.net.dns.aspx) supports Task-based Asynchronous Pattern (TAP)
 FEATURE_DNS_EAP                  | [Dns](https://msdn.microsoft.com/en-us/library/system.net.dns.aspx) supports Event-based Asynchronous Pattern (EAP)
 FEATURE_DNS_APM                  | [Dns](https://msdn.microsoft.com/en-us/library/system.net.dns.aspx) supports Asynchronous Programming Model (APM)

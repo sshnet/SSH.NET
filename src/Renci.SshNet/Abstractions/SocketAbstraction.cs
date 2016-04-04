@@ -48,7 +48,7 @@ namespace Renci.SshNet.Abstractions
             };
             args.Completed += ConnectCompleted;
 
-            if (!socket.ConnectAsync(args))
+            if (socket.ConnectAsync(args))
             {
                 if (!connectCompleted.WaitOne(connectTimeout))
                     throw new SshOperationTimeoutException(string.Format(CultureInfo.InvariantCulture,

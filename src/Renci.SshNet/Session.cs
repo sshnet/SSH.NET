@@ -1875,7 +1875,7 @@ namespace Renci.SshNet
             SocketWriteByte((byte)(ConnectionInfo.Port % 0xFF));
 
             //  Send IP
-            var ipAddress = ConnectionInfo.Host.GetIPAddress();
+            var ipAddress = DnsAbstraction.GetHostAddresses(ConnectionInfo.Host)[0];
             SocketWrite(ipAddress.GetAddressBytes());
 
             //  Send username
@@ -1986,7 +1986,7 @@ namespace Renci.SshNet
             //  Send reserved, must be 0x00
             SocketWriteByte(0x00);
 
-            var ip = ConnectionInfo.Host.GetIPAddress();
+            var ip = DnsAbstraction.GetHostAddresses(ConnectionInfo.Host)[0];
 
             //  Send address type and address
             if (ip.AddressFamily == AddressFamily.InterNetwork)

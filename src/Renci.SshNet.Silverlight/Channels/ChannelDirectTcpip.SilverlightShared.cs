@@ -46,6 +46,8 @@ namespace Renci.SshNet.Channels
                 }
                 break;
             } while (receivedTotal < bytesToRead);
+
+            read = receivedTotal;
         }
 
         partial void InternalSocketSend(byte[] data)

@@ -11,7 +11,7 @@ namespace Renci.SshNet
     /// <summary>
     /// Provides functionality for remote port forwarding
     /// </summary>
-    public partial class ForwardedPortRemote : ForwardedPort, IDisposable
+    public class ForwardedPortRemote : ForwardedPort, IDisposable
     {
         private bool _requestStatus;
 
@@ -97,6 +97,35 @@ namespace Renci.SshNet
             BoundPort = boundPort;
             HostAddress = hostAddress;
             Port = port;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ForwardedPortRemote"/> class.
+        /// </summary>
+        /// <param name="boundPort">The bound port.</param>
+        /// <param name="host">The host.</param>
+        /// <param name="port">The port.</param>
+        /// <example>
+        ///     <code source="..\..\Renci.SshNet.Tests\Classes\ForwardedPortRemoteTest.cs" region="Example SshClient AddForwardedPort Start Stop ForwardedPortRemote" language="C#" title="Remote port forwarding" />
+        /// </example>
+        public ForwardedPortRemote(uint boundPort, string host, uint port)
+            : this(string.Empty, boundPort, host, port)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ForwardedPortRemote"/> class.
+        /// </summary>
+        /// <param name="boundHost">The bound host.</param>
+        /// <param name="boundPort">The bound port.</param>
+        /// <param name="host">The host.</param>
+        /// <param name="port">The port.</param>
+        public ForwardedPortRemote(string boundHost, uint boundPort, string host, uint port)
+            : this(DnsAbstraction.GetHostAddresses(boundHost)[0],
+                   boundPort,
+                   DnsAbstraction.GetHostAddresses(host)[0],
+                   port)
+        {
         }
 
         /// <summary>

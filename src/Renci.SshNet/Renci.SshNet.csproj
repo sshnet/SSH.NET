@@ -18,7 +18,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;TUNING;FEATURE_RNG_CSP;FEATURE_SOCKET_EAP;FEATURE_STREAM_APM;FEATURE_DNS_SYNC;FEATURE_THREAD_THREADPOOL;FEATURE_THREAD_SLEEP;FEATURE_HASH_MD5;FEATURE_HASH_SHA1;FEATURE_HASH_SHA256;FEATURE_HASH_SHA384;FEATURE_HASH_SHA512;FEATURE_HASH_RIPEMD160;FEATURE_HMAC_MD5;FEATURE_HMAC_SHA1;FEATURE_HMAC_SHA256;FEATURE_HMAC_SHA384;FEATURE_HMAC_SHA512;FEATURE_HMAC_RIPEMD160;FEATURE_MEMORYSTREAM_GETBUFFER</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;TUNING;FEATURE_RNG_CSP;FEATURE_SOCKET_EAP;FEATURE_SOCKET_POLL;FEATURE_STREAM_APM;FEATURE_DNS_SYNC;FEATURE_THREAD_THREADPOOL;FEATURE_THREAD_SLEEP;FEATURE_HASH_MD5;FEATURE_HASH_SHA1;FEATURE_HASH_SHA256;FEATURE_HASH_SHA384;FEATURE_HASH_SHA512;FEATURE_HASH_RIPEMD160;FEATURE_HMAC_MD5;FEATURE_HMAC_SHA1;FEATURE_HMAC_SHA256;FEATURE_HMAC_SHA384;FEATURE_HMAC_SHA512;FEATURE_HMAC_RIPEMD160;FEATURE_MEMORYSTREAM_GETBUFFER</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Debug\Renci.SshNet.xml</DocumentationFile>
@@ -27,7 +27,7 @@
     <DebugType>none</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TUNING;FEATURE_RNG_CSP;FEATURE_SOCKET_EAP;FEATURE_STREAM_APM;FEATURE_DNS_SYNC;FEATURE_THREAD_THREADPOOL;FEATURE_THREAD_SLEEP;FEATURE_HASH_MD5;FEATURE_HASH_SHA1;FEATURE_HASH_SHA256;FEATURE_HASH_SHA384;FEATURE_HASH_SHA512;FEATURE_HASH_RIPEMD160;FEATURE_HMAC_MD5;FEATURE_HMAC_SHA1;FEATURE_HMAC_SHA256;FEATURE_HMAC_SHA384;FEATURE_HMAC_SHA512;FEATURE_HMAC_RIPEMD160;FEATURE_MEMORYSTREAM_GETBUFFER</DefineConstants>
+    <DefineConstants>TUNING;FEATURE_RNG_CSP;FEATURE_SOCKET_EAP;FEATURE_SOCKET_POLL;FEATURE_STREAM_APM;FEATURE_DNS_SYNC;FEATURE_THREAD_THREADPOOL;FEATURE_THREAD_SLEEP;FEATURE_HASH_MD5;FEATURE_HASH_SHA1;FEATURE_HASH_SHA256;FEATURE_HASH_SHA384;FEATURE_HASH_SHA512;FEATURE_HASH_RIPEMD160;FEATURE_HMAC_MD5;FEATURE_HMAC_SHA1;FEATURE_HMAC_SHA256;FEATURE_HMAC_SHA384;FEATURE_HMAC_SHA512;FEATURE_HMAC_RIPEMD160;FEATURE_MEMORYSTREAM_GETBUFFER</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Release\Renci.SshNet.xml</DocumentationFile>
@@ -48,6 +48,7 @@
   <ItemGroup>
     <Compile Include="Abstractions\DnsAbstraction.cs" />
     <Compile Include="Abstractions\ReflectionAbstraction.cs" />
+    <Compile Include="Abstractions\SocketAbstraction.cs" />
     <Compile Include="Abstractions\ThreadAbstraction.cs" />
     <Compile Include="AuthenticationMethod.cs">
       <SubType>Code</SubType>
@@ -88,7 +89,6 @@
     <Compile Include="Common\ChannelOpenConfirmedEventArgs.cs" />
     <Compile Include="Common\ChannelOpenFailedEventArgs.cs" />
     <Compile Include="Common\ChannelRequestEventArgs.cs" />
-    <Compile Include="Common\Extensions.NET.cs" />
     <Compile Include="Common\ProxyException.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -148,7 +148,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="ConnectionInfo.cs" />
-    <Compile Include="ForwardedPortRemote.NET.cs" />
     <Compile Include="HashInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -179,7 +178,6 @@
     <Compile Include="Common\SshDataStream.cs" />
     <Compile Include="ExpectAsyncResult.cs" />
     <Compile Include="Security\KeyExchangeDiffieHellmanGroupSha1.cs" />
-    <Compile Include="SftpClient.NET.cs" />
     <Compile Include="KeyboardInteractiveAuthenticationMethod.cs">
       <SubType>Code</SubType>
     </Compile>

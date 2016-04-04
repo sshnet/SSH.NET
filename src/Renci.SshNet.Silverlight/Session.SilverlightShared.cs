@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Transport;
 
@@ -39,7 +40,7 @@ namespace Renci.SshNet
         partial void SocketConnect(string host, int port)
         {
             var timeout = ConnectionInfo.Timeout;
-            var ipAddress = host.GetIPAddress();
+            var ipAddress = DnsAbstraction.GetHostAddresses(host)[0];
             var ep = new IPEndPoint(ipAddress, port);
 
             _socket = new Socket(ep.AddressFamily, SocketType.Stream, ProtocolType.Tcp);

@@ -103,7 +103,7 @@ namespace Renci.SshNet
         {
             const int socketBufferSize = 2 * MaximumSshPacketSize;
 
-            var ipAddress = host.GetIPAddress();
+            var ipAddress = DnsAbstraction.GetHostAddresses(host)[0];
             var timeout = ConnectionInfo.Timeout;
             var ep = new IPEndPoint(ipAddress, port);
 

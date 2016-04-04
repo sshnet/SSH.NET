@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-#if !SILVERLIGHT
 using System.Diagnostics;
-#endif
 using System.Globalization;
+using System.Linq;
 using System.Net;
+using System.Net.Sockets;
+using System.Text;
+using Renci.SshNet.Abstractions;
 using Renci.SshNet.Messages;
 using Renci.SshNet.Messages.Connection;
 
@@ -15,6 +17,20 @@ namespace Renci.SshNet.Common
     /// </summary>
     internal static partial class Extensions
     {
+        /// <summary>
+        /// Determines whether [is null or white space] [the specified value].
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <returns>
+        ///   <c>true</c> if [is null or white space] [the specified value]; otherwise, <c>false</c>.
+        /// </returns>
+        internal static bool IsNullOrWhiteSpace(this string value)
+        {
+            if (string.IsNullOrEmpty(value)) return true;
+
+            return value.All(char.IsWhiteSpace);
+        }
+
         internal static byte[] ToArray(this GlobalRequestName globalRequestName)
         {
             switch (globalRequestName)
@@ -150,22 +166,20 @@ namespace Renci.SshNet.Common
             return IsEqualTo(value, compareList, null);
         }
 
-#if SILVERLIGHT
-#else
-
         /// <summary>
         /// Prints out 
         /// </summary>
         /// <param name="bytes">The bytes.</param>
         internal static void DebugPrint(this IEnumerable<byte> bytes)
         {
+            var sb = new StringBuilder();
+
             foreach (var b in bytes)
             {
-                Debug.Write(string.Format(CultureInfo.CurrentCulture, "0x{0:x2}, ", b));
+                sb.AppendFormat(CultureInfo.CurrentCulture, "0x{0:x2}, ", b);
             }
-            Debug.WriteLine(string.Empty);
+            Debug.WriteLine(sb.ToString());
         }
-#endif
 
         /// <summary>
         /// Trims the leading zero from bytes array.
@@ -304,6 +318,16 @@ namespace Renci.SshNet.Common
             var taken = new byte[length];
             Buffer.BlockCopy(data, offset, taken, 0, length);
             return taken;
+        }
+
+        internal static bool CanRead(this Socket socket)
+        {
+            return SocketAbstraction.CanRead(socket);
+        }
+
+        internal static bool CanWrite(this Socket socket)
+        {
+            return SocketAbstraction.CanWrite(socket);
         }
     }
 }

@@ -1,4 +1,12 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
+#if FEATURE_DEVICEINFORMATION_APM
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Sockets;
+using System.Threading;
+using Microsoft.Phone.Net.NetworkInformation;
+#endif // FEATURE_DEVICEINFORMATION_APM
 
 namespace Renci.SshNet.Abstractions
 {
@@ -19,26 +27,31 @@ namespace Renci.SshNet.Abstractions
 #elif FEATURE_DNS_TAP
             return Dns.GetHostAddressesAsync(hostNameOrAddress).Result;
 #else
-            #error Retrieving IP addresses for a given host is not implemented.
-#endif
-        }
+            IPAddress address;
+            if (IPAddress.TryParse(hostNameOrAddress, out address))
+                return new [] { address};
 
-        /// <summary>
-        /// Resolves a host name or IP address to an <see cref="IPHostEntry"/> instance.
-        /// </summary>
-        /// <param name="hostNameOrAddress">The host name or IP address to resolve.</param>
-        /// <returns>
-        /// An <see cref="IPHostEntry"/> instance that contains address information about the host
-        /// specified in <paramref name="hostNameOrAddress"/>.
-        /// </returns>
-        public static IPHostEntry GetHostEntry(string hostNameOrAddress)
-        {
-#if FEATURE_DNS_SYNC
-            return Dns.GetHostEntry(hostNameOrAddress);
-#elif FEATURE_DNS_TAP
-            return Dns.GetHostEntryAsync(hostNameOrAddress).Result;
+#if FEATURE_DEVICEINFORMATION_APM
+            var resolveCompleted = new ManualResetEvent(false);
+            NameResolutionResult nameResolutionResult = null;
+            DeviceNetworkInformation.ResolveHostNameAsync(new DnsEndPoint(hostNameOrAddress, 0), result =>
+            {
+                nameResolutionResult = result;
+                resolveCompleted.Set();
+            }, null);
+
+            // wait until address is resolved
+            resolveCompleted.WaitOne();
+
+            if (nameResolutionResult.NetworkErrorCode == NetworkError.Success)
+            {
+                var addresses = new List<IPAddress>(nameResolutionResult.IPEndPoints.Select(p => p.Address).Distinct());
+                return addresses.ToArray();
+            }
+            throw new SocketException((int)nameResolutionResult.NetworkErrorCode);
 #else
-            #error Resolving host name or IP address to an IPHostEntry is not implemented.
+            throw new NotSupportedException("Resolving hostname to IP address is not supported.");
+#endif // FEATURE_DEVICEINFORMATION_APM
 #endif
         }
     }

@@ -22,7 +22,7 @@ namespace Renci.SshNet
 
         partial void InternalStart()
         {
-            var addr = BoundHost.GetIPAddress();
+            var addr = DnsAbstraction.GetHostAddresses(BoundHost)[0];
             var ep = new IPEndPoint(addr, (int) BoundPort);
 
             _listener = new Socket(ep.AddressFamily, SocketType.Stream, ProtocolType.Tcp) {Blocking = true};

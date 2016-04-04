@@ -24,7 +24,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>Bin\Debug</OutputPath>
-    <DefineConstants>TRACE;DEBUG;SILVERLIGHT;WINDOWS_PHONE;TUNING;FEATURE_HASH_SHA1;FEATURE_HASH_SHA256;FEATURE_HMAC_SHA1;FEATURE_HMAC_SHA256</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;WINDOWS_PHONE;TUNING;FEATURE_RNG_CSP;FEATURE_STREAM_APM;FEATURE_DEVICEINFORMATION_APM;FEATURE_THREAD_THREADPOOL;FEATURE_THREAD_SLEEP;FEATURE_HASH_SHA1;FEATURE_HASH_SHA256;FEATURE_HMAC_SHA1;FEATURE_HMAC_SHA256</DefineConstants>
     <NoStdLib>true</NoStdLib>
     <NoConfig>true</NoConfig>
     <ErrorReport>prompt</ErrorReport>
@@ -35,7 +35,7 @@
     <DebugType>none</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>Bin\Release</OutputPath>
-    <DefineConstants>TRACE;SILVERLIGHT;WINDOWS_PHONE;TUNING;FEATURE_HASH_SHA1;FEATURE_HASH_SHA256;FEATURE_HMAC_SHA1;FEATURE_HMAC_SHA256</DefineConstants>
+    <DefineConstants>TRACE;WINDOWS_PHONE;TUNING;FEATURE_RNG_CSP;FEATURE_STREAM_APM;FEATURE_DEVICEINFORMATION_APM;FEATURE_THREAD_THREADPOOL;FEATURE_THREAD_SLEEP;FEATURE_HASH_SHA1;FEATURE_HASH_SHA256;FEATURE_HMAC_SHA1;FEATURE_HMAC_SHA256</DefineConstants>
     <NoStdLib>true</NoStdLib>
     <NoConfig>true</NoConfig>
     <ErrorReport>prompt</ErrorReport>
@@ -44,6 +44,7 @@
     <NoWarn>1591</NoWarn>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.Phone" />
     <Reference Include="Renci.Security.Cryptography, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Renci.Security.Cryptography.1.0.0\lib\wp71\Renci.Security.Cryptography.dll</HintPath>
       <Private>True</Private>
@@ -52,6 +53,18 @@
     <Reference Include="System.Net" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Renci.SshNet\Abstractions\DnsAbstraction.cs">
+      <Link>Abstractions\DnsAbstraction.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Abstractions\ReflectionAbstraction.cs">
+      <Link>Abstractions\ReflectionAbstraction.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Abstractions\SocketAbstraction.cs">
+      <Link>Abstractions\SocketAbstraction.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Abstractions\ThreadAbstraction.cs">
+      <Link>Abstractions\ThreadAbstraction.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\AuthenticationMethod.cs">
       <Link>AuthenticationMethod.cs</Link>
     </Compile>
@@ -280,9 +293,6 @@
     <Compile Include="..\Renci.SshNet\KeyboardInteractiveAuthenticationMethod.cs">
       <Link>KeyboardInteractiveAuthenticationMethod.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet.Silverlight\KeyboardInteractiveAuthenticationMethod.SilverlightShared.cs">
-      <Link>PasswordAuthenticationMethod.cs</Link>
-    </Compile>
     <Compile Include="..\Renci.SshNet\KeyboardInteractiveConnectionInfo.cs">
       <Link>KeyboardInteractiveConnectionInfo.cs</Link>
     </Compile>
@@ -508,9 +518,6 @@
     <Compile Include="..\Renci.SshNet\PasswordAuthenticationMethod.cs">
       <Link>PasswordAuthenticationMethod.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet.Silverlight\PasswordAuthenticationMethod.SilverlightShared.cs">
-      <Link>PasswordAuthenticationMethod.cs</Link>
-    </Compile>
     <Compile Include="..\Renci.SshNet\PasswordConnectionInfo.cs">
       <Link>PasswordConnectionInfo.cs</Link>
     </Compile>
@@ -527,9 +534,6 @@
       <Link>ProxyTypes.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\ScpClient.cs">
-      <Link>ScpClient.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet.Silverlight\ScpClient.SilverlightShared.cs">
       <Link>ScpClient.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Security\Algorithm.cs">
@@ -691,9 +695,6 @@
     <Compile Include="..\Renci.SshNet\SftpClient.cs">
       <Link>SftpClient.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet.Silverlight\SftpClient.SilverlightShared.cs">
-      <Link>Session.cs</Link>
-    </Compile>
     <Compile Include="..\Renci.SshNet\Sftp\Flags.cs">
       <Link>Sftp\Flags.cs</Link>
     </Compile>
@@ -841,6 +842,9 @@
     <Compile Include="..\Renci.SshNet\Sftp\SftpSession.cs">
       <Link>Sftp\SftpSession.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\Sftp\SftpSynchronizeDirectoriesAsyncResult.cs">
+      <Link>Sftp\SftpSynchronizeDirectoriesAsyncResult.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\Sftp\SftpUploadAsyncResult.cs">
       <Link>Sftp\SftpUploadAsyncResult.cs</Link>
     </Compile>
@@ -850,22 +854,13 @@
     <Compile Include="..\Renci.SshNet\Shell.cs">
       <Link>Shell.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet.Silverlight\Shell.SilverlightShared.cs">
-      <Link>Shell.SilverlightShared.cs</Link>
-    </Compile>
     <Compile Include="..\Renci.SshNet\ShellStream.cs">
       <Link>ShellStream.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet.Silverlight\ShellStream.SilverlightShared.cs">
-      <Link>ShellStream.SilverlightShared.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\SshClient.cs">
       <Link>SshClient.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\SshCommand.cs">
-      <Link>SshCommand.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet.Silverlight\SshCommand.SilverlightShared.cs">
       <Link>SshCommand.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\SubsystemSession.cs">

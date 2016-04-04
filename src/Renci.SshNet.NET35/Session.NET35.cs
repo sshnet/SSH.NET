@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using System;
 using Renci.SshNet.Messages;
-using System.Threading;
 using System.Reflection;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -62,9 +61,9 @@ namespace Renci.SshNet
 
         partial void InternalRegisterMessage(string messageName)
         {
-            lock (this._messagesMetadata)
+            lock (_messagesMetadata)
             {
-                foreach (var m in from m in this._messagesMetadata where m.Name == messageName select m)
+                foreach (var m in from m in _messagesMetadata where m.Name == messageName select m)
                 {
                     m.Enabled = true; 
                     m.Activated = true;
@@ -74,9 +73,9 @@ namespace Renci.SshNet
 
         partial void InternalUnRegisterMessage(string messageName)
         {
-            lock (this._messagesMetadata)
+            lock (_messagesMetadata)
             {
-                foreach (var m in from m in this._messagesMetadata where m.Name == messageName select m)
+                foreach (var m in from m in _messagesMetadata where m.Name == messageName select m)
                 {
                     m.Enabled = false;
                     m.Activated = false;

@@ -65,7 +65,7 @@ namespace Renci.SshNet.Channels
                 //  Get buffer in memory for data exchange
                 buffer = new byte[RemotePacketSize];
 
-                OpenSocket(remoteEndpoint);
+                _socket = SocketAbstraction.Connect(remoteEndpoint, ConnectionInfo.Timeout);
 
                 // send channel open confirmation message
                 SendMessage(new ChannelOpenConfirmationMessage(RemoteChannelNumber, LocalWindowSize, LocalPacketSize, LocalChannelNumber));
@@ -83,9 +83,7 @@ namespace Renci.SshNet.Channels
                 {
                 try
                 {
-                    var read = 0;
-                    InternalSocketReceive(buffer, ref read);
-
+                    var read = SocketAbstraction.Read(_socket, buffer, 0, buffer.Length, ConnectionInfo.Timeout);
                     if (read > 0)
                     {
 #if TUNING
@@ -141,8 +139,6 @@ namespace Renci.SshNet.Channels
             // if the FIN/ACK is not sent in time, the socket will be closed in Close(bool)
             ShutdownSocket(SocketShutdown.Send);
         }
-
-        partial void OpenSocket(IPEndPoint remoteEndpoint);
 
         /// <summary>
         /// Shuts down the socket.
@@ -217,12 +213,8 @@ namespace Renci.SshNet.Channels
             base.OnData(data);
 
             if (_socket != null && _socket.Connected)
-                InternalSocketSend(data);
+                SocketAbstraction.Send(_socket, data, 0, data.Length);
         }
-
-        partial void InternalSocketSend(byte[] data);
-        
-        partial void InternalSocketReceive(byte[] buffer, ref int read);
 
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources

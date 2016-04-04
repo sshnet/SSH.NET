@@ -877,7 +877,6 @@
     <Compile Include="..\Renci.SshNet\SubsystemSession.cs">
       <Link>SubsystemSession.cs</Link>
     </Compile>
-    <Compile Include="Channels\ChannelDirectTcpip.SilverlightShared.cs" />
     <Compile Include="Common\Extensions.SilverlightShared.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="..\Renci.SshNet\Properties\CommonAssemblyInfo.cs">

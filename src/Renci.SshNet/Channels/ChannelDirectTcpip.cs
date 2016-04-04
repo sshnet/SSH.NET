@@ -91,8 +91,7 @@ namespace Renci.SshNet.Channels
             {
                 try
                 {
-                    var read = 0;
-                    InternalSocketReceive(buffer, ref read);
+                    var read = SocketAbstraction.Read(_socket, buffer, 0, buffer.Length, ConnectionInfo.Timeout);
                     if (read > 0)
                     {
 #if TUNING
@@ -217,7 +216,7 @@ namespace Renci.SshNet.Channels
                 {
                     if (_socket != null && _socket.Connected)
                     {
-                        InternalSocketSend(data);
+                        SocketAbstraction.Send(_socket, data, 0, data.Length);
                     }
                 }
             }
@@ -293,10 +292,6 @@ namespace Renci.SshNet.Channels
             // this will also interrupt the blocking receive in Bind()
             ShutdownSocket(SocketShutdown.Both);
         }
-
-        partial void InternalSocketReceive(byte[] buffer, ref int read);
-
-        partial void InternalSocketSend(byte[] data);
 
         protected override void Dispose(bool disposing)
         {

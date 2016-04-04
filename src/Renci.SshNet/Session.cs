@@ -26,6 +26,10 @@ namespace Renci.SshNet
     /// </summary>
     public partial class Session : ISession
     {
+        private const byte Null = 0x00;
+        private const byte CarriageReturn = 0x0d;
+        private const byte LineFeed = 0x0a;
+
         /// <summary>
         /// Specifies an infinite waiting period.
         /// </summary>
@@ -550,8 +554,7 @@ namespace Renci.SshNet
                     //  ignore text lines which are sent before if any
                     while (true)
                     {
-                        var serverVersion = string.Empty;
-                        SocketReadLine(ref serverVersion, ConnectionInfo.Timeout);
+                        var serverVersion = SocketReadLine(ConnectionInfo.Timeout);
                         if (serverVersion == null)
                             throw new SshConnectionException("Server response does not contain SSH protocol identification.", DisconnectReason.ProtocolError);
                         versionMatch = ServerVersionRe.Match(serverVersion);
@@ -578,7 +581,7 @@ namespace Renci.SshNet
                         throw new SshConnectionException(string.Format(CultureInfo.CurrentCulture, "Server version '{0}' is not supported.", version), DisconnectReason.ProtocolVersionNotSupported);
                     }
 
-                    SocketWrite(Encoding.UTF8.GetBytes(string.Format(CultureInfo.InvariantCulture, "{0}\x0D\x0A", ClientVersion)));
+                    SocketAbstraction.Send(_socket, Encoding.UTF8.GetBytes(string.Format(CultureInfo.InvariantCulture, "{0}\x0D\x0A", ClientVersion)));
 
                     //  Register Transport response messages
                     RegisterMessage("SSH_MSG_DISCONNECT");
@@ -862,12 +865,12 @@ namespace Renci.SshNet
                 var packetLength = packetData.Length - packetDataOffset;
                 if (hash == null)
                 {
-                    SocketWrite(packetData, packetDataOffset, packetLength);
+                    SocketAbstraction.Send(_socket, packetData, packetDataOffset, packetLength);
                 }
 #else
                 if (_clientMac == null)
                 {
-                    SocketWrite(packetData);
+                    SocketAbstraction.Send(_socket, packetData, 0, packetData.Length);
                 }
 #endif
                 else
@@ -884,7 +887,7 @@ namespace Renci.SshNet
                     hash.CopyTo(data, packetData.Length);
 #endif
 
-                    SocketWrite(data);
+                    SocketAbstraction.Send(_socket, data, 0, data.Length);
                 }
 
                 _outboundPacketSequence++;
@@ -1122,32 +1125,50 @@ namespace Renci.SshNet
 
         #region Handle transport messages
 
+        /// <summary>
+        /// Invoked via reflection.
+        /// </summary>
         private void HandleMessage(DisconnectMessage message)
         {
             OnDisconnectReceived(message);
             Disconnect(message.ReasonCode, message.Description);
         }
 
+        /// <summary>
+        /// Invoked via reflection.
+        /// </summary>
         private void HandleMessage(IgnoreMessage message)
         {
             OnIgnoreReceived(message);
         }
 
+        /// <summary>
+        /// Invoked via reflection.
+        /// </summary>
         private void HandleMessage(UnimplementedMessage message)
         {
             OnUnimplementedReceived(message);
         }
 
+        /// <summary>
+        /// Invoked via reflection.
+        /// </summary>
         private void HandleMessage(DebugMessage message)
         {
             OnDebugReceived(message);
         }
 
+        /// <summary>
+        /// Invoked via reflection.
+        /// </summary>
         private void HandleMessage(ServiceRequestMessage message)
         {
             OnServiceRequestReceived(message);
         }
 
+        /// <summary>
+        /// Invoked via reflection.
+        /// </summary>
         private void HandleMessage(ServiceAcceptMessage message)
         {
             //  TODO:   Refactor to avoid this method here
@@ -1156,11 +1177,17 @@ namespace Renci.SshNet
             _serviceAccepted.Set();
         }
 
+        /// <summary>
+        /// Invoked via reflection.
+        /// </summary>
         private void HandleMessage(KeyExchangeInitMessage message)
         {
             OnKeyExchangeInitReceived(message);
         }
 
+        /// <summary>
+        /// Invoked via reflection.
+        /// </summary>
         private void HandleMessage(NewKeysMessage message)
         {
             OnNewKeysReceived(message);
@@ -1170,21 +1197,33 @@ namespace Renci.SshNet
 
         #region Handle User Authentication messages
 
+        /// <summary>
+        /// Invoked via reflection.
+        /// </summary>
         private void HandleMessage(RequestMessage message)
         {
             OnUserAuthenticationRequestReceived(message);
         }
 
+        /// <summary>
+        /// Invoked via reflection.
+        /// </summary>
         private void HandleMessage(FailureMessage message)
         {
             OnUserAuthenticationFailureReceived(message);
         }
 
+        /// <summary>
+        /// Invoked via reflection.
+        /// </summary>
         private void HandleMessage(SuccessMessage message)
         {
             OnUserAuthenticationSuccessReceived(message);
         }
 
+        /// <summary>
+        /// Invoked via reflection.
+        /// </summary>
         private void HandleMessage(BannerMessage message)
         {
             OnUserAuthenticationBannerReceived(message);
@@ -1194,71 +1233,113 @@ namespace Renci.SshNet
 
         #region Handle connection messages
 
+        /// <summary>
+        /// Invoked via reflection.
+        /// </summary>
         private void HandleMessage(GlobalRequestMessage message)
         {
             OnGlobalRequestReceived(message);
         }
 
+        /// <summary>
+        /// Invoked via reflection.
+        /// </summary>
         private void HandleMessage(RequestSuccessMessage message)
         {
             OnRequestSuccessReceived(message);
         }
 
+        /// <summary>
+        /// Invoked via reflection.
+        /// </summary>
         private void HandleMessage(RequestFailureMessage message)
         {
             OnRequestFailureReceived(message);
         }
 
+        /// <summary>
+        /// Invoked via reflection.
+        /// </summary>
         private void HandleMessage(ChannelOpenMessage message)
         {
             OnChannelOpenReceived(message);
         }
 
+        /// <summary>
+        /// Invoked via reflection.
+        /// </summary>
         private void HandleMessage(ChannelOpenConfirmationMessage message)
         {
             OnChannelOpenConfirmationReceived(message);
         }
 
+        /// <summary>
+        /// Invoked via reflection.
+        /// </summary>
         private void HandleMessage(ChannelOpenFailureMessage message)
         {
             OnChannelOpenFailureReceived(message);
         }
 
+        /// <summary>
+        /// Invoked via reflection.
+        /// </summary>
         private void HandleMessage(ChannelWindowAdjustMessage message)
         {
             OnChannelWindowAdjustReceived(message);
         }
 
+        /// <summary>
+        /// Invoked via reflection.
+        /// </summary>
         private void HandleMessage(ChannelDataMessage message)
         {
             OnChannelDataReceived(message);
         }
 
+        /// <summary>
+        /// Invoked via reflection.
+        /// </summary>
         private void HandleMessage(ChannelExtendedDataMessage message)
         {
             OnChannelExtendedDataReceived(message);
         }
 
+        /// <summary>
+        /// Invoked via reflection.
+        /// </summary>
         private void HandleMessage(ChannelEofMessage message)
         {
             OnChannelEofReceived(message);
         }
 
+        /// <summary>
+        /// Invoked via reflection.
+        /// </summary>
         private void HandleMessage(ChannelCloseMessage message)
         {
             OnChannelCloseReceived(message);
         }
 
+        /// <summary>
+        /// Invoked via reflection.
+        /// </summary>
         private void HandleMessage(ChannelRequestMessage message)
         {
             OnChannelRequestReceived(message);
         }
 
+        /// <summary>
+        /// Invoked via reflection.
+        /// </summary>
         private void HandleMessage(ChannelSuccessMessage message)
         {
             OnChannelSuccessReceived(message);
         }
 
+        /// <summary>
+        /// Invoked via reflection.
+        /// </summary>
         private void HandleMessage(ChannelFailureMessage message)
         {
             OnChannelFailureReceived(message);
@@ -1764,7 +1845,21 @@ namespace Renci.SshNet
         /// <param name="port">The port to connect to.</param>
         /// <exception cref="SshOperationTimeoutException">The connection failed to establish within the configured <see cref="Renci.SshNet.ConnectionInfo.Timeout"/>.</exception>
         /// <exception cref="SocketException">An error occurred trying to establish the connection.</exception>
-        partial void SocketConnect(string host, int port);
+        private void SocketConnect(string host, int port)
+        {
+            var ipAddress = DnsAbstraction.GetHostAddresses(host)[0];
+            var ep = new IPEndPoint(ipAddress, port);
+
+            Log(string.Format("Initiating connect to '{0}:{1}'.", host, port));
+
+            _socket = SocketAbstraction.Connect(ep, ConnectionInfo.Timeout);
+
+#if FEATURE_SOCKET_SETSOCKETOPTION
+            const int socketBufferSize = 2 * MaximumSshPacketSize;
+            _socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.SendBuffer, socketBufferSize);
+            _socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveBuffer, socketBufferSize);
+#endif // FEATURE_SOCKET_SETSOCKETOPTION
+        }
 
         /// <summary>
         /// Closes the socket.
@@ -1780,29 +1875,73 @@ namespace Renci.SshNet
         /// <exception cref="SshConnectionException">The socket is closed.</exception>
         /// <exception cref="SshOperationTimeoutException">The read has timed-out.</exception>
         /// <exception cref="SocketException">The read failed.</exception>
-        partial void SocketRead(int length, ref byte[] buffer);
+        void SocketRead(int length, ref byte[] buffer)
+        {
+            if (SocketAbstraction.Read(_socket, buffer, 0, length, ConnectionInfo.Timeout) > 0)
+                return;
+
+            // 2012-09-11: Kenneth_aa
+            // When Disconnect or Dispose is called, this throws SshConnectionException(), which...
+            // 1 - goes up to ReceiveMessage() 
+            // 2 - up again to MessageListener()
+            // which is where there is a catch-all exception block so it can notify event listeners.
+            // 3 - MessageListener then again calls RaiseError().
+            // There the exception is checked for the exception thrown here (ConnectionLost), and if it matches it will not call Session.SendDisconnect().
+            //
+            // Adding a check for _isDisconnecting causes ReceiveMessage() to throw SshConnectionException: "Bad packet length {0}".
+            //
+
+            if (_isDisconnecting)
+                throw new SshConnectionException(
+                    "An established connection was aborted by the software in your host machine.",
+                    DisconnectReason.ConnectionLost);
+            throw new SshConnectionException("An established connection was aborted by the server.",
+                DisconnectReason.ConnectionLost);
+        }
 
         /// <summary>
         /// Performs a blocking read on the socket until a line is read.
         /// </summary>
-        /// <param name="response">The line read from the socket, or <c>null</c> when the remote server has shutdown and all data has been received.</param>
         /// <param name="timeout">A <see cref="TimeSpan"/> that represents the time to wait until a line is read.</param>
         /// <exception cref="SshOperationTimeoutException">The read has timed-out.</exception>
         /// <exception cref="SocketException">An error occurred when trying to access the socket.</exception>
-        partial void SocketReadLine(ref string response, TimeSpan timeout);
+        /// <returns>
+        /// The line read from the socket, or <c>null</c> when the remote server has shutdown and all data has been received.
+        /// </returns>
+        private string SocketReadLine(TimeSpan timeout)
+        {
+            var encoding = SshData.Ascii;
+            var buffer = new List<byte>();
+            var data = new byte[1];
+
+            // read data one byte at a time to find end of line and leave any unhandled information in the buffer
+            // to be processed by subsequent invocations
+            do
+            {
+                var bytesRead = SocketAbstraction.Read(_socket, data, 0, data.Length, timeout);
+                if (bytesRead == 0)
+                    // the remote server shut down the socket
+                    break;
+
+                buffer.Add(data[0]);
+            }
+            while (!(buffer.Count > 0 && (buffer[buffer.Count - 1] == LineFeed || buffer[buffer.Count - 1] == Null)));
+
+            if (buffer.Count == 0)
+                return null;
+            if (buffer.Count == 1 && buffer[buffer.Count - 1] == 0x00)
+                // return an empty version string if the buffer consists of only a 0x00 character
+                return string.Empty;
+            if (buffer.Count > 1 && buffer[buffer.Count - 2] == CarriageReturn)
+                // strip trailing CRLF
+                return encoding.GetString(buffer.ToArray(), 0, buffer.Count - 2);
+            if (buffer.Count > 1 && buffer[buffer.Count - 1] == LineFeed)
+                // strip trailing LF
+                return encoding.GetString(buffer.ToArray(), 0, buffer.Count - 1);
+            return encoding.GetString(buffer.ToArray(), 0, buffer.Count);
+        }
 
         partial void Log(string text);
-
-        /// <summary>
-        /// Writes the specified data to the server.
-        /// </summary>
-        /// <param name="data">The data to write to the server.</param>
-        /// <exception cref="SshOperationTimeoutException">The write has timed-out.</exception>
-        /// <exception cref="SocketException">The write failed.</exception>
-        private void SocketWrite(byte[] data)
-        {
-            SocketWrite(data, 0, data.Length);
-        }
 
         /// <summary>
         /// Disconnects and disposes the socket.
@@ -1859,7 +1998,7 @@ namespace Renci.SshNet
 
         private void SocketWriteByte(byte data)
         {
-            SocketWrite(new[] {data});
+            SocketAbstraction.Send(_socket, new[] {data});
         }
 
         private void ConnectSocks4()
@@ -1876,11 +2015,11 @@ namespace Renci.SshNet
 
             //  Send IP
             var ipAddress = DnsAbstraction.GetHostAddresses(ConnectionInfo.Host)[0];
-            SocketWrite(ipAddress.GetAddressBytes());
+            SocketAbstraction.Send(_socket, ipAddress.GetAddressBytes());
 
             //  Send username
             var username = SshData.Ascii.GetBytes(ConnectionInfo.ProxyUsername);
-            SocketWrite(username);
+            SocketAbstraction.Send(_socket, username);
             SocketWriteByte(0x00);
 
             //  Read 0
@@ -1950,7 +2089,7 @@ namespace Renci.SshNet
                     SocketWriteByte((byte)username.Length);
 
                     //  Send username
-                    SocketWrite(username);
+                    SocketAbstraction.Send(_socket, username);
 
                     var password = SshData.Ascii.GetBytes(ConnectionInfo.ProxyPassword);
 
@@ -1961,7 +2100,7 @@ namespace Renci.SshNet
                     SocketWriteByte((byte)password.Length);
 
                     //  Send username
-                    SocketWrite(password);
+                    SocketAbstraction.Send(_socket, password);
 
                     var serverVersion = SocketReadByte();
 
@@ -1993,13 +2132,13 @@ namespace Renci.SshNet
             {
                 SocketWriteByte(0x01);
                 var address = ip.GetAddressBytes();
-                SocketWrite(address);
+                SocketAbstraction.Send(_socket, address);
             }
             else if (ip.AddressFamily == AddressFamily.InterNetworkV6)
             {
                 SocketWriteByte(0x04);
                 var address = ip.GetAddressBytes();
-                SocketWrite(address);
+                SocketAbstraction.Send(_socket, address);
             }
             else
             {
@@ -2075,7 +2214,7 @@ namespace Renci.SshNet
             var httpResponseRe = new Regex(@"HTTP/(?<version>\d[.]\d) (?<statusCode>\d{3}) (?<reasonPhrase>.+)$");
             var httpHeaderRe = new Regex(@"(?<fieldName>[^\[\]()<>@,;:\""/?={} \t]+):(?<fieldValue>.+)?");
 
-            SocketWrite(SshData.Ascii.GetBytes(string.Format("CONNECT {0}:{1} HTTP/1.0\r\n", ConnectionInfo.Host, ConnectionInfo.Port)));
+            SocketAbstraction.Send(_socket, SshData.Ascii.GetBytes(string.Format("CONNECT {0}:{1} HTTP/1.0\r\n", ConnectionInfo.Host, ConnectionInfo.Port)));
 
             //  Sent proxy authorization is specified
             if (!string.IsNullOrEmpty(ConnectionInfo.ProxyUsername))
@@ -2083,18 +2222,17 @@ namespace Renci.SshNet
                 var authorization = string.Format("Proxy-Authorization: Basic {0}\r\n",
                                                   Convert.ToBase64String(SshData.Ascii.GetBytes(string.Format("{0}:{1}", ConnectionInfo.ProxyUsername, ConnectionInfo.ProxyPassword)))
                                                   );
-                SocketWrite(SshData.Ascii.GetBytes(authorization));
+                SocketAbstraction.Send(_socket, SshData.Ascii.GetBytes(authorization));
             }
 
-            SocketWrite(SshData.Ascii.GetBytes("\r\n"));
+            SocketAbstraction.Send(_socket, SshData.Ascii.GetBytes("\r\n"));
 
             HttpStatusCode? statusCode = null;
-            var response = string.Empty;
             var contentLength = 0;
 
             while (true)
             {
-                SocketReadLine(ref response, ConnectionInfo.Timeout);
+                var response = SocketReadLine(ConnectionInfo.Timeout);
                 if (response == null)
                     // server shut down socket
                     break;

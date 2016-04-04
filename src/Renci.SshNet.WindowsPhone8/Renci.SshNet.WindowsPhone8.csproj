@@ -91,9 +91,6 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\Renci.SshNet.Silverlight\Channels\ChannelDirectTcpip.SilverlightShared.cs">
-      <Link>Channels\ChannelDirectTcpip.SilverlightShared.cs</Link>
-    </Compile>
     <Compile Include="..\Renci.SshNet.WindowsPhone\Session.WP.cs">
       <Link>Session.WP.cs</Link>
     </Compile>

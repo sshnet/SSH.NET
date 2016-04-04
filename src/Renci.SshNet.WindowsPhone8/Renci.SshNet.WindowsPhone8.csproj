@@ -94,6 +94,9 @@
     <Compile Include="..\Renci.SshNet.Silverlight\Channels\ChannelDirectTcpip.SilverlightShared.cs">
       <Link>Channels\ChannelDirectTcpip.SilverlightShared.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet.WindowsPhone\Session.WP.cs">
+      <Link>Session.WP.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\Abstractions\DnsAbstraction.cs">
       <Link>Abstractions\DnsAbstraction.cs</Link>
     </Compile>
@@ -911,7 +914,6 @@
     <Compile Include="..\Renci.SshNet\Properties\CommonAssemblyInfo.cs">
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="Session.WP.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Renci.Security.Cryptography, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">

@@ -72,9 +72,6 @@
     <Compile Include="..\Renci.SshNet.Silverlight\Channels\ChannelDirectTcpip.SilverlightShared.cs">
       <Link>Channels\ChannelDirectTcpip.SilverlightShared.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet.Silverlight\ForwardedPortLocal.SilverlightShared.cs">
-      <Link>ForwardedPortLocal.SilverlightShared.cs</Link>
-    </Compile>
     <Compile Include="..\Renci.SshNet.Silverlight\Session.SilverlightBrowser.cs">
       <Link>Session.SilverlightBrowser.cs</Link>
     </Compile>

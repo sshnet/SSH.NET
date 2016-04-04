@@ -94,9 +94,6 @@
     <Compile Include="..\Renci.SshNet.Silverlight\Channels\ChannelDirectTcpip.SilverlightShared.cs">
       <Link>Channels\ChannelDirectTcpip.SilverlightShared.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet.WindowsPhone\Common\Extensions.WP.cs">
-      <Link>Common\Extensions.WP.cs</Link>
-    </Compile>
     <Compile Include="..\Renci.SshNet\Abstractions\DnsAbstraction.cs">
       <Link>Abstractions\DnsAbstraction.cs</Link>
     </Compile>

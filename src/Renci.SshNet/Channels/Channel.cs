@@ -659,7 +659,14 @@ namespace Renci.SshNet.Channels
             // the channel, or as response to a SSH_MSG_CHANNEL_CLOSE message sent by the server
             if (wait && _closeMessageSent == Sent)
             {
-                WaitOnHandle(_channelClosedWaitHandle);
+                try
+                {
+                    WaitOnHandle(_channelClosedWaitHandle);
+                }
+                catch (SshConnectionException)
+                {
+                    // ignore connection failures as we're closing the channel anyway
+                }
             }
 
             // reset indicators in case we want to reopen the channel; these are safe to reset

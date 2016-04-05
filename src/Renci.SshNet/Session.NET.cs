@@ -1,19 +1,9 @@
 ﻿using System.Net.Sockets;
-using System.Diagnostics;
 
 namespace Renci.SshNet
 {
     public partial class Session
     {
-#if FEATURE_DIAGNOSTICS_TRACESOURCE
-        private readonly TraceSource _log =
-#if DEBUG
-            new TraceSource("SshNet.Logging", SourceLevels.All);
-#else
-            new TraceSource("SshNet.Logging");
-#endif // DEBUG
-#endif // FEATURE_DIAGNOSTICS_TRACESOURCE
-
         /// <summary>
         /// Holds the lock object to ensure read access to the socket is synchronized.
         /// </summary>
@@ -79,14 +69,6 @@ namespace Renci.SshNet
                     }
                 }
             }
-        }
-
-        [Conditional("DEBUG")]
-        partial void Log(string text)
-        {
-#if FEATURE_DIAGNOSTICS_TRACESOURCE
-            _log.TraceEvent(TraceEventType.Verbose, 1, text);
-#endif // FEATURE_DIAGNOSTICS_TRACESOURCE
         }
     }
 }

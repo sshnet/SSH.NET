@@ -29,7 +29,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>Bin\Debug</OutputPath>
-    <DefineConstants>TRACE;DEBUG;SILVERLIGHT;TUNING;FEATURE_RNG_CSP;FEATURE_SOCKET_EAP;FEATURE_STREAM_APM;FEATURE_THREAD_THREADPOOL;FEATURE_THREAD_SLEEP;FEATURE_MEMORYSTREAM_GETBUFFER;FEATURE_HASH_SHA1;FEATURE_HASH_SHA256;FEATURE_HMAC_SHA1;FEATURE_HMAC_SHA256;</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;SILVERLIGHT;TUNING;FEATURE_RNG_CSP;FEATURE_SOCKET_EAP;FEATURE_STREAM_APM;FEATURE_THREAD_THREADPOOL;FEATURE_THREAD_SLEEP;FEATURE_MEMORYSTREAM_GETBUFFER;FEATURE_HASH_SHA1;FEATURE_HASH_SHA256;FEATURE_HMAC_SHA1;FEATURE_HMAC_SHA256</DefineConstants>
     <NoStdLib>true</NoStdLib>
     <NoConfig>true</NoConfig>
     <ErrorReport>prompt</ErrorReport>
@@ -41,7 +41,7 @@
     <DebugType>none</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>Bin\Release</OutputPath>
-    <DefineConstants>TRACE;SILVERLIGHT;TUNING;FEATURE_RNG_CSP;FEATURE_SOCKET_EAP;FEATURE_SOCKET_POLL;FEATURE_DNS_SYNC;FEATURE_STREAM_APM;FEATURE_THREAD_THREADPOOL;FEATURE_THREAD_SLEEP;FEATURE_MEMORYSTREAM_GETBUFFER;FEATURE_HASH_SHA1;FEATURE_HASH_SHA256;FEATURE_HMAC_SHA1;FEATURE_HMAC_SHA256;</DefineConstants>
+    <DefineConstants>TRACE;SILVERLIGHT;TUNING;FEATURE_RNG_CSP;FEATURE_SOCKET_EAP;FEATURE_STREAM_APM;FEATURE_THREAD_THREADPOOL;FEATURE_THREAD_SLEEP;FEATURE_MEMORYSTREAM_GETBUFFER;FEATURE_HASH_SHA1;FEATURE_HASH_SHA256;FEATURE_HMAC_SHA1;FEATURE_HMAC_SHA256;FEATURE_DIAGNOSTICS_TRACESOURCE</DefineConstants>
     <NoStdLib>true</NoStdLib>
     <NoConfig>true</NoConfig>
     <ErrorReport>prompt</ErrorReport>
@@ -74,6 +74,9 @@
     </Compile>
     <Compile Include="..\Renci.SshNet.Silverlight\Session.SilverlightShared.cs">
       <Link>Session.SilverlightShared.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Abstractions\DiagnosticAbstraction.cs">
+      <Link>Abstractions\DiagnosticAbstraction.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Abstractions\DnsAbstraction.cs">
       <Link>Abstractions\DnsAbstraction.cs</Link>

@@ -108,12 +108,12 @@ namespace Renci.SshNet
         /// <summary>
         /// Specifies outbound packet number
         /// </summary>
-        private volatile UInt32 _outboundPacketSequence;
+        private volatile uint _outboundPacketSequence;
 
         /// <summary>
         /// Specifies incoming packet number
         /// </summary>
-        private UInt32 _inboundPacketSequence;
+        private uint _inboundPacketSequence;
 
         /// <summary>
         /// WaitHandle to signal that last service request was accepted
@@ -574,7 +574,7 @@ namespace Renci.SshNet
 
                     var softwareName = versionMatch.Result("${softwareversion}");
 
-                    Log(string.Format("Server version '{0}' on '{1}'.", version, softwareName));
+                    DiagnosticAbstraction.Log(string.Format("Server version '{0}' on '{1}'.", version, softwareName));
 
                     if (!(version.Equals("2.0") || version.Equals("1.99")))
                     {
@@ -781,7 +781,7 @@ namespace Renci.SshNet
                 WaitOnHandle(_keyExchangeCompletedWaitHandle);
             }
 
-            Log(string.Format("SendMessage to server '{0}': '{1}'.", message.GetType().Name, message));
+            DiagnosticAbstraction.Log(string.Format("SendMessage to server '{0}': '{1}'.", message.GetType().Name, message));
 
             //  Messages can be sent by different thread so we need to synchronize it
             var paddingMultiplier = _clientCipher == null ? (byte)8 : Math.Max((byte)8, _serverCipher.MinimumSize);    //    Should be recalculate base on cipher min length if cipher specified
@@ -917,12 +917,12 @@ namespace Renci.SshNet
             }
             catch (SshException ex)
             {
-                Log(string.Format("Failure sending message server '{0}': '{1}' => {2}", message.GetType().Name, message, ex));
+                DiagnosticAbstraction.Log(string.Format("Failure sending message server '{0}': '{1}' => {2}", message.GetType().Name, message, ex));
                 return false;
             }
             catch (SocketException ex)
             {
-                Log(string.Format("Failure sending message server '{0}': '{1}' => {2}", message.GetType().Name, message, ex));
+                DiagnosticAbstraction.Log(string.Format("Failure sending message server '{0}': '{1}' => {2}", message.GetType().Name, message, ex));
                 return false;
             }
         }
@@ -1355,7 +1355,7 @@ namespace Renci.SshNet
         /// <param name="message"><see cref="DisconnectMessage"/> message.</param>
         protected virtual void OnDisconnectReceived(DisconnectMessage message)
         {
-            Log(string.Format("Disconnect received: {0} {1}", message.ReasonCode, message.Description));
+            DiagnosticAbstraction.Log(string.Format("Disconnect received: {0} {1}", message.ReasonCode, message.Description));
 
             _exception = new SshConnectionException(string.Format(CultureInfo.InvariantCulture, "The connection was closed by the server: {0} ({1}).", message.Description, message.ReasonCode), message.ReasonCode);
             _exceptionWaitHandle.Set();
@@ -1797,7 +1797,7 @@ namespace Renci.SshNet
 
             message.Load(data, offset);
 
-            Log(string.Format("ReceiveMessage from server: '{0}': '{1}'.", message.GetType().Name, message));
+            DiagnosticAbstraction.Log(string.Format("ReceiveMessage from server: '{0}': '{1}'.", message.GetType().Name, message));
 
             return message;
         }
@@ -1818,7 +1818,7 @@ namespace Renci.SshNet
 
             message.Load(data);
 
-            Log(string.Format("ReceiveMessage from server: '{0}': '{1}'.", message.GetType().Name, message));
+            DiagnosticAbstraction.Log(string.Format("ReceiveMessage from server: '{0}': '{1}'.", message.GetType().Name, message));
 
             return message;
         }
@@ -1850,7 +1850,7 @@ namespace Renci.SshNet
             var ipAddress = DnsAbstraction.GetHostAddresses(host)[0];
             var ep = new IPEndPoint(ipAddress, port);
 
-            Log(string.Format("Initiating connect to '{0}:{1}'.", host, port));
+            DiagnosticAbstraction.Log(string.Format("Initiating connect to '{0}:{1}'.", host, port));
 
             _socket = SocketAbstraction.Connect(ep, ConnectionInfo.Timeout);
 
@@ -1937,8 +1937,6 @@ namespace Renci.SshNet
                 return encoding.GetString(buffer.ToArray(), 0, buffer.Count - 1);
             return encoding.GetString(buffer.ToArray(), 0, buffer.Count);
         }
-
-        partial void Log(string text);
 
         /// <summary>
         /// Disconnects and disposes the socket.

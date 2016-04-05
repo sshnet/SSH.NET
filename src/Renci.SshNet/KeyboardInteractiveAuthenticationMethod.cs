@@ -11,7 +11,7 @@ namespace Renci.SshNet
     /// <summary>
     /// Provides functionality to perform keyboard interactive authentication.
     /// </summary>
-    public partial class KeyboardInteractiveAuthenticationMethod : AuthenticationMethod, IDisposable
+    public class KeyboardInteractiveAuthenticationMethod : AuthenticationMethod, IDisposable
     {
         private AuthenticationResult _authenticationResult = AuthenticationResult.Failure;
 

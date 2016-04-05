@@ -54,6 +54,7 @@ In our codebase, we use the following conditional compilation symbols to identit
 
 Symbol                           | Description
 :------------------------------- | :--------------------------------------------------------------------------------
+FEATURE_DIAGNOSTICS_TRACESOURCE  | [TraceSource](https://msdn.microsoft.com/en-us/library/system.diagnostics.tracesource.aspx) is available
 FEATURE_RNG_CSP                  | RandomNumberGenerator can be created using default ctor of RNGCryptoServiceProvider
 FEATURE_RNG_CREATE               | RandomNumberGenerator can be created using static Create method on RandomNumberGenerator
 FEATURE_HASH_MD5                 |
@@ -71,8 +72,8 @@ FEATURE_HMAC_RIPEMD160           |
 FEATURE_THREAD_SLEEP             | Current thread can be suspended using static Sleep method on Thread class
 FEATURE_THREAD_TAP               | Task-based Asynchronous Pattern is supported
 FEATURE_THREAD_THREADPOOL        | ThreadPool is supported
-FEATURE_MEMORYSTREAM_GETBUFFER   | [MemoryStream] () features a [GetBuffer()](https://msdn.microsoft.com/en-us/library/system.io.memorystream.getbuffer.aspx) method which allows access to the byte array from which this stream was created, or the underlying array 
-FEATURE_MEMORYSTREAM_TRYGETBUFFER| [MemoryStream] () features a [TryGetBuffer(out ArraySegment<byte>)](https://msdn.microsoft.com/en-us/library/system.io.memorystream.trygetbuffer.aspx) method which allows access to the byte array from which this stream was created, or the underlying array
+FEATURE_MEMORYSTREAM_GETBUFFER   | [MemoryStream](https://msdn.microsoft.com/en-us/library/system.io.memorystream.aspx) features a [GetBuffer()](https://msdn.microsoft.com/en-us/library/system.io.memorystream.getbuffer.aspx) method which allows access to the byte array from which this stream was created, or the underlying array 
+FEATURE_MEMORYSTREAM_TRYGETBUFFER| [MemoryStream](https://msdn.microsoft.com/en-us/library/system.io.memorystream.aspx) features a [TryGetBuffer(out ArraySegment<byte>)](https://msdn.microsoft.com/en-us/library/system.io.memorystream.trygetbuffer.aspx) method which allows access to the byte array from which this stream was created, or the underlying array
 FEATURE_STREAM_TAP               | [Stream](https://msdn.microsoft.com/en-us/library/system.io.stream.aspx) supports Task-based Asynchronous Pattern (TAP)
 FEATURE_STREAM_APM               | [Stream](https://msdn.microsoft.com/en-us/library/system.io.stream.aspx) supports Asynchronous Programming Model (APM)
 FEATURE_STREAM_SYNC              | [Stream](https://msdn.microsoft.com/en-us/library/system.io.stream.aspx) supports synchronous execution

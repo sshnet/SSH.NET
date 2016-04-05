@@ -13,17 +13,6 @@ namespace Renci.SshNet
             isConnected = (_socket != null && _socket.Connected);
         }
 
-        /// <summary>
-        /// Closes the socket.
-        /// </summary>
-        /// <remarks>
-        /// This method will wait up to <c>10</c> seconds to send any remaining data.
-        /// </remarks>
-        partial void SocketDisconnect()
-        {
-            _socket.Close(10);
-        }
-
         partial void InternalRegisterMessage(string messageName)
         {
             lock (_messagesMetadata)

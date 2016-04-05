@@ -79,16 +79,6 @@ namespace Renci.SshNet
             }
         }
 
-        /// <summary>
-        /// Closes the socket and allows the socket to be reused after the current connection is closed.
-        /// </summary>
-        /// <exception cref="SocketException">An error occurred when trying to access the socket.</exception>
-        partial void SocketDisconnect()
-        {
-            // TODO should disconnect instead ?!!
-            _socket.Dispose();
-        }
-
         [Conditional("DEBUG")]
         partial void Log(string text)
         {

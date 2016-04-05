@@ -75,6 +75,68 @@ namespace Renci.SshNet.Abstractions
 #endif
         }
 
+        public static void ClearReadBuffer(Socket socket)
+        {
+            try
+            {
+                var buffer = new byte[256];
+                int bytesReceived;
+
+                do
+                {
+                    bytesReceived = ReadPartial(socket, buffer, 0, buffer.Length, TimeSpan.FromSeconds(2));
+                } while (bytesReceived > 0);
+            }
+            catch
+            {
+                // ignore any exceptions
+            }
+        }
+
+        public static int ReadPartial(Socket socket, byte[] buffer, int offset, int size, TimeSpan timeout)
+        {
+#if FEATURE_SOCKET_SYNC
+            return socket.Receive(buffer, offset, size, SocketFlags.None);
+#elif FEATURE_SOCKET_EAP
+            var receiveCompleted = new ManualResetEvent(false);
+            var sendReceiveToken = new PartialSendReceiveToken(socket, receiveCompleted);
+            var args = new SocketAsyncEventArgs
+            {
+                RemoteEndPoint = socket.RemoteEndPoint,
+                UserToken = sendReceiveToken
+            };
+            args.Completed += ReceiveCompleted;
+            args.SetBuffer(buffer, offset, size);
+
+            try
+            {
+                if (socket.ReceiveAsync(args))
+                {
+                    if (!receiveCompleted.WaitOne(timeout))
+                        throw new SshOperationTimeoutException(
+                            string.Format(
+                                CultureInfo.InvariantCulture,
+                                "Socket read operation has timed out after {0:F0} milliseconds.",
+                                timeout.TotalMilliseconds));
+                }
+
+                if (args.SocketError != SocketError.Success)
+                    throw new SocketException((int) args.SocketError);
+
+                return args.BytesTransferred;
+            }
+            finally
+            {
+                // initialize token to avoid the waithandle getting used after it's disposed
+                args.UserToken = null;
+                args.Dispose();
+                receiveCompleted.Dispose();
+            }
+#else
+#error Receiving data from a Socket is not implemented.
+#endif
+        }
+
         /// <summary>
         /// Receives data from a bound <see cref="Socket"/>into a receive buffer.
         /// </summary>
@@ -96,10 +158,35 @@ namespace Renci.SshNet.Abstractions
         public static int Read(Socket socket, byte[] buffer, int offset, int size, TimeSpan timeout)
         {
 #if FEATURE_SOCKET_SYNC
-            return socket.Receive(buffer, offset, size, SocketFlags.None);
+            var totalBytesRead = 0;
+            var totalBytesToRead = size;
+
+            do
+            {
+                try
+                {
+                    var bytesRead = socket.Receive(buffer, offset + totalBytesRead, totalBytesToRead - totalBytesRead, SocketFlags.None);
+                    if (bytesRead == 0)
+                        return 0;
+
+                    totalBytesRead += bytesRead;
+                }
+                catch (SocketException ex)
+                {
+                    if (IsErrorResumable(ex.SocketErrorCode))
+                    {
+                        ThreadAbstraction.Sleep(30);
+                        continue;
+                    }
+                    throw;
+                }
+            }
+            while (totalBytesRead < totalBytesToRead);
+
+            return totalBytesRead;
 #elif FEATURE_SOCKET_EAP
             var receiveCompleted = new ManualResetEvent(false);
-            var sendReceiveToken = new SendReceiveToken(socket, buffer, offset, size, receiveCompleted);
+            var sendReceiveToken = new BlockingSendReceiveToken(socket, buffer, offset, size, receiveCompleted);
 
             var args = new SocketAsyncEventArgs
             {
@@ -131,7 +218,7 @@ namespace Renci.SshNet.Abstractions
                 receiveCompleted.Dispose();
             }
 #else
-            #error Receiving data from a Socket is not implemented.
+#error Receiving data from a Socket is not implemented.
 #endif
         }
 
@@ -171,7 +258,7 @@ namespace Renci.SshNet.Abstractions
             } while (totalBytesSent < totalBytesToSend);
 #elif FEATURE_SOCKET_EAP
             var sendCompleted = new ManualResetEvent(false);
-            var sendReceiveToken = new SendReceiveToken(socket, data, offset, size, sendCompleted);
+            var sendReceiveToken = new BlockingSendReceiveToken(socket, data, offset, size, sendCompleted);
             var socketAsyncSendArgs = new SocketAsyncEventArgs
             {
                 RemoteEndPoint = socket.RemoteEndPoint,
@@ -203,7 +290,7 @@ namespace Renci.SshNet.Abstractions
                 sendCompleted.Dispose();
             }
 #else
-            #error Receiving data from a Socket is not implemented.
+#error Sending data to a Socket is not implemented.
 #endif
         }
 
@@ -232,21 +319,26 @@ namespace Renci.SshNet.Abstractions
 #if FEATURE_SOCKET_EAP && !FEATURE_SOCKET_SYNC
         private static void ReceiveCompleted(object sender, SocketAsyncEventArgs e)
         {
-            var sendReceiveToken = (SendReceiveToken) e.UserToken;
+            var sendReceiveToken = (Token) e.UserToken;
             if (sendReceiveToken != null)
                 sendReceiveToken.Process(e);
         }
 
         private static void SendCompleted(object sender, SocketAsyncEventArgs e)
         {
-            var sendReceiveToken = (SendReceiveToken)e.UserToken;
+            var sendReceiveToken = (Token) e.UserToken;
             if (sendReceiveToken != null)
                 sendReceiveToken.Process(e);
         }
 
-        private class SendReceiveToken
+        private interface Token
         {
-            public SendReceiveToken(Socket socket, byte[] buffer, int offset, int size, EventWaitHandle completionWaitHandle)
+            void Process(SocketAsyncEventArgs args);
+        }
+
+        private class BlockingSendReceiveToken : Token
+        {
+            public BlockingSendReceiveToken(Socket socket, byte[] buffer, int offset, int size, EventWaitHandle completionWaitHandle)
             {
                 _socket = socket;
                 _buffer = buffer;
@@ -311,6 +403,50 @@ namespace Renci.SshNet.Abstractions
             private readonly Socket _socket;
             private readonly byte[] _buffer;
             private int _offset;
+        }
+
+        private class PartialSendReceiveToken : Token
+        {
+            public PartialSendReceiveToken(Socket socket, EventWaitHandle completionWaitHandle)
+            {
+                _socket = socket;
+                _completionWaitHandle = completionWaitHandle;
+            }
+
+            public void Process(SocketAsyncEventArgs args)
+            {
+                if (args.SocketError == SocketError.Success)
+                {
+                    _completionWaitHandle.Set();
+                    return;
+                }
+
+                if (IsErrorResumable(args.SocketError))
+                {
+                    ThreadAbstraction.Sleep(30);
+                    ResumeOperation(args);
+                    return;
+                }
+
+                // we're dealing with a (fatal) error
+                _completionWaitHandle.Set();
+            }
+
+            private void ResumeOperation(SocketAsyncEventArgs args)
+            {
+                switch (args.LastOperation)
+                {
+                    case SocketAsyncOperation.Receive:
+                        _socket.ReceiveAsync(args);
+                        break;
+                    case SocketAsyncOperation.Send:
+                        _socket.SendAsync(args);
+                        break;
+                }
+            }
+
+            private readonly EventWaitHandle _completionWaitHandle;
+            private readonly Socket _socket;
         }
 #endif // FEATURE_SOCKET_EAP && !FEATURE_SOCKET_SYNC
     }

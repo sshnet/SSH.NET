@@ -1865,12 +1865,6 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Closes the socket.
-        /// </summary>
-        /// <exception cref="SocketException">An error occurred when trying to access the socket.</exception>
-        partial void SocketDisconnect();
-
-        /// <summary>
         /// Performs a blocking read on the socket until <paramref name="length"/> bytes are received.
         /// </summary>
         /// <param name="length">The number of bytes to read.</param>
@@ -1958,7 +1952,10 @@ namespace Renci.SshNet
                     if (_socket != null)
                     {
                         if (_socket.Connected)
-                            SocketDisconnect();
+                        {
+                            _socket.Shutdown(SocketShutdown.Send);
+                            SocketAbstraction.ClearReadBuffer(_socket);
+                        }
                         _socket.Dispose();
                         _socket = null;
                     }
@@ -1978,6 +1975,10 @@ namespace Renci.SshNet
                     var message = ReceiveMessage();
                     HandleMessageCore(message);
                 }
+            }
+            catch (SocketException ex)
+            {
+                RaiseError(new SshConnectionException(ex.Message, DisconnectReason.ConnectionLost, ex));
             }
             catch (Exception exp)
             {

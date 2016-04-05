@@ -11,7 +11,7 @@ namespace Renci.SshNet.Channels
     /// <summary>
     /// Implements "direct-tcpip" SSH channel.
     /// </summary>
-    internal partial class ChannelDirectTcpip : ClientChannel, IChannelDirectTcpip
+    internal class ChannelDirectTcpip : ClientChannel, IChannelDirectTcpip
     {
         private readonly object _socketLock = new object();
 
@@ -91,7 +91,7 @@ namespace Renci.SshNet.Channels
             {
                 try
                 {
-                    var read = SocketAbstraction.Read(_socket, buffer, 0, buffer.Length, ConnectionInfo.Timeout);
+                    var read = SocketAbstraction.ReadPartial(_socket, buffer, 0, buffer.Length, ConnectionInfo.Timeout);
                     if (read > 0)
                     {
 #if TUNING

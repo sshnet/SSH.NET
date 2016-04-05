@@ -10,7 +10,7 @@ namespace Renci.SshNet.Channels
     /// <summary>
     /// Implements "forwarded-tcpip" SSH channel.
     /// </summary>
-    internal partial class ChannelForwardedTcpip : ServerChannel, IChannelForwardedTcpip
+    internal class ChannelForwardedTcpip : ServerChannel, IChannelForwardedTcpip
     {
         private readonly object _socketShutdownAndCloseLock = new object();
         private Socket _socket;
@@ -83,7 +83,7 @@ namespace Renci.SshNet.Channels
                 {
                 try
                 {
-                    var read = SocketAbstraction.Read(_socket, buffer, 0, buffer.Length, ConnectionInfo.Timeout);
+                    var read = SocketAbstraction.ReadPartial(_socket, buffer, 0, buffer.Length, ConnectionInfo.Timeout);
                     if (read > 0)
                     {
 #if TUNING

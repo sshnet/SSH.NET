@@ -18,6 +18,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
     {
         private Mock<ISession> _sessionMock;
         private Mock<IForwardedPort> _forwardedPortMock;
+        private Mock<IConnectionInfo> _connectionInfoMock;
         private uint _localChannelNumber;
         private uint _localWindowSize;
         private uint _localPacketSize;
@@ -44,6 +45,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
 
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);
             _forwardedPortMock = new Mock<IForwardedPort>(MockBehavior.Strict);
+            _connectionInfoMock = new Mock<IConnectionInfo>(MockBehavior.Strict);
         }
 
         [TestMethod]
@@ -158,6 +160,8 @@ namespace Renci.SshNet.Tests.Classes.Channels
                             _remoteWindowSize, _remotePacketSize, _remoteChannelNumber))));
             _sessionMock.Setup(p => p.WaitOnHandle(It.IsAny<EventWaitHandle>()))
                 .Callback<WaitHandle>(p => p.WaitOne(-1));
+            _sessionMock.Setup(p => p.ConnectionInfo).Returns(_connectionInfoMock.Object);
+            _connectionInfoMock.Setup(p => p.Timeout).Returns(TimeSpan.FromSeconds(60));
             _sessionMock.Setup(p => p.TrySendMessage(It.IsAny<ChannelEofMessage>()))
                 .Returns(true)
                 .Callback<Message>(

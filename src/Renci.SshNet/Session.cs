@@ -1870,7 +1870,12 @@ namespace Renci.SshNet
         void SocketRead(int length, ref byte[] buffer)
         {
             if (SocketAbstraction.Read(_socket, buffer, 0, length, ConnectionInfo.Timeout) > 0)
+            {
+                // signal that bytes have been read from the socket
+                // this is used to improve accuracy of Session.IsSocketConnected
+                _bytesReadFromSocket.Set();
                 return;
+            }
 
             // 2012-09-11: Kenneth_aa
             // When Disconnect or Dispose is called, this throws SshConnectionException(), which...

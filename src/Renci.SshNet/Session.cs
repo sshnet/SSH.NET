@@ -1854,11 +1854,14 @@ namespace Renci.SshNet
 
             _socket = SocketAbstraction.Connect(ep, ConnectionInfo.Timeout);
 
-#if FEATURE_SOCKET_SETSOCKETOPTION
             const int socketBufferSize = 2 * MaximumSshPacketSize;
-            _socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.SendBuffer, socketBufferSize);
-            _socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveBuffer, socketBufferSize);
-#endif // FEATURE_SOCKET_SETSOCKETOPTION
+            _socket.SendBufferSize = socketBufferSize;
+            _socket.ReceiveBufferSize = socketBufferSize;
+
+//#if FEATURE_SOCKET_SETSOCKETOPTION
+//            _socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.SendBuffer, socketBufferSize);
+//            _socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveBuffer, socketBufferSize);
+//#endif // FEATURE_SOCKET_SETSOCKETOPTION
         }
 
         /// <summary>

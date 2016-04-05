@@ -59,16 +59,17 @@ namespace Renci.SshNet.Abstractions
                 throw new SocketException((int) args.SocketError);
             return socket;
 #elif FEATURE_SOCKET_APM
-            var connectResult = _socket.BeginConnect(ep, null, null);
+            var connectResult = socket.BeginConnect(remoteEndpoint, null, null);
             if (!connectResult.AsyncWaitHandle.WaitOne(connectTimeout, false))
                 throw new SshOperationTimeoutException(string.Format(CultureInfo.InvariantCulture,
                     "Connection failed to establish within {0:F0} milliseconds.", connectTimeout.TotalMilliseconds));
-
-            _socket.EndConnect(connectResult);
+            socket.EndConnect(connectResult);
+            return socket;
 #elif FEATURE_SOCKET_TAP
-            if (!_socket.ConnectAsync(ep).Wait(connectTimeout))
+            if (!socket.ConnectAsync(remoteEndpoint).Wait(connectTimeout))
                 throw new SshOperationTimeoutException(string.Format(CultureInfo.InvariantCulture,
                     "Connection failed to establish within {0:F0} milliseconds.", connectTimeout.TotalMilliseconds));
+            return socket;
 #else
             #error Connecting to a remote endpoint is not implemented.
 #endif
@@ -202,7 +203,7 @@ namespace Renci.SshNet.Abstractions
                 sendCompleted.Dispose();
             }
 #else
-#error Receiving data from a Socket is not implemented.
+            #error Receiving data from a Socket is not implemented.
 #endif
         }
 

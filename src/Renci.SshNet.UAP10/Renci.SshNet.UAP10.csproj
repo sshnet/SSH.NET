@@ -62,7 +62,7 @@
     <PlatformTarget>ARM</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\ARM\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;TUNING;FEATURE_RNG_CREATE;FEATURE_SOCKET_TAP;FEATURE_DNS_TAP;FEATURE_STREAM_TAP;FEATURE_THREAD_TAP;FEATURE_MEMORYSTREAM_TRYGETBUFFER;FEATURE_HASH_MD5;FEATURE_HMAC_MD5;FEATURE_HMAC_SHA1;FEATURE_HMAC_SHA256;FEATURE_HMAC_SHA384;FEATURE_HMAC_SHA512;FEATURE_REFLECTION_TYPEINFO</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;TUNING;FEATURE_RNG_CREATE;FEATURE_SOCKET_EAP;FEATURE_DNS_TAP;FEATURE_STREAM_TAP;FEATURE_THREAD_TAP;FEATURE_MEMORYSTREAM_TRYGETBUFFER;FEATURE_HASH_MD5;FEATURE_HMAC_MD5;FEATURE_HMAC_SHA1;FEATURE_HMAC_SHA256;FEATURE_HMAC_SHA384;FEATURE_HMAC_SHA512;FEATURE_REFLECTION_TYPEINFO</DefineConstants>
     <NoWarn>;2008</NoWarn>
     <DebugType>full</DebugType>
     <PlatformTarget>ARM</PlatformTarget>
@@ -113,6 +113,9 @@
     <Compile Include="..\Renci.SshNet\Abstractions\ReflectionAbstraction.cs">
       <Link>Abstractions\ReflectionAbstraction.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\Abstractions\SocketAbstraction.cs">
+      <Link>Abstractions\SocketAbstraction.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\Abstractions\ThreadAbstraction.cs">
       <Link>Abstractions\ThreadAbstraction.cs</Link>
     </Compile>
@@ -131,14 +134,8 @@
     <Compile Include="..\Renci.SshNet\Channels\ChannelDirectTcpip.cs">
       <Link>Channels\ChannelDirectTcpip.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\Channels\ChannelDirectTcpip.NET40.cs">
-      <Link>Channels\ChannelDirectTcpip.NET40.cs</Link>
-    </Compile>
     <Compile Include="..\Renci.SshNet\Channels\ChannelForwardedTcpip.cs">
       <Link>Channels\ChannelForwardedTcpip.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet\Channels\ChannelForwardedTcpip.NET40.cs">
-      <Link>Channels\ChannelForwardedTcpip.NET40.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Channels\ChannelSession.cs">
       <Link>Channels\ChannelSession.cs</Link>
@@ -223,12 +220,6 @@
     </Compile>
     <Compile Include="..\Renci.SshNet\Common\Extensions.cs">
       <Link>Common\Extensions.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet\Common\Extensions.NET.cs">
-      <Link>Common\Extensions.NET.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet\Common\Extensions.NET40.cs">
-      <Link>Common\Extensions.NET40.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Common\HostKeyEventArgs.cs">
       <Link>Common\HostKeyEventArgs.cs</Link>
@@ -334,9 +325,6 @@
     </Compile>
     <Compile Include="..\Renci.SshNet\ForwardedPortRemote.cs">
       <Link>ForwardedPortRemote.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet\ForwardedPortRemote.NET.cs">
-      <Link>ForwardedPortRemote.NET.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\HashInfo.cs">
       <Link>HashInfo.cs</Link>
@@ -793,9 +781,6 @@
     </Compile>
     <Compile Include="..\Renci.SshNet\SftpClient.cs">
       <Link>SftpClient.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet\SftpClient.NET.cs">
-      <Link>SftpClient.NET.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Sftp\Flags.cs">
       <Link>Sftp\Flags.cs</Link>

@@ -64,6 +64,8 @@ namespace Renci.SshNet
                 // actually received
                 lock (_socketReadLock)
                 {
+                    // reset waithandle, as we're only interested in reads that take
+                    // place between Poll and the Available check
                     _bytesReadFromSocket.Reset();
                     var connectionClosedOrDataAvailable = _socket.Poll(1000, SelectMode.SelectRead);
                     isConnected = !(connectionClosedOrDataAvailable && _socket.Available == 0);

@@ -23,8 +23,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Requests
         private string _existingPath;
         private byte[] _existingPathBytes;
 
-        [TestInitialize]
-        public void Init()
+        protected override void OnInit()
         {
             var random = new Random();
 

@@ -10,18 +10,24 @@ namespace Renci.SshNet.Messages.Connection
     {
         internal const byte MessageNumber = 94;
 
+#if TUNING
         /// <summary>
         /// Gets or sets message data.
         /// </summary>
         /// <value>
         /// The data.
         /// </value>
-#if TUNING
         /// <remarks>
         /// The actual data to read or write depends on the <see cref="Offset"/> and <see cref="Size"/>.
         /// </remarks>
         public byte[] Data { get; private set; }
 #else
+        /// <summary>
+        /// Gets or sets message data.
+        /// </summary>
+        /// <value>
+        /// The data.
+        /// </value>
         public byte[] Data { get; protected set; }
 #endif
 

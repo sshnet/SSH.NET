@@ -1,9 +1,33 @@
-﻿using System.Security.Cryptography;
+﻿using System;
+using System.Security.Cryptography;
+using Renci.SshNet.Messages.Authentication;
 
 namespace Renci.SshNet.Security.Cryptography
 {
     internal static class HashAlgorithmFactory
     {
+#if FEATURE_RNG_CREATE || FEATURE_RNG_CSP
+        private static readonly RandomNumberGenerator _randomizer = HashAlgorithmFactory.CreateRandomNumberGenerator();
+#endif
+
+        /// <summary>
+        /// Fills an array of bytes with a cryptographically strong random sequence of values.
+        /// </summary>
+        /// <param name="data">The array to fill with cryptographically strong random bytes.</param>
+        /// <remarks>
+        /// The length of the byte array determines how many random bytes are produced.
+        /// </remarks>
+        public static void GenerateRandom(byte[] data)
+        {
+#if FEATURE_RNG_CREATE || FEATURE_RNG_CSP
+            _randomizer.GetBytes(data);
+#else
+            var buffer = Windows.Security.Cryptography.CryptographicBuffer.GenerateRandom((uint) data.Length);
+            Windows.Security.Cryptography.CryptographicBuffer.CopyToByteArray(buffer, out data);
+#endif
+        }
+
+#if FEATURE_RNG_CREATE || FEATURE_RNG_CSP
         public static RandomNumberGenerator CreateRandomNumberGenerator()
         {
 #if FEATURE_RNG_CREATE
@@ -11,9 +35,10 @@ namespace Renci.SshNet.Security.Cryptography
 #elif FEATURE_RNG_CSP
             return new RNGCryptoServiceProvider();
 #else
-            #error Creation of RandomNumberGenerator is not implemented.
+#error Creation of RandomNumberGenerator is not implemented.
 #endif
         }
+#endif // FEATURE_RNG_CREATE || FEATURE_RNG_CSP
 
 #if FEATURE_HASH_MD5
         public static System.Security.Cryptography.MD5 CreateMD5()
@@ -21,9 +46,9 @@ namespace Renci.SshNet.Security.Cryptography
             return System.Security.Cryptography.MD5.Create();
         }
 #else
-        public static Renci.Security.Cryptography.MD5 CreateMD5()
+        public static global::SshNet.Security.Cryptography.MD5 CreateMD5()
         {
-            return new Renci.Security.Cryptography.MD5();
+            return new global::SshNet.Security.Cryptography.MD5();
         }
 #endif // FEATURE_HASH_MD5
 
@@ -33,9 +58,9 @@ namespace Renci.SshNet.Security.Cryptography
             return new System.Security.Cryptography.SHA1Managed();
         }
 #else
-        public static Renci.Security.Cryptography.SHA1 CreateSHA1()
+        public static global::SshNet.Security.Cryptography.SHA1 CreateSHA1()
         {
-            return new Renci.Security.Cryptography.SHA1();
+            return new global::SshNet.Security.Cryptography.SHA1();
         }
 #endif
 
@@ -45,9 +70,9 @@ namespace Renci.SshNet.Security.Cryptography
             return new System.Security.Cryptography.SHA256Managed();
         }
 #else
-        public static Renci.Security.Cryptography.SHA256 CreateSHA256()
+        public static global::SshNet.Security.Cryptography.SHA256 CreateSHA256()
         {
-            return new Renci.Security.Cryptography.SHA256();
+            return new global::SshNet.Security.Cryptography.SHA256();
         }
 #endif
 
@@ -57,9 +82,9 @@ namespace Renci.SshNet.Security.Cryptography
             return new System.Security.Cryptography.SHA384Managed();
         }
 #else
-        public static Renci.Security.Cryptography.SHA384 CreateSHA384()
+        public static global::SshNet.Security.Cryptography.SHA384 CreateSHA384()
         {
-            return new Renci.Security.Cryptography.SHA384();
+            return new global::SshNet.Security.Cryptography.SHA384();
         }
 #endif
 
@@ -69,9 +94,9 @@ namespace Renci.SshNet.Security.Cryptography
             return new System.Security.Cryptography.SHA512Managed();
         }
 #else
-        public static Renci.Security.Cryptography.SHA512 CreateSHA512()
+        public static global::SshNet.Security.Cryptography.SHA512 CreateSHA512()
         {
-            return new Renci.Security.Cryptography.SHA512();
+            return new global::SshNet.Security.Cryptography.SHA512();
         }
 #endif
 
@@ -81,9 +106,9 @@ namespace Renci.SshNet.Security.Cryptography
             return new System.Security.Cryptography.RIPEMD160Managed();
         }
 #else
-        public static Renci.Security.Cryptography.RIPEMD160 CreateRIPEMD160()
+        public static global::SshNet.Security.Cryptography.RIPEMD160 CreateRIPEMD160()
         {
-            return new Renci.Security.Cryptography.RIPEMD160();
+            return new global::SshNet.Security.Cryptography.RIPEMD160();
         }
 #endif // FEATURE_HASH_RIPEMD160
 
@@ -98,14 +123,14 @@ namespace Renci.SshNet.Security.Cryptography
             return new HMACMD5(key, hashSize);
         }
 #else
-        public static Renci.Security.Cryptography.HMACMD5 CreateHMACMD5(byte[] key)
+        public static global::SshNet.Security.Cryptography.HMACMD5 CreateHMACMD5(byte[] key)
         {
-            return new Renci.Security.Cryptography.HMACMD5(key);
+            return new global::SshNet.Security.Cryptography.HMACMD5(key);
         }
 
-        public static Renci.Security.Cryptography.HMACMD5 CreateHMACMD5(byte[] key, int hashSize)
+        public static global::SshNet.Security.Cryptography.HMACMD5 CreateHMACMD5(byte[] key, int hashSize)
         {
-            return new Renci.Security.Cryptography.HMACMD5(key, hashSize);
+            return new global::SshNet.Security.Cryptography.HMACMD5(key, hashSize);
         }
 #endif // FEATURE_HMAC_MD5
 
@@ -120,14 +145,14 @@ namespace Renci.SshNet.Security.Cryptography
             return new HMACSHA1(key, hashSize);
         }
 #else
-        public static Renci.Security.Cryptography.HMACSHA1 CreateHMACSHA1(byte[] key)
+        public static global::SshNet.Security.Cryptography.HMACSHA1 CreateHMACSHA1(byte[] key)
         {
-            return new Renci.Security.Cryptography.HMACSHA1(key);
+            return new global::SshNet.Security.Cryptography.HMACSHA1(key);
         }
 
-        public static Renci.Security.Cryptography.HMACSHA1 CreateHMACSHA1(byte[] key, int hashSize)
+        public static global::SshNet.Security.Cryptography.HMACSHA1 CreateHMACSHA1(byte[] key, int hashSize)
         {
-            return new Renci.Security.Cryptography.HMACSHA1(key, hashSize);
+            return new global::SshNet.Security.Cryptography.HMACSHA1(key, hashSize);
         }
 #endif // FEATURE_HMAC_SHA1
 
@@ -142,14 +167,14 @@ namespace Renci.SshNet.Security.Cryptography
             return new HMACSHA256(key, hashSize);
         }
 #else
-        public static Renci.Security.Cryptography.HMACSHA256 CreateHMACSHA256(byte[] key)
+        public static global::SshNet.Security.Cryptography.HMACSHA256 CreateHMACSHA256(byte[] key)
         {
-            return new Renci.Security.Cryptography.HMACSHA256(key);
+            return new global::SshNet.Security.Cryptography.HMACSHA256(key);
         }
 
-        public static Renci.Security.Cryptography.HMACSHA256 CreateHMACSHA256(byte[] key, int hashSize)
+        public static global::SshNet.Security.Cryptography.HMACSHA256 CreateHMACSHA256(byte[] key, int hashSize)
         {
-            return new Renci.Security.Cryptography.HMACSHA256(key, hashSize);
+            return new global::SshNet.Security.Cryptography.HMACSHA256(key, hashSize);
         }
 #endif // FEATURE_HMAC_SHA256
 
@@ -164,14 +189,14 @@ namespace Renci.SshNet.Security.Cryptography
             return new HMACSHA384(key, hashSize);
         }
 #else
-        public static Renci.Security.Cryptography.HMACSHA384 CreateHMACSHA384(byte[] key)
+        public static global::SshNet.Security.Cryptography.HMACSHA384 CreateHMACSHA384(byte[] key)
         {
-            return new Renci.Security.Cryptography.HMACSHA384(key);
+            return new global::SshNet.Security.Cryptography.HMACSHA384(key);
         }
 
-        public static Renci.Security.Cryptography.HMACSHA384 CreateHMACSHA384(byte[] key, int hashSize)
+        public static global::SshNet.Security.Cryptography.HMACSHA384 CreateHMACSHA384(byte[] key, int hashSize)
         {
-            return new Renci.Security.Cryptography.HMACSHA384(key, hashSize);
+            return new global::SshNet.Security.Cryptography.HMACSHA384(key, hashSize);
         }
 #endif // FEATURE_HMAC_SHA384
 
@@ -186,14 +211,14 @@ namespace Renci.SshNet.Security.Cryptography
             return new HMACSHA512(key, hashSize);
         }
 #else
-        public static Renci.Security.Cryptography.HMACSHA512 CreateHMACSHA512(byte[] key)
+        public static global::SshNet.Security.Cryptography.HMACSHA512 CreateHMACSHA512(byte[] key)
         {
-            return new Renci.Security.Cryptography.HMACSHA512(key);
+            return new global::SshNet.Security.Cryptography.HMACSHA512(key);
         }
 
-        public static Renci.Security.Cryptography.HMACSHA512 CreateHMACSHA512(byte[] key, int hashSize)
+        public static global::SshNet.Security.Cryptography.HMACSHA512 CreateHMACSHA512(byte[] key, int hashSize)
         {
-            return new Renci.Security.Cryptography.HMACSHA512(key, hashSize);
+            return new global::SshNet.Security.Cryptography.HMACSHA512(key, hashSize);
         }
 #endif // FEATURE_HMAC_SHA512
 
@@ -203,9 +228,9 @@ namespace Renci.SshNet.Security.Cryptography
             return new System.Security.Cryptography.HMACRIPEMD160(key);
         }
 #else
-        public static Renci.Security.Cryptography.HMACRIPEMD160 CreateHMACRIPEMD160(byte[] key)
+        public static global::SshNet.Security.Cryptography.HMACRIPEMD160 CreateHMACRIPEMD160(byte[] key)
         {
-            return new Renci.Security.Cryptography.HMACRIPEMD160(key);
+            return new global::SshNet.Security.Cryptography.HMACRIPEMD160(key);
         }
 #endif // FEATURE_HMAC_RIPEMD160
     }

@@ -67,8 +67,6 @@ namespace Renci.SshNet.Common
     /// </summary>
     public struct BigInteger : IComparable, IFormattable, IComparable<BigInteger>, IEquatable<BigInteger>
     {
-        private static readonly RandomNumberGenerator _randomizer = HashAlgorithmFactory.CreateRandomNumberGenerator();
-
         private const ulong _BASE = 0x100000000;
         private const Int32 _DECIMALSIGNMASK = unchecked((Int32)0x80000000);
         private const int _BIAS = 1075;
@@ -1968,7 +1966,7 @@ namespace Renci.SshNet.Common
         public static BigInteger Random(int bitLength)
         {
             var bytesArray = new byte[bitLength / 8 + (((bitLength % 8) > 0) ? 1 : 0)];
-            _randomizer.GetBytes(bytesArray);
+            HashAlgorithmFactory.GenerateRandom(bytesArray);
             bytesArray[bytesArray.Length - 1] = (byte)(bytesArray[bytesArray.Length - 1] & 0x7F);   //  Ensure not a negative value
 #if TUNING
             return new BigInteger(bytesArray);

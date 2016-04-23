@@ -1,6 +1,5 @@
 ﻿using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
 using Renci.SshNet.Common;
 using System.Globalization;
 using Renci.SshNet.Abstractions;
@@ -14,8 +13,6 @@ namespace Renci.SshNet.Messages
     /// </summary>
     public abstract class Message : SshData
     {
-        private static readonly RandomNumberGenerator Randomizer = HashAlgorithmFactory.CreateRandomNumberGenerator();
-
         /// <summary>
         /// Gets the index that represents zero in current data type.
         /// </summary>
@@ -104,7 +101,7 @@ namespace Renci.SshNet.Messages
 
                 // add padding bytes
                 var paddingBytes = new byte[paddingLength];
-                Randomizer.GetBytes(paddingBytes);
+                HashAlgorithmFactory.GenerateRandom(paddingBytes);
                 sshDataStream.Write(paddingBytes, 0, paddingLength);
 
                 var packetDataLength = GetPacketDataLength(messageLength, paddingLength);
@@ -144,7 +141,7 @@ namespace Renci.SshNet.Messages
 
                 // add padding bytes
                 var paddingBytes = new byte[paddingLength];
-                Randomizer.GetBytes(paddingBytes);
+                HashAlgorithmFactory.GenerateRandom(paddingBytes);
                 sshDataStream.Write(paddingBytes, 0, paddingLength);
             }
 

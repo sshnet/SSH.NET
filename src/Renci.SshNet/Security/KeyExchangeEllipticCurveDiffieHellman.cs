@@ -85,12 +85,12 @@ namespace Renci.SshNet.Security
         {
             base.Start(session, message);
 
-            this._serverPayload = message.GetBytes().ToArray();
-            this._clientPayload = this.Session.ClientInitMessage.GetBytes().ToArray();
+            _serverPayload = message.GetBytes().ToArray();
+            _clientPayload = Session.ClientInitMessage.GetBytes().ToArray();
 
-            this.Session.RegisterMessage("SSH_MSG_KEXECDH_REPLY");
+            Session.RegisterMessage("SSH_MSG_KEXECDH_REPLY");
 
-            this.Session.MessageReceived += Session_MessageReceived;
+            Session.MessageReceived += Session_MessageReceived;
 
             //3.2.1 Elliptic Curve Key Pair Generation Primitive
             //Elliptic curve key pairs should be generated as follows:
@@ -121,7 +121,7 @@ namespace Renci.SshNet.Security
             var Q = d * G;
 
 
-            this.SendMessage(new KeyExchangeEcdhInitMessage(d, Q));
+            SendMessage(new KeyExchangeEcdhInitMessage(d, Q));
 
         }
 
@@ -130,13 +130,13 @@ namespace Renci.SshNet.Security
             var message = e.Message as KeyExchangeEcdhReplyMessage;
             if (message != null)
             {
-                //  Unregister message once received
-                this.Session.UnRegisterMessage("SSH_MSG_KEXECDH_REPLY");
+                // Unregister message once received
+                Session.UnRegisterMessage("SSH_MSG_KEXECDH_REPLY");
 
-                this.HandleServerEcdhReply();
+                HandleServerEcdhReply();
 
-                //  When SSH_MSG_KEXDH_REPLY received key exchange is completed
-                this.Finish();
+                // When SSH_MSG_KEXDH_REPLY received key exchange is completed
+                Finish();
             }
         }
 
@@ -205,12 +205,12 @@ namespace Renci.SshNet.Security
         {
             var hashData = new _ExchangeHashData
             {
-                ClientVersion = this.Session.ClientVersion,
-                ServerVersion = this.Session.ServerVersion,
-                ClientPayload = this._clientPayload,
-                ServerPayload = this._serverPayload,
-                HostKey = this._hostKey,
-                SharedKey = this.SharedKey,
+                ClientVersion = Session.ClientVersion,
+                ServerVersion = Session.ServerVersion,
+                ClientPayload = _clientPayload,
+                ServerPayload = _serverPayload,
+                HostKey = _hostKey,
+                SharedKey = SharedKey,
             }.GetBytes();
 
             //string   V_C, client's identification string (CR and LF excluded)
@@ -226,14 +226,6 @@ namespace Renci.SshNet.Security
 
         private class _ExchangeHashData : SshData
         {
-            private byte[] _serverVersion;
-            private byte[] _clientVersion;
-            private byte[] _prime;
-            private byte[] _subGroup;
-            private byte[] _clientExchangeValue;
-            private byte[] _serverExchangeValue;
-            private byte[] _sharedKey;
-
             public string ServerVersion { get; set; }
 
             public string ClientVersion { get; set; }
@@ -244,11 +236,11 @@ namespace Renci.SshNet.Security
 
             public byte[] HostKey { get; set; }
 
-            public UInt32 MinimumGroupSize { get; set; }
+            public uint MinimumGroupSize { get; set; }
 
-            public UInt32 PreferredGroupSize { get; set; }
+            public uint PreferredGroupSize { get; set; }
 
-            public UInt32 MaximumGroupSize { get; set; }
+            public uint MaximumGroupSize { get; set; }
 
             public BigInteger Prime { get; set; }
 
@@ -267,19 +259,19 @@ namespace Renci.SshNet.Security
 
             protected override void SaveData()
             {
-                this.Write(this.ClientVersion);
-                this.Write(this.ServerVersion);
-                this.WriteBinaryString(this.ClientPayload);
-                this.WriteBinaryString(this.ServerPayload);
-                this.WriteBinaryString(this.HostKey);
-                this.Write(this.MinimumGroupSize);
-                this.Write(this.PreferredGroupSize);
-                this.Write(this.MaximumGroupSize);
-                this.Write(this.Prime);
-                this.Write(this.SubGroup);
-                this.Write(this.ClientExchangeValue);
-                this.Write(this.ServerExchangeValue);
-                this.Write(this.SharedKey);
+                Write(ClientVersion);
+                Write(ServerVersion);
+                WriteBinaryString(ClientPayload);
+                WriteBinaryString(ServerPayload);
+                WriteBinaryString(HostKey);
+                Write(MinimumGroupSize);
+                Write(PreferredGroupSize);
+                Write(MaximumGroupSize);
+                Write(Prime);
+                Write(SubGroup);
+                Write(ClientExchangeValue);
+                Write(ServerExchangeValue);
+                Write(SharedKey);
             }
         }
 

@@ -138,6 +138,37 @@ namespace Renci.SshNet.Abstractions
         }
 
         /// <summary>
+        /// Reads a byte from the specified <see cref="Socket"/>.
+        /// </summary>
+        /// <param name="socket">The <see cref="Socket"/> to read from.</param>
+        /// <param name="timeout">Specifies the amount of time after which the call will time out.</param>
+        /// <returns>
+        /// The byte read, or <c>-1</c> if the socket was closed.
+        /// </returns>
+        /// <exception cref="SshOperationTimeoutException">The read operation timed out.</exception>
+        /// <exception cref="SocketException">The read failed.</exception>
+        public static int ReadByte(Socket socket, TimeSpan timeout)
+        {
+            var buffer = new byte[1];
+            if (Read(socket, buffer, 0, 1, timeout) == 0)
+                return -1;
+
+            return buffer[0];
+        }
+
+        /// <summary>
+        /// Sends a byte using the specified <see cref="Socket"/>.
+        /// </summary>
+        /// <param name="socket">The <see cref="Socket"/> to write to.</param>
+        /// <param name="value">The value to send.</param>
+        /// <exception cref="SocketException">The write failed.</exception>
+        public static void SendByte(Socket socket, byte value)
+        {
+            var buffer = new[] {value};
+            Send(socket, buffer, 0, 1);
+        }
+
+        /// <summary>
         /// Receives data from a bound <see cref="Socket"/>into a receive buffer.
         /// </summary>
         /// <param name="socket"></param>

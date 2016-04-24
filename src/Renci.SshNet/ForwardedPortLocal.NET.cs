@@ -25,8 +25,11 @@ namespace Renci.SshNet
             var addr = DnsAbstraction.GetHostAddresses(BoundHost)[0];
             var ep = new IPEndPoint(addr, (int) BoundPort);
 
-            _listener = new Socket(ep.AddressFamily, SocketType.Stream, ProtocolType.Tcp) {Blocking = true};
+            _listener = new Socket(ep.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            // TODO: decide if we want to have blocking socket
+#if FEATURE_SOCKET_SETSOCKETOPTION
             _listener.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.NoDelay, true);
+#endif // FEATURE_SOCKET_SETSOCKETOPTION
             _listener.Bind(ep);
             _listener.Listen(1);
 
@@ -55,9 +58,9 @@ namespace Renci.SshNet
                             asyncResult.AsyncWaitHandle.WaitOne();
                         }
 #elif FEATURE_SOCKET_TAP
-                        #error Accepting new socket connections is not implemented.
+#error Accepting new socket connections is not implemented.
 #else
-                        #error Accepting new socket connections is not implemented.
+#error Accepting new socket connections is not implemented.
 #endif
                     }
                     catch (ObjectDisposedException)
@@ -131,8 +134,10 @@ namespace Renci.SshNet
 
             try
             {
+#if FEATURE_SOCKET_SETSOCKETOPTION
                 clientSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.DontLinger, true);
                 clientSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.NoDelay, true);
+#endif //FEATURE_SOCKET_SETSOCKETOPTION
 
                 var originatorEndPoint = (IPEndPoint) clientSocket.RemoteEndPoint;
 

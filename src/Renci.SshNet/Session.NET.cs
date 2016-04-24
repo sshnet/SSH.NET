@@ -4,10 +4,12 @@ namespace Renci.SshNet
 {
     public partial class Session
     {
+#if FEATURE_SOCKET_POLL
         /// <summary>
         /// Holds the lock object to ensure read access to the socket is synchronized.
         /// </summary>
         private readonly object _socketReadLock = new object();
+#endif // FEATURE_SOCKET_POLL
 
         /// <summary>
         /// Gets a value indicating whether the socket is connected.
@@ -17,9 +19,12 @@ namespace Renci.SshNet
         /// <para>
         /// As a first check we verify whether <see cref="Socket.Connected"/> is
         /// <c>true</c>. However, this only returns the state of the socket as of
-        /// the last I/O operation. Therefore we use the combination of Socket.Poll
-        /// with mode SelectRead and Socket.Available to verify if the socket is
-        /// still connected.
+        /// the last I/O operation.
+        /// </para>
+#if FEATURE_SOCKET_POLL
+        /// <para>
+        /// Therefore we use the combination of <see cref="Socket.Poll(int, SelectMode)"/> with mode <see cref="SelectMode.SelectRead"/>
+        /// and <see cref="Socket.Available"/> to verify if the socket is still connected.
         /// </para>
         /// <para>
         /// The MSDN doc mention the following on the return value of <see cref="Socket.Poll(int, SelectMode)"/>
@@ -44,9 +49,11 @@ namespace Renci.SshNet
         /// when bytes are read from the <see cref="Socket"/>.
         /// </para>
         /// </remarks>
+#endif
         partial void IsSocketConnected(ref bool isConnected)
         {
             isConnected = (_socket != null && _socket.Connected);
+#if FEATURE_SOCKET_POLL
             if (isConnected)
             {
                 // synchronize this to ensure thread B does not reset the wait handle before
@@ -69,6 +76,7 @@ namespace Renci.SshNet
                     }
                 }
             }
+#endif // FEATURE_SOCKET_POLL
         }
     }
 }

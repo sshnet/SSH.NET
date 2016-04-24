@@ -1,12 +1,19 @@
 ﻿using System;
 using System.Net;
+using System.Net.Sockets;
+
 #if FEATURE_DEVICEINFORMATION_APM
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Sockets;
 using System.Threading;
 using Microsoft.Phone.Net.NetworkInformation;
 #endif // FEATURE_DEVICEINFORMATION_APM
+
+#if FEATURE_DATAGRAMSOCKET
+using System.Collections.Generic;
+using Windows.Networking;
+using Windows.Networking.Sockets;
+#endif // FEATURE_DATAGRAMSOCKET
 
 namespace Renci.SshNet.Abstractions
 {
@@ -20,6 +27,8 @@ namespace Renci.SshNet.Abstractions
         /// An array of type <see cref="IPAddress"/> that holds the IP addresses for the host that
         /// is specified by the <paramref name="hostNameOrAddress"/> parameter.
         /// </returns>
+        /// <exception cref="ArgumentNullException"><paramref name="hostNameOrAddress"/> is <c>null</c>.</exception>
+        /// <exception cref="SocketException">An error is encountered when resolving <paramref name="hostNameOrAddress"/>.</exception>
         public static IPAddress[] GetHostAddresses(string hostNameOrAddress)
         {
 #if FEATURE_DNS_SYNC
@@ -49,8 +58,23 @@ namespace Renci.SshNet.Abstractions
                 return addresses.ToArray();
             }
             throw new SocketException((int)nameResolutionResult.NetworkErrorCode);
+#elif FEATURE_DATAGRAMSOCKET
+
+            // TODO we may need to only return those IP addresses that are supported on the current system
+            // TODO http://wojciechkulik.pl/csharp/winrt-how-to-detect-supported-ip-versions
+
+            var endpointPairs = DatagramSocket.GetEndpointPairsAsync(new HostName(hostNameOrAddress), "").GetAwaiter().GetResult();
+            var addresses = new List<IPAddress>();
+            foreach (var endpointPair in endpointPairs)
+            {
+                if (endpointPair.RemoteHostName.Type == HostNameType.Ipv4 || endpointPair.RemoteHostName.Type == HostNameType.Ipv6)
+                    addresses.Add(IPAddress.Parse(endpointPair.RemoteHostName.CanonicalName));
+            }
+            if (addresses.Count == 0)
+                throw new SocketException((int) System.Net.Sockets.SocketError.HostNotFound);
+            return addresses.ToArray();
 #else
-            throw new NotSupportedException("Resolving hostname to IP address is not supported.");
+            throw new NotSupportedException("Resolving hostname to IP address is not implemented.");
 #endif // FEATURE_DEVICEINFORMATION_APM
 #endif
         }

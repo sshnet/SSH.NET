@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25029.0
+VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A3063E62-89D5-43FF-AB1A-FFBECB4A1850}"
 	ProjectSection(SolutionItems) = preProject
@@ -53,7 +53,15 @@ Project("{911E67C6-3D85-4FCE-B560-20A9C3E3FF48}") = "nuget", "Build\nuget\nuget.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Renci.SshNet.UAP10", "Renci.SshNet.UAP10\Renci.SshNet.UAP10.csproj", "{EC212E04-A372-4B95-B45B-C0D4A739EF80}"
 EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Renci.SshNet.Shared.Tests", "..\test\Renci.SshNet.Shared.Tests\Renci.SshNet.Shared.Tests.shproj", "{FAE3948F-A438-458E-8E0E-7F6E39A5DD8A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Renci.SshNet.WindowsPhone8.Tests", "..\test\Renci.SshNet.WindowsPhone8.Tests\Renci.SshNet.WindowsPhone8.Tests.csproj", "{26F0D644-B3EF-47DF-8040-E9E4B2E63884}"
+EndProject
 Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		..\test\Renci.SshNet.Shared.Tests\Renci.SshNet.Shared.Tests.projitems*{fae3948f-a438-458e-8e0e-7f6e39a5dd8a}*SharedItemsImports = 13
+		..\test\Renci.SshNet.Shared.Tests\Renci.SshNet.Shared.Tests.projitems*{26f0d644-b3ef-47df-8040-e9e4b2e63884}*SharedItemsImports = 4
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|ARM = Debug|ARM
@@ -181,6 +189,28 @@ Global
 		{EC212E04-A372-4B95-B45B-C0D4A739EF80}.Release|x64.Build.0 = Release|x64
 		{EC212E04-A372-4B95-B45B-C0D4A739EF80}.Release|x86.ActiveCfg = Release|x86
 		{EC212E04-A372-4B95-B45B-C0D4A739EF80}.Release|x86.Build.0 = Release|x86
+		{26F0D644-B3EF-47DF-8040-E9E4B2E63884}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{26F0D644-B3EF-47DF-8040-E9E4B2E63884}.Debug|ARM.ActiveCfg = Debug|ARM
+		{26F0D644-B3EF-47DF-8040-E9E4B2E63884}.Debug|ARM.Build.0 = Debug|ARM
+		{26F0D644-B3EF-47DF-8040-E9E4B2E63884}.Debug|ARM.Deploy.0 = Debug|ARM
+		{26F0D644-B3EF-47DF-8040-E9E4B2E63884}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{26F0D644-B3EF-47DF-8040-E9E4B2E63884}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{26F0D644-B3EF-47DF-8040-E9E4B2E63884}.Debug|Mixed Platforms.Deploy.0 = Debug|x86
+		{26F0D644-B3EF-47DF-8040-E9E4B2E63884}.Debug|x64.ActiveCfg = Debug|x86
+		{26F0D644-B3EF-47DF-8040-E9E4B2E63884}.Debug|x86.ActiveCfg = Debug|x86
+		{26F0D644-B3EF-47DF-8040-E9E4B2E63884}.Debug|x86.Build.0 = Debug|x86
+		{26F0D644-B3EF-47DF-8040-E9E4B2E63884}.Debug|x86.Deploy.0 = Debug|x86
+		{26F0D644-B3EF-47DF-8040-E9E4B2E63884}.Release|Any CPU.ActiveCfg = Release|x86
+		{26F0D644-B3EF-47DF-8040-E9E4B2E63884}.Release|ARM.ActiveCfg = Release|ARM
+		{26F0D644-B3EF-47DF-8040-E9E4B2E63884}.Release|ARM.Build.0 = Release|ARM
+		{26F0D644-B3EF-47DF-8040-E9E4B2E63884}.Release|ARM.Deploy.0 = Release|ARM
+		{26F0D644-B3EF-47DF-8040-E9E4B2E63884}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{26F0D644-B3EF-47DF-8040-E9E4B2E63884}.Release|Mixed Platforms.Build.0 = Release|x86
+		{26F0D644-B3EF-47DF-8040-E9E4B2E63884}.Release|Mixed Platforms.Deploy.0 = Release|x86
+		{26F0D644-B3EF-47DF-8040-E9E4B2E63884}.Release|x64.ActiveCfg = Release|x86
+		{26F0D644-B3EF-47DF-8040-E9E4B2E63884}.Release|x86.ActiveCfg = Release|x86
+		{26F0D644-B3EF-47DF-8040-E9E4B2E63884}.Release|x86.Build.0 = Release|x86
+		{26F0D644-B3EF-47DF-8040-E9E4B2E63884}.Release|x86.Deploy.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -916,8 +916,8 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Renci.Security.Cryptography, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Renci.Security.Cryptography.1.0.0\lib\wp8\Renci.Security.Cryptography.dll</HintPath>
+    <Reference Include="SshNet.Security.Cryptography">
+      <HintPath>..\..\packages\SshNet.Security.Cryptography.1.0.0\lib\wp8\SshNet.Security.Cryptography.dll</HintPath>
       <Private>True</Private>
     </Reference>
   </ItemGroup>
@@ -928,7 +928,7 @@
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties ProjectLinkReference="2f5f8c90-0bd1-424f-997c-7bc6280919d1" ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" />
+      <UserProperties ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" ProjectLinkReference="2f5f8c90-0bd1-424f-997c-7bc6280919d1" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

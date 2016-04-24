@@ -39,7 +39,7 @@
 	
 	<Target Name="Build">
 		<ItemGroup>
-			<ProjectToBuild Include="$(MSBuildThisFileDirectory)..\Renci.SshNet.sln">
+			<ProjectToBuild Include="$(MSBuildThisFileDirectory)..\Renci.SshNet.VS2012.sln">
 				<Properties>Configuration=Release</Properties>
 			</ProjectToBuild>
 		</ItemGroup>

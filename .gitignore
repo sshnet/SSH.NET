@@ -1,6 +1,8 @@
 # Visual Studio build output
 src/**/bin/**
 src/**/obj/**
+test/**/bin/**
+test/**/obj/**
 
 # MSTest test Results
 src/TestResults/
@@ -10,7 +12,7 @@ src/TestResults/
 *.user
 
 # NuGet packages
-packages/
+#packages/
 
 # Visual Studio 2015 cache/options directory 
 src/.vs/

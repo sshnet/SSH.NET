@@ -9,6 +9,7 @@
     <Import_RootNamespace>Renci.SshNet.Tests</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Abstractions\CryptoAbstraction_GenerateRandom.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstractions\DnsAbstraction_GetHostAddresses.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstractions\ThreadAbstraction_ExecuteThread.cs" />
   </ItemGroup>

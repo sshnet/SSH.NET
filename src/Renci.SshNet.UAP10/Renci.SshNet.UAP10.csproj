@@ -107,6 +107,9 @@
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Renci.SshNet\Abstractions\CryptoAbstraction.cs">
+      <Link>Abstractions\CryptoAbstraction.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\Abstractions\DiagnosticAbstraction.cs">
       <Link>Abstractions\DiagnosticAbstraction.cs</Link>
     </Compile>
@@ -694,9 +697,6 @@
     </Compile>
     <Compile Include="..\Renci.SshNet\Security\Cryptography\DsaKey.cs">
       <Link>Security\Cryptography\DsaKey.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet\Security\Cryptography\HashAlgorithmFactory.cs">
-      <Link>Security\Cryptography\HashAlgorithmFactory.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Security\Cryptography\HMACMD5.cs">
       <Link>Security\Cryptography\HMACMD5.cs</Link>

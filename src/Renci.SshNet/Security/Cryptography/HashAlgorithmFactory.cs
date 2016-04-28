@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Security.Cryptography;
 using Renci.SshNet.Messages.Authentication;
+using System.Runtime.InteropServices.WindowsRuntime;
 
 namespace Renci.SshNet.Security.Cryptography
 {
@@ -23,7 +25,7 @@ namespace Renci.SshNet.Security.Cryptography
             _randomizer.GetBytes(data);
 #else
             var buffer = Windows.Security.Cryptography.CryptographicBuffer.GenerateRandom((uint) data.Length);
-            Windows.Security.Cryptography.CryptographicBuffer.CopyToByteArray(buffer, out data);
+            System.Runtime.InteropServices.WindowsRuntime.WindowsRuntimeBufferExtensions.CopyTo(buffer, data);
 #endif
         }
 

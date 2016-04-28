@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Security.Cryptography;
 using Renci.SshNet.Messages.Authentication;
-using System.Runtime.InteropServices.WindowsRuntime;
 
 namespace Renci.SshNet.Security.Cryptography
 {

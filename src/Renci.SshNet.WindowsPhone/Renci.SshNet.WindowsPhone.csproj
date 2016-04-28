@@ -45,14 +45,20 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.Phone" />
-    <Reference Include="Renci.Security.Cryptography, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Renci.Security.Cryptography.1.0.0\lib\wp71\Renci.Security.Cryptography.dll</HintPath>
+    <Reference Include="SshNet.Security.Cryptography, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\SshNet.Security.Cryptography.1.0.0\lib\wp71\SshNet.Security.Cryptography.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="system" />
     <Reference Include="System.Net" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Renci.SshNet\Abstractions\CryptoAbstraction.cs">
+      <Link>Abstractions\CryptoAbstraction.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Abstractions\DiagnosticAbstraction.cs">
+      <Link>Abstractions\DiagnosticAbstraction.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\Abstractions\DnsAbstraction.cs">
       <Link>Abstractions\DnsAbstraction.cs</Link>
     </Compile>
@@ -610,9 +616,6 @@
     </Compile>
     <Compile Include="..\Renci.SshNet\Security\Cryptography\DsaKey.cs">
       <Link>Security\Cryptography\DsaKey.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet\Security\Cryptography\HashAlgorithmFactory.cs">
-      <Link>Security\Cryptography\HashAlgorithmFactory.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Security\Cryptography\HMACMD5.cs">
       <Link>Security\Cryptography\HMACMD5.cs</Link>

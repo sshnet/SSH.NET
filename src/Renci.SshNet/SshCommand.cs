@@ -563,7 +563,7 @@ namespace Renci.SshNet
                 this._sessionErrorOccuredWaitHandle.Dispose();
                 this._sessionErrorOccuredWaitHandle = null;
             }
-            
+
             // Dispose managed ResourceMessages.
             if (this._channel != null)
             {

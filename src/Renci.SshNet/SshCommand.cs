@@ -154,9 +154,6 @@ namespace Renci.SshNet
             this.CommandText = commandText;
             this._encoding = encoding;
             this.CommandTimeout = new TimeSpan(0, 0, 0, 0, -1);
-
-            this._session.Disconnected += Session_Disconnected;
-            this._session.ErrorOccured += Session_ErrorOccured;
         }
 
         /// <summary>
@@ -241,6 +238,10 @@ namespace Renci.SshNet
             if (string.IsNullOrEmpty(this.CommandText))
                 throw new ArgumentException("CommandText property is empty.");
 
+            //Register our events with session before executing command. This is paired with EndExecute.
+            this._session.Disconnected += Session_Disconnected;
+            this._session.ErrorOccured += Session_ErrorOccured;
+
             this._callback = callback;
 
             this._channel.Open();
@@ -294,6 +295,7 @@ namespace Renci.SshNet
                             _channel.Close();
                         }
 
+                        // Remove ourselves from session's event handlers when the command is done.
                         this._session.Disconnected -= Session_Disconnected;
                         this._session.ErrorOccured -= Session_ErrorOccured;
 
@@ -506,7 +508,6 @@ namespace Renci.SshNet
             _channel.ExtendedDataReceived -= Channel_ExtendedDataReceived;
             _channel.RequestReceived -= Channel_RequestReceived;
             _channel.Closed -= Channel_Closed;
-            _channel.Close();
 
             // actually dispose the channel
             _channel.Dispose();
@@ -535,6 +536,13 @@ namespace Renci.SshNet
             if (this._isDisposed)
                 return;
 
+            // Deregister events if our session is still valid.
+            if (this._session != null)
+            {
+                this._session.Disconnected -= Session_Disconnected;
+                this._session.ErrorOccured -= Session_ErrorOccured;
+            }
+
             // Dispose all managed and unmanaged ResourceMessages.
             if (this.OutputStream != null)
             {
@@ -555,7 +563,7 @@ namespace Renci.SshNet
                 this._sessionErrorOccuredWaitHandle.Dispose();
                 this._sessionErrorOccuredWaitHandle = null;
             }
-
+            
             // Dispose managed ResourceMessages.
             if (this._channel != null)
             {

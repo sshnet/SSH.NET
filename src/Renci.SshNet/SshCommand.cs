@@ -154,9 +154,6 @@ namespace Renci.SshNet
             this.CommandText = commandText;
             this._encoding = encoding;
             this.CommandTimeout = new TimeSpan(0, 0, 0, 0, -1);
-
-            this._session.Disconnected += Session_Disconnected;
-            this._session.ErrorOccured += Session_ErrorOccured;
         }
 
         /// <summary>
@@ -241,6 +238,10 @@ namespace Renci.SshNet
             if (string.IsNullOrEmpty(this.CommandText))
                 throw new ArgumentException("CommandText property is empty.");
 
+            //Register our events with session before executing command. This is paired with EndExecute.
+            this._session.Disconnected += Session_Disconnected;
+            this._session.ErrorOccured += Session_ErrorOccured;
+
             this._callback = callback;
 
             this._channel.Open();
@@ -293,6 +294,10 @@ namespace Renci.SshNet
                         {
                             _channel.Close();
                         }
+
+                        // Remove ourselves from session's event handlers when the command is done.
+                        this._session.Disconnected -= Session_Disconnected;
+                        this._session.ErrorOccured -= Session_ErrorOccured;
 
                         UnsubscribeFromEventsAndDisposeChannel();
                         _channel = null;
@@ -528,47 +533,45 @@ namespace Renci.SshNet
         protected virtual void Dispose(bool disposing)
         {
             // Check to see if Dispose has already been called.
-            if (!this._isDisposed)
+            if (this._isDisposed)
+                return;
+
+            // Deregister events if our session is still valid.
+            if (this._session != null)
             {
-                // If disposing equals true, dispose all managed
-                // and unmanaged ResourceMessages.
-                if (disposing)
-                {
-                    this._session.Disconnected -= Session_Disconnected;
-                    this._session.ErrorOccured -= Session_ErrorOccured;
-
-                    // Dispose managed ResourceMessages.
-                    if (this.OutputStream != null)
-                    {
-                        this.OutputStream.Dispose();
-                        this.OutputStream = null;
-                    }
-
-                    // Dispose managed ResourceMessages.
-                    if (this.ExtendedOutputStream != null)
-                    {
-                        this.ExtendedOutputStream.Dispose();
-                        this.ExtendedOutputStream = null;
-                    }
-
-                    // Dispose managed ResourceMessages.
-                    if (this._sessionErrorOccuredWaitHandle != null)
-                    {
-                        this._sessionErrorOccuredWaitHandle.Dispose();
-                        this._sessionErrorOccuredWaitHandle = null;
-                    }
-
-                    // Dispose managed ResourceMessages.
-                    if (this._channel != null)
-                    {
-                        UnsubscribeFromEventsAndDisposeChannel();
-                        this._channel = null;
-                    }
-                }
-
-                // Note disposing has been done.
-                this._isDisposed = true;
+                this._session.Disconnected -= Session_Disconnected;
+                this._session.ErrorOccured -= Session_ErrorOccured;
             }
+
+            // Dispose all managed and unmanaged ResourceMessages.
+            if (this.OutputStream != null)
+            {
+                this.OutputStream.Dispose();
+                this.OutputStream = null;
+            }
+
+            // Dispose managed ResourceMessages.
+            if (this.ExtendedOutputStream != null)
+            {
+                this.ExtendedOutputStream.Dispose();
+                this.ExtendedOutputStream = null;
+            }
+
+            // Dispose managed ResourceMessages.
+            if (this._sessionErrorOccuredWaitHandle != null)
+            {
+                this._sessionErrorOccuredWaitHandle.Dispose();
+                this._sessionErrorOccuredWaitHandle = null;
+            }
+
+            // Dispose managed ResourceMessages.
+            if (this._channel != null)
+            {
+                this._channel.Dispose();
+                this._channel = null;
+            }
+            // Note disposing has been done.
+            this._isDisposed = true;
         }
 
         /// <summary>

@@ -294,6 +294,9 @@ namespace Renci.SshNet
                             _channel.Close();
                         }
 
+                        this._session.Disconnected -= Session_Disconnected;
+                        this._session.ErrorOccured -= Session_ErrorOccured;
+
                         UnsubscribeFromEventsAndDisposeChannel();
                         _channel = null;
 
@@ -503,6 +506,7 @@ namespace Renci.SshNet
             _channel.ExtendedDataReceived -= Channel_ExtendedDataReceived;
             _channel.RequestReceived -= Channel_RequestReceived;
             _channel.Closed -= Channel_Closed;
+            _channel.Close();
 
             // actually dispose the channel
             _channel.Dispose();
@@ -528,47 +532,38 @@ namespace Renci.SshNet
         protected virtual void Dispose(bool disposing)
         {
             // Check to see if Dispose has already been called.
-            if (!this._isDisposed)
+            if (this._isDisposed)
+                return;
+
+            // Dispose all managed and unmanaged ResourceMessages.
+            if (this.OutputStream != null)
             {
-                // If disposing equals true, dispose all managed
-                // and unmanaged ResourceMessages.
-                if (disposing)
-                {
-                    this._session.Disconnected -= Session_Disconnected;
-                    this._session.ErrorOccured -= Session_ErrorOccured;
-
-                    // Dispose managed ResourceMessages.
-                    if (this.OutputStream != null)
-                    {
-                        this.OutputStream.Dispose();
-                        this.OutputStream = null;
-                    }
-
-                    // Dispose managed ResourceMessages.
-                    if (this.ExtendedOutputStream != null)
-                    {
-                        this.ExtendedOutputStream.Dispose();
-                        this.ExtendedOutputStream = null;
-                    }
-
-                    // Dispose managed ResourceMessages.
-                    if (this._sessionErrorOccuredWaitHandle != null)
-                    {
-                        this._sessionErrorOccuredWaitHandle.Dispose();
-                        this._sessionErrorOccuredWaitHandle = null;
-                    }
-
-                    // Dispose managed ResourceMessages.
-                    if (this._channel != null)
-                    {
-                        UnsubscribeFromEventsAndDisposeChannel();
-                        this._channel = null;
-                    }
-                }
-
-                // Note disposing has been done.
-                this._isDisposed = true;
+                this.OutputStream.Dispose();
+                this.OutputStream = null;
             }
+
+            // Dispose managed ResourceMessages.
+            if (this.ExtendedOutputStream != null)
+            {
+                this.ExtendedOutputStream.Dispose();
+                this.ExtendedOutputStream = null;
+            }
+
+            // Dispose managed ResourceMessages.
+            if (this._sessionErrorOccuredWaitHandle != null)
+            {
+                this._sessionErrorOccuredWaitHandle.Dispose();
+                this._sessionErrorOccuredWaitHandle = null;
+            }
+
+            // Dispose managed ResourceMessages.
+            if (this._channel != null)
+            {
+                this._channel.Dispose();
+                this._channel = null;
+            }
+            // Note disposing has been done.
+            this._isDisposed = true;
         }
 
         /// <summary>

@@ -46,6 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Abstractions\CryptoAbstraction.cs" />
     <Compile Include="Abstractions\DiagnosticAbstraction.cs" />
     <Compile Include="Abstractions\DnsAbstraction.cs" />
     <Compile Include="Abstractions\ReflectionAbstraction.cs" />
@@ -161,7 +162,6 @@
     <Compile Include="Messages\Transport\KeyExchangeEcdhInitMessage.cs" />
     <Compile Include="Messages\Transport\KeyExchangeEcdhReplyMessage.cs" />
     <Compile Include="Netconf\INetConfSession.cs" />
-    <Compile Include="Security\Cryptography\HashAlgorithmFactory.cs" />
     <Compile Include="Security\Cryptography\HMACMD5.cs" />
     <Compile Include="Security\Cryptography\HMACSHA1.cs" />
     <Compile Include="Security\Cryptography\HMACSHA256.cs" />

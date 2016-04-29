@@ -1,39 +1,41 @@
 ﻿using System;
-using System.Security.Cryptography;
-using Renci.SshNet.Messages.Authentication;
 
 namespace Renci.SshNet.Security.Cryptography
 {
     internal static class HashAlgorithmFactory
     {
 #if FEATURE_RNG_CREATE || FEATURE_RNG_CSP
-        private static readonly RandomNumberGenerator _randomizer = HashAlgorithmFactory.CreateRandomNumberGenerator();
+        private static readonly System.Security.Cryptography.RandomNumberGenerator Randomizer = HashAlgorithmFactory.CreateRandomNumberGenerator();
 #endif
 
         /// <summary>
         /// Fills an array of bytes with a cryptographically strong random sequence of values.
         /// </summary>
         /// <param name="data">The array to fill with cryptographically strong random bytes.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="data"/> is <c>null</c>.</exception>
         /// <remarks>
         /// The length of the byte array determines how many random bytes are produced.
         /// </remarks>
         public static void GenerateRandom(byte[] data)
         {
 #if FEATURE_RNG_CREATE || FEATURE_RNG_CSP
-            _randomizer.GetBytes(data);
+            Randomizer.GetBytes(data);
 #else
+            if(data == null)
+                throw new ArgumentNullException("data");
+
             var buffer = Windows.Security.Cryptography.CryptographicBuffer.GenerateRandom((uint) data.Length);
-            Windows.Security.Cryptography.CryptographicBuffer.CopyToByteArray(buffer, out data);
+            System.Runtime.InteropServices.WindowsRuntime.WindowsRuntimeBufferExtensions.CopyTo(buffer, data);
 #endif
         }
 
 #if FEATURE_RNG_CREATE || FEATURE_RNG_CSP
-        public static RandomNumberGenerator CreateRandomNumberGenerator()
+        public static System.Security.Cryptography.RandomNumberGenerator CreateRandomNumberGenerator()
         {
 #if FEATURE_RNG_CREATE
-            return RandomNumberGenerator.Create();
+            return System.Security.Cryptography.RandomNumberGenerator.Create();
 #elif FEATURE_RNG_CSP
-            return new RNGCryptoServiceProvider();
+            return new System.Security.Cryptography.RNGCryptoServiceProvider();
 #else
 #error Creation of RandomNumberGenerator is not implemented.
 #endif

@@ -60,6 +60,9 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\test\Renci.SshNet.Shared.Tests\Abstractions\CryptoAbstraction_GenerateRandom.cs">
+      <Link>Classes\Abstractions\CryptoAbstraction_GenerateRandom.cs</Link>
+    </Compile>
     <Compile Include="..\..\test\Renci.SshNet.Shared.Tests\Abstractions\DnsAbstraction_GetHostAddresses.cs">
       <Link>Classes\Abstractions\DnsAbstraction_GetHostAddresses.cs</Link>
     </Compile>

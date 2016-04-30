@@ -294,7 +294,7 @@ namespace Renci.SshNet
                             _channel.Close();
                         }
 
-                        UnsubscribeFromEventsAndDisposeChannel();
+                        UnsubscribeFromEventsAndDisposeChannel(_channel);
                         _channel = null;
 
                         _asyncResult = null;
@@ -495,17 +495,17 @@ namespace Renci.SshNet
             }
         }
 
-        private void UnsubscribeFromEventsAndDisposeChannel()
+        private void UnsubscribeFromEventsAndDisposeChannel(IChannelSession channel)
         {
             // unsubscribe from events as we do not want to be signaled should these get fired
             // during the dispose of the channel
-            _channel.DataReceived -= Channel_DataReceived;
-            _channel.ExtendedDataReceived -= Channel_ExtendedDataReceived;
-            _channel.RequestReceived -= Channel_RequestReceived;
-            _channel.Closed -= Channel_Closed;
+            channel.DataReceived -= Channel_DataReceived;
+            channel.ExtendedDataReceived -= Channel_ExtendedDataReceived;
+            channel.RequestReceived -= Channel_RequestReceived;
+            channel.Closed -= Channel_Closed;
 
             // actually dispose the channel
-            _channel.Dispose();
+            channel.Dispose();
         }
 
         #region IDisposable Members
@@ -527,48 +527,55 @@ namespace Renci.SshNet
         /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged ResourceMessages.</param>
         protected virtual void Dispose(bool disposing)
         {
-            // Check to see if Dispose has already been called.
-            if (!this._isDisposed)
+            if (_isDisposed)
+                return;
+
+            // unsubscribe from session events to ensure other objects that we're going to dispose
+            // are not used while disposing
+            //
+            // we do this regardless of the value of the 'disposing' argument to avoid leaks
+            // when clients are not disposing the SshCommand instance
+            //
+            // note that you argue that we have the same problem for the IChannel events but
+            // the channel itself does not have a long lifetime and will be disposed or GC'd
+            // together with the SshCommand
+            _session.Disconnected -= Session_Disconnected;
+            _session.ErrorOccured -= Session_ErrorOccured;
+
+            if (disposing)
             {
-                // If disposing equals true, dispose all managed
-                // and unmanaged ResourceMessages.
-                if (disposing)
+                // unsubscribe from channel events to ensure other objects that we're going to dispose
+                // are not used while disposing
+                var channel = _channel;
+                if (channel != null)
                 {
-                    this._session.Disconnected -= Session_Disconnected;
-                    this._session.ErrorOccured -= Session_ErrorOccured;
-
-                    // Dispose managed ResourceMessages.
-                    if (this.OutputStream != null)
-                    {
-                        this.OutputStream.Dispose();
-                        this.OutputStream = null;
-                    }
-
-                    // Dispose managed ResourceMessages.
-                    if (this.ExtendedOutputStream != null)
-                    {
-                        this.ExtendedOutputStream.Dispose();
-                        this.ExtendedOutputStream = null;
-                    }
-
-                    // Dispose managed ResourceMessages.
-                    if (this._sessionErrorOccuredWaitHandle != null)
-                    {
-                        this._sessionErrorOccuredWaitHandle.Dispose();
-                        this._sessionErrorOccuredWaitHandle = null;
-                    }
-
-                    // Dispose managed ResourceMessages.
-                    if (this._channel != null)
-                    {
-                        UnsubscribeFromEventsAndDisposeChannel();
-                        this._channel = null;
-                    }
+                    UnsubscribeFromEventsAndDisposeChannel(channel);
+                    _channel = null;
                 }
 
-                // Note disposing has been done.
-                this._isDisposed = true;
+                var outputStream = OutputStream;
+                if (outputStream != null)
+                {
+                    outputStream.Dispose();
+                    OutputStream = null;
+                }
+
+                var extendedOutputStream = ExtendedOutputStream;
+                if (extendedOutputStream != null)
+                {
+                    extendedOutputStream.Dispose();
+                    ExtendedOutputStream = null;
+                }
+
+                var handle = _sessionErrorOccuredWaitHandle;
+                if (handle != null)
+                {
+                    handle.Dispose();
+                    _sessionErrorOccuredWaitHandle = null;
+                }
             }
+
+            _isDisposed = true;
         }
 
         /// <summary>

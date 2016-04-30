@@ -181,6 +181,7 @@
     <Compile Include="Classes\NetConfClientTest_Dispose_Disconnected.cs" />
     <Compile Include="Classes\NetConfClientTest_Dispose_Disposed.cs" />
     <Compile Include="Classes\NetConfClientTest_Finalize_Connected.cs" />
+    <Compile Include="Classes\PipeStreamTest_Dispose.cs" />
     <Compile Include="Classes\ScpClientTest_Upload_FileInfoAndPath_SendExecRequestReturnsFalse.cs" />
     <Compile Include="Classes\ScpClientTest_Upload_FileInfoAndPath_Success.cs" />
     <Compile Include="Classes\Security\AlgorithmTest.cs" />
@@ -394,7 +395,13 @@
     <Compile Include="Classes\ForwardedPortLocalTest.NET40.cs" />
     <Compile Include="Classes\SshCommandTest.NET40.cs" />
     <Compile Include="Classes\ScpClientTest.NET40.cs" />
+    <Compile Include="Classes\SshCommandTest_BeginExecute_EndExecuteInvokedOnAsyncResultFromPreviousInvocation.cs" />
+    <Compile Include="Classes\SshCommandTest_BeginExecute_EndExecuteNotInvokedOnAsyncResultFromPreviousInvocation.cs" />
+    <Compile Include="Classes\SshCommandTest_Dispose.cs" />
     <Compile Include="Classes\SshCommandTest_EndExecute.cs" />
+    <Compile Include="Classes\SshCommandTest_EndExecute_AsyncResultFromOtherInstance.cs" />
+    <Compile Include="Classes\SshCommandTest_EndExecute_AsyncResultIsNull.cs" />
+    <Compile Include="Classes\SshCommandTest_EndExecute_ChannelOpen.cs" />
     <Compile Include="Classes\SubsystemSessionStub.cs" />
     <Compile Include="Classes\SubsystemSession_Connect_Connected.cs" />
     <Compile Include="Classes\SubsystemSession_Connect_Disconnected.cs" />

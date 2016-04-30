@@ -1091,6 +1091,27 @@
     <Compile Include="..\Renci.SshNet.Tests\Classes\SshCommandTest.cs">
       <Link>Classes\SshCommandTest.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\SshCommandTest_BeginExecute_EndExecuteInvokedOnAsyncResultFromPreviousInvocation.cs">
+      <Link>Classes\SshCommandTest_BeginExecute_EndExecuteInvokedOnAsyncResultFromPreviousInvocation.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\SshCommandTest_BeginExecute_EndExecuteNotInvokedOnAsyncResultFromPreviousInvocation.cs">
+      <Link>Classes\SshCommandTest_BeginExecute_EndExecuteNotInvokedOnAsyncResultFromPreviousInvocation.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\SshCommandTest_Dispose.cs">
+      <Link>Classes\SshCommandTest_Dispose.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\SshCommandTest_EndExecute.cs">
+      <Link>Classes\SshCommandTest_EndExecute.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\SshCommandTest_EndExecute_AsyncResultFromOtherInstance.cs">
+      <Link>Classes\SshCommandTest_EndExecute_AsyncResultFromOtherInstance.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\SshCommandTest_EndExecute_AsyncResultIsNull.cs">
+      <Link>Classes\SshCommandTest_EndExecute_AsyncResultIsNull.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\SshCommandTest_EndExecute_ChannelOpen.cs">
+      <Link>Classes\SshCommandTest_EndExecute_ChannelOpen.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\SubsystemSessionStub.cs">
       <Link>Classes\SubsystemSessionStub.cs</Link>
     </Compile>
@@ -1250,7 +1271,7 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties ProjectLinkReference="c45379b9-17b1-4e89-bc2e-6d41726413e8" ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" />
+      <UserProperties ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" ProjectLinkReference="c45379b9-17b1-4e89-bc2e-6d41726413e8" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

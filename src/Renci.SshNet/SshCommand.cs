@@ -15,7 +15,7 @@ namespace Renci.SshNet
     /// <summary>
     /// Represents SSH command that can be executed.
     /// </summary>
-    public partial class SshCommand : IDisposable
+    public class SshCommand : IDisposable
     {
         private readonly ISession _session;
         private readonly Encoding _encoding;
@@ -85,20 +85,20 @@ namespace Renci.SshNet
         {
             get
             {
-                if (this._result == null)
+                if (_result == null)
                 {
-                    this._result = new StringBuilder();
+                    _result = new StringBuilder();
                 }
 
-                if (this.OutputStream != null && this.OutputStream.Length > 0)
+                if (OutputStream != null && OutputStream.Length > 0)
                 {
-                    using (var sr = new StreamReader(this.OutputStream, _encoding))
+                    using (var sr = new StreamReader(OutputStream, _encoding))
                     {
-                        this._result.Append(sr.ReadToEnd());
+                        _result.Append(sr.ReadToEnd());
                     }
                 }
 
-                return this._result.ToString();
+                return _result.ToString();
             }
         }
 
@@ -113,22 +113,22 @@ namespace Renci.SshNet
         {
             get
             {
-                if (this._hasError)
+                if (_hasError)
                 {
-                    if (this._error == null)
+                    if (_error == null)
                     {
-                        this._error = new StringBuilder();
+                        _error = new StringBuilder();
                     }
 
-                    if (this.ExtendedOutputStream != null && this.ExtendedOutputStream.Length > 0)
+                    if (ExtendedOutputStream != null && ExtendedOutputStream.Length > 0)
                     {
-                        using (var sr = new StreamReader(this.ExtendedOutputStream, _encoding))
+                        using (var sr = new StreamReader(ExtendedOutputStream, _encoding))
                         {
-                            this._error.Append(sr.ReadToEnd());
+                            _error.Append(sr.ReadToEnd());
                         }
                     }
 
-                    return this._error.ToString();
+                    return _error.ToString();
                 }
                 return string.Empty;
             }
@@ -150,13 +150,13 @@ namespace Renci.SshNet
             if (encoding == null)
                 throw new ArgumentNullException("encoding");
 
-            this._session = session;
-            this.CommandText = commandText;
-            this._encoding = encoding;
-            this.CommandTimeout = new TimeSpan(0, 0, 0, 0, -1);
+            _session = session;
+            CommandText = commandText;
+            _encoding = encoding;
+            CommandTimeout = new TimeSpan(0, 0, 0, 0, -1);
 
-            this._session.Disconnected += Session_Disconnected;
-            this._session.ErrorOccured += Session_ErrorOccured;
+            _session.Disconnected += Session_Disconnected;
+            _session.ErrorOccured += Session_ErrorOccured;
         }
 
         /// <summary>
@@ -177,7 +177,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentException">CommandText property is empty.</exception>
         public IAsyncResult BeginExecute()
         {
-            return this.BeginExecute(null, null);
+            return BeginExecute(null, null);
         }
 
         /// <summary>
@@ -196,7 +196,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentException">CommandText property is empty.</exception>
         public IAsyncResult BeginExecute(AsyncCallback callback)
         {
-            return this.BeginExecute(callback, null);
+            return BeginExecute(callback, null);
         }
 
         /// <summary>
@@ -217,13 +217,13 @@ namespace Renci.SshNet
         public IAsyncResult BeginExecute(AsyncCallback callback, object state)
         {
             //  Prevent from executing BeginExecute before calling EndExecute
-            if (this._asyncResult != null)
+            if (_asyncResult != null)
             {
                 throw new InvalidOperationException("Asynchronous operation is already in progress.");
             }
 
             //  Create new AsyncResult object
-            this._asyncResult = new CommandAsyncResult
+            _asyncResult = new CommandAsyncResult
                 {
                     AsyncWaitHandle = new ManualResetEvent(false),
                     IsCompleted = false,
@@ -231,22 +231,22 @@ namespace Renci.SshNet
                 };
 
             //  When command re-executed again, create a new channel
-            if (this._channel != null)
+            if (_channel != null)
             {
                 throw new SshException("Invalid operation.");
             }
 
-            this.CreateChannel();
+            CreateChannel();
 
-            if (string.IsNullOrEmpty(this.CommandText))
+            if (string.IsNullOrEmpty(CommandText))
                 throw new ArgumentException("CommandText property is empty.");
 
-            this._callback = callback;
+            _callback = callback;
 
-            this._channel.Open();
+            _channel.Open();
 
             //  Send channel command request
-            this._channel.SendExecRequest(this.CommandText);
+            _channel.SendExecRequest(CommandText);
 
             return _asyncResult;
         }
@@ -264,7 +264,7 @@ namespace Renci.SshNet
         /// <exception cref="Renci.SshNet.Common.SshOperationTimeoutException">Operation has timed out.</exception>
         public IAsyncResult BeginExecute(string commandText, AsyncCallback callback, object state)
         {
-            this.CommandText = commandText;
+            CommandText = commandText;
 
             return BeginExecute(callback, state);
         }
@@ -280,14 +280,14 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentException">Either the IAsyncResult object did not come from the corresponding async method on this type, or EndExecute was called multiple times with the same IAsyncResult.</exception>
         public string EndExecute(IAsyncResult asyncResult)
         {
-            if (this._asyncResult == asyncResult && this._asyncResult != null)
+            if (_asyncResult == asyncResult && _asyncResult != null)
             {
-                lock (this._endExecuteLock)
+                lock (_endExecuteLock)
                 {
-                    if (this._asyncResult != null)
+                    if (_asyncResult != null)
                     {
                         //  Make sure that operation completed if not wait for it to finish
-                        this.WaitOnHandle(this._asyncResult.AsyncWaitHandle);
+                        WaitOnHandle(_asyncResult.AsyncWaitHandle);
 
                         if (_channel.IsOpen)
                         {
@@ -299,7 +299,7 @@ namespace Renci.SshNet
 
                         _asyncResult = null;
 
-                        return this.Result;
+                        return Result;
                     }
                 }
             }
@@ -320,7 +320,7 @@ namespace Renci.SshNet
         /// <exception cref="Renci.SshNet.Common.SshOperationTimeoutException">Operation has timed out.</exception>
         public string Execute()
         {
-            return this.EndExecute(this.BeginExecute(null, null));
+            return EndExecute(BeginExecute(null, null));
         }
 
         /// <summary>
@@ -328,10 +328,10 @@ namespace Renci.SshNet
         /// </summary>
         public void CancelAsync()
         {
-            if (this._channel != null && this._channel.IsOpen && this._asyncResult != null)
+            if (_channel != null && _channel.IsOpen && _asyncResult != null)
             {
                 // TODO: check with Oleg if we shouldn't dispose the channel and uninitialize it ?
-                this._channel.Close();
+                _channel.Close();
             }
         }
 
@@ -344,82 +344,82 @@ namespace Renci.SshNet
         /// <exception cref="Renci.SshNet.Common.SshOperationTimeoutException">Operation has timed out.</exception>
         public string Execute(string commandText)
         {
-            this.CommandText = commandText;
+            CommandText = commandText;
 
-            return this.Execute();
+            return Execute();
         }
 
         private void CreateChannel()
         {
-            this._channel = this._session.CreateChannelSession();
-            this._channel.DataReceived += Channel_DataReceived;
-            this._channel.ExtendedDataReceived += Channel_ExtendedDataReceived;
-            this._channel.RequestReceived += Channel_RequestReceived;
-            this._channel.Closed += Channel_Closed;
+            _channel = _session.CreateChannelSession();
+            _channel.DataReceived += Channel_DataReceived;
+            _channel.ExtendedDataReceived += Channel_ExtendedDataReceived;
+            _channel.RequestReceived += Channel_RequestReceived;
+            _channel.Closed += Channel_Closed;
 
             //  Dispose of streams if already exists
-            if (this.OutputStream != null)
+            if (OutputStream != null)
             {
-                this.OutputStream.Dispose();
-                this.OutputStream = null;
+                OutputStream.Dispose();
+                OutputStream = null;
             }
 
-            if (this.ExtendedOutputStream != null)
+            if (ExtendedOutputStream != null)
             {
-                this.ExtendedOutputStream.Dispose();
-                this.ExtendedOutputStream = null;
+                ExtendedOutputStream.Dispose();
+                ExtendedOutputStream = null;
             }
 
             //  Initialize output streams and StringBuilders
-            this.OutputStream = new PipeStream();
-            this.ExtendedOutputStream = new PipeStream();
+            OutputStream = new PipeStream();
+            ExtendedOutputStream = new PipeStream();
 
-            this._result = null;
-            this._error = null;
+            _result = null;
+            _error = null;
         }
 
         private void Session_Disconnected(object sender, EventArgs e)
         {
             //  If objected is disposed or being disposed don't handle this event
-            if (this._isDisposed)
+            if (_isDisposed)
                 return;
 
-            this._exception = new SshConnectionException("An established connection was aborted by the software in your host machine.", DisconnectReason.ConnectionLost);
+            _exception = new SshConnectionException("An established connection was aborted by the software in your host machine.", DisconnectReason.ConnectionLost);
 
-            this._sessionErrorOccuredWaitHandle.Set();
+            _sessionErrorOccuredWaitHandle.Set();
         }
 
         private void Session_ErrorOccured(object sender, ExceptionEventArgs e)
         {
             //  If objected is disposed or being disposed don't handle this event
-            if (this._isDisposed)
+            if (_isDisposed)
                 return;
 
-            this._exception = e.Exception;
+            _exception = e.Exception;
 
-            this._sessionErrorOccuredWaitHandle.Set();
+            _sessionErrorOccuredWaitHandle.Set();
         }
 
         private void Channel_Closed(object sender, ChannelEventArgs e)
         {
-            if (this.OutputStream != null)
+            if (OutputStream != null)
             {
-                this.OutputStream.Flush();
+                OutputStream.Flush();
             }
 
-            if (this.ExtendedOutputStream != null)
+            if (ExtendedOutputStream != null)
             {
-                this.ExtendedOutputStream.Flush();
+                ExtendedOutputStream.Flush();
             }
 
-            this._asyncResult.IsCompleted = true;
+            _asyncResult.IsCompleted = true;
 
-            if (this._callback != null)
+            if (_callback != null)
             {
                 //  Execute callback on different thread
-                ThreadAbstraction.ExecuteThread(() => this._callback(this._asyncResult));
+                ThreadAbstraction.ExecuteThread(() => _callback(_asyncResult));
             }
-            ((EventWaitHandle)this._asyncResult.AsyncWaitHandle).Set();
+            ((EventWaitHandle)_asyncResult.AsyncWaitHandle).Set();
         }
 
         private void Channel_RequestReceived(object sender, ChannelRequestEventArgs e)
@@ -430,48 +430,48 @@ namespace Renci.SshNet
             {
                 var exitStatusInfo = e.Info as ExitStatusRequestInfo;
 
-                this.ExitStatus = (int) exitStatusInfo.ExitStatus;
+                ExitStatus = (int) exitStatusInfo.ExitStatus;
 
-                replyMessage = new ChannelSuccessMessage(this._channel.LocalChannelNumber);
+                replyMessage = new ChannelSuccessMessage(_channel.LocalChannelNumber);
             }
             else
             {
-                replyMessage = new ChannelFailureMessage(this._channel.LocalChannelNumber);
+                replyMessage = new ChannelFailureMessage(_channel.LocalChannelNumber);
             }
 
             if (e.Info.WantReply)
             {
-                this._session.SendMessage(replyMessage);
+                _session.SendMessage(replyMessage);
             }
         }
 
         private void Channel_ExtendedDataReceived(object sender, ChannelExtendedDataEventArgs e)
         {
-            if (this.ExtendedOutputStream != null)
+            if (ExtendedOutputStream != null)
             {
-                this.ExtendedOutputStream.Write(e.Data, 0, e.Data.Length);
-                this.ExtendedOutputStream.Flush();
+                ExtendedOutputStream.Write(e.Data, 0, e.Data.Length);
+                ExtendedOutputStream.Flush();
             }
 
             if (e.DataTypeCode == 1)
             {
-                this._hasError = true;
+                _hasError = true;
             }
         }
 
         private void Channel_DataReceived(object sender, ChannelDataEventArgs e)
         {
-            if (this.OutputStream != null)
+            if (OutputStream != null)
             {
-                this.OutputStream.Write(e.Data, 0, e.Data.Length);
-                this.OutputStream.Flush();
+                OutputStream.Write(e.Data, 0, e.Data.Length);
+                OutputStream.Flush();
             }
 
-            if (this._asyncResult != null)
+            if (_asyncResult != null)
             {
-                lock (this._asyncResult)
+                lock (_asyncResult)
                 {
-                    this._asyncResult.BytesReceived += e.Data.Length;
+                    _asyncResult.BytesReceived += e.Data.Length;
                 }
             }
         }
@@ -482,16 +482,16 @@ namespace Renci.SshNet
         {
             var waitHandles = new[]
                 {
-                    this._sessionErrorOccuredWaitHandle,
+                    _sessionErrorOccuredWaitHandle,
                     waitHandle
                 };
 
-            switch (WaitHandle.WaitAny(waitHandles, this.CommandTimeout))
+            switch (WaitHandle.WaitAny(waitHandles, CommandTimeout))
             {
                 case 0:
-                    throw this._exception;
+                    throw _exception;
                 case WaitHandle.WaitTimeout:
-                    throw new SshOperationTimeoutException(string.Format(CultureInfo.CurrentCulture, "Command '{0}' has timed out.", this.CommandText));
+                    throw new SshOperationTimeoutException(string.Format(CultureInfo.CurrentCulture, "Command '{0}' has timed out.", CommandText));
             }
         }
 

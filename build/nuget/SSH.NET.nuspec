@@ -17,6 +17,15 @@ New Features:
 
     * Added support for HMAC-SHA512 (hmac-sha2-512 and hmac-sha2-512-96)
 
+Changes:
+
+    * Relicensed code under MIT licensen, explicitly permitting reuse within proprietary software
+      provided all copies of the licensed software include a copy of the MIT License terms and the
+      copyright notice.	
+Fixes:
+
+    * Fixed session event leak when SshCommand is never disposed
+
 2014.4.6-beta3
 ==============
 

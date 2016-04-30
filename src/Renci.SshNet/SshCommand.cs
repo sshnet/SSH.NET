@@ -338,6 +338,9 @@ namespace Renci.SshNet
                 // TODO: check with Oleg if we shouldn't dispose the channel and uninitialize it ?
                 this._channel.Close();
             }
+            // deregister event handlers from session when the command is cancelled as well.
+            this._session.Disconnected -= Session_Disconnected;
+            this._session.ErrorOccured -= Session_ErrorOccured;
         }
 
         /// <summary>

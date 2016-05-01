@@ -1,6 +1,4 @@
-﻿using Renci.SshNet.Common;
-
-namespace Renci.SshNet.Sftp
+﻿namespace Renci.SshNet.Sftp
 {
     /// <summary>
     /// Contains File system information exposed by statvfs@openssh.com request.

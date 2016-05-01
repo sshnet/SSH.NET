@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 #endif
 using System.Text;
-using System.Globalization;
 
 namespace Renci.SshNet.Common
 {

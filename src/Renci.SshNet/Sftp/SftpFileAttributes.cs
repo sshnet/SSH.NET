@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Globalization;
-using System.Text;
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Sftp

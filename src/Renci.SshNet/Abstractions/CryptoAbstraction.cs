@@ -5,7 +5,7 @@ namespace Renci.SshNet.Security.Cryptography
     internal static class HashAlgorithmFactory
     {
 #if FEATURE_RNG_CREATE || FEATURE_RNG_CSP
-        private static readonly System.Security.Cryptography.RandomNumberGenerator Randomizer = HashAlgorithmFactory.CreateRandomNumberGenerator();
+        private static readonly System.Security.Cryptography.RandomNumberGenerator Randomizer = CreateRandomNumberGenerator();
 #endif
 
         /// <summary>

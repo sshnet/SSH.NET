@@ -698,7 +698,7 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Unsubscribes the current <see cref="Shell"/> from session events.
+        /// Unsubscribes the current <see cref="ShellStream"/> from session events.
         /// </summary>
         /// <param name="session">The session.</param>
         /// <remarks>

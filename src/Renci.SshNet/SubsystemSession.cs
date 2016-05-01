@@ -126,11 +126,7 @@ namespace Renci.SshNet
         /// </summary>
         public void Disconnect()
         {
-            if (_session != null)
-            {
-                _session.ErrorOccured -= Session_ErrorOccured;
-                _session.Disconnected -= Session_Disconnected;
-            }
+            UnsubscribeFromSessionEvents(_session);
 
             if (_channel != null)
             {
@@ -274,6 +270,22 @@ namespace Renci.SshNet
                 throw new InvalidOperationException("The session is not open.");
         }
 
+        /// <summary>
+        /// Unsubscribes the current <see cref="SubsystemSession"/> from session events.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <remarks>
+        /// Does nothing when <paramref name="session"/> is <c>null</c>.
+        /// </remarks>
+        private void UnsubscribeFromSessionEvents(ISession session)
+        {
+            if (session == null)
+                return;
+
+            session.Disconnected -= Session_Disconnected;
+            session.ErrorOccured -= Session_ErrorOccured;
+        }
+
         #region IDisposable Members
 
         private bool _isDisposed;
@@ -293,35 +305,38 @@ namespace Renci.SshNet
         /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
-            // Check to see if Dispose has already been called.
-            if (!_isDisposed)
+            if (_isDisposed)
+                return;
+
+            if (disposing)
             {
-                if (disposing)
+                Disconnect();
+
+                _session = null;
+
+                if (_errorOccuredWaitHandle != null)
                 {
-                    Disconnect();
+                    _errorOccuredWaitHandle.Dispose();
+                    _errorOccuredWaitHandle = null;
+                }
 
-                    _session = null;
+                if (_sessionDisconnectedWaitHandle != null)
+                {
+                    _sessionDisconnectedWaitHandle.Dispose();
+                    _sessionDisconnectedWaitHandle = null;
+                }
 
-                    if (_errorOccuredWaitHandle != null)
-                    {
-                        _errorOccuredWaitHandle.Dispose();
-                        _errorOccuredWaitHandle = null;
-                    }
-
-                    if (_sessionDisconnectedWaitHandle != null)
-                    {
-                        _sessionDisconnectedWaitHandle.Dispose();
-                        _sessionDisconnectedWaitHandle = null;
-                    }
-
-                    if (_channelClosedWaitHandle != null)
-                    {
-                        _channelClosedWaitHandle.Dispose();
-                        _channelClosedWaitHandle = null;
-                    }
+                if (_channelClosedWaitHandle != null)
+                {
+                    _channelClosedWaitHandle.Dispose();
+                    _channelClosedWaitHandle = null;
                 }
 
                 _isDisposed = true;
+            }
+            else
+            {
+                UnsubscribeFromSessionEvents(_session);
             }
         }
 

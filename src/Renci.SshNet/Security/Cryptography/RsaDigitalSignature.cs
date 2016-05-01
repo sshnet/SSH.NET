@@ -19,7 +19,7 @@ namespace Renci.SshNet.Security.Cryptography
         public RsaDigitalSignature(RsaKey rsaKey)
             : base(new ObjectIdentifier(1, 3, 14, 3, 2, 26), new RsaCipher(rsaKey))
         {
-            this._hash = HashAlgorithmFactory.CreateSHA1();
+            _hash = HashAlgorithmFactory.CreateSHA1();
         }
 
         /// <summary>
@@ -31,7 +31,7 @@ namespace Renci.SshNet.Security.Cryptography
         /// </returns>
         protected override byte[] Hash(byte[] input)
         {
-            return this._hash.ComputeHash(input);
+            return _hash.ComputeHash(input);
         }
 
         #region IDisposable Members
@@ -44,7 +44,6 @@ namespace Renci.SshNet.Security.Cryptography
         public void Dispose()
         {
             Dispose(true);
-
             GC.SuppressFinalize(this);
         }
 
@@ -54,23 +53,18 @@ namespace Renci.SshNet.Security.Cryptography
         /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged ResourceMessages.</param>
         protected virtual void Dispose(bool disposing)
         {
-            // Check to see if Dispose has already been called.
-            if (!this._isDisposed)
+            if (_isDisposed)
+                return;
+
+            if (disposing)
             {
-                // If disposing equals true, dispose all managed
-                // and unmanaged ResourceMessages.
-                if (disposing)
+                if (_hash != null)
                 {
-                    // Dispose managed ResourceMessages.
-                    if (this._hash != null)
-                    {
-                        this._hash.Dispose();
-                        this._hash = null;
-                    }
+                    _hash.Dispose();
+                    _hash = null;
                 }
 
-                // Note disposing has been done.
-                this._isDisposed = true;
+                _isDisposed = true;
             }
         }
 

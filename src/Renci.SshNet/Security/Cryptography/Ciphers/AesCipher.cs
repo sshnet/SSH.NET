@@ -603,18 +603,18 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 throw new IndexOutOfRangeException("output buffer too short");
             }
 
-            if (this._encryptionKey == null)
+            if (_encryptionKey == null)
             {
-                this._encryptionKey = this.GenerateWorkingKey(true, this.Key);
+                _encryptionKey = GenerateWorkingKey(true, Key);
             }
 
-            this.UnPackBlock(inputBuffer, inputOffset);
+            UnPackBlock(inputBuffer, inputOffset);
 
-            this.EncryptBlock(this._encryptionKey);
+            EncryptBlock(_encryptionKey);
 
-            this.PackBlock(outputBuffer, outputOffset);
+            PackBlock(outputBuffer, outputOffset);
 
-            return this.BlockSize;
+            return BlockSize;
         }
 
         /// <summary>
@@ -648,18 +648,18 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 throw new IndexOutOfRangeException("output buffer too short");
             }
 
-            if (this._decryptionKey == null)
+            if (_decryptionKey == null)
             {
-                this._decryptionKey = this.GenerateWorkingKey(false, this.Key);
+                _decryptionKey = GenerateWorkingKey(false, Key);
             }
 
-            this.UnPackBlock(inputBuffer, inputOffset);
+            UnPackBlock(inputBuffer, inputOffset);
 
-            this.DecryptBlock(this._decryptionKey);
+            DecryptBlock(_decryptionKey);
 
-            this.PackBlock(outputBuffer, outputOffset);
+            PackBlock(outputBuffer, outputOffset);
 
-            return this.BlockSize;
+            return BlockSize;
         }
 
         private uint[] GenerateWorkingKey(bool isEncryption, byte[] key)

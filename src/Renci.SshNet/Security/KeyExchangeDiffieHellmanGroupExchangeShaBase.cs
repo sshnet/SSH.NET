@@ -34,7 +34,7 @@ namespace Renci.SshNet.Security
                     SharedKey = SharedKey,
                 }.GetBytes();
 
-            return this.Hash(hashData);
+            return Hash(hashData);
         }
 
         /// <summary>

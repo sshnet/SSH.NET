@@ -20,7 +20,7 @@ namespace Renci.SshNet.Security
         {
             get
             {
-                return new SshKeyData(this.Name, this.Key.Public).GetBytes();
+                return new SshKeyData(Name, Key.Public).GetBytes();
             }
         }
 
@@ -32,7 +32,7 @@ namespace Renci.SshNet.Security
         public KeyHostAlgorithm(string name, Key key)
             : base(name)
         {
-            this.Key = key;
+            Key = key;
         }
 
         /// <summary>
@@ -44,11 +44,11 @@ namespace Renci.SshNet.Security
         public KeyHostAlgorithm(string name, Key key, byte[] data)
             : base(name)
         {
-            this.Key = key;
+            Key = key;
 
             var sshKey = new SshKeyData();
             sshKey.Load(data);
-            this.Key.Public = sshKey.Keys;
+            Key.Public = sshKey.Keys;
         }
 
         /// <summary>
@@ -60,7 +60,7 @@ namespace Renci.SshNet.Security
         /// </returns>
         public override byte[] Sign(byte[] data)
         {
-            return new SignatureKeyData(this.Name, this.Key.Sign(data)).GetBytes();
+            return new SignatureKeyData(Name, Key.Sign(data)).GetBytes();
         }
 
         /// <summary>
@@ -76,7 +76,7 @@ namespace Renci.SshNet.Security
             var signatureData = new SignatureKeyData();
             signatureData.Load(signature);
 
-            return this.Key.VerifySignature(data, signatureData.Signature);
+            return Key.VerifySignature(data, signatureData.Signature);
         }
 
         private class SshKeyData : SshData
@@ -144,8 +144,8 @@ namespace Renci.SshNet.Security
 
             public SshKeyData(string name, params BigInteger[] keys)
             {
-                this.Name = name;
-                this.Keys = keys;
+                Name = name;
+                Keys = keys;
             }
 
             protected override void LoadData()
@@ -157,7 +157,7 @@ namespace Renci.SshNet.Security
                 this.Name = this.ReadString();
                 var keys = new List<BigInteger>();
 #endif
-                while (!this.IsEndOfData)
+                while (!IsEndOfData)
                 {
 #if TUNING
                     _keys.Add(ReadBinary());
@@ -241,11 +241,11 @@ namespace Renci.SshNet.Security
             public SignatureKeyData(string name, byte[] signature)
             {
 #if TUNING
-                this.AlgorithmName = Utf8.GetBytes(name);
+                AlgorithmName = Utf8.GetBytes(name);
 #else
                 this.AlgorithmName = name;
 #endif
-                this.Signature = signature;
+                Signature = signature;
             }
 
             /// <summary>
@@ -254,8 +254,8 @@ namespace Renci.SshNet.Security
             protected override void LoadData()
             {
 #if TUNING
-                this.AlgorithmName = this.ReadBinary();
-                this.Signature = this.ReadBinary();
+                AlgorithmName = ReadBinary();
+                Signature = ReadBinary();
 #else
                 this.AlgorithmName = this.ReadString();
                 this.Signature = this.ReadBinaryString();
@@ -272,7 +272,7 @@ namespace Renci.SshNet.Security
 #else
                 this.Write(this.AlgorithmName);
 #endif
-                this.WriteBinaryString(this.Signature);
+                WriteBinaryString(Signature);
             }
         }
     }

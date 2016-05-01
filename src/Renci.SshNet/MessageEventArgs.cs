@@ -23,7 +23,7 @@ namespace Renci.SshNet
             if (message == null)
                 throw new ArgumentNullException("message");
 
-            this.Message = message;
+            Message = message;
         }
     }
 }

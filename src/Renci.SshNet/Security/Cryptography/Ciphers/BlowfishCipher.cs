@@ -320,17 +320,13 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 			if (keySize < 1 || keySize > 448)
 				throw new ArgumentException(string.Format("KeySize '{0}' is not valid for this algorithm.", keySize));
 
-			this._s0 = new uint[_sboxSk];
+			_s0 = new uint[_sboxSk];
+			_s1 = new uint[_sboxSk];
+			_s2 = new uint[_sboxSk];
+			_s3 = new uint[_sboxSk];
+			_p = new uint[_pSize];
 
-			this._s1 = new uint[_sboxSk];
-
-			this._s2 = new uint[_sboxSk];
-
-			this._s3 = new uint[_sboxSk];
-
-			this._p = new uint[_pSize];
-
-			this.SetKey(key);
+			SetKey(key);
 		}
 
 		/// <summary>
@@ -346,26 +342,26 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 		/// </returns>
 		public override int EncryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
 		{
-			if (inputCount != this.BlockSize)
+			if (inputCount != BlockSize)
 				throw new ArgumentException("inputCount");
 
 			uint xl = BigEndianToUInt32(inputBuffer, inputOffset);
 			uint xr = BigEndianToUInt32(inputBuffer, inputOffset + 4);
 
-			xl ^= this._p[0];
+			xl ^= _p[0];
 
 			for (int i = 1; i < _rounds; i += 2)
 			{
-				xr ^= F(xl) ^ this._p[i];
-				xl ^= F(xr) ^ this._p[i + 1];
+				xr ^= F(xl) ^ _p[i];
+				xl ^= F(xr) ^ _p[i + 1];
 			}
 
-			xr ^= this._p[_rounds + 1];
+			xr ^= _p[_rounds + 1];
 
 			UInt32ToBigEndian(xr, outputBuffer, outputOffset);
 			UInt32ToBigEndian(xl, outputBuffer, outputOffset + 4);
 
-			return this.BlockSize;
+			return BlockSize;
 		}
 
 		/// <summary>
@@ -381,31 +377,31 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 		/// </returns>
 		public override int DecryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
 		{
-			if (inputCount != this.BlockSize)
+			if (inputCount != BlockSize)
 				throw new ArgumentException("inputCount");
 
 			uint xl = BigEndianToUInt32(inputBuffer, inputOffset);
 			uint xr = BigEndianToUInt32(inputBuffer, inputOffset + 4);
 
-			xl ^= this._p[_rounds + 1];
+			xl ^= _p[_rounds + 1];
 
 			for (int i = _rounds; i > 0; i -= 2)
 			{
-				xr ^= F(xl) ^ this._p[i];
-				xl ^= F(xr) ^ this._p[i - 1];
+				xr ^= F(xl) ^ _p[i];
+				xl ^= F(xr) ^ _p[i - 1];
 			}
 
-			xr ^= this._p[0];
+			xr ^= _p[0];
 
 			UInt32ToBigEndian(xr, outputBuffer, outputOffset);
 			UInt32ToBigEndian(xl, outputBuffer, outputOffset + 4);
 
-			return this.BlockSize;
+			return BlockSize;
 		}
 
 		private uint F(uint x)
 		{
-			return (((this._s0[x >> 24] + this._s1[(x >> 16) & 0xff]) ^ this._s2[(x >> 8) & 0xff]) + this._s3[x & 0xff]);
+			return (((_s0[x >> 24] + _s1[(x >> 16) & 0xff]) ^ _s2[(x >> 8) & 0xff]) + _s3[x & 0xff]);
 		}
 
 		private void SetKey(byte[] key)
@@ -419,12 +415,12 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 			* Initialise the S-boxes and the P-array, with a fixed string
 			* This string contains the hexadecimal digits of pi (3.141...)
 			*/
-			Buffer.BlockCopy(KS0, 0, this._s0, 0, _sboxSk * sizeof(uint));
-			Buffer.BlockCopy(KS1, 0, this._s1, 0, _sboxSk * sizeof(uint));
-			Buffer.BlockCopy(KS2, 0, this._s2, 0, _sboxSk * sizeof(uint));
-			Buffer.BlockCopy(KS3, 0, this._s3, 0, _sboxSk * sizeof(uint));
+			Buffer.BlockCopy(KS0, 0, _s0, 0, _sboxSk * sizeof(uint));
+			Buffer.BlockCopy(KS1, 0, _s1, 0, _sboxSk * sizeof(uint));
+			Buffer.BlockCopy(KS2, 0, _s2, 0, _sboxSk * sizeof(uint));
+			Buffer.BlockCopy(KS3, 0, _s3, 0, _sboxSk * sizeof(uint));
 
-			Buffer.BlockCopy(KP, 0, this._p, 0, _pSize * sizeof(uint));
+			Buffer.BlockCopy(KP, 0, _p, 0, _pSize * sizeof(uint));
 
 			/*
 			* (2)
@@ -452,7 +448,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 					}
 				}
 				// XOR the newly created 32 bit chunk onto the P-array
-				this._p[i] ^= data;
+				_p[i] ^= data;
 			}
 
 			/*
@@ -476,11 +472,11 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 			* continuously changing Blowfish algorithm
 			*/
 
-			ProcessTable(0, 0, this._p);
-			ProcessTable(this._p[_pSize - 2], this._p[_pSize - 1], this._s0);
-			ProcessTable(this._s0[_sboxSk - 2], this._s0[_sboxSk - 1], this._s1);
-			ProcessTable(this._s1[_sboxSk - 2], this._s1[_sboxSk - 1], this._s2);
-			ProcessTable(this._s2[_sboxSk - 2], this._s2[_sboxSk - 1], this._s3);
+			ProcessTable(0, 0, _p);
+			ProcessTable(_p[_pSize - 2], _p[_pSize - 1], _s0);
+			ProcessTable(_s0[_sboxSk - 2], _s0[_sboxSk - 1], _s1);
+			ProcessTable(_s1[_sboxSk - 2], _s1[_sboxSk - 1], _s2);
+			ProcessTable(_s2[_sboxSk - 2], _s2[_sboxSk - 1], _s3);
 		}
 
 		/// <summary>

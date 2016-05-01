@@ -240,20 +240,20 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 		/// </returns>
 		public override int EncryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
 		{
-			if ((inputOffset + this.BlockSize) > inputBuffer.Length)
+			if ((inputOffset + BlockSize) > inputBuffer.Length)
 				throw new IndexOutOfRangeException("input buffer too short");
 
-			if ((outputOffset + this.BlockSize) > outputBuffer.Length)
+			if ((outputOffset + BlockSize) > outputBuffer.Length)
 				throw new IndexOutOfRangeException("output buffer too short");
 
-			if (this._encryptionKey == null)
+			if (_encryptionKey == null)
 			{
-				this._encryptionKey = GenerateWorkingKey(true, this.Key);
+				_encryptionKey = GenerateWorkingKey(true, Key);
 			}
 
-			DesFunc(this._encryptionKey, inputBuffer, inputOffset, outputBuffer, outputOffset);
+			DesFunc(_encryptionKey, inputBuffer, inputOffset, outputBuffer, outputOffset);
 
-			return this.BlockSize;
+			return BlockSize;
 		}
 
 		/// <summary>
@@ -269,20 +269,20 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 		/// </returns>
 		public override int DecryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
 		{
-			if ((inputOffset + this.BlockSize) > inputBuffer.Length)
+			if ((inputOffset + BlockSize) > inputBuffer.Length)
 				throw new IndexOutOfRangeException("input buffer too short");
 
-			if ((outputOffset + this.BlockSize) > outputBuffer.Length)
+			if ((outputOffset + BlockSize) > outputBuffer.Length)
 				throw new IndexOutOfRangeException("output buffer too short");
 
-			if (this._decryptionKey == null)
+			if (_decryptionKey == null)
 			{
-				this._decryptionKey = GenerateWorkingKey(false, this.Key);
+				_decryptionKey = GenerateWorkingKey(false, Key);
 			}
 
-			DesFunc(this._decryptionKey, inputBuffer, inputOffset, outputBuffer, outputOffset);
+			DesFunc(_decryptionKey, inputBuffer, inputOffset, outputBuffer, outputOffset);
 
-			return this.BlockSize;
+			return BlockSize;
 		}
 
         /// <summary>
@@ -293,7 +293,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <returns>Generated working key.</returns>
 		protected int[] GenerateWorkingKey(bool encrypting, byte[] key)
 		{
-			this.ValidateKey();
+			ValidateKey();
 
 			int[] newKey = new int[32];
 			bool[] pc1m = new bool[56];
@@ -308,7 +308,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
 			for (int i = 0; i < 16; i++)
 			{
-				int l, m, n;
+				int l, m;
 
 				if (encrypting)
 				{
@@ -319,7 +319,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 					m = (15 - i) << 1;
 				}
 
-				n = m + 1;
+				var n = m + 1;
 				newKey[m] = newKey[n] = 0;
 
 				for (int j = 0; j < 28; j++)
@@ -367,10 +367,8 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 			//
 			for (int i = 0; i != 32; i += 2)
 			{
-				int i1, i2;
-
-				i1 = newKey[i];
-				i2 = newKey[i + 1];
+			    var i1 = newKey[i];
+				var i2 = newKey[i + 1];
 
 				newKey[i] = (int)  ((uint)((i1 & 0x00fc0000) << 6) |
 									(uint)((i1 & 0x00000fc0) << 10) |
@@ -391,9 +389,9 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 		/// </summary>
 		protected virtual void ValidateKey()
 		{
-			var keySize = this.Key.Length * 8;
+			var keySize = Key.Length * 8;
 			
-			if (!(keySize == 64))
+			if (keySize != 64)
 				throw new ArgumentException(string.Format("KeySize '{0}' is not valid for this algorithm.", keySize));
 		}
 
@@ -409,9 +407,8 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 		{
 			uint left = BigEndianToUInt32(input, inOff);
 			uint right = BigEndianToUInt32(input, inOff + 4);
-			uint work;
 
-			work = ((left >> 4) ^ right) & 0x0f0f0f0f;
+		    var work = ((left >> 4) ^ right) & 0x0f0f0f0f;
 			right ^= work;
 			left ^= (work << 4);
 			work = ((left >> 16) ^ right) & 0x0000ffff;
@@ -431,11 +428,9 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
 			for (int round = 0; round < 8; round++)
 			{
-				uint fval;
-
-				work = (right << 28) | (right >> 4);
+			    work = (right << 28) | (right >> 4);
 				work ^= (uint)wKey[round * 4 + 0];
-				fval = SP7[work & 0x3f];
+				var fval = SP7[work & 0x3f];
 				fval |= SP5[(work >> 8) & 0x3f];
 				fval |= SP3[(work >> 16) & 0x3f];
 				fval |= SP1[(work >> 24) & 0x3f];

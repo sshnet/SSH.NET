@@ -41,11 +41,11 @@ namespace Renci.SshNet.Security
 
         public byte[] HostKey { get; set; }
 
-        public UInt32 MinimumGroupSize { get; set; }
+        public uint MinimumGroupSize { get; set; }
 
-        public UInt32 PreferredGroupSize { get; set; }
+        public uint PreferredGroupSize { get; set; }
 
-        public UInt32 MaximumGroupSize { get; set; }
+        public uint MaximumGroupSize { get; set; }
 
 #if TUNING
         public BigInteger Prime
@@ -148,15 +148,15 @@ namespace Renci.SshNet.Security
             WriteBinaryString(_clientVersion);
             WriteBinaryString(_serverVersion);
 #else
-            this.Write(this.ClientVersion);
-            this.Write(this.ServerVersion);
+            Write(ClientVersion);
+            Write(ServerVersion);
 #endif
-            this.WriteBinaryString(this.ClientPayload);
-            this.WriteBinaryString(this.ServerPayload);
-            this.WriteBinaryString(this.HostKey);
-            this.Write(this.MinimumGroupSize);
-            this.Write(this.PreferredGroupSize);
-            this.Write(this.MaximumGroupSize);
+            WriteBinaryString(ClientPayload);
+            WriteBinaryString(ServerPayload);
+            WriteBinaryString(HostKey);
+            Write(MinimumGroupSize);
+            Write(PreferredGroupSize);
+            Write(MaximumGroupSize);
 #if TUNING
             WriteBinaryString(_prime);
             WriteBinaryString(_subGroup);
@@ -164,11 +164,11 @@ namespace Renci.SshNet.Security
             WriteBinaryString(_serverExchangeValue);
             WriteBinaryString(_sharedKey);
 #else
-            this.Write(this.Prime);
-            this.Write(this.SubGroup);
-            this.Write(this.ClientExchangeValue);
-            this.Write(this.ServerExchangeValue);
-            this.Write(this.SharedKey);
+            Write(Prime);
+            Write(SubGroup);
+            Write(ClientExchangeValue);
+            Write(ServerExchangeValue);
+            Write(SharedKey);
 #endif
         }
     }

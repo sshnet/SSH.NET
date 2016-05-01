@@ -29,14 +29,14 @@ namespace Renci.SshNet.Sftp.Requests
         public FStatVfsRequest(uint protocolVersion, uint requestId, byte[] handle, Action<SftpExtendedReplyResponse> extendedAction, Action<SftpStatusResponse> statusAction)
             : base(protocolVersion, requestId, statusAction, "fstatvfs@openssh.com")
         {
-            this.Handle = handle;
-            this.SetAction(extendedAction);
+            Handle = handle;
+            SetAction(extendedAction);
         }
 
         protected override void SaveData()
         {
             base.SaveData();
-            this.WriteBinaryString(this.Handle);
+            WriteBinaryString(Handle);
         }
     }
 }

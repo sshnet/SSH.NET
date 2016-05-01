@@ -54,9 +54,9 @@ namespace Renci.SshNet.Sftp.Requests
             if (statusAction == null)
                 throw new ArgumentNullException("statusAction");
 
-            this.Encoding = encoding;
-            this.Path = path;
-            this.SetAction(nameAction);
+            Encoding = encoding;
+            Path = path;
+            SetAction(nameAction);
             
         }
 
@@ -66,7 +66,7 @@ namespace Renci.SshNet.Sftp.Requests
 #if TUNING
             WriteBinaryString(_path);
 #else
-            this.Write(this.Path, this.Encoding);
+            Write(Path, Encoding);
 #endif
         }
     }

@@ -57,29 +57,29 @@ namespace Renci.SshNet.Sftp.Requests
         public SftpFSetStatRequest(uint protocolVersion, uint requestId, byte[] handle, SftpFileAttributes attributes, Action<SftpStatusResponse> statusAction)
             : base(protocolVersion, requestId, statusAction)
         {
-            this.Handle = handle;
-            this.Attributes = attributes;
+            Handle = handle;
+            Attributes = attributes;
         }
 
         protected override void LoadData()
         {
             base.LoadData();
 #if TUNING
-            this.Handle = this.ReadBinary();
+            Handle = ReadBinary();
 #else
-            this.Handle = this.ReadBinaryString();
+            Handle = this.ReadBinaryString();
 #endif
-            this.Attributes = this.ReadAttributes();
+            Attributes = ReadAttributes();
         }
 
         protected override void SaveData()
         {
             base.SaveData();
-            this.WriteBinaryString(this.Handle);
+            WriteBinaryString(Handle);
 #if TUNING
             Write(AttributesBytes);
 #else
-            this.Write(this.Attributes);
+            Write(Attributes);
 #endif
         }
     }

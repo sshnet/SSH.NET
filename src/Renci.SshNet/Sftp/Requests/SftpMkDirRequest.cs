@@ -79,7 +79,7 @@ namespace Renci.SshNet.Sftp.Requests
             : base(protocolVersion, requestId, statusAction)
         {
             Encoding = encoding;
-            this.Path = path;
+            Path = path;
             Attributes = attributes;
         }
 
@@ -89,9 +89,9 @@ namespace Renci.SshNet.Sftp.Requests
 #if TUNING
             _path = ReadBinary();
 #else
-            this.Path = this.ReadString(this.Encoding);
+            Path = ReadString(Encoding);
 #endif
-            this.Attributes = this.ReadAttributes();
+            Attributes = ReadAttributes();
         }
 
         protected override void SaveData()
@@ -101,8 +101,8 @@ namespace Renci.SshNet.Sftp.Requests
             WriteBinaryString(_path);
             Write(AttributesBytes);
 #else
-            this.Write(this.Path, this.Encoding);
-            this.Write(this.Attributes);
+            Write(Path, Encoding);
+            Write(Attributes);
 #endif
         }
     }

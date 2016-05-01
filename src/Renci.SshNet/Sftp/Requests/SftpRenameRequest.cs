@@ -62,9 +62,9 @@ namespace Renci.SshNet.Sftp.Requests
         public SftpRenameRequest(uint protocolVersion, uint requestId, string oldPath, string newPath, Encoding encoding, Action<SftpStatusResponse> statusAction)
             : base(protocolVersion, requestId, statusAction)
         {
-            this.Encoding = encoding;
-            this.OldPath = oldPath;
-            this.NewPath = newPath;
+            Encoding = encoding;
+            OldPath = oldPath;
+            NewPath = newPath;
         }
 
         protected override void LoadData()
@@ -75,8 +75,8 @@ namespace Renci.SshNet.Sftp.Requests
             _oldPath = ReadBinary();
             _newPath = ReadBinary();
 #else
-            this.OldPath = this.ReadString(this.Encoding);
-            this.NewPath = this.ReadString(this.Encoding);
+            OldPath = ReadString(Encoding);
+            NewPath = ReadString(Encoding);
 #endif
 
         }
@@ -89,8 +89,8 @@ namespace Renci.SshNet.Sftp.Requests
             WriteBinaryString(_oldPath);
             WriteBinaryString(_newPath);
 #else
-            this.Write(this.OldPath, this.Encoding);
-            this.Write(this.NewPath, this.Encoding);
+            Write(OldPath, Encoding);
+            Write(NewPath, Encoding);
 #endif
         }
     }

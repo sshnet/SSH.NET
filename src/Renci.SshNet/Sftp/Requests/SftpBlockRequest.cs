@@ -12,11 +12,11 @@ namespace Renci.SshNet.Sftp.Requests
 
         public byte[] Handle { get; private set; }
 
-        public UInt64 Offset { get; private set; }
+        public ulong Offset { get; private set; }
 
-        public UInt64 Length { get; private set; }
+        public ulong Length { get; private set; }
 
-        public UInt32 LockMask { get; private set; }
+        public uint LockMask { get; private set; }
 
 #if TUNING
         /// <summary>
@@ -43,32 +43,32 @@ namespace Renci.SshNet.Sftp.Requests
         public SftpBlockRequest(uint protocolVersion, uint requestId, byte[] handle, UInt64 offset, UInt64 length, UInt32 lockMask, Action<SftpStatusResponse> statusAction)
             : base(protocolVersion, requestId, statusAction)
         {
-            this.Handle = handle;
-            this.Offset = offset;
-            this.Length = length;
-            this.LockMask = lockMask;
+            Handle = handle;
+            Offset = offset;
+            Length = length;
+            LockMask = lockMask;
         }
 
         protected override void LoadData()
         {
             base.LoadData();
 #if TUNING
-            this.Handle = this.ReadBinary();
+            Handle = ReadBinary();
 #else
-            this.Handle = this.ReadBinaryString();
+            Handle = this.ReadBinaryString();
 #endif
-            this.Offset = this.ReadUInt64();
-            this.Length = this.ReadUInt64();
-            this.LockMask = this.ReadUInt32();
+            Offset = ReadUInt64();
+            Length = ReadUInt64();
+            LockMask = ReadUInt32();
         }
 
         protected override void SaveData()
         {
             base.SaveData();
-            this.WriteBinaryString(this.Handle);
-            this.Write(this.Offset);
-            this.Write(this.Length);
-            this.Write(this.LockMask);
+            WriteBinaryString(Handle);
+            Write(Offset);
+            Write(Length);
+            Write(LockMask);
         }
     }
 }

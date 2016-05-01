@@ -34,24 +34,24 @@ namespace Renci.SshNet.Sftp.Requests
         public SftpFStatRequest(uint protocolVersion, uint requestId, byte[] handle, Action<SftpAttrsResponse> attrsAction, Action<SftpStatusResponse> statusAction)
             : base(protocolVersion, requestId, statusAction)
         {
-            this.Handle = handle;
-            this.SetAction(attrsAction);
+            Handle = handle;
+            SetAction(attrsAction);
         }
 
         protected override void LoadData()
         {
             base.LoadData();
 #if TUNING
-            this.Handle = this.ReadBinary();
+            Handle = ReadBinary();
 #else
-            this.Handle = this.ReadBinaryString();
+            Handle = ReadBinaryString();
 #endif
         }
 
         protected override void SaveData()
         {
             base.SaveData();
-            this.WriteBinaryString(this.Handle);
+            WriteBinaryString(Handle);
         }
     }
 }

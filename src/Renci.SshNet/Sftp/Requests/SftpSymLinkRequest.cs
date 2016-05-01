@@ -63,12 +63,12 @@ namespace Renci.SshNet.Sftp.Requests
             : base(protocolVersion, requestId, statusAction)
         {
 #if TUNING
-            this.Encoding = encoding;
+            Encoding = encoding;
 #endif
-            this.NewLinkPath = newLinkPath;
-            this.ExistingPath = existingPath;
+            NewLinkPath = newLinkPath;
+            ExistingPath = existingPath;
 #if !TUNING
-            this.Encoding = encoding;
+            Encoding = encoding;
 #endif
         }
 
@@ -79,8 +79,8 @@ namespace Renci.SshNet.Sftp.Requests
             _newLinkPath = ReadBinary();
             _existingPath = ReadBinary();
 #else
-            this.NewLinkPath = this.ReadString(this.Encoding);
-            this.ExistingPath = this.ReadString(this.Encoding);
+            NewLinkPath = ReadString(Encoding);
+            ExistingPath = ReadString(Encoding);
 #endif
         }
 
@@ -91,8 +91,8 @@ namespace Renci.SshNet.Sftp.Requests
             WriteBinaryString(_newLinkPath);
             WriteBinaryString(_existingPath);
 #else
-            this.Write(this.NewLinkPath, this.Encoding);
-            this.Write(this.ExistingPath, this.Encoding);
+            Write(NewLinkPath, Encoding);
+            Write(ExistingPath, Encoding);
 #endif
         }
     }

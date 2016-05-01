@@ -9,14 +9,14 @@ namespace Renci.SshNet.Sftp.Responses
         {
 #if TUNING
             // skip packet length
-            this.ReadUInt32();
+            ReadUInt32();
 #endif
 
             //  skip message type
-            this.ReadByte();
+            ReadByte();
 
             //  skip response id
-            this.ReadUInt32();
+            ReadUInt32();
         }
 
         protected override void SaveData()

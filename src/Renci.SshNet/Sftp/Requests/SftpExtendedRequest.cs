@@ -51,7 +51,7 @@ namespace Renci.SshNet.Sftp.Requests
         protected override void SaveData()
         {
             base.SaveData();
-            this.WriteBinaryString(_nameBytes);
+            WriteBinaryString(_nameBytes);
         }
     }
 }

@@ -1,7 +1,4 @@
-﻿using System.Text;
-using Renci.SshNet.Common;
-
-namespace Renci.SshNet.Sftp.Responses
+﻿namespace Renci.SshNet.Sftp.Responses
 {
     internal class SftpStatusResponse : SftpResponse
     {
@@ -25,21 +22,21 @@ namespace Renci.SshNet.Sftp.Responses
         {
             base.LoadData();
 
-            this.StatusCode = (StatusCodes)this.ReadUInt32();
+            StatusCode = (StatusCodes) ReadUInt32();
 
-            if (this.ProtocolVersion < 3)
+            if (ProtocolVersion < 3)
             {
                 return;
             }
 
-            if (!this.IsEndOfData)
+            if (!IsEndOfData)
             {
                 // the SSH File Transfer Protocol specification states that the error message is UTF-8
-                this.ErrorMessage = this.ReadString(Utf8);
+                ErrorMessage = ReadString(Utf8);
 
                 // the language of the error message; RFC 1766 states that the language code may be
                 // expressed as US-ASCII
-                this.Language = this.ReadString(Ascii);
+                Language = ReadString(Ascii);
             }
         }
     }

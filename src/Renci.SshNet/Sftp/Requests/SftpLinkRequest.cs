@@ -71,9 +71,9 @@ namespace Renci.SshNet.Sftp.Requests
         public SftpLinkRequest(uint protocolVersion, uint requestId, string newLinkPath, string existingPath, bool isSymLink, Action<SftpStatusResponse> statusAction)
             : base(protocolVersion, requestId, statusAction)
         {
-            this.NewLinkPath = newLinkPath;
-            this.ExistingPath = existingPath;
-            this.IsSymLink = isSymLink;
+            NewLinkPath = newLinkPath;
+            ExistingPath = existingPath;
+            IsSymLink = isSymLink;
         }
 
         protected override void LoadData()
@@ -83,10 +83,10 @@ namespace Renci.SshNet.Sftp.Requests
             _newLinkPath = ReadBinary();
             _existingPath = ReadBinary();
 #else
-            this.NewLinkPath = this.ReadString();
-            this.ExistingPath = this.ReadString();
+            NewLinkPath = ReadString();
+            ExistingPath = ReadString();
 #endif
-            this.IsSymLink = this.ReadBoolean();
+            IsSymLink = ReadBoolean();
         }
 
         protected override void SaveData()
@@ -96,10 +96,10 @@ namespace Renci.SshNet.Sftp.Requests
             WriteBinaryString(_newLinkPath);
             WriteBinaryString(_existingPath);
 #else
-            this.Write(this.NewLinkPath);
-            this.Write(this.ExistingPath);
+            Write(NewLinkPath);
+            Write(ExistingPath);
 #endif
-            this.Write(this.IsSymLink);
+            Write(IsSymLink);
         }
     }
 }

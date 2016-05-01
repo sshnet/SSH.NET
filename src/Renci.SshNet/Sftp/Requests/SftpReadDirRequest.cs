@@ -34,24 +34,24 @@ namespace Renci.SshNet.Sftp.Requests
         public SftpReadDirRequest(uint protocolVersion, uint requestId, byte[] handle, Action<SftpNameResponse> nameAction, Action<SftpStatusResponse> statusAction)
             : base(protocolVersion, requestId, statusAction)
         {
-            this.Handle = handle;
-            this.SetAction(nameAction);
+            Handle = handle;
+            SetAction(nameAction);
         }
 
         protected override void LoadData()
         {
             base.LoadData();
 #if TUNING
-            this.Handle = this.ReadBinary();
+            Handle = ReadBinary();
 #else
-            this.Handle = this.ReadBinaryString();
+            Handle = ReadBinaryString();
 #endif
         }
 
         protected override void SaveData()
         {
             base.SaveData();
-            this.WriteBinaryString(this.Handle);
+            WriteBinaryString(Handle);
         }
     }
 }

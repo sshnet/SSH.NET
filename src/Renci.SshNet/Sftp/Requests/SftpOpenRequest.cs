@@ -69,12 +69,12 @@ namespace Renci.SshNet.Sftp.Requests
         private SftpOpenRequest(uint protocolVersion, uint requestId, string fileName, Encoding encoding, Flags flags, SftpFileAttributes attributes, Action<SftpHandleResponse> handleAction, Action<SftpStatusResponse> statusAction)
             : base(protocolVersion, requestId, statusAction)
         {
-            this.Encoding = encoding;
-            this.Filename = fileName;
-            this.Flags = flags;
-            this.Attributes = attributes;
+            Encoding = encoding;
+            Filename = fileName;
+            Flags = flags;
+            Attributes = attributes;
 
-            this.SetAction(handleAction);
+            SetAction(handleAction);
         }
 
         protected override void LoadData()
@@ -90,13 +90,13 @@ namespace Renci.SshNet.Sftp.Requests
 #if TUNING
             WriteBinaryString(_fileName);
 #else
-            this.Write(this.Filename, this.Encoding);
+            Write(Filename, Encoding);
 #endif
-            this.Write((uint)this.Flags);
+            Write((uint)Flags);
 #if TUNING
-            this.Write(_attributes);
+            Write(_attributes);
 #else
-            this.Write(this.Attributes);
+            Write(Attributes);
 #endif
         }
     }

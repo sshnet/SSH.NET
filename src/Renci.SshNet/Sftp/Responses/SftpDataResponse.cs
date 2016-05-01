@@ -21,14 +21,14 @@
             base.LoadData();
             
 #if TUNING
-            this.Data = this.ReadBinary();
+            Data = ReadBinary();
 #else
-            this.Data = this.ReadBinaryString();
+            Data = ReadBinaryString();
 #endif
 
-            if (!this.IsEndOfData)
+            if (!IsEndOfData)
             {
-                this.IsEof = this.ReadBoolean();
+                IsEof = ReadBoolean();
             }
         }
     }

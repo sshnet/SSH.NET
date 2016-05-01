@@ -49,8 +49,8 @@ namespace Renci.SshNet.Sftp.Requests
         public SftpRemoveRequest(uint protocolVersion, uint requestId, string filename, Encoding encoding, Action<SftpStatusResponse> statusAction)
             : base(protocolVersion, requestId, statusAction)
         {
-            this.Encoding = encoding;
-            this.Filename = filename;
+            Encoding = encoding;
+            Filename = filename;
         }
 
         protected override void LoadData()
@@ -59,7 +59,7 @@ namespace Renci.SshNet.Sftp.Requests
 #if TUNING
             _fileName = ReadBinary();
 #else
-            this.Filename = this.ReadString(this.Encoding);
+            Filename = ReadString(Encoding);
 #endif
         }
 
@@ -69,7 +69,7 @@ namespace Renci.SshNet.Sftp.Requests
 #if TUNING
             WriteBinaryString(_fileName);
 #else
-            this.Write(this.Filename, this.Encoding);
+            Write(Filename, Encoding);
 #endif
         }
     }

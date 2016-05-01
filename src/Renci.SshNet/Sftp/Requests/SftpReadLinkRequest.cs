@@ -49,9 +49,9 @@ namespace Renci.SshNet.Sftp.Requests
         public SftpReadLinkRequest(uint protocolVersion, uint requestId, string path, Encoding encoding, Action<SftpNameResponse> nameAction, Action<SftpStatusResponse> statusAction)
             : base(protocolVersion, requestId, statusAction)
         {
-            this.Encoding = encoding;
-            this.Path = path;
-            this.SetAction(nameAction);
+            Encoding = encoding;
+            Path = path;
+            SetAction(nameAction);
         }
 
         protected override void LoadData()
@@ -72,7 +72,7 @@ namespace Renci.SshNet.Sftp.Requests
 #if TUNING
             WriteBinaryString(_path);
 #else
-            this.Write(this.Path, this.Encoding);
+            Write(Path, Encoding);
 #endif
         }
     }

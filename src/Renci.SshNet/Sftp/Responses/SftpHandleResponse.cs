@@ -19,9 +19,9 @@
             base.LoadData();
             
 #if TUNING
-            this.Handle = this.ReadBinary();
+            Handle = ReadBinary();
 #else
-            this.Handle = this.ReadBinaryString();
+            Handle = ReadBinaryString();
 #endif
         }
     }

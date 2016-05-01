@@ -15,7 +15,7 @@ namespace Renci.SshNet.Common
     /// <summary>
     /// Collection of different extension method
     /// </summary>
-    internal static class Extensions
+    internal static partial class Extensions
     {
         /// <summary>
         /// Determines whether [is null or white space] [the specified value].

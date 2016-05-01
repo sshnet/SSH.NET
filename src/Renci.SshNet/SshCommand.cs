@@ -501,8 +501,19 @@ namespace Renci.SshNet
             }
         }
 
+        /// <summary>
+        /// Unsubscribes the current <see cref="SshCommand"/> from channel events, and disposes
+        /// the <see cref="IChannel"/>.
+        /// </summary>
+        /// <param name="channel">The channel.</param>
+        /// <remarks>
+        /// Does nothing when <paramref name="channel"/> is <c>null</c>.
+        /// </remarks>
         private void UnsubscribeFromEventsAndDisposeChannel(IChannel channel)
         {
+            if (channel == null)
+                return;
+
             // unsubscribe from events as we do not want to be signaled should these get fired
             // during the dispose of the channel
             channel.DataReceived -= Channel_DataReceived;
@@ -512,6 +523,22 @@ namespace Renci.SshNet
 
             // actually dispose the channel
             channel.Dispose();
+        }
+
+        /// <summary>
+        /// Unsubscribes the current <see cref="SshCommand"/> from session events.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <remarks>
+        /// Does nothing when <paramref name="session"/> is <c>null</c>.
+        /// </remarks>
+        private void UnsubscribeFromSessionEvents(ISession session)
+        {
+            if (session == null)
+                return;
+
+            session.Disconnected -= Session_Disconnected;
+            session.ErrorOccured -= Session_ErrorOccured;
         }
 
         #region IDisposable Members
@@ -540,8 +567,7 @@ namespace Renci.SshNet
             {
                 // unsubscribe from session events to ensure other objects that we're going to dispose
                 // are not accessed while disposing
-                _session.Disconnected -= Session_Disconnected;
-                _session.ErrorOccured -= Session_ErrorOccured;
+                UnsubscribeFromSessionEvents(_session);
 
                 // unsubscribe from channel events to ensure other objects that we're going to dispose
                 // are not accessed while disposing
@@ -572,9 +598,14 @@ namespace Renci.SshNet
                     handle.Dispose();
                     _sessionErrorOccuredWaitHandle = null;
                 }
-            }
 
-            _isDisposed = true;
+                _isDisposed = true;
+            }
+            else
+            {
+                // avoid event-based memory leaks when client does not dispose instance
+                UnsubscribeFromSessionEvents(_session);
+            }
         }
 
         /// <summary>

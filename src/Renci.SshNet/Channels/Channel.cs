@@ -945,46 +945,65 @@ namespace Renci.SshNet.Channels
         /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
-            if (!_isDisposed)
+            if (_isDisposed)
+                return;
+
+            if (disposing)
             {
-                if (disposing)
+                Close(false);
+
+                if (_session != null)
                 {
-                    Close(false);
+                    UnsubscribeFromSessionEvents(_session);
+                    _session = null;
+                }
 
-                    if (_session != null)
-                    {
-                        _session.ChannelWindowAdjustReceived -= OnChannelWindowAdjust;
-                        _session.ChannelDataReceived -= OnChannelData;
-                        _session.ChannelExtendedDataReceived -= OnChannelExtendedData;
-                        _session.ChannelEofReceived -= OnChannelEof;
-                        _session.ChannelCloseReceived -= OnChannelClose;
-                        _session.ChannelRequestReceived -= OnChannelRequest;
-                        _session.ChannelSuccessReceived -= OnChannelSuccess;
-                        _session.ChannelFailureReceived -= OnChannelFailure;
-                        _session.ErrorOccured -= Session_ErrorOccured;
-                        _session.Disconnected -= Session_Disconnected;
-                        _session = null;
-                    }
-
-                    if (_channelClosedWaitHandle != null)
-                    {
-                        _channelClosedWaitHandle.Dispose();
-                        _channelClosedWaitHandle = null;
-                    }
-                    if (_channelServerWindowAdjustWaitHandle != null)
-                    {
-                        _channelServerWindowAdjustWaitHandle.Dispose();
-                        _channelServerWindowAdjustWaitHandle = null;
-                    }
-                    if (_errorOccuredWaitHandle != null)
-                    {
-                        _errorOccuredWaitHandle.Dispose();
-                        _errorOccuredWaitHandle = null;
-                    }
+                if (_channelClosedWaitHandle != null)
+                {
+                    _channelClosedWaitHandle.Dispose();
+                    _channelClosedWaitHandle = null;
+                }
+                if (_channelServerWindowAdjustWaitHandle != null)
+                {
+                    _channelServerWindowAdjustWaitHandle.Dispose();
+                    _channelServerWindowAdjustWaitHandle = null;
+                }
+                if (_errorOccuredWaitHandle != null)
+                {
+                    _errorOccuredWaitHandle.Dispose();
+                    _errorOccuredWaitHandle = null;
                 }
 
                 _isDisposed = true;
             }
+            else
+            {
+                UnsubscribeFromSessionEvents(_session);
+            }
+        }
+
+        /// <summary>
+        /// Unsubscribes the current <see cref="Channel"/> from session events.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <remarks>
+        /// Does nothing when <paramref name="session"/> is <c>null</c>.
+        /// </remarks>
+        private void UnsubscribeFromSessionEvents(ISession session)
+        {
+            if (session == null)
+                return;
+
+            session.ChannelWindowAdjustReceived -= OnChannelWindowAdjust;
+            session.ChannelDataReceived -= OnChannelData;
+            session.ChannelExtendedDataReceived -= OnChannelExtendedData;
+            session.ChannelEofReceived -= OnChannelEof;
+            session.ChannelCloseReceived -= OnChannelClose;
+            session.ChannelRequestReceived -= OnChannelRequest;
+            session.ChannelSuccessReceived -= OnChannelSuccess;
+            session.ChannelFailureReceived -= OnChannelFailure;
+            session.ErrorOccured -= Session_ErrorOccured;
+            session.Disconnected -= Session_Disconnected;
         }
 
         /// <summary>

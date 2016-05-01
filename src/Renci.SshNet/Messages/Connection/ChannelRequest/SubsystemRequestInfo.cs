@@ -1,6 +1,4 @@
-﻿using Renci.SshNet.Common;
-
-namespace Renci.SshNet.Messages.Connection
+﻿namespace Renci.SshNet.Messages.Connection
 {
     /// <summary>
     /// Represents "subsystem" type channel request information

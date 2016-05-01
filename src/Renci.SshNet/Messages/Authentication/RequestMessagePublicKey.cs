@@ -1,6 +1,4 @@
-﻿using Renci.SshNet.Common;
-
-namespace Renci.SshNet.Messages.Authentication
+﻿namespace Renci.SshNet.Messages.Authentication
 {
     /// <summary>
     /// Represents "publickey" SSH_MSG_USERAUTH_REQUEST message.
@@ -67,7 +65,7 @@ namespace Renci.SshNet.Messages.Authentication
         public RequestMessagePublicKey(ServiceName serviceName, string username, string keyAlgorithmName, byte[] keyData)
             : base(serviceName, username, "publickey")
         {
-            PublicKeyAlgorithmName = SshData.Ascii.GetBytes(keyAlgorithmName);
+            PublicKeyAlgorithmName = Ascii.GetBytes(keyAlgorithmName);
             PublicKeyData = keyData;
         }
 

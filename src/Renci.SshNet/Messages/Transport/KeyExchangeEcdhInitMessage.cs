@@ -1,7 +1,5 @@
 ﻿using System;
 using Renci.SshNet.Common;
-using System.Linq;
-using System.Collections.Generic;
 
 namespace Renci.SshNet.Messages.Transport
 {

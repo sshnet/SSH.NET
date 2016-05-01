@@ -15,37 +15,37 @@ namespace Renci.SshNet.Security
         /// <summary>
         /// Specifies client payload
         /// </summary>
-        protected byte[] _clientPayload;
+        private byte[] _clientPayload;
 
         /// <summary>
         /// Specifies server payload
         /// </summary>
-        protected byte[] _serverPayload;
+        private byte[] _serverPayload;
 
         /// <summary>
         /// Specifies client exchange number.
         /// </summary>
-        protected BigInteger _clientExchangeValue;
+        private BigInteger _clientExchangeValue;
 
         /// <summary>
         /// Specifies server exchange number.
         /// </summary>
-        protected BigInteger _serverExchangeValue;
+        private BigInteger _serverExchangeValue;
 
         /// <summary>
         /// Specifies random generated number.
         /// </summary>
-        protected BigInteger _randomValue;
+        private BigInteger _randomValue;
 
         /// <summary>
         /// Specifies host key data.
         /// </summary>
-        protected byte[] _hostKey;
+        private byte[] _hostKey;
 
         /// <summary>
         /// Specifies signature data.
         /// </summary>
-        protected byte[] _signature;
+        private byte[] _signature;
 
         ////  256
         //p = FFFFFFFF 00000001 00000000 00000000 00000000 FFFFFFFF FFFFFFFF FFFFFFFF
@@ -221,7 +221,7 @@ namespace Renci.SshNet.Security
             //string   Q_C, client's ephemeral public key octet string
             //string   Q_S, server's ephemeral public key octet string
             //mpint    K,   shared secret
-            return this.Hash(hashData);
+            return Hash(hashData);
         }
 
         private class _ExchangeHashData : SshData

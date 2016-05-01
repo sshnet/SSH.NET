@@ -403,7 +403,7 @@ namespace Renci.SshNet
                 LoadBytes(data);
             }
 
-            public new UInt32 ReadUInt32()
+            public new uint ReadUInt32()
             {
                 return base.ReadUInt32();
             }

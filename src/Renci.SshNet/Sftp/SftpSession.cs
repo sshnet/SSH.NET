@@ -132,7 +132,7 @@ namespace Renci.SshNet.Sftp
                 fullPath.IndexOf('/') < 0)
                 return fullPath;
 
-            var pathParts = fullPath.Split(new[] { '/' });
+            var pathParts = fullPath.Split('/');
 
             var partialFullPath = string.Join("/", pathParts, 0, pathParts.Length - 1);
 
@@ -502,7 +502,7 @@ namespace Renci.SshNet.Sftp
                             attributes = response.Attributes;
                             wait.Set();
                         },
-                    (response) =>
+                    response =>
                         {
                             exception = GetSftpException(response);
                             wait.Set();

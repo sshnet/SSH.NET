@@ -12,18 +12,13 @@ namespace Renci.SshNet
     /// <summary>
     /// Provides functionality to perform password authentication.
     /// </summary>
-    public partial class PasswordAuthenticationMethod : AuthenticationMethod, IDisposable
+    public class PasswordAuthenticationMethod : AuthenticationMethod, IDisposable
     {
         private AuthenticationResult _authenticationResult = AuthenticationResult.Failure;
-
         private Session _session;
-
         private EventWaitHandle _authenticationCompleted = new AutoResetEvent(false);
-
         private Exception _exception;
-
         private readonly RequestMessage _requestMessage;
-
         private readonly byte[] _password;
 
         /// <summary>
@@ -65,7 +60,6 @@ namespace Renci.SshNet
                 throw new ArgumentNullException("password");
 
             _password = password;
-
             _requestMessage = new RequestMessagePassword(ServiceName.Connection, Username, _password);
         }
 
@@ -88,21 +82,21 @@ namespace Renci.SshNet
             session.UserAuthenticationFailureReceived += Session_UserAuthenticationFailureReceived;
             session.MessageReceived += Session_MessageReceived;
 
-            session.RegisterMessage("SSH_MSG_USERAUTH_PASSWD_CHANGEREQ");
-
-            session.SendMessage(_requestMessage);
-
-            session.WaitOnHandle(_authenticationCompleted);
-            
-            session.UserAuthenticationSuccessReceived -= Session_UserAuthenticationSuccessReceived;
-            session.UserAuthenticationFailureReceived -= Session_UserAuthenticationFailureReceived;
-            session.MessageReceived -= Session_MessageReceived;
-
+            try
+            {
+                session.RegisterMessage("SSH_MSG_USERAUTH_PASSWD_CHANGEREQ");
+                session.SendMessage(_requestMessage);
+                session.WaitOnHandle(_authenticationCompleted);
+            }
+            finally 
+            {
+                session.UserAuthenticationSuccessReceived -= Session_UserAuthenticationSuccessReceived;
+                session.UserAuthenticationFailureReceived -= Session_UserAuthenticationFailureReceived;
+                session.MessageReceived -= Session_MessageReceived;
+            }
 
             if (_exception != null)
-            {
                 throw _exception;
-            }
 
             return _authenticationResult;
         }
@@ -167,7 +161,6 @@ namespace Renci.SshNet
         public void Dispose()
         {
             Dispose(true);
-
             GC.SuppressFinalize(this);
         }
 
@@ -177,22 +170,17 @@ namespace Renci.SshNet
         /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
-            // Check to see if Dispose has already been called.
-            if (!_isDisposed)
+            if (_isDisposed)
+                return;
+           
+            if (disposing)
             {
-                // If disposing equals true, dispose all managed
-                // and unmanaged resources.
-                if (disposing)
+                if (_authenticationCompleted != null)
                 {
-                    // Dispose managed resources.
-                    if (_authenticationCompleted != null)
-                    {
-                        _authenticationCompleted.Dispose();
-                        _authenticationCompleted = null;
-                    }
+                    _authenticationCompleted.Dispose();
+                    _authenticationCompleted = null;
                 }
 
-                // Note disposing has been done.
                 _isDisposed = true;
             }
         }

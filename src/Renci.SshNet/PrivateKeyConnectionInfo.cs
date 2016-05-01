@@ -29,7 +29,7 @@ namespace Renci.SshNet
         ///     <code source="..\..\Renci.SshNet.Tests\Classes\PrivateKeyConnectionInfoTest.cs" region="Example PrivateKeyConnectionInfo PrivateKeyFile Multiple" language="C#" title="Connect using multiple private key" />
         /// </example>
         public PrivateKeyConnectionInfo(string host, string username, params PrivateKeyFile[] keyFiles)
-            : this(host, ConnectionInfo.DefaultPort, username, ProxyTypes.None, string.Empty, 0, string.Empty, string.Empty, keyFiles)
+            : this(host, DefaultPort, username, ProxyTypes.None, string.Empty, 0, string.Empty, string.Empty, keyFiles)
         {
 
         }
@@ -87,7 +87,7 @@ namespace Renci.SshNet
         /// <param name="proxyPort">The proxy port.</param>
         /// <param name="keyFiles">The key files.</param>
         public PrivateKeyConnectionInfo(string host, string username, ProxyTypes proxyType, string proxyHost, int proxyPort, params PrivateKeyFile[] keyFiles)
-            : this(host, ConnectionInfo.DefaultPort, username, proxyType, proxyHost, proxyPort, string.Empty, string.Empty, keyFiles)
+            : this(host, DefaultPort, username, proxyType, proxyHost, proxyPort, string.Empty, string.Empty, keyFiles)
         {
         }
 
@@ -102,7 +102,7 @@ namespace Renci.SshNet
         /// <param name="proxyUsername">The proxy username.</param>
         /// <param name="keyFiles">The key files.</param>
         public PrivateKeyConnectionInfo(string host, string username, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername, params PrivateKeyFile[] keyFiles)
-            : this(host, ConnectionInfo.DefaultPort, username, proxyType, proxyHost, proxyPort, proxyUsername, string.Empty, keyFiles)
+            : this(host, DefaultPort, username, proxyType, proxyHost, proxyPort, proxyUsername, string.Empty, keyFiles)
         {
         }
 
@@ -118,7 +118,7 @@ namespace Renci.SshNet
         /// <param name="proxyPassword">The proxy password.</param>
         /// <param name="keyFiles">The key files.</param>
         public PrivateKeyConnectionInfo(string host, string username, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername, string proxyPassword, params PrivateKeyFile[] keyFiles)
-            : this(host, ConnectionInfo.DefaultPort, username, proxyType, proxyHost, proxyPort, proxyUsername, proxyPassword, keyFiles)
+            : this(host, DefaultPort, username, proxyType, proxyHost, proxyPort, proxyUsername, proxyPassword, keyFiles)
         {
         }
 
@@ -137,7 +137,7 @@ namespace Renci.SshNet
         public PrivateKeyConnectionInfo(string host, int port, string username, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername, string proxyPassword, params PrivateKeyFile[] keyFiles)
             : base(host, port, username, proxyType, proxyHost, proxyPort, proxyUsername, proxyPassword, new PrivateKeyAuthenticationMethod(username, keyFiles))
         {
-            this.KeyFiles = new Collection<PrivateKeyFile>(keyFiles);
+            KeyFiles = new Collection<PrivateKeyFile>(keyFiles);
         }
 
         #region IDisposable Members
@@ -150,7 +150,6 @@ namespace Renci.SshNet
         public void Dispose()
         {
             Dispose(true);
-
             GC.SuppressFinalize(this);
         }
 
@@ -160,24 +159,20 @@ namespace Renci.SshNet
         /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
-            // Check to see if Dispose has already been called.
-            if (!this._isDisposed)
+            if (_isDisposed)
+                return;
+
+            if (disposing)
             {
-                // If disposing equals true, dispose all managed
-                // and unmanaged resources.
-                if (disposing)
+                // Dispose managed resources.
+                if (AuthenticationMethods != null)
                 {
-                    // Dispose managed resources.
-                    if (this.AuthenticationMethods != null)
+                    foreach (var authenticationMethods in AuthenticationMethods.OfType<IDisposable>())
                     {
-                        foreach (var authenticationMethods in this.AuthenticationMethods.OfType<IDisposable>())
-                        {
-                            authenticationMethods.Dispose();
-                        }
+                        authenticationMethods.Dispose();
                     }
                 }
 
-                // Note disposing has been done.
                 _isDisposed = true;
             }
         }

@@ -12,7 +12,6 @@ namespace Renci.SshNet
     public class NoneAuthenticationMethod : AuthenticationMethod, IDisposable
     {
         private AuthenticationResult _authenticationResult = AuthenticationResult.Failure;
-
         private EventWaitHandle _authenticationCompleted = new AutoResetEvent(false);
 
         /// <summary>
@@ -31,7 +30,6 @@ namespace Renci.SshNet
         public NoneAuthenticationMethod(string username)
             : base(username)
         {
-
         }
 
         /// <summary>
@@ -50,12 +48,16 @@ namespace Renci.SshNet
             session.UserAuthenticationSuccessReceived += Session_UserAuthenticationSuccessReceived;
             session.UserAuthenticationFailureReceived += Session_UserAuthenticationFailureReceived;
 
-            session.SendMessage(new RequestMessageNone(ServiceName.Connection, Username));
-
-            session.WaitOnHandle(_authenticationCompleted);
-
-            session.UserAuthenticationSuccessReceived -= Session_UserAuthenticationSuccessReceived;
-            session.UserAuthenticationFailureReceived -= Session_UserAuthenticationFailureReceived;
+            try
+            {
+                session.SendMessage(new RequestMessageNone(ServiceName.Connection, Username));
+                session.WaitOnHandle(_authenticationCompleted);
+            }
+            finally
+            {
+                session.UserAuthenticationSuccessReceived -= Session_UserAuthenticationSuccessReceived;
+                session.UserAuthenticationFailureReceived -= Session_UserAuthenticationFailureReceived;
+            }
 
             return _authenticationResult;
         }
@@ -90,7 +92,6 @@ namespace Renci.SshNet
         public void Dispose()
         {
             Dispose(true);
-
             GC.SuppressFinalize(this);
         }
 
@@ -100,22 +101,17 @@ namespace Renci.SshNet
         /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
-            // Check to see if Dispose has already been called.
-            if (!_isDisposed)
+            if (_isDisposed)
+                return;
+
+            if (disposing)
             {
-                // If disposing equals true, dispose all managed
-                // and unmanaged resources.
-                if (disposing)
+                if (_authenticationCompleted != null)
                 {
-                    // Dispose managed resources.
-                    if (_authenticationCompleted != null)
-                    {
-                        _authenticationCompleted.Dispose();
-                        _authenticationCompleted = null;
-                    }
+                    _authenticationCompleted.Dispose();
+                    _authenticationCompleted = null;
                 }
 
-                // Note disposing has been done.
                 _isDisposed = true;
             }
         }

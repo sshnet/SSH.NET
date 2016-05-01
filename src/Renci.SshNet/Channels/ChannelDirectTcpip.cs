@@ -54,7 +54,7 @@ namespace Renci.SshNet.Channels
             _forwardedPort = forwardedPort;
             _forwardedPort.Closing += ForwardedPort_Closing;
 
-            var ep = socket.RemoteEndPoint as IPEndPoint;
+            var ep = (IPEndPoint) socket.RemoteEndPoint;
 
             // open channel
             SendMessage(new ChannelOpenMessage(LocalChannelNumber, LocalWindowSize, LocalPacketSize,

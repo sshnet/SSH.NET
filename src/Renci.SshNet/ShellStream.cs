@@ -14,7 +14,7 @@ namespace Renci.SshNet
     /// <summary>
     /// Contains operation for working with SSH Shell.
     /// </summary>
-    public partial class ShellStream : Stream
+    public class ShellStream : Stream
     {
         private const string CrLf = "\r\n";
         private const int BufferSize = 1024;
@@ -25,6 +25,7 @@ namespace Renci.SshNet
         private readonly Queue<byte> _outgoing;
         private IChannelSession _channel;
         private AutoResetEvent _dataReceived = new AutoResetEvent(false);
+        private bool _isDisposed;
 
         /// <summary>
         /// Occurs when data was received.
@@ -667,25 +668,49 @@ namespace Renci.SshNet
         {
             base.Dispose(disposing);
 
-            if (_session != null)
-            {
-                _session.Disconnected -= Session_Disconnected;
-                _session.ErrorOccured -= Session_ErrorOccured;
-            }
+            if (_isDisposed)
+                return;
 
-            if (_channel != null)
+            if (disposing)
             {
-                _channel.DataReceived -= Channel_DataReceived;
-                _channel.Closed -= Channel_Closed;
-                _channel.Dispose();
-                _channel = null;
-            }
+                UnsubscribeFromSessionEvents(_session);
 
-            if (_dataReceived != null)
-            {
-                _dataReceived.Dispose();
-                _dataReceived = null;
+                if (_channel != null)
+                {
+                    _channel.DataReceived -= Channel_DataReceived;
+                    _channel.Closed -= Channel_Closed;
+                    _channel.Dispose();
+                    _channel = null;
+                }
+
+                if (_dataReceived != null)
+                {
+                    _dataReceived.Dispose();
+                    _dataReceived = null;
+                }
+
+                _isDisposed = true;
             }
+            else
+            {
+                UnsubscribeFromSessionEvents(_session);
+            }
+        }
+
+        /// <summary>
+        /// Unsubscribes the current <see cref="Shell"/> from session events.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <remarks>
+        /// Does nothing when <paramref name="session"/> is <c>null</c>.
+        /// </remarks>
+        private void UnsubscribeFromSessionEvents(ISession session)
+        {
+            if (session == null)
+                return;
+
+            session.Disconnected -= Session_Disconnected;
+            session.ErrorOccured -= Session_ErrorOccured;
         }
 
         private void Session_ErrorOccured(object sender, ExceptionEventArgs e)

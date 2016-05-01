@@ -74,8 +74,8 @@
         /// <value>The length of the max buffer.</value>
         public long MaxBufferLength
         {
-            get { return this._maxBufferLength; }
-            set { this._maxBufferLength = value; }
+            get { return _maxBufferLength; }
+            set { _maxBufferLength = value; }
         }
 
         /// <summary>
@@ -97,19 +97,19 @@
                 if (_isDisposed)
                     throw CreateObjectDisposedException();
 
-                return this._canBlockLastRead;
+                return _canBlockLastRead;
             }
             set
             {
                 if (_isDisposed)
                     throw CreateObjectDisposedException();
 
-                this._canBlockLastRead = value;
+                _canBlockLastRead = value;
 
                 // when turning off the block last read, signal Read() that it may now read the rest of the buffer.
-                if (!this._canBlockLastRead)
-                    lock (this._buffer)
-                        Monitor.Pulse(this._buffer);
+                if (!_canBlockLastRead)
+                    lock (_buffer)
+                        Monitor.Pulse(_buffer);
             }
         }
 
@@ -127,9 +127,9 @@
             if (_isDisposed)
                 throw CreateObjectDisposedException();
 
-            this._isFlushed = true;
-            lock (this._buffer)
-                Monitor.Pulse(this._buffer);
+            _isFlushed = true;
+            lock (_buffer)
+                Monitor.Pulse(_buffer);
         }
 
         /// <summary>
@@ -190,18 +190,18 @@
 
             int readLength = 0;
 
-            lock (this._buffer)
+            lock (_buffer)
             {
-                while (!this.ReadAvailable(count))
-                    Monitor.Wait(this._buffer);
+                while (!ReadAvailable(count))
+                    Monitor.Wait(_buffer);
 
                 // fill the read buffer
-                for (; readLength < count && Length > 0 && this._buffer.Count > 0; readLength++)
+                for (; readLength < count && Length > 0 && _buffer.Count > 0; readLength++)
                 {
-                    buffer[readLength] = this._buffer.Dequeue();
+                    buffer[readLength] = _buffer.Dequeue();
                 }
 
-                Monitor.Pulse(this._buffer);
+                Monitor.Pulse(_buffer);
             }
             return readLength;
         }
@@ -213,8 +213,8 @@
         /// <returns><c>True</c> if data available; otherwise<c>false</c>.</returns>
         private bool ReadAvailable(int count)
         {
-            return (this.Length >= count || this._isFlushed) &&
-                   (this.Length >= (count + 1) || !this.BlockLastReadBuffer);
+            return (Length >= count || _isFlushed) &&
+                   (Length >= (count + 1) || !BlockLastReadBuffer);
         }
 
         ///<summary>
@@ -242,21 +242,21 @@
             if (count == 0)
                 return;
 
-            lock (this._buffer)
+            lock (_buffer)
             {
                 // wait until the buffer isn't full
-                while (this.Length >= this._maxBufferLength)
-                    Monitor.Wait(this._buffer);
+                while (Length >= _maxBufferLength)
+                    Monitor.Wait(_buffer);
 
-                this._isFlushed = false; // if it were flushed before, it soon will not be.
+                _isFlushed = false; // if it were flushed before, it soon will not be.
 
                 // queue up the buffer data
                 for (int i = offset; i < offset + count; i++)
                 {
-                    this._buffer.Enqueue(buffer[i]);
+                    _buffer.Enqueue(buffer[i]);
                 }
 
-                Monitor.Pulse(this._buffer); // signal that write has occurred
+                Monitor.Pulse(_buffer); // signal that write has occurred
             }
         }
 
@@ -319,7 +319,7 @@
                 if (_isDisposed)
                     throw CreateObjectDisposedException();
 
-                return this._buffer.Count;
+                return _buffer.Count;
             }
         }
 

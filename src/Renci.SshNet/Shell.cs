@@ -11,34 +11,21 @@ namespace Renci.SshNet
     /// <summary>
     /// Represents instance of the SSH shell object
     /// </summary>
-    public partial class Shell : IDisposable
+    public class Shell : IDisposable
     {
         private readonly ISession _session;
-
         private IChannelSession _channel;
-
         private EventWaitHandle _channelClosedWaitHandle;
-
         private Stream _input;
-
         private readonly string _terminalName;
-
         private readonly uint _columns;
-
         private readonly uint _rows;
-
         private readonly uint _width;
-
         private readonly uint _height;
-
         private readonly IDictionary<TerminalModes, uint> _terminalModes;
-
         private EventWaitHandle _dataReaderTaskCompleted;
-
         private readonly Stream _outputStream;
-
         private readonly Stream _extendedOutputStream;
-
         private readonly int _bufferSize;
 
         /// <summary>
@@ -175,7 +162,7 @@ namespace Renci.SshNet
 
                         }, null);
 
-                        EventWaitHandle.WaitAny(new WaitHandle[] { asyncResult.AsyncWaitHandle, _channelClosedWaitHandle });
+                        WaitHandle.WaitAny(new[] { asyncResult.AsyncWaitHandle, _channelClosedWaitHandle });
 
                         if (asyncResult.IsCompleted)
                             continue;
@@ -280,8 +267,8 @@ namespace Renci.SshNet
             _channel.DataReceived -= Channel_DataReceived;
             _channel.ExtendedDataReceived -= Channel_ExtendedDataReceived;
             _channel.Closed -= Channel_Closed;
-            _session.Disconnected -= Session_Disconnected;
-            _session.ErrorOccured -= Session_ErrorOccured;
+
+            UnsubscribeFromSessionEvents(_session);
 
             if (Stopped != null)
             {
@@ -290,6 +277,22 @@ namespace Renci.SshNet
             }
 
             _channel = null;
+        }
+
+        /// <summary>
+        /// Unsubscribes the current <see cref="Channel"/> from session events.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <remarks>
+        /// Does nothing when <paramref name="session"/> is <c>null</c>.
+        /// </remarks>
+        private void UnsubscribeFromSessionEvents(ISession session)
+        {
+            if (session == null)
+                return;
+
+            session.Disconnected -= Session_Disconnected;
+            session.ErrorOccured -= Session_ErrorOccured;
         }
 
         #region IDisposable Members
@@ -302,7 +305,6 @@ namespace Renci.SshNet
         public void Dispose()
         {
             Dispose(true);
-
             GC.SuppressFinalize(this);
         }
 
@@ -312,34 +314,36 @@ namespace Renci.SshNet
         /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged ResourceMessages.</param>
         protected virtual void Dispose(bool disposing)
         {
-            // Check to see if Dispose has already been called.
-            if (!_disposed)
+            if (_disposed)
+                return;
+
+            if (disposing)
             {
-                // If disposing equals true, dispose all managed
-                // and unmanaged ResourceMessages.
-                if (disposing)
+                UnsubscribeFromSessionEvents(_session);
+
+                if (_channelClosedWaitHandle != null)
                 {
-                    if (_channelClosedWaitHandle != null)
-                    {
-                        _channelClosedWaitHandle.Dispose();
-                        _channelClosedWaitHandle = null;
-                    }
-
-                    if (_channel != null)
-                    {
-                        _channel.Dispose();
-                        _channel = null;
-                    }
-
-                    if (_dataReaderTaskCompleted != null)
-                    {
-                        _dataReaderTaskCompleted.Dispose();
-                        _dataReaderTaskCompleted = null;
-                    }
+                    _channelClosedWaitHandle.Dispose();
+                    _channelClosedWaitHandle = null;
                 }
 
-                // Note disposing has been done.
+                if (_channel != null)
+                {
+                    _channel.Dispose();
+                    _channel = null;
+                }
+
+                if (_dataReaderTaskCompleted != null)
+                {
+                    _dataReaderTaskCompleted.Dispose();
+                    _dataReaderTaskCompleted = null;
+                }
+
                 _disposed = true;
+            }
+            else
+            {
+                UnsubscribeFromSessionEvents(_session);
             }
         }
 

@@ -145,7 +145,7 @@ namespace Renci.SshNet
             var handlers = RequestReceived;
             if (handlers != null)
             {
-                RequestReceived(this, new PortForwardEventArgs(host, port));
+                handlers(this, new PortForwardEventArgs(host, port));
             }
         }
 

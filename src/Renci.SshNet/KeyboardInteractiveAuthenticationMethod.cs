@@ -16,11 +16,8 @@ namespace Renci.SshNet
         private AuthenticationResult _authenticationResult = AuthenticationResult.Failure;
 
         private Session _session;
-
         private EventWaitHandle _authenticationCompleted = new AutoResetEvent(false);
-
         private Exception _exception;
-
         private readonly RequestMessage _requestMessage;
 
         /// <summary>
@@ -28,7 +25,7 @@ namespace Renci.SshNet
         /// </summary>
         public override string Name
         {
-            get { return this._requestMessage.MethodName; }
+            get { return _requestMessage.MethodName; }
         }
 
         /// <summary>
@@ -44,7 +41,7 @@ namespace Renci.SshNet
         public KeyboardInteractiveAuthenticationMethod(string username)
             : base(username)
         {
-            this._requestMessage = new RequestMessageKeyboardInteractive(ServiceName.Connection, username);
+            _requestMessage = new RequestMessageKeyboardInteractive(ServiceName.Connection, username);
         }
 
         /// <summary>
@@ -54,52 +51,50 @@ namespace Renci.SshNet
         /// <returns>Result of authentication  process.</returns>
         public override AuthenticationResult Authenticate(Session session)
         {
-            this._session = session;
+            _session = session;
 
             session.UserAuthenticationSuccessReceived += Session_UserAuthenticationSuccessReceived;
             session.UserAuthenticationFailureReceived += Session_UserAuthenticationFailureReceived;
             session.MessageReceived += Session_MessageReceived;
 
-            session.RegisterMessage("SSH_MSG_USERAUTH_INFO_REQUEST");
-
-            session.SendMessage(this._requestMessage);
-
-            session.WaitOnHandle(this._authenticationCompleted);
-
-            session.UnRegisterMessage("SSH_MSG_USERAUTH_INFO_REQUEST");
-
-
-            session.UserAuthenticationSuccessReceived -= Session_UserAuthenticationSuccessReceived;
-            session.UserAuthenticationFailureReceived -= Session_UserAuthenticationFailureReceived;
-            session.MessageReceived -= Session_MessageReceived;
-
-
-            if (this._exception != null)
+            try
             {
-                throw this._exception;
+                session.RegisterMessage("SSH_MSG_USERAUTH_INFO_REQUEST");
+                session.SendMessage(_requestMessage);
+                session.WaitOnHandle(_authenticationCompleted);
+                session.UnRegisterMessage("SSH_MSG_USERAUTH_INFO_REQUEST");
+            }
+            finally
+            {
+                session.UserAuthenticationSuccessReceived -= Session_UserAuthenticationSuccessReceived;
+                session.UserAuthenticationFailureReceived -= Session_UserAuthenticationFailureReceived;
+                session.MessageReceived -= Session_MessageReceived;
             }
 
-            return this._authenticationResult;
+            if (_exception != null)
+                throw _exception;
+
+            return _authenticationResult;
         }
 
         private void Session_UserAuthenticationSuccessReceived(object sender, MessageEventArgs<SuccessMessage> e)
         {
-            this._authenticationResult = AuthenticationResult.Success;
+            _authenticationResult = AuthenticationResult.Success;
 
-            this._authenticationCompleted.Set();
+            _authenticationCompleted.Set();
         }
 
         private void Session_UserAuthenticationFailureReceived(object sender, MessageEventArgs<FailureMessage> e)
         {
             if (e.Message.PartialSuccess)
-                this._authenticationResult = AuthenticationResult.PartialSuccess;
+                _authenticationResult = AuthenticationResult.PartialSuccess;
             else
-                this._authenticationResult = AuthenticationResult.Failure;
+                _authenticationResult = AuthenticationResult.Failure;
 
             //  Copy allowed authentication methods
-            this.AllowedAuthentications = e.Message.AllowedAuthentications.ToList();
+            AllowedAuthentications = e.Message.AllowedAuthentications.ToList();
 
-            this._authenticationCompleted.Set();
+            _authenticationCompleted.Set();
         }
 
         private void Session_MessageReceived(object sender, MessageEventArgs<Message> e)
@@ -107,15 +102,15 @@ namespace Renci.SshNet
             var informationRequestMessage = e.Message as InformationRequestMessage;
             if (informationRequestMessage != null)
             {
-                var eventArgs = new AuthenticationPromptEventArgs(this.Username, informationRequestMessage.Instruction, informationRequestMessage.Language, informationRequestMessage.Prompts);
+                var eventArgs = new AuthenticationPromptEventArgs(Username, informationRequestMessage.Instruction, informationRequestMessage.Language, informationRequestMessage.Prompts);
 
                 ThreadAbstraction.ExecuteThread(() =>
                 {
                     try
                     {
-                        if (this.AuthenticationPrompt != null)
+                        if (AuthenticationPrompt != null)
                         {
-                            this.AuthenticationPrompt(this, eventArgs);
+                            AuthenticationPrompt(this, eventArgs);
                         }
 
                         var informationResponse = new InformationResponseMessage();
@@ -126,12 +121,12 @@ namespace Renci.SshNet
                         }
 
                         //  Send information response message
-                        this._session.SendMessage(informationResponse);
+                        _session.SendMessage(informationResponse);
                     }
                     catch (Exception exp)
                     {
-                        this._exception = exp;
-                        this._authenticationCompleted.Set();
+                        _exception = exp;
+                        _authenticationCompleted.Set();
                     }
                 });
             }
@@ -147,7 +142,6 @@ namespace Renci.SshNet
         public void Dispose()
         {
             Dispose(true);
-
             GC.SuppressFinalize(this);
         }
 
@@ -157,22 +151,17 @@ namespace Renci.SshNet
         /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
-            // Check to see if Dispose has already been called.
-            if (!this._isDisposed)
+            if (_isDisposed)
+                return;
+
+            if (disposing)
             {
-                // If disposing equals true, dispose all managed
-                // and unmanaged resources.
-                if (disposing)
+                if (_authenticationCompleted != null)
                 {
-                    // Dispose managed resources.
-                    if (this._authenticationCompleted != null)
-                    {
-                        this._authenticationCompleted.Dispose();
-                        this._authenticationCompleted = null;
-                    }
+                    _authenticationCompleted.Dispose();
+                    _authenticationCompleted = null;
                 }
 
-                // Note disposing has been done.
                 _isDisposed = true;
             }
         }

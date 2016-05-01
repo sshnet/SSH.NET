@@ -85,7 +85,7 @@ namespace Renci.SshNet.Common
         /// <returns>DER Encoded array.</returns>
         public byte[] Encode()
         {
-            var length = _data.Count();
+            var length = _data.Count;
             var lengthBytes = GetLength(length);
 
             _data.InsertRange(0, lengthBytes);

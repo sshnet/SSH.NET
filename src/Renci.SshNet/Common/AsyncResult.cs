@@ -166,7 +166,7 @@ namespace Renci.SshNet.Common
         /// </summary>
         /// <param name="asyncCallback">The async callback.</param>
         /// <param name="state">The state.</param>
-        public AsyncResult(AsyncCallback asyncCallback, Object state)
+        protected AsyncResult(AsyncCallback asyncCallback, Object state)
             : base(asyncCallback, state)
         {
         }

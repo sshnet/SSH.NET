@@ -40,7 +40,7 @@ namespace Renci.SshNet.Security
         /// Initializes a new instance of the <see cref="Key"/> class.
         /// </summary>
         /// <param name="data">DER encoded private key data.</param>
-        public Key(byte[] data)
+        protected Key(byte[] data)
         {
             if (data == null)
                 throw new ArgumentNullException("data");
@@ -54,13 +54,13 @@ namespace Renci.SshNet.Security
                 keys.Add(der.ReadBigInteger());
             }
 
-            this._privateKey = keys.ToArray();
+            _privateKey = keys.ToArray();
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Key"/> class.
         /// </summary>
-        public Key()
+        protected Key()
         {
         }
 
@@ -73,7 +73,7 @@ namespace Renci.SshNet.Security
         /// </returns>
         public byte[] Sign(byte[] data)
         {
-            return this.DigitalSignature.Sign(data);
+            return DigitalSignature.Sign(data);
         }
 
         /// <summary>
@@ -84,7 +84,7 @@ namespace Renci.SshNet.Security
         /// <returns><c>True</c> is signature was successfully verifies; otherwise <c>false</c>.</returns>
         public bool VerifySignature(byte[] data, byte[] signature)
         {
-            return this.DigitalSignature.Verify(data, signature);
+            return DigitalSignature.Verify(data, signature);
         }
     }
 }

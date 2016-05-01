@@ -74,7 +74,7 @@ namespace Renci.SshNet.Common
         public DerData(byte[] data)
         {
             _data = new List<byte>(data);
-            var dataType = ReadByte();
+            ReadByte(); // skip dataType
             var length = ReadLength();
             _lastIndex = _readerIndex + length;
         }
@@ -160,7 +160,7 @@ namespace Renci.SshNet.Common
         /// Writes UInt32 data into internal buffer.
         /// </summary>
         /// <param name="data">UInt32 data to write.</param>
-        public void Write(UInt32 data)
+        public void Write(uint data)
         {
             var bytes = data.GetBytes();
             _data.Add(Integer);

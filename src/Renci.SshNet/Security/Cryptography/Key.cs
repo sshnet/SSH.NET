@@ -46,7 +46,7 @@ namespace Renci.SshNet.Security
                 throw new ArgumentNullException("data");
 
             var der = new DerData(data);
-            var version = der.ReadBigInteger();
+            der.ReadBigInteger(); // skip version
 
             var keys = new List<BigInteger>();
             while (!der.IsEndOfData)

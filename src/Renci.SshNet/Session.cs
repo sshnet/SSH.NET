@@ -594,6 +594,9 @@ namespace Renci.SshNet
 
                     //  Some server implementations might sent this message first, prior establishing encryption algorithm
                     RegisterMessage("SSH_MSG_USERAUTH_BANNER");
+					
+					// Modern versions of OpenSSH server use this generic message for various proprietary extensions of the SSH protocol.
+                    RegisterMessage("SSH_MSG_GLOBAL_REQUEST");					
 
                     // mark the message listener threads as started
                     _messageListenerCompleted.Reset();
@@ -626,7 +629,6 @@ namespace Renci.SshNet
                     _isAuthenticated = true;
 
                     //  Register Connection messages
-                    RegisterMessage("SSH_MSG_GLOBAL_REQUEST");
                     RegisterMessage("SSH_MSG_REQUEST_SUCCESS");
                     RegisterMessage("SSH_MSG_REQUEST_FAILURE");
                     RegisterMessage("SSH_MSG_CHANNEL_OPEN_CONFIRMATION");

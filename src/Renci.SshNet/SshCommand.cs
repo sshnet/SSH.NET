@@ -16,21 +16,14 @@ namespace Renci.SshNet
     /// </summary>
     public class SshCommand : IDisposable
     {
-        private readonly ISession _session;
+        private ISession _session;
         private readonly Encoding _encoding;
-
         private IChannelSession _channel;
-
         private CommandAsyncResult _asyncResult;
-
         private AsyncCallback _callback;
-
-        private EventWaitHandle _sessionErrorOccuredWaitHandle = new AutoResetEvent(false);
-
+        private EventWaitHandle _sessionErrorOccuredWaitHandle;
         private Exception _exception;
-
         private bool _hasError;
-
         private readonly object _endExecuteLock = new object();
 
         /// <summary>
@@ -151,6 +144,7 @@ namespace Renci.SshNet
             CommandText = commandText;
             _encoding = encoding;
             CommandTimeout = new TimeSpan(0, 0, 0, 0, -1);
+            _sessionErrorOccuredWaitHandle = new AutoResetEvent(false);
 
             _session.Disconnected += Session_Disconnected;
             _session.ErrorOccured += Session_ErrorOccured;
@@ -525,22 +519,6 @@ namespace Renci.SshNet
             channel.Dispose();
         }
 
-        /// <summary>
-        /// Unsubscribes the current <see cref="SshCommand"/> from session events.
-        /// </summary>
-        /// <param name="session">The session.</param>
-        /// <remarks>
-        /// Does nothing when <paramref name="session"/> is <c>null</c>.
-        /// </remarks>
-        private void UnsubscribeFromSessionEvents(ISession session)
-        {
-            if (session == null)
-                return;
-
-            session.Disconnected -= Session_Disconnected;
-            session.ErrorOccured -= Session_ErrorOccured;
-        }
-
         #region IDisposable Members
 
         private bool _isDisposed;
@@ -567,7 +545,13 @@ namespace Renci.SshNet
             {
                 // unsubscribe from session events to ensure other objects that we're going to dispose
                 // are not accessed while disposing
-                UnsubscribeFromSessionEvents(_session);
+                var session = _session;
+                if (session != null)
+                {
+                    session.Disconnected -= Session_Disconnected;
+                    session.ErrorOccured -= Session_ErrorOccured;
+                    _session = null;
+                }
 
                 // unsubscribe from channel events to ensure other objects that we're going to dispose
                 // are not accessed while disposing
@@ -600,11 +584,6 @@ namespace Renci.SshNet
                 }
 
                 _isDisposed = true;
-            }
-            else
-            {
-                // avoid event-based memory leaks when client does not dispose instance
-                UnsubscribeFromSessionEvents(_session);
             }
         }
 

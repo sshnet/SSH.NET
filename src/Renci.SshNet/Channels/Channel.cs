@@ -952,58 +952,45 @@ namespace Renci.SshNet.Channels
             {
                 Close(false);
 
-                if (_session != null)
+                var session = _session;
+                if (session != null)
                 {
-                    UnsubscribeFromSessionEvents(_session);
+                    session.ChannelWindowAdjustReceived -= OnChannelWindowAdjust;
+                    session.ChannelDataReceived -= OnChannelData;
+                    session.ChannelExtendedDataReceived -= OnChannelExtendedData;
+                    session.ChannelEofReceived -= OnChannelEof;
+                    session.ChannelCloseReceived -= OnChannelClose;
+                    session.ChannelRequestReceived -= OnChannelRequest;
+                    session.ChannelSuccessReceived -= OnChannelSuccess;
+                    session.ChannelFailureReceived -= OnChannelFailure;
+                    session.ErrorOccured -= Session_ErrorOccured;
+                    session.Disconnected -= Session_Disconnected;
                     _session = null;
                 }
 
-                if (_channelClosedWaitHandle != null)
+                var channelClosedWaitHandle = _channelClosedWaitHandle;
+                if (channelClosedWaitHandle != null)
                 {
-                    _channelClosedWaitHandle.Dispose();
+                    channelClosedWaitHandle.Dispose();
                     _channelClosedWaitHandle = null;
                 }
-                if (_channelServerWindowAdjustWaitHandle != null)
+
+                var channelServerWindowAdjustWaitHandle = _channelServerWindowAdjustWaitHandle;
+                if (channelServerWindowAdjustWaitHandle != null)
                 {
-                    _channelServerWindowAdjustWaitHandle.Dispose();
+                    channelServerWindowAdjustWaitHandle.Dispose();
                     _channelServerWindowAdjustWaitHandle = null;
                 }
-                if (_errorOccuredWaitHandle != null)
+
+                var errorOccuredWaitHandle = _errorOccuredWaitHandle;
+                if (errorOccuredWaitHandle != null)
                 {
-                    _errorOccuredWaitHandle.Dispose();
+                    errorOccuredWaitHandle.Dispose();
                     _errorOccuredWaitHandle = null;
                 }
 
                 _isDisposed = true;
             }
-            else
-            {
-                UnsubscribeFromSessionEvents(_session);
-            }
-        }
-
-        /// <summary>
-        /// Unsubscribes the current <see cref="Channel"/> from session events.
-        /// </summary>
-        /// <param name="session">The session.</param>
-        /// <remarks>
-        /// Does nothing when <paramref name="session"/> is <c>null</c>.
-        /// </remarks>
-        private void UnsubscribeFromSessionEvents(ISession session)
-        {
-            if (session == null)
-                return;
-
-            session.ChannelWindowAdjustReceived -= OnChannelWindowAdjust;
-            session.ChannelDataReceived -= OnChannelData;
-            session.ChannelExtendedDataReceived -= OnChannelExtendedData;
-            session.ChannelEofReceived -= OnChannelEof;
-            session.ChannelCloseReceived -= OnChannelClose;
-            session.ChannelRequestReceived -= OnChannelRequest;
-            session.ChannelSuccessReceived -= OnChannelSuccess;
-            session.ChannelFailureReceived -= OnChannelFailure;
-            session.ErrorOccured -= Session_ErrorOccured;
-            session.Disconnected -= Session_Disconnected;
         }
 
         /// <summary>
@@ -1012,9 +999,6 @@ namespace Renci.SshNet.Channels
         /// </summary>
         ~Channel()
         {
-            // Do not re-create Dispose clean-up code here.
-            // Calling Dispose(false) is optimal in terms of
-            // readability and maintainability.
             Dispose(false);
         }
 

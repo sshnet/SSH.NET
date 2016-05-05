@@ -100,7 +100,19 @@ namespace Renci.SshNet.Abstractions
         public static int ReadPartial(Socket socket, byte[] buffer, int offset, int size, TimeSpan timeout)
         {
 #if FEATURE_SOCKET_SYNC
-            return socket.Receive(buffer, offset, size, SocketFlags.None);
+            socket.ReceiveTimeout = (int) timeout.TotalMilliseconds;
+
+            try
+            {
+                return socket.Receive(buffer, offset, size, SocketFlags.None);
+            }
+            catch (SocketException ex)
+            {
+                if (ex.SocketErrorCode == SocketError.TimedOut)
+                    throw new SshOperationTimeoutException(string.Format(CultureInfo.InvariantCulture,
+                        "Socket read operation has timed out after {0:F0} milliseconds.", timeout.TotalMilliseconds));
+                throw;
+            }
 #elif FEATURE_SOCKET_EAP
             var receiveCompleted = new ManualResetEvent(false);
             var sendReceiveToken = new PartialSendReceiveToken(socket, receiveCompleted);
@@ -196,6 +208,8 @@ namespace Renci.SshNet.Abstractions
             var totalBytesRead = 0;
             var totalBytesToRead = size;
 
+            socket.ReceiveTimeout = (int) timeout.TotalMilliseconds;
+
             do
             {
                 try
@@ -213,6 +227,11 @@ namespace Renci.SshNet.Abstractions
                         ThreadAbstraction.Sleep(30);
                         continue;
                     }
+
+                    if (ex.SocketErrorCode == SocketError.TimedOut)
+                        throw new SshOperationTimeoutException(string.Format(CultureInfo.InvariantCulture,
+                            "Socket read operation has timed out after {0:F0} milliseconds.", timeout.TotalMilliseconds));
+
                     throw;
                 }
             }
@@ -329,7 +348,7 @@ namespace Renci.SshNet.Abstractions
 #endif
         }
 
-        private static bool IsErrorResumable(SocketError socketError)
+        public static bool IsErrorResumable(SocketError socketError)
         {
             switch (socketError)
             {

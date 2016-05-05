@@ -94,11 +94,7 @@ namespace Renci.SshNet.Channels
                     var read = SocketAbstraction.ReadPartial(_socket, buffer, 0, buffer.Length, ConnectionInfo.Timeout);
                     if (read > 0)
                     {
-#if TUNING
                         SendData(buffer, 0, read);
-#else
-                        SendMessage(new ChannelDataMessage(RemoteChannelNumber, buffer.Take(read).ToArray()));
-#endif
                     }
                     else
                     {
@@ -183,9 +179,10 @@ namespace Renci.SshNet.Channels
         /// <param name="wait"><c>true</c> to wait for the SSH_MSG_CHANNEL_CLOSE message to be received from the server; otherwise, <c>false</c>.</param>
         protected override void Close(bool wait)
         {
-            if (_forwardedPort != null)
+            var forwardedPort = _forwardedPort;
+            if (forwardedPort != null)
             {
-                _forwardedPort.Closing -= ForwardedPort_Closing;
+                forwardedPort.Closing -= ForwardedPort_Closing;
                 _forwardedPort = null;
             }
 
@@ -313,15 +310,17 @@ namespace Renci.SshNet.Channels
                     }
                 }
 
-                if (_channelOpen != null)
+                var channelOpen = _channelOpen;
+                if (channelOpen != null)
                 {
-                    _channelOpen.Dispose();
+                    channelOpen.Dispose();
                     _channelOpen = null;
                 }
 
-                if (_channelData != null)
+                var channelData = _channelData;
+                if (channelData != null)
                 {
-                    _channelData.Dispose();
+                    channelData.Dispose();
                     _channelData = null;
                 }
             }

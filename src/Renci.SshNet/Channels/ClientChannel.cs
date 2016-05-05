@@ -26,7 +26,7 @@ namespace Renci.SshNet.Channels
         public event EventHandler<ChannelOpenConfirmedEventArgs> OpenConfirmed;
 
         /// <summary>
-        /// Occurs when <see cref="ChannelOpenFailureMessage"/> message received
+        /// Occurs when <see cref="ChannelOpenFailureMessage"/> message is received.
         /// </summary>
         public event EventHandler<ChannelOpenFailedEventArgs> OpenFailed;
 
@@ -40,7 +40,7 @@ namespace Renci.SshNet.Channels
         {
             InitializeRemoteInfo(remoteChannelNumber, initialWindowSize, maximumPacketSize);
 
-            //  Channel is consider to be open when confirmation message was received
+            // Channel is consider to be open when confirmation message was received
             IsOpen = true;
 
             var openConfirmed = OpenConfirmed;
@@ -83,7 +83,6 @@ namespace Renci.SshNet.Channels
                 {
                     OnChannelException(ex);
                 }
-                
             }
         }
 

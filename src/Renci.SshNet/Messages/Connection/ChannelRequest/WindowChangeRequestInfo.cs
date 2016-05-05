@@ -41,7 +41,6 @@
         /// </summary>
         public uint Height { get; private set; }
 
-#if TUNING
         /// <summary>
         /// Gets the size of the message in bytes.
         /// </summary>
@@ -60,7 +59,6 @@
                 return capacity;
             }
         }
-#endif
 
         /// <summary>
         /// Initializes a new instance of the <see cref="WindowChangeRequestInfo"/> class.

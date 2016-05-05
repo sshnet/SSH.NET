@@ -27,7 +27,6 @@
         /// </value>
         public uint MaximumPacketSize { get; private set; }
 
-#if TUNING
         protected override int BufferCapacity
         {
             get
@@ -39,7 +38,6 @@
                 return capacity;
             }
         }
-#endif
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ChannelOpenConfirmationMessage"/> class.

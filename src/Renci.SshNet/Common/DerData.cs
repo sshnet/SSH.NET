@@ -108,11 +108,7 @@ namespace Renci.SshNet.Common
 
             var data = ReadBytes(length);
 
-#if TUNING
             return new BigInteger(data.Reverse());
-#else
-            return new BigInteger(data.Reverse().ToArray());
-#endif
         }
 
         /// <summary>
@@ -175,13 +171,9 @@ namespace Renci.SshNet.Common
         /// <param name="data">BigInteger data to write.</param>
         public void Write(BigInteger data)
         {
-#if TUNING
-            var bytes = data.ToByteArray().Reverse().ToList();
-#else
-            var bytes = data.ToByteArray().Reverse().ToList();
-#endif
+            var bytes = data.ToByteArray().Reverse();
             _data.Add(Integer);
-            var length = GetLength(bytes.Count);
+            var length = GetLength(bytes.Length);
             WriteBytes(length);
             WriteBytes(bytes);
         }

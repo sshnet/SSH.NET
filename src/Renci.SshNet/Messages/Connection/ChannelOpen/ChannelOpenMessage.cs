@@ -11,7 +11,6 @@ namespace Renci.SshNet.Messages.Connection
     {
         internal const byte MessageNumber = 90;
 
-#if TUNING
         private byte[] _infoBytes;
 
         /// <summary>
@@ -21,21 +20,6 @@ namespace Renci.SshNet.Messages.Connection
         /// The type of the channel.
         /// </value>
         public byte[] ChannelType { get; private set; }
-#else
-        /// <summary>
-        /// Gets the type of the channel.
-        /// </summary>
-        /// <value>
-        /// The type of the channel.
-        /// </value>
-        public string ChannelType
-        {
-            get
-            {
-                return Info.ChannelType;
-            }
-        }
-#endif
 
         /// <summary>
         /// Gets or sets the local channel number.
@@ -66,7 +50,6 @@ namespace Renci.SshNet.Messages.Connection
         /// </summary>
         public ChannelOpenInfo Info { get; private set; }
 
-#if TUNING
         /// <summary>
         /// Gets the size of the message in bytes.
         /// </summary>
@@ -87,7 +70,6 @@ namespace Renci.SshNet.Messages.Connection
                 return capacity;
             }
         }
-#endif
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ChannelOpenMessage"/> class.
@@ -110,16 +92,12 @@ namespace Renci.SshNet.Messages.Connection
             if (info == null)
                 throw new ArgumentNullException("info");
 
-#if TUNING
             ChannelType = Ascii.GetBytes(info.ChannelType);
-#endif
             LocalChannelNumber = channelNumber;
             InitialWindowSize = initialWindowSize;
             MaximumPacketSize = maximumPacketSize;
             Info = info;
-#if TUNING
             _infoBytes = info.GetBytes();
-#endif
         }
 
         /// <summary>
@@ -127,21 +105,13 @@ namespace Renci.SshNet.Messages.Connection
         /// </summary>
         protected override void LoadData()
         {
-#if TUNING
             ChannelType = ReadBinary();
-#else
-            var channelName = ReadAsciiString();
-#endif
             LocalChannelNumber = ReadUInt32();
             InitialWindowSize = ReadUInt32();
             MaximumPacketSize = ReadUInt32();
-#if TUNING
             _infoBytes = ReadBytes();
 
             var channelName = Ascii.GetString(ChannelType, 0, ChannelType.Length);
-#else
-            var _infoBytes = ReadBytes();
-#endif
 
             switch (channelName)
             {
@@ -167,19 +137,11 @@ namespace Renci.SshNet.Messages.Connection
         /// </summary>
         protected override void SaveData()
         {
-#if TUNING
             WriteBinaryString(ChannelType);
-#else
-            WriteAscii(ChannelType);
-#endif
             Write(LocalChannelNumber);
             Write(InitialWindowSize);
             Write(MaximumPacketSize);
-#if TUNING
             Write(_infoBytes);
-#else
-            Write(Info.GetBytes());
-#endif
         }
     }
 }

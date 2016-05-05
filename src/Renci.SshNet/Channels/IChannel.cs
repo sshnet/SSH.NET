@@ -79,7 +79,6 @@ namespace Renci.SshNet.Channels
         /// <param name="data">The payload to send.</param>
         void SendData(byte[] data);
 
-#if TUNING
         /// <summary>
         /// Sends a SSH_MSG_CHANNEL_DATA message with the specified payload.
         /// </summary>
@@ -99,7 +98,6 @@ namespace Renci.SshNet.Channels
         /// </para>
         /// </remarks>
         void SendData(byte[] data, int offset, int size);
-#endif
 
         /// <summary>
         /// Sends a SSH_MSG_CHANNEL_EOF message to the remote server.

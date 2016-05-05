@@ -20,11 +20,7 @@
         {
             base.LoadData();
             
-#if TUNING
             Data = ReadBinary();
-#else
-            Data = ReadBinaryString();
-#endif
 
             if (!IsEndOfData)
             {

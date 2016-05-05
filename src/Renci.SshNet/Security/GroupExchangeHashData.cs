@@ -5,7 +5,6 @@ namespace Renci.SshNet.Security
 {
     internal class GroupExchangeHashData : SshData
     {
-#if TUNING
         private byte[] _serverVersion;
         private byte[] _clientVersion;
         private byte[] _prime;
@@ -13,27 +12,19 @@ namespace Renci.SshNet.Security
         private byte[] _clientExchangeValue;
         private byte[] _serverExchangeValue;
         private byte[] _sharedKey;
-#endif
 
-#if TUNING
         public string ServerVersion
         {
             private get { return Utf8.GetString(_serverVersion, 0, _serverVersion.Length); }
             set { _serverVersion = Utf8.GetBytes(value); }
         }
-#else
-        public string ServerVersion { get; set; }
-#endif
 
-#if TUNING
+
         public string ClientVersion
         {
             private get { return Utf8.GetString(_clientVersion, 0, _clientVersion.Length); }
             set { _clientVersion = Utf8.GetBytes(value); }
         }
-#else
-        public string ClientVersion { get; set; }
-#endif
 
         public byte[] ClientPayload { get; set; }
 
@@ -47,57 +38,36 @@ namespace Renci.SshNet.Security
 
         public uint MaximumGroupSize { get; set; }
 
-#if TUNING
         public BigInteger Prime
         {
             private get { return _prime.ToBigInteger(); }
             set { _prime = value.ToByteArray().Reverse(); }
         }
-#else
-        public BigInteger Prime { get; set; }
-#endif
 
-#if TUNING
         public BigInteger SubGroup
         {
             private get { return _subGroup.ToBigInteger(); }
             set { _subGroup = value.ToByteArray().Reverse(); }
         }
-#else
-        public BigInteger SubGroup { get; set; }
-#endif
 
-#if TUNING
         public BigInteger ClientExchangeValue
         {
             private get { return _clientExchangeValue.ToBigInteger(); }
             set { _clientExchangeValue = value.ToByteArray().Reverse(); }
         }
-#else
-        public BigInteger ClientExchangeValue { get; set; }
-#endif
 
-#if TUNING
         public BigInteger ServerExchangeValue
         {
             private get { return _serverExchangeValue.ToBigInteger(); }
             set { _serverExchangeValue = value.ToByteArray().Reverse(); }
         }
-#else
-        public BigInteger ServerExchangeValue { get; set; }
-#endif
 
-#if TUNING
         public BigInteger SharedKey
         {
             private get { return _sharedKey.ToBigInteger(); }
             set { _sharedKey = value.ToByteArray().Reverse(); }
         }
-#else
-        public BigInteger SharedKey { get; set; }
-#endif
 
-#if TUNING
         /// <summary>
         /// Gets the size of the message in bytes.
         /// </summary>
@@ -135,7 +105,6 @@ namespace Renci.SshNet.Security
                 return capacity;
             }
         }
-#endif
 
         protected override void LoadData()
         {
@@ -144,32 +113,19 @@ namespace Renci.SshNet.Security
 
         protected override void SaveData()
         {
-#if TUNING
             WriteBinaryString(_clientVersion);
             WriteBinaryString(_serverVersion);
-#else
-            Write(ClientVersion);
-            Write(ServerVersion);
-#endif
             WriteBinaryString(ClientPayload);
             WriteBinaryString(ServerPayload);
             WriteBinaryString(HostKey);
             Write(MinimumGroupSize);
             Write(PreferredGroupSize);
             Write(MaximumGroupSize);
-#if TUNING
             WriteBinaryString(_prime);
             WriteBinaryString(_subGroup);
             WriteBinaryString(_clientExchangeValue);
             WriteBinaryString(_serverExchangeValue);
             WriteBinaryString(_sharedKey);
-#else
-            Write(Prime);
-            Write(SubGroup);
-            Write(ClientExchangeValue);
-            Write(ServerExchangeValue);
-            Write(SharedKey);
-#endif
         }
     }
 }

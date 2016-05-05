@@ -6,28 +6,21 @@ namespace Renci.SshNet.Sftp.Requests
 {
     internal class SftpReadLinkRequest : SftpRequest
     {
-#if TUNING
         private byte[] _path;
-#endif
 
         public override SftpMessageTypes SftpMessageType
         {
             get { return SftpMessageTypes.ReadLink; }
         }
 
-#if TUNING
         public string Path
         {
             get { return Encoding.GetString(_path, 0, _path.Length); }
             private set { _path = Encoding.GetBytes(value); }
         }
-#else
-        public string Path { get; private set; }
-#endif
 
         public Encoding Encoding { get; private set; }
 
-#if TUNING
         /// <summary>
         /// Gets the size of the message in bytes.
         /// </summary>
@@ -44,7 +37,6 @@ namespace Renci.SshNet.Sftp.Requests
                 return capacity;
             }
         }
-#endif
 
         public SftpReadLinkRequest(uint protocolVersion, uint requestId, string path, Encoding encoding, Action<SftpNameResponse> nameAction, Action<SftpStatusResponse> statusAction)
             : base(protocolVersion, requestId, statusAction)
@@ -58,22 +50,14 @@ namespace Renci.SshNet.Sftp.Requests
         {
             base.LoadData();
 
-#if TUNING
             _path = ReadBinary();
-#else
-            Path = ReadString(Encoding);
-#endif
         }
 
         protected override void SaveData()
         {
             base.SaveData();
 
-#if TUNING
             WriteBinaryString(_path);
-#else
-            Write(Path, Encoding);
-#endif
         }
     }
 }

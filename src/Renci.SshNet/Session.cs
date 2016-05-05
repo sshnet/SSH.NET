@@ -67,10 +67,6 @@ namespace Renci.SshNet
         /// </value>
         private const int LocalChannelDataPacketSize = 1024*64;
 
-#if !TUNING
-        private static readonly RandomNumberGenerator Randomizer = HashAlgorithmFactory.CreateRandomNumberGenerator();
-#endif
-
 #if SILVERLIGHT
         private static readonly Regex ServerVersionRe = new Regex("^SSH-(?<protoversion>[^-]+)-(?<softwareversion>.+)( SP.+)?$");
 #else
@@ -786,40 +782,7 @@ namespace Renci.SshNet
             //  Messages can be sent by different thread so we need to synchronize it
             var paddingMultiplier = _clientCipher == null ? (byte)8 : Math.Max((byte)8, _serverCipher.MinimumSize);    //    Should be recalculate base on cipher min length if cipher specified
 
-#if TUNING
             var packetData = message.GetPacket(paddingMultiplier, _clientCompression);
-#else
-            var messageData = message.GetBytes();
-
-            if (_clientCompression != null)
-            {
-                messageData = _clientCompression.Compress(messageData);
-            }
-
-            var packetLength = messageData.Length + 4 + 1; //  add length bytes and padding byte
-            var paddingLength = (byte)((-packetLength) & (paddingMultiplier - 1));
-            if (paddingLength < paddingMultiplier)
-            {
-                paddingLength += paddingMultiplier;
-            }
-
-            //  Build Packet data
-            var packetData = new byte[4 + 1 + messageData.Length + paddingLength];
-
-            //  Add packet length
-            ((uint)packetData.Length - 4).GetBytes().CopyTo(packetData, 0);
-
-            //  Add packet padding length
-            packetData[4] = paddingLength;
-
-            //  Add packet payload
-            messageData.CopyTo(packetData, 4 + 1);
-
-            //  Add random padding
-            var paddingBytes = new byte[paddingLength];
-            Randomizer.GetBytes(paddingBytes);
-            paddingBytes.CopyTo(packetData, 4 + 1 + messageData.Length);
-#endif
 
             //  Lock handling of _outboundPacketSequence since it must be sent sequently to server
             lock (_socketLock)
@@ -827,7 +790,6 @@ namespace Renci.SshNet
                 if (_socket == null || !_socket.Connected)
                     throw new SshConnectionException("Client not connected.");
 
-#if TUNING
                 byte[] hash = null;
                 var packetDataOffset = 4; // first four bytes are reserved for outbound packet sequence
 
@@ -838,22 +800,12 @@ namespace Renci.SshNet
                     //  calculate packet hash
                     hash = _clientMac.ComputeHash(packetData);
                 }
-#else
-                //  Calculate packet hash
-                var hashData = new byte[4 + packetData.Length];
-                _outboundPacketSequence.GetBytes().CopyTo(hashData, 0);
-                packetData.CopyTo(hashData, 4);
-#endif
 
                 //  Encrypt packet data
                 if (_clientCipher != null)
                 {
-#if TUNING
                     packetData = _clientCipher.Encrypt(packetData, packetDataOffset, (packetData.Length - packetDataOffset));
                     packetDataOffset = 0;
-#else
-                    packetData = _clientCipher.Encrypt(packetData);
-#endif
                 }
 
                 if (packetData.Length > MaximumSshPacketSize)
@@ -861,31 +813,16 @@ namespace Renci.SshNet
                     throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Packet is too big. Maximum packet size is {0} bytes.", MaximumSshPacketSize));
                 }
 
-#if TUNING
                 var packetLength = packetData.Length - packetDataOffset;
                 if (hash == null)
                 {
                     SocketAbstraction.Send(_socket, packetData, packetDataOffset, packetLength);
                 }
-#else
-                if (_clientMac == null)
-                {
-                    SocketAbstraction.Send(_socket, packetData, 0, packetData.Length);
-                }
-#endif
                 else
                 {
-#if TUNING
                     var data = new byte[packetLength + (_clientMac.HashSize / 8)];
                     Buffer.BlockCopy(packetData, packetDataOffset, data, 0, packetLength);
                     Buffer.BlockCopy(hash, 0, data, packetLength, hash.Length);
-#else
-                    var hash = _clientMac.ComputeHash(hashData.ToArray());
-
-                    var data = new byte[packetData.Length + _clientMac.HashSize / 8];
-                    packetData.CopyTo(data, 0);
-                    hash.CopyTo(data, packetData.Length);
-#endif
 
                     SocketAbstraction.Send(_socket, data, 0, data.Length);
                 }
@@ -977,9 +914,7 @@ namespace Renci.SshNet
         /// <exception cref="SshConnectionException"></exception>
         private Message ReceiveMessage()
         {
-#if TUNING
             const int inboundPacketSequenceLength = 4;
-#endif
 
             //  No lock needed since all messages read by only one thread
             var blockSize = _serverCipher == null ? (byte)8 : Math.Max((byte)8, _serverCipher.MinimumSize);
@@ -1001,15 +936,9 @@ namespace Renci.SshNet
             //  Read rest of the packet data
             var bytesToRead = (int)(packetLength - (blockSize - 4));
 
-#if TUNING
             var data = new byte[bytesToRead + blockSize + inboundPacketSequenceLength];
             _inboundPacketSequence.Write(data, 0);
             Buffer.BlockCopy(firstBlock, 0, data, inboundPacketSequenceLength, firstBlock.Length);
-#else
-            var data = new byte[bytesToRead + blockSize];
-
-            firstBlock.CopyTo(data, 0);
-#endif
 
             byte[] serverHash = null;
             if (_serverMac != null)
@@ -1034,43 +963,20 @@ namespace Renci.SshNet
                     {
                         nextBlocks = _serverCipher.Decrypt(nextBlocks);
                     }
-#if TUNING
+
                     nextBlocks.CopyTo(data, blockSize + inboundPacketSequenceLength);
-#else
-                    nextBlocks.CopyTo(data, blockSize);
-#endif
                 }
             }
 
-#if TUNING
             var paddingLength = data[inboundPacketSequenceLength + 4];
-#else
-            var paddingLength = data[4];
-#endif
 
             var messagePayloadLength = (int) (packetLength - paddingLength - 1);
-#if TUNING
             const int messagePayloadOffset = inboundPacketSequenceLength + 4 + 1;
-#else
-            var messagePayload = new byte[messagePayloadLength];
-            Buffer.BlockCopy(data, 5, messagePayload, 0, messagePayload.Length);
-#endif
 
             //  Validate message against MAC
             if (_serverMac != null)
             {
-#if TUNING
                 var clientHash = _serverMac.ComputeHash(data);
-#else
-                var clientHashData = new byte[4 + data.Length];
-                var lengthBytes = _inboundPacketSequence.GetBytes();
-
-                lengthBytes.CopyTo(clientHashData, 0);
-                data.CopyTo(clientHashData, 4);
-
-                //  Calculate packet hash
-                var clientHash = _serverMac.ComputeHash(clientHashData);
-#endif
 
                 if (!serverHash.SequenceEqual(clientHash))
                 {
@@ -1080,20 +986,12 @@ namespace Renci.SshNet
 
             if (_serverDecompression != null)
             {
-#if TUNING
                 data = _serverDecompression.Decompress(data, inboundPacketSequenceLength + 4 + 1, messagePayloadLength);
-#else
-                messagePayload = _serverDecompression.Decompress(messagePayload);
-#endif
             }
 
             _inboundPacketSequence++;
 
-#if TUNING
             return LoadMessage(data, messagePayloadOffset);
-#else
-            return LoadMessage(messagePayload);
-#endif
         }
 
         private void SendDisconnect(DisconnectReason reasonCode, string message)
@@ -1776,7 +1674,6 @@ namespace Renci.SshNet
             InternalUnRegisterMessage(messageName);
         }
 
-#if TUNING
         /// <summary>
         /// Loads a message from a given buffer.
         /// </summary>
@@ -1801,28 +1698,6 @@ namespace Renci.SshNet
 
             return message;
         }
-#else
-        /// <summary>
-        /// Loads the message.
-        /// </summary>
-        /// <param name="data">Message data.</param>
-        /// <returns>New message</returns>
-        private Message LoadMessage(byte[] data)
-        {
-            var messageType = data[0];
-            var messageMetadata = (from m in _messagesMetadata where m.Number == messageType && m.Enabled && m.Activated select m).SingleOrDefault();
-            if (messageMetadata == null)
-                throw new SshException(string.Format(CultureInfo.CurrentCulture, "Message type {0} is not valid.", messageType));
-
-            var message = messageMetadata.Type.CreateInstance<Message>();
-
-            message.Load(data);
-
-            DiagnosticAbstraction.Log(string.Format("ReceiveMessage from server: '{0}': '{1}'.", message.GetType().Name, message));
-
-            return message;
-        }
-#endif
 
         partial void InternalRegisterMessage(string messageName);
 
@@ -2348,7 +2223,7 @@ namespace Renci.SshNet
         private bool _disposed;
 
         /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged ResourceMessages.
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose()
         {
@@ -2359,69 +2234,73 @@ namespace Renci.SshNet
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged ResourceMessages.</param>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
-            // Check to see if Dispose has already been called.
-            if (!_disposed)
+            if (_disposed)
+                return;
+
+            if (disposing)
             {
-                // If disposing equals true, dispose all managed
-                // and unmanaged ResourceMessages.
-                if (disposing)
+                Disconnect();
+
+                var serviceAccepted = _serviceAccepted;
+                if (serviceAccepted != null)
                 {
-                    Disconnect();
-
-                    if (_serviceAccepted != null)
-                    {
-                        _serviceAccepted.Dispose();
-                        _serviceAccepted = null;
-                    }
-
-                    if (_exceptionWaitHandle != null)
-                    {
-                        _exceptionWaitHandle.Dispose();
-                        _exceptionWaitHandle = null;
-                    }
-
-                    if (_keyExchangeCompletedWaitHandle != null)
-                    {
-                        _keyExchangeCompletedWaitHandle.Dispose();
-                        _keyExchangeCompletedWaitHandle = null;
-                    }
-
-                    if (_serverMac != null)
-                    {
-                        _serverMac.Dispose();
-                        _serverMac = null;
-                    }
-
-                    if (_clientMac != null)
-                    {
-                        _clientMac.Dispose();
-                        _clientMac = null;
-                    }
-
-                    if (_keyExchange != null)
-                    {
-                        _keyExchange.HostKeyReceived -= KeyExchange_HostKeyReceived;
-                        _keyExchange.Dispose();
-                        _keyExchange = null;
-                    }
-
-                    if (_bytesReadFromSocket != null)
-                    {
-                        _bytesReadFromSocket.Dispose();
-                        _bytesReadFromSocket = null;
-                    }
-
-                    if (_messageListenerCompleted != null)
-                    {
-                        _messageListenerCompleted.Dispose();
-                        _messageListenerCompleted = null;
-                    }
+                    serviceAccepted.Dispose();
+                    _serviceAccepted = null;
                 }
 
-                // Note disposing has been done.
+                var exceptionWaitHandle = _exceptionWaitHandle;
+                if (exceptionWaitHandle != null)
+                {
+                    exceptionWaitHandle.Dispose();
+                    _exceptionWaitHandle = null;
+                }
+
+                var keyExchangeCompletedWaitHandle = _keyExchangeCompletedWaitHandle;
+                if (keyExchangeCompletedWaitHandle != null)
+                {
+                    keyExchangeCompletedWaitHandle.Dispose();
+                    _keyExchangeCompletedWaitHandle = null;
+                }
+
+                var serverMac = _serverMac;
+                if (serverMac != null)
+                {
+                    serverMac.Dispose();
+                    _serverMac = null;
+                }
+
+                var clientMac = _clientMac;
+                if (clientMac != null)
+                {
+                    clientMac.Dispose();
+                    _clientMac = null;
+                }
+
+                var keyExchange = _keyExchange;
+                if (keyExchange != null)
+                {
+                    keyExchange.HostKeyReceived -= KeyExchange_HostKeyReceived;
+                    keyExchange.Dispose();
+                    _keyExchange = null;
+                }
+
+                var bytesReadFromSocket = _bytesReadFromSocket;
+                if (bytesReadFromSocket != null)
+                {
+                    bytesReadFromSocket.Dispose();
+                    _bytesReadFromSocket = null;
+                }
+
+                var messageListenerCompleted = _messageListenerCompleted;
+                if (messageListenerCompleted != null)
+                {
+                    messageListenerCompleted.Dispose();
+                    _messageListenerCompleted = null;
+                }
+
                 _disposed = true;
             }
         }
@@ -2432,9 +2311,6 @@ namespace Renci.SshNet
         /// </summary>
         ~Session()
         {
-            // Do not re-create Dispose clean-up code here.
-            // Calling Dispose(false) is optimal in terms of
-            // readability and maintainability.
             Dispose(false);
         }
 

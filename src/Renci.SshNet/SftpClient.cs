@@ -1871,25 +1871,9 @@ namespace Renci.SshNet
 
                 if (bytesRead > 0)
                 {
-#if TUNING
                     var writtenBytes = offset + (ulong) bytesRead;
-#else
-                    if (bytesRead < buffer.Length)
-                    {
-                        //  Replace buffer for last chunk of data
-                        var data = new byte[bytesRead];
-                        Buffer.BlockCopy(buffer, 0, data, 0, bytesRead);
-                        buffer = data;
-                    }
 
-                    var writtenBytes = offset + (ulong)buffer.Length;
-#endif
-
-#if TUNING
                     _sftpSession.RequestWrite(handle, offset, buffer, bytesRead, null, s =>
-#else
-                    _sftpSession.RequestWrite(handle, offset, buffer, null, s =>
-#endif
                     {
                         if (s.StatusCode == StatusCodes.Ok)
                         {
@@ -1951,7 +1935,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged ResourceMessages.</param>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);

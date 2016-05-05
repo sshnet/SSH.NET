@@ -1,5 +1,4 @@
-﻿using System;
-using Renci.SshNet.Security.Cryptography;
+﻿using Renci.SshNet.Security.Cryptography;
 
 namespace Renci.SshNet.Messages.Transport
 {
@@ -110,7 +109,7 @@ namespace Renci.SshNet.Messages.Transport
         /// Gets or sets a value indicating whether first key exchange packet follows.
         /// </summary>
         /// <value>
-        /// 	<c>true</c> if first key exchange packet follows; otherwise, <c>false</c>.
+        /// <c>true</c> if first key exchange packet follows; otherwise, <c>false</c>.
         /// </value>
         public bool FirstKexPacketFollows { get; set; }
 
@@ -120,11 +119,10 @@ namespace Renci.SshNet.Messages.Transport
         /// <value>
         /// The reserved value.
         /// </value>
-        public UInt32 Reserved { get; set; }
+        public uint Reserved { get; set; }
 
         #endregion
 
-#if TUNING
         /// <summary>
         /// Gets the size of the message in bytes.
         /// </summary>
@@ -136,7 +134,6 @@ namespace Renci.SshNet.Messages.Transport
         {
             get { return -1; }
         }
-#endif
 
         /// <summary>
         /// Called when type specific data need to be loaded.

@@ -313,7 +313,7 @@ namespace Renci.SshNet
         private bool _isDisposed;
 
         /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged ResourceMessages.
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose()
         {
@@ -324,22 +324,22 @@ namespace Renci.SshNet
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged ResourceMessages.</param>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
-            if (!_isDisposed)
-            {
-                if (disposing)
-                {
-                    Disconnect();
+            if (_isDisposed)
+                return;
 
-                    if (_ownsConnectionInfo && _connectionInfo != null)
-                    {
-                        var connectionInfoDisposable = _connectionInfo as IDisposable;
-                        if (connectionInfoDisposable != null)
-                            connectionInfoDisposable.Dispose();
-                        _connectionInfo = null;
-                    }
+            if (disposing)
+            {
+                Disconnect();
+
+                if (_ownsConnectionInfo && _connectionInfo != null)
+                {
+                    var connectionInfoDisposable = _connectionInfo as IDisposable;
+                    if (connectionInfoDisposable != null)
+                        connectionInfoDisposable.Dispose();
+                    _connectionInfo = null;
                 }
 
                 _isDisposed = true;
@@ -362,9 +362,6 @@ namespace Renci.SshNet
         /// </summary>
         ~BaseClient()
         {
-            // Do not re-create Dispose clean-up code here.
-            // Calling Dispose(false) is optimal in terms of
-            // readability and maintainability.
             Dispose(false);
         }
 

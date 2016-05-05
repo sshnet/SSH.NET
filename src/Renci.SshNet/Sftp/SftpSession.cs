@@ -13,20 +13,12 @@ namespace Renci.SshNet.Sftp
     internal class SftpSession : SubsystemSession, ISftpSession
     {
         private const int MaximumSupportedVersion = 3;
-
         private const int MinimumSupportedVersion = 0;
 
         private readonly Dictionary<uint, SftpRequest> _requests = new Dictionary<uint, SftpRequest>();
-
-#if TUNING
-        private readonly List<byte> _data = new List<byte>(32 * 1024);
         //FIXME: obtain from SftpClient!
-#else
-        private readonly List<byte> _data = new List<byte>(16 * 1024);
-#endif
-
+        private readonly List<byte> _data = new List<byte>(32 * 1024);
         private EventWaitHandle _sftpVersionConfirmed = new AutoResetEvent(false);
-
         private IDictionary<string, string> _supportedExtensions;
 
         /// <summary>
@@ -61,7 +53,7 @@ namespace Renci.SshNet.Sftp
 
                 return (uint)this._requestId;
 #else
-                return ((uint)Interlocked.Increment(ref _requestId));
+                return ((uint) Interlocked.Increment(ref _requestId));
 #endif
             }
         }
@@ -78,27 +70,15 @@ namespace Renci.SshNet.Sftp
         public void ChangeDirectory(string path)
         {
             var fullPath = GetCanonicalPath(path);
-
             var handle = RequestOpenDir(fullPath);
 
             RequestClose(handle);
-
             WorkingDirectory = fullPath;
         }
 
         internal void SendMessage(SftpMessage sftpMessage)
         {
-#if TUNING
             var data = sftpMessage.GetBytes();
-#else
-            var messageData = sftpMessage.GetBytes();
-
-            var data = new byte[4 + messageData.Length];
-
-            ((uint)messageData.Length).GetBytes().CopyTo(data, 0);
-            messageData.CopyTo(data, 4);
-#endif
-
             SendData(data);
         }
 
@@ -207,7 +187,6 @@ namespace Renci.SshNet.Sftp
                     break;
                 }
 
-#if TUNING
                 var packetLengthIncludingBytesForLength = packetLength + 4;
 
                 //  Create buffer to hold packet data and 4 bytes for packet length
@@ -218,18 +197,6 @@ namespace Renci.SshNet.Sftp
 
                 //  Remove loaded data and bytes for length from _data holder
                 _data.RemoveRange(0, packetLengthIncludingBytesForLength);
-#else
-                _data.RemoveRange(0, 4);
-
-                //  Create buffer to hold packet data
-                var packetData = new byte[packetLength];
-
-                //  Cope packet data to array
-                _data.CopyTo(0, packetData, 0, packetLength);
-
-                //  Remove loaded data from _data holder
-                _data.RemoveRange(0, packetLength);
-#endif
 
                 //  Load SFTP Message and handle it
                 var response = SftpMessage.Load(ProtocolVersion, packetData, Encoding);
@@ -399,27 +366,19 @@ namespace Renci.SshNet.Sftp
         /// <param name="handle">The handle.</param>
         /// <param name="offset">The offset.</param>
         /// <param name="data">The data to send.</param>
-#if TUNING
         /// <param name="length">The number of bytes of <paramref name="data"/> to send.</param>
-#endif
         /// <param name="wait">The wait event handle if needed.</param>
         /// <param name="writeCompleted">The callback to invoke when the write has completed.</param>
         public void RequestWrite(byte[] handle,
                                  ulong offset,
                                  byte[] data,
-#if TUNING
                                  int length,
-#endif
                                  AutoResetEvent wait,
                                  Action<SftpStatusResponse> writeCompleted = null)
         {
             SshException exception = null;
 
-#if TUNING
             var request = new SftpWriteRequest(ProtocolVersion, NextRequestId, handle, offset, data, length,
-#else
-            var request = new SftpWriteRequest(ProtocolVersion, NextRequestId, handle, offset, data,
-#endif
                 response =>
                     {
                         if (writeCompleted != null)

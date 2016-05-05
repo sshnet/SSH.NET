@@ -85,9 +85,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Requests
             var bytes = request.GetBytes();
 
             var expectedBytesLength = 0;
-#if TUNING
             expectedBytesLength += 4; // Length
-#endif
             expectedBytesLength += 1; // Type
             expectedBytesLength += 4; // RequestId
             expectedBytesLength += 4; // Handle length
@@ -97,9 +95,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Requests
 
             var sshDataStream = new SshDataStream(bytes);
 
-#if TUNING
             Assert.AreEqual((uint) bytes.Length - 4, sshDataStream.ReadUInt32());
-#endif
             Assert.AreEqual((byte) SftpMessageTypes.ReadDir, sshDataStream.ReadByte());
             Assert.AreEqual(_requestId, sshDataStream.ReadUInt32());
 

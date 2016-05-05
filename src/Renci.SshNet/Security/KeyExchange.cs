@@ -378,7 +378,6 @@ namespace Renci.SshNet.Security
 
         private class _SessionKeyGeneration : SshData
         {
-#if TUNING
             private byte[] _sharedKey;
 
             public BigInteger SharedKey
@@ -386,14 +385,10 @@ namespace Renci.SshNet.Security
                 private get { return _sharedKey.ToBigInteger(); }
                 set { _sharedKey = value.ToByteArray().Reverse(); }
             }
-#else
-            public BigInteger SharedKey { get; set; }
-#endif
             public byte[] ExchangeHash { get; set; }
             public char Char { get; set; }
             public byte[] SessionId { get; set; }
 
-#if TUNING
             /// <summary>
             /// Gets the size of the message in bytes.
             /// </summary>
@@ -413,7 +408,6 @@ namespace Renci.SshNet.Security
                     return capacity;
                 }
             }
-#endif
 
             protected override void LoadData()
             {
@@ -422,20 +416,15 @@ namespace Renci.SshNet.Security
 
             protected override void SaveData()
             {
-#if TUNING
                 WriteBinaryString(_sharedKey);
-#else
-                this.Write(this.SharedKey);
-#endif
                 Write(ExchangeHash);
-                Write((byte)Char);
+                Write((byte) Char);
                 Write(SessionId);
             }
         }
 
         private class _SessionKeyAdjustment : SshData
         {
-#if TUNING
             private byte[] _sharedKey;
 
             public BigInteger SharedKey
@@ -443,13 +432,9 @@ namespace Renci.SshNet.Security
                 private get { return _sharedKey.ToBigInteger(); }
                 set { _sharedKey = value.ToByteArray().Reverse(); }
             }
-#else
-            public BigInteger SharedKey { get; set; }
-#endif
             public byte[] ExcahngeHash { get; set; }
             public byte[] Key { get; set; }
 
-#if TUNING
             /// <summary>
             /// Gets the size of the message in bytes.
             /// </summary>
@@ -468,7 +453,6 @@ namespace Renci.SshNet.Security
                     return capacity;
                 }
             }
-#endif
 
             protected override void LoadData()
             {
@@ -477,11 +461,7 @@ namespace Renci.SshNet.Security
 
             protected override void SaveData()
             {
-#if TUNING
                 WriteBinaryString(_sharedKey);
-#else
-                this.Write(this.SharedKey);
-#endif
                 Write(ExcahngeHash);
                 Write(Key);
             }
@@ -490,19 +470,18 @@ namespace Renci.SshNet.Security
         #region IDisposable Members
 
         /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged ResourceMessages.
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose()
         {
             Dispose(true);
-
             GC.SuppressFinalize(this);
         }
 
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged ResourceMessages.</param>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
         }
@@ -513,9 +492,6 @@ namespace Renci.SshNet.Security
         /// </summary>
         ~KeyExchange()
         {
-            // Do not re-create Dispose clean-up code here.
-            // Calling Dispose(false) is optimal in terms of
-            // readability and maintainability.
             Dispose(false);
         }
 

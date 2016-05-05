@@ -7,10 +7,8 @@ namespace Renci.SshNet.Messages.Connection
     /// </summary>
     internal class DirectTcpipChannelInfo : ChannelOpenInfo
     {
-#if TUNING
         private byte[] _hostToConnect;
         private byte[] _originatorAddress;
-#endif
 
         /// <summary>
         /// Specifies channel open type
@@ -31,15 +29,11 @@ namespace Renci.SshNet.Messages.Connection
         /// <summary>
         /// Gets the host to connect.
         /// </summary>
-#if TUNING
         public string HostToConnect
         {
             get { return Utf8.GetString(_hostToConnect, 0, _hostToConnect.Length); }
             private set { _hostToConnect = Utf8.GetBytes(value); }
         }
-#else
-        public string HostToConnect { get; private set; }
-#endif
 
         /// <summary>
         /// Gets the port to connect.
@@ -49,22 +43,17 @@ namespace Renci.SshNet.Messages.Connection
         /// <summary>
         /// Gets the originator address.
         /// </summary>
-#if TUNING
         public string OriginatorAddress
         {
             get { return Utf8.GetString(_originatorAddress, 0, _originatorAddress.Length); }
             private set { _originatorAddress = Utf8.GetBytes(value); }
         }
-#else
-        public string OriginatorAddress { get; private set; }
-#endif
 
         /// <summary>
         /// Gets the originator port.
         /// </summary>
         public uint OriginatorPort { get; private set; }
 
-#if TUNING
         /// <summary>
         /// Gets the size of the message in bytes.
         /// </summary>
@@ -85,7 +74,6 @@ namespace Renci.SshNet.Messages.Connection
                 return capacity;
             }
         }
-#endif
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DirectTcpipChannelInfo"/> class from the
@@ -119,17 +107,9 @@ namespace Renci.SshNet.Messages.Connection
         {
             base.LoadData();
 
-#if TUNING
             _hostToConnect = ReadBinary();
-#else
-            HostToConnect = ReadString();
-#endif
             PortToConnect = ReadUInt32();
-#if TUNING
             _originatorAddress = ReadBinary();
-#else
-            OriginatorAddress = ReadString();
-#endif
             OriginatorPort = ReadUInt32();
         }
 
@@ -140,17 +120,9 @@ namespace Renci.SshNet.Messages.Connection
         {
             base.SaveData();
 
-#if TUNING
             WriteBinaryString(_hostToConnect);
-#else
-            Write(HostToConnect);
-#endif
             Write(PortToConnect);
-#if TUNING
             WriteBinaryString(_originatorAddress);
-#else
-            Write(OriginatorAddress);
-#endif
             Write(OriginatorPort);
         }
     }

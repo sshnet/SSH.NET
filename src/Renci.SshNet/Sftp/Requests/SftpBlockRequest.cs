@@ -18,7 +18,6 @@ namespace Renci.SshNet.Sftp.Requests
 
         public uint LockMask { get; private set; }
 
-#if TUNING
         /// <summary>
         /// Gets the size of the message in bytes.
         /// </summary>
@@ -38,7 +37,6 @@ namespace Renci.SshNet.Sftp.Requests
                 return capacity;
             }
         }
-#endif
 
         public SftpBlockRequest(uint protocolVersion, uint requestId, byte[] handle, UInt64 offset, UInt64 length, UInt32 lockMask, Action<SftpStatusResponse> statusAction)
             : base(protocolVersion, requestId, statusAction)
@@ -52,11 +50,7 @@ namespace Renci.SshNet.Sftp.Requests
         protected override void LoadData()
         {
             base.LoadData();
-#if TUNING
             Handle = ReadBinary();
-#else
-            Handle = this.ReadBinaryString();
-#endif
             Offset = ReadUInt64();
             Length = ReadUInt64();
             LockMask = ReadUInt32();

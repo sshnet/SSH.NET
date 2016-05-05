@@ -254,8 +254,8 @@ namespace Renci.SshNet
         private void InternalSetTimestamp(IChannelSession channel, Stream input, DateTime lastWriteTime, DateTime lastAccessime)
         {
             var zeroTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
-            var modificationSeconds = (long)(lastWriteTime - zeroTime).TotalSeconds;
-            var accessSeconds = (long)(lastAccessime - zeroTime).TotalSeconds;
+            var modificationSeconds = (long) (lastWriteTime - zeroTime).TotalSeconds;
+            var accessSeconds = (long) (lastAccessime - zeroTime).TotalSeconds;
             SendData(channel, string.Format("T{0} 0 {1} 0\n", modificationSeconds, accessSeconds));
             CheckReturnCode(input);
         }
@@ -288,14 +288,14 @@ namespace Renci.SshNet
             CheckReturnCode(input);
         }
 
-        private void InternalDownload(IChannelSession channel, Stream input, Stream output, string filename, long length)
+        private void InternalDownload(IChannel channel, Stream input, Stream output, string filename, long length)
         {
             var buffer = new byte[Math.Min(length, BufferSize)];
             var needToRead = length;
 
             do
             {
-                var read = input.Read(buffer, 0, (int)Math.Min(needToRead, BufferSize));
+                var read = input.Read(buffer, 0, (int) Math.Min(needToRead, BufferSize));
 
                 output.Write(buffer, 0, read);
 
@@ -332,12 +332,12 @@ namespace Renci.SshNet
             }
         }
 
-        private void SendConfirmation(IChannelSession channel)
+        private void SendConfirmation(IChannel channel)
         {
             SendData(channel, new byte[] { 0 });
         }
 
-        private void SendConfirmation(IChannelSession channel, byte errorCode, string message)
+        private void SendConfirmation(IChannel channel, byte errorCode, string message)
         {
             SendData(channel, new[] { errorCode });
             SendData(channel, string.Format("{0}\n", message));
@@ -359,28 +359,17 @@ namespace Renci.SshNet
             }
         }
 
-        private void SendData(IChannelSession channel, string command)
+        private void SendData(IChannel channel, string command)
         {
             channel.SendData(SshData.Utf8.GetBytes(command));
         }
 
-        private void SendData(IChannelSession channel, byte[] buffer, int length)
+        private void SendData(IChannel channel, byte[] buffer, int length)
         {
-#if TUNING
             channel.SendData(buffer, 0, length);
-#else
-            if (length == buffer.Length)
-            {
-                channel.SendData(buffer);
-            }
-            else
-            {
-                channel.SendData(buffer.Take(length).ToArray());
-            }
-#endif
         }
 
-        private void SendData(IChannelSession channel, byte[] buffer)
+        private void SendData(IChannel channel, byte[] buffer)
         {
             channel.SendData(buffer);
         }

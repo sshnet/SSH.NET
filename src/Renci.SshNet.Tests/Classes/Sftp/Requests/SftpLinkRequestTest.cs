@@ -75,9 +75,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Requests
             var bytes = request.GetBytes();
 
             var expectedBytesLength = 0;
-#if TUNING
             expectedBytesLength += 4; // Length
-#endif
             expectedBytesLength += 1; // Type
             expectedBytesLength += 4; // RequestId
             expectedBytesLength += 4; // NewLinkPath length
@@ -90,10 +88,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Requests
 
             var sshDataStream = new SshDataStream(bytes);
 
-#if TUNING
-            Assert.AreEqual((uint)bytes.Length - 4, sshDataStream.ReadUInt32());
-#endif
-            Assert.AreEqual((byte)SftpMessageTypes.Link, sshDataStream.ReadByte());
+            Assert.AreEqual((uint) bytes.Length - 4, sshDataStream.ReadUInt32());
+            Assert.AreEqual((byte) SftpMessageTypes.Link, sshDataStream.ReadByte());
             Assert.AreEqual(_requestId, sshDataStream.ReadUInt32());
 
             Assert.AreEqual((uint) _newLinkPathBytes.Length, sshDataStream.ReadUInt32());
@@ -106,7 +102,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Requests
             sshDataStream.Read(actualExistingPath, 0, actualExistingPath.Length);
             Assert.IsTrue(_existingPathBytes.SequenceEqual(actualExistingPath));
 
-            Assert.AreEqual((byte) 1, sshDataStream.ReadByte());
+            Assert.AreEqual(1, sshDataStream.ReadByte());
 
             Assert.IsTrue(sshDataStream.IsEndOfData);
         }

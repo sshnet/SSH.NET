@@ -11,10 +11,8 @@
         internal const uint UnknownChannelType = 3;
         internal const uint ResourceShortage = 4;
 
-#if TUNING
         private byte[] _description;
         private byte[] _language;
-#endif
 
         /// <summary>
         /// Gets failure reason code.
@@ -24,30 +22,21 @@
         /// <summary>
         /// Gets description for failure.
         /// </summary>
-#if TUNING
         public string Description
         {
             get { return Utf8.GetString(_description, 0, _description.Length); }
             private set { _description = Utf8.GetBytes(value); }
         }
-#else
-        public string Description { get; private set; }
-#endif
 
         /// <summary>
         /// Gets message language.
         /// </summary>
-#if TUNING
         public string Language
         {
             get { return Utf8.GetString(_language, 0, _language.Length); }
             private set { _language = Utf8.GetBytes(value); }
         }
-#else
-        public string Language { get; private set; }
-#endif
 
-#if TUNING
         /// <summary>
         /// Gets the size of the message in bytes.
         /// </summary>
@@ -67,7 +56,6 @@
                 return capacity;
             }
         }
-#endif
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ChannelOpenFailureMessage"/> class.
@@ -110,13 +98,8 @@
         {
             base.LoadData();
             ReasonCode = ReadUInt32();
-#if TUNING
             _description = ReadBinary();
             _language = ReadBinary();
-#else
-            Description = ReadString();
-            Language = ReadString();
-#endif
         }
 
         /// <summary>
@@ -126,13 +109,8 @@
         {
             base.SaveData();
             Write(ReasonCode);
-#if TUNING
             WriteBinaryString(_description);
             WriteBinaryString(_language);
-#else
-            Write(Description ?? string.Empty);
-            Write(Language ?? "en");
-#endif
         }
     }
 }

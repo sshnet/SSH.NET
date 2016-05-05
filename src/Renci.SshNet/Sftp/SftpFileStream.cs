@@ -633,21 +633,10 @@ namespace Renci.SshNet.Sftp
                     var tempLen = _writeBufferSize - _bufferPosition;
                     if (tempLen <= 0)
                     {
-#if !TUNING
-                        var data = new byte[_bufferPosition];
-
-                        Buffer.BlockCopy(_writeBuffer, 0, data, 0, _bufferPosition);
-#endif
-
                         using (var wait = new AutoResetEvent(false))
                         {
-#if TUNING
                             _session.RequestWrite(_handle, _serverFilePosition, _writeBuffer, _bufferPosition, wait);
                             _serverFilePosition += (ulong) _bufferPosition;
-#else
-                            _session.RequestWrite(_handle, _serverFilePosition, data, wait);
-                            _serverFilePosition += (ulong)data.Length;
-#endif
                         }
 
                         _bufferPosition = 0;
@@ -661,22 +650,10 @@ namespace Renci.SshNet.Sftp
                     // Can we short-cut the internal buffer?
                     if (_bufferPosition == 0 && tempLen == _writeBufferSize)
                     {
-#if !TUNING
-                        // Yes: write the data directly to the file.
-                        var data = new byte[tempLen];
-
-                        Buffer.BlockCopy(buffer, offset, data, 0, tempLen);
-#endif
-
                         using (var wait = new AutoResetEvent(false))
                         {
-#if TUNING
                             _session.RequestWrite(_handle, _serverFilePosition, buffer, tempLen, wait);
                             _serverFilePosition += (ulong) tempLen;
-#else
-                            _session.RequestWrite(_handle, _serverFilePosition, data, wait);
-                            _serverFilePosition += (ulong)data.Length;
-#endif
                         }
                     }
                     else
@@ -696,21 +673,10 @@ namespace Renci.SshNet.Sftp
                 // rather than waiting for the next call to this method.
                 if (_bufferPosition >= _writeBufferSize)
                 {
-#if !TUNING
-                    var data = new byte[_bufferPosition];
-
-                    Buffer.BlockCopy(_writeBuffer, 0, data, 0, _bufferPosition);
-#endif
-
                     using (var wait = new AutoResetEvent(false))
                     {
-#if TUNING
                         _session.RequestWrite(_handle, _serverFilePosition, _writeBuffer, _bufferPosition, wait);
                         _serverFilePosition += (ulong) _bufferPosition;
-#else
-                        _session.RequestWrite(_handle, _serverFilePosition, data, wait);
-                        _serverFilePosition += (ulong)data.Length;
-#endif
                     }
 
                     _bufferPosition = 0;
@@ -738,21 +704,10 @@ namespace Renci.SshNet.Sftp
                 // Flush the current buffer if it is full.
                 if (_bufferPosition >= _writeBufferSize)
                 {
-#if !TUNING
-                    var data = new byte[_bufferPosition];
-
-                    Buffer.BlockCopy(_writeBuffer, 0, data, 0, _bufferPosition);
-#endif
-
                     using (var wait = new AutoResetEvent(false))
                     {
-#if TUNING
                         _session.RequestWrite(_handle, _serverFilePosition, _writeBuffer, _bufferPosition, wait);
                         _serverFilePosition += (ulong) _bufferPosition;
-#else
-                        _session.RequestWrite(_handle, _serverFilePosition, data, wait);
-                        _serverFilePosition += (ulong)data.Length;
-#endif
                     }
 
                     _bufferPosition = 0;
@@ -832,21 +787,10 @@ namespace Renci.SshNet.Sftp
         {
             if (_bufferPosition > 0)
             {
-#if !TUNING
-                var data = new byte[_bufferPosition];
-
-                Buffer.BlockCopy(_writeBuffer, 0, data, 0, _bufferPosition);
-#endif
-
                 using (var wait = new AutoResetEvent(false))
                 {
-#if TUNING
                     _session.RequestWrite(_handle, _serverFilePosition, _writeBuffer, _bufferPosition, wait);
                     _serverFilePosition += (ulong) _bufferPosition;
-#else
-                    _session.RequestWrite(_handle, _serverFilePosition, data, wait);
-                    _serverFilePosition += (ulong)data.Length;
-#endif
                 }
 
                 _bufferPosition = 0;

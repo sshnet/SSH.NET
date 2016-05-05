@@ -11,6 +11,7 @@ namespace Renci.SshNet
         private readonly object _socketReadLock = new object();
 #endif // FEATURE_SOCKET_POLL
 
+#if FEATURE_SOCKET_POLL
         /// <summary>
         /// Gets a value indicating whether the socket is connected.
         /// </summary>
@@ -21,7 +22,6 @@ namespace Renci.SshNet
         /// <c>true</c>. However, this only returns the state of the socket as of
         /// the last I/O operation.
         /// </para>
-#if FEATURE_SOCKET_POLL
         /// <para>
         /// Therefore we use the combination of <see cref="Socket.Poll(int, SelectMode)"/> with mode <see cref="SelectMode.SelectRead"/>
         /// and <see cref="Socket.Available"/> to verify if the socket is still connected.
@@ -48,6 +48,15 @@ namespace Renci.SshNet
         /// when the value of <see cref="Socket.Available"/> is obtained. As a workaround, we signal
         /// when bytes are read from the <see cref="Socket"/>.
         /// </para>
+        /// </remarks>
+#else
+        /// <summary>
+        /// Gets a value indicating whether the socket is connected.
+        /// </summary>
+        /// <param name="isConnected"><c>true</c> if the socket is connected; otherwise, <c>false</c></param>
+        /// <remarks>
+        /// We verify whether <see cref="Socket.Connected"/> is <c>true</c>. However, this only returns the state
+        /// of the socket as of the last I/O operation.
         /// </remarks>
 #endif
         partial void IsSocketConnected(ref bool isConnected)

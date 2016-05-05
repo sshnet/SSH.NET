@@ -6,29 +6,22 @@ namespace Renci.SshNet.Sftp.Requests
 {
     internal class SftpSetStatRequest : SftpRequest
     {
-#if TUNING
         private byte[] _path;
         private byte[] _attributesBytes;
-#endif
 
         public override SftpMessageTypes SftpMessageType
         {
             get { return SftpMessageTypes.SetStat; }
         }
 
-#if TUNING
         public string Path
         {
             get { return Encoding.GetString(_path, 0, _path.Length); }
             private set { _path = Encoding.GetBytes(value); }
         }
-#else
-        public string Path { get; private set; }
-#endif
 
         public Encoding Encoding { get; private set; }
 
-#if TUNING
         private SftpFileAttributes Attributes { get; set; }
 
         private byte[] AttributesBytes
@@ -42,11 +35,7 @@ namespace Renci.SshNet.Sftp.Requests
                 return _attributesBytes;
             }
         }
-#else
-        public SftpFileAttributes Attributes { get; private set; }
-#endif
 
-#if TUNING
         /// <summary>
         /// Gets the size of the message in bytes.
         /// </summary>
@@ -64,7 +53,6 @@ namespace Renci.SshNet.Sftp.Requests
                 return capacity;
             }
         }
-#endif
 
         public SftpSetStatRequest(uint protocolVersion, uint requestId, string path, Encoding encoding, SftpFileAttributes attributes, Action<SftpStatusResponse> statusAction)
             : base(protocolVersion, requestId, statusAction)
@@ -77,24 +65,15 @@ namespace Renci.SshNet.Sftp.Requests
         protected override void LoadData()
         {
             base.LoadData();
-#if TUNING
             _path = ReadBinary();
-#else
-            Path = ReadString(Encoding);
-#endif
             Attributes = ReadAttributes();
         }
 
         protected override void SaveData()
         {
             base.SaveData();
-#if TUNING
             WriteBinaryString(_path);
             Write(AttributesBytes);
-#else
-            Write(Path, Encoding);
-            Write(Attributes);
-#endif
         }
     }
 }

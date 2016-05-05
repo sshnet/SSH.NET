@@ -460,24 +460,24 @@ namespace Renci.SshNet
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged ResourceMessages.</param>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);
 
-            if (!_isDisposed)
-            {
-                if (disposing)
-                {
-                    if (_inputStream != null)
-                    {
-                        _inputStream.Dispose();
-                        _inputStream = null;
-                    }
-                }
-            }
+            if (_isDisposed)
+                return;
 
-            _isDisposed = true;
+            if (disposing)
+            {
+                if (_inputStream != null)
+                {
+                    _inputStream.Dispose();
+                    _inputStream = null;
+                }
+
+                _isDisposed = true;
+            }
         }
 
         private void EnsureSessionIsOpen()

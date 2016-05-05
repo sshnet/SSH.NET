@@ -80,17 +80,13 @@ namespace Renci.SshNet.Channels
 
             //  Start reading data from the port and send to channel
             while (_socket != null && _socket.Connected)
-                {
+            {
                 try
                 {
                     var read = SocketAbstraction.ReadPartial(_socket, buffer, 0, buffer.Length, ConnectionInfo.Timeout);
                     if (read > 0)
                     {
-#if TUNING
                         SendData(buffer, 0, read);
-#else
-                        SendMessage(new ChannelDataMessage(RemoteChannelNumber, buffer.Take(read).ToArray()));
-#endif
                     }
                     else
                     {
@@ -100,9 +96,7 @@ namespace Renci.SshNet.Channels
                 }
                 catch (SocketException exp)
                 {
-                    if (exp.SocketErrorCode == SocketError.WouldBlock ||
-                        exp.SocketErrorCode == SocketError.IOPending ||
-                        exp.SocketErrorCode == SocketError.NoBufferSpaceAvailable)
+                    if (SocketAbstraction.IsErrorResumable(exp.SocketErrorCode))
                     {
                         // socket buffer is probably empty, wait and try again
                         ThreadAbstraction.Sleep(30);
@@ -151,10 +145,11 @@ namespace Renci.SshNet.Channels
 
             lock (_socketShutdownAndCloseLock)
             {
-                if (_socket == null || !_socket.Connected)
+                var socket = _socket;
+                if (socket == null || !socket.Connected)
                     return;
 
-                _socket.Shutdown(how);
+                socket.Shutdown(how);
             }
         }
 
@@ -168,13 +163,14 @@ namespace Renci.SshNet.Channels
 
             lock (_socketShutdownAndCloseLock)
             {
-                if (_socket == null)
-                    return;
-
-                // closing a socket actually disposes the socket, so we can safely dereference
-                // the field to avoid entering the lock again later
-                _socket.Dispose();
-                _socket = null;
+                var socket = _socket;
+                if (socket != null)
+                {
+                    // closing a socket actually disposes the socket, so we can safely dereference
+                    // the field to avoid entering the lock again later
+                    socket.Dispose();
+                    _socket = null;
+                }
             }
         }
 
@@ -185,9 +181,10 @@ namespace Renci.SshNet.Channels
         /// <param name="wait"><c>true</c> to wait for the SSH_MSG_CHANNEL_CLOSE message to be received from the server; otherwise, <c>false</c>.</param>
         protected override void Close(bool wait)
         {
-            if (_forwardedPort != null)
+            var forwardedPort = _forwardedPort;
+            if (forwardedPort != null)
             {
-                _forwardedPort.Closing -= ForwardedPort_Closing;
+                forwardedPort.Closing -= ForwardedPort_Closing;
                 _forwardedPort = null;
             }
 
@@ -212,27 +209,10 @@ namespace Renci.SshNet.Channels
         {
             base.OnData(data);
 
-            if (_socket != null && _socket.Connected)
-                SocketAbstraction.Send(_socket, data, 0, data.Length);
-        }
-
-        /// <summary>
-        /// Releases unmanaged and - optionally - managed resources
-        /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-        protected override void Dispose(bool disposing)
-        {
-            // make sure we've unsubscribed from all session events and closed the channel
-            // before we starting disposing
-            base.Dispose(disposing);
-
-            if (disposing)
+            var socket = _socket;
+            if (socket != null && socket.Connected)
             {
-                if (_socket != null)
-                {
-                    _socket.Dispose();
-                    _socket = null;
-                }
+                SocketAbstraction.Send(socket, data, 0, data.Length);
             }
         }
     }

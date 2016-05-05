@@ -7,7 +7,6 @@ namespace Renci.SshNet.Sftp.Requests
     {
         public byte[] Handle { get; private set; }
 
-#if TUNING
         /// <summary>
         /// Gets the size of the message in bytes.
         /// </summary>
@@ -24,7 +23,6 @@ namespace Renci.SshNet.Sftp.Requests
                 return capacity;
             }
         }
-#endif
 
         public FStatVfsRequest(uint protocolVersion, uint requestId, byte[] handle, Action<SftpExtendedReplyResponse> extendedAction, Action<SftpStatusResponse> statusAction)
             : base(protocolVersion, requestId, statusAction, "fstatvfs@openssh.com")

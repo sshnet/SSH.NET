@@ -16,7 +16,6 @@ namespace Renci.SshNet.Sftp.Requests
 
         public byte[] Data { get; private set; }
 
-#if TUNING
         public int Length { get; private set; }
 
         protected override int BufferCapacity
@@ -32,44 +31,29 @@ namespace Renci.SshNet.Sftp.Requests
                 return capacity;
             }
         }
-#endif
 
         public SftpWriteRequest(uint protocolVersion,
                                 uint requestId,
                                 byte[] handle,
                                 ulong offset,
                                 byte[] data,
-#if TUNING
                                 int length,
-#endif
                                 Action<SftpStatusResponse> statusAction)
             : base(protocolVersion, requestId, statusAction)
         {
             Handle = handle;
             Offset = offset;
             Data = data;
-#if TUNING
             Length = length;
-#endif
         }
 
         protected override void LoadData()
         {
             base.LoadData();
-#if TUNING
             Handle = ReadBinary();
-#else
-            Handle = ReadBinaryString();
-#endif
             Offset = ReadUInt64();
-#if TUNING
             Data = ReadBinary();
-#else
-            Data = ReadBinaryString();
-#endif
-#if TUNING
             Length = Data.Length;
-#endif
         }
 
         protected override void SaveData()
@@ -77,11 +61,7 @@ namespace Renci.SshNet.Sftp.Requests
             base.SaveData();
             WriteBinaryString(Handle);
             Write(Offset);
-#if TUNING
             WriteBinary(Data, 0, Length);
-#else
-            WriteBinaryString(Data);
-#endif
         }
     }
 }

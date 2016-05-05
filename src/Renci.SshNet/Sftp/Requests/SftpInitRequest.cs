@@ -9,7 +9,6 @@
 
         public uint Version { get; private set; }
 
-#if TUNING
         /// <summary>
         /// Gets the size of the message in bytes.
         /// </summary>
@@ -25,7 +24,6 @@
                 return capacity;
             }
         }
-#endif
 
         public SftpInitRequest(uint version)
         {

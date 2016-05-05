@@ -49,7 +49,6 @@ namespace Renci.SshNet.Messages.Authentication
             get { return _methodName; }
         }
 
-#if TUNING
         /// <summary>
         /// Gets the size of the message in bytes.
         /// </summary>
@@ -70,7 +69,6 @@ namespace Renci.SshNet.Messages.Authentication
                 return capacity;
             }
         }
-#endif
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RequestMessage"/> class.

@@ -40,13 +40,9 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Responses
             var attributes = CreateSftpFileAttributes();
             var attributesBytes = attributes.GetBytes();
 
-#if TUNING
             var sshDataStream = new SshDataStream(4 + 1 + 4 + attributesBytes.Length);
             sshDataStream.Position = 4; // skip 4 bytes for SSH packet length
-#else
-            var sshDataStream = new SshDataStream(1 + 4 + attributesBytes.Length);
-#endif
-            sshDataStream.WriteByte((byte)SftpMessageTypes.Attrs);
+            sshDataStream.WriteByte((byte) SftpMessageTypes.Attrs);
             sshDataStream.Write(_responseId);
             sshDataStream.Write(attributesBytes, 0, attributesBytes.Length);
 

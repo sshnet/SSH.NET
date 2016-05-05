@@ -8,23 +8,16 @@ namespace Renci.SshNet.Messages.Transport
     [Message("SSH_MSG_KEXDH_INIT", 30)]
     internal class KeyExchangeDhInitMessage : Message, IKeyExchangedAllowed
     {
-#if TUNING
         private byte[] _eBytes;
-#endif
 
         /// <summary>
         /// Gets the E value.
         /// </summary>
-#if TUNING
         public BigInteger E
         {
             get { return _eBytes.ToBigInteger(); }
         }
-#else
-        public BigInteger E { get; private set; }
-#endif
 
-#if TUNING
         /// <summary>
         /// Gets the size of the message in bytes.
         /// </summary>
@@ -41,7 +34,6 @@ namespace Renci.SshNet.Messages.Transport
                 return capacity;
             }
         }
-#endif
 
         /// <summary>
         /// Initializes a new instance of the <see cref="KeyExchangeDhInitMessage"/> class.
@@ -49,11 +41,7 @@ namespace Renci.SshNet.Messages.Transport
         /// <param name="clientExchangeValue">The client exchange value.</param>
         public KeyExchangeDhInitMessage(BigInteger clientExchangeValue)
         {
-#if TUNING
             _eBytes = clientExchangeValue.ToByteArray().Reverse();
-#else
-            E = clientExchangeValue;
-#endif
         }
 
         /// <summary>
@@ -62,11 +50,7 @@ namespace Renci.SshNet.Messages.Transport
         protected override void LoadData()
         {
             ResetReader();
-#if TUNING
             _eBytes = ReadBinary();
-#else
-            E = ReadBigInt();
-#endif
         }
 
         /// <summary>
@@ -74,11 +58,7 @@ namespace Renci.SshNet.Messages.Transport
         /// </summary>
         protected override void SaveData()
         {
-#if TUNING
             WriteBinaryString(_eBytes);
-#else
-            Write(E);
-#endif
         }
     }
 }

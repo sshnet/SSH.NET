@@ -72,7 +72,6 @@ namespace Renci.SshNet.Messages.Connection
         /// </value>
         public IDictionary<TerminalModes, uint> TerminalModeValues { get; set; }
 
-#if TUNING
         /// <summary>
         /// Gets the size of the message in bytes.
         /// </summary>
@@ -84,7 +83,6 @@ namespace Renci.SshNet.Messages.Connection
         {
             get { return -1; }
         }
-#endif
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PseudoTerminalRequestInfo"/> class.

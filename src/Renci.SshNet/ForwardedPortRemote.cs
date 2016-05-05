@@ -298,28 +298,31 @@ namespace Renci.SshNet
         /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected override void Dispose(bool disposing)
         {
-            if (!_isDisposed)
-            {
-                base.Dispose(disposing);
+            if (_isDisposed)
+                return;
 
-                if (disposing)
+            base.Dispose(disposing);
+
+            if (disposing)
+            {
+                var session = Session;
+                if (session != null)
                 {
-                    if (Session != null)
-                    {
-                        Session.RequestSuccessReceived -= Session_RequestSuccess;
-                        Session.RequestFailureReceived -= Session_RequestFailure;
-                        Session.ChannelOpenReceived -= Session_ChannelOpening;
-                        Session = null;
-                    }
-                    if (_globalRequestResponse != null)
-                    {
-                        _globalRequestResponse.Dispose();
-                        _globalRequestResponse = null;
-                    }
+                    session.RequestSuccessReceived -= Session_RequestSuccess;
+                    session.RequestFailureReceived -= Session_RequestFailure;
+                    session.ChannelOpenReceived -= Session_ChannelOpening;
+                    Session = null;
                 }
 
-                _isDisposed = true;
+                var globalRequestResponse = _globalRequestResponse;
+                if (globalRequestResponse != null)
+                {
+                    globalRequestResponse.Dispose();
+                    _globalRequestResponse = null;
+                }
             }
+
+            _isDisposed = true;
         }
 
         /// <summary>
@@ -328,9 +331,6 @@ namespace Renci.SshNet
         /// </summary>
         ~ForwardedPortRemote()
         {
-            // Do not re-create Dispose clean-up code here.
-            // Calling Dispose(false) is optimal in terms of
-            // readability and maintainability.
             Dispose(false);
         }
 

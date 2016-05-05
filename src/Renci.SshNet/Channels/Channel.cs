@@ -292,14 +292,9 @@ namespace Renci.SshNet.Channels
         /// <param name="data">The payload to send.</param>
         public void SendData(byte[] data)
         {
-#if TUNING
             SendData(data, 0, data.Length);
-#else
-            SendMessage(new ChannelDataMessage(RemoteChannelNumber, data));
-#endif
         }
 
-#if TUNING
         /// <summary>
         /// Sends a SSH_MSG_CHANNEL_DATA message with the specified payload.
         /// </summary>
@@ -340,7 +335,6 @@ namespace Renci.SshNet.Channels
                 offset += sizeOfCurrentMessage;
             }
         }
-#endif
 
         /// <summary>
         /// Closes the channel.
@@ -494,55 +488,6 @@ namespace Renci.SshNet.Channels
 
             _session.SendMessage(message);
         }
-
-#if !TUNING
-        /// <summary>
-        /// Sends channel data message to the servers.
-        /// </summary>
-        /// <param name="message">Channel data message.</param>
-        /// <remarks>
-        /// <para>
-        /// When the data of the message exceeds the maximum packet size or the remote window
-        /// size does not allow the full message to be sent, then this method will send the
-        /// data in multiple chunks and will only wait for the remote window size to be adjusted
-        /// when its zero.
-        /// </para>
-        /// <para>
-        /// This is done to support SSH servers will a small window size that do not agressively
-        /// increase their window size. We need to take into account that there may be SSH
-        /// servers that only increase their window size when it has reached zero.
-        /// </para>
-        /// </remarks>
-        protected void SendMessage(ChannelDataMessage message)
-        {
-            // send channel messages only while channel is open
-            if (!IsOpen)
-                return;
-
-            var totalDataLength = message.Data.Length;
-            var totalDataSent = 0;
-
-            var totalBytesToSend = totalDataLength;
-            while (totalBytesToSend > 0)
-            {
-                var dataThatCanBeSentInMessage = GetDataLengthThatCanBeSentInMessage(totalBytesToSend);
-                if (dataThatCanBeSentInMessage == totalDataLength)
-                {
-                    // we can send the message in one chunk
-                    _session.SendMessage(message);
-                }
-                else
-                {
-                    // we need to send the message in multiple chunks
-                    var dataToSend = new byte[dataThatCanBeSentInMessage];
-                    Array.Copy(message.Data, totalDataSent, dataToSend, 0, dataThatCanBeSentInMessage);
-                    _session.SendMessage(new ChannelDataMessage(message.LocalChannelNumber, dataToSend));
-                }
-                totalDataSent += dataThatCanBeSentInMessage;
-                totalBytesToSend -= dataThatCanBeSentInMessage;
-            }
-        }
-#endif
 
         /// <summary>
         /// Sends a SSH_MSG_CHANNEL_EOF message to the remote server.

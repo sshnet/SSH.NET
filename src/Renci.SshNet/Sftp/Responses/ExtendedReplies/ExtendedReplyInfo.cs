@@ -7,10 +7,8 @@ namespace Renci.SshNet.Sftp.Responses
     {
         protected override void LoadData()
         {
-#if TUNING
             // skip packet length
             ReadUInt32();
-#endif
 
             //  skip message type
             ReadByte();

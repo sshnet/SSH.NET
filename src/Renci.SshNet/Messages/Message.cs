@@ -27,7 +27,6 @@ namespace Renci.SshNet.Messages
             }
         }
 
-#if TUNING
         /// <summary>
         /// Gets the size of the message in bytes.
         /// </summary>
@@ -162,26 +161,6 @@ namespace Renci.SshNet.Messages
             }
             return paddingLength;
         }
-
-#else
-        /// <summary>
-        /// Gets data bytes array
-        /// </summary>
-        /// <returns>Byte array representation of the message</returns>
-        public override byte[] GetBytes()
-        {
-            var messageAttribute = GetType().GetTypeInfo().GetCustomAttributes(typeof(MessageAttribute), true).SingleOrDefault() as MessageAttribute;
-
-            if (messageAttribute == null)
-                throw new SshException(string.Format(CultureInfo.CurrentCulture, "Type '{0}' is not a valid message type.", GetType().AssemblyQualifiedName));
-
-            var data = new List<byte>(base.GetBytes());
-
-            data.Insert(0, messageAttribute.Number);
-
-            return data.ToArray();
-        }
-#endif
 
         /// <summary>
         /// Returns a <see cref="System.String"/> that represents this instance.

@@ -184,13 +184,10 @@ namespace Renci.SshNet
 
         /// <summary>
         /// Releases unmanaged resources and performs other cleanup operations before the
-        /// <see cref="PasswordConnectionInfo"/> is reclaimed by garbage collection.
+        /// <see cref="KeyboardInteractiveConnectionInfo"/> is reclaimed by garbage collection.
         /// </summary>
         ~KeyboardInteractiveConnectionInfo()
         {
-            // Do not re-create Dispose clean-up code here.
-            // Calling Dispose(false) is optimal in terms of
-            // readability and maintainability.
             Dispose(false);
         }
 

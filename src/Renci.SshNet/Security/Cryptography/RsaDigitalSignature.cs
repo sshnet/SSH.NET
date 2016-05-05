@@ -39,7 +39,7 @@ namespace Renci.SshNet.Security.Cryptography
         private bool _isDisposed;
 
         /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged ResourceMessages.
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose()
         {
@@ -50,7 +50,7 @@ namespace Renci.SshNet.Security.Cryptography
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged ResourceMessages.</param>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (_isDisposed)
@@ -58,9 +58,10 @@ namespace Renci.SshNet.Security.Cryptography
 
             if (disposing)
             {
-                if (_hash != null)
+                var hash = _hash;
+                if (hash != null)
                 {
-                    _hash.Dispose();
+                    hash.Dispose();
                     _hash = null;
                 }
 
@@ -70,13 +71,10 @@ namespace Renci.SshNet.Security.Cryptography
 
         /// <summary>
         /// Releases unmanaged resources and performs other cleanup operations before the
-        /// <see cref="SshCommand"/> is reclaimed by garbage collection.
+        /// <see cref="RsaDigitalSignature"/> is reclaimed by garbage collection.
         /// </summary>
         ~RsaDigitalSignature()
         {
-            // Do not re-create Dispose clean-up code here.
-            // Calling Dispose(false) is optimal in terms of
-            // readability and maintainability.
             Dispose(false);
         }
 

@@ -15,7 +15,6 @@ namespace Renci.SshNet.Messages.Connection
         /// </value>
         public uint LocalChannelNumber { get; protected set; }
 
-#if TUNING
         /// <summary>
         /// Gets the size of the message in bytes.
         /// </summary>
@@ -31,7 +30,6 @@ namespace Renci.SshNet.Messages.Connection
                 return capacity;
             }
         }
-#endif
 
         /// <summary>
         /// Initializes a new <see cref="ChannelMessage"/>.

@@ -295,7 +295,7 @@ namespace Renci.SshNet
             }
 
             var commandAsyncResult = asyncResult as CommandAsyncResult;
-            if (commandAsyncResult == null)
+            if (commandAsyncResult == null || _asyncResult != commandAsyncResult)
             {
                 throw new ArgumentException(string.Format("The {0} object was not returned from the corresponding asynchronous method on this class.", typeof(IAsyncResult).Name));
             }
@@ -524,7 +524,7 @@ namespace Renci.SshNet
         private bool _isDisposed;
 
         /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged ResourceMessages.
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose()
         {
@@ -535,7 +535,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged ResourceMessages.</param>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (_isDisposed)
@@ -576,10 +576,10 @@ namespace Renci.SshNet
                     ExtendedOutputStream = null;
                 }
 
-                var handle = _sessionErrorOccuredWaitHandle;
-                if (handle != null)
+                var sessionErrorOccuredWaitHandle = _sessionErrorOccuredWaitHandle;
+                if (sessionErrorOccuredWaitHandle != null)
                 {
-                    handle.Dispose();
+                    sessionErrorOccuredWaitHandle.Dispose();
                     _sessionErrorOccuredWaitHandle = null;
                 }
 
@@ -593,9 +593,6 @@ namespace Renci.SshNet
         /// </summary>
         ~SshCommand()
         {
-            // Do not re-create Dispose clean-up code here.
-            // Calling Dispose(false) is optimal in terms of
-            // readability and maintainability.
             Dispose(false);
         }
 

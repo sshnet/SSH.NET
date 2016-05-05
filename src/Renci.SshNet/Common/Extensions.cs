@@ -85,14 +85,12 @@ namespace Renci.SshNet.Common
             }
         }
 
-#if TUNING
         internal static BigInteger ToBigInteger(this byte[] data)
         {
             var reversed = new byte[data.Length];
             Buffer.BlockCopy(data, 0, reversed, 0, data.Length);
             return new BigInteger(reversed.Reverse());
         }
-#endif
 
         /// <summary>
         /// Reverses the sequence of the elements in the entire one-dimensional <see cref="Array"/>.
@@ -219,7 +217,7 @@ namespace Renci.SshNet.Common
         /// </summary>
         /// <param name="value">The number to convert.</param>
         /// <returns>An array of bytes with length 2.</returns>
-        internal static byte[] GetBytes(this UInt16 value)
+        internal static byte[] GetBytes(this ushort value)
         {
             return new[] {(byte) (value >> 8), (byte) (value & 0xFF)};
         }
@@ -229,15 +227,11 @@ namespace Renci.SshNet.Common
         /// </summary>
         /// <param name="value">The number to convert.</param>
         /// <returns>An array of bytes with length 4.</returns>
-        internal static byte[] GetBytes(this UInt32 value)
+        internal static byte[] GetBytes(this uint value)
         {
-#if TUNING
             var buffer = new byte[4];
             value.Write(buffer, 0);
             return buffer;
-#else
-            return new[] {(byte) (value >> 24), (byte) (value >> 16), (byte) (value >> 8), (byte) (value & 0xFF)};
-#endif
         }
 
         /// <summary>
@@ -259,7 +253,7 @@ namespace Renci.SshNet.Common
         /// </summary>
         /// <param name="value">The number to convert.</param>
         /// <returns>An array of bytes with length 8.</returns>
-        internal static byte[] GetBytes(this UInt64 value)
+        internal static byte[] GetBytes(this ulong value)
         {
             return new[]
                 {
@@ -273,7 +267,7 @@ namespace Renci.SshNet.Common
         /// </summary>
         /// <param name="value">The number to convert.</param>
         /// <returns>An array of bytes with length 8.</returns>
-        internal static byte[] GetBytes(this Int64 value)
+        internal static byte[] GetBytes(this long value)
         {
             return new[]
                 {

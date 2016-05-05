@@ -1,8 +1,4 @@
 ﻿using System;
-#if !TUNING
-using System.Collections.Generic;
-using System.Linq;
-#endif
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Security.Cryptography.Ciphers
@@ -84,16 +80,10 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
         private byte[] Transform(byte[] data)
         {
-#if TUNING
             Array.Reverse(data);
 
             var inputBytes = new byte[data.Length + 1];
             Buffer.BlockCopy(data, 0, inputBytes, 0, data.Length);
-#else
-            var bytes = new List<byte>(data.Reverse());
-            bytes.Add(0);
-            var inputBytes = bytes.ToArray();
-#endif
 
             var input = new BigInteger(inputBytes);
 
@@ -136,11 +126,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 result = BigInteger.ModPow(input, _key.Exponent, _key.Modulus);
             }
 
-#if TUNING
             return result.ToByteArray().Reverse();
-#else
-            return result.ToByteArray().Reverse().ToArray();
-#endif
         }
     }
 }

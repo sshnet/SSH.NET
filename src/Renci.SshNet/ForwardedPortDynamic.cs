@@ -113,7 +113,7 @@ namespace Renci.SshNet
         private bool _isDisposed;
 
         /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged ResourceMessages.
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose()
         {
@@ -126,37 +126,35 @@ namespace Renci.SshNet
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged ResourceMessages.</param>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected override void Dispose(bool disposing)
         {
-            if (!_isDisposed)
+            if (_isDisposed)
+                return;
+
+            base.Dispose(disposing);
+
+            if (disposing)
             {
-                base.Dispose(disposing);
-
-                if (disposing)
+                var listenerCompleted = _listenerCompleted;
+                if (listenerCompleted != null)
                 {
-                    if (_listenerCompleted != null)
-                    {
-                        _listenerCompleted.Dispose();
-                        _listenerCompleted = null;
-                    }
+                    listenerCompleted.Dispose();
+                    _listenerCompleted = null;
                 }
-
-                InternalDispose(disposing);
-
-                _isDisposed = true;
             }
+
+            InternalDispose(disposing);
+
+            _isDisposed = true;
         }
 
         /// <summary>
         /// Releases unmanaged resources and performs other cleanup operations before the
-        /// <see cref="ForwardedPortLocal"/> is reclaimed by garbage collection.
+        /// <see cref="ForwardedPortDynamic"/> is reclaimed by garbage collection.
         /// </summary>
         ~ForwardedPortDynamic()
         {
-            // Do not re-create Dispose clean-up code here.
-            // Calling Dispose(false) is optimal in terms of
-            // readability and maintainability.
             Dispose(false);
         }
 

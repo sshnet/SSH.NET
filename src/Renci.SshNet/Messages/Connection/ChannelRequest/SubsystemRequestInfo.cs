@@ -5,9 +5,7 @@
     /// </summary>
     internal class SubsystemRequestInfo : RequestInfo
     {
-#if TUNING
         private byte[] _subsystemName;
-#endif
 
         /// <summary>
         /// Channel request name
@@ -31,17 +29,12 @@
         /// <value>
         /// The name of the subsystem.
         /// </value>
-#if TUNING
         public string SubsystemName
         {
             get { return Ascii.GetString(_subsystemName, 0, _subsystemName.Length); }
             private set { _subsystemName = Ascii.GetBytes(value); }
         }
-#else
-        public string SubsystemName { get; private set; }
-#endif
 
-#if TUNING
         protected override int BufferCapacity
         {
             get
@@ -52,7 +45,6 @@
                 return capacity;
             }
         }
-#endif
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SubsystemRequestInfo"/> class.
@@ -79,11 +71,7 @@
         {
             base.LoadData();
 
-#if TUNING
             _subsystemName = ReadBinary();
-#else
-            SubsystemName = ReadAsciiString();
-#endif
         }
 
         /// <summary>
@@ -93,11 +81,7 @@
         {
             base.SaveData();
 
-#if TUNING
             WriteBinaryString(_subsystemName);
-#else
-            WriteAscii(SubsystemName);
-#endif
         }
     }
 }

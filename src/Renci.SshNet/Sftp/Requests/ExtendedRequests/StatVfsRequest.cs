@@ -16,7 +16,6 @@ namespace Renci.SshNet.Sftp.Requests
 
         public Encoding Encoding { get; private set; }
 
-#if TUNING
         /// <summary>
         /// Gets the size of the message in bytes.
         /// </summary>
@@ -33,7 +32,6 @@ namespace Renci.SshNet.Sftp.Requests
                 return capacity;
             }
         }
-#endif
 
         public StatVfsRequest(uint protocolVersion, uint requestId, string path, Encoding encoding, Action<SftpExtendedReplyResponse> extendedAction, Action<SftpStatusResponse> statusAction)
             : base(protocolVersion, requestId, statusAction, "statvfs@openssh.com")

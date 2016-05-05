@@ -197,7 +197,9 @@ namespace Renci.SshNet.Common
         /// Reads next specified number of bytes data type from internal buffer.
         /// </summary>
         /// <param name="length">Number of bytes to read.</param>
-        /// <returns>An array of bytes that was read from the internal buffer.</returns>
+        /// <returns>
+        /// An array of bytes that was read from the internal buffer.
+        /// </returns>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="length"/> is greater than the internal buffer size.</exception>
         private byte[] ReadBytes(int length)
         {

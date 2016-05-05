@@ -23,7 +23,6 @@ namespace Renci.SshNet.Messages.Transport
             Data = new byte[0];
         }
 
-#if TUNING
         /// <summary>
         /// Gets the size of the message in bytes.
         /// </summary>
@@ -40,7 +39,6 @@ namespace Renci.SshNet.Messages.Transport
                 return capacity;
             }
         }
-#endif
 
         /// <summary>
         /// Initializes a new instance of the <see cref="IgnoreMessage"/> class.
@@ -59,11 +57,7 @@ namespace Renci.SshNet.Messages.Transport
         /// </summary>
         protected override void LoadData()
         {
-#if TUNING
             Data = ReadBinary();
-#else
-            Data = ReadBinaryString();
-#endif
         }
 
         /// <summary>

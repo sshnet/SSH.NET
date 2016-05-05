@@ -156,9 +156,10 @@ namespace Renci.SshNet
 
             if (disposing)
             {
-                if (_authenticationCompleted != null)
+                var authenticationCompleted = _authenticationCompleted;
+                if (authenticationCompleted != null)
                 {
-                    _authenticationCompleted.Dispose();
+                    authenticationCompleted.Dispose();
                     _authenticationCompleted = null;
                 }
 
@@ -168,13 +169,10 @@ namespace Renci.SshNet
 
         /// <summary>
         /// Releases unmanaged resources and performs other cleanup operations before the
-        /// <see cref="PasswordConnectionInfo"/> is reclaimed by garbage collection.
+        /// <see cref="KeyboardInteractiveAuthenticationMethod"/> is reclaimed by garbage collection.
         /// </summary>
         ~KeyboardInteractiveAuthenticationMethod()
         {
-            // Do not re-create Dispose clean-up code here.
-            // Calling Dispose(false) is optimal in terms of
-            // readability and maintainability.
             Dispose(false);
         }
 

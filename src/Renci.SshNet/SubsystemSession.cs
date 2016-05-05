@@ -128,13 +128,14 @@ namespace Renci.SshNet
         {
             UnsubscribeFromSessionEvents(_session);
 
-            if (_channel != null)
+            var channel = _channel;
+            if (channel != null)
             {
-                _channel.DataReceived -= Channel_DataReceived;
-                _channel.Exception -= Channel_Exception;
-                _channel.Closed -= Channel_Closed;
-                _channel.Close();
-                _channel.Dispose();
+                channel.DataReceived -= Channel_DataReceived;
+                channel.Exception -= Channel_Exception;
+                channel.Closed -= Channel_Closed;
+                channel.Close();
+                channel.Dispose();
                 _channel = null;
             }
         }
@@ -314,29 +315,28 @@ namespace Renci.SshNet
 
                 _session = null;
 
-                if (_errorOccuredWaitHandle != null)
+                var errorOccuredWaitHandle = _errorOccuredWaitHandle;
+                if (errorOccuredWaitHandle != null)
                 {
-                    _errorOccuredWaitHandle.Dispose();
+                    errorOccuredWaitHandle.Dispose();
                     _errorOccuredWaitHandle = null;
                 }
 
-                if (_sessionDisconnectedWaitHandle != null)
+                var sessionDisconnectedWaitHandle = _sessionDisconnectedWaitHandle;
+                if (sessionDisconnectedWaitHandle != null)
                 {
-                    _sessionDisconnectedWaitHandle.Dispose();
+                    sessionDisconnectedWaitHandle.Dispose();
                     _sessionDisconnectedWaitHandle = null;
                 }
 
-                if (_channelClosedWaitHandle != null)
+                var channelClosedWaitHandle = _channelClosedWaitHandle;
+                if (channelClosedWaitHandle != null)
                 {
-                    _channelClosedWaitHandle.Dispose();
+                    channelClosedWaitHandle.Dispose();
                     _channelClosedWaitHandle = null;
                 }
 
                 _isDisposed = true;
-            }
-            else
-            {
-                UnsubscribeFromSessionEvents(_session);
             }
         }
 
@@ -345,9 +345,6 @@ namespace Renci.SshNet
         /// </summary>
         ~SubsystemSession()
         {
-            // Do not re-create Dispose clean-up code here.
-            // Calling Dispose(false) is optimal in terms of
-            // readability and maintainability.
             Dispose(false);
         }
 

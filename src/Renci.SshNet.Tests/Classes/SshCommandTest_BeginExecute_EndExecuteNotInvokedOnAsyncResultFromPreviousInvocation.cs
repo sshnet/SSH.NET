@@ -16,7 +16,6 @@ namespace Renci.SshNet.Tests.Classes
         private string _commandText;
         private Encoding _encoding;
         private SshCommand _sshCommand;
-        private IAsyncResult _asyncResult;
         private InvalidOperationException _actualException;
 
         protected override void OnInit()
@@ -35,12 +34,11 @@ namespace Renci.SshNet.Tests.Classes
             _channelSessionMock = new Mock<IChannelSession>(MockBehavior.Strict);
             _commandText = random.Next().ToString(CultureInfo.InvariantCulture);
             _encoding = Encoding.UTF8;
-            _asyncResult = null;
 
             var seq = new MockSequence();
             _sessionMock.InSequence(seq).Setup(p => p.CreateChannelSession()).Returns(_channelSessionMock.Object);
             _channelSessionMock.InSequence(seq).Setup(p => p.Open());
-            _channelSessionMock.InSequence(seq).Setup(p => p.SendExecRequest(_commandText));
+            _channelSessionMock.InSequence(seq).Setup(p => p.SendExecRequest(_commandText)).Returns(true);
 
             _sshCommand = new SshCommand(_sessionMock.Object, _commandText, _encoding);
             _sshCommand.BeginExecute();

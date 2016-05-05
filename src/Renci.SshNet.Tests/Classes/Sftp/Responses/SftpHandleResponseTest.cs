@@ -41,12 +41,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Responses
         {
             var target = new SftpHandleResponse(_protocolVersion);
 
-#if TUNING
             var sshDataStream = new SshDataStream(4 + 1 + 4 + _handle.Length);
             sshDataStream.Position = 4; // skip 4 bytes for SSH packet length
-#else
-            var sshDataStream = new SshDataStream(1 + 4 + _handle.Length);
-#endif
             sshDataStream.WriteByte((byte) SftpMessageTypes.Handle);
             sshDataStream.Write(_responseId);
             sshDataStream.Write((uint) _handle.Length);

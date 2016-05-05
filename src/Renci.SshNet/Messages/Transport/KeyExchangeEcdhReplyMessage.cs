@@ -23,7 +23,6 @@
         /// <value>The signature.</value>
         public byte[] Signature { get; private set; }
 
-#if TUNING
         /// <summary>
         /// Gets the size of the message in bytes.
         /// </summary>
@@ -44,7 +43,6 @@
                 return capacity;
             }
         }
-#endif
 
         /// <summary>
         /// Called when type specific data need to be loaded.
@@ -52,15 +50,9 @@
         protected override void LoadData()
         {
             ResetReader();
-#if TUNING
             KS = ReadBinary();
             QS = ReadBinary();
             Signature = ReadBinary();
-#else
-            KS = ReadBinaryString();
-            QS = ReadBinaryString();
-            Signature = ReadBinaryString();
-#endif
         }
 
         /// <summary>

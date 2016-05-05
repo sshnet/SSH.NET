@@ -136,11 +136,7 @@ namespace Renci.SshNet
                         if (WaitHandle.WaitAny(new[] {readWaitHandle, _channelClosedWaitHandle}) == 0)
                         {
                             var read = readTask.Result;
-#if TUNING
                             _channel.SendData(buffer, 0, read);
-#else
-                            _channel.SendData(buffer.Take(read).ToArray());
-#endif
                             continue;
                         }
 #elif FEATURE_STREAM_APM
@@ -153,11 +149,7 @@ namespace Renci.SshNet
                             var read = _input.EndRead(result);
                             if (read > 0)
                             {
-#if TUNING
                                 _channel.SendData(buffer, 0, read);
-#else
-                                _channel.SendData(buffer.Take(read).ToArray());
-#endif
                             }
 
                         }, null);
@@ -300,7 +292,7 @@ namespace Renci.SshNet
         private bool _disposed;
 
         /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged ResourceMessages.
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose()
         {
@@ -311,7 +303,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged ResourceMessages.</param>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (_disposed)
@@ -321,41 +313,37 @@ namespace Renci.SshNet
             {
                 UnsubscribeFromSessionEvents(_session);
 
-                if (_channelClosedWaitHandle != null)
+                var channelClosedWaitHandle = _channelClosedWaitHandle;
+                if (channelClosedWaitHandle != null)
                 {
-                    _channelClosedWaitHandle.Dispose();
+                    channelClosedWaitHandle.Dispose();
                     _channelClosedWaitHandle = null;
                 }
 
-                if (_channel != null)
+                var channel = _channel;
+                if (channel != null)
                 {
-                    _channel.Dispose();
+                    channel.Dispose();
                     _channel = null;
                 }
 
-                if (_dataReaderTaskCompleted != null)
+                var dataReaderTaskCompleted = _dataReaderTaskCompleted;
+                if (dataReaderTaskCompleted != null)
                 {
-                    _dataReaderTaskCompleted.Dispose();
+                    dataReaderTaskCompleted.Dispose();
                     _dataReaderTaskCompleted = null;
                 }
 
                 _disposed = true;
             }
-            else
-            {
-                UnsubscribeFromSessionEvents(_session);
-            }
         }
 
         /// <summary>
         /// Releases unmanaged resources and performs other cleanup operations before the
-        /// <see cref="Session"/> is reclaimed by garbage collection.
+        /// <see cref="Shell"/> is reclaimed by garbage collection.
         /// </summary>
         ~Shell()
         {
-            // Do not re-create Dispose clean-up code here.
-            // Calling Dispose(false) is optimal in terms of
-            // readability and maintainability.
             Dispose(false);
         }
 

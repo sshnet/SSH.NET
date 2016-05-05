@@ -18,11 +18,7 @@
         {
             base.LoadData();
             
-#if TUNING
             Handle = ReadBinary();
-#else
-            Handle = ReadBinaryString();
-#endif
         }
     }
 }

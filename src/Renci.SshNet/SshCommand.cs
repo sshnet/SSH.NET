@@ -246,7 +246,9 @@ namespace Renci.SshNet
 
             //  Initialize output streams
             OutputStream = new PipeStream();
+            ((PipeStream)OutputStream).EndOfStream = () => { return _asyncResult.IsCompleted; };
             ExtendedOutputStream = new PipeStream();
+            ((PipeStream)ExtendedOutputStream).EndOfStream = () => { return _asyncResult.IsCompleted; };
 
             _result = null;
             _error = null;

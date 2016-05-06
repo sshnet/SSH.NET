@@ -1649,7 +1649,7 @@ namespace Renci.SshNet
         {
             var buffer = new byte[length];
 
-            SocketRead(length, ref buffer);
+            SocketRead(length, buffer);
 
             return buffer;
         }
@@ -1742,9 +1742,9 @@ namespace Renci.SshNet
         /// <exception cref="SshConnectionException">The socket is closed.</exception>
         /// <exception cref="SshOperationTimeoutException">The read has timed-out.</exception>
         /// <exception cref="SocketException">The read failed.</exception>
-        void SocketRead(int length, ref byte[] buffer)
+        void SocketRead(int length, byte[] buffer)
         {
-            if (SocketAbstraction.Read(_socket, buffer, 0, length, ConnectionInfo.Timeout) > 0)
+            if (SocketAbstraction.Read(_socket, buffer, 0, length, InfiniteTimeSpan) > 0)
             {
                 // signal that bytes have been read from the socket
                 // this is used to improve accuracy of Session.IsSocketConnected
@@ -1868,7 +1868,7 @@ namespace Renci.SshNet
         {
             var buffer = new byte[1];
 
-            SocketRead(1, ref buffer);
+            SocketRead(1, buffer);
 
             return buffer[0];
         }
@@ -1925,10 +1925,10 @@ namespace Renci.SshNet
             var dummyBuffer = new byte[4];
 
             //  Read 2 bytes to be ignored
-            SocketRead(2, ref dummyBuffer);
+            SocketRead(2, dummyBuffer);
 
             //  Read 4 bytes to be ignored
-            SocketRead(4, ref dummyBuffer);
+            SocketRead(4, dummyBuffer);
         }
 
         private void ConnectSocks5()
@@ -2071,10 +2071,10 @@ namespace Renci.SshNet
             switch (addressType)
             {
                 case 0x01:
-                    SocketRead(4, ref responseIp);
+                    SocketRead(4, responseIp);
                     break;
                 case 0x04:
-                    SocketRead(16, ref responseIp);
+                    SocketRead(16, responseIp);
                     break;
                 default:
                     throw new ProxyException(string.Format("Address type '{0}' is not supported.", addressType));
@@ -2083,7 +2083,7 @@ namespace Renci.SshNet
             var port = new byte[2];
 
             //  Read 2 bytes to be ignored
-            SocketRead(2, ref port);
+            SocketRead(2, port);
         }
 
         private void ConnectHttp()
@@ -2151,7 +2151,7 @@ namespace Renci.SshNet
                     if (contentLength > 0)
                     {
                         var contentBody = new byte[contentLength];
-                        SocketRead(contentLength, ref contentBody);
+                        SocketRead(contentLength, contentBody);
                     }
                     break;
                 }

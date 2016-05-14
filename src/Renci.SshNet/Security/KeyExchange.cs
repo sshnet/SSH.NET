@@ -349,7 +349,7 @@ namespace Renci.SshNet.Security
                 result.AddRange(Hash(new _SessionKeyAdjustment
                 {
                     SharedKey = sharedKey,
-                    ExcahngeHash = exchangeHash,
+                    ExchangeHash = exchangeHash,
                     Key = key,
                 }.GetBytes()));
             }
@@ -432,7 +432,7 @@ namespace Renci.SshNet.Security
                 private get { return _sharedKey.ToBigInteger(); }
                 set { _sharedKey = value.ToByteArray().Reverse(); }
             }
-            public byte[] ExcahngeHash { get; set; }
+            public byte[] ExchangeHash { get; set; }
             public byte[] Key { get; set; }
 
             /// <summary>
@@ -448,7 +448,7 @@ namespace Renci.SshNet.Security
                     var capacity = base.BufferCapacity;
                     capacity += 4; // SharedKey length
                     capacity += _sharedKey.Length; // SharedKey
-                    capacity += ExcahngeHash.Length; // ExchangeHash
+                    capacity += ExchangeHash.Length; // ExchangeHash
                     capacity += Key.Length; // Key
                     return capacity;
                 }
@@ -462,7 +462,7 @@ namespace Renci.SshNet.Security
             protected override void SaveData()
             {
                 WriteBinaryString(_sharedKey);
-                Write(ExcahngeHash);
+                Write(ExchangeHash);
                 Write(Key);
             }
         }

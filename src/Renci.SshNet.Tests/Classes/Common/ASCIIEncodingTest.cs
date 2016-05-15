@@ -1,126 +1,236 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System;
+using System.Diagnostics;
+using System.Globalization;
+using System.Text;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Renci.SshNet.Common;
 using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Common
 {
-    /// <summary>
-    ///
-    /// </summary>
     [TestClass]
     public class ASCIIEncodingTest : TestBase
     {
+        private Random _random;
+        private Encoding _ascii;
 
-        /// <summary>
-        ///A test for GetByteCount
-        ///</summary>
-        [TestMethod()]
-        public void GetByteCountTest()
+        [TestInitialize]
+        public void SetUp()
         {
-            ASCIIEncoding target = new ASCIIEncoding(); // TODO: Initialize to an appropriate value
-            char[] chars = null; // TODO: Initialize to an appropriate value
-            int index = 0; // TODO: Initialize to an appropriate value
-            int count = 0; // TODO: Initialize to an appropriate value
-            int expected = 0; // TODO: Initialize to an appropriate value
-            int actual;
-            actual = target.GetByteCount(chars, index, count);
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verify the correctness of this test method.");
+            _random = new Random();
+            _ascii = SshData.Ascii;
         }
 
-        /// <summary>
-        ///A test for ASCIIEncoding Constructor
-        ///</summary>
-        [TestMethod()]
-        public void ASCIIEncodingConstructorTest()
+        [TestMethod]
+        public void GetByteCount_Chars()
         {
-            ASCIIEncoding target = new ASCIIEncoding();
-            Assert.Inconclusive("TODO: Implement code to verify target");
+            var chars = new[] { 'B', 'e', 'l', 'g', 'i', 'u', 'm' };
+
+            var actual = _ascii.GetByteCount(chars);
+
+            Assert.AreEqual(chars.Length, actual);
         }
 
-        /// <summary>
-        ///A test for GetBytes
-        ///</summary>
-        [TestMethod()]
-        public void GetBytesTest()
+        [TestMethod]
+        public void GetBytes_CharArray()
         {
-            ASCIIEncoding target = new ASCIIEncoding(); // TODO: Initialize to an appropriate value
-            char[] chars = null; // TODO: Initialize to an appropriate value
-            int charIndex = 0; // TODO: Initialize to an appropriate value
-            int charCount = 0; // TODO: Initialize to an appropriate value
-            byte[] bytes = null; // TODO: Initialize to an appropriate value
-            int byteIndex = 0; // TODO: Initialize to an appropriate value
-            int expected = 0; // TODO: Initialize to an appropriate value
-            int actual;
-            actual = target.GetBytes(chars, charIndex, charCount, bytes, byteIndex);
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verify the correctness of this test method.");
+            var chars = new[] {'B', 'e', 'l', 'g', 'i', 'u', 'm'};
+
+            var actual = _ascii.GetBytes(chars);
+
+            Assert.IsNotNull(actual);
+            Assert.AreEqual(7, actual.Length);
+            Assert.AreEqual(0x42, actual[0]);
+            Assert.AreEqual(0x65, actual[1]);
+            Assert.AreEqual(0x6c, actual[2]);
+            Assert.AreEqual(0x67, actual[3]);
+            Assert.AreEqual(0x69, actual[4]);
+            Assert.AreEqual(0x75, actual[5]);
+            Assert.AreEqual(0x6d ,actual[6]);
         }
 
-        /// <summary>
-        ///A test for GetCharCount
-        ///</summary>
-        [TestMethod()]
-        public void GetCharCountTest()
+        [TestMethod]
+        public void GetCharCount_Bytes()
         {
-            ASCIIEncoding target = new ASCIIEncoding(); // TODO: Initialize to an appropriate value
-            byte[] bytes = null; // TODO: Initialize to an appropriate value
-            int index = 0; // TODO: Initialize to an appropriate value
-            int count = 0; // TODO: Initialize to an appropriate value
-            int expected = 0; // TODO: Initialize to an appropriate value
-            int actual;
-            actual = target.GetCharCount(bytes, index, count);
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verify the correctness of this test method.");
+            var bytes = new byte[] { 0x42, 0x65, 0x6c, 0x67, 0x69, 0x75, 0x6d };
+
+            var actual = _ascii.GetCharCount(bytes);
+
+            Assert.AreEqual(bytes.Length, actual);
         }
 
-        /// <summary>
-        ///A test for GetChars
-        ///</summary>
-        [TestMethod()]
-        public void GetCharsTest()
+        [TestMethod]
+        public void GetChars_Bytes()
         {
-            ASCIIEncoding target = new ASCIIEncoding(); // TODO: Initialize to an appropriate value
-            byte[] bytes = null; // TODO: Initialize to an appropriate value
-            int byteIndex = 0; // TODO: Initialize to an appropriate value
-            int byteCount = 0; // TODO: Initialize to an appropriate value
-            char[] chars = null; // TODO: Initialize to an appropriate value
-            int charIndex = 0; // TODO: Initialize to an appropriate value
-            int expected = 0; // TODO: Initialize to an appropriate value
-            int actual;
-            actual = target.GetChars(bytes, byteIndex, byteCount, chars, charIndex);
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verify the correctness of this test method.");
+            var bytes = new byte[] {0x42, 0x65, 0x6c, 0x67, 0x69, 0x75, 0x6d};
+
+            var actual = _ascii.GetChars(bytes);
+
+            Assert.AreEqual("Belgium", new string(actual));
         }
 
-        /// <summary>
-        ///A test for GetMaxByteCount
-        ///</summary>
-        [TestMethod()]
-        public void GetMaxByteCountTest()
+        [TestMethod]
+        public void GetChars_Bytes_DefaultFallback()
         {
-            ASCIIEncoding target = new ASCIIEncoding(); // TODO: Initialize to an appropriate value
-            int charCount = 0; // TODO: Initialize to an appropriate value
-            int expected = 0; // TODO: Initialize to an appropriate value
-            int actual;
-            actual = target.GetMaxByteCount(charCount);
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verify the correctness of this test method.");
+            var bytes = new byte[] { 0x42, 0x65, 0x6c, 0x80, 0x69, 0x75, 0x6d };
+
+            var actual = _ascii.GetChars(bytes);
+
+            Assert.AreEqual("Bel?ium", new string(actual));
         }
 
-        /// <summary>
-        ///A test for GetMaxCharCount
-        ///</summary>
-        [TestMethod()]
-        public void GetMaxCharCountTest()
+        [TestMethod]
+        public void GetMaxByteCount_ShouldReturnCharCountPlusOneWhenCharCountIsNonNegative()
         {
-            ASCIIEncoding target = new ASCIIEncoding(); // TODO: Initialize to an appropriate value
-            int byteCount = 0; // TODO: Initialize to an appropriate value
-            int expected = 0; // TODO: Initialize to an appropriate value
-            int actual;
-            actual = target.GetMaxCharCount(byteCount);
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verify the correctness of this test method.");
+            var charCount = _random.Next(0, 20000);
+
+            var actual = _ascii.GetMaxByteCount(charCount);
+
+            Assert.AreEqual(++charCount, actual);
+        }
+
+        [TestMethod]
+        public void GetMaxByteCount_ShouldThrowArgumentOutOfRangeExceptionWhenCharCountIsNegative()
+        {
+            var charCount = _random.Next(-5000, -1);
+
+            try
+            {
+                var actual = _ascii.GetMaxByteCount(charCount);
+                Assert.Fail(actual.ToString(CultureInfo.InvariantCulture));
+            }
+            catch (ArgumentOutOfRangeException ex)
+            {
+                Assert.IsNull(ex.InnerException);
+                Assert.AreEqual("charCount", ex.ParamName);
+            }
+        }
+
+        [TestMethod]
+        public void GetMaxCharCount_ShouldReturnByteCountWhenByteCountIsNonNegative()
+        {
+            var byteCount = _random.Next(0, 20000);
+
+            var actual = _ascii.GetMaxCharCount(byteCount);
+
+            Assert.AreEqual(byteCount, actual);
+        }
+
+        [TestMethod]
+        public void GetMaxCharCount_ShouldThrowArgumentOutOfRangeExceptionWhenByteCountIsNegative()
+        {
+            var byteCount = _random.Next(-5000, -1);
+
+            try
+            {
+                var actual = _ascii.GetMaxCharCount(byteCount);
+                Assert.Fail(actual.ToString(CultureInfo.InvariantCulture));
+            }
+            catch (ArgumentOutOfRangeException ex)
+            {
+                Assert.IsNull(ex.InnerException);
+                Assert.AreEqual("byteCount", ex.ParamName);
+            }
+        }
+
+        [TestMethod]
+        public void GetPreamble()
+        {
+            var actual = _ascii.GetPreamble();
+
+            Assert.AreEqual(0, actual.Length);
+        }
+
+        [TestMethod]
+        public void IsSingleByte()
+        {
+            Assert.IsTrue(_ascii.IsSingleByte);
+        }
+
+        [TestMethod]
+        public void GetBytes_Performance()
+        {
+            const string input = "eererzfdfdsfsfsfsqdqseererzfdfdsfsfsfsqdqseererzfdfdsfsfsfsqdqseererzfdfdsfsfsfsqdqseererzfdfdsfsfsfsqdqseererzfdfdsfsfsfsqdqseererzfdfdsfsfsfsqdqseererzfdfdsfsfsfsqdqseererzfdfdsfsfsfsqdqs";
+            const int loopCount = 10000000;
+            var result = new byte[input.Length];
+
+            var corefxAscii = new System.Text.ASCIIEncoding();
+            var sshAscii = _ascii;
+
+            var stopWatch = new Stopwatch();
+
+            GC.Collect();
+            GC.WaitForFullGCComplete();
+
+            stopWatch.Start();
+
+            for (var i = 0; i < loopCount; i++)
+            {
+                corefxAscii.GetBytes(input, 0, input.Length, result, 0);
+            }
+
+            stopWatch.Stop();
+
+            Console.WriteLine(stopWatch.ElapsedMilliseconds);
+
+            stopWatch.Reset();
+
+            GC.Collect();
+            GC.WaitForFullGCComplete();
+
+            stopWatch.Start();
+
+            for (var i = 0; i < loopCount; i++)
+            {
+                sshAscii.GetBytes(input, 0, input.Length, result, 0);
+            }
+
+            stopWatch.Stop();
+
+            Console.WriteLine(stopWatch.ElapsedMilliseconds);
+        }
+
+        [TestMethod]
+        public void GetChars_Performance()
+        {
+            var input = new byte[2000];
+            new Random().NextBytes(input);
+            const int loopCount = 100000;
+
+            var corefxAscii = new System.Text.ASCIIEncoding();
+            var sshAscii = _ascii;
+
+            var stopWatch = new Stopwatch();
+
+            GC.Collect();
+            GC.WaitForFullGCComplete();
+
+            stopWatch.Start();
+
+            for (var i = 0; i < loopCount; i++)
+            {
+                var actual = corefxAscii.GetChars(input);
+            }
+
+            stopWatch.Stop();
+
+            Console.WriteLine(stopWatch.ElapsedMilliseconds);
+
+            stopWatch.Reset();
+
+            GC.Collect();
+            GC.WaitForFullGCComplete();
+
+            stopWatch.Start();
+
+            for (var i = 0; i < loopCount; i++)
+            {
+                var actual = sshAscii.GetChars(input);
+            }
+
+            stopWatch.Stop();
+
+            Console.WriteLine(stopWatch.ElapsedMilliseconds);
         }
 
     }

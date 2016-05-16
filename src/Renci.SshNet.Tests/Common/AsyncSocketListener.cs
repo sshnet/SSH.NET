@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Tests.Common
 {

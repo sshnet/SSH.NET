@@ -1,16 +1,16 @@
 ﻿using System;
-using System.Text;
-using System.Net.Sockets;
-using System.Threading;
-using System.Security.Cryptography;
 using System.Diagnostics;
+using System.Net.Sockets;
+using System.Security.Cryptography;
+using System.Text;
+using System.Threading;
 
-namespace Renci.SshNet
+namespace Renci.SshNet.Common
 {
     /// <summary>
     /// Collection of different extension method specific for .NET 3.5
     /// </summary>
-    public static partial class Extensions
+    internal static partial class Extensions
     {
         /// <summary>
         /// Disposes the specified socket.

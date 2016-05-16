@@ -328,7 +328,7 @@ namespace Renci.SshNet.Sftp
         {
             SshException exception = null;
 
-            var data = new byte[0];
+            byte[] data = null;
 
             using (var wait = new AutoResetEvent(false))
             {

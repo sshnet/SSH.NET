@@ -23,7 +23,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;FEATURE_SOCKET_EAP;FEATURE_STREAM_TAP;FEATURE_THREAD_TAP;FEATURE_MEMORYSTREAM_TRYGETBUFFER;FEATURE_REFLECTION_TYPEINFO</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;FEATURE_SOCKET_EAP;FEATURE_STREAM_TAP;FEATURE_THREAD_TAP;FEATURE_MEMORYSTREAM_TRYGETBUFFER;FEATURE_REFLECTION_TYPEINFO;FEATURE_ENCODING_ASCII</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Debug\Renci.SshNet.xml</DocumentationFile>
@@ -33,7 +33,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;FEATURE_SOCKET_EAP;FEATURE_STREAM_TAP;FEATURE_THREAD_TAP;FEATURE_MEMORYSTREAM_TRYGETBUFFER;FEATURE_REFLECTION_TYPEINFO</DefineConstants>
+    <DefineConstants>TRACE;FEATURE_SOCKET_EAP;FEATURE_STREAM_TAP;FEATURE_THREAD_TAP;FEATURE_MEMORYSTREAM_TRYGETBUFFER;FEATURE_REFLECTION_TYPEINFO;FEATURE_ENCODING_ASCII</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Release\Renci.SshNet.xml</DocumentationFile>
@@ -42,7 +42,7 @@
     <PlatformTarget>x86</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\x86\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;FEATURE_SOCKET_EAP;FEATURE_STREAM_TAP;FEATURE_THREAD_TAP;FEATURE_MEMORYSTREAM_TRYGETBUFFER;FEATURE_REFLECTION_TYPEINFO</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;FEATURE_SOCKET_EAP;FEATURE_STREAM_TAP;FEATURE_THREAD_TAP;FEATURE_MEMORYSTREAM_TRYGETBUFFER;FEATURE_REFLECTION_TYPEINFO;FEATURE_ENCODING_ASCII</DefineConstants>
     <NoWarn>;2008</NoWarn>
     <DebugType>full</DebugType>
     <PlatformTarget>x86</PlatformTarget>
@@ -52,7 +52,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
     <PlatformTarget>x86</PlatformTarget>
     <OutputPath>bin\x86\Release\</OutputPath>
-    <DefineConstants>TRACE;FEATURE_SOCKET_EAP;FEATURE_STREAM_TAP;FEATURE_THREAD_TAP;FEATURE_MEMORYSTREAM_TRYGETBUFFER;FEATURE_REFLECTION_TYPEINFO</DefineConstants>
+    <DefineConstants>TRACE;FEATURE_SOCKET_EAP;FEATURE_STREAM_TAP;FEATURE_THREAD_TAP;FEATURE_MEMORYSTREAM_TRYGETBUFFER;FEATURE_REFLECTION_TYPEINFO;FEATURE_ENCODING_ASCII</DefineConstants>
     <Optimize>true</Optimize>
     <NoWarn>;2008</NoWarn>
     <DebugType>pdbonly</DebugType>
@@ -64,7 +64,7 @@
     <PlatformTarget>ARM</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\ARM\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;FEATURE_SOCKET_EAP;FEATURE_STREAM_TAP;FEATURE_THREAD_TAP;FEATURE_MEMORYSTREAM_TRYGETBUFFER;FEATURE_REFLECTION_TYPEINFO</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;FEATURE_SOCKET_EAP;FEATURE_STREAM_TAP;FEATURE_THREAD_TAP;FEATURE_MEMORYSTREAM_TRYGETBUFFER;FEATURE_REFLECTION_TYPEINFO;FEATURE_ENCODING_ASCII</DefineConstants>
     <NoWarn>;2008</NoWarn>
     <DebugType>full</DebugType>
     <PlatformTarget>ARM</PlatformTarget>
@@ -74,7 +74,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|ARM'">
     <PlatformTarget>ARM</PlatformTarget>
     <OutputPath>bin\ARM\Release\</OutputPath>
-    <DefineConstants>TRACE;FEATURE_SOCKET_EAP;FEATURE_STREAM_TAP;FEATURE_THREAD_TAP;FEATURE_MEMORYSTREAM_TRYGETBUFFER;FEATURE_REFLECTION_TYPEINFO</DefineConstants>
+    <DefineConstants>TRACE;FEATURE_SOCKET_EAP;FEATURE_STREAM_TAP;FEATURE_THREAD_TAP;FEATURE_MEMORYSTREAM_TRYGETBUFFER;FEATURE_REFLECTION_TYPEINFO;FEATURE_ENCODING_ASCII</DefineConstants>
     <Optimize>true</Optimize>
     <NoWarn>;2008</NoWarn>
     <DebugType>pdbonly</DebugType>
@@ -86,7 +86,7 @@
     <PlatformTarget>x64</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\x64\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;FEATURE_SOCKET_EAP;FEATURE_STREAM_TAP;FEATURE_THREAD_TAP;FEATURE_MEMORYSTREAM_TRYGETBUFFER;FEATURE_REFLECTION_TYPEINFO</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;FEATURE_SOCKET_EAP;FEATURE_STREAM_TAP;FEATURE_THREAD_TAP;FEATURE_MEMORYSTREAM_TRYGETBUFFER;FEATURE_REFLECTION_TYPEINFO;FEATURE_ENCODING_ASCII</DefineConstants>
     <NoWarn>;2008</NoWarn>
     <DebugType>full</DebugType>
     <PlatformTarget>x64</PlatformTarget>
@@ -96,7 +96,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <PlatformTarget>x64</PlatformTarget>
     <OutputPath>bin\x64\Release\</OutputPath>
-    <DefineConstants>TRACE;FEATURE_SOCKET_EAP;FEATURE_STREAM_TAP;FEATURE_THREAD_TAP;FEATURE_MEMORYSTREAM_TRYGETBUFFER;FEATURE_REFLECTION_TYPEINFO</DefineConstants>
+    <DefineConstants>TRACE;FEATURE_SOCKET_EAP;FEATURE_STREAM_TAP;FEATURE_THREAD_TAP;FEATURE_MEMORYSTREAM_TRYGETBUFFER;FEATURE_REFLECTION_TYPEINFO;FEATURE_ENCODING_ASCII</DefineConstants>
     <Optimize>true</Optimize>
     <NoWarn>;2008</NoWarn>
     <DebugType>pdbonly</DebugType>
@@ -177,6 +177,9 @@
     </Compile>
     <Compile Include="..\Renci.SshNet\CommandAsyncResult.cs">
       <Link>CommandAsyncResult.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Common\Array.cs">
+      <Link>Common\Array.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Common\ASCIIEncoding.cs">
       <Link>Common\ASCIIEncoding.cs</Link>

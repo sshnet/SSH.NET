@@ -144,6 +144,9 @@
     <Compile Include="..\Renci.SshNet\CommandAsyncResult.cs">
       <Link>CommandAsyncResult.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\Common\Array.cs">
+      <Link>Common\Array.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\Common\ASCIIEncoding.cs">
       <Link>Common\ASCIIEncoding.cs</Link>
     </Compile>

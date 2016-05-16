@@ -24,7 +24,7 @@ namespace Renci.SshNet.Common
         /// <returns>
         ///   <c>true</c> if [is null or white space] [the specified value]; otherwise, <c>false</c>.
         /// </returns>
-        internal static bool IsNullOrWhiteSpace(this string value)
+        public static bool IsNullOrWhiteSpace(this string value)
         {
             if (string.IsNullOrEmpty(value)) return true;
 
@@ -105,65 +105,6 @@ namespace Renci.SshNet.Common
             return array;
         }
 
-
-        /// <summary>
-        /// Checks whether a collection is the same as another collection
-        /// </summary>
-        /// <param name="value">The current instance object</param>
-        /// <param name="compareList">The collection to compare with</param>
-        /// <param name="comparer">The comparer object to use to compare each item in the collection.  If null uses EqualityComparer(T).Default</param>
-        /// <returns>True if the two collections contain all the same items in the same order</returns>
-        internal static bool IsEqualTo<TSource>(this IEnumerable<TSource> value, IEnumerable<TSource> compareList, IEqualityComparer<TSource> comparer)
-        {
-            if (value == compareList)
-                return true;
-            if (value == null || compareList == null)
-                return false;
-
-            if (comparer == null)
-            {
-                comparer = EqualityComparer<TSource>.Default;
-            }
-
-            var enumerator1 = value.GetEnumerator();
-            var enumerator2 = compareList.GetEnumerator();
-
-            var enum1HasValue = enumerator1.MoveNext();
-            var enum2HasValue = enumerator2.MoveNext();
-
-            try
-            {
-                while (enum1HasValue && enum2HasValue)
-                {
-                    if (!comparer.Equals(enumerator1.Current, enumerator2.Current))
-                    {
-                        return false;
-                    }
-
-                    enum1HasValue = enumerator1.MoveNext();
-                    enum2HasValue = enumerator2.MoveNext();
-                }
-
-                return !(enum1HasValue || enum2HasValue);
-            }
-            finally
-            {
-                enumerator1.Dispose();
-                enumerator2.Dispose();
-            }
-        }
-
-        /// <summary>
-        /// Checks whether a collection is the same as another collection
-        /// </summary>
-        /// <param name="value">The current instance object</param>
-        /// <param name="compareList">The collection to compare with</param>
-        /// <returns>True if the two collections contain all the same items in the same order</returns>
-        internal static bool IsEqualTo<TSource>(this IEnumerable<TSource> value, IEnumerable<TSource> compareList)
-        {
-            return IsEqualTo(value, compareList, null);
-        }
-
         /// <summary>
         /// Prints out 
         /// </summary>
@@ -177,26 +118,6 @@ namespace Renci.SshNet.Common
                 sb.AppendFormat(CultureInfo.CurrentCulture, "0x{0:x2}, ", b);
             }
             Debug.WriteLine(sb.ToString());
-        }
-
-        /// <summary>
-        /// Trims the leading zero from bytes array.
-        /// </summary>
-        /// <param name="data">The data.</param>
-        /// <returns>Data without leading zeros.</returns>
-        internal static IEnumerable<byte> TrimLeadingZero(this IEnumerable<byte> data)
-        {
-            var leadingZero = true;
-            foreach (var item in data)
-            {
-                if (item == 0 & leadingZero)
-                {
-                    continue;
-                }
-                leadingZero = false;
-
-                yield return item;
-            }
         }
 
         /// <summary>
@@ -300,18 +221,108 @@ namespace Renci.SshNet.Common
         /// <summary>
         /// Returns a specified number of contiguous bytes from a given offset.
         /// </summary>
-        /// <param name="data">The array to return a number of bytes from.</param>
-        /// <param name="offset">The zero-based offset in <paramref name="data"/> at which to begin taking bytes.</param>
-        /// <param name="length">The number of bytes to take from <paramref name="data"/>.</param>
+        /// <param name="value">The array to return a number of bytes from.</param>
+        /// <param name="offset">The zero-based offset in <paramref name="value"/> at which to begin taking bytes.</param>
+        /// <param name="count">The number of bytes to take from <paramref name="value"/>.</param>
         /// <returns>
         /// A <see cref="byte"/> array that contains the specified number of bytes at the specified offset
         /// of the input array.
         /// </returns>
-        internal static byte[] Take(this byte[] data, int offset, int length)
+        internal static byte[] Take(this byte[] value, int offset, int count)
         {
-            var taken = new byte[length];
-            Buffer.BlockCopy(data, offset, taken, 0, length);
+            if (value == null)
+                throw new ArgumentNullException("value");
+
+            if (count == 0)
+                return Array<byte>.Empty;
+
+            if (offset == 0 && value.Length == count)
+                return value;
+
+            var taken = new byte[count];
+            Buffer.BlockCopy(value, offset, taken, 0, count);
             return taken;
+        }
+
+        internal static byte[] Take(this byte[] value, int count)
+        {
+            if (value == null)
+                throw new ArgumentNullException("value");
+
+            if (count == 0)
+                return Array<byte>.Empty;
+
+            if (value.Length == count)
+                return value;
+
+            var taken = new byte[count];
+            Buffer.BlockCopy(value, 0, taken, 0, count);
+            return taken;
+        }
+
+        public static bool IsEqualTo(this byte[] first, byte[] second)
+        {
+            if (first == second)
+                return true;
+
+            if (first == null || second == null)
+                return false;
+
+            if (first.Length != second.Length)
+                return false;
+
+            for (var i = 0; i < first.Length; i++)
+            {
+                if (first[i] != second[i])
+                    return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Trims the leading zero from a byte array.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <returns>
+        /// <paramref name="value"/> without leading zeros.
+        /// </returns>
+        public static byte[] TrimLeadingZeros(this byte[] value)
+        {
+            if (value == null)
+                throw new ArgumentNullException("value");
+
+            for (var i = 0; i < value.Length; i++)
+            {
+                if (value[i] == 0)
+                    continue;
+
+                // if the first byte is non-zero, then we return the byte array as is
+                if (i == 0)
+                    return value;
+
+                var remainingBytes = value.Length - i;
+
+                var cleaned = new byte[remainingBytes];
+                Buffer.BlockCopy(value, i, cleaned, 0, remainingBytes);
+                return cleaned;
+            }
+
+            return value;
+        }
+
+        public static byte[] Concat(this byte[] first, byte[] second)
+        {
+            if (first == null || first.Length == 0)
+                return second;
+
+            if (second == null || second.Length == 0)
+                return first;
+
+            var concat = new byte[first.Length + second.Length];
+            Buffer.BlockCopy(first, 0, concat, 0, first.Length);
+            Buffer.BlockCopy(second, 0, concat, first.Length, second.Length);
+            return concat;
         }
 
         internal static bool CanRead(this Socket socket)

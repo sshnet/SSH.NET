@@ -18,7 +18,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;FEATURE_ENCODING_ASCII</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -51,6 +51,7 @@
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Data" />
+    <Reference Include="System.Numerics" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
@@ -124,6 +125,11 @@
     <Compile Include="Classes\ClientAuthenticationTest_Success_MultiList_SameAllowedAuthenticationsAfterPartialSuccess.cs" />
     <Compile Include="Classes\ClientAuthenticationTest_Success_MultiList_SkipFailedAuthenticationMethod.cs" />
     <Compile Include="Classes\ClientAuthenticationTest_Success_SingleList_SameAllowedAuthenticationAfterPartialSuccess.cs" />
+    <Compile Include="Classes\Common\ExtensionsTest_Concat.cs" />
+    <Compile Include="Classes\Common\ExtensionsTest_IsEqualTo_ByteArray.cs" />
+    <Compile Include="Classes\Common\ExtensionsTest_Take_Count.cs" />
+    <Compile Include="Classes\Common\ExtensionsTest_Take_OffsetAndCount.cs" />
+    <Compile Include="Classes\Common\ExtensionsTest_TrimLeadingZeros.cs" />
     <Compile Include="Classes\ConnectionInfoTest_Authenticate_Failure.cs" />
     <Compile Include="Classes\ConnectionInfoTest_Authenticate_Success.cs" />
     <Compile Include="Classes\ForwardedPortDynamicTest_Dispose_PortStarted_ChannelBound.cs" />

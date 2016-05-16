@@ -58,8 +58,7 @@ namespace Renci.SshNet.Tests.Classes.Common
             var actual = Extensions.Take(value, count);
 
             Assert.IsNotNull(actual);
-            Assert.AreEqual(value.Length, actual.Length);
-            Assert.AreEqual(value, actual);
+            Assert.AreSame(value, actual);
         }
 
         [TestMethod]
@@ -141,7 +140,7 @@ namespace Renci.SshNet.Tests.Classes.Common
 
             GC.Collect();
             GC.WaitForPendingFinalizers();
-            GC.WaitForFullGCComplete();
+            GC.Collect();
 
             stopWatch.Start();
 
@@ -153,7 +152,7 @@ namespace Renci.SshNet.Tests.Classes.Common
 
             GC.Collect();
             GC.WaitForPendingFinalizers();
-            GC.WaitForFullGCComplete();
+            GC.Collect();
 
             stopWatch.Stop();
 
@@ -168,7 +167,8 @@ namespace Renci.SshNet.Tests.Classes.Common
             }
 
             GC.Collect();
-            GC.WaitForFullGCComplete();
+            GC.WaitForPendingFinalizers();
+            GC.Collect();
 
             stopWatch.Stop();
 

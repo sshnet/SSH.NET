@@ -133,7 +133,7 @@ namespace Renci.SshNet.Tests.Classes.Common
 
             GC.Collect();
             GC.WaitForPendingFinalizers();
-            GC.WaitForFullGCComplete();
+            GC.Collect();
 
             stopWatch.Start();
 
@@ -145,7 +145,7 @@ namespace Renci.SshNet.Tests.Classes.Common
 
             GC.Collect();
             GC.WaitForPendingFinalizers();
-            GC.WaitForFullGCComplete();
+            GC.Collect();
 
             stopWatch.Stop();
 
@@ -160,7 +160,8 @@ namespace Renci.SshNet.Tests.Classes.Common
             }
 
             GC.Collect();
-            GC.WaitForFullGCComplete();
+            GC.WaitForPendingFinalizers();
+            GC.Collect();
 
             stopWatch.Stop();
 

@@ -228,6 +228,11 @@ namespace Renci.SshNet.Common
         /// A <see cref="byte"/> array that contains the specified number of bytes at the specified offset
         /// of the input array.
         /// </returns>
+        /// <exception cref="ArgumentNullException"><paramref name="value"/> is <c>null</c>.</exception>
+        /// <remarks>
+        /// When <paramref name="offset"/> is zero and <paramref name="count"/> equals the length of <paramref name="value"/>,
+        /// then <paramref name="value"/> is returned.
+        /// </remarks>
         public static byte[] Take(this byte[] value, int offset, int count)
         {
             if (value == null)
@@ -244,6 +249,19 @@ namespace Renci.SshNet.Common
             return taken;
         }
 
+        /// <summary>
+        /// Returns a specified number of contiguous bytes from the start of the specified byte array.
+        /// </summary>
+        /// <param name="value">The array to return a number of bytes from.</param>
+        /// <param name="count">The number of bytes to take from <paramref name="value"/>.</param>
+        /// <returns>
+        /// A <see cref="byte"/> array that contains the specified number of bytes at the start of the input array.
+        /// </returns>
+        /// <exception cref="ArgumentNullException"><paramref name="value"/> is <c>null</c>.</exception>
+        /// <remarks>
+        /// When <paramref name="count"/> equals the length of <paramref name="value"/>, then <paramref name="value"/>
+        /// is returned.
+        /// </remarks>
         public static byte[] Take(this byte[] value, int count)
         {
             if (value == null)
@@ -260,20 +278,22 @@ namespace Renci.SshNet.Common
             return taken;
         }
 
-        public static bool IsEqualTo(this byte[] first, byte[] second)
+        public static bool IsEqualTo(this byte[] left, byte[] right)
         {
-            if (first == second)
+            if (left == null)
+                throw new ArgumentNullException("left");
+            if (right == null)
+                throw new ArgumentNullException("right");
+
+            if (left == right)
                 return true;
 
-            if (first == null || second == null)
+            if (left.Length != right.Length)
                 return false;
 
-            if (first.Length != second.Length)
-                return false;
-
-            for (var i = 0; i < first.Length; i++)
+            for (var i = 0; i < left.Length; i++)
             {
-                if (first[i] != second[i])
+                if (left[i] != right[i])
                     return false;
             }
 

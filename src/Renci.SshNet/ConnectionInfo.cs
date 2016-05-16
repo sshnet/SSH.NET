@@ -46,7 +46,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Gets supported authentication methods for this connection.
         /// </summary>
-        public IEnumerable<AuthenticationMethod> AuthenticationMethods { get; private set; }
+        public IList<AuthenticationMethod> AuthenticationMethods { get; private set; }
 
         /// <summary>
         /// Gets supported compression algorithms for this connection.
@@ -284,7 +284,7 @@ namespace Renci.SshNet
 
             if (authenticationMethods == null)
                 throw new ArgumentNullException("authenticationMethods");
-            if (!authenticationMethods.Any())
+            if (authenticationMethods.Length == 0)
                 throw new ArgumentException("At least one authentication method should be specified.", "authenticationMethods");
 
             //  Set default connection values
@@ -437,9 +437,9 @@ namespace Renci.SshNet
             return new NoneAuthenticationMethod(Username);
         }
 
-        IEnumerable<IAuthenticationMethod> IConnectionInfoInternal.AuthenticationMethods
+        IList<IAuthenticationMethod> IConnectionInfoInternal.AuthenticationMethods
         {
-            get { return AuthenticationMethods.Cast<IAuthenticationMethod>(); }
+            get { return AuthenticationMethods.Cast<IAuthenticationMethod>().ToList(); }
         }
     }
 }

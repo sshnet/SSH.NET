@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.IO;
 using Renci.SshNet.Channels;
@@ -225,7 +224,7 @@ namespace Renci.SshNet
         /// <exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed.</exception>
         public override void Write(byte[] buffer, int offset, int count)
         {
-            foreach (var b in buffer.Skip(offset).Take(count).ToArray())
+            foreach (var b in buffer.Take(offset, count))
             {
                 if (_outgoing.Count < BufferSize)
                 {

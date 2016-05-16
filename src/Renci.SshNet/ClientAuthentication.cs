@@ -30,7 +30,7 @@ namespace Renci.SshNet
                 var authenticated = noneAuthenticationMethod.Authenticate(session);
                 if (authenticated != AuthenticationResult.Success)
                 {
-                    if (!TryAuthenticate(session, new AuthenticationState(connectionInfo.AuthenticationMethods.ToList()), noneAuthenticationMethod.AllowedAuthentications.ToList(), ref authenticationException))
+                    if (!TryAuthenticate(session, new AuthenticationState(connectionInfo.AuthenticationMethods), noneAuthenticationMethod.AllowedAuthentications.ToList(), ref authenticationException))
                     {
                         throw authenticationException;
                     }
@@ -51,7 +51,7 @@ namespace Renci.SshNet
                                      ICollection<string> allowedAuthenticationMethods,
                                      ref SshAuthenticationException authenticationException)
         {
-            if (!allowedAuthenticationMethods.Any())
+            if (allowedAuthenticationMethods.Count == 0)
             {
                 authenticationException = new SshAuthenticationException("No authentication methods defined on SSH server.");
                 return false;
@@ -61,7 +61,7 @@ namespace Renci.SshNet
             // passed in the ctor, not the order in which the SSH server returns
             // the allowed authentication methods
             var matchingAuthenticationMethods = authenticationState.SupportedAuthenticationMethods.Where(a => allowedAuthenticationMethods.Contains(a.Name)).ToList();
-            if (!matchingAuthenticationMethods.Any())
+            if (matchingAuthenticationMethods.Count == 0)
             {
                 authenticationException = new SshAuthenticationException(string.Format("No suitable authentication method found to complete authentication ({0}).", string.Join(",", allowedAuthenticationMethods.ToArray())));
                 return false;
@@ -87,7 +87,7 @@ namespace Renci.SshNet
                 switch (authenticationResult)
                 {
                     case AuthenticationResult.PartialSuccess:
-                        if (TryAuthenticate(session, authenticationState, authenticationMethod.AllowedAuthentications.ToList(), ref authenticationException))
+                        if (TryAuthenticate(session, authenticationState, authenticationMethod.AllowedAuthentications, ref authenticationException))
                         {
                             authenticationResult = AuthenticationResult.Success;
                         }

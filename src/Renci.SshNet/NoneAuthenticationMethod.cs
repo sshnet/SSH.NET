@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Threading;
 using Renci.SshNet.Messages.Authentication;
 using Renci.SshNet.Messages;
@@ -76,8 +75,8 @@ namespace Renci.SshNet
             else
                 _authenticationResult = AuthenticationResult.Failure;
 
-            //  Copy allowed authentication methods
-            AllowedAuthentications = e.Message.AllowedAuthentications.ToList();
+            // Copy allowed authentication methods
+            AllowedAuthentications = e.Message.AllowedAuthentications;
 
             _authenticationCompleted.Set();
         }

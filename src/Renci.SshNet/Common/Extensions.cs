@@ -228,7 +228,7 @@ namespace Renci.SshNet.Common
         /// A <see cref="byte"/> array that contains the specified number of bytes at the specified offset
         /// of the input array.
         /// </returns>
-        internal static byte[] Take(this byte[] value, int offset, int count)
+        public static byte[] Take(this byte[] value, int offset, int count)
         {
             if (value == null)
                 throw new ArgumentNullException("value");
@@ -244,7 +244,7 @@ namespace Renci.SshNet.Common
             return taken;
         }
 
-        internal static byte[] Take(this byte[] value, int count)
+        public static byte[] Take(this byte[] value, int count)
         {
             if (value == null)
                 throw new ArgumentNullException("value");

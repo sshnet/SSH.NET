@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Linq;
+using Renci.SshNet.Common;
 using Renci.SshNet.Security.Cryptography;
 
 namespace Renci.SshNet
@@ -30,7 +30,7 @@ namespace Renci.SshNet
         public CipherInfo(int keySize, Func<byte[], byte[], Cipher> cipher)
         {
             KeySize = keySize;
-            Cipher = (key, iv) => (cipher(key.Take(KeySize / 8).ToArray(), iv));
+            Cipher = (key, iv) => (cipher(key.Take(KeySize / 8), iv));
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿#if FEATURE_HMAC_SHA512
 
-using System.Linq;
+using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Security.Cryptography
 {
@@ -28,7 +28,7 @@ namespace Renci.SshNet.Security.Cryptography
         protected override byte[] HashFinal()
         {
             var hash = base.HashFinal();
-            return hash.Take(HashSize / 8).ToArray();
+            return hash.Take(HashSize / 8);
         }
     }
 }

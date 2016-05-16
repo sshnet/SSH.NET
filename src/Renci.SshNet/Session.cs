@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Security.Cryptography;
@@ -16,6 +15,7 @@ using Renci.SshNet.Messages.Connection;
 using Renci.SshNet.Messages.Transport;
 using Renci.SshNet.Security;
 using System.Globalization;
+using System.Linq;
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Security.Cryptography;
 
@@ -954,7 +954,7 @@ namespace Renci.SshNet
                 if (serverHash != null)
                 {
                     Buffer.BlockCopy(nextBlocks, nextBlocks.Length - serverHash.Length, serverHash, 0, serverHash.Length);
-                    nextBlocks = nextBlocks.Take(nextBlocks.Length - serverHash.Length).ToArray();
+                    nextBlocks = nextBlocks.Take(nextBlocks.Length - serverHash.Length);
                 }
 
                 if (nextBlocks.Length > 0)
@@ -978,7 +978,7 @@ namespace Renci.SshNet
             {
                 var clientHash = _serverMac.ComputeHash(data);
 
-                if (!serverHash.SequenceEqual(clientHash))
+                if (!serverHash.IsEqualTo(clientHash))
                 {
                     throw new SshConnectionException("MAC error", DisconnectReason.MacError);
                 }

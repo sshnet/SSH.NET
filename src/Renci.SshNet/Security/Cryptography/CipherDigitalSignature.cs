@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Security.Cryptography
@@ -39,7 +38,7 @@ namespace Renci.SshNet.Security.Cryptography
             var encryptedSignature = _cipher.Decrypt(signature);
             var hashData = Hash(input);
             var expected = DerEncode(hashData);
-            return expected.SequenceEqual(encryptedSignature);
+            return expected.IsEqualTo(encryptedSignature);
         }
 
         /// <summary>
@@ -57,7 +56,7 @@ namespace Renci.SshNet.Security.Cryptography
             //  Calculate DER string
             var derEncodedHash = DerEncode(hashData);
 
-            return _cipher.Encrypt(derEncodedHash).TrimLeadingZero().ToArray();
+            return _cipher.Encrypt(derEncodedHash).TrimLeadingZeros();
         }
 
         /// <summary>

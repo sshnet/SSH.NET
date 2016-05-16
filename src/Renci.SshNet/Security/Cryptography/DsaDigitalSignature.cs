@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Security.Cryptography;
 using Renci.SshNet.Common;
 
@@ -42,7 +41,7 @@ namespace Renci.SshNet.Security.Cryptography
         {
             var hashInput = _hash.ComputeHash(input);
 
-            var hm = new BigInteger(hashInput.Reverse().Concat(new byte[] { 0 }).ToArray());
+            var hm = new BigInteger(hashInput.Reverse().Concat(new byte[] { 0 }));
 
             if (signature.Length != 40)
                 throw new InvalidOperationException("Invalid signature.");
@@ -98,7 +97,7 @@ namespace Renci.SshNet.Security.Cryptography
         {
             var hashInput = _hash.ComputeHash(input);
 
-            var m = new BigInteger(hashInput.Reverse().Concat(new byte[] { 0 }).ToArray());
+            var m = new BigInteger(hashInput.Reverse().Concat(new byte[] { 0 }));
 
             BigInteger s;
             BigInteger r;
@@ -139,11 +138,11 @@ namespace Renci.SshNet.Security.Cryptography
             var signature = new byte[40];
 
             // issue #1918: pad part with zero's on the left if length is less than 20
-            var rBytes = r.ToByteArray().Reverse().TrimLeadingZero().ToArray();
+            var rBytes = r.ToByteArray().Reverse().TrimLeadingZeros();
             Array.Copy(rBytes, 0, signature, 20 - rBytes.Length, rBytes.Length);
 
             // issue #1918: pad part with zero's on the left if length is less than 20
-            var sBytes = s.ToByteArray().Reverse().TrimLeadingZero().ToArray();
+            var sBytes = s.ToByteArray().Reverse().TrimLeadingZeros();
             Array.Copy(sBytes, 0, signature, 40 - sBytes.Length, sBytes.Length);
 
             return signature;

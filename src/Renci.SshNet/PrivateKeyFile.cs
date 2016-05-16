@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -191,11 +190,11 @@ namespace Renci.SshNet
             switch (keyName)
             {
                 case "RSA":
-                    _key = new RsaKey(decryptedData.ToArray());
+                    _key = new RsaKey(decryptedData);
                     HostKey = new KeyHostAlgorithm("ssh-rsa", _key);
                     break;
                 case "DSA":
-                    _key = new DsaKey(decryptedData.ToArray());
+                    _key = new DsaKey(decryptedData);
                     HostKey = new KeyHostAlgorithm("ssh-dss", _key);
                     break;
                 case "SSH2 ENCRYPTED":
@@ -288,13 +287,13 @@ namespace Renci.SshNet
 
                 while (cipherKey.Count < length)
                 {
-                    hash = passwordBytes.Concat(hash).ToArray();
+                    hash = passwordBytes.Concat(hash);
                     hash = md5.ComputeHash(hash);
                     cipherKey.AddRange(hash);
                 }
             }
 
-            return cipherKey.Take(length).ToArray();
+            return cipherKey.ToArray().Take(length);
         }
 
         /// <summary>
@@ -325,14 +324,14 @@ namespace Renci.SshNet
                 var passwordBytes = Encoding.UTF8.GetBytes(passPhrase);
 
                 //  Use 8 bytes binary salt
-                var initVector = passwordBytes.Concat(binarySalt.Take(8)).ToArray();
+                var initVector = passwordBytes.Concat(binarySalt.Take(8));
 
                 var hash = md5.ComputeHash(initVector);
                 cipherKey.AddRange(hash);
 
                 while (cipherKey.Count < cipherInfo.KeySize / 8)
                 {
-                    hash = hash.Concat(initVector).ToArray();
+                    hash = hash.Concat(initVector);
                     hash = md5.ComputeHash(hash);
                     cipherKey.AddRange(hash);
                 }
@@ -425,7 +424,7 @@ namespace Renci.SshNet
                 var bytesArray = new byte[data.Length + 1];
                 Buffer.BlockCopy(data, 0, bytesArray, 1, data.Length);
 
-                return new BigInteger(bytesArray.Reverse().ToArray());
+                return new BigInteger(bytesArray.Reverse());
             }
 
             protected override void LoadData()

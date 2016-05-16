@@ -1,4 +1,5 @@
 ﻿using System;
+using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Messages.Transport
 {
@@ -20,7 +21,7 @@ namespace Renci.SshNet.Messages.Transport
         /// </summary>
         public IgnoreMessage()
         {
-            Data = new byte[0];
+            Data = Array<byte>.Empty;
         }
 
         /// <summary>

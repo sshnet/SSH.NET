@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using Renci.SshNet.Messages.Transport;
 using Renci.SshNet.Messages;
 using Renci.SshNet.Common;
@@ -85,8 +84,8 @@ namespace Renci.SshNet.Security
         {
             base.Start(session, message);
 
-            _serverPayload = message.GetBytes().ToArray();
-            _clientPayload = Session.ClientInitMessage.GetBytes().ToArray();
+            _serverPayload = message.GetBytes();
+            _clientPayload = Session.ClientInitMessage.GetBytes();
 
             Session.RegisterMessage("SSH_MSG_KEXECDH_REPLY");
 
@@ -102,14 +101,14 @@ namespace Renci.SshNet.Security
             //3. Output (d,Q).
             
             BigInteger p;
-            BigInteger.TryParse("00FFFFFFFF00000001000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFF", NumberStyles.AllowHexSpecifier, CultureInfo.CurrentCulture, out p);
+            BigInteger.TryParse("00FFFFFFFF00000001000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFF", NumberStyles.AllowHexSpecifier, NumberFormatInfo.CurrentInfo, out p);
 
 
 
             BigInteger n;
-            BigInteger.TryParse("00FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFC7634D81F4372DDF581A0DB248B0A77AECEC196ACCC52973", NumberStyles.AllowHexSpecifier, CultureInfo.CurrentCulture, out n);
+            BigInteger.TryParse("00FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFC7634D81F4372DDF581A0DB248B0A77AECEC196ACCC52973", NumberStyles.AllowHexSpecifier, NumberFormatInfo.CurrentInfo, out n);
             BigInteger G;
-            BigInteger.TryParse("00036B17D1F2E12C4247F8BCE6E563A440F277037D812DEB33A0F4A13945D898C296", NumberStyles.AllowHexSpecifier, CultureInfo.CurrentCulture, out G);
+            BigInteger.TryParse("00036B17D1F2E12C4247F8BCE6E563A440F277037D812DEB33A0F4A13945D898C296", NumberStyles.AllowHexSpecifier, NumberFormatInfo.CurrentInfo, out G);
 
             BigInteger d;
 

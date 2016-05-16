@@ -1,4 +1,4 @@
-﻿using System.Linq;
+﻿using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Security.Cryptography.Ciphers
 {
@@ -39,7 +39,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         {
             Cipher = cipher;
             _blockSize = cipher.BlockSize;
-            IV = IV.Take(_blockSize).ToArray();
+            IV = IV.Take(_blockSize);
         }
 
         /// <summary>

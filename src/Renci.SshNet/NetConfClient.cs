@@ -126,7 +126,7 @@ namespace Renci.SshNet
         internal NetConfClient(ConnectionInfo connectionInfo, bool ownsConnectionInfo, IServiceFactory serviceFactory)
             : base(connectionInfo, ownsConnectionInfo, serviceFactory)
         {
-            OperationTimeout = new TimeSpan(0, 0, 0, 0, -1);
+            OperationTimeout = SshNet.Session.InfiniteTimeSpan;
             AutomaticMessageIdHandling = true;
         }
 

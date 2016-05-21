@@ -2600,7 +2600,7 @@ namespace Renci.SshNet.Common
                 nfi = (NumberFormatInfo) fp.GetFormat(typeNfi);
             }
             if (nfi == null)
-                nfi = Thread.CurrentThread.CurrentCulture.NumberFormat;
+                nfi = NumberFormatInfo.CurrentInfo;
 
             if (!CheckStyle(style, tryParse, ref exc))
                 return false;
@@ -3056,7 +3056,7 @@ namespace Renci.SshNet.Common
                 return false;
             }
 
-            var info = Thread.CurrentThread.CurrentCulture.NumberFormat;
+            var info = NumberFormatInfo.CurrentInfo;
 
             var negative = info.NegativeSign;
             var positive = info.PositiveSign;

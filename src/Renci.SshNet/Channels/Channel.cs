@@ -341,13 +341,10 @@ namespace Renci.SshNet.Channels
         /// </summary>
         public void Close()
         {
-#if DEBUG_GERT
-            Console.WriteLine("ID: " + Thread.CurrentThread.ManagedThreadId + " | Channel.Close");
-#endif // DEBUG_GERT
             Close(true);
         }
 
-#region Channel virtual methods
+        #region Channel virtual methods
 
         /// <summary>
         /// Called when channel window need to be adjust.
@@ -408,10 +405,6 @@ namespace Renci.SshNet.Channels
         {
             _closeMessageReceived = true;
 
-#if DEBUG_GERT
-            Console.WriteLine("ID: " + Thread.CurrentThread.ManagedThreadId + " | Channel.OnClose()");
-#endif // DEBUG_GERT
-
             // close the channel
             Close(false);
 
@@ -451,7 +444,7 @@ namespace Renci.SshNet.Channels
                 requestFailed(this, new ChannelEventArgs(LocalChannelNumber));
         }
 
-#endregion
+        #endregion
 
         /// <summary>
         /// Raises <see cref="Channel.Exception"/> event.
@@ -507,6 +500,54 @@ namespace Renci.SshNet.Channels
 
             _session.SendMessage(new ChannelEofMessage(RemoteChannelNumber));
             _eofMessageSent = Sent;
+        }
+
+        /// <summary>
+        /// Sends channel extended data message to the servers.
+        /// </summary>
+        /// <param name="message">Channel data message.</param>
+        /// <remarks>
+        /// <para>
+        /// When the data of the message exceeds the maximum packet size or the remote window
+        /// size does not allow the full message to be sent, then this method will send the
+        /// data in multiple chunks and will only wait for the remote window size to be adjusted
+        /// when its zero.
+        /// </para>
+        /// <para>
+        /// This is done to support SSH servers will a small window size that do not agressively
+        /// increase their window size. We need to take into account that there may be SSH
+        /// servers that only increase their window size when it has reached zero.
+        /// </para>
+        /// </remarks>
+        protected void SendMessage(ChannelExtendedDataMessage message)
+        {
+            // send channel messages only while channel is open
+            if (!IsOpen)
+                return;
+
+            var totalDataLength = message.Data.Length;
+            var totalDataSent = 0;
+
+            var totalBytesToSend = totalDataLength;
+            while (totalBytesToSend > 0)
+            {
+                var dataThatCanBeSentInMessage = GetDataLengthThatCanBeSentInMessage(totalBytesToSend);
+                if (dataThatCanBeSentInMessage == totalDataLength)
+                {
+                    // we can send the message in one chunk
+                    _session.SendMessage(message);
+                }
+                else
+                {
+                    // we need to send the message in multiple chunks
+                    var dataToSend = new byte[dataThatCanBeSentInMessage];
+                    Array.Copy(message.Data, totalDataSent, dataToSend, 0, dataThatCanBeSentInMessage);
+                    _session.SendMessage(new ChannelExtendedDataMessage(message.LocalChannelNumber,
+                        message.DataTypeCode, dataToSend));
+                }
+                totalDataSent += dataThatCanBeSentInMessage;
+                totalBytesToSend -= dataThatCanBeSentInMessage;
+            }
         }
 
         /// <summary>
@@ -633,7 +674,7 @@ namespace Renci.SshNet.Channels
             }
         }
 
-#region Channel message event handlers
+        #region Channel message event handlers
 
         private void OnChannelWindowAdjust(object sender, MessageEventArgs<ChannelWindowAdjustMessage> e)
         {
@@ -774,7 +815,7 @@ namespace Renci.SshNet.Channels
             }
         }
 
-#endregion
+        #endregion
 
         private void AdjustDataWindow(byte[] messageData)
         {
@@ -830,7 +871,7 @@ namespace Renci.SshNet.Channels
             throw new InvalidOperationException("The channel is closed.");
         }
 
-#region IDisposable Members
+        #region IDisposable Members
 
         private bool _isDisposed;
 
@@ -854,10 +895,6 @@ namespace Renci.SshNet.Channels
 
             if (disposing)
             {
-#if DEBUG_GERT
-                Console.WriteLine("ID: " + Thread.CurrentThread.ManagedThreadId + " | Channel.Dipose(bool)");
-#endif // DEBUG_GERT
-
                 Close(false);
 
                 var session = _session;
@@ -910,6 +947,6 @@ namespace Renci.SshNet.Channels
             Dispose(false);
         }
 
-#endregion
+        #endregion
     }
 }

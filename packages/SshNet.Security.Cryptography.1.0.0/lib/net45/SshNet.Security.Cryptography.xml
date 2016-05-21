@@ -485,6 +485,38 @@
             The size, in bits, of the computed hash code.
             </returns>
         </member>
+        <member name="P:SshNet.Security.Cryptography.MD5.InputBlockSize">
+            <summary>
+            Gets the input block size.
+            </summary>
+            <returns>
+            The input block size.
+            </returns>
+        </member>
+        <member name="P:SshNet.Security.Cryptography.MD5.OutputBlockSize">
+            <summary>
+            Gets the output block size.
+            </summary>
+            <returns>
+            The output block size.
+            </returns>
+        </member>
+        <member name="P:SshNet.Security.Cryptography.MD5.CanReuseTransform">
+            <summary>
+            Gets a value indicating whether the current transform can be reused.
+            </summary>
+            <returns>
+            Always true.
+            </returns>
+        </member>
+        <member name="P:SshNet.Security.Cryptography.MD5.CanTransformMultipleBlocks">
+            <summary>
+            Gets a value indicating whether multiple blocks can be transformed.
+            </summary>
+            <returns>
+            true if multiple blocks can be transformed; otherwise, false.
+            </returns>
+        </member>
         <member name="M:SshNet.Security.Cryptography.MD5.HashCore(System.Byte[],System.Int32,System.Int32)">
             <summary>
             Routes data written to the object into the hash algorithm for computing the hash.
@@ -583,6 +615,38 @@
             </summary>
             <returns>
             The size, in bits, of the computed hash code.
+            </returns>
+        </member>
+        <member name="P:SshNet.Security.Cryptography.RIPEMD160.InputBlockSize">
+            <summary>
+            Gets the input block size.
+            </summary>
+            <returns>
+            The input block size.
+            </returns>
+        </member>
+        <member name="P:SshNet.Security.Cryptography.RIPEMD160.OutputBlockSize">
+            <summary>
+            Gets the output block size.
+            </summary>
+            <returns>
+            The output block size.
+            </returns>
+        </member>
+        <member name="P:SshNet.Security.Cryptography.RIPEMD160.CanReuseTransform">
+            <summary>
+            Gets a value indicating whether the current transform can be reused.
+            </summary>
+            <returns>
+            Always true.
+            </returns>
+        </member>
+        <member name="P:SshNet.Security.Cryptography.RIPEMD160.CanTransformMultipleBlocks">
+            <summary>
+            Gets a value indicating whether multiple blocks can be transformed.
+            </summary>
+            <returns>
+            true if multiple blocks can be transformed; otherwise, false.
             </returns>
         </member>
         <member name="M:SshNet.Security.Cryptography.RIPEMD160.HashCore(System.Byte[],System.Int32,System.Int32)">
@@ -735,6 +799,38 @@
             The size, in bits, of the computed hash code.
             </returns>
         </member>
+        <member name="P:SshNet.Security.Cryptography.SHA1.InputBlockSize">
+            <summary>
+            Gets the input block size.
+            </summary>
+            <returns>
+            The input block size.
+            </returns>
+        </member>
+        <member name="P:SshNet.Security.Cryptography.SHA1.OutputBlockSize">
+            <summary>
+            Gets the output block size.
+            </summary>
+            <returns>
+            The output block size.
+            </returns>
+        </member>
+        <member name="P:SshNet.Security.Cryptography.SHA1.CanReuseTransform">
+            <summary>
+            Gets a value indicating whether the current transform can be reused.
+            </summary>
+            <returns>
+            Always true.
+            </returns>
+        </member>
+        <member name="P:SshNet.Security.Cryptography.SHA1.CanTransformMultipleBlocks">
+            <summary>
+            Gets a value indicating whether multiple blocks can be transformed.
+            </summary>
+            <returns>
+            true if multiple blocks can be transformed; otherwise, false.
+            </returns>
+        </member>
         <member name="M:SshNet.Security.Cryptography.SHA1.HashCore(System.Byte[],System.Int32,System.Int32)">
             <summary>
             Routes data written to the object into the hash algorithm for computing the hash.
@@ -831,6 +927,38 @@
             </summary>
             <returns>
             The size, in bits, of the computed hash code.
+            </returns>
+        </member>
+        <member name="P:SshNet.Security.Cryptography.SHA256.InputBlockSize">
+            <summary>
+            Gets the input block size.
+            </summary>
+            <returns>
+            The input block size.
+            </returns>
+        </member>
+        <member name="P:SshNet.Security.Cryptography.SHA256.OutputBlockSize">
+            <summary>
+            Gets the output block size.
+            </summary>
+            <returns>
+            The output block size.
+            </returns>
+        </member>
+        <member name="P:SshNet.Security.Cryptography.SHA256.CanReuseTransform">
+            <summary>
+            Gets a value indicating whether the current transform can be reused.
+            </summary>
+            <returns>
+            Always true.
+            </returns>
+        </member>
+        <member name="P:SshNet.Security.Cryptography.SHA256.CanTransformMultipleBlocks">
+            <summary>
+            Gets a value indicating whether multiple blocks can be transformed.
+            </summary>
+            <returns>
+            true if multiple blocks can be transformed; otherwise, false.
             </returns>
         </member>
         <member name="M:SshNet.Security.Cryptography.SHA256.HashCore(System.Byte[],System.Int32,System.Int32)">
@@ -1011,6 +1139,38 @@
             The size, in bits, of the computed hash code.
             </returns>
         </member>
+        <member name="P:SshNet.Security.Cryptography.SHA384.InputBlockSize">
+            <summary>
+            Gets the input block size.
+            </summary>
+            <returns>
+            The input block size.
+            </returns>
+        </member>
+        <member name="P:SshNet.Security.Cryptography.SHA384.OutputBlockSize">
+            <summary>
+            Gets the output block size.
+            </summary>
+            <returns>
+            The output block size.
+            </returns>
+        </member>
+        <member name="P:SshNet.Security.Cryptography.SHA384.CanReuseTransform">
+            <summary>
+            Gets a value indicating whether the current transform can be reused.
+            </summary>
+            <returns>
+            Always true.
+            </returns>
+        </member>
+        <member name="P:SshNet.Security.Cryptography.SHA384.CanTransformMultipleBlocks">
+            <summary>
+            Gets a value indicating whether multiple blocks can be transformed.
+            </summary>
+            <returns>
+            true if multiple blocks can be transformed; otherwise, false.
+            </returns>
+        </member>
         <member name="M:SshNet.Security.Cryptography.SHA384.HashCore(System.Byte[],System.Int32,System.Int32)">
             <summary>
             Routes data written to the object into the hash algorithm for computing the hash.
@@ -1091,6 +1251,38 @@
             </summary>
             <returns>
             The size, in bits, of the computed hash code.
+            </returns>
+        </member>
+        <member name="P:SshNet.Security.Cryptography.SHA512.InputBlockSize">
+            <summary>
+            Gets the input block size.
+            </summary>
+            <returns>
+            The input block size.
+            </returns>
+        </member>
+        <member name="P:SshNet.Security.Cryptography.SHA512.OutputBlockSize">
+            <summary>
+            Gets the output block size.
+            </summary>
+            <returns>
+            The output block size.
+            </returns>
+        </member>
+        <member name="P:SshNet.Security.Cryptography.SHA512.CanReuseTransform">
+            <summary>
+            Gets a value indicating whether the current transform can be reused.
+            </summary>
+            <returns>
+            Always true.
+            </returns>
+        </member>
+        <member name="P:SshNet.Security.Cryptography.SHA512.CanTransformMultipleBlocks">
+            <summary>
+            Gets a value indicating whether multiple blocks can be transformed.
+            </summary>
+            <returns>
+            true if multiple blocks can be transformed; otherwise, false.
             </returns>
         </member>
         <member name="M:SshNet.Security.Cryptography.SHA512.HashCore(System.Byte[],System.Int32,System.Int32)">

@@ -62,16 +62,16 @@ namespace Renci.SshNet
                             // wait for the connection to be established
                             asyncResult.AsyncWaitHandle.WaitOne();
                         }
-                    }
-                    catch (ObjectDisposedException)
-                    {
-                        // BeginAccept will throw an ObjectDisposedException when the
-                        // socket is closed
 #elif FEATURE_SOCKET_TAP
 #error Accepting new socket connections is not implemented.
 #else
 #error Accepting new socket connections is not implemented.
 #endif
+                    }
+                    catch (ObjectDisposedException)
+                    {
+                        // BeginAccept will throw an ObjectDisposedException when the
+                        // socket is closed
                     }
                     catch (Exception ex)
                     {
@@ -153,10 +153,6 @@ namespace Renci.SshNet
         {
             Interlocked.Increment(ref _pendingRequests);
 
-#if DEBUG_GERT
-            Console.WriteLine("ID: " + Thread.CurrentThread.ManagedThreadId + " | " + remoteSocket.RemoteEndPoint + " | ForwardedPortDynamic.ProcessAccept | " + DateTime.Now.ToString("hh:mm:ss.fff"));
-#endif // DEBUG_GERT
-
             try
             {
 #if FEATURE_SOCKET_SETSOCKETOPTION
@@ -179,12 +175,6 @@ namespace Renci.SshNet
                         // start receiving from client socket (and sending to server)
                         channel.Bind();
                     }
-#if DEBUG_GERT
-                    catch (SocketException ex)
-                    {
-                        Console.WriteLine("ID: " + Thread.CurrentThread.ManagedThreadId + " | " + ex.SocketErrorCode + " | " + DateTime.Now.ToString("hh:mm:ss.fff") + " | " + ex);
-                    }
-#endif // DEBUG_GERT
                     finally
                     {
                         channel.Close();
@@ -197,19 +187,12 @@ namespace Renci.SshNet
                 // the forwarded port
                 if (ex.SocketErrorCode != SocketError.Interrupted)
                 {
-#if DEBUG_GERT
-                    RaiseExceptionEvent(new Exception("ID: " + Thread.CurrentThread.ManagedThreadId, ex));
-#else
                     RaiseExceptionEvent(ex);
-#endif // DEBUG_GERT
                 }
                 CloseSocket(remoteSocket);
             }
             catch (Exception exp)
             {
-#if DEBUG_GERT
-                Console.WriteLine("ID: " + Thread.CurrentThread.ManagedThreadId + " | " + exp + " | " + DateTime.Now.ToString("hh:mm:ss.fff"));
-#endif // DEBUG_GERT
                 RaiseExceptionEvent(exp);
                 CloseSocket(remoteSocket);
             }
@@ -229,19 +212,11 @@ namespace Renci.SshNet
 
             try
             {
-#if DEBUG_GERT
-                Console.WriteLine("ID: " + Thread.CurrentThread.ManagedThreadId + " | Before ReadByte for version | " + DateTime.Now.ToString("hh:mm:ss.fff"));
-#endif // DEBUG_GERT
-
                 var version = SocketAbstraction.ReadByte(remoteSocket, timeout);
                 if (version == -1)
                 {
                     return false;
                 }
-
-#if DEBUG_GERT
-                Console.WriteLine("ID: " + Thread.CurrentThread.ManagedThreadId + " | After ReadByte for version | " + DateTime.Now.ToString("hh:mm:ss.fff"));
-#endif // DEBUG_GERT
 
                 if (version == 4)
                 {
@@ -267,10 +242,6 @@ namespace Renci.SshNet
 
         private static void CloseSocket(Socket socket)
         {
-#if DEBUG_GERT
-            Console.WriteLine("ID: " + Thread.CurrentThread.ManagedThreadId + " | ForwardedPortDynamic.CloseSocket | " + DateTime.Now.ToString("hh:mm:ss.fff"));
-#endif // DEBUG_GERT
-
             if (socket.Connected)
             {
                 socket.Shutdown(SocketShutdown.Both);
@@ -404,20 +375,12 @@ namespace Renci.SshNet
 
         private bool HandleSocks5(Socket socket, IChannelDirectTcpip channel, TimeSpan timeout)
         {
-#if DEBUG_GERT
-            Console.WriteLine("ID: " + Thread.CurrentThread.ManagedThreadId + " |  Handling Socks5: " + socket.LocalEndPoint +  " | " + socket.RemoteEndPoint + " | " + DateTime.Now.ToString("hh:mm:ss.fff"));
-#endif // DEBUG_GERT
-
             var authenticationMethodsCount = SocketAbstraction.ReadByte(socket, timeout);
             if (authenticationMethodsCount == -1)
             {
                 // SOCKS client closed connection
                 return false;
             }
-
-#if DEBUG_GERT
-            Console.WriteLine("ID: " + Thread.CurrentThread.ManagedThreadId + " |  After ReadByte for authenticationMethodsCount | " + DateTime.Now.ToString("hh:mm:ss.fff"));
-#endif // DEBUG_GERT
 
             var authenticationMethods = new byte[authenticationMethodsCount];
             if (SocketAbstraction.Read(socket, authenticationMethods, 0, authenticationMethods.Length, timeout) == 0)
@@ -426,19 +389,11 @@ namespace Renci.SshNet
                 return false;
             }
 
-#if DEBUG_GERT
-            Console.WriteLine("ID: " + Thread.CurrentThread.ManagedThreadId + " |  After Read for authenticationMethods | " + DateTime.Now.ToString("hh:mm:ss.fff"));
-#endif // DEBUG_GERT
-
             if (authenticationMethods.Min() == 0)
             {
                 // no user authentication is one of the authentication methods supported
                 // by the SOCKS client
                 SocketAbstraction.Send(socket, new byte[] { 0x05, 0x00 }, 0, 2);
-
-#if DEBUG_GERT
-                Console.WriteLine("ID: " + Thread.CurrentThread.ManagedThreadId + " |  After Send for authenticationMethods 0 | " + DateTime.Now.ToString("hh:mm:ss.fff"));
-#endif // DEBUG_GERT
             }
             else
             {
@@ -448,9 +403,6 @@ namespace Renci.SshNet
                 // we continue business as usual but expect the client to close the connection
                 // so one of the subsequent reads should return -1 signaling that the client
                 // has effectively closed the connection
-#if DEBUG_GERT
-                Console.WriteLine("ID: " + Thread.CurrentThread.ManagedThreadId + " |  After Send for authenticationMethods 2 | " + DateTime.Now.ToString("hh:mm:ss.fff"));
-#endif // DEBUG_GERT
             }
 
             var version = SocketAbstraction.ReadByte(socket, timeout);
@@ -550,83 +502,43 @@ namespace Renci.SshNet
 
             RaiseRequestReceived(host, port);
 
-#if DEBUG_GERT
-            Console.WriteLine("ID: " + Thread.CurrentThread.ManagedThreadId + " |  Before channel open | " + DateTime.Now.ToString("hh:mm:ss.fff"));
-
-            var stopWatch = new Stopwatch();
-            stopWatch.Start();
-#endif // DEBUG_GERT
-
             channel.Open(host, port, this, socket);
 
-#if DEBUG_GERT
-            stopWatch.Stop();
-
-            Console.WriteLine("ID: " + Thread.CurrentThread.ManagedThreadId + " |  After channel open | " + DateTime.Now.ToString("hh:mm:ss.fff") + " => " + stopWatch.ElapsedMilliseconds);
-#endif // DEBUG_GERT
-
-            var replyBuffer = new byte[10];
-            replyBuffer[0] = 0x05;
-
-//            SocketAbstraction.SendByte(socket, 0x05);
-
+            SocketAbstraction.SendByte(socket, 0x05);
 
             if (channel.IsOpen)
             {
-                replyBuffer[1] = 0x00;
-//                SocketAbstraction.SendByte(socket, 0x00);
+                SocketAbstraction.SendByte(socket, 0x00);
             }
             else
             {
-                replyBuffer[1] = 0x01;
-                //SocketAbstraction.SendByte(socket, 0x01);
-
-#if DEBUG_GERT
-                Console.WriteLine("ID: " + Thread.CurrentThread.ManagedThreadId + " | Channel not open");
-#endif // DEBUG_GERT
+                SocketAbstraction.SendByte(socket, 0x01);
             }
 
-            // reserved
-            replyBuffer[2] = 0x00;
+            SocketAbstraction.SendByte(socket, 0x00);
 
-            // reserved
-            //SocketAbstraction.SendByte(socket, 0x00);
+            if (ipAddress.AddressFamily == AddressFamily.InterNetwork)
+            {
+                SocketAbstraction.SendByte(socket, 0x01);
+            }
+            else if (ipAddress.AddressFamily == AddressFamily.InterNetworkV6)
+            {
+                SocketAbstraction.SendByte(socket, 0x04);
+            }
+            else
+            {
+                throw new NotSupportedException("Not supported address family.");
+            }
 
-            //if (ipAddress.AddressFamily == AddressFamily.InterNetwork)
-            //{
-            //    SocketAbstraction.SendByte(socket, 0x01);
-            //}
-            //else if (ipAddress.AddressFamily == AddressFamily.InterNetworkV6)
-            //{
-            //    SocketAbstraction.SendByte(socket, 0x04);
-            //}
-            //else
-            //{
-            //    throw new NotSupportedException("Not supported address family.");
-            //}
-
-            // IPv4
-            replyBuffer[3] = 0x01;
-
-            SocketAbstraction.Send(socket, replyBuffer, 0, replyBuffer.Length);
-
-            //var addressBytes = IPAddress.Any.GetAddressBytes();
-            //SocketAbstraction.Send(socket, addressBytes, 0, addressBytes.Length);
-            //SocketAbstraction.Send(socket, new byte[] {0x00, 0x00}, 0, 2);
-
-            //var addressBytes = ipAddress.GetAddressBytes();
-            //SocketAbstraction.Send(socket, addressBytes, 0, addressBytes.Length);
-            //SocketAbstraction.Send(socket, portBuffer, 0, portBuffer.Length);
+            var addressBytes = ipAddress.GetAddressBytes();
+            SocketAbstraction.Send(socket, addressBytes, 0, addressBytes.Length);
+            SocketAbstraction.Send(socket, portBuffer, 0, portBuffer.Length);
 
             return true;
         }
 
         private void Channel_Exception(object sender, ExceptionEventArgs e)
         {
-#if DEBUG_GERT
-            Console.WriteLine("ID: " + Thread.CurrentThread.ManagedThreadId + " | Channel_Exception | " +
-                              DateTime.Now.ToString("hh:mm:ss.fff"));
-#endif // DEBUG_GERT
             RaiseExceptionEvent(e.Exception);
         }
 

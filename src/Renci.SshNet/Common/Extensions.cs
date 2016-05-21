@@ -7,10 +7,11 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using Renci.SshNet.Abstractions;
+using Renci.SshNet.Common;
 using Renci.SshNet.Messages;
 using Renci.SshNet.Messages.Connection;
 
-namespace Renci.SshNet.Common
+namespace Renci.SshNet
 {
     /// <summary>
     /// Collection of different extension method

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Connection;
@@ -49,8 +50,6 @@ namespace Renci.SshNet.Channels
         /// <param name="forwardedPort">The forwarded port for which the channel is opened.</param>
         public void Bind(IPEndPoint remoteEndpoint, IForwardedPort forwardedPort)
         {
-            byte[] buffer;
-
             if (!IsConnected)
             {
                 throw new SshException("Session is not connected.");
@@ -62,9 +61,6 @@ namespace Renci.SshNet.Channels
             //  Try to connect to the socket 
             try
             {
-                //  Get buffer in memory for data exchange
-                buffer = new byte[RemotePacketSize];
-
                 _socket = SocketAbstraction.Connect(remoteEndpoint, ConnectionInfo.Timeout);
 
                 // send channel open confirmation message
@@ -78,37 +74,9 @@ namespace Renci.SshNet.Channels
                 throw;
             }
 
-            //  Start reading data from the port and send to channel
-            while (_socket != null && _socket.Connected)
-            {
-                try
-                {
-                    var read = SocketAbstraction.ReadPartial(_socket, buffer, 0, buffer.Length, ConnectionInfo.Timeout);
-                    if (read > 0)
-                    {
-                        SendData(buffer, 0, read);
-                    }
-                    else
-                    {
-                        // server quit sending
-                        break;
-                    }
-                }
-                catch (SocketException exp)
-                {
-                    if (SocketAbstraction.IsErrorResumable(exp.SocketErrorCode))
-                    {
-                        // socket buffer is probably empty, wait and try again
-                        ThreadAbstraction.Sleep(30);
-                    }
-                    else if (exp.SocketErrorCode == SocketError.ConnectionAborted || exp.SocketErrorCode == SocketError.Interrupted)
-                    {
-                        break;
-                    }
-                    else
-                        throw;  // throw any other error
-                }
-            }
+            var buffer = new byte[RemotePacketSize];
+
+            SocketAbstraction.ReadContinuous(_socket, buffer, 0, buffer.Length, SendData);
         }
 
         protected override void OnErrorOccured(Exception exp)
@@ -127,6 +95,10 @@ namespace Renci.SshNet.Channels
         /// </summary>
         private void ForwardedPort_Closing(object sender, EventArgs eventArgs)
         {
+#if DEBUG_GERT
+            Console.WriteLine("ID: " + Thread.CurrentThread.ManagedThreadId + " | ChannelForwardedTcpip.ForwardedPort_Closing");
+#endif // DEBUG_GERT
+
             // signal to the server that we will not send anything anymore; this will also interrupt the
             // blocking receive in Bind if the server sends FIN/ACK in time
             //
@@ -140,6 +112,10 @@ namespace Renci.SshNet.Channels
         /// <param name="how">One of the <see cref="SocketShutdown"/> values that specifies the operation that will no longer be allowed.</param>
         private void ShutdownSocket(SocketShutdown how)
         {
+#if DEBUG_GERT
+            Console.WriteLine("ID: " + Thread.CurrentThread.ManagedThreadId + " | ChannelForwardedTcpip.ShutdownSocket");
+#endif // DEBUG_GERT
+
             if (_socket == null || !_socket.Connected)
                 return;
 
@@ -163,6 +139,10 @@ namespace Renci.SshNet.Channels
 
             lock (_socketShutdownAndCloseLock)
             {
+#if DEBUG_GERT
+                Console.WriteLine("ID: " + Thread.CurrentThread.ManagedThreadId + " | ChannelForwardedTcpip.CloseSocket");
+#endif // DEBUG_GERT
+
                 var socket = _socket;
                 if (socket != null)
                 {
@@ -181,6 +161,10 @@ namespace Renci.SshNet.Channels
         /// <param name="wait"><c>true</c> to wait for the SSH_MSG_CHANNEL_CLOSE message to be received from the server; otherwise, <c>false</c>.</param>
         protected override void Close(bool wait)
         {
+#if DEBUG_GERT
+            Console.WriteLine("ID: " + Thread.CurrentThread.ManagedThreadId + " | ChannelForwardedTcpip.Close");
+#endif // DEBUG_GERT
+
             var forwardedPort = _forwardedPort;
             if (forwardedPort != null)
             {
@@ -200,6 +184,15 @@ namespace Renci.SshNet.Channels
             // close the socket
             CloseSocket();
         }
+
+#if DEBUG_GERT
+        protected override void OnClose()
+        {
+            base.OnClose();
+
+            Console.WriteLine("ID: " + Thread.CurrentThread.ManagedThreadId + " | OnClose");
+        }
+#endif // DEBUG_GERT
 
         /// <summary>
         /// Called when channel data is received.

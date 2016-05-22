@@ -565,58 +565,37 @@ namespace Renci.SshNet
             Console.WriteLine("ID: " + Thread.CurrentThread.ManagedThreadId + " |  After channel open | " + DateTime.Now.ToString("hh:mm:ss.fff") + " => " + stopWatch.ElapsedMilliseconds);
 #endif // DEBUG_GERT
 
-            var replyBuffer = new byte[10];
-            replyBuffer[0] = 0x05;
-
-//            SocketAbstraction.SendByte(socket, 0x05);
+            SocketAbstraction.SendByte(socket, 0x05);
 
 
             if (channel.IsOpen)
             {
-                replyBuffer[1] = 0x00;
-//                SocketAbstraction.SendByte(socket, 0x00);
+                SocketAbstraction.SendByte(socket, 0x00);
             }
             else
             {
-                replyBuffer[1] = 0x01;
-                //SocketAbstraction.SendByte(socket, 0x01);
-
-#if DEBUG_GERT
-                Console.WriteLine("ID: " + Thread.CurrentThread.ManagedThreadId + " | Channel not open");
-#endif // DEBUG_GERT
+                SocketAbstraction.SendByte(socket, 0x01);
             }
 
             // reserved
-            replyBuffer[2] = 0x00;
+            SocketAbstraction.SendByte(socket, 0x00);
 
-            // reserved
-            //SocketAbstraction.SendByte(socket, 0x00);
+            if (ipAddress.AddressFamily == AddressFamily.InterNetwork)
+            {
+                SocketAbstraction.SendByte(socket, 0x01);
+            }
+            else if (ipAddress.AddressFamily == AddressFamily.InterNetworkV6)
+            {
+                SocketAbstraction.SendByte(socket, 0x04);
+            }
+            else
+            {
+                throw new NotSupportedException("Not supported address family.");
+            }
 
-            //if (ipAddress.AddressFamily == AddressFamily.InterNetwork)
-            //{
-            //    SocketAbstraction.SendByte(socket, 0x01);
-            //}
-            //else if (ipAddress.AddressFamily == AddressFamily.InterNetworkV6)
-            //{
-            //    SocketAbstraction.SendByte(socket, 0x04);
-            //}
-            //else
-            //{
-            //    throw new NotSupportedException("Not supported address family.");
-            //}
-
-            // IPv4
-            replyBuffer[3] = 0x01;
-
-            SocketAbstraction.Send(socket, replyBuffer, 0, replyBuffer.Length);
-
-            //var addressBytes = IPAddress.Any.GetAddressBytes();
-            //SocketAbstraction.Send(socket, addressBytes, 0, addressBytes.Length);
-            //SocketAbstraction.Send(socket, new byte[] {0x00, 0x00}, 0, 2);
-
-            //var addressBytes = ipAddress.GetAddressBytes();
-            //SocketAbstraction.Send(socket, addressBytes, 0, addressBytes.Length);
-            //SocketAbstraction.Send(socket, portBuffer, 0, portBuffer.Length);
+            var addressBytes = ipAddress.GetAddressBytes();
+            SocketAbstraction.Send(socket, addressBytes, 0, addressBytes.Length);
+            SocketAbstraction.Send(socket, portBuffer, 0, portBuffer.Length);
 
             return true;
         }

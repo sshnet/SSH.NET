@@ -347,7 +347,7 @@ namespace Renci.SshNet.Channels
             Close(true);
         }
 
-#region Channel virtual methods
+        #region Channel virtual methods
 
         /// <summary>
         /// Called when channel window need to be adjust.
@@ -451,7 +451,7 @@ namespace Renci.SshNet.Channels
                 requestFailed(this, new ChannelEventArgs(LocalChannelNumber));
         }
 
-#endregion
+        #endregion // Channel virtual methods
 
         /// <summary>
         /// Raises <see cref="Channel.Exception"/> event.
@@ -633,7 +633,7 @@ namespace Renci.SshNet.Channels
             }
         }
 
-#region Channel message event handlers
+        #region Channel message event handlers
 
         private void OnChannelWindowAdjust(object sender, MessageEventArgs<ChannelWindowAdjustMessage> e)
         {
@@ -774,7 +774,7 @@ namespace Renci.SshNet.Channels
             }
         }
 
-#endregion
+        #endregion // Channel message event handlers
 
         private void AdjustDataWindow(byte[] messageData)
         {
@@ -830,7 +830,7 @@ namespace Renci.SshNet.Channels
             throw new InvalidOperationException("The channel is closed.");
         }
 
-#region IDisposable Members
+        #region IDisposable Members
 
         private bool _isDisposed;
 
@@ -910,6 +910,6 @@ namespace Renci.SshNet.Channels
             Dispose(false);
         }
 
-#endregion
+        #endregion // IDisposable Members
     }
 }

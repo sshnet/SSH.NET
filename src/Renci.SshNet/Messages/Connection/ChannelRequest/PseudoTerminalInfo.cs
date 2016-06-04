@@ -11,7 +11,7 @@ namespace Renci.SshNet.Messages.Connection
         /// <summary>
         /// Channel request name
         /// </summary>
-        public const string NAME = "pty-req";
+        public const string Name = "pty-req";
 
         /// <summary>
         /// Gets the name of the request.
@@ -21,7 +21,7 @@ namespace Renci.SshNet.Messages.Connection
         /// </value>
         public override string RequestName
         {
-            get { return NAME; }
+            get { return Name; }
         }
 
         /// <summary>

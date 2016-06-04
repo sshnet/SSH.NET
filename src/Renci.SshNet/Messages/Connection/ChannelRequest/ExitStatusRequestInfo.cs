@@ -8,7 +8,7 @@
         /// <summary>
         /// Channel request name.
         /// </summary>
-        public const string Name = "exit-status";
+        public const string NAME = "exit-status";
 
         /// <summary>
         /// Gets the name of the request.
@@ -18,7 +18,7 @@
         /// </value>
         public override string RequestName
         {
-            get { return Name; }
+            get { return NAME; }
         }
 
         /// <summary>

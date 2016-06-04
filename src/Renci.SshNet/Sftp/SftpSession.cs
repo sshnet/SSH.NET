@@ -344,7 +344,6 @@ namespace Renci.SshNet.Sftp
                             {
                                 exception = GetSftpException(response);
                             }
-                            data = Array<byte>.Empty;
                             wait.Set();
                         });
 

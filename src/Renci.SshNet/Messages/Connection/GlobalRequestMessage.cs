@@ -1,4 +1,7 @@
-﻿namespace Renci.SshNet.Messages.Connection
+﻿using System;
+using Renci.SshNet.Common;
+
+namespace Renci.SshNet.Messages.Connection
 {
     /// <summary>
     /// Represents SSH_MSG_GLOBAL_REQUEST message.

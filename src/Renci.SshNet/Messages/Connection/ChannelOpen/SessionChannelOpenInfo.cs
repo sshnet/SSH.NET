@@ -10,7 +10,7 @@ namespace Renci.SshNet.Messages.Connection
         /// <summary>
         /// Specifies channel open type
         /// </summary>
-        public const string Name = "session";
+        public const string NAME = "session";
 
         /// <summary>
         /// Gets the type of the channel to open.
@@ -20,7 +20,7 @@ namespace Renci.SshNet.Messages.Connection
         /// </value>
         public override string ChannelType
         {
-            get { return Name; }
+            get { return NAME; }
         }
 
         /// <summary>

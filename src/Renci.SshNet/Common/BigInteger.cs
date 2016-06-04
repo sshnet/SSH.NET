@@ -51,6 +51,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.Threading;
 using Renci.SshNet.Security.Cryptography;
 
 /*
@@ -486,7 +487,7 @@ namespace Renci.SshNet.Common
                     borrow = (uint)(sub >> 32) & 0x1u;
 
                     if ((~word & storeMask) == 0)
-                        Array.Resize(ref _data, _data.Length - 1);
+                        _data = Resize(_data, _data.Length - 1);
                     else
                         _data[_data.Length - 1] = ~word & storeMask;
                 }
@@ -1209,7 +1210,7 @@ namespace Renci.SshNet.Common
             int m;
             for (m = res.Length - 1; m >= 0 && res[m] == 0; --m) ;
             if (m < res.Length - 1)
-                Array.Resize(ref res, m + 1);
+                res = Resize(res, m + 1);
 
             return new BigInteger((short) (left._sign*right._sign), res);
         }
@@ -1241,7 +1242,7 @@ namespace Renci.SshNet.Common
             if (i == -1)
                 return Zero;
             if (i < quotient.Length - 1)
-                Array.Resize(ref quotient, i + 1);
+                quotient = Resize(quotient, i + 1);
 
             return new BigInteger((short)(dividend._sign * divisor._sign), quotient);
         }
@@ -1273,7 +1274,7 @@ namespace Renci.SshNet.Common
                 return Zero;
 
             if (i < remainderValue.Length - 1)
-                Array.Resize(ref remainderValue, i + 1);
+                remainderValue = Resize(remainderValue, i + 1);
             return new BigInteger(dividend._sign, remainderValue);
         }
 
@@ -1427,7 +1428,7 @@ namespace Renci.SshNet.Common
                 return Zero;
 
             if (i < result.Length - 1)
-                Array.Resize(ref result, i + 1);
+                result = Resize(result, i + 1);
 
             return new BigInteger(negRes ? (short)-1 : (short)1, result);
         }
@@ -1499,7 +1500,7 @@ namespace Renci.SshNet.Common
                 return Zero;
 
             if (i < result.Length - 1)
-                Array.Resize(ref result, i + 1);
+                result = Resize(result, i + 1);
 
             return new BigInteger(negRes ? (short)-1 : (short)1, result);
         }
@@ -1571,7 +1572,7 @@ namespace Renci.SshNet.Common
                 return Zero;
 
             if (i < result.Length - 1)
-                Array.Resize(ref result, i + 1);
+                result = Resize(result, i + 1);
 
             return new BigInteger(negRes ? (short)-1 : (short)1, result);
         }
@@ -1625,7 +1626,7 @@ namespace Renci.SshNet.Common
                 return Zero;
 
             if (i < result.Length - 1)
-                Array.Resize(ref result, i + 1);
+                result = Resize(result, i + 1);
 
             return new BigInteger(negRes ? (short)-1 : (short)1, result);
         }
@@ -2599,7 +2600,7 @@ namespace Renci.SshNet.Common
                 nfi = (NumberFormatInfo) fp.GetFormat(typeNfi);
             }
             if (nfi == null)
-                nfi = NumberFormatInfo.CurrentInfo;
+                nfi = Thread.CurrentThread.CurrentCulture.NumberFormat;
 
             if (!CheckStyle(style, tryParse, ref exc))
                 return false;
@@ -3055,7 +3056,7 @@ namespace Renci.SshNet.Common
                 return false;
             }
 
-            var info = NumberFormatInfo.CurrentInfo;
+            var info = Thread.CurrentThread.CurrentCulture.NumberFormat;
 
             var negative = info.NegativeSign;
             var positive = info.PositiveSign;
@@ -3209,7 +3210,7 @@ namespace Renci.SshNet.Common
             else
             {
                 if (i < remainderValue.Length - 1)
-                    Array.Resize(ref remainderValue, i + 1);
+                    remainderValue = Resize(remainderValue, i + 1);
                 remainder = new BigInteger(dividend._sign, remainderValue);
             }
 
@@ -3217,7 +3218,7 @@ namespace Renci.SshNet.Common
             if (i == -1)
                 return Zero;
             if (i < quotient.Length - 1)
-                Array.Resize(ref quotient, i + 1);
+                quotient = Resize(quotient, i + 1);
 
             return new BigInteger((short)(dividend._sign * divisor._sign), quotient);
         }
@@ -3878,7 +3879,7 @@ namespace Renci.SshNet.Common
                     var to = ex + (needExtra ? 1 : 0);
 
                     if (to != extra)
-                        Array.Resize(ref res, bytes + to);
+                        res = Resize(res, bytes + to);
 
                     while (ex-- > 0)
                     {
@@ -3890,7 +3891,7 @@ namespace Renci.SshNet.Common
                 }
                 else
                 {
-                    Array.Resize(ref res, bytes + 5);
+                    res = Resize(res, bytes + 5);
                     res[j++] = (byte)word;
                     res[j++] = (byte)(word >> 8);
                     res[j++] = (byte)(word >> 16);
@@ -3899,6 +3900,20 @@ namespace Renci.SshNet.Common
                 }
             }
 
+            return res;
+        }
+
+        private static byte[] Resize(byte[] v, int len)
+        {
+            var res = new byte[len];
+            Array.Copy(v, res, Math.Min(v.Length, len));
+            return res;
+        }
+
+        private static uint[] Resize(uint[] v, int len)
+        {
+            var res = new uint[len];
+            Array.Copy(v, res, Math.Min(v.Length, len));
             return res;
         }
 
@@ -3935,7 +3950,7 @@ namespace Renci.SshNet.Common
 
             if (sum != 0)
             {
-                Array.Resize(ref res, bl + 1);
+                res = Resize(res, bl + 1);
                 res[i] = (uint)sum;
             }
 
@@ -3970,7 +3985,7 @@ namespace Renci.SshNet.Common
             //remove extra zeroes
             for (i = bl - 1; i >= 0 && res[i] == 0; --i) ;
             if (i < bl - 1)
-                Array.Resize(ref res, i + 1);
+                res = Resize(res, i + 1);
 
             return res;
         }
@@ -3991,7 +4006,7 @@ namespace Renci.SshNet.Common
 
             if (sum != 0)
             {
-                Array.Resize(ref res, len + 1);
+                res = Resize(res, len + 1);
                 res[i] = (uint)sum;
             }
 
@@ -4015,7 +4030,7 @@ namespace Renci.SshNet.Common
             //remove extra zeroes
             for (i = len - 1; i >= 0 && res[i] == 0; --i) ;
             if (i < len - 1)
-                Array.Resize(ref res, i + 1);
+                res = Resize(res, i + 1);
 
             return res;
         }

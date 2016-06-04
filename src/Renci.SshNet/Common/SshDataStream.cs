@@ -5,26 +5,13 @@ using System.Text;
 
 namespace Renci.SshNet.Common
 {
-    /// <summary>
-    /// Specialized <see cref="MemoryStream"/> for reading and writing data SSH data.
-    /// </summary>
     public class SshDataStream : MemoryStream
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="SshDataStream"/> class with an expandable capacity initialized
-        /// as specified.
-        /// </summary>
-        /// <param name="capacity">The initial size of the internal array in bytes.</param>
         public SshDataStream(int capacity)
             : base(capacity)
         {
         }
 
-        /// <summary>
-        /// Initializes a new non-resizable instance of the <see cref="SshDataStream"/> class based on the specified byte array.
-        /// </summary>
-        /// <param name="buffer">The array of unsigned bytes from which to create the current stream.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <c>null.</c></exception>
         public SshDataStream(byte[] buffer)
             : base(buffer)
         {

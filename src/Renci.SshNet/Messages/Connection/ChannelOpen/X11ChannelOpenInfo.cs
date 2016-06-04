@@ -12,7 +12,7 @@ namespace Renci.SshNet.Messages.Connection
         /// <summary>
         /// Specifies channel open type
         /// </summary>
-        public const string Name = "x11";
+        public const string NAME = "x11";
 
         /// <summary>
         /// Gets the type of the channel to open.
@@ -22,7 +22,7 @@ namespace Renci.SshNet.Messages.Connection
         /// </value>
         public override string ChannelType
         {
-            get { return Name; }
+            get { return NAME; }
         }
 
         /// <summary>

@@ -10,7 +10,7 @@ namespace Renci.SshNet.Messages.Connection
         /// <summary>
         /// Channel request name
         /// </summary>
-        public const string Name = "break";
+        public const string NAME = "break";
 
         /// <summary>
         /// Gets the name of the request.
@@ -20,13 +20,13 @@ namespace Renci.SshNet.Messages.Connection
         /// </value>
         public override string RequestName
         {
-            get { return Name; }
+            get { return NAME; }
         }
 
         /// <summary>
         /// Gets break length in milliseconds.
         /// </summary>
-        public uint BreakLength { get; private set; }
+        public UInt32 BreakLength { get; private set; }
 
         /// <summary>
         /// Gets the size of the message in bytes.
@@ -56,7 +56,7 @@ namespace Renci.SshNet.Messages.Connection
         /// Initializes a new instance of the <see cref="ExecRequestInfo"/> class.
         /// </summary>
         /// <param name="breakLength">Length of the break.</param>
-        public BreakRequestInfo(uint breakLength)
+        public BreakRequestInfo(UInt32 breakLength)
             : this()
         {
             BreakLength = breakLength;

@@ -115,10 +115,10 @@ namespace Renci.SshNet.Messages.Connection
 
             switch (channelName)
             {
-                case SessionChannelOpenInfo.Name:
+                case SessionChannelOpenInfo.NAME:
                     Info = new SessionChannelOpenInfo(_infoBytes);
                     break;
-                case X11ChannelOpenInfo.Name:
+                case X11ChannelOpenInfo.NAME:
                     Info = new X11ChannelOpenInfo(_infoBytes);
                     break;
                 case DirectTcpipChannelInfo.NAME:

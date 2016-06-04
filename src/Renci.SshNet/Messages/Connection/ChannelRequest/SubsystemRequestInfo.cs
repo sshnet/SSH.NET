@@ -10,7 +10,7 @@
         /// <summary>
         /// Channel request name
         /// </summary>
-        public const string Name = "subsystem";
+        public const string NAME = "subsystem";
 
         /// <summary>
         /// Gets the name of the request.
@@ -20,7 +20,7 @@
         /// </value>
         public override string RequestName
         {
-            get { return Name; }
+            get { return NAME; }
         }
 
         /// <summary>

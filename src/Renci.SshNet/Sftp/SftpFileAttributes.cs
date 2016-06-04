@@ -434,12 +434,6 @@ namespace Renci.SshNet.Sftp
             OthersCanExecute = (permission & S_IXOTH) == S_IXOTH;
         }
 
-        /// <summary>
-        /// Returns a byte array representing the current <see cref="SftpFileAttributes"/>.
-        /// </summary>
-        /// <returns>
-        /// A byte array representing the current <see cref="SftpFileAttributes"/>.
-        /// </returns>
         public byte[] GetBytes()
         {
             var stream = new SshDataStream(4);

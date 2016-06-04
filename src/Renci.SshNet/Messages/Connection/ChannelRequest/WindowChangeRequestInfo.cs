@@ -8,7 +8,7 @@
         /// <summary>
         /// Channe request name
         /// </summary>
-        public const string Name = "window-change";
+        public const string NAME = "window-change";
 
         /// <summary>
         /// Gets the name of the request.
@@ -18,7 +18,7 @@
         /// </value>
         public override string RequestName
         {
-            get { return Name; }
+            get { return NAME; }
         }
 
         /// <summary>

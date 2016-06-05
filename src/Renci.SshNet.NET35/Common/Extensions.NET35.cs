@@ -5,7 +5,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 
-namespace Renci.SshNet.Common
+namespace Renci.SshNet
 {
     /// <summary>
     /// Collection of different extension method specific for .NET 3.5

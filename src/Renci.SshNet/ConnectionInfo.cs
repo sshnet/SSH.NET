@@ -243,8 +243,6 @@ namespace Renci.SshNet
         {
         }
 
-        //  TODO: DOCS Add exception documentation for this class.
-
         /// <summary>
         /// Initializes a new instance of the <see cref="ConnectionInfo" /> class.
         /// </summary>
@@ -370,19 +368,19 @@ namespace Renci.SshNet
 
             ChannelRequests = new Dictionary<string, RequestInfo>
                 {
-                    {EnvironmentVariableRequestInfo.NAME, new EnvironmentVariableRequestInfo()},
-                    {ExecRequestInfo.NAME, new ExecRequestInfo()},
-                    {ExitSignalRequestInfo.NAME, new ExitSignalRequestInfo()},
-                    {ExitStatusRequestInfo.NAME, new ExitStatusRequestInfo()},
-                    {PseudoTerminalRequestInfo.NAME, new PseudoTerminalRequestInfo()},
-                    {ShellRequestInfo.NAME, new ShellRequestInfo()},
-                    {SignalRequestInfo.NAME, new SignalRequestInfo()},
-                    {SubsystemRequestInfo.NAME, new SubsystemRequestInfo()},
-                    {WindowChangeRequestInfo.NAME, new WindowChangeRequestInfo()},
-                    {X11ForwardingRequestInfo.NAME, new X11ForwardingRequestInfo()},
-                    {XonXoffRequestInfo.NAME, new XonXoffRequestInfo()},
-                    {EndOfWriteRequestInfo.NAME, new EndOfWriteRequestInfo()},
-                    {KeepAliveRequestInfo.NAME, new KeepAliveRequestInfo()},
+                    {EnvironmentVariableRequestInfo.Name, new EnvironmentVariableRequestInfo()},
+                    {ExecRequestInfo.Name, new ExecRequestInfo()},
+                    {ExitSignalRequestInfo.Name, new ExitSignalRequestInfo()},
+                    {ExitStatusRequestInfo.Name, new ExitStatusRequestInfo()},
+                    {PseudoTerminalRequestInfo.Name, new PseudoTerminalRequestInfo()},
+                    {ShellRequestInfo.Name, new ShellRequestInfo()},
+                    {SignalRequestInfo.Name, new SignalRequestInfo()},
+                    {SubsystemRequestInfo.Name, new SubsystemRequestInfo()},
+                    {WindowChangeRequestInfo.Name, new WindowChangeRequestInfo()},
+                    {X11ForwardingRequestInfo.Name, new X11ForwardingRequestInfo()},
+                    {XonXoffRequestInfo.Name, new XonXoffRequestInfo()},
+                    {EndOfWriteRequestInfo.Name, new EndOfWriteRequestInfo()},
+                    {KeepAliveRequestInfo.Name, new KeepAliveRequestInfo()},
                 };
 
             Host = host;

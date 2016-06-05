@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading;
-using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Authentication;
 using Renci.SshNet.Messages;
 

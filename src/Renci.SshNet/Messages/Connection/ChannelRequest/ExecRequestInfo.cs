@@ -13,7 +13,7 @@ namespace Renci.SshNet.Messages.Connection
         /// <summary>
         /// Channel request name
         /// </summary>
-        public const string NAME = "exec";
+        public const string Name = "exec";
 
         /// <summary>
         /// Gets the name of the request.
@@ -23,7 +23,7 @@ namespace Renci.SshNet.Messages.Connection
         /// </value>
         public override string RequestName
         {
-            get { return NAME; }
+            get { return Name; }
         }
 
         /// <summary>

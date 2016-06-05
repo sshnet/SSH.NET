@@ -8,7 +8,7 @@
         /// <summary>
         /// Channel request type
         /// </summary>
-        public const string NAME = "xon-xoff";
+        public const string Name = "xon-xoff";
 
         /// <summary>
         /// Gets the name of the request.
@@ -18,7 +18,7 @@
         /// </value>
         public override string RequestName
         {
-            get { return NAME; }
+            get { return Name; }
         }
 
         /// <summary>

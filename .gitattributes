@@ -1,0 +1,17 @@
+* text=auto
+
+*.cs text
+*.xaml text
+*.sln text eol=crlf
+*.csproj text eol=crlf
+*.shproj text eol=crlf
+*.appxmanifest text eol=crlf
+
+*.png binary
+*.jpg binary
+*.dll binary
+*.pdb binary
+*.exe binary
+*.nupkg binary
+*.pdf binary
+*.snk binary

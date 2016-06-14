@@ -12,5 +12,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Abstractions\CryptoAbstraction_GenerateRandom.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstractions\DnsAbstraction_GetHostAddresses.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstractions\ThreadAbstraction_ExecuteThread.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SshMessageFactoryTest.cs" />
   </ItemGroup>
 </Project>

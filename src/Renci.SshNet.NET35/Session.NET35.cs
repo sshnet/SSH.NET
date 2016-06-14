@@ -58,29 +58,5 @@ namespace Renci.SshNet
                 HandleMessage(message);
             }
         }
-
-        partial void InternalRegisterMessage(string messageName)
-        {
-            lock (_messagesMetadata)
-            {
-                foreach (var m in from m in _messagesMetadata where m.Name == messageName select m)
-                {
-                    m.Enabled = true; 
-                    m.Activated = true;
-                }
-            }
-        }
-
-        partial void InternalUnRegisterMessage(string messageName)
-        {
-            lock (_messagesMetadata)
-            {
-                foreach (var m in from m in _messagesMetadata where m.Name == messageName select m)
-                {
-                    m.Enabled = false;
-                    m.Activated = false;
-                }
-            }
-        }
     }
 }

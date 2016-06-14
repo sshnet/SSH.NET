@@ -960,6 +960,9 @@
     <Compile Include="..\Renci.SshNet\SshCommand.cs">
       <Link>SshCommand.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\SshMessageFactory.cs">
+      <Link>SshMessageFactory.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\SubsystemSession.cs">
       <Link>SubsystemSession.cs</Link>
     </Compile>

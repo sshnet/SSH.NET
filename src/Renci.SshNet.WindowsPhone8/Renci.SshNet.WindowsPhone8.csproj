@@ -910,6 +910,9 @@
     <Compile Include="..\Renci.SshNet\SshCommand.cs">
       <Link>SshCommand.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\SshMessageFactory.cs">
+      <Link>SshMessageFactory.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\SubsystemSession.cs">
       <Link>SubsystemSession.cs</Link>
     </Compile>
@@ -932,7 +935,7 @@
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties ProjectLinkReference="2f5f8c90-0bd1-424f-997c-7bc6280919d1" ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" />
+      <UserProperties ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" ProjectLinkReference="2f5f8c90-0bd1-424f-997c-7bc6280919d1" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

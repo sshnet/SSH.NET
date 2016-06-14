@@ -70,6 +70,9 @@
     <Compile Include="..\..\test\Renci.SshNet.Shared.Tests\Abstractions\ThreadAbstraction_ExecuteThread.cs">
       <Link>Classes\Abstractions\ThreadAbstraction_ExecuteThread.cs</Link>
     </Compile>
+    <Compile Include="..\..\test\Renci.SshNet.Shared.Tests\SshMessageFactoryTest.cs">
+      <Link>Classes\SshMessageFactoryTest.cs</Link>
+    </Compile>
     <Compile Include="Classes\BaseClientTest_Connected_KeepAlivesNotSentConcurrently.cs" />
     <Compile Include="Classes\Channels\ChannelDirectTcpipTest.cs" />
     <Compile Include="Classes\Channels\ChannelDirectTcpipTest_Close_SessionIsConnectedAndChannelIsOpen.cs" />

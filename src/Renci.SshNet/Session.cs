@@ -84,7 +84,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Holds metada about session messages
         /// </summary>
-        private IEnumerable<MessageMetadata> _messagesMetadata;
+        private SshMessageFactory _sshMessageFactory;
 
         /// <summary>
         /// Holds connection socket.
@@ -523,7 +523,7 @@ namespace Renci.SshNet
                     Reset();
 
                     //  Build list of available messages while connecting
-                    _messagesMetadata = GetMessagesMetadata();
+                    _sshMessageFactory = new SshMessageFactory();
 
                     switch (ConnectionInfo.ProxyType)
                     {
@@ -620,6 +620,8 @@ namespace Renci.SshNet
 
                     ConnectionInfo.Authenticate(this, _serviceFactory);
                     _isAuthenticated = true;
+
+                    Thread.Sleep(2000);
 
                     //  Register Connection messages
                     RegisterMessage("SSH_MSG_GLOBAL_REQUEST");
@@ -862,49 +864,6 @@ namespace Renci.SshNet
                 DiagnosticAbstraction.Log(string.Format("Failure sending message server '{0}': '{1}' => {2}", message.GetType().Name, message, ex));
                 return false;
             }
-        }
-
-        private static IEnumerable<MessageMetadata> GetMessagesMetadata()
-        {
-            return new []
-                {
-                    new MessageMetadata { Name = "SSH_MSG_NEWKEYS", Number = 21, Type = typeof(NewKeysMessage) },
-                    new MessageMetadata { Name = "SSH_MSG_REQUEST_FAILURE", Number = 82, Type = typeof(RequestFailureMessage) },
-                    new MessageMetadata { Name = "SSH_MSG_KEXINIT", Number = 20, Type = typeof(KeyExchangeInitMessage) },
-                    new MessageMetadata { Name = "SSH_MSG_CHANNEL_OPEN_FAILURE", Number = 92, Type = typeof(ChannelOpenFailureMessage) },
-                    new MessageMetadata { Name = "SSH_MSG_CHANNEL_FAILURE", Number = 100, Type = typeof(ChannelFailureMessage) },
-                    new MessageMetadata { Name = "SSH_MSG_CHANNEL_EXTENDED_DATA", Number = 95, Type = typeof(ChannelExtendedDataMessage) },
-                    new MessageMetadata { Name = "SSH_MSG_CHANNEL_DATA", Number = 94, Type = typeof(ChannelDataMessage) },
-                    new MessageMetadata { Name = "SSH_MSG_USERAUTH_REQUEST", Number = 50, Type = typeof(RequestMessage) },
-                    new MessageMetadata { Name = "SSH_MSG_CHANNEL_REQUEST", Number = 98, Type = typeof(ChannelRequestMessage) },
-                    new MessageMetadata { Name = "SSH_MSG_USERAUTH_BANNER", Number = 53, Type = typeof(BannerMessage) },
-                    new MessageMetadata { Name = "SSH_MSG_USERAUTH_INFO_RESPONSE", Number = 61, Type = typeof(InformationResponseMessage) },
-                    new MessageMetadata { Name = "SSH_MSG_USERAUTH_FAILURE", Number = 51, Type = typeof(FailureMessage) },
-                    new MessageMetadata { Name = "SSH_MSG_DEBUG", Number = 4, Type = typeof(DebugMessage), },
-                    new MessageMetadata { Name = "SSH_MSG_KEXDH_INIT", Number = 30, Type = typeof(KeyExchangeDhInitMessage) },
-                    new MessageMetadata { Name = "SSH_MSG_GLOBAL_REQUEST", Number = 80, Type = typeof(GlobalRequestMessage) },
-                    new MessageMetadata { Name = "SSH_MSG_CHANNEL_OPEN", Number = 90, Type = typeof(ChannelOpenMessage) },
-                    new MessageMetadata { Name = "SSH_MSG_CHANNEL_OPEN_CONFIRMATION", Number = 91, Type = typeof(ChannelOpenConfirmationMessage) },
-                    new MessageMetadata { Name = "SSH_MSG_USERAUTH_INFO_REQUEST", Number = 60, Type = typeof(InformationRequestMessage) },
-                    new MessageMetadata { Name = "SSH_MSG_UNIMPLEMENTED", Number = 3, Type = typeof(UnimplementedMessage) },
-                    new MessageMetadata { Name = "SSH_MSG_REQUEST_SUCCESS", Number = 81, Type = typeof(RequestSuccessMessage) },
-                    new MessageMetadata { Name = "SSH_MSG_CHANNEL_SUCCESS", Number = 99, Type = typeof(ChannelSuccessMessage) },
-                    new MessageMetadata { Name = "SSH_MSG_USERAUTH_PASSWD_CHANGEREQ", Number = 60, Type = typeof(PasswordChangeRequiredMessage) },
-                    new MessageMetadata { Name = "SSH_MSG_DISCONNECT", Number = 1, Type = typeof(DisconnectMessage) },
-                    new MessageMetadata { Name = "SSH_MSG_SERVICE_REQUEST", Number = 5, Type = typeof(ServiceRequestMessage) },
-                    new MessageMetadata { Name = "SSH_MSG_KEX_DH_GEX_REQUEST", Number = 34, Type = typeof(KeyExchangeDhGroupExchangeRequest) },
-                    new MessageMetadata { Name = "SSH_MSG_KEX_DH_GEX_GROUP", Number = 31, Type = typeof(KeyExchangeDhGroupExchangeGroup) },
-                    new MessageMetadata { Name = "SSH_MSG_USERAUTH_SUCCESS", Number = 52, Type = typeof(SuccessMessage) },
-                    new MessageMetadata { Name = "SSH_MSG_USERAUTH_PK_OK", Number = 60, Type = typeof(PublicKeyMessage) },
-                    new MessageMetadata { Name = "SSH_MSG_IGNORE", Number = 2, Type = typeof(IgnoreMessage) },
-                    new MessageMetadata { Name = "SSH_MSG_CHANNEL_WINDOW_ADJUST", Number = 93, Type = typeof(ChannelWindowAdjustMessage) },
-                    new MessageMetadata { Name = "SSH_MSG_CHANNEL_EOF", Number = 96, Type = typeof(ChannelEofMessage) },
-                    new MessageMetadata { Name = "SSH_MSG_CHANNEL_CLOSE", Number = 97, Type = typeof(ChannelCloseMessage) },
-                    new MessageMetadata { Name = "SSH_MSG_SERVICE_ACCEPT", Number = 6, Type = typeof(ServiceAcceptMessage) },
-                    new MessageMetadata { Name = "SSH_MSG_KEXDH_REPLY", Number = 31, Type = typeof(KeyExchangeDhReplyMessage) },
-                    new MessageMetadata { Name = "SSH_MSG_KEX_DH_GEX_INIT", Number = 32, Type = typeof(KeyExchangeDhGroupExchangeInit) },
-                    new MessageMetadata { Name = "SSH_MSG_KEX_DH_GEX_REPLY", Number = 33, Type = typeof(KeyExchangeDhGroupExchangeReply) }
-                };
         }
 
         /// <summary>
@@ -1332,12 +1291,8 @@ namespace Renci.SshNet
 
             _keyExchangeCompletedWaitHandle.Reset();
 
-            //  Disable all registered messages except key exchange related
-            foreach (var messageMetadata in _messagesMetadata)
-            {
-                if (messageMetadata.Activated && messageMetadata.Number > 2 && (messageMetadata.Number < 20 || messageMetadata.Number > 30))
-                    messageMetadata.Enabled = false;
-            }
+            // Disable messages that are not key exchange related
+            _sshMessageFactory.DisableNonKeyExchangeMessages();
 
             _keyExchange = _serviceFactory.CreateKeyExchange(ConnectionInfo.KeyExchangeAlgorithms,
                 message.KeyExchangeAlgorithms);
@@ -1395,12 +1350,8 @@ namespace Renci.SshNet
                 _keyExchange = null;
             }
 
-            //  Enable all active registered messages
-            foreach (var messageMetadata in _messagesMetadata)
-            {
-                if (messageMetadata.Activated)
-                    messageMetadata.Enabled = true;
-            }
+            // Enable activated messages that are not key exchange related
+            _sshMessageFactory.EnableActivatedMessages();
 
             var newKeysReceived = NewKeysReceived;
             if (newKeysReceived != null)
@@ -1662,7 +1613,7 @@ namespace Renci.SshNet
         /// <param name="messageName">The name of the message to register with the session.</param>
         public void RegisterMessage(string messageName)
         {
-            InternalRegisterMessage(messageName);
+            _sshMessageFactory.EnableAndActivateMessage(messageName);
         }
 
         /// <summary>
@@ -1671,7 +1622,7 @@ namespace Renci.SshNet
         /// <param name="messageName">The name of the message to unregister with the session.</param>
         public void UnRegisterMessage(string messageName)
         {
-            InternalUnRegisterMessage(messageName);
+            _sshMessageFactory.DisableAndDeactivateMessage(messageName);
         }
 
         /// <summary>
@@ -1686,22 +1637,13 @@ namespace Renci.SshNet
         private Message LoadMessage(byte[] data, int offset)
         {
             var messageType = data[offset];
-            var messageMetadata = (from m in _messagesMetadata where m.Number == messageType && m.Enabled && m.Activated select m).FirstOrDefault();
-            if (messageMetadata == null)
-                throw new SshException(string.Format(CultureInfo.CurrentCulture, "Message type {0} is not valid.", messageType));
-
-            var message = messageMetadata.Type.CreateInstance<Message>();
-
+            var message = _sshMessageFactory.Create(messageType);
             message.Load(data, offset);
 
             DiagnosticAbstraction.Log(string.Format("ReceiveMessage from server: '{0}': '{1}'.", message.GetType().Name, message));
 
             return message;
         }
-
-        partial void InternalRegisterMessage(string messageName);
-
-        partial void InternalUnRegisterMessage(string messageName);
 
         #endregion
 
@@ -2402,18 +2344,5 @@ namespace Renci.SshNet
         }
 
         #endregion ISession implementation
-
-        private class MessageMetadata
-        {
-            public string Name { get; set; }
-
-            public byte Number { get; set; }
-
-            public bool Enabled { get; set; }
-
-            public bool Activated { get; set; }
-
-            public Type Type { get; set; }
-        }
     }
 }

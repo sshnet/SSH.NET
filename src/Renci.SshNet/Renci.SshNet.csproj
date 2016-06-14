@@ -452,6 +452,7 @@
     </Compile>
     <Compile Include="SshClient.cs" />
     <Compile Include="SshCommand.cs" />
+    <Compile Include="SshMessageFactory.cs" />
     <Compile Include="SubsystemSession.cs" />
   </ItemGroup>
   <ItemGroup>

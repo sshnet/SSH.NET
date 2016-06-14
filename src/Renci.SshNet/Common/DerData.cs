@@ -198,7 +198,6 @@ namespace Renci.SshNet.Common
             var temp = new ulong[identifier.Identifiers.Length - 1];
             temp[0] = identifier.Identifiers[0] * 40 + identifier.Identifiers[1];
             Buffer.BlockCopy(identifier.Identifiers, 2 * sizeof(ulong), temp, 1 * sizeof(ulong), (identifier.Identifiers.Length - 2) * sizeof(ulong));
-            //Array.Copy(identifier.Identifiers, 2, temp, 1, identifier.Identifiers.Length - 2);
             var bytes = new List<byte>();
             foreach (var subidentifier in temp)
             {

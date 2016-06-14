@@ -158,8 +158,7 @@ namespace Renci.SshNet.Tests.Classes.Common
 
             Console.WriteLine(stopWatch.ElapsedMilliseconds);
 
-            stopWatch.Reset();
-            stopWatch.Start();
+            stopWatch.Restart();
 
             for (var i = 0; i < runs; i++)
             {

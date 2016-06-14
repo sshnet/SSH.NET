@@ -16,6 +16,12 @@ namespace Renci.SshNet.Common
 
         private SshDataStream _stream;
 
+        /// <summary>
+        /// Gets the underlying <see cref="SshDataStream"/> that is used for reading and writing SSH data.
+        /// </summary>
+        /// <value>
+        /// The underlying <see cref="SshDataStream"/> that is used for reading and writing SSH data.
+        /// </value>
         protected SshDataStream DataStream
         {
             get { return _stream; }

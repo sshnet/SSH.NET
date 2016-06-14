@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Security.Cryptography;
-using Renci.SshNet.Common;
 
 namespace Renci.SshNet
 {

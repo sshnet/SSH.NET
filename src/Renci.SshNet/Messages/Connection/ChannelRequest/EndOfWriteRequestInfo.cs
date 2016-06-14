@@ -8,7 +8,7 @@
         /// <summary>
         /// Channel request name
         /// </summary>
-        public const string NAME = "eow@openssh.com";
+        public const string Name = "eow@openssh.com";
 
         /// <summary>
         /// Gets the name of the request.
@@ -18,7 +18,7 @@
         /// </value>
         public override string RequestName
         {
-            get { return NAME; }
+            get { return Name; }
         }
 
         /// <summary>

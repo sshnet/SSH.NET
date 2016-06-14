@@ -11,7 +11,7 @@
         /// <summary>
         /// Channel request name
         /// </summary>
-        public const string NAME = "env";
+        public const string Name = "env";
 
         /// <summary>
         /// Gets the name of the request.
@@ -21,7 +21,7 @@
         /// </value>
         public override string RequestName
         {
-            get { return NAME; }
+            get { return Name; }
         }
 
         /// <summary>

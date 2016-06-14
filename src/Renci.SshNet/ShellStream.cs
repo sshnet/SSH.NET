@@ -464,7 +464,7 @@ namespace Renci.SshNet
         /// </returns>
         public string Expect(string text)
         {
-            return Expect(new Regex(Regex.Escape(text)), TimeSpan.FromMilliseconds(-1));
+            return Expect(new Regex(Regex.Escape(text)), Session.InfiniteTimeSpan);
         }
 
         /// <summary>

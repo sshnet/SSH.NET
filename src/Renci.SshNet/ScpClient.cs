@@ -21,8 +21,8 @@ namespace Renci.SshNet
         /// Gets or sets the operation timeout.
         /// </summary>
         /// <value>
-        /// The timeout to wait until an operation completes. The default value is negative
-        /// one (-1) milliseconds, which indicates an infinite time-out period.
+        /// The timeout to wait until an operation completes. The default value is <see cref="SshNet.Session.InfiniteTimeSpan"/>
+        /// , which indicates an infinite time-out period.
         /// </value>
         public TimeSpan OperationTimeout { get; set; }
 
@@ -144,7 +144,7 @@ namespace Renci.SshNet
         internal ScpClient(ConnectionInfo connectionInfo, bool ownsConnectionInfo, IServiceFactory serviceFactory)
             : base(connectionInfo, ownsConnectionInfo, serviceFactory)
         {
-            OperationTimeout = new TimeSpan(0, 0, 0, 0, -1);
+            OperationTimeout = SshNet.Session.InfiniteTimeSpan;
             BufferSize = 1024 * 16;
 
             if (_byteToChar == null)

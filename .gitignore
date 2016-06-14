@@ -19,3 +19,6 @@ src/.vs/
 
 # Expanded/resolved project.json files
 project.lock.json
+
+# Build outputs
+build/target/

@@ -1512,7 +1512,7 @@ namespace Renci.SshNet.Tests.Classes.Common
             Assert.AreEqual(false, a < a, "#6");
 
             a = new BigInteger();
-            Assert.AreEqual(true, a < 10l, "#7");
+            Assert.AreEqual(true, a < 10L, "#7");
 
             a = new BigInteger();
             Assert.AreEqual(true, a.IsEven, "#8");

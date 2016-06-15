@@ -1,13 +1,11 @@
-﻿using System;
-using System.Net.Sockets;
-using System.Threading;
+﻿using System.Net.Sockets;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Renci.SshNet.Messages.Connection;
 
 namespace Renci.SshNet.Tests.Classes
 {
     /// <summary>
-    /// Test for https://github.com/sshnet/SSH.NET/pull/9.
+    /// Test for https://github.com/sshnet/SSH.NET/issues/8.
     /// </summary>
     [TestClass]
     public class SessionTest_Connected_GlobalRequestMessageAfterAuthenticationRace : SessionTest_ConnectedBase

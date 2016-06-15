@@ -39,7 +39,7 @@
 	
 	<Target Name="Build">
 		<ItemGroup>
-			<ProjectToBuild Include="$(MSBuildThisFileDirectory)..\Renci.SshNet.VS2012.sln">
+			<ProjectToBuild Include="$(MSBuildThisFileDirectory)..\src\Renci.SshNet.VS2012.sln">
 				<Properties>Configuration=Release</Properties>
 			</ProjectToBuild>
 		</ItemGroup>
@@ -52,8 +52,8 @@
 	<Target Name="CopyBuildOutputToPackage" DependsOnTargets="Build" Outputs="%(TargetFramework.Identity)">
 		<ItemGroup>
 			<BuildOutput Remove="@(BuildOutput)"/>
-			<BuildOutput Include="$(MSBuildThisFileDirectory)..\%(TargetFramework.Project)\bin\$(Configuration)\Renci.SshNet.dll"/>
-			<BuildOutput Include="$(MSBuildThisFileDirectory)..\%(TargetFramework.Project)\bin\$(Configuration)\Renci.SshNet.xml"/>
+			<BuildOutput Include="$(MSBuildThisFileDirectory)..\src\%(TargetFramework.Project)\bin\$(Configuration)\Renci.SshNet.dll"/>
+			<BuildOutput Include="$(MSBuildThisFileDirectory)..\src\%(TargetFramework.Project)\bin\$(Configuration)\Renci.SshNet.xml"/>
 		</ItemGroup>
 		<Copy SourceFiles="@(BuildOutput)" DestinationFolder="$(MSBuildThisFileDirectory)target\package\lib\%(TargetFramework.Moniker)"/>
 	</Target>
@@ -63,8 +63,8 @@
 	
 	<Target Name="GenerateSourceZip">
 		<ItemGroup>
-			<SourceFiles Include="$(MSBuildThisFileDirectory)..\Renci.SshNet\**" Exclude="$(MSBuildThisFileDirectory)..\Renci.SshNet\bin\**;$(MSBuildThisFileDirectory)..\Renci.SshNet\obj\**"/>
-			<SourceFiles Include="$(MSBuildThisFileDirectory)..\Renci.SshNet.snk"/>
+			<SourceFiles Include="$(MSBuildThisFileDirectory)..\src\Renci.SshNet\**" Exclude="$(MSBuildThisFileDirectory)..\src\Renci.SshNet\bin\**;$(MSBuildThisFileDirectory)..\src\Renci.SshNet\obj\**"/>
+			<SourceFiles Include="$(MSBuildThisFileDirectory)..\src\Renci.SshNet.snk"/>
 		</ItemGroup>
 		<Zip
 			Files="@(SourceFiles)"

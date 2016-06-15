@@ -57,7 +57,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
                     new MessageEventArgs<ChannelOpenConfirmationMessage>(
                         new ChannelOpenConfirmationMessage(((ChannelOpenMessage)m).LocalChannelNumber, _remoteWindowSize, _remotePacketSize, _remoteChannelNumber))));
             _sessionMock.Setup(p => p.WaitOnHandle(It.IsAny<EventWaitHandle>()))
-                .Callback<WaitHandle>(p => p.WaitOne(-1));
+                .Callback<WaitHandle>(p => p.WaitOne(Session.Infinite));
 
             var localPortEndPoint = new IPEndPoint(IPAddress.Loopback, 8122);
             using (var localPortListener = new AsyncSocketListener(localPortEndPoint))
@@ -107,7 +107,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
                     new MessageEventArgs<ChannelOpenConfirmationMessage>(
                         new ChannelOpenConfirmationMessage(((ChannelOpenMessage)m).LocalChannelNumber, _remoteWindowSize, _remotePacketSize, _remoteChannelNumber))));
             _sessionMock.Setup(p => p.WaitOnHandle(It.IsAny<EventWaitHandle>()))
-                .Callback<WaitHandle>(p => p.WaitOne(-1));
+                .Callback<WaitHandle>(p => p.WaitOne(Session.Infinite));
 
             var localPortEndPoint = new IPEndPoint(IPAddress.Loopback, 8122);
             using (var localPortListener = new AsyncSocketListener(localPortEndPoint))
@@ -159,7 +159,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
                         new ChannelOpenConfirmationMessage(((ChannelOpenMessage) m).LocalChannelNumber,
                             _remoteWindowSize, _remotePacketSize, _remoteChannelNumber))));
             _sessionMock.Setup(p => p.WaitOnHandle(It.IsAny<EventWaitHandle>()))
-                .Callback<WaitHandle>(p => p.WaitOne(-1));
+                .Callback<WaitHandle>(p => p.WaitOne(Session.Infinite));
             _sessionMock.Setup(p => p.ConnectionInfo).Returns(_connectionInfoMock.Object);
             _connectionInfoMock.Setup(p => p.Timeout).Returns(TimeSpan.FromSeconds(60));
             _sessionMock.Setup(p => p.TrySendMessage(It.IsAny<ChannelEofMessage>()))

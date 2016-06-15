@@ -213,8 +213,20 @@
         /// <returns><c>True</c> if data available; otherwise<c>false</c>.</returns>
         private bool ReadAvailable(int count)
         {
+            if (Length == 0 && !IsEndOfStream())
+            {
+                return false;
+            }
+
             return (Length >= count || _isFlushed) &&
                    (Length >= (count + 1) || !BlockLastReadBuffer);
+        }
+
+        public Func<bool> EndOfStream { private get; set; }
+
+        private bool IsEndOfStream()
+        {
+            return (EndOfStream == null) ? Length == 0 : EndOfStream();
         }
 
         ///<summary>

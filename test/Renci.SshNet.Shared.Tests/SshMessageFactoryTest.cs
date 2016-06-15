@@ -1,18 +1,17 @@
-﻿#if SILVERLIGHT
-using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-#else
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages;
 using Renci.SshNet.Messages.Authentication;
 using Renci.SshNet.Messages.Connection;
 using Renci.SshNet.Messages.Transport;
-
+#if SILVERLIGHT
+using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
+#else
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 #endif
 
 namespace Renci.SshNet.Tests

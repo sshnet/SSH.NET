@@ -132,6 +132,7 @@
     <Compile Include="Classes\Common\ExtensionsTest_IsEqualTo_ByteArray.cs" />
     <Compile Include="Classes\Common\ExtensionsTest_Take_Count.cs" />
     <Compile Include="Classes\Common\ExtensionsTest_Take_OffsetAndCount.cs" />
+    <Compile Include="Classes\Common\ExtensionsTest_ToGlobalRequestName.cs" />
     <Compile Include="Classes\Common\ExtensionsTest_TrimLeadingZeros.cs" />
     <Compile Include="Classes\ConnectionInfoTest_Authenticate_Failure.cs" />
     <Compile Include="Classes\ConnectionInfoTest_Authenticate_Success.cs" />
@@ -236,6 +237,7 @@
     <Compile Include="Classes\SessionTest_ConnectedBase.cs" />
     <Compile Include="Classes\SessionTest_Connected_ConnectionReset.cs" />
     <Compile Include="Classes\SessionTest_Connected_Disconnect.cs" />
+    <Compile Include="Classes\SessionTest_Connected_GlobalRequestMessageAfterAuthenticationRace.cs" />
     <Compile Include="Classes\SessionTest_Connected_ServerSendsDisconnectMessage.cs" />
     <Compile Include="Classes\SessionTest_Connected_ServerSendsBadPacket.cs" />
     <Compile Include="Classes\SessionTest_Connected_ServerSendsDisconnectMessageAndShutsDownSocket.cs" />

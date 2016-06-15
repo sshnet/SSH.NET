@@ -105,7 +105,7 @@ namespace Renci.SshNet.Tests.Classes
             _keyExchangeMock.Setup(p => p.CreateCompressor()).Returns((Compressor) null);
             _keyExchangeMock.Setup(p => p.CreateDecompressor()).Returns((Compressor) null);
             _keyExchangeMock.Setup(p => p.Dispose());
-            _serviceFactoryMock.Setup(p => p.CreateClientAuthentication()).Returns(_clientAuthenticationMock.Object);
+            _serviceFactoryMock.Setup(p => p.CreateClientAuthentication()).Callback(ClientAuthentication_Callback).Returns(_clientAuthenticationMock.Object);
             _clientAuthenticationMock.Setup(p => p.Authenticate(ConnectionInfo, Session));
 
             ServerListener = new AsyncSocketListener(_serverEndPoint);
@@ -119,6 +119,7 @@ namespace Renci.SshNet.Tests.Classes
                 };
 
             var counter = 0;
+
             ServerListener.BytesReceived += (received, socket) =>
                 {
                     ServerBytesReceivedRegister.Add(received);
@@ -153,6 +154,10 @@ namespace Renci.SshNet.Tests.Classes
             ServerListener.Start();
 
             Session.Connect();
+        }
+
+        protected virtual void ClientAuthentication_Callback()
+        {
         }
 
         protected abstract void Act();

@@ -11,7 +11,7 @@ namespace Renci.SshNet.Messages.Connection
         /// <summary>
         /// Channel request name
         /// </summary>
-        public const string NAME = "pty-req";
+        public const string Name = "pty-req";
 
         /// <summary>
         /// Gets the name of the request.
@@ -21,14 +21,14 @@ namespace Renci.SshNet.Messages.Connection
         /// </value>
         public override string RequestName
         {
-            get { return NAME; }
+            get { return Name; }
         }
 
         /// <summary>
-        /// Gets or sets the environment variable (e.g., vt100).
+        /// Gets or sets the value of the TERM environment variable (e.g., vt100).
         /// </summary>
         /// <value>
-        /// The environment variable.
+        /// The value of the TERM environment variable.
         /// </value>
         public string EnvironmentVariable { get; set; }
 
@@ -72,7 +72,6 @@ namespace Renci.SshNet.Messages.Connection
         /// </value>
         public IDictionary<TerminalModes, uint> TerminalModeValues { get; set; }
 
-#if TUNING
         /// <summary>
         /// Gets the size of the message in bytes.
         /// </summary>
@@ -84,7 +83,6 @@ namespace Renci.SshNet.Messages.Connection
         {
             get { return -1; }
         }
-#endif
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PseudoTerminalRequestInfo"/> class.
@@ -97,12 +95,22 @@ namespace Renci.SshNet.Messages.Connection
         /// <summary>
         /// Initializes a new instance of the <see cref="PseudoTerminalRequestInfo"/> class.
         /// </summary>
-        /// <param name="environmentVariable">The environment variable.</param>
-        /// <param name="columns">The columns.</param>
-        /// <param name="rows">The rows.</param>
-        /// <param name="width">The width.</param>
-        /// <param name="height">The height.</param>
+        /// <param name="environmentVariable">The <c>TERM</c> environment variable which a identifier for the text window’s capabilities.</param>
+        /// <param name="columns">The terminal width in columns.</param>
+        /// <param name="rows">The terminal width in rows.</param>
+        /// <param name="width">The terminal height in pixels.</param>
+        /// <param name="height">The terminal height in pixels.</param>
         /// <param name="terminalModeValues">The terminal mode values.</param>
+        /// <remarks>
+        /// <para>
+        /// The <c>TERM</c> environment variable contains an identifier for the text window's capabilities.
+        /// You can get a detailed list of these cababilities by using the ‘infocmp’ command.
+        /// </para>
+        /// <para>
+        /// The column/row dimensions override the pixel dimensions(when nonzero). Pixel dimensions refer
+        /// to the drawable area of the window.
+        /// </para>
+        /// </remarks>
         public PseudoTerminalRequestInfo(string environmentVariable, uint columns, uint rows, uint width, uint height, IDictionary<TerminalModes, uint> terminalModeValues)
             : this()
         {
@@ -129,11 +137,11 @@ namespace Renci.SshNet.Messages.Connection
 
             if (TerminalModeValues != null)
             {
-                Write((uint)TerminalModeValues.Count * (1 + 4) + 1);
+                Write((uint) TerminalModeValues.Count*(1 + 4) + 1);
 
                 foreach (var item in TerminalModeValues)
                 {
-                    Write((byte)item.Key);
+                    Write((byte) item.Key);
                     Write(item.Value);
                 }
                 Write((byte)0);

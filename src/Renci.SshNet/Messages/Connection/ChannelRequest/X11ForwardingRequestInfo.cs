@@ -5,14 +5,12 @@
     /// </summary>
     internal class X11ForwardingRequestInfo : RequestInfo
     {
-#if TUNING
         private byte[] _authenticationProtocol;
-#endif
 
         /// <summary>
         /// Channel request name
         /// </summary>
-        public const string NAME = "x11-req";
+        public const string Name = "x11-req";
 
         /// <summary>
         /// Gets the name of the request.
@@ -22,7 +20,7 @@
         /// </value>
         public override string RequestName
         {
-            get { return NAME; }
+            get { return Name; }
         }
 
         /// <summary>
@@ -39,15 +37,11 @@
         /// <value>
         /// The authentication protocol.
         /// </value>
-#if TUNING
         public string AuthenticationProtocol
         {
             get { return Ascii.GetString(_authenticationProtocol, 0, _authenticationProtocol.Length); }
             private set { _authenticationProtocol = Ascii.GetBytes(value); }
         }
-#else
-        public string AuthenticationProtocol { get; set; }
-#endif
 
         /// <summary>
         /// Gets or sets the authentication cookie.
@@ -65,7 +59,6 @@
         /// </value>
         public uint ScreenNumber { get; set; }
 
-#if TUNING
         /// <summary>
         /// Gets the size of the message in bytes.
         /// </summary>
@@ -86,7 +79,6 @@
                 return capacity;
             }
         }
-#endif
 
         /// <summary>
         /// Initializes a new instance of the <see cref="X11ForwardingRequestInfo"/> class.
@@ -120,13 +112,8 @@
             base.LoadData();
 
             IsSingleConnection = ReadBoolean();
-#if TUNING
             _authenticationProtocol = ReadBinary();
             AuthenticationCookie = ReadBinary();
-#else
-            AuthenticationProtocol = ReadAsciiString();
-            AuthenticationCookie = ReadBinaryString();
-#endif
             ScreenNumber = ReadUInt32();
         }
 
@@ -138,11 +125,7 @@
             base.SaveData();
 
             Write(IsSingleConnection);
-#if TUNING
             WriteBinaryString(_authenticationProtocol);
-#else
-            WriteAscii(AuthenticationProtocol);
-#endif
             WriteBinaryString(AuthenticationCookie);
             Write(ScreenNumber);
         }

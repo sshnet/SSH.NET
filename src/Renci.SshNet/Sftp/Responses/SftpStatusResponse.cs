@@ -22,17 +22,21 @@
         {
             base.LoadData();
 
-            this.StatusCode = (StatusCodes)this.ReadUInt32();
+            StatusCode = (StatusCodes) ReadUInt32();
 
-            if (this.ProtocolVersion < 3)
+            if (ProtocolVersion < 3)
             {
                 return;
             }
 
-            if (!this.IsEndOfData)
+            if (!IsEndOfData)
             {
-                this.ErrorMessage = this.ReadString();
-                this.Language = this.ReadString();
+                // the SSH File Transfer Protocol specification states that the error message is UTF-8
+                ErrorMessage = ReadString(Utf8);
+
+                // the language of the error message; RFC 1766 states that the language code may be
+                // expressed as US-ASCII
+                Language = ReadString(Ascii);
             }
         }
     }

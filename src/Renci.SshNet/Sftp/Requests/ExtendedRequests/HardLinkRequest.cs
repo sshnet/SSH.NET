@@ -20,7 +20,6 @@ namespace Renci.SshNet.Sftp.Requests
             private set { _newPath = Utf8.GetBytes(value); }
         }
 
-#if TUNING
         /// <summary>
         /// Gets the size of the message in bytes.
         /// </summary>
@@ -39,7 +38,6 @@ namespace Renci.SshNet.Sftp.Requests
                 return capacity;
             }
         }
-#endif
 
         public HardLinkRequest(uint protocolVersion, uint requestId, string oldPath, string newPath, Action<SftpStatusResponse> statusAction)
             : base(protocolVersion, requestId, statusAction, "hardlink@openssh.com")

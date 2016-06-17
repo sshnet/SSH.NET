@@ -12,7 +12,6 @@ namespace Renci.SshNet.Sftp.Requests
 
         public byte[] Handle { get; private set; }
 
-#if TUNING
         /// <summary>
         /// Gets the size of the message in bytes.
         /// </summary>
@@ -29,28 +28,23 @@ namespace Renci.SshNet.Sftp.Requests
                 return capacity;
             }
         }
-#endif
 
         public SftpCloseRequest(uint protocolVersion, uint requestId, byte[] handle, Action<SftpStatusResponse> statusAction)
             : base(protocolVersion, requestId, statusAction)
         {
-            this.Handle = handle;
+            Handle = handle;
         }
 
         protected override void LoadData()
         {
             base.LoadData();
-#if TUNING
-            this.Handle = this.ReadBinary();
-#else
-            this.Handle = this.ReadBinaryString();
-#endif
+            Handle = ReadBinary();
         }
 
         protected override void SaveData()
         {
             base.SaveData();
-            this.WriteBinaryString(this.Handle);
+            WriteBinaryString(Handle);
         }
     }
 }

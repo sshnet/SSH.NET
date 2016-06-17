@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Connection;
 
@@ -11,7 +11,7 @@ namespace Renci.SshNet.Channels
     /// <summary>
     /// Implements "direct-tcpip" SSH channel.
     /// </summary>
-    internal partial class ChannelDirectTcpip : ClientChannel, IChannelDirectTcpip
+    internal class ChannelDirectTcpip : ClientChannel, IChannelDirectTcpip
     {
         private readonly object _socketLock = new object();
 
@@ -54,14 +54,26 @@ namespace Renci.SshNet.Channels
             _forwardedPort = forwardedPort;
             _forwardedPort.Closing += ForwardedPort_Closing;
 
-            var ep = socket.RemoteEndPoint as IPEndPoint;
+            var ep = (IPEndPoint) socket.RemoteEndPoint;
+
+#if DEBUG_GERT
+            Console.WriteLine("ID: " + Thread.CurrentThread.ManagedThreadId + " |  ChannelOpenMessage send '" + LocalChannelNumber + "' | " + DateTime.Now.ToString("hh:mm:ss.fff"));
+#endif // DEBUG_GERT
 
             // open channel
             SendMessage(new ChannelOpenMessage(LocalChannelNumber, LocalWindowSize, LocalPacketSize,
                 new DirectTcpipChannelInfo(remoteHost, port, ep.Address.ToString(), (uint) ep.Port)));
 
+#if DEBUG_GERT
+            Console.WriteLine("ID: " + Thread.CurrentThread.ManagedThreadId + " |  ChannelOpenMessage sent '" + LocalChannelNumber + "' | " + DateTime.Now.ToString("hh:mm:ss.fff"));
+#endif // DEBUG_GERT
+
             //  Wait for channel to open
             WaitOnHandle(_channelOpen);
+
+#if DEBUG_GERT
+            Console.WriteLine("ID: " + Thread.CurrentThread.ManagedThreadId + " |  ChannelOpenMessage flagged '" + LocalChannelNumber + "' | " + DateTime.Now.ToString("hh:mm:ss.fff"));
+#endif // DEBUG_GERT
         }
 
         /// <summary>
@@ -87,49 +99,11 @@ namespace Renci.SshNet.Channels
 
             var buffer = new byte[RemotePacketSize];
 
-            while (_socket != null && _socket.Connected)
-            {
-                try
-                {
-                    var read = 0;
-                    InternalSocketReceive(buffer, ref read);
-                    if (read > 0)
-                    {
-#if TUNING
-                        SendData(buffer, 0, read);
-#else
-                        SendMessage(new ChannelDataMessage(RemoteChannelNumber, buffer.Take(read).ToArray()));
-#endif
-                    }
-                    else
-                    {
-                        // client shut down the socket (but the server may still send data or an EOF)
-                        break;
-                    }
-                }
-                catch (SocketException exp)
-                {
-                    switch (exp.SocketErrorCode)
-                    {
-                        case SocketError.WouldBlock:
-                        case SocketError.IOPending:
-                        case SocketError.NoBufferSpaceAvailable:
-                            // socket buffer is probably empty, wait and try again
-                            Thread.Sleep(30);
-                            break;
-                        case SocketError.ConnectionAborted:
-                        case SocketError.ConnectionReset:
-                            // connection was closed after receiving SSH_MSG_CHANNEL_CLOSE message
-                            break;
-                        case SocketError.Interrupted:
-                            // connection was closed because FIN/ACK was not received in time after
-                            // shutting down the (send part of the) socket
-                            break;
-                        default:
-                            throw; // throw any other error
-                    }
-                }
-            }
+            SocketAbstraction.ReadContinuous(_socket, buffer, 0, buffer.Length, SendData);
+
+#if DEBUG_GERT
+            Console.WriteLine("ID: " + Thread.CurrentThread.ManagedThreadId + " | ChannelDirectTcpip.Bind (after) '" + LocalChannelNumber + "' | " + DateTime.Now.ToString("hh:mm:ss.fff"));
+#endif // DEBUG_GERT
 
             // even though the client has disconnected, we still want to properly close the
             // channel
@@ -152,9 +126,13 @@ namespace Renci.SshNet.Channels
                 if (_socket == null)
                     return;
 
+#if DEBUG_GERT
+                Console.WriteLine("ID: " + Thread.CurrentThread.ManagedThreadId + " | ChannelDirectTcpip.CloseSocket '" + LocalChannelNumber + "' | " + DateTime.Now.ToString("hh:mm:ss.fff"));
+#endif // DEBUG_GERT
+
                 // closing a socket actually disposes the socket, so we can safely dereference
                 // the field to avoid entering the lock again later
-                _socket.Close();
+                _socket.Dispose();
                 _socket = null;
             }
         }
@@ -170,6 +148,10 @@ namespace Renci.SshNet.Channels
 
             lock (_socketLock)
             {
+#if DEBUG_GERT
+                Console.WriteLine("ID: " + Thread.CurrentThread.ManagedThreadId + " | ChannelDirectTcpip.ShutdownSocket '" + LocalChannelNumber + "' | " + DateTime.Now.ToString("hh:mm:ss.fff"));
+#endif // DEBUG_GERT
+
                 if (_socket == null || !_socket.Connected)
                     return;
 
@@ -184,9 +166,14 @@ namespace Renci.SshNet.Channels
         /// <param name="wait"><c>true</c> to wait for the SSH_MSG_CHANNEL_CLOSE message to be received from the server; otherwise, <c>false</c>.</param>
         protected override void Close(bool wait)
         {
-            if (_forwardedPort != null)
+#if DEBUG_GERT
+            Console.WriteLine("ID: " + Thread.CurrentThread.ManagedThreadId + " | ChannelDirectTcpip.Close(bool) '" + LocalChannelNumber + "' | " + DateTime.Now.ToString("hh:mm:ss.fff"));
+#endif // DEBUG_GERT
+
+            var forwardedPort = _forwardedPort;
+            if (forwardedPort != null)
             {
-                _forwardedPort.Closing -= ForwardedPort_Closing;
+                forwardedPort.Closing -= ForwardedPort_Closing;
                 _forwardedPort = null;
             }
 
@@ -217,7 +204,7 @@ namespace Renci.SshNet.Channels
                 {
                     if (_socket != null && _socket.Connected)
                     {
-                        InternalSocketSend(data);
+                        SocketAbstraction.Send(_socket, data, 0, data.Length);
                     }
                 }
             }
@@ -234,6 +221,10 @@ namespace Renci.SshNet.Channels
             base.OnOpenConfirmation(remoteChannelNumber, initialWindowSize, maximumPacketSize);
 
             _channelOpen.Set();
+
+#if DEBUG_GERT
+            Console.WriteLine("ID: " + Thread.CurrentThread.ManagedThreadId + " |  ChannelOpenMessage confirmed '" + LocalChannelNumber + "' | " + DateTime.Now.ToString("hh:mm:ss.fff"));
+#endif // DEBUG_GERT
         }
 
         protected override void OnOpenFailure(uint reasonCode, string description, string language)
@@ -241,6 +232,10 @@ namespace Renci.SshNet.Channels
             base.OnOpenFailure(reasonCode, description, language);
 
             _channelOpen.Set();
+
+#if DEBUG_GERT
+            Console.WriteLine("ID: " + Thread.CurrentThread.ManagedThreadId + " |  ChannelOpenMessage failure '" + LocalChannelNumber + "' | " + DateTime.Now.ToString("hh:mm:ss.fff"));
+#endif // DEBUG_GERT
         }
 
         /// <summary>
@@ -249,6 +244,11 @@ namespace Renci.SshNet.Channels
         protected override void OnEof()
         {
             base.OnEof();
+
+#if DEBUG_GERT
+            Console.WriteLine("ID: " + Thread.CurrentThread.ManagedThreadId + " | ChannelDirectTcpip.OnEof '" + LocalChannelNumber + "' | " +
+                              DateTime.Now.ToString("hh:mm:ss"));
+#endif // DEBUG_GERT
 
             // the channel will send no more data, and hence it does not make sense to receive
             // any more data from the client to send to the remote party (and we surely won't
@@ -265,6 +265,10 @@ namespace Renci.SshNet.Channels
         protected override void OnErrorOccured(Exception exp)
         {
             base.OnErrorOccured(exp);
+
+#if DEBUG_GERT
+            Console.WriteLine("ID: " + Thread.CurrentThread.ManagedThreadId + " | ChannelDirectTcpip.OnErrorOccured '" + LocalChannelNumber + "' | " + DateTime.Now.ToString("hh:mm:ss"));
+#endif // DEBUG_GERT
 
             // signal to the client that we will not send anything anymore; this will also interrupt the
             // blocking receive in Bind if the client sends FIN/ACK in time
@@ -284,6 +288,10 @@ namespace Renci.SshNet.Channels
         {
             base.OnDisconnected();
 
+#if DEBUG_GERT
+            Console.WriteLine("ID: " + Thread.CurrentThread.ManagedThreadId + " | ChannelDirectTcpip.OnDisconnected '" + LocalChannelNumber + "' | " + DateTime.Now.ToString("hh:mm:ss"));
+#endif // DEBUG_GERT
+
             // the channel will accept or send no more data, and hence it does not make sense
             // to accept any more data from the client (and we surely won't send anything
             // anymore)
@@ -294,10 +302,6 @@ namespace Renci.SshNet.Channels
             ShutdownSocket(SocketShutdown.Both);
         }
 
-        partial void InternalSocketReceive(byte[] buffer, ref int read);
-
-        partial void InternalSocketSend(byte[] data);
-
         protected override void Dispose(bool disposing)
         {
             // make sure we've unsubscribed from all session events and closed the channel
@@ -306,6 +310,10 @@ namespace Renci.SshNet.Channels
 
             if (disposing)
             {
+#if DEBUG_GERT
+                Console.WriteLine("ID: " + Thread.CurrentThread.ManagedThreadId + " | Dispose '" + LocalChannelNumber + "' | " + DateTime.Now.ToString("hh:mm:ss"));
+#endif // DEBUG_GERT
+
                 if (_socket != null)
                 {
                     lock (_socketLock)
@@ -318,15 +326,17 @@ namespace Renci.SshNet.Channels
                     }
                 }
 
-                if (_channelOpen != null)
+                var channelOpen = _channelOpen;
+                if (channelOpen != null)
                 {
-                    _channelOpen.Dispose();
+                    channelOpen.Dispose();
                     _channelOpen = null;
                 }
 
-                if (_channelData != null)
+                var channelData = _channelData;
+                if (channelData != null)
                 {
-                    _channelData.Dispose();
+                    channelData.Dispose();
                     _channelData = null;
                 }
             }

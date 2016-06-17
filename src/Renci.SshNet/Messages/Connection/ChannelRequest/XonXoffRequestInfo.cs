@@ -8,7 +8,7 @@
         /// <summary>
         /// Channel request type
         /// </summary>
-        public const string NAME = "xon-xoff";
+        public const string Name = "xon-xoff";
 
         /// <summary>
         /// Gets the name of the request.
@@ -18,7 +18,7 @@
         /// </value>
         public override string RequestName
         {
-            get { return NAME; }
+            get { return Name; }
         }
 
         /// <summary>
@@ -29,7 +29,6 @@
         /// </value>
         public bool ClientCanDo { get; set; }
 
-#if TUNING
         /// <summary>
         /// Gets the size of the message in bytes.
         /// </summary>
@@ -45,7 +44,6 @@
                 return capacity;
             }
         }
-#endif
 
         /// <summary>
         /// Initializes a new instance of the <see cref="XonXoffRequestInfo"/> class.

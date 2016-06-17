@@ -8,14 +8,12 @@ namespace Renci.SshNet.Messages.Connection
     /// </summary>
     internal class ExecRequestInfo : RequestInfo
     {
-#if TUNING
         private byte[] _command;
-#endif
 
         /// <summary>
         /// Channel request name
         /// </summary>
-        public const string NAME = "exec";
+        public const string Name = "exec";
 
         /// <summary>
         /// Gets the name of the request.
@@ -25,7 +23,7 @@ namespace Renci.SshNet.Messages.Connection
         /// </value>
         public override string RequestName
         {
-            get { return NAME; }
+            get { return Name; }
         }
 
         /// <summary>
@@ -34,14 +32,10 @@ namespace Renci.SshNet.Messages.Connection
         /// <value>
         /// The command.
         /// </value>
-#if TUNING
         public string Command
         {
             get { return Encoding.GetString(_command, 0, _command.Length); }
         }
-#else
-        public string Command { get; private set; }
-#endif
 
         /// <summary>
         /// Gets the encoding.
@@ -51,7 +45,6 @@ namespace Renci.SshNet.Messages.Connection
         /// </value>
         public Encoding Encoding { get; private set; }
 
-#if TUNING
         /// <summary>
         /// Gets the size of the message in bytes.
         /// </summary>
@@ -68,7 +61,6 @@ namespace Renci.SshNet.Messages.Connection
                 return capacity;
             }
         }
-#endif
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ExecRequestInfo"/> class.
@@ -92,11 +84,7 @@ namespace Renci.SshNet.Messages.Connection
             if (encoding == null)
                 throw new ArgumentNullException("encoding");
 
-#if TUNING
             _command = encoding.GetBytes(command);
-#else
-            Command = command;
-#endif
             Encoding = encoding;
         }
 
@@ -107,12 +95,8 @@ namespace Renci.SshNet.Messages.Connection
         {
             base.LoadData();
 
-#if TUNING
             _command = ReadBinary();
             Encoding = Utf8;
-#else
-            Command = ReadString();
-#endif
         }
 
         /// <summary>
@@ -122,11 +106,7 @@ namespace Renci.SshNet.Messages.Connection
         {
             base.SaveData();
 
-#if TUNING
             WriteBinaryString(_command);
-#else
-            Write(Command, Encoding);
-#endif
         }
     }
 }

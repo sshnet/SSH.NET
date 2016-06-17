@@ -14,7 +14,6 @@ namespace Renci.SshNet.Messages.Authentication
         /// </summary>
         public IList<string> Responses { get; private set; }
 
-#if TUNING
         /// <summary>
         /// Gets the size of the message in bytes.
         /// </summary>
@@ -26,7 +25,6 @@ namespace Renci.SshNet.Messages.Authentication
         {
             get { return -1; }
         }
-#endif
 
         /// <summary>
         /// Initializes a new instance of the <see cref="InformationResponseMessage"/> class.

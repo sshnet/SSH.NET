@@ -12,11 +12,10 @@ namespace Renci.SshNet.Sftp.Requests
 
         public byte[] Handle { get; private set; }
 
-        public UInt64 Offset { get; private set; }
+        public ulong Offset { get; private set; }
 
-        public UInt32 Length { get; private set; }
+        public uint Length { get; private set; }
 
-#if TUNING
         /// <summary>
         /// Gets the size of the message in bytes.
         /// </summary>
@@ -35,35 +34,30 @@ namespace Renci.SshNet.Sftp.Requests
                 return capacity;
             }
         }
-#endif
 
         public SftpReadRequest(uint protocolVersion, uint requestId, byte[] handle, UInt64 offset, UInt32 length, Action<SftpDataResponse> dataAction, Action<SftpStatusResponse> statusAction)
             : base(protocolVersion, requestId, statusAction)
         {
-            this.Handle = handle;
-            this.Offset = offset;
-            this.Length = length;
-            this.SetAction(dataAction);
+            Handle = handle;
+            Offset = offset;
+            Length = length;
+            SetAction(dataAction);
         }
 
         protected override void LoadData()
         {
             base.LoadData();
-#if TUNING
-            this.Handle = this.ReadBinary();
-#else
-            this.Handle = this.ReadBinaryString();
-#endif
-            this.Offset = this.ReadUInt64();
-            this.Length = this.ReadUInt32();
+            Handle = ReadBinary();
+            Offset = ReadUInt64();
+            Length = ReadUInt32();
         }
 
         protected override void SaveData()
         {
             base.SaveData();
-            this.WriteBinaryString(this.Handle);
-            this.Write(this.Offset);
-            this.Write(this.Length);
+            WriteBinaryString(Handle);
+            Write(Offset);
+            Write(Length);
         }
     }
 }

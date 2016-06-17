@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Security.Cryptography;
 
 namespace Renci.SshNet
@@ -30,7 +29,7 @@ namespace Renci.SshNet
         public HashInfo(int keySize, Func<byte[], HashAlgorithm> hash)
         {
             KeySize = keySize;
-            HashAlgorithm = key => (hash(key.Take(KeySize / 8).ToArray()));
+            HashAlgorithm = key => (hash(key.Take(KeySize / 8)));
         }
     }
 }

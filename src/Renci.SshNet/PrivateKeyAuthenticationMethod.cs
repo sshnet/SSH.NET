@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Collections.ObjectModel;
 using Renci.SshNet.Messages.Authentication;
 using Renci.SshNet.Messages;
@@ -15,9 +14,7 @@ namespace Renci.SshNet
     public class PrivateKeyAuthenticationMethod : AuthenticationMethod, IDisposable
     {
         private AuthenticationResult _authenticationResult = AuthenticationResult.Failure;
-
         private EventWaitHandle _authenticationCompleted = new ManualResetEvent(false);
-
         private bool _isSignatureRequired;
 
         /// <summary>
@@ -129,7 +126,7 @@ namespace Renci.SshNet
                 _authenticationResult = AuthenticationResult.Failure;
 
             //  Copy allowed authentication methods
-            AllowedAuthentications = e.Message.AllowedAuthentications.ToList();
+            AllowedAuthentications = e.Message.AllowedAuthentications;
 
             _authenticationCompleted.Set();
         }
@@ -154,7 +151,6 @@ namespace Renci.SshNet
         public void Dispose()
         {
             Dispose(true);
-
             GC.SuppressFinalize(this);
         }
 
@@ -164,22 +160,18 @@ namespace Renci.SshNet
         /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
-            // Check to see if Dispose has already been called.
-            if (!_isDisposed)
+            if (_isDisposed)
+                return;
+
+            if (disposing)
             {
-                // If disposing equals true, dispose all managed
-                // and unmanaged resources.
-                if (disposing)
+                var authenticationCompleted = _authenticationCompleted;
+                if (authenticationCompleted != null)
                 {
-                    // Dispose managed resources.
-                    if (_authenticationCompleted != null)
-                    {
-                        _authenticationCompleted.Dispose();
-                        _authenticationCompleted = null;
-                    }
+                    authenticationCompleted.Dispose();
+                    _authenticationCompleted = null;
                 }
 
-                // Note disposing has been done.
                 _isDisposed = true;
             }
         }
@@ -190,9 +182,6 @@ namespace Renci.SshNet
         /// </summary>
         ~PrivateKeyAuthenticationMethod()
         {
-            // Do not re-create Dispose clean-up code here.
-            // Calling Dispose(false) is optimal in terms of
-            // readability and maintainability.
             Dispose(false);
         }
 
@@ -206,30 +195,28 @@ namespace Renci.SshNet
             private readonly byte[] _serviceName;
             private readonly byte[] _authenticationMethod;
 
-#if TUNING
-        protected override int BufferCapacity
-        {
-            get
+            protected override int BufferCapacity
             {
-                var capacity = base.BufferCapacity;
-                capacity += 4; // SessionId length
-                capacity += _sessionId.Length; // SessionId
-                capacity += 1; // Authentication Message Code
-                capacity += 4; // UserName length
-                capacity += _message.Username.Length; // UserName
-                capacity += 4; // ServiceName length
-                capacity += _serviceName.Length; // ServiceName
-                capacity += 4; // AuthenticationMethod length
-                capacity += _authenticationMethod.Length; // AuthenticationMethod
-                capacity += 1; // TRUE
-                capacity += 4; // PublicKeyAlgorithmName length
-                capacity += _message.PublicKeyAlgorithmName.Length; // PublicKeyAlgorithmName
-                capacity += 4; // PublicKeyData length
-                capacity += _message.PublicKeyData.Length; // PublicKeyData
-                return capacity;
+                get
+                {
+                    var capacity = base.BufferCapacity;
+                    capacity += 4; // SessionId length
+                    capacity += _sessionId.Length; // SessionId
+                    capacity += 1; // Authentication Message Code
+                    capacity += 4; // UserName length
+                    capacity += _message.Username.Length; // UserName
+                    capacity += 4; // ServiceName length
+                    capacity += _serviceName.Length; // ServiceName
+                    capacity += 4; // AuthenticationMethod length
+                    capacity += _authenticationMethod.Length; // AuthenticationMethod
+                    capacity += 1; // TRUE
+                    capacity += 4; // PublicKeyAlgorithmName length
+                    capacity += _message.PublicKeyAlgorithmName.Length; // PublicKeyAlgorithmName
+                    capacity += 4; // PublicKeyData length
+                    capacity += _message.PublicKeyData.Length; // PublicKeyData
+                    return capacity;
+                }
             }
-        }
-#endif
 
             public SignatureData(RequestMessagePublicKey message, byte[] sessionId)
             {

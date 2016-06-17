@@ -1,11 +1,5 @@
 ﻿using System;
-#if !TUNING
-using System.Collections.Generic;
-#endif
 using System.IO;
-#if !TUNING
-using System.Linq;
-#endif
 using Renci.SshNet.Common;
 using System.Globalization;
 using Renci.SshNet.Sftp.Responses;
@@ -17,11 +11,7 @@ namespace Renci.SshNet.Sftp
     {
         public static SftpMessage Load(uint protocolVersion, byte[] data, Encoding encoding)
         {
-#if TUNING
             var messageType = (SftpMessageTypes) data[4]; // skip packet length bytes
-#else
-            var messageType = (SftpMessageTypes)data.FirstOrDefault();
-#endif
 
             return Load(protocolVersion, data, messageType, encoding);
         }
@@ -30,17 +20,12 @@ namespace Renci.SshNet.Sftp
         {
             get
             {
-#if TUNING
                 // 4 bytes for the length of the SFTP data
                 // 1 byte for the SFTP message type
                 return 5;
-#else
-                return 1;
-#endif
             }
         }
 
-#if TUNING
         /// <summary>
         /// Gets the size of the message in bytes.
         /// </summary>
@@ -51,7 +36,6 @@ namespace Renci.SshNet.Sftp
         {
             get { return ZeroReaderIndex; }
         }
-#endif
 
         public abstract SftpMessageTypes SftpMessageType { get; }
 
@@ -64,7 +48,6 @@ namespace Renci.SshNet.Sftp
             Write((byte) SftpMessageType);
         }
 
-#if TUNING
         /// <summary>
         /// Writes the current message to the specified <see cref="SshDataStream"/>.
         /// </summary>
@@ -95,127 +78,11 @@ namespace Renci.SshNet.Sftp
             // move back to we were positioned when we finished writing the SFTP message data
             stream.Position = endPosition;
         }
-#endif
 
         protected SftpFileAttributes ReadAttributes()
         {
-#if TUNING
             return SftpFileAttributes.FromBytes(DataStream);
-#else
-            var flag = ReadUInt32();
-
-            long size = -1;
-            var userId = -1;
-            var groupId = -1;
-            uint permissions = 0;
-            var accessTime = DateTime.MinValue;
-            var modifyTime = DateTime.MinValue;
-            IDictionary<string, string> extensions = null;
-
-            if ((flag & 0x00000001) == 0x00000001)   //  SSH_FILEXFER_ATTR_SIZE
-            {
-                size = (long)ReadUInt64();
-            }
-
-            if ((flag & 0x00000002) == 0x00000002)   //  SSH_FILEXFER_ATTR_UIDGID
-            {
-                userId = (int)ReadUInt32();
-
-                groupId = (int)ReadUInt32();
-            }
-
-            if ((flag & 0x00000004) == 0x00000004)   //  SSH_FILEXFER_ATTR_PERMISSIONS
-            {
-                permissions = ReadUInt32();
-            }
-
-            if ((flag & 0x00000008) == 0x00000008)   //  SSH_FILEXFER_ATTR_ACMODTIME
-            {
-                var time = ReadUInt32();
-                accessTime = DateTime.FromFileTime((time + 11644473600) * 10000000);
-                time = ReadUInt32();
-                modifyTime = DateTime.FromFileTime((time + 11644473600) * 10000000);
-            }
-
-            if ((flag & 0x80000000) == 0x80000000)   //  SSH_FILEXFER_ATTR_ACMODTIME
-            {
-                var extendedCount = ReadUInt32();
-                extensions = ReadExtensionPair();
-            }
-            var attributes = new SftpFileAttributes(accessTime, modifyTime, size, userId, groupId, permissions, extensions);
-
-            return attributes;
-#endif
         }
-
-#if !TUNING
-        protected void Write(SftpFileAttributes attributes)
-        {
-            if (attributes == null)
-            {
-                Write((uint)0);
-                return;
-            }
-
-            UInt32 flag = 0;
-
-            if (attributes.IsSizeChanged && attributes.IsRegularFile)
-            {
-                flag |= 0x00000001;
-            }
-
-            if (attributes.IsUserIdChanged|| attributes.IsGroupIdChanged)
-            {
-                flag |= 0x00000002;
-            }
-
-            if (attributes.IsPermissionsChanged)
-            {
-                flag |= 0x00000004;
-            }
-
-            if (attributes.IsLastAccessTimeChanged || attributes.IsLastWriteTimeChanged)
-            {
-                flag |= 0x00000008;
-            }
-
-            if (attributes.IsExtensionsChanged)
-            {
-                flag |= 0x80000000;
-            }
-
-            Write(flag);
-
-            if (attributes.IsSizeChanged && attributes.IsRegularFile)
-            {
-                Write((UInt64)attributes.Size);
-            }
-
-            if (attributes.IsUserIdChanged|| attributes.IsGroupIdChanged)
-            {
-                Write((UInt32)attributes.UserId);
-                Write((UInt32)attributes.GroupId);
-            }
-
-            if (attributes.IsPermissionsChanged)
-            {
-                Write(attributes.Permissions);
-            }
-
-            if (attributes.IsLastAccessTimeChanged || attributes.IsLastWriteTimeChanged)
-            {
-                var time = (uint)(attributes.LastAccessTime.ToFileTime() / 10000000 - 11644473600);
-                Write(time);
-                time = (uint)(attributes.LastWriteTime.ToFileTime() / 10000000 - 11644473600);
-                Write(time);
-            }
-
-            if (attributes.IsExtensionsChanged)
-            {
-                Write(attributes.Extensions);
-            }
-        }
-#endif
 
         private static SftpMessage Load(uint protocolVersion, byte[] data, SftpMessageTypes messageType, Encoding encoding)
         {
@@ -248,15 +115,7 @@ namespace Renci.SshNet.Sftp
                     throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "Message type '{0}' is not supported.", messageType));
             }
 
-#if TUNING
             message.Load(data);
-#else
-            message.LoadBytes(data);
-
-            message.ResetReader();
-
-            message.LoadData();
-#endif
 
             return message;
         }

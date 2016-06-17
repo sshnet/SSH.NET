@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Renci.SshNet.Messages.Transport
+﻿namespace Renci.SshNet.Messages.Transport
 {
     /// <summary>
     /// Represents SSH_MSG_NEWKEYS message.

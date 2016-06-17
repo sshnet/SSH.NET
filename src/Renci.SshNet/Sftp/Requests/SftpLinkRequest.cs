@@ -5,39 +5,28 @@ namespace Renci.SshNet.Sftp.Requests
 {
     internal class SftpLinkRequest : SftpRequest
     {
-#if TUNING
         private byte[] _newLinkPath;
         private byte[] _existingPath;
-#endif
 
         public override SftpMessageTypes SftpMessageType
         {
             get { return SftpMessageTypes.Link; }
         }
 
-#if TUNING
         public string NewLinkPath
         {
             get { return Utf8.GetString(_newLinkPath, 0, _newLinkPath.Length); }
             private set { _newLinkPath = Utf8.GetBytes(value); }
         }
-#else
-        public string NewLinkPath { get; private set; }
-#endif
 
-#if TUNING
         public string ExistingPath
         {
             get { return Utf8.GetString(_existingPath, 0, _existingPath.Length); }
             private set { _existingPath = Utf8.GetBytes(value); }
         }
-#else
-        public string ExistingPath { get; private set; }
-#endif
 
         public bool IsSymLink { get; private set; }
 
-#if TUNING
         /// <summary>
         /// Gets the size of the message in bytes.
         /// </summary>
@@ -57,7 +46,6 @@ namespace Renci.SshNet.Sftp.Requests
                 return capacity;
             }
         }
-#endif
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SftpLinkRequest" /> class.
@@ -71,35 +59,25 @@ namespace Renci.SshNet.Sftp.Requests
         public SftpLinkRequest(uint protocolVersion, uint requestId, string newLinkPath, string existingPath, bool isSymLink, Action<SftpStatusResponse> statusAction)
             : base(protocolVersion, requestId, statusAction)
         {
-            this.NewLinkPath = newLinkPath;
-            this.ExistingPath = existingPath;
-            this.IsSymLink = isSymLink;
+            NewLinkPath = newLinkPath;
+            ExistingPath = existingPath;
+            IsSymLink = isSymLink;
         }
 
         protected override void LoadData()
         {
             base.LoadData();
-#if TUNING
             _newLinkPath = ReadBinary();
             _existingPath = ReadBinary();
-#else
-            this.NewLinkPath = this.ReadString();
-            this.ExistingPath = this.ReadString();
-#endif
-            this.IsSymLink = this.ReadBoolean();
+            IsSymLink = ReadBoolean();
         }
 
         protected override void SaveData()
         {
             base.SaveData();
-#if TUNING
             WriteBinaryString(_newLinkPath);
             WriteBinaryString(_existingPath);
-#else
-            this.Write(this.NewLinkPath);
-            this.Write(this.ExistingPath);
-#endif
-            this.Write(this.IsSymLink);
+            Write(IsSymLink);
         }
     }
 }

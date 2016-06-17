@@ -29,7 +29,7 @@ namespace Renci.SshNet.Security
             get
             {
                 BigInteger prime;
-                BigInteger.TryParse(SecondOkleyGroup, NumberStyles.AllowHexSpecifier, CultureInfo.CurrentCulture, out prime);
+                BigInteger.TryParse(SecondOkleyGroup, NumberStyles.AllowHexSpecifier, NumberFormatInfo.CurrentInfo, out prime);
                 return prime;
             }
         }

@@ -54,7 +54,7 @@ namespace Renci.SshNet.Common
 
             KeyLength = host.Key.KeyLength;
 
-            using (var md5 = new MD5Hash())
+            using (var md5 = HashAlgorithmFactory.CreateMD5())
             {
                 FingerPrint = md5.ComputeHash(host.Data);
             }

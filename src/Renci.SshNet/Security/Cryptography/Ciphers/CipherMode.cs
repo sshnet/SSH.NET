@@ -1,6 +1,4 @@
-﻿using System.Linq;
-
-namespace Renci.SshNet.Security.Cryptography.Ciphers
+﻿namespace Renci.SshNet.Security.Cryptography.Ciphers
 {
     /// <summary>
     /// Base class for cipher mode implementations
@@ -28,7 +26,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <param name="iv">The iv.</param>
         protected CipherMode(byte[] iv)
         {
-            this.IV = iv;
+            IV = iv;
         }
 
         /// <summary>
@@ -37,9 +35,9 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <param name="cipher">The cipher.</param>
         internal void Init(BlockCipher cipher)
         {
-            this.Cipher = cipher;
-            this._blockSize = cipher.BlockSize;
-            this.IV = this.IV.Take(this._blockSize).ToArray();
+            Cipher = cipher;
+            _blockSize = cipher.BlockSize;
+            IV = IV.Take(_blockSize);
         }
 
         /// <summary>

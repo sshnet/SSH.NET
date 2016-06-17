@@ -1,11 +1,10 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
 using Renci.SshNet.Common;
 using System.Globalization;
+using Renci.SshNet.Abstractions;
 using Renci.SshNet.Compression;
-using Renci.SshNet.Sftp;
+using Renci.SshNet.Security.Cryptography;
 
 namespace Renci.SshNet.Messages
 {
@@ -14,8 +13,6 @@ namespace Renci.SshNet.Messages
     /// </summary>
     public abstract class Message : SshData
     {
-        private static readonly RNGCryptoServiceProvider Randomizer = new RNGCryptoServiceProvider();
-
         /// <summary>
         /// Gets the index that represents zero in current data type.
         /// </summary>
@@ -30,7 +27,6 @@ namespace Renci.SshNet.Messages
             }
         }
 
-#if TUNING
         /// <summary>
         /// Gets the size of the message in bytes.
         /// </summary>
@@ -50,7 +46,7 @@ namespace Renci.SshNet.Messages
         /// </summary>
         protected override void WriteBytes(SshDataStream stream)
         {
-            var messageAttribute = GetType().GetCustomAttributes(typeof(MessageAttribute), true).FirstOrDefault() as MessageAttribute;
+            var messageAttribute = GetType().GetCustomAttributes<MessageAttribute>(true).FirstOrDefault();
 
             if (messageAttribute == null)
                 throw new SshException(string.Format(CultureInfo.CurrentCulture, "Type '{0}' is not a valid message type.", GetType().AssemblyQualifiedName));
@@ -104,7 +100,7 @@ namespace Renci.SshNet.Messages
 
                 // add padding bytes
                 var paddingBytes = new byte[paddingLength];
-                Randomizer.GetBytes(paddingBytes);
+                HashAlgorithmFactory.GenerateRandom(paddingBytes);
                 sshDataStream.Write(paddingBytes, 0, paddingLength);
 
                 var packetDataLength = GetPacketDataLength(messageLength, paddingLength);
@@ -144,7 +140,7 @@ namespace Renci.SshNet.Messages
 
                 // add padding bytes
                 var paddingBytes = new byte[paddingLength];
-                Randomizer.GetBytes(paddingBytes);
+                HashAlgorithmFactory.GenerateRandom(paddingBytes);
                 sshDataStream.Write(paddingBytes, 0, paddingLength);
             }
 
@@ -166,26 +162,6 @@ namespace Renci.SshNet.Messages
             return paddingLength;
         }
 
-#else
-        /// <summary>
-        /// Gets data bytes array
-        /// </summary>
-        /// <returns>Byte array representation of the message</returns>
-        public override byte[] GetBytes()
-        {
-            var messageAttribute = GetType().GetCustomAttributes(typeof(MessageAttribute), true).SingleOrDefault() as MessageAttribute;
-
-            if (messageAttribute == null)
-                throw new SshException(string.Format(CultureInfo.CurrentCulture, "Type '{0}' is not a valid message type.", GetType().AssemblyQualifiedName));
-
-            var data = new List<byte>(base.GetBytes());
-
-            data.Insert(0, messageAttribute.Number);
-
-            return data.ToArray();
-        }
-#endif
-
         /// <summary>
         /// Returns a <see cref="System.String"/> that represents this instance.
         /// </summary>
@@ -194,7 +170,7 @@ namespace Renci.SshNet.Messages
         /// </returns>
         public override string ToString()
         {
-            var messageAttribute = GetType().GetCustomAttributes(typeof(MessageAttribute), true).SingleOrDefault() as MessageAttribute;
+            var messageAttribute = GetType().GetCustomAttributes<MessageAttribute>(true).SingleOrDefault();
 
             if (messageAttribute == null)
                 return string.Format(CultureInfo.CurrentCulture, "'{0}' without Message attribute.", GetType().FullName);

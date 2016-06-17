@@ -1,5 +1,4 @@
-﻿using System;
-using Renci.SshNet.Common;
+﻿using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Messages.Transport
 {
@@ -11,10 +10,8 @@ namespace Renci.SshNet.Messages.Transport
     {
         internal const byte MessageNumber = 31;
 
-#if TUNING
         private byte[] _safePrime;
         private byte[] _subGroup;
-#endif
 
         /// <summary>
         /// Gets or sets the safe prime.
@@ -22,14 +19,10 @@ namespace Renci.SshNet.Messages.Transport
         /// <value>
         /// The safe prime.
         /// </value>
-#if TUNING
         public BigInteger SafePrime
         {
             get { return _safePrime.ToBigInteger(); }
         }
-#else
-        public BigInteger SafePrime { get; private set; }
-#endif
 
         /// <summary>
         /// Gets or sets the generator for subgroup in GF(p).
@@ -37,16 +30,11 @@ namespace Renci.SshNet.Messages.Transport
         /// <value>
         /// The sub group.
         /// </value>
-#if TUNING
         public BigInteger SubGroup
         {
             get { return _subGroup.ToBigInteger(); }
         }
-#else
-        public BigInteger SubGroup { get; private set; }
-#endif
 
-#if TUNING
         /// <summary>
         /// Gets the size of the message in bytes.
         /// </summary>
@@ -66,20 +54,14 @@ namespace Renci.SshNet.Messages.Transport
                 return capacity;
             }
         }
-#endif
 
         /// <summary>
         /// Called when type specific data need to be loaded.
         /// </summary>
         protected override void LoadData()
         {
-#if TUNING
             _safePrime = ReadBinary();
             _subGroup = ReadBinary();
-#else
-            SafePrime = ReadBigInt();
-            SubGroup = ReadBigInt();
-#endif
         }
 
         /// <summary>
@@ -87,13 +69,8 @@ namespace Renci.SshNet.Messages.Transport
         /// </summary>
         protected override void SaveData()
         {
-#if TUNING
             WriteBinaryString(_safePrime);
             WriteBinaryString(_subGroup);
-#else
-            Write(SafePrime);
-            Write(SubGroup);
-#endif
         }
     }
 }

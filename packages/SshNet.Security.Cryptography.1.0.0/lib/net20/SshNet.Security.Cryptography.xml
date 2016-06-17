@@ -1,0 +1,1161 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>SshNet.Security.Cryptography</name>
+    </assembly>
+    <members>
+        <member name="P:SshNet.Security.Cryptography.HashProviderBase.Hash">
+            <summary>
+            Gets the value of the computed hash code.
+            </summary>
+            <value>
+            The current value of the computed hash code.
+            </value>
+            <exception cref="T:System.ObjectDisposedException">The object has already been disposed.</exception>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.HashProviderBase.TransformBlock(System.Byte[],System.Int32,System.Int32,System.Byte[],System.Int32)">
+            <summary>
+            Computes the hash value for the specified region of the input byte array and copies the specified
+            region of the input byte array to the specified region of the output byte array.
+            </summary>
+            <param name="inputBuffer">The input to compute the hash code for.</param>
+            <param name="inputOffset">The offset into the input byte array from which to begin using data.</param>
+            <param name="inputCount">The number of bytes in the input byte array to use as data.</param>
+            <param name="outputBuffer">A copy of the part of the input array used to compute the hash code.</param>
+            <param name="outputOffset">The offset into the output byte array from which to begin writing data.</param>
+            <returns>
+            The number of bytes written.
+            </returns>
+            <exception cref="T:System.ArgumentException">
+            <para><paramref name="inputCount"/> uses an invalid value.</para>
+            <para>-or-</para>
+            <para><paramref name="inputBuffer"/> has an invalid length.</para>
+            </exception>
+            <exception cref="T:System.ArgumentNullException"><paramref name="inputBuffer"/> is <c>null</c>.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException"><paramref name="inputOffset"/> is out of range. This parameter requires a non-negative number.</exception>
+            <exception cref="T:System.ObjectDisposedException">The object has already been disposed.</exception>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.HashProviderBase.TransformFinalBlock(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Computes the hash value for the specified region of the specified byte array.
+            </summary>
+            <param name="inputBuffer">The input to compute the hash code for.</param>
+            <param name="inputOffset">The offset into the byte array from which to begin using data.</param>
+            <param name="inputCount">The number of bytes in the byte array to use as data.</param>
+            <returns>
+            An array that is a copy of the part of the input that is hashed.
+            </returns>
+            <exception cref="T:System.ArgumentException">
+            <para><paramref name="inputCount"/> uses an invalid value.</para>
+            <para>-or-</para>
+            <para><paramref name="inputBuffer"/> has an invalid length.</para>
+            </exception>
+            <exception cref="T:System.ArgumentNullException"><paramref name="inputBuffer"/> is <c>null</c>.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException"><paramref name="inputOffset"/> is out of range. This parameter requires a non-negative number.</exception>
+            <exception cref="T:System.ObjectDisposedException">The object has already been disposed.</exception>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.HashProviderBase.ComputeHash(System.Byte[])">
+            <summary>
+            Computes the hash value for the input data.
+            </summary>
+            <param name="buffer">The input to compute the hash code for.</param>
+            <returns>
+            The computed hash code.
+            </returns>
+            <exception cref="T:System.ArgumentNullException"><paramref name="buffer"/> is <c>null</c>.</exception>
+            <exception cref="T:System.ObjectDisposedException">The object has already been disposed.</exception>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.HashProviderBase.Dispose">
+            <summary>
+            Releases all resources used by the current instance of the <see cref="T:SshNet.Security.Cryptography.HashProviderBase"/> class.
+            </summary>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.HashProviderBase.Dispose(System.Boolean)">
+            <summary>
+            Releases the unmanaged resources used by the <see cref="T:SshNet.Security.Cryptography.HashProviderBase"/> and optionally releases the managed resources.
+            </summary>
+            <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        </member>
+        <member name="P:SshNet.Security.Cryptography.HashProviderBase.HashSize">
+            <summary>
+            Gets the size, in bits, of the computed hash code.
+            </summary>
+            <returns>
+            The size, in bits, of the computed hash code.
+            </returns>
+        </member>
+        <member name="P:SshNet.Security.Cryptography.HashProviderBase.InputBlockSize">
+            <summary>
+            Gets the input block size.
+            </summary>
+            <returns>
+            The input block size.
+            </returns>
+        </member>
+        <member name="P:SshNet.Security.Cryptography.HashProviderBase.OutputBlockSize">
+            <summary>
+            Gets the output block size.
+            </summary>
+            <returns>
+            The output block size.
+            </returns>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.HashProviderBase.Initialize">
+            <summary>
+            Initializes an implementation of the <see cref="T:SshNet.Security.Cryptography.HashProviderBase"/>.
+            </summary>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.HashProviderBase.HashCore(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Routes data written to the object into the hash algorithm for computing the hash.
+            </summary>
+            <param name="array">The input to compute the hash code for.</param>
+            <param name="ibStart">The offset into the byte array from which to begin using data.</param>
+            <param name="cbSize">The number of bytes in the byte array to use as data.</param>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.HashProviderBase.HashFinal">
+            <summary>
+            Finalizes the hash computation after the last data is processed by the cryptographic stream object.
+            </summary>
+            <returns>
+            The computed hash code.
+            </returns>
+        </member>
+        <member name="T:SshNet.Security.Cryptography.HMAC">
+            <summary>
+            Provides HMAC algorithm implementation.
+            </summary>
+        </member>
+        <member name="P:SshNet.Security.Cryptography.HMAC.BlockSize">
+            <summary>
+            Gets the size of the block.
+            </summary>
+            <value>
+            The size of the block.
+            </value>
+        </member>
+        <member name="P:SshNet.Security.Cryptography.HMAC.HashSize">
+            <summary>
+            Gets the size, in bits, of the computed hash code.
+            </summary>
+            <value>
+            The size, in bits, of the computed hash code.
+            </value>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.HMAC.#ctor(SshNet.Security.Cryptography.IHashProvider)">
+            <summary>
+            Initializes a <see cref="T:SshNet.Security.Cryptography.HMAC"/> with the specified hash algorithm.
+            </summary>
+            <param name="hashProvider">The hash provider.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="hashProvider"/> is <c>null</c>.</exception>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.HMAC.#ctor(SshNet.Security.Cryptography.IHashProvider,System.Byte[],System.Int32)">
+            <summary>
+            Initializes a <see cref="T:SshNet.Security.Cryptography.HMAC"/> with the specified hash algorithm, key and size of the computed
+            hash code.
+            </summary>
+            <param name="hashProvider">The hash provider.</param>
+            <param name="key">The key.</param>
+            <param name="hashSize">The size, in bits, of the computed hash code.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="hashProvider"/> is <c>null</c>.</exception>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.HMAC.#ctor(SshNet.Security.Cryptography.IHashProvider,System.Byte[])">
+            <summary>
+            Initializes a <see cref="T:SshNet.Security.Cryptography.HMAC"/> with the specified hash algorithm and key.
+            </summary>
+            <param name="hashProvider">The hash provider.</param>
+            <param name="key">The key.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="hashProvider"/> is <c>null</c>.</exception>
+        </member>
+        <member name="P:SshNet.Security.Cryptography.HMAC.Key">
+            <summary>
+            Gets or sets the key to use in the hash algorithm.
+            </summary>
+            <returns>
+            The key to use in the hash algorithm.
+            </returns>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.HMAC.Initialize">
+            <summary>
+            Initializes an implementation of the <see cref="T:System.Security.Cryptography.HashAlgorithm" /> class.
+            </summary>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.HMAC.HashCore(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Hashes the core.
+            </summary>
+            <param name="rgb">The RGB.</param>
+            <param name="ib">The ib.</param>
+            <param name="cb">The cb.</param>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.HMAC.HashFinal">
+            <summary>
+            Finalizes the hash computation after the last data is processed by the cryptographic stream object.
+            </summary>
+            <returns>
+            The computed hash code.
+            </returns>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.HMAC.Dispose(System.Boolean)">
+            <summary>
+            Releases unmanaged and - optionally - managed resources
+            </summary>
+            <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged ResourceMessages.</param>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.HMAC.GetShortenedKey(System.Byte[])">
+            <summary>
+            Return a key that fits the <see cref="P:SshNet.Security.Cryptography.HMAC.BlockSize"/> of the <see cref="T:System.Security.Cryptography.HashAlgorithm"/>.
+            </summary>
+            <param name="key">The key to shorten, if necessary.</param>
+            <returns>
+            A hash of <paramref name="key"/> if <paramref name="key"/> is longer than the <see cref="P:SshNet.Security.Cryptography.HMAC.BlockSize"/> of the
+            <see cref="T:System.Security.Cryptography.HashAlgorithm"/>; otherwise, <paramref name="key"/>.
+            </returns>
+        </member>
+        <member name="T:SshNet.Security.Cryptography.HMACMD5">
+            <summary>
+            Computes a Hash-based Message Authentication Code (HMAC) by using the MD5 hash function.
+            </summary>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.HMACMD5.#ctor(System.Byte[])">
+            <summary>
+            Initializes a <see cref="T:SshNet.Security.Cryptography.HMACMD5"/> with the specified key.
+            </summary>
+            <param name="key">The key.</param>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.HMACMD5.#ctor(System.Byte[],System.Int32)">
+            <summary>
+            Initializes a <see cref="T:SshNet.Security.Cryptography.HMACMD5"/> with the specified key and size of the computed hash code.
+            </summary>
+            <param name="key">The key.</param>
+            <param name="hashSize">The size, in bits, of the computed hash code.</param>
+        </member>
+        <member name="P:SshNet.Security.Cryptography.HMACMD5.BlockSize">
+            <summary>
+            Gets or sets the block size, in bytes, to use in the hash value.
+            </summary>
+            <value>
+            The block size to use in the hash value. For <see cref="T:SshNet.Security.Cryptography.HMACMD5"/> this is 64 bytes.
+            </value>
+        </member>
+        <member name="T:SshNet.Security.Cryptography.HMACRIPEMD160">
+            <summary>
+            Computes a Hash-based Message Authentication Code (HMAC) by using the <see cref="T:SshNet.Security.Cryptography.RIPEMD160"/> hash function.
+            </summary>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.HMACRIPEMD160.#ctor(System.Byte[])">
+            <summary>
+            Initializes a <see cref="T:SshNet.Security.Cryptography.HMACRIPEMD160"/> with the specified key.
+            </summary>
+            <param name="key">The key.</param>
+        </member>
+        <member name="P:SshNet.Security.Cryptography.HMACRIPEMD160.BlockSize">
+            <summary>
+            Gets or sets the block size, in bytes, to use in the hash value.
+            </summary>
+            <value>
+            The block size to use in the hash value. For <see cref="T:SshNet.Security.Cryptography.HMACRIPEMD160"/> this is 64 bytes.
+            </value>
+        </member>
+        <member name="T:SshNet.Security.Cryptography.HMACSHA1">
+            <summary>
+            Computes a Hash-based Message Authentication Code (HMAC) by using the <see cref="T:SshNet.Security.Cryptography.SHA1"/> hash function.
+            </summary>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.HMACSHA1.#ctor(System.Byte[])">
+            <summary>
+            Initializes a <see cref="T:SshNet.Security.Cryptography.HMACSHA1"/> with the specified key.
+            </summary>
+            <param name="key">The key.</param>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.HMACSHA1.#ctor(System.Byte[],System.Int32)">
+            <summary>
+            Initializes a <see cref="T:SshNet.Security.Cryptography.HMACSHA1"/> with the specified key and size of the computed hash code.
+            </summary>
+            <param name="key">The key.</param>
+            <param name="hashSize">The size, in bits, of the computed hash code.</param>
+        </member>
+        <member name="P:SshNet.Security.Cryptography.HMACSHA1.BlockSize">
+            <summary>
+            Gets or sets the block size, in bytes, to use in the hash value.
+            </summary>
+            <value>
+            The block size to use in the hash value. For <see cref="T:SshNet.Security.Cryptography.HMACSHA1"/> this is 64 bytes.
+            </value>
+        </member>
+        <member name="T:SshNet.Security.Cryptography.HMACSHA256">
+            <summary>
+            Computes a Hash-based Message Authentication Code (HMAC) by using the <see cref="T:SshNet.Security.Cryptography.HMACSHA256"/> hash function.
+            </summary>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.HMACSHA256.#ctor(System.Byte[])">
+            <summary>
+            Initializes a <see cref="T:SshNet.Security.Cryptography.HMACSHA256"/> with the specified key.
+            </summary>
+            <param name="key">The key.</param>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.HMACSHA256.#ctor(System.Byte[],System.Int32)">
+            <summary>
+            Initializes a <see cref="T:SshNet.Security.Cryptography.HMACSHA256"/> with the specified key and size of the computed hash code.
+            </summary>
+            <param name="key">The key.</param>
+            <param name="hashSize">The size, in bits, of the computed hash code.</param>
+        </member>
+        <member name="P:SshNet.Security.Cryptography.HMACSHA256.BlockSize">
+            <summary>
+            Gets or sets the block size, in bytes, to use in the hash value.
+            </summary>
+            <value>
+            The block size to use in the hash value. For <see cref="T:SshNet.Security.Cryptography.HMACSHA256"/> this is 64 bytes.
+            </value>
+        </member>
+        <member name="T:SshNet.Security.Cryptography.HMACSHA384">
+            <summary>
+            Computes a Hash-based Message Authentication Code (HMAC) by using the <see cref="T:SshNet.Security.Cryptography.HMACSHA384"/> hash function.
+            </summary>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.HMACSHA384.#ctor(System.Byte[])">
+            <summary>
+            Initializes a <see cref="T:SshNet.Security.Cryptography.HMACSHA384"/> with the specified key.
+            </summary>
+            <param name="key">The key.</param>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.HMACSHA384.#ctor(System.Byte[],System.Int32)">
+            <summary>
+            Initializes a <see cref="T:SshNet.Security.Cryptography.HMACSHA384"/> with the specified key and size of the computed hash code.
+            </summary>
+            <param name="key">The key.</param>
+            <param name="hashSize">The size, in bits, of the computed hash code.</param>
+        </member>
+        <member name="P:SshNet.Security.Cryptography.HMACSHA384.BlockSize">
+            <summary>
+            Gets or sets the block size, in bytes, to use in the hash value.
+            </summary>
+            <value>
+            The block size to use in the hash value. For <see cref="T:SshNet.Security.Cryptography.HMACSHA384"/> this is 128 bytes.
+            </value>
+        </member>
+        <member name="T:SshNet.Security.Cryptography.HMACSHA512">
+            <summary>
+            Computes a Hash-based Message Authentication Code (HMAC) by using the <see cref="T:SshNet.Security.Cryptography.HMACSHA512"/> hash function.
+            </summary>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.HMACSHA512.#ctor(System.Byte[])">
+            <summary>
+            Initializes a <see cref="T:SshNet.Security.Cryptography.HMACSHA512"/> with the specified key.
+            </summary>
+            <param name="key">The key.</param>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.HMACSHA512.#ctor(System.Byte[],System.Int32)">
+            <summary>
+            Initializes a <see cref="T:SshNet.Security.Cryptography.HMACSHA512"/> with the specified key and size of the computed hash code.
+            </summary>
+            <param name="key">The key.</param>
+            <param name="hashSize">The size, in bits, of the computed hash code.</param>
+        </member>
+        <member name="P:SshNet.Security.Cryptography.HMACSHA512.BlockSize">
+            <summary>
+            Gets or sets the block size, in bytes, to use in the hash value.
+            </summary>
+            <value>
+            The block size to use in the hash value. For <see cref="T:SshNet.Security.Cryptography.HMACSHA512"/> this is 128 bytes.
+            </value>
+        </member>
+        <member name="P:SshNet.Security.Cryptography.IHashProvider.HashSize">
+            <summary>
+            Gets the size, in bits, of the computed hash code.
+            </summary>
+            <returns>
+            The size, in bits, of the computed hash code.
+            </returns>
+        </member>
+        <member name="P:SshNet.Security.Cryptography.IHashProvider.InputBlockSize">
+            <summary>
+            Gets the input block size.
+            </summary>
+            <returns>
+            The input block size.
+            </returns>
+        </member>
+        <member name="P:SshNet.Security.Cryptography.IHashProvider.OutputBlockSize">
+            <summary>
+            Gets the output block size.
+            </summary>
+            <returns>
+            The output block size.
+            </returns>
+        </member>
+        <member name="P:SshNet.Security.Cryptography.IHashProvider.Hash">
+            <summary>
+            Gets the value of the computed hash code.
+            </summary>
+            <value>
+            The current value of the computed hash code.
+            </value>
+            <exception cref="T:System.ObjectDisposedException">The object has already been disposed.</exception>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.IHashProvider.Initialize">
+            <summary>
+            Initializes an implementation of the <see cref="T:SshNet.Security.Cryptography.IHashProvider"/>.
+            </summary>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.IHashProvider.HashCore(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Routes data written to the object into the hash algorithm for computing the hash.
+            </summary>
+            <param name="array">The input to compute the hash code for.</param>
+            <param name="ibStart">The offset into the byte array from which to begin using data.</param>
+            <param name="cbSize">The number of bytes in the byte array to use as data.</param>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.IHashProvider.HashFinal">
+            <summary>
+            Finalizes the hash computation after the last data is processed by the cryptographic stream object.
+            </summary>
+            <returns>
+            The computed hash code.
+            </returns>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.IHashProvider.TransformBlock(System.Byte[],System.Int32,System.Int32,System.Byte[],System.Int32)">
+            <summary>
+            Computes the hash value for the specified region of the input byte array and copies the specified
+            region of the input byte array to the specified region of the output byte array.
+            </summary>
+            <param name="inputBuffer">The input to compute the hash code for.</param>
+            <param name="inputOffset">The offset into the input byte array from which to begin using data.</param>
+            <param name="inputCount">The number of bytes in the input byte array to use as data.</param>
+            <param name="outputBuffer">A copy of the part of the input array used to compute the hash code.</param>
+            <param name="outputOffset">The offset into the output byte array from which to begin writing data.</param>
+            <returns>
+            The number of bytes written.
+            </returns>
+            <exception cref="T:System.ArgumentException">
+            <para><paramref name="inputCount"/> uses an invalid value.</para>
+            <para>-or-</para>
+            <para><paramref name="inputBuffer"/> has an invalid length.</para>
+            </exception>
+            <exception cref="T:System.ArgumentNullException"><paramref name="inputBuffer"/> is <c>null</c>.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException"><paramref name="inputOffset"/> is out of range. This parameter requires a non-negative number.</exception>
+            <exception cref="T:System.ObjectDisposedException">The object has already been disposed.</exception>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.IHashProvider.TransformFinalBlock(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Computes the hash value for the specified region of the specified byte array.
+            </summary>
+            <param name="inputBuffer">The input to compute the hash code for.</param>
+            <param name="inputOffset">The offset into the byte array from which to begin using data.</param>
+            <param name="inputCount">The number of bytes in the byte array to use as data.</param>
+            <returns>
+            An array that is a copy of the part of the input that is hashed.
+            </returns>
+            <exception cref="T:System.ArgumentException">
+            <para><paramref name="inputCount"/> uses an invalid value.</para>
+            <para>-or-</para>
+            <para><paramref name="inputBuffer"/> has an invalid length.</para>
+            </exception>
+            <exception cref="T:System.ArgumentNullException"><paramref name="inputBuffer"/> is <c>null</c>.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException"><paramref name="inputOffset"/> is out of range. This parameter requires a non-negative number.</exception>
+            <exception cref="T:System.ObjectDisposedException">The object has already been disposed.</exception>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.IHashProvider.ComputeHash(System.Byte[])">
+            <summary>
+            Computes the hash value for the input data.
+            </summary>
+            <param name="buffer">The input to compute the hash code for.</param>
+            <returns>
+            The computed hash code.
+            </returns>
+            <exception cref="T:System.ArgumentNullException"><paramref name="buffer"/> is <c>null</c>.</exception>
+            <exception cref="T:System.ObjectDisposedException">The object has already been disposed.</exception>
+        </member>
+        <member name="T:SshNet.Security.Cryptography.MD5">
+            <summary>
+            MD5 algorithm implementation
+            </summary>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.MD5.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:SshNet.Security.Cryptography.MD5"/> class.
+            </summary>
+        </member>
+        <member name="P:SshNet.Security.Cryptography.MD5.HashSize">
+            <summary>
+            Gets the size, in bits, of the computed hash code.
+            </summary>
+            <returns>
+            The size, in bits, of the computed hash code.
+            </returns>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.MD5.HashCore(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Routes data written to the object into the hash algorithm for computing the hash.
+            </summary>
+            <param name="array">The input to compute the hash code for.</param>
+            <param name="ibStart">The offset into the byte array from which to begin using data.</param>
+            <param name="cbSize">The number of bytes in the byte array to use as data.</param>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.MD5.HashFinal">
+            <summary>
+            Finalizes the hash computation after the last data is processed by the cryptographic stream object.
+            </summary>
+            <returns>
+            The computed hash code.
+            </returns>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.MD5.Initialize">
+            <summary>
+            Initializes an implementation of the <see cref="T:System.Security.Cryptography.HashAlgorithm"/> class.
+            </summary>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.MD5.Dispose(System.Boolean)">
+            <summary>
+            Releases the unmanaged resources used by the <see cref="T:SshNet.Security.Cryptography.MD5"/> and optionally releases the managed resources.
+            </summary>
+            <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        </member>
+        <member name="F:SshNet.Security.Cryptography.MD5HashProvider._x">
+            <summary>
+            The word buffer.
+            </summary>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.MD5HashProvider.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:SshNet.Security.Cryptography.MD5HashProvider"/> class.
+            </summary>
+        </member>
+        <member name="P:SshNet.Security.Cryptography.MD5HashProvider.HashSize">
+            <summary>
+            Gets the size, in bits, of the computed hash code.
+            </summary>
+            <returns>
+            The size, in bits, of the computed hash code.
+            </returns>
+        </member>
+        <member name="P:SshNet.Security.Cryptography.MD5HashProvider.InputBlockSize">
+            <summary>
+            Gets the input block size.
+            </summary>
+            <returns>
+            The input block size.
+            </returns>
+        </member>
+        <member name="P:SshNet.Security.Cryptography.MD5HashProvider.OutputBlockSize">
+            <summary>
+            Gets the output block size.
+            </summary>
+            <returns>
+            The output block size.
+            </returns>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.MD5HashProvider.HashCore(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Routes data written to the object into the hash algorithm for computing the hash.
+            </summary>
+            <param name="array">The input to compute the hash code for.</param>
+            <param name="ibStart">The offset into the byte array from which to begin using data.</param>
+            <param name="cbSize">The number of bytes in the byte array to use as data.</param>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.MD5HashProvider.HashFinal">
+            <summary>
+            Finalizes the hash computation after the last data is processed by the cryptographic stream object.
+            </summary>
+            <returns>
+            The computed hash code.
+            </returns>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.MD5HashProvider.Initialize">
+            <summary>
+            Initializes an implementation of the <see cref="T:SshNet.Security.Cryptography.HashProviderBase"/> class.
+            </summary>
+        </member>
+        <member name="T:SshNet.Security.Cryptography.RIPEMD160">
+            <summary>
+            Cryptographic hash function based upon the Merkle–Damgård construction.
+            </summary>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.RIPEMD160.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:SshNet.Security.Cryptography.RIPEMD160"/> class.
+            </summary>
+        </member>
+        <member name="P:SshNet.Security.Cryptography.RIPEMD160.HashSize">
+            <summary>
+            Gets the size, in bits, of the computed hash code.
+            </summary>
+            <returns>
+            The size, in bits, of the computed hash code.
+            </returns>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.RIPEMD160.HashCore(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Routes data written to the object into the hash algorithm for computing the hash.
+            </summary>
+            <param name="array">The input to compute the hash code for.</param>
+            <param name="ibStart">The offset into the byte array from which to begin using data.</param>
+            <param name="cbSize">The number of bytes in the byte array to use as data.</param>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.RIPEMD160.HashFinal">
+            <summary>
+            Finalizes the hash computation after the last data is processed by the cryptographic stream object.
+            </summary>
+            <returns>
+            The computed hash code.
+            </returns>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.RIPEMD160.Initialize">
+            <summary>
+            Initializes an implementation of the <see cref="T:System.Security.Cryptography.HashAlgorithm"/> class.
+            </summary>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.RIPEMD160.Dispose(System.Boolean)">
+            <summary>
+            Releases the unmanaged resources used by the <see cref="T:SshNet.Security.Cryptography.RIPEMD160"/> and optionally releases the managed resources.
+            </summary>
+            <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        </member>
+        <member name="F:SshNet.Security.Cryptography.RIPEMD160HashProvider.X">
+            <summary>
+            The word buffer.
+            </summary>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.RIPEMD160HashProvider.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:SshNet.Security.Cryptography.RIPEMD160HashProvider" /> class.
+            </summary>
+        </member>
+        <member name="P:SshNet.Security.Cryptography.RIPEMD160HashProvider.HashSize">
+            <summary>
+            Gets the size, in bits, of the computed hash code.
+            </summary>
+            <returns>
+            The size, in bits, of the computed hash code.
+            </returns>
+        </member>
+        <member name="P:SshNet.Security.Cryptography.RIPEMD160HashProvider.InputBlockSize">
+            <summary>
+            Gets the input block size.
+            </summary>
+            <returns>
+            The input block size.
+            </returns>
+        </member>
+        <member name="P:SshNet.Security.Cryptography.RIPEMD160HashProvider.OutputBlockSize">
+            <summary>
+            Gets the output block size.
+            </summary>
+            <returns>
+            The output block size.
+            </returns>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.RIPEMD160HashProvider.HashCore(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Routes data written to the object into the hash algorithm for computing the hash.
+            </summary>
+            <param name="array">The input to compute the hash code for.</param>
+            <param name="ibStart">The offset into the byte array from which to begin using data.</param>
+            <param name="cbSize">The number of bytes in the byte array to use as data.</param>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.RIPEMD160HashProvider.HashFinal">
+            <summary>
+            Finalizes the hash computation after the last data is processed by the cryptographic stream object.
+            </summary>
+            <returns>
+            The computed hash code.
+            </returns>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.RIPEMD160HashProvider.Initialize">
+            <summary>
+            Initializes an implementation of the <see cref="T:SshNet.Security.Cryptography.HashProviderBase"/> class.
+            </summary>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.RIPEMD160HashProvider.InternalInitialize">
+            <summary>
+            Reset the chaining variables to the IV values.
+            </summary>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.RIPEMD160HashProvider.F1(System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Rounds 0-15
+            </summary>
+            <param name="x">The x.</param>
+            <param name="y">The y.</param>
+            <param name="z">The z.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.RIPEMD160HashProvider.F2(System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Rounds 16-31
+            </summary>
+            <param name="x">The x.</param>
+            <param name="y">The y.</param>
+            <param name="z">The z.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.RIPEMD160HashProvider.F3(System.Int32,System.Int32,System.Int32)">
+            <summary>
+            ounds 32-47
+            </summary>
+            <param name="x">The x.</param>
+            <param name="y">The y.</param>
+            <param name="z">The z.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.RIPEMD160HashProvider.F4(System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Rounds 48-63
+            </summary>
+            <param name="x">The x.</param>
+            <param name="y">The y.</param>
+            <param name="z">The z.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.RIPEMD160HashProvider.F5(System.Int32,System.Int32,System.Int32)">
+            <summary>
+            ounds 64-79
+            </summary>
+            <param name="x">The x.</param>
+            <param name="y">The y.</param>
+            <param name="z">The z.</param>
+            <returns></returns>
+        </member>
+        <member name="T:SshNet.Security.Cryptography.SHA1">
+            <summary>
+            Computes the SHA1 hash for input data. 
+            </summary>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.SHA1.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:SshNet.Security.Cryptography.SHA1"/> class.
+            </summary>
+        </member>
+        <member name="P:SshNet.Security.Cryptography.SHA1.HashSize">
+            <summary>
+            Gets the size, in bits, of the computed hash code.
+            </summary>
+            <returns>
+            The size, in bits, of the computed hash code.
+            </returns>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.SHA1.HashCore(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Routes data written to the object into the hash algorithm for computing the hash.
+            </summary>
+            <param name="array">The input to compute the hash code for.</param>
+            <param name="ibStart">The offset into the byte array from which to begin using data.</param>
+            <param name="cbSize">The number of bytes in the byte array to use as data.</param>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.SHA1.HashFinal">
+            <summary>
+            Finalizes the hash computation after the last data is processed by the cryptographic stream object.
+            </summary>
+            <returns>
+            The computed hash code.
+            </returns>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.SHA1.Initialize">
+            <summary>
+            Initializes an implementation of the <see cref="T:System.Security.Cryptography.HashAlgorithm"/> class.
+            </summary>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.SHA1.Dispose(System.Boolean)">
+            <summary>
+            Releases the unmanaged resources used by the <see cref="T:SshNet.Security.Cryptography.SHA1"/> and optionally releases the managed resources.
+            </summary>
+            <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        </member>
+        <member name="F:SshNet.Security.Cryptography.SHA1HashProvider._x">
+            <summary>
+            The word buffer.
+            </summary>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.SHA1HashProvider.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:SshNet.Security.Cryptography.SHA1"/> class.
+            </summary>
+        </member>
+        <member name="P:SshNet.Security.Cryptography.SHA1HashProvider.HashSize">
+            <summary>
+            Gets the size, in bits, of the computed hash code.
+            </summary>
+            <returns>The size, in bits, of the computed hash code.</returns>
+        </member>
+        <member name="P:SshNet.Security.Cryptography.SHA1HashProvider.InputBlockSize">
+            <summary>
+            Gets the input block size.
+            </summary>
+            <returns>
+            The input block size.
+            </returns>
+        </member>
+        <member name="P:SshNet.Security.Cryptography.SHA1HashProvider.OutputBlockSize">
+            <summary>
+            Gets the output block size.
+            </summary>
+            <returns>
+            The output block size.
+            </returns>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.SHA1HashProvider.HashCore(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Routes data written to the object into the hash algorithm for computing the hash.
+            </summary>
+            <param name="array">The input to compute the hash code for.</param>
+            <param name="ibStart">The offset into the byte array from which to begin using data.</param>
+            <param name="cbSize">The number of bytes in the byte array to use as data.</param>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.SHA1HashProvider.HashFinal">
+            <summary>
+            Finalizes the hash computation after the last data is processed by the cryptographic stream object.
+            </summary>
+            <returns>
+            The computed hash code.
+            </returns>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.SHA1HashProvider.Initialize">
+            <summary>
+            Initializes an implementation of the <see cref="T:SshNet.Security.Cryptography.HashProviderBase"/> class.
+            </summary>
+        </member>
+        <member name="T:SshNet.Security.Cryptography.SHA256">
+            <summary>
+            Computes the SHA256 hash for input data. 
+            </summary>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.SHA256.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:SshNet.Security.Cryptography.SHA256"/> class.
+            </summary>
+        </member>
+        <member name="P:SshNet.Security.Cryptography.SHA256.HashSize">
+            <summary>
+            Gets the size, in bits, of the computed hash code.
+            </summary>
+            <returns>
+            The size, in bits, of the computed hash code.
+            </returns>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.SHA256.HashCore(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Routes data written to the object into the hash algorithm for computing the hash.
+            </summary>
+            <param name="array">The input to compute the hash code for.</param>
+            <param name="ibStart">The offset into the byte array from which to begin using data.</param>
+            <param name="cbSize">The number of bytes in the byte array to use as data.</param>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.SHA256.HashFinal">
+            <summary>
+            Finalizes the hash computation after the last data is processed by the cryptographic stream object.
+            </summary>
+            <returns>
+            The computed hash code.
+            </returns>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.SHA256.Initialize">
+            <summary>
+            Initializes an implementation of the <see cref="T:System.Security.Cryptography.HashAlgorithm"/> class.
+            </summary>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.SHA256.Dispose(System.Boolean)">
+            <summary>
+            Releases the unmanaged resources used by the <see cref="T:SshNet.Security.Cryptography.SHA256"/> and optionally releases the managed resources.
+            </summary>
+            <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        </member>
+        <member name="F:SshNet.Security.Cryptography.SHA256HashProvider._x">
+            <summary>
+            The word buffer.
+            </summary>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.SHA256HashProvider.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:SshNet.Security.Cryptography.SHA256HashProvider"/> class.
+            </summary>
+        </member>
+        <member name="P:SshNet.Security.Cryptography.SHA256HashProvider.HashSize">
+            <summary>
+            Gets the size, in bits, of the computed hash code.
+            </summary>
+            <returns>
+            The size, in bits, of the computed hash code.
+            </returns>
+        </member>
+        <member name="P:SshNet.Security.Cryptography.SHA256HashProvider.InputBlockSize">
+            <summary>
+            Gets the input block size.
+            </summary>
+            <returns>
+            The input block size.
+            </returns>
+        </member>
+        <member name="P:SshNet.Security.Cryptography.SHA256HashProvider.OutputBlockSize">
+            <summary>
+            Gets the output block size.
+            </summary>
+            <returns>
+            The output block size.
+            </returns>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.SHA256HashProvider.HashCore(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Routes data written to the object into the hash algorithm for computing the hash.
+            </summary>
+            <param name="array">The input to compute the hash code for.</param>
+            <param name="ibStart">The offset into the byte array from which to begin using data.</param>
+            <param name="cbSize">The number of bytes in the byte array to use as data.</param>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.SHA256HashProvider.HashFinal">
+            <summary>
+            Finalizes the hash computation after the last data is processed by the cryptographic stream object.
+            </summary>
+            <returns>
+            The computed hash code.
+            </returns>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.SHA256HashProvider.Initialize">
+            <summary>
+            Initializes an implementation of the <see cref="T:SshNet.Security.Cryptography.HashProviderBase"/> class.
+            </summary>
+        </member>
+        <member name="F:SshNet.Security.Cryptography.SHA256HashProvider.K">
+            <summary>
+            The SHA-256 Constants (represent the first 32 bits of the fractional parts of the cube roots of the first sixty-four prime numbers)
+            </summary>
+        </member>
+        <member name="F:SshNet.Security.Cryptography.SHA2HashProviderBase.H1">
+            <summary>
+            Initial hash value 1.
+            </summary>
+        </member>
+        <member name="F:SshNet.Security.Cryptography.SHA2HashProviderBase.H2">
+            <summary>
+            Initial hash value 2.
+            </summary>
+        </member>
+        <member name="F:SshNet.Security.Cryptography.SHA2HashProviderBase.H3">
+            <summary>
+            Initial hash value 3.
+            </summary>
+        </member>
+        <member name="F:SshNet.Security.Cryptography.SHA2HashProviderBase.H4">
+            <summary>
+            Initial hash value 4.
+            </summary>
+        </member>
+        <member name="F:SshNet.Security.Cryptography.SHA2HashProviderBase.H5">
+            <summary>
+            Initial hash value 5.
+            </summary>
+        </member>
+        <member name="F:SshNet.Security.Cryptography.SHA2HashProviderBase.H6">
+            <summary>
+            Initial hash value 6.
+            </summary>
+        </member>
+        <member name="F:SshNet.Security.Cryptography.SHA2HashProviderBase.H7">
+            <summary>
+            Initial hash value 7.
+            </summary>
+        </member>
+        <member name="F:SshNet.Security.Cryptography.SHA2HashProviderBase.H8">
+            <summary>
+            Initial hash value 8.
+            </summary>
+        </member>
+        <member name="F:SshNet.Security.Cryptography.SHA2HashProviderBase._x">
+            <summary>
+            The word buffer.
+            </summary>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.SHA2HashProviderBase.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:SshNet.Security.Cryptography.SHA2HashProviderBase" /> class.
+            </summary>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.SHA2HashProviderBase.HashCore(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Routes data written to the object into the hash algorithm for computing the hash.
+            </summary>
+            <param name="array">The input to compute the hash code for.</param>
+            <param name="ibStart">The offset into the byte array from which to begin using data.</param>
+            <param name="cbSize">The number of bytes in the byte array to use as data.</param>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.SHA2HashProviderBase.Initialize">
+            <summary>
+            Initializes an implementation of the <see cref="T:SshNet.Security.Cryptography.HashProviderBase"/> class.
+            </summary>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.SHA2HashProviderBase.Finish">
+            <summary>
+            Finalizes the hash computation.
+            </summary>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.SHA2HashProviderBase.AdjustByteCounts">
+            <summary>
+            Adjust the byte counts so that byteCount2 represents the upper long (less 3 bits) word of the byte count.
+            </summary>
+        </member>
+        <member name="T:SshNet.Security.Cryptography.SHA384">
+            <summary>
+            Computes the SHA384 hash for input data. 
+            </summary>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.SHA384.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:SshNet.Security.Cryptography.SHA384"/> class.
+            </summary>
+        </member>
+        <member name="P:SshNet.Security.Cryptography.SHA384.HashSize">
+            <summary>
+            Gets the size, in bits, of the computed hash code.
+            </summary>
+            <returns>
+            The size, in bits, of the computed hash code.
+            </returns>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.SHA384.HashCore(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Routes data written to the object into the hash algorithm for computing the hash.
+            </summary>
+            <param name="array">The input to compute the hash code for.</param>
+            <param name="ibStart">The offset into the byte array from which to begin using data.</param>
+            <param name="cbSize">The number of bytes in the byte array to use as data.</param>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.SHA384.HashFinal">
+            <summary>
+            Finalizes the hash computation after the last data is processed by the cryptographic stream object.
+            </summary>
+            <returns>
+            The computed hash code.
+            </returns>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.SHA384.Initialize">
+            <summary>
+            Initializes an implementation of the <see cref="T:System.Security.Cryptography.HashAlgorithm"/> class.
+            </summary>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.SHA384.Dispose(System.Boolean)">
+            <summary>
+            Releases the unmanaged resources used by the <see cref="T:SshNet.Security.Cryptography.SHA384"/> and optionally releases the managed resources.
+            </summary>
+            <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        </member>
+        <member name="P:SshNet.Security.Cryptography.SHA384HashProvider.HashSize">
+            <summary>
+            Gets the size, in bits, of the computed hash code.
+            </summary>
+            <returns>
+            The size, in bits, of the computed hash code.
+            </returns>
+        </member>
+        <member name="P:SshNet.Security.Cryptography.SHA384HashProvider.InputBlockSize">
+            <summary>
+            When overridden in a derived class, gets the input block size.
+            </summary>
+            <returns>
+            The input block size.
+            </returns>
+        </member>
+        <member name="P:SshNet.Security.Cryptography.SHA384HashProvider.OutputBlockSize">
+            <summary>
+            When overridden in a derived class, gets the output block size.
+            </summary>
+            <returns>
+            The output block size.
+            </returns>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.SHA384HashProvider.HashFinal">
+            <summary>
+            Finalizes the hash computation after the last data is processed by the cryptographic stream object.
+            </summary>
+            <returns>
+            The computed hash code.
+            </returns>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.SHA384HashProvider.Initialize">
+            <summary>
+            Initializes an implementation of the <see cref="T:SshNet.Security.Cryptography.HashProviderBase"/> class.
+            </summary>
+        </member>
+        <member name="T:SshNet.Security.Cryptography.SHA512">
+            <summary>
+            Computes the SHA512 hash for input data. 
+            </summary>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.SHA512.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:SshNet.Security.Cryptography.SHA512"/> class.
+            </summary>
+        </member>
+        <member name="P:SshNet.Security.Cryptography.SHA512.HashSize">
+            <summary>
+            Gets the size, in bits, of the computed hash code.
+            </summary>
+            <returns>
+            The size, in bits, of the computed hash code.
+            </returns>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.SHA512.HashCore(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Routes data written to the object into the hash algorithm for computing the hash.
+            </summary>
+            <param name="array">The input to compute the hash code for.</param>
+            <param name="ibStart">The offset into the byte array from which to begin using data.</param>
+            <param name="cbSize">The number of bytes in the byte array to use as data.</param>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.SHA512.HashFinal">
+            <summary>
+            Finalizes the hash computation after the last data is processed by the cryptographic stream object.
+            </summary>
+            <returns>
+            The computed hash code.
+            </returns>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.SHA512.Initialize">
+            <summary>
+            Initializes an implementation of the <see cref="T:System.Security.Cryptography.HashAlgorithm"/> class.
+            </summary>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.SHA512.Dispose(System.Boolean)">
+            <summary>
+            Releases the unmanaged resources used by the <see cref="T:SshNet.Security.Cryptography.SHA512"/> and optionally releases the managed resources.
+            </summary>
+            <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        </member>
+        <member name="P:SshNet.Security.Cryptography.SHA512HashProvider.HashSize">
+            <summary>
+            Gets the size, in bits, of the computed hash code.
+            </summary>
+            <returns>
+            The size, in bits, of the computed hash code.
+            </returns>
+        </member>
+        <member name="P:SshNet.Security.Cryptography.SHA512HashProvider.InputBlockSize">
+            <summary>
+            When overridden in a derived class, gets the input block size.
+            </summary>
+            <returns>
+            The input block size.
+            </returns>
+        </member>
+        <member name="P:SshNet.Security.Cryptography.SHA512HashProvider.OutputBlockSize">
+            <summary>
+            When overridden in a derived class, gets the output block size.
+            </summary>
+            <returns>
+            The output block size.
+            </returns>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.SHA512HashProvider.HashFinal">
+            <summary>
+            Finalizes the hash computation after the last data is processed by the cryptographic stream object.
+            </summary>
+            <returns>
+            The computed hash code.
+            </returns>
+        </member>
+        <member name="M:SshNet.Security.Cryptography.SHA512HashProvider.Initialize">
+            <summary>
+            Initializes an implementation of the <see cref="T:SshNet.Security.Cryptography.HashProviderBase"/> class.
+            </summary>
+        </member>
+    </members>
+</doc>

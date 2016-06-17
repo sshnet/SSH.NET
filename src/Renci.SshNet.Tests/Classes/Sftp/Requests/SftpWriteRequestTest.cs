@@ -31,27 +31,17 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Requests
             _offset = (ulong) random.Next(0, int.MaxValue);
             _data = new byte[random.Next(5, 10)];
             random.NextBytes(_data);
-#if TUNING
             _length = random.Next(1, 4);
-#else
-            _length = _data.Length;
-#endif
         }
 
         [TestMethod]
         public void Constructor()
         {
-#if TUNING
             var request = new SftpWriteRequest(_protocolVersion, _requestId, _handle, _offset, _data, _length, null);
-#else
-            var request = new SftpWriteRequest(_protocolVersion, _requestId, _handle, _offset, _data, null);
-#endif
 
             Assert.AreSame(_data, request.Data);
             Assert.AreSame(_handle, request.Handle);
-#if TUNING
             Assert.AreEqual(_length, request.Length);
-#endif
             Assert.AreEqual(_protocolVersion, request.ProtocolVersion);
             Assert.AreEqual(_requestId, request.RequestId);
             Assert.AreEqual(SftpMessageTypes.Write, request.SftpMessageType);
@@ -70,9 +60,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Requests
                 _handle,
                 _offset,
                 _data,
-#if TUNING
                 _length,
-#endif
                 statusAction);
 
             request.Complete(statusResponse);
@@ -84,18 +72,12 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Requests
         [TestMethod]
         public void GetBytes()
         {
-#if TUNING
             var request = new SftpWriteRequest(_protocolVersion, _requestId, _handle, _offset, _data, _length, null);
-#else
-            var request = new SftpWriteRequest(_protocolVersion, _requestId, _handle, _offset, _data, null);
-#endif
 
             var bytes = request.GetBytes();
 
             var expectedBytesLength = 0;
-#if TUNING
             expectedBytesLength += 4; // Length
-#endif
             expectedBytesLength += 1; // Type
             expectedBytesLength += 4; // RequestId
             expectedBytesLength += 4; // Handle length
@@ -108,9 +90,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Requests
 
             var sshDataStream = new SshDataStream(bytes);
 
-#if TUNING
             Assert.AreEqual((uint) bytes.Length - 4, sshDataStream.ReadUInt32());
-#endif
             Assert.AreEqual((byte) SftpMessageTypes.Write, sshDataStream.ReadByte());
             Assert.AreEqual(_requestId, sshDataStream.ReadUInt32());
 

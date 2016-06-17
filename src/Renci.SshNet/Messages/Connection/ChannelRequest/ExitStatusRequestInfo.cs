@@ -8,7 +8,7 @@
         /// <summary>
         /// Channel request name.
         /// </summary>
-        public const string NAME = "exit-status";
+        public const string Name = "exit-status";
 
         /// <summary>
         /// Gets the name of the request.
@@ -18,7 +18,7 @@
         /// </value>
         public override string RequestName
         {
-            get { return NAME; }
+            get { return Name; }
         }
 
         /// <summary>
@@ -26,7 +26,6 @@
         /// </summary>
         public uint ExitStatus { get; private set; }
 
-#if TUNING
         protected override int BufferCapacity
         {
             get
@@ -36,7 +35,6 @@
                 return capacity;
             }
         }
-#endif
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ExitStatusRequestInfo"/> class.

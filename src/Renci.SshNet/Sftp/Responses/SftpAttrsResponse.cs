@@ -17,7 +17,7 @@
         protected override void LoadData()
         {
             base.LoadData();
-            this.Attributes = this.ReadAttributes();
+            Attributes = ReadAttributes();
         }
     }
 }

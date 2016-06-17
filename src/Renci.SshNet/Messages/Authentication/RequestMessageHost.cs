@@ -1,6 +1,4 @@
-﻿using Renci.SshNet.Common;
-
-namespace Renci.SshNet.Messages.Authentication
+﻿namespace Renci.SshNet.Messages.Authentication
 {
     /// <summary>
     /// Represents "hostbased" SSH_MSG_USERAUTH_REQUEST message.
@@ -44,7 +42,6 @@ namespace Renci.SshNet.Messages.Authentication
         /// </value>
         public byte[] Signature { get; private set; }
 
-#if TUNING
         /// <summary>
         /// Gets the size of the message in bytes.
         /// </summary>
@@ -69,7 +66,6 @@ namespace Renci.SshNet.Messages.Authentication
                 return capacity;
             }
         }
-#endif
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RequestMessageHost"/> class.

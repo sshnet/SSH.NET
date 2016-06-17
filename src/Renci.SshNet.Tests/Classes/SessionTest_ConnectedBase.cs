@@ -92,7 +92,9 @@ namespace Renci.SshNet.Tests.Classes
                     ServerSocket.Send(newKeys, 4, newKeys.Length - 4, SocketFlags.None);
                 };
 
-            _serviceFactoryMock.Setup(p => p.CreateKeyExchange(ConnectionInfo.KeyExchangeAlgorithms, new[] { _keyExchangeAlgorithm })).Returns(_keyExchangeMock.Object);
+            _serviceFactoryMock.Setup(
+                p =>
+                    p.CreateKeyExchange(ConnectionInfo.KeyExchangeAlgorithms, new[] {_keyExchangeAlgorithm})).Returns(_keyExchangeMock.Object);
             _keyExchangeMock.Setup(p => p.Name).Returns(_keyExchangeAlgorithm);
             _keyExchangeMock.Setup(p => p.Start(Session, It.IsAny<KeyExchangeInitMessage>()));
             _keyExchangeMock.Setup(p => p.ExchangeHash).Returns(SessionId);
@@ -103,7 +105,7 @@ namespace Renci.SshNet.Tests.Classes
             _keyExchangeMock.Setup(p => p.CreateCompressor()).Returns((Compressor) null);
             _keyExchangeMock.Setup(p => p.CreateDecompressor()).Returns((Compressor) null);
             _keyExchangeMock.Setup(p => p.Dispose());
-            _serviceFactoryMock.Setup(p => p.CreateClientAuthentication()).Returns(_clientAuthenticationMock.Object);
+            _serviceFactoryMock.Setup(p => p.CreateClientAuthentication()).Callback(ClientAuthentication_Callback).Returns(_clientAuthenticationMock.Object);
             _clientAuthenticationMock.Setup(p => p.Authenticate(ConnectionInfo, Session));
 
             ServerListener = new AsyncSocketListener(_serverEndPoint);
@@ -117,6 +119,7 @@ namespace Renci.SshNet.Tests.Classes
                 };
 
             var counter = 0;
+
             ServerListener.BytesReceived += (received, socket) =>
                 {
                     ServerBytesReceivedRegister.Add(received);
@@ -151,6 +154,10 @@ namespace Renci.SshNet.Tests.Classes
             ServerListener.Start();
 
             Session.Connect();
+        }
+
+        protected virtual void ClientAuthentication_Callback()
+        {
         }
 
         protected abstract void Act();

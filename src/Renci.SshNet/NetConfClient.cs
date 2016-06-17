@@ -126,7 +126,7 @@ namespace Renci.SshNet
         internal NetConfClient(ConnectionInfo connectionInfo, bool ownsConnectionInfo, IServiceFactory serviceFactory)
             : base(connectionInfo, ownsConnectionInfo, serviceFactory)
         {
-            OperationTimeout = new TimeSpan(0, 0, 0, 0, -1);
+            OperationTimeout = SshNet.Session.InfiniteTimeSpan;
             AutomaticMessageIdHandling = true;
         }
 
@@ -223,7 +223,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged ResourceMessages.</param>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);

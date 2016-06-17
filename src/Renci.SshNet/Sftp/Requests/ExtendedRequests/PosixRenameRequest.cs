@@ -23,7 +23,6 @@ namespace Renci.SshNet.Sftp.Requests
 
         public Encoding Encoding { get; private set; }
 
-#if TUNING
         /// <summary>
         /// Gets the size of the message in bytes.
         /// </summary>
@@ -42,7 +41,6 @@ namespace Renci.SshNet.Sftp.Requests
                 return capacity;
             }
         }
-#endif
 
         public PosixRenameRequest(uint protocolVersion, uint requestId, string oldPath, string newPath, Encoding encoding, Action<SftpStatusResponse> statusAction)
             : base(protocolVersion, requestId, statusAction, "posix-rename@openssh.com")

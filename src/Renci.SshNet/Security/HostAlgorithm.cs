@@ -21,7 +21,7 @@
         /// <param name="name">The host key name.</param>
         protected HostAlgorithm(string name)
         {
-            this.Name = name;
+            Name = name;
         }
 
         /// <summary>

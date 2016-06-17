@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Renci.SshNet.Common
 {
@@ -74,7 +73,7 @@ namespace Renci.SshNet.Common
         public DerData(byte[] data)
         {
             _data = new List<byte>(data);
-            var dataType = ReadByte();
+            ReadByte(); // skip dataType
             var length = ReadLength();
             _lastIndex = _readerIndex + length;
         }
@@ -85,7 +84,7 @@ namespace Renci.SshNet.Common
         /// <returns>DER Encoded array.</returns>
         public byte[] Encode()
         {
-            var length = _data.Count();
+            var length = _data.Count;
             var lengthBytes = GetLength(length);
 
             _data.InsertRange(0, lengthBytes);
@@ -108,11 +107,7 @@ namespace Renci.SshNet.Common
 
             var data = ReadBytes(length);
 
-#if TUNING
             return new BigInteger(data.Reverse());
-#else
-            return new BigInteger(data.Reverse().ToArray());
-#endif
         }
 
         /// <summary>
@@ -160,7 +155,7 @@ namespace Renci.SshNet.Common
         /// Writes UInt32 data into internal buffer.
         /// </summary>
         /// <param name="data">UInt32 data to write.</param>
-        public void Write(UInt32 data)
+        public void Write(uint data)
         {
             var bytes = data.GetBytes();
             _data.Add(Integer);
@@ -175,13 +170,9 @@ namespace Renci.SshNet.Common
         /// <param name="data">BigInteger data to write.</param>
         public void Write(BigInteger data)
         {
-#if TUNING
-            var bytes = data.ToByteArray().Reverse().ToList();
-#else
-            var bytes = data.ToByteArray().Reverse().ToList();
-#endif
+            var bytes = data.ToByteArray().Reverse();
             _data.Add(Integer);
-            var length = GetLength(bytes.Count);
+            var length = GetLength(bytes.Length);
             WriteBytes(length);
             WriteBytes(bytes);
         }
@@ -207,7 +198,6 @@ namespace Renci.SshNet.Common
             var temp = new ulong[identifier.Identifiers.Length - 1];
             temp[0] = identifier.Identifiers[0] * 40 + identifier.Identifiers[1];
             Buffer.BlockCopy(identifier.Identifiers, 2 * sizeof(ulong), temp, 1 * sizeof(ulong), (identifier.Identifiers.Length - 2) * sizeof(ulong));
-            //Array.Copy(identifier.Identifiers, 2, temp, 1, identifier.Identifiers.Length - 2);
             var bytes = new List<byte>();
             foreach (var subidentifier in temp)
             {

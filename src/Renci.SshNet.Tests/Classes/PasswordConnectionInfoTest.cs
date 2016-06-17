@@ -47,7 +47,7 @@ namespace Renci.SshNet.Tests.Classes
 
             #region Example PasswordConnectionInfo PasswordExpired
             var connectionInfo = new PasswordConnectionInfo("host", "username", "password");
-            var encoding = new Renci.SshNet.Common.ASCIIEncoding();
+            var encoding = SshData.Ascii;
             connectionInfo.PasswordExpired += delegate(object sender, AuthenticationPasswordChangeEventArgs e)
             {
                 e.NewPassword = encoding.GetBytes("123456");

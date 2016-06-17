@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Net.Sockets;
 using System.Net;
 using System.Threading;
+using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet
@@ -15,15 +16,20 @@ namespace Renci.SshNet
         private Socket _listener;
         private int _pendingRequests;
 
-        partial void ExecuteThread(Action action);
+#if FEATURE_SOCKET_EAP
+        private ManualResetEvent _stoppingListener;
+#endif // FEATURE_SOCKET_EAP
 
         partial void InternalStart()
         {
-            var addr = BoundHost.GetIPAddress();
+            var addr = DnsAbstraction.GetHostAddresses(BoundHost)[0];
             var ep = new IPEndPoint(addr, (int) BoundPort);
 
-            _listener = new Socket(ep.AddressFamily, SocketType.Stream, ProtocolType.Tcp) {Blocking = true};
+            _listener = new Socket(ep.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            // TODO: decide if we want to have blocking socket
+#if FEATURE_SOCKET_SETSOCKETOPTION
             _listener.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.NoDelay, true);
+#endif // FEATURE_SOCKET_SETSOCKETOPTION
             _listener.Bind(ep);
             _listener.Listen(1);
 
@@ -35,10 +41,15 @@ namespace Renci.SshNet
 
             _listenerTaskCompleted = new ManualResetEvent(false);
 
-            ExecuteThread(() =>
+            ThreadAbstraction.ExecuteThread(() =>
                 {
                     try
                     {
+#if FEATURE_SOCKET_EAP
+                        _stoppingListener = new ManualResetEvent(false);
+                        StartAccept();
+                        _stoppingListener.WaitOne();
+#elif FEATURE_SOCKET_APM
                         while (true)
                         {
                             // accept new inbound connection
@@ -46,6 +57,11 @@ namespace Renci.SshNet
                             // wait for the connection to be established
                             asyncResult.AsyncWaitHandle.WaitOne();
                         }
+#elif FEATURE_SOCKET_TAP
+#error Accepting new socket connections is not implemented.
+#else
+#error Accepting new socket connections is not implemented.
+#endif
                     }
                     catch (ObjectDisposedException)
                     {
@@ -64,10 +80,36 @@ namespace Renci.SshNet
                 });
         }
 
+#if FEATURE_SOCKET_EAP
+        private void StartAccept()
+        {
+            var args = new SocketAsyncEventArgs();
+            args.Completed += AcceptCompleted;
+
+            if (!_listener.AcceptAsync(args))
+            {
+                AcceptCompleted(null, args);
+            }
+        }
+
+        private void AcceptCompleted(object sender, SocketAsyncEventArgs acceptAsyncEventArgs)
+        {
+            if (acceptAsyncEventArgs.SocketError != SocketError.Success)
+            {
+                StartAccept();
+                acceptAsyncEventArgs.AcceptSocket.Dispose();
+                return;
+            }
+
+            StartAccept();
+
+            ProcessAccept(acceptAsyncEventArgs.AcceptSocket);
+        }
+#elif FEATURE_SOCKET_APM
         private void AcceptCallback(IAsyncResult ar)
         {
             // Get the socket that handles the client request
-            var serverSocket = (Socket)ar.AsyncState;
+            var serverSocket = (Socket) ar.AsyncState;
 
             Socket clientSocket;
 
@@ -82,12 +124,20 @@ namespace Renci.SshNet
                 return;
             }
 
+            ProcessAccept(clientSocket);
+        }
+#endif
+
+        private void ProcessAccept(Socket clientSocket)
+        {
             Interlocked.Increment(ref _pendingRequests);
 
             try
             {
+#if FEATURE_SOCKET_SETSOCKETOPTION
                 clientSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.DontLinger, true);
                 clientSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.NoDelay, true);
+#endif //FEATURE_SOCKET_SETSOCKETOPTION
 
                 var originatorEndPoint = (IPEndPoint) clientSocket.RemoteEndPoint;
 
@@ -118,7 +168,7 @@ namespace Renci.SshNet
             if (socket.Connected)
             {
                 socket.Shutdown(SocketShutdown.Both);
-                socket.Close();
+                socket.Dispose();
             }
         }
 
@@ -139,7 +189,7 @@ namespace Renci.SshNet
                 if (stopWatch.Elapsed >= timeout && timeout != SshNet.Session.InfiniteTimeSpan)
                     break;
                 // give channels time to process pending requests
-                Thread.Sleep(50);
+                ThreadAbstraction.Sleep(50);
             }
 
             stopWatch.Stop();
@@ -159,10 +209,34 @@ namespace Renci.SshNet
             Session.Disconnected -= Session_Disconnected;
             Session.ErrorOccured -= Session_ErrorOccured;
 
+#if FEATURE_SOCKET_EAP
+            _stoppingListener.Set();
+#endif // FEATURE_SOCKET_EAP
+
             // close listener socket
-            _listener.Close();
+            _listener.Dispose();
             // wait for listener loop to finish
             _listenerTaskCompleted.WaitOne();
+        }
+
+        partial void InternalDispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (_listener != null)
+                {
+                    _listener.Dispose();
+                    _listener = null;
+                }
+
+#if FEATURE_SOCKET_EAP
+                if (_stoppingListener != null)
+                {
+                    _stoppingListener.Dispose();
+                    _stoppingListener = null;
+                }
+#endif // FEATURE_SOCKET_EAP
+            }
         }
 
         private void Session_ErrorOccured(object sender, ExceptionEventArgs e)

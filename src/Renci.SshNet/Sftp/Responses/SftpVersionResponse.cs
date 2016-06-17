@@ -16,8 +16,8 @@ namespace Renci.SshNet.Sftp.Responses
         protected override void LoadData()
         {
             base.LoadData();
-            this.Version = this.ReadUInt32();
-            this.Extentions = this.ReadExtensionPair();
+            Version = ReadUInt32();
+            Extentions = ReadExtensionPair();
         }
 
         protected override void SaveData()
@@ -28,6 +28,5 @@ namespace Renci.SshNet.Sftp.Responses
             if (Extentions != null)
                 Write(Extentions);
         }
-
     }
 }

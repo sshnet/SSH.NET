@@ -23,7 +23,6 @@ namespace Renci.SshNet.Sftp.Requests
             }
         }
 
-#if TUNING
         /// <summary>
         /// Gets the size of the message in bytes.
         /// </summary>
@@ -40,7 +39,6 @@ namespace Renci.SshNet.Sftp.Requests
                 return capacity;
             }
         }
-#endif
 
         protected SftpExtendedRequest(uint protocolVersion, uint requestId, Action<SftpStatusResponse> statusAction, string name)
             : base(protocolVersion, requestId, statusAction)
@@ -51,7 +49,7 @@ namespace Renci.SshNet.Sftp.Requests
         protected override void SaveData()
         {
             base.SaveData();
-            this.WriteBinaryString(_nameBytes);
+            WriteBinaryString(_nameBytes);
         }
     }
 }

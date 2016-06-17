@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Text;
 using Renci.SshNet.Channels;
 using System.IO;
 using Renci.SshNet.Common;
@@ -295,11 +294,6 @@ namespace Renci.SshNet
 
                 SendConfirmation(channel, 1, string.Format("\"{0}\" is not valid protocol message.", message));
             }
-        }
-
-        partial void SendData(IChannelSession channel, string command)
-        {
-            channel.SendData(Encoding.Default.GetBytes(command));
         }
     }
 }

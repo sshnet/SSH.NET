@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Security.Cryptography
@@ -10,7 +9,6 @@ namespace Renci.SshNet.Security.Cryptography
     public abstract class CipherDigitalSignature : DigitalSignature
     {
         private readonly AsymmetricCipher _cipher;
-
         private readonly ObjectIdentifier _oid;
 
         /// <summary>
@@ -18,13 +16,13 @@ namespace Renci.SshNet.Security.Cryptography
         /// </summary>
         /// <param name="oid">The object identifier.</param>
         /// <param name="cipher">The cipher.</param>
-        public CipherDigitalSignature(ObjectIdentifier oid, AsymmetricCipher cipher)
+        protected CipherDigitalSignature(ObjectIdentifier oid, AsymmetricCipher cipher)
         {
             if (cipher == null)
                 throw new ArgumentNullException("cipher");
 
-            this._cipher = cipher;
-            this._oid = oid;
+            _cipher = cipher;
+            _oid = oid;
         }
 
         /// <summary>
@@ -37,10 +35,10 @@ namespace Renci.SshNet.Security.Cryptography
         /// </returns>
         public override bool Verify(byte[] input, byte[] signature)
         {
-            var encryptedSignature = this._cipher.Decrypt(signature);
-            var hashData = this.Hash(input);
+            var encryptedSignature = _cipher.Decrypt(signature);
+            var hashData = Hash(input);
             var expected = DerEncode(hashData);
-            return expected.SequenceEqual(encryptedSignature);
+            return expected.IsEqualTo(encryptedSignature);
         }
 
         /// <summary>
@@ -53,12 +51,12 @@ namespace Renci.SshNet.Security.Cryptography
         public override byte[] Sign(byte[] input)
         {
             //  Calculate hash value
-            var hashData = this.Hash(input);
+            var hashData = Hash(input);
 
             //  Calculate DER string
             var derEncodedHash = DerEncode(hashData);
 
-            return this._cipher.Encrypt(derEncodedHash).TrimLeadingZero().ToArray();
+            return _cipher.Encrypt(derEncodedHash).TrimLeadingZeros();
         }
 
         /// <summary>
@@ -75,15 +73,13 @@ namespace Renci.SshNet.Security.Cryptography
         /// <returns>DER Encoded byte array</returns>
         protected byte[] DerEncode(byte[] hashData)
         {
-            var data = new DerData();
-
             var alg = new DerData();
-            alg.Write(this._oid);
+            alg.Write(_oid);
             alg.WriteNull();
 
+            var data = new DerData();
             data.Write(alg);
             data.Write(hashData);
-
             return data.Encode();
         }
     }

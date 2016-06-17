@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Globalization;
-using System.Text;
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Sftp
@@ -419,7 +417,7 @@ namespace Renci.SshNet.Sftp
                 throw new ArgumentOutOfRangeException("mode");
             }
 
-            var modeBytes = mode.ToString(CultureInfo.InvariantCulture).PadLeft(3, '0').ToArray();
+            var modeBytes = mode.ToString(CultureInfo.InvariantCulture).PadLeft(3, '0').ToCharArray();
 
             var permission = (modeBytes[0] & 0x0F) * 8 * 8 + (modeBytes[1] & 0x0F) * 8 + (modeBytes[2] & 0x0F);
 
@@ -436,6 +434,12 @@ namespace Renci.SshNet.Sftp
             OthersCanExecute = (permission & S_IXOTH) == S_IXOTH;
         }
 
+        /// <summary>
+        /// Returns a byte array representing the current <see cref="SftpFileAttributes"/>.
+        /// </summary>
+        /// <returns>
+        /// A byte array representing the current <see cref="SftpFileAttributes"/>.
+        /// </returns>
         public byte[] GetBytes()
         {
             var stream = new SshDataStream(4);

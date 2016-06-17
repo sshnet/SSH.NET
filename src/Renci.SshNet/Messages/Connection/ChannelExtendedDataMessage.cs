@@ -16,7 +16,6 @@
         /// </summary>
         public byte[] Data { get; private set; }
 
-#if TUNING
         /// <summary>
         /// Gets the size of the message in bytes.
         /// </summary>
@@ -34,14 +33,12 @@
                 return capacity;
             }
         }
-#endif
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ChannelExtendedDataMessage"/> class.
         /// </summary>
         public ChannelExtendedDataMessage()
         {
-
         }
 
         /// <summary>
@@ -64,11 +61,7 @@
         {
             base.LoadData();
             DataTypeCode = ReadUInt32();
-#if TUNING
             Data = ReadBinary();
-#else
-            Data = ReadBinaryString();
-#endif
         }
 
         /// <summary>

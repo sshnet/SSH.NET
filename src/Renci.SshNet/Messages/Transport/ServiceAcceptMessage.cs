@@ -1,5 +1,4 @@
 ﻿using System;
-using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Messages.Transport
 {
@@ -24,20 +23,7 @@ namespace Renci.SshNet.Messages.Transport
         /// </summary>
         protected override void LoadData()
         {
-#if TUNING
             ServiceName = ReadBinary().ToServiceName();
-#else
-            var serviceName = ReadAsciiString();
-            switch (serviceName)
-            {
-                case "ssh-userauth":
-                    ServiceName = ServiceName.UserAuthentication;
-                    break;
-                case "ssh-connection":
-                    ServiceName = ServiceName.Connection;
-                    break;
-            }
-#endif
         }
 
         /// <summary>

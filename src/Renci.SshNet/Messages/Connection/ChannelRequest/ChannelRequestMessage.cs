@@ -6,10 +6,8 @@
     [Message("SSH_MSG_CHANNEL_REQUEST", 98)]
     public class ChannelRequestMessage : ChannelMessage
     {
-#if TUNING
         private string _requestName;
         private byte[] _requestNameBytes;
-#endif
 
         /// <summary>
         /// Gets the name of the request.
@@ -17,7 +15,6 @@
         /// <value>
         /// The name of the request.
         /// </value>
-#if TUNING
         public string RequestName
         {
             get { return _requestName; }
@@ -27,16 +24,12 @@
                 _requestNameBytes = Ascii.GetBytes(value);
             }
         }
-#else
-        public string RequestName { get; private set; }
-#endif
 
         /// <summary>
         /// Gets channel request data.
         /// </summary>
         public byte[] RequestData { get; private set; }
 
-#if TUNING
         /// <summary>
         /// Gets the size of the message in bytes.
         /// </summary>
@@ -54,7 +47,6 @@
                 return capacity;
             }
         }
-#endif
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ChannelRequestMessage"/> class.
@@ -83,12 +75,8 @@
         {
             base.LoadData();
 
-#if TUNING
             _requestNameBytes = ReadBinary();
             _requestName = Ascii.GetString(_requestNameBytes, 0, _requestNameBytes.Length);
-#else
-            RequestName = ReadAsciiString();
-#endif
             RequestData = ReadBytes();
         }
 
@@ -99,11 +87,7 @@
         {
             base.SaveData();
 
-#if TUNING
             WriteBinaryString(_requestNameBytes);
-#else
-            WriteAscii(RequestName);
-#endif
             Write(RequestData);
         }
     }

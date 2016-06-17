@@ -3,8 +3,6 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>
-    </ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{C45379B9-17B1-4E89-BC2E-6D41726413E8}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -14,17 +12,13 @@
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <SccProjectName>SAK</SccProjectName>
-    <SccLocalPath>SAK</SccLocalPath>
-    <SccAuxPath>SAK</SccAuxPath>
-    <SccProvider>SAK</SccProvider>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;TUNING</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;FEATURE_ENCODING_ASCII</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -32,7 +26,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;TUNING</DefineConstants>
+    <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>0</WarningLevel>
   </PropertyGroup>
@@ -50,13 +44,14 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="Moq">
-      <HintPath>..\packages\Moq.4.2.1409.1722\lib\net40\Moq.dll</HintPath>
+      <HintPath>..\..\packages\Moq.4.2.1409.1722\lib\net40\Moq.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Data" />
+    <Reference Include="System.Numerics" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
@@ -66,6 +61,18 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\test\Renci.SshNet.Shared.Tests\Abstractions\CryptoAbstraction_GenerateRandom.cs">
+      <Link>Classes\Abstractions\CryptoAbstraction_GenerateRandom.cs</Link>
+    </Compile>
+    <Compile Include="..\..\test\Renci.SshNet.Shared.Tests\Abstractions\DnsAbstraction_GetHostAddresses.cs">
+      <Link>Classes\Abstractions\DnsAbstraction_GetHostAddresses.cs</Link>
+    </Compile>
+    <Compile Include="..\..\test\Renci.SshNet.Shared.Tests\Abstractions\ThreadAbstraction_ExecuteThread.cs">
+      <Link>Classes\Abstractions\ThreadAbstraction_ExecuteThread.cs</Link>
+    </Compile>
+    <Compile Include="..\..\test\Renci.SshNet.Shared.Tests\SshMessageFactoryTest.cs">
+      <Link>Classes\SshMessageFactoryTest.cs</Link>
+    </Compile>
     <Compile Include="Classes\BaseClientTest_Connected_KeepAlivesNotSentConcurrently.cs" />
     <Compile Include="Classes\Channels\ChannelDirectTcpipTest.cs" />
     <Compile Include="Classes\Channels\ChannelDirectTcpipTest_Close_SessionIsConnectedAndChannelIsOpen.cs" />
@@ -121,6 +128,12 @@
     <Compile Include="Classes\ClientAuthenticationTest_Success_MultiList_SameAllowedAuthenticationsAfterPartialSuccess.cs" />
     <Compile Include="Classes\ClientAuthenticationTest_Success_MultiList_SkipFailedAuthenticationMethod.cs" />
     <Compile Include="Classes\ClientAuthenticationTest_Success_SingleList_SameAllowedAuthenticationAfterPartialSuccess.cs" />
+    <Compile Include="Classes\Common\ExtensionsTest_Concat.cs" />
+    <Compile Include="Classes\Common\ExtensionsTest_IsEqualTo_ByteArray.cs" />
+    <Compile Include="Classes\Common\ExtensionsTest_Take_Count.cs" />
+    <Compile Include="Classes\Common\ExtensionsTest_Take_OffsetAndCount.cs" />
+    <Compile Include="Classes\Common\ExtensionsTest_ToGlobalRequestName.cs" />
+    <Compile Include="Classes\Common\ExtensionsTest_TrimLeadingZeros.cs" />
     <Compile Include="Classes\ConnectionInfoTest_Authenticate_Failure.cs" />
     <Compile Include="Classes\ConnectionInfoTest_Authenticate_Success.cs" />
     <Compile Include="Classes\ForwardedPortDynamicTest_Dispose_PortStarted_ChannelBound.cs" />
@@ -178,6 +191,7 @@
     <Compile Include="Classes\NetConfClientTest_Dispose_Disconnected.cs" />
     <Compile Include="Classes\NetConfClientTest_Dispose_Disposed.cs" />
     <Compile Include="Classes\NetConfClientTest_Finalize_Connected.cs" />
+    <Compile Include="Classes\PipeStreamTest_Dispose.cs" />
     <Compile Include="Classes\ScpClientTest_Upload_FileInfoAndPath_SendExecRequestReturnsFalse.cs" />
     <Compile Include="Classes\ScpClientTest_Upload_FileInfoAndPath_Success.cs" />
     <Compile Include="Classes\Security\AlgorithmTest.cs" />
@@ -223,6 +237,7 @@
     <Compile Include="Classes\SessionTest_ConnectedBase.cs" />
     <Compile Include="Classes\SessionTest_Connected_ConnectionReset.cs" />
     <Compile Include="Classes\SessionTest_Connected_Disconnect.cs" />
+    <Compile Include="Classes\SessionTest_Connected_GlobalRequestMessageAfterAuthenticationRace.cs" />
     <Compile Include="Classes\SessionTest_Connected_ServerSendsDisconnectMessage.cs" />
     <Compile Include="Classes\SessionTest_Connected_ServerSendsBadPacket.cs" />
     <Compile Include="Classes\SessionTest_Connected_ServerSendsDisconnectMessageAndShutsDownSocket.cs" />
@@ -295,9 +310,6 @@
     <Compile Include="Classes\Security\Cryptography\Ciphers\TwofishCipherTest.cs" />
     <Compile Include="Classes\Security\Cryptography\DsaDigitalSignatureTest.cs" />
     <Compile Include="Classes\Security\Cryptography\DsaKeyTest.cs" />
-    <Compile Include="Classes\Security\Cryptography\Hashes\MD5HashTest.cs" />
-    <Compile Include="Classes\Security\Cryptography\Hashes\SHA1HashTest.cs" />
-    <Compile Include="Classes\Security\Cryptography\Hashes\SHA256HashTest.cs" />
     <Compile Include="Classes\Security\Cryptography\HMacTest.cs" />
     <Compile Include="Classes\Security\Cryptography\RsaDigitalSignatureTest.cs" />
     <Compile Include="Classes\Security\Cryptography\RsaKeyTest.cs" />
@@ -394,7 +406,13 @@
     <Compile Include="Classes\ForwardedPortLocalTest.NET40.cs" />
     <Compile Include="Classes\SshCommandTest.NET40.cs" />
     <Compile Include="Classes\ScpClientTest.NET40.cs" />
+    <Compile Include="Classes\SshCommandTest_BeginExecute_EndExecuteInvokedOnAsyncResultFromPreviousInvocation.cs" />
+    <Compile Include="Classes\SshCommandTest_BeginExecute_EndExecuteNotInvokedOnAsyncResultFromPreviousInvocation.cs" />
+    <Compile Include="Classes\SshCommandTest_Dispose.cs" />
     <Compile Include="Classes\SshCommandTest_EndExecute.cs" />
+    <Compile Include="Classes\SshCommandTest_EndExecute_AsyncResultFromOtherInstance.cs" />
+    <Compile Include="Classes\SshCommandTest_EndExecute_AsyncResultIsNull.cs" />
+    <Compile Include="Classes\SshCommandTest_EndExecute_ChannelOpen.cs" />
     <Compile Include="Classes\SubsystemSessionStub.cs" />
     <Compile Include="Classes\SubsystemSession_Connect_Connected.cs" />
     <Compile Include="Classes\SubsystemSession_Connect_Disconnected.cs" />
@@ -495,7 +513,6 @@
     <Compile Include="Classes\Sftp\SftpListDirectoryAsyncResultTest.cs" />
     <Compile Include="Classes\Sftp\SftpSynchronizeDirectoriesAsyncResultTest.cs" />
     <Compile Include="Classes\Sftp\SftpUploadAsyncResultTest.cs" />
-    <Compile Include="Classes\Security\Cryptography\Hashes\RIPEMD160HashTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Renci.SshNet\Renci.SshNet.csproj">

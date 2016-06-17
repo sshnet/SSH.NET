@@ -1,4 +1,7 @@
-﻿using System.Text;
+﻿#if !FEATURE_ENCODING_ASCII
+
+using System;
+using System.Text;
 
 namespace Renci.SshNet.Common
 {
@@ -164,7 +167,10 @@ namespace Renci.SshNet.Common
         /// <exception cref="T:System.Text.EncoderFallbackException">A fallback occurred (see Understanding Encodings for complete explanation)-and-<see cref="P:System.Text.Encoding.EncoderFallback"/> is set to <see cref="T:System.Text.EncoderExceptionFallback"/>.</exception>
         public override int GetMaxByteCount(int charCount)
         {
-            return charCount;
+            if (charCount < 0)
+                throw new ArgumentOutOfRangeException("charCount", "Non-negative number required.");
+
+            return charCount + 1;
         }
 
         /// <summary>
@@ -180,7 +186,25 @@ namespace Renci.SshNet.Common
         /// <exception cref="T:System.Text.DecoderFallbackException">A fallback occurred (see Understanding Encodings for complete explanation)-and-<see cref="P:System.Text.Encoding.DecoderFallback"/> is set to <see cref="T:System.Text.DecoderExceptionFallback"/>.</exception>
         public override int GetMaxCharCount(int byteCount)
         {
+            if (byteCount < 0)
+                throw new ArgumentOutOfRangeException("byteCount", "Non-negative number required.");
+
             return byteCount;
         }
+
+#if !SILVERLIGHT && !WINDOWS_PHONE
+        /// <summary>
+        /// Gets a value indicating whether the current encoding uses single-byte code points
+        /// </summary>
+        /// <value>
+        /// This property is always <c>true</c>.
+        /// </value>
+        public override bool IsSingleByte
+        {
+            get { return true; }
+        }
+#endif // !SILVERLIGHT && !WINDOWS_PHONE
     }
 }
+
+#endif // !FEATURE_ENCODING_ASCII

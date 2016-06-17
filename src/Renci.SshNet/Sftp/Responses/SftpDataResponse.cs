@@ -20,15 +20,11 @@
         {
             base.LoadData();
             
-#if TUNING
-            this.Data = this.ReadBinary();
-#else
-            this.Data = this.ReadBinaryString();
-#endif
+            Data = ReadBinary();
 
-            if (!this.IsEndOfData)
+            if (!IsEndOfData)
             {
-                this.IsEof = this.ReadBoolean();
+                IsEof = ReadBoolean();
             }
         }
     }

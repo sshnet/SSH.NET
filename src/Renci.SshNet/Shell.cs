@@ -1,44 +1,31 @@
 ﻿using System;
-using System.Linq;
 using System.IO;
 using System.Threading;
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
 using System.Collections.Generic;
+using Renci.SshNet.Abstractions;
 
 namespace Renci.SshNet
 {
     /// <summary>
     /// Represents instance of the SSH shell object
     /// </summary>
-    public partial class Shell : IDisposable
+    public class Shell : IDisposable
     {
         private readonly ISession _session;
-
         private IChannelSession _channel;
-
         private EventWaitHandle _channelClosedWaitHandle;
-
         private Stream _input;
-
         private readonly string _terminalName;
-
         private readonly uint _columns;
-
         private readonly uint _rows;
-
         private readonly uint _width;
-
         private readonly uint _height;
-
         private readonly IDictionary<TerminalModes, uint> _terminalModes;
-
         private EventWaitHandle _dataReaderTaskCompleted;
-
         private readonly Stream _outputStream;
-
         private readonly Stream _extendedOutputStream;
-
         private readonly int _bufferSize;
 
         /// <summary>
@@ -134,7 +121,7 @@ namespace Renci.SshNet
 
             //  Start input stream listener
             _dataReaderTaskCompleted = new ManualResetEvent(false);
-            ExecuteThread(() =>
+            ThreadAbstraction.ExecuteThread(() =>
             {
                 try
                 {
@@ -142,6 +129,17 @@ namespace Renci.SshNet
 
                     while (_channel.IsOpen)
                     {
+#if FEATURE_STREAM_TAP
+                        var readTask = _input.ReadAsync(buffer, 0, buffer.Length);
+                        var readWaitHandle = ((IAsyncResult) readTask).AsyncWaitHandle;
+
+                        if (WaitHandle.WaitAny(new[] {readWaitHandle, _channelClosedWaitHandle}) == 0)
+                        {
+                            var read = readTask.Result;
+                            _channel.SendData(buffer, 0, read);
+                            continue;
+                        }
+#elif FEATURE_STREAM_APM
                         var asyncResult = _input.BeginRead(buffer, 0, buffer.Length, delegate(IAsyncResult result)
                         {
                             //  If input stream is closed and disposed already dont finish reading the stream
@@ -151,19 +149,18 @@ namespace Renci.SshNet
                             var read = _input.EndRead(result);
                             if (read > 0)
                             {
-#if TUNING
                                 _channel.SendData(buffer, 0, read);
-#else
-                                _channel.SendData(buffer.Take(read).ToArray());
-#endif
                             }
 
                         }, null);
 
-                        EventWaitHandle.WaitAny(new WaitHandle[] { asyncResult.AsyncWaitHandle, _channelClosedWaitHandle });
+                        WaitHandle.WaitAny(new[] { asyncResult.AsyncWaitHandle, _channelClosedWaitHandle });
 
                         if (asyncResult.IsCompleted)
                             continue;
+#else
+                        #error Async receive is not implemented.
+#endif
                         break;
                     }
                 }
@@ -242,7 +239,7 @@ namespace Renci.SshNet
             if (Stopping != null)
             {
                 //  Handle event on different thread
-                ExecuteThread(() => Stopping(this, new EventArgs()));
+                ThreadAbstraction.ExecuteThread(() => Stopping(this, new EventArgs()));
             }
 
             if (_channel.IsOpen)
@@ -262,80 +259,91 @@ namespace Renci.SshNet
             _channel.DataReceived -= Channel_DataReceived;
             _channel.ExtendedDataReceived -= Channel_ExtendedDataReceived;
             _channel.Closed -= Channel_Closed;
-            _session.Disconnected -= Session_Disconnected;
-            _session.ErrorOccured -= Session_ErrorOccured;
+
+            UnsubscribeFromSessionEvents(_session);
 
             if (Stopped != null)
             {
                 //  Handle event on different thread
-                ExecuteThread(() => Stopped(this, new EventArgs()));
+                ThreadAbstraction.ExecuteThread(() => Stopped(this, new EventArgs()));
             }
 
             _channel = null;
         }
 
-        partial void ExecuteThread(Action action);
+        /// <summary>
+        /// Unsubscribes the current <see cref="Shell"/> from session events.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <remarks>
+        /// Does nothing when <paramref name="session"/> is <c>null</c>.
+        /// </remarks>
+        private void UnsubscribeFromSessionEvents(ISession session)
+        {
+            if (session == null)
+                return;
+
+            session.Disconnected -= Session_Disconnected;
+            session.ErrorOccured -= Session_ErrorOccured;
+        }
 
         #region IDisposable Members
 
         private bool _disposed;
 
         /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged ResourceMessages.
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose()
         {
             Dispose(true);
-
             GC.SuppressFinalize(this);
         }
 
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged ResourceMessages.</param>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
-            // Check to see if Dispose has already been called.
-            if (!_disposed)
+            if (_disposed)
+                return;
+
+            if (disposing)
             {
-                // If disposing equals true, dispose all managed
-                // and unmanaged ResourceMessages.
-                if (disposing)
+                UnsubscribeFromSessionEvents(_session);
+
+                var channelClosedWaitHandle = _channelClosedWaitHandle;
+                if (channelClosedWaitHandle != null)
                 {
-                    if (_channelClosedWaitHandle != null)
-                    {
-                        _channelClosedWaitHandle.Dispose();
-                        _channelClosedWaitHandle = null;
-                    }
-
-                    if (_channel != null)
-                    {
-                        _channel.Dispose();
-                        _channel = null;
-                    }
-
-                    if (_dataReaderTaskCompleted != null)
-                    {
-                        _dataReaderTaskCompleted.Dispose();
-                        _dataReaderTaskCompleted = null;
-                    }
+                    channelClosedWaitHandle.Dispose();
+                    _channelClosedWaitHandle = null;
                 }
 
-                // Note disposing has been done.
+                var channel = _channel;
+                if (channel != null)
+                {
+                    channel.Dispose();
+                    _channel = null;
+                }
+
+                var dataReaderTaskCompleted = _dataReaderTaskCompleted;
+                if (dataReaderTaskCompleted != null)
+                {
+                    dataReaderTaskCompleted.Dispose();
+                    _dataReaderTaskCompleted = null;
+                }
+
                 _disposed = true;
             }
         }
 
         /// <summary>
         /// Releases unmanaged resources and performs other cleanup operations before the
-        /// <see cref="Session"/> is reclaimed by garbage collection.
+        /// <see cref="Shell"/> is reclaimed by garbage collection.
         /// </summary>
         ~Shell()
         {
-            // Do not re-create Dispose clean-up code here.
-            // Calling Dispose(false) is optimal in terms of
-            // readability and maintainability.
             Dispose(false);
         }
 

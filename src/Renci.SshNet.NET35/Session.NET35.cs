@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using System;
 using Renci.SshNet.Messages;
-using System.Threading;
 using System.Reflection;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -57,35 +56,6 @@ namespace Renci.SshNet
             else
             {
                 HandleMessage(message);
-            }
-        }
-
-        partial void ExecuteThread(Action action)
-        {
-            ThreadPool.QueueUserWorkItem((o) => { action(); });
-        }
-
-        partial void InternalRegisterMessage(string messageName)
-        {
-            lock (this._messagesMetadata)
-            {
-                foreach (var m in from m in this._messagesMetadata where m.Name == messageName select m)
-                {
-                    m.Enabled = true; 
-                    m.Activated = true;
-                }
-            }
-        }
-
-        partial void InternalUnRegisterMessage(string messageName)
-        {
-            lock (this._messagesMetadata)
-            {
-                foreach (var m in from m in this._messagesMetadata where m.Name == messageName select m)
-                {
-                    m.Enabled = false;
-                    m.Activated = false;
-                }
             }
         }
     }

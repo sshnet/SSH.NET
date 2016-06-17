@@ -26,7 +26,7 @@ namespace Renci.SshNet.Channels
         public event EventHandler<ChannelOpenConfirmedEventArgs> OpenConfirmed;
 
         /// <summary>
-        /// Occurs when <see cref="ChannelOpenFailureMessage"/> message received
+        /// Occurs when <see cref="ChannelOpenFailureMessage"/> message is received.
         /// </summary>
         public event EventHandler<ChannelOpenFailedEventArgs> OpenFailed;
 
@@ -40,7 +40,7 @@ namespace Renci.SshNet.Channels
         {
             InitializeRemoteInfo(remoteChannelNumber, initialWindowSize, maximumPacketSize);
 
-            //  Channel is consider to be open when confirmation message was received
+            // Channel is consider to be open when confirmation message was received
             IsOpen = true;
 
             var openConfirmed = OpenConfirmed;
@@ -83,7 +83,6 @@ namespace Renci.SshNet.Channels
                 {
                     OnChannelException(ex);
                 }
-                
             }
         }
 
@@ -104,17 +103,25 @@ namespace Renci.SshNet.Channels
 
         protected override void Dispose(bool disposing)
         {
-            if (disposing)
-            {
-                var session = Session;
-                if (session != null)
-                {
-                    session.ChannelOpenConfirmationReceived -= OnChannelOpenConfirmation;
-                    session.ChannelOpenFailureReceived -= OnChannelOpenFailure;
-                }
-            }
+            UnsubscribeFromSessionEvents(Session);
 
             base.Dispose(disposing);
+        }
+
+        /// <summary>
+        /// Unsubscribes the current <see cref="ClientChannel"/> from session events.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <remarks>
+        /// Does nothing when <paramref name="session"/> is <c>null</c>.
+        /// </remarks>
+        private void UnsubscribeFromSessionEvents(ISession session)
+        {
+            if (session == null)
+                return;
+
+            session.ChannelOpenConfirmationReceived -= OnChannelOpenConfirmation;
+            session.ChannelOpenFailureReceived -= OnChannelOpenFailure;
         }
     }
 }

@@ -20,10 +20,8 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
             var target = new ChannelDataMessage();
 
             Assert.IsNull(target.Data);
-#if TUNING
             Assert.AreEqual(0, target.Offset);
             Assert.AreEqual(0, target.Size);
-#endif
         }
 
         [TestMethod]
@@ -37,10 +35,8 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
             var target = new ChannelDataMessage(localChannelNumber, data);
 
             Assert.AreSame(data, target.Data);
-#if TUNING
             Assert.AreEqual(0, target.Offset);
             Assert.AreEqual(data.Length, target.Size);
-#endif
         }
 
         [TestMethod]
@@ -61,7 +57,6 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
             }
         }
 
-#if TUNING
         [TestMethod]
         public void Constructor_LocalChannelNumberAndDataAndOffsetAndSize()
         {
@@ -81,7 +76,7 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
         public void Constructor_LocalChannelNumberAndDataAndOffsetAndSize_ShouldThrowArgumentNullExceptionWhenDataIsNull()
         {
             var localChannelNumber = (uint) new Random().Next(0, int.MaxValue);
-            byte[] data = null;
+            const byte[] data = null;
             const int offset = 0;
             const int size = 0;
 
@@ -96,7 +91,6 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
                 Assert.AreEqual("data", ex.ParamName);
             }
         }
-#endif
 
         [TestMethod]
         public void GetBytes()
@@ -106,17 +100,10 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
             var localChannelNumber = (uint) random.Next(0, int.MaxValue);
             var data = new byte[random.Next(10, 20)];
             random.NextBytes(data);
-#if TUNING
             var offset = random.Next(2, 4);
             var size = random.Next(5, 9);
 
             var target = new ChannelDataMessage(localChannelNumber, data, offset, size);
-#else
-            var offset = 0;
-            var size = data.Length;
-
-            var target = new ChannelDataMessage(localChannelNumber, data);
-#endif
 
             var bytes = target.GetBytes();
 
@@ -145,28 +132,21 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
         {
             var random = new Random();
 
-            var localChannelNumber = (uint)random.Next(0, int.MaxValue);
+            var localChannelNumber = (uint) random.Next(0, int.MaxValue);
             var data = new byte[random.Next(10, 20)];
             random.NextBytes(data);
-#if TUNING
+
             var offset = random.Next(2, 4);
             var size = random.Next(5, 9);
             var channelDataMessage = new ChannelDataMessage(localChannelNumber, data, offset, size);
-#else
-            var offset = 0;
-            var size = data.Length;
-            var channelDataMessage = new ChannelDataMessage(localChannelNumber, data);
-#endif
             var bytes = channelDataMessage.GetBytes();
             var target = new ChannelDataMessage();
 
             target.Load(bytes);
 
             Assert.IsTrue(target.Data.SequenceEqual(data.Take(offset, size)));
-#if TUNING
             Assert.AreEqual(0, target.Offset);
             Assert.AreEqual(size, target.Size);
-#endif
         }
     }
 }

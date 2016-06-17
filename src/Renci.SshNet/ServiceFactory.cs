@@ -94,7 +94,7 @@ namespace Renci.SshNet
                 throw new SshConnectionException("Failed to negotiate key exchange algorithm.", DisconnectReason.KeyExchangeFailed);
             }
 
-            return keyExchangeAlgorithmType.CreateInstance<KeyExchange>();
+            return keyExchangeAlgorithmType.CreateInstance<IKeyExchange>();
         }
     }
 }

@@ -36,12 +36,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Responses
         {
             var target = new SftpExtendedReplyResponse(_protocolVersion);
 
-#if TUNING
             var sshDataStream = new SshDataStream(4 + 1 + 4);
             sshDataStream.Position = 4; // skip 4 bytes for SSH packet length
-#else
-            var sshDataStream = new SshDataStream(1 + 4);
-#endif
             sshDataStream.WriteByte((byte) SftpMessageTypes.ExtendedReply);
             sshDataStream.Write(_responseId);
 
@@ -66,12 +62,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Responses
             var sid = (ulong) _random.Next(0, int.MaxValue);
             var namemax = (ulong) _random.Next(0, int.MaxValue);
 
-#if TUNING
             var sshDataStream = new SshDataStream(4 + 1 + 4 + 88);
             sshDataStream.Position = 4; // skip 4 bytes for SSH packet length
-#else
-            var sshDataStream = new SshDataStream(1 + 4 + 88);
-#endif
             sshDataStream.WriteByte((byte) SftpMessageTypes.Attrs);
             sshDataStream.Write(_responseId);
             sshDataStream.Write(bsize);

@@ -1,7 +1,5 @@
 ﻿using System;
 using Renci.SshNet.Common;
-using System.Linq;
-using System.Collections.Generic;
 
 namespace Renci.SshNet.Messages.Transport
 {
@@ -16,7 +14,6 @@ namespace Renci.SshNet.Messages.Transport
         /// </summary>
         public byte[] QC { get; private set; }
 
-#if TUNING
         /// <summary>
         /// Gets the size of the message in bytes.
         /// </summary>
@@ -33,14 +30,12 @@ namespace Renci.SshNet.Messages.Transport
                 return capacity;
             }
         }
-#endif
 
         /// <summary>
         /// Initializes a new instance of the <see cref="KeyExchangeEcdhInitMessage"/> class.
         /// </summary>
         public KeyExchangeEcdhInitMessage(BigInteger d, BigInteger q)
         {
-#if TUNING
             var dBytes = d.ToByteArray().Reverse();
             var qBytes = q.ToByteArray().Reverse();
 
@@ -49,16 +44,6 @@ namespace Renci.SshNet.Messages.Transport
             Buffer.BlockCopy(dBytes, 0, data, 1, dBytes.Length);
             Buffer.BlockCopy(qBytes, 0, data, dBytes.Length + 1, qBytes.Length);
             QC = data;
-#else
-            var dBytes = d.ToByteArray();
-            var qBytes = q.ToByteArray();
-
-            var data = new List<byte>();
-            data.Add(0x04);
-            data.AddRange(d.ToByteArray().Reverse());
-            data.AddRange(q.ToByteArray().Reverse());
-            QC = data.ToArray();
-#endif
         }
 
         /// <summary>
@@ -67,11 +52,7 @@ namespace Renci.SshNet.Messages.Transport
         protected override void LoadData()
         {
             ResetReader();
-#if TUNING
             QC = ReadBinary();
-#else
-            QC = ReadBinaryString();
-#endif
         }
 
         /// <summary>

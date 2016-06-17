@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Renci.SshNet.Messages.Transport
+﻿namespace Renci.SshNet.Messages.Transport
 {
     /// <summary>
     /// Represents SSH_MSG_KEX_DH_GEX_REQUEST message.
@@ -16,7 +14,7 @@ namespace Renci.SshNet.Messages.Transport
         /// <value>
         /// The minimum.
         /// </value>
-        public UInt32 Minimum { get; private set; }
+        public uint Minimum { get; private set; }
 
         /// <summary>
         /// Gets or sets the preferred size in bits of the group the server will send.
@@ -24,7 +22,7 @@ namespace Renci.SshNet.Messages.Transport
         /// <value>
         /// The preferred.
         /// </value>
-        public UInt32 Preferred { get; private set; }
+        public uint Preferred { get; private set; }
 
         /// <summary>
         /// Gets or sets the maximal size in bits of an acceptable group.
@@ -32,9 +30,8 @@ namespace Renci.SshNet.Messages.Transport
         /// <value>
         /// The maximum.
         /// </value>
-        public UInt32 Maximum { get; private set; }
+        public uint Maximum { get; private set; }
 
-#if TUNING
         /// <summary>
         /// Gets the size of the message in bytes.
         /// </summary>
@@ -52,7 +49,6 @@ namespace Renci.SshNet.Messages.Transport
                 return capacity;
             }
         }
-#endif
 
         /// <summary>
         /// Initializes a new instance of the <see cref="KeyExchangeDhGroupExchangeRequest"/> class.

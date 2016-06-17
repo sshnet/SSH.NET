@@ -22,7 +22,7 @@ namespace Renci.SshNet
         /// <value>
         /// The supported authentication methods for this connection.
         /// </value>
-        IEnumerable<IAuthenticationMethod> AuthenticationMethods { get; }
+        IList<IAuthenticationMethod> AuthenticationMethods { get; }
 
         /// <summary>
         /// Creates a <see cref="NoneAuthenticationMethod"/> for the credentials represented

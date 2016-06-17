@@ -1,6 +1,4 @@
-﻿using Renci.SshNet.Common;
-
-namespace Renci.SshNet.Sftp
+﻿namespace Renci.SshNet.Sftp
 {
     /// <summary>
     /// Contains File system information exposed by statvfs@openssh.com request.
@@ -10,7 +8,7 @@ namespace Renci.SshNet.Sftp
         internal const ulong SSH_FXE_STATVFS_ST_RDONLY = 0x1;
         internal const ulong SSH_FXE_STATVFS_ST_NOSUID = 0x2;
 
-        private ulong _flag;
+        private readonly ulong _flag;
 
         /// <summary>
         /// Gets the file system block size.

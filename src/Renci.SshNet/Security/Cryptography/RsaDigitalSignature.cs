@@ -19,7 +19,7 @@ namespace Renci.SshNet.Security.Cryptography
         public RsaDigitalSignature(RsaKey rsaKey)
             : base(new ObjectIdentifier(1, 3, 14, 3, 2, 26), new RsaCipher(rsaKey))
         {
-            this._hash = new SHA1Hash();
+            _hash = HashAlgorithmFactory.CreateSHA1();
         }
 
         /// <summary>
@@ -31,7 +31,7 @@ namespace Renci.SshNet.Security.Cryptography
         /// </returns>
         protected override byte[] Hash(byte[] input)
         {
-            return this._hash.ComputeHash(input);
+            return _hash.ComputeHash(input);
         }
 
         #region IDisposable Members
@@ -39,50 +39,42 @@ namespace Renci.SshNet.Security.Cryptography
         private bool _isDisposed;
 
         /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged ResourceMessages.
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose()
         {
             Dispose(true);
-
             GC.SuppressFinalize(this);
         }
 
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged ResourceMessages.</param>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
-            // Check to see if Dispose has already been called.
-            if (!this._isDisposed)
+            if (_isDisposed)
+                return;
+
+            if (disposing)
             {
-                // If disposing equals true, dispose all managed
-                // and unmanaged ResourceMessages.
-                if (disposing)
+                var hash = _hash;
+                if (hash != null)
                 {
-                    // Dispose managed ResourceMessages.
-                    if (this._hash != null)
-                    {
-                        this._hash.Clear();
-                        this._hash = null;
-                    }
+                    hash.Dispose();
+                    _hash = null;
                 }
 
-                // Note disposing has been done.
-                this._isDisposed = true;
+                _isDisposed = true;
             }
         }
 
         /// <summary>
         /// Releases unmanaged resources and performs other cleanup operations before the
-        /// <see cref="SshCommand"/> is reclaimed by garbage collection.
+        /// <see cref="RsaDigitalSignature"/> is reclaimed by garbage collection.
         /// </summary>
         ~RsaDigitalSignature()
         {
-            // Do not re-create Dispose clean-up code here.
-            // Calling Dispose(false) is optimal in terms of
-            // readability and maintainability.
             Dispose(false);
         }
 

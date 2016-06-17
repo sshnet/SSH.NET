@@ -156,17 +156,13 @@ namespace Renci.SshNet.Sftp
         /// <param name="handle">The handle.</param>
         /// <param name="offset">The offset.</param>
         /// <param name="data">The data to send.</param>
-#if TUNING
         /// <param name="length">The number of bytes of <paramref name="data"/> to send.</param>
-#endif
         /// <param name="wait">The wait event handle if needed.</param>
         /// <param name="writeCompleted">The callback to invoke when the write has completed.</param>
         void RequestWrite(byte[] handle,
                           ulong offset,
                           byte[] data,
-#if TUNING
                           int length,
-#endif
                           AutoResetEvent wait,
                           Action<SftpStatusResponse> writeCompleted = null);
 

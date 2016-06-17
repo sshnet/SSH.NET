@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -191,11 +190,11 @@ namespace Renci.SshNet
             switch (keyName)
             {
                 case "RSA":
-                    _key = new RsaKey(decryptedData.ToArray());
+                    _key = new RsaKey(decryptedData);
                     HostKey = new KeyHostAlgorithm("ssh-rsa", _key);
                     break;
                 case "DSA":
-                    _key = new DsaKey(decryptedData.ToArray());
+                    _key = new DsaKey(decryptedData);
                     HostKey = new KeyHostAlgorithm("ssh-dss", _key);
                     break;
                 case "SSH2 ENCRYPTED":
@@ -207,8 +206,8 @@ namespace Renci.SshNet
                     }
 
                     reader.ReadUInt32(); //  Read total bytes length including magic number
-                    var keyType = reader.ReadString();
-                    var ssh2CipherName = reader.ReadString();
+                    var keyType = reader.ReadString(SshData.Ascii);
+                    var ssh2CipherName = reader.ReadString(SshData.Ascii);
                     var blobSize = (int)reader.ReadUInt32();
 
                     byte[] keyData;
@@ -279,7 +278,7 @@ namespace Renci.SshNet
         {
             var cipherKey = new List<byte>();
 
-            using (var md5 = new MD5Hash())
+            using (var md5 = HashAlgorithmFactory.CreateMD5())
             {
                 var passwordBytes = Encoding.UTF8.GetBytes(passphrase);
 
@@ -288,13 +287,13 @@ namespace Renci.SshNet
 
                 while (cipherKey.Count < length)
                 {
-                    hash = passwordBytes.Concat(hash).ToArray();
+                    hash = passwordBytes.Concat(hash);
                     hash = md5.ComputeHash(hash);
                     cipherKey.AddRange(hash);
                 }
             }
 
-            return cipherKey.Take(length).ToArray();
+            return cipherKey.ToArray().Take(length);
         }
 
         /// <summary>
@@ -320,19 +319,19 @@ namespace Renci.SshNet
 
             var cipherKey = new List<byte>();
 
-            using (var md5 = new MD5Hash())
+            using (var md5 = HashAlgorithmFactory.CreateMD5())
             {
                 var passwordBytes = Encoding.UTF8.GetBytes(passPhrase);
 
                 //  Use 8 bytes binary salt
-                var initVector = passwordBytes.Concat(binarySalt.Take(8)).ToArray();
+                var initVector = passwordBytes.Concat(binarySalt.Take(8));
 
                 var hash = md5.ComputeHash(initVector);
                 cipherKey.AddRange(hash);
 
                 while (cipherKey.Count < cipherInfo.KeySize / 8)
                 {
-                    hash = hash.Concat(initVector).ToArray();
+                    hash = hash.Concat(initVector);
                     hash = md5.ComputeHash(hash);
                     cipherKey.AddRange(hash);
                 }
@@ -348,50 +347,42 @@ namespace Renci.SshNet
         private bool _isDisposed;
 
         /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged ResourceMessages.
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose()
         {
             Dispose(true);
-
             GC.SuppressFinalize(this);
         }
 
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged ResourceMessages.</param>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
-            // Check to see if Dispose has already been called.
-            if (!_isDisposed)
+            if (_isDisposed)
+                return;
+
+            if (disposing)
             {
-                // If disposing equals true, dispose all managed
-                // and unmanaged ResourceMessages.
-                if (disposing)
+                var key = _key;
+                if (key != null)
                 {
-                    // Dispose managed ResourceMessages.
-                    if (_key != null)
-                    {
-                        ((IDisposable)_key).Dispose();
-                        _key = null;
-                    }
+                    ((IDisposable) key).Dispose();
+                    _key = null;
                 }
 
-                // Note disposing has been done.
                 _isDisposed = true;
             }
         }
 
         /// <summary>
         /// Releases unmanaged resources and performs other cleanup operations before the
-        /// <see cref="BaseClient"/> is reclaimed by garbage collection.
+        /// <see cref="PrivateKeyFile"/> is reclaimed by garbage collection.
         /// </summary>
         ~PrivateKeyFile()
         {
-            // Do not re-create Dispose clean-up code here.
-            // Calling Dispose(false) is optimal in terms of
-            // readability and maintainability.
             Dispose(false);
         }
 
@@ -404,14 +395,14 @@ namespace Renci.SshNet
                 LoadBytes(data);
             }
 
-            public new UInt32 ReadUInt32()
+            public new uint ReadUInt32()
             {
                 return base.ReadUInt32();
             }
 
-            public new string ReadString()
+            public new string ReadString(Encoding encoding)
             {
-                return base.ReadString();
+                return base.ReadString(encoding);
             }
 
             public new byte[] ReadBytes(int length)
@@ -425,7 +416,7 @@ namespace Renci.SshNet
             /// <returns>mpint read.</returns>
             public BigInteger ReadBigIntWithBits()
             {
-                var length = (int)base.ReadUInt32();
+                var length = (int) base.ReadUInt32();
 
                 length = (length + 7) / 8;
 
@@ -433,7 +424,7 @@ namespace Renci.SshNet
                 var bytesArray = new byte[data.Length + 1];
                 Buffer.BlockCopy(data, 0, bytesArray, 1, data.Length);
 
-                return new BigInteger(bytesArray.Reverse().ToArray());
+                return new BigInteger(bytesArray.Reverse());
             }
 
             protected override void LoadData()

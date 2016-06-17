@@ -28,7 +28,7 @@ namespace Renci.SshNet
         /// <param name="host">The host.</param>
         /// <param name="username">The username.</param>
         public KeyboardInteractiveConnectionInfo(string host, string username)
-            : this(host, ConnectionInfo.DefaultPort, username, ProxyTypes.None, string.Empty, 0, string.Empty, string.Empty)
+            : this(host, DefaultPort, username, ProxyTypes.None, string.Empty, 0, string.Empty, string.Empty)
         {
 
         }
@@ -83,7 +83,7 @@ namespace Renci.SshNet
         /// <param name="proxyHost">The proxy host.</param>
         /// <param name="proxyPort">The proxy port.</param>
         public KeyboardInteractiveConnectionInfo(string host, string username, ProxyTypes proxyType, string proxyHost, int proxyPort)
-            : this(host, ConnectionInfo.DefaultPort, username, proxyType, proxyHost, proxyPort, string.Empty, string.Empty)
+            : this(host, DefaultPort, username, proxyType, proxyHost, proxyPort, string.Empty, string.Empty)
         {
         }
 
@@ -97,7 +97,7 @@ namespace Renci.SshNet
         /// <param name="proxyPort">The proxy port.</param>
         /// <param name="proxyUsername">The proxy username.</param>
         public KeyboardInteractiveConnectionInfo(string host, string username, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername)
-            : this(host, ConnectionInfo.DefaultPort, username, proxyType, proxyHost, proxyPort, proxyUsername, string.Empty)
+            : this(host, DefaultPort, username, proxyType, proxyHost, proxyPort, proxyUsername, string.Empty)
         {
         }
 
@@ -112,7 +112,7 @@ namespace Renci.SshNet
         /// <param name="proxyUsername">The proxy username.</param>
         /// <param name="proxyPassword">The proxy password.</param>
         public KeyboardInteractiveConnectionInfo(string host, string username, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername, string proxyPassword)
-            : this(host, ConnectionInfo.DefaultPort, username, proxyType, proxyHost, proxyPort, proxyUsername, proxyPassword)
+            : this(host, DefaultPort, username, proxyType, proxyHost, proxyPort, proxyUsername, proxyPassword)
         {
         }
 
@@ -130,7 +130,7 @@ namespace Renci.SshNet
         public KeyboardInteractiveConnectionInfo(string host, int port, string username, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername, string proxyPassword)
             : base(host, port, username, proxyType, proxyHost, proxyPort, proxyUsername, proxyPassword, new KeyboardInteractiveAuthenticationMethod(username))
         {
-            foreach (var authenticationMethod in this.AuthenticationMethods.OfType<KeyboardInteractiveAuthenticationMethod>())
+            foreach (var authenticationMethod in AuthenticationMethods.OfType<KeyboardInteractiveAuthenticationMethod>())
             {
                 authenticationMethod.AuthenticationPrompt += AuthenticationMethod_AuthenticationPrompt;
             }
@@ -139,9 +139,9 @@ namespace Renci.SshNet
 
         private void AuthenticationMethod_AuthenticationPrompt(object sender, AuthenticationPromptEventArgs e)
         {
-            if (this.AuthenticationPrompt != null)
+            if (AuthenticationPrompt != null)
             {
-                this.AuthenticationPrompt(sender, e);
+                AuthenticationPrompt(sender, e);
             }
         }
 
@@ -156,7 +156,6 @@ namespace Renci.SshNet
         public void Dispose()
         {
             Dispose(true);
-
             GC.SuppressFinalize(this);
         }
 
@@ -166,37 +165,29 @@ namespace Renci.SshNet
         /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
-            // Check to see if Dispose has already been called.
-            if (!this._isDisposed)
+            if (_isDisposed)
+                return;
+
+            if (disposing)
             {
-                // If disposing equals true, dispose all managed
-                // and unmanaged resources.
-                if (disposing)
+                if (AuthenticationMethods != null)
                 {
-                    // Dispose managed resources.
-                    if (this.AuthenticationMethods != null)
+                    foreach (var authenticationMethods in AuthenticationMethods.OfType<IDisposable>())
                     {
-                        foreach (var authenticationMethods in this.AuthenticationMethods.OfType<IDisposable>())
-                        {
-                            authenticationMethods.Dispose();
-                        }
+                        authenticationMethods.Dispose();
                     }
                 }
 
-                // Note disposing has been done.
                 _isDisposed = true;
             }
         }
 
         /// <summary>
         /// Releases unmanaged resources and performs other cleanup operations before the
-        /// <see cref="PasswordConnectionInfo"/> is reclaimed by garbage collection.
+        /// <see cref="KeyboardInteractiveConnectionInfo"/> is reclaimed by garbage collection.
         /// </summary>
         ~KeyboardInteractiveConnectionInfo()
         {
-            // Do not re-create Dispose clean-up code here.
-            // Calling Dispose(false) is optimal in terms of
-            // readability and maintainability.
             Dispose(false);
         }
 

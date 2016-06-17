@@ -23,7 +23,6 @@ namespace Renci.SshNet.Messages.Connection
         /// </value>
         public bool WantReply { get; protected set; }
 
-#if TUNING
         /// <summary>
         /// Gets the size of the message in bytes.
         /// </summary>
@@ -39,7 +38,6 @@ namespace Renci.SshNet.Messages.Connection
                 return capacity;
             }
         }
-#endif
 
         /// <summary>
         /// Called when type specific data need to be loaded.

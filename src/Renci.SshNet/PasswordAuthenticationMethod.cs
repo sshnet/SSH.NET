@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Linq;
 using System.Text;
 using System.Threading;
+using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Authentication;
 using Renci.SshNet.Messages;
@@ -11,18 +11,13 @@ namespace Renci.SshNet
     /// <summary>
     /// Provides functionality to perform password authentication.
     /// </summary>
-    public partial class PasswordAuthenticationMethod : AuthenticationMethod, IDisposable
+    public class PasswordAuthenticationMethod : AuthenticationMethod, IDisposable
     {
         private AuthenticationResult _authenticationResult = AuthenticationResult.Failure;
-
         private Session _session;
-
         private EventWaitHandle _authenticationCompleted = new AutoResetEvent(false);
-
         private Exception _exception;
-
         private readonly RequestMessage _requestMessage;
-
         private readonly byte[] _password;
 
         /// <summary>
@@ -64,7 +59,6 @@ namespace Renci.SshNet
                 throw new ArgumentNullException("password");
 
             _password = password;
-
             _requestMessage = new RequestMessagePassword(ServiceName.Connection, Username, _password);
         }
 
@@ -87,21 +81,21 @@ namespace Renci.SshNet
             session.UserAuthenticationFailureReceived += Session_UserAuthenticationFailureReceived;
             session.MessageReceived += Session_MessageReceived;
 
-            session.RegisterMessage("SSH_MSG_USERAUTH_PASSWD_CHANGEREQ");
-
-            session.SendMessage(_requestMessage);
-
-            session.WaitOnHandle(_authenticationCompleted);
-            
-            session.UserAuthenticationSuccessReceived -= Session_UserAuthenticationSuccessReceived;
-            session.UserAuthenticationFailureReceived -= Session_UserAuthenticationFailureReceived;
-            session.MessageReceived -= Session_MessageReceived;
-
+            try
+            {
+                session.RegisterMessage("SSH_MSG_USERAUTH_PASSWD_CHANGEREQ");
+                session.SendMessage(_requestMessage);
+                session.WaitOnHandle(_authenticationCompleted);
+            }
+            finally 
+            {
+                session.UserAuthenticationSuccessReceived -= Session_UserAuthenticationSuccessReceived;
+                session.UserAuthenticationFailureReceived -= Session_UserAuthenticationFailureReceived;
+                session.MessageReceived -= Session_MessageReceived;
+            }
 
             if (_exception != null)
-            {
                 throw _exception;
-            }
 
             return _authenticationResult;
         }
@@ -121,7 +115,7 @@ namespace Renci.SshNet
                 _authenticationResult = AuthenticationResult.Failure;
 
             //  Copy allowed authentication methods
-            AllowedAuthentications = e.Message.AllowedAuthentications.ToList();
+            AllowedAuthentications = e.Message.AllowedAuthentications;
 
             _authenticationCompleted.Set();
         }
@@ -132,7 +126,7 @@ namespace Renci.SshNet
             {
                 _session.UnRegisterMessage("SSH_MSG_USERAUTH_PASSWD_CHANGEREQ");
 
-                ExecuteThread(() =>
+                ThreadAbstraction.ExecuteThread(() =>
                 {
                     try
                     {
@@ -156,8 +150,6 @@ namespace Renci.SshNet
             }
         }
 
-        partial void ExecuteThread(Action action);
-
         #region IDisposable Members
 
         private bool _isDisposed;
@@ -168,7 +160,6 @@ namespace Renci.SshNet
         public void Dispose()
         {
             Dispose(true);
-
             GC.SuppressFinalize(this);
         }
 
@@ -178,39 +169,31 @@ namespace Renci.SshNet
         /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
-            // Check to see if Dispose has already been called.
-            if (!_isDisposed)
+            if (_isDisposed)
+                return;
+           
+            if (disposing)
             {
-                // If disposing equals true, dispose all managed
-                // and unmanaged resources.
-                if (disposing)
+                var authenticationCompleted = _authenticationCompleted;
+                if (authenticationCompleted != null)
                 {
-                    // Dispose managed resources.
-                    if (_authenticationCompleted != null)
-                    {
-                        _authenticationCompleted.Dispose();
-                        _authenticationCompleted = null;
-                    }
+                    authenticationCompleted.Dispose();
+                    _authenticationCompleted = null;
                 }
 
-                // Note disposing has been done.
                 _isDisposed = true;
             }
         }
 
         /// <summary>
         /// Releases unmanaged resources and performs other cleanup operations before the
-        /// <see cref="PasswordConnectionInfo"/> is reclaimed by garbage collection.
+        /// <see cref="PasswordAuthenticationMethod"/> is reclaimed by garbage collection.
         /// </summary>
         ~PasswordAuthenticationMethod()
         {
-            // Do not re-create Dispose clean-up code here.
-            // Calling Dispose(false) is optimal in terms of
-            // readability and maintainability.
             Dispose(false);
         }
 
         #endregion
-
     }
 }

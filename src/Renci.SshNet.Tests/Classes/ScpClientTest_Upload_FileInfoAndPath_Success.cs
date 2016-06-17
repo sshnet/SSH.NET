@@ -89,21 +89,12 @@ namespace Renci.SshNet.Tests.Classes
             for (var i = 0; i < random.Next(1, 3); i++)
                 _pipeStreamMock.InSequence(sequence).Setup(p => p.ReadByte()).Returns(-1);
             _pipeStreamMock.InSequence(sequence).Setup(p => p.ReadByte()).Returns(0);
-#if TUNING
             _channelSessionMock.InSequence(sequence)
                 .Setup(
                     p => p.SendData(It.Is<byte[]>(b => b.SequenceEqual(_fileContent.Take(_bufferSize))), 0, _bufferSize));
             _channelSessionMock.InSequence(sequence)
                 .Setup(
                     p => p.SendData(It.Is<byte[]>(b => b.Take(0, _fileContent.Length - _bufferSize).SequenceEqual(_fileContent.Take(_bufferSize, _fileContent.Length - _bufferSize))), 0, _fileContent.Length - _bufferSize));
-#else
-            _channelSessionMock.InSequence(sequence)
-                .Setup(
-                    p => p.SendData(It.Is<byte[]>(b => b.SequenceEqual(_fileContent.Take(_bufferSize)))));
-            _channelSessionMock.InSequence(sequence)
-                .Setup(
-                    p => p.SendData(It.Is<byte[]>(b => b.SequenceEqual(_fileContent.Skip(_bufferSize)))));
-#endif
             _channelSessionMock.InSequence(sequence)
                 .Setup(
                     p => p.SendData(It.Is<byte[]>(b => b.SequenceEqual(new byte[] { 0 }))));

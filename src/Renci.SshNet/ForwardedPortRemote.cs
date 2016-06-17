@@ -4,13 +4,14 @@ using Renci.SshNet.Messages.Connection;
 using Renci.SshNet.Common;
 using System.Globalization;
 using System.Net;
+using Renci.SshNet.Abstractions;
 
 namespace Renci.SshNet
 {
     /// <summary>
     /// Provides functionality for remote port forwarding
     /// </summary>
-    public partial class ForwardedPortRemote : ForwardedPort, IDisposable
+    public class ForwardedPortRemote : ForwardedPort, IDisposable
     {
         private bool _requestStatus;
 
@@ -99,6 +100,35 @@ namespace Renci.SshNet
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="ForwardedPortRemote"/> class.
+        /// </summary>
+        /// <param name="boundPort">The bound port.</param>
+        /// <param name="host">The host.</param>
+        /// <param name="port">The port.</param>
+        /// <example>
+        ///     <code source="..\..\Renci.SshNet.Tests\Classes\ForwardedPortRemoteTest.cs" region="Example SshClient AddForwardedPort Start Stop ForwardedPortRemote" language="C#" title="Remote port forwarding" />
+        /// </example>
+        public ForwardedPortRemote(uint boundPort, string host, uint port)
+            : this(string.Empty, boundPort, host, port)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ForwardedPortRemote"/> class.
+        /// </summary>
+        /// <param name="boundHost">The bound host.</param>
+        /// <param name="boundPort">The bound port.</param>
+        /// <param name="host">The host.</param>
+        /// <param name="port">The port.</param>
+        public ForwardedPortRemote(string boundHost, uint boundPort, string host, uint port)
+            : this(DnsAbstraction.GetHostAddresses(boundHost)[0],
+                   boundPort,
+                   DnsAbstraction.GetHostAddresses(host)[0],
+                   port)
+        {
+        }
+
+        /// <summary>
         /// Starts remote port forwarding.
         /// </summary>
         protected override void StartPort()
@@ -170,7 +200,7 @@ namespace Renci.SshNet
                 if (elapsed >= timeout && timeout != SshNet.Session.InfiniteTimeSpan)
                     break;
                 // give channels time to process pending requests
-                Thread.Sleep(50);
+                ThreadAbstraction.Sleep(50);
             }
         }
 
@@ -199,7 +229,7 @@ namespace Renci.SshNet
                         return;
                     }
 
-                    ExecuteThread(() =>
+                    ThreadAbstraction.ExecuteThread(() =>
                         {
                             Interlocked.Increment(ref _pendingRequests);
 
@@ -249,8 +279,6 @@ namespace Renci.SshNet
             _globalRequestResponse.Set();
         }
 
-        partial void ExecuteThread(Action action);
-
         #region IDisposable Members
 
         private bool _isDisposed;
@@ -270,28 +298,31 @@ namespace Renci.SshNet
         /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected override void Dispose(bool disposing)
         {
-            if (!_isDisposed)
-            {
-                base.Dispose(disposing);
+            if (_isDisposed)
+                return;
 
-                if (disposing)
+            base.Dispose(disposing);
+
+            if (disposing)
+            {
+                var session = Session;
+                if (session != null)
                 {
-                    if (Session != null)
-                    {
-                        Session.RequestSuccessReceived -= Session_RequestSuccess;
-                        Session.RequestFailureReceived -= Session_RequestFailure;
-                        Session.ChannelOpenReceived -= Session_ChannelOpening;
-                        Session = null;
-                    }
-                    if (_globalRequestResponse != null)
-                    {
-                        _globalRequestResponse.Dispose();
-                        _globalRequestResponse = null;
-                    }
+                    session.RequestSuccessReceived -= Session_RequestSuccess;
+                    session.RequestFailureReceived -= Session_RequestFailure;
+                    session.ChannelOpenReceived -= Session_ChannelOpening;
+                    Session = null;
                 }
 
-                _isDisposed = true;
+                var globalRequestResponse = _globalRequestResponse;
+                if (globalRequestResponse != null)
+                {
+                    globalRequestResponse.Dispose();
+                    _globalRequestResponse = null;
+                }
             }
+
+            _isDisposed = true;
         }
 
         /// <summary>
@@ -300,9 +331,6 @@ namespace Renci.SshNet
         /// </summary>
         ~ForwardedPortRemote()
         {
-            // Do not re-create Dispose clean-up code here.
-            // Calling Dispose(false) is optimal in terms of
-            // readability and maintainability.
             Dispose(false);
         }
 

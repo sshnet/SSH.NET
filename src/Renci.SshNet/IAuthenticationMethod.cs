@@ -22,7 +22,7 @@ namespace Renci.SshNet
         /// <value>
         /// The list of allowed authentications.
         /// </value>
-        IEnumerable<string> AllowedAuthentications { get; }
+        IList<string> AllowedAuthentications { get; }
 
         /// <summary>
         /// Gets the name of the authentication method.

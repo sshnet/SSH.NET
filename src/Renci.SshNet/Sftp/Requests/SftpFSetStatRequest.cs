@@ -5,9 +5,7 @@ namespace Renci.SshNet.Sftp.Requests
 {
     internal class SftpFSetStatRequest : SftpRequest
     {
-#if TUNING
         private byte[] _attributesBytes;
-#endif
 
         public override SftpMessageTypes SftpMessageType
         {
@@ -16,7 +14,6 @@ namespace Renci.SshNet.Sftp.Requests
 
         public byte[] Handle { get; private set; }
 
-#if TUNING
         private SftpFileAttributes Attributes { get; set; }
 
         private byte[] AttributesBytes
@@ -30,11 +27,7 @@ namespace Renci.SshNet.Sftp.Requests
                 return _attributesBytes;
             }
         }
-#else
-        public SftpFileAttributes Attributes { get; private set; }
-#endif
 
-#if TUNING
         /// <summary>
         /// Gets the size of the message in bytes.
         /// </summary>
@@ -52,35 +45,26 @@ namespace Renci.SshNet.Sftp.Requests
                 return capacity;
             }
         }
-#endif
 
         public SftpFSetStatRequest(uint protocolVersion, uint requestId, byte[] handle, SftpFileAttributes attributes, Action<SftpStatusResponse> statusAction)
             : base(protocolVersion, requestId, statusAction)
         {
-            this.Handle = handle;
-            this.Attributes = attributes;
+            Handle = handle;
+            Attributes = attributes;
         }
 
         protected override void LoadData()
         {
             base.LoadData();
-#if TUNING
-            this.Handle = this.ReadBinary();
-#else
-            this.Handle = this.ReadBinaryString();
-#endif
-            this.Attributes = this.ReadAttributes();
+            Handle = ReadBinary();
+            Attributes = ReadAttributes();
         }
 
         protected override void SaveData()
         {
             base.SaveData();
-            this.WriteBinaryString(this.Handle);
-#if TUNING
+            WriteBinaryString(Handle);
             Write(AttributesBytes);
-#else
-            this.Write(this.Attributes);
-#endif
         }
     }
 }

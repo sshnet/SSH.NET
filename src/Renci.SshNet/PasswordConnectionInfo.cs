@@ -37,7 +37,6 @@ namespace Renci.SshNet
         public PasswordConnectionInfo(string host, string username, string password)
             : this(host, DefaultPort, username, Encoding.UTF8.GetBytes(password))
         {
-
         }
 
         /// <summary>
@@ -140,7 +139,6 @@ namespace Renci.SshNet
         public PasswordConnectionInfo(string host, string username, byte[] password)
             : this(host, DefaultPort, username, password)
         {
-
         }
 
         /// <summary>
@@ -273,7 +271,6 @@ namespace Renci.SshNet
         public void Dispose()
         {
             Dispose(true);
-
             GC.SuppressFinalize(this);
         }
 
@@ -283,24 +280,19 @@ namespace Renci.SshNet
         /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
-            // Check to see if Dispose has already been called.
-            if (!_isDisposed)
+            if (_isDisposed)
+                return;
+
+            if (disposing)
             {
-                // If disposing equals true, dispose all managed
-                // and unmanaged resources.
-                if (disposing)
+                if (AuthenticationMethods != null)
                 {
-                    // Dispose managed resources.
-                    if (AuthenticationMethods != null)
+                    foreach (var authenticationMethods in AuthenticationMethods.OfType<IDisposable>())
                     {
-                        foreach (var authenticationMethods in AuthenticationMethods.OfType<IDisposable>())
-                        {
-                            authenticationMethods.Dispose();
-                        }
+                        authenticationMethods.Dispose();
                     }
                 }
 
-                // Note disposing has been done.
                 _isDisposed = true;
             }
         }

@@ -32,7 +32,7 @@
     <ComponentConfigurations>
       <ComponentConfig id="Code Block Component" enabled="True" xmlns="">
         <component id="Code Block Component">
-          <basePath value="{@HtmlEncProjectFolder}..\..\Renci.SshNet\bin" />
+          <basePath value="{@HtmlEncProjectFolder}..\..\src\Renci.SshNet\bin" />
           <outputPaths>{@HelpFormatOutputPaths}</outputPaths>
           <allowMissingSource value="false" />
           <removeRegionMarkers value="false" />
@@ -41,8 +41,8 @@
       </ComponentConfig>
     </ComponentConfigurations>
     <DocumentationSources>
-      <DocumentationSource sourceFile="..\..\Renci.SshNet\bin\Release\Renci.SshNet.dll" xmlns="" />
-      <DocumentationSource sourceFile="..\..\Renci.SshNet\bin\Release\Renci.SshNet.xml" xmlns="" />
+      <DocumentationSource sourceFile="..\..\src\Renci.SshNet\bin\Release\Renci.SshNet.dll" xmlns="" />
+      <DocumentationSource sourceFile="..\..\src\Renci.SshNet\bin\Release\Renci.SshNet.xml" xmlns="" />
     </DocumentationSources>
     <MissingTags>Summary, Parameter, Returns, AutoDocumentCtors, TypeParameter, AutoDocumentDispose</MissingTags>
     <BuildAssemblerVerbosity>OnlyWarningsAndErrors</BuildAssemblerVerbosity>

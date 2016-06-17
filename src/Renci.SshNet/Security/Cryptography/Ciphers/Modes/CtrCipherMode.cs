@@ -17,7 +17,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers.Modes
         public CtrCipherMode(byte[] iv)
             : base(iv)
         {
-            this._ivOutput = new byte[iv.Length];
+            _ivOutput = new byte[iv.Length];
         }
 
         /// <summary>
@@ -33,26 +33,26 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers.Modes
         /// </returns>
         public override int EncryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
         {
-            if (inputBuffer.Length - inputOffset < this._blockSize)
+            if (inputBuffer.Length - inputOffset < _blockSize)
                 throw new ArgumentException("Invalid input buffer");
 
-            if (outputBuffer.Length - outputOffset < this._blockSize)
+            if (outputBuffer.Length - outputOffset < _blockSize)
                 throw new ArgumentException("Invalid output buffer");
 
-            if (inputCount != this._blockSize)
-                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "inputCount must be {0}.", this._blockSize));
+            if (inputCount != _blockSize)
+                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "inputCount must be {0}.", _blockSize));
 
-            this.Cipher.EncryptBlock(this.IV, 0, this.IV.Length, this._ivOutput, 0);
+            Cipher.EncryptBlock(IV, 0, IV.Length, _ivOutput, 0);
 
-            for (int i = 0; i < this._blockSize; i++)
+            for (int i = 0; i < _blockSize; i++)
             {
-                outputBuffer[outputOffset + i] = (byte)(this._ivOutput[i] ^ inputBuffer[inputOffset + i]);
+                outputBuffer[outputOffset + i] = (byte)(_ivOutput[i] ^ inputBuffer[inputOffset + i]);
             }
 
-            int j = this.IV.Length;
-            while (--j >= 0 && ++this.IV[j] == 0) ;
+            int j = IV.Length;
+            while (--j >= 0 && ++IV[j] == 0) ;
 
-            return this._blockSize;
+            return _blockSize;
         }
 
         /// <summary>
@@ -68,26 +68,26 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers.Modes
         /// </returns>
         public override int DecryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
         {
-            if (inputBuffer.Length - inputOffset < this._blockSize)
+            if (inputBuffer.Length - inputOffset < _blockSize)
                 throw new ArgumentException("Invalid input buffer");
 
-            if (outputBuffer.Length - outputOffset < this._blockSize)
+            if (outputBuffer.Length - outputOffset < _blockSize)
                 throw new ArgumentException("Invalid output buffer");
 
-            if (inputCount != this._blockSize)
-                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "inputCount must be {0}.", this._blockSize));
+            if (inputCount != _blockSize)
+                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "inputCount must be {0}.", _blockSize));
 
-            this.Cipher.EncryptBlock(this.IV, 0, this.IV.Length, this._ivOutput, 0);
+            Cipher.EncryptBlock(IV, 0, IV.Length, _ivOutput, 0);
 
-            for (int i = 0; i < this._blockSize; i++)
+            for (int i = 0; i < _blockSize; i++)
             {
-                outputBuffer[outputOffset + i] = (byte)(this._ivOutput[i] ^ inputBuffer[inputOffset + i]);
+                outputBuffer[outputOffset + i] = (byte)(_ivOutput[i] ^ inputBuffer[inputOffset + i]);
             }
 
-            int j = this.IV.Length;
-            while (--j >= 0 && ++this.IV[j] == 0) ;
+            int j = IV.Length;
+            while (--j >= 0 && ++IV[j] == 0) ;
 
-            return this._blockSize;
+            return _blockSize;
         }
     }
 }

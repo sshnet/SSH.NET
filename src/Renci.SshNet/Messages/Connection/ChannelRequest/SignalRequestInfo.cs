@@ -5,14 +5,12 @@
     /// </summary>
     internal class SignalRequestInfo : RequestInfo
     {
-#if TUNING
         private byte[] _signalName;
-#endif
 
         /// <summary>
         /// Channel request name.
         /// </summary>
-        public const string NAME = "signal";
+        public const string Name = "signal";
 
         /// <summary>
         /// Gets the name of the request.
@@ -22,7 +20,7 @@
         /// </value>
         public override string RequestName
         {
-            get { return NAME; }
+            get { return Name; }
         }
 
         /// <summary>
@@ -31,17 +29,12 @@
         /// <value>
         /// The name of the signal.
         /// </value>
-#if TUNING
         public string SignalName
         {
             get { return Ascii.GetString(_signalName, 0, _signalName.Length); }
             private set { _signalName = Ascii.GetBytes(value); }
         }
-#else
-        public string SignalName { get; private set; }
-#endif
 
-#if TUNING
         /// <summary>
         /// Gets the size of the message in bytes.
         /// </summary>
@@ -58,7 +51,6 @@
                 return capacity;
             }
         }
-#endif
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SignalRequestInfo"/> class.
@@ -85,11 +77,7 @@
         {
             base.LoadData();
 
-#if TUNING
             _signalName = ReadBinary();
-#else
-            SignalName = ReadAsciiString();
-#endif
         }
 
         /// <summary>
@@ -99,11 +87,7 @@
         {
             base.SaveData();
 
-#if TUNING
             WriteBinaryString(_signalName);
-#else
-            WriteAscii(SignalName);
-#endif
         }
     }
 }

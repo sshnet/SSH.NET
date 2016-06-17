@@ -19,23 +19,23 @@ namespace Renci.SshNet.Sftp.Responses
         public SftpNameResponse(uint protocolVersion, Encoding encoding)
             : base(protocolVersion)
         {
-            this.Files = new KeyValuePair<string, SftpFileAttributes>[0];
-            this.Encoding = encoding;
+            Files = new KeyValuePair<string, SftpFileAttributes>[0];
+            Encoding = encoding;
         }
 
         protected override void LoadData()
         {
             base.LoadData();
             
-            this.Count = this.ReadUInt32();
-            this.Files = new KeyValuePair<string, SftpFileAttributes>[this.Count];
+            Count = ReadUInt32();
+            Files = new KeyValuePair<string, SftpFileAttributes>[Count];
             
-            for (int i = 0; i < this.Count; i++)
+            for (var i = 0; i < Count; i++)
             {
-                var fileName = this.ReadString(this.Encoding);
-                this.ReadString();   //  skip longname
-                var attributes = this.ReadAttributes();
-                this.Files[i] = new KeyValuePair<string, SftpFileAttributes>(fileName, attributes);
+                var fileName = ReadString(Encoding);
+                ReadString(Encoding);   //  skip longname
+                var attributes = ReadAttributes();
+                Files[i] = new KeyValuePair<string, SftpFileAttributes>(fileName, attributes);
             }
         }
     }

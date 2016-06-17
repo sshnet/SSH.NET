@@ -12,30 +12,29 @@
     <AssemblyName>Renci.SshNet</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <SccProjectName>SAK</SccProjectName>
-    <SccLocalPath>SAK</SccLocalPath>
-    <SccAuxPath>SAK</SccAuxPath>
-    <SccProvider>SAK</SccProvider>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;TUNING</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;FEATURE_RNG_CSP;FEATURE_SOCKET_SYNC;FEATURE_SOCKET_EAP;FEATURE_SOCKET_POLL;FEATURE_STREAM_APM;FEATURE_DNS_SYNC;FEATURE_THREAD_THREADPOOL;FEATURE_THREAD_SLEEP;FEATURE_HASH_MD5;FEATURE_HASH_SHA1;FEATURE_HASH_SHA256;FEATURE_HASH_SHA384;FEATURE_HASH_SHA512;FEATURE_HASH_RIPEMD160;FEATURE_HMAC_MD5;FEATURE_HMAC_SHA1;FEATURE_HMAC_SHA256;FEATURE_HMAC_SHA384;FEATURE_HMAC_SHA512;FEATURE_HMAC_RIPEMD160;FEATURE_MEMORYSTREAM_GETBUFFER;FEATURE_DIAGNOSTICS_TRACESOURCE;FEATURE_ENCODING_ASCII</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Debug\Renci.SshNet.xml</DocumentationFile>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>none</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TUNING</DefineConstants>
+    <DefineConstants>FEATURE_RNG_CSP;FEATURE_SOCKET_SYNC;FEATURE_SOCKET_EAP;FEATURE_SOCKET_POLL;FEATURE_STREAM_APM;FEATURE_DNS_SYNC;FEATURE_THREAD_THREADPOOL;FEATURE_THREAD_SLEEP;FEATURE_HASH_MD5;FEATURE_HASH_SHA1;FEATURE_HASH_SHA256;FEATURE_HASH_SHA384;FEATURE_HASH_SHA512;FEATURE_HASH_RIPEMD160;FEATURE_HMAC_MD5;FEATURE_HMAC_SHA1;FEATURE_HMAC_SHA256;FEATURE_HMAC_SHA384;FEATURE_HMAC_SHA512;FEATURE_HMAC_RIPEMD160;FEATURE_MEMORYSTREAM_GETBUFFER;FEATURE_DIAGNOSTICS_TRACESOURCE;FEATURE_ENCODING_ASCII</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Release\Renci.SshNet.xml</DocumentationFile>
-    <NoWarn>1591</NoWarn>
+    <NoWarn>
+    </NoWarn>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
@@ -50,6 +49,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Abstractions\CryptoAbstraction.cs" />
+    <Compile Include="Abstractions\DiagnosticAbstraction.cs" />
+    <Compile Include="Abstractions\DnsAbstraction.cs" />
+    <Compile Include="Abstractions\ReflectionAbstraction.cs" />
+    <Compile Include="Abstractions\SocketAbstraction.cs" />
+    <Compile Include="Abstractions\ThreadAbstraction.cs" />
     <Compile Include="AuthenticationMethod.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -64,14 +69,13 @@
     <Compile Include="CommandAsyncResult.cs" />
     <Compile Include="Channels\Channel.cs" />
     <Compile Include="Channels\ChannelDirectTcpip.cs" />
-    <Compile Include="Channels\ChannelDirectTcpip.NET40.cs" />
     <Compile Include="Channels\ChannelForwardedTcpip.cs" />
-    <Compile Include="Channels\ChannelForwardedTcpip.NET40.cs" />
     <Compile Include="Channels\ChannelSession.cs" />
     <Compile Include="Channels\ChannelTypes.cs" />
     <Compile Include="Channels\ClientChannel.cs" />
     <Compile Include="Channels\ServerChannel.cs" />
     <Compile Include="CipherInfo.cs" />
+    <Compile Include="Common\Array.cs" />
     <Compile Include="Common\ASCIIEncoding.cs" />
     <Compile Include="Common\AsyncResult.cs" />
     <Compile Include="Common\AuthenticationBannerEventArgs.cs" />
@@ -89,7 +93,6 @@
     <Compile Include="Common\ChannelOpenConfirmedEventArgs.cs" />
     <Compile Include="Common\ChannelOpenFailedEventArgs.cs" />
     <Compile Include="Common\ChannelRequestEventArgs.cs" />
-    <Compile Include="Common\Extensions.NET.cs" />
     <Compile Include="Common\ProxyException.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -149,7 +152,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="ConnectionInfo.cs" />
-    <Compile Include="ForwardedPortRemote.NET.cs" />
     <Compile Include="HashInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -164,32 +166,23 @@
     <Compile Include="Messages\Transport\KeyExchangeEcdhInitMessage.cs" />
     <Compile Include="Messages\Transport\KeyExchangeEcdhReplyMessage.cs" />
     <Compile Include="Netconf\INetConfSession.cs" />
-    <Compile Include="Security\Cryptography\Hashes\RIPEMD160Hash.cs" />
-    <Compile Include="Security\Cryptography\Hashes\SHA2HashBase.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Security\Cryptography\Hashes\SHA384Hash.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Security\Cryptography\Hashes\SHA512Hash.cs">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="Security\Cryptography\HMACMD5.cs" />
+    <Compile Include="Security\Cryptography\HMACSHA1.cs" />
+    <Compile Include="Security\Cryptography\HMACSHA256.cs" />
+    <Compile Include="Security\Cryptography\HMACSHA384.cs" />
+    <Compile Include="Security\Cryptography\HMACSHA512.cs" />
     <Compile Include="Security\GroupExchangeHashData.cs" />
     <Compile Include="Security\IKeyExchange.cs" />
     <Compile Include="Security\KeyExchangeDiffieHellmanGroupExchangeShaBase.cs" />
-    <Compile Include="Security\KeyExchangeEllipticCurveDiffieHellman.cs" />
     <Compile Include="ServiceFactory.cs" />
     <Compile Include="ServiceFactory.NET.cs" />
     <Compile Include="Sftp\ISftpSession.cs" />
     <Compile Include="Common\SshDataStream.cs" />
-    <Compile Include="ShellStream.NET40.cs" />
     <Compile Include="ExpectAsyncResult.cs" />
     <Compile Include="Security\KeyExchangeDiffieHellmanGroupSha1.cs" />
-    <Compile Include="SftpClient.NET.cs" />
     <Compile Include="KeyboardInteractiveAuthenticationMethod.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="KeyboardInteractiveAuthenticationMethod.NET40.cs" />
     <Compile Include="KeyboardInteractiveConnectionInfo.cs" />
     <Compile Include="NoneAuthenticationMethod.cs">
       <SubType>Code</SubType>
@@ -197,7 +190,6 @@
     <Compile Include="PasswordAuthenticationMethod.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="PasswordAuthenticationMethod.NET40.cs" />
     <Compile Include="ExpectAction.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -205,9 +197,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="ForwardedPortDynamic.NET.cs" />
-    <Compile Include="ForwardedPortDynamic.NET40.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="ForwardedPortLocal.NET.cs" />
     <Compile Include="Messages\Transport\IKeyExchangedAllowed.cs" />
     <Compile Include="PasswordConnectionInfo.cs" />
@@ -226,11 +215,7 @@
     <Compile Include="ForwardedPortLocal.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="ForwardedPortLocal.NET40.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="ForwardedPortRemote.cs" />
-    <Compile Include="ForwardedPortRemote.NET40.cs" />
     <Compile Include="MessageEventArgs.cs" />
     <Compile Include="Messages\Authentication\BannerMessage.cs" />
     <Compile Include="Messages\Authentication\FailureMessage.cs" />
@@ -355,18 +340,6 @@
     <Compile Include="Security\Cryptography\DsaKey.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Security\Cryptography\Hashes\MD5Hash.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Security\Cryptography\Hashes\SHA1Hash.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Security\Cryptography\Hashes\SHA256Hash.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Security\Cryptography\HMAC.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Security\Cryptography\Key.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -410,7 +383,6 @@
     <Compile Include="SftpClient.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="SftpClient.NET40.cs" />
     <Compile Include="Sftp\Flags.cs" />
     <Compile Include="Sftp\Requests\ExtendedRequests\FStatVfsRequest.cs" />
     <Compile Include="Sftp\Requests\ExtendedRequests\HardLinkRequest.cs" />
@@ -475,13 +447,12 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Shell.cs" />
-    <Compile Include="Shell.NET40.cs" />
     <Compile Include="ShellStream.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="SshClient.cs" />
     <Compile Include="SshCommand.cs" />
-    <Compile Include="SshCommand.NET40.cs" />
+    <Compile Include="SshMessageFactory.cs" />
     <Compile Include="SubsystemSession.cs" />
   </ItemGroup>
   <ItemGroup>

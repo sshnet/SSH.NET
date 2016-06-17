@@ -1,19 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.IO;
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
 using System.Threading;
 using System.Text.RegularExpressions;
+using Renci.SshNet.Abstractions;
 
 namespace Renci.SshNet
 {
     /// <summary>
     /// Contains operation for working with SSH Shell.
     /// </summary>
-    public partial class ShellStream : Stream
+    public class ShellStream : Stream
     {
         private const string CrLf = "\r\n";
         private const int BufferSize = 1024;
@@ -24,6 +24,7 @@ namespace Renci.SshNet
         private readonly Queue<byte> _outgoing;
         private IChannelSession _channel;
         private AutoResetEvent _dataReceived = new AutoResetEvent(false);
+        private bool _isDisposed;
 
         /// <summary>
         /// Occurs when data was received.
@@ -52,7 +53,7 @@ namespace Renci.SshNet
             }
         }
 
-        internal ShellStream(ISession session, string terminalName, uint columns, uint rows, uint width, uint height, int bufferSize, IDictionary<TerminalModes, uint> terminalModeValues)
+        internal ShellStream(ISession session, string terminalName, uint columns, uint rows, uint width, uint height, IDictionary<TerminalModes, uint> terminalModeValues)
         {
             _encoding = session.ConnectionInfo.Encoding;
             _session = session;
@@ -223,7 +224,7 @@ namespace Renci.SshNet
         /// <exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed.</exception>
         public override void Write(byte[] buffer, int offset, int count)
         {
-            foreach (var b in buffer.Skip(offset).Take(count).ToArray())
+            foreach (var b in buffer.Take(offset, count))
             {
                 if (_outgoing.Count < BufferSize)
                 {
@@ -363,7 +364,7 @@ namespace Renci.SshNet
             var asyncResult = new ExpectAsyncResult(callback, state);
 
             //  Execute callback on different thread
-            ExecuteThread(() =>
+            ThreadAbstraction.ExecuteThread(() =>
             {
                 string expectActionResult = null;
                 try
@@ -463,7 +464,7 @@ namespace Renci.SshNet
         /// </returns>
         public string Expect(string text)
         {
-            return Expect(new Regex(Regex.Escape(text)), TimeSpan.FromMilliseconds(-1));
+            return Expect(new Regex(Regex.Escape(text)), Session.InfiniteTimeSpan);
         }
 
         /// <summary>
@@ -666,28 +667,50 @@ namespace Renci.SshNet
         {
             base.Dispose(disposing);
 
-            if (_session != null)
-            {
-                _session.Disconnected -= Session_Disconnected;
-                _session.ErrorOccured -= Session_ErrorOccured;
-            }
+            if (_isDisposed)
+                return;
 
-            if (_channel != null)
+            if (disposing)
             {
-                _channel.DataReceived -= Channel_DataReceived;
-                _channel.Closed -= Channel_Closed;
-                _channel.Dispose();
-                _channel = null;
-            }
+                UnsubscribeFromSessionEvents(_session);
 
-            if (_dataReceived != null)
+                if (_channel != null)
+                {
+                    _channel.DataReceived -= Channel_DataReceived;
+                    _channel.Closed -= Channel_Closed;
+                    _channel.Dispose();
+                    _channel = null;
+                }
+
+                if (_dataReceived != null)
+                {
+                    _dataReceived.Dispose();
+                    _dataReceived = null;
+                }
+
+                _isDisposed = true;
+            }
+            else
             {
-                _dataReceived.Dispose();
-                _dataReceived = null;
+                UnsubscribeFromSessionEvents(_session);
             }
         }
 
-        partial void ExecuteThread(Action action);
+        /// <summary>
+        /// Unsubscribes the current <see cref="ShellStream"/> from session events.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <remarks>
+        /// Does nothing when <paramref name="session"/> is <c>null</c>.
+        /// </remarks>
+        private void UnsubscribeFromSessionEvents(ISession session)
+        {
+            if (session == null)
+                return;
+
+            session.Disconnected -= Session_Disconnected;
+            session.ErrorOccured -= Session_ErrorOccured;
+        }
 
         private void Session_ErrorOccured(object sender, ExceptionEventArgs e)
         {

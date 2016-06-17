@@ -533,39 +533,6 @@ namespace Renci.SshNet.Tests.Classes
             Assert.Inconclusive("A method that does not return a value cannot be verified.");
         }
 
-        /// <summary>
-        ///A test for Dispose
-        ///</summary>
-        [TestMethod]
-        [Ignore] // placeholder for actual test
-        public void DisposeTest()
-        {
-            Session session = null; // TODO: Initialize to an appropriate value
-            string commandText = string.Empty; // TODO: Initialize to an appropriate value
-            var encoding = Encoding.UTF8;
-            SshCommand target = new SshCommand(session, commandText, encoding); // TODO: Initialize to an appropriate value
-            target.Dispose();
-            Assert.Inconclusive("A method that does not return a value cannot be verified.");
-        }
-
-        /// <summary>
-        ///A test for EndExecute
-        ///</summary>
-        [TestMethod]
-        [Ignore] // placeholder for actual test
-        public void EndExecuteTest()
-        {
-            Session session = null; // TODO: Initialize to an appropriate value
-            string commandText = string.Empty; // TODO: Initialize to an appropriate value
-            var encoding = Encoding.UTF8;
-            SshCommand target = new SshCommand(session, commandText, encoding); // TODO: Initialize to an appropriate value
-            IAsyncResult asyncResult = null; // TODO: Initialize to an appropriate value
-            string expected = string.Empty; // TODO: Initialize to an appropriate value
-            string actual;
-            actual = target.EndExecute(asyncResult);
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verify the correctness of this test method.");
-        }
 
         /// <summary>
         ///A test for Execute

@@ -16,16 +16,11 @@ namespace Renci.SshNet.Messages.Connection
         /// <value>
         /// The data.
         /// </value>
-#if TUNING
         /// <remarks>
         /// The actual data to read or write depends on the <see cref="Offset"/> and <see cref="Size"/>.
         /// </remarks>
         public byte[] Data { get; private set; }
-#else
-        public byte[] Data { get; protected set; }
-#endif
 
-#if TUNING
         /// <summary>
         /// Gets the zero-based offset in <see cref="Data"/> at which the data begins.
         /// </summary>
@@ -58,7 +53,6 @@ namespace Renci.SshNet.Messages.Connection
                 return capacity;
             }
         }
-#endif
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ChannelDataMessage"/> class.
@@ -79,13 +73,10 @@ namespace Renci.SshNet.Messages.Connection
                 throw new ArgumentNullException("data");
 
             Data = data;
-#if TUNING
             Offset = 0;
             Size = data.Length;
-#endif
         }
 
-#if TUNING
         /// <summary>
         /// Initializes a new instance of the <see cref="ChannelDataMessage"/> class.
         /// </summary>
@@ -103,7 +94,6 @@ namespace Renci.SshNet.Messages.Connection
             Offset = offset;
             Size = size;
         }
-#endif
 
         /// <summary>
         /// Loads the data.
@@ -111,13 +101,9 @@ namespace Renci.SshNet.Messages.Connection
         protected override void LoadData()
         {
             base.LoadData();
-#if TUNING
             Data = ReadBinary();
             Offset = 0;
             Size = Data.Length;
-#else
-            Data = ReadBinaryString();
-#endif
         }
 
         /// <summary>
@@ -126,11 +112,7 @@ namespace Renci.SshNet.Messages.Connection
         protected override void SaveData()
         {
             base.SaveData();
-#if TUNING
             WriteBinary(Data, Offset, Size);
-#else
-            WriteBinaryString(Data);
-#endif
         }
     }
 }

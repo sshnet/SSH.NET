@@ -26,14 +26,13 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             //  TODO:   Refactor this algorithm
 
             // calculate the MDS matrix
-            int[] m1 = new int[2];
-            int[] mX = new int[2];
-            int[] mY = new int[2];
-            int j;
+            var m1 = new int[2];
+            var mX = new int[2];
+            var mY = new int[2];
 
-            for (int i = 0; i < MAX_KEY_BITS; i++)
+            for (var i = 0; i < MAX_KEY_BITS; i++)
             {
-                j = P[0 + i] & 0xff;
+                var j = P[0 + i] & 0xff;
                 m1[0] = j;
                 mX[0] = Mx_X(j) & 0xff;
                 mY[0] = Mx_Y(j) & 0xff;
@@ -52,8 +51,8 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 gMDS3[i] = mX[P_30] | m1[P_30] << 8 | mY[P_30] << 16 | mX[P_30] << 24;
             }
 
-            this.k64Cnt = key.Length / 8; // pre-padded ?
-            this.SetKey(key);
+            _k64Cnt = key.Length / 8; // pre-padded ?
+            SetKey(key);
         }
 
         /// <summary>
@@ -69,17 +68,16 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// </returns>
         public override int EncryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
         {
-            int x0 = BytesTo32Bits(inputBuffer, inputOffset) ^ gSubKeys[INPUT_WHITEN];
-            int x1 = BytesTo32Bits(inputBuffer, inputOffset + 4) ^ gSubKeys[INPUT_WHITEN + 1];
-            int x2 = BytesTo32Bits(inputBuffer, inputOffset + 8) ^ gSubKeys[INPUT_WHITEN + 2];
-            int x3 = BytesTo32Bits(inputBuffer, inputOffset + 12) ^ gSubKeys[INPUT_WHITEN + 3];
+            var x0 = BytesTo32Bits(inputBuffer, inputOffset) ^ gSubKeys[INPUT_WHITEN];
+            var x1 = BytesTo32Bits(inputBuffer, inputOffset + 4) ^ gSubKeys[INPUT_WHITEN + 1];
+            var x2 = BytesTo32Bits(inputBuffer, inputOffset + 8) ^ gSubKeys[INPUT_WHITEN + 2];
+            var x3 = BytesTo32Bits(inputBuffer, inputOffset + 12) ^ gSubKeys[INPUT_WHITEN + 3];
 
-            int k = ROUND_SUBKEYS;
-            int t0, t1;
-            for (int r = 0; r < ROUNDS; r += 2)
+            var k = ROUND_SUBKEYS;
+            for (var r = 0; r < ROUNDS; r += 2)
             {
-                t0 = Fe32_0(gSBox, x0);
-                t1 = Fe32_3(gSBox, x1);
+                var t0 = Fe32_0(gSBox, x0);
+                var t1 = Fe32_3(gSBox, x1);
                 x2 ^= t0 + t1 + gSubKeys[k++];
                 x2 = (int)((uint)x2 >> 1) | x2 << 31;
                 x3 = (x3 << 1 | (int)((uint)x3 >> 31)) ^ (t0 + 2 * t1 + gSubKeys[k++]);
@@ -96,7 +94,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             Bits32ToBytes(x0 ^ gSubKeys[OUTPUT_WHITEN + 2], outputBuffer, outputOffset + 8);
             Bits32ToBytes(x1 ^ gSubKeys[OUTPUT_WHITEN + 3], outputBuffer, outputOffset + 12);
 
-            return this.BlockSize;
+            return BlockSize;
         }
 
         /// <summary>
@@ -112,17 +110,16 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// </returns>
         public override int DecryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
         {
-            int x2 = BytesTo32Bits(inputBuffer, inputOffset) ^ gSubKeys[OUTPUT_WHITEN];
-            int x3 = BytesTo32Bits(inputBuffer, inputOffset + 4) ^ gSubKeys[OUTPUT_WHITEN + 1];
-            int x0 = BytesTo32Bits(inputBuffer, inputOffset + 8) ^ gSubKeys[OUTPUT_WHITEN + 2];
-            int x1 = BytesTo32Bits(inputBuffer, inputOffset + 12) ^ gSubKeys[OUTPUT_WHITEN + 3];
+            var x2 = BytesTo32Bits(inputBuffer, inputOffset) ^ gSubKeys[OUTPUT_WHITEN];
+            var x3 = BytesTo32Bits(inputBuffer, inputOffset + 4) ^ gSubKeys[OUTPUT_WHITEN + 1];
+            var x0 = BytesTo32Bits(inputBuffer, inputOffset + 8) ^ gSubKeys[OUTPUT_WHITEN + 2];
+            var x1 = BytesTo32Bits(inputBuffer, inputOffset + 12) ^ gSubKeys[OUTPUT_WHITEN + 3];
 
-            int k = ROUND_SUBKEYS + 2 * ROUNDS - 1;
-            int t0, t1;
-            for (int r = 0; r < ROUNDS; r += 2)
+            var k = ROUND_SUBKEYS + 2 * ROUNDS - 1;
+            for (var r = 0; r < ROUNDS; r += 2)
             {
-                t0 = Fe32_0(gSBox, x2);
-                t1 = Fe32_3(gSBox, x3);
+                var t0 = Fe32_0(gSBox, x2);
+                var t1 = Fe32_3(gSBox, x3);
                 x1 ^= t0 + 2 * t1 + gSubKeys[k--];
                 x0 = (x0 << 1 | (int)((uint)x0 >> 31)) ^ (t0 + t1 + gSubKeys[k--]);
                 x1 = (int)((uint)x1 >> 1) | x1 << 31;
@@ -139,7 +136,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             Bits32ToBytes(x2 ^ gSubKeys[INPUT_WHITEN + 2], outputBuffer, outputOffset + 8);
             Bits32ToBytes(x3 ^ gSubKeys[INPUT_WHITEN + 3], outputBuffer, outputOffset + 12);
 
-            return this.BlockSize;
+            return BlockSize;
         }
 
         #region Static Definition Tables
@@ -347,22 +344,22 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         private int[] gSubKeys;
         private int[] gSBox;
 
-        private int k64Cnt;
+        private readonly int _k64Cnt;
 
         private void SetKey(byte[] key)
         {
-            int[] k32e = new int[MAX_KEY_BITS / 64]; // 4
-            int[] k32o = new int[MAX_KEY_BITS / 64]; // 4
+            var k32e = new int[MAX_KEY_BITS / 64]; // 4
+            var k32o = new int[MAX_KEY_BITS / 64]; // 4
 
-            int[] sBoxKeys = new int[MAX_KEY_BITS / 64]; // 4
+            var sBoxKeys = new int[MAX_KEY_BITS / 64]; // 4
             gSubKeys = new int[TOTAL_SUBKEYS];
 
-            if (k64Cnt < 1)
+            if (_k64Cnt < 1)
             {
                 throw new ArgumentException("Key size less than 64 bits");
             }
 
-            if (k64Cnt > 4)
+            if (_k64Cnt > 4)
             {
                 throw new ArgumentException("Key size larger than 256 bits");
             }
@@ -373,42 +370,41 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             * maximum of 32 bytes ( 256 bits ), so the range
             * for k64Cnt is 1..4
             */
-            for (int i = 0; i < k64Cnt; i++)
+            for (var i = 0; i < _k64Cnt; i++)
             {
                 var p = i * 8;
 
                 k32e[i] = BytesTo32Bits(key, p);
                 k32o[i] = BytesTo32Bits(key, p + 4);
 
-                sBoxKeys[k64Cnt - 1 - i] = RS_MDS_Encode(k32e[i], k32o[i]);
+                sBoxKeys[_k64Cnt - 1 - i] = RS_MDS_Encode(k32e[i], k32o[i]);
             }
 
-            int q, A, B;
-            for (int i = 0; i < TOTAL_SUBKEYS / 2; i++)
+            for (var i = 0; i < TOTAL_SUBKEYS / 2; i++)
             {
-                q = i * SK_STEP;
-                A = F32(q, k32e);
-                B = F32(q + SK_BUMP, k32o);
-                B = B << 8 | (int)((uint)B >> 24);
-                A += B;
-                gSubKeys[i * 2] = A;
-                A += B;
-                gSubKeys[i * 2 + 1] = A << SK_ROTL | (int)((uint)A >> (32 - SK_ROTL));
+                var q = i * SK_STEP;
+                var a = F32(q, k32e);
+                var b = F32(q + SK_BUMP, k32o);
+                b = b << 8 | (int)((uint)b >> 24);
+                a += b;
+                gSubKeys[i * 2] = a;
+                a += b;
+                gSubKeys[i * 2 + 1] = a << SK_ROTL | (int)((uint)a >> (32 - SK_ROTL));
             }
 
             /*
             * fully expand the table for speed
             */
-            int k0 = sBoxKeys[0];
-            int k1 = sBoxKeys[1];
-            int k2 = sBoxKeys[2];
-            int k3 = sBoxKeys[3];
-            int b0, b1, b2, b3;
+            var k0 = sBoxKeys[0];
+            var k1 = sBoxKeys[1];
+            var k2 = sBoxKeys[2];
+            var k3 = sBoxKeys[3];
             gSBox = new int[4 * MAX_KEY_BITS];
-            for (int i = 0; i < MAX_KEY_BITS; i++)
+            for (var i = 0; i < MAX_KEY_BITS; i++)
             {
-                b0 = b1 = b2 = b3 = i;
-                switch (k64Cnt & 3)
+                int b1, b2, b3;
+                var b0 = b1 = b2 = b3 = i;
+                switch (_k64Cnt & 3)
                 {
                     case 1:
                         gSBox[i * 2] = gMDS0[(P[P_01 * 256 + b0] & 0xff) ^ M_b0(k0)];
@@ -450,17 +446,17 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         */
         private int F32(int x, int[] k32)
         {
-            int b0 = M_b0(x);
-            int b1 = M_b1(x);
-            int b2 = M_b2(x);
-            int b3 = M_b3(x);
-            int k0 = k32[0];
-            int k1 = k32[1];
-            int k2 = k32[2];
-            int k3 = k32[3];
+            var b0 = M_b0(x);
+            var b1 = M_b1(x);
+            var b2 = M_b2(x);
+            var b3 = M_b3(x);
+            var k0 = k32[0];
+            var k1 = k32[1];
+            var k2 = k32[2];
+            var k3 = k32[3];
 
-            int result = 0;
-            switch (k64Cnt & 3)
+            var result = 0;
+            switch (_k64Cnt & 3)
             {
                 case 1:
                     result = gMDS0[(P[P_01 * 256 + b0] & 0xff) ^ M_b0(k0)] ^
@@ -502,7 +498,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         */
         private static int RS_MDS_Encode(int k0, int k1)
         {
-            int r = k1;
+            var r = k1;
             // shift 1 byte at a time
             r = RS_rem(r);
             r = RS_rem(r);
@@ -528,10 +524,10 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         */
         private static int RS_rem(int x)
         {
-            int b = (int)(((uint)x >> 24) & 0xff);
-            int g2 = ((b << 1) ^
+            var b = (int)(((uint)x >> 24) & 0xff);
+            var g2 = ((b << 1) ^
                     ((b & 0x80) != 0 ? RS_GF_FDBK : 0)) & 0xff;
-            int g3 = ((int)((uint)b >> 1) ^
+            var g3 = ((int)((uint)b >> 1) ^
                     ((b & 0x01) != 0 ? (int)((uint)RS_GF_FDBK >> 1) : 0)) ^ g2;
             return ((x << 8) ^ (g3 << 24) ^ (g2 << 16) ^ (g3 << 8) ^ b);
         }

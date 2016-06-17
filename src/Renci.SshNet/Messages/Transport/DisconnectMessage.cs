@@ -6,10 +6,8 @@
     [Message("SSH_MSG_DISCONNECT", 1)]
     public class DisconnectMessage : Message, IKeyExchangedAllowed
     {
-#if TUNING
         private byte[] _description;
         private byte[] _language;
-#endif
 
         /// <summary>
         /// Gets disconnect reason code.
@@ -19,30 +17,21 @@
         /// <summary>
         /// Gets disconnect description.
         /// </summary>
-#if TUNING
         public string Description
         {
             get { return Utf8.GetString(_description, 0, _description.Length); }
             private set { _description = Utf8.GetBytes(value); }
         }
-#else
-        public string Description { get; private set; }
-#endif
 
         /// <summary>
         /// Gets message language.
         /// </summary>
-#if TUNING
         public string Language
         {
             get { return Utf8.GetString(_language, 0, _language.Length); }
             private set { _language = Utf8.GetBytes(value); }
         }
-#else
-        public string Language { get; private set; }
-#endif
 
-#if TUNING
         /// <summary>
         /// Gets the size of the message in bytes.
         /// </summary>
@@ -62,7 +51,6 @@
                 return capacity;
             }
         }
-#endif
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DisconnectMessage"/> class.
@@ -80,9 +68,7 @@
         {
             ReasonCode = reasonCode;
             Description = message;
-#if TUNING
             Language = "en";
-#endif
         }
 
         /// <summary>
@@ -90,14 +76,9 @@
         /// </summary>
         protected override void LoadData()
         {
-            ReasonCode = (DisconnectReason)ReadUInt32();
-#if TUNING
+            ReasonCode = (DisconnectReason) ReadUInt32();
             _description = ReadBinary();
             _language = ReadBinary();
-#else
-            Description = ReadString();
-            Language = ReadString();
-#endif
         }
 
         /// <summary>
@@ -105,14 +86,9 @@
         /// </summary>
         protected override void SaveData()
         {
-            Write((uint)ReasonCode);
-#if TUNING
+            Write((uint) ReasonCode);
             WriteBinaryString(_description);
             WriteBinaryString(_language);
-#else
-            Write(Description);
-            Write(Language ?? "en");
-#endif
         }
     }
 }

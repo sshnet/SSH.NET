@@ -54,5 +54,15 @@ namespace Renci.SshNet
         public bool IsCompleted { get; internal set; }
 
         #endregion
+
+        /// <summary>
+        /// Gets a value indicating whether <see cref="SshCommand.EndExecute(IAsyncResult)"/> was already called for this
+        /// <see cref="CommandAsyncResult"/>.
+        /// </summary>
+        /// <returns>
+        /// <c>true</c> if <see cref="SshCommand.EndExecute(IAsyncResult)"/> was already called for this <see cref="CommandAsyncResult"/>;
+        /// otherwise, <c>false</c>.
+        /// </returns>
+        internal bool EndCalled { get; set; }
     }
 }

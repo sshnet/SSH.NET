@@ -14,18 +14,13 @@
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <TargetFrameworkProfile />
-    <SccProjectName>SAK</SccProjectName>
-    <SccLocalPath>SAK</SccLocalPath>
-    <SccAuxPath>SAK</SccAuxPath>
-    <SccProvider>SAK</SccProvider>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;TUNING</DefineConstants>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -33,7 +28,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;TUNING</DefineConstants>
+    <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>0</WarningLevel>
   </PropertyGroup>
@@ -46,7 +41,7 @@
   <ItemGroup>
     <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="Moq">
-      <HintPath>..\packages\Moq.4.2.1409.1722\lib\net35\Moq.dll</HintPath>
+      <HintPath>..\..\packages\Moq.4.2.1409.1722\lib\net35\Moq.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
@@ -61,6 +56,15 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\test\Renci.SshNet.Shared.Tests\Abstractions\CryptoAbstraction_GenerateRandom.cs">
+      <Link>Classes\Abstraction\CryptoAbstraction_GenerateRandom.cs</Link>
+    </Compile>
+    <Compile Include="..\..\test\Renci.SshNet.Shared.Tests\Abstractions\DnsAbstraction_GetHostAddresses.cs">
+      <Link>Classes\Abstraction\DnsAbstraction_GetHostAddresses.cs</Link>
+    </Compile>
+    <Compile Include="..\..\test\Renci.SshNet.Shared.Tests\Abstractions\ThreadAbstraction_ExecuteThread.cs">
+      <Link>Classes\Abstraction\ThreadAbstraction_ExecuteThread.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelDirectTcpipTest.cs">
       <Link>Classes\Channels\ChannelDirectTcpipTest.cs</Link>
     </Compile>
@@ -775,18 +779,6 @@
     <Compile Include="..\Renci.SshNet.Tests\Classes\Security\Cryptography\DsaKeyTest.cs">
       <Link>Classes\Security\Cryptography\DsaKeyTest.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\Classes\Security\Cryptography\Hashes\MD5HashTest.cs">
-      <Link>Classes\Security\Cryptography\Hashes\MD5HashTest.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\Classes\Security\Cryptography\Hashes\RIPEMD160HashTest.cs">
-      <Link>Classes\Security\Cryptography\Hashes\RIPEMD160HashTest.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\Classes\Security\Cryptography\Hashes\SHA1HashTest.cs">
-      <Link>Classes\Security\Cryptography\Hashes\SHA1HashTest.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\Classes\Security\Cryptography\Hashes\SHA256HashTest.cs">
-      <Link>Classes\Security\Cryptography\Hashes\SHA256HashTest.cs</Link>
-    </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Security\Cryptography\HMacTest.cs">
       <Link>Classes\Security\Cryptography\HMacTest.cs</Link>
     </Compile>
@@ -1099,6 +1091,27 @@
     <Compile Include="..\Renci.SshNet.Tests\Classes\SshCommandTest.cs">
       <Link>Classes\SshCommandTest.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\SshCommandTest_BeginExecute_EndExecuteInvokedOnAsyncResultFromPreviousInvocation.cs">
+      <Link>Classes\SshCommandTest_BeginExecute_EndExecuteInvokedOnAsyncResultFromPreviousInvocation.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\SshCommandTest_BeginExecute_EndExecuteNotInvokedOnAsyncResultFromPreviousInvocation.cs">
+      <Link>Classes\SshCommandTest_BeginExecute_EndExecuteNotInvokedOnAsyncResultFromPreviousInvocation.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\SshCommandTest_Dispose.cs">
+      <Link>Classes\SshCommandTest_Dispose.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\SshCommandTest_EndExecute.cs">
+      <Link>Classes\SshCommandTest_EndExecute.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\SshCommandTest_EndExecute_AsyncResultFromOtherInstance.cs">
+      <Link>Classes\SshCommandTest_EndExecute_AsyncResultFromOtherInstance.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\SshCommandTest_EndExecute_AsyncResultIsNull.cs">
+      <Link>Classes\SshCommandTest_EndExecute_AsyncResultIsNull.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\SshCommandTest_EndExecute_ChannelOpen.cs">
+      <Link>Classes\SshCommandTest_EndExecute_ChannelOpen.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\SubsystemSessionStub.cs">
       <Link>Classes\SubsystemSessionStub.cs</Link>
     </Compile>
@@ -1258,7 +1271,7 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" ProjectLinkReference="c45379b9-17b1-4e89-bc2e-6d41726413e8" />
+      <UserProperties ProjectLinkReference="c45379b9-17b1-4e89-bc2e-6d41726413e8" ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -16,7 +16,7 @@ namespace Renci.SshNet.Sftp.Responses
 
         public T GetReply<T>() where T : SshData, new()
         {
-            return this.OfType<T>();
+            return OfType<T>();
         }
     }
 }

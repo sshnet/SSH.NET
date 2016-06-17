@@ -132,56 +132,49 @@ namespace Renci.SshNet.Compression
         private bool _isDisposed;
 
         /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged ResourceMessages.
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose()
         {
             Dispose(true);
-
             GC.SuppressFinalize(this);
         }
 
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged ResourceMessages.</param>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
-            // Check to see if Dispose has already been called.
-            if (!_isDisposed)
-            {
-                // If disposing equals true, dispose all managed
-                // and unmanaged ResourceMessages.
-                if (disposing)
-                {
-                    // Dispose managed ResourceMessages.
-                    if (_compressorStream != null)
-                    {
-                        _compressorStream.Dispose();
-                        _compressorStream = null;
-                    }
+            if (_isDisposed)
+                return;
 
-                    if (_decompressorStream != null)
-                    {
-                        _decompressorStream.Dispose();
-                        _decompressorStream = null;
-                    }
+            if (disposing)
+            {
+                var compressorStream = _compressorStream;
+                if (compressorStream != null)
+                {
+                    compressorStream.Dispose();
+                    _compressorStream = null;
                 }
 
-                // Note disposing has been done.
+                var decompressorStream = _decompressorStream;
+                if (decompressorStream != null)
+                {
+                    decompressorStream.Dispose();
+                    _decompressorStream = null;
+                }
+
                 _isDisposed = true;
             }
         }
 
         /// <summary>
-        /// Releases unmanaged resources and performs other cleanup operations before the
-        /// <see cref="SshCommand"/> is reclaimed by garbage collection.
+        /// Releases unmanaged resources and performs other cleanup operations before the <see cref="Compressor"/> is reclaimed
+        /// by garbage collection.
         /// </summary>
         ~Compressor()
         {
-            // Do not re-create Dispose clean-up code here.
-            // Calling Dispose(false) is optimal in terms of
-            // readability and maintainability.
             Dispose(false);
         }
 

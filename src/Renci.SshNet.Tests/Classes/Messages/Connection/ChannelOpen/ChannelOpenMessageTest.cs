@@ -26,9 +26,7 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
         {
             var target = new ChannelOpenMessage();
 
-#if TUNING
             Assert.IsNull(target.ChannelType);
-#endif
             Assert.IsNull(target.Info);
             Assert.AreEqual(default(uint), target.InitialWindowSize);
             Assert.AreEqual(default(uint), target.LocalChannelNumber);
@@ -45,11 +43,7 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
 
             var target = new ChannelOpenMessage(localChannelNumber, initialWindowSize, maximumPacketSize, info);
 
-#if TUNING
             Assert.AreEqual(info.ChannelType, _ascii.GetString(target.ChannelType));
-#else
-            Assert.AreEqual(info.ChannelType, target.ChannelType);
-#endif
             Assert.AreSame(info, target.Info);
             Assert.AreEqual(initialWindowSize, target.InitialWindowSize);
             Assert.AreEqual(localChannelNumber, target.LocalChannelNumber);
@@ -105,15 +99,9 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
             var actualChannelTypeLength = sshDataStream.ReadUInt32();
             Assert.AreEqual((uint) target.ChannelType.Length, actualChannelTypeLength);
 
-#if TUNING
             var actualChannelType = new byte[actualChannelTypeLength];
             sshDataStream.Read(actualChannelType, 0, (int) actualChannelTypeLength);
             Assert.IsTrue(target.ChannelType.SequenceEqual(actualChannelType));
-#else
-            var actualChannelType = new byte[actualChannelTypeLength];
-            sshDataStream.Read(actualChannelType, 0, (int) actualChannelTypeLength);
-            Assert.AreEqual(target.ChannelType, SshData.Ascii.GetString(actualChannelType));
-#endif
 
             Assert.AreEqual(localChannelNumber, sshDataStream.ReadUInt32());
             Assert.AreEqual(initialWindowSize, sshDataStream.ReadUInt32());
@@ -138,11 +126,7 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
 
             target.Load(bytes);
 
-#if TUNING
             Assert.AreEqual(info.ChannelType, _ascii.GetString(target.ChannelType));
-#else
-            Assert.AreEqual(info.ChannelType, target.ChannelType);
-#endif
             Assert.IsNotNull(target.Info);
             Assert.AreEqual(initialWindowSize, target.InitialWindowSize);
             Assert.AreEqual(localChannelNumber, target.LocalChannelNumber);
@@ -169,11 +153,7 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
 
             target.Load(bytes);
 
-#if TUNING
             Assert.AreEqual(info.ChannelType, _ascii.GetString(target.ChannelType));
-#else
-            Assert.AreEqual(info.ChannelType, target.ChannelType);
-#endif
             Assert.IsNotNull(target.Info);
             Assert.AreEqual(initialWindowSize, target.InitialWindowSize);
             Assert.AreEqual(localChannelNumber, target.LocalChannelNumber);
@@ -200,11 +180,7 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
 
             target.Load(bytes);
 
-#if TUNING
             Assert.AreEqual(info.ChannelType, _ascii.GetString(target.ChannelType));
-#else
-            Assert.AreEqual(info.ChannelType, target.ChannelType);
-#endif
             Assert.IsNotNull(target.Info);
             Assert.AreEqual(initialWindowSize, target.InitialWindowSize);
             Assert.AreEqual(localChannelNumber, target.LocalChannelNumber);
@@ -228,11 +204,7 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
 
             target.Load(bytes);
 
-#if TUNING
             Assert.AreEqual(info.ChannelType, _ascii.GetString(target.ChannelType));
-#else
-            Assert.AreEqual(info.ChannelType, target.ChannelType);
-#endif
             Assert.IsNotNull(target.Info);
             Assert.AreEqual(initialWindowSize, target.InitialWindowSize);
             Assert.AreEqual(localChannelNumber, target.LocalChannelNumber);

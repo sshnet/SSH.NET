@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Renci.SshNet.Messages.Authentication
+﻿namespace Renci.SshNet.Messages.Authentication
 {
     /// <summary>
     /// Represents SSH_MSG_USERAUTH_BANNER message.
@@ -8,36 +6,25 @@ namespace Renci.SshNet.Messages.Authentication
     [Message("SSH_MSG_USERAUTH_BANNER", 53)]
     public class BannerMessage : Message
     {
-#if TUNING
         private byte[] _message;
         private byte[] _language;
-#endif
 
         /// <summary>
         /// Gets banner message.
         /// </summary>
-#if TUNING
         public string Message
         {
             get { return Utf8.GetString(_message, 0, _message.Length); }
         }
-#else
-        public string Message { get; private set; }
-#endif
 
         /// <summary>
         /// Gets banner language.
         /// </summary>
-#if TUNING
         public string Language
         {
             get { return Utf8.GetString(_language, 0, _language.Length); }
         }
-#else
-        public string Language { get; private set; }
-#endif
 
-#if TUNING
         /// <summary>
         /// Gets the size of the message in bytes.
         /// </summary>
@@ -56,20 +43,14 @@ namespace Renci.SshNet.Messages.Authentication
                 return capacity;
             }
         }
-#endif
 
         /// <summary>
         /// Called when type specific data need to be loaded.
         /// </summary>
         protected override void LoadData()
         {
-#if TUNING
             _message = ReadBinary();
             _language = ReadBinary();
-#else
-            Message = ReadString();
-            Language = ReadString();
-#endif
         }
 
         /// <summary>
@@ -77,13 +58,8 @@ namespace Renci.SshNet.Messages.Authentication
         /// </summary>
         protected override void SaveData()
         {
-#if TUNING
             WriteBinaryString(_message);
             WriteBinaryString(_language);
-#else
-            Write(Message);
-            Write(Language);
-#endif
         }
     }
 }

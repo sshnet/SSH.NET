@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Linq;
 using System.Net.Sockets;
 using System.Threading;
 using System.Security.Cryptography;
 using System.Diagnostics;
-using System.Net;
 
 namespace Renci.SshNet.Common
 {
@@ -13,20 +11,6 @@ namespace Renci.SshNet.Common
     /// </summary>
     internal static partial class Extensions
     {
-        /// <summary>
-        /// Determines whether [is null or white space] [the specified value].
-        /// </summary>
-        /// <param name="value">The value.</param>
-        /// <returns>
-        ///   <c>true</c> if [is null or white space] [the specified value]; otherwise, <c>false</c>.
-        /// </returns>
-        internal static bool IsNullOrWhiteSpace(this string value)
-        {
-            if (string.IsNullOrEmpty(value)) return true;
-
-            return value.All(char.IsWhiteSpace);
-        }
-
         /// <summary>
         /// Disposes the specified socket.
         /// </summary>
@@ -64,26 +48,6 @@ namespace Renci.SshNet.Common
                 throw new NullReferenceException();
 
             algorithm.Clear();
-        }
-
-        internal static bool CanRead(this Socket socket)
-        {
-            return socket.Connected;
-        }
-
-        internal static bool CanWrite(this Socket socket)
-        {
-            return socket.Connected;
-        }
-
-        internal static IPAddress GetIPAddress(this string host)
-        {
-            IPAddress ipAddress;
-            if (!IPAddress.TryParse(host, out ipAddress))
-            {
-                throw new ProxyException("Silverlight supports only IP addresses.");
-            }
-            return ipAddress;
         }
     }
 }

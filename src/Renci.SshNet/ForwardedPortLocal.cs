@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading;
-using Renci.SshNet.Common;
 
 namespace Renci.SshNet
 {
@@ -163,27 +162,32 @@ namespace Renci.SshNet
             GC.SuppressFinalize(this);
         }
 
+        partial void InternalDispose(bool disposing);
+
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged ResourceMessages.</param>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected override void Dispose(bool disposing)
         {
-            if (!_isDisposed)
+            if (_isDisposed)
+                return;
+
+            base.Dispose(disposing);
+
+            if (disposing)
             {
-                base.Dispose(disposing);
-
-                if (disposing)
+                var listenerTaskCompleted = _listenerTaskCompleted;
+                if (listenerTaskCompleted != null)
                 {
-                    if (_listenerTaskCompleted != null)
-                    {
-                        _listenerTaskCompleted.Dispose();
-                        _listenerTaskCompleted = null;
-                    }
+                    listenerTaskCompleted.Dispose();
+                    _listenerTaskCompleted = null;
                 }
-
-                _isDisposed = true;
             }
+
+            InternalDispose(disposing);
+
+            _isDisposed = true;
         }
 
         /// <summary>
@@ -192,9 +196,6 @@ namespace Renci.SshNet
         /// </summary>
         ~ForwardedPortLocal()
         {
-            // Do not re-create Dispose clean-up code here.
-            // Calling Dispose(false) is optimal in terms of
-            // readability and maintainability.
             Dispose(false);
         }
 

@@ -22,7 +22,7 @@ namespace Renci.SshNet.Security.Cryptography
             if (key == null)
                 throw new ArgumentNullException("key");
 
-            this.Key = key;
+            Key = key;
         }
 
         /// <summary>

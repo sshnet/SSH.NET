@@ -3,27 +3,21 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A3063E62-89D5-43FF-AB1A-FFBECB4A1850}"
-	ProjectSection(SolutionItems) = preProject
-		Local.testsettings = Local.testsettings
-		Renci.SshNet1.vsmdi = Renci.SshNet1.vsmdi
-		TraceAndTestImpact.testsettings = TraceAndTestImpact.testsettings
-	EndProjectSection
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{2D6CAE62-D053-476F-9BDD-2B1F27FA9C5D}"
 	ProjectSection(SolutionItems) = preProject
-		Build\build.cmd = Build\build.cmd
-		Build\build.proj = Build\build.proj
+		..\build\build.cmd = ..\build\build.cmd
+		..\build\build.proj = ..\build\build.proj
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "nuget", "nuget", "{94EE3919-19FA-4D9B-8DA9-249050B15232}"
 	ProjectSection(SolutionItems) = preProject
-		Build\nuget\SSH.NET.nuspec = Build\nuget\SSH.NET.nuspec
+		..\build\nuget\nuget.exe = ..\build\nuget\nuget.exe
+		..\build\nuget\SSH.NET.nuspec = ..\build\nuget\SSH.NET.nuspec
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "sandcastle", "sandcastle", "{A6C3FFD3-16A5-44D3-8C1F-3613D6DD17D1}"
 	ProjectSection(SolutionItems) = preProject
-		Build\sandcastle\SSH.NET.shfbproj = Build\sandcastle\SSH.NET.shfbproj
+		..\build\sandcastle\SSH.NET.shfbproj = ..\build\sandcastle\SSH.NET.shfbproj
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Renci.SshNet", "Renci.SshNet\Renci.SshNet.csproj", "{2F5F8C90-0BD1-424F-997C-7BC6280919D1}"
@@ -37,19 +31,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Renci.SshNet.Silverlight5", "Renci.SshNet.Silverlight5\Renci.SshNet.Silverlight5.csproj", "{E367F791-C1EC-4181-912A-2943CAC6B3BC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Renci.SshNet.WindowsPhone8", "Renci.SshNet.WindowsPhone8\Renci.SshNet.WindowsPhone8.csproj", "{4A6CA785-1C8A-47FE-98C0-30C675A9328B}"
-EndProject
-Project("{911E67C6-3D85-4FCE-B560-20A9C3E3FF48}") = "nuget", "Build\nuget\nuget.exe", "{8BE48567-6BDA-43D7-811D-9C30CCB3B7F2}"
-	ProjectSection(DebuggerProjectSystem) = preProject
-		PortSupplier = 00000000-0000-0000-0000-000000000000
-		Executable = D:\Development\sshnet\Renci.SshClient\Build\nuget\nuget.exe
-		RemoteMachine = MOTHER
-		StartingDirectory = D:\Development\sshnet\Renci.SshClient\Build\nuget
-		Environment = Default
-		LaunchingEngine = 00000000-0000-0000-0000-000000000000
-		UseLegacyDebugEngines = No
-		LaunchSQLEngine = No
-		AttachLaunchAction = No
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Renci.SshNet.UAP10", "Renci.SshNet.UAP10\Renci.SshNet.UAP10.csproj", "{EC212E04-A372-4B95-B45B-C0D4A739EF80}"
 EndProject
@@ -159,16 +140,6 @@ Global
 		{4A6CA785-1C8A-47FE-98C0-30C675A9328B}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{4A6CA785-1C8A-47FE-98C0-30C675A9328B}.Release|x64.ActiveCfg = Release|Any CPU
 		{4A6CA785-1C8A-47FE-98C0-30C675A9328B}.Release|x86.ActiveCfg = Release|Any CPU
-		{8BE48567-6BDA-43D7-811D-9C30CCB3B7F2}.Debug|Any CPU.ActiveCfg = Release
-		{8BE48567-6BDA-43D7-811D-9C30CCB3B7F2}.Debug|ARM.ActiveCfg = Release
-		{8BE48567-6BDA-43D7-811D-9C30CCB3B7F2}.Debug|Mixed Platforms.ActiveCfg = Release
-		{8BE48567-6BDA-43D7-811D-9C30CCB3B7F2}.Debug|x64.ActiveCfg = Release
-		{8BE48567-6BDA-43D7-811D-9C30CCB3B7F2}.Debug|x86.ActiveCfg = Release
-		{8BE48567-6BDA-43D7-811D-9C30CCB3B7F2}.Release|Any CPU.ActiveCfg = Release
-		{8BE48567-6BDA-43D7-811D-9C30CCB3B7F2}.Release|ARM.ActiveCfg = Release
-		{8BE48567-6BDA-43D7-811D-9C30CCB3B7F2}.Release|Mixed Platforms.ActiveCfg = Release
-		{8BE48567-6BDA-43D7-811D-9C30CCB3B7F2}.Release|x64.ActiveCfg = Release
-		{8BE48567-6BDA-43D7-811D-9C30CCB3B7F2}.Release|x86.ActiveCfg = Release
 		{EC212E04-A372-4B95-B45B-C0D4A739EF80}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{EC212E04-A372-4B95-B45B-C0D4A739EF80}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EC212E04-A372-4B95-B45B-C0D4A739EF80}.Debug|ARM.ActiveCfg = Debug|ARM
@@ -218,7 +189,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{94EE3919-19FA-4D9B-8DA9-249050B15232} = {2D6CAE62-D053-476F-9BDD-2B1F27FA9C5D}
 		{A6C3FFD3-16A5-44D3-8C1F-3613D6DD17D1} = {2D6CAE62-D053-476F-9BDD-2B1F27FA9C5D}
-		{8BE48567-6BDA-43D7-811D-9C30CCB3B7F2} = {94EE3919-19FA-4D9B-8DA9-249050B15232}
 	EndGlobalSection
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = Renci.SshNet1.vsmdi

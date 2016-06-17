@@ -11,7 +11,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{2D6CAE62
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "nuget", "nuget", "{94EE3919-19FA-4D9B-8DA9-249050B15232}"
 	ProjectSection(SolutionItems) = preProject
-		..\build\nuget\nuget.exe = ..\build\nuget\nuget.exe
 		..\build\nuget\SSH.NET.nuspec = ..\build\nuget\SSH.NET.nuspec
 	EndProjectSection
 EndProject
@@ -154,8 +153,8 @@ Global
 		{EC212E04-A372-4B95-B45B-C0D4A739EF80}.Release|Any CPU.Build.0 = Release|Any CPU
 		{EC212E04-A372-4B95-B45B-C0D4A739EF80}.Release|ARM.ActiveCfg = Release|ARM
 		{EC212E04-A372-4B95-B45B-C0D4A739EF80}.Release|ARM.Build.0 = Release|ARM
-		{EC212E04-A372-4B95-B45B-C0D4A739EF80}.Release|Mixed Platforms.ActiveCfg = Release|x86
-		{EC212E04-A372-4B95-B45B-C0D4A739EF80}.Release|Mixed Platforms.Build.0 = Release|x86
+		{EC212E04-A372-4B95-B45B-C0D4A739EF80}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{EC212E04-A372-4B95-B45B-C0D4A739EF80}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{EC212E04-A372-4B95-B45B-C0D4A739EF80}.Release|x64.ActiveCfg = Release|x64
 		{EC212E04-A372-4B95-B45B-C0D4A739EF80}.Release|x64.Build.0 = Release|x64
 		{EC212E04-A372-4B95-B45B-C0D4A739EF80}.Release|x86.ActiveCfg = Release|x86

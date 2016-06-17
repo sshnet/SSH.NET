@@ -25,7 +25,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{2D6CAE62
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "nuget", "nuget", "{94EE3919-19FA-4D9B-8DA9-249050B15232}"
 	ProjectSection(SolutionItems) = preProject
-		..\build\nuget\nuget.exe = ..\build\nuget\nuget.exe
 		..\build\nuget\SSH.NET.nuspec = ..\build\nuget\SSH.NET.nuspec
 	EndProjectSection
 EndProject

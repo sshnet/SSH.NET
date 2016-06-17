@@ -122,6 +122,9 @@
     <Compile Include="..\Renci.SshNet\CommandAsyncResult.cs">
       <Link>CommandAsyncResult.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\Common\Array.cs">
+      <Link>Common\Array.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\Common\ASCIIEncoding.cs">
       <Link>Common\ASCIIEncoding.cs</Link>
     </Compile>
@@ -680,9 +683,6 @@
     <Compile Include="..\Renci.SshNet\Security\KeyExchangeDiffieHellmanGroupSha1.cs">
       <Link>Security\KeyExchangeDiffieHellmanGroupSha1.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\Security\KeyExchangeEllipticCurveDiffieHellman.cs">
-      <Link>Security\KeyExchangeEllipticCurveDiffieHellman.cs</Link>
-    </Compile>
     <Compile Include="..\Renci.SshNet\Security\KeyHostAlgorithm.cs">
       <Link>Security\KeyHostAlgorithm.cs</Link>
     </Compile>
@@ -865,6 +865,9 @@
     </Compile>
     <Compile Include="..\Renci.SshNet\SshCommand.cs">
       <Link>SshCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\SshMessageFactory.cs">
+      <Link>SshMessageFactory.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\SubsystemSession.cs">
       <Link>SubsystemSession.cs</Link>

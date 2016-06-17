@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages;
 using Renci.SshNet.Messages.Authentication;
@@ -14,8 +15,18 @@ namespace Renci.SshNet
         private readonly MessageMetadata[] _enabledMessagesByNumber;
         private readonly bool[] _activatedMessagesById;
 
-        private static readonly MessageMetadata[] AllMessages;
+        internal static readonly MessageMetadata[] AllMessages;
         private static readonly IDictionary<string, MessageMetadata> MessagesByName;
+
+        /// <summary>
+        /// Defines the highest message number that is currently supported.
+        /// </summary>
+        internal const byte HighestMessageNumber = 100;
+
+        /// <summary>
+        /// Defines the total number of supported messages.
+        /// </summary>
+        internal const int TotalMessageCount = 31;
 
         static SshMessageFactory()
         {
@@ -54,15 +65,15 @@ namespace Renci.SshNet
                 new MessageMetadata<KeyExchangeDhGroupExchangeReply> (30, "SSH_MSG_KEX_DH_GEX_REPLY", 33)
             };
 
-            MessagesByName = new Dictionary<string, MessageMetadata>(31);
+            MessagesByName = new Dictionary<string, MessageMetadata>(AllMessages.Length);
             foreach (var messageMetadata in AllMessages)
                 MessagesByName.Add(messageMetadata.Name, messageMetadata);
         }
 
         public SshMessageFactory()
         {
-            _activatedMessagesById = new bool[31];
-            _enabledMessagesByNumber = new MessageMetadata[101];
+            _activatedMessagesById = new bool[TotalMessageCount];
+            _enabledMessagesByNumber = new MessageMetadata[HighestMessageNumber + 1];
         }
 
         /// <summary>
@@ -76,14 +87,24 @@ namespace Renci.SshNet
 
         public Message Create(byte messageNumber)
         {
-            var messageMetadata = _enabledMessagesByNumber[messageNumber];
-
-            if (messageMetadata == null)
+            if (messageNumber > HighestMessageNumber)
             {
-                throw new SshException(string.Format(CultureInfo.CurrentCulture, "Message type {0} is not valid.", messageNumber));
+                throw CreateMessageTypeNotSupportedException(messageNumber);
             }
 
-            return messageMetadata.Create();
+            var enabledMessageMetadata = _enabledMessagesByNumber[messageNumber];
+            if (enabledMessageMetadata == null)
+            {
+                var definedMessageMetadata = AllMessages.FirstOrDefault(p => p.Number == messageNumber);
+                if (definedMessageMetadata == null)
+                {
+                    throw CreateMessageTypeNotSupportedException(messageNumber);
+                }
+
+                throw new SshException(string.Format(CultureInfo.InvariantCulture, "Message type {0} is not valid in the current context.", messageNumber));
+            }
+
+            return enabledMessageMetadata.Create();
         }
 
         public void DisableNonKeyExchangeMessages()
@@ -106,10 +127,12 @@ namespace Renci.SshNet
                 if (!_activatedMessagesById[messageMetadata.Id])
                     continue;
 
-                var enabledMessage = _enabledMessagesByNumber[messageMetadata.Number];
-                if (enabledMessage != null && enabledMessage != messageMetadata)
+                var enabledMessageMetadata = _enabledMessagesByNumber[messageMetadata.Number];
+                if (enabledMessageMetadata != null && enabledMessageMetadata != messageMetadata)
                 {
-                    throw new Exception("Message X is already enabled for Y");
+                    throw CreateMessageTypeAlreadyEnabledForOtherMessageException(messageMetadata.Number,
+                        messageMetadata.Name,
+                        enabledMessageMetadata.Name);
                 }
                 _enabledMessagesByNumber[messageMetadata.Number] = messageMetadata;
             }
@@ -117,47 +140,76 @@ namespace Renci.SshNet
 
         public void EnableAndActivateMessage(string messageName)
         {
+            if (messageName == null)
+                throw new ArgumentNullException("messageName");
+
             lock (this)
             {
                 MessageMetadata messageMetadata;
 
                 if (!MessagesByName.TryGetValue(messageName, out messageMetadata))
                 {
-                    throw new Exception("TODO");
+                    throw CreateMessageNotSupportedException(messageName);
                 }
 
-                var enabledMessage = _enabledMessagesByNumber[messageMetadata.Number];
-                if (enabledMessage != null && enabledMessage != messageMetadata)
+                var enabledMessageMetadata = _enabledMessagesByNumber[messageMetadata.Number];
+                if (enabledMessageMetadata != null && enabledMessageMetadata != messageMetadata)
                 {
-                    throw new Exception("Message X is already enabled for Y");
+                    throw CreateMessageTypeAlreadyEnabledForOtherMessageException(messageMetadata.Number,
+                        messageMetadata.Name,
+                        enabledMessageMetadata.Name);
                 }
-                _enabledMessagesByNumber[messageMetadata.Number] = messageMetadata;
 
+                _enabledMessagesByNumber[messageMetadata.Number] = messageMetadata;
                 _activatedMessagesById[messageMetadata.Id] = true;
             }
         }
 
         public void DisableAndDeactivateMessage(string messageName)
         {
+            if (messageName == null)
+                throw new ArgumentNullException("messageName");
+
             lock (this)
             {
                 MessageMetadata messageMetadata;
 
                 if (!MessagesByName.TryGetValue(messageName, out messageMetadata))
                 {
-                    throw new Exception("TODO");
+                    throw CreateMessageNotSupportedException(messageName);
+                }
+
+                var enabledMessageMetadata = _enabledMessagesByNumber[messageMetadata.Number];
+                if (enabledMessageMetadata != null && enabledMessageMetadata != messageMetadata)
+                {
+                    throw CreateMessageTypeAlreadyEnabledForOtherMessageException(messageMetadata.Number,
+                        messageMetadata.Name,
+                        enabledMessageMetadata.Name);
                 }
 
                 _activatedMessagesById[messageMetadata.Id] = false;
-
-                var enabledMetadata = _enabledMessagesByNumber[messageMetadata.Number];
-                if (enabledMetadata != null && enabledMetadata != messageMetadata)
-                    throw new Exception();
                 _enabledMessagesByNumber[messageMetadata.Number] = null;
             }
         }
 
-        private abstract class MessageMetadata
+        private SshException CreateMessageTypeNotSupportedException(byte messageNumber)
+        {
+            throw new SshException(string.Format(CultureInfo.InvariantCulture, "Message type {0} is not supported.", messageNumber));
+        }
+
+        private SshException CreateMessageNotSupportedException(string messageName)
+        {
+            throw new SshException(string.Format(CultureInfo.InvariantCulture, "Message '{0}' is not supported.", messageName));
+        }
+
+        private SshException CreateMessageTypeAlreadyEnabledForOtherMessageException(byte messageNumber, string messageName, string currentEnabledForMessageName)
+        {
+            throw new SshException(string.Format(CultureInfo.InvariantCulture,
+                "Cannot enable message '{0}'. Message type {1} is already enabled for '{2}'.",
+                messageName, messageNumber, currentEnabledForMessageName));
+        }
+
+        internal abstract class MessageMetadata
         {
             protected MessageMetadata(byte id, string name, byte number)
             {
@@ -175,7 +227,7 @@ namespace Renci.SshNet
             public abstract Message Create();
         }
 
-        private class MessageMetadata<T> : MessageMetadata where T : Message, new()
+        internal class MessageMetadata<T> : MessageMetadata where T : Message, new()
         {
             public MessageMetadata(byte id, string name, byte number)
                 : base(id, name, number)

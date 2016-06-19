@@ -16,14 +16,14 @@
 New Features:
 
     * Added support for HMAC-SHA512 (hmac-sha2-512 and hmac-sha2-512-96)
+    * Added support for Universal Windows Platform 10 (UAP10.0)
 
 Changes:
 
     * Overall performance improvements
-    * Relicensed code under MIT licensen, explicitly permitting reuse within proprietary software
+    * Relicensed code under MIT license, explicitly permitting reuse within proprietary software
       provided all copies of the licensed software include a copy of the MIT License terms and the
       copyright notice
-    * Added support for Universal Windows Platform 10 (UAP10.0)
     * Separated our hash algorithms into SshNet.Security.Cryptography project and package
     * When available, prefer hash algorithms and encodings from target framework
     * Refactoring to prepare for upcoming .NET Core support

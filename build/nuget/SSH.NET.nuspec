@@ -126,19 +126,19 @@ Fixes:
         <tags>ssh scp sftp</tags>
         <dependencies>
           <group targetFramework="sl4">
-            <dependency id="Renci.Security.Cryptography" version="1.0.0" />
+            <dependency id="SshNet.Security.Cryptography" version="[1.0.0]" />
           </group>
           <group targetFramework="sl5">
-            <dependency id="Renci.Security.Cryptography" version="1.0.0" />
+            <dependency id="SshNet.Security.Cryptography" version="[1.0.0]" />
           </group>
           <group targetFramework="wp71">
-            <dependency id="Renci.Security.Cryptography" version="1.0.0" />
+            <dependency id="SshNet.Security.Cryptography" version="[1.0.0]" />
           </group>
           <group targetFramework="wp8">
-            <dependency id="Renci.Security.Cryptography" version="1.0.0" />
+            <dependency id="SshNet.Security.Cryptography" version="[1.0.0]" />
           </group>
           <group targetFramework="uap10.0">
-            <dependency id="Renci.Security.Cryptography" version="1.0.0" />
+            <dependency id="SshNet.Security.Cryptography" version="[1.0.0]" />
           </group>
         </dependencies>
     </metadata>

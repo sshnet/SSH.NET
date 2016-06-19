@@ -122,7 +122,7 @@ namespace Renci.SshNet
         /// The connection timeout. The default value is 30 seconds.
         /// </value>
         /// <example>
-        ///   <code source="..\..\Renci.SshNet.Tests\Classes\SshClientTest.cs" region="Example SshClient Connect Timeout" language="C#" title="Specify connection timeout" />
+        ///   <code source="..\..\src\Renci.SshNet.Tests\Classes\SshClientTest.cs" region="Example SshClient Connect Timeout" language="C#" title="Specify connection timeout" />
         /// </example>
         public TimeSpan Timeout { get; set; }
 
@@ -156,7 +156,7 @@ namespace Renci.SshNet
         /// Occurs when authentication banner is sent by the server.
         /// </summary>
         /// <example>
-        ///     <code source="..\..\Renci.SshNet.Tests\Classes\PasswordConnectionInfoTest.cs" region="Example PasswordConnectionInfo AuthenticationBanner" language="C#" title="Display authentication banner" />
+        ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\PasswordConnectionInfoTest.cs" region="Example PasswordConnectionInfo AuthenticationBanner" language="C#" title="Display authentication banner" />
         /// </example>
         public event EventHandler<AuthenticationBannerEventArgs> AuthenticationBanner;
 

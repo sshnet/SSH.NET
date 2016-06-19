@@ -18,7 +18,7 @@ namespace Renci.SshNet
     /// Represents private key information.
     /// </summary>
     /// <example>
-    ///     <code source="..\..\Renci.SshNet.Tests\Data\Key.RSA.txt" language="Text" title="Private RSA key example" />
+    ///     <code source="..\..\src\Renci.SshNet.Tests\Data\Key.RSA.txt" language="Text" title="Private RSA key example" />
     /// </example>
     /// <remarks>
     /// <para>

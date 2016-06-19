@@ -8,7 +8,7 @@ namespace Renci.SshNet
     /// Provides connection information when keyboard interactive authentication method is used
     /// </summary>
     /// <example>
-    ///     <code source="..\..\Renci.SshNet.Tests\Classes\KeyboardInteractiveConnectionInfoTest.cs" region="Example KeyboardInteractiveConnectionInfo AuthenticationPrompt" language="C#" title="Connect using interactive method" />
+    ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\KeyboardInteractiveConnectionInfoTest.cs" region="Example KeyboardInteractiveConnectionInfo AuthenticationPrompt" language="C#" title="Connect using interactive method" />
     /// </example>
     public class KeyboardInteractiveConnectionInfo : ConnectionInfo, IDisposable
     {
@@ -16,7 +16,7 @@ namespace Renci.SshNet
         /// Occurs when server prompts for more authentication information.
         /// </summary>
         /// <example>
-        ///     <code source="..\..\Renci.SshNet.Tests\Classes\KeyboardInteractiveConnectionInfoTest.cs" region="Example KeyboardInteractiveConnectionInfo AuthenticationPrompt" language="C#" title="Connect using interactive method" />
+        ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\KeyboardInteractiveConnectionInfoTest.cs" region="Example KeyboardInteractiveConnectionInfo AuthenticationPrompt" language="C#" title="Connect using interactive method" />
         /// </example>
         public event EventHandler<AuthenticationPromptEventArgs> AuthenticationPrompt;
 

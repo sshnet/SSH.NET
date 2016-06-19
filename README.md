@@ -1,9 +1,13 @@
+SSH.NET
+=======
+SSH.NET is a Secure Shell (SSH) library for .NET, optimized for parallelism.
+
 [![Version](https://img.shields.io/nuget/vpre/SSH.NET.svg)](https://www.nuget.org/packages/SSH.NET)
 
-#Introduction#
+##Introduction
 This project was inspired by **Sharp.SSH** library which was ported from java and it seems like was not supported for quite some time. This library is a complete rewrite, without any third party dependencies, using parallelism to achieve the best performance possible.
 
-#Features#
+##Features
 * Execution of SSH command using both synchronous and asynchronous methods
 * Return command execution exit status and other information 
 * Provide SFTP functionality for both synchronous and asynchronous operations
@@ -20,7 +24,7 @@ This project was inspired by **Sharp.SSH** library which was ported from java an
 * Supports two-factor or higher authentication
 * Supports SOCKS4, SOCKS5 and HTTP Proxy
 
-#Key Exchange Method#
+##Key Exchange Method
 
 **SSH.NET** supports the following key exchange methods:
 * diffie-hellman-group-exchange-sha256
@@ -28,7 +32,7 @@ This project was inspired by **Sharp.SSH** library which was ported from java an
 * diffie-hellman-group14-sha1
 * diffie-hellman-group1-sha1
 
-#Message Authentication Code#
+##Message Authentication Code
 
 **SSH.NET** supports the following MAC algorithms:
 * hmac-md5
@@ -42,7 +46,7 @@ This project was inspired by **Sharp.SSH** library which was ported from java an
 * hmac-ripemd160
 * hmac-ripemd160@openssh.com
 
-#Framework Support#
+##Framework Support
 **SSH.NET** supports the following target frameworks:
 * .NET Framework 3.5 
 * .NET Framework 4.0 
@@ -90,7 +94,7 @@ FEATURE_DNS_APM                  | [Dns](https://msdn.microsoft.com/en-us/librar
 FEATURE_DNS_SYNC                 | [Dns](https://msdn.microsoft.com/en-us/library/system.net.dns.aspx) supports synchronous execution
 FEATURE_REFLECTION_TYPEINFO      |
 
-#Building SSH.NET#
+##Building SSH.NET
 
 Software                          | .NET 3.5 | .NET 4.0 | SL 4 | SL 5 | WP 71 | WP 80 | UAP10
 --------------------------------- | :------: | :------: | :--: | :--: | :---: | :---: | :---:

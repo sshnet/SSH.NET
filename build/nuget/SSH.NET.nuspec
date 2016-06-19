@@ -6,7 +6,7 @@
         <title>SSH.NET</title>
         <authors>Renci</authors>
         <owners>olegkap,drieseng</owners>
-        <licenseUrl>https://github.com/sshnet/SSH.NET/master/LICENSE</licenseUrl>
+        <licenseUrl>https://github.com/sshnet/SSH.NET/blob/master/LICENSE</licenseUrl>
         <projectUrl>https://github.com/sshnet/SSH.NET/</projectUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>SSH.NET is a Secure Shell (SSH) library for .NET, optimized for parallelism and with broad framework support.</description>

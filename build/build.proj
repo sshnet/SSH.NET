@@ -3,61 +3,90 @@
 	<PropertyGroup>
 		<Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
 		<BuildRoot>$(MSBuildThisFileDirectory)</BuildRoot>
-		<NuGetExe>$(BuildRoot)nuget\nuget.exe</NuGetExe>
+		<NuGetExe>$(BuildRoot)target\nuget\nuget.exe</NuGetExe>
 		<MSBuildCommunityTasksPath>$(MSBuildThisFileDirectory)msbuild</MSBuildCommunityTasksPath>
 	</PropertyGroup>
 	<ItemGroup>
+		<VisualStudioVersion Include="2012">
+			<SolutionFile>$(MSBuildThisFileDirectory)..\src\Renci.SshNet.VS2012.sln</SolutionFile>
+		</VisualStudioVersion>
+		<VisualStudioVersion Include="2015">
+			<SolutionFile>$(MSBuildThisFileDirectory)..\src\Renci.SshNet.VS2015.sln</SolutionFile>
+		</VisualStudioVersion>
+	</ItemGroup>
+	<ItemGroup>
 		<TargetFramework Include=".NET Framework 3.5">
-			<Project>Renci.SshNet.NET35</Project>
+			<OutputDirectory>Renci.SshNet.NET35\bin\$(Configuration)</OutputDirectory>
 			<Moniker>net35</Moniker>
 		</TargetFramework>
 		<TargetFramework Include=".NET Framework 4.0">
-			<Project>Renci.SshNet</Project>
+			<OutputDirectory>Renci.SshNet\bin\$(Configuration)</OutputDirectory>
 			<Moniker>net40</Moniker>
 		</TargetFramework>
-		<TargetFramework Include="Windows Phone 7.1">
-			<Project>Renci.SshNet.WindowsPhone</Project>
-			<Moniker>sl4-windowsphone71</Moniker>
+		<TargetFramework Include="Windows Phone Silverlight 7.1">
+			<OutputDirectory>Renci.SshNet.WindowsPhone\bin\$(Configuration)</OutputDirectory>
+			<Moniker>wp71</Moniker>
 		</TargetFramework>
-		<TargetFramework Include="Windows Phone 8.0">
-			<Project>Renci.SshNet.WindowsPhone8</Project>
-			<Moniker>windowsphone8</Moniker>
+		<TargetFramework Include="Windows Phone Silverlight 8.0">
+			<OutputDirectory>Renci.SshNet.WindowsPhone8\bin\$(Configuration)</OutputDirectory>
+			<Moniker>wp8</Moniker>
 		</TargetFramework>
 		<TargetFramework Include="Silverlight 4">
-			<Project>Renci.SshNet.Silverlight</Project>
+			<OutputDirectory>Renci.SshNet.Silverlight\bin\$(Configuration)</OutputDirectory>
 			<Moniker>sl4</Moniker>
 		</TargetFramework>
 		<TargetFramework Include="Silverlight 5">
-			<Project>Renci.SshNet.Silverlight5</Project>
+			<OutputDirectory>Renci.SshNet.Silverlight5\bin\$(Configuration)</OutputDirectory>
 			<Moniker>sl5</Moniker>
+		</TargetFramework>
+		<TargetFramework Include="Universal Windows Platform 10">
+			<OutputDirectory>Renci.SshNet.UAP10\bin\$(Configuration)</OutputDirectory>
+			<Moniker>uap10</Moniker>
 		</TargetFramework>
 	</ItemGroup>
 	<Import Project="$(MSBuildCommunityTasksPath)\MSBuild.Community.Tasks.Targets"/>
 	<Target Name="Clean">
 		<RemoveDir Directories="$(MSBuildThisFileDirectory)target"/>
-	</Target>
-	
-	<Target Name="Build">
 		<ItemGroup>
-			<ProjectToBuild Include="$(MSBuildThisFileDirectory)..\src\Renci.SshNet.VS2012.sln">
+			<ProjectToBuild Remove="@(ProjectToBuild)"/>
+			<ProjectToBuild Include="%(VisualStudioVersion.SolutionFile)">
+				<Properties>Configuration=Release</Properties>
+			</ProjectToBuild>
+		</ItemGroup>
+		<MSBuild Projects="@(ProjectToBuild)" Targets="Clean"/>
+	</Target>
+	<Target Name="DownloadNuGet">
+		<MakeDir Directories="$(MSBuildThisFileDirectory)target\nuget"/>
+		<DownloadFile
+			Address="https://dist.nuget.org/win-x86-commandline/latest/nuget.exe"
+			FileName="$(MSBuildThisFileDirectory)target\nuget\nuget.exe"/>
+	</Target>
+	<Target Name="RestoreNuGetPackages" DependsOnTargets="DownloadNuGet" Outputs="%(VisualStudioVersion.Identity)">
+		<Message Text="Restoring nuget packages for '%(VisualStudioVersion.SolutionFile)'..." Importance="High"/>
+		<Exec Command="$(NuGetExe) restore &quot;%(VisualStudioVersion.SolutionFile)&quot;"/>
+	</Target>
+	<Target Name="Build" DependsOnTargets="RestoreNuGetPackages" Outputs="%(VisualStudioVersion.Identity)">
+		<ItemGroup>
+			<ProjectToBuild Remove="@(ProjectToBuild)"/>
+			<ProjectToBuild Include="%(VisualStudioVersion.SolutionFile)">
 				<Properties>Configuration=Release</Properties>
 			</ProjectToBuild>
 		</ItemGroup>
 		<MSBuild Projects="@(ProjectToBuild)" Targets="Rebuild"/>
 	</Target>
-	
 	<Target Name="CreatePackage" DependsOnTargets="CopyBuildOutputToPackage">
 		<Exec Command="$(NuGetExe) pack $(MSBuildThisFileDirectory)nuget\SSH.NET.nuspec -OutputDirectory &quot;$(MSBuildThisFileDirectory)target&quot; -BasePath &quot;$(MSBuildThisFileDirectory)target\package&quot; -NonInteractive"/>
 	</Target>
 	<Target Name="CopyBuildOutputToPackage" DependsOnTargets="Build" Outputs="%(TargetFramework.Identity)">
 		<ItemGroup>
 			<BuildOutput Remove="@(BuildOutput)"/>
-			<BuildOutput Include="$(MSBuildThisFileDirectory)..\src\%(TargetFramework.Project)\bin\$(Configuration)\Renci.SshNet.dll"/>
-			<BuildOutput Include="$(MSBuildThisFileDirectory)..\src\%(TargetFramework.Project)\bin\$(Configuration)\Renci.SshNet.xml"/>
+			<BuildOutput Include="$(MSBuildThisFileDirectory)..\src\%(TargetFramework.OutputDirectory)\Renci.SshNet.dll"/>
+			<BuildOutput Include="$(MSBuildThisFileDirectory)..\src\%(TargetFramework.OutputDirectory)\Renci.SshNet.xml"/>
 		</ItemGroup>
 		<Copy SourceFiles="@(BuildOutput)" DestinationFolder="$(MSBuildThisFileDirectory)target\package\lib\%(TargetFramework.Moniker)"/>
 	</Target>
 	<Target Name="GenerateHelpFile" DependsOnTargets="Build">
+		<Error Text="Please install Sandcastle, and ensure the SHFBFolder environment variable is set." Condition="'$(SHFBFolder)'==''"/>
 		<MSBuild Projects="$(MSBuildThisFileDirectory)sandcastle\SSH.NET.shfbproj"/>
 	</Target>
 	
@@ -72,4 +101,18 @@
 			ZipFileName="$(MSBuildThisFileDirectory)target\Renci.SshNet.zip"
 			ZipLevel="9" />
 	</Target>
+	<UsingTask TaskName="DownloadFile" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
+		<ParameterGroup>
+			<Address ParameterType="System.String" Required="true"/>
+			<FileName ParameterType="System.String" Required="true" />
+		</ParameterGroup>
+		<Task>
+			<Reference Include="System" />
+			<Code Type="Fragment" Language="cs">
+				<![CDATA[
+					new System.Net.WebClient().DownloadFile(Address, FileName);
+				]]>
+			</Code>
+		</Task>
+	</UsingTask>
 </Project>

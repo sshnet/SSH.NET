@@ -122,7 +122,7 @@ namespace Renci.SshNet
         /// Occurs when an error occurred.
         /// </summary>
         /// <example>
-        ///   <code source="..\..\Renci.SshNet.Tests\Classes\SshClientTest.cs" region="Example SshClient Connect ErrorOccurred" language="C#" title="Handle ErrorOccurred event" />
+        ///   <code source="..\..\src\Renci.SshNet.Tests\Classes\SshClientTest.cs" region="Example SshClient Connect ErrorOccurred" language="C#" title="Handle ErrorOccurred event" />
         /// </example>
         public event EventHandler<ExceptionEventArgs> ErrorOccurred;
 
@@ -130,7 +130,7 @@ namespace Renci.SshNet
         /// Occurs when host key received.
         /// </summary>
         /// <example>
-        ///   <code source="..\..\Renci.SshNet.Tests\Classes\SshClientTest.cs" region="Example SshClient Connect HostKeyReceived" language="C#" title="Handle HostKeyReceived event" />
+        ///   <code source="..\..\src\Renci.SshNet.Tests\Classes\SshClientTest.cs" region="Example SshClient Connect HostKeyReceived" language="C#" title="Handle HostKeyReceived event" />
         /// </example>
         public event EventHandler<HostKeyEventArgs> HostKeyReceived;
 

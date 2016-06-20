@@ -6,3 +6,9 @@ before_build:
 build:
   project: src\Renci.SshNet.VS2015.sln
   verbosity: minimal
+
+test:
+  assemblies: src\Renci.SshNet.Tests\bin\Debug\Renci.SshNet.Tests.dll
+  categories:
+    except:
+    - integration

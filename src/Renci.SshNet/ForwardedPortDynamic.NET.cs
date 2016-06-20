@@ -348,7 +348,7 @@ namespace Renci.SshNet
         private bool HandleSocks4(Socket socket, IChannelDirectTcpip channel, TimeSpan timeout)
         {
             var commandCode = SocketAbstraction.ReadByte(socket, timeout);
-            if (commandCode == 0)
+            if (commandCode == -1)
             {
                 // SOCKS client closed connection
                 return false;
@@ -508,6 +508,11 @@ namespace Renci.SshNet
                 case 0x03:
                     {
                         var length = SocketAbstraction.ReadByte(socket, timeout);
+                        if (length == -1)
+                        {
+                            // SOCKS client closed connection
+                            return false;
+                        }
                         addressBuffer = new byte[length];
                         if (SocketAbstraction.Read(socket, addressBuffer, 0, addressBuffer.Length, timeout) == 0)
                         {

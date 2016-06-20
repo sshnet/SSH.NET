@@ -13,6 +13,7 @@ namespace Renci.SshNet.Tests.Classes
     {
         [TestMethod]
         [TestCategory("Sftp")]
+        [TestCategory("integration")]
         public void Test_Sftp_Rename_File()
         {
             using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
@@ -42,6 +43,7 @@ namespace Renci.SshNet.Tests.Classes
 
         [TestMethod]
         [TestCategory("Sftp")]
+        [TestCategory("integration")]
         [Description("Test passing null to RenameFile.")]
         [ExpectedException(typeof(ArgumentNullException))]
         public void Test_Sftp_RenameFile_Null()

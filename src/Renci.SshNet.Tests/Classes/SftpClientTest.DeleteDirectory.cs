@@ -24,6 +24,7 @@ namespace Renci.SshNet.Tests.Classes
 
         [TestMethod]
         [TestCategory("Sftp")]
+        [TestCategory("integration")]
         [ExpectedException(typeof(SftpPathNotFoundException))]
         public void Test_Sftp_DeleteDirectory_Which_Doesnt_Exists()
         {
@@ -39,6 +40,7 @@ namespace Renci.SshNet.Tests.Classes
 
         [TestMethod]
         [TestCategory("Sftp")]
+        [TestCategory("integration")]
         [ExpectedException(typeof(SftpPermissionDeniedException))]
         public void Test_Sftp_DeleteDirectory_Which_No_Permissions()
         {
@@ -57,6 +59,7 @@ namespace Renci.SshNet.Tests.Classes
 
         [TestMethod]
         [TestCategory("Sftp")]
+        [TestCategory("integration")]
         public void Test_Sftp_DeleteDirectory()
         {
             using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
@@ -72,6 +75,7 @@ namespace Renci.SshNet.Tests.Classes
 
         [TestMethod]
         [TestCategory("Sftp")]
+        [TestCategory("integration")]
         [Description("Test passing null to DeleteDirectory.")]
         [ExpectedException(typeof(ArgumentException))]
         public void Test_Sftp_DeleteDirectory_Null()

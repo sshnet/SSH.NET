@@ -14,6 +14,7 @@ namespace Renci.SshNet.Tests.Classes
     {
         [TestMethod]
         [TestCategory("Sftp")]
+        [TestCategory("integration")]
         [ExpectedException(typeof(SftpPermissionDeniedException))]
         public void Test_Sftp_Download_Forbidden()
         {
@@ -37,6 +38,7 @@ namespace Renci.SshNet.Tests.Classes
 
         [TestMethod]
         [TestCategory("Sftp")]
+        [TestCategory("integration")]
         [ExpectedException(typeof(SftpPathNotFoundException))]
         public void Test_Sftp_Download_File_Not_Exists()
         {
@@ -56,6 +58,7 @@ namespace Renci.SshNet.Tests.Classes
 
         [TestMethod]
         [TestCategory("Sftp")]
+        [TestCategory("integration")]
         [Description("Test passing null to BeginDownloadFile")]
         [ExpectedException(typeof(ArgumentNullException))]
         public void Test_Sftp_BeginDownloadFile_StreamIsNull()
@@ -70,6 +73,7 @@ namespace Renci.SshNet.Tests.Classes
 
         [TestMethod]
         [TestCategory("Sftp")]
+        [TestCategory("integration")]
         [Description("Test passing null to BeginDownloadFile")]
         [ExpectedException(typeof(ArgumentException))]
         public void Test_Sftp_BeginDownloadFile_FileNameIsWhiteSpace()
@@ -84,6 +88,7 @@ namespace Renci.SshNet.Tests.Classes
 
         [TestMethod]
         [TestCategory("Sftp")]
+        [TestCategory("integration")]
         [Description("Test passing null to BeginDownloadFile")]
         [ExpectedException(typeof(ArgumentException))]
         public void Test_Sftp_BeginDownloadFile_FileNameIsNull()
@@ -98,6 +103,7 @@ namespace Renci.SshNet.Tests.Classes
 
         [TestMethod]
         [TestCategory("Sftp")]
+        [TestCategory("integration")]
         [ExpectedException(typeof(ArgumentException))]
         public void Test_Sftp_EndDownloadFile_Invalid_Async_Handle()
         {

@@ -17,6 +17,7 @@ namespace Renci.SshNet.Tests.Classes
     {
         [TestMethod]
         [TestCategory("Sftp")]
+        [TestCategory("integration")]
         public void Test_Sftp_Upload_And_Download_1MB_File()
         {
             RemoveAllFiles();
@@ -60,6 +61,7 @@ namespace Renci.SshNet.Tests.Classes
 
         [TestMethod]
         [TestCategory("Sftp")]
+        [TestCategory("integration")]
         [ExpectedException(typeof(SftpPermissionDeniedException))]
         public void Test_Sftp_Upload_Forbidden()
         {
@@ -83,6 +85,7 @@ namespace Renci.SshNet.Tests.Classes
 
         [TestMethod]
         [TestCategory("Sftp")]
+        [TestCategory("integration")]
         public void Test_Sftp_Multiple_Async_Upload_And_Download_10Files_5MB_Each()
         {
             var maxFiles = 10;
@@ -236,6 +239,7 @@ namespace Renci.SshNet.Tests.Classes
         //  TODO:   Split this test into multiple tests
         [TestMethod]
         [TestCategory("Sftp")]
+        [TestCategory("integration")]
         [Description("Test that delegates passed to BeginUploadFile, BeginDownloadFile and BeginListDirectory are actually called.")]
         public void Test_Sftp_Ensure_Async_Delegates_Called_For_BeginFileUpload_BeginFileDownload_BeginListDirectory()
         {
@@ -315,6 +319,7 @@ namespace Renci.SshNet.Tests.Classes
 
         [TestMethod]
         [TestCategory("Sftp")]
+        [TestCategory("integration")]
         [Description("Test passing null to BeginUploadFile")]
         [ExpectedException(typeof(ArgumentNullException))]
         public void Test_Sftp_BeginUploadFile_StreamIsNull()
@@ -329,6 +334,7 @@ namespace Renci.SshNet.Tests.Classes
 
         [TestMethod]
         [TestCategory("Sftp")]
+        [TestCategory("integration")]
         [Description("Test passing null to BeginUploadFile")]
         [ExpectedException(typeof(ArgumentException))]
         public void Test_Sftp_BeginUploadFile_FileNameIsWhiteSpace()
@@ -343,6 +349,7 @@ namespace Renci.SshNet.Tests.Classes
 
         [TestMethod]
         [TestCategory("Sftp")]
+        [TestCategory("integration")]
         [Description("Test passing null to BeginUploadFile")]
         [ExpectedException(typeof(ArgumentException))]
         public void Test_Sftp_BeginUploadFile_FileNameIsNull()
@@ -357,6 +364,7 @@ namespace Renci.SshNet.Tests.Classes
 
         [TestMethod]
         [TestCategory("Sftp")]
+        [TestCategory("integration")]
         [ExpectedException(typeof(ArgumentException))]
         public void Test_Sftp_EndUploadFile_Invalid_Async_Handle()
         {

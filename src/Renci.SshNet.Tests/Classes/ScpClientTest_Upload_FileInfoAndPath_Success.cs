@@ -27,6 +27,7 @@ namespace Renci.SshNet.Tests.Classes
         private string _fileName;
         private int _fileSize;
         private IList<ScpUploadEventArgs> _uploadingRegister;
+
         [TestInitialize]
         public void Setup()
         {

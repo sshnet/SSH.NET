@@ -16,10 +16,6 @@ namespace Renci.SshNet
         private Socket _listener;
         private int _pendingRequests;
 
-#if FEATURE_SOCKET_EAP
-        private ManualResetEvent _stoppingListener;
-#endif // FEATURE_SOCKET_EAP
-
         partial void InternalStart()
         {
             var addr = DnsAbstraction.GetHostAddresses(BoundHost)[0];
@@ -46,36 +42,43 @@ namespace Renci.SshNet
                     try
                     {
 #if FEATURE_SOCKET_EAP
-                        _stoppingListener = new ManualResetEvent(false);
                         StartAccept();
-                        _stoppingListener.WaitOne();
 #elif FEATURE_SOCKET_APM
-                        while (true)
-                        {
-                            // accept new inbound connection
-                            var asyncResult = _listener.BeginAccept(AcceptCallback, _listener);
-                            // wait for the connection to be established
-                            asyncResult.AsyncWaitHandle.WaitOne();
-                        }
+                        _listener.BeginAccept(AcceptCallback, _listener);
 #elif FEATURE_SOCKET_TAP
 #error Accepting new socket connections is not implemented.
 #else
 #error Accepting new socket connections is not implemented.
 #endif
+
+                        // wait until listener is stopped
+                        _listenerTaskCompleted.WaitOne();
                     }
                     catch (ObjectDisposedException)
                     {
-                        // BeginAccept will throw an ObjectDisposedException when the
-                        // socket is closed
+                        // BeginAccept / AcceptAsync will throw an ObjectDisposedException when the
+                        // server is closed before the listener has started accepting connections.
+                        //
+                        // As we start accepting connection on a separate thread, this is possible
+                        // when the listener is stopped right after it was started.
+
+                        // mark listener stopped
+                        _listenerTaskCompleted.Set();
                     }
                     catch (Exception ex)
                     {
                         RaiseExceptionEvent(ex);
+
+                        // mark listener stopped
+                        _listenerTaskCompleted.Set();
                     }
                     finally
                     {
-                        // mark listener stopped
-                        _listenerTaskCompleted.Set();
+                        if (Session != null)
+                        {
+                            Session.Disconnected -= Session_Disconnected;
+                            Session.ErrorOccured -= Session_ErrorOccured;
+                        }
                     }
                 });
         }
@@ -94,15 +97,24 @@ namespace Renci.SshNet
 
         private void AcceptCompleted(object sender, SocketAsyncEventArgs acceptAsyncEventArgs)
         {
+            if (acceptAsyncEventArgs.SocketError == SocketError.OperationAborted)
+            {
+                // server was stopped
+                return;
+            }
+
             if (acceptAsyncEventArgs.SocketError != SocketError.Success)
             {
+                // accept new connection
                 StartAccept();
+                // dispose broken socket
                 acceptAsyncEventArgs.AcceptSocket.Dispose();
                 return;
             }
 
+            // accept new connection
             StartAccept();
-
+            // process connection
             ProcessAccept(acceptAsyncEventArgs.AcceptSocket);
         }
 #elif FEATURE_SOCKET_APM
@@ -119,11 +131,14 @@ namespace Renci.SshNet
             }
             catch (ObjectDisposedException)
             {
-                // when the socket is closed, an ObjectDisposedException is thrown
+                // when the server socket is closed, an ObjectDisposedException is thrown
                 // by Socket.EndAccept(IAsyncResult)
                 return;
             }
 
+            // accept new connection
+            _listener.BeginAccept(AcceptCallback, _listener);
+            // process connection
             ProcessAccept(clientSocket);
         }
 #endif
@@ -206,17 +221,10 @@ namespace Renci.SshNet
             if (!IsStarted)
                 return;
 
-            Session.Disconnected -= Session_Disconnected;
-            Session.ErrorOccured -= Session_ErrorOccured;
-
-#if FEATURE_SOCKET_EAP
-            _stoppingListener.Set();
-#endif // FEATURE_SOCKET_EAP
-
             // close listener socket
             _listener.Dispose();
-            // wait for listener loop to finish
-            _listenerTaskCompleted.WaitOne();
+            // allow listener thread to stop
+            _listenerTaskCompleted.Set();
         }
 
         partial void InternalDispose(bool disposing)
@@ -228,14 +236,6 @@ namespace Renci.SshNet
                     _listener.Dispose();
                     _listener = null;
                 }
-
-#if FEATURE_SOCKET_EAP
-                if (_stoppingListener != null)
-                {
-                    _stoppingListener.Dispose();
-                    _stoppingListener = null;
-                }
-#endif // FEATURE_SOCKET_EAP
             }
         }
 

@@ -132,7 +132,7 @@ namespace Renci.SshNet.Messages.Connection
             Write(EnvironmentVariable);
             Write(Columns);
             Write(Rows);
-            Write(Rows);
+            Write(PixelWidth);
             Write(PixelHeight);
 
             if (TerminalModeValues != null)

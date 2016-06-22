@@ -2,10 +2,10 @@
 
 *.cs text
 *.xaml text
-*.sln text eol=crlf
-*.csproj text eol=crlf
-*.shproj text eol=crlf
-*.appxmanifest text eol=crlf
+*.sln eol=crlf
+*.csproj eol=crlf
+*.shproj eol=crlf
+*.appxmanifest eol=crlf
 
 *.png binary
 *.jpg binary

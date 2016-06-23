@@ -144,6 +144,8 @@
     <Compile Include="Common\TerminalModes.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Common\AddressTypeFilterClass.cs" />
+    <Compile Include="Common\AddressTypesFilterClass.cs" />
     <Compile Include="Compression\CompressionMode.cs" />
     <Compile Include="Compression\Compressor.cs" />
     <Compile Include="Compression\Zlib.cs" />

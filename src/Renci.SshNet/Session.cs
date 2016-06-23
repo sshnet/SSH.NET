@@ -528,18 +528,18 @@ namespace Renci.SshNet
                     switch (ConnectionInfo.ProxyType)
                     {
                         case ProxyTypes.None:
-                            SocketConnect(ConnectionInfo.Host, ConnectionInfo.Port);
+                            SocketConnect(ConnectionInfo.Host, ConnectionInfo.Port, ConnectionInfo.FilterHostAddressesFunc);
                             break;
                         case ProxyTypes.Socks4:
-                            SocketConnect(ConnectionInfo.ProxyHost, ConnectionInfo.ProxyPort);
+                            SocketConnect(ConnectionInfo.ProxyHost, ConnectionInfo.ProxyPort, ConnectionInfo.FilterHostAddressesFunc);
                             ConnectSocks4();
                             break;
                         case ProxyTypes.Socks5:
-                            SocketConnect(ConnectionInfo.ProxyHost, ConnectionInfo.ProxyPort);
+                            SocketConnect(ConnectionInfo.ProxyHost, ConnectionInfo.ProxyPort, ConnectionInfo.FilterHostAddressesFunc);
                             ConnectSocks5();
                             break;
                         case ProxyTypes.Http:
-                            SocketConnect(ConnectionInfo.ProxyHost, ConnectionInfo.ProxyPort);
+                            SocketConnect(ConnectionInfo.ProxyHost, ConnectionInfo.ProxyPort, ConnectionInfo.FilterHostAddressesFunc);
                             ConnectHttp();
                             break;
                     }
@@ -1661,11 +1661,13 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="host">The host name of the server to connect to.</param>
         /// <param name="port">The port to connect to.</param>
+        /// <param name="addressFilter">If not <const>null</const>filters the addresses from the GetHostAddresses call, otherwise the first address is used.</param>
         /// <exception cref="SshOperationTimeoutException">The connection failed to establish within the configured <see cref="Renci.SshNet.ConnectionInfo.Timeout"/>.</exception>
         /// <exception cref="SocketException">An error occurred trying to establish the connection.</exception>
-        private void SocketConnect(string host, int port)
+        private void SocketConnect(string host, int port, Func<IPAddress[], IPAddress> addressFilter)
         {
-            var ipAddress = DnsAbstraction.GetHostAddresses(host)[0];
+            var ipAddresses = DnsAbstraction.GetHostAddresses(host);
+            var ipAddress = addressFilter != null ? addressFilter(ipAddresses) : ipAddresses[0];
             var ep = new IPEndPoint(ipAddress, port);
 
             DiagnosticAbstraction.Log(string.Format("Initiating connect to '{0}:{1}'.", host, port));

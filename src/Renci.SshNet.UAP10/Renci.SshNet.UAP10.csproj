@@ -297,6 +297,12 @@
     <Compile Include="..\Renci.SshNet\Common\TerminalModes.cs">
       <Link>Common\TerminalModes.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\Common\AddressTypeFilterClass.cs">
+      <Link>Common\AddressTypeFilterClass.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Common\AddressTypesFilterClass.cs">
+      <Link>Common\AddressTypesFilterClass.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\Compression\CompressionMode.cs">
       <Link>Compression\CompressionMode.cs</Link>
     </Compile>

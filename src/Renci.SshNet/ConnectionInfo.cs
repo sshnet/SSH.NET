@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using System.Text;
 using Renci.SshNet.Security;
 using Renci.SshNet.Messages.Connection;
@@ -209,6 +211,22 @@ namespace Renci.SshNet
         /// Gets the current client compression algorithm.
         /// </summary>
         public string CurrentClientCompressionAlgorithm { get; internal set; }
+
+        /// <summary>
+        /// Sets a value for the <see cref="FilterHostAddressesFunc"/> so that the addresses of <paramref name="addressFamily"/>are preferred.<para />
+        /// Using this method is shorthand for:<para />
+        /// <see cref="FilterHostAddressesFunc"/> = new <see cref="AddressTypeFilterClass"/>(<paramref name="addressFamily"/>).PreferAddressOfType<para />
+        /// </summary>
+        /// <param name="addressFamily">The address family which should be prefered</param>
+        public void SetPreferAddressFamily(AddressFamily addressFamily)
+        {
+            FilterHostAddressesFunc = new AddressTypeFilterClass(addressFamily).PreferAddressOfType;
+        }
+
+        /// <value>
+        /// A function which can be used to filter the return addresses from resolving the <see cref="Host"/>.
+        /// </value>
+        public Func<IPAddress[], IPAddress> FilterHostAddressesFunc { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ConnectionInfo"/> class.

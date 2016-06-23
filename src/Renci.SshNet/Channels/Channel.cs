@@ -720,11 +720,10 @@ namespace Renci.SshNet.Channels
             {
                 try
                 {
-                    if (_session.ConnectionInfo.ChannelRequests.ContainsKey(e.Message.RequestName))
-                    {
-                        //  Get request specific class
-                        var requestInfo = _session.ConnectionInfo.ChannelRequests[e.Message.RequestName];
+                    RequestInfo requestInfo;
 
+                    if (_session.ConnectionInfo.ChannelRequests.TryGetValue(e.Message.RequestName, out requestInfo))
+                    {
                         //  Load request specific data
                         requestInfo.Load(e.Message.RequestData);
 

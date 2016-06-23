@@ -114,7 +114,6 @@ namespace Renci.SshNet
                 var messageNumber = messageMetadata.Number;
                 if ((messageNumber > 2 && messageNumber < 20) || messageNumber > 30)
                 {
-                    //Console.WriteLine("Disabling " + messageMetadata.Name + "...");
                     _enabledMessagesByNumber[messageNumber] = null;
                 }
             }
@@ -192,17 +191,17 @@ namespace Renci.SshNet
             }
         }
 
-        private SshException CreateMessageTypeNotSupportedException(byte messageNumber)
+        private static SshException CreateMessageTypeNotSupportedException(byte messageNumber)
         {
             throw new SshException(string.Format(CultureInfo.InvariantCulture, "Message type {0} is not supported.", messageNumber));
         }
 
-        private SshException CreateMessageNotSupportedException(string messageName)
+        private static SshException CreateMessageNotSupportedException(string messageName)
         {
             throw new SshException(string.Format(CultureInfo.InvariantCulture, "Message '{0}' is not supported.", messageName));
         }
 
-        private SshException CreateMessageTypeAlreadyEnabledForOtherMessageException(byte messageNumber, string messageName, string currentEnabledForMessageName)
+        private static SshException CreateMessageTypeAlreadyEnabledForOtherMessageException(byte messageNumber, string messageName, string currentEnabledForMessageName)
         {
             throw new SshException(string.Format(CultureInfo.InvariantCulture,
                 "Cannot enable message '{0}'. Message type {1} is already enabled for '{2}'.",

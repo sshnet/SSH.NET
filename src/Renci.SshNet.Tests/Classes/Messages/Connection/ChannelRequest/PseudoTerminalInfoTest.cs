@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -61,7 +61,6 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
             var sshDataStream = new SshDataStream(bytes);
 
             Assert.AreEqual(1, sshDataStream.ReadByte()); // WantReply
-//            Assert.AreEqual((uint) _environmentVariableBytes.Length, sshDataStream.ReadUInt32());
             Assert.AreEqual(environmentVariable, sshDataStream.ReadString(Encoding.UTF8));
             Assert.AreEqual(columns, sshDataStream.ReadUInt32());
             Assert.AreEqual(rows, sshDataStream.ReadUInt32());

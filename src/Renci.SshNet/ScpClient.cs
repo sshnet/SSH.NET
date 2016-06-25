@@ -336,7 +336,7 @@ namespace Renci.SshNet
         /// Checks the return code.
         /// </summary>
         /// <param name="input">The output stream.</param>
-        private void CheckReturnCode(Stream input)
+        private static void CheckReturnCode(Stream input)
         {
             var b = ReadByte(input);
 
@@ -348,17 +348,17 @@ namespace Renci.SshNet
             }
         }
 
-        private void SendData(IChannel channel, string command)
+        private static void SendData(IChannel channel, string command)
         {
             channel.SendData(SshData.Utf8.GetBytes(command));
         }
 
-        private void SendData(IChannel channel, byte[] buffer, int length)
+        private static void SendData(IChannel channel, byte[] buffer, int length)
         {
             channel.SendData(buffer, 0, length);
         }
 
-        private void SendData(IChannel channel, byte[] buffer)
+        private static void SendData(IChannel channel, byte[] buffer)
         {
             channel.SendData(buffer);
         }

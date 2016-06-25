@@ -5,7 +5,6 @@ using System.IO;
 using Renci.SshNet.Common;
 using System.Text.RegularExpressions;
 using System.Diagnostics.CodeAnalysis;
-using Renci.SshNet.Abstractions;
 
 namespace Renci.SshNet
 {
@@ -170,12 +169,7 @@ namespace Renci.SshNet
             using (var input = ServiceFactory.CreatePipeStream())
             using (var channel = Session.CreateChannelSession())
             {
-                channel.DataReceived += delegate(object sender, ChannelDataEventArgs e)
-                {
-                    input.Write(e.Data, 0, e.Data.Length);
-                    input.Flush();
-                };
-
+                channel.DataReceived += (sender, e) => input.Write(e.Data, 0, e.Data.Length);
                 channel.Open();
 
                 var pathEnd = path.LastIndexOfAny(new[] { '\\', '/' });
@@ -213,15 +207,10 @@ namespace Renci.SshNet
             if (destination == null)
                 throw new ArgumentNullException("destination");
 
-            using (var input = new PipeStream())
+            using (var input = ServiceFactory.CreatePipeStream())
             using (var channel = Session.CreateChannelSession())
             {
-                channel.DataReceived += delegate(object sender, ChannelDataEventArgs e)
-                {
-                    input.Write(e.Data, 0, e.Data.Length);
-                    input.Flush();
-                };
-
+                channel.DataReceived += (sender, e) => input.Write(e.Data, 0, e.Data.Length);
                 channel.Open();
 
                 //  Send channel command request
@@ -347,7 +336,7 @@ namespace Renci.SshNet
         /// Checks the return code.
         /// </summary>
         /// <param name="input">The output stream.</param>
-        private void CheckReturnCode(Stream input)
+        private static void CheckReturnCode(Stream input)
         {
             var b = ReadByte(input);
 
@@ -359,17 +348,17 @@ namespace Renci.SshNet
             }
         }
 
-        private void SendData(IChannel channel, string command)
+        private static void SendData(IChannel channel, string command)
         {
             channel.SendData(SshData.Utf8.GetBytes(command));
         }
 
-        private void SendData(IChannel channel, byte[] buffer, int length)
+        private static void SendData(IChannel channel, byte[] buffer, int length)
         {
             channel.SendData(buffer, 0, length);
         }
 
-        private void SendData(IChannel channel, byte[] buffer)
+        private static void SendData(IChannel channel, byte[] buffer)
         {
             channel.SendData(buffer);
         }
@@ -377,13 +366,8 @@ namespace Renci.SshNet
         private static int ReadByte(Stream stream)
         {
             var b = stream.ReadByte();
-
-            while (b < 0)
-            {
-                ThreadAbstraction.Sleep(100);
-                b = stream.ReadByte();
-            }
-
+            if (b == -1)
+                throw new SshException("Stream has been closed.");
             return b;
         }
 

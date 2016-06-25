@@ -132,11 +132,14 @@ namespace Renci.SshNet.Messages.Connection
             Write(EnvironmentVariable);
             Write(Columns);
             Write(Rows);
-            Write(Rows);
+            Write(PixelWidth);
             Write(PixelHeight);
 
-            if (TerminalModeValues != null)
+            if (TerminalModeValues != null && TerminalModeValues.Count > 0)
             {
+                // write total length of encoded terminal modes, which is 1 bytes for the opcode / terminal mode
+                // and 4 bytes for the uint argument for each entry; the encoded terminal modes are terminated by
+                // opcode TTY_OP_END (which is 1 byte)
                 Write((uint) TerminalModeValues.Count*(1 + 4) + 1);
 
                 foreach (var item in TerminalModeValues)
@@ -144,11 +147,13 @@ namespace Renci.SshNet.Messages.Connection
                     Write((byte) item.Key);
                     Write(item.Value);
                 }
-                Write((byte)0);
+
+                Write((byte) TerminalModes.TTY_OP_END);
             }
             else
             {
-                Write((uint)0);
+                // when there are no terminal mode, the length of the string is zero
+                Write((uint) 0);
             }
         }
     }

@@ -6,7 +6,6 @@ using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Renci.SshNet.Channels;
-using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Connection;
 using Renci.SshNet.Tests.Common;
 
@@ -95,8 +94,6 @@ namespace Renci.SshNet.Tests.Classes.Channels
                                     _remoteChannelNumber)));
                         w.WaitOne();
                     });
-            _sessionMock.InSequence(sequence).Setup(p => p.ConnectionInfo).Returns(_connectionInfoMock.Object);
-            _connectionInfoMock.InSequence(sequence).Setup(p => p.Timeout).Returns(TimeSpan.FromSeconds(60));
             _sessionMock.InSequence(sequence).Setup(p => p.IsConnected).Returns(true);
             _sessionMock.InSequence(sequence)
                 .Setup(
@@ -169,7 +166,6 @@ namespace Renci.SshNet.Tests.Classes.Channels
             if (_channel != null)
             {
                 _channel.Close();
-
             }
         }
 

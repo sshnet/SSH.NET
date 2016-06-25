@@ -20,7 +20,7 @@ namespace Renci.SshNet.Tests.Classes
         private Socket _client;
         private IList<EventArgs> _closingRegister;
         private IList<ExceptionEventArgs> _exceptionRegister;
-        private int _bytesReceived;
+        private TimeSpan _connectionTimeout;
 
         [TestInitialize]
         public void Initialize()
@@ -49,19 +49,37 @@ namespace Renci.SshNet.Tests.Classes
             }
         }
 
-        private void Arrange()
+        private void SetupData()
         {
             _closingRegister = new List<EventArgs>();
             _exceptionRegister = new List<ExceptionEventArgs>();
+            _connectionTimeout = TimeSpan.FromSeconds(5);
+        }
 
+        private void CreateMocks()
+        {
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);
             _channelMock = new Mock<IChannelDirectTcpip>(MockBehavior.Strict);
             _connectionInfoMock = new Mock<IConnectionInfo>(MockBehavior.Strict);
+        }
 
-            _sessionMock.Setup(p => p.IsConnected).Returns(true);
-            _sessionMock.Setup(p => p.CreateChannelDirectTcpip()).Returns(_channelMock.Object);
-            _channelMock.Setup(p => p.Close());
-            _channelMock.Setup(p => p.Dispose());
+        private void SetupMocks()
+        {
+            var seq = new MockSequence();
+
+            _sessionMock.InSequence(seq).Setup(p => p.IsConnected).Returns(true);
+            _sessionMock.InSequence(seq).Setup(p => p.CreateChannelDirectTcpip()).Returns(_channelMock.Object);
+            _sessionMock.InSequence(seq).Setup(p => p.ConnectionInfo).Returns(_connectionInfoMock.Object);
+            _connectionInfoMock.InSequence(seq).Setup(p => p.Timeout).Returns(_connectionTimeout);
+            _channelMock.InSequence(seq).Setup(p => p.Close());
+            _channelMock.InSequence(seq).Setup(p => p.Dispose());
+        }
+
+        private void Arrange()
+        {
+            SetupData();
+            CreateMocks();
+            SetupMocks();
 
             _forwardedPort = new ForwardedPortDynamic(8122);
             _forwardedPort.Closing += (sender, args) => _closingRegister.Add(args);
@@ -78,9 +96,6 @@ namespace Renci.SshNet.Tests.Classes
         private void Act()
         {
             _client.Shutdown(SocketShutdown.Send);
-
-            var buffer = new byte[1];
-            _bytesReceived = _client.Receive(buffer, 0, buffer.Length, SocketFlags.None);
         }
 
         [TestMethod]
@@ -92,7 +107,11 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void ForwardedPortShouldShutdownSendOnSocket()
         {
-            Assert.AreEqual(0, _bytesReceived);
+            var buffer = new byte[1];
+
+            var bytesReceived = _client.Receive(buffer, 0, buffer.Length, SocketFlags.None);
+
+            Assert.AreEqual(0, bytesReceived);
         }
 
         [TestMethod]

@@ -122,6 +122,10 @@
         /// </summary>
         /// <exception cref="IOException">An I/O error occurs.</exception>
         /// <exception cref="ObjectDisposedException">Methods were called after the stream was closed.</exception>
+        /// <remarks>
+        /// Once flushed, any subsequent read operations no longer block until requested bytes are available. Any write operation reactivates blocking
+        /// reads.
+        /// </remarks>
         public override void Flush()
         {
             if (_isDisposed)
@@ -129,7 +133,10 @@
 
             _isFlushed = true;
             lock (_buffer)
+            {
+                // unblock read hereby allowing buffer to be partially filled
                 Monitor.Pulse(_buffer);
+            }
         }
 
         /// <summary>
@@ -160,7 +167,7 @@
         ///When overridden in a derived class, reads a sequence of bytes from the current stream and advances the position within the stream by the number of bytes read.
         ///</summary>
         ///<returns>
-        ///The total number of bytes read into the buffer. This can be less than the number of bytes requested if that many bytes are not currently available, or zero if the end of the stream has been reached.
+        ///The total number of bytes read into the buffer. This can be less than the number of bytes requested if that many bytes are not currently available, or zero if the stream is closed or end of the stream has been reached.
         ///</returns>
         ///<param name="offset">The zero-based byte offset in buffer at which to begin storing the data read from the current stream.</param>
         ///<param name="count">The maximum number of bytes to be read from the current stream.</param>
@@ -192,8 +199,16 @@
 
             lock (_buffer)
             {
-                while (!ReadAvailable(count))
+                while (!_isDisposed && !ReadAvailable(count))
+                {
                     Monitor.Wait(_buffer);
+                }
+
+                // return zero when the read is interrupted by a close/dispose of the stream
+                if (_isDisposed)
+                {
+                    return 0;
+                }
 
                 // fill the read buffer
                 for (; readLength < count && Length > 0 && _buffer.Count > 0; readLength++)
@@ -203,6 +218,7 @@
 
                 Monitor.Pulse(_buffer);
             }
+
             return readLength;
         }
 
@@ -264,11 +280,21 @@
         /// Releases the unmanaged resources used by the Stream and optionally releases the managed resources.
         /// </summary>
         /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        /// <remarks>
+        /// Disposing a <see cref="PipeStream"/> will interrupt blocking read and write operations.
+        /// </remarks>
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);
 
-            _isDisposed = true;
+            if (!_isDisposed)
+            {
+                lock (_buffer)
+                {
+                    _isDisposed = true;
+                    Monitor.Pulse(_buffer);
+                }
+            }
         }
 
         ///<summary>

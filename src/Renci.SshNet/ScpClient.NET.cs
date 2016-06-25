@@ -31,12 +31,7 @@ namespace Renci.SshNet
             using (var input = ServiceFactory.CreatePipeStream())
             using (var channel = Session.CreateChannelSession())
             {
-                channel.DataReceived += delegate(object sender, ChannelDataEventArgs e)
-                {
-                    input.Write(e.Data, 0, e.Data.Length);
-                    input.Flush();
-                };
-
+                channel.DataReceived += (sender, e) => input.Write(e.Data, 0, e.Data.Length);
                 channel.Open();
 
                 if (!channel.SendExecRequest(string.Format("scp -t \"{0}\"", path)))
@@ -64,15 +59,10 @@ namespace Renci.SshNet
             if (string.IsNullOrEmpty(path))
                 throw new ArgumentException("path");
 
-            using (var input = new PipeStream())
+            using (var input = ServiceFactory.CreatePipeStream())
             using (var channel = Session.CreateChannelSession())
             {
-                channel.DataReceived += delegate(object sender, ChannelDataEventArgs e)
-                {
-                    input.Write(e.Data, 0, e.Data.Length);
-                    input.Flush();
-                };
-
+                channel.DataReceived += (sender, e) => input.Write(e.Data, 0, e.Data.Length);
                 channel.Open();
 
                 //  Send channel command request
@@ -106,15 +96,10 @@ namespace Renci.SshNet
             if (fileInfo == null)
                 throw new ArgumentNullException("fileInfo");
 
-            using (var input = new PipeStream())
+            using (var input = ServiceFactory.CreatePipeStream())
             using (var channel = Session.CreateChannelSession())
             {
-                channel.DataReceived += delegate(object sender, ChannelDataEventArgs e)
-                {
-                    input.Write(e.Data, 0, e.Data.Length);
-                    input.Flush();
-                };
-
+                channel.DataReceived += (sender, e) => input.Write(e.Data, 0, e.Data.Length);
                 channel.Open();
 
                 //  Send channel command request
@@ -141,15 +126,10 @@ namespace Renci.SshNet
             if (directoryInfo == null)
                 throw new ArgumentNullException("directoryInfo");
 
-            using (var input = new PipeStream())
+            using (var input = ServiceFactory.CreatePipeStream())
             using (var channel = Session.CreateChannelSession())
             {
-                channel.DataReceived += delegate(object sender, ChannelDataEventArgs e)
-                {
-                    input.Write(e.Data, 0, e.Data.Length);
-                    input.Flush();
-                };
-
+                channel.DataReceived += (sender, e) => input.Write(e.Data, 0, e.Data.Length);
                 channel.Open();
 
                 //  Send channel command request

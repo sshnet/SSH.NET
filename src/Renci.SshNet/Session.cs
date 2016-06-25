@@ -1685,7 +1685,7 @@ namespace Renci.SshNet
         /// <exception cref="SshConnectionException">The socket is closed.</exception>
         /// <exception cref="SshOperationTimeoutException">The read has timed-out.</exception>
         /// <exception cref="SocketException">The read failed.</exception>
-        void SocketRead(int length, byte[] buffer)
+        private void SocketRead(int length, byte[] buffer)
         {
             if (SocketAbstraction.Read(_socket, buffer, 0, length, InfiniteTimeSpan) > 0)
             {

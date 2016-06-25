@@ -214,37 +214,37 @@ namespace Renci.SshNet.Channels
         #region Message events
 
         /// <summary>
-        /// Occurs when <see cref="ChannelDataMessage"/> message received
+        /// Occurs when <see cref="ChannelDataMessage"/> is received.
         /// </summary>
         public event EventHandler<ChannelDataEventArgs> DataReceived;
 
         /// <summary>
-        /// Occurs when <see cref="ChannelExtendedDataMessage"/> message received
+        /// Occurs when <see cref="ChannelExtendedDataMessage"/> is received.
         /// </summary>
         public event EventHandler<ChannelExtendedDataEventArgs> ExtendedDataReceived;
 
         /// <summary>
-        /// Occurs when <see cref="ChannelEofMessage"/> message received
+        /// Occurs when <see cref="ChannelEofMessage"/> is received.
         /// </summary>
         public event EventHandler<ChannelEventArgs> EndOfData;
 
         /// <summary>
-        /// Occurs when <see cref="ChannelCloseMessage"/> message received
+        /// Occurs when <see cref="ChannelCloseMessage"/> is received.
         /// </summary>
         public event EventHandler<ChannelEventArgs> Closed;
 
         /// <summary>
-        /// Occurs when <see cref="ChannelRequestMessage"/> message received
+        /// Occurs when <see cref="ChannelRequestMessage"/> is received.
         /// </summary>
         public event EventHandler<ChannelRequestEventArgs> RequestReceived;
 
         /// <summary>
-        /// Occurs when <see cref="ChannelSuccessMessage"/> message received
+        /// Occurs when <see cref="ChannelSuccessMessage"/> is received.
         /// </summary>
         public event EventHandler<ChannelEventArgs> RequestSucceeded;
 
         /// <summary>
-        /// Occurs when <see cref="ChannelFailureMessage"/> message received
+        /// Occurs when <see cref="ChannelFailureMessage"/> is received.
         /// </summary>
         public event EventHandler<ChannelEventArgs> RequestFailed;
 
@@ -271,7 +271,7 @@ namespace Renci.SshNet.Channels
         }
 
         /// <summary>
-        /// Gets the session semaphore to control number of session channels
+        /// Gets the session semaphore to control number of session channels.
         /// </summary>
         /// <value>The session semaphore.</value>
         protected SemaphoreLight SessionSemaphore
@@ -720,11 +720,10 @@ namespace Renci.SshNet.Channels
             {
                 try
                 {
-                    if (_session.ConnectionInfo.ChannelRequests.ContainsKey(e.Message.RequestName))
-                    {
-                        //  Get request specific class
-                        var requestInfo = _session.ConnectionInfo.ChannelRequests[e.Message.RequestName];
+                    RequestInfo requestInfo;
 
+                    if (_session.ConnectionInfo.ChannelRequests.TryGetValue(e.Message.RequestName, out requestInfo))
+                    {
                         //  Load request specific data
                         requestInfo.Load(e.Message.RequestData);
 

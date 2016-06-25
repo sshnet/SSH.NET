@@ -10,7 +10,19 @@
         <projectUrl>https://github.com/sshnet/SSH.NET/</projectUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>SSH.NET is a Secure Shell (SSH) library for .NET, optimized for parallelism and with broad framework support.</description>
-        <releaseNotes>2016.0.0-beta1
+        <releaseNotes>2016.0.0-beta2
+==============
+
+Changes:
+
+    * Improved performance of ScpClient (GitHub issue #21)
+
+Fixes:
+
+    * Terminal width (pixels) is not passed in pty-req
+    * Stopping ForwardedPortDynamic without ever having started would result in a NRE
+
+2016.0.0-beta1
 ==============
 
 New Features:

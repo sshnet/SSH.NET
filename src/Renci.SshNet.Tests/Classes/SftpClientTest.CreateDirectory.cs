@@ -24,6 +24,7 @@ namespace Renci.SshNet.Tests.Classes
 
         [TestMethod]
         [TestCategory("Sftp")]
+        [TestCategory("integration")]
         public void Test_Sftp_CreateDirectory_In_Current_Location()
         {
             using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
@@ -38,6 +39,7 @@ namespace Renci.SshNet.Tests.Classes
 
         [TestMethod]
         [TestCategory("Sftp")]
+        [TestCategory("integration")]
         [ExpectedException(typeof(SftpPermissionDeniedException))]
         public void Test_Sftp_CreateDirectory_In_Forbidden_Directory()
         {
@@ -56,6 +58,7 @@ namespace Renci.SshNet.Tests.Classes
 
         [TestMethod]
         [TestCategory("Sftp")]
+        [TestCategory("integration")]
         [ExpectedException(typeof(SftpPathNotFoundException))]
         public void Test_Sftp_CreateDirectory_Invalid_Path()
         {
@@ -71,6 +74,7 @@ namespace Renci.SshNet.Tests.Classes
 
         [TestMethod]
         [TestCategory("Sftp")]
+        [TestCategory("integration")]
         [ExpectedException(typeof(SshException))]
         public void Test_Sftp_CreateDirectory_Already_Exists()
         {

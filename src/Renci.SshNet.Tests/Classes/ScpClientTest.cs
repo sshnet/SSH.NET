@@ -17,6 +17,7 @@ namespace Renci.SshNet.Tests.Classes
     {
         [TestMethod]
         [TestCategory("Scp")]
+        [TestCategory("integration")]
         public void Test_Scp_File_Upload_Download()
         {
             RemoveAllFiles();
@@ -49,6 +50,7 @@ namespace Renci.SshNet.Tests.Classes
 
         [TestMethod]
         [TestCategory("Scp")]
+        [TestCategory("integration")]
         public void Test_Scp_Stream_Upload_Download()
         {
             RemoveAllFiles();
@@ -88,6 +90,7 @@ namespace Renci.SshNet.Tests.Classes
 
         [TestMethod]
         [TestCategory("Scp")]
+        [TestCategory("integration")]
         public void Test_Scp_10MB_File_Upload_Download()
         {
             RemoveAllFiles();
@@ -120,6 +123,7 @@ namespace Renci.SshNet.Tests.Classes
 
         [TestMethod]
         [TestCategory("Scp")]
+        [TestCategory("integration")]
         public void Test_Scp_10MB_Stream_Upload_Download()
         {
             RemoveAllFiles();
@@ -159,6 +163,7 @@ namespace Renci.SshNet.Tests.Classes
 
         [TestMethod]
         [TestCategory("Scp")]
+        [TestCategory("integration")]
         public void Test_Scp_Directory_Upload_Download()
         {
             RemoveAllFiles();

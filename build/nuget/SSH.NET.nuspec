@@ -17,6 +17,7 @@ Fixes:
 
     * Terminal width (pixels) is not passed in pty-req
     * Stopping ForwardedPortDynamic without ever having started would result in a NRE
+    * SCP transfer is slow (GitHub issue #21)
 
 2016.0.0-beta1
 ==============

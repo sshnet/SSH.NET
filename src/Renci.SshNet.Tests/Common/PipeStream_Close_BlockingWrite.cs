@@ -17,22 +17,25 @@ namespace Renci.SshNet.Tests.Common
             _pipeStream = new PipeStream {MaxBufferLength = 3};
 
             Action writeAction = () =>
-            {
-                _pipeStream.WriteByte(10);
-                _pipeStream.WriteByte(13);
-                _pipeStream.WriteByte(25);
+                {
+                    _pipeStream.WriteByte(10);
+                    _pipeStream.WriteByte(13);
+                    _pipeStream.WriteByte(25);
 
-                try
-                {
-                    _pipeStream.WriteByte(35);
-                }
-                catch (Exception ex)
-                {
-                    _writeException = ex;
-                    throw;
-                }
-            };
+                    // attempting to write more bytes than the max. buffer length should block
+                    // until bytes are read or the stream is closed
+                    try
+                    {
+                        _pipeStream.WriteByte(35);
+                    }
+                    catch (Exception ex)
+                    {
+                        _writeException = ex;
+                        throw;
+                    }
+                };
             _asyncWriteResult = writeAction.BeginInvoke(null, null);
+            // ensure we've started writing
             _asyncWriteResult.AsyncWaitHandle.WaitOne(50);
 
             Act();
@@ -44,14 +47,16 @@ namespace Renci.SshNet.Tests.Common
         }
 
         [TestMethod]
-        public void AsyncWriteShouldHaveFinished()
+        public void BlockingWriteShouldHaveBeenInterrupted()
         {
-            Assert.IsTrue(_asyncWriteResult.IsCompleted);
+            Assert.IsTrue(_asyncWriteResult.AsyncWaitHandle.WaitOne(200));
         }
 
         [TestMethod]
-        public void WriteThatExceedsMaxBufferLengthShouldHaveThrownObjectDisposedException()
+        public void WriteShouldHaveThrownObjectDisposedException()
         {
+            _asyncWriteResult.AsyncWaitHandle.WaitOne(200);
+
             Assert.IsNotNull(_writeException);
             Assert.AreEqual(typeof (ObjectDisposedException), _writeException.GetType());
         }

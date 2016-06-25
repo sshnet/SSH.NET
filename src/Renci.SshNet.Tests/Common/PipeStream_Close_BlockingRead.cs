@@ -25,6 +25,7 @@ namespace Renci.SshNet.Tests.Common
 
             Action readAction = () => _bytesRead = _pipeStream.Read(new byte[4], 0, 4);
             _asyncReadResult = readAction.BeginInvoke(null, null);
+            // ensure we've started reading
             _asyncReadResult.AsyncWaitHandle.WaitOne(50);
 
             Act();
@@ -36,9 +37,9 @@ namespace Renci.SshNet.Tests.Common
         }
 
         [TestMethod]
-        public void AsyncReadShouldHaveFinished()
+        public void BlockingReadShouldHaveBeenInterrupted()
         {
-            Assert.IsTrue(_asyncReadResult.IsCompleted);
+            Assert.IsTrue(_asyncReadResult.AsyncWaitHandle.WaitOne(200));
         }
 
         [TestMethod]

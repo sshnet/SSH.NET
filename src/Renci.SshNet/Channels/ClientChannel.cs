@@ -21,12 +21,12 @@ namespace Renci.SshNet.Channels
         }
 
         /// <summary>
-        /// Occurs when <see cref="ChannelOpenConfirmationMessage"/> message is received.
+        /// Occurs when <see cref="ChannelOpenConfirmationMessage"/> is received.
         /// </summary>
         public event EventHandler<ChannelOpenConfirmedEventArgs> OpenConfirmed;
 
         /// <summary>
-        /// Occurs when <see cref="ChannelOpenFailureMessage"/> message is received.
+        /// Occurs when <see cref="ChannelOpenFailureMessage"/> is received.
         /// </summary>
         public event EventHandler<ChannelOpenFailedEventArgs> OpenFailed;
 

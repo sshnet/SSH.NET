@@ -10,7 +10,7 @@ namespace Renci.SshNet.Channels
     internal interface IChannel : IDisposable
     {
         /// <summary>
-        /// Occurs when <see cref="ChannelDataMessage"/> message received
+        /// Occurs when <see cref="ChannelDataMessage"/> is received.
         /// </summary>
         event EventHandler<ChannelDataEventArgs> DataReceived;
 
@@ -20,17 +20,17 @@ namespace Renci.SshNet.Channels
         event EventHandler<ExceptionEventArgs> Exception;
 
         /// <summary>
-        /// Occurs when <see cref="ChannelExtendedDataMessage"/> message received
+        /// Occurs when <see cref="ChannelExtendedDataMessage"/> is received.
         /// </summary>
         event EventHandler<ChannelExtendedDataEventArgs> ExtendedDataReceived;
 
         /// <summary>
-        /// Occurs when <see cref="ChannelRequestMessage"/> message received
+        /// Occurs when <see cref="ChannelRequestMessage"/> is received.
         /// </summary>
         event EventHandler<ChannelRequestEventArgs> RequestReceived;
 
         /// <summary>
-        /// Occurs when <see cref="ChannelCloseMessage"/> message received
+        /// Occurs when <see cref="ChannelCloseMessage"/> is received.
         /// </summary>
         event EventHandler<ChannelEventArgs> Closed;
 

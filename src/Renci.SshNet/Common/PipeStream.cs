@@ -195,7 +195,7 @@
             if (count == 0)
                 return 0;
 
-            int readLength = 0;
+            var readLength = 0;
 
             lock (_buffer)
             {
@@ -211,7 +211,7 @@
                 }
 
                 // fill the read buffer
-                for (; readLength < count && Length > 0 && _buffer.Count > 0; readLength++)
+                for (; readLength < count && _buffer.Count > 0; readLength++)
                 {
                     buffer[readLength] = _buffer.Dequeue();
                 }
@@ -229,8 +229,8 @@
         /// <returns><c>True</c> if data available; otherwise<c>false</c>.</returns>
         private bool ReadAvailable(int count)
         {
-            return (Length >= count || _isFlushed) &&
-                   (Length >= (count + 1) || !BlockLastReadBuffer);
+            var length = Length;
+            return (_isFlushed || length >= count) && (length >= (count + 1) || !BlockLastReadBuffer);
         }
 
         ///<summary>
@@ -267,7 +267,7 @@
                 _isFlushed = false; // if it were flushed before, it soon will not be.
 
                 // queue up the buffer data
-                for (int i = offset; i < offset + count; i++)
+                for (var i = offset; i < offset + count; i++)
                 {
                     _buffer.Enqueue(buffer[i]);
                 }

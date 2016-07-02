@@ -18,7 +18,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;FEATURE_RNG_CSP;FEATURE_SOCKET_SYNC;FEATURE_SOCKET_EAP;FEATURE_SOCKET_POLL;FEATURE_STREAM_APM;FEATURE_DNS_SYNC;FEATURE_THREAD_THREADPOOL;FEATURE_THREAD_SLEEP;FEATURE_HASH_MD5;FEATURE_HASH_SHA1;FEATURE_HASH_SHA256;FEATURE_HASH_SHA384;FEATURE_HASH_SHA512;FEATURE_HASH_RIPEMD160;FEATURE_HMAC_MD5;FEATURE_HMAC_SHA1;FEATURE_HMAC_SHA256;FEATURE_HMAC_SHA384;FEATURE_HMAC_SHA512;FEATURE_HMAC_RIPEMD160;FEATURE_MEMORYSTREAM_GETBUFFER;FEATURE_DIAGNOSTICS_TRACESOURCE;FEATURE_ENCODING_ASCII</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;FEATURE_BINARY_SERIALIZATION;FEATURE_RNG_CREATE;FEATURE_SOCKET_SYNC;FEATURE_SOCKET_EAP;FEATURE_SOCKET_APM;FEATURE_SOCKET_POLL;FEATURE_STREAM_APM;FEATURE_DNS_SYNC;FEATURE_THREAD_THREADPOOL;FEATURE_THREAD_SLEEP;FEATURE_HASH_MD5;FEATURE_HASH_SHA1_CREATE;FEATURE_HASH_SHA256_CREATE;FEATURE_HASH_SHA384_CREATE;FEATURE_HASH_SHA512_CREATE;FEATURE_HASH_RIPEMD160_CREATE;FEATURE_HMAC_MD5;FEATURE_HMAC_SHA1;FEATURE_HMAC_SHA256;FEATURE_HMAC_SHA384;FEATURE_HMAC_SHA512;FEATURE_HMAC_RIPEMD160;FEATURE_MEMORYSTREAM_GETBUFFER;FEATURE_DIAGNOSTICS_TRACESOURCE;FEATURE_ENCODING_ASCII</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
@@ -28,7 +28,7 @@
     <DebugType>none</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;FEATURE_RNG_CSP;FEATURE_SOCKET_SYNC;FEATURE_SOCKET_EAP;FEATURE_SOCKET_POLL;FEATURE_STREAM_APM;FEATURE_DNS_SYNC;FEATURE_THREAD_THREADPOOL;FEATURE_THREAD_SLEEP;FEATURE_HASH_MD5;FEATURE_HASH_SHA1;FEATURE_HASH_SHA256;FEATURE_HASH_SHA384;FEATURE_HASH_SHA512;FEATURE_HASH_RIPEMD160;FEATURE_HMAC_MD5;FEATURE_HMAC_SHA1;FEATURE_HMAC_SHA256;FEATURE_HMAC_SHA384;FEATURE_HMAC_SHA512;FEATURE_HMAC_RIPEMD160;FEATURE_MEMORYSTREAM_GETBUFFER;FEATURE_DIAGNOSTICS_TRACESOURCE;FEATURE_ENCODING_ASCII</DefineConstants>
+    <DefineConstants>TRACE;FEATURE_BINARY_SERIALIZATION;FEATURE_RNG_CREATE;FEATURE_SOCKET_SYNC;FEATURE_SOCKET_EAP;FEATURE_SOCKET_APM;FEATURE_SOCKET_POLL;FEATURE_STREAM_APM;FEATURE_DNS_SYNC;FEATURE_THREAD_THREADPOOL;FEATURE_THREAD_SLEEP;FEATURE_HASH_MD5;FEATURE_HASH_SHA1_CREATE;FEATURE_HASH_SHA256_CREATE;FEATURE_HASH_SHA384_CREATE;FEATURE_HASH_SHA512_CREATE;FEATURE_HASH_RIPEMD160_CREATE;FEATURE_HMAC_MD5;FEATURE_HMAC_SHA1;FEATURE_HMAC_SHA256;FEATURE_HMAC_SHA384;FEATURE_HMAC_SHA512;FEATURE_HMAC_RIPEMD160;FEATURE_MEMORYSTREAM_GETBUFFER;FEATURE_DIAGNOSTICS_TRACESOURCE;FEATURE_ENCODING_ASCII</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Release\Renci.SshNet.xml</DocumentationFile>
@@ -59,6 +59,9 @@
     </Compile>
     <Compile Include="..\Renci.SshNet\Abstractions\DnsAbstraction.cs">
       <Link>Abstractions\DnsAbstraction.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Abstractions\FileSystemAbstraction.cs">
+      <Link>Abstractions\FileSystemAbstraction.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Abstractions\ReflectionAbstraction.cs">
       <Link>Abstractions\ReflectionAbstraction.cs</Link>
@@ -180,9 +183,6 @@
     <Compile Include="..\Renci.SshNet\Common\NetConfServerException.cs">
       <Link>Common\NetConfServerException.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\Common\NetConfServerException.NET40.cs">
-      <Link>Common\NetConfServerException.NET40.cs</Link>
-    </Compile>
     <Compile Include="..\Renci.SshNet\Common\ObjectIdentifier.cs">
       <Link>Common\ObjectIdentifier.cs</Link>
     </Compile>
@@ -201,9 +201,6 @@
     <Compile Include="..\Renci.SshNet\Common\ScpException.cs">
       <Link>Common\ScpException.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\Common\ScpException.NET40.cs">
-      <Link>Common\ScpException.NET40.cs</Link>
-    </Compile>
     <Compile Include="..\Renci.SshNet\Common\ScpUploadEventArgs.cs">
       <Link>Common\ScpUploadEventArgs.cs</Link>
     </Compile>
@@ -213,14 +210,8 @@
     <Compile Include="..\Renci.SshNet\Common\SftpPathNotFoundException.cs">
       <Link>Common\SftpPathNotFoundException.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\Common\SftpPathNotFoundException.NET40.cs">
-      <Link>Common\SftpPathNotFoundException.NET40.cs</Link>
-    </Compile>
     <Compile Include="..\Renci.SshNet\Common\SftpPermissionDeniedException.cs">
       <Link>Common\SftpPermissionDeniedException.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet\Common\SftpPermissionDeniedException.NET40.cs">
-      <Link>Common\SftpPermissionDeniedException.NET40.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Common\ShellDataEventArgs.cs">
       <Link>Common\ShellDataEventArgs.cs</Link>
@@ -228,14 +219,8 @@
     <Compile Include="..\Renci.SshNet\Common\SshAuthenticationException.cs">
       <Link>Common\SshAuthenticationException.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\Common\SshAuthenticationException.NET40.cs">
-      <Link>Common\SshAuthenticationException.NET40.cs</Link>
-    </Compile>
     <Compile Include="..\Renci.SshNet\Common\SshConnectionException.cs">
       <Link>Common\SshConnectionException.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet\Common\SshConnectionException.NET40.cs">
-      <Link>Common\SshConnectionException.NET40.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Common\SshData.cs">
       <Link>Common\SshData.cs</Link>
@@ -246,20 +231,11 @@
     <Compile Include="..\Renci.SshNet\Common\SshException.cs">
       <Link>Common\SshException.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\Common\SshException.NET40.cs">
-      <Link>Common\SshException.NET40.cs</Link>
-    </Compile>
     <Compile Include="..\Renci.SshNet\Common\SshOperationTimeoutException.cs">
       <Link>Common\SshOperationTimeoutException.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\Common\SshOperationTimeoutException.NET40.cs">
-      <Link>Common\SshOperationTimeoutException.NET40.cs</Link>
-    </Compile>
     <Compile Include="..\Renci.SshNet\Common\SshPassPhraseNullOrEmptyException.cs">
       <Link>Common\SshPassPhraseNullOrEmptyException.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet\Common\SshPassPhraseNullOrEmptyException.NET40.cs">
-      <Link>Common\SshPassPhraseNullOrEmptyException.NET40.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Common\TerminalModes.cs">
       <Link>Common\TerminalModes.cs</Link>

@@ -54,10 +54,14 @@ namespace Renci.SshNet.Security.Cryptography
         }
 #endif // FEATURE_HASH_MD5
 
-#if FEATURE_HASH_SHA1
+#if FEATURE_HASH_SHA1_CREATE || FEATURE_HASH_SHA1_MANAGED
         public static System.Security.Cryptography.SHA1 CreateSHA1()
         {
+#if FEATURE_HASH_SHA1_CREATE
+            return System.Security.Cryptography.SHA1.Create();
+#elif FEATURE_HASH_SHA1_MANAGED
             return new System.Security.Cryptography.SHA1Managed();
+#endif
         }
 #else
         public static global::SshNet.Security.Cryptography.SHA1 CreateSHA1()
@@ -66,10 +70,14 @@ namespace Renci.SshNet.Security.Cryptography
         }
 #endif
 
-#if FEATURE_HASH_SHA256
+#if FEATURE_HASH_SHA256_CREATE || FEATURE_HASH_SHA256_MANAGED
         public static System.Security.Cryptography.SHA256 CreateSHA256()
         {
+#if FEATURE_HASH_SHA256_CREATE
+            return System.Security.Cryptography.SHA256.Create();
+#elif FEATURE_HASH_SHA256_MANAGED
             return new System.Security.Cryptography.SHA256Managed();
+#endif
         }
 #else
         public static global::SshNet.Security.Cryptography.SHA256 CreateSHA256()
@@ -78,10 +86,14 @@ namespace Renci.SshNet.Security.Cryptography
         }
 #endif
 
-#if FEATURE_HASH_SHA384
+#if FEATURE_HASH_SHA384_CREATE || FEATURE_HASH_SHA384_MANAGED
         public static System.Security.Cryptography.SHA384 CreateSHA384()
         {
+#if FEATURE_HASH_SHA384_CREATE
+            return System.Security.Cryptography.SHA384.Create();
+#elif FEATURE_HASH_SHA384_MANAGED
             return new System.Security.Cryptography.SHA384Managed();
+#endif
         }
 #else
         public static global::SshNet.Security.Cryptography.SHA384 CreateSHA384()
@@ -90,10 +102,14 @@ namespace Renci.SshNet.Security.Cryptography
         }
 #endif
 
-#if FEATURE_HASH_SHA512
+#if FEATURE_HASH_SHA512_CREATE || FEATURE_HASH_SHA512_MANAGED
         public static System.Security.Cryptography.SHA512 CreateSHA512()
         {
+#if FEATURE_HASH_SHA512_CREATE
+            return System.Security.Cryptography.SHA512.Create();
+#elif FEATURE_HASH_SHA512_MANAGED
             return new System.Security.Cryptography.SHA512Managed();
+#endif
         }
 #else
         public static global::SshNet.Security.Cryptography.SHA512 CreateSHA512()
@@ -102,10 +118,14 @@ namespace Renci.SshNet.Security.Cryptography
         }
 #endif
 
-#if FEATURE_HASH_RIPEMD160
+#if FEATURE_HASH_RIPEMD160_CREATE || FEATURE_HASH_RIPEMD160_MANAGED
         public static System.Security.Cryptography.RIPEMD160 CreateRIPEMD160()
         {
+#if FEATURE_HASH_RIPEMD160_CREATE
+            return System.Security.Cryptography.RIPEMD160.Create();
+#else
             return new System.Security.Cryptography.RIPEMD160Managed();
+#endif
         }
 #else
         public static global::SshNet.Security.Cryptography.RIPEMD160 CreateRIPEMD160()

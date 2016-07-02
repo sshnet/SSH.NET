@@ -23,10 +23,8 @@ namespace Renci.SshNet.Tests.Abstractions
                 DnsAbstraction.GetHostAddresses(hostNameOrAddress);
                 Assert.Fail();
             }
-            catch (ArgumentNullException ex)
+            catch (ArgumentNullException)
             {
-                Assert.IsNull(ex.InnerException);
-                Assert.AreEqual("hostNameOrAddress", ex.ParamName);
             }
         }
 

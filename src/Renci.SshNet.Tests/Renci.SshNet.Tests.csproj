@@ -67,6 +67,9 @@
     <Compile Include="..\..\test\Renci.SshNet.Shared.Tests\Abstractions\DnsAbstraction_GetHostAddresses.cs">
       <Link>Classes\Abstractions\DnsAbstraction_GetHostAddresses.cs</Link>
     </Compile>
+    <Compile Include="..\..\test\Renci.SshNet.Shared.Tests\Abstractions\FileSystemAbstraction_EnumerateFiles.cs">
+      <Link>Classes\Abstractions\FileSystemAbstraction_EnumerateFiles.cs</Link>
+    </Compile>
     <Compile Include="..\..\test\Renci.SshNet.Shared.Tests\Abstractions\ThreadAbstraction_ExecuteThread.cs">
       <Link>Classes\Abstractions\ThreadAbstraction_ExecuteThread.cs</Link>
     </Compile>

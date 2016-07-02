@@ -51,10 +51,10 @@ namespace Renci.SshNet
     public class PrivateKeyFile : IDisposable
     {
         private static readonly Regex PrivateKeyRegex = new Regex(@"^-+ *BEGIN (?<keyName>\w+( \w+)*) PRIVATE KEY *-+\r?\n((Proc-Type: 4,ENCRYPTED\r?\nDEK-Info: (?<cipherName>[A-Z0-9-]+),(?<salt>[A-F0-9]+)\r?\n\r?\n)|(Comment: ""?[^\r\n]*""?\r?\n))?(?<data>([a-zA-Z0-9/+=]{1,80}\r?\n)+)-+ *END \k<keyName> PRIVATE KEY *-+",
-#if SILVERLIGHT
-            RegexOptions.Multiline);
-#else
+#if FEATURE_REGEX_COMPILE
             RegexOptions.Compiled | RegexOptions.Multiline);
+#else
+            RegexOptions.Multiline);
 #endif
 
         private Key _key;

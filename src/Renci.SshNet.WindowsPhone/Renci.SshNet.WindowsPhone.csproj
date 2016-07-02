@@ -24,7 +24,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>Bin\Debug</OutputPath>
-    <DefineConstants>TRACE;DEBUG;WINDOWS_PHONE;FEATURE_RNG_CSP;FEATURE_SOCKET_EAP;FEATURE_STREAM_APM;FEATURE_DEVICEINFORMATION_APM;FEATURE_THREAD_THREADPOOL;FEATURE_THREAD_SLEEP;FEATURE_HASH_SHA1;FEATURE_HASH_SHA256;FEATURE_HMAC_SHA1;FEATURE_HMAC_SHA256</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;FEATURE_DEVICEINFORMATION_APM;FEATURE_MEMORYSTREAM_GETBUFFER;FEATURE_REGEX_COMPILE;FEATURE_RNG_CSP;FEATURE_SOCKET_EAP;FEATURE_STREAM_APM;FEATURE_DEVICEINFORMATION_APM;FEATURE_THREAD_THREADPOOL;FEATURE_THREAD_SLEEP;FEATURE_HASH_SHA1;FEATURE_HASH_SHA256;FEATURE_HMAC_SHA1;FEATURE_HMAC_SHA256</DefineConstants>
     <NoStdLib>true</NoStdLib>
     <NoConfig>true</NoConfig>
     <ErrorReport>prompt</ErrorReport>
@@ -35,7 +35,7 @@
     <DebugType>none</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>Bin\Release</OutputPath>
-    <DefineConstants>TRACE;WINDOWS_PHONE;FEATURE_RNG_CSP;FEATURE_SOCKET_EAP;FEATURE_STREAM_APM;FEATURE_DEVICEINFORMATION_APM;FEATURE_THREAD_THREADPOOL;FEATURE_THREAD_SLEEP;FEATURE_HASH_SHA1;FEATURE_HASH_SHA256;FEATURE_HMAC_SHA1;FEATURE_HMAC_SHA256</DefineConstants>
+    <DefineConstants>TRACE;FEATURE_DEVICEINFORMATION_APM;FEATURE_MEMORYSTREAM_GETBUFFER;FEATURE_REGEX_COMPILE;FEATURE_RNG_CSP;FEATURE_SOCKET_EAP;FEATURE_STREAM_APM;FEATURE_DEVICEINFORMATION_APM;FEATURE_THREAD_THREADPOOL;FEATURE_THREAD_SLEEP;FEATURE_HASH_SHA1;FEATURE_HASH_SHA256;FEATURE_HMAC_SHA1;FEATURE_HMAC_SHA256</DefineConstants>
     <NoStdLib>true</NoStdLib>
     <NoConfig>true</NoConfig>
     <ErrorReport>prompt</ErrorReport>
@@ -61,6 +61,9 @@
     </Compile>
     <Compile Include="..\Renci.SshNet\Abstractions\DnsAbstraction.cs">
       <Link>Abstractions\DnsAbstraction.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Abstractions\FileSystemAbstraction.cs">
+      <Link>Abstractions\FileSystemAbstraction.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Abstractions\ReflectionAbstraction.cs">
       <Link>Abstractions\ReflectionAbstraction.cs</Link>

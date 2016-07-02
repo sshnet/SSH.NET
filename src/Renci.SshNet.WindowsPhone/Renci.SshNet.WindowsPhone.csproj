@@ -45,8 +45,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.Phone" />
-    <Reference Include="SshNet.Security.Cryptography, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\SshNet.Security.Cryptography.1.0.0\lib\wp71\SshNet.Security.Cryptography.dll</HintPath>
+    <Reference Include="SshNet.Security.Cryptography, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\SshNet.Security.Cryptography.1.1.0\lib\wp71\SshNet.Security.Cryptography.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="system" />

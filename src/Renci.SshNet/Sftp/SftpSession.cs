@@ -45,16 +45,7 @@ namespace Renci.SshNet.Sftp
         {
             get
             {
-#if WINDOWS_PHONE
-                lock (this)
-                {
-                    this._requestId++;
-                }
-
-                return (uint)this._requestId;
-#else
-                return ((uint) Interlocked.Increment(ref _requestId));
-#endif
+                return (uint) Interlocked.Increment(ref _requestId);
             }
         }
 

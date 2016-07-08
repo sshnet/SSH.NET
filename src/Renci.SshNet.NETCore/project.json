@@ -16,67 +16,66 @@
       ]
     },
     "xmlDoc": true,
-    "optimize": true
+    "optimize": true,
+    "define": [
+      "FEATURE_ENCODING_ASCII",
+      "FEATURE_DIAGNOSTICS_TRACESOURCE",
+      "FEATURE_DIRECTORYINFO_ENUMERATEFILES",
+      "FEATURE_MEMORYSTREAM_TRYGETBUFFER",
+      "FEATURE_REFLECTION_TYPEINFO",
+      "FEATURE_RNG_CREATE",
+      "FEATURE_SOCKET_TAP",
+      "FEATURE_SOCKET_EAP",
+      "FEATURE_SOCKET_POLL",
+      "FEATURE_SOCKET_SYNC",
+      "FEATURE_DNS_TAP",
+      "FEATURE_STREAM_TAP",
+      "FEATURE_THREAD_THREADPOOL",
+      "FEATURE_THREAD_SLEEP",
+      "FEATURE_HASH_MD5",
+      "FEATURE_HASH_SHA1_CREATE",
+      "FEATURE_HASH_SHA256_CREATE",
+      "FEATURE_HASH_SHA384_CREATE",
+      "FEATURE_HASH_SHA512_CREATE",
+      "FEATURE_HMAC_MD5",
+      "FEATURE_HMAC_SHA1",
+      "FEATURE_HMAC_SHA256",
+      "FEATURE_HMAC_SHA384",
+      "FEATURE_HMAC_SHA512"
+    ]
   },
   "frameworks": {
-    "netstandard1.3": {
-      "dependencies": {
-        "Microsoft.CSharp": "4.0.1",
-        "System.IO": "4.1.0",
-        "System.Diagnostics.TraceSource": "4.0.0",
-        "System.Security.Cryptography.Algorithms": "4.2.0",
-        "System.Linq": "4.1.0",
-        "System.Globalization": "4.0.11",
-        "System.IO.FileSystem": "4.0.1",
-        "System.IO.FileSystem.Primitives": "4.0.1",
-        "System.Net.NameResolution": "4.0.0",
-        "System.Net.Sockets": "4.1.0",
-        "System.Reflection.Extensions": "4.0.1",
-        "System.Runtime.Extensions": "4.1.0",
-        "System.Threading": "4.0.11",
-        "System.Threading.Thread": "4.0.0",
-        "System.Threading.ThreadPool": "4.0.10",
-        "System.Threading.Timer": "4.0.1",
-        "System.Text.RegularExpressions": "4.1.0",
-        "System.Xml.XmlDocument": "4.0.1",
-        "System.Xml.XPath.XmlDocument": "4.0.1",
-        "System.Diagnostics.Tools": "4.0.1",
-        "System.Diagnostics.Debug": "4.0.11",
-        "SshNet.Security.Cryptography": "1.1.0"
-      },
-      "buildOptions": {
-        "define": [
-          "FEATURE_ENCODING_ASCII",
-          "FEATURE_DIAGNOSTICS_TRACESOURCE",
-          "FEATURE_DIRECTORYINFO_ENUMERATEFILES",
-          "FEATURE_MEMORYSTREAM_TRYGETBUFFER",
-          "FEATURE_REFLECTION_TYPEINFO",
-          "FEATURE_RNG_CREATE",
-          "FEATURE_SOCKET_TAP",
-          "FEATURE_SOCKET_EAP",
-          "FEATURE_SOCKET_POLL",
-          "FEATURE_SOCKET_SYNC",
-          "FEATURE_DNS_TAP",
-          "FEATURE_STREAM_TAP",
-          "FEATURE_THREAD_THREADPOOL",
-          "FEATURE_THREAD_SLEEP",
-          "FEATURE_HASH_MD5",
-          "FEATURE_HASH_SHA1_CREATE",
-          "FEATURE_HASH_SHA256_CREATE",
-          "FEATURE_HASH_SHA384_CREATE",
-          "FEATURE_HASH_SHA512_CREATE",
-          "FEATURE_HMAC_MD5",
-          "FEATURE_HMAC_SHA1",
-          "FEATURE_HMAC_SHA256",
-          "FEATURE_HMAC_SHA384",
-          "FEATURE_HMAC_SHA512"
-        ]
-      }
+    "netcoreapp1.0": {
+      "imports": "dnxcore50"
     }
   },
   "scripts": {
     "postcompile": [
       "dotnet pack --no-build --configuration %compile:Configuration%"
     ]
+  },
+  "dependencies": {
+    "Microsoft.CSharp": "4.0.1",
+    "SshNet.Security.Cryptography": "1.1.0-beta1",
+    "System.Diagnostics.Debug": "4.0.11",
+    "System.Diagnostics.Tools": "4.0.1",
+    "System.Diagnostics.TraceSource": "4.0.0",
+    "System.Globalization": "4.0.11",
+    "System.IO": "4.1.0",
+    "System.IO.FileSystem": "4.0.1",
+    "System.IO.FileSystem.Primitives": "4.0.1",
+    "System.Linq": "4.1.0",
+    "System.Net.NameResolution": "4.0.0",
+    "System.Net.Sockets": "4.1.0",
+    "System.Reflection.Extensions": "4.0.1",
+    "System.Runtime.Extensions": "4.1.0",
+    "System.Security.Cryptography.Algorithms": "4.2.0",
+    "System.Text.RegularExpressions": "4.1.0",
+    "System.Threading": "4.0.11",
+    "System.Threading.Thread": "4.0.0",
+    "System.Threading.ThreadPool": "4.0.10",
+    "System.Threading.Timer": "4.0.1",
+    "System.Xml.XmlDocument": "4.0.1",
+    "System.Xml.XPath.XmlDocument": "4.0.1"
   }
 }

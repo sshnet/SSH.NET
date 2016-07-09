@@ -45,9 +45,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.Phone" />
-    <Reference Include="SshNet.Security.Cryptography, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\SshNet.Security.Cryptography.1.1.0\lib\wp71\SshNet.Security.Cryptography.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="SshNet.Security.Cryptography, Version=1.2.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\SshNet.Security.Cryptography.1.2.0\lib\wp71\SshNet.Security.Cryptography.dll</HintPath>
     </Reference>
     <Reference Include="system" />
     <Reference Include="System.Net" />
@@ -882,7 +882,9 @@
     <Compile Include="Session.WP.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\Silverlight for Phone\$(TargetFrameworkVersion)\Microsoft.Silverlight.$(TargetFrameworkProfile).Overrides.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\Silverlight for Phone\$(TargetFrameworkVersion)\Microsoft.Silverlight.CSharp.targets" />

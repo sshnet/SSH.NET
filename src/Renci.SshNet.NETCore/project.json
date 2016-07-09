@@ -1,8 +1,18 @@
 ﻿{
   "title": "SSH.NET",
   "configurations": {
-    "debug": { "buildOptions": { "define": [ "DEBUG", "TRACE" ] } },
-    "release": { "buildOptions": { "define": [ "TRACE" ] } }
+    "debug": {
+      "buildOptions": {
+        "debugType": "full",
+        "define": [ "DEBUG", "TRACE" ]
+      }
+    },
+    "release": {
+      "buildOptions": {
+        "debugType": "none",
+        "define": [ "TRACE" ]
+      }
+    }
   },
   "buildOptions": {
     "outputName": "Renci.SshNet",
@@ -15,8 +25,9 @@
         "../Renci.SshNet/Properties/AssemblyInfo.cs"
       ]
     },
+    "optimize": true,
     "xmlDoc": true,
-    "optimize": true
+    "warningsAsErrors": true
   },
   "frameworks": {
     "netstandard1.3": {

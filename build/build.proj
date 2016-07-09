@@ -22,6 +22,10 @@
 			<OutputDirectory>Renci.SshNet\bin\$(Configuration)</OutputDirectory>
 			<Moniker>net40</Moniker>
 		</TargetFramework>
+		<TargetFramework Include=".NETStandard 1.3">
+			<OutputDirectory>Renci.SshNet.NETCore\bin\$(Configuration)\netstandard1.3</OutputDirectory>
+			<Moniker>netstandard1.3</Moniker>
+		</TargetFramework>
 		<TargetFramework Include="Windows Phone Silverlight 7.1">
 			<OutputDirectory>Renci.SshNet.WindowsPhone\bin\$(Configuration)</OutputDirectory>
 			<Moniker>wp71</Moniker>

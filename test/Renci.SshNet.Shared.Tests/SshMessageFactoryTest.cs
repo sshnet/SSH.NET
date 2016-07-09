@@ -382,8 +382,6 @@ namespace Renci.SshNet.Tests
         [TestMethod]
         public void EnableActivatedMessagesShouldThrowSshExceptionWhenAnothersMessageWithSameMessageNumberWasEnabledAfterInvokingDisableNonKeyExchangeMessages()
         {
-            const byte messageNumber = 60;
-
             _sshMessageFactory.EnableAndActivateMessage("SSH_MSG_USERAUTH_PASSWD_CHANGEREQ");
             _sshMessageFactory.DisableNonKeyExchangeMessages();
             _sshMessageFactory.EnableAndActivateMessage("SSH_MSG_USERAUTH_INFO_REQUEST");

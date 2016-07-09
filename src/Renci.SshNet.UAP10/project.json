@@ -1,8 +1,8 @@
 ﻿{
   "dependencies": {
     "Microsoft.NETCore.UniversalWindowsPlatform": "5.1.0",
-    "SshNet.Security.Cryptography": "1.1.0",
-    "System.Xml.XPath.XmlDocument": "4.0.0"
+    "SshNet.Security.Cryptography": "1.2.0",
+    "System.Xml.XPath.XmlDocument": "4.0.1"
   },
   "frameworks": {
     "uap10.0": {}

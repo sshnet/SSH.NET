@@ -191,19 +191,6 @@ namespace Renci.SshNet.Common
 
             return byteCount;
         }
-
-#if !SILVERLIGHT && !WINDOWS_PHONE
-        /// <summary>
-        /// Gets a value indicating whether the current encoding uses single-byte code points
-        /// </summary>
-        /// <value>
-        /// This property is always <c>true</c>.
-        /// </value>
-        public override bool IsSingleByte
-        {
-            get { return true; }
-        }
-#endif // !SILVERLIGHT && !WINDOWS_PHONE
     }
 }
 

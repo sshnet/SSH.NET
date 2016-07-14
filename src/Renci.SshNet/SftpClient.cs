@@ -1650,13 +1650,8 @@ namespace Renci.SshNet
 
             var sourceDirectory = new DirectoryInfo(sourcePath);
 
-#if SILVERLIGHT
-            var sourceFiles = sourceDirectory.EnumerateFiles(searchPattern);
-#else
-            var sourceFiles = sourceDirectory.GetFiles(searchPattern);
-#endif
-
-            if (sourceFiles == null || !sourceFiles.Any())
+            var sourceFiles = FileSystemAbstraction.EnumerateFiles(sourceDirectory, searchPattern).ToList();
+            if (sourceFiles.Count == 0)
                 return uploadedFiles;
 
             #region Existing Files at The Destination

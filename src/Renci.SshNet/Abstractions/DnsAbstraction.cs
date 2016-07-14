@@ -31,8 +31,15 @@ namespace Renci.SshNet.Abstractions
         /// <exception cref="SocketException">An error is encountered when resolving <paramref name="hostNameOrAddress"/>.</exception>
         public static IPAddress[] GetHostAddresses(string hostNameOrAddress)
         {
+            // TODO Eliminate sync variant, and implement timeout
+
 #if FEATURE_DNS_SYNC
             return Dns.GetHostAddresses(hostNameOrAddress);
+#elif FEATURE_DNS_APM
+            var asyncResult = Dns.BeginGetHostAddresses(hostNameOrAddress, null, null);
+            if (!asyncResult.AsyncWaitHandle.WaitOne(Session.InfiniteTimeSpan))
+                throw new SshOperationTimeoutException("Timeout resolving host name.");
+            return Dns.EndGetHostAddresses(asyncResult);
 #elif FEATURE_DNS_TAP
             return Dns.GetHostAddressesAsync(hostNameOrAddress).Result;
 #else

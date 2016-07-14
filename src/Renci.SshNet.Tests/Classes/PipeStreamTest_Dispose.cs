@@ -30,32 +30,6 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
-        public void BlockLastReadBuffer_Getter_ShouldThrowObjectDisposedException()
-        {
-            try
-            {
-                var value = _pipeStream.BlockLastReadBuffer;
-                Assert.Fail("" + value);
-            }
-            catch (ObjectDisposedException)
-            {
-            }
-        }
-
-        [TestMethod]
-        public void BlockLastReadBuffer_Setter_ShouldThrowObjectDisposedException()
-        {
-            try
-            {
-                _pipeStream.BlockLastReadBuffer = true;
-                Assert.Fail();
-            }
-            catch (ObjectDisposedException)
-            {
-            }
-        }
-
-        [TestMethod]
         public void CanRead_ShouldReturnTrue()
         {
             Assert.IsFalse(_pipeStream.CanRead);

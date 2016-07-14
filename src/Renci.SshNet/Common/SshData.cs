@@ -11,7 +11,11 @@ namespace Renci.SshNet.Common
     {
         internal const int DefaultCapacity = 64;
 
+#if FEATURE_ENCODING_ASCII
+        internal static readonly Encoding Ascii = Encoding.ASCII;
+#else
         internal static readonly Encoding Ascii = new ASCIIEncoding();
+#endif
         internal static readonly Encoding Utf8 = Encoding.UTF8;
 
         private SshDataStream _stream;

@@ -166,21 +166,6 @@ namespace Renci.SshNet.Tests.Classes.Common
             Assert.AreEqual(0x00, readBuffer[5]);
         }
 
-        /// <summary>
-        ///A test for BlockLastReadBuffer
-        ///</summary>
-        [TestMethod]
-        public void BlockLastReadBufferTest()
-        {
-            PipeStream target = new PipeStream(); // TODO: Initialize to an appropriate value
-            bool expected = false; // TODO: Initialize to an appropriate value
-            bool actual;
-            target.BlockLastReadBuffer = expected;
-            actual = target.BlockLastReadBuffer;
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verify the correctness of this test method.");
-        }
-
         [TestMethod]
         public void CanReadTest()
         {

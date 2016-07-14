@@ -18,7 +18,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;FEATURE_ENCODING_ASCII</DefineConstants>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -66,6 +66,9 @@
     </Compile>
     <Compile Include="..\..\test\Renci.SshNet.Shared.Tests\Abstractions\DnsAbstraction_GetHostAddresses.cs">
       <Link>Classes\Abstractions\DnsAbstraction_GetHostAddresses.cs</Link>
+    </Compile>
+    <Compile Include="..\..\test\Renci.SshNet.Shared.Tests\Abstractions\FileSystemAbstraction_EnumerateFiles.cs">
+      <Link>Classes\Abstractions\FileSystemAbstraction_EnumerateFiles.cs</Link>
     </Compile>
     <Compile Include="..\..\test\Renci.SshNet.Shared.Tests\Abstractions\ThreadAbstraction_ExecuteThread.cs">
       <Link>Classes\Abstractions\ThreadAbstraction_ExecuteThread.cs</Link>

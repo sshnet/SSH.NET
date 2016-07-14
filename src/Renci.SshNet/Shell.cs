@@ -140,19 +140,15 @@ namespace Renci.SshNet
                             continue;
                         }
 #elif FEATURE_STREAM_APM
-                        var asyncResult = _input.BeginRead(buffer, 0, buffer.Length, delegate(IAsyncResult result)
-                        {
-                            //  If input stream is closed and disposed already dont finish reading the stream
-                            if (_input == null)
-                                return;
-
-                            var read = _input.EndRead(result);
-                            if (read > 0)
+                        var asyncResult = _input.BeginRead(buffer, 0, buffer.Length, result =>
                             {
-                                _channel.SendData(buffer, 0, read);
-                            }
+                                //  If input stream is closed and disposed already don't finish reading the stream
+                                if (_input == null)
+                                    return;
 
-                        }, null);
+                                var read = _input.EndRead(result);
+                                _channel.SendData(buffer, 0, read);
+                            }, null);
 
                         WaitHandle.WaitAny(new[] { asyncResult.AsyncWaitHandle, _channelClosedWaitHandle });
 

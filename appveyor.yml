@@ -1,7 +1,7 @@
 os: Visual Studio 2015
 
 before_build:
-  - nuget restore src\SshNet.Security.Cryptography.VS2015.sln
+  - nuget restore src\Renci.SshNet.VS2015.sln
 
 build:
   project: src\Renci.SshNet.VS2015.sln

@@ -95,6 +95,8 @@ namespace Renci.SshNet.Tests.Classes.Common
         }
 
         [TestMethod]
+        [TestCategory("LongRunning")]
+        [TestCategory("Performance")]
         public void Performance_LargeArray_All()
         {
             var value = CreateBuffer(50000);
@@ -105,6 +107,8 @@ namespace Renci.SshNet.Tests.Classes.Common
         }
 
         [TestMethod]
+        [TestCategory("LongRunning")]
+        [TestCategory("Performance")]
         public void Performance_LargeArray_LargeCount()
         {
             var value = CreateBuffer(50000);
@@ -115,6 +119,8 @@ namespace Renci.SshNet.Tests.Classes.Common
         }
 
         [TestMethod]
+        [TestCategory("LongRunning")]
+        [TestCategory("Performance")]
         public void Performance_LargeArray_SmallCount()
         {
             var value = CreateBuffer(50000);
@@ -125,6 +131,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         }
 
         [TestMethod]
+        [TestCategory("Performance")]
         public void Performance_LargeArray_ZeroCount()
         {
             var value = CreateBuffer(50000);

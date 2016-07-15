@@ -98,6 +98,8 @@ namespace Renci.SshNet.Tests.Classes.Common
         }
 
         [TestMethod]
+        [TestCategory("LongRunning")]
+        [TestCategory("Performance")]
         public void Performance_LargeArray_Equal()
         {
             var buffer = CreateBuffer(50000);
@@ -108,6 +110,8 @@ namespace Renci.SshNet.Tests.Classes.Common
             Performance(left, right, runs);
         }
         [TestMethod]
+        [TestCategory("LongRunning")]
+        [TestCategory("Performance")]
         public void Performance_LargeArray_NotEqual_DifferentLength()
         {
             var left = CreateBuffer(50000);
@@ -118,6 +122,8 @@ namespace Renci.SshNet.Tests.Classes.Common
         }
 
         [TestMethod]
+        [TestCategory("LongRunning")]
+        [TestCategory("Performance")]
         public void Performance_LargeArray_NotEqual_SameLength()
         {
             var buffer = CreateBuffer(50000);
@@ -129,6 +135,8 @@ namespace Renci.SshNet.Tests.Classes.Common
         }
 
         [TestMethod]
+        [TestCategory("LongRunning")]
+        [TestCategory("Performance")]
         public void Performance_LargeArray_Same()
         {
             var left = CreateBuffer(50000);
@@ -138,7 +146,7 @@ namespace Renci.SshNet.Tests.Classes.Common
             Performance(left, right, runs);
         }
 
-        private void Performance(byte[] left, byte[] right, int runs)
+        private static void Performance(byte[] left, byte[] right, int runs)
         {
             var stopWatch = new Stopwatch();
 

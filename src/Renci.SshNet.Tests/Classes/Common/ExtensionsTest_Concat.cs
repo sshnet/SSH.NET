@@ -97,6 +97,8 @@ namespace Renci.SshNet.Tests.Classes.Common
         }
 
         [TestMethod]
+        [TestCategory("LongRunning")]
+        [TestCategory("Performance")]
         public void Performance_LargeArray_FirstEmpty()
         {
             var first = Array<byte>.Empty;
@@ -108,6 +110,8 @@ namespace Renci.SshNet.Tests.Classes.Common
 
 
         [TestMethod]
+        [TestCategory("LongRunning")]
+        [TestCategory("Performance")]
         public void Performance_LargeArray_SecondEmpty()
         {
             var first = CreateBuffer(50000);
@@ -118,6 +122,8 @@ namespace Renci.SshNet.Tests.Classes.Common
         }
 
         [TestMethod]
+        [TestCategory("LongRunning")]
+        [TestCategory("Performance")]
         public void Performance_LargeArray_BothNotEmpty()
         {
             var first = CreateBuffer(50000);
@@ -127,7 +133,7 @@ namespace Renci.SshNet.Tests.Classes.Common
             Performance(first, second, runs);
         }
 
-        private void Performance(byte[] first, byte[] second, int runs)
+        private static void Performance(byte[] first, byte[] second, int runs)
         {
             var stopWatch = new Stopwatch();
 

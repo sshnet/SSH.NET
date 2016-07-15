@@ -141,7 +141,7 @@ namespace Renci.SshNet.Tests.Classes.Common
             Performance(value, count, runs);
         }
 
-        private void Performance(byte[] value, int count, int runs)
+        private static void Performance(byte[] value, int count, int runs)
         {
             var stopWatch = new Stopwatch();
 

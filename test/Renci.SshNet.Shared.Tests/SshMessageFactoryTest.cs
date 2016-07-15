@@ -429,6 +429,7 @@ namespace Renci.SshNet.Tests
         }
 
         [TestMethod]
+        [TestCategory("Performance")]
         public void Performance_Ctor()
         {
             const int runCount = 100000;
@@ -478,6 +479,8 @@ namespace Renci.SshNet.Tests
         }
 
         [TestMethod]
+        [TestCategory("LongRunning")]
+        [TestCategory("Performance")]
         public void Performance_Create()
         {
             const int runCount = 10000000;
@@ -535,6 +538,8 @@ namespace Renci.SshNet.Tests
         }
 
         [TestMethod]
+        [TestCategory("LongRunning")]
+        [TestCategory("Performance")]
         public void Performance_EnableAndActivateMessage()
         {
             const int runCount = 1000000;
@@ -581,6 +586,8 @@ namespace Renci.SshNet.Tests
         }
 
         [TestMethod]
+        [TestCategory("LongRunning")]
+        [TestCategory("Performance")]
         public void Performance_DisableAndDeactivateMessage()
         {
             const int runCount = 1000000;
@@ -627,6 +634,8 @@ namespace Renci.SshNet.Tests
         }
 
         [TestMethod]
+        [TestCategory("LongRunning")]
+        [TestCategory("Performance")]
         public void Performance_DisableNonKeyExchangeMessages()
         {
             const int runCount = 1000000;

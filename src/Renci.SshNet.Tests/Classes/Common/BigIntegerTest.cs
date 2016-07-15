@@ -1560,6 +1560,8 @@ namespace Renci.SshNet.Tests.Classes.Common
         }
 
         [TestMethod]
+        [TestCategory("LongRunning")]
+        [TestCategory("Performance")]
         public void ToArray_Performance()
         {
             const int loopCount = 100000000;
@@ -1586,6 +1588,8 @@ namespace Renci.SshNet.Tests.Classes.Common
         }
 
         [TestMethod]
+        [TestCategory("LongRunning")]
+        [TestCategory("Performance")]
         public void Ctor_ByteArray_Performance()
         {
             const int loopCount = 100000000;

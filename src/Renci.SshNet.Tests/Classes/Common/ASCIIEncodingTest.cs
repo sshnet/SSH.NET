@@ -148,6 +148,8 @@ namespace Renci.SshNet.Tests.Classes.Common
         }
 
         [TestMethod]
+        [TestCategory("LongRunning")]
+        [TestCategory("Performance")]
         public void GetBytes_Performance()
         {
             const string input = "eererzfdfdsfsfsfsqdqseererzfdfdsfsfsfsqdqseererzfdfdsfsfsfsqdqseererzfdfdsfsfsfsqdqseererzfdfdsfsfsfsqdqseererzfdfdsfsfsfsqdqseererzfdfdsfsfsfsqdqseererzfdfdsfsfsfsqdqseererzfdfdsfsfsfsqdqs";
@@ -191,6 +193,8 @@ namespace Renci.SshNet.Tests.Classes.Common
         }
 
         [TestMethod]
+        [TestCategory("LongRunning")]
+        [TestCategory("Performance")]
         public void GetChars_Performance()
         {
             var input = new byte[2000];

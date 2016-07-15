@@ -74,10 +74,11 @@ namespace Renci.SshNet
                     }
                     finally
                     {
-                        if (Session != null)
+                        var session = Session;
+                        if (session != null)
                         {
-                            Session.Disconnected -= Session_Disconnected;
-                            Session.ErrorOccured -= Session_ErrorOccured;
+                            session.Disconnected -= Session_Disconnected;
+                            session.ErrorOccured -= Session_ErrorOccured;
                         }
                     }
                 });

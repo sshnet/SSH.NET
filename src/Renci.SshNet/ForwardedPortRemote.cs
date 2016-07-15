@@ -308,10 +308,10 @@ namespace Renci.SshNet
                 var session = Session;
                 if (session != null)
                 {
+                    Session = null;
                     session.RequestSuccessReceived -= Session_RequestSuccess;
                     session.RequestFailureReceived -= Session_RequestFailure;
                     session.ChannelOpenReceived -= Session_ChannelOpening;
-                    Session = null;
                 }
 
                 var globalRequestResponse = _globalRequestResponse;

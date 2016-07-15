@@ -231,10 +231,11 @@ namespace Renci.SshNet
         {
             if (disposing)
             {
-                if (_listener != null)
+                var listener = _listener;
+                if (listener != null)
                 {
-                    _listener.Dispose();
                     _listener = null;
+                    listener.Dispose();
                 }
             }
         }

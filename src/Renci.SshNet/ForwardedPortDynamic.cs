@@ -139,8 +139,8 @@ namespace Renci.SshNet
                 var listenerCompleted = _listenerCompleted;
                 if (listenerCompleted != null)
                 {
-                    listenerCompleted.Dispose();
                     _listenerCompleted = null;
+                    listenerCompleted.Dispose();
                 }
             }
 

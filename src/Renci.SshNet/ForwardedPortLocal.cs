@@ -180,8 +180,8 @@ namespace Renci.SshNet
                 var listenerTaskCompleted = _listenerTaskCompleted;
                 if (listenerTaskCompleted != null)
                 {
-                    listenerTaskCompleted.Dispose();
                     _listenerTaskCompleted = null;
+                    listenerTaskCompleted.Dispose();
                 }
             }
 

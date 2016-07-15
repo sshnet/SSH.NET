@@ -317,8 +317,8 @@ namespace Renci.SshNet
                 var globalRequestResponse = _globalRequestResponse;
                 if (globalRequestResponse != null)
                 {
-                    globalRequestResponse.Dispose();
                     _globalRequestResponse = null;
+                    globalRequestResponse.Dispose();
                 }
             }
 

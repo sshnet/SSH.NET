@@ -93,9 +93,10 @@ namespace Renci.SshNet
         {
             RaiseClosing();
 
-            if (Session != null)
+            var session = Session;
+            if (session != null)
             {
-                Session.ErrorOccured -= Session_ErrorOccured;
+                session.ErrorOccured -= Session_ErrorOccured;
             }
         }
 
@@ -107,10 +108,11 @@ namespace Renci.SshNet
         {
             if (disposing)
             {
-                if (Session != null)
+                var session = Session;
+                if (session != null)
                 {
-                    Session.ErrorOccured -= Session_ErrorOccured;
-                    StopPort(Session.ConnectionInfo.Timeout);
+                    session.ErrorOccured -= Session_ErrorOccured;
+                    StopPort(session.ConnectionInfo.Timeout);
                     Session = null;
                 }
             }

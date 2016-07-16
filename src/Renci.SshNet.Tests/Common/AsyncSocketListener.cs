@@ -2,7 +2,6 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
-using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Tests.Common
 {
@@ -96,11 +95,22 @@ namespace Renci.SshNet.Tests.Common
         {
             // Retrieve the state object and the handler socket
             // from the asynchronous state object.
-            var state = (SocketStateObject)ar.AsyncState;
+            var state = (SocketStateObject) ar.AsyncState;
             var handler = state.Socket;
 
-            // Read data from the client socket.
-            var bytesRead = handler.EndReceive(ar);
+            int bytesRead;
+            try
+            {
+                // Read data from the client socket.
+                bytesRead = handler.EndReceive(ar);
+            }
+            catch (ObjectDisposedException)
+            {
+                // when the socket is closed, the callback will be invoked for any pending BeginReceive
+                // we could use the Socket.Connected property to detect this here, but the proper thing
+                // to do is invoke EndReceive knowing that it will throw an ObjectDisposedException
+                return;
+            }
 
             if (bytesRead > 0)
             {
@@ -109,14 +119,7 @@ namespace Renci.SshNet.Tests.Common
                 SignalBytesReceived(bytesReceived, handler);
 
                 // prepare to receive more bytes
-                try
-                {
-                    handler.BeginReceive(state.Buffer, 0, state.Buffer.Length, 0, ReadCallback, state);
-                }
-                catch (ObjectDisposedException)
-                {
-                    // when the socket is closed, an ObjectDisposedException is thrown
-                }
+                handler.BeginReceive(state.Buffer, 0, state.Buffer.Length, 0, ReadCallback, state);
             }
             else
             {

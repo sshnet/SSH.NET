@@ -269,6 +269,18 @@
     <Compile Include="..\Renci.SshNet.Tests\Classes\Common\PipeStreamTest.cs">
       <Link>Classes\Common\PipeStreamTest.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Common\PipeStream_Close_BlockingRead.cs">
+      <Link>Classes\Common\PipeStream_Close_BlockingRead.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Common\PipeStream_Close_BlockingWrite.cs">
+      <Link>Classes\Common\PipeStream_Close_BlockingWrite.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Common\PipeStream_Flush_BytesRemainingAfterRead.cs">
+      <Link>Classes\Common\PipeStream_Flush_BytesRemainingAfterRead.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Common\PipeStream_Flush_NoBytesRemainingAfterRead.cs">
+      <Link>Classes\Common\PipeStream_Flush_NoBytesRemainingAfterRead.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Common\PortForwardEventArgsTest.cs">
       <Link>Classes\Common\PortForwardEventArgsTest.cs</Link>
     </Compile>
@@ -1271,7 +1283,7 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties ProjectLinkReference="c45379b9-17b1-4e89-bc2e-6d41726413e8" ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" />
+      <UserProperties ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" ProjectLinkReference="c45379b9-17b1-4e89-bc2e-6d41726413e8" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -16,7 +16,7 @@ namespace Renci.SshNet
         private bool _requestStatus;
 
         private EventWaitHandle _globalRequestResponse = new AutoResetEvent(false);
-        private int _pendingRequests;
+        private CountdownEvent _pendingRequestsCountdown;
         private bool _isStarted;
 
         /// <summary>
@@ -141,6 +141,8 @@ namespace Renci.SshNet
             Session.RequestFailureReceived += Session_RequestFailure;
             Session.ChannelOpenReceived += Session_ChannelOpening;
 
+            InitializePendingRequestsCountdown();
+
             // send global request to start direct tcpip
             Session.SendMessage(new GlobalRequestMessage(GlobalRequestName.TcpIpForward, true, BoundHost, BoundPort));
             // wat for response on global request to start direct tcpip
@@ -166,10 +168,6 @@ namespace Renci.SshNet
         /// <param name="timeout">The maximum amount of time to wait for pending requests to finish processing.</param>
         protected override void StopPort(TimeSpan timeout)
         {
-            // if the port not started, then there's nothing to stop
-            if (!IsStarted)
-                return;
-
             // mark forwarded port stopped, this also causes open of new channels to be rejected
             _isStarted = false;
 
@@ -187,21 +185,9 @@ namespace Renci.SshNet
             Session.RequestFailureReceived -= Session_RequestFailure;
             Session.ChannelOpenReceived -= Session_ChannelOpening;
 
-            var startWaiting = DateTime.Now;
-
-            while (true)
-            {
-                // break out of loop when all pending requests have been processed
-                if (Interlocked.CompareExchange(ref _pendingRequests, 0, 0) == 0)
-                    break;
-                // determine time elapsed since waiting for pending requests to finish
-                var elapsed = DateTime.Now - startWaiting;
-                // break out of loop when specified timeout has elapsed
-                if (elapsed >= timeout && timeout != SshNet.Session.InfiniteTimeSpan)
-                    break;
-                // give channels time to process pending requests
-                ThreadAbstraction.Sleep(50);
-            }
+            // wait for pending requests to complete
+            _pendingRequestsCountdown.Signal();
+            _pendingRequestsCountdown.Wait(timeout);
         }
 
         /// <summary>
@@ -231,13 +217,21 @@ namespace Renci.SshNet
 
                     ThreadAbstraction.ExecuteThread(() =>
                         {
-                            Interlocked.Increment(ref _pendingRequests);
+                            // capture the countdown event that we're adding a count to, as we need to make sure that we'll be signaling
+                            // that same instance; the instance field for the countdown event is re-initialize when the port is restarted
+                            // and that time they may still be pending requests
+                            var pendingRequestsCountdown = _pendingRequestsCountdown;
+
+                            pendingRequestsCountdown.AddCount();
 
                             try
                             {
                                 RaiseRequestReceived(info.OriginatorAddress, info.OriginatorPort);
 
-                                using (var channel = Session.CreateChannelForwardedTcpip(channelOpenMessage.LocalChannelNumber, channelOpenMessage.InitialWindowSize, channelOpenMessage.MaximumPacketSize))
+                                using (
+                                    var channel =
+                                        Session.CreateChannelForwardedTcpip(channelOpenMessage.LocalChannelNumber,
+                                            channelOpenMessage.InitialWindowSize, channelOpenMessage.MaximumPacketSize))
                                 {
                                     channel.Exception += Channel_Exception;
                                     channel.Bind(new IPEndPoint(HostAddress, (int) Port), this);
@@ -250,10 +244,39 @@ namespace Renci.SshNet
                             }
                             finally
                             {
-                                Interlocked.Decrement(ref _pendingRequests);
+                                // take into account that countdown event has since been disposed (after waiting for a given timeout)
+                                try
+                                {
+                                    pendingRequestsCountdown.Signal();
+                                }
+                                catch (ObjectDisposedException)
+                                {
+                                }
                             }
                         });
                 }
+            }
+        }
+
+        /// <summary>
+        /// Initializes the <see cref="CountdownEvent"/>.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// When the port is started for the first time, a <see cref="CountdownEvent"/> is created with an initial count
+        /// of <c>1</c>.
+        /// </para>
+        /// <para>
+        /// On subsequent (re)starts, we'll dispose the current <see cref="CountdownEvent"/> and create a new one with
+        /// initial count of <c>1</c>.
+        /// </para>
+        /// </remarks>
+        private void InitializePendingRequestsCountdown()
+        {
+            var original = Interlocked.Exchange(ref _pendingRequestsCountdown, new CountdownEvent(1));
+            if (original != null)
+            {
+                original.Dispose();
             }
         }
 
@@ -319,6 +342,13 @@ namespace Renci.SshNet
                 {
                     _globalRequestResponse = null;
                     globalRequestResponse.Dispose();
+                }
+
+                var pendingRequestsCountdown = _pendingRequestsCountdown;
+                if (pendingRequestsCountdown != null)
+                {
+                    _pendingRequestsCountdown = null;
+                    pendingRequestsCountdown.Dispose();
                 }
             }
 

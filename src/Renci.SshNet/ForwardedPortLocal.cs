@@ -115,14 +115,11 @@ namespace Renci.SshNet
         /// <param name="timeout">The maximum amount of time to wait for pending requests to finish processing.</param>
         protected override void StopPort(TimeSpan timeout)
         {
-            if (IsStarted)
-            {
-                // prevent new requests from getting processed before we signal existing
-                // channels that the port is closing
-                StopListener();
-                // signal existing channels that the port is closing
-                base.StopPort(timeout);
-            }
+            // prevent new requests from getting processed before we signal existing
+            // channels that the port is closing
+            StopListener();
+            // signal existing channels that the port is closing
+            base.StopPort(timeout);
             // wait for open channels to close
             InternalStop(timeout);
         }
@@ -174,6 +171,7 @@ namespace Renci.SshNet
                 return;
 
             base.Dispose(disposing);
+            InternalDispose(disposing);
 
             if (disposing)
             {
@@ -184,8 +182,6 @@ namespace Renci.SshNet
                     listenerTaskCompleted.Dispose();
                 }
             }
-
-            InternalDispose(disposing);
 
             _isDisposed = true;
         }

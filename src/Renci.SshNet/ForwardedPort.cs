@@ -73,10 +73,10 @@ namespace Renci.SshNet
         {
             CheckDisposed();
 
-            if (!IsStarted)
-                return;
-
-            StopPort(Session.ConnectionInfo.Timeout);
+            if (IsStarted)
+            {
+                StopPort(Session.ConnectionInfo.Timeout);
+            }
         }
 
         /// <summary>
@@ -111,8 +111,11 @@ namespace Renci.SshNet
                 var session = Session;
                 if (session != null)
                 {
-                    session.ErrorOccured -= Session_ErrorOccured;
-                    StopPort(session.ConnectionInfo.Timeout);
+                    if (IsStarted)
+                    {
+                        StopPort(session.ConnectionInfo.Timeout);
+                    }
+
                     Session = null;
                 }
             }

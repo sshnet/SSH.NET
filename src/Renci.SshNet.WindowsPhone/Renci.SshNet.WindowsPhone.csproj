@@ -170,6 +170,9 @@
     <Compile Include="..\Renci.SshNet\Common\ChannelRequestEventArgs.cs">
       <Link>Common\ChannelRequestEventArgs.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\Common\CountdownEvent.cs">
+      <Link>Common\CountdownEvent.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\Common\DerData.cs">
       <Link>Common\DerData.cs</Link>
     </Compile>

@@ -251,6 +251,9 @@
     <Compile Include="..\Renci.SshNet.Tests\Classes\Common\ChannelRequestEventArgsTest.cs">
       <Link>Classes\Common\ChannelRequestEventArgsTest.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Common\CountdownEventTest.cs">
+      <Link>Classes\Common\CountdownEventTest.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Common\DerDataTest.cs">
       <Link>Classes\Common\DerDataTest.cs</Link>
     </Compile>

@@ -2,7 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Renci.SshNet.Common;
 
-namespace Renci.SshNet.Tests.Common
+namespace Renci.SshNet.Tests.Classes.Common
 {
     [TestClass]
     public class PipeStream_Close_BlockingWrite
@@ -44,19 +44,20 @@ namespace Renci.SshNet.Tests.Common
         protected void Act()
         {
             _pipeStream.Close();
+
+            // give async write time to complete
+            _asyncWriteResult.AsyncWaitHandle.WaitOne(100);
         }
 
         [TestMethod]
         public void BlockingWriteShouldHaveBeenInterrupted()
         {
-            Assert.IsTrue(_asyncWriteResult.AsyncWaitHandle.WaitOne(200));
+            Assert.IsTrue(_asyncWriteResult.IsCompleted);
         }
 
         [TestMethod]
         public void WriteShouldHaveThrownObjectDisposedException()
         {
-            _asyncWriteResult.AsyncWaitHandle.WaitOne(200);
-
             Assert.IsNotNull(_writeException);
             Assert.AreEqual(typeof (ObjectDisposedException), _writeException.GetType());
         }

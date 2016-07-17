@@ -445,10 +445,10 @@
     <Compile Include="Common\AsyncSocketListener.cs" />
     <Compile Include="Common\HttpProxyStub.cs" />
     <Compile Include="Common\HttpRequest.cs" />
-    <Compile Include="Common\PipeStream_Close_BlockingRead.cs" />
-    <Compile Include="Common\PipeStream_Close_BlockingWrite.cs" />
-    <Compile Include="Common\PipeStream_Flush_BytesRemainingAfterRead.cs" />
-    <Compile Include="Common\PipeStream_Flush_NoBytesRemainingAfterRead.cs" />
+    <Compile Include="Classes\Common\PipeStream_Close_BlockingRead.cs" />
+    <Compile Include="Classes\Common\PipeStream_Close_BlockingWrite.cs" />
+    <Compile Include="Classes\Common\PipeStream_Flush_BytesRemainingAfterRead.cs" />
+    <Compile Include="Classes\Common\PipeStream_Flush_NoBytesRemainingAfterRead.cs" />
     <Compile Include="Common\TestBase.cs" />
     <Compile Include="Classes\Compression\CompressorTest.cs" />
     <Compile Include="Classes\Common\DerDataTest.cs" />

@@ -105,8 +105,8 @@ namespace Renci.SshNet.Tests.Classes.Common
                 threads[i] = new Thread(() =>
                     {
                         Thread.Sleep(sleep);
-                        countdownEvent.Signal();
                         Interlocked.Increment(ref signalCount);
+                        countdownEvent.Signal();
                     });
                 threads[i].Start();
             }
@@ -143,8 +143,8 @@ namespace Renci.SshNet.Tests.Classes.Common
                 threads[i] = new Thread(() =>
                 {
                     Thread.Sleep(sleep);
-                    countdownEvent.Signal();
                     Interlocked.Increment(ref signalCount);
+                    countdownEvent.Signal();
                 });
                 threads[i].Start();
             }

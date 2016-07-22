@@ -76,6 +76,7 @@ namespace Renci.SshNet.Tests.Classes
         ///A test for Stop
         ///</summary>
         [TestMethod]
+        [Ignore] // placeholder
         public void StopTest()
         {
             uint boundPort = 0; // TODO: Initialize to an appropriate value
@@ -124,6 +125,7 @@ namespace Renci.SshNet.Tests.Classes
         ///A test for ForwardedPortRemote Constructor
         ///</summary>
         [TestMethod]
+        [Ignore] // placeholder
         public void ForwardedPortRemoteConstructorTest()
         {
             string boundHost = string.Empty; // TODO: Initialize to an appropriate value
@@ -138,6 +140,7 @@ namespace Renci.SshNet.Tests.Classes
         ///A test for ForwardedPortRemote Constructor
         ///</summary>
         [TestMethod]
+        [Ignore] // placeholder
         public void ForwardedPortRemoteConstructorTest1()
         {
             uint boundPort = 0; // TODO: Initialize to an appropriate value

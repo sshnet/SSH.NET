@@ -16,7 +16,8 @@ namespace Renci.SshNet.Tests.Messages.Authentication
         /// <summary>
         ///A test for RequestMessagePublicKey Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder
         public void RequestMessagePublicKeyConstructorTest()
         {
             ServiceName serviceName = new ServiceName(); // TODO: Initialize to an appropriate value
@@ -30,7 +31,8 @@ namespace Renci.SshNet.Tests.Messages.Authentication
         /// <summary>
         ///A test for RequestMessagePublicKey Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder
         public void RequestMessagePublicKeyConstructorTest1()
         {
             ServiceName serviceName = new ServiceName(); // TODO: Initialize to an appropriate value
@@ -45,7 +47,8 @@ namespace Renci.SshNet.Tests.Messages.Authentication
         /// <summary>
         ///A test for MethodName
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder
         public void MethodNameTest()
         {
             ServiceName serviceName = new ServiceName(); // TODO: Initialize to an appropriate value
@@ -61,7 +64,8 @@ namespace Renci.SshNet.Tests.Messages.Authentication
         /// <summary>
         ///A test for Signature
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder
         public void SignatureTest()
         {
             ServiceName serviceName = new ServiceName(); // TODO: Initialize to an appropriate value

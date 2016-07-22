@@ -9,13 +9,14 @@ namespace Renci.SshNet.Tests.Classes.Security
     ///This is a test class for KeyExchangeDiffieHellmanGroupExchangeSha256Test and is intended
     ///to contain all KeyExchangeDiffieHellmanGroupExchangeSha256Test Unit Tests
     ///</summary>
-    [TestClass()]
+    [TestClass]
     public class KeyExchangeDiffieHellmanGroupExchangeSha256Test : TestBase
     {
         /// <summary>
         ///A test for KeyExchangeDiffieHellmanGroupExchangeSha256 Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void KeyExchangeDiffieHellmanGroupExchangeSha256ConstructorTest()
         {
             KeyExchangeDiffieHellmanGroupExchangeSha256 target = new KeyExchangeDiffieHellmanGroupExchangeSha256();
@@ -51,7 +52,8 @@ namespace Renci.SshNet.Tests.Classes.Security
         /// <summary>
         ///A test for Name
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void NameTest()
         {
             KeyExchangeDiffieHellmanGroupExchangeSha256 target = new KeyExchangeDiffieHellmanGroupExchangeSha256(); // TODO: Initialize to an appropriate value

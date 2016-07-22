@@ -8,13 +8,14 @@ namespace Renci.SshNet.Tests.Classes.Sftp
     ///This is a test class for SftpFileSytemInformationTest and is intended
     ///to contain all SftpFileSytemInformationTest Unit Tests
     ///</summary>
-    [TestClass()]
+    [TestClass]
     public class SftpFileSystemInformationTest : TestBase
     {
         /// <summary>
         ///A test for IsReadOnly
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder
         public void IsReadOnlyTest()
         {
             ulong bsize = 0; // TODO: Initialize to an appropriate value
@@ -37,7 +38,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         /// <summary>
         ///A test for SupportsSetUid
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder
         public void SupportsSetUidTest()
         {
             ulong bsize = 0; // TODO: Initialize to an appropriate value

@@ -1,10 +1,9 @@
-﻿using Renci.SshNet.Messages.Authentication;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Renci.SshNet.Messages.Authentication;
 using Renci.SshNet.Tests.Common;
 
-namespace Renci.SshNet.Tests.Messages.Authentication
-{   
+namespace Renci.SshNet.Tests.Classes.Messages.Authentication
+{
     /// <summary>
     ///This is a test class for SuccessMessageTest and is intended
     ///to contain all SuccessMessageTest Unit Tests
@@ -15,7 +14,8 @@ namespace Renci.SshNet.Tests.Messages.Authentication
         /// <summary>
         ///A test for SuccessMessage Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder
         public void SuccessMessageConstructorTest()
         {
             SuccessMessage target = new SuccessMessage();

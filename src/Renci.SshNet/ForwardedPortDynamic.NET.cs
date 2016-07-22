@@ -79,9 +79,22 @@ namespace Renci.SshNet
             // only accept new connections while we are started
             if (IsStarted)
             {
-                if (!_listener.AcceptAsync(e))
+                try
                 {
-                    AcceptCompleted(null, e);
+                    if (!_listener.AcceptAsync(e))
+                    {
+                        AcceptCompleted(null, e);
+                    }
+                }
+                catch (ObjectDisposedException)
+                {
+                    if (_status == ForwardedPortStatus.Stopped || _status == ForwardedPortStatus.Stopped)
+                    {
+                        // ignore ObjectDisposedException while stopping or stopped
+                        return;
+                    }
+
+                    throw;
                 }
             }
         }

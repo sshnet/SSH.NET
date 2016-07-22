@@ -40,12 +40,8 @@ namespace Renci.SshNet.Tests.Classes
             }
             if (_client != null)
             {
-                if (_client.Connected)
-                {
-                    _client.Shutdown(SocketShutdown.Both);
-                    _client.Close();
-                    _client = null;
-                }
+                _client.Close();
+                _client = null;
             }
         }
 

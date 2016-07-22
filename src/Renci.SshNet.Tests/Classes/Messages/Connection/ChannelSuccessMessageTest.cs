@@ -9,13 +9,14 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
     ///This is a test class for ChannelSuccessMessageTest and is intended
     ///to contain all ChannelSuccessMessageTest Unit Tests
     ///</summary>
-    [TestClass()]
+    [TestClass]
     public class ChannelSuccessMessageTest : TestBase
     {
         /// <summary>
         ///A test for ChannelSuccessMessage Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder
         public void ChannelSuccessMessageConstructorTest()
         {
             ChannelSuccessMessage target = new ChannelSuccessMessage();
@@ -25,7 +26,8 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
         /// <summary>
         ///A test for ChannelSuccessMessage Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder
         public void ChannelSuccessMessageConstructorTest1()
         {
             uint localChannelNumber = 0; // TODO: Initialize to an appropriate value

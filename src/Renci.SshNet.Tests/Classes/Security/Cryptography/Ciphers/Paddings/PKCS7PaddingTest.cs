@@ -31,7 +31,8 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers.Paddings
         /// <summary>
         ///A test for PKCS7Padding Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder
         public void PKCS7PaddingConstructorTest()
         {
             PKCS7Padding target = new PKCS7Padding();

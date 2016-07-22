@@ -9,13 +9,14 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
     ///This is a test class for ChannelExtendedDataMessageTest and is intended
     ///to contain all ChannelExtendedDataMessageTest Unit Tests
     ///</summary>
-    [TestClass()]
+    [TestClass]
     public class ChannelExtendedDataMessageTest : TestBase
     {
         /// <summary>
         ///A test for ChannelExtendedDataMessage Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder
         public void ChannelExtendedDataMessageConstructorTest()
         {
             ChannelExtendedDataMessage target = new ChannelExtendedDataMessage();
@@ -25,7 +26,8 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
         /// <summary>
         ///A test for ChannelExtendedDataMessage Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder
         public void ChannelExtendedDataMessageConstructorTest1()
         {
             uint localChannelNumber = 0; // TODO: Initialize to an appropriate value

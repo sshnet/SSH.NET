@@ -9,13 +9,14 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
     ///This is a test class for KeepAliveRequestInfoTest and is intended
     ///to contain all KeepAliveRequestInfoTest Unit Tests
     ///</summary>
-    [TestClass()]
+    [TestClass]
     public class KeepAliveRequestInfoTest : TestBase
     {
         /// <summary>
         ///A test for KeepAliveRequestInfo Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder
         public void KeepAliveRequestInfoConstructorTest()
         {
             KeepAliveRequestInfo target = new KeepAliveRequestInfo();
@@ -25,7 +26,8 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
         /// <summary>
         ///A test for RequestName
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder
         public void RequestNameTest()
         {
             KeepAliveRequestInfo target = new KeepAliveRequestInfo(); // TODO: Initialize to an appropriate value

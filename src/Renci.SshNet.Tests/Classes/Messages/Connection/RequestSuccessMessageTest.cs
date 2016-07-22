@@ -9,13 +9,14 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
     ///This is a test class for RequestSuccessMessageTest and is intended
     ///to contain all RequestSuccessMessageTest Unit Tests
     ///</summary>
-    [TestClass()]
+    [TestClass]
     public class RequestSuccessMessageTest : TestBase
     {
         /// <summary>
         ///A test for RequestSuccessMessage Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder
         public void RequestSuccessMessageConstructorTest()
         {
             RequestSuccessMessage target = new RequestSuccessMessage();
@@ -25,7 +26,8 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
         /// <summary>
         ///A test for RequestSuccessMessage Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder
         public void RequestSuccessMessageConstructorTest1()
         {
             uint boundPort = 0; // TODO: Initialize to an appropriate value

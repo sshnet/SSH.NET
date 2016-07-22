@@ -9,13 +9,14 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
     ///This is a test class for ChannelEofMessageTest and is intended
     ///to contain all ChannelEofMessageTest Unit Tests
     ///</summary>
-    [TestClass()]
+    [TestClass]
     public class ChannelEofMessageTest : TestBase
     {
         /// <summary>
         ///A test for ChannelEofMessage Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder
         public void ChannelEofMessageConstructorTest()
         {
             ChannelEofMessage target = new ChannelEofMessage();
@@ -25,7 +26,8 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
         /// <summary>
         ///A test for ChannelEofMessage Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder
         public void ChannelEofMessageConstructorTest1()
         {
             uint localChannelNumber = 0; // TODO: Initialize to an appropriate value

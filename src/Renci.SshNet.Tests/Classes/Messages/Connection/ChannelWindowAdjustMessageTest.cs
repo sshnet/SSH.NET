@@ -9,13 +9,14 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
     ///This is a test class for ChannelWindowAdjustMessageTest and is intended
     ///to contain all ChannelWindowAdjustMessageTest Unit Tests
     ///</summary>
-    [TestClass()]
+    [TestClass]
     public class ChannelWindowAdjustMessageTest : TestBase
     {
         /// <summary>
         ///A test for ChannelWindowAdjustMessage Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder
         public void ChannelWindowAdjustMessageConstructorTest()
         {
             ChannelWindowAdjustMessage target = new ChannelWindowAdjustMessage();
@@ -25,7 +26,8 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
         /// <summary>
         ///A test for ChannelWindowAdjustMessage Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder
         public void ChannelWindowAdjustMessageConstructorTest1()
         {
             uint localChannelNumber = 0; // TODO: Initialize to an appropriate value

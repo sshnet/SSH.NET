@@ -8,7 +8,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers.Paddings
     ///This is a test class for PKCS5PaddingTest and is intended
     ///to contain all PKCS5PaddingTest Unit Tests
     ///</summary>
-    [TestClass()]
+    [TestClass]
     public class PKCS5PaddingTest : TestBase
     {
         /// <summary>
@@ -31,7 +31,8 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers.Paddings
         /// <summary>
         ///A test for PKCS5Padding Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder
         public void PKCS5PaddingConstructorTest()
         {
             PKCS5Padding target = new PKCS5Padding();

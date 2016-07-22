@@ -8,13 +8,14 @@ namespace Renci.SshNet.Tests.Classes.Messages.Transport
     ///This is a test class for ServiceAcceptMessageTest and is intended
     ///to contain all ServiceAcceptMessageTest Unit Tests
     ///</summary>
-    [TestClass()]
+    [TestClass]
     public class ServiceAcceptMessageTest
     {
         /// <summary>
         ///A test for ServiceAcceptMessage Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder
         public void ServiceAcceptMessageConstructorTest()
         {
             ServiceAcceptMessage target = new ServiceAcceptMessage();

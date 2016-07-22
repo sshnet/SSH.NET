@@ -9,13 +9,14 @@ namespace Renci.SshNet.Tests.Classes.Messages.Transport
     ///This is a test class for UnimplementedMessageTest and is intended
     ///to contain all UnimplementedMessageTest Unit Tests
     ///</summary>
-    [TestClass()]
+    [TestClass]
     public class UnimplementedMessageTest : TestBase
     {
         /// <summary>
         ///A test for UnimplementedMessage Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder
         public void UnimplementedMessageConstructorTest()
         {
             UnimplementedMessage target = new UnimplementedMessage();

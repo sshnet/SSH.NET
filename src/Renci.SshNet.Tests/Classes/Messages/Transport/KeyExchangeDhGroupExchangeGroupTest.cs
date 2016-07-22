@@ -9,13 +9,14 @@ namespace Renci.SshNet.Tests.Classes.Messages.Transport
     ///This is a test class for KeyExchangeDhGroupExchangeGroupTest and is intended
     ///to contain all KeyExchangeDhGroupExchangeGroupTest Unit Tests
     ///</summary>
-    [TestClass()]
+    [TestClass]
     public class KeyExchangeDhGroupExchangeGroupTest : TestBase
     {
         /// <summary>
         ///A test for KeyExchangeDhGroupExchangeGroup Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder
         public void KeyExchangeDhGroupExchangeGroupConstructorTest()
         {
             KeyExchangeDhGroupExchangeGroup target = new KeyExchangeDhGroupExchangeGroup();

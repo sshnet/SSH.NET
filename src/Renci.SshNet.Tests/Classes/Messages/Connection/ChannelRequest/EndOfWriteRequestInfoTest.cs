@@ -9,13 +9,14 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
     ///This is a test class for EndOfWriteRequestInfoTest and is intended
     ///to contain all EndOfWriteRequestInfoTest Unit Tests
     ///</summary>
-    [TestClass()]
+    [TestClass]
     public class EndOfWriteRequestInfoTest : TestBase
     {
         /// <summary>
         ///A test for EndOfWriteRequestInfo Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder
         public void EndOfWriteRequestInfoConstructorTest()
         {
             EndOfWriteRequestInfo target = new EndOfWriteRequestInfo();
@@ -25,7 +26,8 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
         /// <summary>
         ///A test for RequestName
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder
         public void RequestNameTest()
         {
             EndOfWriteRequestInfo target = new EndOfWriteRequestInfo(); // TODO: Initialize to an appropriate value

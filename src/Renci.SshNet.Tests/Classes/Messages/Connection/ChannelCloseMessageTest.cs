@@ -9,13 +9,14 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
     ///This is a test class for ChannelCloseMessageTest and is intended
     ///to contain all ChannelCloseMessageTest Unit Tests
     ///</summary>
-    [TestClass()]
+    [TestClass]
     public class ChannelCloseMessageTest : TestBase
     {
         /// <summary>
         ///A test for ChannelCloseMessage Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder
         public void ChannelCloseMessageConstructorTest()
         {
             ChannelCloseMessage target = new ChannelCloseMessage();
@@ -25,7 +26,8 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
         /// <summary>
         ///A test for ChannelCloseMessage Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder
         public void ChannelCloseMessageConstructorTest1()
         {
             uint localChannelNumber = 0; // TODO: Initialize to an appropriate value

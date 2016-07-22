@@ -143,6 +143,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="ConnectionInfo.cs" />
+    <Compile Include="ForwardedPortStatus.cs" />
     <Compile Include="HashInfo.cs">
       <SubType>Code</SubType>
     </Compile>

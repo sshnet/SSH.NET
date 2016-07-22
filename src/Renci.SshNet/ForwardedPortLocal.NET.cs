@@ -7,13 +7,10 @@ using Renci.SshNet.Common;
 
 namespace Renci.SshNet
 {
-    /// <summary>
-    /// Provides functionality for local port forwarding
-    /// </summary>
     public partial class ForwardedPortLocal
     {
         private Socket _listener;
-        private CountdownEvent _pendingRequestsCountdown;
+        private CountdownEvent _pendingChannelCountdown;
 
         partial void InternalStart()
         {
@@ -23,6 +20,7 @@ namespace Renci.SshNet
             _listener = new Socket(ep.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
             // TODO: decide if we want to have blocking socket
 #if FEATURE_SOCKET_SETSOCKETOPTION
+            _listener.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.DontLinger, true);
             _listener.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.NoDelay, true);
 #endif // FEATURE_SOCKET_SETSOCKETOPTION
             _listener.Bind(ep);
@@ -34,45 +32,31 @@ namespace Renci.SshNet
             Session.ErrorOccured += Session_ErrorOccured;
             Session.Disconnected += Session_Disconnected;
 
-            _listenerTaskCompleted = new ManualResetEvent(false);
-            InitializePendingRequestsCountdown();
+            InitializePendingChannelCountdown();
 
-            ThreadAbstraction.ExecuteThread(() =>
-                {
-                    try
-                    {
-#if FEATURE_SOCKET_EAP
-                        StartAccept(null);
-#elif FEATURE_SOCKET_APM
-                        _listener.BeginAccept(AcceptCallback, _listener);
-#elif FEATURE_SOCKET_TAP
-#error Accepting new socket connections is not implemented.
-#else
-#error Accepting new socket connections is not implemented.
-#endif
-                    }
-                    catch (ObjectDisposedException)
-                    {
-                        // BeginAccept / AcceptAsync will throw an ObjectDisposedException when the
-                        // server is closed before the listener has started accepting connections.
-                        //
-                        // As we start accepting connection on a separate thread, this is possible
-                        // when the listener is stopped right after it was started.
-                    }
+            // consider port started when we're listening for inbound connections
+            _status = ForwardedPortStatus.Started;
 
-                    // wait until listener is stopped
-                    _listenerTaskCompleted.WaitOne();
-
-                    var session = Session;
-                    if (session != null)
-                    {
-                        session.Disconnected -= Session_Disconnected;
-                        session.ErrorOccured -= Session_ErrorOccured;
-                    }
-                });
+            try
+            {
+                StartAccept(null);
+            }
+            catch (ObjectDisposedException)
+            {
+                // AcceptAsync will throw an ObjectDisposedException when the server is closed before
+                // the listener has started accepting connections.
+                //
+                // this is only possible when the listener is stopped (from another thread) right
+                // after it was started.
+                StopPort(Session.ConnectionInfo.Timeout);
+            }
+            catch (Exception ex)
+            {
+                StopPort(Session.ConnectionInfo.Timeout);
+                RaiseExceptionEvent(ex);
+            }
         }
 
-#if FEATURE_SOCKET_EAP
         private void StartAccept(SocketAsyncEventArgs e)
         {
             if (e == null)
@@ -86,89 +70,70 @@ namespace Renci.SshNet
                 e.AcceptSocket = null;
             }
 
-            if (!_listener.AcceptAsync(e))
+            // only accept new connections while we are started
+            if (IsStarted)
             {
-                AcceptCompleted(null, e);
+                try
+                {
+                    if (!_listener.AcceptAsync(e))
+                    {
+                        AcceptCompleted(null, e);
+                    }
+                }
+                catch (ObjectDisposedException)
+                {
+                    if (_status == ForwardedPortStatus.Stopped || _status == ForwardedPortStatus.Stopped)
+                    {
+                        // ignore ObjectDisposedException while stopping or stopped
+                        return;
+                    }
+
+                    throw;
+                }
             }
         }
 
-
-        private void AcceptCompleted(object sender, SocketAsyncEventArgs acceptAsyncEventArgs)
-        { 
-            if (acceptAsyncEventArgs.SocketError == SocketError.OperationAborted)
+        private void AcceptCompleted(object sender, SocketAsyncEventArgs e)
+        {
+            if (e.SocketError == SocketError.OperationAborted || e.SocketError == SocketError.NotSocket)
             {
                 // server was stopped
                 return;
             }
 
             // capture client socket
-            var clientSocket = acceptAsyncEventArgs.AcceptSocket;
+            var clientSocket = e.AcceptSocket;
 
-            if (acceptAsyncEventArgs.SocketError != SocketError.Success)
+            if (e.SocketError != SocketError.Success)
             {
                 // accept new connection
-                StartAccept(acceptAsyncEventArgs);
-                // close client socket
+                StartAccept(e);
+                // dispose broken client socket
                 CloseClientSocket(clientSocket);
                 return;
             }
 
             // accept new connection
-            StartAccept(acceptAsyncEventArgs);
+            StartAccept(e);
             // process connection
             ProcessAccept(clientSocket);
-        }
-#elif FEATURE_SOCKET_APM
-        private void AcceptCallback(IAsyncResult ar)
-        {
-            // Get the socket that handles the client request
-            var serverSocket = (Socket) ar.AsyncState;
-
-            Socket clientSocket;
-
-            try
-            {
-                clientSocket = serverSocket.EndAccept(ar);
-            }
-            catch (ObjectDisposedException)
-            {
-                // when the server socket is closed, an ObjectDisposedException is thrown
-                // by Socket.EndAccept(IAsyncResult)
-                return;
-            }
-
-            // accept new connection
-            _listener.BeginAccept(AcceptCallback, _listener);
-            // process connection
-            ProcessAccept(clientSocket);
-        }
-#endif
-
-        private static void CloseClientSocket(Socket clientSocket)
-        {
-            if (clientSocket.Connected)
-            {
-                try
-                {
-                    clientSocket.Shutdown(SocketShutdown.Send);
-                }
-                catch (Exception)
-                {
-                    // ignore exception when client socket was already closed
-                }
-            }
-
-            clientSocket.Dispose();
         }
 
         private void ProcessAccept(Socket clientSocket)
         {
+            // close the client socket if we're no longer accepting new connections
+            if (!IsStarted)
+            {
+                CloseClientSocket(clientSocket);
+                return;
+            }
+
             // capture the countdown event that we're adding a count to, as we need to make sure that we'll be signaling
             // that same instance; the instance field for the countdown event is re-initialized when the port is restarted
-            // and at that time they may still be pending requests
-            var pendingRequestsCountdown = _pendingRequestsCountdown;
+            // and at that time there may still be pending requests
+            var pendingChannelCountdown = _pendingChannelCountdown;
 
-            pendingRequestsCountdown.AddCount();
+            pendingChannelCountdown.AddCount();
 
             try
             {
@@ -197,10 +162,12 @@ namespace Renci.SshNet
             }
             finally
             {
-                // take into account that countdown event has since been disposed (after waiting for a given timeout)
+                // take into account that CountdownEvent has since been disposed; when stopping the port we
+                // wait for a given time for the channels to close, but once that timeout period has elapsed
+                // the CountdownEvent will be disposed
                 try
                 {
-                    pendingRequestsCountdown.Signal();
+                    pendingChannelCountdown.Signal();
                 }
                 catch (ObjectDisposedException)
                 {
@@ -221,27 +188,34 @@ namespace Renci.SshNet
         /// initial count of <c>1</c>.
         /// </para>
         /// </remarks>
-        private void InitializePendingRequestsCountdown()
+        private void InitializePendingChannelCountdown()
         {
-            var original = Interlocked.Exchange(ref _pendingRequestsCountdown, new CountdownEvent(1));
+            var original = Interlocked.Exchange(ref _pendingChannelCountdown, new CountdownEvent(1));
             if (original != null)
             {
                 original.Dispose();
             }
         }
 
-        /// <summary>
-        /// Waits for pending requests to finish.
-        /// </summary>
-        /// <param name="timeout">The maximum time to wait for the pending requests to finish.</param>
-        partial void InternalStop(TimeSpan timeout)
+        private static void CloseClientSocket(Socket clientSocket)
         {
-            _pendingRequestsCountdown.Signal();
-            _pendingRequestsCountdown.Wait(timeout);
+            if (clientSocket.Connected)
+            {
+                try
+                {
+                    clientSocket.Shutdown(SocketShutdown.Send);
+                }
+                catch (Exception)
+                {
+                    // ignore exception when client socket was already closed
+                }
+            }
+
+            clientSocket.Dispose();
         }
 
         /// <summary>
-        /// Interrupts the listener, and waits for the listener loop to finish.
+        /// Interrupts the listener, and unsubscribes from <see cref="Session"/> events.
         /// </summary>
         partial void StopListener()
         {
@@ -252,12 +226,23 @@ namespace Renci.SshNet
                 listener.Dispose();
             }
 
-            // allow listener thread to stop
-            var listenerTaskCompleted = _listenerTaskCompleted;
-            if (listenerTaskCompleted != null)
+            // unsubscribe from session events
+            var session = Session;
+            if (session != null)
             {
-                listenerTaskCompleted.Set();
+                session.ErrorOccured -= Session_ErrorOccured;
+                session.Disconnected -= Session_Disconnected;
             }
+        }
+
+        /// <summary>
+        /// Waits for pending channels to close.
+        /// </summary>
+        /// <param name="timeout">The maximum time to wait for the pending channels to close.</param>
+        partial void InternalStop(TimeSpan timeout)
+        {
+            _pendingChannelCountdown.Signal();
+            _pendingChannelCountdown.Wait(timeout);
         }
 
         partial void InternalDispose(bool disposing)
@@ -271,28 +256,30 @@ namespace Renci.SshNet
                     listener.Dispose();
                 }
 
-                var pendingRequestsCountdown = _pendingRequestsCountdown;
+                var pendingRequestsCountdown = _pendingChannelCountdown;
                 if (pendingRequestsCountdown != null)
                 {
-                    _pendingRequestsCountdown = null;
+                    _pendingChannelCountdown = null;
                     pendingRequestsCountdown.Dispose();
                 }
             }
         }
 
-        private void Session_ErrorOccured(object sender, ExceptionEventArgs e)
+        private void Session_Disconnected(object sender, EventArgs e)
         {
-            if (IsStarted)
+            var session = Session;
+            if (session != null)
             {
-                StopListener();
+                StopPort(session.ConnectionInfo.Timeout);
             }
         }
 
-        private void Session_Disconnected(object sender, EventArgs e)
+        private void Session_ErrorOccured(object sender, ExceptionEventArgs e)
         {
-            if (IsStarted)
+            var session = Session;
+            if (session != null)
             {
-                StopListener();
+                StopPort(session.ConnectionInfo.Timeout);
             }
         }
 

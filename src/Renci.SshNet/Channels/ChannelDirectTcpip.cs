@@ -56,24 +56,11 @@ namespace Renci.SshNet.Channels
 
             var ep = (IPEndPoint) socket.RemoteEndPoint;
 
-#if DEBUG_GERT
-            Console.WriteLine("ID: " + Thread.CurrentThread.ManagedThreadId + " |  ChannelOpenMessage send '" + LocalChannelNumber + "' | " + DateTime.Now.ToString("hh:mm:ss.fff"));
-#endif // DEBUG_GERT
-
             // open channel
             SendMessage(new ChannelOpenMessage(LocalChannelNumber, LocalWindowSize, LocalPacketSize,
                 new DirectTcpipChannelInfo(remoteHost, port, ep.Address.ToString(), (uint) ep.Port)));
-
-#if DEBUG_GERT
-            Console.WriteLine("ID: " + Thread.CurrentThread.ManagedThreadId + " |  ChannelOpenMessage sent '" + LocalChannelNumber + "' | " + DateTime.Now.ToString("hh:mm:ss.fff"));
-#endif // DEBUG_GERT
-
             //  Wait for channel to open
             WaitOnHandle(_channelOpen);
-
-#if DEBUG_GERT
-            Console.WriteLine("ID: " + Thread.CurrentThread.ManagedThreadId + " |  ChannelOpenMessage flagged '" + LocalChannelNumber + "' | " + DateTime.Now.ToString("hh:mm:ss.fff"));
-#endif // DEBUG_GERT
         }
 
         /// <summary>
@@ -101,10 +88,6 @@ namespace Renci.SshNet.Channels
 
             SocketAbstraction.ReadContinuous(_socket, buffer, 0, buffer.Length, SendData);
 
-#if DEBUG_GERT
-            Console.WriteLine("ID: " + Thread.CurrentThread.ManagedThreadId + " | ChannelDirectTcpip.Bind (after) '" + LocalChannelNumber + "' | " + DateTime.Now.ToString("hh:mm:ss.fff"));
-#endif // DEBUG_GERT
-
             // even though the client has disconnected, we still want to properly close the
             // channel
             //
@@ -126,10 +109,6 @@ namespace Renci.SshNet.Channels
                 if (_socket == null)
                     return;
 
-#if DEBUG_GERT
-                Console.WriteLine("ID: " + Thread.CurrentThread.ManagedThreadId + " | ChannelDirectTcpip.CloseSocket '" + LocalChannelNumber + "' | " + DateTime.Now.ToString("hh:mm:ss.fff"));
-#endif // DEBUG_GERT
-
                 // closing a socket actually disposes the socket, so we can safely dereference
                 // the field to avoid entering the lock again later
                 _socket.Dispose();
@@ -148,10 +127,6 @@ namespace Renci.SshNet.Channels
 
             lock (_socketLock)
             {
-#if DEBUG_GERT
-                Console.WriteLine("ID: " + Thread.CurrentThread.ManagedThreadId + " | ChannelDirectTcpip.ShutdownSocket '" + LocalChannelNumber + "' | " + DateTime.Now.ToString("hh:mm:ss.fff"));
-#endif // DEBUG_GERT
-
                 if (_socket == null || !_socket.Connected)
                     return;
 
@@ -166,10 +141,6 @@ namespace Renci.SshNet.Channels
         /// <param name="wait"><c>true</c> to wait for the SSH_MSG_CHANNEL_CLOSE message to be received from the server; otherwise, <c>false</c>.</param>
         protected override void Close(bool wait)
         {
-#if DEBUG_GERT
-            Console.WriteLine("ID: " + Thread.CurrentThread.ManagedThreadId + " | ChannelDirectTcpip.Close(bool) '" + LocalChannelNumber + "' | " + DateTime.Now.ToString("hh:mm:ss.fff"));
-#endif // DEBUG_GERT
-
             var forwardedPort = _forwardedPort;
             if (forwardedPort != null)
             {
@@ -221,10 +192,6 @@ namespace Renci.SshNet.Channels
             base.OnOpenConfirmation(remoteChannelNumber, initialWindowSize, maximumPacketSize);
 
             _channelOpen.Set();
-
-#if DEBUG_GERT
-            Console.WriteLine("ID: " + Thread.CurrentThread.ManagedThreadId + " |  ChannelOpenMessage confirmed '" + LocalChannelNumber + "' | " + DateTime.Now.ToString("hh:mm:ss.fff"));
-#endif // DEBUG_GERT
         }
 
         protected override void OnOpenFailure(uint reasonCode, string description, string language)
@@ -232,10 +199,6 @@ namespace Renci.SshNet.Channels
             base.OnOpenFailure(reasonCode, description, language);
 
             _channelOpen.Set();
-
-#if DEBUG_GERT
-            Console.WriteLine("ID: " + Thread.CurrentThread.ManagedThreadId + " |  ChannelOpenMessage failure '" + LocalChannelNumber + "' | " + DateTime.Now.ToString("hh:mm:ss.fff"));
-#endif // DEBUG_GERT
         }
 
         /// <summary>
@@ -244,11 +207,6 @@ namespace Renci.SshNet.Channels
         protected override void OnEof()
         {
             base.OnEof();
-
-#if DEBUG_GERT
-            Console.WriteLine("ID: " + Thread.CurrentThread.ManagedThreadId + " | ChannelDirectTcpip.OnEof '" + LocalChannelNumber + "' | " +
-                              DateTime.Now.ToString("hh:mm:ss"));
-#endif // DEBUG_GERT
 
             // the channel will send no more data, and hence it does not make sense to receive
             // any more data from the client to send to the remote party (and we surely won't
@@ -265,10 +223,6 @@ namespace Renci.SshNet.Channels
         protected override void OnErrorOccured(Exception exp)
         {
             base.OnErrorOccured(exp);
-
-#if DEBUG_GERT
-            Console.WriteLine("ID: " + Thread.CurrentThread.ManagedThreadId + " | ChannelDirectTcpip.OnErrorOccured '" + LocalChannelNumber + "' | " + DateTime.Now.ToString("hh:mm:ss"));
-#endif // DEBUG_GERT
 
             // signal to the client that we will not send anything anymore; this will also interrupt the
             // blocking receive in Bind if the client sends FIN/ACK in time
@@ -288,10 +242,6 @@ namespace Renci.SshNet.Channels
         {
             base.OnDisconnected();
 
-#if DEBUG_GERT
-            Console.WriteLine("ID: " + Thread.CurrentThread.ManagedThreadId + " | ChannelDirectTcpip.OnDisconnected '" + LocalChannelNumber + "' | " + DateTime.Now.ToString("hh:mm:ss"));
-#endif // DEBUG_GERT
-
             // the channel will accept or send no more data, and hence it does not make sense
             // to accept any more data from the client (and we surely won't send anything
             // anymore)
@@ -310,10 +260,6 @@ namespace Renci.SshNet.Channels
 
             if (disposing)
             {
-#if DEBUG_GERT
-                Console.WriteLine("ID: " + Thread.CurrentThread.ManagedThreadId + " | Dispose '" + LocalChannelNumber + "' | " + DateTime.Now.ToString("hh:mm:ss"));
-#endif // DEBUG_GERT
-
                 if (_socket != null)
                 {
                     lock (_socketLock)
@@ -329,15 +275,15 @@ namespace Renci.SshNet.Channels
                 var channelOpen = _channelOpen;
                 if (channelOpen != null)
                 {
-                    channelOpen.Dispose();
                     _channelOpen = null;
+                    channelOpen.Dispose();
                 }
 
                 var channelData = _channelData;
                 if (channelData != null)
                 {
-                    channelData.Dispose();
                     _channelData = null;
+                    channelData.Dispose();
                 }
             }
         }

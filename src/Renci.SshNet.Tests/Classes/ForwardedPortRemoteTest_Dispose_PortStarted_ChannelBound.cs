@@ -40,6 +40,8 @@ namespace Renci.SshNet.Tests.Classes
         {
             Arrange();
 
+            // calculate stop time here instead of in Act() because that method can be overridden
+
             var stopwatch = new Stopwatch();
             stopwatch.Start();
 
@@ -133,7 +135,13 @@ namespace Renci.SshNet.Tests.Classes
 
         protected virtual void Act()
         {
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+
             ForwardedPort.Dispose();
+
+            stopwatch.Stop();
+            _elapsedTimeOfStop = stopwatch.Elapsed;
         }
 
         [TestMethod]

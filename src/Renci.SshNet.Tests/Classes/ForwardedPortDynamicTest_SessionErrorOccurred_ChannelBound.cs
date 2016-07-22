@@ -15,7 +15,7 @@ using Renci.SshNet.Common;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    public class ForwardedPortDynamicTest_Stop_PortStarted_ChannelBound
+    public class ForwardedPortDynamicTest_SessionErrorOccurred_ChannelBound
     {
         private Mock<ISession> _sessionMock;
         private Mock<IConnectionInfo> _connectionInfoMock;
@@ -23,6 +23,7 @@ namespace Renci.SshNet.Tests.Classes
         private ForwardedPortDynamic _forwardedPort;
         private IList<EventArgs> _closingRegister;
         private IList<ExceptionEventArgs> _exceptionRegister;
+        private Exception _sessionException;
         private IPEndPoint _endpoint;
         private Socket _client;
         private IPEndPoint _remoteEndpoint;
@@ -73,14 +74,14 @@ namespace Renci.SshNet.Tests.Classes
             _remoteEndpoint = new IPEndPoint(IPAddress.Parse("193.168.1.5"), random.Next(IPEndPoint.MinPort, IPEndPoint.MaxPort));
             _bindSleepTime = TimeSpan.FromMilliseconds(random.Next(100, 500));
             _userName = random.Next().ToString(CultureInfo.InvariantCulture);
+            _forwardedPort = new ForwardedPortDynamic(_endpoint.Address.ToString(), (uint)_endpoint.Port);
+            _sessionException = new Exception();
             _channelBindStarted = new ManualResetEvent(false);
             _channelBindCompleted = new ManualResetEvent(false);
 
             _connectionInfoMock = new Mock<IConnectionInfo>(MockBehavior.Strict);
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);
             _channelMock = new Mock<IChannelDirectTcpip>(MockBehavior.Strict);
-
-            _forwardedPort = new ForwardedPortDynamic(_endpoint.Address.ToString(), (uint) _endpoint.Port);
 
             _connectionInfoMock.Setup(p => p.Timeout).Returns(TimeSpan.FromSeconds(15));
             _sessionMock.Setup(p => p.IsConnected).Returns(true);
@@ -103,17 +104,17 @@ namespace Renci.SshNet.Tests.Classes
             _forwardedPort.Start();
 
             _client = new Socket(_endpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp)
-                {
-                    ReceiveTimeout = 500,
-                    SendTimeout = 500,
-                    SendBufferSize = 0
-                };
+            {
+                ReceiveTimeout = 500,
+                SendTimeout = 500,
+                SendBufferSize = 0
+            };
             EstablishSocks4Connection(_client);
         }
 
         protected void Act()
         {
-            _forwardedPort.Stop();
+            _sessionMock.Raise(p => p.ErrorOccured += null, new ExceptionEventArgs(_sessionException));
         }
 
         [TestMethod]
@@ -160,9 +161,26 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
-        public void ExceptionShouldNotHaveFired()
+        public void ExceptionShouldHaveFiredOne()
         {
-            Assert.AreEqual(0, _exceptionRegister.Count);
+            Assert.AreEqual(1, _exceptionRegister.Count);
+            Assert.IsNotNull(_exceptionRegister[0]);
+            Assert.AreSame(_sessionException, _exceptionRegister[0].Exception);
+        }
+
+        [TestMethod]
+        public void OpenOnChannelShouldBeInvokedOnce()
+        {
+            _channelMock.Verify(
+                p =>
+                    p.Open(_remoteEndpoint.Address.ToString(), (uint)_remoteEndpoint.Port, _forwardedPort,
+                        It.IsAny<Socket>()), Times.Once);
+        }
+
+        [TestMethod]
+        public void BindOnChannelShouldBeInvokedOnce()
+        {
+            _channelMock.Verify(p => p.Bind(), Times.Once);
         }
 
         [TestMethod]

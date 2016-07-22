@@ -15,7 +15,8 @@ namespace Renci.SshNet.Tests.Classes
         /// <summary>
         ///A test for CipherInfo Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder
         public void CipherInfoConstructorTest()
         {
             int keySize = 0; // TODO: Initialize to an appropriate value

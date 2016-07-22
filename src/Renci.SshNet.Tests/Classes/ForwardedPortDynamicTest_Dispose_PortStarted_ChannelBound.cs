@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Net;
@@ -9,6 +8,7 @@ using System.Text;
 using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Renci.SshNet.Abstractions;
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
 
@@ -27,8 +27,9 @@ namespace Renci.SshNet.Tests.Classes
         private Socket _client;
         private IPEndPoint _remoteEndpoint;
         private string _userName;
-        private TimeSpan _expectedElapsedTime;
-        private TimeSpan _elapsedTimeOfStop;
+        private TimeSpan _bindSleepTime;
+        private ManualResetEvent _channelBindStarted;
+        private ManualResetEvent _channelBindCompleted;
 
         [TestInitialize]
         public void Setup()
@@ -50,9 +51,26 @@ namespace Renci.SshNet.Tests.Classes
                 _forwardedPort.Dispose();
                 _forwardedPort = null;
             }
+            if (_channelBindStarted != null)
+            {
+                _channelBindStarted.Dispose();
+                _channelBindStarted = null;
+            }
+            if (_channelBindCompleted != null)
+            {
+                _channelBindCompleted.Dispose();
+                _channelBindCompleted = null;
+            }
         }
 
-        protected void Arrange()
+        private void CreateMocks()
+        {
+            _connectionInfoMock = new Mock<IConnectionInfo>(MockBehavior.Strict);
+            _sessionMock = new Mock<ISession>(MockBehavior.Strict);
+            _channelMock = new Mock<IChannelDirectTcpip>(MockBehavior.Strict);
+        }
+
+        private void SetupData()
         {
             var random = new Random();
 
@@ -60,61 +78,62 @@ namespace Renci.SshNet.Tests.Classes
             _exceptionRegister = new List<ExceptionEventArgs>();
             _endpoint = new IPEndPoint(IPAddress.Loopback, 8122);
             _remoteEndpoint = new IPEndPoint(IPAddress.Parse("193.168.1.5"), random.Next(IPEndPoint.MinPort, IPEndPoint.MaxPort));
-            _expectedElapsedTime = TimeSpan.FromMilliseconds(random.Next(100, 500));
+            _bindSleepTime = TimeSpan.FromMilliseconds(random.Next(100, 500));
             _userName = random.Next().ToString(CultureInfo.InvariantCulture);
+            _channelBindStarted = new ManualResetEvent(false);
+            _channelBindCompleted = new ManualResetEvent(false);
+
             _forwardedPort = new ForwardedPortDynamic(_endpoint.Address.ToString(), (uint)_endpoint.Port);
+            _forwardedPort.Closing += (sender, args) => _closingRegister.Add(args);
+            _forwardedPort.Exception += (sender, args) => _exceptionRegister.Add(args);
+            _forwardedPort.Session = _sessionMock.Object;
 
-            _connectionInfoMock = new Mock<IConnectionInfo>(MockBehavior.Strict);
-            _sessionMock = new Mock<ISession>(MockBehavior.Strict);
-            _channelMock = new Mock<IChannelDirectTcpip>(MockBehavior.Strict);
+            _client = new Socket(_endpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp)
+            {
+                ReceiveTimeout = 500,
+                SendTimeout = 500,
+                SendBufferSize = 0
+            };
+        }
 
-            Socket handlerSocket = null;
-
+        private void SetupMocks()
+        {
             _connectionInfoMock.Setup(p => p.Timeout).Returns(TimeSpan.FromSeconds(15));
             _sessionMock.Setup(p => p.IsConnected).Returns(true);
             _sessionMock.Setup(p => p.ConnectionInfo).Returns(_connectionInfoMock.Object);
             _sessionMock.Setup(p => p.CreateChannelDirectTcpip()).Returns(_channelMock.Object);
-            _channelMock.Setup(p => p.Open(_remoteEndpoint.Address.ToString(), (uint)_remoteEndpoint.Port, _forwardedPort, It.IsAny<Socket>())).Callback<string, uint, IForwardedPort, Socket>((address, port, forwardedPort, socket) => handlerSocket = socket);
+            _channelMock.Setup(p => p.Open(_remoteEndpoint.Address.ToString(), (uint)_remoteEndpoint.Port, _forwardedPort, It.IsAny<Socket>()));
             _channelMock.Setup(p => p.IsOpen).Returns(true);
             _channelMock.Setup(p => p.Bind()).Callback(() =>
                 {
-                    Thread.Sleep(_expectedElapsedTime);
-                    if (handlerSocket != null && handlerSocket.Connected)
-                        handlerSocket.Shutdown(SocketShutdown.Both);
+                    _channelBindStarted.Set();
+                    Thread.Sleep(_bindSleepTime);
+                    _channelBindCompleted.Set();
                 });
             _channelMock.Setup(p => p.Close());
             _channelMock.Setup(p => p.Dispose());
+        }
 
-            _forwardedPort.Closing += (sender, args) => _closingRegister.Add(args);
-            _forwardedPort.Exception += (sender, args) => _exceptionRegister.Add(args);
-            _forwardedPort.Session = _sessionMock.Object;
+        protected void Arrange()
+        {
+            CreateMocks();
+            SetupData();
+            SetupMocks();
+
             _forwardedPort.Start();
 
-            _client = new Socket(_endpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp)
-                {
-                    ReceiveTimeout = 500,
-                    SendTimeout = 500,
-                    SendBufferSize = 0
-                };
             EstablishSocks4Connection(_client);
         }
 
         protected void Act()
         {
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
-
             _forwardedPort.Dispose();
-
-            stopwatch.Stop();
-            _elapsedTimeOfStop = stopwatch.Elapsed;
         }
 
         [TestMethod]
-        public void StopShouldBlockUntilBoundChannelHasClosed()
+        public void ShouldBlockUntilBindHasCompleted()
         {
-            Assert.IsTrue(_elapsedTimeOfStop >= _expectedElapsedTime);
-            Assert.IsTrue(_elapsedTimeOfStop < _expectedElapsedTime.Add(TimeSpan.FromMilliseconds(200)));
+            Assert.IsTrue(_channelBindCompleted.WaitOne(0));
         }
 
         [TestMethod]
@@ -141,17 +160,11 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
-        public void ExistingConnectionShouldBeClosed()
+        public void BoundClientShouldNotBeClosed()
         {
-            try
-            {
-                _client.Send(new byte[] { 0x0a }, 0, 1, SocketFlags.None);
-                Assert.Fail();
-            }
-            catch (SocketException ex)
-            {
-                Assert.AreEqual(SocketError.ConnectionReset, ex.SocketErrorCode);
-            }
+            // the forwarded port itself does not close the client connection when the channel is closed properly
+            // it's the channel that will take care of closing the client connection
+            _client.Send(new byte[] { 0x0a }, 0, 1, SocketFlags.None);
         }
 
         [TestMethod]
@@ -163,7 +176,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void ExceptionShouldNotHaveFired()
         {
-            Assert.AreEqual(0, _exceptionRegister.Count);
+            Assert.AreEqual(0, _exceptionRegister.Count, GetReportedExceptions());
         }
 
         [TestMethod]
@@ -214,8 +227,24 @@ namespace Renci.SshNet.Tests.Classes
             // terminate user name with null
             client.Send(new byte[] { 0x00 }, 0, 1, SocketFlags.None);
 
-            var buffer = new byte[16];
-            client.Receive(buffer, 0, buffer.Length, SocketFlags.None);
+            var buffer = new byte[8];
+            var bytesRead = SocketAbstraction.Read(client, buffer, 0, buffer.Length, TimeSpan.FromMilliseconds(500));
+            Assert.AreEqual(buffer.Length, bytesRead);
+
+            // wait until SOCKS client is bound to channel
+            Assert.IsTrue(_channelBindStarted.WaitOne(TimeSpan.FromMilliseconds(200)));
+        }
+
+        private string GetReportedExceptions()
+        {
+            if (_exceptionRegister.Count == 0)
+                return string.Empty;
+
+            string reportedExceptions = string.Empty;
+            foreach (var exceptionEvent in _exceptionRegister)
+                reportedExceptions += exceptionEvent.Exception.ToString();
+
+            return reportedExceptions;
         }
     }
 }

@@ -25,12 +25,7 @@ namespace Renci.SshNet
 
             var ep = new IPEndPoint(ip, (int) BoundPort);
 
-            _listener = new Socket(ep.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-            // TODO: decide if we want to have blocking socket
-#if FEATURE_SOCKET_SETSOCKETOPTION
-            _listener.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.DontLinger, true);
-            _listener.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.NoDelay, true);
-#endif // FEATURE_SOCKET_SETSOCKETOPTION
+            _listener = new Socket(ep.AddressFamily, SocketType.Stream, ProtocolType.Tcp) {NoDelay = true};
             _listener.Bind(ep);
             _listener.Listen(5);
 
@@ -142,11 +137,6 @@ namespace Renci.SshNet
 
             try
             {
-#if FEATURE_SOCKET_SETSOCKETOPTION
-                remoteSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.DontLinger, true);
-                remoteSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.NoDelay, true);
-#endif //FEATURE_SOCKET_SETSOCKETOPTION
-
                 using (var channel = Session.CreateChannelDirectTcpip())
                 {
                     channel.Exception += Channel_Exception;
@@ -500,7 +490,7 @@ namespace Renci.SshNet
                             return false;
                         }
 
-                        ipAddress = IPAddress.Parse(SshData.Ascii.GetString(addressBuffer));
+                        ipAddress = IPAddress.Parse(SshData.Ascii.GetString(addressBuffer, 0, addressBuffer.Length));
 
                         //var hostName = new Common.ASCIIEncoding().GetString(addressBuffer);
 

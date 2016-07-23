@@ -11,7 +11,7 @@ namespace Renci.SshNet.Common
 #if FEATURE_BINARY_SERIALIZATION
     [Serializable]
 #endif // FEATURE_BINARY_SERIALIZATION
-    public partial class ProxyException : SshException
+    public class ProxyException : SshException
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ScpException"/> class.

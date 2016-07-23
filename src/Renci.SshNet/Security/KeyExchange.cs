@@ -365,7 +365,7 @@ namespace Renci.SshNet.Security
         /// <param name="p">The p.</param>
         /// <param name="sessionId">The session id.</param>
         /// <returns></returns>
-        private byte[] GenerateSessionKey(BigInteger sharedKey, byte[] exchangeHash, char p, byte[] sessionId)
+        private static byte[] GenerateSessionKey(BigInteger sharedKey, byte[] exchangeHash, char p, byte[] sessionId)
         {
             return new _SessionKeyGeneration
             {

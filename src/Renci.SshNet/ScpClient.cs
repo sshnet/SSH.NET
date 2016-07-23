@@ -240,7 +240,7 @@ namespace Renci.SshNet
             }
         }
 
-        private void InternalSetTimestamp(IChannelSession channel, Stream input, DateTime lastWriteTime, DateTime lastAccessime)
+        private static void InternalSetTimestamp(IChannelSession channel, Stream input, DateTime lastWriteTime, DateTime lastAccessime)
         {
             var zeroTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
             var modificationSeconds = (long) (lastWriteTime - zeroTime).TotalSeconds;
@@ -321,12 +321,12 @@ namespace Renci.SshNet
             }
         }
 
-        private void SendConfirmation(IChannel channel)
+        private static void SendConfirmation(IChannel channel)
         {
             SendData(channel, new byte[] { 0 });
         }
 
-        private void SendConfirmation(IChannel channel, byte errorCode, string message)
+        private static void SendConfirmation(IChannel channel, byte errorCode, string message)
         {
             SendData(channel, new[] { errorCode });
             SendData(channel, string.Format("{0}\n", message));

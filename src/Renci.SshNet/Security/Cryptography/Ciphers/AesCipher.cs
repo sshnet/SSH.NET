@@ -718,17 +718,17 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             return W;
         }
 
-        private uint Shift(uint r, int shift)
+        private static uint Shift(uint r, int shift)
         {
             return (r >> shift) | (r << (32 - shift));
         }
 
-        private uint FFmulX(uint x)
+        private static uint FFmulX(uint x)
         {
             return ((x & m2) << 1) ^ (((x & m1) >> 7) * m3);
         }
 
-        private uint InvMcol(uint x)
+        private static uint InvMcol(uint x)
         {
             uint f2 = FFmulX(x);
             uint f4 = FFmulX(f2);
@@ -738,7 +738,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             return f2 ^ f4 ^ f8 ^ Shift(f2 ^ f9, 8) ^ Shift(f4 ^ f9, 16) ^ Shift(f9, 24);
         }
 
-        private uint SubWord(uint x)
+        private static uint SubWord(uint x)
         {
             return (uint)S[x & 255]
                 | (((uint)S[(x >> 8) & 255]) << 8)

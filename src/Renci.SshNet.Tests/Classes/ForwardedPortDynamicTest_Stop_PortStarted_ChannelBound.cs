@@ -165,9 +165,23 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void BoundClientShouldNotBeClosed()
         {
-            // the forwarded port itself does not close the client connection when the channel is closed properly
+            // the forwarded port itself does not close the client connection; when the channel is closed properly
             // it's the channel that will take care of closing the client connection
-            _client.Send(new byte[] { 0x0a }, 0, 1, SocketFlags.None);
+            //
+            // we'll check if the client connection is still alive by attempting to receive, which should time out
+            // as the forwarded port (or its channel) are not sending anything
+
+            var buffer = new byte[1];
+
+            try
+            {
+                _client.Receive(buffer);
+                Assert.Fail();
+            }
+            catch (SocketException ex)
+            {
+                Assert.AreEqual(SocketError.TimedOut, ex.SocketErrorCode);
+            }
         }
 
         [TestMethod]

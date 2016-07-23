@@ -108,7 +108,7 @@ namespace Renci.SshNet
             return false;
         }
 
-        private IEnumerable<IAuthenticationMethod> GetOrderedAuthenticationMethods(AuthenticationState authenticationState, IEnumerable<IAuthenticationMethod> matchingAuthenticationMethods)
+        private static IEnumerable<IAuthenticationMethod> GetOrderedAuthenticationMethods(AuthenticationState authenticationState, IEnumerable<IAuthenticationMethod> matchingAuthenticationMethods)
         {
             var skippedAuthenticationMethods = new List<IAuthenticationMethod>();
 

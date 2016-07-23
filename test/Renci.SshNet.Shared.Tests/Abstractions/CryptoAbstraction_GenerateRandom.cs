@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Linq;
+using Renci.SshNet.Abstractions;
 #if SILVERLIGHT
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 #else
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 #endif
-using Renci.SshNet.Security.Cryptography;
 
 namespace Renci.SshNet.Tests.Abstractions
 {
@@ -19,7 +19,7 @@ namespace Renci.SshNet.Tests.Abstractions
 
             try
             {
-                HashAlgorithmFactory.GenerateRandom(data); 
+                CryptoAbstraction.GenerateRandom(data); 
                 Assert.Fail();
             }
             catch (ArgumentNullException ex)
@@ -34,7 +34,7 @@ namespace Renci.SshNet.Tests.Abstractions
         {
             var data = new byte[0];
 
-            HashAlgorithmFactory.GenerateRandom(data);
+            CryptoAbstraction.GenerateRandom(data);
         }
 
         [TestMethod]
@@ -44,8 +44,8 @@ namespace Renci.SshNet.Tests.Abstractions
             var dataA = new byte[dataLength];
             var dataB = new byte[dataLength];
 
-            HashAlgorithmFactory.GenerateRandom(dataA);
-            HashAlgorithmFactory.GenerateRandom(dataB);
+            CryptoAbstraction.GenerateRandom(dataA);
+            CryptoAbstraction.GenerateRandom(dataB);
 
             Assert.IsFalse(dataA.SequenceEqual(dataB));
         }

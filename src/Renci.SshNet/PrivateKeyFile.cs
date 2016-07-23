@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
+using Renci.SshNet.Abstractions;
 using Renci.SshNet.Security;
 using Renci.SshNet.Common;
 using System.Globalization;
-using Renci.SshNet.Security.Cryptography;
 using Renci.SshNet.Security.Cryptography.Ciphers;
 using Renci.SshNet.Security.Cryptography.Ciphers.Modes;
 using Renci.SshNet.Security.Cryptography.Ciphers.Paddings;
@@ -278,7 +278,7 @@ namespace Renci.SshNet
         {
             var cipherKey = new List<byte>();
 
-            using (var md5 = HashAlgorithmFactory.CreateMD5())
+            using (var md5 = CryptoAbstraction.CreateMD5())
             {
                 var passwordBytes = Encoding.UTF8.GetBytes(passphrase);
 
@@ -319,7 +319,7 @@ namespace Renci.SshNet
 
             var cipherKey = new List<byte>();
 
-            using (var md5 = HashAlgorithmFactory.CreateMD5())
+            using (var md5 = CryptoAbstraction.CreateMD5())
             {
                 var passwordBytes = Encoding.UTF8.GetBytes(passPhrase);
 

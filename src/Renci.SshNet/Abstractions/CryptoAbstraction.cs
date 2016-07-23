@@ -1,8 +1,9 @@
 ﻿using System;
+using Renci.SshNet.Security.Cryptography;
 
-namespace Renci.SshNet.Security.Cryptography
+namespace Renci.SshNet.Abstractions
 {
-    internal static class HashAlgorithmFactory
+    internal static class CryptoAbstraction
     {
 #if FEATURE_RNG_CREATE || FEATURE_RNG_CSP
         private static readonly System.Security.Cryptography.RandomNumberGenerator Randomizer = CreateRandomNumberGenerator();

@@ -51,7 +51,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
-using Renci.SshNet.Security.Cryptography;
+using Renci.SshNet.Abstractions;
 
 /*
 Optimization
@@ -174,7 +174,7 @@ namespace Renci.SshNet.Common
         public static BigInteger Random(int bitLength)
         {
             var bytesArray = new byte[bitLength / 8 + (((bitLength % 8) > 0) ? 1 : 0)];
-            HashAlgorithmFactory.GenerateRandom(bytesArray);
+            CryptoAbstraction.GenerateRandom(bytesArray);
             bytesArray[bytesArray.Length - 1] = (byte)(bytesArray[bytesArray.Length - 1] & 0x7F);   //  Ensure not a negative value
             return new BigInteger(bytesArray);
         }

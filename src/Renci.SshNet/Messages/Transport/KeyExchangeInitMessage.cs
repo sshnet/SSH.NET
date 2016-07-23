@@ -1,4 +1,4 @@
-﻿using Renci.SshNet.Security.Cryptography;
+﻿using Renci.SshNet.Abstractions;
 
 namespace Renci.SshNet.Messages.Transport
 {
@@ -14,7 +14,7 @@ namespace Renci.SshNet.Messages.Transport
         public KeyExchangeInitMessage()
         {
             var cookie = new byte[16];
-            HashAlgorithmFactory.GenerateRandom(cookie);
+            CryptoAbstraction.GenerateRandom(cookie);
             Cookie = cookie;
         }
 

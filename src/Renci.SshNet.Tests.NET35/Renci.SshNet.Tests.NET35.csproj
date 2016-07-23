@@ -65,6 +65,18 @@
     <Compile Include="..\..\test\Renci.SshNet.Shared.Tests\Abstractions\ThreadAbstraction_ExecuteThread.cs">
       <Link>Classes\Abstraction\ThreadAbstraction_ExecuteThread.cs</Link>
     </Compile>
+    <Compile Include="..\..\test\Renci.SshNet.Shared.Tests\ForwardedPortStatusTest_Started.cs">
+      <Link>Classes\ForwardedPortStatusTest_Started.cs</Link>
+    </Compile>
+    <Compile Include="..\..\test\Renci.SshNet.Shared.Tests\ForwardedPortStatusTest_Starting.cs">
+      <Link>Classes\ForwardedPortStatusTest_Starting.cs</Link>
+    </Compile>
+    <Compile Include="..\..\test\Renci.SshNet.Shared.Tests\ForwardedPortStatusTest_Stopped.cs">
+      <Link>Classes\ForwardedPortStatusTest_Stopped.cs</Link>
+    </Compile>
+    <Compile Include="..\..\test\Renci.SshNet.Shared.Tests\ForwardedPortStatusTest_Stopping.cs">
+      <Link>Classes\ForwardedPortStatusTest_Stopping.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelDirectTcpipTest.cs">
       <Link>Classes\Channels\ChannelDirectTcpipTest.cs</Link>
     </Compile>
@@ -1286,7 +1298,7 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" ProjectLinkReference="c45379b9-17b1-4e89-bc2e-6d41726413e8" />
+      <UserProperties ProjectLinkReference="c45379b9-17b1-4e89-bc2e-6d41726413e8" ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -13,6 +13,10 @@
     <Compile Include="$(MSBuildThisFileDirectory)Abstractions\DnsAbstraction_GetHostAddresses.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstractions\FileSystemAbstraction_EnumerateFiles.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Abstractions\ThreadAbstraction_ExecuteThread.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ForwardedPortStatusTest_Started.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ForwardedPortStatusTest_Starting.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ForwardedPortStatusTest_Stopped.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ForwardedPortStatusTest_Stopping.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SshMessageFactoryTest.cs" />
   </ItemGroup>
 </Project>

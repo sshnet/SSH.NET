@@ -17,6 +17,8 @@ namespace Renci.SshNet
 
         partial void InternalStart()
         {
+            InitializePendingChannelCountdown();
+
             var ip = IPAddress.Any;
             if (!string.IsNullOrEmpty(BoundHost))
             {
@@ -32,29 +34,10 @@ namespace Renci.SshNet
             Session.ErrorOccured += Session_ErrorOccured;
             Session.Disconnected += Session_Disconnected;
 
-            InitializePendingChannelCountdown();
+            StartAccept(null);
 
             // consider port started when we're listening for inbound connections
             _status = ForwardedPortStatus.Started;
-
-            try
-            {
-                StartAccept(null);
-            }
-            catch (ObjectDisposedException)
-            {
-                // AcceptAsync will throw an ObjectDisposedException when the server is closed before
-                // the listener has started accepting connections.
-                //
-                // this is only possible when the listener is stopped (from another thread) right
-                // after it was started.
-                StopPort(Session.ConnectionInfo.Timeout);
-            }
-            catch (Exception ex)
-            {
-                StopPort(Session.ConnectionInfo.Timeout);
-                RaiseExceptionEvent(ex);
-            }
         }
 
         private void StartAccept(SocketAsyncEventArgs e)

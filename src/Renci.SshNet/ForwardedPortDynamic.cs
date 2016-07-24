@@ -82,11 +82,10 @@ namespace Renci.SshNet
 
             // signal existing channels that the port is closing
             base.StopPort(timeout);
+            // prevent new requests from getting processed
+            StopListener();
             // wait for open channels to close
             InternalStop(timeout);
-            // prevent new requests from getting processed before we signal existing
-            // channels that the port is closing
-            StopListener();
             // mark port stopped
             _status = ForwardedPortStatus.Stopped;
         }

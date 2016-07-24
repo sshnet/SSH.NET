@@ -32,24 +32,7 @@ namespace Renci.SshNet
             // consider port started when we're listening for inbound connections
             _status = ForwardedPortStatus.Started;
 
-            try
-            {
-                StartAccept(null);
-            }
-            catch (ObjectDisposedException)
-            {
-                // AcceptAsync will throw an ObjectDisposedException when the server is closed before
-                // the listener has started accepting connections.
-                //
-                // this is only possible when the listener is stopped (from another thread) right
-                // after it was started.
-                StopPort(Session.ConnectionInfo.Timeout);
-            }
-            catch (Exception ex)
-            {
-                StopPort(Session.ConnectionInfo.Timeout);
-                RaiseExceptionEvent(ex);
-            }
+            StartAccept(null);
         }
 
         private void StartAccept(SocketAsyncEventArgs e)

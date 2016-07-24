@@ -40,42 +40,15 @@ namespace Renci.SshNet.Tests.Classes.Common
             var testBuffer = new byte[1024];
             new Random().NextBytes(testBuffer);
 
-            var outputBuffer = new byte[1024];
-
             using (var stream = new PipeStream())
             {
                 stream.Write(testBuffer, 0, testBuffer.Length);
-
                 Assert.AreEqual(stream.Length, testBuffer.Length);
-
                 stream.ReadByte();
-
                 Assert.AreEqual(stream.Length, testBuffer.Length - 1);
-
                 stream.ReadByte();
-
                 Assert.AreEqual(stream.Length, testBuffer.Length - 2);
             }
-        }
-        /// <summary>
-        ///A test for PipeStream Constructor
-        ///</summary>
-        [TestMethod]
-        public void PipeStreamConstructorTest()
-        {
-            PipeStream target = new PipeStream();
-            Assert.Inconclusive("TODO: Implement code to verify target");
-        }
-
-        /// <summary>
-        ///A test for Flush
-        ///</summary>
-        [TestMethod]
-        public void FlushTest()
-        {
-            PipeStream target = new PipeStream(); // TODO: Initialize to an appropriate value
-            target.Flush();
-            Assert.Inconclusive("A method that does not return a value cannot be verified.");
         }
 
         [TestMethod]
@@ -190,10 +163,16 @@ namespace Renci.SshNet.Tests.Classes.Common
         [TestMethod]
         public void LengthTest()
         {
-            PipeStream target = new PipeStream(); // TODO: Initialize to an appropriate value
-            long actual;
-            actual = target.Length;
-            Assert.Inconclusive("Verify the correctness of this test method.");
+            var target = new PipeStream();
+            Assert.AreEqual(0L, target.Length);
+            target.Write(new byte[] { 0x0a, 0x05, 0x0d }, 0, 2);
+            Assert.AreEqual(2L, target.Length);
+            target.WriteByte(0x0a);
+            Assert.AreEqual(3L, target.Length);
+            target.Read(new byte[2], 0, 2);
+            Assert.AreEqual(1L, target.Length);
+            target.ReadByte();
+            Assert.AreEqual(0L, target.Length);
         }
 
         /// <summary>
@@ -202,13 +181,10 @@ namespace Renci.SshNet.Tests.Classes.Common
         [TestMethod]
         public void MaxBufferLengthTest()
         {
-            PipeStream target = new PipeStream(); // TODO: Initialize to an appropriate value
-            long expected = 0; // TODO: Initialize to an appropriate value
-            long actual;
-            target.MaxBufferLength = expected;
-            actual = target.MaxBufferLength;
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verify the correctness of this test method.");
+            var target = new PipeStream();
+            Assert.AreEqual(200 * 1024 * 1024, target.MaxBufferLength);
+            target.MaxBufferLength = 0L;
+            Assert.AreEqual(0L, target.MaxBufferLength);
         }
 
         [TestMethod]

@@ -281,6 +281,9 @@
     <Compile Include="..\Renci.SshNet\ForwardedPortRemote.cs">
       <Link>ForwardedPortRemote.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\ForwardedPortStatus.cs">
+      <Link>ForwardedPortStatus.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\HashInfo.cs">
       <Link>HashInfo.cs</Link>
     </Compile>

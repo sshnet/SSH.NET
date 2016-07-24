@@ -137,30 +137,40 @@ namespace Renci.SshNet
             if (!ForwardedPortStatus.ToStarting(ref _status))
                 return;
 
-            Session.RegisterMessage("SSH_MSG_REQUEST_FAILURE");
-            Session.RegisterMessage("SSH_MSG_REQUEST_SUCCESS");
-            Session.RegisterMessage("SSH_MSG_CHANNEL_OPEN");
-
-            Session.RequestSuccessReceived += Session_RequestSuccess;
-            Session.RequestFailureReceived += Session_RequestFailure;
-            Session.ChannelOpenReceived += Session_ChannelOpening;
-
             InitializePendingChannelCountdown();
 
-            // send global request to start direct tcpip
-            Session.SendMessage(new GlobalRequestMessage(GlobalRequestName.TcpIpForward, true, BoundHost, BoundPort));
-            // wat for response on global request to start direct tcpip
-            Session.WaitOnHandle(_globalRequestResponse);
-
-            if (!_requestStatus)
+            try
             {
-                // when the request to start port forward was rejected, then we're no longer
+                Session.RegisterMessage("SSH_MSG_REQUEST_FAILURE");
+                Session.RegisterMessage("SSH_MSG_REQUEST_SUCCESS");
+                Session.RegisterMessage("SSH_MSG_CHANNEL_OPEN");
+
+                Session.RequestSuccessReceived += Session_RequestSuccess;
+                Session.RequestFailureReceived += Session_RequestFailure;
+                Session.ChannelOpenReceived += Session_ChannelOpening;
+
+                // send global request to start forwarding
+                Session.SendMessage(new GlobalRequestMessage(GlobalRequestName.TcpIpForward, true, BoundHost, BoundPort));
+                // wat for response on global request to start direct tcpip
+                Session.WaitOnHandle(_globalRequestResponse);
+
+                if (!_requestStatus)
+                {
+                    throw new SshException(string.Format(CultureInfo.CurrentCulture, "Port forwarding for '{0}' port '{1}' failed to start.", Host, Port));
+                }
+            }
+            catch (Exception)
+            {
+                // mark port stopped
+                _status = ForwardedPortStatus.Stopped;
+
+                // when the request to start port forward was rejected or failed, then we're no longer
                 // interested in these events
                 Session.RequestSuccessReceived -= Session_RequestSuccess;
                 Session.RequestFailureReceived -= Session_RequestFailure;
                 Session.ChannelOpenReceived -= Session_ChannelOpening;
 
-                throw new SshException(string.Format(CultureInfo.CurrentCulture, "Port forwarding for '{0}' port '{1}' failed to start.", Host, Port));
+                throw;
             }
 
             _status = ForwardedPortStatus.Started;

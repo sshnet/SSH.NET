@@ -1,6 +1,4 @@
-﻿using System.Linq;
-
-namespace Renci.SshNet
+﻿namespace Renci.SshNet
 {
     public partial class Session
     {

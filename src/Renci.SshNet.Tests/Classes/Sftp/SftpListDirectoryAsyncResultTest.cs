@@ -9,13 +9,14 @@ namespace Renci.SshNet.Tests
     ///This is a test class for SftpListDirectoryAsyncResultTest and is intended
     ///to contain all SftpListDirectoryAsyncResultTest Unit Tests
     ///</summary>
-    [TestClass()]
+    [TestClass]
     public class SftpListDirectoryAsyncResultTest : TestBase
     {
         /// <summary>
         ///A test for SftpListDirectoryAsyncResult Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder
         public void SftpListDirectoryAsyncResultConstructorTest()
         {
             AsyncCallback asyncCallback = null; // TODO: Initialize to an appropriate value

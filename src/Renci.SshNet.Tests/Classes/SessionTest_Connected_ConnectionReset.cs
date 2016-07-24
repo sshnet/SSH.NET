@@ -18,13 +18,13 @@ namespace Renci.SshNet.Tests.Classes
             Thread.Sleep(200);
         }
 
-        [TestMethodAttribute]
+        [TestMethod]
         public void IsConnectedShouldReturnFalse()
         {
             Assert.IsFalse(Session.IsConnected);
         }
 
-        [TestMethodAttribute]
+        [TestMethod]
         public void DisconnectShouldFinishImmediately()
         {
             var stopwatch = new Stopwatch();
@@ -73,7 +73,7 @@ namespace Renci.SshNet.Tests.Classes
             Assert.AreSame(innerException.Message, connectionException.Message);
         }
 
-        [TestMethodAttribute]
+        [TestMethod]
         public void DisposeShouldFinishImmediately()
         {
             var stopwatch = new Stopwatch();
@@ -85,7 +85,7 @@ namespace Renci.SshNet.Tests.Classes
             Assert.IsTrue(stopwatch.ElapsedMilliseconds < 500);
         }
 
-        [TestMethodAttribute]
+        [TestMethod]
         public void SendMessageShouldThrowSshConnectionException()
         {
             try
@@ -101,7 +101,7 @@ namespace Renci.SshNet.Tests.Classes
             }
         }
 
-        [TestMethodAttribute]
+        [TestMethod]
         public void ISession_MessageListenerCompletedShouldBeSignaled()
         {
             var session = (ISession) Session;
@@ -110,7 +110,7 @@ namespace Renci.SshNet.Tests.Classes
             Assert.IsTrue(session.MessageListenerCompleted.WaitOne());
         }
 
-        [TestMethodAttribute]
+        [TestMethod]
         public void ISession_SendMessageShouldThrowSshConnectionException()
         {
             var session = (ISession) Session;
@@ -128,7 +128,7 @@ namespace Renci.SshNet.Tests.Classes
             }
         }
 
-        [TestMethodAttribute]
+        [TestMethod]
         public void ISession_TrySendMessageShouldReturnFalse()
         {
             var session = (ISession) Session;
@@ -138,7 +138,7 @@ namespace Renci.SshNet.Tests.Classes
             Assert.IsFalse(actual);
         }
 
-        [TestMethodAttribute]
+        [TestMethod]
         public void ISession_WaitOnHandleShouldThrowSshConnectionExceptionDetailingConnectionReset()
         {
             var session = (ISession) Session;

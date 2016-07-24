@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -23,9 +22,9 @@ namespace Renci.SshNet.Tests.Classes
         private IPEndPoint _localEndpoint;
         private IPEndPoint _remoteEndpoint;
         private Socket _client;
-        private TimeSpan _expectedElapsedTime;
-        private TimeSpan _elapsedTimeOfStop;
-        private Stopwatch _stopwatch;
+        private TimeSpan _bindSleepTime;
+        private ManualResetEvent _channelBound;
+        private ManualResetEvent _channelBindCompleted;
 
         [TestInitialize]
         public void Setup()
@@ -47,74 +46,90 @@ namespace Renci.SshNet.Tests.Classes
                 _forwardedPort.Dispose();
                 _forwardedPort = null;
             }
+            if (_channelBound != null)
+            {
+                _channelBound.Dispose();
+                _channelBound = null;
+            }
+            if (_channelBindCompleted != null)
+            {
+                _channelBindCompleted.Dispose();
+                _channelBindCompleted = null;
+            }
         }
 
-        protected void Arrange()
+        private void CreateMocks()
         {
-            var random = new Random();
-            _closingRegister = new List<EventArgs>();
-            _exceptionRegister = new List<ExceptionEventArgs>();
-            _localEndpoint = new IPEndPoint(IPAddress.Loopback, 8122);
-            _remoteEndpoint = new IPEndPoint(IPAddress.Parse("193.168.1.5"),
-                random.Next(IPEndPoint.MinPort, IPEndPoint.MaxPort));
-            _expectedElapsedTime = TimeSpan.FromMilliseconds(random.Next(100, 500));
-            _forwardedPort = new ForwardedPortLocal(_localEndpoint.Address.ToString(), (uint)_localEndpoint.Port,
-                _remoteEndpoint.Address.ToString(), (uint)_remoteEndpoint.Port);
-
             _connectionInfoMock = new Mock<IConnectionInfo>(MockBehavior.Strict);
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);
             _channelMock = new Mock<IChannelDirectTcpip>(MockBehavior.Strict);
+        }
 
-            Socket handlerSocket = null;
+        private void SetupData()
+        {
+            var random = new Random();
 
+            _closingRegister = new List<EventArgs>();
+            _exceptionRegister = new List<ExceptionEventArgs>();
+            _localEndpoint = new IPEndPoint(IPAddress.Loopback, 8122);
+            _remoteEndpoint = new IPEndPoint(IPAddress.Parse("193.168.1.5"), random.Next(IPEndPoint.MinPort, IPEndPoint.MaxPort));
+            _bindSleepTime = TimeSpan.FromMilliseconds(random.Next(100, 500));
+            _channelBound = new ManualResetEvent(false);
+            _channelBindCompleted = new ManualResetEvent(false);
+
+            _forwardedPort = new ForwardedPortLocal(_localEndpoint.Address.ToString(), (uint) _localEndpoint.Port, _remoteEndpoint.Address.ToString(), (uint) _remoteEndpoint.Port);
+            _forwardedPort.Closing += (sender, args) => _closingRegister.Add(args);
+            _forwardedPort.Exception += (sender, args) => _exceptionRegister.Add(args);
+            _forwardedPort.Session = _sessionMock.Object;
+
+            _client = new Socket(_localEndpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp)
+                {
+                    ReceiveTimeout = 100,
+                    SendTimeout = 100,
+                    SendBufferSize = 0
+                };
+        }
+
+        private void SetupMocks()
+        {
             _connectionInfoMock.Setup(p => p.Timeout).Returns(TimeSpan.FromSeconds(15));
             _sessionMock.Setup(p => p.IsConnected).Returns(true);
             _sessionMock.Setup(p => p.ConnectionInfo).Returns(_connectionInfoMock.Object);
             _sessionMock.Setup(p => p.CreateChannelDirectTcpip()).Returns(_channelMock.Object);
-            _channelMock.Setup(p => p.Open(_forwardedPort.Host, _forwardedPort.Port, _forwardedPort, It.IsAny<Socket>())).Callback<string, uint, IForwardedPort, Socket>((address, port, forwardedPort, socket) => handlerSocket = socket);
+            _channelMock.Setup(p => p.Open(_forwardedPort.Host, _forwardedPort.Port, _forwardedPort, It.IsAny<Socket>()));
             _channelMock.Setup(p => p.Bind()).Callback(() =>
                 {
-                    Thread.Sleep(_expectedElapsedTime);
-                    if (handlerSocket != null && handlerSocket.Connected)
-                        handlerSocket.Shutdown(SocketShutdown.Both);
+                    _channelBound.Set();
+                    Thread.Sleep(_bindSleepTime);
+                    _channelBindCompleted.Set();
                 });
             _channelMock.Setup(p => p.Close());
             _channelMock.Setup(p => p.Dispose());
+        }
 
-            _forwardedPort.Closing += (sender, args) => _closingRegister.Add(args);
-            _forwardedPort.Exception += (sender, args) => _exceptionRegister.Add(args);
-            _forwardedPort.Session = _sessionMock.Object;
+        protected void Arrange()
+        {
+            CreateMocks();
+            SetupData();
+            SetupMocks();
+
+            // start port
             _forwardedPort.Start();
-
-            _client = new Socket(_localEndpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp)
-                {
-                    ReceiveTimeout = 500,
-                    SendTimeout = 500,
-                    SendBufferSize = 0
-                };
-
-            _stopwatch = new Stopwatch();
-            _stopwatch.Start();
-
+            // connect to port
             _client.Connect(_localEndpoint);
-
-            // give client socket time to establish connection
-            Thread.Sleep(50);
+            // wait for SOCKS client to bind to channel
+            Assert.IsTrue(_channelBound.WaitOne(TimeSpan.FromMilliseconds(200)));
         }
 
         protected void Act()
         {
             _forwardedPort.Stop();
-
-            _stopwatch.Stop();
-            _elapsedTimeOfStop = _stopwatch.Elapsed;
         }
 
         [TestMethod]
-        public void StopShouldBlockUntilBoundChannelHasClosed()
+        public void ShouldBlockUntilBindHasCompleted()
         {
-            Assert.IsTrue(_elapsedTimeOfStop >= _expectedElapsedTime, string.Format("Expected {0} or greater but was {1}.", _expectedElapsedTime.TotalMilliseconds, _elapsedTimeOfStop.TotalMilliseconds));
-            Assert.IsTrue(_elapsedTimeOfStop < _expectedElapsedTime.Add(TimeSpan.FromMilliseconds(200)));
+            Assert.IsTrue(_channelBindCompleted.WaitOne(0));
         }
 
         [TestMethod]
@@ -141,16 +156,24 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
-        public void ExistingConnectionShouldBeClosed()
+        public void BoundClientShouldNotBeClosed()
         {
+            // the forwarded port itself does not close the client connection; when the channel is closed properly
+            // it's the channel that will take care of closing the client connection
+            //
+            // we'll check if the client connection is still alive by attempting to receive, which should time out
+            // as the forwarded port (or its channel) are not sending anything
+
+            var buffer = new byte[1];
+
             try
             {
-                _client.Send(new byte[] { 0x0a }, 0, 1, SocketFlags.None);
+                _client.Receive(buffer);
                 Assert.Fail();
             }
             catch (SocketException ex)
             {
-                Assert.AreEqual(SocketError.ConnectionReset, ex.SocketErrorCode);
+                Assert.AreEqual(SocketError.TimedOut, ex.SocketErrorCode);
             }
         }
 

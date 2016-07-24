@@ -13,21 +13,21 @@ namespace Renci.SshNet
     /// </summary>
     public class ForwardedPortRemote : ForwardedPort, IDisposable
     {
+        private ForwardedPortStatus _status;
         private bool _requestStatus;
 
         private EventWaitHandle _globalRequestResponse = new AutoResetEvent(false);
-        private int _pendingRequests;
-        private bool _isStarted;
+        private CountdownEvent _pendingChannelCountdown;
 
         /// <summary>
-        /// Gets or sets a value indicating whether port forwarding is started.
+        /// Gets a value indicating whether port forwarding is started.
         /// </summary>
         /// <value>
         /// <c>true</c> if port forwarding is started; otherwise, <c>false</c>.
         /// </value>
         public override bool IsStarted
         {
-            get { return _isStarted; }
+            get { return _status == ForwardedPortStatus.Started; }
         }
 
         /// <summary>
@@ -97,6 +97,7 @@ namespace Renci.SshNet
             BoundPort = boundPort;
             HostAddress = hostAddress;
             Port = port;
+            _status = ForwardedPortStatus.Stopped;
         }
 
         /// <summary>
@@ -133,45 +134,56 @@ namespace Renci.SshNet
         /// </summary>
         protected override void StartPort()
         {
-            Session.RegisterMessage("SSH_MSG_REQUEST_FAILURE");
-            Session.RegisterMessage("SSH_MSG_REQUEST_SUCCESS");
-            Session.RegisterMessage("SSH_MSG_CHANNEL_OPEN");
+            if (!ForwardedPortStatus.ToStarting(ref _status))
+                return;
 
-            Session.RequestSuccessReceived += Session_RequestSuccess;
-            Session.RequestFailureReceived += Session_RequestFailure;
-            Session.ChannelOpenReceived += Session_ChannelOpening;
+            InitializePendingChannelCountdown();
 
-            // send global request to start direct tcpip
-            Session.SendMessage(new GlobalRequestMessage(GlobalRequestName.TcpIpForward, true, BoundHost, BoundPort));
-            // wat for response on global request to start direct tcpip
-            Session.WaitOnHandle(_globalRequestResponse);
-
-            if (!_requestStatus)
+            try
             {
-                // when the request to start port forward was rejected, then we're no longer
+                Session.RegisterMessage("SSH_MSG_REQUEST_FAILURE");
+                Session.RegisterMessage("SSH_MSG_REQUEST_SUCCESS");
+                Session.RegisterMessage("SSH_MSG_CHANNEL_OPEN");
+
+                Session.RequestSuccessReceived += Session_RequestSuccess;
+                Session.RequestFailureReceived += Session_RequestFailure;
+                Session.ChannelOpenReceived += Session_ChannelOpening;
+
+                // send global request to start forwarding
+                Session.SendMessage(new GlobalRequestMessage(GlobalRequestName.TcpIpForward, true, BoundHost, BoundPort));
+                // wat for response on global request to start direct tcpip
+                Session.WaitOnHandle(_globalRequestResponse);
+
+                if (!_requestStatus)
+                {
+                    throw new SshException(string.Format(CultureInfo.CurrentCulture, "Port forwarding for '{0}' port '{1}' failed to start.", Host, Port));
+                }
+            }
+            catch (Exception)
+            {
+                // mark port stopped
+                _status = ForwardedPortStatus.Stopped;
+
+                // when the request to start port forward was rejected or failed, then we're no longer
                 // interested in these events
                 Session.RequestSuccessReceived -= Session_RequestSuccess;
                 Session.RequestFailureReceived -= Session_RequestFailure;
                 Session.ChannelOpenReceived -= Session_ChannelOpening;
 
-                throw new SshException(string.Format(CultureInfo.CurrentCulture, "Port forwarding for '{0}' port '{1}' failed to start.", Host, Port));
+                throw;
             }
 
-            _isStarted = true;
+            _status = ForwardedPortStatus.Started;
         }
 
         /// <summary>
         /// Stops remote port forwarding.
         /// </summary>
-        /// <param name="timeout">The maximum amount of time to wait for pending requests to finish processing.</param>
+        /// <param name="timeout">The maximum amount of time to wait for the port to stop.</param>
         protected override void StopPort(TimeSpan timeout)
         {
-            // if the port not started, then there's nothing to stop
-            if (!IsStarted)
+            if (!ForwardedPortStatus.ToStopping(ref _status))
                 return;
-
-            // mark forwarded port stopped, this also causes open of new channels to be rejected
-            _isStarted = false;
 
             base.StopPort(timeout);
 
@@ -187,21 +199,11 @@ namespace Renci.SshNet
             Session.RequestFailureReceived -= Session_RequestFailure;
             Session.ChannelOpenReceived -= Session_ChannelOpening;
 
-            var startWaiting = DateTime.Now;
+            // wait for pending channels to close
+            _pendingChannelCountdown.Signal();
+            _pendingChannelCountdown.Wait(timeout);
 
-            while (true)
-            {
-                // break out of loop when all pending requests have been processed
-                if (Interlocked.CompareExchange(ref _pendingRequests, 0, 0) == 0)
-                    break;
-                // determine time elapsed since waiting for pending requests to finish
-                var elapsed = DateTime.Now - startWaiting;
-                // break out of loop when specified timeout has elapsed
-                if (elapsed >= timeout && timeout != SshNet.Session.InfiniteTimeSpan)
-                    break;
-                // give channels time to process pending requests
-                ThreadAbstraction.Sleep(50);
-            }
+            _status = ForwardedPortStatus.Stopped;
         }
 
         /// <summary>
@@ -223,7 +225,7 @@ namespace Renci.SshNet
                 //  Ensure this is the corresponding request
                 if (info.ConnectedAddress == BoundHost && info.ConnectedPort == BoundPort)
                 {
-                    if (!_isStarted)
+                    if (!IsStarted)
                     {
                         Session.SendMessage(new ChannelOpenFailureMessage(channelOpenMessage.LocalChannelNumber, "", ChannelOpenFailureMessage.AdministrativelyProhibited));
                         return;
@@ -231,13 +233,21 @@ namespace Renci.SshNet
 
                     ThreadAbstraction.ExecuteThread(() =>
                         {
-                            Interlocked.Increment(ref _pendingRequests);
+                            // capture the countdown event that we're adding a count to, as we need to make sure that we'll be signaling
+                            // that same instance; the instance field for the countdown event is re-initialize when the port is restarted
+                            // and that time there may still be pending requests
+                            var pendingChannelCountdown = _pendingChannelCountdown;
+
+                            pendingChannelCountdown.AddCount();
 
                             try
                             {
                                 RaiseRequestReceived(info.OriginatorAddress, info.OriginatorPort);
 
-                                using (var channel = Session.CreateChannelForwardedTcpip(channelOpenMessage.LocalChannelNumber, channelOpenMessage.InitialWindowSize, channelOpenMessage.MaximumPacketSize))
+                                using (
+                                    var channel =
+                                        Session.CreateChannelForwardedTcpip(channelOpenMessage.LocalChannelNumber,
+                                            channelOpenMessage.InitialWindowSize, channelOpenMessage.MaximumPacketSize))
                                 {
                                     channel.Exception += Channel_Exception;
                                     channel.Bind(new IPEndPoint(HostAddress, (int) Port), this);
@@ -250,10 +260,41 @@ namespace Renci.SshNet
                             }
                             finally
                             {
-                                Interlocked.Decrement(ref _pendingRequests);
+                                // take into account that CountdownEvent has since been disposed; when stopping the port we
+                                // wait for a given time for the channels to close, but once that timeout period has elapsed
+                                // the CountdownEvent will be disposed
+                                try
+                                {
+                                    pendingChannelCountdown.Signal();
+                                }
+                                catch (ObjectDisposedException)
+                                {
+                                }
                             }
                         });
                 }
+            }
+        }
+
+        /// <summary>
+        /// Initializes the <see cref="CountdownEvent"/>.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// When the port is started for the first time, a <see cref="CountdownEvent"/> is created with an initial count
+        /// of <c>1</c>.
+        /// </para>
+        /// <para>
+        /// On subsequent (re)starts, we'll dispose the current <see cref="CountdownEvent"/> and create a new one with
+        /// initial count of <c>1</c>.
+        /// </para>
+        /// </remarks>
+        private void InitializePendingChannelCountdown()
+        {
+            var original = Interlocked.Exchange(ref _pendingChannelCountdown, new CountdownEvent(1));
+            if (original != null)
+            {
+                original.Dispose();
             }
         }
 
@@ -308,17 +349,24 @@ namespace Renci.SshNet
                 var session = Session;
                 if (session != null)
                 {
+                    Session = null;
                     session.RequestSuccessReceived -= Session_RequestSuccess;
                     session.RequestFailureReceived -= Session_RequestFailure;
                     session.ChannelOpenReceived -= Session_ChannelOpening;
-                    Session = null;
                 }
 
                 var globalRequestResponse = _globalRequestResponse;
                 if (globalRequestResponse != null)
                 {
-                    globalRequestResponse.Dispose();
                     _globalRequestResponse = null;
+                    globalRequestResponse.Dispose();
+                }
+
+                var pendingRequestsCountdown = _pendingChannelCountdown;
+                if (pendingRequestsCountdown != null)
+                {
+                    _pendingChannelCountdown = null;
+                    pendingRequestsCountdown.Dispose();
                 }
             }
 

@@ -2,7 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Renci.SshNet.Common;
 
-namespace Renci.SshNet.Tests.Common
+namespace Renci.SshNet.Tests.Classes.Common
 {
     [TestClass]
     public class PipeStream_Flush_NoBytesRemainingAfterRead
@@ -32,6 +32,9 @@ namespace Renci.SshNet.Tests.Common
         protected void Act()
         {
             _pipeStream.Flush();
+
+            // give async read time to complete
+            _asyncReadResult.AsyncWaitHandle.WaitOne(100);
         }
 
         [TestMethod]

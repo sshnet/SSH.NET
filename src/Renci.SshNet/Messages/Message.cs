@@ -4,7 +4,6 @@ using Renci.SshNet.Common;
 using System.Globalization;
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Compression;
-using Renci.SshNet.Security.Cryptography;
 
 namespace Renci.SshNet.Messages
 {
@@ -100,7 +99,7 @@ namespace Renci.SshNet.Messages
 
                 // add padding bytes
                 var paddingBytes = new byte[paddingLength];
-                HashAlgorithmFactory.GenerateRandom(paddingBytes);
+                CryptoAbstraction.GenerateRandom(paddingBytes);
                 sshDataStream.Write(paddingBytes, 0, paddingLength);
 
                 var packetDataLength = GetPacketDataLength(messageLength, paddingLength);
@@ -140,7 +139,7 @@ namespace Renci.SshNet.Messages
 
                 // add padding bytes
                 var paddingBytes = new byte[paddingLength];
-                HashAlgorithmFactory.GenerateRandom(paddingBytes);
+                CryptoAbstraction.GenerateRandom(paddingBytes);
                 sshDataStream.Write(paddingBytes, 0, paddingLength);
             }
 

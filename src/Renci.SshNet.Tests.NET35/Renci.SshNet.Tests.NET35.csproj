@@ -65,6 +65,18 @@
     <Compile Include="..\..\test\Renci.SshNet.Shared.Tests\Abstractions\ThreadAbstraction_ExecuteThread.cs">
       <Link>Classes\Abstraction\ThreadAbstraction_ExecuteThread.cs</Link>
     </Compile>
+    <Compile Include="..\..\test\Renci.SshNet.Shared.Tests\ForwardedPortStatusTest_Started.cs">
+      <Link>Classes\ForwardedPortStatusTest_Started.cs</Link>
+    </Compile>
+    <Compile Include="..\..\test\Renci.SshNet.Shared.Tests\ForwardedPortStatusTest_Starting.cs">
+      <Link>Classes\ForwardedPortStatusTest_Starting.cs</Link>
+    </Compile>
+    <Compile Include="..\..\test\Renci.SshNet.Shared.Tests\ForwardedPortStatusTest_Stopped.cs">
+      <Link>Classes\ForwardedPortStatusTest_Stopped.cs</Link>
+    </Compile>
+    <Compile Include="..\..\test\Renci.SshNet.Shared.Tests\ForwardedPortStatusTest_Stopping.cs">
+      <Link>Classes\ForwardedPortStatusTest_Stopping.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelDirectTcpipTest.cs">
       <Link>Classes\Channels\ChannelDirectTcpipTest.cs</Link>
     </Compile>
@@ -251,6 +263,9 @@
     <Compile Include="..\Renci.SshNet.Tests\Classes\Common\ChannelRequestEventArgsTest.cs">
       <Link>Classes\Common\ChannelRequestEventArgsTest.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Common\CountdownEventTest.cs">
+      <Link>Classes\Common\CountdownEventTest.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Common\DerDataTest.cs">
       <Link>Classes\Common\DerDataTest.cs</Link>
     </Compile>
@@ -268,6 +283,18 @@
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Common\PipeStreamTest.cs">
       <Link>Classes\Common\PipeStreamTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Common\PipeStream_Close_BlockingRead.cs">
+      <Link>Classes\Common\PipeStream_Close_BlockingRead.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Common\PipeStream_Close_BlockingWrite.cs">
+      <Link>Classes\Common\PipeStream_Close_BlockingWrite.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Common\PipeStream_Flush_BytesRemainingAfterRead.cs">
+      <Link>Classes\Common\PipeStream_Flush_BytesRemainingAfterRead.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Common\PipeStream_Flush_NoBytesRemainingAfterRead.cs">
+      <Link>Classes\Common\PipeStream_Flush_NoBytesRemainingAfterRead.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Common\PortForwardEventArgsTest.cs">
       <Link>Classes\Common\PortForwardEventArgsTest.cs</Link>

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Renci.SshNet.Messages.Connection
+﻿namespace Renci.SshNet.Messages.Connection
 {
     /// <summary>
     /// Represents "break" type channel request information

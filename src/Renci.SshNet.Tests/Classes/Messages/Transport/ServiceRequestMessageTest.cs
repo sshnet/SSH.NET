@@ -9,13 +9,14 @@ namespace Renci.SshNet.Tests.Classes.Messages.Transport
     ///This is a test class for ServiceRequestMessageTest and is intended
     ///to contain all ServiceRequestMessageTest Unit Tests
     ///</summary>
-    [TestClass()]
+    [TestClass]
     public class ServiceRequestMessageTest
     {
         /// <summary>
         ///A test for ServiceRequestMessage Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder
         public void ServiceRequestMessageConstructorTest()
         {
             ServiceName serviceName = new ServiceName(); // TODO: Initialize to an appropriate value

@@ -15,6 +15,7 @@ namespace Renci.SshNet.Tests.Classes.Security
         ///A test for CertificateHostAlgorithm Constructor
         ///</summary>
         [TestMethod]
+        [Ignore] // placeholder
         public void CertificateHostAlgorithmConstructorTest()
         {
             string name = string.Empty; // TODO: Initialize to an appropriate value

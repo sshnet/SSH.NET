@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
+using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 using Renci.SshNet.Compression;
 using Renci.SshNet.Messages;
@@ -318,7 +319,7 @@ namespace Renci.SshNet.Security
         /// </returns>
         protected virtual byte[] Hash(byte[] hashData)
         {
-            using (var sha1 = HashAlgorithmFactory.CreateSHA1())
+            using (var sha1 = CryptoAbstraction.CreateSHA1())
             {
                 return sha1.ComputeHash(hashData, 0, hashData.Length);
             }
@@ -365,7 +366,7 @@ namespace Renci.SshNet.Security
         /// <param name="p">The p.</param>
         /// <param name="sessionId">The session id.</param>
         /// <returns></returns>
-        private byte[] GenerateSessionKey(BigInteger sharedKey, byte[] exchangeHash, char p, byte[] sessionId)
+        private static byte[] GenerateSessionKey(BigInteger sharedKey, byte[] exchangeHash, char p, byte[] sessionId)
         {
             return new _SessionKeyGeneration
             {

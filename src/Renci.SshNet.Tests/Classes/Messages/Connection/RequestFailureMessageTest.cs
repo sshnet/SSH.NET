@@ -1,6 +1,5 @@
 ﻿using Renci.SshNet.Messages.Connection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Messages.Connection
@@ -9,13 +8,14 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
     ///This is a test class for RequestFailureMessageTest and is intended
     ///to contain all RequestFailureMessageTest Unit Tests
     ///</summary>
-    [TestClass()]
+    [TestClass]
     public class RequestFailureMessageTest : TestBase
     {
         /// <summary>
         ///A test for RequestFailureMessage Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder
         public void RequestFailureMessageConstructorTest()
         {
             RequestFailureMessage target = new RequestFailureMessage();

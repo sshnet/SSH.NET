@@ -1112,7 +1112,7 @@ namespace Renci.SshNet.Sftp
             return Math.Min(bufferSize, maximumPacketSize) - lengthOfNonDataProtocolFields;
         }
 
-        private SshException GetSftpException(SftpStatusResponse response)
+        private static SshException GetSftpException(SftpStatusResponse response)
         {
             if (response.StatusCode == StatusCodes.Ok)
             {

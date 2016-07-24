@@ -9,13 +9,14 @@ namespace Renci.SshNet.Tests.Messages.Authentication
     ///This is a test class for FailureMessageTest and is intended
     ///to contain all FailureMessageTest Unit Tests
     ///</summary>
-    [TestClass()]
+    [TestClass]
     public class FailureMessageTest : TestBase
     {
         /// <summary>
         ///A test for FailureMessage Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder
         public void FailureMessageConstructorTest()
         {
             FailureMessage target = new FailureMessage();
@@ -25,7 +26,8 @@ namespace Renci.SshNet.Tests.Messages.Authentication
         /// <summary>
         ///A test for AllowedAuthentications
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder
         public void AllowedAuthenticationsTest()
         {
             FailureMessage target = new FailureMessage(); // TODO: Initialize to an appropriate value

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 
 namespace Renci.SshNet
 {
@@ -9,7 +8,7 @@ namespace Renci.SshNet
     /// </summary>
     public partial class ForwardedPortDynamic : ForwardedPort
     {
-        private EventWaitHandle _listenerCompleted;
+        private ForwardedPortStatus _status;
 
         /// <summary>
         /// Gets the bound host.
@@ -22,22 +21,21 @@ namespace Renci.SshNet
         public uint BoundPort { get; private set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether port forwarding is started.
+        /// Gets a value indicating whether port forwarding is started.
         /// </summary>
         /// <value>
         /// <c>true</c> if port forwarding is started; otherwise, <c>false</c>.
         /// </value>
         public override bool IsStarted
         {
-            get { return _listenerCompleted != null && !_listenerCompleted.WaitOne(0); }
+            get { return _status == ForwardedPortStatus.Started; }
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ForwardedPortDynamic"/> class.
         /// </summary>
         /// <param name="port">The port.</param>
-        public ForwardedPortDynamic(uint port)
-            : this(string.Empty, port)
+        public ForwardedPortDynamic(uint port) : this(string.Empty, port)
         {
         }
 
@@ -50,6 +48,7 @@ namespace Renci.SshNet
         {
             BoundHost = host;
             BoundPort = port;
+            _status = ForwardedPortStatus.Stopped;
         }
 
         /// <summary>
@@ -57,7 +56,18 @@ namespace Renci.SshNet
         /// </summary>
         protected override void StartPort()
         {
-            InternalStart();
+            if (!ForwardedPortStatus.ToStarting(ref _status))
+                return;
+
+            try
+            {
+                InternalStart();
+            }
+            catch (Exception)
+            {
+                _status = ForwardedPortStatus.Stopped;
+                throw;
+            }
         }
 
         /// <summary>
@@ -67,16 +77,17 @@ namespace Renci.SshNet
         /// <param name="timeout">The maximum amount of time to wait for pending requests to finish processing.</param>
         protected override void StopPort(TimeSpan timeout)
         {
-            if (IsStarted)
-            {
-                // prevent new requests from getting processed before we signal existing
-                // channels that the port is closing
-                StopListener();
-                // signal existing channels that the port is closing
-                base.StopPort(timeout);
-            }
+            if (!ForwardedPortStatus.ToStopping(ref _status))
+                return;
+
+            // signal existing channels that the port is closing
+            base.StopPort(timeout);
+            // prevent new requests from getting processed
+            StopListener();
             // wait for open channels to close
             InternalStop(timeout);
+            // mark port stopped
+            _status = ForwardedPortStatus.Stopped;
         }
 
         /// <summary>
@@ -133,17 +144,6 @@ namespace Renci.SshNet
                 return;
 
             base.Dispose(disposing);
-
-            if (disposing)
-            {
-                var listenerCompleted = _listenerCompleted;
-                if (listenerCompleted != null)
-                {
-                    listenerCompleted.Dispose();
-                    _listenerCompleted = null;
-                }
-            }
-
             InternalDispose(disposing);
 
             _isDisposed = true;

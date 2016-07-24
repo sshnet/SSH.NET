@@ -9,13 +9,14 @@ namespace Renci.SshNet.Tests.Classes.Sftp
     ///This is a test class for SftpUploadAsyncResultTest and is intended
     ///to contain all SftpUploadAsyncResultTest Unit Tests
     ///</summary>
-    [TestClass()]
+    [TestClass]
     public class SftpUploadAsyncResultTest : TestBase
     {
         /// <summary>
         ///A test for SftpUploadAsyncResult Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder
         public void SftpUploadAsyncResultConstructorTest()
         {
             AsyncCallback asyncCallback = null; // TODO: Initialize to an appropriate value

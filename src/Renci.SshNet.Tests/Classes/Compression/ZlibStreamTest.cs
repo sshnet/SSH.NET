@@ -10,13 +10,14 @@ namespace Renci.SshNet.Tests.Classes.Compression
     ///This is a test class for ZlibStreamTest and is intended
     ///to contain all ZlibStreamTest Unit Tests
     ///</summary>
-    [TestClass()]
+    [TestClass]
     public class ZlibStreamTest : TestBase
     {
         /// <summary>
         ///A test for ZlibStream Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder
         public void ZlibStreamConstructorTest()
         {
             Stream stream = null; // TODO: Initialize to an appropriate value
@@ -28,7 +29,8 @@ namespace Renci.SshNet.Tests.Classes.Compression
         /// <summary>
         ///A test for Write
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder
         public void WriteTest()
         {
             Stream stream = null; // TODO: Initialize to an appropriate value

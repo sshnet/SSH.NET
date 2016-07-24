@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Tests.Classes.Common
 {
@@ -95,6 +94,8 @@ namespace Renci.SshNet.Tests.Classes.Common
         }
 
         [TestMethod]
+        [TestCategory("LongRunning")]
+        [TestCategory("Performance")]
         public void Performance_LargeArray_All()
         {
             var value = CreateBuffer(50000);
@@ -105,6 +106,8 @@ namespace Renci.SshNet.Tests.Classes.Common
         }
 
         [TestMethod]
+        [TestCategory("LongRunning")]
+        [TestCategory("Performance")]
         public void Performance_LargeArray_LargeCount()
         {
             var value = CreateBuffer(50000);
@@ -115,6 +118,8 @@ namespace Renci.SshNet.Tests.Classes.Common
         }
 
         [TestMethod]
+        [TestCategory("LongRunning")]
+        [TestCategory("Performance")]
         public void Performance_LargeArray_SmallCount()
         {
             var value = CreateBuffer(50000);
@@ -125,6 +130,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         }
 
         [TestMethod]
+        [TestCategory("Performance")]
         public void Performance_LargeArray_ZeroCount()
         {
             var value = CreateBuffer(50000);
@@ -134,7 +140,7 @@ namespace Renci.SshNet.Tests.Classes.Common
             Performance(value, count, runs);
         }
 
-        private void Performance(byte[] value, int count, int runs)
+        private static void Performance(byte[] value, int count, int runs)
         {
             var stopWatch = new Stopwatch();
 

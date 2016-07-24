@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 
 namespace Renci.SshNet
 {
@@ -8,7 +7,7 @@ namespace Renci.SshNet
     /// </summary>
     public partial class ForwardedPortLocal : ForwardedPort, IDisposable
     {
-        private EventWaitHandle _listenerTaskCompleted;
+        private ForwardedPortStatus _status;
 
         /// <summary>
         /// Gets the bound host.
@@ -31,14 +30,14 @@ namespace Renci.SshNet
         public uint Port { get; private set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether port forwarding is started.
+        /// Gets a value indicating whether port forwarding is started.
         /// </summary>
         /// <value>
         /// <c>true</c> if port forwarding is started; otherwise, <c>false</c>.
         /// </value>
         public override bool IsStarted
         {
-            get { return _listenerTaskCompleted != null && !_listenerTaskCompleted.WaitOne(0); }
+            get { return _status == ForwardedPortStatus.Started; }
         }
 
         /// <summary>
@@ -98,6 +97,7 @@ namespace Renci.SshNet
             BoundPort = boundPort;
             Host = host;
             Port = port;
+            _status = ForwardedPortStatus.Stopped;
         }
 
         /// <summary>
@@ -105,7 +105,18 @@ namespace Renci.SshNet
         /// </summary>
         protected override void StartPort()
         {
-            InternalStart();
+            if (!ForwardedPortStatus.ToStarting(ref _status))
+                return;
+
+            try
+            {
+                InternalStart();
+            }
+            catch (Exception)
+            {
+                _status = ForwardedPortStatus.Stopped;
+                throw;
+            }
         }
 
         /// <summary>
@@ -115,16 +126,18 @@ namespace Renci.SshNet
         /// <param name="timeout">The maximum amount of time to wait for pending requests to finish processing.</param>
         protected override void StopPort(TimeSpan timeout)
         {
-            if (IsStarted)
-            {
-                // prevent new requests from getting processed before we signal existing
-                // channels that the port is closing
-                StopListener();
-                // signal existing channels that the port is closing
-                base.StopPort(timeout);
-            }
+            if (!ForwardedPortStatus.ToStopping(ref _status))
+                return;
+
+            // signal existing channels that the port is closing
+            base.StopPort(timeout);
             // wait for open channels to close
             InternalStop(timeout);
+            // prevent new requests from getting processed before we signal existing
+            // channels that the port is closing
+            StopListener();
+            // mark port stopped
+            _status = ForwardedPortStatus.Stopped;
         }
 
         /// <summary>
@@ -174,17 +187,6 @@ namespace Renci.SshNet
                 return;
 
             base.Dispose(disposing);
-
-            if (disposing)
-            {
-                var listenerTaskCompleted = _listenerTaskCompleted;
-                if (listenerTaskCompleted != null)
-                {
-                    listenerTaskCompleted.Dispose();
-                    _listenerTaskCompleted = null;
-                }
-            }
-
             InternalDispose(disposing);
 
             _isDisposed = true;

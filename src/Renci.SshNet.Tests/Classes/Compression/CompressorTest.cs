@@ -1,7 +1,5 @@
 ﻿using Renci.SshNet.Compression;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using Renci.SshNet;
 using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Compression

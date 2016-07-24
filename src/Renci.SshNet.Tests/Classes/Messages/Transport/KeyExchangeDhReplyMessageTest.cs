@@ -9,13 +9,14 @@ namespace Renci.SshNet.Tests.Classes.Messages.Transport
     ///This is a test class for KeyExchangeDhReplyMessageTest and is intended
     ///to contain all KeyExchangeDhReplyMessageTest Unit Tests
     ///</summary>
-    [TestClass()]
+    [TestClass]
     public class KeyExchangeDhReplyMessageTest : TestBase
     {
         /// <summary>
         ///A test for KeyExchangeDhReplyMessage Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder
         public void KeyExchangeDhReplyMessageConstructorTest()
         {
             KeyExchangeDhReplyMessage target = new KeyExchangeDhReplyMessage();

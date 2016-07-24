@@ -68,7 +68,8 @@ namespace Renci.SshNet.Tests.Classes.Messages.Transport
         /// <summary>
         ///A test for KeyExchangeInitMessage Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder
         public void KeyExchangeInitMessageConstructorTest()
         {
             KeyExchangeInitMessage target = new KeyExchangeInitMessage();
@@ -78,14 +79,14 @@ namespace Renci.SshNet.Tests.Classes.Messages.Transport
         /// <summary>
         ///A test for CompressionAlgorithmsClientToServer
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder
         public void CompressionAlgorithmsClientToServerTest()
         {
             KeyExchangeInitMessage target = new KeyExchangeInitMessage(); // TODO: Initialize to an appropriate value
             string[] expected = null; // TODO: Initialize to an appropriate value
-            string[] actual;
             target.CompressionAlgorithmsClientToServer = expected;
-            actual = target.CompressionAlgorithmsClientToServer;
+            var actual = target.CompressionAlgorithmsClientToServer;
             Assert.AreEqual(expected, actual);
             Assert.Inconclusive("Verify the correctness of this test method.");
         }
@@ -93,14 +94,14 @@ namespace Renci.SshNet.Tests.Classes.Messages.Transport
         /// <summary>
         ///A test for CompressionAlgorithmsServerToClient
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder
         public void CompressionAlgorithmsServerToClientTest()
         {
             KeyExchangeInitMessage target = new KeyExchangeInitMessage(); // TODO: Initialize to an appropriate value
             string[] expected = null; // TODO: Initialize to an appropriate value
-            string[] actual;
             target.CompressionAlgorithmsServerToClient = expected;
-            actual = target.CompressionAlgorithmsServerToClient;
+            var actual = target.CompressionAlgorithmsServerToClient;
             Assert.AreEqual(expected, actual);
             Assert.Inconclusive("Verify the correctness of this test method.");
         }
@@ -108,14 +109,14 @@ namespace Renci.SshNet.Tests.Classes.Messages.Transport
         /// <summary>
         ///A test for EncryptionAlgorithmsClientToServer
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder
         public void EncryptionAlgorithmsClientToServerTest()
         {
             KeyExchangeInitMessage target = new KeyExchangeInitMessage(); // TODO: Initialize to an appropriate value
             string[] expected = null; // TODO: Initialize to an appropriate value
-            string[] actual;
             target.EncryptionAlgorithmsClientToServer = expected;
-            actual = target.EncryptionAlgorithmsClientToServer;
+            var actual = target.EncryptionAlgorithmsClientToServer;
             Assert.AreEqual(expected, actual);
             Assert.Inconclusive("Verify the correctness of this test method.");
         }
@@ -123,14 +124,14 @@ namespace Renci.SshNet.Tests.Classes.Messages.Transport
         /// <summary>
         ///A test for EncryptionAlgorithmsServerToClient
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder
         public void EncryptionAlgorithmsServerToClientTest()
         {
             KeyExchangeInitMessage target = new KeyExchangeInitMessage(); // TODO: Initialize to an appropriate value
             string[] expected = null; // TODO: Initialize to an appropriate value
-            string[] actual;
             target.EncryptionAlgorithmsServerToClient = expected;
-            actual = target.EncryptionAlgorithmsServerToClient;
+            var actual = target.EncryptionAlgorithmsServerToClient;
             Assert.AreEqual(expected, actual);
             Assert.Inconclusive("Verify the correctness of this test method.");
         }
@@ -138,14 +139,14 @@ namespace Renci.SshNet.Tests.Classes.Messages.Transport
         /// <summary>
         ///A test for FirstKexPacketFollows
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder
         public void FirstKexPacketFollowsTest()
         {
             KeyExchangeInitMessage target = new KeyExchangeInitMessage(); // TODO: Initialize to an appropriate value
             bool expected = false; // TODO: Initialize to an appropriate value
-            bool actual;
             target.FirstKexPacketFollows = expected;
-            actual = target.FirstKexPacketFollows;
+            var actual = target.FirstKexPacketFollows;
             Assert.AreEqual(expected, actual);
             Assert.Inconclusive("Verify the correctness of this test method.");
         }
@@ -153,14 +154,14 @@ namespace Renci.SshNet.Tests.Classes.Messages.Transport
         /// <summary>
         ///A test for KeyExchangeAlgorithms
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder
         public void KeyExchangeAlgorithmsTest()
         {
             KeyExchangeInitMessage target = new KeyExchangeInitMessage(); // TODO: Initialize to an appropriate value
             string[] expected = null; // TODO: Initialize to an appropriate value
-            string[] actual;
             target.KeyExchangeAlgorithms = expected;
-            actual = target.KeyExchangeAlgorithms;
+            var actual = target.KeyExchangeAlgorithms;
             Assert.AreEqual(expected, actual);
             Assert.Inconclusive("Verify the correctness of this test method.");
         }
@@ -168,14 +169,14 @@ namespace Renci.SshNet.Tests.Classes.Messages.Transport
         /// <summary>
         ///A test for LanguagesClientToServer
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder
         public void LanguagesClientToServerTest()
         {
             KeyExchangeInitMessage target = new KeyExchangeInitMessage(); // TODO: Initialize to an appropriate value
             string[] expected = null; // TODO: Initialize to an appropriate value
-            string[] actual;
             target.LanguagesClientToServer = expected;
-            actual = target.LanguagesClientToServer;
+            var actual = target.LanguagesClientToServer;
             Assert.AreEqual(expected, actual);
             Assert.Inconclusive("Verify the correctness of this test method.");
         }
@@ -183,14 +184,14 @@ namespace Renci.SshNet.Tests.Classes.Messages.Transport
         /// <summary>
         ///A test for LanguagesServerToClient
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder
         public void LanguagesServerToClientTest()
         {
             KeyExchangeInitMessage target = new KeyExchangeInitMessage(); // TODO: Initialize to an appropriate value
             string[] expected = null; // TODO: Initialize to an appropriate value
-            string[] actual;
             target.LanguagesServerToClient = expected;
-            actual = target.LanguagesServerToClient;
+            var actual = target.LanguagesServerToClient;
             Assert.AreEqual(expected, actual);
             Assert.Inconclusive("Verify the correctness of this test method.");
         }
@@ -198,14 +199,14 @@ namespace Renci.SshNet.Tests.Classes.Messages.Transport
         /// <summary>
         ///A test for MacAlgorithmsClientToServer
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder
         public void MacAlgorithmsClientToServerTest()
         {
             KeyExchangeInitMessage target = new KeyExchangeInitMessage(); // TODO: Initialize to an appropriate value
             string[] expected = null; // TODO: Initialize to an appropriate value
-            string[] actual;
             target.MacAlgorithmsClientToServer = expected;
-            actual = target.MacAlgorithmsClientToServer;
+            var actual = target.MacAlgorithmsClientToServer;
             Assert.AreEqual(expected, actual);
             Assert.Inconclusive("Verify the correctness of this test method.");
         }
@@ -213,14 +214,14 @@ namespace Renci.SshNet.Tests.Classes.Messages.Transport
         /// <summary>
         ///A test for MacAlgorithmsServerToClient
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder
         public void MacAlgorithmsServerToClientTest()
         {
             KeyExchangeInitMessage target = new KeyExchangeInitMessage(); // TODO: Initialize to an appropriate value
             string[] expected = null; // TODO: Initialize to an appropriate value
-            string[] actual;
             target.MacAlgorithmsServerToClient = expected;
-            actual = target.MacAlgorithmsServerToClient;
+            var actual = target.MacAlgorithmsServerToClient;
             Assert.AreEqual(expected, actual);
             Assert.Inconclusive("Verify the correctness of this test method.");
         }
@@ -228,14 +229,14 @@ namespace Renci.SshNet.Tests.Classes.Messages.Transport
         /// <summary>
         ///A test for Reserved
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder
         public void ReservedTest()
         {
             KeyExchangeInitMessage target = new KeyExchangeInitMessage(); // TODO: Initialize to an appropriate value
             uint expected = 0; // TODO: Initialize to an appropriate value
-            uint actual;
             target.Reserved = expected;
-            actual = target.Reserved;
+            var actual = target.Reserved;
             Assert.AreEqual(expected, actual);
             Assert.Inconclusive("Verify the correctness of this test method.");
         }
@@ -243,14 +244,14 @@ namespace Renci.SshNet.Tests.Classes.Messages.Transport
         /// <summary>
         ///A test for ServerHostKeyAlgorithms
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder
         public void ServerHostKeyAlgorithmsTest()
         {
             KeyExchangeInitMessage target = new KeyExchangeInitMessage(); // TODO: Initialize to an appropriate value
             string[] expected = null; // TODO: Initialize to an appropriate value
-            string[] actual;
             target.ServerHostKeyAlgorithms = expected;
-            actual = target.ServerHostKeyAlgorithms;
+            var actual = target.ServerHostKeyAlgorithms;
             Assert.AreEqual(expected, actual);
             Assert.Inconclusive("Verify the correctness of this test method.");
         }

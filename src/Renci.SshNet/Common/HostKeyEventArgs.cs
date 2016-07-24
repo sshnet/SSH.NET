@@ -1,5 +1,5 @@
 ﻿using System;
-using Renci.SshNet.Security.Cryptography;
+using Renci.SshNet.Abstractions;
 using Renci.SshNet.Security;
 
 namespace Renci.SshNet.Common
@@ -54,7 +54,7 @@ namespace Renci.SshNet.Common
 
             KeyLength = host.Key.KeyLength;
 
-            using (var md5 = HashAlgorithmFactory.CreateMD5())
+            using (var md5 = CryptoAbstraction.CreateMD5())
             {
                 FingerPrint = md5.ComputeHash(host.Data);
             }

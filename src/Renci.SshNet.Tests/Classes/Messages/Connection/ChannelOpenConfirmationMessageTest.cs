@@ -9,13 +9,14 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
     ///This is a test class for ChannelOpenConfirmationMessageTest and is intended
     ///to contain all ChannelOpenConfirmationMessageTest Unit Tests
     ///</summary>
-    [TestClass()]
+    [TestClass]
     public class ChannelOpenConfirmationMessageTest : TestBase
     {
         /// <summary>
         ///A test for ChannelOpenConfirmationMessage Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder
         public void ChannelOpenConfirmationMessageConstructorTest()
         {
             ChannelOpenConfirmationMessage target = new ChannelOpenConfirmationMessage();
@@ -25,7 +26,8 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
         /// <summary>
         ///A test for ChannelOpenConfirmationMessage Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder
         public void ChannelOpenConfirmationMessageConstructorTest1()
         {
             uint localChannelNumber = 0; // TODO: Initialize to an appropriate value

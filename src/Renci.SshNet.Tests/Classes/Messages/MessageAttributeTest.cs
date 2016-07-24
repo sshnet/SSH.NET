@@ -15,7 +15,8 @@ namespace Renci.SshNet.Tests.Classes.Messages
         /// <summary>
         ///A test for MessageAttribute Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder
         public void MessageAttributeConstructorTest()
         {
             string name = string.Empty; // TODO: Initialize to an appropriate value
@@ -27,16 +28,16 @@ namespace Renci.SshNet.Tests.Classes.Messages
         /// <summary>
         ///A test for Name
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder
         public void NameTest()
         {
             string name = string.Empty; // TODO: Initialize to an appropriate value
             byte number = 0; // TODO: Initialize to an appropriate value
             MessageAttribute target = new MessageAttribute(name, number); // TODO: Initialize to an appropriate value
             string expected = string.Empty; // TODO: Initialize to an appropriate value
-            string actual;
             target.Name = expected;
-            actual = target.Name;
+            var actual = target.Name;
             Assert.AreEqual(expected, actual);
             Assert.Inconclusive("Verify the correctness of this test method.");
         }
@@ -44,16 +45,16 @@ namespace Renci.SshNet.Tests.Classes.Messages
         /// <summary>
         ///A test for Number
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder
         public void NumberTest()
         {
             string name = string.Empty; // TODO: Initialize to an appropriate value
             byte number = 0; // TODO: Initialize to an appropriate value
             MessageAttribute target = new MessageAttribute(name, number); // TODO: Initialize to an appropriate value
             byte expected = 0; // TODO: Initialize to an appropriate value
-            byte actual;
             target.Number = expected;
-            actual = target.Number;
+            var actual = target.Number;
             Assert.AreEqual(expected, actual);
             Assert.Inconclusive("Verify the correctness of this test method.");
         }

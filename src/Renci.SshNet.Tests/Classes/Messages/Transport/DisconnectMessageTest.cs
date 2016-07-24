@@ -9,13 +9,14 @@ namespace Renci.SshNet.Tests.Classes.Messages.Transport
     ///This is a test class for DisconnectMessageTest and is intended
     ///to contain all DisconnectMessageTest Unit Tests
     ///</summary>
-    [TestClass()]
+    [TestClass]
     public class DisconnectMessageTest : TestBase
     {
         /// <summary>
         ///A test for DisconnectMessage Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder
         public void DisconnectMessageConstructorTest()
         {
             DisconnectMessage target = new DisconnectMessage();
@@ -25,7 +26,8 @@ namespace Renci.SshNet.Tests.Classes.Messages.Transport
         /// <summary>
         ///A test for DisconnectMessage Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder
         public void DisconnectMessageConstructorTest1()
         {
             DisconnectReason reasonCode = new DisconnectReason(); // TODO: Initialize to an appropriate value

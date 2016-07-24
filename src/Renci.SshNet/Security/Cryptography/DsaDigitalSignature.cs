@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Security.Cryptography;
+using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Security.Cryptography
@@ -25,7 +26,7 @@ namespace Renci.SshNet.Security.Cryptography
 
             _key = key;
 
-            _hash = HashAlgorithmFactory.CreateSHA1();
+            _hash = CryptoAbstraction.CreateSHA1();
         }
 
         /// <summary>

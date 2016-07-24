@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Security.Cryptography;
+using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 using Renci.SshNet.Security.Cryptography.Ciphers;
 
@@ -19,7 +20,7 @@ namespace Renci.SshNet.Security.Cryptography
         public RsaDigitalSignature(RsaKey rsaKey)
             : base(new ObjectIdentifier(1, 3, 14, 3, 2, 26), new RsaCipher(rsaKey))
         {
-            _hash = HashAlgorithmFactory.CreateSHA1();
+            _hash = CryptoAbstraction.CreateSHA1();
         }
 
         /// <summary>

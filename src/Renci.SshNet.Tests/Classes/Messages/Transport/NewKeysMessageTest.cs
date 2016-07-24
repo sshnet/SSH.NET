@@ -9,13 +9,14 @@ namespace Renci.SshNet.Tests.Classes.Messages.Transport
     ///This is a test class for NewKeysMessageTest and is intended
     ///to contain all NewKeysMessageTest Unit Tests
     ///</summary>
-    [TestClass()]
+    [TestClass]
     public class NewKeysMessageTest : TestBase
     {
         /// <summary>
         ///A test for NewKeysMessage Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder
         public void NewKeysMessageConstructorTest()
         {
             NewKeysMessage target = new NewKeysMessage();

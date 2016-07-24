@@ -341,9 +341,6 @@ namespace Renci.SshNet.Channels
         /// </summary>
         public void Close()
         {
-#if DEBUG_GERT
-            Console.WriteLine("ID: " + Thread.CurrentThread.ManagedThreadId + " | Channel.Close");
-#endif // DEBUG_GERT
             Close(true);
         }
 
@@ -407,10 +404,6 @@ namespace Renci.SshNet.Channels
         protected virtual void OnClose()
         {
             _closeMessageReceived = true;
-
-#if DEBUG_GERT
-            Console.WriteLine("ID: " + Thread.CurrentThread.ManagedThreadId + " | Channel.OnClose()");
-#endif // DEBUG_GERT
 
             // close the channel
             Close(false);
@@ -819,12 +812,12 @@ namespace Renci.SshNet.Channels
             } while (true);
         }
 
-        private InvalidOperationException CreateRemoteChannelInfoNotAvailableException()
+        private static InvalidOperationException CreateRemoteChannelInfoNotAvailableException()
         {
             throw new InvalidOperationException("The channel has not been opened, or the open has not yet been confirmed.");
         }
 
-        private InvalidOperationException CreateChannelClosedException()
+        private static InvalidOperationException CreateChannelClosedException()
         {
             throw new InvalidOperationException("The channel is closed.");
         }
@@ -853,15 +846,12 @@ namespace Renci.SshNet.Channels
 
             if (disposing)
             {
-#if DEBUG_GERT
-                Console.WriteLine("ID: " + Thread.CurrentThread.ManagedThreadId + " | Channel.Dipose(bool)");
-#endif // DEBUG_GERT
-
                 Close(false);
 
                 var session = _session;
                 if (session != null)
                 {
+                    _session = null;
                     session.ChannelWindowAdjustReceived -= OnChannelWindowAdjust;
                     session.ChannelDataReceived -= OnChannelData;
                     session.ChannelExtendedDataReceived -= OnChannelExtendedData;
@@ -872,28 +862,27 @@ namespace Renci.SshNet.Channels
                     session.ChannelFailureReceived -= OnChannelFailure;
                     session.ErrorOccured -= Session_ErrorOccured;
                     session.Disconnected -= Session_Disconnected;
-                    _session = null;
                 }
 
                 var channelClosedWaitHandle = _channelClosedWaitHandle;
                 if (channelClosedWaitHandle != null)
                 {
-                    channelClosedWaitHandle.Dispose();
                     _channelClosedWaitHandle = null;
+                    channelClosedWaitHandle.Dispose();
                 }
 
                 var channelServerWindowAdjustWaitHandle = _channelServerWindowAdjustWaitHandle;
                 if (channelServerWindowAdjustWaitHandle != null)
                 {
-                    channelServerWindowAdjustWaitHandle.Dispose();
                     _channelServerWindowAdjustWaitHandle = null;
+                    channelServerWindowAdjustWaitHandle.Dispose();
                 }
 
                 var errorOccuredWaitHandle = _errorOccuredWaitHandle;
                 if (errorOccuredWaitHandle != null)
                 {
-                    errorOccuredWaitHandle.Dispose();
                     _errorOccuredWaitHandle = null;
+                    errorOccuredWaitHandle.Dispose();
                 }
 
                 _isDisposed = true;

@@ -31,7 +31,7 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether port forwarding is started.
+        /// Gets a value indicating whether port forwarding is started.
         /// </summary>
         /// <value>
         /// <c>true</c> if port forwarding is started; otherwise, <c>false</c>.
@@ -73,10 +73,10 @@ namespace Renci.SshNet
         {
             CheckDisposed();
 
-            if (!IsStarted)
-                return;
-
-            StopPort(Session.ConnectionInfo.Timeout);
+            if (IsStarted)
+            {
+                StopPort(Session.ConnectionInfo.Timeout);
+            }
         }
 
         /// <summary>
@@ -93,9 +93,10 @@ namespace Renci.SshNet
         {
             RaiseClosing();
 
-            if (Session != null)
+            var session = Session;
+            if (session != null)
             {
-                Session.ErrorOccured -= Session_ErrorOccured;
+                session.ErrorOccured -= Session_ErrorOccured;
             }
         }
 
@@ -107,10 +108,10 @@ namespace Renci.SshNet
         {
             if (disposing)
             {
-                if (Session != null)
+                var session = Session;
+                if (session != null)
                 {
-                    Session.ErrorOccured -= Session_ErrorOccured;
-                    StopPort(Session.ConnectionInfo.Timeout);
+                    StopPort(session.ConnectionInfo.Timeout);
                     Session = null;
                 }
             }

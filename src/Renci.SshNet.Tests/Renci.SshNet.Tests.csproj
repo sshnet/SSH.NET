@@ -18,7 +18,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;FEATURE_THREAD_COUNTDOWNEVENT</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -26,7 +26,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;FEATURE_THREAD_COUNTDOWNEVENT</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>0</WarningLevel>
   </PropertyGroup>
@@ -72,6 +72,18 @@
     </Compile>
     <Compile Include="..\..\test\Renci.SshNet.Shared.Tests\Abstractions\ThreadAbstraction_ExecuteThread.cs">
       <Link>Classes\Abstractions\ThreadAbstraction_ExecuteThread.cs</Link>
+    </Compile>
+    <Compile Include="..\..\test\Renci.SshNet.Shared.Tests\ForwardedPortStatusTest_Started.cs">
+      <Link>Classes\ForwardedPortStatusTest_Started.cs</Link>
+    </Compile>
+    <Compile Include="..\..\test\Renci.SshNet.Shared.Tests\ForwardedPortStatusTest_Starting.cs">
+      <Link>Classes\ForwardedPortStatusTest_Starting.cs</Link>
+    </Compile>
+    <Compile Include="..\..\test\Renci.SshNet.Shared.Tests\ForwardedPortStatusTest_Stopped.cs">
+      <Link>Classes\ForwardedPortStatusTest_Stopped.cs</Link>
+    </Compile>
+    <Compile Include="..\..\test\Renci.SshNet.Shared.Tests\ForwardedPortStatusTest_Stopping.cs">
+      <Link>Classes\ForwardedPortStatusTest_Stopping.cs</Link>
     </Compile>
     <Compile Include="..\..\test\Renci.SshNet.Shared.Tests\SshMessageFactoryTest.cs">
       <Link>Classes\SshMessageFactoryTest.cs</Link>
@@ -131,6 +143,7 @@
     <Compile Include="Classes\ClientAuthenticationTest_Success_MultiList_SameAllowedAuthenticationsAfterPartialSuccess.cs" />
     <Compile Include="Classes\ClientAuthenticationTest_Success_MultiList_SkipFailedAuthenticationMethod.cs" />
     <Compile Include="Classes\ClientAuthenticationTest_Success_SingleList_SameAllowedAuthenticationAfterPartialSuccess.cs" />
+    <Compile Include="Classes\Common\CountdownEventTest.cs" />
     <Compile Include="Classes\Common\ExtensionsTest_Concat.cs" />
     <Compile Include="Classes\Common\ExtensionsTest_IsEqualTo_ByteArray.cs" />
     <Compile Include="Classes\Common\ExtensionsTest_Take_Count.cs" />
@@ -140,6 +153,7 @@
     <Compile Include="Classes\ConnectionInfoTest_Authenticate_Failure.cs" />
     <Compile Include="Classes\ConnectionInfoTest_Authenticate_Success.cs" />
     <Compile Include="Classes\ForwardedPortDynamicTest_Dispose_PortStarted_ChannelBound.cs" />
+    <Compile Include="Classes\ForwardedPortDynamicTest_SessionErrorOccurred_ChannelBound.cs" />
     <Compile Include="Classes\ForwardedPortDynamicTest_Start_SessionNotConnected.cs" />
     <Compile Include="Classes\ForwardedPortDynamicTest_Start_SessionNull.cs" />
     <Compile Include="Classes\ForwardedPortDynamicTest_Stop_PortDisposed.cs" />
@@ -444,10 +458,10 @@
     <Compile Include="Common\AsyncSocketListener.cs" />
     <Compile Include="Common\HttpProxyStub.cs" />
     <Compile Include="Common\HttpRequest.cs" />
-    <Compile Include="Common\PipeStream_Close_BlockingRead.cs" />
-    <Compile Include="Common\PipeStream_Close_BlockingWrite.cs" />
-    <Compile Include="Common\PipeStream_Flush_BytesRemainingAfterRead.cs" />
-    <Compile Include="Common\PipeStream_Flush_NoBytesRemainingAfterRead.cs" />
+    <Compile Include="Classes\Common\PipeStream_Close_BlockingRead.cs" />
+    <Compile Include="Classes\Common\PipeStream_Close_BlockingWrite.cs" />
+    <Compile Include="Classes\Common\PipeStream_Flush_BytesRemainingAfterRead.cs" />
+    <Compile Include="Classes\Common\PipeStream_Flush_NoBytesRemainingAfterRead.cs" />
     <Compile Include="Common\TestBase.cs" />
     <Compile Include="Classes\Compression\CompressorTest.cs" />
     <Compile Include="Classes\Common\DerDataTest.cs" />

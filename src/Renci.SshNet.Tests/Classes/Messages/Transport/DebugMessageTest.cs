@@ -1,6 +1,5 @@
 ﻿using Renci.SshNet.Messages.Transport;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Messages.Transport
@@ -9,13 +8,14 @@ namespace Renci.SshNet.Tests.Classes.Messages.Transport
     ///This is a test class for DebugMessageTest and is intended
     ///to contain all DebugMessageTest Unit Tests
     ///</summary>
-    [TestClass()]
+    [TestClass]
     public class DebugMessageTest : TestBase
     {
         /// <summary>
         ///A test for DebugMessage Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder
         public void DebugMessageConstructorTest()
         {
             DebugMessage target = new DebugMessage();

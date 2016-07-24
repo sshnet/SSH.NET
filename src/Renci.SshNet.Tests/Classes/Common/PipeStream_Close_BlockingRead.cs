@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Renci.SshNet.Common;
 
-namespace Renci.SshNet.Tests.Common
+namespace Renci.SshNet.Tests.Classes.Common
 {
     [TestClass]
     public class PipeStream_Close_BlockingRead
@@ -34,12 +33,15 @@ namespace Renci.SshNet.Tests.Common
         protected void Act()
         {
             _pipeStream.Close();
+
+            // give async read time to complete
+            _asyncReadResult.AsyncWaitHandle.WaitOne(100);
         }
 
         [TestMethod]
         public void BlockingReadShouldHaveBeenInterrupted()
         {
-            Assert.IsTrue(_asyncReadResult.AsyncWaitHandle.WaitOne(200));
+            Assert.IsTrue(_asyncReadResult.IsCompleted);
         }
 
         [TestMethod]

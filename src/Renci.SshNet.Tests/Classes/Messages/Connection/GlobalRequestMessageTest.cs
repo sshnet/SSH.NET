@@ -9,13 +9,14 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
     ///This is a test class for GlobalRequestMessageTest and is intended
     ///to contain all GlobalRequestMessageTest Unit Tests
     ///</summary>
-    [TestClass()]
+    [TestClass]
     public class GlobalRequestMessageTest : TestBase
     {
         /// <summary>
         ///A test for GlobalRequestMessage Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder
         public void GlobalRequestMessageConstructorTest()
         {
             GlobalRequestMessage target = new GlobalRequestMessage();
@@ -25,7 +26,8 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
         /// <summary>
         ///A test for GlobalRequestMessage Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder
         public void GlobalRequestMessageConstructorTest2()
         {
             GlobalRequestName requestName = new GlobalRequestName(); // TODO: Initialize to an appropriate value

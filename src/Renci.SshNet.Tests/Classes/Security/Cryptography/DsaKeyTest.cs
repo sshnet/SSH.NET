@@ -9,13 +9,14 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
     ///This is a test class for DsaKeyTest and is intended
     ///to contain all DsaKeyTest Unit Tests
     ///</summary>
-    [TestClass()]
+    [TestClass]
     public class DsaKeyTest : TestBase
     {
         /// <summary>
         ///A test for DsaKey Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void DsaKeyConstructorTest()
         {
             DsaKey target = new DsaKey();
@@ -37,7 +38,8 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
         /// <summary>
         ///A test for DsaKey Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void DsaKeyConstructorTest2()
         {
             BigInteger p = new BigInteger(); // TODO: Initialize to an appropriate value
@@ -52,7 +54,8 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
         /// <summary>
         ///A test for Dispose
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void DisposeTest()
         {
             DsaKey target = new DsaKey(); // TODO: Initialize to an appropriate value
@@ -63,7 +66,8 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
         /// <summary>
         ///A test for G
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void GTest()
         {
             DsaKey target = new DsaKey(); // TODO: Initialize to an appropriate value
@@ -75,7 +79,8 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
         /// <summary>
         ///A test for KeyLength
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void KeyLengthTest()
         {
             DsaKey target = new DsaKey(); // TODO: Initialize to an appropriate value
@@ -87,7 +92,8 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
         /// <summary>
         ///A test for P
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void PTest()
         {
             DsaKey target = new DsaKey(); // TODO: Initialize to an appropriate value
@@ -115,7 +121,8 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
         /// <summary>
         ///A test for Q
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void QTest()
         {
             DsaKey target = new DsaKey(); // TODO: Initialize to an appropriate value
@@ -127,7 +134,8 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
         /// <summary>
         ///A test for X
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void XTest()
         {
             DsaKey target = new DsaKey(); // TODO: Initialize to an appropriate value
@@ -139,7 +147,8 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
         /// <summary>
         ///A test for Y
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
+        [Ignore] // placeholder for actual test
         public void YTest()
         {
             DsaKey target = new DsaKey(); // TODO: Initialize to an appropriate value

@@ -1,15 +1,16 @@
-﻿using Renci.SshNet.Sftp;
+﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+using Renci.SshNet.Sftp;
 using Renci.SshNet.Tests.Common;
 
-namespace Renci.SshNet.Tests
+namespace Renci.SshNet.Tests.Classes.Sftp
 {
     /// <summary>
     ///This is a test class for SftpFileAttributesTest and is intended
     ///to contain all SftpFileAttributesTest Unit Tests
     ///</summary>
-    [TestClass()]
+    [TestClass]
+    [Ignore] // placeholders only
     public class SftpFileAttributesTest : TestBase
     {
         /// <summary>

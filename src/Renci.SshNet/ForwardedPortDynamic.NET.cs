@@ -34,10 +34,10 @@ namespace Renci.SshNet
             Session.ErrorOccured += Session_ErrorOccured;
             Session.Disconnected += Session_Disconnected;
 
-            StartAccept(null);
-
             // consider port started when we're listening for inbound connections
             _status = ForwardedPortStatus.Started;
+
+            StartAccept(null);
         }
 
         private void StartAccept(SocketAsyncEventArgs e)

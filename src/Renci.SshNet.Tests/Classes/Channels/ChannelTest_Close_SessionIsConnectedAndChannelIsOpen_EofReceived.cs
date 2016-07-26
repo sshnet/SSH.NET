@@ -65,6 +65,9 @@ namespace Renci.SshNet.Tests.Classes.Channels
                         new Thread(() =>
                             {
                                 Thread.Sleep(100);
+                                // signal that the ChannelCloseMessage was received; we use this to verify whether we've actually
+                                // waited on the EventWaitHandle to be set
+                                _channelClosedReceived.Set();
                                 // raise ChannelCloseReceived event to set waithandle for receiving
                                 // SSH_MSG_CHANNEL_CLOSE message from server which is waited on after
                                 // sending the SSH_MSG_CHANNEL_CLOSE message to the server
@@ -73,9 +76,6 @@ namespace Renci.SshNet.Tests.Classes.Channels
                                 // to get the channel in the state that it would have after actually receiving
                                 // the ChannelCloseMessage
                                 _sessionMock.Raise(s => s.ChannelCloseReceived += null, new MessageEventArgs<ChannelCloseMessage>(new ChannelCloseMessage(_localChannelNumber)));
-                                // signal that the ChannelCloseMessage was received; we use this to verify whether we've actually
-                                // waited on the EventWaitHandle to be set
-                                _channelClosedReceived.Set();
                             }).Start();
                         w.WaitOne();
                     });

@@ -121,6 +121,7 @@ namespace Renci.SshNet.Tests.Classes
             var originatorAddress = new Random().Next().ToString(CultureInfo.InvariantCulture);
             var originatorPort = (uint)new Random().Next(0, int.MaxValue);
             var channelMock = new Mock<IChannelForwardedTcpip>(MockBehavior.Strict);
+            var channelDiposed = new ManualResetEvent(false);
 
             _sessionMock.Setup(
                 p =>
@@ -132,13 +133,16 @@ namespace Renci.SshNet.Tests.Classes
                             ep => ep.Address.Equals(_remoteEndpoint.Address) && ep.Port == _remoteEndpoint.Port),
                         _forwardedPort));
             channelMock.Setup(p => p.Close());
-            channelMock.Setup(p => p.Dispose());
+            channelMock.Setup(p => p.Dispose()).Callback(() => channelDiposed.Set());
 
             _sessionMock.Raise(p => p.ChannelOpenReceived += null,
                 new MessageEventArgs<ChannelOpenMessage>(new ChannelOpenMessage(channelNumber, initialWindowSize,
                     maximumPacketSize,
                     new ForwardedTcpipChannelInfo(_forwardedPort.BoundHost, _forwardedPort.BoundPort, originatorAddress,
                         originatorPort))));
+
+            // wait for channel to be disposed
+            channelDiposed.WaitOne(TimeSpan.FromMilliseconds(200));
 
             _sessionMock.Verify(p => p.CreateChannelForwardedTcpip(channelNumber, initialWindowSize, maximumPacketSize), Times.Once);
             channelMock.Verify(p => p.Bind(It.Is<IPEndPoint>(ep => ep.Address.Equals(_remoteEndpoint.Address) && ep.Port == _remoteEndpoint.Port), _forwardedPort), Times.Once);

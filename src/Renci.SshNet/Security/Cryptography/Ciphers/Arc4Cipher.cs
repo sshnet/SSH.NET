@@ -36,7 +36,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// </summary>
         /// <param name="key">The key.</param>
         /// <param name="dischargeFirstBytes">if set to <c>true</c> will disharged first 1536 bytes.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="key" /> is null.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="key" /> is <c>null</c>.</exception>
         public Arc4Cipher(byte[] key, bool dischargeFirstBytes)
             : base(key)
         {

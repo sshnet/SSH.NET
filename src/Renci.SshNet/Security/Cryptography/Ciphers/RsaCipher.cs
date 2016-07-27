@@ -57,7 +57,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <returns>
         /// Decrypted data.
         /// </returns>
-        /// <exception cref="System.NotSupportedException">Only block type 01 or 02 are supported.</exception>
+        /// <exception cref="NotSupportedException">Only block type 01 or 02 are supported.</exception>
         /// <exception cref="NotSupportedException">Thrown when decrypted block type is not supported.</exception>
         public override byte[] Decrypt(byte[] data)
         {

@@ -23,7 +23,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="expect">The expect regular expression.</param>
         /// <param name="action">The action to perform.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="expect"/> or <paramref name="action"/> is null.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="expect"/> or <paramref name="action"/> is <c>null</c>.</exception>
         public ExpectAction(Regex expect, Action<string> action)
         {
             if (expect == null)
@@ -41,7 +41,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="expect">The expect expression.</param>
         /// <param name="action">The action to perform.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="expect"/> or <paramref name="action"/> is null.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="expect"/> or <paramref name="action"/> is <c>null</c>.</exception>
         public ExpectAction(string expect, Action<string> action)
         {
             if (expect == null)

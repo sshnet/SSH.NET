@@ -162,7 +162,7 @@ namespace Renci.SshNet
         /// The total number of bytes read into the buffer. This can be less than the number of bytes requested if that many bytes are not currently available, or zero (0) if the end of the stream has been reached.
         /// </returns>
         /// <exception cref="T:System.ArgumentException">The sum of <paramref name="offset"/> and <paramref name="count"/> is larger than the buffer length. </exception>
-        /// <exception cref="T:System.ArgumentNullException"><paramref name="buffer"/> is null.</exception>
+        /// <exception cref="T:System.ArgumentNullException"><paramref name="buffer"/> is <c>null</c>.</exception>
         /// <exception cref="T:System.ArgumentOutOfRangeException"><paramref name="offset"/> or <paramref name="count"/> is negative.</exception>
         /// <exception cref="T:System.IO.IOException">An I/O error occurs.</exception>   
         /// <exception cref="T:System.NotSupportedException">The stream does not support reading.</exception>   
@@ -217,7 +217,7 @@ namespace Renci.SshNet
         /// <param name="offset">The zero-based byte offset in <paramref name="buffer"/> at which to begin copying bytes to the current stream.</param>
         /// <param name="count">The number of bytes to be written to the current stream.</param>
         /// <exception cref="T:System.ArgumentException">The sum of <paramref name="offset"/> and <paramref name="count"/> is greater than the buffer length.</exception>
-        /// <exception cref="T:System.ArgumentNullException"><paramref name="buffer"/> is null.</exception>
+        /// <exception cref="T:System.ArgumentNullException"><paramref name="buffer"/> is <c>null</c>.</exception>
         /// <exception cref="T:System.ArgumentOutOfRangeException"><paramref name="offset"/> or <paramref name="count"/> is negative.</exception>
         /// <exception cref="T:System.IO.IOException">An I/O error occurs.</exception>
         /// <exception cref="T:System.NotSupportedException">The stream does not support writing.</exception>
@@ -443,7 +443,7 @@ namespace Renci.SshNet
         /// Ends the execute.
         /// </summary>
         /// <param name="asyncResult">The async result.</param>
-        /// <exception cref="System.ArgumentException">Either the IAsyncResult object did not come from the corresponding async method on this type, or EndExecute was called multiple times with the same IAsyncResult.</exception>
+        /// <exception cref="ArgumentException">Either the IAsyncResult object did not come from the corresponding async method on this type, or EndExecute was called multiple times with the same IAsyncResult.</exception>
         public string EndExpect(IAsyncResult asyncResult)
         {
             var ar = asyncResult as ExpectAsyncResult;
@@ -473,7 +473,7 @@ namespace Renci.SshNet
         /// <param name="text">The text to expect.</param>
         /// <param name="timeout">Time to wait for input.</param>
         /// <returns>
-        /// Text available in the shell that ends with expected text, if the specified time elapsed returns null.
+        /// The text available in the shell that ends with expected text, or <c>null</c> if the specified time has elapsed.
         /// </returns>
         public string Expect(string text, TimeSpan timeout)
         {
@@ -484,7 +484,9 @@ namespace Renci.SshNet
         /// Expects the expression specified by regular expression.
         /// </summary>
         /// <param name="regex">The regular expression to expect.</param>
-        /// <returns>Text available in the shell that contains all the text that ends with expected expression.</returns>
+        /// <returns>
+        /// The text available in the shell that contains all the text that ends with expected expression.
+        /// </returns>
         public string Expect(Regex regex)
         {
             return Expect(regex, TimeSpan.Zero);
@@ -496,7 +498,8 @@ namespace Renci.SshNet
         /// <param name="regex">The regular expression to expect.</param>
         /// <param name="timeout">Time to wait for input.</param>
         /// <returns>
-        /// Text available in the shell that contains all the text that ends with expected expression, if the specified time elapsed returns null.
+        /// The text available in the shell that contains all the text that ends with expected expression,
+        /// or <c>null</c> if the specified time has elapsed.
         /// </returns>
         public string Expect(Regex regex, TimeSpan timeout)
         {

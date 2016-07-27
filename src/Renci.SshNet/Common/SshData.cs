@@ -108,7 +108,7 @@ namespace Renci.SshNet.Common
         /// Loads data from specified bytes.
         /// </summary>
         /// <param name="value">Bytes array.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="value"/> is null.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="value"/> is <c>null</c>.</exception>
         public void Load(byte[] value)
         {
             Load(value, 0);
@@ -119,7 +119,7 @@ namespace Renci.SshNet.Common
         /// </summary>
         /// <param name="value">Bytes array.</param>
         /// <param name="offset">The zero-based offset in <paramref name="value"/> at which to begin reading SSH data.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="value"/> is null.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="value"/> is <c>null</c>.</exception>
         public void Load(byte[] value, int offset)
         {
             LoadBytes(value, offset);
@@ -140,7 +140,7 @@ namespace Renci.SshNet.Common
         /// Loads data bytes into internal buffer.
         /// </summary>
         /// <param name="bytes">The bytes.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="bytes"/> is null.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="bytes"/> is <c>null</c>.</exception>
         protected void LoadBytes(byte[] bytes)
         {
             LoadBytes(bytes, 0);
@@ -151,7 +151,7 @@ namespace Renci.SshNet.Common
         /// </summary>
         /// <param name="bytes">The bytes.</param>
         /// <param name="offset">The zero-based offset in <paramref name="bytes"/> at which to begin reading SSH data.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="bytes"/> is null.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="bytes"/> is <c>null</c>.</exception>
         protected void LoadBytes(byte[] bytes, int offset)
         {
             if (bytes == null)
@@ -310,7 +310,7 @@ namespace Renci.SshNet.Common
         /// Writes bytes array data into internal buffer.
         /// </summary>
         /// <param name="data">Byte array data to write.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="data"/> is null.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="data"/> is <c>null</c>.</exception>
         protected void Write(byte[] data)
         {
             _stream.Write(data);
@@ -323,7 +323,7 @@ namespace Renci.SshNet.Common
         /// <param name="buffer">An array of bytes. This method write <paramref name="count"/> bytes from buffer to the current SSH data stream.</param>
         /// <param name="offset">The zero-based offset in <paramref name="buffer"/> at which to begin writing bytes to the SSH data stream.</param>
         /// <param name="count">The number of bytes to be written to the current SSH data stream.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is null.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <c>null</c>.</exception>
         /// <exception cref="ArgumentException">The sum of <paramref name="offset"/> and <paramref name="count"/> is greater than the buffer length.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> or <paramref name="count"/> is negative.</exception>
         protected void Write(byte[] buffer, int offset, int count)
@@ -371,7 +371,7 @@ namespace Renci.SshNet.Common
         /// Writes <see cref="string"/> data into internal buffer using default encoding.
         /// </summary>
         /// <param name="data"><see cref="string"/> data to write.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="data"/> is null.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="data"/> is <c>null</c>.</exception>
         protected void Write(string data)
         {
             Write(data, Utf8);
@@ -382,8 +382,8 @@ namespace Renci.SshNet.Common
         /// </summary>
         /// <param name="data"><see cref="string"/> data to write.</param>
         /// <param name="encoding">The character encoding to use.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="data"/> is null.</exception>
-        /// <exception cref="ArgumentNullException"><paramref name="encoding"/> is null.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="data"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="encoding"/> is <c>null</c>.</exception>
         protected void Write(string data, Encoding encoding)
         {
             _stream.Write(data, encoding);
@@ -393,7 +393,7 @@ namespace Renci.SshNet.Common
         /// Writes data into internal buffer.
         /// </summary>
         /// <param name="buffer">The data to write.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is null.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <c>null</c>.</exception>
         protected void WriteBinaryString(byte[] buffer)
         {
             _stream.WriteBinary(buffer);
@@ -405,7 +405,7 @@ namespace Renci.SshNet.Common
         /// <param name="buffer">An array of bytes. This method write <paramref name="count"/> bytes from buffer to the current SSH data stream.</param>
         /// <param name="offset">The zero-based byte offset in <paramref name="buffer"/> at which to begin writing bytes to the SSH data stream.</param>
         /// <param name="count">The number of bytes to be written to the current SSH data stream.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is null.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <c>null</c>.</exception>
         /// <exception cref="ArgumentException">The sum of <paramref name="offset"/> and <paramref name="count"/> is greater than the buffer length.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> or <paramref name="count"/> is negative.</exception>
         protected void WriteBinary(byte[] buffer, int offset, int count)

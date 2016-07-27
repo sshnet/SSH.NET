@@ -35,7 +35,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="username">The username.</param>
         /// <param name="keyFiles">The key files.</param>
-        /// <exception cref="ArgumentException"><paramref name="username"/> is whitespace or null.</exception>
+        /// <exception cref="ArgumentException"><paramref name="username"/> is whitespace or <c>null</c>.</exception>
         public PrivateKeyAuthenticationMethod(string username, params PrivateKeyFile[] keyFiles)
             : base(username)
         {

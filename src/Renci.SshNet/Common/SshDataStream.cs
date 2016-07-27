@@ -24,7 +24,7 @@ namespace Renci.SshNet.Common
         /// Initializes a new non-resizable instance of the <see cref="SshDataStream"/> class based on the specified byte array.
         /// </summary>
         /// <param name="buffer">The array of unsigned bytes from which to create the current stream.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <c>null.</c></exception>
+        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <c>null</c>.</exception>
         public SshDataStream(byte[] buffer)
             : base(buffer)
         {
@@ -78,7 +78,7 @@ namespace Renci.SshNet.Common
         /// Writes bytes array data into the SSH data stream.
         /// </summary>
         /// <param name="data">Byte array data to write.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="data"/> is null.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="data"/> is <c>null</c>.</exception>
         public void Write(byte[] data)
         {
             if (data == null)
@@ -109,7 +109,7 @@ namespace Renci.SshNet.Common
         /// Writes a buffer preceded by its length into the SSH data stream.
         /// </summary>
         /// <param name="buffer">The data to write.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is null.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <c>null</c>.</exception>
         public void WriteBinary(byte[] buffer)
         {
             if (buffer == null)
@@ -124,7 +124,7 @@ namespace Renci.SshNet.Common
         /// <param name="buffer">An array of bytes. This method write <paramref name="count"/> bytes from buffer to the current SSH data stream.</param>
         /// <param name="offset">The zero-based byte offset in <paramref name="buffer"/> at which to begin writing bytes to the SSH data stream.</param>
         /// <param name="count">The number of bytes to be written to the current SSH data stream.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is null.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <c>null</c>.</exception>
         /// <exception cref="ArgumentException">The sum of <paramref name="offset"/> and <paramref name="count"/> is greater than the buffer length.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> or <paramref name="count"/> is negative.</exception>
         public void WriteBinary(byte[] buffer, int offset, int count)
@@ -138,8 +138,8 @@ namespace Renci.SshNet.Common
         /// </summary>
         /// <param name="s">The string data to write.</param>
         /// <param name="encoding">The character encoding to use.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="s"/> is null.</exception>
-        /// <exception cref="ArgumentNullException"><paramref name="encoding"/> is null.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="s"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="encoding"/> is <c>null</c>.</exception>
         public void Write(string s, Encoding encoding)
         {
             if (encoding == null)

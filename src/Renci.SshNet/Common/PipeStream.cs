@@ -175,7 +175,7 @@
         ///<exception cref="ArgumentException">The sum of offset and count is larger than the buffer length.</exception>
         ///<exception cref="ObjectDisposedException">Methods were called after the stream was closed.</exception>
         ///<exception cref="NotSupportedException">The stream does not support reading.</exception>
-        ///<exception cref="ArgumentNullException">buffer is null.</exception>
+        ///<exception cref="ArgumentNullException"><paramref name="buffer"/> is <c>null</c>.</exception>
         ///<exception cref="IOException">An I/O error occurs.</exception>
         ///<exception cref="ArgumentOutOfRangeException">offset or count is negative.</exception>
         public override int Read(byte[] buffer, int offset, int count)
@@ -242,7 +242,7 @@
         ///<exception cref="IOException">An I/O error occurs.</exception>
         ///<exception cref="NotSupportedException">The stream does not support writing.</exception>
         ///<exception cref="ObjectDisposedException">Methods were called after the stream was closed.</exception>
-        ///<exception cref="ArgumentNullException">buffer is null.</exception>
+        ///<exception cref="ArgumentNullException"><paramref name="buffer"/> is <c>null</c>.</exception>
         ///<exception cref="ArgumentException">The sum of offset and count is greater than the buffer length.</exception>
         ///<exception cref="ArgumentOutOfRangeException">offset or count is negative.</exception>
         public override void Write(byte[] buffer, int offset, int count)

@@ -17,7 +17,7 @@ namespace Renci.SshNet
         /// Initializes a new instance of the <see cref="MessageEventArgs&lt;T&gt;"/> class.
         /// </summary>
         /// <param name="message">The message.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="message"/> is null.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="message"/> is <c>null</c>.</exception>
         public MessageEventArgs(T message)
         {
             if (message == null)

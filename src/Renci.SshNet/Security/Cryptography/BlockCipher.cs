@@ -52,7 +52,7 @@ namespace Renci.SshNet.Security.Cryptography
         /// <param name="blockSize">Size of the block.</param>
         /// <param name="mode">Cipher mode.</param>
         /// <param name="padding">Cipher padding.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="key"/> is null.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="key"/> is <c>null</c>.</exception>
         protected BlockCipher(byte[] key, byte blockSize, CipherMode mode, CipherPadding padding)
             : base(key)
         {

@@ -74,7 +74,7 @@ namespace Renci.SshNet
         /// <param name="subsystemName">Name of the subsystem.</param>
         /// <param name="operationTimeout">The operation timeout.</param>
         /// <param name="encoding">The character encoding to use.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="session" /> or <paramref name="subsystemName" /> or <paramref name="encoding"/>is null.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="session" /> or <paramref name="subsystemName" /> or <paramref name="encoding"/> is <c>null</c>.</exception>
         protected SubsystemSession(ISession session, string subsystemName, TimeSpan operationTimeout, Encoding encoding)
         {
             if (session == null)

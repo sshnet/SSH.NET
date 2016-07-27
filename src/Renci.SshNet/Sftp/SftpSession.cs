@@ -980,7 +980,7 @@ namespace Renci.SshNet.Sftp
         /// <param name="handle">The file handle.</param>
         /// <param name="nullOnError">if set to <c>true</c> [null on error].</param>
         /// <returns></returns>
-        /// <exception cref="System.NotSupportedException"></exception>
+        /// <exception cref="NotSupportedException"></exception>
         internal SftpFileSytemInformation RequestFStatVfs(byte[] handle, bool nullOnError = false)
         {
             if (ProtocolVersion < 3)

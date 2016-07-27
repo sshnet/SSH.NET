@@ -323,8 +323,8 @@ namespace Renci.SshNet.Sftp
         /// <returns>
         /// The total number of bytes read into the buffer. This can be less than the number of bytes requested if that many bytes are not currently available, or zero (0) if the end of the stream has been reached.
         /// </returns>
-        /// <exception cref="T:System.ArgumentException">The sum of <paramref name="offset"/> and <paramref name="count"/> is larger than the buffer length. </exception>
-        /// <exception cref="T:System.ArgumentNullException"><paramref name="buffer"/> is null. </exception>
+        /// <exception cref="T:System.ArgumentException">The sum of <paramref name="offset"/> and <paramref name="count"/> is larger than the buffer length.</exception>
+        /// <exception cref="T:System.ArgumentNullException"><paramref name="buffer"/> is <c>null</c>. </exception>
         /// <exception cref="T:System.ArgumentOutOfRangeException"><paramref name="offset"/> or <paramref name="count"/> is negative.</exception>
         /// <exception cref="T:System.IO.IOException">An I/O error occurs. </exception>
         /// <exception cref="T:System.NotSupportedException">The stream does not support reading. </exception>
@@ -405,11 +405,11 @@ namespace Renci.SshNet.Sftp
         /// Reads a byte from the stream and advances the position within the stream by one byte, or returns -1 if at the end of the stream.
         /// </summary>
         /// <returns>
-        /// The unsigned byte cast to an Int32, or -1 if at the end of the stream.
+        /// The unsigned byte cast to an <see cref="int"/>, or -1 if at the end of the stream.
         /// </returns>
-        /// <exception cref="T:System.NotSupportedException">The stream does not support reading. </exception>
-        /// <exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed. </exception>
-        /// <exception cref="System.IO.IOException">Read operation failed.</exception>
+        /// <exception cref="NotSupportedException">The stream does not support reading. </exception>
+        /// <exception cref="ObjectDisposedException">Methods were called after the stream was closed. </exception>
+        /// <exception cref="IOException">Read operation failed.</exception>
         public override int ReadByte()
         {
             // Lock down the file stream while we do this.
@@ -602,7 +602,7 @@ namespace Renci.SshNet.Sftp
         /// <param name="offset">The zero-based byte offset in <paramref name="buffer"/> at which to begin copying bytes to the current stream.</param>
         /// <param name="count">The number of bytes to be written to the current stream.</param>
         /// <exception cref="T:System.ArgumentException">The sum of <paramref name="offset"/> and <paramref name="count"/> is greater than the buffer length.</exception>
-        /// <exception cref="T:System.ArgumentNullException"><paramref name="buffer"/> is null.</exception>
+        /// <exception cref="T:System.ArgumentNullException"><paramref name="buffer"/> is <c>null</c>.</exception>
         /// <exception cref="T:System.ArgumentOutOfRangeException"><paramref name="offset"/> or <paramref name="count"/> is negative.</exception>
         /// <exception cref="T:System.IO.IOException">An I/O error occurs.</exception>
         /// <exception cref="T:System.NotSupportedException">The stream does not support writing.</exception>

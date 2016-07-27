@@ -18,7 +18,7 @@ namespace Renci.SshNet.Security.Cryptography
         /// Initializes a new instance of the <see cref="DsaDigitalSignature" /> class.
         /// </summary>
         /// <param name="key">The DSA key.</param>
-        /// <exception cref="System.ArgumentNullException">key</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="key"/> is <c>null</c>.</exception>
         public DsaDigitalSignature(DsaKey key)
         {
             if (key == null)
@@ -35,9 +35,9 @@ namespace Renci.SshNet.Security.Cryptography
         /// <param name="input">The input.</param>
         /// <param name="signature">The signature.</param>
         /// <returns>
-        ///   <c>True</c> if signature was successfully verified; otherwise <c>false</c>.
+        /// <c>true</c> if signature was successfully verified; otherwise <c>false</c>.
         /// </returns>
-        /// <exception cref="System.InvalidOperationException">Invalid signature.</exception>
+        /// <exception cref="InvalidOperationException">Invalid signature.</exception>
         public override bool Verify(byte[] input, byte[] signature)
         {
             var hashInput = _hash.ComputeHash(input);

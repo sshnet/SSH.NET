@@ -25,7 +25,7 @@ namespace Renci.SshNet
         /// Initializes a new instance of the <see cref="NoneAuthenticationMethod"/> class.
         /// </summary>
         /// <param name="username">The username.</param>
-        /// <exception cref="ArgumentException"><paramref name="username"/> is whitespace or null.</exception>
+        /// <exception cref="ArgumentException"><paramref name="username"/> is whitespace or <c>null</c>.</exception>
         public NoneAuthenticationMethod(string username)
             : base(username)
         {
@@ -38,7 +38,7 @@ namespace Renci.SshNet
         /// <returns>
         /// Result of authentication  process.
         /// </returns>
-        /// <exception cref="System.ArgumentNullException"><paramref name="session" /> is null.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="session" /> is <c>null</c>.</exception>
         public override AuthenticationResult Authenticate(Session session)
         {
             if (session == null)

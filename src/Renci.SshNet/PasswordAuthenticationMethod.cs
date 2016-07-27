@@ -38,8 +38,8 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="username">The username.</param>
         /// <param name="password">The password.</param>
-        /// <exception cref="ArgumentException"><paramref name="username"/> is whitespace or null.</exception>
-        /// <exception cref="ArgumentException"><paramref name="password"/> is null.</exception>
+        /// <exception cref="ArgumentException"><paramref name="username"/> is whitespace or <c>null</c>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="password"/> is <c>null</c>.</exception>
         public PasswordAuthenticationMethod(string username, string password)
             : this(username, Encoding.UTF8.GetBytes(password))
         {
@@ -50,8 +50,8 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="username">The username.</param>
         /// <param name="password">The password.</param>
-        /// <exception cref="ArgumentException"><paramref name="username"/> is whitespace or null.</exception>
-        /// <exception cref="ArgumentException"><paramref name="password"/> is null.</exception>
+        /// <exception cref="ArgumentException"><paramref name="username"/> is whitespace or <c>null</c>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="password"/> is <c>null</c>.</exception>
         public PasswordAuthenticationMethod(string username, byte[] password)
             : base(username)
         {
@@ -69,7 +69,7 @@ namespace Renci.SshNet
         /// <returns>
         /// Result of authentication  process.
         /// </returns>
-        /// <exception cref="System.ArgumentNullException"><paramref name="session" /> is null.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="session" /> is <c>null</c>.</exception>
         public override AuthenticationResult Authenticate(Session session)
         {
             if (session == null)

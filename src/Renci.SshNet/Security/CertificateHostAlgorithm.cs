@@ -29,7 +29,7 @@ namespace Renci.SshNet.Security
         /// </summary>
         /// <param name="data">The data.</param>
         /// <returns>Signed data.</returns>
-        /// <exception cref="System.NotImplementedException"></exception>
+        /// <exception cref="NotImplementedException"></exception>
         public override byte[] Sign(byte[] data)
         {
             throw new NotImplementedException();
@@ -40,8 +40,8 @@ namespace Renci.SshNet.Security
         /// </summary>
         /// <param name="data">The data.</param>
         /// <param name="signature">The signature.</param>
-        /// <returns><c>True</c> if signature was successfully verified; otherwise <c>false</c>.</returns>
-        /// <exception cref="System.NotImplementedException"></exception>
+        /// <returns><c>true</c> if signature was successfully verified; otherwise <c>false</c>.</returns>
+        /// <exception cref="NotImplementedException"></exception>
         public override bool VerifySignature(byte[] data, byte[] signature)
         {
             throw new NotImplementedException();

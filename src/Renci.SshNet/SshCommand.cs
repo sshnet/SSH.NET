@@ -130,7 +130,7 @@ namespace Renci.SshNet
         /// <param name="session">The session.</param>
         /// <param name="commandText">The command text.</param>
         /// <param name="encoding">The encoding to use for the results.</param>
-        /// <exception cref="ArgumentNullException">Either <paramref name="session"/>, <paramref name="commandText"/> is null.</exception>
+        /// <exception cref="ArgumentNullException">Either <paramref name="session"/>, <paramref name="commandText"/> is <c>null</c>.</exception>
         internal SshCommand(ISession session, string commandText, Encoding encoding)
         {
             if (session == null)
@@ -159,11 +159,11 @@ namespace Renci.SshNet
         /// <example>
         ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\SshCommandTest.cs" region="Example SshCommand CreateCommand BeginExecute IsCompleted EndExecute" language="C#" title="Asynchronous Command Execution" />
         /// </example>
-        /// <exception cref="System.InvalidOperationException">Asynchronous operation is already in progress.</exception>
+        /// <exception cref="InvalidOperationException">Asynchronous operation is already in progress.</exception>
         /// <exception cref="SshException">Invalid operation.</exception>
-        /// <exception cref="System.ArgumentException">CommandText property is empty.</exception>
-        /// <exception cref="Renci.SshNet.Common.SshConnectionException">Client is not connected.</exception>
-        /// <exception cref="Renci.SshNet.Common.SshOperationTimeoutException">Operation has timed out.</exception>
+        /// <exception cref="ArgumentException">CommandText property is empty.</exception>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="SshOperationTimeoutException">Operation has timed out.</exception>
         /// <exception cref="InvalidOperationException">Asynchronous operation is already in progress.</exception>
         /// <exception cref="ArgumentException">CommandText property is empty.</exception>
         public IAsyncResult BeginExecute()
@@ -178,11 +178,11 @@ namespace Renci.SshNet
         /// <returns>
         /// An <see cref="System.IAsyncResult" /> that represents the asynchronous command execution, which could still be pending.
         /// </returns>
-        /// <exception cref="System.InvalidOperationException">Asynchronous operation is already in progress.</exception>
+        /// <exception cref="InvalidOperationException">Asynchronous operation is already in progress.</exception>
         /// <exception cref="SshException">Invalid operation.</exception>
-        /// <exception cref="System.ArgumentException">CommandText property is empty.</exception>
-        /// <exception cref="Renci.SshNet.Common.SshConnectionException">Client is not connected.</exception>
-        /// <exception cref="Renci.SshNet.Common.SshOperationTimeoutException">Operation has timed out.</exception>
+        /// <exception cref="ArgumentException">CommandText property is empty.</exception>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="SshOperationTimeoutException">Operation has timed out.</exception>
         /// <exception cref="InvalidOperationException">Asynchronous operation is already in progress.</exception>
         /// <exception cref="ArgumentException">CommandText property is empty.</exception>
         public IAsyncResult BeginExecute(AsyncCallback callback)
@@ -196,13 +196,13 @@ namespace Renci.SshNet
         /// <param name="callback">An optional asynchronous callback, to be called when the command execution is complete.</param>
         /// <param name="state">A user-provided object that distinguishes this particular asynchronous read request from other requests.</param>
         /// <returns>
-        /// An <see cref="System.IAsyncResult" /> that represents the asynchronous command execution, which could still be pending.
+        /// An <see cref="IAsyncResult" /> that represents the asynchronous command execution, which could still be pending.
         /// </returns>
-        /// <exception cref="System.InvalidOperationException">Asynchronous operation is already in progress.</exception>
+        /// <exception cref="InvalidOperationException">Asynchronous operation is already in progress.</exception>
         /// <exception cref="SshException">Invalid operation.</exception>
-        /// <exception cref="System.ArgumentException">CommandText property is empty.</exception>
-        /// <exception cref="Renci.SshNet.Common.SshConnectionException">Client is not connected.</exception>
-        /// <exception cref="Renci.SshNet.Common.SshOperationTimeoutException">Operation has timed out.</exception>
+        /// <exception cref="ArgumentException">CommandText property is empty.</exception>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="SshOperationTimeoutException">Operation has timed out.</exception>
         /// <exception cref="InvalidOperationException">Asynchronous operation is already in progress.</exception>
         /// <exception cref="ArgumentException">CommandText property is empty.</exception>
         public IAsyncResult BeginExecute(AsyncCallback callback, object state)

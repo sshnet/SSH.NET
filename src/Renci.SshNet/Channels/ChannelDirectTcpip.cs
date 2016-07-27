@@ -68,11 +68,13 @@ namespace Renci.SshNet.Channels
         /// </summary>
         private void ForwardedPort_Closing(object sender, EventArgs eventArgs)
         {
-            // signal to the client that we will not send anything anymore; this will also interrupt the
+            // signal to the client that we will not send anything anymore; this should also interrupt the
             // blocking receive in Bind if the client sends FIN/ACK in time
-            //
-            // if the FIN/ACK is not sent in time, the socket will be closed in Close(bool)
             ShutdownSocket(SocketShutdown.Send);
+
+            // if the FIN/ACK is not sent in time by the remote client, then interrupt the blocking receive
+            // by closing the socket
+            CloseSocket();
         }
 
         /// <summary>

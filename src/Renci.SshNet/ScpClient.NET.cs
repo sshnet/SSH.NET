@@ -19,8 +19,8 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="fileInfo">The file system info.</param>
         /// <param name="path">The path.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="fileInfo" /> is null.</exception>
-        /// <exception cref="ArgumentException"><paramref name="path"/> is null or empty.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="fileInfo" /> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="path"/> is <c>null</c> or empty.</exception>
         public void Upload(FileInfo fileInfo, string path)
         {
             if (fileInfo == null)
@@ -51,7 +51,7 @@ namespace Renci.SshNet
         /// <param name="directoryInfo">The directory info.</param>
         /// <param name="path">The path.</param>
         /// <exception cref="ArgumentNullException">fileSystemInfo</exception>
-        /// <exception cref="ArgumentException"><paramref name="path"/> is null or empty.</exception>
+        /// <exception cref="ArgumentException"><paramref name="path"/> is <c>null</c> or empty.</exception>
         public void Upload(DirectoryInfo directoryInfo, string path)
         {
             if (directoryInfo == null)
@@ -87,8 +87,8 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="filename">Remote host file name.</param>
         /// <param name="fileInfo">Local file information.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="fileInfo"/> is null.</exception>
-        /// <exception cref="ArgumentException"><paramref name="filename"/> is null or empty.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="fileInfo"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="filename"/> is <c>null</c> or empty.</exception>
         public void Download(string filename, FileInfo fileInfo)
         {
             if (string.IsNullOrEmpty(filename))
@@ -117,8 +117,8 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="directoryName">Remote host directory name.</param>
         /// <param name="directoryInfo">Local directory information.</param>
-        /// <exception cref="ArgumentException"><paramref name="directoryName"/> is null or empty.</exception>
-        /// <exception cref="ArgumentNullException"><paramref name="directoryInfo"/> is null.</exception>
+        /// <exception cref="ArgumentException"><paramref name="directoryName"/> is <c>null</c> or empty.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="directoryInfo"/> is <c>null</c>.</exception>
         public void Download(string directoryName, DirectoryInfo directoryInfo)
         {
             if (string.IsNullOrEmpty(directoryName))

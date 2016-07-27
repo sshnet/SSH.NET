@@ -11,16 +11,16 @@ namespace Renci.SshNet.Common
         // Fields set at construction which never change while operation is pending
         private readonly AsyncCallback _asyncCallback;
 
-        private readonly Object _asyncState;
+        private readonly object _asyncState;
 
         // Field set at construction which do change after operation completes
-        private const Int32 StatePending = 0;
+        private const int StatePending = 0;
 
-        private const Int32 StateCompletedSynchronously = 1;
+        private const int StateCompletedSynchronously = 1;
 
-        private const Int32 StateCompletedAsynchronously = 2;
+        private const int StateCompletedAsynchronously = 2;
 
-        private Int32 _completedState = StatePending;
+        private int _completedState = StatePending;
 
         // Field that may or may not get set depending on usage
         private ManualResetEvent _asyncWaitHandle;
@@ -32,7 +32,7 @@ namespace Renci.SshNet.Common
         /// Gets or sets a value indicating whether EndInvoke has been called on the current AsyncResult.
         /// </summary>
         /// <value>
-        /// 	<c>true</c> if EndInvoke has been called on the current AsyncResult; otherwise, <c>false</c>.
+        /// <c>true</c> if <see cref="EndInvoke()"/> has been called on the current <see cref="AsyncResult"/>; otherwise, <c>false</c>.
         /// </value>
         public bool EndInvokeCalled { get; private set; }
 
@@ -41,7 +41,7 @@ namespace Renci.SshNet.Common
         /// </summary>
         /// <param name="asyncCallback">The async callback.</param>
         /// <param name="state">The state.</param>
-        protected AsyncResult(AsyncCallback asyncCallback, Object state)
+        protected AsyncResult(AsyncCallback asyncCallback, object state)
         {
             _asyncCallback = asyncCallback;
             _asyncState = state;
@@ -52,7 +52,7 @@ namespace Renci.SshNet.Common
         /// </summary>
         /// <param name="exception">The exception.</param>
         /// <param name="completedSynchronously">if set to <c>true</c> [completed synchronously].</param>
-        public void SetAsCompleted(Exception exception, Boolean completedSynchronously)
+        public void SetAsCompleted(Exception exception, bool completedSynchronously)
         {
             // Passing null for exception means no error occurred; this is the common case
             _exception = exception;
@@ -90,7 +90,7 @@ namespace Renci.SshNet.Common
 
             // Operation is done: if an exception occurred, throw it
             if (_exception != null)
-                throw new SshException(_exception.Message, _exception);
+                throw _exception;
         }
 
         #region Implementation of IAsyncResult
@@ -99,21 +99,21 @@ namespace Renci.SshNet.Common
         /// Gets a user-defined object that qualifies or contains information about an asynchronous operation.
         /// </summary>
         /// <returns>A user-defined object that qualifies or contains information about an asynchronous operation.</returns>
-        public Object AsyncState { get { return _asyncState; } }
+        public object AsyncState { get { return _asyncState; } }
 
         /// <summary>
         /// Gets a value that indicates whether the asynchronous operation completed synchronously.
         /// </summary>
         /// <returns>true if the asynchronous operation completed synchronously; otherwise, false.</returns>
-        public Boolean CompletedSynchronously
+        public bool CompletedSynchronously
         {
             get { return _completedState == StateCompletedSynchronously; }
         }
 
         /// <summary>
-        /// Gets a <see cref="T:System.Threading.WaitHandle"/> that is used to wait for an asynchronous operation to complete.
+        /// Gets a <see cref="WaitHandle"/> that is used to wait for an asynchronous operation to complete.
         /// </summary>
-        /// <returns>A <see cref="T:System.Threading.WaitHandle"/> that is used to wait for an asynchronous operation to complete.</returns>
+        /// <returns>A <see cref="WaitHandle"/> that is used to wait for an asynchronous operation to complete.</returns>
         public WaitHandle AsyncWaitHandle
         {
             get
@@ -144,8 +144,9 @@ namespace Renci.SshNet.Common
         /// <summary>
         /// Gets a value that indicates whether the asynchronous operation has completed.
         /// </summary>
-        /// <returns>true if the operation is complete; otherwise, false.</returns>
-        public Boolean IsCompleted
+        /// <returns>
+        /// <c>true</c> if the operation is complete; otherwise, <c>false</c>.</returns>
+        public bool IsCompleted
         {
             get { return _completedState != StatePending; }
         }
@@ -162,11 +163,11 @@ namespace Renci.SshNet.Common
         private TResult _result;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AsyncResult&lt;TResult&gt;"/> class.
+        /// Initializes a new instance of the <see cref="AsyncResult{TResult}"/> class.
         /// </summary>
         /// <param name="asyncCallback">The async callback.</param>
         /// <param name="state">The state.</param>
-        protected AsyncResult(AsyncCallback asyncCallback, Object state)
+        protected AsyncResult(AsyncCallback asyncCallback, object state)
             : base(asyncCallback, state)
         {
         }
@@ -176,19 +177,21 @@ namespace Renci.SshNet.Common
         /// </summary>
         /// <param name="result">The result.</param>
         /// <param name="completedSynchronously">if set to <c>true</c> [completed synchronously].</param>
-        public void SetAsCompleted(TResult result, Boolean completedSynchronously)
+        public void SetAsCompleted(TResult result, bool completedSynchronously)
         {
             // Save the asynchronous operation's result
             _result = result;
 
             // Tell the base class that the operation completed successfully (no exception)
-            base.SetAsCompleted(null, completedSynchronously);
+            SetAsCompleted(null, completedSynchronously);
         }
 
         /// <summary>
         /// Waits until the asynchronous operation completes, and then returns the value generated by the asynchronous operation. 
         /// </summary>
-        /// <returns>Invocation result</returns>
+        /// <returns>
+        /// The invocation result.
+        /// </returns>
         public new TResult EndInvoke()
         {
             base.EndInvoke(); // Wait until operation has completed 

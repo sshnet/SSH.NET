@@ -89,6 +89,7 @@ namespace Renci.SshNet
             }
             finally 
             {
+                session.UnRegisterMessage("SSH_MSG_USERAUTH_PASSWD_CHANGEREQ");
                 session.UserAuthenticationSuccessReceived -= Session_UserAuthenticationSuccessReceived;
                 session.UserAuthenticationFailureReceived -= Session_UserAuthenticationFailureReceived;
                 session.MessageReceived -= Session_MessageReceived;

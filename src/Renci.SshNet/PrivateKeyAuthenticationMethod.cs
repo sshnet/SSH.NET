@@ -60,55 +60,65 @@ namespace Renci.SshNet
 
             session.RegisterMessage("SSH_MSG_USERAUTH_PK_OK");
 
-            foreach (var keyFile in KeyFiles)
+            try
             {
-                _authenticationCompleted.Reset();
-                _isSignatureRequired = false;
-
-                var message = new RequestMessagePublicKey(ServiceName.Connection, Username, keyFile.HostKey.Name, keyFile.HostKey.Data);
-
-                if (KeyFiles.Count < 2)
-                {
-                    //  If only one key file provided then send signature for very first request
-                    var signatureData = new SignatureData(message, session.SessionId).GetBytes();
-
-                    message.Signature = keyFile.HostKey.Sign(signatureData);
-                }
-
-                //  Send public key authentication request
-                session.SendMessage(message);
-
-                session.WaitOnHandle(_authenticationCompleted);
-
-                if (_isSignatureRequired)
+                foreach (var keyFile in KeyFiles)
                 {
                     _authenticationCompleted.Reset();
+                    _isSignatureRequired = false;
 
-                    var signatureMessage = new RequestMessagePublicKey(ServiceName.Connection, Username, keyFile.HostKey.Name, keyFile.HostKey.Data);
+                    var message = new RequestMessagePublicKey(ServiceName.Connection,
+                                                              Username,
+                                                              keyFile.HostKey.Name,
+                                                              keyFile.HostKey.Data);
 
-                    var signatureData = new SignatureData(message, session.SessionId).GetBytes();
+                    if (KeyFiles.Count < 2)
+                    {
+                        //  If only one key file provided then send signature for very first request
+                        var signatureData = new SignatureData(message, session.SessionId).GetBytes();
 
-                    signatureMessage.Signature = keyFile.HostKey.Sign(signatureData);
+                        message.Signature = keyFile.HostKey.Sign(signatureData);
+                    }
 
-                    //  Send public key authentication request with signature
-                    session.SendMessage(signatureMessage);
+                    //  Send public key authentication request
+                    session.SendMessage(message);
+
+                    session.WaitOnHandle(_authenticationCompleted);
+
+                    if (_isSignatureRequired)
+                    {
+                        _authenticationCompleted.Reset();
+
+                        var signatureMessage = new RequestMessagePublicKey(ServiceName.Connection,
+                                                                           Username,
+                                                                           keyFile.HostKey.Name,
+                                                                           keyFile.HostKey.Data);
+
+                        var signatureData = new SignatureData(message, session.SessionId).GetBytes();
+
+                        signatureMessage.Signature = keyFile.HostKey.Sign(signatureData);
+
+                        //  Send public key authentication request with signature
+                        session.SendMessage(signatureMessage);
+                    }
+
+                    session.WaitOnHandle(_authenticationCompleted);
+
+                    if (_authenticationResult == AuthenticationResult.Success)
+                    {
+                        break;
+                    }
                 }
 
-                session.WaitOnHandle(_authenticationCompleted);
-
-                if (_authenticationResult == AuthenticationResult.Success)
-                {
-                    break;
-                }
+                return _authenticationResult;
             }
-            
-            session.UserAuthenticationSuccessReceived -= Session_UserAuthenticationSuccessReceived;
-            session.UserAuthenticationFailureReceived -= Session_UserAuthenticationFailureReceived;
-            session.MessageReceived -= Session_MessageReceived;
-
-            session.UnRegisterMessage("SSH_MSG_USERAUTH_PK_OK");
-
-            return _authenticationResult;
+            finally
+            {
+                session.UserAuthenticationSuccessReceived -= Session_UserAuthenticationSuccessReceived;
+                session.UserAuthenticationFailureReceived -= Session_UserAuthenticationFailureReceived;
+                session.MessageReceived -= Session_MessageReceived;
+                session.UnRegisterMessage("SSH_MSG_USERAUTH_PK_OK");
+            }
         }
 
         private void Session_UserAuthenticationSuccessReceived(object sender, MessageEventArgs<SuccessMessage> e)
@@ -168,8 +178,8 @@ namespace Renci.SshNet
                 var authenticationCompleted = _authenticationCompleted;
                 if (authenticationCompleted != null)
                 {
-                    authenticationCompleted.Dispose();
                     _authenticationCompleted = null;
+                    authenticationCompleted.Dispose();
                 }
 
                 _isDisposed = true;
@@ -243,6 +253,5 @@ namespace Renci.SshNet
                 WriteBinaryString(_message.PublicKeyData);
             }
         }
-
     }
 }

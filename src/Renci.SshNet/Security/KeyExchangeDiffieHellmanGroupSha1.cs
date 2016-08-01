@@ -55,13 +55,11 @@ namespace Renci.SshNet.Security
             Session.MessageReceived += Session_MessageReceived;
 
             _prime = GroupPrime;
-
             _group = new BigInteger(new byte[] { 2 });
 
             PopulateClientExchangeValue();
 
             SendMessage(new KeyExchangeDhInitMessage(_clientExchangeValue));
-
         }
 
         /// <summary>

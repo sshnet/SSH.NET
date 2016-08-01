@@ -65,17 +65,14 @@ namespace Renci.SshNet.Security
         {
             var exchangeHash = CalculateHash();
 
-            var length = (uint)(_hostKey[0] << 24 | _hostKey[1] << 16 | _hostKey[2] << 8 | _hostKey[3]);
-
+            var length = (uint) (_hostKey[0] << 24 | _hostKey[1] << 16 | _hostKey[2] << 8 | _hostKey[3]);
             var algorithmName = Encoding.UTF8.GetString(_hostKey, 4, (int)length);
-
             var key = Session.ConnectionInfo.HostKeyAlgorithms[algorithmName](_hostKey);
 
             Session.ConnectionInfo.CurrentHostKeyAlgorithm = algorithmName;
 
             if (CanTrustHostKey(key))
             {
-
                 return key.VerifySignature(exchangeHash, _signature);
             }
             return false;
@@ -113,7 +110,7 @@ namespace Renci.SshNet.Security
 
                 _clientExchangeValue = BigInteger.ModPow(_group, _randomValue, _prime);
 
-            } while (_clientExchangeValue < 1 || _clientExchangeValue > ((_prime - 1)));
+            } while (_clientExchangeValue < 1 || _clientExchangeValue > (_prime - 1));
         }
 
         /// <summary>

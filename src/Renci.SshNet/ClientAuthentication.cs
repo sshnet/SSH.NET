@@ -46,10 +46,10 @@ namespace Renci.SshNet
 
         }
 
-        private bool TryAuthenticate(ISession session,
-                                     AuthenticationState authenticationState,
-                                     ICollection<string> allowedAuthenticationMethods,
-                                     ref SshAuthenticationException authenticationException)
+        private static bool TryAuthenticate(ISession session,
+                                            AuthenticationState authenticationState,
+                                            ICollection<string> allowedAuthenticationMethods,
+                                            ref SshAuthenticationException authenticationException)
         {
             if (allowedAuthenticationMethods.Count == 0)
             {

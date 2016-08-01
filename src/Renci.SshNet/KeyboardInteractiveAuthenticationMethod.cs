@@ -57,15 +57,16 @@ namespace Renci.SshNet
             session.UserAuthenticationFailureReceived += Session_UserAuthenticationFailureReceived;
             session.MessageReceived += Session_MessageReceived;
 
+            session.RegisterMessage("SSH_MSG_USERAUTH_INFO_REQUEST");
+
             try
             {
-                session.RegisterMessage("SSH_MSG_USERAUTH_INFO_REQUEST");
                 session.SendMessage(_requestMessage);
                 session.WaitOnHandle(_authenticationCompleted);
-                session.UnRegisterMessage("SSH_MSG_USERAUTH_INFO_REQUEST");
             }
             finally
             {
+                session.UnRegisterMessage("SSH_MSG_USERAUTH_INFO_REQUEST");
                 session.UserAuthenticationSuccessReceived -= Session_UserAuthenticationSuccessReceived;
                 session.UserAuthenticationFailureReceived -= Session_UserAuthenticationFailureReceived;
                 session.MessageReceived -= Session_MessageReceived;

@@ -49,20 +49,21 @@ This project was inspired by **Sharp.SSH** library which was ported from java an
 
 ##Framework Support
 **SSH.NET** supports the following target frameworks:
-* .NET Framework 3.5 
-* .NET Framework 4.0 
-* Silverlight 4 
-* Silverlight 5 
-* Windows Phone 7.1 
+* .NET Framework 3.5
+* .NET Framework 4.0 (and higher)
+* .NET Platform Standard 1.3
+* Silverlight 4
+* Silverlight 5
+* Windows Phone 7.1
 * Windows Phone 8.0
 * Universal Windows Platform 10
 
 ##Building SSH.NET
 
-Software                          | .NET 3.5 | .NET 4.0 | SL 4 | SL 5 | WP 71 | WP 80 | UAP10
---------------------------------- | :------: | :------: | :--: | :--: | :---: | :---: | :---:
-Windows Phone SDK 8.0             |          |          | x    | x    | x     | x     |
-Visual Studio 2012 Update 5       | x        | x        | x    | x    | x     | x     |
-Visual Studio 2015 Update 2       | x        | x        |      | x    |       | x     | x
+Software                          | net35 | net40 | netstandard1.3 | sl4 | sl5 | wp71 | wp8 | uap10.0 |
+--------------------------------- | :---: | :---: | :------------: | :-: | :-: | :--: | :-: | :-----: |
+Windows Phone SDK 8.0             |       |       |                | x   | x   | x    | x   |
+Visual Studio 2012 Update 5       | x     | x     |                | x   | x   | x    | x   |
+Visual Studio 2015 Update 3       | x     | x     | x              |     | x   |      | x   | x
 
 [![NDepend](http://download-codeplex.sec.s-msft.com/Download?ProjectName=sshnet&DownloadId=629750)](http://ndepend.com)

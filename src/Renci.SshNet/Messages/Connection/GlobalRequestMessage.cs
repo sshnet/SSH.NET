@@ -18,7 +18,7 @@ namespace Renci.SshNet.Messages.Connection
         /// </value>
         public string RequestName
         {
-            get { return Ascii.GetString(_requestName); }
+            get { return Ascii.GetString(_requestName, 0, _requestName.Length); }
         }
 
         /// <summary>

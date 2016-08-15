@@ -1,6 +1,4 @@
-﻿using Renci.SshNet.Abstractions;
-
-namespace Renci.SshNet.Messages.Connection
+﻿namespace Renci.SshNet.Messages.Connection
 {
     /// <summary>
     /// Represents SSH_MSG_GLOBAL_REQUEST message.

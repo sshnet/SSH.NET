@@ -872,14 +872,22 @@ namespace Renci.SshNet
         /// </summary>
         /// <returns>Incoming SSH message.</returns>
         /// <exception cref="SshConnectionException"></exception>
+        /// <remarks>
+        /// We need no locking here since all messages are read by a single thread.
+        /// </remarks>
         private Message ReceiveMessage()
         {
+            // the length of the packet sequence field in bytes
             const int inboundPacketSequenceLength = 4;
+            // The length of the "packet length" field in bytes
+            const int packetLengthFieldLength = 4;
+            // The length of the "padding length" field in bytes
+            const int paddingLengthFieldLength = 1;
 
-            //  No lock needed since all messages read by only one thread
+            //  Determine the size of the first block, which is 8 or cipher block size (whichever is larger) bytes
             var blockSize = _serverCipher == null ? (byte)8 : Math.Max((byte)8, _serverCipher.MinimumSize);
 
-            //  Read packet length first
+            //  Read first block - which starts with the packet length
             var firstBlock = Read(blockSize);
 
             if (_serverCipher != null)
@@ -893,9 +901,12 @@ namespace Renci.SshNet
             if (packetLength < Math.Max((byte)16, blockSize) - 4 || packetLength > MaximumSshPacketSize - 4)
                 throw new SshConnectionException(string.Format(CultureInfo.CurrentCulture, "Bad packet length: {0}.", packetLength), DisconnectReason.ProtocolError);
 
-            //  Read rest of the packet data
-            var bytesToRead = (int)(packetLength - (blockSize - 4));
+            //  Determine the number of bytes left to read; We've already read "blockSize" bytes, but the
+            //  "packet length" field itself - which is 4 bytes - is not included in the length of the packet
+            var bytesToRead = (int) (packetLength - (blockSize - packetLengthFieldLength));
 
+            //  Construct buffer for holding the payload and the inbound packet sequence as we need both in order
+            //  to generate the hash
             var data = new byte[bytesToRead + blockSize + inboundPacketSequenceLength];
             _inboundPacketSequence.Write(data, 0);
             Buffer.BlockCopy(firstBlock, 0, data, inboundPacketSequenceLength, firstBlock.Length);
@@ -928,10 +939,10 @@ namespace Renci.SshNet
                 }
             }
 
-            var paddingLength = data[inboundPacketSequenceLength + 4];
+            var paddingLength = data[inboundPacketSequenceLength + packetLengthFieldLength];
 
-            var messagePayloadLength = (int) (packetLength - paddingLength - 1);
-            const int messagePayloadOffset = inboundPacketSequenceLength + 4 + 1;
+            var messagePayloadLength = (int) (packetLength - paddingLength - paddingLengthFieldLength);
+            var messagePayloadOffset = inboundPacketSequenceLength + packetLengthFieldLength + paddingLengthFieldLength;
 
             //  Validate message against MAC
             if (_serverMac != null)
@@ -946,7 +957,10 @@ namespace Renci.SshNet
 
             if (_serverDecompression != null)
             {
-                data = _serverDecompression.Decompress(data, inboundPacketSequenceLength + 4 + 1, messagePayloadLength);
+                data = _serverDecompression.Decompress(data, messagePayloadOffset, messagePayloadLength);
+
+                // data now only contains the decompressed payload, and as such the offset is reset to zero
+                messagePayloadOffset = 0;
             }
 
             _inboundPacketSequence++;
@@ -1638,12 +1652,31 @@ namespace Renci.SshNet
         private Message LoadMessage(byte[] data, int offset)
         {
             var messageType = data[offset];
+
             var message = _sshMessageFactory.Create(messageType);
+
+            DiagnosticAbstraction.Log("Loading message with offset '" + offset + "': " + ToHex(data, 0));
+
             message.Load(data, offset);
 
             DiagnosticAbstraction.Log(string.Format("ReceiveMessage from server: '{0}': '{1}'.", message.GetType().Name, message));
 
             return message;
+        }
+
+        private static string ToHex(byte[] bytes, int offset)
+        {
+            var byteCount = bytes.Length - offset;
+
+            var builder = new StringBuilder(bytes.Length * 2);
+
+            for (var i = offset; i < byteCount; i++)
+            {
+                var b = bytes[i];
+                builder.Append(b.ToString("X2"));
+            }
+
+            return builder.ToString();
         }
 
         #endregion
@@ -2125,6 +2158,8 @@ namespace Renci.SshNet
                 if (socketException != null && socketException.SocketErrorCode == SocketError.TimedOut)
                     return;
             }
+
+            DiagnosticAbstraction.Log("Raised exception: " + exp);
 
             _exception = exp;
 

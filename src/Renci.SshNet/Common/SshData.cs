@@ -278,6 +278,24 @@ namespace Renci.SshNet.Common
             return _stream.ReadBinary();
         }
 
+        //protected byte[] ReadBinaryDebug()
+        //{
+        //    DiagnosticAbstraction.Log("Stream Position:" + _stream.Position);
+        //    var data = _stream.ReadBytes(4);
+        //    DiagnosticAbstraction.Log("Binary Length Bytes:" + Session.ToHex(data, 0));
+        //    var length = (uint)(data[0] << 24 | data[1] << 16 | data[2] << 8 | data[3]);
+        //    DiagnosticAbstraction.Log("Binary Length:" + length);
+
+        //    if (length > int.MaxValue)
+        //    {
+        //        throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "Data longer than {0} is not supported.", int.MaxValue));
+        //    }
+
+        //    var binary = _stream.ReadBytes((int) length);
+        //    DiagnosticAbstraction.Log("Binary Bytes:" + Session.ToHex(binary, 0));
+        //    return binary;
+        //}
+
         /// <summary>
         /// Reads next name-list data type from internal buffer.
         /// </summary>

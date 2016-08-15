@@ -155,6 +155,8 @@
     <Compile Include="IServiceFactory.NET.cs" />
     <Compile Include="ISession.cs" />
     <Compile Include="ISubsystemSession.cs" />
+    <Compile Include="Messages\Connection\CancelTcpIpForwardGlobalRequestMessage.cs" />
+    <Compile Include="Messages\Connection\TcpIpForwardGlobalRequestMessage.cs" />
     <Compile Include="Messages\Transport\KeyExchangeEcdhInitMessage.cs" />
     <Compile Include="Messages\Transport\KeyExchangeEcdhReplyMessage.cs" />
     <Compile Include="Netconf\INetConfSession.cs" />

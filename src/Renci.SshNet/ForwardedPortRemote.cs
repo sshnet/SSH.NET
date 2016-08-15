@@ -150,7 +150,7 @@ namespace Renci.SshNet
                 Session.ChannelOpenReceived += Session_ChannelOpening;
 
                 // send global request to start forwarding
-                Session.SendMessage(new GlobalRequestMessage(GlobalRequestName.TcpIpForward, true, BoundHost, BoundPort));
+                Session.SendMessage(new TcpIpForwardGlobalRequestMessage(BoundHost, BoundPort));
                 // wat for response on global request to start direct tcpip
                 Session.WaitOnHandle(_globalRequestResponse);
 
@@ -188,7 +188,7 @@ namespace Renci.SshNet
             base.StopPort(timeout);
 
             // send global request to cancel direct tcpip
-            Session.SendMessage(new GlobalRequestMessage(GlobalRequestName.CancelTcpIpForward, true, BoundHost, BoundPort));
+            Session.SendMessage(new CancelTcpIpForwardGlobalRequestMessage(BoundHost, BoundPort));
             // wait for response on global request to cancel direct tcpip or completion of message
             // listener loop (in which case response on global request can never be received)
             WaitHandle.WaitAny(new[] { _globalRequestResponse, Session.MessageListenerCompleted }, timeout);

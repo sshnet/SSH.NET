@@ -37,10 +37,10 @@ namespace Renci.SshNet.Tests.Classes
                 _sessionMock.Setup(
                     p =>
                         p.SendMessage(
-                            It.Is<GlobalRequestMessage>(
+                            It.Is<CancelTcpIpForwardGlobalRequestMessage>(
                                 g =>
-                                    g.RequestName == GlobalRequestName.CancelTcpIpForward &&
-                                    g.AddressToBind == _forwardedPort.BoundHost && g.PortToBind == _forwardedPort.BoundPort)));
+                                    g.AddressToBind == _forwardedPort.BoundHost &&
+                                    g.PortToBind == _forwardedPort.BoundPort)));
                 _sessionMock.Setup(p => p.MessageListenerCompleted).Returns(new ManualResetEvent(true));
                 _forwardedPort.Dispose();
                 _forwardedPort = null;
@@ -68,9 +68,8 @@ namespace Renci.SshNet.Tests.Classes
             _sessionMock.Setup(
                 p =>
                     p.SendMessage(
-                        It.Is<GlobalRequestMessage>(
+                        It.Is<TcpIpForwardGlobalRequestMessage>(
                             g =>
-                                g.RequestName == GlobalRequestName.TcpIpForward &&
                                 g.AddressToBind == _forwardedPort.BoundHost &&
                                 g.PortToBind == _forwardedPort.BoundPort)))
                 .Callback(
@@ -82,10 +81,10 @@ namespace Renci.SshNet.Tests.Classes
             _sessionMock.Setup(
                 p =>
                     p.SendMessage(
-                        It.Is<GlobalRequestMessage>(
+                        It.Is<CancelTcpIpForwardGlobalRequestMessage>(
                             g =>
-                                g.RequestName == GlobalRequestName.CancelTcpIpForward &&
-                                g.AddressToBind == _forwardedPort.BoundHost && g.PortToBind == _forwardedPort.BoundPort)))
+                                g.AddressToBind == _forwardedPort.BoundHost &&
+                                g.PortToBind == _forwardedPort.BoundPort)))
                 .Callback(
                     () =>
                         _sessionMock.Raise(s => s.RequestSuccessReceived += null,

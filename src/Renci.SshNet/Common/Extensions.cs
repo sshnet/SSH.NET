@@ -32,19 +32,6 @@ namespace Renci.SshNet
             return value.All(char.IsWhiteSpace);
         }
 
-        internal static byte[] ToArray(this GlobalRequestName globalRequestName)
-        {
-            switch (globalRequestName)
-            {
-                case GlobalRequestName.TcpIpForward:
-                    return SshData.Ascii.GetBytes("tcpip-forward");
-                case GlobalRequestName.CancelTcpIpForward:
-                    return SshData.Ascii.GetBytes("cancel-tcpip-forward");
-                default:
-                    throw new NotSupportedException(string.Format("Global request name '{0}' is not supported.", globalRequestName));
-            }
-        }
-
         internal static byte[] ToArray(this ServiceName serviceName)
         {
             switch (serviceName)
@@ -69,20 +56,6 @@ namespace Renci.SshNet
                     return ServiceName.Connection;
                 default:
                     throw new NotSupportedException(string.Format("Service name '{0}' is not supported.", sshServiceName));
-            }
-        }
-
-        internal static GlobalRequestName ToGlobalRequestName(this byte[] data)
-        {
-            var sshGlobalRequestName = SshData.Ascii.GetString(data, 0, data.Length);
-            switch (sshGlobalRequestName)
-            {
-                case "tcpip-forward":
-                    return GlobalRequestName.TcpIpForward;
-                case "cancel-tcpip-forward":
-                    return GlobalRequestName.CancelTcpIpForward;
-                default:
-                    throw new NotSupportedException(string.Format("Global request name '{0}' is not supported.", sshGlobalRequestName));
             }
         }
 

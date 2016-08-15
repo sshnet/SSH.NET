@@ -360,6 +360,9 @@
     <Compile Include="..\Renci.SshNet\Messages\Authentication\SuccessMessage.cs">
       <Link>Messages\Authentication\SuccessMessage.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\Messages\Connection\CancelTcpIpForwardGlobalRequestMessage.cs">
+      <Link>Messages\Connection\CancelTcpIpForwardGlobalRequestMessage.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\Messages\Connection\ChannelCloseMessage.cs">
       <Link>Messages\Connection\ChannelCloseMessage.cs</Link>
     </Compile>
@@ -470,6 +473,9 @@
     </Compile>
     <Compile Include="..\Renci.SshNet\Messages\Connection\RequestSuccessMessage.cs">
       <Link>Messages\Connection\RequestSuccessMessage.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Messages\Connection\TcpIpForwardGlobalRequestMessage.cs">
+      <Link>Messages\Connection\TcpIpForwardGlobalRequestMessage.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Messages\Message.cs">
       <Link>Messages\Message.cs</Link>
@@ -919,7 +925,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties ProjectLinkReference="2f5f8c90-0bd1-424f-997c-7bc6280919d1" ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" />
+      <UserProperties ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" ProjectLinkReference="2f5f8c90-0bd1-424f-997c-7bc6280919d1" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

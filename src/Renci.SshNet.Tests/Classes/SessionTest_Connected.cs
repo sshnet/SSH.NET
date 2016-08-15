@@ -10,9 +10,9 @@ namespace Renci.SshNet.Tests.Classes
     {
         private IgnoreMessage _ignoreMessage;
 
-        protected override void Arrange()
+        protected override void SetupData()
         {
-            base.Arrange();
+            base.SetupData();
 
             var data = new byte[10];
             Random.NextBytes(data);

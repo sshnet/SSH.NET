@@ -13,9 +13,9 @@ namespace Renci.SshNet.Tests.Classes
     {
         private GlobalRequestMessage _globalRequestMessage;
 
-        protected override void Arrange()
+        protected override void SetupData()
         {
-            base.Arrange();
+            base.SetupData();
 
             _globalRequestMessage = new GlobalRequestMessage(Encoding.ASCII.GetBytes("ping-mocana-com"), false);
         }
@@ -26,7 +26,6 @@ namespace Renci.SshNet.Tests.Classes
 
         protected override void ClientAuthentication_Callback()
         {
-            
             var globalRequest = _globalRequestMessage.GetPacket(8, null);
             ServerSocket.Send(globalRequest, 4, globalRequest.Length - 4, SocketFlags.None);
         }

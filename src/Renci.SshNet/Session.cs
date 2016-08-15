@@ -657,6 +657,8 @@ namespace Renci.SshNet
         /// </remarks>
         public void Disconnect()
         {
+            DiagnosticAbstraction.Log(string.Format("[{0}] Disconnecting session", ToHex(SessionId)));
+
             Disconnect(DisconnectReason.ByApplication, "Connection terminated by the client.");
 
             // at this point, we are sure that the listener thread will stop as we've
@@ -780,7 +782,7 @@ namespace Renci.SshNet
                 WaitOnHandle(_keyExchangeCompletedWaitHandle);
             }
 
-            DiagnosticAbstraction.Log(string.Format("SendMessage to server '{0}': '{1}'.", message.GetType().Name, message));
+            DiagnosticAbstraction.Log(string.Format("[{0}] SendMessage to server '{1}': '{2}'.", ToHex(SessionId), message.GetType().Name, message));
 
             //  Messages can be sent by different thread so we need to synchronize it
             var paddingMultiplier = _clientCipher == null ? (byte)8 : Math.Max((byte)8, _serverCipher.MinimumSize);    //    Should be recalculate base on cipher min length if cipher specified
@@ -1227,7 +1229,7 @@ namespace Renci.SshNet
         /// <param name="message"><see cref="DisconnectMessage"/> message.</param>
         protected virtual void OnDisconnectReceived(DisconnectMessage message)
         {
-            DiagnosticAbstraction.Log(string.Format("Disconnect received: {0} {1}", message.ReasonCode, message.Description));
+            DiagnosticAbstraction.Log(string.Format("[{0}] Disconnect received: {1} {2}", ToHex(SessionId), message.ReasonCode, message.Description));
 
             _exception = new SshConnectionException(string.Format(CultureInfo.InvariantCulture, "The connection was closed by the server: {0} ({1}).", message.Description, message.ReasonCode), message.ReasonCode);
             _exceptionWaitHandle.Set();
@@ -1655,11 +1657,11 @@ namespace Renci.SshNet
 
             var message = _sshMessageFactory.Create(messageType);
 
-            DiagnosticAbstraction.Log("Loading message with offset '" + offset + "': " + ToHex(data, 0));
+            DiagnosticAbstraction.Log(string.Format("[{0}] Loading message with offset '{1}': {2}", ToHex(SessionId), offset, ToHex(data, 0)));
 
             message.Load(data, offset);
 
-            DiagnosticAbstraction.Log(string.Format("ReceiveMessage from server: '{0}': '{1}'.", message.GetType().Name, message));
+            DiagnosticAbstraction.Log(string.Format("[{0}] ReceiveMessage from server: '{1}': '{2}'.", ToHex(SessionId), message.GetType().Name, message));
 
             return message;
         }
@@ -1677,6 +1679,14 @@ namespace Renci.SshNet
             }
 
             return builder.ToString();
+        }
+
+        private static string ToHex(byte[] bytes)
+        {
+            if (bytes == null)
+                return null;
+
+            return ToHex(bytes, 0);
         }
 
         #endregion
@@ -2159,7 +2169,7 @@ namespace Renci.SshNet
                     return;
             }
 
-            DiagnosticAbstraction.Log("Raised exception: " + exp);
+            DiagnosticAbstraction.Log(string.Format("[{0}] Raised exception: {1}", ToHex(SessionId), exp));
 
             _exception = exp;
 
@@ -2220,6 +2230,8 @@ namespace Renci.SshNet
 
             if (disposing)
             {
+                DiagnosticAbstraction.Log(string.Format("[{0}] Disposing session", ToHex(SessionId)));
+
                 Disconnect();
 
                 var serviceAccepted = _serviceAccepted;

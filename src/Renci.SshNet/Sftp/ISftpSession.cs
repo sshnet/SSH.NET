@@ -154,14 +154,16 @@ namespace Renci.SshNet.Sftp
         /// Performs SSH_FXP_WRITE request.
         /// </summary>
         /// <param name="handle">The handle.</param>
-        /// <param name="offset">The offset.</param>
-        /// <param name="data">The data to send.</param>
-        /// <param name="length">The number of bytes of <paramref name="data"/> to send.</param>
+        /// <param name="serverOffset">The the zero-based offset (in bytes) relative to the beginning of the file that the write must start at.</param>
+        /// <param name="data">The buffer holding the data to write.</param>
+        /// <param name="offset">the zero-based offset in <paramref name="data" /> at which to begin taking bytes to write.</param>
+        /// <param name="length">The length (in bytes) of the data to write.</param>
         /// <param name="wait">The wait event handle if needed.</param>
         /// <param name="writeCompleted">The callback to invoke when the write has completed.</param>
         void RequestWrite(byte[] handle,
-                          ulong offset,
+                          ulong serverOffset,
                           byte[] data,
+                          int offset,
                           int length,
                           AutoResetEvent wait,
                           Action<SftpStatusResponse> writeCompleted = null);

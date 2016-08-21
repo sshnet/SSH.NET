@@ -406,6 +406,7 @@
     <Compile Include="Classes\Sftp\SftpFileStreamTest_SetLength_SessionOpen_FIleAccessRead.cs" />
     <Compile Include="Classes\Sftp\SftpFileStreamTest_SetLength_SessionOpen_FIleAccessReadWrite.cs" />
     <Compile Include="Classes\Sftp\SftpFileStreamTest_SetLength_SessionOpen_FIleAccessWrite.cs" />
+    <Compile Include="Classes\Sftp\SftpFileStreamTest_Write_SessionOpen_CountGreatherThanTwoTimesTheWriteBufferSize.cs" />
     <Compile Include="Classes\Sftp\SftpFileTest.cs" />
     <Compile Include="Classes\Sftp\SftpSessionTest_Connected_RequestRead.cs" />
     <Compile Include="Classes\Sftp\SftpSessionTest_Connected_RequestStatVfs.cs" />

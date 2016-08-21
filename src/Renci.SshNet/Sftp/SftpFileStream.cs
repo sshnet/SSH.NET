@@ -370,12 +370,6 @@ namespace Renci.SshNet.Sftp
                         Buffer.BlockCopy(data, 0, _readBuffer, 0, _bufferLen);
                         _serverFilePosition = (ulong)_position;
 
-                        if (_bufferLen < 0)
-                        {
-                            _bufferLen = 0;
-                            //  TODO:   Add SFTP error code or message if possible
-                            throw new IOException("Read operation failed.");
-                        }
                         if (_bufferLen == 0)
                         {
                             break;
@@ -435,12 +429,6 @@ namespace Renci.SshNet.Sftp
                     Buffer.BlockCopy(data, 0, _readBuffer, 0, _readBufferSize);
                     _serverFilePosition = (ulong)_position;
 
-                    if (_bufferLen < 0)
-                    {
-                        _bufferLen = 0;
-                        //  TODO:   Add SFTP error code or message if possible
-                        throw new IOException("Read operation failed.");
-                    }
                     if (_bufferLen == 0)
                     {
                         // We've reached EOF.

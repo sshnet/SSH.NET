@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Threading;
 
 namespace Renci.SshNet.Abstractions
 {
@@ -25,7 +26,7 @@ namespace Renci.SshNet.Abstractions
         public static void Log(string text)
         {
 #if FEATURE_DIAGNOSTICS_TRACESOURCE
-            Loggging.TraceEvent(TraceEventType.Verbose, 1, text);
+            Loggging.TraceEvent(TraceEventType.Verbose, Thread.CurrentThread.ManagedThreadId, text);
 #endif // FEATURE_DIAGNOSTICS_TRACESOURCE
         }
     }

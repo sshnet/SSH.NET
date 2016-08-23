@@ -892,9 +892,12 @@ namespace Renci.SshNet
             //  Read first block - which starts with the packet length
             var firstBlock = Read(blockSize);
 
+            DiagnosticAbstraction.Log(string.Format("[{0}] FirstBlock [{1}]: {2}", ToHex(SessionId), blockSize, ToHex(firstBlock)));
+
             if (_serverCipher != null)
             {
                 firstBlock = _serverCipher.Decrypt(firstBlock);
+                DiagnosticAbstraction.Log(string.Format("[{0}] FirstBlock decrypted [{1}]: {2}", ToHex(SessionId), firstBlock.Length, ToHex(firstBlock)));
             }
 
             var packetLength = (uint)(firstBlock[0] << 24 | firstBlock[1] << 16 | firstBlock[2] << 8 | firstBlock[3]);
@@ -924,10 +927,14 @@ namespace Renci.SshNet
             {
                 var nextBlocks = Read(bytesToRead);
 
+                DiagnosticAbstraction.Log(string.Format("[{0}] NextBlocks [{1}]: {2}", ToHex(SessionId), bytesToRead, ToHex(nextBlocks)));
+
                 if (serverHash != null)
                 {
                     Buffer.BlockCopy(nextBlocks, nextBlocks.Length - serverHash.Length, serverHash, 0, serverHash.Length);
                     nextBlocks = nextBlocks.Take(nextBlocks.Length - serverHash.Length);
+
+                    DiagnosticAbstraction.Log(string.Format("[{0}] ServerHash [{1}]: {2}", ToHex(SessionId), serverHash.Length, ToHex(serverHash)));
                 }
 
                 if (nextBlocks.Length > 0)
@@ -935,6 +942,7 @@ namespace Renci.SshNet
                     if (_serverCipher != null)
                     {
                         nextBlocks = _serverCipher.Decrypt(nextBlocks);
+                        DiagnosticAbstraction.Log(string.Format("[{0}] NextBlocks decrypted [{1}]: {2}", ToHex(SessionId), nextBlocks.Length, ToHex(nextBlocks)));
                     }
 
                     nextBlocks.CopyTo(data, blockSize + inboundPacketSequenceLength);
@@ -942,7 +950,6 @@ namespace Renci.SshNet
             }
 
             var paddingLength = data[inboundPacketSequenceLength + packetLengthFieldLength];
-
             var messagePayloadLength = (int) (packetLength - paddingLength - paddingLengthFieldLength);
             var messagePayloadOffset = inboundPacketSequenceLength + packetLengthFieldLength + paddingLengthFieldLength;
 
@@ -964,6 +971,8 @@ namespace Renci.SshNet
                 // data now only contains the decompressed payload, and as such the offset is reset to zero
                 messagePayloadOffset = 0;
             }
+
+            DiagnosticAbstraction.Log(string.Format("[{0}] Message info (Sequence:{1},MessagePayloadLength:{2})", ToHex(SessionId), _inboundPacketSequence, messagePayloadLength));
 
             _inboundPacketSequence++;
 
@@ -1681,7 +1690,7 @@ namespace Renci.SshNet
             return builder.ToString();
         }
 
-        private static string ToHex(byte[] bytes)
+        internal static string ToHex(byte[] bytes)
         {
             if (bytes == null)
                 return null;

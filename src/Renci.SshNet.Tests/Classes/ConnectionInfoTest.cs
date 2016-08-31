@@ -343,5 +343,74 @@ namespace Renci.SshNet.Tests.Classes
                 Assert.AreEqual("serviceFactory", ex.ParamName);
             }
         }
-   }
+
+        [TestMethod]
+        [TestCategory("ConnectionInfo")]
+        public void ConstructorShouldThrowArgumentExceptionWhenUsingNoProxyAndNotResolvingHostLocally()
+        {
+            try
+            {
+                new ConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME,
+                    ProxyTypes.None, null, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD,
+                    HostResolutionMode.ResolvedByProxy,
+                    new KeyboardInteractiveAuthenticationMethod(Resources.USERNAME));
+                Assert.Fail();
+            }
+            catch (ArgumentException ex)
+            {
+                Assert.IsNull(ex.InnerException);
+                Assert.AreEqual("hostResolutionMode", ex.ParamName);
+            }
+        }
+
+        [TestMethod]
+        [TestCategory("ConnectionInfo")]
+        public void ConstructorShouldThrowArgumentExceptionWhenUsingHttproxyAndResolvingHostOnProxy()
+        {
+            try
+            {
+                new ConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME,
+                    ProxyTypes.Http, Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD,
+                    HostResolutionMode.ResolvedByProxy,
+                    new KeyboardInteractiveAuthenticationMethod(Resources.USERNAME));
+                Assert.Fail();
+            }
+            catch (ArgumentException ex)
+            {
+                Assert.IsNull(ex.InnerException);
+                Assert.AreEqual("hostResolutionMode", ex.ParamName);
+            }
+        }
+
+        [TestMethod]
+        [TestCategory("ConnectionInfo")]
+        public void ConstructorShouldThrowArgumentExceptionWhenUsingSocks4ProxyAndResolvingHostOnProxy()
+        {
+            try
+            {
+                new ConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME,
+                    ProxyTypes.Socks4, Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD,
+                    HostResolutionMode.ResolvedByProxy,
+                    new KeyboardInteractiveAuthenticationMethod(Resources.USERNAME));
+                Assert.Fail();
+            }
+            catch (ArgumentException ex)
+            {
+                Assert.IsNull(ex.InnerException);
+                Assert.AreEqual("hostResolutionMode", ex.ParamName);
+            }
+        }
+
+        [TestMethod]
+        [TestCategory("ConnectionInfo")]
+        public void ConstructorShouldNotThrowArgumentExceptionWhenUsingSocks5ProxyAndResolvingHostOnProxy()
+        {
+                var connectionInfo = new ConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME,
+                    ProxyTypes.Socks5, Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD,
+                    HostResolutionMode.ResolvedByProxy,
+                    new KeyboardInteractiveAuthenticationMethod(Resources.USERNAME));
+
+            Assert.AreEqual(HostResolutionMode.ResolvedByProxy, connectionInfo.HostResolutionMode);
+        }
+    }
 }

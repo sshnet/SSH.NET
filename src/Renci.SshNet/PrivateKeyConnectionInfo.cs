@@ -70,10 +70,43 @@ namespace Renci.SshNet
         /// <param name="proxyType">Type of the proxy.</param>
         /// <param name="proxyHost">The proxy host.</param>
         /// <param name="proxyPort">The proxy port.</param>
+        /// <param name="hostResolutionMode">The host name resolution method when using the proxy.</param>
+        /// <param name="keyFiles">The key files.</param>
+        public PrivateKeyConnectionInfo(string host, int port, string username, ProxyTypes proxyType, string proxyHost, int proxyPort, HostResolutionMode hostResolutionMode, params PrivateKeyFile[] keyFiles)
+            : this(host, port, username, proxyType, proxyHost, proxyPort, string.Empty, string.Empty, hostResolutionMode, keyFiles)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PasswordConnectionInfo"/> class.
+        /// </summary>
+        /// <param name="host">Connection host.</param>
+        /// <param name="port">The port.</param>
+        /// <param name="username">Connection username.</param>
+        /// <param name="proxyType">Type of the proxy.</param>
+        /// <param name="proxyHost">The proxy host.</param>
+        /// <param name="proxyPort">The proxy port.</param>
         /// <param name="proxyUsername">The proxy username.</param>
         /// <param name="keyFiles">The key files.</param>
         public PrivateKeyConnectionInfo(string host, int port, string username, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername, params PrivateKeyFile[] keyFiles)
             : this(host, port, username, proxyType, proxyHost, proxyPort, proxyUsername, string.Empty, keyFiles)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PasswordConnectionInfo"/> class.
+        /// </summary>
+        /// <param name="host">Connection host.</param>
+        /// <param name="port">The port.</param>
+        /// <param name="username">Connection username.</param>
+        /// <param name="proxyType">Type of the proxy.</param>
+        /// <param name="proxyHost">The proxy host.</param>
+        /// <param name="proxyPort">The proxy port.</param>
+        /// <param name="proxyUsername">The proxy username.</param>
+        /// <param name="hostResolutionMode">The host name resolution method when using the proxy.</param>
+        /// <param name="keyFiles">The key files.</param>
+        public PrivateKeyConnectionInfo(string host, int port, string username, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername, HostResolutionMode hostResolutionMode, params PrivateKeyFile[] keyFiles)
+            : this(host, port, username, proxyType, proxyHost, proxyPort, proxyUsername, string.Empty, hostResolutionMode, keyFiles)
         {
         }
 
@@ -88,6 +121,21 @@ namespace Renci.SshNet
         /// <param name="keyFiles">The key files.</param>
         public PrivateKeyConnectionInfo(string host, string username, ProxyTypes proxyType, string proxyHost, int proxyPort, params PrivateKeyFile[] keyFiles)
             : this(host, DefaultPort, username, proxyType, proxyHost, proxyPort, string.Empty, string.Empty, keyFiles)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PasswordConnectionInfo"/> class.
+        /// </summary>
+        /// <param name="host">Connection host.</param>
+        /// <param name="username">Connection username.</param>
+        /// <param name="proxyType">Type of the proxy.</param>
+        /// <param name="proxyHost">The proxy host.</param>
+        /// <param name="proxyPort">The proxy port.</param>
+        /// <param name="hostResolutionMode">The host name resolution method when using the proxy.</param>
+        /// <param name="keyFiles">The key files.</param>
+        public PrivateKeyConnectionInfo(string host, string username, ProxyTypes proxyType, string proxyHost, int proxyPort, HostResolutionMode hostResolutionMode, params PrivateKeyFile[] keyFiles)
+            : this(host, DefaultPort, username, proxyType, proxyHost, proxyPort, string.Empty, string.Empty, hostResolutionMode, keyFiles)
         {
         }
 
@@ -115,10 +163,43 @@ namespace Renci.SshNet
         /// <param name="proxyHost">The proxy host.</param>
         /// <param name="proxyPort">The proxy port.</param>
         /// <param name="proxyUsername">The proxy username.</param>
+        /// <param name="hostResolutionMode">The host name resolution method when using the proxy.</param>
+        /// <param name="keyFiles">The key files.</param>
+        public PrivateKeyConnectionInfo(string host, string username, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername, HostResolutionMode hostResolutionMode, params PrivateKeyFile[] keyFiles)
+            : this(host, DefaultPort, username, proxyType, proxyHost, proxyPort, proxyUsername, string.Empty, hostResolutionMode, keyFiles)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PasswordConnectionInfo"/> class.
+        /// </summary>
+        /// <param name="host">Connection host.</param>
+        /// <param name="username">Connection username.</param>
+        /// <param name="proxyType">Type of the proxy.</param>
+        /// <param name="proxyHost">The proxy host.</param>
+        /// <param name="proxyPort">The proxy port.</param>
+        /// <param name="proxyUsername">The proxy username.</param>
         /// <param name="proxyPassword">The proxy password.</param>
         /// <param name="keyFiles">The key files.</param>
         public PrivateKeyConnectionInfo(string host, string username, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername, string proxyPassword, params PrivateKeyFile[] keyFiles)
             : this(host, DefaultPort, username, proxyType, proxyHost, proxyPort, proxyUsername, proxyPassword, keyFiles)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PasswordConnectionInfo"/> class.
+        /// </summary>
+        /// <param name="host">Connection host.</param>
+        /// <param name="username">Connection username.</param>
+        /// <param name="proxyType">Type of the proxy.</param>
+        /// <param name="proxyHost">The proxy host.</param>
+        /// <param name="proxyPort">The proxy port.</param>
+        /// <param name="proxyUsername">The proxy username.</param>
+        /// <param name="proxyPassword">The proxy password.</param>
+        /// <param name="hostResolutionMode">The host name resolution method when using the proxy.</param>
+        /// <param name="keyFiles">The key files.</param>
+        public PrivateKeyConnectionInfo(string host, string username, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername, string proxyPassword, HostResolutionMode hostResolutionMode, params PrivateKeyFile[] keyFiles)
+            : this(host, DefaultPort, username, proxyType, proxyHost, proxyPort, proxyUsername, proxyPassword, hostResolutionMode, keyFiles)
         {
         }
 
@@ -136,6 +217,25 @@ namespace Renci.SshNet
         /// <param name="keyFiles">The key files.</param>
         public PrivateKeyConnectionInfo(string host, int port, string username, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername, string proxyPassword, params PrivateKeyFile[] keyFiles)
             : base(host, port, username, proxyType, proxyHost, proxyPort, proxyUsername, proxyPassword, new PrivateKeyAuthenticationMethod(username, keyFiles))
+        {
+            KeyFiles = new Collection<PrivateKeyFile>(keyFiles);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PasswordConnectionInfo"/> class.
+        /// </summary>
+        /// <param name="host">Connection host.</param>
+        /// <param name="port">The port.</param>
+        /// <param name="username">Connection username.</param>
+        /// <param name="proxyType">Type of the proxy.</param>
+        /// <param name="proxyHost">The proxy host.</param>
+        /// <param name="proxyPort">The proxy port.</param>
+        /// <param name="proxyUsername">The proxy username.</param>
+        /// <param name="proxyPassword">The proxy password.</param>
+        /// <param name="hostResolutionMode">The host name resolution method when using the proxy.</param>
+        /// <param name="keyFiles">The key files.</param>
+        public PrivateKeyConnectionInfo(string host, int port, string username, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername, string proxyPassword, HostResolutionMode hostResolutionMode, params PrivateKeyFile[] keyFiles)
+            : base(host, port, username, proxyType, proxyHost, proxyPort, proxyUsername, proxyPassword, hostResolutionMode, new PrivateKeyAuthenticationMethod(username, keyFiles))
         {
             KeyFiles = new Collection<PrivateKeyFile>(keyFiles);
         }

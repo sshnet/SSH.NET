@@ -1945,24 +1945,36 @@ namespace Renci.SshNet
             //  Send reserved, must be 0x00
             SocketWriteByte(0x00);
 
-            var ip = DnsAbstraction.GetHostAddresses(ConnectionInfo.Host)[0];
+            if (ConnectionInfo.HostResolutionMode == HostResolutionMode.ResolvedByProxy)
+            {
+                // Send the host name
+                SocketWriteByte(0x03);
 
-            //  Send address type and address
-            if (ip.AddressFamily == AddressFamily.InterNetwork)
-            {
-                SocketWriteByte(0x01);
-                var address = ip.GetAddressBytes();
-                SocketAbstraction.Send(_socket, address);
-            }
-            else if (ip.AddressFamily == AddressFamily.InterNetworkV6)
-            {
-                SocketWriteByte(0x04);
-                var address = ip.GetAddressBytes();
-                SocketAbstraction.Send(_socket, address);
+                var hostNameBytes = Encoding.ASCII.GetBytes(ConnectionInfo.ProxyHost);
+                SocketWriteByte((byte) hostNameBytes.Length);
+                SocketAbstraction.Send(_socket, hostNameBytes);
             }
             else
             {
-                throw new ProxyException(string.Format("SOCKS5: IP address '{0}' is not supported.", ip));
+                var ip = DnsAbstraction.GetHostAddresses(ConnectionInfo.Host)[0];
+
+                //  Send address type and address
+                if (ip.AddressFamily == AddressFamily.InterNetwork)
+                {
+                    SocketWriteByte(0x01);
+                    var address = ip.GetAddressBytes();
+                    SocketAbstraction.Send(_socket, address);
+                }
+                else if (ip.AddressFamily == AddressFamily.InterNetworkV6)
+                {
+                    SocketWriteByte(0x04);
+                    var address = ip.GetAddressBytes();
+                    SocketAbstraction.Send(_socket, address);
+                }
+                else
+                {
+                    throw new ProxyException(string.Format("SOCKS5: IP address '{0}' is not supported.", ip));
+                }
             }
 
             //  Send port

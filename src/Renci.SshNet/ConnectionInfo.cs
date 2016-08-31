@@ -116,6 +116,11 @@ namespace Renci.SshNet
         public string ProxyPassword { get; private set; }
 
         /// <summary>
+        /// Gets the host resolution mode.
+        /// </summary>
+        public HostResolutionMode? HostResolutionMode { get; private set; }
+
+        /// <summary>
         /// Gets or sets connection timeout.
         /// </summary>
         /// <value>
@@ -263,6 +268,32 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="authenticationMethods"/> is <c>null</c>.</exception>
         /// <exception cref="ArgumentException">No <paramref name="authenticationMethods"/> specified.</exception>
         public ConnectionInfo(string host, int port, string username, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername, string proxyPassword, params AuthenticationMethod[] authenticationMethods)
+            : this(host, port, username, proxyType, proxyHost, proxyPort, proxyUsername, proxyPassword, SshNet.HostResolutionMode.ResolvedLocally, authenticationMethods)
+        {
+        }
+
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ConnectionInfo" /> class.
+        /// </summary>
+        /// <param name="host">Connection host.</param>
+        /// <param name="port">Connection port.</param>
+        /// <param name="username">Connection username.</param>
+        /// <param name="proxyType">Type of the proxy.</param>
+        /// <param name="proxyHost">The proxy host.</param>
+        /// <param name="proxyPort">The proxy port.</param>
+        /// <param name="proxyUsername">The proxy username.</param>
+        /// <param name="proxyPassword">The proxy password.</param>
+        /// <param name="hostResolutionMode">The host name resolution method when using the proxy.</param>
+        /// <param name="authenticationMethods">The authentication methods.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="host"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="username" /> is <c>null</c>, a zero-length string or contains only whitespace characters.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="port" /> is not within <see cref="F:System.Net.IPEndPoint.MinPort" /> and <see cref="F:System.Net.IPEndPoint.MaxPort" />.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="proxyType"/> is not <see cref="ProxyTypes.None"/> and <paramref name="proxyHost" /> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="proxyType"/> is not <see cref="ProxyTypes.None"/> and <paramref name="proxyPort" /> is not within <see cref="F:System.Net.IPEndPoint.MinPort" /> and <see cref="F:System.Net.IPEndPoint.MaxPort" />.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="authenticationMethods"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentException">No <paramref name="authenticationMethods"/> specified.</exception>
+        public ConnectionInfo(string host, int port, string username, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername, string proxyPassword, HostResolutionMode hostResolutionMode, params AuthenticationMethod[] authenticationMethods)
         {
             if (host == null)
                 throw new ArgumentNullException("host");
@@ -278,6 +309,17 @@ namespace Renci.SshNet
                 if (proxyHost == null)
                     throw new ArgumentNullException("proxyHost");
                 proxyPort.ValidatePort("proxyPort");
+            }
+            else
+            {
+                if (hostResolutionMode != SshNet.HostResolutionMode.ResolvedLocally)
+                    throw new ArgumentException("HostResolutionMode.ResolvedLocally is the only supported value when using no proxy", "hostResolutionMode");
+            }
+
+            if (hostResolutionMode == SshNet.HostResolutionMode.ResolvedByProxy)
+            {
+                if (proxyType != ProxyTypes.Socks5)
+                    throw new ArgumentException("HostResolutionMode.ResolvedByProxy is only supported by SOCKS5 proxies", "hostResolutionMode");
             }
 
             if (authenticationMethods == null)
@@ -392,6 +434,8 @@ namespace Renci.SshNet
             ProxyPort = proxyPort;
             ProxyUsername = proxyUsername;
             ProxyPassword = proxyPassword;
+
+            HostResolutionMode = hostResolutionMode;
 
             AuthenticationMethods = authenticationMethods;
         }

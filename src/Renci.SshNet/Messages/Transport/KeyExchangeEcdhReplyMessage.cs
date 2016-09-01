@@ -49,7 +49,6 @@
         /// </summary>
         protected override void LoadData()
         {
-            ResetReader();
             KS = ReadBinary();
             QS = ReadBinary();
             Signature = ReadBinary();

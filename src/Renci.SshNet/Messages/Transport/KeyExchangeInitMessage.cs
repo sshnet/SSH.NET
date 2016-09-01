@@ -140,8 +140,6 @@ namespace Renci.SshNet.Messages.Transport
         /// </summary>
         protected override void LoadData()
         {
-            ResetReader();
-
             Cookie = ReadBytes(16);
             KeyExchangeAlgorithms = ReadNamesList();
             ServerHostKeyAlgorithms = ReadNamesList();

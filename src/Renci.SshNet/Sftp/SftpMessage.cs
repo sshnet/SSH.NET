@@ -9,21 +9,11 @@ namespace Renci.SshNet.Sftp
 {
     internal abstract class SftpMessage : SshData
     {
-        public static SftpMessage Load(uint protocolVersion, byte[] data, Encoding encoding)
+        public static SftpMessage Load(uint protocolVersion, byte[] data, int offset, int count, Encoding encoding)
         {
-            var messageType = (SftpMessageTypes) data[4]; // skip packet length bytes
+            var messageType = (SftpMessageTypes) data[offset];
 
-            return Load(protocolVersion, data, messageType, encoding);
-        }
-
-        protected override int ZeroReaderIndex
-        {
-            get
-            {
-                // 4 bytes for the length of the SFTP data
-                // 1 byte for the SFTP message type
-                return 5;
-            }
+            return Load(protocolVersion, messageType, data, offset + 1, count - 1, encoding);
         }
 
         /// <summary>
@@ -34,7 +24,12 @@ namespace Renci.SshNet.Sftp
         /// </value>
         protected override int BufferCapacity
         {
-            get { return ZeroReaderIndex; }
+            get
+            {
+                // 4 bytes for the length of the SFTP data
+                // 1 byte for the SFTP message type
+                return 5;
+            }
         }
 
         public abstract SftpMessageTypes SftpMessageType { get; }
@@ -84,7 +79,7 @@ namespace Renci.SshNet.Sftp
             return SftpFileAttributes.FromBytes(DataStream);
         }
 
-        private static SftpMessage Load(uint protocolVersion, byte[] data, SftpMessageTypes messageType, Encoding encoding)
+        private static SftpMessage Load(uint protocolVersion, SftpMessageTypes messageType, byte[] data, int offset, int count, Encoding encoding)
         {
             SftpMessage message;
 
@@ -115,7 +110,7 @@ namespace Renci.SshNet.Sftp
                     throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "Message type '{0}' is not supported.", messageType));
             }
 
-            message.Load(data);
+            message.Load(data, offset, data.Length - offset);
 
             return message;
         }

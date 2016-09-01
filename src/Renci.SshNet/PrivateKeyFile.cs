@@ -391,7 +391,7 @@ namespace Renci.SshNet
         {
             public SshDataReader(byte[] data)
             {
-                LoadBytes(data);
+                Load(data);
             }
 
             public new uint ReadUInt32()

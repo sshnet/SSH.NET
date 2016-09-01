@@ -13,20 +13,6 @@ namespace Renci.SshNet.Messages
     public abstract class Message : SshData
     {
         /// <summary>
-        /// Gets the index that represents zero in current data type.
-        /// </summary>
-        /// <value>
-        /// The index of the zero reader.
-        /// </value>
-        protected override int ZeroReaderIndex
-        {
-            get
-            {
-                return 1;
-            }
-        }
-
-        /// <summary>
         /// Gets the size of the message in bytes.
         /// </summary>
         /// <value>

@@ -657,7 +657,7 @@ namespace Renci.SshNet
         /// </remarks>
         public void Disconnect()
         {
-            DiagnosticAbstraction.Log(string.Format("[{0}] Disconnecting session", ToHex(SessionId)));
+            DiagnosticAbstraction.Log(string.Format("[{0}] {1} Disconnecting session", ToHex(SessionId), DateTime.Now.Ticks));
 
             Disconnect(DisconnectReason.ByApplication, "Connection terminated by the client.");
 
@@ -892,12 +892,16 @@ namespace Renci.SshNet
             //  Read first block - which starts with the packet length
             var firstBlock = Read(blockSize);
 
+#if DEBUG_GERT
             DiagnosticAbstraction.Log(string.Format("[{0}] FirstBlock [{1}]: {2}", ToHex(SessionId), blockSize, ToHex(firstBlock)));
+#endif // DEBUG_GERT
 
             if (_serverCipher != null)
             {
                 firstBlock = _serverCipher.Decrypt(firstBlock);
+#if DEBUG_GERT
                 DiagnosticAbstraction.Log(string.Format("[{0}] FirstBlock decrypted [{1}]: {2}", ToHex(SessionId), firstBlock.Length, ToHex(firstBlock)));
+#endif // DEBUG_GERT
             }
 
             var packetLength = (uint)(firstBlock[0] << 24 | firstBlock[1] << 16 | firstBlock[2] << 8 | firstBlock[3]);
@@ -927,14 +931,17 @@ namespace Renci.SshNet
             {
                 var nextBlocks = Read(bytesToRead);
 
+#if DEBUG_GERT
                 DiagnosticAbstraction.Log(string.Format("[{0}] NextBlocks [{1}]: {2}", ToHex(SessionId), bytesToRead, ToHex(nextBlocks)));
+#endif // DEBUG_GERT
 
                 if (serverHash != null)
                 {
                     Buffer.BlockCopy(nextBlocks, nextBlocks.Length - serverHash.Length, serverHash, 0, serverHash.Length);
                     nextBlocks = nextBlocks.Take(nextBlocks.Length - serverHash.Length);
-
+#if DEBUG_GERT
                     DiagnosticAbstraction.Log(string.Format("[{0}] ServerHash [{1}]: {2}", ToHex(SessionId), serverHash.Length, ToHex(serverHash)));
+#endif // DEBUG_GERT
                 }
 
                 if (nextBlocks.Length > 0)
@@ -942,7 +949,9 @@ namespace Renci.SshNet
                     if (_serverCipher != null)
                     {
                         nextBlocks = _serverCipher.Decrypt(nextBlocks);
+#if DEBUG_GERT
                         DiagnosticAbstraction.Log(string.Format("[{0}] NextBlocks decrypted [{1}]: {2}", ToHex(SessionId), nextBlocks.Length, ToHex(nextBlocks)));
+#endif // DEBUG_GERT
                     }
 
                     nextBlocks.CopyTo(data, blockSize + inboundPacketSequenceLength);
@@ -970,13 +979,17 @@ namespace Renci.SshNet
 
                 // data now only contains the decompressed payload, and as such the offset is reset to zero
                 messagePayloadOffset = 0;
+                // the length of the payload is now the complete decompressed content
+                messagePayloadLength = data.Length;
             }
 
+#if DEBUG_GERT
             DiagnosticAbstraction.Log(string.Format("[{0}] Message info (Sequence:{1},MessagePayloadLength:{2})", ToHex(SessionId), _inboundPacketSequence, messagePayloadLength));
+#endif // DEBUG_GERT
 
             _inboundPacketSequence++;
 
-            return LoadMessage(data, messagePayloadOffset);
+            return LoadMessage(data, messagePayloadOffset, messagePayloadLength);
         }
 
         private void SendDisconnect(DisconnectReason reasonCode, string message)
@@ -1006,7 +1019,7 @@ namespace Renci.SshNet
             OnMessageReceived(message);
         }
 
-        #region Handle transport messages
+#region Handle transport messages
 
         /// <summary>
         /// Invoked via reflection.
@@ -1076,9 +1089,9 @@ namespace Renci.SshNet
             OnNewKeysReceived(message);
         }
 
-        #endregion
+#endregion
 
-        #region Handle User Authentication messages
+#region Handle User Authentication messages
 
         /// <summary>
         /// Invoked via reflection.
@@ -1112,9 +1125,9 @@ namespace Renci.SshNet
             OnUserAuthenticationBannerReceived(message);
         }
 
-        #endregion
+#endregion
 
-        #region Handle connection messages
+#region Handle connection messages
 
         /// <summary>
         /// Invoked via reflection.
@@ -1228,9 +1241,9 @@ namespace Renci.SshNet
             OnChannelFailureReceived(message);
         }
 
-        #endregion
+#endregion
 
-        #region Handle received message events
+#region Handle received message events
 
         /// <summary>
         /// Called when <see cref="DisconnectMessage"/> received.
@@ -1238,7 +1251,7 @@ namespace Renci.SshNet
         /// <param name="message"><see cref="DisconnectMessage"/> message.</param>
         protected virtual void OnDisconnectReceived(DisconnectMessage message)
         {
-            DiagnosticAbstraction.Log(string.Format("[{0}] Disconnect received: {1} {2}", ToHex(SessionId), message.ReasonCode, message.Description));
+            DiagnosticAbstraction.Log(string.Format("[{0}] {1} Disconnect received: {2} {3}", ToHex(SessionId), DateTime.Now.Ticks, message.ReasonCode, message.Description));
 
             _exception = new SshConnectionException(string.Format(CultureInfo.InvariantCulture, "The connection was closed by the server: {0} ({1}).", message.Description, message.ReasonCode), message.ReasonCode);
             _exceptionWaitHandle.Set();
@@ -1606,7 +1619,7 @@ namespace Renci.SshNet
                 handlers(this, new MessageEventArgs<Message>(message));
         }
 
-        #endregion
+#endregion
 
         private void KeyExchange_HostKeyReceived(object sender, HostKeyEventArgs e)
         {
@@ -1631,7 +1644,7 @@ namespace Renci.SshNet
             return buffer;
         }
 
-        #region Message loading functions
+#region Message loading functions
 
         /// <summary>
         /// Registers SSH message with the session.
@@ -1656,19 +1669,22 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="data">An array of bytes from which to construct the message.</param>
         /// <param name="offset">The zero-based byte offset in <paramref name="data"/> at which to begin reading.</param>
+        /// <param name="count">The number of bytes to load.</param>
         /// <returns>
         /// A message constructed from <paramref name="data"/>.
         /// </returns>
         /// <exception cref="SshException">The type of the message is not supported.</exception>
-        private Message LoadMessage(byte[] data, int offset)
+        private Message LoadMessage(byte[] data, int offset, int count)
         {
             var messageType = data[offset];
 
             var message = _sshMessageFactory.Create(messageType);
 
+#if DEBUG_GERT
             DiagnosticAbstraction.Log(string.Format("[{0}] Loading message with offset '{1}': {2}", ToHex(SessionId), offset, ToHex(data, 0)));
+#endif // DEBUG_GERT
 
-            message.Load(data, offset);
+            message.Load(data, offset + 1, count - 1);
 
             DiagnosticAbstraction.Log(string.Format("[{0}] ReceiveMessage from server: '{1}': '{2}'.", ToHex(SessionId), message.GetType().Name, message));
 
@@ -1698,7 +1714,7 @@ namespace Renci.SshNet
             return ToHex(bytes, 0);
         }
 
-        #endregion
+#endregion
 
         /// <summary>
         /// Gets a value indicating whether the socket is connected.
@@ -1824,8 +1840,11 @@ namespace Renci.SshNet
                             _socket.Shutdown(SocketShutdown.Send);
                             SocketAbstraction.ClearReadBuffer(_socket);
                         }
+
+                        DiagnosticAbstraction.Log(string.Format("[{0}] {1} Disposing socket", ToHex(SessionId), DateTime.Now.Ticks));
                         _socket.Dispose();
                         _socket = null;
+                        DiagnosticAbstraction.Log(string.Format("[{0}] {1} Disposed socket", ToHex(SessionId), DateTime.Now.Ticks));
                     }
                 }
             }
@@ -2178,7 +2197,7 @@ namespace Renci.SshNet
                     return;
             }
 
-            DiagnosticAbstraction.Log(string.Format("[{0}] Raised exception: {1}", ToHex(SessionId), exp));
+            DiagnosticAbstraction.Log(string.Format("[{0}] {1} Raised exception: {2}", ToHex(SessionId), DateTime.Now.Ticks, exp));
 
             _exception = exp;
 
@@ -2190,6 +2209,7 @@ namespace Renci.SshNet
 
             if (connectionException != null)
             {
+                DiagnosticAbstraction.Log(string.Format("[{0}] {1} Disconnecting after exception: {2}", ToHex(SessionId), DateTime.Now.Ticks, exp));
                 Disconnect(connectionException.DisconnectReason, exp.ToString());
             }
         }
@@ -2215,7 +2235,7 @@ namespace Renci.SshNet
             _keyExchangeInProgress = false;
         }
 
-        #region IDisposable implementation
+#region IDisposable implementation
 
         private bool _disposed;
 
@@ -2313,9 +2333,9 @@ namespace Renci.SshNet
             Dispose(false);
         }
 
-        #endregion IDisposable implementation
+#endregion IDisposable implementation
 
-        #region ISession implementation
+#region ISession implementation
 
         /// <summary>
         /// Gets or sets the connection info.
@@ -2400,6 +2420,6 @@ namespace Renci.SshNet
             return TrySendMessage(message);
         }
 
-        #endregion ISession implementation
+#endregion ISession implementation
     }
 }

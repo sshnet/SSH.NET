@@ -51,7 +51,6 @@ namespace Renci.SshNet.Messages.Transport
         /// </summary>
         protected override void LoadData()
         {
-            ResetReader();
             QC = ReadBinary();
         }
 

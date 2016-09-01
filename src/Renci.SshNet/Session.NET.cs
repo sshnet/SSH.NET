@@ -1,4 +1,6 @@
-﻿using System.Net.Sockets;
+﻿using System;
+using System.Net.Sockets;
+using Renci.SshNet.Abstractions;
 
 namespace Renci.SshNet
 {
@@ -70,10 +72,12 @@ namespace Renci.SshNet
                 // actually received
                 lock (_socketReadLock)
                 {
+                    DiagnosticAbstraction.Log(string.Format("[{0}] {1} Checking socket", ToHex(SessionId), DateTime.Now.Ticks));
+
                     // reset waithandle, as we're only interested in reads that take
                     // place between Poll and the Available check
                     _bytesReadFromSocket.Reset();
-                    var connectionClosedOrDataAvailable = _socket.Poll(1000, SelectMode.SelectRead);
+                    var connectionClosedOrDataAvailable = _socket.Poll(100, SelectMode.SelectRead);
                     isConnected = !(connectionClosedOrDataAvailable && _socket.Available == 0);
                     if (!isConnected)
                     {
@@ -83,6 +87,8 @@ namespace Renci.SshNet
                         // shortly after
                         isConnected = _bytesReadFromSocket.WaitOne(500);
                     }
+
+                    DiagnosticAbstraction.Log(string.Format("[{0}] {1} Checked socket", ToHex(SessionId), DateTime.Now.Ticks));
                 }
             }
 #endif // FEATURE_SOCKET_POLL

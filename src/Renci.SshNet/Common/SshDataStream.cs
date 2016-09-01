@@ -31,6 +31,18 @@ namespace Renci.SshNet.Common
         }
 
         /// <summary>
+        /// Initializes a new non-resizable instance of the <see cref="SshDataStream"/> class based on the specified byte array.
+        /// </summary>
+        /// <param name="buffer">The array of unsigned bytes from which to create the current stream.</param>
+        /// <param name="offset">The zero-based offset in <paramref name="buffer"/> at which to begin reading SSH data.</param>
+        /// <param name="count">The number of bytes to load.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <c>null</c>.</exception>
+        public SshDataStream(byte[] buffer, int offset, int count)
+            : base(buffer, offset, count)
+        {
+        }
+
+        /// <summary>
         /// Gets a value indicating whether all data from the SSH data stream has been read.
         /// </summary>
         /// <value>

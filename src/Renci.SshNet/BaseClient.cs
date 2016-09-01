@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net.Sockets;
 using System.Threading;
+using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Transport;
 
@@ -221,6 +222,8 @@ namespace Renci.SshNet
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         public void Disconnect()
         {
+            DiagnosticAbstraction.Log(string.Format("{0} Disconnecting client", DateTime.Now.Ticks));
+
             CheckDisposed();
 
             OnDisconnecting();
@@ -317,6 +320,8 @@ namespace Renci.SshNet
         /// </summary>
         public void Dispose()
         {
+            DiagnosticAbstraction.Log(string.Format("{0} Disposing client", DateTime.Now.Ticks));
+
             Dispose(true);
             GC.SuppressFinalize(this);
         }

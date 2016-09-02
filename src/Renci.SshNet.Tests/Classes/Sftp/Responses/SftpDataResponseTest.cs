@@ -41,14 +41,14 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Responses
         {
             var target = new SftpDataResponse(_protocolVersion);
 
-            var sshDataStream = new SshDataStream(4 + 1 + 4 + _data.Length);
-            sshDataStream.Position = 4; // skip 4 bytes for SSH packet length
-            sshDataStream.WriteByte((byte)SftpMessageTypes.Attrs);
+            var sshDataStream = new SshDataStream(4 + _data.Length);
             sshDataStream.Write(_responseId);
             sshDataStream.Write((uint) _data.Length);
             sshDataStream.Write(_data, 0, _data.Length);
 
-            target.Load(sshDataStream.ToArray());
+            var sshData = sshDataStream.ToArray();
+
+            target.Load(sshData);
 
             Assert.IsNotNull(target.Data);
             Assert.IsTrue(target.Data.SequenceEqual(_data));

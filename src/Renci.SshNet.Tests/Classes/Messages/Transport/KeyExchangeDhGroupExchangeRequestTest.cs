@@ -60,7 +60,7 @@ namespace Renci.SshNet.Tests.Classes.Messages.Transport
             var bytes = request.GetBytes();
             var target = new KeyExchangeDhGroupExchangeRequest(0, 0, 0);
 
-            target.Load(bytes);
+            target.Load(bytes, 1, bytes.Length - 1);
 
             Assert.AreEqual(_minimum, target.Minimum);
             Assert.AreEqual(_preferred, target.Preferred);

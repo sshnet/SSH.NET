@@ -36,9 +36,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Responses
         {
             var target = new SftpExtendedReplyResponse(_protocolVersion);
 
-            var sshDataStream = new SshDataStream(4 + 1 + 4);
-            sshDataStream.Position = 4; // skip 4 bytes for SSH packet length
-            sshDataStream.WriteByte((byte) SftpMessageTypes.ExtendedReply);
+            var sshDataStream = new SshDataStream(4);
             sshDataStream.Write(_responseId);
 
             target.Load(sshDataStream.ToArray());
@@ -64,7 +62,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Responses
 
             var sshDataStream = new SshDataStream(4 + 1 + 4 + 88);
             sshDataStream.Position = 4; // skip 4 bytes for SSH packet length
-            sshDataStream.WriteByte((byte) SftpMessageTypes.Attrs);
+            sshDataStream.WriteByte((byte)SftpMessageTypes.Attrs);
             sshDataStream.Write(_responseId);
             sshDataStream.Write(bsize);
             sshDataStream.Write(frsize);
@@ -78,8 +76,10 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Responses
             sshDataStream.Write((ulong) 0x2);
             sshDataStream.Write(namemax);
 
+            var sshData = sshDataStream.ToArray();
+
             var target = new SftpExtendedReplyResponse(_protocolVersion);
-            target.Load(sshDataStream.ToArray());
+            target.Load(sshData, 5, sshData.Length - 5);
 
             var reply = target.GetReply<StatVfsReplyInfo>();
             Assert.IsNotNull(reply);

@@ -659,6 +659,7 @@ namespace Renci.SshNet
         {
             DiagnosticAbstraction.Log(string.Format("[{0}] {1} Disconnecting session", ToHex(SessionId), DateTime.Now.Ticks));
 
+            // send SSH_MSG_DISCONNECT message, clear socket read buffer and dispose it
             Disconnect(DisconnectReason.ByApplication, "Connection terminated by the client.");
 
             // at this point, we are sure that the listener thread will stop as we've
@@ -672,6 +673,8 @@ namespace Renci.SshNet
 
         private void Disconnect(DisconnectReason reason, string message)
         {
+            // transition to disconnecting state to avoid throwing exceptions while cleaning up, and to
+            // ensure any exceptions that are raised do not overwrite the exception that is set
             _isDisconnecting = true;
 
             // send disconnect message to the server if the connection is still open
@@ -679,10 +682,7 @@ namespace Renci.SshNet
             //
             // note that this should also cause the listener thread to be stopped as
             // the server should respond by closing the socket
-            if (reason == DisconnectReason.ByApplication)
-            {
-                SendDisconnect(reason, message);
-            }
+            SendDisconnect(reason, message);
 
             // disconnect socket, and dispose it
             SocketDisconnectAndDispose();
@@ -702,7 +702,7 @@ namespace Renci.SshNet
         /// </remarks>
         void ISession.WaitOnHandle(WaitHandle waitHandle)
         {
-            WaitOnHandle(waitHandle, ConnectionInfo.Timeout);
+            WaitOnHandle(waitHandle);
         }
 
         /// <summary>
@@ -1027,7 +1027,6 @@ namespace Renci.SshNet
         private void HandleMessage(DisconnectMessage message)
         {
             OnDisconnectReceived(message);
-            Disconnect(message.ReasonCode, message.Description);
         }
 
         /// <summary>
@@ -1253,6 +1252,11 @@ namespace Renci.SshNet
         {
             DiagnosticAbstraction.Log(string.Format("[{0}] {1} Disconnect received: {2} {3}", ToHex(SessionId), DateTime.Now.Ticks, message.ReasonCode, message.Description));
 
+            // transition to disconnecting state to avoid throwing exceptions while cleaning up, and to
+            // ensure any exceptions that are raised do not overwrite the SshConnectionException that we
+            // set below
+            _isDisconnecting = true;
+
             _exception = new SshConnectionException(string.Format(CultureInfo.InvariantCulture, "The connection was closed by the server: {0} ({1}).", message.Description, message.ReasonCode), message.ReasonCode);
             _exceptionWaitHandle.Set();
 
@@ -1263,6 +1267,9 @@ namespace Renci.SshNet
             var disconnected = Disconnected;
             if (disconnected != null)
                 disconnected(this, new EventArgs());
+
+            // disconnect socket, and dispose it
+            SocketDisconnectAndDispose();
         }
 
         /// <summary>
@@ -1763,21 +1770,9 @@ namespace Renci.SshNet
                 return;
             }
 
-            // 2012-09-11: Kenneth_aa
-            // When Disconnect or Dispose is called, this throws SshConnectionException(), which...
-            // 1 - goes up to ReceiveMessage() 
-            // 2 - up again to MessageListener()
-            // which is where there is a catch-all exception block so it can notify event listeners.
-            // 3 - MessageListener then again calls RaiseError().
-            // There the exception is checked for the exception thrown here (ConnectionLost), and if it matches it will not call Session.SendDisconnect().
-            //
-            // Adding a check for _isDisconnecting causes ReceiveMessage() to throw SshConnectionException: "Bad packet length {0}".
-            //
-
-            if (_isDisconnecting)
-                throw new SshConnectionException(
-                    "An established connection was aborted by the software in your host machine.",
-                    DisconnectReason.ConnectionLost);
+            // when we're in the disconnecting state (either triggered by client or server), then the
+            // SshConnectionException will interrupt the message listener loop (if not already interrupted)
+            // and the exception itself will be ignored (in RaiseError)
             throw new SshConnectionException("An established connection was aborted by the server.",
                 DisconnectReason.ConnectionLost);
         }

@@ -8,13 +8,6 @@ namespace Renci.SshNet
     {
 #if FEATURE_SOCKET_POLL
         /// <summary>
-        /// Holds the lock object to ensure read access to the socket is synchronized.
-        /// </summary>
-        private readonly object _socketReadLock = new object();
-#endif // FEATURE_SOCKET_POLL
-
-#if FEATURE_SOCKET_POLL
-        /// <summary>
         /// Gets a value indicating whether the socket is connected.
         /// </summary>
         /// <param name="isConnected"><c>true</c> if the socket is connected; otherwise, <c>false</c></param>
@@ -63,35 +56,28 @@ namespace Renci.SshNet
 #endif
         partial void IsSocketConnected(ref bool isConnected)
         {
-            isConnected = (_socket != null && _socket.Connected);
-#if FEATURE_SOCKET_POLL
-            if (isConnected)
+            DiagnosticAbstraction.Log(string.Format("[{0}] {1} Checking socket", ToHex(SessionId), DateTime.Now.Ticks));
+
+            lock (_socketDisposeLock)
             {
-                // synchronize this to ensure thread B does not reset the wait handle before
-                // thread A was able to check whether "bytes read from socket" signal was
-                // actually received
+#if FEATURE_SOCKET_POLL
+                if (_socket == null || !_socket.Connected)
+                {
+                    isConnected = false;
+                    return;
+                }
+
                 lock (_socketReadLock)
                 {
-                    DiagnosticAbstraction.Log(string.Format("[{0}] {1} Checking socket", ToHex(SessionId), DateTime.Now.Ticks));
-
-                    // reset waithandle, as we're only interested in reads that take
-                    // place between Poll and the Available check
-                    _bytesReadFromSocket.Reset();
-                    var connectionClosedOrDataAvailable = _socket.Poll(100, SelectMode.SelectRead);
+                    var connectionClosedOrDataAvailable = _socket.Poll(1, SelectMode.SelectRead);
                     isConnected = !(connectionClosedOrDataAvailable && _socket.Available == 0);
-                    if (!isConnected)
-                    {
-                        // the race condition is between the Socket.Poll call and
-                        // Socket.Available, but the event handler - where we signal that
-                        // bytes have been received from the socket - is sometimes invoked
-                        // shortly after
-                        isConnected = _bytesReadFromSocket.WaitOne(500);
-                    }
-
-                    DiagnosticAbstraction.Log(string.Format("[{0}] {1} Checked socket", ToHex(SessionId), DateTime.Now.Ticks));
                 }
-            }
+#else
+                isConnected = _socket != null && _socket.Connected;
 #endif // FEATURE_SOCKET_POLL
+            }
+
+            DiagnosticAbstraction.Log(string.Format("[{0}] {1} Checked socket", ToHex(SessionId), DateTime.Now.Ticks));
         }
     }
 }

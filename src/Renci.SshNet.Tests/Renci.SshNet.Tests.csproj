@@ -254,6 +254,7 @@
     <Compile Include="Classes\SessionTest_Connected_ConnectionReset.cs" />
     <Compile Include="Classes\SessionTest_Connected_Disconnect.cs" />
     <Compile Include="Classes\SessionTest_Connected_GlobalRequestMessageAfterAuthenticationRace.cs" />
+    <Compile Include="Classes\SessionTest_Connected_ServerAndClientDisconnectRace.cs" />
     <Compile Include="Classes\SessionTest_Connected_ServerSendsDisconnectMessage.cs" />
     <Compile Include="Classes\SessionTest_Connected_ServerSendsBadPacket.cs" />
     <Compile Include="Classes\SessionTest_Connected_ServerSendsDisconnectMessageAndShutsDownSocket.cs" />
@@ -536,12 +537,6 @@
     <Compile Include="Classes\Sftp\SftpUploadAsyncResultTest.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Renci.SshNet\Renci.SshNet.csproj">
-      <Project>{2F5F8C90-0BD1-424F-997C-7BC6280919D1}</Project>
-      <Name>Renci.SshNet</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -575,6 +570,12 @@
   <ItemGroup>
     <EmbeddedResource Include="Data\Key.SSH2.DSA.Encrypted.Des.CBC.12345.txt" />
     <EmbeddedResource Include="Data\Key.SSH2.DSA.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Renci.SshNet\Renci.SshNet.csproj">
+      <Project>{2f5f8c90-0bd1-424f-997c-7bc6280919d1}</Project>
+      <Name>Renci.SshNet</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -103,12 +103,26 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// </summary>
         /// <param name="input">The input.</param>
         /// <returns>
-        /// Decrypted data.
+        /// The decrypted data.
         /// </returns>
         public override byte[] Decrypt(byte[] input)
         {
-            var output = new byte[input.Length];
-            ProcessBytes(input, 0, input.Length, output, 0);
+            return Decrypt(input, 0, input.Length);
+        }
+
+        /// <summary>
+        /// Decrypts the specified input.
+        /// </summary>
+        /// <param name="input">The input.</param>
+        /// <param name="offset">The zero-based offset in <paramref name="input"/> at which to begin decrypting.</param>
+        /// <param name="length">The number of bytes to decrypt from <paramref name="input"/>.</param>
+        /// <returns>
+        /// The decrypted data.
+        /// </returns>
+        public override byte[] Decrypt(byte[] input, int offset, int length)
+        {
+            var output = new byte[length];
+            ProcessBytes(input, offset, length, output, 0);
             return output;
         }
 
@@ -124,13 +138,13 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 throw new IndexOutOfRangeException("output buffer too short");
             }
 
-            for (int i = 0; i < inputCount; i++)
+            for (var i = 0; i < inputCount; i++)
             {
                 _x = (_x + 1) & 0xff;
                 _y = (_engineState[_x] + _y) & 0xff;
 
                 // swap
-                byte tmp = _engineState[_x];
+                var tmp = _engineState[_x];
                 _engineState[_x] = _engineState[_y];
                 _engineState[_y] = tmp;
 
@@ -158,14 +172,14 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 _engineState[i] = (byte) i;
             }
 
-            int i1 = 0;
-            int i2 = 0;
+            var i1 = 0;
+            var i2 = 0;
 
             for (var i = 0; i < STATE_LENGTH; i++)
             {
                 i2 = ((keyBytes[i1] & 0xff) + _engineState[i] + i2) & 0xff;
                 // do the byte-swap inline
-                byte tmp = _engineState[i];
+                var tmp = _engineState[i];
                 _engineState[i] = _engineState[i2];
                 _engineState[i2] = tmp;
                 i1 = (i1 + 1) % keyBytes.Length;

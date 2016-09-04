@@ -88,7 +88,7 @@ namespace Renci.SshNet.Abstractions
 
                 do
                 {
-                    bytesReceived = ReadPartial(socket, buffer, 0, buffer.Length, TimeSpan.FromSeconds(2));
+                    bytesReceived = ReadPartial(socket, buffer, 0, buffer.Length, TimeSpan.FromMilliseconds(10));
                 } while (bytesReceived > 0);
             }
             catch

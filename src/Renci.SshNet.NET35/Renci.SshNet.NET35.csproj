@@ -289,7 +289,7 @@
       <Link>HashInfo.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\HostResolutionMode.cs">
-      <Link>HashInfo.cs</Link>
+      <Link>HostResolutionMode.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\IAuthenticationMethod.cs">
       <Link>IAuthenticationMethod.cs</Link>

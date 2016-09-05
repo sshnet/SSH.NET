@@ -312,6 +312,9 @@
     <Compile Include="..\Renci.SshNet\HashInfo.cs">
       <Link>HashInfo.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\HostResolutionMode.cs">
+      <Link>HostResolutionMode.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\IAuthenticationMethod.cs">
       <Link>IAuthenticationMethod.cs</Link>
     </Compile>

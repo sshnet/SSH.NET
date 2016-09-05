@@ -162,11 +162,13 @@ namespace Renci.SshNet
         /// </summary>
         private Socket _socket;
 
+#if FEATURE_SOCKET_POLL
         /// <summary>
         /// Holds an object that is used to ensure only a single thread can read from
         /// <see cref="_socket"/> at any given time.
         /// </summary>
         private readonly object _socketReadLock = new object();
+#endif // FEATURE_SOCKET_POLL
 
         /// <summary>
         /// Holds an object that is used to ensure only a single thread can write to
@@ -918,8 +920,13 @@ namespace Renci.SshNet
             byte[] data;
             uint packetLength;
 
+#if FEATURE_SOCKET_POLL
+            // avoid reading from socket while IsSocketConnected is attempting to determine whether the
+            // socket is still connected by invoking Socket.Poll(...) and subsequently verifying value of
+            // Socket.Available
             lock (_socketReadLock)
             {
+#endif // FEATURE_SOCKET_POLL
                 //  Read first block - which starts with the packet length
                 var firstBlock = SocketRead(blockSize);
 
@@ -938,12 +945,14 @@ namespace Renci.SshNet
                 packetLength = (uint) (firstBlock[0] << 24 | firstBlock[1] << 16 | firstBlock[2] << 8 | firstBlock[3]);
 
                 // Test packet minimum and maximum boundaries
-                if (packetLength < Math.Max((byte)16, blockSize) - 4 || packetLength > MaximumSshPacketSize - 4)
-                    throw new SshConnectionException(string.Format(CultureInfo.CurrentCulture, "Bad packet length: {0}.", packetLength), DisconnectReason.ProtocolError);
+                if (packetLength < Math.Max((byte) 16, blockSize) - 4 || packetLength > MaximumSshPacketSize - 4)
+                    throw new SshConnectionException(
+                        string.Format(CultureInfo.CurrentCulture, "Bad packet length: {0}.", packetLength),
+                        DisconnectReason.ProtocolError);
 
                 // Determine the number of bytes left to read; We've already read "blockSize" bytes, but the
                 // "packet length" field itself - which is 4 bytes - is not included in the length of the packet
-                var bytesToRead = (int)(packetLength - (blockSize - packetLengthFieldLength)) + serverMacLength;
+                var bytesToRead = (int) (packetLength - (blockSize - packetLengthFieldLength)) + serverMacLength;
 
                 // Construct buffer for holding the payload and the inbound packet sequence as we need both in order
                 // to generate the hash.
@@ -964,7 +973,9 @@ namespace Renci.SshNet
                 {
                     SocketRead(data, blockSize + inboundPacketSequenceLength, bytesToRead);
                 }
+#if FEATURE_SOCKET_POLL
             }
+#endif // FEATURE_SOCKET_POLL
 
             if (_serverCipher != null)
             {
@@ -1856,14 +1867,19 @@ namespace Renci.SshNet
                             // interrupt any pending reads
                             _socket.Shutdown(SocketShutdown.Send);
 
-                            // since we've shut down the socket, there should not be
-                            // any reads in progress but we still take a read lock
-                            // to ensure IsSocketConnected continues to provide
+#if FEATURE_SOCKET_POLL
+                            // since we've shut down the socket, there should not be any reads in progress but
+                            // we still take a read lock to ensure IsSocketConnected continues to provide
                             // correct results
+                            //
+                            // only necessary if IsSocketConnected actually uses Socket.Poll.
                             lock (_socketReadLock)
                             {
+#endif // FEATURE_SOCKET_POLL
                                 SocketAbstraction.ClearReadBuffer(_socket);
+#if FEATURE_SOCKET_POLL
                             }
+#endif // FEATURE_SOCKET_POLL
                         }
 
                         _socket.Dispose();
@@ -1882,8 +1898,10 @@ namespace Renci.SshNet
             {
                 var readSockets = new List<Socket> {_socket};
 
-                while (_socket != null)
+                // remain in message loop until socket is shut down
+                while (true)
                 {
+#if FEATURE_SOCKET_POLL
                     Socket.Select(readSockets, null, null, -1);
 
                     if (readSockets.Count == 0)
@@ -1891,7 +1909,9 @@ namespace Renci.SshNet
 
                     // when the socket is disposed while a Select is executing, then the
                     // Select will be interrupted; the socket will not be removed from
-                    // readSocket
+                    // readSocket, and therefore we need to explicitly check if the
+                    // socket is still connected
+#endif // FEATURE_SOCKET_POLL
                     var socket = _socket;
                     if (socket == null || !socket.Connected)
                         break;

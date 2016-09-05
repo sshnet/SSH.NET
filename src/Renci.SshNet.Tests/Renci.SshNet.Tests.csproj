@@ -258,6 +258,7 @@
     <Compile Include="Classes\SessionTest_Connected_ServerSendsDisconnectMessage.cs" />
     <Compile Include="Classes\SessionTest_Connected_ServerSendsBadPacket.cs" />
     <Compile Include="Classes\SessionTest_Connected_ServerSendsDisconnectMessageAndShutsDownSocket.cs" />
+    <Compile Include="Classes\SessionTest_Connected_ServerShutsDownSendAfterSendingIncompletePacket.cs" />
     <Compile Include="Classes\SessionTest_Connected_ServerShutsDownSocket.cs" />
     <Compile Include="Classes\SessionTest_NotConnected.cs" />
     <Compile Include="Classes\SessionTest_SocketConnected_BadPacketAndDispose.cs" />

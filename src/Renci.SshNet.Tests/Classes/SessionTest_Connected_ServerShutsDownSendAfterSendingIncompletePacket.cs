@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Net.Sockets;
 using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -8,14 +9,20 @@ using Renci.SshNet.Messages.Transport;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    public class SessionTest_Connected_ServerShutsDownSocket : SessionTest_ConnectedBase
+    public class SessionTest_Connected_ServerShutsDownSendAfterSendingIncompletePacket : SessionTest_ConnectedBase
     {
         protected override void Act()
         {
+            var incompletePacket = new byte[] {0x0a, 0x05, 0x05};
+            ServerSocket.Send(incompletePacket, 0, incompletePacket.Length, SocketFlags.None);
+
+            // give session some time to start reading packet
+            Thread.Sleep(100);
+
             ServerSocket.Shutdown(SocketShutdown.Send);
 
-            // give session some time to process socket shutdown
-            Thread.Sleep(200);
+            // give session some time to process shut down of server socket
+            Thread.Sleep(100);
         }
 
         [TestMethod]
@@ -89,7 +96,7 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
-        public void SendMessageShouldThrowSshConnectionException()
+        public void SendMessageShouldSucceed()
         {
             try
             {
@@ -106,14 +113,14 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void ISession_MessageListenerCompletedShouldBeSignaled()
         {
-            var session = (ISession)Session;
+            var session = (ISession) Session;
 
             Assert.IsNotNull(session.MessageListenerCompleted);
             Assert.IsTrue(session.MessageListenerCompleted.WaitOne());
         }
 
-        [TestMethodAttribute]
-        public void ISession_SendMessageShouldThrowSshConnectionException()
+        [TestMethod]
+        public void ISession_SendMessageShouldSucceed()
         {
             var session = (ISession) Session;
 
@@ -130,19 +137,17 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
-        public void ISession_TrySendMessageShouldReturnFalse()
+        public void ISession_TrySendMessageShouldReturnTrue()
         {
-            var session = (ISession)Session;
+            var session = (ISession) Session;
 
-            var actual = session.TrySendMessage(new IgnoreMessage());
-
-            Assert.IsFalse(actual);
+            Assert.IsFalse(session.TrySendMessage(new IgnoreMessage()));
         }
 
         [TestMethod]
-        public void ISession_WaitOnHandleShouldThrowSshConnectionExceptionDetailingAbortedConnection()
+        public void ISession_WaitOnHandleShouldThrowSshConnectionExceptionDetailingBadPacket()
         {
-            var session = (ISession)Session;
+            var session = (ISession) Session;
             var waitHandle = new ManualResetEvent(false);
 
             try
@@ -152,6 +157,7 @@ namespace Renci.SshNet.Tests.Classes
             }
             catch (SshConnectionException ex)
             {
+                Assert.AreEqual(DisconnectReason.ConnectionLost, ex.DisconnectReason);
                 Assert.IsNull(ex.InnerException);
                 Assert.AreEqual("An established connection was aborted by the server.", ex.Message);
             }

@@ -47,14 +47,22 @@ namespace Renci.SshNet.Tests.Classes
         [TestCleanup]
         public void TearDown()
         {
+            if (ServerSocket != null)
+            {
+                ServerSocket.Dispose();
+                ServerSocket = null;
+            }
+
             if (ServerListener != null)
             {
                 ServerListener.Dispose();
+                ServerListener = null;
             }
 
             if (Session != null)
             {
                 Session.Dispose();
+                Session = null;
             }
         }
 

@@ -1950,7 +1950,7 @@ namespace Renci.SshNet
                 // Send the host name
                 SocketWriteByte(0x03);
 
-                var hostNameBytes = Encoding.ASCII.GetBytes(ConnectionInfo.ProxyHost);
+                var hostNameBytes = SshData.Ascii.GetBytes(ConnectionInfo.ProxyHost);
                 SocketWriteByte((byte) hostNameBytes.Length);
                 SocketAbstraction.Send(_socket, hostNameBytes);
             }

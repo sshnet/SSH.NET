@@ -53,8 +53,6 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Responses
             var target = new StatVfsReplyInfo();
 
             var sshDataStream = new SshDataStream(4 + 1 + 4 + 88);
-            sshDataStream.Write((uint) (sshDataStream.Capacity - 4));
-            sshDataStream.WriteByte((byte) SftpMessageTypes.ExtendedReply);
             sshDataStream.Write(_responseId);
             sshDataStream.Write(_bsize);
             sshDataStream.Write(_frsize);

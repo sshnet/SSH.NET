@@ -700,7 +700,7 @@ namespace Renci.SshNet
             // the server should respond by closing the socket
             if (IsConnected)
             {
-                SendDisconnect(reason, message);
+                TrySendDisconnect(reason, message);
             }
 
             // disconnect socket, and dispose it
@@ -1030,13 +1030,14 @@ namespace Renci.SshNet
             return LoadMessage(data, messagePayloadOffset, messagePayloadLength);
         }
 
-        private void SendDisconnect(DisconnectReason reasonCode, string message)
+        private void TrySendDisconnect(DisconnectReason reasonCode, string message)
         {
             var disconnectMessage = new DisconnectMessage(reasonCode, message);
 
             // send the disconnect message, but ignore the outcome
             TrySendMessage(disconnectMessage);
 
+            // mark disconnect message sent regardless of whether the send sctually succeeded
             _isDisconnectMessageSent = true;
         }
 

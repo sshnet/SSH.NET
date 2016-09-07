@@ -1868,6 +1868,10 @@ namespace Renci.SshNet
                             {
                                 // interrupt any pending reads; should be done outside of socket read lock as we
                                 // actually want shutdown the socket to make sure blocking reads are interrupted
+                                //
+                                // this may result in a SocketException (eg. An existing connection was forcibly
+                                // closed by the remote host) which we'll log and ignore as it means the socket
+                                // was already shut down
                                 _socket.Shutdown(SocketShutdown.Send);
 
 #if FEATURE_SOCKET_POLL

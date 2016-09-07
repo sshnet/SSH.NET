@@ -81,20 +81,15 @@ namespace Renci.SshNet.Abstractions
 
         public static void ClearReadBuffer(Socket socket)
         {
-            try
-            {
-                var buffer = new byte[256];
-                int bytesReceived;
+            var timeout = TimeSpan.FromMilliseconds(10);
+            var buffer = new byte[256];
+            int bytesReceived;
 
-                do
-                {
-                    bytesReceived = ReadPartial(socket, buffer, 0, buffer.Length, TimeSpan.FromMilliseconds(10));
-                } while (bytesReceived > 0);
-            }
-            catch
+            do
             {
-                // ignore any exceptions
+                bytesReceived = ReadPartial(socket, buffer, 0, buffer.Length, timeout);
             }
+            while (bytesReceived > 0);
         }
 
         public static int ReadPartial(Socket socket, byte[] buffer, int offset, int size, TimeSpan timeout)

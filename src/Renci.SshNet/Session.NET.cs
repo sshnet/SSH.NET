@@ -40,8 +40,8 @@ namespace Renci.SshNet
         /// <para>
         /// When a <see cref="Socket"/> is used from multiple threads, there's a race condition
         /// between the invocation of <see cref="Socket.Poll(int, SelectMode)"/> and the moment
-        /// when the value of <see cref="Socket.Available"/> is obtained. As a workaround, we signal
-        /// when bytes are read from the <see cref="Socket"/>.
+        /// when the value of <see cref="Socket.Available"/> is obtained. To workaround this issue
+        /// we synchronize reads from the <see cref="Socket"/>.
         /// </para>
         /// </remarks>
 #else

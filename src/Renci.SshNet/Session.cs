@@ -290,6 +290,7 @@ namespace Renci.SshNet
         public byte[] SessionId { get; private set; }
 
         private Message _clientInitMessage;
+
         /// <summary>
         /// Gets the client init message.
         /// </summary>
@@ -756,11 +757,11 @@ namespace Renci.SshNet
                 throw new ArgumentNullException("waitHandle");
 
             var waitHandles = new[]
-                {
-                    _exceptionWaitHandle,
-                    _messageListenerCompleted,
-                    waitHandle
-                };
+            {
+                _exceptionWaitHandle,
+                _messageListenerCompleted,
+                waitHandle
+            };
 
             switch (WaitHandle.WaitAny(waitHandles, timeout))
             {
@@ -803,9 +804,7 @@ namespace Renci.SshNet
 
             DiagnosticAbstraction.Log(string.Format("[{0}] SendMessage to server '{1}': '{2}'.", ToHex(SessionId), message.GetType().Name, message));
 
-            //  Messages can be sent by different thread so we need to synchronize it
-            var paddingMultiplier = _clientCipher == null ? (byte)8 : Math.Max((byte)8, _serverCipher.MinimumSize);    //    Should be recalculate base on cipher min length if cipher specified
-
+            var paddingMultiplier = _clientCipher == null ? (byte) 8 : Math.Max((byte) 8, _serverCipher.MinimumSize);
             var packetData = message.GetPacket(paddingMultiplier, _clientCompression);
 
             // take a write lock to ensure the outbound packet sequence number is incremented
@@ -845,7 +844,7 @@ namespace Renci.SshNet
                 }
                 else
                 {
-                    var data = new byte[packetLength + (_clientMac.HashSize / 8)];
+                    var data = new byte[packetLength + (_clientMac.HashSize/8)];
                     Buffer.BlockCopy(packetData, packetDataOffset, data, 0, packetLength);
                     Buffer.BlockCopy(hash, 0, data, packetLength, hash.Length);
 
@@ -915,7 +914,7 @@ namespace Renci.SshNet
             // Determine the size of the first block, which is 8 or cipher block size (whichever is larger) bytes
             var blockSize = _serverCipher == null ? (byte) 8 : Math.Max((byte) 8, _serverCipher.MinimumSize);
 
-            var serverMacLength = _serverMac != null ? _serverMac.HashSize / 8 : 0;
+            var serverMacLength = _serverMac != null ? _serverMac.HashSize/8 : 0;
 
             byte[] data;
             uint packetLength;
@@ -1053,7 +1052,7 @@ namespace Renci.SshNet
             OnMessageReceived(message);
         }
 
-#region Handle transport messages
+        #region Handle transport messages
 
         /// <summary>
         /// Invoked via reflection.
@@ -1122,9 +1121,9 @@ namespace Renci.SshNet
             OnNewKeysReceived(message);
         }
 
-#endregion
+        #endregion
 
-#region Handle User Authentication messages
+        #region Handle User Authentication messages
 
         /// <summary>
         /// Invoked via reflection.
@@ -1158,9 +1157,9 @@ namespace Renci.SshNet
             OnUserAuthenticationBannerReceived(message);
         }
 
-#endregion
+        #endregion
 
-#region Handle connection messages
+        #region Handle connection messages
 
         /// <summary>
         /// Invoked via reflection.
@@ -1274,9 +1273,9 @@ namespace Renci.SshNet
             OnChannelFailureReceived(message);
         }
 
-#endregion
+        #endregion
 
-#region Handle received message events
+        #region Handle received message events
 
         /// <summary>
         /// Called when <see cref="DisconnectMessage"/> received.
@@ -1660,7 +1659,7 @@ namespace Renci.SshNet
                 handlers(this, new MessageEventArgs<Message>(message));
         }
 
-#endregion
+        #endregion
 
         private void KeyExchange_HostKeyReceived(object sender, HostKeyEventArgs e)
         {
@@ -1739,7 +1738,7 @@ namespace Renci.SshNet
             return ToHex(bytes, 0);
         }
 
-#endregion
+        #endregion
 
         /// <summary>
         /// Gets a value indicating whether the socket is connected.
@@ -1865,22 +1864,33 @@ namespace Renci.SshNet
                     {
                         if (_socket.Connected)
                         {
-                            // interrupt any pending reads
-                            _socket.Shutdown(SocketShutdown.Send);
+                            try
+                            {
+                                // interrupt any pending reads; should be done outside of socket read lock as we
+                                // actually want shutdown the socket to make sure blocking reads are interrupted
+                                _socket.Shutdown(SocketShutdown.Send);
 
 #if FEATURE_SOCKET_POLL
-                            // since we've shut down the socket, there should not be any reads in progress but
-                            // we still take a read lock to ensure IsSocketConnected continues to provide
-                            // correct results
-                            //
-                            // only necessary if IsSocketConnected actually uses Socket.Poll.
-                            lock (_socketReadLock)
-                            {
+                                // since we've shut down the socket, there should not be any reads in progress but
+                                // we still take a read lock to ensure IsSocketConnected continues to provide
+                                // correct results
+                                // 
+                                // see IsSocketConnected for details on the race condition we avoid with this lock
+                                //
+                                // this race condition only exists if IsSocketConnected actually uses Socket.Poll,
+                                // and as such this read is also only required when Socket.Poll is available
+                                lock (_socketReadLock)
+                                {
 #endif // FEATURE_SOCKET_POLL
-                                SocketAbstraction.ClearReadBuffer(_socket);
+                                    SocketAbstraction.ClearReadBuffer(_socket);
 #if FEATURE_SOCKET_POLL
-                            }
+                                }
 #endif // FEATURE_SOCKET_POLL
+                            }
+                            catch (SocketException ex)
+                            {
+                                DiagnosticAbstraction.Log("Failure shutting down socket or clearing read buffer: " + ex);
+                            }
                         }
 
                         _socket.Dispose();
@@ -2229,10 +2239,12 @@ namespace Renci.SshNet
         /// <summary>
         /// Raises the <see cref="ErrorOccured"/> event.
         /// </summary>
-        /// <param name="exp">The exp.</param>
+        /// <param name="exp">The <see cref="Exception"/>.</param>
         private void RaiseError(Exception exp)
         {
             var connectionException = exp as SshConnectionException;
+
+            DiagnosticAbstraction.Log(string.Format("[{0}] {1} Raised exception: {2}", ToHex(SessionId), DateTime.Now.Ticks, exp));
 
             if (_isDisconnecting)
             {
@@ -2248,10 +2260,7 @@ namespace Renci.SshNet
                     return;
             }
 
-            DiagnosticAbstraction.Log(string.Format("[{0}] {1} Raised exception: {2}", ToHex(SessionId), DateTime.Now.Ticks, exp));
-
             _exception = exp;
-
             _exceptionWaitHandle.Set();
 
             var errorOccured = ErrorOccured;

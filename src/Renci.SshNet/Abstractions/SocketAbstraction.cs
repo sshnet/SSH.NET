@@ -81,7 +81,7 @@ namespace Renci.SshNet.Abstractions
 
         public static void ClearReadBuffer(Socket socket)
         {
-            var timeout = TimeSpan.FromMilliseconds(10);
+            var timeout = TimeSpan.FromMilliseconds(500);
             var buffer = new byte[256];
             int bytesReceived;
 
@@ -289,7 +289,7 @@ namespace Renci.SshNet.Abstractions
                         throw new SshOperationTimeoutException(string.Format(CultureInfo.InvariantCulture,
                             "Socket read operation has timed out after {0:F0} milliseconds.", timeout.TotalMilliseconds));
 
-                    throw;
+                     throw;
                 }
             }
             while (totalBytesRead < totalBytesToRead);

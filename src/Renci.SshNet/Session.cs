@@ -1866,6 +1866,8 @@ namespace Renci.SshNet
                         {
                             try
                             {
+                                DiagnosticAbstraction.Log(string.Format("[{0}] Shutting down socket.", ToHex(SessionId)));
+
                                 // interrupt any pending reads; should be done outside of socket read lock as we
                                 // actually want shutdown the socket to make sure blocking reads are interrupted
                                 //
@@ -1891,13 +1893,26 @@ namespace Renci.SshNet
                                 }
 #endif // FEATURE_SOCKET_POLL
                             }
+                            catch (SshOperationTimeoutException ex)
+                            {
+                                // TODO: log as info or debug
+                                DiagnosticAbstraction.Log("Time-out shutting down socket or clearing read buffer: " + ex);
+                            }
                             catch (SocketException ex)
                             {
+                                // TODO: log as info or debug
                                 DiagnosticAbstraction.Log("Failure shutting down socket or clearing read buffer: " + ex);
+                            }
+                            catch (Exception ex)
+                            {
+                                // TODO: log as warning
+                                DiagnosticAbstraction.Log("Time-out shutting down socket or clearing read buffer: " + ex);
                             }
                         }
 
+                        DiagnosticAbstraction.Log(string.Format("[{0}] Disposing socket.", ToHex(SessionId)));
                         _socket.Dispose();
+                        DiagnosticAbstraction.Log(string.Format("[{0}] Disposed socket.", ToHex(SessionId)));
                         _socket = null;
                     }
                 }
@@ -1913,8 +1928,8 @@ namespace Renci.SshNet
             {
                 var readSockets = new List<Socket> {_socket};
 
-                // remain in message loop until socket is shut down
-                while (true)
+                // remain in message loop until socket is shut down or until we're disconnecting
+                while (!_isDisconnecting)
                 {
 #if FEATURE_SOCKET_POLL
                     Socket.Select(readSockets, null, null, -1);

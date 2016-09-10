@@ -93,9 +93,9 @@ namespace Renci.SshNet.Channels
             // even though the client has disconnected, we still want to properly close the
             // channel
             //
-            // we'll do this in in Close(bool) that way we have a single place from which we
-            // send an SSH_MSG_CHANNEL_EOF message and wait for the SSH_MSG_CHANNEL_CLOSE
-            // message
+            // we'll do this in in Close() - invoked through Dispose(bool) - that way we have
+            // a single place from which we send an SSH_MSG_CHANNEL_EOF message and wait for
+            // the SSH_MSG_CHANNEL_CLOSE message
         }
 
         /// <summary>
@@ -246,7 +246,6 @@ namespace Renci.SshNet.Channels
             // to accept any more data from the client (and we surely won't send anything
             // anymore)
             //
-            // 
             // so lets signal to the client that we will not send or receive anything anymore
             // this will also interrupt the blocking receive in Bind()
             ShutdownSocket(SocketShutdown.Both);

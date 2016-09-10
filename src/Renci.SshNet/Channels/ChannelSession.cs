@@ -113,22 +113,9 @@ namespace Renci.SshNet.Channels
             _channelOpenResponseWaitHandle.Set();
         }
 
-        /// <summary>
-        /// Called when channel is closed by the server.
-        /// </summary>
-        protected override void OnClose()
+        protected override void Close()
         {
-            base.OnClose();
-
-            //  This timeout needed since when channel is closed it does not immediately becomes available
-            //  but it takes time for the server to clean up resource and allow new channels to be created.
-            ThreadAbstraction.Sleep(100);
-        }
-
-        protected override void Close(bool wait)
-        {
-            base.Close(wait);
-
+            base.Close();
             ReleaseSemaphore();
         }
 

@@ -6,11 +6,12 @@ using Moq;
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Connection;
+using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Channels
 {
     [TestClass]
-    public class ChannelSessionTest_Close_SessionIsConnectedAndChannelIsOpen_ChannelCloseAndChannelEofReceived_SendChannelCloseMessageFailure
+    public class ChannelSessionTest_Dispose_SessionIsConnectedAndChannelIsOpen_ChannelCloseReceived_SendChannelCloseMessageSuccess
     {
         private Mock<ISession> _sessionMock;
         private uint _localChannelNumber;
@@ -37,12 +38,12 @@ namespace Renci.SshNet.Tests.Classes.Channels
         private void Arrange()
         {
             var random = new Random();
-            _localChannelNumber = (uint)random.Next(0, int.MaxValue);
-            _localWindowSize = (uint)random.Next(0, int.MaxValue);
-            _localPacketSize = (uint)random.Next(0, int.MaxValue);
-            _remoteChannelNumber = (uint)random.Next(0, int.MaxValue);
-            _remoteWindowSize = (uint)random.Next(0, int.MaxValue);
-            _remotePacketSize = (uint)random.Next(0, int.MaxValue);
+            _localChannelNumber = (uint) random.Next(0, int.MaxValue);
+            _localWindowSize = (uint) random.Next(0, int.MaxValue);
+            _localPacketSize = (uint) random.Next(0, int.MaxValue);
+            _remoteChannelNumber = (uint) random.Next(0, int.MaxValue);
+            _remoteWindowSize = (uint) random.Next(0, int.MaxValue);
+            _remotePacketSize = (uint) random.Next(0, int.MaxValue);
             _channelClosedRegister = new List<ChannelEventArgs>();
             _channelExceptionRegister = new List<ExceptionEventArgs>();
             _initialSessionSemaphoreCount = random.Next(10, 20);
@@ -79,11 +80,14 @@ namespace Renci.SshNet.Tests.Classes.Channels
                                     _remoteChannelNumber)));
                         w.WaitOne();
                     });
-            _sessionMock.Setup(p => p.IsConnected).Returns(true);
+            _sessionMock.InSequence(_sequence).Setup(p => p.IsConnected).Returns(true);
             _sessionMock.InSequence(_sequence)
                 .Setup(
                     p => p.TrySendMessage(It.Is<ChannelCloseMessage>(c => c.LocalChannelNumber == _remoteChannelNumber)))
-                .Returns(false);
+                .Returns(true);
+            _sessionMock.InSequence(_sequence)
+                .Setup(s => s.WaitOnHandle(It.IsNotNull<EventWaitHandle>()))
+                .Callback<WaitHandle>(w => w.WaitOne());
 
             _channel = new ChannelSession(_sessionMock.Object, _localChannelNumber, _localWindowSize, _localPacketSize);
             _channel.Closed += (sender, args) => _channelClosedRegister.Add(args);
@@ -91,16 +95,13 @@ namespace Renci.SshNet.Tests.Classes.Channels
             _channel.Open();
 
             _sessionMock.Raise(
-                p => p.ChannelEofReceived += null,
-                new MessageEventArgs<ChannelEofMessage>(new ChannelEofMessage(_localChannelNumber)));
-            _sessionMock.Raise(
                 p => p.ChannelCloseReceived += null,
                 new MessageEventArgs<ChannelCloseMessage>(new ChannelCloseMessage(_localChannelNumber)));
         }
 
         private void Act()
         {
-            _channel.Close();
+            _channel.Dispose();
         }
 
         [TestMethod]
@@ -112,7 +113,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
         [TestMethod]
         public void ExceptionShouldNeverHaveFired()
         {
-            Assert.AreEqual(0, _channelExceptionRegister.Count);
+            Assert.AreEqual(0, _channelExceptionRegister.Count, _channelExceptionRegister.AsString());
         }
 
         [TestMethod]

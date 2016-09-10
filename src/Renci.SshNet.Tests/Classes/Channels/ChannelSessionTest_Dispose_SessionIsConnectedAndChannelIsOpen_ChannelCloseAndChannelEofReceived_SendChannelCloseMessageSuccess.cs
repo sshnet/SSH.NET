@@ -6,11 +6,12 @@ using Moq;
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Connection;
+using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Channels
 {
     [TestClass]
-    public class ChannelSessionTest_Close_SessionIsConnectedAndChannelIsOpen_ChannelCloseAndChannelEofReceived_SendChannelCloseMessageSuccess
+    public class ChannelSessionTest_Dispose_SessionIsConnectedAndChannelIsOpen_ChannelCloseAndChannelEofReceived_SendChannelCloseMessageSuccess
     {
         private Mock<ISession> _sessionMock;
         private uint _localChannelNumber;
@@ -79,11 +80,14 @@ namespace Renci.SshNet.Tests.Classes.Channels
                                     _remoteChannelNumber)));
                         w.WaitOne();
                     });
-            _sessionMock.Setup(p => p.IsConnected).Returns(true);
+            _sessionMock.InSequence(_sequence).Setup(p => p.IsConnected).Returns(true);
             _sessionMock.InSequence(_sequence)
                 .Setup(
                     p => p.TrySendMessage(It.Is<ChannelCloseMessage>(c => c.LocalChannelNumber == _remoteChannelNumber)))
                 .Returns(true);
+            _sessionMock.InSequence(_sequence)
+                .Setup(s => s.WaitOnHandle(It.IsNotNull<EventWaitHandle>()))
+                .Callback<WaitHandle>(w => w.WaitOne());
 
             _channel = new ChannelSession(_sessionMock.Object, _localChannelNumber, _localWindowSize, _localPacketSize);
             _channel.Closed += (sender, args) => _channelClosedRegister.Add(args);
@@ -100,7 +104,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
 
         private void Act()
         {
-            _channel.Close();
+            _channel.Dispose();
         }
 
         [TestMethod]
@@ -112,7 +116,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
         [TestMethod]
         public void ExceptionShouldNeverHaveFired()
         {
-            Assert.AreEqual(0, _channelExceptionRegister.Count);
+            Assert.AreEqual(0, _channelExceptionRegister.Count, _channelExceptionRegister.AsString());
         }
 
         [TestMethod]

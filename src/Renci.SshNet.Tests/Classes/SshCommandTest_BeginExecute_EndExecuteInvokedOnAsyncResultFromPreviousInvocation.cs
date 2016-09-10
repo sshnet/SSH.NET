@@ -47,8 +47,6 @@ namespace Renci.SshNet.Tests.Classes
             _channelSessionAMock.InSequence(seq).Setup(p => p.SendExecRequest(_commandText))
                 .Returns(true)
                 .Raises(c => c.Closed += null, new ChannelEventArgs(5));
-            _channelSessionAMock.InSequence(seq).Setup(p => p.IsOpen).Returns(true);
-            _channelSessionAMock.InSequence(seq).Setup(p => p.Close());
             _channelSessionAMock.InSequence(seq).Setup(p => p.Dispose());
 
             _sshCommand = new SshCommand(_sessionMock.Object, _commandText, _encoding);

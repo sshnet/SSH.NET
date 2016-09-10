@@ -101,7 +101,6 @@ namespace Renci.SshNet.Tests.Classes
                 .Setup(
                     p => p.SendData(It.Is<byte[]>(b => b.SequenceEqual(new byte[] {0}))));
             _pipeStreamMock.InSequence(sequence).Setup(p => p.ReadByte()).Returns(0);
-            _channelSessionMock.InSequence(sequence).Setup(p => p.Close());
             _channelSessionMock.InSequence(sequence).Setup(p => p.Dispose());
             _pipeStreamMock.As<IDisposable>().InSequence(sequence).Setup(p => p.Dispose());
         }
@@ -129,12 +128,6 @@ namespace Renci.SshNet.Tests.Classes
         public void SendExecRequestOnChannelSessionShouldBeInvokedOnce()
         {
             _channelSessionMock.Verify(p => p.SendExecRequest(string.Format("scp -t \"{0}\"", _path)), Times.Once);
-        }
-
-        [TestMethod]
-        public void CloseOnChannelShouldBeInvokedOnce()
-        {
-            _channelSessionMock.Verify(p => p.Close(), Times.Once);
         }
 
         [TestMethod]

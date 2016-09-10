@@ -61,11 +61,6 @@ namespace Renci.SshNet.Channels
         uint RemotePacketSize { get; }
 
         /// <summary>
-        /// Closes the channel.
-        /// </summary>
-        void Close();
-
-        /// <summary>
         /// Gets a value indicating whether this channel is open.
         /// </summary>
         /// <value>

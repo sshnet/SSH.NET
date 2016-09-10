@@ -195,7 +195,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
                             _localPacketSize);
                         channel.Open(_remoteHost, _port, _forwardedPortMock.Object, socket);
                         channel.Bind();
-                        channel.Close();
+                        channel.Dispose();
 
                         handler = socket;
 
@@ -215,7 +215,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
                 _sessionMock.Verify(p => p.TrySendMessage(It.IsAny<ChannelEofMessage>()), Times.Once);
                 _sessionMock.Verify(p => p.TrySendMessage(It.IsAny<ChannelCloseMessage>()), Times.Once);
 
-                channel.Close();
+                channel.Dispose();
 
                 _sessionMock.Verify(p => p.TrySendMessage(It.IsAny<ChannelEofMessage>()), Times.Once);
                 _sessionMock.Verify(p => p.TrySendMessage(It.IsAny<ChannelCloseMessage>()), Times.Once);

@@ -310,11 +310,6 @@ namespace Renci.SshNet
                 //  wait for operation to complete (or time out)
                 WaitOnHandle(_asyncResult.AsyncWaitHandle);
 
-                if (_channel.IsOpen)
-                {
-                    _channel.Close();
-                }
-
                 UnsubscribeFromEventsAndDisposeChannel(_channel);
                 _channel = null;
 
@@ -348,7 +343,7 @@ namespace Renci.SshNet
             if (_channel != null && _channel.IsOpen && _asyncResult != null)
             {
                 // TODO: check with Oleg if we shouldn't dispose the channel and uninitialize it ?
-                _channel.Close();
+                _channel.Dispose();
             }
         }
 

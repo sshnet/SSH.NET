@@ -6,6 +6,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
+using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes
 {
@@ -72,8 +73,8 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void ErrorOccurredHasFiredOnce()
         {
-            Assert.AreEqual(1, _errorOccurredRegister.Count);
-            Assert.AreSame(_channelExceptionEventArgs.Exception, _errorOccurredRegister[0].Exception);
+            Assert.AreEqual(1, _errorOccurredRegister.Count, _errorOccurredRegister.AsString());
+            Assert.AreSame(_channelExceptionEventArgs.Exception, _errorOccurredRegister[0].Exception, _errorOccurredRegister.AsString());
         }
 
         [TestMethod]
@@ -94,12 +95,6 @@ namespace Renci.SshNet.Tests.Classes
             Assert.IsFalse(_subsystemSession.IsOpen);
 
             _channelMock.Verify(p => p.IsOpen, Times.Exactly(1));
-        }
-
-        [TestMethod]
-        public void CloseOnChannelShouldNeverBeInvoked()
-        {
-            _channelMock.Verify(p => p.Close(), Times.Never);
         }
 
         [TestMethod]

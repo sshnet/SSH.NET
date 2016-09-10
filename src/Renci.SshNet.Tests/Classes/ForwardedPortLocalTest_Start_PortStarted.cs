@@ -98,11 +98,10 @@ namespace Renci.SshNet.Tests.Classes
             _sessionMock.Setup(p => p.CreateChannelDirectTcpip()).Returns(_channelMock.Object);
             _channelMock.Setup(p => p.Open(_forwardedPort.Host, _forwardedPort.Port, _forwardedPort, It.IsAny<Socket>())).Callback<string, uint, IForwardedPort, Socket>((address, port, forwardedPort, socket) => handlerSocket = socket);
             _channelMock.Setup(p => p.Bind()).Callback(() =>
-            {
-                if (handlerSocket != null && handlerSocket.Connected)
-                    handlerSocket.Shutdown(SocketShutdown.Both);
-            });
-            _channelMock.Setup(p => p.Close());
+                {
+                    if (handlerSocket != null && handlerSocket.Connected)
+                        handlerSocket.Shutdown(SocketShutdown.Both);
+                });
             _channelMock.Setup(p => p.Dispose());
 
             using (var client = new Socket(_localEndpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp))

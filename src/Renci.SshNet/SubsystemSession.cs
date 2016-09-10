@@ -134,7 +134,6 @@ namespace Renci.SshNet
                 channel.DataReceived -= Channel_DataReceived;
                 channel.Exception -= Channel_Exception;
                 channel.Closed -= Channel_Closed;
-                channel.Close();
                 channel.Dispose();
                 _channel = null;
             }

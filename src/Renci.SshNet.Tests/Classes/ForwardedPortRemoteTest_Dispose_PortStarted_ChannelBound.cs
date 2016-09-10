@@ -134,7 +134,6 @@ namespace Renci.SshNet.Tests.Classes
                                 Thread.Sleep(_bindSleepTime);
                                 _channelBindCompleted.Set();
                             });
-            _channelMock.Setup(p => p.Close());
             _channelMock.Setup(p => p.Dispose());
             _sessionMock.Setup(
                 p =>
@@ -237,12 +236,6 @@ namespace Renci.SshNet.Tests.Classes
                         It.Is<IPEndPoint>(
                             ep => ep.Address.Equals(_remoteEndpoint.Address) && ep.Port == _remoteEndpoint.Port),
                         ForwardedPort), Times.Once);
-        }
-
-        [TestMethod]
-        public void CloseOnChannelShouldBeInvokedOnce()
-        {
-            _channelMock.Verify(p => p.Close(), Times.Once);
         }
 
         [TestMethod]

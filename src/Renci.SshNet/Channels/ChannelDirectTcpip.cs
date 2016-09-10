@@ -137,11 +137,9 @@ namespace Renci.SshNet.Channels
         }
 
         /// <summary>
-        /// Closes the channel, optionally waiting for the SSH_MSG_CHANNEL_CLOSE message to
-        /// be received from the server.
+        /// Closes the channel, waiting for the SSH_MSG_CHANNEL_CLOSE message to be received from the server.
         /// </summary>
-        /// <param name="wait"><c>true</c> to wait for the SSH_MSG_CHANNEL_CLOSE message to be received from the server; otherwise, <c>false</c>.</param>
-        protected override void Close(bool wait)
+        protected override void Close()
         {
             var forwardedPort = _forwardedPort;
             if (forwardedPort != null)
@@ -156,8 +154,8 @@ namespace Renci.SshNet.Channels
             // if the FIN/ACK is not sent in time, the socket will be closed after the channel is closed
             ShutdownSocket(SocketShutdown.Send);
 
-            // close the SSH channel, and mark the channel closed
-            base.Close(wait);
+            // close the SSH channel
+            base.Close();
 
             // close the socket
             CloseSocket();

@@ -131,7 +131,6 @@ namespace Renci.SshNet.Tests.Classes
                         It.Is<IPEndPoint>(
                             ep => ep.Address.Equals(_remoteEndpoint.Address) && ep.Port == _remoteEndpoint.Port),
                         _forwardedPort));
-            channelMock.Setup(p => p.Close());
             channelMock.Setup(p => p.Dispose());
 
             _sessionMock.Raise(p => p.ChannelOpenReceived += null,
@@ -142,7 +141,6 @@ namespace Renci.SshNet.Tests.Classes
 
             _sessionMock.Verify(p => p.CreateChannelForwardedTcpip(channelNumber, initialWindowSize, maximumPacketSize), Times.Once);
             channelMock.Verify(p => p.Bind(It.Is<IPEndPoint>(ep => ep.Address.Equals(_remoteEndpoint.Address) && ep.Port == _remoteEndpoint.Port), _forwardedPort), Times.Once);
-            channelMock.Verify(p => p.Close(), Times.Once);
             channelMock.Verify(p => p.Dispose(), Times.Once);
         }
 

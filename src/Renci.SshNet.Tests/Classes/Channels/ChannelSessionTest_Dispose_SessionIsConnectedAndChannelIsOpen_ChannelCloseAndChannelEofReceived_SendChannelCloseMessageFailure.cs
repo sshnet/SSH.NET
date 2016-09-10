@@ -10,7 +10,7 @@ using Renci.SshNet.Messages.Connection;
 namespace Renci.SshNet.Tests.Classes.Channels
 {
     [TestClass]
-    public class ChannelSessionTest_Close_SessionIsConnectedAndChannelIsOpen_ChannelCloseReceived_SendChannelCloseMessageFailure
+    public class ChannelSessionTest_Dispose_SessionIsConnectedAndChannelIsOpen_ChannelCloseAndChannelEofReceived_SendChannelCloseMessageFailure
     {
         private Mock<ISession> _sessionMock;
         private uint _localChannelNumber;
@@ -91,13 +91,16 @@ namespace Renci.SshNet.Tests.Classes.Channels
             _channel.Open();
 
             _sessionMock.Raise(
+                p => p.ChannelEofReceived += null,
+                new MessageEventArgs<ChannelEofMessage>(new ChannelEofMessage(_localChannelNumber)));
+            _sessionMock.Raise(
                 p => p.ChannelCloseReceived += null,
                 new MessageEventArgs<ChannelCloseMessage>(new ChannelCloseMessage(_localChannelNumber)));
         }
 
         private void Act()
         {
-            _channel.Close();
+            _channel.Dispose();
         }
 
         [TestMethod]

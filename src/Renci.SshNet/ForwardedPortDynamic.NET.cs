@@ -124,21 +124,14 @@ namespace Renci.SshNet
                 {
                     channel.Exception += Channel_Exception;
 
-                    try
+                    if (!HandleSocks(channel, clientSocket, Session.ConnectionInfo.Timeout))
                     {
-                        if (!HandleSocks(channel, clientSocket, Session.ConnectionInfo.Timeout))
-                        {
-                            CloseClientSocket(clientSocket);
-                            return;
-                        }
+                        CloseClientSocket(clientSocket);
+                        return;
+                    }
 
-                        // start receiving from client socket (and sending to server)
-                        channel.Bind();
-                    }
-                    finally
-                    {
-                        channel.Close();
-                    }
+                    // start receiving from client socket (and sending to server)
+                    channel.Bind();
                 }
             }
             catch (Exception exp)

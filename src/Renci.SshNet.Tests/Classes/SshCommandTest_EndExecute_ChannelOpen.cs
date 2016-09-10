@@ -55,8 +55,6 @@ namespace Renci.SshNet.Tests.Classes
             _channelSessionMock.InSequence(seq).Setup(p => p.SendExecRequest(_commandText))
                 .Returns(true)
                 .Raises(c => c.Closed += null, new ChannelEventArgs(5));
-            _channelSessionMock.InSequence(seq).Setup(p => p.IsOpen).Returns(true);
-            _channelSessionMock.InSequence(seq).Setup(p => p.Close());
             _channelSessionMock.InSequence(seq).Setup(p => p.Dispose());
 
             _sshCommand = new SshCommand(_sessionMock.Object, _commandText, _encoding);
@@ -77,12 +75,6 @@ namespace Renci.SshNet.Tests.Classes
         private void Act()
         {
             _actual = _sshCommand.EndExecute(_asyncResult);
-        }
-
-        [TestMethod]
-        public void ChannelSessionShouldBeClosedOnce()
-        {
-            _channelSessionMock.Verify(p => p.Close(), Times.Once);
         }
 
         [TestMethod]

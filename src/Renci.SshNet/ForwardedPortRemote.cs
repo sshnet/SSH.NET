@@ -251,7 +251,6 @@ namespace Renci.SshNet
                                 {
                                     channel.Exception += Channel_Exception;
                                     channel.Bind(new IPEndPoint(HostAddress, (int) Port), this);
-                                    channel.Close();
                                 }
                             }
                             catch (Exception exp)

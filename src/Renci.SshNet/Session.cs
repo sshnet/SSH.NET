@@ -722,7 +722,25 @@ namespace Renci.SshNet
         /// </remarks>
         void ISession.WaitOnHandle(WaitHandle waitHandle)
         {
-            WaitOnHandle(waitHandle);
+            WaitOnHandle(waitHandle, ConnectionInfo.Timeout);
+        }
+
+        /// <summary>
+        /// Waits for the specified handle or the exception handle for the receive thread
+        /// to signal within the specified timeout.
+        /// </summary>
+        /// <param name="waitHandle">The wait handle.</param>
+        /// <param name="timeout">The time to wait for any of the handles to become signaled.</param>
+        /// <exception cref="SshConnectionException">A received package was invalid or failed the message integrity check.</exception>
+        /// <exception cref="SshOperationTimeoutException">None of the handles are signaled in time and the session is not disconnecting.</exception>
+        /// <exception cref="SocketException">A socket error was signaled while receiving messages from the server.</exception>
+        /// <remarks>
+        /// When neither handles are signaled in time and the session is not closing, then the
+        /// session is disconnected.
+        /// </remarks>
+        void ISession.WaitOnHandle(WaitHandle waitHandle, TimeSpan timeout)
+        {
+            WaitOnHandle(waitHandle, timeout);
         }
 
         /// <summary>
@@ -1929,7 +1947,7 @@ namespace Renci.SshNet
                 var readSockets = new List<Socket> {_socket};
 
                 // remain in message loop until socket is shut down or until we're disconnecting
-                while (!_isDisconnecting)
+                while (true)
                 {
 #if FEATURE_SOCKET_POLL
                     Socket.Select(readSockets, null, null, -1);

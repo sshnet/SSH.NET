@@ -5,6 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Connection;
+using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Channels
 {
@@ -43,10 +44,15 @@ namespace Renci.SshNet.Tests.Classes.Channels
 
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);
 
-            _sessionMock.Setup(p => p.IsConnected).Returns(true);
-            _sessionMock.Setup(
+            var sequence = new MockSequence();
+
+            _sessionMock.InSequence(sequence).Setup(p => p.IsConnected).Returns(true);
+            _sessionMock.InSequence(sequence).Setup(
                 p => p.TrySendMessage(It.Is<ChannelCloseMessage>(c => c.LocalChannelNumber == _remoteChannelNumber)))
                 .Returns(true);
+            _sessionMock.InSequence(sequence)
+                .Setup(s => s.WaitOnHandle(It.IsNotNull<EventWaitHandle>()))
+                .Callback<WaitHandle>(w => w.WaitOne());
 
             _channel = new ChannelStub(_sessionMock.Object, _localChannelNumber, _localWindowSize, _localPacketSize);
             _channel.Closed += (sender, args) => _channelClosedRegister.Add(args);
@@ -87,9 +93,9 @@ namespace Renci.SshNet.Tests.Classes.Channels
         }
 
         [TestMethod]
-        public void WaitOnHandleOnSessionShouldNeverBeInvoked()
+        public void WaitOnHandleOnSessionShouldBeInvokedOnce()
         {
-            _sessionMock.Verify(p => p.WaitOnHandle(It.IsAny<EventWaitHandle>()), Times.Never);
+            _sessionMock.Verify(p => p.WaitOnHandle(It.IsAny<EventWaitHandle>()), Times.Once);
         }
 
         [TestMethod]
@@ -102,7 +108,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
         [TestMethod]
         public void ExceptionShouldNeverHaveFired()
         {
-            Assert.AreEqual(0, _channelExceptionRegister.Count);
+            Assert.AreEqual(0, _channelExceptionRegister.Count, _channelExceptionRegister.AsString());
         }
     }
 }

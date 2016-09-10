@@ -10,7 +10,7 @@ using Renci.SshNet.Messages.Connection;
 namespace Renci.SshNet.Tests.Classes.Channels
 {
     [TestClass]
-    public class ChannelSessionTest_Close_Closed
+    public class ChannelSessionTest_Dispose_SessionIsConnectedAndChannelIsOpen_NoChannelCloseOrChannelEofReceived
     {
         private Mock<ISession> _sessionMock;
         private Mock<IConnectionInfo> _connectionInfoMock;
@@ -78,10 +78,14 @@ namespace Renci.SshNet.Tests.Classes.Channels
                     });
             _sessionMock.InSequence(sequence).Setup(p => p.IsConnected).Returns(true);
             _sessionMock.InSequence(sequence)
-                .Setup(p => p.TrySendMessage(It.Is<ChannelEofMessage>(m => m.LocalChannelNumber == _remoteChannelNumber))).Returns(true);
+                .Setup(
+                    p => p.TrySendMessage(It.Is<ChannelEofMessage>(m => m.LocalChannelNumber == _remoteChannelNumber)))
+                .Returns(true);
             _sessionMock.InSequence(sequence).Setup(p => p.IsConnected).Returns(true);
             _sessionMock.InSequence(sequence)
-                .Setup(p => p.TrySendMessage(It.Is<ChannelCloseMessage>(m => m.LocalChannelNumber == _remoteChannelNumber))).Returns(true);
+                .Setup(
+                    p => p.TrySendMessage(It.Is<ChannelCloseMessage>(m => m.LocalChannelNumber == _remoteChannelNumber)))
+                    .Returns(true);
             _sessionMock.InSequence(sequence)
                 .Setup(p => p.WaitOnHandle(It.IsNotNull<WaitHandle>()))
                 .Callback<WaitHandle>(
@@ -97,17 +101,11 @@ namespace Renci.SshNet.Tests.Classes.Channels
             _channel.Closed += (sender, args) => _channelClosedRegister.Add(args);
             _channel.Exception += (sender, args) => _channelExceptionRegister.Add(args);
             _channel.Open();
-            _channel.Close();
         }
 
-        protected virtual void Act()
+        private void Act()
         {
-            _channel.Close();
-        }
-
-        internal ChannelSession Channel
-        {
-            get { return _channel; }
+            _channel.Dispose();
         }
 
         [TestMethod]

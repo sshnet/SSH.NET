@@ -110,7 +110,7 @@ namespace Renci.SshNet.Sftp
                     throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "Message type '{0}' is not supported.", messageType));
             }
 
-            message.Load(data, offset, data.Length - offset);
+            message.Load(data, offset, count);
 
             return message;
         }

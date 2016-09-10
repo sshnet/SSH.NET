@@ -1210,19 +1210,17 @@ namespace Renci.SshNet.Sftp
 
         private static SshException GetSftpException(SftpStatusResponse response)
         {
-            if (response.StatusCode == StatusCodes.Ok)
+            switch (response.StatusCode)
             {
-                return null;
+                case StatusCodes.Ok:
+                    return null;
+                case StatusCodes.PermissionDenied:
+                    return new SftpPermissionDeniedException(response.ErrorMessage);
+                case StatusCodes.NoSuchFile:
+                    return new SftpPathNotFoundException(response.ErrorMessage);
+                default:
+                    return new SshException(response.ErrorMessage);
             }
-            if (response.StatusCode == StatusCodes.PermissionDenied)
-            {
-                return new SftpPermissionDeniedException(response.ErrorMessage);
-            }
-            if (response.StatusCode == StatusCodes.NoSuchFile)
-            {
-                return new SftpPathNotFoundException(response.ErrorMessage);
-            }
-            return new SshException(response.ErrorMessage);
         }
 
         private void HandleResponse(SftpResponse response)

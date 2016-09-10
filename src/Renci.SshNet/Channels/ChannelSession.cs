@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Threading;
-using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Connection;
 
@@ -65,27 +64,27 @@ namespace Renci.SshNet.Channels
         /// </summary>
         public virtual void Open()
         {
-            if (!IsOpen)
-            {
-                //  Try to open channel several times
-                while (!IsOpen && _failedOpenAttempts < ConnectionInfo.RetryAttempts)
-                {
-                    SendChannelOpenMessage();
-                    try
-                    {
-                        WaitOnHandle(_channelOpenResponseWaitHandle);
-                    }
-                    catch (Exception)
-                    {
-                        // avoid leaking session semaphore
-                        ReleaseSemaphore();
-                        throw;
-                    }
-                }
+            if (IsOpen)
+                return;
 
-                if (!IsOpen)
-                    throw new SshException(string.Format(CultureInfo.CurrentCulture, "Failed to open a channel after {0} attempts.", _failedOpenAttempts));
-            }
+            //  Try to open channel several times
+            do
+            {
+                SendChannelOpenMessage();
+                try
+                {
+                    WaitOnHandle(_channelOpenResponseWaitHandle);
+                }
+                catch (Exception)
+                {
+                    // avoid leaking session semaphore
+                    ReleaseSemaphore();
+                    throw;
+                }
+            } while (!IsOpen && _failedOpenAttempts < ConnectionInfo.RetryAttempts);
+
+            if (!IsOpen)
+                throw new SshException(string.Format(CultureInfo.CurrentCulture, "Failed to open a channel after {0} attempts.", _failedOpenAttempts));
         }
 
         /// <summary>
@@ -386,16 +385,18 @@ namespace Renci.SshNet.Channels
 
             if (disposing)
             {
-                if (_channelOpenResponseWaitHandle != null)
+                var channelOpenResponseWaitHandle = _channelOpenResponseWaitHandle;
+                if (channelOpenResponseWaitHandle != null)
                 {
-                    _channelOpenResponseWaitHandle.Dispose();
                     _channelOpenResponseWaitHandle = null;
+                    channelOpenResponseWaitHandle.Dispose();
                 }
 
-                if (_channelRequestResponse != null)
+                var channelRequestResponse = _channelRequestResponse;
+                if (channelRequestResponse != null)
                 {
-                    _channelRequestResponse.Dispose();
                     _channelRequestResponse = null;
+                    channelRequestResponse.Dispose();
                 }
             }
         }

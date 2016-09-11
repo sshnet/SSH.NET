@@ -1893,38 +1893,11 @@ namespace Renci.SshNet
                                 // closed by the remote host) which we'll log and ignore as it means the socket
                                 // was already shut down
                                 _socket.Shutdown(SocketShutdown.Send);
-
-#if FEATURE_SOCKET_POLL
-                                // since we've shut down the socket, there should not be any reads in progress but
-                                // we still take a read lock to ensure IsSocketConnected continues to provide
-                                // correct results
-                                // 
-                                // see IsSocketConnected for details on the race condition we avoid with this lock
-                                //
-                                // this race condition only exists if IsSocketConnected actually uses Socket.Poll,
-                                // and as such this read is also only required when Socket.Poll is available
-                                lock (_socketReadLock)
-                                {
-#endif // FEATURE_SOCKET_POLL
-                                    SocketAbstraction.ClearReadBuffer(_socket);
-#if FEATURE_SOCKET_POLL
-                                }
-#endif // FEATURE_SOCKET_POLL
-                            }
-                            catch (SshOperationTimeoutException ex)
-                            {
-                                // TODO: log as info or debug
-                                DiagnosticAbstraction.Log("Time-out shutting down socket or clearing read buffer: " + ex);
                             }
                             catch (SocketException ex)
                             {
                                 // TODO: log as info or debug
                                 DiagnosticAbstraction.Log("Failure shutting down socket or clearing read buffer: " + ex);
-                            }
-                            catch (Exception ex)
-                            {
-                                // TODO: log as warning
-                                DiagnosticAbstraction.Log("Time-out shutting down socket or clearing read buffer: " + ex);
                             }
                         }
 

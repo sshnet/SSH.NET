@@ -48,7 +48,6 @@ namespace Renci.SshNet.Tests.Classes
                 .Returns(_sftpSessionMock.Object);
             _sftpSessionMock.InSequence(sequence).Setup(p => p.Connect());
             _sessionMock.InSequence(sequence).Setup(p => p.OnDisconnecting());
-            _sftpSessionMock.InSequence(sequence).Setup(p => p.Disconnect());
             _sftpSessionMock.InSequence(sequence).Setup(p => p.Dispose());
             _sessionMock.InSequence(sequence).Setup(p => p.Disconnect());
             _sessionMock.InSequence(sequence).Setup(p => p.Dispose());
@@ -77,9 +76,9 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
-        public void DisconnectOnNetConfSessionShouldBeInvokedOnce()
+        public void DisconnectOnNetConfSessionShouldNeverBeInvoked()
         {
-            _sftpSessionMock.Verify(p => p.Disconnect(), Times.Once);
+            _sftpSessionMock.Verify(p => p.Disconnect(), Times.Never);
         }
 
         [TestMethod]

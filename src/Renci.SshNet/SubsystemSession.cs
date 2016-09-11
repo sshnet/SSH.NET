@@ -131,11 +131,11 @@ namespace Renci.SshNet
             var channel = _channel;
             if (channel != null)
             {
+                _channel = null;
                 channel.DataReceived -= Channel_DataReceived;
                 channel.Exception -= Channel_Exception;
                 channel.Closed -= Channel_Closed;
                 channel.Dispose();
-                _channel = null;
             }
         }
 

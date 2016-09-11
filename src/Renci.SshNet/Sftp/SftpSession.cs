@@ -315,10 +315,11 @@ namespace Renci.SshNet.Sftp
 
             if (disposing)
             {
-                if (_sftpVersionConfirmed != null)
+                var sftpVersionConfirmed = _sftpVersionConfirmed;
+                if (sftpVersionConfirmed != null)
                 {
-                    _sftpVersionConfirmed.Dispose();
                     _sftpVersionConfirmed = null;
+                    sftpVersionConfirmed.Dispose();
                 }
             }
         }

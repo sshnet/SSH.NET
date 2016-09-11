@@ -2128,11 +2128,11 @@ namespace Renci.SshNet
 
             // disconnect, dispose and dereference the SFTP session since we create a new SFTP session
             // on each connect
-            if (_sftpSession != null)
+            var sftpSession = _sftpSession;
+            if (sftpSession != null)
             {
-                _sftpSession.Disconnect();
-                _sftpSession.Dispose();
                 _sftpSession = null;
+                sftpSession.Dispose();
             }
         }
 
@@ -2146,10 +2146,11 @@ namespace Renci.SshNet
 
             if (disposing)
             {
-                if (_sftpSession != null)
+                var sftpSession = _sftpSession;
+                if (sftpSession != null)
                 {
-                    _sftpSession.Dispose();
                     _sftpSession = null;
+                    sftpSession.Dispose();
                 }
             }
         }

@@ -239,7 +239,6 @@ namespace Renci.SshNet
                 // dereference the current session here
                 Session.ErrorOccured -= Session_ErrorOccured;
                 Session.HostKeyReceived -= Session_HostKeyReceived;
-                Session.Disconnect();
                 Session.Dispose();
                 Session = null;
             }

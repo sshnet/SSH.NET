@@ -64,11 +64,8 @@ namespace Renci.SshNet.Channels
         /// </summary>
         public virtual void Open()
         {
-            if (IsOpen)
-                return;
-
             //  Try to open channel several times
-            do
+            while (!IsOpen && _failedOpenAttempts < ConnectionInfo.RetryAttempts)
             {
                 SendChannelOpenMessage();
                 try
@@ -81,7 +78,7 @@ namespace Renci.SshNet.Channels
                     ReleaseSemaphore();
                     throw;
                 }
-            } while (!IsOpen && _failedOpenAttempts < ConnectionInfo.RetryAttempts);
+            }
 
             if (!IsOpen)
                 throw new SshException(string.Format(CultureInfo.CurrentCulture, "Failed to open a channel after {0} attempts.", _failedOpenAttempts));

@@ -25,15 +25,15 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Requests
         {
             var random = new Random();
 
-            _protocolVersion = (uint)random.Next(0, int.MaxValue);
-            _requestId = (uint)random.Next(0, int.MaxValue);
+            _protocolVersion = (uint) random.Next(0, int.MaxValue);
+            _requestId = (uint) random.Next(0, int.MaxValue);
             _handle = new byte[random.Next(1, 10)];
             random.NextBytes(_handle);
             _serverFileOffset = (ulong) random.Next(0, int.MaxValue);
             _data = new byte[random.Next(10, 15)];
             random.NextBytes(_data);
-            _offset = random.Next(0, 4);
-            _length = random.Next(5, 10);
+            _offset = random.Next(0, _data.Length - 1);
+            _length = random.Next(0, _data.Length - _offset);
         }
 
         [TestMethod]

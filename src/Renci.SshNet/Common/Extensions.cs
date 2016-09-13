@@ -327,5 +327,12 @@ namespace Renci.SshNet
         {
             return SocketAbstraction.CanWrite(socket);
         }
+
+        internal static bool IsConnected(this Socket socket)
+        {
+            if (socket == null)
+                return false;
+            return socket.Connected;
+        }
     }
 }

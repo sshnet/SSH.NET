@@ -61,7 +61,7 @@ namespace Renci.SshNet
             lock (_socketDisposeLock)
             {
 #if FEATURE_SOCKET_POLL
-                if (_socket == null || !_socket.Connected)
+                if (!_socket.IsConnected())
                 {
                     isConnected = false;
                     return;
@@ -69,11 +69,11 @@ namespace Renci.SshNet
 
                 lock (_socketReadLock)
                 {
-                    var connectionClosedOrDataAvailable = _socket.Poll(1, SelectMode.SelectRead);
+                    var connectionClosedOrDataAvailable = _socket.Poll(0, SelectMode.SelectRead);
                     isConnected = !(connectionClosedOrDataAvailable && _socket.Available == 0);
                 }
 #else
-                isConnected = _socket != null && _socket.Connected;
+                isConnected = _socket.IsConnected();
 #endif // FEATURE_SOCKET_POLL
             }
 

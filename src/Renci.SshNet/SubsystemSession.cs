@@ -317,22 +317,22 @@ namespace Renci.SshNet
                 var errorOccuredWaitHandle = _errorOccuredWaitHandle;
                 if (errorOccuredWaitHandle != null)
                 {
-                    errorOccuredWaitHandle.Dispose();
                     _errorOccuredWaitHandle = null;
+                    errorOccuredWaitHandle.Dispose();
                 }
 
                 var sessionDisconnectedWaitHandle = _sessionDisconnectedWaitHandle;
                 if (sessionDisconnectedWaitHandle != null)
                 {
-                    sessionDisconnectedWaitHandle.Dispose();
                     _sessionDisconnectedWaitHandle = null;
+                    sessionDisconnectedWaitHandle.Dispose();
                 }
 
                 var channelClosedWaitHandle = _channelClosedWaitHandle;
                 if (channelClosedWaitHandle != null)
                 {
-                    channelClosedWaitHandle.Dispose();
                     _channelClosedWaitHandle = null;
+                    channelClosedWaitHandle.Dispose();
                 }
 
                 _isDisposed = true;

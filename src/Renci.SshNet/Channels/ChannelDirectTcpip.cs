@@ -132,7 +132,21 @@ namespace Renci.SshNet.Channels
                 if (_socket == null || !_socket.Connected)
                     return;
 
-                _socket.Shutdown(how);
+                try
+                {
+                    _socket.Shutdown(how);
+                }
+                catch (SocketException ex)
+                {
+                    if (ex != null && ex.Message != null &&  ex.Message.Contains("The socket is not connected"))
+                    {
+                        DiagnosticAbstraction.Log("Eating a 'socket is not connected' message, because we're closing this socket anyway.");
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
             }
         }
 

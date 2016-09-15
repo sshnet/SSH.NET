@@ -247,7 +247,7 @@ namespace Renci.SshNet
         /// <c>true</c> if the session is connected; otherwise, <c>false</c>.
         /// </value>
         /// <remarks>
-        /// This methods returns true in all but the following cases:
+        /// This methods returns <c>true</c> in all but the following cases:
         /// <list type="bullet">
         ///     <item>
         ///         <description>The <see cref="Session"/> is disposed.</description>
@@ -275,9 +275,7 @@ namespace Renci.SshNet
                 if (_messageListenerCompleted == null || _messageListenerCompleted.WaitOne(0))
                     return false;
 
-                var isSocketConnected = false;
-                IsSocketConnected(ref isSocketConnected);
-                return isSocketConnected;
+                return IsSocketConnected();
             }
         }
 
@@ -1065,7 +1063,202 @@ namespace Renci.SshNet
             _isDisconnectMessageSent = true;
         }
 
-        partial void HandleMessageCore(Message message);
+        void HandleMessageCore(Message message)
+        {
+            if (message == null)
+                throw new ArgumentNullException("message");
+
+#if FEATURE_DYNAMIC_TYPE
+            HandleMessage((dynamic) message);
+#else
+            var disconnectMessage = message as DisconnectMessage;
+            if (disconnectMessage != null)
+            {
+                HandleMessage(disconnectMessage);
+                return;
+            }
+
+            var serviceRequestMessage = message as ServiceRequestMessage;
+            if (serviceRequestMessage != null)
+            {
+                HandleMessage(serviceRequestMessage);
+                return;
+            }
+
+            var serviceAcceptMessage = message as ServiceAcceptMessage;
+            if (serviceAcceptMessage != null)
+            {
+                HandleMessage(serviceAcceptMessage);
+                return;
+            }
+
+            var keyExchangeInitMessage = message as KeyExchangeInitMessage;
+            if (keyExchangeInitMessage != null)
+            {
+                HandleMessage(keyExchangeInitMessage);
+                return;
+            }
+
+            var newKeysMessage = message as NewKeysMessage;
+            if (newKeysMessage != null)
+            {
+                HandleMessage(newKeysMessage);
+                return;
+            }
+
+            var requestMessage = message as RequestMessage;
+            if (requestMessage != null)
+            {
+                HandleMessage(requestMessage);
+                return;
+            }
+
+            var failureMessage = message as FailureMessage;
+            if (failureMessage != null)
+            {
+                HandleMessage(failureMessage);
+                return;
+            }
+
+            var successMessage = message as SuccessMessage;
+            if (successMessage != null)
+            {
+                HandleMessage(successMessage);
+                return;
+            }
+
+            var bannerMessage = message as BannerMessage;
+            if (bannerMessage != null)
+            {
+                HandleMessage(bannerMessage);
+                return;
+            }
+
+            var globalRequestMessage = message as GlobalRequestMessage;
+            if (globalRequestMessage != null)
+            {
+                HandleMessage(globalRequestMessage);
+                return;
+            }
+
+            var requestSuccessMessage = message as RequestSuccessMessage;
+            if (requestSuccessMessage != null)
+            {
+                HandleMessage(requestSuccessMessage);
+                return;
+            }
+
+            var requestFailureMessage = message as RequestFailureMessage;
+            if (requestFailureMessage != null)
+            {
+                HandleMessage(requestFailureMessage);
+                return;
+            }
+
+            var channelOpenMessage = message as ChannelOpenMessage;
+            if (channelOpenMessage != null)
+            {
+                HandleMessage(channelOpenMessage);
+                return;
+            }
+
+            var channelOpenConfirmationMessage = message as ChannelOpenConfirmationMessage;
+            if (channelOpenConfirmationMessage != null)
+            {
+                HandleMessage(channelOpenConfirmationMessage);
+                return;
+            }
+
+            var channelOpenFailureMessage = message as ChannelOpenFailureMessage;
+            if (channelOpenFailureMessage != null)
+            {
+                HandleMessage(channelOpenFailureMessage);
+                return;
+            }
+
+            var channelWindowAdjustMessage = message as ChannelWindowAdjustMessage;
+            if (channelWindowAdjustMessage != null)
+            {
+                HandleMessage(channelWindowAdjustMessage);
+                return;
+            }
+
+            var channelDataMessage = message as ChannelDataMessage;
+            if (channelDataMessage != null)
+            {
+                HandleMessage(channelDataMessage);
+                return;
+            }
+
+            var channelExtendedDataMessage = message as ChannelExtendedDataMessage;
+            if (channelExtendedDataMessage != null)
+            {
+                HandleMessage(channelExtendedDataMessage);
+                return;
+            }
+
+            var channelEofMessage = message as ChannelEofMessage;
+            if (channelEofMessage != null)
+            {
+                HandleMessage(channelEofMessage);
+                return;
+            }
+
+            var channelCloseMessage = message as ChannelCloseMessage;
+            if (channelCloseMessage != null)
+            {
+                HandleMessage(channelCloseMessage);
+                return;
+            }
+
+            var channelRequestMessage = message as ChannelRequestMessage;
+            if (channelRequestMessage != null)
+            {
+                HandleMessage(channelRequestMessage);
+                return;
+            }
+
+            var channelSuccessMessage = message as ChannelSuccessMessage;
+            if (channelSuccessMessage != null)
+            {
+                HandleMessage(channelSuccessMessage);
+                return;
+            }
+
+            var channelFailureMessage = message as ChannelFailureMessage;
+            if (channelFailureMessage != null)
+            {
+                HandleMessage(channelFailureMessage);
+                return;
+            }
+
+            var ignoreMessage = message as IgnoreMessage;
+            if (ignoreMessage != null)
+            {
+                HandleMessage(ignoreMessage);
+                return;
+            }
+
+            var unimplementedMessage = message as UnimplementedMessage;
+            if (unimplementedMessage != null)
+            {
+                HandleMessage(unimplementedMessage);
+                return;
+            }
+
+            var debugMessage = message as DebugMessage;
+            if (debugMessage != null)
+            {
+                HandleMessage(debugMessage);
+                return;
+            }
+
+            throw new NotImplementedException("Message type '{0}' is not implemented. Please submit an issue.", message.GetType().FullName);
+        }
+
+        #error FUCK
+#endif
+        }
 
         /// <summary>
         /// Handles the message.
@@ -1074,10 +1267,11 @@ namespace Renci.SshNet
         /// <param name="message">The message.</param>
         private void HandleMessage<T>(T message) where T : Message
         {
+            DiagnosticAbstraction.Log(string.Format("[{0}] Message<{1}> received", ToHex(SessionId), typeof(T).FullName));
             OnMessageReceived(message);
         }
 
-        #region Handle transport messages
+#region Handle transport messages
 
         /// <summary>
         /// Invoked via reflection.
@@ -1146,9 +1340,9 @@ namespace Renci.SshNet
             OnNewKeysReceived(message);
         }
 
-        #endregion
+#endregion
 
-        #region Handle User Authentication messages
+#region Handle User Authentication messages
 
         /// <summary>
         /// Invoked via reflection.
@@ -1182,9 +1376,9 @@ namespace Renci.SshNet
             OnUserAuthenticationBannerReceived(message);
         }
 
-        #endregion
+#endregion
 
-        #region Handle connection messages
+#region Handle connection messages
 
         /// <summary>
         /// Invoked via reflection.
@@ -1298,9 +1492,9 @@ namespace Renci.SshNet
             OnChannelFailureReceived(message);
         }
 
-        #endregion
+#endregion
 
-        #region Handle received message events
+#region Handle received message events
 
         /// <summary>
         /// Called when <see cref="DisconnectMessage"/> received.
@@ -1684,7 +1878,7 @@ namespace Renci.SshNet
                 handlers(this, new MessageEventArgs<Message>(message));
         }
 
-        #endregion
+#endregion
 
         private void KeyExchange_HostKeyReceived(object sender, HostKeyEventArgs e)
         {
@@ -1693,7 +1887,7 @@ namespace Renci.SshNet
                 handlers(this, e);
         }
 
-        #region Message loading functions
+#region Message loading functions
 
         /// <summary>
         /// Registers SSH message with the session.
@@ -1763,15 +1957,7 @@ namespace Renci.SshNet
             return ToHex(bytes, 0);
         }
 
-        #endregion
-
-        /// <summary>
-        /// Gets a value indicating whether the socket is connected.
-        /// </summary>
-        /// <value>
-        /// <c>true</c> if the socket is connected; otherwise, <c>false</c>.
-        /// </value>
-        partial void IsSocketConnected(ref bool isConnected);
+#endregion
 
         /// <summary>
         /// Establishes a socket connection to the specified host and port.
@@ -1818,6 +2004,79 @@ namespace Renci.SshNet
                     DisconnectReason.ConnectionLost);
             }
             return bytesRead;
+        }
+
+#if FEATURE_SOCKET_POLL
+        /// <summary>
+        /// Gets a value indicating whether the socket is connected.
+        /// </summary>
+        /// <returns>
+        /// <c>true</c> if the socket is connected; otherwise, <c>false</c>.
+        /// </returns>
+        /// <remarks>
+        /// <para>
+        /// As a first check we verify whether <see cref="Socket.Connected"/> is
+        /// <c>true</c>. However, this only returns the state of the socket as of
+        /// the last I/O operation.
+        /// </para>
+        /// <para>
+        /// Therefore we use the combination of <see cref="Socket.Poll(int, SelectMode)"/> with mode <see cref="SelectMode.SelectRead"/>
+        /// and <see cref="Socket.Available"/> to verify if the socket is still connected.
+        /// </para>
+        /// <para>
+        /// The MSDN doc mention the following on the return value of <see cref="Socket.Poll(int, SelectMode)"/>
+        /// with mode <see cref="SelectMode.SelectRead"/>:
+        /// <list type="bullet">
+        ///     <item>
+        ///         <description><c>true</c> if data is available for reading;</description>
+        ///     </item>
+        ///     <item>
+        ///         <description><c>true</c> if the connection has been closed, reset, or terminated; otherwise, returns <c>false</c>.</description>
+        ///     </item>
+        /// </list>
+        /// </para>
+        /// <para>
+        /// <c>Conclusion:</c> when the return value is <c>true</c> - but no data is available for reading - then
+        /// the socket is no longer connected.
+        /// </para>
+        /// <para>
+        /// When a <see cref="Socket"/> is used from multiple threads, there's a race condition
+        /// between the invocation of <see cref="Socket.Poll(int, SelectMode)"/> and the moment
+        /// when the value of <see cref="Socket.Available"/> is obtained. To workaround this issue
+        /// we synchronize reads from the <see cref="Socket"/>.
+        /// </para>
+        /// </remarks>
+#else
+        /// <summary>
+        /// Gets a value indicating whether the socket is connected.
+        /// </summary>
+        /// <returns>
+        /// <c>true</c> if the socket is connected; otherwise, <c>false</c>.
+        /// </returns>
+        /// <remarks>
+        /// We verify whether <see cref="Socket.Connected"/> is <c>true</c>. However, this only returns the state
+        /// of the socket as of the last I/O operation.
+        /// </remarks>
+#endif
+        private bool IsSocketConnected()
+        {
+            lock (_socketDisposeLock)
+            {
+#if FEATURE_SOCKET_POLL
+                if (!_socket.IsConnected())
+                {
+                    return false;
+                }
+
+                lock (_socketReadLock)
+                {
+                    var connectionClosedOrDataAvailable = _socket.Poll(0, SelectMode.SelectRead);
+                    return !(connectionClosedOrDataAvailable && _socket.Available == 0);
+                }
+#else
+                return _socket.IsConnected();
+#endif // FEATURE_SOCKET_POLL
+            }
         }
 
         /// <summary>
@@ -2350,7 +2609,7 @@ namespace Renci.SshNet
                 DisconnectReason.ConnectionLost);
         }
 
-        #region IDisposable implementation
+#region IDisposable implementation
 
         private bool _disposed;
 
@@ -2441,9 +2700,9 @@ namespace Renci.SshNet
             Dispose(false);
         }
 
-        #endregion IDisposable implementation
+#endregion IDisposable implementation
 
-        #region ISession implementation
+#region ISession implementation
 
         /// <summary>
         /// Gets or sets the connection info.
@@ -2528,6 +2787,6 @@ namespace Renci.SshNet
             return TrySendMessage(message);
         }
 
-        #endregion ISession implementation
+#endregion ISession implementation
     }
 }

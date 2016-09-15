@@ -107,13 +107,13 @@ namespace Renci.SshNet.Channels
         /// <param name="how">One of the <see cref="SocketShutdown"/> values that specifies the operation that will no longer be allowed.</param>
         private void ShutdownSocket(SocketShutdown how)
         {
-            if (_socket == null || !_socket.Connected)
+            if (_socket == null)
                 return;
 
             lock (_socketShutdownAndCloseLock)
             {
                 var socket = _socket;
-                if (socket == null || !socket.Connected)
+                if (!socket.IsConnected())
                     return;
 
                 socket.Shutdown(how);
@@ -133,10 +133,8 @@ namespace Renci.SshNet.Channels
                 var socket = _socket;
                 if (socket != null)
                 {
-                    // closing a socket actually disposes the socket, so we can safely dereference
-                    // the field to avoid entering the lock again later
-                    socket.Dispose();
                     _socket = null;
+                    socket.Dispose();
                 }
             }
         }
@@ -175,7 +173,7 @@ namespace Renci.SshNet.Channels
             base.OnData(data);
 
             var socket = _socket;
-            if (socket != null && socket.Connected)
+            if (socket.IsConnected())
             {
                 SocketAbstraction.Send(socket, data, 0, data.Length);
             }

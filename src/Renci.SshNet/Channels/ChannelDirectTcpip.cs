@@ -129,7 +129,7 @@ namespace Renci.SshNet.Channels
 
             lock (_socketLock)
             {
-                if (_socket == null || !_socket.Connected)
+                if (!_socket.IsConnected())
                     return;
 
                 _socket.Shutdown(how);
@@ -169,11 +169,11 @@ namespace Renci.SshNet.Channels
         {
             base.OnData(data);
 
-            if (_socket != null && _socket.Connected)
+            if (_socket != null)
             {
                 lock (_socketLock)
                 {
-                    if (_socket != null && _socket.Connected)
+                    if (_socket.IsConnected())
                     {
                         SocketAbstraction.Send(_socket, data, 0, data.Length);
                     }

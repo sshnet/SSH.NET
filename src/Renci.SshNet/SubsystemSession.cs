@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Text;
 using System.Threading;
+using Renci.SshNet.Abstractions;
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
 
@@ -169,6 +170,8 @@ namespace Renci.SshNet
         protected void RaiseError(Exception error)
         {
             _exception = error;
+
+            DiagnosticAbstraction.Log("Raised exception: " + error);
 
             var errorOccuredWaitHandle = _errorOccuredWaitHandle;
             if (errorOccuredWaitHandle != null)

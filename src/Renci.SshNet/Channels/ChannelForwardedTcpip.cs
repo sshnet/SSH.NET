@@ -26,8 +26,20 @@ namespace Renci.SshNet.Channels
         /// <param name="remoteChannelNumber">The remote channel number.</param>
         /// <param name="remoteWindowSize">The window size of the remote party.</param>
         /// <param name="remotePacketSize">The maximum size of a data packet that we can send to the remote party.</param>
-        internal ChannelForwardedTcpip(ISession session, uint localChannelNumber, uint localWindowSize, uint localPacketSize, uint remoteChannelNumber, uint remoteWindowSize, uint remotePacketSize)
-            : base(session, localChannelNumber, localWindowSize, localPacketSize, remoteChannelNumber, remoteWindowSize, remotePacketSize)
+        internal ChannelForwardedTcpip(ISession session,
+                                       uint localChannelNumber,
+                                       uint localWindowSize,
+                                       uint localPacketSize,
+                                       uint remoteChannelNumber,
+                                       uint remoteWindowSize,
+                                       uint remotePacketSize)
+            : base(session,
+                   localChannelNumber,
+                   localWindowSize,
+                   localPacketSize,
+                   remoteChannelNumber,
+                   remoteWindowSize,
+                   remotePacketSize)
         {
         }
 
@@ -116,7 +128,15 @@ namespace Renci.SshNet.Channels
                 if (!socket.IsConnected())
                     return;
 
-                socket.Shutdown(how);
+                try
+                {
+                    socket.Shutdown(how);
+                }
+                catch (SocketException ex)
+                {
+                    // TODO: log as warning
+                    DiagnosticAbstraction.Log("Failure shutting down socket: " + ex);
+                }
             }
         }
 

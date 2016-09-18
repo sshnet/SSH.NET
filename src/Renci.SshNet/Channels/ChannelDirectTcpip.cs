@@ -132,7 +132,15 @@ namespace Renci.SshNet.Channels
                 if (!_socket.IsConnected())
                     return;
 
-                _socket.Shutdown(how);
+                try
+                {
+                    _socket.Shutdown(how);
+                }
+                catch (SocketException ex)
+                {
+                    // TODO: log as warning
+                    DiagnosticAbstraction.Log("Failure shutting down socket: " + ex);
+                }
             }
         }
 

@@ -1796,8 +1796,8 @@ namespace Renci.SshNet
                             }
                             catch (SocketException ex)
                             {
-                                // TODO: log as info or debug
-                                DiagnosticAbstraction.Log("Failure shutting down socket or clearing read buffer: " + ex);
+                                // TODO: log as warning
+                                DiagnosticAbstraction.Log("Failure shutting down socket: " + ex);
                             }
                         }
 

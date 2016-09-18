@@ -20,5 +20,10 @@ namespace Renci.SshNet.Messages.Connection
         protected override void SaveData()
         {
         }
+
+        internal override void Process(Session session)
+        {
+            session.OnRequestFailureReceived(this);
+        }
     }
 }

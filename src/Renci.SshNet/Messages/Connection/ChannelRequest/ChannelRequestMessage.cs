@@ -90,5 +90,10 @@
             WriteBinaryString(_requestNameBytes);
             Write(RequestData);
         }
+
+        internal override void Process(Session session)
+        {
+            session.OnChannelRequestReceived(this);
+        }
     }
 }

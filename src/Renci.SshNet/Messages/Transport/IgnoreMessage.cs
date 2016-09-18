@@ -84,5 +84,10 @@ namespace Renci.SshNet.Messages.Transport
         {
             WriteBinaryString(Data);
         }
+
+        internal override void Process(Session session)
+        {
+            session.OnIgnoreReceived(this);
+        }
     }
 }

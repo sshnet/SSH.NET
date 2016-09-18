@@ -174,5 +174,10 @@ namespace Renci.SshNet.Messages.Transport
             Write(FirstKexPacketFollows);
             Write(Reserved);
         }
+
+        internal override void Process(Session session)
+        {
+            session.OnKeyExchangeInitReceived(this);
+        }
     }
 }

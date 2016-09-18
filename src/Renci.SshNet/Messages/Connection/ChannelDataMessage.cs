@@ -54,6 +54,11 @@ namespace Renci.SshNet.Messages.Connection
             }
         }
 
+        internal override void Process(Session session)
+        {
+            session.OnChannelDataReceived(this);
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ChannelDataMessage"/> class.
         /// </summary>

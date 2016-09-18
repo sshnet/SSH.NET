@@ -357,6 +357,31 @@ namespace Renci.SshNet
         /// </summary>
         public event EventHandler<MessageEventArgs<BannerMessage>> UserAuthenticationBannerReceived;
 
+        /// <summary>
+        /// Occurs when <see cref="InformationRequestMessage"/> message is received from the server.
+        /// </summary>
+        internal event EventHandler<MessageEventArgs<InformationRequestMessage>> UserAuthenticationInformationRequestReceived;
+
+        /// <summary>
+        /// Occurs when <see cref="PasswordChangeRequiredMessage"/> message is received from the server.
+        /// </summary>
+        internal event EventHandler<MessageEventArgs<PasswordChangeRequiredMessage>> UserAuthenticationPasswordChangeRequiredReceived;
+
+        /// <summary>
+        /// Occurs when <see cref="PublicKeyMessage"/> message is received from the server.
+        /// </summary>
+        internal event EventHandler<MessageEventArgs<PublicKeyMessage>> UserAuthenticationPublicKeyReceived;
+
+        /// <summary>
+        /// Occurs when <see cref="KeyExchangeDhGroupExchangeGroup"/> message is received from the server.
+        /// </summary>
+        internal event EventHandler<MessageEventArgs<KeyExchangeDhGroupExchangeGroup>> KeyExchangeDhGroupExchangeGroupReceived;
+
+        /// <summary>
+        /// Occurs when <see cref="KeyExchangeDhGroupExchangeReply"/> message is received from the server.
+        /// </summary>
+        internal event EventHandler<MessageEventArgs<KeyExchangeDhGroupExchangeReply>> KeyExchangeDhGroupExchangeReplyReceived;
+
         #region Message events
 
         /// <summary>
@@ -393,6 +418,11 @@ namespace Renci.SshNet
         /// Occurs when <see cref="KeyExchangeInitMessage"/> message received
         /// </summary>
         internal event EventHandler<MessageEventArgs<KeyExchangeInitMessage>> KeyExchangeInitReceived;
+
+        /// <summary>
+        /// Occurs when a <see cref="KeyExchangeDhReplyMessage"/> message is received from the SSH server.
+        /// </summary>
+        internal event EventHandler<MessageEventArgs<KeyExchangeDhReplyMessage>> KeyExchangeDhReplyMessageReceived;
 
         /// <summary>
         /// Occurs when <see cref="NewKeysMessage"/> message received
@@ -483,11 +513,6 @@ namespace Renci.SshNet
         /// Occurs when <see cref="ChannelFailureMessage"/> message received
         /// </summary>
         public event EventHandler<MessageEventArgs<ChannelFailureMessage>> ChannelFailureReceived;
-
-        /// <summary>
-        /// Occurs when message received and is not handled by any of the event handlers
-        /// </summary>
-        internal event EventHandler<MessageEventArgs<Message>> MessageReceived;
 
         #endregion
 
@@ -1063,444 +1088,13 @@ namespace Renci.SshNet
             _isDisconnectMessageSent = true;
         }
 
-        void HandleMessageCore(Message message)
-        {
-            if (message == null)
-                throw new ArgumentNullException("message");
-
-#if FEATURE_DYNAMIC_TYPE
-            HandleMessage((dynamic) message);
-#else
-            var disconnectMessage = message as DisconnectMessage;
-            if (disconnectMessage != null)
-            {
-                HandleMessage(disconnectMessage);
-                return;
-            }
-
-            var serviceRequestMessage = message as ServiceRequestMessage;
-            if (serviceRequestMessage != null)
-            {
-                HandleMessage(serviceRequestMessage);
-                return;
-            }
-
-            var serviceAcceptMessage = message as ServiceAcceptMessage;
-            if (serviceAcceptMessage != null)
-            {
-                HandleMessage(serviceAcceptMessage);
-                return;
-            }
-
-            var keyExchangeInitMessage = message as KeyExchangeInitMessage;
-            if (keyExchangeInitMessage != null)
-            {
-                HandleMessage(keyExchangeInitMessage);
-                return;
-            }
-
-            var newKeysMessage = message as NewKeysMessage;
-            if (newKeysMessage != null)
-            {
-                HandleMessage(newKeysMessage);
-                return;
-            }
-
-            var requestMessage = message as RequestMessage;
-            if (requestMessage != null)
-            {
-                HandleMessage(requestMessage);
-                return;
-            }
-
-            var failureMessage = message as FailureMessage;
-            if (failureMessage != null)
-            {
-                HandleMessage(failureMessage);
-                return;
-            }
-
-            var successMessage = message as SuccessMessage;
-            if (successMessage != null)
-            {
-                HandleMessage(successMessage);
-                return;
-            }
-
-            var bannerMessage = message as BannerMessage;
-            if (bannerMessage != null)
-            {
-                HandleMessage(bannerMessage);
-                return;
-            }
-
-            var globalRequestMessage = message as GlobalRequestMessage;
-            if (globalRequestMessage != null)
-            {
-                HandleMessage(globalRequestMessage);
-                return;
-            }
-
-            var requestSuccessMessage = message as RequestSuccessMessage;
-            if (requestSuccessMessage != null)
-            {
-                HandleMessage(requestSuccessMessage);
-                return;
-            }
-
-            var requestFailureMessage = message as RequestFailureMessage;
-            if (requestFailureMessage != null)
-            {
-                HandleMessage(requestFailureMessage);
-                return;
-            }
-
-            var channelOpenMessage = message as ChannelOpenMessage;
-            if (channelOpenMessage != null)
-            {
-                HandleMessage(channelOpenMessage);
-                return;
-            }
-
-            var channelOpenConfirmationMessage = message as ChannelOpenConfirmationMessage;
-            if (channelOpenConfirmationMessage != null)
-            {
-                HandleMessage(channelOpenConfirmationMessage);
-                return;
-            }
-
-            var channelOpenFailureMessage = message as ChannelOpenFailureMessage;
-            if (channelOpenFailureMessage != null)
-            {
-                HandleMessage(channelOpenFailureMessage);
-                return;
-            }
-
-            var channelWindowAdjustMessage = message as ChannelWindowAdjustMessage;
-            if (channelWindowAdjustMessage != null)
-            {
-                HandleMessage(channelWindowAdjustMessage);
-                return;
-            }
-
-            var channelDataMessage = message as ChannelDataMessage;
-            if (channelDataMessage != null)
-            {
-                HandleMessage(channelDataMessage);
-                return;
-            }
-
-            var channelExtendedDataMessage = message as ChannelExtendedDataMessage;
-            if (channelExtendedDataMessage != null)
-            {
-                HandleMessage(channelExtendedDataMessage);
-                return;
-            }
-
-            var channelEofMessage = message as ChannelEofMessage;
-            if (channelEofMessage != null)
-            {
-                HandleMessage(channelEofMessage);
-                return;
-            }
-
-            var channelCloseMessage = message as ChannelCloseMessage;
-            if (channelCloseMessage != null)
-            {
-                HandleMessage(channelCloseMessage);
-                return;
-            }
-
-            var channelRequestMessage = message as ChannelRequestMessage;
-            if (channelRequestMessage != null)
-            {
-                HandleMessage(channelRequestMessage);
-                return;
-            }
-
-            var channelSuccessMessage = message as ChannelSuccessMessage;
-            if (channelSuccessMessage != null)
-            {
-                HandleMessage(channelSuccessMessage);
-                return;
-            }
-
-            var channelFailureMessage = message as ChannelFailureMessage;
-            if (channelFailureMessage != null)
-            {
-                HandleMessage(channelFailureMessage);
-                return;
-            }
-
-            var ignoreMessage = message as IgnoreMessage;
-            if (ignoreMessage != null)
-            {
-                HandleMessage(ignoreMessage);
-                return;
-            }
-
-            var unimplementedMessage = message as UnimplementedMessage;
-            if (unimplementedMessage != null)
-            {
-                HandleMessage(unimplementedMessage);
-                return;
-            }
-
-            var debugMessage = message as DebugMessage;
-            if (debugMessage != null)
-            {
-                HandleMessage(debugMessage);
-                return;
-            }
-
-            throw new NotImplementedException("Message type '{0}' is not implemented. Please submit an issue.", message.GetType().FullName);
-        }
-
-        #error FUCK
-#endif
-        }
-
-        /// <summary>
-        /// Handles the message.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="message">The message.</param>
-        private void HandleMessage<T>(T message) where T : Message
-        {
-            DiagnosticAbstraction.Log(string.Format("[{0}] Message<{1}> received", ToHex(SessionId), typeof(T).FullName));
-            OnMessageReceived(message);
-        }
-
-#region Handle transport messages
-
-        /// <summary>
-        /// Invoked via reflection.
-        /// </summary>
-        private void HandleMessage(DisconnectMessage message)
-        {
-            OnDisconnectReceived(message);
-        }
-
-        /// <summary>
-        /// Invoked via reflection.
-        /// </summary>
-        private void HandleMessage(IgnoreMessage message)
-        {
-            OnIgnoreReceived(message);
-        }
-
-        /// <summary>
-        /// Invoked via reflection.
-        /// </summary>
-        private void HandleMessage(UnimplementedMessage message)
-        {
-            OnUnimplementedReceived(message);
-        }
-
-        /// <summary>
-        /// Invoked via reflection.
-        /// </summary>
-        private void HandleMessage(DebugMessage message)
-        {
-            OnDebugReceived(message);
-        }
-
-        /// <summary>
-        /// Invoked via reflection.
-        /// </summary>
-        private void HandleMessage(ServiceRequestMessage message)
-        {
-            OnServiceRequestReceived(message);
-        }
-
-        /// <summary>
-        /// Invoked via reflection.
-        /// </summary>
-        private void HandleMessage(ServiceAcceptMessage message)
-        {
-            //  TODO:   Refactor to avoid this method here
-            OnServiceAcceptReceived(message);
-
-            _serviceAccepted.Set();
-        }
-
-        /// <summary>
-        /// Invoked via reflection.
-        /// </summary>
-        private void HandleMessage(KeyExchangeInitMessage message)
-        {
-            OnKeyExchangeInitReceived(message);
-        }
-
-        /// <summary>
-        /// Invoked via reflection.
-        /// </summary>
-        private void HandleMessage(NewKeysMessage message)
-        {
-            OnNewKeysReceived(message);
-        }
-
-#endregion
-
-#region Handle User Authentication messages
-
-        /// <summary>
-        /// Invoked via reflection.
-        /// </summary>
-        private void HandleMessage(RequestMessage message)
-        {
-            OnUserAuthenticationRequestReceived(message);
-        }
-
-        /// <summary>
-        /// Invoked via reflection.
-        /// </summary>
-        private void HandleMessage(FailureMessage message)
-        {
-            OnUserAuthenticationFailureReceived(message);
-        }
-
-        /// <summary>
-        /// Invoked via reflection.
-        /// </summary>
-        private void HandleMessage(SuccessMessage message)
-        {
-            OnUserAuthenticationSuccessReceived(message);
-        }
-
-        /// <summary>
-        /// Invoked via reflection.
-        /// </summary>
-        private void HandleMessage(BannerMessage message)
-        {
-            OnUserAuthenticationBannerReceived(message);
-        }
-
-#endregion
-
-#region Handle connection messages
-
-        /// <summary>
-        /// Invoked via reflection.
-        /// </summary>
-        private void HandleMessage(GlobalRequestMessage message)
-        {
-            OnGlobalRequestReceived(message);
-        }
-
-        /// <summary>
-        /// Invoked via reflection.
-        /// </summary>
-        private void HandleMessage(RequestSuccessMessage message)
-        {
-            OnRequestSuccessReceived(message);
-        }
-
-        /// <summary>
-        /// Invoked via reflection.
-        /// </summary>
-        private void HandleMessage(RequestFailureMessage message)
-        {
-            OnRequestFailureReceived(message);
-        }
-
-        /// <summary>
-        /// Invoked via reflection.
-        /// </summary>
-        private void HandleMessage(ChannelOpenMessage message)
-        {
-            OnChannelOpenReceived(message);
-        }
-
-        /// <summary>
-        /// Invoked via reflection.
-        /// </summary>
-        private void HandleMessage(ChannelOpenConfirmationMessage message)
-        {
-            OnChannelOpenConfirmationReceived(message);
-        }
-
-        /// <summary>
-        /// Invoked via reflection.
-        /// </summary>
-        private void HandleMessage(ChannelOpenFailureMessage message)
-        {
-            OnChannelOpenFailureReceived(message);
-        }
-
-        /// <summary>
-        /// Invoked via reflection.
-        /// </summary>
-        private void HandleMessage(ChannelWindowAdjustMessage message)
-        {
-            OnChannelWindowAdjustReceived(message);
-        }
-
-        /// <summary>
-        /// Invoked via reflection.
-        /// </summary>
-        private void HandleMessage(ChannelDataMessage message)
-        {
-            OnChannelDataReceived(message);
-        }
-
-        /// <summary>
-        /// Invoked via reflection.
-        /// </summary>
-        private void HandleMessage(ChannelExtendedDataMessage message)
-        {
-            OnChannelExtendedDataReceived(message);
-        }
-
-        /// <summary>
-        /// Invoked via reflection.
-        /// </summary>
-        private void HandleMessage(ChannelEofMessage message)
-        {
-            OnChannelEofReceived(message);
-        }
-
-        /// <summary>
-        /// Invoked via reflection.
-        /// </summary>
-        private void HandleMessage(ChannelCloseMessage message)
-        {
-            OnChannelCloseReceived(message);
-        }
-
-        /// <summary>
-        /// Invoked via reflection.
-        /// </summary>
-        private void HandleMessage(ChannelRequestMessage message)
-        {
-            OnChannelRequestReceived(message);
-        }
-
-        /// <summary>
-        /// Invoked via reflection.
-        /// </summary>
-        private void HandleMessage(ChannelSuccessMessage message)
-        {
-            OnChannelSuccessReceived(message);
-        }
-
-        /// <summary>
-        /// Invoked via reflection.
-        /// </summary>
-        private void HandleMessage(ChannelFailureMessage message)
-        {
-            OnChannelFailureReceived(message);
-        }
-
-#endregion
-
 #region Handle received message events
 
         /// <summary>
         /// Called when <see cref="DisconnectMessage"/> received.
         /// </summary>
         /// <param name="message"><see cref="DisconnectMessage"/> message.</param>
-        protected virtual void OnDisconnectReceived(DisconnectMessage message)
+        internal void OnDisconnectReceived(DisconnectMessage message)
         {
             DiagnosticAbstraction.Log(string.Format("[{0}] {1} Disconnect received: {2} {3}", ToHex(SessionId), DateTime.Now.Ticks, message.ReasonCode, message.Description));
 
@@ -1528,7 +1122,7 @@ namespace Renci.SshNet
         /// Called when <see cref="IgnoreMessage"/> received.
         /// </summary>
         /// <param name="message"><see cref="IgnoreMessage"/> message.</param>
-        protected virtual void OnIgnoreReceived(IgnoreMessage message)
+        internal void OnIgnoreReceived(IgnoreMessage message)
         {
             var handlers = IgnoreReceived;
             if (handlers != null)
@@ -1539,7 +1133,7 @@ namespace Renci.SshNet
         /// Called when <see cref="UnimplementedMessage"/> message received.
         /// </summary>
         /// <param name="message"><see cref="UnimplementedMessage"/> message.</param>
-        protected virtual void OnUnimplementedReceived(UnimplementedMessage message)
+        internal void OnUnimplementedReceived(UnimplementedMessage message)
         {
             var handlers = UnimplementedReceived;
             if (handlers != null)
@@ -1550,7 +1144,7 @@ namespace Renci.SshNet
         /// Called when <see cref="DebugMessage"/> message received.
         /// </summary>
         /// <param name="message"><see cref="DebugMessage"/> message.</param>
-        protected virtual void OnDebugReceived(DebugMessage message)
+        internal void OnDebugReceived(DebugMessage message)
         {
             var handlers = DebugReceived;
             if (handlers != null)
@@ -1561,7 +1155,7 @@ namespace Renci.SshNet
         /// Called when <see cref="ServiceRequestMessage"/> message received.
         /// </summary>
         /// <param name="message"><see cref="ServiceRequestMessage"/> message.</param>
-        protected virtual void OnServiceRequestReceived(ServiceRequestMessage message)
+        internal void OnServiceRequestReceived(ServiceRequestMessage message)
         {
             var handlers = ServiceRequestReceived;
             if (handlers != null)
@@ -1572,18 +1166,34 @@ namespace Renci.SshNet
         /// Called when <see cref="ServiceAcceptMessage"/> message received.
         /// </summary>
         /// <param name="message"><see cref="ServiceAcceptMessage"/> message.</param>
-        protected virtual void OnServiceAcceptReceived(ServiceAcceptMessage message)
+        internal void OnServiceAcceptReceived(ServiceAcceptMessage message)
         {
             var handlers = ServiceAcceptReceived;
             if (handlers != null)
                 handlers(this, new MessageEventArgs<ServiceAcceptMessage>(message));
+
+            _serviceAccepted.Set();
+        }
+
+        internal void OnKeyExchangeDhGroupExchangeGroupReceived(KeyExchangeDhGroupExchangeGroup message)
+        {
+            var handlers = KeyExchangeDhGroupExchangeGroupReceived;
+            if (handlers != null)
+                handlers(this, new MessageEventArgs<KeyExchangeDhGroupExchangeGroup>(message));
+        }
+
+        internal void OnKeyExchangeDhGroupExchangeReplyReceived(KeyExchangeDhGroupExchangeReply message)
+        {
+            var handlers = KeyExchangeDhGroupExchangeReplyReceived;
+            if (handlers != null)
+                handlers(this, new MessageEventArgs<KeyExchangeDhGroupExchangeReply>(message));
         }
 
         /// <summary>
         /// Called when <see cref="KeyExchangeInitMessage"/> message received.
         /// </summary>
         /// <param name="message"><see cref="KeyExchangeInitMessage"/> message.</param>
-        protected virtual void OnKeyExchangeInitReceived(KeyExchangeInitMessage message)
+        internal void OnKeyExchangeInitReceived(KeyExchangeInitMessage message)
         {
             _keyExchangeInProgress = true;
 
@@ -1607,11 +1217,18 @@ namespace Renci.SshNet
                 keyExchangeInitReceived(this, new MessageEventArgs<KeyExchangeInitMessage>(message));
         }
 
+        internal void OnKeyExchangeDhReplyMessageReceived(KeyExchangeDhReplyMessage message)
+        {
+            var handlers = KeyExchangeDhReplyMessageReceived;
+            if (handlers != null)
+                handlers(this, new MessageEventArgs<KeyExchangeDhReplyMessage>(message));
+        }
+
         /// <summary>
         /// Called when <see cref="NewKeysMessage"/> message received.
         /// </summary>
         /// <param name="message"><see cref="NewKeysMessage"/> message.</param>
-        protected virtual void OnNewKeysReceived(NewKeysMessage message)
+        internal void OnNewKeysReceived(NewKeysMessage message)
         {
             //  Update sessionId
             if (SessionId == null)
@@ -1673,7 +1290,7 @@ namespace Renci.SshNet
         /// Called when <see cref="RequestMessage"/> message received.
         /// </summary>
         /// <param name="message"><see cref="RequestMessage"/> message.</param>
-        protected virtual void OnUserAuthenticationRequestReceived(RequestMessage message)
+        internal void OnUserAuthenticationRequestReceived(RequestMessage message)
         {
             var handlers = UserAuthenticationRequestReceived;
             if (handlers != null)
@@ -1684,7 +1301,7 @@ namespace Renci.SshNet
         /// Called when <see cref="FailureMessage"/> message received.
         /// </summary>
         /// <param name="message"><see cref="FailureMessage"/> message.</param>
-        protected virtual void OnUserAuthenticationFailureReceived(FailureMessage message)
+        internal void OnUserAuthenticationFailureReceived(FailureMessage message)
         {
             var handlers = UserAuthenticationFailureReceived;
             if (handlers != null)
@@ -1695,7 +1312,7 @@ namespace Renci.SshNet
         /// Called when <see cref="SuccessMessage"/> message received.
         /// </summary>
         /// <param name="message"><see cref="SuccessMessage"/> message.</param>
-        protected virtual void OnUserAuthenticationSuccessReceived(SuccessMessage message)
+        internal void OnUserAuthenticationSuccessReceived(SuccessMessage message)
         {
             var handlers = UserAuthenticationSuccessReceived;
             if (handlers != null)
@@ -1706,18 +1323,44 @@ namespace Renci.SshNet
         /// Called when <see cref="BannerMessage"/> message received.
         /// </summary>
         /// <param name="message"><see cref="BannerMessage"/> message.</param>
-        protected virtual void OnUserAuthenticationBannerReceived(BannerMessage message)
+        internal void OnUserAuthenticationBannerReceived(BannerMessage message)
         {
             var handlers = UserAuthenticationBannerReceived;
             if (handlers != null)
                 handlers(this, new MessageEventArgs<BannerMessage>(message));
         }
 
+
+        /// <summary>
+        /// Called when <see cref="InformationRequestMessage"/> message received.
+        /// </summary>
+        /// <param name="message"><see cref="InformationRequestMessage"/> message.</param>
+        internal void OnUserAuthenticationInformationRequestReceived(InformationRequestMessage message)
+        {
+            var handlers = UserAuthenticationInformationRequestReceived;
+            if (handlers != null)
+                handlers(this, new MessageEventArgs<InformationRequestMessage>(message));
+        }
+
+        internal void OnUserAuthenticationPasswordChangeRequiredReceived(PasswordChangeRequiredMessage message)
+        {
+            var handlers = UserAuthenticationPasswordChangeRequiredReceived;
+            if (handlers != null)
+                handlers(this, new MessageEventArgs<PasswordChangeRequiredMessage>(message));
+        }
+
+        internal void OnUserAuthenticationPublicKeyReceived(PublicKeyMessage message)
+        {
+            var handlers = UserAuthenticationPublicKeyReceived;
+            if (handlers != null)
+                handlers(this, new MessageEventArgs<PublicKeyMessage>(message));
+        }
+
         /// <summary>
         /// Called when <see cref="GlobalRequestMessage"/> message received.
         /// </summary>
         /// <param name="message"><see cref="GlobalRequestMessage"/> message.</param>
-        protected virtual void OnGlobalRequestReceived(GlobalRequestMessage message)
+        internal void OnGlobalRequestReceived(GlobalRequestMessage message)
         {
             var handlers = GlobalRequestReceived;
             if (handlers != null)
@@ -1728,7 +1371,7 @@ namespace Renci.SshNet
         /// Called when <see cref="RequestSuccessMessage"/> message received.
         /// </summary>
         /// <param name="message"><see cref="RequestSuccessMessage"/> message.</param>
-        protected virtual void OnRequestSuccessReceived(RequestSuccessMessage message)
+        internal void OnRequestSuccessReceived(RequestSuccessMessage message)
         {
             var handlers = RequestSuccessReceived;
             if (handlers != null)
@@ -1739,7 +1382,7 @@ namespace Renci.SshNet
         /// Called when <see cref="RequestFailureMessage"/> message received.
         /// </summary>
         /// <param name="message"><see cref="RequestFailureMessage"/> message.</param>
-        protected virtual void OnRequestFailureReceived(RequestFailureMessage message)
+        internal void OnRequestFailureReceived(RequestFailureMessage message)
         {
             var handlers = RequestFailureReceived;
             if (handlers != null)
@@ -1750,7 +1393,7 @@ namespace Renci.SshNet
         /// Called when <see cref="ChannelOpenMessage"/> message received.
         /// </summary>
         /// <param name="message"><see cref="ChannelOpenMessage"/> message.</param>
-        protected virtual void OnChannelOpenReceived(ChannelOpenMessage message)
+        internal void OnChannelOpenReceived(ChannelOpenMessage message)
         {
             var handlers = ChannelOpenReceived;
             if (handlers != null)
@@ -1761,7 +1404,7 @@ namespace Renci.SshNet
         /// Called when <see cref="ChannelOpenConfirmationMessage"/> message received.
         /// </summary>
         /// <param name="message"><see cref="ChannelOpenConfirmationMessage"/> message.</param>
-        protected virtual void OnChannelOpenConfirmationReceived(ChannelOpenConfirmationMessage message)
+        internal void OnChannelOpenConfirmationReceived(ChannelOpenConfirmationMessage message)
         {
             var handlers = ChannelOpenConfirmationReceived;
             if (handlers != null)
@@ -1772,7 +1415,7 @@ namespace Renci.SshNet
         /// Called when <see cref="ChannelOpenFailureMessage"/> message received.
         /// </summary>
         /// <param name="message"><see cref="ChannelOpenFailureMessage"/> message.</param>
-        protected virtual void OnChannelOpenFailureReceived(ChannelOpenFailureMessage message)
+        internal void OnChannelOpenFailureReceived(ChannelOpenFailureMessage message)
         {
             var handlers = ChannelOpenFailureReceived;
             if (handlers != null)
@@ -1783,7 +1426,7 @@ namespace Renci.SshNet
         /// Called when <see cref="ChannelWindowAdjustMessage"/> message received.
         /// </summary>
         /// <param name="message"><see cref="ChannelWindowAdjustMessage"/> message.</param>
-        protected virtual void OnChannelWindowAdjustReceived(ChannelWindowAdjustMessage message)
+        internal void OnChannelWindowAdjustReceived(ChannelWindowAdjustMessage message)
         {
             var handlers = ChannelWindowAdjustReceived;
             if (handlers != null)
@@ -1794,7 +1437,7 @@ namespace Renci.SshNet
         /// Called when <see cref="ChannelDataMessage"/> message received.
         /// </summary>
         /// <param name="message"><see cref="ChannelDataMessage"/> message.</param>
-        protected virtual void OnChannelDataReceived(ChannelDataMessage message)
+        internal void OnChannelDataReceived(ChannelDataMessage message)
         {
             var handlers = ChannelDataReceived;
             if (handlers != null)
@@ -1805,7 +1448,7 @@ namespace Renci.SshNet
         /// Called when <see cref="ChannelExtendedDataMessage"/> message received.
         /// </summary>
         /// <param name="message"><see cref="ChannelExtendedDataMessage"/> message.</param>
-        protected virtual void OnChannelExtendedDataReceived(ChannelExtendedDataMessage message)
+        internal void OnChannelExtendedDataReceived(ChannelExtendedDataMessage message)
         {
             var handlers = ChannelExtendedDataReceived;
             if (handlers != null)
@@ -1816,7 +1459,7 @@ namespace Renci.SshNet
         /// Called when <see cref="ChannelCloseMessage"/> message received.
         /// </summary>
         /// <param name="message"><see cref="ChannelCloseMessage"/> message.</param>
-        protected virtual void OnChannelEofReceived(ChannelEofMessage message)
+        internal void OnChannelEofReceived(ChannelEofMessage message)
         {
             var handlers = ChannelEofReceived;
             if (handlers != null)
@@ -1827,7 +1470,7 @@ namespace Renci.SshNet
         /// Called when <see cref="ChannelCloseMessage"/> message received.
         /// </summary>
         /// <param name="message"><see cref="ChannelCloseMessage"/> message.</param>
-        protected virtual void OnChannelCloseReceived(ChannelCloseMessage message)
+        internal void OnChannelCloseReceived(ChannelCloseMessage message)
         {
             var handlers = ChannelCloseReceived;
             if (handlers != null)
@@ -1838,7 +1481,7 @@ namespace Renci.SshNet
         /// Called when <see cref="ChannelRequestMessage"/> message received.
         /// </summary>
         /// <param name="message"><see cref="ChannelRequestMessage"/> message.</param>
-        protected virtual void OnChannelRequestReceived(ChannelRequestMessage message)
+        internal void OnChannelRequestReceived(ChannelRequestMessage message)
         {
             var handlers = ChannelRequestReceived;
             if (handlers != null)
@@ -1849,7 +1492,7 @@ namespace Renci.SshNet
         /// Called when <see cref="ChannelSuccessMessage"/> message received.
         /// </summary>
         /// <param name="message"><see cref="ChannelSuccessMessage"/> message.</param>
-        protected virtual void OnChannelSuccessReceived(ChannelSuccessMessage message)
+        internal void OnChannelSuccessReceived(ChannelSuccessMessage message)
         {
             var handlers = ChannelSuccessReceived;
             if (handlers != null)
@@ -1860,22 +1503,11 @@ namespace Renci.SshNet
         /// Called when <see cref="ChannelFailureMessage"/> message received.
         /// </summary>
         /// <param name="message"><see cref="ChannelFailureMessage"/> message.</param>
-        protected virtual void OnChannelFailureReceived(ChannelFailureMessage message)
+        internal void OnChannelFailureReceived(ChannelFailureMessage message)
         {
             var handlers = ChannelFailureReceived;
             if (handlers != null)
                 handlers(this, new MessageEventArgs<ChannelFailureMessage>(message));
-        }
-
-        /// <summary>
-        /// Called when <see cref="Message"/> message received.
-        /// </summary>
-        /// <param name="message"><see cref="Message"/> message.</param>
-        protected virtual void OnMessageReceived(Message message)
-        {
-            var handlers = MessageReceived;
-            if (handlers != null)
-                handlers(this, new MessageEventArgs<Message>(message));
         }
 
 #endregion
@@ -2233,7 +1865,8 @@ namespace Renci.SshNet
                         break;
                     }
 
-                    HandleMessageCore(message);
+                    // process message
+                    message.Process(this);
                 }
 
                 // connection with SSH server was closed

@@ -62,5 +62,10 @@
             if (BoundPort.HasValue)
                 Write(BoundPort.Value);
         }
+
+        internal override void Process(Session session)
+        {
+            session.OnRequestSuccessReceived(this);
+        }
     }
 }

@@ -143,5 +143,10 @@ namespace Renci.SshNet.Messages.Connection
             Write(MaximumPacketSize);
             Write(_infoBytes);
         }
+
+        internal override void Process(Session session)
+        {
+            session.OnChannelOpenReceived(this);
+        }
     }
 }

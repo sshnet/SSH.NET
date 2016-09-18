@@ -52,7 +52,7 @@ namespace Renci.SshNet.Security
 
             Session.RegisterMessage("SSH_MSG_KEXDH_REPLY");
 
-            Session.MessageReceived += Session_MessageReceived;
+            Session.KeyExchangeDhReplyMessageReceived += Session_KeyExchangeDhReplyMessageReceived;
 
             _prime = GroupPrime;
             _group = new BigInteger(new byte[] { 2 });
@@ -69,22 +69,20 @@ namespace Renci.SshNet.Security
         {
             base.Finish();
 
-            Session.MessageReceived -= Session_MessageReceived;
+            Session.KeyExchangeDhReplyMessageReceived -= Session_KeyExchangeDhReplyMessageReceived;
         }
 
-        private void Session_MessageReceived(object sender, MessageEventArgs<Message> e)
+        private void Session_KeyExchangeDhReplyMessageReceived(object sender, MessageEventArgs<KeyExchangeDhReplyMessage> e)
         {
-            var message = e.Message as KeyExchangeDhReplyMessage;
-            if (message != null)
-            {
-                //  Unregister message once received
-                Session.UnRegisterMessage("SSH_MSG_KEXDH_REPLY");
+            var message = e.Message;
 
-                HandleServerDhReply(message.HostKey, message.F, message.Signature);
+            //  Unregister message once received
+            Session.UnRegisterMessage("SSH_MSG_KEXDH_REPLY");
 
-                //  When SSH_MSG_KEXDH_REPLY received key exchange is completed
-                Finish();
-            }
+            HandleServerDhReply(message.HostKey, message.F, message.Signature);
+
+            //  When SSH_MSG_KEXDH_REPLY received key exchange is completed
+            Finish();
         }
 
         private class _ExchangeHashData : SshData

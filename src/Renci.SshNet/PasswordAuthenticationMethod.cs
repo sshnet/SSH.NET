@@ -79,7 +79,7 @@ namespace Renci.SshNet
 
             session.UserAuthenticationSuccessReceived += Session_UserAuthenticationSuccessReceived;
             session.UserAuthenticationFailureReceived += Session_UserAuthenticationFailureReceived;
-            session.MessageReceived += Session_MessageReceived;
+            session.UserAuthenticationPasswordChangeRequiredReceived += Session_UserAuthenticationPasswordChangeRequiredReceived;
 
             try
             {
@@ -92,7 +92,7 @@ namespace Renci.SshNet
                 session.UnRegisterMessage("SSH_MSG_USERAUTH_PASSWD_CHANGEREQ");
                 session.UserAuthenticationSuccessReceived -= Session_UserAuthenticationSuccessReceived;
                 session.UserAuthenticationFailureReceived -= Session_UserAuthenticationFailureReceived;
-                session.MessageReceived -= Session_MessageReceived;
+                session.UserAuthenticationPasswordChangeRequiredReceived -= Session_UserAuthenticationPasswordChangeRequiredReceived;
             }
 
             if (_exception != null)
@@ -121,34 +121,31 @@ namespace Renci.SshNet
             _authenticationCompleted.Set();
         }
 
-        private void Session_MessageReceived(object sender, MessageEventArgs<Message> e)
+        private void Session_UserAuthenticationPasswordChangeRequiredReceived(object sender, MessageEventArgs<PasswordChangeRequiredMessage> e)
         {
-            if (e.Message is PasswordChangeRequiredMessage)
+            _session.UnRegisterMessage("SSH_MSG_USERAUTH_PASSWD_CHANGEREQ");
+
+            ThreadAbstraction.ExecuteThread(() =>
             {
-                _session.UnRegisterMessage("SSH_MSG_USERAUTH_PASSWD_CHANGEREQ");
-
-                ThreadAbstraction.ExecuteThread(() =>
+                try
                 {
-                    try
-                    {
-                        var eventArgs = new AuthenticationPasswordChangeEventArgs(Username);
+                    var eventArgs = new AuthenticationPasswordChangeEventArgs(Username);
 
-                        //  Raise an event to allow user to supply a new password
-                        if (PasswordExpired != null)
-                        {
-                            PasswordExpired(this, eventArgs);
-                        }
-
-                        //  Send new authentication request with new password
-                        _session.SendMessage(new RequestMessagePassword(ServiceName.Connection, Username, _password, eventArgs.NewPassword));
-                    }
-                    catch (Exception exp)
+                    //  Raise an event to allow user to supply a new password
+                    if (PasswordExpired != null)
                     {
-                        _exception = exp;
-                        _authenticationCompleted.Set();
+                        PasswordExpired(this, eventArgs);
                     }
-                });
-            }
+
+                    //  Send new authentication request with new password
+                    _session.SendMessage(new RequestMessagePassword(ServiceName.Connection, Username, _password, eventArgs.NewPassword));
+                }
+                catch (Exception exp)
+                {
+                    _exception = exp;
+                    _authenticationCompleted.Set();
+                }
+            });
         }
 
         #region IDisposable Members

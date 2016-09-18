@@ -240,11 +240,6 @@ namespace Renci.SshNet.Sftp
                 // extract packet length
                 var packetDataLength = _data[0] << 24 | _data[1] << 16 | _data[2] << 8 | _data[3];
 
-#if DEBUG_GERT
-                if (packetDataLength > 32 * 1024)
-                    Console.WriteLine("BIG PACKAGE: " + packetDataLength + " | " + data.Length);
-#endif // DEBUG_GERT
-
                 var packetTotalLength = packetDataLength + packetLengthByteCount;
 
                 // check if complete packet data is available

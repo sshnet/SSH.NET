@@ -148,10 +148,10 @@ namespace Renci.SshNet.Messages
         }
 
         /// <summary>
-        /// Returns a <see cref="System.String"/> that represents this instance.
+        /// Returns a <see cref="string"/> that represents this instance.
         /// </summary>
         /// <returns>
-        /// A <see cref="System.String"/> that represents this instance.
+        /// A <see cref="string"/> that represents this instance.
         /// </returns>
         public override string ToString()
         {
@@ -162,5 +162,11 @@ namespace Renci.SshNet.Messages
 
             return messageAttribute.Name;
         }
+
+        /// <summary>
+        /// Process the current message for the specified <see cref="Session"/>.
+        /// </summary>
+        /// <param name="session">The <see cref="Session"/> for which to process the current message.</param>
+        internal abstract void Process(Session session);
     }
 }

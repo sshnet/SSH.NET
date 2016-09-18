@@ -38,6 +38,11 @@
             }
         }
 
+        internal override void Process(Session session)
+        {
+            session.OnUserAuthenticationPublicKeyReceived(this);
+        }
+
         /// <summary>
         /// Called when type specific data need to be loaded.
         /// </summary>

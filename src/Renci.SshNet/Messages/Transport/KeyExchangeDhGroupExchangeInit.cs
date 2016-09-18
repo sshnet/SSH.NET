@@ -59,5 +59,10 @@ namespace Renci.SshNet.Messages.Transport
         {
             WriteBinaryString(_eBytes);
         }
+
+        internal override void Process(Session session)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

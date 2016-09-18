@@ -80,5 +80,10 @@
             WriteBinaryString(_requestName);
             Write(WantReply);
         }
+
+        internal override void Process(Session session)
+        {
+            session.OnGlobalRequestReceived(this);
+        }
     }
 }

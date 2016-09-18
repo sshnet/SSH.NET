@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if false
+
+using System;
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Messages.Transport
@@ -63,3 +65,5 @@ namespace Renci.SshNet.Messages.Transport
         }
     }
 }
+
+#endif // false

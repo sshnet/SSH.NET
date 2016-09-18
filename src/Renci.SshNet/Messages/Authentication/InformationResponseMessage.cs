@@ -47,11 +47,16 @@ namespace Renci.SshNet.Messages.Authentication
         /// </summary>
         protected override void SaveData()
         {
-            Write((UInt32)Responses.Count);
+            Write((uint) Responses.Count);
             foreach (var response in Responses)
             {
                 Write(response);
             }
+        }
+
+        internal override void Process(Session session)
+        {
+            throw new NotImplementedException();
         }
     }
 }

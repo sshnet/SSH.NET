@@ -73,5 +73,10 @@
             Write(DataTypeCode);
             WriteBinaryString(Data);
         }
+
+        internal override void Process(Session session)
+        {
+            session.OnChannelExtendedDataReceived(this);
+        }
     }
 }

@@ -72,5 +72,10 @@
             WriteBinaryString(_message);
             WriteBinaryString(_language);
         }
+
+        internal override void Process(Session session)
+        {
+            session.OnDebugReceived(this);
+        }
     }
 }

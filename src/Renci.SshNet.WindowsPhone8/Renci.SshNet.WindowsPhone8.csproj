@@ -94,9 +94,6 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\Renci.SshNet.WindowsPhone\Session.WP.cs">
-      <Link>Session.WP.cs</Link>
-    </Compile>
     <Compile Include="..\Renci.SshNet\Abstractions\CryptoAbstraction.cs">
       <Link>Abstractions\CryptoAbstraction.cs</Link>
     </Compile>
@@ -757,9 +754,6 @@
     <Compile Include="..\Renci.SshNet\Session.cs">
       <Link>Session.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet.Silverlight\Session.SilverlightShared.cs">
-      <Link>Session.cs</Link>
-    </Compile>
     <Compile Include="..\Renci.SshNet\SftpClient.cs">
       <Link>SftpClient.cs</Link>
     </Compile>
@@ -955,7 +949,7 @@
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties ProjectLinkReference="2f5f8c90-0bd1-424f-997c-7bc6280919d1" ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" />
+      <UserProperties ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" ProjectLinkReference="2f5f8c90-0bd1-424f-997c-7bc6280919d1" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -37,10 +37,10 @@ namespace Renci.SshNet.Tests.Classes
                 _sessionMock.Setup(
                     p =>
                         p.SendMessage(
-                            It.Is<GlobalRequestMessage>(
+                            It.Is<CancelTcpIpForwardGlobalRequestMessage>(
                                 g =>
-                                    g.RequestName == GlobalRequestName.CancelTcpIpForward &&
-                                    g.AddressToBind == _forwardedPort.BoundHost && g.PortToBind == _forwardedPort.BoundPort)));
+                                    g.AddressToBind == _forwardedPort.BoundHost &&
+                                    g.PortToBind == _forwardedPort.BoundPort)));
                 _sessionMock.Setup(p => p.MessageListenerCompleted).Returns(new ManualResetEvent(true));
                 _forwardedPort.Dispose();
                 _forwardedPort = null;
@@ -68,9 +68,8 @@ namespace Renci.SshNet.Tests.Classes
             _sessionMock.Setup(
                 p =>
                     p.SendMessage(
-                        It.Is<GlobalRequestMessage>(
+                        It.Is<TcpIpForwardGlobalRequestMessage>(
                             g =>
-                                g.RequestName == GlobalRequestName.TcpIpForward &&
                                 g.AddressToBind == _forwardedPort.BoundHost &&
                                 g.PortToBind == _forwardedPort.BoundPort)))
                 .Callback(
@@ -82,10 +81,10 @@ namespace Renci.SshNet.Tests.Classes
             _sessionMock.Setup(
                 p =>
                     p.SendMessage(
-                        It.Is<GlobalRequestMessage>(
+                        It.Is<CancelTcpIpForwardGlobalRequestMessage>(
                             g =>
-                                g.RequestName == GlobalRequestName.CancelTcpIpForward &&
-                                g.AddressToBind == _forwardedPort.BoundHost && g.PortToBind == _forwardedPort.BoundPort)))
+                                g.AddressToBind == _forwardedPort.BoundHost &&
+                                g.PortToBind == _forwardedPort.BoundPort)))
                 .Callback(
                     () =>
                         _sessionMock.Raise(s => s.RequestSuccessReceived += null,
@@ -121,7 +120,7 @@ namespace Renci.SshNet.Tests.Classes
             var originatorAddress = new Random().Next().ToString(CultureInfo.InvariantCulture);
             var originatorPort = (uint)new Random().Next(0, int.MaxValue);
             var channelMock = new Mock<IChannelForwardedTcpip>(MockBehavior.Strict);
-            var channelDiposed = new ManualResetEvent(false);
+            var channelDisposed = new ManualResetEvent(false);
 
             _sessionMock.Setup(
                 p =>
@@ -132,8 +131,7 @@ namespace Renci.SshNet.Tests.Classes
                         It.Is<IPEndPoint>(
                             ep => ep.Address.Equals(_remoteEndpoint.Address) && ep.Port == _remoteEndpoint.Port),
                         _forwardedPort));
-            channelMock.Setup(p => p.Close());
-            channelMock.Setup(p => p.Dispose()).Callback(() => channelDiposed.Set());
+            channelMock.Setup(p => p.Dispose()).Callback(() => channelDisposed.Set());
 
             _sessionMock.Raise(p => p.ChannelOpenReceived += null,
                 new MessageEventArgs<ChannelOpenMessage>(new ChannelOpenMessage(channelNumber, initialWindowSize,
@@ -142,11 +140,10 @@ namespace Renci.SshNet.Tests.Classes
                         originatorPort))));
 
             // wait for channel to be disposed
-            channelDiposed.WaitOne(TimeSpan.FromMilliseconds(200));
+            channelDisposed.WaitOne(TimeSpan.FromMilliseconds(200));
 
             _sessionMock.Verify(p => p.CreateChannelForwardedTcpip(channelNumber, initialWindowSize, maximumPacketSize), Times.Once);
             channelMock.Verify(p => p.Bind(It.Is<IPEndPoint>(ep => ep.Address.Equals(_remoteEndpoint.Address) && ep.Port == _remoteEndpoint.Port), _forwardedPort), Times.Once);
-            channelMock.Verify(p => p.Close(), Times.Once);
             channelMock.Verify(p => p.Dispose(), Times.Once);
         }
 

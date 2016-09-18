@@ -49,9 +49,10 @@ namespace Renci.SshNet.Security
         {
             base.Start(session, message);
 
+            // Register SSH_MSG_KEX_DH_GEX_GROUP message
             Session.RegisterMessage("SSH_MSG_KEX_DH_GEX_GROUP");
-
-            Session.MessageReceived += Session_MessageReceived;
+            // Subscribe to KeyExchangeDhGroupExchangeGroupReceived events
+            Session.KeyExchangeDhGroupExchangeGroupReceived += Session_KeyExchangeDhGroupExchangeGroupReceived;
 
             // 1. client sends SSH_MSG_KEY_DH_GEX_REQUEST
             SendMessage(new KeyExchangeDhGroupExchangeRequest(MinimumGroupSize, PreferredGroupSize,
@@ -65,44 +66,48 @@ namespace Renci.SshNet.Security
         {
             base.Finish();
 
-            Session.MessageReceived -= Session_MessageReceived;
+            Session.KeyExchangeDhGroupExchangeGroupReceived -= Session_KeyExchangeDhGroupExchangeGroupReceived;
+            Session.KeyExchangeDhGroupExchangeReplyReceived -= Session_KeyExchangeDhGroupExchangeReplyReceived;
         }
 
-        private void Session_MessageReceived(object sender, MessageEventArgs<Message> e)
+        private void Session_KeyExchangeDhGroupExchangeGroupReceived(object sender, MessageEventArgs<KeyExchangeDhGroupExchangeGroup> e)
         {
             // 2. server sends SSH_MSG_KEX_DH_GEX_GROUP
-            var groupMessage = e.Message as KeyExchangeDhGroupExchangeGroup;
-            if (groupMessage != null)
-            {
-                // Unregister SSH_MSG_KEX_DH_GEX_GROUP message once received
-                Session.UnRegisterMessage("SSH_MSG_KEX_DH_GEX_GROUP");
-                // Register in order to be able to receive SSH_MSG_KEX_DH_GEX_REPLY message
-                Session.RegisterMessage("SSH_MSG_KEX_DH_GEX_REPLY");
+            var groupMessage = e.Message;
 
-                _prime = groupMessage.SafePrime;
-                _group = groupMessage.SubGroup;
+            // Unregister SSH_MSG_KEX_DH_GEX_GROUP message once received
+            Session.UnRegisterMessage("SSH_MSG_KEX_DH_GEX_GROUP");
+            // Unsubscribe from KeyExchangeDhGroupExchangeGroupReceived events
+            Session.KeyExchangeDhGroupExchangeGroupReceived -= Session_KeyExchangeDhGroupExchangeGroupReceived;
 
-                PopulateClientExchangeValue();
+            // Register in order to be able to receive SSH_MSG_KEX_DH_GEX_REPLY message
+            Session.RegisterMessage("SSH_MSG_KEX_DH_GEX_REPLY");
+            // Subscribe to KeyExchangeDhGroupExchangeReplyReceived events
+            Session.KeyExchangeDhGroupExchangeReplyReceived += Session_KeyExchangeDhGroupExchangeReplyReceived;
 
-                // 3. client sends SSH_MSG_KEX_DH_GEX_INIT
-                SendMessage(new KeyExchangeDhGroupExchangeInit(_clientExchangeValue));
+            _prime = groupMessage.SafePrime;
+            _group = groupMessage.SubGroup;
 
-                // Skip further execution as we'll be waiting for the SSH_MSG_KEX_DH_GEX_REPLY message
-                return;
-            }
+            PopulateClientExchangeValue();
 
+            // 3. client sends SSH_MSG_KEX_DH_GEX_INIT
+            SendMessage(new KeyExchangeDhGroupExchangeInit(_clientExchangeValue));
+        }
+
+        private void Session_KeyExchangeDhGroupExchangeReplyReceived(object sender, MessageEventArgs<KeyExchangeDhGroupExchangeReply> e)
+        {
             // 4. server sends SSH_MSG_KEX_DH_GEX_REPLY
-            var replyMessage = e.Message as KeyExchangeDhGroupExchangeReply;
-            if (replyMessage != null)
-            {
-                // Unregister SSH_MSG_KEX_DH_GEX_REPLY message once received
-                Session.UnRegisterMessage("SSH_MSG_KEX_DH_GEX_REPLY");
+            var replyMessage = e.Message;
 
-                HandleServerDhReply(replyMessage.HostKey, replyMessage.F, replyMessage.Signature);
+            // Unregister SSH_MSG_KEX_DH_GEX_REPLY message once received
+            Session.UnRegisterMessage("SSH_MSG_KEX_DH_GEX_REPLY");
+            // Unsubscribe from KeyExchangeDhGroupExchangeReplyReceived events
+            Session.KeyExchangeDhGroupExchangeReplyReceived -= Session_KeyExchangeDhGroupExchangeReplyReceived;
 
-                // When SSH_MSG_KEX_DH_GEX_REPLY received key exchange is completed
-                Finish();
-            }
+            HandleServerDhReply(replyMessage.HostKey, replyMessage.F, replyMessage.Signature);
+
+            // When SSH_MSG_KEX_DH_GEX_REPLY received key exchange is completed
+            Finish();
         }
     }
 }

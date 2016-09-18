@@ -140,8 +140,6 @@ namespace Renci.SshNet.Messages.Transport
         /// </summary>
         protected override void LoadData()
         {
-            ResetReader();
-
             Cookie = ReadBytes(16);
             KeyExchangeAlgorithms = ReadNamesList();
             ServerHostKeyAlgorithms = ReadNamesList();
@@ -175,6 +173,11 @@ namespace Renci.SshNet.Messages.Transport
             Write(LanguagesServerToClient);
             Write(FirstKexPacketFollows);
             Write(Reserved);
+        }
+
+        internal override void Process(Session session)
+        {
+            session.OnKeyExchangeInitReceived(this);
         }
     }
 }

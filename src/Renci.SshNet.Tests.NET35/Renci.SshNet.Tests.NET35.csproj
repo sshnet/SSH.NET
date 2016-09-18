@@ -80,50 +80,50 @@
     <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelDirectTcpipTest.cs">
       <Link>Classes\Channels\ChannelDirectTcpipTest.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelDirectTcpipTest_Close_SessionIsConnectedAndChannelIsOpen.cs">
-      <Link>Classes\Channels\ChannelDirectTcpipTest_Close_SessionIsConnectedAndChannelIsOpen.cs</Link>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelDirectTcpipTest_Dispose_SessionIsConnectedAndChannelIsOpen.cs">
+      <Link>Classes\Channels\ChannelDirectTcpipTest_Dispose_SessionIsConnectedAndChannelIsOpen.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelForwardedTcpipTest_Close_SessionIsConnectedAndChannelIsOpen.cs">
-      <Link>Classes\Channels\ChannelForwardedTcpipTest_Close_SessionIsConnectedAndChannelIsOpen.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelSessionTest_Close_Closed.cs">
-      <Link>Classes\Channels\ChannelSessionTest_Close_Closed.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelSessionTest_Close_SessionIsConnectedAndChannelIsOpen_ChannelCloseAndChannelEofReceived_SendChannelCloseMessageFailure.cs">
-      <Link>Classes\Channels\ChannelSessionTest_Close_SessionIsConnectedAndChannelIsOpen_ChannelCloseAndChannelEofReceived_SendChannelCloseMessageFailure.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelSessionTest_Close_SessionIsConnectedAndChannelIsOpen_ChannelCloseAndChannelEofReceived_SendChannelCloseMessageSuccess.cs">
-      <Link>Classes\Channels\ChannelSessionTest_Close_SessionIsConnectedAndChannelIsOpen_ChannelCloseAndChannelEofReceived_SendChannelCloseMessageSuccess.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelSessionTest_Close_SessionIsConnectedAndChannelIsOpen_ChannelCloseReceived_SendChannelCloseMessageFailure.cs">
-      <Link>Classes\Channels\ChannelSessionTest_Close_SessionIsConnectedAndChannelIsOpen_ChannelCloseReceived_SendChannelCloseMessageFailure.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelSessionTest_Close_SessionIsConnectedAndChannelIsOpen_ChannelCloseReceived_SendChannelCloseMessageSuccess.cs">
-      <Link>Classes\Channels\ChannelSessionTest_Close_SessionIsConnectedAndChannelIsOpen_ChannelCloseReceived_SendChannelCloseMessageSuccess.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelSessionTest_Close_SessionIsConnectedAndChannelIsOpen_ChannelEofReceived_SendChannelCloseMessageFailure.cs">
-      <Link>Classes\Channels\ChannelSessionTest_Close_SessionIsConnectedAndChannelIsOpen_ChannelEofReceived_SendChannelCloseMessageFailure.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelSessionTest_Close_SessionIsConnectedAndChannelIsOpen_ChannelEofReceived_SendChannelCloseMessageSuccess.cs">
-      <Link>Classes\Channels\ChannelSessionTest_Close_SessionIsConnectedAndChannelIsOpen_ChannelEofReceived_SendChannelCloseMessageSuccess.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelSessionTest_Close_SessionIsConnectedAndChannelIsOpen_NoChannelCloseOrChannelEofReceived.cs">
-      <Link>Classes\Channels\ChannelSessionTest_Close_SessionIsConnectedAndChannelIsOpen_NoChannelCloseOrChannelEofReceived.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelSessionTest_Close_SessionIsConnectedAndChannelIsOpen_NoChannelCloseOrChannelEofReceived_SendChannelEofMessageFailure.cs">
-      <Link>Classes\Channels\ChannelSessionTest_Close_SessionIsConnectedAndChannelIsOpen_NoChannelCloseOrChannelEofReceived_SendChannelEofMessageFailure.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelSessionTest_Close_SessionIsNotConnectedAndChannelIsOpen_ChannelCloseAndChannelEofReceived.cs">
-      <Link>Classes\Channels\ChannelSessionTest_Close_SessionIsNotConnectedAndChannelIsOpen_ChannelCloseAndChannelEofReceived.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelSessionTest_Close_SessionIsNotConnectedAndChannelIsOpen_ChannelCloseReceived.cs">
-      <Link>Classes\Channels\ChannelSessionTest_Close_SessionIsNotConnectedAndChannelIsOpen_ChannelCloseReceived.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelSessionTest_Close_SessionIsNotConnectedAndChannelIsOpen_NoChannelCloseOrChannelEofReceived.cs">
-      <Link>Classes\Channels\ChannelSessionTest_Close_SessionIsNotConnectedAndChannelIsOpen_NoChannelCloseOrChannelEofReceived.cs</Link>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelForwardedTcpipTest_Dispose_SessionIsConnectedAndChannelIsOpen.cs">
+      <Link>Classes\Channels\ChannelForwardedTcpipTest_Dispose_SessionIsConnectedAndChannelIsOpen.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelSessionTest_Disposed_Closed.cs">
       <Link>Classes\Channels\ChannelSessionTest_Disposed_Closed.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelSessionTest_Dispose_Disposed.cs">
+      <Link>Classes\Channels\ChannelSessionTest_Dispose_Disposed.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelSessionTest_Dispose_SessionIsConnectedAndChannelIsOpen_ChannelCloseAndChannelEofReceived_SendChannelCloseMessageFailure.cs">
+      <Link>Classes\Channels\ChannelSessionTest_Dispose_SessionIsConnectedAndChannelIsOpen_ChannelCloseAndChannelEofReceived_SendChannelCloseMessageFailure.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelSessionTest_Dispose_SessionIsConnectedAndChannelIsOpen_ChannelCloseAndChannelEofReceived_SendChannelCloseMessageSuccess.cs">
+      <Link>Classes\Channels\ChannelSessionTest_Dispose_SessionIsConnectedAndChannelIsOpen_ChannelCloseAndChannelEofReceived_SendChannelCloseMessageSuccess.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelSessionTest_Dispose_SessionIsConnectedAndChannelIsOpen_ChannelCloseReceived_SendChannelCloseMessageFailure.cs">
+      <Link>Classes\Channels\ChannelSessionTest_Dispose_SessionIsConnectedAndChannelIsOpen_ChannelCloseReceived_SendChannelCloseMessageFailure.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelSessionTest_Dispose_SessionIsConnectedAndChannelIsOpen_ChannelCloseReceived_SendChannelCloseMessageSuccess.cs">
+      <Link>Classes\Channels\ChannelSessionTest_Dispose_SessionIsConnectedAndChannelIsOpen_ChannelCloseReceived_SendChannelCloseMessageSuccess.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelSessionTest_Dispose_SessionIsConnectedAndChannelIsOpen_ChannelEofReceived_SendChannelCloseMessageFailure.cs">
+      <Link>Classes\Channels\ChannelSessionTest_Dispose_SessionIsConnectedAndChannelIsOpen_ChannelEofReceived_SendChannelCloseMessageFailure.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelSessionTest_Dispose_SessionIsConnectedAndChannelIsOpen_ChannelEofReceived_SendChannelCloseMessageSuccess.cs">
+      <Link>Classes\Channels\ChannelSessionTest_Dispose_SessionIsConnectedAndChannelIsOpen_ChannelEofReceived_SendChannelCloseMessageSuccess.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelSessionTest_Dispose_SessionIsConnectedAndChannelIsOpen_NoChannelCloseOrChannelEofReceived.cs">
+      <Link>Classes\Channels\ChannelSessionTest_Dispose_SessionIsConnectedAndChannelIsOpen_NoChannelCloseOrChannelEofReceived.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelSessionTest_Dispose_SessionIsConnectedAndChannelIsOpen_NoChannelCloseOrChannelEofReceived_SendChannelEofMessageFailure.cs">
+      <Link>Classes\Channels\ChannelSessionTest_Dispose_SessionIsConnectedAndChannelIsOpen_NoChannelCloseOrChannelEofReceived_SendChannelEofMessageFailure.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelSessionTest_Dispose_SessionIsNotConnectedAndChannelIsOpen_ChannelCloseAndChannelEofReceived.cs">
+      <Link>Classes\Channels\ChannelSessionTest_Dispose_SessionIsNotConnectedAndChannelIsOpen_ChannelCloseAndChannelEofReceived.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelSessionTest_Dispose_SessionIsNotConnectedAndChannelIsOpen_ChannelCloseReceived.cs">
+      <Link>Classes\Channels\ChannelSessionTest_Dispose_SessionIsNotConnectedAndChannelIsOpen_ChannelCloseReceived.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelSessionTest_Dispose_SessionIsNotConnectedAndChannelIsOpen_NoChannelCloseOrChannelEofReceived.cs">
+      <Link>Classes\Channels\ChannelSessionTest_Dispose_SessionIsNotConnectedAndChannelIsOpen_NoChannelCloseOrChannelEofReceived.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelSessionTest_OnSessionChannelCloseReceived_SessionIsConnectedAndChannelIsOpen.cs">
       <Link>Classes\Channels\ChannelSessionTest_OnSessionChannelCloseReceived_SessionIsConnectedAndChannelIsOpen.cs</Link>
@@ -140,20 +140,23 @@
     <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelStub.cs">
       <Link>Classes\Channels\ChannelStub.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelTest_Close_SessionIsConnectedAndChannelIsNotOpen.cs">
-      <Link>Classes\Channels\ChannelTest_Close_SessionIsConnectedAndChannelIsNotOpen.cs</Link>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelTest_Dispose_SessionIsConnectedAndChannelIsNotOpen.cs">
+      <Link>Classes\Channels\ChannelTest_Dispose_SessionIsConnectedAndChannelIsNotOpen.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelTest_Close_SessionIsConnectedAndChannelIsOpen_EofNotReceived.cs">
-      <Link>Classes\Channels\ChannelTest_Close_SessionIsConnectedAndChannelIsOpen_EofNotReceived.cs</Link>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelTest_Dispose_SessionIsConnectedAndChannelIsOpen_EofNotReceived.cs">
+      <Link>Classes\Channels\ChannelTest_Dispose_SessionIsConnectedAndChannelIsOpen_EofNotReceived.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelTest_Close_SessionIsConnectedAndChannelIsOpen_EofReceived.cs">
-      <Link>Classes\Channels\ChannelTest_Close_SessionIsConnectedAndChannelIsOpen_EofReceived.cs</Link>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelTest_Dispose_SessionIsConnectedAndChannelIsOpen_EofNotReceived_SendEofInvoked.cs">
+      <Link>Classes\Channels\ChannelTest_Dispose_SessionIsConnectedAndChannelIsOpen_EofNotReceived_SendEofInvoked.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelTest_Close_SessionIsNotConnectedAndChannelIsNotOpen.cs">
-      <Link>Classes\Channels\ChannelTest_Close_SessionIsNotConnectedAndChannelIsNotOpen.cs</Link>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelTest_Dispose_SessionIsConnectedAndChannelIsOpen_EofReceived.cs">
+      <Link>Classes\Channels\ChannelTest_Dispose_SessionIsConnectedAndChannelIsOpen_EofReceived.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelTest_Close_SessionIsNotConnectedAndChannelIsOpen.cs">
-      <Link>Classes\Channels\ChannelTest_Close_SessionIsNotConnectedAndChannelIsOpen.cs</Link>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelTest_Dispose_SessionIsNotConnectedAndChannelIsNotOpen.cs">
+      <Link>Classes\Channels\ChannelTest_Dispose_SessionIsNotConnectedAndChannelIsNotOpen.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelTest_Dispose_SessionIsNotConnectedAndChannelIsOpen.cs">
+      <Link>Classes\Channels\ChannelTest_Dispose_SessionIsNotConnectedAndChannelIsOpen.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelTest_OnSessionChannelCloseReceived_OnClose_Exception.cs">
       <Link>Classes\Channels\ChannelTest_OnSessionChannelCloseReceived_OnClose_Exception.cs</Link>
@@ -1216,6 +1219,9 @@
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Common\AsyncSocketListener.cs">
       <Link>Common\AsyncSocketListener.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Common\Extensions.cs">
+      <Link>Common\Extensions.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Common\HttpProxyStub.cs">
       <Link>Common\HttpProxyStub.cs</Link>

@@ -125,7 +125,6 @@ namespace Renci.SshNet
                     channel.Exception += Channel_Exception;
                     channel.Open(Host, Port, this, clientSocket);
                     channel.Bind();
-                    channel.Close();
                 }
             }
             catch (Exception exp)

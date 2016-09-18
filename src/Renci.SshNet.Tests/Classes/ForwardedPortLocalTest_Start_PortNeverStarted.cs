@@ -85,7 +85,6 @@ namespace Renci.SshNet.Tests.Classes
                     if (handlerSocket != null && handlerSocket.Connected)
                         handlerSocket.Shutdown(SocketShutdown.Both);
                 });
-            _channelMock.Setup(p => p.Close());
             _channelMock.Setup(p => p.Dispose());
 
             using (var client = new Socket(_localEndpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp))

@@ -186,7 +186,13 @@ namespace Renci.SshNet.Security
             var serverKey = Hash(GenerateSessionKey(SharedKey, ExchangeHash, 'D', sessionId));
 
             serverKey = GenerateSessionKey(SharedKey, ExchangeHash, serverKey, _serverCipherInfo.KeySize / 8);
-            
+
+            DiagnosticAbstraction.Log(string.Format("[{0}] Creating server cipher (Name:{1},Key:{2},IV:{3})",
+                                                    Session.ToHex(Session.SessionId),
+                                                    Session.ConnectionInfo.CurrentServerEncryption,
+                                                    Session.ToHex(serverKey),
+                                                    Session.ToHex(serverVector)));
+
             //  Create server cipher
             return _serverCipherInfo.Cipher(serverKey, serverVector);
         }

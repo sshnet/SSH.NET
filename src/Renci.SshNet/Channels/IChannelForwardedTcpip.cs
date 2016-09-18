@@ -20,10 +20,5 @@ namespace Renci.SshNet.Channels
         /// <param name="remoteEndpoint">The endpoint to connect to.</param>
         /// <param name="forwardedPort">The forwarded port for which the channel is opened.</param>
         void Bind(IPEndPoint remoteEndpoint, IForwardedPort forwardedPort);
-
-        /// <summary>
-        /// Closes the channel.
-        /// </summary>
-        void Close();
     }
 }

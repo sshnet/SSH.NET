@@ -1,4 +1,6 @@
-﻿namespace Renci.SshNet.Messages.Transport
+﻿#if false
+
+namespace Renci.SshNet.Messages.Transport
 {
     /// <summary>
     /// Represents SSH_MSG_KEXECDH_REPLY message.
@@ -49,7 +51,6 @@
         /// </summary>
         protected override void LoadData()
         {
-            ResetReader();
             KS = ReadBinary();
             QS = ReadBinary();
             Signature = ReadBinary();
@@ -66,3 +67,5 @@
         }
     }
 }
+
+#endif // false

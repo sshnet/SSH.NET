@@ -140,7 +140,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestCategory("PrivateKey")]
         public void Test_PrivateKey_RSA()
         {
-            using (var stream = this.GetData("Key.RSA.txt"))
+            using (var stream = GetData("Key.RSA.txt"))
             {
                 new PrivateKeyFile(stream);
             }
@@ -151,7 +151,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestCategory("PrivateKey")]
         public void Test_PrivateKey_SSH2_DSA()
         {
-            using (var stream = this.GetData("Key.SSH2.DSA.txt"))
+            using (var stream = GetData("Key.SSH2.DSA.txt"))
             {
                 new PrivateKeyFile(stream);
             }
@@ -162,7 +162,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestCategory("PrivateKey")]
         public void Test_PrivateKey_SSH2_RSA()
         {
-            using (var stream = this.GetData("Key.SSH2.RSA.txt"))
+            using (var stream = GetData("Key.SSH2.RSA.txt"))
             {
                 new PrivateKeyFile(stream);
             }
@@ -173,7 +173,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestCategory("PrivateKey")]
         public void Test_PrivateKey_SSH2_Encrypted_DSA_DES_CBC()
         {
-            using (var stream = this.GetData("Key.SSH2.DSA.Encrypted.Des.CBC.12345.txt"))
+            using (var stream = GetData("Key.SSH2.DSA.Encrypted.Des.CBC.12345.txt"))
             {
                 new PrivateKeyFile(stream, "12345");
             }
@@ -184,7 +184,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestCategory("PrivateKey")]
         public void Test_PrivateKey_SSH2_Encrypted_RSA_DES_CBC()
         {
-            using (var stream = this.GetData("Key.SSH2.RSA.Encrypted.Des.CBC.12345.txt"))
+            using (var stream = GetData("Key.SSH2.RSA.Encrypted.Des.CBC.12345.txt"))
             {
                 new PrivateKeyFile(stream, "12345");
             }
@@ -195,7 +195,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestCategory("PrivateKey")]
         public void Test_PrivateKey_SSH2_Encrypted_ShouldThrowSshExceptionWhenPassphraseIsWrong()
         {
-            using (var stream = this.GetData("Key.SSH2.RSA.Encrypted.Des.CBC.12345.txt"))
+            using (var stream = GetData("Key.SSH2.RSA.Encrypted.Des.CBC.12345.txt"))
             {
                 try
                 {
@@ -216,7 +216,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestCategory("PrivateKey")]
         public void Test_PrivateKey_SSH2_Encrypted_ShouldThrowSshPassPhraseNullOrEmptyExceptionWhenPassphraseIsNull()
         {
-            using (var stream = this.GetData("Key.SSH2.RSA.Encrypted.Des.CBC.12345.txt"))
+            using (var stream = GetData("Key.SSH2.RSA.Encrypted.Des.CBC.12345.txt"))
             {
                 try
                 {
@@ -237,7 +237,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestCategory("PrivateKey")]
         public void Test_PrivateKey_SSH2_Encrypted_ShouldThrowSshPassPhraseNullOrEmptyExceptionWhenPassphraseIsEmpty()
         {
-            using (var stream = this.GetData("Key.SSH2.RSA.Encrypted.Des.CBC.12345.txt"))
+            using (var stream = GetData("Key.SSH2.RSA.Encrypted.Des.CBC.12345.txt"))
             {
                 try
                 {
@@ -258,7 +258,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestCategory("PrivateKey")]
         public void Test_PrivateKey_RSA_DES_CBC()
         {
-            using (var stream = this.GetData("Key.RSA.Encrypted.Des.CBC.12345.txt"))
+            using (var stream = GetData("Key.RSA.Encrypted.Des.CBC.12345.txt"))
             {
                 new PrivateKeyFile(stream, "12345");
             }
@@ -269,7 +269,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestCategory("PrivateKey")]
         public void Test_PrivateKey_RSA_DES_EDE3_CBC()
         {
-            using (var stream = this.GetData("Key.RSA.Encrypted.Des.Ede3.CBC.12345.txt"))
+            using (var stream = GetData("Key.RSA.Encrypted.Des.Ede3.CBC.12345.txt"))
             {
                 new PrivateKeyFile(stream, "12345");
             }
@@ -280,7 +280,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestCategory("PrivateKey")]
         public void Test_PrivateKey_RSA_AES_128_CBC()
         {
-            using (var stream = this.GetData("Key.RSA.Encrypted.Aes.128.CBC.12345.txt"))
+            using (var stream = GetData("Key.RSA.Encrypted.Aes.128.CBC.12345.txt"))
             {
                 new PrivateKeyFile(stream, "12345");
             }
@@ -291,7 +291,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestCategory("PrivateKey")]
         public void Test_PrivateKey_RSA_AES_192_CBC()
         {
-            using (var stream = this.GetData("Key.RSA.Encrypted.Aes.192.CBC.12345.txt"))
+            using (var stream = GetData("Key.RSA.Encrypted.Aes.192.CBC.12345.txt"))
             {
                 new PrivateKeyFile(stream, "12345");
             }
@@ -302,7 +302,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestCategory("PrivateKey")]
         public void Test_PrivateKey_RSA_AES_256_CBC()
         {
-            using (var stream = this.GetData("Key.RSA.Encrypted.Aes.256.CBC.12345.txt"))
+            using (var stream = GetData("Key.RSA.Encrypted.Aes.256.CBC.12345.txt"))
             {
                 new PrivateKeyFile(stream, "12345");
             }
@@ -313,7 +313,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestCategory("PrivateKey")]
         public void Test_PrivateKey_RSA_DES_EDE3_CFB()
         {
-            using (var stream = this.GetData("Key.RSA.Encrypted.Des.Ede3.CFB.1234567890.txt"))
+            using (var stream = GetData("Key.RSA.Encrypted.Des.Ede3.CFB.1234567890.txt"))
             {
                 new PrivateKeyFile(stream, "1234567890");
             }

@@ -34,7 +34,6 @@ namespace Renci.SshNet.Tests.Classes
             _serviceFactoryMock.InSequence(sequence).Setup(p => p.CreateSession(_connectionInfo)).Returns(_sessionMock.Object);
             _sessionMock.InSequence(sequence).Setup(p => p.Connect());
             _sessionMock.InSequence(sequence).Setup(p => p.OnDisconnecting());
-            _sessionMock.InSequence(sequence).Setup(p => p.Disconnect());
             _sessionMock.InSequence(sequence).Setup(p => p.Dispose());
 
             _sshClient = new SshClient(_connectionInfo, false, _serviceFactoryMock.Object);
@@ -54,9 +53,9 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
-        public void DisconnectOnSessionShouldBeInvokedOnce()
+        public void DisconnectOnSessionShouldNeverBeInvoked()
         {
-            _sessionMock.Verify(p => p.Disconnect(), Times.Once);
+            _sessionMock.Verify(p => p.Disconnect(), Times.Never);
         }
 
         [TestMethod]

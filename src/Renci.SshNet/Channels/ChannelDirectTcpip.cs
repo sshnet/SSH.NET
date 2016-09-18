@@ -93,9 +93,9 @@ namespace Renci.SshNet.Channels
             // even though the client has disconnected, we still want to properly close the
             // channel
             //
-            // we'll do this in in Close(bool) that way we have a single place from which we
-            // send an SSH_MSG_CHANNEL_EOF message and wait for the SSH_MSG_CHANNEL_CLOSE
-            // message
+            // we'll do this in in Close() - invoked through Dispose(bool) - that way we have
+            // a single place from which we send an SSH_MSG_CHANNEL_EOF message and wait for
+            // the SSH_MSG_CHANNEL_CLOSE message
         }
 
         /// <summary>
@@ -129,19 +129,25 @@ namespace Renci.SshNet.Channels
 
             lock (_socketLock)
             {
-                if (_socket == null || !_socket.Connected)
+                if (!_socket.IsConnected())
                     return;
 
-                _socket.Shutdown(how);
+                try
+                {
+                    _socket.Shutdown(how);
+                }
+                catch (SocketException ex)
+                {
+                    // TODO: log as warning
+                    DiagnosticAbstraction.Log("Failure shutting down socket: " + ex);
+                }
             }
         }
 
         /// <summary>
-        /// Closes the channel, optionally waiting for the SSH_MSG_CHANNEL_CLOSE message to
-        /// be received from the server.
+        /// Closes the channel, waiting for the SSH_MSG_CHANNEL_CLOSE message to be received from the server.
         /// </summary>
-        /// <param name="wait"><c>true</c> to wait for the SSH_MSG_CHANNEL_CLOSE message to be received from the server; otherwise, <c>false</c>.</param>
-        protected override void Close(bool wait)
+        protected override void Close()
         {
             var forwardedPort = _forwardedPort;
             if (forwardedPort != null)
@@ -156,8 +162,8 @@ namespace Renci.SshNet.Channels
             // if the FIN/ACK is not sent in time, the socket will be closed after the channel is closed
             ShutdownSocket(SocketShutdown.Send);
 
-            // close the SSH channel, and mark the channel closed
-            base.Close(wait);
+            // close the SSH channel
+            base.Close();
 
             // close the socket
             CloseSocket();
@@ -171,11 +177,11 @@ namespace Renci.SshNet.Channels
         {
             base.OnData(data);
 
-            if (_socket != null && _socket.Connected)
+            if (_socket != null)
             {
                 lock (_socketLock)
                 {
-                    if (_socket != null && _socket.Connected)
+                    if (_socket.IsConnected())
                     {
                         SocketAbstraction.Send(_socket, data, 0, data.Length);
                     }
@@ -248,7 +254,6 @@ namespace Renci.SshNet.Channels
             // to accept any more data from the client (and we surely won't send anything
             // anymore)
             //
-            // 
             // so lets signal to the client that we will not send or receive anything anymore
             // this will also interrupt the blocking receive in Bind()
             ShutdownSocket(SocketShutdown.Both);
@@ -266,10 +271,11 @@ namespace Renci.SshNet.Channels
                 {
                     lock (_socketLock)
                     {
-                        if (_socket != null)
+                        var socket = _socket;
+                        if (socket != null)
                         {
-                            _socket.Dispose();
                             _socket = null;
+                            socket.Dispose();
                         }
                     }
                 }

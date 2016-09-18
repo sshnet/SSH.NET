@@ -45,7 +45,6 @@ namespace Renci.SshNet.Tests.Classes
             _sessionMock.InSequence(sequence).Setup(p => p.CreateChannelSession()).Returns(_channelMock.Object);
             _channelMock.InSequence(sequence).Setup(p => p.Open());
             _channelMock.InSequence(sequence).Setup(p => p.SendSubsystemRequest(_subsystemName)).Returns(true);
-            _channelMock.InSequence(sequence).Setup(p => p.Close());
             _channelMock.InSequence(sequence).Setup(p => p.Dispose());
 
             _subsystemSession = new SubsystemSessionStub(

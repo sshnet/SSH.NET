@@ -100,6 +100,11 @@ namespace Renci.SshNet.Messages.Authentication
             WriteBinaryString(_serviceName);
             WriteBinaryString(_methodNameBytes);
         }
+
+        internal override void Process(Session session)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
 

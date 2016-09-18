@@ -40,7 +40,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             var paddedBlock = new byte[bitLength / 8 + (bitLength % 8 > 0 ? 1 : 0) - 1];
 
             paddedBlock[0] = 0x01;
-            for (int i = 1; i < paddedBlock.Length - length - 1; i++)
+            for (var i = 1; i < paddedBlock.Length - length - 1; i++)
             {
                 paddedBlock[i] = 0xFF;
             }
@@ -55,13 +55,29 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// </summary>
         /// <param name="data">The data.</param>
         /// <returns>
-        /// Decrypted data.
+        /// The decrypted data.
         /// </returns>
         /// <exception cref="NotSupportedException">Only block type 01 or 02 are supported.</exception>
         /// <exception cref="NotSupportedException">Thrown when decrypted block type is not supported.</exception>
         public override byte[] Decrypt(byte[] data)
         {
-            var paddedBlock = Transform(data);
+            return Decrypt(data, 0, data.Length);
+        }
+
+        /// <summary>
+        /// Decrypts the specified input.
+        /// </summary>
+        /// <param name="data">The input.</param>
+        /// <param name="offset">The zero-based offset in <paramref name="data"/> at which to begin decrypting.</param>
+        /// <param name="length">The number of bytes to decrypt from <paramref name="data"/>.</param>
+        /// <returns>
+        /// The decrypted data.
+        /// </returns>
+        /// <exception cref="NotSupportedException">Only block type 01 or 02 are supported.</exception>
+        /// <exception cref="NotSupportedException">Thrown when decrypted block type is not supported.</exception>
+        public override byte[] Decrypt(byte[] data, int offset, int length)
+        {
+            var paddedBlock = Transform(data, offset, length);
 
             if (paddedBlock[0] != 1 && paddedBlock[0] != 2)
                 throw new NotSupportedException("Only block type 01 or 02 are supported.");
@@ -72,18 +88,21 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             position++;
 
             var result = new byte[paddedBlock.Length - position];
-
             Buffer.BlockCopy(paddedBlock, position, result, 0, result.Length);
-
             return result;
         }
 
         private byte[] Transform(byte[] data)
         {
-            Array.Reverse(data);
+            return Transform(data, 0, data.Length);
+        }
 
-            var inputBytes = new byte[data.Length + 1];
-            Buffer.BlockCopy(data, 0, inputBytes, 0, data.Length);
+        private byte[] Transform(byte[] data, int offset, int length)
+        {
+            Array.Reverse(data, offset, length);
+
+            var inputBytes = new byte[length + 1];
+            Buffer.BlockCopy(data, offset, inputBytes, 0, length);
 
             var input = new BigInteger(inputBytes);
 
@@ -91,10 +110,8 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
             if (_isPrivate)
             {
-                BigInteger random = BigInteger.One;
-
+                var random = BigInteger.One;
                 var max = _key.Modulus - 1;
-                
                 var bitLength = _key.Modulus.BitLength;
 
                 if (max < BigInteger.One)
@@ -105,7 +122,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                     random = BigInteger.Random(bitLength);
                 }
 
-                BigInteger blindedInput = BigInteger.PositiveMod((BigInteger.ModPow(random, _key.Exponent, _key.Modulus) * input), _key.Modulus);
+                var blindedInput = BigInteger.PositiveMod((BigInteger.ModPow(random, _key.Exponent, _key.Modulus) * input), _key.Modulus);
 
                 // mP = ((input Mod p) ^ dP)) Mod p
                 var mP = BigInteger.ModPow((blindedInput % _key.P), _key.DP, _key.P);
@@ -117,7 +134,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
                 var m = h * _key.Q + mQ;
 
-                BigInteger rInv = BigInteger.ModInverse(random, _key.Modulus);
+                var rInv = BigInteger.ModInverse(random, _key.Modulus);
 
                 result = BigInteger.PositiveMod((m * rInv), _key.Modulus);
             }

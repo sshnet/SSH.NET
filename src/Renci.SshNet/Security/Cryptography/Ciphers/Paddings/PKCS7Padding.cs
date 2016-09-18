@@ -8,36 +8,39 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers.Paddings
     public class PKCS7Padding : CipherPadding
     {
         /// <summary>
-        /// Transforms the specified input.
+        /// Pads the specified input to match the block size.
         /// </summary>
-        /// <param name="blockSize">Size of the block.</param>
+        /// <param name="blockSize">The size of the block.</param>
         /// <param name="input">The input.</param>
-        /// <returns>
-        /// Padded data array.
-        /// </returns>
-        public override byte[] Pad(int blockSize, byte[] input)
-        {
-            var numOfPaddedBytes = blockSize - (input.Length % blockSize);
-            return Pad(input, numOfPaddedBytes);
-        }
-
-        /// <summary>
-        /// Pads specified input with a given number of bytes to match the block size.
-        /// </summary>
-        /// <param name="input">The input.</param>
-        /// <param name="length">The number of bytes to pad the input with.</param>
+        /// <param name="offset">The zero-based offset in <paramref name="input"/> at which the data to pad starts.</param>
+        /// <param name="length">The number of bytes in <paramref name="input"/> to take into account.</param>
         /// <returns>
         /// The padded data array.
         /// </returns>
-        public override byte[] Pad(byte[] input, int length)
+        public override byte[] Pad(int blockSize, byte[] input, int offset, int length)
         {
-            var output = new byte[input.Length + length];
-            Buffer.BlockCopy(input, 0, output, 0, input.Length);
-            for (var i = 0; i < length; i++)
-            {
-                output[input.Length + i] = (byte) length;
-            }
+            var numOfPaddedBytes = blockSize - (length % blockSize);
+            return Pad(input, offset, length, numOfPaddedBytes);
+        }
 
+        /// <summary>
+        /// Pads the specified input with a given number of bytes.
+        /// </summary>
+        /// <param name="input">The input.</param>
+        /// <param name="offset">The zero-based offset in <paramref name="input"/> at which the data to pad starts.</param>
+        /// <param name="length">The number of bytes in <paramref name="input"/> to take into account.</param>
+        /// <param name="paddinglength">The number of bytes to pad the input with.</param>
+        /// <returns>
+        /// The padded data array.
+        /// </returns>
+        public override byte[] Pad(byte[] input, int offset, int length, int paddinglength)
+        {
+            var output = new byte[length + paddinglength];
+            Buffer.BlockCopy(input, offset, output, 0, length);
+            for (var i = 0; i < paddinglength; i++)
+            {
+                output[length + i] = (byte) paddinglength;
+            }
             return output;
         }
     }

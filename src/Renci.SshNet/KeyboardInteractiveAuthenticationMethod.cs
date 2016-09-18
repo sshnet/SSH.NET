@@ -55,7 +55,7 @@ namespace Renci.SshNet
 
             session.UserAuthenticationSuccessReceived += Session_UserAuthenticationSuccessReceived;
             session.UserAuthenticationFailureReceived += Session_UserAuthenticationFailureReceived;
-            session.MessageReceived += Session_MessageReceived;
+            session.UserAuthenticationInformationRequestReceived += Session_UserAuthenticationInformationRequestReceived;
 
             session.RegisterMessage("SSH_MSG_USERAUTH_INFO_REQUEST");
 
@@ -69,7 +69,7 @@ namespace Renci.SshNet
                 session.UnRegisterMessage("SSH_MSG_USERAUTH_INFO_REQUEST");
                 session.UserAuthenticationSuccessReceived -= Session_UserAuthenticationSuccessReceived;
                 session.UserAuthenticationFailureReceived -= Session_UserAuthenticationFailureReceived;
-                session.MessageReceived -= Session_MessageReceived;
+                session.UserAuthenticationInformationRequestReceived -= Session_UserAuthenticationInformationRequestReceived;
             }
 
             if (_exception != null)
@@ -81,7 +81,6 @@ namespace Renci.SshNet
         private void Session_UserAuthenticationSuccessReceived(object sender, MessageEventArgs<SuccessMessage> e)
         {
             _authenticationResult = AuthenticationResult.Success;
-
             _authenticationCompleted.Set();
         }
 
@@ -98,14 +97,16 @@ namespace Renci.SshNet
             _authenticationCompleted.Set();
         }
 
-        private void Session_MessageReceived(object sender, MessageEventArgs<Message> e)
+        private void Session_UserAuthenticationInformationRequestReceived(object sender, MessageEventArgs<InformationRequestMessage> e)
         {
-            var informationRequestMessage = e.Message as InformationRequestMessage;
-            if (informationRequestMessage != null)
-            {
-                var eventArgs = new AuthenticationPromptEventArgs(Username, informationRequestMessage.Instruction, informationRequestMessage.Language, informationRequestMessage.Prompts);
+            var informationRequestMessage = e.Message;
 
-                ThreadAbstraction.ExecuteThread(() =>
+            var eventArgs = new AuthenticationPromptEventArgs(Username,
+                                                              informationRequestMessage.Instruction,
+                                                              informationRequestMessage.Language,
+                                                              informationRequestMessage.Prompts);
+
+            ThreadAbstraction.ExecuteThread(() =>
                 {
                     try
                     {
@@ -130,7 +131,6 @@ namespace Renci.SshNet
                         _authenticationCompleted.Set();
                     }
                 });
-            }
         }
 
         #region IDisposable Members
@@ -160,8 +160,8 @@ namespace Renci.SshNet
                 var authenticationCompleted = _authenticationCompleted;
                 if (authenticationCompleted != null)
                 {
-                    authenticationCompleted.Dispose();
                     _authenticationCompleted = null;
+                    authenticationCompleted.Dispose();
                 }
 
                 _isDisposed = true;

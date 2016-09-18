@@ -124,7 +124,7 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
             var target = new ChannelOpenMessage(localChannelNumber, initialWindowSize, maximumPacketSize, info);
             var bytes = target.GetBytes();
 
-            target.Load(bytes);
+            target.Load(bytes, 1, bytes.Length - 1); // skip message type
 
             Assert.AreEqual(info.ChannelType, _ascii.GetString(target.ChannelType));
             Assert.IsNotNull(target.Info);
@@ -151,7 +151,7 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
             var target = new ChannelOpenMessage(localChannelNumber, initialWindowSize, maximumPacketSize, info);
             var bytes = target.GetBytes();
 
-            target.Load(bytes);
+            target.Load(bytes, 1, bytes.Length - 1); // skip message type
 
             Assert.AreEqual(info.ChannelType, _ascii.GetString(target.ChannelType));
             Assert.IsNotNull(target.Info);
@@ -178,7 +178,7 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
             var target = new ChannelOpenMessage(localChannelNumber, initialWindowSize, maximumPacketSize, info);
             var bytes = target.GetBytes();
 
-            target.Load(bytes);
+            target.Load(bytes, 1, bytes.Length - 1); // skip message type
 
             Assert.AreEqual(info.ChannelType, _ascii.GetString(target.ChannelType));
             Assert.IsNotNull(target.Info);
@@ -202,7 +202,7 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
             var target = new ChannelOpenMessage(localChannelNumber, initialWindowSize, maximumPacketSize, info);
             var bytes = target.GetBytes();
 
-            target.Load(bytes);
+            target.Load(bytes, 1, bytes.Length - 1); // skip message type
 
             Assert.AreEqual(info.ChannelType, _ascii.GetString(target.ChannelType));
             Assert.IsNotNull(target.Info);
@@ -238,7 +238,7 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
 
             try
             {
-                target.Load(bytes);
+                target.Load(bytes, 1, bytes.Length - 1); // skip message type
                 Assert.Fail();
             }
             catch (NotSupportedException ex)

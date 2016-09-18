@@ -11,6 +11,7 @@ using Moq;
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
+using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes
 {
@@ -112,7 +113,6 @@ namespace Renci.SshNet.Tests.Classes
                     Thread.Sleep(_bindSleepTime);
                     _channelBindCompleted.Set();
                 });
-            _channelMock.Setup(p => p.Close());
             _channelMock.Setup(p => p.Dispose());
         }
 
@@ -195,9 +195,9 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void ExceptionShouldHaveFiredOne()
         {
-            Assert.AreEqual(1, _exceptionRegister.Count);
-            Assert.IsNotNull(_exceptionRegister[0]);
-            Assert.AreSame(_sessionException, _exceptionRegister[0].Exception);
+            Assert.AreEqual(1, _exceptionRegister.Count, _exceptionRegister.AsString());
+            Assert.IsNotNull(_exceptionRegister[0], _exceptionRegister.AsString());
+            Assert.AreSame(_sessionException, _exceptionRegister[0].Exception, _exceptionRegister.AsString());
         }
 
         [TestMethod]
@@ -213,12 +213,6 @@ namespace Renci.SshNet.Tests.Classes
         public void BindOnChannelShouldBeInvokedOnce()
         {
             _channelMock.Verify(p => p.Bind(), Times.Once);
-        }
-
-        [TestMethod]
-        public void CloseOnChannelShouldBeInvokedOnce()
-        {
-            _channelMock.Verify(p => p.Close(), Times.Once);
         }
 
         [TestMethod]

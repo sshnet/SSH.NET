@@ -423,6 +423,9 @@
     <Compile Include="..\Renci.SshNet\Messages\Authentication\SuccessMessage.cs">
       <Link>Messages\Authentication\SuccessMessage.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\Messages\Connection\CancelTcpIpForwardGlobalRequestMessage.cs">
+      <Link>Messages\Connection\CancelTcpIpForwardGlobalRequestMessage.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\Messages\Connection\ChannelCloseMessage.cs">
       <Link>Messages\Connection\ChannelCloseMessage.cs</Link>
     </Compile>
@@ -533,6 +536,9 @@
     </Compile>
     <Compile Include="..\Renci.SshNet\Messages\Connection\RequestSuccessMessage.cs">
       <Link>Messages\Connection\RequestSuccessMessage.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Messages\Connection\TcpIpForwardGlobalRequestMessage.cs">
+      <Link>Messages\Connection\TcpIpForwardGlobalRequestMessage.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Messages\Message.cs">
       <Link>Messages\Message.cs</Link>
@@ -788,12 +794,6 @@
     </Compile>
     <Compile Include="..\Renci.SshNet\Session.cs">
       <Link>Session.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet\Session.NET.cs">
-      <Link>Session.NET.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet\Session.NET40.cs">
-      <Link>Session.NET40.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\SftpClient.cs">
       <Link>SftpClient.cs</Link>

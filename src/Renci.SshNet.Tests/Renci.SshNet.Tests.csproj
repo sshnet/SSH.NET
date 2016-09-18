@@ -90,33 +90,33 @@
     </Compile>
     <Compile Include="Classes\BaseClientTest_Connected_KeepAlivesNotSentConcurrently.cs" />
     <Compile Include="Classes\Channels\ChannelDirectTcpipTest.cs" />
-    <Compile Include="Classes\Channels\ChannelDirectTcpipTest_Close_SessionIsConnectedAndChannelIsOpen.cs" />
-    <Compile Include="Classes\Channels\ChannelSessionTest_Close_Closed.cs" />
-    <Compile Include="Classes\Channels\ChannelSessionTest_Close_SessionIsConnectedAndChannelIsOpen_ChannelCloseAndChannelEofReceived_SendChannelCloseMessageFailure.cs" />
-    <Compile Include="Classes\Channels\ChannelSessionTest_Close_SessionIsConnectedAndChannelIsOpen_ChannelCloseAndChannelEofReceived_SendChannelCloseMessageSuccess.cs" />
-    <Compile Include="Classes\Channels\ChannelSessionTest_Close_SessionIsConnectedAndChannelIsOpen_ChannelCloseReceived_SendChannelCloseMessageFailure.cs" />
-    <Compile Include="Classes\Channels\ChannelSessionTest_Close_SessionIsConnectedAndChannelIsOpen_ChannelCloseReceived_SendChannelCloseMessageSuccess.cs" />
-    <Compile Include="Classes\Channels\ChannelSessionTest_Close_SessionIsConnectedAndChannelIsOpen_ChannelEofReceived_SendChannelCloseMessageFailure.cs" />
-    <Compile Include="Classes\Channels\ChannelSessionTest_Close_SessionIsConnectedAndChannelIsOpen_ChannelEofReceived_SendChannelCloseMessageSuccess.cs" />
-    <Compile Include="Classes\Channels\ChannelSessionTest_Close_SessionIsConnectedAndChannelIsOpen_NoChannelCloseOrChannelEofReceived_SendChannelEofMessageFailure.cs" />
-    <Compile Include="Classes\Channels\ChannelSessionTest_Close_SessionIsNotConnectedAndChannelIsOpen_ChannelCloseAndChannelEofReceived.cs" />
-    <Compile Include="Classes\Channels\ChannelSessionTest_Close_SessionIsNotConnectedAndChannelIsOpen_ChannelCloseReceived.cs" />
-    <Compile Include="Classes\Channels\ChannelSessionTest_Close_SessionIsNotConnectedAndChannelIsOpen_NoChannelCloseOrChannelEofReceived.cs" />
+    <Compile Include="Classes\Channels\ChannelDirectTcpipTest_Dispose_SessionIsConnectedAndChannelIsOpen.cs" />
+    <Compile Include="Classes\Channels\ChannelSessionTest_Dispose_Disposed.cs" />
+    <Compile Include="Classes\Channels\ChannelSessionTest_Dispose_SessionIsConnectedAndChannelIsOpen_ChannelCloseAndChannelEofReceived_SendChannelCloseMessageFailure.cs" />
+    <Compile Include="Classes\Channels\ChannelSessionTest_Dispose_SessionIsConnectedAndChannelIsOpen_ChannelCloseAndChannelEofReceived_SendChannelCloseMessageSuccess.cs" />
+    <Compile Include="Classes\Channels\ChannelSessionTest_Dispose_SessionIsConnectedAndChannelIsOpen_ChannelCloseReceived_SendChannelCloseMessageFailure.cs" />
+    <Compile Include="Classes\Channels\ChannelSessionTest_Dispose_SessionIsConnectedAndChannelIsOpen_ChannelCloseReceived_SendChannelCloseMessageSuccess.cs" />
+    <Compile Include="Classes\Channels\ChannelSessionTest_Dispose_SessionIsConnectedAndChannelIsOpen_ChannelEofReceived_SendChannelCloseMessageFailure.cs" />
+    <Compile Include="Classes\Channels\ChannelSessionTest_Dispose_SessionIsConnectedAndChannelIsOpen_ChannelEofReceived_SendChannelCloseMessageSuccess.cs" />
+    <Compile Include="Classes\Channels\ChannelSessionTest_Dispose_SessionIsConnectedAndChannelIsOpen_NoChannelCloseOrChannelEofReceived_SendChannelEofMessageFailure.cs" />
+    <Compile Include="Classes\Channels\ChannelSessionTest_Dispose_SessionIsNotConnectedAndChannelIsOpen_ChannelCloseAndChannelEofReceived.cs" />
+    <Compile Include="Classes\Channels\ChannelSessionTest_Dispose_SessionIsNotConnectedAndChannelIsOpen_ChannelCloseReceived.cs" />
+    <Compile Include="Classes\Channels\ChannelSessionTest_Dispose_SessionIsNotConnectedAndChannelIsOpen_NoChannelCloseOrChannelEofReceived.cs" />
     <Compile Include="Classes\Channels\ChannelSessionTest_Disposed_Closed.cs" />
     <Compile Include="Classes\Channels\ChannelSessionTest_OnSessionChannelCloseReceived_SessionIsConnectedAndChannelIsOpen.cs" />
-    <Compile Include="Classes\Channels\ChannelSessionTest_Close_SessionIsConnectedAndChannelIsOpen_NoChannelCloseOrChannelEofReceived.cs" />
+    <Compile Include="Classes\Channels\ChannelSessionTest_Dispose_SessionIsConnectedAndChannelIsOpen_NoChannelCloseOrChannelEofReceived.cs" />
     <Compile Include="Classes\Channels\ChannelSessionTest_Open_ExceptionWaitingOnOpenConfirmation.cs" />
     <Compile Include="Classes\Channels\ChannelSessionTest_Open_OnOpenFailureReceived_NoRetriesAvailable.cs" />
     <Compile Include="Classes\Channels\ChannelSessionTest_Open_OnOpenFailureReceived_RetriesAvalable.cs" />
-    <Compile Include="Classes\Channels\ChannelTest_Close_SessionIsConnectedAndChannelIsOpen_EofNotReceived_SendEofInvoked.cs" />
-    <Compile Include="Classes\Channels\ChannelTest_Close_SessionIsConnectedAndChannelIsOpen_EofReceived.cs" />
-    <Compile Include="Classes\Channels\ChannelTest_Close_SessionIsNotConnectedAndChannelIsOpen.cs" />
+    <Compile Include="Classes\Channels\ChannelTest_Dispose_SessionIsConnectedAndChannelIsOpen_EofNotReceived_SendEofInvoked.cs" />
+    <Compile Include="Classes\Channels\ChannelTest_Dispose_SessionIsConnectedAndChannelIsOpen_EofReceived.cs" />
+    <Compile Include="Classes\Channels\ChannelTest_Dispose_SessionIsNotConnectedAndChannelIsOpen.cs" />
     <Compile Include="Classes\Channels\ChannelTest_OnSessionChannelCloseReceived_OnClose_Exception.cs" />
     <Compile Include="Classes\Channels\ChannelTest_OnSessionChannelCloseReceived_SessionIsConnectedAndChannelIsOpen_EofReceived.cs" />
     <Compile Include="Classes\Channels\ChannelTest_OnSessionChannelDataReceived_OnData_Exception.cs" />
-    <Compile Include="Classes\Channels\ChannelTest_Close_SessionIsConnectedAndChannelIsOpen_EofNotReceived.cs" />
-    <Compile Include="Classes\Channels\ChannelTest_Close_SessionIsConnectedAndChannelIsNotOpen.cs" />
-    <Compile Include="Classes\Channels\ChannelTest_Close_SessionIsNotConnectedAndChannelIsNotOpen.cs" />
+    <Compile Include="Classes\Channels\ChannelTest_Dispose_SessionIsConnectedAndChannelIsOpen_EofNotReceived.cs" />
+    <Compile Include="Classes\Channels\ChannelTest_Dispose_SessionIsConnectedAndChannelIsNotOpen.cs" />
+    <Compile Include="Classes\Channels\ChannelTest_Dispose_SessionIsNotConnectedAndChannelIsNotOpen.cs" />
     <Compile Include="Classes\Channels\ChannelTest_OnSessionChannelCloseReceived_SessionIsConnectedAndChannelIsOpen_EofNotReceived.cs" />
     <Compile Include="Classes\Channels\ChannelTest_OnSessionChannelEofReceived_OnEof_Exception.cs" />
     <Compile Include="Classes\Channels\ChannelTest_OnSessionChannelExtendedDataReceived_OnExtendedData_Exception.cs" />
@@ -148,7 +148,6 @@
     <Compile Include="Classes\Common\ExtensionsTest_IsEqualTo_ByteArray.cs" />
     <Compile Include="Classes\Common\ExtensionsTest_Take_Count.cs" />
     <Compile Include="Classes\Common\ExtensionsTest_Take_OffsetAndCount.cs" />
-    <Compile Include="Classes\Common\ExtensionsTest_ToGlobalRequestName.cs" />
     <Compile Include="Classes\Common\ExtensionsTest_TrimLeadingZeros.cs" />
     <Compile Include="Classes\ConnectionInfoTest_Authenticate_Failure.cs" />
     <Compile Include="Classes\ConnectionInfoTest_Authenticate_Success.cs" />
@@ -239,7 +238,7 @@
     <Compile Include="Classes\Common\AuthenticationPromptEventArgsTest.cs" />
     <Compile Include="Classes\Common\AuthenticationPromptTest.cs" />
     <Compile Include="Classes\Common\BigIntegerTest.cs" />
-    <Compile Include="Classes\Channels\ChannelForwardedTcpipTest_Close_SessionIsConnectedAndChannelIsOpen.cs" />
+    <Compile Include="Classes\Channels\ChannelForwardedTcpipTest_Dispose_SessionIsConnectedAndChannelIsOpen.cs" />
     <Compile Include="Classes\CommandAsyncResultTest.cs" />
     <Compile Include="Classes\Common\ASCIIEncodingTest.cs" />
     <Compile Include="Classes\Common\ChannelDataEventArgsTest.cs" />
@@ -255,9 +254,11 @@
     <Compile Include="Classes\SessionTest_Connected_ConnectionReset.cs" />
     <Compile Include="Classes\SessionTest_Connected_Disconnect.cs" />
     <Compile Include="Classes\SessionTest_Connected_GlobalRequestMessageAfterAuthenticationRace.cs" />
+    <Compile Include="Classes\SessionTest_Connected_ServerAndClientDisconnectRace.cs" />
     <Compile Include="Classes\SessionTest_Connected_ServerSendsDisconnectMessage.cs" />
     <Compile Include="Classes\SessionTest_Connected_ServerSendsBadPacket.cs" />
     <Compile Include="Classes\SessionTest_Connected_ServerSendsDisconnectMessageAndShutsDownSocket.cs" />
+    <Compile Include="Classes\SessionTest_Connected_ServerShutsDownSendAfterSendingIncompletePacket.cs" />
     <Compile Include="Classes\SessionTest_Connected_ServerShutsDownSocket.cs" />
     <Compile Include="Classes\SessionTest_NotConnected.cs" />
     <Compile Include="Classes\SessionTest_SocketConnected_BadPacketAndDispose.cs" />
@@ -407,6 +408,7 @@
     <Compile Include="Classes\Sftp\SftpFileStreamTest_SetLength_SessionOpen_FIleAccessRead.cs" />
     <Compile Include="Classes\Sftp\SftpFileStreamTest_SetLength_SessionOpen_FIleAccessReadWrite.cs" />
     <Compile Include="Classes\Sftp\SftpFileStreamTest_SetLength_SessionOpen_FIleAccessWrite.cs" />
+    <Compile Include="Classes\Sftp\SftpFileStreamTest_Write_SessionOpen_CountGreatherThanTwoTimesTheWriteBufferSize.cs" />
     <Compile Include="Classes\Sftp\SftpFileTest.cs" />
     <Compile Include="Classes\Sftp\SftpSessionTest_Connected_RequestRead.cs" />
     <Compile Include="Classes\Sftp\SftpSessionTest_Connected_RequestStatVfs.cs" />
@@ -456,6 +458,7 @@
     <Compile Include="Classes\SubsystemSession_SendData_Disposed.cs" />
     <Compile Include="Classes\SubsystemSession_SendData_NeverConnected.cs" />
     <Compile Include="Common\AsyncSocketListener.cs" />
+    <Compile Include="Common\Extensions.cs" />
     <Compile Include="Common\HttpProxyStub.cs" />
     <Compile Include="Common\HttpRequest.cs" />
     <Compile Include="Classes\Common\PipeStream_Close_BlockingRead.cs" />
@@ -536,12 +539,6 @@
     <Compile Include="Classes\Sftp\SftpUploadAsyncResultTest.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Renci.SshNet\Renci.SshNet.csproj">
-      <Project>{2F5F8C90-0BD1-424F-997C-7BC6280919D1}</Project>
-      <Name>Renci.SshNet</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -575,6 +572,12 @@
   <ItemGroup>
     <EmbeddedResource Include="Data\Key.SSH2.DSA.Encrypted.Des.CBC.12345.txt" />
     <EmbeddedResource Include="Data\Key.SSH2.DSA.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Renci.SshNet\Renci.SshNet.csproj">
+      <Project>{2f5f8c90-0bd1-424f-997c-7bc6280919d1}</Project>
+      <Name>Renci.SshNet</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

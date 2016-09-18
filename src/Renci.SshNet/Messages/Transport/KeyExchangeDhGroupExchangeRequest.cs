@@ -82,5 +82,10 @@
             Write(Preferred);
             Write(Maximum);
         }
+
+        internal override void Process(Session session)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

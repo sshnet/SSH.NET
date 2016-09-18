@@ -109,7 +109,7 @@ namespace Renci.SshNet.Tests.Classes
             {
                 client.ErrorOccurred += delegate(object sender, ExceptionEventArgs e)
                 {
-                    Console.WriteLine("Error occured: " + e.Exception.ToString());
+                    Console.WriteLine("Error occured: " + e.Exception);
                     exceptionOccured = true;
                 };
 

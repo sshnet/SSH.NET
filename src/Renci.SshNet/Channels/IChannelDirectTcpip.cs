@@ -43,10 +43,5 @@ namespace Renci.SshNet.Channels
         /// Binds the channel to the remote host.
         /// </summary>
         void Bind();
-
-        /// <summary>
-        /// Closes the channel.
-        /// </summary>
-        void Close();
     }
 }

@@ -62,5 +62,10 @@ namespace Renci.SshNet.Messages.Transport
         {
             WriteBinaryString(_serviceName);
         }
+
+        internal override void Process(Session session)
+        {
+            session.OnServiceRequestReceived(this);
+        }
     }
 }

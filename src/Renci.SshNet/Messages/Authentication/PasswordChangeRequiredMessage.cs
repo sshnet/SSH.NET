@@ -52,5 +52,10 @@
             WriteBinaryString(Message);
             WriteBinaryString(Language);
         }
+
+        internal override void Process(Session session)
+        {
+            session.OnUserAuthenticationPasswordChangeRequiredReceived(this);
+        }
     }
 }

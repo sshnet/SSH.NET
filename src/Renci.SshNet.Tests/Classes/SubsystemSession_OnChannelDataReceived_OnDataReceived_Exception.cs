@@ -6,6 +6,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
+using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes
 {
@@ -76,8 +77,8 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void ErrorOccurredHaveFiredOnce()
         {
-            Assert.AreEqual(1, _errorOccurredRegister.Count);
-            Assert.AreSame(_onDataReceivedException, _errorOccurredRegister[0].Exception);
+            Assert.AreEqual(1, _errorOccurredRegister.Count, _errorOccurredRegister.AsString());
+            Assert.AreSame(_onDataReceivedException, _errorOccurredRegister[0].Exception, _errorOccurredRegister.AsString());
         }
 
         [TestMethod]

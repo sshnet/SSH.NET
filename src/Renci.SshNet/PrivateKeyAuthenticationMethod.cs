@@ -56,7 +56,7 @@ namespace Renci.SshNet
         {
             session.UserAuthenticationSuccessReceived += Session_UserAuthenticationSuccessReceived;
             session.UserAuthenticationFailureReceived += Session_UserAuthenticationFailureReceived;
-            session.MessageReceived += Session_MessageReceived;
+            session.UserAuthenticationPublicKeyReceived += Session_UserAuthenticationPublicKeyReceived;
 
             session.RegisterMessage("SSH_MSG_USERAUTH_PK_OK");
 
@@ -116,7 +116,7 @@ namespace Renci.SshNet
             {
                 session.UserAuthenticationSuccessReceived -= Session_UserAuthenticationSuccessReceived;
                 session.UserAuthenticationFailureReceived -= Session_UserAuthenticationFailureReceived;
-                session.MessageReceived -= Session_MessageReceived;
+                session.UserAuthenticationPublicKeyReceived -= Session_UserAuthenticationPublicKeyReceived;
                 session.UnRegisterMessage("SSH_MSG_USERAUTH_PK_OK");
             }
         }
@@ -141,14 +141,10 @@ namespace Renci.SshNet
             _authenticationCompleted.Set();
         }
 
-        private void Session_MessageReceived(object sender, MessageEventArgs<Message> e)
+        private void Session_UserAuthenticationPublicKeyReceived(object sender, MessageEventArgs<PublicKeyMessage> e)
         {
-            var publicKeyMessage = e.Message as PublicKeyMessage;
-            if (publicKeyMessage != null)
-            {
-                _isSignatureRequired = true;
-                _authenticationCompleted.Set();
-            }
+            _isSignatureRequired = true;
+            _authenticationCompleted.Set();
         }
 
         #region IDisposable Members

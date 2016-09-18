@@ -44,6 +44,11 @@
             }
         }
 
+        internal override void Process(Session session)
+        {
+            session.OnUserAuthenticationBannerReceived(this);
+        }
+
         /// <summary>
         /// Called when type specific data need to be loaded.
         /// </summary>

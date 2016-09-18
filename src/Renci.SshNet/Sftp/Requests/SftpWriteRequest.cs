@@ -12,10 +12,39 @@ namespace Renci.SshNet.Sftp.Requests
 
         public byte[] Handle { get; private set; }
 
-        public ulong Offset { get; private set; }
+        /// <summary>
+        /// Gets the zero-based offset (in bytes) relative to the beginning of the file that the write
+        /// must start at.
+        /// </summary>
+        /// <value>
+        /// The zero-based offset (in bytes) relative to the beginning of the file that the write must
+        /// start at.
+        /// </value>
+        public ulong ServerFileOffset { get; private set; }
 
+        /// <summary>
+        /// Gets the buffer holding the data to write.
+        /// </summary>
+        /// <value>
+        /// The buffer holding the data to write.
+        /// </value>
         public byte[] Data { get; private set; }
 
+        /// <summary>
+        /// Gets the zero-based offset in <see cref="Data" /> at which to begin taking bytes to
+        /// write.
+        /// </summary>
+        /// <value>
+        /// The zero-based offset in <see cref="Data" /> at which to begin taking bytes to write.
+        /// </value>
+        public int Offset { get; private set; }
+
+        /// <summary>
+        /// Gets the length (in bytes) of the data to write.
+        /// </summary>
+        /// <value>
+        /// The length (in bytes) of the data to write.
+        /// </value>
         public int Length { get; private set; }
 
         protected override int BufferCapacity
@@ -25,7 +54,7 @@ namespace Renci.SshNet.Sftp.Requests
                 var capacity = base.BufferCapacity;
                 capacity += 4; // Handle length
                 capacity += Handle.Length; // Handle
-                capacity += 8; // Offset length
+                capacity += 8; // ServerFileOffset length
                 capacity += 4; // Data length
                 capacity += Length; // Data
                 return capacity;
@@ -35,15 +64,17 @@ namespace Renci.SshNet.Sftp.Requests
         public SftpWriteRequest(uint protocolVersion,
                                 uint requestId,
                                 byte[] handle,
-                                ulong offset,
+                                ulong serverFileOffset,
                                 byte[] data,
+                                int offset,
                                 int length,
                                 Action<SftpStatusResponse> statusAction)
             : base(protocolVersion, requestId, statusAction)
         {
             Handle = handle;
-            Offset = offset;
+            ServerFileOffset = serverFileOffset;
             Data = data;
+            Offset = offset;
             Length = length;
         }
 
@@ -51,8 +82,9 @@ namespace Renci.SshNet.Sftp.Requests
         {
             base.LoadData();
             Handle = ReadBinary();
-            Offset = ReadUInt64();
+            ServerFileOffset = ReadUInt64();
             Data = ReadBinary();
+            Offset = 0;
             Length = Data.Length;
         }
 
@@ -60,8 +92,8 @@ namespace Renci.SshNet.Sftp.Requests
         {
             base.SaveData();
             WriteBinaryString(Handle);
-            Write(Offset);
-            WriteBinary(Data, 0, Length);
+            Write(ServerFileOffset);
+            WriteBinary(Data, Offset, Length);
         }
     }
 }

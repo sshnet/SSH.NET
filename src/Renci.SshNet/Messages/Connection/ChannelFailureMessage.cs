@@ -22,5 +22,10 @@
             : base(localChannelNumber)
         {
         }
+
+        internal override void Process(Session session)
+        {
+            session.OnChannelFailureReceived(this);
+        }
     }
 }

@@ -9,7 +9,6 @@ using System.Text;
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages;
-using Renci.SshNet.Messages.Connection;
 
 namespace Renci.SshNet
 {
@@ -30,19 +29,6 @@ namespace Renci.SshNet
             if (string.IsNullOrEmpty(value)) return true;
 
             return value.All(char.IsWhiteSpace);
-        }
-
-        internal static byte[] ToArray(this GlobalRequestName globalRequestName)
-        {
-            switch (globalRequestName)
-            {
-                case GlobalRequestName.TcpIpForward:
-                    return SshData.Ascii.GetBytes("tcpip-forward");
-                case GlobalRequestName.CancelTcpIpForward:
-                    return SshData.Ascii.GetBytes("cancel-tcpip-forward");
-                default:
-                    throw new NotSupportedException(string.Format("Global request name '{0}' is not supported.", globalRequestName));
-            }
         }
 
         internal static byte[] ToArray(this ServiceName serviceName)
@@ -69,20 +55,6 @@ namespace Renci.SshNet
                     return ServiceName.Connection;
                 default:
                     throw new NotSupportedException(string.Format("Service name '{0}' is not supported.", sshServiceName));
-            }
-        }
-
-        internal static GlobalRequestName ToGlobalRequestName(this byte[] data)
-        {
-            var sshGlobalRequestName = SshData.Ascii.GetString(data, 0, data.Length);
-            switch (sshGlobalRequestName)
-            {
-                case "tcpip-forward":
-                    return GlobalRequestName.TcpIpForward;
-                case "cancel-tcpip-forward":
-                    return GlobalRequestName.CancelTcpIpForward;
-                default:
-                    throw new NotSupportedException(string.Format("Global request name '{0}' is not supported.", sshGlobalRequestName));
             }
         }
 
@@ -354,6 +326,13 @@ namespace Renci.SshNet
         internal static bool CanWrite(this Socket socket)
         {
             return SocketAbstraction.CanWrite(socket);
+        }
+
+        internal static bool IsConnected(this Socket socket)
+        {
+            if (socket == null)
+                return false;
+            return socket.Connected;
         }
     }
 }

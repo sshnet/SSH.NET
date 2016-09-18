@@ -12,7 +12,7 @@ using Renci.SshNet.Tests.Common;
 namespace Renci.SshNet.Tests.Classes.Channels
 {
     [TestClass]
-    public class ChannelDirectTcpipTest_Close_SessionIsConnectedAndChannelIsOpen
+    public class ChannelDirectTcpipTest_Dispose_SessionIsConnectedAndChannelIsOpen
     {
         private Mock<ISession> _sessionMock;
         private Mock<IForwardedPort> _forwardedPortMock;
@@ -165,7 +165,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
         {
             if (_channel != null)
             {
-                _channel.Close();
+                _channel.Dispose();
             }
         }
 

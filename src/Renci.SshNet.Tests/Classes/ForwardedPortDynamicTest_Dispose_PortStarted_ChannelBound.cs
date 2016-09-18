@@ -11,6 +11,7 @@ using Moq;
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
+using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes
 {
@@ -110,7 +111,6 @@ namespace Renci.SshNet.Tests.Classes
                     Thread.Sleep(_bindSleepTime);
                     _channelBindCompleted.Set();
                 });
-            _channelMock.Setup(p => p.Close());
             _channelMock.Setup(p => p.Dispose());
         }
 
@@ -190,7 +190,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void ExceptionShouldNotHaveFired()
         {
-            Assert.AreEqual(0, _exceptionRegister.Count, GetReportedExceptions());
+            Assert.AreEqual(0, _exceptionRegister.Count, _exceptionRegister.AsString());
         }
 
         [TestMethod]
@@ -206,12 +206,6 @@ namespace Renci.SshNet.Tests.Classes
         public void BindOnChannelShouldBeInvokedOnce()
         {
             _channelMock.Verify(p => p.Bind(), Times.Once);
-        }
-
-        [TestMethod]
-        public void CloseOnChannelShouldBeInvokedOnce()
-        {
-            _channelMock.Verify(p => p.Close(), Times.Once);
         }
 
         [TestMethod]
@@ -247,18 +241,6 @@ namespace Renci.SshNet.Tests.Classes
 
             // wait until SOCKS client is bound to channel
             Assert.IsTrue(_channelBindStarted.WaitOne(TimeSpan.FromMilliseconds(200)));
-        }
-
-        private string GetReportedExceptions()
-        {
-            if (_exceptionRegister.Count == 0)
-                return string.Empty;
-
-            string reportedExceptions = string.Empty;
-            foreach (var exceptionEvent in _exceptionRegister)
-                reportedExceptions += exceptionEvent.Exception.ToString();
-
-            return reportedExceptions;
         }
     }
 }

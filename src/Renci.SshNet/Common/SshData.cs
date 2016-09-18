@@ -47,20 +47,7 @@ namespace Renci.SshNet.Common
 
         private byte[] _loadedData;
         private int _offset;
-
-        /// <summary>
-        /// Gets the index that represents zero in current data type.
-        /// </summary>
-        /// <value>
-        /// The index of the zero reader.
-        /// </value>
-        protected virtual int ZeroReaderIndex
-        {
-            get
-            {
-                return 0;
-            }
-        }
+        private int _count;
 
         /// <summary>
         /// Gets the size of the message in bytes.
@@ -99,30 +86,41 @@ namespace Renci.SshNet.Common
         internal T OfType<T>() where T : SshData, new()
         {
             var result = new T();
-            result.LoadBytes(_loadedData, _offset);
-            result.LoadData();
+            result.Load(_loadedData, _offset, _count);
             return result;
         }
 
         /// <summary>
         /// Loads data from specified bytes.
         /// </summary>
-        /// <param name="value">Bytes array.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="value"/> is <c>null</c>.</exception>
-        public void Load(byte[] value)
+        /// <param name="data">Bytes array.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="data"/> is <c>null</c>.</exception>
+        public void Load(byte[] data)
         {
-            Load(value, 0);
+            if (data == null)
+                throw new ArgumentNullException("data");
+
+            LoadInternal(data, 0, data.Length);
         }
 
         /// <summary>
         /// Loads data from the specified buffer.
         /// </summary>
-        /// <param name="value">Bytes array.</param>
-        /// <param name="offset">The zero-based offset in <paramref name="value"/> at which to begin reading SSH data.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="value"/> is <c>null</c>.</exception>
-        public void Load(byte[] value, int offset)
+        /// <param name="data">Bytes array.</param>
+        /// <param name="offset">The zero-based offset in <paramref name="data"/> at which to begin reading SSH data.</param>
+        /// <param name="count">The number of bytes to load.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="data"/> is <c>null</c>.</exception>
+        public void Load(byte[] data, int offset, int count)
         {
-            LoadBytes(value, offset);
+            if (data == null)
+                throw new ArgumentNullException("data");
+
+            LoadInternal(data, offset, count);
+        }
+
+        private void LoadInternal(byte[] value, int offset, int count)
+        {
+            LoadBytes(value, offset, count);
             LoadData();
         }
 
@@ -140,36 +138,15 @@ namespace Renci.SshNet.Common
         /// Loads data bytes into internal buffer.
         /// </summary>
         /// <param name="bytes">The bytes.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="bytes"/> is <c>null</c>.</exception>
-        protected void LoadBytes(byte[] bytes)
-        {
-            LoadBytes(bytes, 0);
-        }
-
-        /// <summary>
-        /// Loads data bytes into internal buffer.
-        /// </summary>
-        /// <param name="bytes">The bytes.</param>
         /// <param name="offset">The zero-based offset in <paramref name="bytes"/> at which to begin reading SSH data.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="bytes"/> is <c>null</c>.</exception>
-        protected void LoadBytes(byte[] bytes, int offset)
+        /// <param name="count">The number of bytes to load.</param>
+        private void LoadBytes(byte[] bytes, int offset, int count)
         {
-            if (bytes == null)
-                throw new ArgumentNullException("bytes");
-
             _loadedData = bytes;
             _offset = offset;
+            _count = count;
 
-            _stream = new SshDataStream(bytes);
-            ResetReader();
-        }
-
-        /// <summary>
-        /// Resets internal data reader index.
-        /// </summary>
-        protected void ResetReader()
-        {
-            _stream.Position = ZeroReaderIndex + _offset;
+            _stream = new SshDataStream(bytes, _offset, count);
         }
 
         /// <summary>
@@ -277,6 +254,24 @@ namespace Renci.SshNet.Common
         {
             return _stream.ReadBinary();
         }
+
+        //protected byte[] ReadBinaryDebug()
+        //{
+        //    DiagnosticAbstraction.Log("Stream Position:" + _stream.Position);
+        //    var data = _stream.ReadBytes(4);
+        //    DiagnosticAbstraction.Log("Binary Length Bytes:" + Session.ToHex(data, 0));
+        //    var length = (uint)(data[0] << 24 | data[1] << 16 | data[2] << 8 | data[3]);
+        //    DiagnosticAbstraction.Log("Binary Length:" + length);
+
+        //    if (length > int.MaxValue)
+        //    {
+        //        throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "Data longer than {0} is not supported.", int.MaxValue));
+        //    }
+
+        //    var binary = _stream.ReadBytes((int) length);
+        //    DiagnosticAbstraction.Log("Binary Bytes:" + Session.ToHex(binary, 0));
+        //    return binary;
+        //}
 
         /// <summary>
         /// Reads next name-list data type from internal buffer.

@@ -9,7 +9,7 @@ using Renci.SshNet.Messages;
 namespace Renci.SshNet.Tests.Classes.Channels
 {
     [TestClass]
-    public class ChannelTest_Close_SessionIsConnectedAndChannelIsNotOpen
+    public class ChannelTest_Dispose_SessionIsNotConnectedAndChannelIsNotOpen
     {
         private Mock<ISession> _sessionMock;
         private uint _localWindowSize;
@@ -30,14 +30,14 @@ namespace Renci.SshNet.Tests.Classes.Channels
         {
             var random = new Random();
             _localChannelNumber = (uint)random.Next(0, int.MaxValue);
-            _localWindowSize = (uint)random.Next(0, int.MaxValue);
-            _localPacketSize = (uint)random.Next(0, int.MaxValue);
+            _localWindowSize = (uint) random.Next(0, int.MaxValue);
+            _localPacketSize = (uint) random.Next(0, int.MaxValue);
             _channelClosedRegister = new List<ChannelEventArgs>();
             _channelExceptionRegister = new List<ExceptionEventArgs>();
 
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);
 
-            _sessionMock.Setup(p => p.IsConnected).Returns(true);
+            _sessionMock.Setup(p => p.IsConnected).Returns(false);
 
             _channel = new ChannelStub(_sessionMock.Object, _localChannelNumber, _localWindowSize, _localPacketSize);
             _channel.Closed += (sender, args) => _channelClosedRegister.Add(args);
@@ -46,7 +46,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
 
         private void Act()
         {
-            _channel.Close();
+            _channel.Dispose();
         }
 
         [TestMethod]

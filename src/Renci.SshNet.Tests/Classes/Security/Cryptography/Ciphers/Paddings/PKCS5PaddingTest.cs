@@ -1,42 +1,61 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Renci.SshNet.Security.Cryptography.Ciphers.Paddings;
-using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers.Paddings
 {
-    /// <summary>
-    ///This is a test class for PKCS5PaddingTest and is intended
-    ///to contain all PKCS5PaddingTest Unit Tests
-    ///</summary>
     [TestClass]
-    public class PKCS5PaddingTest : TestBase
+    public class PKCS5PaddingTest
     {
-        /// <summary>
-        ///A test for Pad
-        ///</summary>
-        [TestMethod]
-        [Ignore] // placeholder for actual test
-        public void PadTest()
+        private PKCS5Padding _padding;
+
+        [TestInitialize]
+        public void SetUp()
         {
-            PKCS5Padding target = new PKCS5Padding(); // TODO: Initialize to an appropriate value
-            int blockSize = 0; // TODO: Initialize to an appropriate value
-            byte[] input = null; // TODO: Initialize to an appropriate value
-            byte[] expected = null; // TODO: Initialize to an appropriate value
-            byte[] actual;
-            actual = target.Pad(blockSize, input);
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("Verify the correctness of this test method.");
+            _padding = new PKCS5Padding();
         }
 
-        /// <summary>
-        ///A test for PKCS5Padding Constructor
-        ///</summary>
         [TestMethod]
-        [Ignore] // placeholder
-        public void PKCS5PaddingConstructorTest()
+        public void Pad_BlockSizeAndInput_LessThanBlockSize()
         {
-            PKCS5Padding target = new PKCS5Padding();
-            Assert.Inconclusive("TODO: Implement code to verify target");
+            var input = new byte[] {0x01, 0x02, 0x03, 0x04, 0x05};
+            var expected = new byte[] {0x01, 0x02, 0x03, 0x04, 0x05, 0x03, 0x03, 0x03};
+
+            var actual = _padding.Pad(8, input);
+
+            Assert.IsTrue(expected.IsEqualTo(actual));
+        }
+
+        [TestMethod]
+        public void Pad_BlockSizeAndInput_MoreThanBlockSizeButNoMultipleOfBlockSize()
+        {
+            var input = new byte[] { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09 };
+            var expected = new byte[] { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07 };
+
+            var actual = _padding.Pad(8, input);
+
+            Assert.IsTrue(expected.IsEqualTo(actual));
+        }
+
+        [TestMethod]
+        public void Pad_BlockSizeAndInputAndOffsetAndLength_LessThanBlockSize()
+        {
+            var input = new byte[] { 0x0f, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06 };
+            var expected = new byte[] { 0x01, 0x02, 0x03, 0x04, 0x05, 0x03, 0x03, 0x03 };
+
+            var actual = _padding.Pad(8, input, 1, input.Length - 2);
+
+            Assert.IsTrue(expected.IsEqualTo(actual));
+        }
+
+        [TestMethod]
+        public void Pad_BlockSizeAndInputAndOffsetAndLength_MoreThanBlockSizeButNoMultipleOfBlockSize()
+        {
+            var input = new byte[] { 0x0f, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x10 };
+            var expected = new byte[] { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07, 0x07 };
+
+            var actual = _padding.Pad(8, input, 1, input.Length - 2);
+
+            Assert.IsTrue(expected.IsEqualTo(actual));
         }
     }
 }

@@ -102,12 +102,6 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
-        public void CloseOnChannelShouldNeverBeInvoked()
-        {
-            _channelSessionMock.Verify(p => p.Close(), Times.Never);
-        }
-
-        [TestMethod]
         public void DisposeOnChannelShouldBeInvokedOnce()
         {
             _channelSessionMock.Verify(p => p.Dispose(), Times.Once);

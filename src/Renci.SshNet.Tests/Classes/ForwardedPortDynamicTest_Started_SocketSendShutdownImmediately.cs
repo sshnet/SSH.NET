@@ -8,6 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
+using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes
 {
@@ -90,7 +91,6 @@ namespace Renci.SshNet.Tests.Classes
             _sessionMock.InSequence(seq).Setup(p => p.CreateChannelDirectTcpip()).Returns(_channelMock.Object);
             _sessionMock.InSequence(seq).Setup(p => p.ConnectionInfo).Returns(_connectionInfoMock.Object);
             _connectionInfoMock.InSequence(seq).Setup(p => p.Timeout).Returns(_connectionTimeout);
-            _channelMock.InSequence(seq).Setup(p => p.Close());
             _channelMock.InSequence(seq).Setup(p => p.Dispose()).Callback(() => _channelDisposed.Set());
         }
 
@@ -138,7 +138,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void ExceptionShouldNeverBeFired()
         {
-            Assert.AreEqual(0, _exceptionRegister.Count, GetExceptions());
+            Assert.AreEqual(0, _exceptionRegister.Count, _exceptionRegister.AsString());
         }
 
         [TestMethod]
@@ -148,29 +148,9 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
-        public void CloseOnChannelShouldBeInvokedOnce()
-        {
-            _channelMock.Verify(p => p.Close(), Times.Once);
-        }
-
-        [TestMethod]
         public void DisposeOnChannelShouldBeInvokedOnce()
         {
             _channelMock.Verify(p => p.Dispose(), Times.Once);
-        }
-
-        private string GetExceptions()
-        {
-            var sb = new StringBuilder();
-
-            foreach (var exceptionEventArgs in _exceptionRegister)
-            {
-                if (sb.Length > 0)
-                    sb.AppendLine();
-                sb.Append(exceptionEventArgs.Exception);
-            }
-
-            return sb.ToString();
         }
     }
 }

@@ -2,20 +2,19 @@
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages;
 
 namespace Renci.SshNet.Tests.Classes.Channels
 {
     [TestClass]
-    public class ChannelTest_Close_SessionIsNotConnectedAndChannelIsNotOpen
+    public class ChannelTest_Dispose_SessionIsNotConnectedAndChannelIsOpen
     {
         private Mock<ISession> _sessionMock;
         private uint _localWindowSize;
         private uint _localPacketSize;
         private uint _localChannelNumber;
-        private Channel _channel;
+        private ChannelStub _channel;
         private List<ChannelEventArgs> _channelClosedRegister;
         private IList<ExceptionEventArgs> _channelExceptionRegister;
 
@@ -30,8 +29,8 @@ namespace Renci.SshNet.Tests.Classes.Channels
         {
             var random = new Random();
             _localChannelNumber = (uint)random.Next(0, int.MaxValue);
-            _localWindowSize = (uint) random.Next(0, int.MaxValue);
-            _localPacketSize = (uint) random.Next(0, int.MaxValue);
+            _localWindowSize = (uint)random.Next(0, int.MaxValue);
+            _localPacketSize = (uint)random.Next(0, int.MaxValue);
             _channelClosedRegister = new List<ChannelEventArgs>();
             _channelExceptionRegister = new List<ExceptionEventArgs>();
 
@@ -42,11 +41,12 @@ namespace Renci.SshNet.Tests.Classes.Channels
             _channel = new ChannelStub(_sessionMock.Object, _localChannelNumber, _localWindowSize, _localPacketSize);
             _channel.Closed += (sender, args) => _channelClosedRegister.Add(args);
             _channel.Exception += (sender, args) => _channelExceptionRegister.Add(args);
+            _channel.SetIsOpen(true);
         }
 
         private void Act()
         {
-            _channel.Close();
+            _channel.Dispose();
         }
 
         [TestMethod]

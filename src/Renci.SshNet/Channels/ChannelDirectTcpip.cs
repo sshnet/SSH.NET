@@ -263,10 +263,11 @@ namespace Renci.SshNet.Channels
                 {
                     lock (_socketLock)
                     {
-                        if (_socket != null)
+                        var socket = _socket;
+                        if (socket != null)
                         {
-                            _socket.Dispose();
                             _socket = null;
+                            socket.Dispose();
                         }
                     }
                 }

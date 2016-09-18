@@ -81,7 +81,6 @@ namespace Renci.SshNet
         private void Session_UserAuthenticationSuccessReceived(object sender, MessageEventArgs<SuccessMessage> e)
         {
             _authenticationResult = AuthenticationResult.Success;
-
             _authenticationCompleted.Set();
         }
 
@@ -160,8 +159,8 @@ namespace Renci.SshNet
                 var authenticationCompleted = _authenticationCompleted;
                 if (authenticationCompleted != null)
                 {
-                    authenticationCompleted.Dispose();
                     _authenticationCompleted = null;
+                    authenticationCompleted.Dispose();
                 }
 
                 _isDisposed = true;

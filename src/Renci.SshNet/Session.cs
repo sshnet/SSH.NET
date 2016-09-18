@@ -24,7 +24,7 @@ namespace Renci.SshNet
     /// <summary>
     /// Provides functionality to connect and interact with SSH server.
     /// </summary>
-    public partial class Session : ISession
+    public class Session : ISession
     {
         private const byte Null = 0x00;
         private const byte CarriageReturn = 0x0d;

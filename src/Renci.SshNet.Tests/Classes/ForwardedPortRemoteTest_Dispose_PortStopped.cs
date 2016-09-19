@@ -61,9 +61,8 @@ namespace Renci.SshNet.Tests.Classes
             _sessionMock.Setup(
                 p =>
                     p.SendMessage(
-                        It.Is<GlobalRequestMessage>(
+                        It.Is<TcpIpForwardGlobalRequestMessage>(
                             g =>
-                                g.RequestName == GlobalRequestName.TcpIpForward &&
                                 g.AddressToBind == ForwardedPort.BoundHost &&
                                 g.PortToBind == ForwardedPort.BoundPort)))
                 .Callback(
@@ -74,10 +73,10 @@ namespace Renci.SshNet.Tests.Classes
             _sessionMock.Setup(
                 p =>
                     p.SendMessage(
-                        It.Is<GlobalRequestMessage>(
+                        It.Is<CancelTcpIpForwardGlobalRequestMessage>(
                             g =>
-                                g.RequestName == GlobalRequestName.CancelTcpIpForward &&
-                                g.AddressToBind == ForwardedPort.BoundHost && g.PortToBind == ForwardedPort.BoundPort)))
+                                g.AddressToBind == ForwardedPort.BoundHost &&
+                                g.PortToBind == ForwardedPort.BoundPort)))
                 .Callback(
                     () =>
                         _sessionMock.Raise(s => s.RequestSuccessReceived += null,

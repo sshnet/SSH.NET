@@ -110,7 +110,6 @@ namespace Renci.SshNet.Tests.Classes
                     Thread.Sleep(_bindSleepTime);
                     _channelBindCompleted.Set();
                 });
-            _channelMock.Setup(p => p.Close());
             _channelMock.Setup(p => p.Dispose());
         }
 
@@ -194,12 +193,6 @@ namespace Renci.SshNet.Tests.Classes
         public void ExceptionShouldNotHaveFired()
         {
             Assert.AreEqual(0, _exceptionRegister.Count);
-        }
-
-        [TestMethod]
-        public void CloseOnChannelShouldBeInvokedOnce()
-        {
-            _channelMock.Verify(p => p.Close(), Times.Once);
         }
 
         [TestMethod]

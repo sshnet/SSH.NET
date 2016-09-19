@@ -47,7 +47,6 @@ namespace Renci.SshNet.Tests.Classes
             _sessionMock.InSequence(_sequence).Setup(p => p.CreateChannelSession()).Returns(_channelBeforeDisconnectMock.Object);
             _channelBeforeDisconnectMock.InSequence(_sequence).Setup(p => p.Open());
             _channelBeforeDisconnectMock.InSequence(_sequence).Setup(p => p.SendSubsystemRequest(_subsystemName)).Returns(true);
-            _channelBeforeDisconnectMock.InSequence(_sequence).Setup(p => p.Close());
             _channelBeforeDisconnectMock.InSequence(_sequence).Setup(p => p.Dispose());
             _sessionMock.InSequence(_sequence).Setup(p => p.CreateChannelSession()).Returns(_channelAfterDisconnectMock.Object);
             _channelAfterDisconnectMock.InSequence(_sequence).Setup(p => p.Open());
@@ -102,25 +101,13 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
-        public void CloseOnChannelBeforeDisconnectShouldBeInvokedOnce()
-        {
-            _channelBeforeDisconnectMock.Verify(p => p.Close(), Times.Once);
-        }
-
-        [TestMethod]
-        public void CloseOnChannelAfterDisconnectShouldNeverBeInvoked()
-        {
-            _channelAfterDisconnectMock.Verify(p => p.Close(), Times.Never);
-        }
-
-        [TestMethod]
         public void DisposeOnChannelBeforeDisconnectShouldBeInvokedOnce()
         {
             _channelBeforeDisconnectMock.Verify(p => p.Dispose(), Times.Once);
         }
 
         [TestMethod]
-        public void DisposeOnChannelAfterDisconnectShouldBeInvokedOnce()
+        public void DisposeOnChannelAfterDisconnectShouldNeverBeInvoked()
         {
             _channelAfterDisconnectMock.Verify(p => p.Dispose(), Times.Never);
         }

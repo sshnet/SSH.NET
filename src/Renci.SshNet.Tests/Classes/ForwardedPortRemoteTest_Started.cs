@@ -37,10 +37,8 @@ namespace Renci.SshNet.Tests.Classes
                 _sessionMock.Setup(
                     p =>
                         p.SendMessage(
-                            It.Is<GlobalRequestMessage>(
-                                g =>
-                                    g.RequestName == GlobalRequestName.CancelTcpIpForward &&
-                                    g.AddressToBind == _forwardedPort.BoundHost && g.PortToBind == _forwardedPort.BoundPort)));
+                            It.Is<CancelTcpIpForwardGlobalRequestMessage>(
+                                g => g.AddressToBind == _forwardedPort.BoundHost && g.PortToBind == _forwardedPort.BoundPort)));
                 _sessionMock.Setup(p => p.MessageListenerCompleted).Returns(new ManualResetEvent(true));
                 _forwardedPort.Dispose();
                 _forwardedPort = null;
@@ -68,9 +66,8 @@ namespace Renci.SshNet.Tests.Classes
             _sessionMock.Setup(
                 p =>
                     p.SendMessage(
-                        It.Is<GlobalRequestMessage>(
+                        It.Is<TcpIpForwardGlobalRequestMessage>(
                             g =>
-                                g.RequestName == GlobalRequestName.TcpIpForward &&
                                 g.AddressToBind == _forwardedPort.BoundHost &&
                                 g.PortToBind == _forwardedPort.BoundPort)))
                 .Callback(
@@ -110,7 +107,6 @@ namespace Renci.SshNet.Tests.Classes
                         It.Is<IPEndPoint>(
                             ep => ep.Address.Equals(_remoteEndpoint.Address) && ep.Port == _remoteEndpoint.Port),
                         _forwardedPort));
-            channelMock.Setup(p => p.Close());
             channelMock.Setup(p => p.Dispose()).Callback(() => channelDisposed.Set());
 
             _sessionMock.Raise(p => p.ChannelOpenReceived += null,
@@ -124,7 +120,6 @@ namespace Renci.SshNet.Tests.Classes
 
             _sessionMock.Verify(p => p.CreateChannelForwardedTcpip(channelNumber, initialWindowSize, maximumPacketSize), Times.Once);
             channelMock.Verify(p => p.Bind(It.Is<IPEndPoint>(ep => ep.Address.Equals(_remoteEndpoint.Address) && ep.Port == _remoteEndpoint.Port), _forwardedPort), Times.Once);
-            channelMock.Verify(p => p.Close(), Times.Once);
             channelMock.Verify(p => p.Dispose(), Times.Once);
 
             Assert.AreEqual(0, _closingRegister.Count);

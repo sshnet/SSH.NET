@@ -56,7 +56,6 @@ namespace Renci.SshNet.Messages.Transport
         /// </summary>
         protected override void LoadData()
         {
-            ResetReader();
             HostKey = ReadBinary();
             _fBytes = ReadBinary();
             Signature = ReadBinary();
@@ -70,6 +69,11 @@ namespace Renci.SshNet.Messages.Transport
             WriteBinaryString(HostKey);
             WriteBinaryString(_fBytes);
             WriteBinaryString(Signature);
+        }
+
+        internal override void Process(Session session)
+        {
+            session.OnKeyExchangeDhReplyMessageReceived(this);
         }
     }
 }

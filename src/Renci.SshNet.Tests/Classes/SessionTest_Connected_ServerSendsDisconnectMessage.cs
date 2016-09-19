@@ -8,16 +8,15 @@ using Renci.SshNet.Messages.Transport;
 
 namespace Renci.SshNet.Tests.Classes
 {
-    [TestClass]
     public class SessionTest_Connected_ServerSendsDisconnectMessage : SessionTest_ConnectedBase
     {
         private DisconnectMessage _disconnectMessage;
 
-        protected override void Arrange()
+        protected override void SetupData()
         {
-            _disconnectMessage = new DisconnectMessage(DisconnectReason.ServiceNotAvailable, "Not today!");
+            base.SetupData();
 
-            base.Arrange();
+            _disconnectMessage = new DisconnectMessage(DisconnectReason.ServiceNotAvailable, "Not today!");
         }
 
         protected override void Act()
@@ -25,8 +24,7 @@ namespace Renci.SshNet.Tests.Classes
             var disconnect = _disconnectMessage.GetPacket(8, null);
             ServerSocket.Send(disconnect, 4, disconnect.Length - 4, SocketFlags.None);
 
-            // give session some time to process DisconnectMessage
-            Thread.Sleep(200);
+            Session.Disconnect();
         }
 
         [TestMethod]

@@ -63,5 +63,10 @@
             base.SaveData();
             Write(BytesToAdd);
         }
+
+        internal override void Process(Session session)
+        {
+            session.OnChannelWindowAdjustReceived(this);
+        }
     }
 }

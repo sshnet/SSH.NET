@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Text;
 using System.Threading;
+using Renci.SshNet.Abstractions;
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
 
@@ -131,12 +132,11 @@ namespace Renci.SshNet
             var channel = _channel;
             if (channel != null)
             {
+                _channel = null;
                 channel.DataReceived -= Channel_DataReceived;
                 channel.Exception -= Channel_Exception;
                 channel.Closed -= Channel_Closed;
-                channel.Close();
                 channel.Dispose();
-                _channel = null;
             }
         }
 
@@ -170,6 +170,8 @@ namespace Renci.SshNet
         protected void RaiseError(Exception error)
         {
             _exception = error;
+
+            DiagnosticAbstraction.Log("Raised exception: " + error);
 
             var errorOccuredWaitHandle = _errorOccuredWaitHandle;
             if (errorOccuredWaitHandle != null)
@@ -318,22 +320,22 @@ namespace Renci.SshNet
                 var errorOccuredWaitHandle = _errorOccuredWaitHandle;
                 if (errorOccuredWaitHandle != null)
                 {
-                    errorOccuredWaitHandle.Dispose();
                     _errorOccuredWaitHandle = null;
+                    errorOccuredWaitHandle.Dispose();
                 }
 
                 var sessionDisconnectedWaitHandle = _sessionDisconnectedWaitHandle;
                 if (sessionDisconnectedWaitHandle != null)
                 {
-                    sessionDisconnectedWaitHandle.Dispose();
                     _sessionDisconnectedWaitHandle = null;
+                    sessionDisconnectedWaitHandle.Dispose();
                 }
 
                 var channelClosedWaitHandle = _channelClosedWaitHandle;
                 if (channelClosedWaitHandle != null)
                 {
-                    channelClosedWaitHandle.Dispose();
                     _channelClosedWaitHandle = null;
+                    channelClosedWaitHandle.Dispose();
                 }
 
                 _isDisposed = true;

@@ -22,5 +22,10 @@ namespace Renci.SshNet.Messages.Transport
         {
             throw new NotImplementedException();
         }
+
+        internal override void Process(Session session)
+        {
+            session.OnUnimplementedReceived(this);
+        }
     }
 }

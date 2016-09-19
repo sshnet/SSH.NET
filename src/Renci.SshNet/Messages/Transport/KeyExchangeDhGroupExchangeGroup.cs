@@ -72,5 +72,10 @@ namespace Renci.SshNet.Messages.Transport
             WriteBinaryString(_safePrime);
             WriteBinaryString(_subGroup);
         }
+
+        internal override void Process(Session session)
+        {
+            session.OnKeyExchangeDhGroupExchangeGroupReceived(this);
+        }
     }
 }

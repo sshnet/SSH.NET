@@ -13,45 +13,45 @@ namespace Renci.SshNet.Sftp
     {
         #region Bitmask constats
 
-        private const UInt32 S_IFMT = 0xF000; //  bitmask for the file type bitfields
+        private const uint S_IFMT = 0xF000; //  bitmask for the file type bitfields
 
-        private const UInt32 S_IFSOCK = 0xC000; //	socket
+        private const uint S_IFSOCK = 0xC000; //	socket
 
-        private const UInt32 S_IFLNK = 0xA000; //	symbolic link
+        private const uint S_IFLNK = 0xA000; //	symbolic link
 
-        private const UInt32 S_IFREG = 0x8000; //	regular file
+        private const uint S_IFREG = 0x8000; //	regular file
 
-        private const UInt32 S_IFBLK = 0x6000; //	block device
+        private const uint S_IFBLK = 0x6000; //	block device
 
-        private const UInt32 S_IFDIR = 0x4000; //	directory
+        private const uint S_IFDIR = 0x4000; //	directory
 
-        private const UInt32 S_IFCHR = 0x2000; //	character device
+        private const uint S_IFCHR = 0x2000; //	character device
 
-        private const UInt32 S_IFIFO = 0x1000; //	FIFO
+        private const uint S_IFIFO = 0x1000; //	FIFO
 
-        private const UInt32 S_ISUID = 0x0800; //	set UID bit
+        private const uint S_ISUID = 0x0800; //	set UID bit
 
-        private const UInt32 S_ISGID = 0x0400; //	set-group-ID bit (see below)
+        private const uint S_ISGID = 0x0400; //	set-group-ID bit (see below)
 
-        private const UInt32 S_ISVTX = 0x0200; //	sticky bit (see below)
+        private const uint S_ISVTX = 0x0200; //	sticky bit (see below)
 
-        private const UInt32 S_IRUSR = 0x0100; //	owner has read permission
+        private const uint S_IRUSR = 0x0100; //	owner has read permission
 
-        private const UInt32 S_IWUSR = 0x0080; //	owner has write permission
+        private const uint S_IWUSR = 0x0080; //	owner has write permission
 
-        private const UInt32 S_IXUSR = 0x0040; //	owner has execute permission
+        private const uint S_IXUSR = 0x0040; //	owner has execute permission
 
-        private const UInt32 S_IRGRP = 0x0020; //	group has read permission
+        private const uint S_IRGRP = 0x0020; //	group has read permission
 
-        private const UInt32 S_IWGRP = 0x0010; //	group has write permission
+        private const uint S_IWGRP = 0x0010; //	group has write permission
 
-        private const UInt32 S_IXGRP = 0x0008; //	group has execute permission
+        private const uint S_IXGRP = 0x0008; //	group has execute permission
 
-        private const UInt32 S_IROTH = 0x0004; //	others have read permission
+        private const uint S_IROTH = 0x0004; //	others have read permission
 
-        private const UInt32 S_IWOTH = 0x0002; //	others have write permission
+        private const uint S_IWOTH = 0x0002; //	others have write permission
 
-        private const UInt32 S_IXOTH = 0x0001; //	others have execute permission
+        private const uint S_IXOTH = 0x0001; //	others have execute permission
 
         #endregion
 

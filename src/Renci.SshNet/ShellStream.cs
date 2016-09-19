@@ -723,7 +723,7 @@ namespace Renci.SshNet
         private void Session_Disconnected(object sender, EventArgs e)
         {
             if (_channel != null)
-                _channel.Close();
+                _channel.Dispose();
         }
 
         private void Channel_Closed(object sender, ChannelEventArgs e)

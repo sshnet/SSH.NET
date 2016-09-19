@@ -10,7 +10,7 @@ using Renci.SshNet.Messages.Connection;
 namespace Renci.SshNet.Tests.Classes.Channels
 {
     [TestClass]
-    public class ChannelSessionTest_Close_SessionIsNotConnectedAndChannelIsOpen_NoChannelCloseOrChannelEofReceived
+    public class ChannelSessionTest_Dispose_SessionIsConnectedAndChannelIsOpen_ChannelCloseReceived_SendChannelCloseMessageFailure
     {
         private Mock<ISession> _sessionMock;
         private uint _localChannelNumber;
@@ -79,17 +79,25 @@ namespace Renci.SshNet.Tests.Classes.Channels
                                     _remoteChannelNumber)));
                         w.WaitOne();
                     });
-            _sessionMock.Setup(p => p.IsConnected).Returns(false);
+            _sessionMock.Setup(p => p.IsConnected).Returns(true);
+            _sessionMock.InSequence(_sequence)
+                .Setup(
+                    p => p.TrySendMessage(It.Is<ChannelCloseMessage>(c => c.LocalChannelNumber == _remoteChannelNumber)))
+                .Returns(false);
 
             _channel = new ChannelSession(_sessionMock.Object, _localChannelNumber, _localWindowSize, _localPacketSize);
             _channel.Closed += (sender, args) => _channelClosedRegister.Add(args);
             _channel.Exception += (sender, args) => _channelExceptionRegister.Add(args);
             _channel.Open();
+
+            _sessionMock.Raise(
+                p => p.ChannelCloseReceived += null,
+                new MessageEventArgs<ChannelCloseMessage>(new ChannelCloseMessage(_localChannelNumber)));
         }
 
         private void Act()
         {
-            _channel.Close();
+            _channel.Dispose();
         }
 
         [TestMethod]
@@ -105,9 +113,10 @@ namespace Renci.SshNet.Tests.Classes.Channels
         }
 
         [TestMethod]
-        public void ClosedEventShouldNotHaveFired()
+        public void ClosedEventShouldHaveFiredOnce()
         {
-            Assert.AreEqual(0, _channelClosedRegister.Count);
+            Assert.AreEqual(1, _channelClosedRegister.Count);
+            Assert.AreEqual(_localChannelNumber, _channelClosedRegister[0].ChannelNumber);
         }
 
         [TestMethod]

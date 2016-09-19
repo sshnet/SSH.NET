@@ -187,8 +187,6 @@ namespace Renci.SshNet
                 }
 
                 InternalUpload(channel, input, source, path);
-
-                channel.Close();
             }
         }
 
@@ -239,8 +237,6 @@ namespace Renci.SshNet
                 {
                     SendConfirmation(channel, 1, string.Format("\"{0}\" is not valid protocol message.", message));
                 }
-
-                channel.Close();
             }
         }
 

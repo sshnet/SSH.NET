@@ -26,8 +26,20 @@ namespace Renci.SshNet.Channels
         /// <param name="remoteChannelNumber">The remote channel number.</param>
         /// <param name="remoteWindowSize">The window size of the remote party.</param>
         /// <param name="remotePacketSize">The maximum size of a data packet that we can send to the remote party.</param>
-        internal ChannelForwardedTcpip(ISession session, uint localChannelNumber, uint localWindowSize, uint localPacketSize, uint remoteChannelNumber, uint remoteWindowSize, uint remotePacketSize)
-            : base(session, localChannelNumber, localWindowSize, localPacketSize, remoteChannelNumber, remoteWindowSize, remotePacketSize)
+        internal ChannelForwardedTcpip(ISession session,
+                                       uint localChannelNumber,
+                                       uint localWindowSize,
+                                       uint localPacketSize,
+                                       uint remoteChannelNumber,
+                                       uint remoteWindowSize,
+                                       uint remotePacketSize)
+            : base(session,
+                   localChannelNumber,
+                   localWindowSize,
+                   localPacketSize,
+                   remoteChannelNumber,
+                   remoteWindowSize,
+                   remotePacketSize)
         {
         }
 
@@ -107,16 +119,24 @@ namespace Renci.SshNet.Channels
         /// <param name="how">One of the <see cref="SocketShutdown"/> values that specifies the operation that will no longer be allowed.</param>
         private void ShutdownSocket(SocketShutdown how)
         {
-            if (_socket == null || !_socket.Connected)
+            if (_socket == null)
                 return;
 
             lock (_socketShutdownAndCloseLock)
             {
                 var socket = _socket;
-                if (socket == null || !socket.Connected)
+                if (!socket.IsConnected())
                     return;
 
-                socket.Shutdown(how);
+                try
+                {
+                    socket.Shutdown(how);
+                }
+                catch (SocketException ex)
+                {
+                    // TODO: log as warning
+                    DiagnosticAbstraction.Log("Failure shutting down socket: " + ex);
+                }
             }
         }
 
@@ -133,20 +153,16 @@ namespace Renci.SshNet.Channels
                 var socket = _socket;
                 if (socket != null)
                 {
-                    // closing a socket actually disposes the socket, so we can safely dereference
-                    // the field to avoid entering the lock again later
-                    socket.Dispose();
                     _socket = null;
+                    socket.Dispose();
                 }
             }
         }
 
         /// <summary>
-        /// Closes the channel, optionally waiting for the SSH_MSG_CHANNEL_CLOSE message to
-        /// be received from the server.
+        /// Closes the channel waiting for the SSH_MSG_CHANNEL_CLOSE message to be received from the server.
         /// </summary>
-        /// <param name="wait"><c>true</c> to wait for the SSH_MSG_CHANNEL_CLOSE message to be received from the server; otherwise, <c>false</c>.</param>
-        protected override void Close(bool wait)
+        protected override void Close()
         {
             var forwardedPort = _forwardedPort;
             if (forwardedPort != null)
@@ -162,7 +178,7 @@ namespace Renci.SshNet.Channels
             ShutdownSocket(SocketShutdown.Send);
 
             // close the SSH channel, and mark the channel closed
-            base.Close(wait);
+            base.Close();
 
             // close the socket
             CloseSocket();
@@ -177,7 +193,7 @@ namespace Renci.SshNet.Channels
             base.OnData(data);
 
             var socket = _socket;
-            if (socket != null && socket.Connected)
+            if (socket.IsConnected())
             {
                 SocketAbstraction.Send(socket, data, 0, data.Length);
             }

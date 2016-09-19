@@ -90,5 +90,10 @@
             WriteBinaryString(_description);
             WriteBinaryString(_language);
         }
+
+        internal override void Process(Session session)
+        {
+            session.OnDisconnectReceived(this);
+        }
     }
 }

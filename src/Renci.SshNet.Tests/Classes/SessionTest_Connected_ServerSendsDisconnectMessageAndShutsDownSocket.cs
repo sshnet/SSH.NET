@@ -13,11 +13,11 @@ namespace Renci.SshNet.Tests.Classes
     {
         private DisconnectMessage _disconnectMessage;
 
-        protected override void Arrange()
+        protected override void SetupData()
         {
-            _disconnectMessage = new DisconnectMessage(DisconnectReason.ServiceNotAvailable, "Not today!");
+            base.SetupData();
 
-            base.Arrange();
+            _disconnectMessage = new DisconnectMessage(DisconnectReason.ServiceNotAvailable, "Not today!");
         }
 
         protected override void Act()
@@ -116,7 +116,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void ISession_MessageListenerCompletedShouldBeSignaled()
         {
-            var session = (ISession)Session;
+            var session = (ISession) Session;
 
             Assert.IsNotNull(session.MessageListenerCompleted);
             Assert.IsTrue(session.MessageListenerCompleted.WaitOne());

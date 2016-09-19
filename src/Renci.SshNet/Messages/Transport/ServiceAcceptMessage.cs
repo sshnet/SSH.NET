@@ -33,5 +33,10 @@ namespace Renci.SshNet.Messages.Transport
         {
             throw new NotImplementedException();
         }
+
+        internal override void Process(Session session)
+        {
+            session.OnServiceAcceptReceived(this);
+        }
     }
 }

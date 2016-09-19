@@ -59,7 +59,6 @@ namespace Renci.SshNet.Tests.Classes
             _sessionMock.Setup(p => p.IsConnected).Returns(true);
             _sessionMock.Setup(p => p.ConnectionInfo).Returns(_connectionInfoMock.Object);
             _sessionMock.Setup(p => p.CreateChannelDirectTcpip()).Returns(_channelMock.Object);
-            _channelMock.Setup(p => p.Close());
             _channelMock.Setup(p => p.Dispose());
 
             _forwardedPort = new ForwardedPortDynamic(_endpoint.Address.ToString(), (uint) _endpoint.Port);
@@ -132,12 +131,6 @@ namespace Renci.SshNet.Tests.Classes
         public void ExceptionShouldNotHaveFired()
         {
             Assert.AreEqual(0, _exceptionRegister.Count);
-        }
-
-        [TestMethod]
-        public void CloseOnChannelShouldBeInvokedOnce()
-        {
-            _channelMock.Verify(p => p.Close(), Times.Once);
         }
 
         [TestMethod]

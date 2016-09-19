@@ -63,5 +63,10 @@ namespace Renci.SshNet.Messages.Authentication
         {
             throw new NotImplementedException();
         }
+
+        internal override void Process(Session session)
+        {
+            session.OnUserAuthenticationInformationRequestReceived(this);
+        }
     }
 }

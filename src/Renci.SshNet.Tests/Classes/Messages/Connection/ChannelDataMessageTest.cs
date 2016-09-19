@@ -43,7 +43,7 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
         public void Constructor_LocalChannelNumberAndData_ShouldThrowArgumentNullExceptionWhenDataIsNull()
         {
             var localChannelNumber = (uint) new Random().Next(0, int.MaxValue);
-            byte[] data = null;
+            const byte[] data = null;
 
             try
             {
@@ -142,7 +142,7 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
             var bytes = channelDataMessage.GetBytes();
             var target = new ChannelDataMessage();
 
-            target.Load(bytes);
+            target.Load(bytes, 1, bytes.Length - 1); // skip message type
 
             Assert.IsTrue(target.Data.SequenceEqual(data.Take(offset, size)));
             Assert.AreEqual(0, target.Offset);

@@ -80,8 +80,9 @@ namespace Renci.SshNet.Security.Cryptography
                     throw new ArgumentException("data");
                 }
                 var paddingLength = _blockSize - (length % _blockSize);
-                data = _padding.Pad(data, paddingLength);
+                data = _padding.Pad(data, offset, length, paddingLength);
                 length += paddingLength;
+                offset = 0;
             }
 
             var output = new byte[length];
@@ -114,31 +115,47 @@ namespace Renci.SshNet.Security.Cryptography
         /// <returns>Decrypted data</returns>
         public override byte[] Decrypt(byte[] data)
         {
-            if (data.Length % _blockSize > 0)
+            return Decrypt(data, 0, data.Length);
+        }
+
+        /// <summary>
+        /// Decrypts the specified input.
+        /// </summary>
+        /// <param name="data">The input.</param>
+        /// <param name="offset">The zero-based offset in <paramref name="data"/> at which to begin decrypting.</param>
+        /// <param name="length">The number of bytes to decrypt from <paramref name="data"/>.</param>
+        /// <returns>
+        /// The decrypted data.
+        /// </returns>
+        public override byte[] Decrypt(byte[] data, int offset, int length)
+        {
+            if (length % _blockSize > 0)
             {
                 if (_padding == null)
                 {
                     throw new ArgumentException("data");
                 }
-                data = _padding.Pad(_blockSize, data);
+                data = _padding.Pad(_blockSize, data, offset, length);
+                offset = 0;
+                length = data.Length;
             }
 
-            var output = new byte[data.Length];
+            var output = new byte[length];
 
             var writtenBytes = 0;
-            for (var i = 0; i < data.Length / _blockSize; i++)
+            for (var i = 0; i < length / _blockSize; i++)
             {
                 if (_mode == null)
                 {
-                    writtenBytes += DecryptBlock(data, i * _blockSize, _blockSize, output, i * _blockSize);
+                    writtenBytes += DecryptBlock(data, offset + (i * _blockSize), _blockSize, output, i * _blockSize);
                 }
                 else
                 {
-                    writtenBytes += _mode.DecryptBlock(data, i * _blockSize, _blockSize, output, i * _blockSize);
+                    writtenBytes += _mode.DecryptBlock(data, offset + (i * _blockSize), _blockSize, output, i * _blockSize);
                 }
             }
 
-            if (writtenBytes < data.Length)
+            if (writtenBytes < length)
             {
                 throw new InvalidOperationException("Encryption error.");
             }

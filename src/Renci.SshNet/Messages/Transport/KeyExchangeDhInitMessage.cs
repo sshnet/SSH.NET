@@ -49,7 +49,6 @@ namespace Renci.SshNet.Messages.Transport
         /// </summary>
         protected override void LoadData()
         {
-            ResetReader();
             _eBytes = ReadBinary();
         }
 
@@ -59,6 +58,11 @@ namespace Renci.SshNet.Messages.Transport
         protected override void SaveData()
         {
             WriteBinaryString(_eBytes);
+        }
+
+        internal override void Process(Session session)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

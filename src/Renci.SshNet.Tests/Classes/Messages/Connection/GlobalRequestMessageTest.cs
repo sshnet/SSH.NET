@@ -1,6 +1,8 @@
 ﻿using Renci.SshNet.Messages.Connection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Globalization;
+using System.Text;
 using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Messages.Connection
@@ -12,30 +14,24 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
     [TestClass]
     public class GlobalRequestMessageTest : TestBase
     {
-        /// <summary>
-        ///A test for GlobalRequestMessage Constructor
-        ///</summary>
         [TestMethod]
-        [Ignore] // placeholder
-        public void GlobalRequestMessageConstructorTest()
+        public void DefaultCtor()
         {
-            GlobalRequestMessage target = new GlobalRequestMessage();
-            Assert.Inconclusive("TODO: Implement code to verify target");
+            new GlobalRequestMessage();
         }
 
-        /// <summary>
-        ///A test for GlobalRequestMessage Constructor
-        ///</summary>
         [TestMethod]
-        [Ignore] // placeholder
-        public void GlobalRequestMessageConstructorTest2()
+        public void Ctor_RequestNameAndWantReply()
         {
-            GlobalRequestName requestName = new GlobalRequestName(); // TODO: Initialize to an appropriate value
-            bool wantReply = false; // TODO: Initialize to an appropriate value
-            string addressToBind = string.Empty; // TODO: Initialize to an appropriate value
-            uint portToBind = 0; // TODO: Initialize to an appropriate value
-            GlobalRequestMessage target = new GlobalRequestMessage(requestName, wantReply, addressToBind, portToBind);
-            Assert.Inconclusive("TODO: Implement code to verify target");
+            var requestName = new Random().Next().ToString(CultureInfo.InvariantCulture);
+
+            var target = new GlobalRequestMessage(Encoding.ASCII.GetBytes(requestName), true);
+            Assert.AreEqual(requestName, target.RequestName);
+            Assert.IsTrue(target.WantReply);
+
+            target = new GlobalRequestMessage(Encoding.ASCII.GetBytes(requestName), false);
+            Assert.AreEqual(requestName, target.RequestName);
+            Assert.IsFalse(target.WantReply);
         }
     }
 }

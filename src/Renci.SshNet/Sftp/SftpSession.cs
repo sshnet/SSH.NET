@@ -163,55 +163,144 @@ namespace Renci.SshNet.Sftp
 
         protected override void OnDataReceived(byte[] data)
         {
-            //  Add channel data to internal data holder
-            _data.AddRange(data);
+            const int packetLengthByteCount = 4;
+            const int sftpMessageTypeByteCount = 1;
+            const int minimumChannelDataLength = packetLengthByteCount + sftpMessageTypeByteCount;
 
-            while (_data.Count > 4 + 1)
+            var offset = 0;
+            var count = data.Length;
+
+            // improve performance and reduce GC pressure by not buffering channel data if the received
+            // chunk contains the complete packet data.
+            //
+            // for this, the buffer should be empty and the chunk should contain at least the packet length
+            // and the type of the SFTP message
+            if (_data.Count == 0)
             {
-                //  Extract packet length
-                var packetLength = (_data[0] << 24 | _data[1] << 16 | _data[2] << 8 | _data[3]);
-
-                //  Check if complete packet data is available
-                if (_data.Count < packetLength + 4)
+                while (count >= minimumChannelDataLength)
                 {
-                    //  Wait for complete message to arrive first
-                    break;
-                }
+                    // extract packet length
+                    var packetDataLength = data[offset] << 24 | data[offset + 1] << 16 | data[offset + 2] << 8 |
+                                           data[offset + 3];
 
-                var packetLengthIncludingBytesForLength = packetLength + 4;
+                    var packetTotalLength = packetDataLength + packetLengthByteCount;
 
-                //  Create buffer to hold packet data and 4 bytes for packet length
-                var packetData = new byte[packetLengthIncludingBytesForLength];
-
-                // copy packet data and bytes for length to array
-                _data.CopyTo(0, packetData, 0, packetLengthIncludingBytesForLength);
-
-                //  Remove loaded data and bytes for length from _data holder
-                _data.RemoveRange(0, packetLengthIncludingBytesForLength);
-
-                //  Load SFTP Message and handle it
-                var response = SftpMessage.Load(ProtocolVersion, packetData, Encoding);
-
-                try
-                {
-                    var versionResponse = response as SftpVersionResponse;
-                    if (versionResponse != null)
+                    // check if complete packet data (or more) is available
+                    if (count >= packetTotalLength)
                     {
-                        ProtocolVersion = versionResponse.Version;
-                        _supportedExtensions = versionResponse.Extentions;
+                        // load and process SFTP message
+                        if (!TryLoadSftpMessage(data, offset + packetLengthByteCount, packetDataLength))
+                        {
+                            return;
+                        }
 
-                        _sftpVersionConfirmed.Set();
+                        // remove processed bytes from the number of bytes to process as the channel
+                        // data we received may contain (part of) another message
+                        count -= packetTotalLength;
+
+                        // move offset beyond bytes we just processed
+                        offset += packetTotalLength;
                     }
                     else
                     {
-                        HandleResponse(response as SftpResponse);
+                        // we don't have a complete message
+                        break;
                     }
                 }
-                catch (Exception exp)
+
+                // check if there is channel data left to process or buffer
+                if (count == 0)
                 {
-                    RaiseError(exp);
+                    return;
+                }
+
+                // check if we processed part of the channel data we received
+                if (offset > 0)
+                {
+                    // add (remaining) channel data to internal data holder
+                    var remainingChannelData = new byte[count];
+                    Buffer.BlockCopy(data, offset, remainingChannelData, 0, count);
+                    _data.AddRange(remainingChannelData);
+                }
+                else
+                {
+                    // add (remaining) channel data to internal data holder
+                    _data.AddRange(data);
+                }
+
+                // skip further processing as we'll need a new chunk to complete the message
+                return;
+            }
+
+            // add (remaining) channel data to internal data holder
+            _data.AddRange(data);
+
+            while (_data.Count >= minimumChannelDataLength)
+            {
+                // extract packet length
+                var packetDataLength = _data[0] << 24 | _data[1] << 16 | _data[2] << 8 | _data[3];
+
+                var packetTotalLength = packetDataLength + packetLengthByteCount;
+
+                // check if complete packet data is available
+                if (_data.Count < packetTotalLength)
+                {
+                    // wait for complete message to arrive first
                     break;
                 }
+
+                // create buffer to hold packet data
+                var packetData = new byte[packetDataLength];
+
+                // copy packet data and bytes for length to array
+                _data.CopyTo(packetLengthByteCount, packetData, 0, packetDataLength);
+
+                // remove loaded data and bytes for length from _data holder
+                if (_data.Count == packetTotalLength)
+                {
+                    // the only buffered data is the data we're processing 
+                    _data.Clear();
+                }
+                else
+                {
+                    // remove only the data we're processing
+                    _data.RemoveRange(0, packetTotalLength);
+                }
+
+                // load and process SFTP message
+                if (!TryLoadSftpMessage(packetData, 0, packetDataLength))
+                {
+                    break;
+                }
+            }
+        }
+
+        private bool TryLoadSftpMessage(byte[] packetData, int offset, int count)
+        {
+            //  Load SFTP Message and handle it
+            var response = SftpMessage.Load(ProtocolVersion, packetData, offset, count, Encoding);
+
+            try
+            {
+                var versionResponse = response as SftpVersionResponse;
+                if (versionResponse != null)
+                {
+                    ProtocolVersion = versionResponse.Version;
+                    _supportedExtensions = versionResponse.Extentions;
+
+                    _sftpVersionConfirmed.Set();
+                }
+                else
+                {
+                    HandleResponse(response as SftpResponse);
+                }
+
+                return true;
+            }
+            catch (Exception exp)
+            {
+                RaiseError(exp);
+                return false;
             }
         }
 
@@ -221,10 +310,11 @@ namespace Renci.SshNet.Sftp
 
             if (disposing)
             {
-                if (_sftpVersionConfirmed != null)
+                var sftpVersionConfirmed = _sftpVersionConfirmed;
+                if (sftpVersionConfirmed != null)
                 {
-                    _sftpVersionConfirmed.Dispose();
                     _sftpVersionConfirmed = null;
+                    sftpVersionConfirmed.Dispose();
                 }
             }
         }
@@ -356,22 +446,24 @@ namespace Renci.SshNet.Sftp
         /// Performs SSH_FXP_WRITE request.
         /// </summary>
         /// <param name="handle">The handle.</param>
-        /// <param name="offset">The offset.</param>
-        /// <param name="data">The data to send.</param>
-        /// <param name="length">The number of bytes of <paramref name="data"/> to send.</param>
+        /// <param name="serverOffset">The the zero-based offset (in bytes) relative to the beginning of the file that the write must start at.</param>
+        /// <param name="data">The buffer holding the data to write.</param>
+        /// <param name="offset">the zero-based offset in <paramref name="data" /> at which to begin taking bytes to write.</param>
+        /// <param name="length">The length (in bytes) of the data to write.</param>
         /// <param name="wait">The wait event handle if needed.</param>
         /// <param name="writeCompleted">The callback to invoke when the write has completed.</param>
         public void RequestWrite(byte[] handle,
-                                 ulong offset,
+                                 ulong serverOffset,
                                  byte[] data,
+                                 int offset,
                                  int length,
                                  AutoResetEvent wait,
                                  Action<SftpStatusResponse> writeCompleted = null)
         {
             SshException exception = null;
 
-            var request = new SftpWriteRequest(ProtocolVersion, NextRequestId, handle, offset, data, length,
-                response =>
+            var request = new SftpWriteRequest(ProtocolVersion, NextRequestId, handle, serverOffset, data, offset,
+                length, response =>
                     {
                         if (writeCompleted != null)
                         {
@@ -1114,19 +1206,17 @@ namespace Renci.SshNet.Sftp
 
         private static SshException GetSftpException(SftpStatusResponse response)
         {
-            if (response.StatusCode == StatusCodes.Ok)
+            switch (response.StatusCode)
             {
-                return null;
+                case StatusCodes.Ok:
+                    return null;
+                case StatusCodes.PermissionDenied:
+                    return new SftpPermissionDeniedException(response.ErrorMessage);
+                case StatusCodes.NoSuchFile:
+                    return new SftpPathNotFoundException(response.ErrorMessage);
+                default:
+                    return new SshException(response.ErrorMessage);
             }
-            if (response.StatusCode == StatusCodes.PermissionDenied)
-            {
-                return new SftpPermissionDeniedException(response.ErrorMessage);
-            }
-            if (response.StatusCode == StatusCodes.NoSuchFile)
-            {
-                return new SftpPathNotFoundException(response.ErrorMessage);
-            }
-            return new SshException(response.ErrorMessage);
         }
 
         private void HandleResponse(SftpResponse response)

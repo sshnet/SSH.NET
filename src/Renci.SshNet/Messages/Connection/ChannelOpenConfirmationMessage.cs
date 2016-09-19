@@ -88,5 +88,10 @@
             Write(InitialWindowSize);
             Write(MaximumPacketSize);
         }
+
+        internal override void Process(Session session)
+        {
+            session.OnChannelOpenConfirmationReceived(this);
+        }
     }
 }

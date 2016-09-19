@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Globalization;
+using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Messages.Transport
@@ -58,7 +60,21 @@ namespace Renci.SshNet.Messages.Transport
         /// </summary>
         protected override void LoadData()
         {
-            Data = ReadBinary();
+            var dataLength = ReadUInt32();
+            if (dataLength > int.MaxValue)
+            {
+                throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "Data longer than {0} is not supported.", int.MaxValue));
+            }
+
+            if (dataLength > (DataStream.Length - DataStream.Position))
+            {
+                DiagnosticAbstraction.Log("SSH_MSG_IGNORE: Length exceeds data bytes, data ignored.");
+                Data = Array<byte>.Empty;
+            }
+            else
+            {
+                Data = ReadBytes((int) dataLength);
+            }
         }
 
         /// <summary>
@@ -67,6 +83,11 @@ namespace Renci.SshNet.Messages.Transport
         protected override void SaveData()
         {
             WriteBinaryString(Data);
+        }
+
+        internal override void Process(Session session)
+        {
+            session.OnIgnoreReceived(this);
         }
     }
 }

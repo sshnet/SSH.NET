@@ -3,7 +3,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Renci.SshNet.Common;
 using Renci.SshNet.Sftp;
 using Renci.SshNet.Sftp.Responses;
-using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Sftp.Responses
 {
@@ -40,9 +39,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Responses
             var attributes = CreateSftpFileAttributes();
             var attributesBytes = attributes.GetBytes();
 
-            var sshDataStream = new SshDataStream(4 + 1 + 4 + attributesBytes.Length);
-            sshDataStream.Position = 4; // skip 4 bytes for SSH packet length
-            sshDataStream.WriteByte((byte) SftpMessageTypes.Attrs);
+            var sshDataStream = new SshDataStream(4 + attributesBytes.Length);
             sshDataStream.Write(_responseId);
             sshDataStream.Write(attributesBytes, 0, attributesBytes.Length);
 

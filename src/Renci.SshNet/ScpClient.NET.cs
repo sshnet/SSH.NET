@@ -40,8 +40,6 @@ namespace Renci.SshNet
                 CheckReturnCode(input);
 
                 InternalUpload(channel, input, fileInfo, fileInfo.Name);
-
-                channel.Close();
             }
         }
 
@@ -77,8 +75,6 @@ namespace Renci.SshNet
 
                 SendData(channel, "E\n");
                 CheckReturnCode(input);
-
-                channel.Close();
             }
         }
 
@@ -107,8 +103,6 @@ namespace Renci.SshNet
                 SendConfirmation(channel); //  Send reply
 
                 InternalDownload(channel, input, fileInfo);
-
-                channel.Close();
             }
         }
 
@@ -137,8 +131,6 @@ namespace Renci.SshNet
                 SendConfirmation(channel); //  Send reply
 
                 InternalDownload(channel, input, directoryInfo);
-
-                channel.Close();
             }
         }
 

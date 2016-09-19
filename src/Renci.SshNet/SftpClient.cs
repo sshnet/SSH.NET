@@ -1136,7 +1136,7 @@ namespace Renci.SshNet
         /// Creates or overwrites the specified file.
         /// </summary>
         /// <param name="path">The path and name of the file to create.</param>
-        /// <param name="bufferSize">The number of bytes buffered for reads and writes to the file.</param>
+        /// <param name="bufferSize">The maximum number of bytes buffered for reads and writes to the file.</param>
         /// <returns>
         /// A <see cref="SftpFileStream"/> that provides read/write access to the file specified in path.
         /// </returns>
@@ -2077,7 +2077,7 @@ namespace Renci.SshNet
                 {
                     var writtenBytes = offset + (ulong) bytesRead;
 
-                    _sftpSession.RequestWrite(handle, offset, buffer, bytesRead, null, s =>
+                    _sftpSession.RequestWrite(handle, offset, buffer, 0, bytesRead, null, s =>
                         {
                             if (s.StatusCode == StatusCodes.Ok)
                             {
@@ -2128,11 +2128,11 @@ namespace Renci.SshNet
 
             // disconnect, dispose and dereference the SFTP session since we create a new SFTP session
             // on each connect
-            if (_sftpSession != null)
+            var sftpSession = _sftpSession;
+            if (sftpSession != null)
             {
-                _sftpSession.Disconnect();
-                _sftpSession.Dispose();
                 _sftpSession = null;
+                sftpSession.Dispose();
             }
         }
 
@@ -2146,10 +2146,11 @@ namespace Renci.SshNet
 
             if (disposing)
             {
-                if (_sftpSession != null)
+                var sftpSession = _sftpSession;
+                if (sftpSession != null)
                 {
-                    _sftpSession.Dispose();
                     _sftpSession = null;
+                    sftpSession.Dispose();
                 }
             }
         }

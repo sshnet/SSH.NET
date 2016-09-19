@@ -189,7 +189,7 @@
             if (offset < 0 || count < 0)
                 throw new ArgumentOutOfRangeException("offset", "offset or count is negative.");
             if (BlockLastReadBuffer && count >= _maxBufferLength)
-                throw new ArgumentException(String.Format(CultureInfo.CurrentCulture, "count({0}) > mMaxBufferLength({1})", count, _maxBufferLength));
+                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "count({0}) > mMaxBufferLength({1})", count, _maxBufferLength));
             if (_isDisposed)
                 throw CreateObjectDisposedException();
             if (count == 0)

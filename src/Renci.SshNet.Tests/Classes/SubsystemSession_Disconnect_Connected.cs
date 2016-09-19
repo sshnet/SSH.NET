@@ -45,7 +45,6 @@ namespace Renci.SshNet.Tests.Classes
             _sessionMock.InSequence(_sequence).Setup(p => p.CreateChannelSession()).Returns(_channelMock.Object);
             _channelMock.InSequence(_sequence).Setup(p => p.Open());
             _channelMock.InSequence(_sequence).Setup(p => p.SendSubsystemRequest(_subsystemName)).Returns(true);
-            _channelMock.InSequence(_sequence).Setup(p => p.Close());
             _channelMock.InSequence(_sequence).Setup(p => p.Dispose());
 
             _subsystemSession = new SubsystemSessionStub(
@@ -79,12 +78,6 @@ namespace Renci.SshNet.Tests.Classes
         public void IsOpenShouldReturnFalse()
         {
             Assert.IsFalse(_subsystemSession.IsOpen);
-        }
-
-        [TestMethod]
-        public void CloseOnChannelShouldBeInvokedOnce()
-        {
-            _channelMock.Verify(p => p.Close(), Times.Once);
         }
 
         [TestMethod]

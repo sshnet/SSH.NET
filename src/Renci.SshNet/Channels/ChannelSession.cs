@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Threading;
-using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Connection;
 
@@ -65,27 +64,24 @@ namespace Renci.SshNet.Channels
         /// </summary>
         public virtual void Open()
         {
-            if (!IsOpen)
+            //  Try to open channel several times
+            while (!IsOpen && _failedOpenAttempts < ConnectionInfo.RetryAttempts)
             {
-                //  Try to open channel several times
-                while (!IsOpen && _failedOpenAttempts < ConnectionInfo.RetryAttempts)
+                SendChannelOpenMessage();
+                try
                 {
-                    SendChannelOpenMessage();
-                    try
-                    {
-                        WaitOnHandle(_channelOpenResponseWaitHandle);
-                    }
-                    catch (Exception)
-                    {
-                        // avoid leaking session semaphore
-                        ReleaseSemaphore();
-                        throw;
-                    }
+                    WaitOnHandle(_channelOpenResponseWaitHandle);
                 }
-
-                if (!IsOpen)
-                    throw new SshException(string.Format(CultureInfo.CurrentCulture, "Failed to open a channel after {0} attempts.", _failedOpenAttempts));
+                catch (Exception)
+                {
+                    // avoid leaking session semaphore
+                    ReleaseSemaphore();
+                    throw;
+                }
             }
+
+            if (!IsOpen)
+                throw new SshException(string.Format(CultureInfo.CurrentCulture, "Failed to open a channel after {0} attempts.", _failedOpenAttempts));
         }
 
         /// <summary>
@@ -113,22 +109,9 @@ namespace Renci.SshNet.Channels
             _channelOpenResponseWaitHandle.Set();
         }
 
-        /// <summary>
-        /// Called when channel is closed by the server.
-        /// </summary>
-        protected override void OnClose()
+        protected override void Close()
         {
-            base.OnClose();
-
-            //  This timeout needed since when channel is closed it does not immediately becomes available
-            //  but it takes time for the server to clean up resource and allow new channels to be created.
-            ThreadAbstraction.Sleep(100);
-        }
-
-        protected override void Close(bool wait)
-        {
-            base.Close(wait);
-
+            base.Close();
             ReleaseSemaphore();
         }
 
@@ -399,16 +382,18 @@ namespace Renci.SshNet.Channels
 
             if (disposing)
             {
-                if (_channelOpenResponseWaitHandle != null)
+                var channelOpenResponseWaitHandle = _channelOpenResponseWaitHandle;
+                if (channelOpenResponseWaitHandle != null)
                 {
-                    _channelOpenResponseWaitHandle.Dispose();
                     _channelOpenResponseWaitHandle = null;
+                    channelOpenResponseWaitHandle.Dispose();
                 }
 
-                if (_channelRequestResponse != null)
+                var channelRequestResponse = _channelRequestResponse;
+                if (channelRequestResponse != null)
                 {
-                    _channelRequestResponse.Dispose();
                     _channelRequestResponse = null;
+                    channelRequestResponse.Dispose();
                 }
             }
         }

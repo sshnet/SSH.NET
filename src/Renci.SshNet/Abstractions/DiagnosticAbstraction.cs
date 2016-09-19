@@ -1,5 +1,7 @@
 ﻿using System.Diagnostics;
+#if FEATURE_DIAGNOSTICS_TRACESOURCE
 using System.Threading;
+#endif // FEATURE_DIAGNOSTICS_TRACESOURCE
 
 namespace Renci.SshNet.Abstractions
 {

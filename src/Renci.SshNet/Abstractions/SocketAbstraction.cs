@@ -25,9 +25,17 @@ namespace Renci.SshNet.Abstractions
 
         }
 
+        /// <summary>
+        /// Returns a value indicating whether the specified <see cref="Socket"/> can be used
+        /// to send data.
+        /// </summary>
+        /// <param name="socket">The <see cref="Socket"/> to check.</param>
+        /// <returns>
+        /// <c>true</c> if <paramref name="socket"/> can be written to; otherwise, <c>false</c>.
+        /// </returns>
         public static bool CanWrite(Socket socket)
         {
-            if (socket.Connected)
+            if (socket != null && socket.Connected)
             {
 #if FEATURE_SOCKET_POLL
                 return socket.Poll(-1, SelectMode.SelectWrite);

@@ -834,7 +834,7 @@ namespace Renci.SshNet
         /// <exception cref="InvalidOperationException">The size of the packet exceeds the maximum size defined by the protocol.</exception>
         internal void SendMessage(Message message)
         {
-            if (_socket == null || !_socket.CanWrite())
+            if (!_socket.CanWrite())
                 throw new SshConnectionException("Client not connected.");
 
             if (_keyExchangeInProgress && !(message is IKeyExchangedAllowed))
@@ -893,7 +893,7 @@ namespace Renci.SshNet
                 }
 
                 // increment the packet sequence number only after we're sure the packet has
-                // been sent; even though it's only used for the MAC, it need to be incremented
+                // been sent; even though it's only used for the MAC, it needs to be incremented
                 // for each package sent.
                 // 
                 // the server will use it to verify the data integrity, and as such the order in

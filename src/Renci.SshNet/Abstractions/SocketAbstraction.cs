@@ -54,21 +54,51 @@ namespace Renci.SshNet.Abstractions
 #if FEATURE_SOCKET_EAP
             var connectCompleted = new ManualResetEvent(false);
             var args = new SocketAsyncEventArgs
-            {
-                UserToken = connectCompleted,
-                RemoteEndPoint = remoteEndpoint
-            };
+                {
+                    UserToken = connectCompleted,
+                    RemoteEndPoint = remoteEndpoint
+                };
             args.Completed += ConnectCompleted;
 
             if (socket.ConnectAsync(args))
             {
                 if (!connectCompleted.WaitOne(connectTimeout))
+                {
+                    // avoid ObjectDisposedException in ConnectCompleted
+                    args.Completed -= ConnectCompleted;
+                    // avoid leaking threads and /Device/Afd handles
+                    Socket.CancelConnectAsync(args);
+                    // dispose Socket
+                    socket.Dispose();
+                    // dispose ManualResetEvent
+                    connectCompleted.Dispose();
+                    // dispose SocketAsyncEventArgs
+                    args.Dispose();
+
                     throw new SshOperationTimeoutException(string.Format(CultureInfo.InvariantCulture,
-                        "Connection failed to establish within {0:F0} milliseconds.", connectTimeout.TotalMilliseconds));
+                                                                         "Connection failed to establish within {0:F0} milliseconds.",
+                                                                         connectTimeout.TotalMilliseconds));
+                }
             }
 
+            // dispose ManualResetEvent
+            connectCompleted.Dispose();
+
             if (args.SocketError != SocketError.Success)
-                throw new SocketException((int) args.SocketError);
+            {
+                var socketError = (int) args.SocketError;
+
+                // dispose Socket
+                socket.Dispose();
+                // dispose SocketAsyncEventArgs
+                args.Dispose();
+
+                throw new SocketException(socketError);
+            }
+
+            // dispose SocketAsyncEventArgs
+            args.Dispose();
+
             return socket;
 #elif FEATURE_SOCKET_APM
             var connectResult = socket.BeginConnect(remoteEndpoint, null, null);

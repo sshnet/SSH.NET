@@ -66,8 +66,6 @@ namespace Renci.SshNet.Abstractions
                 {
                     // avoid ObjectDisposedException in ConnectCompleted
                     args.Completed -= ConnectCompleted;
-                    // avoid leaking threads and /Device/Afd handles
-                    Socket.CancelConnectAsync(args);
                     // dispose Socket
                     socket.Dispose();
                     // dispose ManualResetEvent

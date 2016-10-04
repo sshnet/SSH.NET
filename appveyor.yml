@@ -4,7 +4,7 @@ before_build:
   - nuget restore src\Renci.SshNet.VS2015.sln
 
 build:
-  project: build\build.proj
+  project: src\Renci.SshNet.VS2015.sln
   verbosity: minimal
 
 test:

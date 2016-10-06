@@ -300,20 +300,20 @@ namespace Renci.SshNet
                 if (_clientInitMessage == null)
                 {
                     _clientInitMessage = new KeyExchangeInitMessage
-                    {
-                        KeyExchangeAlgorithms = ConnectionInfo.KeyExchangeAlgorithms.Keys.ToArray(),
-                        ServerHostKeyAlgorithms = ConnectionInfo.HostKeyAlgorithms.Keys.ToArray(),
-                        EncryptionAlgorithmsClientToServer = ConnectionInfo.Encryptions.Keys.ToArray(),
-                        EncryptionAlgorithmsServerToClient = ConnectionInfo.Encryptions.Keys.ToArray(),
-                        MacAlgorithmsClientToServer = ConnectionInfo.HmacAlgorithms.Keys.ToArray(),
-                        MacAlgorithmsServerToClient = ConnectionInfo.HmacAlgorithms.Keys.ToArray(),
-                        CompressionAlgorithmsClientToServer = ConnectionInfo.CompressionAlgorithms.Keys.ToArray(),
-                        CompressionAlgorithmsServerToClient = ConnectionInfo.CompressionAlgorithms.Keys.ToArray(),
-                        LanguagesClientToServer = new[] {string.Empty},
-                        LanguagesServerToClient = new[] {string.Empty},
-                        FirstKexPacketFollows = false,
-                        Reserved = 0
-                    };
+                        {
+                            KeyExchangeAlgorithms = ConnectionInfo.KeyExchangeAlgorithms.Keys.ToArray(),
+                            ServerHostKeyAlgorithms = ConnectionInfo.HostKeyAlgorithms.Keys.ToArray(),
+                            EncryptionAlgorithmsClientToServer = ConnectionInfo.Encryptions.Keys.ToArray(),
+                            EncryptionAlgorithmsServerToClient = ConnectionInfo.Encryptions.Keys.ToArray(),
+                            MacAlgorithmsClientToServer = ConnectionInfo.HmacAlgorithms.Keys.ToArray(),
+                            MacAlgorithmsServerToClient = ConnectionInfo.HmacAlgorithms.Keys.ToArray(),
+                            CompressionAlgorithmsClientToServer = ConnectionInfo.CompressionAlgorithms.Keys.ToArray(),
+                            CompressionAlgorithmsServerToClient = ConnectionInfo.CompressionAlgorithms.Keys.ToArray(),
+                            LanguagesClientToServer = new[] {string.Empty},
+                            LanguagesServerToClient = new[] {string.Empty},
+                            FirstKexPacketFollows = false,
+                            Reserved = 0
+                        };
                 }
                 return _clientInitMessage;
             }
@@ -798,11 +798,11 @@ namespace Renci.SshNet
                 throw new ArgumentNullException("waitHandle");
 
             var waitHandles = new[]
-            {
-                _exceptionWaitHandle,
-                _messageListenerCompleted,
-                waitHandle
-            };
+                {
+                    _exceptionWaitHandle,
+                    _messageListenerCompleted,
+                    waitHandle
+                };
 
             switch (WaitHandle.WaitAny(waitHandles, timeout))
             {
@@ -852,9 +852,6 @@ namespace Renci.SshNet
             // atomically, and only after the packet has actually been sent
             lock (_socketWriteLock)
             {
-                if (!_socket.IsConnected())
-                    throw new SshConnectionException("Client not connected.");
-
                 byte[] hash = null;
                 var packetDataOffset = 4; // first four bytes are reserved for outbound packet sequence
 
@@ -881,15 +878,14 @@ namespace Renci.SshNet
                 var packetLength = packetData.Length - packetDataOffset;
                 if (hash == null)
                 {
-                    SocketAbstraction.Send(_socket, packetData, packetDataOffset, packetLength);
+                    SendPacket(packetData, packetDataOffset, packetLength);
                 }
                 else
                 {
                     var data = new byte[packetLength + (_clientMac.HashSize/8)];
                     Buffer.BlockCopy(packetData, packetDataOffset, data, 0, packetLength);
                     Buffer.BlockCopy(hash, 0, data, packetLength, hash.Length);
-
-                    SocketAbstraction.Send(_socket, data, 0, data.Length);
+                    SendPacket(data, 0, data.Length);
                 }
 
                 // increment the packet sequence number only after we're sure the packet has
@@ -899,6 +895,34 @@ namespace Renci.SshNet
                 // the server will use it to verify the data integrity, and as such the order in
                 // which messages are sent must follow the outbound packet sequence number
                 _outboundPacketSequence++;
+            }
+        }
+
+        /// <summary>
+        /// Sends an SSH packet to the server.
+        /// </summary>
+        /// <param name="packet">A byte array containing the packet to send.</param>
+        /// <param name="offset">The offset of the packet.</param>
+        /// <param name="length">The length of the packet.</param>
+        /// <exception cref="SshConnectionException">Client is not connected to the server.</exception>
+        /// <remarks>
+        /// <para>
+        /// The send is performed in a dispose lock to avoid <see cref="NullReferenceException"/>
+        /// and/or <see cref="ObjectDisposedException"/> when sending the packet.
+        /// </para>
+        /// <para>
+        /// This method is only to be used when the connection is established, as the locking
+        /// overhead is not required while establising the connection.
+        /// </para>
+        /// </remarks>
+        private void SendPacket(byte[] packet, int offset, int length)
+        {
+            lock (_socketDisposeLock)
+            {
+                if (!_socket.IsConnected())
+                    throw new SshConnectionException("Client not connected.");
+
+                SocketAbstraction.Send(_socket, packet, offset, length);
             }
         }
 

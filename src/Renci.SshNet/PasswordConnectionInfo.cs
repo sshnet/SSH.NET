@@ -80,9 +80,42 @@ namespace Renci.SshNet
         /// <param name="proxyType">Type of the proxy.</param>
         /// <param name="proxyHost">The proxy host.</param>
         /// <param name="proxyPort">The proxy port.</param>
+        /// <param name="hostResolutionMode">The host name resolution method when using the proxy.</param>
+        public PasswordConnectionInfo(string host, int port, string username, string password, ProxyTypes proxyType, string proxyHost, int proxyPort, HostResolutionMode hostResolutionMode)
+            : this(host, port, username, Encoding.UTF8.GetBytes(password), proxyType, proxyHost, proxyPort, string.Empty, string.Empty, hostResolutionMode)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PasswordConnectionInfo"/> class.
+        /// </summary>
+        /// <param name="host">Connection host.</param>
+        /// <param name="port">The port.</param>
+        /// <param name="username">Connection username.</param>
+        /// <param name="password">Connection password.</param>
+        /// <param name="proxyType">Type of the proxy.</param>
+        /// <param name="proxyHost">The proxy host.</param>
+        /// <param name="proxyPort">The proxy port.</param>
         /// <param name="proxyUsername">The proxy username.</param>
         public PasswordConnectionInfo(string host, int port, string username, string password, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername)
             : this(host, port, username, Encoding.UTF8.GetBytes(password), proxyType, proxyHost, proxyPort, proxyUsername, string.Empty)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PasswordConnectionInfo"/> class.
+        /// </summary>
+        /// <param name="host">Connection host.</param>
+        /// <param name="port">The port.</param>
+        /// <param name="username">Connection username.</param>
+        /// <param name="password">Connection password.</param>
+        /// <param name="proxyType">Type of the proxy.</param>
+        /// <param name="proxyHost">The proxy host.</param>
+        /// <param name="proxyPort">The proxy port.</param>
+        /// <param name="proxyUsername">The proxy username.</param>
+        /// <param name="hostResolutionMode">The host name resolution method when using the proxy.</param>
+        public PasswordConnectionInfo(string host, int port, string username, string password, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername, HostResolutionMode hostResolutionMode)
+            : this(host, port, username, Encoding.UTF8.GetBytes(password), proxyType, proxyHost, proxyPort, proxyUsername, string.Empty, hostResolutionMode)
         {
         }
 
@@ -97,6 +130,21 @@ namespace Renci.SshNet
         /// <param name="proxyPort">The proxy port.</param>
         public PasswordConnectionInfo(string host, string username, string password, ProxyTypes proxyType, string proxyHost, int proxyPort)
             : this(host, DefaultPort, username, Encoding.UTF8.GetBytes(password), proxyType, proxyHost, proxyPort, string.Empty, string.Empty)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PasswordConnectionInfo"/> class.
+        /// </summary>
+        /// <param name="host">Connection host.</param>
+        /// <param name="username">Connection username.</param>
+        /// <param name="password">Connection password.</param>
+        /// <param name="proxyType">Type of the proxy.</param>
+        /// <param name="proxyHost">The proxy host.</param>
+        /// <param name="proxyPort">The proxy port.</param>
+        /// <param name="hostResolutionMode">The host name resolution method when using the proxy.</param>
+        public PasswordConnectionInfo(string host, string username, string password, ProxyTypes proxyType, string proxyHost, int proxyPort, HostResolutionMode hostResolutionMode)
+            : this(host, DefaultPort, username, Encoding.UTF8.GetBytes(password), proxyType, proxyHost, proxyPort, string.Empty, string.Empty, hostResolutionMode)
         {
         }
 
@@ -125,9 +173,42 @@ namespace Renci.SshNet
         /// <param name="proxyHost">The proxy host.</param>
         /// <param name="proxyPort">The proxy port.</param>
         /// <param name="proxyUsername">The proxy username.</param>
+        /// <param name="hostResolutionMode">The host name resolution method when using the proxy.</param>
+        public PasswordConnectionInfo(string host, string username, string password, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername, HostResolutionMode hostResolutionMode)
+            : this(host, DefaultPort, username, Encoding.UTF8.GetBytes(password), proxyType, proxyHost, proxyPort, proxyUsername, string.Empty, hostResolutionMode)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PasswordConnectionInfo"/> class.
+        /// </summary>
+        /// <param name="host">Connection host.</param>
+        /// <param name="username">Connection username.</param>
+        /// <param name="password">Connection password.</param>
+        /// <param name="proxyType">Type of the proxy.</param>
+        /// <param name="proxyHost">The proxy host.</param>
+        /// <param name="proxyPort">The proxy port.</param>
+        /// <param name="proxyUsername">The proxy username.</param>
         /// <param name="proxyPassword">The proxy password.</param>
         public PasswordConnectionInfo(string host, string username, string password, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername, string proxyPassword)
             : this(host, DefaultPort, username, Encoding.UTF8.GetBytes(password), proxyType, proxyHost, proxyPort, proxyUsername, proxyPassword)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PasswordConnectionInfo"/> class.
+        /// </summary>
+        /// <param name="host">Connection host.</param>
+        /// <param name="username">Connection username.</param>
+        /// <param name="password">Connection password.</param>
+        /// <param name="proxyType">Type of the proxy.</param>
+        /// <param name="proxyHost">The proxy host.</param>
+        /// <param name="proxyPort">The proxy port.</param>
+        /// <param name="proxyUsername">The proxy username.</param>
+        /// <param name="proxyPassword">The proxy password.</param>
+        /// <param name="hostResolutionMode">The host name resolution method when using the proxy.</param>
+        public PasswordConnectionInfo(string host, string username, string password, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername, string proxyPassword, HostResolutionMode hostResolutionMode)
+            : this(host, DefaultPort, username, Encoding.UTF8.GetBytes(password), proxyType, proxyHost, proxyPort, proxyUsername, proxyPassword, hostResolutionMode)
         {
         }
 
@@ -182,9 +263,42 @@ namespace Renci.SshNet
         /// <param name="proxyType">Type of the proxy.</param>
         /// <param name="proxyHost">The proxy host.</param>
         /// <param name="proxyPort">The proxy port.</param>
+        /// <param name="hostResolutionMode">The host name resolution method when using the proxy.</param>
+        public PasswordConnectionInfo(string host, int port, string username, byte[] password, ProxyTypes proxyType, string proxyHost, int proxyPort, HostResolutionMode hostResolutionMode)
+            : this(host, port, username, password, proxyType, proxyHost, proxyPort, string.Empty, string.Empty, hostResolutionMode)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PasswordConnectionInfo"/> class.
+        /// </summary>
+        /// <param name="host">Connection host.</param>
+        /// <param name="port">The port.</param>
+        /// <param name="username">Connection username.</param>
+        /// <param name="password">Connection password.</param>
+        /// <param name="proxyType">Type of the proxy.</param>
+        /// <param name="proxyHost">The proxy host.</param>
+        /// <param name="proxyPort">The proxy port.</param>
         /// <param name="proxyUsername">The proxy username.</param>
         public PasswordConnectionInfo(string host, int port, string username, byte[] password, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername)
             : this(host, port, username, password, proxyType, proxyHost, proxyPort, proxyUsername, string.Empty)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PasswordConnectionInfo"/> class.
+        /// </summary>
+        /// <param name="host">Connection host.</param>
+        /// <param name="port">The port.</param>
+        /// <param name="username">Connection username.</param>
+        /// <param name="password">Connection password.</param>
+        /// <param name="proxyType">Type of the proxy.</param>
+        /// <param name="proxyHost">The proxy host.</param>
+        /// <param name="proxyPort">The proxy port.</param>
+        /// <param name="proxyUsername">The proxy username.</param>
+        /// <param name="hostResolutionMode">The host name resolution method when using the proxy.</param>
+        public PasswordConnectionInfo(string host, int port, string username, byte[] password, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername, HostResolutionMode hostResolutionMode)
+            : this(host, port, username, password, proxyType, proxyHost, proxyPort, proxyUsername, string.Empty, hostResolutionMode)
         {
         }
 
@@ -199,6 +313,21 @@ namespace Renci.SshNet
         /// <param name="proxyPort">The proxy port.</param>
         public PasswordConnectionInfo(string host, string username, byte[] password, ProxyTypes proxyType, string proxyHost, int proxyPort)
             : this(host, DefaultPort, username, password, proxyType, proxyHost, proxyPort, string.Empty, string.Empty)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PasswordConnectionInfo"/> class.
+        /// </summary>
+        /// <param name="host">Connection host.</param>
+        /// <param name="username">Connection username.</param>
+        /// <param name="password">Connection password.</param>
+        /// <param name="proxyType">Type of the proxy.</param>
+        /// <param name="proxyHost">The proxy host.</param>
+        /// <param name="proxyPort">The proxy port.</param>
+        /// <param name="hostResolutionMode">The host name resolution method when using the proxy.</param>
+        public PasswordConnectionInfo(string host, string username, byte[] password, ProxyTypes proxyType, string proxyHost, int proxyPort, HostResolutionMode hostResolutionMode)
+            : this(host, DefaultPort, username, password, proxyType, proxyHost, proxyPort, string.Empty, string.Empty, hostResolutionMode)
         {
         }
 
@@ -227,9 +356,42 @@ namespace Renci.SshNet
         /// <param name="proxyHost">The proxy host.</param>
         /// <param name="proxyPort">The proxy port.</param>
         /// <param name="proxyUsername">The proxy username.</param>
+        /// <param name="hostResolutionMode">The host name resolution method when using the proxy.</param>
+        public PasswordConnectionInfo(string host, string username, byte[] password, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername, HostResolutionMode hostResolutionMode)
+            : this(host, DefaultPort, username, password, proxyType, proxyHost, proxyPort, proxyUsername, string.Empty, hostResolutionMode)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PasswordConnectionInfo"/> class.
+        /// </summary>
+        /// <param name="host">Connection host.</param>
+        /// <param name="username">Connection username.</param>
+        /// <param name="password">Connection password.</param>
+        /// <param name="proxyType">Type of the proxy.</param>
+        /// <param name="proxyHost">The proxy host.</param>
+        /// <param name="proxyPort">The proxy port.</param>
+        /// <param name="proxyUsername">The proxy username.</param>
         /// <param name="proxyPassword">The proxy password.</param>
         public PasswordConnectionInfo(string host, string username, byte[] password, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername, string proxyPassword)
             : this(host, DefaultPort, username, password, proxyType, proxyHost, proxyPort, proxyUsername, proxyPassword)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PasswordConnectionInfo"/> class.
+        /// </summary>
+        /// <param name="host">Connection host.</param>
+        /// <param name="username">Connection username.</param>
+        /// <param name="password">Connection password.</param>
+        /// <param name="proxyType">Type of the proxy.</param>
+        /// <param name="proxyHost">The proxy host.</param>
+        /// <param name="proxyPort">The proxy port.</param>
+        /// <param name="proxyUsername">The proxy username.</param>
+        /// <param name="proxyPassword">The proxy password.</param>
+        /// <param name="hostResolutionMode">The host name resolution method when using the proxy.</param>
+        public PasswordConnectionInfo(string host, string username, byte[] password, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername, string proxyPassword, HostResolutionMode hostResolutionMode)
+            : this(host, DefaultPort, username, password, proxyType, proxyHost, proxyPort, proxyUsername, proxyPassword, hostResolutionMode)
         {
         }
 
@@ -247,6 +409,28 @@ namespace Renci.SshNet
         /// <param name="proxyPassword">The proxy password.</param>
         public PasswordConnectionInfo(string host, int port, string username, byte[] password, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername, string proxyPassword)
             : base(host, port, username, proxyType, proxyHost, proxyPort, proxyUsername, proxyPassword, new PasswordAuthenticationMethod(username, password))
+        {
+            foreach (var authenticationMethod in AuthenticationMethods.OfType<PasswordAuthenticationMethod>())
+            {
+                authenticationMethod.PasswordExpired += AuthenticationMethod_PasswordExpired;
+            }
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PasswordConnectionInfo"/> class.
+        /// </summary>
+        /// <param name="host">Connection host.</param>
+        /// <param name="port">The port.</param>
+        /// <param name="username">Connection username.</param>
+        /// <param name="password">Connection password.</param>
+        /// <param name="proxyType">Type of the proxy.</param>
+        /// <param name="proxyHost">The proxy host.</param>
+        /// <param name="proxyPort">The proxy port.</param>
+        /// <param name="proxyUsername">The proxy username.</param>
+        /// <param name="proxyPassword">The proxy password.</param>
+        /// <param name="hostResolutionMode">The host name resolution method when using the proxy.</param>
+        public PasswordConnectionInfo(string host, int port, string username, byte[] password, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername, string proxyPassword, HostResolutionMode hostResolutionMode)
+            : base(host, port, username, proxyType, proxyHost, proxyPort, proxyUsername, proxyPassword, hostResolutionMode, new PasswordAuthenticationMethod(username, password))
         {
             foreach (var authenticationMethod in AuthenticationMethods.OfType<PasswordAuthenticationMethod>())
             {

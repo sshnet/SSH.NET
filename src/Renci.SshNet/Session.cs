@@ -34,7 +34,7 @@ namespace Renci.SshNet
         /// Specifies an infinite waiting period.
         /// </summary>
         /// <remarks>
-        /// The value of this field is <c>-1</c> millisecond. 
+        /// The value of this field is <c>-1</c> millisecond.
         /// </remarks>
         internal static readonly TimeSpan InfiniteTimeSpan = new TimeSpan(0, 0, 0, 0, -1);
 
@@ -1697,7 +1697,7 @@ namespace Renci.SshNet
 
             // 2012-09-11: Kenneth_aa
             // When Disconnect or Dispose is called, this throws SshConnectionException(), which...
-            // 1 - goes up to ReceiveMessage() 
+            // 1 - goes up to ReceiveMessage()
             // 2 - up again to MessageListener()
             // which is where there is a catch-all exception block so it can notify event listeners.
             // 3 - MessageListener then again calls RaiseError().
@@ -1950,7 +1950,7 @@ namespace Renci.SshNet
                 // Send the host name
                 SocketWriteByte(0x03);
 
-                var hostNameBytes = SshData.Ascii.GetBytes(ConnectionInfo.ProxyHost);
+                var hostNameBytes = SshData.Ascii.GetBytes(ConnectionInfo.Host);
                 SocketWriteByte((byte) hostNameBytes.Length);
                 SocketAbstraction.Send(_socket, hostNameBytes);
             }

@@ -493,7 +493,7 @@ namespace Renci.SshNet
                             return null;
                         }
 
-                        var hostName = SshData.Ascii.GetString(addressBuffer);
+                        var hostName = SshData.Ascii.GetString(addressBuffer, 0, addressBuffer.Length);
                         return hostName;
                     }
                 case 0x04: // IPv6

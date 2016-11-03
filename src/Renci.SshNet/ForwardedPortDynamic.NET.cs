@@ -435,58 +435,11 @@ namespace Renci.SshNet
                 return false;
             }
 
-            IPAddress ipAddress;
-            byte[] addressBuffer;
-            switch (addressType)
+            var host = GetSocks5Host(addressType, socket, timeout);
+            if (host == null)
             {
-                case 0x01:
-                    {
-                        addressBuffer = new byte[4];
-                        if (SocketAbstraction.Read(socket, addressBuffer, 0, 4, timeout) == 0)
-                        {
-                            // SOCKS client closed connection
-                            return false;
-                        }
-
-                        ipAddress = new IPAddress(addressBuffer);
-                    }
-                    break;
-                case 0x03:
-                    {
-                        var length = SocketAbstraction.ReadByte(socket, timeout);
-                        if (length == -1)
-                        {
-                            // SOCKS client closed connection
-                            return false;
-                        }
-                        addressBuffer = new byte[length];
-                        if (SocketAbstraction.Read(socket, addressBuffer, 0, addressBuffer.Length, timeout) == 0)
-                        {
-                            // SOCKS client closed connection
-                            return false;
-                        }
-
-                        ipAddress = IPAddress.Parse(SshData.Ascii.GetString(addressBuffer, 0, addressBuffer.Length));
-
-                        //var hostName = new Common.ASCIIEncoding().GetString(addressBuffer);
-
-                        //ipAddress = Dns.GetHostEntry(hostName).AddressList[0];
-                    }
-                    break;
-                case 0x04:
-                    {
-                        addressBuffer = new byte[16];
-                        if (SocketAbstraction.Read(socket, addressBuffer, 0, 16, timeout) == 0)
-                        {
-                            // SOCKS client closed connection
-                            return false;
-                        }
-
-                        ipAddress = new IPAddress(addressBuffer);
-                    }
-                    break;
-                default:
-                    throw new ProxyException(string.Format("SOCKS5: Address type '{0}' is not supported.", addressType));
+                // SOCKS client closed connection
+                return false;
             }
 
             var portBuffer = new byte[2];
@@ -497,44 +450,103 @@ namespace Renci.SshNet
             }
 
             var port = (uint)(portBuffer[0] * 256 + portBuffer[1]);
-            var host = ipAddress.ToString();
 
             RaiseRequestReceived(host, port);
 
             channel.Open(host, port, this, socket);
 
-            SocketAbstraction.SendByte(socket, 0x05);
+            var socksReply = CreateSocks5Reply(channel.IsOpen);
 
-            if (channel.IsOpen)
+            SocketAbstraction.Send(socket, socksReply, 0, socksReply.Length);
+
+            return true;
+        }
+
+        private static string GetSocks5Host(int addressType, Socket socket, TimeSpan timeout)
+        {
+            switch (addressType)
             {
-                SocketAbstraction.SendByte(socket, 0x00);
+                case 0x01: // IPv4
+                    {
+                        var addressBuffer = new byte[4];
+                        if (SocketAbstraction.Read(socket, addressBuffer, 0, 4, timeout) == 0)
+                        {
+                            // SOCKS client closed connection
+                            return null;
+                        }
+
+                        var ipv4 = new IPAddress(addressBuffer);
+                        return ipv4.ToString();
+                    }
+                case 0x03: // Domain name
+                    {
+                        var length = SocketAbstraction.ReadByte(socket, timeout);
+                        if (length == -1)
+                        {
+                            // SOCKS client closed connection
+                            return null;
+                        }
+                        var addressBuffer = new byte[length];
+                        if (SocketAbstraction.Read(socket, addressBuffer, 0, addressBuffer.Length, timeout) == 0)
+                        {
+                            // SOCKS client closed connection
+                            return null;
+                        }
+
+                        var hostName = SshData.Ascii.GetString(addressBuffer);
+                        return hostName;
+                    }
+                case 0x04: // IPv6
+                    {
+                        var addressBuffer = new byte[16];
+                        if (SocketAbstraction.Read(socket, addressBuffer, 0, 16, timeout) == 0)
+                        {
+                            // SOCKS client closed connection
+                            return null;
+                        }
+
+                        var ipv6 = new IPAddress(addressBuffer);
+                        return ipv6.ToString();
+                    }
+                default:
+                    throw new ProxyException(string.Format("SOCKS5: Address type '{0}' is not supported.", addressType));
+            }
+        }
+
+        private static byte[] CreateSocks5Reply(bool channelOpen)
+        {
+            var socksReply = new byte[
+                // SOCKS version
+                1 +
+                // Reply field
+                1 +
+                // Reserved; fixed: 0x00
+                1 +
+                // Address type; fixed: 0x01
+                1 +
+                // IPv4 server bound address; fixed: {0x00, 0x00, 0x00, 0x00}
+                4 +
+                // server bound port; fixed: {0x00, 0x00}
+                2];
+
+            socksReply[0] = 0x05;
+
+            if (channelOpen)
+            {
+                socksReply[1] = 0x00; // succeeded
             }
             else
             {
-                SocketAbstraction.SendByte(socket, 0x01);
+                socksReply[1] = 0x01; // general SOCKS server failure
             }
 
             // reserved
-            SocketAbstraction.SendByte(socket, 0x00);
+            socksReply[2] = 0x00;
 
-            if (ipAddress.AddressFamily == AddressFamily.InterNetwork)
-            {
-                SocketAbstraction.SendByte(socket, 0x01);
-            }
-            else if (ipAddress.AddressFamily == AddressFamily.InterNetworkV6)
-            {
-                SocketAbstraction.SendByte(socket, 0x04);
-            }
-            else
-            {
-                throw new NotSupportedException("Not supported address family.");
-            }
+            // IPv4 address type
+            socksReply[3] = 0x01;
 
-            var addressBytes = ipAddress.GetAddressBytes();
-            SocketAbstraction.Send(socket, addressBytes, 0, addressBytes.Length);
-            SocketAbstraction.Send(socket, portBuffer, 0, portBuffer.Length);
-
-            return true;
+            return socksReply;
         }
 
         /// <summary>

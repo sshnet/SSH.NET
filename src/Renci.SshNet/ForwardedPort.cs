@@ -71,8 +71,6 @@ namespace Renci.SshNet
         /// </summary>
         public virtual void Stop()
         {
-            CheckDisposed();
-
             if (IsStarted)
             {
                 StopPort(Session.ConnectionInfo.Timeout);

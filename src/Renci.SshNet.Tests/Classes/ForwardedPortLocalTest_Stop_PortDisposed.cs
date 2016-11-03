@@ -11,7 +11,6 @@ namespace Renci.SshNet.Tests.Classes
         private ForwardedPortLocal _forwardedPort;
         private IList<EventArgs> _closingRegister;
         private IList<ExceptionEventArgs> _exceptionRegister;
-        private ObjectDisposedException _actualException;
 
         [TestInitialize]
         public void Setup()
@@ -43,22 +42,7 @@ namespace Renci.SshNet.Tests.Classes
 
         protected void Act()
         {
-            try
-            {
-                _forwardedPort.Stop();
-                Assert.Fail();
-            }
-            catch (ObjectDisposedException ex)
-            {
-                _actualException = ex;
-            }
-        }
-
-        [TestMethod]
-        public void StopShouldThrowObjectDisposedException()
-        {
-            Assert.IsNotNull(_actualException);
-            Assert.AreEqual(_forwardedPort.GetType().FullName, _actualException.ObjectName);
+            _forwardedPort.Stop();
         }
 
         [TestMethod]

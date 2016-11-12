@@ -1306,7 +1306,7 @@ namespace Renci.SshNet
         /// <param name="path">The file to open.</param>
         /// <param name="mode">A <see cref="FileMode"/> value that specifies whether a file is created if one does not exist, and determines whether the contents of existing files are retained or overwritten.</param>
         /// <param name="access">A <see cref="FileAccess"/> value that specifies the operations that can be performed on the file.</param>
-        /// <param name="isAsync">A boolean value which indicates whether the stream will be opened in asynchronous mode.</param>
+        /// <param name="useAsync">A boolean value which indicates whether the stream will be opened in asynchronous mode.</param>
         /// <returns>
         /// An unshared <see cref="SftpFileStream"/> that provides access to the specified file, with the specified mode and access.
         /// </returns>

@@ -96,6 +96,16 @@ namespace Renci.SshNet.Sftp
         byte[] RequestRead(byte[] handle, ulong offset, uint length);
 
         /// <summary>
+        /// Performs SSH_FXP_READ request asynchronously.
+        /// </summary>
+        /// <param name="handle">The handle.</param>
+        /// <param name="offset">The offset.</param>
+        /// <param name="length">The length.</param>
+        /// <param name="responseData">An action that will be executed upon receiving a data response.</param>
+        /// <param name="responseStatus">An action that will be executed upon receiving a status response.</param>
+        void RequestReadAsync(byte[] handle, ulong offset, uint length, Action<SftpDataResponse> responseData, Action<SftpStatusResponse> responseStatus);
+
+        /// <summary>
         /// Performs SSH_FXP_READDIR request
         /// </summary>
         /// <param name="handle">The handle.</param>

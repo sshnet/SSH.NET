@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading;
 using System.Diagnostics.CodeAnalysis;
 using Renci.SshNet.Common;
+using Renci.SshNet.Abstractions;
 
 namespace Renci.SshNet.Sftp
 {
@@ -400,6 +401,144 @@ namespace Renci.SshNet.Sftp
         }
 
         /// <summary>
+        /// Asynchronously reads a sequence of bytes from the current stream and advances the position within the stream by the number of bytes read.
+        /// </summary>
+        /// <param name="buffer">An array of bytes. When this method returns, the buffer contains the specified byte array with the values between <paramref name="offset"/> and (<paramref name="offset"/> + <paramref name="count"/> - 1) replaced by the bytes read from the current source.</param>
+        /// <param name="offset">The zero-based byte offset in <paramref name="buffer"/> at which to begin storing the data read from the current stream.</param>
+        /// <param name="count">The maximum number of bytes to be read from the current stream.</param>
+        /// <param name="callback">The method to be called when the asynchronous read operation is completed.</param>
+        /// <param name="state">A user-provided object that distinguishes this particular asynchronous read request from other requests.</param>
+        /// <returns>
+        /// An <see cref="IAsyncResult" /> that references the asynchronous operation.
+        /// </returns>
+        /// <exception cref="T:System.ArgumentException">The sum of <paramref name="offset"/> and <paramref name="count"/> is larger than the buffer length.</exception>
+        /// <exception cref="T:System.ArgumentNullException"><paramref name="buffer"/> is <c>null</c>. </exception>
+        /// <exception cref="T:System.ArgumentOutOfRangeException"><paramref name="offset"/> or <paramref name="count"/> is negative.</exception>
+        /// <exception cref="T:System.IO.IOException">An I/O error occurs. </exception>
+        /// <exception cref="T:System.NotSupportedException">The stream does not support reading. </exception>
+        /// <exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed. </exception>
+        public override IAsyncResult BeginRead(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
+        {
+            int readLen = 0;
+
+            if (buffer == null)
+                throw new ArgumentNullException("buffer");
+            if (offset < 0)
+                throw new ArgumentOutOfRangeException("offset");
+            if (count < 0)
+                throw new ArgumentOutOfRangeException("count");
+            if ((buffer.Length - offset) < count)
+                throw new ArgumentException("Invalid array range.");
+
+            var asyncResult = new SftpFileStreamAsyncResult(callback, state);
+
+            if (!_isAsync)
+            {
+                try
+                {
+                    readLen = Read(buffer, offset, count);
+                    asyncResult.Update(readLen);
+                    asyncResult.SetAsCompleted(null, true);
+                }
+                catch (Exception exp)
+                {
+                    asyncResult.SetAsCompleted(exp, true);
+                }
+            }
+            else
+            {
+
+                // Lock down the file stream while we do this.
+                lock (_lock)
+                {
+                    CheckSessionIsOpen();
+
+                    // Set up for the read operation.
+                    SetupRead();
+
+                    SshException exception = null;
+                    byte[] data = null;
+
+                    // Read data into the caller's buffer.
+                    _session.RequestReadAsync(_handle, (ulong)_position, (uint)count, 
+                        response =>
+                            {
+                                ThreadAbstraction.ExecuteThread(() =>
+                                {
+                                    try
+                                    {
+                                        data = response.Data;
+                                        if ((data.Length - offset) > buffer.Length - offset || data.Length > count)
+                                            throw new IOException("The server returned more data than requested");
+
+                                        // Copy stream data to the caller's buffer.
+                                        Buffer.BlockCopy(data, 0, buffer, offset, data.Length);
+
+                                        asyncResult.Update(data.Length);
+                                        asyncResult.SetAsCompleted(null, false);
+                                    }
+                                    catch (Exception exp)
+                                    {
+                                        asyncResult.SetAsCompleted(exp, false);
+                                    }
+                                });
+                            },
+                        response =>
+                            {
+                                ThreadAbstraction.ExecuteThread(() =>
+                                {
+                                    try
+                                    {
+                                        if (response.StatusCode != StatusCodes.Eof)
+                                        {
+                                            exception = SftpSession.GetSftpException(response);
+                                        }
+                                        buffer = Array<byte>.Empty;
+                                        asyncResult.Update(0);
+                                        if (exception != null) throw exception;
+                                        asyncResult.SetAsCompleted(null, false);
+                                    }
+                                    catch (Exception exp)
+                                    {
+                                        asyncResult.SetAsCompleted(exp, false);
+                                    }
+                                });
+                            });
+                    
+                    _serverFilePosition = (ulong)_position;
+
+                    // Advance to the next buffer positions.
+                    _position += count;
+
+                }
+            }
+            
+            // Return the number of bytes that were read to the caller.
+            return asyncResult;
+        }
+
+        /// <summary>
+        /// Ends an asynchronous read from the stream.
+        /// </summary>
+        /// <param name="asyncResult">The pending asynchronous SFTP read request.</param>
+        /// <exception cref="ArgumentException">The <see cref="IAsyncResult"/> object did not come from the corresponding async method on this type.<para>-or-</para><see cref="EndRead(IAsyncResult)"/> was called multiple times with the same <see cref="IAsyncResult"/>.</exception>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="SftpPermissionDeniedException">Permission to perform the operation was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
+        /// <exception cref="SftpPathNotFoundException">The path was not found on the remote host.</exception>
+        /// <exception cref="SshException">A SSH error where <see cref="P:System.Exception.Message" /> is the message from the remote host.</exception>
+        public override int EndRead(IAsyncResult asyncResult)
+        {
+            var ar = asyncResult as SftpFileStreamAsyncResult;
+
+            if (ar == null || ar.EndInvokeCalled)
+                throw new ArgumentException("Either the IAsyncResult object did not come from the corresponding async method on this type, or EndExecute was called multiple times with the same IAsyncResult.");
+
+            // Wait for operation to complete, then return result or throw exception
+            ar.EndInvoke();
+            return ar.Bytes;
+        }
+
+        /// <summary>
         /// Reads a byte from the stream and advances the position within the stream by one byte, or returns -1 if at the end of the stream.
         /// </summary>
         /// <returns>
@@ -674,6 +813,111 @@ namespace Renci.SshNet.Sftp
             }
         }
 
+        /// <summary>
+        /// Asynchronously writes a sequence of bytes to the current stream and advances the current position within this stream by the number of bytes written.
+        /// </summary>
+        /// <param name="buffer">An array of bytes. This method copies <paramref name="count"/> bytes from <paramref name="buffer"/> to the current stream.</param>
+        /// <param name="offset">The zero-based byte offset in <paramref name="buffer"/> at which to begin copying bytes to the current stream.</param>
+        /// <param name="count">The number of bytes to be written to the current stream.</param>
+        /// <param name="callback">The method to be called when the asynchronous write operation is completed.</param>
+        /// <param name="state">A user-provided object that distinguishes this particular asynchronous write request from other requests.</param>
+        /// <returns>
+        /// An <see cref="IAsyncResult" /> that references the asynchronous operation.
+        /// </returns>
+        /// <exception cref="T:System.ArgumentException">The sum of <paramref name="offset"/> and <paramref name="count"/> is greater than the buffer length.</exception>
+        /// <exception cref="T:System.ArgumentNullException"><paramref name="buffer"/> is <c>null</c>.</exception>
+        /// <exception cref="T:System.ArgumentOutOfRangeException"><paramref name="offset"/> or <paramref name="count"/> is negative.</exception>
+        /// <exception cref="T:System.IO.IOException">An I/O error occurs.</exception>
+        /// <exception cref="T:System.NotSupportedException">The stream does not support writing.</exception>
+        /// <exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed.</exception>
+        public override IAsyncResult BeginWrite(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
+        {
+            if (buffer == null)
+                throw new ArgumentNullException("buffer");
+            if (offset < 0)
+                throw new ArgumentOutOfRangeException("offset");
+            if (count < 0)
+                throw new ArgumentOutOfRangeException("count");
+            if ((buffer.Length - offset) < count)
+                throw new ArgumentException("Invalid array range.");
+
+            var asyncResult = new SftpFileStreamAsyncResult(callback, state);
+
+            if (!_isAsync)
+            {
+                    try
+                    {
+                        Write(buffer, offset, count);
+                        asyncResult.Update(count);
+                        asyncResult.SetAsCompleted(null, true);
+                    }
+                    catch (Exception exp)
+                    {
+                        asyncResult.SetAsCompleted(exp, true);
+                    }
+            }
+            else
+            {
+                // Lock down the file stream while we do this.
+                lock (_lock)
+                {
+                    CheckSessionIsOpen();
+
+                    // Setup this object for writing.
+                    SetupWrite();
+
+                    // Write data to the file stream.
+                    _session.RequestWrite(_handle, _serverFilePosition, buffer, offset, count, null,
+                        response =>
+                        {
+                            ThreadAbstraction.ExecuteThread(() =>
+                            {
+                                try
+                                {
+                                    if (response.StatusCode == StatusCodes.Ok)
+                                    {
+                                        asyncResult.SetAsCompleted(null, false);
+                                    }
+                                    else
+                                    {
+                                        throw new IOException("The server returned an error during the write operation: " + response.StatusCode.ToString());
+                                    }
+                                }
+                                catch (Exception exp)
+                                {
+                                    asyncResult.SetAsCompleted(exp, false);
+                                }
+                            });
+                        });
+
+                    // Advance the buffer and stream positions.
+                    _position += count;
+                    _serverFilePosition += (ulong)count;
+                }
+            }
+            return asyncResult;
+        }
+
+        /// <summary>
+        /// Ends an asynchronous write to the stream.
+        /// </summary>
+        /// <param name="asyncResult">The pending asynchronous SFTP write request.</param>
+        /// <exception cref="ArgumentException">The <see cref="IAsyncResult"/> object did not come from the corresponding async method on this type.<para>-or-</para><see cref="EndRead(IAsyncResult)"/> was called multiple times with the same <see cref="IAsyncResult"/>.</exception>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="SftpPermissionDeniedException">Permission to perform the operation was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
+        /// <exception cref="SftpPathNotFoundException">The path was not found on the remote host.</exception>
+        /// <exception cref="SshException">A SSH error where <see cref="P:System.Exception.Message" /> is the message from the remote host.</exception>
+        public override void EndWrite(IAsyncResult asyncResult)
+        {
+            var ar = asyncResult as SftpFileStreamAsyncResult;
+
+            if (ar == null || ar.EndInvokeCalled)
+                throw new ArgumentException("Either the IAsyncResult object did not come from the corresponding async method on this type, or EndExecute was called multiple times with the same IAsyncResult.");
+
+            // Wait for operation to complete, then return result or throw exception
+
+            ar.EndInvoke();
+        }
         /// <summary>
         /// Writes a byte to the current position in the stream and advances the position within the stream by one byte.
         /// </summary>

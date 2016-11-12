@@ -443,6 +443,20 @@ namespace Renci.SshNet.Sftp
         }
 
         /// <summary>
+        /// Performs SSH_FXP_READ request asynchronously.
+        /// </summary>
+        /// <param name="handle">The handle.</param>
+        /// <param name="offset">The offset.</param>
+        /// <param name="length">The length.</param>
+        /// <param name="responseData">An action that will be executed upon receiving a data response.</param>
+        /// <param name="responseStatus">An action that will be executed upon receiving a status response.</param>
+        public void RequestReadAsync(byte[] handle, ulong offset, uint length, Action<SftpDataResponse> responseData, Action<SftpStatusResponse> responseStatus)
+        {
+            var request = new SftpReadRequest(ProtocolVersion, NextRequestId, handle, offset, length, responseData, responseStatus);
+            SendRequest(request);
+        }
+
+        /// <summary>
         /// Performs SSH_FXP_WRITE request.
         /// </summary>
         /// <param name="handle">The handle.</param>
@@ -1204,7 +1218,7 @@ namespace Renci.SshNet.Sftp
             return Math.Min(bufferSize, maximumPacketSize) - lengthOfNonDataProtocolFields;
         }
 
-        private static SshException GetSftpException(SftpStatusResponse response)
+        public static SshException GetSftpException(SftpStatusResponse response)
         {
             switch (response.StatusCode)
             {

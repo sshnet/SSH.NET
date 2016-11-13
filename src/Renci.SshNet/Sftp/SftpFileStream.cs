@@ -492,48 +492,42 @@ namespace Renci.SshNet.Sftp
                         _session.RequestReadAsync(_handle, (ulong)_position, (uint)thisBytesToRead, 
                             response =>
                                 {
-                                    //ThreadAbstraction.ExecuteThread(() =>
-                                    //{
-                                        try
-                                        {
-                                            data = response.Data;
-                                            if (data.Length > buffer.Length - thisOffset || data.Length > thisBytesToRead)
-                                                throw new IOException("The server returned more data than requested");
+                                    try
+                                    {
+                                        data = response.Data;
+                                        if (data.Length > buffer.Length - thisOffset || data.Length > thisBytesToRead)
+                                            throw new IOException("The server returned more data than requested");
 
-                                            // Copy stream data to the caller's buffer.
-                                            Buffer.BlockCopy(data, 0, buffer, thisOffset, data.Length);
+                                        // Copy stream data to the caller's buffer.
+                                        Buffer.BlockCopy(data, 0, buffer, thisOffset, data.Length);
 
-                                            asyncResult.Update(asyncResult.Bytes + data.Length);
-                                            if (asyncResult.Bytes == count)
-                                                asyncResult.SetAsCompleted(null, false);
-                                        }
-                                        catch (Exception exp)
-                                        {
-                                            asyncResult.SetAsCompleted(exp, false);
-                                        }
-                                    //});
+                                        asyncResult.Update(asyncResult.Bytes + data.Length);
+                                        if (asyncResult.Bytes == count)
+                                            asyncResult.SetAsCompleted(null, false);
+                                    }
+                                    catch (Exception exp)
+                                    {
+                                        asyncResult.SetAsCompleted(exp, false);
+                                    }
                                 },
                             response =>
                                 {
-                                    //ThreadAbstraction.ExecuteThread(() =>
-                                    //{
-                                        try
+                                    try
+                                    {
+                                        if (response.StatusCode != StatusCodes.Eof)
                                         {
-                                            if (response.StatusCode != StatusCodes.Eof)
-                                            {
-                                                exception = SftpSession.GetSftpException(response);
-                                                asyncResult.Update(0);
-                                                buffer = Array<byte>.Empty;
-                                                if (exception != null) throw exception;
-                                            }
+                                            exception = SftpSession.GetSftpException(response);
+                                            asyncResult.Update(0);
+                                            buffer = Array<byte>.Empty;
+                                            if (exception != null) throw exception;
+                                        }
                                             
-                                            asyncResult.SetAsCompleted(null, false);
-                                        }
-                                        catch (Exception exp)
-                                        {
-                                            asyncResult.SetAsCompleted(exp, false);
-                                        }
-                                    //});
+                                        asyncResult.SetAsCompleted(null, false);
+                                    }
+                                    catch (Exception exp)
+                                    {
+                                        asyncResult.SetAsCompleted(exp, false);
+                                    }
                                 });
                         
                         _serverFilePosition = (ulong)_position;

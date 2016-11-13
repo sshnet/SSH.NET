@@ -419,7 +419,7 @@ namespace Renci.SshNet.Sftp
         /// <exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed. </exception>
         public override IAsyncResult BeginRead(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
         {
-            int readLen = 0;
+           
 
             if (buffer == null)
                 throw new ArgumentNullException("buffer");
@@ -432,12 +432,33 @@ namespace Renci.SshNet.Sftp
 
             var asyncResult = new SftpFileStreamAsyncResult(callback, state);
 
+
+            int bytesToRead = count; //number of bytes per read
+            int readLen = 0; //bytes actually read per read (sync)
+            int totalBytes = 0; //total read (sync) or requested (async) so far
+            uint maxBytes = _session.CalculateOptimalReadLength((uint)count);
+
+            if (maxBytes < count)
+            {//will need to loop Reads until we reach count
+                bytesToRead = (int)maxBytes;
+            }
+
             if (!_isAsync)
-            {
+            {//actually do this synchronously
                 try
                 {
-                    readLen = Read(buffer, offset, count);
-                    asyncResult.Update(readLen);
+                    do
+                    {
+                        if (bytesToRead + totalBytes > count)
+                            bytesToRead = count - totalBytes; //knock bytesToRead down so it doesn't go past count requested
+
+                        readLen = Read(buffer, offset, bytesToRead);
+
+                        totalBytes += readLen;
+                        offset += readLen;
+                    } while (totalBytes < count && readLen > 0);
+
+                    asyncResult.Update(totalBytes);
                     asyncResult.SetAsCompleted(null, true);
                 }
                 catch (Exception exp)
@@ -446,7 +467,7 @@ namespace Renci.SshNet.Sftp
                 }
             }
             else
-            {
+            {// asynchronous implementation
 
                 // Lock down the file stream while we do this.
                 lock (_lock)
@@ -459,56 +480,72 @@ namespace Renci.SshNet.Sftp
                     SshException exception = null;
                     byte[] data = null;
 
-                    // Read data into the caller's buffer.
-                    _session.RequestReadAsync(_handle, (ulong)_position, (uint)count, 
-                        response =>
-                            {
-                                ThreadAbstraction.ExecuteThread(() =>
-                                {
-                                    try
-                                    {
-                                        data = response.Data;
-                                        if ((data.Length - offset) > buffer.Length - offset || data.Length > count)
-                                            throw new IOException("The server returned more data than requested");
+                    do 
+                    {
+                        //offset will be updated after making this request, so we want to save the current values for response handling
+                        int thisOffset = offset;
+                        int thisBytesToRead = bytesToRead;
+                        if (thisBytesToRead + totalBytes > count)
+                            thisBytesToRead = count - totalBytes; //knock thisBytesToRead down so it doesn't go past count requested
 
-                                        // Copy stream data to the caller's buffer.
-                                        Buffer.BlockCopy(data, 0, buffer, offset, data.Length);
-
-                                        asyncResult.Update(data.Length);
-                                        asyncResult.SetAsCompleted(null, false);
-                                    }
-                                    catch (Exception exp)
-                                    {
-                                        asyncResult.SetAsCompleted(exp, false);
-                                    }
-                                });
-                            },
-                        response =>
-                            {
-                                ThreadAbstraction.ExecuteThread(() =>
+                        // Read data into the caller's buffer.
+                        _session.RequestReadAsync(_handle, (ulong)_position, (uint)thisBytesToRead, 
+                            response =>
                                 {
-                                    try
-                                    {
-                                        if (response.StatusCode != StatusCodes.Eof)
+                                    //ThreadAbstraction.ExecuteThread(() =>
+                                    //{
+                                        try
                                         {
-                                            exception = SftpSession.GetSftpException(response);
-                                        }
-                                        buffer = Array<byte>.Empty;
-                                        asyncResult.Update(0);
-                                        if (exception != null) throw exception;
-                                        asyncResult.SetAsCompleted(null, false);
-                                    }
-                                    catch (Exception exp)
-                                    {
-                                        asyncResult.SetAsCompleted(exp, false);
-                                    }
-                                });
-                            });
-                    
-                    _serverFilePosition = (ulong)_position;
+                                            data = response.Data;
+                                            if (data.Length > buffer.Length - thisOffset || data.Length > thisBytesToRead)
+                                                throw new IOException("The server returned more data than requested");
 
-                    // Advance to the next buffer positions.
-                    _position += count;
+                                            // Copy stream data to the caller's buffer.
+                                            Buffer.BlockCopy(data, 0, buffer, thisOffset, data.Length);
+
+                                            asyncResult.Update(asyncResult.Bytes + data.Length);
+                                            if (asyncResult.Bytes == count)
+                                                asyncResult.SetAsCompleted(null, false);
+                                        }
+                                        catch (Exception exp)
+                                        {
+                                            asyncResult.SetAsCompleted(exp, false);
+                                        }
+                                    //});
+                                },
+                            response =>
+                                {
+                                    //ThreadAbstraction.ExecuteThread(() =>
+                                    //{
+                                        try
+                                        {
+                                            if (response.StatusCode != StatusCodes.Eof)
+                                            {
+                                                exception = SftpSession.GetSftpException(response);
+                                                asyncResult.Update(0);
+                                                buffer = Array<byte>.Empty;
+                                                if (exception != null) throw exception;
+                                            }
+                                            
+                                            asyncResult.SetAsCompleted(null, false);
+                                        }
+                                        catch (Exception exp)
+                                        {
+                                            asyncResult.SetAsCompleted(exp, false);
+                                        }
+                                    //});
+                                });
+                        
+                        _serverFilePosition = (ulong)_position;
+
+                        // Advance to the next buffer positions.
+                        _position += thisBytesToRead;
+                        offset += thisBytesToRead;
+
+                        //we didn't actually read the bytes yet--this is just so we don't send too many requests
+                        totalBytes += thisBytesToRead;
+
+                    } while (totalBytes < count);
 
                 }
             }
@@ -843,12 +880,30 @@ namespace Renci.SshNet.Sftp
 
             var asyncResult = new SftpFileStreamAsyncResult(callback, state);
 
+            int bytesToWrite = count; //number of bytes per write
+            int totalBytes = 0; //total written so far
+            uint maxBytes = _session.CalculateOptimalWriteLength((uint)count, _handle);
+
+            if (maxBytes < count)
+            {//will need to loop RequestWrites until we reach count
+                bytesToWrite = (int)maxBytes;
+            }
+
             if (!_isAsync)
             {
                     try
                     {
-                        Write(buffer, offset, count);
-                        asyncResult.Update(count);
+                        do
+                        {
+                            if (bytesToWrite + totalBytes > count)
+                                bytesToWrite = count - totalBytes; //knock bytesToWrite down so it doesn't go past count requested
+
+                            Write(buffer, offset, bytesToWrite);
+                            offset += bytesToWrite;
+                            totalBytes += bytesToWrite;
+                        } while (totalBytes < count);
+
+                        asyncResult.Update(totalBytes);
                         asyncResult.SetAsCompleted(null, true);
                     }
                     catch (Exception exp)
@@ -866,34 +921,47 @@ namespace Renci.SshNet.Sftp
                     // Setup this object for writing.
                     SetupWrite();
 
-                    // Write data to the file stream.
-                    _session.RequestWrite(_handle, _serverFilePosition, buffer, offset, count, null,
-                        response =>
-                        {
-                            ThreadAbstraction.ExecuteThread(() =>
-                            {
-                                try
-                                {
-                                    if (response.StatusCode == StatusCodes.Ok)
-                                    {
-                                        asyncResult.SetAsCompleted(null, false);
-                                    }
-                                    else
-                                    {
-                                        throw new IOException("The server returned an error during the write operation: " + response.StatusCode.ToString());
-                                    }
-                                }
-                                catch (Exception exp)
-                                {
-                                    asyncResult.SetAsCompleted(exp, false);
-                                }
-                            });
-                        });
+                    do
+                    {
+                        int thisBytesToWrite = bytesToWrite;
+                        if (thisBytesToWrite + totalBytes > count)
+                            thisBytesToWrite = count - totalBytes; //knock bytesToWrite down so it doesn't go past count requested
 
-                    // Advance the buffer and stream positions.
-                    _position += count;
-                    _serverFilePosition += (ulong)count;
+                        // Write data to the file stream.
+                        _session.RequestWrite(_handle, _serverFilePosition, buffer, offset, thisBytesToWrite, null,
+                            response =>
+                            {
+                                ThreadAbstraction.ExecuteThread(() =>
+                                {
+                                    try
+                                    {
+                                        if (response.StatusCode == StatusCodes.Ok)
+                                        {
+                                            asyncResult.Update(asyncResult.Bytes + thisBytesToWrite);
+                                            if (asyncResult.Bytes == count)
+                                                asyncResult.SetAsCompleted(null, false);
+                                        }
+                                        else
+                                        {
+                                            throw new IOException("The server returned an error during the write operation: " + response.StatusCode.ToString());
+                                        }
+                                    }
+                                    catch (Exception exp)
+                                    {
+                                        asyncResult.SetAsCompleted(exp, false);
+                                    }
+                                });
+                            });
+
+                        // Advance the buffer and stream positions.
+                        _position += thisBytesToWrite;
+                        _serverFilePosition += (ulong)thisBytesToWrite;
+
+                        offset += thisBytesToWrite;
+                        totalBytes += thisBytesToWrite;
+                    } while (totalBytes < count);
                 }
+
             }
             return asyncResult;
         }

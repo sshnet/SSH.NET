@@ -1,5 +1,6 @@
 ﻿using System;
 using Renci.SshNet.Common;
+using System.Threading;
 
 namespace Renci.SshNet.Sftp
 {
@@ -8,10 +9,21 @@ namespace Renci.SshNet.Sftp
     /// </summary>
     public class SftpFileStreamAsyncResult :  AsyncResult
     {
+        private int _bytes;
         /// <summary>
         /// Gets the number of read or written bytes.
         /// </summary>
-        public int Bytes { get; private set; }
+        public int Bytes 
+        {
+            get
+            {
+                return _bytes;
+            }
+            private set
+            {
+                Interlocked.Exchange(ref _bytes, value);
+            }
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SftpFileStreamAsyncResult"/> class.

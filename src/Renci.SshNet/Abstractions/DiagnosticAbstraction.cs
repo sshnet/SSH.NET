@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 #if FEATURE_DIAGNOSTICS_TRACESOURCE
 using System.Threading;
 #endif // FEATURE_DIAGNOSTICS_TRACESOURCE
@@ -28,7 +29,7 @@ namespace Renci.SshNet.Abstractions
         public static void Log(string text)
         {
 #if FEATURE_DIAGNOSTICS_TRACESOURCE
-            Loggging.TraceEvent(TraceEventType.Verbose, Thread.CurrentThread.ManagedThreadId, text);
+            Loggging.TraceEvent(TraceEventType.Verbose, Thread.CurrentThread.ManagedThreadId, DateTime.Now + ": " + text);
 #endif // FEATURE_DIAGNOSTICS_TRACESOURCE
         }
     }

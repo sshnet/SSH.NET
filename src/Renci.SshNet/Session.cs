@@ -839,12 +839,8 @@ namespace Renci.SshNet
 
             if (_keyExchangeInProgress && !(message is IKeyExchangedAllowed))
             {
-                DiagnosticAbstraction.Log(string.Format("[{0}] Waiting for KEX to complete to send '{1}': '{2}'.", ToHex(SessionId), message.GetType().Name, message));
-
                 //  Wait for key exchange to be completed
                 WaitOnHandle(_keyExchangeCompletedWaitHandle);
-
-                DiagnosticAbstraction.Log(string.Format("[{0}] KEX complete to send '{1}': '{2}'.", ToHex(SessionId), message.GetType().Name, message));
             }
 
             DiagnosticAbstraction.Log(string.Format("[{0}] SendMessage to server '{1}': '{2}'.", ToHex(SessionId), message.GetType().Name, message));

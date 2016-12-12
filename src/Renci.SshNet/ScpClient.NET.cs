@@ -159,7 +159,7 @@ namespace Renci.SshNet
             var directories = directoryInfo.GetDirectories();
             foreach (var directory in directories)
             {
-                InternalSetTimestamp(channel, input, directoryInfo.LastWriteTimeUtc, directory.LastAccessTimeUtc);
+                InternalSetTimestamp(channel, input, directory.LastWriteTimeUtc, directory.LastAccessTimeUtc);
                 SendData(channel, string.Format("D0755 0 {0}\n", directory.Name));
                 CheckReturnCode(input);
 

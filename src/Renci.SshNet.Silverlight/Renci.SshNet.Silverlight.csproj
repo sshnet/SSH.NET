@@ -55,7 +55,6 @@
     <AssemblyOriginatorKeyFile>..\Renci.SshNet.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.CSharp, Version=2.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="mscorlib" />
     <Reference Include="SshNet.Security.Cryptography">
       <HintPath>..\..\packages\SshNet.Security.Cryptography.1.2.0\lib\sl4\SshNet.Security.Cryptography.dll</HintPath>
@@ -366,6 +365,9 @@
     <Compile Include="..\Renci.SshNet\Messages\Authentication\SuccessMessage.cs">
       <Link>Messages\Authentication\SuccessMessage.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\Messages\Connection\CancelTcpIpForwardGlobalRequestMessage.cs">
+      <Link>Messages\Connection\CancelTcpIpForwardGlobalRequestMessage.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\Messages\Connection\ChannelCloseMessage.cs">
       <Link>Messages\Connection\ChannelCloseMessage.cs</Link>
     </Compile>
@@ -476,6 +478,9 @@
     </Compile>
     <Compile Include="..\Renci.SshNet\Messages\Connection\RequestSuccessMessage.cs">
       <Link>Messages\Connection\RequestSuccessMessage.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Messages\Connection\TcpIpForwardGlobalRequestMessage.cs">
+      <Link>Messages\Connection\TcpIpForwardGlobalRequestMessage.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Messages\Message.cs">
       <Link>Messages\Message.cs</Link>
@@ -896,8 +901,6 @@
     <Compile Include="..\Renci.SshNet\Properties\CommonAssemblyInfo.cs">
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="Session.SilverlightBrowser.cs" />
-    <Compile Include="Session.SilverlightShared.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Renci.SshNet.snk">

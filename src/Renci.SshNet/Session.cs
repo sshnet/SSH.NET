@@ -300,20 +300,20 @@ namespace Renci.SshNet
                 if (_clientInitMessage == null)
                 {
                     _clientInitMessage = new KeyExchangeInitMessage
-                    {
-                        KeyExchangeAlgorithms = ConnectionInfo.KeyExchangeAlgorithms.Keys.ToArray(),
-                        ServerHostKeyAlgorithms = ConnectionInfo.HostKeyAlgorithms.Keys.ToArray(),
-                        EncryptionAlgorithmsClientToServer = ConnectionInfo.Encryptions.Keys.ToArray(),
-                        EncryptionAlgorithmsServerToClient = ConnectionInfo.Encryptions.Keys.ToArray(),
-                        MacAlgorithmsClientToServer = ConnectionInfo.HmacAlgorithms.Keys.ToArray(),
-                        MacAlgorithmsServerToClient = ConnectionInfo.HmacAlgorithms.Keys.ToArray(),
-                        CompressionAlgorithmsClientToServer = ConnectionInfo.CompressionAlgorithms.Keys.ToArray(),
-                        CompressionAlgorithmsServerToClient = ConnectionInfo.CompressionAlgorithms.Keys.ToArray(),
-                        LanguagesClientToServer = new[] {string.Empty},
-                        LanguagesServerToClient = new[] {string.Empty},
-                        FirstKexPacketFollows = false,
-                        Reserved = 0
-                    };
+                        {
+                            KeyExchangeAlgorithms = ConnectionInfo.KeyExchangeAlgorithms.Keys.ToArray(),
+                            ServerHostKeyAlgorithms = ConnectionInfo.HostKeyAlgorithms.Keys.ToArray(),
+                            EncryptionAlgorithmsClientToServer = ConnectionInfo.Encryptions.Keys.ToArray(),
+                            EncryptionAlgorithmsServerToClient = ConnectionInfo.Encryptions.Keys.ToArray(),
+                            MacAlgorithmsClientToServer = ConnectionInfo.HmacAlgorithms.Keys.ToArray(),
+                            MacAlgorithmsServerToClient = ConnectionInfo.HmacAlgorithms.Keys.ToArray(),
+                            CompressionAlgorithmsClientToServer = ConnectionInfo.CompressionAlgorithms.Keys.ToArray(),
+                            CompressionAlgorithmsServerToClient = ConnectionInfo.CompressionAlgorithms.Keys.ToArray(),
+                            LanguagesClientToServer = new[] {string.Empty},
+                            LanguagesServerToClient = new[] {string.Empty},
+                            FirstKexPacketFollows = false,
+                            Reserved = 0
+                        };
                 }
                 return _clientInitMessage;
             }
@@ -697,7 +697,7 @@ namespace Renci.SshNet
         /// </remarks>
         public void Disconnect()
         {
-            DiagnosticAbstraction.Log(string.Format("[{0}] {1} Disconnecting session", ToHex(SessionId), DateTime.Now.Ticks));
+            DiagnosticAbstraction.Log(string.Format("[{0}] Disconnecting session.", ToHex(SessionId)));
 
             // send SSH_MSG_DISCONNECT message, clear socket read buffer and dispose it
             Disconnect(DisconnectReason.ByApplication, "Connection terminated by the client.");
@@ -798,11 +798,11 @@ namespace Renci.SshNet
                 throw new ArgumentNullException("waitHandle");
 
             var waitHandles = new[]
-            {
-                _exceptionWaitHandle,
-                _messageListenerCompleted,
-                waitHandle
-            };
+                {
+                    _exceptionWaitHandle,
+                    _messageListenerCompleted,
+                    waitHandle
+                };
 
             switch (WaitHandle.WaitAny(waitHandles, timeout))
             {
@@ -834,7 +834,7 @@ namespace Renci.SshNet
         /// <exception cref="InvalidOperationException">The size of the packet exceeds the maximum size defined by the protocol.</exception>
         internal void SendMessage(Message message)
         {
-            if (_socket == null || !_socket.CanWrite())
+            if (!_socket.CanWrite())
                 throw new SshConnectionException("Client not connected.");
 
             if (_keyExchangeInProgress && !(message is IKeyExchangedAllowed))
@@ -843,7 +843,7 @@ namespace Renci.SshNet
                 WaitOnHandle(_keyExchangeCompletedWaitHandle);
             }
 
-            DiagnosticAbstraction.Log(string.Format("[{0}] SendMessage to server '{1}': '{2}'.", ToHex(SessionId), message.GetType().Name, message));
+            DiagnosticAbstraction.Log(string.Format("[{0}] Sending message '{1}' to server: '{2}'.", ToHex(SessionId), message.GetType().Name, message));
 
             var paddingMultiplier = _clientCipher == null ? (byte) 8 : Math.Max((byte) 8, _serverCipher.MinimumSize);
             var packetData = message.GetPacket(paddingMultiplier, _clientCompression);
@@ -852,9 +852,6 @@ namespace Renci.SshNet
             // atomically, and only after the packet has actually been sent
             lock (_socketWriteLock)
             {
-                if (!_socket.IsConnected())
-                    throw new SshConnectionException("Client not connected.");
-
                 byte[] hash = null;
                 var packetDataOffset = 4; // first four bytes are reserved for outbound packet sequence
 
@@ -881,24 +878,51 @@ namespace Renci.SshNet
                 var packetLength = packetData.Length - packetDataOffset;
                 if (hash == null)
                 {
-                    SocketAbstraction.Send(_socket, packetData, packetDataOffset, packetLength);
+                    SendPacket(packetData, packetDataOffset, packetLength);
                 }
                 else
                 {
                     var data = new byte[packetLength + (_clientMac.HashSize/8)];
                     Buffer.BlockCopy(packetData, packetDataOffset, data, 0, packetLength);
                     Buffer.BlockCopy(hash, 0, data, packetLength, hash.Length);
-
-                    SocketAbstraction.Send(_socket, data, 0, data.Length);
+                    SendPacket(data, 0, data.Length);
                 }
 
                 // increment the packet sequence number only after we're sure the packet has
-                // been sent; even though it's only used for the MAC, it need to be incremented
+                // been sent; even though it's only used for the MAC, it needs to be incremented
                 // for each package sent.
                 // 
                 // the server will use it to verify the data integrity, and as such the order in
                 // which messages are sent must follow the outbound packet sequence number
                 _outboundPacketSequence++;
+            }
+        }
+
+        /// <summary>
+        /// Sends an SSH packet to the server.
+        /// </summary>
+        /// <param name="packet">A byte array containing the packet to send.</param>
+        /// <param name="offset">The offset of the packet.</param>
+        /// <param name="length">The length of the packet.</param>
+        /// <exception cref="SshConnectionException">Client is not connected to the server.</exception>
+        /// <remarks>
+        /// <para>
+        /// The send is performed in a dispose lock to avoid <see cref="NullReferenceException"/>
+        /// and/or <see cref="ObjectDisposedException"/> when sending the packet.
+        /// </para>
+        /// <para>
+        /// This method is only to be used when the connection is established, as the locking
+        /// overhead is not required while establising the connection.
+        /// </para>
+        /// </remarks>
+        private void SendPacket(byte[] packet, int offset, int length)
+        {
+            lock (_socketDisposeLock)
+            {
+                if (!_socket.IsConnected())
+                    throw new SshConnectionException("Client not connected.");
+
+                SocketAbstraction.Send(_socket, packet, offset, length);
             }
         }
 
@@ -923,12 +947,12 @@ namespace Renci.SshNet
             }
             catch (SshException ex)
             {
-                DiagnosticAbstraction.Log(string.Format("Failure sending message server '{0}': '{1}' => {2}", message.GetType().Name, message, ex));
+                DiagnosticAbstraction.Log(string.Format("Failure sending message '{0}' to server: '{1}' => {2}", message.GetType().Name, message, ex));
                 return false;
             }
             catch (SocketException ex)
             {
-                DiagnosticAbstraction.Log(string.Format("Failure sending message server '{0}': '{1}' => {2}", message.GetType().Name, message, ex));
+                DiagnosticAbstraction.Log(string.Format("Failure sending message '{0}' to server: '{1}' => {2}", message.GetType().Name, message, ex));
                 return false;
             }
         }
@@ -974,16 +998,9 @@ namespace Renci.SshNet
                     return null;
                 }
 
-#if DEBUG_GERT
-                DiagnosticAbstraction.Log(string.Format("[{0}] FirstBlock [{1}]: {2}", ToHex(SessionId), blockSize, ToHex(firstBlock)));
-#endif // DEBUG_GERT
-
                 if (_serverCipher != null)
                 {
                     firstBlock = _serverCipher.Decrypt(firstBlock);
-#if DEBUG_GERT
-                    DiagnosticAbstraction.Log(string.Format("[{0}] FirstBlock decrypted [{1}]: {2}", ToHex(SessionId), firstBlock.Length, ToHex(firstBlock)));
-#endif // DEBUG_GERT
                 }
 
                 packetLength = (uint) (firstBlock[0] << 24 | firstBlock[1] << 16 | firstBlock[2] << 8 | firstBlock[3]);
@@ -1029,16 +1046,8 @@ namespace Renci.SshNet
                 var numberOfBytesToDecrypt = data.Length - (blockSize + inboundPacketSequenceLength + serverMacLength);
                 if (numberOfBytesToDecrypt > 0)
                 {
-#if DEBUG_GERT
-                    DiagnosticAbstraction.Log(string.Format("[{0}] NextBlocks [{1}]: {2}", ToHex(SessionId), bytesToRead, ToHex(nextBlocks)));
-#endif // DEBUG_GERT
-
                     var decryptedData = _serverCipher.Decrypt(data, blockSize + inboundPacketSequenceLength, numberOfBytesToDecrypt);
                     Buffer.BlockCopy(decryptedData, 0, data, blockSize + inboundPacketSequenceLength, decryptedData.Length);
-
-#if DEBUG_GERT
-                    DiagnosticAbstraction.Log(string.Format("[{0}] NextBlocks decrypted [{1}]: {2}", ToHex(SessionId), decryptedData.Length, ToHex(decryptedData)));
-#endif // DEBUG_GERT
                 }
             }
 
@@ -1068,10 +1077,6 @@ namespace Renci.SshNet
                 messagePayloadLength = data.Length;
             }
 
-#if DEBUG_GERT
-            DiagnosticAbstraction.Log(string.Format("[{0}] Message info (Sequence:{1},MessagePayloadLength:{2})", ToHex(SessionId), _inboundPacketSequence, messagePayloadLength));
-#endif // DEBUG_GERT
-
             _inboundPacketSequence++;
 
             return LoadMessage(data, messagePayloadOffset, messagePayloadLength);
@@ -1096,7 +1101,7 @@ namespace Renci.SshNet
         /// <param name="message"><see cref="DisconnectMessage"/> message.</param>
         internal void OnDisconnectReceived(DisconnectMessage message)
         {
-            DiagnosticAbstraction.Log(string.Format("[{0}] {1} Disconnect received: {2} {3}", ToHex(SessionId), DateTime.Now.Ticks, message.ReasonCode, message.Description));
+            DiagnosticAbstraction.Log(string.Format("[{0}] Disconnect received: {1} {2}.", ToHex(SessionId), message.ReasonCode, message.Description));
 
             // transition to disconnecting state to avoid throwing exceptions while cleaning up, and to
             // ensure any exceptions that are raised do not overwrite the SshConnectionException that we
@@ -1554,14 +1559,9 @@ namespace Renci.SshNet
             var messageType = data[offset];
 
             var message = _sshMessageFactory.Create(messageType);
-
-#if DEBUG_GERT
-            DiagnosticAbstraction.Log(string.Format("[{0}] Loading message with offset '{1}': {2}", ToHex(SessionId), offset, ToHex(data, 0)));
-#endif // DEBUG_GERT
-
             message.Load(data, offset + 1, count - 1);
 
-            DiagnosticAbstraction.Log(string.Format("[{0}] ReceiveMessage from server: '{1}': '{2}'.", ToHex(SessionId), message.GetType().Name, message));
+            DiagnosticAbstraction.Log(string.Format("[{0}] Received message '{1}' from server: '{2}'.", ToHex(SessionId), message.GetType().Name, message));
 
             return message;
         }
@@ -1603,7 +1603,7 @@ namespace Renci.SshNet
             var ipAddress = DnsAbstraction.GetHostAddresses(host)[0];
             var ep = new IPEndPoint(ipAddress, port);
 
-            DiagnosticAbstraction.Log(string.Format("Initiating connect to '{0}:{1}'.", host, port));
+            DiagnosticAbstraction.Log(string.Format("Initiating connection to '{0}:{1}'.", host, port));
 
             _socket = SocketAbstraction.Connect(ep, ConnectionInfo.Timeout);
 
@@ -2185,7 +2185,7 @@ namespace Renci.SshNet
         {
             var connectionException = exp as SshConnectionException;
 
-            DiagnosticAbstraction.Log(string.Format("[{0}] {1} Raised exception: {2}", ToHex(SessionId), DateTime.Now.Ticks, exp));
+            DiagnosticAbstraction.Log(string.Format("[{0}] Raised exception: {1}", ToHex(SessionId), exp));
 
             if (_isDisconnecting)
             {
@@ -2210,7 +2210,7 @@ namespace Renci.SshNet
 
             if (connectionException != null)
             {
-                DiagnosticAbstraction.Log(string.Format("[{0}] {1} Disconnecting after exception: {2}", ToHex(SessionId), DateTime.Now.Ticks, exp));
+                DiagnosticAbstraction.Log(string.Format("[{0}] Disconnecting after exception: {1}", ToHex(SessionId), exp));
                 Disconnect(connectionException.DisconnectReason, exp.ToString());
             }
         }
@@ -2266,7 +2266,7 @@ namespace Renci.SshNet
 
             if (disposing)
             {
-                DiagnosticAbstraction.Log(string.Format("[{0}] Disposing session", ToHex(SessionId)));
+                DiagnosticAbstraction.Log(string.Format("[{0}] Disposing session.", ToHex(SessionId)));
 
                 Disconnect();
 

@@ -25,9 +25,17 @@ namespace Renci.SshNet.Abstractions
 
         }
 
+        /// <summary>
+        /// Returns a value indicating whether the specified <see cref="Socket"/> can be used
+        /// to send data.
+        /// </summary>
+        /// <param name="socket">The <see cref="Socket"/> to check.</param>
+        /// <returns>
+        /// <c>true</c> if <paramref name="socket"/> can be written to; otherwise, <c>false</c>.
+        /// </returns>
         public static bool CanWrite(Socket socket)
         {
-            if (socket.Connected)
+            if (socket != null && socket.Connected)
             {
 #if FEATURE_SOCKET_POLL
                 return socket.Poll(-1, SelectMode.SelectWrite);
@@ -46,21 +54,49 @@ namespace Renci.SshNet.Abstractions
 #if FEATURE_SOCKET_EAP
             var connectCompleted = new ManualResetEvent(false);
             var args = new SocketAsyncEventArgs
-            {
-                UserToken = connectCompleted,
-                RemoteEndPoint = remoteEndpoint
-            };
+                {
+                    UserToken = connectCompleted,
+                    RemoteEndPoint = remoteEndpoint
+                };
             args.Completed += ConnectCompleted;
 
             if (socket.ConnectAsync(args))
             {
                 if (!connectCompleted.WaitOne(connectTimeout))
+                {
+                    // avoid ObjectDisposedException in ConnectCompleted
+                    args.Completed -= ConnectCompleted;
+                    // dispose Socket
+                    socket.Dispose();
+                    // dispose ManualResetEvent
+                    connectCompleted.Dispose();
+                    // dispose SocketAsyncEventArgs
+                    args.Dispose();
+
                     throw new SshOperationTimeoutException(string.Format(CultureInfo.InvariantCulture,
-                        "Connection failed to establish within {0:F0} milliseconds.", connectTimeout.TotalMilliseconds));
+                                                                         "Connection failed to establish within {0:F0} milliseconds.",
+                                                                         connectTimeout.TotalMilliseconds));
+                }
             }
 
+            // dispose ManualResetEvent
+            connectCompleted.Dispose();
+
             if (args.SocketError != SocketError.Success)
-                throw new SocketException((int) args.SocketError);
+            {
+                var socketError = (int) args.SocketError;
+
+                // dispose Socket
+                socket.Dispose();
+                // dispose SocketAsyncEventArgs
+                args.Dispose();
+
+                throw new SocketException(socketError);
+            }
+
+            // dispose SocketAsyncEventArgs
+            args.Dispose();
+
             return socket;
 #elif FEATURE_SOCKET_APM
             var connectResult = socket.BeginConnect(remoteEndpoint, null, null);

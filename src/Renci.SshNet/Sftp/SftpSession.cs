@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Text;
 using System.Threading;
 using Renci.SshNet.Common;
@@ -90,7 +89,7 @@ namespace Renci.SshNet.Sftp
 
             if (realPathFiles != null)
             {
-                canonizedPath = realPathFiles.First().Key;
+                canonizedPath = realPathFiles[0].Key;
             }
 
             if (!string.IsNullOrEmpty(canonizedPath))
@@ -114,7 +113,7 @@ namespace Renci.SshNet.Sftp
 
             if (realPathFiles != null)
             {
-                canonizedPath = realPathFiles.First().Key;
+                canonizedPath = realPathFiles[0].Key;
             }
 
             if (string.IsNullOrEmpty(canonizedPath))
@@ -158,7 +157,7 @@ namespace Renci.SshNet.Sftp
             }
 
             //  Resolve current directory
-            WorkingDirectory = RequestRealPath(".").First().Key;
+            WorkingDirectory = RequestRealPath(".")[0].Key;
         }
 
         protected override void OnDataReceived(byte[] data)

@@ -12,6 +12,10 @@ namespace Renci.SshNet
     /// <summary>
     /// Provides SCP client functionality.
     /// </summary>
+    /// <remarks>
+    /// More information on the SCP protocol is available here:
+    /// https://github.com/net-ssh/net-scp/blob/master/lib/net/scp.rb
+    /// </remarks>
     public partial class ScpClient : BaseClient
     {
         private static readonly Regex FileInfoRe = new Regex(@"C(?<mode>\d{4}) (?<length>\d+) (?<filename>.+)");

@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Clean;CreatePackage;GenerateHelpFile" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="4.0" DefaultTargets="Clean;CreateNuGetPackage;CreateBinPackage;GenerateHelpFile" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<UsingTask TaskName="Zip" AssemblyFile="$(MSBuildThisFileDirectory)target\nuget\packages\$(MSBuildTasksPackageId).$(MSBuildTasksPackageVersion)\tools\MSBuild.Community.Tasks.dll"/>
 	<PropertyGroup>
 		<Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
 		<BuildRoot>$(MSBuildThisFileDirectory)</BuildRoot>
 		<NuGetExe>$(BuildRoot)target\nuget\nuget.exe</NuGetExe>
+		<MSBuildTasksPackageId>MSBuildTasks</MSBuildTasksPackageId>
+		<MSBuildTasksPackageVersion>1.5.0.214</MSBuildTasksPackageVersion>
 	</PropertyGroup>
 	<ItemGroup>
 		<VisualStudioVersion Include="2012">
@@ -76,7 +79,7 @@
 		</ItemGroup>
 		<MSBuild Projects="@(ProjectToBuild)" Targets="Rebuild"/>
 	</Target>
-	<Target Name="CreatePackage" DependsOnTargets="CopyBuildOutputToPackage">
+	<Target Name="CreateNuGetPackage" DependsOnTargets="CopyBuildOutputToPackage">
 		<Exec Command="$(NuGetExe) pack $(MSBuildThisFileDirectory)nuget\SSH.NET.nuspec -OutputDirectory &quot;$(MSBuildThisFileDirectory)target&quot; -BasePath &quot;$(MSBuildThisFileDirectory)target\package&quot; -NonInteractive"/>
 	</Target>
 	<Target Name="CopyBuildOutputToPackage" DependsOnTargets="Build" Outputs="%(TargetFramework.Identity)">
@@ -87,11 +90,37 @@
 		</ItemGroup>
 		<Copy SourceFiles="@(BuildOutput)" DestinationFolder="$(MSBuildThisFileDirectory)target\package\lib\%(TargetFramework.Moniker)"/>
 	</Target>
-	<Target Name="GenerateHelpFile" DependsOnTargets="Build">
+	<Target Name="GenerateHelpFile" DependsOnTargets="Build;CheckReleaseVersion">
 		<Error Text="Please install Sandcastle, and ensure the SHFBFolder environment variable is set." Condition="'$(SHFBFolder)'==''"/>
 		<MSBuild Projects="$(MSBuildThisFileDirectory)sandcastle\SSH.NET.shfbproj"/>
+		<Move SourceFiles="$(MSBuildThisFileDirectory)target\help\SshNet.Help.chm" DestinationFiles="$(MSBuildThisFileDirectory)target\SSH.NET-$(ReleaseVersion)-help.chm"/>
 	</Target>
-	
+	<Target Name="CopyBuildOutputToBin" DependsOnTargets="Build" Outputs="%(TargetFramework.Identity)">
+		<ItemGroup>
+			<BuildOutput Remove="@(BuildOutput)"/>
+			<BuildOutput Include="$(MSBuildThisFileDirectory)..\src\%(TargetFramework.OutputDirectory)\*.dll"/>
+			<BuildOutput Include="$(MSBuildThisFileDirectory)..\src\%(TargetFramework.OutputDirectory)\*.xml"/>
+		</ItemGroup>
+		<Copy SourceFiles="@(BuildOutput)" DestinationFolder="$(MSBuildThisFileDirectory)target\bin\lib\%(TargetFramework.Moniker)"/>
+	</Target>
+	<Target Name="CreateBinPackage" DependsOnTargets="PrepareMSBuildTasksPackage;CopyBuildOutputToBin;CheckReleaseVersion">
+		<ItemGroup>
+			<Files Remove="@(Files)"/>
+			<Files Include="$(MSBuildThisFileDirectory)..\LICENSE"/>
+		</ItemGroup>
+		<Copy SourceFiles="@(Files)" DestinationFolder="$(MSBuildThisFileDirectory)target\bin\%(RecursiveDir)"/>
+		<ItemGroup>
+			<Files Remove="@(Files)"/>
+			<Files Include="$(MSBuildThisFileDirectory)target\bin\**"/>
+		</ItemGroup>
+		<Zip ZipFileName="$(MSBuildThisFileDirectory)target\SSH.NET-$(ReleaseVersion)-bin.zip" Files="@(Files)" WorkingDirectory="$(MSBuildThisFileDirectory)target\bin"/>
+	</Target>
+	<Target Name="PrepareMSBuildTasksPackage" DependsOnTargets="DownloadNuGet">
+		<Exec Command="$(NuGetExe) install $(MSBuildTasksPackageId) -Version $(MSBuildTasksPackageVersion) -OutputDirectory &quot;$(MSBuildThisFileDirectory)target\nuget\packages&quot; -Verbosity quiet"/>
+	</Target>
+	<Target Name="CheckReleaseVersion" Condition="'$(ReleaseVersion)'==''">
+		<Error Text= "Please specify the version number of the release (using the &quot;ReleaseVersion&quot; property)."/>
+	</Target>
 	<UsingTask TaskName="DownloadFile" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
 		<ParameterGroup>
 			<Address ParameterType="System.String" Required="true"/>

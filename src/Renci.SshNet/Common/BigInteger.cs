@@ -165,18 +165,36 @@ namespace Renci.SshNet.Common
         }
 
         /// <summary>
-        /// Generates random <see cref="BigInteger"/> number.
+        /// Generates a new, random <see cref="BigInteger"/> of the specified length.
         /// </summary>
-        /// <param name="bitLength">Length of random number in bits.</param>
-        /// <returns>
-        /// A random number.
-        /// </returns>
+        /// <param name="bitLength">The number of bits for the new number.</param>
+        /// <returns>A random number of the specified length.</returns>
         public static BigInteger Random(int bitLength)
         {
-            var bytesArray = new byte[bitLength / 8 + (((bitLength % 8) > 0) ? 1 : 0)];
-            CryptoAbstraction.GenerateRandom(bytesArray);
-            bytesArray[bytesArray.Length - 1] = (byte)(bytesArray[bytesArray.Length - 1] & 0x7F);   //  Ensure not a negative value
-            return new BigInteger(bytesArray);
+            int dwords = bitLength >> 5;
+            int remBits = bitLength & 0x1F;
+
+            if (remBits != 0)
+                dwords++;
+
+            BigInteger ret = new BigInteger(1, new uint[(uint)dwords + 1]);
+            byte[] random = new byte[dwords << 2];
+
+            CryptoAbstraction.GenerateRandom(random);
+            Buffer.BlockCopy(random, 0, ret._data, 0, (int)dwords << 2);
+
+            if (remBits != 0)
+            {
+                uint mask = (uint)(0x01 << (remBits - 1));
+                ret._data[dwords - 1] |= mask;
+
+                mask = (uint)(0xFFFFFFFF >> (32 - remBits));
+                ret._data[dwords - 1] &= mask;
+            }
+            else
+                ret._data[dwords - 1] |= 0x80000000;
+
+            return ret;
         }
 
         #endregion SSH.NET additions

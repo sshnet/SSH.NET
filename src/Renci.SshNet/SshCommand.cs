@@ -398,13 +398,15 @@ namespace Renci.SshNet
             var outputStream = OutputStream;
             if (outputStream != null)
             {
-                outputStream.Flush();
+                outputStream.Dispose();
+                OutputStream = null;
             }
 
             var extendedOutputStream = ExtendedOutputStream;
             if (extendedOutputStream != null)
             {
-                extendedOutputStream.Flush();
+                extendedOutputStream.Dispose();
+                ExtendedOutputStream = null;
             }
 
             _asyncResult.IsCompleted = true;

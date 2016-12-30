@@ -1600,7 +1600,7 @@ namespace Renci.SshNet
         /// <exception cref="SocketException">An error occurred trying to establish the connection.</exception>
         private void SocketConnect(string host, int port)
         {
-            var ipAddress = ConnectionInfo.ClientIP ?? DnsAbstraction.GetHostAddresses(host)[0];
+            var ipAddress = DnsAbstraction.GetHostAddresses(host)[0];
             var ep = new IPEndPoint(ipAddress, port);
 
             DiagnosticAbstraction.Log(string.Format("Initiating connection to '{0}:{1}'.", host, port));

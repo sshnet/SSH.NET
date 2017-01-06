@@ -25,6 +25,8 @@ namespace Renci.SshNet
         private Exception _exception;
         private bool _hasError;
         private readonly object _endExecuteLock = new object();
+        private Pipe _stdoutPipe;
+        private Pipe _stderrPipe;
 
         /// <summary>
         /// Gets the command text.
@@ -56,7 +58,10 @@ namespace Renci.SshNet
         /// <example>
         ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\SshCommandTest.cs" region="Example SshCommand CreateCommand Execute OutputStream" language="C#" title="Use OutputStream to get command execution output" />
         /// </example>
-        public Stream OutputStream { get; private set; }
+        public Stream OutputStream
+        {
+            get { return _stdoutPipe.InputStream; }
+        }
 
         /// <summary>
         /// Gets the extended output stream.
@@ -64,7 +69,10 @@ namespace Renci.SshNet
         /// <example>
         ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\SshCommandTest.cs" region="Example SshCommand CreateCommand Execute ExtendedOutputStream" language="C#" title="Use ExtendedOutputStream to get command debug execution output" />
         /// </example>
-        public Stream ExtendedOutputStream { get; private set; }
+        public Stream ExtendedOutputStream
+        {
+            get { return _stderrPipe.InputStream; }
+        }
 
         private StringBuilder _result;
         /// <summary>
@@ -82,10 +90,10 @@ namespace Renci.SshNet
                     _result = new StringBuilder();
                 }
 
-                if (OutputStream != null && OutputStream.Length > 0)
+                if (_stdoutPipe != null)
                 {
                     // do not dispose the StreamReader, as it would also dispose the stream
-                    var sr = new StreamReader(OutputStream, _encoding);
+                    var sr = new StreamReader(_stdoutPipe.InputStream, _encoding);
                     _result.Append(sr.ReadToEnd());
                 }
 
@@ -111,10 +119,10 @@ namespace Renci.SshNet
                         _error = new StringBuilder();
                     }
 
-                    if (ExtendedOutputStream != null && ExtendedOutputStream.Length > 0)
+                    if (_stderrPipe != null)
                     {
                         // do not dispose the StreamReader, as it would also dispose the stream
-                        var sr = new StreamReader(ExtendedOutputStream, _encoding);
+                        var sr = new StreamReader(_stderrPipe.InputStream, _encoding);
                         _error.Append(sr.ReadToEnd());
                     }
 
@@ -230,23 +238,19 @@ namespace Renci.SshNet
             if (string.IsNullOrEmpty(CommandText))
                 throw new ArgumentException("CommandText property is empty.");
 
-            var outputStream = OutputStream;
-            if (outputStream != null)
+            if (_stdoutPipe != null)
             {
-                outputStream.Dispose();
-                OutputStream = null;
+                _stdoutPipe.Dispose();
             }
 
-            var extendedOutputStream = ExtendedOutputStream;
-            if (extendedOutputStream != null)
+            if (_stderrPipe != null)
             {
-                extendedOutputStream.Dispose();
-                ExtendedOutputStream = null;
+                _stderrPipe.Dispose();
             }
 
-            //  Initialize output streams
-            OutputStream = new PipeStream();
-            ExtendedOutputStream = new PipeStream();
+            //  Initialize pipes
+            _stdoutPipe = new Pipe();
+            _stderrPipe = new Pipe();
 
             _result = null;
             _error = null;
@@ -395,16 +399,14 @@ namespace Renci.SshNet
 
         private void Channel_Closed(object sender, ChannelEventArgs e)
         {
-            var outputStream = OutputStream;
-            if (outputStream != null)
+            if (_stdoutPipe != null)
             {
-                outputStream.Flush();
+                _stdoutPipe.OutputStream.Close();
             }
 
-            var extendedOutputStream = ExtendedOutputStream;
-            if (extendedOutputStream != null)
+            if (_stderrPipe != null)
             {
-                extendedOutputStream.Flush();
+                _stderrPipe.OutputStream.Close();
             }
 
             _asyncResult.IsCompleted = true;
@@ -442,10 +444,9 @@ namespace Renci.SshNet
 
         private void Channel_ExtendedDataReceived(object sender, ChannelExtendedDataEventArgs e)
         {
-            if (ExtendedOutputStream != null)
+            if (_stderrPipe != null)
             {
-                ExtendedOutputStream.Write(e.Data, 0, e.Data.Length);
-                ExtendedOutputStream.Flush();
+                _stderrPipe.OutputStream.Write(e.Data, 0, e.Data.Length);
             }
 
             if (e.DataTypeCode == 1)
@@ -456,10 +457,9 @@ namespace Renci.SshNet
 
         private void Channel_DataReceived(object sender, ChannelDataEventArgs e)
         {
-            if (OutputStream != null)
+            if (_stdoutPipe != null)
             {
-                OutputStream.Write(e.Data, 0, e.Data.Length);
-                OutputStream.Flush();
+                _stdoutPipe.OutputStream.Write(e.Data, 0, e.Data.Length);
             }
 
             if (_asyncResult != null)
@@ -557,18 +557,16 @@ namespace Renci.SshNet
                     _channel = null;
                 }
 
-                var outputStream = OutputStream;
-                if (outputStream != null)
+                if (_stdoutPipe != null)
                 {
-                    outputStream.Dispose();
-                    OutputStream = null;
+                    _stdoutPipe.Dispose();
+                    _stdoutPipe = null;
                 }
 
-                var extendedOutputStream = ExtendedOutputStream;
-                if (extendedOutputStream != null)
+                if (_stderrPipe != null)
                 {
-                    extendedOutputStream.Dispose();
-                    ExtendedOutputStream = null;
+                    _stderrPipe.Dispose();
+                    _stderrPipe = null;
                 }
 
                 var sessionErrorOccuredWaitHandle = _sessionErrorOccuredWaitHandle;

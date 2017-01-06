@@ -441,6 +441,10 @@
     <Compile Include="SshCommand.cs" />
     <Compile Include="SshMessageFactory.cs" />
     <Compile Include="SubsystemSession.cs" />
+    <Compile Include="Common\Pipe.cs" />
+    <Compile Include="Common\PipeInputStream.cs" />
+    <Compile Include="Common\PipeOutputStream.cs" />
+    <Compile Include="Common\LinkedListQueue.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Renci.SshNet.snk">

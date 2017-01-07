@@ -65,7 +65,7 @@
 
         public override bool CanRead
         {
-            get { return true; }
+            get { return !_isDisposed; }
         }
 
         public override bool CanSeek

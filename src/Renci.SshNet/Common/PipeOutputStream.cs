@@ -40,10 +40,8 @@
                 throw new ArgumentException("The sum of offset and count is greater than the buffer length.");
             if (offset < 0 || count < 0)
                 throw new ArgumentOutOfRangeException("offset", "offset or count is negative.");
-            if (_isDisposed)
+            if (_isDisposed || _queue.IsAddingCompleted)
                 throw CreateObjectDisposedException();
-            if (_queue.IsAddingCompleted)
-                return;
 
             byte[] tmp = new byte[count];
             Buffer.BlockCopy(buffer, offset, tmp, 0, count);
@@ -62,7 +60,7 @@
 
         public override bool CanWrite
         {
-            get { return true; }
+            get { return !_isDisposed; }
         }
 
         public override long Length

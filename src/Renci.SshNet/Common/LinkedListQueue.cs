@@ -6,7 +6,7 @@
     /// <summary>
     /// Fast concurrent generic linked list queue.
     /// </summary>
-    public class LinkedListQueue<T> : IDisposable
+    internal class LinkedListQueue<T> : IDisposable
     {
         sealed class Entry<E>
         {

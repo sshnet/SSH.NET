@@ -93,10 +93,17 @@
         /// </summary>
         /// <returns><c>true</c>, if an item could be removed; otherwise <c>false</c>.</returns>
         /// <param name="item">The item to be removed from the queue.</param>
-        public bool TryTake(out T item)
+        /// <param name="wait">Wait for data or fail immediately if empty.</param>
+        public bool TryTake(out T item, bool wait)
         {
             lock (_lock)
             {
+                if (_first == null && !wait)
+                {
+                    item = default(T);
+                    return false;
+                }
+
                 while (_first == null && !_isAddingCompleted)
                     Monitor.Wait(_lock);
 

@@ -40,22 +40,32 @@
             if (_isDisposed)
                 throw CreateObjectDisposedException();
 
-            if (_current == null || _currentPosition == _current.Length)
-            {
-                if (_queue.IsCompleted || !_queue.TryTake(out _current))
-                    return 0;
+            var bytesRead = 0;
 
-                _currentPosition = 0;
+            while (bytesRead < count)
+            {
+                if (_current == null || _currentPosition == _current.Length)
+                {
+                    if (!_queue.TryTake(out _current, (bytesRead == 0)))
+                    {
+                        _current = null;
+                        return bytesRead;
+                    }
+
+                    _currentPosition = 0;
+                }
+
+                var toRead = _current.Length - _currentPosition;
+                if (toRead > count - bytesRead)
+                    toRead = count - bytesRead;
+
+                Buffer.BlockCopy(_current, _currentPosition, buffer, offset + bytesRead, toRead);
+
+                _currentPosition += toRead;
+                bytesRead += toRead;
             }
 
-            var avail = _current.Length - _currentPosition;
-            if (count > avail)
-                count = avail;
-
-            Buffer.BlockCopy(_current, _currentPosition, buffer, offset, count);
-
-            _currentPosition += count;
-            return count;
+            return bytesRead;
         }
 
         public override void Write(byte[] buffer, int offset, int count)

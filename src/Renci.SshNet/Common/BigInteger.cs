@@ -171,30 +171,10 @@ namespace Renci.SshNet.Common
         /// <returns>A random number of the specified length.</returns>
         public static BigInteger Random(int bitLength)
         {
-            int dwords = bitLength >> 5;
-            int remBits = bitLength & 0x1F;
-
-            if (remBits != 0)
-                dwords++;
-
-            BigInteger ret = new BigInteger(1, new uint[(uint)dwords + 1]);
-            byte[] random = new byte[dwords << 2];
-
-            CryptoAbstraction.GenerateRandom(random);
-            Buffer.BlockCopy(random, 0, ret._data, 0, (int)dwords << 2);
-
-            if (remBits != 0)
-            {
-                uint mask = (uint)(0x01 << (remBits - 1));
-                ret._data[dwords - 1] |= mask;
-
-                mask = (uint)(0xFFFFFFFF >> (32 - remBits));
-                ret._data[dwords - 1] &= mask;
-            }
-            else
-                ret._data[dwords - 1] |= 0x80000000;
-
-            return ret;
+            var bytesArray = new byte[bitLength / 8 + (((bitLength % 8) > 0) ? 1 : 0)];
+            CryptoAbstraction.GenerateRandom(bytesArray);
+            bytesArray[bytesArray.Length - 1] = (byte) (bytesArray[bytesArray.Length - 1] & 0x7F);   //  Ensure not a negative value 
+            return new BigInteger(bytesArray);
         }
 
         #endregion SSH.NET additions

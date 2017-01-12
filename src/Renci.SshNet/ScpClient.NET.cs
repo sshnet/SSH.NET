@@ -202,7 +202,6 @@ namespace Renci.SshNet
                     SendConfirmation(channel); //  Send reply
 
                     //  Read directory
-                    var mode = long.Parse(match.Result("${mode}"));
                     var filename = match.Result("${filename}");
 
                     DirectoryInfo newDirectoryInfo;
@@ -230,7 +229,6 @@ namespace Renci.SshNet
                     //  Read file
                     SendConfirmation(channel); //  Send reply
 
-                    var mode = match.Result("${mode}");
                     var length = long.Parse(match.Result("${length}"));
                     var fileName = match.Result("${filename}");
 

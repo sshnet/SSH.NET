@@ -1817,8 +1817,6 @@ namespace Renci.SshNet
         {
             try
             {
-                var readSockets = new List<Socket> {_socket};
-
                 // remain in message loop until socket is shut down or until we're disconnecting
                 while (_socket.IsConnected())
                 {
@@ -1836,7 +1834,7 @@ namespace Renci.SshNet
                     // perform a blocking select to determine whether there's is data available to be
                     // read; we do not use a blocking read to allow us to use Socket.Poll to determine
                     // if the connection is still available (in IsSocketConnected
-                    Socket.Select(readSockets, null, null, -1);
+                    _socket.Poll(-1, SelectMode.SelectRead);
 
                     // the Select invocation will be interrupted in one of the following conditions:
                     // * data is available to be read

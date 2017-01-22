@@ -40,7 +40,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
-    <Reference Include="Moq">
+    <Reference Include="Moq, Version=4.2.1409.1722, Culture=neutral, PublicKeyToken=69f491c39445e920, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Moq.4.2.1409.1722\lib\net35\Moq.dll</HintPath>
     </Reference>
     <Reference Include="System" />
@@ -76,6 +76,9 @@
     </Compile>
     <Compile Include="..\..\test\Renci.SshNet.Shared.Tests\ForwardedPortStatusTest_Stopping.cs">
       <Link>Classes\ForwardedPortStatusTest_Stopping.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\BaseClientTest_Connected_KeepAlivesNotSentConcurrently.cs">
+      <Link>Classes\BaseClientTest_Connected_KeepAlivesNotSentConcurrently.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelDirectTcpipTest.cs">
       <Link>Classes\Channels\ChannelDirectTcpipTest.cs</Link>
@@ -839,6 +842,45 @@
     <Compile Include="..\Renci.SshNet.Tests\Classes\SessionTest.HttpProxy.cs">
       <Link>Classes\SessionTest.HttpProxy.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\SessionTest_Connected.cs">
+      <Link>Classes\SessionTest_Connected.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\SessionTest_ConnectedBase.cs">
+      <Link>Classes\SessionTest_ConnectedBase.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\SessionTest_Connected_ConnectionReset.cs">
+      <Link>Classes\SessionTest_Connected_ConnectionReset.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\SessionTest_Connected_Disconnect.cs">
+      <Link>Classes\SessionTest_Connected_Disconnect.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\SessionTest_Connected_GlobalRequestMessageAfterAuthenticationRace.cs">
+      <Link>Classes\SessionTest_Connected_GlobalRequestMessageAfterAuthenticationRace.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\SessionTest_Connected_ServerAndClientDisconnectRace.cs">
+      <Link>Classes\SessionTest_Connected_ServerAndClientDisconnectRace.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\SessionTest_Connected_ServerSendsBadPacket.cs">
+      <Link>Classes\SessionTest_Connected_ServerSendsBadPacket.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\SessionTest_Connected_ServerSendsDisconnectMessage.cs">
+      <Link>Classes\SessionTest_Connected_ServerSendsDisconnectMessage.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\SessionTest_Connected_ServerSendsDisconnectMessageAndShutsDownSocket.cs">
+      <Link>Classes\SessionTest_Connected_ServerSendsDisconnectMessageAndShutsDownSocket.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\SessionTest_Connected_ServerShutsDownSendAfterSendingIncompletePacket.cs">
+      <Link>Classes\SessionTest_Connected_ServerShutsDownSendAfterSendingIncompletePacket.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\SessionTest_Connected_ServerShutsDownSocket.cs">
+      <Link>Classes\SessionTest_Connected_ServerShutsDownSocket.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\SessionTest_NotConnected.cs">
+      <Link>Classes\SessionTest_NotConnected.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\SessionTest_SocketConnected_BadPacketAndDispose.cs">
+      <Link>Classes\SessionTest_SocketConnected_BadPacketAndDispose.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\SftpClientTest.ChangeDirectory.cs">
       <Link>Classes\SftpClientTest.ChangeDirectory.cs</Link>
     </Compile>
@@ -1304,7 +1346,7 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties ProjectLinkReference="c45379b9-17b1-4e89-bc2e-6d41726413e8" ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" />
+      <UserProperties ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" ProjectLinkReference="c45379b9-17b1-4e89-bc2e-6d41726413e8" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

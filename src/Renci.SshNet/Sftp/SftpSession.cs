@@ -398,6 +398,65 @@ namespace Renci.SshNet.Sftp
         }
 
         /// <summary>
+        /// Begins an asynchronous read using a SSH_FXP_READ request.
+        /// </summary>
+        /// <param name="handle">The handle to the file to read from.</param>
+        /// <param name="offset">The offset in the file to start reading from.</param>
+        /// <param name="length">The number of bytes to read.</param>
+        /// <param name="callback">The <see cref="AsyncCallback"/> delegate that is executed when <see cref="BeginRead(byte[], ulong, uint, AsyncCallback, object)"/> completes.</param>
+        /// <param name="state">An object that contains any additional user-defined data.</param>
+        /// <returns>
+        /// A <see cref="SftpReadAsyncResult"/> that represents the asynchronous call.
+        /// </returns>
+        public SftpReadAsyncResult BeginRead(byte[] handle, ulong offset, uint length, AsyncCallback callback, object state)
+        {
+            var asyncResult = new SftpReadAsyncResult(callback, state);
+
+            var request = new SftpReadRequest(ProtocolVersion, NextRequestId, handle, offset, length,
+                response =>
+                {
+                    asyncResult.SetAsCompleted(response.Data, false);
+                },
+                response =>
+                {
+                    if (response.StatusCode != StatusCodes.Eof)
+                    {
+                        asyncResult.SetAsCompleted(GetSftpException(response), false);
+                    }
+                    else
+                    {
+                        asyncResult.SetAsCompleted(Array<byte>.Empty, false);
+                    }
+                });
+            SendRequest(request);
+
+            return asyncResult;
+        }
+
+        /// <summary>
+        /// Handles the end of an asynchronous read.
+        /// </summary>
+        /// <param name="asyncResult">An <see cref="SftpReadAsyncResult"/> that represents an asynchronous call.</param>
+        /// <returns>
+        /// A <see cref="byte"/> array representing the data read.
+        /// </returns>
+        /// <remarks>
+        /// If all available data has been read, the <see cref="EndRead(SftpReadAsyncResult)"/> method completes
+        /// immediately and returns zero bytes.
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <c>null</c>.</exception>
+        public byte[] EndRead(SftpReadAsyncResult asyncResult)
+        {
+            if (asyncResult == null)
+                throw new ArgumentNullException("asyncResult");
+
+            if (asyncResult.EndInvokeCalled)
+                throw new InvalidOperationException("EndRead has already been called.");
+
+            return asyncResult.EndInvoke();
+        }
+
+        /// <summary>
         /// Performs SSH_FXP_READ request.
         /// </summary>
         /// <param name="handle">The handle.</param>
@@ -424,7 +483,10 @@ namespace Renci.SshNet.Sftp
                             {
                                 exception = GetSftpException(response);
                             }
-                            data = Array<byte>.Empty;
+                            else
+                            {
+                                data = Array<byte>.Empty;
+                            }
                             wait.Set();
                         });
 

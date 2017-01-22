@@ -96,6 +96,33 @@ namespace Renci.SshNet.Sftp
         byte[] RequestRead(byte[] handle, ulong offset, uint length);
 
         /// <summary>
+        /// Begins an asynchronous read using a SSH_FXP_READ request.
+        /// </summary>
+        /// <param name="handle">The handle to the file to read from.</param>
+        /// <param name="offset">The offset in the file to start reading from.</param>
+        /// <param name="length">The number of bytes to read.</param>
+        /// <param name="callback">The <see cref="AsyncCallback"/> delegate that is executed when <see cref="BeginRead(byte[], ulong, uint, AsyncCallback, object)"/> completes.</param>
+        /// <param name="state">An object that contains any additional user-defined data.</param>
+        /// <returns>
+        /// A <see cref="SftpReadAsyncResult"/> that represents the asynchronous call.
+        /// </returns>
+        SftpReadAsyncResult BeginRead(byte[] handle, ulong offset, uint length, AsyncCallback callback, object state);
+
+        /// <summary>
+        /// Handles the end of an asynchronous read.
+        /// </summary>
+        /// <param name="asyncResult">An <see cref="SftpReadAsyncResult"/> that represents an asynchronous call.</param>
+        /// <returns>
+        /// A <see cref="byte"/> array representing the data read.
+        /// </returns>
+        /// <remarks>
+        /// If all available data has been read, the <see cref="EndRead(SftpReadAsyncResult)"/> method completes
+        /// immediately and returns zero bytes.
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <c>null</c>.</exception>
+        byte[] EndRead(SftpReadAsyncResult asyncResult);
+
+        /// <summary>
         /// Performs SSH_FXP_READDIR request
         /// </summary>
         /// <param name="handle">The handle.</param>

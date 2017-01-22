@@ -416,6 +416,7 @@
     <Compile Include="Sftp\SftpDownloadAsyncResult.cs" />
     <Compile Include="Sftp\SftpFile.cs" />
     <Compile Include="Sftp\SftpFileAttributes.cs" />
+    <Compile Include="Sftp\SftpFileReader.cs" />
     <Compile Include="Sftp\SftpFileStream.cs" />
     <Compile Include="Sftp\SftpFileSystemInformation.cs">
       <SubType>Code</SubType>
@@ -425,6 +426,7 @@
     <Compile Include="Sftp\SftpMessageTypes.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Sftp\SftpReadAsyncResult.cs" />
     <Compile Include="Sftp\SftpSession.cs">
       <SubType>Code</SubType>
     </Compile>

@@ -1996,37 +1996,31 @@ namespace Renci.SshNet
             var fullPath = _sftpSession.GetCanonicalPath(path);
 
             var handle = _sftpSession.RequestOpen(fullPath, Flags.Read);
+            
+            // TODO close handle in case of exception
+            // TODO decide whether to move opening (and closing) of handle to SftpFileReader
 
-            ulong offset = 0;
+            var fileReader = new SftpFileReader(handle, _sftpSession);
+            var totalBytesRead = 0UL;
 
-            var optimalReadLength = _sftpSession.CalculateOptimalReadLength(_bufferSize);
-
-            var data = _sftpSession.RequestRead(handle, offset, optimalReadLength);
-
-            //  Read data while available
-            while (data.Length > 0)
+            while (true)
             {
+                // TODO: cancel read ahead when download is canceled by user
+
                 //  Cancel download
                 if (asyncResult != null && asyncResult.IsDownloadCanceled)
                     break;
 
+                var data = fileReader.Read();
+                if (data.Length == 0)
+                    break;
+
                 output.Write(data, 0, data.Length);
 
-                output.Flush();
+                totalBytesRead += (ulong) data.Length;
 
-                offset += (ulong)data.Length;
-
-                //  Call callback to report number of bytes read
                 if (downloadCallback != null)
-                {
-                    // copy offset to ensure it's not modified between now and execution of callback
-                    var downloadOffset = offset;
-
-                    //  Execute callback on different thread
-                    ThreadAbstraction.ExecuteThread(() => { downloadCallback(downloadOffset); });
-                }
-
-                data = _sftpSession.RequestRead(handle, offset, optimalReadLength);
+                    downloadCallback(totalBytesRead);
             }
 
             _sftpSession.RequestClose(handle);

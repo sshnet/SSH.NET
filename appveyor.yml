@@ -8,7 +8,9 @@ build:
   verbosity: minimal
 
 test:
-  assemblies: src\Renci.SshNet.Tests\bin\Debug\Renci.SshNet.Tests.dll
+  assemblies:
+  - src\Renci.SshNet.Tests\bin\Debug\Renci.SshNet.Tests.dll
+  - src\Renci.SshNet.Tests.NET35\bin\Debug\Renci.SshNet.Tests.NET35.dll
   categories:
     except:
     - integration

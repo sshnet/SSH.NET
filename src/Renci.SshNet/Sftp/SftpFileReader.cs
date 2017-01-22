@@ -121,8 +121,6 @@ namespace Renci.SshNet.Sftp
             var data = readAsyncResult.EndInvoke();
             if (data.Length == 0)
             {
-                Console.WriteLine("EOF");
-
                 _isCompleted = true;
             }
             else

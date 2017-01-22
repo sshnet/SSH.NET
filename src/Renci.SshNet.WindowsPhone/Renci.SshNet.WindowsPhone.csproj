@@ -839,6 +839,9 @@
     <Compile Include="..\Renci.SshNet\Sftp\SftpFileAttributes.cs">
       <Link>Sftp\SftpFileAttributes.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\Sftp\SftpFileReader.cs">
+      <Link>Sftp\SftpFileReader.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\Sftp\SftpFileStream.cs">
       <Link>Sftp\SftpFileStream.cs</Link>
     </Compile>
@@ -853,6 +856,9 @@
     </Compile>
     <Compile Include="..\Renci.SshNet\Sftp\SftpMessageTypes.cs">
       <Link>Sftp\SftpMessageTypes.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Sftp\SftpReadAsyncResult.cs">
+      <Link>Sftp\SftpReadAsyncResult.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Sftp\SftpSession.cs">
       <Link>Sftp\SftpSession.cs</Link>

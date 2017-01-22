@@ -7,11 +7,6 @@ build:
   project: src\Renci.SshNet.VS2015.sln
   verbosity: minimal
 
-test:
-  assemblies:
-  - src\Renci.SshNet.Tests\bin\Debug\Renci.SshNet.Tests.dll
-  - src\Renci.SshNet.Tests.NET35\bin\Debug\Renci.SshNet.Tests.NET35.dll
-  categories:
-    except:
-    - integration
-    - LongRunning
+on_success:
+- cmd: vstest.console /logger:Appveyor src\Renci.SshNet.Tests\bin\Debug\Renci.SshNet.Tests.dll /TestCaseFilter:"TestCategory!=integration&TestCategory!=LongRunning"
+- cmd: vstest.console /logger:Appveyor src\Renci.SshNet.Tests.NET35\bin\Debug\Renci.SshNet.Tests.NET35.dll /TestCaseFilter:"TestCategory!=integration&TestCategory!=LongRunning"

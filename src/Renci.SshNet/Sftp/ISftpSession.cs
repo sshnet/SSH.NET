@@ -2,20 +2,11 @@
 using System.Collections.Generic;
 using System.Threading;
 using Renci.SshNet.Sftp.Responses;
-using Renci.SshNet.Channels;
 
 namespace Renci.SshNet.Sftp
 {
     internal interface ISftpSession : ISubsystemSession
     {
-        /// <summary>
-        /// Gets the channel associated with this session.
-        /// </summary>
-        /// <value>
-        /// The channel associated with this session.
-        /// </value>
-        IChannelSession Channel { get; }
-
         /// <summary>
         /// Gets the SFTP protocol version.
         /// </summary>
@@ -103,10 +94,6 @@ namespace Renci.SshNet.Sftp
         /// <param name="length">The length.</param>
         /// <returns>data array; null if EOF</returns>
         byte[] RequestRead(byte[] handle, ulong offset, uint length);
-
-        SftpReadAsyncResult BeginRead(byte[] handle, ulong offset, uint length, AsyncCallback callback, object state);
-
-        byte[] EndRead(IAsyncResult asyncResult);
 
         /// <summary>
         /// Performs SSH_FXP_READDIR request

@@ -42,7 +42,7 @@ namespace Renci.SshNet
         /// <value>
         /// The channel associated with this session.
         /// </value>
-        public IChannelSession Channel
+        internal IChannelSession Channel
         {
             get
             {

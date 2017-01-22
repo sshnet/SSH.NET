@@ -64,6 +64,7 @@ namespace Renci.SshNet.Common
         /// </summary>
         public void Wait()
         {
+
             lock (_lock)
             {
                 while (_currentCount < 1)

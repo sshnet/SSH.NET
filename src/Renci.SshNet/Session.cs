@@ -1815,14 +1815,16 @@ namespace Renci.SshNet
         /// </summary>
         private void MessageListener()
         {
+#if FEATURE_SOCKET_SELECT
+            var readSockets = new List<Socket> { _socket };
+#endif // FEATURE_SOCKET_SELECT
+
             try
             {
-                var readSockets = new List<Socket> {_socket};
-
                 // remain in message loop until socket is shut down or until we're disconnecting
                 while (_socket.IsConnected())
                 {
-#if FEATURE_SOCKET_POLL
+#if FEATURE_SOCKET_SELECT
                     // if the socket is already disposed when Select is invoked, then a SocketException
                     // stating "An operation was attempted on something that is not a socket" is thrown;
                     // we attempt to avoid this exception by having an IsConnected() that can break the
@@ -1835,7 +1837,8 @@ namespace Renci.SshNet
 
                     // perform a blocking select to determine whether there's is data available to be
                     // read; we do not use a blocking read to allow us to use Socket.Poll to determine
-                    // if the connection is still available (in IsSocketConnected
+                    // if the connection is still available (in IsSocketConnected)
+
                     Socket.Select(readSockets, null, null, -1);
 
                     // the Select invocation will be interrupted in one of the following conditions:
@@ -1855,7 +1858,19 @@ namespace Renci.SshNet
                         // break out of the message loop
                         break;
                     }
-#endif // FEATURE_SOCKET_POLL
+#elif FEATURE_SOCKET_POLL
+                    // when Socket.Select(IList, IList, IList, Int32) is not available or is buggy, we use
+                    // Socket.Poll(Int, SelectMode) to block until either data is available or the socket
+                    // is closed
+                    _socket.Poll(-1, SelectMode.SelectRead);
+
+                    if (!_socket.IsConnected())
+                    {
+                        // connection with SSH server was closed or socket was disposed;
+                        // break out of the message loop
+                        break;
+                    }
+#endif // FEATURE_SOCKET_SELECT
 
                     var message = ReceiveMessage();
                     if (message == null)
@@ -1869,7 +1884,7 @@ namespace Renci.SshNet
                     message.Process(this);
                 }
 
-                // connection with SSH server was closed
+                // connection with SSH server was closed or socket was disposed
                 RaiseError(CreateConnectionAbortedByServerException());
             }
             catch (SocketException ex)
@@ -2201,6 +2216,7 @@ namespace Renci.SshNet
                     return;
             }
 
+            // "save" exception and set exception wait handle to ensure any waits are interrupted
             _exception = exp;
             _exceptionWaitHandle.Set();
 

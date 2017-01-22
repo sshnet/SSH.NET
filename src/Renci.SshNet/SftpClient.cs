@@ -1996,40 +1996,120 @@ namespace Renci.SshNet
             var fullPath = _sftpSession.GetCanonicalPath(path);
 
             var handle = _sftpSession.RequestOpen(fullPath, Flags.Read);
-
-            ulong offset = 0;
-
-            var optimalReadLength = _sftpSession.CalculateOptimalReadLength(_bufferSize);
-
-            var data = _sftpSession.RequestRead(handle, offset, optimalReadLength);
-
-            //  Read data while available
-            while (data.Length > 0)
+            var async = true;
+            if (async)
             {
-                //  Cancel download
-                if (asyncResult != null && asyncResult.IsDownloadCanceled)
-                    break;
+                var fileReader = new SftpFileReader(handle, _sftpSession);
+                var totalBytesRead = 0UL;
 
-                output.Write(data, 0, data.Length);
-
-                output.Flush();
-
-                offset += (ulong)data.Length;
-
-                //  Call callback to report number of bytes read
-                if (downloadCallback != null)
+                while (true)
                 {
-                    // copy offset to ensure it's not modified between now and execution of callback
-                    var downloadOffset = offset;
+                    var data = fileReader.Read();
+                    if (data.Length == 0)
+                        break;
 
-                    //  Execute callback on different thread
-                    ThreadAbstraction.ExecuteThread(() => { downloadCallback(downloadOffset); });
+                    output.Write(data, 0, data.Length);
+
+                    totalBytesRead += (ulong) data.Length;
+
+                    //Console.WriteLine(totalBytesRead);
+
+                    if (downloadCallback != null)
+                        downloadCallback(totalBytesRead);
                 }
+            }
+            else
+            {
+                ulong offset = 0;
 
-                data = _sftpSession.RequestRead(handle, offset, optimalReadLength);
+                var optimalReadLength = _sftpSession.CalculateOptimalReadLength(_bufferSize);
+
+                var data = _sftpSession.RequestRead(handle, offset, optimalReadLength);
+
+                //  Read data while available
+                while (data.Length > 0)
+                {
+                    //  Cancel download
+                    if (asyncResult != null && asyncResult.IsDownloadCanceled)
+                        break;
+
+                    output.Write(data, 0, data.Length);
+
+                    output.Flush();
+
+                    offset += (ulong)data.Length;
+
+                    //Console.WriteLine("" + data.Length + " => " + offset);
+
+                    //  Call callback to report number of bytes read
+                    if (downloadCallback != null)
+                    {
+                        // copy offset to ensure it's not modified between now and execution of callback
+                        var downloadOffset = offset;
+
+                        //  Execute callback on different thread
+                        ThreadAbstraction.ExecuteThread(() => { downloadCallback(downloadOffset); });
+                    }
+
+                    data = _sftpSession.RequestRead(handle, offset, optimalReadLength);
+                }
             }
 
             _sftpSession.RequestClose(handle);
+        }
+
+        private class BlockingQueue<T>
+        {
+            private readonly object _lock = new object();
+            private Queue<T> _queue;
+            private bool _isClosed;
+
+            public BlockingQueue(int capacity)
+            {
+                _queue = new Queue<T>(capacity);
+            }
+
+            public T Dequeue()
+            {
+                lock (_lock)
+                {
+                    while (!_isClosed && _queue.Count == 0)
+                        Monitor.Wait(_lock);
+
+                    if (_queue.Count == 0)
+                        return default(T);
+
+                    return _queue.Dequeue();
+                }
+            }
+
+            public void Enqueue(T item)
+            {
+                lock (_lock)
+                {
+                    _queue.Enqueue(item);
+                    Monitor.PulseAll(_lock);
+                }
+            }
+
+            public void Close()
+            {
+                _isClosed = true;
+                Monitor.PulseAll(_lock);
+            }
+        }
+
+        private class BufferedRead
+        {
+            public byte[] Data { get; private set; }
+
+            public ulong Offset { get; private set; }
+
+            public BufferedRead(ulong offset, byte[] data)
+            {
+                Offset = offset;
+                Data = data;
+            }
         }
 
         /// <summary>

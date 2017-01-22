@@ -29,10 +29,12 @@ namespace Renci.SshNet.Common
         private Exception _exception;
 
         /// <summary>
-        /// Gets or sets a value indicating whether EndInvoke has been called on the current AsyncResult.
+        /// Gets or sets a value indicating whether <see cref="EndInvoke()"/> has been called on the current
+        /// <see cref="AsyncResult"/>.
         /// </summary>
         /// <value>
-        /// <c>true</c> if <see cref="EndInvoke()"/> has been called on the current <see cref="AsyncResult"/>; otherwise, <c>false</c>.
+        /// <c>true</c> if <see cref="EndInvoke()"/> has been called on the current <see cref="AsyncResult"/>;
+        /// otherwise, <c>false</c>.
         /// </value>
         public bool EndInvokeCalled { get; private set; }
 
@@ -75,7 +77,7 @@ namespace Renci.SshNet.Common
         /// <summary>
         /// Waits until the asynchronous operation completes, and then returns. 
         /// </summary>
-        public void EndInvoke()
+        internal void EndInvoke()
         {
             // This method assumes that only 1 thread calls EndInvoke for this object
             if (!IsCompleted)
@@ -84,6 +86,28 @@ namespace Renci.SshNet.Common
                 AsyncWaitHandle.WaitOne();
                 AsyncWaitHandle.Dispose();
                 _asyncWaitHandle = null;  // Allow early GC
+            }
+
+            EndInvokeCalled = true;
+
+            // Operation is done: if an exception occurred, throw it
+            if (_exception != null)
+                throw _exception;
+        }
+
+        /// <summary>
+        /// Waits until the asynchronous operation completes, and then returns. 
+        /// </summary>
+        internal void EndInvoke(TimeSpan timeout)
+        {
+            // This method assumes that only 1 thread calls EndInvoke for this object
+            if (!IsCompleted)
+            {
+                // If the operation isn't done, wait for it
+                var completed = AsyncWaitHandle.WaitOne(timeout);
+                _asyncWaitHandle = null;  // Allow early GC
+                AsyncWaitHandle.Dispose();
+
             }
 
             EndInvokeCalled = true;

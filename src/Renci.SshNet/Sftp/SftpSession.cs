@@ -169,6 +169,8 @@ namespace Renci.SshNet.Sftp
             var offset = 0;
             var count = data.Length;
 
+            //Console.WriteLine("Data received: " + count);
+
             // improve performance and reduce GC pressure by not buffering channel data if the received
             // chunk contains the complete packet data.
             //
@@ -183,6 +185,8 @@ namespace Renci.SshNet.Sftp
                                            data[offset + 3];
 
                     var packetTotalLength = packetDataLength + packetLengthByteCount;
+
+                    //Console.WriteLine("Current: " + data.Length + " | Total: " + packetTotalLength);
 
                     // check if complete packet data (or more) is available
                     if (count >= packetTotalLength)
@@ -240,6 +244,8 @@ namespace Renci.SshNet.Sftp
                 var packetDataLength = _data[0] << 24 | _data[1] << 16 | _data[2] << 8 | _data[3];
 
                 var packetTotalLength = packetDataLength + packetLengthByteCount;
+
+                //Console.WriteLine("Current: " + data.Length + " | Total: " + packetTotalLength);
 
                 // check if complete packet data is available
                 if (_data.Count < packetTotalLength)
@@ -395,6 +401,46 @@ namespace Renci.SshNet.Sftp
             {
                 throw exception;
             }
+        }
+
+        public SftpReadAsyncResult BeginRead(byte[] handle, ulong offset, uint length, AsyncCallback callback, object state)
+        {
+            var asyncResult = new SftpReadAsyncResult(callback, state);
+
+            var request = new SftpReadRequest(ProtocolVersion, NextRequestId, handle, offset, length,
+                response =>
+                {
+                    asyncResult.SetAsCompleted(response.Data, false);
+                },
+                response =>
+                {
+                    if (response.StatusCode != StatusCodes.Eof)
+                    {
+                        asyncResult.SetAsCompleted(GetSftpException(response), false);
+                    }
+                    else
+                    {
+                        asyncResult.SetAsCompleted(Array<byte>.Empty, false);
+                    }
+                });
+            SendRequest(request);
+
+            return asyncResult;
+        }
+
+        public byte[] EndRead(IAsyncResult asyncResult)
+        {
+            if (asyncResult == null)
+                throw new ArgumentNullException("asyncResult");
+
+            var sftpReadAsyncResult = asyncResult as SftpReadAsyncResult;
+            if (sftpReadAsyncResult == null)
+                throw new ArgumentException("IDIOT", "asyncResult");
+
+            if (sftpReadAsyncResult.EndInvokeCalled)
+                throw new InvalidOperationException("EndRead has already been called.");
+
+            return sftpReadAsyncResult.EndInvoke();
         }
 
         /// <summary>

@@ -38,7 +38,7 @@ namespace Renci.SshNet.Sftp
             {
                 while (!_isCompleted)
                 {
-                    // we reach one chunk beyond the file size to get an EOF
+                    // we read one chunk beyond the file size to get an EOF
                     if (_readAheadOffset > _fileSize)
                         break;
 
@@ -134,7 +134,7 @@ namespace Renci.SshNet.Sftp
             // in both cases, we want to unblock the "read-ahead" thread
             lock (_readLock)
             {
-                Monitor.Pulse(_readLock);
+                Monitor.PulseAll(_readLock);
             }
         }
 

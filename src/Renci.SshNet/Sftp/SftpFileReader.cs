@@ -6,71 +6,54 @@ using System.Threading;
 
 namespace Renci.SshNet.Sftp
 {
-    internal class SftpFileReader
+    internal class SftpFileReader : IDisposable
     {
-        private const int MaxReadAhead = 15;
-
         private readonly byte[] _handle;
         private readonly ISftpSession _sftpSession;
-        private SemaphoreLight _semaphore;
-        private bool _isCompleted;
         private uint _chunkLength;
-        private int _readAheadChunkIndex;
-        private int _nextChunkIndex;
-        private ulong _readAheadOffset;
         private ulong _offset;
         private ulong _fileSize;
-        private Exception _exception;
         private readonly IDictionary<int, BufferedRead> _queue;
+
+        private int _readAheadChunkIndex;
+        private ulong _readAheadOffset;
+        private ManualResetEvent _readAheadCompleted;
+        private int _nextChunkIndex;
+
+        private bool _isEndOfFile;
+        private SemaphoreLight _semaphore;
         private readonly object _readLock;
 
-        public SftpFileReader(byte[] handle, ISftpSession sftpSession)
+        private Exception _exception;
+        private bool _disposed;
+
+        /// <summary>
+        /// Initializes a new <see cref="SftpFileReader"/> instance with the specified handle,
+        /// <see cref="ISftpSession"/> and the maximum number of pending reads.
+        /// </summary>
+        /// <param name="handle"></param>
+        /// <param name="sftpSession"></param>
+        /// <param name="maxReadHead">The maximum number of pending reads.</param>
+        public SftpFileReader(byte[] handle, ISftpSession sftpSession, int maxReadHead)
         {
             _handle = handle;
             _sftpSession = sftpSession;
-            _chunkLength = 32 * 1024; // TODO !
-            _semaphore = new SemaphoreLight(MaxReadAhead);
-            _queue = new Dictionary<int, BufferedRead>(MaxReadAhead);
+            _chunkLength = 32 * 1024 - 13; // TODO !
+            _semaphore = new SemaphoreLight(maxReadHead);
+            _queue = new Dictionary<int, BufferedRead>(maxReadHead);
             _readLock = new object();
+            _readAheadCompleted = new ManualResetEvent(false);
 
             _fileSize = (ulong)_sftpSession.RequestFStat(_handle).Size;
 
-            ThreadAbstraction.ExecuteThread(() =>
-            {
-                // read one chunk beyond the chunk in which we read "file size" bytes
-                // to get an EOF
-
-                while (_readAheadOffset <= (_fileSize + _chunkLength) && _exception == null)
-                {
-                    // TODO implement cancellation!?
-                    // TODO implement IDisposable to cancel the Wait in case the client never completes reading to EOF
-                    // TODO check if the BCL Semaphore unblocks wait on dispose (and mimick same behavior in our SemaphoreLight ?)
-                    _semaphore.Wait();
-
-                    // don't bother reading any more chunks if we reached EOF, or an exception has occurred
-                    // while processing a chunk
-                    if (_isCompleted || _exception != null)
-                        break;
-
-                    // TODO: catch exception, signal error to Read() and break loop
-
-                    // start reading next chunk
-                    _sftpSession.BeginRead(_handle, _readAheadOffset, _chunkLength, ReadCompleted,
-                                           new BufferedRead(_readAheadChunkIndex, _readAheadOffset));
-
-                    // advance read-ahead offset
-                    _readAheadOffset += _chunkLength;
-
-                    _readAheadChunkIndex++;
-                }
-
-                Console.WriteLine("Finished read-ahead");
-            });
+            StartReadAhead();
         }
 
         public byte[] Read()
         {
-            if (_isCompleted)
+            if (_exception != null || _disposed)
+                throw new ObjectDisposedException(GetType().FullName);
+            if (_isEndOfFile)
                 throw new SshException("Attempting to read beyond the end of the file.");
 
             lock (_readLock)
@@ -81,7 +64,9 @@ namespace Renci.SshNet.Sftp
 
                 // wait until either the next chunk is avalable or an exception has occurred
                 while (!_queue.TryGetValue(_nextChunkIndex, out nextChunk) && _exception == null)
+                {
                     Monitor.Wait(_readLock);
+                }
 
                 if (_exception != null)
                     throw _exception;
@@ -98,7 +83,7 @@ namespace Renci.SshNet.Sftp
                     // have we reached EOF?
                     if (data.Length == 0)
                     {
-                        _isCompleted = true;
+                        _isEndOfFile = true;
                     }
                     // unblock wait in read-ahead
                     _semaphore.Release();
@@ -109,7 +94,7 @@ namespace Renci.SshNet.Sftp
                 // chunk if we haven't already read up to the file size
                 if (nextChunk.Data.Length == 0 && _offset == _fileSize)
                 {
-                    _isCompleted = true;
+                    _isEndOfFile = true;
 
                     // unblock wait in read-ahead
                     _semaphore.Release();
@@ -120,29 +105,94 @@ namespace Renci.SshNet.Sftp
                 // when the server returned less bytes than requested (for the previous chunk)
                 // we'll synchronously request the remaining data
 
-                var catchUp = new byte[nextChunk.Offset - _offset];
-                var bytesCaughtUp = 0L;
+                var bytesToCatchUp = nextChunk.Offset - _offset;
 
-                while (bytesCaughtUp < catchUp.Length)
+                // TODO: break loop and interrupt blocking wait in case of exception
+                var read = _sftpSession.RequestRead(_handle, _offset, (uint) bytesToCatchUp);
+                if (read.Length == 0)
                 {
-                    // TODO: break loop and interrupt blocking wait in case of exception
-                    var read = _sftpSession.RequestRead(_handle, _offset, (uint) catchUp.Length);
-                    if (read.Length == 0)
-                    {
-                        // move reader to error state
-                        _exception = new SshException("Unexpectedly reached end of file.");
-                        // unblock wait in read-ahead
-                        _semaphore.Release();
-                        // notify caller of error
-                        throw _exception;
-                    }
-
-                    bytesCaughtUp += read.Length;
-                    _offset += (ulong) bytesCaughtUp;
+                    // move reader to error state
+                    _exception = new SshException("Unexpectedly reached end of file.");
+                    // unblock wait in read-ahead
+                    _semaphore.Release();
+                    // notify caller of error
+                    throw _exception;
                 }
 
-                return catchUp;
+                _offset += (uint) read.Length;
+
+                return read;
             }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                var readAheadCompleted = _readAheadCompleted;
+                if (readAheadCompleted != null)
+                {
+                    _readAheadCompleted = null;
+                    if (!readAheadCompleted.WaitOne(TimeSpan.FromSeconds(1)))
+                    {
+                        DiagnosticAbstraction.Log("Read-ahead thread did not complete within time-out.");
+                    }
+                    readAheadCompleted.Dispose();
+                }
+
+                _disposed = true;
+            }
+        }
+
+        private void StartReadAhead()
+        {
+            ThreadAbstraction.ExecuteThread(() =>
+            {
+                while (_exception == null)
+                {
+                    // TODO implement cancellation!?
+                    // TODO implement IDisposable to cancel the Wait in case the client never completes reading to EOF
+                    // TODO check if the BCL Semaphore unblocks wait on dispose (and mimick same behavior in our SemaphoreLight ?)
+                    _semaphore.Wait();
+
+                    // don't bother reading any more chunks if we reached EOF, or an exception has occurred
+                    // while processing a chunk
+                    if (_isEndOfFile || _exception != null)
+                        break;
+
+                    // start reading next chunk
+                    try
+                    {
+                        _sftpSession.BeginRead(_handle, _readAheadOffset, _chunkLength, ReadCompleted,
+                                               new BufferedRead(_readAheadChunkIndex, _readAheadOffset));
+                    }
+                    catch (Exception ex)
+                    {
+                        HandleFailure(ex);
+                        break;
+                    }
+
+                    if (_readAheadOffset >= _fileSize)
+                    {
+                        // read one chunk beyond the chunk in which we read "file size" bytes
+                        // to get an EOF
+                        break;
+                    }
+
+                    // advance read-ahead offset
+                    _readAheadOffset += _chunkLength;
+
+                    _readAheadChunkIndex++;
+                }
+
+                _readAheadCompleted.Set();
+            });
         }
 
         private void ReadCompleted(IAsyncResult result)
@@ -151,7 +201,17 @@ namespace Renci.SshNet.Sftp
             if (readAsyncResult == null)
                 return;
 
-            var data = readAsyncResult.EndInvoke();
+            byte[] data = null;
+
+            try
+            {
+                data = readAsyncResult.EndInvoke();
+            }
+            catch (Exception ex)
+            {
+                HandleFailure(ex);
+                return;
+            }
 
             // a read that completes with a zero-byte result signals EOF
             // but there may be pending reads before that read
@@ -167,7 +227,21 @@ namespace Renci.SshNet.Sftp
             }
         }
 
-        private class BufferedRead
+        private void HandleFailure(Exception cause)
+        {
+            _exception = cause;
+
+            // unblock read-ahead
+            _semaphore.Release();
+
+            // unblock Read()
+            lock (_readLock)
+            {
+                Monitor.PulseAll(_readLock);
+            }
+        }
+
+        internal class BufferedRead
         {
             public int ChunkIndex { get; private set; }
 

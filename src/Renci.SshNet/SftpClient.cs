@@ -2000,7 +2000,7 @@ namespace Renci.SshNet
             // TODO close handle in case of exception
             // TODO decide whether to move opening (and closing) of handle to SftpFileReader
 
-            var fileReader = new SftpFileReader(handle, _sftpSession);
+            var fileReader = new SftpFileReader(handle, _sftpSession, 15);
             var totalBytesRead = 0UL;
 
             while (true)

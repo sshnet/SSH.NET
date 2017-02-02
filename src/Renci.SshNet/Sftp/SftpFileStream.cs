@@ -102,7 +102,7 @@ namespace Renci.SshNet.Sftp
                     }
 
                     //  Update file attributes
-                    _attributes = _session.RequestFStat(_handle);
+                    _attributes = _session.RequestFStat(_handle, true);
 
                     if (_attributes != null && _attributes.Size > -1)
                     {
@@ -269,7 +269,7 @@ namespace Renci.SshNet.Sftp
             if (_handle == null)
                 _handle = _session.RequestOpen(path, flags);
 
-            _attributes = _session.RequestFStat(_handle);
+            _attributes = _session.RequestFStat(_handle, false);
 
             // instead of using the specified buffer size as is, we use it to calculate a buffer size
             // that ensures we always receive or send the max. number of bytes in a single SSH_FXP_READ
@@ -475,7 +475,7 @@ namespace Renci.SshNet.Sftp
                     return _position;
                 }
 
-                _attributes = _session.RequestFStat(_handle);
+                _attributes = _session.RequestFStat(_handle, false);
 
                 // The behaviour depends upon the read/write mode.
                 if (_bufferOwnedByWrite)

@@ -80,7 +80,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             _sftpSessionMock.InSequence(_sequence)
                 .Setup(p => p.RequestOpen(_path, Flags.Write | Flags.Truncate, true))
                 .Returns(_handle);
-            _sftpSessionMock.InSequence(_sequence).Setup(p => p.RequestFStat(_handle)).Returns(_fileAttributes);
+            _sftpSessionMock.InSequence(_sequence).Setup(p => p.RequestFStat(_handle, false)).Returns(_fileAttributes);
             _sftpSessionMock.InSequence(_sequence)
                 .Setup(p => p.CalculateOptimalReadLength(_bufferSize))
                 .Returns(_readBufferSize);
@@ -134,7 +134,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                             .Setup(p => p.RequestWrite(_handle, _expectedWrittenByteCount, It.IsAny<byte[]>(), 0, _expectedBufferedByteCount, It.IsAny<AutoResetEvent>(), null))
                             .Callback<byte[], ulong, byte[], int, int, AutoResetEvent, Action<SftpStatusResponse>>((handle, serverFileOffset, data, offset, length, wait, writeCompleted) => actualFlushedData = data.Take(offset, length));
             _sftpSessionMock.InSequence(_sequence)
-                            .Setup(p => p.RequestFStat(_handle))
+                            .Setup(p => p.RequestFStat(_handle, true))
                             .Returns(lengthFileAttributes);
 
             Assert.AreEqual(lengthFileAttributes.Size, _sftpFileStream.Length);
@@ -142,6 +142,71 @@ namespace Renci.SshNet.Tests.Classes.Sftp
 
             _sftpSessionMock.Verify(p => p.RequestWrite(_handle, _expectedWrittenByteCount, It.IsAny<byte[]>(), 0, _expectedBufferedByteCount, It.IsAny<AutoResetEvent>(), null), Times.Once);
         }
+
+        [TestMethod]
+        public void LengthShouldThrowIOExceptionIfRequestFStatReturnsNull()
+        {
+            const SftpFileAttributes lengthFileAttributes = null;
+            byte[] actualFlushedData = null;
+
+            _sftpSessionMock.InSequence(_sequence)
+                            .Setup(p => p.IsOpen)
+                            .Returns(true);
+            _sftpSessionMock.InSequence(_sequence)
+                            .Setup(p => p.RequestWrite(_handle, _expectedWrittenByteCount, It.IsAny<byte[]>(), 0, _expectedBufferedByteCount, It.IsAny<AutoResetEvent>(), null))
+                            .Callback<byte[], ulong, byte[], int, int, AutoResetEvent, Action<SftpStatusResponse>>((handle, serverFileOffset, data, offset, length, wait, writeCompleted) => actualFlushedData = data.Take(offset, length));
+            _sftpSessionMock.InSequence(_sequence)
+                            .Setup(p => p.RequestFStat(_handle, true))
+                            .Returns(lengthFileAttributes);
+
+            try
+            {
+                var length = _sftpFileStream.Length;
+                Assert.Fail();
+            }
+            catch (IOException ex)
+            {
+                Assert.IsNull(ex.InnerException);
+                Assert.AreEqual("Seek operation failed.", ex.Message);
+            }
+
+            Assert.IsTrue(actualFlushedData.IsEqualTo(_expectedBufferedBytes));
+
+            _sftpSessionMock.Verify(p => p.RequestWrite(_handle, _expectedWrittenByteCount, It.IsAny<byte[]>(), 0, _expectedBufferedByteCount, It.IsAny<AutoResetEvent>(), null), Times.Once);
+        }
+
+        [TestMethod]
+        public void LengthShouldThrowIOExceptionIfSizeIsMinusOne()
+        {
+            var lengthFileAttributes = new SftpFileAttributes(DateTime.Now, DateTime.Now, -1, _random.Next(), _random.Next(), (uint)_random.Next(0, int.MaxValue), null);
+            byte[] actualFlushedData = null;
+
+            _sftpSessionMock.InSequence(_sequence)
+                            .Setup(p => p.IsOpen)
+                            .Returns(true);
+            _sftpSessionMock.InSequence(_sequence)
+                            .Setup(p => p.RequestWrite(_handle, _expectedWrittenByteCount, It.IsAny<byte[]>(), 0, _expectedBufferedByteCount, It.IsAny<AutoResetEvent>(), null))
+                            .Callback<byte[], ulong, byte[], int, int, AutoResetEvent, Action<SftpStatusResponse>>((handle, serverFileOffset, data, offset, length, wait, writeCompleted) => actualFlushedData = data.Take(offset, length));
+            _sftpSessionMock.InSequence(_sequence)
+                            .Setup(p => p.RequestFStat(_handle, true))
+                            .Returns(lengthFileAttributes);
+
+            try
+            {
+                var length = _sftpFileStream.Length;
+                Assert.Fail();
+            }
+            catch (IOException ex)
+            {
+                Assert.IsNull(ex.InnerException);
+                Assert.AreEqual("Seek operation failed.", ex.Message);
+            }
+
+            Assert.IsTrue(actualFlushedData.IsEqualTo(_expectedBufferedBytes));
+
+            _sftpSessionMock.Verify(p => p.RequestWrite(_handle, _expectedWrittenByteCount, It.IsAny<byte[]>(), 0, _expectedBufferedByteCount, It.IsAny<AutoResetEvent>(), null), Times.Once);
+        }
+
 
         [TestMethod]
         public void DisposeShouldFlushBufferAndCloseRequest()

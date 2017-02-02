@@ -170,6 +170,7 @@
     <Compile Include="Security\KeyExchangeDiffieHellmanGroupExchangeShaBase.cs" />
     <Compile Include="ServiceFactory.cs" />
     <Compile Include="ServiceFactory.NET.cs" />
+    <Compile Include="Sftp\ISftpFileReader.cs" />
     <Compile Include="Sftp\ISftpSession.cs" />
     <Compile Include="Common\SshDataStream.cs" />
     <Compile Include="ExpectAsyncResult.cs" />

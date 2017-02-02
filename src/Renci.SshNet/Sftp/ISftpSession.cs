@@ -42,10 +42,11 @@ namespace Renci.SshNet.Sftp
         /// Performs SSH_FXP_FSTAT request.
         /// </summary>
         /// <param name="handle">The handle.</param>
+        /// <param name="nullOnError">if set to <c>true</c> returns <c>null</c> instead of throwing an exception.</param>
         /// <returns>
         /// File attributes
         /// </returns>
-        SftpFileAttributes RequestFStat(byte[] handle);
+        SftpFileAttributes RequestFStat(byte[] handle, bool nullOnError);
 
         /// <summary>
         /// Performs SSH_FXP_LSTAT request.
@@ -222,5 +223,7 @@ namespace Renci.SshNet.Sftp
         /// Currently, we do not take the remote window size into account.
         /// </remarks>
         uint CalculateOptimalWriteLength(uint bufferSize, byte[] handle);
+
+        ISftpFileReader CreateFileReader(string fileName, uint bufferSize);
     }
 }

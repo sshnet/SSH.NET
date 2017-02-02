@@ -1995,35 +1995,36 @@ namespace Renci.SshNet
 
             var fullPath = _sftpSession.GetCanonicalPath(path);
 
-            var handle = _sftpSession.RequestOpen(fullPath, Flags.Read);
-            
-            // TODO close handle in case of exception
-            // TODO decide whether to move opening (and closing) of handle to SftpFileReader
-
-            var fileReader = new SftpFileReader(handle, _sftpSession, 15);
-            var totalBytesRead = 0UL;
-
-            while (true)
+            using (var fileReader = _sftpSession.CreateFileReader(fullPath, _bufferSize))
             {
-                // TODO: cancel read ahead when download is canceled by user
+                var totalBytesRead = 0UL;
 
-                //  Cancel download
-                if (asyncResult != null && asyncResult.IsDownloadCanceled)
-                    break;
+                while (true)
+                {
+                    // TODO: cancel read ahead when download is canceled by user
 
-                var data = fileReader.Read();
-                if (data.Length == 0)
-                    break;
+                    //  Cancel download
+                    if (asyncResult != null && asyncResult.IsDownloadCanceled)
+                        break;
 
-                output.Write(data, 0, data.Length);
+                    var data = fileReader.Read();
+                    if (data.Length == 0)
+                        break;
 
-                totalBytesRead += (ulong) data.Length;
+                    output.Write(data, 0, data.Length);
 
-                if (downloadCallback != null)
-                    downloadCallback(totalBytesRead);
+                    totalBytesRead += (ulong)data.Length;
+
+                    if (downloadCallback != null)
+                    {
+                        // copy offset to ensure it's not modified between now and execution of callback
+                        var downloadOffset = totalBytesRead;
+
+                        //  Execute callback on different thread
+                        ThreadAbstraction.ExecuteThread(() => { downloadCallback(downloadOffset); });
+                    }
+                }
             }
-
-            _sftpSession.RequestClose(handle);
         }
 
         /// <summary>

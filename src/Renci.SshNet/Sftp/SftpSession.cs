@@ -17,6 +17,7 @@ namespace Renci.SshNet.Sftp
         private readonly Dictionary<uint, SftpRequest> _requests = new Dictionary<uint, SftpRequest>();
         //FIXME: obtain from SftpClient!
         private readonly List<byte> _data = new List<byte>(32 * 1024);
+        private readonly IServiceFactory _serviceFactory;
         private EventWaitHandle _sftpVersionConfirmed = new AutoResetEvent(false);
         private IDictionary<string, string> _supportedExtensions;
 
@@ -37,6 +38,7 @@ namespace Renci.SshNet.Sftp
         public uint ProtocolVersion { get; private set; }
 
         private long _requestId;
+
         /// <summary>
         /// Gets the next request id for sftp session.
         /// </summary>
@@ -48,9 +50,10 @@ namespace Renci.SshNet.Sftp
             }
         }
 
-        public SftpSession(ISession session, TimeSpan operationTimeout, Encoding encoding)
+        public SftpSession(ISession session, TimeSpan operationTimeout, Encoding encoding, IServiceFactory serviceFactory)
             : base(session, "sftp", operationTimeout, encoding)
         {
+            _serviceFactory = serviceFactory;
         }
 
         /// <summary>
@@ -125,6 +128,30 @@ namespace Renci.SshNet.Sftp
             if (canonizedPath[canonizedPath.Length - 1] != '/')
                 slash = "/";
             return string.Format(CultureInfo.InvariantCulture, "{0}{1}{2}", canonizedPath, slash, pathParts[pathParts.Length - 1]);
+        }
+
+        public ISftpFileReader CreateFileReader(string fileName, uint bufferSize)
+        {
+            var handle = RequestOpen(fileName, Flags.Read);
+
+            long? fileSize;
+            int maxPendingReads;
+
+            var chunkSize = CalculateOptimalReadLength(bufferSize);
+
+            var fileAttributes = RequestFStat(handle, true);
+            if (fileAttributes == null)
+            {
+                fileSize = null;
+                maxPendingReads = 5;
+            }
+            else
+            {
+                fileSize = fileAttributes.Size;
+                maxPendingReads = Math.Min(10, (int)Math.Ceiling((double)fileAttributes.Size / chunkSize) + 1);
+            }
+
+            return _serviceFactory.CreateSftpFileReader(handle, this, chunkSize, maxPendingReads, fileSize);
         }
 
         internal string GetFullRemotePath(string path)
@@ -590,10 +617,11 @@ namespace Renci.SshNet.Sftp
         /// Performs SSH_FXP_FSTAT request.
         /// </summary>
         /// <param name="handle">The handle.</param>
+        /// <param name="nullOnError">if set to <c>true</c> returns <c>null</c> instead of throwing an exception.</param>
         /// <returns>
         /// File attributes
         /// </returns>
-        public SftpFileAttributes RequestFStat(byte[] handle)
+        public SftpFileAttributes RequestFStat(byte[] handle, bool nullOnError)
         {
             SshException exception = null;
             SftpFileAttributes attributes = null;
@@ -617,7 +645,7 @@ namespace Renci.SshNet.Sftp
                 WaitOnHandle(wait, OperationTimeout);
             }
 
-            if (exception != null)
+            if (exception != null && !nullOnError)
             {
                 throw exception;
             }
@@ -687,7 +715,7 @@ namespace Renci.SshNet.Sftp
         /// Performs SSH_FXP_OPENDIR request
         /// </summary>
         /// <param name="path">The path.</param>
-        /// <param name="nullOnError">if set to <c>true</c> returns null instead of throwing an exception.</param>
+        /// <param name="nullOnError">if set to <c>true</c> returns <c>null</c> instead of throwing an exception.</param>
         /// <returns>File handle.</returns>
         public byte[] RequestOpenDir(string path, bool nullOnError = false)
         {

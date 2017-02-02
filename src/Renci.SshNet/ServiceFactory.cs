@@ -50,7 +50,7 @@ namespace Renci.SshNet
         /// </returns>
         public ISftpSession CreateSftpSession(ISession session, TimeSpan operationTimeout, Encoding encoding)
         {
-            return new SftpSession(session, operationTimeout, encoding);
+            return new SftpSession(session, operationTimeout, encoding, this);
         }
 
         /// <summary>
@@ -95,6 +95,11 @@ namespace Renci.SshNet
             }
 
             return keyExchangeAlgorithmType.CreateInstance<IKeyExchange>();
+        }
+
+        public ISftpFileReader CreateSftpFileReader(byte[] handle, ISftpSession sftpSession, uint chunkSize, int maxPendingReads, long? fileSize)
+        {
+            return new SftpFileReader(handle, sftpSession, chunkSize, maxPendingReads, fileSize);
         }
     }
 }

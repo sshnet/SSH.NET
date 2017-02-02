@@ -44,7 +44,6 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         {
             var seq = new MockSequence();
 
-            SftpSessionMock.InSequence(seq).Setup(p => p.RequestFStat(_handle)).Returns(CreateSftpFileAttributes(_fileSize));
             SftpSessionMock.InSequence(seq)
                            .Setup(p => p.BeginRead(_handle, 0, ChunkLength, It.IsNotNull<AsyncCallback>(), It.IsAny<BufferedRead>()))
                            .Callback<byte[], ulong, uint, AsyncCallback, object>((handle, offset, length, callback, state) =>
@@ -91,7 +90,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
 
             // use a max. read-ahead of 1 to allow us to verify that the next read-ahead is not done
             // when a read-ahead has failed
-            _reader = new SftpFileReader(_handle, SftpSessionMock.Object, 1);
+            _reader = new SftpFileReader(_handle, SftpSessionMock.Object, ChunkLength, 1, _fileSize);
         }
 
         protected override void Act()

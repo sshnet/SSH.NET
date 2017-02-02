@@ -40,6 +40,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
 
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);
             _channelSessionMock = new Mock<IChannelSession>(MockBehavior.Strict);
+            _serviceFactoryMock = new Mock<IServiceFactory>(MockBehavior.Strict);
 
             var sequence = new MockSequence();
 

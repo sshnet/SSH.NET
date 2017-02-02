@@ -19,7 +19,6 @@
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="**\*.cs" />
     <Compile Include="..\Renci.SshNet\**\*.cs" Exclude="..\Renci.SshNet\Properties\AssemblyInfo.cs">
       <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
     </Compile>

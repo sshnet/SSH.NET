@@ -713,6 +713,9 @@
     <Compile Include="..\Renci.SshNet\Sftp\Flags.cs">
       <Link>Sftp\Flags.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\Sftp\ISftpFileReader.cs">
+      <Link>Sftp\ISftpFileReader.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\Sftp\ISftpSession.cs">
       <Link>Sftp\ISftpSession.cs</Link>
     </Compile>

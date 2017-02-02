@@ -14,6 +14,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
     {
         private const int ChunkLength = 32 * 1024;
 
+        private MockSequence _seq;
         private byte[] _handle;
         private int _fileSize;
         private byte[] _chunk1;
@@ -41,9 +42,9 @@ namespace Renci.SshNet.Tests.Classes.Sftp
 
         protected override void SetupMocks()
         {
-            var seq = new MockSequence();
+            _seq = new MockSequence();
 
-            SftpSessionMock.InSequence(seq)
+            SftpSessionMock.InSequence(_seq)
                            .Setup(p => p.BeginRead(_handle, 0, ChunkLength, It.IsNotNull<AsyncCallback>(), It.IsAny<BufferedRead>()))
                            .Callback<byte[], ulong, uint, AsyncCallback, object>((handle, offset, length, callback, state) =>
                                 {
@@ -51,7 +52,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                                     asyncResult.SetAsCompleted(_chunk1, false);
                                 })
                            .Returns((SftpReadAsyncResult)null);
-            SftpSessionMock.InSequence(seq)
+            SftpSessionMock.InSequence(_seq)
                             .Setup(p => p.BeginRead(_handle, ChunkLength, ChunkLength, It.IsNotNull<AsyncCallback>(), It.IsAny<BufferedRead>()))
                             .Callback<byte[], ulong, uint, AsyncCallback, object>((handle, offset, length, callback, state) =>
                             {
@@ -59,7 +60,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                                 asyncResult.SetAsCompleted(_chunk2, false);
                             })
                             .Returns((SftpReadAsyncResult)null);
-            SftpSessionMock.InSequence(seq)
+            SftpSessionMock.InSequence(_seq)
                             .Setup(p => p.BeginRead(_handle, 2 * ChunkLength, ChunkLength, It.IsNotNull<AsyncCallback>(), It.IsAny<BufferedRead>()))
                             .Callback<byte[], ulong, uint, AsyncCallback, object>((handle, offset, length, callback, state) =>
                             {
@@ -122,13 +123,17 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         }
 
         [TestMethod]
-        public void DisposeShouldCompleteImmediately()
+        public void DisposeShouldCloseHandleAndCompleteImmediately()
         {
+            SftpSessionMock.InSequence(_seq).Setup(p => p.RequestClose(_handle));
+
             var stopwatch = Stopwatch.StartNew();
             _reader.Dispose();
             stopwatch.Stop();
 
             Assert.IsTrue(stopwatch.ElapsedMilliseconds < 200, "Dispose took too long to complete: " + stopwatch.ElapsedMilliseconds);
+
+            SftpSessionMock.Verify(p => p.RequestClose(_handle), Times.Once);
         }
     }
 }

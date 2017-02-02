@@ -658,8 +658,7 @@ namespace Renci.SshNet
         /// </remarks>
         public void WriteLine(string line)
         {
-            var commandText = string.Format("{0}{1}", line, "\r");
-            Write(commandText);
+            Write(line + "\r");
         }
 
         /// <summary>

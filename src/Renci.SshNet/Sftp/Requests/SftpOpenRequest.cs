@@ -8,6 +8,7 @@ namespace Renci.SshNet.Sftp.Requests
     {
         private byte[] _fileName;
         private byte[] _attributes;
+        private readonly Action<SftpHandleResponse> _handleAction;
 
         public override SftpMessageTypes SftpMessageType
         {
@@ -62,7 +63,7 @@ namespace Renci.SshNet.Sftp.Requests
             Flags = flags;
             Attributes = attributes;
 
-            SetAction(handleAction);
+            _handleAction = handleAction;
         }
 
         protected override void LoadData()
@@ -78,6 +79,19 @@ namespace Renci.SshNet.Sftp.Requests
             WriteBinaryString(_fileName);
             Write((uint) Flags);
             Write(_attributes);
+        }
+
+        public override void Complete(SftpResponse response)
+        {
+            var handleResponse = response as SftpHandleResponse;
+            if (handleResponse != null)
+            {
+                _handleAction(handleResponse);
+            }
+            else
+            {
+                base.Complete(response);
+            }
         }
     }
 }

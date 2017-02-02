@@ -7,6 +7,7 @@ namespace Renci.SshNet.Sftp.Requests
     internal class SftpRealPathRequest : SftpRequest
     {
         private byte[] _path;
+        private readonly Action<SftpNameResponse> _nameAction;
 
         public override SftpMessageTypes SftpMessageType
         {
@@ -43,19 +44,30 @@ namespace Renci.SshNet.Sftp.Requests
         {
             if (nameAction == null)
                 throw new ArgumentNullException("nameAction");
-            if (statusAction == null)
-                throw new ArgumentNullException("statusAction");
 
             Encoding = encoding;
             Path = path;
-            SetAction(nameAction);
-            
+
+            _nameAction = nameAction;
         }
 
         protected override void SaveData()
         {
             base.SaveData();
             WriteBinaryString(_path);
+        }
+
+        public override void Complete(SftpResponse response)
+        {
+            var nameResponse = response as SftpNameResponse;
+            if (nameResponse != null)
+            {
+                _nameAction(nameResponse);
+            }
+            else
+            {
+                base.Complete(response);
+            }
         }
     }
 }

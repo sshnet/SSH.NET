@@ -7,6 +7,7 @@ namespace Renci.SshNet.Sftp.Requests
     internal class SftpOpenDirRequest : SftpRequest
     {
         private byte[] _path;
+        private readonly Action<SftpHandleResponse> _handleAction;
 
         public override SftpMessageTypes SftpMessageType
         {
@@ -43,7 +44,8 @@ namespace Renci.SshNet.Sftp.Requests
         {
             Encoding = encoding;
             Path = path;
-            SetAction(handleAction);
+
+            _handleAction = handleAction;
         }
 
         protected override void LoadData()
@@ -58,6 +60,19 @@ namespace Renci.SshNet.Sftp.Requests
             base.SaveData();
 
             WriteBinaryString(_path);
+        }
+
+        public override void Complete(SftpResponse response)
+        {
+            var handleResponse = response as SftpHandleResponse;
+            if (handleResponse != null)
+            {
+                _handleAction(handleResponse);
+            }
+            else
+            {
+                base.Complete(response);
+            }
         }
     }
 }

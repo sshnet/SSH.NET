@@ -7,6 +7,7 @@ namespace Renci.SshNet.Sftp.Requests
     internal class StatVfsRequest : SftpExtendedRequest
     {
         private byte[] _path;
+        private readonly Action<SftpExtendedReplyResponse> _extendedReplyAction;
 
         public string Path
         {
@@ -38,13 +39,27 @@ namespace Renci.SshNet.Sftp.Requests
         {
             Encoding = encoding;
             Path = path;
-            SetAction(extendedAction);
+
+            _extendedReplyAction = extendedAction;
         }
 
         protected override void SaveData()
         {
             base.SaveData();
             WriteBinaryString(_path);
+        }
+
+        public override void Complete(SftpResponse response)
+        {
+            var extendedReplyResponse = response as SftpExtendedReplyResponse;
+            if (extendedReplyResponse != null)
+            {
+                _extendedReplyAction(extendedReplyResponse);
+            }
+            else
+            {
+                base.Complete(response);
+            }
         }
     }
 }

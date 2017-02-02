@@ -7,6 +7,7 @@ namespace Renci.SshNet.Sftp.Requests
     internal class SftpStatRequest : SftpRequest
     {
         private byte[] _path;
+        private readonly Action<SftpAttrsResponse> _attrsAction;
 
         public override SftpMessageTypes SftpMessageType
         {
@@ -43,7 +44,7 @@ namespace Renci.SshNet.Sftp.Requests
         {
             Encoding = encoding;
             Path = path;
-            SetAction(attrsAction);
+            _attrsAction = attrsAction;
         }
 
         protected override void LoadData()
@@ -56,6 +57,19 @@ namespace Renci.SshNet.Sftp.Requests
         {
             base.SaveData();
             WriteBinaryString(_path);
+        }
+
+        public override void Complete(SftpResponse response)
+        {
+            var attrsResponse = response as SftpAttrsResponse;
+            if (attrsResponse != null)
+            {
+                _attrsAction(attrsResponse);
+            }
+            else
+            {
+                base.Complete(response);
+            }
         }
     }
 }

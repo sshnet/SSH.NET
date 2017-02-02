@@ -7,6 +7,7 @@ namespace Renci.SshNet.Sftp.Requests
     internal class SftpReadLinkRequest : SftpRequest
     {
         private byte[] _path;
+        private readonly Action<SftpNameResponse> _nameAction;
 
         public override SftpMessageTypes SftpMessageType
         {
@@ -43,7 +44,8 @@ namespace Renci.SshNet.Sftp.Requests
         {
             Encoding = encoding;
             Path = path;
-            SetAction(nameAction);
+
+            _nameAction = nameAction;
         }
 
         protected override void LoadData()
@@ -58,6 +60,19 @@ namespace Renci.SshNet.Sftp.Requests
             base.SaveData();
 
             WriteBinaryString(_path);
+        }
+
+        public override void Complete(SftpResponse response)
+        {
+            var nameResponse = response as SftpNameResponse;
+            if (nameResponse != null)
+            {
+                _nameAction(nameResponse);
+            }
+            else
+            {
+                base.Complete(response);
+            }
         }
     }
 }

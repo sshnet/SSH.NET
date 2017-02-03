@@ -14,7 +14,6 @@ namespace Renci.SshNet.Sftp
         //  TODO:   Add security method to set userid, groupid and other permission settings
         // Internal state.
         private byte[] _handle;
-        private readonly bool _ownsHandle;
         private ISftpSession _session;
 
         // Buffer information.
@@ -189,7 +188,6 @@ namespace Renci.SshNet.Sftp
 
             // Initialize the object state.
             _session = session;
-            _ownsHandle = true;
             _bufferPosition = 0;
             _bufferLen = 0;
             _bufferOwnedByWrite = false;
@@ -717,10 +715,7 @@ namespace Renci.SshNet.Sftp
                                         FlushWriteBuffer();
                                     }
 
-                                    if (_ownsHandle)
-                                    {
-                                        _session.RequestClose(_handle);
-                                    }
+                                    _session.RequestClose(_handle);
                                 }
 
                                 _handle = null;

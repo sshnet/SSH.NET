@@ -97,9 +97,28 @@ namespace Renci.SshNet
             return keyExchangeAlgorithmType.CreateInstance<IKeyExchange>();
         }
 
-        public ISftpFileReader CreateSftpFileReader(byte[] handle, ISftpSession sftpSession, uint chunkSize, int maxPendingReads, long? fileSize)
+        public ISftpFileReader CreateSftpFileReader(string fileName, ISftpSession sftpSession, uint bufferSize)
         {
-            return new SftpFileReader(handle, sftpSession, chunkSize, maxPendingReads, fileSize);
+            var handle = sftpSession.RequestOpen(fileName, Flags.Read);
+
+            long? fileSize;
+            int maxPendingReads;
+
+            var chunkSize = sftpSession.CalculateOptimalReadLength(bufferSize);
+
+            var fileAttributes = sftpSession.RequestFStat(handle, true);
+            if (fileAttributes == null)
+            {
+                fileSize = null;
+                maxPendingReads = 5;
+            }
+            else
+            {
+                fileSize = fileAttributes.Size;
+                maxPendingReads = Math.Min(10, (int)Math.Ceiling((double)fileAttributes.Size / chunkSize) + 1);
+            }
+
+            return sftpSession.CreateFileReader(handle, sftpSession, chunkSize, maxPendingReads, fileSize);
         }
     }
 }

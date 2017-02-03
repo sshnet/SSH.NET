@@ -130,28 +130,9 @@ namespace Renci.SshNet.Sftp
             return string.Format(CultureInfo.InvariantCulture, "{0}{1}{2}", canonizedPath, slash, pathParts[pathParts.Length - 1]);
         }
 
-        public ISftpFileReader CreateFileReader(string fileName, uint bufferSize)
+        public ISftpFileReader CreateFileReader(byte[] handle, ISftpSession sftpSession, uint chunkSize, int maxPendingReads, long? fileSize)
         {
-            var handle = RequestOpen(fileName, Flags.Read);
-
-            long? fileSize;
-            int maxPendingReads;
-
-            var chunkSize = CalculateOptimalReadLength(bufferSize);
-
-            var fileAttributes = RequestFStat(handle, true);
-            if (fileAttributes == null)
-            {
-                fileSize = null;
-                maxPendingReads = 5;
-            }
-            else
-            {
-                fileSize = fileAttributes.Size;
-                maxPendingReads = Math.Min(10, (int)Math.Ceiling((double)fileAttributes.Size / chunkSize) + 1);
-            }
-
-            return _serviceFactory.CreateSftpFileReader(handle, this, chunkSize, maxPendingReads, fileSize);
+            return new SftpFileReader(handle, sftpSession, chunkSize, maxPendingReads, fileSize);
         }
 
         internal string GetFullRemotePath(string path)
@@ -922,7 +903,7 @@ namespace Renci.SshNet.Sftp
         /// <returns>
         /// File attributes
         /// </returns>
-        internal SftpFileAttributes RequestStat(string path, bool nullOnError = false)
+        public SftpFileAttributes RequestStat(string path, bool nullOnError = false)
         {
             SshException exception = null;
 

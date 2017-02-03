@@ -537,7 +537,7 @@ namespace Renci.SshNet
 
             var fullPath = _sftpSession.GetCanonicalPath(path);
 
-            var attributes = _sftpSession.RequestLStat(fullPath);
+            var attributes = _sftpSession.RequestStat(fullPath);
 
             return new SftpFile(_sftpSession, fullPath, attributes);
         }
@@ -1498,7 +1498,7 @@ namespace Renci.SshNet
         /// Sets the date and time the specified file was last accessed.
         /// </summary>
         /// <param name="path">The file for which to set the access date and time information.</param>
-        /// <param name="lastAccessTime">A <see cref="System.DateTime"/> containing the value to set for the last access date and time of path. This value is expressed in local time.</param>
+        /// <param name="lastAccessTime">A <see cref="DateTime"/> containing the value to set for the last access date and time of path. This value is expressed in local time.</param>
         [Obsolete("Note: This method currently throws NotImplementedException because it has not yet been implemented.")]
         public void SetLastAccessTime(string path, DateTime lastAccessTime)
         {
@@ -1995,7 +1995,7 @@ namespace Renci.SshNet
 
             var fullPath = _sftpSession.GetCanonicalPath(path);
 
-            using (var fileReader = _sftpSession.CreateFileReader(fullPath, _bufferSize))
+            using (var fileReader = ServiceFactory.CreateSftpFileReader(fullPath, _sftpSession, _bufferSize))
             {
                 var totalBytesRead = 0UL;
 

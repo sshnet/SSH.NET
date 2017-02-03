@@ -188,9 +188,14 @@ namespace Renci.SshNet.Sftp
 
             // Initialize the object state.
             _session = session;
+            _bufferPosition = 0;
+            _bufferLen = 0;
+            _bufferOwnedByWrite = false;
             _canRead = ((access & FileAccess.Read) != 0);
             _canSeek = true;
             _canWrite = ((access & FileAccess.Write) != 0);
+            _position = 0;
+            _serverFilePosition = 0;
 
             var flags = Flags.None;
 
@@ -253,6 +258,7 @@ namespace Renci.SshNet.Sftp
 
             if (mode == FileMode.Append)
             {
+                _attributes = _session.RequestFStat(_handle, false);
                 _position = _attributes.Size;
                 _serverFilePosition = (ulong) _attributes.Size;
             }

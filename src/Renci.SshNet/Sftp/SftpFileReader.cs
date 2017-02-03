@@ -1,6 +1,4 @@
-﻿//#define READAHEAD_DISPOSE
-
-using Renci.SshNet.Abstractions;
+﻿using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 using System;
 using System.Collections.Generic;
@@ -10,11 +8,6 @@ namespace Renci.SshNet.Sftp
 {
     internal class SftpFileReader : ISftpFileReader
     {
-#if READAHEAD_DISPOSE
-        private static readonly TimeSpan ReadAheadCompleteTimeout = TimeSpan.FromSeconds(5);
-        private static readonly TimeSpan ReadAheadSemaphoreWaitTimeout = TimeSpan.FromMilliseconds(1000);
-#endif // READAHEAD_DISPOSE
-
         private readonly byte[] _handle;
         private readonly ISftpSession _sftpSession;
         private readonly uint _chunkSize;
@@ -89,9 +82,6 @@ namespace Renci.SshNet.Sftp
 
                 if (_exception != null)
                     throw _exception;
-
-                //if (_disposed)
-                //    throw new ObjectDisposedException(GetType().FullName);
 
                 if (nextChunk.Offset == _offset)
                 {
@@ -178,31 +168,23 @@ namespace Renci.SshNet.Sftp
 
         protected void Dispose(bool disposing)
         {
-            if (_disposed)
-                return;
-
             if (disposing)
             {
-                _disposed = true;
-
-#if READAHEAD_DISPOSE
                 var readAheadCompleted = _readAheadCompleted;
                 if (readAheadCompleted != null)
                 {
-                    if (!readAheadCompleted.WaitOne(ReadAheadCompleteTimeout))
+                    if (!readAheadCompleted.WaitOne(TimeSpan.FromSeconds(1)))
                     {
-                        throw new Exception();
-                        //DiagnosticAbstraction.Log("Read-ahead thread did not complete within time-out.");
+                        DiagnosticAbstraction.Log("Read-ahead thread did not complete within time-out.");
                     }
                     readAheadCompleted.Dispose();
                     _readAheadCompleted = null;
                 }
-#endif // READAHEAD_DISPOSE
 
                 _sftpSession.RequestClose(_handle);
-            }
 
-            _disposed = true;
+                _disposed = true;
+            }
         }
 
         private void StartReadAhead()
@@ -215,22 +197,7 @@ namespace Renci.SshNet.Sftp
                     // TODO implement cancellation!?
                     // TODO implement IDisposable to cancel the Wait in case the client never completes reading to EOF
                     // TODO check if the BCL Semaphore unblocks wait on dispose (and mimick same behavior in our SemaphoreLight ?)
-#if READAHEAD_DISPOSE
-                    if (!_semaphore.Wait(ReadAheadSemaphoreWaitTimeout))
-                    {
-                        if (_disposed)
-                        {
-                            lock (_readLock)
-                            {
-                                Monitor.Pulse(_readLock);
-                            }
-                            break;
-                        }
-                        continue;
-                    }
-#else
                     _semaphore.Wait();
-#endif // READAHEAD_DISPOSE
 
                     // don't bother reading any more chunks if we received EOF, or an exception has occurred
                     // while processing a chunk

@@ -49,16 +49,6 @@ namespace Renci.SshNet.Sftp
         SftpFileAttributes RequestFStat(byte[] handle, bool nullOnError);
 
         /// <summary>
-        /// Performs SSH_FXP_STAT request.
-        /// </summary>
-        /// <param name="path">The path.</param>
-        /// <param name="nullOnError">if set to <c>true</c> returns null instead of throwing an exception.</param>
-        /// <returns>
-        /// File attributes
-        /// </returns>
-        SftpFileAttributes RequestStat(string path, bool nullOnError = false);
-
-        /// <summary>
         /// Performs SSH_FXP_LSTAT request.
         /// </summary>
         /// <param name="path">The path.</param>
@@ -234,6 +224,6 @@ namespace Renci.SshNet.Sftp
         /// </remarks>
         uint CalculateOptimalWriteLength(uint bufferSize, byte[] handle);
 
-        ISftpFileReader CreateFileReader(byte[] handle, ISftpSession sftpSession, uint chunkSize, int maxPendingReads, long? fileSize);
+        ISftpFileReader CreateFileReader(string fileName, uint bufferSize);
     }
 }

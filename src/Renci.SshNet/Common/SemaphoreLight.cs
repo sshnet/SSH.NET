@@ -76,54 +76,5 @@ namespace Renci.SshNet.Common
                 Monitor.Pulse(_lock);
             }
         }
-
-        /// <summary>
-        /// Blocks the current thread until it can either enter the <see cref="SemaphoreLight"/>,
-        /// or until the specified timeout has expired.
-        /// </summary>
-        /// <param name="timeout"></param>
-        /// <returns></returns>
-        public bool Wait(TimeSpan timeout)
-        {
-            var timeoutInMilliseconds = timeout.TotalMilliseconds;
-            if (timeoutInMilliseconds < -1d || timeoutInMilliseconds > int.MaxValue)
-                throw new ArgumentOutOfRangeException("timeout", "The timeout must represent a value between -1 and Int32.MaxValue, inclusive.");
-
-            lock (_lock)
-            {
-                if (timeoutInMilliseconds == -1)
-                {
-                    while (_currentCount < 1)
-                        Monitor.Wait(_lock);
-                }
-                else
-                {
-                    if (_currentCount < 1)
-                    {
-                        var remainingTimeInMilliseconds = (int) timeoutInMilliseconds;
-                        var startTicks = Environment.TickCount;
-
-                        while (_currentCount < 1)
-                        {
-                            if (!Monitor.Wait(_lock, remainingTimeInMilliseconds))
-                            {
-                                return false;
-                            }
-
-                            var elapsed = Environment.TickCount - startTicks;
-                            remainingTimeInMilliseconds -= elapsed;
-                            if (remainingTimeInMilliseconds < 0)
-                                return false;
-                        }
-                    }
-                }
-
-                _currentCount--;
-
-                Monitor.Pulse(_lock);
-
-                return true;
-            }
-        }
     }
 }

@@ -773,7 +773,7 @@ namespace Renci.SshNet.Channels
                 lock (_serverWindowSizeLock)
                 {
                     var serverWindowSize = RemoteWindowSize;
-                    if (serverWindowSize == 0)
+                    if (serverWindowSize == 0U)
                     {
                         // allow us to be signal when remote window size is adjusted
                         _channelServerWindowAdjustWaitHandle.Reset();

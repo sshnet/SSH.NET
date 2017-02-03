@@ -15,7 +15,6 @@ namespace Renci.SshNet.Sftp
         // Internal state.
         private byte[] _handle;
         private readonly bool _ownsHandle;
-        private readonly bool _isAsync;
         private ISftpSession _session;
 
         // Buffer information.
@@ -142,20 +141,6 @@ namespace Renci.SshNet.Sftp
         }
 
         /// <summary>
-        /// Gets a value indicating whether the FileStream was opened asynchronously or synchronously.
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if this instance is async; otherwise, <c>false</c>.
-        /// </value>
-        public virtual bool IsAsync
-        {
-            get
-            {
-                return _isAsync;
-            }
-        }
-
-        /// <summary>
         /// Gets the name of the path that was used to construct the current <see cref="SftpFileStream"/>.
         /// </summary>
         /// <value>
@@ -205,7 +190,6 @@ namespace Renci.SshNet.Sftp
             // Initialize the object state.
             _session = session;
             _ownsHandle = true;
-            _isAsync = useAsync;
             _bufferPosition = 0;
             _bufferLen = 0;
             _bufferOwnedByWrite = false;

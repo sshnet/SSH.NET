@@ -9,8 +9,6 @@
 
         public byte[] Data { get; private set; }
 
-        public bool IsEof { get; private set; }
-
         public SftpDataResponse(uint protocolVersion)
             : base(protocolVersion)
         {
@@ -21,11 +19,6 @@
             base.LoadData();
             
             Data = ReadBinary();
-
-            if (!IsEndOfData)
-            {
-                IsEof = ReadBoolean();
-            }
         }
     }
 }

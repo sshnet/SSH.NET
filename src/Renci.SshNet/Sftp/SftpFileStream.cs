@@ -7,7 +7,7 @@ using Renci.SshNet.Common;
 namespace Renci.SshNet.Sftp
 {
     /// <summary>
-    /// Exposes a System.IO.Stream around a remote SFTP file, supporting both synchronous and asynchronous read and write operations.
+    /// Exposes a <see cref="Stream"/> around a remote SFTP file, supporting both synchronous and asynchronous read and write operations.
     /// </summary>
     public class SftpFileStream : Stream
     {
@@ -39,7 +39,9 @@ namespace Renci.SshNet.Sftp
         /// <summary>
         /// Gets a value indicating whether the current stream supports reading.
         /// </summary>
-        /// <returns>true if the stream supports reading; otherwise, false.</returns>
+        /// <returns>
+        /// <c>true</c> if the stream supports reading; otherwise, <c>false</c>.
+        /// </returns>
         public override bool CanRead
         {
             get { return _canRead; }
@@ -48,7 +50,9 @@ namespace Renci.SshNet.Sftp
         /// <summary>
         /// Gets a value indicating whether the current stream supports seeking.
         /// </summary>
-        /// <returns>true if the stream supports seeking; otherwise, false.</returns>
+        /// <returns>
+        /// <c>true</c> if the stream supports seeking; otherwise, <c>false</c>.
+        /// </returns>
         public override bool CanSeek
         {
             get { return _canSeek; }
@@ -57,7 +61,9 @@ namespace Renci.SshNet.Sftp
         /// <summary>
         /// Gets a value indicating whether the current stream supports writing.
         /// </summary>
-        /// <returns>true if the stream supports writing; otherwise, false.</returns>
+        /// <returns>
+        /// <c>true</c> if the stream supports writing; otherwise, <c>false</c>.
+        /// </returns>
         public override bool CanWrite
         {
             get { return _canWrite; }
@@ -78,9 +84,9 @@ namespace Renci.SshNet.Sftp
         /// Gets the length in bytes of the stream.
         /// </summary>
         /// <returns>A long value representing the length of the stream in bytes.</returns>
-        /// <exception cref="T:System.NotSupportedException">A class derived from Stream does not support seeking. </exception>
-        /// <exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed. </exception>
-        /// <exception cref="T:System.IO.IOException">IO operation failed. </exception>
+        /// <exception cref="NotSupportedException">A class derived from Stream does not support seeking. </exception>
+        /// <exception cref="ObjectDisposedException">Methods were called after the stream was closed. </exception>
+        /// <exception cref="IOException">IO operation failed. </exception>
         [SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations", Justification = "Be design this is the exception that stream need to throw.")]
         public override long Length
         {
@@ -117,12 +123,9 @@ namespace Renci.SshNet.Sftp
         /// Gets or sets the position within the current stream.
         /// </summary>
         /// <returns>The current position within the stream.</returns>
-        ///   
-        /// <exception cref="T:System.IO.IOException">An I/O error occurs. </exception>
-        ///   
-        /// <exception cref="T:System.NotSupportedException">The stream does not support seeking. </exception>
-        ///   
-        /// <exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed. </exception>
+        /// <exception cref="IOException">An I/O error occurs. </exception>
+        /// <exception cref="NotSupportedException">The stream does not support seeking. </exception>
+        /// <exception cref="ObjectDisposedException">Methods were called after the stream was closed. </exception>
         public override long Position
         {
             get
@@ -153,13 +156,19 @@ namespace Renci.SshNet.Sftp
         }
 
         /// <summary>
-        /// Gets the name of the FileStream that was passed to the constructor.
+        /// Gets the name of the path that was used to construct the current <see cref="SftpFileStream"/>.
         /// </summary>
+        /// <value>
+        /// The name of the path that was used to construct the current <see cref="SftpFileStream"/>.
+        /// </value>
         public string Name { get; private set; }
 
         /// <summary>
-        /// Gets the operating system file handle for the file that the current SftpFileStream object encapsulates.
+        /// Gets the operating system file handle for the file that the current <see cref="SftpFileStream"/> encapsulates.
         /// </summary>
+        /// <value>
+        /// The operating system file handle for the file that the current <see cref="SftpFileStream"/> encapsulates.
+        /// </value>
         public virtual byte[] Handle
         {
             get
@@ -178,32 +187,17 @@ namespace Renci.SshNet.Sftp
         public TimeSpan Timeout { get; set; }
 
         internal SftpFileStream(ISftpSession session, string path, FileMode mode, FileAccess access, int bufferSize)
-            : this(session, path, mode, access, bufferSize, false)
         {
-        }
-
-        internal SftpFileStream(ISftpSession session, string path, FileMode mode, FileAccess access, int bufferSize, bool useAsync)
-        {
-            // Validate the parameters.
             if (session == null)
                 throw new SshConnectionException("Client not connected.");
-
             if (path == null)
-            {
                 throw new ArgumentNullException("path");
-            }
             if (bufferSize <= 0)
-            {
                 throw new ArgumentOutOfRangeException("bufferSize");
-            }
             if (access < FileAccess.Read || access > FileAccess.ReadWrite)
-            {
                 throw new ArgumentOutOfRangeException("access");
-            }
             if (mode < FileMode.CreateNew || mode > FileMode.Append)
-            {
                 throw new ArgumentOutOfRangeException("mode");
-            }
 
             Timeout = TimeSpan.FromSeconds(30);
             Name = path;
@@ -275,15 +269,16 @@ namespace Renci.SshNet.Sftp
             // that ensures we always receive or send the max. number of bytes in a single SSH_FXP_READ
             // or SSH_FXP_WRITE message
 
-            _readBufferSize = (int)session.CalculateOptimalReadLength((uint)bufferSize);
+            _readBufferSize = (int) session.CalculateOptimalReadLength((uint)bufferSize);
             _readBuffer = new byte[_readBufferSize];
-            _writeBufferSize = (int)session.CalculateOptimalWriteLength((uint)bufferSize, _handle);
+            _writeBufferSize = (int) session.CalculateOptimalWriteLength((uint)bufferSize, _handle);
             _writeBuffer = new byte[_writeBufferSize];
 
             if (mode == FileMode.Append)
             {
+                _attributes = _session.RequestFStat(_handle, false);
                 _position = _attributes.Size;
-                _serverFilePosition = (ulong)_attributes.Size;
+                _serverFilePosition = (ulong) _attributes.Size;
             }
         }
 
@@ -299,7 +294,7 @@ namespace Renci.SshNet.Sftp
         /// <summary>
         /// Clears all buffers for this stream and causes any buffered data to be written to the file.
         /// </summary>
-        /// <exception cref="T:System.IO.IOException">An I/O error occurs. </exception>
+        /// <exception cref="IOException">An I/O error occurs. </exception>
         /// <exception cref="ObjectDisposedException">Stream is closed.</exception>
         public override void Flush()
         {
@@ -327,12 +322,12 @@ namespace Renci.SshNet.Sftp
         /// <returns>
         /// The total number of bytes read into the buffer. This can be less than the number of bytes requested if that many bytes are not currently available, or zero (0) if the end of the stream has been reached.
         /// </returns>
-        /// <exception cref="T:System.ArgumentException">The sum of <paramref name="offset"/> and <paramref name="count"/> is larger than the buffer length.</exception>
-        /// <exception cref="T:System.ArgumentNullException"><paramref name="buffer"/> is <c>null</c>. </exception>
-        /// <exception cref="T:System.ArgumentOutOfRangeException"><paramref name="offset"/> or <paramref name="count"/> is negative.</exception>
-        /// <exception cref="T:System.IO.IOException">An I/O error occurs. </exception>
-        /// <exception cref="T:System.NotSupportedException">The stream does not support reading. </exception>
-        /// <exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed. </exception>
+        /// <exception cref="ArgumentException">The sum of <paramref name="offset"/> and <paramref name="count"/> is larger than the buffer length.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <c>null</c>. </exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> or <paramref name="count"/> is negative.</exception>
+        /// <exception cref="IOException">An I/O error occurs. </exception>
+        /// <exception cref="NotSupportedException">The stream does not support reading. </exception>
+        /// <exception cref="ObjectDisposedException">Methods were called after the stream was closed. </exception>
         public override int Read(byte[] buffer, int offset, int count)
         {
             var readLen = 0;
@@ -446,13 +441,13 @@ namespace Renci.SshNet.Sftp
         /// Sets the position within the current stream.
         /// </summary>
         /// <param name="offset">A byte offset relative to the <paramref name="origin"/> parameter.</param>
-        /// <param name="origin">A value of type <see cref="T:System.IO.SeekOrigin"/> indicating the reference point used to obtain the new position.</param>
+        /// <param name="origin">A value of type <see cref="SeekOrigin"/> indicating the reference point used to obtain the new position.</param>
         /// <returns>
         /// The new position within the current stream.
         /// </returns>
-        /// <exception cref="T:System.IO.IOException">An I/O error occurs. </exception>
-        /// <exception cref="T:System.NotSupportedException">The stream does not support seeking, such as if the stream is constructed from a pipe or console output. </exception>
-        /// <exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed. </exception>
+        /// <exception cref="IOException">An I/O error occurs. </exception>
+        /// <exception cref="NotSupportedException">The stream does not support seeking, such as if the stream is constructed from a pipe or console output. </exception>
+        /// <exception cref="ObjectDisposedException">Methods were called after the stream was closed. </exception>
         public override long Seek(long offset, SeekOrigin origin)
         {
             long newPosn = -1;
@@ -564,9 +559,9 @@ namespace Renci.SshNet.Sftp
         /// When overridden in a derived class, sets the length of the current stream.
         /// </summary>
         /// <param name="value">The desired length of the current stream in bytes.</param>
-        /// <exception cref="T:System.IO.IOException">An I/O error occurs.</exception>
-        /// <exception cref="T:System.NotSupportedException">The stream does not support both writing and seeking, such as if the stream is constructed from a pipe or console output.</exception>
-        /// <exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed.</exception>
+        /// <exception cref="IOException">An I/O error occurs.</exception>
+        /// <exception cref="NotSupportedException">The stream does not support both writing and seeking, such as if the stream is constructed from a pipe or console output.</exception>
+        /// <exception cref="ObjectDisposedException">Methods were called after the stream was closed.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="value"/> must be greater than zero.</exception>
         public override void SetLength(long value)
         {
@@ -593,12 +588,12 @@ namespace Renci.SshNet.Sftp
         /// <param name="buffer">An array of bytes. This method copies <paramref name="count"/> bytes from <paramref name="buffer"/> to the current stream.</param>
         /// <param name="offset">The zero-based byte offset in <paramref name="buffer"/> at which to begin copying bytes to the current stream.</param>
         /// <param name="count">The number of bytes to be written to the current stream.</param>
-        /// <exception cref="T:System.ArgumentException">The sum of <paramref name="offset"/> and <paramref name="count"/> is greater than the buffer length.</exception>
-        /// <exception cref="T:System.ArgumentNullException"><paramref name="buffer"/> is <c>null</c>.</exception>
-        /// <exception cref="T:System.ArgumentOutOfRangeException"><paramref name="offset"/> or <paramref name="count"/> is negative.</exception>
-        /// <exception cref="T:System.IO.IOException">An I/O error occurs.</exception>
-        /// <exception cref="T:System.NotSupportedException">The stream does not support writing.</exception>
-        /// <exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed.</exception>
+        /// <exception cref="ArgumentException">The sum of <paramref name="offset"/> and <paramref name="count"/> is greater than the buffer length.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> or <paramref name="count"/> is negative.</exception>
+        /// <exception cref="IOException">An I/O error occurs.</exception>
+        /// <exception cref="NotSupportedException">The stream does not support writing.</exception>
+        /// <exception cref="ObjectDisposedException">Methods were called after the stream was closed.</exception>
         public override void Write(byte[] buffer, int offset, int count)
         {
             if (buffer == null)
@@ -678,9 +673,9 @@ namespace Renci.SshNet.Sftp
         /// Writes a byte to the current position in the stream and advances the position within the stream by one byte.
         /// </summary>
         /// <param name="value">The byte to write to the stream.</param>
-        /// <exception cref="T:System.IO.IOException">An I/O error occurs. </exception>
-        /// <exception cref="T:System.NotSupportedException">The stream does not support writing, or the stream is already closed. </exception>
-        /// <exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed. </exception>
+        /// <exception cref="IOException">An I/O error occurs. </exception>
+        /// <exception cref="NotSupportedException">The stream does not support writing, or the stream is already closed. </exception>
+        /// <exception cref="ObjectDisposedException">Methods were called after the stream was closed. </exception>
         public override void WriteByte(byte value)
         {
             // Lock down the file stream while we do this.
@@ -710,9 +705,9 @@ namespace Renci.SshNet.Sftp
         }
 
         /// <summary>
-        /// Releases the unmanaged resources used by the <see cref="T:System.IO.Stream"/> and optionally releases the managed resources.
+        /// Releases the unmanaged resources used by the <see cref="Stream"/> and optionally releases the managed resources.
         /// </summary>
-        /// <param name="disposing">true to release both managed and unmanaged resources; false to release only unmanaged resources.</param>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);

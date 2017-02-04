@@ -18,6 +18,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         private MockSequence _seq;
         private byte[] _handle;
         private int _fileSize;
+        private int _operationTimeout;
         private byte[] _chunk1;
         private byte[] _chunk3;
         private SftpFileReader _reader;
@@ -34,6 +35,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             _chunk1 = CreateByteArray(random, ChunkLength);
             _chunk3 = CreateByteArray(random, ChunkLength);
             _fileSize = 3 * _chunk1.Length;
+            _operationTimeout = random.Next();
 
             _readAheadChunk2 = new ManualResetEvent(false);
             _readChunk2 = new ManualResetEvent(false);
@@ -45,6 +47,9 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         {
             _seq = new MockSequence();
 
+            SftpSessionMock.InSequence(_seq).Setup(p => p.OperationTimeout).Returns(_operationTimeout);
+            SftpSessionMock.InSequence(_seq)
+                           .Setup(p => p.WaitOnHandle(It.IsAny<WaitHandle>(), _operationTimeout));
             SftpSessionMock.InSequence(_seq)
                            .Setup(p => p.BeginRead(_handle, 0, ChunkLength, It.IsNotNull<AsyncCallback>(), It.IsAny<BufferedRead>()))
                            .Callback<byte[], ulong, uint, AsyncCallback, object>((handle, offset, length, callback, state) =>
@@ -53,6 +58,9 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                                asyncResult.SetAsCompleted(_chunk1, false);
                            })
                            .Returns((SftpReadAsyncResult)null);
+            SftpSessionMock.InSequence(_seq).Setup(p => p.OperationTimeout).Returns(_operationTimeout);
+            SftpSessionMock.InSequence(_seq)
+                           .Setup(p => p.WaitOnHandle(It.IsAny<WaitHandle>(), _operationTimeout));
             SftpSessionMock.InSequence(_seq)
                             .Setup(p => p.BeginRead(_handle, ChunkLength, ChunkLength, It.IsNotNull<AsyncCallback>(), It.IsAny<BufferedRead>()))
                             .Callback<byte[], ulong, uint, AsyncCallback, object>((handle, offset, length, callback, state) =>
@@ -71,18 +79,9 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                                 });
                             })
                            .Returns((SftpReadAsyncResult)null);
+            SftpSessionMock.InSequence(_seq).Setup(p => p.OperationTimeout).Returns(_operationTimeout);
             SftpSessionMock.InSequence(_seq)
-                            .Setup(p => p.BeginRead(_handle, 2 * ChunkLength, ChunkLength, It.IsNotNull<AsyncCallback>(), It.IsAny<BufferedRead>()))
-                            .Callback<byte[], ulong, uint, AsyncCallback, object>((handle, offset, length, callback, state) =>
-                            {
-                                // this chunk should never be read
-                                Thread.Sleep(20000);
-
-                                var asyncResult = new SftpReadAsyncResult(callback, state);
-                                asyncResult.SetAsCompleted(_chunk3, false);
-                            })
-                            .Returns((SftpReadAsyncResult)null);
-
+                           .Setup(p => p.WaitOnHandle(It.IsAny<WaitHandle>(), _operationTimeout));
         }
 
         protected override void Arrange()
@@ -122,17 +121,16 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         }
 
         [TestMethod]
-        public void ReadAfterReadAheadExceptionShouldThrowObjectDisposedException()
+        public void ReadAfterReadAheadExceptionShouldRethrowExceptionThatOccurredInReadAhead()
         {
             try
             {
                 _reader.Read();
                 Assert.Fail();
             }
-            catch (ObjectDisposedException ex)
+            catch (SshException ex)
             {
-                Assert.IsNull(ex.InnerException);
-                Assert.AreEqual(typeof(SftpFileReader).FullName, ex.ObjectName);
+                Assert.AreSame(_exception, ex);
             }
         }
 

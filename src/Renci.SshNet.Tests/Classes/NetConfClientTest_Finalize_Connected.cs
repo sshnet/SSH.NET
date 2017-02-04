@@ -10,9 +10,10 @@ namespace Renci.SshNet.Tests.Classes
     {
         private Mock<IServiceFactory> _serviceFactoryMock;
         private Mock<ISession> _sessionMock;
+        private Mock<INetConfSession> _netConfSessionMock;
         private NetConfClient _netConfClient;
         private ConnectionInfo _connectionInfo;
-        private Mock<INetConfSession> _netConfSessionMock;
+        private int _operationTimeout;
 
         [TestInitialize]
         public void Setup()
@@ -28,7 +29,9 @@ namespace Renci.SshNet.Tests.Classes
             _netConfSessionMock = new Mock<INetConfSession>(MockBehavior.Loose);
 
             _connectionInfo = new ConnectionInfo("host", "user", new NoneAuthenticationMethod("userauth"));
+            _operationTimeout = new Random().Next(1000, 10000);
             _netConfClient = new NetConfClient(_connectionInfo, false, _serviceFactoryMock.Object);
+            _netConfClient.OperationTimeout = TimeSpan.FromMilliseconds(_operationTimeout);
 
             var sequence = new MockSequence();
             _serviceFactoryMock.InSequence(sequence)
@@ -36,7 +39,7 @@ namespace Renci.SshNet.Tests.Classes
                 .Returns(_sessionMock.Object);
             _sessionMock.InSequence(sequence).Setup(p => p.Connect());
             _serviceFactoryMock.InSequence(sequence)
-                .Setup(p => p.CreateNetConfSession(_sessionMock.Object, _netConfClient.OperationTimeout))
+                .Setup(p => p.CreateNetConfSession(_sessionMock.Object, _operationTimeout))
                 .Returns(_netConfSessionMock.Object);
             _netConfSessionMock.InSequence(sequence).Setup(p => p.Connect());
 

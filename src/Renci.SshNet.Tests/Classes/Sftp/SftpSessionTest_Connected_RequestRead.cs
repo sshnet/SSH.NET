@@ -17,7 +17,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         private Mock<IServiceFactory> _serviceFactoryMock;
         private Mock<IChannelSession> _channelSessionMock;
         private SftpSession _sftpSession;
-        private TimeSpan _operationTimeout;
+        private int _operationTimeout;
         private byte[] _actual;
         private byte[] _expected;
         private Encoding _encoding;
@@ -33,7 +33,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         {
             var random = new Random();
 
-            _operationTimeout = TimeSpan.FromMilliseconds(random.Next(100, 500));
+            _operationTimeout = random.Next(100, 500);
             _expected = new byte[random.Next(30, 50)];
             _encoding = Encoding.UTF8;
             random.NextBytes(_expected);

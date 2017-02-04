@@ -341,6 +341,7 @@
     <Compile Include="Classes\SftpClientTest_Dispose_Disposed.cs" />
     <Compile Include="Classes\SftpClientTest_Finalize_Connected.cs" />
     <Compile Include="Classes\Sftp\SftpFileReaderTestBase.cs" />
+    <Compile Include="Classes\Sftp\SftpFileReaderTest_DisposeShouldUnblockReadAndReadAhead.cs" />
     <Compile Include="Classes\Sftp\SftpFileReaderTest_LastChunkBeforeEofIsComplete.cs" />
     <Compile Include="Classes\Sftp\SftpFileReaderTest_LastChunkBeforeEofIsPartial.cs" />
     <Compile Include="Classes\Sftp\SftpFileReaderTest_PreviousChunkIsIncompleteAndEofIsNotReached.cs" />
@@ -350,7 +351,9 @@
     <Compile Include="Classes\Sftp\SftpFileReaderTest_ReadAheadBeginReadException.cs" />
     <Compile Include="Classes\Sftp\SftpFileReaderTest_ReadBackBeginReadException.cs" />
     <Compile Include="Classes\Sftp\SftpFileReaderTest_ReadBackEndInvokeException.cs" />
-    <Compile Include="Classes\Sftp\SftpFileReaderTest_Read_ExceptionInReadAhead.cs" />
+    <Compile Include="Classes\Sftp\SftpFileReaderTest_Read_ReahAheadExceptionInBeginRead.cs" />
+    <Compile Include="Classes\Sftp\SftpFileReaderTest_Read_ReadAheadExceptionInWaitOnHandle_ChunkAvailable.cs" />
+    <Compile Include="Classes\Sftp\SftpFileReaderTest_Read_ReadAheadExceptionInWaitOnHandle_NoChunkAvailable.cs" />
     <Compile Include="Classes\Sftp\SftpFileStreamTest_CanRead_Closed_FileAccessRead.cs" />
     <Compile Include="Classes\Sftp\SftpFileStreamTest_CanRead_Closed_FileAccessReadWrite.cs" />
     <Compile Include="Classes\Sftp\SftpFileStreamTest_CanRead_Closed_FileAccessWrite.cs" />

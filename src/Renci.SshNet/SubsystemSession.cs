@@ -22,9 +22,12 @@ namespace Renci.SshNet
         private EventWaitHandle _channelClosedWaitHandle = new ManualResetEvent(false);
 
         /// <summary>
-        /// Specifies a timeout to wait for operation to complete
+        /// Gets or set the number of seconds to wait for an operation to complete.
         /// </summary>
-        protected TimeSpan OperationTimeout { get; private set; }
+        /// <value>
+        /// The number of seconds to wait for an operation to complete, or -1 to wait indefinitely.
+        /// </value>
+        public int OperationTimeout { get; private set; }
 
         /// <summary>
         /// Occurs when an error occurred.
@@ -73,10 +76,10 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="session">The session.</param>
         /// <param name="subsystemName">Name of the subsystem.</param>
-        /// <param name="operationTimeout">The operation timeout.</param>
+        /// <param name="operationTimeout">The number of milliseconds to wait for a given operation to complete, or -1 to wait indefinitely.</param>
         /// <param name="encoding">The character encoding to use.</param>
         /// <exception cref="ArgumentNullException"><paramref name="session" /> or <paramref name="subsystemName" /> or <paramref name="encoding"/> is <c>null</c>.</exception>
-        protected SubsystemSession(ISession session, string subsystemName, TimeSpan operationTimeout, Encoding encoding)
+        protected SubsystemSession(ISession session, string subsystemName, int operationTimeout, Encoding encoding)
         {
             if (session == null)
                 throw new ArgumentNullException("session");
@@ -208,11 +211,11 @@ namespace Renci.SshNet
         /// Waits a specified time for a given <see cref="WaitHandle"/> to get signaled.
         /// </summary>
         /// <param name="waitHandle">The handle to wait for.</param>
-        /// <param name="operationTimeout">The time to wait for <paramref name="waitHandle"/> to get signaled.</param>
+        /// <param name="millisecondsTimeout">To number of milliseconds to wait for <paramref name="waitHandle"/> to get signaled, or -1 to wait indefinitely.</param>
         /// <exception cref="SshException">The connection was closed by the server.</exception>
         /// <exception cref="SshException">The channel was closed.</exception>
-        /// <exception cref="SshOperationTimeoutException">The handle did not get signaled within the specified <paramref name="operationTimeout"/>.</exception>
-        public void WaitOnHandle(WaitHandle waitHandle, TimeSpan operationTimeout)
+        /// <exception cref="SshOperationTimeoutException">The handle did not get signaled within the specified timeout.</exception>
+        public void WaitOnHandle(WaitHandle waitHandle, int millisecondsTimeout)
         {
             var waitHandles = new[]
                 {
@@ -222,7 +225,7 @@ namespace Renci.SshNet
                     waitHandle
                 };
 
-            switch (WaitHandle.WaitAny(waitHandles, operationTimeout))
+            switch (WaitHandle.WaitAny(waitHandles, millisecondsTimeout))
             {
                 case 0:
                     throw _exception;

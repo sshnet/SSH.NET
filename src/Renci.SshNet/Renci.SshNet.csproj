@@ -428,10 +428,14 @@
     <Compile Include="Sftp\SftpMessageTypes.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Sftp\SftpOpenAsyncResult.cs" />
+    <Compile Include="Sftp\SftpOpenDirAsyncResult.cs" />
     <Compile Include="Sftp\SftpReadAsyncResult.cs" />
+    <Compile Include="Sftp\SftpRealPathAsyncResult.cs" />
     <Compile Include="Sftp\SftpSession.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Sftp\SFtpStatAsyncResult.cs" />
     <Compile Include="Sftp\SftpSynchronizeDirectoriesAsyncResult.cs" />
     <Compile Include="Sftp\SftpUploadAsyncResult.cs" />
     <Compile Include="Sftp\StatusCodes.cs">

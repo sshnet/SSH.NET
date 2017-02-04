@@ -50,7 +50,7 @@ namespace Renci.SshNet.Sftp
             }
         }
 
-        public SftpSession(ISession session, TimeSpan operationTimeout, Encoding encoding, IServiceFactory serviceFactory)
+        public SftpSession(ISession session, int operationTimeout, Encoding encoding, IServiceFactory serviceFactory)
             : base(session, "sftp", operationTimeout, encoding)
         {
             _serviceFactory = serviceFactory;
@@ -130,28 +130,9 @@ namespace Renci.SshNet.Sftp
             return string.Format(CultureInfo.InvariantCulture, "{0}{1}{2}", canonizedPath, slash, pathParts[pathParts.Length - 1]);
         }
 
-        public ISftpFileReader CreateFileReader(string fileName, uint bufferSize)
+        public ISftpFileReader CreateFileReader(byte[] handle, ISftpSession sftpSession, uint chunkSize, int maxPendingReads, long? fileSize)
         {
-            var handle = RequestOpen(fileName, Flags.Read);
-
-            long? fileSize;
-            int maxPendingReads;
-
-            var chunkSize = CalculateOptimalReadLength(bufferSize);
-
-            var fileAttributes = RequestFStat(handle, true);
-            if (fileAttributes == null)
-            {
-                fileSize = null;
-                maxPendingReads = 5;
-            }
-            else
-            {
-                fileSize = fileAttributes.Size;
-                maxPendingReads = Math.Min(10, (int)Math.Ceiling((double)fileAttributes.Size / chunkSize) + 1);
-            }
-
-            return _serviceFactory.CreateSftpFileReader(handle, this, chunkSize, maxPendingReads, fileSize);
+            return new SftpFileReader(handle, sftpSession, chunkSize, maxPendingReads, fileSize);
         }
 
         internal string GetFullRemotePath(string path)
@@ -397,6 +378,62 @@ namespace Renci.SshNet.Sftp
         }
 
         /// <summary>
+        /// Performs SSH_FXP_OPEN request
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <param name="flags">The flags.</param>
+        /// <param name="callback">The <see cref="AsyncCallback"/> delegate that is executed when <see cref="BeginOpen(string, Flags, AsyncCallback, object)"/> completes.</param>
+        /// <param name="state">An object that contains any additional user-defined data.</param>
+        /// <returns>
+        /// A <see cref="SftpOpenAsyncResult"/> that represents the asynchronous call.
+        /// </returns>
+        public SftpOpenAsyncResult BeginOpen(string path, Flags flags, AsyncCallback callback, object state)
+        {
+            var asyncResult = new SftpOpenAsyncResult(callback, state);
+
+            var request = new SftpOpenRequest(ProtocolVersion, NextRequestId, path, Encoding, flags,
+                response =>
+                {
+                    asyncResult.SetAsCompleted(response.Handle, false);
+                },
+                response =>
+                {
+                    asyncResult.SetAsCompleted(GetSftpException(response), false);
+                });
+
+            SendRequest(request);
+
+            return asyncResult;
+        }
+
+        /// <summary>
+        /// Handles the end of an asynchronous read.
+        /// </summary>
+        /// <param name="asyncResult">An <see cref="SftpOpenAsyncResult"/> that represents an asynchronous call.</param>
+        /// <returns>
+        /// A <see cref="byte"/> array representing a file handle.
+        /// </returns>
+        /// <remarks>
+        /// If all available data has been read, the <see cref="EndOpen(SftpOpenAsyncResult)"/> method completes
+        /// immediately and returns zero bytes.
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <c>null</c>.</exception>
+        public byte[] EndOpen(SftpOpenAsyncResult asyncResult)
+        {
+            if (asyncResult == null)
+                throw new ArgumentNullException("asyncResult");
+
+            if (asyncResult.EndInvokeCalled)
+                throw new InvalidOperationException("EndOpen has already been called.");
+
+            using (var waitHandle = asyncResult.AsyncWaitHandle)
+            {
+                WaitOnHandle(waitHandle, OperationTimeout);
+                return asyncResult.EndInvoke();
+            }
+        }
+
+        /// <summary>
         /// Performs SSH_FXP_CLOSE request.
         /// </summary>
         /// <param name="handle">The handle.</param>
@@ -480,7 +517,11 @@ namespace Renci.SshNet.Sftp
             if (asyncResult.EndInvokeCalled)
                 throw new InvalidOperationException("EndRead has already been called.");
 
-            return asyncResult.EndInvoke();
+            using (var waitHandle = asyncResult.AsyncWaitHandle)
+            {
+                WaitOnHandle(waitHandle, OperationTimeout);
+                return asyncResult.EndInvoke();
+            }
         }
 
         /// <summary>
@@ -611,6 +652,56 @@ namespace Renci.SshNet.Sftp
             }
 
             return attributes;
+        }
+
+        /// <summary>
+        /// Performs SSH_FXP_LSTAT request.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <param name="callback">The <see cref="AsyncCallback"/> delegate that is executed when <see cref="BeginLStat(string, AsyncCallback, object)"/> completes.</param>
+        /// <param name="state">An object that contains any additional user-defined data.</param>
+        /// <returns>
+        /// A <see cref="SFtpStatAsyncResult"/> that represents the asynchronous call.
+        /// </returns>
+        public SFtpStatAsyncResult BeginLStat(string path, AsyncCallback callback, object state)
+        {
+            var asyncResult = new SFtpStatAsyncResult(callback, state);
+
+            var request = new SftpLStatRequest(ProtocolVersion, NextRequestId, path, Encoding,
+                response =>
+                {
+                    asyncResult.SetAsCompleted(response.Attributes, false);
+                },
+                response =>
+                {
+                    asyncResult.SetAsCompleted(GetSftpException(response), false);
+                });
+            SendRequest(request);
+
+            return asyncResult;
+        }
+
+        /// <summary>
+        /// Handles the end of an asynchronous SSH_FXP_LSTAT request.
+        /// </summary>
+        /// <param name="asyncResult">An <see cref="SFtpStatAsyncResult"/> that represents an asynchronous call.</param>
+        /// <returns>
+        /// The file attributes.
+        /// </returns>
+        /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <c>null</c>.</exception>
+        public SftpFileAttributes EndLStat(SFtpStatAsyncResult asyncResult)
+        {
+            if (asyncResult == null)
+                throw new ArgumentNullException("asyncResult");
+
+            if (asyncResult.EndInvokeCalled)
+                throw new InvalidOperationException("EndLStat has already been called.");
+
+            using (var waitHandle = asyncResult.AsyncWaitHandle)
+            {
+                WaitOnHandle(waitHandle, OperationTimeout);
+                return asyncResult.EndInvoke();
+            }
         }
 
         /// <summary>
@@ -880,7 +971,9 @@ namespace Renci.SshNet.Sftp
         /// </summary>
         /// <param name="path">The path.</param>
         /// <param name="nullOnError">if set to <c>true</c> returns null instead of throwing an exception.</param>
-        /// <returns></returns>
+        /// <returns>
+        /// The absolute path.
+        /// </returns>
         internal KeyValuePair<string, SftpFileAttributes>[] RequestRealPath(string path, bool nullOnError = false)
         {
             SshException exception = null;
@@ -915,6 +1008,56 @@ namespace Renci.SshNet.Sftp
         }
 
         /// <summary>
+        /// Performs SSH_FXP_REALPATH request.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <param name="callback">The <see cref="AsyncCallback"/> delegate that is executed when <see cref="BeginRealPath(string, AsyncCallback, object)"/> completes.</param>
+        /// <param name="state">An object that contains any additional user-defined data.</param>
+        /// <returns>
+        /// A <see cref="SftpRealPathAsyncResult"/> that represents the asynchronous call.
+        /// </returns>
+        public SftpRealPathAsyncResult BeginRealPath(string path, AsyncCallback callback, object state)
+        {
+            var asyncResult = new SftpRealPathAsyncResult(callback, state);
+
+            var request = new SftpRealPathRequest(ProtocolVersion, NextRequestId, path, Encoding,
+                response =>
+                {
+                    asyncResult.SetAsCompleted(response.Files[0].Key, false);
+                },
+                response =>
+                {
+                    asyncResult.SetAsCompleted(GetSftpException(response), false);
+                });
+            SendRequest(request);
+
+            return asyncResult;
+        }
+
+        /// <summary>
+        /// Handles the end of an asynchronous SSH_FXP_REALPATH request.
+        /// </summary>
+        /// <param name="asyncResult">An <see cref="SftpRealPathAsyncResult"/> that represents an asynchronous call.</param>
+        /// <returns>
+        /// The absolute path.
+        /// </returns>
+        /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <c>null</c>.</exception>
+        public string EndRealPath(SftpRealPathAsyncResult asyncResult)
+        {
+            if (asyncResult == null)
+                throw new ArgumentNullException("asyncResult");
+
+            if (asyncResult.EndInvokeCalled)
+                throw new InvalidOperationException("EndRealPath has already been called.");
+
+            using (var waitHandle = asyncResult.AsyncWaitHandle)
+            {
+                WaitOnHandle(waitHandle, OperationTimeout);
+                return asyncResult.EndInvoke();
+            }
+        }
+
+        /// <summary>
         /// Performs SSH_FXP_STAT request.
         /// </summary>
         /// <param name="path">The path.</param>
@@ -922,7 +1065,7 @@ namespace Renci.SshNet.Sftp
         /// <returns>
         /// File attributes
         /// </returns>
-        internal SftpFileAttributes RequestStat(string path, bool nullOnError = false)
+        public SftpFileAttributes RequestStat(string path, bool nullOnError = false)
         {
             SshException exception = null;
 
@@ -953,6 +1096,56 @@ namespace Renci.SshNet.Sftp
             }
 
             return attributes;
+        }
+
+        /// <summary>
+        /// Performs SSH_FXP_STAT request
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <param name="callback">The <see cref="AsyncCallback"/> delegate that is executed when <see cref="BeginStat(string, AsyncCallback, object)"/> completes.</param>
+        /// <param name="state">An object that contains any additional user-defined data.</param>
+        /// <returns>
+        /// A <see cref="SFtpStatAsyncResult"/> that represents the asynchronous call.
+        /// </returns>
+        public SFtpStatAsyncResult BeginStat(string path, AsyncCallback callback, object state)
+        {
+            var asyncResult = new SFtpStatAsyncResult(callback, state);
+
+            var request = new SftpStatRequest(ProtocolVersion, NextRequestId, path, Encoding,
+                response =>
+                {
+                    asyncResult.SetAsCompleted(response.Attributes, false);
+                },
+                response =>
+                {
+                    asyncResult.SetAsCompleted(GetSftpException(response), false);
+                });
+            SendRequest(request);
+
+            return asyncResult;
+        }
+
+        /// <summary>
+        /// Handles the end of an asynchronous read.
+        /// </summary>
+        /// <param name="asyncResult">An <see cref="SFtpStatAsyncResult"/> that represents an asynchronous call.</param>
+        /// <returns>
+        /// The file attributes.
+        /// </returns>
+        /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <c>null</c>.</exception>
+        public SftpFileAttributes EndStat(SFtpStatAsyncResult asyncResult)
+        {
+            if (asyncResult == null)
+                throw new ArgumentNullException("asyncResult");
+
+            if (asyncResult.EndInvokeCalled)
+                throw new InvalidOperationException("EndStat has already been called.");
+
+            using (var waitHandle = asyncResult.AsyncWaitHandle)
+            {
+                WaitOnHandle(waitHandle, OperationTimeout);
+                return asyncResult.EndInvoke();
+            }
         }
 
         /// <summary>

@@ -10,19 +10,19 @@ using BufferedRead = Renci.SshNet.Sftp.SftpFileReader.BufferedRead;
 namespace Renci.SshNet.Tests.Classes.Sftp
 {
     [TestClass]
-    public class SftpFileReaderTest_Read_ExceptionInReadAhead : SftpFileReaderTestBase
+    public class SftpFileReaderTest_Read_ReadAheadExceptionInWaitOnHandle_ChunkAvailable : SftpFileReaderTestBase
     {
         private const int ChunkLength = 32 * 1024;
 
         private MockSequence _seq;
         private byte[] _handle;
         private int _fileSize;
+        private int _operationTimeout;
         private byte[] _chunk1;
         private byte[] _chunk2;
         private SftpFileReader _reader;
-        private ManualResetEvent _readAhead;
-        private ManualResetEvent _readChunk3;
         private SshException _exception;
+        private ManualResetEvent _exceptionSignaled;
         private SshException _actualException;
 
         protected override void SetupData()
@@ -33,62 +33,47 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             _chunk1 = CreateByteArray(random, ChunkLength);
             _chunk2 = CreateByteArray(random, ChunkLength);
             _fileSize = _chunk1.Length + _chunk2.Length + 1;
-
-            _readAhead = new ManualResetEvent(false);
-            _readChunk3 = new ManualResetEvent(false);
+            _operationTimeout = random.Next();
 
             _exception = new SshException();
+            _exceptionSignaled = new ManualResetEvent(false);
         }
 
         protected override void SetupMocks()
         {
             _seq = new MockSequence();
 
+            SftpSessionMock.InSequence(_seq).Setup(p => p.OperationTimeout).Returns(_operationTimeout);
+            SftpSessionMock.InSequence(_seq)
+                           .Setup(p => p.WaitOnHandle(It.IsAny<WaitHandle>(), _operationTimeout));
             SftpSessionMock.InSequence(_seq)
                            .Setup(p => p.BeginRead(_handle, 0, ChunkLength, It.IsNotNull<AsyncCallback>(), It.IsAny<BufferedRead>()))
-                           .Callback<byte[], ulong, uint, AsyncCallback, object>((handle, offset, length, callback, state) =>
-                                {
-                                    var asyncResult = new SftpReadAsyncResult(callback, state);
-                                    asyncResult.SetAsCompleted(_chunk1, false);
-                                })
-                           .Returns((SftpReadAsyncResult)null);
-            SftpSessionMock.InSequence(_seq)
-                            .Setup(p => p.BeginRead(_handle, ChunkLength, ChunkLength, It.IsNotNull<AsyncCallback>(), It.IsAny<BufferedRead>()))
                             .Callback<byte[], ulong, uint, AsyncCallback, object>((handle, offset, length, callback, state) =>
                             {
                                 var asyncResult = new SftpReadAsyncResult(callback, state);
-                                asyncResult.SetAsCompleted(_chunk2, false);
+                                asyncResult.SetAsCompleted(_chunk1, false);
                             })
-                            .Returns((SftpReadAsyncResult)null);
+                           .Returns((SftpReadAsyncResult)null);
+            SftpSessionMock.InSequence(_seq).Setup(p => p.OperationTimeout).Returns(_operationTimeout);
             SftpSessionMock.InSequence(_seq)
-                            .Setup(p => p.BeginRead(_handle, 2 * ChunkLength, ChunkLength, It.IsNotNull<AsyncCallback>(), It.IsAny<BufferedRead>()))
-                            .Callback<byte[], ulong, uint, AsyncCallback, object>((handle, offset, length, callback, state) =>
-                            {
-                                _readAhead.Set();
-                                _readChunk3.WaitOne(TimeSpan.FromSeconds(5));
-                                // sleep a short time to make sure the client is in the blocking wait
-                                Thread.Sleep(500);
-                            })
-                            .Throws(_exception);
+                           .Setup(p => p.WaitOnHandle(It.IsAny<WaitHandle>(), _operationTimeout))
+                           .Callback(() => _exceptionSignaled.Set())
+                           .Throws(_exception);
         }
 
         protected override void Arrange()
         {
             base.Arrange();
 
-            _reader = new SftpFileReader(_handle, SftpSessionMock.Object, ChunkLength, 3, _fileSize);
+            _reader = new SftpFileReader(_handle, SftpSessionMock.Object, ChunkLength, 2, _fileSize);
         }
 
         protected override void Act()
         {
-            _reader.Read();
-            _reader.Read();
-
-            // wait until we've the SftpFileReader has starting reading ahead chunk 3
-            Assert.IsTrue(_readAhead.WaitOne(TimeSpan.FromSeconds(5)));
-            // signal that we are about to read chunk 3
-            _readChunk3.Set();
-
+            // wait for the exception to be signaled by the second call to WaitOnHandle
+            _exceptionSignaled.WaitOne(5000);
+            // allow a little time to allow SftpFileReader to process exception
+            Thread.Sleep(100);
             try
             {
                 _reader.Read();
@@ -101,24 +86,23 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         }
 
         [TestMethod]
-        public void ReadOfThirdChunkShouldThrowExceptionThatOccurredInReadAhead()
+        public void ReadShouldHaveRethrownExceptionThrownByWaitOnHandle()
         {
             Assert.IsNotNull(_actualException);
             Assert.AreSame(_exception, _actualException);
         }
 
         [TestMethod]
-        public void ReadAfterReadAheadExceptionShouldThrowObjectDisposedException()
+        public void ReadShouldRethrowExceptionThrownByWaitOnHandle()
         {
             try
             {
                 _reader.Read();
                 Assert.Fail();
             }
-            catch (ObjectDisposedException ex)
+            catch (SshException ex)
             {
-                Assert.IsNull(ex.InnerException);
-                Assert.AreEqual(typeof(SftpFileReader).FullName, ex.ObjectName);
+                Assert.AreSame(_exception, ex);
             }
         }
 

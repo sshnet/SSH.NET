@@ -6,6 +6,7 @@ using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Transport;
 using Renci.SshNet.Security;
 using Renci.SshNet.Sftp;
+using Renci.SshNet.Abstractions;
 
 namespace Renci.SshNet
 {
@@ -43,12 +44,12 @@ namespace Renci.SshNet
         /// the specified operation timeout and encoding.
         /// </summary>
         /// <param name="session">The <see cref="ISession"/> to create the <see cref="ISftpSession"/> in.</param>
-        /// <param name="operationTimeout">The operation timeout.</param>
+        /// <param name="operationTimeout">The number of milliseconds to wait for an operation to complete, or -1 to wait indefinitely.</param>
         /// <param name="encoding">The encoding.</param>
         /// <returns>
         /// An <see cref="ISftpSession"/>.
         /// </returns>
-        public ISftpSession CreateSftpSession(ISession session, TimeSpan operationTimeout, Encoding encoding)
+        public ISftpSession CreateSftpSession(ISession session, int operationTimeout, Encoding encoding)
         {
             return new SftpSession(session, operationTimeout, encoding, this);
         }
@@ -97,9 +98,36 @@ namespace Renci.SshNet
             return keyExchangeAlgorithmType.CreateInstance<IKeyExchange>();
         }
 
-        public ISftpFileReader CreateSftpFileReader(byte[] handle, ISftpSession sftpSession, uint chunkSize, int maxPendingReads, long? fileSize)
+        public ISftpFileReader CreateSftpFileReader(string fileName, ISftpSession sftpSession, uint bufferSize)
         {
-            return new SftpFileReader(handle, sftpSession, chunkSize, maxPendingReads, fileSize);
+            const int DefaultMaxPendingReads = 3;
+
+            var openAsyncResult = sftpSession.BeginOpen(fileName, Flags.Read, null, null);
+            var statAsyncResult = sftpSession.BeginLStat(fileName, null, null);
+
+            long? fileSize;
+            int maxPendingReads;
+
+            var chunkSize = sftpSession.CalculateOptimalReadLength(bufferSize);
+            var handle = sftpSession.EndOpen(openAsyncResult);
+
+            // fallback to a default maximum of pending reads when remote server does not allow us to obtain
+            // the attributes of the file
+            try
+            {
+                var fileAttributes = sftpSession.EndLStat(statAsyncResult);
+                fileSize = fileAttributes.Size;
+                maxPendingReads = Math.Min(20, (int) Math.Ceiling((double) fileAttributes.Size / chunkSize) + 1);
+            }
+            catch (SshException ex)
+            {
+                fileSize = null;
+                maxPendingReads = DefaultMaxPendingReads;
+
+                DiagnosticAbstraction.Log(string.Format("Failed to obtain size of file. Allowing maximum {0} pending reads: {1}", maxPendingReads, ex));
+            }
+
+            return sftpSession.CreateFileReader(handle, sftpSession, chunkSize, maxPendingReads, fileSize);
         }
     }
 }

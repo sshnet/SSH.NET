@@ -10,7 +10,8 @@ namespace Renci.SshNet.Tests.Classes
     {
         private int _onChannelOpenInvocationCount;
 
-        public SubsystemSessionStub(ISession session, string subsystemName, TimeSpan operationTimeout, Encoding encoding) : base(session, subsystemName, operationTimeout, encoding)
+        public SubsystemSessionStub(ISession session, string subsystemName, int operationTimeout, Encoding encoding)
+            : base(session, subsystemName, operationTimeout, encoding)
         {
             OnDataReceivedInvocations = new List<ChannelDataEventArgs>();
         }

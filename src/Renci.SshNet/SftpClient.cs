@@ -1,15 +1,16 @@
 ﻿using System;
-using System.Linq;
+
 using System.Collections.Generic;
-using System.IO;
-using Renci.SshNet.Sftp;
-using System.Text;
-using Renci.SshNet.Common;
-using System.Globalization;
-using System.Threading;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.Globalization;
+using System.Linq;
 using System.Net;
+using System.Text;
+using System.Threading;
 using Renci.SshNet.Abstractions;
+using Renci.SshNet.Common;
+using Renci.SshNet.Sftp;
 
 namespace Renci.SshNet
 {
@@ -27,7 +28,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Holds the operation timeout.
         /// </summary>
-        private TimeSpan _operationTimeout;
+        private int _operationTimeout;
 
         /// <summary>
         /// Holds the size of the buffer.
@@ -47,12 +48,18 @@ namespace Renci.SshNet
             get
             {
                 CheckDisposed();
-                return _operationTimeout;
+
+                return TimeSpan.FromMilliseconds(_operationTimeout);
             }
             set
             {
                 CheckDisposed();
-                _operationTimeout = value;
+
+                var timeoutInMilliseconds = value.TotalMilliseconds;
+                if (timeoutInMilliseconds < -1d || timeoutInMilliseconds > int.MaxValue)
+                    throw new ArgumentOutOfRangeException("timeout", "The timeout must represent a value between -1 and Int32.MaxValue, inclusive.");
+
+                _operationTimeout = (int) timeoutInMilliseconds;
             }
         }
 
@@ -230,7 +237,7 @@ namespace Renci.SshNet
         internal SftpClient(ConnectionInfo connectionInfo, bool ownsConnectionInfo, IServiceFactory serviceFactory)
             : base(connectionInfo, ownsConnectionInfo, serviceFactory)
         {
-            OperationTimeout = SshNet.Session.InfiniteTimeSpan;
+            _operationTimeout = SshNet.Session.Infinite;
             BufferSize = 1024 * 32;
         }
 
@@ -244,7 +251,7 @@ namespace Renci.SshNet
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="SftpPermissionDeniedException">Permission to change directory denied by remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
         /// <exception cref="SftpPathNotFoundException"><paramref name="path"/> was not found on the remote host.</exception>
-        /// <exception cref="SshException">A SSH error where <see cref="P:System.Exception.Message"/> is the message from the remote host.</exception>
+        /// <exception cref="SshException">A SSH error where <see cref="Exception.Message"/> is the message from the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         public void ChangeDirectory(string path)
         {
@@ -268,7 +275,7 @@ namespace Renci.SshNet
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="SftpPermissionDeniedException">Permission to change permission on the path(s) was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
         /// <exception cref="SftpPathNotFoundException"><paramref name="path"/> was not found on the remote host.</exception>
-        /// <exception cref="SshException">A SSH error where <see cref="P:System.Exception.Message"/> is the message from the remote host.</exception>
+        /// <exception cref="SshException">A SSH error where <see cref="Exception.Message"/> is the message from the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         public void ChangePermissions(string path, short mode)
         {
@@ -283,7 +290,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentException"><paramref name="path"/> is <b>null</b> or contains only whitespace characters.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="SftpPermissionDeniedException">Permission to create the directory was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
-        /// <exception cref="SshException">A SSH error where <see cref="P:System.Exception.Message"/> is the message from the remote host.</exception>
+        /// <exception cref="SshException">A SSH error where <see cref="Exception.Message"/> is the message from the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         public void CreateDirectory(string path)
         {
@@ -308,7 +315,7 @@ namespace Renci.SshNet
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="SftpPathNotFoundException"><paramref name="path"/> was not found on the remote host.</exception>
         /// <exception cref="SftpPermissionDeniedException">Permission to delete the directory was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
-        /// <exception cref="SshException">A SSH error where <see cref="P:System.Exception.Message"/> is the message from the remote host.</exception>
+        /// <exception cref="SshException">A SSH error where <see cref="Exception.Message"/> is the message from the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         public void DeleteDirectory(string path)
         {
@@ -333,7 +340,7 @@ namespace Renci.SshNet
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="SftpPathNotFoundException"><paramref name="path"/> was not found on the remote host.</exception>
         /// <exception cref="SftpPermissionDeniedException">Permission to delete the file was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
-        /// <exception cref="SshException">A SSH error where <see cref="P:System.Exception.Message"/> is the message from the remote host.</exception>
+        /// <exception cref="SshException">A SSH error where <see cref="Exception.Message"/> is the message from the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         public void DeleteFile(string path)
         {
@@ -358,7 +365,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="oldPath"/> is <b>null</b>. <para>-or-</para> or <paramref name="newPath"/> is <b>null</b>.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="SftpPermissionDeniedException">Permission to rename the file was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
-        /// <exception cref="SshException">A SSH error where <see cref="P:System.Exception.Message"/> is the message from the remote host.</exception>
+        /// <exception cref="SshException">A SSH error where <see cref="Exception.Message"/> is the message from the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         public void RenameFile(string oldPath, string newPath)
         {
@@ -374,7 +381,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="oldPath" /> is <b>null</b>. <para>-or-</para> or <paramref name="newPath" /> is <b>null</b>.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="SftpPermissionDeniedException">Permission to rename the file was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
-        /// <exception cref="SshException">A SSH error where <see cref="P:System.Exception.Message" /> is the message from the remote host.</exception>
+        /// <exception cref="SshException">A SSH error where <see cref="Exception.Message" /> is the message from the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         public void RenameFile(string oldPath, string newPath, bool isPosix)
         {
@@ -411,7 +418,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentException"><paramref name="path"/> is <b>null</b>. <para>-or-</para> <paramref name="linkPath"/> is <b>null</b> or contains only whitespace characters.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="SftpPermissionDeniedException">Permission to create the symbolic link was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
-        /// <exception cref="SshException">A SSH error where <see cref="P:System.Exception.Message"/> is the message from the remote host.</exception>
+        /// <exception cref="SshException">A SSH error where <see cref="Exception.Message"/> is the message from the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         public void SymbolicLink(string path, string linkPath)
         {
@@ -444,7 +451,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="path" /> is <b>null</b>.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="SftpPermissionDeniedException">Permission to list the contents of the directory was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
-        /// <exception cref="SshException">A SSH error where <see cref="P:System.Exception.Message" /> is the message from the remote host.</exception>
+        /// <exception cref="SshException">A SSH error where <see cref="Exception.Message" /> is the message from the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         public IEnumerable<SftpFile> ListDirectory(string path, Action<int> listCallback = null)
         {
@@ -552,7 +559,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentException"><paramref name="path"/> is <b>null</b> or contains only whitespace characters.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="SftpPermissionDeniedException">Permission to perform the operation was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
-        /// <exception cref="SshException">A SSH error where <see cref="P:System.Exception.Message"/> is the message from the remote host.</exception>
+        /// <exception cref="SshException">A SSH error where <see cref="Exception.Message"/> is the message from the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         public bool Exists(string path)
         {
@@ -566,9 +573,9 @@ namespace Renci.SshNet
 
             var fullPath = _sftpSession.GetCanonicalPath(path);
 
-            // using SSH_FXP_REALPATH is not an alternative the SFTP specification has not always
-            // been clear on how the server should respond when the specified path is not present
-            // on the server:
+            // using SSH_FXP_REALPATH is not an alternative as the SFTP specification has not always
+            // been clear on how the server should respond when the specified path is not present on
+            // the server:
             // 
             // SSH 1 to 4:
             // No mention of how the server should respond if the path is not present on the server.
@@ -605,7 +612,7 @@ namespace Renci.SshNet
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="SftpPermissionDeniedException">Permission to perform the operation was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
         /// <exception cref="SftpPathNotFoundException"><paramref name="path"/> was not found on the remote host.</exception>/// 
-        /// <exception cref="SshException">A SSH error where <see cref="P:System.Exception.Message" /> is the message from the remote host.</exception>
+        /// <exception cref="SshException">A SSH error where <see cref="Exception.Message" /> is the message from the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         /// <remarks>
         /// Method calls made by this method to <paramref name="output" />, may under certain conditions result in exceptions thrown by the stream.
@@ -629,7 +636,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentException"><paramref name="path" /> is <b>null</b> or contains only whitespace characters.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="SftpPermissionDeniedException">Permission to perform the operation was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
-        /// <exception cref="SshException">A SSH error where <see cref="P:System.Exception.Message" /> is the message from the remote host.</exception>
+        /// <exception cref="SshException">A SSH error where <see cref="Exception.Message" /> is the message from the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         /// <remarks>
         /// Method calls made by this method to <paramref name="output" />, may under certain conditions result in exceptions thrown by the stream.
@@ -652,7 +659,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentException"><paramref name="path" /> is <b>null</b> or contains only whitespace characters.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="SftpPermissionDeniedException">Permission to perform the operation was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
-        /// <exception cref="SshException">A SSH error where <see cref="P:System.Exception.Message" /> is the message from the remote host.</exception>
+        /// <exception cref="SshException">A SSH error where <see cref="Exception.Message" /> is the message from the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         /// <remarks>
         /// Method calls made by this method to <paramref name="output" />, may under certain conditions result in exceptions thrown by the stream.
@@ -724,7 +731,7 @@ namespace Renci.SshNet
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="SftpPermissionDeniedException">Permission to perform the operation was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
         /// <exception cref="SftpPathNotFoundException">The path was not found on the remote host.</exception>
-        /// <exception cref="SshException">A SSH error where <see cref="P:System.Exception.Message" /> is the message from the remote host.</exception>
+        /// <exception cref="SshException">A SSH error where <see cref="Exception.Message" /> is the message from the remote host.</exception>
         public void EndDownloadFile(IAsyncResult asyncResult)
         {
             var ar = asyncResult as SftpDownloadAsyncResult;
@@ -746,7 +753,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentException"><paramref name="path" /> is <b>null</b> or contains only whitespace characters.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="SftpPermissionDeniedException">Permission to upload the file was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
-        /// <exception cref="SshException">A SSH error where <see cref="P:System.Exception.Message" /> is the message from the remote host.</exception>
+        /// <exception cref="SshException">A SSH error where <see cref="Exception.Message" /> is the message from the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         /// <remarks>
         /// Method calls made by this method to <paramref name="input" />, may under certain conditions result in exceptions thrown by the stream.
@@ -767,7 +774,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentException"><paramref name="path" /> is <b>null</b> or contains only whitespace characters.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="SftpPermissionDeniedException">Permission to upload the file was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
-        /// <exception cref="SshException">A SSH error where <see cref="P:System.Exception.Message" /> is the message from the remote host.</exception>
+        /// <exception cref="SshException">A SSH error where <see cref="Exception.Message" /> is the message from the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         /// <remarks>
         /// Method calls made by this method to <paramref name="input" />, may under certain conditions result in exceptions thrown by the stream.
@@ -798,7 +805,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentException"><paramref name="path" /> is <b>null</b> or contains only whitespace characters.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="SftpPermissionDeniedException">Permission to list the contents of the directory was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
-        /// <exception cref="SshException">A SSH error where <see cref="P:System.Exception.Message" /> is the message from the remote host.</exception>
+        /// <exception cref="SshException">A SSH error where <see cref="Exception.Message" /> is the message from the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         /// <remarks>
         /// <para>
@@ -826,7 +833,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentException"><paramref name="path" /> is <b>null</b> or contains only whitespace characters.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="SftpPermissionDeniedException">Permission to list the contents of the directory was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
-        /// <exception cref="SshException">A SSH error where <see cref="P:System.Exception.Message" /> is the message from the remote host.</exception>
+        /// <exception cref="SshException">A SSH error where <see cref="Exception.Message" /> is the message from the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         /// <remarks>
         /// <para>
@@ -856,7 +863,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentException"><paramref name="path" /> is <b>null</b> or contains only whitespace characters.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="SftpPermissionDeniedException">Permission to list the contents of the directory was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
-        /// <exception cref="SshException">A SSH error where <see cref="P:System.Exception.Message" /> is the message from the remote host.</exception>
+        /// <exception cref="SshException">A SSH error where <see cref="Exception.Message" /> is the message from the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         /// <remarks>
         /// <para>
@@ -949,7 +956,7 @@ namespace Renci.SshNet
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="SftpPathNotFoundException">The directory of the file was not found on the remote host.</exception>
         /// <exception cref="SftpPermissionDeniedException">Permission to upload the file was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
-        /// <exception cref="SshException">A SSH error where <see cref="P:System.Exception.Message" /> is the message from the remote host.</exception>
+        /// <exception cref="SshException">A SSH error where <see cref="Exception.Message" /> is the message from the remote host.</exception>
         public void EndUploadFile(IAsyncResult asyncResult)
         {
             var ar = asyncResult as SftpUploadAsyncResult;
@@ -1498,7 +1505,7 @@ namespace Renci.SshNet
         /// Sets the date and time the specified file was last accessed.
         /// </summary>
         /// <param name="path">The file for which to set the access date and time information.</param>
-        /// <param name="lastAccessTime">A <see cref="System.DateTime"/> containing the value to set for the last access date and time of path. This value is expressed in local time.</param>
+        /// <param name="lastAccessTime">A <see cref="DateTime"/> containing the value to set for the last access date and time of path. This value is expressed in local time.</param>
         [Obsolete("Note: This method currently throws NotImplementedException because it has not yet been implemented.")]
         public void SetLastAccessTime(string path, DateTime lastAccessTime)
         {
@@ -1509,7 +1516,7 @@ namespace Renci.SshNet
         /// Sets the date and time, in coordinated universal time (UTC), that the specified file was last accessed.
         /// </summary>
         /// <param name="path">The file for which to set the access date and time information.</param>
-        /// <param name="lastAccessTimeUtc">A <see cref="System.DateTime"/> containing the value to set for the last access date and time of path. This value is expressed in UTC time.</param>
+        /// <param name="lastAccessTimeUtc">A <see cref="DateTime"/> containing the value to set for the last access date and time of path. This value is expressed in UTC time.</param>
         [Obsolete("Note: This method currently throws NotImplementedException because it has not yet been implemented.")]
         public void SetLastAccessTimeUtc(string path, DateTime lastAccessTimeUtc)
         {
@@ -1520,7 +1527,7 @@ namespace Renci.SshNet
         /// Sets the date and time that the specified file was last written to.
         /// </summary>
         /// <param name="path">The file for which to set the date and time information.</param>
-        /// <param name="lastWriteTime">A System.DateTime containing the value to set for the last write date and time of path. This value is expressed in local time.</param>
+        /// <param name="lastWriteTime">A <see cref="DateTime"/> containing the value to set for the last write date and time of path. This value is expressed in local time.</param>
         [Obsolete("Note: This method currently throws NotImplementedException because it has not yet been implemented.")]
         public void SetLastWriteTime(string path, DateTime lastWriteTime)
         {
@@ -1531,7 +1538,7 @@ namespace Renci.SshNet
         /// Sets the date and time, in coordinated universal time (UTC), that the specified file was last written to.
         /// </summary>
         /// <param name="path">The file for which to set the date and time information.</param>
-        /// <param name="lastWriteTimeUtc">A System.DateTime containing the value to set for the last write date and time of path. This value is expressed in UTC time.</param>
+        /// <param name="lastWriteTimeUtc">A <see cref="DateTime"/> containing the value to set for the last write date and time of path. This value is expressed in UTC time.</param>
         [Obsolete("Note: This method currently throws NotImplementedException because it has not yet been implemented.")]
         public void SetLastWriteTimeUtc(string path, DateTime lastWriteTimeUtc)
         {
@@ -1995,14 +2002,12 @@ namespace Renci.SshNet
 
             var fullPath = _sftpSession.GetCanonicalPath(path);
 
-            using (var fileReader = _sftpSession.CreateFileReader(fullPath, _bufferSize))
+            using (var fileReader = ServiceFactory.CreateSftpFileReader(fullPath, _sftpSession, _bufferSize))
             {
                 var totalBytesRead = 0UL;
 
                 while (true)
                 {
-                    // TODO: cancel read ahead when download is canceled by user
-
                     //  Cancel download
                     if (asyncResult != null && asyncResult.IsDownloadCanceled)
                         break;
@@ -2013,7 +2018,7 @@ namespace Renci.SshNet
 
                     output.Write(data, 0, data.Length);
 
-                    totalBytesRead += (ulong)data.Length;
+                    totalBytesRead += (ulong) data.Length;
 
                     if (downloadCallback != null)
                     {
@@ -2096,7 +2101,7 @@ namespace Renci.SshNet
                 else if (expectedResponses > 0)
                 {
                     //  Wait for expectedResponses to change
-                    _sftpSession.WaitOnHandle(responseReceivedWaitHandle, OperationTimeout);
+                    _sftpSession.WaitOnHandle(responseReceivedWaitHandle, _operationTimeout);
                 }
             } while (expectedResponses > 0 || bytesRead > 0);
 
@@ -2110,7 +2115,7 @@ namespace Renci.SshNet
         {
             base.OnConnected();
 
-            _sftpSession = ServiceFactory.CreateSftpSession(Session, OperationTimeout, ConnectionInfo.Encoding);
+            _sftpSession = ServiceFactory.CreateSftpSession(Session, _operationTimeout, ConnectionInfo.Encoding);
             _sftpSession.Connect();
         }
 

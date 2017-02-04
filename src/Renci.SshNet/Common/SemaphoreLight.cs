@@ -6,9 +6,10 @@ namespace Renci.SshNet.Common
     /// <summary>
     /// Light implementation of SemaphoreSlim.
     /// </summary>
-    public class SemaphoreLight
+    public class SemaphoreLight : IDisposable
     {
         private readonly object _lock = new object();
+        private ManualResetEvent _waitHandle;
 
         private int _currentCount;
 
@@ -32,6 +33,34 @@ namespace Renci.SshNet.Common
         public int CurrentCount { get { return _currentCount; } }
 
         /// <summary>
+        /// Returns a <see cref="WaitHandle"/> that can be used to wait on the semaphore.
+        /// </summary>
+        /// <value>
+        /// A <see cref="WaitHandle"/> that can be used to wait on the semaphore.
+        /// </value>
+        /// <remarks>
+        /// A successful wait on the <see cref="AvailableWaitHandle"/> does not imply a successful
+        /// wait on the <see cref="SemaphoreLight"/> itself. It should be followed by a true wait
+        /// on the semaphore.
+        /// </remarks>
+        public WaitHandle AvailableWaitHandle
+        {
+            get
+            {
+                if (_waitHandle != null)
+                    return _waitHandle;
+
+                lock (_lock)
+                {
+                    if (_waitHandle == null)
+                        _waitHandle = new ManualResetEvent(_currentCount > 0);
+                }
+
+                return _waitHandle;
+            }
+        }
+
+        /// <summary>
         /// Exits the <see cref="SemaphoreLight"/> once.
         /// </summary>
         /// <returns>The previous count of the <see cref="SemaphoreLight"/>.</returns>
@@ -44,19 +73,27 @@ namespace Renci.SshNet.Common
         /// Exits the <see cref="SemaphoreLight"/> a specified number of times.
         /// </summary>
         /// <param name="releaseCount">The number of times to exit the semaphore.</param>
-        /// <returns>The previous count of the <see cref="SemaphoreLight"/>.</returns>
+        /// <returns>
+        /// The previous count of the <see cref="SemaphoreLight"/>.
+        /// </returns>
         public int Release(int releaseCount)
         {
-            var oldCount = _currentCount;
-
             lock (_lock)
             {
+                var oldCount = _currentCount;
+
                 _currentCount += releaseCount;
 
-                Monitor.Pulse(_lock);
-            }
+                // signal waithandle when the original semaphore count was zero
+                if (_waitHandle != null && oldCount == 0)
+                {
+                    _waitHandle.Set();
+                }
 
-            return oldCount;
+                Monitor.Pulse(_lock);
+
+                return oldCount;
+            }
         }
 
         /// <summary>
@@ -72,6 +109,12 @@ namespace Renci.SshNet.Common
                 }
 
                 _currentCount--;
+
+                // unsignal waithandle when the semaphore count is zero
+                if (_waitHandle != null && _currentCount == 0)
+                {
+                    _waitHandle.Reset();
+                }
 
                 Monitor.Pulse(_lock);
             }
@@ -143,9 +186,49 @@ namespace Renci.SshNet.Common
 
                 _currentCount--;
 
+                // unsignal waithandle when the semaphore count is zero
+                if (_waitHandle != null && _currentCount == 0)
+                {
+                    _waitHandle.Reset();
+                }
+
                 Monitor.Pulse(_lock);
 
                 return true;
+            }
+        }
+
+        /// <summary>
+        /// Finalizes the current <see cref="SemaphoreLight"/>.
+        /// </summary>
+        ~SemaphoreLight()
+        {
+            Dispose(false);
+        }
+
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources
+        /// </summary>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        protected void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                var waitHandle = _waitHandle;
+                if (waitHandle != null)
+                {
+                    waitHandle.Dispose();
+                    _waitHandle = null;
+                }
             }
         }
     }

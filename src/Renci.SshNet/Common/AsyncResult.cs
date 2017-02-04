@@ -79,19 +79,11 @@ namespace Renci.SshNet.Common
         /// </summary>
         internal void EndInvoke()
         {
-            EndInvoke(Session.InfiniteTimeSpan);
-        }
-
-        /// <summary>
-        /// Waits until the asynchronous operation completes, and then returns. 
-        /// </summary>
-        internal void EndInvoke(TimeSpan timeout)
-        {
             // This method assumes that only 1 thread calls EndInvoke for this object
             if (!IsCompleted)
             {
                 // If the operation isn't done, wait for it
-                var completed = AsyncWaitHandle.WaitOne(timeout);
+                AsyncWaitHandle.WaitOne();
                 _asyncWaitHandle = null;  // Allow early GC
                 AsyncWaitHandle.Dispose();
 
@@ -161,6 +153,7 @@ namespace Renci.SshNet.Common
         {
             get { return _completedState != StatePending; }
         }
+
         #endregion
     }
 

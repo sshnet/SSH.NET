@@ -76,5 +76,77 @@ namespace Renci.SshNet.Common
                 Monitor.Pulse(_lock);
             }
         }
+
+        /// <summary>
+        /// Blocks the current thread until it can enter the <see cref="SemaphoreLight"/>, using a 32-bit signed
+        /// integer that specifies the timeout.
+        /// </summary>
+        /// <param name="millisecondsTimeout">The number of milliseconds to wait, or Infinite(-1) to wait indefinitely.</param>
+        /// <returns>
+        /// <c>true</c> if the current thread successfully entered the <see cref="SemaphoreLight"/>; otherwise, <c>false</c>.
+        /// </returns>
+        public bool Wait(int millisecondsTimeout)
+        {
+            if (millisecondsTimeout < -1)
+                throw new ArgumentOutOfRangeException("millisecondsTimeout", "The timeout must represent a value between -1 and Int32.MaxValue, inclusive.");
+
+            return WaitWithTimeout(millisecondsTimeout);
+        }
+
+        /// <summary>
+        /// Blocks the current thread until it can enter the <see cref="SemaphoreLight"/>, using a <see cref="TimeSpan"/>
+        /// to specify the timeout.
+        /// </summary>
+        /// <param name="timeout">A <see cref="TimeSpan"/> that represents the number of milliseconds to wait, or a <see cref="TimeSpan"/> that represents -1 milliseconds to wait indefinitely.</param>
+        /// <returns>
+        /// <c>true</c> if the current thread successfully entered the <see cref="SemaphoreLight"/>; otherwise, <c>false</c>.
+        /// </returns>
+        public bool Wait(TimeSpan timeout)
+        {
+            var timeoutInMilliseconds = timeout.TotalMilliseconds;
+            if (timeoutInMilliseconds < -1d || timeoutInMilliseconds > int.MaxValue)
+                throw new ArgumentOutOfRangeException("timeout", "The timeout must represent a value between -1 and Int32.MaxValue, inclusive.");
+
+            return WaitWithTimeout((int) timeoutInMilliseconds);
+        }
+
+        private bool WaitWithTimeout(int timeoutInMilliseconds)
+        {
+            lock (_lock)
+            {
+                if (timeoutInMilliseconds == Session.Infinite)
+                {
+                    while (_currentCount < 1)
+                        Monitor.Wait(_lock);
+                }
+                else
+                {
+                    if (_currentCount < 1)
+                    {
+                        var remainingTimeInMilliseconds = timeoutInMilliseconds;
+                        var startTicks = Environment.TickCount;
+
+                        while (_currentCount < 1)
+                        {
+                            if (!Monitor.Wait(_lock, remainingTimeInMilliseconds))
+                            {
+                                return false;
+                            }
+
+                            var elapsed = Environment.TickCount - startTicks;
+                            remainingTimeInMilliseconds -= elapsed;
+                            if (remainingTimeInMilliseconds < 0)
+                                return false;
+                        }
+                    }
+                }
+
+                _currentCount--;
+
+                Monitor.Pulse(_lock);
+
+                return true;
+            }
+        }
     }
 }

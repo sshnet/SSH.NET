@@ -110,7 +110,7 @@ namespace Renci.SshNet.Common
 
                 _currentCount--;
 
-                // unsignal waithandle when the semaphore count is zero
+                // unsignal waithandle when the semaphore count reaches zero
                 if (_waitHandle != null && _currentCount == 0)
                 {
                     _waitHandle.Reset();

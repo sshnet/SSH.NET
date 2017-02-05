@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -28,7 +27,13 @@ namespace Renci.SshNet
         {
             if (string.IsNullOrEmpty(value)) return true;
 
-            return value.All(char.IsWhiteSpace);
+            for (var i = 0; i < value.Length; i++)
+            {
+                if (!char.IsWhiteSpace(value[i]))
+                    return false;
+            }
+
+            return true;
         }
 
         internal static byte[] ToArray(this ServiceName serviceName)

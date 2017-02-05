@@ -439,10 +439,10 @@ namespace Renci.SshNet.Channels
         #endregion // Channel virtual methods
 
         /// <summary>
-        /// Raises <see cref="Channel.Exception"/> event.
+        /// Raises <see cref="Exception"/> event.
         /// </summary>
         /// <param name="exception">The exception.</param>
-        protected void RaiseExceptionEvent(Exception exception)
+        private void RaiseExceptionEvent(Exception exception)
         {
             var handlers = Exception;
             if (handlers != null)

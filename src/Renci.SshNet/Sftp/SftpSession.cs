@@ -407,7 +407,7 @@ namespace Renci.SshNet.Sftp
         }
 
         /// <summary>
-        /// Handles the end of an asynchronous read.
+        /// Handles the end of an asynchronous open.
         /// </summary>
         /// <param name="asyncResult">An <see cref="SftpOpenAsyncResult"/> that represents an asynchronous call.</param>
         /// <returns>
@@ -425,6 +425,9 @@ namespace Renci.SshNet.Sftp
 
             if (asyncResult.EndInvokeCalled)
                 throw new InvalidOperationException("EndOpen has already been called.");
+
+            if (asyncResult.IsCompleted)
+                return asyncResult.EndInvoke();
 
             using (var waitHandle = asyncResult.AsyncWaitHandle)
             {
@@ -458,6 +461,56 @@ namespace Renci.SshNet.Sftp
             if (exception != null)
             {
                 throw exception;
+            }
+        }
+
+        /// <summary>
+        /// Performs SSH_FXP_CLOSE request.
+        /// </summary>
+        /// <param name="handle">The handle.</param>
+        /// <param name="callback">The <see cref="AsyncCallback"/> delegate that is executed when <see cref="BeginClose(byte[], AsyncCallback, object)"/> completes.</param>
+        /// <param name="state">An object that contains any additional user-defined data.</param>
+        /// <returns>
+        /// A <see cref="SftpCloseAsyncResult"/> that represents the asynchronous call.
+        /// </returns>
+        public SftpCloseAsyncResult BeginClose(byte[] handle, AsyncCallback callback, object state)
+        {
+            var asyncResult = new SftpCloseAsyncResult(callback, state);
+
+            var request = new SftpCloseRequest(ProtocolVersion, NextRequestId, handle,
+                response =>
+                {
+                    asyncResult.SetAsCompleted(GetSftpException(response), false);
+                });
+            SendRequest(request);
+
+            return asyncResult;
+        }
+
+        /// <summary>
+        /// Handles the end of an asynchronous close.
+        /// </summary>
+        /// <param name="asyncResult">An <see cref="SftpCloseAsyncResult"/> that represents an asynchronous call.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <c>null</c>.</exception>
+        public void EndClose(SftpCloseAsyncResult asyncResult)
+        {
+            if (asyncResult == null)
+                throw new ArgumentNullException("asyncResult");
+
+            if (asyncResult.EndInvokeCalled)
+                throw new InvalidOperationException("EndClose has already been called.");
+
+            if (asyncResult.IsCompleted)
+            {
+                asyncResult.EndInvoke();
+            }
+            else
+            {
+                using (var waitHandle = asyncResult.AsyncWaitHandle)
+                {
+                    WaitOnHandle(waitHandle, OperationTimeout);
+                    asyncResult.EndInvoke();
+                }
             }
         }
 
@@ -516,6 +569,9 @@ namespace Renci.SshNet.Sftp
 
             if (asyncResult.EndInvokeCalled)
                 throw new InvalidOperationException("EndRead has already been called.");
+
+            if (asyncResult.IsCompleted)
+                return asyncResult.EndInvoke();
 
             using (var waitHandle = asyncResult.AsyncWaitHandle)
             {
@@ -696,6 +752,9 @@ namespace Renci.SshNet.Sftp
 
             if (asyncResult.EndInvokeCalled)
                 throw new InvalidOperationException("EndLStat has already been called.");
+
+            if (asyncResult.IsCompleted)
+                return asyncResult.EndInvoke();
 
             using (var waitHandle = asyncResult.AsyncWaitHandle)
             {
@@ -1050,6 +1109,9 @@ namespace Renci.SshNet.Sftp
             if (asyncResult.EndInvokeCalled)
                 throw new InvalidOperationException("EndRealPath has already been called.");
 
+            if (asyncResult.IsCompleted)
+                return asyncResult.EndInvoke();
+
             using (var waitHandle = asyncResult.AsyncWaitHandle)
             {
                 WaitOnHandle(waitHandle, OperationTimeout);
@@ -1126,7 +1188,7 @@ namespace Renci.SshNet.Sftp
         }
 
         /// <summary>
-        /// Handles the end of an asynchronous read.
+        /// Handles the end of an asynchronous stat.
         /// </summary>
         /// <param name="asyncResult">An <see cref="SFtpStatAsyncResult"/> that represents an asynchronous call.</param>
         /// <returns>
@@ -1140,6 +1202,9 @@ namespace Renci.SshNet.Sftp
 
             if (asyncResult.EndInvokeCalled)
                 throw new InvalidOperationException("EndStat has already been called.");
+
+            if (asyncResult.IsCompleted)
+                return asyncResult.EndInvoke();
 
             using (var waitHandle = asyncResult.AsyncWaitHandle)
             {

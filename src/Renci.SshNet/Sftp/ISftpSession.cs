@@ -302,6 +302,24 @@ namespace Renci.SshNet.Sftp
         void RequestClose(byte[] handle);
 
         /// <summary>
+        /// Performs SSH_FXP_CLOSE request.
+        /// </summary>
+        /// <param name="handle">The handle.</param>
+        /// <param name="callback">The <see cref="AsyncCallback"/> delegate that is executed when <see cref="BeginClose(byte[], AsyncCallback, object)"/> completes.</param>
+        /// <param name="state">An object that contains any additional user-defined data.</param>
+        /// <returns>
+        /// A <see cref="SftpCloseAsyncResult"/> that represents the asynchronous call.
+        /// </returns>
+        SftpCloseAsyncResult BeginClose(byte[] handle, AsyncCallback callback, object state);
+
+        /// <summary>
+        /// Handles the end of an asynchronous close.
+        /// </summary>
+        /// <param name="asyncResult">An <see cref="SftpCloseAsyncResult"/> that represents an asynchronous call.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <c>null</c>.</exception>
+        void EndClose(SftpCloseAsyncResult asyncResult);
+
+        /// <summary>
         /// Calculates the optimal size of the buffer to read data from the channel.
         /// </summary>
         /// <param name="bufferSize">The buffer size configured on the client.</param>

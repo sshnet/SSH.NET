@@ -13,6 +13,12 @@ namespace Renci.SshNet
     /// </summary>
     internal abstract class SubsystemSession : ISubsystemSession
     {
+        /// <summary>
+        /// Holds the number of system wait handles that are returned as the leading entries in the array returned
+        /// in <see cref="CreateWaitHandleArray(WaitHandle[])"/>.
+        /// </summary>
+        private const int SystemWaitHandleCount = 3;
+
         private ISession _session;
         private readonly string _subsystemName;
         private IChannelSession _channel;
@@ -225,7 +231,144 @@ namespace Renci.SshNet
                     waitHandle
                 };
 
-            switch (WaitHandle.WaitAny(waitHandles, millisecondsTimeout))
+            var result = WaitHandle.WaitAny(waitHandles, millisecondsTimeout);
+            switch (result)
+            {
+                case 0:
+                    throw _exception;
+                case 1:
+                    throw new SshException("Connection was closed by the server.");
+                case 2:
+                    throw new SshException("Channel was closed.");
+                case 3:
+                    break;
+                case WaitHandle.WaitTimeout:
+                    throw new SshOperationTimeoutException("Operation has timed out.");
+                default:
+                    throw new NotImplementedException(string.Format(CultureInfo.InvariantCulture, "WaitAny return value '{0}' is not implemented.", result));
+            }
+        }
+
+        /// <summary>
+        /// Blocks the current thread until the specified <see cref="WaitHandle"/> gets signaled, using a
+        /// 32-bit signed integer to specify the time interval in milliseconds.
+        /// </summary>
+        /// <param name="waitHandle">The handle to wait for.</param>
+        /// <param name="millisecondsTimeout">To number of milliseconds to wait for <paramref name="waitHandle"/> to get signaled, or -1 to wait indefinitely.</param>
+        /// <returns>
+        /// <c>true</c> if <paramref name="waitHandle"/> received a signal within the specified timeout;
+        /// otherwise, <c>false</c>.
+        /// </returns>
+        /// <exception cref="SshException">The connection was closed by the server.</exception>
+        /// <exception cref="SshException">The channel was closed.</exception>
+        /// <remarks>
+        /// The blocking wait is also interrupted when either the established channel is closed, the current
+        /// session is disconnected or an unexpected <see cref="Exception"/> occurred while processing a channel
+        /// or session event.
+        /// </remarks>
+        public bool WaitOne(WaitHandle waitHandle, int millisecondsTimeout)
+        {
+            var waitHandles = new[]
+                {
+                    _errorOccuredWaitHandle,
+                    _sessionDisconnectedWaitHandle,
+                    _channelClosedWaitHandle,
+                    waitHandle
+                };
+
+            var result = WaitHandle.WaitAny(waitHandles, millisecondsTimeout);
+            switch (result)
+            {
+                case 0:
+                    throw _exception;
+                case 1:
+                    throw new SshException("Connection was closed by the server.");
+                case 2:
+                    throw new SshException("Channel was closed.");
+                case 3:
+                    return true;
+                case WaitHandle.WaitTimeout:
+                    return false;
+                default:
+                    throw new NotImplementedException(string.Format(CultureInfo.InvariantCulture, "WaitAny return value '{0}' is not implemented.", result));
+            }
+        }
+
+        /// <summary>
+        /// Blocks the current thread until the specified <see cref="WaitHandle"/> gets signaled, using a
+        /// 32-bit signed integer to specify the time interval in milliseconds.
+        /// </summary>
+        /// <param name="waitHandle1">The first handle to wait for.</param>
+        /// <param name="waitHandle2">The second handle to wait for.</param>
+        /// <param name="millisecondsTimeout">To number of milliseconds to wait for a <see cref="WaitHandle"/> to get signaled, or -1 to wait indefinitely.</param>
+        /// <returns>
+        /// <c>0</c> if <paramref name="waitHandle1"/> received a signal within the specified timeout, and <c>1</c>
+        /// if <paramref name="waitHandle2"/> received a signal within the specified timeout.
+        /// </returns>
+        /// <exception cref="SshException">The connection was closed by the server.</exception>
+        /// <exception cref="SshException">The channel was closed.</exception>
+        /// <exception cref="SshOperationTimeoutException">The handle did not get signaled within the specified timeout.</exception>
+        /// <remarks>
+        /// <para>
+        /// The blocking wait is also interrupted when either the established channel is closed, the current
+        /// session is disconnected or an unexpected <see cref="Exception"/> occurred while processing a channel
+        /// or session event.
+        /// </para>
+        /// <para>
+        /// When both <paramref name="waitHandle1"/> and <paramref name="waitHandle2"/> are signaled during the call,
+        /// then <c>0</c> is returned.
+        /// </para>
+        /// </remarks>
+        public int WaitAny(WaitHandle waitHandle1, WaitHandle waitHandle2, int millisecondsTimeout)
+        {
+            var waitHandles = new[]
+                {
+                    _errorOccuredWaitHandle,
+                    _sessionDisconnectedWaitHandle,
+                    _channelClosedWaitHandle,
+                    waitHandle1,
+                    waitHandle2
+                };
+
+            var result = WaitHandle.WaitAny(waitHandles, millisecondsTimeout);
+            switch (result)
+            {
+                case 0:
+                    throw _exception;
+                case 1:
+                    throw new SshException("Connection was closed by the server.");
+                case 2:
+                    throw new SshException("Channel was closed.");
+                case 3:
+                    return 0;
+                case 4:
+                    return 1;
+                case WaitHandle.WaitTimeout:
+                    throw new SshOperationTimeoutException("Operation has timed out.");
+                default:
+                    throw new NotImplementedException(string.Format(CultureInfo.InvariantCulture, "WaitAny return value '{0}' is not implemented.", result));
+            }
+        }
+
+        /// <summary>
+        /// Waits for any of the elements in the specified array to receive a signal, using a 32-bit signed
+        /// integer to specify the time interval.
+        /// </summary>
+        /// <param name="waitHandles">A <see cref="WaitHandle"/> array - constructed using <see cref="CreateWaitHandleArray(WaitHandle[])"/> - containing the objects to wait for.</param>
+        /// <param name="millisecondsTimeout">To number of milliseconds to wait for a <see cref="WaitHandle"/> to get signaled, or -1 to wait indefinitely.</param>
+        /// <returns>
+        /// The array index of the first non-system object that satisfied the wait.
+        /// </returns>
+        /// <exception cref="SshException">The connection was closed by the server.</exception>
+        /// <exception cref="SshException">The channel was closed.</exception>
+        /// <exception cref="SshOperationTimeoutException">No object satified the wait and a time interval equivalent to <paramref name="millisecondsTimeout"/> has passed.</exception>
+        /// <remarks>
+        /// For the return value, the index of the first non-system object is considered to be zero.
+        /// </remarks>
+        public int WaitAny(WaitHandle[] waitHandles, int millisecondsTimeout)
+        {
+            var result = WaitHandle.WaitAny(waitHandles, millisecondsTimeout);
+            switch (result)
             {
                 case 0:
                     throw _exception;
@@ -234,8 +377,54 @@ namespace Renci.SshNet
                 case 2:
                     throw new SshException("Channel was closed.");
                 case WaitHandle.WaitTimeout:
-                    throw new SshOperationTimeoutException(string.Format(CultureInfo.CurrentCulture, "Operation has timed out."));
+                    throw new SshOperationTimeoutException("Operation has timed out.");
+                default:
+                    return result - SystemWaitHandleCount;
             }
+        }
+
+        /// <summary>
+        /// Creates a <see cref="WaitHandle"/> array that is composed of system objects and the specified
+        /// elements.
+        /// </summary>
+        /// <param name="waitHandle1">The first <see cref="WaitHandle"/> to wait for.</param>
+        /// <param name="waitHandle2">The second <see cref="WaitHandle"/> to wait for.</param>
+        /// <returns>
+        /// A <see cref="WaitHandle"/> array that is composed of system objects and the specified elements.
+        /// </returns>
+        public WaitHandle[] CreateWaitHandleArray(WaitHandle waitHandle1, WaitHandle waitHandle2)
+        {
+            return new WaitHandle[]
+                {
+                    _errorOccuredWaitHandle,
+                    _sessionDisconnectedWaitHandle,
+                    _channelClosedWaitHandle,
+                    waitHandle1,
+                    waitHandle2
+                };
+        }
+
+        /// <summary>
+        /// Creates a <see cref="WaitHandle"/> array that is composed of system objects and the specified
+        /// elements.
+        /// </summary>
+        /// <param name="waitHandles">A <see cref="WaitHandle"/> array containing the objects to wait for.</param>
+        /// <returns>
+        /// A <see cref="WaitHandle"/> array that is composed of system objects and the specified elements.
+        /// </returns>
+        public WaitHandle[] CreateWaitHandleArray(params WaitHandle[] waitHandles)
+        {
+            var array = new WaitHandle[waitHandles.Length + SystemWaitHandleCount];
+            array[0] = _errorOccuredWaitHandle;
+            array[1] = _sessionDisconnectedWaitHandle;
+            array[2] = _channelClosedWaitHandle;
+
+            for (var i = 0; i < waitHandles.Length; i++)
+            {
+                array[i + SystemWaitHandleCount] = waitHandles[i];
+            }
+
+            return array;
         }
 
         private void Session_Disconnected(object sender, EventArgs e)

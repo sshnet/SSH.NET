@@ -109,7 +109,6 @@ namespace Renci.SshNet
             int maxPendingReads;
 
             var chunkSize = sftpSession.CalculateOptimalReadLength(bufferSize);
-            var handle = sftpSession.EndOpen(openAsyncResult);
 
             // fallback to a default maximum of pending reads when remote server does not allow us to obtain
             // the attributes of the file
@@ -117,7 +116,7 @@ namespace Renci.SshNet
             {
                 var fileAttributes = sftpSession.EndLStat(statAsyncResult);
                 fileSize = fileAttributes.Size;
-                maxPendingReads = Math.Min(20, (int) Math.Ceiling((double) fileAttributes.Size / chunkSize) + 1);
+                maxPendingReads = Math.Min(10, (int) Math.Ceiling((double) fileAttributes.Size / chunkSize) + 1);
             }
             catch (SshException ex)
             {
@@ -126,6 +125,8 @@ namespace Renci.SshNet
 
                 DiagnosticAbstraction.Log(string.Format("Failed to obtain size of file. Allowing maximum {0} pending reads: {1}", maxPendingReads, ex));
             }
+
+            var handle = sftpSession.EndOpen(openAsyncResult);
 
             return sftpSession.CreateFileReader(handle, sftpSession, chunkSize, maxPendingReads, fileSize);
         }

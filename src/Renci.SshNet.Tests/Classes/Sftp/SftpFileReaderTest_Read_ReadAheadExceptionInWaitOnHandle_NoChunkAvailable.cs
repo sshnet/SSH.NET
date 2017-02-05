@@ -17,7 +17,9 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         private MockSequence _seq;
         private byte[] _handle;
         private int _fileSize;
+        private WaitHandle[] _waitHandleArray;
         private int _operationTimeout;
+        private SftpCloseAsyncResult _closeAsyncResult;
         private SftpFileReader _reader;
         private SshException _exception;
         private SshException _actualException;
@@ -28,7 +30,9 @@ namespace Renci.SshNet.Tests.Classes.Sftp
 
             _handle = CreateByteArray(random, 5);
             _fileSize = random.Next();
-            _operationTimeout = random.Next();
+            _waitHandleArray = new WaitHandle[2];
+            _operationTimeout = random.Next(10000, 20000);
+            _closeAsyncResult = new SftpCloseAsyncResult(null, null);
 
             _exception = new SshException();
         }
@@ -37,15 +41,24 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         {
             _seq = new MockSequence();
 
+            SftpSessionMock.InSequence(_seq)
+                           .Setup(p => p.CreateWaitHandleArray(It.IsNotNull<WaitHandle>(), It.IsNotNull<WaitHandle>()))
+                           .Returns<WaitHandle, WaitHandle>((disposingWaitHandle, semaphoreAvailableWaitHandle) =>
+                           {
+                               _waitHandleArray[0] = disposingWaitHandle;
+                               _waitHandleArray[1] = semaphoreAvailableWaitHandle;
+                               return _waitHandleArray;
+                           });
             SftpSessionMock.InSequence(_seq).Setup(p => p.OperationTimeout).Returns(_operationTimeout);
             SftpSessionMock.InSequence(_seq)
-                           .Setup(p => p.WaitOnHandle(It.IsAny<WaitHandle>(), _operationTimeout));
+                           .Setup(p => p.WaitAny(_waitHandleArray, _operationTimeout))
+                           .Returns(() => WaitAny(_waitHandleArray, _operationTimeout));
             SftpSessionMock.InSequence(_seq)
                            .Setup(p => p.BeginRead(_handle, 0, ChunkLength, It.IsNotNull<AsyncCallback>(), It.IsAny<BufferedRead>()))
                            .Returns((SftpReadAsyncResult)null);
             SftpSessionMock.InSequence(_seq).Setup(p => p.OperationTimeout).Returns(_operationTimeout);
             SftpSessionMock.InSequence(_seq)
-                           .Setup(p => p.WaitOnHandle(It.IsAny<WaitHandle>(), _operationTimeout))
+                           .Setup(p => p.WaitAny(_waitHandleArray, _operationTimeout))
                            .Throws(_exception);
         }
 
@@ -93,7 +106,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         [TestMethod]
         public void DisposeShouldCloseHandleAndCompleteImmediately()
         {
-            SftpSessionMock.InSequence(_seq).Setup(p => p.RequestClose(_handle));
+            SftpSessionMock.InSequence(_seq).Setup(p => p.BeginClose(_handle, null, null)).Returns(_closeAsyncResult);
+            SftpSessionMock.InSequence(_seq).Setup(p => p.EndClose(_closeAsyncResult));
 
             var stopwatch = Stopwatch.StartNew();
             _reader.Dispose();
@@ -101,7 +115,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
 
             Assert.IsTrue(stopwatch.ElapsedMilliseconds < 200, "Dispose took too long to complete: " + stopwatch.ElapsedMilliseconds);
 
-            SftpSessionMock.Verify(p => p.RequestClose(_handle), Times.Once);
+            SftpSessionMock.Verify(p => p.BeginClose(_handle, null, null), Times.Once);
+            SftpSessionMock.Verify(p => p.EndClose(_closeAsyncResult), Times.Once);
         }
     }
 }

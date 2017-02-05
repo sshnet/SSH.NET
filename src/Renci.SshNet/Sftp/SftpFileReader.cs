@@ -2,6 +2,7 @@
 using Renci.SshNet.Common;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Threading;
 
 namespace Renci.SshNet.Sftp
@@ -18,12 +19,14 @@ namespace Renci.SshNet.Sftp
         /// <summary>
         /// Holds the size of the file, when available.
         /// </summary>
-        private long? _fileSize;
+        private readonly long? _fileSize;
         private readonly IDictionary<int, BufferedRead> _queue;
+        private readonly WaitHandle[] _waitHandles;
 
         private int _readAheadChunkIndex;
         private ulong _readAheadOffset;
         private ManualResetEvent _readAheadCompleted;
+        private ManualResetEvent _disposingWaitHandle;
         private int _nextChunkIndex;
 
         /// <summary>
@@ -38,7 +41,6 @@ namespace Renci.SshNet.Sftp
         private readonly object _readLock;
 
         private Exception _exception;
-        private bool _disposed;
 
         /// <summary>
         /// Initializes a new <see cref="SftpFileReader"/> instance with the specified handle,
@@ -59,13 +61,15 @@ namespace Renci.SshNet.Sftp
             _queue = new Dictionary<int, BufferedRead>(maxPendingReads);
             _readLock = new object();
             _readAheadCompleted = new ManualResetEvent(false);
+            _disposingWaitHandle = new ManualResetEvent(false);
+            _waitHandles = _sftpSession.CreateWaitHandleArray(_disposingWaitHandle, _semaphore.AvailableWaitHandle);
 
             StartReadAhead();
         }
 
         public byte[] Read()
         {
-            if (_disposed)
+            if (_disposingWaitHandle == null)
                 throw new ObjectDisposedException(GetType().FullName);
             if (_exception != null)
                 throw _exception;
@@ -85,13 +89,15 @@ namespace Renci.SshNet.Sftp
                 if (_exception != null)
                     throw _exception;
 
+                var data = nextChunk.Data;
+
                 if (nextChunk.Offset == _offset)
                 {
-                    var data = nextChunk.Data;
-
                     // have we reached EOF?
                     if (data.Length == 0)
                     {
+                        // PERF: we do not bother updating internal state when we've EOF
+
                         _isEndOfFileRead = true;
                     }
                     else
@@ -105,23 +111,23 @@ namespace Renci.SshNet.Sftp
                     }
                     // unblock wait in read-ahead
                     _semaphore.Release();
+
                     return data;
                 }
 
                 // when we received an EOF for the next chunk and the size of the file is known, then
                 // we only complete the current chunk if we haven't already read up to the file size;
                 // this way we save an extra round-trip to the server
-                if (nextChunk.Data.Length == 0 && _fileSize.HasValue && _offset == (ulong)_fileSize.Value)
+                if (data.Length == 0 && _fileSize.HasValue && _offset == (ulong) _fileSize.Value)
                 {
+                    // avoid future reads
                     _isEndOfFileRead = true;
-
                     // unblock wait in read-ahead
                     _semaphore.Release();
                     // signal EOF to caller
                     return nextChunk.Data;
                 }
             }
-
 
             // when the server returned less bytes than requested (for the previous chunk)
             // we'll synchronously request the remaining data
@@ -143,6 +149,7 @@ namespace Renci.SshNet.Sftp
             var read = _sftpSession.RequestRead(_handle, _offset, (uint) bytesToCatchUp);
             if (read.Length == 0)
             {
+                // process data in read lock to avoid ObjectDisposedException while releasing semaphore
                 lock (_readLock)
                 {
                     // a zero-length (EOF) response is only valid for the read-back when EOF has
@@ -150,9 +157,12 @@ namespace Renci.SshNet.Sftp
                     if (nextChunk.Data.Length == 0)
                     {
                         _isEndOfFileRead = true;
-
-                        // unblock wait in read-ahead
-                        _semaphore.Release();
+                        // ensure we've not yet disposed the current instance
+                        if (_semaphore != null)
+                        {
+                            // unblock wait in read-ahead
+                            _semaphore.Release();
+                        }
                         // signal EOF to caller
                         return read;
                     }
@@ -175,52 +185,57 @@ namespace Renci.SshNet.Sftp
             return read;
         }
 
+        ~SftpFileReader()
+        {
+            Dispose(false);
+        }
+
         public void Dispose()
         {
             Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources
         /// </summary>
         /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-        /// <remarks>
-        /// Note that we will break the read-ahead loop, but will not interrupt the blocking wait
-        /// in that loop.
-        /// </remarks>
         protected void Dispose(bool disposing)
         {
-            if (_disposed)
+            if (_disposingWaitHandle == null)
                 return;
 
             if (disposing)
             {
-                // use this to break the read-ahead loop
+                // record exception to break prevent future Read()
                 _exception = new ObjectDisposedException(GetType().FullName);
 
-                var readAheadCompleted = _readAheadCompleted;
-                if (readAheadCompleted != null)
-                {
-                    readAheadCompleted.WaitOne();
-                    readAheadCompleted.Dispose();
-                    _readAheadCompleted = null;
-                }
+                // signal that we're disposing to interrupt wait in read-ahead
+                _disposingWaitHandle.Set();
 
-                // dispose semaphore in read lock to ensure we don't run into an ObjectDisposedException
-                // in Read()
+                // wait until the read-ahead thread has completed
+                _readAheadCompleted.WaitOne();
+
+                // unblock the Read()
                 lock (_readLock)
                 {
-                    if (_semaphore != null)
-                    {
-                        _semaphore.Dispose();
-                        _semaphore = null;
-                    }
+                    // dispose semaphore in read lock to ensure we don't run into an ObjectDisposedException
+                    // in Read()
+                    _semaphore.Dispose();
+                    // awake Read
+                    Monitor.Pulse(_readLock);
                 }
 
-                _sftpSession.RequestClose(_handle);
-            }
+                var closeAsyncResult = _sftpSession.BeginClose(_handle, null, null);
 
-            _disposed = true;
+                _readAheadCompleted.Dispose();
+                _disposingWaitHandle.Dispose();
+
+                _sftpSession.EndClose(closeAsyncResult);
+
+                // dereference the disposing waithandle to indicate that the current instance is disposed
+                _disposingWaitHandle = null;
+            }
         }
 
         private void StartReadAhead()
@@ -229,36 +244,26 @@ namespace Renci.SshNet.Sftp
             {
                 while (!_endOfFileReceived && _exception == null)
                 {
-                    // wait on either a release on the semaphore, or signaling of a broken session/connection
-                    try
+                    // check if we should continue with the read-ahead loop
+                    // note that the EOF and exception check are not included
+                    // in this check as they do not require Read() to be
+                    // unblocked (or have already done this)
+                    if (!ContinueReadAhead())
                     {
-                        _sftpSession.WaitOnHandle(_semaphore.AvailableWaitHandle, _sftpSession.OperationTimeout);
-                    }
-                    catch (Exception ex)
-                    {
-                        _exception = ex;
-
                         // unblock the Read()
                         lock (_readLock)
                         {
                             Monitor.Pulse(_readLock);
                         }
-
                         // break the read-ahead loop
                         break;
                     }
 
                     // attempt to obtain the semaphore; this may time out when all semaphores are
-                    // in use due to pending read-aheads
-                    //
-                    // in general this only happens when the session is broken
+                    // in use due to pending read-aheads (which in turn can happen when the server
+                    // is slow to respond or when the session is broken)
                     if (!_semaphore.Wait(ReadAheadWaitTimeoutInMilliseconds))
                     {
-                        // unblock the Read()
-                        lock (_readLock)
-                        {
-                            Monitor.Pulse(_readLock);
-                        }
                         // re-evaluate whether an exception occurred, and - if not - wait again
                         continue;
                     }
@@ -290,6 +295,34 @@ namespace Renci.SshNet.Sftp
             });
         }
 
+        /// <summary>
+        /// Returns a value indicating whether the read-ahead loop should be continued.
+        /// </summary>
+        /// <returns>
+        /// <c>true</c> if the read-ahead loop should be continued; otherwise, <c>false</c>.
+        /// </returns>
+        private bool ContinueReadAhead()
+        {
+            try
+            {
+                var waitResult = _sftpSession.WaitAny(_waitHandles, _sftpSession.OperationTimeout);
+                switch (waitResult)
+                {
+                    case 0: // disposing
+                        return false;
+                    case 1: // semaphore available
+                        return true;
+                    default:
+                        throw new NotImplementedException(string.Format(CultureInfo.InvariantCulture, "WaitAny return value '{0}' is not implemented.", waitResult));
+                }
+            }
+            catch (Exception ex)
+            {
+                _exception = ex;
+                return false;
+            }
+        }
+
         private void ReadCompleted(IAsyncResult result)
         {
             var readAsyncResult = result as SftpReadAsyncResult;
@@ -312,20 +345,21 @@ namespace Renci.SshNet.Sftp
             // but there may be pending reads before that read
             var bufferedRead = (BufferedRead)readAsyncResult.AsyncState;
             bufferedRead.Complete(data);
-            _queue.Add(bufferedRead.ChunkIndex, bufferedRead);
+
+            lock (_readLock)
+            {
+                // add item to queue
+                _queue.Add(bufferedRead.ChunkIndex, bufferedRead);
+                // signal that a chunk has been read or EOF has been reached;
+                // in both cases, Read() will eventually also unblock the "read-ahead" thread
+                Monitor.Pulse(_readLock);
+            }
 
             // check if server signaled EOF
             if (data.Length == 0)
             {
                 // set a flag to stop read-aheads
                 _endOfFileReceived = true;
-            }
-
-            // signal that a chunk has been read or EOF has been reached;
-            // in both cases, Read() will eventually also unblock the "read-ahead" thread
-            lock (_readLock)
-            {
-                Monitor.PulseAll(_readLock);
             }
         }
 
@@ -339,7 +373,7 @@ namespace Renci.SshNet.Sftp
             // unblock Read()
             lock (_readLock)
             {
-                Monitor.PulseAll(_readLock);
+                Monitor.Pulse(_readLock);
             }
         }
 

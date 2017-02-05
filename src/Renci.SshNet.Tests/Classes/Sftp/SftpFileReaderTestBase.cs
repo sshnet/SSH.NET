@@ -1,7 +1,9 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Renci.SshNet.Common;
 using Renci.SshNet.Sftp;
 using System;
+using System.Threading;
 
 namespace Renci.SshNet.Tests.Classes.Sftp
 {
@@ -44,6 +46,15 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             var chunk = new byte[length];
             random.NextBytes(chunk);
             return chunk;
+        }
+
+        protected static int WaitAny(WaitHandle[] waitHandles, int millisecondsTimeout)
+        {
+            var result = WaitHandle.WaitAny(waitHandles, millisecondsTimeout);
+
+            if (result == WaitHandle.WaitTimeout)
+                throw new SshOperationTimeoutException();
+            return result;
         }
     }
 }

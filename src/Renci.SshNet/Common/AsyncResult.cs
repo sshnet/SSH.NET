@@ -86,7 +86,6 @@ namespace Renci.SshNet.Common
                 AsyncWaitHandle.WaitOne();
                 _asyncWaitHandle = null;  // Allow early GC
                 AsyncWaitHandle.Dispose();
-
             }
 
             EndInvokeCalled = true;

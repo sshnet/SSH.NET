@@ -430,7 +430,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Sftp\SftpOpenAsyncResult.cs" />
-    <Compile Include="Sftp\SftpOpenDirAsyncResult.cs" />
     <Compile Include="Sftp\SftpReadAsyncResult.cs" />
     <Compile Include="Sftp\SftpRealPathAsyncResult.cs" />
     <Compile Include="Sftp\SftpSession.cs">

@@ -14,7 +14,6 @@ namespace Renci.SshNet.Tests.Classes.Sftp
     public class SftpSessionTest_Connected_RequestRead
     {
         private Mock<ISession> _sessionMock;
-        private Mock<IServiceFactory> _serviceFactoryMock;
         private Mock<IChannelSession> _channelSessionMock;
         private SftpSession _sftpSession;
         private int _operationTimeout;
@@ -40,7 +39,6 @@ namespace Renci.SshNet.Tests.Classes.Sftp
 
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);
             _channelSessionMock = new Mock<IChannelSession>(MockBehavior.Strict);
-            _serviceFactoryMock = new Mock<IServiceFactory>(MockBehavior.Strict);
 
             var sequence = new MockSequence();
 
@@ -84,7 +82,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                     }
                 );
 
-            _sftpSession = new SftpSession(_sessionMock.Object, _operationTimeout, _encoding, _serviceFactoryMock.Object);
+            _sftpSession = new SftpSession(_sessionMock.Object, _operationTimeout, _encoding);
             _sftpSession.Connect();
         }
 

@@ -51,7 +51,7 @@ namespace Renci.SshNet
         /// </returns>
         public ISftpSession CreateSftpSession(ISession session, int operationTimeout, Encoding encoding)
         {
-            return new SftpSession(session, operationTimeout, encoding, this);
+            return new SftpSession(session, operationTimeout, encoding);
         }
 
         /// <summary>

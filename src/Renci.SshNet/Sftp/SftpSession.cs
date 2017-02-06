@@ -17,7 +17,6 @@ namespace Renci.SshNet.Sftp
         private readonly Dictionary<uint, SftpRequest> _requests = new Dictionary<uint, SftpRequest>();
         //FIXME: obtain from SftpClient!
         private readonly List<byte> _data = new List<byte>(32 * 1024);
-        private readonly IServiceFactory _serviceFactory;
         private EventWaitHandle _sftpVersionConfirmed = new AutoResetEvent(false);
         private IDictionary<string, string> _supportedExtensions;
 
@@ -50,10 +49,9 @@ namespace Renci.SshNet.Sftp
             }
         }
 
-        public SftpSession(ISession session, int operationTimeout, Encoding encoding, IServiceFactory serviceFactory)
+        public SftpSession(ISession session, int operationTimeout, Encoding encoding)
             : base(session, "sftp", operationTimeout, encoding)
         {
-            _serviceFactory = serviceFactory;
         }
 
         /// <summary>

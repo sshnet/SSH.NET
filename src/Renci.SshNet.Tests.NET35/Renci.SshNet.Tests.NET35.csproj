@@ -1022,6 +1022,48 @@
     <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileAttributesTest.cs">
       <Link>Classes\Sftp\SftpFileAttributesTest.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileReaderTestBase.cs">
+      <Link>Classes\Sftp\SftpFileReaderTestBase.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileReaderTest_DisposeShouldUnblockReadAndReadAhead.cs">
+      <Link>Classes\Sftp\SftpFileReaderTest_DisposeShouldUnblockReadAndReadAhead.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileReaderTest_LastChunkBeforeEofIsComplete.cs">
+      <Link>Classes\Sftp\SftpFileReaderTest_LastChunkBeforeEofIsComplete.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileReaderTest_LastChunkBeforeEofIsPartial.cs">
+      <Link>Classes\Sftp\SftpFileReaderTest_LastChunkBeforeEofIsPartial.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileReaderTest_PreviousChunkIsIncompleteAndEofIsNotReached.cs">
+      <Link>Classes\Sftp\SftpFileReaderTest_PreviousChunkIsIncompleteAndEofIsNotReached.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileReaderTest_PreviousChunkIsIncompleteAndEofIsReached.cs">
+      <Link>Classes\Sftp\SftpFileReaderTest_PreviousChunkIsIncompleteAndEofIsReached.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileReaderTest_ReadAheadBeginReadException.cs">
+      <Link>Classes\Sftp\SftpFileReaderTest_ReadAheadBeginReadException.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileReaderTest_ReadAheadEndInvokeException_DiscardsFurtherReadAheads.cs">
+      <Link>Classes\Sftp\SftpFileReaderTest_ReadAheadEndInvokeException_DiscardsFurtherReadAheads.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileReaderTest_ReadAheadEndInvokeException_PreventsFurtherReadAheads.cs">
+      <Link>Classes\Sftp\SftpFileReaderTest_ReadAheadEndInvokeException_PreventsFurtherReadAheads.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileReaderTest_ReadBackBeginReadException.cs">
+      <Link>Classes\Sftp\SftpFileReaderTest_ReadBackBeginReadException.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileReaderTest_ReadBackEndInvokeException.cs">
+      <Link>Classes\Sftp\SftpFileReaderTest_ReadBackEndInvokeException.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileReaderTest_Read_ReadAheadExceptionInWaitOnHandle_ChunkAvailable.cs">
+      <Link>Classes\Sftp\SftpFileReaderTest_Read_ReadAheadExceptionInWaitOnHandle_ChunkAvailable.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileReaderTest_Read_ReadAheadExceptionInWaitOnHandle_NoChunkAvailable.cs">
+      <Link>Classes\Sftp\SftpFileReaderTest_Read_ReadAheadExceptionInWaitOnHandle_NoChunkAvailable.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileReaderTest_Read_ReahAheadExceptionInBeginRead.cs">
+      <Link>Classes\Sftp\SftpFileReaderTest_Read_ReahAheadExceptionInBeginRead.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_CanRead_Closed_FileAccessRead.cs">
       <Link>Classes\Sftp\SftpFileStreamTest_CanRead_Closed_FileAccessRead.cs</Link>
     </Compile>
@@ -1346,7 +1388,7 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" ProjectLinkReference="c45379b9-17b1-4e89-bc2e-6d41726413e8" />
+      <UserProperties ProjectLinkReference="c45379b9-17b1-4e89-bc2e-6d41726413e8" ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

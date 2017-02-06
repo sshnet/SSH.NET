@@ -924,6 +924,9 @@
     <Compile Include="..\Renci.SshNet\Sftp\Responses\StatVfsResponse.cs">
       <Link>Sftp\Responses\StatVfsResponse.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\Sftp\SftpCloseAsyncResult.cs">
+      <Link>Sftp\SftpCloseAsyncResult.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\Sftp\SftpDownloadAsyncResult.cs">
       <Link>Sftp\SftpDownloadAsyncResult.cs</Link>
     </Compile>
@@ -951,11 +954,20 @@
     <Compile Include="..\Renci.SshNet\Sftp\SftpMessageTypes.cs">
       <Link>Sftp\SftpMessageTypes.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\Sftp\SftpOpenAsyncResult.cs">
+      <Link>Sftp\SftpOpenAsyncResult.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\Sftp\SftpReadAsyncResult.cs">
       <Link>Sftp\SftpReadAsyncResult.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\Sftp\SftpRealPathAsyncResult.cs">
+      <Link>Sftp\SftpRealPathAsyncResult.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\Sftp\SftpSession.cs">
       <Link>Sftp\SftpSession.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Sftp\SFtpStatAsyncResult.cs">
+      <Link>Sftp\SFtpStatAsyncResult.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Sftp\SftpSynchronizeDirectoriesAsyncResult.cs">
       <Link>Sftp\SftpSynchronizeDirectoriesAsyncResult.cs</Link>

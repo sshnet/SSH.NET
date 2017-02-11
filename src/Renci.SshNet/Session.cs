@@ -2087,7 +2087,7 @@ namespace Renci.SshNet
                 case 0x08:
                     throw new ProxyException("SOCKS5: Address type not supported.");
                 default:
-                    throw new ProxyException("SOCKS4: Not valid response.");
+                    throw new ProxyException("SOCKS5: Not valid response.");
             }
 
             //  Read 0

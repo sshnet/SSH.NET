@@ -166,6 +166,9 @@ namespace Renci.SshNet.Common
                 {
                     if (_currentCount < 1)
                     {
+                        if (timeoutInMilliseconds > 0)
+                            return false;
+
                         var remainingTimeInMilliseconds = timeoutInMilliseconds;
                         var startTicks = Environment.TickCount;
 

@@ -6,7 +6,7 @@ using System.Runtime.Serialization;
 namespace Renci.SshNet.Common
 {
     /// <summary>
-    /// The exception that is thrown when SCP error occurred.
+    /// The exception that is thrown when a proxy connection cannot be established.
     /// </summary>
 #if FEATURE_BINARY_SERIALIZATION
     [Serializable]

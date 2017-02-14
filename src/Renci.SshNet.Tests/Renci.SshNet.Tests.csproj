@@ -145,6 +145,7 @@
     <Compile Include="Classes\Common\CountdownEventTest.cs" />
     <Compile Include="Classes\Common\ExtensionsTest_Concat.cs" />
     <Compile Include="Classes\Common\ExtensionsTest_IsEqualTo_ByteArray.cs" />
+    <Compile Include="Classes\Common\ExtensionsTest_Reverse.cs" />
     <Compile Include="Classes\Common\ExtensionsTest_Take_Count.cs" />
     <Compile Include="Classes\Common\ExtensionsTest_Take_OffsetAndCount.cs" />
     <Compile Include="Classes\Common\ExtensionsTest_TrimLeadingZeros.cs" />

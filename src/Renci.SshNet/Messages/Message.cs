@@ -94,7 +94,7 @@ namespace Renci.SshNet.Messages
                 sshDataStream.Seek(outboundPacketSequenceSize, SeekOrigin.Begin);
 
                 // add packet data length
-                sshDataStream.Write(packetDataLength.GetBytes(), 0, 4);
+                sshDataStream.Write(packetDataLength);
 
                 //  add packet padding length
                 sshDataStream.WriteByte(paddingLength);
@@ -115,7 +115,7 @@ namespace Renci.SshNet.Messages
                 sshDataStream.Seek(outboundPacketSequenceSize, SeekOrigin.Begin);
 
                 // add packet data length
-                sshDataStream.Write(packetDataLength.GetBytes(), 0, 4);
+                sshDataStream.Write(packetDataLength);
 
                 //  add packet padding length
                 sshDataStream.WriteByte(paddingLength);

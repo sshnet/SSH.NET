@@ -1,4 +1,5 @@
 ﻿using System;
+using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Security.Cryptography.Ciphers
 {
@@ -349,8 +350,8 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             if (inputCount != BlockSize)
                 throw new ArgumentException("inputCount");
 
-            uint xl = BigEndianToUInt32(inputBuffer, inputOffset);
-            uint xr = BigEndianToUInt32(inputBuffer, inputOffset + 4);
+            uint xl = Pack.BigEndianToUInt32(inputBuffer, inputOffset);
+            uint xr = Pack.BigEndianToUInt32(inputBuffer, inputOffset + 4);
 
             xl ^= _p[0];
 
@@ -362,8 +363,8 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
             xr ^= _p[Rounds + 1];
 
-            UInt32ToBigEndian(xr, outputBuffer, outputOffset);
-            UInt32ToBigEndian(xl, outputBuffer, outputOffset + 4);
+            Pack.UInt32ToBigEndian(xr, outputBuffer, outputOffset);
+            Pack.UInt32ToBigEndian(xl, outputBuffer, outputOffset + 4);
 
             return BlockSize;
         }
@@ -384,12 +385,12 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             if (inputCount != BlockSize)
                 throw new ArgumentException("inputCount");
 
-            uint xl = BigEndianToUInt32(inputBuffer, inputOffset);
-            uint xr = BigEndianToUInt32(inputBuffer, inputOffset + 4);
+            var xl = Pack.BigEndianToUInt32(inputBuffer, inputOffset);
+            var xr = Pack.BigEndianToUInt32(inputBuffer, inputOffset + 4);
 
             xl ^= _p[Rounds + 1];
 
-            for (int i = Rounds; i > 0; i -= 2)
+            for (var i = Rounds; i > 0; i -= 2)
             {
                 xr ^= F(xl) ^ _p[i];
                 xl ^= F(xr) ^ _p[i - 1];
@@ -397,8 +398,8 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
             xr ^= _p[0];
 
-            UInt32ToBigEndian(xr, outputBuffer, outputOffset);
-            UInt32ToBigEndian(xl, outputBuffer, outputOffset + 4);
+            Pack.UInt32ToBigEndian(xr, outputBuffer, outputOffset);
+            Pack.UInt32ToBigEndian(xl, outputBuffer, outputOffset + 4);
 
             return BlockSize;
         }

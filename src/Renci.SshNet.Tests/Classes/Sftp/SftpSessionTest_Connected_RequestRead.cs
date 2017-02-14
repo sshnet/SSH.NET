@@ -118,9 +118,9 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                 var nameBytes = encoding.GetBytes(name);
                 var attributesBytes = SftpFileAttributes.Empty.GetBytes();
 
-                namesAndAttributes.AddRange((((uint) nameBytes.Length).GetBytes())); // filename length
+                namesAndAttributes.AddRange(Pack.UInt32ToBigEndian((uint) nameBytes.Length)); // filename length
                 namesAndAttributes.AddRange(nameBytes); // filename
-                namesAndAttributes.AddRange(((uint) 0).GetBytes()); // longname length
+                namesAndAttributes.AddRange(Pack.UInt32ToBigEndian(0U)); // longname length
                 namesAndAttributes.AddRange(attributesBytes); // attributes
             }
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Security.Cryptography.Ciphers
 {
@@ -59,15 +60,15 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             // batch the units up into a 32 bit chunk and go for it
             // the array is in bytes, the increment is 8x8 bits = 64
 
-            uint L0 = BigEndianToUInt32(inputBuffer, inputOffset);
-            uint R0 = BigEndianToUInt32(inputBuffer, inputOffset + 4);
+            var L0 = Pack.BigEndianToUInt32(inputBuffer, inputOffset);
+            var R0 = Pack.BigEndianToUInt32(inputBuffer, inputOffset + 4);
 
-            uint[] result = new uint[2];
+            var result = new uint[2];
             CastEncipher(L0, R0, result);
 
             // now stuff them into the destination block
-            UInt32ToBigEndian(result[0], outputBuffer, outputOffset);
-            UInt32ToBigEndian(result[1], outputBuffer, outputOffset + 4);
+            Pack.UInt32ToBigEndian(result[0], outputBuffer, outputOffset);
+            Pack.UInt32ToBigEndian(result[1], outputBuffer, outputOffset + 4);
 
             return BlockSize;
         }
@@ -88,15 +89,15 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             // process the input block
             // batch the units up into a 32 bit chunk and go for it
             // the array is in bytes, the increment is 8x8 bits = 64
-            uint L16 = BigEndianToUInt32(inputBuffer, inputOffset);
-            uint R16 = BigEndianToUInt32(inputBuffer, inputOffset + 4);
+            var L16 = Pack.BigEndianToUInt32(inputBuffer, inputOffset);
+            var R16 = Pack.BigEndianToUInt32(inputBuffer, inputOffset + 4);
 
-            uint[] result = new uint[2];
+            var result = new uint[2];
             CastDecipher(L16, R16, result);
 
             // now stuff them into the destination block
-            UInt32ToBigEndian(result[0], outputBuffer, outputOffset);
-            UInt32ToBigEndian(result[1], outputBuffer, outputOffset + 4);
+            Pack.UInt32ToBigEndian(result[0], outputBuffer, outputOffset);
+            Pack.UInt32ToBigEndian(result[1], outputBuffer, outputOffset + 4);
 
             return BlockSize;
         }

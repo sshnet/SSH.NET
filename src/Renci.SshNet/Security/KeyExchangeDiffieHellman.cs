@@ -65,7 +65,7 @@ namespace Renci.SshNet.Security
         {
             var exchangeHash = CalculateHash();
 
-            var length = (uint) (_hostKey[0] << 24 | _hostKey[1] << 16 | _hostKey[2] << 8 | _hostKey[3]);
+            var length = Pack.BigEndianToUInt32(_hostKey);
             var algorithmName = Encoding.UTF8.GetString(_hostKey, 4, (int)length);
             var key = Session.ConnectionInfo.HostKeyAlgorithms[algorithmName](_hostKey);
 

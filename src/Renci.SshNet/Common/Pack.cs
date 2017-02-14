@@ -118,10 +118,10 @@
         /// <param name="offset">The buffer offset.</param>
         internal static void UInt32ToLittleEndian(uint value, byte[] buffer, int offset)
         {
-            buffer[offset] = (byte)(value & 0x000000FF);
-            buffer[offset + 1] = (byte)((value & 0x0000FF00) >> 8);
-            buffer[offset + 2] = (byte)((value & 0x00FF0000) >> 16);
-            buffer[offset + 3] = (byte)((value & 0xFF000000) >> 24);
+            buffer[offset] = (byte) (value & 0x000000FF);
+            buffer[offset + 1] = (byte) ((value & 0x0000FF00) >> 8);
+            buffer[offset + 2] = (byte) ((value & 0x00FF0000) >> 16);
+            buffer[offset + 3] = (byte) ((value & 0xFF000000) >> 24);
         }
 
         /// <summary>
@@ -142,7 +142,7 @@
         /// <param name="buffer">The buffer.</param>
         internal static void UInt64ToLittleEndian(ulong value, byte[] buffer)
         {
-            buffer[0] = (byte)(value & 0x00000000000000FF);
+            buffer[0] = (byte) (value & 0x00000000000000FF);
             buffer[1] = (byte) ((value & 0x000000000000FF00) >> 8);
             buffer[2] = (byte) ((value & 0x0000000000FF0000) >> 16);
             buffer[3] = (byte) ((value & 0x00000000FF000000) >> 24);
@@ -232,10 +232,10 @@
         /// <returns>Converted <see cref="uint" />.</returns>
         internal static uint BigEndianToUInt32(byte[] buffer, int offset)
         {
-            return (uint) buffer[offset + 0] << 24
-                   | (uint) buffer[offset + 1] << 16
-                   | (uint) buffer[offset + 2] << 8
-                   | buffer[offset + 3];
+            return (uint) buffer[offset + 0] << 24 |
+                   (uint) buffer[offset + 1] << 16 |
+                   (uint) buffer[offset + 2] << 8 |
+                   buffer[offset + 3];
         }
 
         /// <summary>
@@ -245,10 +245,10 @@
         /// <returns>Converted <see cref="uint" />.</returns>
         internal static uint BigEndianToUInt32(byte[] buffer)
         {
-            return (uint) buffer[0] << 24
-                   | (uint) buffer[1] << 16
-                   | (uint) buffer[2] << 8
-                   | buffer[3];
+            return (uint) buffer[0] << 24 |
+                   (uint) buffer[1] << 16 |
+                   (uint) buffer[2] << 8 |
+                   buffer[3];
         }
 
         /// <summary>
@@ -258,9 +258,14 @@
         /// <returns>Converted <see cref="ulong" />.</returns>
         internal static ulong BigEndianToUInt64(byte[] buffer)
         {
-            return (ulong) buffer[0] << 56 | (ulong) buffer[1] << 48 | (ulong) buffer[2] << 40 |
-                   (ulong) buffer[3] << 32 | (ulong) buffer[4] << 24 | (ulong) buffer[5] << 16 |
-                   (ulong) buffer[6] << 8 | buffer[7];
+            return (ulong) buffer[0] << 56 |
+                   (ulong) buffer[1] << 48 |
+                   (ulong) buffer[2] << 40 |
+                   (ulong) buffer[3] << 32 |
+                   (ulong) buffer[4] << 24 |
+                   (ulong) buffer[5] << 16 |
+                   (ulong) buffer[6] << 8 |
+                   buffer[7];
         }
     }
 }

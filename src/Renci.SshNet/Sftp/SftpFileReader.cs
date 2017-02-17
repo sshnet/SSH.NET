@@ -25,7 +25,7 @@ namespace Renci.SshNet.Sftp
 
         private int _readAheadChunkIndex;
         private ulong _readAheadOffset;
-        private ManualResetEvent _readAheadCompleted;
+        private readonly ManualResetEvent _readAheadCompleted;
         private ManualResetEvent _disposingWaitHandle;
         private int _nextChunkIndex;
 
@@ -37,7 +37,7 @@ namespace Renci.SshNet.Sftp
         /// Holds a value indicating whether the client has read up to the end of the file.
         /// </summary>
         private bool _isEndOfFileRead;
-        private SemaphoreLight _semaphore;
+        private readonly SemaphoreLight _semaphore;
         private readonly object _readLock;
 
         private Exception _exception;
@@ -223,7 +223,7 @@ namespace Renci.SshNet.Sftp
                     // in Read()
                     _semaphore.Dispose();
                     // awake Read
-                    Monitor.Pulse(_readLock);
+                    Monitor.PulseAll(_readLock);
                 }
 
                 var closeAsyncResult = _sftpSession.BeginClose(_handle, null, null);
@@ -253,7 +253,7 @@ namespace Renci.SshNet.Sftp
                         // unblock the Read()
                         lock (_readLock)
                         {
-                            Monitor.Pulse(_readLock);
+                            Monitor.PulseAll(_readLock);
                         }
                         // break the read-ahead loop
                         break;
@@ -352,7 +352,7 @@ namespace Renci.SshNet.Sftp
                 _queue.Add(bufferedRead.ChunkIndex, bufferedRead);
                 // signal that a chunk has been read or EOF has been reached;
                 // in both cases, Read() will eventually also unblock the "read-ahead" thread
-                Monitor.Pulse(_readLock);
+                Monitor.PulseAll(_readLock);
             }
 
             // check if server signaled EOF
@@ -373,7 +373,7 @@ namespace Renci.SshNet.Sftp
             // unblock Read()
             lock (_readLock)
             {
-                Monitor.Pulse(_readLock);
+                Monitor.PulseAll(_readLock);
             }
         }
 

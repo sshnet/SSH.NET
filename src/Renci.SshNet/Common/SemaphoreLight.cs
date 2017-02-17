@@ -92,7 +92,7 @@ namespace Renci.SshNet.Common
                     _waitHandle.Set();
                 }
 
-                Monitor.Pulse(_lock);
+                Monitor.PulseAll(_lock);
 
                 return oldCount;
             }
@@ -118,7 +118,7 @@ namespace Renci.SshNet.Common
                     _waitHandle.Reset();
                 }
 
-                Monitor.Pulse(_lock);
+                Monitor.PulseAll(_lock);
             }
         }
 
@@ -197,7 +197,7 @@ namespace Renci.SshNet.Common
                     _waitHandle.Reset();
                 }
 
-                Monitor.Pulse(_lock);
+                Monitor.PulseAll(_lock);
 
                 return true;
             }

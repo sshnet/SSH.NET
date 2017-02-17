@@ -47,13 +47,15 @@ namespace Renci.SshNet.Common
         {
             get
             {
-                if (_waitHandle != null)
-                    return _waitHandle;
-
-                lock (_lock)
+                if (_waitHandle == null)
                 {
-                    if (_waitHandle == null)
-                        _waitHandle = new ManualResetEvent(_currentCount > 0);
+                    lock (_lock)
+                    {
+                        if (_waitHandle == null)
+                        {
+                            _waitHandle = new ManualResetEvent(_currentCount > 0);
+                        }
+                    }
                 }
 
                 return _waitHandle;

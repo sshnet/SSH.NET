@@ -417,6 +417,7 @@
     <Compile Include="Classes\Sftp\Responses\SftpVersionResponseTest.cs" />
     <Compile Include="Classes\Sftp\SftpFileStreamTest_Dispose_Disposed.cs" />
     <Compile Include="Classes\Sftp\SftpFileStreamTest_Finalize_SessionOpen.cs" />
+    <Compile Include="Classes\Sftp\SftpFileStreamTest_ReadByte_ReadMode_NoDataInWriteBufferAndNoDataInReadBuffer_LessDataThanReadBufferSizeAvailable.cs" />
     <Compile Include="Classes\Sftp\SftpFileStreamTest_SetLength_Closed.cs" />
     <Compile Include="Classes\Sftp\SftpFileStreamTest_SetLength_Disposed.cs" />
     <Compile Include="Classes\Sftp\SftpFileStreamTest_SetLength_SessionNotOpen.cs" />
@@ -424,6 +425,7 @@
     <Compile Include="Classes\Sftp\SftpFileStreamTest_SetLength_SessionOpen_FIleAccessReadWrite.cs" />
     <Compile Include="Classes\Sftp\SftpFileStreamTest_SetLength_SessionOpen_FIleAccessWrite.cs" />
     <Compile Include="Classes\Sftp\SftpFileStreamTest_Write_SessionOpen_CountGreatherThanTwoTimesTheWriteBufferSize.cs" />
+    <Compile Include="Classes\Sftp\SftpFileStreamTest_ReadByte_ReadMode_NoDataInWriteBufferAndNoDataInReadBuffer_Eof.cs" />
     <Compile Include="Classes\Sftp\SftpFileTest.cs" />
     <Compile Include="Classes\Sftp\SftpSessionTest_Connected_RequestRead.cs" />
     <Compile Include="Classes\Sftp\SftpSessionTest_Connected_RequestStatVfs.cs" />

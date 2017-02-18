@@ -397,7 +397,6 @@ namespace Renci.SshNet.Sftp
                     var data = _session.RequestRead(_handle, (ulong)_position, (uint)_readBufferSize);
 
                     _bufferLen = data.Length;
-                    Buffer.BlockCopy(data, 0, _readBuffer, 0, _readBufferSize);
                     _serverFilePosition = (ulong)_position;
 
                     if (_bufferLen == 0)
@@ -405,6 +404,8 @@ namespace Renci.SshNet.Sftp
                         // We've reached EOF.
                         return -1;
                     }
+
+                    Buffer.BlockCopy(data, 0, _readBuffer, 0, _bufferLen);
                 }
 
                 // Extract the next byte from the buffer.

@@ -1061,6 +1061,8 @@ namespace Renci.SshNet
                 var clientHash = _serverMac.ComputeHash(data, 0, data.Length - serverMacLength);
                 var serverHash = data.Take(data.Length - serverMacLength, serverMacLength);
 
+                // TODO add IsEqualTo overload that takes left+right index and number of bytes to compare;
+                // TODO that way we can eliminate the extrate allocation of the Take above
                 if (!serverHash.IsEqualTo(clientHash))
                 {
                     throw new SshConnectionException("MAC error", DisconnectReason.MacError);

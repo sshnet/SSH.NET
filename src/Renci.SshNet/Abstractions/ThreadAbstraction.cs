@@ -19,15 +19,23 @@ namespace Renci.SshNet.Abstractions
 #endif
         }
 
+        public static void ExecuteThreadLongRunning(Action action)
+        {
+#if FEATURE_THREAD_TAP
+            var taskCreationOptions = System.Threading.Tasks.TaskCreationOptions.LongRunning;
+            System.Threading.Tasks.Task.Factory.StartNew(action, taskCreationOptions);
+#else
+            var thread = new System.Threading.Thread(() => action());
+            thread.Start();
+#endif
+        }
+
         /// <summary>
         /// Executes the specified action in a separate thread.
         /// </summary>
         /// <param name="action">The action to execute.</param>
         public static void ExecuteThread(Action action)
         {
-            if (action == null)
-                throw new ArgumentNullException("action");
-
 #if FEATURE_THREAD_THREADPOOL
             System.Threading.ThreadPool.QueueUserWorkItem(o => action());
 #elif FEATURE_THREAD_TAP

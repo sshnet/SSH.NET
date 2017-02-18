@@ -882,7 +882,7 @@ namespace Renci.SshNet
                 }
                 else
                 {
-                    var data = new byte[packetLength + (_clientMac.HashSize/8)];
+                    var data = new byte[packetLength + hash.Length];
                     Buffer.BlockCopy(packetData, packetDataOffset, data, 0, packetLength);
                     Buffer.BlockCopy(hash, 0, data, packetLength, hash.Length);
                     SendPacket(data, 0, data.Length);

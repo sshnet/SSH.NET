@@ -337,14 +337,14 @@ namespace Renci.SshNet.Sftp
                         var data = _session.RequestRead(_handle, (ulong)_position, (uint)_readBufferSize);
 
                         _bufferLen = data.Length;
-
-                        Buffer.BlockCopy(data, 0, _readBuffer, 0, _bufferLen);
                         _serverFilePosition = (ulong)_position;
 
                         if (_bufferLen == 0)
                         {
                             break;
                         }
+
+                        Buffer.BlockCopy(data, 0, _readBuffer, 0, _bufferLen);
                         tempLen = _bufferLen;
                     }
 

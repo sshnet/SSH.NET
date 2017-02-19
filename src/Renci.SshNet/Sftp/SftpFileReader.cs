@@ -20,7 +20,7 @@ namespace Renci.SshNet.Sftp
         /// Holds the size of the file, when available.
         /// </summary>
         private readonly long? _fileSize;
-        private readonly IDictionary<int, BufferedRead> _queue;
+        private readonly Dictionary<int, BufferedRead> _queue;
         private readonly WaitHandle[] _waitHandles;
 
         private int _readAheadChunkIndex;
@@ -325,9 +325,7 @@ namespace Renci.SshNet.Sftp
 
         private void ReadCompleted(IAsyncResult result)
         {
-            var readAsyncResult = result as SftpReadAsyncResult;
-            if (readAsyncResult == null)
-                return;
+            var readAsyncResult = (SftpReadAsyncResult) result;
 
             byte[] data;
 
@@ -343,7 +341,7 @@ namespace Renci.SshNet.Sftp
 
             // a read that completes with a zero-byte result signals EOF
             // but there may be pending reads before that read
-            var bufferedRead = (BufferedRead)readAsyncResult.AsyncState;
+            var bufferedRead = (BufferedRead) readAsyncResult.AsyncState;
             bufferedRead.Complete(data);
 
             lock (_readLock)

@@ -737,6 +737,11 @@ namespace Renci.SshNet.Channels
                 try
                 {
                     OnFailure();
+                    // Close the channel since it failed anyway;
+                    // It will also fire Close events for request failures and channel failures
+                    // this will trigger IChannel close callbacks so that listeners can handle i.e. request failures.
+                    // (this fixes a hangup when connecting to Windows Phones)
+                    OnClose();
                 }
                 catch (Exception ex)
                 {
@@ -773,7 +778,7 @@ namespace Renci.SshNet.Channels
                 lock (_serverWindowSizeLock)
                 {
                     var serverWindowSize = RemoteWindowSize;
-                    if (serverWindowSize == 0U)
+                    if (serverWindowSize == 0)
                     {
                         // allow us to be signal when remote window size is adjusted
                         _channelServerWindowAdjustWaitHandle.Reset();

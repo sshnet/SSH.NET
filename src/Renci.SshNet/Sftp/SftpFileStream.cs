@@ -329,40 +329,59 @@ namespace Renci.SshNet.Sftp
                 while (count > 0)
                 {
                     // How much data do we have available in the buffer?
-                    var tempLen = _bufferLen - _bufferPosition;
-                    if (tempLen <= 0)
+                    var bytesAvailableInBuffer = _bufferLen - _bufferPosition;
+                    if (bytesAvailableInBuffer <= 0)
                     {
                         _bufferPosition = 0;
+                        _bufferLen = 0;
 
-                        var data = _session.RequestRead(_handle, (ulong)_position, (uint)_readBufferSize);
+                        var data = _session.RequestRead(_handle, (ulong) _position, (uint) _readBufferSize);
 
-                        _bufferLen = data.Length;
-                        _serverFilePosition = (ulong)_position;
+                        // TODO: don't we need to take into account the number of bytes read (data.Length) ?
+                        _serverFilePosition = (ulong) _position;
 
-                        if (_bufferLen == 0)
+                        if (data.Length == 0)
                         {
                             break;
                         }
 
-                        Buffer.BlockCopy(data, 0, _readBuffer, 0, _bufferLen);
-                        tempLen = _bufferLen;
-                    }
+                        // determine number of bytes that we can read into caller-provided buffer
+                        var bytesToWriteToCallerBuffer = Math.Min(data.Length, count);
+                        // write bytes to caller-provided buffer
+                        Buffer.BlockCopy(data, 0, buffer, offset, bytesToWriteToCallerBuffer);
+                        // advance offset to start writing bytes into caller-provided buffer
+                        offset += bytesToWriteToCallerBuffer;
+                        // update number of bytes left to read
+                        count -= bytesToWriteToCallerBuffer;
+                        // record total number of bytes read into caller-provided buffer
+                        readLen += bytesToWriteToCallerBuffer;
+                        // update stream position
+                        _position += bytesToWriteToCallerBuffer;
 
-                    // Don't read more than the caller wants.
-                    if (tempLen > count)
+                        if (data.Length > bytesToWriteToCallerBuffer)
+                        {
+                            // copy remaining bytes to read buffer
+                            _bufferLen = data.Length - bytesToWriteToCallerBuffer;
+                            Buffer.BlockCopy(data, count, _readBuffer, 0, _bufferLen);
+                        }
+                    }
+                    else
                     {
-                        tempLen = count;
+                        // determine number of bytes that we can write from read buffer to caller-provided buffer
+                        var bytesToWriteToCallerBuffer = Math.Min(bytesAvailableInBuffer, count);
+                        // copy data from read buffer to the caller-provided buffer
+                        Buffer.BlockCopy(_readBuffer, _bufferPosition, buffer, offset, bytesToWriteToCallerBuffer);
+                        // update position in read buffer
+                        _bufferPosition += bytesToWriteToCallerBuffer;
+                        // advance offset to start writing bytes into caller-provided buffer
+                        offset += bytesAvailableInBuffer;
+                        // update number of bytes left to read
+                        count -= bytesToWriteToCallerBuffer;
+                        // record total number of bytes read into caller-provided buffer
+                        readLen += bytesToWriteToCallerBuffer;
+                        // update stream position
+                        _position += bytesToWriteToCallerBuffer;
                     }
-
-                    // Copy stream data to the caller's buffer.
-                    Buffer.BlockCopy(_readBuffer, _bufferPosition, buffer, offset, tempLen);
-
-                    // Advance to the next buffer positions.
-                    readLen += tempLen;
-                    offset += tempLen;
-                    count -= tempLen;
-                    _bufferPosition += tempLen;
-                    _position += tempLen;
                 }
             }
 

@@ -10,7 +10,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         internal Mock<ISftpSession> SftpSessionMock;
         protected MockSequence MockSequence;
 
-        private void Arrange()
+        protected virtual void Arrange()
         {
             SetupData();
             CreateMocks();

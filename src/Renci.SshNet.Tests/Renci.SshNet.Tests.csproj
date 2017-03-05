@@ -439,6 +439,7 @@
     <Compile Include="Classes\Sftp\SftpFileStreamTest_Dispose_Disposed.cs" />
     <Compile Include="Classes\Sftp\SftpFileStreamTest_Finalize_SessionOpen.cs" />
     <Compile Include="Classes\Sftp\SftpFileStreamTest_ReadByte_ReadMode_NoDataInWriteBufferAndNoDataInReadBuffer_LessDataThanReadBufferSizeAvailable.cs" />
+    <Compile Include="Classes\Sftp\SftpFileStreamTest_Read_ReadMode_NoDataInReaderBufferAndReadMoreBytesThanCount.cs" />
     <Compile Include="Classes\Sftp\SftpFileStreamTest_SetLength_Closed.cs" />
     <Compile Include="Classes\Sftp\SftpFileStreamTest_SetLength_Disposed.cs" />
     <Compile Include="Classes\Sftp\SftpFileStreamTest_SetLength_SessionNotOpen.cs" />

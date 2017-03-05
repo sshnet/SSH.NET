@@ -32,6 +32,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             Act();
         }
 
+        [TestCleanup]
         public void TearDown()
         {
             _sftpSessionMock.InSequence(_sequence)

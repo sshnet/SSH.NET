@@ -30,8 +30,6 @@ namespace Renci.SshNet.Sftp
         private bool _canWrite;
         private ulong _serverFilePosition;
 
-        private SftpFileAttributes _attributes;
-
         private readonly object _lock = new object();
 
         /// <summary>
@@ -105,12 +103,11 @@ namespace Renci.SshNet.Sftp
                         FlushWriteBuffer();
                     }
 
-                    //  Update file attributes
-                    _attributes = _session.RequestFStat(_handle, true);
-
-                    if (_attributes != null && _attributes.Size > -1)
+                    // obtain file attributes
+                    var attributes = _session.RequestFStat(_handle, true);
+                    if (attributes != null)
                     {
-                        return _attributes.Size;
+                        return attributes.Size;
                     }
                     throw new IOException("Seek operation failed.");
                 }
@@ -188,9 +185,9 @@ namespace Renci.SshNet.Sftp
 
             // Initialize the object state.
             _session = session;
-            _canRead = ((access & FileAccess.Read) != 0);
+            _canRead = (access & FileAccess.Read) != 0;
             _canSeek = true;
-            _canWrite = ((access & FileAccess.Write) != 0);
+            _canWrite = (access & FileAccess.Write) != 0;
 
             var flags = Flags.None;
 
@@ -240,21 +237,20 @@ namespace Renci.SshNet.Sftp
             if (_handle == null)
                 _handle = _session.RequestOpen(path, flags);
 
-            _attributes = _session.RequestFStat(_handle, false);
-
             // instead of using the specified buffer size as is, we use it to calculate a buffer size
             // that ensures we always receive or send the max. number of bytes in a single SSH_FXP_READ
             // or SSH_FXP_WRITE message
 
-            _readBufferSize = (int) session.CalculateOptimalReadLength((uint)bufferSize);
+            _readBufferSize = (int) session.CalculateOptimalReadLength((uint) bufferSize);
             _readBuffer = new byte[_readBufferSize];
-            _writeBufferSize = (int) session.CalculateOptimalWriteLength((uint)bufferSize, _handle);
+            _writeBufferSize = (int) session.CalculateOptimalWriteLength((uint) bufferSize, _handle);
             _writeBuffer = new byte[_writeBufferSize];
 
             if (mode == FileMode.Append)
             {
-                _position = _attributes.Size;
-                _serverFilePosition = (ulong) _attributes.Size;
+                var attributes = _session.RequestFStat(_handle, false);
+                _position = attributes.Size;
+                _serverFilePosition = (ulong) attributes.Size;
             }
         }
 
@@ -290,13 +286,15 @@ namespace Renci.SshNet.Sftp
         }
 
         /// <summary>
-        /// Reads a sequence of bytes from the current stream and advances the position within the stream by the number of bytes read.
+        /// Reads a sequence of bytes from the current stream and advances the position within the stream by the
+        /// number of bytes read.
         /// </summary>
         /// <param name="buffer">An array of bytes. When this method returns, the buffer contains the specified byte array with the values between <paramref name="offset"/> and (<paramref name="offset"/> + <paramref name="count"/> - 1) replaced by the bytes read from the current source.</param>
         /// <param name="offset">The zero-based byte offset in <paramref name="buffer"/> at which to begin storing the data read from the current stream.</param>
         /// <param name="count">The maximum number of bytes to be read from the current stream.</param>
         /// <returns>
-        /// The total number of bytes read into the buffer. This can be less than the number of bytes requested if that many bytes are not currently available, or zero (0) if the end of the stream has been reached.
+        /// The total number of bytes read into the buffer. This can be less than the number of bytes requested
+        /// if that many bytes are not currently available, or zero (0) if the end of the stream has been reached.
         /// </returns>
         /// <exception cref="ArgumentException">The sum of <paramref name="offset"/> and <paramref name="count"/> is larger than the buffer length.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <c>null</c>. </exception>
@@ -413,10 +411,10 @@ namespace Renci.SshNet.Sftp
                 {
                     _bufferPosition = 0;
 
-                    var data = _session.RequestRead(_handle, (ulong)_position, (uint)_readBufferSize);
+                    var data = _session.RequestRead(_handle, (ulong) _position, (uint) _readBufferSize);
 
                     _bufferLen = data.Length;
-                    _serverFilePosition = (ulong)_position;
+                    _serverFilePosition = (ulong) _position;
 
                     if (_bufferLen == 0)
                     {
@@ -466,8 +464,6 @@ namespace Renci.SshNet.Sftp
                     return _position;
                 }
 
-                _attributes = _session.RequestFStat(_handle, false);
-
                 // The behaviour depends upon the read/write mode.
                 if (_bufferOwnedByWrite)
                 {
@@ -483,7 +479,8 @@ namespace Renci.SshNet.Sftp
                             newPosn = _position + offset;
                             break;
                         case SeekOrigin.End:
-                            newPosn = _attributes.Size - offset;
+                            var attributes = _session.RequestFStat(_handle, false);
+                            newPosn = attributes.Size - offset;
                             break;
                     }
 
@@ -536,7 +533,8 @@ namespace Renci.SshNet.Sftp
                             newPosn = _position + offset;
                             break;
                         case SeekOrigin.End:
-                            newPosn = _attributes.Size - offset;
+                            var attributes = _session.RequestFStat(_handle, false);
+                            newPosn = attributes.Size - offset;
                             break;
                     }
 
@@ -573,8 +571,10 @@ namespace Renci.SshNet.Sftp
                     throw new NotSupportedException("Seek is not supported.");
 
                 SetupWrite();
-                _attributes.Size = value;
-                _session.RequestFSetStat(_handle, _attributes);
+
+                var attributes = _session.RequestFStat(_handle, false);
+                attributes.Size = value;
+                _session.RequestFSetStat(_handle, attributes);
             }
         }
 

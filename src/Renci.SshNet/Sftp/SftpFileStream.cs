@@ -372,7 +372,7 @@ namespace Renci.SshNet.Sftp
                         {
                             // copy remaining bytes to read buffer
                             _bufferLen = data.Length - bytesToWriteToCallerBuffer;
-                            Buffer.BlockCopy(data, count, _readBuffer, 0, _bufferLen);
+                            Buffer.BlockCopy(data, bytesToWriteToCallerBuffer, _readBuffer, 0, _bufferLen);
                         }
                     }
                     else

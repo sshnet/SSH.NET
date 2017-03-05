@@ -46,8 +46,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         protected override void SetupMocks()
         {
             SftpSessionMock.InSequence(MockSequence)
-                            .Setup(p => p.RequestOpen(_path, Flags.Write | Flags.Append, false))
-                            .Returns(_handle);
+                           .Setup(p => p.RequestOpen(_path, Flags.Write | Flags.Append, false))
+                           .Returns(_handle);
             SftpSessionMock.InSequence(MockSequence)
                            .Setup(p => p.CalculateOptimalReadLength((uint) _bufferSize))
                            .Returns(_readBufferSize);
@@ -55,13 +55,17 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                            .Setup(p => p.CalculateOptimalWriteLength((uint) _bufferSize, _handle))
                            .Returns(_writeBufferSize);
             SftpSessionMock.InSequence(MockSequence)
-                            .Setup(p => p.RequestFStat(_handle, false))
-                            .Returns(_fileAttributes);
+                           .Setup(p => p.RequestFStat(_handle, false))
+                           .Returns(_fileAttributes);
         }
 
         protected override void Act()
         {
-            _target = new SftpFileStream(SftpSessionMock.Object, _path, _fileMode, _fileAccess, _bufferSize);
+            _target = new SftpFileStream(SftpSessionMock.Object,
+                                         _path,
+                                         _fileMode,
+                                         _fileAccess,
+                                         _bufferSize);
         }
 
         [TestMethod]

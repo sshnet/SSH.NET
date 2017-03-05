@@ -14,7 +14,6 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         private string _path;
         private SftpFileStream _sftpFileStream;
         private byte[] _handle;
-        private SftpFileAttributes _fileAttributes;
         private uint _bufferSize;
         private uint _readBufferSize;
         private uint _writeBufferSize;
@@ -39,7 +38,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
 
             var sequence = new MockSequence();
             _sftpSessionMock.InSequence(sequence)
-                .Setup(p => p.RequestOpen(_path, Flags.Read | Flags.Truncate, true))
+                .Setup(p => p.RequestOpen(_path, Flags.Read, false))
                 .Returns(_handle);
             _sftpSessionMock.InSequence(sequence)
                 .Setup(p => p.CalculateOptimalReadLength(_bufferSize))
@@ -53,7 +52,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             _sftpSessionMock.InSequence(sequence)
                 .Setup(p => p.RequestClose(_handle));
 
-            _sftpFileStream = new SftpFileStream(_sftpSessionMock.Object, _path, FileMode.Create, FileAccess.Read, (int)_bufferSize);
+            _sftpFileStream = new SftpFileStream(_sftpSessionMock.Object, _path, FileMode.Open, FileAccess.Read, (int)_bufferSize);
             _sftpFileStream.Close();
         }
 

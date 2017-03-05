@@ -175,10 +175,6 @@ namespace Renci.SshNet.Sftp
                 throw new ArgumentNullException("path");
             if (bufferSize <= 0)
                 throw new ArgumentOutOfRangeException("bufferSize");
-            if (access < FileAccess.Read || access > FileAccess.ReadWrite)
-                throw new ArgumentOutOfRangeException("access");
-            if (mode < FileMode.CreateNew || mode > FileMode.Append)
-                throw new ArgumentOutOfRangeException("mode");
 
             Timeout = TimeSpan.FromSeconds(30);
             Name = path;
@@ -203,6 +199,20 @@ namespace Renci.SshNet.Sftp
                     flags |= Flags.Read;
                     flags |= Flags.Write;
                     break;
+                default:
+                    throw new ArgumentOutOfRangeException("access");
+            }
+
+            if ((access & FileAccess.Write) == 0)
+            {
+                if (mode == FileMode.Create || mode == FileMode.CreateNew || mode == FileMode.Truncate || mode == FileMode.Append)
+                {
+                    throw new ArgumentException(string.Format("Combining {0}: {1} with {2}: {3} is invalid.",
+                        typeof(FileMode).Name,
+                        mode,
+                        typeof(FileAccess).Name,
+                        access));
+                }
             }
 
             switch (mode)
@@ -232,6 +242,8 @@ namespace Renci.SshNet.Sftp
                 case FileMode.Truncate:
                     flags |= Flags.Truncate;
                     break;
+                default:
+                    throw new ArgumentOutOfRangeException("mode");
             }
 
             if (_handle == null)

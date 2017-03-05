@@ -36,9 +36,10 @@ namespace Renci.SshNet.Abstractions
         /// <param name="action">The action to execute.</param>
         public static void ExecuteThread(Action action)
         {
+#if FEATURE_THREAD_THREADPOOL
             if (action == null)
                 throw new ArgumentNullException("action");
-#if FEATURE_THREAD_THREADPOOL
+
             System.Threading.ThreadPool.QueueUserWorkItem(o => action());
 #elif FEATURE_THREAD_TAP
             System.Threading.Tasks.Task.Run(action);

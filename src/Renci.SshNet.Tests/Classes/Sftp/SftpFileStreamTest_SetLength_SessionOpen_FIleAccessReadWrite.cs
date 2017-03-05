@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -14,13 +15,21 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         private string _path;
         private SftpFileStream _sftpFileStream;
         private byte[] _handle;
-        private SftpFileAttributes _fileAttributes;
         private uint _bufferSize;
         private uint _readBufferSize;
         private uint _writeBufferSize;
         private MockSequence _sequence;
         private long _length;
         private long _lengthPassedToRequestFSetStat;
+
+        private DateTime _fileAttributesLastAccessTime;
+        private DateTime _fileAttributesLastWriteTime;
+        private long _fileAttributesSize;
+        private int _fileAttributesUserId;
+        private int _fileAttributesGroupId;
+        private uint _fileAttributesPermissions;
+        private IDictionary<string, string> _fileAttributesExtensions;
+        private SftpFileAttributes _fileAttributes;
 
         [TestInitialize]
         public void Setup()
@@ -34,11 +43,25 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             var random = new Random();
             _path = random.Next().ToString(CultureInfo.InvariantCulture);
             _handle = new[] {(byte) random.Next(byte.MinValue, byte.MaxValue)};
-            _fileAttributes = SftpFileAttributes.Empty;
             _bufferSize = (uint) random.Next(1, 1000);
             _readBufferSize = (uint) random.Next(0, 1000);
             _writeBufferSize = (uint) random.Next(0, 1000);
             _length = random.Next();
+
+            _fileAttributesLastAccessTime = DateTime.Now.AddSeconds(random.Next());
+            _fileAttributesLastWriteTime = DateTime.Now.AddSeconds(random.Next());
+            _fileAttributesSize = random.Next();
+            _fileAttributesUserId = random.Next();
+            _fileAttributesGroupId = random.Next();
+            _fileAttributesPermissions = (uint) random.Next();
+            _fileAttributesExtensions = new Dictionary<string, string>();
+            _fileAttributes = new SftpFileAttributes(_fileAttributesLastAccessTime,
+                                                     _fileAttributesLastWriteTime,
+                                                     _fileAttributesSize,
+                                                     _fileAttributesUserId,
+                                                     _fileAttributesGroupId,
+                                                     _fileAttributesPermissions,
+                                                     _fileAttributesExtensions);
 
             _sftpSessionMock = new Mock<ISftpSession>(MockBehavior.Strict);
 
@@ -46,7 +69,6 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             _sftpSessionMock.InSequence(_sequence)
                 .Setup(p => p.RequestOpen(_path, Flags.Read | Flags.Write | Flags.Truncate, true))
                 .Returns(_handle);
-            _sftpSessionMock.InSequence(_sequence).Setup(p => p.RequestFStat(_handle, false)).Returns(_fileAttributes);
             _sftpSessionMock.InSequence(_sequence)
                 .Setup(p => p.CalculateOptimalReadLength(_bufferSize))
                 .Returns(_readBufferSize);
@@ -56,6 +78,9 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             _sftpSessionMock.InSequence(_sequence)
                 .Setup(p => p.IsOpen)
                 .Returns(true);
+            _sftpSessionMock.InSequence(_sequence)
+                .Setup(p => p.RequestFStat(_handle, false))
+                .Returns(_fileAttributes);
             _sftpSessionMock.InSequence(_sequence)
                 .Setup(p => p.RequestFSetStat(_handle, _fileAttributes))
                 .Callback<byte[], SftpFileAttributes>((bytes, attributes) => _lengthPassedToRequestFSetStat = attributes.Size);

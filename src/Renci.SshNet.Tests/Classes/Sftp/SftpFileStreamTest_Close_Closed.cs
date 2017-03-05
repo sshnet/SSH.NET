@@ -31,7 +31,6 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             var random = new Random();
             _path = random.Next().ToString(CultureInfo.InvariantCulture);
             _handle = new[] { (byte)random.Next(byte.MinValue, byte.MaxValue) };
-            _fileAttributes = SftpFileAttributes.Empty;
             _bufferSize = (uint)random.Next(1, 1000);
             _readBufferSize = (uint)random.Next(0, 1000);
             _writeBufferSize = (uint)random.Next(0, 1000);
@@ -42,7 +41,6 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             _sftpSessionMock.InSequence(sequence)
                 .Setup(p => p.RequestOpen(_path, Flags.Read | Flags.Truncate, true))
                 .Returns(_handle);
-            _sftpSessionMock.InSequence(sequence).Setup(p => p.RequestFStat(_handle, false)).Returns(_fileAttributes);
             _sftpSessionMock.InSequence(sequence)
                 .Setup(p => p.CalculateOptimalReadLength(_bufferSize))
                 .Returns(_readBufferSize);

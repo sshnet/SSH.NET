@@ -58,6 +58,21 @@ This project was inspired by **Sharp.SSH** library which was ported from java an
 * Windows Phone 8.0
 * Universal Windows Platform 10
 
+##Usage
+Establish an SFTP connection using both password and public-key authentication:
+
+```cs
+var connectionInfo = new ConnectionInfo("sftp.foo.com",
+                                        "guest",
+                                        new PasswordAuthenticationMethod("guest", "pwd"),
+                                        new PrivateKeyAuthenticationMethod("rsa.key"));
+using (var client = new SftpClient(connectionInfo))
+{
+    client.Connect();
+}
+
+```
+
 ##Building SSH.NET
 
 Software                          | net35 | net40 | netstandard1.3 | sl4 | sl5 | wp71 | wp8 | uap10.0 |

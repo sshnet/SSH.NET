@@ -109,6 +109,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             }
         }
 
+        [TestMethod]
         public void HandleShouldHaveBeenClosed()
         {
             SftpSessionMock.Verify(p => p.BeginClose(_handle, null, null), Times.Once);

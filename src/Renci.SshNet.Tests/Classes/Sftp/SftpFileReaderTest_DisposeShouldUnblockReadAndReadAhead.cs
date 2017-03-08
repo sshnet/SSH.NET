@@ -97,12 +97,10 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             {
                 _actualException = ex;
             }
-        }
 
-        [TestMethod]
-        public void DisposeShouldHaveCompleted()
-        {
-            Assert.IsTrue(_disposeCompleted.WaitOne(0));
+            // Dispose may unblock Read() before the dispose has fully completed, so
+            // let's wait until it has completed
+            _disposeCompleted.WaitOne(500);
         }
 
         [TestMethod]

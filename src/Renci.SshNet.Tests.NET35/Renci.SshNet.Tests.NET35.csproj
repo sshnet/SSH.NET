@@ -1064,6 +1064,9 @@
     <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileReaderTest_Read_ReahAheadExceptionInBeginRead.cs">
       <Link>Classes\Sftp\SftpFileReaderTest_Read_ReahAheadExceptionInBeginRead.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTestBase.cs">
+      <Link>Classes\Sftp\SftpFileStreamTestBase.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_CanRead_Closed_FileAccessRead.cs">
       <Link>Classes\Sftp\SftpFileStreamTest_CanRead_Closed_FileAccessRead.cs</Link>
     </Compile>
@@ -1081,15 +1084,6 @@
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_CanRead_Disposed_FileAccessWrite.cs">
       <Link>Classes\Sftp\SftpFileStreamTest_CanRead_Disposed_FileAccessWrite.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_CanRead_SessionOpen_FileAccessRead.cs">
-      <Link>Classes\Sftp\SftpFileStreamTest_CanRead_SessionOpen_FileAccessRead.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_CanRead_SessionOpen_FileAccessReadWrite.cs">
-      <Link>Classes\Sftp\SftpFileStreamTest_CanRead_SessionOpen_FileAccessReadWrite.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_CanRead_SessionOpen_FileAccessWrite.cs">
-      <Link>Classes\Sftp\SftpFileStreamTest_CanRead_SessionOpen_FileAccessWrite.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_CanWrite_Closed_FileAccessRead.cs">
       <Link>Classes\Sftp\SftpFileStreamTest_CanWrite_Closed_FileAccessRead.cs</Link>
@@ -1109,15 +1103,6 @@
     <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_CanWrite_Disposed_FileAccessWrite.cs">
       <Link>Classes\Sftp\SftpFileStreamTest_CanWrite_Disposed_FileAccessWrite.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_CanWrite_SessionOpen_FileAccessRead.cs">
-      <Link>Classes\Sftp\SftpFileStreamTest_CanWrite_SessionOpen_FileAccessRead.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_CanWrite_SessionOpen_FileAccessReadWrite.cs">
-      <Link>Classes\Sftp\SftpFileStreamTest_CanWrite_SessionOpen_FileAccessReadWrite.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_CanWrite_SessionOpen_FileAccessWrite.cs">
-      <Link>Classes\Sftp\SftpFileStreamTest_CanWrite_SessionOpen_FileAccessWrite.cs</Link>
-    </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Close_Closed.cs">
       <Link>Classes\Sftp\SftpFileStreamTest_Close_Closed.cs</Link>
     </Compile>
@@ -1129,6 +1114,72 @@
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Close_SessionOpen.cs">
       <Link>Classes\Sftp\SftpFileStreamTest_Close_SessionOpen.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Ctor_FileAccessInvalid.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Ctor_FileAccessInvalid.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Ctor_FileModeAppend_FileAccessRead.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Ctor_FileModeAppend_FileAccessRead.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Ctor_FileModeAppend_FileAccessReadWrite.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Ctor_FileModeAppend_FileAccessReadWrite.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Ctor_FileModeAppend_FileAccessWrite.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Ctor_FileModeAppend_FileAccessWrite.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Ctor_FileModeCreateNew_FileAccessRead.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Ctor_FileModeCreateNew_FileAccessRead.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Ctor_FileModeCreateNew_FileAccessReadWrite.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Ctor_FileModeCreateNew_FileAccessReadWrite.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Ctor_FileModeCreateNew_FileAccessWrite.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Ctor_FileModeCreateNew_FileAccessWrite.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Ctor_FileModeCreate_FileAccessRead.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Ctor_FileModeCreate_FileAccessRead.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Ctor_FileModeCreate_FileAccessReadWrite_FileDoesNotExist.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Ctor_FileModeCreate_FileAccessReadWrite_FileDoesNotExist.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Ctor_FileModeCreate_FileAccessReadWrite_FileExists.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Ctor_FileModeCreate_FileAccessReadWrite_FileExists.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Ctor_FileModeCreate_FileAccessWrite_FileDoesNotExist.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Ctor_FileModeCreate_FileAccessWrite_FileDoesNotExist.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Ctor_FileModeCreate_FileAccessWrite_FileExists.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Ctor_FileModeCreate_FileAccessWrite_FileExists.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Ctor_FileModeInvalid.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Ctor_FileModeInvalid.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Ctor_FileModeOpenOrCreate_FileAccessRead.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Ctor_FileModeOpenOrCreate_FileAccessRead.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Ctor_FileModeOpenOrCreate_FileAccessReadWrite.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Ctor_FileModeOpenOrCreate_FileAccessReadWrite.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Ctor_FileModeOpenOrCreate_FileAccessWrite.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Ctor_FileModeOpenOrCreate_FileAccessWrite.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Ctor_FileModeOpen_FileAccessRead.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Ctor_FileModeOpen_FileAccessRead.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Ctor_FileModeOpen_FileAccessReadWrite.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Ctor_FileModeOpen_FileAccessReadWrite.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Ctor_FileModeOpen_FileAccessWrite.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Ctor_FileModeOpen_FileAccessWrite.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Ctor_FileModeTruncate_FileAccessRead.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Ctor_FileModeTruncate_FileAccessRead.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Ctor_FileModeTruncate_FileAccessReadWrite.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Ctor_FileModeTruncate_FileAccessReadWrite.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Ctor_FileModeTruncate_FileAccessWrite.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Ctor_FileModeTruncate_FileAccessWrite.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Dispose_Closed.cs">
       <Link>Classes\Sftp\SftpFileStreamTest_Dispose_Closed.cs</Link>
@@ -1144,6 +1195,15 @@
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Finalize_SessionOpen.cs">
       <Link>Classes\Sftp\SftpFileStreamTest_Finalize_SessionOpen.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_ReadByte_ReadMode_NoDataInWriteBufferAndNoDataInReadBuffer_Eof.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_ReadByte_ReadMode_NoDataInWriteBufferAndNoDataInReadBuffer_Eof.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_ReadByte_ReadMode_NoDataInWriteBufferAndNoDataInReadBuffer_LessDataThanReadBufferSizeAvailable.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_ReadByte_ReadMode_NoDataInWriteBufferAndNoDataInReadBuffer_LessDataThanReadBufferSizeAvailable.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Read_ReadMode_NoDataInReaderBufferAndReadMoreBytesThanCount.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Read_ReadMode_NoDataInReaderBufferAndReadMoreBytesThanCount.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_SetLength_Closed.cs">
       <Link>Classes\Sftp\SftpFileStreamTest_SetLength_Closed.cs</Link>
@@ -1313,6 +1373,9 @@
     <Compile Include="..\Renci.SshNet.Tests\Common\HttpRequest.cs">
       <Link>Common\HttpRequest.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Common\SftpFileAttributesBuilder.cs">
+      <Link>Common\SftpFileAttributesBuilder.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Common\TestBase.cs">
       <Link>Common\TestBase.cs</Link>
     </Compile>
@@ -1388,7 +1451,7 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties ProjectLinkReference="c45379b9-17b1-4e89-bc2e-6d41726413e8" ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" />
+      <UserProperties ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" ProjectLinkReference="c45379b9-17b1-4e89-bc2e-6d41726413e8" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

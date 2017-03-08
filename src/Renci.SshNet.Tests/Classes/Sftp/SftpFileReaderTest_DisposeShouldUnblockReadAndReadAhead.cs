@@ -22,6 +22,16 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         private SftpCloseAsyncResult _closeAsyncResult;
         private SftpFileReader _reader;
         private ObjectDisposedException _actualException;
+        private ManualResetEvent _disposeCompleted;
+
+        [TestCleanup]
+        public void TearDown()
+        {
+            if (_disposeCompleted != null)
+            {
+                _disposeCompleted.Dispose();
+            }
+        }
 
         protected override void SetupData()
         {
@@ -32,6 +42,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             _waitHandleArray = new WaitHandle[2];
             _operationTimeout = random.Next(10000, 20000);
             _closeAsyncResult = new SftpCloseAsyncResult(null, null);
+            _disposeCompleted = new ManualResetEvent(false);
         }
 
         protected override void SetupMocks()
@@ -74,6 +85,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             {
                 Thread.Sleep(500);
                 _reader.Dispose();
+                _disposeCompleted.Set();
             });
 
             try
@@ -85,6 +97,12 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             {
                 _actualException = ex;
             }
+        }
+
+        [TestMethod]
+        public void DisposeShouldHaveCompleted()
+        {
+            Assert.IsTrue(_disposeCompleted.WaitOne(0));
         }
 
         [TestMethod]

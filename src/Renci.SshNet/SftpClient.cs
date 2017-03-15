@@ -17,7 +17,7 @@ namespace Renci.SshNet
     /// <summary>
     /// Implementation of the SSH File Transfer Protocol (SFTP) over SSH.
     /// </summary>
-    public class SftpClient : BaseClient
+    public class SftpClient : BaseClient, ISftpClient
     {
         /// <summary>
         /// Holds the <see cref="ISftpSession"/> instance that is used to communicate to the

@@ -381,6 +381,9 @@
     <Compile Include="..\Renci.SshNet\ISession.cs">
       <Link>ISession.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\ISftpClient.cs">
+      <Link>ISftpClient.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\ISubsystemSession.cs">
       <Link>ISubsystemSession.cs</Link>
     </Compile>

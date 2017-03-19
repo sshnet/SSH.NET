@@ -28,7 +28,6 @@ namespace Renci.SshNet.Sftp
         private bool _canRead;
         private bool _canSeek;
         private bool _canWrite;
-        private ulong _serverFilePosition;
 
         private readonly object _lock = new object();
 
@@ -262,7 +261,6 @@ namespace Renci.SshNet.Sftp
             {
                 var attributes = _session.RequestFStat(_handle, false);
                 _position = attributes.Size;
-                _serverFilePosition = (ulong) attributes.Size;
             }
         }
 
@@ -347,9 +345,6 @@ namespace Renci.SshNet.Sftp
 
                         var data = _session.RequestRead(_handle, (ulong) _position, (uint) _readBufferSize);
 
-                        // TODO: don't we need to take into account the number of bytes read (data.Length) ?
-                        _serverFilePosition = (ulong) _position;
-
                         if (data.Length == 0)
                         {
                             break;
@@ -422,11 +417,11 @@ namespace Renci.SshNet.Sftp
                 if (_bufferPosition >= _bufferLen)
                 {
                     _bufferPosition = 0;
+                    _bufferLen = 0;
 
                     var data = _session.RequestRead(_handle, (ulong) _position, (uint) _readBufferSize);
 
                     _bufferLen = data.Length;
-                    _serverFilePosition = (ulong) _position;
 
                     if (_bufferLen == 0)
                     {
@@ -501,7 +496,6 @@ namespace Renci.SshNet.Sftp
                         throw new EndOfStreamException("End of stream.");
                     }
                     _position = newPosn;
-                    _serverFilePosition = (ulong)newPosn;
                 }
                 else
                 {
@@ -645,8 +639,7 @@ namespace Renci.SshNet.Sftp
                     {
                         using (var wait = new AutoResetEvent(false))
                         {
-                            _session.RequestWrite(_handle, _serverFilePosition, buffer, offset, tempLen, wait);
-                            _serverFilePosition += (ulong) tempLen;
+                            _session.RequestWrite(_handle, (ulong) _position, buffer, offset, tempLen, wait);
                         }
                     }
                     else
@@ -668,8 +661,7 @@ namespace Renci.SshNet.Sftp
                 {
                     using (var wait = new AutoResetEvent(false))
                     {
-                        _session.RequestWrite(_handle, _serverFilePosition, _writeBuffer, 0, _bufferPosition, wait);
-                        _serverFilePosition += (ulong) _bufferPosition;
+                        _session.RequestWrite(_handle, (ulong) (_position - _bufferPosition), _writeBuffer, 0, _bufferPosition, wait);
                     }
 
                     _bufferPosition = 0;
@@ -699,8 +691,7 @@ namespace Renci.SshNet.Sftp
                 {
                     using (var wait = new AutoResetEvent(false))
                     {
-                        _session.RequestWrite(_handle, _serverFilePosition, _writeBuffer, 0, _bufferPosition, wait);
-                        _serverFilePosition += (ulong) _bufferPosition;
+                        _session.RequestWrite(_handle, (ulong) (_position - _bufferPosition), _writeBuffer, 0, _bufferPosition, wait);
                     }
 
                     _bufferPosition = 0;
@@ -779,8 +770,7 @@ namespace Renci.SshNet.Sftp
             {
                 using (var wait = new AutoResetEvent(false))
                 {
-                    _session.RequestWrite(_handle, _serverFilePosition, _writeBuffer, 0, _bufferPosition, wait);
-                    _serverFilePosition += (ulong) _bufferPosition;
+                    _session.RequestWrite(_handle, (ulong) (_position - _bufferPosition), _writeBuffer, 0, _bufferPosition, wait);
                 }
 
                 _bufferPosition = 0;

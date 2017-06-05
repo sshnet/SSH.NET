@@ -7,7 +7,7 @@ using Renci.SshNet.Sftp;
 namespace Renci.SshNet.Tests.Classes.Sftp
 {
     [TestClass]
-    public class SftpFileStreamTest_Read_ReadMode_NoDataInReaderBufferAndReadMoreBytesThanCount : SftpFileStreamTestBase
+    public class SftpFileStreamTest_Read_ReadMode_NoDataInReaderBufferAndReadMoreBytesFromServerThanCount : SftpFileStreamTestBase
     {
         private string _path;
         private SftpFileStream _target;
@@ -18,7 +18,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         private int _actual;
         private byte[] _buffer;
         private byte[] _serverData;
-        private int _numberOfBytesInReadBuffer;
+        private int _numberOfBytesToWriteToReadBuffer;
         private int _numberOfBytesToRead;
 
         protected override void SetupData()
@@ -34,8 +34,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
 
             _numberOfBytesToRead = 20;
             _buffer = new byte[_numberOfBytesToRead];
-            _numberOfBytesInReadBuffer = 10;
-            _serverData = GenerateRandom(_buffer.Length + _numberOfBytesInReadBuffer, random);
+            _numberOfBytesToWriteToReadBuffer = 10; // should be less than _readBufferSize
+            _serverData = GenerateRandom(_numberOfBytesToRead + _numberOfBytesToWriteToReadBuffer, random);
         }
 
         protected override void SetupMocks()
@@ -81,9 +81,9 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         }
 
         [TestMethod]
-        public void ReadShouldHaveReturnedTheNumberOfBytesWrittenToBuffer()
+        public void ReadShouldHaveReturnedTheNumberOfBytesRequested()
         {
-            Assert.AreEqual(_buffer.Length, _actual);
+            Assert.AreEqual(_numberOfBytesToRead, _actual);
         }
 
         [TestMethod]
@@ -107,12 +107,12 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         {
             SftpSessionMock.InSequence(MockSequence).Setup(p => p.IsOpen).Returns(true);
 
-            _buffer = new byte[_numberOfBytesInReadBuffer];
+            _buffer = new byte[_numberOfBytesToWriteToReadBuffer];
 
-            var actual = _target.Read(_buffer, 0, _numberOfBytesInReadBuffer);
+            var actual = _target.Read(_buffer, 0, _numberOfBytesToWriteToReadBuffer);
 
-            Assert.AreEqual(_numberOfBytesInReadBuffer, actual);
-            Assert.IsTrue(_serverData.Take(_numberOfBytesToRead, _numberOfBytesInReadBuffer).IsEqualTo(_buffer));
+            Assert.AreEqual(_numberOfBytesToWriteToReadBuffer, actual);
+            Assert.IsTrue(_serverData.Take(_numberOfBytesToRead, _numberOfBytesToWriteToReadBuffer).IsEqualTo(_buffer));
 
             SftpSessionMock.Verify(p => p.IsOpen, Times.Exactly(2));
         }

@@ -340,18 +340,18 @@ namespace Renci.SshNet.Sftp
                     var bytesAvailableInBuffer = _bufferLen - _bufferPosition;
                     if (bytesAvailableInBuffer <= 0)
                     {
-                        _bufferPosition = 0;
-                        _bufferLen = 0;
-
                         var data = _session.RequestRead(_handle, (ulong) _position, (uint) _readBufferSize);
 
-                        if (data.Length == 0)
+                        _bufferPosition = 0;
+                        _bufferLen = data.Length;
+
+                        if (_bufferLen == 0)
                         {
                             break;
                         }
 
-                        // determine number of bytes that we can read into caller-provided buffer
-                        var bytesToWriteToCallerBuffer = Math.Min(data.Length, count);
+                        // determine number of bytes that we can write into caller-provided buffer
+                        var bytesToWriteToCallerBuffer = Math.Min(_bufferLen, count);
                         // write bytes to caller-provided buffer
                         Buffer.BlockCopy(data, 0, buffer, offset, bytesToWriteToCallerBuffer);
                         // advance offset to start writing bytes into caller-provided buffer
@@ -362,13 +362,10 @@ namespace Renci.SshNet.Sftp
                         readLen += bytesToWriteToCallerBuffer;
                         // update stream position
                         _position += bytesToWriteToCallerBuffer;
-
-                        if (data.Length > bytesToWriteToCallerBuffer)
-                        {
-                            // copy remaining bytes to read buffer
-                            _bufferLen = data.Length - bytesToWriteToCallerBuffer;
-                            Buffer.BlockCopy(data, bytesToWriteToCallerBuffer, _readBuffer, 0, _bufferLen);
-                        }
+                        // update position in read buffer
+                        _bufferPosition = bytesToWriteToCallerBuffer;
+                        // write read bytes to read buffer
+                        Buffer.BlockCopy(data, 0, _readBuffer, 0, _bufferLen);
                     }
                     else
                     {

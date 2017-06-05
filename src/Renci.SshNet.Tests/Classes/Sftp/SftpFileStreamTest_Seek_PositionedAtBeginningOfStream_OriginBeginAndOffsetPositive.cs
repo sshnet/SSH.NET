@@ -7,7 +7,7 @@ using Renci.SshNet.Sftp;
 namespace Renci.SshNet.Tests.Classes.Sftp
 {
     [TestClass]
-    public class SftpFileStreamTest_Seek_PositionedAtBeginningOfStream_OriginBeginAndOffsetZero : SftpFileStreamTestBase
+    public class SftpFileStreamTest_Seek_PositionedAtBeginningOfStream_OriginBeginAndOffsetPositive : SftpFileStreamTestBase
     {
         private Random _random;
         private string _path;
@@ -18,6 +18,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         private uint _writeBufferSize;
         private byte[] _handle;
         private SftpFileStream _target;
+        private int _offset;
+        private EndOfStreamException _actualException;
         private long _actual;
 
         protected override void SetupData()
@@ -32,6 +34,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             _readBufferSize = (uint)_random.Next(5, 1000);
             _writeBufferSize = (uint)_random.Next(5, 1000);
             _handle = GenerateRandom(_random.Next(1, 10), _random);
+            _offset = _random.Next(1, int.MaxValue);
         }
 
         protected override void SetupMocks()
@@ -57,13 +60,13 @@ namespace Renci.SshNet.Tests.Classes.Sftp
 
         protected override void Act()
         {
-            _actual = _target.Seek(0L, SeekOrigin.Begin);
+            _actual = _target.Seek(_offset, SeekOrigin.Begin);
         }
 
         [TestMethod]
-        public void SeekShouldHaveReturnedZero()
+        public void SeekShouldHaveReturnedOffset()
         {
-            Assert.AreEqual(0L, _actual);
+            Assert.AreEqual(_offset, _actual);
         }
 
         [TestMethod]
@@ -73,11 +76,11 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         }
 
         [TestMethod]
-        public void PositionShouldReturnZero()
+        public void PositionShouldReturnOffset()
         {
             SftpSessionMock.InSequence(MockSequence).Setup(p => p.IsOpen).Returns(true);
 
-            Assert.AreEqual(0L, _target.Position);
+            Assert.AreEqual(_offset, _target.Position);
 
             SftpSessionMock.Verify(p => p.IsOpen, Times.Exactly(2));
         }

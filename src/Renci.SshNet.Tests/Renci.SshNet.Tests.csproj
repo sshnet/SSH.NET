@@ -439,8 +439,8 @@
     <Compile Include="Classes\Sftp\SftpFileStreamTest_Seek_PositionedAtBeginningOfStream_OriginBeginAndOffsetNegative.cs" />
     <Compile Include="Classes\Sftp\SftpFileStreamTest_Seek_PositionedAtBeginningOfStream_OriginBeginAndOffsetPositive.cs" />
     <Compile Include="Classes\Sftp\SftpFileStreamTest_Seek_PositionedAtBeginningOfStream_OriginBeginAndOffsetZero.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_Seek_PositionedAtMiddleOfStream_OriginBeginAndOffsetZero_OutsideOfReadBuffer.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_Seek_PositionedAtMiddleOfStream_OriginBeginAndOffsetZero_WithinReadBuffer.cs" />
+    <Compile Include="Classes\Sftp\SftpFileStreamTest_Seek_PositionedAtMiddleOfStream_OriginBeginAndOffsetZero_NoBuffering.cs" />
+    <Compile Include="Classes\Sftp\SftpFileStreamTest_Seek_PositionedAtMiddleOfStream_OriginBeginAndOffsetZero_ReadBuffer.cs" />
     <Compile Include="Classes\Sftp\SftpFileStreamTest_SetLength_Closed.cs" />
     <Compile Include="Classes\Sftp\SftpFileStreamTest_SetLength_Disposed.cs" />
     <Compile Include="Classes\Sftp\SftpFileStreamTest_SetLength_SessionNotOpen.cs" />

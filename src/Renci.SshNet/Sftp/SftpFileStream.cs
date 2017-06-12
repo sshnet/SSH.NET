@@ -18,9 +18,9 @@ namespace Renci.SshNet.Sftp
 
         // Buffer information.
         private readonly int _readBufferSize;
-        private readonly byte[] _readBuffer;
+        private byte[] _readBuffer;
         private readonly int _writeBufferSize;
-        private readonly byte[] _writeBuffer;
+        private byte[] _writeBuffer;
         private int _bufferPosition;
         private int _bufferLen;
         private long _position;
@@ -253,9 +253,7 @@ namespace Renci.SshNet.Sftp
             // or SSH_FXP_WRITE message
 
             _readBufferSize = (int) session.CalculateOptimalReadLength((uint) bufferSize);
-            _readBuffer = new byte[_readBufferSize];
             _writeBufferSize = (int) session.CalculateOptimalWriteLength((uint) bufferSize, _handle);
-            _writeBuffer = new byte[_writeBufferSize];
 
             if (mode == FileMode.Append)
             {
@@ -342,52 +340,69 @@ namespace Renci.SshNet.Sftp
                     {
                         var data = _session.RequestRead(_handle, (ulong) _position, (uint) _readBufferSize);
 
-                        _bufferPosition = 0;
-                        _bufferLen = data.Length;
-
-                        if (_bufferLen == 0)
+                        if (data.Length == 0)
                         {
+                            _bufferPosition = 0;
+                            _bufferLen = 0;
+
                             break;
                         }
 
-                        // determine number of bytes that we can write into caller-provided buffer
-                        var bytesToWriteToCallerBuffer = Math.Min(_bufferLen, count);
+                        var bytesToWriteToCallerBuffer = count;
+                        if (bytesToWriteToCallerBuffer >= data.Length)
+                        {
+                            // write all data read to caller-provided buffer
+                            bytesToWriteToCallerBuffer = data.Length;
+                            // reset buffer since we will skip buffering
+                            _bufferPosition = 0;
+                            _bufferLen = 0;
+                        }
+                        else
+                        {
+                            // determine number of bytes that we should write into read buffer
+                            var bytesToWriteToReadBuffer = data.Length - bytesToWriteToCallerBuffer;
+                            // write remaining bytes to read buffer
+                            Buffer.BlockCopy(data, count, GetOrCreateReadBuffer(), 0, bytesToWriteToReadBuffer);
+                            // update position in read buffer
+                            _bufferPosition = 0;
+                            // update number of bytes in read buffer
+                            _bufferLen = bytesToWriteToReadBuffer;
+                        }
+
                         // write bytes to caller-provided buffer
                         Buffer.BlockCopy(data, 0, buffer, offset, bytesToWriteToCallerBuffer);
                         // advance offset to start writing bytes into caller-provided buffer
                         offset += bytesToWriteToCallerBuffer;
-                        // update number of bytes left to read
-                        count -= bytesToWriteToCallerBuffer;
                         // record total number of bytes read into caller-provided buffer
                         readLen += bytesToWriteToCallerBuffer;
+                        // signal that all caller-requested bytes are read
+                        count -= bytesToWriteToCallerBuffer;
                         // update stream position
                         _position += bytesToWriteToCallerBuffer;
-                        // update position in read buffer
-                        _bufferPosition = bytesToWriteToCallerBuffer;
-                        // write read bytes to read buffer
-                        Buffer.BlockCopy(data, 0, _readBuffer, 0, _bufferLen);
                     }
                     else
                     {
-                        // determine number of bytes that we can write from read buffer to caller-provided buffer
-                        var bytesToWriteToCallerBuffer = Math.Min(bytesAvailableInBuffer, count);
+                        // limit the number of bytes to use from read buffer to the caller-request number of bytes
+                        if (bytesAvailableInBuffer > count)
+                            bytesAvailableInBuffer = count;
+
                         // copy data from read buffer to the caller-provided buffer
-                        Buffer.BlockCopy(_readBuffer, _bufferPosition, buffer, offset, bytesToWriteToCallerBuffer);
+                        Buffer.BlockCopy(GetOrCreateReadBuffer(), _bufferPosition, buffer, offset, bytesAvailableInBuffer);
                         // update position in read buffer
-                        _bufferPosition += bytesToWriteToCallerBuffer;
+                        _bufferPosition += bytesAvailableInBuffer;
                         // advance offset to start writing bytes into caller-provided buffer
                         offset += bytesAvailableInBuffer;
-                        // update number of bytes left to read
-                        count -= bytesToWriteToCallerBuffer;
                         // record total number of bytes read into caller-provided buffer
-                        readLen += bytesToWriteToCallerBuffer;
+                        readLen += bytesAvailableInBuffer;
+                        // update number of bytes left to read
+                        count -= bytesAvailableInBuffer;
                         // update stream position
-                        _position += bytesToWriteToCallerBuffer;
+                        _position += bytesAvailableInBuffer;
                     }
                 }
             }
 
-            // Return the number of bytes that were read to the caller.
+            // return the number of bytes that were read to the caller.
             return readLen;
         }
 
@@ -410,28 +425,32 @@ namespace Renci.SshNet.Sftp
                 // Setup the object for reading.
                 SetupRead();
 
+                byte[] readBuffer;
+
                 // Read more data into the internal buffer if necessary.
                 if (_bufferPosition >= _bufferLen)
                 {
-                    _bufferPosition = 0;
-                    _bufferLen = 0;
-
                     var data = _session.RequestRead(_handle, (ulong) _position, (uint) _readBufferSize);
-
-                    _bufferLen = data.Length;
-
-                    if (_bufferLen == 0)
+                    if (data.Length == 0)
                     {
                         // We've reached EOF.
                         return -1;
                     }
 
-                    Buffer.BlockCopy(data, 0, _readBuffer, 0, _bufferLen);
+                    readBuffer = GetOrCreateReadBuffer();
+                    Buffer.BlockCopy(data, 0, readBuffer, 0, data.Length);
+
+                    _bufferPosition = 0;
+                    _bufferLen = data.Length;
+                }
+                else
+                {
+                    readBuffer = GetOrCreateReadBuffer();
                 }
 
                 // Extract the next byte from the buffer.
                 ++_position;
-                return _readBuffer[_bufferPosition++];
+                return readBuffer[_bufferPosition++];
             }
         }
 
@@ -501,8 +520,7 @@ namespace Renci.SshNet.Sftp
                     if (origin == SeekOrigin.Begin)
                     {
                         newPosn = _position - _bufferPosition;
-                        if (offset >= newPosn && offset <
-                                (newPosn + _bufferLen))
+                        if (offset >= newPosn && offset < (newPosn + _bufferLen))
                         {
                             _bufferPosition = (int)(offset - newPosn);
                             _position = offset;
@@ -515,8 +533,7 @@ namespace Renci.SshNet.Sftp
                         if (newPosn >= (_position - _bufferPosition) &&
                            newPosn < (_position - _bufferPosition + _bufferLen))
                         {
-                            _bufferPosition =
-                                (int)(newPosn - (_position - _bufferPosition));
+                            _bufferPosition = (int) (newPosn - (_position - _bufferPosition));
                             _position = newPosn;
                             return _position;
                         }
@@ -642,7 +659,7 @@ namespace Renci.SshNet.Sftp
                     else
                     {
                         // No: copy the data to the write buffer first.
-                        Buffer.BlockCopy(buffer, offset, _writeBuffer, _bufferPosition, tempLen);
+                        Buffer.BlockCopy(buffer, offset, GetOrCreateWriteBuffer(), _bufferPosition, tempLen);
                         _bufferPosition += tempLen;
                     }
 
@@ -658,7 +675,7 @@ namespace Renci.SshNet.Sftp
                 {
                     using (var wait = new AutoResetEvent(false))
                     {
-                        _session.RequestWrite(_handle, (ulong) (_position - _bufferPosition), _writeBuffer, 0, _bufferPosition, wait);
+                        _session.RequestWrite(_handle, (ulong) (_position - _bufferPosition), GetOrCreateWriteBuffer(), 0, _bufferPosition, wait);
                     }
 
                     _bufferPosition = 0;
@@ -740,6 +757,20 @@ namespace Renci.SshNet.Sftp
                     }
                 }
             }
+        }
+
+        private byte[] GetOrCreateReadBuffer()
+        {
+            if (_readBuffer == null)
+                _readBuffer = new byte[_readBufferSize];
+            return _readBuffer;
+        }
+
+        private byte[] GetOrCreateWriteBuffer()
+        {
+            if (_writeBuffer == null)
+                _writeBuffer = new byte[_writeBufferSize];
+            return _writeBuffer;
         }
 
         /// <summary>

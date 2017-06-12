@@ -11,8 +11,10 @@ namespace Renci.SshNet.Tests.Classes
     {
         private Mock<IServiceFactory> _serviceFactoryMock;
         private Mock<ISession> _sessionMock;
+        private MockSequence _mockSequence;
         private BaseClient _client;
         private ConnectionInfo _connectionInfo;
+        private ManualResetEvent _keepAliveSent;
 
         [TestInitialize]
         public void Setup()
@@ -24,20 +26,33 @@ namespace Renci.SshNet.Tests.Classes
         [TestCleanup]
         public void Cleanup()
         {
+            if (_client != null)
+            {
+                _sessionMock.InSequence(_mockSequence).Setup(p => p.OnDisconnecting());
+                _sessionMock.InSequence(_mockSequence).Setup(p => p.Dispose());
+                _client.Dispose();
+            }
         }
 
         protected void Arrange()
         {
             _connectionInfo = new ConnectionInfo("host", "user", new PasswordAuthenticationMethod("user", "pwd"));
+            _keepAliveSent = new ManualResetEvent(false);
 
             _serviceFactoryMock = new Mock<IServiceFactory>(MockBehavior.Strict);
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);
 
-            _serviceFactoryMock.Setup(p => p.CreateSession(_connectionInfo)).Returns(_sessionMock.Object);
-            _sessionMock.Setup(p => p.Connect());
-            _sessionMock.Setup(p => p.TrySendMessage(It.IsAny<IgnoreMessage>()))
+            _mockSequence = new MockSequence();
+
+            _serviceFactoryMock.InSequence(_mockSequence).Setup(p => p.CreateSession(_connectionInfo)).Returns(_sessionMock.Object);
+            _sessionMock.InSequence(_mockSequence).Setup(p => p.Connect());
+            _sessionMock.InSequence(_mockSequence).Setup(p => p.TrySendMessage(It.IsAny<IgnoreMessage>()))
                 .Returns(true)
-                .Callback(() => Thread.Sleep(300));
+                .Callback(() =>
+                    {
+                        Thread.Sleep(300);
+                        _keepAliveSent.Set();
+                    });
 
             _client = new MyClient(_connectionInfo, false, _serviceFactoryMock.Object)
                 {
@@ -51,6 +66,12 @@ namespace Renci.SshNet.Tests.Classes
             // should keep-alive message be sent concurrently, then multiple keep-alive
             // message would be sent during this sleep period
             Thread.Sleep(200);
+
+            // disable further keep-alives
+            _client.KeepAliveInterval = Session.InfiniteTimeSpan;
+
+            // wait until keep-alive has been sent at least once
+            Assert.IsTrue(_keepAliveSent.WaitOne(500));
         }
 
         [TestMethod]

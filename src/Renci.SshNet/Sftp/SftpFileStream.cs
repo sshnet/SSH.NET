@@ -700,19 +700,21 @@ namespace Renci.SshNet.Sftp
                 // Setup the object for writing.
                 SetupWrite();
 
+                var writeBuffer = GetOrCreateWriteBuffer();
+
                 // Flush the current buffer if it is full.
                 if (_bufferPosition >= _writeBufferSize)
                 {
                     using (var wait = new AutoResetEvent(false))
                     {
-                        _session.RequestWrite(_handle, (ulong) (_position - _bufferPosition), _writeBuffer, 0, _bufferPosition, wait);
+                        _session.RequestWrite(_handle, (ulong) (_position - _bufferPosition), writeBuffer, 0, _bufferPosition, wait);
                     }
 
                     _bufferPosition = 0;
                 }
 
                 // Write the byte into the buffer and advance the posn.
-                _writeBuffer[_bufferPosition++] = value;
+                writeBuffer[_bufferPosition++] = value;
                 ++_position;
             }
         }

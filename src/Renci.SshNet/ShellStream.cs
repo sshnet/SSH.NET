@@ -244,22 +244,34 @@ namespace Renci.SshNet
         /// <param name="expectActions">The expected expressions and actions to perform.</param>
         public void Expect(params ExpectAction[] expectActions)
         {
-            Expect(TimeSpan.Zero, expectActions);
+            Expect(TimeSpan.Zero, CancellationToken.None, expectActions);
+        }
+
+        /// <summary>
+        /// Expects the specified expression and performs action when one is found.
+        /// </summary>
+        /// <param name="token">Enables cooperative cancellation between thread</param>
+        /// <param name="expectActions">The expected expressions and actions to perform.</param>
+        public void Expect(CancellationToken token, params ExpectAction[] expectActions)
+        {
+            Expect(TimeSpan.Zero, token, expectActions);
         }
 
         /// <summary>
         /// Expects the specified expression and performs action when one is found.
         /// </summary>
         /// <param name="timeout">Time to wait for input.</param>
+        /// <param name="token">Enables cooperative cancellation between thread</param>
         /// <param name="expectActions">The expected expressions and actions to perform, if the specified time elapsed and expected condition have not met, that method will exit without executing any action.</param>
-        public void Expect(TimeSpan timeout, params ExpectAction[] expectActions)
+        public void Expect(TimeSpan timeout, CancellationToken token, params ExpectAction[] expectActions)
         {
             var expectedFound = false;
             var text = string.Empty;
-
-            do
+            var semaphore = new SemaphoreSlim(1, 1);
+            semaphore.Wait(token);
+            try
             {
-                lock (_incoming)
+                do
                 {
                     if (_incoming.Count > 0)
                     {
@@ -287,24 +299,27 @@ namespace Renci.SshNet
                             }
                         }
                     }
-                }
 
-                if (!expectedFound)
-                {
-                    if (timeout.Ticks > 0)
+                    if (!expectedFound)
                     {
-                        if (!_dataReceived.WaitOne(timeout))
+                        if (timeout.Ticks > 0)
                         {
-                            return;
+                            if (!_dataReceived.WaitOne(timeout) || token.IsCancellationRequested)
+                            {
+                                expectedFound = true;
+                            }
+                        }
+                        else
+                        {
+                            _dataReceived.WaitOne();
                         }
                     }
-                    else
-                    {
-                        _dataReceived.WaitOne();
-                    }
-                }
+                } while (!expectedFound);
             }
-            while (!expectedFound);
+            finally
+            {
+                semaphore.Release();
+            }
         }
 
         /// <summary>

@@ -471,6 +471,9 @@
     <Compile Include="..\Renci.SshNet\Messages\Connection\ChannelOpen\DirectTcpipChannelInfo.cs">
       <Link>Messages\Connection\ChannelOpen\DirectTcpipChannelInfo.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\Messages\Connection\ChannelOpen\DirectStreamLocalChannelInfo.cs">
+      <Link>Messages\Connection\ChannelOpen\DirectStreamLocalChannelInfo.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\Messages\Connection\ChannelOpen\ForwardedTcpipChannelInfo.cs">
       <Link>Messages\Connection\ChannelOpen\ForwardedTcpipChannelInfo.cs</Link>
     </Compile>

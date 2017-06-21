@@ -102,6 +102,37 @@ namespace Renci.SshNet
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="ForwardedPortLocal"/> class.
+        /// </summary>
+        /// <param name="boundHost">The bound host.</param>
+        /// <param name="boundPort">The bound port.</param>
+        /// <param name="socketAddress">Unix socket address.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="boundHost"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="socketAddress"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="boundPort" /> is greater than <see cref="F:System.Net.IPEndPoint.MaxPort" />.</exception>
+        /// <exception cref="ArgumentException"><paramref name="socketAddress"/> does not start with <c>/</c>.</exception>
+        public ForwardedPortLocal(string boundHost, uint boundPort, string socketAddress)
+        {
+            if (boundHost == null)
+                throw new ArgumentNullException("boundHost");
+
+            if (socketAddress == null)
+                throw new ArgumentNullException("socketAddress");
+
+            boundPort.ValidatePort("boundPort");
+            if (!socketAddress.IsUnixSocketAddress())
+            {
+                throw new ArgumentException("socketAddress must be a socket address", "socketAddress");
+            }
+
+            BoundHost = boundHost;
+            BoundPort = boundPort;
+            Host = socketAddress;
+            Port = 0;
+            _status = ForwardedPortStatus.Stopped;
+        }
+
+        /// <summary>
         /// Starts local port forwarding.
         /// </summary>
         protected override void StartPort()

@@ -57,8 +57,16 @@ namespace Renci.SshNet.Channels
             var ep = (IPEndPoint) socket.RemoteEndPoint;
 
             // open channel
-            SendMessage(new ChannelOpenMessage(LocalChannelNumber, LocalWindowSize, LocalPacketSize,
-                new DirectTcpipChannelInfo(remoteHost, port, ep.Address.ToString(), (uint) ep.Port)));
+            if (remoteHost.IsUnixSocketAddress())
+            {
+                SendMessage(new ChannelOpenMessage(LocalChannelNumber, LocalWindowSize, LocalPacketSize,
+                    new DirectStreamLocalChannelInfo(remoteHost)));
+            }
+            else
+            {
+                SendMessage(new ChannelOpenMessage(LocalChannelNumber, LocalWindowSize, LocalPacketSize,
+                    new DirectTcpipChannelInfo(remoteHost, port, ep.Address.ToString(), (uint) ep.Port)));
+            }
             //  Wait for channel to open
             WaitOnHandle(_channelOpen);
         }

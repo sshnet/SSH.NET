@@ -134,6 +134,11 @@ namespace Renci.SshNet.Common
                         IPEndPoint.MaxPort));
         }
 
+        internal static bool IsUnixSocketAddress(this string address)
+        {
+            return address.StartsWith("/");
+        }
+
         /// <summary>
         /// Returns a specified number of contiguous bytes from a given offset.
         /// </summary>

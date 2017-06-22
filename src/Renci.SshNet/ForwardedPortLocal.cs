@@ -306,9 +306,9 @@ namespace Renci.SshNet
         {
             if (address.Contains(":"))
             {
-                var split = address.Split(new [] { ':' }, 2);
+                var split = address.Split(new [] { ':' });
                 host = split[0];
-                if (!uint.TryParse(split[1], out port))
+                if (split.Length > 2 || !uint.TryParse(split[1], out port))
                 {
                     throw new FormatException("Cannot parse port number.");
                 }

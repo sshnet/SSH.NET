@@ -72,6 +72,10 @@
     <Compile Include="CommandAsyncResult.cs" />
     <Compile Include="Channels\Channel.cs" />
     <Compile Include="Channels\ChannelDirectTcpip.cs" />
+    <Compile Include="Channels\ChannelDirectBase.cs" />
+    <Compile Include="Channels\ChannelDirectStreamLocal.cs" />
+    <Compile Include="Channels\IChannelDirectBase.cs" />
+    <Compile Include="Channels\IChannelDirectStreamLocal.cs" />
     <Compile Include="Channels\ChannelForwardedTcpip.cs" />
     <Compile Include="Channels\ChannelSession.cs" />
     <Compile Include="Channels\ChannelTypes.cs" />

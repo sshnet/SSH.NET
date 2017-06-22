@@ -98,7 +98,7 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
             var random = new Random();
 
             var localChannelNumber = (uint) random.Next(0, int.MaxValue);
-            var data = new byte[random.Next(10, 20)];
+            var data = new byte[random.Next(11, 20)];
             random.NextBytes(data);
             var offset = random.Next(2, 4);
             var size = random.Next(5, 9);
@@ -133,7 +133,7 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
             var random = new Random();
 
             var localChannelNumber = (uint) random.Next(0, int.MaxValue);
-            var data = new byte[random.Next(10, 20)];
+            var data = new byte[random.Next(11, 20)];
             random.NextBytes(data);
 
             var offset = random.Next(2, 4);

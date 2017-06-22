@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Globalization;
+using System.Net;
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet
@@ -8,6 +10,10 @@ namespace Renci.SshNet
     /// </summary>
     public partial class ForwardedPortLocal : ForwardedPort, IDisposable
     {
+        private const uint TypeSocketPath = uint.MaxValue;
+        private uint _typeOrPort;
+        private string _hostOrSocketPath;
+
         private ForwardedPortStatus _status;
 
         /// <summary>
@@ -23,12 +29,62 @@ namespace Renci.SshNet
         /// <summary>
         /// Gets the forwarded host.
         /// </summary>
-        public string Host { get; private set; }
+        public string Host
+        {
+            get
+            {
+                return _typeOrPort == TypeSocketPath ? string.Empty : _hostOrSocketPath;
+            }
+            private set
+            {
+                _hostOrSocketPath = value;
+                _typeOrPort = _typeOrPort == TypeSocketPath ? 0 : _typeOrPort;
+            }
+        }
 
         /// <summary>
         /// Gets the forwarded port.
         /// </summary>
-        public uint Port { get; private set; }
+        public uint Port
+        {
+            get
+            {
+                return _typeOrPort == TypeSocketPath ? 0 : _typeOrPort;
+            }
+            private set
+            {
+                _typeOrPort = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets the remote address.
+        /// </summary>
+        public string RemoteAddress
+        {
+            get
+            {
+                if (_typeOrPort == TypeSocketPath)
+                {
+                    return _hostOrSocketPath;
+                }
+                else
+                {
+                    return string.Format(CultureInfo.InvariantCulture, "{0}:{1}", _hostOrSocketPath, _typeOrPort);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets the bound address.
+        /// </summary>
+        public string LocalAddress
+        {
+            get
+            {
+                return string.Format(CultureInfo.InvariantCulture, "{0}:{1}", BoundHost, BoundPort);
+            }
+        }
 
         /// <summary>
         /// Gets a value indicating whether port forwarding is started.
@@ -104,31 +160,43 @@ namespace Renci.SshNet
         /// <summary>
         /// Initializes a new instance of the <see cref="ForwardedPortLocal"/> class.
         /// </summary>
-        /// <param name="boundHost">The bound host.</param>
-        /// <param name="boundPort">The bound port.</param>
-        /// <param name="socketAddress">Unix socket address.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="boundHost"/> is <c>null</c>.</exception>
-        /// <exception cref="ArgumentNullException"><paramref name="socketAddress"/> is <c>null</c>.</exception>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="boundPort" /> is greater than <see cref="F:System.Net.IPEndPoint.MaxPort" />.</exception>
-        /// <exception cref="ArgumentException"><paramref name="socketAddress"/> does not start with <c>/</c>.</exception>
-        public ForwardedPortLocal(string boundHost, uint boundPort, string socketAddress)
+        /// <param name="localAddress">The local address.</param>
+        /// <param name="remoteAddress">The remote address.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="localAddress"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="remoteAddress"/> is <c>null</c>.</exception>
+        /// <exception cref="NotSupportedException"><paramref name="localAddress"/> is a unix socket path.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="localAddress" /> has a port number which is greater than <see cref="F:System.Net.IPEndPoint.MaxPort" />.</exception>
+        /// <exception cref="FormatException"><paramref name="localAddress"/> port number cannot be parsed.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="remoteAddress" /> has a port number which is greater than <see cref="F:System.Net.IPEndPoint.MaxPort" />.</exception>
+        /// <exception cref="FormatException"><paramref name="remoteAddress"/> port number cannot be parsed.</exception>
+        public ForwardedPortLocal(string localAddress, string remoteAddress)
         {
-            if (boundHost == null)
-                throw new ArgumentNullException("boundHost");
+            if (localAddress == null)
+                throw new ArgumentNullException("localAddress");
 
-            if (socketAddress == null)
-                throw new ArgumentNullException("socketAddress");
+            if (remoteAddress == null)
+                throw new ArgumentNullException("remoteAddress");
 
-            boundPort.ValidatePort("boundPort");
-            if (!socketAddress.IsUnixSocketAddress())
+            if (localAddress.IsUnixSocketAddress())
             {
-                throw new ArgumentException("socketAddress must be a socket address", "socketAddress");
+                throw new NotSupportedException("localAddress cannot be a unix socket path");
             }
 
-            BoundHost = boundHost;
+            string boundHost;            
+            uint boundPort;
+            ParseAddress(localAddress, out boundHost, out boundPort, "localAddress");
+            BoundHost = boundHost;            
             BoundPort = boundPort;
-            Host = socketAddress;
-            Port = 0;
+
+            if (remoteAddress.IsUnixSocketAddress())
+            {
+                _hostOrSocketPath = remoteAddress;
+                _typeOrPort = TypeSocketPath;
+            }
+            else
+            {
+                ParseAddress(remoteAddress, out _hostOrSocketPath, out _typeOrPort, "remoteAddress");
+            }
             _status = ForwardedPortStatus.Stopped;
         }
 
@@ -233,5 +301,27 @@ namespace Renci.SshNet
         }
 
         #endregion
+
+        private void ParseAddress(string address, out string host, out uint port, string argument)
+        {
+            if (address.Contains(":"))
+            {
+                var split = address.Split(new [] { ':' }, 2);
+                host = split[0];
+                if (!uint.TryParse(split[1], out port))
+                {
+                    throw new FormatException("Cannot parse port number.");
+                }
+                if (port > IPEndPoint.MaxPort)
+                    throw new ArgumentOutOfRangeException(argument,
+                        string.Format(CultureInfo.InvariantCulture, "Specified port cannot be greater than {0}.",
+                            IPEndPoint.MaxPort));
+            }
+            else
+            {
+                host = address;
+                port = 0;
+            }
+        }
     }
 }

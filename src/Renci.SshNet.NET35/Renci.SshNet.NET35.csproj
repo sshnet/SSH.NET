@@ -86,6 +86,18 @@
     <Compile Include="..\Renci.SshNet\Channels\ChannelDirectTcpip.cs">
       <Link>Channels\ChannelDirectTcpip.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\Channels\ChannelDirectBase.cs">
+      <Link>Channels\ChannelDirectBase.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Channels\ChannelDirectStreamLocal.cs">
+      <Link>Channels\ChannelDirectStreamLocal.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Channels\IChannelDirectBase.cs">
+      <Link>Channels\IChannelDirectBase.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Channels\IChannelDirectStreamLocal.cs">
+      <Link>Channels\IChannelDirectStreamLocal.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\Channels\ChannelForwardedTcpip.cs">
       <Link>Channels\ChannelForwardedTcpip.cs</Link>
     </Compile>

@@ -3,7 +3,7 @@
 namespace Renci.SshNet.Messages.Connection
 {
     /// <summary>
-    /// Used to open "direct-tcpip" channel type
+    /// Used to open "direct-streamlocal@openssh.com" channel type
     /// </summary>
     internal class DirectStreamLocalChannelInfo : ChannelOpenInfo
     {

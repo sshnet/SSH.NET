@@ -71,6 +71,14 @@ namespace Renci.SshNet
         IChannelDirectTcpip CreateChannelDirectTcpip();
 
         /// <summary>
+        /// Create a new channel for a locally forwarded TCP/IP port.
+        /// </summary>
+        /// <returns>
+        /// A new channel for a locally forwarded TCP/IP port.
+        /// </returns>
+        IChannelDirectStreamLocal CreateChannelDirectStreamLocal();
+
+        /// <summary>
         /// Creates a "forwarded-tcpip" SSH channel.
         /// </summary>
         /// <returns>

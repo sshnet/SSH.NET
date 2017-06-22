@@ -120,11 +120,23 @@ namespace Renci.SshNet
                 RaiseRequestReceived(originatorEndPoint.Address.ToString(),
                     (uint)originatorEndPoint.Port);
 
-                using (var channel = Session.CreateChannelDirectTcpip())
+                if (RemoteAddress.IsUnixSocketAddress())
                 {
-                    channel.Exception += Channel_Exception;
-                    channel.Open(Host, Port, this, clientSocket);
-                    channel.Bind();
+                    using (var channel = Session.CreateChannelDirectStreamLocal())
+                    {
+                        channel.Exception += Channel_Exception;
+                        channel.Open(RemoteAddress, this, clientSocket);
+                        channel.Bind();
+                    }
+                }
+                else
+                {
+                    using (var channel = Session.CreateChannelDirectTcpip())
+                    {
+                        channel.Exception += Channel_Exception;
+                        channel.Open(Host, Port, this, clientSocket);
+                        channel.Bind();
+                    }
                 }
             }
             catch (Exception exp)

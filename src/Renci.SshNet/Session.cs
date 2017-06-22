@@ -2407,6 +2407,17 @@ namespace Renci.SshNet
         }
 
         /// <summary>
+        /// Create a new channel for a locally forwarded TCP/IP port.
+        /// </summary>
+        /// <returns>
+        /// A new channel for a locally forwarded TCP/IP port.
+        /// </returns>
+        IChannelDirectStreamLocal ISession.CreateChannelDirectStreamLocal()
+        {
+            return new ChannelDirectStreamLocal(this, NextChannelNumber, InitialLocalWindowSize, LocalChannelDataPacketSize);
+        }
+
+        /// <summary>
         /// Creates a "forwarded-tcpip" SSH channel.
         /// </summary>
         /// <returns>

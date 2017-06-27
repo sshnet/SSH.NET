@@ -18,12 +18,13 @@ namespace Renci.SshNet.Tests.Classes
         public void Test_KeyboardInteractiveConnectionInfo()
         {
             var host = Resources.HOST;
+            int port = int.Parse(Resources.PORT);
             var username = Resources.USERNAME;
             var password = Resources.PASSWORD;
 
             #region Example KeyboardInteractiveConnectionInfo AuthenticationPrompt
-            var connectionInfo = new KeyboardInteractiveConnectionInfo(host, username);
-            connectionInfo.AuthenticationPrompt += delegate(object sender, AuthenticationPromptEventArgs e)
+            var connectionInfo = new KeyboardInteractiveConnectionInfo(host, port, username);
+            connectionInfo.AuthenticationPrompt += delegate (object sender, AuthenticationPromptEventArgs e)
             {
                 System.Console.WriteLine(e.Instruction);
 

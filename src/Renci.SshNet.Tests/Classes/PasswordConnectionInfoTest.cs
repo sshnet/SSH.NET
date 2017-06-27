@@ -20,11 +20,12 @@ namespace Renci.SshNet.Tests.Classes
         public void Test_PasswordConnectionInfo()
         {
             var host = Resources.HOST;
+            int port = int.Parse(Resources.PORT);
             var username = Resources.USERNAME;
             var password = Resources.PASSWORD;
 
             #region Example PasswordConnectionInfo
-            var connectionInfo = new PasswordConnectionInfo(host, username, password);
+            var connectionInfo = new PasswordConnectionInfo(host, port, username, password);
             using (var client = new SftpClient(connectionInfo))
             {
                 client.Connect();
@@ -70,11 +71,12 @@ namespace Renci.SshNet.Tests.Classes
         public void Test_PasswordConnectionInfo_AuthenticationBanner()
         {
             var host = Resources.HOST;
+            int port = int.Parse(Resources.PORT);
             var username = Resources.USERNAME;
             var password = Resources.PASSWORD;
 
             #region Example PasswordConnectionInfo AuthenticationBanner
-            var connectionInfo = new PasswordConnectionInfo(host, username, password);
+            var connectionInfo = new PasswordConnectionInfo(host, port, username, password);
             connectionInfo.AuthenticationBanner += delegate (object sender, AuthenticationBannerEventArgs e)
             {
                 Console.WriteLine(e.BannerMessage);

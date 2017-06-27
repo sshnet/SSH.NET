@@ -12,6 +12,7 @@ namespace Renci.SshNet.Tests.Classes
         public void Test_MultipleThread_Example_MultipleConnections()
         {
             var host = Resources.HOST;
+            int port = int.Parse(Resources.PORT);
             var username = Resources.USERNAME;
             var password = Resources.PASSWORD;
 
@@ -21,7 +22,7 @@ namespace Renci.SshNet.Tests.Classes
                 System.Threading.Tasks.Parallel.For(0, 10000,
                     () =>
                     {
-                        var client = new SshClient(host, username, password);
+                        var client = new SshClient(host, port, username, password);
                         client.Connect();
                         return client;
                     },
@@ -54,7 +55,7 @@ namespace Renci.SshNet.Tests.Classes
                 System.Threading.Tasks.Parallel.For(0, 10000,
                     () =>
                     {
-                        var client = new SshClient(Resources.HOST, int.Parse(Resources.PORT),  Resources.USERNAME, Resources.PASSWORD);
+                        var client = new SshClient(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD);
                         client.Connect();
                         return client;
                     },
@@ -81,7 +82,7 @@ namespace Renci.SshNet.Tests.Classes
         //[TestMethod]
         public void Test_MultipleThread_10000_MultipleSessions()
         {
-            using (var client = new SshClient(Resources.HOST, int.Parse(Resources.PORT),  Resources.USERNAME, Resources.PASSWORD))
+            using (var client = new SshClient(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD))
             {
                 client.Connect();
                 System.Threading.Tasks.Parallel.For(0, 10000,

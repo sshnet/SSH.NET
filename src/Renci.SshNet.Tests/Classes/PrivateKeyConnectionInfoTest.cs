@@ -18,11 +18,12 @@ namespace Renci.SshNet.Tests.Classes
         public void Test_PrivateKeyConnectionInfo()
         {
             var host = Resources.HOST;
+            int port = int.Parse(Resources.PORT);
             var username = Resources.USERNAME;
             MemoryStream keyFileStream = new MemoryStream(Encoding.ASCII.GetBytes(Resources.RSA_KEY_WITHOUT_PASS));
 
             #region Example PrivateKeyConnectionInfo PrivateKeyFile
-            var connectionInfo = new PrivateKeyConnectionInfo(host, username, new PrivateKeyFile(keyFileStream));
+            var connectionInfo = new PrivateKeyConnectionInfo(host, port, username, new PrivateKeyFile(keyFileStream));
             using (var client = new SshClient(connectionInfo))
             {
                 client.Connect();
@@ -40,13 +41,14 @@ namespace Renci.SshNet.Tests.Classes
         public void Test_PrivateKeyConnectionInfo_MultiplePrivateKey()
         {
             var host = Resources.HOST;
+            int port = int.Parse(Resources.PORT);
             var username = Resources.USERNAME;
             MemoryStream keyFileStream1 = new MemoryStream(Encoding.ASCII.GetBytes(Resources.RSA_KEY_WITHOUT_PASS));
             MemoryStream keyFileStream2 = new MemoryStream(Encoding.ASCII.GetBytes(Resources.RSA_KEY_WITHOUT_PASS));
 
             #region Example PrivateKeyConnectionInfo PrivateKeyFile Multiple
-            var connectionInfo = new PrivateKeyConnectionInfo(host, username, 
-                new PrivateKeyFile(keyFileStream1), 
+            var connectionInfo = new PrivateKeyConnectionInfo(host, port, username,
+                new PrivateKeyFile(keyFileStream1),
                 new PrivateKeyFile(keyFileStream2));
             using (var client = new SshClient(connectionInfo))
             {

@@ -4,6 +4,7 @@ using Renci.SshNet.Tests.Common;
 using Renci.SshNet.Tests.Properties;
 using System;
 using System.Net;
+using System.Text;
 
 namespace Renci.SshNet.Tests.Classes
 {
@@ -48,7 +49,7 @@ namespace Renci.SshNet.Tests.Classes
             #region Example PasswordConnectionInfo PasswordExpired
             var connectionInfo = new PasswordConnectionInfo("host", "username", "password");
             var encoding = SshData.Ascii;
-            connectionInfo.PasswordExpired += delegate(object sender, AuthenticationPasswordChangeEventArgs e)
+            connectionInfo.PasswordExpired += delegate (object sender, AuthenticationPasswordChangeEventArgs e)
             {
                 e.NewPassword = encoding.GetBytes("123456");
             };
@@ -74,7 +75,7 @@ namespace Renci.SshNet.Tests.Classes
 
             #region Example PasswordConnectionInfo AuthenticationBanner
             var connectionInfo = new PasswordConnectionInfo(host, username, password);
-            connectionInfo.AuthenticationBanner += delegate(object sender, AuthenticationBannerEventArgs e)
+            connectionInfo.AuthenticationBanner += delegate (object sender, AuthenticationBannerEventArgs e)
             {
                 Console.WriteLine(e.BannerMessage);
             };
@@ -121,7 +122,7 @@ namespace Renci.SshNet.Tests.Classes
         [ExpectedException(typeof(ArgumentNullException))]
         public void Test_ConnectionInfo_Password_Is_Null()
         {
-            var connectionInfo = new PasswordConnectionInfo(Resources.HOST, Resources.USERNAME, (string)null);
+            var connectionInfo = new PasswordConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, (string)null);
         }
 
         [TestMethod]
@@ -156,7 +157,15 @@ namespace Renci.SshNet.Tests.Classes
         [TestCategory("integration")]
         public void Test_Ssh_Connect_Via_Socks4()
         {
-            var connInfo = new PasswordConnectionInfo(Resources.HOST, Resources.USERNAME, Resources.PASSWORD, ProxyTypes.Socks4, Resources.PROXY_HOST, int.Parse(Resources.PROXY_PORT));
+            var connInfo = new PasswordConnectionInfo(Resources.DockerDefaultGateway,
+                                                      int.Parse(Resources.PORT),
+                                                      Resources.USERNAME,
+                                                      Encoding.UTF8.GetBytes(Resources.PASSWORD),
+                                                      ProxyTypes.Socks4,
+                                                      Resources.HTTP_PROXY_HOST,
+                                                      int.Parse(Resources.HTTP_PROXY_PORT),
+                                                      Resources.SOCKS_PROXY_USERNAME,
+                                                      Resources.SOCKS_PROXY_PASSWORD);
             using (var client = new SshClient(connInfo))
             {
                 client.Connect();
@@ -174,7 +183,9 @@ namespace Renci.SshNet.Tests.Classes
         [TestCategory("integration")]
         public void Test_Ssh_Connect_Via_TcpSocks5()
         {
-            var connInfo = new PasswordConnectionInfo(Resources.HOST, Resources.USERNAME, Resources.PASSWORD, ProxyTypes.Socks5, Resources.PROXY_HOST, int.Parse(Resources.PROXY_PORT));
+            IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName()); // `Dns.Resolve()` method is deprecated.
+            IPAddress ipAddress = ipHostInfo.AddressList[0];
+            var connInfo = new PasswordConnectionInfo(Resources.DockerDefaultGateway, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD, ProxyTypes.Socks5, Resources.SOCKS_PROXY_HOST, int.Parse(Resources.SOCKS_PROXY_PORT));
             using (var client = new SshClient(connInfo))
             {
                 client.Connect();
@@ -191,7 +202,13 @@ namespace Renci.SshNet.Tests.Classes
         [TestCategory("integration")]
         public void Test_Ssh_Connect_Via_HttpProxy()
         {
-            var connInfo = new PasswordConnectionInfo(Resources.HOST, Resources.USERNAME, Resources.PASSWORD, ProxyTypes.Http, Resources.PROXY_HOST, int.Parse(Resources.PROXY_PORT));
+            var connInfo = new PasswordConnectionInfo(Resources.DockerDefaultGateway,
+                                                      int.Parse(Resources.PORT),
+                                                      Resources.USERNAME,
+                                                      Resources.PASSWORD,
+                                                      ProxyTypes.Http,
+                                                      Resources.HTTP_PROXY_HOST,
+                                                      int.Parse(Resources.HTTP_PROXY_PORT));
             using (var client = new SshClient(connInfo))
             {
                 client.Connect();

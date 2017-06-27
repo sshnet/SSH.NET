@@ -65,7 +65,7 @@ namespace Renci.SshNet
         /// <value>
         /// 64 KB.
         /// </value>
-        private const int LocalChannelDataPacketSize = 1024*64;
+        private const int LocalChannelDataPacketSize = 1024 * 64;
 
 #if FEATURE_REGEX_COMPILE
         private static readonly Regex ServerVersionRe = new Regex("^SSH-(?<protoversion>[^-]+)-(?<softwareversion>.+)( SP.+)?$", RegexOptions.Compiled);
@@ -300,20 +300,20 @@ namespace Renci.SshNet
                 if (_clientInitMessage == null)
                 {
                     _clientInitMessage = new KeyExchangeInitMessage
-                        {
-                            KeyExchangeAlgorithms = ConnectionInfo.KeyExchangeAlgorithms.Keys.ToArray(),
-                            ServerHostKeyAlgorithms = ConnectionInfo.HostKeyAlgorithms.Keys.ToArray(),
-                            EncryptionAlgorithmsClientToServer = ConnectionInfo.Encryptions.Keys.ToArray(),
-                            EncryptionAlgorithmsServerToClient = ConnectionInfo.Encryptions.Keys.ToArray(),
-                            MacAlgorithmsClientToServer = ConnectionInfo.HmacAlgorithms.Keys.ToArray(),
-                            MacAlgorithmsServerToClient = ConnectionInfo.HmacAlgorithms.Keys.ToArray(),
-                            CompressionAlgorithmsClientToServer = ConnectionInfo.CompressionAlgorithms.Keys.ToArray(),
-                            CompressionAlgorithmsServerToClient = ConnectionInfo.CompressionAlgorithms.Keys.ToArray(),
-                            LanguagesClientToServer = new[] {string.Empty},
-                            LanguagesServerToClient = new[] {string.Empty},
-                            FirstKexPacketFollows = false,
-                            Reserved = 0
-                        };
+                    {
+                        KeyExchangeAlgorithms = ConnectionInfo.KeyExchangeAlgorithms.Keys.ToArray(),
+                        ServerHostKeyAlgorithms = ConnectionInfo.HostKeyAlgorithms.Keys.ToArray(),
+                        EncryptionAlgorithmsClientToServer = ConnectionInfo.Encryptions.Keys.ToArray(),
+                        EncryptionAlgorithmsServerToClient = ConnectionInfo.Encryptions.Keys.ToArray(),
+                        MacAlgorithmsClientToServer = ConnectionInfo.HmacAlgorithms.Keys.ToArray(),
+                        MacAlgorithmsServerToClient = ConnectionInfo.HmacAlgorithms.Keys.ToArray(),
+                        CompressionAlgorithmsClientToServer = ConnectionInfo.CompressionAlgorithms.Keys.ToArray(),
+                        CompressionAlgorithmsServerToClient = ConnectionInfo.CompressionAlgorithms.Keys.ToArray(),
+                        LanguagesClientToServer = new[] { string.Empty },
+                        LanguagesServerToClient = new[] { string.Empty },
+                        FirstKexPacketFollows = false,
+                        Reserved = 0
+                    };
                 }
                 return _clientInitMessage;
             }
@@ -798,11 +798,11 @@ namespace Renci.SshNet
                 throw new ArgumentNullException("waitHandle");
 
             var waitHandles = new[]
-                {
-                    _exceptionWaitHandle,
-                    _messageListenerCompleted,
-                    waitHandle
-                };
+            {
+                _exceptionWaitHandle,
+                _messageListenerCompleted,
+                waitHandle
+            };
 
             switch (WaitHandle.WaitAny(waitHandles, timeout))
             {
@@ -845,7 +845,7 @@ namespace Renci.SshNet
 
             DiagnosticAbstraction.Log(string.Format("[{0}] Sending message '{1}' to server: '{2}'.", ToHex(SessionId), message.GetType().Name, message));
 
-            var paddingMultiplier = _clientCipher == null ? (byte) 8 : Math.Max((byte) 8, _serverCipher.MinimumSize);
+            var paddingMultiplier = _clientCipher == null ? (byte)8 : Math.Max((byte)8, _serverCipher.MinimumSize);
             var packetData = message.GetPacket(paddingMultiplier, _clientCompression);
 
             // take a write lock to ensure the outbound packet sequence number is incremented
@@ -976,9 +976,9 @@ namespace Renci.SshNet
             const int paddingLengthFieldLength = 1;
 
             // Determine the size of the first block, which is 8 or cipher block size (whichever is larger) bytes
-            var blockSize = _serverCipher == null ? (byte) 8 : Math.Max((byte) 8, _serverCipher.MinimumSize);
+            var blockSize = _serverCipher == null ? (byte)8 : Math.Max((byte)8, _serverCipher.MinimumSize);
 
-            var serverMacLength = _serverMac != null ? _serverMac.HashSize/8 : 0;
+            var serverMacLength = _serverMac != null ? _serverMac.HashSize / 8 : 0;
 
             byte[] data;
             uint packetLength;
@@ -1006,14 +1006,14 @@ namespace Renci.SshNet
                 packetLength = Pack.BigEndianToUInt32(firstBlock);
 
                 // Test packet minimum and maximum boundaries
-                if (packetLength < Math.Max((byte) 16, blockSize) - 4 || packetLength > MaximumSshPacketSize - 4)
+                if (packetLength < Math.Max((byte)16, blockSize) - 4 || packetLength > MaximumSshPacketSize - 4)
                     throw new SshConnectionException(
                         string.Format(CultureInfo.CurrentCulture, "Bad packet length: {0}.", packetLength),
                         DisconnectReason.ProtocolError);
 
                 // Determine the number of bytes left to read; We've already read "blockSize" bytes, but the
                 // "packet length" field itself - which is 4 bytes - is not included in the length of the packet
-                var bytesToRead = (int) (packetLength - (blockSize - packetLengthFieldLength)) + serverMacLength;
+                var bytesToRead = (int)(packetLength - (blockSize - packetLengthFieldLength)) + serverMacLength;
 
                 // Construct buffer for holding the payload and the inbound packet sequence as we need both in order
                 // to generate the hash.
@@ -1052,7 +1052,7 @@ namespace Renci.SshNet
             }
 
             var paddingLength = data[inboundPacketSequenceLength + packetLengthFieldLength];
-            var messagePayloadLength = (int) packetLength - paddingLength - paddingLengthFieldLength;
+            var messagePayloadLength = (int)packetLength - paddingLength - paddingLengthFieldLength;
             var messagePayloadOffset = inboundPacketSequenceLength + packetLengthFieldLength + paddingLengthFieldLength;
 
             // validate message against MAC
@@ -1095,7 +1095,7 @@ namespace Renci.SshNet
             _isDisconnectMessageSent = true;
         }
 
-#region Handle received message events
+        #region Handle received message events
 
         /// <summary>
         /// Called when <see cref="DisconnectMessage"/> received.
@@ -1517,7 +1517,7 @@ namespace Renci.SshNet
                 handlers(this, new MessageEventArgs<ChannelFailureMessage>(message));
         }
 
-#endregion
+        #endregion
 
         private void KeyExchange_HostKeyReceived(object sender, HostKeyEventArgs e)
         {
@@ -1526,7 +1526,7 @@ namespace Renci.SshNet
                 handlers(this, e);
         }
 
-#region Message loading functions
+        #region Message loading functions
 
         /// <summary>
         /// Registers SSH message with the session.
@@ -1591,7 +1591,7 @@ namespace Renci.SshNet
             return ToHex(bytes, 0);
         }
 
-#endregion
+        #endregion
 
         /// <summary>
         /// Establishes a socket connection to the specified host and port.
@@ -1681,16 +1681,16 @@ namespace Renci.SshNet
         /// </para>
         /// </remarks>
 #else
-        /// <summary>
-        /// Gets a value indicating whether the socket is connected.
-        /// </summary>
-        /// <returns>
-        /// <c>true</c> if the socket is connected; otherwise, <c>false</c>.
-        /// </returns>
-        /// <remarks>
-        /// We verify whether <see cref="Socket.Connected"/> is <c>true</c>. However, this only returns the state
-        /// of the socket as of the last I/O operation.
-        /// </remarks>
+/// <summary>
+/// Gets a value indicating whether the socket is connected.
+/// </summary>
+/// <returns>
+/// <c>true</c> if the socket is connected; otherwise, <c>false</c>.
+/// </returns>
+/// <remarks>
+/// We verify whether <see cref="Socket.Connected"/> is <c>true</c>. However, this only returns the state
+/// of the socket as of the last I/O operation.
+/// </remarks>
 #endif
         private bool IsSocketConnected()
         {
@@ -1861,9 +1861,9 @@ namespace Renci.SshNet
                         break;
                     }
 #elif FEATURE_SOCKET_POLL
-                    // when Socket.Select(IList, IList, IList, Int32) is not available or is buggy, we use
-                    // Socket.Poll(Int, SelectMode) to block until either data is available or the socket
-                    // is closed
+// when Socket.Select(IList, IList, IList, Int32) is not available or is buggy, we use
+// Socket.Poll(Int, SelectMode) to block until either data is available or the socket
+// is closed
                     _socket.Poll(-1, SelectMode.SelectRead);
 
                     if (!_socket.IsConnected())
@@ -1913,7 +1913,7 @@ namespace Renci.SshNet
 
         private void SocketWriteByte(byte data)
         {
-            SocketAbstraction.Send(_socket, new[] {data});
+            SocketAbstraction.Send(_socket, new[] { data });
         }
 
         private void ConnectSocks4()
@@ -1925,11 +1925,13 @@ namespace Renci.SshNet
             SocketWriteByte(0x01);
 
             //  Send port
-            SocketWriteByte((byte)(ConnectionInfo.Port / 0xFF));
-            SocketWriteByte((byte)(ConnectionInfo.Port % 0xFF));
-
+            SocketAbstraction.Send(_socket, IntToBigEndian(ConnectionInfo.Port));
             //  Send IP
             var ipAddress = DnsAbstraction.GetHostAddresses(ConnectionInfo.Host)[0];
+            if (ipAddress.ToString() == "::1")
+            {
+                ipAddress = IPAddress.Parse("127.0.0.1");
+            }
             SocketAbstraction.Send(_socket, ipAddress.GetAddressBytes());
 
             //  Send username
@@ -2036,28 +2038,28 @@ namespace Renci.SshNet
             SocketWriteByte(0x00);
 
             var ip = DnsAbstraction.GetHostAddresses(ConnectionInfo.Host)[0];
-
+            if (ip.ToString() == "::1")
+            {
+                ip = IPAddress.Parse("127.0.0.1");
+            }
+            var address = ip.GetAddressBytes().ToList();
+            address.AddRange(IntToBigEndian(ConnectionInfo.Port));
             //  Send address type and address
             if (ip.AddressFamily == AddressFamily.InterNetwork)
             {
                 SocketWriteByte(0x01);
-                var address = ip.GetAddressBytes();
-                SocketAbstraction.Send(_socket, address);
+
+                SocketAbstraction.Send(_socket, address.ToArray());
             }
             else if (ip.AddressFamily == AddressFamily.InterNetworkV6)
             {
                 SocketWriteByte(0x04);
-                var address = ip.GetAddressBytes();
-                SocketAbstraction.Send(_socket, address);
+                SocketAbstraction.Send(_socket, address.ToArray());
             }
             else
             {
                 throw new ProxyException(string.Format("SOCKS5: IP address '{0}' is not supported.", ip));
             }
-
-            //  Send port
-            SocketWriteByte((byte)(ConnectionInfo.Port / 0xFF));
-            SocketWriteByte((byte)(ConnectionInfo.Port % 0xFF));
 
             //  Read Server SOCKS5 version
             if (SocketReadByte() != 5)
@@ -2118,6 +2120,17 @@ namespace Renci.SshNet
             //  Read 2 bytes to be ignored
             SocketRead(port, 0, 2);
         }
+        private byte[] IntToBigEndian(int data)
+        {
+            int bcd = 0;
+            for (int digit = 0; digit < 4; ++digit)
+            {
+                int nibble = data % 16;
+                bcd |= nibble << (digit * 4);
+                data /= 16;
+            }
+            return new[] { (byte)((bcd >> 8) & 0xff), (byte)(bcd & 0xff) };
+        }
 
         private void ConnectHttp()
         {
@@ -2130,8 +2143,8 @@ namespace Renci.SshNet
             if (!string.IsNullOrEmpty(ConnectionInfo.ProxyUsername))
             {
                 var authorization = string.Format("Proxy-Authorization: Basic {0}\r\n",
-                                                  Convert.ToBase64String(SshData.Ascii.GetBytes(string.Format("{0}:{1}", ConnectionInfo.ProxyUsername, ConnectionInfo.ProxyPassword)))
-                                                  );
+                    Convert.ToBase64String(SshData.Ascii.GetBytes(string.Format("{0}:{1}", ConnectionInfo.ProxyUsername, ConnectionInfo.ProxyPassword)))
+                );
                 SocketAbstraction.Send(_socket, SshData.Ascii.GetBytes(authorization));
             }
 
@@ -2153,7 +2166,7 @@ namespace Renci.SshNet
                     if (statusMatch.Success)
                     {
                         var httpStatusCode = statusMatch.Result("${statusCode}");
-                        statusCode = (HttpStatusCode) int.Parse(httpStatusCode);
+                        statusCode = (HttpStatusCode)int.Parse(httpStatusCode);
                         if (statusCode != HttpStatusCode.OK)
                         {
                             var reasonPhrase = statusMatch.Result("${reasonPhrase}");
@@ -2260,7 +2273,7 @@ namespace Renci.SshNet
                 DisconnectReason.ConnectionLost);
         }
 
-#region IDisposable implementation
+        #region IDisposable implementation
 
         private bool _disposed;
 
@@ -2351,9 +2364,9 @@ namespace Renci.SshNet
             Dispose(false);
         }
 
-#endregion IDisposable implementation
+        #endregion IDisposable implementation
 
-#region ISession implementation
+        #region ISession implementation
 
         /// <summary>
         /// Gets or sets the connection info.
@@ -2401,12 +2414,12 @@ namespace Renci.SshNet
             uint remoteChannelDataPacketSize)
         {
             return new ChannelForwardedTcpip(this,
-                                             NextChannelNumber,
-                                             InitialLocalWindowSize,
-                                             LocalChannelDataPacketSize,
-                                             remoteChannelNumber,
-                                             remoteWindowSize,
-                                             remoteChannelDataPacketSize);
+                NextChannelNumber,
+                InitialLocalWindowSize,
+                LocalChannelDataPacketSize,
+                remoteChannelNumber,
+                remoteWindowSize,
+                remoteChannelDataPacketSize);
         }
 
         /// <summary>
@@ -2438,6 +2451,6 @@ namespace Renci.SshNet
             return TrySendMessage(message);
         }
 
-#endregion ISession implementation
+        #endregion ISession implementation
     }
 }

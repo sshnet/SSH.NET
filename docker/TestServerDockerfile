@@ -1,0 +1,42 @@
+FROM debian:latest
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends apt-utils && \
+    apt-get upgrade -y && \
+    apt-get install vim -y && \
+    apt-get install -y openssh-server && \
+    mkdir /var/run/sshd && \
+    adduser --disabled-password --gecos 'tester' tester && \
+    adduser --disabled-password --gecos 'expiredtester' expiredtester && \
+    usermod -aG sudo tester && \
+    usermod -aG sudo tester && \
+    echo 'root:tester' | chpasswd && \
+    echo 'tester:tester' | chpasswd && \
+    echo 'expiredtester:expiredtester' | chpasswd && \
+    echo 'chage -d 0 expiredtester'  && \
+    sed -i 's/#PasswordAuthentication no/PasswordAuthentication yes/' /etc/ssh/sshd_config && \
+    echo 'Ciphers aes128-ctr,aes192-ctr,aes256-ctr,arcfour,arcfour256,arcfour128,aes128-cbc,3des-cbc,aes192-cbc,aes256-cbc,blowfish-cbc,cast128-cbc'>>/etc/ssh/sshd_config && \
+    echo 'MACs hmac-md5,hmac-sha1,umac-64@openssh.com,hmac-sha2-256,hmac-ripemd160,hmac-ripemd160@openssh.com'>>/etc/ssh/sshd_config && \
+    echo 'ClientAliveInterval 120'>>/etc/ssh/sshd_config && \
+    echo 'ClientAliveCountMax 720'>>/etc/ssh/sshd_config && \
+    mkdir /home/tester/.ssh
+
+COPY ssh/authorized_keys /home/tester/.ssh
+COPY ssh/authorized_keys /root/.ssh/
+
+
+RUN chmod 600 /home/tester/.ssh/authorized_keys && \
+    chown tester /home/tester/.ssh/authorized_keys && \
+    chmod 600 /root/.ssh/authorized_keys && \
+    chmod 777 /
+
+RUN sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd
+
+ENV NOTVISIBLE "in users profile"
+#sshd scrubs the environment before it starts the shell hence environment variables has to be pushed to the shell initialization file
+RUN echo "export VISIBLE=now" >> /etc/profile
+
+EXPOSE 22 80
+CMD ["/usr/sbin/sshd", "-D"]
+

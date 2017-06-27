@@ -114,7 +114,7 @@ namespace Renci.SshNet.Tests.Classes
             const string proxyUsername = null;
 
             var connectionInfo = new ConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, ProxyTypes.Http,
-                    Resources.PROXY_HOST, int.Parse(Resources.PORT), proxyUsername, Resources.PASSWORD,
+                    Resources.SOCKS_PROXY_HOST, int.Parse(Resources.PORT), proxyUsername, Resources.PASSWORD,
                     new KeyboardInteractiveAuthenticationMethod(Resources.USERNAME));
 
             Assert.IsNull(connectionInfo.ProxyUsername);

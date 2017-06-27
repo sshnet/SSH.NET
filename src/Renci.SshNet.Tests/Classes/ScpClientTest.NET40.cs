@@ -17,7 +17,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestCategory("integration")]
         public void Test_Scp_File_20_Parallel_Upload_Download()
         {
-            using (var scp = new ScpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            using (var scp = new ScpClient(Resources.HOST, int.Parse(Resources.PORT),  Resources.USERNAME, Resources.PASSWORD))
             {
                 scp.Connect();
 
@@ -56,7 +56,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestCategory("integration")]
         public void Test_Scp_File_Upload_Download_Events()
         {
-            using (var scp = new ScpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            using (var scp = new ScpClient(Resources.HOST, int.Parse(Resources.PORT),  Resources.USERNAME, Resources.PASSWORD))
             {
                 scp.Connect();
 

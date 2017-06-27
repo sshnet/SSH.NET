@@ -19,7 +19,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         [TestCategory("integration")]
         public void Test_Get_Root_Directory()
         {
-            using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            using (var sftp = new SftpClient(Resources.HOST, int.Parse(Resources.PORT),  Resources.USERNAME, Resources.PASSWORD))
             {
                 sftp.Connect();
                 var directory = sftp.Get("/");
@@ -36,7 +36,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         [ExpectedException(typeof(SftpPathNotFoundException))]
         public void Test_Get_Invalid_Directory()
         {
-            using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            using (var sftp = new SftpClient(Resources.HOST, int.Parse(Resources.PORT),  Resources.USERNAME, Resources.PASSWORD))
             {
                 sftp.Connect();
 
@@ -49,7 +49,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         [TestCategory("integration")]
         public void Test_Get_File()
         {
-            using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            using (var sftp = new SftpClient(Resources.HOST, int.Parse(Resources.PORT),  Resources.USERNAME, Resources.PASSWORD))
             {
                 sftp.Connect();
 
@@ -70,7 +70,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         [ExpectedException(typeof(ArgumentNullException))]
         public void Test_Get_File_Null()
         {
-            using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            using (var sftp = new SftpClient(Resources.HOST, int.Parse(Resources.PORT),  Resources.USERNAME, Resources.PASSWORD))
             {
                 sftp.Connect();
 
@@ -85,7 +85,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         [TestCategory("integration")]
         public void Test_Get_International_File()
         {
-            using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            using (var sftp = new SftpClient(Resources.HOST, int.Parse(Resources.PORT),  Resources.USERNAME, Resources.PASSWORD))
             {
                 sftp.Connect();
 
@@ -104,7 +104,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         [TestCategory("integration")]
         public void Test_Sftp_SftpFile_MoveTo()
         {
-            using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            using (var sftp = new SftpClient(Resources.HOST, int.Parse(Resources.PORT),  Resources.USERNAME, Resources.PASSWORD))
             {
                 sftp.Connect();
 

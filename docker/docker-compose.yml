@@ -1,0 +1,27 @@
+﻿version: '2'
+services:
+    sshnet_testserver:
+        build:
+            context: .
+            dockerfile: TestServerDockerfile
+        tty: false
+        container_name: sshnettestserver
+        ports:
+        - "2203:22"
+    socks5_proxy_server:
+        build:
+            context: .
+            dockerfile: ProxyServerDockerFile
+        container_name: socks5_proxy
+        environment:
+            - SS_USER=tester
+            - SS_PASS=tester
+        privileged: true
+        ports:
+        - "2080:1080"
+        tty: true
+    http_proxy_server:
+        image: minimum2scp/squid
+        container_name: http_proxy
+        ports:
+        - "3128:3128"

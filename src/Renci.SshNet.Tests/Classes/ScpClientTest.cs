@@ -22,7 +22,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             RemoveAllFiles();
 
-            using (var scp = new ScpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            using (var scp = new ScpClient(Resources.HOST, int.Parse(Resources.PORT),  Resources.USERNAME, Resources.PASSWORD))
             {
                 scp.Connect();
 
@@ -55,7 +55,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             RemoveAllFiles();
 
-            using (var scp = new ScpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            using (var scp = new ScpClient(Resources.HOST, int.Parse(Resources.PORT),  Resources.USERNAME, Resources.PASSWORD))
             {
                 scp.Connect();
 
@@ -95,7 +95,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             RemoveAllFiles();
 
-            using (var scp = new ScpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            using (var scp = new ScpClient(Resources.HOST, int.Parse(Resources.PORT),  Resources.USERNAME, Resources.PASSWORD))
             {
                 scp.Connect();
 
@@ -128,7 +128,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             RemoveAllFiles();
 
-            using (var scp = new ScpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            using (var scp = new ScpClient(Resources.HOST, int.Parse(Resources.PORT),  Resources.USERNAME, Resources.PASSWORD))
             {
                 scp.Connect();
 
@@ -168,7 +168,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             RemoveAllFiles();
 
-            using (var scp = new ScpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            using (var scp = new ScpClient(Resources.HOST, int.Parse(Resources.PORT),  Resources.USERNAME, Resources.PASSWORD))
             {
                 scp.Connect();
 
@@ -420,7 +420,7 @@ namespace Renci.SshNet.Tests.Classes
 
         private static void RemoveAllFiles()
         {
-            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            using (var client = new SshClient(Resources.HOST, int.Parse(Resources.PORT),  Resources.USERNAME, Resources.PASSWORD))
             {
                 client.Connect();
                 client.RunCommand("rm -rf *");

@@ -16,7 +16,7 @@ namespace Renci.SshNet.Tests.Classes
         [ExpectedException(typeof(SshConnectionException))]
         public void Test_Sftp_DeleteDirectory_Without_Connecting()
         {
-            using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            using (var sftp = new SftpClient(Resources.HOST, int.Parse(Resources.PORT),  Resources.USERNAME, Resources.PASSWORD))
             {
                 sftp.DeleteDirectory("test");
             }
@@ -28,7 +28,7 @@ namespace Renci.SshNet.Tests.Classes
         [ExpectedException(typeof(SftpPathNotFoundException))]
         public void Test_Sftp_DeleteDirectory_Which_Doesnt_Exists()
         {
-            using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            using (var sftp = new SftpClient(Resources.HOST, int.Parse(Resources.PORT),  Resources.USERNAME, Resources.PASSWORD))
             {
                 sftp.Connect();
 
@@ -47,7 +47,7 @@ namespace Renci.SshNet.Tests.Classes
             if (Resources.USERNAME == "root")
                 Assert.Fail("Must not run this test as root!");
 
-            using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            using (var sftp = new SftpClient(Resources.HOST, int.Parse(Resources.PORT),  Resources.USERNAME, Resources.PASSWORD))
             {
                 sftp.Connect();
 
@@ -62,7 +62,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestCategory("integration")]
         public void Test_Sftp_DeleteDirectory()
         {
-            using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            using (var sftp = new SftpClient(Resources.HOST, int.Parse(Resources.PORT),  Resources.USERNAME, Resources.PASSWORD))
             {
                 sftp.Connect();
 
@@ -80,7 +80,7 @@ namespace Renci.SshNet.Tests.Classes
         [ExpectedException(typeof(ArgumentException))]
         public void Test_Sftp_DeleteDirectory_Null()
         {
-            using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            using (var sftp = new SftpClient(Resources.HOST, int.Parse(Resources.PORT),  Resources.USERNAME, Resources.PASSWORD))
             {
                 sftp.Connect();
 

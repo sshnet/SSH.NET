@@ -17,7 +17,7 @@ namespace Renci.SshNet.Tests.Classes
             //  ************* Tests are still in not finished ********************
             //  ******************************************************************
 
-            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            using (var client = new SshClient(Resources.HOST, int.Parse(Resources.PORT),  Resources.USERNAME, Resources.PASSWORD))
             {
                 client.Connect();
                 var port1 = new ForwardedPortRemote(8082, "www.renci.org", 80);

@@ -168,7 +168,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestCategory("integration")]
         public void Test_ForwardedPortRemote()
         {
-            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            using (var client = new SshClient(Resources.HOST, int.Parse(Resources.PORT),  Resources.USERNAME, Resources.PASSWORD))
             {
                 #region Example SshClient AddForwardedPort Start Stop ForwardedPortLocal
                 client.Connect();

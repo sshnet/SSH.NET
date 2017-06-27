@@ -19,7 +19,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             RemoveAllFiles();
 
-            using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            using (var sftp = new SftpClient(Resources.HOST, int.Parse(Resources.PORT),  Resources.USERNAME, Resources.PASSWORD))
             {
                 sftp.Connect();
 
@@ -48,7 +48,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             RemoveAllFiles();
 
-            using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            using (var sftp = new SftpClient(Resources.HOST, int.Parse(Resources.PORT),  Resources.USERNAME, Resources.PASSWORD))
             {
                 sftp.Connect();
 

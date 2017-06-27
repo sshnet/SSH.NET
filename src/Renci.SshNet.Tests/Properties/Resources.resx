@@ -117,6 +117,9 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="DockerDefaultGateway" xml:space="preserve">
+    <value>172.18.0.1</value>
+  </data>
   <data name="DSA_KEY_WITHOUT_PASS" xml:space="preserve">
     <value>-----BEGIN DSA PRIVATE KEY-----
 MIIBvAIBAAKBgQDdQrrwGvknwD+pb9Gpv/vDxj8yqFUg0cUuC/tkjm3u+lQj86Rw
@@ -148,8 +151,26 @@ D8DHbFwAT2mUv1QxRXYJO1y4pENboEzT6LUqxJgE+ae/F/29g2RD9DhtwqKqWjhM
 7jB0kNVZrz3qUKnoJHIozA==
 -----END DSA PRIVATE KEY-----</value>
   </data>
+  <data name="EXPIRED_PASSWORD" xml:space="preserve">
+    <value>expiredtester</value>
+  </data>
+  <data name="EXPIRED_USERNAME" xml:space="preserve">
+    <value>expiredtester</value>
+  </data>
   <data name="HOST" xml:space="preserve">
-    <value>192.168.10.192</value>
+    <value>localhost</value>
+  </data>
+  <data name="HTTP_PROXY_HOST" xml:space="preserve">
+    <value>localhost</value>
+  </data>
+  <data name="HTTP_PROXY_PASSWORD" xml:space="preserve">
+    <value>debian</value>
+  </data>
+  <data name="HTTP_PROXY_PORT" xml:space="preserve">
+    <value>3128</value>
+  </data>
+  <data name="HTTP_PROXY_USERNAME" xml:space="preserve">
+    <value>debian</value>
   </data>
   <data name="INVALID_KEY" xml:space="preserve">
     <value>-----BEGIN DSA PRIVATE KEY-----
@@ -169,13 +190,7 @@ tM7dZpB+reWl9L5e2L8=
     <value>tester</value>
   </data>
   <data name="PORT" xml:space="preserve">
-    <value>22</value>
-  </data>
-  <data name="PROXY_HOST" xml:space="preserve">
-    <value>proxy.oleg-centos.edc.renci.org</value>
-  </data>
-  <data name="PROXY_PORT" xml:space="preserve">
-    <value>8123</value>
+    <value>2203</value>
   </data>
   <data name="RSA_KEY_WITHOUT_PASS" xml:space="preserve">
     <value>-----BEGIN RSA PRIVATE KEY-----
@@ -237,6 +252,18 @@ hS4PqlLbuSMLiSIaPSZM6Huc4kb5lqCaxg/SBlXTCX17Z/8TFoqV/wCJz17XnkH6
 7k8EpAG0h5StLUhY1HHvynVz2/qyMvZa/bIaaudL2565Z6nDU+iBxed7O1qrbRAH
 Vakr7Sa3K5niCyH5kxdyO1t29l1ksBqpDUrj+vViFuLkd3XIiui8IA==
 -----END RSA PRIVATE KEY-----</value>
+  </data>
+  <data name="SOCKS_PROXY_HOST" xml:space="preserve">
+    <value>localhost</value>
+  </data>
+  <data name="SOCKS_PROXY_PASSWORD" xml:space="preserve">
+    <value>tester</value>
+  </data>
+  <data name="SOCKS_PROXY_PORT" xml:space="preserve">
+    <value>2080</value>
+  </data>
+  <data name="SOCKS_PROXY_USERNAME" xml:space="preserve">
+    <value>tester</value>
   </data>
   <data name="USERNAME" xml:space="preserve">
     <value>tester</value>

@@ -20,7 +20,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestCategory("integration")]
         public void Test_AddForwardedPort_Remote_Hosts_Are_Null()
         {
-            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            using (var client = new SshClient(Resources.HOST, int.Parse(Resources.PORT),  Resources.USERNAME, Resources.PASSWORD))
             {
                 client.Connect();
                 var port1 = new ForwardedPortRemote((string)null, 8080, (string)null, 80);
@@ -35,7 +35,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestCategory("integration")]
         public void Test_AddForwardedPort_Invalid_PortNumber()
         {
-            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            using (var client = new SshClient(Resources.HOST, int.Parse(Resources.PORT),  Resources.USERNAME, Resources.PASSWORD))
             {
                 client.Connect();
                 var port1 = new ForwardedPortRemote("localhost", IPEndPoint.MaxPort + 1, "www.renci.org", IPEndPoint.MaxPort + 1);
@@ -51,7 +51,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestCategory("integration")]
         public void Test_ForwardedPortRemote()
         {
-            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            using (var client = new SshClient(Resources.HOST, int.Parse(Resources.PORT),  Resources.USERNAME, Resources.PASSWORD))
             {
                 #region Example SshClient AddForwardedPort Start Stop ForwardedPortRemote
                 client.Connect();

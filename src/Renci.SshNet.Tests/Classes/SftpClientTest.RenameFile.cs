@@ -16,7 +16,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestCategory("integration")]
         public void Test_Sftp_Rename_File()
         {
-            using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            using (var sftp = new SftpClient(Resources.HOST, int.Parse(Resources.PORT),  Resources.USERNAME, Resources.PASSWORD))
             {
                 sftp.Connect();
 
@@ -48,7 +48,7 @@ namespace Renci.SshNet.Tests.Classes
         [ExpectedException(typeof(ArgumentNullException))]
         public void Test_Sftp_RenameFile_Null()
         {
-            using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            using (var sftp = new SftpClient(Resources.HOST, int.Parse(Resources.PORT),  Resources.USERNAME, Resources.PASSWORD))
             {
                 sftp.Connect();
 

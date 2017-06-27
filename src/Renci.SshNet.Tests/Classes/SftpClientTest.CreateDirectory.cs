@@ -16,7 +16,7 @@ namespace Renci.SshNet.Tests.Classes
         [ExpectedException(typeof(SshConnectionException))]
         public void Test_Sftp_CreateDirectory_Without_Connecting()
         {
-            using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            using (var sftp = new SftpClient(Resources.HOST, int.Parse(Resources.PORT),  Resources.USERNAME, Resources.PASSWORD))
             {
                 sftp.CreateDirectory("test");
             }
@@ -27,7 +27,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestCategory("integration")]
         public void Test_Sftp_CreateDirectory_In_Current_Location()
         {
-            using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            using (var sftp = new SftpClient(Resources.HOST, int.Parse(Resources.PORT),  Resources.USERNAME, Resources.PASSWORD))
             {
                 sftp.Connect();
 
@@ -46,7 +46,7 @@ namespace Renci.SshNet.Tests.Classes
             if (Resources.USERNAME == "root")
                 Assert.Fail("Must not run this test as root!");
 
-            using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            using (var sftp = new SftpClient(Resources.HOST, int.Parse(Resources.PORT),  Resources.USERNAME, Resources.PASSWORD))
             {
                 sftp.Connect();
 
@@ -62,7 +62,7 @@ namespace Renci.SshNet.Tests.Classes
         [ExpectedException(typeof(SftpPathNotFoundException))]
         public void Test_Sftp_CreateDirectory_Invalid_Path()
         {
-            using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            using (var sftp = new SftpClient(Resources.HOST, int.Parse(Resources.PORT),  Resources.USERNAME, Resources.PASSWORD))
             {
                 sftp.Connect();
 
@@ -78,7 +78,7 @@ namespace Renci.SshNet.Tests.Classes
         [ExpectedException(typeof(SshException))]
         public void Test_Sftp_CreateDirectory_Already_Exists()
         {
-            using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            using (var sftp = new SftpClient(Resources.HOST, int.Parse(Resources.PORT),  Resources.USERNAME, Resources.PASSWORD))
             {
                 sftp.Connect();
 
@@ -96,7 +96,7 @@ namespace Renci.SshNet.Tests.Classes
         [ExpectedException(typeof(ArgumentException))]
         public void Test_Sftp_CreateDirectory_Null()
         {
-            using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            using (var sftp = new SftpClient(Resources.HOST, int.Parse(Resources.PORT),  Resources.USERNAME, Resources.PASSWORD))
             {
                 sftp.CreateDirectory(null);
             }

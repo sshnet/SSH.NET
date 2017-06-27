@@ -16,7 +16,7 @@ namespace Renci.SshNet.Tests.Classes
         [ExpectedException(typeof(ArgumentException))]
         public void Test_Sftp_DeleteFile_Null()
         {
-            using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            using (var sftp = new SftpClient(Resources.HOST, int.Parse(Resources.PORT),  Resources.USERNAME, Resources.PASSWORD))
             {
                 sftp.DeleteFile(null);
             }

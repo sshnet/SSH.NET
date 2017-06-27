@@ -15,7 +15,7 @@ namespace Renci.SshNet.Tests.Classes
         [ExpectedException(typeof(SshConnectionException))]
         public void Test_PortForwarding_Local_Without_Connecting()
         {
-            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            using (var client = new SshClient(Resources.HOST, int.Parse(Resources.PORT),  Resources.USERNAME, Resources.PASSWORD))
             {
                 var port1 = new ForwardedPortLocal("localhost", 8084, "www.renci.org", 80);
                 client.AddForwardedPort(port1);
@@ -51,7 +51,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestCategory("integration")]
         public void Test_PortForwarding_Local()
         {
-            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            using (var client = new SshClient(Resources.HOST, int.Parse(Resources.PORT),  Resources.USERNAME, Resources.PASSWORD))
             {
                 client.Connect();
                 var port1 = new ForwardedPortLocal("localhost", 8084, "www.renci.org", 80);

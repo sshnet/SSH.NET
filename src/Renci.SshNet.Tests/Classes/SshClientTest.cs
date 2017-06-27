@@ -127,7 +127,7 @@ namespace Renci.SshNet.Tests.Classes
         [ExpectedException(typeof(SshAuthenticationException))]
         public void Test_Connect_Using_Invalid_Password()
         {
-            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, "invalid password"))
+            using (var client = new SshClient(Resources.HOST, int.Parse(Resources.PORT),  Resources.USERNAME, "invalid password"))
             {
                 client.Connect();
                 client.Disconnect();
@@ -178,7 +178,7 @@ namespace Renci.SshNet.Tests.Classes
         public void Test_Connect_Using_Key_With_Empty_PassPhrase()
         {
             MemoryStream keyFileStream = new MemoryStream(Encoding.ASCII.GetBytes(Resources.RSA_KEY_WITH_PASS));
-            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, new PrivateKeyFile(keyFileStream, null)))
+            using (var client = new SshClient(Resources.HOST, int.Parse(Resources.PORT),  Resources.USERNAME, new PrivateKeyFile(keyFileStream, null)))
             {
                 client.Connect();
                 client.Disconnect();
@@ -191,7 +191,7 @@ namespace Renci.SshNet.Tests.Classes
         public void Test_Connect_Using_DsaKey_Without_PassPhrase()
         {
             MemoryStream keyFileStream = new MemoryStream(Encoding.ASCII.GetBytes(Resources.DSA_KEY_WITHOUT_PASS));
-            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, new PrivateKeyFile(keyFileStream)))
+            using (var client = new SshClient(Resources.HOST, int.Parse(Resources.PORT),  Resources.USERNAME, new PrivateKeyFile(keyFileStream)))
             {
                 client.Connect();
                 client.Disconnect();
@@ -204,7 +204,7 @@ namespace Renci.SshNet.Tests.Classes
         public void Test_Connect_Using_DsaKey_With_PassPhrase()
         {
             MemoryStream keyFileStream = new MemoryStream(Encoding.ASCII.GetBytes(Resources.DSA_KEY_WITH_PASS));
-            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, new PrivateKeyFile(keyFileStream, Resources.PASSWORD)))
+            using (var client = new SshClient(Resources.HOST, int.Parse(Resources.PORT),  Resources.USERNAME, new PrivateKeyFile(keyFileStream, Resources.PASSWORD)))
             {
                 client.Connect();
                 client.Disconnect();
@@ -218,7 +218,7 @@ namespace Renci.SshNet.Tests.Classes
         public void Test_Connect_Using_Invalid_PrivateKey()
         {
             MemoryStream keyFileStream = new MemoryStream(Encoding.ASCII.GetBytes(Resources.INVALID_KEY));
-            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, new PrivateKeyFile(keyFileStream)))
+            using (var client = new SshClient(Resources.HOST, int.Parse(Resources.PORT),  Resources.USERNAME, new PrivateKeyFile(keyFileStream)))
             {
                 client.Connect();
                 client.Disconnect();
@@ -230,7 +230,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestCategory("integration")]
         public void Test_Connect_Using_Multiple_PrivateKeys()
         {
-            using (var client = new SshClient(Resources.HOST, Resources.USERNAME,
+            using (var client = new SshClient(Resources.HOST, int.Parse(Resources.PORT),  Resources.USERNAME,
                 new PrivateKeyFile(new MemoryStream(Encoding.ASCII.GetBytes(Resources.INVALID_KEY))),
                 new PrivateKeyFile(new MemoryStream(Encoding.ASCII.GetBytes(Resources.DSA_KEY_WITH_PASS)), Resources.PASSWORD),
                 new PrivateKeyFile(new MemoryStream(Encoding.ASCII.GetBytes(Resources.RSA_KEY_WITH_PASS)), Resources.PASSWORD),
@@ -248,7 +248,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestCategory("integration")]
         public void Test_Connect_Then_Reconnect()
         {
-            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            using (var client = new SshClient(Resources.HOST, int.Parse(Resources.PORT),  Resources.USERNAME, Resources.PASSWORD))
             {
                 client.Connect();
                 client.Disconnect();
@@ -260,7 +260,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void CreateShellStream1_NeverConnected()
         {
-            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, "invalid password"))
+            using (var client = new SshClient(Resources.HOST, int.Parse(Resources.PORT),  Resources.USERNAME, "invalid password"))
             {
                 const string terminalName = "vt100";
                 const uint columns = 80;
@@ -285,7 +285,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void CreateShellStream2_NeverConnected()
         {
-            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, "invalid password"))
+            using (var client = new SshClient(Resources.HOST, int.Parse(Resources.PORT),  Resources.USERNAME, "invalid password"))
             {
                 const string terminalName = "vt100";
                 const uint columns = 80;
@@ -356,7 +356,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void CreateShell1_NeverConnected()
         {
-            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, "invalid password"))
+            using (var client = new SshClient(Resources.HOST, int.Parse(Resources.PORT),  Resources.USERNAME, "invalid password"))
             {
                 var encoding = Encoding.UTF8;
                 const string input = "INPUT";
@@ -380,7 +380,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void CreateShell2_NeverConnected()
         {
-            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, "invalid password"))
+            using (var client = new SshClient(Resources.HOST, int.Parse(Resources.PORT),  Resources.USERNAME, "invalid password"))
             {
                 var encoding = Encoding.UTF8;
                 const string input = "INPUT";
@@ -419,7 +419,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void CreateShell3_NeverConnected()
         {
-            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, "invalid password"))
+            using (var client = new SshClient(Resources.HOST, int.Parse(Resources.PORT),  Resources.USERNAME, "invalid password"))
             {
                 var encoding = Encoding.UTF8;
                 const string input = "INPUT";
@@ -461,7 +461,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void CreateShell4_NeverConnected()
         {
-            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, "invalid password"))
+            using (var client = new SshClient(Resources.HOST, int.Parse(Resources.PORT),  Resources.USERNAME, "invalid password"))
             {
                 var input = new MemoryStream();
                 var output = new MemoryStream();
@@ -484,7 +484,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void CreateShell5_NeverConnected()
         {
-            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, "invalid password"))
+            using (var client = new SshClient(Resources.HOST, int.Parse(Resources.PORT),  Resources.USERNAME, "invalid password"))
             {
                 var input = new MemoryStream();
                 var output = new MemoryStream();
@@ -521,7 +521,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void CreateShell6_NeverConnected()
         {
-            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, "invalid password"))
+            using (var client = new SshClient(Resources.HOST, int.Parse(Resources.PORT),  Resources.USERNAME, "invalid password"))
             {
                 var input = new MemoryStream();
                 var output = new MemoryStream();
@@ -704,7 +704,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void CreateCommand_CommandText_NeverConnected()
         {
-            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, "invalid password"))
+            using (var client = new SshClient(Resources.HOST, int.Parse(Resources.PORT),  Resources.USERNAME, "invalid password"))
             {
                 try
                 {
@@ -722,7 +722,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void CreateCommand_CommandTextAndEncoding_NeverConnected()
         {
-            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, "invalid password"))
+            using (var client = new SshClient(Resources.HOST, int.Parse(Resources.PORT),  Resources.USERNAME, "invalid password"))
             {
                 try
                 {
@@ -776,7 +776,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void AddForwardedPort_NeverConnected()
         {
-            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, "invalid password"))
+            using (var client = new SshClient(Resources.HOST, int.Parse(Resources.PORT),  Resources.USERNAME, "invalid password"))
             {
                 var port = new ForwardedPortLocal(50, "host", 8080);
 
@@ -895,7 +895,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void RunCommand_CommandText_NeverConnected()
         {
-            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, "invalid password"))
+            using (var client = new SshClient(Resources.HOST, int.Parse(Resources.PORT),  Resources.USERNAME, "invalid password"))
             {
                 try
                 {

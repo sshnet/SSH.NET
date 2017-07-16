@@ -1,5 +1,4 @@
 ﻿using System;
-
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
@@ -1425,6 +1424,9 @@ namespace Renci.SshNet
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         public string[] ReadAllLines(string path, Encoding encoding)
         {
+            // we use the default buffer size for StreamReader - which is 1024 bytes - and the configured buffer size
+            // for the SftpFileStream; may want to revisit this later
+
             var lines = new List<string>();
             using (var stream = new StreamReader(OpenRead(path), encoding))
             {
@@ -1464,6 +1466,9 @@ namespace Renci.SshNet
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         public string ReadAllText(string path, Encoding encoding)
         {
+            // we use the default buffer size for StreamReader - which is 1024 bytes - and the configured buffer size
+            // for the SftpFileStream; may want to revisit this later
+
             using (var stream = new StreamReader(OpenRead(path), encoding))
             {
                 return stream.ReadToEnd();

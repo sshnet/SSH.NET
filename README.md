@@ -5,10 +5,10 @@ SSH.NET is a Secure Shell (SSH) library for .NET, optimized for parallelism.
 [![Version](https://img.shields.io/nuget/vpre/SSH.NET.svg)](https://www.nuget.org/packages/SSH.NET)
 [![Build status](https://ci.appveyor.com/api/projects/status/ih77qu6tap3o92gu/branch/develop?svg=true)](https://ci.appveyor.com/api/projects/status/ih77qu6tap3o92gu/branch/develop)
 
-##Introduction
+## Introduction
 This project was inspired by **Sharp.SSH** library which was ported from java and it seems like was not supported for quite some time. This library is a complete rewrite, without any third party dependencies, using parallelism to achieve the best performance possible.
 
-##Features
+## Features
 * Execution of SSH command using both synchronous and asynchronous methods
 * Return command execution exit status and other information 
 * Provide SFTP functionality for both synchronous and asynchronous operations
@@ -25,7 +25,7 @@ This project was inspired by **Sharp.SSH** library which was ported from java an
 * Supports two-factor or higher authentication
 * Supports SOCKS4, SOCKS5 and HTTP Proxy
 
-##Key Exchange Method
+## Key Exchange Method
 
 **SSH.NET** supports the following key exchange methods:
 * diffie-hellman-group-exchange-sha256
@@ -33,7 +33,7 @@ This project was inspired by **Sharp.SSH** library which was ported from java an
 * diffie-hellman-group14-sha1
 * diffie-hellman-group1-sha1
 
-##Message Authentication Code
+## Message Authentication Code
 
 **SSH.NET** supports the following MAC algorithms:
 * hmac-md5
@@ -47,7 +47,7 @@ This project was inspired by **Sharp.SSH** library which was ported from java an
 * hmac-ripemd160
 * hmac-ripemd160@openssh.com
 
-##Framework Support
+## Framework Support
 **SSH.NET** supports the following target frameworks:
 * .NET Framework 3.5
 * .NET Framework 4.0 (and higher)
@@ -58,7 +58,7 @@ This project was inspired by **Sharp.SSH** library which was ported from java an
 * Windows Phone 8.0
 * Universal Windows Platform 10
 
-##Usage
+## Usage
 Establish an SFTP connection using both password and public-key authentication:
 
 ```cs
@@ -73,7 +73,7 @@ using (var client = new SftpClient(connectionInfo))
 
 ```
 
-##Building SSH.NET
+## Building SSH.NET
 
 Software                          | net35 | net40 | netstandard1.3 | sl4 | sl5 | wp71 | wp8 | uap10.0 |
 --------------------------------- | :---: | :---: | :------------: | :-: | :-: | :--: | :-: | :-----: |

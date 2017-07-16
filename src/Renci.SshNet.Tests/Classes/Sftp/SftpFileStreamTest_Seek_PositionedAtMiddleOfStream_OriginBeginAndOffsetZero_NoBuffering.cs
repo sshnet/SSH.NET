@@ -7,8 +7,8 @@ using Renci.SshNet.Sftp;
 namespace Renci.SshNet.Tests.Classes.Sftp
 {
     [TestClass]
-    [Ignore]
-    public class SftpFileStreamTest_Seek_PositionedAtMiddleOfStream_OriginBeginAndOffsetZero_WithinReadBuffer : SftpFileStreamTestBase
+    //[Ignore]
+    public class SftpFileStreamTest_Seek_PositionedAtMiddleOfStream_OriginBeginAndOffsetZero_NoBuffering : SftpFileStreamTestBase
     {
         private Random _random;
         private string _path;
@@ -35,8 +35,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             _readBufferSize = 20;
             _writeBufferSize = (uint) _random.Next(5, 1000);
             _handle = GenerateRandom(_random.Next(1, 10), _random);
-            _buffer = new byte[_readBufferSize - 5];
-            _serverData = GenerateRandom((int) _readBufferSize, _random);
+            _buffer = new byte[_readBufferSize];
+            _serverData = GenerateRandom(_buffer.Length, _random);
         }
 
         protected override void SetupMocks()
@@ -93,18 +93,30 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         }
 
         [TestMethod]
-        public void ReadUpToReadBufferSizeShouldReturnBytesFromReadBuffer()
+        public void IsOpenOnSftpSessionShouldHaveBeenInvokedTwice()
+        {
+            SftpSessionMock.Verify(p => p.IsOpen, Times.Exactly(2));
+        }
+
+        [TestMethod]
+        public void ReadShouldReturnReadBytesFromServer()
         {
             SftpSessionMock.InSequence(MockSequence)
                            .Setup(p => p.IsOpen)
                            .Returns(true);
+            SftpSessionMock.InSequence(MockSequence)
+                           .Setup(p => p.RequestRead(_handle, 0UL, _readBufferSize))
+                           .Returns(new byte[] { 0x05, 0x04 });
 
-            var buffer = new byte[_readBufferSize];
+            var buffer = new byte[1];
 
             var bytesRead = _target.Read(buffer, 0, buffer.Length);
 
             Assert.AreEqual(buffer.Length, bytesRead);
-            Assert.IsTrue(_serverData.IsEqualTo(buffer));
+            Assert.AreEqual(0x05, buffer[0]);
+
+            SftpSessionMock.Verify(p => p.IsOpen, Times.Exactly(3));
+            SftpSessionMock.Verify(p => p.RequestRead(_handle, 0UL, _readBufferSize), Times.Exactly(2));
         }
     }
 }

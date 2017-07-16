@@ -7,7 +7,7 @@ using Renci.SshNet.Sftp;
 namespace Renci.SshNet.Tests.Classes.Sftp
 {
     [TestClass]
-    public class SftpFileStreamTest_Seek_PositionedAtBeginningOfStream_OriginBeginAndOffsetZero : SftpFileStreamTestBase
+    public class SftpFileStreamTest_Seek_PositionedAtBeginningOfStream_OriginBeginAndOffsetNegative : SftpFileStreamTestBase
     {
         private Random _random;
         private string _path;
@@ -18,7 +18,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         private uint _writeBufferSize;
         private byte[] _handle;
         private SftpFileStream _target;
-        private long _actual;
+        private int _offset;
+        private EndOfStreamException _actualException;
 
         protected override void SetupData()
         {
@@ -32,6 +33,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             _readBufferSize = (uint)_random.Next(5, 1000);
             _writeBufferSize = (uint)_random.Next(5, 1000);
             _handle = GenerateRandom(_random.Next(1, 10), _random);
+            _offset = _random.Next(int.MinValue, -1);
         }
 
         protected override void SetupMocks()
@@ -57,13 +59,23 @@ namespace Renci.SshNet.Tests.Classes.Sftp
 
         protected override void Act()
         {
-            _actual = _target.Seek(0L, SeekOrigin.Begin);
+            try
+            {
+                _target.Seek(_offset, SeekOrigin.Begin);
+                Assert.Fail();
+            }
+            catch (EndOfStreamException ex)
+            {
+                _actualException = ex;
+            }
         }
 
         [TestMethod]
-        public void SeekShouldHaveReturnedZero()
+        public void SeekShouldHaveThrownEndOfStreamException()
         {
-            Assert.AreEqual(0L, _actual);
+            Assert.IsNotNull(_actualException);
+            Assert.IsNull(_actualException.InnerException);
+            Assert.AreEqual("Attempted to read past the end of the stream.", _actualException.Message);
         }
 
         [TestMethod]

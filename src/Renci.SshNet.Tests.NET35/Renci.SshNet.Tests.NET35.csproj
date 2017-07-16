@@ -1202,8 +1202,29 @@
     <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_ReadByte_ReadMode_NoDataInWriteBufferAndNoDataInReadBuffer_LessDataThanReadBufferSizeAvailable.cs">
       <Link>Classes\Sftp\SftpFileStreamTest_ReadByte_ReadMode_NoDataInWriteBufferAndNoDataInReadBuffer_LessDataThanReadBufferSizeAvailable.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Read_ReadMode_NoDataInReaderBufferAndReadMoreBytesThanCount.cs">
-      <Link>Classes\Sftp\SftpFileStreamTest_Read_ReadMode_NoDataInReaderBufferAndReadMoreBytesThanCount.cs</Link>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Read_ReadMode_NoDataInReaderBufferAndReadLessBytesFromServerThanCountAndEqualToBufferSize.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Read_ReadMode_NoDataInReaderBufferAndReadLessBytesFromServerThanCountAndEqualToBufferSize.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Read_ReadMode_NoDataInReaderBufferAndReadLessBytesFromServerThanCountAndLessThanBufferSize.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Read_ReadMode_NoDataInReaderBufferAndReadLessBytesFromServerThanCountAndLessThanBufferSize.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Read_ReadMode_NoDataInReaderBufferAndReadMoreBytesFromServerThanCount.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Read_ReadMode_NoDataInReaderBufferAndReadMoreBytesFromServerThanCount.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Seek_PositionedAtBeginningOfStream_OriginBeginAndOffsetNegative.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Seek_PositionedAtBeginningOfStream_OriginBeginAndOffsetNegative.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Seek_PositionedAtBeginningOfStream_OriginBeginAndOffsetPositive.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Seek_PositionedAtBeginningOfStream_OriginBeginAndOffsetPositive.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Seek_PositionedAtBeginningOfStream_OriginBeginAndOffsetZero.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Seek_PositionedAtBeginningOfStream_OriginBeginAndOffsetZero.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Seek_PositionedAtMiddleOfStream_OriginBeginAndOffsetZero_NoBuffering.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Seek_PositionedAtMiddleOfStream_OriginBeginAndOffsetZero_NoBuffering.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Seek_PositionedAtMiddleOfStream_OriginBeginAndOffsetZero_ReadBuffer.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Seek_PositionedAtMiddleOfStream_OriginBeginAndOffsetZero_ReadBuffer.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_SetLength_Closed.cs">
       <Link>Classes\Sftp\SftpFileStreamTest_SetLength_Closed.cs</Link>
@@ -1222,6 +1243,9 @@
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_SetLength_SessionOpen_FIleAccessWrite.cs">
       <Link>Classes\Sftp\SftpFileStreamTest_SetLength_SessionOpen_FIleAccessWrite.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Write_SessionOpen_CountGreatherThanTwoTimesTheWriteBufferSize.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Write_SessionOpen_CountGreatherThanTwoTimesTheWriteBufferSize.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileSystemInformationTest.cs">
       <Link>Classes\Sftp\SftpFileSystemInformationTest.cs</Link>

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Renci.SshNet.Common;
+using System;
 
 namespace Renci.SshNet.Tests.Common
 {
@@ -15,6 +16,13 @@ namespace Renci.SshNet.Tests.Common
                 reportedExceptions += exceptionEvent.Exception.ToString();
 
             return reportedExceptions;
+        }
+
+        public static byte[] Copy(this byte[] buffer)
+        {
+            var copy = new byte[buffer.Length];
+            Buffer.BlockCopy(buffer, 0, copy, 0, buffer.Length);
+            return copy;
         }
     }
 }

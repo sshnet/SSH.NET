@@ -310,6 +310,22 @@ namespace Renci.SshNet.Sftp
         /// <exception cref="IOException">An I/O error occurs. </exception>
         /// <exception cref="NotSupportedException">The stream does not support reading. </exception>
         /// <exception cref="ObjectDisposedException">Methods were called after the stream was closed. </exception>
+        /// <remarks>
+        /// <para>
+        /// This method attempts to read up to <paramref name="count"/> bytes. This either from the buffer, from the
+        /// server (using one or more <c>SSH_FXP_READ</c> requests) or using a combination of both.
+        /// </para>
+        /// <para>
+        /// The read loop is interrupted when either <paramref name="count"/> bytes are read, the server returns zero
+        /// bytes (EOF) or less bytes than the read buffer size.
+        /// </para>
+        /// <para>
+        /// When a server returns less number of bytes than the read buffer size, this <c>may</c> indicate that EOF has
+        /// been reached. A subsequent (<c>SSH_FXP_READ</c>) server request is necessary to make sure EOF has effectively
+        /// been reached.  Breaking out of the read loop avoids reading from the server twice to determine EOF: once in
+        /// the read loop, and once upon the next <see cref="Read"/> or <see cref="ReadByte"/> invocation.
+        /// </para>
+        /// </remarks>
         public override int Read(byte[] buffer, int offset, int count)
         {
             var readLen = 0;
@@ -371,14 +387,25 @@ namespace Renci.SshNet.Sftp
 
                         // write bytes to caller-provided buffer
                         Buffer.BlockCopy(data, 0, buffer, offset, bytesToWriteToCallerBuffer);
-                        // advance offset to start writing bytes into caller-provided buffer
-                        offset += bytesToWriteToCallerBuffer;
-                        // record total number of bytes read into caller-provided buffer
-                        readLen += bytesToWriteToCallerBuffer;
-                        // signal that all caller-requested bytes are read
-                        count -= bytesToWriteToCallerBuffer;
                         // update stream position
                         _position += bytesToWriteToCallerBuffer;
+                        // record total number of bytes read into caller-provided buffer
+                        readLen += bytesToWriteToCallerBuffer;
+
+                        // break out of the read loop when the server returned less than the request number of bytes
+                        // as that *may* indicate that we've reached EOF
+                        //
+                        // doing this avoids reading from server twice to determine EOF: once in the read loop, and
+                        // once upon the next Read or ReadByte invocation by the caller
+                        if (data.Length < _readBufferSize)
+                        {
+                            break;
+                        }
+
+                        // advance offset to start writing bytes into caller-provided buffer
+                        offset += bytesToWriteToCallerBuffer;
+                        // update number of bytes left to read into caller-provided buffer
+                        count -= bytesToWriteToCallerBuffer;
                     }
                     else
                     {
@@ -390,14 +417,14 @@ namespace Renci.SshNet.Sftp
                         Buffer.BlockCopy(GetOrCreateReadBuffer(), _bufferPosition, buffer, offset, bytesAvailableInBuffer);
                         // update position in read buffer
                         _bufferPosition += bytesAvailableInBuffer;
-                        // advance offset to start writing bytes into caller-provided buffer
-                        offset += bytesAvailableInBuffer;
-                        // record total number of bytes read into caller-provided buffer
-                        readLen += bytesAvailableInBuffer;
-                        // update number of bytes left to read
-                        count -= bytesAvailableInBuffer;
                         // update stream position
                         _position += bytesAvailableInBuffer;
+                        // record total number of bytes read into caller-provided buffer
+                        readLen += bytesAvailableInBuffer;
+                        // advance offset to start writing bytes into caller-provided buffer
+                        offset += bytesAvailableInBuffer;
+                        // update number of bytes left to read
+                        count -= bytesAvailableInBuffer;
                     }
                 }
             }

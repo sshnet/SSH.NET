@@ -120,11 +120,19 @@ namespace Renci.SshNet.Channels
         public uint LocalChannelNumber { get; private set; }
 
         /// <summary>
-        /// Gets the maximum size of a packet.
+        /// Gets the maximum size of a data packet that we can receive using the channel.
         /// </summary>
         /// <value>
         /// The maximum size of a packet.
         /// </value>
+        /// <remarks>
+        /// <para>
+        /// This is the maximum size (in bytes) we support for the data (payload) of a
+        /// <c>SSH_MSG_CHANNEL_DATA</c> message we receive.
+        /// </para>
+        /// <para>
+        /// We currently do not enforce this limit.
+        /// </para>
         public uint LocalPacketSize { get; private set; }
 
         /// <summary>

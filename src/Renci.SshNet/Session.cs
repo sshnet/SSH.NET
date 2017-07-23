@@ -49,7 +49,10 @@ namespace Renci.SshNet
         /// <summary>
         /// Specifies maximum packet size defined by the protocol.
         /// </summary>
-        private const int MaximumSshPacketSize = LocalChannelDataPacketSize + 3000;
+        /// <value>
+        /// 35000.
+        /// </value>
+        private const int MaximumSshPacketSize = 35000;
 
         /// <summary>
         /// Holds the initial local window size for the channels.
@@ -65,6 +68,15 @@ namespace Renci.SshNet
         /// <value>
         /// 64 KB.
         /// </value>
+        /// <remarks>
+        /// <para>
+        /// This is the maximum size (in bytes) we support for the data (payload) of a
+        /// <c>SSH_MSG_CHANNEL_DATA</c> message we receive.
+        /// </para>
+        /// <para>
+        /// We currently do not enforce this limit.
+        /// </para>
+        /// </remarks>
         private const int LocalChannelDataPacketSize = 1024*64;
 
 #if FEATURE_REGEX_COMPILE

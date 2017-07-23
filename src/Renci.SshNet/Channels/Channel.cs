@@ -133,6 +133,7 @@ namespace Renci.SshNet.Channels
         /// <para>
         /// We currently do not enforce this limit.
         /// </para>
+        /// </remarks>
         public uint LocalPacketSize { get; private set; }
 
         /// <summary>

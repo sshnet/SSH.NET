@@ -209,8 +209,7 @@ namespace Renci.SshNet.Common
         /// <returns>uint16 read</returns>
         protected ushort ReadUInt16()
         {
-            var data = ReadBytes(2);
-            return (ushort)(data[0] << 8 | data[1]);
+            return Pack.BigEndianToUInt16(ReadBytes(2));
         }
 
         /// <summary>
@@ -219,8 +218,7 @@ namespace Renci.SshNet.Common
         /// <returns>uint32 read</returns>
         protected uint ReadUInt32()
         {
-            var data = ReadBytes(4);
-            return (uint)(data[0] << 24 | data[1] << 16 | data[2] << 8 | data[3]);
+            return Pack.BigEndianToUInt32(ReadBytes(4));
         }
 
         /// <summary>
@@ -229,8 +227,7 @@ namespace Renci.SshNet.Common
         /// <returns>uint64 read</returns>
         protected ulong ReadUInt64()
         {
-            var data = ReadBytes(8);
-            return ((ulong)data[0] << 56 | (ulong)data[1] << 48 | (ulong)data[2] << 40 | (ulong)data[3] << 32 | (ulong)data[4] << 24 | (ulong)data[5] << 16 | (ulong)data[6] << 8 | data[7]);
+            return Pack.BigEndianToUInt64(ReadBytes(8));
         }
 
         /// <summary>

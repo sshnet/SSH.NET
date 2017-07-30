@@ -77,9 +77,12 @@ namespace Renci.SshNet
         /// </para>
         /// <para>
         /// For read operations, this controls the size of the payload which
-        /// is requested from the peer in each SSH_FXP_READ message. The peer
-        /// will send the requested number of bytes in one or more SSH_FXP_DATA
-        /// messages. To optimize the size of the SSH packets sent by the peer,
+        /// is requested from the peer in a SSH_FXP_READ message. The peer
+        /// will send the requested number of bytes in a SSH_FXP_DATA message,
+        /// possibly split over multiple SSH_MSG_CHANNEL_DATA messages.
+        /// </para>
+        /// <para>
+        /// To optimize the size of the SSH packets sent by the peer,
         /// the actual requested size will take into account the size of the
         /// SSH_FXP_DATA protocol fields.
         /// </para>

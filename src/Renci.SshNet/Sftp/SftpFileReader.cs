@@ -129,18 +129,19 @@ namespace Renci.SshNet.Sftp
                 }
             }
 
-            // when the server returned less bytes than requested (for the previous chunk)
-            // we'll synchronously request the remaining data
+            // When the server returned less bytes than requested (for the previous chunk)
+            // we'll synchronously request the remaining data.
             //
-            // due to the optimization above, we'll only get here in one of the following cases:
+            // Due to the optimization above, we'll only get here in one of the following cases:
             // - an EOF situation for files for which we were unable to obtain the file size
             // - fewer bytes that requested were returned
             // 
-            // according to the SSH specification, this last case should never happen for normal
-            // disk files (but can happen for device files).
+            // According to the SSH specification, this last case should never happen for normal
+            // disk files (but can happen for device files). In practice, OpenSSH - for example -
+            // returns less bytes than requested when requesting more than 64 KB.
             //
             // Important:
-            // to avoid a deadlock, this read must be done outside of the read lock
+            // To avoid a deadlock, this read must be done outside of the read lock
 
             var bytesToCatchUp = nextChunk.Offset - _offset;
 

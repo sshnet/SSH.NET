@@ -1,19 +1,9 @@
 ﻿using Renci.SshNet.Common;
-using System;
 
 namespace Renci.SshNet.Sftp.Responses
 {
-    internal abstract class ExtendedReplyInfo : SshData
+    internal abstract class ExtendedReplyInfo
     {
-        protected override void LoadData()
-        {
-            //  skip response id
-            ReadUInt32();
-        }
-
-        protected override void SaveData()
-        {
-            throw new NotImplementedException();
-        }
+        public abstract void LoadData(SshDataStream stream);
     }
 }

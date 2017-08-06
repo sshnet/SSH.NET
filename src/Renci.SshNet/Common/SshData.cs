@@ -45,10 +45,6 @@ namespace Renci.SshNet.Common
             }
         }
 
-        private byte[] _loadedData;
-        private int _offset;
-        private int _count;
-
         /// <summary>
         /// Gets the size of the message in bytes.
         /// </summary>
@@ -61,9 +57,11 @@ namespace Renci.SshNet.Common
         }
 
         /// <summary>
-        /// Gets data bytes array
+        /// Gets data bytes array.
         /// </summary>
-        /// <returns>Byte array representation of data structure.</returns>
+        /// <returns>
+        /// A <see cref="Byte"/> array representation of data structure.
+        /// </returns>
         public byte[] GetBytes()
         {
             var messageLength = BufferCapacity;
@@ -81,13 +79,6 @@ namespace Renci.SshNet.Common
         {
             _stream = stream;
             SaveData();
-        }
-
-        internal T OfType<T>() where T : SshData, new()
-        {
-            var result = new T();
-            result.Load(_loadedData, _offset, _count);
-            return result;
         }
 
         /// <summary>
@@ -120,7 +111,7 @@ namespace Renci.SshNet.Common
 
         private void LoadInternal(byte[] value, int offset, int count)
         {
-            LoadBytes(value, offset, count);
+            _stream = new SshDataStream(value, offset, count);
             LoadData();
         }
 
@@ -133,21 +124,6 @@ namespace Renci.SshNet.Common
         /// Called when type specific data need to be saved.
         /// </summary>
         protected abstract void SaveData();
-
-        /// <summary>
-        /// Loads data bytes into internal buffer.
-        /// </summary>
-        /// <param name="bytes">The bytes.</param>
-        /// <param name="offset">The zero-based offset in <paramref name="bytes"/> at which to begin reading SSH data.</param>
-        /// <param name="count">The number of bytes to load.</param>
-        private void LoadBytes(byte[] bytes, int offset, int count)
-        {
-            _loadedData = bytes;
-            _offset = offset;
-            _count = count;
-
-            _stream = new SshDataStream(bytes, _offset, count);
-        }
 
         /// <summary>
         /// Reads all data left in internal buffer at current position.

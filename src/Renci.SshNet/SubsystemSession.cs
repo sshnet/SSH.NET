@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Globalization;
-using System.Text;
 using System.Threading;
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Channels;
@@ -73,31 +72,22 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Gets the character encoding to use.
-        /// </summary>
-        protected Encoding Encoding { get; private set; }
-
-        /// <summary>
         /// Initializes a new instance of the SubsystemSession class.
         /// </summary>
         /// <param name="session">The session.</param>
         /// <param name="subsystemName">Name of the subsystem.</param>
         /// <param name="operationTimeout">The number of milliseconds to wait for a given operation to complete, or -1 to wait indefinitely.</param>
-        /// <param name="encoding">The character encoding to use.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="session" /> or <paramref name="subsystemName" /> or <paramref name="encoding"/> is <c>null</c>.</exception>
-        protected SubsystemSession(ISession session, string subsystemName, int operationTimeout, Encoding encoding)
+        /// <exception cref="ArgumentNullException"><paramref name="session" /> or <paramref name="subsystemName" /> is <c>null</c>.</exception>
+        protected SubsystemSession(ISession session, string subsystemName, int operationTimeout)
         {
             if (session == null)
                 throw new ArgumentNullException("session");
             if (subsystemName == null)
                 throw new ArgumentNullException("subsystemName");
-            if (encoding == null)
-                throw new ArgumentNullException("encoding");
 
             _session = session;
             _subsystemName = subsystemName;
             OperationTimeout = operationTimeout;
-            Encoding = encoding;
         }
 
         /// <summary>

@@ -343,6 +343,7 @@
     <Compile Include="Classes\SftpClientTest_Dispose_Disconnected.cs" />
     <Compile Include="Classes\SftpClientTest_Dispose_Disposed.cs" />
     <Compile Include="Classes\SftpClientTest_Finalize_Connected.cs" />
+    <Compile Include="Classes\Sftp\SftpDataResponseBuilder.cs" />
     <Compile Include="Classes\Sftp\SftpFileReaderTestBase.cs" />
     <Compile Include="Classes\Sftp\SftpFileReaderTest_DisposeShouldUnblockReadAndReadAhead.cs" />
     <Compile Include="Classes\Sftp\SftpFileReaderTest_LastChunkBeforeEofIsComplete.cs" />
@@ -453,8 +454,19 @@
     <Compile Include="Classes\Sftp\SftpFileStreamTest_Ctor_FileModeAppend_FileAccessReadWrite.cs" />
     <Compile Include="Classes\Sftp\SftpFileStreamTest_Ctor_FileModeAppend_FileAccessWrite.cs" />
     <Compile Include="Classes\Sftp\SftpFileTest.cs" />
+    <Compile Include="Classes\Sftp\SftpHandleResponseBuilder.cs" />
+    <Compile Include="Classes\Sftp\SftpInitRequestBuilder.cs" />
+    <Compile Include="Classes\Sftp\SftpNameResponseBuilder.cs" />
+    <Compile Include="Classes\Sftp\SftpOpenRequestBuilder.cs" />
+    <Compile Include="Classes\Sftp\SftpReadRequestBuilder.cs" />
+    <Compile Include="Classes\Sftp\SftpRealPathRequestBuilder.cs" />
     <Compile Include="Classes\Sftp\SftpSessionTest_Connected_RequestRead.cs" />
     <Compile Include="Classes\Sftp\SftpSessionTest_Connected_RequestStatVfs.cs" />
+    <Compile Include="Classes\Sftp\SftpSessionTest_DataReceived_MultipleSftpMessagesInSingleSshDataMessage.cs" />
+    <Compile Include="Classes\Sftp\SftpSessionTest_DataReceived_MultipleSftpMessagesSplitOverMultipleSshDataMessages.cs" />
+    <Compile Include="Classes\Sftp\SftpSessionTest_DataReceived_SingleSftpMessageInSshDataMessage.cs" />
+    <Compile Include="Classes\Sftp\SftpStatVfsRequestBuilder.cs" />
+    <Compile Include="Classes\Sftp\SftpStatVfsResponseBuilder.cs" />
     <Compile Include="Classes\Sftp\SftpVersionResponseBuilder.cs" />
     <Compile Include="Classes\ShellTestTest.cs" />
     <Compile Include="Classes\ShellStreamTest.cs" />

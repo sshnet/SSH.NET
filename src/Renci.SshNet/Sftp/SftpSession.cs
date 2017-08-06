@@ -11,14 +11,20 @@ namespace Renci.SshNet.Sftp
 {
     internal class SftpSession : SubsystemSession, ISftpSession
     {
-        private const int MaximumSupportedVersion = 3;
+        internal const int MaximumSupportedVersion = 3;
         private const int MinimumSupportedVersion = 0;
 
         private readonly Dictionary<uint, SftpRequest> _requests = new Dictionary<uint, SftpRequest>();
+        private readonly ISftpResponseFactory _sftpMessageFactory;
         //FIXME: obtain from SftpClient!
         private readonly List<byte> _data = new List<byte>(32 * 1024);
         private EventWaitHandle _sftpVersionConfirmed = new AutoResetEvent(false);
         private IDictionary<string, string> _supportedExtensions;
+
+        /// <summary>
+        /// Gets the character encoding to use.
+        /// </summary>
+        protected Encoding Encoding { get; private set; }
 
         /// <summary>
         /// Gets the remote working directory.
@@ -49,9 +55,11 @@ namespace Renci.SshNet.Sftp
             }
         }
 
-        public SftpSession(ISession session, int operationTimeout, Encoding encoding)
-            : base(session, "sftp", operationTimeout, encoding)
+        public SftpSession(ISession session, int operationTimeout, Encoding encoding, ISftpResponseFactory sftpMessageFactory)
+            : base(session, "sftp", operationTimeout)
         {
+            Encoding = encoding;
+            _sftpMessageFactory = sftpMessageFactory;
         }
 
         /// <summary>
@@ -263,7 +271,7 @@ namespace Renci.SshNet.Sftp
                 // remove loaded data and bytes for length from _data holder
                 if (_data.Count == packetTotalLength)
                 {
-                    // the only buffered data is the data we're processing 
+                    // the only buffered data is the data we're processing
                     _data.Clear();
                 }
                 else
@@ -282,8 +290,10 @@ namespace Renci.SshNet.Sftp
 
         private bool TryLoadSftpMessage(byte[] packetData, int offset, int count)
         {
-            //  Load SFTP Message and handle it
-            var response = SftpMessage.Load(ProtocolVersion, packetData, offset, count, Encoding);
+            // Create SFTP message
+            var response = _sftpMessageFactory.Create(ProtocolVersion, packetData[offset], Encoding);
+            // Load message data into it
+            response.Load(packetData, offset + 1, count - 1);
 
             try
             {
@@ -1513,6 +1523,8 @@ namespace Renci.SshNet.Sftp
             // bytes 6 to 9: response id
             // bytes 10 to 13: length of payload‏
             //
+            // WinSCP uses a payload length of 32755 bytes
+            //
             // most ssh servers limit the size of the payload of a SSH_MSG_CHANNEL_DATA
             // response to 16 KB; if we requested 16 KB of data, then the SSH_FXP_DATA
             // payload of the SSH_MSG_CHANNEL_DATA message would be too big (16 KB + 13 bytes), and
@@ -1544,6 +1556,10 @@ namespace Renci.SshNet.Sftp
             // <handle>
             // 14-21: offset
             // 22-25: data length
+
+            // Putty uses data length of 4096 bytes
+            // WinSCP uses data length of 32739 bytes (total 32768 bytes; 32739 + 25 + 4 bytes for handle)
+
             var lengthOfNonDataProtocolFields = 25u + (uint)handle.Length;
             var maximumPacketSize = Channel.RemotePacketSize;
             return Math.Min(bufferSize, maximumPacketSize) - lengthOfNonDataProtocolFields;

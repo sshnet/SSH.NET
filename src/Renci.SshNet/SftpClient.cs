@@ -240,7 +240,7 @@ namespace Renci.SshNet
             : base(connectionInfo, ownsConnectionInfo, serviceFactory)
         {
             _operationTimeout = SshNet.Session.Infinite;
-            BufferSize = 1024 * 32;
+            _bufferSize = 1024 * 32;
         }
 
         #endregion Constructors
@@ -1375,8 +1375,7 @@ namespace Renci.SshNet
         {
             CheckDisposed();
 
-            return new SftpFileStream(_sftpSession, path, FileMode.OpenOrCreate, FileAccess.Write,
-                (int) _bufferSize);
+            return new SftpFileStream(_sftpSession, path, FileMode.OpenOrCreate, FileAccess.Write, (int) _bufferSize);
         }
 
         /// <summary>
@@ -2123,7 +2122,7 @@ namespace Renci.SshNet
         {
             base.OnConnected();
 
-            _sftpSession = ServiceFactory.CreateSftpSession(Session, _operationTimeout, ConnectionInfo.Encoding);
+            _sftpSession = ServiceFactory.CreateSftpSession(Session, _operationTimeout, ConnectionInfo.Encoding, ServiceFactory.CreateSftpMessageFactory());
             _sftpSession.Connect();
         }
 

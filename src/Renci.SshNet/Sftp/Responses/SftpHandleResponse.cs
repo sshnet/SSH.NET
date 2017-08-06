@@ -7,7 +7,7 @@
             get { return SftpMessageTypes.Handle; }
         }
 
-        public byte[] Handle { get; private set; }
+        public byte[] Handle { get; set; }
 
         public SftpHandleResponse(uint protocolVersion)
             : base(protocolVersion)
@@ -19,6 +19,13 @@
             base.LoadData();
             
             Handle = ReadBinary();
+        }
+
+        protected override void SaveData()
+        {
+            base.SaveData();
+
+            WriteBinary(Handle, 0, Handle.Length);
         }
     }
 }

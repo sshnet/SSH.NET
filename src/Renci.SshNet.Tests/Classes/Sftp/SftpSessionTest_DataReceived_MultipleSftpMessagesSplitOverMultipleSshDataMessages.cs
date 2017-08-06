@@ -1,24 +1,23 @@
 ﻿using System;
-using System.Linq;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
 using Renci.SshNet.Sftp;
-using Renci.SshNet.Abstractions;
 using Renci.SshNet.Sftp.Responses;
+using Renci.SshNet.Abstractions;
 
 namespace Renci.SshNet.Tests.Classes.Sftp
 {
     [TestClass]
-    public class SftpSessionTest_Connected_RequestRead
+    public class SftpSessionTest_DataReceived_MultipleSftpMessagesSplitOverMultipleSshDataMessages
     {
         #region SftpSession.Connect()
 
         private Mock<ISession> _sessionMock;
         private Mock<IChannelSession> _channelSessionMock;
-        private ISftpResponseFactory _sftpMessageFactory;
+        private Mock<ISftpResponseFactory> _sftpMessageFactoryMock;
         private SftpSession _sftpSession;
         private int _operationTimeout;
         private Encoding _encoding;
@@ -27,16 +26,19 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         private SftpVersionResponse _sftpVersionResponse;
         private byte[] _sftpRealPathRequestBytes;
         private SftpNameResponse _sftpNameResponse;
-
-        #endregion SftpSession.Connect()
-
+        private byte[] _sftpOpenRequestBytes;
+        private byte[] _sftpHandleResponseBytes;
         private byte[] _sftpReadRequestBytes;
         private byte[] _sftpDataResponseBytes;
         private byte[] _handle;
         private uint _offset;
         private uint _length;
         private byte[] _data;
-        private byte[] _actual;
+        private string _path;
+        private byte[] _actualHandle;
+        private byte[] _actualData;
+
+        #endregion SftpSession.Connect()
 
         [TestInitialize]
         public void Setup()
@@ -52,9 +54,9 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             #region SftpSession.Connect()
 
             _operationTimeout = random.Next(100, 500);
-            _protocolVersion = (uint) random.Next(0, 3);
+            _protocolVersion = (uint)random.Next(0, 3);
             _encoding = Encoding.UTF8;
-            _sftpMessageFactory = new SftpResponseFactory();
+
             _sftpInitRequestBytes = new SftpInitRequestBuilder().WithVersion(SftpSession.MaximumSupportedVersion)
                                                                 .Build()
                                                                 .GetBytes();
@@ -69,24 +71,37 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             _sftpNameResponse = new SftpNameResponseBuilder().WithProtocolVersion(_protocolVersion)
                                                              .WithResponseId(1)
                                                              .WithEncoding(_encoding)
-                                                             .WithFile("XYZ", SftpFileAttributes.Empty)
+                                                             .WithFile("/ABC", SftpFileAttributes.Empty)
                                                              .Build();
 
             #endregion SftpSession.Connect()
 
-            _handle = CryptoAbstraction.GenerateRandom(random.Next(1, 10));
+            _path = random.Next().ToString();
+            _handle = CryptoAbstraction.GenerateRandom(4);
             _offset = (uint) random.Next(1, 5);
             _length = (uint) random.Next(30, 50);
-            _data = CryptoAbstraction.GenerateRandom((int) _length);
-            _sftpReadRequestBytes = new SftpReadRequestBuilder().WithProtocolVersion(_protocolVersion)
+            _data = CryptoAbstraction.GenerateRandom(200);
+            _sftpOpenRequestBytes = new SftpOpenRequestBuilder().WithProtocolVersion(_protocolVersion)
                                                                 .WithRequestId(2)
+                                                                .WithFileName(_path)
+                                                                .WithFlags(Flags.Read)
+                                                                .WithEncoding(_encoding)
+                                                                .Build()
+                                                                .GetBytes();
+            _sftpHandleResponseBytes = new SftpHandleResponseBuilder().WithProtocolVersion(_protocolVersion)
+                                                                      .WithResponseId(2)
+                                                                      .WithHandle(_handle)
+                                                                      .Build()
+                                                                      .GetBytes();
+            _sftpReadRequestBytes = new SftpReadRequestBuilder().WithProtocolVersion(_protocolVersion)
+                                                                .WithRequestId(3)
                                                                 .WithHandle(_handle)
                                                                 .WithOffset(_offset)
                                                                 .WithLength(_length)
                                                                 .Build()
                                                                 .GetBytes();
             _sftpDataResponseBytes = new SftpDataResponseBuilder().WithProtocolVersion(_protocolVersion)
-                                                                  .WithResponseId(2)
+                                                                  .WithResponseId(3)
                                                                   .WithData(_data)
                                                                   .Build()
                                                                   .GetBytes();
@@ -96,6 +111,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         {
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);
             _channelSessionMock = new Mock<IChannelSession>(MockBehavior.Strict);
+            _sftpMessageFactoryMock = new Mock<ISftpResponseFactory>(MockBehavior.Strict);
         }
 
         private void SetupMocks()
@@ -114,6 +130,9 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                                                         _channelSessionMock.Raise(c => c.DataReceived += null,
                                                                                   new ChannelDataEventArgs(0, _sftpVersionResponse.GetBytes()));
                                                     });
+            _sftpMessageFactoryMock.InSequence(sequence)
+                                   .Setup(p => p.Create(0U, (byte)SftpMessageTypes.Version, _encoding))
+                                   .Returns(_sftpVersionResponse);
             _channelSessionMock.InSequence(sequence).Setup(p => p.IsOpen).Returns(true);
             _channelSessionMock.InSequence(sequence).Setup(p => p.SendData(_sftpRealPathRequestBytes))
                                                     .Callback(() =>
@@ -121,43 +140,68 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                                                         _channelSessionMock.Raise(c => c.DataReceived += null,
                                                                                   new ChannelDataEventArgs(0, _sftpNameResponse.GetBytes()));
                                                     });
+            _sftpMessageFactoryMock.InSequence(sequence)
+                                   .Setup(p => p.Create(_protocolVersion, (byte)SftpMessageTypes.Name, _encoding))
+                                   .Returns(_sftpNameResponse);
 
             #endregion SftpSession.Connect()
 
             _channelSessionMock.InSequence(sequence).Setup(p => p.IsOpen).Returns(true);
-            _channelSessionMock.InSequence(sequence).Setup(p => p.SendData(_sftpReadRequestBytes))
-                                                    .Callback(() =>
-                    {
-                        _channelSessionMock.Raise(
-                            c => c.DataReceived += null,
-                            new ChannelDataEventArgs(0, _sftpDataResponseBytes.Take(0, 20)));
-                        _channelSessionMock.Raise(
-                            c => c.DataReceived += null,
-                            new ChannelDataEventArgs(0, _sftpDataResponseBytes.Take(20, _sftpDataResponseBytes.Length - 20)));
-                    }
-                );
+            _channelSessionMock.InSequence(sequence).Setup(p => p.SendData(_sftpOpenRequestBytes)).Callback(() =>
+                {
+                    var sshMessagePayload = new byte[_sftpHandleResponseBytes.Length + 40];
+                    Buffer.BlockCopy(_sftpHandleResponseBytes, 0, sshMessagePayload, 0, _sftpHandleResponseBytes.Length);
+                    Buffer.BlockCopy(_sftpDataResponseBytes, 0, sshMessagePayload, _sftpHandleResponseBytes.Length, 40);
+
+                    _channelSessionMock.Raise(c => c.DataReceived += null,
+                                              new ChannelDataEventArgs(0, sshMessagePayload));
+                });
+            _sftpMessageFactoryMock.InSequence(sequence)
+                                   .Setup(p => p.Create(_protocolVersion, (byte) SftpMessageTypes.Handle, _encoding))
+                                   .Returns(new SftpHandleResponse(_protocolVersion));
+            _channelSessionMock.InSequence(sequence).Setup(p => p.IsOpen).Returns(true);
+            _channelSessionMock.InSequence(sequence).Setup(p => p.SendData(_sftpReadRequestBytes)).Callback(() =>
+            {
+                var sshMessagePayload = new byte[_sftpDataResponseBytes.Length - 40];
+                Buffer.BlockCopy(_sftpDataResponseBytes, 40, sshMessagePayload, 0, _sftpDataResponseBytes.Length - 40);
+
+                _channelSessionMock.Raise(c => c.DataReceived += null,
+                                          new ChannelDataEventArgs(0, sshMessagePayload));
+            });
+            _sftpMessageFactoryMock.InSequence(sequence)
+                                   .Setup(p => p.Create(_protocolVersion, (byte) SftpMessageTypes.Data, _encoding))
+                                   .Returns(new SftpDataResponse(_protocolVersion));
         }
 
-        private void Arrange()
+        protected void Arrange()
         {
             SetupData();
             CreateMocks();
             SetupMocks();
 
-            _sftpSession = new SftpSession(_sessionMock.Object, _operationTimeout, _encoding, _sftpMessageFactory);
+            _sftpSession = new SftpSession(_sessionMock.Object, _operationTimeout, _encoding, _sftpMessageFactoryMock.Object);
             _sftpSession.Connect();
         }
 
         protected void Act()
         {
-            _actual = _sftpSession.RequestRead(_handle, _offset, _length);
+            var openAsyncResult = _sftpSession.BeginOpen(_path, Flags.Read, null, null);
+            var readAsyncResult = _sftpSession.BeginRead(_handle, _offset, _length, null, null);
+
+            _actualHandle = _sftpSession.EndOpen(openAsyncResult);
+            _actualData = _sftpSession.EndRead(readAsyncResult);
         }
 
         [TestMethod]
         public void ReturnedValueShouldBeDataOfSftpDataResponse()
         {
-            Assert.IsNotNull(_actual);
-            Assert.IsTrue(_data.SequenceEqual(_actual));
+            Assert.IsTrue(_data.IsEqualTo(_actualData));
+        }
+
+        [TestMethod]
+        public void ReturnedHandleShouldBeHandleOfSftpHandleResponse()
+        {
+            Assert.IsTrue(_handle.IsEqualTo(_actualHandle));
         }
     }
 }

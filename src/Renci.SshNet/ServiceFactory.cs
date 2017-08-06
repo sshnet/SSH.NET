@@ -46,12 +46,13 @@ namespace Renci.SshNet
         /// <param name="session">The <see cref="ISession"/> to create the <see cref="ISftpSession"/> in.</param>
         /// <param name="operationTimeout">The number of milliseconds to wait for an operation to complete, or -1 to wait indefinitely.</param>
         /// <param name="encoding">The encoding.</param>
+        /// <param name="sftpMessageFactory">The factory to use for creating SFTP messages.</param>
         /// <returns>
         /// An <see cref="ISftpSession"/>.
         /// </returns>
-        public ISftpSession CreateSftpSession(ISession session, int operationTimeout, Encoding encoding)
+        public ISftpSession CreateSftpSession(ISession session, int operationTimeout, Encoding encoding, ISftpResponseFactory sftpMessageFactory)
         {
-            return new SftpSession(session, operationTimeout, encoding);
+            return new SftpSession(session, operationTimeout, encoding, sftpMessageFactory);
         }
 
         /// <summary>
@@ -129,6 +130,11 @@ namespace Renci.SshNet
             var handle = sftpSession.EndOpen(openAsyncResult);
 
             return sftpSession.CreateFileReader(handle, sftpSession, chunkSize, maxPendingReads, fileSize);
+        }
+
+        public ISftpResponseFactory CreateSftpMessageFactory()
+        {
+            return new SftpResponseFactory();
         }
     }
 }

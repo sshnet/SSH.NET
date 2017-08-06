@@ -17,7 +17,6 @@ namespace Renci.SshNet.Tests.Classes
         private string _subsystemName;
         private SubsystemSessionStub _subsystemSession;
         private int _operationTimeout;
-        private Encoding _encoding;
         private IList<EventArgs> _disconnectedRegister;
         private IList<ExceptionEventArgs> _errorOccurredRegister;
         private InvalidOperationException _actualException;
@@ -35,7 +34,6 @@ namespace Renci.SshNet.Tests.Classes
             var random = new Random();
             _subsystemName = random.Next().ToString(CultureInfo.InvariantCulture);
             _operationTimeout = 30000;
-            _encoding = Encoding.UTF8;
             _disconnectedRegister = new List<EventArgs>();
             _errorOccurredRegister = new List<ExceptionEventArgs>();
 
@@ -51,8 +49,7 @@ namespace Renci.SshNet.Tests.Classes
             _subsystemSession = new SubsystemSessionStub(
                 _sessionMock.Object,
                 _subsystemName,
-                _operationTimeout,
-                _encoding);
+                _operationTimeout);
             _subsystemSession.Disconnected += (sender, args) => _disconnectedRegister.Add(args);
             _subsystemSession.ErrorOccurred += (sender, args) => _errorOccurredRegister.Add(args);
             _subsystemSession.Connect();

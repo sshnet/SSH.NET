@@ -35,7 +35,7 @@ namespace Renci.SshNet.NetConf
         /// <param name="session">The session.</param>
         /// <param name="operationTimeout">The number of milliseconds to wait for an operation to complete, or -1 to wait indefinitely.</param>
         public NetConfSession(ISession session, int operationTimeout)
-            : base(session, "netconf", operationTimeout, Encoding.UTF8)
+            : base(session, "netconf", operationTimeout)
         {
             ClientCapabilities = new XmlDocument();
             ClientCapabilities.LoadXml("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Renci.SshNet.Sftp;
@@ -11,9 +10,10 @@ namespace Renci.SshNet.Tests.Classes
     {
         private Mock<IServiceFactory> _serviceFactoryMock;
         private Mock<ISession> _sessionMock;
+        private Mock<ISftpResponseFactory> _sftpMessageFactoryMock;
+        private Mock<ISftpSession> _sftpSessionMock;
         private SftpClient _sftpClient;
         private ConnectionInfo _connectionInfo;
-        private Mock<ISftpSession> _sftpSessionMock;
         private int _operationTimeout;
 
         [TestInitialize]
@@ -27,6 +27,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             _serviceFactoryMock = new Mock<IServiceFactory>(MockBehavior.Loose);
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);
+            _sftpMessageFactoryMock = new Mock<ISftpResponseFactory>(MockBehavior.Strict);
             _sftpSessionMock = new Mock<ISftpSession>(MockBehavior.Strict);
 
             _connectionInfo = new ConnectionInfo("host", "user", new NoneAuthenticationMethod("userauth"));
@@ -37,16 +38,14 @@ namespace Renci.SshNet.Tests.Classes
             _serviceFactoryMock.Setup(p => p.CreateSession(_connectionInfo))
                 .Returns(_sessionMock.Object);
             _sessionMock.Setup(p => p.Connect());
-            _serviceFactoryMock.Setup(p => p.CreateSftpSession(_sessionMock.Object, _operationTimeout, _connectionInfo.Encoding))
-                .Returns(_sftpSessionMock.Object);
+            _serviceFactoryMock.Setup(p => p.CreateSftpMessageFactory())
+                               .Returns(_sftpMessageFactoryMock.Object);
+            _serviceFactoryMock.Setup(p => p.CreateSftpSession(_sessionMock.Object, _operationTimeout, _connectionInfo.Encoding, _sftpMessageFactoryMock.Object))
+                               .Returns(_sftpSessionMock.Object);
             _sftpSessionMock.Setup(p => p.Connect());
 
             _sftpClient.Connect();
             _sftpClient = null;
-
-            _serviceFactoryMock.Setup(p => p.CreateSftpSession(_sessionMock.Object, _operationTimeout, _connectionInfo.Encoding))
-                .Returns((ISftpSession)  null);
-            _serviceFactoryMock.ResetCalls();
 
             // we need to dereference all other mocks as they might otherwise hold the target alive
             _sessionMock = null;

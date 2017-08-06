@@ -1016,6 +1016,9 @@
     <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\Responses\SftpVersionResponseTest.cs">
       <Link>Classes\Sftp\Responses\SftpVersionResponseTest.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpDataResponseBuilder.cs">
+      <Link>Classes\Sftp\SftpDataResponseBuilder.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpDownloadAsyncResultTest.cs">
       <Link>Classes\Sftp\SftpDownloadAsyncResultTest.cs</Link>
     </Compile>
@@ -1253,14 +1256,47 @@
     <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileTest.cs">
       <Link>Classes\Sftp\SftpFileTest.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpHandleResponseBuilder.cs">
+      <Link>Classes\Sftp\SftpHandleResponseBuilder.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpInitRequestBuilder.cs">
+      <Link>Classes\Sftp\SftpInitRequestBuilder.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpListDirectoryAsyncResultTest.cs">
       <Link>Classes\Sftp\SftpListDirectoryAsyncResultTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpNameResponseBuilder.cs">
+      <Link>Classes\Sftp\SftpNameResponseBuilder.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpOpenRequestBuilder.cs">
+      <Link>Classes\Sftp\SftpOpenRequestBuilder.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpReadRequestBuilder.cs">
+      <Link>Classes\Sftp\SftpReadRequestBuilder.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpRealPathRequestBuilder.cs">
+      <Link>Classes\Sftp\SftpRealPathRequestBuilder.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpSessionTest_Connected_RequestRead.cs">
       <Link>Classes\Sftp\SftpSessionTest_Connected_RequestRead.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpSessionTest_Connected_RequestStatVfs.cs">
       <Link>Classes\Sftp\SftpSessionTest_Connected_RequestStatVfs.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpSessionTest_DataReceived_MultipleSftpMessagesInSingleSshDataMessage.cs">
+      <Link>Classes\Sftp\SftpSessionTest_DataReceived_MultipleSftpMessagesInSingleSshDataMessage.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpSessionTest_DataReceived_MultipleSftpMessagesSplitOverMultipleSshDataMessages.cs">
+      <Link>Classes\Sftp\SftpSessionTest_DataReceived_MultipleSftpMessagesSplitOverMultipleSshDataMessages.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpSessionTest_DataReceived_SingleSftpMessageInSshDataMessage.cs">
+      <Link>Classes\Sftp\SftpSessionTest_DataReceived_SingleSftpMessageInSshDataMessage.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpStatVfsRequestBuilder.cs">
+      <Link>Classes\Sftp\SftpStatVfsRequestBuilder.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpStatVfsResponseBuilder.cs">
+      <Link>Classes\Sftp\SftpStatVfsResponseBuilder.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpSynchronizeDirectoriesAsyncResultTest.cs">
       <Link>Classes\Sftp\SftpSynchronizeDirectoriesAsyncResultTest.cs</Link>
@@ -1475,7 +1511,7 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" ProjectLinkReference="c45379b9-17b1-4e89-bc2e-6d41726413e8" />
+      <UserProperties ProjectLinkReference="c45379b9-17b1-4e89-bc2e-6d41726413e8" ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -766,6 +766,9 @@
     <Compile Include="..\Renci.SshNet\Sftp\ISftpFileReader.cs">
       <Link>Sftp\ISftpFileReader.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\Sftp\ISftpResponseFactory.cs">
+      <Link>Sftp\ISftpResponseFactory.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\Sftp\ISftpSession.cs">
       <Link>Sftp\ISftpSession.cs</Link>
     </Compile>
@@ -922,6 +925,9 @@
     <Compile Include="..\Renci.SshNet\Sftp\SftpRealPathAsyncResult.cs">
       <Link>Sftp\SftpRealPathAsyncResult.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\Sftp\SftpResponseFactory.cs">
+      <Link>Sftp\SftpResponseFactory.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\Sftp\SftpSession.cs">
       <Link>Sftp\SftpSession.cs</Link>
     </Compile>
@@ -973,7 +979,7 @@
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" ProjectLinkReference="2f5f8c90-0bd1-424f-997c-7bc6280919d1" />
+      <UserProperties ProjectLinkReference="2f5f8c90-0bd1-424f-997c-7bc6280919d1" ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

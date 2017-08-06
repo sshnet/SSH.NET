@@ -417,7 +417,6 @@
     <Compile Include="Sftp\Responses\SftpResponse.cs" />
     <Compile Include="Sftp\Responses\SftpStatusResponse.cs" />
     <Compile Include="Sftp\Responses\SftpVersionResponse.cs" />
-    <Compile Include="Sftp\Responses\StatVfsResponse.cs" />
     <Compile Include="Sftp\SftpCloseAsyncResult.cs" />
     <Compile Include="Sftp\SftpDownloadAsyncResult.cs" />
     <Compile Include="Sftp\SftpFile.cs" />

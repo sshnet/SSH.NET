@@ -10,6 +10,18 @@ namespace Renci.SshNet.Abstractions
 #endif
 
         /// <summary>
+        /// Generates a <see cref="Byte"/> array of the specified length, and fills it with a
+        /// cryptographically strong random sequence of values.
+        /// </summary>
+        /// <param name="length">The length of the array generate.</param>
+        public static byte[] GenerateRandom(int length)
+        {
+            var random = new byte[length];
+            GenerateRandom(random);
+            return random;
+        }
+
+        /// <summary>
         /// Fills an array of bytes with a cryptographically strong random sequence of values.
         /// </summary>
         /// <param name="data">The array to fill with cryptographically strong random bytes.</param>

@@ -172,7 +172,7 @@
     <Compile Include="ServiceFactory.cs" />
     <Compile Include="ServiceFactory.NET.cs" />
     <Compile Include="Sftp\ISftpFileReader.cs" />
-    <Compile Include="Sftp\ISftpMessageFactory.cs" />
+    <Compile Include="Sftp\ISftpResponseFactory.cs" />
     <Compile Include="Sftp\ISftpSession.cs" />
     <Compile Include="Common\SshDataStream.cs" />
     <Compile Include="ExpectAsyncResult.cs" />
@@ -429,7 +429,7 @@
     </Compile>
     <Compile Include="Sftp\SftpListDirectoryAsyncResult.cs" />
     <Compile Include="Sftp\SftpMessage.cs" />
-    <Compile Include="Sftp\SftpMessageFactory.cs" />
+    <Compile Include="Sftp\SftpResponseFactory.cs" />
     <Compile Include="Sftp\SftpMessageTypes.cs">
       <SubType>Code</SubType>
     </Compile>

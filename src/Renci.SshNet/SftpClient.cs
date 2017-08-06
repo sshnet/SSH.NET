@@ -2122,7 +2122,10 @@ namespace Renci.SshNet
         {
             base.OnConnected();
 
-            _sftpSession = ServiceFactory.CreateSftpSession(Session, _operationTimeout, ConnectionInfo.Encoding, ServiceFactory.CreateSftpMessageFactory());
+            _sftpSession = ServiceFactory.CreateSftpSession(Session,
+                                                            _operationTimeout,
+                                                            ConnectionInfo.Encoding,
+                                                            ServiceFactory.CreateSftpResponseFactory());
             _sftpSession.Connect();
         }
 

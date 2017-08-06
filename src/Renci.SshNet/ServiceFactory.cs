@@ -132,7 +132,7 @@ namespace Renci.SshNet
             return sftpSession.CreateFileReader(handle, sftpSession, chunkSize, maxPendingReads, fileSize);
         }
 
-        public ISftpResponseFactory CreateSftpMessageFactory()
+        public ISftpResponseFactory CreateSftpResponseFactory()
         {
             return new SftpResponseFactory();
         }

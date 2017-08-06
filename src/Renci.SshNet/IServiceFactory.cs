@@ -61,6 +61,6 @@ namespace Renci.SshNet
 
         ISftpFileReader CreateSftpFileReader(string fileName, ISftpSession sftpSession, uint bufferSize);
 
-        ISftpResponseFactory CreateSftpMessageFactory();
+        ISftpResponseFactory CreateSftpResponseFactory();
     }
 }

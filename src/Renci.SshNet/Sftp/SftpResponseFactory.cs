@@ -42,7 +42,5 @@ namespace Renci.SshNet.Sftp
 
             return message;
         }
-
-        public 
     }
 }

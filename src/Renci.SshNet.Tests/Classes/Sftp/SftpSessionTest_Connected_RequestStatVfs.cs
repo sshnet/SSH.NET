@@ -16,7 +16,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
 
         private Mock<ISession> _sessionMock;
         private Mock<IChannelSession> _channelSessionMock;
-        private ISftpResponseFactory _sftpMessageFactory;
+        private ISftpResponseFactory _sftpResponseFactory;
         private SftpSession _sftpSession;
         private int _operationTimeout;
         private Encoding _encoding;
@@ -50,7 +50,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             _operationTimeout = random.Next(100, 500);
             _encoding = Encoding.UTF8;
             _protocolVersion = 3;
-            _sftpMessageFactory = new SftpResponseFactory();
+            _sftpResponseFactory = new SftpResponseFactory();
             _sftpInitRequestBytes = new SftpInitRequestBuilder().WithVersion(SftpSession.MaximumSupportedVersion)
                                                                 .Build()
                                                                 .GetBytes();
@@ -132,7 +132,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             CreateMocks();
             SetupMocks();
 
-            _sftpSession = new SftpSession(_sessionMock.Object, _operationTimeout, _encoding, _sftpMessageFactory);
+            _sftpSession = new SftpSession(_sessionMock.Object, _operationTimeout, _encoding, _sftpResponseFactory);
             _sftpSession.Connect();
         }
 

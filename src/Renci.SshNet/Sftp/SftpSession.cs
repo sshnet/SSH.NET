@@ -15,7 +15,7 @@ namespace Renci.SshNet.Sftp
         private const int MinimumSupportedVersion = 0;
 
         private readonly Dictionary<uint, SftpRequest> _requests = new Dictionary<uint, SftpRequest>();
-        private readonly ISftpResponseFactory _sftpMessageFactory;
+        private readonly ISftpResponseFactory _sftpResponseFactory;
         //FIXME: obtain from SftpClient!
         private readonly List<byte> _data = new List<byte>(32 * 1024);
         private EventWaitHandle _sftpVersionConfirmed = new AutoResetEvent(false);
@@ -55,11 +55,11 @@ namespace Renci.SshNet.Sftp
             }
         }
 
-        public SftpSession(ISession session, int operationTimeout, Encoding encoding, ISftpResponseFactory sftpMessageFactory)
+        public SftpSession(ISession session, int operationTimeout, Encoding encoding, ISftpResponseFactory sftpResponseFactory)
             : base(session, "sftp", operationTimeout)
         {
             Encoding = encoding;
-            _sftpMessageFactory = sftpMessageFactory;
+            _sftpResponseFactory = sftpResponseFactory;
         }
 
         /// <summary>
@@ -291,7 +291,7 @@ namespace Renci.SshNet.Sftp
         private bool TryLoadSftpMessage(byte[] packetData, int offset, int count)
         {
             // Create SFTP message
-            var response = _sftpMessageFactory.Create(ProtocolVersion, packetData[offset], Encoding);
+            var response = _sftpResponseFactory.Create(ProtocolVersion, packetData[offset], Encoding);
             // Load message data into it
             response.Load(packetData, offset + 1, count - 1);
 

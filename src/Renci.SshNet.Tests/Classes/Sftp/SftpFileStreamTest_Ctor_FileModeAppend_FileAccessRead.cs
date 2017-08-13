@@ -48,7 +48,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         {
             Assert.IsNotNull(_actualException);
             Assert.IsNull(_actualException.InnerException);
-            Assert.AreEqual(string.Format("Combining {0}: {1} with {2}: {3} is invalid.", typeof(FileMode).Name, _fileMode, typeof(FileAccess).Name, _fileAccess), _actualException.Message);
+            Assert.AreEqual(string.Format("{0} mode can be requested only when combined with write-only access.", _fileMode), _actualException.Message);
             Assert.IsNull(_actualException.ParamName);
         }
     }

@@ -202,6 +202,11 @@ namespace Renci.SshNet.Sftp
                     throw new ArgumentOutOfRangeException("access");
             }
 
+            if ((access & FileAccess.Read) != 0 && mode == FileMode.Append)
+            {
+                throw new ArgumentException(string.Format("{0} mode can be requested only when combined with write-only access.", mode.ToString("G")));
+            }
+
             if ((access & FileAccess.Write) == 0)
             {
                 if (mode == FileMode.Create || mode == FileMode.CreateNew || mode == FileMode.Truncate || mode == FileMode.Append)

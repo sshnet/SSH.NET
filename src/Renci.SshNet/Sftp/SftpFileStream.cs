@@ -222,7 +222,7 @@ namespace Renci.SshNet.Sftp
             switch (mode)
             {
                 case FileMode.Append:
-                    flags |= Flags.Append;
+                    flags |= Flags.Append | Flags.CreateNewOrOpen;
                     break;
                 case FileMode.Create:
                     _handle = _session.RequestOpen(path, flags | Flags.Truncate, true);

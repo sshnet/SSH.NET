@@ -602,13 +602,26 @@ namespace Renci.SshNet.Sftp
         }
 
         /// <summary>
-        /// When overridden in a derived class, sets the length of the current stream.
+        /// Sets the length of the current stream.
         /// </summary>
         /// <param name="value">The desired length of the current stream in bytes.</param>
         /// <exception cref="IOException">An I/O error occurs.</exception>
-        /// <exception cref="NotSupportedException">The stream does not support both writing and seeking, such as if the stream is constructed from a pipe or console output.</exception>
+        /// <exception cref="NotSupportedException">The stream does not support both writing and seeking.</exception>
         /// <exception cref="ObjectDisposedException">Methods were called after the stream was closed.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="value"/> must be greater than zero.</exception>
+        /// <remarks>
+        /// <para>
+        /// Buffers are first flushed.
+        /// </para>
+        /// <para>
+        /// If the specified value is less than the current length of the stream, the stream is truncated and - if the
+        /// current position is greater than the new length - the current position is moved to the last byte of the stream.
+        /// </para>
+        /// <para>
+        /// If the given value is greater than the current length of the stream, the stream is expanded and the current
+        /// position remains the same.
+        /// </para>
+        /// </remarks>
         public override void SetLength(long value)
         {
             if (value < 0)
@@ -622,11 +635,23 @@ namespace Renci.SshNet.Sftp
                 if (!CanSeek)
                     throw new NotSupportedException("Seek is not supported.");
 
-                SetupWrite();
+                if (_bufferOwnedByWrite)
+                {
+                    FlushWriteBuffer();
+                }
+                else
+                {
+                    SetupWrite();
+                }
 
                 var attributes = _session.RequestFStat(_handle, false);
                 attributes.Size = value;
                 _session.RequestFSetStat(_handle, attributes);
+
+                if (_position > value)
+                {
+                    _position = value;
+                }
             }
         }
 

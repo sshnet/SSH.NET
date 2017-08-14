@@ -38,7 +38,24 @@ namespace Renci.SshNet.Tests.Classes.Sftp
 
         protected abstract void Act();
 
+        protected byte[] GenerateRandom(int length)
+        {
+            return GenerateRandom(length, new Random());
+        }
+
         protected byte[] GenerateRandom(int length, Random random)
+        {
+            var buffer = new byte[length];
+            random.NextBytes(buffer);
+            return buffer;
+        }
+
+        protected byte[] GenerateRandom(uint length)
+        {
+            return GenerateRandom(length, new Random());
+        }
+
+        protected byte[] GenerateRandom(uint length, Random random)
         {
             var buffer = new byte[length];
             random.NextBytes(buffer);

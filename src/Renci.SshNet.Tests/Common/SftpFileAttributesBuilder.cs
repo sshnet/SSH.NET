@@ -14,6 +14,11 @@ namespace Renci.SshNet.Tests.Common
         private uint? _permissions;
         private IDictionary<string, string> _extensions;
 
+        public SftpFileAttributesBuilder()
+        {
+            _extensions = new Dictionary<string, string>();
+        }
+
         public SftpFileAttributesBuilder WithLastAccessTime(DateTime lastAccessTime)
         {
             _lastAccessTime = lastAccessTime;
@@ -50,9 +55,9 @@ namespace Renci.SshNet.Tests.Common
             return this;
         }
 
-        public SftpFileAttributesBuilder WithExtensions(IDictionary<string, string> extensions)
+        public SftpFileAttributesBuilder WithExtension(string name, string value)
         {
-            _extensions = extensions;
+            _extensions.Add(name, value);
             return this;
         }
 
@@ -79,7 +84,5 @@ namespace Renci.SshNet.Tests.Common
                                           _permissions.Value,
                                           _extensions);
         }
-
-
     }
 }

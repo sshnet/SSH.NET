@@ -444,6 +444,10 @@
     <Compile Include="Classes\Sftp\SftpFileStreamTest_Seek_PositionedAtMiddleOfStream_OriginBeginAndOffsetZero_NoBuffering.cs" />
     <Compile Include="Classes\Sftp\SftpFileStreamTest_Seek_PositionedAtMiddleOfStream_OriginBeginAndOffsetZero_ReadBuffer.cs" />
     <Compile Include="Classes\Sftp\SftpFileStreamTest_SetLength_Closed.cs" />
+    <Compile Include="Classes\Sftp\SftpFileStreamTest_SetLength_DataInReadBuffer_NewLengthGreatherThanPosition.cs" />
+    <Compile Include="Classes\Sftp\SftpFileStreamTest_SetLength_DataInReadBuffer_NewLengthLessThanPosition.cs" />
+    <Compile Include="Classes\Sftp\SftpFileStreamTest_SetLength_DataInWriteBuffer_NewLengthGreatherThanPosition.cs" />
+    <Compile Include="Classes\Sftp\SftpFileStreamTest_SetLength_DataInWriteBuffer_NewLengthLessThanPosition.cs" />
     <Compile Include="Classes\Sftp\SftpFileStreamTest_SetLength_Disposed.cs" />
     <Compile Include="Classes\Sftp\SftpFileStreamTest_SetLength_SessionNotOpen.cs" />
     <Compile Include="Classes\Sftp\SftpFileStreamTest_SetLength_SessionOpen_FIleAccessRead.cs" />
@@ -513,6 +517,7 @@
     <Compile Include="Classes\SubsystemSession_SendData_Disposed.cs" />
     <Compile Include="Classes\SubsystemSession_SendData_NeverConnected.cs" />
     <Compile Include="Common\AsyncSocketListener.cs" />
+    <Compile Include="Common\DictionaryAssert.cs" />
     <Compile Include="Common\Extensions.cs" />
     <Compile Include="Common\HttpProxyStub.cs" />
     <Compile Include="Common\HttpRequest.cs" />

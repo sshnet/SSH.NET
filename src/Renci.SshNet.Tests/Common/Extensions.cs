@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Renci.SshNet.Common;
 using System;
+using Renci.SshNet.Sftp;
 
 namespace Renci.SshNet.Tests.Common
 {
@@ -23,6 +24,38 @@ namespace Renci.SshNet.Tests.Common
             var copy = new byte[buffer.Length];
             Buffer.BlockCopy(buffer, 0, copy, 0, buffer.Length);
             return copy;
+        }
+
+        /// <summary>
+        /// Creates a deep clone of the current instance.
+        /// </summary>
+        /// <returns>
+        /// A deep clone of the current instance.
+        /// </returns>
+        internal static SftpFileAttributes Clone(this SftpFileAttributes value)
+        {
+            Dictionary<string, string> clonedExtensions;
+
+            if (value.Extensions != null)
+            {
+                clonedExtensions = new Dictionary<string, string>(value.Extensions.Count);
+                foreach (var entry in value.Extensions)
+                {
+                    clonedExtensions.Add(entry.Key, entry.Value);
+                }
+            }
+            else
+            {
+                clonedExtensions = null;
+            }
+
+            return new SftpFileAttributes(value.LastAccessTime,
+                                          value.LastWriteTime,
+                                          value.Size,
+                                          value.UserId,
+                                          value.GroupId,
+                                          value.Permissions,
+                                          clonedExtensions);
         }
     }
 }

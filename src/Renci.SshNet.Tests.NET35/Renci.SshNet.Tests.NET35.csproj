@@ -23,6 +23,7 @@
     <DefineConstants>TRACE;DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <LangVersion>5</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -1232,6 +1233,18 @@
     <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_SetLength_Closed.cs">
       <Link>Classes\Sftp\SftpFileStreamTest_SetLength_Closed.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_SetLength_DataInReadBuffer_NewLengthGreatherThanPosition.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_SetLength_DataInReadBuffer_NewLengthGreatherThanPosition.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_SetLength_DataInReadBuffer_NewLengthLessThanPosition.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_SetLength_DataInReadBuffer_NewLengthLessThanPosition.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_SetLength_DataInWriteBuffer_NewLengthGreatherThanPosition.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_SetLength_DataInWriteBuffer_NewLengthGreatherThanPosition.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_SetLength_DataInWriteBuffer_NewLengthLessThanPosition.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_SetLength_DataInWriteBuffer_NewLengthLessThanPosition.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_SetLength_Disposed.cs">
       <Link>Classes\Sftp\SftpFileStreamTest_SetLength_Disposed.cs</Link>
     </Compile>
@@ -1424,6 +1437,9 @@
     <Compile Include="..\Renci.SshNet.Tests\Common\AsyncSocketListener.cs">
       <Link>Common\AsyncSocketListener.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Common\DictionaryAssert.cs">
+      <Link>Common\DictionaryAssert.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Common\Extensions.cs">
       <Link>Common\Extensions.cs</Link>
     </Compile>
@@ -1511,7 +1527,7 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties ProjectLinkReference="c45379b9-17b1-4e89-bc2e-6d41726413e8" ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" />
+      <UserProperties ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" ProjectLinkReference="c45379b9-17b1-4e89-bc2e-6d41726413e8" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

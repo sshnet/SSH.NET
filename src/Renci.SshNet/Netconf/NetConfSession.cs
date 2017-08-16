@@ -33,9 +33,9 @@ namespace Renci.SshNet.NetConf
         /// Initializes a new instance of the <see cref="NetConfSession"/> class.
         /// </summary>
         /// <param name="session">The session.</param>
-        /// <param name="operationTimeout">The operation timeout.</param>
-        public NetConfSession(ISession session, TimeSpan operationTimeout)
-            : base(session, "netconf", operationTimeout, Encoding.UTF8)
+        /// <param name="operationTimeout">The number of milliseconds to wait for an operation to complete, or -1 to wait indefinitely.</param>
+        public NetConfSession(ISession session, int operationTimeout)
+            : base(session, "netconf", operationTimeout)
         {
             ClientCapabilities = new XmlDocument();
             ClientCapabilities.LoadXml("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +

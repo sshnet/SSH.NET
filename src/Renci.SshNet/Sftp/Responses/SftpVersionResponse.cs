@@ -9,9 +9,9 @@ namespace Renci.SshNet.Sftp.Responses
             get { return SftpMessageTypes.Version; }
         }
 
-        public uint Version { get; private set; }
+        public uint Version { get; set; }
 
-        public IDictionary<string, string> Extentions { get; private set; }
+        public IDictionary<string, string> Extentions { get; set; }
 
         protected override void LoadData()
         {

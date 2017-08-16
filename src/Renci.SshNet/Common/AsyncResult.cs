@@ -29,10 +29,12 @@ namespace Renci.SshNet.Common
         private Exception _exception;
 
         /// <summary>
-        /// Gets or sets a value indicating whether EndInvoke has been called on the current AsyncResult.
+        /// Gets or sets a value indicating whether <see cref="EndInvoke()"/> has been called on the current
+        /// <see cref="AsyncResult"/>.
         /// </summary>
         /// <value>
-        /// <c>true</c> if <see cref="EndInvoke()"/> has been called on the current <see cref="AsyncResult"/>; otherwise, <c>false</c>.
+        /// <c>true</c> if <see cref="EndInvoke()"/> has been called on the current <see cref="AsyncResult"/>;
+        /// otherwise, <c>false</c>.
         /// </value>
         public bool EndInvokeCalled { get; private set; }
 
@@ -75,15 +77,15 @@ namespace Renci.SshNet.Common
         /// <summary>
         /// Waits until the asynchronous operation completes, and then returns. 
         /// </summary>
-        public void EndInvoke()
+        internal void EndInvoke()
         {
             // This method assumes that only 1 thread calls EndInvoke for this object
             if (!IsCompleted)
             {
                 // If the operation isn't done, wait for it
                 AsyncWaitHandle.WaitOne();
-                AsyncWaitHandle.Dispose();
                 _asyncWaitHandle = null;  // Allow early GC
+                AsyncWaitHandle.Dispose();
             }
 
             EndInvokeCalled = true;
@@ -150,6 +152,7 @@ namespace Renci.SshNet.Common
         {
             get { return _completedState != StatePending; }
         }
+
         #endregion
     }
 

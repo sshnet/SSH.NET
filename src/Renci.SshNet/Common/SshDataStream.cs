@@ -62,7 +62,7 @@ namespace Renci.SshNet.Common
         /// <param name="value"><see cref="uint"/> data to write.</param>
         public void Write(uint value)
         {
-            var bytes = value.GetBytes();
+            var bytes = Pack.UInt32ToBigEndian(value);
             Write(bytes, 0, bytes.Length);
         }
 
@@ -72,7 +72,7 @@ namespace Renci.SshNet.Common
         /// <param name="value"><see cref="ulong"/> data to write.</param>
         public void Write(ulong value)
         {
-            var bytes = value.GetBytes();
+            var bytes = Pack.UInt64ToBigEndian(value);
             Write(bytes, 0, bytes.Length);
         }
 
@@ -183,7 +183,7 @@ namespace Renci.SshNet.Common
         public uint ReadUInt32()
         {
             var data = ReadBytes(4);
-            return (uint) (data[0] << 24 | data[1] << 16 | data[2] << 8 | data[3]);
+            return Pack.BigEndianToUInt32(data);
         }
 
         /// <summary>
@@ -195,8 +195,7 @@ namespace Renci.SshNet.Common
         public ulong ReadUInt64()
         {
             var data = ReadBytes(8);
-            return ((ulong) data[0] << 56 | (ulong) data[1] << 48 | (ulong) data[2] << 40 | (ulong) data[3] << 32 |
-                    (ulong) data[4] << 24 | (ulong) data[5] << 16 | (ulong) data[6] << 8 | data[7]);
+            return Pack.BigEndianToUInt64(data);
         }
 
         /// <summary>

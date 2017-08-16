@@ -171,8 +171,8 @@ namespace Renci.SshNet.Tests.Classes.Channels
         [TestMethod]
         public void BindShouldHaveFinishedWithoutException()
         {
-            Assert.IsTrue(_channelBindFinishedWaitHandle.WaitOne(0));
             Assert.IsNull(_channelException, _channelException != null ? _channelException.ToString() : null);
+            Assert.IsTrue(_channelBindFinishedWaitHandle.WaitOne(0));
         }
 
         [TestMethod]

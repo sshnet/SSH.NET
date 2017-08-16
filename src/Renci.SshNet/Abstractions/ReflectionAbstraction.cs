@@ -16,7 +16,7 @@ namespace Renci.SshNet.Abstractions
             return type.GetTypeInfo().GetCustomAttributes<T>(inherit);
 #else
             var attributes = type.GetCustomAttributes(typeof(T), inherit);
-            return new List<T>(attributes.Cast<T>());
+            return attributes.Cast<T>();
 #endif
         }
     }

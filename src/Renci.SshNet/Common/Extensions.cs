@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -28,7 +27,13 @@ namespace Renci.SshNet
         {
             if (string.IsNullOrEmpty(value)) return true;
 
-            return value.All(char.IsWhiteSpace);
+            for (var i = 0; i < value.Length; i++)
+            {
+                if (!char.IsWhiteSpace(value[i]))
+                    return false;
+            }
+
+            return true;
         }
 
         internal static byte[] ToArray(this ServiceName serviceName)
@@ -104,70 +109,6 @@ namespace Renci.SshNet
             if (type == null)
                 return null;
             return Activator.CreateInstance(type) as T;
-        }
-
-        /// <summary>
-        /// Returns the specified 16-bit unsigned integer value as an array of bytes.
-        /// </summary>
-        /// <param name="value">The number to convert.</param>
-        /// <returns>An array of bytes with length 2.</returns>
-        internal static byte[] GetBytes(this ushort value)
-        {
-            return new[] {(byte) (value >> 8), (byte) (value & 0xFF)};
-        }
-
-        /// <summary>
-        /// Returns the specified 32-bit unsigned integer value as an array of bytes.
-        /// </summary>
-        /// <param name="value">The number to convert.</param>
-        /// <returns>An array of bytes with length 4.</returns>
-        internal static byte[] GetBytes(this uint value)
-        {
-            var buffer = new byte[4];
-            value.Write(buffer, 0);
-            return buffer;
-        }
-
-        /// <summary>
-        /// Returns the specified 32-bit unsigned integer value as an array of bytes.
-        /// </summary>
-        /// <param name="value">The number to convert.</param>
-        /// <param name="buffer">The array of bytes to write <paramref name="value"/> to.</param>
-        /// <param name="offset">The zero-based offset in <paramref name="buffer"/> at which to begin writing.</param>
-        internal static void Write(this uint value, byte[] buffer, int offset)
-        {
-            buffer[offset++] = (byte) (value >> 24);
-            buffer[offset++] = (byte) (value >> 16);
-            buffer[offset++] = (byte)(value >> 8);
-            buffer[offset] = (byte) (value & 0xFF);
-        }
-
-        /// <summary>
-        /// Returns the specified 64-bit unsigned integer value as an array of bytes.
-        /// </summary>
-        /// <param name="value">The number to convert.</param>
-        /// <returns>An array of bytes with length 8.</returns>
-        internal static byte[] GetBytes(this ulong value)
-        {
-            return new[]
-                {
-                    (byte) (value >> 56), (byte) (value >> 48), (byte) (value >> 40), (byte) (value >> 32),
-                    (byte) (value >> 24), (byte) (value >> 16), (byte) (value >> 8), (byte) (value & 0xFF)
-                };
-        }
-
-        /// <summary>
-        /// Returns the specified 64-bit signed integer value as an array of bytes.
-        /// </summary>
-        /// <param name="value">The number to convert.</param>
-        /// <returns>An array of bytes with length 8.</returns>
-        internal static byte[] GetBytes(this long value)
-        {
-            return new[]
-                {
-                    (byte) (value >> 56), (byte) (value >> 48), (byte) (value >> 40), (byte) (value >> 32),
-                    (byte) (value >> 24), (byte) (value >> 16), (byte) (value >> 8), (byte) (value & 0xFF)
-                };
         }
 
         internal static void ValidatePort(this uint value, string argument)

@@ -157,7 +157,7 @@ namespace Renci.SshNet.Common
         /// <param name="data">UInt32 data to write.</param>
         public void Write(uint data)
         {
-            var bytes = data.GetBytes();
+            var bytes = Pack.UInt32ToBigEndian(data);
             _data.Add(Integer);
             var length = GetLength(bytes.Length);
             WriteBytes(length);

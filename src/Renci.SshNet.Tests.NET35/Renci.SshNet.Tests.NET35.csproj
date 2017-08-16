@@ -23,6 +23,7 @@
     <DefineConstants>TRACE;DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <LangVersion>5</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -40,7 +41,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
-    <Reference Include="Moq">
+    <Reference Include="Moq, Version=4.2.1409.1722, Culture=neutral, PublicKeyToken=69f491c39445e920, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Moq.4.2.1409.1722\lib\net35\Moq.dll</HintPath>
     </Reference>
     <Reference Include="System" />
@@ -76,6 +77,9 @@
     </Compile>
     <Compile Include="..\..\test\Renci.SshNet.Shared.Tests\ForwardedPortStatusTest_Stopping.cs">
       <Link>Classes\ForwardedPortStatusTest_Stopping.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\BaseClientTest_Connected_KeepAlivesNotSentConcurrently.cs">
+      <Link>Classes\BaseClientTest_Connected_KeepAlivesNotSentConcurrently.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Channels\ChannelDirectTcpipTest.cs">
       <Link>Classes\Channels\ChannelDirectTcpipTest.cs</Link>
@@ -839,6 +843,45 @@
     <Compile Include="..\Renci.SshNet.Tests\Classes\SessionTest.HttpProxy.cs">
       <Link>Classes\SessionTest.HttpProxy.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\SessionTest_Connected.cs">
+      <Link>Classes\SessionTest_Connected.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\SessionTest_ConnectedBase.cs">
+      <Link>Classes\SessionTest_ConnectedBase.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\SessionTest_Connected_ConnectionReset.cs">
+      <Link>Classes\SessionTest_Connected_ConnectionReset.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\SessionTest_Connected_Disconnect.cs">
+      <Link>Classes\SessionTest_Connected_Disconnect.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\SessionTest_Connected_GlobalRequestMessageAfterAuthenticationRace.cs">
+      <Link>Classes\SessionTest_Connected_GlobalRequestMessageAfterAuthenticationRace.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\SessionTest_Connected_ServerAndClientDisconnectRace.cs">
+      <Link>Classes\SessionTest_Connected_ServerAndClientDisconnectRace.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\SessionTest_Connected_ServerSendsBadPacket.cs">
+      <Link>Classes\SessionTest_Connected_ServerSendsBadPacket.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\SessionTest_Connected_ServerSendsDisconnectMessage.cs">
+      <Link>Classes\SessionTest_Connected_ServerSendsDisconnectMessage.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\SessionTest_Connected_ServerSendsDisconnectMessageAndShutsDownSocket.cs">
+      <Link>Classes\SessionTest_Connected_ServerSendsDisconnectMessageAndShutsDownSocket.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\SessionTest_Connected_ServerShutsDownSendAfterSendingIncompletePacket.cs">
+      <Link>Classes\SessionTest_Connected_ServerShutsDownSendAfterSendingIncompletePacket.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\SessionTest_Connected_ServerShutsDownSocket.cs">
+      <Link>Classes\SessionTest_Connected_ServerShutsDownSocket.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\SessionTest_NotConnected.cs">
+      <Link>Classes\SessionTest_NotConnected.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\SessionTest_SocketConnected_BadPacketAndDispose.cs">
+      <Link>Classes\SessionTest_SocketConnected_BadPacketAndDispose.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\SftpClientTest.ChangeDirectory.cs">
       <Link>Classes\SftpClientTest.ChangeDirectory.cs</Link>
     </Compile>
@@ -974,11 +1017,59 @@
     <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\Responses\SftpVersionResponseTest.cs">
       <Link>Classes\Sftp\Responses\SftpVersionResponseTest.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpDataResponseBuilder.cs">
+      <Link>Classes\Sftp\SftpDataResponseBuilder.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpDownloadAsyncResultTest.cs">
       <Link>Classes\Sftp\SftpDownloadAsyncResultTest.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileAttributesTest.cs">
       <Link>Classes\Sftp\SftpFileAttributesTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileReaderTestBase.cs">
+      <Link>Classes\Sftp\SftpFileReaderTestBase.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileReaderTest_DisposeShouldUnblockReadAndReadAhead.cs">
+      <Link>Classes\Sftp\SftpFileReaderTest_DisposeShouldUnblockReadAndReadAhead.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileReaderTest_LastChunkBeforeEofIsComplete.cs">
+      <Link>Classes\Sftp\SftpFileReaderTest_LastChunkBeforeEofIsComplete.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileReaderTest_LastChunkBeforeEofIsPartial.cs">
+      <Link>Classes\Sftp\SftpFileReaderTest_LastChunkBeforeEofIsPartial.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileReaderTest_PreviousChunkIsIncompleteAndEofIsNotReached.cs">
+      <Link>Classes\Sftp\SftpFileReaderTest_PreviousChunkIsIncompleteAndEofIsNotReached.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileReaderTest_PreviousChunkIsIncompleteAndEofIsReached.cs">
+      <Link>Classes\Sftp\SftpFileReaderTest_PreviousChunkIsIncompleteAndEofIsReached.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileReaderTest_ReadAheadBeginReadException.cs">
+      <Link>Classes\Sftp\SftpFileReaderTest_ReadAheadBeginReadException.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileReaderTest_ReadAheadEndInvokeException_DiscardsFurtherReadAheads.cs">
+      <Link>Classes\Sftp\SftpFileReaderTest_ReadAheadEndInvokeException_DiscardsFurtherReadAheads.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileReaderTest_ReadAheadEndInvokeException_PreventsFurtherReadAheads.cs">
+      <Link>Classes\Sftp\SftpFileReaderTest_ReadAheadEndInvokeException_PreventsFurtherReadAheads.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileReaderTest_ReadBackBeginReadException.cs">
+      <Link>Classes\Sftp\SftpFileReaderTest_ReadBackBeginReadException.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileReaderTest_ReadBackEndInvokeException.cs">
+      <Link>Classes\Sftp\SftpFileReaderTest_ReadBackEndInvokeException.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileReaderTest_Read_ReadAheadExceptionInWaitOnHandle_ChunkAvailable.cs">
+      <Link>Classes\Sftp\SftpFileReaderTest_Read_ReadAheadExceptionInWaitOnHandle_ChunkAvailable.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileReaderTest_Read_ReadAheadExceptionInWaitOnHandle_NoChunkAvailable.cs">
+      <Link>Classes\Sftp\SftpFileReaderTest_Read_ReadAheadExceptionInWaitOnHandle_NoChunkAvailable.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileReaderTest_Read_ReahAheadExceptionInBeginRead.cs">
+      <Link>Classes\Sftp\SftpFileReaderTest_Read_ReahAheadExceptionInBeginRead.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTestBase.cs">
+      <Link>Classes\Sftp\SftpFileStreamTestBase.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_CanRead_Closed_FileAccessRead.cs">
       <Link>Classes\Sftp\SftpFileStreamTest_CanRead_Closed_FileAccessRead.cs</Link>
@@ -998,15 +1089,6 @@
     <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_CanRead_Disposed_FileAccessWrite.cs">
       <Link>Classes\Sftp\SftpFileStreamTest_CanRead_Disposed_FileAccessWrite.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_CanRead_SessionOpen_FileAccessRead.cs">
-      <Link>Classes\Sftp\SftpFileStreamTest_CanRead_SessionOpen_FileAccessRead.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_CanRead_SessionOpen_FileAccessReadWrite.cs">
-      <Link>Classes\Sftp\SftpFileStreamTest_CanRead_SessionOpen_FileAccessReadWrite.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_CanRead_SessionOpen_FileAccessWrite.cs">
-      <Link>Classes\Sftp\SftpFileStreamTest_CanRead_SessionOpen_FileAccessWrite.cs</Link>
-    </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_CanWrite_Closed_FileAccessRead.cs">
       <Link>Classes\Sftp\SftpFileStreamTest_CanWrite_Closed_FileAccessRead.cs</Link>
     </Compile>
@@ -1025,15 +1107,6 @@
     <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_CanWrite_Disposed_FileAccessWrite.cs">
       <Link>Classes\Sftp\SftpFileStreamTest_CanWrite_Disposed_FileAccessWrite.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_CanWrite_SessionOpen_FileAccessRead.cs">
-      <Link>Classes\Sftp\SftpFileStreamTest_CanWrite_SessionOpen_FileAccessRead.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_CanWrite_SessionOpen_FileAccessReadWrite.cs">
-      <Link>Classes\Sftp\SftpFileStreamTest_CanWrite_SessionOpen_FileAccessReadWrite.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_CanWrite_SessionOpen_FileAccessWrite.cs">
-      <Link>Classes\Sftp\SftpFileStreamTest_CanWrite_SessionOpen_FileAccessWrite.cs</Link>
-    </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Close_Closed.cs">
       <Link>Classes\Sftp\SftpFileStreamTest_Close_Closed.cs</Link>
     </Compile>
@@ -1045,6 +1118,72 @@
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Close_SessionOpen.cs">
       <Link>Classes\Sftp\SftpFileStreamTest_Close_SessionOpen.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Ctor_FileAccessInvalid.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Ctor_FileAccessInvalid.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Ctor_FileModeAppend_FileAccessRead.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Ctor_FileModeAppend_FileAccessRead.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Ctor_FileModeAppend_FileAccessReadWrite.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Ctor_FileModeAppend_FileAccessReadWrite.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Ctor_FileModeAppend_FileAccessWrite.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Ctor_FileModeAppend_FileAccessWrite.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Ctor_FileModeCreateNew_FileAccessRead.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Ctor_FileModeCreateNew_FileAccessRead.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Ctor_FileModeCreateNew_FileAccessReadWrite.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Ctor_FileModeCreateNew_FileAccessReadWrite.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Ctor_FileModeCreateNew_FileAccessWrite.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Ctor_FileModeCreateNew_FileAccessWrite.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Ctor_FileModeCreate_FileAccessRead.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Ctor_FileModeCreate_FileAccessRead.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Ctor_FileModeCreate_FileAccessReadWrite_FileDoesNotExist.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Ctor_FileModeCreate_FileAccessReadWrite_FileDoesNotExist.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Ctor_FileModeCreate_FileAccessReadWrite_FileExists.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Ctor_FileModeCreate_FileAccessReadWrite_FileExists.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Ctor_FileModeCreate_FileAccessWrite_FileDoesNotExist.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Ctor_FileModeCreate_FileAccessWrite_FileDoesNotExist.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Ctor_FileModeCreate_FileAccessWrite_FileExists.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Ctor_FileModeCreate_FileAccessWrite_FileExists.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Ctor_FileModeInvalid.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Ctor_FileModeInvalid.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Ctor_FileModeOpenOrCreate_FileAccessRead.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Ctor_FileModeOpenOrCreate_FileAccessRead.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Ctor_FileModeOpenOrCreate_FileAccessReadWrite.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Ctor_FileModeOpenOrCreate_FileAccessReadWrite.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Ctor_FileModeOpenOrCreate_FileAccessWrite.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Ctor_FileModeOpenOrCreate_FileAccessWrite.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Ctor_FileModeOpen_FileAccessRead.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Ctor_FileModeOpen_FileAccessRead.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Ctor_FileModeOpen_FileAccessReadWrite.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Ctor_FileModeOpen_FileAccessReadWrite.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Ctor_FileModeOpen_FileAccessWrite.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Ctor_FileModeOpen_FileAccessWrite.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Ctor_FileModeTruncate_FileAccessRead.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Ctor_FileModeTruncate_FileAccessRead.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Ctor_FileModeTruncate_FileAccessReadWrite.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Ctor_FileModeTruncate_FileAccessReadWrite.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Ctor_FileModeTruncate_FileAccessWrite.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Ctor_FileModeTruncate_FileAccessWrite.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Dispose_Closed.cs">
       <Link>Classes\Sftp\SftpFileStreamTest_Dispose_Closed.cs</Link>
@@ -1061,8 +1200,68 @@
     <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Finalize_SessionOpen.cs">
       <Link>Classes\Sftp\SftpFileStreamTest_Finalize_SessionOpen.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Flush_ReadMode_DataInBuffer_NotReadFromBuffer.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Flush_ReadMode_DataInBuffer_NotReadFromBuffer.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Flush_ReadMode_DataInBuffer_ReadFromBuffer.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Flush_ReadMode_DataInBuffer_ReadFromBuffer.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Flush_ReadMode_NoDataInBuffer.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Flush_ReadMode_NoDataInBuffer.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Flush_SessionNotOpen.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Flush_SessionNotOpen.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Flush_WriteMode_DataInBuffer.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Flush_WriteMode_DataInBuffer.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Flush_WriteMode_NoDataInBuffer.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Flush_WriteMode_NoDataInBuffer.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_ReadByte_ReadMode_NoDataInWriteBufferAndNoDataInReadBuffer_Eof.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_ReadByte_ReadMode_NoDataInWriteBufferAndNoDataInReadBuffer_Eof.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_ReadByte_ReadMode_NoDataInWriteBufferAndNoDataInReadBuffer_LessDataThanReadBufferSizeAvailable.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_ReadByte_ReadMode_NoDataInWriteBufferAndNoDataInReadBuffer_LessDataThanReadBufferSizeAvailable.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Read_ReadMode_NoDataInReaderBufferAndReadLessBytesFromServerThanCountAndEqualToBufferSize.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Read_ReadMode_NoDataInReaderBufferAndReadLessBytesFromServerThanCountAndEqualToBufferSize.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Read_ReadMode_NoDataInReaderBufferAndReadLessBytesFromServerThanCountAndLessThanBufferSize.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Read_ReadMode_NoDataInReaderBufferAndReadLessBytesFromServerThanCountAndLessThanBufferSize.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Read_ReadMode_NoDataInReaderBufferAndReadMoreBytesFromServerThanCount.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Read_ReadMode_NoDataInReaderBufferAndReadMoreBytesFromServerThanCount.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Seek_PositionedAtBeginningOfStream_OriginBeginAndOffsetNegative.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Seek_PositionedAtBeginningOfStream_OriginBeginAndOffsetNegative.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Seek_PositionedAtBeginningOfStream_OriginBeginAndOffsetPositive.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Seek_PositionedAtBeginningOfStream_OriginBeginAndOffsetPositive.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Seek_PositionedAtBeginningOfStream_OriginBeginAndOffsetZero.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Seek_PositionedAtBeginningOfStream_OriginBeginAndOffsetZero.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Seek_PositionedAtMiddleOfStream_OriginBeginAndOffsetZero_NoBuffering.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Seek_PositionedAtMiddleOfStream_OriginBeginAndOffsetZero_NoBuffering.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Seek_PositionedAtMiddleOfStream_OriginBeginAndOffsetZero_ReadBuffer.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Seek_PositionedAtMiddleOfStream_OriginBeginAndOffsetZero_ReadBuffer.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_SetLength_Closed.cs">
       <Link>Classes\Sftp\SftpFileStreamTest_SetLength_Closed.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_SetLength_DataInReadBuffer_NewLengthGreatherThanPosition.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_SetLength_DataInReadBuffer_NewLengthGreatherThanPosition.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_SetLength_DataInReadBuffer_NewLengthLessThanPosition.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_SetLength_DataInReadBuffer_NewLengthLessThanPosition.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_SetLength_DataInWriteBuffer_NewLengthGreatherThanPosition.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_SetLength_DataInWriteBuffer_NewLengthGreatherThanPosition.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_SetLength_DataInWriteBuffer_NewLengthLessThanPosition.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_SetLength_DataInWriteBuffer_NewLengthLessThanPosition.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_SetLength_Disposed.cs">
       <Link>Classes\Sftp\SftpFileStreamTest_SetLength_Disposed.cs</Link>
@@ -1079,20 +1278,56 @@
     <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_SetLength_SessionOpen_FIleAccessWrite.cs">
       <Link>Classes\Sftp\SftpFileStreamTest_SetLength_SessionOpen_FIleAccessWrite.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Write_SessionOpen_CountGreatherThanTwoTimesTheWriteBufferSize.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Write_SessionOpen_CountGreatherThanTwoTimesTheWriteBufferSize.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileSystemInformationTest.cs">
       <Link>Classes\Sftp\SftpFileSystemInformationTest.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileTest.cs">
       <Link>Classes\Sftp\SftpFileTest.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpHandleResponseBuilder.cs">
+      <Link>Classes\Sftp\SftpHandleResponseBuilder.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpInitRequestBuilder.cs">
+      <Link>Classes\Sftp\SftpInitRequestBuilder.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpListDirectoryAsyncResultTest.cs">
       <Link>Classes\Sftp\SftpListDirectoryAsyncResultTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpNameResponseBuilder.cs">
+      <Link>Classes\Sftp\SftpNameResponseBuilder.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpOpenRequestBuilder.cs">
+      <Link>Classes\Sftp\SftpOpenRequestBuilder.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpReadRequestBuilder.cs">
+      <Link>Classes\Sftp\SftpReadRequestBuilder.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpRealPathRequestBuilder.cs">
+      <Link>Classes\Sftp\SftpRealPathRequestBuilder.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpSessionTest_Connected_RequestRead.cs">
       <Link>Classes\Sftp\SftpSessionTest_Connected_RequestRead.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpSessionTest_Connected_RequestStatVfs.cs">
       <Link>Classes\Sftp\SftpSessionTest_Connected_RequestStatVfs.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpSessionTest_DataReceived_MultipleSftpMessagesInSingleSshDataMessage.cs">
+      <Link>Classes\Sftp\SftpSessionTest_DataReceived_MultipleSftpMessagesInSingleSshDataMessage.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpSessionTest_DataReceived_MultipleSftpMessagesSplitOverMultipleSshDataMessages.cs">
+      <Link>Classes\Sftp\SftpSessionTest_DataReceived_MultipleSftpMessagesSplitOverMultipleSshDataMessages.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpSessionTest_DataReceived_SingleSftpMessageInSshDataMessage.cs">
+      <Link>Classes\Sftp\SftpSessionTest_DataReceived_SingleSftpMessageInSshDataMessage.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpStatVfsRequestBuilder.cs">
+      <Link>Classes\Sftp\SftpStatVfsRequestBuilder.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpStatVfsResponseBuilder.cs">
+      <Link>Classes\Sftp\SftpStatVfsResponseBuilder.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpSynchronizeDirectoriesAsyncResultTest.cs">
       <Link>Classes\Sftp\SftpSynchronizeDirectoriesAsyncResultTest.cs</Link>
@@ -1217,8 +1452,14 @@
     <Compile Include="..\Renci.SshNet.Tests\Classes\SubsystemSession_SendData_NeverConnected.cs">
       <Link>Classes\SubsystemSession_SendData_NeverConnected.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Common\ArrayBuilder.cs">
+      <Link>Common\ArrayBuilder.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Common\AsyncSocketListener.cs">
       <Link>Common\AsyncSocketListener.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Common\DictionaryAssert.cs">
+      <Link>Common\DictionaryAssert.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Common\Extensions.cs">
       <Link>Common\Extensions.cs</Link>
@@ -1228,6 +1469,9 @@
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Common\HttpRequest.cs">
       <Link>Common\HttpRequest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Common\SftpFileAttributesBuilder.cs">
+      <Link>Common\SftpFileAttributesBuilder.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Common\TestBase.cs">
       <Link>Common\TestBase.cs</Link>

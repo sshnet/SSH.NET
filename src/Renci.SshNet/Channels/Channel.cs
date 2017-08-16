@@ -120,11 +120,20 @@ namespace Renci.SshNet.Channels
         public uint LocalChannelNumber { get; private set; }
 
         /// <summary>
-        /// Gets the maximum size of a packet.
+        /// Gets the maximum size of a data packet that we can receive using the channel.
         /// </summary>
         /// <value>
         /// The maximum size of a packet.
         /// </value>
+        /// <remarks>
+        /// <para>
+        /// This is the maximum size (in bytes) we support for the data (payload) of a
+        /// <c>SSH_MSG_CHANNEL_DATA</c> message we receive.
+        /// </para>
+        /// <para>
+        /// We currently do not enforce this limit.
+        /// </para>
+        /// </remarks>
         public uint LocalPacketSize { get; private set; }
 
         /// <summary>
@@ -439,10 +448,10 @@ namespace Renci.SshNet.Channels
         #endregion // Channel virtual methods
 
         /// <summary>
-        /// Raises <see cref="Channel.Exception"/> event.
+        /// Raises <see cref="Exception"/> event.
         /// </summary>
         /// <param name="exception">The exception.</param>
-        protected void RaiseExceptionEvent(Exception exception)
+        private void RaiseExceptionEvent(Exception exception)
         {
             var handlers = Exception;
             if (handlers != null)
@@ -773,7 +782,7 @@ namespace Renci.SshNet.Channels
                 lock (_serverWindowSizeLock)
                 {
                     var serverWindowSize = RemoteWindowSize;
-                    if (serverWindowSize == 0)
+                    if (serverWindowSize == 0U)
                     {
                         // allow us to be signal when remote window size is adjusted
                         _channelServerWindowAdjustWaitHandle.Reset();

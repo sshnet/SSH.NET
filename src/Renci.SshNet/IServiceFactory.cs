@@ -29,12 +29,13 @@ namespace Renci.SshNet
         /// the specified operation timeout and encoding.
         /// </summary>
         /// <param name="session">The <see cref="ISession"/> to create the <see cref="ISftpSession"/> in.</param>
-        /// <param name="operationTimeout">The operation timeout.</param>
+        /// <param name="operationTimeout">The number of milliseconds to wait for an operation to complete, or -1 to wait indefinitely.</param>
         /// <param name="encoding">The encoding.</param>
+        /// <param name="sftpMessageFactory">The factory to use for creating SFTP messages.</param>
         /// <returns>
         /// An <see cref="ISftpSession"/>.
         /// </returns>
-        ISftpSession CreateSftpSession(ISession session, TimeSpan operationTimeout, Encoding encoding);
+        ISftpSession CreateSftpSession(ISession session, int operationTimeout, Encoding encoding, ISftpResponseFactory sftpMessageFactory);
 
         /// <summary>
         /// Create a new <see cref="PipeStream"/>.
@@ -57,5 +58,9 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="serverAlgorithms"/> is <c>null</c>.</exception>
         /// <exception cref="SshConnectionException">No key exchange algorithm is supported by both client and server.</exception>
         IKeyExchange CreateKeyExchange(IDictionary<string, Type> clientAlgorithms, string[] serverAlgorithms);
+
+        ISftpFileReader CreateSftpFileReader(string fileName, ISftpSession sftpSession, uint bufferSize);
+
+        ISftpResponseFactory CreateSftpResponseFactory();
     }
 }

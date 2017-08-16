@@ -13,6 +13,8 @@ namespace Renci.SshNet
     /// </summary>
     public class NetConfClient : BaseClient
     {
+        private int _operationTimeout;
+
         /// <summary>
         /// Holds <see cref="INetConfSession"/> instance that used to communicate to the server
         /// </summary>
@@ -25,7 +27,17 @@ namespace Renci.SshNet
         /// The timeout to wait until an operation completes. The default value is negative
         /// one (-1) milliseconds, which indicates an infinite time-out period.
         /// </value>
-        public TimeSpan OperationTimeout { get; set; }
+        public TimeSpan OperationTimeout {
+            get { return TimeSpan.FromMilliseconds(_operationTimeout); }
+            set
+            {
+                var timeoutInMilliseconds = value.TotalMilliseconds;
+                if (timeoutInMilliseconds < -1d || timeoutInMilliseconds > int.MaxValue)
+                    throw new ArgumentOutOfRangeException("timeout", "The timeout must represent a value between -1 and Int32.MaxValue, inclusive.");
+
+                _operationTimeout = (int) timeoutInMilliseconds;
+            }
+        }
 
         #region Constructors
 
@@ -127,7 +139,7 @@ namespace Renci.SshNet
         internal NetConfClient(ConnectionInfo connectionInfo, bool ownsConnectionInfo, IServiceFactory serviceFactory)
             : base(connectionInfo, ownsConnectionInfo, serviceFactory)
         {
-            OperationTimeout = SshNet.Session.InfiniteTimeSpan;
+            _operationTimeout = SshNet.Session.Infinite;
             AutomaticMessageIdHandling = true;
         }
 
@@ -207,7 +219,7 @@ namespace Renci.SshNet
         {
             base.OnConnected();
 
-            _netConfSession = ServiceFactory.CreateNetConfSession(Session, OperationTimeout);
+            _netConfSession = ServiceFactory.CreateNetConfSession(Session, _operationTimeout);
             _netConfSession.Connect();
         }
 

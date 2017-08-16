@@ -30,7 +30,7 @@ namespace Renci.SshNet
                 var authenticated = noneAuthenticationMethod.Authenticate(session);
                 if (authenticated != AuthenticationResult.Success)
                 {
-                    if (!TryAuthenticate(session, new AuthenticationState(connectionInfo.AuthenticationMethods), noneAuthenticationMethod.AllowedAuthentications.ToList(), ref authenticationException))
+                    if (!TryAuthenticate(session, new AuthenticationState(connectionInfo.AuthenticationMethods), noneAuthenticationMethod.AllowedAuthentications, ref authenticationException))
                     {
                         throw authenticationException;
                     }
@@ -60,8 +60,8 @@ namespace Renci.SshNet
             // we want to try authentication methods in the order in which they were
             // passed in the ctor, not the order in which the SSH server returns
             // the allowed authentication methods
-            var matchingAuthenticationMethods = authenticationState.SupportedAuthenticationMethods.Where(a => allowedAuthenticationMethods.Contains(a.Name)).ToList();
-            if (matchingAuthenticationMethods.Count == 0)
+            var matchingAuthenticationMethods = authenticationState.SupportedAuthenticationMethods.Where(a => allowedAuthenticationMethods.Contains(a.Name)).ToArray();
+            if (matchingAuthenticationMethods.Length == 0)
             {
                 authenticationException = new SshAuthenticationException(string.Format("No suitable authentication method found to complete authentication ({0}).", string.Join(",", allowedAuthenticationMethods.ToArray())));
                 return false;
@@ -108,12 +108,14 @@ namespace Renci.SshNet
             return false;
         }
 
-        private static IEnumerable<IAuthenticationMethod> GetOrderedAuthenticationMethods(AuthenticationState authenticationState, IEnumerable<IAuthenticationMethod> matchingAuthenticationMethods)
+        private static IEnumerable<IAuthenticationMethod> GetOrderedAuthenticationMethods(AuthenticationState authenticationState, IAuthenticationMethod[] matchingAuthenticationMethods)
         {
             var skippedAuthenticationMethods = new List<IAuthenticationMethod>();
 
-            foreach (var authenticationMethod in matchingAuthenticationMethods)
+            for (var i = 0; i < matchingAuthenticationMethods.Length; i++)
             {
+                var authenticationMethod = matchingAuthenticationMethods[i];
+
                 if (authenticationState.ExecutedAuthenticationMethods.Contains(authenticationMethod))
                 {
                     skippedAuthenticationMethods.Add(authenticationMethod);

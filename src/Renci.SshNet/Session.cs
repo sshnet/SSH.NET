@@ -49,15 +49,21 @@ namespace Renci.SshNet
         /// <summary>
         /// Specifies maximum packet size defined by the protocol.
         /// </summary>
+        /// <value>
+        /// 68536 (64 KB + 3000 bytes).
+        /// </value>
         private const int MaximumSshPacketSize = LocalChannelDataPacketSize + 3000;
 
         /// <summary>
         /// Holds the initial local window size for the channels.
         /// </summary>
         /// <value>
-        /// 2 MB.
+        /// 2147483647 (2^31 - 1) bytes.
         /// </value>
-        private const int InitialLocalWindowSize = LocalChannelDataPacketSize * 32;
+        /// <remarks>
+        /// We currently do not define a maximum (remote) window size.
+        /// </remarks>
+        private const int InitialLocalWindowSize = 0x7FFFFFFF;
 
         /// <summary>
         /// Holds the maximum size of channel data packets that we receive.
@@ -65,6 +71,15 @@ namespace Renci.SshNet
         /// <value>
         /// 64 KB.
         /// </value>
+        /// <remarks>
+        /// <para>
+        /// This is the maximum size (in bytes) we support for the data (payload) of a
+        /// <c>SSH_MSG_CHANNEL_DATA</c> message we receive.
+        /// </para>
+        /// <para>
+        /// We currently do not enforce this limit.
+        /// </para>
+        /// </remarks>
         private const int LocalChannelDataPacketSize = 1024*64;
 
 #if FEATURE_REGEX_COMPILE
@@ -858,7 +873,7 @@ namespace Renci.SshNet
                 if (_clientMac != null)
                 {
                     // write outbound packet sequence to start of packet data
-                    _outboundPacketSequence.Write(packetData, 0);
+                    Pack.UInt32ToBigEndian(_outboundPacketSequence, packetData);
                     //  calculate packet hash
                     hash = _clientMac.ComputeHash(packetData);
                 }
@@ -882,7 +897,7 @@ namespace Renci.SshNet
                 }
                 else
                 {
-                    var data = new byte[packetLength + (_clientMac.HashSize/8)];
+                    var data = new byte[packetLength + hash.Length];
                     Buffer.BlockCopy(packetData, packetDataOffset, data, 0, packetLength);
                     Buffer.BlockCopy(hash, 0, data, packetLength, hash.Length);
                     SendPacket(data, 0, data.Length);
@@ -1003,7 +1018,7 @@ namespace Renci.SshNet
                     firstBlock = _serverCipher.Decrypt(firstBlock);
                 }
 
-                packetLength = (uint) (firstBlock[0] << 24 | firstBlock[1] << 16 | firstBlock[2] << 8 | firstBlock[3]);
+                packetLength = Pack.BigEndianToUInt32(firstBlock);
 
                 // Test packet minimum and maximum boundaries
                 if (packetLength < Math.Max((byte) 16, blockSize) - 4 || packetLength > MaximumSshPacketSize - 4)
@@ -1027,7 +1042,7 @@ namespace Renci.SshNet
                 // byte[] for the purpose of calculating the client hash. Room for the server MAC is foreseen
                 // to read the packet including server MAC in a single pass (except for the initial block).
                 data = new byte[bytesToRead + blockSize + inboundPacketSequenceLength];
-                _inboundPacketSequence.Write(data, 0);
+                Pack.UInt32ToBigEndian(_inboundPacketSequence, data);
                 Buffer.BlockCopy(firstBlock, 0, data, inboundPacketSequenceLength, firstBlock.Length);
 
                 if (bytesToRead > 0)
@@ -1061,6 +1076,8 @@ namespace Renci.SshNet
                 var clientHash = _serverMac.ComputeHash(data, 0, data.Length - serverMacLength);
                 var serverHash = data.Take(data.Length - serverMacLength, serverMacLength);
 
+                // TODO add IsEqualTo overload that takes left+right index and number of bytes to compare;
+                // TODO that way we can eliminate the extrate allocation of the Take above
                 if (!serverHash.IsEqualTo(clientHash))
                 {
                     throw new SshConnectionException("MAC error", DisconnectReason.MacError);
@@ -1815,14 +1832,16 @@ namespace Renci.SshNet
         /// </summary>
         private void MessageListener()
         {
+#if FEATURE_SOCKET_SELECT
+            var readSockets = new List<Socket> { _socket };
+#endif // FEATURE_SOCKET_SELECT
+
             try
             {
-                var readSockets = new List<Socket> {_socket};
-
                 // remain in message loop until socket is shut down or until we're disconnecting
                 while (_socket.IsConnected())
                 {
-#if FEATURE_SOCKET_POLL
+#if FEATURE_SOCKET_SELECT
                     // if the socket is already disposed when Select is invoked, then a SocketException
                     // stating "An operation was attempted on something that is not a socket" is thrown;
                     // we attempt to avoid this exception by having an IsConnected() that can break the
@@ -1835,7 +1854,8 @@ namespace Renci.SshNet
 
                     // perform a blocking select to determine whether there's is data available to be
                     // read; we do not use a blocking read to allow us to use Socket.Poll to determine
-                    // if the connection is still available (in IsSocketConnected
+                    // if the connection is still available (in IsSocketConnected)
+
                     Socket.Select(readSockets, null, null, -1);
 
                     // the Select invocation will be interrupted in one of the following conditions:
@@ -1855,7 +1875,19 @@ namespace Renci.SshNet
                         // break out of the message loop
                         break;
                     }
-#endif // FEATURE_SOCKET_POLL
+#elif FEATURE_SOCKET_POLL
+                    // when Socket.Select(IList, IList, IList, Int32) is not available or is buggy, we use
+                    // Socket.Poll(Int, SelectMode) to block until either data is available or the socket
+                    // is closed
+                    _socket.Poll(-1, SelectMode.SelectRead);
+
+                    if (!_socket.IsConnected())
+                    {
+                        // connection with SSH server was closed or socket was disposed;
+                        // break out of the message loop
+                        break;
+                    }
+#endif // FEATURE_SOCKET_SELECT
 
                     var message = ReceiveMessage();
                     if (message == null)
@@ -1869,7 +1901,7 @@ namespace Renci.SshNet
                     message.Process(this);
                 }
 
-                // connection with SSH server was closed
+                // connection with SSH server was closed or socket was disposed
                 RaiseError(CreateConnectionAbortedByServerException());
             }
             catch (SocketException ex)
@@ -2072,7 +2104,7 @@ namespace Renci.SshNet
                 case 0x08:
                     throw new ProxyException("SOCKS5: Address type not supported.");
                 default:
-                    throw new ProxyException("SOCKS4: Not valid response.");
+                    throw new ProxyException("SOCKS5: Not valid response.");
             }
 
             //  Read 0
@@ -2201,6 +2233,7 @@ namespace Renci.SshNet
                     return;
             }
 
+            // "save" exception and set exception wait handle to ensure any waits are interrupted
             _exception = exp;
             _exceptionWaitHandle.Set();
 

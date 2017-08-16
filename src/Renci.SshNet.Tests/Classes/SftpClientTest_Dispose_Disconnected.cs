@@ -10,10 +10,12 @@ namespace Renci.SshNet.Tests.Classes
     {
         private Mock<IServiceFactory> _serviceFactoryMock;
         private Mock<ISession> _sessionMock;
+        private Mock<ISftpResponseFactory> _sftpResponseFactoryMock;
+        private Mock<ISftpSession> _sftpSessionMock;
         private SftpClient _sftpClient;
         private ConnectionInfo _connectionInfo;
-        private Mock<ISftpSession> _sftpSessionMock;
-        private TimeSpan _operationTimeout;
+
+        private int _operationTimeout;
 
         [TestInitialize]
         public void Setup()
@@ -22,21 +24,17 @@ namespace Renci.SshNet.Tests.Classes
             Act();
         }
 
-        [TestCleanup]
-        public void Cleanup()
-        {
-        }
-
         protected void Arrange()
         {
             _serviceFactoryMock = new Mock<IServiceFactory>(MockBehavior.Strict);
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);
+            _sftpResponseFactoryMock = new Mock<ISftpResponseFactory>(MockBehavior.Strict);
             _sftpSessionMock = new Mock<ISftpSession>(MockBehavior.Strict);
 
             _connectionInfo = new ConnectionInfo("host", "user", new NoneAuthenticationMethod("userauth"));
-            _operationTimeout = TimeSpan.FromSeconds(new Random().Next(1, 10));
+            _operationTimeout = new Random().Next(1000, 10000);
             _sftpClient = new SftpClient(_connectionInfo, false, _serviceFactoryMock.Object);
-            _sftpClient.OperationTimeout = _operationTimeout;
+            _sftpClient.OperationTimeout = TimeSpan.FromMilliseconds(_operationTimeout);
 
             var sequence = new MockSequence();
             _serviceFactoryMock.InSequence(sequence)
@@ -44,7 +42,10 @@ namespace Renci.SshNet.Tests.Classes
                 .Returns(_sessionMock.Object);
             _sessionMock.InSequence(sequence).Setup(p => p.Connect());
             _serviceFactoryMock.InSequence(sequence)
-                .Setup(p => p.CreateSftpSession(_sessionMock.Object, _operationTimeout, _connectionInfo.Encoding))
+                               .Setup(p => p.CreateSftpResponseFactory())
+                               .Returns(_sftpResponseFactoryMock.Object);
+            _serviceFactoryMock.InSequence(sequence)
+                .Setup(p => p.CreateSftpSession(_sessionMock.Object, _operationTimeout, _connectionInfo.Encoding, _sftpResponseFactoryMock.Object))
                 .Returns(_sftpSessionMock.Object);
             _sftpSessionMock.InSequence(sequence).Setup(p => p.Connect());
             _sessionMock.InSequence(sequence).Setup(p => p.OnDisconnecting());
@@ -61,10 +62,16 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
+        public void CreateSftpMessageFactoryOnServiceFactoryShouldBeInvokedOnce()
+        {
+            _serviceFactoryMock.Verify(p => p.CreateSftpResponseFactory(), Times.Once);
+        }
+
+        [TestMethod]
         public void CreateSftpSessionOnServiceFactoryShouldBeInvokedOnce()
         {
             _serviceFactoryMock.Verify(
-                p => p.CreateSftpSession(_sessionMock.Object, _operationTimeout, _connectionInfo.Encoding),
+                p => p.CreateSftpSession(_sessionMock.Object, _operationTimeout, _connectionInfo.Encoding, _sftpResponseFactoryMock.Object),
                 Times.Once);
         }
 

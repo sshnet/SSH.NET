@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages;
 using Renci.SshNet.Messages.Authentication;
@@ -66,8 +65,11 @@ namespace Renci.SshNet
             };
 
             MessagesByName = new Dictionary<string, MessageMetadata>(AllMessages.Length);
-            foreach (var messageMetadata in AllMessages)
+            for (var i = 0; i < AllMessages.Length; i++)
+            {
+                var messageMetadata = AllMessages[i];
                 MessagesByName.Add(messageMetadata.Name, messageMetadata);
+            }
         }
 
         public SshMessageFactory()
@@ -95,7 +97,19 @@ namespace Renci.SshNet
             var enabledMessageMetadata = _enabledMessagesByNumber[messageNumber];
             if (enabledMessageMetadata == null)
             {
-                var definedMessageMetadata = AllMessages.FirstOrDefault(p => p.Number == messageNumber);
+                MessageMetadata definedMessageMetadata = null;
+
+                // find first message with specified number
+                for (var i = 0; i < AllMessages.Length; i++)
+                {
+                    var messageMetadata = AllMessages[i];
+                    if (messageMetadata.Number == messageNumber)
+                    {
+                        definedMessageMetadata = messageMetadata;
+                        break;
+                    }
+                }
+
                 if (definedMessageMetadata == null)
                 {
                     throw CreateMessageTypeNotSupportedException(messageNumber);
@@ -109,8 +123,10 @@ namespace Renci.SshNet
 
         public void DisableNonKeyExchangeMessages()
         {
-            foreach (var messageMetadata in AllMessages)
+            for (var i = 0; i < AllMessages.Length; i++)
             {
+                var messageMetadata = AllMessages[i];
+
                 var messageNumber = messageMetadata.Number;
                 if ((messageNumber > 2 && messageNumber < 20) || messageNumber > 30)
                 {
@@ -121,8 +137,10 @@ namespace Renci.SshNet
 
         public void EnableActivatedMessages()
         {
-            foreach (var messageMetadata in AllMessages)
+            for (var i = 0; i < AllMessages.Length; i++)
             {
+                var messageMetadata = AllMessages[i];
+
                 if (!_activatedMessagesById[messageMetadata.Id])
                     continue;
 

@@ -5,6 +5,8 @@ namespace Renci.SshNet.Sftp.Requests
 {
     internal class SftpReadDirRequest : SftpRequest
     {
+        private readonly Action<SftpNameResponse> _nameAction;
+
         public override SftpMessageTypes SftpMessageType
         {
             get { return SftpMessageTypes.ReadDir; }
@@ -33,7 +35,8 @@ namespace Renci.SshNet.Sftp.Requests
             : base(protocolVersion, requestId, statusAction)
         {
             Handle = handle;
-            SetAction(nameAction);
+
+            _nameAction = nameAction;
         }
 
         protected override void LoadData()
@@ -46,6 +49,19 @@ namespace Renci.SshNet.Sftp.Requests
         {
             base.SaveData();
             WriteBinaryString(Handle);
+        }
+
+        public override void Complete(SftpResponse response)
+        {
+            var nameResponse = response as SftpNameResponse;
+            if (nameResponse != null)
+            {
+                _nameAction(nameResponse);
+            }
+            else
+            {
+                base.Complete(response);
+            }
         }
     }
 }

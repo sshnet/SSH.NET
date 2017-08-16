@@ -50,8 +50,6 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Responses
         [TestMethod]
         public void Load()
         {
-            var target = new StatVfsReplyInfo();
-
             var sshDataStream = new SshDataStream(4 + 1 + 4 + 88);
             sshDataStream.Write(_responseId);
             sshDataStream.Write(_bsize);
@@ -66,7 +64,12 @@ namespace Renci.SshNet.Tests.Classes.Sftp.Responses
             sshDataStream.Write((ulong) 0x1);
             sshDataStream.Write(_namemax);
 
-            target.Load(sshDataStream.ToArray());
+            var extendedReplyResponse = new SftpExtendedReplyResponse(SftpSession.MaximumSupportedVersion);
+            extendedReplyResponse.Load(sshDataStream.ToArray());
+
+            Assert.AreEqual(_responseId, extendedReplyResponse.ResponseId);
+
+            var target = extendedReplyResponse.GetReply<StatVfsReplyInfo>();
 
             Assert.IsNotNull(target.Information);
 

@@ -7,9 +7,7 @@
             get { return SftpMessageTypes.Data; }
         }
 
-        public byte[] Data { get; private set; }
-
-        public bool IsEof { get; private set; }
+        public byte[] Data { get; set; }
 
         public SftpDataResponse(uint protocolVersion)
             : base(protocolVersion)
@@ -21,11 +19,13 @@
             base.LoadData();
             
             Data = ReadBinary();
+        }
 
-            if (!IsEndOfData)
-            {
-                IsEof = ReadBoolean();
-            }
+        protected override void SaveData()
+        {
+            base.SaveData();
+
+            WriteBinary(Data, 0, Data.Length);
         }
     }
 }

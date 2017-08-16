@@ -45,10 +45,6 @@ namespace Renci.SshNet.Common
             }
         }
 
-        private byte[] _loadedData;
-        private int _offset;
-        private int _count;
-
         /// <summary>
         /// Gets the size of the message in bytes.
         /// </summary>
@@ -61,9 +57,11 @@ namespace Renci.SshNet.Common
         }
 
         /// <summary>
-        /// Gets data bytes array
+        /// Gets data bytes array.
         /// </summary>
-        /// <returns>Byte array representation of data structure.</returns>
+        /// <returns>
+        /// A <see cref="Byte"/> array representation of data structure.
+        /// </returns>
         public byte[] GetBytes()
         {
             var messageLength = BufferCapacity;
@@ -81,13 +79,6 @@ namespace Renci.SshNet.Common
         {
             _stream = stream;
             SaveData();
-        }
-
-        internal T OfType<T>() where T : SshData, new()
-        {
-            var result = new T();
-            result.Load(_loadedData, _offset, _count);
-            return result;
         }
 
         /// <summary>
@@ -120,7 +111,7 @@ namespace Renci.SshNet.Common
 
         private void LoadInternal(byte[] value, int offset, int count)
         {
-            LoadBytes(value, offset, count);
+            _stream = new SshDataStream(value, offset, count);
             LoadData();
         }
 
@@ -133,21 +124,6 @@ namespace Renci.SshNet.Common
         /// Called when type specific data need to be saved.
         /// </summary>
         protected abstract void SaveData();
-
-        /// <summary>
-        /// Loads data bytes into internal buffer.
-        /// </summary>
-        /// <param name="bytes">The bytes.</param>
-        /// <param name="offset">The zero-based offset in <paramref name="bytes"/> at which to begin reading SSH data.</param>
-        /// <param name="count">The number of bytes to load.</param>
-        private void LoadBytes(byte[] bytes, int offset, int count)
-        {
-            _loadedData = bytes;
-            _offset = offset;
-            _count = count;
-
-            _stream = new SshDataStream(bytes, _offset, count);
-        }
 
         /// <summary>
         /// Reads all data left in internal buffer at current position.
@@ -209,8 +185,7 @@ namespace Renci.SshNet.Common
         /// <returns>uint16 read</returns>
         protected ushort ReadUInt16()
         {
-            var data = ReadBytes(2);
-            return (ushort)(data[0] << 8 | data[1]);
+            return Pack.BigEndianToUInt16(ReadBytes(2));
         }
 
         /// <summary>
@@ -219,8 +194,7 @@ namespace Renci.SshNet.Common
         /// <returns>uint32 read</returns>
         protected uint ReadUInt32()
         {
-            var data = ReadBytes(4);
-            return (uint)(data[0] << 24 | data[1] << 16 | data[2] << 8 | data[3]);
+            return Pack.BigEndianToUInt32(ReadBytes(4));
         }
 
         /// <summary>
@@ -229,8 +203,7 @@ namespace Renci.SshNet.Common
         /// <returns>uint64 read</returns>
         protected ulong ReadUInt64()
         {
-            var data = ReadBytes(8);
-            return ((ulong)data[0] << 56 | (ulong)data[1] << 48 | (ulong)data[2] << 40 | (ulong)data[3] << 32 | (ulong)data[4] << 24 | (ulong)data[5] << 16 | (ulong)data[6] << 8 | data[7]);
+            return Pack.BigEndianToUInt64(ReadBytes(8));
         }
 
         /// <summary>

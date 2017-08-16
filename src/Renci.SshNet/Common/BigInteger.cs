@@ -165,17 +165,15 @@ namespace Renci.SshNet.Common
         }
 
         /// <summary>
-        /// Generates random <see cref="BigInteger"/> number.
+        /// Generates a new, random <see cref="BigInteger"/> of the specified length.
         /// </summary>
-        /// <param name="bitLength">Length of random number in bits.</param>
-        /// <returns>
-        /// A random number.
-        /// </returns>
+        /// <param name="bitLength">The number of bits for the new number.</param>
+        /// <returns>A random number of the specified length.</returns>
         public static BigInteger Random(int bitLength)
         {
             var bytesArray = new byte[bitLength / 8 + (((bitLength % 8) > 0) ? 1 : 0)];
             CryptoAbstraction.GenerateRandom(bytesArray);
-            bytesArray[bytesArray.Length - 1] = (byte)(bytesArray[bytesArray.Length - 1] & 0x7F);   //  Ensure not a negative value
+            bytesArray[bytesArray.Length - 1] = (byte) (bytesArray[bytesArray.Length - 1] & 0x7F);   //  Ensure not a negative value 
             return new BigInteger(bytesArray);
         }
 

@@ -1,4 +1,6 @@
-﻿namespace Renci.SshNet.Sftp
+﻿using Renci.SshNet.Common;
+
+namespace Renci.SshNet.Sftp
 {
     /// <summary>
     /// Contains File system information exposed by statvfs@openssh.com request.
@@ -139,6 +141,21 @@
             Sid = sid;
             _flag = flag;
             MaxNameLenght = namemax;
+        }
+
+        internal void SaveData(SshDataStream stream)
+        {
+            stream.Write(FileSystemBlockSize);
+            stream.Write(BlockSize);
+            stream.Write(TotalBlocks);
+            stream.Write(FreeBlocks);
+            stream.Write(AvailableBlocks);
+            stream.Write(TotalNodes);
+            stream.Write(FreeNodes);
+            stream.Write(AvailableNodes);
+            stream.Write(Sid);
+            stream.Write(_flag);
+            stream.Write(MaxNameLenght);
         }
     }
 }

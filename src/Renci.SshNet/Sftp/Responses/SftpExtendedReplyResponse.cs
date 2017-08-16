@@ -1,6 +1,4 @@
-﻿using Renci.SshNet.Common;
-
-namespace Renci.SshNet.Sftp.Responses
+﻿namespace Renci.SshNet.Sftp.Responses
 {
     internal class SftpExtendedReplyResponse : SftpResponse
     {
@@ -14,9 +12,11 @@ namespace Renci.SshNet.Sftp.Responses
         {
         }
 
-        public T GetReply<T>() where T : SshData, new()
+        public T GetReply<T>() where T : ExtendedReplyInfo, new()
         {
-            return OfType<T>();
+            var result = new T();
+            result.LoadData(DataStream);
+            return result;
         }
     }
 }

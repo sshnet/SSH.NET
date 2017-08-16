@@ -18,24 +18,25 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;FEATURE_REGEX_COMPILE;FEATURE_BINARY_SERIALIZATION;FEATURE_RNG_CREATE;FEATURE_SOCKET_SYNC;FEATURE_SOCKET_EAP;FEATURE_SOCKET_APM;FEATURE_SOCKET_SETSOCKETOPTION;FEATURE_SOCKET_POLL;FEATURE_STREAM_APM;FEATURE_DNS_SYNC;FEATURE_THREAD_COUNTDOWNEVENT;FEATURE_THREAD_THREADPOOL;FEATURE_THREAD_SLEEP;FEATURE_HASH_MD5;FEATURE_HASH_SHA1_CREATE;FEATURE_HASH_SHA256_CREATE;FEATURE_HASH_SHA384_CREATE;FEATURE_HASH_SHA512_CREATE;FEATURE_HASH_RIPEMD160_CREATE;FEATURE_HMAC_MD5;FEATURE_HMAC_SHA1;FEATURE_HMAC_SHA256;FEATURE_HMAC_SHA384;FEATURE_HMAC_SHA512;FEATURE_HMAC_RIPEMD160;FEATURE_MEMORYSTREAM_GETBUFFER;FEATURE_DIAGNOSTICS_TRACESOURCE;FEATURE_ENCODING_ASCII</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;FEATURE_REGEX_COMPILE;FEATURE_BINARY_SERIALIZATION;FEATURE_RNG_CREATE;FEATURE_SOCKET_SYNC;FEATURE_SOCKET_EAP;FEATURE_SOCKET_APM;FEATURE_SOCKET_SETSOCKETOPTION;FEATURE_SOCKET_SELECT;FEATURE_SOCKET_POLL;FEATURE_STREAM_APM;FEATURE_DNS_SYNC;FEATURE_THREAD_COUNTDOWNEVENT;FEATURE_THREAD_THREADPOOL;FEATURE_THREAD_SLEEP;FEATURE_HASH_MD5;FEATURE_HASH_SHA1_CREATE;FEATURE_HASH_SHA256_CREATE;FEATURE_HASH_SHA384_CREATE;FEATURE_HASH_SHA512_CREATE;FEATURE_HASH_RIPEMD160_CREATE;FEATURE_HMAC_MD5;FEATURE_HMAC_SHA1;FEATURE_HMAC_SHA256;FEATURE_HMAC_SHA384;FEATURE_HMAC_SHA512;FEATURE_HMAC_RIPEMD160;FEATURE_MEMORYSTREAM_GETBUFFER;FEATURE_DIAGNOSTICS_TRACESOURCE;FEATURE_ENCODING_ASCII</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Debug\Renci.SshNet.xml</DocumentationFile>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <LangVersion>4</LangVersion>
+    <LangVersion>5</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>none</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>FEATURE_REGEX_COMPILE;FEATURE_BINARY_SERIALIZATION;FEATURE_RNG_CREATE;FEATURE_SOCKET_SYNC;FEATURE_SOCKET_EAP;FEATURE_SOCKET_APM;FEATURE_SOCKET_SETSOCKETOPTION;FEATURE_SOCKET_POLL;FEATURE_STREAM_APM;FEATURE_DNS_SYNC;FEATURE_THREAD_COUNTDOWNEVENT;FEATURE_THREAD_THREADPOOL;FEATURE_THREAD_SLEEP;FEATURE_HASH_MD5;FEATURE_HASH_SHA1_CREATE;FEATURE_HASH_SHA256_CREATE;FEATURE_HASH_SHA384_CREATE;FEATURE_HASH_SHA512_CREATE;FEATURE_HASH_RIPEMD160_CREATE;FEATURE_HMAC_MD5;FEATURE_HMAC_SHA1;FEATURE_HMAC_SHA256;FEATURE_HMAC_SHA384;FEATURE_HMAC_SHA512;FEATURE_HMAC_RIPEMD160;FEATURE_MEMORYSTREAM_GETBUFFER;FEATURE_DIAGNOSTICS_TRACESOURCE;FEATURE_ENCODING_ASCII</DefineConstants>
+    <DefineConstants>FEATURE_REGEX_COMPILE;FEATURE_BINARY_SERIALIZATION;FEATURE_RNG_CREATE;FEATURE_SOCKET_SYNC;FEATURE_SOCKET_EAP;FEATURE_SOCKET_APM;FEATURE_SOCKET_SETSOCKETOPTION;FEATURE_SOCKET_SELECT;FEATURE_SOCKET_POLL;FEATURE_STREAM_APM;FEATURE_DNS_SYNC;FEATURE_THREAD_COUNTDOWNEVENT;FEATURE_THREAD_THREADPOOL;FEATURE_THREAD_SLEEP;FEATURE_HASH_MD5;FEATURE_HASH_SHA1_CREATE;FEATURE_HASH_SHA256_CREATE;FEATURE_HASH_SHA384_CREATE;FEATURE_HASH_SHA512_CREATE;FEATURE_HASH_RIPEMD160_CREATE;FEATURE_HMAC_MD5;FEATURE_HMAC_SHA1;FEATURE_HMAC_SHA256;FEATURE_HMAC_SHA384;FEATURE_HMAC_SHA512;FEATURE_HMAC_RIPEMD160;FEATURE_MEMORYSTREAM_GETBUFFER;FEATURE_DIAGNOSTICS_TRACESOURCE;FEATURE_ENCODING_ASCII</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Release\Renci.SshNet.xml</DocumentationFile>
     <NoWarn>
     </NoWarn>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <LangVersion>5</LangVersion>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
@@ -95,6 +96,7 @@
     <Compile Include="Common\ChannelOpenFailedEventArgs.cs" />
     <Compile Include="Common\ChannelRequestEventArgs.cs" />
     <Compile Include="Common\CountdownEvent.cs" />
+    <Compile Include="Common\Pack.cs" />
     <Compile Include="Common\ProxyException.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -169,6 +171,8 @@
     <Compile Include="Security\KeyExchangeDiffieHellmanGroupExchangeShaBase.cs" />
     <Compile Include="ServiceFactory.cs" />
     <Compile Include="ServiceFactory.NET.cs" />
+    <Compile Include="Sftp\ISftpFileReader.cs" />
+    <Compile Include="Sftp\ISftpResponseFactory.cs" />
     <Compile Include="Sftp\ISftpSession.cs" />
     <Compile Include="Common\SshDataStream.cs" />
     <Compile Include="ExpectAsyncResult.cs" />
@@ -413,21 +417,28 @@
     <Compile Include="Sftp\Responses\SftpResponse.cs" />
     <Compile Include="Sftp\Responses\SftpStatusResponse.cs" />
     <Compile Include="Sftp\Responses\SftpVersionResponse.cs" />
+    <Compile Include="Sftp\SftpCloseAsyncResult.cs" />
     <Compile Include="Sftp\SftpDownloadAsyncResult.cs" />
     <Compile Include="Sftp\SftpFile.cs" />
     <Compile Include="Sftp\SftpFileAttributes.cs" />
+    <Compile Include="Sftp\SftpFileReader.cs" />
     <Compile Include="Sftp\SftpFileStream.cs" />
     <Compile Include="Sftp\SftpFileSystemInformation.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Sftp\SftpListDirectoryAsyncResult.cs" />
     <Compile Include="Sftp\SftpMessage.cs" />
+    <Compile Include="Sftp\SftpResponseFactory.cs" />
     <Compile Include="Sftp\SftpMessageTypes.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Sftp\SftpOpenAsyncResult.cs" />
+    <Compile Include="Sftp\SftpReadAsyncResult.cs" />
+    <Compile Include="Sftp\SftpRealPathAsyncResult.cs" />
     <Compile Include="Sftp\SftpSession.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Sftp\SFtpStatAsyncResult.cs" />
     <Compile Include="Sftp\SftpSynchronizeDirectoriesAsyncResult.cs" />
     <Compile Include="Sftp\SftpUploadAsyncResult.cs" />
     <Compile Include="Sftp\StatusCodes.cs">

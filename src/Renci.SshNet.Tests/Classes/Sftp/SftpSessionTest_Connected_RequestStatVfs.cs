@@ -1,25 +1,38 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
 using Renci.SshNet.Sftp;
+using Renci.SshNet.Sftp.Responses;
 
 namespace Renci.SshNet.Tests.Classes.Sftp
 {
     [TestClass]
     public class SftpSessionTest_Connected_RequestStatVfs
     {
+        #region SftpSession.Connect()
+
         private Mock<ISession> _sessionMock;
         private Mock<IChannelSession> _channelSessionMock;
+        private ISftpResponseFactory _sftpResponseFactory;
         private SftpSession _sftpSession;
-        private TimeSpan _operationTimeout;
-        private SftpFileSytemInformation _actual;
+        private int _operationTimeout;
         private Encoding _encoding;
+        private uint _protocolVersion;
+        private SftpVersionResponse _sftpVersionResponse;
+        private SftpNameResponse _sftpNameResponse;
+        private byte[] _sftpInitRequestBytes;
+        private byte[] _sftpRealPathRequestBytes;
 
+        #endregion SftpSession.Connect()
+
+        private byte[] _sftpStatVfsRequestBytes;
+        private StatVfsResponse _sftpStatVfsResponse;
         private ulong _bAvail;
+        private string _path;
+        private SftpFileSytemInformation _actual;
 
         [TestInitialize]
         public void Setup()
@@ -28,67 +41,104 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             Act();
         }
 
-        protected void Arrange()
+        private void SetupData()
         {
             var random = new Random();
 
-            _operationTimeout = TimeSpan.FromMilliseconds(random.Next(100, 500));
+            #region SftpSession.Connect()
+
+            _operationTimeout = random.Next(100, 500);
             _encoding = Encoding.UTF8;
+            _protocolVersion = 3;
+            _sftpResponseFactory = new SftpResponseFactory();
+            _sftpInitRequestBytes = new SftpInitRequestBuilder().WithVersion(SftpSession.MaximumSupportedVersion)
+                                                                .Build()
+                                                                .GetBytes();
+            _sftpVersionResponse = new SftpVersionResponseBuilder().WithVersion(_protocolVersion)
+                                                                   .WithExtension("statvfs@openssh.com", "")
+                                                                   .Build();
+            _sftpRealPathRequestBytes = new SftpRealPathRequestBuilder().WithProtocolVersion(_protocolVersion)
+                                                                        .WithRequestId(1)
+                                                                        .WithPath(".")
+                                                                        .WithEncoding(_encoding)
+                                                                        .Build()
+                                                                        .GetBytes();
+            _sftpNameResponse = new SftpNameResponseBuilder().WithProtocolVersion(_protocolVersion)
+                                                             .WithResponseId(1U)
+                                                             .WithEncoding(_encoding)
+                                                             .WithFile("ABC", SftpFileAttributes.Empty)
+                                                             .Build();
 
+            #endregion SftpSession.Connect()
+
+            _path = random.Next().ToString();
             _bAvail = (ulong) random.Next(0, int.MaxValue);
+            _sftpStatVfsRequestBytes = new SftpStatVfsRequestBuilder().WithProtocolVersion(_protocolVersion)
+                                                                      .WithRequestId(2)
+                                                                      .WithPath(_path)
+                                                                      .WithEncoding(_encoding)
+                                                                      .Build()
+                                                                      .GetBytes();
+            _sftpStatVfsResponse = new SftpStatVfsResponseBuilder().WithProtocolVersion(_protocolVersion)
+                                                                   .WithResponseId(2U)
+                                                                   .WithBAvail(_bAvail)
+                                                                   .Build();
+        }
 
+        private void CreateMocks()
+        {
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);
             _channelSessionMock = new Mock<IChannelSession>(MockBehavior.Strict);
+        }
 
+        private void SetupMocks()
+        {
             var sequence = new MockSequence();
+
+            #region SftpSession.Connect()
 
             _sessionMock.InSequence(sequence).Setup(p => p.CreateChannelSession()).Returns(_channelSessionMock.Object);
             _channelSessionMock.InSequence(sequence).Setup(p => p.Open());
             _channelSessionMock.InSequence(sequence).Setup(p => p.SendSubsystemRequest("sftp")).Returns(true);
             _channelSessionMock.InSequence(sequence).Setup(p => p.IsOpen).Returns(true);
-            _channelSessionMock.InSequence(sequence).Setup(p => p.SendData(It.IsAny<byte[]>())).Callback(
+            _channelSessionMock.InSequence(sequence).Setup(p => p.SendData(_sftpInitRequestBytes)).Callback(
                 () =>
-                    {
-                        // generate response for SftpInitRequest
-                        var versionInfoResponse = SftpVersionResponseBuilder.Create(3)
-                                                                            .AddExtension("statvfs@openssh.com", "")
-                                                                            .Build();
-                        _channelSessionMock.Raise(
-                            c => c.DataReceived += null,
-                            new ChannelDataEventArgs(0, versionInfoResponse));
-                    });
+                {
+                    _channelSessionMock.Raise(c => c.DataReceived += null,
+                                              new ChannelDataEventArgs(0, _sftpVersionResponse.GetBytes()));
+                });
             _channelSessionMock.InSequence(sequence).Setup(p => p.IsOpen).Returns(true);
-            _channelSessionMock.InSequence(sequence).Setup(p => p.SendData(It.IsAny<byte[]>())).Callback(
+            _channelSessionMock.InSequence(sequence).Setup(p => p.SendData(_sftpRealPathRequestBytes)).Callback(
                 () =>
-                    {
-                        var sftpNameResponse = CreateSftpNameResponse(1, _encoding, "ABC");
+                {
+                    _channelSessionMock.Raise(c => c.DataReceived += null,
+                                              new ChannelDataEventArgs(0, _sftpNameResponse.GetBytes()));
+                });
 
-                        _channelSessionMock.Raise(
-                            c => c.DataReceived += null,
-                            new ChannelDataEventArgs(0, sftpNameResponse));
-                    }
-                );
+            #endregion SftpSession.Connect()
+
             _channelSessionMock.InSequence(sequence).Setup(p => p.IsOpen).Returns(true);
-            _channelSessionMock.InSequence(sequence).Setup(p => p.SendData(It.IsAny<byte[]>())).Callback(
+            _channelSessionMock.InSequence(sequence).Setup(p => p.SendData(_sftpStatVfsRequestBytes)).Callback(
                 () =>
-                    {
-                        var statVfsReplyBuilder = StatVfsReplyBuilder.Create(2);
-                        statVfsReplyBuilder.WithBAvail(_bAvail);
-                        var statVfsReply = statVfsReplyBuilder.Build();
+                {
+                    _channelSessionMock.Raise(c => c.DataReceived += null,
+                                              new ChannelDataEventArgs(0, _sftpStatVfsResponse.GetBytes()));
+                });
+        }
 
-                        _channelSessionMock.Raise(
-                            c => c.DataReceived += null,
-                            new ChannelDataEventArgs(0, statVfsReply));
-                    }
-                );
+        protected void Arrange()
+        {
+            SetupData();
+            CreateMocks();
+            SetupMocks();
 
-            _sftpSession = new SftpSession(_sessionMock.Object, _operationTimeout, _encoding);
+            _sftpSession = new SftpSession(_sessionMock.Object, _operationTimeout, _encoding, _sftpResponseFactory);
             _sftpSession.Connect();
         }
 
         protected void Act()
         {
-            _actual = _sftpSession.RequestStatVfs("path");
+            _actual = _sftpSession.RequestStatVfs(_path);
         }
 
         [TestMethod]
@@ -102,156 +152,5 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         {
             Assert.AreEqual(_bAvail, _actual.AvailableBlocks);
         }
-
-        private static byte[] CreateSftpNameResponse(uint responseId, Encoding encoding, params string[] names)
-        {
-            var namesAndAttributes = new List<byte>();
-            foreach (var name in names)
-            {
-                var nameBytes = encoding.GetBytes(name);
-                var attributesBytes = SftpFileAttributes.Empty.GetBytes();
-
-                namesAndAttributes.AddRange((((uint) nameBytes.Length).GetBytes())); // filename length
-                namesAndAttributes.AddRange(nameBytes); // filename
-                namesAndAttributes.AddRange(((uint) 0).GetBytes()); // longname length
-                namesAndAttributes.AddRange(attributesBytes); // attributes
-            }
-
-            var namesAndAttributesBytes = namesAndAttributes.ToArray();
-
-            var sshDataStream = new SshDataStream(4 + 1 + 4 + 4 + namesAndAttributesBytes.Length);
-            sshDataStream.Write((uint) sshDataStream.Capacity - 4);
-            sshDataStream.WriteByte((byte) SftpMessageTypes.Name);
-            sshDataStream.Write(responseId);
-            sshDataStream.Write((uint) names.Length);
-            sshDataStream.Write(namesAndAttributesBytes, 0, namesAndAttributesBytes.Length);
-            return sshDataStream.ToArray();
-        }
-
-        public class StatVfsReplyBuilder
-        {
-            private readonly uint _responseId;
-            private ulong _bsize;
-            private ulong _frsize;
-            private ulong _blocks;
-            private ulong _bfree;
-            private ulong _bavail;
-            private ulong _files;
-            private ulong _ffree;
-            private ulong _favail;
-            private ulong _sid;
-            private ulong _flag;
-            private ulong _namemax;
-
-            private StatVfsReplyBuilder(uint responseId)
-            {
-                _responseId = responseId;
-            }
-
-            public static StatVfsReplyBuilder Create(uint responseId)
-            {
-                return new StatVfsReplyBuilder(responseId);
-            }
-
-            public StatVfsReplyBuilder WithBSize(ulong bsize)
-            {
-                _bsize = bsize;
-                return this;
-            }
-
-            public StatVfsReplyBuilder WithFrSize(ulong frsize)
-            {
-                _frsize = frsize;
-                return this;
-            }
-
-            public StatVfsReplyBuilder WithBlocks(ulong blocks)
-            {
-                _blocks = blocks;
-                return this;
-            }
-
-            public StatVfsReplyBuilder WithBFree(ulong bfree)
-            {
-                _bfree = bfree;
-                return this;
-            }
-
-            public StatVfsReplyBuilder WithBAvail(ulong bavail)
-            {
-                _bavail = bavail;
-                return this;
-            }
-
-            public StatVfsReplyBuilder WithFiles(ulong files)
-            {
-                _files = files;
-                return this;
-            }
-
-            public StatVfsReplyBuilder WithFFree(ulong ffree)
-            {
-                _ffree = ffree;
-                return this;
-            }
-
-            public StatVfsReplyBuilder WithFAvail(ulong favail)
-            {
-                _favail = favail;
-                return this;
-            }
-
-            public StatVfsReplyBuilder WithSid(ulong sid)
-            {
-                _sid = sid;
-                return this;
-            }
-
-            public StatVfsReplyBuilder WithIsReadOnly(bool isReadOnly)
-            {
-                if (isReadOnly)
-                    _flag &= SftpFileSytemInformation.SSH_FXE_STATVFS_ST_RDONLY;
-                else
-                    _flag |= SftpFileSytemInformation.SSH_FXE_STATVFS_ST_RDONLY;
-
-                return this;
-            }
-
-            public StatVfsReplyBuilder WithSupportsSetUid(bool supportsSetUid)
-            {
-                if (supportsSetUid)
-                    _flag |= SftpFileSytemInformation.SSH_FXE_STATVFS_ST_NOSUID;
-                else
-                    _flag &= SftpFileSytemInformation.SSH_FXE_STATVFS_ST_NOSUID;
-
-                return this;
-            }
-
-            public StatVfsReplyBuilder WithNameMax(ulong nameMax)
-            {
-                _namemax = nameMax;
-                return this;
-            }
-
-            public byte[] Build()
-            {
-                var sshDataStream = new SshDataStream(4 + 1 + 4 + 88);
-                sshDataStream.Write((uint) sshDataStream.Capacity - 4);
-                sshDataStream.WriteByte((byte) SftpMessageTypes.ExtendedReply);
-                sshDataStream.Write(_responseId);
-                sshDataStream.Write(_bsize);
-                sshDataStream.Write(_frsize);
-                sshDataStream.Write(_blocks);
-                sshDataStream.Write(_bfree);
-                sshDataStream.Write(_bavail);
-                sshDataStream.Write(_files);
-                sshDataStream.Write(_ffree);
-                sshDataStream.Write(_favail);
-                sshDataStream.Write(_sid);
-                sshDataStream.Write(_flag);
-                sshDataStream.Write(_namemax);
-                return sshDataStream.ToArray();
-            }
-        }
-    }
+   }
 }

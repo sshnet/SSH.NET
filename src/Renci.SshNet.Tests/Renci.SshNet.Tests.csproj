@@ -434,6 +434,12 @@
     <Compile Include="Classes\Sftp\Responses\SftpVersionResponseTest.cs" />
     <Compile Include="Classes\Sftp\SftpFileStreamTest_Dispose_Disposed.cs" />
     <Compile Include="Classes\Sftp\SftpFileStreamTest_Finalize_SessionOpen.cs" />
+    <Compile Include="Classes\Sftp\SftpFileStreamTest_Flush_ReadMode_DataInBuffer_NotReadFromBuffer.cs" />
+    <Compile Include="Classes\Sftp\SftpFileStreamTest_Flush_ReadMode_DataInBuffer_ReadFromBuffer.cs" />
+    <Compile Include="Classes\Sftp\SftpFileStreamTest_Flush_ReadMode_NoDataInBuffer.cs" />
+    <Compile Include="Classes\Sftp\SftpFileStreamTest_Flush_SessionNotOpen.cs" />
+    <Compile Include="Classes\Sftp\SftpFileStreamTest_Flush_WriteMode_DataInBuffer.cs" />
+    <Compile Include="Classes\Sftp\SftpFileStreamTest_Flush_WriteMode_NoDataInBuffer.cs" />
     <Compile Include="Classes\Sftp\SftpFileStreamTest_ReadByte_ReadMode_NoDataInWriteBufferAndNoDataInReadBuffer_LessDataThanReadBufferSizeAvailable.cs" />
     <Compile Include="Classes\Sftp\SftpFileStreamTest_Read_ReadMode_NoDataInReaderBufferAndReadLessBytesFromServerThanCountAndLessThanBufferSize.cs" />
     <Compile Include="Classes\Sftp\SftpFileStreamTest_Read_ReadMode_NoDataInReaderBufferAndReadLessBytesFromServerThanCountAndEqualToBufferSize.cs" />
@@ -516,6 +522,7 @@
     <Compile Include="Classes\SubsystemSession_SendData_Disconnected.cs" />
     <Compile Include="Classes\SubsystemSession_SendData_Disposed.cs" />
     <Compile Include="Classes\SubsystemSession_SendData_NeverConnected.cs" />
+    <Compile Include="Common\ArrayBuilder.cs" />
     <Compile Include="Common\AsyncSocketListener.cs" />
     <Compile Include="Common\DictionaryAssert.cs" />
     <Compile Include="Common\Extensions.cs" />

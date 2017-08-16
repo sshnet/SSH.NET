@@ -837,15 +837,8 @@ namespace Renci.SshNet.Sftp
         /// </summary>
         private void FlushReadBuffer()
         {
-            if (_canSeek)
-            {
-                if (_bufferPosition < _bufferLen)
-                {
-                    _position -= _bufferPosition;
-                }
-                _bufferPosition = 0;
-                _bufferLen = 0;
-            }
+            _bufferPosition = 0;
+            _bufferLen = 0;
         }
 
         /// <summary>

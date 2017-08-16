@@ -1200,6 +1200,24 @@
     <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Finalize_SessionOpen.cs">
       <Link>Classes\Sftp\SftpFileStreamTest_Finalize_SessionOpen.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Flush_ReadMode_DataInBuffer_NotReadFromBuffer.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Flush_ReadMode_DataInBuffer_NotReadFromBuffer.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Flush_ReadMode_DataInBuffer_ReadFromBuffer.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Flush_ReadMode_DataInBuffer_ReadFromBuffer.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Flush_ReadMode_NoDataInBuffer.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Flush_ReadMode_NoDataInBuffer.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Flush_SessionNotOpen.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Flush_SessionNotOpen.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Flush_WriteMode_DataInBuffer.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Flush_WriteMode_DataInBuffer.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_Flush_WriteMode_NoDataInBuffer.cs">
+      <Link>Classes\Sftp\SftpFileStreamTest_Flush_WriteMode_NoDataInBuffer.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileStreamTest_ReadByte_ReadMode_NoDataInWriteBufferAndNoDataInReadBuffer_Eof.cs">
       <Link>Classes\Sftp\SftpFileStreamTest_ReadByte_ReadMode_NoDataInWriteBufferAndNoDataInReadBuffer_Eof.cs</Link>
     </Compile>
@@ -1434,6 +1452,9 @@
     <Compile Include="..\Renci.SshNet.Tests\Classes\SubsystemSession_SendData_NeverConnected.cs">
       <Link>Classes\SubsystemSession_SendData_NeverConnected.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Common\ArrayBuilder.cs">
+      <Link>Common\ArrayBuilder.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Common\AsyncSocketListener.cs">
       <Link>Common\AsyncSocketListener.cs</Link>
     </Compile>
@@ -1527,7 +1548,7 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" ProjectLinkReference="c45379b9-17b1-4e89-bc2e-6d41726413e8" />
+      <UserProperties ProjectLinkReference="c45379b9-17b1-4e89-bc2e-6d41726413e8" ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

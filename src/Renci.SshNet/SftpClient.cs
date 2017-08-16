@@ -1000,13 +1000,13 @@ namespace Renci.SshNet
         #region File Methods
 
         /// <summary>
-        /// Appends lines to a file, and closes the file.
+        /// Appends lines to a file, creating the file if it does not already exist.
         /// </summary>
         /// <param name="path">The file to append the lines to. The file is created if it does not already exist.</param>
         /// <param name="contents">The lines to append to the file.</param>
         /// <exception cref="ArgumentNullException"><paramref name="path"/> is<b>null</b> <para>-or-</para> <paramref name="contents"/> is <b>null</b>.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
-        /// <exception cref="SftpPathNotFoundException"><paramref name="path"/> was not found on the remote host.</exception>
+        /// <exception cref="SftpPathNotFoundException">The specified path is invalid, or its directory was not found on the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         /// <remarks>
         /// The characters are written to the file using UTF-8 encoding without a Byte-Order Mark (BOM)
@@ -1028,14 +1028,14 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Appends lines to a file by using a specified encoding, and closes the file.
+        /// Appends lines to a file by using a specified encoding, creating the file if it does not already exist.
         /// </summary>
         /// <param name="path">The file to append the lines to. The file is created if it does not already exist.</param>
         /// <param name="contents">The lines to append to the file.</param>
         /// <param name="encoding">The character encoding to use.</param>
         /// <exception cref="ArgumentNullException"><paramref name="path"/> is <b>null</b>. <para>-or-</para> <paramref name="contents"/> is <b>null</b>. <para>-or-</para> <paramref name="encoding"/> is <b>null</b>.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
-        /// <exception cref="SftpPathNotFoundException"><paramref name="path"/> was not found on the remote host.</exception>
+        /// <exception cref="SftpPathNotFoundException">The specified path is invalid, or its directory was not found on the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         public void AppendAllLines(string path, IEnumerable<string> contents, Encoding encoding)
         {
@@ -1054,13 +1054,13 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Appends the specified string to the file, and closes the file. 
+        /// Appends the specified string to the file, creating the file if it does not already exist.
         /// </summary>
         /// <param name="path">The file to append the specified string to.</param>
         /// <param name="contents">The string to append to the file.</param>
         /// <exception cref="ArgumentNullException"><paramref name="path"/> is <b>null</b>. <para>-or-</para> <paramref name="contents"/> is <b>null</b>.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
-        /// <exception cref="SftpPathNotFoundException"><paramref name="path"/> was not found on the remote host.</exception>
+        /// <exception cref="SftpPathNotFoundException">The specified path is invalid, or its directory was not found on the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         /// <remarks>
         /// The characters are written to the file using UTF-8 encoding without a Byte-Order Mark (BOM).
@@ -1074,14 +1074,14 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Appends the specified string to the file, and closes the file.
+        /// Appends the specified string to the file, creating the file if it does not already exist.
         /// </summary>
         /// <param name="path">The file to append the specified string to.</param>
         /// <param name="contents">The string to append to the file.</param>
         /// <param name="encoding">The character encoding to use.</param>
         /// <exception cref="ArgumentNullException"><paramref name="path"/> is <b>null</b>. <para>-or-</para> <paramref name="contents"/> is <b>null</b>. <para>-or-</para> <paramref name="encoding"/> is <b>null</b>.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
-        /// <exception cref="SftpPathNotFoundException"><paramref name="path"/> was not found on the remote host.</exception>
+        /// <exception cref="SftpPathNotFoundException">The specified path is invalid, or its directory was not found on the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         public void AppendAllText(string path, string contents, Encoding encoding)
         {
@@ -1092,7 +1092,8 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Creates a <see cref="StreamWriter"/> that appends UTF-8 encoded text to an existing file.
+        /// Creates a <see cref="StreamWriter"/> that appends UTF-8 encoded text to the specified file,
+        /// creating the file if it does not already exist.
         /// </summary>
         /// <param name="path">The path to the file to append to.</param>
         /// <returns>
@@ -1101,7 +1102,7 @@ namespace Renci.SshNet
         /// </returns>
         /// <exception cref="ArgumentNullException"><paramref name="path"/> is <b>null</b>.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
-        /// <exception cref="SftpPathNotFoundException"><paramref name="path"/> was not found on the remote host.</exception>
+        /// <exception cref="SftpPathNotFoundException">The specified path is invalid, or its directory was not found on the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         public StreamWriter AppendText(string path)
         {
@@ -1109,16 +1110,17 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Creates a <see cref="StreamWriter"/> that appends text to an existing file using the specified encoding.
+        /// Creates a <see cref="StreamWriter"/> that appends text to a file using the specified
+        /// encoding, creating the file if it does not already exist.
         /// </summary>
         /// <param name="path">The path to the file to append to.</param>
         /// <param name="encoding">The character encoding to use.</param>
         /// <returns>
-        /// A <see cref="StreamWriter"/> that appends text to an existing file using the specified encoding.
+        /// A <see cref="StreamWriter"/> that appends text to a file using the specified encoding.
         /// </returns>
         /// <exception cref="ArgumentNullException"><paramref name="path"/> is <b>null</b>. <para>-or-</para> <paramref name="encoding"/> is <b>null</b>.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
-        /// <exception cref="SftpPathNotFoundException"><paramref name="path"/> was not found on the remote host.</exception>
+        /// <exception cref="SftpPathNotFoundException">The specified path is invalid, or its directory was not found on the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         public StreamWriter AppendText(string path, Encoding encoding)
         {
@@ -1139,6 +1141,7 @@ namespace Renci.SshNet
         /// </returns>
         /// <exception cref="ArgumentNullException"><paramref name="path"/> is <b>null</b>.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="SftpPathNotFoundException">The specified path is invalid, or its directory was not found on the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         /// <remarks>
         /// If the target file already exists, it is first truncated to zero bytes.
@@ -1160,6 +1163,7 @@ namespace Renci.SshNet
         /// </returns>
         /// <exception cref="ArgumentNullException"><paramref name="path"/> is <b>null</b>.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="SftpPathNotFoundException">The specified path is invalid, or its directory was not found on the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         /// <remarks>
         /// If the target file already exists, it is first truncated to zero bytes.
@@ -1202,10 +1206,11 @@ namespace Renci.SshNet
         /// <param name="path">The file to be opened for writing.</param>
         /// <param name="encoding">The character encoding to use.</param>
         /// <returns>
-        /// A <see cref="StreamWriter"/> that writes to the specified file using the specified encoding.
+        /// A <see cref="StreamWriter"/> that writes to a file using the specified encoding.
         /// </returns>
         /// <exception cref="ArgumentNullException"><paramref name="path"/> is <b>null</b>.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="SftpPathNotFoundException">The specified path is invalid, or its directory was not found on the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         /// <remarks>
         /// <para>
@@ -1570,6 +1575,7 @@ namespace Renci.SshNet
         /// <param name="bytes">The bytes to write to the file.</param>
         /// <exception cref="ArgumentNullException"><paramref name="path"/> is <b>null</b>.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="SftpPathNotFoundException">The specified path is invalid, or its directory was not found on the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         /// <remarks>
         /// <para>
@@ -1594,6 +1600,7 @@ namespace Renci.SshNet
         /// <param name="contents">The lines to write to the file.</param>
         /// <exception cref="ArgumentNullException"><paramref name="path"/> is <b>null</b>.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="SftpPathNotFoundException">The specified path is invalid, or its directory was not found on the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         /// <remarks>
         /// <para>
@@ -1618,6 +1625,7 @@ namespace Renci.SshNet
         /// <param name="contents">The string array to write to the file.</param>
         /// <exception cref="ArgumentNullException"><paramref name="path"/> is <b>null</b>.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="SftpPathNotFoundException">The specified path is invalid, or its directory was not found on the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         /// <remarks>
         /// <para>
@@ -1643,6 +1651,7 @@ namespace Renci.SshNet
         /// <param name="encoding">The character encoding to use.</param>
         /// <exception cref="ArgumentNullException"><paramref name="path"/> is <b>null</b>.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="SftpPathNotFoundException">The specified path is invalid, or its directory was not found on the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         /// <remarks>
         /// <para>
@@ -1671,6 +1680,7 @@ namespace Renci.SshNet
         /// <param name="encoding">An <see cref="Encoding"/> object that represents the character encoding applied to the string array.</param>
         /// <exception cref="ArgumentNullException"><paramref name="path"/> is <b>null</b>.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="SftpPathNotFoundException">The specified path is invalid, or its directory was not found on the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         /// <remarks>
         /// <para>
@@ -1698,6 +1708,7 @@ namespace Renci.SshNet
         /// <param name="contents">The string to write to the file.</param>
         /// <exception cref="ArgumentNullException"><paramref name="path"/> is <b>null</b>.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="SftpPathNotFoundException">The specified path is invalid, or its directory was not found on the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         /// <remarks>
         /// <para>
@@ -1726,6 +1737,7 @@ namespace Renci.SshNet
         /// <param name="encoding">The encoding to apply to the string.</param>
         /// <exception cref="ArgumentNullException"><paramref name="path"/> is <b>null</b>.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="SftpPathNotFoundException">The specified path is invalid, or its directory was not found on the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         /// <remarks>
         /// <para>

@@ -18,6 +18,8 @@ namespace Renci.SshNet
     /// </summary>
     public class SftpClient : BaseClient
     {
+        private static readonly Encoding Utf8NoBOM = new UTF8Encoding(false, true);
+
         /// <summary>
         /// Holds the <see cref="ISftpSession"/> instance that is used to communicate to the
         /// SFTP server.
@@ -1006,6 +1008,9 @@ namespace Renci.SshNet
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="SftpPathNotFoundException"><paramref name="path"/> was not found on the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
+        /// <remarks>
+        /// The characters are written to the file using UTF-8 encoding without a Byte-Order Mark (BOM)
+        /// </remarks>
         public void AppendAllLines(string path, IEnumerable<string> contents)
         {
             CheckDisposed();
@@ -1057,6 +1062,9 @@ namespace Renci.SshNet
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="SftpPathNotFoundException"><paramref name="path"/> was not found on the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
+        /// <remarks>
+        /// The characters are written to the file using UTF-8 encoding without a Byte-Order Mark (BOM).
+        /// </remarks>
         public void AppendAllText(string path, string contents)
         {
             using (var stream = AppendText(path))
@@ -1088,7 +1096,8 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="path">The path to the file to append to.</param>
         /// <returns>
-        /// A <see cref="StreamWriter"/> that appends UTF-8 encoded text to an existing file.
+        /// A <see cref="StreamWriter"/> that appends text to a file using UTF-8 encoding without a
+        /// Byte-Order Mark (BOM).
         /// </returns>
         /// <exception cref="ArgumentNullException"><paramref name="path"/> is <b>null</b>.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
@@ -1096,7 +1105,7 @@ namespace Renci.SshNet
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         public StreamWriter AppendText(string path)
         {
-            return AppendText(path, Encoding.UTF8);
+            return AppendText(path, Utf8NoBOM);
         }
 
         /// <summary>
@@ -1167,10 +1176,12 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="path">The file to be opened for writing.</param>
         /// <returns>
-        /// A <see cref="StreamWriter"/> that writes to the specified file using UTF-8 encoding.
+        /// A <see cref="StreamWriter"/> that writes text to a file using UTF-8 encoding without
+        /// a Byte-Order Mark (BOM).
         /// </returns>
         /// <exception cref="ArgumentNullException"><paramref name="path"/> is <b>null</b>.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="SftpPathNotFoundException">The specified path is invalid, or its directory was not found on the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         /// <remarks>
         /// <para>
@@ -1182,7 +1193,7 @@ namespace Renci.SshNet
         /// </remarks>
         public StreamWriter CreateText(string path)
         {
-            return CreateText(path, Encoding.UTF8);
+            return CreateText(path, Utf8NoBOM);
         }
 
         /// <summary>
@@ -1586,6 +1597,9 @@ namespace Renci.SshNet
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         /// <remarks>
         /// <para>
+        /// The characters are written to the file using UTF-8 encoding without a Byte-Order Mark (BOM).
+        /// </para>
+        /// <para>
         /// If the target file already exists, it is overwritten. It is not first truncated to zero bytes.
         /// </para>
         /// <para>
@@ -1594,7 +1608,7 @@ namespace Renci.SshNet
         /// </remarks>
         public void WriteAllLines(string path, IEnumerable<string> contents)
         {
-            WriteAllLines(path, contents, Encoding.UTF8);
+            WriteAllLines(path, contents, Utf8NoBOM);
         }
 
         /// <summary>
@@ -1607,6 +1621,9 @@ namespace Renci.SshNet
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         /// <remarks>
         /// <para>
+        /// The characters are written to the file using UTF-8 encoding without a Byte-Order Mark (BOM).
+        /// </para>
+        /// <para>
         /// If the target file already exists, it is overwritten. It is not first truncated to zero bytes.
         /// </para>
         /// <para>
@@ -1615,7 +1632,7 @@ namespace Renci.SshNet
         /// </remarks>
         public void WriteAllLines(string path, string[] contents)
         {
-            WriteAllLines(path, contents, Encoding.UTF8);
+            WriteAllLines(path, contents, Utf8NoBOM);
         }
 
         /// <summary>
@@ -1682,10 +1699,10 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="path"/> is <b>null</b>.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
-        /// <para>
-        /// If the target file already exists, it is overwritten. It is not first truncated to zero bytes.
-        /// </para>
         /// <remarks>
+        /// <para>
+        /// The characters are written to the file using UTF-8 encoding without a Byte-Order Mark (BOM).
+        /// </para>
         /// <para>
         /// If the target file already exists, it is overwritten. It is not first truncated to zero bytes.
         /// </para>

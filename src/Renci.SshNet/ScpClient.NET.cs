@@ -34,12 +34,12 @@ namespace Renci.SshNet
                 channel.DataReceived += (sender, e) => input.Write(e.Data, 0, e.Data.Length);
                 channel.Open();
 
-                if (!channel.SendExecRequest(string.Format("scp -t \"{0}\"", path)))
+                if (!channel.SendExecRequest(string.Format("scp -t {0}", path.ShellQuote())))
                     throw new SshException("Secure copy execution request was rejected by the server. Please consult the server logs.");
 
                 CheckReturnCode(input);
 
-                InternalUpload(channel, input, fileInfo, fileInfo.Name);
+                InternalUpload(channel, input, fileInfo);
             }
         }
 
@@ -64,7 +64,7 @@ namespace Renci.SshNet
                 channel.Open();
 
                 // start recursive upload
-                channel.SendExecRequest(string.Format("scp -rt \"{0}\"", path));
+                channel.SendExecRequest(string.Format("scp -rt {0}", path.ShellQuote()));
                 CheckReturnCode(input);
 
                 // set last write and last access time on specified remote path
@@ -101,9 +101,10 @@ namespace Renci.SshNet
                 channel.DataReceived += (sender, e) => input.Write(e.Data, 0, e.Data.Length);
                 channel.Open();
 
-                //  Send channel command request
-                channel.SendExecRequest(string.Format("scp -pf \"{0}\"", filename));
-                SendConfirmation(channel); //  Send reply
+                // Send channel command request
+                channel.SendExecRequest(string.Format("scp -pf {0}", filename.ShellQuote()));
+                // Send reply
+                SendConfirmation(channel);
 
                 InternalDownload(channel, input, fileInfo);
             }
@@ -129,20 +130,29 @@ namespace Renci.SshNet
                 channel.DataReceived += (sender, e) => input.Write(e.Data, 0, e.Data.Length);
                 channel.Open();
 
-                //  Send channel command request
-                channel.SendExecRequest(string.Format("scp -prf \"{0}\"", directoryName));
-                SendConfirmation(channel); //  Send reply
+                // Send channel command request
+                channel.SendExecRequest(string.Format("scp -prf {0}", directoryName.ShellQuote()));
+                // Send reply
+                SendConfirmation(channel);
 
                 InternalDownload(channel, input, directoryInfo);
             }
         }
 
-        private void InternalUpload(IChannelSession channel, Stream input, FileInfo fileInfo, string filename)
+        /// <summary>
+        /// Uploads the file in the active directory context, and set
+        /// </summary>
+        /// <param name="channel">The channel to perform the upload in.</param>
+        /// <param name="input">A <see cref="Stream"/> from which any feedback from the server can be read.</param>
+        /// <param name="fileInfo">The file to upload.</param>
+        private void InternalUpload(IChannelSession channel, Stream input, FileInfo fileInfo)
         {
-            InternalSetTimestamp(channel, input, fileInfo.LastWriteTimeUtc, fileInfo.LastAccessTimeUtc);
             using (var source = fileInfo.OpenRead())
             {
-                InternalUpload(channel, input, source, filename);
+                // set the last write and last access time for the next file uploaded
+                InternalSetTimestamp(channel, input, fileInfo.LastWriteTimeUtc, fileInfo.LastAccessTimeUtc);
+                // upload the actual file
+                InternalUpload(channel, input, source, fileInfo.Name);
             }
         }
 
@@ -152,7 +162,7 @@ namespace Renci.SshNet
             var files = directoryInfo.GetFiles();
             foreach (var file in files)
             {
-                InternalUpload(channel, input, file, file.Name);
+                InternalUpload(channel, input, file);
             }
 
             //  Upload directories
@@ -213,7 +223,7 @@ namespace Renci.SshNet
                     }
                     else
                     {
-                        //  Dont create directory for first level
+                        //  Don't create directory for first level
                         newDirectoryInfo = fileSystemInfo as DirectoryInfo;
                     }
 

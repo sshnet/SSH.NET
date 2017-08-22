@@ -220,7 +220,7 @@ namespace Renci.SshNet
                 channel.Open();
 
                 //  Send channel command request
-                channel.SendExecRequest(string.Format("scp -f \"{0}\"", filename));
+                channel.SendExecRequest(string.Format("scp -f {0}", filename.ShellQuote()));
                 SendConfirmation(channel); //  Send reply
 
                 var message = ReadString(input);
@@ -256,7 +256,8 @@ namespace Renci.SshNet
         {
             var length = source.Length;
 
-            SendData(channel, string.Format("C0644 {0} {1}\n", length, Path.GetFileName(filename)));
+            // specify permissions, length and name of file being upload
+            SendData(channel, string.Format("C0644 {0} {1}\n", length, filename));
             CheckReturnCode(input);
 
             var buffer = new byte[BufferSize];

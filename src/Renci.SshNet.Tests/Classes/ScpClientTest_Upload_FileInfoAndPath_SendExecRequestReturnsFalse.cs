@@ -20,6 +20,7 @@ namespace Renci.SshNet.Tests.Classes
         private ScpClient _scpClient;
         private FileInfo _fileInfo;
         private string _path;
+        private string _quotedPath;
         private string _fileName;
         private IList<ScpUploadEventArgs> _uploadingRegister;
         private SshException _actualException;
@@ -48,6 +49,7 @@ namespace Renci.SshNet.Tests.Classes
             _connectionInfo = new ConnectionInfo("host", 22, "user", new PasswordAuthenticationMethod("user", "pwd"));
             _fileInfo = new FileInfo(_fileName);
             _path = random.Next().ToString(CultureInfo.InvariantCulture);
+            _quotedPath = _path.ShellQuote();
             _uploadingRegister = new List<ScpUploadEventArgs>();
 
             _serviceFactoryMock = new Mock<IServiceFactory>(MockBehavior.Strict);
@@ -64,8 +66,7 @@ namespace Renci.SshNet.Tests.Classes
             _sessionMock.InSequence(sequence).Setup(p => p.CreateChannelSession()).Returns(_channelSessionMock.Object);
             _channelSessionMock.InSequence(sequence).Setup(p => p.Open());
             _channelSessionMock.InSequence(sequence)
-                .Setup(
-                    p => p.SendExecRequest(string.Format("scp -t \"{0}\"", _path))).Returns(false);
+                               .Setup(p => p.SendExecRequest(string.Format("scp -t {0}", _quotedPath))).Returns(false);
             _channelSessionMock.InSequence(sequence).Setup(p => p.Dispose());
             _pipeStreamMock.As<IDisposable>().InSequence(sequence).Setup(p => p.Dispose());
 
@@ -98,7 +99,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void SendExecREquestOnChannelSessionShouldBeInvokedOnce()
         {
-            _channelSessionMock.Verify(p => p.SendExecRequest(string.Format("scp -t \"{0}\"", _path)), Times.Once);
+            _channelSessionMock.Verify(p => p.SendExecRequest(string.Format("scp -t {0}", _quotedPath)), Times.Once);
         }
 
         [TestMethod]

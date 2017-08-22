@@ -400,10 +400,11 @@ namespace Renci.SshNet
                 b = ReadByte(stream);
             }
 
-            if (hasError)
-                throw new ScpException(ConnectionInfo.Encoding.GetString(buffer.ToArray()));
+            var readBytes = buffer.ToArray();
 
-            return ConnectionInfo.Encoding.GetString(buffer.ToArray());
+            if (hasError)
+                throw new ScpException(ConnectionInfo.Encoding.GetString(readBytes, 0, readBytes.Length));
+            return ConnectionInfo.Encoding.GetString(readBytes, 0, readBytes.Length);
         }
     }
 }

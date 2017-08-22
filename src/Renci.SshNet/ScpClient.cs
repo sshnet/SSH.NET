@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Text;
 using Renci.SshNet.Channels;
 using System.IO;
 using Renci.SshNet.Common;
 using System.Text.RegularExpressions;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
+using System.Collections.Generic;
 
 namespace Renci.SshNet
 {
@@ -13,13 +13,23 @@ namespace Renci.SshNet
     /// Provides SCP client functionality.
     /// </summary>
     /// <remarks>
+    /// <para>
     /// More information on the SCP protocol is available here:
     /// https://github.com/net-ssh/net-scp/blob/master/lib/net/scp.rb
+    /// </para>
+    /// <para>
+    /// Known issues in OpenSSH:
+    /// <list type="bullet">
+    ///   <item>
+    ///     <description>Recursive download (-prf) does not deal well with specific UTF-8 and newline characters.</description>
+    ///     <description>Recursive update does not support empty path for uploading to home directorydeal well with specific UTF-8 and newline characters.</description>
+    ///   </item>
+    /// </list>
+    /// </para>
     /// </remarks>
     public partial class ScpClient : BaseClient
     {
         private static readonly Regex FileInfoRe = new Regex(@"C(?<mode>\d{4}) (?<length>\d+) (?<filename>.+)");
-        private static char[] _byteToChar;
 
         /// <summary>
         /// Gets or sets the operation timeout.
@@ -150,16 +160,6 @@ namespace Renci.SshNet
         {
             OperationTimeout = SshNet.Session.InfiniteTimeSpan;
             BufferSize = 1024 * 16;
-
-            if (_byteToChar == null)
-            {
-                _byteToChar = new char[128];
-                var ch = '\0';
-                for (var i = 0; i < 128; i++)
-                {
-                    _byteToChar[i] = ch++;
-                }
-            }
         }
 
         #endregion
@@ -243,7 +243,7 @@ namespace Renci.SshNet
             }
         }
 
-        private static void InternalSetTimestamp(IChannelSession channel, Stream input, DateTime lastWriteTime, DateTime lastAccessime)
+        private void InternalSetTimestamp(IChannelSession channel, Stream input, DateTime lastWriteTime, DateTime lastAccessime)
         {
             var zeroTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
             var modificationSeconds = (long) (lastWriteTime - zeroTime).TotalSeconds;
@@ -329,7 +329,7 @@ namespace Renci.SshNet
             SendData(channel, new byte[] { 0 });
         }
 
-        private static void SendConfirmation(IChannel channel, byte errorCode, string message)
+        private void SendConfirmation(IChannel channel, byte errorCode, string message)
         {
             SendData(channel, new[] { errorCode });
             SendData(channel, string.Format("{0}\n", message));
@@ -339,7 +339,7 @@ namespace Renci.SshNet
         /// Checks the return code.
         /// </summary>
         /// <param name="input">The output stream.</param>
-        private static void CheckReturnCode(Stream input)
+        private void CheckReturnCode(Stream input)
         {
             var b = ReadByte(input);
 
@@ -351,9 +351,9 @@ namespace Renci.SshNet
             }
         }
 
-        private static void SendData(IChannel channel, string command)
+        private void SendData(IChannel channel, string command)
         {
-            channel.SendData(SshData.Utf8.GetBytes(command));
+            channel.SendData(ConnectionInfo.Encoding.GetBytes(command));
         }
 
         private static void SendData(IChannel channel, byte[] buffer, int length)
@@ -374,35 +374,36 @@ namespace Renci.SshNet
             return b;
         }
 
-        private static string ReadString(Stream stream)
+        /// <summary>
+        /// Read a LF-terminated string from the <see cref="Stream"/>.
+        /// </summary>
+        /// <param name="stream">The <see cref="Stream"/> to read from.</param>
+        /// <returns>
+        /// The string without trailing LF.
+        /// </returns>
+        private string ReadString(Stream stream)
         {
             var hasError = false;
 
-            var sb = new StringBuilder();
+            var buffer = new List<byte>();
 
             var b = ReadByte(stream);
-
             if (b == 1 || b == 2)
             {
                 hasError = true;
                 b = ReadByte(stream);
             }
 
-            var ch = _byteToChar[b];
-
-            while (ch != '\n')
+            while (b != SshNet.Session.LineFeed)
             {
-                sb.Append(ch);
-
+                buffer.Add((byte) b);
                 b = ReadByte(stream);
-
-                ch = _byteToChar[b];
             }
 
             if (hasError)
-                throw new ScpException(sb.ToString());
+                throw new ScpException(ConnectionInfo.Encoding.GetString(buffer.ToArray()));
 
-            return sb.ToString();
+            return ConnectionInfo.Encoding.GetString(buffer.ToArray());
         }
     }
 }

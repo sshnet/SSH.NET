@@ -1,6 +1,7 @@
 ﻿using System;
 using Renci.SshNet.Channels;
 using System.IO;
+using System.Linq;
 using Renci.SshNet.Common;
 using System.Text.RegularExpressions;
 
@@ -13,6 +14,14 @@ namespace Renci.SshNet
     {
         private static readonly Regex DirectoryInfoRe = new Regex(@"D(?<mode>\d{4}) (?<length>\d+) (?<filename>.+)");
         private static readonly Regex TimestampRe = new Regex(@"T(?<mtime>\d+) 0 (?<atime>\d+) 0");
+
+        /// <summary>
+        /// Transferring UNIX files to Windows may require special treatment.
+        /// Enabling this will remove the following special characters from filenames when copying whole directories:
+        /// " &lt; &gt; | : * ? \ /
+        /// </summary>
+        public bool UnixToWindows { get; set; }
+
 
         /// <summary>
         /// Uploads the specified file to the remote host.
@@ -245,7 +254,13 @@ namespace Renci.SshNet
                     var fileInfo = fileSystemInfo as FileInfo;
 
                     if (fileInfo == null)
+                    {
+                        if (UnixToWindows)
+                        {
+                            fileName = SanitizeUnixFilenameForWindows(fileName);
+                        }
                         fileInfo = new FileInfo(string.Format("{0}{1}{2}", currentDirectoryFullName, Path.DirectorySeparatorChar, fileName));
+                    }
 
                     using (var output = fileInfo.OpenWrite())
                     {
@@ -277,6 +292,12 @@ namespace Renci.SshNet
 
                 SendConfirmation(channel, 1, string.Format("\"{0}\" is not valid protocol message.", message));
             }
+        }
+
+        private static string SanitizeUnixFilenameForWindows(string fileName)
+        {
+            fileName = Path.GetInvalidFileNameChars().Aggregate(fileName, (current, c) => current.Replace(c.ToString(), string.Empty));
+            return fileName;
         }
     }
 }

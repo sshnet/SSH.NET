@@ -116,5 +116,14 @@ namespace Renci.SshNet.Tests.Classes.Common
 
             Assert.AreEqual("'one\n\ntwo'", actual);
         }
+
+        public void SequenceOfSingleQuoteAndExclamationMark()
+        {
+            var value = "/var/would be 'kewl'!/not?";
+
+            var actual = value.ShellQuote();
+
+            Assert.AreEqual("'/var/would be '\"'\"'kewl'\"'\"\\!'/not?'", actual);
+        }
     }
 }

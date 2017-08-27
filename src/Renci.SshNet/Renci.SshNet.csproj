@@ -153,6 +153,7 @@
     <Compile Include="IClientAuthentication.cs" />
     <Compile Include="IConnectionInfo.cs" />
     <Compile Include="IForwardedPort.cs" />
+    <Compile Include="IRemotePathTransformation.cs" />
     <Compile Include="IServiceFactory.cs" />
     <Compile Include="IServiceFactory.NET.cs" />
     <Compile Include="ISession.cs" />
@@ -162,6 +163,9 @@
     <Compile Include="Messages\Transport\KeyExchangeEcdhInitMessage.cs" />
     <Compile Include="Messages\Transport\KeyExchangeEcdhReplyMessage.cs" />
     <Compile Include="Netconf\INetConfSession.cs" />
+    <Compile Include="RemotePathNoneTransformation.cs" />
+    <Compile Include="RemotePathQuoteTransformation.cs" />
+    <Compile Include="RemotePathTransformation.cs" />
     <Compile Include="Security\Cryptography\HMACMD5.cs" />
     <Compile Include="Security\Cryptography\HMACSHA1.cs" />
     <Compile Include="Security\Cryptography\HMACSHA256.cs" />

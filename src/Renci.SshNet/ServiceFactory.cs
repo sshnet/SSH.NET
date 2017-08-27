@@ -136,5 +136,18 @@ namespace Renci.SshNet
         {
             return new SftpResponseFactory();
         }
+
+        /// <summary>
+        /// Creates an <see cref="IRemotePathTransformation"/>  that quotes a path in a way to be suitable
+        /// to be used with a shell.
+        /// </summary>
+        /// <returns>
+        /// An <see cref="IRemotePathTransformation"/>  that quotes a path in a way to be suitable to be used
+        /// with a shell.
+        /// </returns>
+        public IRemotePathTransformation CreateRemotePathQuoteTransformation()
+        {
+            return new RemotePathQuoteTransformation();
+        }
     }
 }

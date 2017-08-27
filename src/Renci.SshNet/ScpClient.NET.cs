@@ -36,7 +36,7 @@ namespace Renci.SshNet
                 channel.DataReceived += (sender, e) => input.Write(e.Data, 0, e.Data.Length);
                 channel.Open();
 
-                if (!channel.SendExecRequest(string.Format("scp -t {0}", path.ShellQuote())))
+                if (!channel.SendExecRequest(string.Format("scp -t {0}", _remotePathTransformation.Transform(path))))
                 {
                     throw SecureExecutionRequestRejectedException();
                 }
@@ -74,7 +74,7 @@ namespace Renci.SshNet
                 channel.Open();
 
                 // start recursive upload
-                if (!channel.SendExecRequest(string.Format("scp -rt {0}", path.ShellQuote())))
+                if (!channel.SendExecRequest(string.Format("scp -rt {0}", _remotePathTransformation.Transform(path))))
                 {
                     throw SecureExecutionRequestRejectedException();
                 }
@@ -109,7 +109,7 @@ namespace Renci.SshNet
                 channel.Open();
 
                 // Send channel command request
-                if (!channel.SendExecRequest(string.Format("scp -pf {0}", filename.ShellQuote())))
+                if (!channel.SendExecRequest(string.Format("scp -pf {0}", _remotePathTransformation.Transform(filename))))
                 {
                     throw SecureExecutionRequestRejectedException();
                 }
@@ -143,7 +143,7 @@ namespace Renci.SshNet
                 channel.Open();
 
                 // Send channel command request
-                if (!channel.SendExecRequest(string.Format("scp -prf {0}", directoryName.ShellQuote())))
+                if (!channel.SendExecRequest(string.Format("scp -prf {0}", _remotePathTransformation.Transform(directoryName))))
                 {
                     throw SecureExecutionRequestRejectedException();
                 }

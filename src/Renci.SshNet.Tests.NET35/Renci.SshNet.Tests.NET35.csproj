@@ -768,11 +768,26 @@
     <Compile Include="..\Renci.SshNet.Tests\Classes\ScpClientTest.cs">
       <Link>Classes\ScpClientTest.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\ScpClientTest_Download_PathAndDirectoryInfo_SendExecRequestReturnsFalse.cs">
+      <Link>Classes\ScpClientTest_Download_PathAndDirectoryInfo_SendExecRequestReturnsFalse.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\ScpClientTest_Download_PathAndFileInfo_SendExecRequestReturnsFalse.cs">
+      <Link>Classes\ScpClientTest_Download_PathAndFileInfo_SendExecRequestReturnsFalse.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\ScpClientTest_Download_PathAndStream_SendExecRequestReturnsFalse.cs">
+      <Link>Classes\ScpClientTest_Download_PathAndStream_SendExecRequestReturnsFalse.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\ScpClientTest_Upload_DirectoryInfoAndPath_SendExecRequestReturnsFalse.cs">
+      <Link>Classes\ScpClientTest_Upload_DirectoryInfoAndPath_SendExecRequestReturnsFalse.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\ScpClientTest_Upload_FileInfoAndPath_SendExecRequestReturnsFalse.cs">
       <Link>Classes\ScpClientTest_Upload_FileInfoAndPath_SendExecRequestReturnsFalse.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\ScpClientTest_Upload_FileInfoAndPath_Success.cs">
       <Link>Classes\ScpClientTest_Upload_FileInfoAndPath_Success.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\ScpClientTest_Upload_StreamAndPath_SendExecRequestReturnsFalse.cs">
+      <Link>Classes\ScpClientTest_Upload_StreamAndPath_SendExecRequestReturnsFalse.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Security\CertificateHostAlgorithmTest.cs">
       <Link>Classes\Security\CertificateHostAlgorithmTest.cs</Link>
@@ -1569,7 +1584,7 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" ProjectLinkReference="c45379b9-17b1-4e89-bc2e-6d41726413e8" />
+      <UserProperties ProjectLinkReference="c45379b9-17b1-4e89-bc2e-6d41726413e8" ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

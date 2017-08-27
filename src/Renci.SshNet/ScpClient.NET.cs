@@ -22,6 +22,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="fileInfo" /> is <c>null</c>.</exception>
         /// <exception cref="ArgumentException"><paramref name="path"/> is <c>null</c> or empty.</exception>
         /// <exception cref="ScpException">A directory with the specified path exists on the remote host.</exception>
+        /// <exception cref="SshException">The secure copy execution request was rejected by the server.</exception>
         public void Upload(FileInfo fileInfo, string path)
         {
             if (fileInfo == null)
@@ -36,7 +37,9 @@ namespace Renci.SshNet
                 channel.Open();
 
                 if (!channel.SendExecRequest(string.Format("scp -t {0}", path.ShellQuote())))
-                    throw new SshException("Secure copy execution request was rejected by the server. Please consult the server logs.");
+                {
+                    throw SecureExecutionRequestRejectedException();
+                }
                 CheckReturnCode(input);
 
                 using (var source = fileInfo.OpenRead())
@@ -56,6 +59,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException">fileSystemInfo</exception>
         /// <exception cref="ArgumentException"><paramref name="path"/> is <c>null</c> or empty.</exception>
         /// <exception cref="ScpException"><paramref name="path"/> exists on the remote host, and is not a directory.</exception>
+        /// <exception cref="SshException">The secure copy execution request was rejected by the server.</exception>
         public void Upload(DirectoryInfo directoryInfo, string path)
         {
             if (directoryInfo == null)
@@ -70,7 +74,10 @@ namespace Renci.SshNet
                 channel.Open();
 
                 // start recursive upload
-                channel.SendExecRequest(string.Format("scp -rt {0}", path.ShellQuote()));
+                if (!channel.SendExecRequest(string.Format("scp -rt {0}", path.ShellQuote())))
+                {
+                    throw SecureExecutionRequestRejectedException();
+                }
                 CheckReturnCode(input);
 
                 UploadTimes(channel, input, directoryInfo);
@@ -87,6 +94,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="fileInfo"/> is <c>null</c>.</exception>
         /// <exception cref="ArgumentException"><paramref name="filename"/> is <c>null</c> or empty.</exception>
         /// <exception cref="ScpException"><paramref name="filename"/> exists on the remote host, and is not a regular file.</exception>
+        /// <exception cref="SshException">The secure copy execution request was rejected by the server.</exception>
         public void Download(string filename, FileInfo fileInfo)
         {
             if (string.IsNullOrEmpty(filename))
@@ -101,7 +109,10 @@ namespace Renci.SshNet
                 channel.Open();
 
                 // Send channel command request
-                channel.SendExecRequest(string.Format("scp -pf {0}", filename.ShellQuote()));
+                if (!channel.SendExecRequest(string.Format("scp -pf {0}", filename.ShellQuote())))
+                {
+                    throw SecureExecutionRequestRejectedException();
+                }
                 // Send reply
                 SendSuccessConfirmation(channel);
 
@@ -117,6 +128,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentException"><paramref name="directoryName"/> is <c>null</c> or empty.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="directoryInfo"/> is <c>null</c>.</exception>
         /// <exception cref="ScpException">File or directory with the specified path does not exist on the remote host.</exception>
+        /// <exception cref="SshException">The secure copy execution request was rejected by the server.</exception>
         public void Download(string directoryName, DirectoryInfo directoryInfo)
         {
             if (string.IsNullOrEmpty(directoryName))
@@ -131,7 +143,10 @@ namespace Renci.SshNet
                 channel.Open();
 
                 // Send channel command request
-                channel.SendExecRequest(string.Format("scp -prf {0}", directoryName.ShellQuote()));
+                if (!channel.SendExecRequest(string.Format("scp -prf {0}", directoryName.ShellQuote())))
+                {
+                    throw SecureExecutionRequestRejectedException();
+                }
                 // Send reply
                 SendSuccessConfirmation(channel);
 

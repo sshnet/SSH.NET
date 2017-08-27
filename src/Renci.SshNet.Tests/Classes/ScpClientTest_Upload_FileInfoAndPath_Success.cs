@@ -56,7 +56,7 @@ namespace Renci.SshNet.Tests.Classes
             _fileName = CreateTemporaryFile(_fileContent);
             _connectionInfo = new ConnectionInfo("host", 22, "user", new PasswordAuthenticationMethod("user", "pwd"));
             _fileInfo = new FileInfo(_fileName);
-            _path = random.Next().ToString(CultureInfo.InvariantCulture);
+            _path = "/home/sshnet/" + random.Next().ToString(CultureInfo.InvariantCulture);
             _quotedPath = _path.ShellQuote();
             _uploadingRegister = new List<ScpUploadEventArgs>();
         }
@@ -86,11 +86,7 @@ namespace Renci.SshNet.Tests.Classes
             _pipeStreamMock.InSequence(sequence).Setup(p => p.ReadByte()).Returns(0);
             _channelSessionMock.InSequence(sequence)
                 .Setup(p => p.SendData(It.Is<byte[]>(b => b.SequenceEqual(CreateData(
-                    string.Format("C0644 {0} {1}\n",
-                        _fileInfo.Length,
-                        Path.GetFileName(_fileName)
-                        )
-                    )))));
+                    string.Format("C0644 {0} {1}\n", _fileInfo.Length, string.Empty))))));
             _pipeStreamMock.InSequence(sequence).Setup(p => p.ReadByte()).Returns(0);
             _channelSessionMock.InSequence(sequence)
                 .Setup(

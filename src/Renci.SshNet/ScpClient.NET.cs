@@ -140,6 +140,22 @@ namespace Renci.SshNet
         }
 
         /// <summary>
+        /// Uploads the <see cref="FileSystemInfo.LastWriteTimeUtc"/> and <see cref="FileSystemInfo.LastAccessTimeUtc"/>
+        /// of the next file or directory to upload.
+        /// </summary>
+        /// <param name="channel">The channel to perform the upload in.</param>
+        /// <param name="input">A <see cref="Stream"/> from which any feedback from the server can be read.</param>
+        /// <param name="fileOrDirectory">The file or directory to upload.</param>
+        private void UploadTimes(IChannelSession channel, Stream input, FileSystemInfo fileOrDirectory)
+        {
+            var zeroTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+            var modificationSeconds = (long) (fileOrDirectory.LastWriteTimeUtc - zeroTime).TotalSeconds;
+            var accessSeconds = (long) (fileOrDirectory.LastAccessTimeUtc - zeroTime).TotalSeconds;
+            SendData(channel, string.Format("T{0} 0 {1} 0\n", modificationSeconds, accessSeconds));
+            CheckReturnCode(input);
+        }
+
+        /// <summary>
         /// Upload the files and subdirectories in the specified directory.
         /// </summary>
         /// <param name="channel">The channel to perform the upload in.</param>

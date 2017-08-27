@@ -258,6 +258,9 @@
     <Compile Include="..\Renci.SshNet\Common\PortForwardEventArgs.cs">
       <Link>Common\PortForwardEventArgs.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\Common\PosixPath.cs">
+      <Link>Common\PosixPath.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\Common\ProxyException.cs">
       <Link>Common\ProxyException.cs</Link>
     </Compile>

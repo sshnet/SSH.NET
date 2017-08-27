@@ -211,8 +211,13 @@
     <Compile Include="Classes\NetConfClientTest_Dispose_Disposed.cs" />
     <Compile Include="Classes\NetConfClientTest_Finalize_Connected.cs" />
     <Compile Include="Classes\PipeStreamTest_Dispose.cs" />
+    <Compile Include="Classes\ScpClientTest_Download_PathAndDirectoryInfo_SendExecRequestReturnsFalse.cs" />
+    <Compile Include="Classes\ScpClientTest_Download_PathAndFileInfo_SendExecRequestReturnsFalse.cs" />
+    <Compile Include="Classes\ScpClientTest_Download_PathAndStream_SendExecRequestReturnsFalse.cs" />
+    <Compile Include="Classes\ScpClientTest_Upload_DirectoryInfoAndPath_SendExecRequestReturnsFalse.cs" />
     <Compile Include="Classes\ScpClientTest_Upload_FileInfoAndPath_SendExecRequestReturnsFalse.cs" />
     <Compile Include="Classes\ScpClientTest_Upload_FileInfoAndPath_Success.cs" />
+    <Compile Include="Classes\ScpClientTest_Upload_StreamAndPath_SendExecRequestReturnsFalse.cs" />
     <Compile Include="Classes\Security\AlgorithmTest.cs" />
     <Compile Include="Classes\Security\CertificateHostAlgorithmTest.cs" />
     <Compile Include="Classes\Security\Cryptography\BlockCipherTest.cs" />

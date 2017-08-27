@@ -172,6 +172,7 @@ namespace Renci.SshNet
         /// <param name="source">The <see cref="Stream"/> to upload.</param>
         /// <param name="path">A relative or absolute path for the remote file.</param>
         /// <exception cref="ScpException">A directory with the specified path exists on the remote host.</exception>
+        /// <exception cref="SshException">The secure copy execution request was rejected by the server.</exception>
         public void Upload(Stream source, string path)
         {
             using (var input = ServiceFactory.CreatePipeStream())
@@ -183,7 +184,9 @@ namespace Renci.SshNet
                 // pass the full path to ensure the server does not create the directory part
                 // as a file in case the directory does not exist
                 if (!channel.SendExecRequest(string.Format("scp -t {0}", path.ShellQuote())))
-                    return;
+                {
+                    throw SecureExecutionRequestRejectedException();
+                }
                 CheckReturnCode(input);
 
                 // specify a zero-length file name to avoid creating a file with absolute
@@ -201,10 +204,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentException"><paramref name="filename"/> is <c>null</c> or contains only whitespace characters.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="destination"/> is <c>null</c>.</exception>
         /// <exception cref="ScpException"><paramref name="filename"/> exists on the remote host, and is not a regular file.</exception>
-        /// <remarks>
-        /// Method calls made by this method to <paramref name="destination"/>, may under certain conditions result
-        /// in exceptions thrown by the stream.
-        /// </remarks>
+        /// <exception cref="SshException">The secure copy execution request was rejected by the server.</exception>
         public void Download(string filename, Stream destination)
         {
             if (filename.IsNullOrWhiteSpace())
@@ -220,7 +220,10 @@ namespace Renci.SshNet
                 channel.Open();
 
                 //  Send channel command request
-                channel.SendExecRequest(string.Format("scp -f {0}", filename.ShellQuote()));
+                if (!channel.SendExecRequest(string.Format("scp -f {0}", filename.ShellQuote())))
+                {
+                    throw SecureExecutionRequestRejectedException();
+                }
                 SendSuccessConfirmation(channel); //  Send reply
 
                 var message = ReadString(input);
@@ -423,6 +426,11 @@ namespace Renci.SshNet
             if (hasError)
                 throw new ScpException(ConnectionInfo.Encoding.GetString(readBytes, 0, readBytes.Length));
             return ConnectionInfo.Encoding.GetString(readBytes, 0, readBytes.Length);
+        }
+
+        private static SshException SecureExecutionRequestRejectedException()
+        {
+            throw new SshException("Secure copy execution request was rejected by the server. Please consult the server logs.");
         }
     }
 }

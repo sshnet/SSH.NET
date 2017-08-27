@@ -10,7 +10,7 @@ using Renci.SshNet.Common;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    public class ScpClientTest_Upload_FileInfoAndPath_SendExecRequestReturnsFalse
+    public class ScpClientTest_Download_PathAndDirectoryInfo_SendExecRequestReturnsFalse
     {
         private Mock<IServiceFactory> _serviceFactoryMock;
         private Mock<ISession> _sessionMock;
@@ -18,10 +18,9 @@ namespace Renci.SshNet.Tests.Classes
         private Mock<PipeStream> _pipeStreamMock;
         private ConnectionInfo _connectionInfo;
         private ScpClient _scpClient;
-        private FileInfo _fileInfo;
+        private DirectoryInfo _directoryInfo;
         private string _path;
         private string _quotedPath;
-        private string _fileName;
         private IList<ScpUploadEventArgs> _uploadingRegister;
         private SshException _actualException;
 
@@ -32,22 +31,11 @@ namespace Renci.SshNet.Tests.Classes
             Act();
         }
 
-        [TestCleanup]
-        public void Cleanup()
-        {
-            if (_fileName != null)
-            {
-                File.Delete(_fileName);
-                _fileName = null;
-            }
-        }
-
         protected void Arrange()
         {
             var random = new Random();
-            _fileName = CreateTemporaryFile(new byte[] {1});
             _connectionInfo = new ConnectionInfo("host", 22, "user", new PasswordAuthenticationMethod("user", "pwd"));
-            _fileInfo = new FileInfo(_fileName);
+            _directoryInfo = new DirectoryInfo("destination");
             _path = "/home/sshnet/" + random.Next().ToString(CultureInfo.InvariantCulture);
             _quotedPath = _path.ShellQuote();
             _uploadingRegister = new List<ScpUploadEventArgs>();
@@ -66,7 +54,7 @@ namespace Renci.SshNet.Tests.Classes
             _sessionMock.InSequence(sequence).Setup(p => p.CreateChannelSession()).Returns(_channelSessionMock.Object);
             _channelSessionMock.InSequence(sequence).Setup(p => p.Open());
             _channelSessionMock.InSequence(sequence)
-                               .Setup(p => p.SendExecRequest(string.Format("scp -t {0}", _quotedPath))).Returns(false);
+                .Setup(p => p.SendExecRequest(string.Format("scp -prf {0}", _quotedPath))).Returns(false);
             _channelSessionMock.InSequence(sequence).Setup(p => p.Dispose());
             _pipeStreamMock.As<IDisposable>().InSequence(sequence).Setup(p => p.Dispose());
 
@@ -79,7 +67,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             try
             {
-                _scpClient.Upload(_fileInfo, _path);
+                _scpClient.Download(_path, _directoryInfo);
                 Assert.Fail();
             }
             catch (SshException ex)
@@ -99,7 +87,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void SendExecRequestOnChannelSessionShouldBeInvokedOnce()
         {
-            _channelSessionMock.Verify(p => p.SendExecRequest(string.Format("scp -t {0}", _quotedPath)), Times.Once);
+            _channelSessionMock.Verify(p => p.SendExecRequest(string.Format("scp -prf {0}", _quotedPath)), Times.Once);
         }
 
         [TestMethod]
@@ -118,16 +106,6 @@ namespace Renci.SshNet.Tests.Classes
         public void UploadingShouldNeverHaveFired()
         {
             Assert.AreEqual(0, _uploadingRegister.Count);
-        }
-
-        private string CreateTemporaryFile(byte[] content)
-        {
-            var tempFile = Path.GetTempFileName();
-            using (var fs = File.OpenWrite(tempFile))
-            {
-                fs.Write(content, 0, content.Length);
-            }
-            return tempFile;
         }
     }
 }

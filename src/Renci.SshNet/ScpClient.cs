@@ -22,7 +22,7 @@ namespace Renci.SshNet
     /// <list type="bullet">
     ///   <item>
     ///     <description>Recursive download (-prf) does not deal well with specific UTF-8 and newline characters.</description>
-    ///     <description>Recursive update does not support empty path for uploading to home directorydeal well with specific UTF-8 and newline characters.</description>
+    ///     <description>Recursive update does not support empty path for uploading to home directory.</description>
     ///   </item>
     /// </list>
     /// </para>
@@ -30,6 +30,8 @@ namespace Renci.SshNet
     public partial class ScpClient : BaseClient
     {
         private static readonly Regex FileInfoRe = new Regex(@"C(?<mode>\d{4}) (?<length>\d+) (?<filename>.+)");
+        private static readonly byte[] SuccessConfirmationCode = {0};
+        private static readonly byte[] ErrorConfirmationCode = { 1 };
 
         /// <summary>
         /// Gets or sets the operation timeout.
@@ -167,8 +169,9 @@ namespace Renci.SshNet
         /// <summary>
         /// Uploads the specified stream to the remote host.
         /// </summary>
-        /// <param name="source">Stream to upload.</param>
-        /// <param name="path">Remote host file name.</param>
+        /// <param name="source">The <see cref="Stream"/> to upload.</param>
+        /// <param name="path">A relative or absolute path for the remote file.</param>
+        /// <exception cref="ScpException">A directory with the specified path exists on the remote host.</exception>
         public void Upload(Stream source, string path)
         {
             using (var input = ServiceFactory.CreatePipeStream())
@@ -177,30 +180,27 @@ namespace Renci.SshNet
                 channel.DataReceived += (sender, e) => input.Write(e.Data, 0, e.Data.Length);
                 channel.Open();
 
-                var pathEnd = path.LastIndexOfAny(new[] { '\\', '/' });
-                if (pathEnd != -1)
-                {
-                    // split the path from the file
-                    var pathOnly = path.Substring(0, pathEnd);
-                    var fileOnly = path.Substring(pathEnd + 1);
-                    //  Send channel command request
-                    channel.SendExecRequest(string.Format("scp -t \"{0}\"", pathOnly));
-                    CheckReturnCode(input);
+                // pass the full path to ensure the server does not create the directory part
+                // as a file in case the directory does not exist
+                if (!channel.SendExecRequest(string.Format("scp -t {0}", path.ShellQuote())))
+                    return;
+                CheckReturnCode(input);
 
-                    path = fileOnly;
-                }
-
-                InternalUpload(channel, input, source, path);
+                // specify a zero-length file name to avoid creating a file with absolute
+                // path '<path>/<filename part of path>' if directory '<path>' already exists
+                UploadFileModeAndName(channel, input, source.Length, string.Empty);
+                UploadFileContent(channel, input, source, PosixPath.GetFileName(path));
             }
         }
 
         /// <summary>
         /// Downloads the specified file from the remote host to the stream.
         /// </summary>
-        /// <param name="filename">Remote host file name.</param>
-        /// <param name="destination">The stream where to download remote file.</param>
+        /// <param name="filename">A relative or absolute path for the remote file.</param>
+        /// <param name="destination">The <see cref="Stream"/> to download the remote file to.</param>
         /// <exception cref="ArgumentException"><paramref name="filename"/> is <c>null</c> or contains only whitespace characters.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="destination"/> is <c>null</c>.</exception>
+        /// <exception cref="ScpException"><paramref name="filename"/> exists on the remote host, and is not a regular file.</exception>
         /// <remarks>
         /// Method calls made by this method to <paramref name="destination"/>, may under certain conditions result
         /// in exceptions thrown by the stream.
@@ -221,7 +221,7 @@ namespace Renci.SshNet
 
                 //  Send channel command request
                 channel.SendExecRequest(string.Format("scp -f {0}", filename.ShellQuote()));
-                SendConfirmation(channel); //  Send reply
+                SendSuccessConfirmation(channel); //  Send reply
 
                 var message = ReadString(input);
                 var match = FileInfoRe.Match(message);
@@ -229,7 +229,7 @@ namespace Renci.SshNet
                 if (match.Success)
                 {
                     //  Read file
-                    SendConfirmation(channel); //  Send reply
+                    SendSuccessConfirmation(channel); //  Send reply
 
                     var length = long.Parse(match.Result("${length}"));
                     var fileName = match.Result("${filename}");
@@ -238,28 +238,45 @@ namespace Renci.SshNet
                 }
                 else
                 {
-                    SendConfirmation(channel, 1, string.Format("\"{0}\" is not valid protocol message.", message));
+                    SendErrorConfirmation(channel, string.Format("\"{0}\" is not valid protocol message.", message));
                 }
             }
         }
 
-        private void InternalSetTimestamp(IChannelSession channel, Stream input, DateTime lastWriteTime, DateTime lastAccessime)
+        /// <summary>
+        /// Sets mode, size and name of file being upload.
+        /// </summary>
+        /// <param name="channel">The channel to perform the upload in.</param>
+        /// <param name="input">A <see cref="Stream"/> from which any feedback from the server can be read.</param>
+        /// <param name="fileSize">The size of the content to upload.</param>
+        /// <param name="serverFileName">The name of the file, without path, to which the content is to be uploaded.</param>
+        /// <remarks>
+        /// <para>
+        /// When the SCP transfer is already initiated for a file, a zero-length <see cref="string"/> should
+        /// be specified for <paramref name="serverFileName"/>. This prevents the server from uploading the
+        /// content to a file with path <c>&lt;file path&gt;/<paramref name="serverFileName"/></c> if there's
+        /// already a directory with this path, and allows us to receive an error response.
+        /// </para>
+        /// </remarks>
+        private void UploadFileModeAndName(IChannelSession channel, Stream input, long fileSize, string serverFileName)
         {
-            var zeroTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
-            var modificationSeconds = (long) (lastWriteTime - zeroTime).TotalSeconds;
-            var accessSeconds = (long) (lastAccessime - zeroTime).TotalSeconds;
-            SendData(channel, string.Format("T{0} 0 {1} 0\n", modificationSeconds, accessSeconds));
+            SendData(channel, string.Format("C0644 {0} {1}\n", fileSize, serverFileName));
             CheckReturnCode(input);
         }
 
-        private void InternalUpload(IChannelSession channel, Stream input, Stream source, string filename)
+        /// <summary>
+        /// Uploads the content of a file.
+        /// </summary>
+        /// <param name="channel">The channel to perform the upload in.</param>
+        /// <param name="input">A <see cref="Stream"/> from which any feedback from the server can be read.</param>
+        /// <param name="source">The content to upload.</param>
+        /// <param name="remoteFileName">The name of the remote file, without path, to which the content is uploaded.</param>
+        /// <remarks>
+        /// <paramref name="remoteFileName"/> is only used for raising the <see cref="Uploading"/> event.
+        /// </remarks>
+        private void UploadFileContent(IChannelSession channel, Stream input, Stream source, string remoteFileName)
         {
-            var length = source.Length;
-
-            // specify permissions, length and name of file being upload
-            SendData(channel, string.Format("C0644 {0} {1}\n", length, filename));
-            CheckReturnCode(input);
-
+            var totalLength = source.Length;
             var buffer = new byte[BufferSize];
 
             var read = source.Read(buffer, 0, buffer.Length);
@@ -272,12 +289,12 @@ namespace Renci.SshNet
 
                 totalRead += read;
 
-                RaiseUploadingEvent(filename, length, totalRead);
+                RaiseUploadingEvent(remoteFileName, totalLength, totalRead);
 
                 read = source.Read(buffer, 0, buffer.Length);
             }
 
-            SendConfirmation(channel);
+            SendSuccessConfirmation(channel);
             CheckReturnCode(input);
         }
 
@@ -304,7 +321,7 @@ namespace Renci.SshNet
             RaiseDownloadingEvent(filename, length, length - needToRead);
 
             //  Send confirmation byte after last data byte was read
-            SendConfirmation(channel);
+            SendSuccessConfirmation(channel);
 
             CheckReturnCode(input);
         }
@@ -325,15 +342,15 @@ namespace Renci.SshNet
             }
         }
 
-        private static void SendConfirmation(IChannel channel)
+        private static void SendSuccessConfirmation(IChannel channel)
         {
-            SendData(channel, new byte[] { 0 });
+            SendData(channel, SuccessConfirmationCode);
         }
 
-        private void SendConfirmation(IChannel channel, byte errorCode, string message)
+        private void SendErrorConfirmation(IChannel channel, string message)
         {
-            SendData(channel, new[] { errorCode });
-            SendData(channel, string.Format("{0}\n", message));
+            SendData(channel, ErrorConfirmationCode);
+            SendData(channel, string.Concat(message, "\n"));
         }
 
         /// <summary>

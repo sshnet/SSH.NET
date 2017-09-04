@@ -4,12 +4,12 @@ using System.Text;
 namespace Renci.SshNet
 {
     /// <summary>
-    /// Quotes a path in a way to be suitable to be used with a shell.
+    /// Quotes a path in a way to be suitable to be used with a shell-based server.
     /// </summary>
-    internal class RemotePathQuoteTransformation : IRemotePathTransformation
+    internal class RemotePathShellQuoteTransformation : IRemotePathTransformation
     {
         /// <summary>
-        /// Quotes a path in a way to be suitable to be used with a shell.
+        /// Quotes a path in a way to be suitable to be used with a shell-based server.
         /// </summary>
         /// <param name="path">The path to transform.</param>
         /// <returns>
@@ -23,9 +23,13 @@ namespace Renci.SshNet
         /// pair of quotation marks.
         /// </para>
         /// <para>
-        /// If a shell command contains an exclamation mark (!), the C-Shell interprets it as a
-        /// meta-character for history substitution. This even works inside single-quotes or
-        /// quotation marks, unless escaped with a backslash (\).
+        /// An exclamation mark in <paramref name="path"/> is escaped with a backslash. This is
+        /// necessary because C Shell interprets it as a meta-character for history substitution
+        /// even when enclosed in single quotes or quotation marks.
+        /// </para>
+        /// <para>
+        /// All other characters are enclosed in single quotes. Sequences of such characters are grouped
+        /// in a single pair of single quotes.
         /// </para>
         /// <para>
         /// References:
@@ -42,10 +46,42 @@ namespace Renci.SshNet
         /// </list>
         /// </para>
         /// </remarks>
-        /// <returns>
-        /// The transformed path.
-        /// </returns>
-        /// <exception cref="ArgumentNullException"><paramref name="path"/> is <c>null</c>.</exception>
+        /// <example>
+        /// <list type="table">
+        ///   <listheader>
+        ///     <term>Original</term>
+        ///     <term>Transformed</term>
+        ///   </listheader>
+        ///   <item>
+        ///     <term>/var/log/auth.log</term>
+        ///     <term>'/var/log/auth.log'</term>
+        ///   </item>
+        ///   <item>
+        ///     <term>/var/mp3/Guns N' Roses</term>
+        ///     <term>'/var/mp3/Guns N'"'"' Roses'</term>
+        ///   </item>
+        ///   <item>
+        ///     <term>/var/garbage!/temp</term>
+        ///     <term>'/var/garbage'\!'/temp'</term>
+        ///   </item>
+        ///   <item>
+        ///     <term>/var/would be 'kewl'!, not?</term>
+        ///     <term>'/var/would be '"'"'kewl'"'"\!', not?'</term>
+        ///   </item>
+        ///   <item>
+        ///     <term>!ignore!</term>
+        ///     <term>\!'ignore'\!</term>
+        ///   </item>
+        ///   <item>
+        ///     <term></term>
+        ///     <term>''</term>
+        ///   </item>
+        ///   <item>
+        ///     <term>Hello &quot;World&quot;</term>
+        ///     <term>'Hello "World"'</term>
+        ///   </item>
+        /// </list>
+        /// </example>
         public string Transform(string path)
         {
             if (path == null)

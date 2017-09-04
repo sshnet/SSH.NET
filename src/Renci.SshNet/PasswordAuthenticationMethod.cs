@@ -29,6 +29,17 @@ namespace Renci.SshNet
         }
 
         /// <summary>
+        /// Gets the password as a sequence of bytes.
+        /// </summary>
+        /// <value>
+        /// The password as a sequence of bytes.
+        /// </value>
+        internal byte[] Password
+        {
+            get { return _password; }
+        }
+
+        /// <summary>
         /// Occurs when user's password has expired and needs to be changed.
         /// </summary>
         public event EventHandler<AuthenticationPasswordChangeEventArgs> PasswordExpired;

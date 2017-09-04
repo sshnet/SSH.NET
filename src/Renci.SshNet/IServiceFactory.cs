@@ -64,13 +64,14 @@ namespace Renci.SshNet
         ISftpResponseFactory CreateSftpResponseFactory();
 
         /// <summary>
-        /// Creates an <see cref="IRemotePathTransformation"/>  that quotes a path in a way to be suitable
-        /// to be used with a shell.
+        /// Creates an <see cref="IRemotePathTransformation"/> that encloses a path in double quotes, and escapes
+        /// any embedded double quote with a backslash.
         /// </summary>
         /// <returns>
-        /// An <see cref="IRemotePathTransformation"/>  that quotes a path in a way to be suitable to be used
+        /// An <see cref="IRemotePathTransformation"/> that encloses a path in double quotes, and escapes any
+        /// embedded double quote with a backslash.
         /// with a shell.
         /// </returns>
-        IRemotePathTransformation CreateRemotePathQuoteTransformation();
+        IRemotePathTransformation CreateRemotePathDoubleQuoteTransformation();
     }
 }

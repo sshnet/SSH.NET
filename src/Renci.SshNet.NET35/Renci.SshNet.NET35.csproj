@@ -581,14 +581,14 @@
     <Compile Include="..\Renci.SshNet\ProxyTypes.cs">
       <Link>ProxyTypes.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\RemotePathEscapeTransformation.cs">
-      <Link>RemotePathEscapeTransformation.cs</Link>
+    <Compile Include="..\Renci.SshNet\RemotePathDoubleQuoteTransformation.cs">
+      <Link>RemotePathDoubleQuoteTransformation.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\RemotePathNoneTransformation.cs">
       <Link>RemotePathNoneTransformation.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\RemotePathQuoteTransformation.cs">
-      <Link>RemotePathQuoteTransformation.cs</Link>
+    <Compile Include="..\Renci.SshNet\RemotePathShellQuoteTransformation.cs">
+      <Link>RemotePathShellQuoteTransformation.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\RemotePathTransformation.cs">
       <Link>RemotePathTransformation.cs</Link>

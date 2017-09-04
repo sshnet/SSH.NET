@@ -56,12 +56,18 @@ namespace Renci.SshNet
         /// Gets or sets the transformation to apply to remote paths.
         /// </summary>
         /// <value>
-        /// The transformation to apply to remote paths. The default is <see cref="SshNet.RemotePathTransformation.Quote"/>.
+        /// The transformation to apply to remote paths. The default is <see cref="SshNet.RemotePathTransformation.DoubleQuote"/>.
         /// </value>
-        /// <exception cref="RemotePathTransformation"><paramref name="value"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="value"/> is <c>null</c>.</exception>
         /// <remarks>
+        /// <para>
         /// This transformation is applied to the remote file or directory path that is passed to the
         /// <c>scp</c> command.
+        /// </para>
+        /// <para>
+        /// See <see cref="SshNet.RemotePathTransformation"/> for the transformations that are supplied
+        /// out-of-the-box with SSH.NET.
+        /// </para>
         /// </remarks>
         public IRemotePathTransformation RemotePathTransformation
         {
@@ -186,7 +192,7 @@ namespace Renci.SshNet
         {
             OperationTimeout = SshNet.Session.InfiniteTimeSpan;
             BufferSize = 1024 * 16;
-            _remotePathTransformation = SshNet.RemotePathTransformation.Quote;
+            _remotePathTransformation = serviceFactory.CreateRemotePathDoubleQuoteTransformation();
         }
 
         #endregion

@@ -314,6 +314,9 @@
     <Compile Include="..\Renci.SshNet\IForwardedPort.cs">
       <Link>IForwardedPort.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\IRemotePathTransformation.cs">
+      <Link>IRemotePathTransformation.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\IServiceFactory.cs">
       <Link>IServiceFactory.cs</Link>
     </Compile>
@@ -571,6 +574,18 @@
     </Compile>
     <Compile Include="..\Renci.SshNet\ProxyTypes.cs">
       <Link>ProxyTypes.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\RemotePathDoubleQuoteTransformation.cs">
+      <Link>RemotePathDoubleQuoteTransformation.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\RemotePathNoneTransformation.cs">
+      <Link>RemotePathNoneTransformation.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\RemotePathShellQuoteTransformation.cs">
+      <Link>RemotePathShellQuoteTransformation.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\RemotePathTransformation.cs">
+      <Link>RemotePathTransformation.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\ScpClient.cs">
       <Link>ScpClient.cs</Link>
@@ -949,7 +964,7 @@
       <FlavorProperties GUID="{A1591282-1198-4647-A2B1-27E5FF5F6F3B}">
         <SilverlightProjectProperties />
       </FlavorProperties>
-      <UserProperties ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" ProjectLinkReference="2f5f8c90-0bd1-424f-997c-7bc6280919d1" />
+      <UserProperties ProjectLinkReference="2f5f8c90-0bd1-424f-997c-7bc6280919d1" ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

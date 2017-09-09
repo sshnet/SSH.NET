@@ -33,6 +33,8 @@ namespace Renci.SshNet
         private static readonly byte[] SuccessConfirmationCode = {0};
         private static readonly byte[] ErrorConfirmationCode = { 1 };
 
+        private IRemotePathTransformation _remotePathTransformation;
+
         /// <summary>
         /// Gets or sets the operation timeout.
         /// </summary>
@@ -49,6 +51,34 @@ namespace Renci.SshNet
         /// The size of the buffer. The default buffer size is 16384 bytes.
         /// </value>
         public uint BufferSize { get; set; }
+
+        /// <summary>
+        /// Gets or sets the transformation to apply to remote paths.
+        /// </summary>
+        /// <value>
+        /// The transformation to apply to remote paths. The default is <see cref="SshNet.RemotePathTransformation.DoubleQuote"/>.
+        /// </value>
+        /// <exception cref="ArgumentNullException"><paramref name="value"/> is <c>null</c>.</exception>
+        /// <remarks>
+        /// <para>
+        /// This transformation is applied to the remote file or directory path that is passed to the
+        /// <c>scp</c> command.
+        /// </para>
+        /// <para>
+        /// See <see cref="SshNet.RemotePathTransformation"/> for the transformations that are supplied
+        /// out-of-the-box with SSH.NET.
+        /// </para>
+        /// </remarks>
+        public IRemotePathTransformation RemotePathTransformation
+        {
+            get { return _remotePathTransformation; }
+            set
+            {
+                if (value == null)
+                    throw new ArgumentNullException("value");
+                _remotePathTransformation = value;
+            }
+        }
 
         /// <summary>
         /// Occurs when downloading file.
@@ -162,6 +192,7 @@ namespace Renci.SshNet
         {
             OperationTimeout = SshNet.Session.InfiniteTimeSpan;
             BufferSize = 1024 * 16;
+            _remotePathTransformation = serviceFactory.CreateRemotePathDoubleQuoteTransformation();
         }
 
         #endregion
@@ -183,7 +214,7 @@ namespace Renci.SshNet
 
                 // pass the full path to ensure the server does not create the directory part
                 // as a file in case the directory does not exist
-                if (!channel.SendExecRequest(string.Format("scp -t {0}", path.ShellQuote())))
+                if (!channel.SendExecRequest(string.Format("scp -t {0}", _remotePathTransformation.Transform(path))))
                 {
                     throw SecureExecutionRequestRejectedException();
                 }
@@ -220,7 +251,7 @@ namespace Renci.SshNet
                 channel.Open();
 
                 //  Send channel command request
-                if (!channel.SendExecRequest(string.Format("scp -f {0}", filename.ShellQuote())))
+                if (!channel.SendExecRequest(string.Format("scp -f {0}", _remotePathTransformation.Transform(filename))))
                 {
                     throw SecureExecutionRequestRejectedException();
                 }

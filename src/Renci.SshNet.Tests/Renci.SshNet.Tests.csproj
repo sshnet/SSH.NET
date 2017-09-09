@@ -144,6 +144,8 @@
     <Compile Include="Classes\ClientAuthenticationTest_Success_MultiList_SkipFailedAuthenticationMethod.cs" />
     <Compile Include="Classes\ClientAuthenticationTest_Success_SingleList_SameAllowedAuthenticationAfterPartialSuccess.cs" />
     <Compile Include="Classes\Common\CountdownEventTest.cs" />
+    <Compile Include="Classes\Common\CountdownEventTest_Dispose_NotSet.cs" />
+    <Compile Include="Classes\Common\CountdownEventTest_Dispose_Set.cs" />
     <Compile Include="Classes\Common\ExtensionsTest_Concat.cs" />
     <Compile Include="Classes\Common\ExtensionsTest_IsEqualTo_ByteArray.cs" />
     <Compile Include="Classes\Common\ExtensionsTest_Reverse.cs" />
@@ -152,6 +154,7 @@
     <Compile Include="Classes\Common\ExtensionsTest_Take_OffsetAndCount.cs" />
     <Compile Include="Classes\Common\ExtensionsTest_TrimLeadingZeros.cs" />
     <Compile Include="Classes\Common\PackTest.cs" />
+    <Compile Include="Classes\Common\PosixPathTest_GetFileName.cs" />
     <Compile Include="Classes\ConnectionInfoTest_Authenticate_Failure.cs" />
     <Compile Include="Classes\ConnectionInfoTest_Authenticate_Success.cs" />
     <Compile Include="Classes\ForwardedPortDynamicTest_Dispose_PortStarted_ChannelBound.cs" />
@@ -211,6 +214,9 @@
     <Compile Include="Classes\NetConfClientTest_Dispose_Disposed.cs" />
     <Compile Include="Classes\NetConfClientTest_Finalize_Connected.cs" />
     <Compile Include="Classes\PipeStreamTest_Dispose.cs" />
+    <Compile Include="Classes\RemotePathDoubleQuoteTransformationTest.cs" />
+    <Compile Include="Classes\RemotePathShellQuoteTransformationTest.cs" />
+    <Compile Include="Classes\ScpClientTestBase.cs" />
     <Compile Include="Classes\ScpClientTest_Download_PathAndDirectoryInfo_SendExecRequestReturnsFalse.cs" />
     <Compile Include="Classes\ScpClientTest_Download_PathAndFileInfo_SendExecRequestReturnsFalse.cs" />
     <Compile Include="Classes\ScpClientTest_Download_PathAndStream_SendExecRequestReturnsFalse.cs" />

@@ -62,5 +62,16 @@ namespace Renci.SshNet
         ISftpFileReader CreateSftpFileReader(string fileName, ISftpSession sftpSession, uint bufferSize);
 
         ISftpResponseFactory CreateSftpResponseFactory();
+
+        /// <summary>
+        /// Creates an <see cref="IRemotePathTransformation"/> that encloses a path in double quotes, and escapes
+        /// any embedded double quote with a backslash.
+        /// </summary>
+        /// <returns>
+        /// An <see cref="IRemotePathTransformation"/> that encloses a path in double quotes, and escapes any
+        /// embedded double quote with a backslash.
+        /// with a shell.
+        /// </returns>
+        IRemotePathTransformation CreateRemotePathDoubleQuoteTransformation();
     }
 }

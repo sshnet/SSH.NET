@@ -136,5 +136,19 @@ namespace Renci.SshNet
         {
             return new SftpResponseFactory();
         }
+
+        /// <summary>
+        /// Creates an <see cref="IRemotePathTransformation"/> that encloses a path in double quotes, and escapes
+        /// any embedded double quote with a backslash.
+        /// </summary>
+        /// <returns>
+        /// An <see cref="IRemotePathTransformation"/> that encloses a path in double quotes, and escapes any
+        /// embedded double quote with a backslash.
+        /// with a shell.
+        /// </returns>
+        public IRemotePathTransformation CreateRemotePathDoubleQuoteTransformation()
+        {
+            return RemotePathTransformation.DoubleQuote;
+        }
     }
 }

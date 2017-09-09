@@ -19,7 +19,6 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         private uint _readBufferSize;
         private uint _writeBufferSize;
         private byte[] _writeBytes;
-        private byte[] _requestWriteBytes;
 
         protected override void SetupData()
         {

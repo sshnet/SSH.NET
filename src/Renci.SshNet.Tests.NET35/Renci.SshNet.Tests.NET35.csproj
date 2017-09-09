@@ -273,6 +273,12 @@
     <Compile Include="..\Renci.SshNet.Tests\Classes\Common\CountdownEventTest.cs">
       <Link>Classes\Common\CountdownEventTest.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Common\CountdownEventTest_Dispose_NotSet.cs">
+      <Link>Classes\Common\CountdownEventTest_Dispose_NotSet.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Common\CountdownEventTest_Dispose_Set.cs">
+      <Link>Classes\Common\CountdownEventTest_Dispose_Set.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Common\DerDataTest.cs">
       <Link>Classes\Common\DerDataTest.cs</Link>
     </Compile>
@@ -326,6 +332,9 @@
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Common\PortForwardEventArgsTest.cs">
       <Link>Classes\Common\PortForwardEventArgsTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Common\PosixPathTest_GetFileName.cs">
+      <Link>Classes\Common\PosixPathTest_GetFileName.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Common\ProxyExceptionTest.cs">
       <Link>Classes\Common\ProxyExceptionTest.cs</Link>
@@ -765,8 +774,17 @@
     <Compile Include="..\Renci.SshNet.Tests\Classes\PrivateKeyFileTest.cs">
       <Link>Classes\PrivateKeyFileTest.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\RemotePathDoubleQuoteTransformationTest.cs">
+      <Link>Classes\RemotePathDoubleQuoteTransformationTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\RemotePathShellQuoteTransformationTest.cs">
+      <Link>Classes\RemotePathShellQuoteTransformationTest.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\ScpClientTest.cs">
       <Link>Classes\ScpClientTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\ScpClientTestBase.cs">
+      <Link>Classes\ScpClientTestBase.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\ScpClientTest_Download_PathAndDirectoryInfo_SendExecRequestReturnsFalse.cs">
       <Link>Classes\ScpClientTest_Download_PathAndDirectoryInfo_SendExecRequestReturnsFalse.cs</Link>
@@ -1584,7 +1602,7 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties ProjectLinkReference="c45379b9-17b1-4e89-bc2e-6d41726413e8" ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" />
+      <UserProperties ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" ProjectLinkReference="c45379b9-17b1-4e89-bc2e-6d41726413e8" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

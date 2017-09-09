@@ -19,7 +19,6 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         private byte[] _handle;
         private SftpFileStream _target;
         private int _offset;
-        private EndOfStreamException _actualException;
         private long _actual;
 
         protected override void SetupData()

@@ -90,7 +90,7 @@ using (var client = new SshClient("sftp.foo.com", "guest", "pwd"))
 {
     client.HostKeyReceived += (sender, e) =>
         {
-            if (expectedFingerPrint.Length != e.FingerPrint.Length)
+            if (expectedFingerPrint.Length == e.FingerPrint.Length)
             {
                 for (var i = 0; i < expectedFingerPrint.Length; i++)
                 {

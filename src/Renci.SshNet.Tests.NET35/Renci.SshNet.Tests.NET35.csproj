@@ -327,6 +327,9 @@
     <Compile Include="..\Renci.SshNet.Tests\Classes\Common\PortForwardEventArgsTest.cs">
       <Link>Classes\Common\PortForwardEventArgsTest.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Common\PosixPathTest_GetFileName.cs">
+      <Link>Classes\Common\PosixPathTest_GetFileName.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Common\ProxyExceptionTest.cs">
       <Link>Classes\Common\ProxyExceptionTest.cs</Link>
     </Compile>
@@ -764,6 +767,12 @@
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\PrivateKeyFileTest.cs">
       <Link>Classes\PrivateKeyFileTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\RemotePathDoubleQuoteTransformationTest.cs">
+      <Link>Classes\RemotePathDoubleQuoteTransformationTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\RemotePathShellQuoteTransformationTest.cs">
+      <Link>Classes\RemotePathShellQuoteTransformationTest.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\ScpClientTest.cs">
       <Link>Classes\ScpClientTest.cs</Link>
@@ -1587,7 +1596,7 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" ProjectLinkReference="c45379b9-17b1-4e89-bc2e-6d41726413e8" />
+      <UserProperties ProjectLinkReference="c45379b9-17b1-4e89-bc2e-6d41726413e8" ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

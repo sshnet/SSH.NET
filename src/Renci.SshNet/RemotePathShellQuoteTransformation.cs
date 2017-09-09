@@ -69,10 +69,6 @@ namespace Renci.SshNet
         ///     <term>'/var/would be '"'"'kewl'"'"\!', not?'</term>
         ///   </item>
         ///   <item>
-        ///     <term>!ignore!</term>
-        ///     <term>\!'ignore'\!</term>
-        ///   </item>
-        ///   <item>
         ///     <term></term>
         ///     <term>''</term>
         ///   </item>

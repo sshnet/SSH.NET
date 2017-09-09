@@ -1,8 +1,25 @@
 ﻿namespace Renci.SshNet
 {
     /// <summary>
-    /// Allow access to built-in remote path transformations.
+    /// Provides access to built-in remote path transformations.
     /// </summary>
+    /// <remarks>
+    /// References:
+    /// <list type="bullet">
+    ///   <item>
+    ///     <description><a href="http://pubs.opengroup.org/onlinepubs/7908799/xcu/chap2.html">Shell Command Language</a></description>
+    ///   </item>
+    ///   <item>
+    ///     <description><a href="https://earthsci.stanford.edu/computing/unix/shell/specialchars.php">Unix C-Shell special characters and their uses</a></description>
+    ///   </item>
+    ///   <item>
+    ///     <description><a href="https://docstore.mik.ua/orelly/unix3/upt/ch27_13.htm">Differences Between Bourne and C Shell Quoting</a></description>
+    ///   </item>
+    ///   <item>
+    ///     <description><a href="https://blogs.msdn.microsoft.com/twistylittlepassagesallalike/2011/04/23/everyone-quotes-command-line-arguments-the-wrong-way/">Everyone quotes command line arguments the wrong way</a></description>
+    ///   </item>
+    /// </list>
+    /// </remarks>
     public static class RemotePathTransformation
     {
         private static readonly IRemotePathTransformation ShellQuoteTransformation = new RemotePathShellQuoteTransformation();
@@ -51,10 +68,6 @@
         ///   <item>
         ///     <term>/var/would be 'kewl'!, not?</term>
         ///     <term>'/var/would be '"'"'kewl'"'"\!', not?'</term>
-        ///   </item>
-        ///   <item>
-        ///     <term>!ignore!</term>
-        ///     <term>\!'ignore'\!</term>
         ///   </item>
         ///   <item>
         ///     <term></term>
@@ -109,12 +122,8 @@
         ///     <term>&quot;/var/garbage!/temp&quot;</term>
         ///   </item>
         ///   <item>
-        ///     <term>/var/would be 'kewl'!/not?</term>
+        ///     <term>/var/would be 'kewl'!, not?</term>
         ///     <term>&quot;/var/would be 'kewl'!, not?&quot;</term>
-        ///   </item>
-        ///   <item>
-        ///     <term>!ignore!</term>
-        ///     <term>&quot;!ignore!&quot;</term>
         ///   </item>
         ///   <item>
         ///     <term></term>
@@ -130,6 +139,5 @@
         {
             get { return DoubleQuoteTransformation; }
         }
-
     }
 }

@@ -58,6 +58,24 @@ namespace Renci.SshNet.Common
         }
 
         /// <summary>
+        /// Gets a <see cref="WaitHandle"/> that is used to wait for the event to be set.
+        /// </summary>
+        /// <value>
+        /// A <see cref="WaitHandle"/> that is used to wait for the event to be set.
+        /// </value>
+        /// <exception cref="ObjectDisposedException">The current instance has already been disposed.</exception>
+        public WaitHandle WaitHandle
+        {
+            get
+            {
+                EnsureNotDisposed();
+
+                return _event;
+            }
+        }
+
+
+        /// <summary>
         /// Registers a signal with the <see cref="CountdownEvent"/>, decrementing the value of <see cref="CurrentCount"/>.
         /// </summary>
         /// <returns>

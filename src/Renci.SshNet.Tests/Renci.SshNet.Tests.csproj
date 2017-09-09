@@ -144,6 +144,8 @@
     <Compile Include="Classes\ClientAuthenticationTest_Success_MultiList_SkipFailedAuthenticationMethod.cs" />
     <Compile Include="Classes\ClientAuthenticationTest_Success_SingleList_SameAllowedAuthenticationAfterPartialSuccess.cs" />
     <Compile Include="Classes\Common\CountdownEventTest.cs" />
+    <Compile Include="Classes\Common\CountdownEventTest_Dispose_NotSet.cs" />
+    <Compile Include="Classes\Common\CountdownEventTest_Dispose_Set.cs" />
     <Compile Include="Classes\Common\ExtensionsTest_Concat.cs" />
     <Compile Include="Classes\Common\ExtensionsTest_IsEqualTo_ByteArray.cs" />
     <Compile Include="Classes\Common\ExtensionsTest_Reverse.cs" />

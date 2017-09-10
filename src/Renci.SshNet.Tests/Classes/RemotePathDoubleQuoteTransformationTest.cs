@@ -446,13 +446,23 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
-        public void ExclamationMark_Embedded()
+        public void ExclamationMark_Embedded_Single()
         {
             const string path = "/var/garbage!/temp";
 
             var actual = _transformation.Transform(path);
 
             Assert.AreEqual("\"/var/garbage!/temp\"", actual);
+        }
+
+        [TestMethod]
+        public void ExclamationMark_Embedded_Sequence()
+        {
+            const string path = "/var/garbage!!/temp";
+
+            var actual = _transformation.Transform(path);
+
+            Assert.AreEqual("\"/var/garbage!!/temp\"", actual);
         }
 
         [TestMethod]
@@ -886,13 +896,23 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
-        public void SingleQuote_Embedded()
+        public void SingleQuote_Embedded_Single()
         {
             const string path = "Rain'Storm";
 
             var actual = _transformation.Transform(path);
 
             Assert.AreEqual("\"Rain'Storm\"", actual);
+        }
+
+        [TestMethod]
+        public void SingleQuote_Embedded_Sequence()
+        {
+            const string path = "Rain''Storm";
+
+            var actual = _transformation.Transform(path);
+
+            Assert.AreEqual("\"Rain''Storm\"", actual);
         }
 
         [TestMethod]
@@ -923,6 +943,46 @@ namespace Renci.SshNet.Tests.Classes
             var actual = _transformation.Transform(path);
 
             Assert.AreEqual("\"Time'\"", actual);
+        }
+
+        [TestMethod]
+        public void SingleQuoteAndExclamationMark_Embedded()
+        {
+            const string path = "Rain'!Storm";
+
+            var actual = _transformation.Transform(path);
+
+            Assert.AreEqual("\"Rain'!Storm\"", actual);
+        }
+
+        [TestMethod]
+        public void SingleQuoteAndExclamationMark_Leading()
+        {
+            const string path = "'!Rain";
+
+            var actual = _transformation.Transform(path);
+
+            Assert.AreEqual("\"'!Rain\"", actual);
+        }
+
+        [TestMethod]
+        public void SingleQuoteAndExclamationMark_LeadingAndTrailing()
+        {
+            const string path = "'!Rain'!";
+
+            var actual = _transformation.Transform(path);
+
+            Assert.AreEqual("\"'!Rain'!\"", actual);
+        }
+
+        [TestMethod]
+        public void SingleQuoteAndExclamationMark_Trailing()
+        {
+            const string path = "Rain'!";
+
+            var actual = _transformation.Transform(path);
+
+            Assert.AreEqual("\"Rain'!\"", actual);
         }
 
         [TestMethod]

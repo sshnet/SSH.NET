@@ -101,7 +101,7 @@ namespace Renci.SshNet
 
         public ISftpFileReader CreateSftpFileReader(string fileName, ISftpSession sftpSession, uint bufferSize)
         {
-            const int DefaultMaxPendingReads = 3;
+            const int defaultMaxPendingReads = 3;
 
             var openAsyncResult = sftpSession.BeginOpen(fileName, Flags.Read, null, null);
             var statAsyncResult = sftpSession.BeginLStat(fileName, null, null);
@@ -122,7 +122,7 @@ namespace Renci.SshNet
             catch (SshException ex)
             {
                 fileSize = null;
-                maxPendingReads = DefaultMaxPendingReads;
+                maxPendingReads = defaultMaxPendingReads;
 
                 DiagnosticAbstraction.Log(string.Format("Failed to obtain size of file. Allowing maximum {0} pending reads: {1}", maxPendingReads, ex));
             }

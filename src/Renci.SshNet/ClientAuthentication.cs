@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet
@@ -48,10 +47,10 @@ namespace Renci.SshNet
 
         private static bool TryAuthenticate(ISession session,
                                             AuthenticationState authenticationState,
-                                            ICollection<string> allowedAuthenticationMethods,
+                                            string[] allowedAuthenticationMethods,
                                             ref SshAuthenticationException authenticationException)
         {
-            if (allowedAuthenticationMethods.Count == 0)
+            if (allowedAuthenticationMethods.Length == 0)
             {
                 authenticationException = new SshAuthenticationException("No authentication methods defined on SSH server.");
                 return false;
@@ -60,10 +59,10 @@ namespace Renci.SshNet
             // we want to try authentication methods in the order in which they were
             // passed in the ctor, not the order in which the SSH server returns
             // the allowed authentication methods
-            var matchingAuthenticationMethods = authenticationState.SupportedAuthenticationMethods.Where(a => allowedAuthenticationMethods.Contains(a.Name)).ToArray();
-            if (matchingAuthenticationMethods.Length == 0)
+            var matchingAuthenticationMethods = GetAllowedAuthenticationMethodsThatAreSupported(authenticationState, allowedAuthenticationMethods);
+            if (matchingAuthenticationMethods.Count == 0)
             {
-                authenticationException = new SshAuthenticationException(string.Format("No suitable authentication method found to complete authentication ({0}).", string.Join(",", allowedAuthenticationMethods.ToArray())));
+                authenticationException = new SshAuthenticationException(string.Format("No suitable authentication method found to complete authentication ({0}).", string.Join(",", allowedAuthenticationMethods)));
                 return false;
             }
 
@@ -108,11 +107,31 @@ namespace Renci.SshNet
             return false;
         }
 
-        private static IEnumerable<IAuthenticationMethod> GetOrderedAuthenticationMethods(AuthenticationState authenticationState, IAuthenticationMethod[] matchingAuthenticationMethods)
+        private static List<IAuthenticationMethod> GetAllowedAuthenticationMethodsThatAreSupported(AuthenticationState authenticationState,
+                                                                                                   string[] allowedAuthenticationMethods)
+        {
+            var result = new List<IAuthenticationMethod>();
+
+            foreach (var supportedAuthenticationMethod in authenticationState.SupportedAuthenticationMethods)
+            {
+                for (var i = 0; i < allowedAuthenticationMethods.Length; i++)
+                {
+                    if (allowedAuthenticationMethods[i] == supportedAuthenticationMethod.Name)
+                    {
+                        result.Add(supportedAuthenticationMethod);
+                        break;
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        private static IEnumerable<IAuthenticationMethod> GetOrderedAuthenticationMethods(AuthenticationState authenticationState, List<IAuthenticationMethod> matchingAuthenticationMethods)
         {
             var skippedAuthenticationMethods = new List<IAuthenticationMethod>();
 
-            for (var i = 0; i < matchingAuthenticationMethods.Length; i++)
+            for (var i = 0; i < matchingAuthenticationMethods.Count; i++)
             {
                 var authenticationMethod = matchingAuthenticationMethods[i];
 
@@ -162,7 +181,7 @@ namespace Renci.SshNet
             /// <value>
             /// The list of supported authentication methods.
             /// </value>
-            public IEnumerable<IAuthenticationMethod> SupportedAuthenticationMethods
+            public IList<IAuthenticationMethod> SupportedAuthenticationMethods
             {
                 get { return _supportedAuthenticationMethods; }
             }

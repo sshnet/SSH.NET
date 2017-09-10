@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Renci.SshNet.Common;
+using System;
 using System.Collections.Generic;
 
 namespace Renci.SshNet
@@ -24,7 +25,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Gets list of allowed authentications.
         /// </summary>
-        public IList<string> AllowedAuthentications { get; protected set; }
+        public string[] AllowedAuthentications { get; protected set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AuthenticationMethod"/> class.

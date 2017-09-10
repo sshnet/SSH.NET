@@ -1,6 +1,7 @@
 ﻿#if FEATURE_HMAC_SHA512
 
 using System.Security.Cryptography;
+using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Security.Cryptography
 {

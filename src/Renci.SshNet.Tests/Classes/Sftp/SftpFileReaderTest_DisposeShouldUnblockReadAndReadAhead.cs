@@ -1,5 +1,8 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+#if !FEATURE_EVENTWAITHANDLE_DISPOSE
+using Renci.SshNet.Common;
+#endif // !FEATURE_EVENTWAITHANDLE_DISPOSE
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Sftp;
 using System;
@@ -22,7 +25,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         private SftpCloseAsyncResult _closeAsyncResult;
         private SftpFileReader _reader;
         private ObjectDisposedException _actualException;
-        private ManualResetEvent _disposeCompleted;
+        private EventWaitHandle _disposeCompleted;
 
         [TestCleanup]
         public void TearDown()

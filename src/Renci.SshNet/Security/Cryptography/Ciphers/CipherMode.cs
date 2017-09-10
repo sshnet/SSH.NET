@@ -1,4 +1,6 @@
-﻿namespace Renci.SshNet.Security.Cryptography.Ciphers
+﻿using Renci.SshNet.Common;
+
+namespace Renci.SshNet.Security.Cryptography.Ciphers
 {
     /// <summary>
     /// Base class for cipher mode implementations

@@ -5,163 +5,19 @@ using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+#if !FEATURE_WAITHANDLE_DISPOSE
+using System.Threading;
+#endif // !FEATURE_WAITHANDLE_DISPOSE
 using Renci.SshNet.Abstractions;
-using Renci.SshNet.Common;
 using Renci.SshNet.Messages;
 
-namespace Renci.SshNet
+namespace Renci.SshNet.Common
 {
     /// <summary>
     /// Collection of different extension method
     /// </summary>
     internal static partial class Extensions
     {
-        private enum ShellQuoteState
-        {
-            Unquoted = 1,
-            SingleQuoted = 2,
-            Quoted = 3
-        }
-
-        /// <summary>
-        /// Quotes a <see cref="string"/> in a way to be suitable to be used with a shell.
-        /// </summary>
-        /// <param name="value">The <see cref="string"/> to quote.</param>
-        /// <returns>
-        /// A quoted <see cref="string"/>.
-        /// </returns>
-        /// <exception cref="ArgumentNullException"><paramref name="value"/> is <c>null</c>.</exception>
-        /// <remarks>
-        /// <para>
-        /// If <paramref name="value"/> contains a single-quote, that character is embedded
-        /// in quotation marks (eg. "'"). Sequences of single-quotes are grouped in a one
-        /// pair of quotation marks.
-        /// </para>
-        /// <para>
-        /// If the <see cref="string"/> contains an exclamation mark (!), the C-Shell interprets
-        /// it as a meta-character for history substitution. This even works inside single-quotes
-        /// or quotation marks, unless escaped with a backslash (\).
-        /// </para>
-        /// <para>
-        /// References:
-        /// <list type="bullet">
-        ///   <item>
-        ///     <description><a href="http://pubs.opengroup.org/onlinepubs/7908799/xcu/chap2.html">Shell Command Language</a></description>
-        ///   </item>
-        ///   <item>
-        ///     <description><a href="https://earthsci.stanford.edu/computing/unix/shell/specialchars.php">Unix C-Shell special characters and their uses</a></description>
-        ///   </item>
-        ///   <item>
-        ///     <description><a href="https://docstore.mik.ua/orelly/unix3/upt/ch27_13.htm">Differences Between Bourne and C Shell Quoting</a></description>
-        ///   </item>
-        /// </list>
-        /// </para>
-        /// </remarks>
-        public static string ShellQuote(this string value)
-        {
-            if (value == null)
-            {
-                throw new ArgumentNullException("value");
-            }
-
-            // result is at least value and leading/trailing single-quote
-            var sb = new StringBuilder(value.Length + 2);
-            var state = ShellQuoteState.Unquoted;
-
-            foreach (var c in value)
-            {
-                switch (c)
-                {
-                    case '\'':
-                        // embed a single-quote in quotes
-                        switch (state)
-                        {
-                            case ShellQuoteState.Unquoted:
-                                // Start quoted string
-                                sb.Append('"');
-                                break;
-                            case ShellQuoteState.Quoted:
-                                // Continue quoted string
-                                break;
-                            case ShellQuoteState.SingleQuoted:
-                                // Close single quoted string
-                                sb.Append('\'');
-                                // Start quoted string
-                                sb.Append('"');
-                                break;
-                        }
-                        state = ShellQuoteState.Quoted;
-                        break;
-                    case '!':
-                        // In C-Shell, an exclamatation point can only be protected from shell interpretation
-                        // when escaped by a backslash
-                        // Source:
-                        // https://earthsci.stanford.edu/computing/unix/shell/specialchars.php
-
-                        switch (state)
-                        {
-                            case ShellQuoteState.Unquoted:
-                                sb.Append('\\');
-                                break;
-                            case ShellQuoteState.Quoted:
-                                // Close quoted string
-                                sb.Append('"');
-                                sb.Append('\\');
-                                break;
-                            case ShellQuoteState.SingleQuoted:
-                                // Close single quoted string
-                                sb.Append('\'');
-                                sb.Append('\\');
-                                break;
-                        }
-                        state = ShellQuoteState.Unquoted;
-                        break;
-                    default:
-                        switch (state)
-                        {
-                            case ShellQuoteState.Unquoted:
-                                // Start single-quoted string
-                                sb.Append('\'');
-                                break;
-                            case ShellQuoteState.Quoted:
-                                // Close quoted string
-                                sb.Append('"');
-                                // Start single quoted string
-                                sb.Append('\'');
-                                break;
-                            case ShellQuoteState.SingleQuoted:
-                                // Continue single quoted string
-                                break;
-                        }
-                        state = ShellQuoteState.SingleQuoted;
-                        break;
-                }
-
-                sb.Append(c);
-            }
-
-            switch (state)
-            {
-                case ShellQuoteState.Unquoted:
-                    break;
-                case ShellQuoteState.Quoted:
-                    // Close quoted string
-                    sb.Append('"');
-                    break;
-                case ShellQuoteState.SingleQuoted:
-                    /* Close single quoted string */
-                    sb.Append('\'');
-                    break;
-            }
-
-            if (sb.Length == 0)
-            {
-                sb.Append("''");
-            }
-
-            return sb.ToString();
-        }
-
         /// <summary>
         /// Determines whether the specified value is null or white space.
         /// </summary>
@@ -421,5 +277,35 @@ namespace Renci.SshNet
                 return false;
             return socket.Connected;
         }
+
+#if !FEATURE_SOCKET_DISPOSE
+        /// <summary>
+        /// Disposes the specified socket.
+        /// </summary>
+        /// <param name="socket">The socket.</param>
+        [DebuggerNonUserCode]
+        internal static void Dispose(this Socket socket)
+        {
+            if (socket == null)
+                throw new NullReferenceException();
+
+            socket.Close();
+        }
+#endif // !FEATURE_SOCKET_DISPOSE
+
+#if !FEATURE_WAITHANDLE_DISPOSE
+        /// <summary>
+        /// Disposes the specified handle.
+        /// </summary>
+        /// <param name="handle">The handle.</param>
+        [DebuggerNonUserCode]
+        internal static void Dispose(this WaitHandle handle)
+        {
+            if (handle == null)
+                throw new NullReferenceException();
+
+            handle.Close();
+        }
+#endif // !FEATURE_WAITHANDLE_DISPOSE
     }
 }

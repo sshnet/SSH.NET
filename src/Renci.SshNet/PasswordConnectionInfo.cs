@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Net;
 using System.Text;
 using Renci.SshNet.Common;
@@ -248,9 +247,13 @@ namespace Renci.SshNet
         public PasswordConnectionInfo(string host, int port, string username, byte[] password, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername, string proxyPassword)
             : base(host, port, username, proxyType, proxyHost, proxyPort, proxyUsername, proxyPassword, new PasswordAuthenticationMethod(username, password))
         {
-            foreach (var authenticationMethod in AuthenticationMethods.OfType<PasswordAuthenticationMethod>())
+            foreach (var authenticationMethod in AuthenticationMethods)
             {
-                authenticationMethod.PasswordExpired += AuthenticationMethod_PasswordExpired;
+                var pwdAuthentication = authenticationMethod as PasswordAuthenticationMethod;
+                if (pwdAuthentication != null)
+                {
+                    pwdAuthentication.PasswordExpired += AuthenticationMethod_PasswordExpired;
+                }
             }
         }
 
@@ -288,9 +291,13 @@ namespace Renci.SshNet
             {
                 if (AuthenticationMethods != null)
                 {
-                    foreach (var authenticationMethods in AuthenticationMethods.OfType<IDisposable>())
+                    foreach (var authenticationMethod in AuthenticationMethods)
                     {
-                        authenticationMethods.Dispose();
+                        var disposable = authenticationMethod as IDisposable;
+                        if (disposable != null)
+                        {
+                            disposable.Dispose();
+                        }
                     }
                 }
 

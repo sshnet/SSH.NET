@@ -1,7 +1,7 @@
-﻿using Renci.SshNet.Common;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+﻿using System;
 using System.Threading;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Renci.SshNet.Common;
 using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Common
@@ -34,7 +34,7 @@ namespace Renci.SshNet.Tests.Classes.Common
             return target;
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void EndInvokeTest1()
         {
             EndInvokeTest1Helper<GenericParameterHelper>();
@@ -52,7 +52,7 @@ namespace Renci.SshNet.Tests.Classes.Common
             Assert.Inconclusive("A method that does not return a value cannot be verified.");
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void SetAsCompletedTest1()
         {
             SetAsCompletedTest1Helper<GenericParameterHelper>();
@@ -68,7 +68,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         /// <summary>
         ///A test for EndInvoke
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
         public void EndInvokeTest()
         {
             AsyncResult target = CreateAsyncResult(); // TODO: Initialize to an appropriate value
@@ -79,7 +79,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         /// <summary>
         ///A test for SetAsCompleted
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
         public void SetAsCompletedTest()
         {
             AsyncResult target = CreateAsyncResult(); // TODO: Initialize to an appropriate value
@@ -92,7 +92,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         /// <summary>
         ///A test for AsyncState
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
         public void AsyncStateTest()
         {
             AsyncResult target = CreateAsyncResult(); // TODO: Initialize to an appropriate value
@@ -104,7 +104,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         /// <summary>
         ///A test for AsyncWaitHandle
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
         public void AsyncWaitHandleTest()
         {
             AsyncResult target = CreateAsyncResult(); // TODO: Initialize to an appropriate value
@@ -116,7 +116,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         /// <summary>
         ///A test for CompletedSynchronously
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
         public void CompletedSynchronouslyTest()
         {
             AsyncResult target = CreateAsyncResult(); // TODO: Initialize to an appropriate value
@@ -128,7 +128,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         /// <summary>
         ///A test for IsCompleted
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
         public void IsCompletedTest()
         {
             AsyncResult target = CreateAsyncResult(); // TODO: Initialize to an appropriate value

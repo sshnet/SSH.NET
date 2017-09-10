@@ -1,7 +1,6 @@
-﻿using Renci.SshNet.Common;
+﻿using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Collections.Generic;
+using Renci.SshNet.Common;
 using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Common
@@ -12,13 +11,13 @@ namespace Renci.SshNet.Tests.Classes.Common
     ///This is a test class for AuthenticationPromptEventArgsTest and is intended
     ///to contain all AuthenticationPromptEventArgsTest Unit Tests
     ///</summary>
-    [TestClass()]
+    [TestClass]
     public class AuthenticationPromptEventArgsTest : TestBase
     {
         /// <summary>
         ///A test for AuthenticationPromptEventArgs Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
         public void AuthenticationPromptEventArgsConstructorTest()
         {
             string username = string.Empty; // TODO: Initialize to an appropriate value

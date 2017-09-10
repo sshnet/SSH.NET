@@ -1,6 +1,5 @@
-﻿using Renci.SshNet.Common;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Renci.SshNet.Common;
 using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Common
@@ -9,14 +8,14 @@ namespace Renci.SshNet.Tests.Classes.Common
     ///This is a test class for ObjectIdentifierTest and is intended
     ///to contain all ObjectIdentifierTest Unit Tests
     ///</summary>
-    [TestClass()]
+    [TestClass]
     [Ignore] // placeholder for actual test
     public class ObjectIdentifierTest : TestBase
     {
         /// <summary>
         ///A test for ObjectIdentifier Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
         public void ObjectIdentifierConstructorTest()
         {
             ulong[] identifiers = null; // TODO: Initialize to an appropriate value

@@ -1,6 +1,5 @@
-﻿using Renci.SshNet.Common;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Renci.SshNet.Common;
 using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Common
@@ -9,14 +8,14 @@ namespace Renci.SshNet.Tests.Classes.Common
     ///This is a test class for DerDataTest and is intended
     ///to contain all DerDataTest Unit Tests
     ///</summary>
-    [TestClass()]
+    [TestClass]
     [Ignore] // placeholder for actual test
     public class DerDataTest : TestBase
     {
         /// <summary>
         ///A test for DerData Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
         public void DerDataConstructorTest()
         {
             DerData target = new DerData();
@@ -26,7 +25,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         /// <summary>
         ///A test for DerData Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
         public void DerDataConstructorTest1()
         {
             byte[] data = null; // TODO: Initialize to an appropriate value
@@ -37,7 +36,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         /// <summary>
         ///A test for Encode
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
         public void EncodeTest()
         {
             DerData target = new DerData(); // TODO: Initialize to an appropriate value
@@ -51,7 +50,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         /// <summary>
         ///A test for ReadBigInteger
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
         public void ReadBigIntegerTest()
         {
             DerData target = new DerData(); // TODO: Initialize to an appropriate value
@@ -65,7 +64,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         /// <summary>
         ///A test for ReadInteger
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
         public void ReadIntegerTest()
         {
             DerData target = new DerData(); // TODO: Initialize to an appropriate value
@@ -79,7 +78,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         /// <summary>
         ///A test for Write
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
         public void WriteTest()
         {
             DerData target = new DerData(); // TODO: Initialize to an appropriate value
@@ -91,7 +90,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         /// <summary>
         ///A test for Write
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
         public void WriteTest1()
         {
             DerData target = new DerData(); // TODO: Initialize to an appropriate value
@@ -103,7 +102,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         /// <summary>
         ///A test for Write
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
         public void WriteTest2()
         {
             DerData target = new DerData(); // TODO: Initialize to an appropriate value
@@ -115,7 +114,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         /// <summary>
         ///A test for Write
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
         public void WriteTest3()
         {
             DerData target = new DerData(); // TODO: Initialize to an appropriate value
@@ -127,7 +126,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         /// <summary>
         ///A test for Write
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
         public void WriteTest4()
         {
             DerData target = new DerData(); // TODO: Initialize to an appropriate value
@@ -139,7 +138,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         /// <summary>
         ///A test for Write
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
         public void WriteTest5()
         {
             DerData target = new DerData(); // TODO: Initialize to an appropriate value
@@ -151,7 +150,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         /// <summary>
         ///A test for WriteNull
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
         public void WriteNullTest()
         {
             DerData target = new DerData(); // TODO: Initialize to an appropriate value
@@ -162,7 +161,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         /// <summary>
         ///A test for IsEndOfData
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
         public void IsEndOfDataTest()
         {
             DerData target = new DerData(); // TODO: Initialize to an appropriate value

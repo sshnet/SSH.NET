@@ -1,9 +1,9 @@
-﻿using System.Threading;
+﻿using System;
+using System.IO;
+using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Renci.SshNet.Common;
 using Renci.SshNet.Tests.Common;
-using System;
-using System.IO;
 
 namespace Renci.SshNet.Tests.Classes.Common
 {

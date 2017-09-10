@@ -95,16 +95,6 @@ namespace Renci.SshNet.Tests.Classes.Common
                 _value = value;
             }
 
-            public new bool IsEndOfData
-            {
-                get { return base.IsEndOfData; }
-            }
-
-            public new byte ReadByte()
-            {
-                return base.ReadByte();
-            }
-
             protected override void LoadData()
             {
             }
@@ -119,16 +109,6 @@ namespace Renci.SshNet.Tests.Classes.Common
         {
             private uint _valueOne;
             private uint _valueTwo;
-
-            public RequestSshData()
-            {
-            }
-
-            public RequestSshData(uint one, uint two)
-            {
-                _valueOne = one;
-                _valueTwo = two;
-            }
 
             protected override int BufferCapacity
             {
@@ -163,41 +143,6 @@ namespace Renci.SshNet.Tests.Classes.Common
             {
                 Write(ValueOne);
                 Write(ValueTwo);
-            }
-        }
-
-        private class ReplySshData : SshData
-        {
-            private uint _valueOne;
-
-            public ReplySshData()
-            {
-            }
-
-            protected override int BufferCapacity
-            {
-                get
-                {
-                    var capacity = base.BufferCapacity;
-                    capacity += 4; // ValueOne
-                    return capacity;
-                }
-            }
-
-            public uint ValueOne
-            {
-                get { return _valueOne; }
-                set { _valueOne = value; }
-            }
-
-            protected override void LoadData()
-            {
-                _valueOne = ReadUInt32();
-            }
-
-            protected override void SaveData()
-            {
-                Write(ValueOne);
             }
         }
     }

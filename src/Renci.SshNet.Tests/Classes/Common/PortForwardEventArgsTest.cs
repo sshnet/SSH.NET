@@ -1,8 +1,8 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System;
+using System.Net;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Renci.SshNet.Common;
 using Renci.SshNet.Tests.Common;
-using System;
-using System.Net;
 using Renci.SshNet.Tests.Properties;
 
 namespace Renci.SshNet.Tests.Classes.Common

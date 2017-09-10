@@ -37,8 +37,8 @@ namespace Renci.SshNet.Tests.Classes
             _fileName = CreateTemporaryFile(new byte[] { 1 });
             _connectionInfo = new ConnectionInfo("host", 22, "user", new PasswordAuthenticationMethod("user", "pwd"));
             _fileInfo = new FileInfo(_fileName);
-            _path = "/home/sshnet/" + random.Next().ToString(CultureInfo.InvariantCulture);
-            _transformedPath = _path.ShellQuote();
+            _path = "/home/sshnet/" + random.Next();
+            _transformedPath = random.Next().ToString();
             _uploadingRegister = new List<ScpUploadEventArgs>();
         }
 

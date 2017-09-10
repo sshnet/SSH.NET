@@ -1,8 +1,8 @@
-﻿using Renci.SshNet.Common;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using Renci.SshNet.Messages.Transport;
+﻿using System;
 using System.Runtime.Serialization;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Renci.SshNet.Common;
+using Renci.SshNet.Messages.Transport;
 using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Common
@@ -11,13 +11,13 @@ namespace Renci.SshNet.Tests.Classes.Common
     ///This is a test class for SshConnectionExceptionTest and is intended
     ///to contain all SshConnectionExceptionTest Unit Tests
     ///</summary>
-    [TestClass()]
+    [TestClass]
     public class SshConnectionExceptionTest : TestBase
     {
         /// <summary>
         ///A test for SshConnectionException Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
         public void SshConnectionExceptionConstructorTest()
         {
             SshConnectionException target = new SshConnectionException();
@@ -27,7 +27,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         /// <summary>
         ///A test for SshConnectionException Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
         public void SshConnectionExceptionConstructorTest1()
         {
             string message = string.Empty; // TODO: Initialize to an appropriate value
@@ -38,7 +38,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         /// <summary>
         ///A test for SshConnectionException Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
         public void SshConnectionExceptionConstructorTest2()
         {
             string message = string.Empty; // TODO: Initialize to an appropriate value
@@ -50,7 +50,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         /// <summary>
         ///A test for SshConnectionException Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
         public void SshConnectionExceptionConstructorTest3()
         {
             string message = string.Empty; // TODO: Initialize to an appropriate value
@@ -63,7 +63,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         /// <summary>
         ///A test for GetObjectData
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
         [Ignore] // placeholder for actual test
         public void GetObjectDataTest()
         {

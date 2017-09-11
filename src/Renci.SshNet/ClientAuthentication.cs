@@ -42,7 +42,6 @@ namespace Renci.SshNet
                 session.UnRegisterMessage("SSH_MSG_USERAUTH_SUCCESS");
                 session.UnRegisterMessage("SSH_MSG_USERAUTH_BANNER");
             }
-
         }
 
         private static bool TryAuthenticate(ISession session,
@@ -114,9 +113,11 @@ namespace Renci.SshNet
 
             foreach (var supportedAuthenticationMethod in authenticationState.SupportedAuthenticationMethods)
             {
+                var nameOfSupportedAuthenticationMethod = supportedAuthenticationMethod.Name;
+
                 for (var i = 0; i < allowedAuthenticationMethods.Length; i++)
                 {
-                    if (allowedAuthenticationMethods[i] == supportedAuthenticationMethod.Name)
+                    if (allowedAuthenticationMethods[i] == nameOfSupportedAuthenticationMethod)
                     {
                         result.Add(supportedAuthenticationMethod);
                         break;

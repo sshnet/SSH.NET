@@ -10,7 +10,7 @@ namespace Renci.SshNet
     /// <summary>
     /// Serves as base class for client implementations, provides common client functionality.
     /// </summary>
-    public abstract class BaseClient : IDisposable
+    public abstract class BaseClient : IDisposable, IBaseClient
     {
         /// <summary>
         /// Holds value indicating whether the connection info is owned by this client.

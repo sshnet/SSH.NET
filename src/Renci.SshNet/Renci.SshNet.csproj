@@ -150,6 +150,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="IAuthenticationMethod.cs" />
+    <Compile Include="IBaseClient.cs" />
     <Compile Include="IClientAuthentication.cs" />
     <Compile Include="IConnectionInfo.cs" />
     <Compile Include="IForwardedPort.cs" />
@@ -157,6 +158,7 @@
     <Compile Include="IServiceFactory.cs" />
     <Compile Include="IServiceFactory.NET.cs" />
     <Compile Include="ISession.cs" />
+    <Compile Include="ISftpClient.cs" />
     <Compile Include="ISubsystemSession.cs" />
     <Compile Include="Messages\Connection\CancelTcpIpForwardGlobalRequestMessage.cs" />
     <Compile Include="Messages\Connection\TcpIpForwardGlobalRequestMessage.cs" />

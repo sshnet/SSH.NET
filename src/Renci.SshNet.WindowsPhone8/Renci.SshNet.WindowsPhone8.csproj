@@ -124,6 +124,9 @@
     <Compile Include="..\Renci.SshNet\BaseClient.cs">
       <Link>BaseClient.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\IBaseClient.cs">
+      <Link>IBaseClient.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\Channels\Channel.cs">
       <Link>Channels\Channel.cs</Link>
     </Compile>

@@ -262,6 +262,14 @@
     <Compile Include="Classes\Common\PortForwardEventArgsTest.cs" />
     <Compile Include="Classes\Compression\ZlibTest.cs" />
     <Compile Include="Classes\ConnectionInfoTest.cs" />
+    <Compile Include="Classes\ServiceFactoryTest_CreateSftpFileReader_EndLStatThrowsSshException.cs" />
+    <Compile Include="Classes\ServiceFactoryTest_CreateSftpFileReader_FileSizeIsAlmostSixTimesGreaterThanChunkSize.cs" />
+    <Compile Include="Classes\ServiceFactoryTest_CreateSftpFileReader_FileSizeIsEqualToChunkSize.cs" />
+    <Compile Include="Classes\ServiceFactoryTest_CreateSftpFileReader_FileSizeIsLessThanChunkSize.cs" />
+    <Compile Include="Classes\ServiceFactoryTest_CreateSftpFileReader_FileSizeIsExactlyFiveTimesGreaterThanChunkSize.cs" />
+    <Compile Include="Classes\ServiceFactoryTest_CreateSftpFileReader_FileSizeIsLittleMoreThanFiveTimesGreaterThanChunkSize.cs" />
+    <Compile Include="Classes\ServiceFactoryTest_CreateSftpFileReader_FileSizeIsMoreThanTenTimesGreaterThanChunkSize.cs" />
+    <Compile Include="Classes\ServiceFactoryTest_CreateSftpFileReader_FileSizeIsZero.cs" />
     <Compile Include="Classes\SessionTest_Connected.cs" />
     <Compile Include="Classes\SessionTest_ConnectedBase.cs" />
     <Compile Include="Classes\SessionTest_Connected_ConnectionReset.cs" />
@@ -357,6 +365,9 @@
     <Compile Include="Classes\Sftp\SftpDataResponseBuilder.cs" />
     <Compile Include="Classes\Sftp\SftpFileReaderTestBase.cs" />
     <Compile Include="Classes\Sftp\SftpFileReaderTest_DisposeShouldUnblockReadAndReadAhead.cs" />
+    <Compile Include="Classes\Sftp\SftpFileReaderTest_Dispose_SftpSessionIsNotOpen.cs" />
+    <Compile Include="Classes\Sftp\SftpFileReaderTest_Dispose_SftpSessionIsOpen_BeginCloseThrowsException.cs" />
+    <Compile Include="Classes\Sftp\SftpFileReaderTest_Dispose_SftpSessionIsOpen_EndCloseThrowsException.cs" />
     <Compile Include="Classes\Sftp\SftpFileReaderTest_LastChunkBeforeEofIsComplete.cs" />
     <Compile Include="Classes\Sftp\SftpFileReaderTest_LastChunkBeforeEofIsPartial.cs" />
     <Compile Include="Classes\Sftp\SftpFileReaderTest_PreviousChunkIsIncompleteAndEofIsNotReached.cs" />

@@ -888,6 +888,30 @@
     <Compile Include="..\Renci.SshNet.Tests\Classes\Security\KeyHostAlgorithmTest.cs">
       <Link>Classes\Security\KeyHostAlgorithmTest.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\ServiceFactoryTest_CreateSftpFileReader_EndLStatThrowsSshException.cs">
+      <Link>Classes\ServiceFactoryTest_CreateSftpFileReader_EndLStatThrowsSshException.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\ServiceFactoryTest_CreateSftpFileReader_FileSizeIsAlmostSixTimesGreaterThanChunkSize.cs">
+      <Link>Classes\ServiceFactoryTest_CreateSftpFileReader_FileSizeIsAlmostSixTimesGreaterThanChunkSize.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\ServiceFactoryTest_CreateSftpFileReader_FileSizeIsEqualToChunkSize.cs">
+      <Link>Classes\ServiceFactoryTest_CreateSftpFileReader_FileSizeIsEqualToChunkSize.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\ServiceFactoryTest_CreateSftpFileReader_FileSizeIsExactlyFiveTimesGreaterThanChunkSize.cs">
+      <Link>Classes\ServiceFactoryTest_CreateSftpFileReader_FileSizeIsExactlyFiveTimesGreaterThanChunkSize.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\ServiceFactoryTest_CreateSftpFileReader_FileSizeIsLessThanChunkSize.cs">
+      <Link>Classes\ServiceFactoryTest_CreateSftpFileReader_FileSizeIsLessThanChunkSize.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\ServiceFactoryTest_CreateSftpFileReader_FileSizeIsLittleMoreThanFiveTimesGreaterThanChunkSize.cs">
+      <Link>Classes\ServiceFactoryTest_CreateSftpFileReader_FileSizeIsLittleMoreThanFiveTimesGreaterThanChunkSize.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\ServiceFactoryTest_CreateSftpFileReader_FileSizeIsMoreThanTenTimesGreaterThanChunkSize.cs">
+      <Link>Classes\ServiceFactoryTest_CreateSftpFileReader_FileSizeIsMoreThanTenTimesGreaterThanChunkSize.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\ServiceFactoryTest_CreateSftpFileReader_FileSizeIsZero.cs">
+      <Link>Classes\ServiceFactoryTest_CreateSftpFileReader_FileSizeIsZero.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\SessionTest.cs">
       <Link>Classes\SessionTest.cs</Link>
     </Compile>
@@ -1082,6 +1106,15 @@
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileReaderTest_DisposeShouldUnblockReadAndReadAhead.cs">
       <Link>Classes\Sftp\SftpFileReaderTest_DisposeShouldUnblockReadAndReadAhead.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileReaderTest_Dispose_SftpSessionIsNotOpen.cs">
+      <Link>Classes\Sftp\SftpFileReaderTest_Dispose_SftpSessionIsNotOpen.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileReaderTest_Dispose_SftpSessionIsOpen_BeginCloseThrowsException.cs">
+      <Link>Classes\Sftp\SftpFileReaderTest_Dispose_SftpSessionIsOpen_BeginCloseThrowsException.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileReaderTest_Dispose_SftpSessionIsOpen_EndCloseThrowsException.cs">
+      <Link>Classes\Sftp\SftpFileReaderTest_Dispose_SftpSessionIsOpen_EndCloseThrowsException.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Sftp\SftpFileReaderTest_LastChunkBeforeEofIsComplete.cs">
       <Link>Classes\Sftp\SftpFileReaderTest_LastChunkBeforeEofIsComplete.cs</Link>
@@ -1599,7 +1632,7 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties ProjectLinkReference="c45379b9-17b1-4e89-bc2e-6d41726413e8" ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" />
+      <UserProperties ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" ProjectLinkReference="c45379b9-17b1-4e89-bc2e-6d41726413e8" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

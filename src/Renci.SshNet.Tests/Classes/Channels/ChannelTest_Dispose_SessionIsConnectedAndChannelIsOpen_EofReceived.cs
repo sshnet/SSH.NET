@@ -23,6 +23,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
         private List<ChannelEventArgs> _channelEndOfDataRegister;
         private IList<ExceptionEventArgs> _channelExceptionRegister;
         private ManualResetEvent _channelClosedReceived;
+        private Thread _raiseChannelCloseReceivedThread;
 
         private void SetupData()
         {
@@ -38,6 +39,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
             _channelEndOfDataRegister = new List<ChannelEventArgs>();
             _channelExceptionRegister = new List<ExceptionEventArgs>();
             _channelClosedReceived = new ManualResetEvent(false);
+            _raiseChannelCloseReceivedThread = null;
         }
 
         private void CreateMocks()
@@ -54,21 +56,29 @@ namespace Renci.SshNet.Tests.Classes.Channels
             _sessionMock.InSequence(sequence).Setup(p => p.WaitOnHandle(It.IsAny<EventWaitHandle>()))
                 .Callback<WaitHandle>(w =>
                 {
-                    new Thread(() =>
+                    _raiseChannelCloseReceivedThread = new Thread(() =>
                     {
                         Thread.Sleep(100);
-                        // raise ChannelCloseReceived event to set waithandle for receiving
-                        // SSH_MSG_CHANNEL_CLOSE message from server which is waited on after
-                        // sending the SSH_MSG_CHANNEL_CLOSE message to the server
-                        // 
+
+                        // signal that the ChannelCloseMessage was received; we use this to verify whether we've actually
+                        // waited on the EventWaitHandle to be set; this needs to be set before we raise the ChannelCloseReceived
+                        // to make sure the waithandle is signaled when the Dispose method completes (or else the assert that
+                        // checks whether the handle has been signaled, will sometimes fail)
+                        _channelClosedReceived.Set();
+
+                        // raise ChannelCloseReceived event to set waithandle for receiving SSH_MSG_CHANNEL_CLOSE message
+                        // from server which is waited on after sending the SSH_MSG_CHANNEL_CLOSE message to the server
+                        //
+                        // this will cause a new invocation of Close() that will block until the Close() that was invoked
+                        // as part of Dispose() has released the lock; as such, this thread cannot be joined until that
+                        // lock is released
+                        //
                         // we're mocking the wait on the ChannelCloseMessage, but we still want
                         // to get the channel in the state that it would have after actually receiving
                         // the ChannelCloseMessage
                         _sessionMock.Raise(s => s.ChannelCloseReceived += null, new MessageEventArgs<ChannelCloseMessage>(new ChannelCloseMessage(_localChannelNumber)));
-                        // signal that the ChannelCloseMessage was received; we use this to verify whether we've actually
-                        // waited on the EventWaitHandle to be set
-                        _channelClosedReceived.Set();
-                    }).Start();
+                    });
+                    _raiseChannelCloseReceivedThread.Start();
                     w.WaitOne();
                 });
         }
@@ -87,6 +97,14 @@ namespace Renci.SshNet.Tests.Classes.Channels
             {
                 _channelClosedReceived.Dispose();
                 _channelClosedReceived = null;
+            }
+
+            if (_raiseChannelCloseReceivedThread != null && _raiseChannelCloseReceivedThread.IsAlive)
+            {
+                if (!_raiseChannelCloseReceivedThread.Join(1000))
+                {
+                    _raiseChannelCloseReceivedThread.Abort();
+                }
             }
         }
 
@@ -165,6 +183,12 @@ namespace Renci.SshNet.Tests.Classes.Channels
         public void ExceptionShouldNeverHaveFired()
         {
             Assert.AreEqual(0, _channelExceptionRegister.Count);
+        }
+
+        [TestMethod]
+        public void ThreadThatRaisedChannelCloseReceivedShouldComplete()
+        {
+            _raiseChannelCloseReceivedThread.Join();
         }
     }
 }

@@ -400,6 +400,13 @@ namespace Renci.SshNet.Channels
         {
             _closeMessageReceived = true;
 
+            // raise event signaling that the server has closed its end of the channel
+            var closed = Closed;
+            if (closed != null)
+            {
+                closed(this, new ChannelEventArgs(LocalChannelNumber));
+            }
+
             // signal that SSH_MSG_CHANNEL_CLOSE message was received from server
             var channelClosedWaitHandle = _channelClosedWaitHandle;
             if (channelClosedWaitHandle != null)
@@ -407,11 +414,6 @@ namespace Renci.SshNet.Channels
 
             // close the channel
             Close();
-
-            // raise event signaling that the server has closed the channel
-            var closed = Closed;
-            if (closed != null)
-                closed(this, new ChannelEventArgs(LocalChannelNumber));
         }
 
         /// <summary>

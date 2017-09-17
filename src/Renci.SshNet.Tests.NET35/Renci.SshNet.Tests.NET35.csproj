@@ -912,6 +912,9 @@
     <Compile Include="..\Renci.SshNet.Tests\Classes\ServiceFactoryTest_CreateSftpFileReader_FileSizeIsZero.cs">
       <Link>Classes\ServiceFactoryTest_CreateSftpFileReader_FileSizeIsZero.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\ServiceFactoryTest_CreateShellStream.cs">
+      <Link>Classes\ServiceFactoryTest_CreateShellStream.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\SessionTest.cs">
       <Link>Classes\SessionTest.cs</Link>
     </Compile>
@@ -1425,11 +1428,44 @@
     <Compile Include="..\Renci.SshNet.Tests\Classes\ShellStreamTest.cs">
       <Link>Classes\ShellStreamTest.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\ShellStreamTest_Write_WriteBufferEmptyAndWriteLessBytesThanBufferSize.cs">
+      <Link>Classes\ShellStreamTest_Write_WriteBufferEmptyAndWriteLessBytesThanBufferSize.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\ShellStreamTest_Write_WriteBufferEmptyAndWriteMoreBytesThanBufferSize.cs">
+      <Link>Classes\ShellStreamTest_Write_WriteBufferEmptyAndWriteMoreBytesThanBufferSize.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\ShellStreamTest_Write_WriteBufferEmptyAndWriteNumberOfBytesEqualToBufferSize.cs">
+      <Link>Classes\ShellStreamTest_Write_WriteBufferEmptyAndWriteNumberOfBytesEqualToBufferSize.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\ShellStreamTest_Write_WriteBufferEmptyAndWriteZeroBytes.cs">
+      <Link>Classes\ShellStreamTest_Write_WriteBufferEmptyAndWriteZeroBytes.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\ShellStreamTest_Write_WriteBufferFullAndWriteLessBytesThanBufferSize.cs">
+      <Link>Classes\ShellStreamTest_Write_WriteBufferFullAndWriteLessBytesThanBufferSize.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\ShellStreamTest_Write_WriteBufferFullAndWriteZeroBytes.cs">
+      <Link>Classes\ShellStreamTest_Write_WriteBufferFullAndWriteZeroBytes.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\ShellStreamTest_Write_WriteBufferNotEmptyAndWriteLessBytesThanBufferCanContain.cs">
+      <Link>Classes\ShellStreamTest_Write_WriteBufferNotEmptyAndWriteLessBytesThanBufferCanContain.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\ShellStreamTest_Write_WriteBufferNotEmptyAndWriteMoreBytesThanBufferCanContain.cs">
+      <Link>Classes\ShellStreamTest_Write_WriteBufferNotEmptyAndWriteMoreBytesThanBufferCanContain.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\ShellStreamTest_Write_WriteBufferNotEmptyAndWriteZeroBytes.cs">
+      <Link>Classes\ShellStreamTest_Write_WriteBufferNotEmptyAndWriteZeroBytes.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\ShellTestTest.cs">
       <Link>Classes\ShellTestTest.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\SshClientTest.cs">
       <Link>Classes\SshClientTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\SshClientTest_CreateShellStream_TerminalNameAndColumnsAndRowsAndWidthAndHeightAndBufferSizeAndTerminalModes_Connected.cs">
+      <Link>Classes\SshClientTest_CreateShellStream_TerminalNameAndColumnsAndRowsAndWidthAndHeightAndBufferSizeAndTerminalModes_Connected.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\SshClientTest_CreateShellStream_TerminalNameAndColumnsAndRowsAndWidthAndHeightAndBufferSize_Connected.cs">
+      <Link>Classes\SshClientTest_CreateShellStream_TerminalNameAndColumnsAndRowsAndWidthAndHeightAndBufferSize_Connected.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\SshClientTest_Disconnect_ForwardedPortStarted.cs">
       <Link>Classes\SshClientTest_Disconnect_ForwardedPortStarted.cs</Link>
@@ -1632,7 +1668,7 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" ProjectLinkReference="c45379b9-17b1-4e89-bc2e-6d41726413e8" />
+      <UserProperties ProjectLinkReference="c45379b9-17b1-4e89-bc2e-6d41726413e8" ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

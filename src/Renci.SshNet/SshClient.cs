@@ -412,7 +412,7 @@ namespace Renci.SshNet
         /// <param name="rows">The terminal width in rows.</param>
         /// <param name="width">The terminal height in pixels.</param>
         /// <param name="height">The terminal height in pixels.</param>
-        /// <param name="bufferSize">Size of the buffer.</param>
+        /// <param name="bufferSize">The size of the buffer.</param>
         /// <returns>
         /// The created <see cref="ShellStream"/> instance.
         /// </returns>
@@ -440,7 +440,7 @@ namespace Renci.SshNet
         /// <param name="rows">The terminal width in rows.</param>
         /// <param name="width">The terminal height in pixels.</param>
         /// <param name="height">The terminal height in pixels.</param>
-        /// <param name="bufferSize">Size of the buffer.</param>
+        /// <param name="bufferSize">The size of the buffer.</param>
         /// <param name="terminalModeValues">The terminal mode values.</param>
         /// <returns>
         /// The created <see cref="ShellStream"/> instance.
@@ -452,7 +452,7 @@ namespace Renci.SshNet
         /// You can get a detailed list of these cababilities by using the ‘infocmp’ command.
         /// </para>
         /// <para>
-        /// The column/row dimensions override the pixel dimensions(when nonzero). Pixel dimensions refer
+        /// The column/row dimensions override the pixel dimensions(when non-zero). Pixel dimensions refer
         /// to the drawable area of the window.
         /// </para>
         /// </remarks>
@@ -460,7 +460,7 @@ namespace Renci.SshNet
         {
             EnsureSessionIsOpen();
 
-            return new ShellStream(Session, terminalName, columns, rows, width, height, terminalModeValues);
+            return ServiceFactory.CreateShellStream(Session, terminalName, columns, rows, width, height, terminalModeValues, bufferSize);
         }
 
         /// <summary>

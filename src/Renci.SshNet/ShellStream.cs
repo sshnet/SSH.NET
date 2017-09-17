@@ -226,9 +226,9 @@ namespace Renci.SshNet
         {
             foreach (var b in buffer.Take(offset, count))
             {
+                _outgoing.Enqueue(b);
                 if (_outgoing.Count < BufferSize)
                 {
-                    _outgoing.Enqueue(b);
                     continue;
                 }
 

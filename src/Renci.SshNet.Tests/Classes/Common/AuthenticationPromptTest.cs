@@ -1,6 +1,5 @@
-﻿using Renci.SshNet.Common;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Renci.SshNet.Common;
 using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Common
@@ -9,13 +8,13 @@ namespace Renci.SshNet.Tests.Classes.Common
     ///This is a test class for AuthenticationPromptTest and is intended
     ///to contain all AuthenticationPromptTest Unit Tests
     ///</summary>
-    [TestClass()]
+    [TestClass]
     public class AuthenticationPromptTest : TestBase
     {
         /// <summary>
         ///A test for AuthenticationPrompt Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
         public void AuthenticationPromptConstructorTest()
         {
             int id = 0; // TODO: Initialize to an appropriate value
@@ -28,7 +27,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         /// <summary>
         ///A test for Response
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
         public void ResponseTest()
         {
             int id = 0; // TODO: Initialize to an appropriate value

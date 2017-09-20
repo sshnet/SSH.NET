@@ -1,6 +1,6 @@
-﻿using Renci.SshNet.Common;
+﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+using Renci.SshNet.Common;
 using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Common
@@ -9,13 +9,13 @@ namespace Renci.SshNet.Tests.Classes.Common
     ///This is a test class for SshOperationTimeoutExceptionTest and is intended
     ///to contain all SshOperationTimeoutExceptionTest Unit Tests
     ///</summary>
-    [TestClass()]
+    [TestClass]
     public class SshOperationTimeoutExceptionTest : TestBase
     {
         /// <summary>
         ///A test for SshOperationTimeoutException Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
         public void SshOperationTimeoutExceptionConstructorTest()
         {
             SshOperationTimeoutException target = new SshOperationTimeoutException();
@@ -25,7 +25,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         /// <summary>
         ///A test for SshOperationTimeoutException Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
         public void SshOperationTimeoutExceptionConstructorTest1()
         {
             string message = string.Empty; // TODO: Initialize to an appropriate value
@@ -36,7 +36,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         /// <summary>
         ///A test for SshOperationTimeoutException Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
         public void SshOperationTimeoutExceptionConstructorTest2()
         {
             string message = string.Empty; // TODO: Initialize to an appropriate value

@@ -29,7 +29,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>Bin\Debug</OutputPath>
-    <DefineConstants>TRACE;DEBUG;FEATURE_DIRECTORYINFO_ENUMERATEFILES;FEATURE_RNG_CSP;FEATURE_SOCKET_EAP;FEATURE_STREAM_APM;FEATURE_THREAD_THREADPOOL;FEATURE_THREAD_SLEEP;FEATURE_HASH_SHA1_MANAGED;FEATURE_HASH_SHA256_MANAGED;FEATURE_HMAC_SHA1;FEATURE_HMAC_SHA256;FEATURE_MEMORYSTREAM_GETBUFFER</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;FEATURE_DIRECTORYINFO_ENUMERATEFILES;FEATURE_RNG_CSP;FEATURE_SOCKET_EAP;FEATURE_SOCKET_DISPOSE;FEATURE_STREAM_APM;FEATURE_THREAD_THREADPOOL;FEATURE_THREAD_SLEEP;FEATURE_WAITHANDLE_DISPOSE;FEATURE_HASH_SHA1_MANAGED;FEATURE_HASH_SHA256_MANAGED;FEATURE_HMAC_SHA1;FEATURE_HMAC_SHA256;FEATURE_MEMORYSTREAM_GETBUFFER</DefineConstants>
     <NoStdLib>true</NoStdLib>
     <NoConfig>true</NoConfig>
     <ErrorReport>prompt</ErrorReport>
@@ -40,7 +40,7 @@
     <DebugType>none</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>Bin\Release</OutputPath>
-    <DefineConstants>TRACE;FEATURE_DIRECTORYINFO_ENUMERATEFILES;FEATURE_RNG_CSP;FEATURE_SOCKET_EAP;FEATURE_STREAM_APM;FEATURE_THREAD_THREADPOOL;FEATURE_THREAD_SLEEP;FEATURE_HASH_SHA1_MANAGED;FEATURE_HASH_SHA256_MANAGED;FEATURE_HMAC_SHA1;FEATURE_HMAC_SHA256;FEATURE_MEMORYSTREAM_GETBUFFER</DefineConstants>
+    <DefineConstants>TRACE;FEATURE_DIRECTORYINFO_ENUMERATEFILES;FEATURE_RNG_CSP;FEATURE_SOCKET_EAP;FEATURE_SOCKET_DISPOSE;FEATURE_STREAM_APM;FEATURE_THREAD_THREADPOOL;FEATURE_THREAD_SLEEP;FEATURE_WAITHANDLE_DISPOSE;FEATURE_HASH_SHA1_MANAGED;FEATURE_HASH_SHA256_MANAGED;FEATURE_HMAC_SHA1;FEATURE_HMAC_SHA256;FEATURE_MEMORYSTREAM_GETBUFFER</DefineConstants>
     <NoStdLib>true</NoStdLib>
     <NoConfig>true</NoConfig>
     <ErrorReport>prompt</ErrorReport>
@@ -209,6 +209,9 @@
     <Compile Include="..\Renci.SshNet\Common\PortForwardEventArgs.cs">
       <Link>Common\PortForwardEventArgs.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\Common\PosixPath.cs">
+      <Link>Common\PosixPath.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\Common\ProxyException.cs">
       <Link>Common\ProxyException.cs</Link>
     </Compile>
@@ -310,6 +313,9 @@
     </Compile>
     <Compile Include="..\Renci.SshNet\IForwardedPort.cs">
       <Link>IForwardedPort.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\IRemotePathTransformation.cs">
+      <Link>IRemotePathTransformation.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\IServiceFactory.cs">
       <Link>IServiceFactory.cs</Link>
@@ -568,6 +574,18 @@
     </Compile>
     <Compile Include="..\Renci.SshNet\ProxyTypes.cs">
       <Link>ProxyTypes.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\RemotePathDoubleQuoteTransformation.cs">
+      <Link>RemotePathDoubleQuoteTransformation.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\RemotePathNoneTransformation.cs">
+      <Link>RemotePathNoneTransformation.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\RemotePathShellQuoteTransformation.cs">
+      <Link>RemotePathShellQuoteTransformation.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\RemotePathTransformation.cs">
+      <Link>RemotePathTransformation.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\ScpClient.cs">
       <Link>ScpClient.cs</Link>

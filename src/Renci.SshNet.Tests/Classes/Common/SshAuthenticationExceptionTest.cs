@@ -1,6 +1,6 @@
-﻿using Renci.SshNet.Common;
+﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Tests.Classes.Common
 {
@@ -8,13 +8,13 @@ namespace Renci.SshNet.Tests.Classes.Common
     ///This is a test class for SshAuthenticationExceptionTest and is intended
     ///to contain all SshAuthenticationExceptionTest Unit Tests
     ///</summary>
-    [TestClass()]
+    [TestClass]
     public class SshAuthenticationExceptionTest
     {
         /// <summary>
         ///A test for SshAuthenticationException Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
         public void SshAuthenticationExceptionConstructorTest()
         {
             SshAuthenticationException target = new SshAuthenticationException();
@@ -24,7 +24,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         /// <summary>
         ///A test for SshAuthenticationException Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
         public void SshAuthenticationExceptionConstructorTest1()
         {
             string message = string.Empty; // TODO: Initialize to an appropriate value
@@ -35,7 +35,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         /// <summary>
         ///A test for SshAuthenticationException Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
         public void SshAuthenticationExceptionConstructorTest2()
         {
             string message = string.Empty; // TODO: Initialize to an appropriate value

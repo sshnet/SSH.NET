@@ -2,6 +2,7 @@
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Renci.SshNet.Common;
 using Renci.SshNet.Sftp;
 
 namespace Renci.SshNet.Tests.Classes.Sftp

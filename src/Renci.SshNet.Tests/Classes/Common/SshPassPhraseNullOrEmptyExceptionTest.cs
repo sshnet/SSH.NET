@@ -1,6 +1,6 @@
-﻿using Renci.SshNet.Common;
+﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+using Renci.SshNet.Common;
 using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Common
@@ -9,13 +9,13 @@ namespace Renci.SshNet.Tests.Classes.Common
     ///This is a test class for SshPassPhraseNullOrEmptyExceptionTest and is intended
     ///to contain all SshPassPhraseNullOrEmptyExceptionTest Unit Tests
     ///</summary>
-    [TestClass()]
+    [TestClass]
     public class SshPassPhraseNullOrEmptyExceptionTest : TestBase
     {
         /// <summary>
         ///A test for SshPassPhraseNullOrEmptyException Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
         public void SshPassPhraseNullOrEmptyExceptionConstructorTest()
         {
             SshPassPhraseNullOrEmptyException target = new SshPassPhraseNullOrEmptyException();
@@ -25,7 +25,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         /// <summary>
         ///A test for SshPassPhraseNullOrEmptyException Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
         public void SshPassPhraseNullOrEmptyExceptionConstructorTest1()
         {
             string message = string.Empty; // TODO: Initialize to an appropriate value
@@ -36,7 +36,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         /// <summary>
         ///A test for SshPassPhraseNullOrEmptyException Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
         public void SshPassPhraseNullOrEmptyExceptionConstructorTest2()
         {
             string message = string.Empty; // TODO: Initialize to an appropriate value

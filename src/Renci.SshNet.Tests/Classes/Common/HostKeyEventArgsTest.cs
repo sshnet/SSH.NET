@@ -1,5 +1,5 @@
-﻿using Renci.SshNet.Common;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Renci.SshNet.Common;
 using Renci.SshNet.Security;
 using Renci.SshNet.Tests.Common;
 
@@ -9,14 +9,14 @@ namespace Renci.SshNet.Tests.Classes.Common
     ///This is a test class for HostKeyEventArgsTest and is intended
     ///to contain all HostKeyEventArgsTest Unit Tests
     ///</summary>
-    [TestClass()]
+    [TestClass]
     [Ignore] // placeholder for actual test
     public class HostKeyEventArgsTest : TestBase
     {
         /// <summary>
         ///A test for HostKeyEventArgs Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
         public void HostKeyEventArgsConstructorTest()
         {
             KeyHostAlgorithm host = null; // TODO: Initialize to an appropriate value
@@ -27,7 +27,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         /// <summary>
         ///A test for CanTrust
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
         public void CanTrustTest()
         {
             KeyHostAlgorithm host = null; // TODO: Initialize to an appropriate value

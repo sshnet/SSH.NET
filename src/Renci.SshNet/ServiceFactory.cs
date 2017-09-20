@@ -101,9 +101,13 @@ namespace Renci.SshNet
 
         public ISftpFileReader CreateSftpFileReader(string fileName, ISftpSession sftpSession, uint bufferSize)
         {
-            const int DefaultMaxPendingReads = 3;
+            const int defaultMaxPendingReads = 3;
 
+            // Issue #292: Avoid overlapping SSH_FXP_OPEN and SSH_FXP_LSTAT requests for the same file as this
+            // causes a performance degradation on Sun SSH
             var openAsyncResult = sftpSession.BeginOpen(fileName, Flags.Read, null, null);
+            var handle = sftpSession.EndOpen(openAsyncResult);
+
             var statAsyncResult = sftpSession.BeginLStat(fileName, null, null);
 
             long? fileSize;
@@ -122,12 +126,10 @@ namespace Renci.SshNet
             catch (SshException ex)
             {
                 fileSize = null;
-                maxPendingReads = DefaultMaxPendingReads;
+                maxPendingReads = defaultMaxPendingReads;
 
                 DiagnosticAbstraction.Log(string.Format("Failed to obtain size of file. Allowing maximum {0} pending reads: {1}", maxPendingReads, ex));
             }
-
-            var handle = sftpSession.EndOpen(openAsyncResult);
 
             return sftpSession.CreateFileReader(handle, sftpSession, chunkSize, maxPendingReads, fileSize);
         }
@@ -135,6 +137,50 @@ namespace Renci.SshNet
         public ISftpResponseFactory CreateSftpResponseFactory()
         {
             return new SftpResponseFactory();
+        }
+
+        /// <summary>
+        /// Creates a shell stream.
+        /// </summary>
+        /// <param name="session">The SSH session.</param>
+        /// <param name="terminalName">The <c>TERM</c> environment variable.</param>
+        /// <param name="columns">The terminal width in columns.</param>
+        /// <param name="rows">The terminal width in rows.</param>
+        /// <param name="width">The terminal height in pixels.</param>
+        /// <param name="height">The terminal height in pixels.</param>
+        /// <param name="terminalModeValues">The terminal mode values.</param>
+        /// <param name="bufferSize">The size of the buffer.</param>
+        /// <returns>
+        /// The created <see cref="ShellStream"/> instance.
+        /// </returns>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <remarks>
+        /// <para>
+        /// The <c>TERM</c> environment variable contains an identifier for the text window's capabilities.
+        /// You can get a detailed list of these cababilities by using the ‘infocmp’ command.
+        /// </para>
+        /// <para>
+        /// The column/row dimensions override the pixel dimensions(when non-zero). Pixel dimensions refer
+        /// to the drawable area of the window.
+        /// </para>
+        /// </remarks>
+        public ShellStream CreateShellStream(ISession session, string terminalName, uint columns, uint rows, uint width, uint height, IDictionary<TerminalModes, uint> terminalModeValues, int bufferSize)
+        {
+            return new ShellStream(session, terminalName, columns, rows, width, height, terminalModeValues, bufferSize);
+        }
+
+        /// <summary>
+        /// Creates an <see cref="IRemotePathTransformation"/> that encloses a path in double quotes, and escapes
+        /// any embedded double quote with a backslash.
+        /// </summary>
+        /// <returns>
+        /// An <see cref="IRemotePathTransformation"/> that encloses a path in double quotes, and escapes any
+        /// embedded double quote with a backslash.
+        /// with a shell.
+        /// </returns>
+        public IRemotePathTransformation CreateRemotePathDoubleQuoteTransformation()
+        {
+            return RemotePathTransformation.DoubleQuote;
         }
     }
 }

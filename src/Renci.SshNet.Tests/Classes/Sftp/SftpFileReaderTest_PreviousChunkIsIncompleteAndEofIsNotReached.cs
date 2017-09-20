@@ -284,6 +284,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         [TestMethod]
         public void DisposeShouldCloseHandleAndCompleteImmediately()
         {
+            SftpSessionMock.InSequence(_seq).Setup(p => p.IsOpen).Returns(true);
             SftpSessionMock.InSequence(_seq).Setup(p => p.BeginClose(_handle, null, null)).Returns(_closeAsyncResult);
             SftpSessionMock.InSequence(_seq).Setup(p => p.EndClose(_closeAsyncResult));
 
@@ -293,6 +294,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
 
             Assert.IsTrue(stopwatch.ElapsedMilliseconds < 200, "Dispose took too long to complete: " + stopwatch.ElapsedMilliseconds);
 
+            SftpSessionMock.Verify(p => p.IsOpen, Times.Once);
             SftpSessionMock.Verify(p => p.BeginClose(_handle, null, null), Times.Once);
             SftpSessionMock.Verify(p => p.EndClose(_closeAsyncResult), Times.Once);
         }

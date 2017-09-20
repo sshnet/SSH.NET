@@ -26,6 +26,7 @@ namespace Renci.SshNet.Tests.Classes
         private uint _widthPixels;
         private uint _heightPixels;
         private Dictionary<TerminalModes, uint> _terminalModes;
+        private int _bufferSize;
         private Mock<IChannelSession> _channelSessionMock;
 
         protected override void OnInit()
@@ -39,6 +40,7 @@ namespace Renci.SshNet.Tests.Classes
             _widthPixels = (uint)random.Next();
             _heightPixels = (uint)random.Next();
             _terminalModes = new Dictionary<TerminalModes, uint>();
+            _bufferSize = random.Next(100, 500);
 
             _encoding = Encoding.UTF8;
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);
@@ -111,8 +113,14 @@ namespace Renci.SshNet.Tests.Classes
                 _widthPixels, _heightPixels, _terminalModes)).Returns(true);
             _channelSessionMock.Setup(p => p.SendShellRequest()).Returns(true);
 
-            return new ShellStream(_sessionMock.Object, _terminalName, _widthColumns, _heightRows,
-                _widthPixels, _heightPixels, _terminalModes);
+            return new ShellStream(_sessionMock.Object,
+                                   _terminalName,
+                                   _widthColumns,
+                                   _heightRows,
+                                   _widthPixels,
+                                   _heightPixels,
+                                   _terminalModes,
+                                   _bufferSize);
         }
     }
 }

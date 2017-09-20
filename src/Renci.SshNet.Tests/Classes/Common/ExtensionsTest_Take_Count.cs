@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Tests.Classes.Common
 {
@@ -164,7 +165,8 @@ namespace Renci.SshNet.Tests.Classes.Common
 
             Console.WriteLine(stopWatch.ElapsedMilliseconds);
 
-            stopWatch.Restart();
+            stopWatch.Reset();
+            stopWatch.Start();
 
             for (var i = 0; i < runs; i++)
             {

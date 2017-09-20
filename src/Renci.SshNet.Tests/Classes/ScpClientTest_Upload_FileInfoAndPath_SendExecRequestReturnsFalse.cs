@@ -1,35 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    public class ScpClientTest_Upload_FileInfoAndPath_SendExecRequestReturnsFalse
+    public class ScpClientTest_Upload_FileInfoAndPath_SendExecRequestReturnsFalse : ScpClientTestBase
     {
-        private Mock<IServiceFactory> _serviceFactoryMock;
-        private Mock<ISession> _sessionMock;
-        private Mock<IChannelSession> _channelSessionMock;
-        private Mock<PipeStream> _pipeStreamMock;
         private ConnectionInfo _connectionInfo;
         private ScpClient _scpClient;
         private FileInfo _fileInfo;
         private string _path;
+        private string _transformedPath;
         private string _fileName;
         private IList<ScpUploadEventArgs> _uploadingRegister;
         private SshException _actualException;
-
-        [TestInitialize]
-        public void Setup()
-        {
-            Arrange();
-            Act();
-        }
 
         [TestCleanup]
         public void Cleanup()
@@ -41,40 +29,52 @@ namespace Renci.SshNet.Tests.Classes
             }
         }
 
-        protected void Arrange()
+        protected override void SetupData()
         {
             var random = new Random();
-            _fileName = CreateTemporaryFile(new byte[] {1});
+
+            _fileName = CreateTemporaryFile(new byte[] { 1 });
             _connectionInfo = new ConnectionInfo("host", 22, "user", new PasswordAuthenticationMethod("user", "pwd"));
             _fileInfo = new FileInfo(_fileName);
-            _path = random.Next().ToString(CultureInfo.InvariantCulture);
+            _path = "/home/sshnet/" + random.Next();
+            _transformedPath = random.Next().ToString();
             _uploadingRegister = new List<ScpUploadEventArgs>();
+        }
 
-            _serviceFactoryMock = new Mock<IServiceFactory>(MockBehavior.Strict);
-            _sessionMock = new Mock<ISession>(MockBehavior.Strict);
-            _channelSessionMock = new Mock<IChannelSession>(MockBehavior.Strict);
-            _pipeStreamMock = new Mock<PipeStream>(MockBehavior.Strict);
-
+        protected override void SetupMocks()
+        {
             var sequence = new MockSequence();
+
             _serviceFactoryMock.InSequence(sequence)
-                .Setup(p => p.CreateSession(_connectionInfo))
-                .Returns(_sessionMock.Object);
+                               .Setup(p => p.CreateRemotePathDoubleQuoteTransformation())
+                               .Returns(_remotePathTransformationMock.Object);
+            _serviceFactoryMock.InSequence(sequence)
+                               .Setup(p => p.CreateSession(_connectionInfo))
+                               .Returns(_sessionMock.Object);
             _sessionMock.InSequence(sequence).Setup(p => p.Connect());
             _serviceFactoryMock.InSequence(sequence).Setup(p => p.CreatePipeStream()).Returns(_pipeStreamMock.Object);
             _sessionMock.InSequence(sequence).Setup(p => p.CreateChannelSession()).Returns(_channelSessionMock.Object);
             _channelSessionMock.InSequence(sequence).Setup(p => p.Open());
+            _remotePathTransformationMock.InSequence(sequence)
+                                         .Setup(p => p.Transform(_path))
+                                         .Returns(_transformedPath);
             _channelSessionMock.InSequence(sequence)
-                .Setup(
-                    p => p.SendExecRequest(string.Format("scp -t \"{0}\"", _path))).Returns(false);
+                               .Setup(p => p.SendExecRequest(string.Format("scp -t {0}", _transformedPath)))
+                               .Returns(false);
             _channelSessionMock.InSequence(sequence).Setup(p => p.Dispose());
             _pipeStreamMock.As<IDisposable>().InSequence(sequence).Setup(p => p.Dispose());
+        }
+
+        protected override void Arrange()
+        {
+            base.Arrange();
 
             _scpClient = new ScpClient(_connectionInfo, false, _serviceFactoryMock.Object);
             _scpClient.Uploading += (sender, args) => _uploadingRegister.Add(args);
             _scpClient.Connect();
         }
 
-        protected virtual void Act()
+        protected override void Act()
         {
             try
             {
@@ -96,9 +96,9 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
-        public void SendExecREquestOnChannelSessionShouldBeInvokedOnce()
+        public void SendExecRequestOnChannelSessionShouldBeInvokedOnce()
         {
-            _channelSessionMock.Verify(p => p.SendExecRequest(string.Format("scp -t \"{0}\"", _path)), Times.Once);
+            _channelSessionMock.Verify(p => p.SendExecRequest(string.Format("scp -t {0}", _transformedPath)), Times.Once);
         }
 
         [TestMethod]

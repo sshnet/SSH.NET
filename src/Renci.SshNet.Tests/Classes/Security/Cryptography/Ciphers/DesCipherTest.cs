@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Renci.SshNet.Common;
 using Renci.SshNet.Security.Cryptography.Ciphers;
 using Renci.SshNet.Security.Cryptography.Ciphers.Modes;
 using Renci.SshNet.Security.Cryptography.Ciphers.Paddings;

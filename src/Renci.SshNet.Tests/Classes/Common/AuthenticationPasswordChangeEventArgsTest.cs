@@ -1,6 +1,5 @@
-﻿using Renci.SshNet.Common;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Renci.SshNet.Common;
 using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Common
@@ -11,13 +10,13 @@ namespace Renci.SshNet.Tests.Classes.Common
     ///This is a test class for AuthenticationPasswordChangeEventArgsTest and is intended
     ///to contain all AuthenticationPasswordChangeEventArgsTest Unit Tests
     ///</summary>
-    [TestClass()]
+    [TestClass]
     public class AuthenticationPasswordChangeEventArgsTest : TestBase
     {
         /// <summary>
         ///A test for AuthenticationPasswordChangeEventArgs Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
         public void AuthenticationPasswordChangeEventArgsConstructorTest()
         {
             string username = string.Empty; // TODO: Initialize to an appropriate value
@@ -28,7 +27,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         /// <summary>
         ///A test for NewPassword
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
         public void NewPasswordTest()
         {
             string username = string.Empty; // TODO: Initialize to an appropriate value

@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Renci.SshNet.Common;
 using Renci.SshNet.Sftp;
 using Renci.SshNet.Sftp.Responses;
 using Renci.SshNet.Tests.Common;
@@ -19,7 +20,6 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         private uint _readBufferSize;
         private uint _writeBufferSize;
         private byte[] _writeBytes;
-        private byte[] _requestWriteBytes;
 
         protected override void SetupData()
         {

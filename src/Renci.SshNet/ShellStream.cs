@@ -16,10 +16,10 @@ namespace Renci.SshNet
     public class ShellStream : Stream
     {
         private const string CrLf = "\r\n";
-        private const int BufferSize = 1024;
 
         private readonly ISession _session;
         private readonly Encoding _encoding;
+        private readonly int _bufferSize;
         private readonly Queue<byte> _incoming;
         private readonly Queue<byte> _outgoing;
         private IChannelSession _channel;
@@ -53,10 +53,34 @@ namespace Renci.SshNet
             }
         }
 
-        internal ShellStream(ISession session, string terminalName, uint columns, uint rows, uint width, uint height, IDictionary<TerminalModes, uint> terminalModeValues)
+        /// <summary>
+        /// Gets the number of bytes that will be written to the internal buffer.
+        /// </summary>
+        /// <value>
+        /// The number of bytes that will be written to the internal buffer.
+        /// </value>
+        internal int BufferSize
+        {
+            get { return _bufferSize; }
+        }
+
+
+        /// <summary>
+        /// Initializes a new <see cref="ShellStream"/> instance.
+        /// </summary>
+        /// <param name="session">The SSH session.</param>
+        /// <param name="terminalName">The <c>TERM</c> environment variable.</param>
+        /// <param name="columns">The terminal width in columns.</param>
+        /// <param name="rows">The terminal width in rows.</param>
+        /// <param name="width">The terminal height in pixels.</param>
+        /// <param name="height">The terminal height in pixels.</param>
+        /// <param name="terminalModeValues">The terminal mode values.</param>
+        /// <param name="bufferSize">The size of the buffer.</param>
+        internal ShellStream(ISession session, string terminalName, uint columns, uint rows, uint width, uint height, IDictionary<TerminalModes, uint> terminalModeValues, int bufferSize)
         {
             _encoding = session.ConnectionInfo.Encoding;
             _session = session;
+            _bufferSize = bufferSize;
             _incoming = new Queue<byte>();
             _outgoing = new Queue<byte>();
 
@@ -110,22 +134,27 @@ namespace Renci.SshNet
         /// Clears all buffers for this stream and causes any buffered data to be written to the underlying device.
         /// </summary>
         /// <exception cref="T:System.IO.IOException">An I/O error occurs.</exception>
+        /// <exception cref="ObjectDisposedException">Methods were called after the stream was closed.</exception>
         public override void Flush()
         {
             if (_channel == null)
             {
                 throw new ObjectDisposedException("ShellStream");
             }
-            _channel.SendData(_outgoing.ToArray());
-            _outgoing.Clear();
+
+            if (_outgoing.Count > 0)
+            {
+                _channel.SendData(_outgoing.ToArray());
+                _outgoing.Clear();
+            }
         }
 
         /// <summary>
         /// Gets the length in bytes of the stream.
         /// </summary>
         /// <returns>A long value representing the length of the stream in bytes.</returns>
-        /// <exception cref="T:System.NotSupportedException">A class derived from Stream does not support seeking.</exception>
-        /// <exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed.</exception>
+        /// <exception cref="NotSupportedException">A class derived from Stream does not support seeking.</exception>
+        /// <exception cref="ObjectDisposedException">Methods were called after the stream was closed.</exception>
         public override long Length
         {
             get
@@ -226,13 +255,12 @@ namespace Renci.SshNet
         {
             foreach (var b in buffer.Take(offset, count))
             {
-                if (_outgoing.Count < BufferSize)
+                if (_outgoing.Count == _bufferSize)
                 {
-                    _outgoing.Enqueue(b);
-                    continue;
+                    Flush();
                 }
 
-                Flush();
+                _outgoing.Enqueue(b);
             }
         }
 
@@ -662,9 +690,9 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Releases the unmanaged resources used by the <see cref="T:System.IO.Stream"/> and optionally releases the managed resources.
+        /// Releases the unmanaged resources used by the <see cref="Stream"/> and optionally releases the managed resources.
         /// </summary>
-        /// <param name="disposing">true to release both managed and unmanaged resources; false to release only unmanaged resources.</param>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);

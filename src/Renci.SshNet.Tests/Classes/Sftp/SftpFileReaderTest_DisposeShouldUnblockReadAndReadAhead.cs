@@ -1,5 +1,8 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+#if !FEATURE_EVENTWAITHANDLE_DISPOSE
+using Renci.SshNet.Common;
+#endif // !FEATURE_EVENTWAITHANDLE_DISPOSE
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Sftp;
 using System;
@@ -22,7 +25,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         private SftpCloseAsyncResult _closeAsyncResult;
         private SftpFileReader _reader;
         private ObjectDisposedException _actualException;
-        private ManualResetEvent _disposeCompleted;
+        private AsyncCallback _readAsyncCallback;
+        private EventWaitHandle _disposeCompleted;
 
         [TestCleanup]
         public void TearDown()
@@ -43,6 +47,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             _operationTimeout = random.Next(10000, 20000);
             _closeAsyncResult = new SftpCloseAsyncResult(null, null);
             _disposeCompleted = new ManualResetEvent(false);
+            _readAsyncCallback = null;
         }
 
         protected override void SetupMocks()
@@ -52,24 +57,36 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             SftpSessionMock.InSequence(_seq)
                            .Setup(p => p.CreateWaitHandleArray(It.IsNotNull<WaitHandle>(), It.IsNotNull<WaitHandle>()))
                            .Returns<WaitHandle, WaitHandle>((disposingWaitHandle, semaphoreAvailableWaitHandle) =>
-                           {
-                               _waitHandleArray[0] = disposingWaitHandle;
-                               _waitHandleArray[1] = semaphoreAvailableWaitHandle;
-                               return _waitHandleArray;
-                           });
-            SftpSessionMock.InSequence(_seq).Setup(p => p.OperationTimeout).Returns(_operationTimeout);
+                                {
+                                    _waitHandleArray[0] = disposingWaitHandle;
+                                    _waitHandleArray[1] = semaphoreAvailableWaitHandle;
+                                    return _waitHandleArray;
+                                });
+            SftpSessionMock.InSequence(_seq)
+                           .Setup(p => p.OperationTimeout)
+                           .Returns(_operationTimeout);
             SftpSessionMock.InSequence(_seq)
                            .Setup(p => p.WaitAny(_waitHandleArray, _operationTimeout))
                            .Returns(() => WaitAny(_waitHandleArray, _operationTimeout));
             SftpSessionMock.InSequence(_seq)
                            .Setup(p => p.BeginRead(_handle, 0, ChunkLength, It.IsNotNull<AsyncCallback>(), It.IsAny<BufferedRead>()))
-                           .Returns((SftpReadAsyncResult)null);
+                           .Returns<byte[], ulong, uint, AsyncCallback, object>((handle, offset, length, callback, state) =>
+                                {
+                                    _readAsyncCallback = callback;
+                                    return null;
+                                });
             SftpSessionMock.InSequence(_seq).Setup(p => p.OperationTimeout).Returns(_operationTimeout);
             SftpSessionMock.InSequence(_seq)
                            .Setup(p => p.WaitAny(_waitHandleArray, _operationTimeout))
                            .Returns(() => WaitAny(_waitHandleArray, _operationTimeout));
-            SftpSessionMock.InSequence(_seq).Setup(p => p.BeginClose(_handle, null, null)).Returns(_closeAsyncResult);
-            SftpSessionMock.InSequence(_seq).Setup(p => p.EndClose(_closeAsyncResult));
+            SftpSessionMock.InSequence(_seq)
+                           .Setup(p => p.IsOpen)
+                           .Returns(true);
+            SftpSessionMock.InSequence(_seq)
+                           .Setup(p => p.BeginClose(_handle, null, null))
+                           .Returns(_closeAsyncResult);
+            SftpSessionMock.InSequence(_seq)
+                           .Setup(p => p.EndClose(_closeAsyncResult));
         }
 
         protected override void Arrange()
@@ -143,6 +160,14 @@ namespace Renci.SshNet.Tests.Classes.Sftp
 
             SftpSessionMock.Verify(p => p.BeginClose(_handle, null, null), Times.Once);
             SftpSessionMock.Verify(p => p.EndClose(_closeAsyncResult), Times.Once);
+        }
+
+        [TestMethod]
+        public void InvokeOfReadAheadCallbackShouldCompleteImmediately()
+        {
+            Assert.IsNotNull(_readAsyncCallback);
+
+            _readAsyncCallback(new SftpReadAsyncResult(null, null));
         }
     }
 }

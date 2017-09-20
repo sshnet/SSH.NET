@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet
@@ -130,9 +129,13 @@ namespace Renci.SshNet
         public KeyboardInteractiveConnectionInfo(string host, int port, string username, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername, string proxyPassword)
             : base(host, port, username, proxyType, proxyHost, proxyPort, proxyUsername, proxyPassword, new KeyboardInteractiveAuthenticationMethod(username))
         {
-            foreach (var authenticationMethod in AuthenticationMethods.OfType<KeyboardInteractiveAuthenticationMethod>())
+            foreach (var authenticationMethod in AuthenticationMethods)
             {
-                authenticationMethod.AuthenticationPrompt += AuthenticationMethod_AuthenticationPrompt;
+                var kbdInteractive = authenticationMethod as KeyboardInteractiveAuthenticationMethod;
+                if (kbdInteractive != null)
+                {
+                    kbdInteractive.AuthenticationPrompt += AuthenticationMethod_AuthenticationPrompt;
+                }
             }
 
         }
@@ -172,9 +175,13 @@ namespace Renci.SshNet
             {
                 if (AuthenticationMethods != null)
                 {
-                    foreach (var authenticationMethods in AuthenticationMethods.OfType<IDisposable>())
+                    foreach (var authenticationMethods in AuthenticationMethods)
                     {
-                        authenticationMethods.Dispose();
+                        var disposable = authenticationMethods as IDisposable;
+                        if (disposable != null)
+                        {
+                            disposable.Dispose();
+                        }
                     }
                 }
 

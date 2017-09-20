@@ -2,6 +2,9 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+#if !FEATURE_SOCKET_DISPOSE
+using Renci.SshNet.Common;
+#endif // !FEATURE_SOCKET_DISPOSE
 
 namespace Renci.SshNet.Tests.Common
 {

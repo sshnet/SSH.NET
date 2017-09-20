@@ -28,7 +28,7 @@ namespace Renci.SshNet
     {
         private const byte Null = 0x00;
         private const byte CarriageReturn = 0x0d;
-        private const byte LineFeed = 0x0a;
+        internal const byte LineFeed = 0x0a;
 
         /// <summary>
         /// Specifies an infinite waiting period.

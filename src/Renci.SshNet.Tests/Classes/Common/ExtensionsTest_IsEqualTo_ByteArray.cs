@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Tests.Classes.Common
 {
@@ -76,7 +76,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         public void ShouldReturnFalseWhenLeftIsNotEqualToRight()
         {
             Assert.IsFalse(Extensions.IsEqualTo(new byte[] {0x0a}, new byte[] {0x0a, 0x0d}));
-            Assert.IsFalse(Extensions.IsEqualTo(new byte[] { 0x0a, 0x0d }, new byte[] { 0x0a }));
+            Assert.IsFalse(Extensions.IsEqualTo(new byte[] {0x0a, 0x0d}, new byte[] {0x0a}));
             Assert.IsFalse(Extensions.IsEqualTo(new byte[0], new byte[] { 0x0a }));
             Assert.IsFalse(Extensions.IsEqualTo(new byte[] { 0x0a, 0x0d }, new byte[0]));
         }
@@ -103,7 +103,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         {
             var buffer = CreateBuffer(50000);
             var left = buffer.Concat(new byte[] {0x0a});
-            var right = buffer.Concat(new byte[] { 0x0a });
+            var right = buffer.Concat(new byte[] {0x0a});
             const int runs = 10000;
 
             Performance(left, right, runs);
@@ -126,8 +126,8 @@ namespace Renci.SshNet.Tests.Classes.Common
         public void Performance_LargeArray_NotEqual_SameLength()
         {
             var buffer = CreateBuffer(50000);
-            var left = buffer.Concat(new byte[] { 0x0a });
-            var right = buffer.Concat(new byte[] { 0x0b });
+            var left = buffer.Concat(new byte[] {0x0a});
+            var right = buffer.Concat(new byte[] {0x0b});
             const int runs = 10000;
 
             Performance(left, right, runs);
@@ -139,7 +139,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         public void Performance_LargeArray_Same()
         {
             var left = CreateBuffer(50000);
-            var right = left.Concat(new byte[] { 0x0a });
+            var right = left.Concat(new byte[] {0x0a});
             const int runs = 10000;
 
             Performance(left, right, runs);
@@ -168,11 +168,12 @@ namespace Renci.SshNet.Tests.Classes.Common
 
             Console.WriteLine(stopWatch.ElapsedMilliseconds);
 
-            stopWatch.Restart();
+            stopWatch.Reset();
+            stopWatch.Start();
 
             for (var i = 0; i < runs; i++)
             {
-                var result = Enumerable.SequenceEqual(left, right);
+                var result = System.Linq.Enumerable.SequenceEqual(left, right);
             }
 
             GC.Collect();

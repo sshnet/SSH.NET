@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 #if FEATURE_REFLECTION_TYPEINFO
 using System.Reflection;
+#else
+using System.Linq;
 #endif // FEATURE_REFLECTION_TYPEINFO
 
 namespace Renci.SshNet.Abstractions

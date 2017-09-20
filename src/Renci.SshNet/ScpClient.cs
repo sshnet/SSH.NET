@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Text;
 using Renci.SshNet.Channels;
 using System.IO;
 using Renci.SshNet.Common;
 using System.Text.RegularExpressions;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
+using System.Collections.Generic;
 
 namespace Renci.SshNet
 {
@@ -13,13 +13,27 @@ namespace Renci.SshNet
     /// Provides SCP client functionality.
     /// </summary>
     /// <remarks>
+    /// <para>
     /// More information on the SCP protocol is available here:
     /// https://github.com/net-ssh/net-scp/blob/master/lib/net/scp.rb
+    /// </para>
+    /// <para>
+    /// Known issues in OpenSSH:
+    /// <list type="bullet">
+    ///   <item>
+    ///     <description>Recursive download (-prf) does not deal well with specific UTF-8 and newline characters.</description>
+    ///     <description>Recursive update does not support empty path for uploading to home directory.</description>
+    ///   </item>
+    /// </list>
+    /// </para>
     /// </remarks>
     public partial class ScpClient : BaseClient
     {
         private static readonly Regex FileInfoRe = new Regex(@"C(?<mode>\d{4}) (?<length>\d+) (?<filename>.+)");
-        private static char[] _byteToChar;
+        private static readonly byte[] SuccessConfirmationCode = {0};
+        private static readonly byte[] ErrorConfirmationCode = { 1 };
+
+        private IRemotePathTransformation _remotePathTransformation;
 
         /// <summary>
         /// Gets or sets the operation timeout.
@@ -37,6 +51,34 @@ namespace Renci.SshNet
         /// The size of the buffer. The default buffer size is 16384 bytes.
         /// </value>
         public uint BufferSize { get; set; }
+
+        /// <summary>
+        /// Gets or sets the transformation to apply to remote paths.
+        /// </summary>
+        /// <value>
+        /// The transformation to apply to remote paths. The default is <see cref="SshNet.RemotePathTransformation.DoubleQuote"/>.
+        /// </value>
+        /// <exception cref="ArgumentNullException"><paramref name="value"/> is <c>null</c>.</exception>
+        /// <remarks>
+        /// <para>
+        /// This transformation is applied to the remote file or directory path that is passed to the
+        /// <c>scp</c> command.
+        /// </para>
+        /// <para>
+        /// See <see cref="SshNet.RemotePathTransformation"/> for the transformations that are supplied
+        /// out-of-the-box with SSH.NET.
+        /// </para>
+        /// </remarks>
+        public IRemotePathTransformation RemotePathTransformation
+        {
+            get { return _remotePathTransformation; }
+            set
+            {
+                if (value == null)
+                    throw new ArgumentNullException("value");
+                _remotePathTransformation = value;
+            }
+        }
 
         /// <summary>
         /// Occurs when downloading file.
@@ -150,16 +192,7 @@ namespace Renci.SshNet
         {
             OperationTimeout = SshNet.Session.InfiniteTimeSpan;
             BufferSize = 1024 * 16;
-
-            if (_byteToChar == null)
-            {
-                _byteToChar = new char[128];
-                var ch = '\0';
-                for (var i = 0; i < 128; i++)
-                {
-                    _byteToChar[i] = ch++;
-                }
-            }
+            _remotePathTransformation = serviceFactory.CreateRemotePathDoubleQuoteTransformation();
         }
 
         #endregion
@@ -167,8 +200,10 @@ namespace Renci.SshNet
         /// <summary>
         /// Uploads the specified stream to the remote host.
         /// </summary>
-        /// <param name="source">Stream to upload.</param>
-        /// <param name="path">Remote host file name.</param>
+        /// <param name="source">The <see cref="Stream"/> to upload.</param>
+        /// <param name="path">A relative or absolute path for the remote file.</param>
+        /// <exception cref="ScpException">A directory with the specified path exists on the remote host.</exception>
+        /// <exception cref="SshException">The secure copy execution request was rejected by the server.</exception>
         public void Upload(Stream source, string path)
         {
             using (var input = ServiceFactory.CreatePipeStream())
@@ -177,34 +212,30 @@ namespace Renci.SshNet
                 channel.DataReceived += (sender, e) => input.Write(e.Data, 0, e.Data.Length);
                 channel.Open();
 
-                var pathEnd = path.LastIndexOfAny(new[] { '\\', '/' });
-                if (pathEnd != -1)
+                // pass the full path to ensure the server does not create the directory part
+                // as a file in case the directory does not exist
+                if (!channel.SendExecRequest(string.Format("scp -t {0}", _remotePathTransformation.Transform(path))))
                 {
-                    // split the path from the file
-                    var pathOnly = path.Substring(0, pathEnd);
-                    var fileOnly = path.Substring(pathEnd + 1);
-                    //  Send channel command request
-                    channel.SendExecRequest(string.Format("scp -t \"{0}\"", pathOnly));
-                    CheckReturnCode(input);
-
-                    path = fileOnly;
+                    throw SecureExecutionRequestRejectedException();
                 }
+                CheckReturnCode(input);
 
-                InternalUpload(channel, input, source, path);
+                // specify a zero-length file name to avoid creating a file with absolute
+                // path '<path>/<filename part of path>' if directory '<path>' already exists
+                UploadFileModeAndName(channel, input, source.Length, string.Empty);
+                UploadFileContent(channel, input, source, PosixPath.GetFileName(path));
             }
         }
 
         /// <summary>
         /// Downloads the specified file from the remote host to the stream.
         /// </summary>
-        /// <param name="filename">Remote host file name.</param>
-        /// <param name="destination">The stream where to download remote file.</param>
+        /// <param name="filename">A relative or absolute path for the remote file.</param>
+        /// <param name="destination">The <see cref="Stream"/> to download the remote file to.</param>
         /// <exception cref="ArgumentException"><paramref name="filename"/> is <c>null</c> or contains only whitespace characters.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="destination"/> is <c>null</c>.</exception>
-        /// <remarks>
-        /// Method calls made by this method to <paramref name="destination"/>, may under certain conditions result
-        /// in exceptions thrown by the stream.
-        /// </remarks>
+        /// <exception cref="ScpException"><paramref name="filename"/> exists on the remote host, and is not a regular file.</exception>
+        /// <exception cref="SshException">The secure copy execution request was rejected by the server.</exception>
         public void Download(string filename, Stream destination)
         {
             if (filename.IsNullOrWhiteSpace())
@@ -220,8 +251,11 @@ namespace Renci.SshNet
                 channel.Open();
 
                 //  Send channel command request
-                channel.SendExecRequest(string.Format("scp -f \"{0}\"", filename));
-                SendConfirmation(channel); //  Send reply
+                if (!channel.SendExecRequest(string.Format("scp -f {0}", _remotePathTransformation.Transform(filename))))
+                {
+                    throw SecureExecutionRequestRejectedException();
+                }
+                SendSuccessConfirmation(channel); //  Send reply
 
                 var message = ReadString(input);
                 var match = FileInfoRe.Match(message);
@@ -229,7 +263,7 @@ namespace Renci.SshNet
                 if (match.Success)
                 {
                     //  Read file
-                    SendConfirmation(channel); //  Send reply
+                    SendSuccessConfirmation(channel); //  Send reply
 
                     var length = long.Parse(match.Result("${length}"));
                     var fileName = match.Result("${filename}");
@@ -238,27 +272,45 @@ namespace Renci.SshNet
                 }
                 else
                 {
-                    SendConfirmation(channel, 1, string.Format("\"{0}\" is not valid protocol message.", message));
+                    SendErrorConfirmation(channel, string.Format("\"{0}\" is not valid protocol message.", message));
                 }
             }
         }
 
-        private static void InternalSetTimestamp(IChannelSession channel, Stream input, DateTime lastWriteTime, DateTime lastAccessime)
+        /// <summary>
+        /// Sets mode, size and name of file being upload.
+        /// </summary>
+        /// <param name="channel">The channel to perform the upload in.</param>
+        /// <param name="input">A <see cref="Stream"/> from which any feedback from the server can be read.</param>
+        /// <param name="fileSize">The size of the content to upload.</param>
+        /// <param name="serverFileName">The name of the file, without path, to which the content is to be uploaded.</param>
+        /// <remarks>
+        /// <para>
+        /// When the SCP transfer is already initiated for a file, a zero-length <see cref="string"/> should
+        /// be specified for <paramref name="serverFileName"/>. This prevents the server from uploading the
+        /// content to a file with path <c>&lt;file path&gt;/<paramref name="serverFileName"/></c> if there's
+        /// already a directory with this path, and allows us to receive an error response.
+        /// </para>
+        /// </remarks>
+        private void UploadFileModeAndName(IChannelSession channel, Stream input, long fileSize, string serverFileName)
         {
-            var zeroTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
-            var modificationSeconds = (long) (lastWriteTime - zeroTime).TotalSeconds;
-            var accessSeconds = (long) (lastAccessime - zeroTime).TotalSeconds;
-            SendData(channel, string.Format("T{0} 0 {1} 0\n", modificationSeconds, accessSeconds));
+            SendData(channel, string.Format("C0644 {0} {1}\n", fileSize, serverFileName));
             CheckReturnCode(input);
         }
 
-        private void InternalUpload(IChannelSession channel, Stream input, Stream source, string filename)
+        /// <summary>
+        /// Uploads the content of a file.
+        /// </summary>
+        /// <param name="channel">The channel to perform the upload in.</param>
+        /// <param name="input">A <see cref="Stream"/> from which any feedback from the server can be read.</param>
+        /// <param name="source">The content to upload.</param>
+        /// <param name="remoteFileName">The name of the remote file, without path, to which the content is uploaded.</param>
+        /// <remarks>
+        /// <paramref name="remoteFileName"/> is only used for raising the <see cref="Uploading"/> event.
+        /// </remarks>
+        private void UploadFileContent(IChannelSession channel, Stream input, Stream source, string remoteFileName)
         {
-            var length = source.Length;
-
-            SendData(channel, string.Format("C0644 {0} {1}\n", length, Path.GetFileName(filename)));
-            CheckReturnCode(input);
-
+            var totalLength = source.Length;
             var buffer = new byte[BufferSize];
 
             var read = source.Read(buffer, 0, buffer.Length);
@@ -271,12 +323,12 @@ namespace Renci.SshNet
 
                 totalRead += read;
 
-                RaiseUploadingEvent(filename, length, totalRead);
+                RaiseUploadingEvent(remoteFileName, totalLength, totalRead);
 
                 read = source.Read(buffer, 0, buffer.Length);
             }
 
-            SendConfirmation(channel);
+            SendSuccessConfirmation(channel);
             CheckReturnCode(input);
         }
 
@@ -303,7 +355,7 @@ namespace Renci.SshNet
             RaiseDownloadingEvent(filename, length, length - needToRead);
 
             //  Send confirmation byte after last data byte was read
-            SendConfirmation(channel);
+            SendSuccessConfirmation(channel);
 
             CheckReturnCode(input);
         }
@@ -324,22 +376,22 @@ namespace Renci.SshNet
             }
         }
 
-        private static void SendConfirmation(IChannel channel)
+        private static void SendSuccessConfirmation(IChannel channel)
         {
-            SendData(channel, new byte[] { 0 });
+            SendData(channel, SuccessConfirmationCode);
         }
 
-        private static void SendConfirmation(IChannel channel, byte errorCode, string message)
+        private void SendErrorConfirmation(IChannel channel, string message)
         {
-            SendData(channel, new[] { errorCode });
-            SendData(channel, string.Format("{0}\n", message));
+            SendData(channel, ErrorConfirmationCode);
+            SendData(channel, string.Concat(message, "\n"));
         }
 
         /// <summary>
         /// Checks the return code.
         /// </summary>
         /// <param name="input">The output stream.</param>
-        private static void CheckReturnCode(Stream input)
+        private void CheckReturnCode(Stream input)
         {
             var b = ReadByte(input);
 
@@ -351,9 +403,9 @@ namespace Renci.SshNet
             }
         }
 
-        private static void SendData(IChannel channel, string command)
+        private void SendData(IChannel channel, string command)
         {
-            channel.SendData(SshData.Utf8.GetBytes(command));
+            channel.SendData(ConnectionInfo.Encoding.GetBytes(command));
         }
 
         private static void SendData(IChannel channel, byte[] buffer, int length)
@@ -374,35 +426,42 @@ namespace Renci.SshNet
             return b;
         }
 
-        private static string ReadString(Stream stream)
+        /// <summary>
+        /// Read a LF-terminated string from the <see cref="Stream"/>.
+        /// </summary>
+        /// <param name="stream">The <see cref="Stream"/> to read from.</param>
+        /// <returns>
+        /// The string without trailing LF.
+        /// </returns>
+        private string ReadString(Stream stream)
         {
             var hasError = false;
 
-            var sb = new StringBuilder();
+            var buffer = new List<byte>();
 
             var b = ReadByte(stream);
-
             if (b == 1 || b == 2)
             {
                 hasError = true;
                 b = ReadByte(stream);
             }
 
-            var ch = _byteToChar[b];
-
-            while (ch != '\n')
+            while (b != SshNet.Session.LineFeed)
             {
-                sb.Append(ch);
-
+                buffer.Add((byte) b);
                 b = ReadByte(stream);
-
-                ch = _byteToChar[b];
             }
 
-            if (hasError)
-                throw new ScpException(sb.ToString());
+            var readBytes = buffer.ToArray();
 
-            return sb.ToString();
+            if (hasError)
+                throw new ScpException(ConnectionInfo.Encoding.GetString(readBytes, 0, readBytes.Length));
+            return ConnectionInfo.Encoding.GetString(readBytes, 0, readBytes.Length);
+        }
+
+        private static SshException SecureExecutionRequestRejectedException()
+        {
+            throw new SshException("Secure copy execution request was rejected by the server. Please consult the server logs.");
         }
     }
 }

@@ -5,11 +5,13 @@ using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+#if !FEATURE_WAITHANDLE_DISPOSE
+using System.Threading;
+#endif // !FEATURE_WAITHANDLE_DISPOSE
 using Renci.SshNet.Abstractions;
-using Renci.SshNet.Common;
 using Renci.SshNet.Messages;
 
-namespace Renci.SshNet
+namespace Renci.SshNet.Common
 {
     /// <summary>
     /// Collection of different extension method
@@ -17,11 +19,11 @@ namespace Renci.SshNet
     internal static partial class Extensions
     {
         /// <summary>
-        /// Determines whether [is null or white space] [the specified value].
+        /// Determines whether the specified value is null or white space.
         /// </summary>
         /// <param name="value">The value.</param>
         /// <returns>
-        ///   <c>true</c> if [is null or white space] [the specified value]; otherwise, <c>false</c>.
+        /// <c>true</c> if <paramref name="value"/> is null or white space; otherwise, <c>false</c>.
         /// </returns>
         public static bool IsNullOrWhiteSpace(this string value)
         {
@@ -275,5 +277,35 @@ namespace Renci.SshNet
                 return false;
             return socket.Connected;
         }
+
+#if !FEATURE_SOCKET_DISPOSE
+        /// <summary>
+        /// Disposes the specified socket.
+        /// </summary>
+        /// <param name="socket">The socket.</param>
+        [DebuggerNonUserCode]
+        internal static void Dispose(this Socket socket)
+        {
+            if (socket == null)
+                throw new NullReferenceException();
+
+            socket.Close();
+        }
+#endif // !FEATURE_SOCKET_DISPOSE
+
+#if !FEATURE_WAITHANDLE_DISPOSE
+        /// <summary>
+        /// Disposes the specified handle.
+        /// </summary>
+        /// <param name="handle">The handle.</param>
+        [DebuggerNonUserCode]
+        internal static void Dispose(this WaitHandle handle)
+        {
+            if (handle == null)
+                throw new NullReferenceException();
+
+            handle.Close();
+        }
+#endif // !FEATURE_WAITHANDLE_DISPOSE
     }
 }

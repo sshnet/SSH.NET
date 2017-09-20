@@ -1,6 +1,5 @@
-﻿using Renci.SshNet.Common;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Renci.SshNet.Common;
 using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Common
@@ -9,13 +8,13 @@ namespace Renci.SshNet.Tests.Classes.Common
     ///This is a test class for ScpDownloadEventArgsTest and is intended
     ///to contain all ScpDownloadEventArgsTest Unit Tests
     ///</summary>
-    [TestClass()]
+    [TestClass]
     public class ScpDownloadEventArgsTest : TestBase
     {
         /// <summary>
         ///A test for ScpDownloadEventArgs Constructor
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
         public void ScpDownloadEventArgsConstructorTest()
         {
             string filename = string.Empty; // TODO: Initialize to an appropriate value

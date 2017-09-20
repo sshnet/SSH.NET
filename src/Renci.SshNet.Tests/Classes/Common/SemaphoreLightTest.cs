@@ -1,15 +1,15 @@
-﻿using System.Threading;
-using Renci.SshNet.Common;
+﻿using System;
+using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+using Renci.SshNet.Common;
 using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Common
 {
-    [TestClass()]
+    [TestClass]
     public class SemaphoreLightTest : TestBase
     {
-        [TestMethod()]
+        [TestMethod]
         public void SemaphoreLightConstructorTest()
         {
             var initialCount = new Random().Next(1, 10);
@@ -17,7 +17,7 @@ namespace Renci.SshNet.Tests.Classes.Common
             Assert.AreEqual(initialCount, target.CurrentCount);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void Release()
         {
             var initialCount = new Random().Next(1, 10);
@@ -33,7 +33,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         /// <summary>
         ///A test for Release
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
         public void Release_ReleaseCount()
         {
             var initialCount = new Random().Next(1, 10);
@@ -51,7 +51,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         /// <summary>
         ///A test for Wait
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
         public void WaitTest()
         {
             const int sleepTime = 200; 
@@ -82,7 +82,7 @@ namespace Renci.SshNet.Tests.Classes.Common
             Assert.IsTrue(elapsed.TotalMilliseconds < 250);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void CurrentCountTest()
         {
             var initialCount = new Random().Next(1, 20);

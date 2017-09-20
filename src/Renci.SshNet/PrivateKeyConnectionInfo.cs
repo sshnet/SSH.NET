@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Collections.ObjectModel;
 
 namespace Renci.SshNet
@@ -167,9 +166,13 @@ namespace Renci.SshNet
                 // Dispose managed resources.
                 if (AuthenticationMethods != null)
                 {
-                    foreach (var authenticationMethods in AuthenticationMethods.OfType<IDisposable>())
+                    foreach (var authenticationMethod in AuthenticationMethods)
                     {
-                        authenticationMethods.Dispose();
+                        var disposable = authenticationMethod as IDisposable;
+                        if (disposable != null)
+                        {
+                            disposable.Dispose();
+                        }
                     }
                 }
 

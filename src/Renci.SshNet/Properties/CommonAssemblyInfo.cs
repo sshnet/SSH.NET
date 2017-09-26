@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyDescription("SSH.NET is a Secure Shell (SSH) library for .NET, optimized for parallelism.")]
 [assembly: AssemblyCompany("Renci")]
 [assembly: AssemblyProduct("SSH.NET")]
-[assembly: AssemblyCopyright("Copyright © Renci 2010-2016")]
+[assembly: AssemblyCopyright("Copyright © Renci 2010-2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

@@ -8,7 +8,7 @@ namespace Renci.SshNet.Security
     /// <summary>
     /// Represents base class for Diffie Hellman key exchange algorithm
     /// </summary>
-    public abstract class KeyExchangeDiffieHellman : KeyExchange
+    internal abstract class KeyExchangeDiffieHellman : KeyExchange
     {
         /// <summary>
         /// Specifies key exchange group number.
@@ -43,7 +43,7 @@ namespace Renci.SshNet.Security
         /// <summary>
         /// Specifies random generated number.
         /// </summary>
-        protected BigInteger _randomValue;
+        protected BigInteger _privateExponent;
 
         /// <summary>
         /// Specifies host key data.
@@ -54,6 +54,14 @@ namespace Renci.SshNet.Security
         /// Specifies signature data.
         /// </summary>
         protected byte[] _signature;
+
+        /// <summary>
+        /// Gets the size, in bits, of the computed hash code.
+        /// </summary>
+        /// <value>
+        /// The size, in bits, of the computed hash code.
+        /// </value>
+        protected abstract int HashSize { get; }
 
         /// <summary>
         /// Validates the exchange hash.
@@ -102,14 +110,16 @@ namespace Renci.SshNet.Security
             if (_prime.IsZero)
                 throw new ArgumentNullException("_prime");
 
-            var bitLength = _prime.BitLength;
+            // generate private component that is twice the hash size (RFC 4419) with a minimum
+            // of 1024 bits (whatever is less)
+            var privateComponentSize = Math.Max(HashSize * 2, 1024);
 
             do
             {
-                _randomValue = BigInteger.Random(bitLength);
-
-                _clientExchangeValue = BigInteger.ModPow(_group, _randomValue, _prime);
-
+                // create private component
+                _privateExponent = BigInteger.Random(privateComponentSize);
+                // generate public component
+                _clientExchangeValue = BigInteger.ModPow(_group, _privateExponent, _prime);
             } while (_clientExchangeValue < 1 || _clientExchangeValue > (_prime - 1));
         }
 
@@ -123,7 +133,7 @@ namespace Renci.SshNet.Security
         {
             _serverExchangeValue = serverExchangeValue;
             _hostKey = hostKey;
-            SharedKey = BigInteger.ModPow(serverExchangeValue, _randomValue, _prime);
+            SharedKey = BigInteger.ModPow(serverExchangeValue, _privateExponent, _prime);
             _signature = signature;
         }
     }

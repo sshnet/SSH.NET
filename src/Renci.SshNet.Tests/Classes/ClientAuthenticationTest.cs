@@ -18,7 +18,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void AuthenticateShouldThrowArgumentNullExceptionWhenConnectionInfoIsNull()
         {
-            IConnectionInfoInternal connectionInfo = null;
+           const IConnectionInfoInternal connectionInfo = null;
             var session = new Mock<ISession>(MockBehavior.Strict).Object;
 
             try
@@ -37,7 +37,7 @@ namespace Renci.SshNet.Tests.Classes
         public void AuthenticateShouldThrowArgumentNullExceptionWhenSessionIsNull()
         {
             var connectionInfo = new Mock<IConnectionInfoInternal>(MockBehavior.Strict).Object;
-            ISession session = null;
+            const ISession session = null;
 
             try
             {

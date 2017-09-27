@@ -110,14 +110,14 @@ namespace Renci.SshNet.Security
             if (_prime.IsZero)
                 throw new ArgumentNullException("_prime");
 
-            // generate private component that is twice the hash size (RFC 4419) with a minimum
+            // generate private exponent that is twice the hash size (RFC 4419) with a minimum
             // of 1024 bits (whatever is less)
-            var privateComponentSize = Math.Max(HashSize * 2, 1024);
+            var privateExponentSize = Math.Max(HashSize * 2, 1024);
 
             do
             {
                 // create private component
-                _privateExponent = BigInteger.Random(privateComponentSize);
+                _privateExponent = BigInteger.Random(privateExponentSize);
                 // generate public component
                 _clientExchangeValue = BigInteger.ModPow(_group, _privateExponent, _prime);
             } while (_clientExchangeValue < 1 || _clientExchangeValue > (_prime - 1));

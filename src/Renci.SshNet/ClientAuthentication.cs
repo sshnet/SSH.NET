@@ -6,6 +6,34 @@ namespace Renci.SshNet
 {
     internal class ClientAuthentication : IClientAuthentication
     {
+        private readonly int _partialSuccessLimit;
+
+        /// <summary>
+        /// Initializes a new <see cref="ClientAuthentication"/> instance.
+        /// </summary>
+        /// <param name="partialSuccessLimit">The number of times an authentication attempt with any given <see cref="IAuthenticationMethod"/> can result in <see cref="AuthenticationResult.PartialSuccess"/> before it is disregarded.</param>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="partialSuccessLimit"/> is less than one.</exception>
+        public ClientAuthentication(int partialSuccessLimit)
+        {
+            if (partialSuccessLimit < 1)
+                throw new ArgumentOutOfRangeException("partialSuccessLimit", "Cannot be less than one.");
+
+            _partialSuccessLimit = partialSuccessLimit;
+        }
+
+        /// <summary>
+        /// Gets the number of times an authentication attempt with any given <see cref="IAuthenticationMethod"/> can
+        /// result in <see cref="AuthenticationResult.PartialSuccess"/> before it is disregarded.
+        /// </summary>
+        /// <value>
+        /// The number of times an authentication attempt with any given <see cref="IAuthenticationMethod"/> can result
+        /// in <see cref="AuthenticationResult.PartialSuccess"/> before it is disregarded.
+        /// </value>
+        internal int PartialSuccessLimit
+        {
+            get { return _partialSuccessLimit; }
+        }
+
         public void Authenticate(IConnectionInfoInternal connectionInfo, ISession session)
         {
             if (connectionInfo == null)

@@ -8,7 +8,14 @@ namespace Renci.SshNet.Tests.Classes
     [TestClass]
     public class ClientAuthenticationTest_Failure_SingleList_AuthenticationMethodNotSupported : ClientAuthenticationTestBase
     {
+        private int _partialSuccessLimit;
+        private ClientAuthentication _clientAuthentication;
         private SshAuthenticationException _actualException;
+
+        protected override void SetupData()
+        {
+            _partialSuccessLimit = 1;
+        }
 
         protected override void SetupMocks()
         {
@@ -39,11 +46,18 @@ namespace Renci.SshNet.Tests.Classes
             SessionMock.InSequence(seq).Setup(p => p.UnRegisterMessage("SSH_MSG_USERAUTH_BANNER"));
         }
 
+        protected override void Arrange()
+        {
+            base.Arrange();
+
+            _clientAuthentication = new ClientAuthentication(_partialSuccessLimit);
+        }
+
         protected override void Act()
         {
             try
             {
-                ClientAuthentication.Authenticate(ConnectionInfoMock.Object, SessionMock.Object);
+                _clientAuthentication.Authenticate(ConnectionInfoMock.Object, SessionMock.Object);
                 Assert.Fail();
             }
             catch (SshAuthenticationException ex)

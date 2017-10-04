@@ -12,8 +12,63 @@ namespace Renci.SshNet.Tests.Classes
         [TestInitialize]
         public void Init()
         {
-            _clientAuthentication = new ClientAuthentication();
+            _clientAuthentication = new ClientAuthentication(1);
         }
+
+        [TestMethod]
+        public void Ctor_PartialSuccessLimit_Zero()
+        {
+            const int partialSuccessLimit = 0;
+
+            try
+            {
+                new ClientAuthentication(partialSuccessLimit);
+                Assert.Fail();
+            }
+            catch (ArgumentOutOfRangeException ex)
+            {
+                Assert.IsNull(ex.InnerException);
+                Assert.AreEqual(string.Format("Cannot be less than one.{0}Parameter name: {1}", Environment.NewLine, ex.ParamName), ex.Message);
+                Assert.AreEqual("partialSuccessLimit", ex.ParamName);
+            }
+        }
+
+        [TestMethod]
+        public void Ctor_PartialSuccessLimit_Negative()
+        {
+            var partialSuccessLimit = new Random().Next(int.MinValue, -1);
+
+            try
+            {
+                new ClientAuthentication(partialSuccessLimit);
+                Assert.Fail();
+            }
+            catch (ArgumentOutOfRangeException ex)
+            {
+                Assert.IsNull(ex.InnerException);
+                Assert.AreEqual(string.Format("Cannot be less than one.{0}Parameter name: {1}", Environment.NewLine, ex.ParamName), ex.Message);
+                Assert.AreEqual("partialSuccessLimit", ex.ParamName);
+            }
+        }
+
+        [TestMethod]
+        public void Ctor_PartialSuccessLimit_One()
+        {
+            const int partialSuccessLimit = 1;
+
+            var clientAuthentication = new ClientAuthentication(partialSuccessLimit);
+            Assert.AreEqual(partialSuccessLimit, clientAuthentication.PartialSuccessLimit);
+        }
+
+        [TestMethod]
+        public void Ctor_PartialSuccessLimit_MaxValue()
+        {
+            const int partialSuccessLimit = int.MaxValue;
+
+            var clientAuthentication = new ClientAuthentication(partialSuccessLimit);
+            Assert.AreEqual(partialSuccessLimit, clientAuthentication.PartialSuccessLimit);
+        }
+
 
         [TestMethod]
         public void AuthenticateShouldThrowArgumentNullExceptionWhenConnectionInfoIsNull()

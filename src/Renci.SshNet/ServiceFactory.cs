@@ -16,6 +16,12 @@ namespace Renci.SshNet
     internal partial class ServiceFactory : IServiceFactory
     {
         /// <summary>
+        /// Defines the number of times an authentication attempt with any given <see cref="IAuthenticationMethod"/>
+        /// can result in <see cref="AuthenticationResult.PartialSuccess"/> before it is disregarded.
+        /// </summary>
+        private static int PartialSuccessLimit = 5;
+
+        /// <summary>
         /// Creates a <see cref="IClientAuthentication"/>.
         /// </summary>
         /// <returns>
@@ -23,7 +29,7 @@ namespace Renci.SshNet
         /// </returns>
         public IClientAuthentication CreateClientAuthentication()
         {
-            return new ClientAuthentication();
+            return new ClientAuthentication(PartialSuccessLimit);
         }
 
         /// <summary>

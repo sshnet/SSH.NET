@@ -13,7 +13,8 @@ namespace Renci.SshNet.Tests.Classes
         internal Mock<IAuthenticationMethod> PasswordAuthenticationMethodMock { get; private set; }
         internal Mock<IAuthenticationMethod> PublicKeyAuthenticationMethodMock { get; private set; }
         internal Mock<IAuthenticationMethod> KeyboardInteractiveAuthenticationMethodMock { get; private set; }
-        internal ClientAuthentication ClientAuthentication { get; private set; }
+
+        protected abstract void SetupData();
 
         protected void CreateMocks()
         {
@@ -27,18 +28,20 @@ namespace Renci.SshNet.Tests.Classes
 
         protected abstract void SetupMocks();
 
+        protected virtual void Arrange()
+        {
+            SetupData();
+            CreateMocks();
+            SetupMocks();
+        }
+
         protected abstract void Act();
 
-        protected override void OnInit()
+        protected sealed override void OnInit()
         {
             base.OnInit();
 
-            // Arrange
-            CreateMocks();
-            SetupMocks();
-            ClientAuthentication = new ClientAuthentication();
-
-            // Act
+            Arrange();
             Act();
         }
 

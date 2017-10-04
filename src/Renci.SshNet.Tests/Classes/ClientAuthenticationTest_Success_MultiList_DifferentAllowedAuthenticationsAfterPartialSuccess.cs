@@ -7,6 +7,14 @@ namespace Renci.SshNet.Tests.Classes
     [TestClass]
     public class ClientAuthenticationTest_Success_MultiList_DifferentAllowedAuthenticationsAfterPartialSuccess : ClientAuthenticationTestBase
     {
+        private int _partialSuccessLimit;
+        private ClientAuthentication _clientAuthentication;
+
+        protected override void SetupData()
+        {
+            _partialSuccessLimit = 1;
+        }
+
         protected override void SetupMocks()
         {
             var seq = new MockSequence();
@@ -47,9 +55,16 @@ namespace Renci.SshNet.Tests.Classes
             SessionMock.InSequence(seq).Setup(p => p.UnRegisterMessage("SSH_MSG_USERAUTH_BANNER"));
         }
 
+        protected override void Arrange()
+        {
+            base.Arrange();
+
+            _clientAuthentication = new ClientAuthentication(_partialSuccessLimit);
+        }
+
         protected override void Act()
         {
-            ClientAuthentication.Authenticate(ConnectionInfoMock.Object, SessionMock.Object);
+            _clientAuthentication.Authenticate(ConnectionInfoMock.Object, SessionMock.Object);
         }
     }
 }

@@ -139,11 +139,12 @@
     <Compile Include="Classes\ClientAuthenticationTestBase.cs" />
     <Compile Include="Classes\ClientAuthenticationTest_Failure_SingleList_AuthenticationMethodFailed.cs" />
     <Compile Include="Classes\ClientAuthenticationTest_Failure_SingleList_AuthenticationMethodNotConfigured.cs" />
-    <Compile Include="Classes\ClientAuthenticationTest_Success_MultiList_AllAllowedAuthenticationsHaveReachedPartialSuccessLimit.cs" />
+    <Compile Include="Classes\ClientAuthenticationTest_Failure_MultiList_AllAllowedAuthenticationsHaveReachedPartialSuccessLimit.cs" />
     <Compile Include="Classes\ClientAuthenticationTest_Success_MultiList_DifferentAllowedAuthenticationsAfterPartialSuccess.cs" />
     <Compile Include="Classes\ClientAuthenticationTest_Success_MultiList_PartialSuccessLimitReachedFollowedByFailureInAlternateBranch.cs" />
     <Compile Include="Classes\ClientAuthenticationTest_Success_MultiList_PartialSuccessLimitReachedFollowedByFailureInAlternateBranch2.cs" />
     <Compile Include="Classes\ClientAuthenticationTest_Success_MultiList_PartialSuccessLimitReachedFollowedByFailureInSameBranch.cs" />
+    <Compile Include="Classes\ClientAuthenticationTest_Success_MultiList_PartialSuccessLimitReachedFollowedBySuccessInAlternateBranch.cs" />
     <Compile Include="Classes\ClientAuthenticationTest_Success_MultiList_PartialSuccessLimitReachedFollowedBySuccessInSameBranch.cs" />
     <Compile Include="Classes\ClientAuthenticationTest_Success_MultiList_PostponePartialAccessAuthenticationMethod.cs" />
     <Compile Include="Classes\ClientAuthenticationTest_Success_MultiList_SameAllowedAuthenticationsAfterPartialSuccess.cs" />

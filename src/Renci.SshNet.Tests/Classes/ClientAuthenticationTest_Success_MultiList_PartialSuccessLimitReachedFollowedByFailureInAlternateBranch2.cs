@@ -145,7 +145,7 @@ namespace Renci.SshNet.Tests.Classes
 
             PasswordAuthenticationMethodMock.InSequence(seq)
                                             .Setup(p => p.Name)
-                                            .Returns("password-partial1");
+                                            .Returns("password-partial2");
 
             /* 8 */
 

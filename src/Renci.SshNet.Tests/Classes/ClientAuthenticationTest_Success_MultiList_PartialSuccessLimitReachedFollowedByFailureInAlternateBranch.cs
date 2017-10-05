@@ -11,24 +11,24 @@ namespace Renci.SshNet.Tests.Classes
     ///     o publickey
     ///     o keyboard-interactive
     /// * Partial success limit is 2
-    /// 
+    /// * Scenario:
     ///                    none
     ///                  (1=FAIL)
     ///                     |
-    ///             +-------------------+
-    ///             |                   |
-    ///         publickey      keyboard-interactive
-    ///          (2=PS)          ^   (6=FAIL)
-    ///             |            |
-    ///         password         |
-    ///          (3=PS)          |
-    ///             |            |
-    ///         password         |
-    ///          (4=PS)          |
-    ///             |            |
-    ///         password         |
-    ///         (5=SKIP)         |
-    ///             +------------+
+    ///             +------------------------+
+    ///             |                        |
+    ///         publickey          keyboard-interactive
+    ///          (2=PS)             ^    (6=FAIL)
+    ///             |               |
+    ///         password            |
+    ///          (3=PS)             |
+    ///             |               |
+    ///         password            |
+    ///          (4=PS)             |
+    ///             |               |
+    ///         password            |
+    ///         (5=SKIP)            |
+    ///             +---------------+
     /// </summary>
     [TestClass]
     public class ClientAuthenticationTest_Success_MultiList_PartialSuccessLimitReachedFollowedByFailureInAlternateBranch : ClientAuthenticationTestBase

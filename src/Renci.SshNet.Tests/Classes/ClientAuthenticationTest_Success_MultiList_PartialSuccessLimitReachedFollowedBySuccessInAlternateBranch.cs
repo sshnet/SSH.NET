@@ -7,27 +7,31 @@ namespace Renci.SshNet.Tests.Classes
 {
     /// <summary>
     /// * ConnectionInfo provides the following authentication methods (in order):
-    ///     o keyboard-interactive
     ///     o password
     ///     o publickey
+    ///     o keyboard-interactive
     /// * Partial success limit is 2
-    /// * Scenario:
-    ///                           none
-    ///                          (1=FAIL)
-    ///                             |
-    ///                         password
-    ///                       (2=PARTIAL)
-    ///                             |
-    ///             +------------------------------+
-    ///             |                              |
-    ///         password                       publickey
-    ///       (4=PARTIAL)                     (3=FAILURE)
-    ///             |
-    ///     keyboard-interactive
-    ///        (5=FAILURE)
+    /// 
+    ///                    none
+    ///                  (1=FAIL)
+    ///                     |
+    ///             +-------------------+
+    ///             |                   |
+    ///         publickey      keyboard-interactive
+    ///          (2=PS)          ^   (6=PS)
+    ///             |            |      |
+    ///         password         |      +-----------+
+    ///          (3=PS)          |      |           |
+    ///             |            |  password     publickey
+    ///         password         |   (7=SKIP)   (8=SUCCESS)
+    ///          (4=PS)          |
+    ///             |            |
+    ///         password         |
+    ///         (5=SKIP)         |
+    ///             +------------+
     /// </summary>
     [TestClass]
-    public class ClientAuthenticationTest_Success_MultiList_PartialSuccessLimitReachedFollowedByFailureInSameBranch : ClientAuthenticationTestBase
+    public class ClientAuthenticationTest_Success_MultiList_PartialSuccessLimitReachedFollowedBySuccessInAlternateBranch : ClientAuthenticationTestBase
     {
         private int _partialSuccessLimit;
         private ClientAuthentication _clientAuthentication;
@@ -57,43 +61,49 @@ namespace Renci.SshNet.Tests.Classes
                               .Setup(p => p.AuthenticationMethods)
                               .Returns(new List<IAuthenticationMethod>
                                   {
-                                      KeyboardInteractiveAuthenticationMethodMock.Object,
                                       PasswordAuthenticationMethodMock.Object,
-                                      PublicKeyAuthenticationMethodMock.Object
+                                      PublicKeyAuthenticationMethodMock.Object,
+                                      KeyboardInteractiveAuthenticationMethodMock.Object,
                                   });
             NoneAuthenticationMethodMock.InSequence(seq)
                                         .Setup(p => p.AllowedAuthentications)
-                                        .Returns(new[] {"password"});
+                                        .Returns(new[] {"publickey", "keyboard-interactive"});
 
             /* Enumerate supported authentication methods */
 
-            KeyboardInteractiveAuthenticationMethodMock.InSequence(seq).Setup(p => p.Name).Returns("keyboard-interactive");
             PasswordAuthenticationMethodMock.InSequence(seq).Setup(p => p.Name).Returns("password");
             PublicKeyAuthenticationMethodMock.InSequence(seq).Setup(p => p.Name).Returns("publickey");
+            KeyboardInteractiveAuthenticationMethodMock.InSequence(seq).Setup(p => p.Name).Returns("keyboard-interactive");
 
             /* 2 */
+
+            PublicKeyAuthenticationMethodMock.InSequence(seq)
+                                             .Setup(p => p.Authenticate(SessionMock.Object))
+                                             .Returns(AuthenticationResult.PartialSuccess);
+            PublicKeyAuthenticationMethodMock.InSequence(seq)
+                                             .Setup(p => p.AllowedAuthentications)
+                                             .Returns(new[] {"password"});
+
+            /* Enumerate supported authentication methods */
+
+            PasswordAuthenticationMethodMock.InSequence(seq).Setup(p => p.Name).Returns("password");
+            PublicKeyAuthenticationMethodMock.InSequence(seq).Setup(p => p.Name).Returns("publickey");
+            KeyboardInteractiveAuthenticationMethodMock.InSequence(seq).Setup(p => p.Name).Returns("keyboard-interactive");
+
+            /* 3 */
 
             PasswordAuthenticationMethodMock.InSequence(seq)
                                             .Setup(p => p.Authenticate(SessionMock.Object))
                                             .Returns(AuthenticationResult.PartialSuccess);
             PasswordAuthenticationMethodMock.InSequence(seq)
                                             .Setup(p => p.AllowedAuthentications)
-                                            .Returns(new[] {"password", "publickey"});
+                                            .Returns(new[] {"password"});
 
             /* Enumerate supported authentication methods */
 
-            KeyboardInteractiveAuthenticationMethodMock.InSequence(seq).Setup(p => p.Name).Returns("keyboard-interactive");
             PasswordAuthenticationMethodMock.InSequence(seq).Setup(p => p.Name).Returns("password");
             PublicKeyAuthenticationMethodMock.InSequence(seq).Setup(p => p.Name).Returns("publickey");
-
-            /* 3 */
-
-            PublicKeyAuthenticationMethodMock.InSequence(seq)
-                                             .Setup(p => p.Authenticate(SessionMock.Object))
-                                             .Returns(AuthenticationResult.Failure);
-            PublicKeyAuthenticationMethodMock.InSequence(seq)
-                                             .Setup(p => p.Name)
-                                             .Returns("publickey-failure");
+            KeyboardInteractiveAuthenticationMethodMock.InSequence(seq).Setup(p => p.Name).Returns("keyboard-interactive");
 
             /* 4 */
 
@@ -102,20 +112,46 @@ namespace Renci.SshNet.Tests.Classes
                                             .Returns(AuthenticationResult.PartialSuccess);
             PasswordAuthenticationMethodMock.InSequence(seq)
                                             .Setup(p => p.AllowedAuthentications)
-                                            .Returns(new[] {"keyboard-interactive"});
+                                            .Returns(new[] {"password"});
 
             /* Enumerate supported authentication methods */
 
-            KeyboardInteractiveAuthenticationMethodMock.InSequence(seq).Setup(p => p.Name).Returns("keyboard-interactive");
             PasswordAuthenticationMethodMock.InSequence(seq).Setup(p => p.Name).Returns("password");
             PublicKeyAuthenticationMethodMock.InSequence(seq).Setup(p => p.Name).Returns("publickey");
+            KeyboardInteractiveAuthenticationMethodMock.InSequence(seq).Setup(p => p.Name).Returns("keyboard-interactive");
 
-            /* 5 */
+            /* 5: Record partial success limit reached exception, and skip password authentication method */
+
+            PasswordAuthenticationMethodMock.InSequence(seq)
+                                            .Setup(p => p.Name)
+                                            .Returns("password-partial1");
+
+            /* 6 */
 
             KeyboardInteractiveAuthenticationMethodMock.InSequence(seq)
                                                        .Setup(p => p.Authenticate(SessionMock.Object))
-                                                       .Returns(AuthenticationResult.Failure);
-            KeyboardInteractiveAuthenticationMethodMock.InSequence(seq).Setup(p => p.Name).Returns("keyboard-interactive-failure");
+                                                       .Returns(AuthenticationResult.PartialSuccess);
+            KeyboardInteractiveAuthenticationMethodMock.InSequence(seq)
+                                                       .Setup(p => p.AllowedAuthentications)
+                                                       .Returns(new[] {"password", "publickey"});
+
+            /* Enumerate supported authentication methods */
+
+            PasswordAuthenticationMethodMock.InSequence(seq).Setup(p => p.Name).Returns("password");
+            PublicKeyAuthenticationMethodMock.InSequence(seq).Setup(p => p.Name).Returns("publickey");
+            KeyboardInteractiveAuthenticationMethodMock.InSequence(seq).Setup(p => p.Name).Returns("keyboard-interactive");
+
+            /* 7: Record partial success limit reached exception, and skip password authentication method */
+
+            PasswordAuthenticationMethodMock.InSequence(seq)
+                                            .Setup(p => p.Name)
+                                            .Returns("password-partial2");
+
+            /* 8 */
+
+            PublicKeyAuthenticationMethodMock.InSequence(seq)
+                                             .Setup(p => p.Authenticate(SessionMock.Object))
+                                             .Returns(AuthenticationResult.Success);
 
             SessionMock.InSequence(seq).Setup(p => p.UnRegisterMessage("SSH_MSG_USERAUTH_FAILURE"));
             SessionMock.InSequence(seq).Setup(p => p.UnRegisterMessage("SSH_MSG_USERAUTH_SUCCESS"));
@@ -131,15 +167,7 @@ namespace Renci.SshNet.Tests.Classes
 
         protected override void Act()
         {
-            try
-            {
-                _clientAuthentication.Authenticate(ConnectionInfoMock.Object, SessionMock.Object);
-                Assert.Fail();
-            }
-            catch (SshAuthenticationException ex)
-            {
-                _actualException = ex;
-            }
+            _clientAuthentication.Authenticate(ConnectionInfoMock.Object, SessionMock.Object);
         }
 
         [TestMethod]
@@ -149,11 +177,9 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
-        public void AuthenticateShouldThrowSshAuthenticationException()
+        public void AuthenticateOnPublicKeyAuthenticationMethodShouldHaveBeenInvokedTwice()
         {
-            Assert.IsNotNull(_actualException);
-            Assert.IsNull(_actualException.InnerException);
-            Assert.AreEqual("Permission denied (keyboard-interactive-failure).", _actualException.Message);
+            PublicKeyAuthenticationMethodMock.Verify(p => p.Authenticate(SessionMock.Object), Times.Exactly(2));
         }
     }
 }

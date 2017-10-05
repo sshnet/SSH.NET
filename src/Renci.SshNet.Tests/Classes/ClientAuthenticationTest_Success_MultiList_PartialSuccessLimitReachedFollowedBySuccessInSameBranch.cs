@@ -5,25 +5,25 @@ using Moq;
 namespace Renci.SshNet.Tests.Classes
 {
     /// <summary>
-    /// ConnectionInfo provides 'keyboard-interactive', 'password', 'publickey' and  authentication methods, and partial
-    /// success limit is set to 2.
-    ///
-    /// Authentication proceeds as follows:
-    /// 
-    /// 1 x     * Client performs 'none' authentication attempt.
-    ///         * Server responds with 'failure', and 'password' allowed authentication method.
-    /// 
-    /// 1 x     * Client performs 'password' authentication attempt.
-    ///         * Server responds with 'partial success', and 'password' & 'publickey' allowed authentication methods.
-    /// 
-    /// 1 x     * Client performs 'publickey' authentication attempt.
-    ///         * Server responds with 'failure'.
-    ///
-    /// 1 x     * Client performs 'password' authentication attempt.
-    ///         * Server responds with 'partial success', and 'keyboard-interactive' allowed authentication methods.
-    /// 
-    /// 1 x     * Client performs 'keyboard-interactive' authentication attempt.
-    ///         * Server responds with 'success'.
+    /// * ConnectionInfo provides the following authentication methods (in order):
+    ///     o keyboard-interactive
+    ///     o password
+    ///     o publickey
+    /// * Partial success limit is 2
+    /// * Scenario:
+    ///                           none
+    ///                          (1=FAIL)
+    ///                             |
+    ///                         password
+    ///                       (2=PARTIAL)
+    ///                             |
+    ///             +------------------------------+
+    ///             |                              |
+    ///         password                       publickey
+    ///       (4=PARTIAL)                     (3=FAILURE)
+    ///             |
+    ///     keyboard-interactive
+    ///        (5=FAILURE)
     /// </summary>
     [TestClass]
     public class ClientAuthenticationTest_Success_MultiList_PartialSuccessLimitReachedFollowedBySuccessInSameBranch : ClientAuthenticationTestBase
@@ -47,6 +47,8 @@ namespace Renci.SshNet.Tests.Classes
             ConnectionInfoMock.InSequence(seq).Setup(p => p.CreateNoneAuthenticationMethod())
                               .Returns(NoneAuthenticationMethodMock.Object);
 
+            /* 1 */
+
             NoneAuthenticationMethodMock.InSequence(seq).Setup(p => p.Authenticate(SessionMock.Object))
                                         .Returns(AuthenticationResult.Failure);
             ConnectionInfoMock.InSequence(seq)
@@ -61,9 +63,14 @@ namespace Renci.SshNet.Tests.Classes
                                         .Setup(p => p.AllowedAuthentications)
                                         .Returns(new[] {"password"});
 
+            /* Enumerate supported authentication methods */
+
             KeyboardInteractiveAuthenticationMethodMock.InSequence(seq).Setup(p => p.Name).Returns("keyboard-interactive");
             PasswordAuthenticationMethodMock.InSequence(seq).Setup(p => p.Name).Returns("password");
             PublicKeyAuthenticationMethodMock.InSequence(seq).Setup(p => p.Name).Returns("publickey");
+
+            /* 2 */
+
             PasswordAuthenticationMethodMock.InSequence(seq)
                                             .Setup(p => p.Authenticate(SessionMock.Object))
                                             .Returns(AuthenticationResult.PartialSuccess);
@@ -71,9 +78,14 @@ namespace Renci.SshNet.Tests.Classes
                                             .Setup(p => p.AllowedAuthentications)
                                             .Returns(new[] {"password", "publickey"});
 
+            /* Enumerate supported authentication methods */
+
             KeyboardInteractiveAuthenticationMethodMock.InSequence(seq).Setup(p => p.Name).Returns("keyboard-interactive");
             PasswordAuthenticationMethodMock.InSequence(seq).Setup(p => p.Name).Returns("password");
             PublicKeyAuthenticationMethodMock.InSequence(seq).Setup(p => p.Name).Returns("publickey");
+
+            /* 3 */
+
             PublicKeyAuthenticationMethodMock.InSequence(seq)
                                              .Setup(p => p.Authenticate(SessionMock.Object))
                                              .Returns(AuthenticationResult.Failure);
@@ -81,16 +93,23 @@ namespace Renci.SshNet.Tests.Classes
                                              .Setup(p => p.Name)
                                              .Returns("publickey-failure");
 
+            /* 4 */
+
             PasswordAuthenticationMethodMock.InSequence(seq)
                                             .Setup(p => p.Authenticate(SessionMock.Object))
                                             .Returns(AuthenticationResult.PartialSuccess);
             PasswordAuthenticationMethodMock.InSequence(seq)
                                             .Setup(p => p.AllowedAuthentications)
-                                            .Returns(new[] { "keyboard-interactive" });
+                                            .Returns(new[] {"keyboard-interactive"});
+
+            /* Enumerate supported authentication methods */
 
             KeyboardInteractiveAuthenticationMethodMock.InSequence(seq).Setup(p => p.Name).Returns("keyboard-interactive");
             PasswordAuthenticationMethodMock.InSequence(seq).Setup(p => p.Name).Returns("password");
             PublicKeyAuthenticationMethodMock.InSequence(seq).Setup(p => p.Name).Returns("publickey");
+
+            /* 5 */
+
             KeyboardInteractiveAuthenticationMethodMock.InSequence(seq)
                                                        .Setup(p => p.Authenticate(SessionMock.Object))
                                                        .Returns(AuthenticationResult.Success);

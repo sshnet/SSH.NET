@@ -4,6 +4,22 @@ using Moq;
 
 namespace Renci.SshNet.Tests.Classes
 {
+    /// <summary>
+    /// * ConnectionInfo provides the following authentication methods (in order):
+    ///     o keyboard-interactive
+    ///     o password
+    ///     o publickey
+    /// * Partial success limit is 2
+    /// * Scenario:
+    ///                           none
+    ///                          (1=FAIL)
+    ///                             |
+    ///                         password
+    ///                       (2=PARTIAL)
+    ///                             |
+    ///                         password
+    ///                       (3=SUCCESS)
+    /// </summary>
     [TestClass]
     public class ClientAuthenticationTest_Success_SingleList_SameAllowedAuthenticationAfterPartialSuccess : ClientAuthenticationTestBase
     {
@@ -26,6 +42,8 @@ namespace Renci.SshNet.Tests.Classes
             ConnectionInfoMock.InSequence(seq).Setup(p => p.CreateNoneAuthenticationMethod())
                 .Returns(NoneAuthenticationMethodMock.Object);
 
+            /* 1 */
+
             NoneAuthenticationMethodMock.InSequence(seq).Setup(p => p.Authenticate(SessionMock.Object))
                 .Returns(AuthenticationResult.Failure);
             ConnectionInfoMock.InSequence(seq)
@@ -39,8 +57,12 @@ namespace Renci.SshNet.Tests.Classes
                                         .Setup(p => p.AllowedAuthentications)
                                         .Returns(new[] {"password"});
 
+            /* Enumerate supported authentication methods */
+
             PublicKeyAuthenticationMethodMock.InSequence(seq).Setup(p => p.Name).Returns("publickey");
             PasswordAuthenticationMethodMock.InSequence(seq).Setup(p => p.Name).Returns("password");
+
+            /* 2 */
 
             PasswordAuthenticationMethodMock.InSequence(seq)
                                             .Setup(p => p.Authenticate(SessionMock.Object))
@@ -48,8 +70,13 @@ namespace Renci.SshNet.Tests.Classes
             PasswordAuthenticationMethodMock.InSequence(seq)
                                             .Setup(p => p.AllowedAuthentications)
                                             .Returns(new[] {"password"});
+
+            /* Enumerate supported authentication methods */
+
             PublicKeyAuthenticationMethodMock.InSequence(seq).Setup(p => p.Name).Returns("publickey");
             PasswordAuthenticationMethodMock.InSequence(seq).Setup(p => p.Name).Returns("password");
+
+            /* 3 */
 
             PasswordAuthenticationMethodMock.InSequence(seq)
                                             .Setup(p => p.Authenticate(SessionMock.Object))

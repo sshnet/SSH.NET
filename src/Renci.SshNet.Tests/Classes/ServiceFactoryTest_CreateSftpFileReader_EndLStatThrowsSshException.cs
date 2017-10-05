@@ -90,6 +90,5 @@ namespace Renci.SshNet.Tests.Classes
             Assert.IsNotNull(_actual);
             Assert.AreSame(_sftpFileReaderMock.Object, _actual);
         }
-
     }
 }

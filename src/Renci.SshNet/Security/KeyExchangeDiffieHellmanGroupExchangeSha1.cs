@@ -3,7 +3,7 @@
     /// <summary>
     /// Represents "diffie-hellman-group-exchange-sha1" algorithm implementation.
     /// </summary>
-    public class KeyExchangeDiffieHellmanGroupExchangeSha1 : KeyExchangeDiffieHellmanGroupExchangeShaBase
+    internal class KeyExchangeDiffieHellmanGroupExchangeSha1 : KeyExchangeDiffieHellmanGroupExchangeShaBase
     {
         /// <summary>
         /// Gets algorithm name.
@@ -11,6 +11,17 @@
         public override string Name
         {
             get { return "diffie-hellman-group-exchange-sha1"; }
+        }
+
+        /// <summary>
+        /// Gets the size, in bits, of the computed hash code.
+        /// </summary>
+        /// <value>
+        /// The size, in bits, of the computed hash code.
+        /// </value>
+        protected override int HashSize
+        {
+            get { return 160; }
         }
     }
 }

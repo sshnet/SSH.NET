@@ -5,7 +5,7 @@ namespace Renci.SshNet.Security
     /// <summary>
     /// Represents "diffie-hellman-group-exchange-sha256" algorithm implementation.
     /// </summary>
-    public class KeyExchangeDiffieHellmanGroupExchangeSha256 : KeyExchangeDiffieHellmanGroupExchangeShaBase
+    internal class KeyExchangeDiffieHellmanGroupExchangeSha256 : KeyExchangeDiffieHellmanGroupExchangeShaBase
     {
         /// <summary>
         /// Gets algorithm name.
@@ -13,6 +13,17 @@ namespace Renci.SshNet.Security
         public override string Name
         {
             get { return "diffie-hellman-group-exchange-sha256"; }
+        }
+
+        /// <summary>
+        /// Gets the size, in bits, of the computed hash code.
+        /// </summary>
+        /// <value>
+        /// The size, in bits, of the computed hash code.
+        /// </value>
+        protected override int HashSize
+        {
+            get { return 256; }
         }
 
         /// <summary>

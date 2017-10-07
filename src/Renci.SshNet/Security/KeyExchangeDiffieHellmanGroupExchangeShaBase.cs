@@ -1,12 +1,11 @@
-﻿using Renci.SshNet.Messages;
-using Renci.SshNet.Messages.Transport;
+﻿using Renci.SshNet.Messages.Transport;
 
 namespace Renci.SshNet.Security
 {
     /// <summary>
     /// Base class for "diffie-hellman-group-exchange" algorithms.
     /// </summary>
-    public abstract class KeyExchangeDiffieHellmanGroupExchangeShaBase : KeyExchangeDiffieHellman
+    internal abstract class KeyExchangeDiffieHellmanGroupExchangeShaBase : KeyExchangeDiffieHellman
     {
         private const int MinimumGroupSize = 1024;
         private const int PreferredGroupSize = 1024;

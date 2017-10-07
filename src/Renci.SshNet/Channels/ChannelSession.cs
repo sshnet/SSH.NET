@@ -10,7 +10,7 @@ namespace Renci.SshNet.Channels
     /// <summary>
     /// Implements Session SSH channel.
     /// </summary>
-    internal class ChannelSession : ClientChannel, IChannelSession
+    internal sealed class ChannelSession : ClientChannel, IChannelSession
     {
         /// <summary>
         /// Counts failed channel open attempts
@@ -62,7 +62,7 @@ namespace Renci.SshNet.Channels
         /// <summary>
         /// Opens the channel.
         /// </summary>
-        public virtual void Open()
+        public void Open()
         {
             //  Try to open channel several times
             while (!IsOpen && _failedOpenAttempts < ConnectionInfo.RetryAttempts)
@@ -356,19 +356,53 @@ namespace Renci.SshNet.Channels
         /// <summary>
         /// Sends the channel open message.
         /// </summary>
-        protected void SendChannelOpenMessage()
+        /// <exception cref="SshConnectionException">The client is not connected.</exception>
+        /// <exception cref="SshOperationTimeoutException">The operation timed out.</exception>
+        /// <exception cref="InvalidOperationException">The size of the packet exceeds the maximum size defined by the protocol.</exception>
+        /// <remarks>
+        /// <para>
+        /// When a session semaphore for this instance has not yet been obtained by this or any other thread,
+        /// the thread will block until such a semaphore is available and send a <see cref="ChannelOpenMessage"/>
+        /// to the remote host.
+        /// </para>
+        /// <para>
+        /// Note that the session semaphore is released in any of the following cases:
+        /// <list type="bullet">
+        ///   <item>
+        ///     <description>A <see cref="ChannelOpenFailureMessage"/> is received for the channel being opened.</description>
+        ///   </item>
+        ///   <item>
+        ///     <description>The remote host does not respond to the <see cref="ChannelOpenMessage"/> within the configured <see cref="ConnectionInfo.Timeout"/>.</description>
+        ///   </item>
+        ///   <item>
+        ///     <description>The remote host closes the channel.</description>
+        ///   </item>
+        ///   <item>
+        ///     <description>The <see cref="ChannelSession"/> is disposed.</description>
+        ///   </item>
+        ///   <item>
+        ///     <description>A socket error occurs sending a message to the remote host.</description>
+        ///   </item>
+        /// </list>
+        /// </para>
+        /// <para>
+        /// If the session semaphore was already obtained for this instance (and not released), then this method
+        /// immediately returns control to the caller. This should only happen when another thread has obtain the
+        /// session semaphore and already sent the <see cref="ChannelOpenMessage"/>, but the remote host did not
+        /// confirmed or rejected attempt to open the channel.
+        /// </para>
+        /// </remarks>
+        private void SendChannelOpenMessage()
         {
             // do not allow open to be ChannelOpenMessage to be sent again until we've
             // had a response on the previous attempt for the current channel
             if (Interlocked.CompareExchange(ref _sessionSemaphoreObtained, 1, 0) == 0)
             {
                 SessionSemaphore.Wait();
-                SendMessage(
-                    new ChannelOpenMessage(
-                        LocalChannelNumber,
-                        LocalWindowSize,
-                        LocalPacketSize,
-                        new SessionChannelOpenInfo()));
+                SendMessage(new ChannelOpenMessage(LocalChannelNumber,
+                                                   LocalWindowSize,
+                                                   LocalPacketSize,
+                                                   new SessionChannelOpenInfo()));
             }
         }
 

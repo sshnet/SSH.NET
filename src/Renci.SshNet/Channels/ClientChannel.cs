@@ -52,6 +52,9 @@ namespace Renci.SshNet.Channels
         /// Send message to open a channel.
         /// </summary>
         /// <param name="message">Message to send</param>
+        /// <exception cref="SshConnectionException">The client is not connected.</exception>
+        /// <exception cref="SshOperationTimeoutException">The operation timed out.</exception>
+        /// <exception cref="InvalidOperationException">The size of the packet exceeds the maximum size defined by the protocol.</exception>
         protected void SendMessage(ChannelOpenMessage message)
         {
             Session.SendMessage(message);

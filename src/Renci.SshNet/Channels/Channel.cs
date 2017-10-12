@@ -845,7 +845,6 @@ namespace Renci.SshNet.Channels
             if (_isDisposed)
                 return;
 
-            Console.WriteLine("IN DISPOSE");
             if (disposing)
             {
                 Close();

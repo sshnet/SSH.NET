@@ -23,6 +23,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
         private List<ChannelEventArgs> _channelEndOfDataRegister;
         private IList<ExceptionEventArgs> _channelExceptionRegister;
         private ManualResetEvent _channelClosedReceived;
+        private ManualResetEvent _channelClosedEventHandlerCompleted;
         private Thread _raiseChannelCloseReceivedThread;
 
         private void SetupData()
@@ -39,6 +40,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
             _channelEndOfDataRegister = new List<ChannelEventArgs>();
             _channelExceptionRegister = new List<ExceptionEventArgs>();
             _channelClosedReceived = new ManualResetEvent(false);
+            _channelClosedEventHandlerCompleted = new ManualResetEvent(false);
             _raiseChannelCloseReceivedThread = null;
         }
 
@@ -106,6 +108,12 @@ namespace Renci.SshNet.Tests.Classes.Channels
                     _raiseChannelCloseReceivedThread.Abort();
                 }
             }
+
+            if (_channelClosedEventHandlerCompleted != null)
+            {
+                _channelClosedEventHandlerCompleted.Dispose();
+                _channelClosedEventHandlerCompleted = null;
+            }
         }
 
         private void Arrange()
@@ -115,7 +123,12 @@ namespace Renci.SshNet.Tests.Classes.Channels
             SetupMocks();
 
             _channel = new ChannelStub(_sessionMock.Object, _localChannelNumber, _localWindowSize, _localPacketSize);
-            _channel.Closed += (sender, args) => _channelClosedRegister.Add(args);
+            _channel.Closed += (sender, args) =>
+                {
+                    _channelClosedRegister.Add(args);
+                    Thread.Sleep(50);
+                    _channelClosedEventHandlerCompleted.Set();
+                };
             _channel.EndOfData += (sender, args) => _channelEndOfDataRegister.Add(args);
             _channel.Exception += (sender, args) => _channelExceptionRegister.Add(args);
             _channel.InitializeRemoteChannelInfo(_remoteChannelNumber, _remoteWindowSize, _remotePacketSize);
@@ -173,7 +186,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
         }
 
         [TestMethod]
-        public void EndOfDataEventShouldHaveFiredOnce()
+        public void EndOfDataEventShouldNotHaveFired()
         {
             Assert.AreEqual(1, _channelEndOfDataRegister.Count);
             Assert.AreEqual(_localChannelNumber, _channelEndOfDataRegister[0].ChannelNumber);

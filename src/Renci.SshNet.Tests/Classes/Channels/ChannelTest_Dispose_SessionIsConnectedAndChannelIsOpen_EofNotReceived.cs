@@ -21,7 +21,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
         private uint _remotePacketSize;
         private ChannelStub _channel;
         private Stopwatch _closeTimer;
-        private ManualResetEvent _channelClosedWaitHandle;
+        private ManualResetEvent _channelClosedEventHandlerCompleted;
         private List<ChannelEventArgs> _channelClosedRegister;
         private IList<ExceptionEventArgs> _channelExceptionRegister;
 
@@ -43,7 +43,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
             _remotePacketSize = (uint)random.Next(0, int.MaxValue);
             _closeTimer = new Stopwatch();
             _channelClosedRegister = new List<ChannelEventArgs>();
-            _channelClosedWaitHandle = new ManualResetEvent(false);
+            _channelClosedEventHandlerCompleted = new ManualResetEvent(false);
             _channelExceptionRegister = new List<ExceptionEventArgs>();
 
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);
@@ -80,7 +80,8 @@ namespace Renci.SshNet.Tests.Classes.Channels
             _channel.Closed += (sender, args) =>
                 {
                     _channelClosedRegister.Add(args);
-                    _channelClosedWaitHandle.Set();
+                    Thread.Sleep(50);
+                    _channelClosedEventHandlerCompleted.Set();
                 };
             _channel.Exception += (sender, args) => _channelExceptionRegister.Add(args);
             _channel.InitializeRemoteChannelInfo(_remoteChannelNumber, _remoteWindowSize, _remotePacketSize);
@@ -129,10 +130,14 @@ namespace Renci.SshNet.Tests.Classes.Channels
         [TestMethod]
         public void ClosedEventShouldHaveFiredOnce()
         {
-            _channelClosedWaitHandle.WaitOne(100);
-
             Assert.AreEqual(1, _channelClosedRegister.Count);
             Assert.AreEqual(_localChannelNumber, _channelClosedRegister[0].ChannelNumber);
+        }
+
+        [TestMethod]
+        public void DisposeShouldBlockUntilClosedEventHandlerHasCompleted()
+        {
+            Assert.IsTrue(_channelClosedEventHandlerCompleted.WaitOne(0));
         }
 
         [TestMethod]

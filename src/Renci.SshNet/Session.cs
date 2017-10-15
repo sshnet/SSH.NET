@@ -1940,8 +1940,9 @@ namespace Renci.SshNet
             SocketWriteByte(0x01);
 
             //  Send port
-            SocketWriteByte((byte)(ConnectionInfo.Port / 0xFF));
-            SocketWriteByte((byte)(ConnectionInfo.Port % 0xFF));
+            var portBytes = BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)ConnectionInfo.Port));
+            SocketWriteByte(portBytes[0]);
+            SocketWriteByte(portBytes[1]);
 
             //  Send IP
             var ipAddress = DnsAbstraction.GetHostAddresses(ConnectionInfo.Host)[0];
@@ -2071,8 +2072,9 @@ namespace Renci.SshNet
             }
 
             //  Send port
-            SocketWriteByte((byte)(ConnectionInfo.Port / 0xFF));
-            SocketWriteByte((byte)(ConnectionInfo.Port % 0xFF));
+            var portBytes = BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)ConnectionInfo.Port));
+            SocketWriteByte(portBytes[0]);
+            SocketWriteByte(portBytes[1]);
 
             //  Read Server SOCKS5 version
             if (SocketReadByte() != 5)

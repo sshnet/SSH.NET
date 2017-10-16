@@ -21,6 +21,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
         private uint _remotePacketSize;
         private IList<ChannelEventArgs> _channelClosedRegister;
         private IList<ExceptionEventArgs> _channelExceptionRegister;
+        private ManualResetEvent _channelClosedEventHandlerCompleted;
         private ChannelStub _channel;
 
         [TestInitialize]
@@ -41,6 +42,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
             _remotePacketSize = (uint)random.Next(0, int.MaxValue);
             _channelClosedRegister = new List<ChannelEventArgs>();
             _channelExceptionRegister = new List<ExceptionEventArgs>();
+            _channelClosedEventHandlerCompleted = new ManualResetEvent(false);
 
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);
 
@@ -53,7 +55,12 @@ namespace Renci.SshNet.Tests.Classes.Channels
                 .Callback<WaitHandle>(w => w.WaitOne());
 
             _channel = new ChannelStub(_sessionMock.Object, _localChannelNumber, _localWindowSize, _localPacketSize);
-            _channel.Closed += (sender, args) => _channelClosedRegister.Add(args);
+            _channel.Closed += (sender, args) =>
+                {
+                    _channelClosedRegister.Add(args);
+                    Thread.Sleep(100);
+                    _channelClosedEventHandlerCompleted.Set();
+                };
             _channel.Exception += (sender, args) => _channelExceptionRegister.Add(args);
             _channel.InitializeRemoteChannelInfo(_remoteChannelNumber, _remoteWindowSize, _remotePacketSize);
             _channel.SetIsOpen(true);
@@ -104,6 +111,12 @@ namespace Renci.SshNet.Tests.Classes.Channels
         public void ExceptionShouldNeverHaveFired()
         {
             Assert.AreEqual(0, _channelExceptionRegister.Count, _channelExceptionRegister.AsString());
+        }
+
+        [TestMethod]
+        public void ChannelCloseReceivedShouldBlockUntilClosedEventHandlerHasCompleted()
+        {
+            Assert.IsTrue(_channelClosedEventHandlerCompleted.WaitOne(0));
         }
     }
 }

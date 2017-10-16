@@ -111,7 +111,10 @@
     <Compile Include="Classes\Channels\ChannelSessionTest_Open_OnOpenFailureReceived_RetriesAvalable.cs" />
     <Compile Include="Classes\Channels\ChannelTest_Dispose_SessionIsConnectedAndChannelIsOpen_EofNotReceived_SendEofInvoked.cs" />
     <Compile Include="Classes\Channels\ChannelTest_Dispose_SessionIsConnectedAndChannelIsOpen_EofReceived.cs" />
+    <Compile Include="Classes\Channels\ChannelTest_Dispose_SessionIsConnectedAndChannelIsOpen_EofReceived_ConnectionExceptionWaitingForChannelCloseMessage.cs" />
+    <Compile Include="Classes\Channels\ChannelTest_Dispose_SessionIsConnectedAndChannelIsOpen_EofReceived_OperationTimeoutExceptionWaitingForChannelCloseMessage.cs" />
     <Compile Include="Classes\Channels\ChannelTest_Dispose_SessionIsNotConnectedAndChannelIsOpen.cs" />
+    <Compile Include="Classes\Channels\ChannelTest_OnSessionChannelCloseReceived_SessionIsConnectedAndChannelIsOpen_DisposeChannelInClosedEventHandler.cs" />
     <Compile Include="Classes\Channels\ChannelTest_OnSessionChannelCloseReceived_OnClose_Exception.cs" />
     <Compile Include="Classes\Channels\ChannelTest_OnSessionChannelCloseReceived_SessionIsConnectedAndChannelIsOpen_EofReceived.cs" />
     <Compile Include="Classes\Channels\ChannelTest_OnSessionChannelDataReceived_OnData_Exception.cs" />

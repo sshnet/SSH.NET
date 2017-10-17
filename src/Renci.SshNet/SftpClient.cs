@@ -605,6 +605,37 @@ namespace Renci.SshNet
             }
         }
 
+		/// <summary>
+		/// Checks to see if an entire directory path exists on the server, if it does not exist it will create it for you.
+		/// <para>This is best used when you are trying to syncronize directories or ensure that the file structure remains the same in the .</para>
+		/// </summary>
+		/// <param name="path">SFTP path that you want to check</param>
+		/// <exception cref="ArgumentException"><paramref name="path"/> is <b>null</b> or contains only whitespace characters.</exception>
+		/// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="SftpPermissionDeniedException">Permission to perform the operation was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
+        /// <exception cref="SshException">A SSH error where <see cref="Exception.Message"/> is the message from the remote host.</exception>
+        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
+		public void EnsureDirectory(string path)
+		{
+			CheckDisposed();
+
+			if (path.IsNullOrWhiteSpace())
+				throw new ArgumentException("path");
+
+			if (_sftpSession == null)
+				throw new SshConnectionException("Client not connected.");
+
+			string[] splitDirNames = path.Replace("\\", "/").Split('/').Where(s => !s.IsNullOrWhiteSpace()).ToArray();
+
+			List<string> rollupDirectories = new List<string>();
+			for (int i = 2; i <= splitDirNames.Length; i++)
+				rollupDirectories.Add(string.Join("/", splitDirNames.Where(sdir => !sdir.IsNullOrWhiteSpace()).Take(i)));
+
+			foreach (string dir in rollupDirectories)
+				if (!this.Exists(dir))
+					this.CreateDirectory(dir);
+		}
+
         /// <summary>
         /// Downloads remote file specified by the path into the stream.
         /// </summary>

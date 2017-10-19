@@ -629,7 +629,7 @@ namespace Renci.SshNet
 
 			List<string> rollupDirectories = new List<string>();
 			for (int i = 2; i <= splitDirNames.Length; i++)
-				rollupDirectories.Add(string.Join("/", splitDirNames.Where(sdir => !sdir.IsNullOrWhiteSpace()).Take(i)));
+				rollupDirectories.Add(string.Join("/", splitDirNames.Where(sdir => !sdir.IsNullOrWhiteSpace()).Take(i).ToArray()));
 
 			foreach (string dir in rollupDirectories)
 				if (!this.Exists(dir))

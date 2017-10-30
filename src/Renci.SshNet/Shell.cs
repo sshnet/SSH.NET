@@ -135,7 +135,7 @@ namespace Renci.SshNet
 
                         if (WaitHandle.WaitAny(new[] {readWaitHandle, _channelClosedWaitHandle}) == 0)
                         {
-                            var read = readTask.Result;
+                            var read = readTask.GetAwaiter().GetResult();
                             _channel.SendData(buffer, 0, read);
                             continue;
                         }

@@ -13,7 +13,7 @@ namespace Renci.SshNet.Abstractions
 #if FEATURE_THREAD_SLEEP
             System.Threading.Thread.Sleep(millisecondsTimeout);
 #elif FEATURE_THREAD_TAP
-            System.Threading.Tasks.Task.Delay(millisecondsTimeout).Wait();
+            System.Threading.Tasks.Task.Delay(millisecondsTimeout).GetAwaiter().GetResult();
 #else
             #error Suspend of the current thread is not implemented.
 #endif

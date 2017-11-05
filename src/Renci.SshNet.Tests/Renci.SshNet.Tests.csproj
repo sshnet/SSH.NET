@@ -88,7 +88,11 @@
     <Compile Include="..\..\test\Renci.SshNet.Shared.Tests\SshMessageFactoryTest.cs">
       <Link>Classes\SshMessageFactoryTest.cs</Link>
     </Compile>
+    <Compile Include="Classes\BaseClientTest_Connected_KeepAliveInterval_NotNegativeOne.cs" />
+    <Compile Include="Classes\BaseClientTest_Connected_KeepAliveInterval_NegativeOne.cs" />
     <Compile Include="Classes\BaseClientTest_Connected_KeepAlivesNotSentConcurrently.cs" />
+    <Compile Include="Classes\BaseClientTest_Disconnected_KeepAliveInterval_NotNegativeOne.cs" />
+    <Compile Include="Classes\BaseClientTest_NotConnected_KeepAliveInterval_NotNegativeOne.cs" />
     <Compile Include="Classes\Channels\ChannelDirectTcpipTest.cs" />
     <Compile Include="Classes\Channels\ChannelDirectTcpipTest_Dispose_SessionIsConnectedAndChannelIsOpen.cs" />
     <Compile Include="Classes\Channels\ChannelSessionTest_Dispose_Disposed.cs" />

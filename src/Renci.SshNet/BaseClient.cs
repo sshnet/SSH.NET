@@ -107,13 +107,25 @@ namespace Renci.SshNet
                 }
                 else
                 {
-                    // change the due time and interval of the timer if has already
-                    // been created (which means the client is connected)
-                    // 
-                    // if the client is not yet connected, then the timer will be
-                    // created with the new interval when Connect() is invoked
                     if (_keepAliveTimer != null)
+                    {
+                        // change the due time and interval of the timer if has already
+                        // been created (which means the client is connected)
+
                         _keepAliveTimer.Change(value, value);
+                    }
+                    else if (IsConnected)
+                    {
+                        // if timer has not yet been created and the client is already connected,
+                        // then we need to create the timer now
+                        //
+                        // this means that - before connecting - the keep-alive interval was set to
+                        // negative one (-1) and as such we did not create the timer
+                        _keepAliveTimer = CreateKeepAliveTimer(value, value);
+                    }
+
+                    // note that if the client is not yet connected, then the timer will be created with the 
+                    // new interval when Connect() is invoked
                 }
                 _keepAliveInterval = value;
             }
@@ -420,7 +432,20 @@ namespace Renci.SshNet
                 // timer is already started
                 return;
 
-            _keepAliveTimer = new Timer(state => SendKeepAliveMessage(), null, _keepAliveInterval, _keepAliveInterval);
+            _keepAliveTimer = CreateKeepAliveTimer(_keepAliveInterval, _keepAliveInterval);
+        }
+
+        /// <summary>
+        /// Creates a <see cref="Timer"/> with the specified due time and interval.
+        /// </summary>
+        /// <param name="dueTime">The amount of time to delay before the keep-alive message is first sent. Specify negative one (-1) milliseconds to prevent the timer from starting. Specify zero (0) to start the timer immediately.</param>
+        /// <param name="period">The time interval between attempts to send a keep-alive message. Specify negative one (-1) milliseconds to disable periodic signaling.</param>
+        /// <returns>
+        /// A <see cref="Timer"/> with the specified due time and interval.
+        /// </returns>
+        private Timer CreateKeepAliveTimer(TimeSpan dueTime, TimeSpan period)
+        {
+            return new Timer(state => SendKeepAliveMessage(), null, dueTime, period);
         }
     }
 }

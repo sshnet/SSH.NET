@@ -34,7 +34,7 @@ namespace Renci.SshNet
         /// Specifies an infinite waiting period.
         /// </summary>
         /// <remarks>
-        /// The value of this field is <c>-1</c> millisecond. 
+        /// The value of this field is <c>-1</c> millisecond.
         /// </remarks>
         internal static readonly TimeSpan InfiniteTimeSpan = new TimeSpan(0, 0, 0, 0, -1);
 

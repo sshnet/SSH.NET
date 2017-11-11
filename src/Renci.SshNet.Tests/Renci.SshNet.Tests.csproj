@@ -91,6 +91,7 @@
     <Compile Include="Classes\BaseClientTest_Connected_KeepAliveInterval_NotNegativeOne.cs" />
     <Compile Include="Classes\BaseClientTest_Connected_KeepAliveInterval_NegativeOne.cs" />
     <Compile Include="Classes\BaseClientTest_Connected_KeepAlivesNotSentConcurrently.cs" />
+    <Compile Include="Classes\BaseClientTest_Connect_OnConnectedThrowsException.cs" />
     <Compile Include="Classes\BaseClientTest_Disconnected_KeepAliveInterval_NotNegativeOne.cs" />
     <Compile Include="Classes\BaseClientTest_NotConnected_KeepAliveInterval_NotNegativeOne.cs" />
     <Compile Include="Classes\Channels\ChannelDirectTcpipTest.cs" />

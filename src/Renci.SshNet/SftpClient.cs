@@ -2151,11 +2151,7 @@ namespace Renci.SshNet
         {
             base.OnConnected();
 
-            _sftpSession = ServiceFactory.CreateSftpSession(Session,
-                                                            _operationTimeout,
-                                                            ConnectionInfo.Encoding,
-                                                            ServiceFactory.CreateSftpResponseFactory());
-            _sftpSession.Connect();
+            _sftpSession = CreateAndConnectToSftpSession();
         }
 
         /// <summary>
@@ -2191,6 +2187,24 @@ namespace Renci.SshNet
                     _sftpSession = null;
                     sftpSession.Dispose();
                 }
+            }
+        }
+
+        private ISftpSession CreateAndConnectToSftpSession()
+        {
+            var sftpSession = ServiceFactory.CreateSftpSession(Session,
+                                                               _operationTimeout,
+                                                               ConnectionInfo.Encoding,
+                                                               ServiceFactory.CreateSftpResponseFactory());
+            try
+            {
+                sftpSession.Connect();
+                return sftpSession;
+            }
+            catch
+            {
+                sftpSession.Dispose();
+                throw;
             }
         }
     }

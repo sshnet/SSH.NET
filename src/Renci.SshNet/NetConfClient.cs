@@ -219,8 +219,7 @@ namespace Renci.SshNet
         {
             base.OnConnected();
 
-            _netConfSession = ServiceFactory.CreateNetConfSession(Session, _operationTimeout);
-            _netConfSession.Connect();
+            _netConfSession = CreateAndConnectNetConfSession();
         }
 
         /// <summary>
@@ -248,6 +247,21 @@ namespace Renci.SshNet
                     _netConfSession.Dispose();
                     _netConfSession = null;
                 }
+            }
+        }
+
+        private INetConfSession CreateAndConnectNetConfSession()
+        {
+            var netConfSession = ServiceFactory.CreateNetConfSession(Session, _operationTimeout);
+            try
+            {
+                netConfSession.Connect();
+                return netConfSession;
+            }
+            catch
+            {
+                netConfSession.Dispose();
+                throw;
             }
         }
     }

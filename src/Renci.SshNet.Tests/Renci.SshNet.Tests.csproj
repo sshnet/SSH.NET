@@ -553,6 +553,7 @@
     <Compile Include="Classes\SubsystemSession_Connect_Disconnected.cs" />
     <Compile Include="Classes\SubsystemSession_Connect_Disposed.cs" />
     <Compile Include="Classes\SubsystemSession_Connect_NeverConnected.cs" />
+    <Compile Include="Classes\SubsystemSession_Connect_SendSubsystemRequestFails.cs" />
     <Compile Include="Classes\SubsystemSession_Disconnect_Connected.cs" />
     <Compile Include="Classes\SubsystemSession_Disconnect_Disposed.cs" />
     <Compile Include="Classes\SubsystemSession_Disconnect_NeverConnected.cs" />

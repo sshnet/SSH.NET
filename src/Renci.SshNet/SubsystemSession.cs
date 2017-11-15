@@ -95,6 +95,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <exception cref="InvalidOperationException">The session is already connected.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the session was disposed.</exception>
+        /// <exception cref="SshException">The channel session could not be opened, or the subsystem could not be executed.</exception>
         public void Connect()
         {
             EnsureNotDisposed();
@@ -116,7 +117,16 @@ namespace Renci.SshNet
             _channel.Exception += Channel_Exception;
             _channel.Closed += Channel_Closed;
             _channel.Open();
-            _channel.SendSubsystemRequest(_subsystemName);
+
+            if (!_channel.SendSubsystemRequest(_subsystemName))
+            {
+                // close channel session
+                Disconnect();
+                // signal subsystem failure
+                throw new SshException(string.Format(CultureInfo.InvariantCulture,
+                                                     "Subsystem '{0}' could not be executed.",
+                                                     _subsystemName));
+            }
 
             OnChannelOpen();
         }

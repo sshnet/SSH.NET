@@ -24,6 +24,22 @@ namespace Renci.SshNet
         internal static int DefaultPort = 22;
 
         /// <summary>
+        /// The default connection timeout.
+        /// </summary>
+        /// <value>
+        /// 30 seconds.
+        /// </value>
+        private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(30);
+
+        /// <summary>
+        /// The default channel close timeout.
+        /// </summary>
+        /// <value>
+        /// 1 second.
+        /// </value>
+        private static readonly TimeSpan DefaultChannelCloseTimeout = TimeSpan.FromSeconds(1);
+
+        /// <summary>
         /// Gets supported key exchange algorithms for this connection.
         /// </summary>
         public IDictionary<string, Type> KeyExchangeAlgorithms { get; private set; }
@@ -125,6 +141,18 @@ namespace Renci.SshNet
         ///   <code source="..\..\src\Renci.SshNet.Tests\Classes\SshClientTest.cs" region="Example SshClient Connect Timeout" language="C#" title="Specify connection timeout" />
         /// </example>
         public TimeSpan Timeout { get; set; }
+
+        /// <summary>
+        /// Gets or sets the timeout to used when waiting for a server to acknowledge closing a channel.
+        /// </summary>
+        /// <value>
+        /// The channel close timeout. The default value is 1 second.
+        /// </value>
+        /// <remarks>
+        /// If a server does not send a <c>SSH2_MSG_CHANNEL_CLOSE</c> message before the specified timeout
+        /// elapses, the channel will be closed immediately.
+        /// </remarks>
+        public TimeSpan ChannelCloseTimeout { get; set; }
 
         /// <summary>
         /// Gets or sets the character encoding.
@@ -286,7 +314,8 @@ namespace Renci.SshNet
                 throw new ArgumentException("At least one authentication method should be specified.", "authenticationMethods");
 
             //  Set default connection values
-            Timeout = TimeSpan.FromSeconds(30);
+            Timeout = DefaultTimeout;
+            ChannelCloseTimeout = DefaultChannelCloseTimeout;
             RetryAttempts = 10;
             MaxSessions = 10;
             Encoding = Encoding.UTF8;

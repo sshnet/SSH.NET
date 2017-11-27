@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Globalization;
 using System.Net.Sockets;
 using System.Threading;
@@ -143,7 +144,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void ISession_TrySendMessageShouldReturnFalse()
         {
-            var session = (ISession)Session;
+            var session = (ISession) Session;
 
             var actual = session.TrySendMessage(new IgnoreMessage());
 
@@ -151,9 +152,9 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
-        public void ISession_WaitOnHandleShouldThrowSshConnectionExceptionDetailingDisconnectReason()
+        public void ISession_WaitOnHandle_WaitHandle_ShouldThrowSshConnectionExceptionDetailingDisconnectReason()
         {
-            var session = (ISession)Session;
+            var session = (ISession) Session;
             var waitHandle = new ManualResetEvent(false);
 
             try
@@ -165,8 +166,36 @@ namespace Renci.SshNet.Tests.Classes
             {
                 Assert.AreEqual(DisconnectReason.ServiceNotAvailable, ex.DisconnectReason);
                 Assert.IsNull(ex.InnerException);
-                Assert.AreEqual(string.Format(CultureInfo.InvariantCulture, "The connection was closed by the server: {0} ({1}).", _disconnectMessage.Description, _disconnectMessage.ReasonCode), ex.Message);
+                Assert.AreEqual(string.Format(CultureInfo.InvariantCulture,
+                                              "The connection was closed by the server: {0} ({1}).",
+                                              _disconnectMessage.Description,
+                                              _disconnectMessage.ReasonCode),
+                                ex.Message);
             }
+        }
+
+        [TestMethod]
+        public void ISession_TryWait_WaitHandleAndTimeout_ShouldReturnDisconnected()
+        {
+            var session = (ISession) Session;
+            var waitHandle = new ManualResetEvent(false);
+
+            var result = session.TryWait(waitHandle, Session.InfiniteTimeSpan);
+
+            Assert.AreEqual(WaitResult.Disconnected, result);
+        }
+
+        [TestMethod]
+        public void ISession_TryWait_WaitHandleAndTimeoutAndException_ShouldReturnDisconnected()
+        {
+            var session = (ISession) Session;
+            var waitHandle = new ManualResetEvent(false);
+            Exception exception;
+
+            var result = session.TryWait(waitHandle, Session.InfiniteTimeSpan, out exception);
+
+            Assert.AreEqual(WaitResult.Disconnected, result);
+            Assert.IsNull(exception);
         }
     }
 }

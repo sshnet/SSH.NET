@@ -146,7 +146,7 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
-        public void ISession_WaitOnHandleShouldThrowSshConnectionExceptionDetailingBadPacket()
+        public void ISession_WaitOnHandle_WaitHandle_ShouldThrowSshConnectionExceptionDetailingBadPacket()
         {
             var session = (ISession) Session;
             var waitHandle = new ManualResetEvent(false);
@@ -162,6 +162,49 @@ namespace Renci.SshNet.Tests.Classes
                 Assert.IsNull(ex.InnerException);
                 Assert.AreEqual("An established connection was aborted by the server.", ex.Message);
             }
+        }
+
+        [TestMethod]
+        public void ISession_WaitOnHandle_WaitHandleAndTimeout_ShouldThrowSshConnectionExceptionDetailingBadPacket()
+        {
+            var session = (ISession) Session;
+            var waitHandle = new ManualResetEvent(false);
+
+            try
+            {
+                session.WaitOnHandle(waitHandle, Session.InfiniteTimeSpan);
+                Assert.Fail();
+            }
+            catch (SshConnectionException ex)
+            {
+                Assert.AreEqual(DisconnectReason.ConnectionLost, ex.DisconnectReason);
+                Assert.IsNull(ex.InnerException);
+                Assert.AreEqual("An established connection was aborted by the server.", ex.Message);
+            }
+        }
+
+        [TestMethod]
+        public void ISession_TryWait_WaitHandleAndTimeout_ShouldReturnDisconnected()
+        {
+            var session = (ISession) Session;
+            var waitHandle = new ManualResetEvent(false);
+
+            var result = session.TryWait(waitHandle, Session.InfiniteTimeSpan);
+
+            Assert.AreEqual(WaitResult.Disconnected, result);
+        }
+
+        [TestMethod]
+        public void ISession_TryWait_WaitHandleAndTimeoutAndException_ShouldReturnDisconnected()
+        {
+            var session = (ISession) Session;
+            var waitHandle = new ManualResetEvent(false);
+            Exception exception;
+
+            var result = session.TryWait(waitHandle, Session.InfiniteTimeSpan, out exception);
+
+            Assert.AreEqual(WaitResult.Disconnected, result);
+            Assert.IsNull(exception);
         }
     }
 }

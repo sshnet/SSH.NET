@@ -41,6 +41,18 @@ namespace Renci.SshNet
     internal interface IConnectionInfo
     {
         /// <summary>
+        /// Gets or sets the timeout to used when waiting for a server to acknowledge closing a channel.
+        /// </summary>
+        /// <value>
+        /// The channel close timeout. The default value is 1 second.
+        /// </value>
+        /// <remarks>
+        /// If a server does not send a <c>SSH2_MSG_CHANNEL_CLOSE</c> message before the specified timeout
+        /// elapses, the channel will be closed immediately.
+        /// </remarks>
+        TimeSpan ChannelCloseTimeout { get; }
+
+        /// <summary>
         /// Gets the supported channel requests for this connection.
         /// </summary>
         /// <value>

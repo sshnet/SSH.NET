@@ -798,6 +798,53 @@ namespace Renci.SshNet
             WaitOnHandle(waitHandle, ConnectionInfo.Timeout);
         }
 
+        WaitResult ISession.TryWait(WaitHandle waitHandle, TimeSpan timeout)
+        {
+            Exception exception;
+            return TryWait(waitHandle, timeout, out exception);
+        }
+
+        WaitResult ISession.TryWait(WaitHandle waitHandle, TimeSpan timeout, out Exception exception)
+        {
+            return TryWait(waitHandle, timeout, out exception);
+        }
+
+        private WaitResult TryWait(WaitHandle waitHandle, TimeSpan timeout, out Exception exception)
+        {
+            if (waitHandle == null)
+                throw new ArgumentNullException("waitHandle");
+
+            var waitHandles = new[]
+                {
+                    _exceptionWaitHandle,
+                    _messageListenerCompleted,
+                    waitHandle
+                };
+
+            switch (WaitHandle.WaitAny(waitHandles, timeout))
+            {
+                case 0:
+                    if (_exception is SshConnectionException)
+                    {
+                        exception = null;
+                        return WaitResult.Disconnected;
+                    }
+                    exception = _exception;
+                    return WaitResult.Failed;
+                case 1:
+                    exception = null;
+                    return WaitResult.Disconnected;
+                case 2:
+                    exception = null;
+                    return WaitResult.Success;
+                case WaitHandle.WaitTimeout:
+                    exception = null;
+                    return WaitResult.TimedOut;
+                default:
+                    throw new InvalidOperationException("Unexpected result.");
+            }
+        }
+
         /// <summary>
         /// Waits for the specified handle or the exception handle for the receive thread
         /// to signal within the specified timeout.
@@ -1077,7 +1124,7 @@ namespace Renci.SshNet
                 var serverHash = data.Take(data.Length - serverMacLength, serverMacLength);
 
                 // TODO add IsEqualTo overload that takes left+right index and number of bytes to compare;
-                // TODO that way we can eliminate the extrate allocation of the Take above
+                // TODO that way we can eliminate the extra allocation of the Take above
                 if (!serverHash.IsEqualTo(clientHash))
                 {
                     throw new SshConnectionException("MAC error", DisconnectReason.MacError);
@@ -2412,8 +2459,9 @@ namespace Renci.SshNet
         /// <returns>
         /// A new "forwarded-tcpip" SSH channel.
         /// </returns>
-        IChannelForwardedTcpip ISession.CreateChannelForwardedTcpip(uint remoteChannelNumber, uint remoteWindowSize,
-            uint remoteChannelDataPacketSize)
+        IChannelForwardedTcpip ISession.CreateChannelForwardedTcpip(uint remoteChannelNumber,
+                                                                    uint remoteWindowSize,
+                                                                    uint remoteChannelDataPacketSize)
         {
             return new ChannelForwardedTcpip(this,
                                              NextChannelNumber,
@@ -2454,5 +2502,13 @@ namespace Renci.SshNet
         }
 
 #endregion ISession implementation
+    }
+
+    internal enum WaitResult
+    {
+        Success = 1,
+        TimedOut = 2,
+        Disconnected = 3,
+        Failed = 4
     }
 }

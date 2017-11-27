@@ -156,6 +156,10 @@ namespace Renci.SshNet
         /// </remarks>
         void WaitOnHandle(WaitHandle waitHandle, TimeSpan timeout);
 
+        WaitResult TryWait(WaitHandle waitHandle, TimeSpan timeout, out Exception exception);
+
+        WaitResult TryWait(WaitHandle waitHandle, TimeSpan timeout);
+
         /// <summary>
         /// Occurs when <see cref="ChannelCloseMessage"/> message received
         /// </summary>

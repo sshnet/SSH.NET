@@ -9,22 +9,23 @@ using Renci.SshNet.Messages.Connection;
 namespace Renci.SshNet.Tests.Classes.Channels
 {
     [TestClass]
-    public class ChannelTest_OnSessionChannelCloseReceived_SessionIsConnectedAndChannelIsOpen_DisposeChannelInClosedEventHandler
+    public class ChannelTest_OnSessionChannelCloseReceived_SessionIsConnectedAndChannelIsOpen_DisposeChannelInClosedEventHandler : ChannelTestBase
     {
-        private Mock<ISession> _sessionMock;
         private uint _localChannelNumber;
         private uint _localWindowSize;
         private uint _localPacketSize;
         private uint _remoteChannelNumber;
         private uint _remoteWindowSize;
         private uint _remotePacketSize;
+        private TimeSpan _channelCloseTimeout;
         private ChannelStub _channel;
         private List<ChannelEventArgs> _channelClosedRegister;
         private List<ChannelEventArgs> _channelEndOfDataRegister;
         private IList<ExceptionEventArgs> _channelExceptionRegister;
         private ManualResetEvent _channelClosedEventHandlerCompleted;
+        private bool _channelClosedWaitHandleSignaled;
 
-        private void SetupData()
+        protected override void SetupData()
         {
             var random = new Random();
 
@@ -34,44 +35,33 @@ namespace Renci.SshNet.Tests.Classes.Channels
             _remoteChannelNumber = (uint) random.Next(0, int.MaxValue);
             _remoteWindowSize = (uint) random.Next(0, int.MaxValue);
             _remotePacketSize = (uint) random.Next(0, int.MaxValue);
+            _channelCloseTimeout = TimeSpan.FromSeconds(random.Next(10, 20));
+            _channelClosedWaitHandleSignaled = false;
             _channelClosedRegister = new List<ChannelEventArgs>();
             _channelEndOfDataRegister = new List<ChannelEventArgs>();
             _channelExceptionRegister = new List<ExceptionEventArgs>();
             _channelClosedEventHandlerCompleted = new ManualResetEvent(false);
         }
 
-        private void CreateMocks()
-        {
-            _sessionMock = new Mock<ISession>(MockBehavior.Strict);
-        }
-
-        private void SetupMocks()
+        protected override void SetupMocks()
         {
             var sequence = new MockSequence();
 
-            _sessionMock.InSequence(sequence).Setup(p => p.IsConnected).Returns(true);
-            _sessionMock.InSequence(sequence)
-                        .Setup(p => p.TrySendMessage(It.Is<ChannelCloseMessage>(c => c.LocalChannelNumber == _remoteChannelNumber)))
-                        .Returns(true);
-            _sessionMock.InSequence(sequence)
-                        .Setup(p => p.WaitOnHandle(It.IsAny<EventWaitHandle>()))
-                        .Callback<WaitHandle>(w => w.WaitOne());
+            SessionMock.InSequence(sequence).Setup(p => p.IsConnected).Returns(true);
+            SessionMock.InSequence(sequence).Setup(p => p.TrySendMessage(It.Is<ChannelCloseMessage>(c => c.LocalChannelNumber == _remoteChannelNumber))).Returns(true);
+            SessionMock.InSequence(sequence).Setup(p => p.ConnectionInfo).Returns(ConnectionInfoMock.Object);
+            ConnectionInfoMock.InSequence(sequence).Setup(p => p.ChannelCloseTimeout).Returns(_channelCloseTimeout);
+            SessionMock.InSequence(sequence)
+                        .Setup(p => p.TryWait(It.IsAny<EventWaitHandle>(), _channelCloseTimeout))
+                        .Callback<WaitHandle, TimeSpan>((waitHandle, channelCloseTimeout) => _channelClosedWaitHandleSignaled = waitHandle.WaitOne(0))
+                        .Returns(WaitResult.Success);
         }
 
-        [TestInitialize]
-        public void Initialize()
+        protected override void Arrange()
         {
-            Arrange();
-            Act();
-        }
+            base.Arrange();
 
-        private void Arrange()
-        {
-            SetupData();
-            CreateMocks();
-            SetupMocks();
-
-            _channel = new ChannelStub(_sessionMock.Object, _localChannelNumber, _localWindowSize, _localPacketSize);
+            _channel = new ChannelStub(SessionMock.Object, _localChannelNumber, _localWindowSize, _localPacketSize);
             _channel.Closed += (sender, args) =>
                 {
                     _channelClosedRegister.Add(args);
@@ -84,9 +74,9 @@ namespace Renci.SshNet.Tests.Classes.Channels
             _channel.SetIsOpen(true);
         }
 
-        private void Act()
+        protected override void Act()
         {
-            _sessionMock.Raise(
+            SessionMock.Raise(
                 s => s.ChannelCloseReceived += null,
                 new MessageEventArgs<ChannelCloseMessage>(new ChannelCloseMessage(_localChannelNumber)));
         }
@@ -100,7 +90,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
         [TestMethod]
         public void TrySendMessageOnSessionShouldBeInvokedOnceForChannelCloseMessage()
         {
-            _sessionMock.Verify(
+            SessionMock.Verify(
                 p => p.TrySendMessage(It.Is<ChannelCloseMessage>(c => c.LocalChannelNumber == _remoteChannelNumber)),
                 Times.Once);
         }
@@ -108,15 +98,21 @@ namespace Renci.SshNet.Tests.Classes.Channels
         [TestMethod]
         public void TrySendMessageOnSessionShouldNeverBeInvokedForChannelEofMessage()
         {
-            _sessionMock.Verify(
+            SessionMock.Verify(
                 p => p.TrySendMessage(It.Is<ChannelEofMessage>(c => c.LocalChannelNumber == _remoteChannelNumber)),
                 Times.Never);
         }
 
         [TestMethod]
-        public void WaitOnHandleOnSessionShouldBeInvokedOnce()
+        public void TryWaitOnSessionShouldBeInvokedOnce()
         {
-            _sessionMock.Verify(p => p.WaitOnHandle(It.IsAny<EventWaitHandle>()), Times.Once);
+            SessionMock.Verify(p => p.TryWait(It.IsAny<EventWaitHandle>(), _channelCloseTimeout), Times.Once);
+        }
+
+        [TestMethod]
+        public void ChannelCloseWaitHandleShouldHaveBeenSignaledImmediately()
+        {
+            Assert.IsTrue(_channelClosedWaitHandleSignaled);
         }
 
         [TestMethod]

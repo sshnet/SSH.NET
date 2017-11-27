@@ -9,12 +9,11 @@ using Renci.SshNet.Common;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    public class ServiceFactoryTest_CreateShellStream
+    public class ServiceFactoryTest_CreateShellStream_Success
     {
         private Mock<ISession> _sessionMock;
         private Mock<IConnectionInfo> _connectionInfoMock;
         private Mock<IChannelSession> _channelSessionMock;
-        private MockSequence _mockSequence;
         private ServiceFactory _serviceFactory;
         private string _terminalName;
         private uint _columns;
@@ -47,20 +46,20 @@ namespace Renci.SshNet.Tests.Classes
 
         private void SetupMocks()
         {
-            _mockSequence = new MockSequence();
+            var sequence = new MockSequence();
 
-            _sessionMock.InSequence(_mockSequence)
+            _sessionMock.InSequence(sequence)
                         .Setup(p => p.ConnectionInfo)
                         .Returns(_connectionInfoMock.Object);
-            _connectionInfoMock.InSequence(_mockSequence)
+            _connectionInfoMock.InSequence(sequence)
                                .Setup(p => p.Encoding)
                                .Returns(new UTF8Encoding());
-            _sessionMock.InSequence(_mockSequence)
+            _sessionMock.InSequence(sequence)
                         .Setup(p => p.CreateChannelSession())
                         .Returns(_channelSessionMock.Object);
-            _channelSessionMock.InSequence(_mockSequence)
+            _channelSessionMock.InSequence(sequence)
                                .Setup(p => p.Open());
-            _channelSessionMock.InSequence(_mockSequence)
+            _channelSessionMock.InSequence(sequence)
                                .Setup(p => p.SendPseudoTerminalRequest(_terminalName,
                                                                        _columns,
                                                                        _rows,
@@ -68,7 +67,7 @@ namespace Renci.SshNet.Tests.Classes
                                                                        _height,
                                                                        _terminalModeValues))
                                .Returns(true);
-            _channelSessionMock.InSequence(_mockSequence)
+            _channelSessionMock.InSequence(sequence)
                                .Setup(p => p.SendShellRequest())
                                .Returns(true);
         }

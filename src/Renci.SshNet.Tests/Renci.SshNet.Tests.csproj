@@ -96,6 +96,7 @@
     <Compile Include="Classes\BaseClientTest_NotConnected_KeepAliveInterval_NotNegativeOne.cs" />
     <Compile Include="Classes\Channels\ChannelDirectTcpipTest.cs" />
     <Compile Include="Classes\Channels\ChannelDirectTcpipTest_Dispose_SessionIsConnectedAndChannelIsOpen.cs" />
+    <Compile Include="Classes\Channels\ChannelSessionTestBase.cs" />
     <Compile Include="Classes\Channels\ChannelSessionTest_Dispose_Disposed.cs" />
     <Compile Include="Classes\Channels\ChannelSessionTest_Dispose_SessionIsConnectedAndChannelIsOpen_ChannelCloseAndChannelEofReceived_SendChannelCloseMessageFailure.cs" />
     <Compile Include="Classes\Channels\ChannelSessionTest_Dispose_SessionIsConnectedAndChannelIsOpen_ChannelCloseAndChannelEofReceived_SendChannelCloseMessageSuccess.cs" />
@@ -114,10 +115,11 @@
     <Compile Include="Classes\Channels\ChannelSessionTest_Open_ExceptionWaitingOnOpenConfirmation.cs" />
     <Compile Include="Classes\Channels\ChannelSessionTest_Open_OnOpenFailureReceived_NoRetriesAvailable.cs" />
     <Compile Include="Classes\Channels\ChannelSessionTest_Open_OnOpenFailureReceived_RetriesAvalable.cs" />
+    <Compile Include="Classes\Channels\ChannelTestBase.cs" />
     <Compile Include="Classes\Channels\ChannelTest_Dispose_SessionIsConnectedAndChannelIsOpen_EofNotReceived_SendEofInvoked.cs" />
     <Compile Include="Classes\Channels\ChannelTest_Dispose_SessionIsConnectedAndChannelIsOpen_EofReceived.cs" />
-    <Compile Include="Classes\Channels\ChannelTest_Dispose_SessionIsConnectedAndChannelIsOpen_EofReceived_ConnectionExceptionWaitingForChannelCloseMessage.cs" />
-    <Compile Include="Classes\Channels\ChannelTest_Dispose_SessionIsConnectedAndChannelIsOpen_EofReceived_OperationTimeoutExceptionWaitingForChannelCloseMessage.cs" />
+    <Compile Include="Classes\Channels\ChannelTest_Dispose_SessionIsConnectedAndChannelIsOpen_EofReceived_DisconnectWaitingForChannelCloseMessage.cs" />
+    <Compile Include="Classes\Channels\ChannelTest_Dispose_SessionIsConnectedAndChannelIsOpen_EofReceived_TimeoutWaitingForChannelCloseMessage.cs" />
     <Compile Include="Classes\Channels\ChannelTest_Dispose_SessionIsNotConnectedAndChannelIsOpen.cs" />
     <Compile Include="Classes\Channels\ChannelTest_OnSessionChannelCloseReceived_SessionIsConnectedAndChannelIsOpen_DisposeChannelInClosedEventHandler.cs" />
     <Compile Include="Classes\Channels\ChannelTest_OnSessionChannelCloseReceived_OnClose_Exception.cs" />
@@ -287,7 +289,12 @@
     <Compile Include="Classes\ServiceFactoryTest_CreateSftpFileReader_FileSizeIsLittleMoreThanFiveTimesGreaterThanChunkSize.cs" />
     <Compile Include="Classes\ServiceFactoryTest_CreateSftpFileReader_FileSizeIsMoreThanTenTimesGreaterThanChunkSize.cs" />
     <Compile Include="Classes\ServiceFactoryTest_CreateSftpFileReader_FileSizeIsZero.cs" />
-    <Compile Include="Classes\ServiceFactoryTest_CreateShellStream.cs" />
+    <Compile Include="Classes\ServiceFactoryTest_CreateShellStream_ChannelOpenThrowsException.cs" />
+    <Compile Include="Classes\ServiceFactoryTest_CreateShellStream_SendPseudoTerminalRequestReturnsFalse.cs" />
+    <Compile Include="Classes\ServiceFactoryTest_CreateShellStream_SendPseudoTerminalRequestThrowsException.cs" />
+    <Compile Include="Classes\ServiceFactoryTest_CreateShellStream_SendShellRequestReturnsFalse.cs" />
+    <Compile Include="Classes\ServiceFactoryTest_CreateShellStream_SendShellRequestThrowsException.cs" />
+    <Compile Include="Classes\ServiceFactoryTest_CreateShellStream_Success.cs" />
     <Compile Include="Classes\SessionTest_Connected.cs" />
     <Compile Include="Classes\SessionTest_ConnectedBase.cs" />
     <Compile Include="Classes\SessionTest_Connected_ConnectionReset.cs" />
@@ -297,6 +304,7 @@
     <Compile Include="Classes\SessionTest_Connected_ServerSendsDisconnectMessage.cs" />
     <Compile Include="Classes\SessionTest_Connected_ServerSendsBadPacket.cs" />
     <Compile Include="Classes\SessionTest_Connected_ServerSendsDisconnectMessageAndShutsDownSocket.cs" />
+    <Compile Include="Classes\SessionTest_Connected_ServerSendsUnsupportedMessageType.cs" />
     <Compile Include="Classes\SessionTest_Connected_ServerShutsDownSendAfterSendingIncompletePacket.cs" />
     <Compile Include="Classes\SessionTest_Connected_ServerShutsDownSocket.cs" />
     <Compile Include="Classes\SessionTest_NotConnected.cs" />

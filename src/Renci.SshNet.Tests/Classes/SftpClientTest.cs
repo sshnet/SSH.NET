@@ -942,7 +942,9 @@ namespace Renci.SshNet.Tests.Classes
             SftpClient target = new SftpClient(connectionInfo); // TODO: Initialize to an appropriate value
             string path = string.Empty; // TODO: Initialize to an appropriate value
             DateTime lastAccessTime = new DateTime(); // TODO: Initialize to an appropriate value
+#pragma warning disable CS0618 // Type or member is obsolete
             target.SetLastAccessTime(path, lastAccessTime);
+#pragma warning restore CS0618 // Type or member is obsolete
             Assert.Inconclusive("A method that does not return a value cannot be verified.");
         }
 
@@ -957,7 +959,9 @@ namespace Renci.SshNet.Tests.Classes
             SftpClient target = new SftpClient(connectionInfo); // TODO: Initialize to an appropriate value
             string path = string.Empty; // TODO: Initialize to an appropriate value
             DateTime lastAccessTimeUtc = new DateTime(); // TODO: Initialize to an appropriate value
+#pragma warning disable CS0618 // Type or member is obsolete
             target.SetLastAccessTimeUtc(path, lastAccessTimeUtc);
+#pragma warning restore CS0618 // Type or member is obsolete
             Assert.Inconclusive("A method that does not return a value cannot be verified.");
         }
 
@@ -972,7 +976,9 @@ namespace Renci.SshNet.Tests.Classes
             SftpClient target = new SftpClient(connectionInfo); // TODO: Initialize to an appropriate value
             string path = string.Empty; // TODO: Initialize to an appropriate value
             DateTime lastWriteTime = new DateTime(); // TODO: Initialize to an appropriate value
+#pragma warning disable CS0618 // Type or member is obsolete
             target.SetLastWriteTime(path, lastWriteTime);
+#pragma warning restore CS0618 // Type or member is obsolete
             Assert.Inconclusive("A method that does not return a value cannot be verified.");
         }
 
@@ -987,7 +993,9 @@ namespace Renci.SshNet.Tests.Classes
             SftpClient target = new SftpClient(connectionInfo); // TODO: Initialize to an appropriate value
             string path = string.Empty; // TODO: Initialize to an appropriate value
             DateTime lastWriteTimeUtc = new DateTime(); // TODO: Initialize to an appropriate value
+#pragma warning disable CS0618 // Type or member is obsolete
             target.SetLastWriteTimeUtc(path, lastWriteTimeUtc);
+#pragma warning restore CS0618 // Type or member is obsolete
             Assert.Inconclusive("A method that does not return a value cannot be verified.");
         }
 

@@ -14,7 +14,6 @@ namespace Renci.SshNet.Tests.Classes
         private BaseClient _client;
         private ConnectionInfo _connectionInfo;
         private TimeSpan _keepAliveInterval;
-        private int _keepAliveCount;
 
         [TestInitialize]
         public void Setup()
@@ -38,7 +37,6 @@ namespace Renci.SshNet.Tests.Classes
         {
             _connectionInfo = new ConnectionInfo("host", "user", new PasswordAuthenticationMethod("user", "pwd"));
             _keepAliveInterval = TimeSpan.FromMilliseconds(50d);
-            _keepAliveCount = 0;
         }
 
         private void CreateMocks()

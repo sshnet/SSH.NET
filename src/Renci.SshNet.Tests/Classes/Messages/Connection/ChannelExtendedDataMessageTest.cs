@@ -30,7 +30,7 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
         [Ignore] // placeholder
         public void ChannelExtendedDataMessageConstructorTest1()
         {
-            uint localChannelNumber = 0; // TODO: Initialize to an appropriate value
+            //uint localChannelNumber = 0; // TODO: Initialize to an appropriate value
             //ChannelExtendedDataMessage target = new ChannelExtendedDataMessage(localChannelNumber, null, null);
             Assert.Inconclusive("TODO: Implement code to verify target");
         }

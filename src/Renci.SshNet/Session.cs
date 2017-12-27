@@ -2028,15 +2028,17 @@ namespace Renci.SshNet
 
         private void ConnectSocks5()
         {
+            var buffer = new byte[1024];
             //  Send socks version number
-            SocketWriteByte(0x05);
+            buffer[0] = 0x05;
 
             //  Send number of supported authentication methods
-            SocketWriteByte(0x02);
+            buffer[1] = 0x02;
 
             //  Send supported authentication methods
-            SocketWriteByte(0x00); //  No authentication
-            SocketWriteByte(0x02); //  Username/Password
+            buffer[2] = 0x00; //  No authentication
+            buffer[3] = 0x02; //  Username/Password
+            SocketAbstraction.Send(_socket, buffer, 0, 4);
 
             var socksVersion = SocketReadByte();
             if (socksVersion != 0x05)
@@ -2089,37 +2091,39 @@ namespace Renci.SshNet
             }
 
             //  Send socks version number
-            SocketWriteByte(0x05);
+            buffer[0] = 0x05;
 
             //  Send command code
-            SocketWriteByte(0x01); //  establish a TCP/IP stream connection
+            buffer[1] = 0x01; //  establish a TCP/IP stream connection
 
             //  Send reserved, must be 0x00
-            SocketWriteByte(0x00);
+            buffer[2] = 0x00;
 
             var ip = DnsAbstraction.GetHostAddresses(ConnectionInfo.Host)[0];
 
             //  Send address type and address
             if (ip.AddressFamily == AddressFamily.InterNetwork)
             {
-                SocketWriteByte(0x01);
-                var address = ip.GetAddressBytes();
-                SocketAbstraction.Send(_socket, address);
+                buffer[3] = 0x01;
             }
             else if (ip.AddressFamily == AddressFamily.InterNetworkV6)
             {
-                SocketWriteByte(0x04);
-                var address = ip.GetAddressBytes();
-                SocketAbstraction.Send(_socket, address);
+                buffer[3] = 0x04;
             }
             else
             {
                 throw new ProxyException(string.Format("SOCKS5: IP address '{0}' is not supported.", ip));
             }
 
+            var address = ip.GetAddressBytes();
+            Array.Copy(address, 0, buffer, 4, address.Length);
+
             //  Send port
-            SocketWriteByte((byte)(ConnectionInfo.Port / 0xFF));
-            SocketWriteByte((byte)(ConnectionInfo.Port % 0xFF));
+            var portBytes = BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)2202));
+            buffer[4 + address.Length] = portBytes[0];
+            buffer[5 + address.Length] = portBytes[1];
+
+            SocketAbstraction.Send(_socket, buffer, 0, 6 + address.Length);
 
             //  Read Server SOCKS5 version
             if (SocketReadByte() != 5)

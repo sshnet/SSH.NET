@@ -375,94 +375,94 @@ namespace Renci.SshNet
         /// <summary>
         /// Occurs when <see cref="InformationRequestMessage"/> message is received from the server.
         /// </summary>
-        internal event EventHandler<MessageEventArgs<InformationRequestMessage>> UserAuthenticationInformationRequestReceived;
+        public event EventHandler<MessageEventArgs<InformationRequestMessage>> UserAuthenticationInformationRequestReceived;
 
         /// <summary>
         /// Occurs when <see cref="PasswordChangeRequiredMessage"/> message is received from the server.
         /// </summary>
-        internal event EventHandler<MessageEventArgs<PasswordChangeRequiredMessage>> UserAuthenticationPasswordChangeRequiredReceived;
+        public event EventHandler<MessageEventArgs<PasswordChangeRequiredMessage>> UserAuthenticationPasswordChangeRequiredReceived;
 
         /// <summary>
         /// Occurs when <see cref="PublicKeyMessage"/> message is received from the server.
         /// </summary>
-        internal event EventHandler<MessageEventArgs<PublicKeyMessage>> UserAuthenticationPublicKeyReceived;
+        public event EventHandler<MessageEventArgs<PublicKeyMessage>> UserAuthenticationPublicKeyReceived;
 
         /// <summary>
         /// Occurs when <see cref="KeyExchangeDhGroupExchangeGroup"/> message is received from the server.
         /// </summary>
-        internal event EventHandler<MessageEventArgs<KeyExchangeDhGroupExchangeGroup>> KeyExchangeDhGroupExchangeGroupReceived;
+        public event EventHandler<MessageEventArgs<KeyExchangeDhGroupExchangeGroup>> KeyExchangeDhGroupExchangeGroupReceived;
 
         /// <summary>
         /// Occurs when <see cref="KeyExchangeDhGroupExchangeReply"/> message is received from the server.
         /// </summary>
-        internal event EventHandler<MessageEventArgs<KeyExchangeDhGroupExchangeReply>> KeyExchangeDhGroupExchangeReplyReceived;
+        public event EventHandler<MessageEventArgs<KeyExchangeDhGroupExchangeReply>> KeyExchangeDhGroupExchangeReplyReceived;
 
         #region Message events
 
         /// <summary>
         /// Occurs when <see cref="DisconnectMessage"/> message received
         /// </summary>
-        internal event EventHandler<MessageEventArgs<DisconnectMessage>> DisconnectReceived;
+        public event EventHandler<MessageEventArgs<DisconnectMessage>> DisconnectReceived;
 
         /// <summary>
         /// Occurs when <see cref="IgnoreMessage"/> message received
         /// </summary>
-        internal event EventHandler<MessageEventArgs<IgnoreMessage>> IgnoreReceived;
+        public event EventHandler<MessageEventArgs<IgnoreMessage>> IgnoreReceived;
 
         /// <summary>
         /// Occurs when <see cref="UnimplementedMessage"/> message received
         /// </summary>
-        internal event EventHandler<MessageEventArgs<UnimplementedMessage>> UnimplementedReceived;
+        public event EventHandler<MessageEventArgs<UnimplementedMessage>> UnimplementedReceived;
 
         /// <summary>
         /// Occurs when <see cref="DebugMessage"/> message received
         /// </summary>
-        internal event EventHandler<MessageEventArgs<DebugMessage>> DebugReceived;
+        public event EventHandler<MessageEventArgs<DebugMessage>> DebugReceived;
 
         /// <summary>
         /// Occurs when <see cref="ServiceRequestMessage"/> message received
         /// </summary>
-        internal event EventHandler<MessageEventArgs<ServiceRequestMessage>> ServiceRequestReceived;
+        public event EventHandler<MessageEventArgs<ServiceRequestMessage>> ServiceRequestReceived;
 
         /// <summary>
         /// Occurs when <see cref="ServiceAcceptMessage"/> message received
         /// </summary>
-        internal event EventHandler<MessageEventArgs<ServiceAcceptMessage>> ServiceAcceptReceived;
+        public event EventHandler<MessageEventArgs<ServiceAcceptMessage>> ServiceAcceptReceived;
 
         /// <summary>
         /// Occurs when <see cref="KeyExchangeInitMessage"/> message received
         /// </summary>
-        internal event EventHandler<MessageEventArgs<KeyExchangeInitMessage>> KeyExchangeInitReceived;
+        public event EventHandler<MessageEventArgs<KeyExchangeInitMessage>> KeyExchangeInitReceived;
 
         /// <summary>
         /// Occurs when a <see cref="KeyExchangeDhReplyMessage"/> message is received from the SSH server.
         /// </summary>
-        internal event EventHandler<MessageEventArgs<KeyExchangeDhReplyMessage>> KeyExchangeDhReplyMessageReceived;
+        public event EventHandler<MessageEventArgs<KeyExchangeDhReplyMessage>> KeyExchangeDhReplyMessageReceived;
 
         /// <summary>
         /// Occurs when <see cref="NewKeysMessage"/> message received
         /// </summary>
-        internal event EventHandler<MessageEventArgs<NewKeysMessage>> NewKeysReceived;
+        public event EventHandler<MessageEventArgs<NewKeysMessage>> NewKeysReceived;
 
         /// <summary>
         /// Occurs when <see cref="RequestMessage"/> message received
         /// </summary>
-        internal event EventHandler<MessageEventArgs<RequestMessage>> UserAuthenticationRequestReceived;
+        public event EventHandler<MessageEventArgs<RequestMessage>> UserAuthenticationRequestReceived;
 
         /// <summary>
         /// Occurs when <see cref="FailureMessage"/> message received
         /// </summary>
-        internal event EventHandler<MessageEventArgs<FailureMessage>> UserAuthenticationFailureReceived;
+        public event EventHandler<MessageEventArgs<FailureMessage>> UserAuthenticationFailureReceived;
 
         /// <summary>
         /// Occurs when <see cref="SuccessMessage"/> message received
         /// </summary>
-        internal event EventHandler<MessageEventArgs<SuccessMessage>> UserAuthenticationSuccessReceived;
+        public event EventHandler<MessageEventArgs<SuccessMessage>> UserAuthenticationSuccessReceived;
 
         /// <summary>
         /// Occurs when <see cref="GlobalRequestMessage"/> message received
         /// </summary>
-        internal event EventHandler<MessageEventArgs<GlobalRequestMessage>> GlobalRequestReceived;
+        public event EventHandler<MessageEventArgs<GlobalRequestMessage>> GlobalRequestReceived;
 
         /// <summary>
         /// Occurs when <see cref="RequestSuccessMessage"/> message received
@@ -793,7 +793,7 @@ namespace Renci.SshNet
         /// When neither handles are signaled in time and the session is not closing, then the
         /// session is disconnected.
         /// </remarks>
-        internal void WaitOnHandle(WaitHandle waitHandle)
+        public void WaitOnHandle(WaitHandle waitHandle)
         {
             WaitOnHandle(waitHandle, ConnectionInfo.Timeout);
         }
@@ -894,7 +894,7 @@ namespace Renci.SshNet
         /// <exception cref="SshConnectionException">The client is not connected.</exception>
         /// <exception cref="SshOperationTimeoutException">The operation timed out.</exception>
         /// <exception cref="InvalidOperationException">The size of the packet exceeds the maximum size defined by the protocol.</exception>
-        internal void SendMessage(Message message)
+        public void SendMessage(Message message)
         {
             if (!_socket.CanWrite())
                 throw new SshConnectionException("Client not connected.");

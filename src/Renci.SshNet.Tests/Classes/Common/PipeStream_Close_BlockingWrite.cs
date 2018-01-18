@@ -14,7 +14,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         [TestInitialize]
         public void Init()
         {
-            _pipeStream = new PipeStream {MaxBufferLength = 3};
+            _pipeStream = new PipeStream(3);
 
             Action writeAction = () =>
                 {

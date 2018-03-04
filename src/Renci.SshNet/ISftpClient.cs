@@ -719,6 +719,28 @@ namespace Renci.SshNet
 #endif //FEATURE_ASYNC_ENUMERABLE
 
         /// <summary>
+        /// Enumerates files and directories in remote directory.
+        /// </summary>
+        /// <remarks>
+        /// This method differs to <see cref="ListDirectory(string, Action{int})"/> in the way how the items are returned. 
+        /// It yields the items to the last moment for the enumerator to decide if it needs to continue or stop enumerating the items. 
+        /// It is handy in case of really huge directory contents at remote server - meaning really huge 65 thousand files and more.
+        /// It also decrease the memory footprint and avoids LOH allocation as happen per call to <see cref="ListDirectory(string, Action{int})"/> method.
+        /// There aren't asynchronous counterpart methods to this because enumerating should happen in your specific asynchronous block.
+        /// </remarks>
+        /// <param name="path">The path.</param>
+        /// <param name="listCallback">The list callback.</param>
+        /// <returns>
+        /// An <see cref="System.Collections.Generic.IEnumerable{SftpFile}"/> of files and directories ready to be enumerated.
+        /// </returns>
+        /// <exception cref="ArgumentNullException"><paramref name="path" /> is <b>null</b>.</exception>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="SftpPermissionDeniedException">Permission to list the contents of the directory was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
+        /// <exception cref="SshException">A SSH error where <see cref="Exception.Message" /> is the message from the remote host.</exception>
+        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
+        IEnumerable<SftpFile> EnumerateDirectory(string path, Action<int> listCallback = null);
+
+        /// <summary>
         /// Opens a <see cref="SftpFileStream"/> on the specified path with read/write access.
         /// </summary>
         /// <param name="path">The file to open.</param>

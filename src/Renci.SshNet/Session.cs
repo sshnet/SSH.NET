@@ -651,6 +651,12 @@ namespace Renci.SshNet
                     // mark the message listener threads as started
                     _messageListenerCompleted.Reset();
 
+                    if (ConnectionInfo.EarlyClientInitMessage)
+                    {
+                        DiagnosticAbstraction.Log("Sending early client init message");
+                        SendMessage(ClientInitMessage);
+                    }
+
                     //  Start incoming request listener
                     ThreadAbstraction.ExecuteThread(MessageListener);
 

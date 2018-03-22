@@ -181,6 +181,11 @@ namespace Renci.SshNet
         public int MaxSessions { get; set; }
 
         /// <summary>
+        /// send client keys right after server version exchange, don't wait for server
+        /// </summary>
+        public bool EarlyClientInitMessage { get; set; }
+
+        /// <summary>
         /// Occurs when authentication banner is sent by the server.
         /// </summary>
         /// <example>

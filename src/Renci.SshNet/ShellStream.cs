@@ -37,6 +37,16 @@ namespace Renci.SshNet
         public event EventHandler<ExceptionEventArgs> ErrorOccurred;
 
         /// <summary>
+        /// Occurs when the connection is closed.
+        /// </summary>
+        public event EventHandler<EventArgs> Closed;
+
+        /// <summary>
+        /// Occurs when the session is disconnected.
+        /// </summary>
+        public event EventHandler<EventArgs> Disconnected;
+
+        /// <summary>
         /// Gets a value that indicates whether data is available on the <see cref="ShellStream"/> to be read.
         /// </summary>
         /// <value>
@@ -766,12 +776,16 @@ namespace Renci.SshNet
 
         private void Session_Disconnected(object sender, EventArgs e)
         {
+            OnDisconnected();
+
             if (_channel != null)
                 _channel.Dispose();
         }
 
         private void Channel_Closed(object sender, ChannelEventArgs e)
         {
+            OnClosed();
+
             //  TODO:   Do we need to call dispose here ??
             Dispose();
         }
@@ -805,6 +819,24 @@ namespace Renci.SshNet
             if (handler != null)
             {
                 handler(this, new ShellDataEventArgs(data));
+            }
+        }
+
+        private void OnClosed()
+        {
+            var handler = Closed;
+            if(Closed != null)
+            {
+                handler(this, EventArgs.Empty);
+            }
+        }
+
+        private void OnDisconnected()
+        {
+            var handler = Disconnected;
+            if(Disconnected != null)
+            {
+                handler(this, EventArgs.Empty);
             }
         }
     }

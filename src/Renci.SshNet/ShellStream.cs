@@ -807,5 +807,20 @@ namespace Renci.SshNet
                 handler(this, new ShellDataEventArgs(data));
             }
         }
+
+        /// <summary>
+        /// Sends the window change request.
+        /// </summary>
+        /// <param name="columns">The columns.</param>
+        /// <param name="rows">The rows.</param>
+        /// <param name="width">The width.</param>
+        /// <param name="height">The height.</param>
+        /// <returns>
+        /// <c>true</c> if request was successful; otherwise <c>false</c>.
+        /// </returns>
+        public bool SendWindowChangeRequest(uint columns, uint rows, uint width, uint height)
+        {
+            return _channel.SendWindowChangeRequest(columns, rows, width, height);
+        }
     }
 }

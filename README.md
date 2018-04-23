@@ -90,21 +90,7 @@ using (var client = new SshClient("sftp.foo.com", "guest", "pwd"))
 {
     client.HostKeyReceived += (sender, e) =>
         {
-            if (expectedFingerPrint.Length == e.FingerPrint.Length)
-            {
-                for (var i = 0; i < expectedFingerPrint.Length; i++)
-                {
-                    if (expectedFingerPrint[i] != e.FingerPrint[i])
-                    {
-                        e.CanTrust = false;
-                        break;
-                    }
-                }
-            }
-            else
-            {
-                e.CanTrust = false;
-            }
+            e.CanTrust = expectedFingerPrint.SequenceEqual(e.FingerPrint);
         };
     client.Connect();
 }

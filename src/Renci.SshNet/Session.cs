@@ -94,7 +94,7 @@ namespace Renci.SshNet
         /// <remarks>
         /// Some server may restrict number to prevent authentication attacks
         /// </remarks>
-        private static readonly SemaphoreLight AuthenticationConnection = new SemaphoreLight(3);
+        private readonly SemaphoreLight AuthenticationConnection = new SemaphoreLight(3);
 
         /// <summary>
         /// Holds metada about session messages

@@ -224,6 +224,8 @@
     <Compile Include="Classes\ForwardedPortRemoteTest_Stop_PortNeverStarted.cs" />
     <Compile Include="Classes\ForwardedPortRemoteTest_Stop_PortStarted_ChannelBound.cs" />
     <Compile Include="Classes\ForwardedPortRemoteTest_Stop_PortStopped.cs" />
+    <Compile Include="Classes\KnownHostStoreTests.cs" />
+    <Compile Include="Classes\KnownHostTest.cs" />
     <Compile Include="Classes\Messages\Transport\KeyExchangeDhGroupExchangeGroupBuilder.cs" />
     <Compile Include="Classes\Messages\Transport\KeyExchangeDhGroupExchangeReplyBuilder.cs" />
     <Compile Include="Classes\NetConfClientTest_Dispose_Connected.cs" />

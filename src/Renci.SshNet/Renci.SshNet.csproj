@@ -114,6 +114,7 @@
     <Compile Include="Common\PortForwardEventArgs.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Common\RevokedKeyException.cs" />
     <Compile Include="Common\ScpDownloadEventArgs.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -159,6 +160,8 @@
     <Compile Include="IServiceFactory.NET.cs" />
     <Compile Include="ISession.cs" />
     <Compile Include="ISubsystemSession.cs" />
+    <Compile Include="KnownHost.cs" />
+    <Compile Include="KnownHostStore.cs" />
     <Compile Include="Messages\Connection\CancelTcpIpForwardGlobalRequestMessage.cs" />
     <Compile Include="Messages\Connection\TcpIpForwardGlobalRequestMessage.cs" />
     <Compile Include="Messages\Transport\KeyExchangeEcdhInitMessage.cs" />

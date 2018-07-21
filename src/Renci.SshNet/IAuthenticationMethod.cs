@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Renci.SshNet
+﻿namespace Renci.SshNet
 {
     /// <summary>
     /// Base interface for authentication of a session using a given method.

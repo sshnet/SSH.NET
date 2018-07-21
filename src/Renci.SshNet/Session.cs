@@ -268,7 +268,7 @@ namespace Renci.SshNet
         ///         <description>The <see cref="Session"/> is disposed.</description>
         ///     </item>
         ///     <item>
-        ///         <description>The SSH_MSG_DISCONNECT message - which is used to disconnect from the server - has been sent.</description>
+        ///         <description>The <c>SSH_MSG_DISCONNECT</c> message - which is used to disconnect from the server - has been sent.</description>
         ///     </item>
         ///     <item>
         ///         <description>The client has not been authenticated successfully.</description>
@@ -798,17 +798,46 @@ namespace Renci.SshNet
             WaitOnHandle(waitHandle, ConnectionInfo.Timeout);
         }
 
+        /// <summary>
+        /// Waits for the specified <seec ref="WaitHandle"/> to receive a signal, using a <see cref="TimeSpan"/>
+        /// to specify the time interval.
+        /// </summary>
+        /// <param name="waitHandle">The <see cref="WaitHandle"/> that should be signaled.</param>
+        /// <param name="timeout">A <see cref="TimeSpan"/> that represents the number of milliseconds to wait, or a <see cref="TimeSpan"/> that represents <c>-1</c> milliseconds to wait indefinitely.</param>
+        /// <returns>
+        /// A <see cref="WaitResult"/>.
+        /// </returns>
         WaitResult ISession.TryWait(WaitHandle waitHandle, TimeSpan timeout)
         {
             Exception exception;
             return TryWait(waitHandle, timeout, out exception);
         }
 
+        /// <summary>
+        /// Waits for the specified <seec ref="WaitHandle"/> to receive a signal, using a <see cref="TimeSpan"/>
+        /// to specify the time interval.
+        /// </summary>
+        /// <param name="waitHandle">The <see cref="WaitHandle"/> that should be signaled.</param>
+        /// <param name="timeout">A <see cref="TimeSpan"/> that represents the number of milliseconds to wait, or a <see cref="TimeSpan"/> that represents <c>-1</c> milliseconds to wait indefinitely.</param>
+        /// <param name="exception">When this method returns <see cref="WaitResult.Failed"/>, contains the <see cref="Exception"/>.</param>
+        /// <returns>
+        /// A <see cref="WaitResult"/>.
+        /// </returns>
         WaitResult ISession.TryWait(WaitHandle waitHandle, TimeSpan timeout, out Exception exception)
         {
             return TryWait(waitHandle, timeout, out exception);
         }
 
+        /// <summary>
+        /// Waits for the specified <seec ref="WaitHandle"/> to receive a signal, using a <see cref="TimeSpan"/>
+        /// to specify the time interval.
+        /// </summary>
+        /// <param name="waitHandle">The <see cref="WaitHandle"/> that should be signaled.</param>
+        /// <param name="timeout">A <see cref="TimeSpan"/> that represents the number of milliseconds to wait, or a <see cref="TimeSpan"/> that represents <c>-1</c> milliseconds to wait indefinitely.</param>
+        /// <param name="exception">When this method returns <see cref="WaitResult.Failed"/>, contains the <see cref="Exception"/>.</param>
+        /// <returns>
+        /// A <see cref="WaitResult"/>.
+        /// </returns>
         private WaitResult TryWait(WaitHandle waitHandle, TimeSpan timeout, out Exception exception)
         {
             if (waitHandle == null)
@@ -1157,7 +1186,7 @@ namespace Renci.SshNet
             _isDisconnectMessageSent = true;
         }
 
-#region Handle received message events
+        #region Handle received message events
 
         /// <summary>
         /// Called when <see cref="DisconnectMessage"/> received.
@@ -1579,7 +1608,7 @@ namespace Renci.SshNet
                 handlers(this, new MessageEventArgs<ChannelFailureMessage>(message));
         }
 
-#endregion
+        #endregion
 
         private void KeyExchange_HostKeyReceived(object sender, HostKeyEventArgs e)
         {
@@ -1588,7 +1617,7 @@ namespace Renci.SshNet
                 handlers(this, e);
         }
 
-#region Message loading functions
+        #region Message loading functions
 
         /// <summary>
         /// Registers SSH message with the session.
@@ -1653,7 +1682,7 @@ namespace Renci.SshNet
             return ToHex(bytes, 0);
         }
 
-#endregion
+        #endregion
 
         /// <summary>
         /// Establishes a socket connection to the specified host and port.
@@ -2322,7 +2351,7 @@ namespace Renci.SshNet
                 DisconnectReason.ConnectionLost);
         }
 
-#region IDisposable implementation
+        #region IDisposable implementation
 
         private bool _disposed;
 
@@ -2413,9 +2442,9 @@ namespace Renci.SshNet
             Dispose(false);
         }
 
-#endregion IDisposable implementation
+        #endregion IDisposable implementation
 
-#region ISession implementation
+        #region ISession implementation
 
         /// <summary>
         /// Gets or sets the connection info.
@@ -2501,14 +2530,32 @@ namespace Renci.SshNet
             return TrySendMessage(message);
         }
 
-#endregion ISession implementation
+        #endregion ISession implementation
     }
 
+    /// <summary>
+    /// Represents the result of a wait operations.
+    /// </summary>
     internal enum WaitResult
     {
+        /// <summary>
+        /// The <see cref="WaitHandle"/> was signaled within the specified interval.
+        /// </summary>
         Success = 1,
+
+        /// <summary>
+        /// The <see cref="WaitHandle"/> was not signaled within the specified interval.
+        /// </summary>
         TimedOut = 2,
+
+        /// <summary>
+        /// The session is in a disconnected state.
+        /// </summary>
         Disconnected = 3,
+
+        /// <summary>
+        /// The session is in a failed state.
+        /// </summary>
         Failed = 4
     }
 }

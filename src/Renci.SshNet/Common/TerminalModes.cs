@@ -161,6 +161,11 @@
         IMAXBEL = 41,
 
         /// <summary>
+        /// Terminal input and output is assumed to be encoded in UTF-8.
+        /// </summary>
+        IUTF8 = 42,
+
+        /// <summary>
         /// Enable signals INTR, QUIT, [D]SUSP.
         /// </summary>
         ISIG = 50,

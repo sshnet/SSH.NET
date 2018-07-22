@@ -226,6 +226,7 @@
     <Compile Include="Classes\ForwardedPortRemoteTest_Stop_PortStopped.cs" />
     <Compile Include="Classes\Messages\Transport\KeyExchangeDhGroupExchangeGroupBuilder.cs" />
     <Compile Include="Classes\Messages\Transport\KeyExchangeDhGroupExchangeReplyBuilder.cs" />
+    <Compile Include="Classes\NetConfClientTest_Connect_NetConfSessionConnectFailure.cs" />
     <Compile Include="Classes\NetConfClientTest_Dispose_Connected.cs" />
     <Compile Include="Classes\NetConfClientTest_Dispose_Disconnected.cs" />
     <Compile Include="Classes\NetConfClientTest_Dispose_Disposed.cs" />
@@ -384,6 +385,7 @@
     <Compile Include="Classes\SessionTest.cs" />
     <Compile Include="Classes\SftpClientTest.ChangeDirectory.cs" />
     <Compile Include="Classes\SftpClientTest.Connect.cs" />
+    <Compile Include="Classes\SftpClientTest_Connect_SftpSessionConnectFailure.cs" />
     <Compile Include="Classes\SftpClientTest_Dispose_Connected.cs" />
     <Compile Include="Classes\SftpClientTest_Dispose_Disconnected.cs" />
     <Compile Include="Classes\SftpClientTest_Dispose_Disposed.cs" />

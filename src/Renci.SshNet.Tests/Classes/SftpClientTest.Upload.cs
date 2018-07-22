@@ -1,7 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Renci.SshNet.Common;
 using Renci.SshNet.Sftp;
-using Renci.SshNet.Tests.Common;
 using Renci.SshNet.Tests.Properties;
 using System;
 using System.Collections.Generic;
@@ -13,7 +12,7 @@ namespace Renci.SshNet.Tests.Classes
     /// <summary>
     /// Implementation of the SSH File Transfer Protocol (SFTP) over SSH.
     /// </summary>
-    public partial class SftpClientTest : TestBase
+    public partial class SftpClientTest
     {
         [TestMethod]
         [TestCategory("Sftp")]

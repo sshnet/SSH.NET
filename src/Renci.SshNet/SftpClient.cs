@@ -44,6 +44,7 @@ namespace Renci.SshNet
         /// one (-1) milliseconds, which indicates an infinite timeout period.
         /// </value>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="value"/> represents a value that is less than -1 or greater than <see cref="Int32.MaxValue"/> milliseconds.</exception>
         public TimeSpan OperationTimeout
         {
             get
@@ -58,7 +59,7 @@ namespace Renci.SshNet
 
                 var timeoutInMilliseconds = value.TotalMilliseconds;
                 if (timeoutInMilliseconds < -1d || timeoutInMilliseconds > int.MaxValue)
-                    throw new ArgumentOutOfRangeException("timeout", "The timeout must represent a value between -1 and Int32.MaxValue, inclusive.");
+                    throw new ArgumentOutOfRangeException("value", "The timeout must represent a value between -1 and Int32.MaxValue, inclusive.");
 
                 _operationTimeout = (int) timeoutInMilliseconds;
             }
@@ -139,6 +140,17 @@ namespace Renci.SshNet
                     throw new SshConnectionException("Client not connected.");
                 return (int) _sftpSession.ProtocolVersion;
             }
+        }
+
+        /// <summary>
+        /// Gets the current SFTP session.
+        /// </summary>
+        /// <value>
+        /// The current SFTP session.
+        /// </value>
+        internal ISftpSession SftpSession
+        {
+            get { return _sftpSession; }
         }
 
         #region Constructors

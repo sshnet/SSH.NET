@@ -1301,7 +1301,7 @@ namespace Renci.SshNet
             _sshMessageFactory.DisableNonKeyExchangeMessages();
 
             _keyExchange = _serviceFactory.CreateKeyExchange(ConnectionInfo.KeyExchangeAlgorithms,
-                message.KeyExchangeAlgorithms);
+                                                             message.KeyExchangeAlgorithms);
 
             ConnectionInfo.CurrentKeyExchangeAlgorithm = _keyExchange.Name;
 
@@ -1726,7 +1726,7 @@ namespace Renci.SshNet
                 // SshConnectionException will interrupt the message listener loop (if not already interrupted)
                 // and the exception itself will be ignored (in RaiseError)
                 throw new SshConnectionException("An established connection was aborted by the server.",
-                    DisconnectReason.ConnectionLost);
+                                                 DisconnectReason.ConnectionLost);
             }
             return bytesRead;
         }
@@ -1772,16 +1772,16 @@ namespace Renci.SshNet
         /// </para>
         /// </remarks>
 #else
-        /// <summary>
-        /// Gets a value indicating whether the socket is connected.
-        /// </summary>
-        /// <returns>
-        /// <c>true</c> if the socket is connected; otherwise, <c>false</c>.
-        /// </returns>
-        /// <remarks>
-        /// We verify whether <see cref="Socket.Connected"/> is <c>true</c>. However, this only returns the state
-        /// of the socket as of the last I/O operation.
-        /// </remarks>
+/// <summary>
+/// Gets a value indicating whether the socket is connected.
+/// </summary>
+/// <returns>
+/// <c>true</c> if the socket is connected; otherwise, <c>false</c>.
+/// </returns>
+/// <remarks>
+/// We verify whether <see cref="Socket.Connected"/> is <c>true</c>. However, this only returns the state
+/// of the socket as of the last I/O operation.
+/// </remarks>
 #endif
         private bool IsSocketConnected()
         {
@@ -1952,9 +1952,9 @@ namespace Renci.SshNet
                         break;
                     }
 #elif FEATURE_SOCKET_POLL
-                    // when Socket.Select(IList, IList, IList, Int32) is not available or is buggy, we use
-                    // Socket.Poll(Int, SelectMode) to block until either data is available or the socket
-                    // is closed
+// when Socket.Select(IList, IList, IList, Int32) is not available or is buggy, we use
+// Socket.Poll(Int, SelectMode) to block until either data is available or the socket
+// is closed
                     _socket.Poll(-1, SelectMode.SelectRead);
 
                     if (!_socket.IsConnected())
@@ -2002,33 +2002,12 @@ namespace Renci.SshNet
             return buffer[0];
         }
 
-        private void SocketWriteByte(byte data)
-        {
-            SocketAbstraction.Send(_socket, new[] {data});
-        }
-
         private void ConnectSocks4()
         {
-            //  Send socks version number
-            SocketWriteByte(0x04);
+            var connectionRequest = CreateSocks4ConnectionRequest(ConnectionInfo.Host, (ushort) ConnectionInfo.Port, ConnectionInfo.ProxyUsername);
+            SocketAbstraction.Send(_socket, connectionRequest);
 
-            //  Send command code
-            SocketWriteByte(0x01);
-
-            //  Send port
-            SocketWriteByte((byte)(ConnectionInfo.Port / 0xFF));
-            SocketWriteByte((byte)(ConnectionInfo.Port % 0xFF));
-
-            //  Send IP
-            var ipAddress = DnsAbstraction.GetHostAddresses(ConnectionInfo.Host)[0];
-            SocketAbstraction.Send(_socket, ipAddress.GetAddressBytes());
-
-            //  Send username
-            var username = SshData.Ascii.GetBytes(ConnectionInfo.ProxyUsername);
-            SocketAbstraction.Send(_socket, username);
-            SocketWriteByte(0x00);
-
-            //  Read 0
+            //  Read null byte
             if (SocketReadByte() != 0)
             {
                 throw new ProxyException("SOCKS4: Null is expected.");
@@ -2057,15 +2036,18 @@ namespace Renci.SshNet
 
         private void ConnectSocks5()
         {
-            //  Send socks version number
-            SocketWriteByte(0x05);
-
-            //  Send number of supported authentication methods
-            SocketWriteByte(0x02);
-
-            //  Send supported authentication methods
-            SocketWriteByte(0x00); //  No authentication
-            SocketWriteByte(0x02); //  Username/Password
+            var greeting = new byte[]
+                {
+                    // SOCKS version number
+                    0x05,
+                    // Number of supported authentication methods
+                    0x02,
+                    // No authentication
+                    0x00,
+                    // Username/Password authentication
+                    0x02
+                };
+            SocketAbstraction.Send(_socket, greeting);
 
             var socksVersion = SocketReadByte();
             if (socksVersion != 0x05)
@@ -2077,78 +2059,24 @@ namespace Renci.SshNet
                 case 0x00:
                     break;
                 case 0x02:
+                    // Create username/password authentication request
+                    var authenticationRequest = CreateSocks5UserNameAndPasswordAuthenticationRequest(ConnectionInfo.ProxyUsername, ConnectionInfo.ProxyPassword);
+                    // Send authentication request
+                    SocketAbstraction.Send(_socket, authenticationRequest);
+                    // Read authentication result
+                    var authenticationResult = SocketAbstraction.Read(_socket, 2, ConnectionInfo.Timeout);
 
-                    //  Send version
-                    SocketWriteByte(0x01);
-
-                    var username = SshData.Ascii.GetBytes(ConnectionInfo.ProxyUsername);
-
-                    if (username.Length > byte.MaxValue)
-                        throw new ProxyException("Proxy username is too long.");
-
-                    //  Send username length
-                    SocketWriteByte((byte)username.Length);
-
-                    //  Send username
-                    SocketAbstraction.Send(_socket, username);
-
-                    var password = SshData.Ascii.GetBytes(ConnectionInfo.ProxyPassword);
-
-                    if (password.Length > byte.MaxValue)
-                        throw new ProxyException("Proxy password is too long.");
-
-                    //  Send username length
-                    SocketWriteByte((byte)password.Length);
-
-                    //  Send username
-                    SocketAbstraction.Send(_socket, password);
-
-                    var serverVersion = SocketReadByte();
-
-                    if (serverVersion != 1)
+                    if (authenticationResult[0] != 0x01)
                         throw new ProxyException("SOCKS5: Server authentication version is not valid.");
-
-                    var statusCode = SocketReadByte();
-                    if (statusCode != 0)
+                    if (authenticationResult[1] != 0x00)
                         throw new ProxyException("SOCKS5: Username/Password authentication failed.");
-
                     break;
                 case 0xFF:
                     throw new ProxyException("SOCKS5: No acceptable authentication methods were offered.");
             }
 
-            //  Send socks version number
-            SocketWriteByte(0x05);
-
-            //  Send command code
-            SocketWriteByte(0x01); //  establish a TCP/IP stream connection
-
-            //  Send reserved, must be 0x00
-            SocketWriteByte(0x00);
-
-            var ip = DnsAbstraction.GetHostAddresses(ConnectionInfo.Host)[0];
-
-            //  Send address type and address
-            if (ip.AddressFamily == AddressFamily.InterNetwork)
-            {
-                SocketWriteByte(0x01);
-                var address = ip.GetAddressBytes();
-                SocketAbstraction.Send(_socket, address);
-            }
-            else if (ip.AddressFamily == AddressFamily.InterNetworkV6)
-            {
-                SocketWriteByte(0x04);
-                var address = ip.GetAddressBytes();
-                SocketAbstraction.Send(_socket, address);
-            }
-            else
-            {
-                throw new ProxyException(string.Format("SOCKS5: IP address '{0}' is not supported.", ip));
-            }
-
-            //  Send port
-            SocketWriteByte((byte)(ConnectionInfo.Port / 0xFF));
-            SocketWriteByte((byte)(ConnectionInfo.Port % 0xFF));
+            var connectionRequest = CreateSocks5ConnectionRequest(ConnectionInfo.Host, (ushort) ConnectionInfo.Port);
+            SocketAbstraction.Send(_socket, connectionRequest);
 
             //  Read Server SOCKS5 version
             if (SocketReadByte() != 5)
@@ -2183,22 +2111,22 @@ namespace Renci.SshNet
                     throw new ProxyException("SOCKS5: Not valid response.");
             }
 
-            //  Read 0
+            //  Read reserved byte
             if (SocketReadByte() != 0)
             {
                 throw new ProxyException("SOCKS5: 0 byte is expected.");
             }
 
             var addressType = SocketReadByte();
-            var responseIp = new byte[16];
-
             switch (addressType)
             {
                 case 0x01:
-                    SocketRead(responseIp, 0, 4);
+                    var ipv4 = new byte[4];
+                    SocketRead(ipv4, 0, 4);
                     break;
                 case 0x04:
-                    SocketRead(responseIp, 0, 16);
+                    var ipv6 = new byte[16];
+                    SocketRead(ipv6, 0, 16);
                     break;
                 default:
                     throw new ProxyException(string.Format("Address type '{0}' is not supported.", addressType));
@@ -2208,6 +2136,173 @@ namespace Renci.SshNet
 
             //  Read 2 bytes to be ignored
             SocketRead(port, 0, 2);
+        }
+
+        /// <summary>
+        /// https://tools.ietf.org/html/rfc1929
+        /// </summary>
+        private static byte[] CreateSocks5UserNameAndPasswordAuthenticationRequest(string username, string password)
+        {
+            if (username.Length > byte.MaxValue)
+                throw new ProxyException("Proxy username is too long.");
+            if (password.Length > byte.MaxValue)
+                throw new ProxyException("Proxy password is too long.");
+
+            var authenticationRequest = new byte
+                [
+                    // Version of the negotiation
+                    1 +
+                    // Length of the username
+                    1 +
+                    // Username
+                    username.Length +
+                    // Length of the password
+                    1 +
+                    // Password
+                    password.Length
+                ];
+
+            var index = 0;
+
+            // Version of the negiotiation
+            authenticationRequest[index++] = 0x01;
+
+            // Length of the username
+            authenticationRequest[index++] = (byte) username.Length;
+
+            // Username
+            SshData.Ascii.GetBytes(username, 0, username.Length, authenticationRequest, index);
+            index += username.Length;
+
+            // Length of the password
+            authenticationRequest[index++] = (byte) password.Length;
+
+            // Password
+            SshData.Ascii.GetBytes(password, 0, password.Length, authenticationRequest, index);
+
+            return authenticationRequest;
+        }
+
+        private static byte[] CreateSocks4ConnectionRequest(string hostname, ushort port, string username)
+        {
+            var addressBytes = GetSocks4DestinationAddress(hostname);
+
+            var connectionRequest = new byte
+                [
+                    // SOCKS version number
+                    1 +
+                    // Command code
+                    1 +
+                    // Port number
+                    2 +
+                    // IP address
+                    addressBytes.Length +
+                    // Username
+                    username.Length +
+                    // Null terminator
+                    1
+                ];
+
+            var index = 0;
+
+            // SOCKS version number
+            connectionRequest[index++] = 0x04;
+
+            // Command code
+            connectionRequest[index++] = 0x01; // establish a TCP/IP stream connection
+
+            // Port number
+            Pack.UInt16ToBigEndian(port, connectionRequest, index);
+            index += 2;
+
+            // Address
+            Buffer.BlockCopy(addressBytes, 0, connectionRequest, index, addressBytes.Length);
+            index += addressBytes.Length;
+
+            connectionRequest[index] = 0x00;
+
+            return connectionRequest;
+        }
+
+        private static byte[] CreateSocks5ConnectionRequest(string hostname, ushort port)
+        {
+            byte addressType;
+            var addressBytes = GetSocks5DestinationAddress(hostname, out addressType);
+
+            var connectionRequest = new byte
+                [
+                    // SOCKS version number
+                    1 +
+                    // Command code
+                    1 +
+                    // Reserved
+                    1 +
+                    // Address type
+                    1 +
+                    // Address
+                    addressBytes.Length +
+                    // Port number
+                    2
+                ];
+
+            var index = 0;
+
+            // SOCKS version number
+            connectionRequest[index++] = 0x05;
+
+            // Command code
+            connectionRequest[index++] = 0x01; // establish a TCP/IP stream connection
+
+            // Reserved
+            connectionRequest[index++] = 0x00;
+
+            // Address type
+            connectionRequest[index++] = addressType;
+            
+            // Address
+            Buffer.BlockCopy(addressBytes, 0, connectionRequest, index, addressBytes.Length);
+            index += addressBytes.Length;
+
+            // Port number
+            Pack.UInt16ToBigEndian(port, connectionRequest, index);
+
+            return connectionRequest;
+        }
+
+        private static byte[] GetSocks4DestinationAddress(string hostname)
+        {
+            var ip = DnsAbstraction.GetHostAddresses(hostname)[0];
+
+            if (ip.AddressFamily != AddressFamily.InterNetwork)
+            {
+                throw new ProxyException("SOCKS4 only supports IPv4.");
+            }
+
+            return ip.GetAddressBytes();
+        }
+
+        private static byte[] GetSocks5DestinationAddress(string hostname, out byte addressType)
+        {
+            var ip = DnsAbstraction.GetHostAddresses(hostname)[0];
+
+            byte[] address;
+
+            if (ip.AddressFamily == AddressFamily.InterNetwork)
+            {
+                addressType = 0x01; // IPv4
+                address = ip.GetAddressBytes();
+            }
+            else if (ip.AddressFamily == AddressFamily.InterNetworkV6)
+            {
+                addressType = 0x04; // IPv6
+                address = ip.GetAddressBytes();
+            }
+            else
+            {
+                throw new ProxyException(string.Format("SOCKS5: IP address '{0}' is not supported.", ip));
+            }
+
+            return address;
         }
 
         private void ConnectHttp()

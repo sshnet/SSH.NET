@@ -449,7 +449,7 @@ namespace Renci.SshNet
                 return false;
             }
 
-            var port = (uint)(portBuffer[0] * 256 + portBuffer[1]);
+            var port = Pack.BigEndianToUInt16(portBuffer);
 
             RaiseRequestReceived(host, port);
 

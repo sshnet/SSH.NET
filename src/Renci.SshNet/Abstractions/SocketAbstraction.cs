@@ -180,7 +180,7 @@ namespace Renci.SshNet.Abstractions
                 receiveCompleted.Dispose();
             }
 #else
-#error Receiving data from a Socket is not implemented.
+            #error Receiving data from a Socket is not implemented.
 #endif
         }
 
@@ -242,7 +242,7 @@ namespace Renci.SshNet.Abstractions
             if (readToken.Exception != null)
                 throw readToken.Exception;
 #else
-#error Receiving data from a Socket is not implemented.
+            #error Receiving data from a Socket is not implemented.
 #endif
         }
 
@@ -407,11 +407,10 @@ namespace Renci.SshNet.Abstractions
             {
                 try
                 {
-                    var bytesSent = socket.Send(data, offset + totalBytesSent, totalBytesToSend - totalBytesSent,
-                        SocketFlags.None);
+                    var bytesSent = socket.Send(data, offset + totalBytesSent, totalBytesToSend - totalBytesSent, SocketFlags.None);
                     if (bytesSent == 0)
                         throw new SshConnectionException("An established connection was aborted by the server.",
-                            DisconnectReason.ConnectionLost);
+                                                         DisconnectReason.ConnectionLost);
 
                     totalBytesSent += bytesSent;
                 }
@@ -430,10 +429,10 @@ namespace Renci.SshNet.Abstractions
             var sendCompleted = new ManualResetEvent(false);
             var sendReceiveToken = new BlockingSendReceiveToken(socket, data, offset, size, sendCompleted);
             var socketAsyncSendArgs = new SocketAsyncEventArgs
-            {
-                RemoteEndPoint = socket.RemoteEndPoint,
-                UserToken = sendReceiveToken
-            };
+                {
+                    RemoteEndPoint = socket.RemoteEndPoint,
+                    UserToken = sendReceiveToken
+                };
             socketAsyncSendArgs.SetBuffer(data, offset, size);
             socketAsyncSendArgs.Completed += SendCompleted;
 
@@ -450,7 +449,7 @@ namespace Renci.SshNet.Abstractions
 
                 if (sendReceiveToken.TotalBytesTransferred == 0)
                     throw new SshConnectionException("An established connection was aborted by the server.",
-                        DisconnectReason.ConnectionLost);
+                                                     DisconnectReason.ConnectionLost);
             }
             finally
             {
@@ -460,7 +459,7 @@ namespace Renci.SshNet.Abstractions
                 sendCompleted.Dispose();
             }
 #else
-#error Sending data to a Socket is not implemented.
+            #error Sending data to a Socket is not implemented.
 #endif
         }
 

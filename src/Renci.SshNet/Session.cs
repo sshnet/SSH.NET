@@ -954,7 +954,7 @@ namespace Renci.SshNet
                     hash = _clientMac.ComputeHash(packetData);
                 }
 
-                //  Encrypt packet data
+                // Encrypt packet data
                 if (_clientCipher != null)
                 {
                     packetData = _clientCipher.Encrypt(packetData, packetDataOffset, (packetData.Length - packetDataOffset));
@@ -1952,9 +1952,9 @@ namespace Renci.SshNet
                         break;
                     }
 #elif FEATURE_SOCKET_POLL
-// when Socket.Select(IList, IList, IList, Int32) is not available or is buggy, we use
-// Socket.Poll(Int, SelectMode) to block until either data is available or the socket
-// is closed
+                    // when Socket.Select(IList, IList, IList, Int32) is not available or is buggy, we use
+                    // Socket.Poll(Int, SelectMode) to block until either data is available or the socket
+                    // is closed
                     _socket.Poll(-1, SelectMode.SelectRead);
 
                     if (!_socket.IsConnected())
@@ -2271,14 +2271,16 @@ namespace Renci.SshNet
 
         private static byte[] GetSocks4DestinationAddress(string hostname)
         {
-            var ip = DnsAbstraction.GetHostAddresses(hostname)[0];
+            var addresses = DnsAbstraction.GetHostAddresses(hostname);
 
-            if (ip.AddressFamily != AddressFamily.InterNetwork)
+            for (var i = 0; i < addresses.Length; i++)
             {
-                throw new ProxyException("SOCKS4 only supports IPv4.");
+                var address = addresses[i];
+                if (address.AddressFamily == AddressFamily.InterNetwork)
+                    return address.GetAddressBytes();
             }
 
-            return ip.GetAddressBytes();
+            throw new ProxyException(string.Format("SOCKS4 only supports IPv4. No such address found for '{0}'.", hostname));
         }
 
         private static byte[] GetSocks5DestinationAddress(string hostname, out byte addressType)
@@ -2442,7 +2444,7 @@ namespace Renci.SshNet
         private static SshConnectionException CreateConnectionAbortedByServerException()
         {
             return new SshConnectionException("An established connection was aborted by the server.",
-                DisconnectReason.ConnectionLost);
+                                              DisconnectReason.ConnectionLost);
         }
 
         #region IDisposable implementation

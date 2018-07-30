@@ -2287,19 +2287,18 @@ namespace Renci.SshNet
 
             byte[] address;
 
-            if (ip.AddressFamily == AddressFamily.InterNetwork)
+            switch (ip.AddressFamily)
             {
-                addressType = 0x01; // IPv4
-                address = ip.GetAddressBytes();
-            }
-            else if (ip.AddressFamily == AddressFamily.InterNetworkV6)
-            {
-                addressType = 0x04; // IPv6
-                address = ip.GetAddressBytes();
-            }
-            else
-            {
-                throw new ProxyException(string.Format("SOCKS5: IP address '{0}' is not supported.", ip));
+                case AddressFamily.InterNetwork:
+                    addressType = 0x01; // IPv4
+                    address = ip.GetAddressBytes();
+                    break;
+                case AddressFamily.InterNetworkV6:
+                    addressType = 0x04; // IPv6
+                    address = ip.GetAddressBytes();
+                    break;
+                default:
+                    throw new ProxyException(string.Format("SOCKS5: IP address '{0}' is not supported.", ip));
             }
 
             return address;

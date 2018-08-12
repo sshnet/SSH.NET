@@ -29,6 +29,7 @@ namespace Renci.SshNet
         private const byte Null = 0x00;
         private const byte CarriageReturn = 0x0d;
         internal const byte LineFeed = 0x0a;
+        private readonly object _lockObject = new object();
 
         /// <summary>
         /// Specifies an infinite waiting period.
@@ -217,7 +218,7 @@ namespace Renci.SshNet
             {
                 if (_sessionSemaphore == null)
                 {
-                    lock (this)
+                    lock (_lockObject)
                     {
                         if (_sessionSemaphore == null)
                         {
@@ -246,7 +247,7 @@ namespace Renci.SshNet
             {
                 uint result;
 
-                lock (this)
+                lock (_lockObject)
                 {
                     result = _nextChannelNumber++;
                 }
@@ -570,7 +571,7 @@ namespace Renci.SshNet
                 if (IsConnected)
                     return;
 
-                lock (this)
+                lock (_lockObject)
                 {
                     //  If connected don't connect again
                     if (IsConnected)

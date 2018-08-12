@@ -568,6 +568,8 @@ namespace Renci.SshNet
                         {
                             _incoming.Dequeue();
                         }
+                        
+                        text = text.Substring(0, match.Index + match.Length);
                         break;
                     }
                 }

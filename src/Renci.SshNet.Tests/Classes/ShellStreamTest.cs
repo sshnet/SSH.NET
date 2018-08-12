@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -101,6 +102,21 @@ namespace Renci.SshNet.Tests.Classes
             shellStream.WriteLine(line);
 
             _channelSessionMock.Verify(p => p.SendData(lineTerminator), Times.Once);
+        }
+
+        [TestMethod]
+        public void Expect_Regex_ShouldOnlyReturnUpToTheMatchedBuffer()
+        {
+            var shellStream = CreateShellStream();
+            var input = "abc\rdef\rghi\rprompt> ";
+            var bytes = _encoding.GetBytes(input);
+            var regex = new Regex(@"prompt>");
+
+            _channelSessionMock.Raise(p => p.DataReceived += null, this, new ChannelDataEventArgs(0, bytes));
+            var output = shellStream.Expect(regex, TimeSpan.FromSeconds(1));
+
+            Assert.AreEqual(input.Substring(0, input.Length - 1), output);
+
         }
 
         private ShellStream CreateShellStream()

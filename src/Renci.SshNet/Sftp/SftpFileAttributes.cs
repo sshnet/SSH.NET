@@ -442,73 +442,74 @@ namespace Renci.SshNet.Sftp
         /// </returns>
         public byte[] GetBytes()
         {
-            var stream = new SshDataStream(4);
-
-            uint flag = 0;
-
-            if (IsSizeChanged && IsRegularFile)
+            using (var stream = new SshDataStream(4))
             {
-                flag |= 0x00000001;
-            }
+                uint flag = 0;
 
-            if (IsUserIdChanged || IsGroupIdChanged)
-            {
-                flag |= 0x00000002;
-            }
-
-            if (IsPermissionsChanged)
-            {
-                flag |= 0x00000004;
-            }
-
-            if (IsLastAccessTimeChanged || IsLastWriteTimeChanged)
-            {
-                flag |= 0x00000008;
-            }
-
-            if (IsExtensionsChanged)
-            {
-                flag |= 0x80000000;
-            }
-
-            stream.Write(flag);
-
-            if (IsSizeChanged && IsRegularFile)
-            {
-                stream.Write((ulong) Size);
-            }
-
-            if (IsUserIdChanged || IsGroupIdChanged)
-            {
-                stream.Write((uint) UserId);
-                stream.Write((uint) GroupId);
-            }
-
-            if (IsPermissionsChanged)
-            {
-                stream.Write(Permissions);
-            }
-
-            if (IsLastAccessTimeChanged || IsLastWriteTimeChanged)
-            {
-                var time = (uint)(LastAccessTime.ToFileTime() / 10000000 - 11644473600);
-                stream.Write(time);
-                time = (uint)(LastWriteTime.ToFileTime() / 10000000 - 11644473600);
-                stream.Write(time);
-            }
-
-            if (IsExtensionsChanged)
-            {
-                foreach (var item in Extensions)
+                if (IsSizeChanged && IsRegularFile)
                 {
-                    // TODO: we write as ASCII but read as UTF8 !!!
-
-                    stream.Write(item.Key, SshData.Ascii);
-                    stream.Write(item.Value, SshData.Ascii);
+                    flag |= 0x00000001;
                 }
-            }
 
-            return stream.ToArray();
+                if (IsUserIdChanged || IsGroupIdChanged)
+                {
+                    flag |= 0x00000002;
+                }
+
+                if (IsPermissionsChanged)
+                {
+                    flag |= 0x00000004;
+                }
+
+                if (IsLastAccessTimeChanged || IsLastWriteTimeChanged)
+                {
+                    flag |= 0x00000008;
+                }
+
+                if (IsExtensionsChanged)
+                {
+                    flag |= 0x80000000;
+                }
+
+                stream.Write(flag);
+
+                if (IsSizeChanged && IsRegularFile)
+                {
+                    stream.Write((ulong) Size);
+                }
+
+                if (IsUserIdChanged || IsGroupIdChanged)
+                {
+                    stream.Write((uint) UserId);
+                    stream.Write((uint) GroupId);
+                }
+
+                if (IsPermissionsChanged)
+                {
+                    stream.Write(Permissions);
+                }
+
+                if (IsLastAccessTimeChanged || IsLastWriteTimeChanged)
+                {
+                    var time = (uint)(LastAccessTime.ToFileTime() / 10000000 - 11644473600);
+                    stream.Write(time);
+                    time = (uint)(LastWriteTime.ToFileTime() / 10000000 - 11644473600);
+                    stream.Write(time);
+                }
+
+                if (IsExtensionsChanged)
+                {
+                    foreach (var item in Extensions)
+                    {
+                        // TODO: we write as ASCII but read as UTF8 !!!
+
+                        stream.Write(item.Key, SshData.Ascii);
+                        stream.Write(item.Value, SshData.Ascii);
+                    }
+                }
+
+                return stream.ToArray();
+            }
         }
 
         internal static readonly SftpFileAttributes Empty = new SftpFileAttributes();

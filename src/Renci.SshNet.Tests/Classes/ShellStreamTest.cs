@@ -8,6 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
+using Renci.SshNet.Messages.Connection;
 using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes
@@ -119,6 +120,39 @@ namespace Renci.SshNet.Tests.Classes
 
         }
 
+        [TestMethod]
+        public void Expect_Regex_ShouldNotWaitForMoreDataWhenDisposed()
+        {
+            SetupDispose();
+            var shellStream = CreateShellStream();
+            var timeout = 2;
+
+            _channelSessionMock.Raise(p => p.Closed += null, this, new ChannelEventArgs(0));
+
+            var now = DateTime.Now;
+            var output = shellStream.Expect("not there", TimeSpan.FromSeconds(timeout));
+            var end = DateTime.Now;
+
+            Assert.AreEqual(null, output);
+            Assert.IsTrue((end - now).TotalSeconds < timeout);
+        }
+
+        [TestMethod]
+        public void Disconnection_Event_ShouldRaiseWhenIChannelDisconnected()
+        {
+            var shellStream = CreateShellStream();
+            SetupDispose();
+            var called = false;
+            shellStream.DisconnectOccured += (sender, args) => 
+            {
+                called = true;
+                Assert.IsFalse(shellStream.Disposed);
+            };
+            _channelSessionMock.Raise(p => p.Closed += null, this, new ChannelEventArgs(0));
+            Assert.IsTrue(called);
+            Assert.IsTrue(shellStream.Disposed);
+        }
+
         private ShellStream CreateShellStream()
         {
             _sessionMock.Setup(p => p.ConnectionInfo).Returns(_connectionInfoMock.Object);
@@ -137,6 +171,11 @@ namespace Renci.SshNet.Tests.Classes
                                    _heightPixels,
                                    _terminalModes,
                                    _bufferSize);
+        }
+
+        private void SetupDispose()
+        {
+            _channelSessionMock.Setup(t => t.Dispose());
         }
     }
 }

@@ -231,6 +231,9 @@ namespace Renci.SshNet
         /// <exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed.</exception>
         public override int Read(byte[] buffer, int offset, int count)
         {
+            //  Flush the write buffer
+            if (!_isDisposed) Flush();
+
             var i = 0;
 
             lock (_incoming)
@@ -317,6 +320,9 @@ namespace Renci.SshNet
         {
             var expectedFound = false;
             var text = string.Empty;
+
+            // Flush the write buffer in case expecting output from written data
+            if (!_isDisposed) Flush();
 
             do
             {
@@ -423,6 +429,9 @@ namespace Renci.SshNet
 
             //  Create new AsyncResult object
             var asyncResult = new ExpectAsyncResult(callback, state);
+
+            //  Flush the write buffer in case expecting output from previous write
+            if (!_isDisposed) Flush();
 
             //  Execute callback on different thread
             ThreadAbstraction.ExecuteThread(() =>
@@ -566,6 +575,9 @@ namespace Renci.SshNet
         {
             var text = string.Empty;
 
+            //  Flush the write buffer in case expecting output from previous write.
+            if (!_isDisposed) Flush();
+
             while (true)
             {
                 lock (_incoming)
@@ -631,6 +643,9 @@ namespace Renci.SshNet
         {
             var text = string.Empty;
 
+            //  Flush the write buffer
+            if(!_isDisposed) Flush();
+
             while (true)
             {
                 lock (_incoming)
@@ -683,6 +698,9 @@ namespace Renci.SshNet
         public string Read()
         {
             string text;
+            
+            // Flush the write buffer
+            Flush();
 
             lock (_incoming)
             {
@@ -711,7 +729,8 @@ namespace Renci.SshNet
             }
 
             var data = _encoding.GetBytes(text);
-            _channel.SendData(data);
+
+            Write(data, 0, data.Length);
         }
 
         /// <summary>

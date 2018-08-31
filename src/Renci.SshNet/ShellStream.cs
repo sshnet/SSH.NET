@@ -37,9 +37,9 @@ namespace Renci.SshNet
         public event EventHandler<ExceptionEventArgs> ErrorOccurred;
 
         /// <summary>
-        /// Occurs when a disconnect occured.
+        /// Occurs when the <see cref="ShellStream"/> closes (server or client initiated).
         /// </summary>
-        public event EventHandler<EventArgs> DisconnectOccured;
+        public event EventHandler<EventArgs> Closed;
         
         /// <summary>
         /// Whether the instance is disposed.
@@ -232,7 +232,10 @@ namespace Renci.SshNet
         public override int Read(byte[] buffer, int offset, int count)
         {
             //  Flush the write buffer
-            if (!_isDisposed) Flush();
+            if (!_isDisposed)
+            {
+                Flush();
+            }
 
             var i = 0;
 
@@ -322,7 +325,10 @@ namespace Renci.SshNet
             var text = string.Empty;
 
             // Flush the write buffer in case expecting output from written data
-            if (!_isDisposed) Flush();
+            if (!_isDisposed)
+            {
+                Flush();
+            }
 
             do
             {
@@ -431,7 +437,10 @@ namespace Renci.SshNet
             var asyncResult = new ExpectAsyncResult(callback, state);
 
             //  Flush the write buffer in case expecting output from previous write
-            if (!_isDisposed) Flush();
+            if (!_isDisposed)
+            {
+                Flush();
+            }
 
             //  Execute callback on different thread
             ThreadAbstraction.ExecuteThread(() =>
@@ -569,14 +578,17 @@ namespace Renci.SshNet
         /// <param name="timeout">Time to wait for input.</param>
         /// <returns>
         /// The text available in the shell that contains all the text that ends with expected expression,
-        /// or <c>null</c> if the specified time has elapsed.
+        /// or <c>null</c> if the specified time has elapsed or the channel is currently closed.
         /// </returns>
         public string Expect(Regex regex, TimeSpan timeout)
         {
             var text = string.Empty;
 
             //  Flush the write buffer in case expecting output from previous write.
-            if (!_isDisposed) Flush();
+            if (!_isDisposed)
+            {
+                Flush();
+            }
 
             while (true)
             {
@@ -602,7 +614,10 @@ namespace Renci.SshNet
                     }
                 }
 
-                if (_isDisposed) { return null; }
+                if (_isDisposed)
+                {
+                    return null;
+                }
                 
                 if (timeout.Ticks > 0)
                 {
@@ -614,8 +629,7 @@ namespace Renci.SshNet
                 else
                 {
                     _dataReceived.WaitOne();
-                }
-                
+                } 
             }
 
             return text;
@@ -644,7 +658,10 @@ namespace Renci.SshNet
             var text = string.Empty;
 
             //  Flush the write buffer
-            if(!_isDisposed) Flush();
+            if (!_isDisposed)
+            {
+                Flush();
+            }
 
             while (true)
             {
@@ -700,7 +717,10 @@ namespace Renci.SshNet
             string text;
             
             // Flush the write buffer
-            Flush();
+            if (!_isDisposed)
+            {
+                Flush();
+            }
 
             lock (_incoming)
             {
@@ -811,7 +831,7 @@ namespace Renci.SshNet
 
         private void Channel_Closed(object sender, ChannelEventArgs e)
         {
-            OnDisconnectReceived(e);
+            OnClosedReceived(e);
             //  TODO:   Do we need to call dispose here ??
             Dispose();
         }
@@ -848,10 +868,10 @@ namespace Renci.SshNet
             }
         }
 
-        private void OnDisconnectReceived(EventArgs e)
+        private void OnClosedReceived(EventArgs e)
         {
-            var handler = DisconnectOccured;
-            if(handler != null)
+            var handler = Closed;
+            if (handler != null)
             {
                 handler(this, new EventArgs());
             }

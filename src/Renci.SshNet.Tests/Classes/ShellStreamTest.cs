@@ -139,17 +139,20 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
-        public void Disconnection_Event_ShouldRaiseWhenIChannelDisconnected()
+        public void Closed_Event_ShouldRaiseWhenIChannelClosed()
         {
             var shellStream = CreateShellStream();
             SetupDispose();
             var called = false;
-            shellStream.DisconnectOccured += (sender, args) => 
+
+            shellStream.Closed += (sender, args) => 
             {
                 called = true;
                 Assert.IsFalse(shellStream.Disposed);
             };
+
             _channelSessionMock.Raise(p => p.Closed += null, this, new ChannelEventArgs(0));
+
             Assert.IsTrue(called);
             Assert.IsTrue(shellStream.Disposed);
         }

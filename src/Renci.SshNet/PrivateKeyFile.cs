@@ -375,7 +375,7 @@ namespace Renci.SshNet
                 using (var sha1 = CryptoAbstraction.CreateSHA1())
                 {
                     byte[] macKey = sha1.ComputeHash(Encoding.UTF8.GetBytes("putty-private-key-file-mac-key" + passPhrase));
-                    using (var hmac = new HMACSHA1(macKey))
+                    using (var hmac = CryptoAbstraction.CreateHMACSHA1(macKey))
                     {
                         macOrHashResult = hmac.ComputeHash(macData);
                     }

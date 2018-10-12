@@ -59,7 +59,7 @@ namespace Renci.SshNet.Tests.Classes
             _sessionMock.InSequence(sequence)
                         .Setup(p => p.Connect());
             _serviceFactoryMock.InSequence(sequence)
-                               .Setup(p => p.CreateNetConfSession(_sessionMock.Object, -1))
+                               .Setup(p => p.CreateNetConfSession(_sessionMock.Object, _subSystem, -1))
                                .Returns(_netConfSessionMock.Object);
             _netConfSessionMock.InSequence(sequence)
                             .Setup(p => p.Connect())

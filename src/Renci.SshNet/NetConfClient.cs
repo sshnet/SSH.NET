@@ -20,6 +20,16 @@ namespace Renci.SshNet
         /// </summary>
         private INetConfSession _netConfSession;
 
+        private string _subSystem = "netconf";
+        /// <summary>
+        /// Changes the used SSH subsystem from netconf to another value
+        /// </summary>
+        public String SubSystem
+        {
+            get { return _subSystem; }
+            set { _subSystem = value; }
+        }
+
         /// <summary>
         /// Gets or sets the operation timeout.
         /// </summary>
@@ -264,7 +274,7 @@ namespace Renci.SshNet
 
         private INetConfSession CreateAndConnectNetConfSession()
         {
-            var netConfSession = ServiceFactory.CreateNetConfSession(Session, _operationTimeout);
+            var netConfSession = ServiceFactory.CreateNetConfSession(Session, _subSystem, _operationTimeout);
             try
             {
                 netConfSession.Connect();

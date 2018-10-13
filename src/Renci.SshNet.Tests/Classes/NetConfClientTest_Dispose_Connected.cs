@@ -14,6 +14,7 @@ namespace Renci.SshNet.Tests.Classes
         private NetConfClient _netConfClient;
         private ConnectionInfo _connectionInfo;
         private int _operationTimeout;
+        private string _sysSystem;
 
         [TestInitialize]
         public void Setup()
@@ -35,6 +36,7 @@ namespace Renci.SshNet.Tests.Classes
 
             _connectionInfo = new ConnectionInfo("host", "user", new NoneAuthenticationMethod("userauth"));
             _operationTimeout = new Random().Next(1000, 10000);
+            _subSystem = "netconf";
             _netConfClient = new NetConfClient(_connectionInfo, false, _serviceFactoryMock.Object);
             _netConfClient.OperationTimeout = TimeSpan.FromMilliseconds(_operationTimeout);
 
@@ -63,7 +65,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void CreateNetConfSessionOnServiceFactoryShouldBeInvokedOnce()
         {
-            _serviceFactoryMock.Verify(p => p.CreateNetConfSession(_sessionMock.Object, _operationTimeout), Times.Once);
+            _serviceFactoryMock.Verify(p => p.CreateNetConfSession(_sessionMock.Object, _subSystem, _operationTimeout), Times.Once);
         }
 
         [TestMethod]

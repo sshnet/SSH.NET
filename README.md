@@ -11,17 +11,17 @@ This project was inspired by **Sharp.SSH** library which was ported from java an
 
 ## Features
 * Execution of SSH command using both synchronous and asynchronous methods
-* Return command execution exit status and other information 
+* Return command execution exit status and other information
 * Provide SFTP functionality for both synchronous and asynchronous operations
 * Provides SCP functionality
-* Provide status report for upload and download sftp operations to allow accurate progress bar implementation 
-* Remote, dynamic and local port forwarding 
+* Provide status report for upload and download sftp operations to allow accurate progress bar implementation
+* Remote, dynamic and local port forwarding
 * Shell/Terminal implementation
 * Specify key file pass phrase
-* Use multiple key files to authenticate 
+* Use multiple key files to authenticate
 * Supports 3des-cbc, aes128-cbc, aes192-cbc, aes256-cbc, aes128-ctr, aes192-ctr, aes256-ctr, blowfish-cbc, cast128-cbc, arcfour and twofish encryptions
-* Supports publickey, password and keyboard-interactive authentication methods 
-* Supports RSA and DSA private key 
+* Supports publickey, password and keyboard-interactive authentication methods
+* Supports RSA and DSA private key
 * Supports DES-EDE3-CBC, DES-EDE3-CFB, DES-CBC, AES-128-CBC, AES-192-CBC and AES-256-CBC algorithms for private key encryption
 * Supports two-factor or higher authentication
 * Supports SOCKS4, SOCKS5 and HTTP Proxy
@@ -119,6 +119,6 @@ Software                          | net35 | net40 | netstandard1.3 | sl4 | sl5 |
 Windows Phone SDK 8.0             |       |       |                | x   | x   | x    | x   |
 Visual Studio 2012 Update 5       | x     | x     |                | x   | x   | x    | x   |
 Visual Studio 2015 Update 3       | x     | x     |                |     | x   |      | x   | x
-Visual Studio 2017                |       | x     | x              |     |     |      |     | 
+Visual Studio 2017                |       | x     | x              |     |     |      |     |
 
 [![NDepend](http://download-codeplex.sec.s-msft.com/Download?ProjectName=sshnet&DownloadId=629750)](http://ndepend.com)

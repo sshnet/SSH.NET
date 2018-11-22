@@ -159,6 +159,7 @@
     <Compile Include="IServiceFactory.NET.cs" />
     <Compile Include="ISession.cs" />
     <Compile Include="ISubsystemSession.cs" />
+    <Compile Include="Security\KeyExchangeDiffieHellmanGroup14Sha256.cs" />
     <Compile Include="Messages\Connection\CancelTcpIpForwardGlobalRequestMessage.cs" />
     <Compile Include="Messages\Connection\TcpIpForwardGlobalRequestMessage.cs" />
     <Compile Include="Messages\Transport\KeyExchangeEcdhInitMessage.cs" />
@@ -176,6 +177,7 @@
     <Compile Include="Security\GroupExchangeHashData.cs" />
     <Compile Include="Security\IKeyExchange.cs" />
     <Compile Include="Security\KeyExchangeDiffieHellmanGroupExchangeShaBase.cs" />
+    <Compile Include="Security\KeyExchangeDiffieHellmanGroupSha256.cs" />
     <Compile Include="ServiceFactory.cs" />
     <Compile Include="ServiceFactory.NET.cs" />
     <Compile Include="Sftp\ISftpFileReader.cs" />

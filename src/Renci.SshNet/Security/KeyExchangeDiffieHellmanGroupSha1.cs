@@ -95,7 +95,7 @@ namespace Renci.SshNet.Security
             Finish();
         }
 
-        private class _ExchangeHashData : SshData
+        internal class _ExchangeHashData : SshData
         {
             private byte[] _serverVersion;
             private byte[] _clientVersion;

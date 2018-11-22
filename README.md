@@ -33,6 +33,7 @@ This project was inspired by **Sharp.SSH** library which was ported from java an
 * diffie-hellman-group-exchange-sha1
 * diffie-hellman-group14-sha1
 * diffie-hellman-group1-sha1
+* diffie-hellman-group14-sha256
 
 ## Message Authentication Code
 

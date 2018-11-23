@@ -281,6 +281,7 @@
     <Compile Include="Classes\Common\PortForwardEventArgsTest.cs" />
     <Compile Include="Classes\Compression\ZlibTest.cs" />
     <Compile Include="Classes\ConnectionInfoTest.cs" />
+    <Compile Include="Classes\Security\KeyExchangeDiffieHellmanGroup14Sha256Test.cs" />
     <Compile Include="Classes\ServiceFactoryTest_CreateClientAuthentication.cs" />
     <Compile Include="Classes\ServiceFactoryTest_CreateSftpFileReader_EndLStatThrowsSshException.cs" />
     <Compile Include="Classes\ServiceFactoryTest_CreateSftpFileReader_FileSizeIsAlmostSixTimesGreaterThanChunkSize.cs" />

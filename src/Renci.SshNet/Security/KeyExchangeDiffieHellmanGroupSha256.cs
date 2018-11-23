@@ -6,7 +6,7 @@ using Renci.SshNet.Messages.Transport;
 namespace Renci.SshNet.Security
 {
     /// <summary>
-    /// Represents "diffie-hellman-group1-sha1" algorithm implementation.
+    /// Represents "diffie-hellman-group1-sha256" algorithm implementation.
     /// </summary>
     internal abstract class KeyExchangeDiffieHellmanGroupSha256 : KeyExchangeDiffieHellman
     {

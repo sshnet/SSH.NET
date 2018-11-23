@@ -3,7 +3,7 @@
 namespace Renci.SshNet.Security
 {
     /// <summary>
-    /// Represents "diffie-hellman-group14-sha1" algorithm implementation.
+    /// Represents "diffie-hellman-group14-sha256" algorithm implementation.
     /// </summary>
     internal class KeyExchangeDiffieHellmanGroup14Sha256 : KeyExchangeDiffieHellmanGroupSha256
     {

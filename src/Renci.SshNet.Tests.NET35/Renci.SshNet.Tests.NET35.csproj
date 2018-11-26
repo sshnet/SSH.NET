@@ -354,6 +354,9 @@
     <Compile Include="..\Renci.SshNet.Tests\Classes\Common\ExtensionsTest_ToBigInteger2.cs">
       <Link>Classes\Common\ExtensionsTest_ToBigInteger2.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Common\ExtensionsTest_Pad.cs">
+      <Link>Classes\Common\ExtensionsTest_Pad.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Common\ExtensionsTest_TrimLeadingZeros.cs">
       <Link>Classes\Common\ExtensionsTest_TrimLeadingZeros.cs</Link>
     </Compile>
@@ -1738,6 +1741,26 @@
     </EmbeddedResource>
     <EmbeddedResource Include="..\Renci.SshNet.Tests\Data\Key.SSH2.RSA.txt">
       <Link>Data\Key.SSH2.RSA.txt</Link>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="..\Renci.SshNet.Tests\Data\Key.ECDSA.txt">
+      <Link>Data\Key.ECDSA.txt</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\Renci.SshNet.Tests\Data\Key.ECDSA384.txt">
+      <Link>Data\Key.ECDSA384.txt</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\Renci.SshNet.Tests\Data\Key.ECDSA521.txt">
+      <Link>Data\Key.ECDSA521.txt</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\Renci.SshNet.Tests\Data\Key.ECDSA.Encrypted.txt">
+      <Link>Data\Key.ECDSA.Encrypted.txt</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\Renci.SshNet.Tests\Data\Key.ECDSA384.Encrypted.txt">
+      <Link>Data\Key.ECDSA384.Encrypted.txt</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\Renci.SshNet.Tests\Data\Key.ECDSA521.Encrypted.txt">
+      <Link>Data\Key.ECDSA521.Encrypted.txt</Link>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

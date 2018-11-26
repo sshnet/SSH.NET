@@ -170,6 +170,7 @@
     <Compile Include="Classes\Common\ExtensionsTest_Take_Count.cs" />
     <Compile Include="Classes\Common\ExtensionsTest_Take_OffsetAndCount.cs" />
     <Compile Include="Classes\Common\ExtensionsTest_ToBigInteger2.cs" />
+    <Compile Include="Classes\Common\ExtensionsTest_Pad.cs" />
     <Compile Include="Classes\Common\ExtensionsTest_TrimLeadingZeros.cs" />
     <Compile Include="Classes\Common\PackTest.cs" />
     <Compile Include="Classes\Common\PosixPathTest_GetFileName.cs" />
@@ -709,6 +710,14 @@
       <Project>{2f5f8c90-0bd1-424f-997c-7bc6280919d1}</Project>
       <Name>Renci.SshNet</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Data\Key.ECDSA.txt" />
+    <EmbeddedResource Include="Data\Key.ECDSA384.txt" />
+    <EmbeddedResource Include="Data\Key.ECDSA521.txt" />
+    <EmbeddedResource Include="Data\Key.ECDSA.Encrypted.txt" />
+    <EmbeddedResource Include="Data\Key.ECDSA384.Encrypted.txt" />
+    <EmbeddedResource Include="Data\Key.ECDSA521.Encrypted.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

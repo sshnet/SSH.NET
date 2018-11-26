@@ -22,7 +22,18 @@ namespace Renci.SshNet
     /// </example>
     /// <remarks>
     /// <para>
-    /// Supports RSA and DSA private key in both <c>OpenSSH</c> and <c>ssh.com</c> format.
+    /// The following private keys are supported:
+    /// <list type="bullet">
+    ///     <item>
+    ///         <description>RSA in OpenSSH and ssh.com format</description>
+    ///     </item>
+    ///     <item>
+    ///         <description>DSA in OpenSSH and ssh.com format</description>
+    ///     </item>
+    ///     <item>
+    ///         <description>ECDSA 256/384/521 in OpenSSH format</description>
+    ///     </item>
+    /// </list>
     /// </para>
     /// <para>
     /// The following encryption algorithms are supported:
@@ -197,6 +208,12 @@ namespace Renci.SshNet
                     _key = new DsaKey(decryptedData);
                     HostKey = new KeyHostAlgorithm("ssh-dss", _key);
                     break;
+#if FEATURE_ECDSA
+                case "EC":
+                    _key = new EcdsaKey(decryptedData);
+                    HostKey = new KeyHostAlgorithm(_key.ToString(), _key);
+                    break;
+#endif
                 case "SSH2 ENCRYPTED":
                     var reader = new SshDataReader(decryptedData);
                     var magicNumber = reader.ReadUInt32();

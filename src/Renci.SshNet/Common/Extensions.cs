@@ -261,6 +261,20 @@ namespace Renci.SshNet.Common
             return value;
         }
 
+        /// <summary>
+        /// Pads with leading zeros if needd
+        /// </summary>
+        /// <param name="data">The data.</param>
+        /// <param name="length">The length to pad to.</param>
+        public static byte[] Pad(this byte[] data, int length)
+        {
+            if (length <= data.Length)
+                return data;
+            var newData = new byte[length];
+            Buffer.BlockCopy(data, 0, newData, newData.Length - data.Length, data.Length);
+            return newData;
+        }
+
         public static byte[] Concat(this byte[] first, byte[] second)
         {
             if (first == null || first.Length == 0)

@@ -197,6 +197,12 @@ namespace Renci.SshNet
                     _key = new DsaKey(decryptedData);
                     HostKey = new KeyHostAlgorithm("ssh-dss", _key);
                     break;
+#if FEATURE_ECDSA
+                case "EC":
+                    _key = new EcdsaKey(decryptedData);
+                    HostKey = new KeyHostAlgorithm(_key.ToString(), _key);
+                    break;
+#endif
                 case "SSH2 ENCRYPTED":
                     var reader = new SshDataReader(decryptedData);
                     var magicNumber = reader.ReadUInt32();
@@ -341,7 +347,7 @@ namespace Renci.SshNet
             return cipher.Decrypt(cipherData);
         }
 
-        #region IDisposable Members
+#region IDisposable Members
 
         private bool _isDisposed;
 
@@ -385,7 +391,7 @@ namespace Renci.SshNet
             Dispose(false);
         }
 
-        #endregion
+#endregion
 
         private class SshDataReader : SshData
         {

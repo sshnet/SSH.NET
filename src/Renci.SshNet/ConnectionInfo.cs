@@ -379,7 +379,11 @@ namespace Renci.SshNet
                 {
                     {"ssh-rsa", data => new KeyHostAlgorithm("ssh-rsa", new RsaKey(), data)},
                     {"ssh-dss", data => new KeyHostAlgorithm("ssh-dss", new DsaKey(), data)},
-                    //{"ecdsa-sha2-nistp256 "}
+#if FEATURE_ECDSA
+                    {"ecdsa-sha2-nistp256", data => new KeyHostAlgorithm("ecdsa-sha2-nistp256", new EcdsaKey(), data)},
+                    {"ecdsa-sha2-nistp384", data => new KeyHostAlgorithm("ecdsa-sha2-nistp384", new EcdsaKey(), data)},
+                    {"ecdsa-sha2-nistp521", data => new KeyHostAlgorithm("ecdsa-sha2-nistp521", new EcdsaKey(), data)},
+#endif
                     //{"x509v3-sign-rsa", () => { ... },
                     //{"x509v3-sign-dss", () => { ... },
                     //{"spki-sign-rsa", () => { ... },

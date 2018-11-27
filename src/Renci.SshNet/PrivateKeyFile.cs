@@ -203,6 +203,11 @@ namespace Renci.SshNet
                     HostKey = new KeyHostAlgorithm(_key.ToString(), _key);
                     break;
 #endif
+                case "OPENSSH":
+                    var ssh_reader = new OpenSSHKeyReader(decryptedData);
+                    _key = ssh_reader.ReadKey();
+                    HostKey = new KeyHostAlgorithm(_key.ToString(), _key);
+                    break;
                 case "SSH2 ENCRYPTED":
                     var reader = new SshDataReader(decryptedData);
                     var magicNumber = reader.ReadUInt32();

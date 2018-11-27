@@ -385,6 +385,28 @@ namespace Renci.SshNet.Tests.Classes
             }
         }
 
+        [TestMethod]
+        [Owner("darinkes")]
+        [TestCategory("PrivateKey")]
+        public void Test_PrivateKey_ED25519()
+        {
+            using (var stream = GetData("Key.ED25519.txt"))
+            {
+                new PrivateKeyFile(stream, "12345");
+            }
+        }
+
+        [TestMethod]
+        [Owner("darinkes")]
+        [TestCategory("PrivateKey")]
+        public void Test_PrivateKey_ED25519_Encrypted()
+        {
+            using (var stream = GetData("Key.ED25519.Encrypted.txt"))
+            {
+                new PrivateKeyFile(stream, "12345");
+            }
+        }
+
         /// <summary>
         ///A test for Dispose
         ///</summary>

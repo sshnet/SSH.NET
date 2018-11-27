@@ -164,12 +164,78 @@
     <Compile Include="Messages\Transport\KeyExchangeEcdhInitMessage.cs" />
     <Compile Include="Messages\Transport\KeyExchangeEcdhReplyMessage.cs" />
     <Compile Include="Netconf\INetConfSession.cs" />
+    <Compile Include="OpenSSHKeyReader.cs" />
     <Compile Include="RemotePathDoubleQuoteTransformation.cs" />
     <Compile Include="RemotePathNoneTransformation.cs" />
     <Compile Include="RemotePathShellQuoteTransformation.cs" />
     <Compile Include="RemotePathTransformation.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Ed255129.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Ed255129\Array16.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Ed255129\Array8.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Ed255129\ByteIntegerConverter.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Ed255129\CryptoBytes.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Ed255129\Ed25519.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Ed255129\Ed25519Ref10\base.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Ed255129\Ed25519Ref10\base2.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Ed255129\Ed25519Ref10\d.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Ed255129\Ed25519Ref10\d2.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Ed255129\Ed25519Ref10\fe_0.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Ed255129\Ed25519Ref10\fe_1.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Ed255129\Ed25519Ref10\fe_add.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Ed255129\Ed25519Ref10\fe_cmov.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Ed255129\Ed25519Ref10\fe_cswap.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Ed255129\Ed25519Ref10\fe_frombytes.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Ed255129\Ed25519Ref10\fe_invert.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Ed255129\Ed25519Ref10\fe_isnegative.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Ed255129\Ed25519Ref10\fe_isnonzero.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Ed255129\Ed25519Ref10\fe_mul.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Ed255129\Ed25519Ref10\fe_mul121666.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Ed255129\Ed25519Ref10\fe_neg.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Ed255129\Ed25519Ref10\fe_pow22523.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Ed255129\Ed25519Ref10\fe_sq.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Ed255129\Ed25519Ref10\fe_sq2.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Ed255129\Ed25519Ref10\fe_sub.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Ed255129\Ed25519Ref10\fe_tobytes.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Ed255129\Ed25519Ref10\FieldElement.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Ed255129\Ed25519Ref10\ge_add.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Ed255129\Ed25519Ref10\ge_double_scalarmult.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Ed255129\Ed25519Ref10\ge_frombytes.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Ed255129\Ed25519Ref10\ge_madd.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Ed255129\Ed25519Ref10\ge_msub.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Ed255129\Ed25519Ref10\ge_p1p1_to_p2.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Ed255129\Ed25519Ref10\ge_p1p1_to_p3.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Ed255129\Ed25519Ref10\ge_p2_0.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Ed255129\Ed25519Ref10\ge_p2_dbl.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Ed255129\Ed25519Ref10\ge_p3_0.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Ed255129\Ed25519Ref10\ge_p3_dbl.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Ed255129\Ed25519Ref10\ge_p3_tobytes.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Ed255129\Ed25519Ref10\ge_p3_to_cached.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Ed255129\Ed25519Ref10\ge_p3_to_p2.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Ed255129\Ed25519Ref10\ge_precomp_0.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Ed255129\Ed25519Ref10\ge_scalarmult_base.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Ed255129\Ed25519Ref10\ge_sub.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Ed255129\Ed25519Ref10\ge_tobytes.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Ed255129\Ed25519Ref10\GroupElement.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Ed255129\Ed25519Ref10\keypair.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Ed255129\Ed25519Ref10\open.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Ed255129\Ed25519Ref10\scalarmult.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Ed255129\Ed25519Ref10\sc_clamp.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Ed255129\Ed25519Ref10\sc_mul_add.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Ed255129\Ed25519Ref10\sc_reduce.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Ed255129\Ed25519Ref10\sign.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Ed255129\Ed25519Ref10\sqrtm1.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Ed255129\InternalAssert.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Ed255129\MontgomeryCurve25519.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Ed255129\Poly1305Donna.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Ed255129\Salsa\Salsa20.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Ed255129\Salsa\SalsaCore.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Ed255129\Sha512.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Ed255129\Sha512Internal.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Ed255129\XSalsa20Poly1305.cs" />
+    <Compile Include="Security\Cryptography\ED25519DigitalSignature.cs" />
     <Compile Include="Security\Cryptography\EcdsaDigitalSignature.cs" />
     <Compile Include="Security\Cryptography\EcdsaKey.cs" />
+    <Compile Include="Security\Cryptography\ED25519Key.cs" />
     <Compile Include="Security\Cryptography\HMACMD5.cs" />
     <Compile Include="Security\Cryptography\HMACSHA1.cs" />
     <Compile Include="Security\Cryptography\HMACSHA256.cs" />
@@ -467,10 +533,14 @@
       <Link>Renci.SshNet.snk</Link>
     </None>
     <None Include="Documentation\Renci.SshNet.content" />
+    <None Include="Security\Cryptography\Ciphers\Ed255129\readme.md" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Documentation\SshNet.shfbproj" />
+    <Content Include="Security\Cryptography\Ciphers\Ed255129\License.txt" />
+    <Content Include="Security\Cryptography\Ciphers\Ed255129\Salsa\replace regex.txt" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -717,6 +717,12 @@
     <EmbeddedResource Include="Data\Key.ECDSA384.Encrypted.txt" />
     <EmbeddedResource Include="Data\Key.ECDSA521.Encrypted.txt" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Data\Key.ED25519.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Data\Key.ED25519.Encrypted.txt" />
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

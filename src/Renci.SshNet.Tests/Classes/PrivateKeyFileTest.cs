@@ -545,6 +545,34 @@ namespace Renci.SshNet.Tests.Classes
             }
         }
 
+        /// <summary>
+        /// A test for opening an openssh v1 keyfile where there is no passphrase.
+        ///</summary>
+        [TestMethod()]
+        [Owner("bhalbright")]
+        [TestCategory("PrivateKey")]
+        public void TestOpenSshV1KeyFileNoPassphrase()
+        {
+            using (var stream = GetData("Key.OPENSSH.ED25519.txt"))
+            {
+                new PrivateKeyFile(stream);
+            }
+        }
+
+        /// <summary>
+        /// A test for opening an openssh v1 keyfile where there is a passphrase.
+        ///</summary>
+        [TestMethod()]
+        [Owner("bhalbright")]
+        [TestCategory("PrivateKey")]
+        public void TestOpenSshV1KeyFileWithPassphrase()
+        {
+            using (var stream = GetData("Key.OPENSSH.ED25519.Encrypted.txt"))
+            {
+                new PrivateKeyFile(stream, "password");
+            }
+        }
+
         private void SaveStreamToFile(Stream stream, string fileName)
         {
             var buffer = new byte[4000];

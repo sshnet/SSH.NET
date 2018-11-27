@@ -301,8 +301,11 @@
     <Compile Include="Security\Chaos.NaCl\Internal\Sha512Internal.cs" />
     <Compile Include="Security\Chaos.NaCl\MontgomeryCurve25519.cs" />
     <Compile Include="Security\Chaos.NaCl\Sha512.cs" />
+    <Compile Include="Security\Cryptography\ED25519DigitalSignature.cs" />
     <Compile Include="Security\Cryptography\EcdsaDigitalSignature.cs" />
     <Compile Include="Security\Cryptography\EcdsaKey.cs" />
+    <Compile Include="Security\Cryptography\ED25519Key.cs" />
+    <Compile Include="Security\Cryptography\Bcrypt.cs" />
     <Compile Include="Security\Cryptography\HMACMD5.cs" />
     <Compile Include="Security\Cryptography\HMACSHA1.cs" />
     <Compile Include="Security\Cryptography\HMACSHA256.cs" />

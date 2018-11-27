@@ -824,6 +824,9 @@
     <Compile Include="..\Renci.SshNet\Security\Cryptography\AsymmetricCipher.cs">
       <Link>Security\Cryptography\AsymmetricCipher.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Cryptography\Bcrypt.cs">
+      <Link>Security\Cryptography\Bcrypt.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\Security\Cryptography\BlockCipher.cs">
       <Link>Security\Cryptography\BlockCipher.cs</Link>
     </Compile>

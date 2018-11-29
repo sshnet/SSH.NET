@@ -1020,6 +1020,43 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         /// <summary>
+        ///A test for SampleLines
+        ///</summary>
+        [TestMethod]
+        [Ignore] // placeholder for actual test
+        public void SampleLinesTest()
+        {
+            ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
+            SftpClient target = new SftpClient(connectionInfo); // TODO: Initialize to an appropriate value
+            string path = string.Empty; // TODO: Initialize to an appropriate value
+            int sampleSize = 1;
+            IEnumerable<string> expected = null; // TODO: Initialize to an appropriate value
+            IEnumerable<string> actual;
+            actual = target.ReadSample(path, sampleSize);
+            Assert.AreEqual(expected, actual);
+            Assert.Inconclusive("Verify the correctness of this test method.");
+        }
+
+        /// <summary>
+        ///A test for SampleLines
+        ///</summary>
+        [TestMethod]
+        [Ignore] // placeholder for actual test
+        public void SampleLinesTest1()
+        {
+            ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
+            SftpClient target = new SftpClient(connectionInfo); // TODO: Initialize to an appropriate value
+            string path = string.Empty; // TODO: Initialize to an appropriate value
+            int sampleSize = 1;
+            Encoding encoding = null; // TODO: Initialize to an appropriate value
+            IEnumerable<string> expected = null; // TODO: Initialize to an appropriate value
+            IEnumerable<string> actual;
+            actual = target.ReadSample(path, sampleSize, encoding);
+            Assert.AreEqual(expected, actual);
+            Assert.Inconclusive("Verify the correctness of this test method.");
+        }
+
+        /// <summary>
         ///A test for RenameFile
         ///</summary>
         [TestMethod]

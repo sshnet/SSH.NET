@@ -587,7 +587,8 @@ namespace Renci.SshNet
             if (_sftpSession == null)
                 throw new SshConnectionException("Client not connected.");
 
-            var fullPath = _sftpSession.GetCanonicalPath(path);
+            var sanitizedPath = path[0] == '/' ? path.Substring(1) : path;
+            var fullPath = _sftpSession.GetCanonicalPath(sanitizedPath);
 
             // using SSH_FXP_REALPATH is not an alternative as the SFTP specification has not always
             // been clear on how the server should respond when the specified path is not present on

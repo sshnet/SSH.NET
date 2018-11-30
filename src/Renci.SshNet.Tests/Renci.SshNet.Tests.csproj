@@ -310,6 +310,7 @@
     <Compile Include="Classes\SessionTest_Connected_ServerShutsDownSocket.cs" />
     <Compile Include="Classes\SessionTest_NotConnected.cs" />
     <Compile Include="Classes\SessionTest_SocketConnected_BadPacketAndDispose.cs" />
+    <Compile Include="Classes\SftpClientTest.Exists.cs" />
     <Compile Include="Classes\SftpClientTest.SynchronizeDirectories.cs" />
     <Compile Include="Classes\SftpClientTest.cs" />
     <Compile Include="Classes\SftpClientTest.Download.cs" />

@@ -309,6 +309,11 @@
     <Compile Include="Security\GroupExchangeHashData.cs" />
     <Compile Include="Security\IKeyExchange.cs" />
     <Compile Include="Security\KeyExchangeDiffieHellmanGroupExchangeShaBase.cs" />
+    <Compile Include="Security\KeyExchangeEC.cs" />
+    <Compile Include="Security\KeyExchangeECDH.cs" />
+    <Compile Include="Security\KeyExchangeECDH521.cs" />
+    <Compile Include="Security\KeyExchangeECDH384.cs" />
+    <Compile Include="Security\KeyExchangeECDH256.cs" />
     <Compile Include="ServiceFactory.cs" />
     <Compile Include="ServiceFactory.NET.cs" />
     <Compile Include="Sftp\ISftpFileReader.cs" />

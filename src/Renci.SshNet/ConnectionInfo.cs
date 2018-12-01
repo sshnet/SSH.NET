@@ -322,14 +322,13 @@ namespace Renci.SshNet
 
             KeyExchangeAlgorithms = new Dictionary<string, Type>
                 {
+                    {"ecdh-sha2-nistp256", typeof(KeyExchangeECDH256)},
+                    {"ecdh-sha2-nistp384", typeof(KeyExchangeECDH384)},
+                    {"ecdh-sha2-nistp521", typeof(KeyExchangeECDH521)},
                     {"diffie-hellman-group-exchange-sha256", typeof (KeyExchangeDiffieHellmanGroupExchangeSha256)},
                     {"diffie-hellman-group-exchange-sha1", typeof (KeyExchangeDiffieHellmanGroupExchangeSha1)},
                     {"diffie-hellman-group14-sha1", typeof (KeyExchangeDiffieHellmanGroup14Sha1)},
                     {"diffie-hellman-group1-sha1", typeof (KeyExchangeDiffieHellmanGroup1Sha1)},
-                    //{"ecdh-sha2-nistp256", typeof(KeyExchangeEllipticCurveDiffieHellman)},
-                    //{"ecdh-sha2-nistp256", typeof(...)},
-                    //{"ecdh-sha2-nistp384", typeof(...)},
-                    //{"ecdh-sha2-nistp521", typeof(...)},
                     //"gss-group1-sha1-toWM5Slw5Ew8Mqkay+al2g==" - WinSSHD
                     //"gss-gex-sha1-toWM5Slw5Ew8Mqkay+al2g==" - WinSSHD
                 };

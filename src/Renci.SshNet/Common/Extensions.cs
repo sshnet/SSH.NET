@@ -73,6 +73,20 @@ namespace Renci.SshNet.Common
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="BigInteger"/> structure using the SSH BigNum2 Format
+        /// </summary>
+        public static BigInteger ToBigInteger2(this byte[] data)
+        {
+            if ((data[0] & (1 << 7)) != 0)
+            {
+                var buf = new byte[data.Length + 1];
+                Buffer.BlockCopy(data, 0, buf, 1, data.Length);
+                data = buf;
+            }
+            return data.ToBigInteger();
+        }
+
+        /// <summary>
         /// Reverses the sequence of the elements in the entire one-dimensional <see cref="Array"/>.
         /// </summary>
         /// <param name="array">The one-dimensional <see cref="Array"/> to reverse.</param>

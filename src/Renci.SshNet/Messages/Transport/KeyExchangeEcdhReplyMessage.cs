@@ -1,11 +1,9 @@
-﻿#if false
-
-namespace Renci.SshNet.Messages.Transport
+﻿namespace Renci.SshNet.Messages.Transport
 {
     /// <summary>
     /// Represents SSH_MSG_KEXECDH_REPLY message.
     /// </summary>
-    [Message("SSH_MSG_KEXECDH_REPLY", 31)]
+    [Message("SSH_MSG_KEX_ECDH_REPLY", 31)]
     public class KeyExchangeEcdhReplyMessage : Message
     {
         /// <summary>
@@ -65,7 +63,10 @@ namespace Renci.SshNet.Messages.Transport
             WriteBinaryString(QS);
             WriteBinaryString(Signature);
         }
+
+        internal override void Process(Session session)
+        {
+            session.OnKeyExchangeEcdhReplyMessageReceived(this);
+        }
     }
 }
-
-#endif // false

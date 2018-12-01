@@ -351,6 +351,9 @@
     <Compile Include="..\Renci.SshNet.Tests\Classes\Common\ExtensionsTest_Take_OffsetAndCount.cs">
       <Link>Classes\Common\ExtensionsTest_Take_OffsetAndCount.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet.Tests\Classes\Common\ExtensionsTest_ToBigInteger2.cs">
+      <Link>Classes\Common\ExtensionsTest_ToBigInteger2.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet.Tests\Classes\Common\ExtensionsTest_TrimLeadingZeros.cs">
       <Link>Classes\Common\ExtensionsTest_TrimLeadingZeros.cs</Link>
     </Compile>

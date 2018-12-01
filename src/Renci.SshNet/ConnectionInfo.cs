@@ -322,6 +322,8 @@ namespace Renci.SshNet
 
             KeyExchangeAlgorithms = new Dictionary<string, Type>
                 {
+                    {"curve25519-sha256", typeof(KeyExchangeECCurve25519)},
+                    {"curve25519-sha256@libssh.org", typeof(KeyExchangeECCurve25519)},
                     {"ecdh-sha2-nistp256", typeof(KeyExchangeECDH256)},
                     {"ecdh-sha2-nistp384", typeof(KeyExchangeECDH384)},
                     {"ecdh-sha2-nistp521", typeof(KeyExchangeECDH521)},

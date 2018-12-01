@@ -310,6 +310,7 @@
     <Compile Include="Security\IKeyExchange.cs" />
     <Compile Include="Security\KeyExchangeDiffieHellmanGroupExchangeShaBase.cs" />
     <Compile Include="Security\KeyExchangeEC.cs" />
+    <Compile Include="Security\KeyExchangeECCurve25519.cs" />
     <Compile Include="Security\KeyExchangeECDH.cs" />
     <Compile Include="Security\KeyExchangeECDH521.cs" />
     <Compile Include="Security\KeyExchangeECDH384.cs" />

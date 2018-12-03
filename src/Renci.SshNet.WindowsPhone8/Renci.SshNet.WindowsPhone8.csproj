@@ -850,8 +850,194 @@
     <Compile Include="..\Renci.SshNet\Security\CertificateHostAlgorithm.cs">
       <Link>Security\CertificateHostAlgorithm.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Chaos.NaCl\CryptoBytes.cs">
+      <Link>Security\Cryptography\Chaos.NaCl\CryptoBytes.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Chaos.NaCl\Ed25519.cs">
+      <Link>Security\Cryptography\Chaos.NaCl\Ed25519.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Chaos.NaCl\Internal\Array16.cs">
+      <Link>Security\Cryptography\Chaos.NaCl\Internal\Array16.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Chaos.NaCl\Internal\Array8.cs">
+      <Link>Security\Cryptography\Chaos.NaCl\Internal\Array8.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Chaos.NaCl\Internal\ByteIntegerConverter.cs">
+      <Link>Security\Cryptography\Chaos.NaCl\Internal\ByteIntegerConverter.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Chaos.NaCl\Internal\Ed25519Ref10\base.cs">
+      <Link>Security\Cryptography\Chaos.NaCl\Internal\Ed25519Ref10\base.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Chaos.NaCl\Internal\Ed25519Ref10\base2.cs">
+      <Link>Security\Cryptography\Chaos.NaCl\Internal\Ed25519Ref10\base2.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Chaos.NaCl\Internal\Ed25519Ref10\d.cs">
+      <Link>Security\Cryptography\Chaos.NaCl\Internal\Ed25519Ref10\d.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Chaos.NaCl\Internal\Ed25519Ref10\d2.cs">
+      <Link>Security\Cryptography\Chaos.NaCl\Internal\Ed25519Ref10\d2.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Chaos.NaCl\Internal\Ed25519Ref10\fe_0.cs">
+      <Link>Security\Cryptography\Chaos.NaCl\Internal\Ed25519Ref10\fe_0.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Chaos.NaCl\Internal\Ed25519Ref10\fe_1.cs">
+      <Link>Security\Cryptography\Chaos.NaCl\Internal\Ed25519Ref10\fe_1.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Chaos.NaCl\Internal\Ed25519Ref10\fe_add.cs">
+      <Link>Security\Cryptography\Chaos.NaCl\Internal\Ed25519Ref10\fe_add.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Chaos.NaCl\Internal\Ed25519Ref10\fe_cmov.cs">
+      <Link>Security\Cryptography\Chaos.NaCl\Internal\Ed25519Ref10\fe_cmov.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Chaos.NaCl\Internal\Ed25519Ref10\fe_cswap.cs">
+      <Link>Security\Cryptography\Chaos.NaCl\Internal\Ed25519Ref10\fe_cswap.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Chaos.NaCl\Internal\Ed25519Ref10\fe_frombytes.cs">
+      <Link>Security\Cryptography\Chaos.NaCl\Internal\Ed25519Ref10\fe_frombytes.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Chaos.NaCl\Internal\Ed25519Ref10\fe_invert.cs">
+      <Link>Security\Cryptography\Chaos.NaCl\Internal\Ed25519Ref10\fe_invert.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Chaos.NaCl\Internal\Ed25519Ref10\fe_isnegative.cs">
+      <Link>Security\Cryptography\Chaos.NaCl\Internal\Ed25519Ref10\fe_isnegative.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Chaos.NaCl\Internal\Ed25519Ref10\fe_isnonzero.cs">
+      <Link>Security\Cryptography\Chaos.NaCl\Internal\Ed25519Ref10\fe_isnonzero.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Chaos.NaCl\Internal\Ed25519Ref10\fe_mul.cs">
+      <Link>Security\Cryptography\Chaos.NaCl\Internal\Ed25519Ref10\fe_mul.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Chaos.NaCl\Internal\Ed25519Ref10\fe_mul121666.cs">
+      <Link>Security\Cryptography\Chaos.NaCl\Internal\Ed25519Ref10\fe_mul121666.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Chaos.NaCl\Internal\Ed25519Ref10\fe_neg.cs">
+      <Link>Security\Cryptography\Chaos.NaCl\Internal\Ed25519Ref10\fe_neg.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Chaos.NaCl\Internal\Ed25519Ref10\fe_pow22523.cs">
+      <Link>Security\Cryptography\Chaos.NaCl\Internal\Ed25519Ref10\fe_pow22523.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Chaos.NaCl\Internal\Ed25519Ref10\fe_sq.cs">
+      <Link>Security\Cryptography\Chaos.NaCl\Internal\Ed25519Ref10\fe_sq.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Chaos.NaCl\Internal\Ed25519Ref10\fe_sq2.cs">
+      <Link>Security\Cryptography\Chaos.NaCl\Internal\Ed25519Ref10\fe_sq2.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Chaos.NaCl\Internal\Ed25519Ref10\fe_sub.cs">
+      <Link>Security\Cryptography\Chaos.NaCl\Internal\Ed25519Ref10\fe_sub.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Chaos.NaCl\Internal\Ed25519Ref10\fe_tobytes.cs">
+      <Link>Security\Cryptography\Chaos.NaCl\Internal\Ed25519Ref10\fe_tobytes.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Chaos.NaCl\Internal\Ed25519Ref10\FieldElement.cs">
+      <Link>Security\Cryptography\Chaos.NaCl\Internal\Ed25519Ref10\FieldElement.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Chaos.NaCl\Internal\Ed25519Ref10\ge_add.cs">
+      <Link>Security\Cryptography\Chaos.NaCl\Internal\Ed25519Ref10\ge_add.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Chaos.NaCl\Internal\Ed25519Ref10\ge_double_scalarmult.cs">
+      <Link>Security\Cryptography\Chaos.NaCl\Internal\Ed25519Ref10\ge_double_scalarmult.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Chaos.NaCl\Internal\Ed25519Ref10\ge_frombytes.cs">
+      <Link>Security\Cryptography\Chaos.NaCl\Internal\Ed25519Ref10\ge_frombytes.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Chaos.NaCl\Internal\Ed25519Ref10\ge_madd.cs">
+      <Link>Security\Cryptography\Chaos.NaCl\Internal\Ed25519Ref10\ge_madd.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Chaos.NaCl\Internal\Ed25519Ref10\ge_msub.cs">
+      <Link>Security\Cryptography\Chaos.NaCl\Internal\Ed25519Ref10\ge_msub.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Chaos.NaCl\Internal\Ed25519Ref10\ge_p1p1_to_p2.cs">
+      <Link>Security\Cryptography\Chaos.NaCl\Internal\Ed25519Ref10\ge_p1p1_to_p2.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Chaos.NaCl\Internal\Ed25519Ref10\ge_p1p1_to_p3.cs">
+      <Link>Security\Cryptography\Chaos.NaCl\Internal\Ed25519Ref10\ge_p1p1_to_p3.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Chaos.NaCl\Internal\Ed25519Ref10\ge_p2_0.cs">
+      <Link>Security\Cryptography\Chaos.NaCl\Internal\Ed25519Ref10\ge_p2_0.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Chaos.NaCl\Internal\Ed25519Ref10\ge_p2_dbl.cs">
+      <Link>Security\Cryptography\Chaos.NaCl\Internal\Ed25519Ref10\ge_p2_dbl.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Chaos.NaCl\Internal\Ed25519Ref10\ge_p3_0.cs">
+      <Link>Security\Cryptography\Chaos.NaCl\Internal\Ed25519Ref10\ge_p3_0.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Chaos.NaCl\Internal\Ed25519Ref10\ge_p3_dbl.cs">
+      <Link>Security\Cryptography\Chaos.NaCl\Internal\Ed25519Ref10\ge_p3_dbl.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Chaos.NaCl\Internal\Ed25519Ref10\ge_p3_tobytes.cs">
+      <Link>Security\Cryptography\Chaos.NaCl\Internal\Ed25519Ref10\ge_p3_tobytes.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Chaos.NaCl\Internal\Ed25519Ref10\ge_p3_to_cached.cs">
+      <Link>Security\Cryptography\Chaos.NaCl\Internal\Ed25519Ref10\ge_p3_to_cached.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Chaos.NaCl\Internal\Ed25519Ref10\ge_p3_to_p2.cs">
+      <Link>Security\Cryptography\Chaos.NaCl\Internal\Ed25519Ref10\ge_p3_to_p2.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Chaos.NaCl\Internal\Ed25519Ref10\ge_precomp_0.cs">
+      <Link>Security\Cryptography\Chaos.NaCl\Internal\Ed25519Ref10\ge_precomp_0.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Chaos.NaCl\Internal\Ed25519Ref10\ge_scalarmult_base.cs">
+      <Link>Security\Cryptography\Chaos.NaCl\Internal\Ed25519Ref10\ge_scalarmult_base.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Chaos.NaCl\Internal\Ed25519Ref10\ge_sub.cs">
+      <Link>Security\Cryptography\Chaos.NaCl\Internal\Ed25519Ref10\ge_sub.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Chaos.NaCl\Internal\Ed25519Ref10\ge_tobytes.cs">
+      <Link>Security\Cryptography\Chaos.NaCl\Internal\Ed25519Ref10\ge_tobytes.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Chaos.NaCl\Internal\Ed25519Ref10\GroupElement.cs">
+      <Link>Security\Cryptography\Chaos.NaCl\Internal\Ed25519Ref10\GroupElement.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Chaos.NaCl\Internal\Ed25519Ref10\keypair.cs">
+      <Link>Security\Cryptography\Chaos.NaCl\Internal\Ed25519Ref10\keypair.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Chaos.NaCl\Internal\Ed25519Ref10\open.cs">
+      <Link>Security\Cryptography\Chaos.NaCl\Internal\Ed25519Ref10\open.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Chaos.NaCl\Internal\Ed25519Ref10\scalarmult.cs">
+      <Link>Security\Cryptography\Chaos.NaCl\Internal\Ed25519Ref10\scalarmult.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Chaos.NaCl\Internal\Ed25519Ref10\sc_clamp.cs">
+      <Link>Security\Cryptography\Chaos.NaCl\Internal\Ed25519Ref10\sc_clamp.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Chaos.NaCl\Internal\Ed25519Ref10\sc_mul_add.cs">
+      <Link>Security\Cryptography\Chaos.NaCl\Internal\Ed25519Ref10\sc_mul_add.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Chaos.NaCl\Internal\Ed25519Ref10\sc_reduce.cs">
+      <Link>Security\Cryptography\Chaos.NaCl\Internal\Ed25519Ref10\sc_reduce.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Chaos.NaCl\Internal\Ed25519Ref10\sign.cs">
+      <Link>Security\Cryptography\Chaos.NaCl\Internal\Ed25519Ref10\sign.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Chaos.NaCl\Internal\Ed25519Ref10\sqrtm1.cs">
+      <Link>Security\Cryptography\Chaos.NaCl\Internal\Ed25519Ref10\sqrtm1.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Chaos.NaCl\Internal\InternalAssert.cs">
+      <Link>Security\Cryptography\Chaos.NaCl\Internal\InternalAssert.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Chaos.NaCl\Internal\Poly1305Donna.cs">
+      <Link>Security\Cryptography\Chaos.NaCl\Internal\Poly1305Donna.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Chaos.NaCl\Internal\Salsa\Salsa20.cs">
+      <Link>Security\Cryptography\Chaos.NaCl\Internal\Salsa\Salsa20.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Chaos.NaCl\Internal\Salsa\SalsaCore.cs">
+      <Link>Security\Cryptography\Chaos.NaCl\Internal\Salsa\SalsaCore.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Chaos.NaCl\Internal\Sha512Internal.cs">
+      <Link>Security\Cryptography\Chaos.NaCl\Internal\Sha512Internal.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Chaos.NaCl\MontgomeryCurve25519.cs">
+      <Link>Security\Cryptography\Chaos.NaCl\MontgomeryCurve25519.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Chaos.NaCl\Sha512.cs">
+      <Link>Security\Cryptography\Chaos.NaCl\Sha512.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\Security\Cryptography\AsymmetricCipher.cs">
       <Link>Security\Cryptography\AsymmetricCipher.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Cryptography\Bcrypt.cs">
+      <Link>Security\Cryptography\Bcrypt.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Security\Cryptography\BlockCipher.cs">
       <Link>Security\Cryptography\BlockCipher.cs</Link>
@@ -919,6 +1105,12 @@
     <Compile Include="..\Renci.SshNet\Security\Cryptography\DsaKey.cs">
       <Link>Security\Cryptography\DsaKey.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Cryptography\ED25519DigitalSignature.cs">
+      <Link>Security\Cryptography\ED25519DigitalSignature.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Cryptography\ED25519Key.cs">
+      <Link>Security\Cryptography\ED25519Key.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\Security\Cryptography\HMACMD5.cs">
       <Link>Security\Cryptography\HMACMD5.cs</Link>
     </Compile>
@@ -936,6 +1128,12 @@
     </Compile>
     <Compile Include="..\Renci.SshNet\Security\Cryptography\Key.cs">
       <Link>Security\Cryptography\Key.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Cryptography\EcdsaDigitalSignature.cs">
+      <Link>Security\Cryptography\EcdsaDigitalSignature.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\Cryptography\EcdsaKey.cs">
+      <Link>Security\Cryptography\EcdsaKey.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Security\Cryptography\RsaDigitalSignature.cs">
       <Link>Security\Cryptography\RsaDigitalSignature.cs</Link>
@@ -981,6 +1179,24 @@
     </Compile>
     <Compile Include="..\Renci.SshNet\Security\KeyExchangeDiffieHellmanGroupSha1.cs">
       <Link>Security\KeyExchangeDiffieHellmanGroupSha1.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\KeyExchangeEC.cs">
+      <Link>Security\KeyExchangeEC.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\KeyExchangeECCurve25519.cs">
+      <Link>Security\KeyExchangeECCurve25519.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\KeyExchangeECDH.cs">
+      <Link>Security\KeyExchangeECDH.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\KeyExchangeECDH256.cs">
+      <Link>Security\KeyExchangeECDH256.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\KeyExchangeECDH384.cs">
+      <Link>Security\KeyExchangeECDH384.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\KeyExchangeECDH521.cs">
+      <Link>Security\KeyExchangeECDH521.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Security\KeyHostAlgorithm.cs">
       <Link>Security\KeyHostAlgorithm.cs</Link>

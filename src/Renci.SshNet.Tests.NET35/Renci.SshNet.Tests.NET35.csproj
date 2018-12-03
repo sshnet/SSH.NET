@@ -1762,6 +1762,12 @@
     <EmbeddedResource Include="..\Renci.SshNet.Tests\Data\Key.ECDSA521.Encrypted.txt">
       <Link>Data\Key.ECDSA521.Encrypted.txt</Link>
     </EmbeddedResource>
+    <EmbeddedResource Include="..\Renci.SshNet.Tests\Data\Key.OPENSSH.ED25519.Encrypted.txt">
+      <Link>Data\Key.OPENSSH.ED25519.Encrypted.txt</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\Renci.SshNet.Tests\Data\Key.OPENSSH.ED25519.txt">
+      <Link>Data\Key.OPENSSH.ED25519.txt</Link>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

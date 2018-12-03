@@ -1,5 +1,3 @@
-#if !(NETCF_1_0 || PORTABLE)
-
 using System;
 using System.Security.Cryptography;
 
@@ -69,5 +67,3 @@ namespace Renci.SshNet.Security.Org.BouncyCastle.Crypto.Prng
         #endregion
     }
 }
-
-#endif

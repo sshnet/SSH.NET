@@ -9,6 +9,15 @@ namespace Renci.SshNet.Security
     /// </summary>
     public class RsaKey : Key, IDisposable
     {
+
+        /// <summary>
+        /// Gets the Key String.
+        /// </summary>
+        public override string ToString()
+        {
+            return "ssh-rsa";
+        }
+
         /// <summary>
         /// Gets the modulus.
         /// </summary>

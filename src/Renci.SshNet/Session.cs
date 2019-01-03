@@ -601,6 +601,9 @@ namespace Renci.SshNet
                             break;
                     }
 
+                    // Send our identification string before waiting for server's, as mandated by RFC 4253.
+                    SocketAbstraction.Send(_socket, Encoding.UTF8.GetBytes(string.Format(CultureInfo.InvariantCulture, "{0}\x0D\x0A", ClientVersion)));
+
                     Match versionMatch;
 
                     //  Get server version from the server,
@@ -633,8 +636,6 @@ namespace Renci.SshNet
                     {
                         throw new SshConnectionException(string.Format(CultureInfo.CurrentCulture, "Server version '{0}' is not supported.", version), DisconnectReason.ProtocolVersionNotSupported);
                     }
-
-                    SocketAbstraction.Send(_socket, Encoding.UTF8.GetBytes(string.Format(CultureInfo.InvariantCulture, "{0}\x0D\x0A", ClientVersion)));
 
                     //  Register Transport response messages
                     RegisterMessage("SSH_MSG_DISCONNECT");

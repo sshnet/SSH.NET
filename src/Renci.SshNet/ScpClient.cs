@@ -222,7 +222,7 @@ namespace Renci.SshNet
 
                 // specify a zero-length file name to avoid creating a file with absolute
                 // path '<path>/<filename part of path>' if directory '<path>' already exists
-                UploadFileModeAndName(channel, input, source.Length, string.Empty);
+                UploadFileModeAndName(channel, input, source.Length, PosixPath.GetFileName(path));
                 UploadFileContent(channel, input, source, PosixPath.GetFileName(path));
             }
         }

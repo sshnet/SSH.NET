@@ -45,7 +45,7 @@ namespace Renci.SshNet
                 using (var source = fileInfo.OpenRead())
                 {
                     UploadTimes(channel, input, fileInfo);
-                    UploadFileModeAndName(channel, input, source.Length, string.Empty);
+                    UploadFileModeAndName(channel, input, source.Length, fileInfo.Name);
                     UploadFileContent(channel, input, source, fileInfo.Name);
                 }
             }

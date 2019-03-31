@@ -65,6 +65,11 @@ namespace Renci.SshNet
         public HostAlgorithm HostKey { get; private set; }
 
         /// <summary>
+        /// ssh-rsa-cert-v01 certificate
+        /// </summary>
+        public string Certificate { get; set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="PrivateKeyFile"/> class.
         /// </summary>
         /// <param name="privateKey">The private key.</param>

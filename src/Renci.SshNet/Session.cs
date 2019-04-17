@@ -722,7 +722,8 @@ namespace Renci.SshNet
             // has completed
             if (_messageListenerCompleted != null)
             {
-                _messageListenerCompleted.WaitOne();
+                if (!_messageListenerCompleted.WaitOne(TimeSpan.FromMinutes(1)))
+                    DiagnosticAbstraction.Log(string.Format("[{0}] Timeout while waiting for message listener to complete.", ToHex(SessionId)));
             }
         }
 
@@ -1885,7 +1886,7 @@ namespace Renci.SshNet
                                 // this may result in a SocketException (eg. An existing connection was forcibly
                                 // closed by the remote host) which we'll log and ignore as it means the socket
                                 // was already shut down
-                                _socket.Shutdown(SocketShutdown.Send);
+                                _socket.Shutdown(SocketShutdown.Both);
                             }
                             catch (SocketException ex)
                             {

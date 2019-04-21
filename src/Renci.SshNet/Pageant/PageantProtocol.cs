@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if FEATURE_PAGEANT
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.MemoryMappedFiles;
@@ -12,7 +13,7 @@ namespace Renci.SshNet.Pageant
     /// <summary>
     /// 
     /// </summary>
-   public class PageantProtocol:IAgentProtocol
+   public class PageantProtocol: IAgentProtocol
     {
 
         #region  Constants
@@ -91,9 +92,11 @@ namespace Renci.SshNet.Pageant
             {
                 using (var accessor = mmFile.CreateViewAccessor())
                 {
+#if NET35 || NET40
                     var security = mmFile.GetAccessControl();
                     security.SetOwner(System.Security.Principal.WindowsIdentity.GetCurrent().User);
                     mmFile.SetAccessControl(security);
+#endif
 
                     accessor.Write(0, IPAddress.NetworkToHostOrder(AGENT_MAX_MSGLEN - 4));
                     accessor.Write(4, SSH2_AGENTC_REQUEST_IDENTITIES);
@@ -161,9 +164,9 @@ namespace Renci.SshNet.Pageant
             {
                 using (var accessor = mmFile.CreateViewAccessor())
                 {
-                    var security = mmFile.GetAccessControl();
-                    security.SetOwner(System.Security.Principal.WindowsIdentity.GetCurrent().User);
-                    mmFile.SetAccessControl(security);
+                    //var security = mmFile.GetAccessControl();
+                    //security.SetOwner(System.Security.Principal.WindowsIdentity.GetCurrent().User);
+                    //mmFile.SetAccessControl(security);
 
                     accessor.Write(0, IPAddress.NetworkToHostOrder(AGENT_MAX_MSGLEN - 4));
                     accessor.Write(4, SSH2_AGENTC_SIGN_REQUEST);
@@ -194,6 +197,7 @@ namespace Renci.SshNet.Pageant
             }
         }
 
-        #endregion
+#endregion
     }
 }
+#endif

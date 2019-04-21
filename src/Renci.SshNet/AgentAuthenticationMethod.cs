@@ -57,7 +57,7 @@ namespace Renci.SshNet
 
             session.UserAuthenticationSuccessReceived += Session_UserAuthenticationSuccessReceived;
             session.UserAuthenticationFailureReceived += Session_UserAuthenticationFailureReceived;
-            session.MessageReceived += Session_MessageReceived;
+            session.UserAuthenticationPublicKeyReceived += Session_UserAuthenticationPublicKeyReceived;
 
             session.RegisterMessage("SSH_MSG_USERAUTH_PK_OK");
 
@@ -98,11 +98,20 @@ namespace Renci.SshNet
             
             session.UserAuthenticationSuccessReceived -= Session_UserAuthenticationSuccessReceived;
             session.UserAuthenticationFailureReceived -= Session_UserAuthenticationFailureReceived;
-            session.MessageReceived -= Session_MessageReceived;
+            session.UserAuthenticationPublicKeyReceived -= Session_UserAuthenticationPublicKeyReceived;;
 
             session.UnRegisterMessage("SSH_MSG_USERAUTH_PK_OK");
 
             return this._authenticationResult;
+        }
+
+        private void Session_UserAuthenticationPublicKeyReceived(object sender, MessageEventArgs<PublicKeyMessage> e)
+        {        
+            if (e.Message != null)
+            {
+                this._isSignatureRequired = true;
+                this._authenticationCompleted.Set();
+            }
         }
 
         private void Session_UserAuthenticationSuccessReceived(object sender, MessageEventArgs<SuccessMessage> e)
@@ -120,19 +129,9 @@ namespace Renci.SshNet
                 this._authenticationResult = AuthenticationResult.Failure;
 
             //  Copy allowed authentication methods
-            this.AllowedAuthentications = e.Message.AllowedAuthentications.ToList();
+            this.AllowedAuthentications = e.Message.AllowedAuthentications.ToArray();
 
             this._authenticationCompleted.Set();
-        }
-
-        private void Session_MessageReceived(object sender, MessageEventArgs<Message> e)
-        {
-            var publicKeyMessage = e.Message as PublicKeyMessage;
-            if (publicKeyMessage != null)
-            {
-                this._isSignatureRequired = true;
-                this._authenticationCompleted.Set();
-            }
         }
 
         #region IDisposable Members

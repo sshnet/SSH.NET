@@ -123,7 +123,7 @@ namespace Renci.SshNet.Tests.Classes
             var host = _random.Next().ToString();
             var port = _random.Next(1, 100);
             var userName = _random.Next().ToString();
-            var privateKeys = new[] {GetRsaKey(), GetDsaKey()};
+            var privateKeys = new[] { GetRsaKey(), GetDsaKey() };
 
             var client = new ScpClient(host, port, userName, privateKeys);
             Assert.AreEqual(16 * 1024U, client.BufferSize);
@@ -365,6 +365,46 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         [TestCategory("Scp")]
         [TestCategory("integration")]
+        public void Test_Scp_10MB_Stream_Upload_Stream_Download()
+        {
+            RemoveAllFiles();
+
+            using (var scp = new ScpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            {
+                scp.Connect();
+
+                string uploadedFileName = Path.GetTempFileName();
+                string downloadedFileName = Path.GetTempFileName();
+
+                this.CreateTestFile(uploadedFileName, 10);
+
+                //  Calculate has value
+                using (var stream = File.OpenRead(uploadedFileName))
+                {
+                    scp.Upload(stream, Path.GetFileName(uploadedFileName));
+                }
+
+                using (var outputStream = File.OpenWrite(downloadedFileName))
+                using (var downloadStream = scp.Download(Path.GetFileName(uploadedFileName)))
+                {
+                    downloadStream.CopyTo(outputStream);
+                }
+
+                //  Calculate MD5 value
+                var uploadedHash = CalculateMD5(uploadedFileName);
+                var downloadedHash = CalculateMD5(downloadedFileName);
+
+                File.Delete(uploadedFileName);
+                File.Delete(downloadedFileName);
+
+                scp.Disconnect();
+
+                Assert.AreEqual(uploadedHash, downloadedHash);
+            }
+        }
+        [TestMethod]
+        [TestCategory("Scp")]
+        [TestCategory("integration")]
         public void Test_Scp_Directory_Upload_Download()
         {
             RemoveAllFiles();
@@ -397,12 +437,12 @@ namespace Renci.SshNet.Tests.Classes
                 var downloadFiles = downloadDirectory.GetFiles("*.*", System.IO.SearchOption.AllDirectories);
 
                 var result = from f1 in uploadedFiles
-                    from f2 in downloadFiles
-                    where
-                    f1.FullName.Substring(uploadDirectory.FullName.Length) ==
-                    f2.FullName.Substring(downloadDirectory.FullName.Length)
-                    && CalculateMD5(f1.FullName) == CalculateMD5(f2.FullName)
-                    select f1;
+                             from f2 in downloadFiles
+                             where
+                             f1.FullName.Substring(uploadDirectory.FullName.Length) ==
+                             f2.FullName.Substring(downloadDirectory.FullName.Length)
+                             && CalculateMD5(f1.FullName) == CalculateMD5(f2.FullName)
+                             select f1;
 
                 var counter = result.Count();
 

@@ -117,6 +117,7 @@
     <Compile Include="Common\ScpDownloadEventArgs.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Common\ScpDownloadStream.cs" />
     <Compile Include="Common\ScpException.cs">
       <SubType>Code</SubType>
     </Compile>

@@ -284,7 +284,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentException"><paramref name="filename"/> is <c>null</c> or contains only whitespace characters.</exception>
         /// <exception cref="ScpException"><paramref name="filename"/> exists on the remote host, and is not a regular file.</exception>
         /// <exception cref="SshException">The secure copy execution request was rejected by the server.</exception>
-        /// <returns cref="Stream">Returns a forward read-only stream. Does not support Seeking or Write.</returns>
+        /// <returns cref="Stream">Returns a forward read-only stream. Does not support Seeking or Write</returns>
         public Stream Download(string filename)
         {
             if (filename.IsNullOrWhiteSpace())

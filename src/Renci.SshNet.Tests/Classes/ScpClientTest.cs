@@ -387,7 +387,10 @@ namespace Renci.SshNet.Tests.Classes
                 using (var outputStream = File.OpenWrite(downloadedFileName))
                 using (var downloadStream = scp.Download(Path.GetFileName(uploadedFileName)))
                 {
-                    downloadStream.CopyTo(outputStream);
+                    byte[] buffer = new byte[81920];
+                    int count;
+                    while ((count = downloadStream.Read(buffer, 0, buffer.Length)) != 0)
+                        outputStream.Write(buffer, 0, count);
                 }
 
                 //  Calculate MD5 value
@@ -437,12 +440,12 @@ namespace Renci.SshNet.Tests.Classes
                 var downloadFiles = downloadDirectory.GetFiles("*.*", System.IO.SearchOption.AllDirectories);
 
                 var result = from f1 in uploadedFiles
-                             from f2 in downloadFiles
-                             where
-                             f1.FullName.Substring(uploadDirectory.FullName.Length) ==
-                             f2.FullName.Substring(downloadDirectory.FullName.Length)
-                             && CalculateMD5(f1.FullName) == CalculateMD5(f2.FullName)
-                             select f1;
+                    from f2 in downloadFiles
+                    where
+                        f1.FullName.Substring(uploadDirectory.FullName.Length) ==
+                        f2.FullName.Substring(downloadDirectory.FullName.Length)
+                        && CalculateMD5(f1.FullName) == CalculateMD5(f2.FullName)
+                    select f1;
 
                 var counter = result.Count();
 

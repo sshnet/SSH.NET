@@ -30,7 +30,7 @@ namespace Renci.SshNet
     public partial class ScpClient : BaseClient
     {
         private static readonly Regex FileInfoRe = new Regex(@"C(?<mode>\d{4}) (?<length>\d+) (?<filename>.+)");
-        private static readonly byte[] SuccessConfirmationCode = { 0 };
+        private static readonly byte[] SuccessConfirmationCode = {0};
         private static readonly byte[] ErrorConfirmationCode = { 1 };
 
         private IRemotePathTransformation _remotePathTransformation;
@@ -383,7 +383,7 @@ namespace Renci.SshNet
 
             do
             {
-                var read = input.Read(buffer, 0, (int)Math.Min(needToRead, BufferSize));
+                var read = input.Read(buffer, 0, (int) Math.Min(needToRead, BufferSize));
 
                 output.Write(buffer, 0, read);
 
@@ -492,7 +492,7 @@ namespace Renci.SshNet
 
             while (b != SshNet.Session.LineFeed)
             {
-                buffer.Add((byte)b);
+                buffer.Add((byte) b);
                 b = ReadByte(stream);
             }
 

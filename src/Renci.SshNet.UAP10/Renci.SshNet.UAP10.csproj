@@ -267,6 +267,9 @@
     <Compile Include="..\Renci.SshNet\Common\ScpDownloadEventArgs.cs">
       <Link>Common\ScpDownloadEventArgs.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\Common\ScpDownloadStream.cs">
+      <Link>Common\ScpDownloadStream.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\Common\ScpException.cs">
       <Link>Common\ScpException.cs</Link>
     </Compile>

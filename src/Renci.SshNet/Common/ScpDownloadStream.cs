@@ -15,6 +15,7 @@ namespace Renci.SshNet.Common
         private readonly string _fileName;
         private readonly long _length;
         private long _needToRead;
+        private bool _scpConfirmed;
 
         internal ScpDownloadStream(ScpClient client, IChannelSession channelSession, Stream scpStream, string fileName, long length)
         {
@@ -24,6 +25,7 @@ namespace Renci.SshNet.Common
             _fileName = fileName;
             _length = length;
             _needToRead = length;
+            _scpConfirmed = false;
         }
 
         /// <inheritdoc />
@@ -50,7 +52,7 @@ namespace Renci.SshNet.Common
         /// <inheritdoc />
         public override long Position
         {
-            get { return _scpStream.Position; }
+            get { return _length - _needToRead; }
             set { }
         }
 
@@ -85,12 +87,14 @@ namespace Renci.SshNet.Common
 
             _client.RaiseDownloadingEvent(_fileName, _length, _length - _needToRead);
 
-            if (_needToRead == 0)
+            if (!_scpConfirmed && _needToRead == 0)
             {
                 //  Send confirmation byte after last data byte was read
                 ScpClient.SendSuccessConfirmation(_channelSession);
 
                 _client.CheckReturnCode(_scpStream);
+
+                _scpConfirmed = true;
             }
 
             return read;

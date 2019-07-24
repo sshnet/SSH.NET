@@ -41,12 +41,13 @@ namespace Renci.SshNet.Security
         /// <param name="name">Host key name.</param>
         /// <param name="key">Host key.</param>
         /// <param name="data">Host key encoded data.</param>
-        public KeyHostAlgorithm(string name, Key key, byte[] data)
+        /// <param name="maxKeyFields"></param>
+        public KeyHostAlgorithm(string name, Key key, byte[] data, int maxKeyFields)
             : base(name)
         {
             Key = key;
 
-            var sshKey = new SshKeyData();
+            var sshKey = new SshKeyData(maxKeyFields);
             sshKey.Load(data);
             Key.Public = sshKey.Keys;
         }
@@ -81,6 +82,7 @@ namespace Renci.SshNet.Security
 
         private class SshKeyData : SshData
         {
+            private readonly int _maxKeyFields;
             private byte[] _name;
             private IList<byte[]> _keys;
 
@@ -128,8 +130,9 @@ namespace Renci.SshNet.Security
                 }
             }
 
-            public SshKeyData()
+            public SshKeyData(int maxKeyFields)
             {
+                _maxKeyFields = maxKeyFields;
             }
 
             public SshKeyData(string name, params BigInteger[] keys)
@@ -143,7 +146,8 @@ namespace Renci.SshNet.Security
                 _name = ReadBinary();
                 _keys = new List<byte[]>();
 
-                while (!IsEndOfData)
+                var currentKeyFields = 0;
+                while (!IsEndOfData && currentKeyFields++ < _maxKeyFields)
                 {
                     _keys.Add(ReadBinary());
                 }

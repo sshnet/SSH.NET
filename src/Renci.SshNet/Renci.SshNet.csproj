@@ -176,6 +176,7 @@
     <Compile Include="Security\GroupExchangeHashData.cs" />
     <Compile Include="Security\IKeyExchange.cs" />
     <Compile Include="Security\KeyExchangeDiffieHellmanGroupExchangeShaBase.cs" />
+    <Compile Include="Security\Cryptography\RsaCertV01Key.cs" />
     <Compile Include="ServiceFactory.cs" />
     <Compile Include="ServiceFactory.NET.cs" />
     <Compile Include="Sftp\ISftpFileReader.cs" />

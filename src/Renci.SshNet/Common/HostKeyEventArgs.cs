@@ -25,7 +25,7 @@ namespace Renci.SshNet.Common
         /// <summary>
         /// Gets the host key name.
         /// </summary>
-        public string HostKeyName{ get; private set; }
+        public string HostKeyName { get; private set; }
 
         /// <summary>
         /// Gets the finger print.

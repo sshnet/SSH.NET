@@ -7,6 +7,7 @@ using Renci.SshNet.Security;
 using Renci.SshNet.Messages.Connection;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Authentication;
+using Renci.SshNet.Security.Cryptography;
 using Renci.SshNet.Security.Cryptography.Ciphers.Modes;
 using Renci.SshNet.Security.Cryptography.Ciphers;
 
@@ -377,8 +378,9 @@ namespace Renci.SshNet
 
             HostKeyAlgorithms = new Dictionary<string, Func<byte[], KeyHostAlgorithm>>
                 {
-                    {"ssh-rsa", data => new KeyHostAlgorithm("ssh-rsa", new RsaKey(), data)},
-                    {"ssh-dss", data => new KeyHostAlgorithm("ssh-dss", new DsaKey(), data)},
+                    {"ssh-rsa", data => new KeyHostAlgorithm("ssh-rsa", new RsaKey(), data, 2)},
+                    {"ssh-dss", data => new KeyHostAlgorithm("ssh-dss", new DsaKey(), data, int.MaxValue)},
+                    {"ssh-rsa-cert-v01@openssh.com", data => new KeyHostAlgorithm("ssh-rsa-cert-v01@openssh.com", new RsaCertV01Key(), data, 3)}
                     //{"ecdsa-sha2-nistp256 "}
                     //{"x509v3-sign-rsa", () => { ... },
                     //{"x509v3-sign-dss", () => { ... },

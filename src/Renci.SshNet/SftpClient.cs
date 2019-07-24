@@ -718,7 +718,7 @@ namespace Renci.SshNet
             {
                 try
                 {
-                    InternalDownloadFile(path, output, asyncResult, offset =>
+                    var totalBytes = InternalDownloadFile(path, output, asyncResult, offset =>
                     {
                         asyncResult.Update(offset);
 
@@ -727,6 +727,7 @@ namespace Renci.SshNet
                             downloadCallback(offset);
                         }
                     });
+                    asyncResult.Update(totalBytes);
 
                     asyncResult.SetAsCompleted(null, false);
                 }
@@ -942,7 +943,7 @@ namespace Renci.SshNet
             {
                 try
                 {
-                    InternalUploadFile(input, path, flags, asyncResult, offset =>
+                    var totalBytes = InternalUploadFile(input, path, flags, asyncResult, offset =>
                     {
                         asyncResult.Update(offset);
 
@@ -952,6 +953,7 @@ namespace Renci.SshNet
                         }
 
                     });
+                    asyncResult.Update(totalBytes);
 
                     asyncResult.SetAsCompleted(null, false);
                 }
@@ -2037,7 +2039,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="output" /> is <b>null</b>.</exception>
         /// <exception cref="ArgumentException"><paramref name="path" /> is <b>null</b> or contains whitespace.</exception>
         /// <exception cref="SshConnectionException">Client not connected.</exception>
-        private void InternalDownloadFile(string path, Stream output, SftpDownloadAsyncResult asyncResult, Action<ulong> downloadCallback)
+        private ulong InternalDownloadFile(string path, Stream output, SftpDownloadAsyncResult asyncResult, Action<ulong> downloadCallback)
         {
             if (output == null)
                 throw new ArgumentNullException("output");
@@ -2077,6 +2079,8 @@ namespace Renci.SshNet
                         ThreadAbstraction.ExecuteThread(() => { downloadCallback(downloadOffset); });
                     }
                 }
+
+                return totalBytesRead;
             }
         }
 
@@ -2091,7 +2095,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="input" /> is <b>null</b>.</exception>
         /// <exception cref="ArgumentException"><paramref name="path" /> is <b>null</b> or contains whitespace.</exception>
         /// <exception cref="SshConnectionException">Client not connected.</exception>
-        private void InternalUploadFile(Stream input, string path, Flags flags, SftpUploadAsyncResult asyncResult, Action<ulong> uploadCallback)
+        private ulong InternalUploadFile(Stream input, string path, Flags flags, SftpUploadAsyncResult asyncResult, Action<ulong> uploadCallback)
         {
             if (input == null)
                 throw new ArgumentNullException("input");
@@ -2154,6 +2158,8 @@ namespace Renci.SshNet
             } while (expectedResponses > 0 || bytesRead > 0);
 
             _sftpSession.RequestClose(handle);
+
+            return offset;
         }
 
         /// <summary>

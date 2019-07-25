@@ -317,11 +317,14 @@ namespace Renci.SshNet
                     _clientInitMessage = new KeyExchangeInitMessage
                         {
                             KeyExchangeAlgorithms = ConnectionInfo.KeyExchangeAlgorithms.Keys.ToArray(),
-                            ServerHostKeyAlgorithms = ConnectionInfo.HostKeyAlgorithms.Keys.ToArray(),
-                            EncryptionAlgorithmsClientToServer = ConnectionInfo.Encryptions.Keys.ToArray(),
-                            EncryptionAlgorithmsServerToClient = ConnectionInfo.Encryptions.Keys.ToArray(),
-                            MacAlgorithmsClientToServer = ConnectionInfo.HmacAlgorithms.Keys.ToArray(),
-                            MacAlgorithmsServerToClient = ConnectionInfo.HmacAlgorithms.Keys.ToArray(),
+                            ServerHostKeyAlgorithms = ConnectionInfo.HostKeyAlgorithms
+                                .OrderByDescending(x => x.Value.Invoke(null).Priority)
+                                .Select(x => x.Key)
+                                .ToArray(),
+                            EncryptionAlgorithmsClientToServer = ConnectionInfo.Encryptions.OrderByDescending(x => x.Value.Priority).Select(x => x.Key).ToArray(),
+                            EncryptionAlgorithmsServerToClient = ConnectionInfo.Encryptions.OrderByDescending(x => x.Value.Priority).Select(x => x.Key).ToArray(),
+                            MacAlgorithmsClientToServer = ConnectionInfo.HmacAlgorithms.OrderByDescending(x => x.Value.Priority).Select(x => x.Key).ToArray(),
+                            MacAlgorithmsServerToClient = ConnectionInfo.HmacAlgorithms.OrderByDescending(x => x.Value.Priority).Select(x => x.Key).ToArray(),
                             CompressionAlgorithmsClientToServer = ConnectionInfo.CompressionAlgorithms.Keys.ToArray(),
                             CompressionAlgorithmsServerToClient = ConnectionInfo.CompressionAlgorithms.Keys.ToArray(),
                             LanguagesClientToServer = new[] {string.Empty},

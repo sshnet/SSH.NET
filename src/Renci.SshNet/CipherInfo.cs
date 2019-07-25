@@ -23,13 +23,20 @@ namespace Renci.SshNet
         public Func<byte[], byte[], Cipher> Cipher { get; private set; }
 
         /// <summary>
+        /// 
+        /// </summary>
+        public int Priority { get; private set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="CipherInfo"/> class.
         /// </summary>
         /// <param name="keySize">Size of the key.</param>
+        /// <param name="priority"></param>
         /// <param name="cipher">The cipher.</param>
-        public CipherInfo(int keySize, Func<byte[], byte[], Cipher> cipher)
+        public CipherInfo(int keySize, int priority, Func<byte[], byte[], Cipher> cipher)
         {
             KeySize = keySize;
+            Priority = priority;
             Cipher = (key, iv) => (cipher(key.Take(KeySize / 8), iv));
         }
     }

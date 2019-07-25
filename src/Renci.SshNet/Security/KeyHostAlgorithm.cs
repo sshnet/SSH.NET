@@ -25,6 +25,11 @@ namespace Renci.SshNet.Security
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        public int Priority { get; private set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="KeyHostAlgorithm"/> class.
         /// </summary>
         /// <param name="name">Host key name.</param>
@@ -39,13 +44,18 @@ namespace Renci.SshNet.Security
         /// Initializes a new instance of the <see cref="HostAlgorithm"/> class.
         /// </summary>
         /// <param name="name">Host key name.</param>
+        /// <param name="priority"></param>
         /// <param name="key">Host key.</param>
         /// <param name="data">Host key encoded data.</param>
         /// <param name="maxKeyFields"></param>
-        public KeyHostAlgorithm(string name, Key key, byte[] data, int maxKeyFields)
+        public KeyHostAlgorithm(string name, int priority, Key key, byte[] data, int maxKeyFields)
             : base(name)
         {
+            Priority = priority;
             Key = key;
+
+            if (data == null)
+                return;
 
             var sshKey = new SshKeyData(maxKeyFields);
             sshKey.Load(data);

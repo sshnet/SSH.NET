@@ -23,12 +23,19 @@ namespace Renci.SshNet
         public Func<byte[], HashAlgorithm> HashAlgorithm { get; private set; }
 
         /// <summary>
+        /// 
+        /// </summary>
+        public int Priority { get; private set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="CipherInfo"/> class.
         /// </summary>
         /// <param name="keySize">Size of the key.</param>
+        /// <param name="priority"></param>
         /// <param name="hash">The hash algorithm to use for a given key.</param>
-        public HashInfo(int keySize, Func<byte[], HashAlgorithm> hash)
+        public HashInfo(int keySize, int priority, Func<byte[], HashAlgorithm> hash)
         {
+            Priority = priority;
             KeySize = keySize;
             HashAlgorithm = key => (hash(key.Take(KeySize / 8)));
         }

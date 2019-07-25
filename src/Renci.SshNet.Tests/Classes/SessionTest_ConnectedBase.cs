@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Security.Cryptography;
@@ -153,9 +152,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             _serviceFactoryMock.Setup(
                 p =>
-                    p.CreateKeyExchange(ConnectionInfo.KeyExchangeAlgorithms
-                            .ToDictionary(x => x.Key.Value, x => x.Value),
-                        new[] { _keyExchangeAlgorithm })).Returns(_keyExchangeMock.Object);
+                    p.CreateKeyExchange(ConnectionInfo.KeyExchangeAlgorithms, new[] { _keyExchangeAlgorithm })).Returns(_keyExchangeMock.Object);
             _keyExchangeMock.Setup(p => p.Name).Returns(_keyExchangeAlgorithm);
             _keyExchangeMock.Setup(p => p.Start(Session, It.IsAny<KeyExchangeInitMessage>()));
             _keyExchangeMock.Setup(p => p.ExchangeHash).Returns(SessionId);

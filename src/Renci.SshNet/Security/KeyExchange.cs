@@ -76,7 +76,7 @@ namespace Renci.SshNet.Security
             //  Determine encryption algorithm
             var clientEncryptionAlgorithmName = (from b in session.ConnectionInfo.Encryptions.Keys
                                                  from a in message.EncryptionAlgorithmsClientToServer
-                                                 where a == b
+                                                 where a == b.Value
                                                  select a).FirstOrDefault();
 
             if (string.IsNullOrEmpty(clientEncryptionAlgorithmName))
@@ -89,7 +89,7 @@ namespace Renci.SshNet.Security
             //  Determine encryption algorithm
             var serverDecryptionAlgorithmName = (from b in session.ConnectionInfo.Encryptions.Keys
                                                  from a in message.EncryptionAlgorithmsServerToClient
-                                                 where a == b
+                                                 where a == b.Value
                                                  select a).FirstOrDefault();
             if (string.IsNullOrEmpty(serverDecryptionAlgorithmName))
             {
@@ -101,7 +101,7 @@ namespace Renci.SshNet.Security
             //  Determine client hmac algorithm
             var clientHmacAlgorithmName = (from b in session.ConnectionInfo.HmacAlgorithms.Keys
                                            from a in message.MacAlgorithmsClientToServer
-                                           where a == b
+                                           where a == b.Value
                                            select a).FirstOrDefault();
             if (string.IsNullOrEmpty(clientHmacAlgorithmName))
             {
@@ -113,7 +113,7 @@ namespace Renci.SshNet.Security
             //  Determine server hmac algorithm
             var serverHmacAlgorithmName = (from b in session.ConnectionInfo.HmacAlgorithms.Keys
                                            from a in message.MacAlgorithmsServerToClient
-                                           where a == b
+                                           where a == b.Value
                                            select a).FirstOrDefault();
             if (string.IsNullOrEmpty(serverHmacAlgorithmName))
             {
@@ -146,10 +146,10 @@ namespace Renci.SshNet.Security
 
             session.ConnectionInfo.CurrentServerCompressionAlgorithm = decompressionAlgorithmName;
 
-            _clientCipherInfo = session.ConnectionInfo.Encryptions[clientEncryptionAlgorithmName];
-            _serverCipherInfo = session.ConnectionInfo.Encryptions[serverDecryptionAlgorithmName];
-            _clientHashInfo = session.ConnectionInfo.HmacAlgorithms[clientHmacAlgorithmName];
-            _serverHashInfo = session.ConnectionInfo.HmacAlgorithms[serverHmacAlgorithmName];
+            _clientCipherInfo = session.ConnectionInfo.Encryptions.First(x => x.Key.Value == clientEncryptionAlgorithmName).Value;
+            _serverCipherInfo = session.ConnectionInfo.Encryptions.First(x => x.Key.Value == serverDecryptionAlgorithmName).Value;
+            _clientHashInfo = session.ConnectionInfo.HmacAlgorithms.First(x => x.Key.Value == clientHmacAlgorithmName).Value;
+            _serverHashInfo = session.ConnectionInfo.HmacAlgorithms.First(x => x.Key.Value == serverHmacAlgorithmName).Value;
             _compressionType = session.ConnectionInfo.CompressionAlgorithms[compressionAlgorithmName];
             _decompressionType = session.ConnectionInfo.CompressionAlgorithms[decompressionAlgorithmName];
         }

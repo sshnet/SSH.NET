@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Text;
 using Renci.SshNet.Messages.Transport;
 using Renci.SshNet.Common;
@@ -75,7 +76,8 @@ namespace Renci.SshNet.Security
 
             var length = Pack.BigEndianToUInt32(_hostKey);
             var algorithmName = Encoding.UTF8.GetString(_hostKey, 4, (int)length);
-            var key = Session.ConnectionInfo.HostKeyAlgorithms[algorithmName](_hostKey);
+            var key = Session.ConnectionInfo.HostKeyAlgorithms
+                .First(x => x.Key.Value == algorithmName).Value.Invoke(_hostKey);
 
             Session.ConnectionInfo.CurrentHostKeyAlgorithm = algorithmName;
 

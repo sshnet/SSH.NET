@@ -667,15 +667,6 @@ namespace Renci.SshNet
                         return;
                     }
 
-                    Console.WriteLine(ConnectionInfo.CurrentClientHmacAlgorithm);
-                    Console.WriteLine(ConnectionInfo.CurrentClientCompressionAlgorithm);
-                    Console.WriteLine(ConnectionInfo.CurrentClientEncryption);
-                    Console.WriteLine(ConnectionInfo.CurrentHostKeyAlgorithm);
-                    Console.WriteLine(ConnectionInfo.CurrentKeyExchangeAlgorithm);
-                    Console.WriteLine(ConnectionInfo.CurrentServerCompressionAlgorithm);
-                    Console.WriteLine(ConnectionInfo.CurrentServerEncryption);
-                    Console.WriteLine(ConnectionInfo.CurrentServerHmacAlgorithm);
-
                     //  Request user authorization service
                     SendMessage(new ServiceRequestMessage(ServiceName.UserAuthentication));
 

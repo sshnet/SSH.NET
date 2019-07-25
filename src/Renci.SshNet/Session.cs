@@ -316,12 +316,12 @@ namespace Renci.SshNet
                 {
                     _clientInitMessage = new KeyExchangeInitMessage
                         {
-                            KeyExchangeAlgorithms = ConnectionInfo.KeyExchangeAlgorithms.Keys.ToArray(),
-                            ServerHostKeyAlgorithms = ConnectionInfo.HostKeyAlgorithms.Keys.ToArray(),
-                            EncryptionAlgorithmsClientToServer = ConnectionInfo.Encryptions.Keys.ToArray(),
-                            EncryptionAlgorithmsServerToClient = ConnectionInfo.Encryptions.Keys.ToArray(),
-                            MacAlgorithmsClientToServer = ConnectionInfo.HmacAlgorithms.Keys.ToArray(),
-                            MacAlgorithmsServerToClient = ConnectionInfo.HmacAlgorithms.Keys.ToArray(),
+                            KeyExchangeAlgorithms = ConnectionInfo.KeyExchangeAlgorithms.Keys.OrderByDescending(x => x.Priority).Select(x => x.Value).ToArray(),
+                            ServerHostKeyAlgorithms = ConnectionInfo.HostKeyAlgorithms.Keys.OrderByDescending(x => x.Priority).Select(x => x.Value).ToArray(),
+                            EncryptionAlgorithmsClientToServer = ConnectionInfo.Encryptions.Keys.OrderByDescending(x => x.Priority).Select(x => x.Value).ToArray(),
+                            EncryptionAlgorithmsServerToClient = ConnectionInfo.Encryptions.Keys.OrderByDescending(x => x.Priority).Select(x => x.Value).ToArray(),
+                            MacAlgorithmsClientToServer = ConnectionInfo.HmacAlgorithms.Keys.OrderByDescending(x => x.Priority).Select(x => x.Value).ToArray(),
+                            MacAlgorithmsServerToClient = ConnectionInfo.HmacAlgorithms.Keys.OrderByDescending(x => x.Priority).Select(x => x.Value).ToArray(),
                             CompressionAlgorithmsClientToServer = ConnectionInfo.CompressionAlgorithms.Keys.ToArray(),
                             CompressionAlgorithmsServerToClient = ConnectionInfo.CompressionAlgorithms.Keys.ToArray(),
                             LanguagesClientToServer = new[] {string.Empty},
@@ -1310,7 +1310,7 @@ namespace Renci.SshNet
             // Disable messages that are not key exchange related
             _sshMessageFactory.DisableNonKeyExchangeMessages();
 
-            _keyExchange = _serviceFactory.CreateKeyExchange(ConnectionInfo.KeyExchangeAlgorithms,
+            _keyExchange = _serviceFactory.CreateKeyExchange(ConnectionInfo.KeyExchangeAlgorithms.ToDictionary(x => x.Key.Value, x => x.Value),
                                                              message.KeyExchangeAlgorithms);
 
             ConnectionInfo.CurrentKeyExchangeAlgorithm = _keyExchange.Name;

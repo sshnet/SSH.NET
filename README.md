@@ -25,6 +25,7 @@ This project was inspired by **Sharp.SSH** library which was ported from java an
 * Supports DES-EDE3-CBC, DES-EDE3-CFB, DES-CBC, AES-128-CBC, AES-192-CBC and AES-256-CBC algorithms for private key encryption
 * Supports two-factor or higher authentication
 * Supports SOCKS4, SOCKS5 and HTTP Proxy
+* Supports both client and host-side OpenSSH certificates (ssh-rsa-cert-v01@openssh.com) *[added by msvprogs]
 
 ## Key Exchange Method
 

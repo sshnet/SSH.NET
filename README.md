@@ -30,17 +30,10 @@ This project was inspired by **Sharp.SSH** library which was ported from java an
 
 **SSH.NET** supports the following key exchange methods:
 * diffie-hellman-group-exchange-sha256
-* diffie-hellman-group-exchange-sha1
-* diffie-hellman-group14-sha1
-* diffie-hellman-group1-sha1
 
 ## Message Authentication Code
 
 **SSH.NET** supports the following MAC algorithms:
-* hmac-md5
-* hmac-md5-96
-* hmac-sha1
-* hmac-sha1-96
 * hmac-sha2-256
 * hmac-sha2-256-96
 * hmac-sha2-512

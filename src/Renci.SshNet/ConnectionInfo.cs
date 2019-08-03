@@ -323,9 +323,9 @@ namespace Renci.SshNet
             KeyExchangeAlgorithms = new Dictionary<string, Type>
                 {
                     {"diffie-hellman-group-exchange-sha256", typeof (KeyExchangeDiffieHellmanGroupExchangeSha256)},
-                    {"diffie-hellman-group-exchange-sha1", typeof (KeyExchangeDiffieHellmanGroupExchangeSha1)},
-                    {"diffie-hellman-group14-sha1", typeof (KeyExchangeDiffieHellmanGroup14Sha1)},
-                    {"diffie-hellman-group1-sha1", typeof (KeyExchangeDiffieHellmanGroup1Sha1)},
+                    //{"diffie-hellman-group-exchange-sha1", typeof (KeyExchangeDiffieHellmanGroupExchangeSha1)},
+                    //{"diffie-hellman-group14-sha1", typeof (KeyExchangeDiffieHellmanGroup14Sha1)},
+                    //{"diffie-hellman-group1-sha1", typeof (KeyExchangeDiffieHellmanGroup1Sha1)},
                     //{"ecdh-sha2-nistp256", typeof(KeyExchangeEllipticCurveDiffieHellman)},
                     //{"ecdh-sha2-nistp256", typeof(...)},
                     //{"ecdh-sha2-nistp384", typeof(...)},
@@ -361,10 +361,10 @@ namespace Renci.SshNet
 
             HmacAlgorithms = new Dictionary<string, HashInfo>
                 {
-                    {"hmac-md5", new HashInfo(16*8, CryptoAbstraction.CreateHMACMD5)},
-                    {"hmac-md5-96", new HashInfo(16*8, key => CryptoAbstraction.CreateHMACMD5(key, 96))},
-                    {"hmac-sha1", new HashInfo(20*8, CryptoAbstraction.CreateHMACSHA1)},
-                    {"hmac-sha1-96", new HashInfo(20*8, key => CryptoAbstraction.CreateHMACSHA1(key, 96))},
+                    //{"hmac-md5", new HashInfo(16*8, CryptoAbstraction.CreateHMACMD5)},
+                    //{"hmac-md5-96", new HashInfo(16*8, key => CryptoAbstraction.CreateHMACMD5(key, 96))},
+                    //{"hmac-sha1", new HashInfo(20*8, CryptoAbstraction.CreateHMACSHA1)},
+                    //{"hmac-sha1-96", new HashInfo(20*8, key => CryptoAbstraction.CreateHMACSHA1(key, 96))},
                     {"hmac-sha2-256", new HashInfo(32*8, CryptoAbstraction.CreateHMACSHA256)},
                     {"hmac-sha2-256-96", new HashInfo(32*8, key => CryptoAbstraction.CreateHMACSHA256(key, 96))},
                     {"hmac-sha2-512", new HashInfo(64 * 8, CryptoAbstraction.CreateHMACSHA512)},

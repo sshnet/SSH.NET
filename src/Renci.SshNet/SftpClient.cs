@@ -200,13 +200,13 @@ namespace Renci.SshNet
         /// <param name="host">Connection host.</param>
         /// <param name="port">Connection port.</param>
         /// <param name="username">Authentication username.</param>
-        /// <param name="keyFiles">Authentication private key file(s) .</param>
-        /// <exception cref="ArgumentNullException"><paramref name="keyFiles"/> is <b>null</b>.</exception>
+        /// <param name="keySources">Authentication private key source(s) .</param>
+        /// <exception cref="ArgumentNullException"><paramref name="keySources"/> is <b>null</b>.</exception>
         /// <exception cref="ArgumentException"><paramref name="host"/> is invalid. <para>-or-</para> <paramref name="username"/> is nu<b>null</b>ll or contains only whitespace characters.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="port"/> is not within <see cref="IPEndPoint.MinPort"/> and <see cref="IPEndPoint.MaxPort"/>.</exception>
         [SuppressMessage("Microsoft.Reliability", "CA2000:DisposeObjectsBeforeLosingScope", Justification = "Disposed in Dispose(bool) method.")]
-        public SftpClient(string host, int port, string username, params IPrivateKeySource[] keyFiles)
-            : this(new PrivateKeyConnectionInfo(host, port, username, keyFiles), true)
+        public SftpClient(string host, int port, string username, params IPrivateKeySource[] keySources)
+            : this(new PrivateKeyConnectionInfo(host, port, username, keySources), true)
         {
         }
 
@@ -215,11 +215,11 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="host">Connection host.</param>
         /// <param name="username">Authentication username.</param>
-        /// <param name="keyFiles">Authentication private key file(s) .</param>
-        /// <exception cref="ArgumentNullException"><paramref name="keyFiles"/> is <b>null</b>.</exception>
+        /// <param name="keySources">Authentication private key source(s) .</param>
+        /// <exception cref="ArgumentNullException"><paramref name="keySources"/> is <b>null</b>.</exception>
         /// <exception cref="ArgumentException"><paramref name="host"/> is invalid. <para>-or-</para> <paramref name="username"/> is <b>null</b> or contains only whitespace characters.</exception>
-        public SftpClient(string host, string username, params IPrivateKeySource[] keyFiles)
-            : this(host, ConnectionInfo.DefaultPort, username, keyFiles)
+        public SftpClient(string host, string username, params IPrivateKeySource[] keySources)
+            : this(host, ConnectionInfo.DefaultPort, username, keySources)
         {
         }
 

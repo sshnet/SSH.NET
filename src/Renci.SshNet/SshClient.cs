@@ -95,17 +95,17 @@ namespace Renci.SshNet
         /// <param name="host">Connection host.</param>
         /// <param name="port">Connection port.</param>
         /// <param name="username">Authentication username.</param>
-        /// <param name="keyFiles">Authentication private key file(s) .</param>
+        /// <param name="keySources">Authentication private key source(s) .</param>
         /// <example>
         ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\SshClientTest.cs" region="Example SshClient(host, username) Connect PrivateKeyFile" language="C#" title="Connect using username and private key" />
         ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\SshClientTest.cs" region="Example SshClient(host, username) Connect PrivateKeyFile PassPhrase" language="C#" title="Connect using username and private key and pass phrase" />
         /// </example>
-        /// <exception cref="ArgumentNullException"><paramref name="keyFiles"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="keySources"/> is <c>null</c>.</exception>
         /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, -or- <paramref name="username"/> is <c>null</c> or contains only whitespace characters.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="port"/> is not within <see cref="IPEndPoint.MinPort"/> and <see cref="IPEndPoint.MaxPort"/>.</exception>
         [SuppressMessage("Microsoft.Reliability", "CA2000:DisposeObjectsBeforeLosingScope", Justification = "Disposed in Dispose(bool) method.")]
-        public SshClient(string host, int port, string username, params PrivateKeyFile[] keyFiles)
-            : this(new PrivateKeyConnectionInfo(host, port, username, keyFiles), true)
+        public SshClient(string host, int port, string username, params PrivateKeyFile[] keySources)
+            : this(new PrivateKeyConnectionInfo(host, port, username, keySources), true)
         {
         }
 
@@ -114,15 +114,15 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="host">Connection host.</param>
         /// <param name="username">Authentication username.</param>
-        /// <param name="keyFiles">Authentication private key file(s) .</param>
+        /// <param name="keySources">Authentication private key source(s) .</param>
         /// <example>
         ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\SshClientTest.cs" region="Example SshClient(host, username) Connect PrivateKeyFile" language="C#" title="Connect using private key" />
         ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\SshClientTest.cs" region="Example SshClient(host, username) Connect PrivateKeyFile PassPhrase" language="C#" title="Connect using private key and pass phrase" />
         /// </example>
-        /// <exception cref="ArgumentNullException"><paramref name="keyFiles"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="keySources"/> is <c>null</c>.</exception>
         /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, -or- <paramref name="username"/> is <c>null</c> or contains only whitespace characters.</exception>
-        public SshClient(string host, string username, params PrivateKeyFile[] keyFiles)
-            : this(host, ConnectionInfo.DefaultPort, username, keyFiles)
+        public SshClient(string host, string username, params PrivateKeyFile[] keySources)
+            : this(host, ConnectionInfo.DefaultPort, username, keySources)
         {
         }
 

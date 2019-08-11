@@ -137,13 +137,13 @@ namespace Renci.SshNet
         /// <param name="host">Connection host.</param>
         /// <param name="port">Connection port.</param>
         /// <param name="username">Authentication username.</param>
-        /// <param name="keyFiles">Authentication private key file(s) .</param>
-        /// <exception cref="ArgumentNullException"><paramref name="keyFiles"/> is <c>null</c>.</exception>
+        /// <param name="keySources">Authentication private key source(s) .</param>
+        /// <exception cref="ArgumentNullException"><paramref name="keySources"/> is <c>null</c>.</exception>
         /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, -or- <paramref name="username"/> is <c>null</c> or contains only whitespace characters.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="port"/> is not within <see cref="IPEndPoint.MinPort"/> and <see cref="IPEndPoint.MaxPort"/>.</exception>
         [SuppressMessage("Microsoft.Reliability", "CA2000:DisposeObjectsBeforeLosingScope", Justification = "Disposed in Dispose(bool) method.")]
-        public ScpClient(string host, int port, string username, params IPrivateKeySource[] keyFiles)
-            : this(new PrivateKeyConnectionInfo(host, port, username, keyFiles), true)
+        public ScpClient(string host, int port, string username, params IPrivateKeySource[] keySources)
+            : this(new PrivateKeyConnectionInfo(host, port, username, keySources), true)
         {
         }
 
@@ -152,11 +152,11 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="host">Connection host.</param>
         /// <param name="username">Authentication username.</param>
-        /// <param name="keyFiles">Authentication private key file(s) .</param>
-        /// <exception cref="ArgumentNullException"><paramref name="keyFiles"/> is <c>null</c>.</exception>
+        /// <param name="keySources">Authentication private key source(s) .</param>
+        /// <exception cref="ArgumentNullException"><paramref name="keySources"/> is <c>null</c>.</exception>
         /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, -or- <paramref name="username"/> is <c>null</c> or contains only whitespace characters.</exception>
-        public ScpClient(string host, string username, params IPrivateKeySource[] keyFiles)
-            : this(host, ConnectionInfo.DefaultPort, username, keyFiles)
+        public ScpClient(string host, string username, params IPrivateKeySource[] keySources)
+            : this(host, ConnectionInfo.DefaultPort, username, keySources)
         {
         }
 

@@ -154,6 +154,7 @@
     <Compile Include="IClientAuthentication.cs" />
     <Compile Include="IConnectionInfo.cs" />
     <Compile Include="IForwardedPort.cs" />
+    <Compile Include="IPrivateKeySource.cs"/>
     <Compile Include="IRemotePathTransformation.cs" />
     <Compile Include="IServiceFactory.cs" />
     <Compile Include="IServiceFactory.NET.cs" />

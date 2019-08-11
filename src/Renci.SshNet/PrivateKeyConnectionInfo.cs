@@ -136,7 +136,7 @@ namespace Renci.SshNet
         public PrivateKeyConnectionInfo(string host, int port, string username, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername, string proxyPassword, params IPrivateKeySource[] keySources)
             : base(host, port, username, proxyType, proxyHost, proxyPort, proxyUsername, proxyPassword, new PrivateKeyAuthenticationMethod(username, keySources))
         {
-            keySources = new Collection<IPrivateKeySource>(keySources);
+            KeySources = new Collection<IPrivateKeySource>(keySources);
         }
 
         #region IDisposable Members

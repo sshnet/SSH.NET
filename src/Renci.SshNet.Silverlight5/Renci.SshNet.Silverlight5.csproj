@@ -323,6 +323,9 @@
     <Compile Include="..\Renci.SshNet\IForwardedPort.cs">
       <Link>IForwardedPort.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\IPrivateKeySource.cs">
+      <Link>IPrivateKeySource.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\IRemotePathTransformation.cs">
       <Link>IRemotePathTransformation.cs</Link>
     </Compile>

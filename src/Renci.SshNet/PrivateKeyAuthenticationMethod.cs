@@ -26,23 +26,23 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Gets the key files used for authentication.
+        /// Gets the key sources used for authentication.
         /// </summary>
-        public ICollection<PrivateKeyFile> KeyFiles { get; private set; }
+        public ICollection<IPrivateKeySource> KeySources { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PrivateKeyAuthenticationMethod"/> class.
         /// </summary>
         /// <param name="username">The username.</param>
-        /// <param name="keyFiles">The key files.</param>
+        /// <param name="keySources">The key sources.</param>
         /// <exception cref="ArgumentException"><paramref name="username"/> is whitespace or <c>null</c>.</exception>
-        public PrivateKeyAuthenticationMethod(string username, params PrivateKeyFile[] keyFiles)
+        public PrivateKeyAuthenticationMethod(string username, params IPrivateKeySource[] keySources)
             : base(username)
         {
-            if (keyFiles == null)
-                throw new ArgumentNullException("keyFiles");
+            if (keySources == null)
+                throw new ArgumentNullException("keySources");
 
-            KeyFiles = new Collection<PrivateKeyFile>(keyFiles);
+            KeySources = new Collection<IPrivateKeySource>(keySources);
         }
 
         /// <summary>
@@ -62,22 +62,22 @@ namespace Renci.SshNet
 
             try
             {
-                foreach (var keyFile in KeyFiles)
+                foreach (var keySource in KeySources)
                 {
                     _authenticationCompleted.Reset();
                     _isSignatureRequired = false;
 
                     var message = new RequestMessagePublicKey(ServiceName.Connection,
                                                               Username,
-                                                              keyFile.HostKey.Name,
-                                                              keyFile.HostKey.Data);
+                                                              keySource.HostKey.Name,
+                                                              keySource.HostKey.Data);
 
-                    if (KeyFiles.Count < 2)
+                    if (KeySources.Count < 2)
                     {
-                        //  If only one key file provided then send signature for very first request
+                        //  If only one key source provided then send signature for very first request
                         var signatureData = new SignatureData(message, session.SessionId).GetBytes();
 
-                        message.Signature = keyFile.HostKey.Sign(signatureData);
+                        message.Signature = keySource.HostKey.Sign(signatureData);
                     }
 
                     //  Send public key authentication request
@@ -91,12 +91,12 @@ namespace Renci.SshNet
 
                         var signatureMessage = new RequestMessagePublicKey(ServiceName.Connection,
                                                                            Username,
-                                                                           keyFile.HostKey.Name,
-                                                                           keyFile.HostKey.Data);
+                                                                           keySource.HostKey.Name,
+                                                                           keySource.HostKey.Data);
 
                         var signatureData = new SignatureData(message, session.SessionId).GetBytes();
 
-                        signatureMessage.Signature = keyFile.HostKey.Sign(signatureData);
+                        signatureMessage.Signature = keySource.HostKey.Sign(signatureData);
 
                         //  Send public key authentication request with signature
                         session.SendMessage(signatureMessage);

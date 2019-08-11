@@ -145,10 +145,10 @@ namespace Renci.SshNet.Tests.Classes
             var privateKeyAuthentication = privateKeyConnectionInfo.AuthenticationMethods[0] as PrivateKeyAuthenticationMethod;
             Assert.IsNotNull(privateKeyAuthentication);
             Assert.AreEqual(userName, privateKeyAuthentication.Username);
-            Assert.IsNotNull(privateKeyAuthentication.KeyFiles);
-            Assert.AreEqual(privateKeys.Length, privateKeyAuthentication.KeyFiles.Count);
-            Assert.IsTrue(privateKeyAuthentication.KeyFiles.Contains(privateKeys[0]));
-            Assert.IsTrue(privateKeyAuthentication.KeyFiles.Contains(privateKeys[1]));
+            Assert.IsNotNull(privateKeyAuthentication.KeySources);
+            Assert.AreEqual(privateKeys.Length, privateKeyAuthentication.KeySources.Count);
+            Assert.IsTrue(privateKeyAuthentication.KeySources.Contains(privateKeys[0]));
+            Assert.IsTrue(privateKeyAuthentication.KeySources.Contains(privateKeys[1]));
         }
 
         [TestMethod]
@@ -178,10 +178,10 @@ namespace Renci.SshNet.Tests.Classes
             var privateKeyAuthentication = privateKeyConnectionInfo.AuthenticationMethods[0] as PrivateKeyAuthenticationMethod;
             Assert.IsNotNull(privateKeyAuthentication);
             Assert.AreEqual(userName, privateKeyAuthentication.Username);
-            Assert.IsNotNull(privateKeyAuthentication.KeyFiles);
-            Assert.AreEqual(privateKeys.Length, privateKeyAuthentication.KeyFiles.Count);
-            Assert.IsTrue(privateKeyAuthentication.KeyFiles.Contains(privateKeys[0]));
-            Assert.IsTrue(privateKeyAuthentication.KeyFiles.Contains(privateKeys[1]));
+            Assert.IsNotNull(privateKeyAuthentication.KeySources);
+            Assert.AreEqual(privateKeys.Length, privateKeyAuthentication.KeySources.Count);
+            Assert.IsTrue(privateKeyAuthentication.KeySources.Contains(privateKeys[0]));
+            Assert.IsTrue(privateKeyAuthentication.KeySources.Contains(privateKeys[1]));
         }
 
         [TestMethod]

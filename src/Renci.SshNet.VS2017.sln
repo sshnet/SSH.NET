@@ -27,6 +27,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Renci.SshNet.NET35", "Renci
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Renci.SshNet.NETCore", "Renci.SshNet.NETCore\Renci.SshNet.NETCore.csproj", "{8E8229EB-6780-4A8A-B470-E2023FA55AB5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Renci.sftp", "renci.sftp\Renci.sftp.csproj", "{C0B7112C-064E-4A9A-A22C-7DCBD77FC48B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -103,6 +105,26 @@ Global
 		{8E8229EB-6780-4A8A-B470-E2023FA55AB5}.Release|x64.Build.0 = Release|Any CPU
 		{8E8229EB-6780-4A8A-B470-E2023FA55AB5}.Release|x86.ActiveCfg = Release|Any CPU
 		{8E8229EB-6780-4A8A-B470-E2023FA55AB5}.Release|x86.Build.0 = Release|Any CPU
+		{C0B7112C-064E-4A9A-A22C-7DCBD77FC48B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C0B7112C-064E-4A9A-A22C-7DCBD77FC48B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C0B7112C-064E-4A9A-A22C-7DCBD77FC48B}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{C0B7112C-064E-4A9A-A22C-7DCBD77FC48B}.Debug|ARM.Build.0 = Debug|Any CPU
+		{C0B7112C-064E-4A9A-A22C-7DCBD77FC48B}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{C0B7112C-064E-4A9A-A22C-7DCBD77FC48B}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{C0B7112C-064E-4A9A-A22C-7DCBD77FC48B}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C0B7112C-064E-4A9A-A22C-7DCBD77FC48B}.Debug|x64.Build.0 = Debug|Any CPU
+		{C0B7112C-064E-4A9A-A22C-7DCBD77FC48B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C0B7112C-064E-4A9A-A22C-7DCBD77FC48B}.Debug|x86.Build.0 = Debug|Any CPU
+		{C0B7112C-064E-4A9A-A22C-7DCBD77FC48B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C0B7112C-064E-4A9A-A22C-7DCBD77FC48B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C0B7112C-064E-4A9A-A22C-7DCBD77FC48B}.Release|ARM.ActiveCfg = Release|Any CPU
+		{C0B7112C-064E-4A9A-A22C-7DCBD77FC48B}.Release|ARM.Build.0 = Release|Any CPU
+		{C0B7112C-064E-4A9A-A22C-7DCBD77FC48B}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{C0B7112C-064E-4A9A-A22C-7DCBD77FC48B}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{C0B7112C-064E-4A9A-A22C-7DCBD77FC48B}.Release|x64.ActiveCfg = Release|Any CPU
+		{C0B7112C-064E-4A9A-A22C-7DCBD77FC48B}.Release|x64.Build.0 = Release|Any CPU
+		{C0B7112C-064E-4A9A-A22C-7DCBD77FC48B}.Release|x86.ActiveCfg = Release|Any CPU
+		{C0B7112C-064E-4A9A-A22C-7DCBD77FC48B}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -110,6 +132,9 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{94EE3919-19FA-4D9B-8DA9-249050B15232} = {2D6CAE62-D053-476F-9BDD-2B1F27FA9C5D}
 		{A6C3FFD3-16A5-44D3-8C1F-3613D6DD17D1} = {2D6CAE62-D053-476F-9BDD-2B1F27FA9C5D}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {BE1E1CE2-57C9-4766-858E-1DE90D2F51FD}
 	EndGlobalSection
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = Renci.SshNet1.vsmdi

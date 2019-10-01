@@ -9,6 +9,8 @@ SSH.NET is a Secure Shell (SSH-2) library for .NET, optimized for parallelism.
 ## Introduction
 This project was inspired by **Sharp.SSH** library which was ported from java and it seems like was not supported for quite some time. This library is a complete rewrite, without any third party dependencies, using parallelism to achieve the best performance possible.
 
+This specific branch has an additional feature which is for  sftp client to always use absolute paths on the server (i.e. changedirectory will keep track of the absolute path and all file actions will provide absolute paths to the server). This gives support for  buggy server implementations where changedirectory will use the grown permissions. 
+
 ## Features
 * Execution of SSH command using both synchronous and asynchronous methods
 * Return command execution exit status and other information 

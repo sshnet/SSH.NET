@@ -27,6 +27,7 @@ This specific branch has an additional feature which is for  sftp client to alwa
 * Supports DES-EDE3-CBC, DES-EDE3-CFB, DES-CBC, AES-128-CBC, AES-192-CBC and AES-256-CBC algorithms for private key encryption
 * Supports two-factor or higher authentication
 * Supports SOCKS4, SOCKS5 and HTTP Proxy
+* Sample of sftp client exe
 
 ## Key Exchange Method
 

@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace renci.sftp
+namespace Renci.sftp
 {
     class Program
     {
@@ -18,15 +18,25 @@ namespace renci.sftp
 
             int port = 22;
             string destination = "127.0.0.1";
+            bool localChangeDir = false;
+
             for (int i = 0; i < args.Length; i++)
             {
-                if (args[i] == "P")
+                if (args[i] == "-P")
                 {
                     if (i + 1 < args.Length)
                     {
                         port = int.Parse(args[i + 1]);
                         i++;
                     }
+
+                    continue;
+                }
+
+                if (args[i] == "-LCHD")
+                {
+                    localChangeDir = true;
+                    continue;
                 }
 
                 destination = args[i];
@@ -37,10 +47,11 @@ namespace renci.sftp
             Console.Write("pwd: ");
             string password = ReadPassword();
             Console.WriteLine("connecting...");
-            Renci.SshNet.SftpClient.ChangeDirIsLocal = true;
-            using (var client = new Renci.SshNet.SftpClient(destination, port, username, password))
+            using (var client = new SshNet.SftpClient(destination, port, username, password))
             {
+                client.ChangeDirIsLocal = localChangeDir;
                 client.Connect();
+
                 while (true)
                 {
                     Console.WriteLine();

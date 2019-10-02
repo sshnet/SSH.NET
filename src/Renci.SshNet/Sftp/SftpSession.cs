@@ -70,7 +70,7 @@ namespace Renci.SshNet.Sftp
         /// <param name="encoding"></param>
         /// <param name="sftpResponseFactory"></param>
         /// <param name="changeDirIsLocal">If true, the sftp client will always pass absolute paths to serve, and will locally mimmick 'changedir' operations</param>
-        public SftpSession(ISession session, int operationTimeout, Encoding encoding, ISftpResponseFactory sftpResponseFactory, bool changeDirIsLocal)
+        public SftpSession(ISession session, int operationTimeout, Encoding encoding, ISftpResponseFactory sftpResponseFactory, bool changeDirIsLocal=false)
             : base(session, "sftp", operationTimeout)
         {
             Encoding = encoding;

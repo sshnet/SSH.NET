@@ -40,7 +40,7 @@ namespace Renci.SshNet
         /// Gets or sets a value indicating if ChangeDir must be kept local to the client. 
         /// By default, this is false.
         /// </summary>
-        public static bool ChangeDirIsLocal { get; set; }
+        public bool ChangeDirIsLocal { get; set; }
 
         /// <summary>
         /// Gets or sets the operation timeout.
@@ -2213,7 +2213,8 @@ namespace Renci.SshNet
             var sftpSession = ServiceFactory.CreateSftpSession(Session,
                                                                _operationTimeout,
                                                                ConnectionInfo.Encoding,
-                                                               ServiceFactory.CreateSftpResponseFactory());
+                                                               ServiceFactory.CreateSftpResponseFactory(), 
+                                                               this.ChangeDirIsLocal);
             try
             {
                 sftpSession.Connect();

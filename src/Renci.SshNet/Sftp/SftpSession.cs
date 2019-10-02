@@ -24,6 +24,11 @@ namespace Renci.SshNet.Sftp
         private string localWorkingDirectory;
 
         /// <summary>
+        /// If true, the sftp client will always pass absolute paths to serve, and will locally mimmick 'changedir' operations
+        /// </summary>
+        private bool changeDirIsLocal;
+
+        /// <summary>
         /// Gets the character encoding to use.
         /// </summary>
         protected Encoding Encoding { get; private set; }
@@ -57,11 +62,20 @@ namespace Renci.SshNet.Sftp
             }
         }
 
-        public SftpSession(ISession session, int operationTimeout, Encoding encoding, ISftpResponseFactory sftpResponseFactory)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="session"></param>
+        /// <param name="operationTimeout"></param>
+        /// <param name="encoding"></param>
+        /// <param name="sftpResponseFactory"></param>
+        /// <param name="changeDirIsLocal">If true, the sftp client will always pass absolute paths to serve, and will locally mimmick 'changedir' operations</param>
+        public SftpSession(ISession session, int operationTimeout, Encoding encoding, ISftpResponseFactory sftpResponseFactory, bool changeDirIsLocal)
             : base(session, "sftp", operationTimeout)
         {
             Encoding = encoding;
             _sftpResponseFactory = sftpResponseFactory;
+            this.changeDirIsLocal = changeDirIsLocal;
         }
 
         /// <summary>
@@ -70,7 +84,7 @@ namespace Renci.SshNet.Sftp
         /// <param name="path">The new working directory.</param>
         public void ChangeDirectory(string path)
         {
-            if (!SftpClient.ChangeDirIsLocal)
+            if (!this.changeDirIsLocal)
             {
                 var fullPath = GetCanonicalPath(path);
                 var handle = RequestOpenDir(fullPath);
@@ -95,7 +109,7 @@ namespace Renci.SshNet.Sftp
         /// <returns></returns>
         private string GetRelativePathIfNeeded(string path)
         {
-            if (!path.StartsWith("/") && SftpClient.ChangeDirIsLocal)
+            if (!path.StartsWith("/") && this.changeDirIsLocal)
             {
                 path = Compact(localWorkingDirectory + "/" + path);
             }

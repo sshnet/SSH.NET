@@ -32,10 +32,11 @@ namespace Renci.SshNet
         /// <param name="operationTimeout">The number of milliseconds to wait for an operation to complete, or -1 to wait indefinitely.</param>
         /// <param name="encoding">The encoding.</param>
         /// <param name="sftpMessageFactory">The factory to use for creating SFTP messages.</param>
+        /// <param name="changeDirIsLocal">If true, the sftp client will always pass absolute paths to serve, and will locally mimmick 'changedir' operations</param>
         /// <returns>
         /// An <see cref="ISftpSession"/>.
         /// </returns>
-        ISftpSession CreateSftpSession(ISession session, int operationTimeout, Encoding encoding, ISftpResponseFactory sftpMessageFactory);
+        ISftpSession CreateSftpSession(ISession session, int operationTimeout, Encoding encoding, ISftpResponseFactory sftpMessageFactory, bool changeDirIsLocal);
 
         /// <summary>
         /// Create a new <see cref="PipeStream"/>.

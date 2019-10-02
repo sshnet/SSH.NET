@@ -1885,7 +1885,7 @@ namespace Renci.SshNet
                                 // this may result in a SocketException (eg. An existing connection was forcibly
                                 // closed by the remote host) which we'll log and ignore as it means the socket
                                 // was already shut down
-                                _socket.Shutdown(SocketShutdown.Send);
+                                _socket.Shutdown(SocketShutdown.Both);
                             }
                             catch (SocketException ex)
                             {
@@ -1917,41 +1917,6 @@ namespace Renci.SshNet
                 // remain in message loop until socket is shut down or until we're disconnecting
                 while (_socket.IsConnected())
                 {
-#if FEATURE_SOCKET_SELECT
-                    // if the socket is already disposed when Select is invoked, then a SocketException
-                    // stating "An operation was attempted on something that is not a socket" is thrown;
-                    // we attempt to avoid this exception by having an IsConnected() that can break the
-                    // message loop
-                    //
-                    // note that there's no guarantee that the socket will not be disposed between the
-                    // IsConnected() check and the Select invocation; we can't take a "dispose" lock
-                    // that includes the Select invocation as we want Dispose() to be able to interrupt
-                    // the Select
-
-                    // perform a blocking select to determine whether there's is data available to be
-                    // read; we do not use a blocking read to allow us to use Socket.Poll to determine
-                    // if the connection is still available (in IsSocketConnected)
-
-                    Socket.Select(readSockets, null, null, -1);
-
-                    // the Select invocation will be interrupted in one of the following conditions:
-                    // * data is available to be read
-                    //   => the socket will not be removed from "readSockets"
-                    // * the socket connection is closed during the Select invocation
-                    //   => the socket will be removed from "readSockets"
-                    // * the socket is disposed during the Select invocation
-                    //   => the socket will not be removed from "readSocket"
-                    // 
-                    // since we handle the second and third condition the same way and Socket.Connected
-                    // allows us to check for both conditions, we use that instead of both checking for
-                    // the removal from "readSockets" and the Connection check
-                    if (!_socket.IsConnected())
-                    {
-                        // connection with SSH server was closed or socket was disposed;
-                        // break out of the message loop
-                        break;
-                    }
-#elif FEATURE_SOCKET_POLL
                     // when Socket.Select(IList, IList, IList, Int32) is not available or is buggy, we use
                     // Socket.Poll(Int, SelectMode) to block until either data is available or the socket
                     // is closed
@@ -1963,8 +1928,7 @@ namespace Renci.SshNet
                         // break out of the message loop
                         break;
                     }
-#endif // FEATURE_SOCKET_SELECT
-
+                    
                     var message = ReceiveMessage();
                     if (message == null)
                     {

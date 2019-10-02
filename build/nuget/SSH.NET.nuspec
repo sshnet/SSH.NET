@@ -1,15 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
-        <id>SSH.NET.SftpAlwaysAbsolute</id>
-        <version>2017.0.0-aa1</version>
-        <title>SSH.NET.SftpAlwaysAbsolute</title>
+        <id>SSH.NET</id>
+        <version>2017.0.0-beta1</version>
+        <title>SSH.NET</title>
         <authors>Renci</authors>
         <owners>olegkap,drieseng</owners>
         <licenseUrl>https://github.com/sshnet/SSH.NET/blob/master/LICENSE</licenseUrl>
         <projectUrl>https://github.com/sshnet/SSH.NET/</projectUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
-        <description>SSH.NET is a Secure Shell (SSH) library for .NET, optimized for parallelism and with broad framework support. This fork allows for sftp client to always use absolute paths on the server.</description>
+        <description>SSH.NET is a Secure Shell (SSH) library for .NET, optimized for parallelism and with broad framework support.</description>
         <releaseNotes>https://github.com/sshnet/SSH.NET/releases/tag/2017.0.0-beta1</releaseNotes>
         <summary>A Secure Shell (SSH) library for .NET, optimized for parallelism.</summary>
         <copyright>2012-2017, RENCI</copyright>
@@ -32,7 +32,7 @@
           <group targetFramework="netstandard2.0">
             <dependency id="SshNet.Security.Cryptography" version="[1.3.0]" />
           </group>
-          <group targetFramework="sl4">
+          <!-- group targetFramework="sl4">
             <dependency id="SshNet.Security.Cryptography" version="[1.3.0]" />
           </group>
           <group targetFramework="sl5">
@@ -47,7 +47,7 @@
           <group targetFramework="uap10.0">
             <dependency id="SshNet.Security.Cryptography" version="[1.3.0]" />
             <dependency id="System.Xml.XPath.XmlDocument" version="4.3.0" />
-          </group>
+          </group -->
         </dependencies>
     </metadata>
 </package>

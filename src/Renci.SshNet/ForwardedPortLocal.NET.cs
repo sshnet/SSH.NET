@@ -175,7 +175,7 @@ namespace Renci.SshNet
             {
                 try
                 {
-                    clientSocket.Shutdown(SocketShutdown.Send);
+                    clientSocket.Shutdown(SocketShutdown.Both);
                 }
                 catch (Exception)
                 {

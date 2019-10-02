@@ -1908,10 +1908,6 @@ namespace Renci.SshNet
         /// </summary>
         private void MessageListener()
         {
-#if FEATURE_SOCKET_SELECT
-            var readSockets = new List<Socket> { _socket };
-#endif // FEATURE_SOCKET_SELECT
-
             try
             {
                 // remain in message loop until socket is shut down or until we're disconnecting

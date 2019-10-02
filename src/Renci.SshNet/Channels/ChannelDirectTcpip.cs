@@ -70,7 +70,7 @@ namespace Renci.SshNet.Channels
         {
             // signal to the client that we will not send anything anymore; this should also interrupt the
             // blocking receive in Bind if the client sends FIN/ACK in time
-            ShutdownSocket(SocketShutdown.Send);
+            ShutdownSocket(SocketShutdown.Both);
 
             // if the FIN/ACK is not sent in time by the remote client, then interrupt the blocking receive
             // by closing the socket
@@ -160,7 +160,7 @@ namespace Renci.SshNet.Channels
             // blocking receive in Bind if the client sends FIN/ACK in time
             //
             // if the FIN/ACK is not sent in time, the socket will be closed after the channel is closed
-            ShutdownSocket(SocketShutdown.Send);
+            ShutdownSocket(SocketShutdown.Both);
 
             // close the SSH channel
             base.Close();
@@ -221,7 +221,7 @@ namespace Renci.SshNet.Channels
             // send anything anymore)
             //
             // this will also interrupt the blocking receive in Bind()
-            ShutdownSocket(SocketShutdown.Send);
+            ShutdownSocket(SocketShutdown.Both);
         }
 
         /// <summary>
@@ -236,7 +236,7 @@ namespace Renci.SshNet.Channels
             // blocking receive in Bind if the client sends FIN/ACK in time
             //
             // if the FIN/ACK is not sent in time, the socket will be closed in Close(bool)
-            ShutdownSocket(SocketShutdown.Send);
+            ShutdownSocket(SocketShutdown.Both);
         }
 
         /// <summary>

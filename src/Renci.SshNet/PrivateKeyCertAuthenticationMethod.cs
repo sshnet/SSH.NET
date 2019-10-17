@@ -1,21 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using Renci.SshNet.Messages.Authentication;
+﻿using Renci.SshNet.Common;
 using Renci.SshNet.Messages;
-using Renci.SshNet.Common;
+using Renci.SshNet.Messages.Authentication;
+using System;
 using System.Threading;
+
 
 namespace Renci.SshNet
 {
     /// <summary>
-    /// Provides functionality to perform private key authentication.
+    /// Provides functionality to perform private key authentication using a 
+    /// signed public key component (a certificate).
     /// </summary>
-    public class PrivateKeyAuthenticationMethod : AuthenticationMethod, IDisposable
+    public class PrivateKeyCertAuthenticationMethod : AuthenticationMethod, IDisposable
     {
         private AuthenticationResult _authenticationResult = AuthenticationResult.Failure;
         private EventWaitHandle _authenticationCompleted = new ManualResetEvent(false);
-        private bool _isSignatureRequired;
 
         /// <summary>
         /// Gets authentication method name
@@ -28,21 +27,46 @@ namespace Renci.SshNet
         /// <summary>
         /// Gets the key files used for authentication.
         /// </summary>
-        public ICollection<PrivateKeyFile> KeyFiles { get; private set; }
+        public PrivateKeyFile KeyFile { get; private set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public PublicKeyCertFile CertificateFile { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PrivateKeyAuthenticationMethod"/> class.
         /// </summary>
         /// <param name="username">The username.</param>
-        /// <param name="keyFiles">The key files.</param>
+        /// <param name="keyFile">The key files.</param>
         /// <exception cref="ArgumentException"><paramref name="username"/> is whitespace or <c>null</c>.</exception>
-        public PrivateKeyAuthenticationMethod(string username, params PrivateKeyFile[] keyFiles)
+        public PrivateKeyCertAuthenticationMethod(string username, PrivateKeyFile keyFile)
             : base(username)
         {
-            if (keyFiles == null)
+            if (keyFile == null)
                 throw new ArgumentNullException("keyFiles");
 
-            KeyFiles = new Collection<PrivateKeyFile>(keyFiles);
+            KeyFile = keyFile;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PrivateKeyAuthenticationMethod"/> class.
+        /// </summary>
+        /// <param name="username">The username.</param>
+        /// <param name="keyFile">The key files.</param>
+        /// <param name="certFile"></param>
+        /// <exception cref="ArgumentException"><paramref name="username"/> is whitespace or <c>null</c>.</exception>
+        public PrivateKeyCertAuthenticationMethod(string username, PrivateKeyFile keyFile, PublicKeyCertFile certFile)
+            : base(username)
+        {
+            if (keyFile == null)
+                throw new ArgumentNullException("keyFile");
+
+            if (certFile == null)
+                throw new ArgumentNullException("certFile");
+
+            KeyFile = keyFile;
+            CertificateFile = certFile;
         }
 
         /// <summary>
@@ -62,53 +86,21 @@ namespace Renci.SshNet
 
             try
             {
-                foreach (var keyFile in KeyFiles)
-                {
-                    _authenticationCompleted.Reset();
-                    _isSignatureRequired = false;
+                _authenticationCompleted.Reset();
 
-                    var message = new RequestMessagePublicKey(ServiceName.Connection,
-                                                              Username,
-                                                              keyFile.HostKey.Name,
-                                                              keyFile.HostKey.Data);
+                var message = new RequestMessagePublicKey(ServiceName.Connection,
+                                                            Username,
+                                                            CertificateFile.HostCertificate.Name,
+                                                            CertificateFile.HostCertificate.Data);
 
-                    if (KeyFiles.Count < 2)
-                    {
-                        //  If only one key file provided then send signature for very first request
-                        var signatureData = new SshSignatureData(message, session.SessionId).GetBytes();
+                //  Send signature for very first request
+                var signatureData = new SshSignatureData(message, session.SessionId).GetBytes();
+                message.Signature = KeyFile.HostKey.Sign(signatureData);
 
-                        message.Signature = keyFile.HostKey.Sign(signatureData);
-                    }
+                //  Send public key authentication request
+                session.SendMessage(message);
 
-                    //  Send public key authentication request
-                    session.SendMessage(message);
-
-                    session.WaitOnHandle(_authenticationCompleted);
-
-                    if (_isSignatureRequired)
-                    {
-                        _authenticationCompleted.Reset();
-
-                        var signatureMessage = new RequestMessagePublicKey(ServiceName.Connection,
-                                                                           Username,
-                                                                           keyFile.HostKey.Name,
-                                                                           keyFile.HostKey.Data);
-
-                        var signatureData = new SshSignatureData(message, session.SessionId).GetBytes();
-
-                        signatureMessage.Signature = keyFile.HostKey.Sign(signatureData);
-
-                        //  Send public key authentication request with signature
-                        session.SendMessage(signatureMessage);
-                    }
-
-                    session.WaitOnHandle(_authenticationCompleted);
-
-                    if (_authenticationResult == AuthenticationResult.Success)
-                    {
-                        break;
-                    }
-                }
+                session.WaitOnHandle(_authenticationCompleted);
 
                 return _authenticationResult;
             }
@@ -143,7 +135,6 @@ namespace Renci.SshNet
 
         private void Session_UserAuthenticationPublicKeyReceived(object sender, MessageEventArgs<PublicKeyMessage> e)
         {
-            _isSignatureRequired = true;
             _authenticationCompleted.Set();
         }
 
@@ -186,7 +177,7 @@ namespace Renci.SshNet
         /// Releases unmanaged resources and performs other cleanup operations before the
         /// <see cref="PasswordConnectionInfo"/> is reclaimed by garbage collection.
         /// </summary>
-        ~PrivateKeyAuthenticationMethod()
+        ~PrivateKeyCertAuthenticationMethod()
         {
             Dispose(false);
         }

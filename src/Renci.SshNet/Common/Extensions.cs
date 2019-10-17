@@ -261,6 +261,18 @@ namespace Renci.SshNet.Common
             return concat;
         }
 
+        public static DateTime FromUnixTime(this ulong unixTime)
+        {
+            var epoch = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+            return epoch.AddSeconds(unixTime);
+        }
+
+        public static ulong ToUnixTime(this DateTime date)
+        {
+            var epoch = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+            return (ulong)(date - epoch).TotalSeconds;
+        }
+
         internal static bool CanRead(this Socket socket)
         {
             return SocketAbstraction.CanRead(socket);

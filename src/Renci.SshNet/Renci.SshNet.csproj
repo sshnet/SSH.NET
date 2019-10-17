@@ -135,6 +135,7 @@
     <Compile Include="Common\SshException.cs" />
     <Compile Include="Common\SshOperationTimeoutException.cs" />
     <Compile Include="Common\SshPassPhraseNullOrEmptyException.cs" />
+    <Compile Include="Common\SshSignatureData.cs" />
     <Compile Include="Common\TerminalModes.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -164,6 +165,8 @@
     <Compile Include="Messages\Transport\KeyExchangeEcdhInitMessage.cs" />
     <Compile Include="Messages\Transport\KeyExchangeEcdhReplyMessage.cs" />
     <Compile Include="Netconf\INetConfSession.cs" />
+    <Compile Include="PrivateKeyCertAuthenticationMethod.cs" />
+    <Compile Include="PublicKeyCertFile.cs" />
     <Compile Include="RemotePathDoubleQuoteTransformation.cs" />
     <Compile Include="RemotePathNoneTransformation.cs" />
     <Compile Include="RemotePathShellQuoteTransformation.cs" />
@@ -173,6 +176,7 @@
     <Compile Include="Security\Cryptography\HMACSHA256.cs" />
     <Compile Include="Security\Cryptography\HMACSHA384.cs" />
     <Compile Include="Security\Cryptography\HMACSHA512.cs" />
+    <Compile Include="Security\Cryptography\RsaCertificate.cs" />
     <Compile Include="Security\GroupExchangeHashData.cs" />
     <Compile Include="Security\IKeyExchange.cs" />
     <Compile Include="Security\KeyExchangeDiffieHellmanGroupExchangeShaBase.cs" />

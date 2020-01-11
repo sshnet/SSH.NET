@@ -322,14 +322,15 @@ namespace Renci.SshNet
 
             KeyExchangeAlgorithms = new Dictionary<string, Type>
                 {
+                    {"curve25519-sha256", typeof(KeyExchangeECCurve25519)},
+                    {"curve25519-sha256@libssh.org", typeof(KeyExchangeECCurve25519)},
+                    {"ecdh-sha2-nistp256", typeof(KeyExchangeECDH256)},
+                    {"ecdh-sha2-nistp384", typeof(KeyExchangeECDH384)},
+                    {"ecdh-sha2-nistp521", typeof(KeyExchangeECDH521)},
                     {"diffie-hellman-group-exchange-sha256", typeof (KeyExchangeDiffieHellmanGroupExchangeSha256)},
                     {"diffie-hellman-group-exchange-sha1", typeof (KeyExchangeDiffieHellmanGroupExchangeSha1)},
                     {"diffie-hellman-group14-sha1", typeof (KeyExchangeDiffieHellmanGroup14Sha1)},
                     {"diffie-hellman-group1-sha1", typeof (KeyExchangeDiffieHellmanGroup1Sha1)},
-                    //{"ecdh-sha2-nistp256", typeof(KeyExchangeEllipticCurveDiffieHellman)},
-                    //{"ecdh-sha2-nistp256", typeof(...)},
-                    //{"ecdh-sha2-nistp384", typeof(...)},
-                    //{"ecdh-sha2-nistp521", typeof(...)},
                     //"gss-group1-sha1-toWM5Slw5Ew8Mqkay+al2g==" - WinSSHD
                     //"gss-gex-sha1-toWM5Slw5Ew8Mqkay+al2g==" - WinSSHD
                 };
@@ -377,9 +378,14 @@ namespace Renci.SshNet
 
             HostKeyAlgorithms = new Dictionary<string, Func<byte[], KeyHostAlgorithm>>
                 {
+                    {"ssh-ed25519", data => new KeyHostAlgorithm("ssh-ed25519", new ED25519Key(), data)},
+#if FEATURE_ECDSA
+                    {"ecdsa-sha2-nistp256", data => new KeyHostAlgorithm("ecdsa-sha2-nistp256", new EcdsaKey(), data)},
+                    {"ecdsa-sha2-nistp384", data => new KeyHostAlgorithm("ecdsa-sha2-nistp384", new EcdsaKey(), data)},
+                    {"ecdsa-sha2-nistp521", data => new KeyHostAlgorithm("ecdsa-sha2-nistp521", new EcdsaKey(), data)},
+#endif
                     {"ssh-rsa", data => new KeyHostAlgorithm("ssh-rsa", new RsaKey(), data)},
                     {"ssh-dss", data => new KeyHostAlgorithm("ssh-dss", new DsaKey(), data)},
-                    //{"ecdsa-sha2-nistp256 "}
                     //{"x509v3-sign-rsa", () => { ... },
                     //{"x509v3-sign-dss", () => { ... },
                     //{"spki-sign-rsa", () => { ... },

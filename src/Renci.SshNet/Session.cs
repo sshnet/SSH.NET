@@ -440,6 +440,11 @@ namespace Renci.SshNet
         internal event EventHandler<MessageEventArgs<KeyExchangeDhReplyMessage>> KeyExchangeDhReplyMessageReceived;
 
         /// <summary>
+        /// Occurs when a <see cref="KeyExchangeEcdhReplyMessage"/> message is received from the SSH server.
+        /// </summary>
+        internal event EventHandler<MessageEventArgs<KeyExchangeEcdhReplyMessage>> KeyExchangeEcdhReplyMessageReceived;
+
+        /// <summary>
         /// Occurs when <see cref="NewKeysMessage"/> message received
         /// </summary>
         internal event EventHandler<MessageEventArgs<NewKeysMessage>> NewKeysReceived;
@@ -1320,6 +1325,13 @@ namespace Renci.SshNet
             var handlers = KeyExchangeDhReplyMessageReceived;
             if (handlers != null)
                 handlers(this, new MessageEventArgs<KeyExchangeDhReplyMessage>(message));
+        }
+
+        internal void OnKeyExchangeEcdhReplyMessageReceived(KeyExchangeEcdhReplyMessage message)
+        {
+            var handlers = KeyExchangeEcdhReplyMessageReceived;
+            if (handlers != null)
+                handlers(this, new MessageEventArgs<KeyExchangeEcdhReplyMessage>(message));
         }
 
         /// <summary>

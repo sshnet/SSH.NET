@@ -64,7 +64,7 @@ namespace Renci.SshNet.Tests.Classes
                                .Setup(p => p.CreateSftpResponseFactory())
                                .Returns(_sftpResponseFactoryMock.Object);
             _serviceFactoryMock.InSequence(sequence)
-                               .Setup(p => p.CreateSftpSession(_sessionMock.Object, -1, _connectionInfo.Encoding, _sftpResponseFactoryMock.Object))
+                               .Setup(p => p.CreateSftpSession(_sessionMock.Object, -1, _connectionInfo.Encoding, _sftpResponseFactoryMock.Object, false))
                                .Returns(_sftpSessionMock.Object);
             _sftpSessionMock.InSequence(sequence)
                             .Setup(p => p.Connect())

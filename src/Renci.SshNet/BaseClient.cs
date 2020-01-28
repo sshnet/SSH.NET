@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Net.Sockets;
 using System.Threading;
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
@@ -7,10 +6,8 @@ using Renci.SshNet.Messages.Transport;
 
 namespace Renci.SshNet
 {
-    /// <summary>
-    /// Serves as base class for client implementations, provides common client functionality.
-    /// </summary>
-    public abstract class BaseClient : IDisposable
+    /// <inheritdoc cref="IBaseClient" />
+    public abstract class BaseClient : IBaseClient, IDisposable
     {
         /// <summary>
         /// Holds value indicating whether the connection info is owned by this client.
@@ -188,15 +185,7 @@ namespace Renci.SshNet
             _keepAliveInterval = SshNet.Session.InfiniteTimeSpan;
         }
 
-        /// <summary>
-        /// Connects client to the server.
-        /// </summary>
-        /// <exception cref="InvalidOperationException">The client is already connected.</exception>
-        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
-        /// <exception cref="SocketException">Socket connection to the SSH server or proxy server could not be established, or an error occurred while resolving the hostname.</exception>
-        /// <exception cref="SshConnectionException">SSH session could not be established.</exception>
-        /// <exception cref="SshAuthenticationException">Authentication of SSH session failed.</exception>
-        /// <exception cref="ProxyException">Failed to establish proxy connection.</exception>
+        /// <inheritdoc cref="IBaseClient.Connect" />
         public void Connect()
         {
             CheckDisposed();
@@ -239,10 +228,7 @@ namespace Renci.SshNet
             StartKeepAliveTimer();
         }
 
-        /// <summary>
-        /// Disconnects client from the server.
-        /// </summary>
-        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
+        /// <inheritdoc cref="IBaseClient.Disconnect" />
         public void Disconnect()
         {
             DiagnosticAbstraction.Log("Disconnecting client.");

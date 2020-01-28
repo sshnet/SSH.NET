@@ -151,6 +151,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="IAuthenticationMethod.cs" />
+    <Compile Include="IBaseClient.cs" />
     <Compile Include="IClientAuthentication.cs" />
     <Compile Include="IConnectionInfo.cs" />
     <Compile Include="IForwardedPort.cs" />

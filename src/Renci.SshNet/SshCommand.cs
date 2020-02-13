@@ -21,7 +21,7 @@ namespace Renci.SshNet
         private IChannelSession _channel;
         private CommandAsyncResult _asyncResult;
         private AsyncCallback _callback;
-        private EventWaitHandle _sessionErrorOccuredWaitHandle;
+        private Timer _timeoutTimer;
         private Exception _exception;
         private bool _hasError;
         private readonly object _endExecuteLock = new object();
@@ -144,7 +144,6 @@ namespace Renci.SshNet
             CommandText = commandText;
             _encoding = encoding;
             CommandTimeout = Session.InfiniteTimeSpan;
-            _sessionErrorOccuredWaitHandle = new AutoResetEvent(false);
 
             _session.Disconnected += Session_Disconnected;
             _session.ErrorOccured += Session_ErrorOccured;
@@ -247,7 +246,10 @@ namespace Renci.SshNet
             //  Initialize output streams
             OutputStream = new PipeStream();
             ExtendedOutputStream = new PipeStream();
-
+            if (CommandTimeout != Session.InfiniteTimeSpan)
+            {
+                _timeoutTimer = new Timer(new TimerCallback(TimeoutCallback), null, CommandTimeout, TimeSpan.FromMilliseconds(-1));
+            };
             _result = null;
             _error = null;
             _callback = callback;
@@ -308,12 +310,16 @@ namespace Renci.SshNet
                 }
 
                 //  wait for operation to complete (or time out)
-                WaitOnHandle(_asyncResult.AsyncWaitHandle);
+                _asyncResult.AsyncWaitHandle.WaitOne();
 
                 UnsubscribeFromEventsAndDisposeChannel(_channel);
                 _channel = null;
 
                 commandAsyncResult.EndCalled = true;
+                if (_exception != null)
+                {
+                    throw _exception;
+                }
 
                 return Result;
             }
@@ -376,10 +382,7 @@ namespace Renci.SshNet
             //  If objected is disposed or being disposed don't handle this event
             if (_isDisposed)
                 return;
-
-            _exception = new SshConnectionException("An established connection was aborted by the software in your host machine.", DisconnectReason.ConnectionLost);
-
-            _sessionErrorOccuredWaitHandle.Set();
+            SignalCompleted( new SshConnectionException("An established connection was aborted by the software in your host machine.", DisconnectReason.ConnectionLost));
         }
 
         private void Session_ErrorOccured(object sender, ExceptionEventArgs e)
@@ -387,10 +390,7 @@ namespace Renci.SshNet
             //  If objected is disposed or being disposed don't handle this event
             if (_isDisposed)
                 return;
-
-            _exception = e.Exception;
-
-            _sessionErrorOccuredWaitHandle.Set();
+            SignalCompleted(e.Exception);
         }
 
         private void Channel_Closed(object sender, ChannelEventArgs e)
@@ -407,14 +407,33 @@ namespace Renci.SshNet
                 extendedOutputStream.Flush();
             }
 
-            _asyncResult.IsCompleted = true;
+            SignalCompleted(null);
+        }
 
-            if (_callback != null)
+        private void SignalCompleted(Exception exception)
+        {
+            if (_exception == null && exception != null)
             {
-                //  Execute callback on different thread
-                ThreadAbstraction.ExecuteThread(() => _callback(_asyncResult));
+                _exception = exception;
+            };
+            DisposeTimeoutTimer();
+            if (_asyncResult != null)
+            {
+                lock(_asyncResult)
+                {
+                    if (!_asyncResult.IsCompleted)
+                    {
+                        _asyncResult.IsCompleted = true;
+                        ((EventWaitHandle)_asyncResult.AsyncWaitHandle).Set();
+
+                        if (_callback != null)
+                        {
+                            //  Execute callback on different thread
+                            ThreadAbstraction.ExecuteThread(() => _callback(_asyncResult));
+                        }
+                    }
+                }
             }
-            ((EventWaitHandle) _asyncResult.AsyncWaitHandle).Set();
         }
 
         private void Channel_RequestReceived(object sender, ChannelRequestEventArgs e)
@@ -473,21 +492,9 @@ namespace Renci.SshNet
 
         /// <exception cref="SshOperationTimeoutException">Command '{0}' has timed out.</exception>
         /// <remarks>The actual command will be included in the exception message.</remarks>
-        private void WaitOnHandle(WaitHandle waitHandle)
+        private void TimeoutCallback(object o)
         {
-            var waitHandles = new[]
-                {
-                    _sessionErrorOccuredWaitHandle,
-                    waitHandle
-                };
-
-            switch (WaitHandle.WaitAny(waitHandles, CommandTimeout))
-            {
-                case 0:
-                    throw _exception;
-                case WaitHandle.WaitTimeout:
-                    throw new SshOperationTimeoutException(string.Format(CultureInfo.CurrentCulture, "Command '{0}' has timed out.", CommandText));
-            }
+            SignalCompleted(new SshOperationTimeoutException(string.Format(CultureInfo.CurrentCulture, "Command '{0}' has timed out.", CommandText)));
         }
 
         /// <summary>
@@ -512,6 +519,15 @@ namespace Renci.SshNet
 
             // actually dispose the channel
             channel.Dispose();
+        }
+        private void DisposeTimeoutTimer()
+        {
+            var timeoutTimer = _timeoutTimer;
+            if (timeoutTimer != null)
+            {
+                timeoutTimer.Dispose();
+                _timeoutTimer = null;
+            }
         }
 
         #region IDisposable Members
@@ -571,12 +587,13 @@ namespace Renci.SshNet
                     ExtendedOutputStream = null;
                 }
 
-                var sessionErrorOccuredWaitHandle = _sessionErrorOccuredWaitHandle;
-                if (sessionErrorOccuredWaitHandle != null)
+                var asyncResult = _asyncResult;
+                if (asyncResult != null && asyncResult.AsyncWaitHandle != null)
                 {
-                    sessionErrorOccuredWaitHandle.Dispose();
-                    _sessionErrorOccuredWaitHandle = null;
+                    asyncResult.AsyncWaitHandle.Dispose();
+                    _asyncResult = null;
                 }
+                DisposeTimeoutTimer();
 
                 _isDisposed = true;
             }

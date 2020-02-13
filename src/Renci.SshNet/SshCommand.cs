@@ -246,13 +246,13 @@ namespace Renci.SshNet
             //  Initialize output streams
             OutputStream = new PipeStream();
             ExtendedOutputStream = new PipeStream();
+            _result = null;
+            _error = null;
+            _callback = callback;
             if (CommandTimeout != Session.InfiniteTimeSpan)
             {
                 _timeoutTimer = new Timer(new TimerCallback(TimeoutCallback), null, CommandTimeout, TimeSpan.FromMilliseconds(-1));
             };
-            _result = null;
-            _error = null;
-            _callback = callback;
 
             _channel = CreateChannel();
             _channel.Open();

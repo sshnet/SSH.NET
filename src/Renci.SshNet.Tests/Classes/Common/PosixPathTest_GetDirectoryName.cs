@@ -5,7 +5,7 @@ using Renci.SshNet.Common;
 namespace Renci.SshNet.Tests.Classes.Common
 {
     [TestClass]
-    public class PosixPathTest_GetFileName
+    public class PosixPathTest_GetDirectoryName
     {
         [TestMethod]
         public void Path_Null()
@@ -14,7 +14,7 @@ namespace Renci.SshNet.Tests.Classes.Common
 
             try
             {
-                PosixPath.GetFileName(path);
+                PosixPath.GetDirectoryName(path);
                 Assert.Fail();
             }
             catch (ArgumentNullException ex)
@@ -29,10 +29,10 @@ namespace Renci.SshNet.Tests.Classes.Common
         {
             var path = string.Empty;
 
-            var actual = PosixPath.GetFileName(path);
+            var actual = PosixPath.GetDirectoryName(path);
 
             Assert.IsNotNull(actual);
-            Assert.AreSame(path, actual);
+            Assert.AreEqual(".", actual);
         }
 
         [TestMethod]
@@ -40,10 +40,10 @@ namespace Renci.SshNet.Tests.Classes.Common
         {
             var path = "/abc/";
 
-            var actual = PosixPath.GetFileName(path);
+            var actual = PosixPath.GetDirectoryName(path);
 
             Assert.IsNotNull(actual);
-            Assert.AreEqual(string.Empty, actual);
+            Assert.AreEqual("/abc", actual);
         }
 
         [TestMethod]
@@ -51,10 +51,10 @@ namespace Renci.SshNet.Tests.Classes.Common
         {
             var path = "abc.log";
 
-            var actual = PosixPath.GetFileName(path);
+            var actual = PosixPath.GetDirectoryName(path);
 
             Assert.IsNotNull(actual);
-            Assert.AreSame(path, actual);
+            Assert.AreEqual(".", actual);
         }
 
         [TestMethod]
@@ -62,10 +62,10 @@ namespace Renci.SshNet.Tests.Classes.Common
         {
             var path = "/abc.log";
 
-            var actual = PosixPath.GetFileName(path);
+            var actual = PosixPath.GetDirectoryName(path);
 
             Assert.IsNotNull(actual);
-            Assert.AreEqual("abc.log", actual);
+            Assert.AreEqual("/", actual);
         }
 
         [TestMethod]
@@ -73,10 +73,10 @@ namespace Renci.SshNet.Tests.Classes.Common
         {
             var path = "/";
 
-            var actual = PosixPath.GetFileName(path);
+            var actual = PosixPath.GetDirectoryName(path);
 
             Assert.IsNotNull(actual);
-            Assert.AreEqual(string.Empty, actual);
+            Assert.AreEqual("/", actual);
         }
 
         [TestMethod]
@@ -84,10 +84,10 @@ namespace Renci.SshNet.Tests.Classes.Common
         {
             var path = "/home/sshnet/xyz";
 
-            var actual = PosixPath.GetFileName(path);
+            var actual = PosixPath.GetDirectoryName(path);
 
             Assert.IsNotNull(actual);
-            Assert.AreEqual("xyz", actual);
+            Assert.AreEqual("/home/sshnet", actual);
         }
 
         [TestMethod]
@@ -95,10 +95,10 @@ namespace Renci.SshNet.Tests.Classes.Common
         {
             var path = "/home\\abc.log";
 
-            var actual = PosixPath.GetFileName(path);
+            var actual = PosixPath.GetDirectoryName(path);
 
             Assert.IsNotNull(actual);
-            Assert.AreEqual("home\\abc.log", actual);
+            Assert.AreEqual("/", actual);
         }
 
         [TestMethod]
@@ -106,10 +106,10 @@ namespace Renci.SshNet.Tests.Classes.Common
         {
             var path = "/home:abc.log";
 
-            var actual = PosixPath.GetFileName(path);
+            var actual = PosixPath.GetDirectoryName(path);
 
             Assert.IsNotNull(actual);
-            Assert.AreEqual("home:abc.log", actual);
+            Assert.AreEqual("/", actual);
         }
 
         [TestMethod]
@@ -117,10 +117,10 @@ namespace Renci.SshNet.Tests.Classes.Common
         {
             var path = "  / \tabc";
 
-            var actual = PosixPath.GetFileName(path);
+            var actual = PosixPath.GetDirectoryName(path);
 
             Assert.IsNotNull(actual);
-            Assert.AreEqual(" \tabc", actual);
+            Assert.AreEqual("  ", actual);
         }
 
         [TestMethod]
@@ -128,10 +128,10 @@ namespace Renci.SshNet.Tests.Classes.Common
         {
             var path = "/abc \t ";
 
-            var actual = PosixPath.GetFileName(path);
+            var actual = PosixPath.GetDirectoryName(path);
 
             Assert.IsNotNull(actual);
-            Assert.AreEqual("abc \t ", actual);
+            Assert.AreEqual("/", actual);
         }
 
         [TestMethod]
@@ -139,10 +139,10 @@ namespace Renci.SshNet.Tests.Classes.Common
         {
             var path = " ";
 
-            var actual = PosixPath.GetFileName(path);
+            var actual = PosixPath.GetDirectoryName(path);
 
             Assert.IsNotNull(actual);
-            Assert.AreEqual(" ", actual);
+            Assert.AreEqual(".", actual);
         }
 
         [TestMethod]
@@ -150,10 +150,10 @@ namespace Renci.SshNet.Tests.Classes.Common
         {
             var path = "/home/\t ";
 
-            var actual = PosixPath.GetFileName(path);
+            var actual = PosixPath.GetDirectoryName(path);
 
             Assert.IsNotNull(actual);
-            Assert.AreEqual("\t ", actual);
+            Assert.AreEqual("/home", actual);
         }
     }
 }

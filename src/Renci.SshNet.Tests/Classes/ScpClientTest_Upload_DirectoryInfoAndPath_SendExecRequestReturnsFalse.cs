@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -25,7 +24,7 @@ namespace Renci.SshNet.Tests.Classes
 
             _connectionInfo = new ConnectionInfo("host", 22, "user", new PasswordAuthenticationMethod("user", "pwd"));
             _directoryInfo = new DirectoryInfo("source");
-            _path = "/home/sshnet/" + random.Next().ToString(CultureInfo.InvariantCulture);
+            _path = "/home/sshnet/" + random.Next().ToString();
             _transformedPath = random.Next().ToString();
             _uploadingRegister = new List<ScpUploadEventArgs>();
         }

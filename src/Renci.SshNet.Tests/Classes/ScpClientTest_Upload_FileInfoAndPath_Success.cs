@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -47,7 +46,7 @@ namespace Renci.SshNet.Tests.Classes
             _connectionInfo = new ConnectionInfo("host", 22, "user", new PasswordAuthenticationMethod("user", "pwd"));
             _fileInfo = new FileInfo(_fileName);
             _remoteDirectory = "/home/sshnet";
-            _remoteFile = random.Next().ToString(CultureInfo.InvariantCulture);
+            _remoteFile = random.Next().ToString();
             _remotePath = _remoteDirectory + "/" + _remoteFile;
             _transformedPath = random.Next().ToString();
             _uploadingRegister = new List<ScpUploadEventArgs>();

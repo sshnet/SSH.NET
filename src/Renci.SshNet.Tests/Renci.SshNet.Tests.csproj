@@ -173,6 +173,8 @@
     <Compile Include="Classes\Common\ExtensionsTest_Pad.cs" />
     <Compile Include="Classes\Common\ExtensionsTest_TrimLeadingZeros.cs" />
     <Compile Include="Classes\Common\PackTest.cs" />
+    <Compile Include="Classes\Common\PosixPathTest_CreateAbsoluteOrRelativeFilePath.cs" />
+    <Compile Include="Classes\Common\PosixPathTest_GetDirectoryName.cs" />
     <Compile Include="Classes\Common\PosixPathTest_GetFileName.cs" />
     <Compile Include="Classes\ConnectionInfoTest_Authenticate_Failure.cs" />
     <Compile Include="Classes\ConnectionInfoTest_Authenticate_Success.cs" />

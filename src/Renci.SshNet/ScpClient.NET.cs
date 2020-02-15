@@ -39,7 +39,7 @@ namespace Renci.SshNet
 
                 // Pass only the directory part of the path to the server, and use the (hidden) -d option to signal
                 // that we expect the target to be a directory.
-                if (!channel.SendExecRequest(string.Format("scp -td {0}", _remotePathTransformation.Transform(posixPath.Directory))))
+                if (!channel.SendExecRequest(string.Format("scp -t -d {0}", _remotePathTransformation.Transform(posixPath.Directory))))
                 {
                     throw SecureExecutionRequestRejectedException();
                 }

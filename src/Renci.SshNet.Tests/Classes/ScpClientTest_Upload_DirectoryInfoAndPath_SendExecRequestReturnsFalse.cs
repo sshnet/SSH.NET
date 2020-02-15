@@ -48,7 +48,7 @@ namespace Renci.SshNet.Tests.Classes
                                          .Setup(p => p.Transform(_path))
                                          .Returns(_transformedPath);
             _channelSessionMock.InSequence(sequence)
-                               .Setup(p => p.SendExecRequest(string.Format("scp -rt {0}", _transformedPath)))
+                               .Setup(p => p.SendExecRequest(string.Format("scp -r -p -d -t {0}", _transformedPath)))
                                .Returns(false);
             _channelSessionMock.InSequence(sequence).Setup(p => p.Dispose());
             _pipeStreamMock.As<IDisposable>().InSequence(sequence).Setup(p => p.Dispose());
@@ -87,7 +87,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void SendExecREquestOnChannelSessionShouldBeInvokedOnce()
         {
-            _channelSessionMock.Verify(p => p.SendExecRequest(string.Format("scp -rt {0}", _transformedPath)), Times.Once);
+            _channelSessionMock.Verify(p => p.SendExecRequest(string.Format("scp -r -p -d -t {0}", _transformedPath)), Times.Once);
         }
 
         [TestMethod]

@@ -26,6 +26,27 @@
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.0' ">
     <DefineConstants>FEATURE_THREAD_COUNTDOWNEVENT;FEATURE_TPL</DefineConstants>
   </PropertyGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Data\Key.ECDSA.Encrypted.txt" />
+    <EmbeddedResource Include="Data\Key.ECDSA.txt" />
+    <EmbeddedResource Include="Data\Key.ECDSA384.Encrypted.txt" />
+    <EmbeddedResource Include="Data\Key.ECDSA384.txt" />
+    <EmbeddedResource Include="Data\Key.ECDSA521.Encrypted.txt" />
+    <EmbeddedResource Include="Data\Key.ECDSA521.txt" />
+    <EmbeddedResource Include="Data\Key.OPENSSH.ED25519.Encrypted.txt" />
+    <EmbeddedResource Include="Data\Key.OPENSSH.ED25519.txt" />
+    <EmbeddedResource Include="Data\Key.RSA.Encrypted.Aes.128.CBC.12345.txt" />
+    <EmbeddedResource Include="Data\Key.RSA.Encrypted.Aes.192.CBC.12345.txt" />
+    <EmbeddedResource Include="Data\Key.RSA.Encrypted.Aes.256.CBC.12345.txt" />
+    <EmbeddedResource Include="Data\Key.RSA.Encrypted.Des.CBC.12345.txt" />
+    <EmbeddedResource Include="Data\Key.RSA.Encrypted.Des.Ede3.CBC.12345.txt" />
+    <EmbeddedResource Include="Data\Key.RSA.Encrypted.Des.Ede3.CFB.1234567890.txt" />
+    <EmbeddedResource Include="Data\Key.RSA.txt" />
+    <EmbeddedResource Include="Data\Key.SSH2.DSA.Encrypted.Des.CBC.12345.txt" />
+    <EmbeddedResource Include="Data\Key.SSH2.DSA.txt" />
+    <EmbeddedResource Include="Data\Key.SSH2.RSA.Encrypted.Des.CBC.12345.txt" />
+    <EmbeddedResource Include="Data\Key.SSH2.RSA.txt" />
+  </ItemGroup>
 
   <ItemGroup>
     <None Include="..\Renci.SshNet.snk" Link="Renci.SshNet.snk" />
@@ -44,18 +65,22 @@
     <PackageReference Include="Moq" Version="4.2.1409.1722" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.1'">
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.2.0" />
+    <PackageReference Include="MSTest.TestAdapter" Version="2.1.0" />
     <PackageReference Include="MSTest.TestFramework">
       <Version>2.1.0</Version>
     </PackageReference>
     <PackageReference Include="Moq" Version="4.13.1" />
   </ItemGroup>    
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.2'">
+    <PackageReference Include="MSTest.TestAdapter" Version="2.1.0" />
     <PackageReference Include="MSTest.TestFramework">
       <Version>2.1.0</Version>
     </PackageReference>
     <PackageReference Include="Moq" Version="4.13.1" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.0'">
+    <PackageReference Include="MSTest.TestAdapter" Version="2.1.0" />
     <PackageReference Include="MSTest.TestFramework">
       <Version>2.1.0</Version>
     </PackageReference>

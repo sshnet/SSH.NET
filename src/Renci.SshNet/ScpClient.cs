@@ -202,28 +202,30 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="source">The <see cref="Stream"/> to upload.</param>
         /// <param name="path">A relative or absolute path for the remote file.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="path" /> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="path"/> is a zero-length <see cref="string"/>.</exception>
         /// <exception cref="ScpException">A directory with the specified path exists on the remote host.</exception>
         /// <exception cref="SshException">The secure copy execution request was rejected by the server.</exception>
         public void Upload(Stream source, string path)
         {
+            var posixPath = PosixPath.CreateAbsoluteOrRelativeFilePath(path);
+
             using (var input = ServiceFactory.CreatePipeStream())
             using (var channel = Session.CreateChannelSession())
             {
                 channel.DataReceived += (sender, e) => input.Write(e.Data, 0, e.Data.Length);
                 channel.Open();
 
-                // pass the full path to ensure the server does not create the directory part
-                // as a file in case the directory does not exist
-                if (!channel.SendExecRequest(string.Format("scp -t {0}", _remotePathTransformation.Transform(path))))
+                // Pass only the directory part of the path to the server, and use the (hidden) -d option to signal
+                // that we expect the target to be a directory.
+                if (!channel.SendExecRequest(string.Format("scp -t -d {0}", _remotePathTransformation.Transform(posixPath.Directory))))
                 {
                     throw SecureExecutionRequestRejectedException();
                 }
                 CheckReturnCode(input);
 
-                // specify a zero-length file name to avoid creating a file with absolute
-                // path '<path>/<filename part of path>' if directory '<path>' already exists
-                UploadFileModeAndName(channel, input, source.Length, string.Empty);
-                UploadFileContent(channel, input, source, PosixPath.GetFileName(path));
+                UploadFileModeAndName(channel, input, source.Length, posixPath.File);
+                UploadFileContent(channel, input, source, posixPath.File);
             }
         }
 

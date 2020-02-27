@@ -127,7 +127,6 @@ namespace Renci.SshNet.Tests.Common
             else
             {
                 SignalDisconnected(handler);
-                handler.Shutdown(SocketShutdown.Send);
             }
         }
 

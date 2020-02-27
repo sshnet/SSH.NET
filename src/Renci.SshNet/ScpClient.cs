@@ -93,7 +93,7 @@ namespace Renci.SshNet
         #region Constructors
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SftpClient"/> class.
+        /// Initializes a new instance of the <see cref="ScpClient"/> class.
         /// </summary>
         /// <param name="connectionInfo">The connection info.</param>
         /// <exception cref="ArgumentNullException"><paramref name="connectionInfo"/> is <c>null</c>.</exception>
@@ -103,7 +103,7 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SftpClient"/> class.
+        /// Initializes a new instance of the <see cref="ScpClient"/> class.
         /// </summary>
         /// <param name="host">Connection host.</param>
         /// <param name="port">Connection port.</param>
@@ -119,7 +119,7 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SftpClient"/> class.
+        /// Initializes a new instance of the <see cref="ScpClient"/> class.
         /// </summary>
         /// <param name="host">Connection host.</param>
         /// <param name="username">Authentication username.</param>
@@ -132,7 +132,7 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SftpClient"/> class.
+        /// Initializes a new instance of the <see cref="ScpClient"/> class.
         /// </summary>
         /// <param name="host">Connection host.</param>
         /// <param name="port">Connection port.</param>
@@ -148,7 +148,7 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SftpClient"/> class.
+        /// Initializes a new instance of the <see cref="ScpClient"/> class.
         /// </summary>
         /// <param name="host">Connection host.</param>
         /// <param name="username">Authentication username.</param>

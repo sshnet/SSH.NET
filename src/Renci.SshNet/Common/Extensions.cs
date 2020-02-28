@@ -262,7 +262,7 @@ namespace Renci.SshNet.Common
         }
 
         /// <summary>
-        /// Pads with leading zeros if needd
+        /// Pads with leading zeros if needed.
         /// </summary>
         /// <param name="data">The data.</param>
         /// <param name="length">The length to pad to.</param>
@@ -335,5 +335,34 @@ namespace Renci.SshNet.Common
             handle.Close();
         }
 #endif // !FEATURE_WAITHANDLE_DISPOSE
+
+#if !FEATURE_HASHALGORITHM_DISPOSE
+        /// <summary>
+        /// Disposes the specified algorithm.
+        /// </summary>
+        /// <param name="algorithm">The algorithm.</param>
+        [DebuggerNonUserCode]
+        internal static void Dispose(this System.Security.Cryptography.HashAlgorithm algorithm)
+        {
+            if (algorithm == null)
+                throw new NullReferenceException();
+
+            algorithm.Clear();
+        }
+#endif // FEATURE_HASHALGORITHM_DISPOSE
+
+#if !FEATURE_STRINGBUILDER_CLEAR
+        /// <summary>
+        ///     Clears the contents of the string builder.
+        /// </summary>
+        /// <param name="value">
+        ///     The <see cref="StringBuilder"/> to clear.
+        /// </param>
+        public static void Clear(this StringBuilder value)
+        {
+            value.Length = 0;
+            value.Capacity = 16;
+        }
+#endif // !FEATURE_STRINGBUILDER_CLEAR
     }
 }

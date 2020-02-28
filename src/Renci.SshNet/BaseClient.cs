@@ -327,7 +327,7 @@ namespace Renci.SshNet
             }
         }
 
-        #region IDisposable Members
+#region IDisposable Members
 
         private bool _isDisposed;
 
@@ -386,7 +386,7 @@ namespace Renci.SshNet
             Dispose(false);
         }
 
-        #endregion
+#endregion
 
         /// <summary>
         /// Stops the keep-alive timer, and waits until all timer callbacks have been

@@ -92,7 +92,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
         {
             var connectionInfo = new PasswordConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD);
             connectionInfo.Encryptions.Clear();
-            connectionInfo.Encryptions.Add("aes128-cbc", new CipherInfo(128, (key, iv) => { return new AesCipher(key, new CbcCipherMode(iv), null); }));
+            connectionInfo.Encryptions.Add("aes128-cbc", new CipherInfo(128, 1, (key, iv) => { return new AesCipher(key, new CbcCipherMode(iv), null); }));
 
             using (var client = new SshClient(connectionInfo))
             {
@@ -109,7 +109,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
         {
             var connectionInfo = new PasswordConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD);
             connectionInfo.Encryptions.Clear();
-            connectionInfo.Encryptions.Add("aes192-cbc", new CipherInfo(192, (key, iv) => { return new AesCipher(key, new CbcCipherMode(iv), null); }));
+            connectionInfo.Encryptions.Add("aes192-cbc", new CipherInfo(192, 1, (key, iv) => { return new AesCipher(key, new CbcCipherMode(iv), null); }));
 
             using (var client = new SshClient(connectionInfo))
             {
@@ -126,7 +126,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
         {
             var connectionInfo = new PasswordConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD);
             connectionInfo.Encryptions.Clear();
-            connectionInfo.Encryptions.Add("aes256-cbc", new CipherInfo(256, (key, iv) => { return new AesCipher(key, new CbcCipherMode(iv), null); }));
+            connectionInfo.Encryptions.Add("aes256-cbc", new CipherInfo(256, 1, (key, iv) => { return new AesCipher(key, new CbcCipherMode(iv), null); }));
 
             using (var client = new SshClient(connectionInfo))
             {
@@ -143,7 +143,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
         {
             var connectionInfo = new PasswordConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD);
             connectionInfo.Encryptions.Clear();
-            connectionInfo.Encryptions.Add("aes128-ctr", new CipherInfo(128, (key, iv) => { return new AesCipher(key, new CtrCipherMode(iv), null); }));
+            connectionInfo.Encryptions.Add("aes128-ctr", new CipherInfo(128, 1, (key, iv) => { return new AesCipher(key, new CtrCipherMode(iv), null); }));
 
             using (var client = new SshClient(connectionInfo))
             {
@@ -160,7 +160,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
         {
             var connectionInfo = new PasswordConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD);
             connectionInfo.Encryptions.Clear();
-            connectionInfo.Encryptions.Add("aes192-ctr", new CipherInfo(192, (key, iv) => { return new AesCipher(key, new CtrCipherMode(iv), null); }));
+            connectionInfo.Encryptions.Add("aes192-ctr", new CipherInfo(192, 1, (key, iv) => { return new AesCipher(key, new CtrCipherMode(iv), null); }));
 
             using (var client = new SshClient(connectionInfo))
             {
@@ -177,7 +177,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
         {
             var connectionInfo = new PasswordConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD);
             connectionInfo.Encryptions.Clear();
-            connectionInfo.Encryptions.Add("aes256-ctr", new CipherInfo(256, (key, iv) => { return new AesCipher(key, new CtrCipherMode(iv), null); }));
+            connectionInfo.Encryptions.Add("aes256-ctr", new CipherInfo(256, 1, (key, iv) => { return new AesCipher(key, new CtrCipherMode(iv), null); }));
 
             using (var client = new SshClient(connectionInfo))
             {
@@ -194,7 +194,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
         {
             var connectionInfo = new PasswordConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD);
             connectionInfo.Encryptions.Clear();
-            connectionInfo.Encryptions.Add("arcfour", new CipherInfo(128, (key, iv) => { return new Arc4Cipher(key, false); }));
+            connectionInfo.Encryptions.Add("arcfour", new CipherInfo(128, 1, (key, iv) => { return new Arc4Cipher(key, false); }));
 
             using (var client = new SshClient(connectionInfo))
             {

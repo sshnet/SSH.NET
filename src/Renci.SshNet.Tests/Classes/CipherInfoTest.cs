@@ -21,7 +21,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             int keySize = 0; // TODO: Initialize to an appropriate value
             Func<byte[], byte[], Cipher> cipher = null; // TODO: Initialize to an appropriate value
-            CipherInfo target = new CipherInfo(keySize, cipher);
+            CipherInfo target = new CipherInfo(keySize, 1, cipher);
             Assert.Inconclusive("TODO: Implement code to verify target");
         }
     }

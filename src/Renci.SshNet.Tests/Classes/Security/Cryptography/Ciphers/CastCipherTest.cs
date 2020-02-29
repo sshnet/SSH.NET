@@ -47,7 +47,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
         {
             var connectionInfo = new PasswordConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD);
             connectionInfo.Encryptions.Clear();
-            connectionInfo.Encryptions.Add("cast128-cbc", new CipherInfo(128, (key, iv) => { return new CastCipher(key, new CbcCipherMode(iv), null); }));
+            connectionInfo.Encryptions.Add("cast128-cbc", new CipherInfo(128, 1, (key, iv) => { return new CastCipher(key, new CbcCipherMode(iv), null); }));
 
             using (var client = new SshClient(connectionInfo))
             {

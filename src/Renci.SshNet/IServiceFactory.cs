@@ -57,7 +57,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="clientAlgorithms"/> is <c>null</c>.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="serverAlgorithms"/> is <c>null</c>.</exception>
         /// <exception cref="SshConnectionException">No key exchange algorithm is supported by both client and server.</exception>
-        IKeyExchange CreateKeyExchange(IDictionary<string, Type> clientAlgorithms, string[] serverAlgorithms);
+        IKeyExchange CreateKeyExchange(IDictionary<string, TypeWithPriority> clientAlgorithms, string[] serverAlgorithms);
 
         ISftpFileReader CreateSftpFileReader(string fileName, ISftpSession sftpSession, uint bufferSize);
 

@@ -17,7 +17,7 @@ namespace Renci.SshNet.Tests.Classes.Security
         {
             var connectionInfo = new PasswordConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD);
             connectionInfo.HostKeyAlgorithms.Clear();
-            connectionInfo.HostKeyAlgorithms.Add("ssh-rsa", (data) => { return new KeyHostAlgorithm("ssh-rsa", new RsaKey(), data, 2); });
+            connectionInfo.HostKeyAlgorithms.Add("ssh-rsa", (data) => { return new KeyHostAlgorithm("ssh-rsa", 1, new RsaKey(), data, 2); });
 
             using (var client = new SshClient(connectionInfo))
             {
@@ -32,7 +32,7 @@ namespace Renci.SshNet.Tests.Classes.Security
         {
             var connectionInfo = new PasswordConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD);
             connectionInfo.HostKeyAlgorithms.Clear();
-            connectionInfo.HostKeyAlgorithms.Add("ssh-dss", (data) => { return new KeyHostAlgorithm("ssh-dss", new DsaKey(), data, int.MaxValue); });
+            connectionInfo.HostKeyAlgorithms.Add("ssh-dss", (data) => { return new KeyHostAlgorithm("ssh-dss", 1, new DsaKey(), data, int.MaxValue); });
 
             using (var client = new SshClient(connectionInfo))
             {
@@ -64,7 +64,7 @@ namespace Renci.SshNet.Tests.Classes.Security
             string name = string.Empty; // TODO: Initialize to an appropriate value
             Key key = null; // TODO: Initialize to an appropriate value
             byte[] data = null; // TODO: Initialize to an appropriate value
-            KeyHostAlgorithm target = new KeyHostAlgorithm(name, key, data, int.MaxValue);
+            KeyHostAlgorithm target = new KeyHostAlgorithm(name, 1, key, data, int.MaxValue);
             Assert.Inconclusive("TODO: Implement code to verify target");
         }
 

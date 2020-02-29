@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 
 using Renci.SshNet.Security.Org.BouncyCastle.Crypto;
+using Renci.SshNet.Security.Org.BouncyCastle.Crypto.Digests;
 using Renci.SshNet.Security.Org.BouncyCastle.Crypto.Prng;
 using Renci.SshNet.Security.Org.BouncyCastle.Utilities;
 
@@ -23,11 +24,8 @@ namespace Renci.SshNet.Security.Org.BouncyCastle.Security
             get { return master; }
         }
 
-        private static DigestRandomGenerator CreatePrng(string digestName, bool autoSeed)
+        private static DigestRandomGenerator CreatePrng(IDigest digest, bool autoSeed)
         {
-            IDigest digest = DigestUtilities.GetDigest(digestName);
-            if (digest == null)
-                return null;
             DigestRandomGenerator prng = new DigestRandomGenerator(digest);
             if (autoSeed)
             {
@@ -44,41 +42,10 @@ namespace Renci.SshNet.Security.Org.BouncyCastle.Security
             return result;
         }
 
-        /// <summary>
-        /// Create and auto-seed an instance based on the given algorithm.
-        /// </summary>
-        /// <remarks>Equivalent to GetInstance(algorithm, true)</remarks>
-        /// <param name="algorithm">e.g. "SHA256PRNG"</param>
-        public static SecureRandom GetInstance(string algorithm)
-        {
-            return GetInstance(algorithm, true);
-        }
-
-        /// <summary>
-        /// Create an instance based on the given algorithm, with optional auto-seeding
-        /// </summary>
-        /// <param name="algorithm">e.g. "SHA256PRNG"</param>
-        /// <param name="autoSeed">If true, the instance will be auto-seeded.</param>
-        public static SecureRandom GetInstance(string algorithm, bool autoSeed)
-        {
-            string upper = algorithm.ToUpper();
-            if (upper.EndsWith("PRNG"))
-            {
-                string digestName = upper.Substring(0, upper.Length - "PRNG".Length);
-                DigestRandomGenerator prng = CreatePrng(digestName, autoSeed);
-                if (prng != null)
-                {
-                    return new SecureRandom(prng);
-                }
-            }
-
-            throw new ArgumentException("Unrecognised PRNG algorithm: " + algorithm, "algorithm");
-        }
-
         protected readonly IRandomGenerator generator;
 
         public SecureRandom()
-            : this(CreatePrng("SHA256", true))
+            : this(CreatePrng(new Sha256Digest(), true))
         {
         }
 

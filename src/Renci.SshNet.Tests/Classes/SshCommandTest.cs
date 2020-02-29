@@ -6,6 +6,10 @@ using System;
 using System.IO;
 using System.Text;
 using System.Threading;
+#if FEATURE_TPL
+using System.Diagnostics;
+using System.Threading.Tasks;
+#endif // FEATURE_TPL
 
 namespace Renci.SshNet.Tests.Classes
 {
@@ -621,6 +625,100 @@ namespace Renci.SshNet.Tests.Classes
             actual = target.Result;
             Assert.Inconclusive("Verify the correctness of this test method.");
         }
+
+#if FEATURE_TPL
+        [TestMethod]
+        [TestCategory("integration")]
+        public void Test_MultipleThread_Example_MultipleConnections()
+        {
+            var host = Resources.HOST;
+            var username = Resources.USERNAME;
+            var password = Resources.PASSWORD;
+
+            try
+            {
+#region Example SshCommand RunCommand Parallel
+                System.Threading.Tasks.Parallel.For(0, 10000,
+                    () =>
+                    {
+                        var client = new SshClient(host, username, password);
+                        client.Connect();
+                        return client;
+                    },
+                    (int counter, ParallelLoopState pls, SshClient client) =>
+                    {
+                        var result = client.RunCommand("echo 123");
+                        Debug.WriteLine(string.Format("TestMultipleThreadMultipleConnections #{0}", counter));
+                        return client;
+                    },
+                    (SshClient client) =>
+                    {
+                        client.Disconnect();
+                        client.Dispose();
+                    }
+                );
+#endregion
+
+            }
+            catch (Exception exp)
+            {
+                Assert.Fail(exp.ToString());
+            }
+        }
+
+        [TestMethod]
+        [TestCategory("integration")]
+        public void Test_MultipleThread_10000_MultipleConnections()
+        {
+            try
+            {
+                System.Threading.Tasks.Parallel.For(0, 10000,
+                    () =>
+                    {
+                        var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD);
+                        client.Connect();
+                        return client;
+                    },
+                    (int counter, ParallelLoopState pls, SshClient client) =>
+                    {
+                        var result = ExecuteTestCommand(client);
+                        Debug.WriteLine(string.Format("TestMultipleThreadMultipleConnections #{0}", counter));
+                        Assert.IsTrue(result);
+                        return client;
+                    },
+                    (SshClient client) =>
+                    {
+                        client.Disconnect();
+                        client.Dispose();
+                    }
+                );
+            }
+            catch (Exception exp)
+            {
+                Assert.Fail(exp.ToString());
+            }
+        }
+
+        [TestMethod]
+        [TestCategory("integration")]
+        public void Test_MultipleThread_10000_MultipleSessions()
+        {
+            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            {
+                client.Connect();
+                System.Threading.Tasks.Parallel.For(0, 10000,
+                    (counter) =>
+                    {
+                        var result = ExecuteTestCommand(client);
+                        Debug.WriteLine(string.Format("TestMultipleThreadMultipleConnections #{0}", counter));
+                        Assert.IsTrue(result);
+                    }
+                );
+
+                client.Disconnect();
+            }
+        }
+#endif // FEATURE_TPL
 
         private static bool ExecuteTestCommand(SshClient s)
         {

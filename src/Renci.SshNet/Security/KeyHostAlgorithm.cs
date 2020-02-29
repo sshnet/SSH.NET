@@ -104,7 +104,7 @@ namespace Renci.SshNet.Security
                     for (var i = 0; i < _keys.Count; i++)
                     {
                         var key = _keys[i];
-                        keys[i] = key.ToBigInteger();
+                        keys[i] = key.ToBigInteger2();
                     }
                     return keys;
                 }

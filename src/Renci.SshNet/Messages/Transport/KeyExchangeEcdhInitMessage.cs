@@ -1,6 +1,4 @@
-﻿#if false
-
-using System;
+﻿using System;
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Messages.Transport
@@ -8,7 +6,7 @@ namespace Renci.SshNet.Messages.Transport
     /// <summary>
     /// Represents SSH_MSG_KEXECDH_INIT message.
     /// </summary>
-    [Message("SSH_MSG_KEXECDH_INIT", 30)]
+    [Message("SSH_MSG_KEX_ECDH_INIT", 30)]
     internal class KeyExchangeEcdhInitMessage : Message, IKeyExchangedAllowed
     {
         /// <summary>
@@ -31,6 +29,14 @@ namespace Renci.SshNet.Messages.Transport
                 capacity += QC.Length; // QC
                 return capacity;
             }
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="KeyExchangeEcdhInitMessage"/> class.
+        /// </summary>
+        public KeyExchangeEcdhInitMessage(byte[] q)
+        {
+            QC = q;
         }
 
         /// <summary>
@@ -63,7 +69,10 @@ namespace Renci.SshNet.Messages.Transport
         {
             WriteBinaryString(QC);
         }
+
+        internal override void Process(Session session)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
-
-#endif // false

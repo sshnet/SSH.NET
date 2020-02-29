@@ -1,720 +1,121 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{C45379B9-17B1-4E89-BC2E-6D41726413E8}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Renci.SshNet.Tests</RootNamespace>
-    <AssemblyName>Renci.SshNet.Tests</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;FEATURE_THREAD_COUNTDOWNEVENT</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <LangVersion>5</LangVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;FEATURE_THREAD_COUNTDOWNEVENT</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>0</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup>
-    <StartupObject>
-    </StartupObject>
-  </PropertyGroup>
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
-  </PropertyGroup>
-  <PropertyGroup>
     <AssemblyOriginatorKeyFile>..\Renci.SshNet.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(VisualStudioVersion)' == '15.0' ">
+    <TargetFrameworks>net35;net40;netcoreapp2.1;netcoreapp2.2</TargetFrameworks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(VisualStudioVersion)' == '16.0' ">
+    <TargetFrameworks>net35;net40;netcoreapp2.1;netcoreapp2.2;netcoreapp3.0</TargetFrameworks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net35' ">
+    <DefineConstants></DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net40' ">
+    <DefineConstants>FEATURE_THREAD_COUNTDOWNEVENT;FEATURE_TPL</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.1' ">
+    <DefineConstants>FEATURE_THREAD_COUNTDOWNEVENT;FEATURE_TPL</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.2' ">
+    <DefineConstants>FEATURE_THREAD_COUNTDOWNEVENT;FEATURE_TPL</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.0' ">
+    <DefineConstants>FEATURE_THREAD_COUNTDOWNEVENT;FEATURE_TPL</DefineConstants>
+  </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
-    <Reference Include="Moq">
-      <HintPath>..\..\packages\Moq.4.2.1409.1722\lib\net40\Moq.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Data" />
-    <Reference Include="System.Numerics" />
-    <Reference Include="System.Xml" />
-    <Reference Include="System.Xml.Linq" />
-  </ItemGroup>
-  <ItemGroup>
-    <CodeAnalysisDependentAssemblyPaths Condition=" '$(VS100COMNTOOLS)' != '' " Include="$(VS100COMNTOOLS)..\IDE\PrivateAssemblies">
-      <Visible>False</Visible>
-    </CodeAnalysisDependentAssemblyPaths>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="..\..\test\Renci.SshNet.Shared.Tests\Abstractions\CryptoAbstraction_GenerateRandom.cs">
-      <Link>Classes\Abstractions\CryptoAbstraction_GenerateRandom.cs</Link>
-    </Compile>
-    <Compile Include="..\..\test\Renci.SshNet.Shared.Tests\Abstractions\DnsAbstraction_GetHostAddresses.cs">
-      <Link>Classes\Abstractions\DnsAbstraction_GetHostAddresses.cs</Link>
-    </Compile>
-    <Compile Include="..\..\test\Renci.SshNet.Shared.Tests\Abstractions\FileSystemAbstraction_EnumerateFiles.cs">
-      <Link>Classes\Abstractions\FileSystemAbstraction_EnumerateFiles.cs</Link>
-    </Compile>
-    <Compile Include="..\..\test\Renci.SshNet.Shared.Tests\Abstractions\ThreadAbstraction_ExecuteThread.cs">
-      <Link>Classes\Abstractions\ThreadAbstraction_ExecuteThread.cs</Link>
-    </Compile>
-    <Compile Include="..\..\test\Renci.SshNet.Shared.Tests\ForwardedPortStatusTest_Started.cs">
-      <Link>Classes\ForwardedPortStatusTest_Started.cs</Link>
-    </Compile>
-    <Compile Include="..\..\test\Renci.SshNet.Shared.Tests\ForwardedPortStatusTest_Starting.cs">
-      <Link>Classes\ForwardedPortStatusTest_Starting.cs</Link>
-    </Compile>
-    <Compile Include="..\..\test\Renci.SshNet.Shared.Tests\ForwardedPortStatusTest_Stopped.cs">
-      <Link>Classes\ForwardedPortStatusTest_Stopped.cs</Link>
-    </Compile>
-    <Compile Include="..\..\test\Renci.SshNet.Shared.Tests\ForwardedPortStatusTest_Stopping.cs">
-      <Link>Classes\ForwardedPortStatusTest_Stopping.cs</Link>
-    </Compile>
-    <Compile Include="..\..\test\Renci.SshNet.Shared.Tests\SshMessageFactoryTest.cs">
-      <Link>Classes\SshMessageFactoryTest.cs</Link>
-    </Compile>
-    <Compile Include="Classes\BaseClientTest_Connected_KeepAliveInterval_NotNegativeOne.cs" />
-    <Compile Include="Classes\BaseClientTest_Connected_KeepAliveInterval_NegativeOne.cs" />
-    <Compile Include="Classes\BaseClientTest_Connected_KeepAlivesNotSentConcurrently.cs" />
-    <Compile Include="Classes\BaseClientTest_Connect_OnConnectedThrowsException.cs" />
-    <Compile Include="Classes\BaseClientTest_Disconnected_KeepAliveInterval_NotNegativeOne.cs" />
-    <Compile Include="Classes\BaseClientTest_NotConnected_KeepAliveInterval_NotNegativeOne.cs" />
-    <Compile Include="Classes\Channels\ChannelDirectTcpipTest.cs" />
-    <Compile Include="Classes\Channels\ChannelDirectTcpipTest_Dispose_SessionIsConnectedAndChannelIsOpen.cs" />
-    <Compile Include="Classes\Channels\ChannelSessionTestBase.cs" />
-    <Compile Include="Classes\Channels\ChannelSessionTest_Dispose_Disposed.cs" />
-    <Compile Include="Classes\Channels\ChannelSessionTest_Dispose_SessionIsConnectedAndChannelIsOpen_ChannelCloseAndChannelEofReceived_SendChannelCloseMessageFailure.cs" />
-    <Compile Include="Classes\Channels\ChannelSessionTest_Dispose_SessionIsConnectedAndChannelIsOpen_ChannelCloseAndChannelEofReceived_SendChannelCloseMessageSuccess.cs" />
-    <Compile Include="Classes\Channels\ChannelSessionTest_Dispose_SessionIsConnectedAndChannelIsOpen_ChannelCloseAndChannelEofReceived_DisposeInEventHandler.cs" />
-    <Compile Include="Classes\Channels\ChannelSessionTest_Dispose_SessionIsConnectedAndChannelIsOpen_ChannelCloseReceived_SendChannelCloseMessageFailure.cs" />
-    <Compile Include="Classes\Channels\ChannelSessionTest_Dispose_SessionIsConnectedAndChannelIsOpen_ChannelCloseReceived_SendChannelCloseMessageSuccess.cs" />
-    <Compile Include="Classes\Channels\ChannelSessionTest_Dispose_SessionIsConnectedAndChannelIsOpen_ChannelEofReceived_SendChannelCloseMessageFailure.cs" />
-    <Compile Include="Classes\Channels\ChannelSessionTest_Dispose_SessionIsConnectedAndChannelIsOpen_ChannelEofReceived_SendChannelCloseMessageSuccess.cs" />
-    <Compile Include="Classes\Channels\ChannelSessionTest_Dispose_SessionIsConnectedAndChannelIsOpen_NoChannelCloseOrChannelEofReceived_SendChannelEofMessageFailure.cs" />
-    <Compile Include="Classes\Channels\ChannelSessionTest_Dispose_SessionIsNotConnectedAndChannelIsOpen_ChannelCloseAndChannelEofReceived.cs" />
-    <Compile Include="Classes\Channels\ChannelSessionTest_Dispose_SessionIsNotConnectedAndChannelIsOpen_ChannelCloseReceived.cs" />
-    <Compile Include="Classes\Channels\ChannelSessionTest_Dispose_SessionIsNotConnectedAndChannelIsOpen_NoChannelCloseOrChannelEofReceived.cs" />
-    <Compile Include="Classes\Channels\ChannelSessionTest_Disposed_Closed.cs" />
-    <Compile Include="Classes\Channels\ChannelSessionTest_OnSessionChannelCloseReceived_SessionIsConnectedAndChannelIsOpen.cs" />
-    <Compile Include="Classes\Channels\ChannelSessionTest_Dispose_SessionIsConnectedAndChannelIsOpen_NoChannelCloseOrChannelEofReceived.cs" />
-    <Compile Include="Classes\Channels\ChannelSessionTest_Open_ExceptionWaitingOnOpenConfirmation.cs" />
-    <Compile Include="Classes\Channels\ChannelSessionTest_Open_OnOpenFailureReceived_NoRetriesAvailable.cs" />
-    <Compile Include="Classes\Channels\ChannelSessionTest_Open_OnOpenFailureReceived_RetriesAvalable.cs" />
-    <Compile Include="Classes\Channels\ChannelTestBase.cs" />
-    <Compile Include="Classes\Channels\ChannelTest_Dispose_SessionIsConnectedAndChannelIsOpen_EofNotReceived_SendEofInvoked.cs" />
-    <Compile Include="Classes\Channels\ChannelTest_Dispose_SessionIsConnectedAndChannelIsOpen_EofReceived.cs" />
-    <Compile Include="Classes\Channels\ChannelTest_Dispose_SessionIsConnectedAndChannelIsOpen_EofReceived_DisconnectWaitingForChannelCloseMessage.cs" />
-    <Compile Include="Classes\Channels\ChannelTest_Dispose_SessionIsConnectedAndChannelIsOpen_EofReceived_TimeoutWaitingForChannelCloseMessage.cs" />
-    <Compile Include="Classes\Channels\ChannelTest_Dispose_SessionIsNotConnectedAndChannelIsOpen.cs" />
-    <Compile Include="Classes\Channels\ChannelTest_OnSessionChannelCloseReceived_SessionIsConnectedAndChannelIsOpen_DisposeChannelInClosedEventHandler.cs" />
-    <Compile Include="Classes\Channels\ChannelTest_OnSessionChannelCloseReceived_OnClose_Exception.cs" />
-    <Compile Include="Classes\Channels\ChannelTest_OnSessionChannelCloseReceived_SessionIsConnectedAndChannelIsOpen_EofReceived.cs" />
-    <Compile Include="Classes\Channels\ChannelTest_OnSessionChannelDataReceived_OnData_Exception.cs" />
-    <Compile Include="Classes\Channels\ChannelTest_Dispose_SessionIsConnectedAndChannelIsOpen_EofNotReceived.cs" />
-    <Compile Include="Classes\Channels\ChannelTest_Dispose_SessionIsConnectedAndChannelIsNotOpen.cs" />
-    <Compile Include="Classes\Channels\ChannelTest_Dispose_SessionIsNotConnectedAndChannelIsNotOpen.cs" />
-    <Compile Include="Classes\Channels\ChannelTest_OnSessionChannelCloseReceived_SessionIsConnectedAndChannelIsOpen_EofNotReceived.cs" />
-    <Compile Include="Classes\Channels\ChannelTest_OnSessionChannelEofReceived_OnEof_Exception.cs" />
-    <Compile Include="Classes\Channels\ChannelTest_OnSessionChannelExtendedDataReceived_OnExtendedData_Exception.cs" />
-    <Compile Include="Classes\Channels\ChannelTest_OnSessionChannelFailureReceived_OnFailure_Exception.cs" />
-    <Compile Include="Classes\Channels\ChannelTest_OnSessionChannelRequestReceived_OnRequest_Exception.cs" />
-    <Compile Include="Classes\Channels\ChannelTest_OnSessionChannelSuccessReceived_OnSuccess_Exception.cs" />
-    <Compile Include="Classes\Channels\ChannelTest_OnSessionChannelWindowAdjustReceived_OnWindowAdjust_Exception.cs" />
-    <Compile Include="Classes\Channels\ChannelTest_OnSessionDisconnected_OnDisconnected_Exception.cs" />
-    <Compile Include="Classes\Channels\ChannelTest_OnSessionDisconnected_SessionIsConnectedAndChannelIsOpen.cs" />
-    <Compile Include="Classes\Channels\ChannelStub.cs" />
-    <Compile Include="Classes\Channels\ChannelTest_OnSessionErrorOccurred_OnErrorOccurred_Exception.cs" />
-    <Compile Include="Classes\Channels\ChannelTest_SendEof_ChannelIsNotOpen.cs" />
-    <Compile Include="Classes\Channels\ChannelTest_SendEof_ChannelIsOpen.cs" />
-    <Compile Include="Classes\Channels\ClientChannelStub.cs" />
-    <Compile Include="Classes\Channels\ClientChannelTest_OnSessionChannelOpenConfirmationReceived_OnOpenConfirmation_Exception.cs" />
-    <Compile Include="Classes\Channels\ClientChannelTest_OnSessionChannelOpenFailureReceived_OnOpenFailure_Exception.cs" />
-    <Compile Include="Classes\CipherInfoTest.cs" />
-    <Compile Include="Classes\ClientAuthenticationTest.cs" />
-    <Compile Include="Classes\ClientAuthenticationTestBase.cs" />
-    <Compile Include="Classes\ClientAuthenticationTest_Failure_SingleList_AuthenticationMethodFailed.cs" />
-    <Compile Include="Classes\ClientAuthenticationTest_Failure_SingleList_AuthenticationMethodNotConfigured.cs" />
-    <Compile Include="Classes\ClientAuthenticationTest_Failure_MultiList_AllAllowedAuthenticationsHaveReachedPartialSuccessLimit.cs" />
-    <Compile Include="Classes\ClientAuthenticationTest_Success_MultiList_DifferentAllowedAuthenticationsAfterPartialSuccess.cs" />
-    <Compile Include="Classes\ClientAuthenticationTest_Success_MultiList_PartialSuccessLimitReachedFollowedByFailureInAlternateBranch.cs" />
-    <Compile Include="Classes\ClientAuthenticationTest_Success_MultiList_PartialSuccessLimitReachedFollowedByFailureInAlternateBranch2.cs" />
-    <Compile Include="Classes\ClientAuthenticationTest_Success_MultiList_PartialSuccessLimitReachedFollowedByFailureInSameBranch.cs" />
-    <Compile Include="Classes\ClientAuthenticationTest_Success_MultiList_PartialSuccessLimitReachedFollowedBySuccessInAlternateBranch.cs" />
-    <Compile Include="Classes\ClientAuthenticationTest_Success_MultiList_PartialSuccessLimitReachedFollowedBySuccessInSameBranch.cs" />
-    <Compile Include="Classes\ClientAuthenticationTest_Success_MultiList_PostponePartialAccessAuthenticationMethod.cs" />
-    <Compile Include="Classes\ClientAuthenticationTest_Success_MultiList_SameAllowedAuthenticationsAfterPartialSuccess.cs" />
-    <Compile Include="Classes\ClientAuthenticationTest_Success_MultiList_SkipFailedAuthenticationMethod.cs" />
-    <Compile Include="Classes\ClientAuthenticationTest_Success_SingleList_SameAllowedAuthenticationAfterPartialSuccess.cs" />
-    <Compile Include="Classes\ClientAuthenticationTest_Success_SingleList_SameAllowedAuthenticationAfterPartialSuccess_PartialSuccessLimitReached.cs" />
-    <Compile Include="Classes\Common\CountdownEventTest.cs" />
-    <Compile Include="Classes\Common\CountdownEventTest_Dispose_NotSet.cs" />
-    <Compile Include="Classes\Common\CountdownEventTest_Dispose_Set.cs" />
-    <Compile Include="Classes\Common\ExtensionsTest_Concat.cs" />
-    <Compile Include="Classes\Common\ExtensionsTest_IsEqualTo_ByteArray.cs" />
-    <Compile Include="Classes\Common\ExtensionsTest_Reverse.cs" />
-    <Compile Include="Classes\Common\ExtensionsTest_Take_Count.cs" />
-    <Compile Include="Classes\Common\ExtensionsTest_Take_OffsetAndCount.cs" />
-    <Compile Include="Classes\Common\ExtensionsTest_TrimLeadingZeros.cs" />
-    <Compile Include="Classes\Common\PackTest.cs" />
-    <Compile Include="Classes\Common\PosixPathTest_GetFileName.cs" />
-    <Compile Include="Classes\ConnectionInfoTest_Authenticate_Failure.cs" />
-    <Compile Include="Classes\ConnectionInfoTest_Authenticate_Success.cs" />
-    <Compile Include="Classes\ForwardedPortDynamicTest_Dispose_PortStarted_ChannelBound.cs" />
-    <Compile Include="Classes\ForwardedPortDynamicTest_SessionErrorOccurred_ChannelBound.cs" />
-    <Compile Include="Classes\ForwardedPortDynamicTest_Start_SessionNotConnected.cs" />
-    <Compile Include="Classes\ForwardedPortDynamicTest_Start_SessionNull.cs" />
-    <Compile Include="Classes\ForwardedPortDynamicTest_Stop_PortDisposed.cs" />
-    <Compile Include="Classes\ForwardedPortDynamicTest_Stop_PortNeverStarted.cs" />
-    <Compile Include="Classes\ForwardedPortDynamicTest_Stop_PortStarted_ChannelBound.cs" />
-    <Compile Include="Classes\ForwardedPortDynamicTest_Stop_PortStarted_ChannelNotBound.cs" />
-    <Compile Include="Classes\ForwardedPortDynamicTest_Stop_PortStopped.cs" />
-    <Compile Include="Classes\ForwardedPortDynamicTest_Dispose_PortDisposed.cs" />
-    <Compile Include="Classes\ForwardedPortDynamicTest_Dispose_PortNeverStarted.cs" />
-    <Compile Include="Classes\ForwardedPortDynamicTest_Dispose_PortStarted_ChannelNotBound.cs" />
-    <Compile Include="Classes\ForwardedPortDynamicTest_Dispose_PortStopped.cs" />
-    <Compile Include="Classes\ForwardedPortDynamicTest_Started_SocketSendShutdownImmediately.cs" />
-    <Compile Include="Classes\ForwardedPortDynamicTest_Started_SocketVersionNotSupported.cs" />
-    <Compile Include="Classes\ForwardedPortDynamicTest_Start_PortDisposed.cs" />
-    <Compile Include="Classes\ForwardedPortDynamicTest_Start_PortNeverStarted.cs" />
-    <Compile Include="Classes\ForwardedPortDynamicTest_Start_PortStopped.cs" />
-    <Compile Include="Classes\ForwardedPortDynamicTest_Start_PortStarted.cs" />
-    <Compile Include="Classes\ForwardedPortLocalTest_Dispose_PortDisposed.cs" />
-    <Compile Include="Classes\ForwardedPortLocalTest_Dispose_PortDisposed_NeverStarted.cs" />
-    <Compile Include="Classes\ForwardedPortLocalTest_Dispose_PortNeverStarted.cs" />
-    <Compile Include="Classes\ForwardedPortLocalTest_Dispose_PortStarted_ChannelNotBound.cs" />
-    <Compile Include="Classes\ForwardedPortLocalTest_Dispose_PortStopped.cs" />
-    <Compile Include="Classes\ForwardedPortLocalTest_Start_PortDisposed.cs" />
-    <Compile Include="Classes\ForwardedPortLocalTest_Start_PortNeverStarted.cs" />
-    <Compile Include="Classes\ForwardedPortLocalTest_Start_PortStarted.cs" />
-    <Compile Include="Classes\ForwardedPortLocalTest_Start_PortStopped.cs" />
-    <Compile Include="Classes\ForwardedPortLocalTest_Start_SessionNotConnected.cs" />
-    <Compile Include="Classes\ForwardedPortLocalTest_Start_SessionNull.cs" />
-    <Compile Include="Classes\ForwardedPortLocalTest_Stop_PortDisposed.cs" />
-    <Compile Include="Classes\ForwardedPortLocalTest_Stop_PortNeverStarted.cs" />
-    <Compile Include="Classes\ForwardedPortLocalTest_Stop_PortStarted_ChannelBound.cs" />
-    <Compile Include="Classes\ForwardedPortLocalTest_Stop_PortStarted_ChannelNotBound.cs" />
-    <Compile Include="Classes\ForwardedPortLocalTest_Stop_PortStopped.cs" />
-    <Compile Include="Classes\ForwardedPortRemoteTest_Dispose_PortDisposed.cs" />
-    <Compile Include="Classes\ForwardedPortRemoteTest_Dispose_PortNeverStarted.cs" />
-    <Compile Include="Classes\ForwardedPortRemoteTest_Dispose_PortStarted_ChannelBound.cs" />
-    <Compile Include="Classes\ForwardedPortRemoteTest_Dispose_PortStopped.cs" />
-    <Compile Include="Classes\ForwardedPortRemoteTest_Started.cs" />
-    <Compile Include="Classes\ForwardedPortRemoteTest_Start_PortDisposed.cs" />
-    <Compile Include="Classes\ForwardedPortRemoteTest_Start_PortNeverStarted.cs" />
-    <Compile Include="Classes\ForwardedPortRemoteTest_Start_PortStarted.cs" />
-    <Compile Include="Classes\ForwardedPortRemoteTest_Start_PortStopped.cs" />
-    <Compile Include="Classes\ForwardedPortRemoteTest_Start_SessionNotConnected.cs" />
-    <Compile Include="Classes\ForwardedPortRemoteTest_Start_SessionNull.cs" />
-    <Compile Include="Classes\ForwardedPortRemoteTest_Stop_PortDisposed.cs" />
-    <Compile Include="Classes\ForwardedPortRemoteTest_Stop_PortNeverStarted.cs" />
-    <Compile Include="Classes\ForwardedPortRemoteTest_Stop_PortStarted_ChannelBound.cs" />
-    <Compile Include="Classes\ForwardedPortRemoteTest_Stop_PortStopped.cs" />
-    <Compile Include="Classes\Messages\Transport\KeyExchangeDhGroupExchangeGroupBuilder.cs" />
-    <Compile Include="Classes\Messages\Transport\KeyExchangeDhGroupExchangeReplyBuilder.cs" />
-    <Compile Include="Classes\NetConfClientTest_Connect_NetConfSessionConnectFailure.cs" />
-    <Compile Include="Classes\NetConfClientTest_Dispose_Connected.cs" />
-    <Compile Include="Classes\NetConfClientTest_Dispose_Disconnected.cs" />
-    <Compile Include="Classes\NetConfClientTest_Dispose_Disposed.cs" />
-    <Compile Include="Classes\NetConfClientTest_Finalize_Connected.cs" />
-    <Compile Include="Classes\PipeStreamTest_Dispose.cs" />
-    <Compile Include="Classes\RemotePathDoubleQuoteTransformationTest.cs" />
-    <Compile Include="Classes\RemotePathShellQuoteTransformationTest.cs" />
-    <Compile Include="Classes\ScpClientTestBase.cs" />
-    <Compile Include="Classes\ScpClientTest_Download_PathAndDirectoryInfo_SendExecRequestReturnsFalse.cs" />
-    <Compile Include="Classes\ScpClientTest_Download_PathAndFileInfo_SendExecRequestReturnsFalse.cs" />
-    <Compile Include="Classes\ScpClientTest_Download_PathAndStream_SendExecRequestReturnsFalse.cs" />
-    <Compile Include="Classes\ScpClientTest_Upload_DirectoryInfoAndPath_SendExecRequestReturnsFalse.cs" />
-    <Compile Include="Classes\ScpClientTest_Upload_FileInfoAndPath_SendExecRequestReturnsFalse.cs" />
-    <Compile Include="Classes\ScpClientTest_Upload_FileInfoAndPath_Success.cs" />
-    <Compile Include="Classes\ScpClientTest_Upload_StreamAndPath_SendExecRequestReturnsFalse.cs" />
-    <Compile Include="Classes\Security\AlgorithmTest.cs" />
-    <Compile Include="Classes\Security\CertificateHostAlgorithmTest.cs" />
-    <Compile Include="Classes\Security\Cryptography\BlockCipherTest.cs" />
-    <Compile Include="Classes\Security\Cryptography\CipherDigitalSignatureTest.cs" />
-    <Compile Include="Classes\Security\Cryptography\CipherTest.cs" />
-    <Compile Include="Classes\Security\Cryptography\Ciphers\CipherModeTest.cs" />
-    <Compile Include="Classes\Security\Cryptography\Ciphers\CipherPaddingTest.cs" />
-    <Compile Include="Classes\Security\Cryptography\Ciphers\Modes\CbcCipherModeTest.cs" />
-    <Compile Include="Classes\Security\Cryptography\Ciphers\Modes\CfbCipherModeTest.cs" />
-    <Compile Include="Classes\Messages\Authentication\BannerMessageTest.cs" />
-    <Compile Include="Classes\Messages\Connection\ChannelCloseMessageTest.cs" />
-    <Compile Include="Classes\Messages\Connection\ChannelDataMessageTest.cs" />
-    <Compile Include="Classes\Messages\Connection\ChannelEofMessageTest.cs" />
-    <Compile Include="Classes\Messages\Connection\ChannelExtendedDataMessageTest.cs" />
-    <Compile Include="Classes\Messages\Connection\ChannelFailureMessageTest.cs" />
-    <Compile Include="Classes\Messages\Connection\ChannelMessageTest.cs" />
-    <Compile Include="Classes\Messages\Connection\ChannelOpenConfirmationMessageTest.cs" />
-    <Compile Include="Classes\Messages\Connection\ChannelOpenFailureMessageTest.cs" />
-    <Compile Include="Classes\Messages\Connection\ChannelOpenInfoTest.cs" />
-    <Compile Include="Classes\Messages\Connection\ChannelOpen\ChannelOpenMessageTest.cs" />
-    <Compile Include="Classes\Messages\Connection\ChannelSuccessMessageTest.cs" />
-    <Compile Include="Classes\Messages\Connection\ChannelWindowAdjustMessageTest.cs" />
-    <Compile Include="Classes\Common\AsyncResultTest.cs" />
-    <Compile Include="Classes\Common\AuthenticationBannerEventArgsTest.cs" />
-    <Compile Include="Classes\Common\AuthenticationPasswordChangeEventArgsTest.cs" />
-    <Compile Include="Classes\Common\AuthenticationPromptEventArgsTest.cs" />
-    <Compile Include="Classes\Common\AuthenticationPromptTest.cs" />
-    <Compile Include="Classes\Common\BigIntegerTest.cs" />
-    <Compile Include="Classes\Channels\ChannelForwardedTcpipTest_Dispose_SessionIsConnectedAndChannelIsOpen.cs" />
-    <Compile Include="Classes\CommandAsyncResultTest.cs" />
-    <Compile Include="Classes\Common\ASCIIEncodingTest.cs" />
-    <Compile Include="Classes\Common\ChannelDataEventArgsTest.cs" />
-    <Compile Include="Classes\Common\ChannelEventArgsTest.cs" />
-    <Compile Include="Classes\Common\ChannelOpenFailedEventArgsTest.cs" />
-    <Compile Include="Classes\Common\ChannelRequestEventArgsTest.cs" />
-    <Compile Include="Classes\Common\PipeStreamTest.cs" />
-    <Compile Include="Classes\Common\PortForwardEventArgsTest.cs" />
-    <Compile Include="Classes\Compression\ZlibTest.cs" />
-    <Compile Include="Classes\ConnectionInfoTest.cs" />
-    <Compile Include="Classes\ServiceFactoryTest_CreateClientAuthentication.cs" />
-    <Compile Include="Classes\ServiceFactoryTest_CreateSftpFileReader_EndLStatThrowsSshException.cs" />
-    <Compile Include="Classes\ServiceFactoryTest_CreateSftpFileReader_FileSizeIsAlmostSixTimesGreaterThanChunkSize.cs" />
-    <Compile Include="Classes\ServiceFactoryTest_CreateSftpFileReader_FileSizeIsEqualToChunkSize.cs" />
-    <Compile Include="Classes\ServiceFactoryTest_CreateSftpFileReader_FileSizeIsLessThanChunkSize.cs" />
-    <Compile Include="Classes\ServiceFactoryTest_CreateSftpFileReader_FileSizeIsExactlyFiveTimesGreaterThanChunkSize.cs" />
-    <Compile Include="Classes\ServiceFactoryTest_CreateSftpFileReader_FileSizeIsLittleMoreThanFiveTimesGreaterThanChunkSize.cs" />
-    <Compile Include="Classes\ServiceFactoryTest_CreateSftpFileReader_FileSizeIsMoreThanTenTimesGreaterThanChunkSize.cs" />
-    <Compile Include="Classes\ServiceFactoryTest_CreateSftpFileReader_FileSizeIsZero.cs" />
-    <Compile Include="Classes\ServiceFactoryTest_CreateShellStream_ChannelOpenThrowsException.cs" />
-    <Compile Include="Classes\ServiceFactoryTest_CreateShellStream_SendPseudoTerminalRequestReturnsFalse.cs" />
-    <Compile Include="Classes\ServiceFactoryTest_CreateShellStream_SendPseudoTerminalRequestThrowsException.cs" />
-    <Compile Include="Classes\ServiceFactoryTest_CreateShellStream_SendShellRequestReturnsFalse.cs" />
-    <Compile Include="Classes\ServiceFactoryTest_CreateShellStream_SendShellRequestThrowsException.cs" />
-    <Compile Include="Classes\ServiceFactoryTest_CreateShellStream_Success.cs" />
-    <Compile Include="Classes\SessionTest_Connected.cs" />
-    <Compile Include="Classes\SessionTest_ConnectedBase.cs" />
-    <Compile Include="Classes\SessionTest_Connected_ConnectionReset.cs" />
-    <Compile Include="Classes\SessionTest_Connected_Disconnect.cs" />
-    <Compile Include="Classes\SessionTest_Connected_GlobalRequestMessageAfterAuthenticationRace.cs" />
-    <Compile Include="Classes\SessionTest_Connected_ServerAndClientDisconnectRace.cs" />
-    <Compile Include="Classes\SessionTest_Connected_ServerSendsDisconnectMessage.cs" />
-    <Compile Include="Classes\SessionTest_Connected_ServerSendsBadPacket.cs" />
-    <Compile Include="Classes\SessionTest_Connected_ServerSendsDisconnectMessageAndShutsDownSocket.cs" />
-    <Compile Include="Classes\SessionTest_Connected_ServerSendsUnsupportedMessageType.cs" />
-    <Compile Include="Classes\SessionTest_Connected_ServerShutsDownSendAfterSendingIncompletePacket.cs" />
-    <Compile Include="Classes\SessionTest_Connected_ServerShutsDownSocket.cs" />
-    <Compile Include="Classes\SessionTest_NotConnected.cs" />
-    <Compile Include="Classes\SessionTest_SocketConnected_BadPacketAndDispose.cs" />
-    <Compile Include="Classes\SftpClientTest.SynchronizeDirectories.cs" />
-    <Compile Include="Classes\SftpClientTest.cs" />
-    <Compile Include="Classes\SftpClientTest.Download.cs" />
-    <Compile Include="Classes\SftpClientTest.Upload.cs" />
-    <Compile Include="Classes\SftpClientTest.RenameFile.cs" />
-    <Compile Include="Classes\SftpClientTest.ListDirectory.cs" />
-    <Compile Include="Classes\SftpClientTest.DeleteDirectory.cs" />
-    <Compile Include="Classes\SftpClientTest.DeleteFile.cs" />
-    <Compile Include="Classes\SftpClientTest.CreateDirectory.cs" />
-    <Compile Include="Classes\ForwardedPortRemote.NET40.cs" />
-    <Compile Include="Classes\ExpectActionTest.cs" />
-    <Compile Include="Classes\ForwardedPortDynamicTest.cs" />
-    <Compile Include="Classes\ForwardedPortLocalTest.cs" />
-    <Compile Include="Classes\ForwardedPortRemoteTest.cs" />
-    <Compile Include="Classes\KeyboardInteractiveAuthenticationMethodTest.cs" />
-    <Compile Include="Classes\KeyboardInteractiveConnectionInfoTest.cs" />
-    <Compile Include="Classes\MessageEventArgsTest.cs" />
-    <Compile Include="Classes\Messages\Authentication\InformationRequestMessageTest.cs" />
-    <Compile Include="Classes\Messages\Authentication\InformationResponseMessageTest.cs" />
-    <Compile Include="Classes\Messages\Authentication\PasswordChangeRequiredMessageTest.cs" />
-    <Compile Include="Classes\Messages\Authentication\PublicKeyMessageTest.cs" />
-    <Compile Include="Classes\Messages\Authentication\RequestMessageHostTest.cs" />
-    <Compile Include="Classes\Messages\Authentication\RequestMessageKeyboardInteractiveTest.cs" />
-    <Compile Include="Classes\Messages\Authentication\RequestMessageNoneTest.cs" />
-    <Compile Include="Classes\Messages\Authentication\RequestMessagePasswordTest.cs" />
-    <Compile Include="Classes\Messages\Connection\ChannelOpen\DirectTcpipChannelInfoTest.cs" />
-    <Compile Include="Classes\Messages\Connection\ChannelOpen\ForwardedTcpipChannelInfoTest.cs" />
-    <Compile Include="Classes\Messages\Connection\ChannelOpen\SessionChannelOpenInfoTest.cs" />
-    <Compile Include="Classes\Messages\Connection\ChannelOpen\X11ChannelOpenInfoTest.cs" />
-    <Compile Include="Classes\Messages\Connection\ChannelRequest\BreakRequestInfoTest.cs" />
-    <Compile Include="Classes\Messages\Connection\ChannelRequest\ChannelRequestMessageTest.cs" />
-    <Compile Include="Classes\Messages\Connection\ChannelRequest\EnvironmentVariableRequestInfoTest.cs" />
-    <Compile Include="Classes\Messages\Connection\ChannelRequest\ExecRequestInfoTest.cs" />
-    <Compile Include="Classes\Messages\Connection\ChannelRequest\ExitSignalRequestInfoTest.cs" />
-    <Compile Include="Classes\Messages\Connection\ChannelRequest\ExitStatusRequestInfoTest.cs" />
-    <Compile Include="Classes\Messages\Connection\ChannelRequest\PseudoTerminalInfoTest.cs" />
-    <Compile Include="Classes\Messages\Connection\ChannelRequest\ShellRequestInfoTest.cs" />
-    <Compile Include="Classes\Messages\Connection\ChannelRequest\SignalRequestInfoTest.cs" />
-    <Compile Include="Classes\Messages\Connection\ChannelRequest\SubsystemRequestInfoTest.cs" />
-    <Compile Include="Classes\Messages\Connection\ChannelRequest\WindowChangeRequestInfoTest.cs" />
-    <Compile Include="Classes\Messages\Connection\ChannelRequest\X11ForwardingRequestInfoTest.cs" />
-    <Compile Include="Classes\Messages\Connection\ChannelRequest\XonXoffRequestInfoTest.cs" />
-    <Compile Include="Classes\Messages\Transport\KeyExchangeDhGroupExchangeInitTest.cs" />
-    <Compile Include="Classes\Messages\Transport\KeyExchangeDhGroupExchangeReplyTest.cs" />
-    <Compile Include="Classes\Messages\Transport\KeyExchangeDhGroupExchangeRequestTest.cs" />
-    <Compile Include="Classes\Messages\Transport\KeyExchangeDhInitMessageTest.cs" />
-    <Compile Include="Classes\Messages\Transport\KeyExchangeInitMessageTest.cs" />
-    <Compile Include="Classes\NetConfClientTest.cs" />
-    <Compile Include="Classes\NoneAuthenticationMethodTest.cs" />
-    <Compile Include="Classes\PasswordAuthenticationMethodTest.cs" />
-    <Compile Include="Classes\PasswordConnectionInfoTest.cs" />
-    <Compile Include="Classes\PrivateKeyAuthenticationMethodTest.cs" />
-    <Compile Include="Classes\PrivateKeyConnectionInfoTest.cs" />
-    <Compile Include="Classes\PrivateKeyFileTest.cs" />
-    <Compile Include="Classes\ScpClientTest.cs" />
-    <Compile Include="Classes\Security\Cryptography\Ciphers\AesCipherTest.cs" />
-    <Compile Include="Classes\Security\Cryptography\Ciphers\Arc4CipherTest.cs" />
-    <Compile Include="Classes\Security\Cryptography\Ciphers\BlowfishCipherTest.cs" />
-    <Compile Include="Classes\Security\Cryptography\Ciphers\CastCipherTest.cs" />
-    <Compile Include="Classes\Security\Cryptography\Ciphers\DesCipherTest.cs" />
-    <Compile Include="Classes\Security\Cryptography\Ciphers\RsaCipherTest.cs" />
-    <Compile Include="Classes\Security\Cryptography\Ciphers\SerpentCipherTest.cs" />
-    <Compile Include="Classes\Security\Cryptography\Ciphers\TripleDesCipherTest.cs" />
-    <Compile Include="Classes\Security\Cryptography\Ciphers\TwofishCipherTest.cs" />
-    <Compile Include="Classes\Security\Cryptography\DsaDigitalSignatureTest.cs" />
-    <Compile Include="Classes\Security\Cryptography\DsaKeyTest.cs" />
-    <Compile Include="Classes\Security\Cryptography\HMacTest.cs" />
-    <Compile Include="Classes\Security\Cryptography\RsaDigitalSignatureTest.cs" />
-    <Compile Include="Classes\Security\Cryptography\RsaKeyTest.cs" />
-    <Compile Include="Classes\Security\KeyExchangeDiffieHellmanGroup14Sha1Test.cs" />
-    <Compile Include="Classes\Security\KeyExchangeDiffieHellmanGroupExchangeSha1Test.cs" />
-    <Compile Include="Classes\Security\KeyHostAlgorithmTest.cs" />
-    <Compile Include="Classes\SessionTest.cs" />
-    <Compile Include="Classes\SftpClientTest.ChangeDirectory.cs" />
-    <Compile Include="Classes\SftpClientTest.Connect.cs" />
-    <Compile Include="Classes\SftpClientTest_Connect_SftpSessionConnectFailure.cs" />
-    <Compile Include="Classes\SftpClientTest_Dispose_Connected.cs" />
-    <Compile Include="Classes\SftpClientTest_Dispose_Disconnected.cs" />
-    <Compile Include="Classes\SftpClientTest_Dispose_Disposed.cs" />
-    <Compile Include="Classes\SftpClientTest_Finalize_Connected.cs" />
-    <Compile Include="Classes\Sftp\SftpDataResponseBuilder.cs" />
-    <Compile Include="Classes\Sftp\SftpFileReaderTestBase.cs" />
-    <Compile Include="Classes\Sftp\SftpFileReaderTest_DisposeShouldUnblockReadAndReadAhead.cs" />
-    <Compile Include="Classes\Sftp\SftpFileReaderTest_Dispose_SftpSessionIsNotOpen.cs" />
-    <Compile Include="Classes\Sftp\SftpFileReaderTest_Dispose_SftpSessionIsOpen_BeginCloseThrowsException.cs" />
-    <Compile Include="Classes\Sftp\SftpFileReaderTest_Dispose_SftpSessionIsOpen_EndCloseThrowsException.cs" />
-    <Compile Include="Classes\Sftp\SftpFileReaderTest_LastChunkBeforeEofIsComplete.cs" />
-    <Compile Include="Classes\Sftp\SftpFileReaderTest_LastChunkBeforeEofIsPartial.cs" />
-    <Compile Include="Classes\Sftp\SftpFileReaderTest_PreviousChunkIsIncompleteAndEofIsNotReached.cs" />
-    <Compile Include="Classes\Sftp\SftpFileReaderTest_PreviousChunkIsIncompleteAndEofIsReached.cs" />
-    <Compile Include="Classes\Sftp\SftpFileReaderTest_ReadAheadEndInvokeException_DiscardsFurtherReadAheads.cs" />
-    <Compile Include="Classes\Sftp\SftpFileReaderTest_ReadAheadEndInvokeException_PreventsFurtherReadAheads.cs" />
-    <Compile Include="Classes\Sftp\SftpFileReaderTest_ReadAheadBeginReadException.cs" />
-    <Compile Include="Classes\Sftp\SftpFileReaderTest_ReadBackBeginReadException.cs" />
-    <Compile Include="Classes\Sftp\SftpFileReaderTest_ReadBackEndInvokeException.cs" />
-    <Compile Include="Classes\Sftp\SftpFileReaderTest_Read_ReahAheadExceptionInBeginRead.cs" />
-    <Compile Include="Classes\Sftp\SftpFileReaderTest_Read_ReadAheadExceptionInWaitOnHandle_ChunkAvailable.cs" />
-    <Compile Include="Classes\Sftp\SftpFileReaderTest_Read_ReadAheadExceptionInWaitOnHandle_NoChunkAvailable.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTestBase.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_CanRead_Closed_FileAccessRead.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_CanRead_Closed_FileAccessReadWrite.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_CanRead_Closed_FileAccessWrite.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_CanRead_Disposed_FileAccessRead.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_CanRead_Disposed_FileAccessReadWrite.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_CanRead_Disposed_FileAccessWrite.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_CanWrite_Closed_FileAccessRead.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_CanWrite_Closed_FileAccessReadWrite.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_CanWrite_Closed_FileAccessWrite.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_CanWrite_Disposed_FileAccessRead.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_CanWrite_Disposed_FileAccessReadWrite.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_CanWrite_Disposed_FileAccessWrite.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_Close_Closed.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_Close_Disposed.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_Close_SessionNotOpen.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_Close_SessionOpen.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_Ctor_FileAccessInvalid.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_Ctor_FileModeAppend_FileAccessRead.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_Ctor_FileModeCreateNew_FileAccessRead.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_Ctor_FileModeCreateNew_FileAccessReadWrite.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_Ctor_FileModeCreateNew_FileAccessWrite.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_Ctor_FileModeCreate_FileAccessRead.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_Ctor_FileModeCreate_FileAccessReadWrite_FileDoesNotExist.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_Ctor_FileModeCreate_FileAccessReadWrite_FileExists.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_Ctor_FileModeCreate_FileAccessWrite_FileDoesNotExist.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_Ctor_FileModeCreate_FileAccessWrite_FileExists.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_Ctor_FileModeOpenOrCreate_FileAccessRead.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_Ctor_FileModeOpenOrCreate_FileAccessReadWrite.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_Ctor_FileModeOpenOrCreate_FileAccessWrite.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_Ctor_FileModeOpen_FileAccessRead.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_Ctor_FileModeOpen_FileAccessReadWrite.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_Ctor_FileModeOpen_FileAccessWrite.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_Ctor_FileModeTruncate_FileAccessRead.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_Ctor_FileModeTruncate_FileAccessReadWrite.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_Ctor_FileModeTruncate_FileAccessWrite.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_Ctor_FileModeInvalid.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_Dispose_Closed.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_Dispose_SessionNotOpen.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_Dispose_SessionOpen.cs" />
-    <Compile Include="Classes\Sftp\Requests\ExtendedRequests\FStatVfsRequestTest.cs" />
-    <Compile Include="Classes\Sftp\Requests\ExtendedRequests\HardLinkRequestTest.cs" />
-    <Compile Include="Classes\Sftp\Requests\ExtendedRequests\PosixRenameRequestTest.cs" />
-    <Compile Include="Classes\Sftp\Requests\ExtendedRequests\StatVfsRequestTest.cs" />
-    <Compile Include="Classes\Sftp\Requests\SftpBlockRequestTest.cs" />
-    <Compile Include="Classes\Sftp\Requests\SftpCloseRequestTest.cs" />
-    <Compile Include="Classes\Sftp\Requests\SftpFSetStatRequestTest.cs" />
-    <Compile Include="Classes\Sftp\Requests\SftpFStatRequestTest.cs" />
-    <Compile Include="Classes\Sftp\Requests\SftpInitRequestTest.cs" />
-    <Compile Include="Classes\Sftp\Requests\SftpLinkRequestTest.cs" />
-    <Compile Include="Classes\Sftp\Requests\SftpLStatRequestTest.cs" />
-    <Compile Include="Classes\Sftp\Requests\SftpMkDirRequestTest.cs" />
-    <Compile Include="Classes\Sftp\Requests\SftpOpenDirRequestTest.cs" />
-    <Compile Include="Classes\Sftp\Requests\SftpOpenRequestTest.cs" />
-    <Compile Include="Classes\Sftp\Requests\SftpReadDirRequestTest.cs" />
-    <Compile Include="Classes\Sftp\Requests\SftpReadLinkRequestTest.cs" />
-    <Compile Include="Classes\Sftp\Requests\SftpReadRequestTest.cs" />
-    <Compile Include="Classes\Sftp\Requests\SftpRealPathRequestTest.cs" />
-    <Compile Include="Classes\Sftp\Requests\SftpRemoveRequestTest.cs" />
-    <Compile Include="Classes\Sftp\Requests\SftpRenameRequestTest.cs" />
-    <Compile Include="Classes\Sftp\Requests\SftpRmDirRequestTest.cs" />
-    <Compile Include="Classes\Sftp\Requests\SftpSetStatRequestTest.cs" />
-    <Compile Include="Classes\Sftp\Requests\SftpStatRequestTest.cs" />
-    <Compile Include="Classes\Sftp\Requests\SftpSymLinkRequestTest.cs" />
-    <Compile Include="Classes\Sftp\Requests\SftpUnblockRequestTest.cs" />
-    <Compile Include="Classes\Sftp\Requests\SftpWriteRequestTest.cs" />
-    <Compile Include="Classes\Sftp\Responses\ExtendedReplies\StatVfsReplyInfoTest.cs" />
-    <Compile Include="Classes\Sftp\Responses\SftpAttrsResponseTest.cs" />
-    <Compile Include="Classes\Sftp\Responses\SftpDataResponseTest.cs" />
-    <Compile Include="Classes\Sftp\Responses\SftpExtendedReplyResponseTest.cs" />
-    <Compile Include="Classes\Sftp\Responses\SftpHandleResponseTest.cs" />
-    <Compile Include="Classes\Sftp\Responses\SftpNameResponseTest.cs" />
-    <Compile Include="Classes\Sftp\Responses\SftpStatusResponseTest.cs" />
-    <Compile Include="Classes\Sftp\Responses\SftpVersionResponseTest.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_Dispose_Disposed.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_Finalize_SessionOpen.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_Flush_ReadMode_DataInBuffer_NotReadFromBuffer.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_Flush_ReadMode_DataInBuffer_ReadFromBuffer.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_Flush_ReadMode_NoDataInBuffer.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_Flush_SessionNotOpen.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_Flush_WriteMode_DataInBuffer.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_Flush_WriteMode_NoDataInBuffer.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_ReadByte_ReadMode_NoDataInWriteBufferAndNoDataInReadBuffer_LessDataThanReadBufferSizeAvailable.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_Read_ReadMode_NoDataInReaderBufferAndReadLessBytesFromServerThanCountAndLessThanBufferSize.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_Read_ReadMode_NoDataInReaderBufferAndReadLessBytesFromServerThanCountAndEqualToBufferSize.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_Read_ReadMode_NoDataInReaderBufferAndReadMoreBytesFromServerThanCount.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_Seek_PositionedAtBeginningOfStream_OriginBeginAndOffsetNegative.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_Seek_PositionedAtBeginningOfStream_OriginBeginAndOffsetPositive.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_Seek_PositionedAtBeginningOfStream_OriginBeginAndOffsetZero.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_Seek_PositionedAtMiddleOfStream_OriginBeginAndOffsetZero_NoBuffering.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_Seek_PositionedAtMiddleOfStream_OriginBeginAndOffsetZero_ReadBuffer.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_SetLength_Closed.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_SetLength_DataInReadBuffer_NewLengthGreatherThanPosition.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_SetLength_DataInReadBuffer_NewLengthLessThanPosition.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_SetLength_DataInWriteBuffer_NewLengthGreatherThanPosition.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_SetLength_DataInWriteBuffer_NewLengthLessThanPosition.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_SetLength_Disposed.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_SetLength_SessionNotOpen.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_SetLength_SessionOpen_FIleAccessRead.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_SetLength_SessionOpen_FIleAccessReadWrite.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_SetLength_SessionOpen_FIleAccessWrite.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_Write_SessionOpen_CountGreatherThanTwoTimesTheWriteBufferSize.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_ReadByte_ReadMode_NoDataInWriteBufferAndNoDataInReadBuffer_Eof.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_Ctor_FileModeAppend_FileAccessReadWrite.cs" />
-    <Compile Include="Classes\Sftp\SftpFileStreamTest_Ctor_FileModeAppend_FileAccessWrite.cs" />
-    <Compile Include="Classes\Sftp\SftpFileTest.cs" />
-    <Compile Include="Classes\Sftp\SftpHandleResponseBuilder.cs" />
-    <Compile Include="Classes\Sftp\SftpInitRequestBuilder.cs" />
-    <Compile Include="Classes\Sftp\SftpNameResponseBuilder.cs" />
-    <Compile Include="Classes\Sftp\SftpOpenRequestBuilder.cs" />
-    <Compile Include="Classes\Sftp\SftpReadRequestBuilder.cs" />
-    <Compile Include="Classes\Sftp\SftpRealPathRequestBuilder.cs" />
-    <Compile Include="Classes\Sftp\SftpSessionTest_Connected_RequestRead.cs" />
-    <Compile Include="Classes\Sftp\SftpSessionTest_Connected_RequestStatVfs.cs" />
-    <Compile Include="Classes\Sftp\SftpSessionTest_DataReceived_MultipleSftpMessagesInSingleSshDataMessage.cs" />
-    <Compile Include="Classes\Sftp\SftpSessionTest_DataReceived_MultipleSftpMessagesSplitOverMultipleSshDataMessages.cs" />
-    <Compile Include="Classes\Sftp\SftpSessionTest_DataReceived_SingleSftpMessageInSshDataMessage.cs" />
-    <Compile Include="Classes\Sftp\SftpStatVfsRequestBuilder.cs" />
-    <Compile Include="Classes\Sftp\SftpStatVfsResponseBuilder.cs" />
-    <Compile Include="Classes\Sftp\SftpVersionResponseBuilder.cs" />
-    <Compile Include="Classes\ShellStreamTest_Write_WriteBufferEmptyAndWriteLessBytesThanBufferSize.cs" />
-    <Compile Include="Classes\ShellStreamTest_Write_WriteBufferEmptyAndWriteMoreBytesThanBufferSize.cs" />
-    <Compile Include="Classes\ShellStreamTest_Write_WriteBufferEmptyAndWriteNumberOfBytesEqualToBufferSize.cs" />
-    <Compile Include="Classes\ShellStreamTest_Write_WriteBufferEmptyAndWriteZeroBytes.cs" />
-    <Compile Include="Classes\ShellStreamTest_Write_WriteBufferFullAndWriteLessBytesThanBufferSize.cs" />
-    <Compile Include="Classes\ShellStreamTest_Write_WriteBufferFullAndWriteZeroBytes.cs" />
-    <Compile Include="Classes\ShellStreamTest_Write_WriteBufferNotEmptyAndWriteLessBytesThanBufferCanContain.cs" />
-    <Compile Include="Classes\ShellStreamTest_Write_WriteBufferNotEmptyAndWriteMoreBytesThanBufferCanContain.cs" />
-    <Compile Include="Classes\ShellStreamTest_Write_WriteBufferNotEmptyAndWriteZeroBytes.cs" />
-    <Compile Include="Classes\ShellTestTest.cs" />
-    <Compile Include="Classes\ShellStreamTest.cs" />
-    <Compile Include="Classes\SshClientTest.cs" />
-    <Compile Include="Classes\SshClientTest_CreateShellStream_TerminalNameAndColumnsAndRowsAndWidthAndHeightAndBufferSizeAndTerminalModes_Connected.cs" />
-    <Compile Include="Classes\SshClientTest_CreateShellStream_TerminalNameAndColumnsAndRowsAndWidthAndHeightAndBufferSize_Connected.cs" />
-    <Compile Include="Classes\SshClientTest_Disconnect_ForwardedPortStarted.cs" />
-    <Compile Include="Classes\SshClientTest_Dispose_Connected.cs" />
-    <Compile Include="Classes\SshClientTest_Dispose_Disconnected.cs" />
-    <Compile Include="Classes\SshClientTest_Dispose_Disposed.cs" />
-    <Compile Include="Classes\SshClientTest_Dispose_ForwardedPortStarted.cs" />
-    <Compile Include="Classes\SshCommandTest.cs" />
-    <Compile Include="Classes\ForwardedPortLocalTest.NET40.cs" />
-    <Compile Include="Classes\SshCommandTest.NET40.cs" />
-    <Compile Include="Classes\ScpClientTest.NET40.cs" />
-    <Compile Include="Classes\SshCommandTest_BeginExecute_EndExecuteInvokedOnAsyncResultFromPreviousInvocation.cs" />
-    <Compile Include="Classes\SshCommandTest_BeginExecute_EndExecuteNotInvokedOnAsyncResultFromPreviousInvocation.cs" />
-    <Compile Include="Classes\SshCommandTest_Dispose.cs" />
-    <Compile Include="Classes\SshCommandTest_EndExecute.cs" />
-    <Compile Include="Classes\SshCommandTest_EndExecute_AsyncResultFromOtherInstance.cs" />
-    <Compile Include="Classes\SshCommandTest_EndExecute_AsyncResultIsNull.cs" />
-    <Compile Include="Classes\SshCommandTest_EndExecute_ChannelOpen.cs" />
-    <Compile Include="Classes\SubsystemSessionStub.cs" />
-    <Compile Include="Classes\SubsystemSession_Connect_Connected.cs" />
-    <Compile Include="Classes\SubsystemSession_Connect_Disconnected.cs" />
-    <Compile Include="Classes\SubsystemSession_Connect_Disposed.cs" />
-    <Compile Include="Classes\SubsystemSession_Connect_NeverConnected.cs" />
-    <Compile Include="Classes\SubsystemSession_Connect_SendSubsystemRequestFails.cs" />
-    <Compile Include="Classes\SubsystemSession_Disconnect_Connected.cs" />
-    <Compile Include="Classes\SubsystemSession_Disconnect_Disposed.cs" />
-    <Compile Include="Classes\SubsystemSession_Disconnect_NeverConnected.cs" />
-    <Compile Include="Classes\SubsystemSession_Dispose_Connected.cs" />
-    <Compile Include="Classes\SubsystemSession_Dispose_Disconnected.cs" />
-    <Compile Include="Classes\SubsystemSession_Dispose_Disposed.cs" />
-    <Compile Include="Classes\SubsystemSession_Dispose_NeverConnected.cs" />
-    <Compile Include="Classes\SubsystemSession_OnChannelDataReceived_Connected.cs" />
-    <Compile Include="Classes\SubsystemSession_OnChannelDataReceived_Disposed.cs" />
-    <Compile Include="Classes\SubsystemSession_OnChannelDataReceived_OnDataReceived_Exception.cs" />
-    <Compile Include="Classes\SubsystemSession_OnChannelException_Connected.cs" />
-    <Compile Include="Classes\SubsystemSession_OnChannelException_Disposed.cs" />
-    <Compile Include="Classes\SubsystemSession_OnSessionDisconnected_Connected.cs" />
-    <Compile Include="Classes\SubsystemSession_OnSessionDisconnected_Disposed.cs" />
-    <Compile Include="Classes\SubsystemSession_OnSessionErrorOccurred_Connected.cs" />
-    <Compile Include="Classes\SubsystemSession_OnSessionErrorOccurred_Disposed.cs" />
-    <Compile Include="Classes\SubsystemSession_SendData_Connected.cs" />
-    <Compile Include="Classes\SubsystemSession_SendData_Disconnected.cs" />
-    <Compile Include="Classes\SubsystemSession_SendData_Disposed.cs" />
-    <Compile Include="Classes\SubsystemSession_SendData_NeverConnected.cs" />
-    <Compile Include="Common\ArrayBuilder.cs" />
-    <Compile Include="Common\AsyncSocketListener.cs" />
-    <Compile Include="Common\DictionaryAssert.cs" />
-    <Compile Include="Common\Extensions.cs" />
-    <Compile Include="Common\HttpProxyStub.cs" />
-    <Compile Include="Common\HttpRequest.cs" />
-    <Compile Include="Classes\Common\PipeStream_Close_BlockingRead.cs" />
-    <Compile Include="Classes\Common\PipeStream_Close_BlockingWrite.cs" />
-    <Compile Include="Classes\Common\PipeStream_Flush_BytesRemainingAfterRead.cs" />
-    <Compile Include="Classes\Common\PipeStream_Flush_NoBytesRemainingAfterRead.cs" />
-    <Compile Include="Common\SftpFileAttributesBuilder.cs" />
-    <Compile Include="Common\TestBase.cs" />
-    <Compile Include="Classes\Compression\CompressorTest.cs" />
-    <Compile Include="Classes\Common\DerDataTest.cs" />
-    <Compile Include="Classes\Common\ExceptionEventArgsTest.cs" />
-    <Compile Include="Classes\Common\HostKeyEventArgsTest.cs" />
-    <Compile Include="Classes\Common\NetConfServerExceptionTest.cs" />
-    <Compile Include="Classes\Common\ObjectIdentifierTest.cs" />
-    <Compile Include="Classes\Messages\Transport\DebugMessageTest.cs" />
-    <Compile Include="Classes\Messages\Transport\DisconnectMessageTest.cs" />
-    <Compile Include="Classes\Messages\Connection\ChannelRequest\EndOfWriteRequestInfoTest.cs" />
-    <Compile Include="Classes\Messages\Authentication\FailureMessageTest.cs" />
-    <Compile Include="Classes\Messages\Connection\GlobalRequestMessageTest.cs" />
-    <Compile Include="Classes\Messages\Transport\IgnoreMessageTest.cs" />
-    <Compile Include="Classes\Messages\Connection\ChannelRequest\KeepAliveRequestInfoTest.cs" />
-    <Compile Include="Classes\Messages\Transport\KeyExchangeDhGroupExchangeGroupTest.cs" />
-    <Compile Include="Classes\Messages\Transport\KeyExchangeDhReplyMessageTest.cs" />
-    <Compile Include="Classes\Messages\MessageAttributeTest.cs" />
-    <Compile Include="Classes\Messages\MessageTest.cs" />
-    <Compile Include="Classes\Messages\Transport\NewKeysMessageTest.cs" />
-    <Compile Include="Classes\Security\Cryptography\Ciphers\Modes\CtrCipherModeTest.cs" />
-    <Compile Include="Classes\Security\Cryptography\Ciphers\Modes\OfbCipherModeTest.cs" />
-    <Compile Include="Classes\Security\Cryptography\Ciphers\Paddings\PKCS5PaddingTest.cs" />
-    <Compile Include="Classes\Security\Cryptography\Ciphers\Paddings\PKCS7PaddingTest.cs" />
-    <Compile Include="Classes\Security\Cryptography\DigitalSignatureTest.cs" />
-    <Compile Include="Classes\Security\HostAlgorithmTest.cs" />
-    <Compile Include="Classes\Security\KeyExchangeDiffieHellmanGroup1Sha1Test.cs" />
-    <Compile Include="Classes\Security\KeyExchangeDiffieHellmanGroupExchangeSha256Test.cs" />
-    <Compile Include="Classes\Security\KeyExchangeDiffieHellmanGroupSha1Test.cs" />
-    <Compile Include="Classes\Security\KeyExchangeDiffieHellmanTest.cs" />
-    <Compile Include="Classes\Security\KeyExchangeTest.cs" />
-    <Compile Include="Classes\Security\KeyTest.cs" />
-    <Compile Include="Classes\ForwardedPortLocalTest_Dispose_PortStarted_ChannelBound.cs" />
-    <Compile Include="Properties\Resources.Designer.cs">
-      <DependentUpon>Resources.resx</DependentUpon>
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-    </Compile>
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="..\Renci.SshNet\Properties\CommonAssemblyInfo.cs">
-      <Link>Properties\CommonAssemblyInfo.cs</Link>
-    </Compile>
-    <Compile Include="Classes\Common\ProxyExceptionTest.cs" />
-    <Compile Include="Classes\Common\ScpDownloadEventArgsTest.cs" />
-    <Compile Include="Classes\Common\ScpExceptionTest.cs" />
-    <Compile Include="Classes\Common\ScpUploadEventArgsTest.cs" />
-    <Compile Include="Classes\Common\SemaphoreLightTest.cs" />
-    <Compile Include="Classes\Common\SftpPathNotFoundExceptionTest.cs" />
-    <Compile Include="Classes\Common\SftpPermissionDeniedExceptionTest.cs" />
-    <Compile Include="Classes\Common\ShellDataEventArgsTest.cs" />
-    <Compile Include="Classes\Common\SshAuthenticationExceptionTest.cs" />
-    <Compile Include="Classes\Common\SshConnectionExceptionTest.cs" />
-    <Compile Include="Classes\Common\SshDataTest.cs" />
-    <Compile Include="Classes\Common\SshExceptionTest.cs" />
-    <Compile Include="Classes\Common\SshOperationTimeoutExceptionTest.cs" />
-    <Compile Include="Classes\Common\SshPassPhraseNullOrEmptyExceptionTest.cs" />
-    <Compile Include="Classes\Compression\ZlibOpenSshTest.cs" />
-    <Compile Include="Classes\Compression\ZlibStreamTest.cs" />
-    <Compile Include="Classes\Messages\Connection\RequestFailureMessageTest.cs" />
-    <Compile Include="Classes\Messages\Connection\RequestInfoTest.cs" />
-    <Compile Include="Classes\Messages\Authentication\RequestMessagePublicKeyTest.cs" />
-    <Compile Include="Classes\Messages\Connection\RequestSuccessMessageTest.cs" />
-    <Compile Include="Classes\Messages\Transport\ServiceAcceptMessageTest.cs" />
-    <Compile Include="Classes\Messages\Transport\ServiceRequestMessageTest.cs" />
-    <Compile Include="Classes\Messages\Authentication\SuccessMessageTest.cs" />
-    <Compile Include="Classes\Messages\Transport\UnimplementedMessageTest.cs" />
-    <Compile Include="Classes\Security\Cryptography\SymmetricCipherTest.cs" />
-    <Compile Include="Classes\Sftp\SftpDownloadAsyncResultTest.cs" />
-    <Compile Include="Classes\Sftp\SftpFileAttributesTest.cs" />
-    <Compile Include="Classes\Sftp\SftpFileSystemInformationTest.cs" />
-    <Compile Include="Classes\Sftp\SftpListDirectoryAsyncResultTest.cs" />
-    <Compile Include="Classes\Sftp\SftpSynchronizeDirectoriesAsyncResultTest.cs" />
-    <Compile Include="Classes\Sftp\SftpUploadAsyncResultTest.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Data\Key.RSA.Encrypted.Aes.256.CBC.12345.txt" />
-    <EmbeddedResource Include="Data\Key.RSA.Encrypted.Des.Ede3.CBC.12345.txt" />
-    <EmbeddedResource Include="Data\Key.RSA.Encrypted.Aes.192.CBC.12345.txt" />
+    <EmbeddedResource Include="Data\Key.ECDSA.Encrypted.txt" />
+    <EmbeddedResource Include="Data\Key.ECDSA.txt" />
+    <EmbeddedResource Include="Data\Key.ECDSA384.Encrypted.txt" />
+    <EmbeddedResource Include="Data\Key.ECDSA384.txt" />
+    <EmbeddedResource Include="Data\Key.ECDSA521.Encrypted.txt" />
+    <EmbeddedResource Include="Data\Key.ECDSA521.txt" />
+    <EmbeddedResource Include="Data\Key.OPENSSH.ED25519.Encrypted.txt" />
+    <EmbeddedResource Include="Data\Key.OPENSSH.ED25519.txt" />
     <EmbeddedResource Include="Data\Key.RSA.Encrypted.Aes.128.CBC.12345.txt" />
-    <EmbeddedResource Include="Data\Key.RSA.Encrypted.Des.Ede3.CFB.1234567890.txt" />
+    <EmbeddedResource Include="Data\Key.RSA.Encrypted.Aes.192.CBC.12345.txt" />
+    <EmbeddedResource Include="Data\Key.RSA.Encrypted.Aes.256.CBC.12345.txt" />
     <EmbeddedResource Include="Data\Key.RSA.Encrypted.Des.CBC.12345.txt" />
+    <EmbeddedResource Include="Data\Key.RSA.Encrypted.Des.Ede3.CBC.12345.txt" />
+    <EmbeddedResource Include="Data\Key.RSA.Encrypted.Des.Ede3.CFB.1234567890.txt" />
     <EmbeddedResource Include="Data\Key.RSA.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Classes\SessionTest.HttpProxy.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\Renci.SshNet.snk">
-      <Link>Renci.SshNet.snk</Link>
-    </None>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Data\Key.SSH2.RSA.Encrypted.Des.CBC.12345.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Data\Key.SSH2.RSA.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="Data\Key.SSH2.DSA.Encrypted.Des.CBC.12345.txt" />
     <EmbeddedResource Include="Data\Key.SSH2.DSA.txt" />
+    <EmbeddedResource Include="Data\Key.SSH2.RSA.Encrypted.Des.CBC.12345.txt" />
+    <EmbeddedResource Include="Data\Key.SSH2.RSA.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\Renci.SshNet.snk" Link="Renci.SshNet.snk" />
+  </ItemGroup>
+  
+  <PropertyGroup Condition=" '$(VisualStudioVersion)' == '15.0' ">
+    <!-- Look for Microsoft.VisualStudio.QualityTools.UnitTestFramework.dll in VS 2017 Enterprise -->
+	  <MSTestV1UnitTestFrameworkAssemblyCandidate>$(MSBuildProgramFiles32)\Microsoft Visual Studio\2017\Enterprise\Common7\IDE\PublicAssemblies\Microsoft.VisualStudio.QualityTools.UnitTestFramework.dll</MSTestV1UnitTestFrameworkAssemblyCandidate>
+	  <MSTestV1UnitTestFrameworkAssembly Condition="'$(MSTestV1UnitTestFrameworkAssembly)' == '' and Exists('$(MSTestV1UnitTestFrameworkAssemblyCandidate)')">$(MSTestV1UnitTestFrameworkAssemblyCandidate)</MSTestV1UnitTestFrameworkAssembly>
+    <!-- Fall back to VS 2017 Professional -->
+    <MSTestV1UnitTestFrameworkAssemblyCandidate>$(MSBuildProgramFiles32)\Microsoft Visual Studio\2017\Professional\Common7\IDE\PublicAssemblies\Microsoft.VisualStudio.QualityTools.UnitTestFramework.dll</MSTestV1UnitTestFrameworkAssemblyCandidate>
+    <MSTestV1UnitTestFrameworkAssembly Condition="'$(MSTestV1UnitTestFrameworkAssembly)' == '' and Exists('$(MSTestV1UnitTestFrameworkAssemblyCandidate)')">$(MSTestV1UnitTestFrameworkAssemblyCandidate)</MSTestV1UnitTestFrameworkAssembly>
+    <!-- Fall back to VS 2017 Community -->
+    <MSTestV1UnitTestFrameworkAssemblyCandidate>$(MSBuildProgramFiles32)\Microsoft Visual Studio\2017\Community\Common7\IDE\PublicAssemblies\Microsoft.VisualStudio.QualityTools.UnitTestFramework.dll</MSTestV1UnitTestFrameworkAssemblyCandidate>
+	  <MSTestV1UnitTestFrameworkAssembly Condition="'$(MSTestV1UnitTestFrameworkAssembly)' == '' and Exists('$(MSTestV1UnitTestFrameworkAssemblyCandidate)')">$(MSTestV1UnitTestFrameworkAssemblyCandidate)</MSTestV1UnitTestFrameworkAssembly>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(VisualStudioVersion)' == '16.0' ">
+    <!-- Look for Microsoft.VisualStudio.QualityTools.UnitTestFramework.dll in VS 2019 Enterprise -->
+    <MSTestV1UnitTestFrameworkAssemblyCandidate>$(MSBuildProgramFiles32)\Microsoft Visual Studio\2019\Enterprise\Common7\IDE\PublicAssemblies\Microsoft.VisualStudio.QualityTools.UnitTestFramework.dll</MSTestV1UnitTestFrameworkAssemblyCandidate>
+    <MSTestV1UnitTestFrameworkAssembly Condition="'$(MSTestV1UnitTestFrameworkAssembly)' == '' and Exists('$(MSTestV1UnitTestFrameworkAssemblyCandidate)')">$(MSTestV1UnitTestFrameworkAssemblyCandidate)</MSTestV1UnitTestFrameworkAssembly>
+    <!-- Fall back to VS 2019 Professional -->
+    <MSTestV1UnitTestFrameworkAssemblyCandidate>$(MSBuildProgramFiles32)\Microsoft Visual Studio\2019\Professional\Common7\IDE\PublicAssemblies\Microsoft.VisualStudio.QualityTools.UnitTestFramework.dll</MSTestV1UnitTestFrameworkAssemblyCandidate>
+    <MSTestV1UnitTestFrameworkAssembly Condition="'$(MSTestV1UnitTestFrameworkAssembly)' == '' and Exists('$(MSTestV1UnitTestFrameworkAssemblyCandidate)')">$(MSTestV1UnitTestFrameworkAssemblyCandidate)</MSTestV1UnitTestFrameworkAssembly>
+    <!-- Fall back to VS 2019 Community -->
+    <MSTestV1UnitTestFrameworkAssemblyCandidate>$(MSBuildProgramFiles32)\Microsoft Visual Studio\2019\Community\Common7\IDE\PublicAssemblies\Microsoft.VisualStudio.QualityTools.UnitTestFramework.dll</MSTestV1UnitTestFrameworkAssemblyCandidate>
+    <MSTestV1UnitTestFrameworkAssembly Condition="'$(MSTestV1UnitTestFrameworkAssembly)' == '' and Exists('$(MSTestV1UnitTestFrameworkAssemblyCandidate)')">$(MSTestV1UnitTestFrameworkAssemblyCandidate)</MSTestV1UnitTestFrameworkAssembly>
+    <!-- Fall back to VS 2019 Preview -->
+    <MSTestV1UnitTestFrameworkAssemblyCandidate>$(MSBuildProgramFiles32)\Microsoft Visual Studio\2019\Preview\Common7\IDE\PublicAssemblies\Microsoft.VisualStudio.QualityTools.UnitTestFramework.dll</MSTestV1UnitTestFrameworkAssemblyCandidate>
+    <MSTestV1UnitTestFrameworkAssembly Condition="'$(MSTestV1UnitTestFrameworkAssembly)' == '' and Exists('$(MSTestV1UnitTestFrameworkAssemblyCandidate)')">$(MSTestV1UnitTestFrameworkAssemblyCandidate)</MSTestV1UnitTestFrameworkAssembly>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net35'">
+    <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework">
+      <HintPath>$(MSTestV1UnitTestFrameworkAssembly)</HintPath>
+    </Reference>
+    <PackageReference Include="Moq" Version="4.2.1409.1722" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net40'">
+    <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework">
+      <HintPath>$(MSTestV1UnitTestFrameworkAssembly)</HintPath>
+    </Reference>
+    <PackageReference Include="Moq" Version="4.2.1409.1722" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.1'">
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />
+    <PackageReference Include="MSTest.TestAdapter" Version="2.1.0" />
+    <PackageReference Include="MSTest.TestFramework">
+      <Version>2.1.0</Version>
+    </PackageReference>
+    <PackageReference Include="Moq" Version="4.13.1" />
+  </ItemGroup>    
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.2'">
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />    
+    <PackageReference Include="MSTest.TestAdapter" Version="2.1.0" />
+    <PackageReference Include="MSTest.TestFramework">
+      <Version>2.1.0</Version>
+    </PackageReference>
+    <PackageReference Include="Moq" Version="4.13.1" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.0'">
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />    
+    <PackageReference Include="MSTest.TestAdapter" Version="2.1.0" />
+    <PackageReference Include="MSTest.TestFramework">
+      <Version>2.1.0</Version>
+    </PackageReference>
+    <PackageReference Include="Moq" Version="4.13.1" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Renci.SshNet\Renci.SshNet.csproj">
-      <Project>{2f5f8c90-0bd1-424f-997c-7bc6280919d1}</Project>
-      <Name>Renci.SshNet</Name>
-    </ProjectReference>
+    <ProjectReference Include="..\Renci.SshNet\Renci.SshNet.csproj" />
   </ItemGroup>
-  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>

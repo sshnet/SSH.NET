@@ -1,14 +1,14 @@
-os: Visual Studio 2015
+os: Visual Studio 2019
 
 before_build:
-  - nuget restore src\Renci.SshNet.VS2015.sln
+  - nuget restore src\Renci.SshNet.VS2019.sln
 
 build:
-  project: src\Renci.SshNet.VS2015.sln
+  project: src\Renci.SshNet.VS2019.sln
   verbosity: minimal
 
 test_script:
 - cmd: >-
-    vstest.console /logger:Appveyor src\Renci.SshNet.Tests\bin\Debug\Renci.SshNet.Tests.dll /TestCaseFilter:"TestCategory!=integration&TestCategory!=LongRunning"
+    vstest.console /logger:Appveyor src\Renci.SshNet.Tests\bin\Debug\net40\Renci.SshNet.Tests.dll /TestCaseFilter:"TestCategory!=integration&TestCategory!=LongRunning"
 
-    vstest.console /logger:Appveyor src\Renci.SshNet.Tests.NET35\bin\Debug\Renci.SshNet.Tests.NET35.dll /TestCaseFilter:"TestCategory!=integration&TestCategory!=LongRunning"
+    vstest.console /logger:Appveyor src\Renci.SshNet.Tests\bin\Debug\net35\Renci.SshNet.Tests.dll /TestCaseFilter:"TestCategory!=integration&TestCategory!=LongRunning"

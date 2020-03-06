@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>SSH.NET</id>
-        <version>2017.0.0-beta1</version>
+        <version>$version$</version>
         <title>SSH.NET</title>
         <authors>Renci</authors>
         <owners>olegkap,drieseng</owners>
@@ -10,9 +10,9 @@
         <projectUrl>https://github.com/sshnet/SSH.NET/</projectUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>SSH.NET is a Secure Shell (SSH) library for .NET, optimized for parallelism and with broad framework support.</description>
-        <releaseNotes>https://github.com/sshnet/SSH.NET/releases/tag/2017.0.0-beta1</releaseNotes>
+        <releaseNotes>https://github.com/sshnet/SSH.NET/releases/tag/$version$</releaseNotes>
         <summary>A Secure Shell (SSH) library for .NET, optimized for parallelism.</summary>
-        <copyright>2012-2017, RENCI</copyright>
+        <copyright>$copyright$</copyright>
         <language>en-US</language>
         <tags>ssh scp sftp</tags>
         <dependencies>

@@ -47,7 +47,7 @@ This project was inspired by **Sharp.SSH** library which was ported from java an
 
 **SSH.NET** supports the following key exchange methods:
 * curve25519-sha256
-* curve25519-sha256@libssh.org
+* curve25519-sha256<span></span>@libssh.org
 * ecdh-sha2-nistp256
 * ecdh-sha2-nistp384
 * ecdh-sha2-nistp521
@@ -94,7 +94,7 @@ Private keys can be encrypted using one of the following cipher methods:
 * hmac-sha2-512
 * hmac-sha2-512-96
 * hmac-ripemd160
-* hmac-ripemd160@openssh.com
+* hmac-ripemd160<span></span>@openssh.com
 
 ## Framework Support
 **SSH.NET** supports the following target frameworks:

@@ -368,11 +368,9 @@ namespace Renci.SshNet.Common
 
 #if !FEATURE_STRINGBUILDER_CLEAR
         /// <summary>
-        ///     Clears the contents of the string builder.
+        /// Clears the contents of the string builder.
         /// </summary>
-        /// <param name="value">
-        ///     The <see cref="StringBuilder"/> to clear.
-        /// </param>
+        /// <param name="value">The <see cref="StringBuilder"/> to clear.</param>
         public static void Clear(this StringBuilder value)
         {
             value.Length = 0;

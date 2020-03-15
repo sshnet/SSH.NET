@@ -223,9 +223,6 @@
     <Compile Include="..\Renci.SshNet\Common\Extensions.cs">
       <Link>Common\Extensions.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet.Silverlight\Common\Extensions.SilverlightShared.cs">
-      <Link>Common\Extensions.cs</Link>
-    </Compile>
     <Compile Include="..\Renci.SshNet\Common\HostKeyEventArgs.cs">
       <Link>Common\HostKeyEventArgs.cs</Link>
     </Compile>
@@ -831,9 +828,6 @@
     </Compile>
     <Compile Include="..\Renci.SshNet\Security\BouncyCastle\util\encoders\HexEncoder.cs">
       <Link>Security\Cryptography\BouncyCastle\util\encoders\HexEncoder.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet\Security\BouncyCastle\util\Enums.cs">
-      <Link>Security\Cryptography\BouncyCastle\util\Enums.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Security\BouncyCastle\util\IMemoable.cs">
       <Link>Security\Cryptography\BouncyCastle\util\IMemoable.cs</Link>

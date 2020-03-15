@@ -331,8 +331,6 @@ namespace Renci.SshNet
                     {"diffie-hellman-group-exchange-sha1", typeof (KeyExchangeDiffieHellmanGroupExchangeSha1)},
                     {"diffie-hellman-group14-sha1", typeof (KeyExchangeDiffieHellmanGroup14Sha1)},
                     {"diffie-hellman-group1-sha1", typeof (KeyExchangeDiffieHellmanGroup1Sha1)},
-                    //"gss-group1-sha1-toWM5Slw5Ew8Mqkay+al2g==" - WinSSHD
-                    //"gss-gex-sha1-toWM5Slw5Ew8Mqkay+al2g==" - WinSSHD
                 };
 
             Encryptions = new Dictionary<string, CipherInfo>

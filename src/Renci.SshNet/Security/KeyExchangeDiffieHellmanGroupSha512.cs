@@ -3,9 +3,9 @@
 namespace Renci.SshNet.Security
 {
     /// <summary>
-    /// Represents "diffie-hellman-group1-sha1" algorithm implementation.
+    /// Base class for "diffie-hellman" SHA-512 group algorithm implementations.
     /// </summary>
-    internal abstract class KeyExchangeDiffieHellmanGroupSha1 : KeyExchangeDiffieHellmanGroupShaBase
+    internal abstract class KeyExchangeDiffieHellmanGroupSha512 : KeyExchangeDiffieHellmanGroupShaBase
     {
         /// <summary>
         /// Gets the size, in bits, of the computed hash code.
@@ -15,7 +15,7 @@ namespace Renci.SshNet.Security
         /// </value>
         protected override int HashSize
         {
-            get { return 160; }
+            get { return 512; }
         }
 
         /// <summary>
@@ -27,9 +27,9 @@ namespace Renci.SshNet.Security
         /// </returns>
         protected override byte[] Hash(byte[] hashData)
         {
-            using (var sha1 = CryptoAbstraction.CreateSHA1())
+            using (var sha512 = CryptoAbstraction.CreateSHA512())
             {
-                return sha1.ComputeHash(hashData, 0, hashData.Length);
+                return sha512.ComputeHash(hashData);
             }
         }
     }

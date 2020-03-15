@@ -84,16 +84,15 @@ namespace Renci.SshNet.Security
         /// <param name="hostKey">The host key.</param>
         /// <param name="serverExchangeValue">The server exchange value.</param>
         /// <param name="signature">The signature.</param>
-        protected override void HandleServerEcdhReply(byte[] hostKey, byte[] serverExchangeValue, byte[] signature)
+        private void HandleServerEcdhReply(byte[] hostKey, byte[] serverExchangeValue, byte[] signature)
         {
             _serverExchangeValue = serverExchangeValue;
             _hostKey = hostKey;
-            _serverExchangeValue = serverExchangeValue;
             _signature = signature;
 
             var sharedKey = new byte[MontgomeryCurve25519.PublicKeySizeInBytes];
             MontgomeryOperations.scalarmult(sharedKey, 0, _privateKey, 0, serverExchangeValue, 0);
-            SharedKey = sharedKey.ToBigInteger2();
+            SharedKey = sharedKey.ToBigNum2();
         }
     }
 }

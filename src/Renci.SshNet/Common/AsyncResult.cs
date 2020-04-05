@@ -67,11 +67,15 @@ namespace Renci.SshNet.Common
 
             // If the event exists, set it
             if (_asyncWaitHandle != null)
+            {
                 _asyncWaitHandle.Set();
+            }
 
             // If a callback method was set, call it
             if (_asyncCallback != null)
+            {
                 _asyncCallback(this);
+            }
         }
 
         /// <summary>

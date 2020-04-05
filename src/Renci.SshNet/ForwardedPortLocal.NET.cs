@@ -214,7 +214,11 @@ namespace Renci.SshNet
         partial void InternalStop(TimeSpan timeout)
         {
             _pendingChannelCountdown.Signal();
-            _pendingChannelCountdown.Wait(timeout);
+            if (!_pendingChannelCountdown.Wait(timeout))
+            {
+                // TODO: log as warning
+                DiagnosticAbstraction.Log("Timeout waiting for pending channels in local forwarded port to close.");
+            }
         }
 
         partial void InternalDispose(bool disposing)

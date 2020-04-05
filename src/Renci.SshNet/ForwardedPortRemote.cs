@@ -201,7 +201,12 @@ namespace Renci.SshNet
 
             // wait for pending channels to close
             _pendingChannelCountdown.Signal();
-            _pendingChannelCountdown.Wait(timeout);
+            
+            if (!_pendingChannelCountdown.Wait(timeout))
+            {
+                // TODO: log as warning
+                DiagnosticAbstraction.Log("Timeout waiting for pending channels in remote forwarded port to close.");
+            }
 
             _status = ForwardedPortStatus.Stopped;
         }
@@ -244,10 +249,7 @@ namespace Renci.SshNet
                             {
                                 RaiseRequestReceived(info.OriginatorAddress, info.OriginatorPort);
 
-                                using (
-                                    var channel =
-                                        Session.CreateChannelForwardedTcpip(channelOpenMessage.LocalChannelNumber,
-                                            channelOpenMessage.InitialWindowSize, channelOpenMessage.MaximumPacketSize))
+                                using (var channel = Session.CreateChannelForwardedTcpip(channelOpenMessage.LocalChannelNumber, channelOpenMessage.InitialWindowSize, channelOpenMessage.MaximumPacketSize))
                                 {
                                     channel.Exception += Channel_Exception;
                                     channel.Bind(new IPEndPoint(HostAddress, (int) Port), this);

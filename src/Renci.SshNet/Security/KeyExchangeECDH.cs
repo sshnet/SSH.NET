@@ -100,7 +100,7 @@ namespace Renci.SshNet.Security
             var publicKey = new ECPublicKeyParameters("ECDH", q, DomainParameters);
 
             var k1 = KeyAgreement.CalculateAgreement(publicKey);
-            SharedKey = k1.ToByteArray().ToBigNum2();
+            SharedKey = k1.ToByteArray().ToBigInteger2().ToByteArray().Reverse();
         }
     }
 }

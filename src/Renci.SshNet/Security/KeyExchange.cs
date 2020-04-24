@@ -345,14 +345,17 @@ namespace Renci.SshNet.Security
         private byte[] GenerateSessionKey(byte[] sharedKey, byte[] exchangeHash, byte[] key, int size)
         {
             var result = new List<byte>(key);
+
             while (size > result.Count)
             {
-                result.AddRange(Hash(new _SessionKeyAdjustment
-                {
-                    SharedKey = sharedKey,
-                    ExchangeHash = exchangeHash,
-                    Key = key,
-                }.GetBytes()));
+                var sessionKeyAdjustment = new SessionKeyAdjustment
+                    {
+                        SharedKey = sharedKey,
+                        ExchangeHash = exchangeHash,
+                        Key = key,
+                    };
+
+                result.AddRange(Hash(sessionKeyAdjustment.GetBytes()));
             }
 
             return result.ToArray();
@@ -368,7 +371,7 @@ namespace Renci.SshNet.Security
         /// <returns></returns>
         private static byte[] GenerateSessionKey(byte[] sharedKey, byte[] exchangeHash, char p, byte[] sessionId)
         {
-            var sessionKeyGeneration = new _SessionKeyGeneration
+            var sessionKeyGeneration = new SessionKeyGeneration
                 {
                     SharedKey = sharedKey,
                     ExchangeHash = exchangeHash,
@@ -378,11 +381,14 @@ namespace Renci.SshNet.Security
             return sessionKeyGeneration.GetBytes();
         }
 
-        private class _SessionKeyGeneration : SshData
+        private class SessionKeyGeneration : SshData
         {
             public byte[] SharedKey { get; set; }
+
             public byte[] ExchangeHash { get; set; }
+
             public char Char { get; set; }
+
             public byte[] SessionId { get; set; }
 
             /// <summary>
@@ -419,10 +425,12 @@ namespace Renci.SshNet.Security
             }
         }
 
-        private class _SessionKeyAdjustment : SshData
+        private class SessionKeyAdjustment : SshData
         {
             public byte[] SharedKey { get; set; }
+
             public byte[] ExchangeHash { get; set; }
+
             public byte[] Key { get; set; }
 
             /// <summary>

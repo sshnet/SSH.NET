@@ -74,7 +74,7 @@ the missing test once you figure things out.  🤓
 * diffie-hellman-group14-sha1
 * diffie-hellman-group1-sha1
 
-## Public Key Authenntication
+## Public Key Authentication
 
 **SSH.NET** supports the following private key formats:
 * RSA in OpenSSL PEM and ssh.com format

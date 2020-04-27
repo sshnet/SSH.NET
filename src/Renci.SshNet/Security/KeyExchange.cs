@@ -71,7 +71,14 @@ namespace Renci.SshNet.Security
         {
             Session = session;
 
-            SendMessage(session.ClientInitMessage);
+            if (!Session.ConnectionInfo.EarlyClientInitMessage)
+            {
+                SendMessage(session.ClientInitMessage);
+            }
+            else
+            {
+                DiagnosticAbstraction.Log("KeyExchange: ClientInitMessage already sent, skip");
+            }
 
             //  Determine encryption algorithm
             var clientEncryptionAlgorithmName = (from b in session.ConnectionInfo.Encryptions.Keys

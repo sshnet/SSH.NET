@@ -97,6 +97,7 @@ namespace Renci.SshNet.Tests.Classes
                 };
 
             ServerListener = new AsyncSocketListener(_serverEndPoint);
+            ServerListener.ShutdownRemoteCommunicationSocket = false;
             ServerListener.Connected += socket =>
                 {
                     ServerSocket = socket;

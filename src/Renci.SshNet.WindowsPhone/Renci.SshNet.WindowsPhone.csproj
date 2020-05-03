@@ -1106,6 +1106,12 @@
     <Compile Include="..\Renci.SshNet\Security\KeyExchangeDiffieHellmanGroup14Sha1.cs">
       <Link>Security\KeyExchangeDiffieHellmanGroup14Sha1.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\Security\KeyExchangeDiffieHellmanGroup14Sha256.cs">
+      <Link>Security\KeyExchangeDiffieHellmanGroup14Sha256.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\KeyExchangeDiffieHellmanGroup16Sha512.cs">
+      <Link>Security\KeyExchangeDiffieHellmanGroup16Sha512.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\Security\KeyExchangeDiffieHellmanGroup1Sha1.cs">
       <Link>Security\KeyExchangeDiffieHellmanGroup1Sha1.cs</Link>
     </Compile>
@@ -1120,6 +1126,15 @@
     </Compile>
     <Compile Include="..\Renci.SshNet\Security\KeyExchangeDiffieHellmanGroupSha1.cs">
       <Link>Security\KeyExchangeDiffieHellmanGroupSha1.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\KeyExchangeDiffieHellmanGroupSha256.cs">
+      <Link>Security\KeyExchangeDiffieHellmanGroupSha256.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\KeyExchangeDiffieHellmanGroupSha512.cs">
+      <Link>Security\KeyExchangeDiffieHellmanGroupSha512.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\KeyExchangeDiffieHellmanGroupShaBase.cs">
+      <Link>Security\KeyExchangeDiffieHellmanGroupShaBase.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Security\KeyExchangeEC.cs">
       <Link>Security\KeyExchangeEC.cs</Link>
@@ -1138,6 +1153,9 @@
     </Compile>
     <Compile Include="..\Renci.SshNet\Security\KeyExchangeECDH521.cs">
       <Link>Security\KeyExchangeECDH521.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\KeyExchangeHash.cs">
+      <Link>Security\KeyExchangeHash.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Security\KeyHostAlgorithm.cs">
       <Link>Security\KeyHostAlgorithm.cs</Link>

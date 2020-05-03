@@ -1784,16 +1784,16 @@ namespace Renci.SshNet
         /// </para>
         /// </remarks>
 #else
-/// <summary>
-/// Gets a value indicating whether the socket is connected.
-/// </summary>
-/// <returns>
-/// <c>true</c> if the socket is connected; otherwise, <c>false</c>.
-/// </returns>
-/// <remarks>
-/// We verify whether <see cref="Socket.Connected"/> is <c>true</c>. However, this only returns the state
-/// of the socket as of the last I/O operation.
-/// </remarks>
+        /// <summary>
+        /// Gets a value indicating whether the socket is connected.
+        /// </summary>
+        /// <returns>
+        /// <c>true</c> if the socket is connected; otherwise, <c>false</c>.
+        /// </returns>
+        /// <remarks>
+        /// We verify whether <see cref="Socket.Connected"/> is <c>true</c>. However, this only returns the state
+        /// of the socket as of the last I/O operation.
+        /// </remarks>
 #endif
         private bool IsSocketConnected()
         {
@@ -1920,16 +1920,23 @@ namespace Renci.SshNet
         /// </summary>
         private void MessageListener()
         {
-#if FEATURE_SOCKET_SELECT
-            var readSockets = new List<Socket> { _socket };
-#endif // FEATURE_SOCKET_SELECT
-
             try
             {
                 // remain in message loop until socket is shut down or until we're disconnecting
                 while (_socket.IsConnected())
                 {
-#if FEATURE_SOCKET_SELECT
+#if FEATURE_SOCKET_POLL
+                    // Block until either data is available or the socket is closed
+                    var connectionClosedOrDataAvailable = _socket.Poll(-1, SelectMode.SelectRead);
+                    if (connectionClosedOrDataAvailable && _socket.Available == 0)
+                    {
+                        // connection with SSH server was closed or socket was disposed;
+                        // break out of the message loop
+                        break;
+                    }
+#elif FEATURE_SOCKET_SELECT
+                    var readSockets = new List<Socket> { _socket };
+
                     // if the socket is already disposed when Select is invoked, then a SocketException
                     // stating "An operation was attempted on something that is not a socket" is thrown;
                     // we attempt to avoid this exception by having an IsConnected() that can break the
@@ -1963,18 +1970,9 @@ namespace Renci.SshNet
                         // break out of the message loop
                         break;
                     }
-#elif FEATURE_SOCKET_POLL
-                    // when Socket.Select(IList, IList, IList, Int32) is not available or is buggy, we use
-                    // Socket.Poll(Int, SelectMode) to block until either data is available or the socket
-                    // is closed
-                    _socket.Poll(-1, SelectMode.SelectRead);
-
-                    if (!_socket.IsConnected())
-                    {
-                        // connection with SSH server was closed or socket was disposed;
-                        // break out of the message loop
-                        break;
-                    }
+#else
+                    #error Blocking wait on either socket data to become available or connection to be 
+                    #error closed is not implemented.
 #endif // FEATURE_SOCKET_SELECT
 
                     var message = ReceiveMessage();
@@ -2459,7 +2457,7 @@ namespace Renci.SshNet
                                               DisconnectReason.ConnectionLost);
         }
 
-        #region IDisposable implementation
+#region IDisposable implementation
 
         private bool _disposed;
 
@@ -2550,9 +2548,9 @@ namespace Renci.SshNet
             Dispose(false);
         }
 
-        #endregion IDisposable implementation
+#endregion IDisposable implementation
 
-        #region ISession implementation
+#region ISession implementation
 
         /// <summary>
         /// Gets or sets the connection info.
@@ -2638,7 +2636,7 @@ namespace Renci.SshNet
             return TrySendMessage(message);
         }
 
-        #endregion ISession implementation
+#endregion ISession implementation
     }
 
     /// <summary>

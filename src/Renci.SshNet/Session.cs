@@ -1935,9 +1935,10 @@ namespace Renci.SshNet
                         break;
                     }
 
+#if FEATURE_SOCKET_POLL || FEATURE_SOCKET_SELECT
                     try
                     {
-    #if FEATURE_SOCKET_POLL
+#if FEATURE_SOCKET_POLL
                         // Block until either data is available or the socket is closed
                         var connectionClosedOrDataAvailable = socket.Poll(-1, SelectMode.SelectRead);
                         if (connectionClosedOrDataAvailable && socket.Available == 0)
@@ -1945,7 +1946,7 @@ namespace Renci.SshNet
                             // connection with SSH server was closed or connection was reset
                             break;
                         }
-    #elif FEATURE_SOCKET_SELECT
+#elif FEATURE_SOCKET_SELECT
                         var readSockets = new List<Socket> { socket };
 
                         // if the socket is already disposed when Select is invoked, then a SocketException
@@ -1981,10 +1982,7 @@ namespace Renci.SshNet
                             // break out of the message loop
                             break;
                         }
-    #else
-                        #error Blocking wait on either socket data to become available or connection to be 
-                        #error closed is not implemented.
-    #endif // FEATURE_SOCKET_SELECT
+#endif // FEATURE_SOCKET_SELECT
                     }
                     catch (ObjectDisposedException)
                     {
@@ -1994,6 +1992,7 @@ namespace Renci.SshNet
                         // * a SSH_MSG_DISCONNECT received from server
                         break;
                     }
+#endif // FEATURE_SOCKET_POLL || FEATURE_SOCKET_SELECT
 
                     var message = ReceiveMessage(socket);
                     if (message == null)

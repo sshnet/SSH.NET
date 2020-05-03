@@ -82,7 +82,7 @@ namespace Renci.SshNet.Security
         private class SshKeyData : SshData
         {
             private byte[] _name;
-            private IList<byte[]> _keys;
+            private List<byte[]> _keys;
 
             public BigInteger[] Keys
             {

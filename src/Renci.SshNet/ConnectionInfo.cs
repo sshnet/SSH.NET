@@ -143,13 +143,13 @@ namespace Renci.SshNet
         public TimeSpan Timeout { get; set; }
 
         /// <summary>
-        /// Gets or sets the timeout to used when waiting for a server to acknowledge closing a channel.
+        /// Gets or sets the timeout to use when waiting for a server to acknowledge closing a channel.
         /// </summary>
         /// <value>
         /// The channel close timeout. The default value is 1 second.
         /// </value>
         /// <remarks>
-        /// If a server does not send a <c>SSH2_MSG_CHANNEL_CLOSE</c> message before the specified timeout
+        /// If a server does not send a <c>SSH_MSG_CHANNEL_CLOSE</c> message before the specified timeout
         /// elapses, the channel will be closed immediately.
         /// </remarks>
         public TimeSpan ChannelCloseTimeout { get; set; }

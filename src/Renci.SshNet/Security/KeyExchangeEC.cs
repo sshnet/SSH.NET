@@ -1,7 +1,6 @@
 ﻿using System.Text;
 using Renci.SshNet.Messages.Transport;
 using Renci.SshNet.Common;
-using Renci.SshNet.Abstractions;
 
 namespace Renci.SshNet.Security
 {
@@ -46,21 +45,6 @@ namespace Renci.SshNet.Security
         protected abstract int HashSize { get; }
 
         /// <summary>
-        /// Hashes the specified data bytes.
-        /// </summary>
-        /// <param name="hashData">The hash data.</param>
-        /// <returns>
-        /// Hashed bytes
-        /// </returns>
-        protected override byte[] Hash(byte[] hashData)
-        {
-            using (var sha256 = CryptoAbstraction.CreateSHA256())
-            {
-                return sha256.ComputeHash(hashData, 0, hashData.Length);
-            }
-        }
-
-        /// <summary>
         /// Calculates key exchange hash value.
         /// </summary>
         /// <returns>
@@ -68,7 +52,7 @@ namespace Renci.SshNet.Security
         /// </returns>
         protected override byte[] CalculateHash()
         {
-            var keyExchangeHashData = new KeyExchangeHashData
+            var hashData = new KeyExchangeHashData
                 {
                     ClientVersion = Session.ClientVersion,
                     ServerVersion = Session.ServerVersion,
@@ -77,10 +61,10 @@ namespace Renci.SshNet.Security
                     HostKey = _hostKey,
                     ClientExchangeValue = _clientExchangeValue,
                     ServerExchangeValue = _serverExchangeValue,
-                    SharedKey = SharedKey
+                    SharedKey = SharedKey,
                 };
 
-            return Hash(keyExchangeHashData.GetBytes());
+            return Hash(hashData.GetBytes());
         }
 
         /// <summary>
@@ -118,5 +102,5 @@ namespace Renci.SshNet.Security
             _serverPayload = message.GetBytes();
             _clientPayload = Session.ClientInitMessage.GetBytes();
         }
-    }
+   }
 }

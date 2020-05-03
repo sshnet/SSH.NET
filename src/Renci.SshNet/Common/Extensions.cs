@@ -75,21 +75,6 @@ namespace Renci.SshNet.Common
         /// <summary>
         /// Initializes a new instance of the <see cref="BigInteger"/> structure using the SSH BigNum2 Format
         /// </summary>
-        public static byte[] ToBigNum2(this byte[] data)
-        {
-            if ((data[0] & (1 << 7)) != 0)
-            {
-                var buf = new byte[data.Length + 1];
-                Buffer.BlockCopy(data, 0, buf, 1, data.Length);
-                data = buf;
-            }
-
-            return data;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="BigInteger"/> structure using the SSH BigNum2 Format
-        /// </summary>
         public static BigInteger ToBigInteger2(this byte[] data)
         {
             if ((data[0] & (1 << 7)) != 0)

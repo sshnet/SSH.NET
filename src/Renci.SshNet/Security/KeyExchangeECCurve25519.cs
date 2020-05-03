@@ -1,4 +1,5 @@
 ﻿using System;
+using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Transport;
 using Renci.SshNet.Security.Chaos.NaCl;
@@ -65,6 +66,21 @@ namespace Renci.SshNet.Security
             Session.KeyExchangeEcdhReplyMessageReceived -= Session_KeyExchangeEcdhReplyMessageReceived;
         }
 
+        /// <summary>
+        /// Hashes the specified data bytes.
+        /// </summary>
+        /// <param name="hashData">The hash data.</param>
+        /// <returns>
+        /// Hashed bytes
+        /// </returns>
+        protected override byte[] Hash(byte[] hashData)
+        {
+            using (var sha256 = CryptoAbstraction.CreateSHA256())
+            {
+                return sha256.ComputeHash(hashData, 0, hashData.Length);
+            }
+        }
+
         private void Session_KeyExchangeEcdhReplyMessageReceived(object sender, MessageEventArgs<KeyExchangeEcdhReplyMessage> e)
         {
             var message = e.Message;
@@ -92,7 +108,7 @@ namespace Renci.SshNet.Security
 
             var sharedKey = new byte[MontgomeryCurve25519.PublicKeySizeInBytes];
             MontgomeryOperations.scalarmult(sharedKey, 0, _privateKey, 0, serverExchangeValue, 0);
-            SharedKey = sharedKey.ToBigNum2();
+            SharedKey = sharedKey.ToBigInteger2().ToByteArray().Reverse();
         }
     }
 }

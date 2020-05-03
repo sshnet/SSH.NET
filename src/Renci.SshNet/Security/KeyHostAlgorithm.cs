@@ -82,7 +82,7 @@ namespace Renci.SshNet.Security
         private class SshKeyData : SshData
         {
             private byte[] _name;
-            private IList<byte[]> _keys;
+            private List<byte[]> _keys;
 
             public BigInteger[] Keys
             {
@@ -92,7 +92,7 @@ namespace Renci.SshNet.Security
                     for (var i = 0; i < _keys.Count; i++)
                     {
                         var key = _keys[i];
-                        keys[i] = key.ToBigInteger();
+                        keys[i] = key.ToBigInteger2();
                     }
                     return keys;
                 }

@@ -35,7 +35,6 @@ namespace Renci.SshNet.Tests.Classes
     {
         private int _partialSuccessLimit;
         private ClientAuthentication _clientAuthentication;
-        private SshAuthenticationException _actualException;
 
         protected override void SetupData()
         {

@@ -9,9 +9,6 @@ namespace Renci.SshNet.Security
         private byte[] _clientVersion;
         private byte[] _prime;
         private byte[] _subGroup;
-        private byte[] _clientExchangeValue;
-        private byte[] _serverExchangeValue;
-        private byte[] _sharedKey;
 
         public string ServerVersion
         {
@@ -50,23 +47,11 @@ namespace Renci.SshNet.Security
             set { _subGroup = value.ToByteArray().Reverse(); }
         }
 
-        public BigInteger ClientExchangeValue
-        {
-            private get { return _clientExchangeValue.ToBigInteger(); }
-            set { _clientExchangeValue = value.ToByteArray().Reverse(); }
-        }
+        public byte[] ClientExchangeValue { get; set; }
 
-        public BigInteger ServerExchangeValue
-        {
-            private get { return _serverExchangeValue.ToBigInteger(); }
-            set { _serverExchangeValue = value.ToByteArray().Reverse(); }
-        }
+        public byte[] ServerExchangeValue { get; set; }
 
-        public BigInteger SharedKey
-        {
-            private get { return _sharedKey.ToBigInteger(); }
-            set { _sharedKey = value.ToByteArray().Reverse(); }
-        }
+        public byte[] SharedKey { get; set; }
 
         /// <summary>
         /// Gets the size of the message in bytes.
@@ -97,11 +82,11 @@ namespace Renci.SshNet.Security
                 capacity += 4; // SubGroup length
                 capacity += _subGroup.Length; // SubGroup
                 capacity += 4; // ClientExchangeValue length
-                capacity += _clientExchangeValue.Length; // ClientExchangeValue
+                capacity += ClientExchangeValue.Length; // ClientExchangeValue
                 capacity += 4; // ServerExchangeValue length
-                capacity += _serverExchangeValue.Length; // ServerExchangeValue
+                capacity += ServerExchangeValue.Length; // ServerExchangeValue
                 capacity += 4; // SharedKey length
-                capacity += _sharedKey.Length; // SharedKey
+                capacity += SharedKey.Length; // SharedKey
                 return capacity;
             }
         }
@@ -123,9 +108,9 @@ namespace Renci.SshNet.Security
             Write(MaximumGroupSize);
             WriteBinaryString(_prime);
             WriteBinaryString(_subGroup);
-            WriteBinaryString(_clientExchangeValue);
-            WriteBinaryString(_serverExchangeValue);
-            WriteBinaryString(_sharedKey);
+            WriteBinaryString(ClientExchangeValue);
+            WriteBinaryString(ServerExchangeValue);
+            WriteBinaryString(SharedKey);
         }
     }
 }

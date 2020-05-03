@@ -8,17 +8,18 @@ namespace Renci.SshNet.Tests.Common
     [TestClass]
     public abstract class TestBase
     {
-        private static Assembly _executingAssembly = Assembly.GetExecutingAssembly();
-        [TestInitialize()]
+        private static readonly Assembly ExecutingAssembly = Assembly.GetExecutingAssembly();
+
+        [TestInitialize]
         public void Init()
         {
-            this.OnInit();
+            OnInit();
         }
 
-        [TestCleanup()]
+        [TestCleanup]
         public void Cleanup()
         {
-            this.OnCleanup();
+            OnCleanup();
         }
 
         protected virtual void OnInit()
@@ -50,7 +51,7 @@ namespace Renci.SshNet.Tests.Common
 
         protected Stream GetData(string name)
         {
-            return _executingAssembly.GetManifestResourceStream(string.Format("Renci.SshNet.Tests.Data.{0}", name));
+            return ExecutingAssembly.GetManifestResourceStream(string.Format("Renci.SshNet.Tests.Data.{0}", name));
         }
     }
 }

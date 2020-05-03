@@ -27,22 +27,34 @@ namespace Renci.SshNet
         /// The timeout to wait until an operation completes. The default value is negative
         /// one (-1) milliseconds, which indicates an infinite time-out period.
         /// </value>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="value"/> represents a value that is less than -1 or greater than <see cref="Int32.MaxValue"/> milliseconds.</exception>
         public TimeSpan OperationTimeout {
             get { return TimeSpan.FromMilliseconds(_operationTimeout); }
             set
             {
                 var timeoutInMilliseconds = value.TotalMilliseconds;
                 if (timeoutInMilliseconds < -1d || timeoutInMilliseconds > int.MaxValue)
-                    throw new ArgumentOutOfRangeException("timeout", "The timeout must represent a value between -1 and Int32.MaxValue, inclusive.");
+                    throw new ArgumentOutOfRangeException("value", "The timeout must represent a value between -1 and Int32.MaxValue, inclusive.");
 
                 _operationTimeout = (int) timeoutInMilliseconds;
             }
         }
 
+        /// <summary>
+        /// Gets the current NetConf session.
+        /// </summary>
+        /// <value>
+        /// The current NetConf session.
+        /// </value>
+        internal INetConfSession NetConfSession
+        {
+            get { return _netConfSession; }
+        }
+
         #region Constructors
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SftpClient"/> class.
+        /// Initializes a new instance of the <see cref="NetConfClient"/> class.
         /// </summary>
         /// <param name="connectionInfo">The connection info.</param>
         /// <exception cref="ArgumentNullException"><paramref name="connectionInfo"/> is <c>null</c>.</exception>
@@ -52,7 +64,7 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SftpClient"/> class.
+        /// Initializes a new instance of the <see cref="NetConfClient"/> class.
         /// </summary>
         /// <param name="host">Connection host.</param>
         /// <param name="port">Connection port.</param>
@@ -68,7 +80,7 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SftpClient"/> class.
+        /// Initializes a new instance of the <see cref="NetConfClient"/> class.
         /// </summary>
         /// <param name="host">Connection host.</param>
         /// <param name="username">Authentication username.</param>
@@ -81,7 +93,7 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SftpClient"/> class.
+        /// Initializes a new instance of the <see cref="NetConfClient"/> class.
         /// </summary>
         /// <param name="host">Connection host.</param>
         /// <param name="port">Connection port.</param>
@@ -97,7 +109,7 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SftpClient"/> class.
+        /// Initializes a new instance of the <see cref="NetConfClient"/> class.
         /// </summary>
         /// <param name="host">Connection host.</param>
         /// <param name="username">Authentication username.</param>
@@ -219,8 +231,7 @@ namespace Renci.SshNet
         {
             base.OnConnected();
 
-            _netConfSession = ServiceFactory.CreateNetConfSession(Session, _operationTimeout);
-            _netConfSession.Connect();
+            _netConfSession = CreateAndConnectNetConfSession();
         }
 
         /// <summary>
@@ -248,6 +259,21 @@ namespace Renci.SshNet
                     _netConfSession.Dispose();
                     _netConfSession = null;
                 }
+            }
+        }
+
+        private INetConfSession CreateAndConnectNetConfSession()
+        {
+            var netConfSession = ServiceFactory.CreateNetConfSession(Session, _operationTimeout);
+            try
+            {
+                netConfSession.Connect();
+                return netConfSession;
+            }
+            catch
+            {
+                netConfSession.Dispose();
+                throw;
             }
         }
     }

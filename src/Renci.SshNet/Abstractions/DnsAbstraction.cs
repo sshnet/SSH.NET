@@ -2,18 +2,20 @@
 using System.Net;
 using System.Net.Sockets;
 
-#if FEATURE_DEVICEINFORMATION_APM
+#if FEATURE_DNS_SYNC
+#elif FEATURE_DNS_APM
+using Renci.SshNet.Common;
+#elif FEATURE_DNS_TAP
+#elif FEATURE_DEVICEINFORMATION_APM
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Microsoft.Phone.Net.NetworkInformation;
-#endif // FEATURE_DEVICEINFORMATION_APM
-
-#if FEATURE_DATAGRAMSOCKET
+#elif FEATURE_DATAGRAMSOCKET
 using System.Collections.Generic;
 using Windows.Networking;
 using Windows.Networking.Sockets;
-#endif // FEATURE_DATAGRAMSOCKET
+#endif
 
 namespace Renci.SshNet.Abstractions
 {
@@ -41,7 +43,7 @@ namespace Renci.SshNet.Abstractions
                 throw new SshOperationTimeoutException("Timeout resolving host name.");
             return Dns.EndGetHostAddresses(asyncResult);
 #elif FEATURE_DNS_TAP
-            return Dns.GetHostAddressesAsync(hostNameOrAddress).Result;
+            return Dns.GetHostAddressesAsync(hostNameOrAddress).GetAwaiter().GetResult();
 #else
             IPAddress address;
             if (IPAddress.TryParse(hostNameOrAddress, out address))

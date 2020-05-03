@@ -3,14 +3,15 @@ using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Connection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using Renci.SshNet.Abstractions;
 using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Messages.Connection
 {
     /// <summary>
-    ///This is a test class for ChannelDataMessageTest and is intended
-    ///to contain all ChannelDataMessageTest Unit Tests
-    ///</summary>
+    /// This is a test class for ChannelDataMessageTest and is intended
+    /// to contain all ChannelDataMessageTest Unit Tests
+    /// </summary>
     [TestClass]
     public class ChannelDataMessageTest : TestBase
     {
@@ -98,10 +99,9 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
             var random = new Random();
 
             var localChannelNumber = (uint) random.Next(0, int.MaxValue);
-            var data = new byte[random.Next(10, 20)];
-            random.NextBytes(data);
-            var offset = random.Next(2, 4);
-            var size = random.Next(5, 9);
+            var data = CryptoAbstraction.GenerateRandom(random.Next(10, 20));
+            var offset = random.Next(0, data.Length - 1);
+            var size = random.Next(0, data.Length - offset);
 
             var target = new ChannelDataMessage(localChannelNumber, data, offset, size);
 
@@ -133,11 +133,10 @@ namespace Renci.SshNet.Tests.Classes.Messages.Connection
             var random = new Random();
 
             var localChannelNumber = (uint) random.Next(0, int.MaxValue);
-            var data = new byte[random.Next(10, 20)];
-            random.NextBytes(data);
+            var data = CryptoAbstraction.GenerateRandom(random.Next(10, 20));
 
-            var offset = random.Next(2, 4);
-            var size = random.Next(5, 9);
+            var offset = random.Next(0, data.Length - 1);
+            var size = random.Next(0, data.Length - offset);
             var channelDataMessage = new ChannelDataMessage(localChannelNumber, data, offset, size);
             var bytes = channelDataMessage.GetBytes();
             var target = new ChannelDataMessage();

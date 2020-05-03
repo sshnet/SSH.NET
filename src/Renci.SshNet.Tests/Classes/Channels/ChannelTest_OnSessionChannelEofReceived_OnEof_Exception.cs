@@ -8,9 +8,8 @@ using Renci.SshNet.Messages.Connection;
 namespace Renci.SshNet.Tests.Classes.Channels
 {
     [TestClass]
-    public class ChannelTest_OnSessionChannelEofReceived_Exception
+    public class ChannelTest_OnSessionChannelEofReceived_Exception : ChannelTestBase
     {
-        private Mock<ISession> _sessionMock;
         private uint _localWindowSize;
         private uint _localPacketSize;
         private uint _localChannelNumber;
@@ -21,38 +20,39 @@ namespace Renci.SshNet.Tests.Classes.Channels
         private IList<ExceptionEventArgs> _channelExceptionRegister;
         private Exception _onEofException;
 
-        [TestInitialize]
-        public void Initialize()
-        {
-            Arrange();
-            Act();
-        }
-
-        private void Arrange()
+        protected override void SetupData()
         {
             var random = new Random();
-            _localWindowSize = (uint)random.Next(0, 1000);
-            _localPacketSize = (uint)random.Next(1001, int.MaxValue);
-            _localChannelNumber = (uint)random.Next(0, int.MaxValue);
-            _remoteChannelNumber = (uint)random.Next(0, int.MaxValue);
-            _remoteWindowSize = (uint)random.Next(0, int.MaxValue);
-            _remotePacketSize = (uint)random.Next(0, int.MaxValue);
+
+            _localWindowSize = (uint) random.Next(0, 1000);
+            _localPacketSize = (uint) random.Next(1001, int.MaxValue);
+            _localChannelNumber = (uint) random.Next(0, int.MaxValue);
+            _remoteChannelNumber = (uint) random.Next(0, int.MaxValue);
+            _remoteWindowSize = (uint) random.Next(0, int.MaxValue);
+            _remotePacketSize = (uint) random.Next(0, int.MaxValue);
             _onEofException = new SystemException();
             _channelExceptionRegister = new List<ExceptionEventArgs>();
+        }
 
-            _sessionMock = new Mock<ISession>(MockBehavior.Strict);
+        protected override void SetupMocks()
+        {
+        }
 
-            _channel = new ChannelStub(_sessionMock.Object, _localChannelNumber, _localWindowSize, _localPacketSize);
+        protected override void Arrange()
+        {
+            base.Arrange();
+
+            _channel = new ChannelStub(SessionMock.Object, _localChannelNumber, _localWindowSize, _localPacketSize);
             _channel.Exception += (sender, args) => _channelExceptionRegister.Add(args);
             _channel.InitializeRemoteChannelInfo(_remoteChannelNumber, _remoteWindowSize, _remotePacketSize);
             _channel.SetIsOpen(true);
             _channel.OnEofException = _onEofException;
         }
 
-        private void Act()
+        protected override void Act()
         {
-            _sessionMock.Raise(s => s.ChannelEofReceived += null,
-                new MessageEventArgs<ChannelEofMessage>(new ChannelEofMessage(_localChannelNumber)));
+            SessionMock.Raise(s => s.ChannelEofReceived += null,
+                               new MessageEventArgs<ChannelEofMessage>(new ChannelEofMessage(_localChannelNumber)));
         }
 
         [TestMethod]

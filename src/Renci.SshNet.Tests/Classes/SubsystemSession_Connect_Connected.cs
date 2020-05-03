@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Renci.SshNet.Channels;
@@ -46,10 +45,9 @@ namespace Renci.SshNet.Tests.Classes
             _channelMock.InSequence(_sequence).Setup(p => p.SendSubsystemRequest(_subsystemName)).Returns(true);
             _channelMock.InSequence(_sequence).Setup(p => p.IsOpen).Returns(true);
 
-            _subsystemSession = new SubsystemSessionStub(
-                _sessionMock.Object,
-                _subsystemName,
-                _operationTimeout);
+            _subsystemSession = new SubsystemSessionStub(_sessionMock.Object,
+                                                         _subsystemName,
+                                                         _operationTimeout);
             _subsystemSession.Disconnected += (sender, args) => _disconnectedRegister.Add(args);
             _subsystemSession.ErrorOccurred += (sender, args) => _errorOccurredRegister.Add(args);
             _subsystemSession.Connect();

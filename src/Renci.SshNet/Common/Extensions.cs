@@ -73,6 +73,20 @@ namespace Renci.SshNet.Common
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="BigInteger"/> structure using the SSH BigNum2 Format
+        /// </summary>
+        public static BigInteger ToBigInteger2(this byte[] data)
+        {
+            if ((data[0] & (1 << 7)) != 0)
+            {
+                var buf = new byte[data.Length + 1];
+                Buffer.BlockCopy(data, 0, buf, 1, data.Length);
+                data = buf;
+            }
+            return data.ToBigInteger();
+        }
+
+        /// <summary>
         /// Reverses the sequence of the elements in the entire one-dimensional <see cref="Array"/>.
         /// </summary>
         /// <param name="array">The one-dimensional <see cref="Array"/> to reverse.</param>
@@ -247,6 +261,20 @@ namespace Renci.SshNet.Common
             return value;
         }
 
+        /// <summary>
+        /// Pads with leading zeros if needed.
+        /// </summary>
+        /// <param name="data">The data.</param>
+        /// <param name="length">The length to pad to.</param>
+        public static byte[] Pad(this byte[] data, int length)
+        {
+            if (length <= data.Length)
+                return data;
+            var newData = new byte[length];
+            Buffer.BlockCopy(data, 0, newData, newData.Length - data.Length, data.Length);
+            return newData;
+        }
+
         public static byte[] Concat(this byte[] first, byte[] second)
         {
             if (first == null || first.Length == 0)
@@ -307,5 +335,32 @@ namespace Renci.SshNet.Common
             handle.Close();
         }
 #endif // !FEATURE_WAITHANDLE_DISPOSE
+
+#if !FEATURE_HASHALGORITHM_DISPOSE
+        /// <summary>
+        /// Disposes the specified algorithm.
+        /// </summary>
+        /// <param name="algorithm">The algorithm.</param>
+        [DebuggerNonUserCode]
+        internal static void Dispose(this System.Security.Cryptography.HashAlgorithm algorithm)
+        {
+            if (algorithm == null)
+                throw new NullReferenceException();
+
+            algorithm.Clear();
+        }
+#endif // FEATURE_HASHALGORITHM_DISPOSE
+
+#if !FEATURE_STRINGBUILDER_CLEAR
+        /// <summary>
+        /// Clears the contents of the string builder.
+        /// </summary>
+        /// <param name="value">The <see cref="StringBuilder"/> to clear.</param>
+        public static void Clear(this StringBuilder value)
+        {
+            value.Length = 0;
+            value.Capacity = 16;
+        }
+#endif // !FEATURE_STRINGBUILDER_CLEAR
     }
 }

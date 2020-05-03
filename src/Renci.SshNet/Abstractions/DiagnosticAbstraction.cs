@@ -1,5 +1,4 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 #if FEATURE_DIAGNOSTICS_TRACESOURCE
 using System.Threading;
 #endif // FEATURE_DIAGNOSTICS_TRACESOURCE

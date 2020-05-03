@@ -1,6 +1,5 @@
 ﻿using Renci.SshNet.Common;
 using System;
-using System.Collections.Generic;
 
 namespace Renci.SshNet
 {

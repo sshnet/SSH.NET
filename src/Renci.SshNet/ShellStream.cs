@@ -64,7 +64,6 @@ namespace Renci.SshNet
             get { return _bufferSize; }
         }
 
-
         /// <summary>
         /// Initializes a new <see cref="ShellStream"/> instance.
         /// </summary>
@@ -76,6 +75,9 @@ namespace Renci.SshNet
         /// <param name="height">The terminal height in pixels.</param>
         /// <param name="terminalModeValues">The terminal mode values.</param>
         /// <param name="bufferSize">The size of the buffer.</param>
+        /// <exception cref="SshException">The channel could not be opened.</exception>
+        /// <exception cref="SshException">The pseudo-terminal request was not accepted by the server.</exception>
+        /// <exception cref="SshException">The request to start a shell was not accepted by the server.</exception>
         internal ShellStream(ISession session, string terminalName, uint columns, uint rows, uint width, uint height, IDictionary<TerminalModes, uint> terminalModeValues, int bufferSize)
         {
             _encoding = session.ConnectionInfo.Encoding;
@@ -90,9 +92,24 @@ namespace Renci.SshNet
             _session.Disconnected += Session_Disconnected;
             _session.ErrorOccured += Session_ErrorOccured;
 
-            _channel.Open();
-            _channel.SendPseudoTerminalRequest(terminalName, columns, rows, width, height, terminalModeValues);
-            _channel.SendShellRequest();
+            try
+            {
+                _channel.Open();
+                if (!_channel.SendPseudoTerminalRequest(terminalName, columns, rows, width, height, terminalModeValues))
+                {
+                    throw new SshException("The pseudo-terminal request was not accepted by the server. Consult the server log for more information.");
+                }
+                if (!_channel.SendShellRequest())
+                {
+                    throw new SshException("The request to start a shell was not accepted by the server. Consult the server log for more information.");
+                }
+            }
+            catch
+            {
+                UnsubscribeFromSessionEvents(session);
+                _channel.Dispose();
+                throw;
+            }
         }
 
         #region Stream overide methods

@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Net.Sockets;
 using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -69,9 +70,8 @@ namespace Renci.SshNet.Tests.Classes
             Assert.AreEqual(typeof(SocketException), innerException.GetType());
 
             var socketException = (SocketException) innerException;
+            Assert.AreSame(connectionException.Message, socketException.Message);
             Assert.AreEqual(SocketError.ConnectionReset, socketException.SocketErrorCode);
-
-            Assert.AreSame(innerException.Message, connectionException.Message);
         }
 
         [TestMethod]
@@ -140,7 +140,7 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
-        public void ISession_WaitOnHandleShouldThrowSshConnectionExceptionDetailingConnectionReset()
+        public void ISession_WaitOnHandle_WaitHandle_ShouldThrowSshConnectionExceptionDetailingConnectionReset()
         {
             var session = (ISession) Session;
             var waitHandle = new ManualResetEvent(false);
@@ -158,12 +158,63 @@ namespace Renci.SshNet.Tests.Classes
                 Assert.IsNotNull(innerException);
                 Assert.AreEqual(typeof(SocketException), innerException.GetType());
 
-                var socketException = (SocketException)ex.InnerException;
-                Assert.AreEqual(SocketError.ConnectionReset, socketException.SocketErrorCode);
-
+                var socketException = (SocketException) ex.InnerException;
+                Assert.IsNotNull(socketException);
+                Assert.IsNull(socketException.InnerException);
                 Assert.AreSame(innerException.Message, ex.Message);
-
+                Assert.AreEqual(SocketError.ConnectionReset, socketException.SocketErrorCode);
             }
+        }
+
+        [TestMethod]
+        public void ISession_WaitOnHandle_WaitHandleAndTimeout_ShouldThrowSshConnectionExceptionDetailingConnectionReset()
+        {
+            var session = (ISession) Session;
+            var waitHandle = new ManualResetEvent(false);
+
+            try
+            {
+                session.WaitOnHandle(waitHandle, Session.InfiniteTimeSpan);
+                Assert.Fail();
+            }
+            catch (SshConnectionException ex)
+            {
+                Assert.AreEqual(DisconnectReason.ConnectionLost, ex.DisconnectReason);
+
+                var innerException = ex.InnerException;
+                Assert.IsNotNull(innerException);
+                Assert.AreEqual(typeof(SocketException), innerException.GetType());
+
+                var socketException = (SocketException) ex.InnerException;
+                Assert.IsNotNull(socketException);
+                Assert.IsNull(socketException.InnerException);
+                Assert.AreSame(innerException.Message, socketException.Message);
+                Assert.AreEqual(SocketError.ConnectionReset, socketException.SocketErrorCode);
+            }
+        }
+
+        [TestMethod]
+        public void ISession_TryWait_WaitHandleAndTimeout_ShouldReturnDisconnected()
+        {
+            var session = (ISession) Session;
+            var waitHandle = new ManualResetEvent(false);
+
+            var result = session.TryWait(waitHandle, Session.InfiniteTimeSpan);
+
+            Assert.AreEqual(WaitResult.Disconnected, result);
+        }
+
+        [TestMethod]
+        public void ISession_TryWait_WaitHandleAndTimeoutAndException_ShouldReturnDisconnected()
+        {
+            var session = (ISession) Session;
+            var waitHandle = new ManualResetEvent(false);
+            Exception exception;
+
+            var result = session.TryWait(waitHandle, Session.InfiniteTimeSpan, out exception);
+
+            Assert.AreEqual(WaitResult.Disconnected, result);
+            Assert.IsNull(exception);
         }
     }
 }

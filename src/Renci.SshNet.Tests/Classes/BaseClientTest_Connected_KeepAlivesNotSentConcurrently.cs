@@ -34,25 +34,38 @@ namespace Renci.SshNet.Tests.Classes
             }
         }
 
-        protected void Arrange()
+        private void SetupData()
         {
             _connectionInfo = new ConnectionInfo("host", "user", new PasswordAuthenticationMethod("user", "pwd"));
             _keepAliveSent = new ManualResetEvent(false);
+        }
 
+        private void CreateMocks()
+        {
             _serviceFactoryMock = new Mock<IServiceFactory>(MockBehavior.Strict);
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);
+        }
 
+        private void SetupMocks()
+        {
             _mockSequence = new MockSequence();
 
             _serviceFactoryMock.InSequence(_mockSequence).Setup(p => p.CreateSession(_connectionInfo)).Returns(_sessionMock.Object);
             _sessionMock.InSequence(_mockSequence).Setup(p => p.Connect());
             _sessionMock.InSequence(_mockSequence).Setup(p => p.TrySendMessage(It.IsAny<IgnoreMessage>()))
-                .Returns(true)
-                .Callback(() =>
-                    {
-                        Thread.Sleep(300);
-                        _keepAliveSent.Set();
-                    });
+                        .Returns(true)
+                        .Callback(() =>
+                        {
+                            Thread.Sleep(300);
+                            _keepAliveSent.Set();
+                        });
+        }
+
+        protected void Arrange()
+        {
+            SetupData();
+            CreateMocks();
+            SetupMocks();
 
             _client = new MyClient(_connectionInfo, false, _serviceFactoryMock.Object)
                 {

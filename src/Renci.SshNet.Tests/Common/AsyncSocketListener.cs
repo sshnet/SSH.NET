@@ -27,7 +27,19 @@ namespace Renci.SshNet.Tests.Common
         {
             _endPoint = endPoint;
             _acceptCallbackDone = new ManualResetEvent(false);
+            ShutdownRemoteCommunicationSocket = true;
         }
+
+        /// <summary>
+        /// Gets a value indicating whether the <see cref="Socket.Shutdown(SocketShutdown)"/> is invoked on the <see cref="Socket"/>
+        /// that is used to handle the communication with the remote host, when the remote host has closed the connection.
+        /// </summary>
+        /// <value>
+        /// <see langword="true"/> to invoke <see cref="Socket.Shutdown(SocketShutdown)"/> on the <see cref="Socket"/> that is used
+        /// to handle the communication with the remote host, when the remote host has closed the connection; otherwise,
+        /// <see langword="false""/>. The default is <see langword="true"/>.
+        /// </value>
+        public bool ShutdownRemoteCommunicationSocket { get; set; }
 
         public void Start()
         {
@@ -127,7 +139,12 @@ namespace Renci.SshNet.Tests.Common
             else
             {
                 SignalDisconnected(handler);
-                handler.Shutdown(SocketShutdown.Send);
+
+                if (ShutdownRemoteCommunicationSocket)
+                {
+                    handler.Shutdown(SocketShutdown.Both);
+                    handler.Close();
+                }
             }
         }
 

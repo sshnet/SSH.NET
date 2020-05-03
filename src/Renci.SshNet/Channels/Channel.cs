@@ -5,6 +5,7 @@ using Renci.SshNet.Common;
 using Renci.SshNet.Messages;
 using Renci.SshNet.Messages.Connection;
 using System.Globalization;
+using Renci.SshNet.Abstractions;
 
 namespace Renci.SshNet.Channels
 {
@@ -15,7 +16,6 @@ namespace Renci.SshNet.Channels
     {
         private EventWaitHandle _channelClosedWaitHandle = new ManualResetEvent(false);
         private EventWaitHandle _channelServerWindowAdjustWaitHandle = new ManualResetEvent(false);
-        private EventWaitHandle _errorOccuredWaitHandle = new ManualResetEvent(false);
         private readonly object _serverWindowSizeLock = new object();
         private readonly uint _initialWindowSize;
         private uint? _remoteWindowSize;
@@ -327,11 +327,10 @@ namespace Renci.SshNet.Channels
             {
                 var sizeOfCurrentMessage = GetDataLengthThatCanBeSentInMessage(totalBytesToSend);
 
-                var channelDataMessage = new ChannelDataMessage(
-                    RemoteChannelNumber,
-                    data,
-                    offset,
-                    sizeOfCurrentMessage);
+                var channelDataMessage = new ChannelDataMessage(RemoteChannelNumber,
+                                                                data,
+                                                                offset,
+                                                                sizeOfCurrentMessage);
                 _session.SendMessage(channelDataMessage);
 
                 totalBytesToSend -= sizeOfCurrentMessage;
@@ -400,20 +399,12 @@ namespace Renci.SshNet.Channels
         {
             _closeMessageReceived = true;
 
-            // signal that SSH_MSG_CHANNEL_CLOSE message was received from server
-            // we need to signal this before firing the Closed event, as a subscriber
-            // may very well react to the Closed event by closing or disposing the
-            // channel which in turn will wait for this handle to be signaled
+            // Signal that SSH_MSG_CHANNEL_CLOSE message was received from server.
+            // We need to signal this before invoking Close() as it may very well
+            // be blocked waiting for this signal.
             var channelClosedWaitHandle = _channelClosedWaitHandle;
             if (channelClosedWaitHandle != null)
                 channelClosedWaitHandle.Set();
-
-            // raise event signaling that the server has closed its end of the channel
-            var closed = Closed;
-            if (closed != null)
-            {
-                closed(this, new ChannelEventArgs(LocalChannelNumber));
-            }
 
             // close the channel
             Close();
@@ -554,20 +545,33 @@ namespace Renci.SshNet.Channels
                     {
                         _closeMessageSent = true;
 
-                        // wait for channel to be closed if we actually sent a close message (either to initiate closing
-                        // the channel, or as response to a SSH_MSG_CHANNEL_CLOSE message sent by the server
-                        try
+                        // only wait for the channel to be closed by the server if we didn't send a
+                        // SSH_MSG_CHANNEL_CLOSE as response to a SSH_MSG_CHANNEL_CLOSE sent by the
+                        // server
+                        var closeWaitResult = _session.TryWait(_channelClosedWaitHandle, ConnectionInfo.ChannelCloseTimeout);
+                        if (closeWaitResult != WaitResult.Success)
                         {
-                            WaitOnHandle(_channelClosedWaitHandle);
-                        }
-                        catch (SshConnectionException)
-                        {
-                            // ignore connection failures as we're closing the channel anyway
+                            DiagnosticAbstraction.Log(string.Format("Wait for channel close not successful: {0:G}.", closeWaitResult));
                         }
                     }
                 }
 
-                IsOpen = false;
+                if (IsOpen)
+                {
+                    // mark sure the channel is marked closed before we raise the Closed event
+                    // this also ensures don't raise the Closed event more than once
+                    IsOpen = false;
+
+                    if (_closeMessageReceived)
+                    {
+                        // raise event signaling that both ends of the channel have been closed
+                        var closed = Closed;
+                        if (closed != null)
+                        {
+                            closed(this, new ChannelEventArgs(LocalChannelNumber));
+                        }
+                    }
+                }
             }
         }
 
@@ -612,10 +616,6 @@ namespace Renci.SshNet.Channels
             try
             {
                 OnErrorOccured(e.Exception);
-
-                var errorOccuredWaitHandle = _errorOccuredWaitHandle;
-                if (errorOccuredWaitHandle != null)
-                    errorOccuredWaitHandle.Set();
             }
             catch (Exception ex)
             {
@@ -869,13 +869,6 @@ namespace Renci.SshNet.Channels
                 {
                     _channelServerWindowAdjustWaitHandle = null;
                     channelServerWindowAdjustWaitHandle.Dispose();
-                }
-
-                var errorOccuredWaitHandle = _errorOccuredWaitHandle;
-                if (errorOccuredWaitHandle != null)
-                {
-                    _errorOccuredWaitHandle = null;
-                    errorOccuredWaitHandle.Dispose();
                 }
 
                 _isDisposed = true;

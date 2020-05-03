@@ -8,9 +8,8 @@ using Renci.SshNet.Messages.Connection;
 namespace Renci.SshNet.Tests.Classes.Channels
 {
     [TestClass]
-    public class ChannelTest_SendEof_ChannelIsOpen
+    public class ChannelTest_SendEof_ChannelIsOpen : ChannelTestBase
     {
-        private Mock<ISession> _sessionMock;
         private uint _localChannelNumber;
         private uint _localWindowSize;
         private uint _localPacketSize;
@@ -21,37 +20,37 @@ namespace Renci.SshNet.Tests.Classes.Channels
         private List<ChannelEventArgs> _channelClosedRegister;
         private IList<ExceptionEventArgs> _channelExceptionRegister;
 
-        [TestInitialize]
-        public void Initialize()
-        {
-            Arrange();
-            Act();
-        }
-
-        private void Arrange()
+        protected override void SetupData()
         {
             var random = new Random();
-            _localChannelNumber = (uint)random.Next(0, int.MaxValue);
-            _localWindowSize = (uint)random.Next(0, int.MaxValue);
-            _localPacketSize = (uint)random.Next(0, int.MaxValue);
-            _remoteChannelNumber = (uint)random.Next(0, int.MaxValue);
-            _remoteWindowSize = (uint)random.Next(0, int.MaxValue);
-            _remotePacketSize = (uint)random.Next(0, int.MaxValue);
+
+            _localChannelNumber = (uint) random.Next(0, int.MaxValue);
+            _localWindowSize = (uint) random.Next(0, int.MaxValue);
+            _localPacketSize = (uint) random.Next(0, int.MaxValue);
+            _remoteChannelNumber = (uint) random.Next(0, int.MaxValue);
+            _remoteWindowSize = (uint) random.Next(0, int.MaxValue);
+            _remotePacketSize = (uint) random.Next(0, int.MaxValue);
             _channelClosedRegister = new List<ChannelEventArgs>();
             _channelExceptionRegister = new List<ExceptionEventArgs>();
+        }
 
-            _sessionMock = new Mock<ISession>(MockBehavior.Strict);
+        protected override void SetupMocks()
+        {
+            SessionMock.Setup(p => p.SendMessage(It.Is<ChannelEofMessage>(e => e.LocalChannelNumber == _remoteChannelNumber)));
+        }
 
-            _sessionMock.Setup(p => p.SendMessage(It.Is<ChannelEofMessage>(e => e.LocalChannelNumber == _remoteChannelNumber)));
+        protected override void Arrange()
+        {
+            base.Arrange();
 
-            _channel = new ChannelStub(_sessionMock.Object, _localChannelNumber, _localWindowSize, _localPacketSize);
+            _channel = new ChannelStub(SessionMock.Object, _localChannelNumber, _localWindowSize, _localPacketSize);
             _channel.Closed += (sender, args) => _channelClosedRegister.Add(args);
             _channel.Exception += (sender, args) => _channelExceptionRegister.Add(args);
             _channel.InitializeRemoteChannelInfo(_remoteChannelNumber, _remoteWindowSize, _remotePacketSize);
             _channel.SetIsOpen(true);
         }
 
-        private void Act()
+        protected override void Act()
         {
             _channel.SendEof();
         }
@@ -65,7 +64,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
         [TestMethod]
         public void SendMessageOnSessionShouldBeInvokedOnceWithChannelEofMessage()
         {
-            _sessionMock.Verify(
+            SessionMock.Verify(
                 p => p.SendMessage(It.Is<ChannelEofMessage>(e => e.LocalChannelNumber == _remoteChannelNumber)),
                 Times.Once);
         }

@@ -10,10 +10,8 @@ using Renci.SshNet.Messages.Connection;
 namespace Renci.SshNet.Tests.Classes.Channels
 {
     [TestClass]
-    public class ChannelSessionTest_Dispose_SessionIsConnectedAndChannelIsOpen_NoChannelCloseOrChannelEofReceived_SendChannelEofMessageFailure
+    public class ChannelSessionTest_Dispose_SessionIsConnectedAndChannelIsOpen_NoChannelCloseOrChannelEofReceived_SendChannelEofMessageFailure : ChannelSessionTestBase
     {
-        private Mock<ISession> _sessionMock;
-        private Mock<IConnectionInfo> _connectionInfoMock;
         private ChannelSession _channel;
         private uint _localChannelNumber;
         private uint _localWindowSize;
@@ -21,89 +19,93 @@ namespace Renci.SshNet.Tests.Classes.Channels
         private uint _remoteWindowSize;
         private uint _remotePacketSize;
         private uint _remoteChannelNumber;
+        private TimeSpan _channelCloseTimeout;
         private SemaphoreLight _sessionSemaphore;
         private IList<ChannelEventArgs> _channelClosedRegister;
         private List<ExceptionEventArgs> _channelExceptionRegister;
 
-        [TestInitialize]
-        public void Initialize()
-        {
-            Arrange();
-            Act();
-        }
-
-        private void Arrange()
+        protected override void SetupData()
         {
             var random = new Random();
-            _localChannelNumber = (uint)random.Next(0, int.MaxValue);
-            _localWindowSize = (uint)random.Next(2000, 3000);
-            _localPacketSize = (uint)random.Next(1000, 2000);
-            _remoteChannelNumber = (uint)random.Next(0, int.MaxValue);
-            _remoteWindowSize = (uint)random.Next(0, int.MaxValue);
-            _remotePacketSize = (uint)random.Next(100, 200);
+
+            _localChannelNumber = (uint) random.Next(0, int.MaxValue);
+            _localWindowSize = (uint) random.Next(2000, 3000);
+            _localPacketSize = (uint) random.Next(1000, 2000);
+            _remoteChannelNumber = (uint) random.Next(0, int.MaxValue);
+            _remoteWindowSize = (uint) random.Next(0, int.MaxValue);
+            _remotePacketSize = (uint) random.Next(100, 200);
+            _channelCloseTimeout = TimeSpan.FromSeconds(random.Next(10, 20));
             _sessionSemaphore = new SemaphoreLight(1);
             _channelClosedRegister = new List<ChannelEventArgs>();
             _channelExceptionRegister = new List<ExceptionEventArgs>();
+        }
 
-            _sessionMock = new Mock<ISession>(MockBehavior.Strict);
-            _connectionInfoMock = new Mock<IConnectionInfo>(MockBehavior.Strict);
-
+        protected override void SetupMocks()
+        {
             var sequence = new MockSequence();
-            _sessionMock.InSequence(sequence).Setup(p => p.ConnectionInfo).Returns(_connectionInfoMock.Object);
-            _connectionInfoMock.InSequence(sequence).Setup(p => p.RetryAttempts).Returns(1);
-            _sessionMock.Setup(p => p.SessionSemaphore).Returns(_sessionSemaphore);
-            _sessionMock.InSequence(sequence)
-                .Setup(
-                    p =>
-                        p.SendMessage(
-                            It.Is<ChannelOpenMessage>(
-                                m =>
-                                    m.LocalChannelNumber == _localChannelNumber &&
-                                    m.InitialWindowSize == _localWindowSize && m.MaximumPacketSize == _localPacketSize &&
-                                    m.Info is SessionChannelOpenInfo)));
-            _sessionMock.InSequence(sequence)
-                .Setup(p => p.WaitOnHandle(It.IsNotNull<WaitHandle>()))
-                .Callback<WaitHandle>(
-                    w =>
-                    {
-                        _sessionMock.Raise(
-                            s => s.ChannelOpenConfirmationReceived += null,
-                            new MessageEventArgs<ChannelOpenConfirmationMessage>(
-                                new ChannelOpenConfirmationMessage(
-                                    _localChannelNumber,
-                                    _remoteWindowSize,
-                                    _remotePacketSize,
-                                    _remoteChannelNumber)));
-                        w.WaitOne();
-                    });
-            _sessionMock.InSequence(sequence).Setup(p => p.IsConnected).Returns(true);
-            _sessionMock.InSequence(sequence)
-                .Setup(
-                    p => p.TrySendMessage(It.Is<ChannelEofMessage>(m => m.LocalChannelNumber == _remoteChannelNumber)))
-                .Returns(false);
-            _sessionMock.InSequence(sequence).Setup(p => p.IsConnected).Returns(true);
-            _sessionMock.InSequence(sequence)
-                .Setup(
-                    p => p.TrySendMessage(It.Is<ChannelCloseMessage>(m => m.LocalChannelNumber == _remoteChannelNumber)))
-                .Returns(true);
-            _sessionMock.InSequence(sequence)
-                .Setup(p => p.WaitOnHandle(It.IsNotNull<WaitHandle>()))
-                .Callback<WaitHandle>(
-                    w =>
-                    {
-                        _sessionMock.Raise(
-                            s => s.ChannelCloseReceived += null,
-                            new MessageEventArgs<ChannelCloseMessage>(new ChannelCloseMessage(_localChannelNumber)));
-                        w.WaitOne();
-                    });
 
-            _channel = new ChannelSession(_sessionMock.Object, _localChannelNumber, _localWindowSize, _localPacketSize);
+            SessionMock.InSequence(sequence).Setup(p => p.ConnectionInfo).Returns(ConnectionInfoMock.Object);
+            ConnectionInfoMock.InSequence(sequence).Setup(p => p.RetryAttempts).Returns(1);
+            SessionMock.Setup(p => p.SessionSemaphore).Returns(_sessionSemaphore);
+            SessionMock.InSequence(sequence)
+                        .Setup(
+                            p =>
+                                p.SendMessage(
+                                    It.Is<ChannelOpenMessage>(
+                                        m =>
+                                            m.LocalChannelNumber == _localChannelNumber &&
+                                            m.InitialWindowSize == _localWindowSize && m.MaximumPacketSize == _localPacketSize &&
+                                            m.Info is SessionChannelOpenInfo)));
+            SessionMock.InSequence(sequence)
+                        .Setup(p => p.WaitOnHandle(It.IsNotNull<WaitHandle>()))
+                        .Callback<WaitHandle>(
+                            w =>
+                            {
+                                SessionMock.Raise(
+                                    s => s.ChannelOpenConfirmationReceived += null,
+                                    new MessageEventArgs<ChannelOpenConfirmationMessage>(
+                                        new ChannelOpenConfirmationMessage(
+                                            _localChannelNumber,
+                                            _remoteWindowSize,
+                                            _remotePacketSize,
+                                            _remoteChannelNumber)));
+                                w.WaitOne();
+                            });
+            SessionMock.InSequence(sequence).Setup(p => p.IsConnected).Returns(true);
+            SessionMock.InSequence(sequence)
+                        .Setup(
+                            p => p.TrySendMessage(It.Is<ChannelEofMessage>(m => m.LocalChannelNumber == _remoteChannelNumber)))
+                        .Returns(false);
+            SessionMock.InSequence(sequence).Setup(p => p.IsConnected).Returns(true);
+            SessionMock.InSequence(sequence)
+                        .Setup(
+                            p => p.TrySendMessage(It.Is<ChannelCloseMessage>(m => m.LocalChannelNumber == _remoteChannelNumber)))
+                        .Returns(true);
+            SessionMock.InSequence(sequence).Setup(p => p.ConnectionInfo).Returns(ConnectionInfoMock.Object);
+            ConnectionInfoMock.InSequence(sequence).Setup(p => p.ChannelCloseTimeout).Returns(_channelCloseTimeout);
+            SessionMock.InSequence(sequence)
+                       .Setup(p => p.TryWait(It.IsNotNull<WaitHandle>(), _channelCloseTimeout))
+                       .Callback<WaitHandle, TimeSpan>(
+                           (waitHandle, channelCloseTimeout) =>
+                           {
+                               SessionMock.Raise(s => s.ChannelCloseReceived += null,
+                                                 new MessageEventArgs<ChannelCloseMessage>(new ChannelCloseMessage(_localChannelNumber)));
+                               waitHandle.WaitOne();
+                           })
+                       .Returns(WaitResult.Success);
+        }
+
+        protected override void Arrange()
+        {
+            base.Arrange();
+
+            _channel = new ChannelSession(SessionMock.Object, _localChannelNumber, _localWindowSize, _localPacketSize);
             _channel.Closed += (sender, args) => _channelClosedRegister.Add(args);
             _channel.Exception += (sender, args) => _channelExceptionRegister.Add(args);
             _channel.Open();
         }
 
-        private void Act()
+        protected override void Act()
         {
             _channel.Dispose();
         }
@@ -111,13 +113,13 @@ namespace Renci.SshNet.Tests.Classes.Channels
         [TestMethod]
         public void ChannelEofMessageShouldBeSentOnce()
         {
-            _sessionMock.Verify(p => p.TrySendMessage(It.Is<ChannelEofMessage>(m => m.LocalChannelNumber == _remoteChannelNumber)), Times.Once);
+            SessionMock.Verify(p => p.TrySendMessage(It.Is<ChannelEofMessage>(m => m.LocalChannelNumber == _remoteChannelNumber)), Times.Once);
         }
 
         [TestMethod]
         public void ChannelCloseMessageShouldBeSentOnce()
         {
-            _sessionMock.Verify(p => p.TrySendMessage(It.Is<ChannelCloseMessage>(m => m.LocalChannelNumber == _remoteChannelNumber)), Times.Once);
+            SessionMock.Verify(p => p.TrySendMessage(It.Is<ChannelCloseMessage>(m => m.LocalChannelNumber == _remoteChannelNumber)), Times.Once);
         }
 
         [TestMethod]

@@ -24,6 +24,22 @@ namespace Renci.SshNet
         internal static int DefaultPort = 22;
 
         /// <summary>
+        /// The default connection timeout.
+        /// </summary>
+        /// <value>
+        /// 30 seconds.
+        /// </value>
+        private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(30);
+
+        /// <summary>
+        /// The default channel close timeout.
+        /// </summary>
+        /// <value>
+        /// 1 second.
+        /// </value>
+        private static readonly TimeSpan DefaultChannelCloseTimeout = TimeSpan.FromSeconds(1);
+
+        /// <summary>
         /// Gets supported key exchange algorithms for this connection.
         /// </summary>
         public IDictionary<string, Type> KeyExchangeAlgorithms { get; private set; }
@@ -125,6 +141,18 @@ namespace Renci.SshNet
         ///   <code source="..\..\src\Renci.SshNet.Tests\Classes\SshClientTest.cs" region="Example SshClient Connect Timeout" language="C#" title="Specify connection timeout" />
         /// </example>
         public TimeSpan Timeout { get; set; }
+
+        /// <summary>
+        /// Gets or sets the timeout to use when waiting for a server to acknowledge closing a channel.
+        /// </summary>
+        /// <value>
+        /// The channel close timeout. The default value is 1 second.
+        /// </value>
+        /// <remarks>
+        /// If a server does not send a <c>SSH_MSG_CHANNEL_CLOSE</c> message before the specified timeout
+        /// elapses, the channel will be closed immediately.
+        /// </remarks>
+        public TimeSpan ChannelCloseTimeout { get; set; }
 
         /// <summary>
         /// Gets or sets the character encoding.
@@ -286,23 +314,25 @@ namespace Renci.SshNet
                 throw new ArgumentException("At least one authentication method should be specified.", "authenticationMethods");
 
             //  Set default connection values
-            Timeout = TimeSpan.FromSeconds(30);
+            Timeout = DefaultTimeout;
+            ChannelCloseTimeout = DefaultChannelCloseTimeout;
             RetryAttempts = 10;
             MaxSessions = 10;
             Encoding = Encoding.UTF8;
 
             KeyExchangeAlgorithms = new Dictionary<string, Type>
                 {
+                    {"curve25519-sha256", typeof(KeyExchangeECCurve25519)},
+                    {"curve25519-sha256@libssh.org", typeof(KeyExchangeECCurve25519)},
+                    {"ecdh-sha2-nistp256", typeof(KeyExchangeECDH256)},
+                    {"ecdh-sha2-nistp384", typeof(KeyExchangeECDH384)},
+                    {"ecdh-sha2-nistp521", typeof(KeyExchangeECDH521)},
                     {"diffie-hellman-group-exchange-sha256", typeof (KeyExchangeDiffieHellmanGroupExchangeSha256)},
                     {"diffie-hellman-group-exchange-sha1", typeof (KeyExchangeDiffieHellmanGroupExchangeSha1)},
+                    {"diffie-hellman-group16-sha512", typeof(KeyExchangeDiffieHellmanGroup16Sha512)},
+                    {"diffie-hellman-group14-sha256", typeof (KeyExchangeDiffieHellmanGroup14Sha256)},
                     {"diffie-hellman-group14-sha1", typeof (KeyExchangeDiffieHellmanGroup14Sha1)},
                     {"diffie-hellman-group1-sha1", typeof (KeyExchangeDiffieHellmanGroup1Sha1)},
-                    //{"ecdh-sha2-nistp256", typeof(KeyExchangeEllipticCurveDiffieHellman)},
-                    //{"ecdh-sha2-nistp256", typeof(...)},
-                    //{"ecdh-sha2-nistp384", typeof(...)},
-                    //{"ecdh-sha2-nistp521", typeof(...)},
-                    //"gss-group1-sha1-toWM5Slw5Ew8Mqkay+al2g==" - WinSSHD
-                    //"gss-gex-sha1-toWM5Slw5Ew8Mqkay+al2g==" - WinSSHD
                 };
 
             Encryptions = new Dictionary<string, CipherInfo>
@@ -348,9 +378,14 @@ namespace Renci.SshNet
 
             HostKeyAlgorithms = new Dictionary<string, Func<byte[], KeyHostAlgorithm>>
                 {
+                    {"ssh-ed25519", data => new KeyHostAlgorithm("ssh-ed25519", new ED25519Key(), data)},
+#if FEATURE_ECDSA
+                    {"ecdsa-sha2-nistp256", data => new KeyHostAlgorithm("ecdsa-sha2-nistp256", new EcdsaKey(), data)},
+                    {"ecdsa-sha2-nistp384", data => new KeyHostAlgorithm("ecdsa-sha2-nistp384", new EcdsaKey(), data)},
+                    {"ecdsa-sha2-nistp521", data => new KeyHostAlgorithm("ecdsa-sha2-nistp521", new EcdsaKey(), data)},
+#endif
                     {"ssh-rsa", data => new KeyHostAlgorithm("ssh-rsa", new RsaKey(), data)},
                     {"ssh-dss", data => new KeyHostAlgorithm("ssh-dss", new DsaKey(), data)},
-                    //{"ecdsa-sha2-nistp256 "}
                     //{"x509v3-sign-rsa", () => { ... },
                     //{"x509v3-sign-dss", () => { ... },
                     //{"spki-sign-rsa", () => { ... },

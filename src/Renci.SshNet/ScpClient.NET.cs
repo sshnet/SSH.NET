@@ -20,15 +20,16 @@ namespace Renci.SshNet
         /// <param name="fileInfo">The file system info.</param>
         /// <param name="path">A relative or absolute path for the remote file.</param>
         /// <exception cref="ArgumentNullException"><paramref name="fileInfo" /> is <c>null</c>.</exception>
-        /// <exception cref="ArgumentException"><paramref name="path"/> is <c>null</c> or empty.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="path" /> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="path"/> is a zero-length <see cref="string"/>.</exception>
         /// <exception cref="ScpException">A directory with the specified path exists on the remote host.</exception>
         /// <exception cref="SshException">The secure copy execution request was rejected by the server.</exception>
         public void Upload(FileInfo fileInfo, string path)
         {
             if (fileInfo == null)
                 throw new ArgumentNullException("fileInfo");
-            if (string.IsNullOrEmpty(path))
-                throw new ArgumentException("path");
+
+            var posixPath = PosixPath.CreateAbsoluteOrRelativeFilePath(path);
 
             using (var input = ServiceFactory.CreatePipeStream())
             using (var channel = Session.CreateChannelSession())
@@ -36,7 +37,9 @@ namespace Renci.SshNet
                 channel.DataReceived += (sender, e) => input.Write(e.Data, 0, e.Data.Length);
                 channel.Open();
 
-                if (!channel.SendExecRequest(string.Format("scp -t {0}", _remotePathTransformation.Transform(path))))
+                // Pass only the directory part of the path to the server, and use the (hidden) -d option to signal
+                // that we expect the target to be a directory.
+                if (!channel.SendExecRequest(string.Format("scp -t -d {0}", _remotePathTransformation.Transform(posixPath.Directory))))
                 {
                     throw SecureExecutionRequestRejectedException();
                 }
@@ -45,7 +48,7 @@ namespace Renci.SshNet
                 using (var source = fileInfo.OpenRead())
                 {
                     UploadTimes(channel, input, fileInfo);
-                    UploadFileModeAndName(channel, input, source.Length, string.Empty);
+                    UploadFileModeAndName(channel, input, source.Length, posixPath.File);
                     UploadFileContent(channel, input, source, fileInfo.Name);
                 }
             }
@@ -56,16 +59,19 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="directoryInfo">The directory info.</param>
         /// <param name="path">A relative or absolute path for the remote directory.</param>
-        /// <exception cref="ArgumentNullException">fileSystemInfo</exception>
-        /// <exception cref="ArgumentException"><paramref name="path"/> is <c>null</c> or empty.</exception>
-        /// <exception cref="ScpException"><paramref name="path"/> exists on the remote host, and is not a directory.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="directoryInfo"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="path"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="path"/> is a zero-length string.</exception>
+        /// <exception cref="ScpException"><paramref name="path"/> does not exist on the remote host, is not a directory or the user does not have the required permission.</exception>
         /// <exception cref="SshException">The secure copy execution request was rejected by the server.</exception>
         public void Upload(DirectoryInfo directoryInfo, string path)
         {
             if (directoryInfo == null)
                 throw new ArgumentNullException("directoryInfo");
-            if (string.IsNullOrEmpty(path))
-                throw new ArgumentException("path");
+            if (path == null)
+                throw new ArgumentNullException("path");
+            if (path.Length == 0)
+                throw new ArgumentException("The path cannot be a zero-length string.", "path");
 
             using (var input = ServiceFactory.CreatePipeStream())
             using (var channel = Session.CreateChannelSession())
@@ -73,15 +79,18 @@ namespace Renci.SshNet
                 channel.DataReceived += (sender, e) => input.Write(e.Data, 0, e.Data.Length);
                 channel.Open();
 
-                // start recursive upload
-                if (!channel.SendExecRequest(string.Format("scp -rt {0}", _remotePathTransformation.Transform(path))))
+                // start copy with the following options:
+                // -p preserve modification and access times
+                // -r copy directories recursively
+                // -d expect path to be a directory
+                // -t copy to remote
+                if (!channel.SendExecRequest(string.Format("scp -r -p -d -t {0}", _remotePathTransformation.Transform(path))))
                 {
                     throw SecureExecutionRequestRejectedException();
                 }
+
                 CheckReturnCode(input);
 
-                UploadTimes(channel, input, directoryInfo);
-                UploadDirectoryModeAndName(channel, input, ".");
                 UploadDirectoryContent(channel, input, directoryInfo);
             }
         }
@@ -310,6 +319,40 @@ namespace Renci.SshNet
 
                 SendErrorConfirmation(channel, string.Format("\"{0}\" is not valid protocol message.", message));
             }
+        }
+
+        /// <summary>
+        /// Return a value indicating whether the specified path is a valid SCP file path.
+        /// </summary>
+        /// <param name="path">The path to verify.</param>
+        /// <returns>
+        /// <see langword="true"/> if <paramref name="path"/> is a valid SCP file path; otherwise, <see langword="false"/>.
+        /// </returns>
+        /// <remarks>
+        /// To match OpenSSH behavior (introduced as a result of CVE-2018-20685), a file path is considered
+        /// invalid in any of the following conditions:
+        /// <list type="bullet">
+        ///   <item>
+        ///     <description><paramref name="path"/> is a zero-length string.</description>
+        ///   </item>
+        ///   <item>
+        ///     <description><paramref name="path"/> is &quot;<c>.</c>&quot;.</description>
+        ///   </item>
+        ///   <item>
+        ///     <description><paramref name="path"/> is &quot;<c>..</c>&quot;.</description>
+        ///   </item>
+        ///   <item>
+        ///     <description><paramref name="path"/> contains a forward slash (/).</description>
+        ///   </item>
+        /// </list>
+        /// </remarks>
+        private static bool IsValidScpFilePath(string path)
+        {
+            return path != null &&
+                   path.Length != 0 &&
+                   path != "." &&
+                   path != ".." &&
+                   path.IndexOf('/') == -1;
         }
     }
 }

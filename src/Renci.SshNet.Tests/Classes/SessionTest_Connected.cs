@@ -71,7 +71,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void WaitOnHandle_WaitHandle_ShouldThrowArgumentNullExceptionWhenWaitHandleIsNull()
         {
-            WaitHandle waitHandle = null;
+            const WaitHandle waitHandle = null;
 
             try
             {
@@ -88,7 +88,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void WaitOnHandle_WaitHandleAndTimeout_ShouldThrowArgumentNullExceptionWhenWaitHandleIsNull()
         {
-            WaitHandle waitHandle = null;
+            const WaitHandle waitHandle = null;
             var timeout = TimeSpan.FromMinutes(5);
 
             try
@@ -151,7 +151,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void ISession_WaitOnHandleShouldThrowArgumentNullExceptionWhenWaitHandleIsNull()
         {
-            WaitHandle waitHandle = null;
+            const WaitHandle waitHandle = null;
             var session = (ISession) Session;
 
             try
@@ -163,6 +163,92 @@ namespace Renci.SshNet.Tests.Classes
             {
                 Assert.IsNull(ex.InnerException);
                 Assert.AreEqual("waitHandle", ex.ParamName);
+            }
+        }
+
+        [TestMethod]
+        public void ISession_TryWait_WaitHandleAndTimeout_ShouldReturnSuccessIfWaitHandleIsSignaled()
+        {
+            var session = (ISession) Session;
+            var waitHandle = new ManualResetEvent(true);
+
+            var result = session.TryWait(waitHandle, TimeSpan.FromMilliseconds(0));
+
+            Assert.AreEqual(WaitResult.Success, result);
+        }
+
+        [TestMethod]
+        public void ISession_TryWait_WaitHandleAndTimeout_ShouldReturnTimedOutIfWaitHandleIsNotSignaled()
+        {
+            var session = (ISession) Session;
+            var waitHandle = new ManualResetEvent(false);
+
+            var result = session.TryWait(waitHandle, TimeSpan.FromMilliseconds(0));
+
+            Assert.AreEqual(WaitResult.TimedOut, result);
+        }
+
+        [TestMethod]
+        public void ISession_TryWait_WaitHandleAndTimeout_ShouldThrowArgumentNullExceptionWhenWaitHandleIsNull()
+        {
+            var session = (ISession) Session;
+            const WaitHandle waitHandle = null;
+
+            try
+            {
+                session.TryWait(waitHandle, Session.InfiniteTimeSpan);
+                Assert.Fail();
+            }
+            catch (ArgumentNullException ex)
+            {
+                Assert.IsNull(ex.InnerException);
+                Assert.AreEqual("waitHandle", ex.ParamName);
+            }
+        }
+
+        [TestMethod]
+        public void ISession_TryWait_WaitHandleAndTimeoutAndException_ShouldReturnSuccessIfWaitHandleIsSignaled()
+        {
+            var session = (ISession) Session;
+            var waitHandle = new ManualResetEvent(true);
+            Exception exception;
+
+            var result = session.TryWait(waitHandle, TimeSpan.FromMilliseconds(0), out exception);
+
+            Assert.AreEqual(WaitResult.Success, result);
+            Assert.IsNull(exception);
+        }
+
+        [TestMethod]
+        public void ISession_TryWait_WaitHandleAndTimeoutAndException_ShouldReturnTimedOutIfWaitHandleIsNotSignaled()
+        {
+            var session = (ISession) Session;
+            var waitHandle = new ManualResetEvent(false);
+            Exception exception;
+
+            var result = session.TryWait(waitHandle, TimeSpan.FromMilliseconds(0), out exception);
+
+            Assert.AreEqual(WaitResult.TimedOut, result);
+            Assert.IsNull(exception);
+        }
+
+        [TestMethod]
+        public void ISession_TryWait_WaitHandleAndTimeoutAndException_ShouldThrowArgumentNullExceptionWhenWaitHandleIsNull()
+        {
+            var session = (ISession) Session;
+            const WaitHandle waitHandle = null;
+            Exception exception = null;
+
+            try
+            {
+                session.TryWait(waitHandle, Session.InfiniteTimeSpan, out exception);
+                Assert.Fail();
+            }
+            catch (ArgumentNullException ex)
+            {
+                Assert.IsNull(ex.InnerException);
+                Assert.AreEqual("waitHandle", ex.ParamName);
+                Assert.IsNull(exception);
             }
         }
     }

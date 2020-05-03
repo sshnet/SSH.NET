@@ -25,6 +25,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
         private uint _remoteWindowSize;
         private uint _remotePacketSize;
         private uint _remoteChannelNumber;
+        private TimeSpan _channelCloseTimeout;
         private IPEndPoint _remoteEndpoint;
         private AsyncSocketListener _remoteListener;
         private EventWaitHandle _channelBindFinishedWaitHandle;
@@ -72,6 +73,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
             _remoteChannelNumber = (uint) random.Next(0, int.MaxValue);
             _remoteWindowSize = (uint) random.Next(0, int.MaxValue);
             _remotePacketSize = (uint) random.Next(100, 200);
+            _channelCloseTimeout = TimeSpan.FromSeconds(random.Next(10, 20));
             _channelBindFinishedWaitHandle = new ManualResetEvent(false);
             _channelException = null;
             _connectedRegister = new List<Socket>();
@@ -109,16 +111,18 @@ namespace Renci.SshNet.Tests.Classes.Channels
                 .Setup(
                     p => p.TrySendMessage(It.Is<ChannelCloseMessage>(m => m.LocalChannelNumber == _remoteChannelNumber)))
                 .Returns(true);
+            _sessionMock.InSequence(sequence).Setup(p => p.ConnectionInfo).Returns(_connectionInfoMock.Object);
+            _connectionInfoMock.InSequence(sequence).Setup(p => p.ChannelCloseTimeout).Returns(_channelCloseTimeout);
             _sessionMock.InSequence(sequence)
-                .Setup(p => p.WaitOnHandle(It.IsNotNull<WaitHandle>()))
-                .Callback<WaitHandle>(
-                    w =>
+                        .Setup(p => p.TryWait(It.IsAny<EventWaitHandle>(), _channelCloseTimeout))
+                        .Callback<WaitHandle, TimeSpan>((waitHandle, channelCloseTimeout) =>
                         {
                             _sessionMock.Raise(
                                 s => s.ChannelCloseReceived += null,
                                 new MessageEventArgs<ChannelCloseMessage>(new ChannelCloseMessage(_localChannelNumber)));
-                            w.WaitOne();
-                        });
+                            waitHandle.WaitOne();
+                        })
+                        .Returns(WaitResult.Success);
 
             _remoteListener = new AsyncSocketListener(_remoteEndpoint);
             _remoteListener.Connected += socket => _connectedRegister.Add(socket);

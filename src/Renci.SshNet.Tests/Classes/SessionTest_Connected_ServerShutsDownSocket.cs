@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Net.Sockets;
 using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -107,7 +108,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void ISession_MessageListenerCompletedShouldBeSignaled()
         {
-            var session = (ISession)Session;
+            var session = (ISession) Session;
 
             Assert.IsNotNull(session.MessageListenerCompleted);
             Assert.IsTrue(session.MessageListenerCompleted.WaitOne());
@@ -133,7 +134,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void ISession_TrySendMessageShouldReturnFalse()
         {
-            var session = (ISession)Session;
+            var session = (ISession) Session;
 
             var actual = session.TrySendMessage(new IgnoreMessage());
 
@@ -141,9 +142,9 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
-        public void ISession_WaitOnHandleShouldThrowSshConnectionExceptionDetailingAbortedConnection()
+        public void ISession_WaitOnHandle_WaitHandle_ShouldThrowSshConnectionExceptionDetailingAbortedConnection()
         {
-            var session = (ISession)Session;
+            var session = (ISession) Session;
             var waitHandle = new ManualResetEvent(false);
 
             try
@@ -156,6 +157,89 @@ namespace Renci.SshNet.Tests.Classes
                 Assert.IsNull(ex.InnerException);
                 Assert.AreEqual("An established connection was aborted by the server.", ex.Message);
             }
+        }
+
+        [TestMethod]
+        public void ISession_WaitOnHandle_WaitHandleAndTimeout_ShouldThrowSshConnectionExceptionDetailingAbortedConnection()
+        {
+            var session = (ISession) Session;
+            var waitHandle = new ManualResetEvent(false);
+
+            try
+            {
+                session.WaitOnHandle(waitHandle, Session.InfiniteTimeSpan);
+                Assert.Fail();
+            }
+            catch (SshConnectionException ex)
+            {
+                Assert.IsNull(ex.InnerException);
+                Assert.AreEqual("An established connection was aborted by the server.", ex.Message);
+            }
+        }
+
+        [TestMethod]
+        public void ISession_TryWait_WaitHandleAndTimeout_ShouldReturnDisconnected()
+        {
+            var session = (ISession) Session;
+            var waitHandle = new ManualResetEvent(false);
+
+            var result = session.TryWait(waitHandle, Session.InfiniteTimeSpan);
+
+            Assert.AreEqual(WaitResult.Disconnected, result);
+        }
+
+        [TestMethod]
+        public void ISession_TryWait_WaitHandleAndTimeout_ShouldThrowArgumentNullExceptionWhenWaitHandleIsNull()
+        {
+            var session = (ISession) Session;
+            const WaitHandle waitHandle = null;
+            var timeout = TimeSpan.FromMinutes(5);
+
+            try
+            {
+                session.TryWait(waitHandle, timeout);
+                Assert.Fail();
+            }
+            catch (ArgumentNullException ex)
+            {
+                Assert.IsNull(ex.InnerException);
+                Assert.AreEqual("waitHandle", ex.ParamName);
+            }
+        }
+
+        [TestMethod]
+        public void ISession_TryWait_WaitHandleAndTimeoutAndException_ShouldReturnDisconnected()
+        {
+            var session = (ISession) Session;
+            var waitHandle = new ManualResetEvent(false);
+            Exception exception;
+
+            var result = session.TryWait(waitHandle, Session.InfiniteTimeSpan, out exception);
+
+            Assert.AreEqual(WaitResult.Disconnected, result);
+            Assert.IsNull(exception);
+        }
+
+        [TestMethod]
+        public void ISession_TryWait_WaitHandleAndTimeoutAndException_ShouldThrowArgumentNullExceptionWhenWaitHandleIsNull()
+        {
+            var session = (ISession) Session;
+            const WaitHandle waitHandle = null;
+            var timeout = TimeSpan.FromMinutes(5);
+            Exception exception = null;
+
+            try
+            {
+                session.TryWait(waitHandle, timeout, out exception);
+                Assert.Fail();
+            }
+            catch (ArgumentNullException ex)
+            {
+                Assert.IsNull(ex.InnerException);
+                Assert.AreEqual("waitHandle", ex.ParamName);
+            }
+
+            Assert.IsNull(exception);
         }
     }
 }

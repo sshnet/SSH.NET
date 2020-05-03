@@ -1992,8 +1992,6 @@ namespace Renci.SshNet
                         // * a call to Disconnect()
                         // * a call to Dispose()
                         // * a SSH_MSG_DISCONNECT received from server
-
-                        Console.WriteLine("B");
                         break;
                     }
 
@@ -2002,15 +2000,12 @@ namespace Renci.SshNet
                     {
                         // connection with SSH server was closed;
                         // break out of the message loop
-                        Console.WriteLine("C");
                         break;
                     }
 
                     // process message
                     message.Process(this);
                 }
-
-                Console.WriteLine("D");
 
                 // connection with SSH server was closed or socket was disposed
                 RaiseError(CreateConnectionAbortedByServerException());

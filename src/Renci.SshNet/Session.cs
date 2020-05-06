@@ -638,7 +638,7 @@ namespace Renci.SshNet
                     {
                         throw new SshConnectionException(string.Format(CultureInfo.CurrentCulture, "Server version '{0}' is not supported.", version), DisconnectReason.ProtocolVersionNotSupported);
                     }
-19
+
                     SocketAbstraction.Send(_socket, Encoding.UTF8.GetBytes(string.Format(CultureInfo.InvariantCulture, "{0}\x0D\x0A", ClientVersion)));
 
                     //  Register Transport response messages

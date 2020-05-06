@@ -181,6 +181,11 @@ namespace Renci.SshNet
         public int MaxSessions { get; set; }
 
         /// <summary>
+        /// Flag whether the keys should be transferred proactively
+        /// </summary>
+        public bool SendKeysProactively { get; set; }
+
+        /// <summary>
         /// Occurs when authentication banner is sent by the server.
         /// </summary>
         /// <example>

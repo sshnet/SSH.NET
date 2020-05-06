@@ -638,7 +638,7 @@ namespace Renci.SshNet
                     {
                         throw new SshConnectionException(string.Format(CultureInfo.CurrentCulture, "Server version '{0}' is not supported.", version), DisconnectReason.ProtocolVersionNotSupported);
                     }
-
+19
                     SocketAbstraction.Send(_socket, Encoding.UTF8.GetBytes(string.Format(CultureInfo.InvariantCulture, "{0}\x0D\x0A", ClientVersion)));
 
                     //  Register Transport response messages
@@ -656,12 +656,13 @@ namespace Renci.SshNet
                     // mark the message listener threads as started
                     _messageListenerCompleted.Reset();
 
+					if (this.ConnectionInfo.SendKeysProactively) {
+                        SendMessage(this.ClientInitMessage);
+                    }
+
                     //  Start incoming request listener
                     ThreadAbstraction.ExecuteThread(() => MessageListener());
 
-                    if (this.ConnectionInfo.SendKeysProactively) {
-                        SendMessage(this.ClientInitMessage);
-                    }
                     //  Wait for key exchange to be completed
                     WaitOnHandle(_keyExchangeCompletedWaitHandle);
 
@@ -1938,9 +1939,10 @@ namespace Renci.SshNet
                         break;
                     }
 
+#if FEATURE_SOCKET_POLL || FEATURE_SOCKET_SELECT
                     try
                     {
-    #if FEATURE_SOCKET_POLL
+#if FEATURE_SOCKET_POLL
                         // Block until either data is available or the socket is closed
                         var connectionClosedOrDataAvailable = socket.Poll(-1, SelectMode.SelectRead);
                         if (connectionClosedOrDataAvailable && socket.Available == 0)
@@ -1948,7 +1950,7 @@ namespace Renci.SshNet
                             // connection with SSH server was closed or connection was reset
                             break;
                         }
-    #elif FEATURE_SOCKET_SELECT
+#elif FEATURE_SOCKET_SELECT
                         var readSockets = new List<Socket> { socket };
 
                         // if the socket is already disposed when Select is invoked, then a SocketException
@@ -1984,10 +1986,7 @@ namespace Renci.SshNet
                             // break out of the message loop
                             break;
                         }
-    #else
-                        #error Blocking wait on either socket data to become available or connection to be 
-                        #error closed is not implemented.
-    #endif // FEATURE_SOCKET_SELECT
+#endif // FEATURE_SOCKET_SELECT
                     }
                     catch (ObjectDisposedException)
                     {
@@ -1997,6 +1996,7 @@ namespace Renci.SshNet
                         // * a SSH_MSG_DISCONNECT received from server
                         break;
                     }
+#endif // FEATURE_SOCKET_POLL || FEATURE_SOCKET_SELECT
 
                     var message = ReceiveMessage(socket);
                     if (message == null)

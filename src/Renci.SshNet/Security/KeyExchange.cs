@@ -70,9 +70,10 @@ namespace Renci.SshNet.Security
         public virtual void Start(Session session, KeyExchangeInitMessage message)
         {
             Session = session;
-
-            SendMessage(session.ClientInitMessage);
-
+             
+            if (!Session.ConnectionInfo.SendKeysProactively) {
+                SendMessage(session.ClientInitMessage);
+            }
             //  Determine encryption algorithm
             var clientEncryptionAlgorithmName = (from b in session.ConnectionInfo.Encryptions.Keys
                                                  from a in message.EncryptionAlgorithmsClientToServer

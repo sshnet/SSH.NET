@@ -2024,7 +2024,8 @@ namespace Renci.SshNet
             finally
             {
                 // signal that the message listener thread has stopped
-                _messageListenerCompleted.Set();
+                if (_messageListenerCompleted != null)
+                    _messageListenerCompleted.Set();
             }
         }
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Transport;
 using Renci.SshNet.Security.Chaos.NaCl;
@@ -65,6 +66,21 @@ namespace Renci.SshNet.Security
             Session.KeyExchangeEcdhReplyMessageReceived -= Session_KeyExchangeEcdhReplyMessageReceived;
         }
 
+        /// <summary>
+        /// Hashes the specified data bytes.
+        /// </summary>
+        /// <param name="hashData">The hash data.</param>
+        /// <returns>
+        /// Hashed bytes
+        /// </returns>
+        protected override byte[] Hash(byte[] hashData)
+        {
+            using (var sha256 = CryptoAbstraction.CreateSHA256())
+            {
+                return sha256.ComputeHash(hashData, 0, hashData.Length);
+            }
+        }
+
         private void Session_KeyExchangeEcdhReplyMessageReceived(object sender, MessageEventArgs<KeyExchangeEcdhReplyMessage> e)
         {
             var message = e.Message;
@@ -84,16 +100,15 @@ namespace Renci.SshNet.Security
         /// <param name="hostKey">The host key.</param>
         /// <param name="serverExchangeValue">The server exchange value.</param>
         /// <param name="signature">The signature.</param>
-        protected override void HandleServerEcdhReply(byte[] hostKey, byte[] serverExchangeValue, byte[] signature)
+        private void HandleServerEcdhReply(byte[] hostKey, byte[] serverExchangeValue, byte[] signature)
         {
             _serverExchangeValue = serverExchangeValue;
             _hostKey = hostKey;
-            _serverExchangeValue = serverExchangeValue;
             _signature = signature;
 
             var sharedKey = new byte[MontgomeryCurve25519.PublicKeySizeInBytes];
             MontgomeryOperations.scalarmult(sharedKey, 0, _privateKey, 0, serverExchangeValue, 0);
-            SharedKey = sharedKey.ToBigInteger2();
+            SharedKey = sharedKey.ToBigInteger2().ToByteArray().Reverse();
         }
     }
 }

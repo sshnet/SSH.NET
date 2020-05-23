@@ -1,21 +1,18 @@
-﻿using System;
-using Renci.SshNet.Common;
+﻿using Renci.SshNet.Common;
+using System;
 
 namespace Renci.SshNet.Security
 {
-    internal class GroupExchangeHashData : SshData
+    internal class KeyExchangeHashData : SshData
     {
         private byte[] _serverVersion;
         private byte[] _clientVersion;
-        private byte[] _prime;
-        private byte[] _subGroup;
 
         public string ServerVersion
         {
             private get { return Utf8.GetString(_serverVersion, 0, _serverVersion.Length); }
             set { _serverVersion = Utf8.GetBytes(value); }
         }
-
 
         public string ClientVersion
         {
@@ -28,24 +25,6 @@ namespace Renci.SshNet.Security
         public byte[] ServerPayload { get; set; }
 
         public byte[] HostKey { get; set; }
-
-        public uint MinimumGroupSize { get; set; }
-
-        public uint PreferredGroupSize { get; set; }
-
-        public uint MaximumGroupSize { get; set; }
-
-        public BigInteger Prime
-        {
-            private get { return _prime.ToBigInteger(); }
-            set { _prime = value.ToByteArray().Reverse(); }
-        }
-
-        public BigInteger SubGroup
-        {
-            private get { return _subGroup.ToBigInteger(); }
-            set { _subGroup = value.ToByteArray().Reverse(); }
-        }
 
         public byte[] ClientExchangeValue { get; set; }
 
@@ -74,13 +53,6 @@ namespace Renci.SshNet.Security
                 capacity += ServerPayload.Length; // ServerPayload
                 capacity += 4; // HostKey length
                 capacity += HostKey.Length; // HostKey
-                capacity += 4; // MinimumGroupSize
-                capacity += 4; // PreferredGroupSize
-                capacity += 4; // MaximumGroupSize
-                capacity += 4; // Prime length
-                capacity += _prime.Length; // Prime
-                capacity += 4; // SubGroup length
-                capacity += _subGroup.Length; // SubGroup
                 capacity += 4; // ClientExchangeValue length
                 capacity += ClientExchangeValue.Length; // ClientExchangeValue
                 capacity += 4; // ServerExchangeValue length
@@ -103,11 +75,6 @@ namespace Renci.SshNet.Security
             WriteBinaryString(ClientPayload);
             WriteBinaryString(ServerPayload);
             WriteBinaryString(HostKey);
-            Write(MinimumGroupSize);
-            Write(PreferredGroupSize);
-            Write(MaximumGroupSize);
-            WriteBinaryString(_prime);
-            WriteBinaryString(_subGroup);
             WriteBinaryString(ClientExchangeValue);
             WriteBinaryString(ServerExchangeValue);
             WriteBinaryString(SharedKey);

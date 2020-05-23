@@ -83,11 +83,10 @@ namespace Renci.SshNet.Security
         /// <param name="hostKey">The host key.</param>
         /// <param name="serverExchangeValue">The server exchange value.</param>
         /// <param name="signature">The signature.</param>
-        protected override void HandleServerEcdhReply(byte[] hostKey, byte[] serverExchangeValue, byte[] signature)
+        private void HandleServerEcdhReply(byte[] hostKey, byte[] serverExchangeValue, byte[] signature)
         {
             _serverExchangeValue = serverExchangeValue;
             _hostKey = hostKey;
-            _serverExchangeValue = serverExchangeValue;
             _signature = signature;
 
             var cordSize = (serverExchangeValue.Length - 1) / 2;
@@ -101,7 +100,7 @@ namespace Renci.SshNet.Security
             var publicKey = new ECPublicKeyParameters("ECDH", q, DomainParameters);
 
             var k1 = KeyAgreement.CalculateAgreement(publicKey);
-            SharedKey = k1.ToByteArray().ToBigInteger2();
+            SharedKey = k1.ToByteArray().ToBigInteger2().ToByteArray().Reverse();
         }
     }
 }

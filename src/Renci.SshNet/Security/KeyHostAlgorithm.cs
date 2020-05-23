@@ -94,7 +94,7 @@ namespace Renci.SshNet.Security
         {
             private readonly int _maxKeyFields;
             private byte[] _name;
-            private IList<byte[]> _keys;
+            private List<byte[]> _keys;
 
             public BigInteger[] Keys
             {

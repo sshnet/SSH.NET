@@ -148,10 +148,10 @@ namespace Renci.SshNet.Abstractions
             var receiveCompleted = new ManualResetEvent(false);
             var sendReceiveToken = new PartialSendReceiveToken(socket, receiveCompleted);
             var args = new SocketAsyncEventArgs
-            {
-                RemoteEndPoint = socket.RemoteEndPoint,
-                UserToken = sendReceiveToken
-            };
+                {
+                    RemoteEndPoint = socket.RemoteEndPoint,
+                    UserToken = sendReceiveToken
+                };
             args.Completed += ReceiveCompleted;
             args.SetBuffer(buffer, offset, size);
 
@@ -165,6 +165,10 @@ namespace Renci.SshNet.Abstractions
                                 CultureInfo.InvariantCulture,
                                 "Socket read operation has timed out after {0:F0} milliseconds.",
                                 timeout.TotalMilliseconds));
+                }
+                else
+                {
+                    sendReceiveToken.Process(args);
                 }
 
                 if (args.SocketError != SocketError.Success)
@@ -359,10 +363,10 @@ namespace Renci.SshNet.Abstractions
             var sendReceiveToken = new BlockingSendReceiveToken(socket, buffer, offset, size, receiveCompleted);
 
             var args = new SocketAsyncEventArgs
-            {
-                UserToken = sendReceiveToken,
-                RemoteEndPoint = socket.RemoteEndPoint
-            };
+                {
+                    UserToken = sendReceiveToken,
+                    RemoteEndPoint = socket.RemoteEndPoint
+                };
             args.Completed += ReceiveCompleted;
             args.SetBuffer(buffer, offset, size);
 
@@ -373,6 +377,10 @@ namespace Renci.SshNet.Abstractions
                     if (!receiveCompleted.WaitOne(timeout))
                         throw new SshOperationTimeoutException(string.Format(CultureInfo.InvariantCulture,
                             "Socket read operation has timed out after {0:F0} milliseconds.", timeout.TotalMilliseconds));
+                }
+                else
+                {
+                    sendReceiveToken.Process(args);
                 }
 
                 if (args.SocketError != SocketError.Success)
@@ -442,6 +450,10 @@ namespace Renci.SshNet.Abstractions
                 {
                     if (!sendCompleted.WaitOne())
                         throw new SocketException((int) SocketError.TimedOut);
+                }
+                else
+                {
+                    sendReceiveToken.Process(socketAsyncSendArgs);
                 }
 
                 if (socketAsyncSendArgs.SocketError != SocketError.Success)

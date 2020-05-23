@@ -597,15 +597,15 @@ namespace Renci.SshNet
                             break;
                         case ProxyTypes.Socks4:
                             SocketConnect(ConnectionInfo.ProxyHost, ConnectionInfo.ProxyPort);
-                            ConnectSocks4();
+                            ConnectSocks4(_socket, ConnectionInfo);
                             break;
                         case ProxyTypes.Socks5:
                             SocketConnect(ConnectionInfo.ProxyHost, ConnectionInfo.ProxyPort);
-                            ConnectSocks5();
+                            ConnectSocks5(_socket, ConnectionInfo);
                             break;
                         case ProxyTypes.Http:
                             SocketConnect(ConnectionInfo.ProxyHost, ConnectionInfo.ProxyPort);
-                            ConnectHttp();
+                            ConnectHttp(_socket, ConnectionInfo);
                             break;
                     }
 
@@ -615,7 +615,7 @@ namespace Renci.SshNet
                     //  ignore text lines which are sent before if any
                     while (true)
                     {
-                        var serverVersion = SocketReadLine(ConnectionInfo.Timeout);
+                        var serverVersion = SocketReadLine(_socket, ConnectionInfo.Timeout);
                         if (serverVersion == null)
                             throw new SshConnectionException("Server response does not contain SSH protocol identification.", DisconnectReason.ProtocolError);
                         versionMatch = ServerVersionRe.Match(serverVersion);
@@ -660,7 +660,7 @@ namespace Renci.SshNet
                     _messageListenerCompleted.Reset();
 
                     //  Start incoming request listener
-                    ThreadAbstraction.ExecuteThread(MessageListener);
+                    ThreadAbstraction.ExecuteThread(() => MessageListener());
 
                     //  Wait for key exchange to be completed
                     WaitOnHandle(_keyExchangeCompletedWaitHandle);
@@ -1066,7 +1066,7 @@ namespace Renci.SshNet
         /// <remarks>
         /// We need no locking here since all messages are read by a single thread.
         /// </remarks>
-        private Message ReceiveMessage()
+        private Message ReceiveMessage(Socket socket)
         {
             // the length of the packet sequence field in bytes
             const int inboundPacketSequenceLength = 4;
@@ -1092,7 +1092,7 @@ namespace Renci.SshNet
 #endif // FEATURE_SOCKET_POLL
                 //  Read first block - which starts with the packet length
                 var firstBlock = new byte[blockSize];
-                if (TrySocketRead(firstBlock, 0, blockSize) == 0)
+                if (TrySocketRead(socket, firstBlock, 0, blockSize) == 0)
                 {
                     // connection with SSH server was closed
                     return null;
@@ -1132,7 +1132,7 @@ namespace Renci.SshNet
 
                 if (bytesToRead > 0)
                 {
-                    if (TrySocketRead(data, blockSize + inboundPacketSequenceLength, bytesToRead) == 0)
+                    if (TrySocketRead(socket, data, blockSize + inboundPacketSequenceLength, bytesToRead) == 0)
                     {
                         return null;
                     }
@@ -1724,6 +1724,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Performs a blocking read on the socket until <paramref name="length"/> bytes are received.
         /// </summary>
+        /// <param name="socket">The <see cref="Socket"/> to read from.</param>
         /// <param name="buffer">An array of type <see cref="byte"/> that is the storage location for the received data.</param>
         /// <param name="offset">The position in <paramref name="buffer"/> parameter to store the received data.</param>
         /// <param name="length">The number of bytes to read.</param>
@@ -1733,9 +1734,9 @@ namespace Renci.SshNet
         /// <exception cref="SshConnectionException">The socket is closed.</exception>
         /// <exception cref="SshOperationTimeoutException">The read has timed-out.</exception>
         /// <exception cref="SocketException">The read failed.</exception>
-        private int SocketRead(byte[] buffer, int offset, int length)
+        private static int SocketRead(Socket socket, byte[] buffer, int offset, int length)
         {
-            var bytesRead = SocketAbstraction.Read(_socket, buffer, offset, length, InfiniteTimeSpan);
+            var bytesRead = SocketAbstraction.Read(socket, buffer, offset, length, InfiniteTimeSpan);
             if (bytesRead == 0)
             {
                 // when we're in the disconnecting state (either triggered by client or server), then the
@@ -1788,16 +1789,16 @@ namespace Renci.SshNet
         /// </para>
         /// </remarks>
 #else
-/// <summary>
-/// Gets a value indicating whether the socket is connected.
-/// </summary>
-/// <returns>
-/// <c>true</c> if the socket is connected; otherwise, <c>false</c>.
-/// </returns>
-/// <remarks>
-/// We verify whether <see cref="Socket.Connected"/> is <c>true</c>. However, this only returns the state
-/// of the socket as of the last I/O operation.
-/// </remarks>
+        /// <summary>
+        /// Gets a value indicating whether the socket is connected.
+        /// </summary>
+        /// <returns>
+        /// <c>true</c> if the socket is connected; otherwise, <c>false</c>.
+        /// </returns>
+        /// <remarks>
+        /// We verify whether <see cref="Socket.Connected"/> is <c>true</c>. However, this only returns the state
+        /// of the socket as of the last I/O operation.
+        /// </remarks>
 #endif
         private bool IsSocketConnected()
         {
@@ -1823,6 +1824,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Performs a blocking read on the socket until <paramref name="length"/> bytes are received.
         /// </summary>
+        /// <param name="socket">The <see cref="Socket"/> to read from.</param>
         /// <param name="buffer">An array of type <see cref="byte"/> that is the storage location for the received data.</param>
         /// <param name="offset">The position in <paramref name="buffer"/> parameter to store the received data.</param>
         /// <param name="length">The number of bytes to read.</param>
@@ -1831,21 +1833,22 @@ namespace Renci.SshNet
         /// </returns>
         /// <exception cref="SshOperationTimeoutException">The read has timed-out.</exception>
         /// <exception cref="SocketException">The read failed.</exception>
-        private int TrySocketRead(byte[] buffer, int offset, int length)
+        private static int TrySocketRead(Socket socket, byte[] buffer, int offset, int length)
         {
-            return SocketAbstraction.Read(_socket, buffer, offset, length, InfiniteTimeSpan);
+            return SocketAbstraction.Read(socket, buffer, offset, length, InfiniteTimeSpan);
         }
 
         /// <summary>
         /// Performs a blocking read on the socket until a line is read.
         /// </summary>
+        /// <param name="socket">The <see cref="Socket"/> to read from.</param>
         /// <param name="timeout">A <see cref="TimeSpan"/> that represents the time to wait until a line is read.</param>
         /// <exception cref="SshOperationTimeoutException">The read has timed-out.</exception>
         /// <exception cref="SocketException">An error occurred when trying to access the socket.</exception>
         /// <returns>
         /// The line read from the socket, or <c>null</c> when the remote server has shutdown and all data has been received.
         /// </returns>
-        private string SocketReadLine(TimeSpan timeout)
+        private static string SocketReadLine(Socket socket, TimeSpan timeout)
         {
             var encoding = SshData.Ascii;
             var buffer = new List<byte>();
@@ -1855,7 +1858,7 @@ namespace Renci.SshNet
             // to be processed by subsequent invocations
             do
             {
-                var bytesRead = SocketAbstraction.Read(_socket, data, 0, data.Length, timeout);
+                var bytesRead = SocketAbstraction.Read(socket, data, 0, data.Length, timeout);
                 if (bytesRead == 0)
                     // the remote server shut down the socket
                     break;
@@ -1924,64 +1927,78 @@ namespace Renci.SshNet
         /// </summary>
         private void MessageListener()
         {
-#if FEATURE_SOCKET_SELECT
-            var readSockets = new List<Socket> { _socket };
-#endif // FEATURE_SOCKET_SELECT
-
             try
             {
                 // remain in message loop until socket is shut down or until we're disconnecting
-                while (_socket.IsConnected())
+                while (true)
                 {
-#if FEATURE_SOCKET_SELECT
-                    // if the socket is already disposed when Select is invoked, then a SocketException
-                    // stating "An operation was attempted on something that is not a socket" is thrown;
-                    // we attempt to avoid this exception by having an IsConnected() that can break the
-                    // message loop
-                    //
-                    // note that there's no guarantee that the socket will not be disposed between the
-                    // IsConnected() check and the Select invocation; we can't take a "dispose" lock
-                    // that includes the Select invocation as we want Dispose() to be able to interrupt
-                    // the Select
+                    var socket = _socket;
 
-                    // perform a blocking select to determine whether there's is data available to be
-                    // read; we do not use a blocking read to allow us to use Socket.Poll to determine
-                    // if the connection is still available (in IsSocketConnected)
-
-                    Socket.Select(readSockets, null, null, -1);
-
-                    // the Select invocation will be interrupted in one of the following conditions:
-                    // * data is available to be read
-                    //   => the socket will not be removed from "readSockets"
-                    // * the socket connection is closed during the Select invocation
-                    //   => the socket will be removed from "readSockets"
-                    // * the socket is disposed during the Select invocation
-                    //   => the socket will not be removed from "readSocket"
-                    // 
-                    // since we handle the second and third condition the same way and Socket.Connected
-                    // allows us to check for both conditions, we use that instead of both checking for
-                    // the removal from "readSockets" and the Connection check
-                    if (!_socket.IsConnected())
+                    if (socket == null || !socket.Connected)
                     {
-                        // connection with SSH server was closed or socket was disposed;
-                        // break out of the message loop
                         break;
                     }
-#elif FEATURE_SOCKET_POLL
-                    // when Socket.Select(IList, IList, IList, Int32) is not available or is buggy, we use
-                    // Socket.Poll(Int, SelectMode) to block until either data is available or the socket
-                    // is closed
-                    _socket.Poll(-1, SelectMode.SelectRead);
 
-                    if (!_socket.IsConnected())
+#if FEATURE_SOCKET_POLL || FEATURE_SOCKET_SELECT
+                    try
                     {
-                        // connection with SSH server was closed or socket was disposed;
-                        // break out of the message loop
-                        break;
-                    }
+#if FEATURE_SOCKET_POLL
+                        // Block until either data is available or the socket is closed
+                        var connectionClosedOrDataAvailable = socket.Poll(-1, SelectMode.SelectRead);
+                        if (connectionClosedOrDataAvailable && socket.Available == 0)
+                        {
+                            // connection with SSH server was closed or connection was reset
+                            break;
+                        }
+#elif FEATURE_SOCKET_SELECT
+                        var readSockets = new List<Socket> { socket };
+
+                        // if the socket is already disposed when Select is invoked, then a SocketException
+                        // stating "An operation was attempted on something that is not a socket" is thrown;
+                        // we attempt to avoid this exception by having an IsConnected() that can break the
+                        // message loop
+                        //
+                        // note that there's no guarantee that the socket will not be disposed between the
+                        // IsConnected() check and the Select invocation; we can't take a "dispose" lock
+                        // that includes the Select invocation as we want Dispose() to be able to interrupt
+                        // the Select
+
+                        // perform a blocking select to determine whether there's is data available to be
+                        // read; we do not use a blocking read to allow us to use Socket.Poll to determine
+                        // if the connection is still available (in IsSocketConnected)
+
+                        Socket.Select(readSockets, null, null, -1);
+
+                        // the Select invocation will be interrupted in one of the following conditions:
+                        // * data is available to be read
+                        //   => the socket will not be removed from "readSockets"
+                        // * the socket connection is closed during the Select invocation
+                        //   => the socket will be removed from "readSockets"
+                        // * the socket is disposed during the Select invocation
+                        //   => the socket will not be removed from "readSocket"
+                        // 
+                        // since we handle the second and third condition the same way and Socket.Connected
+                        // allows us to check for both conditions, we use that instead of both checking for
+                        // the removal from "readSockets" and the Connection check
+                        if (!socket.IsConnected())
+                        {
+                            // connection with SSH server was closed or socket was disposed;
+                            // break out of the message loop
+                            break;
+                        }
 #endif // FEATURE_SOCKET_SELECT
+                    }
+                    catch (ObjectDisposedException)
+                    {
+                        // The socket was disposed by either:
+                        // * a call to Disconnect()
+                        // * a call to Dispose()
+                        // * a SSH_MSG_DISCONNECT received from server
+                        break;
+                    }
+#endif // FEATURE_SOCKET_POLL || FEATURE_SOCKET_SELECT
 
-                    var message = ReceiveMessage();
+                    var message = ReceiveMessage(socket);
                     if (message == null)
                     {
                         // connection with SSH server was closed;
@@ -2011,26 +2028,26 @@ namespace Renci.SshNet
             }
         }
 
-        private byte SocketReadByte()
+        private static byte SocketReadByte(Socket socket)
         {
             var buffer = new byte[1];
-            SocketRead(buffer, 0, 1);
+            SocketRead(socket, buffer, 0, 1);
             return buffer[0];
         }
 
-        private void ConnectSocks4()
+        private static void ConnectSocks4(Socket socket, ConnectionInfo connectionInfo)
         {
-            var connectionRequest = CreateSocks4ConnectionRequest(ConnectionInfo.Host, (ushort) ConnectionInfo.Port, ConnectionInfo.ProxyUsername);
-            SocketAbstraction.Send(_socket, connectionRequest);
+            var connectionRequest = CreateSocks4ConnectionRequest(connectionInfo.Host, (ushort)connectionInfo.Port, connectionInfo.ProxyUsername);
+            SocketAbstraction.Send(socket, connectionRequest);
 
             //  Read null byte
-            if (SocketReadByte() != 0)
+            if (SocketReadByte(socket) != 0)
             {
                 throw new ProxyException("SOCKS4: Null is expected.");
             }
 
             //  Read response code
-            var code = SocketReadByte();
+            var code = SocketReadByte(socket);
 
             switch (code)
             {
@@ -2047,10 +2064,10 @@ namespace Renci.SshNet
             }
 
             var dummyBuffer = new byte[6]; // field 3 (2 bytes) and field 4 (4) should be ignored
-            SocketRead(dummyBuffer, 0, 6);
+            SocketRead(socket, dummyBuffer, 0, 6);
         }
 
-        private void ConnectSocks5()
+        private static void ConnectSocks5(Socket socket, ConnectionInfo connectionInfo)
         {
             var greeting = new byte[]
                 {
@@ -2063,24 +2080,24 @@ namespace Renci.SshNet
                     // Username/Password authentication
                     0x02
                 };
-            SocketAbstraction.Send(_socket, greeting);
+            SocketAbstraction.Send(socket, greeting);
 
-            var socksVersion = SocketReadByte();
+            var socksVersion = SocketReadByte(socket);
             if (socksVersion != 0x05)
                 throw new ProxyException(string.Format("SOCKS Version '{0}' is not supported.", socksVersion));
 
-            var authenticationMethod = SocketReadByte();
+            var authenticationMethod = SocketReadByte(socket);
             switch (authenticationMethod)
             {
                 case 0x00:
                     break;
                 case 0x02:
                     // Create username/password authentication request
-                    var authenticationRequest = CreateSocks5UserNameAndPasswordAuthenticationRequest(ConnectionInfo.ProxyUsername, ConnectionInfo.ProxyPassword);
+                    var authenticationRequest = CreateSocks5UserNameAndPasswordAuthenticationRequest(connectionInfo.ProxyUsername, connectionInfo.ProxyPassword);
                     // Send authentication request
-                    SocketAbstraction.Send(_socket, authenticationRequest);
+                    SocketAbstraction.Send(socket, authenticationRequest);
                     // Read authentication result
-                    var authenticationResult = SocketAbstraction.Read(_socket, 2, ConnectionInfo.Timeout);
+                    var authenticationResult = SocketAbstraction.Read(socket, 2, connectionInfo.Timeout);
 
                     if (authenticationResult[0] != 0x01)
                         throw new ProxyException("SOCKS5: Server authentication version is not valid.");
@@ -2091,17 +2108,17 @@ namespace Renci.SshNet
                     throw new ProxyException("SOCKS5: No acceptable authentication methods were offered.");
             }
 
-            var connectionRequest = CreateSocks5ConnectionRequest(ConnectionInfo.Host, (ushort) ConnectionInfo.Port);
-            SocketAbstraction.Send(_socket, connectionRequest);
+            var connectionRequest = CreateSocks5ConnectionRequest(connectionInfo.Host, (ushort)connectionInfo.Port);
+            SocketAbstraction.Send(socket, connectionRequest);
 
             //  Read Server SOCKS5 version
-            if (SocketReadByte() != 5)
+            if (SocketReadByte(socket) != 5)
             {
                 throw new ProxyException("SOCKS5: Version 5 is expected.");
             }
 
             //  Read response code
-            var status = SocketReadByte();
+            var status = SocketReadByte(socket);
 
             switch (status)
             {
@@ -2128,21 +2145,21 @@ namespace Renci.SshNet
             }
 
             //  Read reserved byte
-            if (SocketReadByte() != 0)
+            if (SocketReadByte(socket) != 0)
             {
                 throw new ProxyException("SOCKS5: 0 byte is expected.");
             }
 
-            var addressType = SocketReadByte();
+            var addressType = SocketReadByte(socket);
             switch (addressType)
             {
                 case 0x01:
                     var ipv4 = new byte[4];
-                    SocketRead(ipv4, 0, 4);
+                    SocketRead(socket, ipv4, 0, 4);
                     break;
                 case 0x04:
                     var ipv6 = new byte[16];
-                    SocketRead(ipv6, 0, 16);
+                    SocketRead(socket, ipv6, 0, 16);
                     break;
                 default:
                     throw new ProxyException(string.Format("Address type '{0}' is not supported.", addressType));
@@ -2151,7 +2168,7 @@ namespace Renci.SshNet
             var port = new byte[2];
 
             //  Read 2 bytes to be ignored
-            SocketRead(port, 0, 2);
+            SocketRead(socket, port, 0, 2);
         }
 
         /// <summary>
@@ -2322,30 +2339,30 @@ namespace Renci.SshNet
             return address;
         }
 
-        private void ConnectHttp()
+        private static void ConnectHttp(Socket socket, ConnectionInfo connectionInfo)
         {
             var httpResponseRe = new Regex(@"HTTP/(?<version>\d[.]\d) (?<statusCode>\d{3}) (?<reasonPhrase>.+)$");
             var httpHeaderRe = new Regex(@"(?<fieldName>[^\[\]()<>@,;:\""/?={} \t]+):(?<fieldValue>.+)?");
 
-            SocketAbstraction.Send(_socket, SshData.Ascii.GetBytes(string.Format("CONNECT {0}:{1} HTTP/1.0\r\n", ConnectionInfo.Host, ConnectionInfo.Port)));
+            SocketAbstraction.Send(socket, SshData.Ascii.GetBytes(string.Format("CONNECT {0}:{1} HTTP/1.0\r\n", connectionInfo.Host, connectionInfo.Port)));
 
             //  Sent proxy authorization is specified
-            if (!string.IsNullOrEmpty(ConnectionInfo.ProxyUsername))
+            if (!string.IsNullOrEmpty(connectionInfo.ProxyUsername))
             {
                 var authorization = string.Format("Proxy-Authorization: Basic {0}\r\n",
-                                                  Convert.ToBase64String(SshData.Ascii.GetBytes(string.Format("{0}:{1}", ConnectionInfo.ProxyUsername, ConnectionInfo.ProxyPassword)))
+                                                  Convert.ToBase64String(SshData.Ascii.GetBytes(string.Format("{0}:{1}", connectionInfo.ProxyUsername, connectionInfo.ProxyPassword)))
                                                   );
-                SocketAbstraction.Send(_socket, SshData.Ascii.GetBytes(authorization));
+                SocketAbstraction.Send(socket, SshData.Ascii.GetBytes(authorization));
             }
 
-            SocketAbstraction.Send(_socket, SshData.Ascii.GetBytes("\r\n"));
+            SocketAbstraction.Send(socket, SshData.Ascii.GetBytes("\r\n"));
 
             HttpStatusCode? statusCode = null;
             var contentLength = 0;
 
             while (true)
             {
-                var response = SocketReadLine(ConnectionInfo.Timeout);
+                var response = SocketReadLine(socket, connectionInfo.Timeout);
                 if (response == null)
                     // server shut down socket
                     break;
@@ -2387,7 +2404,7 @@ namespace Renci.SshNet
                     if (contentLength > 0)
                     {
                         var contentBody = new byte[contentLength];
-                        SocketRead(contentBody, 0, contentLength);
+                        SocketRead(socket, contentBody, 0, contentLength);
                     }
                     break;
                 }
@@ -2463,7 +2480,7 @@ namespace Renci.SshNet
                                               DisconnectReason.ConnectionLost);
         }
 
-        #region IDisposable implementation
+#region IDisposable implementation
 
         private bool _disposed;
 
@@ -2554,9 +2571,9 @@ namespace Renci.SshNet
             Dispose(false);
         }
 
-        #endregion IDisposable implementation
+#endregion IDisposable implementation
 
-        #region ISession implementation
+#region ISession implementation
 
         /// <summary>
         /// Gets or sets the connection info.
@@ -2642,7 +2659,7 @@ namespace Renci.SshNet
             return TrySendMessage(message);
         }
 
-        #endregion ISession implementation
+#endregion ISession implementation
     }
 
     /// <summary>

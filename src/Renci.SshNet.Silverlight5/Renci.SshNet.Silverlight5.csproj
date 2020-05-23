@@ -29,7 +29,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>Bin\Debug</OutputPath>
-    <DefineConstants>TRACE;DEBUG;FEATURE_DIRECTORYINFO_ENUMERATEFILES;FEATURE_RNG_CSP;FEATURE_SOCKET_EAP;FEATURE_SOCKET_SETSOCKETOPTION;FEATURE_SOCKET_DISPOSE;FEATURE_STREAM_APM;FEATURE_THREAD_THREADPOOL;FEATURE_THREAD_SLEEP;FEATURE_WAITHANDLE_DISPOSE;FEATURE_MEMORYSTREAM_GETBUFFER;FEATURE_HASH_SHA1_MANAGED;FEATURE_HASH_SHA256_MANAGED;FEATURE_HMAC_SHA1;FEATURE_HMAC_SHA256</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;FEATURE_DIRECTORYINFO_ENUMERATEFILES;FEATURE_RNG_CSP;FEATURE_SOCKET_EAP;FEATURE_SOCKET_DISPOSE;FEATURE_STREAM_APM;FEATURE_THREAD_THREADPOOL;FEATURE_THREAD_SLEEP;FEATURE_WAITHANDLE_DISPOSE;FEATURE_MEMORYSTREAM_GETBUFFER;FEATURE_HASH_SHA1_MANAGED;FEATURE_HASH_SHA256_MANAGED;FEATURE_HMAC_SHA1;FEATURE_HMAC_SHA256</DefineConstants>
     <NoStdLib>true</NoStdLib>
     <NoConfig>true</NoConfig>
     <ErrorReport>prompt</ErrorReport>
@@ -42,7 +42,7 @@
     <DebugType>none</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>Bin\Release</OutputPath>
-    <DefineConstants>TRACE;FEATURE_DIRECTORYINFO_ENUMERATEFILES;FEATURE_RNG_CSP;FEATURE_SOCKET_EAP;FEATURE_SOCKET_SETSOCKETOPTION;FEATURE_SOCKET_DISPOSE;FEATURE_STREAM_APM;FEATURE_THREAD_THREADPOOL;FEATURE_THREAD_SLEEP;FEATURE_WAITHANDLE_DISPOSE;FEATURE_MEMORYSTREAM_GETBUFFER;FEATURE_HASH_SHA1_MANAGED;FEATURE_HASH_SHA256_MANAGED;FEATURE_HMAC_SHA1;FEATURE_HMAC_SHA256</DefineConstants>
+    <DefineConstants>TRACE;FEATURE_DIRECTORYINFO_ENUMERATEFILES;FEATURE_RNG_CSP;FEATURE_SOCKET_EAP;FEATURE_SOCKET_DISPOSE;FEATURE_STREAM_APM;FEATURE_THREAD_THREADPOOL;FEATURE_THREAD_SLEEP;FEATURE_WAITHANDLE_DISPOSE;FEATURE_MEMORYSTREAM_GETBUFFER;FEATURE_HASH_SHA1_MANAGED;FEATURE_HASH_SHA256_MANAGED;FEATURE_HMAC_SHA1;FEATURE_HMAC_SHA256</DefineConstants>
     <NoStdLib>true</NoStdLib>
     <NoConfig>true</NoConfig>
     <ErrorReport>prompt</ErrorReport>
@@ -199,9 +199,6 @@
     </Compile>
     <Compile Include="..\Renci.SshNet\Common\Extensions.cs">
       <Link>Common\Extensions.cs</Link>
-    </Compile>
-    <Compile Include="..\Renci.SshNet.Silverlight\Common\Extensions.SilverlightShared.cs">
-      <Link>Common\Extensions.SilverlightShared.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Common\HostKeyEventArgs.cs">
       <Link>Common\HostKeyEventArgs.cs</Link>
@@ -803,9 +800,6 @@
     <Compile Include="..\Renci.SshNet\Security\BouncyCastle\util\encoders\HexEncoder.cs">
       <Link>Security\Cryptography\BouncyCastle\util\encoders\HexEncoder.cs</Link>
     </Compile>
-    <Compile Include="..\Renci.SshNet\Security\BouncyCastle\util\Enums.cs">
-      <Link>Security\Cryptography\BouncyCastle\util\Enums.cs</Link>
-    </Compile>
     <Compile Include="..\Renci.SshNet\Security\BouncyCastle\util\IMemoable.cs">
       <Link>Security\Cryptography\BouncyCastle\util\IMemoable.cs</Link>
     </Compile>
@@ -1133,6 +1127,12 @@
     <Compile Include="..\Renci.SshNet\Security\KeyExchangeDiffieHellmanGroup14Sha1.cs">
       <Link>Security\KeyExchangeDiffieHellmanGroup14Sha1.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\Security\KeyExchangeDiffieHellmanGroup14Sha256.cs">
+      <Link>Security\KeyExchangeDiffieHellmanGroup14Sha256.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\KeyExchangeDiffieHellmanGroup16Sha512.cs">
+      <Link>Security\KeyExchangeDiffieHellmanGroup16Sha512.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\Security\KeyExchangeDiffieHellmanGroup1Sha1.cs">
       <Link>Security\KeyExchangeDiffieHellmanGroup1Sha1.cs</Link>
     </Compile>
@@ -1147,6 +1147,15 @@
     </Compile>
     <Compile Include="..\Renci.SshNet\Security\KeyExchangeDiffieHellmanGroupSha1.cs">
       <Link>Security\KeyExchangeDiffieHellmanGroupSha1.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\KeyExchangeDiffieHellmanGroupSha256.cs">
+      <Link>Security\KeyExchangeDiffieHellmanGroupSha256.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\KeyExchangeDiffieHellmanGroupSha512.cs">
+      <Link>Security\KeyExchangeDiffieHellmanGroupSha512.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\KeyExchangeDiffieHellmanGroupShaBase.cs">
+      <Link>Security\KeyExchangeDiffieHellmanGroupShaBase.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Security\KeyExchangeEC.cs">
       <Link>Security\KeyExchangeEC.cs</Link>
@@ -1165,6 +1174,9 @@
     </Compile>
     <Compile Include="..\Renci.SshNet\Security\KeyExchangeECDH521.cs">
       <Link>Security\KeyExchangeECDH521.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Security\KeyExchangeHash.cs">
+      <Link>Security\KeyExchangeHash.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Security\KeyHostAlgorithm.cs">
       <Link>Security\KeyHostAlgorithm.cs</Link>
@@ -1396,7 +1408,7 @@
       <FlavorProperties GUID="{A1591282-1198-4647-A2B1-27E5FF5F6F3B}">
         <SilverlightProjectProperties />
       </FlavorProperties>
-      <UserProperties ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" ProjectLinkReference="2f5f8c90-0bd1-424f-997c-7bc6280919d1" />
+      <UserProperties ProjectLinkReference="2f5f8c90-0bd1-424f-997c-7bc6280919d1" ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

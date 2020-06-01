@@ -577,14 +577,14 @@ namespace Renci.SshNet
 
                 lock (this)
                 {
-                    //  If connected don't connect again
+                    // If connected don't connect again
                     if (IsConnected)
                         return;
 
-                    // reset connection specific information
+                    // Reset connection specific information
                     Reset();
 
-                    //  Build list of available messages while connecting
+                    // Build list of available messages while connecting
                     _sshMessageFactory = new SshMessageFactory();
 
                     switch (ConnectionInfo.ProxyType)
@@ -606,10 +606,14 @@ namespace Renci.SshNet
                             break;
                     }
 
+                    // Immediately send the identification string since the spec states both sides MUST send an identification string
+                    // when the connection has been established
+                    SocketAbstraction.Send(_socket, Encoding.UTF8.GetBytes(string.Format(CultureInfo.InvariantCulture, "{0}\x0D\x0A", ClientVersion)));
+
                     Match versionMatch;
 
-                    //  Get server version from the server,
-                    //  ignore text lines which are sent before if any
+                    // Get server version from the server,
+                    // ignore text lines which are sent before if any
                     while (true)
                     {
                         var serverVersion = SocketReadLine(_socket, ConnectionInfo.Timeout);
@@ -623,11 +627,11 @@ namespace Renci.SshNet
                         }
                     }
 
-                    //  Set connection versions
+                    // Set connection versions
                     ConnectionInfo.ServerVersion = ServerVersion;
                     ConnectionInfo.ClientVersion = ClientVersion;
 
-                    //  Get server SSH version
+                    // Get server SSH version
                     var version = versionMatch.Result("${protoversion}");
 
                     var softwareName = versionMatch.Result("${softwareversion}");
@@ -639,9 +643,7 @@ namespace Renci.SshNet
                         throw new SshConnectionException(string.Format(CultureInfo.CurrentCulture, "Server version '{0}' is not supported.", version), DisconnectReason.ProtocolVersionNotSupported);
                     }
 
-                    SocketAbstraction.Send(_socket, Encoding.UTF8.GetBytes(string.Format(CultureInfo.InvariantCulture, "{0}\x0D\x0A", ClientVersion)));
-
-                    //  Register Transport response messages
+                    // Register Transport response messages
                     RegisterMessage("SSH_MSG_DISCONNECT");
                     RegisterMessage("SSH_MSG_IGNORE");
                     RegisterMessage("SSH_MSG_UNIMPLEMENTED");
@@ -650,29 +652,29 @@ namespace Renci.SshNet
                     RegisterMessage("SSH_MSG_KEXINIT");
                     RegisterMessage("SSH_MSG_NEWKEYS");
 
-                    //  Some server implementations might sent this message first, prior establishing encryption algorithm
+                    // Some server implementations might sent this message first, prior to establishing encryption algorithm
                     RegisterMessage("SSH_MSG_USERAUTH_BANNER");
 
-                    // mark the message listener threads as started
+                    // Mark the message listener threads as started
                     _messageListenerCompleted.Reset();
 
-                    //  Start incoming request listener
+                    // Start incoming request listener
                     ThreadAbstraction.ExecuteThread(() => MessageListener());
 
-                    //  Wait for key exchange to be completed
+                    // Wait for key exchange to be completed
                     WaitOnHandle(_keyExchangeCompletedWaitHandle);
 
-                    //  If sessionId is not set then its not connected
+                    // If sessionId is not set then its not connected
                     if (SessionId == null)
                     {
                         Disconnect();
                         return;
                     }
 
-                    //  Request user authorization service
+                    // Request user authorization service
                     SendMessage(new ServiceRequestMessage(ServiceName.UserAuthentication));
 
-                    //  Wait for service to be accepted
+                    // Wait for service to be accepted
                     WaitOnHandle(_serviceAccepted);
 
                     if (string.IsNullOrEmpty(ConnectionInfo.Username))
@@ -687,7 +689,7 @@ namespace Renci.SshNet
                     ConnectionInfo.Authenticate(this, _serviceFactory);
                     _isAuthenticated = true;
 
-                    //  Register Connection messages
+                    // Register Connection messages
                     RegisterMessage("SSH_MSG_REQUEST_SUCCESS");
                     RegisterMessage("SSH_MSG_REQUEST_FAILURE");
                     RegisterMessage("SSH_MSG_CHANNEL_OPEN_CONFIRMATION");
@@ -1935,9 +1937,10 @@ namespace Renci.SshNet
                         break;
                     }
 
+#if FEATURE_SOCKET_POLL || FEATURE_SOCKET_SELECT
                     try
                     {
-    #if FEATURE_SOCKET_POLL
+#if FEATURE_SOCKET_POLL
                         // Block until either data is available or the socket is closed
                         var connectionClosedOrDataAvailable = socket.Poll(-1, SelectMode.SelectRead);
                         if (connectionClosedOrDataAvailable && socket.Available == 0)
@@ -1945,7 +1948,7 @@ namespace Renci.SshNet
                             // connection with SSH server was closed or connection was reset
                             break;
                         }
-    #elif FEATURE_SOCKET_SELECT
+#elif FEATURE_SOCKET_SELECT
                         var readSockets = new List<Socket> { socket };
 
                         // if the socket is already disposed when Select is invoked, then a SocketException
@@ -1981,10 +1984,7 @@ namespace Renci.SshNet
                             // break out of the message loop
                             break;
                         }
-    #else
-                        #error Blocking wait on either socket data to become available or connection to be 
-                        #error closed is not implemented.
-    #endif // FEATURE_SOCKET_SELECT
+#endif // FEATURE_SOCKET_SELECT
                     }
                     catch (ObjectDisposedException)
                     {
@@ -1994,6 +1994,7 @@ namespace Renci.SshNet
                         // * a SSH_MSG_DISCONNECT received from server
                         break;
                     }
+#endif // FEATURE_SOCKET_POLL || FEATURE_SOCKET_SELECT
 
                     var message = ReceiveMessage(socket);
                     if (message == null)

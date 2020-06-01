@@ -2004,8 +2004,6 @@ namespace Renci.SshNet
                         break;
                     }
 
-                    Console.WriteLine("RECEIVED MESSAGe " + message.GetType());
-
                     // process message
                     message.Process(this);
                 }

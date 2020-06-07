@@ -133,18 +133,14 @@
 	
 	<Target Name="ValidatePackage" DependsOnTargets="ValidatePackageClassic;ValidatePackageModern"/>
 	
-	<Target Name="ValidatePackageClassic" DependsOnTargets="CheckNuGetPackageDirectory;CheckBinaryZipPackageDirectory" Outputs="%(TargetFrameworkClassic.Identity)">
+	<Target Name="ValidatePackageClassic" DependsOnTargets="CheckNuGetPackageDirectory" Outputs="%(TargetFrameworkClassic.Identity)">
 		<Error Text="The 'Renci.SshNet.dll' file is not available for %(TargetFrameworkClassic.Identity) in $(NuGetPackageDirectory)\lib\%(TargetFrameworkClassic.Moniker)." Condition="!Exists('$(NuGetPackageDirectory)\lib\%(TargetFrameworkClassic.Moniker)\Renci.SshNet.dll')"/>
 		<Error Text="The 'Renci.SshNet.xml' file is not available for %(TargetFrameworkClassic.Identity) in $(NuGetPackageDirectory)\lib\%(TargetFrameworkClassic.Moniker)." Condition="!Exists('$(NuGetPackageDirectory)\lib\%(TargetFrameworkClassic.Moniker)\Renci.SshNet.xml')"/>
-		<Error Text="The 'Renci.SshNet.dll' file is not available for %(TargetFrameworkClassic.Identity) in $(BinaryZipPackageDirectory)\lib\%(TargetFrameworkClassic.Moniker)" Condition="!Exists('$(BinaryZipPackageDirectory)\lib\%(TargetFrameworkClassic.Moniker)\Renci.SshNet.dll')"/>
-		<Error Text="The 'Renci.SshNet.xml' file is not available for %(TargetFrameworkClassic.Identity) in $(BinaryZipPackageDirectory)\lib\%(TargetFrameworkClassic.Moniker)" Condition="!Exists('$(BinaryZipPackageDirectory)\lib\%(TargetFrameworkClassic.Moniker)\Renci.SshNet.xml')"/>
 	</Target>
 
-	<Target Name="ValidatePackageModern" DependsOnTargets="CheckNuGetPackageDirectory;CheckBinaryZipPackageDirectory" Outputs="%(TargetFrameworkModern.Identity)">
+	<Target Name="ValidatePackageModern" DependsOnTargets="CheckNuGetPackageDirectory" Outputs="%(TargetFrameworkModern.Identity)">
 		<Error Text="The 'Renci.SshNet.dll' file is not available for %(TargetFrameworkModern.Identity) in $(NuGetPackageDirectory)\lib\%(TargetFrameworkModern.Moniker)." Condition="!Exists('$(NuGetPackageDirectory)\lib\%(TargetFrameworkModern.Moniker)\Renci.SshNet.dll')"/>
 		<Error Text="The 'Renci.SshNet.xml' file is not available for %(TargetFrameworkModern.Identity) in $(NuGetPackageDirectory)\lib\%(TargetFrameworkModern.Moniker)." Condition="!Exists('$(NuGetPackageDirectory)\lib\%(TargetFrameworkModern.Moniker)\Renci.SshNet.xml')"/>
-		<Error Text="The 'Renci.SshNet.dll' file is not available for %(TargetFrameworkModern.Identity) in $(BinaryZipPackageDirectory)\lib\%(TargetFrameworkModern.Moniker)." Condition="!Exists('$(BinaryZipPackageDirectory)\lib\%(TargetFrameworkModern.Moniker)\Renci.SshNet.dll')"/>
-		<Error Text="The 'Renci.SshNet.xml' file is not available for %(TargetFrameworkModern.Identity) in $(BinaryZipPackageDirectory)\lib\%(TargetFrameworkModern.Moniker)." Condition="!Exists('$(BinaryZipPackageDirectory)\lib\%(TargetFrameworkModern.Moniker)\Renci.SshNet.xml')"/>
 	</Target>
 	
 	<Target Name="CreateNuGetPackage" DependsOnTargets="ValidatePackage;CheckNuGetPackageDirectory;CheckReleaseVersion">
@@ -179,6 +175,7 @@
 	<Target Name="CreateBinPackage" DependsOnTargets="PrepareMSBuildTasksPackage;ValidatePackage;CheckReleaseVersion;CheckBinaryZipPackageDirectory">
 		<ItemGroup>
 			<Files Remove="@(Files)"/>
+			<Files Include="$(NuGetPackageDirectory)\lib\**\*.*"/>
 			<Files Include="$(MSBuildThisFileDirectory)..\LICENSE"/>
 			<Files Include="$(MSBuildThisFileDirectory)..\THIRD-PARTY-NOTICES.TXT"/>
 		</ItemGroup>

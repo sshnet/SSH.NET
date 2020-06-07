@@ -188,4 +188,6 @@ Visual Studio 2015 Update 3       | x     | x     |                |            
 Visual Studio 2017                | x     | x     | x              | x              |     |     |      |     | 
 Visual Studio 2019                | x     | x     | x              | x              |     |     |      |     | 
 
-[![NDepend](http://download-codeplex.sec.s-msft.com/Download?ProjectName=sshnet&DownloadId=629750)](http://ndepend.com)
+## Supporting SSH.NET
+
+Do you or your company rely on **SSH.NET** in your projects? If you to encourage us to keep on going and show us that you appreciate our work, please consider becoming a [sponsor](https://github.com/sponsors/sshnet) through GitHub Sponsors.

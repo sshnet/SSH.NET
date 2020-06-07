@@ -190,4 +190,4 @@ Visual Studio 2019                | x     | x     | x              | x          
 
 ## Supporting SSH.NET
 
-Do you or your company rely on **SSH.NET** in your projects? If you to encourage us to keep on going and show us that you appreciate our work, please consider becoming a [sponsor](https://github.com/sponsors/sshnet) through GitHub Sponsors.
+Do you or your company rely on **SSH.NET** in your projects? If you want to encourage us to keep on going and show us that you appreciate our work, please consider becoming a [sponsor](https://github.com/sponsors/sshnet) through GitHub Sponsors.

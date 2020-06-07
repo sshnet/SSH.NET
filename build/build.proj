@@ -148,7 +148,7 @@
 	</Target>
 	
 	<Target Name="GenerateHelpFile" DependsOnTargets="CheckReleaseVersion">
-		<Error Text="Please install Sandcastle, and ensure the SHFBFolder environment variable is set." Condition="'$(SHFBFolder)'==''"/>
+		<Error Text="Please install Sandcastle, and ensure the SHFBROOT environment variable is set." Condition="'$(SHFBROOT)'==''"/>
 		<MSBuild Projects="$(MSBuildThisFileDirectory)sandcastle\SSH.NET.shfbproj"/>
 		<Move SourceFiles="$(MSBuildThisFileDirectory)target\help\SshNet.Help.chm" DestinationFiles="$(MSBuildThisFileDirectory)target\SSH.NET-$(ReleaseVersion)-help.chm"/>
 	</Target>

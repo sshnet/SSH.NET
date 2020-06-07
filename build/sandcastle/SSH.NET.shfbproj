@@ -36,7 +36,7 @@
   <outputPaths>{@HelpFormatOutputPaths}</outputPaths>
   <allowMissingSource value="false" />
   <removeRegionMarkers value="false" />
-  <colorizer syntaxFile="{@SHFBROOT}PresentationStyles\Colorizer\highlight.xml" styleFile="{@SHFBROOT}PresentationStyles\Colorizer\highlight.xsl" stylesheet="{@SHFBROOT}PresentationStyles\Colorizer\highlight.css" scriptFile="{@SHFBROOT}PresentationStyles\Colorizer\highlight.js" disabled="{@DisableCodeBlockComponent}" language="cs" tabSize="0" numberLines="false" outlining="false" keepSeeTags="false" defaultTitle="true" />
+  <colorizer syntaxFile="{@SHFBROOT}\PresentationStyles\Colorizer\highlight.xml" styleFile="{@SHFBROOT}\PresentationStyles\Colorizer\highlight.xsl" stylesheet="{@SHFBROOT}\PresentationStyles\Colorizer\highlight.css" scriptFile="{@SHFBROOT}\PresentationStyles\Colorizer\highlight.js" disabled="{@DisableCodeBlockComponent}" language="cs" tabSize="0" numberLines="false" outlining="false" keepSeeTags="false" defaultTitle="true" />
 </component>
       </ComponentConfig>
     </ComponentConfigurations>

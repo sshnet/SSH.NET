@@ -6,7 +6,7 @@ namespace Renci.SshNet
     /// Provides functionality for forwarding connections from the client to destination servers via the SSH server,
     /// also known as dynamic port forwarding.
     /// </summary>
-    public partial class ForwardedPortDynamic : ForwardedPort
+    public partial class ForwardedPortDynamic : ForwardedPort, IDisposable
     {
         private ForwardedPortStatus _status;
 

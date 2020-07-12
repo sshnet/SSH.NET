@@ -22,11 +22,13 @@ namespace Renci.SshNet.Tests.Classes.Messages.Transport
 
         public byte[] Build()
         {
-            var sshDataStream = new SshDataStream(0);
-            sshDataStream.WriteByte(KeyExchangeDhGroupExchangeGroup.MessageNumber);
-            sshDataStream.Write(_safePrime);
-            sshDataStream.Write(_subGroup);
-            return sshDataStream.ToArray();
+            using (var sshDataStream = new SshDataStream(0))
+            {
+                sshDataStream.WriteByte(KeyExchangeDhGroupExchangeGroup.MessageNumber);
+                sshDataStream.Write(_safePrime);
+                sshDataStream.Write(_subGroup);
+                return sshDataStream.ToArray();
+            }
         }
     }
 }

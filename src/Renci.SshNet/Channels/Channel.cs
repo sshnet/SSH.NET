@@ -17,6 +17,7 @@ namespace Renci.SshNet.Channels
         private EventWaitHandle _channelClosedWaitHandle = new ManualResetEvent(false);
         private EventWaitHandle _channelServerWindowAdjustWaitHandle = new ManualResetEvent(false);
         private readonly object _serverWindowSizeLock = new object();
+        private readonly object _lockObject = new object();
         private readonly uint _initialWindowSize;
         private uint? _remoteWindowSize;
         private uint? _remoteChannelNumber;
@@ -495,7 +496,7 @@ namespace Renci.SshNet.Channels
             if (!IsOpen)
                 throw CreateChannelClosedException();
 
-            lock (this)
+            lock (_lockObject)
             {
                 _session.SendMessage(new ChannelEofMessage(RemoteChannelNumber));
                 _eofMessageSent = true;
@@ -521,7 +522,7 @@ namespace Renci.SshNet.Channels
             // same time we would otherwise risk sending the SSH_MSG_CHANNEL_EOF after the SSH_MSG_CHANNEL_CLOSE
             // message causing the server to disconnect the session.
 
-            lock (this)
+            lock (_lockObject)
             {
                 // send EOF message first the following conditions are met:
                 // * we have not sent a SSH_MSG_CHANNEL_EOF message

@@ -13,6 +13,7 @@ namespace Renci.SshNet
     {
         private readonly MessageMetadata[] _enabledMessagesByNumber;
         private readonly bool[] _activatedMessagesById;
+        private readonly object _lockObject = new object();
 
         internal static readonly MessageMetadata[] AllMessages;
         private static readonly IDictionary<string, MessageMetadata> MessagesByName;
@@ -161,7 +162,7 @@ namespace Renci.SshNet
             if (messageName == null)
                 throw new ArgumentNullException("messageName");
 
-            lock (this)
+            lock (_lockObject)
             {
                 MessageMetadata messageMetadata;
 
@@ -188,7 +189,7 @@ namespace Renci.SshNet
             if (messageName == null)
                 throw new ArgumentNullException("messageName");
 
-            lock (this)
+            lock (_lockObject)
             {
                 MessageMetadata messageMetadata;
 

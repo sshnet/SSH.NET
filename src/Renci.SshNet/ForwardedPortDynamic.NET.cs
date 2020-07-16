@@ -328,7 +328,7 @@ namespace Renci.SshNet
                 return false;
             }
 
-            var port = (uint)(portBuffer[0] * 256 + portBuffer[1]);
+            var port = Pack.BigEndianToUInt16(portBuffer);
 
             var ipBuffer = new byte[4];
             if (SocketAbstraction.Read(socket, ipBuffer, 0, ipBuffer.Length, timeout) == 0)
@@ -387,12 +387,12 @@ namespace Renci.SshNet
             {
                 // no user authentication is one of the authentication methods supported
                 // by the SOCKS client
-                SocketAbstraction.Send(socket, new byte[] { 0x05, 0x00 }, 0, 2);
+                SocketAbstraction.Send(socket, new byte[] {0x05, 0x00}, 0, 2);
             }
             else
             {
                 // the SOCKS client requires authentication, which we currently do not support
-                SocketAbstraction.Send(socket, new byte[] { 0x05, 0xFF }, 0, 2);
+                SocketAbstraction.Send(socket, new byte[] {0x05, 0xFF}, 0, 2);
 
                 // we continue business as usual but expect the client to close the connection
                 // so one of the subsequent reads should return -1 signaling that the client
@@ -449,7 +449,7 @@ namespace Renci.SshNet
                 return false;
             }
 
-            var port = (uint)(portBuffer[0] * 256 + portBuffer[1]);
+            var port = Pack.BigEndianToUInt16(portBuffer);
 
             RaiseRequestReceived(host, port);
 
@@ -515,19 +515,21 @@ namespace Renci.SshNet
 
         private static byte[] CreateSocks5Reply(bool channelOpen)
         {
-            var socksReply = new byte[
-                // SOCKS version
-                1 +
-                // Reply field
-                1 +
-                // Reserved; fixed: 0x00
-                1 +
-                // Address type; fixed: 0x01
-                1 +
-                // IPv4 server bound address; fixed: {0x00, 0x00, 0x00, 0x00}
-                4 +
-                // server bound port; fixed: {0x00, 0x00}
-                2];
+            var socksReply = new byte
+                [
+                    // SOCKS version
+                    1 +
+                    // Reply field
+                    1 +
+                    // Reserved; fixed: 0x00
+                    1 +
+                    // Address type; fixed: 0x01
+                    1 +
+                    // IPv4 server bound address; fixed: {0x00, 0x00, 0x00, 0x00}
+                    4 +
+                    // server bound port; fixed: {0x00, 0x00}
+                    2
+                ];
 
             socksReply[0] = 0x05;
 

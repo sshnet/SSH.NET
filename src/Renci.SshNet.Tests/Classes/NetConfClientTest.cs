@@ -5,13 +5,111 @@ using System.Xml;
 
 namespace Renci.SshNet.Tests.Classes
 {
-    //  TODO:   Please help with documentation here, as I don't know the details, specially for the methods not documented.
-    /// <summary>
-    ///
-    /// </summary>
     [TestClass]
-    public partial class NetConfClientTest : TestBase
+    public class NetConfClientTest : TestBase
     {
+        private Random _random;
+
+        [TestInitialize]
+        public void SetUp()
+        {
+            _random = new Random();
+        }
+
+        [TestMethod]
+        public void OperationTimeout_Default()
+        {
+            var connectionInfo = new PasswordConnectionInfo("host", 22, "admin", "pwd");
+            var target = new NetConfClient(connectionInfo);
+
+            var actual = target.OperationTimeout;
+
+            Assert.AreEqual(TimeSpan.FromMilliseconds(-1), actual);
+        }
+
+        [TestMethod]
+        public void OperationTimeout_InsideLimits()
+        {
+            var operationTimeout = TimeSpan.FromMilliseconds(_random.Next(0, int.MaxValue - 1));
+            var connectionInfo = new PasswordConnectionInfo("host", 22, "admin", "pwd");
+            var target = new NetConfClient(connectionInfo)
+                {
+                    OperationTimeout = operationTimeout
+                };
+
+            var actual = target.OperationTimeout;
+
+            Assert.AreEqual(operationTimeout, actual);
+        }
+
+        [TestMethod]
+        public void OperationTimeout_LowerLimit()
+        {
+            var operationTimeout = TimeSpan.FromMilliseconds(-1);
+            var connectionInfo = new PasswordConnectionInfo("host", 22, "admin", "pwd");
+            var target = new NetConfClient(connectionInfo)
+                {
+                    OperationTimeout = operationTimeout
+            };
+
+            var actual = target.OperationTimeout;
+
+            Assert.AreEqual(operationTimeout, actual);
+        }
+
+        [TestMethod]
+        public void OperationTimeout_UpperLimit()
+        {
+            var operationTimeout = TimeSpan.FromMilliseconds(int.MaxValue);
+            var connectionInfo = new PasswordConnectionInfo("host", 22, "admin", "pwd");
+            var target = new NetConfClient(connectionInfo)
+                {
+                    OperationTimeout = operationTimeout
+                };
+
+            var actual = target.OperationTimeout;
+
+            Assert.AreEqual(operationTimeout, actual);
+        }
+
+        [TestMethod]
+        public void OperationTimeout_LessThanLowerLimit()
+        {
+            var operationTimeout = TimeSpan.FromMilliseconds(-2);
+            var connectionInfo = new PasswordConnectionInfo("host", 22, "admin", "pwd");
+            var target = new NetConfClient(connectionInfo);
+
+            try
+            {
+                target.OperationTimeout = operationTimeout;
+            }
+            catch (ArgumentOutOfRangeException ex)
+            {
+                Assert.IsNull(ex.InnerException);
+                Assert.AreEqual("The timeout must represent a value between -1 and Int32.MaxValue, inclusive." + Environment.NewLine + "Parameter name: " + ex.ParamName, ex.Message);
+                Assert.AreEqual("value", ex.ParamName);
+            }
+        }
+
+        [TestMethod]
+        public void OperationTimeout_GreaterThanLowerLimit()
+        {
+            var operationTimeout = TimeSpan.FromMilliseconds(int.MaxValue).Add(TimeSpan.FromMilliseconds(1));
+            var connectionInfo = new PasswordConnectionInfo("host", 22, "admin", "pwd");
+            var target = new NetConfClient(connectionInfo);
+
+            try
+            {
+                target.OperationTimeout = operationTimeout;
+            }
+            catch (ArgumentOutOfRangeException ex)
+            {
+                Assert.IsNull(ex.InnerException);
+                Assert.AreEqual("The timeout must represent a value between -1 and Int32.MaxValue, inclusive." + Environment.NewLine + "Parameter name: " + ex.ParamName, ex.Message);
+                Assert.AreEqual("value", ex.ParamName);
+            }
+        }
+
         /// <summary>
         ///A test for NetConfClient Constructor
         ///</summary>
@@ -143,23 +241,6 @@ namespace Renci.SshNet.Tests.Classes
             NetConfClient target = new NetConfClient(connectionInfo); // TODO: Initialize to an appropriate value
             XmlDocument actual;
             actual = target.ServerCapabilities;
-            Assert.Inconclusive("Verify the correctness of this test method.");
-        }
-
-        /// <summary>
-        ///A test for OperationTimeout
-        ///</summary>
-        [TestMethod]
-        [Ignore] // placeholder for actual test
-        public void OperationTimeoutTest()
-        {
-            ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
-            NetConfClient target = new NetConfClient(connectionInfo); // TODO: Initialize to an appropriate value
-            TimeSpan expected = new TimeSpan(); // TODO: Initialize to an appropriate value
-            TimeSpan actual;
-            target.OperationTimeout = expected;
-            actual = target.OperationTimeout;
-            Assert.AreEqual(expected, actual);
             Assert.Inconclusive("Verify the correctness of this test method.");
         }
 

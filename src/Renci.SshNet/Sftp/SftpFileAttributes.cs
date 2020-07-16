@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Globalization;
 using Renci.SshNet.Common;
+using System.Diagnostics;
 
 namespace Renci.SshNet.Sftp
 {
@@ -433,10 +434,10 @@ namespace Renci.SshNet.Sftp
         {
         }
 
-        internal SftpFileAttributes(DateTime lastAccessTime, DateTime lastWriteTime, long size, int userId, int groupId, uint permissions, IDictionary<string, string> extensions)
+        internal SftpFileAttributes(DateTime lastAccessTimeUtc, DateTime lastWriteTimeUtc, long size, int userId, int groupId, uint permissions, IDictionary<string, string> extensions)
         {
-            LastAccessTimeUtc = _originalLastAccessTimeUtc = ToUniversalTime(lastAccessTime);
-            LastWriteTimeUtc = _originalLastWriteTimeUtc = ToUniversalTime(lastWriteTime);
+            LastAccessTimeUtc = _originalLastAccessTimeUtc = lastAccessTimeUtc;
+            LastWriteTimeUtc = _originalLastWriteTimeUtc = lastWriteTimeUtc;
             Size = _originalSize = size;
             UserId = _originalUserId = userId;
             GroupId = _originalGroupId = groupId;
@@ -559,8 +560,8 @@ namespace Renci.SshNet.Sftp
             var userId = -1;
             var groupId = -1;
             uint permissions = 0;
-            var accessTime = DateTime.MinValue;
-            var modifyTime = DateTime.MinValue;
+            DateTime accessTime;
+            DateTime modifyTime;
             IDictionary<string, string> extensions = null;
 
             if ((flag & 0x00000001) == 0x00000001)   //  SSH_FILEXFER_ATTR_SIZE
@@ -589,6 +590,11 @@ namespace Renci.SshNet.Sftp
                 time = stream.ReadUInt32();
                 modifyTime = DateTime.FromFileTimeUtc((time + 11644473600) * 10000000);
             }
+            else
+            {
+                accessTime = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Utc);
+                modifyTime = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Utc);
+            }
 
             if ((flag & 0x80000000) == 0x80000000)   //  SSH_FILEXFER_ATTR_EXTENDED
             {
@@ -613,7 +619,7 @@ namespace Renci.SshNet.Sftp
             }
         }
 
-        internal static DateTime ToLocalTime(DateTime value)
+        private static DateTime ToLocalTime(DateTime value)
         {
             DateTime result;
 
@@ -629,7 +635,7 @@ namespace Renci.SshNet.Sftp
             return result;
         }
 
-        internal static DateTime ToUniversalTime(DateTime value)
+        private static DateTime ToUniversalTime(DateTime value)
         {
             DateTime result;
 

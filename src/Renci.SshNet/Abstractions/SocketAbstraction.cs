@@ -180,7 +180,7 @@ namespace Renci.SshNet.Abstractions
                 receiveCompleted.Dispose();
             }
 #else
-#error Receiving data from a Socket is not implemented.
+            #error Receiving data from a Socket is not implemented.
 #endif
         }
 
@@ -242,7 +242,7 @@ namespace Renci.SshNet.Abstractions
             if (readToken.Exception != null)
                 throw readToken.Exception;
 #else
-#error Receiving data from a Socket is not implemented.
+            #error Receiving data from a Socket is not implemented.
 #endif
         }
 
@@ -278,7 +278,30 @@ namespace Renci.SshNet.Abstractions
         }
 
         /// <summary>
-        /// Receives data from a bound <see cref="Socket"/>into a receive buffer.
+        /// Receives data from a bound <see cref="Socket"/>.
+        /// </summary>
+        /// <param name="socket"></param>
+        /// <param name="size">The number of bytes to receive.</param>
+        /// <param name="timeout">Specifies the amount of time after which the call will time out.</param>
+        /// <returns>
+        /// The bytes received.
+        /// </returns>
+        /// <remarks>
+        /// If no data is available for reading, the <see cref="Read(Socket, int, TimeSpan)"/> method will
+        /// block until data is available or the time-out value is exceeded. If the time-out value is exceeded, the
+        /// <see cref="Read(Socket, int, TimeSpan)"/> call will throw a <see cref="SshOperationTimeoutException"/>.
+        ///  If you are in non-blocking mode, and there is no data available in the in the protocol stack buffer, the
+        /// <see cref="Read(Socket, int, TimeSpan)"/> method will complete immediately and throw a <see cref="SocketException"/>.
+        /// </remarks>
+        public static byte[] Read(Socket socket, int size, TimeSpan timeout)
+        {
+            var buffer = new byte[size];
+            Read(socket, buffer, 0, size, timeout);
+            return buffer;
+        }
+
+        /// <summary>
+        /// Receives data from a bound <see cref="Socket"/> into a receive buffer.
         /// </summary>
         /// <param name="socket"></param>
         /// <param name="buffer">An array of type <see cref="byte"/> that is the storage location for the received data. </param>
@@ -289,11 +312,11 @@ namespace Renci.SshNet.Abstractions
         /// The number of bytes received.
         /// </returns>
         /// <remarks>
-        /// If no data is available for reading, the <see cref="Read(Socket,byte[], int, int, TimeSpan)"/> method will
-        /// block until data is available or the time-out value was exceeded. If the time-out value was exceeded, the
-        /// <see cref="Read(Socket,byte[], int, int, TimeSpan)"/> call will throw a <see cref="SshOperationTimeoutException"/>.
+        /// If no data is available for reading, the <see cref="Read(Socket, byte[], int, int, TimeSpan)"/> method will
+        /// block until data is available or the time-out value is exceeded. If the time-out value is exceeded, the
+        /// <see cref="Read(Socket, byte[], int, int, TimeSpan)"/> call will throw a <see cref="SshOperationTimeoutException"/>.
         ///  If you are in non-blocking mode, and there is no data available in the in the protocol stack buffer, the
-        /// <see cref="Read(Socket,byte[], int, int, TimeSpan)"/> method will complete immediately and throw a <see cref="SocketException"/>.
+        /// <see cref="Read(Socket, byte[], int, int, TimeSpan)"/> method will complete immediately and throw a <see cref="SocketException"/>.
         /// </remarks>
         public static int Read(Socket socket, byte[] buffer, int offset, int size, TimeSpan timeout)
         {
@@ -384,11 +407,10 @@ namespace Renci.SshNet.Abstractions
             {
                 try
                 {
-                    var bytesSent = socket.Send(data, offset + totalBytesSent, totalBytesToSend - totalBytesSent,
-                        SocketFlags.None);
+                    var bytesSent = socket.Send(data, offset + totalBytesSent, totalBytesToSend - totalBytesSent, SocketFlags.None);
                     if (bytesSent == 0)
                         throw new SshConnectionException("An established connection was aborted by the server.",
-                            DisconnectReason.ConnectionLost);
+                                                         DisconnectReason.ConnectionLost);
 
                     totalBytesSent += bytesSent;
                 }
@@ -407,10 +429,10 @@ namespace Renci.SshNet.Abstractions
             var sendCompleted = new ManualResetEvent(false);
             var sendReceiveToken = new BlockingSendReceiveToken(socket, data, offset, size, sendCompleted);
             var socketAsyncSendArgs = new SocketAsyncEventArgs
-            {
-                RemoteEndPoint = socket.RemoteEndPoint,
-                UserToken = sendReceiveToken
-            };
+                {
+                    RemoteEndPoint = socket.RemoteEndPoint,
+                    UserToken = sendReceiveToken
+                };
             socketAsyncSendArgs.SetBuffer(data, offset, size);
             socketAsyncSendArgs.Completed += SendCompleted;
 
@@ -427,7 +449,7 @@ namespace Renci.SshNet.Abstractions
 
                 if (sendReceiveToken.TotalBytesTransferred == 0)
                     throw new SshConnectionException("An established connection was aborted by the server.",
-                        DisconnectReason.ConnectionLost);
+                                                     DisconnectReason.ConnectionLost);
             }
             finally
             {
@@ -437,7 +459,7 @@ namespace Renci.SshNet.Abstractions
                 sendCompleted.Dispose();
             }
 #else
-#error Sending data to a Socket is not implemented.
+            #error Sending data to a Socket is not implemented.
 #endif
         }
 

@@ -1506,10 +1506,12 @@ namespace Renci.SshNet.Tests.Classes.Common
             Assert.AreEqual("0", a.ToString(), "#4");
 
             a = new BigInteger();
+#pragma warning disable CS1718 // Comparison made to same variable
             Assert.AreEqual(true, a == a, "#5");
 
             a = new BigInteger();
             Assert.AreEqual(false, a < a, "#6");
+#pragma warning restore CS1718 // Comparison made to same variable
 
             a = new BigInteger();
             Assert.AreEqual(true, a < 10L, "#7");

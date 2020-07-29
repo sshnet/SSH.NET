@@ -690,7 +690,7 @@ namespace Renci.SshNet
                     _isAuthenticated = true;
 
                     // Start Listening for Server Global Keepalives
-                    this.GlobalRequestReceived += ServerKeepAlive.ServerKeepAliveHandler;
+                    this.GlobalRequestReceived += GlobalRequests.GlobalRequestHandler;
 
                     // Register Connection messages
                     RegisterMessage("SSH_MSG_REQUEST_SUCCESS");

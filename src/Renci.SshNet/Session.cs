@@ -689,6 +689,9 @@ namespace Renci.SshNet
                     ConnectionInfo.Authenticate(this, _serviceFactory);
                     _isAuthenticated = true;
 
+                    // Start Listening for Server Global Keepalives
+                    this.GlobalRequestReceived += ServerKeepAlive.ServerKeepAliveHandler;
+
                     // Register Connection messages
                     RegisterMessage("SSH_MSG_REQUEST_SUCCESS");
                     RegisterMessage("SSH_MSG_REQUEST_FAILURE");

@@ -74,9 +74,9 @@ namespace Renci.SshNet.Security
             SendMessage(session.ClientInitMessage);
 
             //  Determine encryption algorithm
-            var clientEncryptionAlgorithmName = (from b in session.ConnectionInfo.Encryptions.Keys
+            var clientEncryptionAlgorithmName = (from b in session.ConnectionInfo.Encryptions.OrderByDescending(x => x.Value.Priority)
                                                  from a in message.EncryptionAlgorithmsClientToServer
-                                                 where a == b
+                                                 where a == b.Key
                                                  select a).FirstOrDefault();
 
             if (string.IsNullOrEmpty(clientEncryptionAlgorithmName))
@@ -87,9 +87,9 @@ namespace Renci.SshNet.Security
             session.ConnectionInfo.CurrentClientEncryption = clientEncryptionAlgorithmName;
 
             //  Determine encryption algorithm
-            var serverDecryptionAlgorithmName = (from b in session.ConnectionInfo.Encryptions.Keys
+            var serverDecryptionAlgorithmName = (from b in session.ConnectionInfo.Encryptions.OrderByDescending(x => x.Value.Priority)
                                                  from a in message.EncryptionAlgorithmsServerToClient
-                                                 where a == b
+                                                 where a == b.Key
                                                  select a).FirstOrDefault();
             if (string.IsNullOrEmpty(serverDecryptionAlgorithmName))
             {
@@ -99,9 +99,9 @@ namespace Renci.SshNet.Security
             session.ConnectionInfo.CurrentServerEncryption = serverDecryptionAlgorithmName;
 
             //  Determine client hmac algorithm
-            var clientHmacAlgorithmName = (from b in session.ConnectionInfo.HmacAlgorithms.Keys
+            var clientHmacAlgorithmName = (from b in session.ConnectionInfo.HmacAlgorithms.OrderByDescending(x => x.Value.Priority)
                                            from a in message.MacAlgorithmsClientToServer
-                                           where a == b
+                                           where a == b.Key
                                            select a).FirstOrDefault();
             if (string.IsNullOrEmpty(clientHmacAlgorithmName))
             {
@@ -111,9 +111,9 @@ namespace Renci.SshNet.Security
             session.ConnectionInfo.CurrentClientHmacAlgorithm = clientHmacAlgorithmName;
 
             //  Determine server hmac algorithm
-            var serverHmacAlgorithmName = (from b in session.ConnectionInfo.HmacAlgorithms.Keys
+            var serverHmacAlgorithmName = (from b in session.ConnectionInfo.HmacAlgorithms.OrderByDescending(x => x.Value.Priority)
                                            from a in message.MacAlgorithmsServerToClient
-                                           where a == b
+                                           where a == b.Key
                                            select a).FirstOrDefault();
             if (string.IsNullOrEmpty(serverHmacAlgorithmName))
             {

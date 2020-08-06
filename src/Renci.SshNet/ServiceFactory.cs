@@ -84,7 +84,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="clientAlgorithms"/> is <c>null</c>.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="serverAlgorithms"/> is <c>null</c>.</exception>
         /// <exception cref="SshConnectionException">No key exchange algorithms are supported by both client and server.</exception>
-        public IKeyExchange CreateKeyExchange(IDictionary<string, Type> clientAlgorithms, string[] serverAlgorithms)
+        public IKeyExchange CreateKeyExchange(IDictionary<string, TypeWithPriority> clientAlgorithms, string[] serverAlgorithms)
         {
             if (clientAlgorithms == null)
                 throw new ArgumentNullException("clientAlgorithms");
@@ -95,14 +95,16 @@ namespace Renci.SshNet
             var keyExchangeAlgorithmType = (from c in clientAlgorithms
                                             from s in serverAlgorithms
                                             where s == c.Key
-                                            select c.Value).FirstOrDefault();
+                                            select c.Value)
+                .OrderByDescending(x => x.Priority)
+                .FirstOrDefault();
 
             if (keyExchangeAlgorithmType == null)
             {
                 throw new SshConnectionException("Failed to negotiate key exchange algorithm.", DisconnectReason.KeyExchangeFailed);
             }
 
-            return keyExchangeAlgorithmType.CreateInstance<IKeyExchange>();
+            return keyExchangeAlgorithmType.Type.CreateInstance<IKeyExchange>();
         }
 
         public ISftpFileReader CreateSftpFileReader(string fileName, ISftpSession sftpSession, uint bufferSize)

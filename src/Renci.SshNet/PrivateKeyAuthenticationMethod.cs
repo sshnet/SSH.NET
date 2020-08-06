@@ -64,13 +64,16 @@ namespace Renci.SshNet
             {
                 foreach (var keyFile in KeyFiles)
                 {
+                    var certificateData = keyFile.Certificate != null 
+                        ? keyFile.Certificate.Split()
+                        : null;
                     _authenticationCompleted.Reset();
                     _isSignatureRequired = false;
 
                     var message = new RequestMessagePublicKey(ServiceName.Connection,
                                                               Username,
-                                                              keyFile.HostKey.Name,
-                                                              keyFile.HostKey.Data);
+                                                              certificateData != null ? certificateData[0] : keyFile.HostKey.Name,
+                                                              certificateData != null ? Convert.FromBase64String(certificateData[1]) : keyFile.HostKey.Data);
 
                     if (KeyFiles.Count < 2)
                     {
@@ -91,8 +94,8 @@ namespace Renci.SshNet
 
                         var signatureMessage = new RequestMessagePublicKey(ServiceName.Connection,
                                                                            Username,
-                                                                           keyFile.HostKey.Name,
-                                                                           keyFile.HostKey.Data);
+                                                                           certificateData != null ? certificateData[0] : keyFile.HostKey.Name,
+                                                                           certificateData != null ? Convert.FromBase64String(certificateData[1]) : keyFile.HostKey.Data);
 
                         var signatureData = new SignatureData(message, session.SessionId).GetBytes();
 

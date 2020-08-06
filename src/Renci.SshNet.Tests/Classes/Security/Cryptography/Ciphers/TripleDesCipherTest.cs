@@ -35,7 +35,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
         {
             var connectionInfo = new PasswordConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD);
             connectionInfo.Encryptions.Clear();
-            connectionInfo.Encryptions.Add("3des-cbc", new CipherInfo(192, (key, iv) => { return new TripleDesCipher(key, new CbcCipherMode(iv), null); }));
+            connectionInfo.Encryptions.Add("3des-cbc", new CipherInfo(192, 1, (key, iv) => { return new TripleDesCipher(key, new CbcCipherMode(iv), null); }));
 
             using (var client = new SshClient(connectionInfo))
             {

@@ -38,6 +38,7 @@ the missing test once you figure things out.  🤓
 * Supports publickey, password and keyboard-interactive authentication methods 
 * Supports two-factor or higher authentication
 * Supports SOCKS4, SOCKS5 and HTTP Proxy
+* Supports both client and host-side OpenSSH certificates (ssh-rsa-cert-v01@openssh.com) *[added by msvprogs]*
 
 ## Encryption Method
 

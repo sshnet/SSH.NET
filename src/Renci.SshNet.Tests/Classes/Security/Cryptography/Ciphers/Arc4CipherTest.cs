@@ -165,7 +165,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
         {
             var connectionInfo = new PasswordConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD);
             connectionInfo.Encryptions.Clear();
-            connectionInfo.Encryptions.Add("arcfour128", new CipherInfo(128, (key, iv) => { return new Arc4Cipher(key, true); }));
+            connectionInfo.Encryptions.Add("arcfour128", new CipherInfo(128, 1, (key, iv) => { return new Arc4Cipher(key, true); }));
 
             using (var client = new SshClient(connectionInfo))
             {
@@ -182,7 +182,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
         {
             var connectionInfo = new PasswordConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD);
             connectionInfo.Encryptions.Clear();
-            connectionInfo.Encryptions.Add("arcfour256", new CipherInfo(256, (key, iv) => { return new Arc4Cipher(key, true); }));
+            connectionInfo.Encryptions.Add("arcfour256", new CipherInfo(256, 1, (key, iv) => { return new Arc4Cipher(key, true); }));
 
             using (var client = new SshClient(connectionInfo))
             {

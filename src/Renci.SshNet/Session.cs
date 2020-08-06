@@ -317,11 +317,14 @@ namespace Renci.SshNet
                     _clientInitMessage = new KeyExchangeInitMessage
                         {
                             KeyExchangeAlgorithms = ConnectionInfo.KeyExchangeAlgorithms.Keys.ToArray(),
-                            ServerHostKeyAlgorithms = ConnectionInfo.HostKeyAlgorithms.Keys.ToArray(),
-                            EncryptionAlgorithmsClientToServer = ConnectionInfo.Encryptions.Keys.ToArray(),
-                            EncryptionAlgorithmsServerToClient = ConnectionInfo.Encryptions.Keys.ToArray(),
-                            MacAlgorithmsClientToServer = ConnectionInfo.HmacAlgorithms.Keys.ToArray(),
-                            MacAlgorithmsServerToClient = ConnectionInfo.HmacAlgorithms.Keys.ToArray(),
+                            ServerHostKeyAlgorithms = ConnectionInfo.HostKeyAlgorithms
+                                .OrderByDescending(x => x.Value.Invoke(null).Priority)
+                                .Select(x => x.Key)
+                                .ToArray(),
+                            EncryptionAlgorithmsClientToServer = ConnectionInfo.Encryptions.OrderByDescending(x => x.Value.Priority).Select(x => x.Key).ToArray(),
+                            EncryptionAlgorithmsServerToClient = ConnectionInfo.Encryptions.OrderByDescending(x => x.Value.Priority).Select(x => x.Key).ToArray(),
+                            MacAlgorithmsClientToServer = ConnectionInfo.HmacAlgorithms.OrderByDescending(x => x.Value.Priority).Select(x => x.Key).ToArray(),
+                            MacAlgorithmsServerToClient = ConnectionInfo.HmacAlgorithms.OrderByDescending(x => x.Value.Priority).Select(x => x.Key).ToArray(),
                             CompressionAlgorithmsClientToServer = ConnectionInfo.CompressionAlgorithms.Keys.ToArray(),
                             CompressionAlgorithmsServerToClient = ConnectionInfo.CompressionAlgorithms.Keys.ToArray(),
                             LanguagesClientToServer = new[] {string.Empty},
@@ -729,7 +732,8 @@ namespace Renci.SshNet
             // has completed
             if (_messageListenerCompleted != null)
             {
-                _messageListenerCompleted.WaitOne();
+                if (!_messageListenerCompleted.WaitOne(TimeSpan.FromMinutes(1)))
+                    DiagnosticAbstraction.Log(string.Format("[{0}] Timeout while waiting for message listener to complete.", ToHex(SessionId)));
             }
         }
 
@@ -1902,7 +1906,7 @@ namespace Renci.SshNet
                                 // this may result in a SocketException (eg. An existing connection was forcibly
                                 // closed by the remote host) which we'll log and ignore as it means the socket
                                 // was already shut down
-                                _socket.Shutdown(SocketShutdown.Send);
+                                _socket.Shutdown(SocketShutdown.Both);
                             }
                             catch (SocketException ex)
                             {
@@ -2022,7 +2026,8 @@ namespace Renci.SshNet
             finally
             {
                 // signal that the message listener thread has stopped
-                _messageListenerCompleted.Set();
+                if (_messageListenerCompleted != null)
+                    _messageListenerCompleted.Set();
             }
         }
 

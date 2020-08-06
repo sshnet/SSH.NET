@@ -80,6 +80,11 @@ namespace Renci.SshNet
         public HostAlgorithm HostKey { get; private set; }
 
         /// <summary>
+        /// ssh-rsa-cert-v01 certificate
+        /// </summary>
+        public string Certificate { get; set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="PrivateKeyFile"/> class.
         /// </summary>
         /// <param name="privateKey">The private key.</param>
@@ -174,22 +179,22 @@ namespace Renci.SshNet
                 switch (cipherName)
                 {
                     case "DES-EDE3-CBC":
-                        cipher = new CipherInfo(192, (key, iv) => new TripleDesCipher(key, new CbcCipherMode(iv), new PKCS7Padding()));
+                        cipher = new CipherInfo(192, 0, (key, iv) => new TripleDesCipher(key, new CbcCipherMode(iv), new PKCS7Padding()));
                         break;
                     case "DES-EDE3-CFB":
-                        cipher = new CipherInfo(192, (key, iv) => new TripleDesCipher(key, new CfbCipherMode(iv), new PKCS7Padding()));
+                        cipher = new CipherInfo(192, 0, (key, iv) => new TripleDesCipher(key, new CfbCipherMode(iv), new PKCS7Padding()));
                         break;
                     case "DES-CBC":
-                        cipher = new CipherInfo(64, (key, iv) => new DesCipher(key, new CbcCipherMode(iv), new PKCS7Padding()));
+                        cipher = new CipherInfo(64, 0, (key, iv) => new DesCipher(key, new CbcCipherMode(iv), new PKCS7Padding()));
                         break;
                     case "AES-128-CBC":
-                        cipher = new CipherInfo(128, (key, iv) => new AesCipher(key, new CbcCipherMode(iv), new PKCS7Padding()));
+                        cipher = new CipherInfo(128, 0, (key, iv) => new AesCipher(key, new CbcCipherMode(iv), new PKCS7Padding()));
                         break;
                     case "AES-192-CBC":
-                        cipher = new CipherInfo(192, (key, iv) => new AesCipher(key, new CbcCipherMode(iv), new PKCS7Padding()));
+                        cipher = new CipherInfo(192, 0, (key, iv) => new AesCipher(key, new CbcCipherMode(iv), new PKCS7Padding()));
                         break;
                     case "AES-256-CBC":
-                        cipher = new CipherInfo(256, (key, iv) => new AesCipher(key, new CbcCipherMode(iv), new PKCS7Padding()));
+                        cipher = new CipherInfo(256, 0, (key, iv) => new AesCipher(key, new CbcCipherMode(iv), new PKCS7Padding()));
                         break;
                     default:
                         throw new SshException(string.Format(CultureInfo.CurrentCulture, "Private key cipher \"{0}\" is not supported.", cipherName));

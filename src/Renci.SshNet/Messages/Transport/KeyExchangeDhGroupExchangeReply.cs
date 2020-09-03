@@ -10,8 +10,6 @@ namespace Renci.SshNet.Messages.Transport
     {
         internal const byte MessageNumber = 33;
 
-        private byte[] _fBytes;
-
         /// <summary>
         /// Gets server public host key and certificates
         /// </summary>
@@ -21,10 +19,7 @@ namespace Renci.SshNet.Messages.Transport
         /// <summary>
         /// Gets the F value.
         /// </summary>
-        public BigInteger F
-        {
-            get { return _fBytes.ToBigInteger(); }
-        }
+        public byte[] F { get; private set; }
 
         /// <summary>
         /// Gets the signature of H.
@@ -46,7 +41,7 @@ namespace Renci.SshNet.Messages.Transport
                 capacity += 4; // HostKey length
                 capacity += HostKey.Length; // HostKey
                 capacity += 4; // F length
-                capacity += _fBytes.Length; // F
+                capacity += F.Length; // F
                 capacity += 4; // Signature length
                 capacity += Signature.Length; // Signature
                 return capacity;
@@ -59,7 +54,7 @@ namespace Renci.SshNet.Messages.Transport
         protected override void LoadData()
         {
             HostKey = ReadBinary();
-            _fBytes = ReadBinary();
+            F = ReadBinary();
             Signature = ReadBinary();
         }
 
@@ -69,7 +64,7 @@ namespace Renci.SshNet.Messages.Transport
         protected override void SaveData()
         {
             WriteBinaryString(HostKey);
-            WriteBinaryString(_fBytes);
+            WriteBinaryString(F);
             WriteBinaryString(Signature);
         }
 

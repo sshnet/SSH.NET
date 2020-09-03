@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Globalization;
 using Renci.SshNet.Common;
+using System.Diagnostics;
 
 namespace Renci.SshNet.Sftp
 {
@@ -11,7 +12,7 @@ namespace Renci.SshNet.Sftp
     /// </summary>
     public class SftpFileAttributes
     {
-        #region Bitmask constats
+        #region Bitmask constants
 
         private const uint S_IFMT = 0xF000; //  bitmask for the file type bitfields
 
@@ -60,8 +61,8 @@ namespace Renci.SshNet.Sftp
         private bool _isGroupIDBitSet;
         private bool _isStickyBitSet;
 
-        private readonly DateTime _originalLastAccessTime;
-        private readonly DateTime _originalLastWriteTime;
+        private readonly DateTime _originalLastAccessTimeUtc;
+        private readonly DateTime _originalLastWriteTimeUtc;
         private readonly long _originalSize;
         private readonly int _originalUserId;
         private readonly int _originalGroupId;
@@ -70,12 +71,12 @@ namespace Renci.SshNet.Sftp
 
         internal bool IsLastAccessTimeChanged
         {
-            get { return _originalLastAccessTime != LastAccessTime; }
+            get { return _originalLastAccessTimeUtc != LastAccessTimeUtc; }
         }
 
         internal bool IsLastWriteTimeChanged
         {
-            get { return _originalLastWriteTime != LastWriteTime; }
+            get { return _originalLastWriteTimeUtc != LastWriteTimeUtc; }
         }
 
         internal bool IsSizeChanged
@@ -104,20 +105,58 @@ namespace Renci.SshNet.Sftp
         }
 
         /// <summary>
-        /// Gets or sets the time the current file or directory was last accessed.
+        /// Gets or sets the local time the current file or directory was last accessed.
         /// </summary>
         /// <value>
-        /// The time that the current file or directory was last accessed.
+        /// The local time that the current file or directory was last accessed.
         /// </value>
-        public DateTime LastAccessTime { get; set; }
+        public DateTime LastAccessTime
+        {
+            get
+            {
+                return ToLocalTime(this.LastAccessTimeUtc);
+            }
+
+            set
+            {
+                this.LastAccessTimeUtc = ToUniversalTime(value);
+            }
+        }
 
         /// <summary>
-        /// Gets or sets the time when the current file or directory was last written to.
+        /// Gets or sets the local time when the current file or directory was last written to.
         /// </summary>
         /// <value>
-        /// The time the current file was last written.
+        /// The local time the current file was last written.
         /// </value>
-        public DateTime LastWriteTime { get; set; }
+        public DateTime LastWriteTime
+        {
+            get
+            {
+                return ToLocalTime(this.LastWriteTimeUtc);
+            }
+
+            set
+            {
+                this.LastWriteTimeUtc = ToUniversalTime(value);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the UTC time the current file or directory was last accessed.
+        /// </summary>
+        /// <value>
+        /// The UTC time that the current file or directory was last accessed.
+        /// </value>
+        public DateTime LastAccessTimeUtc { get; set; }
+
+        /// <summary>
+        /// Gets or sets the UTC time when the current file or directory was last written to.
+        /// </summary>
+        /// <value>
+        /// The UTC time the current file was last written.
+        /// </value>
+        public DateTime LastWriteTimeUtc { get; set; }
 
         /// <summary>
         /// Gets or sets the size, in bytes, of the current file.
@@ -395,10 +434,10 @@ namespace Renci.SshNet.Sftp
         {
         }
 
-        internal SftpFileAttributes(DateTime lastAccessTime, DateTime lastWriteTime, long size, int userId, int groupId, uint permissions, IDictionary<string, string> extensions)
+        internal SftpFileAttributes(DateTime lastAccessTimeUtc, DateTime lastWriteTimeUtc, long size, int userId, int groupId, uint permissions, IDictionary<string, string> extensions)
         {
-            LastAccessTime = _originalLastAccessTime = lastAccessTime;
-            LastWriteTime = _originalLastWriteTime = lastWriteTime;
+            LastAccessTimeUtc = _originalLastAccessTimeUtc = lastAccessTimeUtc;
+            LastWriteTimeUtc = _originalLastWriteTimeUtc = lastWriteTimeUtc;
             Size = _originalSize = size;
             UserId = _originalUserId = userId;
             GroupId = _originalGroupId = groupId;
@@ -491,9 +530,9 @@ namespace Renci.SshNet.Sftp
 
             if (IsLastAccessTimeChanged || IsLastWriteTimeChanged)
             {
-                var time = (uint)(LastAccessTime.ToFileTime() / 10000000 - 11644473600);
+                var time = (uint)(LastAccessTimeUtc.ToFileTimeUtc() / 10000000 - 11644473600);
                 stream.Write(time);
-                time = (uint)(LastWriteTime.ToFileTime() / 10000000 - 11644473600);
+                time = (uint)(LastWriteTimeUtc.ToFileTimeUtc() / 10000000 - 11644473600);
                 stream.Write(time);
             }
 
@@ -521,8 +560,8 @@ namespace Renci.SshNet.Sftp
             var userId = -1;
             var groupId = -1;
             uint permissions = 0;
-            var accessTime = DateTime.MinValue;
-            var modifyTime = DateTime.MinValue;
+            DateTime accessTime;
+            DateTime modifyTime;
             IDictionary<string, string> extensions = null;
 
             if ((flag & 0x00000001) == 0x00000001)   //  SSH_FILEXFER_ATTR_SIZE
@@ -544,10 +583,17 @@ namespace Renci.SshNet.Sftp
 
             if ((flag & 0x00000008) == 0x00000008)   //  SSH_FILEXFER_ATTR_ACMODTIME
             {
+                // The incoming times are "Unix times", so they're already in UTC.  We need to preserve that
+                // to avoid losing information in a local time conversion during the "fall back" hour in DST.
                 var time = stream.ReadUInt32();
-                accessTime = DateTime.FromFileTime((time + 11644473600) * 10000000);
+                accessTime = DateTime.FromFileTimeUtc((time + 11644473600) * 10000000);
                 time = stream.ReadUInt32();
-                modifyTime = DateTime.FromFileTime((time + 11644473600) * 10000000);
+                modifyTime = DateTime.FromFileTimeUtc((time + 11644473600) * 10000000);
+            }
+            else
+            {
+                accessTime = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Utc);
+                modifyTime = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Utc);
             }
 
             if ((flag & 0x80000000) == 0x80000000)   //  SSH_FILEXFER_ATTR_EXTENDED
@@ -571,6 +617,38 @@ namespace Renci.SshNet.Sftp
             {
                 return FromBytes(stream);
             }
+        }
+
+        private static DateTime ToLocalTime(DateTime value)
+        {
+            DateTime result;
+
+            if (value == DateTime.MinValue)
+            {
+                result = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Local);
+            }
+            else
+            {
+                result = value.ToLocalTime();
+            }
+
+            return result;
+        }
+
+        private static DateTime ToUniversalTime(DateTime value)
+        {
+            DateTime result;
+
+            if (value == DateTime.MinValue)
+            {
+                result = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Utc);
+            }
+            else
+            {
+                result = value.ToUniversalTime();
+            }
+
+            return result;
         }
     }
 }

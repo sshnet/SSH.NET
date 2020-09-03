@@ -1,4 +1,6 @@
-﻿namespace Renci.SshNet.Security
+﻿using Renci.SshNet.Abstractions;
+
+namespace Renci.SshNet.Security
 {
     /// <summary>
     /// Represents "diffie-hellman-group-exchange-sha1" algorithm implementation.
@@ -22,6 +24,21 @@
         protected override int HashSize
         {
             get { return 160; }
+        }
+
+        /// <summary>
+        /// Hashes the specified data bytes.
+        /// </summary>
+        /// <param name="hashData">The hash data.</param>
+        /// <returns>
+        /// Hashed bytes
+        /// </returns>
+        protected override byte[] Hash(byte[] hashData)
+        {
+            using (var sha1 = CryptoAbstraction.CreateSHA1())
+            {
+                return sha1.ComputeHash(hashData, 0, hashData.Length);
+            }
         }
     }
 }

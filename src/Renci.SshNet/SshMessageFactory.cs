@@ -25,7 +25,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Defines the total number of supported messages.
         /// </summary>
-        internal const int TotalMessageCount = 31;
+        internal const int TotalMessageCount = 32;
 
         static SshMessageFactory()
         {
@@ -61,7 +61,8 @@ namespace Renci.SshNet
                 new MessageMetadata<ServiceAcceptMessage> (27, "SSH_MSG_SERVICE_ACCEPT", 6),
                 new MessageMetadata<KeyExchangeDhGroupExchangeGroup> (28, "SSH_MSG_KEX_DH_GEX_GROUP", 31),
                 new MessageMetadata<KeyExchangeDhReplyMessage> (29, "SSH_MSG_KEXDH_REPLY", 31),
-                new MessageMetadata<KeyExchangeDhGroupExchangeReply> (30, "SSH_MSG_KEX_DH_GEX_REPLY", 33)
+                new MessageMetadata<KeyExchangeDhGroupExchangeReply> (30, "SSH_MSG_KEX_DH_GEX_REPLY", 33),
+                new MessageMetadata<KeyExchangeEcdhReplyMessage> (31, "SSH_MSG_KEX_ECDH_REPLY", 31)
             };
 
             MessagesByName = new Dictionary<string, MessageMetadata>(AllMessages.Length);

@@ -36,13 +36,13 @@
   <outputPaths>{@HelpFormatOutputPaths}</outputPaths>
   <allowMissingSource value="false" />
   <removeRegionMarkers value="false" />
-  <colorizer syntaxFile="{@SHFBFolder}PresentationStyles\Colorizer\highlight.xml" styleFile="{@SHFBFolder}PresentationStyles\Colorizer\highlight.xsl" stylesheet="{@SHFBFolder}PresentationStyles\Colorizer\highlight.css" scriptFile="{@SHFBFolder}PresentationStyles\Colorizer\highlight.js" disabled="{@DisableCodeBlockComponent}" language="cs" tabSize="0" numberLines="false" outlining="false" keepSeeTags="false" defaultTitle="true" />
+  <colorizer syntaxFile="{@SHFBROOT}\PresentationStyles\Colorizer\highlight.xml" styleFile="{@SHFBROOT}\PresentationStyles\Colorizer\highlight.xsl" stylesheet="{@SHFBROOT}\PresentationStyles\Colorizer\highlight.css" scriptFile="{@SHFBROOT}\PresentationStyles\Colorizer\highlight.js" disabled="{@DisableCodeBlockComponent}" language="cs" tabSize="0" numberLines="false" outlining="false" keepSeeTags="false" defaultTitle="true" />
 </component>
       </ComponentConfig>
     </ComponentConfigurations>
     <DocumentationSources>
-      <DocumentationSource sourceFile="..\..\src\Renci.SshNet\bin\Release\Renci.SshNet.dll" xmlns="" />
-      <DocumentationSource sourceFile="..\..\src\Renci.SshNet\bin\Release\Renci.SshNet.xml" xmlns="" />
+      <DocumentationSource sourceFile="..\..\src\Renci.SshNet\bin\Release\net40\Renci.SshNet.dll" xmlns="" />
+      <DocumentationSource sourceFile="..\..\src\Renci.SshNet\bin\Release\net40\Renci.SshNet.xml" xmlns="" />
     </DocumentationSources>
     <MissingTags>Summary, Parameter, Returns, AutoDocumentCtors, TypeParameter, AutoDocumentDispose</MissingTags>
     <BuildAssemblerVerbosity>OnlyWarningsAndErrors</BuildAssemblerVerbosity>
@@ -72,5 +72,5 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|Win32' ">
   </PropertyGroup>
   <!-- Import the SHFB build targets -->
-  <Import Project="$(SHFBFolder)\SandcastleHelpFileBuilder.targets" />
+  <Import Project="$(SHFBROOT)\SandcastleHelpFileBuilder.targets" />
 </Project>

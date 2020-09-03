@@ -16,7 +16,7 @@ namespace Renci.SshNet
     /// <summary>
     /// Implementation of the SSH File Transfer Protocol (SFTP) over SSH.
     /// </summary>
-    public class SftpClient : BaseClient
+    public class SftpClient : BaseClient, ISftpClient
     {
         private static readonly Encoding Utf8NoBOM = new UTF8Encoding(false, true);
 

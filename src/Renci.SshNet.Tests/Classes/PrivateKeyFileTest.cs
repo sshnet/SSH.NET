@@ -319,6 +319,72 @@ namespace Renci.SshNet.Tests.Classes
             }
         }
 
+        [TestMethod]
+        [Owner("darinkes")]
+        [TestCategory("PrivateKey")]
+        public void Test_PrivateKey_ECDSA()
+        {
+            using (var stream = GetData("Key.ECDSA.txt"))
+            {
+                new PrivateKeyFile(stream);
+            }
+        }
+
+        [TestMethod]
+        [Owner("darinkes")]
+        [TestCategory("PrivateKey")]
+        public void Test_PrivateKey_ECDSA384()
+        {
+            using (var stream = GetData("Key.ECDSA384.txt"))
+            {
+                new PrivateKeyFile(stream);
+            }
+        }
+
+        [TestMethod]
+        [Owner("darinkes")]
+        [TestCategory("PrivateKey")]
+        public void Test_PrivateKey_ECDSA521()
+        {
+            using (var stream = GetData("Key.ECDSA521.txt"))
+            {
+                new PrivateKeyFile(stream);
+            }
+        }
+
+        [TestMethod]
+        [Owner("darinkes")]
+        [TestCategory("PrivateKey")]
+        public void Test_PrivateKey_ECDSA_Encrypted()
+        {
+            using (var stream = GetData("Key.ECDSA.Encrypted.txt"))
+            {
+                new PrivateKeyFile(stream, "12345");
+            }
+        }
+
+        [TestMethod]
+        [Owner("darinkes")]
+        [TestCategory("PrivateKey")]
+        public void Test_PrivateKey_ECDSA384_Encrypted()
+        {
+            using (var stream = GetData("Key.ECDSA384.Encrypted.txt"))
+            {
+                new PrivateKeyFile(stream, "12345");
+            }
+        }
+
+        [TestMethod]
+        [Owner("darinkes")]
+        [TestCategory("PrivateKey")]
+        public void Test_PrivateKey_ECDSA521_Encrypted()
+        {
+            using (var stream = GetData("Key.ECDSA521.Encrypted.txt"))
+            {
+                new PrivateKeyFile(stream, "12345");
+            }
+        }
+
         /// <summary>
         ///A test for Dispose
         ///</summary>
@@ -476,6 +542,34 @@ namespace Renci.SshNet.Tests.Classes
                 Assert.IsNotNull(privateKeyFile.HostKey);
 
                 fs.Close();
+            }
+        }
+
+        /// <summary>
+        /// A test for opening an openssh v1 keyfile where there is no passphrase.
+        ///</summary>
+        [TestMethod()]
+        [Owner("bhalbright")]
+        [TestCategory("PrivateKey")]
+        public void TestOpenSshV1KeyFileNoPassphrase()
+        {
+            using (var stream = GetData("Key.OPENSSH.ED25519.txt"))
+            {
+                new PrivateKeyFile(stream);
+            }
+        }
+
+        /// <summary>
+        /// A test for opening an openssh v1 keyfile where there is a passphrase.
+        ///</summary>
+        [TestMethod()]
+        [Owner("bhalbright")]
+        [TestCategory("PrivateKey")]
+        public void TestOpenSshV1KeyFileWithPassphrase()
+        {
+            using (var stream = GetData("Key.OPENSSH.ED25519.Encrypted.txt"))
+            {
+                new PrivateKeyFile(stream, "password");
             }
         }
 

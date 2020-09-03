@@ -19,7 +19,7 @@ namespace Renci.SshNet.Security
         /// </returns>
         protected override byte[] CalculateHash()
         {
-            var hashData = new GroupExchangeHashData
+            var groupExchangeHashData = new GroupExchangeHashData
                 {
                     ClientVersion = Session.ClientVersion,
                     ServerVersion = Session.ServerVersion,
@@ -34,9 +34,9 @@ namespace Renci.SshNet.Security
                     ClientExchangeValue = _clientExchangeValue,
                     ServerExchangeValue = _serverExchangeValue,
                     SharedKey = SharedKey,
-                }.GetBytes();
+                };
 
-            return Hash(hashData);
+            return Hash(groupExchangeHashData.GetBytes());
         }
 
         /// <summary>
@@ -54,8 +54,7 @@ namespace Renci.SshNet.Security
             Session.KeyExchangeDhGroupExchangeGroupReceived += Session_KeyExchangeDhGroupExchangeGroupReceived;
 
             // 1. client sends SSH_MSG_KEY_DH_GEX_REQUEST
-            SendMessage(new KeyExchangeDhGroupExchangeRequest(MinimumGroupSize, PreferredGroupSize,
-                MaximumProupSize));
+            SendMessage(new KeyExchangeDhGroupExchangeRequest(MinimumGroupSize, PreferredGroupSize, MaximumProupSize));
         }
 
         /// <summary>

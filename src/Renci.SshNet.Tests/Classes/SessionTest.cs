@@ -3,9 +3,11 @@ using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Renci.SshNet.Common;
+using Renci.SshNet.Messages.Transport;
 using Renci.SshNet.Tests.Common;
 using Renci.SshNet.Tests.Properties;
 
@@ -97,6 +99,53 @@ namespace Renci.SshNet.Tests.Classes
                 }
             }
         }
+
+        [TestMethod]
+        public void ConnectShouldImmediatelySendIdentificationStringWhenConnectionHasBeenEstablised()
+        {
+            var serverEndPoint = new IPEndPoint(IPAddress.Loopback, 8122);
+            var connectionInfo = CreateConnectionInfo(serverEndPoint, TimeSpan.FromSeconds(5));
+
+            using (var serverStub = new AsyncSocketListener(serverEndPoint))
+            {
+                serverStub.Connected += socket =>
+                    {
+                        var identificationBytes = new byte[2048];
+                        var bytesReceived = socket.Receive(identificationBytes);
+
+                        if (bytesReceived > 0)
+                        {
+                            var identificationSttring = Encoding.ASCII.GetString(identificationBytes, 0, bytesReceived);
+                            Console.WriteLine("STRING=" + identificationSttring);
+                            Console.WriteLine("DONE");
+
+                            socket.Send(Encoding.ASCII.GetBytes("\r\n"));
+                            socket.Send(Encoding.ASCII.GetBytes("WELCOME banner\r\n"));
+                            socket.Send(Encoding.ASCII.GetBytes("SSH-666-SshStub\r\n"));
+                        }
+
+                        socket.Shutdown(SocketShutdown.Send);
+                    };
+                serverStub.Start();
+
+                using (var session = new Session(connectionInfo, _serviceFactoryMock.Object))
+                {
+                    try
+                    {
+                        session.Connect();
+                        Assert.Fail();
+                    }
+                    catch (SshConnectionException ex)
+                    {
+                        Assert.IsNull(ex.InnerException);
+                        Assert.AreEqual("Server version '666' is not supported.", ex.Message);
+
+                        Assert.AreEqual("SSH-666-SshStub", connectionInfo.ServerVersion);
+                    }
+                }
+            }
+        }
+
 
         [TestMethod]
         public void ConnectShouldSupportProtocolIdentificationStringThatDoesNotEndWithCrlf()

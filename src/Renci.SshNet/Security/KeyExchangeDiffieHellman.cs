@@ -33,12 +33,12 @@ namespace Renci.SshNet.Security
         /// <summary>
         /// Specifies client exchange number.
         /// </summary>
-        protected BigInteger _clientExchangeValue;
+        protected byte[] _clientExchangeValue;
 
         /// <summary>
         /// Specifies server exchange number.
         /// </summary>
-        protected BigInteger _serverExchangeValue;
+        protected byte[] _serverExchangeValue;
 
         /// <summary>
         /// Specifies random generated number.
@@ -114,13 +114,17 @@ namespace Renci.SshNet.Security
             // of 1024 bits (whatever is less)
             var privateExponentSize = Math.Max(HashSize * 2, 1024);
 
+            BigInteger clientExchangeValue;
+
             do
             {
                 // create private component
                 _privateExponent = BigInteger.Random(privateExponentSize);
                 // generate public component
-                _clientExchangeValue = BigInteger.ModPow(_group, _privateExponent, _prime);
-            } while (_clientExchangeValue < 1 || _clientExchangeValue > (_prime - 1));
+                clientExchangeValue = BigInteger.ModPow(_group, _privateExponent, _prime);
+            } while (clientExchangeValue < 1 || clientExchangeValue > (_prime - 1));
+
+            _clientExchangeValue = clientExchangeValue.ToByteArray().Reverse();
         }
 
         /// <summary>
@@ -129,11 +133,11 @@ namespace Renci.SshNet.Security
         /// <param name="hostKey">The host key.</param>
         /// <param name="serverExchangeValue">The server exchange value.</param>
         /// <param name="signature">The signature.</param>
-        protected virtual void HandleServerDhReply(byte[] hostKey, BigInteger serverExchangeValue, byte[] signature)
+        protected virtual void HandleServerDhReply(byte[] hostKey, byte[] serverExchangeValue, byte[] signature)
         {
             _serverExchangeValue = serverExchangeValue;
             _hostKey = hostKey;
-            SharedKey = BigInteger.ModPow(serverExchangeValue, _privateExponent, _prime);
+            SharedKey = BigInteger.ModPow(serverExchangeValue.ToBigInteger(), _privateExponent, _prime).ToByteArray().Reverse();
             _signature = signature;
         }
     }

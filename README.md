@@ -119,6 +119,7 @@ Private keys can be encrypted using one of the following cipher methods:
 * .NET Framework 3.5
 * .NET Framework 4.0 (and higher)
 * .NET Standard 1.3
+* .NET Standard 2.0
 * Silverlight 4
 * Silverlight 5
 * Windows Phone 7.1
@@ -179,11 +180,14 @@ using (var client = new SshClient("sftp.foo.com", "guest", "pwd"))
 
 ## Building SSH.NET
 
-Software                          | net35 | net40 | netstandard1.3 | sl4 | sl5 | wp71 | wp8 | uap10.0 |
---------------------------------- | :---: | :---: | :------------: | :-: | :-: | :--: | :-: | :-----: |
-Windows Phone SDK 8.0             |       |       |                | x   | x   | x    | x   |
-Visual Studio 2012 Update 5       | x     | x     |                | x   | x   | x    | x   |
-Visual Studio 2015 Update 3       | x     | x     |                |     | x   |      | x   | x
-Visual Studio 2017                |       | x     | x              |     |     |      |     | 
+Software                          | net35 | net40 | netstandard1.3 | netstandard2.0 | sl4 | sl5 | wp71 | wp8 | uap10.0 |
+--------------------------------- | :---: | :---: | :------------: | :------------: | :-: | :-: | :--: | :-: | :-----: |
+Windows Phone SDK 8.0             |       |       |                |                | x   | x   | x    | x   |
+Visual Studio 2012 Update 5       | x     | x     |                |                | x   | x   | x    | x   |
+Visual Studio 2015 Update 3       | x     | x     |                |                |     | x   |      | x   | x
+Visual Studio 2017                | x     | x     | x              | x              |     |     |      |     | 
+Visual Studio 2019                | x     | x     | x              | x              |     |     |      |     | 
 
-[![NDepend](http://download-codeplex.sec.s-msft.com/Download?ProjectName=sshnet&DownloadId=629750)](http://ndepend.com)
+## Supporting SSH.NET
+
+Do you or your company rely on **SSH.NET** in your projects? If you want to encourage us to keep on going and show us that you appreciate our work, please consider becoming a [sponsor](https://github.com/sponsors/sshnet) through GitHub Sponsors.

@@ -18,7 +18,7 @@ namespace Renci.SshNet.Security
         internal const string ECDSA_P384_OID_VALUE = "1.3.132.0.34"; // Also called nistP384 or secP384r1
         internal const string ECDSA_P521_OID_VALUE = "1.3.132.0.35"; // Also called nistP521or secP521r1
 
-#if !(NETSTANDARD2_0 || NETSTANDARD2_1 || NETCOREAPP3_0 || NETCOREAPP3_1)
+#if !NETSTANDARD2_0
         internal enum KeyBlobMagicNumber : int
         {
             BCRYPT_ECDSA_PUBLIC_P256_MAGIC = 0x31534345,
@@ -57,7 +57,7 @@ namespace Renci.SshNet.Security
             return string.Format("ecdsa-sha2-nistp{0}", KeyLength);
         }
 
-#if NETSTANDARD2_0 || NETSTANDARD2_1 || NETCOREAPP3_0 || NETCOREAPP3_1
+#if NETSTANDARD2_0
         /// <summary>
         /// Gets the HashAlgorithm to use
         /// </summary>
@@ -144,7 +144,7 @@ namespace Renci.SshNet.Security
                 byte[] curve;
                 byte[] qx;
                 byte[] qy;
-#if NETSTANDARD2_0 || NETSTANDARD2_1 || NETCOREAPP3_0 || NETCOREAPP3_1
+#if NETSTANDARD2_0
                 var parameter = Ecdsa.ExportParameters(false);
                 qx = parameter.Q.X;
                 qy = parameter.Q.Y;
@@ -278,7 +278,7 @@ namespace Renci.SshNet.Security
 
         private void Import(string curve_oid, byte[] publickey, byte[] privatekey)
         {
-#if NETSTANDARD2_0 || NETSTANDARD2_1 || NETCOREAPP3_0 || NETCOREAPP3_1
+#if NETSTANDARD2_0
             var curve = ECCurve.CreateFromValue(curve_oid);
             var parameter = new ECParameters
             {
@@ -416,7 +416,7 @@ namespace Renci.SshNet.Security
             return retVal.ToString();
         }
 
-#region IDisposable Members
+        #region IDisposable Members
 
         private bool _isDisposed;
 
@@ -453,7 +453,7 @@ namespace Renci.SshNet.Security
             Dispose(false);
         }
 
-#endregion
+        #endregion
     }
 }
 #endif

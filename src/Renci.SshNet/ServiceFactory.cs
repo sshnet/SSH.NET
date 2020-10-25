@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Transport;
 using Renci.SshNet.Security;
 using Renci.SshNet.Sftp;
-using Renci.SshNet.Abstractions;
 
 namespace Renci.SshNet
 {
@@ -134,7 +135,7 @@ namespace Renci.SshNet
                 fileSize = null;
                 maxPendingReads = defaultMaxPendingReads;
 
-                DiagnosticAbstraction.Log(string.Format("Failed to obtain size of file. Allowing maximum {0} pending reads: {1}", maxPendingReads, ex));
+                DiagnosticAbstraction.Log($"Failed to obtain size of file. Allowing maximum {maxPendingReads} pending reads: { ex}", TraceEventType.Warning, 21);
             }
 
             return sftpSession.CreateFileReader(handle, sftpSession, chunkSize, maxPendingReads, fileSize);

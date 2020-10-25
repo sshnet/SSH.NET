@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -138,8 +139,7 @@ namespace Renci.SshNet.Channels
                 }
                 catch (SocketException ex)
                 {
-                    // TODO: log as warning
-                    DiagnosticAbstraction.Log("Failure shutting down socket: " + ex);
+                    DiagnosticAbstraction.Log($"Failure shutting down socket: {ex}", TraceEventType.Warning, 15);
                 }
             }
         }

@@ -1,34 +1,47 @@
 ﻿using System.Diagnostics;
-#if FEATURE_DIAGNOSTICS_TRACESOURCE
-using System.Threading;
-#endif // FEATURE_DIAGNOSTICS_TRACESOURCE
 
 namespace Renci.SshNet.Abstractions
 {
-    internal static class DiagnosticAbstraction
+    /// <summary>
+    /// Diagnostics for Renci library
+    /// </summary>
+    public static class DiagnosticAbstraction
     {
 #if FEATURE_DIAGNOSTICS_TRACESOURCE
 
         private static readonly SourceSwitch SourceSwitch = new SourceSwitch("SshNetSwitch");
 
+        /// <summary>
+        /// Whether the specified event type is enabled for tracing or not
+        /// </summary>
+        /// <param name="traceEventType">The trace event type</param>
+        /// <returns>true if enabled for tracing, false otherwise</returns>
         public static bool IsEnabled(TraceEventType traceEventType)
         {
             return SourceSwitch.ShouldTrace(traceEventType);
         }
 
-        private static readonly TraceSource Loggging =
+        /// <summary>
+        /// The trace source for Renci
+        /// </summary>
+        public static readonly TraceSource Logging =
 #if DEBUG
-            new TraceSource("SshNet.Logging", SourceLevels.All);
+            new TraceSource(name: "SshNet.Logging", defaultLevel: SourceLevels.All);
 #else
             new TraceSource("SshNet.Logging");
 #endif // DEBUG
 #endif // FEATURE_DIAGNOSTICS_TRACESOURCE
 
-        [Conditional("DEBUG")]
-        public static void Log(string text)
+        /// <summary>
+        /// Log the provided text
+        /// </summary>
+        /// <param name="text">The text string to log</param>
+        /// <param name="eventType">The trace event type</param>
+        /// <param name="id">A numeric identifier for the event.</param>
+        public static void Log(string text, TraceEventType eventType = TraceEventType.Verbose, int id = 0)
         {
 #if FEATURE_DIAGNOSTICS_TRACESOURCE
-            Loggging.TraceEvent(TraceEventType.Verbose, Thread.CurrentThread.ManagedThreadId, text);
+            Logging.TraceEvent(eventType, id, text);
 #endif // FEATURE_DIAGNOSTICS_TRACESOURCE
         }
     }

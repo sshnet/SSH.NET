@@ -1,10 +1,11 @@
 ﻿using System;
-using System.Threading;
-using Renci.SshNet.Messages.Connection;
-using Renci.SshNet.Common;
+using System.Diagnostics;
 using System.Globalization;
 using System.Net;
+using System.Threading;
 using Renci.SshNet.Abstractions;
+using Renci.SshNet.Common;
+using Renci.SshNet.Messages.Connection;
 
 namespace Renci.SshNet
 {
@@ -204,8 +205,7 @@ namespace Renci.SshNet
             
             if (!_pendingChannelCountdown.Wait(timeout))
             {
-                // TODO: log as warning
-                DiagnosticAbstraction.Log("Timeout waiting for pending channels in remote forwarded port to close.");
+                DiagnosticAbstraction.Log("Timeout waiting for pending channels in remote forwarded port to close.", TraceEventType.Warning, 19);
             }
 
             _status = ForwardedPortStatus.Stopped;

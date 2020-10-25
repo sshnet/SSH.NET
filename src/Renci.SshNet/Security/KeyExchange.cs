@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Security.Cryptography;
 using Renci.SshNet.Abstractions;
@@ -187,11 +188,7 @@ namespace Renci.SshNet.Security
 
             serverKey = GenerateSessionKey(SharedKey, ExchangeHash, serverKey, _serverCipherInfo.KeySize / 8);
 
-            DiagnosticAbstraction.Log(string.Format("[{0}] Creating server cipher (Name:{1},Key:{2},IV:{3})",
-                                                    Session.ToHex(Session.SessionId),
-                                                    Session.ConnectionInfo.CurrentServerEncryption,
-                                                    Session.ToHex(serverKey),
-                                                    Session.ToHex(serverVector)));
+            DiagnosticAbstraction.Log($"[{Session.ToHex(Session.SessionId)}] Creating server cipher (Name:{Session.ConnectionInfo.CurrentServerEncryption},Key:{Session.ToHex(serverKey)},IV:{Session.ToHex(serverVector)})", TraceEventType.Verbose, 3);
 
             //  Create server cipher
             return _serverCipherInfo.Cipher(serverKey, serverVector);

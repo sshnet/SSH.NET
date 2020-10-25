@@ -181,7 +181,7 @@ namespace Renci.SshNet
         {
             _exception = error;
 
-            DiagnosticAbstraction.Log($"Raised exception: {error}", TraceEventType.Error, 27);
+            DiagnosticAbstraction.Log($"Raised exception: {error}", TraceEventType.Error, TraceEventId.RaisedException);
 
             var errorOccuredWaitHandle = _errorOccuredWaitHandle;
             if (errorOccuredWaitHandle != null)

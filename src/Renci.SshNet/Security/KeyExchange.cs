@@ -188,7 +188,7 @@ namespace Renci.SshNet.Security
 
             serverKey = GenerateSessionKey(SharedKey, ExchangeHash, serverKey, _serverCipherInfo.KeySize / 8);
 
-            DiagnosticAbstraction.Log($"[{Session.ToHex(Session.SessionId)}] Creating server cipher (Name:{Session.ConnectionInfo.CurrentServerEncryption},Key:{Session.ToHex(serverKey)},IV:{Session.ToHex(serverVector)})", TraceEventType.Verbose, 3);
+            DiagnosticAbstraction.Log($"[{Session.ToHex(Session.SessionId)}] Creating server cipher (Name:{Session.ConnectionInfo.CurrentServerEncryption},Key:{Session.ToHex(serverKey)},IV:{Session.ToHex(serverVector)})", TraceEventType.Verbose, TraceEventId.ServerCipherCreation);
 
             //  Create server cipher
             return _serverCipherInfo.Cipher(serverKey, serverVector);

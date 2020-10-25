@@ -637,7 +637,7 @@ namespace Renci.SshNet
 
                     var softwareName = versionMatch.Result("${softwareversion}");
 
-                    DiagnosticAbstraction.Log($"Server version '{version}' on '{softwareName}'.", TraceEventType.Verbose, 4);
+                    DiagnosticAbstraction.Log($"Server version '{version}' on '{softwareName}'.", TraceEventType.Verbose, TraceEventId.ServerVersion);
 
                     if (!(version.Equals("2.0") || version.Equals("1.99")))
                     {
@@ -720,7 +720,7 @@ namespace Renci.SshNet
         /// </remarks>
         public void Disconnect()
         {
-            DiagnosticAbstraction.Log($"[{ToHex(SessionId)}] Disconnecting session.", TraceEventType.Verbose, 5);
+            DiagnosticAbstraction.Log($"[{ToHex(SessionId)}] Disconnecting session.", TraceEventType.Verbose, TraceEventId.DisconnectingSession);
 
             // send SSH_MSG_DISCONNECT message, clear socket read buffer and dispose it
             Disconnect(DisconnectReason.ByApplication, "Connection terminated by the client.");
@@ -942,7 +942,7 @@ namespace Renci.SshNet
                 WaitOnHandle(_keyExchangeCompletedWaitHandle);
             }
 
-            DiagnosticAbstraction.Log($"[{ToHex(SessionId)}] Sending message '{message.GetType().Name}' to server: '{message}'.", TraceEventType.Verbose, 6);
+            DiagnosticAbstraction.Log($"[{ToHex(SessionId)}] Sending message '{message.GetType().Name}' to server: '{message}'.", TraceEventType.Verbose, TraceEventId.SendingMessage);
 
             var paddingMultiplier = _clientCipher == null ? (byte) 8 : Math.Max((byte) 8, _serverCipher.MinimumSize);
             var packetData = message.GetPacket(paddingMultiplier, _clientCompression);
@@ -1046,7 +1046,7 @@ namespace Renci.SshNet
             }
             catch (Exception ex) when (ex is SshException || ex is SocketException)
             {
-                DiagnosticAbstraction.Log($"Failure sending message '{message.GetType().Name}' to server: '{message}' => {ex}", TraceEventType.Warning, 22);
+                DiagnosticAbstraction.Log($"Failure sending message '{message.GetType().Name}' to server: '{message}' => {ex}", TraceEventType.Warning, TraceEventId.FailureSendingMessage);
                 return false;
             }
         }
@@ -1197,7 +1197,7 @@ namespace Renci.SshNet
         /// <param name="message"><see cref="DisconnectMessage"/> message.</param>
         internal void OnDisconnectReceived(DisconnectMessage message)
         {
-            DiagnosticAbstraction.Log($"[{ToHex(SessionId)}] Disconnect received: {message.ReasonCode} {message.Description}.", TraceEventType.Verbose, 7);
+            DiagnosticAbstraction.Log($"[{ToHex(SessionId)}] Disconnect received: {message.ReasonCode} {message.Description}.", TraceEventType.Verbose, TraceEventId.DisconnectReceived);
 
             // transition to disconnecting state to avoid throwing exceptions while cleaning up, and to
             // ensure any exceptions that are raised do not overwrite the SshConnectionException that we
@@ -1664,7 +1664,7 @@ namespace Renci.SshNet
             var message = _sshMessageFactory.Create(messageType);
             message.Load(data, offset + 1, count - 1);
 
-            DiagnosticAbstraction.Log($"[{ToHex(SessionId)}] Received message '{message.GetType().Name}' from server: '{message}'.", TraceEventType.Verbose, 8);
+            DiagnosticAbstraction.Log($"[{ToHex(SessionId)}] Received message '{message.GetType().Name}' from server: '{message}'.", TraceEventType.Verbose, TraceEventId.MessageReceived);
 
             return message;
         }
@@ -1706,7 +1706,7 @@ namespace Renci.SshNet
             var ipAddress = DnsAbstraction.GetHostAddresses(host)[0];
             var ep = new IPEndPoint(ipAddress, port);
 
-            DiagnosticAbstraction.Log($"Initiating connection to '{host}:{port}'.", TraceEventType.Verbose, 9);
+            DiagnosticAbstraction.Log($"Initiating connection to '{host}:{port}'.", TraceEventType.Verbose, TraceEventId.InitiatingConnection);
 
             _socket = SocketAbstraction.Connect(ep, ConnectionInfo.Timeout);
 
@@ -1890,7 +1890,7 @@ namespace Renci.SshNet
                         {
                             try
                             {
-                                DiagnosticAbstraction.Log("[{ToHex(SessionId)}] Shutting down socket.", TraceEventType.Verbose, 10);
+                                DiagnosticAbstraction.Log("[{ToHex(SessionId)}] Shutting down socket.", TraceEventType.Verbose, TraceEventId.ShuttingDownSocket);
 
                                 // interrupt any pending reads; should be done outside of socket read lock as we
                                 // actually want shutdown the socket to make sure blocking reads are interrupted
@@ -1902,13 +1902,13 @@ namespace Renci.SshNet
                             }
                             catch (SocketException ex)
                             {
-                                DiagnosticAbstraction.Log($"Failure shutting down socket: {ex}", TraceEventType.Warning, 23);
+                                DiagnosticAbstraction.Log($"Failure shutting down socket: {ex}", TraceEventType.Warning, TraceEventId.SocketShutdownFailure);
                             }
                         }
 
-                        DiagnosticAbstraction.Log($"[{ToHex(SessionId)}] Disposing socket.", TraceEventType.Verbose, 11);
+                        DiagnosticAbstraction.Log($"[{ToHex(SessionId)}] Disposing socket.", TraceEventType.Verbose, TraceEventId.DisposingSocket);
                         _socket.Dispose();
-                        DiagnosticAbstraction.Log($"[{ToHex(SessionId)}] Disposed socket.", TraceEventType.Verbose, 12);
+                        DiagnosticAbstraction.Log($"[{ToHex(SessionId)}] Disposed socket.", TraceEventType.Verbose, TraceEventId.DisposedSocket);
                         _socket = null;
                     }
                 }
@@ -2415,7 +2415,7 @@ namespace Renci.SshNet
         {
             var connectionException = exp as SshConnectionException;
 
-            DiagnosticAbstraction.Log($"[{ToHex(SessionId)}] Raised exception: {exp}", TraceEventType.Error, 24);
+            DiagnosticAbstraction.Log($"[{ToHex(SessionId)}] Raised exception: {exp}", TraceEventType.Error, TraceEventId.RaisedException);
 
             if (_isDisconnecting)
             {
@@ -2441,7 +2441,7 @@ namespace Renci.SshNet
 
             if (connectionException != null)
             {
-                DiagnosticAbstraction.Log($"[{ToHex(SessionId)}] Disconnecting after exception: {exp}", TraceEventType.Warning, 25);
+                DiagnosticAbstraction.Log($"[{ToHex(SessionId)}] Disconnecting after exception: {exp}", TraceEventType.Warning, TraceEventId.DisconnectingAfterException);
                 Disconnect(connectionException.DisconnectReason, exp.ToString());
             }
         }
@@ -2497,7 +2497,7 @@ namespace Renci.SshNet
 
             if (disposing)
             {
-                DiagnosticAbstraction.Log($"[{ToHex(SessionId)}] Disposing session.", TraceEventType.Verbose, 13);
+                DiagnosticAbstraction.Log($"[{ToHex(SessionId)}] Disposing session.", TraceEventType.Verbose, TraceEventId.DisposingSession);
 
                 Disconnect();
 

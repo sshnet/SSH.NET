@@ -205,7 +205,7 @@ namespace Renci.SshNet
             
             if (!_pendingChannelCountdown.Wait(timeout))
             {
-                DiagnosticAbstraction.Log("Timeout waiting for pending channels in remote forwarded port to close.", TraceEventType.Warning, 19);
+                DiagnosticAbstraction.Log("Timeout waiting for pending channels in remote forwarded port to close.", TraceEventType.Warning, TraceEventId.PendingChannelsCloseTimeout);
             }
 
             _status = ForwardedPortStatus.Stopped;

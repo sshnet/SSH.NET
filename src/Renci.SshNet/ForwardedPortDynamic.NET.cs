@@ -267,7 +267,7 @@ namespace Renci.SshNet
             _pendingChannelCountdown.Signal();
             if (!_pendingChannelCountdown.Wait(timeout))
             {
-                DiagnosticAbstraction.Log("Timeout waiting for pending channels in dynamic forwarded port to close.", TraceEventType.Warning, 17);
+                DiagnosticAbstraction.Log("Timeout waiting for pending channels in dynamic forwarded port to close.", TraceEventType.Warning, TraceEventId.PendingChannelsCloseTimeout);
             }
 
         }

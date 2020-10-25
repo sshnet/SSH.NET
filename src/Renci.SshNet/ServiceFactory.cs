@@ -135,7 +135,7 @@ namespace Renci.SshNet
                 fileSize = null;
                 maxPendingReads = defaultMaxPendingReads;
 
-                DiagnosticAbstraction.Log($"Failed to obtain size of file. Allowing maximum {maxPendingReads} pending reads: { ex}", TraceEventType.Warning, 21);
+                DiagnosticAbstraction.Log($"Failed to obtain size of file. Allowing maximum {maxPendingReads} pending reads: { ex}", TraceEventType.Warning, TraceEventId.FileSizeFetchFailure);
             }
 
             return sftpSession.CreateFileReader(handle, sftpSession, chunkSize, maxPendingReads, fileSize);

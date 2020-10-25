@@ -38,10 +38,10 @@ namespace Renci.SshNet.Abstractions
         /// <param name="text">The text string to log</param>
         /// <param name="eventType">The trace event type</param>
         /// <param name="id">A numeric identifier for the event.</param>
-        public static void Log(string text, TraceEventType eventType = TraceEventType.Verbose, int id = 0)
+        public static void Log(string text, TraceEventType eventType = TraceEventType.Verbose, TraceEventId id = TraceEventId._default)
         {
 #if FEATURE_DIAGNOSTICS_TRACESOURCE
-            Logging.TraceEvent(eventType, id, text);
+            Logging.TraceEvent(eventType, (int)id, text);
 #endif // FEATURE_DIAGNOSTICS_TRACESOURCE
         }
     }

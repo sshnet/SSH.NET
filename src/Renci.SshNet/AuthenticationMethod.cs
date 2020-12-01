@@ -6,7 +6,7 @@ namespace Renci.SshNet
     /// <summary>
     /// Base class for all supported authentication methods
     /// </summary>
-    public abstract class AuthenticationMethod : IAuthenticationMethod
+    public abstract class AuthenticationMethod : IAuthenticationMethod, IDisposable
     {
         /// <summary>
         /// Gets the name of the authentication method.
@@ -38,6 +38,11 @@ namespace Renci.SshNet
 
             Username = username;
         }
+
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public abstract void Dispose();
 
         /// <summary>
         /// Authenticates the specified session.

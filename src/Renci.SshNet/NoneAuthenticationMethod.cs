@@ -11,7 +11,7 @@ namespace Renci.SshNet
     /// <summary>
     /// Provides functionality for "none" authentication method
     /// </summary>
-    public class NoneAuthenticationMethod : AuthenticationMethod, IDisposable
+    public class NoneAuthenticationMethod : AuthenticationMethod
     {
         private AuthenticationResult _authenticationResult = AuthenticationResult.Failure;
         private EventWaitHandle _authenticationCompleted = new AutoResetEvent(false);
@@ -91,7 +91,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
-        public void Dispose()
+        public override void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);

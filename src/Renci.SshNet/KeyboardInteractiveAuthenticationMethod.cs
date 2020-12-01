@@ -11,7 +11,7 @@ namespace Renci.SshNet
     /// <summary>
     /// Provides functionality to perform keyboard interactive authentication.
     /// </summary>
-    public class KeyboardInteractiveAuthenticationMethod : AuthenticationMethod, IDisposable
+    public class KeyboardInteractiveAuthenticationMethod : AuthenticationMethod
     {
         private AuthenticationResult _authenticationResult = AuthenticationResult.Failure;
 
@@ -140,7 +140,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
-        public void Dispose()
+        public override void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);

@@ -11,7 +11,7 @@ namespace Renci.SshNet
     /// <summary>
     /// Provides functionality to perform password authentication.
     /// </summary>
-    public class PasswordAuthenticationMethod : AuthenticationMethod, IDisposable
+    public class PasswordAuthenticationMethod : AuthenticationMethod
     {
         private AuthenticationResult _authenticationResult = AuthenticationResult.Failure;
         private Session _session;
@@ -166,7 +166,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
-        public void Dispose()
+        public override void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);

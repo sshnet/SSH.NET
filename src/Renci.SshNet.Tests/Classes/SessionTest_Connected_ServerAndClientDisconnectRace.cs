@@ -9,6 +9,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Renci.SshNet.Common;
 using Renci.SshNet.Compression;
+using Renci.SshNet.Connection;
 using Renci.SshNet.Messages;
 using Renci.SshNet.Messages.Transport;
 using Renci.SshNet.Security;
@@ -21,6 +22,7 @@ namespace Renci.SshNet.Tests.Classes
     public class SessionTest_Connected_ServerAndClientDisconnectRace
     {
         private Mock<IServiceFactory> _serviceFactoryMock;
+        private Mock<IConnector> _connectorMock;
         private Mock<IKeyExchange> _keyExchangeMock;
         private Mock<IClientAuthentication> _clientAuthenticationMock;
         private IPEndPoint _serverEndPoint;
@@ -128,12 +130,17 @@ namespace Renci.SshNet.Tests.Classes
         private void CreateMocks()
         {
             _serviceFactoryMock = new Mock<IServiceFactory>(MockBehavior.Strict);
+            _connectorMock = new Mock<IConnector>(MockBehavior.Strict);
             _keyExchangeMock = new Mock<IKeyExchange>(MockBehavior.Strict);
             _clientAuthenticationMock = new Mock<IClientAuthentication>(MockBehavior.Strict);
         }
 
         private void SetupMocks()
         {
+            _serviceFactoryMock.Setup(p => p.CreateConnector(ConnectionInfo))
+                               .Returns(_connectorMock.Object);
+            _connectorMock.Setup(p => p.Connect(ConnectionInfo))
+                          .Returns<IConnectionInfo>(c => new DirectConnector().Connect(c));
             _serviceFactoryMock.Setup(
                 p =>
                     p.CreateKeyExchange(ConnectionInfo.KeyExchangeAlgorithms, new[] { _keyExchangeAlgorithm })).Returns(_keyExchangeMock.Object);

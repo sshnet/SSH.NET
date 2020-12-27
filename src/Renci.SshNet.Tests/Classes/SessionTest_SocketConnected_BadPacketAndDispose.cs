@@ -5,6 +5,7 @@ using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Renci.SshNet.Common;
+using Renci.SshNet.Connection;
 using Renci.SshNet.Messages.Transport;
 using Renci.SshNet.Tests.Common;
 
@@ -14,6 +15,7 @@ namespace Renci.SshNet.Tests.Classes
     public class SessionTest_SocketConnected_BadPacketAndDispose
     {
         private Mock<IServiceFactory> _serviceFactoryMock;
+        private Mock<IConnector> _connectorMock;
         private ConnectionInfo _connectionInfo;
         private Session _session;
         private AsyncSocketListener _serverListener;
@@ -37,7 +39,13 @@ namespace Renci.SshNet.Tests.Classes
             }
         }
 
-        protected void Arrange()
+        protected void CreateMocks()
+        {
+            _serviceFactoryMock = new Mock<IServiceFactory>(MockBehavior.Strict);
+            _connectorMock = new Mock<IConnector>(MockBehavior.Strict);
+        }
+
+        protected void SetupData()
         {
             _serverEndPoint = new IPEndPoint(IPAddress.Loopback, 8122);
             _connectionInfo = new ConnectionInfo(
@@ -47,8 +55,6 @@ namespace Renci.SshNet.Tests.Classes
                 new PasswordAuthenticationMethod("user", "password"));
             _connectionInfo.Timeout = TimeSpan.FromMilliseconds(200);
             _actualException = null;
-
-            _serviceFactoryMock = new Mock<IServiceFactory>(MockBehavior.Strict);
 
             _serverListener = new AsyncSocketListener(_serverEndPoint);
             _serverListener.Connected += (socket) =>
@@ -61,10 +67,26 @@ namespace Renci.SshNet.Tests.Classes
                 };
             _serverListener.BytesReceived += (received, socket) =>
                 {
-                    var badPacket = new byte[] {0x0a, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05};
+                    var badPacket = new byte[] { 0x0a, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05 };
                     _serverSocket.Send(badPacket, 0, badPacket.Length, SocketFlags.None);
                     _serverSocket.Shutdown(SocketShutdown.Send);
                 };
+        }
+
+        protected void SetupMocks()
+        {
+            _serviceFactoryMock.Setup(p => p.CreateConnector(_connectionInfo))
+                               .Returns(_connectorMock.Object);
+            _connectorMock.Setup(p => p.Connect(_connectionInfo))
+                          .Returns<IConnectionInfo>(c => new DirectConnector().Connect(c));
+        }
+
+        protected void Arrange()
+        {
+            CreateMocks();
+            SetupData();
+            SetupMocks();
+
             _serverListener.Start();
         }
 

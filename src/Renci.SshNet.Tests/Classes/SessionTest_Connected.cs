@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using Renci.SshNet.Messages.Transport;
 
 namespace Renci.SshNet.Tests.Classes
@@ -250,6 +251,18 @@ namespace Renci.SshNet.Tests.Classes
                 Assert.AreEqual("waitHandle", ex.ParamName);
                 Assert.IsNull(exception);
             }
+        }
+
+        [TestMethod]
+        public void CreateConnectorOnServiceFactoryShouldHaveBeenInvokedOnce()
+        {
+            ServiceFactoryMock.Verify(p => p.CreateConnector(ConnectionInfo), Times.Once());
+        }
+
+        [TestMethod]
+        public void ConnectorOnConnectorShouldHaveBeenInvokedOnce()
+        {
+            ConnectorMock.Verify(p => p.Connect(ConnectionInfo), Times.Once());
         }
     }
 }

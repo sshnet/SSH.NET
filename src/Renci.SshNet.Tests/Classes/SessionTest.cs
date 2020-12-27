@@ -7,6 +7,7 @@ using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Renci.SshNet.Common;
+using Renci.SshNet.Connection;
 using Renci.SshNet.Messages.Transport;
 using Renci.SshNet.Tests.Common;
 using Renci.SshNet.Tests.Properties;
@@ -20,12 +21,14 @@ namespace Renci.SshNet.Tests.Classes
     public partial class SessionTest : TestBase
     {
         private Mock<IServiceFactory> _serviceFactoryMock;
+        private Mock<IConnector> _connectorMock;
 
         protected override void OnInit()
         {
             base.OnInit();
 
             _serviceFactoryMock = new Mock<IServiceFactory>(MockBehavior.Strict);
+            _connectorMock = new Mock<IConnector>(MockBehavior.Strict);
         }
 
         [TestMethod]
@@ -84,6 +87,11 @@ namespace Renci.SshNet.Tests.Classes
 
                 using (var session = new Session(connectionInfo, _serviceFactoryMock.Object))
                 {
+                    _serviceFactoryMock.Setup(p => p.CreateConnector(connectionInfo))
+                                       .Returns(_connectorMock.Object);
+                    _connectorMock.Setup(p => p.Connect(connectionInfo))
+                                  .Returns<IConnectionInfo>(c => new DirectConnector().Connect(c));
+
                     try
                     {
                         session.Connect();
@@ -130,6 +138,11 @@ namespace Renci.SshNet.Tests.Classes
 
                 using (var session = new Session(connectionInfo, _serviceFactoryMock.Object))
                 {
+                    _serviceFactoryMock.Setup(p => p.CreateConnector(connectionInfo))
+                                       .Returns(_connectorMock.Object);
+                    _connectorMock.Setup(p => p.Connect(connectionInfo))
+                                  .Returns<IConnectionInfo>(c => new DirectConnector().Connect(c));
+
                     try
                     {
                         session.Connect();
@@ -145,7 +158,6 @@ namespace Renci.SshNet.Tests.Classes
                 }
             }
         }
-
 
         [TestMethod]
         public void ConnectShouldSupportProtocolIdentificationStringThatDoesNotEndWithCrlf()
@@ -166,6 +178,11 @@ namespace Renci.SshNet.Tests.Classes
 
                 using (var session = new Session(connectionInfo, _serviceFactoryMock.Object))
                 {
+                    _serviceFactoryMock.Setup(p => p.CreateConnector(connectionInfo))
+                                       .Returns(_connectorMock.Object);
+                    _connectorMock.Setup(p => p.Connect(connectionInfo))
+                                  .Returns<IConnectionInfo>(c => new DirectConnector().Connect(c));
+
                     try
                     {
                         session.Connect();
@@ -199,8 +216,15 @@ namespace Renci.SshNet.Tests.Classes
                     };
                 serverStub.Start();
 
-                using (var session = new Session(CreateConnectionInfo(serverEndPoint, TimeSpan.FromMilliseconds(500)), _serviceFactoryMock.Object))
+                var connectionInfo = CreateConnectionInfo(serverEndPoint, TimeSpan.FromMilliseconds(500));
+
+                using (var session = new Session(connectionInfo, _serviceFactoryMock.Object))
                 {
+                    _serviceFactoryMock.Setup(p => p.CreateConnector(connectionInfo))
+                                       .Returns(_connectorMock.Object);
+                    _connectorMock.Setup(p => p.Connect(connectionInfo))
+                                  .Returns<IConnectionInfo>(c => new DirectConnector().Connect(c));
+
                     try
                     {
                         session.Connect();
@@ -237,8 +261,15 @@ namespace Renci.SshNet.Tests.Classes
                     };
                 serverStub.Start();
 
-                using (var session = new Session(CreateConnectionInfo(serverEndPoint, TimeSpan.FromSeconds(5)), _serviceFactoryMock.Object))
+                var connectionInfo = CreateConnectionInfo(serverEndPoint, TimeSpan.FromSeconds(5));
+
+                using (var session = new Session(connectionInfo, _serviceFactoryMock.Object))
                 {
+                    _serviceFactoryMock.Setup(p => p.CreateConnector(connectionInfo))
+                                       .Returns(_connectorMock.Object);
+                    _connectorMock.Setup(p => p.Connect(connectionInfo))
+                                  .Returns<IConnectionInfo>(c => new DirectConnector().Connect(c));
+
                     try
                     {
                         session.Connect();
@@ -263,8 +294,15 @@ namespace Renci.SshNet.Tests.Classes
                     };
                 serverStub.Start();
 
-                using (var session = new Session(CreateConnectionInfo(serverEndPoint, TimeSpan.FromSeconds(5)), _serviceFactoryMock.Object))
+                var connectionInfo = CreateConnectionInfo(serverEndPoint, TimeSpan.FromSeconds(5));
+
+                using (var session = new Session(connectionInfo, _serviceFactoryMock.Object))
                 {
+                    _serviceFactoryMock.Setup(p => p.CreateConnector(connectionInfo))
+                                       .Returns(_connectorMock.Object);
+                    _connectorMock.Setup(p => p.Connect(connectionInfo))
+                                  .Returns<IConnectionInfo>(c => new DirectConnector().Connect(c));
+
                     try
                     {
                         session.Connect();
@@ -290,8 +328,15 @@ namespace Renci.SshNet.Tests.Classes
                     };
                 serverStub.Start();
 
-                using (var session = new Session(CreateConnectionInfo(serverEndPoint, TimeSpan.FromSeconds(5)), _serviceFactoryMock.Object))
+                var connectionInfo = CreateConnectionInfo(serverEndPoint, TimeSpan.FromSeconds(5));
+
+                using (var session = new Session(connectionInfo, _serviceFactoryMock.Object))
                 {
+                    _serviceFactoryMock.Setup(p => p.CreateConnector(connectionInfo))
+                                       .Returns(_connectorMock.Object);
+                    _connectorMock.Setup(p => p.Connect(connectionInfo))
+                                  .Returns<IConnectionInfo>(c => new DirectConnector().Connect(c));
+
                     try
                     {
                         session.Connect();
@@ -313,6 +358,11 @@ namespace Renci.SshNet.Tests.Classes
                 new KeyboardInteractiveAuthenticationMethod("user"));
             var session = new Session(connectionInfo, _serviceFactoryMock.Object);
 
+            _serviceFactoryMock.Setup(p => p.CreateConnector(connectionInfo))
+                               .Returns(_connectorMock.Object);
+            _connectorMock.Setup(p => p.Connect(connectionInfo))
+                          .Returns<IConnectionInfo>(c => new DirectConnector().Connect(c));
+
             try
             {
                 session.Connect();
@@ -331,6 +381,11 @@ namespace Renci.SshNet.Tests.Classes
                 "proxyUser", "proxyPwd", new KeyboardInteractiveAuthenticationMethod("user"));
             var session = new Session(connectionInfo, _serviceFactoryMock.Object);
 
+            _serviceFactoryMock.Setup(p => p.CreateConnector(connectionInfo))
+                               .Returns(_connectorMock.Object);
+            _connectorMock.Setup(p => p.Connect(connectionInfo))
+                          .Returns<IConnectionInfo>(c => new HttpConnector().Connect(c));
+
             try
             {
                 session.Connect();
@@ -348,6 +403,11 @@ namespace Renci.SshNet.Tests.Classes
             var connectionInfo = new ConnectionInfo("localhost", 6767, Resources.USERNAME,
                 new KeyboardInteractiveAuthenticationMethod(Resources.USERNAME));
             var session = new Session(connectionInfo, _serviceFactoryMock.Object);
+
+            _serviceFactoryMock.Setup(p => p.CreateConnector(connectionInfo))
+                               .Returns(_connectorMock.Object);
+            _connectorMock.Setup(p => p.Connect(connectionInfo))
+                          .Returns<IConnectionInfo>(c => new DirectConnector().Connect(c));
 
             try
             {
@@ -376,6 +436,11 @@ namespace Renci.SshNet.Tests.Classes
             var connectionInfo = new ConnectionInfo("localhost", 6767, Resources.USERNAME,
                 new KeyboardInteractiveAuthenticationMethod(Resources.USERNAME));
             var session = new Session(connectionInfo, _serviceFactoryMock.Object);
+
+            _serviceFactoryMock.Setup(p => p.CreateConnector(connectionInfo))
+                               .Returns(_connectorMock.Object);
+            _connectorMock.Setup(p => p.Connect(connectionInfo))
+                          .Returns<IConnectionInfo>(c => new DirectConnector().Connect(c));
 
             try
             {

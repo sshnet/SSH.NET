@@ -9,6 +9,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Renci.SshNet.Common;
 using Renci.SshNet.Compression;
+using Renci.SshNet.Connection;
 using Renci.SshNet.Messages;
 using Renci.SshNet.Messages.Transport;
 using Renci.SshNet.Security;
@@ -20,7 +21,8 @@ namespace Renci.SshNet.Tests.Classes
     [TestClass]
     public abstract class SessionTest_ConnectedBase
     {
-        private Mock<IServiceFactory> _serviceFactoryMock;
+        internal Mock<IServiceFactory> ServiceFactoryMock { get; private set; }
+        internal Mock<IConnector> ConnectorMock { get; private set; }
         private Mock<IKeyExchange> _keyExchangeMock;
         private Mock<IClientAuthentication> _clientAuthenticationMock;
         private IPEndPoint _serverEndPoint;
@@ -35,6 +37,7 @@ namespace Renci.SshNet.Tests.Classes
         protected AsyncSocketListener ServerListener { get; private set; }
         protected IList<byte[]> ServerBytesReceivedRegister { get; private set; }
         protected Session Session { get; private set; }
+        protected Socket ClientSocket { get; private set; }
         protected Socket ServerSocket { get; private set; }
 
         [TestInitialize]
@@ -85,7 +88,7 @@ namespace Renci.SshNet.Tests.Classes
             ErrorOccurredRegister = new List<ExceptionEventArgs>();
             ServerBytesReceivedRegister = new List<byte[]>();
 
-            Session = new Session(ConnectionInfo, _serviceFactoryMock.Object);
+            Session = new Session(ConnectionInfo, ServiceFactoryMock.Object);
             Session.Disconnected += (sender, args) => DisconnectedRegister.Add(args);
             Session.DisconnectReceived += (sender, args) => DisconnectReceivedRegister.Add(args);
             Session.ErrorOccured += (sender, args) => ErrorOccurredRegister.Add(args);
@@ -144,14 +147,19 @@ namespace Renci.SshNet.Tests.Classes
 
         private void CreateMocks()
         {
-            _serviceFactoryMock = new Mock<IServiceFactory>(MockBehavior.Strict);
+            ServiceFactoryMock = new Mock<IServiceFactory>(MockBehavior.Strict);
+            ConnectorMock = new Mock<IConnector>(MockBehavior.Strict);
             _keyExchangeMock = new Mock<IKeyExchange>(MockBehavior.Strict);
             _clientAuthenticationMock = new Mock<IClientAuthentication>(MockBehavior.Strict);
         }
 
         private void SetupMocks()
         {
-            _serviceFactoryMock.Setup(
+            ServiceFactoryMock.Setup(p => p.CreateConnector(ConnectionInfo))
+                               .Returns(ConnectorMock.Object);
+            ConnectorMock.Setup(p => p.Connect(ConnectionInfo))
+                          .Returns<IConnectionInfo>(c => new DirectConnector().Connect(c));
+            ServiceFactoryMock.Setup(
                 p =>
                     p.CreateKeyExchange(ConnectionInfo.KeyExchangeAlgorithms, new[] { _keyExchangeAlgorithm })).Returns(_keyExchangeMock.Object);
             _keyExchangeMock.Setup(p => p.Name).Returns(_keyExchangeAlgorithm);
@@ -164,13 +172,13 @@ namespace Renci.SshNet.Tests.Classes
             _keyExchangeMock.Setup(p => p.CreateCompressor()).Returns((Compressor) null);
             _keyExchangeMock.Setup(p => p.CreateDecompressor()).Returns((Compressor) null);
             _keyExchangeMock.Setup(p => p.Dispose());
-            _serviceFactoryMock.Setup(p => p.CreateClientAuthentication())
+            ServiceFactoryMock.Setup(p => p.CreateClientAuthentication())
                 .Callback(ClientAuthentication_Callback)
                 .Returns(_clientAuthenticationMock.Object);
             _clientAuthenticationMock.Setup(p => p.Authenticate(ConnectionInfo, Session));
         }
 
-        protected virtual void Arrange()
+        protected void Arrange()
         {
             CreateMocks();
             SetupData();

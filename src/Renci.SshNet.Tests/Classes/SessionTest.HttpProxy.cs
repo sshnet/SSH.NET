@@ -5,6 +5,7 @@ using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Renci.SshNet.Common;
 using Renci.SshNet.Tests.Common;
+using Renci.SshNet.Connection;
 
 namespace Renci.SshNet.Tests.Classes
 {
@@ -21,8 +22,15 @@ namespace Renci.SshNet.Tests.Classes
                 proxyStub.Responses.Add(Encoding.ASCII.GetBytes("Whatever\r\n"));
                 proxyStub.Start();
 
-                using (var session = new Session(CreateConnectionInfoWithProxy(proxyEndPoint, serverEndPoint, "anon"), _serviceFactoryMock.Object))
+                var connectionInfo = CreateConnectionInfoWithHttpProxy(proxyEndPoint, serverEndPoint, "anon");
+
+                using (var session = new Session(connectionInfo, _serviceFactoryMock.Object))
                 {
+                    _serviceFactoryMock.Setup(p => p.CreateConnector(connectionInfo))
+                                       .Returns(_connectorMock.Object);
+                    _connectorMock.Setup(p => p.Connect(connectionInfo))
+                                  .Returns<IConnectionInfo>(c => new HttpConnector().Connect(c));
+
                     try
                     {
                         session.Connect();
@@ -48,8 +56,15 @@ namespace Renci.SshNet.Tests.Classes
                 proxyStub.Responses.Add(Encoding.ASCII.GetBytes("HTTP/1.0 501 Custom\r\n"));
                 proxyStub.Start();
 
-                using (var session = new Session(CreateConnectionInfoWithProxy(proxyEndPoint, serverEndPoint, "anon"), _serviceFactoryMock.Object))
+                var connectionInfo = CreateConnectionInfoWithHttpProxy(proxyEndPoint, serverEndPoint, "anon");
+
+                using (var session = new Session(connectionInfo, _serviceFactoryMock.Object))
                 {
+                    _serviceFactoryMock.Setup(p => p.CreateConnector(connectionInfo))
+                                       .Returns(_connectorMock.Object);
+                    _connectorMock.Setup(p => p.Connect(connectionInfo))
+                                  .Returns<IConnectionInfo>(c => new HttpConnector().Connect(c));
+
                     try
                     {
                         session.Connect();
@@ -78,8 +93,15 @@ namespace Renci.SshNet.Tests.Classes
                 proxyStub.Responses.Add(Encoding.ASCII.GetBytes("SSH-666-SshStub"));
                 proxyStub.Start();
 
-                using (var session = new Session(CreateConnectionInfoWithProxy(proxyEndPoint, serverEndPoint, "anon"), _serviceFactoryMock.Object))
+                var connectionInfo = CreateConnectionInfoWithHttpProxy(proxyEndPoint, serverEndPoint, "anon");
+
+                using (var session = new Session(connectionInfo, _serviceFactoryMock.Object))
                 {
+                    _serviceFactoryMock.Setup(p => p.CreateConnector(connectionInfo))
+                                       .Returns(_connectorMock.Object);
+                    _connectorMock.Setup(p => p.Connect(connectionInfo))
+                                  .Returns<IConnectionInfo>(c => new HttpConnector().Connect(c));
+
                     try
                     {
                         session.Connect();
@@ -110,8 +132,15 @@ namespace Renci.SshNet.Tests.Classes
                 proxyStub.Responses.Add(Encoding.ASCII.GetBytes("SSH-666-SshStub"));
                 proxyStub.Start();
 
-                using (var session = new Session(CreateConnectionInfoWithProxy(proxyEndPoint, serverEndPoint, "anon"), _serviceFactoryMock.Object))
+                var connectionInfo = CreateConnectionInfoWithHttpProxy(proxyEndPoint, serverEndPoint, "anon");
+
+                using (var session = new Session(connectionInfo, _serviceFactoryMock.Object))
                 {
+                    _serviceFactoryMock.Setup(p => p.CreateConnector(connectionInfo))
+                                       .Returns(_connectorMock.Object);
+                    _connectorMock.Setup(p => p.Connect(connectionInfo))
+                                  .Returns<IConnectionInfo>(c => new HttpConnector().Connect(c));
+
                     try
                     {
                         session.Connect();
@@ -137,8 +166,15 @@ namespace Renci.SshNet.Tests.Classes
                 proxyStub.Responses.Add(Encoding.ASCII.GetBytes("HTTP/1.0 501 Custom\r\n"));
                 proxyStub.Start();
 
-                using (var session = new Session(CreateConnectionInfoWithProxy(proxyEndPoint, serverEndPoint, "anon"), _serviceFactoryMock.Object))
+                var connectionInfo = CreateConnectionInfoWithHttpProxy(proxyEndPoint, serverEndPoint, "anon");
+
+                using (var session = new Session(connectionInfo, _serviceFactoryMock.Object))
                 {
+                    _serviceFactoryMock.Setup(p => p.CreateConnector(connectionInfo))
+                                       .Returns(_connectorMock.Object);
+                    _connectorMock.Setup(p => p.Connect(connectionInfo))
+                                  .Returns<IConnectionInfo>(c => new HttpConnector().Connect(c));
+
                     try
                     {
                         session.Connect();
@@ -164,9 +200,15 @@ namespace Renci.SshNet.Tests.Classes
                 proxyStub.Responses.Add(Encoding.ASCII.GetBytes("HTTP/1.0 501 Custom\r\n"));
                 proxyStub.Start();
 
-                var connectionInfo = CreateConnectionInfoWithProxy(proxyEndPoint, serverEndPoint, "anon");
+                var connectionInfo = CreateConnectionInfoWithHttpProxy(proxyEndPoint, serverEndPoint, "anon");
+
                 using (var session = new Session(connectionInfo, _serviceFactoryMock.Object))
                 {
+                    _serviceFactoryMock.Setup(p => p.CreateConnector(connectionInfo))
+                                       .Returns(_connectorMock.Object);
+                    _connectorMock.Setup(p => p.Connect(connectionInfo))
+                                  .Returns<IConnectionInfo>(c => new HttpConnector().Connect(c));
+
                     try
                     {
                         session.Connect();
@@ -193,9 +235,15 @@ namespace Renci.SshNet.Tests.Classes
                 proxyStub.Responses.Add(Encoding.ASCII.GetBytes("HTTP/1.0 501 Custom\r\n"));
                 proxyStub.Start();
 
-                var connectionInfo = CreateConnectionInfoWithProxy(proxyEndPoint, serverEndPoint, string.Empty);
+                var connectionInfo = CreateConnectionInfoWithHttpProxy(proxyEndPoint, serverEndPoint, string.Empty);
+
                 using (var session = new Session(connectionInfo, _serviceFactoryMock.Object))
                 {
+                    _serviceFactoryMock.Setup(p => p.CreateConnector(connectionInfo))
+                                       .Returns(_connectorMock.Object);
+                    _connectorMock.Setup(p => p.Connect(connectionInfo))
+                                  .Returns<IConnectionInfo>(c => new HttpConnector().Connect(c));
+
                     try
                     {
                         session.Connect();
@@ -221,9 +269,14 @@ namespace Renci.SshNet.Tests.Classes
                 proxyStub.Responses.Add(Encoding.ASCII.GetBytes("HTTP/1.0 501 Custom\r\n"));
                 proxyStub.Start();
 
-                var connectionInfo = CreateConnectionInfoWithProxy(proxyEndPoint, serverEndPoint, null);
+                var connectionInfo = CreateConnectionInfoWithHttpProxy(proxyEndPoint, serverEndPoint, null);
                 using (var session = new Session(connectionInfo, _serviceFactoryMock.Object))
                 {
+                    _serviceFactoryMock.Setup(p => p.CreateConnector(connectionInfo))
+                                       .Returns(_connectorMock.Object);
+                    _connectorMock.Setup(p => p.Connect(connectionInfo))
+                                  .Returns<IConnectionInfo>(c => new HttpConnector().Connect(c));
+
                     try
                     {
                         session.Connect();
@@ -238,7 +291,7 @@ namespace Renci.SshNet.Tests.Classes
             }
         }
 
-        private static ConnectionInfo CreateConnectionInfoWithProxy(IPEndPoint proxyEndPoint, IPEndPoint serverEndPoint, string proxyUserName)
+        private static ConnectionInfo CreateConnectionInfoWithHttpProxy(IPEndPoint proxyEndPoint, IPEndPoint serverEndPoint, string proxyUserName)
         {
             return new ConnectionInfo(
                 serverEndPoint.Address.ToString(),

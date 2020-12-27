@@ -118,14 +118,13 @@ namespace Renci.SshNet.Connection
                     break;
 
                 var b = data[0];
-
-                if (b == Session.LineFeed && buffer.Count > 1 && buffer[buffer.Count - 1] == Session.CarriageReturn)
-                {
-                    // Return line without CR
-                    return encoding.GetString(buffer.ToArray(), 0, buffer.Count - 1);
-                }
-
                 buffer.Add(b);
+
+                if (b == Session.LineFeed && buffer.Count > 1 && buffer[buffer.Count - 2] == Session.CarriageReturn)
+                {
+                    // Return line without CRLF
+                    return encoding.GetString(buffer.ToArray(), 0, buffer.Count - 2);
+                }
             }
             while (true);
 

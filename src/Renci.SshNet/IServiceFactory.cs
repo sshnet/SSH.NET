@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using Renci.SshNet.Common;
+using Renci.SshNet.Connection;
 using Renci.SshNet.Security;
 using Renci.SshNet.Sftp;
 
@@ -107,5 +108,17 @@ namespace Renci.SshNet
         /// with a shell.
         /// </returns>
         IRemotePathTransformation CreateRemotePathDoubleQuoteTransformation();
+
+        /// <summary>
+        /// Creates an <see cref="IConnector"/> that can be used to establish a connection
+        /// to the server identified by the specified <paramref name="connectionInfo"/>.
+        /// </summary>
+        /// <param name="connectionInfo">A <see cref="IConnectionInfo"/> detailing the server to establish a connection to.</param>
+        /// <returns>
+        /// An <see cref="IConnector"/>.
+        /// </returns>
+        /// <exception cref="ArgumentNullException"><paramref name="connectionInfo"/> is <see langword="null"/>.</exception>
+        /// <exception cref="NotSupportedException">The <see cref="IConnectionInfo.ProxyType"/> value of <paramref name="connectionInfo"/> is not supported.</exception>
+        IConnector CreateConnector(IConnectionInfo connectionInfo);
     }
 }

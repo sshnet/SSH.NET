@@ -7,6 +7,7 @@ using Renci.SshNet.Messages.Transport;
 using Renci.SshNet.Security;
 using Renci.SshNet.Sftp;
 using Renci.SshNet.Abstractions;
+using Renci.SshNet.Connection;
 
 namespace Renci.SshNet
 {
@@ -187,6 +188,37 @@ namespace Renci.SshNet
         public IRemotePathTransformation CreateRemotePathDoubleQuoteTransformation()
         {
             return RemotePathTransformation.DoubleQuote;
+        }
+
+        /// <summary>
+        /// Creates an <see cref="IConnector"/> that can be used to establish a connection
+        /// to the server identified by the specified <paramref name="connectionInfo"/>.
+        /// </summary>
+        /// <param name="connectionInfo">A <see cref="IConnectionInfo"/> detailing the server to establish a connection to.</param>
+        /// <returns>
+        /// An <see cref="IConnector"/> that can be used to establish a connection to the
+        /// server identified by the specified <paramref name="connectionInfo"/>.
+        /// </returns>
+        /// <exception cref="ArgumentNullException"><paramref name="connectionInfo"/> is <see langword="null"/>.</exception>
+        /// <exception cref="NotSupportedException">The <see cref="IConnectionInfo.ProxyType"/> value of <paramref name="connectionInfo"/> is not supported.</exception>
+        public IConnector CreateConnector(IConnectionInfo connectionInfo)
+        {
+            if (connectionInfo == null)
+                throw new ArgumentNullException("connectionInfo");
+
+            switch (connectionInfo.ProxyType)
+            {
+                case ProxyTypes.None:
+                    return new DirectConnector();
+                case ProxyTypes.Socks4:
+                    return new Socks4Connector();
+                case ProxyTypes.Socks5:
+                    return new Socks5Connector();
+                case ProxyTypes.Http:
+                    return new HttpConnector();
+                default:
+                    throw new NotSupportedException(string.Format("ProxyTypes '{0}' is not supported.", connectionInfo.ProxyType));
+            }
         }
     }
 }

@@ -1837,10 +1837,7 @@ namespace Renci.SshNet
                                 // This may result in a SocketException (eg. An existing connection was forcibly
                                 // closed by the remote host) which we'll log and ignore as it means the socket
                                 // was already shut down.
-                                //
-                                // We use SocketShutdown.Both instead of SocketShutdown.Send as a workaround to a
-                                // .NET Core issue on Linux & Mac OS X.
-                                _socket.Shutdown(SocketShutdown.Both);
+                                _socket.Shutdown(SocketShutdown.Send);
                             }
                             catch (SocketException ex)
                             {

@@ -220,5 +220,17 @@ namespace Renci.SshNet
                     throw new NotSupportedException(string.Format("ProxyTypes '{0}' is not supported.", connectionInfo.ProxyType));
             }
         }
+
+        /// <summary>
+        /// Create an <see cref="IProtocolVersionExchange"/> that deals with the SSH protocol
+        /// version exchange.
+        /// </summary>
+        /// <returns>
+        /// An <see cref="IProtocolVersionExchange"/>.
+        /// </returns>
+        public IProtocolVersionExchange CreateProtocolVersionExchange()
+        {
+            return new ProtocolVersionExchange();
+        }
     }
 }

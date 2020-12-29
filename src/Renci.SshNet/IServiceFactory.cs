@@ -120,5 +120,14 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="connectionInfo"/> is <see langword="null"/>.</exception>
         /// <exception cref="NotSupportedException">The <see cref="IConnectionInfo.ProxyType"/> value of <paramref name="connectionInfo"/> is not supported.</exception>
         IConnector CreateConnector(IConnectionInfo connectionInfo);
+
+        /// <summary>
+        /// Create an <see cref="IProtocolVersionExchange"/> that deals with the SSH protocol
+        /// version exchange.
+        /// </summary>
+        /// <returns>
+        /// An <see cref="IProtocolVersionExchange"/>.
+        /// </returns>
+        IProtocolVersionExchange CreateProtocolVersionExchange();
     }
 }

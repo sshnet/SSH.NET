@@ -2,7 +2,6 @@
 using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
@@ -16,7 +15,6 @@ using System.Globalization;
 using System.Linq;
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Security.Cryptography;
-using System.Collections.Generic;
 
 namespace Renci.SshNet
 {
@@ -25,7 +23,6 @@ namespace Renci.SshNet
     /// </summary>
     public class Session : ISession
     {
-        private const byte Null = 0x00;
         internal const byte CarriageReturn = 0x0d;
         internal const byte LineFeed = 0x0a;
 
@@ -80,12 +77,6 @@ namespace Renci.SshNet
         /// </para>
         /// </remarks>
         private const int LocalChannelDataPacketSize = 1024*64;
-
-#if FEATURE_REGEX_COMPILE
-        private static readonly Regex ServerVersionRe = new Regex("^SSH-(?<protoversion>[^-]+)-(?<softwareversion>.+)( SP.+)?$", RegexOptions.Compiled);
-#else
-        private static readonly Regex ServerVersionRe = new Regex("^SSH-(?<protoversion>[^-]+)-(?<softwareversion>.+)( SP.+)?$");
-#endif
 
         /// <summary>
         /// Controls how many authentication attempts can take place at the same time.
@@ -589,41 +580,19 @@ namespace Renci.SshNet
                     _socket = _serviceFactory.CreateConnector(ConnectionInfo)
                                              .Connect(ConnectionInfo);
 
-                    // Immediately send the identification string since the spec states both sides MUST send an identification string
-                    // when the connection has been established
-                    SocketAbstraction.Send(_socket, Encoding.UTF8.GetBytes(string.Format(CultureInfo.InvariantCulture, "{0}\x0D\x0A", ClientVersion)));
-
-                    Match versionMatch;
-
-                    // Get server version from the server,
-                    // ignore text lines which are sent before if any
-                    while (true)
-                    {
-                        var serverVersion = SocketReadLine(_socket, ConnectionInfo.Timeout);
-                        if (serverVersion == null)
-                            throw new SshConnectionException("Server response does not contain SSH protocol identification.", DisconnectReason.ProtocolError);
-                        versionMatch = ServerVersionRe.Match(serverVersion);
-                        if (versionMatch.Success)
-                        {
-                            ServerVersion = serverVersion;
-                            break;
-                        }
-                    }
+                    var serverIdentification = _serviceFactory.CreateProtocolVersionExchange()
+                                                              .Start(ClientVersion, _socket, ConnectionInfo.Timeout);
 
                     // Set connection versions
-                    ConnectionInfo.ServerVersion = ServerVersion;
+                    ConnectionInfo.ServerVersion = serverIdentification.ToString();
                     ConnectionInfo.ClientVersion = ClientVersion;
 
-                    // Get server SSH version
-                    var version = versionMatch.Result("${protoversion}");
+                    DiagnosticAbstraction.Log(string.Format("Server version '{0}' on '{1}'.", serverIdentification.ProtocolVersion, serverIdentification.SoftwareVersion));
 
-                    var softwareName = versionMatch.Result("${softwareversion}");
-
-                    DiagnosticAbstraction.Log(string.Format("Server version '{0}' on '{1}'.", version, softwareName));
-
-                    if (!(version.Equals("2.0") || version.Equals("1.99")))
+                    if (!(serverIdentification.ProtocolVersion.Equals("2.0") || serverIdentification.ProtocolVersion.Equals("1.99")))
                     {
-                        throw new SshConnectionException(string.Format(CultureInfo.CurrentCulture, "Server version '{0}' is not supported.", version), DisconnectReason.ProtocolVersionNotSupported);
+                        throw new SshConnectionException(string.Format(CultureInfo.CurrentCulture, "Server version '{0}' is not supported.", serverIdentification.ProtocolVersion),
+                                                         DisconnectReason.ProtocolVersionNotSupported);
                     }
 
                     // Register Transport response messages
@@ -1769,49 +1738,6 @@ namespace Renci.SshNet
         private static int TrySocketRead(Socket socket, byte[] buffer, int offset, int length)
         {
             return SocketAbstraction.Read(socket, buffer, offset, length, InfiniteTimeSpan);
-        }
-
-        /// <summary>
-        /// Performs a blocking read on the socket until a line is read.
-        /// </summary>
-        /// <param name="socket">The <see cref="Socket"/> to read from.</param>
-        /// <param name="timeout">A <see cref="TimeSpan"/> that represents the time to wait until a line is read.</param>
-        /// <exception cref="SshOperationTimeoutException">The read has timed-out.</exception>
-        /// <exception cref="SocketException">An error occurred when trying to access the socket.</exception>
-        /// <returns>
-        /// The line read from the socket, or <c>null</c> when the remote server has shutdown and all data has been received.
-        /// </returns>
-        private static string SocketReadLine(Socket socket, TimeSpan timeout)
-        {
-            var encoding = SshData.Ascii;
-            var buffer = new List<byte>();
-            var data = new byte[1];
-
-            // read data one byte at a time to find end of line and leave any unhandled information in the buffer
-            // to be processed by subsequent invocations
-            do
-            {
-                var bytesRead = SocketAbstraction.Read(socket, data, 0, data.Length, timeout);
-                if (bytesRead == 0)
-                    // the remote server shut down the socket
-                    break;
-
-                buffer.Add(data[0]);
-            }
-            while (!(buffer.Count > 0 && (buffer[buffer.Count - 1] == LineFeed || buffer[buffer.Count - 1] == Null)));
-
-            if (buffer.Count == 0)
-                return null;
-            if (buffer.Count == 1 && buffer[buffer.Count - 1] == 0x00)
-                // return an empty version string if the buffer consists of only a 0x00 character
-                return string.Empty;
-            if (buffer.Count > 1 && buffer[buffer.Count - 2] == CarriageReturn)
-                // strip trailing CRLF
-                return encoding.GetString(buffer.ToArray(), 0, buffer.Count - 2);
-            if (buffer.Count > 1 && buffer[buffer.Count - 1] == LineFeed)
-                // strip trailing LF
-                return encoding.GetString(buffer.ToArray(), 0, buffer.Count - 1);
-            return encoding.GetString(buffer.ToArray(), 0, buffer.Count);
         }
 
         /// <summary>

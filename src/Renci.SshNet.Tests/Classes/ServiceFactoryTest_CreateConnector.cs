@@ -134,7 +134,7 @@ namespace Renci.SshNet.Tests.Classes
                 Assert.AreEqual("ProxyTypes '666' is not supported.", ex.Message);
             }
 
-            _connectionInfoMock.Verify(p => p.ProxyType, Times.Once);
+            _connectionInfoMock.Verify(p => p.ProxyType, Times.Exactly(2));
         }
     }
 }

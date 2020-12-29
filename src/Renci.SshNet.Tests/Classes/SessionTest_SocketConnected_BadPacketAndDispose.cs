@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Renci.SshNet.Common;
@@ -15,13 +14,17 @@ namespace Renci.SshNet.Tests.Classes
     public class SessionTest_SocketConnected_BadPacketAndDispose
     {
         private Mock<IServiceFactory> _serviceFactoryMock;
+        private Mock<ISocketFactory> _socketFactoryMock;
         private Mock<IConnector> _connectorMock;
+        private Mock<IProtocolVersionExchange> _protocolVersionExchangeMock;
         private ConnectionInfo _connectionInfo;
         private Session _session;
         private AsyncSocketListener _serverListener;
         private IPEndPoint _serverEndPoint;
         private Socket _serverSocket;
+        private Socket _clientSocket;
         private SshConnectionException _actualException;
+        private SocketFactory _socketFactory;
 
         [TestInitialize]
         public void Setup()
@@ -42,7 +45,9 @@ namespace Renci.SshNet.Tests.Classes
         protected void CreateMocks()
         {
             _serviceFactoryMock = new Mock<IServiceFactory>(MockBehavior.Strict);
+            _socketFactoryMock = new Mock<ISocketFactory>(MockBehavior.Strict);
             _connectorMock = new Mock<IConnector>(MockBehavior.Strict);
+            _protocolVersionExchangeMock = new Mock<IProtocolVersionExchange>(MockBehavior.Strict);
         }
 
         protected void SetupData()
@@ -55,30 +60,37 @@ namespace Renci.SshNet.Tests.Classes
                 new PasswordAuthenticationMethod("user", "password"));
             _connectionInfo.Timeout = TimeSpan.FromMilliseconds(200);
             _actualException = null;
+            _socketFactory = new SocketFactory();
 
             _serverListener = new AsyncSocketListener(_serverEndPoint);
             _serverListener.Connected += (socket) =>
                 {
                     _serverSocket = socket;
 
-                    socket.Send(Encoding.ASCII.GetBytes("\r\n"));
-                    socket.Send(Encoding.ASCII.GetBytes("WELCOME banner\r\n"));
-                    socket.Send(Encoding.ASCII.GetBytes("SSH-2.0-SshStub\r\n"));
-                };
-            _serverListener.BytesReceived += (received, socket) =>
-                {
+                    // Since we're mocking the protocol version exchange, we can immediately send the bad
+                    // packet upon establishing the connection
+
                     var badPacket = new byte[] { 0x0a, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05 };
                     _serverSocket.Send(badPacket, 0, badPacket.Length, SocketFlags.None);
                     _serverSocket.Shutdown(SocketShutdown.Send);
                 };
+            _serverListener.Start();
+
+            _session = new Session(_connectionInfo, _serviceFactoryMock.Object, _socketFactoryMock.Object);
+
+            _clientSocket = new DirectConnector(_socketFactory).Connect(_connectionInfo);
         }
 
         protected void SetupMocks()
         {
-            _serviceFactoryMock.Setup(p => p.CreateConnector(_connectionInfo))
+            _serviceFactoryMock.Setup(p => p.CreateConnector(_connectionInfo, _socketFactoryMock.Object))
                                .Returns(_connectorMock.Object);
             _connectorMock.Setup(p => p.Connect(_connectionInfo))
-                          .Returns<IConnectionInfo>(c => new DirectConnector().Connect(c));
+                          .Returns(_clientSocket);
+            _serviceFactoryMock.Setup(p => p.CreateProtocolVersionExchange())
+                               .Returns(_protocolVersionExchangeMock.Object);
+            _protocolVersionExchangeMock.Setup(p => p.Start(_session.ClientVersion, _clientSocket, _connectionInfo.Timeout))
+                                        .Returns(new SshIdentification("2.0", "XXX"));
         }
 
         protected void Arrange()
@@ -86,15 +98,13 @@ namespace Renci.SshNet.Tests.Classes
             CreateMocks();
             SetupData();
             SetupMocks();
-
-            _serverListener.Start();
         }
 
         protected virtual void Act()
         {
             try
             {
-                using (_session = new Session(_connectionInfo, _serviceFactoryMock.Object))
+
                 {
                     _session.Connect();
                 }

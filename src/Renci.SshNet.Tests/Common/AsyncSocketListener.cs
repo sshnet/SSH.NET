@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -12,9 +13,11 @@ namespace Renci.SshNet.Tests.Common
     {
         private readonly IPEndPoint _endPoint;
         private readonly ManualResetEvent _acceptCallbackDone;
+        private List<Socket> _connectedClients;
         private Socket _listener;
         private Thread _receiveThread;
         private bool _started;
+        private object _syncLock;
 
         public delegate void BytesReceivedHandler(byte[] bytesReceived, Socket socket);
         public delegate void ConnectedHandler(Socket socket);
@@ -27,6 +30,8 @@ namespace Renci.SshNet.Tests.Common
         {
             _endPoint = endPoint;
             _acceptCallbackDone = new ManualResetEvent(false);
+            _connectedClients = new List<Socket>();
+            _syncLock = new object();
             ShutdownRemoteCommunicationSocket = true;
         }
 
@@ -56,11 +61,31 @@ namespace Renci.SshNet.Tests.Common
         public void Stop()
         {
             _started = false;
+
+            lock (_syncLock)
+            {
+                foreach (var connectedClient in _connectedClients)
+                {
+                    try
+                    {
+                        connectedClient.Shutdown(SocketShutdown.Send);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.Error.WriteLine("[{0}] Failure shutting down socket: {1}",
+                                                typeof(AsyncSocketListener).FullName,
+                                                ex);
+                    }
+
+                    DrainSocket(connectedClient);
+                }
+            }
+
             if (_listener != null)
             {
                 _listener.Dispose();
-                _listener = null;
             }
+
             if (_receiveThread != null)
             {
                 _receiveThread.Join();
@@ -87,15 +112,23 @@ namespace Renci.SshNet.Tests.Common
 
         private void AcceptCallback(IAsyncResult ar)
         {
-            // Signal the main thread to continue.
+            // Signal the main thread to continue
             _acceptCallbackDone.Set();
 
-            // Get the socket that handles the client request.
-            var listener = (Socket)ar.AsyncState;
+            // Get the socket that listens for inbound connections
+            var listener = (Socket) ar.AsyncState;
+
+            // Get the socket that handles the client request
+            var handler = listener.EndAccept(ar);
+
+            // Signal new connection
+            SignalConnected(handler);
+
+            // Register client socket
+            _connectedClients.Add(handler);
+
             try
             {
-                var handler = listener.EndAccept(ar);
-                SignalConnected(handler);
                 var state = new SocketStateObject(handler);
                 handler.BeginReceive(state.Buffer, 0, state.Buffer.Length, 0, ReadCallback, state);
             }
@@ -109,7 +142,7 @@ namespace Renci.SshNet.Tests.Common
         private void ReadCallback(IAsyncResult ar)
         {
             // Retrieve the state object and the handler socket
-            // from the asynchronous state object.
+            // from the asynchronous state object
             var state = (SocketStateObject) ar.AsyncState;
             var handler = state.Socket;
 
@@ -132,8 +165,6 @@ namespace Renci.SshNet.Tests.Common
                 var bytesReceived = new byte[bytesRead];
                 Array.Copy(state.Buffer, bytesReceived, bytesRead);
                 SignalBytesReceived(bytesReceived, handler);
-
-                // prepare to receive more bytes
                 handler.BeginReceive(state.Buffer, 0, state.Buffer.Length, 0, ReadCallback, state);
             }
             else
@@ -142,8 +173,13 @@ namespace Renci.SshNet.Tests.Common
 
                 if (ShutdownRemoteCommunicationSocket)
                 {
-                    handler.Shutdown(SocketShutdown.Both);
-                    handler.Close();
+                    lock (_syncLock)
+                    {
+                        handler.Shutdown(SocketShutdown.Send);
+                        handler.Close();
+
+                        _connectedClients.Remove(handler);
+                    }
                 }
             }
         }
@@ -167,6 +203,30 @@ namespace Renci.SshNet.Tests.Common
             var subscribers = Disconnected;
             if (subscribers != null)
                 subscribers(client);
+        }
+
+        private static void DrainSocket(Socket socket)
+        {
+            var buffer = new byte[128];
+
+            try
+            {
+                while (true && socket.Connected)
+                {
+                    var bytesRead = socket.Receive(buffer);
+                    if (bytesRead == 0)
+                    {
+                        break;
+                    }
+                }
+            }
+            catch (SocketException ex)
+            {
+                Console.Error.WriteLine("[{0}] Failure draining socket ({1}): {2}",
+                                        typeof(AsyncSocketListener).FullName,
+                                        ex.SocketErrorCode.ToString("G"),
+                                        ex);
+            }
         }
 
         private class SocketStateObject

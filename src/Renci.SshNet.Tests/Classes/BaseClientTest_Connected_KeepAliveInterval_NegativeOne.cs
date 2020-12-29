@@ -2,29 +2,49 @@
 using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Renci.SshNet.Connection;
 using Renci.SshNet.Messages.Transport;
 
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    public class BaseClientTest_Connected_KeepAliveInterval_NegativeOne
+    public class BaseClientTest_Connected_KeepAliveInterval_NegativeOne : BaseClientTestBase
     {
-        private Mock<IServiceFactory> _serviceFactoryMock;
-        private Mock<ISession> _sessionMock;
         private BaseClient _client;
         private ConnectionInfo _connectionInfo;
         private TimeSpan _keepAliveInterval;
         private int _keepAliveCount;
 
-        [TestInitialize]
-        public void Setup()
+        protected override void SetupData()
         {
-            Arrange();
-            Act();
+            _connectionInfo = new ConnectionInfo("host", "user", new PasswordAuthenticationMethod("user", "pwd"));
+            _keepAliveInterval = TimeSpan.FromMilliseconds(100d);
+            _keepAliveCount = 0;
         }
 
-        [TestCleanup]
-        public void Cleanup()
+        protected override void SetupMocks()
+        {
+            _serviceFactoryMock.Setup(p => p.CreateSocketFactory())
+                               .Returns(_socketFactoryMock.Object);
+            _serviceFactoryMock.Setup(p => p.CreateSession(_connectionInfo, _socketFactoryMock.Object))
+                               .Returns(_sessionMock.Object);
+            _sessionMock.Setup(p => p.Connect());
+            _sessionMock.Setup(p => p.IsConnected).Returns(true);
+            _sessionMock.Setup(p => p.TrySendMessage(It.IsAny<IgnoreMessage>()))
+                        .Returns(true)
+                        .Callback(() => Interlocked.Increment(ref _keepAliveCount));
+        }
+
+        protected override void Arrange()
+        {
+            base.Arrange();
+
+            _client = new MyClient(_connectionInfo, false, _serviceFactoryMock.Object);
+            _client.Connect();
+            _client.KeepAliveInterval = _keepAliveInterval;
+        }
+
+        protected override void TearDown()
         {
             if (_client != null)
             {
@@ -34,42 +54,7 @@ namespace Renci.SshNet.Tests.Classes
             }
         }
 
-        private void SetupData()
-        {
-            _connectionInfo = new ConnectionInfo("host", "user", new PasswordAuthenticationMethod("user", "pwd"));
-            _keepAliveInterval = TimeSpan.FromMilliseconds(100d);
-            _keepAliveCount = 0;
-        }
-
-        private void CreateMocks()
-        {
-            _serviceFactoryMock = new Mock<IServiceFactory>(MockBehavior.Strict);
-            _sessionMock = new Mock<ISession>(MockBehavior.Strict);
-        }
-
-        private void SetupMocks()
-        {
-            _serviceFactoryMock.Setup(p => p.CreateSession(_connectionInfo))
-                               .Returns(_sessionMock.Object);
-            _sessionMock.Setup(p => p.Connect());
-            _sessionMock.Setup(p => p.IsConnected).Returns(true);
-            _sessionMock.Setup(p => p.TrySendMessage(It.IsAny<IgnoreMessage>()))
-                        .Returns(true)
-                        .Callback(() => Interlocked.Increment(ref _keepAliveCount));
-        }
-
-        protected void Arrange()
-        {
-            SetupData();
-            CreateMocks();
-            SetupMocks();
-
-            _client = new MyClient(_connectionInfo, false, _serviceFactoryMock.Object);
-            _client.Connect();
-            _client.KeepAliveInterval = _keepAliveInterval;
-        }
-
-        protected void Act()
+        protected override void Act()
         {
             // allow keep-alive to be sent once
             Thread.Sleep(150);
@@ -85,9 +70,15 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
+        public void CreateSocketFactoryOnServiceFactoryShouldBeInvokedOnce()
+        {
+            _serviceFactoryMock.Verify(p => p.CreateSocketFactory(), Times.Once);
+        }
+
+        [TestMethod]
         public void CreateSessionOnServiceFactoryShouldBeInvokedOnce()
         {
-            _serviceFactoryMock.Verify(p => p.CreateSession(_connectionInfo), Times.Once);
+            _serviceFactoryMock.Verify(p => p.CreateSession(_connectionInfo, _socketFactoryMock.Object), Times.Once);
         }
 
         [TestMethod]

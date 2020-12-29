@@ -2,26 +2,58 @@
 using Renci.SshNet.Common;
 using System;
 using System.Net.Sockets;
+using System.Text;
 
 namespace Renci.SshNet.Connection
 {
+    /// <summary>
+    /// Establishes a tunnel via a SOCKS4 proxy server.
+    /// </summary>
+    /// <remarks>
+    /// https://www.openssh.com/txt/socks4.protocol
+    /// </remarks>
     internal class Socks4Connector : ConnectorBase
     {
+        public Socks4Connector(ISocketFactory socketFactory) : base(socketFactory)
+        {
+        }
+
         public override Socket Connect(IConnectionInfo connectionInfo)
         {
             var socket = SocketConnect(connectionInfo.ProxyHost, connectionInfo.ProxyPort, connectionInfo.Timeout);
 
+            try
+            {
+                HandleProxyConnect(connectionInfo, socket);
+                return socket;
+            }
+            catch (Exception)
+            {
+                socket.Shutdown(SocketShutdown.Both);
+                socket.Dispose();
+
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Establishes a connection to the server via a SOCKS5 proxy.
+        /// </summary>
+        /// <param name="connectionInfo">The connection information.</param>
+        /// <param name="socket">The <see cref="Socket"/>.</param>
+        private void HandleProxyConnect(IConnectionInfo connectionInfo, Socket socket)
+        {
             var connectionRequest = CreateSocks4ConnectionRequest(connectionInfo.Host, (ushort)connectionInfo.Port, connectionInfo.ProxyUsername);
             SocketAbstraction.Send(socket, connectionRequest);
 
-            //  Read null byte
-            if (SocketReadByte(socket) != 0)
+            //  Read reply version
+            if (SocketReadByte(socket, connectionInfo.Timeout) != 0x00)
             {
                 throw new ProxyException("SOCKS4: Null is expected.");
             }
 
             //  Read response code
-            var code = SocketReadByte(socket);
+            var code = SocketReadByte(socket, connectionInfo.Timeout);
 
             switch (code)
             {
@@ -37,15 +69,14 @@ namespace Renci.SshNet.Connection
                     throw new ProxyException("SOCKS4: Not valid response.");
             }
 
-            var dummyBuffer = new byte[6]; // field 3 (2 bytes) and field 4 (4) should be ignored
-            SocketRead(socket, dummyBuffer, 0, 6);
-
-            return socket;
+            var destBuffer = new byte[6]; // destination port and IP address should be ignored
+            SocketRead(socket, destBuffer, 0, destBuffer.Length, connectionInfo.Timeout);
         }
 
         private static byte[] CreateSocks4ConnectionRequest(string hostname, ushort port, string username)
         {
             var addressBytes = GetSocks4DestinationAddress(hostname);
+            var proxyUserBytes = GetProxyUserBytes(username);
 
             var connectionRequest = new byte
                 [
@@ -58,7 +89,7 @@ namespace Renci.SshNet.Connection
                     // IP address
                     addressBytes.Length +
                     // Username
-                    username.Length +
+                    proxyUserBytes.Length +
                     // Null terminator
                     1
                 ];
@@ -79,6 +110,11 @@ namespace Renci.SshNet.Connection
             Buffer.BlockCopy(addressBytes, 0, connectionRequest, index, addressBytes.Length);
             index += addressBytes.Length;
 
+            // User name
+            Buffer.BlockCopy(proxyUserBytes, 0, connectionRequest, index, proxyUserBytes.Length);
+            index += proxyUserBytes.Length;
+
+            // Null terminator
             connectionRequest[index] = 0x00;
 
             return connectionRequest;
@@ -98,6 +134,16 @@ namespace Renci.SshNet.Connection
             }
 
             throw new ProxyException(string.Format("SOCKS4 only supports IPv4. No such address found for '{0}'.", hostname));
+        }
+
+        private static byte[] GetProxyUserBytes(string proxyUser)
+        {
+            if (proxyUser == null)
+            {
+                return Array<byte>.Empty;
+            }
+
+            return Encoding.ASCII.GetBytes(proxyUser);
         }
     }
 }

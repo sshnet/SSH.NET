@@ -10,51 +10,29 @@ using Renci.SshNet.Security;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    public class NetConfClientTest_Connect_NetConfSessionConnectFailure
+    public class NetConfClientTest_Connect_NetConfSessionConnectFailure : NetConfClientTestBase
     {
-        private Mock<IServiceFactory> _serviceFactoryMock;
-        private Mock<ISession> _sessionMock;
-        private Mock<INetConfSession> _netConfSessionMock;
         private ConnectionInfo _connectionInfo;
         private ApplicationException _netConfSessionConnectionException;
         private NetConfClient _netConfClient;
         private ApplicationException _actualException;
 
-        [TestInitialize]
-        public void Setup()
-        {
-            Arrange();
-            Act();
-        }
-
-        private void Arrange()
-        {
-            SetupData();
-            CreateMocks();
-            SetupMocks();
-
-            _netConfClient = new NetConfClient(_connectionInfo, false, _serviceFactoryMock.Object);
-        }
-
-        private void SetupData()
+        protected override void SetupData()
         {
             _connectionInfo = new ConnectionInfo("host", "user", new NoneAuthenticationMethod("userauth"));
             _netConfSessionConnectionException = new ApplicationException();
+            _netConfClient = new NetConfClient(_connectionInfo, false, _serviceFactoryMock.Object);
         }
 
-        private void CreateMocks()
-        {
-            _serviceFactoryMock = new Mock<IServiceFactory>(MockBehavior.Strict);
-            _sessionMock = new Mock<ISession>(MockBehavior.Strict);
-            _netConfSessionMock = new Mock<INetConfSession>(MockBehavior.Strict);
-        }
-
-        private void SetupMocks()
+        protected override void SetupMocks()
         {
             var sequence = new MockSequence();
 
             _serviceFactoryMock.InSequence(sequence)
-                               .Setup(p => p.CreateSession(_connectionInfo))
+                               .Setup(p => p.CreateSocketFactory())
+                               .Returns(_socketFactoryMock.Object);
+            _serviceFactoryMock.InSequence(sequence)
+                               .Setup(p => p.CreateSession(_connectionInfo, _socketFactoryMock.Object))
                                .Returns(_sessionMock.Object);
             _sessionMock.InSequence(sequence)
                         .Setup(p => p.Connect());
@@ -70,7 +48,7 @@ namespace Renci.SshNet.Tests.Classes
                         .Setup(p => p.Dispose());
         }
 
-        private void Act()
+        protected override void Act()
         {
             try
             {

@@ -55,16 +55,16 @@ namespace Renci.SshNet.Tests.Classes
             _timeout = TimeSpan.FromSeconds(5);
             _serverEndPoint = new IPEndPoint(IPAddress.Loopback, 8122);
             _dataReceivedByServer = new List<byte>();
-            _serverIdentification = Encoding.UTF8.GetBytes("Welcome stranger!\r\n\r\nSSH-ABC2.0-OurSSHAppliance-1.4.7 Use at own risk.\uD55C\r\n!");
+            _serverIdentification = Encoding.UTF8.GetBytes("\r\nWelcome stranger!\r\n\r\nSSH-ABC2.0-OurSSHAppliance-1.4.7 Use at own risk.\uD55C\r\n!");
 
             _server = new AsyncSocketListener(_serverEndPoint);
             _server.Start();
             _server.BytesReceived += (bytes, socket) =>
-            {
-                _dataReceivedByServer.AddRange(bytes);
-                socket.Send(_serverIdentification);
-                socket.Shutdown(SocketShutdown.Both);
-            };
+                {
+                    _dataReceivedByServer.AddRange(bytes);
+                    socket.Send(_serverIdentification);
+                    socket.Shutdown(SocketShutdown.Both);
+                };
             _server.Disconnected += (socket) => _clientDisconnected = true;
 
             _client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);

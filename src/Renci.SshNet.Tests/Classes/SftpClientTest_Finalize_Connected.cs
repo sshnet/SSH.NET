@@ -6,54 +6,49 @@ using Renci.SshNet.Sftp;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    public class SftpClientTest_Finalize_Connected
+    public class SftpClientTest_Finalize_Connected : SftpClientTestBase
     {
-        private Mock<IServiceFactory> _serviceFactoryMock;
-        private Mock<ISession> _sessionMock;
-        private Mock<ISftpResponseFactory> _sftpResponseFactoryMock;
-        private Mock<ISftpSession> _sftpSessionMock;
         private SftpClient _sftpClient;
         private ConnectionInfo _connectionInfo;
         private int _operationTimeout;
+        private WeakReference _sftpClientWeakRefence;
 
-        [TestInitialize]
-        public void Setup()
+        protected override void SetupData()
         {
-            Arrange();
-            Act();
-        }
-
-        protected void Arrange()
-        {
-            _serviceFactoryMock = new Mock<IServiceFactory>(MockBehavior.Loose);
-            _sessionMock = new Mock<ISession>(MockBehavior.Strict);
-            _sftpResponseFactoryMock = new Mock<ISftpResponseFactory>(MockBehavior.Strict);
-            _sftpSessionMock = new Mock<ISftpSession>(MockBehavior.Strict);
-
             _connectionInfo = new ConnectionInfo("host", "user", new NoneAuthenticationMethod("userauth"));
             _operationTimeout = new Random().Next(1000, 10000);
             _sftpClient = new SftpClient(_connectionInfo, false, _serviceFactoryMock.Object);
             _sftpClient.OperationTimeout = TimeSpan.FromMilliseconds(_operationTimeout);
+            _sftpClientWeakRefence = new WeakReference(_sftpClient);
+        }
 
-            _serviceFactoryMock.Setup(p => p.CreateSession(_connectionInfo))
-                .Returns(_sessionMock.Object);
+        protected override void SetupMocks()
+        {
+            _serviceFactoryMock.Setup(p => p.CreateSocketFactory())
+                               .Returns(_socketFactoryMock.Object);
+            _serviceFactoryMock.Setup(p => p.CreateSession(_connectionInfo, _socketFactoryMock.Object))
+                               .Returns(_sessionMock.Object);
             _sessionMock.Setup(p => p.Connect());
             _serviceFactoryMock.Setup(p => p.CreateSftpResponseFactory())
                                .Returns(_sftpResponseFactoryMock.Object);
             _serviceFactoryMock.Setup(p => p.CreateSftpSession(_sessionMock.Object, _operationTimeout, _connectionInfo.Encoding, _sftpResponseFactoryMock.Object))
                                .Returns(_sftpSessionMock.Object);
             _sftpSessionMock.Setup(p => p.Connect());
+        }
+
+        protected override void Arrange()
+        {
+            base.Arrange();
 
             _sftpClient.Connect();
             _sftpClient = null;
 
-            // we need to dereference all other mocks as they might otherwise hold the target alive
-            _sessionMock = null;
-            _connectionInfo = null;
-            _serviceFactoryMock = null;
+            // We need to dereference all mocks as they might otherwise hold the target alive
+            //(through recorded invocations?)
+            CreateMocks();
         }
 
-        protected void Act()
+        protected override void Act()
         {
             GC.Collect();
             GC.WaitForPendingFinalizers();
@@ -62,13 +57,25 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void DisconnectOnSftpSessionShouldNeverBeInvoked()
         {
+            // Since we recreated the mocks, this test has no value
+            // We'll leaving ths test just in case we have a solution that does not require us
+            // to recreate the mocks
             _sftpSessionMock.Verify(p => p.Disconnect(), Times.Never);
         }
 
         [TestMethod]
         public void DisposeOnSftpSessionShouldNeverBeInvoked()
         {
+            // Since we recreated the mocks, this test has no value
+            // We'll leaving ths test just in case we have a solution that does not require us
+            // to recreate the mocks
             _sftpSessionMock.Verify(p => p.Dispose(), Times.Never);
+        }
+
+        [TestMethod]
+        public void SftpClientShouldHaveBeenFinalized()
+        {
+            Assert.IsNull(_sftpClientWeakRefence.Target);
         }
     }
 }

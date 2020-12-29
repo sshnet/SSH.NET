@@ -9,6 +9,16 @@ namespace Renci.SshNet.Connection
 {
     internal abstract class ConnectorBase : IConnector
     {
+        protected ConnectorBase(ISocketFactory socketFactory)
+        {
+            if (socketFactory == null)
+                throw new ArgumentNullException("socketFactory");
+
+            SocketFactory = socketFactory;
+        }
+
+        internal ISocketFactory SocketFactory { get; private set; }
+
         public abstract Socket Connect(IConnectionInfo connectionInfo);
 
         /// <summary>
@@ -26,18 +36,35 @@ namespace Renci.SshNet.Connection
 
             DiagnosticAbstraction.Log(string.Format("Initiating connection to '{0}:{1}'.", host, port));
 
-            var socket = SocketAbstraction.Connect(ep, timeout);
+            var socket = SocketFactory.Create(ep.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
-            const int socketBufferSize = 2 * Session.MaximumSshPacketSize;
-            socket.SendBufferSize = socketBufferSize;
-            socket.ReceiveBufferSize = socketBufferSize;
-            return socket;
+            try
+            {
+                SocketAbstraction.Connect(socket, ep, timeout);
+
+                const int socketBufferSize = 2 * Session.MaximumSshPacketSize;
+                socket.SendBufferSize = socketBufferSize;
+                socket.ReceiveBufferSize = socketBufferSize;
+                return socket;
+            }
+            catch (Exception)
+            {
+                socket.Dispose();
+                throw;
+            }
         }
 
         protected static byte SocketReadByte(Socket socket)
         {
             var buffer = new byte[1];
-            SocketRead(socket, buffer, 0, 1);
+            SocketRead(socket, buffer, 0, 1, Session.InfiniteTimeSpan);
+            return buffer[0];
+        }
+
+        protected static byte SocketReadByte(Socket socket, TimeSpan readTimeout)
+        {
+            var buffer = new byte[1];
+            SocketRead(socket, buffer, 0, 1, readTimeout);
             return buffer[0];
         }
 
@@ -52,16 +79,31 @@ namespace Renci.SshNet.Connection
         /// The number of bytes read.
         /// </returns>
         /// <exception cref="SshConnectionException">The socket is closed.</exception>
-        /// <exception cref="SshOperationTimeoutException">The read has timed-out.</exception>
         /// <exception cref="SocketException">The read failed.</exception>
         protected static int SocketRead(Socket socket, byte[] buffer, int offset, int length)
         {
-            var bytesRead = SocketAbstraction.Read(socket, buffer, offset, length, Session.InfiniteTimeSpan);
+            return SocketRead(socket, buffer, offset, length, Session.InfiniteTimeSpan);
+        }
+
+        /// <summary>
+        /// Performs a blocking read on the socket until <paramref name="length"/> bytes are received.
+        /// </summary>
+        /// <param name="socket">The <see cref="Socket"/> to read from.</param>
+        /// <param name="buffer">An array of type <see cref="byte"/> that is the storage location for the received data.</param>
+        /// <param name="offset">The position in <paramref name="buffer"/> parameter to store the received data.</param>
+        /// <param name="length">The number of bytes to read.</param>
+        /// <param name="readTimeout">The maximum time to wait until <paramref name="length"/> bytes have been received.</param>
+        /// <returns>
+        /// The number of bytes read.
+        /// </returns>
+        /// <exception cref="SshConnectionException">The socket is closed.</exception>
+        /// <exception cref="SshOperationTimeoutException">The read has timed-out.</exception>
+        /// <exception cref="SocketException">The read failed.</exception>
+        protected static int SocketRead(Socket socket, byte[] buffer, int offset, int length, TimeSpan readTimeout)
+        {
+            var bytesRead = SocketAbstraction.Read(socket, buffer, offset, length, readTimeout);
             if (bytesRead == 0)
             {
-                // when we're in the disconnecting state (either triggered by client or server), then the
-                // SshConnectionException will interrupt the message listener loop (if not already interrupted)
-                // and the exception itself will be ignored (in RaiseError)
                 throw new SshConnectionException("An established connection was aborted by the server.",
                                                  DisconnectReason.ConnectionLost);
             }

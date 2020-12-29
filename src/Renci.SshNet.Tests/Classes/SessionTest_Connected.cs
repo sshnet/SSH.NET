@@ -66,7 +66,7 @@ namespace Renci.SshNet.Tests.Classes
         public void ServerVersionShouldNotReturnNull()
         {
             Assert.IsNotNull(Session.ServerVersion);
-            Assert.AreEqual("SSH-2.0-SshStub", Session.ServerVersion);
+            Assert.AreEqual("SSH-2.0-OurServerStub", Session.ServerVersion);
         }
 
         [TestMethod]
@@ -254,9 +254,16 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
+        public void ClientSocketShouldBeConnected()
+        {
+            Assert.IsNotNull(ClientSocket);
+            Assert.IsTrue(ClientSocket.Connected);
+        }
+
+        [TestMethod]
         public void CreateConnectorOnServiceFactoryShouldHaveBeenInvokedOnce()
         {
-            ServiceFactoryMock.Verify(p => p.CreateConnector(ConnectionInfo), Times.Once());
+            ServiceFactoryMock.Verify(p => p.CreateConnector(ConnectionInfo, SocketFactoryMock.Object), Times.Once());
         }
 
         [TestMethod]

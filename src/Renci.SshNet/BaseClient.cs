@@ -457,7 +457,7 @@ namespace Renci.SshNet
 
         private ISession CreateAndConnectSession()
         {
-            var session = _serviceFactory.CreateSession(ConnectionInfo);
+            var session = _serviceFactory.CreateSession(ConnectionInfo, _serviceFactory.CreateSocketFactory());
             session.HostKeyReceived += Session_HostKeyReceived;
             session.ErrorOccured += Session_ErrorOccured;
 

@@ -50,7 +50,10 @@ namespace Renci.SshNet.Tests.Classes
                                .Setup(p => p.CreateRemotePathDoubleQuoteTransformation())
                                .Returns(_remotePathTransformationMock.Object);
             _serviceFactoryMock.InSequence(sequence)
-                               .Setup(p => p.CreateSession(_connectionInfo))
+                               .Setup(p => p.CreateSocketFactory())
+                               .Returns(_socketFactoryMock.Object);
+            _serviceFactoryMock.InSequence(sequence)
+                               .Setup(p => p.CreateSession(_connectionInfo, _socketFactoryMock.Object))
                                .Returns(_sessionMock.Object);
             _sessionMock.InSequence(sequence).Setup(p => p.Connect());
             _serviceFactoryMock.InSequence(sequence).Setup(p => p.CreatePipeStream()).Returns(_pipeStreamMock.Object);

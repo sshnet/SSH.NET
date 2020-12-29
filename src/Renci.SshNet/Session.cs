@@ -6,6 +6,7 @@ using System.Threading;
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
 using Renci.SshNet.Compression;
+using Renci.SshNet.Connection;
 using Renci.SshNet.Messages;
 using Renci.SshNet.Messages.Authentication;
 using Renci.SshNet.Messages.Connection;
@@ -161,6 +162,7 @@ namespace Renci.SshNet
         /// Holds the factory to use for creating new services.
         /// </summary>
         private readonly IServiceFactory _serviceFactory;
+        private readonly ISocketFactory _socketFactory;
 
         /// <summary>
         /// Holds connection socket.
@@ -531,18 +533,23 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="connectionInfo">The connection info.</param>
         /// <param name="serviceFactory">The factory to use for creating new services.</param>
+        /// <param name="socketFactory">A factory to create <see cref="Socket"/> instances.</param>
         /// <exception cref="ArgumentNullException"><paramref name="connectionInfo"/> is <c>null</c>.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="serviceFactory"/> is <c>null</c>.</exception>
-        internal Session(ConnectionInfo connectionInfo, IServiceFactory serviceFactory)
+        /// <exception cref="ArgumentNullException"><paramref name="socketFactory"/> is <c>null</c>.</exception>
+        internal Session(ConnectionInfo connectionInfo, IServiceFactory serviceFactory, ISocketFactory socketFactory)
         {
             if (connectionInfo == null)
                 throw new ArgumentNullException("connectionInfo");
             if (serviceFactory == null)
                 throw new ArgumentNullException("serviceFactory");
+            if (socketFactory == null)
+                throw new ArgumentNullException("socketFactory");
 
             ClientVersion = "SSH-2.0-Renci.SshNet.SshClient.0.0.1";
             ConnectionInfo = connectionInfo;
             _serviceFactory = serviceFactory;
+            _socketFactory = socketFactory;
             _messageListenerCompleted = new ManualResetEvent(true);
         }
 
@@ -577,14 +584,14 @@ namespace Renci.SshNet
                     // Build list of available messages while connecting
                     _sshMessageFactory = new SshMessageFactory();
 
-                    _socket = _serviceFactory.CreateConnector(ConnectionInfo)
+                    _socket = _serviceFactory.CreateConnector(ConnectionInfo, _socketFactory)
                                              .Connect(ConnectionInfo);
 
                     var serverIdentification = _serviceFactory.CreateProtocolVersionExchange()
                                                               .Start(ClientVersion, _socket, ConnectionInfo.Timeout);
 
                     // Set connection versions
-                    ConnectionInfo.ServerVersion = serverIdentification.ToString();
+                    ServerVersion = ConnectionInfo.ServerVersion = serverIdentification.ToString();
                     ConnectionInfo.ClientVersion = ClientVersion;
 
                     DiagnosticAbstraction.Log(string.Format("Server version '{0}' on '{1}'.", serverIdentification.ProtocolVersion, serverIdentification.SoftwareVersion));

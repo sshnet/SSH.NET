@@ -11,6 +11,13 @@ namespace Renci.SshNet.Tests.Classes
         private SshClient _sshClient;
         private ConnectionInfo _connectionInfo;
 
+        protected override void CreateMocks()
+        {
+            base.CreateMocks();
+
+            _forwardedPortMock = new Mock<ForwardedPort>(MockBehavior.Strict);
+        }
+
         protected override void SetupData()
         {
             _connectionInfo = new ConnectionInfo("host", "user", new NoneAuthenticationMethod("userauth"));

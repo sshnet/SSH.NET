@@ -99,11 +99,11 @@ namespace Renci.SshNet.Sftp
         {
             get
             {
-                return Attributes.LastAccessTime.ToUniversalTime();
+                return Attributes.LastAccessTimeUtc;
             }
             set
             {
-                Attributes.LastAccessTime = value.ToLocalTime();
+                Attributes.LastAccessTimeUtc = value;
             }
         }
 
@@ -117,11 +117,11 @@ namespace Renci.SshNet.Sftp
         {
             get
             {
-                return Attributes.LastWriteTime.ToUniversalTime();
+                return Attributes.LastWriteTimeUtc;
             }
             set
             {
-                Attributes.LastWriteTime = value.ToLocalTime();
+                Attributes.LastWriteTimeUtc = value;
             }
         }
 

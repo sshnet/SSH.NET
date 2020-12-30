@@ -48,8 +48,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             _writeBufferSize = (uint) random.Next(0, 1000);
             _length = random.Next();
 
-            _fileAttributesLastAccessTime = DateTime.Now.AddSeconds(random.Next());
-            _fileAttributesLastWriteTime = DateTime.Now.AddSeconds(random.Next());
+            _fileAttributesLastAccessTime = DateTime.UtcNow.AddSeconds(random.Next());
+            _fileAttributesLastWriteTime = DateTime.UtcNow.AddSeconds(random.Next());
             _fileAttributesSize = random.Next();
             _fileAttributesUserId = random.Next();
             _fileAttributesGroupId = random.Next();

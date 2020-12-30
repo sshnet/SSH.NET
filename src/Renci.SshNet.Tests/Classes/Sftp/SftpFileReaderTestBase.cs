@@ -38,7 +38,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
 
         protected static SftpFileAttributes CreateSftpFileAttributes(long size)
         {
-            return new SftpFileAttributes(default(DateTime), default(DateTime), size, default(int), default(int), default(uint), null);
+            var utcDefault = DateTime.SpecifyKind(default(DateTime), DateTimeKind.Utc);
+            return new SftpFileAttributes(utcDefault, utcDefault, size, default(int), default(int), default(uint), null);
         }
 
         protected static byte[] CreateByteArray(Random random, int length)

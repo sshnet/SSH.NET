@@ -49,8 +49,8 @@ namespace Renci.SshNet.Tests.Common
                 clonedExtensions = null;
             }
 
-            return new SftpFileAttributes(value.LastAccessTime,
-                                          value.LastWriteTime,
+            return new SftpFileAttributes(value.LastAccessTimeUtc,
+                                          value.LastWriteTimeUtc,
                                           value.Size,
                                           value.UserId,
                                           value.GroupId,

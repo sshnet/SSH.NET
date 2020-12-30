@@ -8,12 +8,11 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading;
 
 namespace Renci.SshNet.Tests.Classes.Connection
 {
     [TestClass]
-    public class ProtocolVersionExchangeTest_ServerDoesNotRespondWithIdentificationStringBeforeTimeout
+    public class ProtocolVersionExchangeTest_TimeoutReadingIdentificationString
     {
         private AsyncSocketListener _server;
         private ProtocolVersionExchange _protocolVersionExchange;
@@ -21,10 +20,8 @@ namespace Renci.SshNet.Tests.Classes.Connection
         private TimeSpan _timeout;
         private IPEndPoint _serverEndPoint;
         private List<byte> _dataReceivedByServer;
-        private byte[] _serverIdentification;
         private bool _clientDisconnected;
         private Socket _client;
-        private SshIdentification _actual;
         private SshOperationTimeoutException _actualException;
 
         [TestInitialize]
@@ -45,7 +42,6 @@ namespace Renci.SshNet.Tests.Classes.Connection
 
             if (_client != null)
             {
-                _client.Shutdown(SocketShutdown.Both);
                 _client.Close();
                 _client = null;
             }
@@ -57,7 +53,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
             _timeout = TimeSpan.FromMilliseconds(200);
             _serverEndPoint = new IPEndPoint(IPAddress.Loopback, 8122);
             _dataReceivedByServer = new List<byte>();
-            _serverIdentification = Encoding.UTF8.GetBytes("SSH-Zero-OurSSHAppliance\r\n!");
+            _clientDisconnected = false;
 
             _server = new AsyncSocketListener(_serverEndPoint);
             _server.Start();
@@ -65,10 +61,6 @@ namespace Renci.SshNet.Tests.Classes.Connection
                 {
                     _dataReceivedByServer.AddRange(bytes);
                     socket.Send(Encoding.UTF8.GetBytes("Welcome!\r\n"));
-                    /*
-                    Thread.Sleep(_timeout.Add(TimeSpan.FromMilliseconds(50)));
-                    socket.Shutdown(SocketShutdown.Send);
-                    */
                 };
             _server.Disconnected += (socket) => _clientDisconnected = true;
 
@@ -112,14 +104,8 @@ namespace Renci.SshNet.Tests.Classes.Connection
         }
 
         [TestMethod]
-        public void ConnectionIsClosedByServer()
+        public void ClientSocketShouldBeConnected()
         {
-            Assert.IsTrue(_client.Connected);
-            Assert.IsFalse(_clientDisconnected);
-
-            var bytesReceived = _client.Receive(new byte[1]);
-            Assert.AreEqual(0, bytesReceived);
-
             Assert.IsTrue(_client.Connected);
             Assert.IsFalse(_clientDisconnected);
         }

@@ -4,7 +4,6 @@ using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
 using System.Security.Cryptography;
-using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Renci.SshNet.Common;
@@ -108,18 +107,18 @@ namespace Renci.SshNet.Tests.Classes
                     // having established the connection instead of when the client has been identified
 
                     var keyExchangeInitMessage = new KeyExchangeInitMessage
-                    {
-                        CompressionAlgorithmsClientToServer = new string[0],
-                        CompressionAlgorithmsServerToClient = new string[0],
-                        EncryptionAlgorithmsClientToServer = new string[0],
-                        EncryptionAlgorithmsServerToClient = new string[0],
-                        KeyExchangeAlgorithms = new[] { _keyExchangeAlgorithm },
-                        LanguagesClientToServer = new string[0],
-                        LanguagesServerToClient = new string[0],
-                        MacAlgorithmsClientToServer = new string[0],
-                        MacAlgorithmsServerToClient = new string[0],
-                        ServerHostKeyAlgorithms = new string[0]
-                    };
+                        {
+                            CompressionAlgorithmsClientToServer = new string[0],
+                            CompressionAlgorithmsServerToClient = new string[0],
+                            EncryptionAlgorithmsClientToServer = new string[0],
+                            EncryptionAlgorithmsServerToClient = new string[0],
+                            KeyExchangeAlgorithms = new[] { _keyExchangeAlgorithm },
+                            LanguagesClientToServer = new string[0],
+                            LanguagesServerToClient = new string[0],
+                            MacAlgorithmsClientToServer = new string[0],
+                            MacAlgorithmsServerToClient = new string[0],
+                            ServerHostKeyAlgorithms = new string[0]
+                        };
                     var keyExchangeInit = keyExchangeInitMessage.GetPacket(8, null);
                     ServerSocket.Send(keyExchangeInit, 4, keyExchangeInit.Length - 4, SocketFlags.None);
                 };

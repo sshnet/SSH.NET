@@ -54,6 +54,10 @@ namespace Renci.SshNet.Tests.Classes
                                .Returns(false);
             _channelSessionMock.InSequence(sequence).Setup(p => p.Dispose());
             _pipeStreamMock.As<IDisposable>().InSequence(sequence).Setup(p => p.Dispose());
+
+            // On .NET Core, Dispose() in turn invokes Close() and since we're not mocking
+            // an interface, we need to expect this call as well
+            _pipeStreamMock.Setup(p => p.Close());
         }
 
         protected override void Arrange()

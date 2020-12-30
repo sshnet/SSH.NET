@@ -25,16 +25,6 @@ namespace Renci.SshNet.Tests.Classes
         private int _fileSize;
         private IList<ScpUploadEventArgs> _uploadingRegister;
 
-        [TestCleanup]
-        public void Cleanup()
-        {
-            if (_fileName != null)
-            {
-                File.Delete(_fileName);
-                _fileName = null;
-            }
-        }
-
         protected override void SetupData()
         {
             var random = new Random();
@@ -95,6 +85,10 @@ namespace Renci.SshNet.Tests.Classes
             _pipeStreamMock.InSequence(sequence).Setup(p => p.ReadByte()).Returns(0);
             _channelSessionMock.InSequence(sequence).Setup(p => p.Dispose());
             _pipeStreamMock.As<IDisposable>().InSequence(sequence).Setup(p => p.Dispose());
+
+            // On .NET Core, Dispose() in turn invokes Close() and since we're not mocking
+            // an interface, we need to expect this call as well
+            _pipeStreamMock.Setup(p => p.Close());
         }
 
         protected override void Arrange()
@@ -107,6 +101,17 @@ namespace Renci.SshNet.Tests.Classes
                 };
             _scpClient.Uploading += (sender, args) => _uploadingRegister.Add(args);
             _scpClient.Connect();
+        }
+
+        protected override void TearDown()
+        {
+            base.TearDown();
+
+            if (_fileName != null)
+            {
+                File.Delete(_fileName);
+                _fileName = null;
+            }
         }
 
         protected override void Act()

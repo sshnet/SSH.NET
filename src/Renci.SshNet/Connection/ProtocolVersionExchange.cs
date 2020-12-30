@@ -13,6 +13,9 @@ namespace Renci.SshNet.Connection
     /// <summary>
     /// Handles the SSH protocol version exchange.
     /// </summary>
+    /// <remarks>
+    /// https://tools.ietf.org/html/rfc4253#section-4.2
+    /// </remarks>
     internal class ProtocolVersionExchange : IProtocolVersionExchange
     {
         private const byte Null = 0x00;
@@ -49,10 +52,14 @@ namespace Renci.SshNet.Connection
                 {
                     if (bytesReceived.Count == 0)
                     {
-                        throw new SshConnectionException("Server response does not contain SSH protocol identification. Connection to remote server was closed before any data was received.", DisconnectReason.ConnectionLost);
+                        throw new SshConnectionException("The server response does not contain an SSH protocol identification. Connection to remote server was closed before any data was received.", DisconnectReason.ConnectionLost);
                     }
 
-                    throw new SshConnectionException(string.Format("Server response does not contain SSH protocol identification:{0}{1}", Environment.NewLine, PacketDump.Create(bytesReceived, 2)),
+                    throw new SshConnectionException(string.Format("The server response does not contain an SSH protocol identification:{0}{0}{1}{0}{0}" +
+                                                                   "More information is available here:{0}" +
+                                                                   "https://tools.ietf.org/html/rfc4253#section-4.2",
+                                                                   Environment.NewLine,
+                                                                   PacketDump.Create(bytesReceived, 2)),
                                                      DisconnectReason.ProtocolError);
                 }
 
@@ -112,7 +119,11 @@ namespace Renci.SshNet.Connection
                 if (byteRead == Null)
                 {
                     throw new SshConnectionException(string.Format(CultureInfo.InvariantCulture,
-                                                                   "The identification string contains a null character at position 0x{0:X8}:{1}{2}",
+                                                                   "The server response contains a null character at position 0x{0:X8}:{1}{1}{2}{1}{1}" +
+                                                                   "A server must not send a null character before the Protocol Version Exchange is{1}" +
+                                                                   "complete.{1}{1}" +
+                                                                   "More information is available here:{1}" +
+                                                                   "https://tools.ietf.org/html/rfc4253#section-4.2",
                                                                    buffer.Count,
                                                                    Environment.NewLine,
                                                                    PacketDump.Create(buffer.ToArray(), 2)));

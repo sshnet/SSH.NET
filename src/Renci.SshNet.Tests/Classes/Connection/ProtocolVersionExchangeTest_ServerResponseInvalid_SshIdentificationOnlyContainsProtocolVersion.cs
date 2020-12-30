@@ -9,7 +9,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 
-namespace Renci.SshNet.Tests.Classes
+namespace Renci.SshNet.Tests.Classes.Connection
 {
     [TestClass]
     public class ProtocolVersionExchangeTest_ServerResponseInvalid_SshIdentificationOnlyContainsProtocolVersion
@@ -63,7 +63,7 @@ namespace Renci.SshNet.Tests.Classes
                 {
                     _dataReceivedByServer.AddRange(bytes);
                     socket.Send(_serverIdentification);
-                    socket.Shutdown(SocketShutdown.Both);
+                    socket.Shutdown(SocketShutdown.Send);
                 };
             _server.Disconnected += (socket) => _clientDisconnected = true;
 
@@ -89,8 +89,11 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void StartShouldHaveThrownSshConnectionException()
         {
-            var expectedMessage = "Server response does not contain SSH protocol identification:" + Environment.NewLine +
-                                  "  00000000  53 53 48 2D 32 2E 30 0D 0A                       SSH-2.0..";
+            var expectedMessage = string.Format("The server response does not contain an SSH protocol identification:{0}{0}" +
+                                                "  00000000  53 53 48 2D 32 2E 30 0D 0A                       SSH-2.0..{0}{0}" +
+                                                "More information is available here:{0}" +
+                                                "https://tools.ietf.org/html/rfc4253#section-4.2",
+                                                Environment.NewLine);
 
             Assert.IsNotNull(_actualException);
             Assert.IsNull(_actualException.InnerException);

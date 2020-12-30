@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 
-namespace Renci.SshNet.Tests.Classes
+namespace Renci.SshNet.Tests.Classes.Connection
 {
     [TestClass]
     public class ProtocolVersionExchangeTest_ConnectionClosedByServer_NoDataSentByServer
@@ -58,7 +58,7 @@ namespace Renci.SshNet.Tests.Classes
             _server.BytesReceived += (bytes, socket) =>
                 {
                     _dataReceivedByServer.AddRange(bytes);
-                    socket.Shutdown(SocketShutdown.Both);
+                    socket.Shutdown(SocketShutdown.Send);
                 };
             _server.Disconnected += (socket) => _clientDisconnected = true;
 

@@ -75,15 +75,14 @@ namespace Renci.SshNet.Tests.Classes.Connection
         {
             base.TearDown();
 
-            if (_clientSocket != null)
-            {
-                _clientSocket.Shutdown(SocketShutdown.Send);
-                _clientSocket.Close();
-            }
-
             if (_proxyServer != null)
             {
                 _proxyServer.Dispose();
+            }
+
+            if (_clientSocket != null)
+            {
+                _clientSocket.Close();
             }
         }
 

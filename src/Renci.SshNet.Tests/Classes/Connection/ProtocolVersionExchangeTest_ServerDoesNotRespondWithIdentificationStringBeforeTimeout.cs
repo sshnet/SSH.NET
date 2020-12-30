@@ -10,7 +10,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 
-namespace Renci.SshNet.Tests.Classes
+namespace Renci.SshNet.Tests.Classes.Connection
 {
     [TestClass]
     public class ProtocolVersionExchangeTest_ServerDoesNotRespondWithIdentificationStringBeforeTimeout
@@ -65,8 +65,10 @@ namespace Renci.SshNet.Tests.Classes
                 {
                     _dataReceivedByServer.AddRange(bytes);
                     socket.Send(Encoding.UTF8.GetBytes("Welcome!\r\n"));
+                    /*
                     Thread.Sleep(_timeout.Add(TimeSpan.FromMilliseconds(50)));
-                    socket.Shutdown(SocketShutdown.Both);
+                    socket.Shutdown(SocketShutdown.Send);
+                    */
                 };
             _server.Disconnected += (socket) => _clientDisconnected = true;
 

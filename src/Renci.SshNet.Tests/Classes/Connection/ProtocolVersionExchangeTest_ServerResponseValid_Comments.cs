@@ -9,7 +9,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 
-namespace Renci.SshNet.Tests.Classes
+namespace Renci.SshNet.Tests.Classes.Connection
 {
     [TestClass]
     public class ProtocolVersionExchangeTest_ServerResponseValid_Comments
@@ -63,7 +63,7 @@ namespace Renci.SshNet.Tests.Classes
                 {
                     _dataReceivedByServer.AddRange(bytes);
                     socket.Send(_serverIdentification);
-                    socket.Shutdown(SocketShutdown.Both);
+                    socket.Shutdown(SocketShutdown.Send);
                 };
             _server.Disconnected += (socket) => _clientDisconnected = true;
 

@@ -9,7 +9,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 
-namespace Renci.SshNet.Tests.Classes
+namespace Renci.SshNet.Tests.Classes.Connection
 {
     [TestClass]
     public class ProtocolVersionExchangeTest_ServerResponseContainsNullCharacter

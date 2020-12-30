@@ -86,7 +86,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
         {
             Assert.IsNotNull(_actualException);
             Assert.IsNull(_actualException.InnerException);
-            Assert.AreEqual(string.Format("The server response does not contain an SSH protocol identification.{0}" +
+            Assert.AreEqual(string.Format("The server response does not contain an SSH identification string.{0}" +
                                           "The connection to the remote server was closed before any data was received.{0}{0}" +
                                           "More information on the Protocol Version Exchange is available here:{0}" +
                                           "https://tools.ietf.org/html/rfc4253#section-4.2",

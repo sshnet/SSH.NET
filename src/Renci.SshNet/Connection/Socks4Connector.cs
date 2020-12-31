@@ -143,7 +143,11 @@ namespace Renci.SshNet.Connection
                 return Array<byte>.Empty;
             }
 
+#if FEATURE_ENCODING_ASCII
             return Encoding.ASCII.GetBytes(proxyUser);
+#else
+            return new ASCIIEncoding().GetBytes(proxyUser);
+#endif
         }
     }
 }

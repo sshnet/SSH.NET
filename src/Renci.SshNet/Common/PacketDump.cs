@@ -79,7 +79,13 @@ namespace Renci.SshNet.Common
 
         private static string AsAscii(byte[] data, int length)
         {
-            var ascii = new StringBuilder();
+#if FEATURE_ENCODING_ASCII
+        var encoding = Encoding.ASCII;
+#else
+        var encoding = new ASCIIEncoding();
+#endif
+
+        var ascii = new StringBuilder();
             const char dot = '.';
 
             for (var i = 0; i < length; i++)
@@ -92,7 +98,7 @@ namespace Renci.SshNet.Common
                 }
                 else
                 {
-                    ascii.Append(Encoding.ASCII.GetString(data, i, 1));
+                    ascii.Append(encoding.GetString(data, i, 1));
                 }
             }
 

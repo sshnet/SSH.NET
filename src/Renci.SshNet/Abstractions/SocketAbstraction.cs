@@ -391,9 +391,9 @@ namespace Renci.SshNet.Abstractions
             {
                 if (socket.ReceiveAsync(args))
                 {
-                    if (!receiveCompleted.WaitOne(timeout))
+                    if (!receiveCompleted.WaitOne(readTimeout))
                         throw new SshOperationTimeoutException(string.Format(CultureInfo.InvariantCulture,
-                            "Socket read operation has timed out after {0:F0} milliseconds.", timeout.TotalMilliseconds));
+                            "Socket read operation has timed out after {0:F0} milliseconds.", readTimeout.TotalMilliseconds));
                 }
                 else
                 {

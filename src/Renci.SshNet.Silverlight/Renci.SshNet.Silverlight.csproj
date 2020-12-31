@@ -203,6 +203,9 @@
     <Compile Include="..\Renci.SshNet\Common\Pack.cs">
       <Link>Common\Pack.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\Common\PacketDump.cs">
+      <Link>Common\PacketDump.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\Common\PipeStream.cs">
       <Link>Common\PipeStream.cs</Link>
     </Compile>
@@ -277,6 +280,39 @@
     </Compile>
     <Compile Include="..\Renci.SshNet\ConnectionInfo.cs">
       <Link>ConnectionInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Connection\ConnectorBase.cs">
+      <Link>Connection\ConnectorBase.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Connection\DirectConnector.cs">
+      <Link>Connection\DirectConnector.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Connection\HttpConnector.cs">
+      <Link>Connection\HttpConnector.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Connection\IConnector.cs">
+      <Link>Connection\IConnector.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Connection\IProtocolVersionExchange.cs">
+      <Link>Connection\IProtocolVersionExchange.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Connection\ISocketFactory.cs">
+      <Link>Connection\ISocketFactory.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Connection\ProtocolVersionExchange.cs">
+      <Link>Connection\ProtocolVersionExchange.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Connection\SocketFactory.cs">
+      <Link>Connection\SocketFactory.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Connection\Socks4Connector.cs">
+      <Link>Connection\Socks4Connector.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Connection\Socks5Connector.cs">
+      <Link>Connection\Socks5Connector.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Connection\SshIdentification.cs">
+      <Link>Connection\SshIdentification.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\ExpectAction.cs">
       <Link>ExpectAction.cs</Link>
@@ -1184,7 +1220,7 @@
     <Compile Include="..\Renci.SshNet\SftpClient.cs">
       <Link>SftpClient.cs</Link>
     </Compile>
-	<Compile Include="..\Renci.SshNet\ISftpClient.cs">
+    <Compile Include="..\Renci.SshNet\ISftpClient.cs">
       <Link>ISftpClient.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\Sftp\Flags.cs">
@@ -1407,7 +1443,7 @@
       <FlavorProperties GUID="{A1591282-1198-4647-A2B1-27E5FF5F6F3B}">
         <SilverlightProjectProperties />
       </FlavorProperties>
-      <UserProperties ProjectLinkReference="2f5f8c90-0bd1-424f-997c-7bc6280919d1" ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" />
+      <UserProperties ProjectLinkerExcludeFilter="\\?desktop(\\.*)?$;\\?silverlight(\\.*)?$;\.desktop;\.silverlight;\.xaml;^service references(\\.*)?$;\.clientconfig;^web references(\\.*)?$" ProjectLinkReference="2f5f8c90-0bd1-424f-997c-7bc6280919d1" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

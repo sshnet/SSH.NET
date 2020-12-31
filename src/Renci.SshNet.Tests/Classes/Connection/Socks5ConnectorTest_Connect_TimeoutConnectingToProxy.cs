@@ -80,8 +80,9 @@ namespace Renci.SshNet.Tests.Classes.Connection
                                           _stopWatch.ElapsedMilliseconds,
                                           _connectionInfo.Timeout.TotalMilliseconds);
 
-            Assert.IsTrue(_stopWatch.ElapsedMilliseconds >= _connectionInfo.Timeout.TotalMilliseconds, errorText);
-            Assert.IsTrue(_stopWatch.ElapsedMilliseconds < (_connectionInfo.Timeout.TotalMilliseconds + 100), errorText);
+            // Compare elapsed time with configured timeout, allowing for a margin of error
+            Assert.IsTrue(_stopWatch.ElapsedMilliseconds >= _connectionInfo.Timeout.TotalMilliseconds - 10, errorText);
+            Assert.IsTrue(_stopWatch.ElapsedMilliseconds < _connectionInfo.Timeout.TotalMilliseconds + 100, errorText);
         }
 
         [TestMethod]

@@ -222,6 +222,10 @@
 			<Reference Include="System" />
 			<Code Type="Fragment" Language="cs">
 				<![CDATA[
+					// Workaround 'Could not create SSL/TLS secure channel' issue due to TLS 1.1 being
+					// the default on earlier versions of .NET
+					System.Net.ServicePointManager.SecurityProtocol = System.Net.SecurityProtocolType.Tls12;
+					// Download file
 					new System.Net.WebClient().DownloadFile(Address, FileName);
 				]]>
 			</Code>

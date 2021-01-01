@@ -112,4 +112,9 @@ public enum TraceEventId
     /// Disposing session event identifier
     /// </summary>
     DisposingSession = 21,
+
+    /// <summary>
+    /// Socket connection
+    /// </summary>
+    SocketConnection = 22,
 }

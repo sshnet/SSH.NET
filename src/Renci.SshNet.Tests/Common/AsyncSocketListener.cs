@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -12,9 +13,12 @@ namespace Renci.SshNet.Tests.Common
     {
         private readonly IPEndPoint _endPoint;
         private readonly ManualResetEvent _acceptCallbackDone;
+        private List<Socket> _connectedClients;
         private Socket _listener;
         private Thread _receiveThread;
         private bool _started;
+        private object _syncLock;
+        private string _stackTrace;
 
         public delegate void BytesReceivedHandler(byte[] bytesReceived, Socket socket);
         public delegate void ConnectedHandler(Socket socket);
@@ -27,6 +31,8 @@ namespace Renci.SshNet.Tests.Common
         {
             _endPoint = endPoint;
             _acceptCallbackDone = new ManualResetEvent(false);
+            _connectedClients = new List<Socket>();
+            _syncLock = new object();
             ShutdownRemoteCommunicationSocket = true;
         }
 
@@ -51,16 +57,41 @@ namespace Renci.SshNet.Tests.Common
 
             _receiveThread = new Thread(StartListener);
             _receiveThread.Start(_listener);
+
+            _stackTrace = Environment.StackTrace;
         }
 
         public void Stop()
         {
             _started = false;
+
+            lock (_syncLock)
+            {
+                foreach (var connectedClient in _connectedClients)
+                {
+                    try
+                    {
+                        connectedClient.Shutdown(SocketShutdown.Send);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.Error.WriteLine("[{0}] Failure shutting down socket: {1}",
+                                                typeof(AsyncSocketListener).FullName,
+                                                ex);
+                    }
+
+                    DrainSocket(connectedClient);
+                    connectedClient.Dispose();
+                }
+
+                _connectedClients.Clear();
+            }
+
             if (_listener != null)
             {
                 _listener.Dispose();
-                _listener = null;
             }
+
             if (_receiveThread != null)
             {
                 _receiveThread.Join();
@@ -87,30 +118,74 @@ namespace Renci.SshNet.Tests.Common
 
         private void AcceptCallback(IAsyncResult ar)
         {
-            // Signal the main thread to continue.
+            // Signal the main thread to continue
             _acceptCallbackDone.Set();
 
-            // Get the socket that handles the client request.
+            // Get the socket that listens for inbound connections
             var listener = (Socket)ar.AsyncState;
+
+            // Get the socket that handles the client request
+            Socket handler;
+
             try
             {
-                var handler = listener.EndAccept(ar);
-                SignalConnected(handler);
-                var state = new SocketStateObject(handler);
+                handler = listener.EndAccept(ar);
+            }
+            catch (ObjectDisposedException ex)
+            {
+                // The listener is stopped through a Dispose() call, which in turn causes
+                // Socket.EndAccept(IAsyncResult) to throw an ObjectDisposedException
+                //
+                // Since we consider this ObjectDisposedException normal when the listener
+                // is being stopped, we only write a message to stderr if the listener
+                // is considered to be up and running
+                if (_started)
+                {
+                    Console.Error.WriteLine("[{0}] Failure accepting new connection: {1}",
+                                            typeof(AsyncSocketListener).FullName,
+                                            ex);
+                }
+
+                return;
+            }
+
+            // Signal new connection
+            SignalConnected(handler);
+
+            lock (_syncLock)
+            {
+                // Register client socket
+                _connectedClients.Add(handler);
+            }
+
+            var state = new SocketStateObject(handler);
+
+            try
+            {
                 handler.BeginReceive(state.Buffer, 0, state.Buffer.Length, 0, ReadCallback, state);
             }
-            catch (ObjectDisposedException)
+            catch (ObjectDisposedException ex)
             {
-                // when the socket is closed, an ObjectDisposedException is thrown
-                // by Socket.EndAccept(IAsyncResult)
+                // The listener is stopped through a Dispose() call, which in turn causes
+                // Socket.BeginReceive(...) to throw an ObjectDisposedException
+                //
+                // Since we consider this ObjectDisposedException normal when the listener
+                // is being stopped, we only write a message to stderr if the listener
+                // is considered to be up and running
+                if (_started)
+                {
+                    Console.Error.WriteLine("[{0}] Failure receiving new data: {1}",
+                                            typeof(AsyncSocketListener).FullName,
+                                            ex);
+                }
             }
         }
 
         private void ReadCallback(IAsyncResult ar)
         {
             // Retrieve the state object and the handler socket
-            // from the asynchronous state object.
-            var state = (SocketStateObject) ar.AsyncState;
+            // from the asynchronous state object
+            var state = (SocketStateObject)ar.AsyncState;
             var handler = state.Socket;
 
             int bytesRead;
@@ -119,11 +194,38 @@ namespace Renci.SshNet.Tests.Common
                 // Read data from the client socket.
                 bytesRead = handler.EndReceive(ar);
             }
-            catch (ObjectDisposedException)
+            catch (SocketException ex)
             {
-                // when the socket is closed, the callback will be invoked for any pending BeginReceive
-                // we could use the Socket.Connected property to detect this here, but the proper thing
-                // to do is invoke EndReceive knowing that it will throw an ObjectDisposedException
+                // The listener is stopped through a Dispose() call, which in turn causes
+                // Socket.EndReceive(...) to throw a SocketException or
+                // ObjectDisposedException
+                //
+                // Since we consider such an exception normal when the listener is being
+                // stopped, we only write a message to stderr if the listener is considered
+                // to be up and running
+                if (_started)
+                {
+                    Console.Error.WriteLine("[{0}] Failure receiving new data: {1}",
+                                            typeof(AsyncSocketListener).FullName,
+                                            ex);
+                }
+                return;
+            }
+            catch (ObjectDisposedException ex)
+            {
+                // The listener is stopped through a Dispose() call, which in turn causes
+                // Socket.EndReceive(...) to throw a SocketException or
+                // ObjectDisposedException
+                //
+                // Since we consider such an exception normal when the listener is being
+                // stopped, we only write a message to stderr if the listener is considered
+                // to be up and running
+                if (_started)
+                {
+                    Console.Error.WriteLine("[{0}] Failure receiving new data: {1}",
+                                            typeof(AsyncSocketListener).FullName,
+                                            ex);
+                }
                 return;
             }
 
@@ -133,8 +235,20 @@ namespace Renci.SshNet.Tests.Common
                 Array.Copy(state.Buffer, bytesReceived, bytesRead);
                 SignalBytesReceived(bytesReceived, handler);
 
-                // prepare to receive more bytes
-                handler.BeginReceive(state.Buffer, 0, state.Buffer.Length, 0, ReadCallback, state);
+                try
+                {
+                    handler.BeginReceive(state.Buffer, 0, state.Buffer.Length, 0, ReadCallback, state);
+                }
+                catch (SocketException ex)
+                {
+                    if (!_started)
+                    {
+                        throw new Exception("BeginReceive while stopping!", ex);
+                    }
+
+                    throw new Exception("BeginReceive while started!: " + ex.SocketErrorCode + " " + _stackTrace, ex);
+                }
+
             }
             else
             {
@@ -142,8 +256,28 @@ namespace Renci.SshNet.Tests.Common
 
                 if (ShutdownRemoteCommunicationSocket)
                 {
-                    handler.Shutdown(SocketShutdown.Both);
-                    handler.Close();
+                    lock (_syncLock)
+                    {
+                        if (!_started)
+                        {
+                            return;
+                        }
+                        try
+                        {
+                            handler.Shutdown(SocketShutdown.Send);
+                            handler.Close();
+                        }
+                        catch (SocketException ex)
+                        {
+                            throw new Exception("Exception in ReadCallback: " + ex.SocketErrorCode + " " + _stackTrace, ex);
+                        }
+                        catch (Exception ex)
+                        {
+                            throw new Exception("Exception in ReadCallback: " + _stackTrace, ex);
+                        }
+
+                        _connectedClients.Remove(handler);
+                    }
                 }
             }
         }
@@ -167,6 +301,30 @@ namespace Renci.SshNet.Tests.Common
             var subscribers = Disconnected;
             if (subscribers != null)
                 subscribers(client);
+        }
+
+        private static void DrainSocket(Socket socket)
+        {
+            var buffer = new byte[128];
+
+            try
+            {
+                while (true && socket.Connected)
+                {
+                    var bytesRead = socket.Receive(buffer);
+                    if (bytesRead == 0)
+                    {
+                        break;
+                    }
+                }
+            }
+            catch (SocketException ex)
+            {
+                Console.Error.WriteLine("[{0}] Failure draining socket ({1}): {2}",
+                                        typeof(AsyncSocketListener).FullName,
+                                        ex.SocketErrorCode.ToString("G"),
+                                        ex);
+            }
         }
 
         private class SocketStateObject

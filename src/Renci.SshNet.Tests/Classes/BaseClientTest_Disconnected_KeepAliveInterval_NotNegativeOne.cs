@@ -7,23 +7,39 @@ using Renci.SshNet.Messages.Transport;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    public class BaseClientTest_Disconnected_KeepAliveInterval_NotNegativeOne
+    public class BaseClientTest_Disconnected_KeepAliveInterval_NotNegativeOne : BaseClientTestBase
     {
-        private Mock<IServiceFactory> _serviceFactoryMock;
-        private Mock<ISession> _sessionMock;
         private BaseClient _client;
         private ConnectionInfo _connectionInfo;
         private TimeSpan _keepAliveInterval;
 
-        [TestInitialize]
-        public void Setup()
+        protected override void SetupData()
         {
-            Arrange();
-            Act();
+            _connectionInfo = new ConnectionInfo("host", "user", new PasswordAuthenticationMethod("user", "pwd"));
+            _keepAliveInterval = TimeSpan.FromMilliseconds(50d);
         }
 
-        [TestCleanup]
-        public void Cleanup()
+        protected override void SetupMocks()
+        {
+            _serviceFactoryMock.Setup(p => p.CreateSocketFactory())
+                               .Returns(_socketFactoryMock.Object);
+            _serviceFactoryMock.Setup(p => p.CreateSession(_connectionInfo, _socketFactoryMock.Object))
+                               .Returns(_sessionMock.Object);
+            _sessionMock.Setup(p => p.Connect());
+            _sessionMock.Setup(p => p.IsConnected).Returns(false);
+            _sessionMock.Setup(p => p.TrySendMessage(It.IsAny<IgnoreMessage>()))
+                        .Returns(true);
+        }
+
+        protected override void Arrange()
+        {
+            base.Arrange();
+
+            _client = new MyClient(_connectionInfo, false, _serviceFactoryMock.Object);
+            _client.Connect();
+        }
+
+        protected override void TearDown()
         {
             if (_client != null)
             {
@@ -33,39 +49,7 @@ namespace Renci.SshNet.Tests.Classes
             }
         }
 
-        private void SetupData()
-        {
-            _connectionInfo = new ConnectionInfo("host", "user", new PasswordAuthenticationMethod("user", "pwd"));
-            _keepAliveInterval = TimeSpan.FromMilliseconds(50d);
-        }
-
-        private void CreateMocks()
-        {
-            _serviceFactoryMock = new Mock<IServiceFactory>(MockBehavior.Strict);
-            _sessionMock = new Mock<ISession>(MockBehavior.Strict);
-        }
-
-        private void SetupMocks()
-        {
-            _serviceFactoryMock.Setup(p => p.CreateSession(_connectionInfo))
-                               .Returns(_sessionMock.Object);
-            _sessionMock.Setup(p => p.Connect());
-            _sessionMock.Setup(p => p.IsConnected).Returns(false);
-            _sessionMock.Setup(p => p.TrySendMessage(It.IsAny<IgnoreMessage>()))
-                        .Returns(true);
-        }
-
-        protected void Arrange()
-        {
-            SetupData();
-            CreateMocks();
-            SetupMocks();
-
-            _client = new MyClient(_connectionInfo, false, _serviceFactoryMock.Object);
-            _client.Connect();
-        }
-
-        protected void Act()
+        protected override void Act()
         {
             _client.KeepAliveInterval = _keepAliveInterval;
 
@@ -80,9 +64,16 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
+        public void CreateSocketFactoryOnServiceFactoryShouldBeInvokedOnce()
+        {
+            _serviceFactoryMock.Verify(p => p.CreateSocketFactory(), Times.Once);
+        }
+
+        [TestMethod]
         public void CreateSessionOnServiceFactoryShouldBeInvokedOnce()
         {
-            _serviceFactoryMock.Verify(p => p.CreateSession(_connectionInfo), Times.Once);
+            _serviceFactoryMock.Verify(p => p.CreateSession(_connectionInfo, _socketFactoryMock.Object),
+                                       Times.Once);
         }
 
         [TestMethod]

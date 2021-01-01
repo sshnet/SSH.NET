@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net.Sockets;
 using System.Text;
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
+using Renci.SshNet.Connection;
 using Renci.SshNet.Messages.Transport;
 using Renci.SshNet.Security;
 using Renci.SshNet.Sftp;
@@ -34,16 +36,19 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Creates a new <see cref="ISession"/> with the specified <see cref="ConnectionInfo"/>.
+        /// Creates a new <see cref="ISession"/> with the specified <see cref="ConnectionInfo"/> and
+        /// <see cref="ISocketFactory"/>.
         /// </summary>
         /// <param name="connectionInfo">The <see cref="ConnectionInfo"/> to use for creating a new session.</param>
+        /// <param name="socketFactory">A factory to create <see cref="Socket"/> instances.</param>
         /// <returns>
         /// An <see cref="ISession"/> for the specified <see cref="ConnectionInfo"/>.
         /// </returns>
         /// <exception cref="ArgumentNullException"><paramref name="connectionInfo"/> is <c>null</c>.</exception>
-        public ISession CreateSession(ConnectionInfo connectionInfo)
+        /// <exception cref="ArgumentNullException"><paramref name="socketFactory"/> is <c>null</c>.</exception>
+        public ISession CreateSession(ConnectionInfo connectionInfo, ISocketFactory socketFactory)
         {
-            return new Session(connectionInfo, this);
+            return new Session(connectionInfo, this, socketFactory);
         }
 
         /// <summary>
@@ -188,6 +193,64 @@ namespace Renci.SshNet
         public IRemotePathTransformation CreateRemotePathDoubleQuoteTransformation()
         {
             return RemotePathTransformation.DoubleQuote;
+        }
+
+        /// <summary>
+        /// Creates an <see cref="IConnector"/> that can be used to establish a connection
+        /// to the server identified by the specified <paramref name="connectionInfo"/>.
+        /// </summary>
+        /// <param name="connectionInfo">A <see cref="IConnectionInfo"/> detailing the server to establish a connection to.</param>
+        /// <param name="socketFactory">A factory to create <see cref="Socket"/> instances.</param>
+        /// <returns>
+        /// An <see cref="IConnector"/> that can be used to establish a connection to the
+        /// server identified by the specified <paramref name="connectionInfo"/>.
+        /// </returns>
+        /// <exception cref="ArgumentNullException"><paramref name="connectionInfo"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="socketFactory"/> is <see langword="null"/>.</exception>
+        /// <exception cref="NotSupportedException">The <see cref="IConnectionInfo.ProxyType"/> value of <paramref name="connectionInfo"/> is not supported.</exception>
+        public IConnector CreateConnector(IConnectionInfo connectionInfo, ISocketFactory socketFactory)
+        {
+            if (connectionInfo == null)
+                throw new ArgumentNullException("connectionInfo");
+            if (socketFactory == null)
+                throw new ArgumentNullException("socketFactory");
+
+            switch (connectionInfo.ProxyType)
+            {
+                case ProxyTypes.None:
+                    return new DirectConnector(socketFactory);
+                case ProxyTypes.Socks4:
+                    return new Socks4Connector(socketFactory);
+                case ProxyTypes.Socks5:
+                    return new Socks5Connector(socketFactory);
+                case ProxyTypes.Http:
+                    return new HttpConnector(socketFactory);
+                default:
+                    throw new NotSupportedException(string.Format("ProxyTypes '{0}' is not supported.", connectionInfo.ProxyType));
+            }
+        }
+
+        /// <summary>
+        /// Creates an <see cref="IProtocolVersionExchange"/> that deals with the SSH protocol
+        /// version exchange.
+        /// </summary>
+        /// <returns>
+        /// An <see cref="IProtocolVersionExchange"/>.
+        /// </returns>
+        public IProtocolVersionExchange CreateProtocolVersionExchange()
+        {
+            return new ProtocolVersionExchange();
+        }
+
+        /// <summary>
+        /// Creates a factory to create <see cref="Socket"/> instances.
+        /// </summary>
+        /// <returns>
+        /// An <see cref="ISocketFactory"/>.
+        /// </returns>
+        public ISocketFactory CreateSocketFactory()
+        {
+            return new SocketFactory();
         }
     }
 }

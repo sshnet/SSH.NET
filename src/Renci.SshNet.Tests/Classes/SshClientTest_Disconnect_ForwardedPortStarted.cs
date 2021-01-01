@@ -5,42 +5,44 @@ using Moq;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    public class SshClientTest_Disconnect_ForwardedPortStarted
+    public class SshClientTest_Disconnect_ForwardedPortStarted : BaseClientTestBase
     {
-        private Mock<IServiceFactory> _serviceFactoryMock;
-        private Mock<ISession> _sessionMock;
         private Mock<ForwardedPort> _forwardedPortMock;
         private SshClient _sshClient;
         private ConnectionInfo _connectionInfo;
 
-        [TestInitialize]
-        public void Setup()
+        protected override void CreateMocks()
         {
-            Arrange();
-            Act();
+            base.CreateMocks();
+
+            _forwardedPortMock = new Mock<ForwardedPort>(MockBehavior.Strict);
         }
 
-        [TestCleanup]
-        public void Cleanup()
-        {
-        }
-
-        protected void Arrange()
+        protected override void SetupData()
         {
             _connectionInfo = new ConnectionInfo("host", "user", new NoneAuthenticationMethod("userauth"));
+        }
 
+        protected override void SetupMocks()
+        {
             var sequence = new MockSequence();
 
-            _serviceFactoryMock = new Mock<IServiceFactory>(MockBehavior.Strict);
-            _sessionMock = new Mock<ISession>(MockBehavior.Strict);
-            _forwardedPortMock = new Mock<ForwardedPort>(MockBehavior.Strict);
-
-            _serviceFactoryMock.InSequence(sequence).Setup(p => p.CreateSession(_connectionInfo)).Returns(_sessionMock.Object);
+            _serviceFactoryMock.InSequence(sequence)
+                               .Setup(p => p.CreateSocketFactory())
+                               .Returns(_socketFactoryMock.Object);
+            _serviceFactoryMock.InSequence(sequence)
+                               .Setup(p => p.CreateSession(_connectionInfo, _socketFactoryMock.Object))
+                               .Returns(_sessionMock.Object);
             _sessionMock.InSequence(sequence).Setup(p => p.Connect());
             _forwardedPortMock.InSequence(sequence).Setup(p => p.Start());
             _sessionMock.InSequence(sequence).Setup(p => p.OnDisconnecting());
             _forwardedPortMock.InSequence(sequence).Setup(p => p.Stop());
             _sessionMock.InSequence(sequence).Setup(p => p.Dispose());
+        }
+
+        protected override void Arrange()
+        {
+            base.Arrange();
 
             _sshClient = new SshClient(_connectionInfo, false, _serviceFactoryMock.Object);
             _sshClient.Connect();
@@ -49,7 +51,7 @@ namespace Renci.SshNet.Tests.Classes
             _forwardedPortMock.Object.Start();
         }
 
-        protected void Act()
+        protected override void Act()
         {
             _sshClient.Disconnect();
         }

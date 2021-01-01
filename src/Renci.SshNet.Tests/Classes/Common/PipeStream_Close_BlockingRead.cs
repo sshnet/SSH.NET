@@ -1,18 +1,18 @@
-﻿using System;
+﻿using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Renci.SshNet.Common;
+using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Common
 {
     [TestClass]
-    public class PipeStream_Close_BlockingRead
+    public class PipeStream_Close_BlockingRead : TripleATestBase
     {
         private PipeStream _pipeStream;
         private int _bytesRead;
-        private IAsyncResult _asyncReadResult;
+        private Thread _readThread;
 
-        [TestInitialize]
-        public void Init()
+        protected override void Arrange()
         {
             _pipeStream = new PipeStream();
 
@@ -22,26 +22,25 @@ namespace Renci.SshNet.Tests.Classes.Common
 
             _bytesRead = 123;
 
-            Action readAction = () => _bytesRead = _pipeStream.Read(new byte[4], 0, 4);
-            _asyncReadResult = readAction.BeginInvoke(null, null);
-            // ensure we've started reading
-            _asyncReadResult.AsyncWaitHandle.WaitOne(50);
+            _readThread = new Thread(() => _bytesRead = _pipeStream.Read(new byte[4], 0, 4));
+            _readThread.Start();
 
-            Act();
+            // ensure we've started reading
+            Assert.IsFalse(_readThread.Join(50));
         }
 
-        protected void Act()
+        protected override void Act()
         {
             _pipeStream.Close();
 
             // give async read time to complete
-            _asyncReadResult.AsyncWaitHandle.WaitOne(100);
+            _readThread.Join(100);
         }
 
         [TestMethod]
         public void BlockingReadShouldHaveBeenInterrupted()
         {
-            Assert.IsTrue(_asyncReadResult.IsCompleted);
+            Assert.AreEqual(ThreadState.Stopped, _readThread.ThreadState);
         }
 
         [TestMethod]

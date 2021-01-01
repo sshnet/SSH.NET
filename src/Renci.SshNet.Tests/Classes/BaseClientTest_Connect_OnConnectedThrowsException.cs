@@ -9,24 +9,30 @@ using Renci.SshNet.Security;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    public class BaseClientTest_Connect_OnConnectedThrowsException
+    public class BaseClientTest_Connect_OnConnectedThrowsException : BaseClientTestBase
     {
-        private Mock<IServiceFactory> _serviceFactoryMock;
-        private Mock<ISession> _sessionMock;
         private MyClient _client;
         private ConnectionInfo _connectionInfo;
         private ApplicationException _onConnectException;
         private ApplicationException _actualException;
 
-        [TestInitialize]
-        public void Setup()
+        protected override void SetupData()
         {
-            Arrange();
-            Act();
+            _connectionInfo = new ConnectionInfo("host", "user", new PasswordAuthenticationMethod("user", "pwd"));
+            _onConnectException = new ApplicationException();
         }
 
-        [TestCleanup]
-        public void Cleanup()
+        protected override void SetupMocks()
+        {
+            _serviceFactoryMock.Setup(p => p.CreateSocketFactory())
+                               .Returns(_socketFactoryMock.Object);
+            _serviceFactoryMock.Setup(p => p.CreateSession(_connectionInfo, _socketFactoryMock.Object))
+                               .Returns(_sessionMock.Object);
+            _sessionMock.Setup(p => p.Connect());
+            _sessionMock.Setup(p => p.Dispose());
+        }
+
+        protected override void TearDown()
         {
             if (_client != null)
             {
@@ -36,31 +42,9 @@ namespace Renci.SshNet.Tests.Classes
             }
         }
 
-        private void SetupData()
+        protected override void Arrange()
         {
-            _connectionInfo = new ConnectionInfo("host", "user", new PasswordAuthenticationMethod("user", "pwd"));
-            _onConnectException = new ApplicationException();
-        }
-
-        private void CreateMocks()
-        {
-            _serviceFactoryMock = new Mock<IServiceFactory>(MockBehavior.Strict);
-            _sessionMock = new Mock<ISession>(MockBehavior.Strict);
-        }
-
-        private void SetupMocks()
-        {
-            _serviceFactoryMock.Setup(p => p.CreateSession(_connectionInfo))
-                               .Returns(_sessionMock.Object);
-            _sessionMock.Setup(p => p.Connect());
-            _sessionMock.Setup(p => p.Dispose());
-        }
-
-        protected void Arrange()
-        {
-            SetupData();
-            CreateMocks();
-            SetupMocks();
+            base.Arrange();
 
             _client = new MyClient(_connectionInfo, false, _serviceFactoryMock.Object)
                 {
@@ -68,7 +52,7 @@ namespace Renci.SshNet.Tests.Classes
                 };
         }
 
-        protected void Act()
+        protected override void Act()
         {
             try
             {
@@ -89,9 +73,16 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
+        public void CreateSocketFactoryOnServiceFactoryShouldBeInvokedOnce()
+        {
+            _serviceFactoryMock.Verify(p => p.CreateSocketFactory(), Times.Once);
+        }
+
+        [TestMethod]
         public void CreateSessionOnServiceFactoryShouldBeInvokedOnce()
         {
-            _serviceFactoryMock.Verify(p => p.CreateSession(_connectionInfo), Times.Once);
+            _serviceFactoryMock.Verify(p => p.CreateSession(_connectionInfo, _socketFactoryMock.Object),
+                                       Times.Once);
         }
 
         [TestMethod]

@@ -88,6 +88,9 @@ namespace Renci.SshNet
         /// <summary>
         /// Gets connection host.
         /// </summary>
+        /// <value>
+        /// The connection host.
+        /// </value>
         public string Host { get; private set; }
 
         /// <summary>

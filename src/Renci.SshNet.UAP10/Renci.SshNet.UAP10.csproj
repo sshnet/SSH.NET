@@ -252,6 +252,9 @@
     <Compile Include="..\Renci.SshNet\Common\Pack.cs">
       <Link>Common\Pack.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\Common\PacketDump.cs">
+      <Link>Common\PacketDump.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\Common\PipeStream.cs">
       <Link>Common\PipeStream.cs</Link>
     </Compile>
@@ -326,6 +329,39 @@
     </Compile>
     <Compile Include="..\Renci.SshNet\ConnectionInfo.cs">
       <Link>ConnectionInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Connection\ConnectorBase.cs">
+      <Link>Connection\ConnectorBase.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Connection\DirectConnector.cs">
+      <Link>Connection\DirectConnector.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Connection\HttpConnector.cs">
+      <Link>Connection\HttpConnector.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Connection\IConnector.cs">
+      <Link>Connection\IConnector.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Connection\IProtocolVersionExchange.cs">
+      <Link>Connection\IProtocolVersionExchange.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Connection\ISocketFactory.cs">
+      <Link>Connection\ISocketFactory.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Connection\ProtocolVersionExchange.cs">
+      <Link>Connection\ProtocolVersionExchange.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Connection\SocketFactory.cs">
+      <Link>Connection\SocketFactory.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Connection\Socks4Connector.cs">
+      <Link>Connection\Socks4Connector.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Connection\Socks5Connector.cs">
+      <Link>Connection\Socks5Connector.cs</Link>
+    </Compile>
+    <Compile Include="..\Renci.SshNet\Connection\SshIdentification.cs">
+      <Link>Connection\SshIdentification.cs</Link>
     </Compile>
     <Compile Include="..\Renci.SshNet\ExpectAction.cs">
       <Link>ExpectAction.cs</Link>

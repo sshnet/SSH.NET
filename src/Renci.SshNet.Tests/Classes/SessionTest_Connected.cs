@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using Renci.SshNet.Messages.Transport;
 
 namespace Renci.SshNet.Tests.Classes
@@ -65,7 +66,7 @@ namespace Renci.SshNet.Tests.Classes
         public void ServerVersionShouldNotReturnNull()
         {
             Assert.IsNotNull(Session.ServerVersion);
-            Assert.AreEqual("SSH-2.0-SshStub", Session.ServerVersion);
+            Assert.AreEqual("SSH-2.0-OurServerStub", Session.ServerVersion);
         }
 
         [TestMethod]
@@ -250,6 +251,25 @@ namespace Renci.SshNet.Tests.Classes
                 Assert.AreEqual("waitHandle", ex.ParamName);
                 Assert.IsNull(exception);
             }
+        }
+
+        [TestMethod]
+        public void ClientSocketShouldBeConnected()
+        {
+            Assert.IsNotNull(ClientSocket);
+            Assert.IsTrue(ClientSocket.Connected);
+        }
+
+        [TestMethod]
+        public void CreateConnectorOnServiceFactoryShouldHaveBeenInvokedOnce()
+        {
+            ServiceFactoryMock.Verify(p => p.CreateConnector(ConnectionInfo, SocketFactoryMock.Object), Times.Once());
+        }
+
+        [TestMethod]
+        public void ConnectorOnConnectorShouldHaveBeenInvokedOnce()
+        {
+            ConnectorMock.Verify(p => p.Connect(ConnectionInfo), Times.Once());
         }
     }
 }

@@ -247,7 +247,7 @@ namespace Renci.SshNet.Sftp
                     }
                     catch (Exception ex)
                     {
-                        DiagnosticAbstraction.Log($"Failure closing handle: {ex}", TraceEventType.Warning, TraceEventId.FailureClosingHandle);
+                        DiagnosticAbstraction.Log("Failure closing handle: " + ex, TraceEventType.Warning, TraceEventId.FailureClosingHandle);
                     }
                 }
             }

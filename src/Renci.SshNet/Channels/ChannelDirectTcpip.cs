@@ -139,7 +139,7 @@ namespace Renci.SshNet.Channels
                 }
                 catch (SocketException ex)
                 {
-                    DiagnosticAbstraction.Log($"Failure shutting down socket: {ex}", TraceEventType.Warning, TraceEventId.SocketShutdownFailure);
+                    DiagnosticAbstraction.Log("Failure shutting down socket: " + ex, TraceEventType.Warning, TraceEventId.SocketShutdownFailure);
                 }
             }
         }

@@ -2,11 +2,11 @@
 /// Trace event identifiers enumeration
 /// </summary>
 public enum TraceEventId
-{ 
+{
     /// <summary>
-    /// The default identifier when no specific identifier is provided
+    /// Failure closing handle event identifier
     /// </summary>
-    _default = 0,
+    FailureClosingHandle = 0,
 
     /// <summary>
     /// Disconnecting client event identifier
@@ -112,9 +112,4 @@ public enum TraceEventId
     /// Disposing session event identifier
     /// </summary>
     DisposingSession = 21,
-
-    /// <summary>
-    /// Failure closing handle event identifier
-    /// </summary>
-    FailureClosingHandle = 22,
 }

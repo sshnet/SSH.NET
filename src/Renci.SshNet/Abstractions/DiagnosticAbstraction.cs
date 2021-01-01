@@ -5,7 +5,7 @@ namespace Renci.SshNet.Abstractions
     /// <summary>
     /// Diagnostics for Renci library
     /// </summary>
-    public static class DiagnosticAbstraction
+    internal static class DiagnosticAbstraction
     {
 #if FEATURE_DIAGNOSTICS_TRACESOURCE
 
@@ -26,7 +26,7 @@ namespace Renci.SshNet.Abstractions
         /// </summary>
         public static readonly TraceSource Logging =
 #if DEBUG
-            new TraceSource(name: "SshNet.Logging", defaultLevel: SourceLevels.All);
+            new TraceSource("SshNet.Logging", SourceLevels.All);
 #else
             new TraceSource("SshNet.Logging");
 #endif // DEBUG
@@ -38,7 +38,8 @@ namespace Renci.SshNet.Abstractions
         /// <param name="text">The text string to log</param>
         /// <param name="eventType">The trace event type</param>
         /// <param name="id">A numeric identifier for the event.</param>
-        public static void Log(string text, TraceEventType eventType = TraceEventType.Verbose, TraceEventId id = TraceEventId._default)
+        [Conditional("DEBUG")]
+        public static void Log(string text, TraceEventType eventType, TraceEventId id)
         {
 #if FEATURE_DIAGNOSTICS_TRACESOURCE
             Logging.TraceEvent(eventType, (int)id, text);

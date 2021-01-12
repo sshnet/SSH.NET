@@ -1,4 +1,4 @@
-﻿SSH.NET
+﻿ ![Logo](images/logo/png/SS-NET-icon-h50.png) SSH.NET
 =======
 SSH.NET is a Secure Shell (SSH-2) library for .NET, optimized for parallelism.
 

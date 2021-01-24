@@ -133,10 +133,21 @@ namespace Renci.SshNet.Connection
                                                                    PacketDump.Create(buffer.ToArray(), 2)));
                 }
 
-                if (byteRead == Session.LineFeed && buffer.Count > startPosition + 1 && buffer[buffer.Count - 2] == Session.CarriageReturn)
+                if (byteRead == Session.LineFeed)
                 {
-                    // Return current line without CRLF
-                    return Encoding.UTF8.GetString(buffer.ToArray(), startPosition, buffer.Count - (startPosition + 2));
+                    if (buffer.Count > startPosition + 1 && buffer[buffer.Count - 2] == Session.CarriageReturn)
+                    {
+                        // Return current line without CRLF
+                        return Encoding.UTF8.GetString(buffer.ToArray(), startPosition, buffer.Count - (startPosition + 2));
+                    }
+                    else
+                    {
+                        // Even though RFC4253 clearly indicates that the identification string should be terminated
+                        // by a CR LF we also support banners and identification strings that are terminated by a LF
+
+                        // Return current line without LF
+                        return Encoding.UTF8.GetString(buffer.ToArray(), startPosition, buffer.Count - (startPosition + 1));
+                    }
                 }
             }
 

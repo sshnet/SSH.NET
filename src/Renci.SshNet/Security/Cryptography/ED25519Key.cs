@@ -51,7 +51,7 @@ namespace Renci.SshNet.Security
         {
             get
             {
-                return PublicKey.Length;
+                return PublicKey.Length * 8;
             }
         }
 

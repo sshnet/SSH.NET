@@ -6,7 +6,7 @@ namespace Renci.SshNet.Channels
     /// <summary>
     /// Session SSH channel.
     /// </summary>
-    internal interface IChannelSession : IChannel
+    public interface IChannelSession : IChannel
     {
         /// <summary>
         /// Opens the channel.

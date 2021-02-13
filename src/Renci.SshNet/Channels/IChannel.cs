@@ -7,7 +7,7 @@ namespace Renci.SshNet.Channels
     /// <summary>
     /// Represents SSH channel.
     /// </summary>
-    internal interface IChannel : IDisposable
+    public interface IChannel : IDisposable
     {
         /// <summary>
         /// Occurs when <see cref="ChannelDataMessage"/> is received.

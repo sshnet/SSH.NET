@@ -141,7 +141,12 @@ namespace Renci.SshNet
             _authenticationCompleted.Set();
         }
 
-        private void Session_UserAuthenticationPublicKeyReceived(object sender, MessageEventArgs<PublicKeyMessage> e)
+        /// <summary>
+        /// Public Key Received Event Handler
+        /// </summary>
+        /// <param name="sender">Event sender</param>
+        /// <param name="e">Public Key Message</param>
+        public void Session_UserAuthenticationPublicKeyReceived(object sender, MessageEventArgs<PublicKeyMessage> e)
         {
             _isSignatureRequired = true;
             _authenticationCompleted.Set();

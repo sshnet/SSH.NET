@@ -377,7 +377,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Occurs when <see cref="PublicKeyMessage"/> message is received from the server.
         /// </summary>
-        internal event EventHandler<MessageEventArgs<PublicKeyMessage>> UserAuthenticationPublicKeyReceived;
+        public event EventHandler<MessageEventArgs<PublicKeyMessage>> UserAuthenticationPublicKeyReceived;
 
         /// <summary>
         /// Occurs when <see cref="KeyExchangeDhGroupExchangeGroup"/> message is received from the server.
@@ -449,12 +449,12 @@ namespace Renci.SshNet
         /// <summary>
         /// Occurs when <see cref="FailureMessage"/> message received
         /// </summary>
-        internal event EventHandler<MessageEventArgs<FailureMessage>> UserAuthenticationFailureReceived;
+        public event EventHandler<MessageEventArgs<FailureMessage>> UserAuthenticationFailureReceived;
 
         /// <summary>
         /// Occurs when <see cref="SuccessMessage"/> message received
         /// </summary>
-        internal event EventHandler<MessageEventArgs<SuccessMessage>> UserAuthenticationSuccessReceived;
+        public event EventHandler<MessageEventArgs<SuccessMessage>> UserAuthenticationSuccessReceived;
 
         /// <summary>
         /// Occurs when <see cref="GlobalRequestMessage"/> message received
@@ -849,7 +849,7 @@ namespace Renci.SshNet
         /// <exception cref="SshConnectionException">A received package was invalid or failed the message integrity check.</exception>
         /// <exception cref="SshOperationTimeoutException">None of the handles are signaled in time and the session is not disconnecting.</exception>
         /// <exception cref="SocketException">A socket error was signaled while receiving messages from the server.</exception>
-        internal void WaitOnHandle(WaitHandle waitHandle, TimeSpan timeout)
+        public void WaitOnHandle(WaitHandle waitHandle, TimeSpan timeout)
         {
             if (waitHandle == null)
                 throw new ArgumentNullException("waitHandle");
@@ -889,7 +889,7 @@ namespace Renci.SshNet
         /// <exception cref="SshConnectionException">The client is not connected.</exception>
         /// <exception cref="SshOperationTimeoutException">The operation timed out.</exception>
         /// <exception cref="InvalidOperationException">The size of the packet exceeds the maximum size defined by the protocol.</exception>
-        internal void SendMessage(Message message)
+        public void SendMessage(Message message)
         {
             if (!_socket.CanWrite())
                 throw new SshConnectionException("Client not connected.");
@@ -2145,7 +2145,7 @@ namespace Renci.SshNet
     /// <summary>
     /// Represents the result of a wait operations.
     /// </summary>
-    internal enum WaitResult
+    public enum WaitResult
     {
         /// <summary>
         /// The <see cref="WaitHandle"/> was signaled within the specified interval.

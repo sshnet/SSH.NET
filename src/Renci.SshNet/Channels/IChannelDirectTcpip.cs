@@ -7,7 +7,7 @@ namespace Renci.SshNet.Channels
     /// <summary>
     /// A "direct-tcpip" SSH channel.
     /// </summary>
-    internal interface IChannelDirectTcpip : IDisposable
+    public interface IChannelDirectTcpip : IDisposable
     {
         /// <summary>
         /// Occurs when an exception is thrown while processing channel messages.

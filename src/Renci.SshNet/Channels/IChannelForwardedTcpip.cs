@@ -7,7 +7,7 @@ namespace Renci.SshNet.Channels
     /// <summary>
     /// A "forwarded-tcpip" SSH channel.
     /// </summary>
-    internal interface IChannelForwardedTcpip : IDisposable
+    public interface IChannelForwardedTcpip : IDisposable
     {
         /// <summary>
         /// Occurs when an exception is thrown while processing channel messages.

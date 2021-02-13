@@ -12,7 +12,7 @@ namespace Renci.SshNet
     /// <summary>
     /// Provides functionality to connect and interact with SSH server.
     /// </summary>
-    internal interface ISession : IDisposable
+    public interface ISession : IDisposable
     {
         /// <summary>
         /// Gets or sets the connection info.

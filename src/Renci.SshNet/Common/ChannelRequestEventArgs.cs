@@ -6,7 +6,7 @@ namespace Renci.SshNet.Common
     /// <summary>
     /// Provides data for <see cref="Renci.SshNet.Channels.Channel.RequestReceived"/> event.
     /// </summary>
-    internal class ChannelRequestEventArgs : EventArgs
+    public class ChannelRequestEventArgs : EventArgs
     {
         /// <summary>
         /// Gets request information.

@@ -88,9 +88,6 @@ namespace Renci.SshNet
         /// <summary>
         /// Gets connection host.
         /// </summary>
-        /// <value>
-        /// The connection host.
-        /// </value>
         public string Host { get; private set; }
 
         /// <summary>
@@ -361,6 +358,7 @@ namespace Renci.SshNet
                     ////{"rijndael-cbc@lysator.liu.se", typeof(...)},                
                     {"aes128-ctr", new CipherInfo(128, (key, iv) => new AesCipher(key, new CtrCipherMode(iv), null))},
                     {"aes192-ctr", new CipherInfo(192, (key, iv) => new AesCipher(key, new CtrCipherMode(iv), null))},
+                    {"aes128-gcm@openssh.com", new CipherInfo(128, (key, iv) => new AesCipher(key, new AEADCipherMode(iv), null))},
                 };
 
             HmacAlgorithms = new Dictionary<string, HashInfo>

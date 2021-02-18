@@ -67,5 +67,6 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// The number of bytes decrypted.
         /// </returns>
         public abstract int DecryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset);
+
     }
 }

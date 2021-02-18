@@ -53,5 +53,24 @@
         /// The decrypted data.
         /// </returns>
         public abstract byte[] Decrypt(byte[] input, int offset, int length);
+/*
+        /// <summary>
+        /// GcmEncrypt given bytes
+        /// </summary>
+        /// <param name="toEncrypt"></param>
+        /// <param name="key"></param>
+        /// <param name="associatedData"></param>
+        /// <returns></returns>
+        public abstract byte[] GcmEncrypt(byte[] toEncrypt, byte[] key, byte[] associatedData = null);
+
+        /// <summary>
+        /// Decrypt Given Bytes
+        /// </summary>
+        /// <param name="cipherText"></param>
+        /// <param name="key"></param>
+        /// <param name="associatedData"></param>
+        /// <returns></returns>
+        public abstract byte[] GcmDecrypt(byte[] cipherText, byte[] key, byte[] associatedData = null);
+#*/
     }
 }

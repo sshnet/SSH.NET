@@ -81,7 +81,7 @@ namespace Renci.SshNet.Security
 
             if (string.IsNullOrEmpty(clientEncryptionAlgorithmName))
             {
-                throw new SshConnectionException("Client encryption algorithm not found", DisconnectReason.KeyExchangeFailed);
+                throw new SshConnectionException("Client encryption algorithm not found dude !!!!!!!", DisconnectReason.KeyExchangeFailed);
             }
 
             session.ConnectionInfo.CurrentClientEncryption = clientEncryptionAlgorithmName;

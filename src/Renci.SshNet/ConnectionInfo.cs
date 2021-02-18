@@ -361,6 +361,9 @@ namespace Renci.SshNet
                     ////{"rijndael-cbc@lysator.liu.se", typeof(...)},                
                     {"aes128-ctr", new CipherInfo(128, (key, iv) => new AesCipher(key, new CtrCipherMode(iv), null))},
                     {"aes192-ctr", new CipherInfo(192, (key, iv) => new AesCipher(key, new CtrCipherMode(iv), null))},
+                     #if NETCOREAPP3_0 || NETSTANDARD2_1
+                    {"aes128-gcm@openssh.com", new CipherInfo(128, (key, iv) => new AesCipher(key, new GcmCipherMode(iv), null))},
+                    #endif
                 };
 
             HmacAlgorithms = new Dictionary<string, HashInfo>

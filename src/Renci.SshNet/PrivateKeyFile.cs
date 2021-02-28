@@ -82,6 +82,15 @@ namespace Renci.SshNet
         /// <summary>
         /// Initializes a new instance of the <see cref="PrivateKeyFile"/> class.
         /// </summary>
+        /// <param name="key">The key.</param>
+        public PrivateKeyFile(Key key)
+        {
+            HostKey = new KeyHostAlgorithm(key.ToString(), key);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PrivateKeyFile"/> class.
+        /// </summary>
         /// <param name="privateKey">The private key.</param>
         public PrivateKeyFile(Stream privateKey)
         {

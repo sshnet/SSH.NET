@@ -7,6 +7,10 @@ using Renci.SshNet.Security;
 using Renci.SshNet.Messages.Connection;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Authentication;
+#if NETCOREAPP3_0 || NETSTANDARD2_1
+using Renci.SshNet.Security.Cryptography;
+using Renci.SshNet.Security.Cryptography.Ciphers.Paddings;
+#endif
 using Renci.SshNet.Security.Cryptography.Ciphers.Modes;
 using Renci.SshNet.Security.Cryptography.Ciphers;
 
@@ -361,6 +365,9 @@ namespace Renci.SshNet
                     ////{"rijndael-cbc@lysator.liu.se", typeof(...)},                
                     {"aes128-ctr", new CipherInfo(128, (key, iv) => new AesCipher(key, new CtrCipherMode(iv), null))},
                     {"aes192-ctr", new CipherInfo(192, (key, iv) => new AesCipher(key, new CtrCipherMode(iv), null))},
+#if NETCOREAPP3_0 || NETSTANDARD2_1
+                    {"aes128-gcm@openssh.com", new CipherInfo(128, (key, iv) => new AEADCipher(key, iv, 16, null, new AEADPadding()))},
+#endif
                 };
 
             HmacAlgorithms = new Dictionary<string, HashInfo>

@@ -18,6 +18,7 @@ namespace Renci.SshNet.Tests.Classes
         private uint _widthPixels;
         private uint _heightPixels;
         private int _bufferSize;
+        private int _expectSize;
         private ShellStream _expected;
         private ShellStream _actual;
 
@@ -33,6 +34,7 @@ namespace Renci.SshNet.Tests.Classes
             _widthPixels = (uint)random.Next();
             _heightPixels = (uint)random.Next();
             _bufferSize = random.Next(100, 1000);
+            _expectSize = random.Next(100, 1000);
 
             _expected = CreateShellStream();
         }
@@ -57,7 +59,8 @@ namespace Renci.SshNet.Tests.Classes
                                                                _widthPixels,
                                                                _heightPixels,
                                                                null,
-                                                               _bufferSize))
+                                                               _bufferSize,
+                                                               _expectSize))
                                .Returns(_expected);
         }
 
@@ -89,7 +92,8 @@ namespace Renci.SshNet.Tests.Classes
                                                                 _widthPixels,
                                                                 _heightPixels,
                                                                 null,
-                                                                _bufferSize),
+                                                                _bufferSize,
+                                                                _expectSize),
                                        Times.Once);
         }
 
@@ -127,6 +131,7 @@ namespace Renci.SshNet.Tests.Classes
                                    _widthPixels,
                                    _heightPixels,
                                    null,
+                                   1,
                                    1);
         }
     }

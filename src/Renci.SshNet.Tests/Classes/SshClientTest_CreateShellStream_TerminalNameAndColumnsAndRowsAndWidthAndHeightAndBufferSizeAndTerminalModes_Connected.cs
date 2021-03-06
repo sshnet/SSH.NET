@@ -19,6 +19,7 @@ namespace Renci.SshNet.Tests.Classes
         private uint _heightPixels;
         private Dictionary<TerminalModes, uint> _terminalModes;
         private int _bufferSize;
+        private int _expectSize;
         private ShellStream _expected;
         private ShellStream _actual;
 
@@ -29,12 +30,13 @@ namespace Renci.SshNet.Tests.Classes
             _connectionInfo = new ConnectionInfo("host", "user", new NoneAuthenticationMethod("userauth"));
 
             _terminalName = random.Next().ToString();
-            _widthColumns = (uint) random.Next();
-            _heightRows = (uint) random.Next();
-            _widthPixels = (uint) random.Next();
-            _heightPixels = (uint) random.Next();
+            _widthColumns = (uint)random.Next();
+            _heightRows = (uint)random.Next();
+            _widthPixels = (uint)random.Next();
+            _heightPixels = (uint)random.Next();
             _terminalModes = new Dictionary<TerminalModes, uint>();
             _bufferSize = random.Next(100, 1000);
+            _expectSize = random.Next(100, 1000);
 
             _expected = CreateShellStream();
         }
@@ -59,7 +61,8 @@ namespace Renci.SshNet.Tests.Classes
                                                                _widthPixels,
                                                                _heightPixels,
                                                                _terminalModes,
-                                                               _bufferSize))
+                                                               _bufferSize,
+                                                               _expectSize))
                                .Returns(_expected);
         }
 
@@ -92,7 +95,8 @@ namespace Renci.SshNet.Tests.Classes
                                                                 _widthPixels,
                                                                 _heightPixels,
                                                                 _terminalModes,
-                                                                _bufferSize),
+                                                                _bufferSize,
+                                                                _expectSize),
                                        Times.Once);
         }
 
@@ -130,6 +134,7 @@ namespace Renci.SshNet.Tests.Classes
                                    _widthPixels,
                                    _heightPixels,
                                    _terminalModes,
+                                   1,
                                    1);
         }
     }

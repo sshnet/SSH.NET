@@ -24,6 +24,7 @@ namespace Renci.SshNet.Tests.Classes
         private Dictionary<TerminalModes, uint> _terminalModes;
         private ShellStream _shellStream;
         private int _bufferSize;
+        private int _expectSize;
 
         private byte[] _data;
         private int _offset;
@@ -50,6 +51,7 @@ namespace Renci.SshNet.Tests.Classes
             _heightPixels = (uint)random.Next();
             _terminalModes = new Dictionary<TerminalModes, uint>();
             _bufferSize = random.Next(100, 1000);
+            _expectSize = random.Next(100, 1000);
 
             _data = CryptoAbstraction.GenerateRandom(_bufferSize * 2 + 10);
             _offset = 0;
@@ -111,7 +113,8 @@ namespace Renci.SshNet.Tests.Classes
                                            _widthPixels,
                                            _heightPixels,
                                            _terminalModes,
-                                           _bufferSize);
+                                           _bufferSize,
+                                           _expectSize);
         }
 
         private void Act()

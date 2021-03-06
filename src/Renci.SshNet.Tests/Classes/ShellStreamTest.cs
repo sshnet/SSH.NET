@@ -27,6 +27,7 @@ namespace Renci.SshNet.Tests.Classes
         private uint _heightPixels;
         private Dictionary<TerminalModes, uint> _terminalModes;
         private int _bufferSize;
+        private int _expectSize;
         private Mock<IChannelSession> _channelSessionMock;
 
         protected override void OnInit()
@@ -35,12 +36,13 @@ namespace Renci.SshNet.Tests.Classes
 
             var random = new Random();
             _terminalName = random.Next().ToString(CultureInfo.InvariantCulture);
-            _widthColumns = (uint) random.Next();
-            _heightRows = (uint) random.Next();
+            _widthColumns = (uint)random.Next();
+            _heightRows = (uint)random.Next();
             _widthPixels = (uint)random.Next();
             _heightPixels = (uint)random.Next();
             _terminalModes = new Dictionary<TerminalModes, uint>();
             _bufferSize = random.Next(100, 500);
+            _expectSize = random.Next(100, 500);
 
             _encoding = Encoding.UTF8;
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);
@@ -61,15 +63,15 @@ namespace Renci.SshNet.Tests.Classes
             var shellStream = CreateShellStream();
 
             var channelDataPublishThread = new Thread(() =>
-                {
-                    _channelSessionMock.Raise(p => p.DataReceived += null,
-                        new ChannelDataEventArgs(5, _encoding.GetBytes(data1)));
-                    Thread.Sleep(50);
-                    _channelSessionMock.Raise(p => p.DataReceived += null,
-                        new ChannelDataEventArgs(5, _encoding.GetBytes(data2 + "\r\n")));
-                    _channelSessionMock.Raise(p => p.DataReceived += null,
-                        new ChannelDataEventArgs(5, _encoding.GetBytes(data3 + "\r\n")));
-                });
+            {
+                _channelSessionMock.Raise(p => p.DataReceived += null,
+                    new ChannelDataEventArgs(5, _encoding.GetBytes(data1)));
+                Thread.Sleep(50);
+                _channelSessionMock.Raise(p => p.DataReceived += null,
+                    new ChannelDataEventArgs(5, _encoding.GetBytes(data2 + "\r\n")));
+                _channelSessionMock.Raise(p => p.DataReceived += null,
+                    new ChannelDataEventArgs(5, _encoding.GetBytes(data3 + "\r\n")));
+            });
             channelDataPublishThread.Start();
 
             Assert.AreEqual(data1 + data2, shellStream.ReadLine());
@@ -120,7 +122,8 @@ namespace Renci.SshNet.Tests.Classes
                                    _widthPixels,
                                    _heightPixels,
                                    _terminalModes,
-                                   _bufferSize);
+                                   _bufferSize,
+                                   _expectSize);
         }
     }
 }

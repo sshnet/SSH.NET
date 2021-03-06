@@ -22,6 +22,7 @@ namespace Renci.SshNet.Tests.Classes
         private uint _height;
         private IDictionary<TerminalModes, uint> _terminalModeValues;
         private int _bufferSize;
+        private int _expectSize;
         private SshException _actualException;
 
         private void SetupData()
@@ -29,12 +30,13 @@ namespace Renci.SshNet.Tests.Classes
             var random = new Random();
 
             _terminalName = random.Next().ToString();
-            _columns = (uint) random.Next();
-            _rows = (uint) random.Next();
-            _width = (uint) random.Next();
-            _height = (uint) random.Next();
+            _columns = (uint)random.Next();
+            _rows = (uint)random.Next();
+            _width = (uint)random.Next();
+            _height = (uint)random.Next();
             _terminalModeValues = new Dictionary<TerminalModes, uint>();
             _bufferSize = random.Next();
+            _expectSize = random.Next();
             _actualException = null;
         }
 
@@ -97,7 +99,8 @@ namespace Renci.SshNet.Tests.Classes
                                                   _width,
                                                   _height,
                                                   _terminalModeValues,
-                                                  _bufferSize);
+                                                  _bufferSize,
+                                                  _expectSize);
                 Assert.Fail();
             }
             catch (SshException ex)

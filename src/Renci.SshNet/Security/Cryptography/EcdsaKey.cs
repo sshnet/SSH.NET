@@ -213,6 +213,11 @@ namespace Renci.SshNet.Security
         }
 
         /// <summary>
+        /// Gets the PrivateKey Bytes
+        /// </summary>
+        public byte[] PrivateKey { get; private set; }
+
+        /// <summary>
         /// Gets ECDsa Object
         /// </summary>
         public ECDsa Ecdsa { get; private set; }
@@ -297,7 +302,10 @@ namespace Renci.SshNet.Security
             parameter.Q.Y = qy;
 
             if (privatekey != null)
+            {
                 parameter.D = privatekey.TrimLeadingZeros().Pad(cord_size);
+                PrivateKey = parameter.D;
+            }
 
             Ecdsa = ECDsa.Create(parameter);
 #else
@@ -335,7 +343,10 @@ namespace Renci.SshNet.Security
             Buffer.BlockCopy(publickey, cord_size + 1, qy, 0, qy.Length);
 
             if (privatekey != null)
+            {
                 privatekey = privatekey.Pad(cord_size);
+                PrivateKey = privatekey;
+            }
 
             int headerSize = Marshal.SizeOf(typeof(BCRYPT_ECCKEY_BLOB));
             int blobSize = headerSize + qx.Length + qy.Length;

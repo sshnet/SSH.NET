@@ -2092,6 +2092,17 @@ namespace Renci.SshNet
         }
 
         /// <summary>
+        /// Create a new channel for a locally forwarded unix domain socket.
+        /// </summary>
+        /// <returns>
+        /// A new channel for a locally forwarded unix domain socket.
+        /// </returns>
+        IChannelDirectStreamLocal ISession.CreateChannelDirectStreamLocal()
+        {
+            return new ChannelDirectStreamLocal(this, NextChannelNumber, InitialLocalWindowSize, LocalChannelDataPacketSize);
+        }
+
+        /// <summary>
         /// Creates a "forwarded-tcpip" SSH channel.
         /// </summary>
         /// <returns>
@@ -2108,6 +2119,25 @@ namespace Renci.SshNet
                                              remoteChannelNumber,
                                              remoteWindowSize,
                                              remoteChannelDataPacketSize);
+        }
+
+        /// <summary>
+        /// Creates a "forwarded-streamlocal@openssh.com" SSH channel.
+        /// </summary>
+        /// <returns>
+        /// A new "forwarded-streamlocal@openssh.com" SSH channel.
+        /// </returns>
+        IChannelForwardedStreamLocal ISession.CreateChannelForwardedStreamLocal(uint remoteChannelNumber,
+            uint remoteWindowSize,
+            uint remoteChannelDataPacketSize)
+        {
+            return new ChannelForwardedStreamLocal(this,
+                    NextChannelNumber,
+                    InitialLocalWindowSize,
+                    LocalChannelDataPacketSize,
+                    remoteChannelNumber,
+                    remoteWindowSize,
+                    remoteChannelDataPacketSize);
         }
 
         /// <summary>

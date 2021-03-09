@@ -14,15 +14,28 @@ namespace Renci.SshNet
 
         partial void InternalStart()
         {
-            var addr = DnsAbstraction.GetHostAddresses(BoundHost)[0];
-            var ep = new IPEndPoint(addr, (int) BoundPort);
+#if FEATURE_UNIX_SOCKETS
+            if (LocalUnixSocket != null)
+            {
+                _listener = new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.Unspecified);
+                _listener.Bind(LocalUnixSocket);
+                _listener.Listen(5);
+            }
+            else
+            {
+#endif
+                var addr = DnsAbstraction.GetHostAddresses(BoundHost)[0];
+                var ep = new IPEndPoint(addr, (int) BoundPort);
 
-            _listener = new Socket(ep.AddressFamily, SocketType.Stream, ProtocolType.Tcp) {NoDelay = true};
-            _listener.Bind(ep);
-            _listener.Listen(5);
+                _listener = new Socket(ep.AddressFamily, SocketType.Stream, ProtocolType.Tcp) {NoDelay = true};
+                _listener.Bind(ep);
+                _listener.Listen(5);
 
-            // update bound port (in case original was passed as zero)
-            BoundPort = (uint)((IPEndPoint)_listener.LocalEndPoint).Port;
+                // update bound port (in case original was passed as zero)
+                BoundPort = (uint) ((IPEndPoint) _listener.LocalEndPoint).Port;
+#if FEATURE_UNIX_SOCKETS
+            }
+#endif
 
             Session.ErrorOccured += Session_ErrorOccured;
             Session.Disconnected += Session_Disconnected;
@@ -115,17 +128,44 @@ namespace Renci.SshNet
 
             try
             {
-                var originatorEndPoint = (IPEndPoint) clientSocket.RemoteEndPoint;
-
-                RaiseRequestReceived(originatorEndPoint.Address.ToString(),
-                    (uint)originatorEndPoint.Port);
-
-                using (var channel = Session.CreateChannelDirectTcpip())
+                var originatorAddress = "";
+                var originatorPort = (uint)0;
+                if (clientSocket.RemoteEndPoint is IPEndPoint)
                 {
-                    channel.Exception += Channel_Exception;
-                    channel.Open(Host, Port, this, clientSocket);
-                    channel.Bind();
+                    var originatorEndPoint = (IPEndPoint)clientSocket.RemoteEndPoint;
+                    originatorAddress = originatorEndPoint.Address.ToString();
+                    originatorPort = (uint) originatorEndPoint.Port;
                 }
+#if FEATURE_UNIX_SOCKETS
+                if (clientSocket.RemoteEndPoint is UnixDomainSocketEndPoint)
+                {
+                    originatorAddress = ((UnixDomainSocketEndPoint)clientSocket.RemoteEndPoint).ToString();
+                }
+#endif
+                RaiseRequestReceived(originatorAddress, originatorPort);
+
+#if FEATURE_UNIX_SOCKETS
+                if (RemoteUnixSocket != null)
+                {
+                    using (var channel = Session.CreateChannelDirectStreamLocal())
+                    {
+                        channel.Exception += Channel_Exception;
+                        channel.Open(RemoteUnixSocket.ToString(), this, clientSocket);
+                        channel.Bind();
+                    }
+                }
+                else
+                {
+#endif
+                    using (var channel = Session.CreateChannelDirectTcpip())
+                    {
+                        channel.Exception += Channel_Exception;
+                        channel.Open(Host, Port, this, clientSocket);
+                        channel.Bind();
+                    }
+#if FEATURE_UNIX_SOCKETS
+                }
+#endif
             }
             catch (Exception exp)
             {

@@ -4,6 +4,9 @@ using Renci.SshNet.Messages.Connection;
 using Renci.SshNet.Common;
 using System.Globalization;
 using System.Net;
+#if FEATURE_UNIX_SOCKETS
+using System.Net.Sockets;
+#endif
 using Renci.SshNet.Abstractions;
 
 namespace Renci.SshNet
@@ -129,6 +132,83 @@ namespace Renci.SshNet
         {
         }
 
+#if FEATURE_UNIX_SOCKETS
+        /// <summary>
+        /// Gets the bound unix socket.
+        /// </summary>
+        public UnixDomainSocketEndPoint LocalUnixSocket { get; private set; }
+
+        /// <summary>
+        /// Gets the forwarded unix socket.
+        /// </summary>
+        public UnixDomainSocketEndPoint RemoteUnixSocket { get; private set; }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ForwardedPortLocal"/> class.
+        /// </summary>
+        /// <param name="remoteSocket"></param>
+        /// <param name="localSocket"></param>
+        /// <exception cref="ArgumentNullException"></exception>
+        public ForwardedPortRemote(UnixDomainSocketEndPoint remoteSocket, UnixDomainSocketEndPoint localSocket)
+        {
+            if (remoteSocket == null)
+                throw new ArgumentNullException("remoteSocket");
+
+            if (localSocket == null)
+                throw new ArgumentNullException("localSocket");
+
+            RemoteUnixSocket = remoteSocket;
+            LocalUnixSocket = localSocket;
+            _status = ForwardedPortStatus.Stopped;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ForwardedPortLocal"/> class.
+        /// </summary>
+        /// <param name="remoteSocket"></param>
+        /// <param name="hostAddress"></param>
+        /// <param name="port"></param>
+        /// <exception cref="ArgumentNullException"></exception>
+        public ForwardedPortRemote(UnixDomainSocketEndPoint remoteSocket, IPAddress hostAddress, uint port)
+        {
+            if (remoteSocket == null)
+                throw new ArgumentNullException("remoteSocket");
+
+            if (hostAddress == null)
+                throw new ArgumentNullException("hostAddress");
+
+            port.ValidatePort("port");
+
+            RemoteUnixSocket = remoteSocket;
+            HostAddress = hostAddress;
+            Port = port;
+            _status = ForwardedPortStatus.Stopped;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ForwardedPortLocal"/> class.
+        /// </summary>
+        /// <param name="boundHostAddress"></param>
+        /// <param name="boundPort"></param>
+        /// <param name="localSocket"></param>
+        /// <exception cref="ArgumentNullException"></exception>
+        public ForwardedPortRemote(IPAddress boundHostAddress, uint boundPort, UnixDomainSocketEndPoint localSocket)
+        {
+            if (boundHostAddress == null)
+                throw new ArgumentNullException("boundHostAddress");
+
+            if (localSocket == null)
+                throw new ArgumentNullException("localSocket");
+
+            boundPort.ValidatePort("boundPort");
+
+            LocalUnixSocket = localSocket;
+            BoundHostAddress = boundHostAddress;
+            BoundPort = boundPort;
+            _status = ForwardedPortStatus.Stopped;
+        }
+#endif
+
         /// <summary>
         /// Starts remote port forwarding.
         /// </summary>
@@ -150,12 +230,27 @@ namespace Renci.SshNet
                 Session.ChannelOpenReceived += Session_ChannelOpening;
 
                 // send global request to start forwarding
-                Session.SendMessage(new TcpIpForwardGlobalRequestMessage(BoundHost, BoundPort));
+#if FEATURE_UNIX_SOCKETS
+                if (RemoteUnixSocket != null)
+                {
+                    Session.SendMessage(new StreamLocalForwardGlobalRequestMessage(RemoteUnixSocket.ToString()));
+                }
+                else
+                {
+#endif
+                    Session.SendMessage(new TcpIpForwardGlobalRequestMessage(BoundHost, BoundPort));
+#if FEATURE_UNIX_SOCKETS
+                }
+#endif
                 // wat for response on global request to start direct tcpip
                 Session.WaitOnHandle(_globalRequestResponse);
 
                 if (!_requestStatus)
                 {
+#if FEATURE_UNIX_SOCKETS
+                    if (RemoteUnixSocket != null)
+                        throw new SshException(string.Format(CultureInfo.CurrentCulture, "Forwarding for '{0}' failed to start.", RemoteUnixSocket.ToString()));
+#endif
                     throw new SshException(string.Format(CultureInfo.CurrentCulture, "Port forwarding for '{0}' port '{1}' failed to start.", Host, Port));
                 }
             }
@@ -188,7 +283,18 @@ namespace Renci.SshNet
             base.StopPort(timeout);
 
             // send global request to cancel direct tcpip
-            Session.SendMessage(new CancelTcpIpForwardGlobalRequestMessage(BoundHost, BoundPort));
+#if FEATURE_UNIX_SOCKETS
+            if (RemoteUnixSocket != null)
+            {
+                Session.SendMessage(new CancelStreamLocalForwardGlobalRequestMessage(RemoteUnixSocket.ToString()));
+            }
+            else
+            {
+#endif
+                Session.SendMessage(new CancelTcpIpForwardGlobalRequestMessage(BoundHost, BoundPort));
+#if FEATURE_UNIX_SOCKETS
+            }
+#endif
             // wait for response on global request to cancel direct tcpip or completion of message
             // listener loop (in which case response on global request can never be received)
             WaitHandle.WaitAny(new[] { _globalRequestResponse, Session.MessageListenerCompleted }, timeout);
@@ -224,9 +330,10 @@ namespace Renci.SshNet
         private void Session_ChannelOpening(object sender, MessageEventArgs<ChannelOpenMessage> e)
         {
             var channelOpenMessage = e.Message;
-            var info = channelOpenMessage.Info as ForwardedTcpipChannelInfo;
-            if (info != null)
+
+            if (channelOpenMessage.Info is ForwardedTcpipChannelInfo)
             {
+                var info = (ForwardedTcpipChannelInfo) channelOpenMessage.Info;
                 //  Ensure this is the corresponding request
                 if (info.ConnectedAddress == BoundHost && info.ConnectedPort == BoundPort)
                 {
@@ -252,7 +359,18 @@ namespace Renci.SshNet
                                 using (var channel = Session.CreateChannelForwardedTcpip(channelOpenMessage.LocalChannelNumber, channelOpenMessage.InitialWindowSize, channelOpenMessage.MaximumPacketSize))
                                 {
                                     channel.Exception += Channel_Exception;
-                                    channel.Bind(new IPEndPoint(HostAddress, (int) Port), this);
+#if FEATURE_UNIX_SOCKETS
+                                    if (LocalUnixSocket != null)
+                                    {
+                                        channel.Bind(LocalUnixSocket, this);
+                                    }
+                                    else
+                                    {
+#endif
+                                        channel.Bind(new IPEndPoint(HostAddress, (int) Port), this);
+#if FEATURE_UNIX_SOCKETS
+                                    }
+#endif
                                 }
                             }
                             catch (Exception exp)
@@ -275,6 +393,66 @@ namespace Renci.SshNet
                         });
                 }
             }
+#if FEATURE_UNIX_SOCKETS
+            if (channelOpenMessage.Info is ForwardedStreamChannelInfo)
+            {
+                var streamChannelInfo = channelOpenMessage.Info as ForwardedStreamChannelInfo;
+                //  Ensure this is the corresponding request
+                if (streamChannelInfo.SocketPath == RemoteUnixSocket.ToString())
+                {
+                    if (!IsStarted)
+                    {
+                        Session.SendMessage(new ChannelOpenFailureMessage(channelOpenMessage.LocalChannelNumber, "", ChannelOpenFailureMessage.AdministrativelyProhibited));
+                        return;
+                    }
+
+                    ThreadAbstraction.ExecuteThread(() =>
+                    {
+                        // capture the countdown event that we're adding a count to, as we need to make sure that we'll be signaling
+                        // that same instance; the instance field for the countdown event is re-initialize when the port is restarted
+                        // and that time there may still be pending requests
+                        var pendingChannelCountdown = _pendingChannelCountdown;
+
+                        pendingChannelCountdown.AddCount();
+
+                        try
+                        {
+                            RaiseRequestReceived(streamChannelInfo.SocketPath, 0);
+
+                            using (var channel = Session.CreateChannelForwardedStreamLocal(channelOpenMessage.LocalChannelNumber, channelOpenMessage.InitialWindowSize, channelOpenMessage.MaximumPacketSize))
+                            {
+                                channel.Exception += Channel_Exception;
+                                if (LocalUnixSocket != null)
+                                {
+                                    channel.Bind(LocalUnixSocket, this);
+                                }
+                                else
+                                {
+                                    channel.Bind(new IPEndPoint(HostAddress, (int) Port), this);
+                                }
+                            }
+                        }
+                        catch (Exception exp)
+                        {
+                            RaiseExceptionEvent(exp);
+                        }
+                        finally
+                        {
+                            // take into account that CountdownEvent has since been disposed; when stopping the port we
+                            // wait for a given time for the channels to close, but once that timeout period has elapsed
+                            // the CountdownEvent will be disposed
+                            try
+                            {
+                                pendingChannelCountdown.Signal();
+                            }
+                            catch (ObjectDisposedException)
+                            {
+                            }
+                        }
+                    });
+                }
+            }
+#endif
         }
 
         /// <summary>

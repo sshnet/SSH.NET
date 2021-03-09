@@ -21,6 +21,14 @@ namespace Renci.SshNet.Channels
         /// <summary>
         /// direct-tcpip
         /// </summary>
-        DirectTcpip
+        DirectTcpip,
+        /// <summary>
+        /// forwarded-streamlocal@openssh.com
+        /// </summary>
+        ForwardedStreamLocal,
+        /// <summary>
+        /// direct-streamlocal@openssh.com
+        /// </summary>
+        DirectStreamLocal,
     }
 }

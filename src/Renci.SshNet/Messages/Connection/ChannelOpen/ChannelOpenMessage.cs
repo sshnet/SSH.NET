@@ -127,6 +127,12 @@ namespace Renci.SshNet.Messages.Connection
                 case ForwardedTcpipChannelInfo.NAME:
                     Info = new ForwardedTcpipChannelInfo(_infoBytes);
                     break;
+                case DirectStreamLocalChannelInfo.NAME:
+                    Info = new DirectTcpipChannelInfo(_infoBytes);
+                    break;
+                case ForwardedStreamChannelInfo.NAME:
+                    Info = new ForwardedStreamChannelInfo(_infoBytes);
+                    break;
                 default:
                     throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "Channel type '{0}' is not supported.", channelName));
             }

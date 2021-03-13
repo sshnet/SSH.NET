@@ -524,8 +524,7 @@ namespace Renci.SshNet
                     throw new SshException("OpenSSH key type '" + keyType + "' is not supported.");
             }
 
-            //comment, we don't need this but we could log it, not sure if necessary
-            var comment = privateKeyReader.ReadString(Encoding.UTF8);
+            parsedKey.Comment = privateKeyReader.ReadString(Encoding.UTF8);
 
             //The list of privatekey/comment pairs is padded with the bytes 1, 2, 3, ...
             //until the total length is a multiple of the cipher block size.

@@ -63,7 +63,7 @@ namespace Renci.SshNet
     /// </list>
     /// </para>
     /// </remarks>
-    public class PrivateKeyFile : IDisposable
+    public class PrivateKeyFile : IPrivateKeySource, IDisposable
     {
         private static readonly Regex PrivateKeyRegex = new Regex(@"^-+ *BEGIN (?<keyName>\w+( \w+)*) PRIVATE KEY *-+\r?\n((Proc-Type: 4,ENCRYPTED\r?\nDEK-Info: (?<cipherName>[A-Z0-9-]+),(?<salt>[A-F0-9]+)\r?\n\r?\n)|(Comment: ""?[^\r\n]*""?\r?\n))?(?<data>([a-zA-Z0-9/+=]{1,80}\r?\n)+)-+ *END \k<keyName> PRIVATE KEY *-+",
 #if FEATURE_REGEX_COMPILE
@@ -271,7 +271,7 @@ namespace Renci.SshNet
 
                     if (decryptedLength > blobSize - 4)
                         throw new SshException("Invalid passphrase.");
-                    
+
                     if (keyType == "if-modn{sign{rsa-pkcs1-sha1},encrypt{rsa-pkcs1v2-oaep}}")
                     {
                         var exponent = reader.ReadBigIntWithBits();//e

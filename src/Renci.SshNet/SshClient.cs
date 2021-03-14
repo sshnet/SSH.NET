@@ -104,7 +104,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, -or- <paramref name="username"/> is <c>null</c> or contains only whitespace characters.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="port"/> is not within <see cref="IPEndPoint.MinPort"/> and <see cref="IPEndPoint.MaxPort"/>.</exception>
         [SuppressMessage("Microsoft.Reliability", "CA2000:DisposeObjectsBeforeLosingScope", Justification = "Disposed in Dispose(bool) method.")]
-        public SshClient(string host, int port, string username, params PrivateKeyFile[] keyFiles)
+        public SshClient(string host, int port, string username, params IPrivateKeySource[] keyFiles)
             : this(new PrivateKeyConnectionInfo(host, port, username, keyFiles), true)
         {
         }
@@ -121,7 +121,7 @@ namespace Renci.SshNet
         /// </example>
         /// <exception cref="ArgumentNullException"><paramref name="keyFiles"/> is <c>null</c>.</exception>
         /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, -or- <paramref name="username"/> is <c>null</c> or contains only whitespace characters.</exception>
-        public SshClient(string host, string username, params PrivateKeyFile[] keyFiles)
+        public SshClient(string host, string username, params IPrivateKeySource[] keyFiles)
             : this(host, ConnectionInfo.DefaultPort, username, keyFiles)
         {
         }

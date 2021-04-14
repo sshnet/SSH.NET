@@ -323,7 +323,9 @@ namespace Renci.SshNet
             MaxSessions = 10;
             Encoding = Encoding.UTF8;
 
-            KeyExchangeAlgorithms = new Dictionary<string, Type>
+            if (SftpClient.UseFIPS)
+            {
+                KeyExchangeAlgorithms = new Dictionary<string, Type>
                 {
                     {"curve25519-sha256", typeof(KeyExchangeECCurve25519)},
                     {"curve25519-sha256@libssh.org", typeof(KeyExchangeECCurve25519)},
@@ -338,7 +340,68 @@ namespace Renci.SshNet
                     {"diffie-hellman-group1-sha1", typeof (KeyExchangeDiffieHellmanGroup1Sha1)},
                 };
 
-            Encryptions = new Dictionary<string, CipherInfo>
+                Encryptions = new Dictionary<string, CipherInfo>
+                {
+                    {"aes256-ctr", new CipherInfo(256, (key, iv) => new AesCipher(key, new CtrCipherMode(iv), null))},
+                    {"3des-cbc", new CipherInfo(192, (key, iv) => new TripleDesCipher(key, new CbcCipherMode(iv), null))},
+                    {"aes128-cbc", new CipherInfo(128, (key, iv) => new AesCipher(key, new CbcCipherMode(iv), null))},
+                    {"aes192-cbc", new CipherInfo(192, (key, iv) => new AesCipher(key, new CbcCipherMode(iv), null))},
+                    {"aes256-cbc", new CipherInfo(256, (key, iv) => new AesCipher(key, new CbcCipherMode(iv), null))},
+                    {"blowfish-cbc", new CipherInfo(128, (key, iv) => new BlowfishCipher(key, new CbcCipherMode(iv), null))},
+                    {"twofish-cbc", new CipherInfo(256, (key, iv) => new TwofishCipher(key, new CbcCipherMode(iv), null))},
+                    {"twofish192-cbc", new CipherInfo(192, (key, iv) => new TwofishCipher(key, new CbcCipherMode(iv), null))},
+                    {"twofish128-cbc", new CipherInfo(128, (key, iv) => new TwofishCipher(key, new CbcCipherMode(iv), null))},
+                    {"twofish256-cbc", new CipherInfo(256, (key, iv) => new TwofishCipher(key, new CbcCipherMode(iv), null))},
+                    {"arcfour", new CipherInfo(128, (key, iv) => new Arc4Cipher(key, false))},
+                    {"arcfour128", new CipherInfo(128, (key, iv) => new Arc4Cipher(key, true))},
+                    {"arcfour256", new CipherInfo(256, (key, iv) => new Arc4Cipher(key, true))},
+                    {"cast128-cbc", new CipherInfo(128, (key, iv) => new CastCipher(key, new CbcCipherMode(iv), null))},
+                    {"aes128-ctr", new CipherInfo(128, (key, iv) => new AesCipher(key, new CtrCipherMode(iv), null))},
+                    {"aes192-ctr", new CipherInfo(192, (key, iv) => new AesCipher(key, new CtrCipherMode(iv), null))},
+                };
+
+                HmacAlgorithms = new Dictionary<string, HashInfo>
+                {
+                    {"hmac-sha1", new HashInfo(20*8, CryptoAbstraction.CreateHMACSHA1)},
+                    {"hmac-sha1-96", new HashInfo(20*8, key => CryptoAbstraction.CreateHMACSHA1(key, 96))},
+                    {"hmac-sha2-256", new HashInfo(32*8, CryptoAbstraction.CreateHMACSHA256)},
+                    {"hmac-sha2-256-96", new HashInfo(32*8, key => CryptoAbstraction.CreateHMACSHA256(key, 96))},
+                    {"hmac-sha2-512", new HashInfo(64 * 8, CryptoAbstraction.CreateHMACSHA512)},
+                    {"hmac-sha2-512-96", new HashInfo(64 * 8,  key => CryptoAbstraction.CreateHMACSHA512(key, 96))},
+                    {"hmac-ripemd160", new HashInfo(160, CryptoAbstraction.CreateHMACRIPEMD160)},
+                    {"hmac-ripemd160@openssh.com", new HashInfo(160, CryptoAbstraction.CreateHMACRIPEMD160)},
+                };
+
+                HostKeyAlgorithms = new Dictionary<string, Func<byte[], KeyHostAlgorithm>>
+                {
+                    {"ssh-ed25519", data => new KeyHostAlgorithm("ssh-ed25519", new ED25519Key(), data)},
+#if FEATURE_ECDSA
+                    {"ecdsa-sha2-nistp256", data => new KeyHostAlgorithm("ecdsa-sha2-nistp256", new EcdsaKey(), data)},
+                    {"ecdsa-sha2-nistp384", data => new KeyHostAlgorithm("ecdsa-sha2-nistp384", new EcdsaKey(), data)},
+                    {"ecdsa-sha2-nistp521", data => new KeyHostAlgorithm("ecdsa-sha2-nistp521", new EcdsaKey(), data)},
+#endif
+                    {"ssh-rsa", data => new KeyHostAlgorithm("ssh-rsa", new RsaKey(), data)},
+                    {"ssh-dss", data => new KeyHostAlgorithm("ssh-dss", new DsaKey(), data)},
+                };
+            }
+            else
+            {
+                KeyExchangeAlgorithms = new Dictionary<string, Type>
+                {
+                    {"curve25519-sha256", typeof(KeyExchangeECCurve25519)},
+                    {"curve25519-sha256@libssh.org", typeof(KeyExchangeECCurve25519)},
+                    {"ecdh-sha2-nistp256", typeof(KeyExchangeECDH256)},
+                    {"ecdh-sha2-nistp384", typeof(KeyExchangeECDH384)},
+                    {"ecdh-sha2-nistp521", typeof(KeyExchangeECDH521)},
+                    {"diffie-hellman-group-exchange-sha256", typeof (KeyExchangeDiffieHellmanGroupExchangeSha256)},
+                    {"diffie-hellman-group-exchange-sha1", typeof (KeyExchangeDiffieHellmanGroupExchangeSha1)},
+                    {"diffie-hellman-group16-sha512", typeof(KeyExchangeDiffieHellmanGroup16Sha512)},
+                    {"diffie-hellman-group14-sha256", typeof (KeyExchangeDiffieHellmanGroup14Sha256)},
+                    {"diffie-hellman-group14-sha1", typeof (KeyExchangeDiffieHellmanGroup14Sha1)},
+                    {"diffie-hellman-group1-sha1", typeof (KeyExchangeDiffieHellmanGroup1Sha1)},
+                };
+
+                Encryptions = new Dictionary<string, CipherInfo>
                 {
                     {"aes256-ctr", new CipherInfo(256, (key, iv) => new AesCipher(key, new CtrCipherMode(iv), null))},
                     {"3des-cbc", new CipherInfo(192, (key, iv) => new TripleDesCipher(key, new CbcCipherMode(iv), null))},
@@ -363,7 +426,7 @@ namespace Renci.SshNet
                     {"aes192-ctr", new CipherInfo(192, (key, iv) => new AesCipher(key, new CtrCipherMode(iv), null))},
                 };
 
-            HmacAlgorithms = new Dictionary<string, HashInfo>
+                HmacAlgorithms = new Dictionary<string, HashInfo>
                 {
                     {"hmac-md5", new HashInfo(16*8, CryptoAbstraction.CreateHMACMD5)},
                     {"hmac-md5-96", new HashInfo(16*8, key => CryptoAbstraction.CreateHMACMD5(key, 96))},
@@ -379,7 +442,7 @@ namespace Renci.SshNet
                     //{"none", typeof(...)},
                 };
 
-            HostKeyAlgorithms = new Dictionary<string, Func<byte[], KeyHostAlgorithm>>
+                HostKeyAlgorithms = new Dictionary<string, Func<byte[], KeyHostAlgorithm>>
                 {
                     {"ssh-ed25519", data => new KeyHostAlgorithm("ssh-ed25519", new ED25519Key(), data)},
 #if FEATURE_ECDSA
@@ -396,6 +459,8 @@ namespace Renci.SshNet
                     //{"pgp-sign-rsa", () => { ... },
                     //{"pgp-sign-dss", () => { ... },
                 };
+            }
+
 
             CompressionAlgorithms = new Dictionary<string, Type>
                 {

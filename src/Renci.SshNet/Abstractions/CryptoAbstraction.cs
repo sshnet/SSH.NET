@@ -56,9 +56,12 @@ namespace Renci.SshNet.Abstractions
 #endif // FEATURE_RNG_CREATE || FEATURE_RNG_CSP
 
 #if FEATURE_HASH_MD5
-        public static System.Security.Cryptography.MD5 CreateMD5()
+        public static System.Security.Cryptography.HashAlgorithm CreateMD5()
         {
-            return System.Security.Cryptography.MD5.Create();
+            if (SftpClient.UseFIPS)
+                return new System.Security.Cryptography.SHA1CryptoServiceProvider();
+            else
+                return System.Security.Cryptography.MD5.Create();
         }
 #else
         public static global::SshNet.Security.Cryptography.MD5 CreateMD5()
@@ -70,11 +73,18 @@ namespace Renci.SshNet.Abstractions
 #if FEATURE_HASH_SHA1_CREATE || FEATURE_HASH_SHA1_MANAGED
         public static System.Security.Cryptography.SHA1 CreateSHA1()
         {
+            if (SftpClient.UseFIPS)
+            {
+                return new System.Security.Cryptography.SHA1CryptoServiceProvider();
+            }
+            else
+            {
 #if FEATURE_HASH_SHA1_CREATE
-            return System.Security.Cryptography.SHA1.Create();
+                return System.Security.Cryptography.SHA1.Create();
 #elif FEATURE_HASH_SHA1_MANAGED
             return new System.Security.Cryptography.SHA1Managed();
 #endif
+            }
         }
 #else
         public static global::SshNet.Security.Cryptography.SHA1 CreateSHA1()
@@ -86,11 +96,18 @@ namespace Renci.SshNet.Abstractions
 #if FEATURE_HASH_SHA256_CREATE || FEATURE_HASH_SHA256_MANAGED
         public static System.Security.Cryptography.SHA256 CreateSHA256()
         {
+            if (SftpClient.UseFIPS)
+            {
+                return new System.Security.Cryptography.SHA256CryptoServiceProvider();
+            }
+            else
+            {
 #if FEATURE_HASH_SHA256_CREATE
-            return System.Security.Cryptography.SHA256.Create();
+                return System.Security.Cryptography.SHA256.Create();
 #elif FEATURE_HASH_SHA256_MANAGED
             return new System.Security.Cryptography.SHA256Managed();
 #endif
+            }
         }
 #else
         public static global::SshNet.Security.Cryptography.SHA256 CreateSHA256()
@@ -102,11 +119,18 @@ namespace Renci.SshNet.Abstractions
 #if FEATURE_HASH_SHA384_CREATE || FEATURE_HASH_SHA384_MANAGED
         public static System.Security.Cryptography.SHA384 CreateSHA384()
         {
+            if (SftpClient.UseFIPS)
+            {
+                return new System.Security.Cryptography.SHA384CryptoServiceProvider();
+            }
+            else
+            {
 #if FEATURE_HASH_SHA384_CREATE
-            return System.Security.Cryptography.SHA384.Create();
+                return System.Security.Cryptography.SHA384.Create();
 #elif FEATURE_HASH_SHA384_MANAGED
             return new System.Security.Cryptography.SHA384Managed();
 #endif
+            }
         }
 #else
         public static global::SshNet.Security.Cryptography.SHA384 CreateSHA384()
@@ -118,11 +142,18 @@ namespace Renci.SshNet.Abstractions
 #if FEATURE_HASH_SHA512_CREATE || FEATURE_HASH_SHA512_MANAGED
         public static System.Security.Cryptography.SHA512 CreateSHA512()
         {
+            if (SftpClient.UseFIPS)
+            {
+                return new System.Security.Cryptography.SHA512CryptoServiceProvider();
+            }
+            else
+            {
 #if FEATURE_HASH_SHA512_CREATE
-            return System.Security.Cryptography.SHA512.Create();
+                return System.Security.Cryptography.SHA512.Create();
 #elif FEATURE_HASH_SHA512_MANAGED
             return new System.Security.Cryptography.SHA512Managed();
 #endif
+            }
         }
 #else
         public static global::SshNet.Security.Cryptography.SHA512 CreateSHA512()

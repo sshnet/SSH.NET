@@ -17,6 +17,9 @@ namespace Renci.SshNet
         /// </summary>
         private readonly bool _ownsConnectionInfo;
 
+        
+
+        private static bool _useFips = false;
         private readonly IServiceFactory _serviceFactory;
         private readonly object _keepAliveLock = new object();
         private TimeSpan _keepAliveInterval;
@@ -30,6 +33,11 @@ namespace Renci.SshNet
         /// The current session.
         /// </value>
         internal ISession Session { get; private set; }
+
+        /// <summary>
+        /// Requests FIPS Compliance on the SFTP client
+        /// </summary>
+        public static bool UseFIPS { get { return _useFips; } set { _useFips = value; } }
 
         /// <summary>
         /// Gets the factory for creating new services.
@@ -74,7 +82,6 @@ namespace Renci.SshNet
             get
             {
                 CheckDisposed();
-
                 return IsSessionConnected();
             }
         }

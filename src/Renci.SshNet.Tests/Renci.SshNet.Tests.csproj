@@ -35,6 +35,14 @@
     <EmbeddedResource Include="Data\Key.ECDSA521.txt" />
     <EmbeddedResource Include="Data\Key.OPENSSH.ED25519.Encrypted.txt" />
     <EmbeddedResource Include="Data\Key.OPENSSH.ED25519.txt" />
+    <EmbeddedResource Include="Data\Key.OPENSSH.RSA.Encrypted.txt" />
+    <EmbeddedResource Include="Data\Key.OPENSSH.RSA.txt" />
+    <EmbeddedResource Include="Data\Key.OPENSSH.ECDSA.txt" />
+    <EmbeddedResource Include="Data\Key.OPENSSH.ECDSA.Encrypted.txt" />
+    <EmbeddedResource Include="Data\Key.OPENSSH.ECDSA384.Encrypted.txt" />
+    <EmbeddedResource Include="Data\Key.OPENSSH.ECDSA521.Encrypted.txt" />
+    <EmbeddedResource Include="Data\Key.OPENSSH.ECDSA384.txt" />
+    <EmbeddedResource Include="Data\Key.OPENSSH.ECDSA521.txt" />
     <EmbeddedResource Include="Data\Key.RSA.Encrypted.Aes.128.CBC.12345.txt" />
     <EmbeddedResource Include="Data\Key.RSA.Encrypted.Aes.192.CBC.12345.txt" />
     <EmbeddedResource Include="Data\Key.RSA.Encrypted.Aes.256.CBC.12345.txt" />

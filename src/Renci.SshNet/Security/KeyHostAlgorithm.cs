@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Renci.SshNet.Common;
+using Renci.SshNet.Security.Chaos.NaCl;
 
 namespace Renci.SshNet.Security
 {
@@ -101,7 +102,11 @@ namespace Renci.SshNet.Security
                     _keys = new List<byte[]>(value.Length);
                     foreach (var key in value)
                     {
-                        _keys.Add(key.ToByteArray().Reverse());
+                        var keyData = key.ToByteArray().Reverse();
+                        if (Name == "ssh-ed25519")
+                            keyData = keyData.TrimLeadingZeros().Pad(Ed25519.PublicKeySizeInBytes);
+
+                        _keys.Add(keyData);
                     }
                 }
             }

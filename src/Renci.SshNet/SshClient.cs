@@ -429,7 +429,7 @@ namespace Renci.SshNet
         /// </remarks>
         public ShellStream CreateShellStream(string terminalName, uint columns, uint rows, uint width, uint height, int bufferSize)
         {
-            return CreateShellStream(terminalName, columns, rows, width, height, bufferSize, null);
+            return CreateShellStream(terminalName, columns, rows, width, height, bufferSize, null, (int)columns);
         }
 
         /// <summary>
@@ -452,15 +452,45 @@ namespace Renci.SshNet
         /// You can get a detailed list of these cababilities by using the ‘infocmp’ command.
         /// </para>
         /// <para>
-        /// The column/row dimensions override the pixel dimensions(when non-zero). Pixel dimensions refer
+        /// The column/row dimensions override the pixel dimensions(when nonzero). Pixel dimensions refer
         /// to the drawable area of the window.
         /// </para>
         /// </remarks>
         public ShellStream CreateShellStream(string terminalName, uint columns, uint rows, uint width, uint height, int bufferSize, IDictionary<TerminalModes, uint> terminalModeValues)
         {
+            return CreateShellStream(terminalName, columns, rows, width, height, bufferSize, terminalModeValues, (int)columns);
+        }
+
+        /// <summary>
+        /// Creates the shell stream.
+        /// </summary>
+        /// <param name="terminalName">The <c>TERM</c> environment variable.</param>
+        /// <param name="columns">The terminal width in columns.</param>
+        /// <param name="rows">The terminal width in rows.</param>
+        /// <param name="width">The terminal height in pixels.</param>
+        /// <param name="height">The terminal height in pixels.</param>
+        /// <param name="bufferSize">The size of the buffer.</param>
+        /// <param name="terminalModeValues">The terminal mode values.</param>
+        /// <param name="expectSize">The size of the expect buffer.</param>
+        /// <returns>
+        /// The created <see cref="ShellStream"/> instance.
+        /// </returns>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <remarks>
+        /// <para>
+        /// The <c>TERM</c> environment variable contains an identifier for the text window's capabilities.
+        /// You can get a detailed list of these cababilities by using the ‘infocmp’ command.
+        /// </para>
+        /// <para>
+        /// The column/row dimensions override the pixel dimensions(when non-zero). Pixel dimensions refer
+        /// to the drawable area of the window.
+        /// </para>
+        /// </remarks>
+        public ShellStream CreateShellStream(string terminalName, uint columns, uint rows, uint width, uint height, int bufferSize, IDictionary<TerminalModes, uint> terminalModeValues, int expectSize)
+        {
             EnsureSessionIsOpen();
 
-            return ServiceFactory.CreateShellStream(Session, terminalName, columns, rows, width, height, terminalModeValues, bufferSize);
+            return ServiceFactory.CreateShellStream(Session, terminalName, columns, rows, width, height, terminalModeValues, bufferSize, expectSize);
         }
 
         /// <summary>

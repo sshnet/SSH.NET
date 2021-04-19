@@ -196,7 +196,18 @@ namespace Renci.SshNet
         /// while performing a given operation or set of operations on <see cref="_socket"/>.
         /// </remarks>
         private readonly object _socketDisposeLock = new object();
+#if DEBUG_AESGCM
 
+        /// <summary>
+        /// GetHexStringFrom.
+        /// </summary>
+        /// <returns>String.</returns>
+        public static string GetHexStringFrom(byte[] byteArray)
+        {
+            return  BitConverter.ToString(byteArray); //To convert the whole array
+        }
+
+#endif
         /// <summary>
         /// Gets the session semaphore that controls session channels.
         /// </summary>
@@ -912,7 +923,12 @@ namespace Renci.SshNet
                 byte[] hash = null;
                 var packetDataOffset = 4; // first four bytes are reserved for outbound packet sequence
 
-                if (_clientMac != null)
+                if(_clientCipher != null &&  _clientCipher.isAEAD)
+                {
+                    // write outbound packet sequence to start of packet data when it's AEAD AES-GCM
+                    Pack.UInt32ToBigEndian(_outboundPacketSequence, packetData);
+                }
+                else if (_clientMac != null)
                 {
                     // write outbound packet sequence to start of packet data
                     Pack.UInt32ToBigEndian(_outboundPacketSequence, packetData);
@@ -923,8 +939,26 @@ namespace Renci.SshNet
                 // Encrypt packet data
                 if (_clientCipher != null)
                 {
+#if DEBUG_AESGCM
+
+                    string var_pt = GetHexStringFrom(packetData);
+                    Console.WriteLine("[DEBUG] [Sender] [1.0] Before Encrypt");
+                    Console.WriteLine("[DEBUG] Packetdata Length (Minus 8 Should Always Be Mutiplication of 16): {0}", packetData.Length);
+                    Console.WriteLine("[DEBUG] Packetdata Payload");
+                    Console.WriteLine("[DEBUG] {0}", var_pt);
+
+#endif
                     packetData = _clientCipher.Encrypt(packetData, packetDataOffset, (packetData.Length - packetDataOffset));
                     packetDataOffset = 0;
+#if DEBUG_AESGCM
+
+                    string var_ct = GetHexStringFrom(packetData);
+                    Console.WriteLine("[DEBUG] [Sender] [1.1] After Encryption");
+                    Console.WriteLine("[DEBUG] Packetdata Length (Minus 4 Should Always Be Mutiplication of 16): {0}", packetData.Length);
+                    Console.WriteLine("[DEBUG] Packetdata Payload");
+                    Console.WriteLine("[DEBUG] {0}", var_ct);
+
+#endif
                 }
 
                 if (packetData.Length > MaximumSshPacketSize)
@@ -952,6 +986,11 @@ namespace Renci.SshNet
                 // the server will use it to verify the data integrity, and as such the order in
                 // which messages are sent must follow the outbound packet sequence number
                 _outboundPacketSequence++;
+#if DEBUG_AESGCM
+
+                Console.WriteLine("[DEBUG] [Sender] [1.2] outboundPacketSequence: [{0}]", _outboundPacketSequence);
+
+#endif
             }
         }
 
@@ -1057,7 +1096,21 @@ namespace Renci.SshNet
 
                 if (_serverCipher != null)
                 {
+#if DEBUG_AESGCM
+
+                    Console.WriteLine("[DEBUG] [Receiver] [0.0] start from receive message which needs to be decrypted first");
+
+#endif
                     firstBlock = _serverCipher.Decrypt(firstBlock);
+
+                    // If it's AEAD AES-GCM set the serverMacLength to the tag size
+                    // Otherwise use default mac size
+                    serverMacLength = _serverCipher.serverMacLength(_serverMac);
+#if DEBUG_AESGCM
+                    Console.WriteLine("[DEBUG] [Receiver] [1.0] Before Decrypt");
+                    Console.WriteLine("[DEBUG] [Receiver] [1.0] serverMacLength: {0}", serverMacLength);
+
+#endif
                 }
 
                 packetLength = Pack.BigEndianToUInt32(firstBlock);
@@ -1100,16 +1153,41 @@ namespace Renci.SshNet
 
             if (_serverCipher != null)
             {
-                var numberOfBytesToDecrypt = data.Length - (blockSize + inboundPacketSequenceLength + serverMacLength);
+                // Caculate the size of plain text buffer for the decryption
+                var numberOfBytesToDecrypt = data.Length - (_serverCipher.decryptOffset(inboundPacketSequenceLength, blockSize) + _serverCipher.serverMacLength(_serverMac));
                 if (numberOfBytesToDecrypt > 0)
                 {
-                    var decryptedData = _serverCipher.Decrypt(data, blockSize + inboundPacketSequenceLength, numberOfBytesToDecrypt);
-                    Buffer.BlockCopy(decryptedData, 0, data, blockSize + inboundPacketSequenceLength, decryptedData.Length);
+#if DEBUG_AESGCM
+
+                    string var_data = GetHexStringFrom(data);
+                    Console.WriteLine("[DEBUG] [Receiver] [1.1] Before Decrypt Total Data Length {0}", data.Length);
+                    Console.WriteLine("[DEBUG] [Receiver] [1.1] Before Decrypt");
+                    Console.WriteLine("[DEBUG] [Receiver] [1.1] Data Payload");
+                    Console.WriteLine("[DEBUG] {0}", var_data);
+
+#endif
+                    var decryptedData = _serverCipher.Decrypt(data, _serverCipher.decryptOffset(inboundPacketSequenceLength, blockSize), numberOfBytesToDecrypt);
+
+                    // dst offset should return the right offset based on what cipher suite is choosen
+                    Buffer.BlockCopy(decryptedData, 0, data, _serverCipher.decryptOffset(inboundPacketSequenceLength, blockSize), decryptedData.Length);
+#if DEBUG_AESGCM
+
+                    string var_data_pt = GetHexStringFrom(data);
+                    Console.WriteLine("[DEBUG] [Receiver] [1.2] After Decrypt");
+                    Console.WriteLine("[DEBUG] [Receiver] [1.2] Plain Text Payload");
+                    Console.WriteLine("[DEBUG] {0}", var_data_pt);
+
+#endif
                 }
             }
 
             var paddingLength = data[inboundPacketSequenceLength + packetLengthFieldLength];
-            var messagePayloadLength = (int) packetLength - paddingLength - paddingLengthFieldLength;
+#if DEBUG_AESGCM
+
+            Console.WriteLine("[DEBUG] [Receiver] [1.3] After Decrypt data paddingLength is: {0}", paddingLength);
+
+#endif
+            var messagePayloadLength = (int)packetLength - paddingLength - paddingLengthFieldLength;
             var messagePayloadOffset = inboundPacketSequenceLength + packetLengthFieldLength + paddingLengthFieldLength;
 
             // validate message against MAC
@@ -1138,6 +1216,12 @@ namespace Renci.SshNet
 
             _inboundPacketSequence++;
 
+#if DEBUG_AESGCM
+
+            Console.WriteLine("[DEBUG] [Receiver] [1.4] Before Load the Message");
+            Console.WriteLine("[DEBUG] [Receiver] [1.4] inboundPacketSequence is: [{0}]", _inboundPacketSequence);
+
+#endif
             return LoadMessage(data, messagePayloadOffset, messagePayloadLength);
         }
 
@@ -1323,10 +1407,19 @@ namespace Renci.SshNet
             //  Update negotiated algorithms
             _serverCipher = _keyExchange.CreateServerCipher();
             _clientCipher = _keyExchange.CreateClientCipher();
-            _serverMac = _keyExchange.CreateServerHash();
-            _clientMac = _keyExchange.CreateClientHash();
-            _clientCompression = _keyExchange.CreateCompressor();
-            _serverDecompression = _keyExchange.CreateDecompressor();
+
+            if (_clientCipher.isAEAD && _serverCipher.isAEAD)
+            {
+                _clientCompression = null;
+                _serverDecompression = null;
+            }
+            else
+            {
+                _serverMac = _keyExchange.CreateServerHash();
+                _clientMac = _keyExchange.CreateClientHash();
+                _clientCompression = _keyExchange.CreateCompressor();
+                _serverDecompression = _keyExchange.CreateDecompressor();
+            }
 
             //  Dispose of old KeyExchange object as it is no longer needed.
             if (_keyExchange != null)
@@ -1624,6 +1717,11 @@ namespace Renci.SshNet
         {
             var messageType = data[offset];
 
+#if DEBUG_AESGCM
+
+            Console.WriteLine("[DEBUG] [Receiver] [1.5] LoadMessage messageType: {0}", messageType);
+
+#endif
             var message = _sshMessageFactory.Create(messageType);
             message.Load(data, offset + 1, count - 1);
 

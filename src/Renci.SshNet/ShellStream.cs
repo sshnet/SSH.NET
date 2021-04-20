@@ -7,6 +7,7 @@ using Renci.SshNet.Common;
 using System.Threading;
 using System.Text.RegularExpressions;
 using Renci.SshNet.Abstractions;
+using System.Linq;
 
 namespace Renci.SshNet
 {
@@ -20,7 +21,7 @@ namespace Renci.SshNet
         private readonly ISession _session;
         private readonly Encoding _encoding;
         private readonly int _bufferSize;
-        private readonly Queue<byte> _incoming;
+        private readonly Queue<byte[]> _incoming;
         private readonly Queue<byte> _outgoing;
         private IChannelSession _channel;
         private AutoResetEvent _dataReceived = new AutoResetEvent(false);
@@ -83,7 +84,7 @@ namespace Renci.SshNet
             _encoding = session.ConnectionInfo.Encoding;
             _session = session;
             _bufferSize = bufferSize;
-            _incoming = new Queue<byte>();
+            _incoming = new Queue<byte[]>();
             _outgoing = new Queue<byte>();
 
             _channel = _session.CreateChannelSession();
@@ -219,9 +220,14 @@ namespace Renci.SshNet
 
             lock (_incoming)
             {
-                for (; i < count && _incoming.Count > 0; i++)
+                List<byte> chain = new List<byte>();
+                foreach (var byteArray in _incoming.ToArray())
+                    chain = chain.Concat(byteArray).ToList();
+
+                _incoming.Clear();
+                for (; i < count && chain.Count() > 0; i++)
                 {
-                    buffer[offset + i] = _incoming.Dequeue();
+                    buffer[offset + i] = chain[i];
                 }
             }
 
@@ -308,7 +314,7 @@ namespace Renci.SshNet
                 {
                     if (_incoming.Count > 0)
                     {
-                        text = _encoding.GetString(_incoming.ToArray(), 0, _incoming.Count);
+                        text = ReadInternal(_incoming);
                     }
 
                     if (text.Length > 0)
@@ -422,7 +428,7 @@ namespace Renci.SshNet
 
                             if (_incoming.Count > 0)
                             {
-                                text = _encoding.GetString(_incoming.ToArray(), 0, _incoming.Count);
+                                text = ReadInternal(_incoming);
                             }
 
                             if (text.Length > 0)
@@ -556,7 +562,7 @@ namespace Renci.SshNet
                 {
                     if (_incoming.Count > 0)
                     {
-                        text = _encoding.GetString(_incoming.ToArray(), 0, _incoming.Count);
+                        text = ReadInternal(_incoming);
                     }
 
                     var match = regex.Match(text);
@@ -617,7 +623,7 @@ namespace Renci.SshNet
                 {
                     if (_incoming.Count > 0)
                     {
-                        text = _encoding.GetString(_incoming.ToArray(), 0, _incoming.Count);
+                        text = ReadInternal(_incoming);
                     }
 
                     var index = text.IndexOf(CrLf, StringComparison.Ordinal);
@@ -662,15 +668,7 @@ namespace Renci.SshNet
         /// </returns>
         public string Read()
         {
-            string text;
-
-            lock (_incoming)
-            {
-                text = _encoding.GetString(_incoming.ToArray(), 0, _incoming.Count);
-                _incoming.Clear();
-            }
-
-            return text;
+            return ReadInternal(_incoming, true);
         }
 
         /// <summary>
@@ -744,6 +742,27 @@ namespace Renci.SshNet
         }
 
         /// <summary>
+        /// Reading bytes as string
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="clear"></param>
+        /// <returns></returns>
+        private string ReadInternal(Queue<byte[]> source, bool clear = false)
+        {
+            IEnumerable<byte> chain = new List<byte>();
+            lock (source)
+            {
+                foreach (var byteArray in source.ToArray())
+                    chain = chain.Concat(byteArray);
+
+                if (clear)
+                    source.Clear();
+            }
+
+            return _encoding.GetString(chain.ToArray());
+        }
+
+        /// <summary>
         /// Unsubscribes the current <see cref="ShellStream"/> from session events.
         /// </summary>
         /// <param name="session">The session.</param>
@@ -761,7 +780,8 @@ namespace Renci.SshNet
 
         private void Session_ErrorOccured(object sender, ExceptionEventArgs e)
         {
-            OnRaiseError(e);
+            if (ErrorOccurred != null)
+                ErrorOccurred.Invoke(this, e);
         }
 
         private void Session_Disconnected(object sender, EventArgs e)
@@ -780,32 +800,17 @@ namespace Renci.SshNet
         {
             lock (_incoming)
             {
-                foreach (var b in e.Data)
-                    _incoming.Enqueue(b);
+                _incoming.Enqueue(e.Data);
             }
 
             if (_dataReceived != null)
                 _dataReceived.Set();
 
-            OnDataReceived(e.Data);
-        }
-
-        private void OnRaiseError(ExceptionEventArgs e)
-        {
-            var handler = ErrorOccurred;
-            if (handler != null)
+            if (DataReceived != null)
             {
-                handler(this, e);
+                DataReceived.Invoke(this, new ShellDataEventArgs(e.Data));
             }
         }
 
-        private void OnDataReceived(byte[] data)
-        {
-            var handler = DataReceived;
-            if (handler != null)
-            {
-                handler(this, new ShellDataEventArgs(data));
-            }
-        }
     }
 }

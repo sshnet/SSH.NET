@@ -251,7 +251,14 @@ namespace Renci.SshNet.Common
             {
                 var extensionName = ReadString(Ascii);
                 var extensionData = ReadString(Ascii);
-                result.Add(extensionName, extensionData);
+                if (result.ContainsKey(extensionName)) //if sftp extension is present multiple-times then keep the last one
+                {
+                    result[extensionName] = extensionData;
+                }
+                else
+                {
+                    result.Add(extensionName, extensionData);
+                }
             }
             return result;
         }

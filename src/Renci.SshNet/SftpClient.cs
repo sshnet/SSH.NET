@@ -473,7 +473,7 @@ namespace Renci.SshNet
         {
             CheckDisposed();
 
-            return InternalListDirectory(path, listCallback);
+            return InternalListDirectory(path, null, listCallback);
         }
 
         /// <summary>
@@ -497,15 +497,7 @@ namespace Renci.SshNet
             {
                 try
                 {
-                    var result = InternalListDirectory(path, count =>
-                    {
-                        asyncResult.Update(count);
-
-                        if (listCallback != null)
-                        {
-                            listCallback(count);
-                        }
-                    });
+                    var result = InternalListDirectory(path, asyncResult, listCallback);
 
                     asyncResult.SetAsCompleted(result, false);
                 }
@@ -718,15 +710,7 @@ namespace Renci.SshNet
             {
                 try
                 {
-                    InternalDownloadFile(path, output, asyncResult, offset =>
-                    {
-                        asyncResult.Update(offset);
-
-                        if (downloadCallback != null)
-                        {
-                            downloadCallback(offset);
-                        }
-                    });
+                    InternalDownloadFile(path, output, asyncResult, downloadCallback);
 
                     asyncResult.SetAsCompleted(null, false);
                 }
@@ -942,16 +926,7 @@ namespace Renci.SshNet
             {
                 try
                 {
-                    InternalUploadFile(input, path, flags, asyncResult, offset =>
-                    {
-                        asyncResult.Update(offset);
-
-                        if (uploadCallback != null)
-                        {
-                            uploadCallback(offset);
-                        }
-
-                    });
+                    InternalUploadFile(input, path, flags, asyncResult, uploadCallback);
 
                     asyncResult.SetAsCompleted(null, false);
                 }
@@ -1919,7 +1894,7 @@ namespace Renci.SshNet
 
             #region Existing Files at The Destination
 
-            var destFiles = InternalListDirectory(destinationPath, null);
+            var destFiles = InternalListDirectory(destinationPath, null, null);
             var destDict = new Dictionary<string, SftpFile>();
             foreach (var destFile in destFiles)
             {
@@ -1980,13 +1955,14 @@ namespace Renci.SshNet
         /// Internals the list directory.
         /// </summary>
         /// <param name="path">The path.</param>
+        /// <param name="asyncResult">An <see cref="IAsyncResult"/> that references the asynchronous request.</param>
         /// <param name="listCallback">The list callback.</param>
         /// <returns>
         /// A list of files in the specfied directory.
         /// </returns>
         /// <exception cref="ArgumentNullException"><paramref name="path" /> is <b>null</b>.</exception>
         /// <exception cref="SshConnectionException">Client not connected.</exception>
-        private IEnumerable<SftpFile> InternalListDirectory(string path, Action<int> listCallback)
+        private IEnumerable<SftpFile> InternalListDirectory(string path, SftpListDirectoryAsyncResult asyncResult, Action<int> listCallback)
         {
             if (path == null)
                 throw new ArgumentNullException("path");
@@ -2011,6 +1987,9 @@ namespace Renci.SshNet
             {
                 result.AddRange(from f in files
                                 select new SftpFile(_sftpSession, string.Format(CultureInfo.InvariantCulture, "{0}{1}", basePath, f.Key), f.Value));
+
+                if (asyncResult != null)
+                    asyncResult.Update(result.Count);
 
                 //  Call callback to report number of files read
                 if (listCallback != null)
@@ -2068,6 +2047,9 @@ namespace Renci.SshNet
 
                     totalBytesRead += (ulong) data.Length;
 
+                    if (asyncResult != null)
+                        asyncResult.Update(totalBytesRead);
+
                     if (downloadCallback != null)
                     {
                         // copy offset to ensure it's not modified between now and execution of callback
@@ -2124,13 +2106,15 @@ namespace Renci.SshNet
                 if (bytesRead > 0)
                 {
                     var writtenBytes = offset + (ulong) bytesRead;
-
                     _sftpSession.RequestWrite(handle, offset, buffer, 0, bytesRead, null, s =>
                         {
                             if (s.StatusCode == StatusCodes.Ok)
                             {
                                 Interlocked.Decrement(ref expectedResponses);
                                 responseReceivedWaitHandle.Set();
+
+                                if (asyncResult != null)
+                                    asyncResult.Update(writtenBytes);
 
                                 //  Call callback to report number of bytes written
                                 if (uploadCallback != null)

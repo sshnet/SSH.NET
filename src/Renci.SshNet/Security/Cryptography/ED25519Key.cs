@@ -103,6 +103,15 @@ namespace Renci.SshNet.Security
         /// Initializes a new instance of the <see cref="ED25519Key"/> class.
         /// </summary>
         /// <param name="pk">pk data.</param>
+        public ED25519Key(byte[] pk)
+        {
+            publicKey = pk.TrimLeadingZeros().Pad(Ed25519.PublicKeySizeInBytes);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ED25519Key"/> class.
+        /// </summary>
+        /// <param name="pk">pk data.</param>
         /// <param name="sk">sk data.</param>
         public ED25519Key(byte[] pk, byte[] sk)
         {

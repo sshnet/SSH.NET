@@ -22,3 +22,6 @@ project.lock.json
 
 # Build outputs
 build/target/
+
+# Rider Directory
+.idea/

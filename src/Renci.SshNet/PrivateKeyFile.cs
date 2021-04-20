@@ -82,6 +82,15 @@ namespace Renci.SshNet
         /// <summary>
         /// Initializes a new instance of the <see cref="PrivateKeyFile"/> class.
         /// </summary>
+        /// <param name="key">The key.</param>
+        public PrivateKeyFile(Key key)
+        {
+            HostKey = new KeyHostAlgorithm(key.ToString(), key);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PrivateKeyFile"/> class.
+        /// </summary>
         /// <param name="privateKey">The private key.</param>
         public PrivateKeyFile(Stream privateKey)
         {
@@ -515,8 +524,7 @@ namespace Renci.SshNet
                     throw new SshException("OpenSSH key type '" + keyType + "' is not supported.");
             }
 
-            //comment, we don't need this but we could log it, not sure if necessary
-            var comment = privateKeyReader.ReadString(Encoding.UTF8);
+            parsedKey.Comment = privateKeyReader.ReadString(Encoding.UTF8);
 
             //The list of privatekey/comment pairs is padded with the bytes 1, 2, 3, ...
             //until the total length is a multiple of the cipher block size.

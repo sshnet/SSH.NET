@@ -71,12 +71,28 @@ namespace Renci.SshNet
         IChannelDirectTcpip CreateChannelDirectTcpip();
 
         /// <summary>
+        /// Create a new channel for a locally forwarded unix domain socket.
+        /// </summary>
+        /// <returns>
+        /// A new channel for a locally forwarded unix domain socket.
+        /// </returns>
+        IChannelDirectStreamLocal CreateChannelDirectStreamLocal();
+
+        /// <summary>
         /// Creates a "forwarded-tcpip" SSH channel.
         /// </summary>
         /// <returns>
         /// A new "forwarded-tcpip" SSH channel.
         /// </returns>
         IChannelForwardedTcpip CreateChannelForwardedTcpip(uint remoteChannelNumber, uint remoteWindowSize, uint remoteChannelDataPacketSize);
+
+        /// <summary>
+        /// Creates a "forwarded-streamlocal@openssh.com" SSH channel.
+        /// </summary>
+        /// <returns>
+        /// A new "forwarded-streamlocal@openssh.com" SSH channel.
+        /// </returns>
+        IChannelForwardedStreamLocal CreateChannelForwardedStreamLocal(uint remoteChannelNumber, uint remoteWindowSize, uint remoteChannelDataPacketSize);
 
         /// <summary>
         /// Disconnects from the server.

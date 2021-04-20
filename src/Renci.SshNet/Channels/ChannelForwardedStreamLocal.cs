@@ -8,9 +8,9 @@ using Renci.SshNet.Messages.Connection;
 namespace Renci.SshNet.Channels
 {
     /// <summary>
-    /// Implements "forwarded-tcpip" SSH channel.
+    /// Implements "forwarded-streamlocal@openssh.com" SSH channel.
     /// </summary>
-    internal class ChannelForwardedTcpip : ServerChannel, IChannelForwardedTcpip
+    internal class ChannelForwardedStreamLocal : ServerChannel, IChannelForwardedStreamLocal
     {
         private readonly object _socketShutdownAndCloseLock = new object();
         private Socket _socket;
@@ -26,7 +26,7 @@ namespace Renci.SshNet.Channels
         /// <param name="remoteChannelNumber">The remote channel number.</param>
         /// <param name="remoteWindowSize">The window size of the remote party.</param>
         /// <param name="remotePacketSize">The maximum size of a data packet that we can send to the remote party.</param>
-        internal ChannelForwardedTcpip(ISession session,
+        internal ChannelForwardedStreamLocal(ISession session,
                                        uint localChannelNumber,
                                        uint localWindowSize,
                                        uint localPacketSize,
@@ -51,7 +51,7 @@ namespace Renci.SshNet.Channels
         /// </value>
         public override ChannelTypes ChannelType
         {
-            get { return ChannelTypes.ForwardedTcpip; }
+            get { return ChannelTypes.ForwardedStreamLocal; }
         }
 
         /// <summary>
@@ -69,13 +69,13 @@ namespace Renci.SshNet.Channels
             _forwardedPort = forwardedPort;
             _forwardedPort.Closing += ForwardedPort_Closing;
 
-            //  Try to connect to the socket 
+            //  Try to connect to the socket
             try
             {
 #if FEATURE_UNIX_SOCKETS
                 if (remoteEndpoint is UnixDomainSocketEndPoint)
                 {
-                    _socket = SocketAbstraction.Connect((UnixDomainSocketEndPoint) remoteEndpoint, ConnectionInfo.Timeout);
+                    _socket = SocketAbstraction.Connect((UnixDomainSocketEndPoint)remoteEndpoint, ConnectionInfo.Timeout);
                 }
                 else
                 {

@@ -1,4 +1,7 @@
 ﻿using System;
+#if FEATURE_UNIX_SOCKETS
+using System.Net.Sockets;
+#endif
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet
@@ -100,6 +103,83 @@ namespace Renci.SshNet
             Port = port;
             _status = ForwardedPortStatus.Stopped;
         }
+
+#if FEATURE_UNIX_SOCKETS
+        /// <summary>
+        /// Gets the bound unix socket.
+        /// </summary>
+        public UnixDomainSocketEndPoint LocalUnixSocket { get; private set; }
+
+        /// <summary>
+        /// Gets the forwarded unix socket.
+        /// </summary>
+        public UnixDomainSocketEndPoint RemoteUnixSocket { get; private set; }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ForwardedPortLocal"/> class.
+        /// </summary>
+        /// <param name="localSocket"></param>
+        /// <param name="remoteSocket"></param>
+        /// <exception cref="ArgumentNullException"></exception>
+        public ForwardedPortLocal(UnixDomainSocketEndPoint localSocket, UnixDomainSocketEndPoint remoteSocket)
+        {
+            if (localSocket == null)
+                throw new ArgumentNullException("localSocket");
+
+            if (remoteSocket == null)
+                throw new ArgumentNullException("remoteSocket");
+
+            LocalUnixSocket = localSocket;
+            RemoteUnixSocket = remoteSocket;
+            _status = ForwardedPortStatus.Stopped;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ForwardedPortLocal"/> class.
+        /// </summary>
+        /// <param name="localSocket"></param>
+        /// <param name="host"></param>
+        /// <param name="port"></param>
+        /// <exception cref="ArgumentNullException"></exception>
+        public ForwardedPortLocal(UnixDomainSocketEndPoint localSocket, string host, uint port)
+        {
+            if (localSocket == null)
+                throw new ArgumentNullException("localSocket");
+
+            if (host == null)
+                throw new ArgumentNullException("host");
+
+            port.ValidatePort("port");
+
+            LocalUnixSocket = localSocket;
+            Host = host;
+            Port = port;
+            _status = ForwardedPortStatus.Stopped;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ForwardedPortLocal"/> class.
+        /// </summary>
+        /// <param name="boundHost"></param>
+        /// <param name="boundPort"></param>
+        /// <param name="remoteSocket"></param>
+        /// <exception cref="ArgumentNullException"></exception>
+        public ForwardedPortLocal(string boundHost, uint boundPort, UnixDomainSocketEndPoint remoteSocket)
+        {
+            if (boundHost == null)
+                throw new ArgumentNullException("boundHost");
+
+            if (remoteSocket == null)
+                throw new ArgumentNullException("remoteSocket");
+
+            boundPort.ValidatePort("boundPort");
+
+            RemoteUnixSocket = remoteSocket;
+            BoundHost = boundHost;
+            BoundPort = boundPort;
+            _status = ForwardedPortStatus.Stopped;
+        }
+#endif
 
         /// <summary>
         /// Starts local port forwarding.

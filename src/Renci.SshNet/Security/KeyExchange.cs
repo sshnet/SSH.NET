@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Security.Cryptography;
 using Renci.SshNet.Abstractions;
@@ -191,7 +192,9 @@ namespace Renci.SshNet.Security
                                                     Session.ToHex(Session.SessionId),
                                                     Session.ConnectionInfo.CurrentServerEncryption,
                                                     Session.ToHex(serverKey),
-                                                    Session.ToHex(serverVector)));
+                                                    Session.ToHex(serverVector)),
+                                      TraceEventType.Verbose,
+                                      TraceEventId.ServerCipherCreation);
 
             //  Create server cipher
             return _serverCipherInfo.Cipher(serverKey, serverVector);

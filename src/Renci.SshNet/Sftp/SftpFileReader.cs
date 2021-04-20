@@ -2,6 +2,7 @@
 using Renci.SshNet.Common;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Threading;
 
@@ -246,7 +247,7 @@ namespace Renci.SshNet.Sftp
                     }
                     catch (Exception ex)
                     {
-                        DiagnosticAbstraction.Log("Failure closing handle: " + ex);
+                        DiagnosticAbstraction.Log("Failure closing handle: " + ex, TraceEventType.Warning, TraceEventId.FailureClosingHandle);
                     }
                 }
             }

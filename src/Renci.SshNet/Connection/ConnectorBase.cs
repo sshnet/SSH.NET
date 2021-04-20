@@ -1,9 +1,10 @@
-﻿using Renci.SshNet.Abstractions;
-using Renci.SshNet.Common;
-using Renci.SshNet.Messages.Transport;
-using System;
+﻿using System;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
+using Renci.SshNet.Abstractions;
+using Renci.SshNet.Common;
+using Renci.SshNet.Messages.Transport;
 
 namespace Renci.SshNet.Connection
 {
@@ -34,7 +35,7 @@ namespace Renci.SshNet.Connection
             var ipAddress = DnsAbstraction.GetHostAddresses(host)[0];
             var ep = new IPEndPoint(ipAddress, port);
 
-            DiagnosticAbstraction.Log(string.Format("Initiating connection to '{0}:{1}'.", host, port));
+            DiagnosticAbstraction.Log(string.Format("Initiating connection to '{0}:{1}'.", host, port), TraceEventType.Verbose, TraceEventId.SocketConnection);
 
             var socket = SocketFactory.Create(ep.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 

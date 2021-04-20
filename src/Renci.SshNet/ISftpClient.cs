@@ -10,7 +10,7 @@ namespace Renci.SshNet
     /// <summary>
     /// Implementation of the SSH File Transfer Protocol (SFTP) over SSH.
     /// </summary>
-    public interface ISftpClient
+    public interface ISftpClient : IDisposable
     {
         /// <summary>
         /// Gets or sets the maximum size of the buffer in bytes.
@@ -525,7 +525,7 @@ namespace Renci.SshNet
         /// A list of files.
         /// </returns>
         /// <exception cref="ArgumentException">The <see cref="IAsyncResult"/> object did not come from the corresponding async method on this type.<para>-or-</para><see cref="EndListDirectory(IAsyncResult)"/> was called multiple times with the same <see cref="IAsyncResult"/>.</exception>
-        IEnumerable<SftpFile> EndListDirectory(IAsyncResult asyncResult);
+        IEnumerable<ISftpFile> EndListDirectory(IAsyncResult asyncResult);
 
         /// <summary>
         /// Ends the synchronize directories.
@@ -568,13 +568,13 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="path">The path.</param>
         /// <returns>
-        /// A reference to <see cref="SftpFile"/> file object.
+        /// A reference to <see cref="ISftpFile"/> file object.
         /// </returns>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="SftpPathNotFoundException"><paramref name="path"/> was not found on the remote host.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="path" /> is <b>null</b>.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
-        SftpFile Get(string path);
+        ISftpFile Get(string path);
 
         /// <summary>
         /// Gets the <see cref="SftpFileAttributes"/> of the file on the path.
@@ -666,7 +666,7 @@ namespace Renci.SshNet
         /// <exception cref="SftpPermissionDeniedException">Permission to list the contents of the directory was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
         /// <exception cref="SshException">A SSH error where <see cref="Exception.Message" /> is the message from the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
-        IEnumerable<SftpFile> ListDirectory(string path, Action<int> listCallback = null);
+        IEnumerable<ISftpFile> ListDirectory(string path, Action<int> listCallback = null);
 
         /// <summary>
         /// Opens a <see cref="SftpFileStream"/> on the specified path with read/write access.

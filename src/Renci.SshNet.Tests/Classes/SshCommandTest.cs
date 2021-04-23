@@ -4,6 +4,7 @@ using Renci.SshNet.Tests.Common;
 using Renci.SshNet.Tests.Properties;
 using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading;
 #if FEATURE_TPL
@@ -266,7 +267,7 @@ namespace Renci.SshNet.Tests.Classes
                 client.Connect();
 
                 var cmd = client.RunCommand("exit 128");
-                
+
                 Console.WriteLine(cmd.ExitStatus);
 
                 client.Disconnect();
@@ -500,6 +501,55 @@ namespace Renci.SshNet.Tests.Classes
             }
         }
 
+        [TestMethod]
+        [TestCategory("integration")]
+        public void SendDataTestText()
+        {
+            SendDataTest(
+                Encoding.UTF8.GetBytes("Hello "), Encoding.UTF8.GetBytes("world!"),
+                Encoding.UTF8.GetBytes("A\nB\nC\nD"));
+        }
+
+        [TestMethod]
+        [TestCategory("integration")]
+        public void SendDataTestRandomBytes()
+        {
+            var random = new Random();
+            var randomData = new byte[1024];
+            random.NextBytes(randomData);
+
+            SendDataTest(randomData);
+        }
+
+        public void SendDataTest(params byte[][] data)
+        {
+            using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            {
+                #region Example SshCommand CreateCommand BeginExecute SendData EndExecute
+
+                client.Connect();
+
+                var cmd = client.CreateCommand("cat -");
+
+                var asynch = cmd.BeginExecute();
+
+                foreach (var dataBlock in data)
+                {
+                    cmd.SendData(dataBlock);
+
+                    var fromStdout = new byte[dataBlock.Length];
+                    cmd.OutputStream.Read(fromStdout, 0, 0);
+
+                    Assert.IsTrue(dataBlock.SequenceEqual(fromStdout));
+                }
+
+                cmd.EndExecute(asynch);
+
+                client.Disconnect();
+
+                #endregion
+            }
+        }
 
         /// <summary>
         ///A test for BeginExecute
@@ -637,7 +687,7 @@ namespace Renci.SshNet.Tests.Classes
 
             try
             {
-#region Example SshCommand RunCommand Parallel
+        #region Example SshCommand RunCommand Parallel
                 System.Threading.Tasks.Parallel.For(0, 10000,
                     () =>
                     {
@@ -657,7 +707,7 @@ namespace Renci.SshNet.Tests.Classes
                         client.Dispose();
                     }
                 );
-#endregion
+        #endregion
 
             }
             catch (Exception exp)

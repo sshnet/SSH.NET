@@ -63,7 +63,7 @@ namespace Renci.SshNet
     /// </list>
     /// </para>
     /// </remarks>
-    public class PrivateKeyFile : IDisposable
+    public class PrivateKeyFile : IPrivateKeyFile, IDisposable
     {
         private static readonly Regex PrivateKeyRegex = new Regex(@"^-+ *BEGIN (?<keyName>\w+( \w+)*) PRIVATE KEY *-+\r?\n((Proc-Type: 4,ENCRYPTED\r?\nDEK-Info: (?<cipherName>[A-Z0-9-]+),(?<salt>[A-F0-9]+)\r?\n\r?\n)|(Comment: ""?[^\r\n]*""?\r?\n))?(?<data>([a-zA-Z0-9/+=]{1,80}\r?\n)+)-+ *END \k<keyName> PRIVATE KEY *-+",
 #if FEATURE_REGEX_COMPILE
@@ -74,10 +74,18 @@ namespace Renci.SshNet
 
         private Key _key;
 
+        private HostAlgorithm _hostKey;
+
         /// <summary>
         /// Gets the host key.
         /// </summary>
-        public HostAlgorithm HostKey { get; private set; }
+        public HostAlgorithm HostKey
+        {
+            get
+            {
+                return _hostKey;
+            }
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PrivateKeyFile"/> class.
@@ -206,21 +214,21 @@ namespace Renci.SshNet
             {
                 case "RSA":
                     _key = new RsaKey(decryptedData);
-                    HostKey = new KeyHostAlgorithm("ssh-rsa", _key);
+                    _hostKey = new KeyHostAlgorithm("ssh-rsa", _key);
                     break;
                 case "DSA":
                     _key = new DsaKey(decryptedData);
-                    HostKey = new KeyHostAlgorithm("ssh-dss", _key);
+                    _hostKey = new KeyHostAlgorithm("ssh-dss", _key);
                     break;
 #if FEATURE_ECDSA
                 case "EC":
                     _key = new EcdsaKey(decryptedData);
-                    HostKey = new KeyHostAlgorithm(_key.ToString(), _key);
+                    _hostKey = new KeyHostAlgorithm(_key.ToString(), _key);
                     break;
 #endif
                 case "OPENSSH":
                     _key = ParseOpenSshV1Key(decryptedData, passPhrase);
-                    HostKey = new KeyHostAlgorithm(_key.ToString(), _key);
+                    _hostKey = new KeyHostAlgorithm(_key.ToString(), _key);
                     break;
                 case "SSH2 ENCRYPTED":
                     var reader = new SshDataReader(decryptedData);
@@ -262,7 +270,7 @@ namespace Renci.SshNet
 
                     if (decryptedLength > blobSize - 4)
                         throw new SshException("Invalid passphrase.");
-                    
+
                     if (keyType == "if-modn{sign{rsa-pkcs1-sha1},encrypt{rsa-pkcs1v2-oaep}}")
                     {
                         var exponent = reader.ReadBigIntWithBits();//e
@@ -272,7 +280,7 @@ namespace Renci.SshNet
                         var q = reader.ReadBigIntWithBits();//p
                         var p = reader.ReadBigIntWithBits();//q
                         _key = new RsaKey(modulus, exponent, d, p, q, inverseQ);
-                        HostKey = new KeyHostAlgorithm("ssh-rsa", _key);
+                        _hostKey = new KeyHostAlgorithm("ssh-rsa", _key);
                     }
                     else if (keyType == "dl-modp{sign{dsa-nist-sha1},dh{plain}}")
                     {
@@ -287,7 +295,7 @@ namespace Renci.SshNet
                         var y = reader.ReadBigIntWithBits();
                         var x = reader.ReadBigIntWithBits();
                         _key = new DsaKey(p, q, g, y, x);
-                        HostKey = new KeyHostAlgorithm("ssh-dss", _key);
+                        _hostKey = new KeyHostAlgorithm("ssh-dss", _key);
                     }
                     else
                     {
@@ -515,8 +523,7 @@ namespace Renci.SshNet
                     throw new SshException("OpenSSH key type '" + keyType + "' is not supported.");
             }
 
-            //comment, we don't need this but we could log it, not sure if necessary
-            var comment = privateKeyReader.ReadString(Encoding.UTF8);
+            parsedKey.Comment = privateKeyReader.ReadString(Encoding.UTF8);
 
             //The list of privatekey/comment pairs is padded with the bytes 1, 2, 3, ...
             //until the total length is a multiple of the cipher block size.

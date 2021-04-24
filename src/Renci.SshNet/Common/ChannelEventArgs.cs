@@ -5,7 +5,7 @@ namespace Renci.SshNet.Common
     /// <summary>
     /// Base class for all channel related events.
     /// </summary>
-    internal class ChannelEventArgs : EventArgs
+    public class ChannelEventArgs : EventArgs
     {
         /// <summary>
         /// Gets the channel number.

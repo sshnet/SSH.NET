@@ -3,7 +3,7 @@
     /// <summary>
     /// Provides data for <see cref="Renci.SshNet.Channels.Channel.DataReceived"/> event.
     /// </summary>
-    internal class ChannelDataEventArgs : ChannelEventArgs
+    public class ChannelDataEventArgs : ChannelEventArgs
     {
         /// <summary>
         /// Gets channel data.

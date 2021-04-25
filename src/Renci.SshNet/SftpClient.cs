@@ -19,6 +19,7 @@ namespace Renci.SshNet
     public class SftpClient : BaseClient, ISftpClient
     {
         private static readonly Encoding Utf8NoBOM = new UTF8Encoding(false, true);
+        private const string TempExtension = ".tmp";
 
         /// <summary>
         /// Holds the <see cref="ISftpSession"/> instance that is used to communicate to the
@@ -1935,25 +1936,37 @@ namespace Renci.SshNet
             const Flags uploadFlag = Flags.Write | Flags.Truncate | Flags.CreateNewOrOpen;
             foreach (var localFile in sourceFiles)
             {
-                var isDifferent = !destDict.ContainsKey(localFile.Name);
+                if (destDict.ContainsKey(localFile.Name))
+                {
+                    continue;
+                }
+
+                var tempFileName = Path.GetFileNameWithoutExtension(localFile.Name) + TempExtension;
+                var isDifferent = !destDict.ContainsKey(tempFileName);
 
                 if (!isDifferent)
                 {
-                    var temp = destDict[localFile.Name];
+                    var sftpTempFile = destDict[tempFileName];
                     //  TODO:   Use md5 to detect a difference
                     //ltang: File exists at the destination => Using filesize to detect the difference
-                    isDifferent = localFile.Length != temp.Length;
+                    isDifferent = localFile.Length != sftpTempFile.Length;
                 }
 
                 if (isDifferent)
                 {
-                    var remoteFileName = string.Format(CultureInfo.InvariantCulture, @"{0}/{1}", destinationPath, localFile.Name);
+                    var remoteTempFileName = string.Format(CultureInfo.InvariantCulture, @"{0}/{1}", destinationPath,
+                        tempFileName);
                     try
                     {
                         using (var file = File.OpenRead(localFile.FullName))
                         {
-                            InternalUploadFile(file, remoteFileName, uploadFlag, null, null);
+                            InternalUploadFile(file, remoteTempFileName, uploadFlag, null, null);
                         }
+
+                        var remoteFileName = string.Format(CultureInfo.InvariantCulture, @"{0}/{1}", destinationPath,
+                            localFile.Name);
+
+                        RenameFile(remoteTempFileName, remoteFileName);
 
                         uploadedFiles.Add(localFile);
 
@@ -1964,7 +1977,8 @@ namespace Renci.SshNet
                     }
                     catch (Exception ex)
                     {
-                        throw new Exception(string.Format("Failed to upload {0} to {1}", localFile.FullName, remoteFileName), ex);
+                        throw new Exception(
+                            string.Format("Failed to upload {0} to {1}", localFile.FullName, remoteTempFileName), ex);
                     }
                 }
             }

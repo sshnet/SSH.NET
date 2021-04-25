@@ -5,7 +5,7 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <AssemblyName>Renci.SshNet</AssemblyName>
     <AssemblyOriginatorKeyFile>../Renci.SshNet.snk</AssemblyOriginatorKeyFile>
-    <LangVersion>5</LangVersion>
+    <LangVersion>latest</LangVersion>
     <SignAssembly>true</SignAssembly>
     <TargetFrameworks>net35;net40;netstandard1.3;netstandard2.0</TargetFrameworks>
   </PropertyGroup>

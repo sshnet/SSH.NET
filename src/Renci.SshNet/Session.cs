@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Net.Sockets;
+#if NETSTANDARD
+using System.Runtime.ExceptionServices;
+#endif
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
@@ -127,10 +130,17 @@ namespace Renci.SshNet
         /// </summary>
         private bool _keyExchangeInProgress;
 
+#if NETSTANDARD
+        /// <summary>
+        /// Exception that need to be thrown by waiting thread
+        /// </summary>
+        private ExceptionDispatchInfo _capturedEx;
+#else
         /// <summary>
         /// Exception that need to be thrown by waiting thread
         /// </summary>
         private Exception _exception;
+#endif
 
         /// <summary>
         /// Specifies whether connection is authenticated
@@ -819,12 +829,17 @@ namespace Renci.SshNet
             switch (WaitHandle.WaitAny(waitHandles, timeout))
             {
                 case 0:
-                    if (_exception is SshConnectionException)
+#if NETSTANDARD
+                    Exception sourceEx = _capturedEx?.SourceException;
+#else
+                    Exception sourceEx = _exception;
+#endif
+                    if (sourceEx is SshConnectionException)
                     {
                         exception = null;
                         return WaitResult.Disconnected;
                     }
-                    exception = _exception;
+                    exception = sourceEx;
                     return WaitResult.Failed;
                 case 1:
                     exception = null;
@@ -864,7 +879,13 @@ namespace Renci.SshNet
             switch (WaitHandle.WaitAny(waitHandles, timeout))
             {
                 case 0:
+#if NETSTANDARD
+                    _capturedEx?.Throw();
+                    break;
+#else
+                    _exception.Data["OriginalStackTrace"] = _exception.StackTrace;
                     throw _exception;
+#endif
                 case 1:
                     throw new SshConnectionException("Client not connected.");
                 case WaitHandle.WaitTimeout:
@@ -1167,7 +1188,12 @@ namespace Renci.SshNet
             // set below
             _isDisconnecting = true;
 
-            _exception = new SshConnectionException(string.Format(CultureInfo.InvariantCulture, "The connection was closed by the server: {0} ({1}).", message.Description, message.ReasonCode), message.ReasonCode);
+            var sshEx = new SshConnectionException(string.Format(CultureInfo.InvariantCulture, "The connection was closed by the server: {0} ({1}).", message.Description, message.ReasonCode), message.ReasonCode);
+#if NETSTANDARD
+            _capturedEx = ExceptionDispatchInfo.Capture(sshEx);
+#else
+            _exception = sshEx;
+#endif
             _exceptionWaitHandle.Set();
 
             var disconnectReceived = DisconnectReceived;
@@ -1919,7 +1945,11 @@ namespace Renci.SshNet
             }
 
             // "save" exception and set exception wait handle to ensure any waits are interrupted
+#if NETSTANDARD
+            _capturedEx = ExceptionDispatchInfo.Capture(exp);
+#else
             _exception = exp;
+#endif
             _exceptionWaitHandle.Set();
 
             var errorOccured = ErrorOccured;
@@ -1950,7 +1980,11 @@ namespace Renci.SshNet
             _isDisconnectMessageSent = false;
             _isDisconnecting = false;
             _isAuthenticated = false;
+#if NETSTANDARD
+            _capturedEx = null;
+#else
             _exception = null;
+#endif
             _keyExchangeInProgress = false;
         }
 

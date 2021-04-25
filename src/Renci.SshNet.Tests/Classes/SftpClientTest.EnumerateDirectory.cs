@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Renci.SshNet.Common;
+using Renci.SshNet.Tests.Common;
 using Renci.SshNet.Tests.Properties;
 using System;
 using System.Diagnostics;
@@ -10,16 +11,16 @@ namespace Renci.SshNet.Tests.Classes
     /// <summary>
     /// Implementation of the SSH File Transfer Protocol (SFTP) over SSH.
     /// </summary>
-    public partial class SftpClientTest
+    public partial class SftpClientTest : TestBase
     {
         [TestMethod]
         [TestCategory("Sftp")]
         [ExpectedException(typeof(SshConnectionException))]
-        public void Test_Sftp_ListDirectory_Without_Connecting()
+        public void Test_Sftp_EnumerateDirectory_Without_Connecting()
         {
             using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
             {
-                var files = sftp.ListDirectory(".");
+                var files = sftp.EnumerateDirectory(".");
                 foreach (var file in files)
                 {
                     Debug.WriteLine(file.FullName);
@@ -31,13 +32,13 @@ namespace Renci.SshNet.Tests.Classes
         [TestCategory("Sftp")]
         [TestCategory("integration")]
         [ExpectedException(typeof(SftpPermissionDeniedException))]
-        public void Test_Sftp_ListDirectory_Permission_Denied()
+        public void Test_Sftp_EnumerateDirectory_Permission_Denied()
         {
             using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
             {
                 sftp.Connect();
 
-                var files = sftp.ListDirectory("/root");
+                var files = sftp.EnumerateDirectory("/root");
                 foreach (var file in files)
                 {
                     Debug.WriteLine(file.FullName);
@@ -51,13 +52,13 @@ namespace Renci.SshNet.Tests.Classes
         [TestCategory("Sftp")]
         [TestCategory("integration")]
         [ExpectedException(typeof(SftpPathNotFoundException))]
-        public void Test_Sftp_ListDirectory_Not_Exists()
+        public void Test_Sftp_EnumerateDirectory_Not_Exists()
         {
             using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
             {
                 sftp.Connect();
 
-                var files = sftp.ListDirectory("/asdfgh");
+                var files = sftp.EnumerateDirectory("/asdfgh");
                 foreach (var file in files)
                 {
                     Debug.WriteLine(file.FullName);
@@ -70,13 +71,13 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         [TestCategory("Sftp")]
         [TestCategory("integration")]
-        public void Test_Sftp_ListDirectory_Current()
+        public void Test_Sftp_EnumerateDirectory_Current()
         {
             using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
             {
                 sftp.Connect();
 
-                var files = sftp.ListDirectory(".");
+                var files = sftp.EnumerateDirectory(".");
 
                 Assert.IsTrue(files.Count() > 0);
 
@@ -92,13 +93,13 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         [TestCategory("Sftp")]
         [TestCategory("integration")]
-        public void Test_Sftp_ListDirectory_Empty()
+        public void Test_Sftp_EnumerateDirectory_Empty()
         {
             using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
             {
                 sftp.Connect();
 
-                var files = sftp.ListDirectory(string.Empty);
+                var files = sftp.EnumerateDirectory(string.Empty);
 
                 Assert.IsTrue(files.Count() > 0);
 
@@ -114,15 +115,15 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         [TestCategory("Sftp")]
         [TestCategory("integration")]
-        [Description("Test passing null to ListDirectory.")]
+        [Description("Test passing null to EnumerateDirectory.")]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void Test_Sftp_ListDirectory_Null()
+        public void Test_Sftp_EnumerateDirectory_Null()
         {
             using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
             {
                 sftp.Connect();
 
-                var files = sftp.ListDirectory(null);
+                var files = sftp.EnumerateDirectory(null);
 
                 Assert.IsTrue(files.Count() > 0);
 
@@ -138,7 +139,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         [TestCategory("Sftp")]
         [TestCategory("integration")]
-        public void Test_Sftp_ListDirectory_HugeDirectory()
+        public void Test_Sftp_EnumerateDirectory_HugeDirectory()
         {
             var stopwatch = Stopwatch.StartNew();
             try
@@ -157,7 +158,7 @@ namespace Renci.SshNet.Tests.Classes
                     Debug.WriteLine(string.Format("Created {0} directories within {1} seconds", count, stopwatch.Elapsed.TotalSeconds));
 
                     stopwatch.Reset(); stopwatch.Start();
-                    var files = sftp.ListDirectory(".");
+                    var files = sftp.EnumerateDirectory(".");
                     Debug.WriteLine(string.Format("Listed {0} directories within {1} seconds", count, stopwatch.Elapsed.TotalSeconds));
 
                     //  Ensure that directory has at least 10000 items
@@ -181,103 +182,27 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         [TestCategory("Sftp")]
         [TestCategory("integration")]
-        public void Test_Sftp_Change_Directory()
+        [ExpectedException(typeof(SshConnectionException))]
+        public void Test_Sftp_EnumerateDirectory_After_Disconnected()
         {
-            using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
-            {
-                sftp.Connect();
+            try {
+                using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+                {
+                    sftp.Connect();
 
-                Assert.AreEqual(sftp.WorkingDirectory, "/home/tester");
+                    sftp.CreateDirectory("test_at_dsiposed");
 
-                sftp.CreateDirectory("test1");
+                    var files = sftp.EnumerateDirectory(".").Take(1);
 
-                sftp.ChangeDirectory("test1");
+                    sftp.Disconnect();
 
-                Assert.AreEqual(sftp.WorkingDirectory, "/home/tester/test1");
-
-                sftp.CreateDirectory("test1_1");
-                sftp.CreateDirectory("test1_2");
-                sftp.CreateDirectory("test1_3");
-
-                var files = sftp.ListDirectory(".");
-
-                Assert.IsTrue(files.First().FullName.StartsWith(string.Format("{0}", sftp.WorkingDirectory)));
-
-                sftp.ChangeDirectory("test1_1");
-
-                Assert.AreEqual(sftp.WorkingDirectory, "/home/tester/test1/test1_1");
-
-                sftp.ChangeDirectory("../test1_2");
-
-                Assert.AreEqual(sftp.WorkingDirectory, "/home/tester/test1/test1_2");
-
-                sftp.ChangeDirectory("..");
-
-                Assert.AreEqual(sftp.WorkingDirectory, "/home/tester/test1");
-
-                sftp.ChangeDirectory("..");
-
-                Assert.AreEqual(sftp.WorkingDirectory, "/home/tester");
-
-                files = sftp.ListDirectory("test1/test1_1");
-
-                Assert.IsTrue(files.First().FullName.StartsWith(string.Format("{0}/test1/test1_1", sftp.WorkingDirectory)));
-
-                sftp.ChangeDirectory("test1/test1_1");
-
-                Assert.AreEqual(sftp.WorkingDirectory, "/home/tester/test1/test1_1");
-
-                sftp.ChangeDirectory("/home/tester/test1/test1_1");
-
-                Assert.AreEqual(sftp.WorkingDirectory, "/home/tester/test1/test1_1");
-
-                sftp.ChangeDirectory("/home/tester/test1/test1_1/../test1_2");
-
-                Assert.AreEqual(sftp.WorkingDirectory, "/home/tester/test1/test1_2");
-
-                sftp.ChangeDirectory("../../");
-
-                sftp.DeleteDirectory("test1/test1_1");
-                sftp.DeleteDirectory("test1/test1_2");
-                sftp.DeleteDirectory("test1/test1_3");
-                sftp.DeleteDirectory("test1");
-
-                sftp.Disconnect();
+                    // Must fail on disconnected session.
+                    var count = files.Count();
+                }
             }
-
-            RemoveAllFiles();
-        }
-
-        [TestMethod]
-        [TestCategory("Sftp")]
-        [TestCategory("integration")]
-        [Description("Test passing null to ChangeDirectory.")]
-        [ExpectedException(typeof(ArgumentNullException))]
-        public void Test_Sftp_ChangeDirectory_Null()
-        {
-            using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
+            finally
             {
-                sftp.Connect();
-
-                sftp.ChangeDirectory(null);
-
-                sftp.Disconnect();
-            }
-        }
-
-        [TestMethod]
-        [TestCategory("Sftp")]
-        [TestCategory("integration")]
-        [Description("Test calling EndListDirectory method more then once.")]
-        [ExpectedException(typeof(ArgumentException))]
-        public void Test_Sftp_Call_EndListDirectory_Twice()
-        {
-            using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
-            {
-                sftp.Connect();
-                var ar = sftp.BeginListDirectory("/", null, null);
-                var result = sftp.EndListDirectory(ar);
-                var result1 = sftp.EndListDirectory(ar);
+                RemoveAllFiles();
             }
         }
     }

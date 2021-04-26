@@ -37,6 +37,22 @@ namespace Renci.SshNet
         public event EventHandler<ExceptionEventArgs> ErrorOccurred;
 
         /// <summary>
+        /// Occurs when the <see cref="ShellStream"/> closes (server or client initiated).
+        /// </summary>
+        public event EventHandler<EventArgs> Closed;
+        
+        /// <summary>
+        /// Whether the instance is disposed.
+        /// </summary>
+        public bool Disposed
+        {
+            get
+            {
+                return _isDisposed;
+            }
+        }
+
+        /// <summary>
         /// Gets a value that indicates whether data is available on the <see cref="ShellStream"/> to be read.
         /// </summary>
         /// <value>
@@ -215,6 +231,12 @@ namespace Renci.SshNet
         /// <exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed.</exception>
         public override int Read(byte[] buffer, int offset, int count)
         {
+            //  Flush the write buffer
+            if (!_isDisposed)
+            {
+                Flush();
+            }
+
             var i = 0;
 
             lock (_incoming)
@@ -301,6 +323,12 @@ namespace Renci.SshNet
         {
             var expectedFound = false;
             var text = string.Empty;
+
+            // Flush the write buffer in case expecting output from written data
+            if (!_isDisposed)
+            {
+                Flush();
+            }
 
             do
             {
@@ -407,6 +435,12 @@ namespace Renci.SshNet
 
             //  Create new AsyncResult object
             var asyncResult = new ExpectAsyncResult(callback, state);
+
+            //  Flush the write buffer in case expecting output from previous write
+            if (!_isDisposed)
+            {
+                Flush();
+            }
 
             //  Execute callback on different thread
             ThreadAbstraction.ExecuteThread(() =>
@@ -544,11 +578,17 @@ namespace Renci.SshNet
         /// <param name="timeout">Time to wait for input.</param>
         /// <returns>
         /// The text available in the shell that contains all the text that ends with expected expression,
-        /// or <c>null</c> if the specified time has elapsed.
+        /// or <c>null</c> if the specified time has elapsed or the channel is currently closed.
         /// </returns>
         public string Expect(Regex regex, TimeSpan timeout)
         {
             var text = string.Empty;
+
+            //  Flush the write buffer in case expecting output from previous write.
+            if (!_isDisposed)
+            {
+                Flush();
+            }
 
             while (true)
             {
@@ -568,10 +608,17 @@ namespace Renci.SshNet
                         {
                             _incoming.Dequeue();
                         }
+                        
+                        text = text.Substring(0, match.Index + match.Length);
                         break;
                     }
                 }
 
+                if (_isDisposed)
+                {
+                    return null;
+                }
+                
                 if (timeout.Ticks > 0)
                 {
                     if (!_dataReceived.WaitOne(timeout))
@@ -582,8 +629,7 @@ namespace Renci.SshNet
                 else
                 {
                     _dataReceived.WaitOne();
-                }
-
+                } 
             }
 
             return text;
@@ -610,6 +656,12 @@ namespace Renci.SshNet
         public string ReadLine(TimeSpan timeout)
         {
             var text = string.Empty;
+
+            //  Flush the write buffer
+            if (!_isDisposed)
+            {
+                Flush();
+            }
 
             while (true)
             {
@@ -663,6 +715,12 @@ namespace Renci.SshNet
         public string Read()
         {
             string text;
+            
+            // Flush the write buffer
+            if (!_isDisposed)
+            {
+                Flush();
+            }
 
             lock (_incoming)
             {
@@ -691,7 +749,8 @@ namespace Renci.SshNet
             }
 
             var data = _encoding.GetBytes(text);
-            _channel.SendData(data);
+
+            Write(data, 0, data.Length);
         }
 
         /// <summary>
@@ -772,6 +831,7 @@ namespace Renci.SshNet
 
         private void Channel_Closed(object sender, ChannelEventArgs e)
         {
+            OnClosedReceived(e);
             //  TODO:   Do we need to call dispose here ??
             Dispose();
         }
@@ -805,6 +865,15 @@ namespace Renci.SshNet
             if (handler != null)
             {
                 handler(this, new ShellDataEventArgs(data));
+            }
+        }
+
+        private void OnClosedReceived(EventArgs e)
+        {
+            var handler = Closed;
+            if (handler != null)
+            {
+                handler(this, new EventArgs());
             }
         }
     }

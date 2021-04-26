@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
+using Renci.SshNet.Messages.Connection;
 using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes
@@ -99,8 +101,172 @@ namespace Renci.SshNet.Tests.Classes
             _channelSessionMock.Setup(p => p.SendData(lineTerminator));
 
             shellStream.WriteLine(line);
+            shellStream.Flush();
 
             _channelSessionMock.Verify(p => p.SendData(lineTerminator), Times.Once);
+        }
+
+        [TestMethod]
+        public void Expect_Regex_ShouldOnlyReturnUpToTheMatchedBuffer()
+        {
+            var shellStream = CreateShellStream();
+            var input = "abc\rdef\rghi\rprompt> ";
+            var bytes = _encoding.GetBytes(input);
+            var regex = new Regex(@"prompt>");
+
+            _channelSessionMock.Raise(p => p.DataReceived += null, this, new ChannelDataEventArgs(0, bytes));
+            var output = shellStream.Expect(regex, TimeSpan.FromSeconds(1));
+
+            Assert.AreEqual(input.Substring(0, input.Length - 1), output);
+
+        }
+
+        [TestMethod]
+        public void Expect_Regex_ShouldNotWaitForMoreDataWhenDisposed()
+        {
+            SetupDispose();
+            var shellStream = CreateShellStream();
+            var timeout = 2;
+
+            _channelSessionMock.Raise(p => p.Closed += null, this, new ChannelEventArgs(0));
+
+            var now = DateTime.Now;
+            var output = shellStream.Expect("not there", TimeSpan.FromSeconds(timeout));
+            var end = DateTime.Now;
+
+            Assert.AreEqual(null, output);
+            Assert.IsTrue((end - now).TotalSeconds < timeout);
+        }
+
+        [TestMethod]
+        public void Closed_Event_ShouldRaiseWhenIChannelClosed()
+        {
+            var shellStream = CreateShellStream();
+            SetupDispose();
+            var called = false;
+
+            shellStream.Closed += (sender, args) => 
+            {
+                called = true;
+                Assert.IsFalse(shellStream.Disposed);
+            };
+
+            _channelSessionMock.Raise(p => p.Closed += null, this, new ChannelEventArgs(0));
+
+            Assert.IsTrue(called);
+            Assert.IsTrue(shellStream.Disposed);
+        }
+
+        [TestMethod]
+        public void Write_AlwaysUsesUnderlyingBuffer()
+        {
+            var shellStream = CreateShellStream();
+            var command1 = "abcd\r";
+            var command2 = "efgh\r";
+            var command1Bytes = _encoding.GetBytes(command1);
+            var command2Bytes = _encoding.GetBytes(command2);
+            var expectedBytes = command1Bytes.Concat(command2Bytes);
+
+            _channelSessionMock.Setup(p => p.SendData(It.IsAny<byte[]>()));
+
+            shellStream.Write(command1Bytes, 0, command1Bytes.Length);
+            shellStream.Write(command2);
+            shellStream.Flush();
+
+            _channelSessionMock.Verify(p => p.SendData(expectedBytes), Times.Once);
+        }
+
+        [TestMethod]
+        public void Expect_ShouldAlwaysFlushTheWriteBuffer()
+        {
+            var shellStream = CreateShellStream();
+            var command1 = "abcd\r";
+            var command2 = "efgh\r";
+            var command1Bytes = _encoding.GetBytes(command1);
+            var command2Bytes = _encoding.GetBytes(command2);
+            var expectedBytes = command1Bytes.Concat(command2Bytes);
+
+            _channelSessionMock.Setup(p => p.SendData(It.IsAny<byte[]>()))
+                .Raises(p => p.DataReceived += null, new ChannelDataEventArgs(0, expectedBytes));
+            
+
+            shellStream.Write(command1Bytes, 0, command1Bytes.Length);
+            shellStream.Write(command2);
+            var output = shellStream.Expect("h\r", TimeSpan.FromMilliseconds(1));
+
+            _channelSessionMock.Verify(p => p.SendData(expectedBytes), Times.Once);
+            Assert.AreEqual(command1 + command2, output);
+        }
+
+        [TestMethod]
+        public void Read_ShouldAlwaysFlushTheWriteBuffer()
+        {
+            var shellStream = CreateShellStream();
+            var command1 = "abcd\r";
+            var command2 = "efgh\r";
+            var command1Bytes = _encoding.GetBytes(command1);
+            var command2Bytes = _encoding.GetBytes(command2);
+            var expectedBytes = command1Bytes.Concat(command2Bytes);
+
+            _channelSessionMock.Setup(p => p.SendData(It.IsAny<byte[]>()))
+                .Raises(p => p.DataReceived += null, new ChannelDataEventArgs(0, expectedBytes));
+
+
+            shellStream.Write(command1Bytes, 0, command1Bytes.Length);
+            shellStream.Write(command2);
+            var output = shellStream.Read();
+
+            _channelSessionMock.Verify(p => p.SendData(expectedBytes), Times.Once);
+            Assert.AreEqual(command1 + command2, output);
+        }
+
+        [TestMethod]
+        public void Read_Bytes_ShouldAlwaysFlushTheWriteBuffer()
+        {
+            var shellStream = CreateShellStream();
+            var command1 = "abcd\r";
+            var command2 = "efgh\r";
+            var command1Bytes = _encoding.GetBytes(command1);
+            var command2Bytes = _encoding.GetBytes(command2);
+            var expectedBytes = command1Bytes.Concat(command2Bytes);
+
+            _channelSessionMock.Setup(p => p.SendData(It.IsAny<byte[]>()))
+                .Raises(p => p.DataReceived += null, new ChannelDataEventArgs(0, expectedBytes));
+
+
+            shellStream.Write(command1Bytes, 0, command1Bytes.Length);
+            shellStream.Write(command2);
+            var output = new byte[expectedBytes.Length];
+            var count = shellStream.Read(output, 0, output.Length);
+
+            _channelSessionMock.Verify(p => p.SendData(expectedBytes), Times.Once);
+            CollectionAssert.AreEqual(expectedBytes, output);
+            Assert.AreEqual(expectedBytes.Length, count);
+        }
+
+        [TestMethod]
+        public void ReadLine_ShouldAlwaysFlushTheWriteBuffer()
+        {
+            var shellStream = CreateShellStream();
+            var command1 = "abcd\r\n";
+            var command2 = "efgh\r\n";
+            var command1Bytes = _encoding.GetBytes(command1);
+            var command2Bytes = _encoding.GetBytes(command2);
+            var expectedBytes = command1Bytes.Concat(command2Bytes);
+
+            _channelSessionMock.Setup(p => p.SendData(It.IsAny<byte[]>()))
+                .Raises(p => p.DataReceived += null, new ChannelDataEventArgs(0, expectedBytes));
+
+
+            shellStream.Write(command1Bytes, 0, command1Bytes.Length);
+            shellStream.Write(command2);
+
+            var output1 = shellStream.ReadLine(TimeSpan.FromMilliseconds(1));
+            var output2 = shellStream.ReadLine(TimeSpan.FromMilliseconds(1));
+
+            _channelSessionMock.Verify(p => p.SendData(expectedBytes), Times.Once);
+            Assert.AreEqual(command1.Substring(0, command1.Length - 2), output1);
+            Assert.AreEqual(command2.Substring(0, command2.Length - 2), output2);
         }
 
         private ShellStream CreateShellStream()
@@ -121,6 +287,11 @@ namespace Renci.SshNet.Tests.Classes
                                    _heightPixels,
                                    _terminalModes,
                                    _bufferSize);
+        }
+
+        private void SetupDispose()
+        {
+            _channelSessionMock.Setup(t => t.Dispose());
         }
     }
 }

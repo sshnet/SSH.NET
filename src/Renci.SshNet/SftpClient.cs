@@ -2009,13 +2009,13 @@ namespace Renci.SshNet
 
             while (files != null)
             {
-                result.AddRange(
-                    from f in files
-                    select (ISftpFile) new SftpFile(
+                foreach (var f in files)
+                {
+                    result.Add(new SftpFile(
                         _sftpSession,
                         string.Format(CultureInfo.InvariantCulture, "{0}{1}", basePath, f.Key),
-                        f.Value)
-                );
+                        f.Value));
+                }
 
                 //  Call callback to report number of files read
                 if (listCallback != null)

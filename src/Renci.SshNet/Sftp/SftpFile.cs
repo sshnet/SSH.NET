@@ -7,7 +7,7 @@ namespace Renci.SshNet.Sftp
     /// <summary>
     /// Represents SFTP file information
     /// </summary>
-    public class SftpFile : ISftpFile
+    public sealed class SftpFile : ISftpFile
     {
         private readonly ISftpSession _sftpSession;
 

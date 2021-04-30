@@ -7,7 +7,7 @@ namespace Renci.SshNet.Sftp
     /// <summary>
     /// Encapsulates the results of an asynchronous directory list operation.
     /// </summary>
-    public class SftpListDirectoryAsyncResult : AsyncResult<IEnumerable<SftpFile>>
+    public class SftpListDirectoryAsyncResult : AsyncResult<IEnumerable<ISftpFile>>
     {
         /// <summary>
         /// Gets the number of files read so far.

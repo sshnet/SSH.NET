@@ -469,7 +469,7 @@ namespace Renci.SshNet
         /// <exception cref="SftpPermissionDeniedException">Permission to list the contents of the directory was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
         /// <exception cref="SshException">A SSH error where <see cref="Exception.Message" /> is the message from the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
-        public IEnumerable<SftpFile> ListDirectory(string path, Action<int> listCallback = null)
+        public IEnumerable<ISftpFile> ListDirectory(string path, Action<int> listCallback = null)
         {
             CheckDisposed();
 
@@ -526,7 +526,7 @@ namespace Renci.SshNet
         /// A list of files.
         /// </returns>
         /// <exception cref="ArgumentException">The <see cref="IAsyncResult"/> object did not come from the corresponding async method on this type.<para>-or-</para><see cref="EndListDirectory(IAsyncResult)"/> was called multiple times with the same <see cref="IAsyncResult"/>.</exception>
-        public IEnumerable<SftpFile> EndListDirectory(IAsyncResult asyncResult)
+        public IEnumerable<ISftpFile> EndListDirectory(IAsyncResult asyncResult)
         {
             var ar = asyncResult as SftpListDirectoryAsyncResult;
 
@@ -542,13 +542,13 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="path">The path.</param>
         /// <returns>
-        /// A reference to <see cref="SftpFile"/> file object.
+        /// A reference to <see cref="ISftpFile"/> file object.
         /// </returns>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="SftpPathNotFoundException"><paramref name="path"/> was not found on the remote host.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="path" /> is <b>null</b>.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
-        public SftpFile Get(string path)
+        public ISftpFile Get(string path)
         {
             CheckDisposed();
 
@@ -1920,7 +1920,7 @@ namespace Renci.SshNet
             #region Existing Files at The Destination
 
             var destFiles = InternalListDirectory(destinationPath, null);
-            var destDict = new Dictionary<string, SftpFile>();
+            var destDict = new Dictionary<string, ISftpFile>();
             foreach (var destFile in destFiles)
             {
                 if (destFile.IsDirectory)
@@ -1986,7 +1986,7 @@ namespace Renci.SshNet
         /// </returns>
         /// <exception cref="ArgumentNullException"><paramref name="path" /> is <b>null</b>.</exception>
         /// <exception cref="SshConnectionException">Client not connected.</exception>
-        private IEnumerable<SftpFile> InternalListDirectory(string path, Action<int> listCallback)
+        private IEnumerable<ISftpFile> InternalListDirectory(string path, Action<int> listCallback)
         {
             if (path == null)
                 throw new ArgumentNullException("path");
@@ -2003,14 +2003,19 @@ namespace Renci.SshNet
             if (!basePath.EndsWith("/"))
                 basePath = string.Format("{0}/", fullPath);
 
-            var result = new List<SftpFile>();
+            var result = new List<ISftpFile>();
 
             var files = _sftpSession.RequestReadDir(handle);
 
             while (files != null)
             {
-                result.AddRange(from f in files
-                                select new SftpFile(_sftpSession, string.Format(CultureInfo.InvariantCulture, "{0}{1}", basePath, f.Key), f.Value));
+                foreach (var f in files)
+                {
+                    result.Add(new SftpFile(
+                        _sftpSession,
+                        string.Format(CultureInfo.InvariantCulture, "{0}{1}", basePath, f.Key),
+                        f.Value));
+                }
 
                 //  Call callback to report number of files read
                 if (listCallback != null)

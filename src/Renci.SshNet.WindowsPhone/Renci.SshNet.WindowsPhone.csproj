@@ -1343,6 +1343,9 @@
     <Compile Include="..\Renci.SshNet\Sftp\SftpFile.cs">
       <Link>Sftp\SftpFile.cs</Link>
     </Compile>
+    <Compile Include="..\Renci.SshNet\Sftp\ISftpFile.cs">
+      <Link>Sftp\ISftpFile.cs</Link>
+    </Compile>
     <Compile Include="..\Renci.SshNet\Sftp\SftpFileAttributes.cs">
       <Link>Sftp\SftpFileAttributes.cs</Link>
     </Compile>

@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.Threading;
 using Renci.SshNet.Sftp.Responses;
+#if FEATURE_TAP
+using System.Threading.Tasks;
+#endif
 
 namespace Renci.SshNet.Sftp
 {
@@ -37,6 +40,10 @@ namespace Renci.SshNet.Sftp
         /// The absolute path.
         /// </returns>
         string GetCanonicalPath(string path);
+
+#if FEATURE_TAP
+        Task<string> GetCanonicalPathAsync(string path, CancellationToken cancellationToken);
+#endif
 
         /// <summary>
         /// Performs SSH_FXP_FSTAT request.
@@ -124,6 +131,10 @@ namespace Renci.SshNet.Sftp
         /// <returns>File handle.</returns>
         byte[] RequestOpen(string path, Flags flags, bool nullOnError = false);
 
+#if FEATURE_TAP
+        Task<byte[]> OpenAsync(string path, Flags flags, CancellationToken cancellationToken);
+#endif
+
         /// <summary>
         /// Performs SSH_FXP_OPEN request
         /// </summary>
@@ -157,6 +168,10 @@ namespace Renci.SshNet.Sftp
         /// <param name="nullOnError">if set to <c>true</c> returns null instead of throwing an exception.</param>
         /// <returns>File handle.</returns>
         byte[] RequestOpenDir(string path, bool nullOnError = false);
+
+#if FEATURE_TAP
+        Task<byte[]> RequestOpenDirAsync(string path, CancellationToken cancellationToken);
+#endif
 
         /// <summary>
         /// Performs posix-rename@openssh.com extended request.
@@ -201,12 +216,20 @@ namespace Renci.SshNet.Sftp
         /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <c>null</c>.</exception>
         byte[] EndRead(SftpReadAsyncResult asyncResult);
 
+#if FEATURE_TAP
+        Task<byte[]> ReadAsync(byte[] handle, ulong offset, uint length, CancellationToken cancellationToken);
+#endif
+
         /// <summary>
         /// Performs SSH_FXP_READDIR request
         /// </summary>
         /// <param name="handle">The handle.</param>
         /// <returns></returns>
         KeyValuePair<string, SftpFileAttributes>[] RequestReadDir(byte[] handle);
+
+#if FEATURE_TAP
+        Task<KeyValuePair<string, SftpFileAttributes>[]> RequestReadDirAsync(byte[] handle, CancellationToken cancellationToken);
+#endif
 
         /// <summary>
         /// Performs SSH_FXP_REALPATH request.
@@ -235,12 +258,20 @@ namespace Renci.SshNet.Sftp
         /// <param name="path">The path.</param>
         void RequestRemove(string path);
 
+#if FEATURE_TAP
+        Task RequestRemoveAsync(string path, CancellationToken cancellationToken);
+#endif
+
         /// <summary>
         /// Performs SSH_FXP_RENAME request.
         /// </summary>
         /// <param name="oldPath">The old path.</param>
         /// <param name="newPath">The new path.</param>
         void RequestRename(string oldPath, string newPath);
+
+#if FEATURE_TAP
+        Task RequestRenameAsync(string oldPath, string newPath, CancellationToken cancellationToken);
+#endif
 
         /// <summary>
         /// Performs SSH_FXP_RMDIR request.
@@ -262,6 +293,10 @@ namespace Renci.SshNet.Sftp
         /// <param name="nullOnError">if set to <c>true</c> [null on error].</param>
         /// <returns></returns>
         SftpFileSytemInformation RequestStatVfs(string path, bool nullOnError = false);
+
+#if FEATURE_TAP
+        Task<SftpFileSytemInformation> RequestStatVfsAsync(string path, CancellationToken cancellationToken);
+#endif
 
         /// <summary>
         /// Performs SSH_FXP_SYMLINK request.
@@ -295,11 +330,19 @@ namespace Renci.SshNet.Sftp
                           AutoResetEvent wait,
                           Action<SftpStatusResponse> writeCompleted = null);
 
+#if FEATURE_TAP
+        Task WriteAsync(byte[] handle, ulong serverOffset, byte[] data, int offset, int length, CancellationToken cancellationToken);
+#endif
+
         /// <summary>
         /// Performs SSH_FXP_CLOSE request.
         /// </summary>
         /// <param name="handle">The handle.</param>
         void RequestClose(byte[] handle);
+
+#if FEATURE_TAP
+        Task CloseAsync(byte[] handle, CancellationToken cancellationToken);
+#endif
 
         /// <summary>
         /// Performs SSH_FXP_CLOSE request.

@@ -1541,10 +1541,11 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="path">The file for which to set the access date and time information.</param>
         /// <param name="lastAccessTime">A <see cref="DateTime"/> containing the value to set for the last access date and time of path. This value is expressed in local time.</param>
-        [Obsolete("Note: This method currently throws NotImplementedException because it has not yet been implemented.")]
         public void SetLastAccessTime(string path, DateTime lastAccessTime)
         {
-            throw new NotImplementedException();
+            var attribs = GetAttributes(path);
+            attribs.LastAccessTime = lastAccessTime;
+            SetAttributes(path, attribs);
         }
 
         /// <summary>
@@ -1563,10 +1564,11 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="path">The file for which to set the date and time information.</param>
         /// <param name="lastWriteTime">A <see cref="DateTime"/> containing the value to set for the last write date and time of path. This value is expressed in local time.</param>
-        [Obsolete("Note: This method currently throws NotImplementedException because it has not yet been implemented.")]
         public void SetLastWriteTime(string path, DateTime lastWriteTime)
         {
-            throw new NotImplementedException();
+            var attribs = GetAttributes(path);
+            attribs.LastWriteTime = lastWriteTime;
+            SetAttributes(path, attribs);
         }
 
         /// <summary>

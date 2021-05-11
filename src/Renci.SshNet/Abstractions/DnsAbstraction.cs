@@ -2,10 +2,13 @@
 using System.Net;
 using System.Net.Sockets;
 
+#if FEATURE_TAP
+using System.Threading.Tasks;
+#endif
+
 #if FEATURE_DNS_SYNC
 #elif FEATURE_DNS_APM
 using Renci.SshNet.Common;
-#elif FEATURE_DNS_TAP
 #elif FEATURE_DEVICEINFORMATION_APM
 using System.Collections.Generic;
 using System.Linq;
@@ -42,8 +45,6 @@ namespace Renci.SshNet.Abstractions
             if (!asyncResult.AsyncWaitHandle.WaitOne(Session.InfiniteTimeSpan))
                 throw new SshOperationTimeoutException("Timeout resolving host name.");
             return Dns.EndGetHostAddresses(asyncResult);
-#elif FEATURE_DNS_TAP
-            return Dns.GetHostAddressesAsync(hostNameOrAddress).GetAwaiter().GetResult();
 #else
             IPAddress address;
             if (IPAddress.TryParse(hostNameOrAddress, out address))
@@ -87,5 +88,23 @@ namespace Renci.SshNet.Abstractions
 #endif // FEATURE_DEVICEINFORMATION_APM
 #endif
         }
+
+#if FEATURE_TAP
+        /// <summary>
+        /// Returns the Internet Protocol (IP) addresses for the specified host.
+        /// </summary>
+        /// <param name="hostNameOrAddress">The host name or IP address to resolve</param>
+        /// <returns>
+        /// A task with result of an array of type <see cref="IPAddress"/> that holds the IP addresses for the host that
+        /// is specified by the <paramref name="hostNameOrAddress"/> parameter.
+        /// </returns>
+        /// <exception cref="ArgumentNullException"><paramref name="hostNameOrAddress"/> is <c>null</c>.</exception>
+        /// <exception cref="SocketException">An error is encountered when resolving <paramref name="hostNameOrAddress"/>.</exception>
+        public static Task<IPAddress[]> GetHostAddressesAsync(string hostNameOrAddress)
+        {
+            return Dns.GetHostAddressesAsync(hostNameOrAddress);
+        }
+#endif
+
     }
 }

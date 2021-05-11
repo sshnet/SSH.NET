@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Net.Sockets;
 using System.Threading;
+#if FEATURE_TAP
+using System.Threading.Tasks;
+#endif
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Transport;
@@ -239,6 +242,63 @@ namespace Renci.SshNet
             StartKeepAliveTimer();
         }
 
+#if FEATURE_TAP
+        /// <summary>
+        /// Asynchronously connects client to the server.
+        /// </summary>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
+        /// <returns>A <see cref="Task"/> that represents the asynchronous connect operation.
+        /// </returns>
+        /// <exception cref="InvalidOperationException">The client is already connected.</exception>
+        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
+        /// <exception cref="SocketException">Socket connection to the SSH server or proxy server could not be established, or an error occurred while resolving the hostname.</exception>
+        /// <exception cref="SshConnectionException">SSH session could not be established.</exception>
+        /// <exception cref="SshAuthenticationException">Authentication of SSH session failed.</exception>
+        /// <exception cref="ProxyException">Failed to establish proxy connection.</exception>
+        public async Task ConnectAsync(CancellationToken cancellationToken)
+        {
+            CheckDisposed();
+            cancellationToken.ThrowIfCancellationRequested();
+
+            // TODO (see issue #1758):
+            // we're not stopping the keep-alive timer and disposing the session here
+            // 
+            // we could do this but there would still be side effects as concrete
+            // implementations may still hang on to the original session
+            // 
+            // therefore it would be better to actually invoke the Disconnect method
+            // (and then the Dispose on the session) but even that would have side effects
+            // eg. it would remove all forwarded ports from SshClient
+            // 
+            // I think we should modify our concrete clients to better deal with a
+            // disconnect. In case of SshClient this would mean not removing the 
+            // forwarded ports on disconnect (but only on dispose ?) and link a
+            // forwarded port with a client instead of with a session
+            //
+            // To be discussed with Oleg (or whoever is interested)
+            if (IsSessionConnected())
+                throw new InvalidOperationException("The client is already connected.");
+
+            OnConnecting();
+
+            Session = await CreateAndConnectSessionAsync(cancellationToken).ConfigureAwait(false);
+            try
+            {
+                // Even though the method we invoke makes you believe otherwise, at this point only
+                // the SSH session itself is connected.
+                OnConnected();
+            }
+            catch
+            {
+                // Only dispose the session as Disconnect() would have side-effects (such as remove forwarded
+                // ports in SshClient).
+                DisposeSession();
+                throw;
+            }
+            StartKeepAliveTimer();
+        }
+#endif
+
         /// <summary>
         /// Disconnects client from the server.
         /// </summary>
@@ -472,6 +532,26 @@ namespace Renci.SshNet
                 throw;
             }
         }
+
+#if FEATURE_TAP
+        private async Task<ISession> CreateAndConnectSessionAsync(CancellationToken cancellationToken)
+        {
+            var session = _serviceFactory.CreateSession(ConnectionInfo, _serviceFactory.CreateSocketFactory());
+            session.HostKeyReceived += Session_HostKeyReceived;
+            session.ErrorOccured += Session_ErrorOccured;
+
+            try
+            {
+                await session.ConnectAsync(cancellationToken).ConfigureAwait(false);
+                return session;
+            }
+            catch
+            {
+                DisposeSession(session);
+                throw;
+            }
+        }
+#endif
 
         private void DisposeSession(ISession session)
         {

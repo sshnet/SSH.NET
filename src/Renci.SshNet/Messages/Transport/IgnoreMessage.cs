@@ -61,19 +61,18 @@ namespace Renci.SshNet.Messages.Transport
         protected override void LoadData()
         {
             var dataLength = ReadUInt32();
-            if (dataLength > int.MaxValue)
-            {
-                throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "Data longer than {0} is not supported.", int.MaxValue));
-            }
-
             if (dataLength > (DataStream.Length - DataStream.Position))
             {
                 DiagnosticAbstraction.Log("SSH_MSG_IGNORE: Length exceeds data bytes, data ignored.");
                 Data = Array<byte>.Empty;
             }
+            else if (dataLength > int.MaxValue)
+            {
+                throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "Data longer than {0} is not supported.", int.MaxValue));
+            }
             else
             {
-                Data = ReadBytes((int) dataLength);
+                Data = ReadBytes((int)dataLength);
             }
         }
 

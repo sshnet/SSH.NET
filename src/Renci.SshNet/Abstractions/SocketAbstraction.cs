@@ -3,6 +3,9 @@ using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+#if FEATURE_TAP
+using System.Threading.Tasks;
+#endif
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Transport;
 
@@ -59,15 +62,22 @@ namespace Renci.SshNet.Abstractions
             ConnectCore(socket, remoteEndpoint, connectTimeout, false);
         }
 
+#if FEATURE_TAP
+        public static Task ConnectAsync(Socket socket, IPEndPoint remoteEndpoint, CancellationToken cancellationToken)
+        {
+            return socket.ConnectAsync(remoteEndpoint, cancellationToken);
+        }
+#endif
+
         private static void ConnectCore(Socket socket, IPEndPoint remoteEndpoint, TimeSpan connectTimeout, bool ownsSocket)
         {
 #if FEATURE_SOCKET_EAP
             var connectCompleted = new ManualResetEvent(false);
             var args = new SocketAsyncEventArgs
-                {
-                    UserToken = connectCompleted,
-                    RemoteEndPoint = remoteEndpoint
-                };
+            {
+                UserToken = connectCompleted,
+                RemoteEndPoint = remoteEndpoint
+            };
             args.Completed += ConnectCompleted;
 
             if (socket.ConnectAsync(args))
@@ -97,7 +107,7 @@ namespace Renci.SshNet.Abstractions
 
             if (args.SocketError != SocketError.Success)
             {
-                var socketError = (int) args.SocketError;
+                var socketError = (int)args.SocketError;
 
                 if (ownsSocket)
                 {
@@ -124,7 +134,7 @@ namespace Renci.SshNet.Abstractions
                 throw new SshOperationTimeoutException(string.Format(CultureInfo.InvariantCulture,
                     "Connection failed to establish within {0:F0} milliseconds.", connectTimeout.TotalMilliseconds));
 #else
-            #error Connecting to a remote endpoint is not implemented.
+#error Connecting to a remote endpoint is not implemented.
 #endif
         }
 
@@ -144,7 +154,7 @@ namespace Renci.SshNet.Abstractions
         public static int ReadPartial(Socket socket, byte[] buffer, int offset, int size, TimeSpan timeout)
         {
 #if FEATURE_SOCKET_SYNC
-            socket.ReceiveTimeout = (int) timeout.TotalMilliseconds;
+            socket.ReceiveTimeout = (int)timeout.TotalMilliseconds;
 
             try
             {
@@ -197,7 +207,7 @@ namespace Renci.SshNet.Abstractions
                 receiveCompleted.Dispose();
             }
 #else
-            #error Receiving data from a Socket is not implemented.
+#error Receiving data from a Socket is not implemented.
 #endif
         }
 
@@ -259,7 +269,7 @@ namespace Renci.SshNet.Abstractions
             if (readToken.Exception != null)
                 throw readToken.Exception;
 #else
-            #error Receiving data from a Socket is not implemented.
+#error Receiving data from a Socket is not implemented.
 #endif
         }
 
@@ -290,7 +300,7 @@ namespace Renci.SshNet.Abstractions
         /// <exception cref="SocketException">The write failed.</exception>
         public static void SendByte(Socket socket, byte value)
         {
-            var buffer = new[] {value};
+            var buffer = new[] { value };
             Send(socket, buffer, 0, 1);
         }
 
@@ -316,6 +326,13 @@ namespace Renci.SshNet.Abstractions
             Read(socket, buffer, 0, size, timeout);
             return buffer;
         }
+
+#if FEATURE_TAP
+        public static Task<int> ReadAsync(Socket socket, byte[] buffer, int offset, int length, CancellationToken cancellationToken)
+        {
+            return socket.ReceiveAsync(buffer, offset, length, cancellationToken);
+        }
+#endif
 
         /// <summary>
         /// Receives data from a bound <see cref="Socket"/> into a receive buffer.
@@ -369,7 +386,7 @@ namespace Renci.SshNet.Abstractions
                         throw new SshOperationTimeoutException(string.Format(CultureInfo.InvariantCulture,
                             "Socket read operation has timed out after {0:F0} milliseconds.", readTimeout.TotalMilliseconds));
 
-                     throw;
+                    throw;
                 }
             }
             while (totalBytesRead < totalBytesToRead);
@@ -488,7 +505,7 @@ namespace Renci.SshNet.Abstractions
                 sendCompleted.Dispose();
             }
 #else
-            #error Sending data to a Socket is not implemented.
+#error Sending data to a Socket is not implemented.
 #endif
         }
 
@@ -508,7 +525,7 @@ namespace Renci.SshNet.Abstractions
 #if FEATURE_SOCKET_EAP
         private static void ConnectCompleted(object sender, SocketAsyncEventArgs e)
         {
-            var eventWaitHandle = (ManualResetEvent) e.UserToken;
+            var eventWaitHandle = (ManualResetEvent)e.UserToken;
             if (eventWaitHandle != null)
                 eventWaitHandle.Set();
         }

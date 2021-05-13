@@ -12,28 +12,10 @@ namespace Renci.SshNet.Connection
     /// <remarks>
     /// https://www.openssh.com/txt/socks4.protocol
     /// </remarks>
-    internal class Socks4Connector : ConnectorBase
+    internal sealed class Socks4Connector : ProxyConnector
     {
         public Socks4Connector(ISocketFactory socketFactory) : base(socketFactory)
         {
-        }
-
-        public override Socket Connect(IConnectionInfo connectionInfo)
-        {
-            var socket = SocketConnect(connectionInfo.ProxyHost, connectionInfo.ProxyPort, connectionInfo.Timeout);
-
-            try
-            {
-                HandleProxyConnect(connectionInfo, socket);
-                return socket;
-            }
-            catch (Exception)
-            {
-                socket.Shutdown(SocketShutdown.Both);
-                socket.Dispose();
-
-                throw;
-            }
         }
 
         /// <summary>
@@ -41,7 +23,7 @@ namespace Renci.SshNet.Connection
         /// </summary>
         /// <param name="connectionInfo">The connection information.</param>
         /// <param name="socket">The <see cref="Socket"/>.</param>
-        private void HandleProxyConnect(IConnectionInfo connectionInfo, Socket socket)
+        protected override void HandleProxyConnect(IConnectionInfo connectionInfo, Socket socket)
         {
             var connectionRequest = CreateSocks4ConnectionRequest(connectionInfo.Host, (ushort)connectionInfo.Port, connectionInfo.ProxyUsername);
             SocketAbstraction.Send(socket, connectionRequest);

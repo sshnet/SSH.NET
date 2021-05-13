@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace Renci.SshNet.Connection
 {
@@ -27,31 +28,13 @@ namespace Renci.SshNet.Connection
     ///   </item>
     /// </list>
     /// </remarks>
-    internal class HttpConnector : ConnectorBase
+    internal sealed class HttpConnector : ProxyConnector
     {
         public HttpConnector(ISocketFactory socketFactory) : base(socketFactory)
         {
         }
 
-        public override Socket Connect(IConnectionInfo connectionInfo)
-        {
-            var socket = SocketConnect(connectionInfo.ProxyHost, connectionInfo.ProxyPort, connectionInfo.Timeout);
-
-            try
-            {
-                HandleProxyConnect(connectionInfo, socket);
-                return socket;
-            }
-            catch (Exception)
-            {
-                socket.Shutdown(SocketShutdown.Both);
-                socket.Dispose();
-
-                throw;
-            }
-        }
-
-        private void HandleProxyConnect(IConnectionInfo connectionInfo, Socket socket)
+        protected override void HandleProxyConnect(IConnectionInfo connectionInfo, Socket socket)
         {
             var httpResponseRe = new Regex(@"HTTP/(?<version>\d[.]\d) (?<statusCode>\d{3}) (?<reasonPhrase>.+)$");
             var httpHeaderRe = new Regex(@"(?<fieldName>[^\[\]()<>@,;:\""/?={} \t]+):(?<fieldValue>.+)?");

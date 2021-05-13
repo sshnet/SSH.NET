@@ -4,6 +4,11 @@ using Renci.SshNet.Messages.Transport;
 using System;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
+
+#if FEATURE_TAP
+using System.Threading.Tasks;
+#endif
 
 namespace Renci.SshNet.Connection
 {
@@ -20,6 +25,10 @@ namespace Renci.SshNet.Connection
         internal ISocketFactory SocketFactory { get; private set; }
 
         public abstract Socket Connect(IConnectionInfo connectionInfo);
+
+#if FEATURE_TAP
+        public abstract Task<Socket> ConnectAsync(IConnectionInfo connectionInfo, CancellationToken cancellationToken);
+#endif
 
         /// <summary>
         /// Establishes a socket connection to the specified host and port.
@@ -53,6 +62,42 @@ namespace Renci.SshNet.Connection
                 throw;
             }
         }
+
+#if FEATURE_TAP
+        /// <summary>
+        /// Establishes a socket connection to the specified host and port.
+        /// </summary>
+        /// <param name="host">The host name of the server to connect to.</param>
+        /// <param name="port">The port to connect to.</param>
+        /// <param name="cancellationToken">The cancellation token to observe.</param>
+        /// <exception cref="SshOperationTimeoutException">The connection failed to establish within the configured <see cref="ConnectionInfo.Timeout"/>.</exception>
+        /// <exception cref="SocketException">An error occurred trying to establish the connection.</exception>
+        protected async Task<Socket> SocketConnectAsync(string host, int port, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var ipAddress = (await DnsAbstraction.GetHostAddressesAsync(host).ConfigureAwait(false))[0];
+            var ep = new IPEndPoint(ipAddress, port);
+
+            DiagnosticAbstraction.Log(string.Format("Initiating connection to '{0}:{1}'.", host, port));
+
+            var socket = SocketFactory.Create(ep.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            try
+            {
+                await SocketAbstraction.ConnectAsync(socket, ep, cancellationToken).ConfigureAwait(false);
+
+                const int socketBufferSize = 2 * Session.MaximumSshPacketSize;
+                socket.SendBufferSize = socketBufferSize;
+                socket.ReceiveBufferSize = socketBufferSize;
+                return socket;
+            }
+            catch (Exception)
+            {
+                socket.Dispose();
+                throw;
+            }
+        }
+#endif
 
         protected static byte SocketReadByte(Socket socket)
         {

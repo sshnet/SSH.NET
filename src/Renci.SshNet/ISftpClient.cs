@@ -2,8 +2,12 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading;
 using Renci.SshNet.Sftp;
 using Renci.SshNet.Common;
+#if FEATURE_TAP
+using System.Threading.Tasks;
+#endif
 
 namespace Renci.SshNet
 {
@@ -488,6 +492,22 @@ namespace Renci.SshNet
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         void DeleteFile(string path);
 
+#if FEATURE_TAP
+        /// <summary>
+        /// Asynchronously deletes remote file specified by path.
+        /// </summary>
+        /// <param name="path">File to be deleted path.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
+        /// <returns>A <see cref="Task"/> that represents the asynchronous delete operation.</returns>
+        /// <exception cref="ArgumentException"><paramref name="path"/> is <b>null</b> or contains only whitespace characters.</exception>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="SftpPathNotFoundException"><paramref name="path"/> was not found on the remote host.</exception>
+        /// <exception cref="SftpPermissionDeniedException">Permission to delete the file was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
+        /// <exception cref="SshException">A SSH error where <see cref="Exception.Message"/> is the message from the remote host.</exception>
+        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
+        Task DeleteFileAsync(string path, CancellationToken cancellationToken);
+#endif
+
         /// <summary>
         /// Downloads remote file specified by the path into the stream.
         /// </summary>
@@ -505,6 +525,24 @@ namespace Renci.SshNet
         /// Method calls made by this method to <paramref name="output" />, may under certain conditions result in exceptions thrown by the stream.
         /// </remarks>
         void DownloadFile(string path, Stream output, Action<ulong> downloadCallback = null);
+
+#if FEATURE_TAP
+        /// <summary>
+        /// Asynchronously downloads remote file specified by the path into the stream.
+        /// </summary>
+        /// <param name="path">File to download.</param>
+        /// <param name="output">Stream to write the file into.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
+        /// <returns>A <see cref="Task"/> that represents the asynchronous download operation.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="output" /> is <b>null</b>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="path" /> is <b>null</b> or contains only whitespace characters.</exception>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="SftpPermissionDeniedException">Permission to perform the operation was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
+        /// <exception cref="SftpPathNotFoundException"><paramref name="path"/> was not found on the remote host.</exception>/// 
+        /// <exception cref="SshException">A SSH error where <see cref="Exception.Message" /> is the message from the remote host.</exception>
+        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
+        Task DownloadFileAsync(string path, Stream output, CancellationToken cancellationToken);
+#endif
 
         /// <summary>
         /// Ends an asynchronous file downloading into the stream.
@@ -653,6 +691,22 @@ namespace Renci.SshNet
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         SftpFileSytemInformation GetStatus(string path);
 
+#if FEATURE_TAP
+        /// <summary>
+        /// Asynchronously gets status using statvfs@openssh.com request.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
+        /// <returns>
+        /// A <see cref="Task{SftpFileSytemInformation}"/> that represents the status operation.
+        /// The task result contains the <see cref="SftpFileSytemInformation"/> instance that contains file status information.
+        /// </returns>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="path" /> is <b>null</b>.</exception>
+        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
+        Task<SftpFileSytemInformation> GetStatusAsync(string path, CancellationToken cancellationToken);
+#endif
+
         /// <summary>
         /// Retrieves list of files in remote directory.
         /// </summary>
@@ -667,6 +721,25 @@ namespace Renci.SshNet
         /// <exception cref="SshException">A SSH error where <see cref="Exception.Message" /> is the message from the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         IEnumerable<SftpFile> ListDirectory(string path, Action<int> listCallback = null);
+
+#if FEATURE_TAP
+
+        /// <summary>
+        /// Asynchronously retrieves list of files in remote directory.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
+        /// <returns>
+        /// A <see cref="Task{IEnumerable}"/> that represents the asynchronous list operation.
+        /// The task result contains an enumerable collection of <see cref="SftpFile"/> for the files in the directory specified by <paramref name="path" />.
+        /// </returns>
+        /// <exception cref="ArgumentNullException"><paramref name="path" /> is <b>null</b>.</exception>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="SftpPermissionDeniedException">Permission to list the contents of the directory was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
+        /// <exception cref="SshException">A SSH error where <see cref="Exception.Message" /> is the message from the remote host.</exception>
+        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
+        Task<IEnumerable<SftpFile>> ListDirectoryAsync(string path, CancellationToken cancellationToken);
+#endif
 
         /// <summary>
         /// Opens a <see cref="SftpFileStream"/> on the specified path with read/write access.
@@ -694,6 +767,24 @@ namespace Renci.SshNet
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         SftpFileStream Open(string path, FileMode mode, FileAccess access);
+
+#if FEATURE_TAP
+        /// <summary>
+        /// Asynchronously opens a <see cref="SftpFileStream"/> on the specified path, with the specified mode and access.
+        /// </summary>
+        /// <param name="path">The file to open.</param>
+        /// <param name="mode">A <see cref="FileMode"/> value that specifies whether a file is created if one does not exist, and determines whether the contents of existing files are retained or overwritten.</param>
+        /// <param name="access">A <see cref="FileAccess"/> value that specifies the operations that can be performed on the file.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
+        /// <returns>
+        /// A <see cref="Task{SftpFileStream}"/> that represents the asynchronous open operation.
+        /// The task result contains the <see cref="SftpFileStream"/> that provides access to the specified file, with the specified mode and access.
+        /// </returns>
+        /// <exception cref="ArgumentNullException"><paramref name="path"/> is <b>null</b>.</exception>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
+        Task<SftpFileStream> OpenAsync(string path, FileMode mode, FileAccess access, CancellationToken cancellationToken);
+#endif
 
         /// <summary>
         /// Opens an existing file for reading.
@@ -833,6 +924,22 @@ namespace Renci.SshNet
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         void RenameFile(string oldPath, string newPath);
 
+#if FEATURE_TAP
+        /// <summary>
+        /// Asynchronously renames remote file from old path to new path.
+        /// </summary>
+        /// <param name="oldPath">Path to the old file location.</param>
+        /// <param name="newPath">Path to the new file location.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
+        /// <returns>A <see cref="Task"/> that represents the asynchronous rename operation.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="oldPath"/> is <b>null</b>. <para>-or-</para> or <paramref name="newPath"/> is <b>null</b>.</exception>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="SftpPermissionDeniedException">Permission to rename the file was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
+        /// <exception cref="SshException">A SSH error where <see cref="Exception.Message"/> is the message from the remote host.</exception>
+        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
+        Task RenameFileAsync(string oldPath, string newPath, CancellationToken cancellationToken);
+#endif
+
         /// <summary>
         /// Renames remote file from old path to new path.
         /// </summary>
@@ -916,6 +1023,27 @@ namespace Renci.SshNet
         /// Method calls made by this method to <paramref name="input" />, may under certain conditions result in exceptions thrown by the stream.
         /// </remarks>
         void UploadFile(Stream input, string path, bool canOverride, Action<ulong> uploadCallback = null);
+
+#if FEATURE_TAP
+        /// <summary>
+        /// Asynchronously uploads stream into remote file.
+        /// </summary>
+        /// <param name="input">Data input stream.</param>
+        /// <param name="path">Remote file path.</param>
+        /// <param name="canOverride">if set to <c>true</c> then existing file will be overwritten.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
+        /// <returns>A <see cref="Task"/> that represents the asynchronous upload operation.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="input" /> is <b>null</b>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="path" /> is <b>null</b> or contains only whitespace characters.</exception>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="SftpPermissionDeniedException">Permission to upload the file was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
+        /// <exception cref="SshException">A SSH error where <see cref="Exception.Message" /> is the message from the remote host.</exception>
+        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
+        /// <remarks>
+        /// Method calls made by this method to <paramref name="input" />, may under certain conditions result in exceptions thrown by the stream.
+        /// </remarks>
+        Task UploadFileAsync(Stream input, string path, bool canOverride, CancellationToken cancellationToken);
+#endif
 
         /// <summary>
         /// Writes the specified byte array to the specified file, and closes the file.

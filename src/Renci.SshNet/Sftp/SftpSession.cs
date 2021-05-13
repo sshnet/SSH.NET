@@ -54,7 +54,7 @@ namespace Renci.SshNet.Sftp
         {
             get
             {
-                return (uint) Interlocked.Increment(ref _requestId);
+                return (uint)Interlocked.Increment(ref _requestId);
             }
         }
 
@@ -145,9 +145,7 @@ namespace Renci.SshNet.Sftp
             var fullPath = GetFullRemotePath(path);
 
             var canonizedPath = string.Empty;
-
             var realPathFiles = await RequestRealPathAsync(fullPath, true, cancellationToken).ConfigureAwait(false);
-
             if (realPathFiles != null)
             {
                 canonizedPath = realPathFiles[0].Key;
@@ -157,9 +155,9 @@ namespace Renci.SshNet.Sftp
                 return canonizedPath;
 
             //  Check for special cases
-            if (fullPath.EndsWith("/.", StringComparison.OrdinalIgnoreCase) ||
-                fullPath.EndsWith("/..", StringComparison.OrdinalIgnoreCase) ||
-                fullPath.Equals("/", StringComparison.OrdinalIgnoreCase) ||
+            if (fullPath.EndsWith("/.", StringComparison.Ordinal) ||
+                fullPath.EndsWith("/..", StringComparison.Ordinal) ||
+                fullPath.Equals("/", StringComparison.Ordinal) ||
                 fullPath.IndexOf('/') < 0)
                 return fullPath;
 
@@ -170,7 +168,7 @@ namespace Renci.SshNet.Sftp
             if (string.IsNullOrEmpty(partialFullPath))
                 partialFullPath = "/";
 
-            realPathFiles = RequestRealPath(partialFullPath, true);
+            realPathFiles = await RequestRealPathAsync(partialFullPath, true, cancellationToken).ConfigureAwait(false);
 
             if (realPathFiles != null)
             {
@@ -185,7 +183,7 @@ namespace Renci.SshNet.Sftp
             var slash = string.Empty;
             if (canonizedPath[canonizedPath.Length - 1] != '/')
                 slash = "/";
-            return string.Format(CultureInfo.InvariantCulture, "{0}{1}{2}", canonizedPath, slash, pathParts[pathParts.Length - 1]);
+            return canonizedPath + slash + pathParts[pathParts.Length - 1];
         }
 #endif
 
@@ -202,11 +200,11 @@ namespace Renci.SshNet.Sftp
             {
                 if (WorkingDirectory[WorkingDirectory.Length - 1] == '/')
                 {
-                    fullPath = string.Format(CultureInfo.InvariantCulture, "{0}{1}", WorkingDirectory, path);
+                    fullPath = WorkingDirectory + path;
                 }
                 else
                 {
-                    fullPath = string.Format(CultureInfo.InvariantCulture, "{0}/{1}", WorkingDirectory, path);
+                    fullPath = WorkingDirectory + '/' + path;
                 }
             }
             return fullPath;
@@ -546,25 +544,24 @@ namespace Renci.SshNet.Sftp
 #if FEATURE_TAP
         public async Task CloseAsync(byte[] handle, CancellationToken cancellationToken)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-
             TaskCompletionSource<bool> tcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
 
+            SendRequest(new SftpCloseRequest(ProtocolVersion, NextRequestId, handle,
+                response =>
+                {
+                    if (response.StatusCode == StatusCodes.Ok)
+                    {
+                        tcs.TrySetResult(true);
+                    }
+                    else
+                    {
+                        tcs.TrySetException(GetSftpException(response));
+                    }
+                }));
+
+            cancellationToken.ThrowIfCancellationRequested();
             using (cancellationToken.Register((s) => ((TaskCompletionSource<bool>)s).TrySetCanceled(), tcs, false))
             {
-                SendRequest(new SftpCloseRequest(ProtocolVersion, NextRequestId, handle,
-                    response =>
-                    {
-                        if (response.StatusCode == StatusCodes.Ok)
-                        {
-                            tcs.TrySetResult(true);
-                        }
-                        else
-                        {
-                            tcs.TrySetException(GetSftpException(response));
-                        }
-                    }));
-
                 await tcs.Task.ConfigureAwait(false);
             }
         }
@@ -1314,7 +1311,8 @@ namespace Renci.SshNet.Sftp
             {
                 SendRequest(new SftpRealPathRequest(ProtocolVersion, NextRequestId, path, Encoding,
                     response => tcs.TrySetResult(response.Files),
-                    response => {
+                    response =>
+                    {
                         if (nullOnError)
                         {
                             tcs.TrySetResult(null);

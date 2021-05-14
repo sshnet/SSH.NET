@@ -94,7 +94,7 @@ namespace Renci.SshNet.Tests.Classes.Messages.Transport
         }
 
         [TestMethod]
-        public void Load_ShouldIgnoreDataWhenItsLengthIsGreatherThanItsActualBytes()
+        public void Load_ShouldIgnoreDataWhenItsLengthIsGreaterThanItsActualBytes()
         {
             var ssh = new SshDataStream(1);
             ssh.WriteByte(2); // Type
@@ -107,29 +107,6 @@ namespace Renci.SshNet.Tests.Classes.Messages.Transport
             ignoreMessage.Load(ignoreMessageBytes, 1, ignoreMessageBytes.Length - 1);
             Assert.IsNotNull(ignoreMessage.Data);
             Assert.AreEqual(0, ignoreMessage.Data.Length);
-        }
-
-        [TestMethod]
-        public void Load_ShouldThrowNotSupportedExceptionWhenDataLengthIsGreaterThanInt32MaxValue()
-        {
-            var ssh = new SshDataStream(1);
-            ssh.WriteByte(2); // Type
-            ssh.Write(uint.MaxValue); // Data length
-            ssh.Write(new byte[3]);
-
-            var ignoreMessageBytes = ssh.ToArray();
-            var ignoreMessage = new IgnoreMessage();
-
-            try
-            {
-                ignoreMessage.Load(ignoreMessageBytes, 1, ignoreMessageBytes.Length - 1);
-                Assert.Fail();
-            }
-            catch (NotSupportedException ex)
-            {
-                Assert.IsNull(ex.InnerException);
-                Assert.AreEqual(string.Format(CultureInfo.CurrentCulture, "Data longer than {0} is not supported.", int.MaxValue), ex.Message);
-            }
         }
     }
 }

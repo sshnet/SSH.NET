@@ -13,10 +13,7 @@ namespace Renci.SshNet
     /// </summary>
     public class KeyboardInteractiveAuthenticationMethod : AuthenticationMethod
     {
-        private AuthenticationResult _authenticationResult = AuthenticationResult.Failure;
-
-        private Session _session;
-        private EventWaitHandle _authenticationCompleted = new AutoResetEvent(false);
+	    private Session _session;
         private Exception _exception;
         private readonly RequestMessage _requestMessage;
 
@@ -42,6 +39,7 @@ namespace Renci.SshNet
             : base(username)
         {
             _requestMessage = new RequestMessageKeyboardInteractive(ServiceName.Connection, username);
+            _authenticationCompleted = new AutoResetEvent(false);
         }
 
         /// <summary>
@@ -134,39 +132,6 @@ namespace Renci.SshNet
         }
 
         #region IDisposable Members
-
-        private bool _isDisposed;
-
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public override void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        /// <summary>
-        /// Releases unmanaged and - optionally - managed resources
-        /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-        protected virtual void Dispose(bool disposing)
-        {
-            if (_isDisposed)
-                return;
-
-            if (disposing)
-            {
-                var authenticationCompleted = _authenticationCompleted;
-                if (authenticationCompleted != null)
-                {
-                    _authenticationCompleted = null;
-                    authenticationCompleted.Dispose();
-                }
-
-                _isDisposed = true;
-            }
-        }
 
         /// <summary>
         /// Releases unmanaged resources and performs other cleanup operations before the

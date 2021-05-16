@@ -13,9 +13,7 @@ namespace Renci.SshNet
     /// </summary>
     public class PasswordAuthenticationMethod : AuthenticationMethod
     {
-        private AuthenticationResult _authenticationResult = AuthenticationResult.Failure;
-        private Session _session;
-        private EventWaitHandle _authenticationCompleted = new AutoResetEvent(false);
+	    private Session _session;
         private Exception _exception;
         private readonly RequestMessage _requestMessage;
         private readonly byte[] _password;
@@ -54,6 +52,7 @@ namespace Renci.SshNet
         public PasswordAuthenticationMethod(string username, string password)
             : this(username, Encoding.UTF8.GetBytes(password))
         {
+	        _authenticationCompleted = new AutoResetEvent(false);
         }
 
         /// <summary>
@@ -71,6 +70,7 @@ namespace Renci.SshNet
 
             _password = password;
             _requestMessage = new RequestMessagePassword(ServiceName.Connection, Username, _password);
+            _authenticationCompleted = new AutoResetEvent(false);
         }
 
         /// <summary>
@@ -160,39 +160,6 @@ namespace Renci.SshNet
         }
 
         #region IDisposable Members
-
-        private bool _isDisposed;
-
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public override void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        /// <summary>
-        /// Releases unmanaged and - optionally - managed resources
-        /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-        protected virtual void Dispose(bool disposing)
-        {
-            if (_isDisposed)
-                return;
-           
-            if (disposing)
-            {
-                var authenticationCompleted = _authenticationCompleted;
-                if (authenticationCompleted != null)
-                {
-                    authenticationCompleted.Dispose();
-                    _authenticationCompleted = null;
-                }
-
-                _isDisposed = true;
-            }
-        }
 
         /// <summary>
         /// Releases unmanaged resources and performs other cleanup operations before the

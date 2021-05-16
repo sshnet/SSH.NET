@@ -1,5 +1,7 @@
 ﻿using Renci.SshNet.Common;
 using System;
+using System.Threading;
+using Renci.SshNet.Security.Org.BouncyCastle.Crypto.Parameters;
 
 namespace Renci.SshNet
 {
@@ -8,6 +10,16 @@ namespace Renci.SshNet
     /// </summary>
     public abstract class AuthenticationMethod : IAuthenticationMethod, IDisposable
     {
+        /// <summary>
+        /// Tracks result of current authentication process
+        /// </summary>
+	    protected AuthenticationResult _authenticationResult = AuthenticationResult.Failure;
+
+        /// <summary>
+        /// Tracks completion of current authentication process
+        /// </summary>
+	    protected EventWaitHandle _authenticationCompleted = null;
+
         /// <summary>
         /// Gets the name of the authentication method.
         /// </summary>
@@ -39,10 +51,44 @@ namespace Renci.SshNet
             Username = username;
         }
 
+        #region IDisposable Members
+
+        private bool _isDisposed = false;
+
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
-        public abstract void Dispose();
+        public void Dispose()
+        {
+	        Dispose(true);
+	        GC.SuppressFinalize(this);
+        }
+
+
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources
+        /// </summary>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        protected void Dispose(bool disposing)
+        {
+	        if (_isDisposed)
+		        return;
+
+	        if (disposing)
+	        {
+		        var authenticationCompleted = _authenticationCompleted;
+		        if (authenticationCompleted != null)
+		        {
+			        authenticationCompleted.Dispose();
+			        _authenticationCompleted = null;
+		        }
+
+		        // Only if called with Dispose(true) otherwise we treat it is as not Disposed properly
+		        _isDisposed = true;
+	        }
+        }
+
+        #endregion
 
         /// <summary>
         /// Authenticates the specified session.

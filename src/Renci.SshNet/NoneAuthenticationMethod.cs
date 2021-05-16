@@ -13,10 +13,7 @@ namespace Renci.SshNet
     /// </summary>
     public class NoneAuthenticationMethod : AuthenticationMethod
     {
-        private AuthenticationResult _authenticationResult = AuthenticationResult.Failure;
-        private EventWaitHandle _authenticationCompleted = new AutoResetEvent(false);
-
-        /// <summary>
+	    /// <summary>
         /// Gets connection name
         /// </summary>
         public override string Name
@@ -32,6 +29,7 @@ namespace Renci.SshNet
         public NoneAuthenticationMethod(string username)
             : base(username)
         {
+	        _authenticationCompleted = new AutoResetEvent(false);
         }
 
         /// <summary>
@@ -83,41 +81,8 @@ namespace Renci.SshNet
 
             _authenticationCompleted.Set();
         }
-        
+
         #region IDisposable Members
-
-        private bool _isDisposed;
-
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public override void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        /// <summary>
-        /// Releases unmanaged and - optionally - managed resources
-        /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-        protected virtual void Dispose(bool disposing)
-        {
-            if (_isDisposed)
-                return;
-
-            if (disposing)
-            {
-                var authenticationCompleted = _authenticationCompleted;
-                if (authenticationCompleted != null)
-                {
-                    authenticationCompleted.Dispose();
-                    _authenticationCompleted = null;
-                }
-
-                _isDisposed = true;
-            }
-        }
 
         /// <summary>
         /// Releases unmanaged resources and performs other cleanup operations before the

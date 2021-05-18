@@ -62,7 +62,7 @@ namespace Renci.SshNet.Tests.Classes.Common
                 };
             var expected = "  00000000  07 00 1F 65 20 62 09 44 7F 0D 0A 36 80 53 53 48  ...e b.D...6.SSH" +
                            Environment.NewLine +
-                           "  00000010  2E 4E 45 54 20 32 30 32 30 20 F6 7A 32 7F 1F 7E  .NET 2020 .z2..~";
+                           "  00000010  2E 4E 45 54 20 32 30 32 31 20 F6 7A 32 7F 1F 7E  .NET 2021 .z2..~";
 
             var actual = PacketDump.Create(data, 2);
 
@@ -79,7 +79,7 @@ namespace Renci.SshNet.Tests.Classes.Common
                 };
             var expected = "00000000  07 00 1F 65 20 62 09 44 7F 0D 0A 36 80 53 53 48  ...e b.D...6.SSH" +
                            Environment.NewLine +
-                           "00000010  2E 4E 45 54 20 32 30 32 30 20 F6 7A 32 7F 1F 7E  .NET 2020 .z2..~";
+                           "00000010  2E 4E 45 54 20 32 30 32 31 20 F6 7A 32 7F 1F 7E  .NET 2021 .z2..~";
 
             var actual = PacketDump.Create(data, 0);
 
@@ -142,7 +142,7 @@ namespace Renci.SshNet.Tests.Classes.Common
                 };
             var expected = "  00000000  07 00 1F 65 20 62 09 44 7F 0D 0A 36 80 53 53 48  ...e b.D...6.SSH" +
                            Environment.NewLine +
-                           "  00000010  2E 4E 45 54 20 32 30 32 30 20 F6 7A 32 7F 1F 7E  .NET 2020 .z2..~" +
+                           "  00000010  2E 4E 45 54 20 32 30 32 31 20 F6 7A 32 7F 1F 7E  .NET 2021 .z2..~" +
                            Environment.NewLine +
                            "  00000020  78 54 00 52                                      xT.R";
 

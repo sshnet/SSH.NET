@@ -11,7 +11,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
         public void Ctor_ProtocolVersionAndSoftwareVersion()
         {
             const string protocolVersion = "1.5";
-            const string softwareVersion = "SSH.NET_2020.0.0";
+            const string softwareVersion = "SSH.NET_2021.0.0";
 
             var sshIdentification = new SshIdentification(protocolVersion, softwareVersion);
             Assert.AreSame(protocolVersion, sshIdentification.ProtocolVersion);
@@ -23,7 +23,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
         public void Ctor_ProtocolVersionAndSoftwareVersion_ProtocolVersionIsNull()
         {
             const string protocolVersion = null;
-            const string softwareVersion = "SSH.NET_2020.0.0";
+            const string softwareVersion = "SSH.NET_2021.0.0";
 
             try
             {
@@ -59,7 +59,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
         public void Ctor_ProtocolVersionAndSoftwareVersionAndComments()
         {
             const string protocolVersion = "1.5";
-            const string softwareVersion = "SSH.NET_2020.0.0";
+            const string softwareVersion = "SSH.NET_2021.0.0";
             const string comments = "Beware, dangerous!";
 
             var sshIdentification = new SshIdentification(protocolVersion, softwareVersion, comments);
@@ -72,7 +72,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
         public void Ctor_ProtocolVersionAndSoftwareVersionAndComments_CommentsIsNull()
         {
             const string protocolVersion = "1.5";
-            const string softwareVersion = "SSH.NET_2020.0.0";
+            const string softwareVersion = "SSH.NET_2021.0.0";
             const string comments = null;
 
             var sshIdentification = new SshIdentification(protocolVersion, softwareVersion, comments);
@@ -85,7 +85,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
         public void Ctor_ProtocolVersionAndSoftwareVersionAndComments_ProtocolVersionIsNull()
         {
             const string protocolVersion = null;
-            const string softwareVersion = "SSH.NET_2020.0.0";
+            const string softwareVersion = "SSH.NET_2021.0.0";
             const string comments = "Beware!";
 
             try
@@ -129,11 +129,11 @@ namespace Renci.SshNet.Tests.Classes.Connection
         [TestMethod]
         public void ToString_CommentsIsNull()
         {
-            var sshIdentification = new SshIdentification("2.0", "SSH.NET_2020.0.0");
-            Assert.AreEqual("SSH-2.0-SSH.NET_2020.0.0", sshIdentification.ToString());
+            var sshIdentification = new SshIdentification("2.0", "SSH.NET_2021.0.0");
+            Assert.AreEqual("SSH-2.0-SSH.NET_2021.0.0", sshIdentification.ToString());
 
-            sshIdentification = new SshIdentification("2.0", "SSH.NET_2020.0.0", null);
-            Assert.AreEqual("SSH-2.0-SSH.NET_2020.0.0", sshIdentification.ToString());
+            sshIdentification = new SshIdentification("2.0", "SSH.NET_2021.0.0", null);
+            Assert.AreEqual("SSH-2.0-SSH.NET_2021.0.0", sshIdentification.ToString());
         }
     }
 }

@@ -81,19 +81,5 @@ namespace Renci.SshNet
 
             _authenticationCompleted.Set();
         }
-
-        #region IDisposable Members
-
-        /// <summary>
-        /// Releases unmanaged resources and performs other cleanup operations before the
-        /// <see cref="NoneAuthenticationMethod"/> is reclaimed by garbage collection.
-        /// </summary>
-        ~NoneAuthenticationMethod()
-        {
-            Dispose(false);
-        }
-
-        #endregion
-
     }
 }

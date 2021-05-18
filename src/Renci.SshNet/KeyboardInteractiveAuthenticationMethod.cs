@@ -130,18 +130,5 @@ namespace Renci.SshNet
                     }
                 });
         }
-
-        #region IDisposable Members
-
-        /// <summary>
-        /// Releases unmanaged resources and performs other cleanup operations before the
-        /// <see cref="KeyboardInteractiveAuthenticationMethod"/> is reclaimed by garbage collection.
-        /// </summary>
-        ~KeyboardInteractiveAuthenticationMethod()
-        {
-            Dispose(false);
-        }
-
-        #endregion
     }
 }

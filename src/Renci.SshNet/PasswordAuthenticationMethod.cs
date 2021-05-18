@@ -158,18 +158,5 @@ namespace Renci.SshNet
                 }
             });
         }
-
-        #region IDisposable Members
-
-        /// <summary>
-        /// Releases unmanaged resources and performs other cleanup operations before the
-        /// <see cref="PasswordAuthenticationMethod"/> is reclaimed by garbage collection.
-        /// </summary>
-        ~PasswordAuthenticationMethod()
-        {
-            Dispose(false);
-        }
-
-        #endregion
     }
 }

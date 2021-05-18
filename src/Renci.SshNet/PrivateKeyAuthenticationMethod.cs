@@ -146,19 +146,6 @@ namespace Renci.SshNet
             _authenticationCompleted.Set();
         }
 
-        #region IDisposable Members
-
-        /// <summary>
-        /// Releases unmanaged resources and performs other cleanup operations before the
-        /// <see cref="PasswordConnectionInfo"/> is reclaimed by garbage collection.
-        /// </summary>
-        ~PrivateKeyAuthenticationMethod()
-        {
-            Dispose(false);
-        }
-
-        #endregion
-
         private class SignatureData : SshData
         {
             private readonly RequestMessagePublicKey _message;

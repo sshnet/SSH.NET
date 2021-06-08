@@ -535,7 +535,7 @@ namespace Renci.SshNet.Sftp
                             break;
                         case SeekOrigin.End:
                             var attributes = _session.RequestFStat(_handle, false);
-                            newPosn = attributes.Size - offset;
+                            newPosn = attributes.Size + offset;
                             break;
                     }
 
@@ -586,7 +586,7 @@ namespace Renci.SshNet.Sftp
                             break;
                         case SeekOrigin.End:
                             var attributes = _session.RequestFStat(_handle, false);
-                            newPosn = attributes.Size - offset;
+                            newPosn = attributes.Size + offset;
                             break;
                     }
 

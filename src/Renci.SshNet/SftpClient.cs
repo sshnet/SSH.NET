@@ -1537,6 +1537,49 @@ namespace Renci.SshNet
         }
 
         /// <summary>
+        /// Reads a sample of the lines of a file with the UTF-8 encoding.
+        /// </summary>
+        /// <param name="path">The file to read.</param>
+        /// <param name="sampleSize">The number of lines to sample.</param>
+        /// <returns>
+        /// The lines of the file.
+        /// </returns>
+        /// <exception cref="ArgumentNullException"><paramref name="path"/> is <b>null</b>.</exception>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
+        public IEnumerable<string> ReadSample(string path, int sampleSize)
+        {
+            return ReadSample(path, sampleSize, Encoding.UTF8);
+        }
+
+        /// <summary>
+        /// Redas a sample of the lines of a file that has a specified encoding.
+        /// </summary>
+        /// <param name="path">The file to read.</param>
+        /// <param name="sampleSize">The number of lines to sample.</param>
+        /// <param name="encoding">The encoding that is applied to the contents of the file.</param>
+        /// <returns>
+        /// The lines of the file.
+        /// </returns>
+        /// <exception cref="ArgumentNullException"><paramref name="path"/> is <b>null</b>.</exception>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
+        public IEnumerable<string> ReadSample(string path, int sampleSize, Encoding encoding)
+        {
+            var ix = 0;
+            var lines = new List<string>();
+            using (var stream = new StreamReader(OpenRead(path), encoding))
+            {
+                while (!stream.EndOfStream && ix < sampleSize)
+                {
+                    lines.Add(stream.ReadLine());
+                    ix += 1;
+                }
+            }
+            return lines.ToArray();
+        }
+
+        /// <summary>
         /// Sets the date and time the specified file was last accessed.
         /// </summary>
         /// <param name="path">The file for which to set the access date and time information.</param>

@@ -148,8 +148,8 @@ namespace Renci.SshNet.Security
 
             _clientCipherInfo = session.ConnectionInfo.Encryptions[clientEncryptionAlgorithmName];
             _serverCipherInfo = session.ConnectionInfo.Encryptions[serverDecryptionAlgorithmName];
-            _clientHashInfo = session.ConnectionInfo.HmacAlgorithms[clientHmacAlgorithmName];
-            _serverHashInfo = session.ConnectionInfo.HmacAlgorithms[serverHmacAlgorithmName];
+            _clientHashInfo = session.ConnectionInfo.HmacAlgorithms[clientHmacAlgorithmName]();
+            _serverHashInfo = session.ConnectionInfo.HmacAlgorithms[serverHmacAlgorithmName]();
             _compressionType = session.ConnectionInfo.CompressionAlgorithms[compressionAlgorithmName];
             _decompressionType = session.ConnectionInfo.CompressionAlgorithms[decompressionAlgorithmName];
         }

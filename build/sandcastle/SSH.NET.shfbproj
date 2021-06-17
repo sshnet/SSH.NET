@@ -27,7 +27,7 @@
     <PresentationStyle>VS2010</PresentationStyle>
     <Preliminary>False</Preliminary>
     <NamingMethod>Guid</NamingMethod>
-    <HelpTitle>SSH.NET Client Library Documenation</HelpTitle>
+    <HelpTitle>SSH.NET Client Library Documentation</HelpTitle>
     <ContentPlacement>AboveNamespaces</ContentPlacement>
     <ComponentConfigurations>
       <ComponentConfig id="Code Block Component" enabled="True">

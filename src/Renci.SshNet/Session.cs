@@ -620,6 +620,10 @@ namespace Renci.SshNet
                     // Start incoming request listener
                     ThreadAbstraction.ExecuteThread(() => MessageListener());
 
+                    // Send SSH_MSG_KEXINIT. There is no need to await SSH_MSG_KEXINIT from the server
+                    // Cisco switches can await SSH_MSG_KEXINIT from the client for no reason before sending it
+                    SendMessage(ClientInitMessage);
+                    
                     // Wait for key exchange to be completed
                     WaitOnHandle(_keyExchangeCompletedWaitHandle);
 

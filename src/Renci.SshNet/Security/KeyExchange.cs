@@ -71,8 +71,6 @@ namespace Renci.SshNet.Security
         {
             Session = session;
 
-            SendMessage(session.ClientInitMessage);
-
             //  Determine encryption algorithm
             var clientEncryptionAlgorithmName = (from b in session.ConnectionInfo.Encryptions.Keys
                                                  from a in message.EncryptionAlgorithmsClientToServer

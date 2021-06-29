@@ -184,6 +184,14 @@ namespace Renci.SshNet
         public int MaxSessions { get; set; }
 
         /// <summary>
+        /// Gets or sets if the client should identify itself later.
+        /// </summary>
+        /// <value>
+        /// <c>false</c>, the default for strict RFC4253 compliance where both sides identify at the same time. <c>true</c> if the client should wait for the server identification.
+        /// </value>
+        public bool LazyIdentification { get; set; }
+
+        /// <summary>
         /// Occurs when authentication banner is sent by the server.
         /// </summary>
         /// <example>
@@ -432,6 +440,8 @@ namespace Renci.SshNet
             ProxyPassword = proxyPassword;
 
             AuthenticationMethods = authenticationMethods;
+
+            LazyIdentification = false;
         }
 
         /// <summary>

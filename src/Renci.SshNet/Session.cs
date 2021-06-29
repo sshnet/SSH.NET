@@ -588,7 +588,7 @@ namespace Renci.SshNet
                                              .Connect(ConnectionInfo);
 
                     var serverIdentification = _serviceFactory.CreateProtocolVersionExchange()
-                                                              .Start(ClientVersion, _socket, ConnectionInfo.Timeout);
+                                                              .Start(ClientVersion, _socket, ConnectionInfo.Timeout, ConnectionInfo.LazyIdentification);
 
                     // Set connection versions
                     ServerVersion = ConnectionInfo.ServerVersion = serverIdentification.ToString();

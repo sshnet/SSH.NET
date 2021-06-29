@@ -37,9 +37,27 @@ namespace Renci.SshNet.Connection
         /// </returns>
         public SshIdentification Start(string clientVersion, Socket socket, TimeSpan timeout)
         {
-            // Immediately send the identification string since the spec states both sides MUST send an identification string
-            // when the connection has been established
-            SocketAbstraction.Send(socket, Encoding.UTF8.GetBytes(clientVersion + "\x0D\x0A"));
+            return Start(clientVersion, socket, timeout, false);
+        }
+
+        /// <summary>
+        /// Performs the SSH protocol version exchange.
+        /// </summary>
+        /// <param name="clientVersion">The identification string of the SSH client.</param>
+        /// <param name="socket">A <see cref="Socket"/> connected to the server.</param>
+        /// <param name="timeout">The maximum time to wait for the server to respond.</param>
+        /// <param name="lazyIdentification">Allow server to identify itself first.</param>
+        /// <returns>
+        /// The SSH identification of the server.
+        /// </returns>
+        public SshIdentification Start(string clientVersion, Socket socket, TimeSpan timeout, bool lazyIdentification)
+        {
+            if (!lazyIdentification)
+            {
+                // Immediately send the identification string since the spec states both sides MUST send an identification string
+                // when the connection has been established
+                SocketAbstraction.Send(socket, Encoding.UTF8.GetBytes(clientVersion + "\x0D\x0A"));
+            }
 
             var bytesReceived = new List<byte>();
 
@@ -71,6 +89,12 @@ namespace Renci.SshNet.Connection
                 var identificationMatch = ServerVersionRe.Match(line);
                 if (identificationMatch.Success)
                 {
+                    if (lazyIdentification)
+                    {
+                        // Send identification only after server identification has been validated.
+                        SocketAbstraction.Send(socket, Encoding.UTF8.GetBytes(clientVersion + "\x0D\x0A"));
+                    }
+
                     return new SshIdentification(GetGroupValue(identificationMatch, "protoversion"),
                                                  GetGroupValue(identificationMatch, "softwareversion"),
                                                  GetGroupValue(identificationMatch, "comments"));

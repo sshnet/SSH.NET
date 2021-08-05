@@ -230,6 +230,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentException"><paramref name="path"/> is a zero-length <see cref="string"/>.</exception>
         /// <exception cref="ScpException">A directory with the specified path exists on the remote host.</exception>
         /// <exception cref="SshException">The secure copy execution request was rejected by the server.</exception>
+        /// <exception cref="OperationCanceledException">Download cancelled exception</exception>
         public void Upload(Stream source, string path,CancellationToken cancellationToken )
         {
             try
@@ -327,6 +328,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="destination"/> is <c>null</c>.</exception>
         /// <exception cref="ScpException"><paramref name="filename"/> exists on the remote host, and is not a regular file.</exception>
         /// <exception cref="SshException">The secure copy execution request was rejected by the server.</exception>
+        /// <exception cref="OperationCanceledException">Download cancelled exception</exception>
         public void Download(string filename, Stream destination, CancellationToken cancellationToken)
         {
             if (filename.IsNullOrWhiteSpace())

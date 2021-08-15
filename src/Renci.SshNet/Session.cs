@@ -565,19 +565,15 @@ namespace Renci.SshNet
             if (IsConnected)
                 return;
 
-            try
+            lock (this)
             {
-                AuthenticationConnection.Wait();
-
+                // If connected don't connect again
                 if (IsConnected)
                     return;
 
-                lock (this)
+                try
                 {
-                    // If connected don't connect again
-                    if (IsConnected)
-                        return;
-
+                    AuthenticationConnection.Wait();
                     // Reset connection specific information
                     Reset();
 
@@ -662,10 +658,10 @@ namespace Renci.SshNet
                     RegisterMessage("SSH_MSG_CHANNEL_EOF");
                     RegisterMessage("SSH_MSG_CHANNEL_CLOSE");
                 }
-            }
-            finally
-            {
-                AuthenticationConnection.Release();
+                finally
+                {
+                    AuthenticationConnection.Release();
+                }
             }
         }
 

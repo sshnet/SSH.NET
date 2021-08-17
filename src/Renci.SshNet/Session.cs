@@ -229,6 +229,9 @@ namespace Renci.SshNet
 
         private uint _nextChannelNumber;
 
+        private ISession _jumpSession;
+        private JumpChannel _jumpChannel;
+
         /// <summary>
         /// Gets the next channel number.
         /// </summary>
@@ -340,6 +343,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <value>The client version.</value>
         public string ClientVersion { get; private set; }
+
 
         /// <summary>
         /// Gets or sets the connection info.
@@ -554,6 +558,9 @@ namespace Renci.SshNet
             _serviceFactory = serviceFactory;
             _socketFactory = socketFactory;
             _messageListenerCompleted = new ManualResetEvent(true);
+
+            if (connectionInfo.JumpHost != null)
+                _jumpSession = new Session(connectionInfo.JumpHost, _serviceFactory, _socketFactory);
         }
 
         /// <summary>
@@ -587,8 +594,17 @@ namespace Renci.SshNet
                     // Build list of available messages while connecting
                     _sshMessageFactory = new SshMessageFactory();
 
-                    _socket = _serviceFactory.CreateConnector(ConnectionInfo, _socketFactory)
-                                             .Connect(ConnectionInfo);
+                    if (_jumpSession != null)
+                    {
+                        _jumpSession.Connect();
+                        _jumpChannel = new JumpChannel(_jumpSession, ConnectionInfo.Host, (uint)ConnectionInfo.Port);
+                        _socket = _jumpChannel.Connect();
+                    }
+                    else
+                    {
+                        _socket = _serviceFactory.CreateConnector(ConnectionInfo, _socketFactory)
+                                                 .Connect(ConnectionInfo);
+                    }
 
                     var serverIdentification = _serviceFactory.CreateProtocolVersionExchange()
                                                               .Start(ClientVersion, _socket, ConnectionInfo.Timeout);
@@ -2148,6 +2164,11 @@ namespace Renci.SshNet
                     _messageListenerCompleted = null;
                 }
 
+                if (_jumpChannel != null)
+                    _jumpChannel.Dispose();
+                if (_jumpSession != null)
+                    _jumpSession.Dispose();
+
                 _disposed = true;
             }
         }
@@ -2218,6 +2239,11 @@ namespace Renci.SshNet
                                              remoteChannelNumber,
                                              remoteWindowSize,
                                              remoteChannelDataPacketSize);
+        }
+
+        JumpChannel CreateJumpChannel(string host, uint port)
+        {
+            return new JumpChannel(this, host, port);
         }
 
         /// <summary>

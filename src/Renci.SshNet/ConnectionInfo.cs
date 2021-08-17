@@ -107,6 +107,11 @@ namespace Renci.SshNet
         public string Username { get; private set; }
 
         /// <summary>
+        /// Connection info used for connecting through a jump host.
+        /// </summary>
+        public ConnectionInfo JumpHost { get; set; }
+
+        /// <summary>
         /// Gets proxy type.
         /// </summary>
         /// <value>

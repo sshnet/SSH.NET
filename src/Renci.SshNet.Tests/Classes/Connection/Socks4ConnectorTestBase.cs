@@ -7,18 +7,22 @@ namespace Renci.SshNet.Tests.Classes.Connection
 {
     public abstract class Socks4ConnectorTestBase : TripleATestBase
     {
+        internal Mock<IServiceFactory> ServiceFactoryMock { get; private set; }
         internal Mock<ISocketFactory> SocketFactoryMock { get; private set; }
         internal Socks4Connector Connector { get; private set; }
         internal SocketFactory SocketFactory { get; private set; }
+        internal ServiceFactory ServiceFactory { get; private set; }
 
         protected virtual void CreateMocks()
         {
+            ServiceFactoryMock = new Mock<IServiceFactory>(MockBehavior.Strict);
             SocketFactoryMock = new Mock<ISocketFactory>(MockBehavior.Strict);
         }
 
         protected virtual void SetupData()
         {
-            Connector = new Socks4Connector(SocketFactoryMock.Object);
+            Connector = new Socks4Connector(ServiceFactoryMock.Object, SocketFactoryMock.Object);
+            ServiceFactory = new ServiceFactory();
             SocketFactory = new SocketFactory();
         }
 

@@ -107,11 +107,6 @@ namespace Renci.SshNet
         public string Username { get; private set; }
 
         /// <summary>
-        /// Connection info used for connecting through a jump host.
-        /// </summary>
-        public ConnectionInfo JumpHost { get; set; }
-
-        /// <summary>
         /// Gets proxy type.
         /// </summary>
         /// <value>
@@ -120,24 +115,9 @@ namespace Renci.SshNet
         public ProxyTypes ProxyType { get; private set; }
 
         /// <summary>
-        /// Gets proxy connection host.
+        /// Connection info used for connecting through a proxy.
         /// </summary>
-        public string ProxyHost { get; private set; }
-
-        /// <summary>
-        /// Gets proxy connection port.
-        /// </summary>
-        public int ProxyPort { get; private set; }
-
-        /// <summary>
-        /// Gets proxy connection username.
-        /// </summary>
-        public string ProxyUsername { get; private set; }
-
-        /// <summary>
-        /// Gets proxy connection password.
-        /// </summary>
-        public string ProxyPassword { get; private set; }
+        public IConnectionInfo ProxyConnection { get; private set; }
 
         /// <summary>
         /// Gets or sets connection timeout.
@@ -258,7 +238,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="authenticationMethods"/> is <c>null</c>.</exception>
         /// <exception cref="ArgumentException">No <paramref name="authenticationMethods"/> specified.</exception>
         public ConnectionInfo(string host, string username, params AuthenticationMethod[] authenticationMethods)
-            : this(host, DefaultPort, username, ProxyTypes.None, null, 0, null, null, authenticationMethods)
+            : this(host, DefaultPort, username, ProxyTypes.None, null, authenticationMethods)
         {
         }
 
@@ -275,7 +255,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="authenticationMethods"/> is <c>null</c>.</exception>
         /// <exception cref="ArgumentException">No <paramref name="authenticationMethods"/> specified.</exception>
         public ConnectionInfo(string host, int port, string username, params AuthenticationMethod[] authenticationMethods)
-            : this(host, port, username, ProxyTypes.None, null, 0, null, null, authenticationMethods)
+            : this(host, port, username, ProxyTypes.None, null, authenticationMethods)
         {
         }
 
@@ -294,11 +274,27 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="host"/> is <c>null</c>.</exception>
         /// <exception cref="ArgumentException"><paramref name="username" /> is <c>null</c>, a zero-length string or contains only whitespace characters.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="port" /> is not within <see cref="F:System.Net.IPEndPoint.MinPort" /> and <see cref="F:System.Net.IPEndPoint.MaxPort" />.</exception>
-        /// <exception cref="ArgumentNullException"><paramref name="proxyType"/> is not <see cref="ProxyTypes.None"/> and <paramref name="proxyHost" /> is <c>null</c>.</exception>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="proxyType"/> is not <see cref="ProxyTypes.None"/> and <paramref name="proxyPort" /> is not within <see cref="F:System.Net.IPEndPoint.MinPort" /> and <see cref="F:System.Net.IPEndPoint.MaxPort" />.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="authenticationMethods"/> is <c>null</c>.</exception>
         /// <exception cref="ArgumentException">No <paramref name="authenticationMethods"/> specified.</exception>
         public ConnectionInfo(string host, int port, string username, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername, string proxyPassword, params AuthenticationMethod[] authenticationMethods)
+            : this(host, port, username, proxyType, new ProxyConnectionInfo(proxyHost, proxyPort, proxyUsername, proxyPassword), authenticationMethods)
+        { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ConnectionInfo" /> class.
+        /// </summary>
+        /// <param name="host">Connection host.</param>
+        /// <param name="port">Connection port.</param>
+        /// <param name="username">Connection username.</param>
+        /// <param name="proxyType">Type of the proxy.</param>
+        /// <param name="proxyConnection">The proxy host.</param>
+        /// <param name="authenticationMethods">The authentication methods.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="host"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="username" /> is <c>null</c>, a zero-length string or contains only whitespace characters.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="port" /> is not within <see cref="F:System.Net.IPEndPoint.MinPort" /> and <see cref="F:System.Net.IPEndPoint.MaxPort" />.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="authenticationMethods"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentException">No <paramref name="authenticationMethods"/> specified.</exception>
+        public ConnectionInfo(string host, int port, string username, ProxyTypes proxyType, IConnectionInfo proxyConnection, params AuthenticationMethod[] authenticationMethods)
         {
             if (host == null)
                 throw new ArgumentNullException("host");
@@ -309,13 +305,7 @@ namespace Renci.SshNet
             if (username.All(char.IsWhiteSpace))
                 throw new ArgumentException("Cannot be empty or contain only whitespace.", "username");
 
-            if (proxyType != ProxyTypes.None)
-            {
-                if (proxyHost == null)
-                    throw new ArgumentNullException("proxyHost");
-                proxyPort.ValidatePort("proxyPort");
-            }
-
+            
             if (authenticationMethods == null)
                 throw new ArgumentNullException("authenticationMethods");
             if (authenticationMethods.Length == 0)
@@ -431,10 +421,7 @@ namespace Renci.SshNet
             Username = username;
 
             ProxyType = proxyType;
-            ProxyHost = proxyHost;
-            ProxyPort = proxyPort;
-            ProxyUsername = proxyUsername;
-            ProxyPassword = proxyPassword;
+            ProxyConnection = proxyConnection;
 
             AuthenticationMethods = authenticationMethods;
         }

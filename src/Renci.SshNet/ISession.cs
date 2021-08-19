@@ -21,7 +21,7 @@ namespace Renci.SshNet
         /// Gets or sets the connection info.
         /// </summary>
         /// <value>The connection info.</value>
-        IConnectionInfo ConnectionInfo { get; }
+        ISshConnectionInfo ConnectionInfo { get; }
 
         /// <summary>
         /// Gets a value indicating whether the session is connected.

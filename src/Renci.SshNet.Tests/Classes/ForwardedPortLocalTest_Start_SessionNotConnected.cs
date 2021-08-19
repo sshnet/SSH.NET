@@ -12,7 +12,7 @@ namespace Renci.SshNet.Tests.Classes
     public class ForwardedPortLocalTest_Start_SessionNotConnected
     {
         private Mock<ISession> _sessionMock;
-        private Mock<IConnectionInfo> _connectionInfoMock;
+        private Mock<ISshConnectionInfo> _connectionInfoMock;
         private ForwardedPortLocal _forwardedPort;
         private IPEndPoint _localEndpoint;
         private IPEndPoint _remoteEndpoint;
@@ -49,7 +49,7 @@ namespace Renci.SshNet.Tests.Classes
                 random.Next(IPEndPoint.MinPort, IPEndPoint.MaxPort));
 
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);
-            _connectionInfoMock = new Mock<IConnectionInfo>(MockBehavior.Strict);
+            _connectionInfoMock = new Mock<ISshConnectionInfo>(MockBehavior.Strict);
 
             _sessionMock.Setup(p => p.IsConnected).Returns(false);
 

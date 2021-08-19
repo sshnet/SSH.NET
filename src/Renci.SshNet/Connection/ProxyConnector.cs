@@ -12,9 +12,18 @@ namespace Renci.SshNet.Connection
 {
     internal abstract class ProxyConnector : ConnectorBase
     {
-        public ProxyConnector(ISocketFactory socketFactory) :
-            base(socketFactory)
+        public ProxyConnector(IServiceFactory serviceFactory, ISocketFactory socketFactory) :
+            base(serviceFactory, socketFactory)
         {
+        }
+
+        protected internal IConnector GetConnector(IConnectionInfo connectionInfo)
+        {
+            if (connectionInfo == null)
+                throw new ArgumentNullException("connectionInfo");
+            if (connectionInfo.GetType() != typeof(IProxyConnectionInfo))
+                throw new ArgumentException("Expecting connectionInfo to be of type IProxyConnectionInfo");
+            return ServiceFactory.CreateConnector(connectionInfo.ProxyConnection, SocketFactory);
         }
 
         protected abstract void HandleProxyConnect(IConnectionInfo connectionInfo, Socket socket);
@@ -35,7 +44,8 @@ namespace Renci.SshNet.Connection
 
         public override Socket Connect(IConnectionInfo connectionInfo)
         {
-            var socket = SocketConnect(connectionInfo.ProxyHost, connectionInfo.ProxyPort, connectionInfo.Timeout);
+            ProxyConnection = GetConnector(connectionInfo);
+            var socket = ProxyConnection.Connect(connectionInfo.ProxyConnection);
 
             try
             {
@@ -54,7 +64,8 @@ namespace Renci.SshNet.Connection
 #if FEATURE_TAP
         public override async Task<Socket> ConnectAsync(IConnectionInfo connectionInfo, CancellationToken cancellationToken)
         {
-            var socket = await SocketConnectAsync(connectionInfo.ProxyHost, connectionInfo.ProxyPort, cancellationToken).ConfigureAwait(false);
+            ProxyConnection = GetConnector(connectionInfo);
+            var socket = await ProxyConnection.ConnectAsync(connectionInfo.ProxyConnection, cancellationToken).ConfigureAwait(false);
 
             try
             {

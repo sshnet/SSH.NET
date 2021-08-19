@@ -168,6 +168,11 @@ namespace Renci.SshNet
         private readonly ISocketFactory _socketFactory;
 
         /// <summary>
+        /// Holds the proxyConnector object, through which the SSH server is connected.
+        /// </summary>
+        private IConnector _proxyConnector;
+
+        /// <summary>
         /// Holds connection socket.
         /// </summary>
         private Socket _socket;
@@ -228,9 +233,6 @@ namespace Renci.SshNet
         private bool _isDisconnectMessageSent;
 
         private uint _nextChannelNumber;
-
-        private ISession _jumpSession;
-        private JumpChannel _jumpChannel;
 
         /// <summary>
         /// Gets the next channel number.
@@ -558,9 +560,6 @@ namespace Renci.SshNet
             _serviceFactory = serviceFactory;
             _socketFactory = socketFactory;
             _messageListenerCompleted = new ManualResetEvent(true);
-
-            if (connectionInfo.JumpHost != null)
-                _jumpSession = new Session(connectionInfo.JumpHost, _serviceFactory, _socketFactory);
         }
 
         /// <summary>
@@ -594,17 +593,8 @@ namespace Renci.SshNet
                     // Build list of available messages while connecting
                     _sshMessageFactory = new SshMessageFactory();
 
-                    if (_jumpSession != null)
-                    {
-                        _jumpSession.Connect();
-                        _jumpChannel = new JumpChannel(_jumpSession, ConnectionInfo.Host, (uint)ConnectionInfo.Port);
-                        _socket = _jumpChannel.Connect();
-                    }
-                    else
-                    {
-                        _socket = _serviceFactory.CreateConnector(ConnectionInfo, _socketFactory)
-                                                 .Connect(ConnectionInfo);
-                    }
+                    _proxyConnector = _serviceFactory.CreateConnector(ConnectionInfo, _socketFactory);
+                    _socket = _proxyConnector.Connect(ConnectionInfo);
 
                     var serverIdentification = _serviceFactory.CreateProtocolVersionExchange()
                                                               .Start(ClientVersion, _socket, ConnectionInfo.Timeout);
@@ -714,8 +704,8 @@ namespace Renci.SshNet
             // Build list of available messages while connecting
             _sshMessageFactory = new SshMessageFactory();
 
-            _socket = await _serviceFactory.CreateConnector(ConnectionInfo, _socketFactory)
-                                        .ConnectAsync(ConnectionInfo, cancellationToken).ConfigureAwait(false);
+            _proxyConnector = _serviceFactory.CreateConnector(ConnectionInfo, _socketFactory);
+            _socket = await _proxyConnector.ConnectAsync(ConnectionInfo, cancellationToken).ConfigureAwait(false);
 
             var serverIdentification = await _serviceFactory.CreateProtocolVersionExchange()
                                                         .StartAsync(ClientVersion, _socket, cancellationToken).ConfigureAwait(false);
@@ -1909,6 +1899,13 @@ namespace Renci.SshNet
                         _socket.Dispose();
                         DiagnosticAbstraction.Log(string.Format("[{0}] Disposed socket.", ToHex(SessionId)));
                         _socket = null;
+
+                        var proxyConnector = _proxyConnector;
+                        if (proxyConnector != null)
+                        {
+                            proxyConnector.Dispose();
+                            _proxyConnector = null;
+                        }
                     }
                 }
             }
@@ -2164,11 +2161,6 @@ namespace Renci.SshNet
                     _messageListenerCompleted = null;
                 }
 
-                if (_jumpChannel != null)
-                    _jumpChannel.Dispose();
-                if (_jumpSession != null)
-                    _jumpSession.Dispose();
-
                 _disposed = true;
             }
         }
@@ -2190,7 +2182,7 @@ namespace Renci.SshNet
         /// Gets or sets the connection info.
         /// </summary>
         /// <value>The connection info.</value>
-        IConnectionInfo ISession.ConnectionInfo
+        ISshConnectionInfo ISession.ConnectionInfo
         {
             get { return ConnectionInfo; }
         }

@@ -7,7 +7,7 @@ using Renci.SshNet.Messages.Connection;
 
 namespace Renci.SshNet
 {
-    internal interface IConnectionInfoInternal : IConnectionInfo
+    internal interface IConnectionInfoInternal : ISshConnectionInfo
     {
         /// <summary>
         /// Signals that an authentication banner message was received from the server.
@@ -26,19 +26,19 @@ namespace Renci.SshNet
 
         /// <summary>
         /// Creates a <see cref="NoneAuthenticationMethod"/> for the credentials represented
-        /// by the current <see cref="IConnectionInfo"/>.
+        /// by the current <see cref="ISshConnectionInfo"/>.
         /// </summary>
         /// <returns>
         /// A <see cref="NoneAuthenticationMethod"/> for the credentials represented by the
-        /// current <see cref="IConnectionInfo"/>.
+        /// current <see cref="ISshConnectionInfo"/>.
         /// </returns>
         IAuthenticationMethod CreateNoneAuthenticationMethod();
     }
 
     /// <summary>
-    /// Represents remote connection information.
+    /// Represents remote SSH connection information.
     /// </summary>
-    internal interface IConnectionInfo
+    internal interface ISshConnectionInfo: IConnectionInfo
     {
         /// <summary>
         /// Gets or sets the timeout to used when waiting for a server to acknowledge closing a channel.
@@ -60,6 +60,43 @@ namespace Renci.SshNet
         /// </value>
         IDictionary<string, RequestInfo> ChannelRequests { get; }
 
+        /// <summary>
+        /// Gets the number of retry attempts when session channel creation failed.
+        /// </summary>
+        /// <value>
+        /// The number of retry attempts when session channel creation failed.
+        /// </value>
+        int RetryAttempts { get; }
+
+        /// <summary>
+        /// Occurs when authentication banner is sent by the server.
+        /// </summary>
+        event EventHandler<AuthenticationBannerEventArgs> AuthenticationBanner;
+    }
+
+    /// <summary>
+    /// Represents proxy connection information (HTTP, SOCKS4, SOCKS5)
+    /// </summary>
+    internal interface IProxyConnectionInfo : IConnectionInfo
+    {
+
+        /// <summary>
+        /// Gets the username to authenticate this proxy host.
+        /// </summary>
+        string Username { get; }
+
+        /// <summary>
+        /// Gets the password to authenticat this proxy host.
+        /// </summary>
+        string Password { get; }
+
+    }
+
+    /// <summary>
+    /// Represents remote connection information.
+    /// </summary>
+    public interface IConnectionInfo
+    { 
         /// <summary>
         /// Gets the character encoding.
         /// </summary>
@@ -93,32 +130,9 @@ namespace Renci.SshNet
         ProxyTypes ProxyType { get; }
 
         /// <summary>
-        /// Gets proxy connection host.
+        /// Gets the connection info to connect to the proxy.
         /// </summary>
-        string ProxyHost { get; }
-
-        /// <summary>
-        /// Gets proxy connection port.
-        /// </summary>
-        int ProxyPort { get; }
-
-        /// <summary>
-        /// Gets proxy connection username.
-        /// </summary>
-        string ProxyUsername { get; }
-
-        /// <summary>
-        /// Gets proxy connection password.
-        /// </summary>
-        string ProxyPassword { get; }
-
-        /// <summary>
-        /// Gets the number of retry attempts when session channel creation failed.
-        /// </summary>
-        /// <value>
-        /// The number of retry attempts when session channel creation failed.
-        /// </value>
-        int RetryAttempts { get; }
+        IConnectionInfo ProxyConnection { get; }
 
         /// <summary>
         /// Gets or sets connection timeout.
@@ -131,9 +145,5 @@ namespace Renci.SshNet
         /// </example>
         TimeSpan Timeout { get; }
 
-        /// <summary>
-        /// Occurs when authentication banner is sent by the server.
-        /// </summary>
-        event EventHandler<AuthenticationBannerEventArgs> AuthenticationBanner;
     }
 }

@@ -25,6 +25,7 @@ namespace Renci.SshNet.Tests.Classes
         private Socket _clientSocket;
         private SshConnectionException _actualException;
         private SocketFactory _socketFactory;
+        private ServiceFactory _serviceFactory;
 
         [TestInitialize]
         public void Setup()
@@ -61,6 +62,7 @@ namespace Renci.SshNet.Tests.Classes
             _connectionInfo.Timeout = TimeSpan.FromMilliseconds(200);
             _actualException = null;
             _socketFactory = new SocketFactory();
+            _serviceFactory = new ServiceFactory();
 
             _serverListener = new AsyncSocketListener(_serverEndPoint);
             _serverListener.Connected += (socket) =>
@@ -78,7 +80,7 @@ namespace Renci.SshNet.Tests.Classes
 
             _session = new Session(_connectionInfo, _serviceFactoryMock.Object, _socketFactoryMock.Object);
 
-            _clientSocket = new DirectConnector(_socketFactory).Connect(_connectionInfo);
+            _clientSocket = new DirectConnector(_serviceFactory, _socketFactory).Connect(_connectionInfo);
         }
 
         protected void SetupMocks()

@@ -18,7 +18,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
     {
         private Mock<ISession> _sessionMock;
         private Mock<IForwardedPort> _forwardedPortMock;
-        private Mock<IConnectionInfo> _connectionInfoMock;
+        private Mock<ISshConnectionInfo> _connectionInfoMock;
         private uint _localChannelNumber;
         private uint _localWindowSize;
         private uint _localPacketSize;
@@ -47,7 +47,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
 
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);
             _forwardedPortMock = new Mock<IForwardedPort>(MockBehavior.Strict);
-            _connectionInfoMock = new Mock<IConnectionInfo>(MockBehavior.Strict);
+            _connectionInfoMock = new Mock<ISshConnectionInfo>(MockBehavior.Strict);
         }
 
         [TestMethod]

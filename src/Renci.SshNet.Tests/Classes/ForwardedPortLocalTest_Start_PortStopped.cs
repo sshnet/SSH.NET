@@ -13,7 +13,7 @@ namespace Renci.SshNet.Tests.Classes
     public class ForwardedPortLocalTest_Start_PortStopped
     {
         private Mock<ISession> _sessionMock;
-        private Mock<IConnectionInfo> _connectionInfoMock;
+        private Mock<ISshConnectionInfo> _connectionInfoMock;
         private Mock<IChannelDirectTcpip> _channelMock;
         private ForwardedPortLocal _forwardedPort;
         private IPEndPoint _localEndpoint;
@@ -47,7 +47,7 @@ namespace Renci.SshNet.Tests.Classes
             _remoteEndpoint = new IPEndPoint(IPAddress.Parse("193.168.1.5"),
                 random.Next(IPEndPoint.MinPort, IPEndPoint.MaxPort));
 
-            _connectionInfoMock = new Mock<IConnectionInfo>(MockBehavior.Strict);
+            _connectionInfoMock = new Mock<ISshConnectionInfo>(MockBehavior.Strict);
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);
             _channelMock = new Mock<IChannelDirectTcpip>(MockBehavior.Strict);
 

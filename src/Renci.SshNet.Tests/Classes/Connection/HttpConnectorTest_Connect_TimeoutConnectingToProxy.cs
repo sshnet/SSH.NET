@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Renci.SshNet.Connection;
 using Renci.SshNet.Common;
 using System;
 using System.Diagnostics;
@@ -13,8 +14,10 @@ namespace Renci.SshNet.Tests.Classes.Connection
     public class HttpConnectorTest_Connect_TimeoutConnectingToProxy : HttpConnectorTestBase
     {
         private ConnectionInfo _connectionInfo;
+        private ProxyConnectionInfo _proxyConnectionInfo;
         private SshOperationTimeoutException _actualException;
         private Socket _clientSocket;
+        private IConnector _proxyConnector;
         private Stopwatch _stopWatch;
 
         protected override void SetupData()
@@ -33,16 +36,20 @@ namespace Renci.SshNet.Tests.Classes.Connection
                                                  "proxyPwd",
                                                  new KeyboardInteractiveAuthenticationMethod("user"));
             _connectionInfo.Timeout = TimeSpan.FromMilliseconds(random.Next(50, 200));
+            _proxyConnectionInfo = (ProxyConnectionInfo)_connectionInfo.ProxyConnection;
             _stopWatch = new Stopwatch();
             _actualException = null;
 
             _clientSocket = SocketFactory.Create(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            _proxyConnector = ServiceFactory.CreateConnector(_proxyConnectionInfo, SocketFactory);
         }
 
         protected override void SetupMocks()
         {
             SocketFactoryMock.Setup(p => p.Create(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp))
                              .Returns(_clientSocket);
+            ServiceFactoryMock.Setup(p => p.CreateConnector(_proxyConnectionInfo, SocketFactory))
+                              .Returns(_proxyConnector);
         }
 
         protected override void TearDown()
@@ -52,6 +59,11 @@ namespace Renci.SshNet.Tests.Classes.Connection
             if (_clientSocket != null)
             {
                 _clientSocket.Dispose();
+            }
+
+            if (_proxyConnector != null)
+            {
+                _proxyConnector.Dispose();
             }
         }
 

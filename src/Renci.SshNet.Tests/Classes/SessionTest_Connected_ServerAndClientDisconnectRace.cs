@@ -30,6 +30,7 @@ namespace Renci.SshNet.Tests.Classes
         private string _keyExchangeAlgorithm;
         private DisconnectMessage _disconnectMessage;
         private SocketFactory _socketFactory;
+        private ServiceFactory _serviceFactory;
         private bool _authenticationStarted;
 
         protected Random Random { get; private set; }
@@ -86,6 +87,7 @@ namespace Renci.SshNet.Tests.Classes
             _authenticationStarted = false;
             _disconnectMessage = new DisconnectMessage(DisconnectReason.ServiceNotAvailable, "Not today!");
             _socketFactory = new SocketFactory();
+            _serviceFactory = new ServiceFactory();
 
             Session = new Session(ConnectionInfo, _serviceFactoryMock.Object, _socketFactoryMock.Object);
             Session.Disconnected += (sender, args) => DisconnectedRegister.Add(args);
@@ -136,7 +138,7 @@ namespace Renci.SshNet.Tests.Classes
 
             ServerListener.Start();
 
-            ClientSocket = new DirectConnector(_socketFactory).Connect(ConnectionInfo);
+            ClientSocket = new DirectConnector(_serviceFactory, _socketFactory).Connect(ConnectionInfo);
         }
 
         private void CreateMocks()

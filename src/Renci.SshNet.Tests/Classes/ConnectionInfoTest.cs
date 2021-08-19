@@ -24,7 +24,7 @@ namespace Renci.SshNet.Tests.Classes
                 ProxyTypes.None, proxyHost, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD,
                 new KeyboardInteractiveAuthenticationMethod(Resources.USERNAME));
 
-            Assert.IsNull(connectionInfo.ProxyHost);
+            Assert.IsNull(connectionInfo.ProxyConnection.Host);
         }
 
         [TestMethod]
@@ -55,7 +55,7 @@ namespace Renci.SshNet.Tests.Classes
                 ProxyTypes.Http, string.Empty, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD,
                 new KeyboardInteractiveAuthenticationMethod(Resources.USERNAME));
 
-            Assert.AreSame(proxyHost, connectionInfo.ProxyHost);
+            Assert.AreSame(proxyHost, connectionInfo.ProxyConnection.Host);
         }
 
         [TestMethod]
@@ -104,7 +104,7 @@ namespace Renci.SshNet.Tests.Classes
                 ProxyTypes.None, Resources.HOST, proxyPort, Resources.USERNAME, Resources.PASSWORD,
                 new KeyboardInteractiveAuthenticationMethod(Resources.USERNAME));
 
-            Assert.AreEqual(proxyPort, connectionInfo.ProxyPort);
+            Assert.AreEqual(proxyPort, connectionInfo.ProxyConnection.Port);
         }
 
         [TestMethod]
@@ -117,7 +117,7 @@ namespace Renci.SshNet.Tests.Classes
                     Resources.PROXY_HOST, int.Parse(Resources.PORT), proxyUsername, Resources.PASSWORD,
                     new KeyboardInteractiveAuthenticationMethod(Resources.USERNAME));
 
-            Assert.IsNull(connectionInfo.ProxyUsername);
+            Assert.IsNull(((ProxyConnectionInfo)connectionInfo.ProxyConnection).Username);
         }
 
         [TestMethod]

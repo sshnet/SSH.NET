@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Renci.SshNet.Connection;
 using System.Net.Sockets;
 
 namespace Renci.SshNet.Tests.Classes.Connection
@@ -7,6 +8,8 @@ namespace Renci.SshNet.Tests.Classes.Connection
     public class HttpConnectorTest_Connect_ProxyHostInvalid : HttpConnectorTestBase
     {
         private ConnectionInfo _connectionInfo;
+        private ProxyConnectionInfo _proxyConnectionInfo;
+        private IConnector _proxyConnector;
         private SocketException _actualException;
 
         protected override void SetupData()
@@ -22,7 +25,25 @@ namespace Renci.SshNet.Tests.Classes.Connection
                                                  "proxyUser",
                                                  "proxyPwd",
                                                  new KeyboardInteractiveAuthenticationMethod("user"));
+            _proxyConnectionInfo = (ProxyConnectionInfo)_connectionInfo.ProxyConnection;
+            _proxyConnector = ServiceFactory.CreateConnector(_proxyConnectionInfo, SocketFactory);
             _actualException = null;
+        }
+
+        protected override void SetupMocks()
+        {
+            ServiceFactoryMock.Setup(p => p.CreateConnector(_proxyConnectionInfo, SocketFactory))
+                              .Returns(_proxyConnector);
+        }
+
+        protected override void TearDown()
+        {
+            base.TearDown();
+
+            if (_proxyConnector != null)
+            {
+                _proxyConnector.Dispose();
+            }
         }
 
         protected override void Act()

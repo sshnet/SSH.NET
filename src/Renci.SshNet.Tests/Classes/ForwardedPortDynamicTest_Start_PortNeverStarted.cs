@@ -13,7 +13,7 @@ namespace Renci.SshNet.Tests.Classes
     public class ForwardedPortDynamicTest_Start_PortNeverStarted
     {
         private Mock<ISession> _sessionMock;
-        private Mock<IConnectionInfo> _connectionInfoMock;
+        private Mock<ISshConnectionInfo> _connectionInfoMock;
         private Mock<IChannelDirectTcpip> _channelMock;
         private ForwardedPortDynamic _forwardedPort;
         private IList<EventArgs> _closingRegister;
@@ -43,7 +43,7 @@ namespace Renci.SshNet.Tests.Classes
             _exceptionRegister = new List<ExceptionEventArgs>();
             _endpoint = new IPEndPoint(IPAddress.Loopback, 8122);
 
-            _connectionInfoMock = new Mock<IConnectionInfo>(MockBehavior.Strict);
+            _connectionInfoMock = new Mock<ISshConnectionInfo>(MockBehavior.Strict);
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);
             _channelMock = new Mock<IChannelDirectTcpip>(MockBehavior.Strict);
 

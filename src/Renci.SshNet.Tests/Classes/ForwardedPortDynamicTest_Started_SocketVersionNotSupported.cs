@@ -17,7 +17,7 @@ namespace Renci.SshNet.Tests.Classes
     {
         private Mock<ISession> _sessionMock;
         private Mock<IChannelDirectTcpip> _channelMock;
-        private Mock<IConnectionInfo> _connectionInfoMock;
+        private Mock<ISshConnectionInfo> _connectionInfoMock;
         private ForwardedPortDynamic _forwardedPort;
         private Socket _client;
         private IList<EventArgs> _closingRegister;
@@ -67,7 +67,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);
             _channelMock = new Mock<IChannelDirectTcpip>(MockBehavior.Strict);
-            _connectionInfoMock = new Mock<IConnectionInfo>(MockBehavior.Strict);
+            _connectionInfoMock = new Mock<ISshConnectionInfo>(MockBehavior.Strict);
         }
 
         private void SetupMocks()

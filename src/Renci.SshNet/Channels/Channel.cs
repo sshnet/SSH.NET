@@ -268,7 +268,7 @@ namespace Renci.SshNet.Channels
         /// Gets the connection info.
         /// </summary>
         /// <value>The connection info.</value>
-        protected IConnectionInfo ConnectionInfo
+        protected ISshConnectionInfo ConnectionInfo
         {
             get { return _session.ConnectionInfo; }
         }

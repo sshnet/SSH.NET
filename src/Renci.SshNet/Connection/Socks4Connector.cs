@@ -14,9 +14,9 @@ namespace Renci.SshNet.Connection
     /// </remarks>
     internal sealed class Socks4Connector : ProxyConnector
     {
-        public Socks4Connector(ISocketFactory socketFactory) : base(socketFactory)
-        {
-        }
+        public Socks4Connector(IServiceFactory serviceFactory, ISocketFactory socketFactory)
+            : base(serviceFactory, socketFactory)
+        { }
 
         /// <summary>
         /// Establishes a connection to the server via a SOCKS5 proxy.
@@ -25,7 +25,10 @@ namespace Renci.SshNet.Connection
         /// <param name="socket">The <see cref="Socket"/>.</param>
         protected override void HandleProxyConnect(IConnectionInfo connectionInfo, Socket socket)
         {
-            var connectionRequest = CreateSocks4ConnectionRequest(connectionInfo.Host, (ushort)connectionInfo.Port, connectionInfo.ProxyUsername);
+            // socket is connected to the proxyhost. When we send a Socks4 connection request we need the username,
+            // which is stored in the ProxyConnection of the current connectionInfo
+            var proxyConnection = (IProxyConnectionInfo)connectionInfo.ProxyConnection;
+            var connectionRequest = CreateSocks4ConnectionRequest(connectionInfo.Host, (ushort)connectionInfo.Port, proxyConnection.Username);
             SocketAbstraction.Send(socket, connectionRequest);
 
             //  Read reply version

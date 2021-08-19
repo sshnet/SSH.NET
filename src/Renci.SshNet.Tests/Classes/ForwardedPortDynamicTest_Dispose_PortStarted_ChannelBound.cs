@@ -19,7 +19,7 @@ namespace Renci.SshNet.Tests.Classes
     public class ForwardedPortDynamicTest_Dispose_PortStarted_ChannelBound
     {
         private Mock<ISession> _sessionMock;
-        private Mock<IConnectionInfo> _connectionInfoMock;
+        private Mock<ISshConnectionInfo> _connectionInfoMock;
         private Mock<IChannelDirectTcpip> _channelMock;
         private ForwardedPortDynamic _forwardedPort;
         private IList<EventArgs> _closingRegister;
@@ -66,7 +66,7 @@ namespace Renci.SshNet.Tests.Classes
 
         private void CreateMocks()
         {
-            _connectionInfoMock = new Mock<IConnectionInfo>(MockBehavior.Strict);
+            _connectionInfoMock = new Mock<ISshConnectionInfo>(MockBehavior.Strict);
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);
             _channelMock = new Mock<IChannelDirectTcpip>(MockBehavior.Strict);
         }

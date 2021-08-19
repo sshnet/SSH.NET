@@ -18,7 +18,7 @@ namespace Renci.SshNet.Tests.Classes
     public class ShellStreamTest : TestBase
     {
         private Mock<ISession> _sessionMock;
-        private Mock<IConnectionInfo> _connectionInfoMock;
+        private Mock<ISshConnectionInfo> _connectionInfoMock;
         private Encoding _encoding;
         private string _terminalName;
         private uint _widthColumns;
@@ -44,7 +44,7 @@ namespace Renci.SshNet.Tests.Classes
 
             _encoding = Encoding.UTF8;
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);
-            _connectionInfoMock = new Mock<IConnectionInfo>(MockBehavior.Strict);
+            _connectionInfoMock = new Mock<ISshConnectionInfo>(MockBehavior.Strict);
             _channelSessionMock = new Mock<IChannelSession>(MockBehavior.Strict);
         }
 

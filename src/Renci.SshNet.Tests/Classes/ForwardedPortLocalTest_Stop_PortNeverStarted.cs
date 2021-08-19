@@ -17,7 +17,7 @@ namespace Renci.SshNet.Tests.Classes
         private IList<EventArgs> _closingRegister;
         private IList<ExceptionEventArgs> _exceptionRegister;
         private Mock<ISession> _sessionMock;
-        private Mock<IConnectionInfo> _connectionInfoMock;
+        private Mock<ISshConnectionInfo> _connectionInfoMock;
 
         [TestInitialize]
         public void Setup()
@@ -48,7 +48,7 @@ namespace Renci.SshNet.Tests.Classes
                 random.Next(IPEndPoint.MinPort, IPEndPoint.MaxPort));
 
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);
-            _connectionInfoMock = new Mock<IConnectionInfo>(MockBehavior.Strict);
+            _connectionInfoMock = new Mock<ISshConnectionInfo>(MockBehavior.Strict);
 
             _forwardedPort = new ForwardedPortLocal(_localEndpoint.Address.ToString(), (uint)_localEndpoint.Port,
                 _remoteEndpoint.Address.ToString(), (uint)_remoteEndpoint.Port);

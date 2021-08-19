@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Renci.SshNet.Connection;
 using Renci.SshNet.Common;
 using Renci.SshNet.Tests.Common;
 using System;
@@ -15,8 +16,10 @@ namespace Renci.SshNet.Tests.Classes.Connection
     public class Socks5ConnectorTest_Connect_UserNamePasswordAuthentication_ConnectionSucceeded : Socks5ConnectorTestBase
     {
         private ConnectionInfo _connectionInfo;
+        private ProxyConnectionInfo _proxyConnectionInfo;
         private AsyncSocketListener _proxyServer;
         private Socket _clientSocket;
+        private IConnector _proxyConnector;
         private List<byte> _bytesReceivedByProxy;
         private Socket _actual;
 
@@ -25,12 +28,14 @@ namespace Renci.SshNet.Tests.Classes.Connection
             base.SetupData();
 
             _connectionInfo = CreateConnectionInfo(GenerateRandomString(0, 255), GenerateRandomString(0, 255));
+            _proxyConnectionInfo = (ProxyConnectionInfo)_connectionInfo.ProxyConnection;
             _connectionInfo.Timeout = TimeSpan.FromMilliseconds(100);
             _bytesReceivedByProxy = new List<byte>();
 
             _clientSocket = SocketFactory.Create(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            _proxyConnector = ServiceFactory.CreateConnector(_proxyConnectionInfo, SocketFactory);
 
-            _proxyServer = new AsyncSocketListener(new IPEndPoint(IPAddress.Loopback, _connectionInfo.ProxyPort));
+            _proxyServer = new AsyncSocketListener(new IPEndPoint(IPAddress.Loopback, _proxyConnectionInfo.Port));
             _proxyServer.BytesReceived += (bytesReceived, socket) =>
                 {
                     _bytesReceivedByProxy.AddRange(bytesReceived);
@@ -47,7 +52,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
                                     0x02
                             });
                     }
-                    else if (_bytesReceivedByProxy.Count == 4 + (1 + 1 + _connectionInfo.ProxyUsername.Length + 1 + _connectionInfo.ProxyPassword.Length))
+                    else if (_bytesReceivedByProxy.Count == 4 + (1 + 1 + _proxyConnectionInfo.Username.Length + 1 + _proxyConnectionInfo.Password.Length))
                     {
                         // We received the username/password authentication request
 
@@ -59,7 +64,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
                                     0x00
                             });
                     }
-                    else if (_bytesReceivedByProxy.Count == 4 + (1 + 1 + _connectionInfo.ProxyUsername.Length + 1 + _connectionInfo.ProxyPassword.Length) + (1 + 1 + 1 + 1 + 4 + 2))
+                    else if (_bytesReceivedByProxy.Count == 4 + (1 + 1 + _proxyConnectionInfo.Username.Length + 1 + _proxyConnectionInfo.Password.Length) + (1 + 1 + 1 + 1 + 4 + 2))
                     {
                         // We received the connection request
 
@@ -102,6 +107,8 @@ namespace Renci.SshNet.Tests.Classes.Connection
         {
             SocketFactoryMock.Setup(p => p.Create(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp))
                              .Returns(_clientSocket);
+            ServiceFactoryMock.Setup(p => p.CreateConnector(_proxyConnectionInfo, SocketFactory))
+                              .Returns(_proxyConnector);
         }
 
         protected override void TearDown()
@@ -117,6 +124,11 @@ namespace Renci.SshNet.Tests.Classes.Connection
             {
                 _clientSocket.Shutdown(SocketShutdown.Both);
                 _clientSocket.Dispose();
+            }
+
+            if (_proxyConnector != null)
+            {
+                _proxyConnector.Dispose();
             }
         }
 
@@ -163,13 +175,13 @@ namespace Renci.SshNet.Tests.Classes.Connection
             // Version of the negotiation
             expectedSocksRequest.Add(0x01);
             // Length of the username
-            expectedSocksRequest.Add((byte)_connectionInfo.ProxyUsername.Length);
+            expectedSocksRequest.Add((byte)_proxyConnectionInfo.Username.Length);
             // Username
-            expectedSocksRequest.AddRange(Encoding.ASCII.GetBytes(_connectionInfo.ProxyUsername));
+            expectedSocksRequest.AddRange(Encoding.ASCII.GetBytes(_proxyConnectionInfo.Username));
             // Length of the password
-            expectedSocksRequest.Add((byte)_connectionInfo.ProxyPassword.Length);
+            expectedSocksRequest.Add((byte)_proxyConnectionInfo.Password.Length);
             // Password
-            expectedSocksRequest.AddRange(Encoding.ASCII.GetBytes(_connectionInfo.ProxyPassword));
+            expectedSocksRequest.AddRange(Encoding.ASCII.GetBytes(_proxyConnectionInfo.Password));
 
             //
             // Client connection request

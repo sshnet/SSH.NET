@@ -47,16 +47,13 @@ namespace Renci.SshNet.Channels
         { get; private set; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ForwardedPortLocal"/> class.
+        /// Initializes a new instance of the <see cref="JumpChannel"/> class.
         /// </summary>
         /// <param name="session"></param>
         /// <param name="host">The host.</param>
         /// <param name="port">The port.</param>
         /// <exception cref="ArgumentNullException"><paramref name="host"/> is <c>null</c>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="port" /> is greater than <see cref="F:System.Net.IPEndPoint.MaxPort" />.</exception>
-        /// <example>
-        ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\ForwardedPortLocalTest.cs" region="Example SshClient AddForwardedPort Start Stop ForwardedPortLocal" language="C#" title="Local port forwarding" />
-        /// </example>
         public JumpChannel(ISession session, string host, uint port)
         {
             if (host == null)
@@ -76,7 +73,7 @@ namespace Renci.SshNet.Channels
             listener = new Socket(ep.AddressFamily, SocketType.Stream, ProtocolType.Tcp) { NoDelay = true };
             listener.Bind(ep);
             listener.Listen(1);
-
+            
             IsStarted = true;
 
             // update bound port (in case original was passed as zero)
@@ -84,7 +81,7 @@ namespace Renci.SshNet.Channels
 
             var e = new SocketAsyncEventArgs();
             e.Completed += AcceptCompleted;
-
+            
             // only accept new connections while we are started
             if (!listener.AcceptAsync(e))
             {

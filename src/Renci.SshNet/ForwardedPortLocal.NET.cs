@@ -60,7 +60,7 @@ namespace Renci.SshNet
                 }
                 catch (ObjectDisposedException)
                 {
-                    if (_status == ForwardedPortStatus.Stopped || _status == ForwardedPortStatus.Stopped)
+                    if (_status == ForwardedPortStatus.Stopping || _status == ForwardedPortStatus.Stopped)
                     {
                         // ignore ObjectDisposedException while stopping or stopped
                         return;

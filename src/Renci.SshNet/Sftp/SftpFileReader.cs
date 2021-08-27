@@ -56,12 +56,15 @@ namespace Renci.SshNet.Sftp
         /// <param name="chunkSize">The size of a individual read-ahead chunk.</param>
         /// <param name="maxPendingReads">The maximum number of pending reads.</param>
         /// <param name="fileSize">The size of the file, if known; otherwise, <see langword="null"/>.</param>
-        public SftpFileReader(byte[] handle, ISftpSession sftpSession, uint chunkSize, int maxPendingReads, long? fileSize)
+        /// <param name="offset">The offset to resume from.</param>
+        public SftpFileReader(byte[] handle, ISftpSession sftpSession, uint chunkSize, int maxPendingReads, long? fileSize, ulong offset = 0)
         {
             _handle = handle;
             _sftpSession = sftpSession;
             _chunkSize = chunkSize;
             _fileSize = fileSize;
+            _offset = offset;
+            _readAheadOffset = offset;
             _semaphore = new SemaphoreLight(maxPendingReads);
             _queue = new Dictionary<int, BufferedRead>(maxPendingReads);
             _readLock = new object();

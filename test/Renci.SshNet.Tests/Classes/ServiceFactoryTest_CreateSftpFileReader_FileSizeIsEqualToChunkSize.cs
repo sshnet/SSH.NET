@@ -63,7 +63,7 @@ namespace Renci.SshNet.Tests.Classes
                             .Setup(p => p.EndLStat(_statAsyncResult))
                             .Returns(_fileAttributes);
             _sftpSessionMock.InSequence(seq)
-                            .Setup(p => p.CreateFileReader(_handle, _sftpSessionMock.Object, _chunkSize, 2, _fileSize))
+                            .Setup(p => p.CreateFileReader(_handle, _sftpSessionMock.Object, _chunkSize, 2, _fileSize, 0))
                             .Returns(_sftpFileReaderMock.Object);
         }
 

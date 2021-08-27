@@ -83,17 +83,18 @@ namespace Renci.SshNet
         /// <exception cref="SshConnectionException">No key exchange algorithm is supported by both client and server.</exception>
         IKeyExchange CreateKeyExchange(IDictionary<string, Type> clientAlgorithms, string[] serverAlgorithms);
 
-        /// <summary>
+                /// <summary>
         /// Creates an <see cref="ISftpFileReader"/> for the specified file and with the specified
         /// buffer size.
         /// </summary>
         /// <param name="fileName">The file to read.</param>
         /// <param name="sftpSession">The SFTP session to use.</param>
         /// <param name="bufferSize">The size of buffer.</param>
+        /// <param name="offset">The offset to resume from.</param>
         /// <returns>
         /// An <see cref="ISftpFileReader"/>.
         /// </returns>
-        ISftpFileReader CreateSftpFileReader(string fileName, ISftpSession sftpSession, uint bufferSize);
+        ISftpFileReader CreateSftpFileReader(string fileName, ISftpSession sftpSession, uint bufferSize, ulong offset = 0);
 
         /// <summary>
         /// Creates a new <see cref="ISftpResponseFactory"/> instance.

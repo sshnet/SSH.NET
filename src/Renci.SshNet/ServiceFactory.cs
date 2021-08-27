@@ -138,10 +138,11 @@ namespace Renci.SshNet
         /// <param name="fileName">The file to read.</param>
         /// <param name="sftpSession">The SFTP session to use.</param>
         /// <param name="bufferSize">The size of buffer.</param>
+        /// <param name="offset">The offset to resume from.</param>
         /// <returns>
         /// An <see cref="ISftpFileReader"/>.
         /// </returns>
-        public ISftpFileReader CreateSftpFileReader(string fileName, ISftpSession sftpSession, uint bufferSize)
+        public ISftpFileReader CreateSftpFileReader(string fileName, ISftpSession sftpSession, uint bufferSize, ulong offset = 0)
         {
             const int defaultMaxPendingReads = 3;
 
@@ -163,7 +164,7 @@ namespace Renci.SshNet
             {
                 var fileAttributes = sftpSession.EndLStat(statAsyncResult);
                 fileSize = fileAttributes.Size;
-                maxPendingReads = Math.Min(10, (int) Math.Ceiling((double) fileAttributes.Size / chunkSize) + 1);
+                maxPendingReads = Math.Min(10, (int) Math.Ceiling((double)(fileSize - (long)offset) / chunkSize) + 1);
             }
             catch (SshException ex)
             {
@@ -173,7 +174,7 @@ namespace Renci.SshNet
                 DiagnosticAbstraction.Log(string.Format("Failed to obtain size of file. Allowing maximum {0} pending reads: {1}", maxPendingReads, ex));
             }
 
-            return sftpSession.CreateFileReader(handle, sftpSession, chunkSize, maxPendingReads, fileSize);
+            return sftpSession.CreateFileReader(handle, sftpSession, chunkSize, maxPendingReads, fileSize, offset);
         }
 
         /// <summary>

@@ -4,19 +4,19 @@ using System.Globalization;
 namespace Renci.SshNet.Security.Cryptography.Ciphers.Modes
 {
     /// <summary>
-    /// Implements CBC cipher mode.
+    /// Implements ECB cipher mode
     /// </summary>
-    public class CbcCipherMode : CipherMode
+    public class EcbCipherMode : CipherMode
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="CbcCipherMode"/> class.
+        /// Initializes a new instance of the <see cref="EcbCipherMode"/> class.
         /// </summary>
         /// <param name="iv">The iv.</param>
-        public CbcCipherMode(byte[] iv)
+        public EcbCipherMode(byte[] iv)
             : base(iv)
         {
 #if FEATURE_AES_CSP
-            cspMode = System.Security.Cryptography.CipherMode.CBC;
+            cspMode = System.Security.Cryptography.CipherMode.ECB;
             cspDecryptAsEncrypt = false;
 #endif        
         }
@@ -34,31 +34,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers.Modes
         /// </returns>
         public override int EncryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
         {
-            if (inputBuffer.Length - inputOffset < _blockSize)
-            {
-                throw new ArgumentException("Invalid input buffer");
-            }
-
-            if (outputBuffer.Length - outputOffset < _blockSize)
-            {
-                throw new ArgumentException("Invalid output buffer");
-            }
-
-            if (inputCount != _blockSize)
-            {
-                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "inputCount must be {0}.", _blockSize));
-            }
-
-            for (var i = 0; i < _blockSize; i++)
-            {
-                IV[i] ^= inputBuffer[inputOffset + i];
-            }
-
-            _ = Cipher.EncryptBlock(IV, 0, inputCount, outputBuffer, outputOffset);
-
-            Buffer.BlockCopy(outputBuffer, outputOffset, IV, 0, IV.Length);
-
-            return _blockSize;
+            return Cipher.EncryptBlock(inputBuffer, inputOffset, inputCount, outputBuffer, outputOffset);
         }
 
         /// <summary>
@@ -74,31 +50,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers.Modes
         /// </returns>
         public override int DecryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
         {
-            if (inputBuffer.Length - inputOffset < _blockSize)
-            {
-                throw new ArgumentException("Invalid input buffer");
-            }
-
-            if (outputBuffer.Length - outputOffset < _blockSize)
-            {
-                throw new ArgumentException("Invalid output buffer");
-            }
-
-            if (inputCount != _blockSize)
-            {
-                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "inputCount must be {0}.", _blockSize));
-            }
-
-            _ = Cipher.DecryptBlock(inputBuffer, inputOffset, inputCount, outputBuffer, outputOffset);
-
-            for (var i = 0; i < _blockSize; i++)
-            {
-                outputBuffer[outputOffset + i] ^= IV[i];
-            }
-
-            Buffer.BlockCopy(inputBuffer, inputOffset, IV, 0, IV.Length);
-
-            return _blockSize;
+            return Cipher.DecryptBlock(inputBuffer, inputOffset, inputCount, outputBuffer, outputOffset);
         }
     }
 }

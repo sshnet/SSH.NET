@@ -1,4 +1,6 @@
-﻿using Renci.SshNet.Common;
+﻿using System;
+using Renci.SshNet.Common;
+using csp = System.Security.Cryptography;
 
 namespace Renci.SshNet.Security.Cryptography.Ciphers
 {
@@ -17,7 +19,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <summary>
         /// Gets the IV vector.
         /// </summary>
-        protected byte[] IV;
+        internal byte[] IV;
 
         /// <summary>
         /// Holds block size of the cipher.
@@ -32,6 +34,9 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <param name="iv">The iv.</param>
         protected CipherMode(byte[] iv)
         {
+            if (iv.Length < 16)
+                throw new ArgumentException("Invalid AES IV length");
+
             IV = iv;
         }
 
@@ -70,6 +75,75 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <returns>
         /// The number of bytes decrypted.
         /// </returns>
-        public abstract int DecryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset);
+        public virtual int DecryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
+        {
+            // By default, use the same EncryptBlock() function
+            // Modes that require a different implementation (non-symmetric) can override this function (CBC/CFB)
+            return EncryptBlock(inputBuffer, inputOffset, inputCount, outputBuffer, outputOffset);
+        }
+
+#if FEATURE_AES_CSP
+        // CryptoServiceProvider acceleration using AES-NI if supported
+        internal csp.ICryptoTransform aesDecryptor;
+        internal csp.ICryptoTransform aesEncryptor;
+
+        // set to false when CSP is not available; falls back to legacy code
+        internal bool isCspAvailable = true;
+
+        // corresponding CSP cipher mode
+        internal csp.CipherMode cspMode = csp.CipherMode.ECB;
+
+        /// <summary>
+        /// If true, performs decryption using aesEncryptor
+        /// </summary>
+        protected bool cspDecryptAsEncrypt = true;
+
+        /// <summary>
+        /// Initializes the specified cipher mode using CryptoServiceProvider acceleration
+        /// </summary>
+        /// <param name="cipher">The cipher.</param>
+        /// <param name="csp">The cryptoServiceProvider instance</param>
+        internal void Init(BlockCipher cipher, csp.AesCryptoServiceProvider csp)
+        {
+            Init(cipher);
+            try
+            {
+                aesDecryptor = csp.CreateDecryptor(csp.Key, IV);
+                aesEncryptor = csp.CreateEncryptor(csp.Key, IV);
+            }
+            catch
+            {
+                // OFB/CFB might not be available on some versions of Windows - fallback to legacy code
+                isCspAvailable = false;
+            }
+        }
+
+        /// <summary>
+        /// Encrypts the specified region of the input byte array using AesCryptoServiceProvider
+        /// </summary>
+        /// <param name="data">The input data to encrypt.</param>
+        /// <param name="offset">The offset into the input byte array from which to begin using data.</param>
+        /// <param name="output">The output to which to write encrypted data.</param>
+        /// <returns>The number of bytes encrypted</returns>
+        public virtual int EncryptWithCSP(byte[] data, int offset, byte[] output)
+        {
+            return aesEncryptor.TransformBlock(data, offset, output.Length, output, 0);
+        }
+
+        /// <summary>
+        /// Decrypts the specified region of the input byte array using AesCryptoServiceProvider
+        /// </summary>
+        /// <param name="data">The input data to decrypt.</param>
+        /// <param name="offset">The offset into the input byte array from which to begin using data.</param>
+        /// <param name="output">The output to which to write decrypted data.</param>
+        /// <returns>The number of bytes decrypted</returns>
+        public virtual int DecryptWithCSP(byte[] data, int offset, byte[] output)
+        {
+            if (cspDecryptAsEncrypt)
+                return EncryptWithCSP(data, offset, output);
+
+            return aesDecryptor.TransformBlock(data, offset, output.Length, output, 0);
+        }
+#endif
     }
 }

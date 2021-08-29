@@ -18,6 +18,12 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers.Modes
             : base(iv)
         {
             _ivOutput = new byte[iv.Length];
+
+#if FEATURE_AES_CSP
+            cspMode = System.Security.Cryptography.CipherMode.CFB;
+            // note: the legacy code also uses EncryptBlock() on the DecryptBlock() function
+            cspDecryptAsEncrypt = true;
+#endif
         }
 
         /// <summary>

@@ -15,10 +15,6 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers.Modes
         public CbcCipherMode(byte[] iv)
             : base(iv)
         {
-#if FEATURE_AES_CSP
-            cspMode = System.Security.Cryptography.CipherMode.CBC;
-            cspDecryptAsEncrypt = false;
-#endif        
         }
 
         /// <summary>

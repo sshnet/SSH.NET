@@ -18,12 +18,6 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers.Modes
             : base(iv)
         {
             _ivOutput = new byte[iv.Length];
-
-#if FEATURE_AES_CSP
-            cspMode = System.Security.Cryptography.CipherMode.OFB;
-            // note: the legacy code also uses EncryptBlock() on the DecryptBlock() function
-            cspDecryptAsEncrypt = true;
-#endif
         }
 
         /// <summary>
@@ -81,6 +75,6 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers.Modes
         public override int DecryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
         {
             return EncryptBlock(inputBuffer, inputOffset, inputCount, outputBuffer, outputOffset);
-        }
+
     }
 }

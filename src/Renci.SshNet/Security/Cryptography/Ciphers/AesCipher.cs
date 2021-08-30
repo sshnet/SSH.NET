@@ -25,6 +25,8 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         private bool useCSP;       // set to false when CSP is not available for a given mode; falls back to legacy code
         private bool isCTRMode;
         private uint[] _ctrIV;
+
+        CipherPadding _padding;
 #endif
 
         #region Static Definition Tables
@@ -689,22 +691,24 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         {
             if (useCSP)
             {
+                if (length % BlockSize > 0)
+                {
+                    if (_padding == null)
+                    {
+                        throw new ArgumentException("data");
+                    }
+                    data = _padding.Pad(BlockSize, data, offset, length);
+                    offset = 0;
+                    length = data.Length;
+                }
+
                 if (isCTRMode)
                     return CTREncryptDecrypt(data, offset, length);
                 else
                 {
-                    if (length % BlockSize == 0)
-                    {
-                        byte[] output = new byte[length];
-                        aesEncryptor.TransformBlock(data, offset, length, output, 0);
-                        return output;
-                    }
-                    else
-                    {
-                        // adds padding
-                        byte[] output = aesEncryptor.TransformFinalBlock(data, offset, length);
-                        return output;
-                    }
+                    byte[] output = new byte[length];
+                    aesEncryptor.TransformBlock(data, offset, length, output, 0);
+                    return output;
                 }
             }
             else
@@ -724,34 +728,24 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         {
             if (useCSP)
             {
+                if (length % BlockSize > 0)
+                {
+                    if (_padding == null)
+                    {
+                        throw new ArgumentException("data");
+                    }
+                    data = _padding.Pad(BlockSize, data, offset, length);
+                    offset = 0;
+                    length = data.Length;
+                }
+
                 if (isCTRMode)
                     return CTREncryptDecrypt(data, offset, length);
                 else
                 {
-                    if (length % BlockSize == 0)
-                    {
-                        byte[] output = new byte[length];
-                        aesDecryptor.TransformBlock(data, offset, length, output, 0);
-                        return output;
-                    }
-                    else
-                    {
-                        // handles padding
-                        byte[] output = aesDecryptor.TransformFinalBlock(data, offset, length);
-                        return output;
-                    }
-                   
-                    
-                    //byte[] ok = base.Decrypt(data, offset, length);
-                    //for (int i = 0; i < a1.Length; i++)
-                    //    if (a1[i] != ok[i] || a1.Length != ok.Length)
-                    //        return null;
-
-                    //for (int i = 0; i < a1.Length; i++)
-                    //    if (a2[i] != ok[i] || a1.Length != ok.Length)
-                    //        return null;
-
-                    //return a1;
+                    byte[] output = new byte[length];
+                    aesDecryptor.TransformBlock(data, offset, length, output, 0);
+                    return output;
                 }
             }
             else
@@ -763,7 +757,11 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         {
             try
             {
-                csp.PaddingMode cspPadding = padding == null ? csp.PaddingMode.None : csp.PaddingMode.PKCS7;    // PKCS5 is same as PKCS7
+                // use the provided CipherPadding object
+                _padding = padding;
+                csp.PaddingMode cspPadding = csp.PaddingMode.None; 
+                
+                // set the Mode
                 csp.CipherMode cspMode = 0;
                 isCTRMode = mode is Modes.CtrCipherMode;
 

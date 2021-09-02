@@ -48,7 +48,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
         {
             var connectionInfo = new PasswordConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD);
             connectionInfo.HmacAlgorithms.Clear();
-            connectionInfo.HmacAlgorithms.Add("hmac-md5", new HashInfo(16 * 8, key => CryptoAbstraction.CreateHMACMD5(key, 96)));
+            connectionInfo.HmacAlgorithms.Add("hmac-md5-96", new HashInfo(16 * 8, key => CryptoAbstraction.CreateHMACMD5(key, 96)));
 
             using (var client = new SshClient(connectionInfo))
             {
@@ -63,7 +63,7 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
         {
             var connectionInfo = new PasswordConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD);
             connectionInfo.HmacAlgorithms.Clear();
-            connectionInfo.HmacAlgorithms.Add("hmac-sha1", new HashInfo(20 * 8, key => CryptoAbstraction.CreateHMACSHA1(key, 96)));
+            connectionInfo.HmacAlgorithms.Add("hmac-sha1-96", new HashInfo(20 * 8, key => CryptoAbstraction.CreateHMACSHA1(key, 96)));
 
             using (var client = new SshClient(connectionInfo))
             {

@@ -435,7 +435,7 @@ namespace Renci.SshNet.Tests.Classes
         /// A test for <see cref="PrivateKeyFile(string, string)"/> ctor.
         ///</summary>
         [TestMethod()]
-        public void ConstructorWithFileNameAndPassphraseShouldThrowSshPassPhraseNullOrEmptyExceptionWhenPrivateKeyIsEncryptedAndPassphraseIsEmpty()
+        public void ConstructorWithFileNameAndPassphraseShouldThrowSshPassPhraseNullOrEmptyExceptionWhenNeededPassphraseIsEmpty()
         {
             var passphrase = string.Empty;
 
@@ -460,7 +460,7 @@ namespace Renci.SshNet.Tests.Classes
         /// A test for <see cref="PrivateKeyFile(string, string)"/> ctor.
         ///</summary>
         [TestMethod()]
-        public void ConstructorWithFileNameAndPassphraseShouldThrowSshPassPhraseNullOrEmptyExceptionWhenPrivateKeyIsEncryptedAndPassphraseIsNull()
+        public void ConstructorWithFileNameAndPassphraseShouldThrowSshPassPhraseNullOrEmptyExceptionWhenNeededPassphraseIsNull()
         {
             string passphrase = null;
 

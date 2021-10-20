@@ -69,6 +69,10 @@
 			<OutputDirectory>Renci.SshNet\bin\$(Configuration)\netstandard2.0</OutputDirectory>
 			<Moniker>netstandard2.0</Moniker>
 		</TargetFrameworkModern>
+  		<TargetFrameworkModern Include=".NET Core 3.1">
+			<OutputDirectory>Renci.SshNet\bin\$(Configuration)\netcoreapp3.1</OutputDirectory>
+			<Moniker>netcoreapp3.1</Moniker>
+		</TargetFrameworkModern>
 	</ItemGroup>
 	
 	<Target Name="CleanClassic" DependsOnTargets="CleanSolutionClassic">

@@ -53,10 +53,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<TargetFrameworkModern Include=".NET Framework 3.5">
-			<OutputDirectory>Renci.SshNet\bin\$(Configuration)\net35</OutputDirectory>
-			<Moniker>net35</Moniker>
-		</TargetFrameworkModern>
 		<TargetFrameworkModern Include=".NET Framework 4.0">
 			<OutputDirectory>Renci.SshNet\bin\$(Configuration)\net40</OutputDirectory>
 			<Moniker>net40</Moniker>
@@ -73,6 +69,10 @@
 			<OutputDirectory>Renci.SshNet\bin\$(Configuration)\netcoreapp3.1</OutputDirectory>
 			<Moniker>netcoreapp3.1</Moniker>
 		</TargetFrameworkModern>
+    <TargetFrameworkModern Include=".NET 5.0">
+      <OutputDirectory>Renci.SshNet\bin\$(Configuration)\net5.0</OutputDirectory>
+      <Moniker>netcoreapp3.1</Moniker>
+    </TargetFrameworkModern>
 	</ItemGroup>
 	
 	<Target Name="CleanClassic" DependsOnTargets="CleanSolutionClassic">

@@ -382,12 +382,12 @@ namespace Renci.SshNet.Sftp
             {
                 try
                 {
-                    var attributes = session.RequestFStat(handle, false);  // ToDo: Async
+                    var attributes = await session.RequestFStatAsync(handle, cancellationToken).ConfigureAwait(false);
                     position = attributes.Size;
                 }
                 catch
                 {
-                    session.RequestClose(handle);  // ToDo: Async
+                    session.RequestClose(handle);
                     throw;
                 }
             }

@@ -962,6 +962,24 @@ namespace Renci.SshNet.Sftp
             return attributes;
         }
 
+#if FEATURE_TAP
+        public async Task<SftpFileAttributes> RequestFStatAsync(byte[] handle, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            TaskCompletionSource<SftpFileAttributes> tcs = new TaskCompletionSource<SftpFileAttributes>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+            using (cancellationToken.Register((s) => ((TaskCompletionSource<SftpFileAttributes>)s).TrySetCanceled(), tcs, false))
+            {
+                SendRequest(new SftpFStatRequest(ProtocolVersion, NextRequestId, handle,
+                    response => tcs.TrySetResult(response.Attributes),
+                    response => tcs.TrySetException(GetSftpException(response))));
+
+                return await tcs.Task.ConfigureAwait(false);
+            }
+        }
+#endif
+
         /// <summary>
         /// Performs SSH_FXP_SETSTAT request.
         /// </summary>

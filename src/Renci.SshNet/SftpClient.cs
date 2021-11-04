@@ -964,7 +964,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="input">Data input stream.</param>
         /// <param name="path">Remote file path.</param>
-        /// <param name="canOverride">if set to <c>true</c> then existing file will be overwritten.</param>
+        /// <param name="createMode">Specifies how the file should be created.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
         /// <returns>A <see cref="Task"/> that represents the asynchronous upload operation.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="input" /> is <b>null</b> -or- <paramref name="path" /> is <b>null</b>.</exception>
@@ -975,7 +975,7 @@ namespace Renci.SshNet
         /// <remarks>
         /// Method calls made by this method to <paramref name="input" />, may under certain conditions result in exceptions thrown by the stream.
         /// </remarks>
-        public async Task UploadFileAsync(Stream input, string path, bool canOverride, CancellationToken cancellationToken)
+        public async Task UploadFileAsync(Stream input, string path, UploadMode createMode, CancellationToken cancellationToken)
         {
             if (input == null)
                 throw new ArgumentNullException("input");
@@ -985,7 +985,7 @@ namespace Renci.SshNet
             CheckDisposedOrNotConnected();
             cancellationToken.ThrowIfCancellationRequested();
 
-            using (SftpFileStream output = await SftpFileStream.OpenAsync(_sftpSession, path, canOverride ? FileMode.Create : FileMode.CreateNew, FileAccess.Write, (int)_bufferSize, cancellationToken).ConfigureAwait(false))
+            using (SftpFileStream output = await SftpFileStream.OpenAsync(_sftpSession, path, (FileMode)createMode, FileAccess.Write, (int)_bufferSize, cancellationToken).ConfigureAwait(false))
             {
                 await input.CopyToAsync(output, (int)_sftpSession.CalculateOptimalWriteLength(_bufferSize, output.Handle), cancellationToken).ConfigureAwait(false);
             }

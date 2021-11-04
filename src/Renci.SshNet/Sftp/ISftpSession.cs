@@ -55,6 +55,10 @@ namespace Renci.SshNet.Sftp
         /// </returns>
         SftpFileAttributes RequestFStat(byte[] handle, bool nullOnError);
 
+#if FEATURE_TAP
+        Task<SftpFileAttributes> RequestFStatAsync(byte[] handle, CancellationToken cancellationToken);
+#endif
+
         /// <summary>
         /// Performs SSH_FXP_STAT request.
         /// </summary>

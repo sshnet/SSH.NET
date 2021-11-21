@@ -136,7 +136,7 @@ namespace Renci.SshNet.Sftp
         byte[] RequestOpen(string path, Flags flags, bool nullOnError = false);
 
 #if FEATURE_TAP
-        Task<byte[]> OpenAsync(string path, Flags flags, CancellationToken cancellationToken);
+        Task<byte[]> RequestOpenAsync(string path, Flags flags, CancellationToken cancellationToken);
 #endif
 
         /// <summary>
@@ -345,7 +345,7 @@ namespace Renci.SshNet.Sftp
         void RequestClose(byte[] handle);
 
 #if FEATURE_TAP
-        Task CloseAsync(byte[] handle, CancellationToken cancellationToken);
+        Task RequestCloseAsync(byte[] handle, CancellationToken cancellationToken);
 #endif
 
         /// <summary>

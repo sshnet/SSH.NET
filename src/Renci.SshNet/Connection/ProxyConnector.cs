@@ -1,8 +1,10 @@
-﻿using Renci.SshNet.Common;
+﻿#if !FEATURE_SOCKET_DISPOSE
+using Renci.SshNet.Common;
+#endif
 using System;
 using System.Net.Sockets;
-using System.Threading;
 #if FEATURE_TAP
+using System.Threading;
 using System.Threading.Tasks;
 #endif
 

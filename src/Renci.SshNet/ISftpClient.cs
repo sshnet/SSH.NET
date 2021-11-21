@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using System.Threading;
 using Renci.SshNet.Sftp;
 using Renci.SshNet.Common;
 #if FEATURE_TAP
+using System.Threading;
 using System.Threading.Tasks;
 #endif
 

@@ -2,7 +2,6 @@
 using Renci.SshNet.Common;
 using System;
 using System.Net.Sockets;
-using System.Threading;
 
 namespace Renci.SshNet.Connection
 {

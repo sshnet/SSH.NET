@@ -21,12 +21,17 @@ namespace Renci.SshNet.Abstractions
 
         public static void ExecuteThreadLongRunning(Action action)
         {
+            if (action == null)
+                throw new ArgumentNullException("action");
+
 #if FEATURE_THREAD_TAP
             var taskCreationOptions = System.Threading.Tasks.TaskCreationOptions.LongRunning;
             System.Threading.Tasks.Task.Factory.StartNew(action, taskCreationOptions);
 #else
-            var thread = new System.Threading.Thread(() => action());
-            thread.Start();
+            new System.Threading.Thread(() => action())
+            {
+                IsBackground = true
+            }.Start();
 #endif
         }
 

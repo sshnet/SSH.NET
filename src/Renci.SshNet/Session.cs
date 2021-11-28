@@ -16,6 +16,7 @@ using System.Globalization;
 using System.Linq;
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Security.Cryptography;
+using System.Threading.Tasks;
 
 namespace Renci.SshNet
 {
@@ -670,6 +671,122 @@ namespace Renci.SshNet
         }
 
         /// <summary>
+        /// Connects to the server.
+        /// </summary>
+        /// <exception cref="SocketException">Socket connection to the SSH server or proxy server could not be established, or an error occurred while resolving the hostname.</exception>
+        /// <exception cref="SshConnectionException">SSH session could not be established.</exception>
+        /// <exception cref="SshAuthenticationException">Authentication of SSH session failed.</exception>
+        /// <exception cref="ProxyException">Failed to establish proxy connection.</exception>
+        public async Task ConnectAsync()
+        {
+            if (IsConnected)
+                return;
+
+            try
+            {
+                AuthenticationConnection.Wait();
+
+                if (IsConnected)
+                    return;
+
+                //lock (this)
+                //{
+                    // If connected don't connect again
+                    //if (IsConnected)
+                    //    return;
+
+                    // Reset connection specific information
+                    Reset();
+
+                    // Build list of available messages while connecting
+                    _sshMessageFactory = new SshMessageFactory();
+
+                    _socket = _serviceFactory.CreateConnector(ConnectionInfo, _socketFactory)
+                                             .Connect(ConnectionInfo);
+
+                    var serverIdentification = _serviceFactory.CreateProtocolVersionExchange()
+                                                              .Start(ClientVersion, _socket, ConnectionInfo.Timeout);
+
+                    // Set connection versions
+                    ServerVersion = ConnectionInfo.ServerVersion = serverIdentification.ToString();
+                    ConnectionInfo.ClientVersion = ClientVersion;
+
+                    DiagnosticAbstraction.Log(string.Format("Server version '{0}' on '{1}'.", serverIdentification.ProtocolVersion, serverIdentification.SoftwareVersion));
+
+                    if (!(serverIdentification.ProtocolVersion.Equals("2.0") || serverIdentification.ProtocolVersion.Equals("1.99")))
+                    {
+                        throw new SshConnectionException(string.Format(CultureInfo.CurrentCulture, "Server version '{0}' is not supported.", serverIdentification.ProtocolVersion),
+                                                         DisconnectReason.ProtocolVersionNotSupported);
+                    }
+
+                    // Register Transport response messages
+                    RegisterMessage("SSH_MSG_DISCONNECT");
+                    RegisterMessage("SSH_MSG_IGNORE");
+                    RegisterMessage("SSH_MSG_UNIMPLEMENTED");
+                    RegisterMessage("SSH_MSG_DEBUG");
+                    RegisterMessage("SSH_MSG_SERVICE_ACCEPT");
+                    RegisterMessage("SSH_MSG_KEXINIT");
+                    RegisterMessage("SSH_MSG_NEWKEYS");
+
+                    // Some server implementations might sent this message first, prior to establishing encryption algorithm
+                    RegisterMessage("SSH_MSG_USERAUTH_BANNER");
+
+                    // Mark the message listener threads as started
+                    _messageListenerCompleted.Reset();
+
+                    // Start incoming request listener
+                    ThreadAbstraction.ExecuteThread(() => MessageListener());
+
+                    // Wait for key exchange to be completed
+                    await WaitOnHandleAsync(_keyExchangeCompletedWaitHandle);
+
+                    // If sessionId is not set then its not connected
+                    if (SessionId == null)
+                    {
+                        await DisconnectAsync();
+                        return;
+                    }
+
+                    // Request user authorization service
+                    SendMessage(new ServiceRequestMessage(ServiceName.UserAuthentication));
+
+                    // Wait for service to be accepted
+                    await WaitOnHandleAsync(_serviceAccepted);
+
+                    if (string.IsNullOrEmpty(ConnectionInfo.Username))
+                    {
+                        throw new SshException("Username is not specified.");
+                    }
+
+                    // Some servers send a global request immediately after successful authentication
+                    // Avoid race condition by already enabling SSH_MSG_GLOBAL_REQUEST before authentication
+                    RegisterMessage("SSH_MSG_GLOBAL_REQUEST");
+
+                    ConnectionInfo.Authenticate(this, _serviceFactory);
+                    _isAuthenticated = true;
+
+                    // Register Connection messages
+                    RegisterMessage("SSH_MSG_REQUEST_SUCCESS");
+                    RegisterMessage("SSH_MSG_REQUEST_FAILURE");
+                    RegisterMessage("SSH_MSG_CHANNEL_OPEN_CONFIRMATION");
+                    RegisterMessage("SSH_MSG_CHANNEL_OPEN_FAILURE");
+                    RegisterMessage("SSH_MSG_CHANNEL_WINDOW_ADJUST");
+                    RegisterMessage("SSH_MSG_CHANNEL_EXTENDED_DATA");
+                    RegisterMessage("SSH_MSG_CHANNEL_REQUEST");
+                    RegisterMessage("SSH_MSG_CHANNEL_SUCCESS");
+                    RegisterMessage("SSH_MSG_CHANNEL_FAILURE");
+                    RegisterMessage("SSH_MSG_CHANNEL_DATA");
+                    RegisterMessage("SSH_MSG_CHANNEL_EOF");
+                    RegisterMessage("SSH_MSG_CHANNEL_CLOSE");
+                //}
+            }
+            finally
+            {
+                AuthenticationConnection.Release();
+            }
+        }
+
+        /// <summary>
         /// Disconnects from the server.
         /// </summary>
         /// <remarks>
@@ -692,6 +809,26 @@ namespace Renci.SshNet
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public async Task DisconnectAsync()
+        {
+            DiagnosticAbstraction.Log(string.Format("[{0}] Disconnecting session.", ToHex(SessionId)));
+
+            // send SSH_MSG_DISCONNECT message, clear socket read buffer and dispose it
+            await DisconnectAsync(DisconnectReason.ByApplication, "Connection terminated by the client.");
+
+            // at this point, we are sure that the listener thread will stop as we've
+            // disconnected the socket, so lets wait until the message listener thread
+            // has completed
+            if (_messageListenerCompleted != null)
+            {
+                await _messageListenerCompleted.WaitOneAsync(Timeout.Infinite, CancellationToken.None);
+            }
+        }
+
         private void Disconnect(DisconnectReason reason, string message)
         {
             // transition to disconnecting state to avoid throwing exceptions while cleaning up, and to
@@ -706,6 +843,26 @@ namespace Renci.SshNet
             if (IsConnected)
             {
                 TrySendDisconnect(reason, message);
+            }
+
+            // disconnect socket, and dispose it
+            SocketDisconnectAndDispose();
+        }
+
+        private async Task DisconnectAsync(DisconnectReason reason, string message)
+        {
+            // transition to disconnecting state to avoid throwing exceptions while cleaning up, and to
+            // ensure any exceptions that are raised do not overwrite the exception that is set
+            _isDisconnecting = true;
+
+            // send disconnect message to the server if the connection is still open
+            // and the disconnect message has not yet been sent
+            //
+            // note that this should also cause the listener loop to be interrupted as
+            // the server should respond by closing the socket
+            if (IsConnected)
+            {
+                await TrySendDisconnectAsync(reason, message);
             }
 
             // disconnect socket, and dispose it
@@ -762,6 +919,11 @@ namespace Renci.SshNet
         internal void WaitOnHandle(WaitHandle waitHandle)
         {
             WaitOnHandle(waitHandle, ConnectionInfo.Timeout);
+        }
+
+        internal async Task WaitOnHandleAsync(WaitHandle waitHandle)
+        {
+            await WaitOnHandleAsync(waitHandle, ConnectionInfo.Timeout);
         }
 
         /// <summary>
@@ -883,6 +1045,50 @@ namespace Renci.SshNet
         }
 
         /// <summary>
+        /// Waits for the specified handle or the exception handle for the receive thread
+        /// to signal within the specified timeout.
+        /// </summary>
+        /// <param name="waitHandle">The wait handle.</param>
+        /// <param name="timeout">The time to wait for any of the handles to become signaled.</param>
+        /// <exception cref="SshConnectionException">A received package was invalid or failed the message integrity check.</exception>
+        /// <exception cref="SshOperationTimeoutException">None of the handles are signaled in time and the session is not disconnecting.</exception>
+        /// <exception cref="SocketException">A socket error was signaled while receiving messages from the server.</exception>
+        internal async Task WaitOnHandleAsync(WaitHandle waitHandle, TimeSpan timeout)
+        {
+            if (waitHandle == null)
+                throw new ArgumentNullException("waitHandle");
+
+            var waitHandles = new[]
+                {
+                    _exceptionWaitHandle,
+                    _messageListenerCompleted,
+                    waitHandle
+                };
+
+            var cts = new CancellationTokenSource();
+
+            switch (await waitHandles.WaitAnyAsync(timeout, cts.Token))
+            {
+                case 0:
+                    throw _exception;
+                case 1:
+                    throw new SshConnectionException("Client not connected.");
+                case WaitHandle.WaitTimeout:
+                    // when the session is disconnecting, a timeout is likely when no
+                    // network connectivity is available; depending on the configured
+                    // timeout either the WaitAny times out first or a SocketException
+                    // detailing a timeout thrown hereby completing the listener thread
+                    // (which makes us end up in case 1). Either way, we do not want to
+                    // report an exception to the client when we're disconnecting anyway
+                    if (!_isDisconnecting)
+                    {
+                        throw new SshOperationTimeoutException("Session operation has timed out");
+                    }
+                    break;
+            }
+        }
+
+        /// <summary>
         /// Sends a message to the server.
         /// </summary>
         /// <param name="message">The message to send.</param>
@@ -903,6 +1109,72 @@ namespace Renci.SshNet
             DiagnosticAbstraction.Log(string.Format("[{0}] Sending message '{1}' to server: '{2}'.", ToHex(SessionId), message.GetType().Name, message));
 
             var paddingMultiplier = _clientCipher == null ? (byte) 8 : Math.Max((byte) 8, _serverCipher.MinimumSize);
+            var packetData = message.GetPacket(paddingMultiplier, _clientCompression);
+
+            // take a write lock to ensure the outbound packet sequence number is incremented
+            // atomically, and only after the packet has actually been sent
+            lock (_socketWriteLock)
+            {
+                byte[] hash = null;
+                var packetDataOffset = 4; // first four bytes are reserved for outbound packet sequence
+
+                if (_clientMac != null)
+                {
+                    // write outbound packet sequence to start of packet data
+                    Pack.UInt32ToBigEndian(_outboundPacketSequence, packetData);
+                    //  calculate packet hash
+                    hash = _clientMac.ComputeHash(packetData);
+                }
+
+                // Encrypt packet data
+                if (_clientCipher != null)
+                {
+                    packetData = _clientCipher.Encrypt(packetData, packetDataOffset, (packetData.Length - packetDataOffset));
+                    packetDataOffset = 0;
+                }
+
+                if (packetData.Length > MaximumSshPacketSize)
+                {
+                    throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Packet is too big. Maximum packet size is {0} bytes.", MaximumSshPacketSize));
+                }
+
+                var packetLength = packetData.Length - packetDataOffset;
+                if (hash == null)
+                {
+                    SendPacket(packetData, packetDataOffset, packetLength);
+                }
+                else
+                {
+                    var data = new byte[packetLength + hash.Length];
+                    Buffer.BlockCopy(packetData, packetDataOffset, data, 0, packetLength);
+                    Buffer.BlockCopy(hash, 0, data, packetLength, hash.Length);
+                    SendPacket(data, 0, data.Length);
+                }
+
+                // increment the packet sequence number only after we're sure the packet has
+                // been sent; even though it's only used for the MAC, it needs to be incremented
+                // for each package sent.
+                // 
+                // the server will use it to verify the data integrity, and as such the order in
+                // which messages are sent must follow the outbound packet sequence number
+                _outboundPacketSequence++;
+            }
+        }
+
+        internal async Task SendMessageAsync(Message message)
+        {
+            if (!_socket.CanWrite())
+                throw new SshConnectionException("Client not connected.");
+
+            if (_keyExchangeInProgress && !(message is IKeyExchangedAllowed))
+            {
+                //  Wait for key exchange to be completed
+                await WaitOnHandleAsync(_keyExchangeCompletedWaitHandle);
+            }
+
+            DiagnosticAbstraction.Log(string.Format("[{0}] Sending message '{1}' to server: '{2}'.", ToHex(SessionId), message.GetType().Name, message));
+
+            var paddingMultiplier = _clientCipher == null ? (byte)8 : Math.Max((byte)8, _serverCipher.MinimumSize);
             var packetData = message.GetPacket(paddingMultiplier, _clientCompression);
 
             // take a write lock to ensure the outbound packet sequence number is incremented
@@ -1000,6 +1272,25 @@ namespace Renci.SshNet
             try
             {
                 SendMessage(message);
+                return true;
+            }
+            catch (SshException ex)
+            {
+                DiagnosticAbstraction.Log(string.Format("Failure sending message '{0}' to server: '{1}' => {2}", message.GetType().Name, message, ex));
+                return false;
+            }
+            catch (SocketException ex)
+            {
+                DiagnosticAbstraction.Log(string.Format("Failure sending message '{0}' to server: '{1}' => {2}", message.GetType().Name, message, ex));
+                return false;
+            }
+        }
+
+        private async Task<bool> TrySendMessageAsync(Message message)
+        {
+            try
+            {
+                await SendMessageAsync(message);
                 return true;
             }
             catch (SshException ex)
@@ -1147,6 +1438,17 @@ namespace Renci.SshNet
 
             // send the disconnect message, but ignore the outcome
             TrySendMessage(disconnectMessage);
+
+            // mark disconnect message sent regardless of whether the send sctually succeeded
+            _isDisconnectMessageSent = true;
+        }
+
+        private async Task TrySendDisconnectAsync(DisconnectReason reasonCode, string message)
+        {
+            var disconnectMessage = new DisconnectMessage(reasonCode, message);
+
+            // send the disconnect message, but ignore the outcome
+            await TrySendMessageAsync(disconnectMessage);
 
             // mark disconnect message sent regardless of whether the send sctually succeeded
             _isDisconnectMessageSent = true;

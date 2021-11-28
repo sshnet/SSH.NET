@@ -8,13 +8,10 @@
     <TargetFrameworks>net35;net40;netcoreapp2.1;netcoreapp2.2</TargetFrameworks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '16.0' ">
-    <TargetFrameworks>net35;net40;netcoreapp2.1;netcoreapp2.2;netcoreapp3.0</TargetFrameworks>
+    <TargetFrameworks>net45;netcoreapp2.1;netcoreapp2.2;netcoreapp3.0</TargetFrameworks>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'net35' ">
-    <DefineConstants></DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'net40' ">
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net45' ">
     <DefineConstants>FEATURE_THREAD_COUNTDOWNEVENT;FEATURE_TPL</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.1' ">
@@ -85,7 +82,7 @@
     </Reference>
     <PackageReference Include="Moq" Version="4.2.1409.1722" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net40'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
     <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework">
       <HintPath>$(MSTestV1UnitTestFrameworkAssembly)</HintPath>
     </Reference>

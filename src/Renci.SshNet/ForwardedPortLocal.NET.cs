@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Net.Sockets;
 using System.Net;
 using System.Threading;
@@ -216,8 +217,7 @@ namespace Renci.SshNet
             _pendingChannelCountdown.Signal();
             if (!_pendingChannelCountdown.Wait(timeout))
             {
-                // TODO: log as warning
-                DiagnosticAbstraction.Log("Timeout waiting for pending channels in local forwarded port to close.");
+                DiagnosticAbstraction.Log("Timeout waiting for pending channels in local forwarded port to close.", TraceEventType.Warning, TraceEventId.PendingChannelsCloseTimeout);
             }
         }
 

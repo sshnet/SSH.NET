@@ -1,4 +1,6 @@
-﻿namespace Renci.SshNet.Security.Cryptography
+﻿using System.Security.Cryptography;
+
+namespace Renci.SshNet.Security.Cryptography
 {
     /// <summary>
     /// Base class for cipher implementation.
@@ -12,6 +14,41 @@
         /// The minimum data size.
         /// </value>
         public abstract byte MinimumSize { get; }
+
+        /// <summary>
+        /// AEAD Mode or not
+        /// </summary>
+        /// <value>
+        /// AEAD Mode is set to false by default.
+        /// </value>
+        public virtual bool isAEAD
+        {
+            get
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Server mac length based on the chosen hash algorithm
+        /// </summary>
+        /// <param name="_serverMac">The mac algorithm to use.</param>
+        /// <returns>The server mac length.</returns>
+        public virtual int serverMacLength(HashAlgorithm _serverMac)
+        {
+            return (_serverMac != null ? _serverMac.HashSize/8 : 0);
+        }
+
+        /// <summary>
+        /// Find the right offset for decrypt based on chosen cipher suite
+        /// </summary>
+        /// <param name="blockSz">The default block size</param>
+        /// <param name="inboundPacketSequenceLength">The inbound packet sequence length.</param>
+        /// <returns>The default offset value used for the decrypt function, which is inboundPacketSequenceLength + blockSz</returns>
+        public virtual int decryptOffset(int inboundPacketSequenceLength, int blockSz)
+        {
+            return inboundPacketSequenceLength + blockSz;
+        }
 
         /// <summary>
         /// Encrypts the specified input.

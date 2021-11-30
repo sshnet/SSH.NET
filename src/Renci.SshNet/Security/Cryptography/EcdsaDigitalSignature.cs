@@ -39,7 +39,7 @@ namespace Renci.SshNet.Security.Cryptography
             // for 521 sig_size is 132
             var sig_size = _key.KeyLength == 521 ? 132 : _key.KeyLength / 4;
             var ssh_data = new SshDataSignature(signature, sig_size);
-#if NETSTANDARD2_0
+#if NETSTANDARD
             return _key.Ecdsa.VerifyData(input, ssh_data.Signature, _key.HashAlgorithm);
 #else
             var ecdsa = (ECDsaCng)_key.Ecdsa;
@@ -57,7 +57,7 @@ namespace Renci.SshNet.Security.Cryptography
         /// </returns>
         public override byte[] Sign(byte[] input)
         {
-#if NETSTANDARD2_0
+#if NETSTANDARD
             var signed = _key.Ecdsa.SignData(input, _key.HashAlgorithm);
 #else
             var ecdsa = (ECDsaCng)_key.Ecdsa;

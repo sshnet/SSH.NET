@@ -54,12 +54,21 @@ namespace Renci.SshNet.Abstractions
             return socket;
         }
 
+#if FEATURE_UNIX_SOCKETS
+        public static Socket Connect(UnixDomainSocketEndPoint remoteEndpoint, TimeSpan connectTimeout)
+        {
+            var socket = new Socket(remoteEndpoint.AddressFamily, SocketType.Stream, ProtocolType.Unspecified);
+            ConnectCore(socket, remoteEndpoint, connectTimeout, true);
+            return socket;
+        }
+#endif
+
         public static void Connect(Socket socket, IPEndPoint remoteEndpoint, TimeSpan connectTimeout)
         {
             ConnectCore(socket, remoteEndpoint, connectTimeout, false);
         }
 
-        private static void ConnectCore(Socket socket, IPEndPoint remoteEndpoint, TimeSpan connectTimeout, bool ownsSocket)
+        private static void ConnectCore(Socket socket, EndPoint remoteEndpoint, TimeSpan connectTimeout, bool ownsSocket)
         {
 #if FEATURE_SOCKET_EAP
             var connectCompleted = new ManualResetEvent(false);

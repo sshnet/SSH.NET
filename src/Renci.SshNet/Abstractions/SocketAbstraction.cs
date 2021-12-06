@@ -386,7 +386,7 @@ namespace Renci.SshNet.Abstractions
                         throw new SshOperationTimeoutException(string.Format(CultureInfo.InvariantCulture,
                             "Socket read operation has timed out after {0:F0} milliseconds.", readTimeout.TotalMilliseconds));
 
-                    throw;
+                     throw;
                 }
             }
             while (totalBytesRead < totalBytesToRead);

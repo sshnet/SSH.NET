@@ -588,7 +588,7 @@ namespace Renci.SshNet
             }
             finally
             {
-                _sftpSession.RequestCloseAsync(handle, cancellationToken);
+                await _sftpSession.RequestCloseAsync(handle, cancellationToken).ConfigureAwait(false);
             }
 
             return result;
@@ -760,38 +760,6 @@ namespace Renci.SshNet
             InternalDownloadFile(path, output, null, downloadCallback);
         }
 
-#if FEATURE_TAP
-        /// <summary>
-        /// Asynchronously downloads remote file specified by the path into the stream.
-        /// </summary>
-        /// <param name="path">File to download.</param>
-        /// <param name="output">Stream to write the file into.</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
-        /// <returns>A <see cref="Task"/> that represents the asynchronous download operation.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="path" /> is <b>null</b> -or- <paramref name="output" /> is <b>null</b>.</exception>
-        /// <exception cref="SshConnectionException">Client is not connected.</exception>
-        /// <exception cref="SftpPermissionDeniedException">Permission to perform the operation was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
-        /// <exception cref="SftpPathNotFoundException"><paramref name="path"/> was not found on the remote host.</exception>/// 
-        /// <exception cref="SshException">A SSH error where <see cref="Exception.Message" /> is the message from the remote host.</exception>
-        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
-        public async Task DownloadFileAsync(string path, Stream output, CancellationToken cancellationToken)
-        {
-            base.CheckDisposed();
-            if (path == null)
-                throw new ArgumentNullException("path");
-            if (output == null)
-                throw new ArgumentNullException("output");
-            if (_sftpSession == null)
-                throw new SshConnectionException("Client not connected.");
-            cancellationToken.ThrowIfCancellationRequested();
-
-            using (SftpFileStream input = await SftpFileStream.OpenAsync(_sftpSession, path, FileMode.Open, FileAccess.Read, (int)_bufferSize, cancellationToken).ConfigureAwait(false))
-            {
-                await input.CopyToAsync(output, 81920, cancellationToken).ConfigureAwait(false);
-            }
-        }
-#endif
-
         /// <summary>
         /// Begins an asynchronous file downloading into the stream.
         /// </summary>
@@ -961,40 +929,6 @@ namespace Renci.SshNet
             InternalUploadFile(input, path, flags, null, uploadCallback);
         }
 
-#if FEATURE_TAP
-        /// <summary>
-        /// Asynchronously uploads stream into remote file.
-        /// </summary>
-        /// <param name="input">Data input stream.</param>
-        /// <param name="path">Remote file path.</param>
-        /// <param name="createMode">Specifies how the file should be created.</param>
-        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
-        /// <returns>A <see cref="Task"/> that represents the asynchronous upload operation.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="input" /> is <b>null</b> -or- <paramref name="path" /> is <b>null</b>.</exception>
-        /// <exception cref="SshConnectionException">Client is not connected.</exception>
-        /// <exception cref="SftpPermissionDeniedException">Permission to upload the file was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
-        /// <exception cref="SshException">A SSH error where <see cref="Exception.Message" /> is the message from the remote host.</exception>
-        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
-        /// <remarks>
-        /// Method calls made by this method to <paramref name="input" />, may under certain conditions result in exceptions thrown by the stream.
-        /// </remarks>
-        public async Task UploadFileAsync(Stream input, string path, UploadMode createMode, CancellationToken cancellationToken)
-        {
-            base.CheckDisposed();
-            if (input == null)
-                throw new ArgumentNullException("input");
-            if (path == null)
-                throw new ArgumentNullException("path");
-            if (_sftpSession == null)
-                throw new SshConnectionException("Client not connected.");
-            cancellationToken.ThrowIfCancellationRequested();
-
-            using (SftpFileStream output = await SftpFileStream.OpenAsync(_sftpSession, path, (FileMode)createMode, FileAccess.Write, (int)_bufferSize, cancellationToken).ConfigureAwait(false))
-            {
-                await input.CopyToAsync(output, (int)_sftpSession.CalculateOptimalWriteLength(_bufferSize, output.Handle), cancellationToken).ConfigureAwait(false);
-            }
-        }
-#endif
         /// <summary>
         /// Begins an asynchronous uploading the stream into remote file.
         /// </summary>
@@ -2441,13 +2375,6 @@ namespace Renci.SshNet
                     sftpSession.Dispose();
                 }
             }
-        }
-
-        private void CheckDisposedOrNotConnected()
-        {
-            base.CheckDisposed();
-            if (_sftpSession == null)
-                throw new SshConnectionException("Client not connected.");
         }
 
         private ISftpSession CreateAndConnectToSftpSession()

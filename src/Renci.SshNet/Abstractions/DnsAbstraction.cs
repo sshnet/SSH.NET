@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 #if FEATURE_DNS_SYNC
 #elif FEATURE_DNS_APM
 using Renci.SshNet.Common;
+#elif FEATURE_DNS_TAP
 #elif FEATURE_DEVICEINFORMATION_APM
 using System.Collections.Generic;
 using System.Linq;
@@ -45,6 +46,8 @@ namespace Renci.SshNet.Abstractions
             if (!asyncResult.AsyncWaitHandle.WaitOne(Session.InfiniteTimeSpan))
                 throw new SshOperationTimeoutException("Timeout resolving host name.");
             return Dns.EndGetHostAddresses(asyncResult);
+#elif FEATURE_DNS_TAP
+            return Dns.GetHostAddressesAsync(hostNameOrAddress).GetAwaiter().GetResult();
 #else
             IPAddress address;
             if (IPAddress.TryParse(hostNameOrAddress, out address))

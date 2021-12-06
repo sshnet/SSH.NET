@@ -74,10 +74,10 @@ namespace Renci.SshNet.Abstractions
 #if FEATURE_SOCKET_EAP
             var connectCompleted = new ManualResetEvent(false);
             var args = new SocketAsyncEventArgs
-            {
-                UserToken = connectCompleted,
-                RemoteEndPoint = remoteEndpoint
-            };
+                {
+                    UserToken = connectCompleted,
+                    RemoteEndPoint = remoteEndpoint
+                };
             args.Completed += ConnectCompleted;
 
             if (socket.ConnectAsync(args))
@@ -107,7 +107,7 @@ namespace Renci.SshNet.Abstractions
 
             if (args.SocketError != SocketError.Success)
             {
-                var socketError = (int)args.SocketError;
+                var socketError = (int) args.SocketError;
 
                 if (ownsSocket)
                 {
@@ -134,7 +134,7 @@ namespace Renci.SshNet.Abstractions
                 throw new SshOperationTimeoutException(string.Format(CultureInfo.InvariantCulture,
                     "Connection failed to establish within {0:F0} milliseconds.", connectTimeout.TotalMilliseconds));
 #else
-#error Connecting to a remote endpoint is not implemented.
+            #error Connecting to a remote endpoint is not implemented.
 #endif
         }
 
@@ -154,7 +154,7 @@ namespace Renci.SshNet.Abstractions
         public static int ReadPartial(Socket socket, byte[] buffer, int offset, int size, TimeSpan timeout)
         {
 #if FEATURE_SOCKET_SYNC
-            socket.ReceiveTimeout = (int)timeout.TotalMilliseconds;
+            socket.ReceiveTimeout = (int) timeout.TotalMilliseconds;
 
             try
             {
@@ -207,7 +207,7 @@ namespace Renci.SshNet.Abstractions
                 receiveCompleted.Dispose();
             }
 #else
-#error Receiving data from a Socket is not implemented.
+            #error Receiving data from a Socket is not implemented.
 #endif
         }
 
@@ -269,7 +269,7 @@ namespace Renci.SshNet.Abstractions
             if (readToken.Exception != null)
                 throw readToken.Exception;
 #else
-#error Receiving data from a Socket is not implemented.
+            #error Receiving data from a Socket is not implemented.
 #endif
         }
 
@@ -300,7 +300,7 @@ namespace Renci.SshNet.Abstractions
         /// <exception cref="SocketException">The write failed.</exception>
         public static void SendByte(Socket socket, byte value)
         {
-            var buffer = new[] { value };
+            var buffer = new[] {value};
             Send(socket, buffer, 0, 1);
         }
 
@@ -505,7 +505,7 @@ namespace Renci.SshNet.Abstractions
                 sendCompleted.Dispose();
             }
 #else
-#error Sending data to a Socket is not implemented.
+            #error Sending data to a Socket is not implemented.
 #endif
         }
 
@@ -525,7 +525,7 @@ namespace Renci.SshNet.Abstractions
 #if FEATURE_SOCKET_EAP
         private static void ConnectCompleted(object sender, SocketAsyncEventArgs e)
         {
-            var eventWaitHandle = (ManualResetEvent)e.UserToken;
+            var eventWaitHandle = (ManualResetEvent) e.UserToken;
             if (eventWaitHandle != null)
                 eventWaitHandle.Set();
         }

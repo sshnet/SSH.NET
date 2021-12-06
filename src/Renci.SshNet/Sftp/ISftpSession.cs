@@ -221,7 +221,7 @@ namespace Renci.SshNet.Sftp
         byte[] EndRead(SftpReadAsyncResult asyncResult);
 
 #if FEATURE_TAP
-        Task<byte[]> ReadAsync(byte[] handle, ulong offset, uint length, CancellationToken cancellationToken);
+        Task<byte[]> RequestReadAsync(byte[] handle, ulong offset, uint length, CancellationToken cancellationToken);
 #endif
 
         /// <summary>
@@ -335,7 +335,7 @@ namespace Renci.SshNet.Sftp
                           Action<SftpStatusResponse> writeCompleted = null);
 
 #if FEATURE_TAP
-        Task WriteAsync(byte[] handle, ulong serverOffset, byte[] data, int offset, int length, CancellationToken cancellationToken);
+        Task RequestWriteAsync(byte[] handle, ulong serverOffset, byte[] data, int offset, int length, CancellationToken cancellationToken);
 #endif
 
         /// <summary>

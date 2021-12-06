@@ -559,6 +559,7 @@ namespace Renci.SshNet.Sftp
                     }
                 }));
 
+            // Only check for cancellation after the SftpCloseRequest was sent
             cancellationToken.ThrowIfCancellationRequested();
             using (cancellationToken.Register((s) => ((TaskCompletionSource<bool>)s).TrySetCanceled(), tcs, false))
             {
@@ -732,7 +733,7 @@ namespace Renci.SshNet.Sftp
         }
 
 #if FEATURE_TAP
-        public async Task<byte[]> ReadAsync(byte[] handle, ulong offset, uint length, CancellationToken cancellationToken)
+        public async Task<byte[]> RequestReadAsync(byte[] handle, ulong offset, uint length, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -804,7 +805,7 @@ namespace Renci.SshNet.Sftp
         }
 
 #if FEATURE_TAP
-        public async Task WriteAsync(byte[] handle, ulong serverOffset, byte[] data, int offset, int length, CancellationToken cancellationToken)
+        public async Task RequestWriteAsync(byte[] handle, ulong serverOffset, byte[] data, int offset, int length, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 

@@ -283,8 +283,8 @@ namespace Renci.SshNet.Sftp
             // that ensures we always receive or send the max. number of bytes in a single SSH_FXP_READ
             // or SSH_FXP_WRITE message
 
-            _readBufferSize = (int)session.CalculateOptimalReadLength((uint)bufferSize);
-            _writeBufferSize = (int)session.CalculateOptimalWriteLength((uint)bufferSize, _handle);
+            _readBufferSize = (int) session.CalculateOptimalReadLength((uint) bufferSize);
+            _writeBufferSize = (int) session.CalculateOptimalWriteLength((uint) bufferSize, _handle);
 
             if (mode == FileMode.Append)
             {
@@ -346,19 +346,7 @@ namespace Renci.SshNet.Sftp
                     flags |= Flags.Append | Flags.CreateNewOrOpen;
                     break;
                 case FileMode.Create:
-                    try
-                    {
-                        handle = await session.RequestOpenAsync(path, flags | Flags.Truncate, cancellationToken).ConfigureAwait(false);
-                        flags |= Flags.Truncate;
-                    }
-                    catch (TaskCanceledException)// ToDo: when (cancellationToken.IsCancellationRequested)
-                    {
-                        throw;
-                    }
-                    catch (Exception)
-                    {
-                        flags |= Flags.CreateNew;
-                    }
+                    flags |= Flags.CreateNewOrOpen | Flags.Truncate;
                     break;
                 case FileMode.CreateNew:
                     flags |= Flags.CreateNew;
@@ -388,7 +376,14 @@ namespace Renci.SshNet.Sftp
                 }
                 catch
                 {
-                    session.RequestClose(handle);
+                    try
+                    {
+                        await session.RequestCloseAsync(handle, cancellationToken).ConfigureAwait(false);
+                    }
+                    catch
+                    { 
+                        // The original exception is presumably more informative, so we just ignore this one.
+                    }
                     throw;
                 }
             }
@@ -628,7 +623,7 @@ namespace Renci.SshNet.Sftp
                 var bytesAvailableInBuffer = _bufferLen - _bufferPosition;
                 if (bytesAvailableInBuffer <= 0)
                 {
-                    var data = await _session.ReadAsync(_handle, (ulong)_position, (uint)_readBufferSize, cancellationToken).ConfigureAwait(false);
+                    var data = await _session.RequestReadAsync(_handle, (ulong)_position, (uint)_readBufferSize, cancellationToken).ConfigureAwait(false);
 
                     if (data.Length == 0)
                     {
@@ -1062,7 +1057,7 @@ namespace Renci.SshNet.Sftp
                 // Can we short-cut the internal buffer?
                 if (_bufferPosition == 0 && tempLen == _writeBufferSize)
                 {
-                    await _session.WriteAsync(_handle, (ulong)_position, buffer, offset, tempLen, cancellationToken).ConfigureAwait(false);
+                    await _session.RequestWriteAsync(_handle, (ulong)_position, buffer, offset, tempLen, cancellationToken).ConfigureAwait(false);
                 }
                 else
                 {
@@ -1081,7 +1076,7 @@ namespace Renci.SshNet.Sftp
             // rather than waiting for the next call to this method.
             if (_bufferPosition >= _writeBufferSize)
             {
-                await _session.WriteAsync(_handle, (ulong)(_position - _bufferPosition), GetOrCreateWriteBuffer(), 0, _bufferPosition, cancellationToken).ConfigureAwait(false);
+                await _session.RequestWriteAsync(_handle, (ulong)(_position - _bufferPosition), GetOrCreateWriteBuffer(), 0, _bufferPosition, cancellationToken).ConfigureAwait(false);
                 _bufferPosition = 0;
             }
         }
@@ -1209,7 +1204,7 @@ namespace Renci.SshNet.Sftp
         {
             if (_bufferPosition > 0)
             {
-                await _session.WriteAsync(_handle, (ulong)(_position - _bufferPosition), _writeBuffer, 0, _bufferPosition, cancellationToken);
+                await _session.RequestWriteAsync(_handle, (ulong)(_position - _bufferPosition), _writeBuffer, 0, _bufferPosition, cancellationToken);
                 _bufferPosition = 0;
             }
         }

@@ -11,28 +11,10 @@ namespace Renci.SshNet.Connection
     /// <remarks>
     /// https://en.wikipedia.org/wiki/SOCKS#SOCKS5
     /// </remarks>
-    internal class Socks5Connector : ConnectorBase
+    internal sealed class Socks5Connector : ProxyConnector
     {
         public Socks5Connector(ISocketFactory socketFactory) : base(socketFactory)
         {
-        }
-
-        public override Socket Connect(IConnectionInfo connectionInfo)
-        {
-            var socket = SocketConnect(connectionInfo.ProxyHost, connectionInfo.ProxyPort, connectionInfo.Timeout);
-
-            try
-            {
-                HandleProxyConnect(connectionInfo, socket);
-                return socket;
-            }
-            catch (Exception)
-            {
-                socket.Shutdown(SocketShutdown.Both);
-                socket.Dispose();
-
-                throw;
-            }
         }
 
         /// <summary>
@@ -40,7 +22,7 @@ namespace Renci.SshNet.Connection
         /// </summary>
         /// <param name="connectionInfo">The connection information.</param>
         /// <param name="socket">The <see cref="Socket"/>.</param>
-        private void HandleProxyConnect(IConnectionInfo connectionInfo, Socket socket)
+        protected override void HandleProxyConnect(IConnectionInfo connectionInfo, Socket socket)
         {
             var greeting = new byte[]
                 {

@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Renci.SshNet.Common;
 using Renci.SshNet.Tests.Common;
@@ -97,20 +98,25 @@ namespace Renci.SshNet.Tests.Classes.Common
             var buffer = new byte[4];
             int bytesRead = int.MaxValue;
 
+            ManualResetEvent isReady = new ManualResetEvent(false);
             Thread readThread = new Thread(() =>
             {
+                isReady.Set();
                 bytesRead = _pipeStream.Read(buffer, 0, buffer.Length);
             });
             readThread.Start();
 
+            Assert.IsTrue(isReady.WaitOne(10000));
             Assert.IsFalse(readThread.Join(500));
-            readThread.Abort();
 
             Assert.AreEqual(int.MaxValue, bytesRead);
             Assert.AreEqual(0, buffer[0]);
             Assert.AreEqual(0, buffer[1]);
             Assert.AreEqual(0, buffer[2]);
             Assert.AreEqual(0, buffer[3]);
+
+            Assert.IsFalse(readThread.Join(50));
+            _pipeStream.Dispose();
         }
     }
 }

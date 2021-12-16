@@ -130,7 +130,10 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void ExceptionShouldNotHaveFired()
         {
-            Assert.AreEqual(0, _exceptionRegister.Count);
+            if (_exceptionRegister.Count > 0)
+            {
+                throw new Exception("ForwardedPortDynamic rased an exception: " + _exceptionRegister[0].Exception.Message, _exceptionRegister[0].Exception);
+            }
         }
 
         [TestMethod]

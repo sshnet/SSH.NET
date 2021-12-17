@@ -13,6 +13,7 @@ namespace Renci.SshNet.Tests.Classes
         private ConnectionInfo _connectionInfo;
         private TimeSpan _keepAliveInterval;
         private int _keepAliveCount;
+        private int _actualKeepAliveCount;
 
         protected override void SetupData()
         {
@@ -58,6 +59,8 @@ namespace Renci.SshNet.Tests.Classes
 
             // allow keep-alive to be sent a few times
             Thread.Sleep(195);
+
+            _actualKeepAliveCount = _keepAliveCount;
         }
 
         [TestMethod]
@@ -94,7 +97,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void SendMessageOnSessionShouldBeInvokedThreeTimes()
         {
-            _sessionMock.Verify(p => p.TrySendMessage(It.IsAny<IgnoreMessage>()), Times.Exactly(3));
+            Assert.AreEqual(3, _actualKeepAliveCount);
         }
 
         private class MyClient : BaseClient

@@ -79,7 +79,7 @@ namespace Renci.SshNet.Tests.Classes
             _exceptionRegister = new List<ExceptionEventArgs>();
             _bindEndpoint = new IPEndPoint(IPAddress.Any, random.Next(IPEndPoint.MinPort, IPEndPoint.MaxPort));
             _remoteEndpoint = new IPEndPoint(IPAddress.Parse("193.168.1.5"), random.Next(IPEndPoint.MinPort, IPEndPoint.MaxPort));
-            _bindSleepTime = TimeSpan.FromMilliseconds(random.Next(100, 500));
+            _bindSleepTime = TimeSpan.FromMilliseconds(random.Next(100, 200));
             _remoteChannelNumberWhileClosing = (uint) random.Next(0, 1000);
             _remoteWindowSizeWhileClosing = (uint) random.Next(0, int.MaxValue);
             _remotePacketSizeWhileClosing = (uint) random.Next(0, int.MaxValue);

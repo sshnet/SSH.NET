@@ -20,7 +20,10 @@ namespace Renci.SshNet.Tests.Classes
             }
             catch (SocketException ex)
             {
-                Assert.AreEqual(ex.ErrorCode, (int) SocketError.HostNotFound);
+                if (ex.SocketErrorCode != SocketError.TryAgain)
+                {
+                    Assert.AreEqual(SocketError.HostNotFound, ex.SocketErrorCode);
+                }
             }
         }
 
@@ -38,7 +41,10 @@ namespace Renci.SshNet.Tests.Classes
             }
             catch (SocketException ex)
             {
-                Assert.AreEqual(ex.ErrorCode, (int)SocketError.HostNotFound);
+                if (ex.SocketErrorCode != SocketError.TryAgain)
+                {
+                    Assert.AreEqual(SocketError.HostNotFound, ex.SocketErrorCode);
+                }
             }
         }
     }

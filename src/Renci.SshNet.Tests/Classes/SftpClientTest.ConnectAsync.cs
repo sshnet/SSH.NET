@@ -6,11 +6,10 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Renci.SshNet.Tests.Classes
 {
-    [TestClass]
-    public class SftpClientTest_ConnectAsync
+    public partial class SftpClientTest
     {
         [TestMethod]
-        public async Task Connect_HostNameInvalid_ShouldThrowSocketExceptionWithErrorCodeHostNotFound()
+        public async Task ConnectAsync_HostNameInvalid_ShouldThrowSocketExceptionWithErrorCodeHostNotFound()
         {
             var connectionInfo = new ConnectionInfo(Guid.NewGuid().ToString("N"), 40, "user",
                 new KeyboardInteractiveAuthenticationMethod("user"));
@@ -23,12 +22,12 @@ namespace Renci.SshNet.Tests.Classes
             }
             catch (SocketException ex)
             {
-                Assert.AreEqual(SocketError.HostNotFound, (SocketError) ex.ErrorCode);
+                Assert.AreEqual(SocketError.HostNotFound, ex.SocketErrorCode);
             }
         }
 
         [TestMethod]
-        public async Task Connect_ProxyHostNameInvalid_ShouldThrowSocketExceptionWithErrorCodeHostNotFound()
+        public async Task ConnectAsync_ProxyHostNameInvalid_ShouldThrowSocketExceptionWithErrorCodeHostNotFound()
         {
             var connectionInfo = new ConnectionInfo("localhost", 40, "user", ProxyTypes.Http, Guid.NewGuid().ToString("N"), 80,
                 "proxyUser", "proxyPwd", new KeyboardInteractiveAuthenticationMethod("user"));
@@ -41,7 +40,7 @@ namespace Renci.SshNet.Tests.Classes
             }
             catch (SocketException ex)
             {
-                Assert.AreEqual(SocketError.HostNotFound, (SocketError) ex.ErrorCode);
+                Assert.AreEqual(SocketError.HostNotFound, ex.SocketErrorCode);
             }
         }
     }

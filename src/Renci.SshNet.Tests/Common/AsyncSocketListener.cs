@@ -102,7 +102,6 @@ namespace Renci.SshNet.Tests.Common
         public void Dispose()
         {
             Stop();
-            GC.SuppressFinalize(this);
         }
 
         private void StartListener(object state)
@@ -193,12 +192,37 @@ namespace Renci.SshNet.Tests.Common
             {
                 // Read data from the client socket.
                 bytesRead = handler.EndReceive(ar);
+
+                if (bytesRead > 0)
+                {
+                    var bytesReceived = new byte[bytesRead];
+                    Array.Copy(state.Buffer, bytesReceived, bytesRead);
+                    SignalBytesReceived(bytesReceived, handler);
+
+                    handler.BeginReceive(state.Buffer, 0, state.Buffer.Length, 0, ReadCallback, state);
+                }
+                else
+                {
+                    SignalDisconnected(handler);
+
+                    if (ShutdownRemoteCommunicationSocket && _started)
+                    {
+                        lock (_syncLock)
+                        {
+                            if (_started)
+                            {
+                                handler.Shutdown(SocketShutdown.Send);
+                                handler.Close();
+                                _connectedClients.Remove(handler);
+                            }
+                        }
+                    }
+                }
             }
             catch (SocketException ex)
             {
                 // The listener is stopped through a Dispose() call, which in turn causes
-                // Socket.EndReceive(...) to throw a SocketException or
-                // ObjectDisposedException
+                // Socket to throw a SocketException or ObjectDisposedException
                 //
                 // Since we consider such an exception normal when the listener is being
                 // stopped, we only write a message to stderr if the listener is considered
@@ -209,13 +233,11 @@ namespace Renci.SshNet.Tests.Common
                                             typeof(AsyncSocketListener).FullName,
                                             ex);
                 }
-                return;
             }
             catch (ObjectDisposedException ex)
             {
                 // The listener is stopped through a Dispose() call, which in turn causes
-                // Socket.EndReceive(...) to throw a SocketException or
-                // ObjectDisposedException
+                // Socket to throw a SocketException or ObjectDisposedException
                 //
                 // Since we consider such an exception normal when the listener is being
                 // stopped, we only write a message to stderr if the listener is considered
@@ -225,59 +247,6 @@ namespace Renci.SshNet.Tests.Common
                     Console.Error.WriteLine("[{0}] Failure receiving new data: {1}",
                                             typeof(AsyncSocketListener).FullName,
                                             ex);
-                }
-                return;
-            }
-
-            if (bytesRead > 0)
-            {
-                var bytesReceived = new byte[bytesRead];
-                Array.Copy(state.Buffer, bytesReceived, bytesRead);
-                SignalBytesReceived(bytesReceived, handler);
-
-                try
-                {
-                    handler.BeginReceive(state.Buffer, 0, state.Buffer.Length, 0, ReadCallback, state);
-                }
-                catch (SocketException ex)
-                {
-                    if (!_started)
-                    {
-                        throw new Exception("BeginReceive while stopping!", ex);
-                    }
-
-                    throw new Exception("BeginReceive while started!: " + ex.SocketErrorCode + " " + _stackTrace, ex);
-                }
-
-            }
-            else
-            {
-                SignalDisconnected(handler);
-
-                if (ShutdownRemoteCommunicationSocket)
-                {
-                    lock (_syncLock)
-                    {
-                        if (!_started)
-                        {
-                            return;
-                        }
-                        try
-                        {
-                            handler.Shutdown(SocketShutdown.Send);
-                            handler.Close();
-                        }
-                        catch (SocketException ex)
-                        {
-                            throw new Exception("Exception in ReadCallback: " + ex.SocketErrorCode + " " + _stackTrace, ex);
-                        }
-                        catch (Exception ex)
-                        {
-                            throw new Exception("Exception in ReadCallback: " + _stackTrace, ex);
-                        }
-
-                        _connectedClients.Remove(handler);
-                    }
                 }
             }
         }

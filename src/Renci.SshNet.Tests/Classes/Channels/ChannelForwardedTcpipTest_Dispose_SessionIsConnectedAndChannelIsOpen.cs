@@ -139,6 +139,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
                 {
                     try
                     {
+                        isReady.Set();
                         _channel.Bind(_remoteEndpoint, _forwardedPortMock.Object);
                     }
                     catch (Exception ex)

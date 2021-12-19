@@ -11,6 +11,7 @@ using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 using Renci.SshNet.Sftp;
 #if FEATURE_TAP
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 #endif
 
@@ -537,7 +538,6 @@ namespace Renci.SshNet
         }
 
 #if FEATURE_TAP
-
         /// <summary>
         /// Asynchronously retrieves list of files in remote directory.
         /// </summary>
@@ -552,11 +552,15 @@ namespace Renci.SshNet
         /// <exception cref="SftpPermissionDeniedException">Permission to list the contents of the directory was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
         /// <exception cref="SshException">A SSH error where <see cref="Exception.Message" /> is the message from the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
+#if NETSTANDARD2_1_OR_GREATER
+        [Obsolete("Use EnumerateDirectoryAsync()")]
+        [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
+#endif
         public async Task<IEnumerable<SftpFile>> ListDirectoryAsync(string path, CancellationToken cancellationToken)
         {
             base.CheckDisposed();
             if (path == null)
-                throw new ArgumentNullException("path");
+                throw new ArgumentNullException(nameof(path));
             if (_sftpSession == null)
                 throw new SshConnectionException("Client not connected.");
             cancellationToken.ThrowIfCancellationRequested();
@@ -594,6 +598,59 @@ namespace Renci.SshNet
             return result;
         }
 
+#if NETSTANDARD2_1_OR_GREATER
+        /// <summary>
+        /// Asynchronously enumerates the files in remote directory.
+        /// </summary>
+        /// <param name="path">The path.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
+        /// <returns>
+        /// An <see cref="IAsyncEnumerable{SftpFile}"/> that represents the asynchronous enumeration operation.
+        /// The enumeration contains an async stream of <see cref="SftpFile"/> for the files in the directory specified by <paramref name="path" />.
+        /// </returns>
+        /// <exception cref="ArgumentNullException"><paramref name="path" /> is <b>null</b>.</exception>
+        /// <exception cref="SshConnectionException">Client is not connected.</exception>
+        /// <exception cref="SftpPermissionDeniedException">Permission to list the contents of the directory was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
+        /// <exception cref="SshException">A SSH error where <see cref="Exception.Message" /> is the message from the remote host.</exception>
+        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
+        public async IAsyncEnumerable<SftpFile> EnumerateDirectoryAsync(string path, [EnumeratorCancellation]CancellationToken cancellationToken)
+        {
+            base.CheckDisposed();
+            if (path == null)
+                throw new ArgumentNullException(nameof(path));
+            if (_sftpSession == null)
+                throw new SshConnectionException("Client not connected.");
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var fullPath = await _sftpSession.GetCanonicalPathAsync(path, cancellationToken).ConfigureAwait(false);
+
+            var handle = await _sftpSession.RequestOpenDirAsync(fullPath, cancellationToken).ConfigureAwait(false);
+            try
+            {
+                var basePath = (fullPath[fullPath.Length - 1] == '/') ?
+                    fullPath :
+                    fullPath + '/';
+
+                while (true)
+                {
+                    var files = await _sftpSession.RequestReadDirAsync(handle, cancellationToken).ConfigureAwait(false);
+                    if (files == null)
+                    {
+                        break;
+                    }
+
+                    foreach (var file in files)
+                    {
+                        yield return new SftpFile(_sftpSession, basePath + file.Key, file.Value);
+                    }
+                }
+            }
+            finally
+            {
+                await _sftpSession.RequestCloseAsync(handle, cancellationToken).ConfigureAwait(false);
+            }
+        }
+#endif
 #endif
 
         /// <summary>

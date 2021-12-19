@@ -8,7 +8,7 @@ using Renci.SshNet.Sftp;
 namespace Renci.SshNet.Tests.Classes.Sftp
 {
     [TestClass]
-    public class SftpFileStreamTest_OpenAsync_FileAccessInvalid : SftpFileStreamAsyncTestBase
+    public class SftpFileStreamTest_OpenAsync_FileModeInvalid : SftpFileStreamAsyncTestBase
     {
         private Random _random;
         private string _path;
@@ -23,8 +23,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
 
             _random = new Random();
             _path = _random.Next().ToString();
-            _fileMode = FileMode.Open;
-            _fileAccess = 0;
+            _fileMode = 0;
+            _fileAccess = FileAccess.Read;
             _bufferSize = _random.Next(5, 1000);
         }
 
@@ -50,7 +50,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         {
             Assert.IsNotNull(_actualException);
             Assert.IsNull(_actualException.InnerException);
-            Assert.AreEqual("access", _actualException.ParamName);
+            Assert.AreEqual("mode", _actualException.ParamName);
         }
     }
 }

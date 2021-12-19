@@ -8,14 +8,14 @@ using Renci.SshNet.Sftp;
 namespace Renci.SshNet.Tests.Classes.Sftp
 {
     [TestClass]
-    public class SftpFileStreamTest_OpenAsync_FileAccessInvalid : SftpFileStreamAsyncTestBase
+    public class SftpFileStreamTest_OpenAsync_FileModeAppend_FileAccessRead : SftpFileStreamAsyncTestBase
     {
         private Random _random;
         private string _path;
         private FileMode _fileMode;
         private FileAccess _fileAccess;
         private int _bufferSize;
-        private ArgumentOutOfRangeException _actualException;
+        private ArgumentException _actualException;
 
         protected override void SetupData()
         {
@@ -23,8 +23,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
 
             _random = new Random();
             _path = _random.Next().ToString();
-            _fileMode = FileMode.Open;
-            _fileAccess = 0;
+            _fileMode = FileMode.Append;
+            _fileAccess = FileAccess.Read;
             _bufferSize = _random.Next(5, 1000);
         }
 
@@ -39,7 +39,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
                 await SftpFileStream.OpenAsync(SftpSessionMock.Object, _path, _fileMode, _fileAccess, _bufferSize, default);
                 Assert.Fail();
             }
-            catch (ArgumentOutOfRangeException ex)
+            catch (ArgumentException ex)
             {
                 _actualException = ex;
             }
@@ -50,7 +50,8 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         {
             Assert.IsNotNull(_actualException);
             Assert.IsNull(_actualException.InnerException);
-            Assert.AreEqual("access", _actualException.ParamName);
+            Assert.AreEqual(string.Format("{0} mode can be requested only when combined with write-only access.", _fileMode), _actualException.Message);
+            Assert.IsNull(_actualException.ParamName);
         }
     }
 }

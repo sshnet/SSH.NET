@@ -788,26 +788,6 @@ namespace Renci.SshNet.Sftp
                 {
                     // Flush the write buffer and then seek.
                     FlushWriteBuffer();
-
-                    switch (origin)
-                    {
-                        case SeekOrigin.Begin:
-                            newPosn = offset;
-                            break;
-                        case SeekOrigin.Current:
-                            newPosn = _position + offset;
-                            break;
-                        case SeekOrigin.End:
-                            var attributes = _session.RequestFStat(_handle, false);
-                            newPosn = attributes.Size - offset;
-                            break;
-                    }
-
-                    if (newPosn == -1)
-                    {
-                        throw new EndOfStreamException("End of stream.");
-                    }
-                    _position = newPosn;
                 }
                 else
                 {
@@ -838,29 +818,28 @@ namespace Renci.SshNet.Sftp
                     // Abandon the read buffer.
                     _bufferPosition = 0;
                     _bufferLen = 0;
-
-                    // Seek to the new position.
-                    switch (origin)
-                    {
-                        case SeekOrigin.Begin:
-                            newPosn = offset;
-                            break;
-                        case SeekOrigin.Current:
-                            newPosn = _position + offset;
-                            break;
-                        case SeekOrigin.End:
-                            var attributes = _session.RequestFStat(_handle, false);
-                            newPosn = attributes.Size - offset;
-                            break;
-                    }
-
-                    if (newPosn < 0)
-                    {
-                        throw new EndOfStreamException();
-                    }
-
-                    _position = newPosn;
                 }
+
+                // Seek to the new position.
+                switch (origin)
+                {
+                    case SeekOrigin.Begin:
+                        newPosn = offset;
+                        break;
+                    case SeekOrigin.Current:
+                        newPosn = _position + offset;
+                        break;
+                    case SeekOrigin.End:
+                        var attributes = _session.RequestFStat(_handle, false);
+                        newPosn = attributes.Size + offset;
+                        break;
+                }
+
+                if (newPosn < 0)
+                {
+                    throw new EndOfStreamException("End of stream.");
+                }
+                _position = newPosn;
                 return _position;
             }
         }

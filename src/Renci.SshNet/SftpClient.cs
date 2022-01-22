@@ -1935,6 +1935,8 @@ namespace Renci.SshNet
             const Flags uploadFlag = Flags.Write | Flags.Truncate | Flags.CreateNewOrOpen;
             foreach (var localFile in sourceFiles)
             {
+                // Clear the milliseconds from the timestamp, as that granularity will not carry over the wire with SFTP
+                var lastWriteTimeUtc = ClearMilliseconds(localFile.LastWriteTimeUtc);
                 var isDifferent = !destDict.ContainsKey(localFile.Name);
 
                 if (!isDifferent)
@@ -1943,7 +1945,7 @@ namespace Renci.SshNet
                     //  TODO:   Use md5 to detect a difference
                     //ltang: File exists at the destination => Using filesize to detect the difference
                     //kendallb: Use file length and timestamp to detect the difference
-                    isDifferent = localFile.Length != temp.Length || localFile.LastWriteTime != temp.LastWriteTime;
+                    isDifferent = localFile.Length != temp.Length || lastWriteTimeUtc != localFile.LastWriteTimeUtc;
                 }
 
                 if (isDifferent)
@@ -1954,6 +1956,11 @@ namespace Renci.SshNet
                         using (var file = File.OpenRead(localFile.FullName))
                         {
                             InternalUploadFile(file, remoteFileName, uploadFlag, null, null);
+
+                            // Set the timestamp to match on the uploaded file (the helper function is not implemented in the library)
+                            var fileAttributes = GetAttributes(remoteFileName);
+                            fileAttributes.LastWriteTimeUtc = lastWriteTimeUtc;
+                            SetAttributes(remoteFileName, fileAttributes);
                         }
 
                         uploadedFiles.Add(localFile);
@@ -1973,6 +1980,17 @@ namespace Renci.SshNet
             #endregion
 
             return uploadedFiles;
+        }
+
+        /// <summary>
+        /// Utility function to clear the millisecond value for a DateTime stamp
+        /// </summary>
+        /// <param name="date">Date to adjust</param>
+        /// <returns>Adjusted DateTime value</returns>
+        private static DateTime ClearMilliseconds(
+            DateTime date)
+        {
+            return new DateTime(date.Year, date.Month, date.Day, date.Hour, date.Minute, date.Second, date.Kind);
         }
 
         #endregion

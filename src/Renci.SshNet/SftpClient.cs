@@ -1942,7 +1942,8 @@ namespace Renci.SshNet
                     var temp = destDict[localFile.Name];
                     //  TODO:   Use md5 to detect a difference
                     //ltang: File exists at the destination => Using filesize to detect the difference
-                    isDifferent = localFile.Length != temp.Length;
+                    //kendallb: Use file length and timestamp to detect the difference
+                    isDifferent = localFile.Length != temp.Length || localFile.LastWriteTime != temp.LastWriteTime;
                 }
 
                 if (isDifferent)

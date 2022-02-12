@@ -51,13 +51,17 @@ namespace Renci.SshNet.Tests.Classes.Channels
                 _remoteListener = null;
             }
 
+            if (_channelThread != null)
+            {
+                if (_channelThread.IsAlive)
+                    _channelThread.Abort();
+                _channelThread = null;
+            }
             if (_channel != null)
             {
                 _channel.Dispose();
                 _channel = null;
             }
-
-            _channelThread = null;
         }
 
         private void Arrange()
@@ -134,12 +138,10 @@ namespace Renci.SshNet.Tests.Classes.Channels
                 _remoteWindowSize,
                 _remotePacketSize);
 
-            ManualResetEvent isReady = new ManualResetEvent(false);
             _channelThread = new Thread(() =>
                 {
                     try
                     {
-                        isReady.Set();
                         _channel.Bind(_remoteEndpoint, _forwardedPortMock.Object);
                     }
                     catch (Exception ex)
@@ -154,7 +156,6 @@ namespace Renci.SshNet.Tests.Classes.Channels
             _channelThread.Start();
 
             // give channel time to bind to remote endpoint
-            isReady.WaitOne(10000);
             Thread.Sleep(100);
         }
 

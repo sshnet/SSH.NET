@@ -11,14 +11,13 @@ namespace Renci.SshNet.Tests.Classes.Common
     {
         private PipeStream _pipeStream;
         private Exception _writeException;
-        private Thread _writeThread;
+        private Thread _writehread;
 
         protected override void Arrange()
         {
             _pipeStream = new PipeStream {MaxBufferLength = 3};
 
-            ManualResetEvent isArranged = new ManualResetEvent(false);
-            _writeThread = new Thread(() =>
+            _writehread = new Thread(() =>
                 {
                     _pipeStream.WriteByte(10);
                     _pipeStream.WriteByte(13);
@@ -28,18 +27,18 @@ namespace Renci.SshNet.Tests.Classes.Common
                     // until bytes are read or the stream is closed
                     try
                     {
-                        isArranged.Set();
                         _pipeStream.WriteByte(35);
                     }
                     catch (Exception ex)
                     {
                         _writeException = ex;
+                        throw;
                     }
                 });
-            _writeThread.Start();
+            _writehread.Start();
 
             // ensure we've started writing
-            isArranged.WaitOne(10000);
+            Assert.IsFalse(_writehread.Join(50));
         }
 
         protected override void Act()
@@ -47,13 +46,13 @@ namespace Renci.SshNet.Tests.Classes.Common
             _pipeStream.Close();
 
             // give write time to complete
-            Assert.IsTrue(_writeThread.Join(10000));
+            _writehread.Join(100);
         }
 
         [TestMethod]
         public void BlockingWriteShouldHaveBeenInterrupted()
         {
-            Assert.AreEqual(ThreadState.Stopped, _writeThread.ThreadState);
+            Assert.AreEqual(ThreadState.Stopped, _writehread.ThreadState);
         }
 
         [TestMethod]

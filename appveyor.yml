@@ -1,8 +1,5 @@
 os: Visual Studio 2019
 
-init:
- - netsh int ipv4 set dynamicport tcp start=1025 num=64510
-
 before_build:
   - nuget restore src\Renci.SshNet.VS2019.sln
 
@@ -12,6 +9,6 @@ build:
 
 test_script:
 - cmd: >-
-    vstest.console /logger:Appveyor src\Renci.SshNet.Tests\bin\Debug\net472\Renci.SshNet.Tests.dll /TestCaseFilter:"TestCategory!=integration&TestCategory!=LongRunning"
+    vstest.console /logger:Appveyor src\Renci.SshNet.Tests\bin\Debug\net40\Renci.SshNet.Tests.dll /TestCaseFilter:"TestCategory!=integration&TestCategory!=LongRunning"
 
-    vstest.console /logger:Appveyor src\Renci.SshNet.Tests\bin\Debug\net5.0\Renci.SshNet.Tests.dll /TestCaseFilter:"TestCategory!=integration&TestCategory!=LongRunning"
+    vstest.console /logger:Appveyor src\Renci.SshNet.Tests\bin\Debug\net35\Renci.SshNet.Tests.dll /TestCaseFilter:"TestCategory!=integration&TestCategory!=LongRunning"

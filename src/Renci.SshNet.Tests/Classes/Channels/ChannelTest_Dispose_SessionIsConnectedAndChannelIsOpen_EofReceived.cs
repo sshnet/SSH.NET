@@ -25,7 +25,6 @@ namespace Renci.SshNet.Tests.Classes.Channels
         private ManualResetEvent _channelClosedReceived;
         private ManualResetEvent _channelClosedEventHandlerCompleted;
         private Thread _raiseChannelCloseReceivedThread;
-        private ManualResetEvent _threadStopEvent;
 
         protected override void SetupData()
         {
@@ -44,7 +43,6 @@ namespace Renci.SshNet.Tests.Classes.Channels
             _channelClosedReceived = new ManualResetEvent(false);
             _channelClosedEventHandlerCompleted = new ManualResetEvent(false);
             _raiseChannelCloseReceivedThread = null;
-            _threadStopEvent = new ManualResetEvent(false);
         }
 
         protected override void SetupMocks()
@@ -82,9 +80,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
                                SessionMock.Raise(s => s.ChannelCloseReceived += null, new MessageEventArgs<ChannelCloseMessage>(new ChannelCloseMessage(_localChannelNumber)));
                            });
                            _raiseChannelCloseReceivedThread.Start();
-
-                           WaitHandle[] waitHandles = new WaitHandle[2] { waitHandle, _threadStopEvent };
-                           WaitHandle.WaitAny(waitHandles);
+                           waitHandle.WaitOne();
                        })
                        .Returns(WaitResult.Success);
         }
@@ -102,7 +98,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
             {
                 if (!_raiseChannelCloseReceivedThread.Join(1000))
                 {
-                    _threadStopEvent.Set();
+                    _raiseChannelCloseReceivedThread.Abort();
                 }
             }
 

@@ -43,10 +43,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
         {
             Assert.IsNotNull(_actualException);
             Assert.IsNull(_actualException.InnerException);
-            if (_actualException.SocketErrorCode != SocketError.TryAgain)
-            {
-                Assert.AreEqual(SocketError.HostNotFound, _actualException.SocketErrorCode);
-            }
+            Assert.AreEqual(SocketError.HostNotFound, _actualException.SocketErrorCode);
         }
     }
 }

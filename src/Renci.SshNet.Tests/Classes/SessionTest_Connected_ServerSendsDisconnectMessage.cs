@@ -26,12 +26,10 @@ namespace Renci.SshNet.Tests.Classes
 
         protected override void Act()
         {
-            ManualResetEvent isReceived = new ManualResetEvent(false);
-            Session.DisconnectReceived += (sender, e) => isReceived.Set();
             ServerSocket.Send(_packet, 4, _packet.Length - 4, SocketFlags.None);
 
             // give session some time to process packet
-            isReceived.WaitOne(200);
+            Thread.Sleep(200);
         }
 
         [TestMethod]

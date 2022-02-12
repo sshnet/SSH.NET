@@ -202,12 +202,6 @@ namespace Renci.SshNet
             }
             catch (SocketException ex)
             {
-                if (ex.SocketErrorCode == SocketError.ConnectionAborted)
-                {
-                    // The client socket was disposed without being closed.
-                    return false;
-                }
-
                 // ignore exception thrown by interrupting the blocking receive as part of closing
                 // the forwarded port
                 if (ex.SocketErrorCode != SocketError.Interrupted)

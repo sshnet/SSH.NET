@@ -3,7 +3,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Renci.SshNet.Tests.Classes
 {
-    public partial class SftpClientTest
+    [TestClass]
+    public class SftpClientTest_Connect
     {
         [TestMethod]
         public void Connect_HostNameInvalid_ShouldThrowSocketExceptionWithErrorCodeHostNotFound()
@@ -19,10 +20,7 @@ namespace Renci.SshNet.Tests.Classes
             }
             catch (SocketException ex)
             {
-                if (ex.SocketErrorCode != SocketError.TryAgain)
-                {
-                    Assert.AreEqual(SocketError.HostNotFound, ex.SocketErrorCode);
-                }
+                Assert.AreEqual(ex.ErrorCode, (int) SocketError.HostNotFound);
             }
         }
 
@@ -40,10 +38,7 @@ namespace Renci.SshNet.Tests.Classes
             }
             catch (SocketException ex)
             {
-                if (ex.SocketErrorCode != SocketError.TryAgain)
-                {
-                    Assert.AreEqual(SocketError.HostNotFound, ex.SocketErrorCode);
-                }
+                Assert.AreEqual(ex.ErrorCode, (int)SocketError.HostNotFound);
             }
         }
     }

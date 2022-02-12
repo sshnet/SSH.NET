@@ -37,11 +37,7 @@ namespace Renci.SshNet.Tests.Classes.Common
             catch (ArgumentException ex)
             {
                 Assert.IsNull(ex.InnerException);
-#if NETFRAMEWORK
                 Assert.AreEqual(string.Format("The path is a zero-length string.{0}Parameter name: {1}", Environment.NewLine, ex.ParamName), ex.Message);
-#else
-                Assert.AreEqual(string.Format("The path is a zero-length string. (Parameter '{1}')", Environment.NewLine, ex.ParamName), ex.Message);
-#endif
                 Assert.AreEqual("path", ex.ParamName);
             }
         }

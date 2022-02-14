@@ -719,13 +719,13 @@ namespace Renci.SshNet
         /// <exception cref="SftpPermissionDeniedException">Permission to list the contents of the directory was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
         /// <exception cref="SshException">A SSH error where <see cref="Exception.Message" /> is the message from the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
-#if NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
         [Obsolete("Use EnumerateDirectoryAsync()")]
         [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
 #endif
-        Task<IEnumerable<SftpFile>> ListDirectoryAsync(string path, CancellationToken cancellationToken);
+        Task<IEnumerable<ISftpFile>> ListDirectoryAsync(string path, CancellationToken cancellationToken);
 
-#if NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
         /// <summary>
         /// Asynchronously enumerates the files in remote directory.
         /// </summary>
@@ -740,7 +740,7 @@ namespace Renci.SshNet
         /// <exception cref="SftpPermissionDeniedException">Permission to list the contents of the directory was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
         /// <exception cref="SshException">A SSH error where <see cref="Exception.Message" /> is the message from the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
-        IAsyncEnumerable<SftpFile> EnumerateDirectoryAsync(string path, CancellationToken cancellationToken);
+        IAsyncEnumerable<ISftpFile> EnumerateDirectoryAsync(string path, CancellationToken cancellationToken);
 #endif
 #endif
 

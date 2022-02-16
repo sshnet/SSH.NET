@@ -833,12 +833,15 @@ namespace Renci.SshNet.Sftp
                         var attributes = _session.RequestFStat(_handle, false);
                         newPosn = attributes.Size + offset;
                         break;
+                    default:
+                        throw new ArgumentException("Invalid seek origin.", "origin");
                 }
 
                 if (newPosn < 0)
                 {
-                    throw new EndOfStreamException("End of stream.");
+                    throw new EndOfStreamException();
                 }
+
                 _position = newPosn;
                 return _position;
             }

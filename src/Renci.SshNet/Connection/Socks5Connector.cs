@@ -65,7 +65,7 @@ namespace Renci.SshNet.Connection
                     throw new ProxyException("SOCKS5: No acceptable authentication methods were offered.");
             }
 
-            var connectionRequest = CreateSocks5ConnectionRequest(connectionInfo.Host, (ushort) connectionInfo.Port);
+            var connectionRequest = CreateSocks5ConnectionRequest(connectionInfo.Host, (ushort) connectionInfo.Port, connectionInfo.HostResolutionMode);
             SocketAbstraction.Send(socket, connectionRequest);
 
             //  Read Server SOCKS5 version
@@ -173,10 +173,10 @@ namespace Renci.SshNet.Connection
             return authenticationRequest;
         }
 
-        private static byte[] CreateSocks5ConnectionRequest(string hostname, ushort port)
+        private static byte[] CreateSocks5ConnectionRequest(string hostname, ushort port, HostResolutionMode hostResolutionMode)
         {
             byte addressType;
-            var addressBytes = GetSocks5DestinationAddress(hostname, out addressType);
+            var addressBytes = GetSocks5DestinationAddress(hostname, hostResolutionMode, out addressType);
 
             var connectionRequest = new byte
                 [
@@ -188,6 +188,8 @@ namespace Renci.SshNet.Connection
                     1 +
                     // Address type
                     1 +
+                    // Address Length if type == 0x03
+                    (addressType == 0x03 ? 1 : 0) +
                     // Address
                     addressBytes.Length +
                     // Port number
@@ -208,6 +210,10 @@ namespace Renci.SshNet.Connection
             // Address type
             connectionRequest[index++] = addressType;
 
+            // Address Length
+            if (addressType == 0x03)
+                connectionRequest[index++] = (byte)addressBytes.Length;
+            
             // Address
             Buffer.BlockCopy(addressBytes, 0, connectionRequest, index, addressBytes.Length);
             index += addressBytes.Length;
@@ -218,24 +224,33 @@ namespace Renci.SshNet.Connection
             return connectionRequest;
         }
 
-        private static byte[] GetSocks5DestinationAddress(string hostname, out byte addressType)
+        private static byte[] GetSocks5DestinationAddress(string hostname, HostResolutionMode hostResolutionMode, out byte addressType)
         {
-            var ip = DnsAbstraction.GetHostAddresses(hostname)[0];
-
             byte[] address;
 
-            switch (ip.AddressFamily)
+            switch (hostResolutionMode)
             {
-                case AddressFamily.InterNetwork:
-                    addressType = 0x01; // IPv4
-                    address = ip.GetAddressBytes();
-                    break;
-                case AddressFamily.InterNetworkV6:
-                    addressType = 0x04; // IPv6
-                    address = ip.GetAddressBytes();
+                case HostResolutionMode.ResolvedByProxy:
+                    addressType = 0x03; // Host Name
+                    address = SshData.Ascii.GetBytes(hostname);
                     break;
                 default:
-                    throw new ProxyException(string.Format("SOCKS5: IP address '{0}' is not supported.", ip));
+                    var ip = DnsAbstraction.GetHostAddresses(hostname)[0];
+
+                    switch (ip.AddressFamily)
+                    {
+                        case AddressFamily.InterNetwork:
+                            addressType = 0x01; // IPv4
+                            address = ip.GetAddressBytes();
+                            break;
+                        case AddressFamily.InterNetworkV6:
+                            addressType = 0x04; // IPv6
+                            address = ip.GetAddressBytes();
+                            break;
+                        default:
+                            throw new ProxyException(string.Format("SOCKS5: IP address '{0}' is not supported.", ip));
+                    }
+                    break;
             }
 
             return address;

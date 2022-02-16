@@ -113,6 +113,11 @@ namespace Renci.SshNet
         string ProxyPassword { get; }
 
         /// <summary>
+        /// Resolve host locally or by a socks5 proxy
+        /// </summary>
+        HostResolutionMode HostResolutionMode { get; }
+
+        /// <summary>
         /// Gets the number of retry attempts when session channel creation failed.
         /// </summary>
         /// <value>

@@ -50,7 +50,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, or <paramref name="username"/> is <c>null</c> or contains only whitespace characters.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="port"/> is not within <see cref="IPEndPoint.MinPort"/> and <see cref="IPEndPoint.MaxPort"/>.</exception>
         public PasswordConnectionInfo(string host, int port, string username, string password)
-            : this(host, port, username, Encoding.UTF8.GetBytes(password), ProxyTypes.None, string.Empty, 0, string.Empty, string.Empty)
+            : this(host, port, username, Encoding.UTF8.GetBytes(password), ProxyTypes.None, string.Empty, 0, string.Empty, string.Empty, HostResolutionMode.ResolvedLocally)
         {
         }
 
@@ -65,7 +65,7 @@ namespace Renci.SshNet
         /// <param name="proxyHost">The proxy host.</param>
         /// <param name="proxyPort">The proxy port.</param>
         public PasswordConnectionInfo(string host, int port, string username, string password, ProxyTypes proxyType, string proxyHost, int proxyPort)
-            : this(host, port, username, Encoding.UTF8.GetBytes(password), proxyType, proxyHost, proxyPort, string.Empty, string.Empty)
+            : this(host, port, username, Encoding.UTF8.GetBytes(password), proxyType, proxyHost, proxyPort, string.Empty, string.Empty, HostResolutionMode.ResolvedLocally)
         {
         }
 
@@ -81,7 +81,7 @@ namespace Renci.SshNet
         /// <param name="proxyPort">The proxy port.</param>
         /// <param name="proxyUsername">The proxy username.</param>
         public PasswordConnectionInfo(string host, int port, string username, string password, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername)
-            : this(host, port, username, Encoding.UTF8.GetBytes(password), proxyType, proxyHost, proxyPort, proxyUsername, string.Empty)
+            : this(host, port, username, Encoding.UTF8.GetBytes(password), proxyType, proxyHost, proxyPort, proxyUsername, string.Empty, HostResolutionMode.ResolvedLocally)
         {
         }
 
@@ -95,7 +95,7 @@ namespace Renci.SshNet
         /// <param name="proxyHost">The proxy host.</param>
         /// <param name="proxyPort">The proxy port.</param>
         public PasswordConnectionInfo(string host, string username, string password, ProxyTypes proxyType, string proxyHost, int proxyPort)
-            : this(host, DefaultPort, username, Encoding.UTF8.GetBytes(password), proxyType, proxyHost, proxyPort, string.Empty, string.Empty)
+            : this(host, DefaultPort, username, Encoding.UTF8.GetBytes(password), proxyType, proxyHost, proxyPort, string.Empty, string.Empty, HostResolutionMode.ResolvedLocally)
         {
         }
 
@@ -110,7 +110,7 @@ namespace Renci.SshNet
         /// <param name="proxyPort">The proxy port.</param>
         /// <param name="proxyUsername">The proxy username.</param>
         public PasswordConnectionInfo(string host, string username, string password, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername)
-            : this(host, DefaultPort, username, Encoding.UTF8.GetBytes(password), proxyType, proxyHost, proxyPort, proxyUsername, string.Empty)
+            : this(host, DefaultPort, username, Encoding.UTF8.GetBytes(password), proxyType, proxyHost, proxyPort, proxyUsername, string.Empty, HostResolutionMode.ResolvedLocally)
         {
         }
 
@@ -126,7 +126,7 @@ namespace Renci.SshNet
         /// <param name="proxyUsername">The proxy username.</param>
         /// <param name="proxyPassword">The proxy password.</param>
         public PasswordConnectionInfo(string host, string username, string password, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername, string proxyPassword)
-            : this(host, DefaultPort, username, Encoding.UTF8.GetBytes(password), proxyType, proxyHost, proxyPort, proxyUsername, proxyPassword)
+            : this(host, DefaultPort, username, Encoding.UTF8.GetBytes(password), proxyType, proxyHost, proxyPort, proxyUsername, proxyPassword, HostResolutionMode.ResolvedLocally)
         {
         }
 
@@ -152,7 +152,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentException"><paramref name="host" /> is invalid, or <paramref name="username" /> is <c>null</c> or contains only whitespace characters.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="port" /> is not within <see cref="IPEndPoint.MinPort" /> and <see cref="IPEndPoint.MaxPort" />.</exception>
         public PasswordConnectionInfo(string host, int port, string username, byte[] password)
-            : this(host, port, username, password, ProxyTypes.None, string.Empty, 0, string.Empty, string.Empty)
+            : this(host, port, username, password, ProxyTypes.None, string.Empty, 0, string.Empty, string.Empty, HostResolutionMode.ResolvedLocally)
         {
         }
 
@@ -167,7 +167,7 @@ namespace Renci.SshNet
         /// <param name="proxyHost">The proxy host.</param>
         /// <param name="proxyPort">The proxy port.</param>
         public PasswordConnectionInfo(string host, int port, string username, byte[] password, ProxyTypes proxyType, string proxyHost, int proxyPort)
-            : this(host, port, username, password, proxyType, proxyHost, proxyPort, string.Empty, string.Empty)
+            : this(host, port, username, password, proxyType, proxyHost, proxyPort, string.Empty, string.Empty, HostResolutionMode.ResolvedLocally)
         {
         }
 
@@ -183,7 +183,7 @@ namespace Renci.SshNet
         /// <param name="proxyPort">The proxy port.</param>
         /// <param name="proxyUsername">The proxy username.</param>
         public PasswordConnectionInfo(string host, int port, string username, byte[] password, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername)
-            : this(host, port, username, password, proxyType, proxyHost, proxyPort, proxyUsername, string.Empty)
+            : this(host, port, username, password, proxyType, proxyHost, proxyPort, proxyUsername, string.Empty, HostResolutionMode.ResolvedLocally)
         {
         }
 
@@ -197,7 +197,7 @@ namespace Renci.SshNet
         /// <param name="proxyHost">The proxy host.</param>
         /// <param name="proxyPort">The proxy port.</param>
         public PasswordConnectionInfo(string host, string username, byte[] password, ProxyTypes proxyType, string proxyHost, int proxyPort)
-            : this(host, DefaultPort, username, password, proxyType, proxyHost, proxyPort, string.Empty, string.Empty)
+            : this(host, DefaultPort, username, password, proxyType, proxyHost, proxyPort, string.Empty, string.Empty, HostResolutionMode.ResolvedLocally)
         {
         }
 
@@ -212,7 +212,7 @@ namespace Renci.SshNet
         /// <param name="proxyPort">The proxy port.</param>
         /// <param name="proxyUsername">The proxy username.</param>
         public PasswordConnectionInfo(string host, string username, byte[] password, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername)
-            : this(host, DefaultPort, username, password, proxyType, proxyHost, proxyPort, proxyUsername, string.Empty)
+            : this(host, DefaultPort, username, password, proxyType, proxyHost, proxyPort, proxyUsername, string.Empty, HostResolutionMode.ResolvedLocally)
         {
         }
 
@@ -228,7 +228,7 @@ namespace Renci.SshNet
         /// <param name="proxyUsername">The proxy username.</param>
         /// <param name="proxyPassword">The proxy password.</param>
         public PasswordConnectionInfo(string host, string username, byte[] password, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername, string proxyPassword)
-            : this(host, DefaultPort, username, password, proxyType, proxyHost, proxyPort, proxyUsername, proxyPassword)
+            : this(host, DefaultPort, username, password, proxyType, proxyHost, proxyPort, proxyUsername, proxyPassword, HostResolutionMode.ResolvedLocally)
         {
         }
 
@@ -245,7 +245,25 @@ namespace Renci.SshNet
         /// <param name="proxyUsername">The proxy username.</param>
         /// <param name="proxyPassword">The proxy password.</param>
         public PasswordConnectionInfo(string host, int port, string username, byte[] password, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername, string proxyPassword)
-            : base(host, port, username, proxyType, proxyHost, proxyPort, proxyUsername, proxyPassword, new PasswordAuthenticationMethod(username, password))
+            : this(host, port, username, password, proxyType, proxyHost, proxyPort, proxyUsername, proxyPassword, HostResolutionMode.ResolvedLocally)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PasswordConnectionInfo"/> class.
+        /// </summary>
+        /// <param name="host">Connection host.</param>
+        /// <param name="port">The port.</param>
+        /// <param name="username">Connection username.</param>
+        /// <param name="password">Connection password.</param>
+        /// <param name="proxyType">Type of the proxy.</param>
+        /// <param name="proxyHost">The proxy host.</param>
+        /// <param name="proxyPort">The proxy port.</param>
+        /// <param name="proxyUsername">The proxy username.</param>
+        /// <param name="proxyPassword">The proxy password.</param>
+        /// <param name="hostResolutionMode">The resolution mode of addresses, for SOCKS5 proxy</param>
+        public PasswordConnectionInfo(string host, int port, string username, byte[] password, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername, string proxyPassword, HostResolutionMode hostResolutionMode)
+            : base(host, port, username, proxyType, proxyHost, proxyPort, proxyUsername, proxyPassword, hostResolutionMode, new PasswordAuthenticationMethod(username, password))
         {
             foreach (var authenticationMethod in AuthenticationMethods)
             {

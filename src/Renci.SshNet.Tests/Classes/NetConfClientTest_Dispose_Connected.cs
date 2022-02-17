@@ -6,56 +6,55 @@ using System;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    public class NetConfClientTest_Dispose_Connected
+    public class NetConfClientTest_Dispose_Connected : NetConfClientTestBase
     {
-        private Mock<IServiceFactory> _serviceFactoryMock;
-        private Mock<ISession> _sessionMock;
-        private Mock<INetConfSession> _netConfSessionMock;
         private NetConfClient _netConfClient;
         private ConnectionInfo _connectionInfo;
         private int _operationTimeout;
 
-        [TestInitialize]
-        public void Setup()
+        protected override void SetupData()
         {
-            Arrange();
-            Act();
-        }
-
-        [TestCleanup]
-        public void Cleanup()
-        {
-        }
-
-        protected void Arrange()
-        {
-            _serviceFactoryMock = new Mock<IServiceFactory>(MockBehavior.Strict);
-            _sessionMock = new Mock<ISession>(MockBehavior.Strict);
-            _netConfSessionMock = new Mock<INetConfSession>(MockBehavior.Strict);
-
             _connectionInfo = new ConnectionInfo("host", "user", new NoneAuthenticationMethod("userauth"));
             _operationTimeout = new Random().Next(1000, 10000);
             _netConfClient = new NetConfClient(_connectionInfo, false, _serviceFactoryMock.Object);
             _netConfClient.OperationTimeout = TimeSpan.FromMilliseconds(_operationTimeout);
+        }
 
+        protected override void SetupMocks()
+        {
             var sequence = new MockSequence();
+
             _serviceFactoryMock.InSequence(sequence)
-                .Setup(p => p.CreateSession(_connectionInfo))
-                .Returns(_sessionMock.Object);
-            _sessionMock.InSequence(sequence).Setup(p => p.Connect());
+                               .Setup(p => p.CreateSocketFactory())
+                               .Returns(_socketFactoryMock.Object);
             _serviceFactoryMock.InSequence(sequence)
-                .Setup(p => p.CreateNetConfSession(_sessionMock.Object, _operationTimeout))
-                .Returns(_netConfSessionMock.Object);
-            _netConfSessionMock.InSequence(sequence).Setup(p => p.Connect());
-            _sessionMock.InSequence(sequence).Setup(p => p.OnDisconnecting());
-            _netConfSessionMock.InSequence(sequence).Setup(p => p.Disconnect());
-            _sessionMock.InSequence(sequence).Setup(p => p.Dispose());
-            _netConfSessionMock.InSequence(sequence).Setup(p => p.Dispose());
+                               .Setup(p => p.CreateSession(_connectionInfo, _socketFactoryMock.Object))
+                               .Returns(_sessionMock.Object);
+            _sessionMock.InSequence(sequence)
+                        .Setup(p => p.Connect());
+            _serviceFactoryMock.InSequence(sequence)
+                               .Setup(p => p.CreateNetConfSession(_sessionMock.Object, _operationTimeout))
+                               .Returns(_netConfSessionMock.Object);
+            _netConfSessionMock.InSequence(sequence)
+                               .Setup(p => p.Connect());
+            _sessionMock.InSequence(sequence)
+                        .Setup(p => p.OnDisconnecting());
+            _netConfSessionMock.InSequence(sequence)
+                               .Setup(p => p.Disconnect());
+            _sessionMock.InSequence(sequence)
+                        .Setup(p => p.Dispose());
+            _netConfSessionMock.InSequence(sequence)
+                               .Setup(p => p.Dispose());
+        }
+
+        protected override void Arrange()
+        {
+            base.Arrange();
 
             _netConfClient.Connect();
         }
 
-        protected void Act()
+        protected override void Act()
         {
             _netConfClient.Dispose();
         }
@@ -67,9 +66,16 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
+        public void CreateSocketFactoryOnServiceFactoryShouldBeInvokedOnce()
+        {
+            _serviceFactoryMock.Verify(p => p.CreateSocketFactory(), Times.Once);
+        }
+
+        [TestMethod]
         public void CreateSessionOnServiceFactoryShouldBeInvokedOnce()
         {
-            _serviceFactoryMock.Verify(p => p.CreateSession(_connectionInfo), Times.Once);
+            _serviceFactoryMock.Verify(p => p.CreateSession(_connectionInfo, _socketFactoryMock.Object),
+                                       Times.Once);
         }
 
         [TestMethod]

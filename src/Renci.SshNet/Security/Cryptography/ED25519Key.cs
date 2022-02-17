@@ -33,7 +33,7 @@ namespace Renci.SshNet.Security
         {
             get
             {
-                return new BigInteger[] { publicKey.ToBigInteger() };
+                return new BigInteger[] { publicKey.ToBigInteger2() };
             }
             set
             {
@@ -51,7 +51,7 @@ namespace Renci.SshNet.Security
         {
             get
             {
-                return PublicKey.Length;
+                return PublicKey.Length * 8;
             }
         }
 

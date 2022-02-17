@@ -21,16 +21,6 @@ namespace Renci.SshNet.Tests.Classes
         private IList<ScpUploadEventArgs> _uploadingRegister;
         private SshException _actualException;
 
-        [TestCleanup]
-        public void Cleanup()
-        {
-            if (_fileName != null)
-            {
-                File.Delete(_fileName);
-                _fileName = null;
-            }
-        }
-
         protected override void SetupData()
         {
             var random = new Random();
@@ -53,7 +43,10 @@ namespace Renci.SshNet.Tests.Classes
                                .Setup(p => p.CreateRemotePathDoubleQuoteTransformation())
                                .Returns(_remotePathTransformationMock.Object);
             _serviceFactoryMock.InSequence(sequence)
-                               .Setup(p => p.CreateSession(_connectionInfo))
+                               .Setup(p => p.CreateSocketFactory())
+                               .Returns(_socketFactoryMock.Object);
+            _serviceFactoryMock.InSequence(sequence)
+                               .Setup(p => p.CreateSession(_connectionInfo, _socketFactoryMock.Object))
                                .Returns(_sessionMock.Object);
             _sessionMock.InSequence(sequence).Setup(p => p.Connect());
             _serviceFactoryMock.InSequence(sequence).Setup(p => p.CreatePipeStream()).Returns(_pipeStreamMock.Object);
@@ -66,7 +59,11 @@ namespace Renci.SshNet.Tests.Classes
                                .Setup(p => p.SendExecRequest(string.Format("scp -t -d {0}", _transformedPath)))
                                .Returns(false);
             _channelSessionMock.InSequence(sequence).Setup(p => p.Dispose());
+#if NET35
             _pipeStreamMock.As<IDisposable>().InSequence(sequence).Setup(p => p.Dispose());
+#else
+            _pipeStreamMock.InSequence(sequence).Setup(p => p.Close());
+#endif
         }
 
         protected override void Arrange()
@@ -76,6 +73,17 @@ namespace Renci.SshNet.Tests.Classes
             _scpClient = new ScpClient(_connectionInfo, false, _serviceFactoryMock.Object);
             _scpClient.Uploading += (sender, args) => _uploadingRegister.Add(args);
             _scpClient.Connect();
+        }
+
+        protected override void TearDown()
+        {
+            base.TearDown();
+
+            if (_fileName != null)
+            {
+                File.Delete(_fileName);
+                _fileName = null;
+            }
         }
 
         protected override void Act()
@@ -114,7 +122,11 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void DisposeOnPipeStreamShouldBeInvokedOnce()
         {
+#if NET35
             _pipeStreamMock.As<IDisposable>().Verify(p => p.Dispose(), Times.Once);
+#else
+            _pipeStreamMock.Verify(p => p.Close(), Times.Once);
+#endif
         }
 
         [TestMethod]

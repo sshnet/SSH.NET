@@ -69,6 +69,50 @@ namespace Renci.SshNet
         Encoding Encoding { get; }
 
         /// <summary>
+        /// Gets connection host.
+        /// </summary>
+        /// <value>
+        /// The connection host.
+        /// </value>
+        string Host { get; }
+
+        /// <summary>
+        /// Gets connection port.
+        /// </summary>
+        /// <value>
+        /// The connection port. The default value is 22.
+        /// </value>
+        int Port { get; }
+
+        /// <summary>
+        /// Gets proxy type.
+        /// </summary>
+        /// <value>
+        /// The type of the proxy.
+        /// </value>
+        ProxyTypes ProxyType { get; }
+
+        /// <summary>
+        /// Gets proxy connection host.
+        /// </summary>
+        string ProxyHost { get; }
+
+        /// <summary>
+        /// Gets proxy connection port.
+        /// </summary>
+        int ProxyPort { get; }
+
+        /// <summary>
+        /// Gets proxy connection username.
+        /// </summary>
+        string ProxyUsername { get; }
+
+        /// <summary>
+        /// Gets proxy connection password.
+        /// </summary>
+        string ProxyPassword { get; }
+
+        /// <summary>
         /// Gets the number of retry attempts when session channel creation failed.
         /// </summary>
         /// <value>

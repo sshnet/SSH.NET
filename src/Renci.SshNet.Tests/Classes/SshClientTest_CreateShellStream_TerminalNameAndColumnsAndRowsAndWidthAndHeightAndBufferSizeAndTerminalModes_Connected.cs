@@ -8,11 +8,8 @@ using Renci.SshNet.Common;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    public class
-        SshClientTest_CreateShellStream_TerminalNameAndColumnsAndRowsAndWidthAndHeightAndBufferSizeAndTerminalModes_Connected
+    public class SshClientTest_CreateShellStream_TerminalNameAndColumnsAndRowsAndWidthAndHeightAndBufferSizeAndTerminalModes_Connected : BaseClientTestBase
     {
-        private Mock<IServiceFactory> _serviceFactoryMock;
-        private Mock<ISession> _sessionMock;
         private SshClient _sshClient;
         private ConnectionInfo _connectionInfo;
         private string _terminalName;
@@ -25,14 +22,7 @@ namespace Renci.SshNet.Tests.Classes
         private ShellStream _expected;
         private ShellStream _actual;
 
-        [TestInitialize]
-        public void Setup()
-        {
-            Arrange();
-            Act();
-        }
-
-        private void SetupData()
+        protected override void SetupData()
         {
             var random = new Random();
 
@@ -49,18 +39,15 @@ namespace Renci.SshNet.Tests.Classes
             _expected = CreateShellStream();
         }
 
-        private void CreateMocks()
-        {
-            _serviceFactoryMock = new Mock<IServiceFactory>(MockBehavior.Strict);
-            _sessionMock = new Mock<ISession>(MockBehavior.Strict);
-        }
-
-        private void SetupMocks()
+        protected override void SetupMocks()
         {
             var sequence = new MockSequence();
 
             _serviceFactoryMock.InSequence(sequence)
-                               .Setup(p => p.CreateSession(_connectionInfo))
+                               .Setup(p => p.CreateSocketFactory())
+                               .Returns(_socketFactoryMock.Object);
+            _serviceFactoryMock.InSequence(sequence)
+                               .Setup(p => p.CreateSession(_connectionInfo, _socketFactoryMock.Object))
                                .Returns(_sessionMock.Object);
             _sessionMock.InSequence(sequence)
                         .Setup(p => p.Connect());
@@ -76,17 +63,15 @@ namespace Renci.SshNet.Tests.Classes
                                .Returns(_expected);
         }
 
-        private void Arrange()
+        protected override void Arrange()
         {
-            SetupData();
-            CreateMocks();
-            SetupMocks();
+            base.Arrange();
 
             _sshClient = new SshClient(_connectionInfo, false, _serviceFactoryMock.Object);
             _sshClient.Connect();
         }
 
-        protected void Act()
+        protected override void Act()
         {
             _actual = _sshClient.CreateShellStream(_terminalName,
                                                    _widthColumns,

@@ -6,6 +6,7 @@ using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Transport;
+using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes
 {
@@ -70,7 +71,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void ErrorOccurredIsNeverRaised()
         {
-            Assert.AreEqual(0, ErrorOccurredRegister.Count);
+            Assert.AreEqual(0, ErrorOccurredRegister.Count, ErrorOccurredRegister.AsString());
         }
 
         [TestMethod]

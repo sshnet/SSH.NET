@@ -4,34 +4,27 @@ using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Renci.SshNet.Common;
+using Renci.SshNet.Connection;
 using Renci.SshNet.Messages.Transport;
+using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    public class SessionTest_NotConnected
+    public class SessionTest_NotConnected : SessionTestBase
     {
         private ConnectionInfo _connectionInfo;
-        private IServiceFactory _serviceFactory;
         private Session _session;
 
-        [TestInitialize]
-        public void Setup()
-        {
-            Arrange();
-            Act();
-        }
-
-        protected void Arrange()
+        protected override void SetupData()
         {
             var serverEndPoint = new IPEndPoint(IPAddress.Loopback, 8122);
             _connectionInfo = CreateConnectionInfo(serverEndPoint, TimeSpan.FromSeconds(5));
-            _serviceFactory = new Mock<IServiceFactory>(MockBehavior.Strict).Object;
         }
 
-        protected void Act()
+        protected override void Act()
         {
-            _session = new Session(_connectionInfo, _serviceFactory);
+            _session = new Session(_connectionInfo, _serviceFactoryMock.Object, _socketFactoryMock.Object);
         }
 
         [TestMethod]
@@ -44,6 +37,18 @@ namespace Renci.SshNet.Tests.Classes
         public void ConnectionInfoShouldReturnConnectionInfoPassedThroughConstructor()
         {
             Assert.AreSame(_connectionInfo, _session.ConnectionInfo);
+        }
+
+        [TestMethod]
+        public void DisconnectShouldNotThrowException()
+        {
+            _session.Disconnect();
+        }
+
+        [TestMethod]
+        public void DisposeShouldNotThrowException()
+        {
+            _session.Dispose();
         }
 
         [TestMethod]

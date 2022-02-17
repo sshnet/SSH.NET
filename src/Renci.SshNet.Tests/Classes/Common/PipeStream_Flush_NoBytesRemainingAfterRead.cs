@@ -1,19 +1,19 @@
-﻿using System;
+﻿using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Renci.SshNet.Common;
+using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Common
 {
     [TestClass]
-    public class PipeStream_Flush_NoBytesRemainingAfterRead
+    public class PipeStream_Flush_NoBytesRemainingAfterRead : TripleATestBase
     {
         private PipeStream _pipeStream;
         private byte[] _readBuffer;
         private int _bytesRead;
-        private IAsyncResult _asyncReadResult;
+        private Thread _readThread;
 
-        [TestInitialize]
-        public void Init()
+        protected override void Arrange()
         {
             _pipeStream = new PipeStream();
             _pipeStream.WriteByte(10);
@@ -22,25 +22,25 @@ namespace Renci.SshNet.Tests.Classes.Common
             _bytesRead = 0;
             _readBuffer = new byte[4];
 
-            Action readAction = () => _bytesRead = _pipeStream.Read(_readBuffer, 0, _readBuffer.Length);
-            _asyncReadResult = readAction.BeginInvoke(null, null);
-            _asyncReadResult.AsyncWaitHandle.WaitOne(50);
+            _readThread = new Thread(() => _bytesRead = _pipeStream.Read(_readBuffer, 0, _readBuffer.Length));
+            _readThread.Start();
 
-            Act();
+            // ensure we've started reading
+            Assert.IsFalse(_readThread.Join(50));
         }
 
-        protected void Act()
+        protected override void Act()
         {
             _pipeStream.Flush();
 
             // give async read time to complete
-            _asyncReadResult.AsyncWaitHandle.WaitOne(100);
+            _readThread.Join(100);
         }
 
         [TestMethod]
         public void AsyncReadShouldHaveFinished()
         {
-            Assert.IsTrue(_asyncReadResult.IsCompleted);
+            Assert.AreEqual(ThreadState.Stopped, _readThread.ThreadState);
         }
 
         [TestMethod]

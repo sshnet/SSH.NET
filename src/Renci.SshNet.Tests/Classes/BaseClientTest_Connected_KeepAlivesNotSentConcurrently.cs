@@ -7,24 +7,53 @@ using Renci.SshNet.Messages.Transport;
 namespace Renci.SshNet.Tests.Classes
 {
     [TestClass]
-    public class BaseClientTest_Connected_KeepAlivesNotSentConcurrently
+    public class BaseClientTest_Connected_KeepAlivesNotSentConcurrently : BaseClientTestBase
     {
-        private Mock<IServiceFactory> _serviceFactoryMock;
-        private Mock<ISession> _sessionMock;
         private MockSequence _mockSequence;
         private BaseClient _client;
         private ConnectionInfo _connectionInfo;
         private ManualResetEvent _keepAliveSent;
 
-        [TestInitialize]
-        public void Setup()
+        protected override void SetupData()
         {
-            Arrange();
-            Act();
+            _connectionInfo = new ConnectionInfo("host", "user", new PasswordAuthenticationMethod("user", "pwd"));
+            _keepAliveSent = new ManualResetEvent(false);
         }
 
-        [TestCleanup]
-        public void Cleanup()
+        protected override void SetupMocks()
+        {
+            _mockSequence = new MockSequence();
+
+            _serviceFactoryMock.InSequence(_mockSequence)
+                               .Setup(p => p.CreateSocketFactory())
+                               .Returns(_socketFactoryMock.Object);
+            _serviceFactoryMock.InSequence(_mockSequence)
+                               .Setup(p => p.CreateSession(_connectionInfo, _socketFactoryMock.Object))
+                               .Returns(_sessionMock.Object);
+            _sessionMock.InSequence(_mockSequence)
+                        .Setup(p => p.Connect());
+            _sessionMock.InSequence(_mockSequence)
+                        .Setup(p => p.TrySendMessage(It.IsAny<IgnoreMessage>()))
+                        .Returns(true)
+                        .Callback(() =>
+                            {
+                                Thread.Sleep(300);
+                                _keepAliveSent.Set();
+                            });
+        }
+
+        protected override void Arrange()
+        {
+            base.Arrange();
+
+            _client = new MyClient(_connectionInfo, false, _serviceFactoryMock.Object)
+                {
+                    KeepAliveInterval = TimeSpan.FromMilliseconds(50d)
+                };
+            _client.Connect();
+        }
+
+        protected override void TearDown()
         {
             if (_client != null)
             {
@@ -34,47 +63,7 @@ namespace Renci.SshNet.Tests.Classes
             }
         }
 
-        private void SetupData()
-        {
-            _connectionInfo = new ConnectionInfo("host", "user", new PasswordAuthenticationMethod("user", "pwd"));
-            _keepAliveSent = new ManualResetEvent(false);
-        }
-
-        private void CreateMocks()
-        {
-            _serviceFactoryMock = new Mock<IServiceFactory>(MockBehavior.Strict);
-            _sessionMock = new Mock<ISession>(MockBehavior.Strict);
-        }
-
-        private void SetupMocks()
-        {
-            _mockSequence = new MockSequence();
-
-            _serviceFactoryMock.InSequence(_mockSequence).Setup(p => p.CreateSession(_connectionInfo)).Returns(_sessionMock.Object);
-            _sessionMock.InSequence(_mockSequence).Setup(p => p.Connect());
-            _sessionMock.InSequence(_mockSequence).Setup(p => p.TrySendMessage(It.IsAny<IgnoreMessage>()))
-                        .Returns(true)
-                        .Callback(() =>
-                        {
-                            Thread.Sleep(300);
-                            _keepAliveSent.Set();
-                        });
-        }
-
-        protected void Arrange()
-        {
-            SetupData();
-            CreateMocks();
-            SetupMocks();
-
-            _client = new MyClient(_connectionInfo, false, _serviceFactoryMock.Object)
-                {
-                    KeepAliveInterval = TimeSpan.FromMilliseconds(50d)
-                };
-            _client.Connect();
-        }
-
-        protected void Act()
+        protected override void Act()
         {
             // should keep-alive message be sent concurrently, then multiple keep-alive
             // message would be sent during this sleep period

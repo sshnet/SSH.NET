@@ -37,7 +37,10 @@ namespace Renci.SshNet.Tests.Classes
                                .Setup(p => p.CreateRemotePathDoubleQuoteTransformation())
                                .Returns(_remotePathTransformationMock.Object);
             _serviceFactoryMock.InSequence(sequence)
-                               .Setup(p => p.CreateSession(_connectionInfo))
+                               .Setup(p => p.CreateSocketFactory())
+                               .Returns(_socketFactoryMock.Object);
+            _serviceFactoryMock.InSequence(sequence)
+                               .Setup(p => p.CreateSession(_connectionInfo, _socketFactoryMock.Object))
                                .Returns(_sessionMock.Object);
             _sessionMock.InSequence(sequence).Setup(p => p.Connect());
             _serviceFactoryMock.InSequence(sequence).Setup(p => p.CreatePipeStream()).Returns(_pipeStreamMock.Object);
@@ -50,7 +53,11 @@ namespace Renci.SshNet.Tests.Classes
                                .Setup(p => p.SendExecRequest(string.Format("scp -r -p -d -t {0}", _transformedPath)))
                                .Returns(false);
             _channelSessionMock.InSequence(sequence).Setup(p => p.Dispose());
+#if NET35
             _pipeStreamMock.As<IDisposable>().InSequence(sequence).Setup(p => p.Dispose());
+#else
+            _pipeStreamMock.InSequence(sequence).Setup(p => p.Close());
+#endif
         }
 
         protected override void Arrange()
@@ -98,7 +105,11 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void DisposeOnPipeStreamShouldBeInvokedOnce()
         {
+#if NET35
             _pipeStreamMock.As<IDisposable>().Verify(p => p.Dispose(), Times.Once);
+#else
+            _pipeStreamMock.Verify(p => p.Close(), Times.Once);
+#endif
         }
 
         [TestMethod]

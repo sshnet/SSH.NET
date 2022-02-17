@@ -1,4 +1,4 @@
-﻿SSH.NET
+﻿ ![Logo](images/logo/png/SS-NET-icon-h50.png) SSH.NET
 =======
 SSH.NET is a Secure Shell (SSH-2) library for .NET, optimized for parallelism.
 
@@ -80,7 +80,7 @@ the missing test once you figure things out.  🤓
 * RSA in OpenSSL PEM and ssh.com format
 * DSA in OpenSSL PEM and ssh.com format
 * ECDSA 256/384/521 in OpenSSL PEM format
-* ED25519 in OpenSSH key format
+* ECDSA 256/384/521, ED25519 and RSA in OpenSSH key format
 
 Private keys can be encrypted using one of the following cipher methods:
 * DES-EDE3-CBC

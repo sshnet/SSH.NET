@@ -4,11 +4,11 @@ using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
 using System.Security.Cryptography;
-using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Renci.SshNet.Common;
 using Renci.SshNet.Compression;
+using Renci.SshNet.Connection;
 using Renci.SshNet.Messages;
 using Renci.SshNet.Messages.Transport;
 using Renci.SshNet.Security;
@@ -21,11 +21,16 @@ namespace Renci.SshNet.Tests.Classes
     public class SessionTest_Connected_ServerAndClientDisconnectRace
     {
         private Mock<IServiceFactory> _serviceFactoryMock;
+        private Mock<ISocketFactory> _socketFactoryMock;
+        private Mock<IConnector> _connectorMock;
+        private Mock<IProtocolVersionExchange> _protocolVersionExchangeMock;
         private Mock<IKeyExchange> _keyExchangeMock;
         private Mock<IClientAuthentication> _clientAuthenticationMock;
         private IPEndPoint _serverEndPoint;
         private string _keyExchangeAlgorithm;
         private DisconnectMessage _disconnectMessage;
+        private SocketFactory _socketFactory;
+        private bool _authenticationStarted;
 
         protected Random Random { get; private set; }
         protected byte[] SessionId { get; private set; }
@@ -36,7 +41,9 @@ namespace Renci.SshNet.Tests.Classes
         protected AsyncSocketListener ServerListener { get; private set; }
         protected IList<byte[]> ServerBytesReceivedRegister { get; private set; }
         protected Session Session { get; private set; }
+        protected Socket ClientSocket { get; private set; }
         protected Socket ServerSocket { get; private set; }
+        internal SshIdentification ServerIdentification { get; private set; }
 
         private void TearDown()
         {
@@ -48,6 +55,12 @@ namespace Renci.SshNet.Tests.Classes
             if (Session != null)
             {
                 Session.Dispose();
+            }
+
+            if (ClientSocket != null && ClientSocket.Connected)
+            {
+                ClientSocket.Shutdown(SocketShutdown.Both);
+                ClientSocket.Dispose();
             }
         }
 
@@ -69,39 +82,31 @@ namespace Renci.SshNet.Tests.Classes
             DisconnectReceivedRegister = new List<MessageEventArgs<DisconnectMessage>>();
             ErrorOccurredRegister = new List<ExceptionEventArgs>();
             ServerBytesReceivedRegister = new List<byte[]>();
+            ServerIdentification = new SshIdentification("2.0", "OurServerStub");
+            _authenticationStarted = false;
             _disconnectMessage = new DisconnectMessage(DisconnectReason.ServiceNotAvailable, "Not today!");
+            _socketFactory = new SocketFactory();
 
-            Session = new Session(ConnectionInfo, _serviceFactoryMock.Object);
+            Session = new Session(ConnectionInfo, _serviceFactoryMock.Object, _socketFactoryMock.Object);
             Session.Disconnected += (sender, args) => DisconnectedRegister.Add(args);
             Session.DisconnectReceived += (sender, args) => DisconnectReceivedRegister.Add(args);
             Session.ErrorOccured += (sender, args) => ErrorOccurredRegister.Add(args);
             Session.KeyExchangeInitReceived += (sender, args) =>
-            {
-                var newKeysMessage = new NewKeysMessage();
-                var newKeys = newKeysMessage.GetPacket(8, null);
-                ServerSocket.Send(newKeys, 4, newKeys.Length - 4, SocketFlags.None);
-            };
+                {
+                    var newKeysMessage = new NewKeysMessage();
+                    var newKeys = newKeysMessage.GetPacket(8, null);
+                    ServerSocket.Send(newKeys, 4, newKeys.Length - 4, SocketFlags.None);
+                };
 
             ServerListener = new AsyncSocketListener(_serverEndPoint);
             ServerListener.Connected += socket =>
-            {
-                ServerSocket = socket;
-
-                socket.Send(Encoding.ASCII.GetBytes("\r\n"));
-                socket.Send(Encoding.ASCII.GetBytes("WELCOME banner\r\n"));
-                socket.Send(Encoding.ASCII.GetBytes("SSH-2.0-SshStub\r\n"));
-            };
-
-            var counter = 0;
-
-            ServerListener.BytesReceived += (received, socket) =>
-            {
-                ServerBytesReceivedRegister.Add(received);
-
-                switch (counter++)
                 {
-                    case 0:
-                        var keyExchangeInitMessage = new KeyExchangeInitMessage
+                    ServerSocket = socket;
+
+                    // Since we're mocking the protocol version exchange, we'll immediately stat KEX upon
+                    // having established the connection instead of when the client has been identified
+
+                    var keyExchangeInitMessage = new KeyExchangeInitMessage
                         {
                             CompressionAlgorithmsClientToServer = new string[0],
                             CompressionAlgorithmsServerToClient = new string[0],
@@ -114,26 +119,46 @@ namespace Renci.SshNet.Tests.Classes
                             MacAlgorithmsServerToClient = new string[0],
                             ServerHostKeyAlgorithms = new string[0]
                         };
-                        var keyExchangeInit = keyExchangeInitMessage.GetPacket(8, null);
-                        ServerSocket.Send(keyExchangeInit, 4, keyExchangeInit.Length - 4, SocketFlags.None);
-                        break;
-                    case 1:
+                    var keyExchangeInit = keyExchangeInitMessage.GetPacket(8, null);
+                    ServerSocket.Send(keyExchangeInit, 4, keyExchangeInit.Length - 4, SocketFlags.None);
+                };
+            ServerListener.BytesReceived += (received, socket) =>
+                {
+                    ServerBytesReceivedRegister.Add(received);
+
+                    if (!_authenticationStarted)
+                    {
                         var serviceAcceptMessage =ServiceAcceptMessageBuilder.Create(ServiceName.UserAuthentication).Build();
                         ServerSocket.Send(serviceAcceptMessage, 0, serviceAcceptMessage.Length, SocketFlags.None);
-                        break;
-                }
-            };
+                        _authenticationStarted = true;
+                    }
+                };
+
+            ServerListener.Start();
+
+            ClientSocket = new DirectConnector(_socketFactory).Connect(ConnectionInfo);
         }
 
         private void CreateMocks()
         {
             _serviceFactoryMock = new Mock<IServiceFactory>(MockBehavior.Strict);
+            _socketFactoryMock = new Mock<ISocketFactory>(MockBehavior.Strict);
+            _connectorMock = new Mock<IConnector>(MockBehavior.Strict);
+            _protocolVersionExchangeMock = new Mock<IProtocolVersionExchange>(MockBehavior.Strict);
             _keyExchangeMock = new Mock<IKeyExchange>(MockBehavior.Strict);
             _clientAuthenticationMock = new Mock<IClientAuthentication>(MockBehavior.Strict);
         }
 
         private void SetupMocks()
         {
+            _serviceFactoryMock.Setup(p => p.CreateConnector(ConnectionInfo, _socketFactoryMock.Object))
+                               .Returns(_connectorMock.Object);
+            _connectorMock.Setup(p => p.Connect(ConnectionInfo))
+                          .Returns(ClientSocket);
+            _serviceFactoryMock.Setup(p => p.CreateProtocolVersionExchange())
+                               .Returns(_protocolVersionExchangeMock.Object);
+            _protocolVersionExchangeMock.Setup(p => p.Start(Session.ClientVersion, ClientSocket, ConnectionInfo.Timeout))
+                                        .Returns(ServerIdentification);
             _serviceFactoryMock.Setup(
                 p =>
                     p.CreateKeyExchange(ConnectionInfo.KeyExchangeAlgorithms, new[] { _keyExchangeAlgorithm })).Returns(_keyExchangeMock.Object);
@@ -157,7 +182,6 @@ namespace Renci.SshNet.Tests.Classes
             SetupData();
             SetupMocks();
 
-            ServerListener.Start();
             Session.Connect();
         }
 

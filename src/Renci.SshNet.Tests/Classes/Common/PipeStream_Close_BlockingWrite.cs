@@ -1,22 +1,23 @@
 ﻿using System;
+using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Renci.SshNet.Common;
+using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Common
 {
     [TestClass]
-    public class PipeStream_Close_BlockingWrite
+    public class PipeStream_Close_BlockingWrite : TripleATestBase
     {
         private PipeStream _pipeStream;
         private Exception _writeException;
-        private IAsyncResult _asyncWriteResult;
+        private Thread _writehread;
 
-        [TestInitialize]
-        public void Init()
+        protected override void Arrange()
         {
             _pipeStream = new PipeStream {MaxBufferLength = 3};
 
-            Action writeAction = () =>
+            _writehread = new Thread(() =>
                 {
                     _pipeStream.WriteByte(10);
                     _pipeStream.WriteByte(13);
@@ -33,26 +34,25 @@ namespace Renci.SshNet.Tests.Classes.Common
                         _writeException = ex;
                         throw;
                     }
-                };
-            _asyncWriteResult = writeAction.BeginInvoke(null, null);
-            // ensure we've started writing
-            _asyncWriteResult.AsyncWaitHandle.WaitOne(50);
+                });
+            _writehread.Start();
 
-            Act();
+            // ensure we've started writing
+            Assert.IsFalse(_writehread.Join(50));
         }
 
-        protected void Act()
+        protected override void Act()
         {
             _pipeStream.Close();
 
-            // give async write time to complete
-            _asyncWriteResult.AsyncWaitHandle.WaitOne(100);
+            // give write time to complete
+            _writehread.Join(100);
         }
 
         [TestMethod]
         public void BlockingWriteShouldHaveBeenInterrupted()
         {
-            Assert.IsTrue(_asyncWriteResult.IsCompleted);
+            Assert.AreEqual(ThreadState.Stopped, _writehread.ThreadState);
         }
 
         [TestMethod]

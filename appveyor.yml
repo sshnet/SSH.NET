@@ -1,5 +1,9 @@
 os: Visual Studio 2019
 
+init:
+ - netsh int ipv4 set dynamicport tcp start=1025 num=64510
+ - powershell "New-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters' -Name 'TcpTimedWaitDelay' -Value '15' -PropertyType 'DWord'"
+
 before_build:
   - nuget restore src\Renci.SshNet.VS2019.sln
 

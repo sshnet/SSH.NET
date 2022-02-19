@@ -11,11 +11,9 @@ namespace Renci.SshNet
     /// <summary>
     /// Provides functionality to perform private key authentication.
     /// </summary>
-    public class PrivateKeyAuthenticationMethod : AuthenticationMethod, IDisposable
+    public class PrivateKeyAuthenticationMethod : AuthenticationMethod
     {
-        private AuthenticationResult _authenticationResult = AuthenticationResult.Failure;
-        private EventWaitHandle _authenticationCompleted = new ManualResetEvent(false);
-        private bool _isSignatureRequired;
+	    private bool _isSignatureRequired;
 
         /// <summary>
         /// Gets authentication method name
@@ -43,6 +41,7 @@ namespace Renci.SshNet
                 throw new ArgumentNullException("keyFiles");
 
             KeyFiles = new Collection<PrivateKeyFile>(keyFiles);
+            _authenticationCompleted = new ManualResetEvent(false);
         }
 
         /// <summary>
@@ -146,52 +145,6 @@ namespace Renci.SshNet
             _isSignatureRequired = true;
             _authenticationCompleted.Set();
         }
-
-        #region IDisposable Members
-
-        private bool _isDisposed;
-
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        /// <summary>
-        /// Releases unmanaged and - optionally - managed resources
-        /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-        protected virtual void Dispose(bool disposing)
-        {
-            if (_isDisposed)
-                return;
-
-            if (disposing)
-            {
-                var authenticationCompleted = _authenticationCompleted;
-                if (authenticationCompleted != null)
-                {
-                    _authenticationCompleted = null;
-                    authenticationCompleted.Dispose();
-                }
-
-                _isDisposed = true;
-            }
-        }
-
-        /// <summary>
-        /// Releases unmanaged resources and performs other cleanup operations before the
-        /// <see cref="PasswordConnectionInfo"/> is reclaimed by garbage collection.
-        /// </summary>
-        ~PrivateKeyAuthenticationMethod()
-        {
-            Dispose(false);
-        }
-
-        #endregion
 
         private class SignatureData : SshData
         {

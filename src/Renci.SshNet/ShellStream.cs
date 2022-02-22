@@ -215,17 +215,31 @@ namespace Renci.SshNet
         /// <exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed.</exception>
         public override int Read(byte[] buffer, int offset, int count)
         {
-            var i = 0;
-
-            lock (_incoming)
+            if (_isDisposed)
             {
-                for (; i < count && _incoming.Count > 0; i++)
-                {
-                    buffer[offset + i] = _incoming.Dequeue();
-                }
+                throw new ObjectDisposedException("ShellStream");
             }
 
-            return i;
+            var i = 0;
+            while (true)
+            {
+                lock (_incoming)
+                {
+                    for (; i < count && _incoming.Count > 0; i++)
+                    {
+                        buffer[offset + i] = _incoming.Dequeue();
+                    }
+                }
+
+                if (i != 0)
+                    return i;
+
+                _dataReceived.WaitOne();
+                if (_incoming.Count == 0)
+                {
+                    return 0; // The session was closed
+                }
+            }
         }
 
         /// <summary>
@@ -766,6 +780,10 @@ namespace Renci.SshNet
 
         private void Session_Disconnected(object sender, EventArgs e)
         {
+            // Release thread blocked in a ShellStream.Read() call
+            if (_dataReceived != null)
+                _dataReceived.Set();
+
             if (_channel != null)
                 _channel.Dispose();
         }

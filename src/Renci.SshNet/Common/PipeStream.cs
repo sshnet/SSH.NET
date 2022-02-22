@@ -43,12 +43,6 @@
         private readonly Queue<byte> _buffer = new Queue<byte>();
 
         /// <summary>
-        /// Indicates that the input stream has been flushed and that
-        /// all remaining data should be written to the output stream.
-        /// </summary>
-        private bool _isFlushed;
-
-        /// <summary>
         /// Maximum number of bytes to store in the buffer.
         /// </summary>
         private long _maxBufferLength = 200 * 1024 * 1024;
@@ -131,7 +125,6 @@
             if (_isDisposed)
                 throw CreateObjectDisposedException();
 
-            _isFlushed = true;
             lock (_buffer)
             {
                 // unblock read hereby allowing buffer to be partially filled
@@ -180,8 +173,6 @@
         ///<exception cref="ArgumentOutOfRangeException">offset or count is negative.</exception>
         public override int Read(byte[] buffer, int offset, int count)
         {
-            if (offset != 0)
-                throw new NotSupportedException("Offsets with value of non-zero are not supported");
             if (buffer == null)
                 throw new ArgumentNullException("buffer");
             if (offset + count > buffer.Length)
@@ -213,7 +204,7 @@
                 // fill the read buffer
                 for (; readLength < count && _buffer.Count > 0; readLength++)
                 {
-                    buffer[readLength] = _buffer.Dequeue();
+                    buffer[offset + readLength] = _buffer.Dequeue();
                 }
 
                 Monitor.Pulse(_buffer);
@@ -229,8 +220,7 @@
         /// <returns><c>True</c> if data available; otherwise<c>false</c>.</returns>
         private bool ReadAvailable(int count)
         {
-            var length = Length;
-            return (_isFlushed || length >= count) && (length >= (count + 1) || !BlockLastReadBuffer);
+            return (Length >= count || !BlockLastReadBuffer);
         }
 
         ///<summary>
@@ -263,8 +253,6 @@
                 // wait until the buffer isn't full
                 while (Length >= _maxBufferLength)
                     Monitor.Wait(_buffer);
-
-                _isFlushed = false; // if it were flushed before, it soon will not be.
 
                 // queue up the buffer data
                 for (var i = offset; i < offset + count; i++)

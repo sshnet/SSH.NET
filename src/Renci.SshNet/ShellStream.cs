@@ -16,6 +16,7 @@ namespace Renci.SshNet
     public class ShellStream : Stream
     {
         private const string CrLf = "\r\n";
+        private static readonly TimeSpan InfiniteTimeSpan = TimeSpan.FromMilliseconds(-1); // ToDo: Replace with Timeout.InfiniteTimeSpan when we drop old targets
 
         private readonly ISession _session;
         private readonly Encoding _encoding;
@@ -25,6 +26,7 @@ namespace Renci.SshNet
         private IChannelSession _channel;
         private AutoResetEvent _dataReceived = new AutoResetEvent(false);
         private bool _isDisposed;
+        private bool _isClosed;
 
         /// <summary>
         /// Occurs when data was received.
@@ -220,8 +222,8 @@ namespace Renci.SshNet
                 throw new ObjectDisposedException("ShellStream");
             }
 
-            var i = 0;
-            while (true)
+            int i = 0;
+            do
             {
                 lock (_incoming)
                 {
@@ -229,17 +231,14 @@ namespace Renci.SshNet
                     {
                         buffer[offset + i] = _incoming.Dequeue();
                     }
+                    if (i > 0)
+                    {
+                        return i;
+                    }
                 }
+            } while (WaitForDataReceived(InfiniteTimeSpan));
 
-                if (i != 0)
-                    return i;
-
-                _dataReceived.WaitOne();
-                if (_incoming.Count == 0)
-                {
-                    return 0; // The session was closed
-                }
-            }
+            return i;
         }
 
         /// <summary>
@@ -284,6 +283,11 @@ namespace Renci.SshNet
         /// <exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed.</exception>
         public override void Write(byte[] buffer, int offset, int count)
         {
+            if (_isDisposed)
+            {
+                throw new ObjectDisposedException("ShellStream");
+            }
+
             foreach (var b in buffer.Take(offset, count))
             {
                 if (_outgoing.Count == _bufferSize)
@@ -303,7 +307,7 @@ namespace Renci.SshNet
         /// <param name="expectActions">The expected expressions and actions to perform.</param>
         public void Expect(params ExpectAction[] expectActions)
         {
-            Expect(TimeSpan.Zero, expectActions);
+            Expect(InfiniteTimeSpan, expectActions);
         }
 
         /// <summary>
@@ -313,8 +317,10 @@ namespace Renci.SshNet
         /// <param name="expectActions">The expected expressions and actions to perform, if the specified time elapsed and expected condition have not met, that method will exit without executing any action.</param>
         public void Expect(TimeSpan timeout, params ExpectAction[] expectActions)
         {
-            var expectedFound = false;
-            var text = string.Empty;
+            if (_isDisposed)
+            {
+                throw new ObjectDisposedException("ShellStream");
+            }
 
             do
             {
@@ -322,48 +328,30 @@ namespace Renci.SshNet
                 {
                     if (_incoming.Count > 0)
                     {
-                        text = _encoding.GetString(_incoming.ToArray(), 0, _incoming.Count);
-                    }
-
-                    if (text.Length > 0)
-                    {
-                        foreach (var expectAction in expectActions)
+                        var text = _encoding.GetString(_incoming.ToArray(), 0, _incoming.Count);
+                        if (text.Length > 0)
                         {
-                            var match = expectAction.Expect.Match(text);
-
-                            if (match.Success)
+                            foreach (var expectAction in expectActions)
                             {
-                                var result = text.Substring(0, match.Index + match.Length);
-
-                                for (var i = 0; i < match.Index + match.Length && _incoming.Count > 0; i++)
+                                var match = expectAction.Expect.Match(text);
+                                if (match.Success)
                                 {
-                                    //  Remove processed items from the queue
-                                    _incoming.Dequeue();
-                                }
+                                    var result = text.Substring(0, match.Index + match.Length);
 
-                                expectAction.Action(result);
-                                expectedFound = true;
+                                    for (var i = 0; i < match.Index + match.Length && _incoming.Count > 0; i++)
+                                    {
+                                        //  Remove processed items from the queue
+                                        _incoming.Dequeue();
+                                    }
+
+                                    expectAction.Action(result);
+                                    return;
+                                }
                             }
                         }
                     }
                 }
-
-                if (!expectedFound)
-                {
-                    if (timeout.Ticks > 0)
-                    {
-                        if (!_dataReceived.WaitOne(timeout))
-                        {
-                            return;
-                        }
-                    }
-                    else
-                    {
-                        _dataReceived.WaitOne();
-                    }
-                }
-            }
-            while (!expectedFound);
+            } while (WaitForDataReceived(timeout));
         }
 
         /// <summary>
@@ -375,7 +363,7 @@ namespace Renci.SshNet
         /// </returns>
         public IAsyncResult BeginExpect(params ExpectAction[] expectActions)
         {
-            return BeginExpect(TimeSpan.Zero, null, null, expectActions);
+            return BeginExpect(InfiniteTimeSpan, null, null, expectActions);
         }
 
         /// <summary>
@@ -388,7 +376,7 @@ namespace Renci.SshNet
         /// </returns>
         public IAsyncResult BeginExpect(AsyncCallback callback, params ExpectAction[] expectActions)
         {
-            return BeginExpect(TimeSpan.Zero, callback, null, expectActions);
+            return BeginExpect(InfiniteTimeSpan, callback, null, expectActions);
         }
 
         /// <summary>
@@ -402,7 +390,7 @@ namespace Renci.SshNet
         /// </returns>
         public IAsyncResult BeginExpect(AsyncCallback callback, object state, params ExpectAction[] expectActions)
         {
-            return BeginExpect(TimeSpan.Zero, callback, state, expectActions);
+            return BeginExpect(InfiniteTimeSpan, callback, state, expectActions);
         }
 
         /// <summary>
@@ -417,7 +405,10 @@ namespace Renci.SshNet
         /// </returns>
         public IAsyncResult BeginExpect(TimeSpan timeout, AsyncCallback callback, object state, params ExpectAction[] expectActions)
         {
-            var text = string.Empty;
+            if (_isDisposed)
+            {
+                throw new ObjectDisposedException("ShellStream");
+            }
 
             //  Create new AsyncResult object
             var asyncResult = new ExpectAsyncResult(callback, state);
@@ -425,73 +416,47 @@ namespace Renci.SshNet
             //  Execute callback on different thread
             ThreadAbstraction.ExecuteThread(() =>
             {
-                string expectActionResult = null;
                 try
                 {
+                    string expectActionResult = null;
 
                     do
                     {
                         lock (_incoming)
                         {
-
                             if (_incoming.Count > 0)
                             {
-                                text = _encoding.GetString(_incoming.ToArray(), 0, _incoming.Count);
-                            }
-
-                            if (text.Length > 0)
-                            {
-                                foreach (var expectAction in expectActions)
+                                var text = _encoding.GetString(_incoming.ToArray(), 0, _incoming.Count);
+                                if (text.Length > 0)
                                 {
-                                    var match = expectAction.Expect.Match(text);
-
-                                    if (match.Success)
+                                    foreach (var expectAction in expectActions)
                                     {
-                                        var result = text.Substring(0, match.Index + match.Length);
-
-                                        for (var i = 0; i < match.Index + match.Length && _incoming.Count > 0; i++)
+                                        var match = expectAction.Expect.Match(text);
+                                        if (match.Success)
                                         {
-                                            //  Remove processed items from the queue
-                                            _incoming.Dequeue();
-                                        }
+                                            var result = text.Substring(0, match.Index + match.Length);
 
-                                        expectAction.Action(result);
+                                            for (var i = 0; i < match.Index + match.Length && _incoming.Count > 0; i++)
+                                            {
+                                                //  Remove processed items from the queue
+                                                _incoming.Dequeue();
+                                            }
 
-                                        if (callback != null)
-                                        {
-                                            callback(asyncResult);
+                                            expectAction.Action(result);
+                                            expectActionResult = result;
+                                            break;
                                         }
-                                        expectActionResult = result;
                                     }
                                 }
                             }
                         }
+                    } while (WaitForDataReceived(timeout));
 
-                        if (expectActionResult != null)
-                            break;
-
-                        if (timeout.Ticks > 0)
-                        {
-                            if (!_dataReceived.WaitOne(timeout))
-                            {
-                                if (callback != null)
-                                {
-                                    callback(asyncResult);
-                                }
-                                break;
-                            }
-                        }
-                        else
-                        {
-                            _dataReceived.WaitOne();
-                        }
-                    } while (true);
-
-                    asyncResult.SetAsCompleted(expectActionResult, true);
+                    asyncResult.SetAsCompleted(expectActionResult, false);
                 }
                 catch (Exception exp)
                 {
-                    asyncResult.SetAsCompleted(exp, true);
+                    asyncResult.SetAsCompleted(exp, false);
                 }
             });
 
@@ -548,7 +513,7 @@ namespace Renci.SshNet
         /// </returns>
         public string Expect(Regex regex)
         {
-            return Expect(regex, TimeSpan.Zero);
+            return Expect(regex, InfiniteTimeSpan);
         }
 
         /// <summary>
@@ -562,7 +527,10 @@ namespace Renci.SshNet
         /// </returns>
         public string Expect(Regex regex, TimeSpan timeout)
         {
-            var text = string.Empty;
+            if (_isDisposed)
+            {
+                throw new ObjectDisposedException("ShellStream");
+            }
 
             while (true)
             {
@@ -570,37 +538,28 @@ namespace Renci.SshNet
                 {
                     if (_incoming.Count > 0)
                     {
-                        text = _encoding.GetString(_incoming.ToArray(), 0, _incoming.Count);
-                    }
+                        var text = _encoding.GetString(_incoming.ToArray(), 0, _incoming.Count);
 
-                    var match = regex.Match(text);
-
-                    if (match.Success)
-                    {
-                        //  Remove processed items from the queue
-                        for (var i = 0; i < match.Index + match.Length && _incoming.Count > 0; i++)
+                        var match = regex.Match(text);
+                        if (match.Success)
                         {
-                            _incoming.Dequeue();
+                            // ToDo: We should use _encoding to count the number of bytes to remove
+                            //  Remove processed items from the queue
+                            for (var i = 0; i < match.Index + match.Length && _incoming.Count > 0; i++)
+                            {
+                                _incoming.Dequeue();
+                            }
+
+                            return text; // ToDo: Fix for issue #833, we should return match.Value, breaking change again
                         }
-                        break;
                     }
                 }
 
-                if (timeout.Ticks > 0)
+                if (!WaitForDataReceived(timeout))
                 {
-                    if (!_dataReceived.WaitOne(timeout))
-                    {
-                        return null;
-                    }
+                    return null; // The session was closed
                 }
-                else
-                {
-                    _dataReceived.WaitOne();
-                }
-
             }
-
-            return text;
         }
 
         /// <summary>
@@ -611,7 +570,7 @@ namespace Renci.SshNet
         /// </returns>
         public string ReadLine()
         {
-            return ReadLine(TimeSpan.Zero);
+            return ReadLine(InfiniteTimeSpan);
         }
 
         /// <summary>
@@ -623,47 +582,37 @@ namespace Renci.SshNet
         /// </returns>
         public string ReadLine(TimeSpan timeout)
         {
-            var text = string.Empty;
+            if (_isDisposed)
+            {
+                throw new ObjectDisposedException("ShellStream");
+            }
 
-            while (true)
+            string text = null;
+            do
             {
                 lock (_incoming)
                 {
                     if (_incoming.Count > 0)
                     {
                         text = _encoding.GetString(_incoming.ToArray(), 0, _incoming.Count);
-                    }
 
-                    var index = text.IndexOf(CrLf, StringComparison.Ordinal);
+                        var index = text.IndexOf(CrLf, StringComparison.Ordinal);
+                        if (index >= 0)
+                        {
+                            text = text.Substring(0, index);
 
-                    if (index >= 0)
-                    {
-                        text = text.Substring(0, index);
+                            // determine how many bytes to remove from buffer
+                            var bytesProcessed = _encoding.GetByteCount(text + CrLf);
 
-                        // determine how many bytes to remove from buffer
-                        var bytesProcessed = _encoding.GetByteCount(text + CrLf);
+                            // remove processed bytes from the queue
+                            for (var i = 0; i < bytesProcessed; i++)
+                                _incoming.Dequeue();
 
-                        // remove processed bytes from the queue
-                        for (var i = 0; i < bytesProcessed; i++)
-                            _incoming.Dequeue();
-
-                        break;
-                    }
-                }
-
-                if (timeout.Ticks > 0)
-                {
-                    if (!_dataReceived.WaitOne(timeout))
-                    {
-                        return null;
+                            return text;
+                        }
                     }
                 }
-                else
-                {
-                    _dataReceived.WaitOne();
-                }
-
-            }
+            } while (WaitForDataReceived(timeout));
 
             return text;
         }
@@ -676,6 +625,11 @@ namespace Renci.SshNet
         /// </returns>
         public string Read()
         {
+            if (_isDisposed)
+            {
+                throw new ObjectDisposedException("ShellStream");
+            }
+
             string text;
 
             lock (_incoming)
@@ -696,13 +650,13 @@ namespace Renci.SshNet
         /// </remarks>
         public void Write(string text)
         {
-            if (text == null)
-                return;
-
-            if (_channel == null)
+            if (_isDisposed)
             {
                 throw new ObjectDisposedException("ShellStream");
             }
+
+            if (text == null)
+                return;
 
             var data = _encoding.GetBytes(text);
             _channel.SendData(data);
@@ -726,13 +680,21 @@ namespace Renci.SshNet
         /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected override void Dispose(bool disposing)
         {
-            base.Dispose(disposing);
-
             if (_isDisposed)
                 return;
 
+            base.Dispose(disposing);
+
             if (disposing)
             {
+                _isDisposed = true;
+
+                if (_dataReceived != null)
+                {
+                    _dataReceived.Dispose();
+                    _dataReceived = null;
+                }
+
                 UnsubscribeFromSessionEvents(_session);
 
                 if (_channel != null)
@@ -742,19 +704,29 @@ namespace Renci.SshNet
                     _channel.Dispose();
                     _channel = null;
                 }
-
-                if (_dataReceived != null)
-                {
-                    _dataReceived.Dispose();
-                    _dataReceived = null;
-                }
-
-                _isDisposed = true;
             }
-            else
+        }
+
+        private bool WaitForDataReceived(TimeSpan timeout)
+        {
+            while (!_isClosed && _incoming.Count == 0)
             {
-                UnsubscribeFromSessionEvents(_session);
+                if (timeout.Ticks > 0)
+                {
+                    if (!_dataReceived.WaitOne(timeout))
+                    {
+                        // ToDo: We should throw TimeoutException here, but it is a breaking change
+                        // ToDo: Not to mention that timeouts are "additive" for each byte received in ShellStream, which is again a (soft) breaking change
+                        return false;
+                    }
+                }
+                else
+                {
+                    _dataReceived.WaitOne();
+                }
             }
+
+            return _incoming.Count > 0;
         }
 
         /// <summary>
@@ -775,14 +747,14 @@ namespace Renci.SshNet
 
         private void Session_ErrorOccured(object sender, ExceptionEventArgs e)
         {
+            Stream_Closed();
+
             OnRaiseError(e);
         }
 
         private void Session_Disconnected(object sender, EventArgs e)
         {
-            // Release thread blocked in a ShellStream.Read() call
-            if (_dataReceived != null)
-                _dataReceived.Set();
+            Stream_Closed();
 
             if (_channel != null)
                 _channel.Dispose();
@@ -790,12 +762,23 @@ namespace Renci.SshNet
 
         private void Channel_Closed(object sender, ChannelEventArgs e)
         {
-            //  TODO:   Do we need to call dispose here ??
-            Dispose();
+            Stream_Closed();
+        }
+
+        private void Stream_Closed()
+        {
+            _isClosed = true;
+
+            // Release thread blocked in a WaitForDataReceived() call
+            if (_dataReceived != null)
+                _dataReceived.Set();
         }
 
         private void Channel_DataReceived(object sender, ChannelDataEventArgs e)
         {
+            if (_isDisposed)
+                return;
+
             lock (_incoming)
             {
                 foreach (var b in e.Data)

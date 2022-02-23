@@ -76,6 +76,7 @@ namespace Renci.SshNet.Tests.Classes.Common
                     });
             writeToStreamThread.Start();
 
+            target.BlockLastReadBuffer = true;
             readBuffer = new byte[2];
             bytesRead = target.Read(readBuffer, 0, readBuffer.Length);
             Assert.AreEqual(2, bytesRead);

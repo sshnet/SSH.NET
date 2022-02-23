@@ -220,7 +220,7 @@
         /// <returns><c>True</c> if data available; otherwise<c>false</c>.</returns>
         private bool ReadAvailable(int count)
         {
-            return (Length >= count || !BlockLastReadBuffer);
+            return BlockLastReadBuffer ? Length >= count : Length > 0;
         }
 
         ///<summary>

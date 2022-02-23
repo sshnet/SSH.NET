@@ -63,7 +63,7 @@ namespace Renci.SshNet.Tests.Classes.Common
 
             var readBuffer = new byte[2];
             var bytesRead = target.Read(readBuffer, 0, readBuffer.Length);
-            Assert.AreEqual(2, bytesRead);
+            Assert.AreEqual(readBuffer.Length, bytesRead);
             Assert.AreEqual(0x0a, readBuffer[0]);
             Assert.AreEqual(0x0d, readBuffer[1]);
 
@@ -78,8 +78,18 @@ namespace Renci.SshNet.Tests.Classes.Common
 
             target.BlockLastReadBuffer = true;
             readBuffer = new byte[2];
-            bytesRead = target.Read(readBuffer, 0, readBuffer.Length);
-            Assert.AreEqual(2, bytesRead);
+            int bufferOffset = 0;
+            while (bufferOffset < readBuffer.Length)
+            {
+                bytesRead = target.Read(readBuffer, bufferOffset, readBuffer.Length -  bufferOffset);
+                if (bytesRead == 0)
+                {
+                    Assert.Fail("PipeStream.Read returned 0");
+                }
+
+                bufferOffset += bytesRead;
+            }
+            Assert.AreEqual(readBuffer.Length, bufferOffset);
             Assert.AreEqual(0x09, readBuffer[0]);
             Assert.AreEqual(0x05, readBuffer[1]);
         }

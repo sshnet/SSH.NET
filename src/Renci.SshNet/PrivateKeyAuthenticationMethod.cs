@@ -28,7 +28,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Gets the key files used for authentication.
         /// </summary>
-        public ICollection<PrivateKeyFile> KeyFiles { get; private set; }
+        public ICollection<IPrivateKeySource> KeyFiles { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PrivateKeyAuthenticationMethod"/> class.
@@ -36,13 +36,13 @@ namespace Renci.SshNet
         /// <param name="username">The username.</param>
         /// <param name="keyFiles">The key files.</param>
         /// <exception cref="ArgumentException"><paramref name="username"/> is whitespace or <c>null</c>.</exception>
-        public PrivateKeyAuthenticationMethod(string username, params PrivateKeyFile[] keyFiles)
+        public PrivateKeyAuthenticationMethod(string username, params IPrivateKeySource[] keyFiles)
             : base(username)
         {
             if (keyFiles == null)
                 throw new ArgumentNullException("keyFiles");
 
-            KeyFiles = new Collection<PrivateKeyFile>(keyFiles);
+            KeyFiles = new Collection<IPrivateKeySource>(keyFiles);
         }
 
         /// <summary>

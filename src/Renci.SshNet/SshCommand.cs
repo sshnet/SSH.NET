@@ -8,6 +8,9 @@ using Renci.SshNet.Messages.Connection;
 using Renci.SshNet.Messages.Transport;
 using System.Globalization;
 using Renci.SshNet.Abstractions;
+#if FEATURE_TAP
+using System.Threading.Tasks;
+#endif
 
 namespace Renci.SshNet
 {
@@ -335,6 +338,69 @@ namespace Renci.SshNet
             return EndExecute(BeginExecute(null, null));
         }
 
+        private int EndExecuteWithStatus(IAsyncResult asyncResult)
+        {
+            if (asyncResult == null)
+            {
+                throw new ArgumentNullException("asyncResult");
+            }
+            var commandAsyncResult = asyncResult as CommandAsyncResult;
+            if (commandAsyncResult == null || _asyncResult != commandAsyncResult)
+            {
+                throw new ArgumentException(string.Format("The {0} object was not returned from the corresponding asynchronous method on this class.", typeof(IAsyncResult).Name));
+            }
+            lock (_endExecuteLock)
+            {
+                if (commandAsyncResult.EndCalled)
+                {
+                    throw new ArgumentException("EndExecute can only be called once for each asynchronous operation.");
+                }
+                //  wait for operation to complete (or time out)
+                WaitOnHandle(_asyncResult.AsyncWaitHandle);
+                UnsubscribeFromEventsAndDisposeChannel(_channel);
+                _channel = null;
+
+                commandAsyncResult.EndCalled = true;
+
+                return ExitStatus;
+            }
+        }
+
+#if FEATURE_TAP
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="cancellationToken">Cancelation token to observe.</param>
+        /// <returns></returns>
+        public async Task<int> ExecuteAsync(CancellationToken cancellationToken)
+        {
+            bool wasCancelled = false;
+            var ctr = cancellationToken.Register(() => 
+            { 
+                _channel.SendExitSignalRequest("TERM", false, "Command execution has been cancelled.", "en"); 
+                wasCancelled = true; 
+                _channel.Dispose(); 
+            }, false); 
+            try
+            {
+                int status = await Task<int>.Factory.FromAsync(BeginExecute(), EndExecuteWithStatus).ConfigureAwait(false);
+                if (wasCancelled)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                }
+                return status;
+            }
+            catch (Exception) when (cancellationToken.IsCancellationRequested)
+            {
+                throw new OperationCanceledException("Command execution has been cancelled.", cancellationToken);
+            }
+            finally
+            {
+                ctr.Dispose();
+            }
+        }
+#endif
+
         /// <summary>
         /// Cancels command execution in asynchronous scenarios. 
         /// </summary>
@@ -514,7 +580,7 @@ namespace Renci.SshNet
             channel.Dispose();
         }
 
-        #region IDisposable Members
+#region IDisposable Members
 
         private bool _isDisposed;
 
@@ -591,6 +657,6 @@ namespace Renci.SshNet
             Dispose(false);
         }
 
-        #endregion
+#endregion
     }
 }

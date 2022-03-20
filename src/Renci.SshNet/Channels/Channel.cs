@@ -562,14 +562,11 @@ namespace Renci.SshNet.Channels
                     // this also ensures don't raise the Closed event more than once
                     IsOpen = false;
 
-                    if (_closeMessageReceived)
+                    // raise event signaling that both ends of the channel have been closed
+                    var closed = Closed;
+                    if (closed != null)
                     {
-                        // raise event signaling that both ends of the channel have been closed
-                        var closed = Closed;
-                        if (closed != null)
-                        {
-                            closed(this, new ChannelEventArgs(LocalChannelNumber));
-                        }
+                        closed(this, new ChannelEventArgs(LocalChannelNumber));
                     }
                 }
             }

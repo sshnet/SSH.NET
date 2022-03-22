@@ -709,7 +709,7 @@ namespace Renci.SshNet
 
         private bool WaitForDataReceived(TimeSpan timeout)
         {
-            while (!_isClosed && _incoming.Count == 0)
+            while (!_isClosed && !_isDisposed)
             {
                 if (timeout.Ticks > 0)
                 {
@@ -723,6 +723,11 @@ namespace Renci.SshNet
                 else
                 {
                     _dataReceived.WaitOne();
+                }
+
+                if (_incoming.Count > 0)
+                {
+                    return true;
                 }
             }
 
@@ -783,10 +788,10 @@ namespace Renci.SshNet
             {
                 foreach (var b in e.Data)
                     _incoming.Enqueue(b);
-            }
 
-            if (_dataReceived != null)
-                _dataReceived.Set();
+                if (_dataReceived != null)
+                    _dataReceived.Set();
+            }
 
             OnDataReceived(e.Data);
         }

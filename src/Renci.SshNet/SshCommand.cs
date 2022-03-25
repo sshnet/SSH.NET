@@ -8,6 +8,9 @@ using Renci.SshNet.Messages.Connection;
 using Renci.SshNet.Messages.Transport;
 using System.Globalization;
 using Renci.SshNet.Abstractions;
+#if FEATURE_TAP
+using System.Threading.Tasks;
+#endif
 
 namespace Renci.SshNet
 {
@@ -73,6 +76,7 @@ namespace Renci.SshNet
         /// <example>
         ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\SshCommandTest.cs" region="Example SshCommand RunCommand Result" language="C#" title="Running simple command" />
         /// </example>
+        [Obsolete("Please read the result from the OutputStream. I.e. new StreamReader(shell.OutputStream).ReadToEnd().")]
         public string Result
         {
             get
@@ -100,6 +104,7 @@ namespace Renci.SshNet
         /// <example>
         ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\SshCommandTest.cs" region="Example SshCommand CreateCommand Error" language="C#" title="Display command execution error" />
         /// </example>
+        [Obsolete("Please read the error result from the ExtendedOutputStream. I.e. new StreamReader(shell.ExtendedOutputStream).ReadToEnd().")]
         public string Error
         {
             get
@@ -315,7 +320,9 @@ namespace Renci.SshNet
 
                 commandAsyncResult.EndCalled = true;
 
+#pragma warning disable CS0618
                 return Result;
+#pragma warning restore CS0618
             }
         }
 
@@ -334,6 +341,80 @@ namespace Renci.SshNet
         {
             return EndExecute(BeginExecute(null, null));
         }
+
+        /// <summary>
+        /// Waits for the pending asynchronous command execution to complete.
+        /// </summary>
+        /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
+        /// <returns>Command execution exit status.</returns>
+        /// <example>
+        ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\SshCommandTest.cs" region="Example SshCommand CreateCommand BeginExecute IsCompleted EndExecute" language="C#" title="Asynchronous Command Execution" />
+        /// </example>
+        /// <exception cref="ArgumentException">Either the IAsyncResult object did not come from the corresponding async method on this type, or EndExecute was called multiple times with the same IAsyncResult.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <c>null</c>.</exception>
+        public int EndExecuteWithStatus(IAsyncResult asyncResult)
+        {
+            if (asyncResult == null)
+            {
+                throw new ArgumentNullException("asyncResult");
+            }
+            var commandAsyncResult = asyncResult as CommandAsyncResult;
+            if (commandAsyncResult == null || _asyncResult != commandAsyncResult)
+            {
+                throw new ArgumentException(string.Format("The {0} object was not returned from the corresponding asynchronous method on this class.", typeof(IAsyncResult).Name));
+            }
+            lock (_endExecuteLock)
+            {
+                if (commandAsyncResult.EndCalled)
+                {
+                    throw new ArgumentException("EndExecute can only be called once for each asynchronous operation.");
+                }
+                //  wait for operation to complete (or time out)
+                WaitOnHandle(_asyncResult.AsyncWaitHandle);
+                UnsubscribeFromEventsAndDisposeChannel(_channel);
+                _channel = null;
+
+                commandAsyncResult.EndCalled = true;
+
+                return ExitStatus;
+            }
+        }
+
+#if FEATURE_TAP
+        /// <summary>
+        /// Executes the the command asynchronously.
+        /// </summary>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
+        /// <returns>Exit status of the operation</returns>
+        public async Task<int> ExecuteAsync(CancellationToken cancellationToken)
+        {
+            bool wasCancelled = false;
+            var asyncResult = BeginExecute();
+            var ctr = cancellationToken.Register(() => 
+            { 
+                _channel.SendExitSignalRequest("TERM", false, "Command execution has been cancelled.", "en"); 
+                wasCancelled = true; 
+                _channel.Dispose(); 
+            }, false); 
+            try
+            {
+                int status = await Task<int>.Factory.FromAsync(asyncResult, EndExecuteWithStatus).ConfigureAwait(false);
+                if (wasCancelled)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                }
+                return status;
+            }
+            catch (Exception) when (cancellationToken.IsCancellationRequested)
+            {
+                throw new OperationCanceledException("Command execution has been cancelled.", cancellationToken);
+            }
+            finally
+            {
+                ctr.Dispose();
+            }
+        }
+#endif
 
         /// <summary>
         /// Cancels command execution in asynchronous scenarios. 
@@ -514,7 +595,7 @@ namespace Renci.SshNet
             channel.Dispose();
         }
 
-        #region IDisposable Members
+#region IDisposable Members
 
         private bool _isDisposed;
 
@@ -591,6 +672,6 @@ namespace Renci.SshNet
             Dispose(false);
         }
 
-        #endregion
+#endregion
     }
 }

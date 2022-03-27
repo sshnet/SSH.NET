@@ -3,13 +3,11 @@
 	  <LangVersion>7.3</LangVersion>
 	  <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\Renci.SshNet.snk</AssemblyOriginatorKeyFile>
+    <TargetFramework>net472</TargetFramework>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '15.0' ">
     <TargetFrameworks>net35;net472;netcoreapp2.1</TargetFrameworks>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(VisualStudioVersion)' == '16.0' ">
-    <TargetFrameworks>net35;net472;netcoreapp3.1;net5.0</TargetFrameworks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '17.0' ">
     <TargetFrameworks>net472;netcoreapp3.1;net5.0;net6.0</TargetFrameworks>

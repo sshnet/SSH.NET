@@ -128,10 +128,13 @@ namespace Renci.SshNet.NetConf
                     throw new NetConfServerException("Server capabilities received are not well formed XML", e);
                 }
 
-                var nsMgr = new XmlNamespaceManager(ServerCapabilities.NameTable);
-                nsMgr.AddNamespace("nc", "urn:ietf:params:xml:ns:netconf:base:1.0");
-
-                _usingFramingProtocol = (ServerCapabilities.SelectSingleNode("/nc:hello/nc:capabilities/nc:capability[text()='urn:ietf:params:netconf:base:1.1']", nsMgr) != null);
+                // Per RFC6242 section 4.1, If the :base:1.1 capability is advertised by both
+                // peers, the chunked transfer mechanism is used for the remainder of the NETCONF
+                // session. Otherwise, the old end-of-message based mechanism(see Section 4.3) is used.
+                //
+                // Because this client only support :base:1.0 capability and not :base:1.1, the
+                // the framing protocal is set to disabled/false.
+                _usingFramingProtocol = false;
 
                 _serverCapabilitiesConfirmed.Set();
             }

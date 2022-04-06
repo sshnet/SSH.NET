@@ -94,7 +94,7 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
-        public void SendMessageOnSessionShouldBeInvokedThreeTimes()
+        public void SendMessageOnSessionShouldBeInvokedOneTime()
         {
             // allow keep-alive to be sent once
             Thread.Sleep(100);

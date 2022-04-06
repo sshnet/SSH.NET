@@ -94,7 +94,11 @@ namespace Renci.SshNet.Tests.Classes
             catch (ArgumentOutOfRangeException ex)
             {
                 Assert.IsNull(ex.InnerException);
+#if NETFRAMEWORK
                 Assert.AreEqual("The timeout must represent a value between -1 and Int32.MaxValue, inclusive." + Environment.NewLine + "Parameter name: " + ex.ParamName, ex.Message);
+#else
+                Assert.AreEqual("The timeout must represent a value between -1 and Int32.MaxValue, inclusive. (Parameter '" + ex.ParamName + "')", ex.Message);
+#endif
                 Assert.AreEqual("value", ex.ParamName);
             }
         }
@@ -113,7 +117,11 @@ namespace Renci.SshNet.Tests.Classes
             catch (ArgumentOutOfRangeException ex)
             {
                 Assert.IsNull(ex.InnerException);
+#if NETFRAMEWORK
                 Assert.AreEqual("The timeout must represent a value between -1 and Int32.MaxValue, inclusive." + Environment.NewLine + "Parameter name: " + ex.ParamName, ex.Message);
+#else
+                Assert.AreEqual("The timeout must represent a value between -1 and Int32.MaxValue, inclusive. (Parameter '" + ex.ParamName + "')", ex.Message);
+#endif
                 Assert.AreEqual("value", ex.ParamName);
             }
         }
@@ -562,8 +570,8 @@ namespace Renci.SshNet.Tests.Classes
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
             SftpClient target = new SftpClient(connectionInfo); // TODO: Initialize to an appropriate value
             IAsyncResult asyncResult = null; // TODO: Initialize to an appropriate value
-            IEnumerable<SftpFile> expected = null; // TODO: Initialize to an appropriate value
-            IEnumerable<SftpFile> actual;
+            IEnumerable<ISftpFile> expected = null; // TODO: Initialize to an appropriate value
+            IEnumerable<ISftpFile> actual;
             actual = target.EndListDirectory(asyncResult);
             Assert.AreEqual(expected, actual);
             Assert.Inconclusive("Verify the correctness of this test method.");
@@ -702,8 +710,8 @@ namespace Renci.SshNet.Tests.Classes
             ConnectionInfo connectionInfo = null; // TODO: Initialize to an appropriate value
             SftpClient target = new SftpClient(connectionInfo); // TODO: Initialize to an appropriate value
             string path = string.Empty; // TODO: Initialize to an appropriate value
-            SftpFile expected = null; // TODO: Initialize to an appropriate value
-            SftpFile actual;
+            ISftpFile expected = null; // TODO: Initialize to an appropriate value
+            ISftpFile actual;
             actual = target.Get(path);
             Assert.AreEqual(expected, actual);
             Assert.Inconclusive("Verify the correctness of this test method.");
@@ -802,8 +810,8 @@ namespace Renci.SshNet.Tests.Classes
             SftpClient target = new SftpClient(connectionInfo); // TODO: Initialize to an appropriate value
             string path = string.Empty; // TODO: Initialize to an appropriate value
             Action<int> listCallback = null; // TODO: Initialize to an appropriate value
-            IEnumerable<SftpFile> expected = null; // TODO: Initialize to an appropriate value
-            IEnumerable<SftpFile> actual;
+            IEnumerable<ISftpFile> expected = null; // TODO: Initialize to an appropriate value
+            IEnumerable<ISftpFile> actual;
             actual = target.ListDirectory(path, listCallback);
             Assert.AreEqual(expected, actual);
             Assert.Inconclusive("Verify the correctness of this test method.");

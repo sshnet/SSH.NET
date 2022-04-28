@@ -17,13 +17,13 @@ namespace Renci.SshNet.Connection
         {
         }
 
-        protected internal IConnector GetConnector(IConnectionInfo connectionInfo)
+        protected internal IConnector GetProxyConnector(IConnectionInfo proxyConnectionInfo)
         {
-            if (connectionInfo == null)
-                throw new ArgumentNullException("connectionInfo");
-            if (connectionInfo.GetType() != typeof(IProxyConnectionInfo))
-                throw new ArgumentException("Expecting connectionInfo to be of type IProxyConnectionInfo");
-            return ServiceFactory.CreateConnector(connectionInfo.ProxyConnection, SocketFactory);
+            if (proxyConnectionInfo == null)
+                throw new ArgumentNullException("connectionInfo.ProxyConnection");
+            if (!(proxyConnectionInfo is IProxyConnectionInfo))
+                throw new ArgumentException("Expecting ProxyConnection to be of type IProxyConnectionInfo");
+            return ServiceFactory.CreateConnector(proxyConnectionInfo, SocketFactory);
         }
 
         protected abstract void HandleProxyConnect(IConnectionInfo connectionInfo, Socket socket);
@@ -44,7 +44,7 @@ namespace Renci.SshNet.Connection
 
         public override Socket Connect(IConnectionInfo connectionInfo)
         {
-            ProxyConnection = GetConnector(connectionInfo);
+            ProxyConnection = GetProxyConnector(connectionInfo.ProxyConnection);
             var socket = ProxyConnection.Connect(connectionInfo.ProxyConnection);
 
             try
@@ -64,7 +64,7 @@ namespace Renci.SshNet.Connection
 #if FEATURE_TAP
         public override async Task<Socket> ConnectAsync(IConnectionInfo connectionInfo, CancellationToken cancellationToken)
         {
-            ProxyConnection = GetConnector(connectionInfo);
+            ProxyConnection = GetProxyConnector(connectionInfo.ProxyConnection);
             var socket = await ProxyConnection.ConnectAsync(connectionInfo.ProxyConnection, cancellationToken).ConfigureAwait(false);
 
             try

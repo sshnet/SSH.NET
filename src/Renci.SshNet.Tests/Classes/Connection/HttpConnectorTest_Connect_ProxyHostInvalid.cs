@@ -26,13 +26,13 @@ namespace Renci.SshNet.Tests.Classes.Connection
                                                  "proxyPwd",
                                                  new KeyboardInteractiveAuthenticationMethod("user"));
             _proxyConnectionInfo = (ProxyConnectionInfo)_connectionInfo.ProxyConnection;
-            _proxyConnector = ServiceFactory.CreateConnector(_proxyConnectionInfo, SocketFactory);
+            _proxyConnector = ServiceFactory.CreateConnector(_proxyConnectionInfo, SocketFactoryMock.Object);
             _actualException = null;
         }
 
         protected override void SetupMocks()
         {
-            ServiceFactoryMock.Setup(p => p.CreateConnector(_proxyConnectionInfo, SocketFactory))
+            ServiceFactoryMock.Setup(p => p.CreateConnector(_proxyConnectionInfo, SocketFactoryMock.Object))
                               .Returns(_proxyConnector);
         }
 

@@ -37,7 +37,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
             _actualException = null;
 
             _clientSocket = SocketFactory.Create(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            _proxyConnector = ServiceFactory.CreateConnector(_proxyConnectionInfo, SocketFactory);
+            _proxyConnector = ServiceFactory.CreateConnector(_proxyConnectionInfo, SocketFactoryMock.Object);
 
             _proxyServer = new AsyncSocketListener(new IPEndPoint(IPAddress.Loopback, _proxyConnectionInfo.Port));
             _proxyServer.Disconnected += socket => _disconnected = true;
@@ -51,7 +51,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
         {
             SocketFactoryMock.Setup(p => p.Create(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp))
                              .Returns(_clientSocket);
-            ServiceFactoryMock.Setup(p => p.CreateConnector(_proxyConnectionInfo, SocketFactory))
+            ServiceFactoryMock.Setup(p => p.CreateConnector(_proxyConnectionInfo, SocketFactoryMock.Object))
                               .Returns(_proxyConnector);
         }
 

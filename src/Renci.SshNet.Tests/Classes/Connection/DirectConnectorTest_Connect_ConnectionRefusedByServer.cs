@@ -20,7 +20,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
         {
             base.SetupData();
 
-            _connectionInfo = CreateConnectionInfo(IPAddress.Loopback.ToString());
+            _connectionInfo = CreateConnectionInfo(IPAddress.Loopback.ToString(), 777);
             _connectionInfo.Timeout = TimeSpan.FromMilliseconds(5000);
             _stopWatch = new Stopwatch();
             _actualException = null;

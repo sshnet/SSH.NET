@@ -64,7 +64,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
             _sessionMock.Setup(p => p.WaitOnHandle(It.IsAny<EventWaitHandle>()))
                         .Callback<WaitHandle>(p => p.WaitOne(Session.Infinite));
 
-            var localPortEndPoint = new IPEndPoint(IPAddress.Loopback, 8122);
+            var localPortEndPoint = new IPEndPoint(IPAddress.Loopback, 0);
             using (var localPortListener = new AsyncSocketListener(localPortEndPoint))
             {
                 localPortListener.Start();
@@ -91,6 +91,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
 
                     closeForwardedPortThread.Join();
                 };
+                localPortEndPoint.Port = ((IPEndPoint)localPortListener.ListenerEndPoint).Port;
 
                 var client = new Socket(localPortEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
                 client.Connect(localPortEndPoint);
@@ -119,7 +120,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
             _sessionMock.Setup(p => p.WaitOnHandle(It.IsAny<EventWaitHandle>()))
                         .Callback<WaitHandle>(p => p.WaitOne(Session.Infinite));
 
-            var localPortEndPoint = new IPEndPoint(IPAddress.Loopback, 8122);
+            var localPortEndPoint = new IPEndPoint(IPAddress.Loopback, 0);
             using (var localPortListener = new AsyncSocketListener(localPortEndPoint))
             {
                 localPortListener.Start();
@@ -147,6 +148,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
 
                     signalSessionErrorOccurredThread.Join();
                 };
+                localPortEndPoint.Port = ((IPEndPoint)localPortListener.ListenerEndPoint).Port;
 
                 var client = new Socket(localPortEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
                 client.Connect(localPortEndPoint);
@@ -211,7 +213,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
             Socket handler = null;
             ChannelDirectTcpip channel = null;
 
-            var localPortEndPoint = new IPEndPoint(IPAddress.Loopback, 8122);
+            var localPortEndPoint = new IPEndPoint(IPAddress.Loopback, 0);
             using (var localPortListener = new AsyncSocketListener(localPortEndPoint))
             {
                 localPortListener.Start();
@@ -230,6 +232,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
 
                     channelBindFinishedWaitHandle.Set();
                 };
+                localPortEndPoint.Port = ((IPEndPoint)localPortListener.ListenerEndPoint).Port;
 
                 var client = new Socket(localPortEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
                 client.Connect(localPortEndPoint);

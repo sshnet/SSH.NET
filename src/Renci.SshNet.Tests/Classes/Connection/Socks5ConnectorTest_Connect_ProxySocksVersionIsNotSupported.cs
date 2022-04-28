@@ -24,23 +24,23 @@ namespace Renci.SshNet.Tests.Classes.Connection
         protected override void SetupData()
         {
             base.SetupData();
-
-            _connectionInfo = CreateConnectionInfo("proxyUser", "proxyPwd");
-            _proxyConnectionInfo = (ProxyConnectionInfo)_connectionInfo.ProxyConnection;
-            _connectionInfo.Timeout = TimeSpan.FromMilliseconds(100);
             _proxySocksVersion = GetNotSupportedSocksVersion();
-            _actualException = null;
 
-            _clientSocket = SocketFactory.Create(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            _proxyConnector = ServiceFactory.CreateConnector(_proxyConnectionInfo, SocketFactoryMock.Object);
-
-            _proxyServer = new AsyncSocketListener(new IPEndPoint(IPAddress.Loopback, _proxyConnectionInfo.Port));
+            _proxyServer = new AsyncSocketListener(new IPEndPoint(IPAddress.Loopback, 0));
             _proxyServer.Disconnected += socket => _disconnected = true;
             _proxyServer.BytesReceived += (bytesReceived, socket) =>
                 {
                     socket.Send(new byte[] { _proxySocksVersion });
                 };
             _proxyServer.Start();
+
+            _connectionInfo = CreateConnectionInfo("proxyUser", "proxyPwd", ((IPEndPoint)_proxyServer.ListenerEndPoint).Port);
+            _proxyConnectionInfo = (ProxyConnectionInfo)_connectionInfo.ProxyConnection;
+            _connectionInfo.Timeout = TimeSpan.FromMilliseconds(100);
+            _actualException = null;
+
+            _clientSocket = SocketFactory.Create(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            _proxyConnector = ServiceFactory.CreateConnector(_proxyConnectionInfo, SocketFactoryMock.Object);
         }
 
         protected override void SetupMocks()

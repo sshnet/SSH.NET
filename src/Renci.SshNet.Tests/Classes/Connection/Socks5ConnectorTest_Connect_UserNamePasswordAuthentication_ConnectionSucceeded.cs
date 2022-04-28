@@ -27,15 +27,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
         {
             base.SetupData();
 
-            _connectionInfo = CreateConnectionInfo(GenerateRandomString(0, 255), GenerateRandomString(0, 255));
-            _proxyConnectionInfo = (ProxyConnectionInfo)_connectionInfo.ProxyConnection;
-            _connectionInfo.Timeout = TimeSpan.FromMilliseconds(100);
-            _bytesReceivedByProxy = new List<byte>();
-
-            _clientSocket = SocketFactory.Create(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            _proxyConnector = ServiceFactory.CreateConnector(_proxyConnectionInfo, SocketFactoryMock.Object);
-
-            _proxyServer = new AsyncSocketListener(new IPEndPoint(IPAddress.Loopback, _proxyConnectionInfo.Port));
+            _proxyServer = new AsyncSocketListener(new IPEndPoint(IPAddress.Loopback, 0));
             _proxyServer.BytesReceived += (bytesReceived, socket) =>
                 {
                     _bytesReceivedByProxy.AddRange(bytesReceived);
@@ -101,6 +93,14 @@ namespace Renci.SshNet.Tests.Classes.Connection
                     }
                 };
             _proxyServer.Start();
+
+            _connectionInfo = CreateConnectionInfo(GenerateRandomString(0, 255), GenerateRandomString(0, 255), ((IPEndPoint)_proxyServer.ListenerEndPoint).Port);
+            _proxyConnectionInfo = (ProxyConnectionInfo)_connectionInfo.ProxyConnection;
+            _connectionInfo.Timeout = TimeSpan.FromMilliseconds(100);
+            _bytesReceivedByProxy = new List<byte>();
+
+            _clientSocket = SocketFactory.Create(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            _proxyConnector = ServiceFactory.CreateConnector(_proxyConnectionInfo, SocketFactoryMock.Object);
         }
 
         protected override void SetupMocks()

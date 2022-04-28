@@ -34,30 +34,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
 
             var random = new Random();
 
-            _connectionInfo = new ConnectionInfo(IPAddress.Loopback.ToString(),
-                                                 777,
-                                                 "user",
-                                                 ProxyTypes.Http,
-                                                 IPAddress.Loopback.ToString(),
-                                                 8122,
-                                                 "proxyUser",
-                                                 "proxyPwd",
-                                                 new KeyboardInteractiveAuthenticationMethod("user"));
-            _proxyConnectionInfo = (ProxyConnectionInfo)_connectionInfo.ProxyConnection;
-            _connectionInfo.Timeout = TimeSpan.FromMilliseconds(random.Next(50, 200));
-            _expectedHttpRequest = string.Format("CONNECT {0}:{1} HTTP/1.0{2}" +
-                                                 "Proxy-Authorization: Basic cHJveHlVc2VyOnByb3h5UHdk{2}{2}",
-                                                 _connectionInfo.Host,
-                                                 _connectionInfo.Port.ToString(CultureInfo.InvariantCulture),
-                                                 "\r\n");
-            _bytesReceivedByProxy = new List<byte>();
-            _stopWatch = new Stopwatch();
-            _actualException = null;
-
-            _clientSocket = SocketFactory.Create(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            _proxyConnector = ServiceFactory.CreateConnector(_proxyConnectionInfo, SocketFactoryMock.Object);
-
-            _proxyServer = new AsyncSocketListener(new IPEndPoint(IPAddress.Loopback, _proxyConnectionInfo.Port));
+            _proxyServer = new AsyncSocketListener(new IPEndPoint(IPAddress.Loopback, 0));
             _proxyServer.Disconnected += (socket) => _disconnected = true;
             _proxyServer.BytesReceived += (bytesReceived, socket) =>
                 {
@@ -75,8 +52,31 @@ namespace Renci.SshNet.Tests.Classes.Connection
                 };
             _proxyServer.Start();
 
-            _server = new AsyncSocketListener(new IPEndPoint(IPAddress.Loopback, _connectionInfo.Port));
+            _server = new AsyncSocketListener(new IPEndPoint(IPAddress.Loopback, 0));
             _server.Start();
+
+            _connectionInfo = new ConnectionInfo(IPAddress.Loopback.ToString(),
+                                                 ((IPEndPoint)_server.ListenerEndPoint).Port,
+                                                 "user",
+                                                 ProxyTypes.Http,
+                                                 IPAddress.Loopback.ToString(),
+                                                 ((IPEndPoint)_proxyServer.ListenerEndPoint).Port,
+                                                 "proxyUser",
+                                                 "proxyPwd",
+                                                 new KeyboardInteractiveAuthenticationMethod("user"));
+            _proxyConnectionInfo = (ProxyConnectionInfo)_connectionInfo.ProxyConnection;
+            _connectionInfo.Timeout = TimeSpan.FromMilliseconds(random.Next(50, 200));
+            _expectedHttpRequest = string.Format("CONNECT {0}:{1} HTTP/1.0{2}" +
+                                                 "Proxy-Authorization: Basic cHJveHlVc2VyOnByb3h5UHdk{2}{2}",
+                                                 _connectionInfo.Host,
+                                                 _connectionInfo.Port.ToString(CultureInfo.InvariantCulture),
+                                                 "\r\n");
+            _bytesReceivedByProxy = new List<byte>();
+            _stopWatch = new Stopwatch();
+            _actualException = null;
+
+            _clientSocket = SocketFactory.Create(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            _proxyConnector = ServiceFactory.CreateConnector(_proxyConnectionInfo, SocketFactoryMock.Object);
         }
 
         protected override void SetupMocks()

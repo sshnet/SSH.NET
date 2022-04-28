@@ -30,7 +30,14 @@ namespace Renci.SshNet.Tests.Classes.Connection
 
             var random = new Random();
 
-            _connectionInfo = CreateConnectionInfo("proxyUser", "proxyPwd");
+            _proxyServer = new AsyncSocketListener(new IPEndPoint(IPAddress.Loopback, 0));
+            _proxyServer.Disconnected += socket => _disconnected = true;
+            _proxyServer.Start();
+
+            _server = new AsyncSocketListener(new IPEndPoint(IPAddress.Loopback, 0));
+            _server.Start();
+
+            _connectionInfo = CreateConnectionInfo("proxyUser", "proxyPwd", ((IPEndPoint)_server.ListenerEndPoint).Port, ((IPEndPoint)_proxyServer.ListenerEndPoint).Port);
             _proxyConnectionInfo = (ProxyConnectionInfo)_connectionInfo.ProxyConnection;
             _connectionInfo.Timeout = TimeSpan.FromMilliseconds(random.Next(50, 200));
             _stopWatch = new Stopwatch();
@@ -38,13 +45,6 @@ namespace Renci.SshNet.Tests.Classes.Connection
 
             _clientSocket = SocketFactory.Create(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             _proxyConnector = ServiceFactory.CreateConnector(_proxyConnectionInfo, SocketFactoryMock.Object);
-
-            _proxyServer = new AsyncSocketListener(new IPEndPoint(IPAddress.Loopback, _proxyConnectionInfo.Port));
-            _proxyServer.Disconnected += socket => _disconnected = true;
-            _proxyServer.Start();
-
-            _server = new AsyncSocketListener(new IPEndPoint(IPAddress.Loopback, _connectionInfo.Port));
-            _server.Start();
         }
 
         protected override void SetupMocks()

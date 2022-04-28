@@ -277,8 +277,14 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="authenticationMethods"/> is <c>null</c>.</exception>
         /// <exception cref="ArgumentException">No <paramref name="authenticationMethods"/> specified.</exception>
         public ConnectionInfo(string host, int port, string username, ProxyTypes proxyType, string proxyHost, int proxyPort, string proxyUsername, string proxyPassword, params AuthenticationMethod[] authenticationMethods)
-            : this(host, port, username, proxyType, new ProxyConnectionInfo(proxyHost, proxyPort, proxyUsername, proxyPassword), authenticationMethods)
-        { }
+            : this(host, port, username, ProxyTypes.None, null, authenticationMethods)
+        { 
+            if (proxyType != ProxyTypes.None)
+            {
+                ProxyType = proxyType;
+                ProxyConnection = new ProxyConnectionInfo(proxyHost, proxyPort, proxyUsername, proxyPassword);
+            }
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ConnectionInfo" /> class.

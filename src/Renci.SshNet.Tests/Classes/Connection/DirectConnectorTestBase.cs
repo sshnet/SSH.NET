@@ -36,10 +36,10 @@ namespace Renci.SshNet.Tests.Classes.Connection
             SetupMocks();
         }
 
-        protected ConnectionInfo CreateConnectionInfo(string hostName)
+        protected ConnectionInfo CreateConnectionInfo(string hostName, int port)
         {
             return new ConnectionInfo(hostName,
-                                      777,
+                                      port,
                                       "user",
                                       new KeyboardInteractiveAuthenticationMethod("user"));
         }

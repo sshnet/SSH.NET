@@ -28,12 +28,27 @@ namespace Renci.SshNet.Tests.Classes.Connection
         {
             base.SetupData();
 
+            _proxyServer = new AsyncSocketListener(new IPEndPoint(IPAddress.Loopback, 0));
+            _proxyServer.Connected += (socket) =>
+                {
+                    socket.Send(Encoding.ASCII.GetBytes("HTTP/1.0 200 OK\r\n"));
+                    socket.Send(Encoding.ASCII.GetBytes("Content-Type: application/octet-stream\r\n"));
+                    socket.Send(Encoding.ASCII.GetBytes("\r\n"));
+                    socket.Send(Encoding.ASCII.GetBytes("SSH4EVER"));
+                };
+            _proxyServer.Disconnected += (socket) => _disconnected = true;
+            _proxyServer.BytesReceived += (bytesReceived, socket) =>
+                {
+                    _bytesReceivedByProxy.AddRange(bytesReceived);
+                };
+            _proxyServer.Start();
+
             _connectionInfo = new ConnectionInfo(IPAddress.Loopback.ToString(),
                                                  777,
                                                  "user",
                                                  ProxyTypes.Http,
                                                  IPAddress.Loopback.ToString(),
-                                                 8122,
+                                                 ((IPEndPoint)_proxyServer.ListenerEndPoint).Port,
                                                  "user",
                                                  "pwd",
                                                  new KeyboardInteractiveAuthenticationMethod("user"));
@@ -48,21 +63,6 @@ namespace Renci.SshNet.Tests.Classes.Connection
             _disconnected = false;
             _clientSocket = SocketFactory.Create(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             _proxyConnector = ServiceFactory.CreateConnector(_proxyConnectionInfo, SocketFactoryMock.Object);
-
-            _proxyServer = new AsyncSocketListener(new IPEndPoint(IPAddress.Loopback, _proxyConnectionInfo.Port));
-            _proxyServer.Connected += (socket) =>
-                {
-                    socket.Send(Encoding.ASCII.GetBytes("HTTP/1.0 200 OK\r\n"));
-                    socket.Send(Encoding.ASCII.GetBytes("Content-Type: application/octet-stream\r\n"));
-                    socket.Send(Encoding.ASCII.GetBytes("\r\n"));
-                    socket.Send(Encoding.ASCII.GetBytes("SSH4EVER"));
-                };
-            _proxyServer.Disconnected += (socket) => _disconnected = true;
-            _proxyServer.BytesReceived += (bytesReceived, socket) =>
-                {
-                    _bytesReceivedByProxy.AddRange(bytesReceived);
-                };
-            _proxyServer.Start();
         }
 
         protected override void SetupMocks()

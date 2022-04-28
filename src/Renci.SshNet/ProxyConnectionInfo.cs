@@ -82,12 +82,10 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="proxyType"/> is not <see cref="ProxyTypes.None"/> and <paramref name="port" /> is not within <see cref="F:System.Net.IPEndPoint.MinPort" /> and <see cref="F:System.Net.IPEndPoint.MaxPort" />.</exception>
         public ProxyConnectionInfo(string host, int port, string username, string password, ProxyTypes proxyType, IConnectionInfo proxyConnection)
         {
-            if (proxyType != ProxyTypes.None)
-            {
-                if (host == null)
-                    throw new ArgumentNullException("host");
-                port.ValidatePort("port");
-            }
+            
+            if (host == null)
+                throw new ArgumentNullException("proxyHost");
+            port.ValidatePort("proxyPort");
 
             Host = host;
             Port = port;

@@ -122,7 +122,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
                         })
                         .Returns(WaitResult.Success);
 
-            var localEndpoint = new IPEndPoint(IPAddress.Loopback, 8122);
+            var localEndpoint = new IPEndPoint(IPAddress.Loopback, 0);
             _listener = new AsyncSocketListener(localEndpoint);
             _listener.Connected += socket =>
                 {
@@ -145,6 +145,7 @@ namespace Renci.SshNet.Tests.Classes.Channels
                     }
                 };
             _listener.Start();
+            localEndpoint.Port = ((IPEndPoint)_listener.ListenerEndPoint).Port;
 
             _client = new Socket(localEndpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
             _client.Connect(localEndpoint);

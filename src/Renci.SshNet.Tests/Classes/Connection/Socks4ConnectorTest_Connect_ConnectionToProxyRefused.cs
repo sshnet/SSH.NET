@@ -22,7 +22,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
         {
             base.SetupData();
 
-            _connectionInfo = CreateConnectionInfo("proxyUser", "proxyPwd");
+            _connectionInfo = CreateConnectionInfo("proxyUser", "proxyPwd", 777, 8121);
             _proxyConnectionInfo = (ProxyConnectionInfo)_connectionInfo.ProxyConnection;
             _connectionInfo.Timeout = TimeSpan.FromMilliseconds(5000);
             _stopWatch = new Stopwatch();

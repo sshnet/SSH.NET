@@ -39,14 +39,14 @@ namespace Renci.SshNet.Tests.Classes.Connection
             SetupMocks();
         }
 
-        protected ConnectionInfo CreateConnectionInfo(string proxyUser, string proxyPassword)
+        protected ConnectionInfo CreateConnectionInfo(string proxyUser, string proxyPassword, int proxyPort)
         {
             return new ConnectionInfo(IPAddress.Loopback.ToString(),
                                       777,
                                       "user",
                                       ProxyTypes.Socks5,
                                       IPAddress.Loopback.ToString(),
-                                      8122,
+                                      proxyPort,
                                       proxyUser,
                                       proxyPassword,
                                       new KeyboardInteractiveAuthenticationMethod("user"));

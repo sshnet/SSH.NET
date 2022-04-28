@@ -28,27 +28,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
         {
             base.SetupData();
 
-            _connectionInfo = new ConnectionInfo(IPAddress.Loopback.ToString(),
-                                                 777,
-                                                 "user",
-                                                 ProxyTypes.Http,
-                                                 IPAddress.Loopback.ToString(),
-                                                 8122,
-                                                 string.Empty,
-                                                 "proxyPwd",
-                                                 new KeyboardInteractiveAuthenticationMethod("user"));
-            _proxyConnectionInfo = (ProxyConnectionInfo)_connectionInfo.ProxyConnection;
-            _connectionInfo.Timeout = TimeSpan.FromMilliseconds(20);
-            _expectedHttpRequest = string.Format("CONNECT {0}:{1} HTTP/1.0{2}{2}",
-                                                 _connectionInfo.Host,
-                                                 _connectionInfo.Port.ToString(CultureInfo.InvariantCulture),
-                                                 "\r\n");
-            _bytesReceivedByProxy = new List<byte>();
-            _disconnected = false;
-            _clientSocket = SocketFactory.Create(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            _proxyConnector = ServiceFactory.CreateConnector(_proxyConnectionInfo, SocketFactoryMock.Object);
-
-            _proxyServer = new AsyncSocketListener(new IPEndPoint(IPAddress.Loopback, _proxyConnectionInfo.Port));
+            _proxyServer = new AsyncSocketListener(new IPEndPoint(IPAddress.Loopback, 0));
             _proxyServer.Disconnected += (socket) => _disconnected = true;
             _proxyServer.BytesReceived += (bytesReceived, socket) =>
                 {
@@ -68,6 +48,26 @@ namespace Renci.SshNet.Tests.Classes.Connection
                     }
                 };
             _proxyServer.Start();
+
+            _connectionInfo = new ConnectionInfo(IPAddress.Loopback.ToString(),
+                                                 777,
+                                                 "user",
+                                                 ProxyTypes.Http,
+                                                 IPAddress.Loopback.ToString(),
+                                                 ((IPEndPoint)_proxyServer.ListenerEndPoint).Port,
+                                                 string.Empty,
+                                                 "proxyPwd",
+                                                 new KeyboardInteractiveAuthenticationMethod("user"));
+            _proxyConnectionInfo = (ProxyConnectionInfo)_connectionInfo.ProxyConnection;
+            _connectionInfo.Timeout = TimeSpan.FromMilliseconds(20);
+            _expectedHttpRequest = string.Format("CONNECT {0}:{1} HTTP/1.0{2}{2}",
+                                                 _connectionInfo.Host,
+                                                 _connectionInfo.Port.ToString(CultureInfo.InvariantCulture),
+                                                 "\r\n");
+            _bytesReceivedByProxy = new List<byte>();
+            _disconnected = false;
+            _clientSocket = SocketFactory.Create(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            _proxyConnector = ServiceFactory.CreateConnector(_proxyConnectionInfo, SocketFactoryMock.Object);
         }
 
         protected override void SetupMocks()

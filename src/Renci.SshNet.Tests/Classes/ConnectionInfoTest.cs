@@ -24,7 +24,7 @@ namespace Renci.SshNet.Tests.Classes
                 ProxyTypes.None, proxyHost, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD,
                 new KeyboardInteractiveAuthenticationMethod(Resources.USERNAME));
 
-            Assert.IsNull(connectionInfo.ProxyConnection.Host);
+            Assert.IsNull(connectionInfo.ProxyConnection?.Host);
         }
 
         [TestMethod]
@@ -66,7 +66,8 @@ namespace Renci.SshNet.Tests.Classes
 
             try
             {
-                new ConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, ProxyTypes.Http, Resources.HOST, ++maxPort, Resources.USERNAME, Resources.PASSWORD, null);
+                new ConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, ProxyTypes.Http, Resources.HOST, ++maxPort, 
+                    Resources.USERNAME, Resources.PASSWORD, new KeyboardInteractiveAuthenticationMethod(Resources.USERNAME));
                 Assert.Fail();
             }
             catch (ArgumentOutOfRangeException ex)
@@ -84,7 +85,8 @@ namespace Renci.SshNet.Tests.Classes
 
             try
             {
-                new ConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, ProxyTypes.Http, Resources.HOST, --minPort, Resources.USERNAME, Resources.PASSWORD, null);
+                new ConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, ProxyTypes.Http, Resources.HOST, --minPort, 
+                    Resources.USERNAME, Resources.PASSWORD, new KeyboardInteractiveAuthenticationMethod(Resources.USERNAME));
                 Assert.Fail();
             }
             catch (ArgumentOutOfRangeException ex)
@@ -101,7 +103,7 @@ namespace Renci.SshNet.Tests.Classes
             var proxyPort = new Random().Next(IPEndPoint.MinPort, IPEndPoint.MaxPort);
 
             var connectionInfo = new ConnectionInfo(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME,
-                ProxyTypes.None, Resources.HOST, proxyPort, Resources.USERNAME, Resources.PASSWORD,
+                ProxyTypes.Http, Resources.HOST, proxyPort, Resources.USERNAME, Resources.PASSWORD,
                 new KeyboardInteractiveAuthenticationMethod(Resources.USERNAME));
 
             Assert.AreEqual(proxyPort, connectionInfo.ProxyConnection.Port);

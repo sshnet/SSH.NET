@@ -66,7 +66,7 @@ namespace Renci.SshNet.Tests.Classes
             _exceptionRegister = new List<ExceptionEventArgs>();
             _connectionTimeout = TimeSpan.FromSeconds(5);
             _channelDisposed = new ManualResetEvent(false);
-            _forwardedPortEndPoint = new IPEndPoint(IPAddress.Loopback, 8122);
+            _forwardedPortEndPoint = new IPEndPoint(IPAddress.Loopback, 8121);
 
             _forwardedPort = new ForwardedPortDynamic((uint) _forwardedPortEndPoint.Port);
             _forwardedPort.Closing += (sender, args) => _closingRegister.Add(args);

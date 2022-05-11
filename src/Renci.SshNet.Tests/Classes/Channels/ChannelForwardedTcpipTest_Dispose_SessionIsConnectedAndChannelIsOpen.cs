@@ -67,6 +67,16 @@ namespace Renci.SshNet.Tests.Classes.Channels
         private void Arrange()
         {
             var random = new Random();
+
+            _remoteEndpoint = new IPEndPoint(IPAddress.Loopback, 0);
+
+            _remoteListener = new AsyncSocketListener(_remoteEndpoint);
+            _remoteListener.Connected += socket => _connectedRegister.Add(socket);
+            _remoteListener.Disconnected += socket => _disconnectedRegister.Add(socket);
+            _remoteListener.Start();
+
+            _remoteEndpoint.Port = ((IPEndPoint)_remoteListener.ListenerEndPoint).Port;
+
             _localChannelNumber = (uint) random.Next(0, int.MaxValue);
             _localWindowSize = (uint) random.Next(2000, 3000);
             _localPacketSize = (uint) random.Next(1000, 2000);
@@ -79,8 +89,6 @@ namespace Renci.SshNet.Tests.Classes.Channels
             _connectedRegister = new List<Socket>();
             _disconnectedRegister = new List<Socket>();
             _connectionInfoTimeout = TimeSpan.FromSeconds(5);
-
-            _remoteEndpoint = new IPEndPoint(IPAddress.Loopback, 8122);
 
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);
             _connectionInfoMock = new Mock<ISshConnectionInfo>(MockBehavior.Strict);
@@ -123,11 +131,6 @@ namespace Renci.SshNet.Tests.Classes.Channels
                             waitHandle.WaitOne();
                         })
                         .Returns(WaitResult.Success);
-
-            _remoteListener = new AsyncSocketListener(_remoteEndpoint);
-            _remoteListener.Connected += socket => _connectedRegister.Add(socket);
-            _remoteListener.Disconnected += socket => _disconnectedRegister.Add(socket);
-            _remoteListener.Start();
 
             _channel = new ChannelForwardedTcpip(
                 _sessionMock.Object,

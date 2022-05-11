@@ -41,7 +41,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             _closingRegister = new List<EventArgs>();
             _exceptionRegister = new List<ExceptionEventArgs>();
-            _endpoint = new IPEndPoint(IPAddress.Loopback, 8122);
+            _endpoint = new IPEndPoint(IPAddress.Loopback, 8121);
 
             _connectionInfoMock = new Mock<ISshConnectionInfo>(MockBehavior.Strict);
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);

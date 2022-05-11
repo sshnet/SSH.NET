@@ -31,7 +31,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
                                                  "user",
                                                  ProxyTypes.Http,
                                                  IPAddress.Loopback.ToString(),
-                                                 8122,
+                                                 8121,
                                                  "proxyUser",
                                                  "proxyPwd",
                                                  new KeyboardInteractiveAuthenticationMethod("user"));

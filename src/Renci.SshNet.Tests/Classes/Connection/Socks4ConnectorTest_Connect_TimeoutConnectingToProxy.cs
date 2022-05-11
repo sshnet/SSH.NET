@@ -25,7 +25,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
 
             var random = new Random();
 
-            _connectionInfo = CreateConnectionInfo("proxyUser", "proxyPwd", 777, 8122);
+            _connectionInfo = CreateConnectionInfo("proxyUser", "proxyPwd", 777, 8121);
             _proxyConnectionInfo = (ProxyConnectionInfo)_connectionInfo.ProxyConnection;
             _connectionInfo.Timeout = TimeSpan.FromMilliseconds(random.Next(50, 200));
             _stopWatch = new Stopwatch();

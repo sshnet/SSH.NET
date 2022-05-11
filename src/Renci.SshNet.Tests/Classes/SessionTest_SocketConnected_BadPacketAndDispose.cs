@@ -53,16 +53,7 @@ namespace Renci.SshNet.Tests.Classes
 
         protected void SetupData()
         {
-            _serverEndPoint = new IPEndPoint(IPAddress.Loopback, 8122);
-            _connectionInfo = new ConnectionInfo(
-                _serverEndPoint.Address.ToString(),
-                _serverEndPoint.Port,
-                "user",
-                new PasswordAuthenticationMethod("user", "password"));
-            _connectionInfo.Timeout = TimeSpan.FromMilliseconds(200);
-            _actualException = null;
-            _socketFactory = new SocketFactory();
-            _serviceFactory = new ServiceFactory();
+            _serverEndPoint = new IPEndPoint(IPAddress.Loopback, 0);
 
             _serverListener = new AsyncSocketListener(_serverEndPoint);
             _serverListener.Connected += (socket) =>
@@ -78,6 +69,16 @@ namespace Renci.SshNet.Tests.Classes
                 };
             _serverListener.Start();
 
+            _connectionInfo = new ConnectionInfo(
+                _serverEndPoint.Address.ToString(),
+                ((IPEndPoint)_serverListener.ListenerEndPoint).Port,
+                "user",
+                new PasswordAuthenticationMethod("user", "password"));
+            _connectionInfo.Timeout = TimeSpan.FromMilliseconds(200);
+            _actualException = null;
+            _socketFactory = new SocketFactory();
+            _serviceFactory = new ServiceFactory();
+
             _session = new Session(_connectionInfo, _serviceFactoryMock.Object, _socketFactoryMock.Object);
 
             _clientSocket = new DirectConnector(_serviceFactory, _socketFactory).Connect(_connectionInfo);
@@ -89,6 +90,7 @@ namespace Renci.SshNet.Tests.Classes
                                .Returns(_connectorMock.Object);
             _connectorMock.Setup(p => p.Connect(_connectionInfo))
                           .Returns(_clientSocket);
+            _connectorMock.Setup(p => p.Dispose());
             _serviceFactoryMock.Setup(p => p.CreateProtocolVersionExchange())
                                .Returns(_protocolVersionExchangeMock.Object);
             _protocolVersionExchangeMock.Setup(p => p.Start(_session.ClientVersion, _clientSocket, _connectionInfo.Timeout))

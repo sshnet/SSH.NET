@@ -26,8 +26,9 @@ namespace Renci.SshNet.Tests.Classes.Connection
             var random = new Random();
 
             _connectionInfo = CreateConnectionInfo("proxyUser", "proxyPwd", 777, 8121);
-            _proxyConnectionInfo = (ProxyConnectionInfo)_connectionInfo.ProxyConnection;
             _connectionInfo.Timeout = TimeSpan.FromMilliseconds(random.Next(50, 200));
+            _proxyConnectionInfo = (ProxyConnectionInfo)_connectionInfo.ProxyConnection;
+            _proxyConnectionInfo.Timeout = _connectionInfo.Timeout;
             _stopWatch = new Stopwatch();
             _clientSocket = SocketFactory.Create(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             _proxyConnector = ServiceFactory.CreateConnector(_proxyConnectionInfo, SocketFactoryMock.Object);

@@ -24,12 +24,13 @@ namespace Renci.SshNet.Connection
 
         public override Socket Connect(IConnectionInfo connectionInfo)
         {
-            if (connectionInfo == null)
-                throw new ArgumentNullException("connectionInfo");
-            if (connectionInfo.GetType() != typeof(ConnectionInfo))
+            var proxyConnection = connectionInfo.ProxyConnection;
+            if (proxyConnection == null)
+                throw new ArgumentNullException("connectionInfo.ProxyConnection");
+            if (proxyConnection.GetType() != typeof(ConnectionInfo))
                 throw new ArgumentException("Expecting connectionInfo to be of type ConnectionInfo");
 
-            _jumpSession = new Session((ConnectionInfo)connectionInfo, ServiceFactory, SocketFactory);
+            _jumpSession = new Session((ConnectionInfo)proxyConnection, ServiceFactory, SocketFactory);
             _jumpSession.Connect();
             _jumpChannel = new JumpChannel(_jumpSession, connectionInfo.Host, (uint)connectionInfo.Port);
             return _jumpChannel.Connect();
@@ -38,12 +39,13 @@ namespace Renci.SshNet.Connection
 #if FEATURE_TAP
         public override async Task<Socket> ConnectAsync(IConnectionInfo connectionInfo, CancellationToken cancellationToken)
         {
-            if (connectionInfo == null)
-                throw new ArgumentNullException("connectionInfo");
-            if (connectionInfo.GetType() != typeof(ConnectionInfo))
+            var proxyConnection = connectionInfo.ProxyConnection;
+            if (proxyConnection == null)
+                throw new ArgumentNullException("connectionInfo.ProxyConnection");
+            if (proxyConnection.GetType() != typeof(ConnectionInfo))
                 throw new ArgumentException("Expecting connectionInfo to be of type ConnectionInfo");
 
-            _jumpSession = new Session((ConnectionInfo)connectionInfo, ServiceFactory, SocketFactory);
+            _jumpSession = new Session((ConnectionInfo)proxyConnection, ServiceFactory, SocketFactory);
             await _jumpSession.ConnectAsync(cancellationToken).ConfigureAwait(false);
             _jumpChannel = new JumpChannel(_jumpSession, connectionInfo.Host, (uint)connectionInfo.Port);
             return _jumpChannel.Connect();

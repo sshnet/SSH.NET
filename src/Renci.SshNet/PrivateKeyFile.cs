@@ -63,7 +63,7 @@ namespace Renci.SshNet
     /// </list>
     /// </para>
     /// </remarks>
-    public class PrivateKeyFile : IDisposable
+    public class PrivateKeyFile : IPrivateKeySource, IDisposable
     {
         private static readonly Regex PrivateKeyRegex = new Regex(@"^-+ *BEGIN (?<keyName>\w+( \w+)*) PRIVATE KEY *-+\r?\n((Proc-Type: 4,ENCRYPTED\r?\nDEK-Info: (?<cipherName>[A-Z0-9-]+),(?<salt>[A-F0-9]+)\r?\n\r?\n)|(Comment: ""?[^\r\n]*""?\r?\n))?(?<data>([a-zA-Z0-9/+=]{1,80}\r?\n)+)-+ *END \k<keyName> PRIVATE KEY *-+",
 #if FEATURE_REGEX_COMPILE
@@ -78,6 +78,15 @@ namespace Renci.SshNet
         /// Gets the host key.
         /// </summary>
         public HostAlgorithm HostKey { get; private set; }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PrivateKeyFile"/> class.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        public PrivateKeyFile(Key key)
+        {
+            HostKey = new KeyHostAlgorithm(key.ToString(), key);
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PrivateKeyFile"/> class.
@@ -262,7 +271,7 @@ namespace Renci.SshNet
 
                     if (decryptedLength > blobSize - 4)
                         throw new SshException("Invalid passphrase.");
-                    
+
                     if (keyType == "if-modn{sign{rsa-pkcs1-sha1},encrypt{rsa-pkcs1v2-oaep}}")
                     {
                         var exponent = reader.ReadBigIntWithBits();//e
@@ -515,8 +524,7 @@ namespace Renci.SshNet
                     throw new SshException("OpenSSH key type '" + keyType + "' is not supported.");
             }
 
-            //comment, we don't need this but we could log it, not sure if necessary
-            var comment = privateKeyReader.ReadString(Encoding.UTF8);
+            parsedKey.Comment = privateKeyReader.ReadString(Encoding.UTF8);
 
             //The list of privatekey/comment pairs is padded with the bytes 1, 2, 3, ...
             //until the total length is a multiple of the cipher block size.

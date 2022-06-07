@@ -77,8 +77,9 @@ namespace Renci.SshNet
         /// <param name="rows">The terminal width in rows.</param>
         /// <param name="width">The terminal height in pixels.</param>
         /// <param name="height">The terminal height in pixels.</param>
-        /// <param name="bufferSize">Size of the buffer.</param>
         /// <param name="terminalModeValues">The terminal mode values.</param>
+        /// <param name="bufferSize">Size of the buffer.</param>
+        /// <param name="expectSize">Size of the expect buffer.</param>
         /// <returns>
         /// The created <see cref="ShellStream"/> instance.
         /// </returns>
@@ -100,7 +101,8 @@ namespace Renci.SshNet
                                       uint width,
                                       uint height,
                                       IDictionary<TerminalModes, uint> terminalModeValues,
-                                      int bufferSize);
+                                      int bufferSize,
+                                      int expectSize);
 
         /// <summary>
         /// Creates an <see cref="IRemotePathTransformation"/> that encloses a path in double quotes, and escapes

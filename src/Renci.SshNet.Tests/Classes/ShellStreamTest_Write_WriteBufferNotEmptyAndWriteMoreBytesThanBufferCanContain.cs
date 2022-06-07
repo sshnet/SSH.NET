@@ -24,6 +24,7 @@ namespace Renci.SshNet.Tests.Classes
         private Dictionary<TerminalModes, uint> _terminalModes;
         private ShellStream _shellStream;
         private int _bufferSize;
+        private int _expectSize;
 
         private byte[] _data;
         private int _offset;
@@ -44,12 +45,13 @@ namespace Renci.SshNet.Tests.Classes
             var random = new Random();
 
             _terminalName = random.Next().ToString();
-            _widthColumns = (uint) random.Next();
-            _heightRows = (uint) random.Next();
-            _widthPixels = (uint) random.Next();
-            _heightPixels = (uint) random.Next();
+            _widthColumns = (uint)random.Next();
+            _heightRows = (uint)random.Next();
+            _widthPixels = (uint)random.Next();
+            _heightPixels = (uint)random.Next();
             _terminalModes = new Dictionary<TerminalModes, uint>();
             _bufferSize = random.Next(100, 1000);
+            _expectSize = random.Next(100, 1000);
 
             _bufferData = CryptoAbstraction.GenerateRandom(_bufferSize - 60);
             _data = CryptoAbstraction.GenerateRandom(_bufferSize - _bufferData.Length + random.Next(1, 10));
@@ -111,7 +113,8 @@ namespace Renci.SshNet.Tests.Classes
                                            _widthPixels,
                                            _heightPixels,
                                            _terminalModes,
-                                           _bufferSize);
+                                           _bufferSize,
+                                           _expectSize);
 
             _shellStream.Write(_bufferData, 0, _bufferData.Length);
         }
@@ -130,7 +133,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void FlushShouldSendRemainingBytesInBufferToServer()
         {
-           var expectedBytesSent = _data.Take(_bufferSize - _bufferData.Length, _data.Length + _bufferData.Length - _bufferSize);
+            var expectedBytesSent = _data.Take(_bufferSize - _bufferData.Length, _data.Length + _bufferData.Length - _bufferSize);
             byte[] actualBytesSent = null;
 
             _channelSessionMock.InSequence(_mockSequence)

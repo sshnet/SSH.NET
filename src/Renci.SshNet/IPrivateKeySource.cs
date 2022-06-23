@@ -10,6 +10,6 @@ namespace Renci.SshNet
         /// <summary>
         /// Gets the host key.
         /// </summary>
-        HostAlgorithm HostKey { get; }
+        HostAlgorithm[] HostKeys { get; }
     }
 }

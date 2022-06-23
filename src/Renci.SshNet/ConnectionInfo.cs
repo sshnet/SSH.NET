@@ -389,6 +389,7 @@ namespace Renci.SshNet
 #endif
                     {"ssh-rsa", data => new KeyHostAlgorithm("ssh-rsa", new RsaKey(), data)},
                     {"ssh-dss", data => new KeyHostAlgorithm("ssh-dss", new DsaKey(), data)},
+                    {"rsa-sha2-256", data => new KeyHostAlgorithm("rsa-sha2-256", new RsaWithSha256SignatureKey(), data)},
                     //{"x509v3-sign-rsa", () => { ... },
                     //{"x509v3-sign-dss", () => { ... },
                     //{"spki-sign-rsa", () => { ... },

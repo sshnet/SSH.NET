@@ -184,6 +184,14 @@ namespace Renci.SshNet
         public int MaxSessions { get; set; }
 
         /// <summary>
+        /// For servers that wait for the Key Exchange message, send the SSH_MSG_KEXINIT explicitly on connect()
+        /// </summary>
+        /// <value>
+        /// True to initiate the key exchange on connect(). Default is false.
+        /// </value>
+        public bool InitiateKeyExchange { get; set; }
+
+        /// <summary>
         /// Occurs when authentication banner is sent by the server.
         /// </summary>
         /// <example>
@@ -321,6 +329,7 @@ namespace Renci.SshNet
             ChannelCloseTimeout = DefaultChannelCloseTimeout;
             RetryAttempts = 10;
             MaxSessions = 10;
+            InitiateKeyExchange = false;
             Encoding = Encoding.UTF8;
 
             KeyExchangeAlgorithms = new Dictionary<string, Type>

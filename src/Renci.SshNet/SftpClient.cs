@@ -552,7 +552,7 @@ namespace Renci.SshNet
         /// <exception cref="SftpPermissionDeniedException">Permission to list the contents of the directory was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
         /// <exception cref="SshException">A SSH error where <see cref="Exception.Message" /> is the message from the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
-        public async Task<IEnumerable<SftpFile>> ListDirectoryAsync(string path, CancellationToken cancellationToken)
+        public async Task<IEnumerable<ISftpFile>> ListDirectoryAsync(string path, CancellationToken cancellationToken)
         {
             base.CheckDisposed();
             if (path == null)

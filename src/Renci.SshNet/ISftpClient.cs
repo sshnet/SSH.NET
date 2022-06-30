@@ -14,7 +14,7 @@ namespace Renci.SshNet
     /// <summary>
     /// Implementation of the SSH File Transfer Protocol (SFTP) over SSH.
     /// </summary>
-    public interface ISftpClient : IDisposable
+    public interface ISftpClient : IBaseClient, IDisposable
     {
         /// <summary>
         /// Gets or sets the maximum size of the buffer in bytes.

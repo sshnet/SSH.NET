@@ -14,7 +14,7 @@ namespace Renci.SshNet
     /// <summary>
     /// Implementation of the SSH File Transfer Protocol (SFTP) over SSH.
     /// </summary>
-    public interface ISftpClient : IDisposable
+    public interface ISftpClient : IBaseClient, IDisposable
     {
         /// <summary>
         /// Gets or sets the maximum size of the buffer in bytes.
@@ -720,7 +720,7 @@ namespace Renci.SshNet
         /// <exception cref="SftpPermissionDeniedException">Permission to list the contents of the directory was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
         /// <exception cref="SshException">A SSH error where <see cref="Exception.Message" /> is the message from the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
-        Task<IEnumerable<SftpFile>> ListDirectoryAsync(string path, CancellationToken cancellationToken);
+        Task<IEnumerable<ISftpFile>> ListDirectoryAsync(string path, CancellationToken cancellationToken);
 #endif
 
         /// <summary>

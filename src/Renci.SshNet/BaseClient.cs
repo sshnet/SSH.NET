@@ -13,7 +13,7 @@ namespace Renci.SshNet
     /// <summary>
     /// Serves as base class for client implementations, provides common client functionality.
     /// </summary>
-    public abstract class BaseClient : IDisposable
+    public abstract class BaseClient : IBaseClient, IDisposable
     {
         /// <summary>
         /// Holds value indicating whether the connection info is owned by this client.
@@ -387,7 +387,7 @@ namespace Renci.SshNet
             }
         }
 
-#region IDisposable Members
+        #region IDisposable Members
 
         private bool _isDisposed;
 
@@ -446,7 +446,7 @@ namespace Renci.SshNet
             Dispose(false);
         }
 
-#endregion
+        #endregion
 
         /// <summary>
         /// Stops the keep-alive timer, and waits until all timer callbacks have been

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using Renci.SshNet.Common;
+using csp = System.Security.Cryptography;
 
 namespace Renci.SshNet.Security.Cryptography.Ciphers
 {
@@ -23,6 +24,21 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
         private uint C0, C1, C2, C3;
 
+#if FEATURE_AES_CSP
+
+        private csp.ICryptoTransform aesDecryptor;
+
+        private csp.ICryptoTransform aesEncryptor;
+
+        private bool useCSP;       // set to false when CSP is not available for a given mode; falls back to legacy code
+
+        private bool isCTRMode;
+
+        private uint[] _ctrIV;
+
+        CipherPadding _padding;
+#endif
+        
         #region Static Definition Tables
 
         private static readonly byte[] S =
@@ -571,6 +587,11 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
             if (!(keySize == 256 || keySize == 192 || keySize == 128))
                 throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "KeySize '{0}' is not valid for this algorithm.", keySize));
+            
+#if FEATURE_AES_CSP
+            // initialize AesCryptoServiceProvider which uses AES-NI (faster, less CPU usage)
+            useCSP = initCryptoServiceProvider(mode, padding);
+#endif
         }
 
         /// <summary>
@@ -663,6 +684,200 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             return BlockSize;
         }
 
+        #if FEATURE_AES_CSP
+
+        /// <summary>
+        /// Encrypts the specified data using AesCryptoServiceProvider
+        /// </summary>
+        /// <param name="data">The data.</param>
+        /// <param name="offset">The zero-based offset in <paramref name="data"/> at which to begin encrypting.</param>
+        /// <param name="length">The number of bytes to encrypt from <paramref name="data"/>.</param>
+        /// <returns>Encrypted data</returns>
+        public override byte[] Encrypt(byte[] data, int offset, int length)
+        {
+            if (useCSP)
+            {
+                if (length % BlockSize > 0)
+                {
+                    if (_padding == null)
+                    {
+                        throw new ArgumentException("data");
+                    }
+                    data = _padding.Pad(BlockSize, data, offset, length);
+                    offset = 0;
+                    length = data.Length;
+                }
+
+                if (isCTRMode)
+                    return CTREncryptDecrypt(data, offset, length);
+                else
+                {
+                    byte[] output = new byte[length];
+                    aesEncryptor.TransformBlock(data, offset, length, output, 0);
+                    return output;
+                }
+            }
+            else
+                return base.Encrypt(data, offset, length);
+        }
+
+        /// <summary>
+        /// Decrypts the specified input using AesCryptoServiceProvider
+        /// </summary>
+        /// <param name="data">The input.</param>
+        /// <param name="offset">The zero-based offset in <paramref name="data"/> at which to begin decrypting.</param>
+        /// <param name="length">The number of bytes to decrypt from <paramref name="data"/>.</param>
+        /// <returns>
+        /// The decrypted data.
+        /// </returns>
+        public override byte[] Decrypt(byte[] data, int offset, int length)
+        {
+            if (useCSP)
+            {
+                if (length % BlockSize > 0)
+                {
+                    if (_padding == null)
+                    {
+                        throw new ArgumentException("data");
+                    }
+                    data = _padding.Pad(BlockSize, data, offset, length);
+                    offset = 0;
+                    length = data.Length;
+                }
+
+                if (isCTRMode)
+                    return CTREncryptDecrypt(data, offset, length);
+                else
+                {
+                    byte[] output = new byte[length];
+                    aesDecryptor.TransformBlock(data, offset, length, output, 0);
+                    return output;
+                }
+            }
+            else
+                return base.Encrypt(data, offset, length);
+        }
+
+        // initialize AesCryptoServiceProvider
+        private bool initCryptoServiceProvider(CipherMode mode, CipherPadding padding)
+        {
+            try
+            {
+                // use the provided CipherPadding object
+                _padding = padding;
+                csp.PaddingMode cspPadding = csp.PaddingMode.None; 
+
+                // set the Mode
+                csp.CipherMode cspMode = 0;
+                isCTRMode = mode is Modes.CtrCipherMode;
+
+                if (mode is Modes.CbcCipherMode)
+                    cspMode = csp.CipherMode.CBC;
+                else if (isCTRMode)
+                    cspMode = csp.CipherMode.ECB;       // CTR uses ECB
+                else
+                    return false;                       // OFB and CFB not supported, fallback to managed code
+
+                // prepare IV array for CTR mode
+                if (isCTRMode)
+                    _ctrIV = GetPackedIV(mode.IV);
+
+                // create ICryptoTransform instances
+                var aesProvider = new csp.AesCryptoServiceProvider()
+                {
+                    BlockSize = BlockSize * 8,
+                    KeySize = Key.Length * 8,
+                    Mode = cspMode,
+                    Padding = cspPadding,
+                    Key = Key,
+                    IV = mode.IV,
+                };
+                aesEncryptor = aesProvider.CreateEncryptor(Key, mode.IV);
+                aesDecryptor = aesProvider.CreateDecryptor(Key, mode.IV);
+                return true;
+            }
+            catch { }  // fallback for unsupported key/iv/blocksize combinations
+            return false;
+        }
+
+        // convert the IV into an array of uint[4]
+        private uint[] GetPackedIV(byte[] iv)
+        {
+            uint[] packedIV = new uint[4];
+            packedIV[0] = (uint)((iv[0] << 24) | (iv[1] << 16) | (iv[2] << 8) | (iv[3]));
+            packedIV[1] = (uint)((iv[4] << 24) | (iv[5] << 16) | (iv[6] << 8) | (iv[7]));
+            packedIV[2] = (uint)((iv[8] << 24) | (iv[9] << 16) | (iv[10] << 8) | (iv[11]));
+            packedIV[3] = (uint)((iv[12] << 24) | (iv[13] << 16) | (iv[14] << 8) | (iv[15]));
+            return packedIV;
+        }
+
+        // Perform AES-CTR encryption/decryption
+        private byte[] CTREncryptDecrypt(byte[] data, int offset, int length)
+        {
+            int count = length / BlockSize;
+            if (length % BlockSize != 0) count++;
+
+            byte[] counter = CTRCreateCounterArray(count);
+            byte[] aesCounter = aesEncryptor.TransformFinalBlock(counter, 0, counter.Length);
+            byte[] output = CTRArrayXOR(aesCounter, data, offset, length);
+
+            return output;
+        }
+
+        // creates the Counter array filled with incrementing copies of IV
+        private byte[] CTRCreateCounterArray(int blocks)
+        {
+            // fill an array with IV, increment by 1 for each copy
+            uint[] counter = new uint[blocks * 4];
+            for (int i = 0; i < counter.Length; i += 4)
+            {
+                // write IV to buffer (big endian)
+                counter[i] = (_ctrIV[0] << 24) | ((_ctrIV[0] << 8) & 0x00FF0000) | ((_ctrIV[0] >> 8) & 0x0000FF00) | (_ctrIV[0] >> 24);
+                counter[i + 1] = (_ctrIV[1] << 24) | ((_ctrIV[1] << 8) & 0x00FF0000) | ((_ctrIV[1] >> 8) & 0x0000FF00) | (_ctrIV[1] >> 24);
+                counter[i + 2] = (_ctrIV[2] << 24) | ((_ctrIV[2] << 8) & 0x00FF0000) | ((_ctrIV[2] >> 8) & 0x0000FF00) | (_ctrIV[2] >> 24);
+                counter[i + 3] = (_ctrIV[3] << 24) | ((_ctrIV[3] << 8) & 0x00FF0000) | ((_ctrIV[3] >> 8) & 0x0000FF00) | (_ctrIV[3] >> 24);
+
+                // increment IV (little endian)
+                for (int j = 3; j >= 0 && ++_ctrIV[j] == 0; j--) ;
+            }
+
+            // copy uint[] to byte[]
+            byte[] counterBytes = new byte[blocks * 16];
+            System.Buffer.BlockCopy(counter, 0, counterBytes, 0, counterBytes.Length);
+            return counterBytes;
+        }
+
+        // XORs the input data with the encrypted Counter array to produce the final output
+        // uses uint arrays for speed
+        private byte[] CTRArrayXOR(byte[] counter, byte[] data, int offset, int length)
+        {
+            int words = length / 4;
+            if (length % 4 != 0) words++;
+
+            // convert original data to words
+            uint[] datawords = new uint[words];
+            System.Buffer.BlockCopy(data, offset, datawords, 0, length);
+
+            // convert encrypted IV counter to words
+            uint[] counterwords = new uint[words];
+            System.Buffer.BlockCopy(counter, 0, counterwords, 0, length);
+
+            // XOR encrypted Counter with input data
+            for (int i = 0; i < words; i++)
+                counterwords[i] = counterwords[i] ^ datawords[i];
+
+            // copy uint[] to byte[]
+            byte[] output = counter;
+            System.Buffer.BlockCopy(counterwords, 0, output, 0, length);
+
+            // adjust output for non-aligned lengths
+            if (output.Length > length)
+                Array.Resize(ref output, length);
+
+            return output;
+        }
+#endif
+        
         private uint[] GenerateWorkingKey(bool isEncryption, byte[] key)
         {
             int KC = key.Length / 4;  // key length in words

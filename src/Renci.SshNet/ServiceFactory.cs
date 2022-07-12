@@ -112,7 +112,7 @@ namespace Renci.SshNet
 
         public ISftpFileReader CreateSftpFileReader(string fileName, ISftpSession sftpSession, uint bufferSize)
         {
-            const int defaultMaxPendingReads = 3;
+            const int defaultMaxPendingReads = 10;
 
             // Issue #292: Avoid overlapping SSH_FXP_OPEN and SSH_FXP_LSTAT requests for the same file as this
             // causes a performance degradation on Sun SSH
@@ -132,7 +132,7 @@ namespace Renci.SshNet
             {
                 var fileAttributes = sftpSession.EndLStat(statAsyncResult);
                 fileSize = fileAttributes.Size;
-                maxPendingReads = Math.Min(10, (int) Math.Ceiling((double) fileAttributes.Size / chunkSize) + 1);
+                maxPendingReads = Math.Min(100, (int) Math.Ceiling((double) fileAttributes.Size / chunkSize) + 1);
             }
             catch (SshException ex)
             {

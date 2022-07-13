@@ -74,6 +74,11 @@ namespace Renci.SshNet
             get { return _stderrPipe.InputStream; }
         }
 
+        /// <summary>
+        /// Get the input stream.
+        /// </summary>
+        public Stream InputStream { get; private set; }
+
         private StringBuilder _result;
         /// <summary>
         /// Gets the command execution result.
@@ -248,7 +253,12 @@ namespace Renci.SshNet
                 _stderrPipe.Dispose();
             }
 
-            //  Initialize pipes
+            if (InputStream != null)
+            {
+                InputStream.Dispose();
+            }
+
+            //  Initialize output pipes
             _stdoutPipe = new Pipe();
             _stderrPipe = new Pipe();
 
@@ -259,6 +269,9 @@ namespace Renci.SshNet
             _channel = CreateChannel();
             _channel.Open();
             _channel.SendExecRequest(CommandText);
+
+            // Initialize input stream
+            InputStream = new ChannelInputStream(_channel);
 
             return _asyncResult;
         }
@@ -538,6 +551,8 @@ namespace Renci.SshNet
 
             if (disposing)
             {
+                InputStream.Dispose();
+
                 // unsubscribe from session events to ensure other objects that we're going to dispose
                 // are not accessed while disposing
                 var session = _session;

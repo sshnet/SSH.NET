@@ -83,7 +83,11 @@
             }
         }
 
+#if NETSTANDARD1_3
+        public void Close()
+#else
         public override void Close()
+#endif
         {
             if (!_queue.IsAddingCompleted)
                 _queue.CompleteAdding();

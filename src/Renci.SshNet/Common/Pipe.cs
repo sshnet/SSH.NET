@@ -1,7 +1,6 @@
 ﻿namespace Renci.SshNet.Common
 {
     using System;
-    using System.IO;
 
     /// <summary>
     /// A generic pipe to pass through data.
@@ -14,13 +13,13 @@
         /// Gets the input stream.
         /// </summary>
         /// <value>The input stream.</value>
-        public Stream InputStream { get; private set; }
+        public PipeInputStream InputStream { get; private set; }
 
         /// <summary>
         /// Gets the output stream.
         /// </summary>
         /// <value>The output stream.</value>
-        public Stream OutputStream { get; private set; }
+        public PipeOutputStream OutputStream { get; private set; }
 
         public Pipe()
         {

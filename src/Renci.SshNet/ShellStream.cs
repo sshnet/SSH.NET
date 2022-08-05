@@ -564,7 +564,9 @@ namespace Renci.SshNet
                     if (match.Success)
                     {
                         //  Remove processed items from the queue
-                        for (var i = 0; i < match.Index + match.Length && _incoming.Count > 0; i++)
+                        text = text.Substring(0, match.Index + match.Length);
+                        int bytesProcessed = _encoding.GetByteCount(text);
+                        for (var i = 0; i < bytesProcessed && _incoming.Count > 0; i++)
                         {
                             _incoming.Dequeue();
                         }

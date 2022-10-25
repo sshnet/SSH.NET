@@ -3,13 +3,10 @@ using System.IO;
 using System.Threading;
 using System.Diagnostics.CodeAnalysis;
 using Renci.SshNet.Common;
-<<<<<<< Updated upstream
 #if FEATURE_TAP
 using System.Threading.Tasks;
 #endif
-=======
 using System.Reflection;
->>>>>>> Stashed changes
 
 namespace Renci.SshNet.Sftp
 {
@@ -280,8 +277,6 @@ namespace Renci.SshNet.Sftp
                     throw new ArgumentOutOfRangeException("mode");
             }
 
-            Console.WriteLine("Local TAG: SFTP file stream constructor.");
-
             if (_handle == null)
                 _handle = _session.RequestOpen(path, flags);
 
@@ -289,8 +284,8 @@ namespace Renci.SshNet.Sftp
             // that ensures we always receive or send the max. number of bytes in a single SSH_FXP_READ
             // or SSH_FXP_WRITE message
 
-            _readBufferSize = (int) session.CalculateOptimalReadLength((uint) bufferSize);
-            _writeBufferSize = (int) session.CalculateOptimalWriteLength((uint) bufferSize, _handle);
+            _readBufferSize = (int)session.CalculateOptimalReadLength((uint)bufferSize);
+            _writeBufferSize = (int)session.CalculateOptimalWriteLength((uint)bufferSize, _handle);
 
             if (mode == FileMode.Append)
             {
@@ -387,7 +382,7 @@ namespace Renci.SshNet.Sftp
                         await session.RequestCloseAsync(handle, cancellationToken).ConfigureAwait(false);
                     }
                     catch
-                    { 
+                    {
                         // The original exception is presumably more informative, so we just ignore this one.
                     }
                     throw;
@@ -515,7 +510,7 @@ namespace Renci.SshNet.Sftp
                     var bytesAvailableInBuffer = _bufferLen - _bufferPosition;
                     if (bytesAvailableInBuffer <= 0)
                     {
-                        var data = _session.RequestRead(_handle, (ulong) _position, (uint) _readBufferSize);
+                        var data = _session.RequestRead(_handle, (ulong)_position, (uint)_readBufferSize);
 
                         if (data.Length == 0)
                         {
@@ -732,7 +727,7 @@ namespace Renci.SshNet.Sftp
                 // Read more data into the internal buffer if necessary.
                 if (_bufferPosition >= _bufferLen)
                 {
-                    var data = _session.RequestRead(_handle, (ulong) _position, (uint) _readBufferSize);
+                    var data = _session.RequestRead(_handle, (ulong)_position, (uint)_readBufferSize);
                     if (data.Length == 0)
                     {
                         // We've reached EOF.
@@ -769,7 +764,6 @@ namespace Renci.SshNet.Sftp
         /// <exception cref="ObjectDisposedException">Methods were called after the stream was closed. </exception>
         public override long Seek(long offset, SeekOrigin origin)
         {
-            Console.WriteLine("Local TAG: Seek: {0}, {1}", offset, origin.ToString());
             long newPosn = -1;
 
             // Lock down the file stream while we do this.
@@ -839,13 +833,11 @@ namespace Renci.SshNet.Sftp
                         if (newPosn >= (_position - _bufferPosition) &&
                            newPosn < (_position - _bufferPosition + _bufferLen))
                         {
-                            _bufferPosition = (int) (newPosn - (_position - _bufferPosition));
+                            _bufferPosition = (int)(newPosn - (_position - _bufferPosition));
                             _position = newPosn;
                             return _position;
                         }
                     }
-
-                    Console.WriteLine("Local TAG: Seek is outside the read buffer bounds.");
 
                     // Abandon the read buffer.
                     _bufferPosition = 0;
@@ -869,8 +861,6 @@ namespace Renci.SshNet.Sftp
                             newPosn = attributes.Size + offset;
                             break;
                     }
-
-                    Console.WriteLine("Local TAG: new pos: {0}", newPosn);
 
                     if (newPosn < 0 || (attributes != null && newPosn > attributes.Size))
                     {
@@ -992,7 +982,7 @@ namespace Renci.SshNet.Sftp
                     {
                         using (var wait = new AutoResetEvent(false))
                         {
-                            _session.RequestWrite(_handle, (ulong) _position, buffer, offset, tempLen, wait);
+                            _session.RequestWrite(_handle, (ulong)_position, buffer, offset, tempLen, wait);
                         }
                     }
                     else
@@ -1014,7 +1004,7 @@ namespace Renci.SshNet.Sftp
                 {
                     using (var wait = new AutoResetEvent(false))
                     {
-                        _session.RequestWrite(_handle, (ulong) (_position - _bufferPosition), GetOrCreateWriteBuffer(), 0, _bufferPosition, wait);
+                        _session.RequestWrite(_handle, (ulong)(_position - _bufferPosition), GetOrCreateWriteBuffer(), 0, _bufferPosition, wait);
                     }
 
                     _bufferPosition = 0;
@@ -1124,7 +1114,7 @@ namespace Renci.SshNet.Sftp
                 {
                     using (var wait = new AutoResetEvent(false))
                     {
-                        _session.RequestWrite(_handle, (ulong) (_position - _bufferPosition), writeBuffer, 0, _bufferPosition, wait);
+                        _session.RequestWrite(_handle, (ulong)(_position - _bufferPosition), writeBuffer, 0, _bufferPosition, wait);
                     }
 
                     _bufferPosition = 0;
@@ -1210,7 +1200,7 @@ namespace Renci.SshNet.Sftp
             {
                 using (var wait = new AutoResetEvent(false))
                 {
-                    _session.RequestWrite(_handle, (ulong) (_position - _bufferPosition), _writeBuffer, 0, _bufferPosition, wait);
+                    _session.RequestWrite(_handle, (ulong)(_position - _bufferPosition), _writeBuffer, 0, _bufferPosition, wait);
                 }
 
                 _bufferPosition = 0;

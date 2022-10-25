@@ -3,9 +3,13 @@ using System.IO;
 using System.Threading;
 using System.Diagnostics.CodeAnalysis;
 using Renci.SshNet.Common;
+<<<<<<< Updated upstream
 #if FEATURE_TAP
 using System.Threading.Tasks;
 #endif
+=======
+using System.Reflection;
+>>>>>>> Stashed changes
 
 namespace Renci.SshNet.Sftp
 {
@@ -275,6 +279,8 @@ namespace Renci.SshNet.Sftp
                 default:
                     throw new ArgumentOutOfRangeException("mode");
             }
+
+            Console.WriteLine("Local TAG: SFTP file stream constructor.");
 
             if (_handle == null)
                 _handle = _session.RequestOpen(path, flags);
@@ -763,6 +769,7 @@ namespace Renci.SshNet.Sftp
         /// <exception cref="ObjectDisposedException">Methods were called after the stream was closed. </exception>
         public override long Seek(long offset, SeekOrigin origin)
         {
+            Console.WriteLine("Local TAG: Seek: {0}, {1}", offset, origin.ToString());
             long newPosn = -1;
 
             // Lock down the file stream while we do this.
@@ -783,6 +790,8 @@ namespace Renci.SshNet.Sftp
                     return _position;
                 }
 
+                var attributes = (SftpFileAttributes)null;
+
                 // The behaviour depends upon the read/write mode.
                 if (_bufferOwnedByWrite)
                 {
@@ -798,15 +807,16 @@ namespace Renci.SshNet.Sftp
                             newPosn = _position + offset;
                             break;
                         case SeekOrigin.End:
-                            var attributes = _session.RequestFStat(_handle, false);
-                            newPosn = attributes.Size - offset;
+                            attributes = _session.RequestFStat(_handle, false);
+                            newPosn = attributes.Size + offset;
                             break;
                     }
 
-                    if (newPosn == -1)
+                    if (newPosn == -1 || (attributes != null && newPosn > attributes.Size))
                     {
                         throw new EndOfStreamException("End of stream.");
                     }
+
                     _position = newPosn;
                 }
                 else
@@ -835,6 +845,8 @@ namespace Renci.SshNet.Sftp
                         }
                     }
 
+                    Console.WriteLine("Local TAG: Seek is outside the read buffer bounds.");
+
                     // Abandon the read buffer.
                     _bufferPosition = 0;
                     _bufferLen = 0;
@@ -849,12 +861,18 @@ namespace Renci.SshNet.Sftp
                             newPosn = _position + offset;
                             break;
                         case SeekOrigin.End:
-                            var attributes = _session.RequestFStat(_handle, false);
-                            newPosn = attributes.Size - offset;
+                            if (attributes == null)
+                            {
+                                attributes = _session.RequestFStat(_handle, false);
+                            }
+
+                            newPosn = attributes.Size + offset;
                             break;
                     }
 
-                    if (newPosn < 0)
+                    Console.WriteLine("Local TAG: new pos: {0}", newPosn);
+
+                    if (newPosn < 0 || (attributes != null && newPosn > attributes.Size))
                     {
                         throw new EndOfStreamException();
                     }

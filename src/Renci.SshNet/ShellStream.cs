@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.IO;
+﻿using Renci.SshNet.Abstractions;
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
-using System.Threading;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text;
 using System.Text.RegularExpressions;
-using Renci.SshNet.Abstractions;
+using System.Threading;
 
 namespace Renci.SshNet
 {
@@ -35,6 +35,11 @@ namespace Renci.SshNet
         /// Occurs when an error occurred.
         /// </summary>
         public event EventHandler<ExceptionEventArgs> ErrorOccurred;
+
+        /// <summary>
+        /// Occurs when the closing channel has requested that the stream close
+        /// </summary>
+        public event EventHandler<EventArgs> Stopping;
 
         /// <summary>
         /// Gets a value that indicates whether data is available on the <see cref="ShellStream"/> to be read.
@@ -772,7 +777,13 @@ namespace Renci.SshNet
 
         private void Channel_Closed(object sender, ChannelEventArgs e)
         {
-            //  TODO:   Do we need to call dispose here ??
+            ThreadAbstraction.ExecuteThread(() => Stopping(this, new EventArgs()));
+            // FYI: Dispose should Probably NOT be called here as a class should NOT dispose of
+            // itself: It will be owned by someone else.  Calling it here means it will be disappear
+            // out from under the owner. BUT removing it here now is a breaking change and because there
+            // is a workaround in the Flush method (raisign exception).  I added the notify event
+            // here instead so that the user knows the channel is no longer usable.
+            // -- REMOVE NEXT LINE on next major release (## noted 2020.0.0.1)
             Dispose();
         }
 

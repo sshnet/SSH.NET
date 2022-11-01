@@ -161,6 +161,9 @@ namespace Renci.SshNet
         /// <param name="height">The terminal height in pixels.</param>
         /// <param name="terminalModeValues">The terminal mode values.</param>
         /// <param name="bufferSize">The size of the buffer.</param>
+        /// <param name="starting">Optional Starting Event handler</param>
+        /// <param name="stopping">Optional Stopping Event handler</param>
+        /// 
         /// <returns>
         /// The created <see cref="ShellStream"/> instance.
         /// </returns>
@@ -175,9 +178,9 @@ namespace Renci.SshNet
         /// to the drawable area of the window.
         /// </para>
         /// </remarks>
-        public ShellStream CreateShellStream(ISession session, string terminalName, uint columns, uint rows, uint width, uint height, IDictionary<TerminalModes, uint> terminalModeValues, int bufferSize)
+        public ShellStream CreateShellStream(ISession session, string terminalName, uint columns, uint rows, uint width, uint height, IDictionary<TerminalModes, uint> terminalModeValues, int bufferSize, EventHandler<EventArgs> starting = null, EventHandler<EventArgs> stopping = null)
         {
-            return new ShellStream(session, terminalName, columns, rows, width, height, terminalModeValues, bufferSize);
+            return new ShellStream(session, terminalName, columns, rows, width, height, terminalModeValues, bufferSize, starting, stopping);
         }
 
         /// <summary>
@@ -251,5 +254,7 @@ namespace Renci.SshNet
         {
             return new SocketFactory();
         }
+
+
     }
 }

@@ -1,10 +1,10 @@
-﻿using System;
+﻿using Renci.SshNet.Common;
+using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Text;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Net;
-using Renci.SshNet.Common;
+using System.Text;
 
 namespace Renci.SshNet
 {
@@ -413,6 +413,8 @@ namespace Renci.SshNet
         /// <param name="width">The terminal height in pixels.</param>
         /// <param name="height">The terminal height in pixels.</param>
         /// <param name="bufferSize">The size of the buffer.</param>
+        /// <param name="starting">Optional Starting Event handler</param>
+        /// <param name="stopping">Optional Stopping Event handler</param> 
         /// <returns>
         /// The created <see cref="ShellStream"/> instance.
         /// </returns>
@@ -427,9 +429,9 @@ namespace Renci.SshNet
         /// to the drawable area of the window.
         /// </para>
         /// </remarks>
-        public ShellStream CreateShellStream(string terminalName, uint columns, uint rows, uint width, uint height, int bufferSize)
+        public ShellStream CreateShellStream(string terminalName, uint columns, uint rows, uint width, uint height, int bufferSize, EventHandler<EventArgs> starting = null, EventHandler<EventArgs> stopping = null)
         {
-            return CreateShellStream(terminalName, columns, rows, width, height, bufferSize, null);
+            return CreateShellStream(terminalName, columns, rows, width, height, bufferSize, null, starting, stopping);
         }
 
         /// <summary>
@@ -442,6 +444,9 @@ namespace Renci.SshNet
         /// <param name="height">The terminal height in pixels.</param>
         /// <param name="bufferSize">The size of the buffer.</param>
         /// <param name="terminalModeValues">The terminal mode values.</param>
+        /// <param name="starting">Optional Starting Event handler</param>
+        /// <param name="stopping">Optional Stopping Event handler</param>
+        /// 
         /// <returns>
         /// The created <see cref="ShellStream"/> instance.
         /// </returns>
@@ -456,11 +461,11 @@ namespace Renci.SshNet
         /// to the drawable area of the window.
         /// </para>
         /// </remarks>
-        public ShellStream CreateShellStream(string terminalName, uint columns, uint rows, uint width, uint height, int bufferSize, IDictionary<TerminalModes, uint> terminalModeValues)
+        public ShellStream CreateShellStream(string terminalName, uint columns, uint rows, uint width, uint height, int bufferSize, IDictionary<TerminalModes, uint> terminalModeValues, EventHandler<EventArgs> starting = null, EventHandler<EventArgs> stopping = null)
         {
             EnsureSessionIsOpen();
 
-            return ServiceFactory.CreateShellStream(Session, terminalName, columns, rows, width, height, terminalModeValues, bufferSize);
+            return ServiceFactory.CreateShellStream(Session, terminalName, columns, rows, width, height, terminalModeValues, bufferSize, starting, stopping);
         }
 
         /// <summary>

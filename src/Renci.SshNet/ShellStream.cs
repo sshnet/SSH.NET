@@ -84,11 +84,13 @@ namespace Renci.SshNet
         /// <param name="width">The terminal height in pixels.</param>
         /// <param name="height">The terminal height in pixels.</param>
         /// <param name="terminalModeValues">The terminal mode values.</param>
-        /// <param name="bufferSize">The size of the buffer.</param>
+        /// <param name="bufferSize">Size of the buffer.</param>
+        /// <param name="starting">Optional Starting Event handler</param>
+        /// <param name="stopping">Optional Stopping Event handler</param>
         /// <exception cref="SshException">The channel could not be opened.</exception>
         /// <exception cref="SshException">The pseudo-terminal request was not accepted by the server.</exception>
         /// <exception cref="SshException">The request to start a shell was not accepted by the server.</exception>
-        internal ShellStream(ISession session, string terminalName, uint columns, uint rows, uint width, uint height, IDictionary<TerminalModes, uint> terminalModeValues, int bufferSize)
+        internal ShellStream(ISession session, string terminalName, uint columns, uint rows, uint width, uint height, IDictionary<TerminalModes, uint> terminalModeValues, int bufferSize, EventHandler<EventArgs> starting = null, EventHandler<EventArgs> stopping = null)
         {
             _encoding = session.ConnectionInfo.Encoding;
             _session = session;
@@ -101,9 +103,14 @@ namespace Renci.SshNet
             _channel.Closed += Channel_Closed;
             _session.Disconnected += Session_Disconnected;
             _session.ErrorOccured += Session_ErrorOccured;
-
+            Starting = starting;
+            Stopping = stopping;
             try
             {
+                if (Starting != null)
+                {
+                    Starting(this, new EventArgs());
+                }
                 _channel.Open();
                 if (!_channel.SendPseudoTerminalRequest(terminalName, columns, rows, width, height, terminalModeValues))
                 {
@@ -112,10 +119,6 @@ namespace Renci.SshNet
                 if (!_channel.SendShellRequest())
                 {
                     throw new SshException("The request to start a shell was not accepted by the server. Consult the server log for more information.");
-                }
-                if (Starting != null)
-                {
-                    Starting(this, new EventArgs());
                 }
             }
             catch

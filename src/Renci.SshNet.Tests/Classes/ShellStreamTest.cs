@@ -46,6 +46,7 @@ namespace Renci.SshNet.Tests.Classes
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);
             _connectionInfoMock = new Mock<IConnectionInfo>(MockBehavior.Strict);
             _channelSessionMock = new Mock<IChannelSession>(MockBehavior.Strict);
+            
         }
 
         [TestMethod] // issue #2190

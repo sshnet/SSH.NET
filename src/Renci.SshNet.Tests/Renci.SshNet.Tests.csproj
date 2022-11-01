@@ -99,6 +99,20 @@
     <MSTestV1UnitTestFrameworkAssemblyCandidate>$(MSBuildProgramFiles32)\Microsoft Visual Studio\2019\Preview\Common7\IDE\PublicAssemblies\Microsoft.VisualStudio.QualityTools.UnitTestFramework.dll</MSTestV1UnitTestFrameworkAssemblyCandidate>
     <MSTestV1UnitTestFrameworkAssembly Condition="'$(MSTestV1UnitTestFrameworkAssembly)' == '' and Exists('$(MSTestV1UnitTestFrameworkAssemblyCandidate)')">$(MSTestV1UnitTestFrameworkAssemblyCandidate)</MSTestV1UnitTestFrameworkAssembly>
   </PropertyGroup>
+	<PropertyGroup Condition=" '$(VisualStudioVersion)' == '17.0' ">
+		<!-- Look for Microsoft.VisualStudio.QualityTools.UnitTestFramework.dll in VS 2019 Enterprise -->
+		<MSTestV1UnitTestFrameworkAssemblyCandidate>$(MSBuildProgramFiles32)\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\PublicAssemblies\Microsoft.VisualStudio.QualityTools.UnitTestFramework.dll</MSTestV1UnitTestFrameworkAssemblyCandidate>
+		<MSTestV1UnitTestFrameworkAssembly Condition="'$(MSTestV1UnitTestFrameworkAssembly)' == '' and Exists('$(MSTestV1UnitTestFrameworkAssemblyCandidate)')">$(MSTestV1UnitTestFrameworkAssemblyCandidate)</MSTestV1UnitTestFrameworkAssembly>
+		<!-- Fall back to VS 2022 Professional -->
+		<MSTestV1UnitTestFrameworkAssemblyCandidate>$(MSBuildProgramFiles32)\Microsoft Visual Studio\2022\Professional\Common7\IDE\PublicAssemblies\Microsoft.VisualStudio.QualityTools.UnitTestFramework.dll</MSTestV1UnitTestFrameworkAssemblyCandidate>
+		<MSTestV1UnitTestFrameworkAssembly Condition="'$(MSTestV1UnitTestFrameworkAssembly)' == '' and Exists('$(MSTestV1UnitTestFrameworkAssemblyCandidate)')">$(MSTestV1UnitTestFrameworkAssemblyCandidate)</MSTestV1UnitTestFrameworkAssembly>
+		<!-- Fall back to VS 2022 Community -->
+		<MSTestV1UnitTestFrameworkAssemblyCandidate>$(MSBuildProgramFiles32)\Microsoft Visual Studio\2022\Community\Common7\IDE\PublicAssemblies\Microsoft.VisualStudio.QualityTools.UnitTestFramework.dll</MSTestV1UnitTestFrameworkAssemblyCandidate>
+		<MSTestV1UnitTestFrameworkAssembly Condition="'$(MSTestV1UnitTestFrameworkAssembly)' == '' and Exists('$(MSTestV1UnitTestFrameworkAssemblyCandidate)')">$(MSTestV1UnitTestFrameworkAssemblyCandidate)</MSTestV1UnitTestFrameworkAssembly>
+		<!-- Fall back to VS 2022 Preview -->
+		<MSTestV1UnitTestFrameworkAssemblyCandidate>$(MSBuildProgramFiles32)\Microsoft Visual Studio\2022\Preview\Common7\IDE\PublicAssemblies\Microsoft.VisualStudio.QualityTools.UnitTestFramework.dll</MSTestV1UnitTestFrameworkAssemblyCandidate>
+		<MSTestV1UnitTestFrameworkAssembly Condition="'$(MSTestV1UnitTestFrameworkAssembly)' == '' and Exists('$(MSTestV1UnitTestFrameworkAssemblyCandidate)')">$(MSTestV1UnitTestFrameworkAssemblyCandidate)</MSTestV1UnitTestFrameworkAssembly>
+	</PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net35'">
     <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework">

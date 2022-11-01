@@ -18,6 +18,8 @@ namespace Renci.SshNet.Tests.Classes
         private uint _widthPixels;
         private uint _heightPixels;
         private int _bufferSize;
+        private EventHandler<EventArgs> _starting;
+        private EventHandler<EventArgs> _stopping;
         private ShellStream _expected;
         private ShellStream _actual;
 
@@ -57,7 +59,10 @@ namespace Renci.SshNet.Tests.Classes
                                                                _widthPixels,
                                                                _heightPixels,
                                                                null,
-                                                               _bufferSize))
+                                                               _bufferSize,
+                                                               _starting,
+                                                               _stopping
+                                                               ))
                                .Returns(_expected);
         }
 
@@ -89,7 +94,9 @@ namespace Renci.SshNet.Tests.Classes
                                                                 _widthPixels,
                                                                 _heightPixels,
                                                                 null,
-                                                                _bufferSize),
+                                                                _bufferSize,
+                                                                _starting, 
+                                                                _stopping),
                                        Times.Once);
         }
 

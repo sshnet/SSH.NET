@@ -42,6 +42,11 @@ namespace Renci.SshNet
         public event EventHandler<EventArgs> Stopping;
 
         /// <summary>
+        /// Occurs when a channel has been established and the stream is about to start
+        /// </summary>
+        public event EventHandler<EventArgs> Starting;
+
+        /// <summary>
         /// Gets a value that indicates whether data is available on the <see cref="ShellStream"/> to be read.
         /// </summary>
         /// <value>
@@ -108,6 +113,7 @@ namespace Renci.SshNet
                 {
                     throw new SshException("The request to start a shell was not accepted by the server. Consult the server log for more information.");
                 }
+                Starting(this, new EventArgs());
             }
             catch
             {

@@ -113,7 +113,10 @@ namespace Renci.SshNet
                 {
                     throw new SshException("The request to start a shell was not accepted by the server. Consult the server log for more information.");
                 }
-                Starting(this, new EventArgs());
+                if (Starting != null)
+                {
+                    Starting(this, new EventArgs());
+                }
             }
             catch
             {
@@ -783,7 +786,11 @@ namespace Renci.SshNet
 
         private void Channel_Closed(object sender, ChannelEventArgs e)
         {
-            ThreadAbstraction.ExecuteThread(() => Stopping(this, new EventArgs()));
+            if (Stopping != null)
+            {
+                ThreadAbstraction.ExecuteThread(() => Stopping(this, new EventArgs()));
+            }
+
             // FYI: Dispose should Probably NOT be called here as a class should NOT dispose of
             // itself: It will be owned by someone else.  Calling it here means it will be disappear
             // out from under the owner. BUT removing it here now is a breaking change and because there

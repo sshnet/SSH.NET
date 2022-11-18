@@ -16,6 +16,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         private int _bufferSize;
         private uint _readBufferSize;
         private uint _writeBufferSize;
+        private int _length;
         private byte[] _handle;
         private SftpFileStream _target;
         private int _offset;
@@ -29,10 +30,11 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             _random = new Random();
             _path = _random.Next().ToString();
             _fileMode = FileMode.OpenOrCreate;
-            _fileAccess = FileAccess.Read;
+            _fileAccess = FileAccess.Write;
             _bufferSize = _random.Next(5, 1000);
             _readBufferSize = (uint)_random.Next(5, 1000);
             _writeBufferSize = (uint)_random.Next(5, 1000);
+            _length = _random.Next(5, 10000);
             _handle = GenerateRandom(_random.Next(1, 10), _random);
             _offset = _random.Next(1, int.MaxValue);
             _attributes = SftpFileAttributes.Empty;
@@ -41,17 +43,25 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         protected override void SetupMocks()
         {
             SftpSessionMock.InSequence(MockSequence)
-                           .Setup(p => p.RequestOpen(_path, Flags.Read | Flags.CreateNewOrOpen, false))
+                           .Setup(session => session.RequestOpen(_path, Flags.Write | Flags.CreateNewOrOpen, false))
                            .Returns(_handle);
             SftpSessionMock.InSequence(MockSequence)
-                           .Setup(p => p.CalculateOptimalReadLength((uint)_bufferSize))
+                           .Setup(session => session.CalculateOptimalReadLength((uint)_bufferSize))
                            .Returns(_readBufferSize);
             SftpSessionMock.InSequence(MockSequence)
-                           .Setup(p => p.CalculateOptimalWriteLength((uint)_bufferSize, _handle))
+                           .Setup(session => session.CalculateOptimalWriteLength((uint)_bufferSize, _handle))
                            .Returns(_writeBufferSize);
-            SftpSessionMock.InSequence(MockSequence).Setup(p => p.IsOpen).Returns(true);
             SftpSessionMock.InSequence(MockSequence)
-                           .Setup(p => p.RequestFStat(_handle, false))
+                           .Setup(session => session.IsOpen)
+                           .Returns(true);
+            SftpSessionMock.InSequence(MockSequence)
+                           .Setup(session => session.RequestFStat(_handle, false))
+                           .Returns(_attributes);
+            SftpSessionMock.InSequence(MockSequence)
+                           .Setup(session => session.RequestFSetStat(_handle, _attributes));
+            SftpSessionMock.InSequence(MockSequence).Setup(session => session.IsOpen).Returns(true);
+            SftpSessionMock.InSequence(MockSequence)
+                           .Setup(session => session.RequestFStat(_handle, false))
                            .Returns(_attributes);
         }
 
@@ -60,6 +70,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             base.Arrange();
 
             _target = new SftpFileStream(SftpSessionMock.Object, _path, _fileMode, _fileAccess, _bufferSize);
+            _target.SetLength(_length);
         }
 
         protected override void Act()
@@ -70,23 +81,23 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         [TestMethod]
         public void SeekShouldHaveReturnedOffset()
         {
-            Assert.AreEqual(_offset, _actual);
+            Assert.AreEqual(_attributes.Size + _offset, _actual);
         }
 
         [TestMethod]
-        public void IsOpenOnSftpSessionShouldHaveBeenInvokedOnce()
+        public void IsOpenOnSftpSessionShouldHaveBeenInvokedTwice()
         {
-            SftpSessionMock.Verify(p => p.IsOpen, Times.Once);
+            SftpSessionMock.Verify(session => session.IsOpen, Times.Exactly(2));
         }
 
         [TestMethod]
         public void PositionShouldReturnOffset()
         {
-            SftpSessionMock.InSequence(MockSequence).Setup(p => p.IsOpen).Returns(true);
+            SftpSessionMock.InSequence(MockSequence).Setup(session => session.IsOpen).Returns(true);
 
-            Assert.AreEqual(_offset, _target.Position);
+            Assert.AreEqual(_attributes.Size + _offset, _target.Position);
 
-            SftpSessionMock.Verify(p => p.IsOpen, Times.Exactly(2));
+            SftpSessionMock.Verify(session => session.IsOpen, Times.Exactly(3));
         }
     }
 }

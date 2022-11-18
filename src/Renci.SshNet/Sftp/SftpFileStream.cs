@@ -834,7 +834,7 @@ namespace Renci.SshNet.Sftp
                         newPosn = attributes.Size + offset;
                         break;
                     default:
-                        throw new ArgumentException("Invalid seek origin.", "origin");
+                        throw new ArgumentException(message: "Invalid seek origin.", paramName: "origin");
                 }
 
                 if (newPosn < 0)

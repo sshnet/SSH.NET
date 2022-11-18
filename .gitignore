@@ -22,6 +22,3 @@ project.lock.json
 
 # Build outputs
 build/target/
-
-# Visual Studio cache/options directory
-.vs/

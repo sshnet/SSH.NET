@@ -7,6 +7,8 @@ using Renci.SshNet.Common;
 using System.Threading;
 using System.Text.RegularExpressions;
 using Renci.SshNet.Abstractions;
+using System.CodeDom;
+using System.Runtime.InteropServices;
 
 namespace Renci.SshNet
 {
@@ -51,6 +53,19 @@ namespace Renci.SshNet
                     return _incoming.Count > 0;
                 }
             }
+        }
+        /// <summary>
+        /// Sends a Window Change Request via the Channel.
+        /// </summary>
+        /// <param name="columns">New screen width in # of columns</param>
+        /// <param name="rows">New screen height in # of rows</param>
+        /// <param name="width">New screen width in Pixels</param>
+        /// <param name="height">New screen height in Pixels</param>
+        /// <returns>true when change is successful, or false when channel is NOT open or the request </returns>
+        public bool WindowChangeRequest(uint columns, uint rows, uint width, uint height )
+        {
+            if (_channel==null || !_channel.IsOpen) return false;
+            return _channel.SendWindowChangeRequest(columns, rows, width, height);
         }
 
         /// <summary>

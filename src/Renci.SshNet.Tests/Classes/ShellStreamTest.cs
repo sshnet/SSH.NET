@@ -103,6 +103,14 @@ namespace Renci.SshNet.Tests.Classes
             _channelSessionMock.Verify(p => p.SendData(lineTerminator), Times.Once);
         }
 
+        [TestMethod]
+        public void WindowChangeRequest_ShouldReturnFalseWhenNotConnected()
+        {
+            var shellStream = CreateShellStream();
+            _channelSessionMock.Setup(s => s.IsOpen).Returns(false);
+            Assert.IsFalse(shellStream.WindowChangeRequest(80, 25, 0, 0));
+        }
+
         private ShellStream CreateShellStream()
         {
             _sessionMock.Setup(p => p.ConnectionInfo).Returns(_connectionInfoMock.Object);

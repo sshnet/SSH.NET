@@ -131,6 +131,7 @@ namespace Renci.SshNet.Tests.Classes
                   It.IsAny<uint>(), It.IsAny<uint>(),
                   It.IsAny<uint>(), It.IsAny<uint>())).Returns(true);
             Assert.IsTrue(shellStream.WindowChangeRequest(80, 25, 0, 0));
+            _channelSessionMock.Verify(v => v.SendWindowChangeRequest(80,25,0,0), Times.Once());
         }
 
         private ShellStream CreateShellStream()

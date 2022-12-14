@@ -62,7 +62,7 @@ namespace Renci.SshNet
         /// <param name="width">New screen width in Pixels</param>
         /// <param name="height">New screen height in Pixels</param>
         /// <returns>true when change is successful, or false when channel is NOT open or the request </returns>
-        public bool WindowChangeRequest(uint columns, uint rows, uint width, uint height )
+        public bool WindowChangeRequest(uint columns, uint rows, uint width, uint height)
         {
             if (_channel==null || !_channel.IsOpen) return false;
             return _channel.SendWindowChangeRequest(columns, rows, width, height);

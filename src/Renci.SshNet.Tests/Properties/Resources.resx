@@ -149,7 +149,7 @@ D8DHbFwAT2mUv1QxRXYJO1y4pENboEzT6LUqxJgE+ae/F/29g2RD9DhtwqKqWjhM
 -----END DSA PRIVATE KEY-----</value>
   </data>
   <data name="HOST" xml:space="preserve">
-    <value>192.168.10.192</value>
+    <value>127.0.0.1</value>
   </data>
   <data name="INVALID_KEY" xml:space="preserve">
     <value>-----BEGIN DSA PRIVATE KEY-----
@@ -166,7 +166,7 @@ tM7dZpB+reWl9L5e2L8=
 -----END DSA PRIVATE KEY-----</value>
   </data>
   <data name="PASSWORD" xml:space="preserve">
-    <value>tester</value>
+    <value>jasmine1015</value>
   </data>
   <data name="PORT" xml:space="preserve">
     <value>22</value>
@@ -239,6 +239,6 @@ Vakr7Sa3K5niCyH5kxdyO1t29l1ksBqpDUrj+vViFuLkd3XIiui8IA==
 -----END RSA PRIVATE KEY-----</value>
   </data>
   <data name="USERNAME" xml:space="preserve">
-    <value>tester</value>
+    <value>kendallb</value>
   </data>
 </root>

@@ -14,7 +14,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
         {
             base.SetupData();
 
-            _connectionInfo = CreateConnectionInfo("invalid.");
+            _connectionInfo = CreateConnectionInfo("invalid.", 777);
             _actualException = null;
         }
 

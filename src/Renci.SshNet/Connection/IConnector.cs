@@ -1,9 +1,10 @@
-﻿using System.Net.Sockets;
+﻿using System;
+using System.Net.Sockets;
 using System.Threading;
 
 namespace Renci.SshNet.Connection
 {
-    internal interface IConnector
+    internal interface IConnector: IDisposable
     {
         Socket Connect(IConnectionInfo connectionInfo);
 

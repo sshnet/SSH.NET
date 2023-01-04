@@ -168,6 +168,11 @@ namespace Renci.SshNet
         private readonly ISocketFactory _socketFactory;
 
         /// <summary>
+        /// Holds the proxyConnector object, through which the SSH server is connected.
+        /// </summary>
+        private IConnector _proxyConnector;
+
+        /// <summary>
         /// Holds connection socket.
         /// </summary>
         private Socket _socket;
@@ -340,6 +345,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <value>The client version.</value>
         public string ClientVersion { get; private set; }
+
 
         /// <summary>
         /// Gets or sets the connection info.
@@ -587,8 +593,8 @@ namespace Renci.SshNet
                     // Build list of available messages while connecting
                     _sshMessageFactory = new SshMessageFactory();
 
-                    _socket = _serviceFactory.CreateConnector(ConnectionInfo, _socketFactory)
-                                             .Connect(ConnectionInfo);
+                    _proxyConnector = _serviceFactory.CreateConnector(ConnectionInfo, _socketFactory);
+                    _socket = _proxyConnector.Connect(ConnectionInfo);
 
                     var serverIdentification = _serviceFactory.CreateProtocolVersionExchange()
                                                               .Start(ClientVersion, _socket, ConnectionInfo.Timeout);
@@ -698,8 +704,8 @@ namespace Renci.SshNet
             // Build list of available messages while connecting
             _sshMessageFactory = new SshMessageFactory();
 
-            _socket = await _serviceFactory.CreateConnector(ConnectionInfo, _socketFactory)
-                                        .ConnectAsync(ConnectionInfo, cancellationToken).ConfigureAwait(false);
+            _proxyConnector = _serviceFactory.CreateConnector(ConnectionInfo, _socketFactory);
+            _socket = await _proxyConnector.ConnectAsync(ConnectionInfo, cancellationToken).ConfigureAwait(false);
 
             var serverIdentification = await _serviceFactory.CreateProtocolVersionExchange()
                                                         .StartAsync(ClientVersion, _socket, cancellationToken).ConfigureAwait(false);
@@ -1893,6 +1899,13 @@ namespace Renci.SshNet
                         _socket.Dispose();
                         DiagnosticAbstraction.Log(string.Format("[{0}] Disposed socket.", ToHex(SessionId)));
                         _socket = null;
+
+                        var proxyConnector = _proxyConnector;
+                        if (proxyConnector != null)
+                        {
+                            proxyConnector.Dispose();
+                            _proxyConnector = null;
+                        }
                     }
                 }
             }
@@ -2169,7 +2182,7 @@ namespace Renci.SshNet
         /// Gets or sets the connection info.
         /// </summary>
         /// <value>The connection info.</value>
-        IConnectionInfo ISession.ConnectionInfo
+        ISshConnectionInfo ISession.ConnectionInfo
         {
             get { return ConnectionInfo; }
         }
@@ -2218,6 +2231,11 @@ namespace Renci.SshNet
                                              remoteChannelNumber,
                                              remoteWindowSize,
                                              remoteChannelDataPacketSize);
+        }
+
+        JumpChannel CreateJumpChannel(string host, uint port)
+        {
+            return new JumpChannel(this, host, port);
         }
 
         /// <summary>

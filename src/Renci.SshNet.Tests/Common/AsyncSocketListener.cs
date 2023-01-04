@@ -47,12 +47,17 @@ namespace Renci.SshNet.Tests.Common
         /// </value>
         public bool ShutdownRemoteCommunicationSocket { get; set; }
 
+        public EndPoint ListenerEndPoint
+        {
+            get { return _listener?.LocalEndPoint; }
+        }
+
         public void Start()
         {
             _listener = new Socket(_endPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
             _listener.Bind(_endPoint);
             _listener.Listen(1);
-
+            
             _started = true;
 
             _receiveThread = new Thread(StartListener);

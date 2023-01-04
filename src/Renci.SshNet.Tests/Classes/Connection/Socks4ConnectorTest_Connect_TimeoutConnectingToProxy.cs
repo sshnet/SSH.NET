@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Renci.SshNet.Common;
+using Renci.SshNet.Connection;
 using System;
 using System.Diagnostics;
 using System.Globalization;
@@ -12,8 +13,10 @@ namespace Renci.SshNet.Tests.Classes.Connection
     public class Socks4ConnectorTest_Connect_TimeoutConnectingToProxy : Socks4ConnectorTestBase
     {
         private ConnectionInfo _connectionInfo;
+        private ProxyConnectionInfo _proxyConnectionInfo;
         private SshOperationTimeoutException _actualException;
         private Socket _clientSocket;
+        private IConnector _proxyConnector;
         private Stopwatch _stopWatch;
 
         protected override void SetupData()
@@ -22,10 +25,13 @@ namespace Renci.SshNet.Tests.Classes.Connection
 
             var random = new Random();
 
-            _connectionInfo = CreateConnectionInfo("proxyUser", "proxyPwd");
+            _connectionInfo = CreateConnectionInfo("proxyUser", "proxyPwd", 777, 8121);
             _connectionInfo.Timeout = TimeSpan.FromMilliseconds(random.Next(50, 200));
+            _proxyConnectionInfo = (ProxyConnectionInfo)_connectionInfo.ProxyConnection;
+            _proxyConnectionInfo.Timeout = _connectionInfo.Timeout;
             _stopWatch = new Stopwatch();
             _clientSocket = SocketFactory.Create(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            _proxyConnector = ServiceFactory.CreateConnector(_proxyConnectionInfo, SocketFactoryMock.Object);
             _actualException = null;
         }
 
@@ -33,6 +39,8 @@ namespace Renci.SshNet.Tests.Classes.Connection
         {
             SocketFactoryMock.Setup(p => p.Create(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp))
                              .Returns(_clientSocket);
+            ServiceFactoryMock.Setup(p => p.CreateConnector(_proxyConnectionInfo, SocketFactoryMock.Object))
+                              .Returns(_proxyConnector);
         }
 
         protected override void TearDown()
@@ -42,6 +50,11 @@ namespace Renci.SshNet.Tests.Classes.Connection
             if (_clientSocket != null)
             {
                 _clientSocket.Dispose();
+            }
+
+            if (_proxyConnector != null)
+            {
+                _proxyConnector.Dispose();
             }
         }
 

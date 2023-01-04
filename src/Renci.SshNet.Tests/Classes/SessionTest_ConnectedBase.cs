@@ -32,6 +32,7 @@ namespace Renci.SshNet.Tests.Classes
         private string _keyExchangeAlgorithm;
         private bool _authenticationStarted;
         private SocketFactory _socketFactory;
+        private ServiceFactory _serviceFactory;
 
         protected Random Random { get; private set; }
         protected byte[] SessionId { get; private set; }
@@ -85,34 +86,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             Random = new Random();
 
-            _serverEndPoint = new IPEndPoint(IPAddress.Loopback, 8122);
-            ConnectionInfo = new ConnectionInfo(
-                _serverEndPoint.Address.ToString(),
-                _serverEndPoint.Port,
-                "user",
-                new PasswordAuthenticationMethod("user", "password"))
-            {Timeout = TimeSpan.FromSeconds(20)};
-            _keyExchangeAlgorithm = Random.Next().ToString(CultureInfo.InvariantCulture);
-            SessionId = new byte[10];
-            Random.NextBytes(SessionId);
-            DisconnectedRegister = new List<EventArgs>();
-            DisconnectReceivedRegister = new List<MessageEventArgs<DisconnectMessage>>();
-            ErrorOccurredRegister = new List<ExceptionEventArgs>();
-            ServerBytesReceivedRegister = new List<byte[]>();
-            ServerIdentification = new SshIdentification("2.0", "OurServerStub");
-            _authenticationStarted = false;
-            _socketFactory = new SocketFactory();
-
-            Session = new Session(ConnectionInfo, ServiceFactoryMock.Object, SocketFactoryMock.Object);
-            Session.Disconnected += (sender, args) => DisconnectedRegister.Add(args);
-            Session.DisconnectReceived += (sender, args) => DisconnectReceivedRegister.Add(args);
-            Session.ErrorOccured += (sender, args) => ErrorOccurredRegister.Add(args);
-            Session.KeyExchangeInitReceived += (sender, args) =>
-                {
-                    var newKeysMessage = new NewKeysMessage();
-                    var newKeys = newKeysMessage.GetPacket(8, null);
-                    ServerSocket.Send(newKeys, 4, newKeys.Length - 4, SocketFlags.None);
-                };
+            _serverEndPoint = new IPEndPoint(IPAddress.Loopback, 0);
 
             ServerListener = new AsyncSocketListener(_serverEndPoint);
             ServerListener.ShutdownRemoteCommunicationSocket = false;
@@ -154,7 +128,36 @@ namespace Renci.SshNet.Tests.Classes
                 };
             ServerListener.Start();
 
-            ClientSocket = new DirectConnector(_socketFactory).Connect(ConnectionInfo);
+            ConnectionInfo = new ConnectionInfo(
+                _serverEndPoint.Address.ToString(),
+                ((IPEndPoint)ServerListener.ListenerEndPoint).Port,
+                "user",
+                new PasswordAuthenticationMethod("user", "password"))
+            {Timeout = TimeSpan.FromSeconds(20)};
+            _keyExchangeAlgorithm = Random.Next().ToString(CultureInfo.InvariantCulture);
+            SessionId = new byte[10];
+            Random.NextBytes(SessionId);
+            DisconnectedRegister = new List<EventArgs>();
+            DisconnectReceivedRegister = new List<MessageEventArgs<DisconnectMessage>>();
+            ErrorOccurredRegister = new List<ExceptionEventArgs>();
+            ServerBytesReceivedRegister = new List<byte[]>();
+            ServerIdentification = new SshIdentification("2.0", "OurServerStub");
+            _authenticationStarted = false;
+            _socketFactory = new SocketFactory();
+            _serviceFactory = new ServiceFactory();
+
+            Session = new Session(ConnectionInfo, ServiceFactoryMock.Object, SocketFactoryMock.Object);
+            Session.Disconnected += (sender, args) => DisconnectedRegister.Add(args);
+            Session.DisconnectReceived += (sender, args) => DisconnectReceivedRegister.Add(args);
+            Session.ErrorOccured += (sender, args) => ErrorOccurredRegister.Add(args);
+            Session.KeyExchangeInitReceived += (sender, args) =>
+                {
+                    var newKeysMessage = new NewKeysMessage();
+                    var newKeys = newKeysMessage.GetPacket(8, null);
+                    ServerSocket.Send(newKeys, 4, newKeys.Length - 4, SocketFlags.None);
+                };
+
+            ClientSocket = new DirectConnector(_serviceFactory, _socketFactory).Connect(ConnectionInfo);
         }
 
         private void CreateMocks()
@@ -173,6 +176,7 @@ namespace Renci.SshNet.Tests.Classes
                               .Returns(ConnectorMock.Object);
             ConnectorMock.Setup(p => p.Connect(ConnectionInfo))
                          .Returns(ClientSocket);
+            ConnectorMock.Setup(p => p.Dispose());
             ServiceFactoryMock.Setup(p => p.CreateProtocolVersionExchange())
                               .Returns(_protocolVersionExchangeMock.Object);
             _protocolVersionExchangeMock.Setup(p => p.Start(Session.ClientVersion, ClientSocket, ConnectionInfo.Timeout))

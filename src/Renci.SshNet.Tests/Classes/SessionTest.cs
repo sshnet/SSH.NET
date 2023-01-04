@@ -48,7 +48,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void ConstructorShouldThrowArgumentNullExceptionWhenServiceFactoryIsNull()
         {
-            var serverEndPoint = new IPEndPoint(IPAddress.Loopback, 8122);
+            var serverEndPoint = new IPEndPoint(IPAddress.Loopback, 8121);
             var connectionInfo = CreateConnectionInfo(serverEndPoint, TimeSpan.FromSeconds(5));
             IServiceFactory serviceFactory = null;
 
@@ -67,7 +67,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void ConstructorShouldThrowArgumentNullExceptionWhenSocketFactoryIsNull()
         {
-            var serverEndPoint = new IPEndPoint(IPAddress.Loopback, 8122);
+            var serverEndPoint = new IPEndPoint(IPAddress.Loopback, 8121);
             var connectionInfo = CreateConnectionInfo(serverEndPoint, TimeSpan.FromSeconds(5));
             const ISocketFactory socketFactory = null;
 

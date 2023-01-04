@@ -30,22 +30,23 @@ namespace Renci.SshNet.Connection
     /// </remarks>
     internal sealed class HttpConnector : ProxyConnector
     {
-        public HttpConnector(ISocketFactory socketFactory) : base(socketFactory)
-        {
-        }
+        public HttpConnector(IServiceFactory serviceFactory, ISocketFactory socketFactory)
+            : base(serviceFactory, socketFactory)
+        { }
 
         protected override void HandleProxyConnect(IConnectionInfo connectionInfo, Socket socket)
         {
+            var proxyConnection = (IProxyConnectionInfo)connectionInfo.ProxyConnection;
             var httpResponseRe = new Regex(@"HTTP/(?<version>\d[.]\d) (?<statusCode>\d{3}) (?<reasonPhrase>.+)$");
             var httpHeaderRe = new Regex(@"(?<fieldName>[^\[\]()<>@,;:\""/?={} \t]+):(?<fieldValue>.+)?");
 
             SocketAbstraction.Send(socket, SshData.Ascii.GetBytes(string.Format("CONNECT {0}:{1} HTTP/1.0\r\n", connectionInfo.Host, connectionInfo.Port)));
 
             //  Sent proxy authorization if specified
-            if (!string.IsNullOrEmpty(connectionInfo.ProxyUsername))
+            if (!string.IsNullOrEmpty(proxyConnection.Username))
             {
                 var authorization = string.Format("Proxy-Authorization: Basic {0}\r\n",
-                                                  Convert.ToBase64String(SshData.Ascii.GetBytes(string.Format("{0}:{1}", connectionInfo.ProxyUsername, connectionInfo.ProxyPassword))));
+                                                  Convert.ToBase64String(SshData.Ascii.GetBytes(string.Format("{0}:{1}", proxyConnection.Username, proxyConnection.Password))));
                 SocketAbstraction.Send(socket, SshData.Ascii.GetBytes(authorization));
             }
 

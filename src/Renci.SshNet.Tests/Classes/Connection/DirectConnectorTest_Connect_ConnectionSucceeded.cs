@@ -26,17 +26,17 @@ namespace Renci.SshNet.Tests.Classes.Connection
 
             var random = new Random();
 
-            _connectionInfo = CreateConnectionInfo(IPAddress.Loopback.ToString());
+            _server = new AsyncSocketListener(new IPEndPoint(IPAddress.Loopback, 0));
+            _server.Disconnected += (socket) => _disconnected = true;
+            _server.Connected += (socket) => socket.Send(new byte[1] { 0x44 });
+            _server.Start();
+
+            _connectionInfo = CreateConnectionInfo(IPAddress.Loopback.ToString(), ((IPEndPoint)_server.ListenerEndPoint).Port);
             _connectionInfo.Timeout = TimeSpan.FromMilliseconds(random.Next(50, 200));
             _stopWatch = new Stopwatch();
             _disconnected = false;
 
             _clientSocket = SocketFactory.Create(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-
-            _server = new AsyncSocketListener(new IPEndPoint(IPAddress.Loopback, _connectionInfo.Port));
-            _server.Disconnected += (socket) => _disconnected = true;
-            _server.Connected += (socket) => socket.Send(new byte[1] { 0x44 });
-            _server.Start();
         }
 
         protected override void SetupMocks()

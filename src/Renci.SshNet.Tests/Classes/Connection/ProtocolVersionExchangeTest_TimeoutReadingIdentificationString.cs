@@ -51,7 +51,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
         {
             _clientVersion = "SSH-2.0-Renci.SshNet.SshClient.0.0.1";
             _timeout = TimeSpan.FromMilliseconds(200);
-            _serverEndPoint = new IPEndPoint(IPAddress.Loopback, 8122);
+            _serverEndPoint = new IPEndPoint(IPAddress.Loopback, 0);
             _dataReceivedByServer = new List<byte>();
             _clientDisconnected = false;
 
@@ -63,6 +63,8 @@ namespace Renci.SshNet.Tests.Classes.Connection
                     socket.Send(Encoding.UTF8.GetBytes("Welcome!\r\n"));
                 };
             _server.Disconnected += (socket) => _clientDisconnected = true;
+            
+            _serverEndPoint.Port = ((IPEndPoint)_server.ListenerEndPoint).Port;
 
             _client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             _client.Connect(_serverEndPoint);

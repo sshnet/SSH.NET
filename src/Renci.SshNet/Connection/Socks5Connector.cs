@@ -13,9 +13,9 @@ namespace Renci.SshNet.Connection
     /// </remarks>
     internal sealed class Socks5Connector : ProxyConnector
     {
-        public Socks5Connector(ISocketFactory socketFactory) : base(socketFactory)
-        {
-        }
+        public Socks5Connector(IServiceFactory serviceFactory, ISocketFactory socketFactory)
+            : base(serviceFactory, socketFactory)
+        { }
 
         /// <summary>
         /// Establishes a connection to the server via a SOCKS5 proxy.
@@ -24,6 +24,7 @@ namespace Renci.SshNet.Connection
         /// <param name="socket">The <see cref="Socket"/>.</param>
         protected override void HandleProxyConnect(IConnectionInfo connectionInfo, Socket socket)
         {
+            var proxyConnection = (IProxyConnectionInfo)connectionInfo.ProxyConnection;
             var greeting = new byte[]
                 {
                     // SOCKS version number
@@ -50,7 +51,7 @@ namespace Renci.SshNet.Connection
                     break;
                 case 0x02:
                     // Create username/password authentication request
-                    var authenticationRequest = CreateSocks5UserNameAndPasswordAuthenticationRequest(connectionInfo.ProxyUsername, connectionInfo.ProxyPassword);
+                    var authenticationRequest = CreateSocks5UserNameAndPasswordAuthenticationRequest(proxyConnection.Username, proxyConnection.Password);
                     // Send authentication request
                     SocketAbstraction.Send(socket, authenticationRequest);
                     // Read authentication result

@@ -27,10 +27,11 @@ namespace Renci.SshNet.Tests.Classes
 
         private static string CreateProxyAuthorizationHeader(ConnectionInfo connectionInfo)
         {
+            ProxyConnectionInfo proxyConnectionInfo = (ProxyConnectionInfo)connectionInfo.ProxyConnection;
             return string.Format("Proxy-Authorization: Basic {0}",
                 Convert.ToBase64String(
-                    Encoding.ASCII.GetBytes(string.Format("{0}:{1}", connectionInfo.ProxyUsername,
-                        connectionInfo.ProxyPassword))));
+                    Encoding.ASCII.GetBytes(string.Format("{0}:{1}", proxyConnectionInfo.Username,
+                        proxyConnectionInfo.Password))));
         }
     }
 }

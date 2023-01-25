@@ -180,8 +180,6 @@
         ///<exception cref="ArgumentOutOfRangeException">offset or count is negative.</exception>
         public override int Read(byte[] buffer, int offset, int count)
         {
-            if (offset != 0)
-                throw new NotSupportedException("Offsets with value of non-zero are not supported");
             if (buffer == null)
                 throw new ArgumentNullException("buffer");
             if (offset + count > buffer.Length)
@@ -213,7 +211,7 @@
                 // fill the read buffer
                 for (; readLength < count && _buffer.Count > 0; readLength++)
                 {
-                    buffer[readLength] = _buffer.Dequeue();
+                    buffer[readLength + offset] = _buffer.Dequeue();
                 }
 
                 Monitor.Pulse(_buffer);
@@ -230,7 +228,7 @@
         private bool ReadAvailable(int count)
         {
             var length = Length;
-            return (_isFlushed || length >= count) && (length >= (count + 1) || !BlockLastReadBuffer);
+            return (_isFlushed || length > 0) && (length >= (count + 1) || !BlockLastReadBuffer);
         }
 
         ///<summary>

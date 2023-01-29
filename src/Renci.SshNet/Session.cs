@@ -672,7 +672,85 @@ namespace Renci.SshNet
                 AuthenticationConnection.Release();
             }
         }
+        /// <summary>
+        /// Getting HostKey Without Autenticate.
+        /// </summary>
+        /// <exception cref="SocketException">Socket connection to the SSH server or proxy server could not be established, or an error occurred while resolving the hostname.</exception>
+        /// <exception cref="SshConnectionException">SSH session could not be established.</exception>
+        public void SayHello()
+        {
+            if (IsConnected)
+                return;
 
+            try
+            {
+                AuthenticationConnection.Wait();
+
+                if (IsConnected)
+                    return;
+
+                lock (this)
+                {
+                    // If connected don't connect again
+                    if (IsConnected)
+                        return;
+
+                    // Reset connection specific information
+                    Reset();
+
+                    // Build list of available messages while connecting
+                    _sshMessageFactory = new SshMessageFactory();
+
+                    _socket = _serviceFactory.CreateConnector(ConnectionInfo, _socketFactory)
+                                             .Connect(ConnectionInfo);
+
+                    var serverIdentification = _serviceFactory.CreateProtocolVersionExchange()
+                                                              .Start(ClientVersion, _socket, ConnectionInfo.Timeout);
+
+                    // Set connection versions
+                    ServerVersion = ConnectionInfo.ServerVersion = serverIdentification.ToString();
+                    ConnectionInfo.ClientVersion = ClientVersion;
+
+                    DiagnosticAbstraction.Log(string.Format("Server version '{0}' on '{1}'.", serverIdentification.ProtocolVersion, serverIdentification.SoftwareVersion));
+
+                    if (!(serverIdentification.ProtocolVersion.Equals("2.0") || serverIdentification.ProtocolVersion.Equals("1.99")))
+                    {
+                        throw new SshConnectionException(string.Format(CultureInfo.CurrentCulture, "Server version '{0}' is not supported.", serverIdentification.ProtocolVersion),
+                                                         DisconnectReason.ProtocolVersionNotSupported);
+                    }
+
+                    // Register Transport response messages
+                    RegisterMessage("SSH_MSG_DISCONNECT");
+                    RegisterMessage("SSH_MSG_IGNORE");
+                    RegisterMessage("SSH_MSG_UNIMPLEMENTED");
+                    RegisterMessage("SSH_MSG_DEBUG");
+                    RegisterMessage("SSH_MSG_SERVICE_ACCEPT");
+                    RegisterMessage("SSH_MSG_KEXINIT");
+                    RegisterMessage("SSH_MSG_NEWKEYS");
+
+                    // Some server implementations might sent this message first, prior to establishing encryption algorithm
+                    RegisterMessage("SSH_MSG_USERAUTH_BANNER");
+
+                    // Mark the message listener threads as started
+                    _messageListenerCompleted.Reset();
+
+                    // Start incoming request listener
+                    // ToDo: Make message pump async, to not consume a thread for every session
+                    ThreadAbstraction.ExecuteThreadLongRunning(() => MessageListener());
+
+                    // Wait for key exchange to be completed
+                    WaitOnHandle(_keyExchangeCompletedWaitHandle);
+
+                    // If sessionId is not set then its not connected
+                    Disconnect();
+                    return;
+                }
+            }
+            finally
+            {
+                AuthenticationConnection.Release();
+            }
+        }
 #if FEATURE_TAP
         /// <summary>
         /// Asynchronously connects to the server.

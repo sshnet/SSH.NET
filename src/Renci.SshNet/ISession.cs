@@ -56,6 +56,7 @@ namespace Renci.SshNet
         /// <exception cref="SshAuthenticationException">Authentication of SSH session failed.</exception>
         /// <exception cref="ProxyException">Failed to establish proxy connection.</exception>
         void Connect();
+        void SayHello();
 
 #if FEATURE_TAP
         /// <summary>

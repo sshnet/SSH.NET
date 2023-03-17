@@ -187,11 +187,20 @@ namespace Renci.SshNet
 
             base.StopPort(timeout);
 
-            // send global request to cancel direct tcpip
-            Session.SendMessage(new CancelTcpIpForwardGlobalRequestMessage(BoundHost, BoundPort));
-            // wait for response on global request to cancel direct tcpip or completion of message
-            // listener loop (in which case response on global request can never be received)
-            WaitHandle.WaitAny(new[] { _globalRequestResponse, Session.MessageListenerCompleted }, timeout);
+            // In the event of unexpected disconnect
+            if (Session == null)
+                return;
+            
+            // Only fire is session is still connected. (Will be false for server side aborts).
+            if (Session.IsConnected)
+            {
+                // send global request to cancel direct tcpip
+                Session.SendMessage(new CancelTcpIpForwardGlobalRequestMessage(BoundHost, BoundPort));
+                // wait for response on global request to cancel direct tcpip or completion of message
+                // listener loop (in which case response on global request can never be received)
+                WaitHandle.WaitAny(new[] { _globalRequestResponse, Session.MessageListenerCompleted }, timeout);
+            
+            }
 
             // unsubscribe from session events as either the tcpip forward is cancelled at the
             // server, or our session message loop has completed

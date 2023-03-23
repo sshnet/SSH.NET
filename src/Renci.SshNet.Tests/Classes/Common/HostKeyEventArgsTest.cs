@@ -59,6 +59,16 @@ namespace Renci.SshNet.Tests.Classes.Common
         }
 
         /// <summary>
+        ///A test for SHA256 calculation in HostKeyEventArgs Constructor
+        ///</summary>
+        [TestMethod]
+        public void HostKeyEventArgsConstructorTest_VerifySHA256()
+        {
+            HostKeyEventArgs target = new HostKeyEventArgs(GetKeyHostAlgorithm());
+            Assert.AreEqual("93LkmoWksp9ytNVZIPXi9KJU1uvlC9clZ/CkUHf6uEE", target.FingerPrintSHA256);
+        }
+
+        /// <summary>
         ///A test for CanTrust
         ///</summary>
         [TestMethod]

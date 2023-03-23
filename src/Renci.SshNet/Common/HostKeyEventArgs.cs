@@ -28,9 +28,20 @@ namespace Renci.SshNet.Common
         public string HostKeyName{ get; private set; }
 
         /// <summary>
-        /// Gets the finger print.
+        /// Gets the MD5 fingerprint.
         /// </summary>
+        /// <value>
+        /// MD5 fingerprint as byte array.
+        /// </value>
         public byte[] FingerPrint { get; private set; }
+
+        /// <summary>
+        /// Gets the SHA256 fingerprint.
+        /// </summary>
+        /// <value>
+        /// Base64 encoded SHA256 fingerprint with padding (equals sign) removed.
+        /// </value>
+        public string FingerPrintSHA256 { get; private set; }
 
         /// <summary>
         /// Gets the length of the key in bits.
@@ -57,6 +68,11 @@ namespace Renci.SshNet.Common
             using (var md5 = CryptoAbstraction.CreateMD5())
             {
                 FingerPrint = md5.ComputeHash(host.Data);
+            }
+
+            using (var sha256 = CryptoAbstraction.CreateSHA256())
+            {
+                FingerPrintSHA256 = Convert.ToBase64String(sha256.ComputeHash(host.Data)).Replace("=", "");
             }
         }
     }

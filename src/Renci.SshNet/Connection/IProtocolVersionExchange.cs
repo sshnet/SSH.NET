@@ -17,7 +17,7 @@ namespace Renci.SshNet.Connection
         /// <returns>
         /// The SSH identification of the server.
         /// </returns>
-        SshIdentification Start(string clientVersion, Socket socket, TimeSpan timeout);
+        SshIdentification Start(string clientVersion, Socket socket, TimeSpan timeout, bool lazyIdentification = false);
 
 
         /// <summary>
@@ -30,7 +30,7 @@ namespace Renci.SshNet.Connection
         /// <returns>
         /// The SSH identification of the server.
         /// </returns>
-        SshIdentification Start(string clientVersion, Socket socket, TimeSpan timeout, bool lazyIdentification);
+        // SshIdentification Start(string clientVersion, Socket socket, TimeSpan timeout, bool lazyIdentification);
 
 #if FEATURE_TAP
         System.Threading.Tasks.Task<SshIdentification> StartAsync(string clientVersion, Socket socket, System.Threading.CancellationToken cancellationToken);

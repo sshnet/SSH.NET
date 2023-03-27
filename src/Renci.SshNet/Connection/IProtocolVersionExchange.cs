@@ -19,19 +19,6 @@ namespace Renci.SshNet.Connection
         /// </returns>
         SshIdentification Start(string clientVersion, Socket socket, TimeSpan timeout, bool lazyIdentification = false);
 
-
-        /// <summary>
-        /// Performs the SSH protocol version exchange.
-        /// </summary>
-        /// <param name="clientVersion">The identification string of the SSH client.</param>
-        /// <param name="socket">A <see cref="Socket"/> connected to the server.</param>
-        /// <param name="timeout">The maximum time to wait for the server to respond.</param>
-        /// <param name="lazyIdentification">Allow server to identify itself first.</param>
-        /// <returns>
-        /// The SSH identification of the server.
-        /// </returns>
-        // SshIdentification Start(string clientVersion, Socket socket, TimeSpan timeout, bool lazyIdentification);
-
 #if FEATURE_TAP
         System.Threading.Tasks.Task<SshIdentification> StartAsync(string clientVersion, Socket socket, System.Threading.CancellationToken cancellationToken);
 #endif

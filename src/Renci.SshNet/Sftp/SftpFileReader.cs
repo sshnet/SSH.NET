@@ -82,7 +82,7 @@ namespace Renci.SshNet.Sftp
 
             lock (_readLock)
             {
-                // wait until either the next chunk is avalable, an exception has occurred or the current
+                // wait until either the next chunk is available, an exception has occurred or the current
                 // instance is already disposed
                 while (!_queue.TryGetValue(_nextChunkIndex, out nextChunk) && _exception == null)
                 {

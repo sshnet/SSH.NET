@@ -19,6 +19,7 @@ namespace Renci.SshNet.Connection
         /// </returns>
         SshIdentification Start(string clientVersion, Socket socket, TimeSpan timeout);
 
+
         /// <summary>
         /// Performs the SSH protocol version exchange.
         /// </summary>
@@ -30,5 +31,10 @@ namespace Renci.SshNet.Connection
         /// The SSH identification of the server.
         /// </returns>
         SshIdentification Start(string clientVersion, Socket socket, TimeSpan timeout, bool lazyIdentification);
+
+#if FEATURE_TAP
+        System.Threading.Tasks.Task<SshIdentification> StartAsync(string clientVersion, Socket socket, System.Threading.CancellationToken cancellationToken);
+#endif
+
     }
 }

@@ -1,5 +1,4 @@
-﻿using System;
-using Renci.SshNet.Abstractions;
+﻿using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Transport;
 using Renci.SshNet.Security.Chaos.NaCl;
@@ -46,9 +45,7 @@ namespace Renci.SshNet.Security
             var basepoint = new byte[MontgomeryCurve25519.PublicKeySizeInBytes];
             basepoint[0] = 9;
 
-            var rnd = new Random();
-            _privateKey = new byte[MontgomeryCurve25519.PrivateKeySizeInBytes];
-            rnd.NextBytes(_privateKey);
+            _privateKey = CryptoAbstraction.GenerateRandom(MontgomeryCurve25519.PrivateKeySizeInBytes);
 
             _clientExchangeValue = new byte[MontgomeryCurve25519.PublicKeySizeInBytes];
             MontgomeryOperations.scalarmult(_clientExchangeValue, 0, _privateKey, 0, basepoint, 0);

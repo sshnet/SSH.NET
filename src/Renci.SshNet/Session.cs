@@ -16,6 +16,9 @@ using System.Globalization;
 using System.Linq;
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Security.Cryptography;
+#if FEATURE_TAP
+using System.Threading.Tasks;
+#endif
 
 namespace Renci.SshNet
 {
@@ -618,7 +621,8 @@ namespace Renci.SshNet
                     _messageListenerCompleted.Reset();
 
                     // Start incoming request listener
-                    ThreadAbstraction.ExecuteThread(() => MessageListener());
+                    // ToDo: Make message pump async, to not consume a thread for every session
+                    ThreadAbstraction.ExecuteThreadLongRunning(() => MessageListener());
 
                     // Wait for key exchange to be completed
                     WaitOnHandle(_keyExchangeCompletedWaitHandle);
@@ -668,6 +672,112 @@ namespace Renci.SshNet
                 AuthenticationConnection.Release();
             }
         }
+
+#if FEATURE_TAP
+        /// <summary>
+        /// Asynchronously connects to the server.
+        /// </summary>
+        /// <remarks>
+        /// Please note this function is NOT thread safe.<br/>
+        /// The caller SHOULD limit the number of simultaneous connection attempts to a server to a single connection attempt.</remarks>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
+        /// <returns>A <see cref="Task"/> that represents the asynchronous connect operation.</returns>
+        /// <exception cref="SocketException">Socket connection to the SSH server or proxy server could not be established, or an error occurred while resolving the hostname.</exception>
+        /// <exception cref="SshConnectionException">SSH session could not be established.</exception>
+        /// <exception cref="SshAuthenticationException">Authentication of SSH session failed.</exception>
+        /// <exception cref="ProxyException">Failed to establish proxy connection.</exception>
+        public async Task ConnectAsync(CancellationToken cancellationToken)
+        {
+            // If connected don't connect again
+            if (IsConnected)
+                return;
+
+            // Reset connection specific information
+            Reset();
+
+            // Build list of available messages while connecting
+            _sshMessageFactory = new SshMessageFactory();
+
+            _socket = await _serviceFactory.CreateConnector(ConnectionInfo, _socketFactory)
+                                        .ConnectAsync(ConnectionInfo, cancellationToken).ConfigureAwait(false);
+
+            var serverIdentification = await _serviceFactory.CreateProtocolVersionExchange()
+                                                        .StartAsync(ClientVersion, _socket, cancellationToken).ConfigureAwait(false);
+
+            // Set connection versions
+            ServerVersion = ConnectionInfo.ServerVersion = serverIdentification.ToString();
+            ConnectionInfo.ClientVersion = ClientVersion;
+
+            DiagnosticAbstraction.Log(string.Format("Server version '{0}' on '{1}'.", serverIdentification.ProtocolVersion, serverIdentification.SoftwareVersion));
+
+            if (!(serverIdentification.ProtocolVersion.Equals("2.0") || serverIdentification.ProtocolVersion.Equals("1.99")))
+            {
+                throw new SshConnectionException(string.Format(CultureInfo.CurrentCulture, "Server version '{0}' is not supported.", serverIdentification.ProtocolVersion),
+                                                    DisconnectReason.ProtocolVersionNotSupported);
+            }
+
+            // Register Transport response messages
+            RegisterMessage("SSH_MSG_DISCONNECT");
+            RegisterMessage("SSH_MSG_IGNORE");
+            RegisterMessage("SSH_MSG_UNIMPLEMENTED");
+            RegisterMessage("SSH_MSG_DEBUG");
+            RegisterMessage("SSH_MSG_SERVICE_ACCEPT");
+            RegisterMessage("SSH_MSG_KEXINIT");
+            RegisterMessage("SSH_MSG_NEWKEYS");
+
+            // Some server implementations might sent this message first, prior to establishing encryption algorithm
+            RegisterMessage("SSH_MSG_USERAUTH_BANNER");
+
+            // Mark the message listener threads as started
+            _messageListenerCompleted.Reset();
+
+            // Start incoming request listener
+            // ToDo: Make message pump async, to not consume a thread for every session
+            ThreadAbstraction.ExecuteThreadLongRunning(() => MessageListener());
+
+            // Wait for key exchange to be completed
+            WaitOnHandle(_keyExchangeCompletedWaitHandle);
+
+            // If sessionId is not set then its not connected
+            if (SessionId == null)
+            {
+                Disconnect();
+                return;
+            }
+
+            // Request user authorization service
+            SendMessage(new ServiceRequestMessage(ServiceName.UserAuthentication));
+
+            // Wait for service to be accepted
+            WaitOnHandle(_serviceAccepted);
+
+            if (string.IsNullOrEmpty(ConnectionInfo.Username))
+            {
+                throw new SshException("Username is not specified.");
+            }
+
+            // Some servers send a global request immediately after successful authentication
+            // Avoid race condition by already enabling SSH_MSG_GLOBAL_REQUEST before authentication
+            RegisterMessage("SSH_MSG_GLOBAL_REQUEST");
+
+            ConnectionInfo.Authenticate(this, _serviceFactory);
+            _isAuthenticated = true;
+
+            // Register Connection messages
+            RegisterMessage("SSH_MSG_REQUEST_SUCCESS");
+            RegisterMessage("SSH_MSG_REQUEST_FAILURE");
+            RegisterMessage("SSH_MSG_CHANNEL_OPEN_CONFIRMATION");
+            RegisterMessage("SSH_MSG_CHANNEL_OPEN_FAILURE");
+            RegisterMessage("SSH_MSG_CHANNEL_WINDOW_ADJUST");
+            RegisterMessage("SSH_MSG_CHANNEL_EXTENDED_DATA");
+            RegisterMessage("SSH_MSG_CHANNEL_REQUEST");
+            RegisterMessage("SSH_MSG_CHANNEL_SUCCESS");
+            RegisterMessage("SSH_MSG_CHANNEL_FAILURE");
+            RegisterMessage("SSH_MSG_CHANNEL_DATA");
+            RegisterMessage("SSH_MSG_CHANNEL_EOF");
+            RegisterMessage("SSH_MSG_CHANNEL_CLOSE");
+        }
+#endif
 
         /// <summary>
         /// Disconnects from the server.

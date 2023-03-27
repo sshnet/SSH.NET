@@ -14,6 +14,7 @@ namespace Renci.SshNet.Connection
         /// <param name="clientVersion">The identification string of the SSH client.</param>
         /// <param name="socket">A <see cref="Socket"/> connected to the server.</param>
         /// <param name="timeout">The maximum time to wait for the server to respond.</param>
+        /// <param name="lazyIdentification">Allow client to identify first.</param>
         /// <returns>
         /// The SSH identification of the server.
         /// </returns>

@@ -263,44 +263,7 @@ namespace Renci.SshNet.Tests.Common
                 return;
             }
 
-            if (bytesRead > 0)
-            {
-                var bytesReceived = new byte[bytesRead];
-                Array.Copy(state.Buffer, bytesReceived, bytesRead);
-                SignalBytesReceived(bytesReceived, handler);
-
-                try
-                {
-                    handler.BeginReceive(state.Buffer, 0, state.Buffer.Length, 0, ReadCallback, state);
-                }
-                catch (ObjectDisposedException ex)
-                {
-                    // TODO I'm not sure this catch statement
-                    // The listener is stopped through a Dispose() call, which in turn causes
-                    // Socket.EndReceive(...) to throw an ObjectDisposedException
-                    //
-                    // Since we consider such an exception normal when the listener is being
-                    // stopped, we only write a message to stderr if the listener is considered
-                    // to be up and running
-                    if (_started)
-                    {
-                        Console.Error.WriteLine("[{0}] Failure receiving new data: {1}",
-                            typeof(AsyncSocketListener).FullName,
-                            ex);
-                    }
-                }
-                catch (SocketException ex)
-                {
-                    if (!_started)
-                    {
-                        throw new Exception("BeginReceive while stopping!", ex);
-                    }
-
-                    throw new Exception("BeginReceive while started!: " + ex.SocketErrorCode + " " + _stackTrace, ex);
-                }
-
-            }
-            else
+            void ConnectionDisconnected()
             {
                 SignalDisconnected(handler);
 
@@ -312,6 +275,7 @@ namespace Renci.SshNet.Tests.Common
                         {
                             return;
                         }
+
                         try
                         {
                             handler.Shutdown(SocketShutdown.Send);
@@ -329,6 +293,36 @@ namespace Renci.SshNet.Tests.Common
                         _connectedClients.Remove(handler);
                     }
                 }
+            }
+
+            if (bytesRead > 0)
+            {
+                var bytesReceived = new byte[bytesRead];
+                Array.Copy(state.Buffer, bytesReceived, bytesRead);
+                SignalBytesReceived(bytesReceived, handler);
+
+                try
+                {
+                    handler.BeginReceive(state.Buffer, 0, state.Buffer.Length, 0, ReadCallback, state);
+                }
+                catch (ObjectDisposedException ex)
+                {
+                    ConnectionDisconnected();
+                }
+                catch (SocketException ex)
+                {
+                    if (!_started)
+                    {
+                        throw new Exception("BeginReceive while stopping!", ex);
+                    }
+
+                    throw new Exception("BeginReceive while started!: " + ex.SocketErrorCode + " " + _stackTrace, ex);
+                }
+
+            }
+            else
+            {
+                ConnectionDisconnected();
             }
         }
 

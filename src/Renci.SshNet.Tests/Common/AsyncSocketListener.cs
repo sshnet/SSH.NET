@@ -127,16 +127,6 @@ namespace Renci.SshNet.Tests.Common
             // Get the socket that handles the client request
             Socket handler;
 
-            void WriteMessageToStderr(Exception objectDisposedException)
-            {
-                if (_started)
-                {
-                    Console.Error.WriteLine("[{0}] Failure accepting new connection: {1}",
-                        typeof(AsyncSocketListener).FullName,
-                        objectDisposedException);
-                }
-            }
-
             try
             {
                 handler = listener.EndAccept(ar);
@@ -152,7 +142,7 @@ namespace Renci.SshNet.Tests.Common
                 // to be up and running
                 if (_started)
                 {
-                    Console.Error.WriteLine("[{0}] Failure receiving new data: {1}",
+                    Console.Error.WriteLine("[{0}] Failure accepting new connection: {1}",
                         typeof(AsyncSocketListener).FullName,
                         ex);
                 }
@@ -210,7 +200,7 @@ namespace Renci.SshNet.Tests.Common
             catch (ObjectDisposedException ex)
             {
                 // The listener is stopped through a Dispose() call, which in turn causes
-                // Socket.BeginReceive(...)  to throw a SocketException or
+                // Socket.BeginReceive(...) to throw a SocketException or
                 // ObjectDisposedException
                 //
                 // Since we consider such an exception normal when the listener is being
@@ -282,6 +272,22 @@ namespace Renci.SshNet.Tests.Common
                 try
                 {
                     handler.BeginReceive(state.Buffer, 0, state.Buffer.Length, 0, ReadCallback, state);
+                }
+                catch (ObjectDisposedException ex)
+                {
+                    // TODO I'm not sure this catch statement
+                    // The listener is stopped through a Dispose() call, which in turn causes
+                    // Socket.EndReceive(...) to throw an ObjectDisposedException
+                    //
+                    // Since we consider such an exception normal when the listener is being
+                    // stopped, we only write a message to stderr if the listener is considered
+                    // to be up and running
+                    if (_started)
+                    {
+                        Console.Error.WriteLine("[{0}] Failure receiving new data: {1}",
+                            typeof(AsyncSocketListener).FullName,
+                            ex);
+                    }
                 }
                 catch (SocketException ex)
                 {

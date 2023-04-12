@@ -127,27 +127,43 @@ namespace Renci.SshNet.Tests.Common
             // Get the socket that handles the client request
             Socket handler;
 
+            void WriteMessageToStderr(Exception objectDisposedException)
+            {
+                if (_started)
+                {
+                    Console.Error.WriteLine("[{0}] Failure accepting new connection: {1}",
+                        typeof(AsyncSocketListener).FullName,
+                        objectDisposedException);
+                }
+            }
+
             try
             {
                 handler = listener.EndAccept(ar);
             }
-            catch (ObjectDisposedException ex)
+            // The listener is stopped through a Dispose() call, which in turn causes
+            // Socket.EndAccept(IAsyncResult) to throw an exception:
+            //  - up to .NET 6 ObjectDisposedException
+            //  - since .NET 7 SocketException with OperationAborted - more info https://learn.microsoft.com/en-us/dotnet/core/compatibility/networking/7.0/socket-end-closed-sockets
+            //
+            // Since we consider this situation normal when the listener
+            // is being stopped, we only write a message to stderr if the listener
+            // is considered to be up and running
+#if NET7_0_OR_GREATER
+            catch (SocketException ex) when (ex.SocketErrorCode == SocketError.OperationAborted)
             {
-                // The listener is stopped through a Dispose() call, which in turn causes
-                // Socket.EndAccept(IAsyncResult) to throw an ObjectDisposedException
-                //
-                // Since we consider this ObjectDisposedException normal when the listener
-                // is being stopped, we only write a message to stderr if the listener
-                // is considered to be up and running
-                if (_started)
-                {
-                    Console.Error.WriteLine("[{0}] Failure accepting new connection: {1}",
-                                            typeof(AsyncSocketListener).FullName,
-                                            ex);
-                }
+                WriteMessageToStderr(ex);
 
                 return;
             }
+#else
+            catch (ObjectDisposedException ex)
+            {
+                WriteMessageToStderr(ex);
+
+                return;
+            }
+#endif
 
             // Signal new connection
             SignalConnected(handler);

@@ -226,7 +226,11 @@ namespace Renci.SshNet.Tests.Common
             try
             {
                 // Read data from the client socket.
-                bytesRead = handler.EndReceive(ar);
+                bytesRead = handler.EndReceive(ar, out var errorCode);
+                if (errorCode != SocketError.Success)
+                {
+                    bytesRead = 0;
+                }
             }
             catch (SocketException ex)
             {
@@ -304,10 +308,6 @@ namespace Renci.SshNet.Tests.Common
                 try
                 {
                     handler.BeginReceive(state.Buffer, 0, state.Buffer.Length, 0, ReadCallback, state);
-                }
-                catch (ObjectDisposedException ex)
-                {
-                    ConnectionDisconnected();
                 }
                 catch (SocketException ex)
                 {

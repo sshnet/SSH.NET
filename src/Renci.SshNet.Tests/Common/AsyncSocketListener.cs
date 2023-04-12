@@ -307,6 +307,10 @@ namespace Renci.SshNet.Tests.Common
                 {
                     SignalBytesReceived(bytesReceived, handler);
                 }
+                catch (SocketException ex)
+                {
+                    ConnectionDisconnected();
+                }
                 catch (ObjectDisposedException ex)
                 {
                     ConnectionDisconnected();

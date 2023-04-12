@@ -57,7 +57,7 @@ namespace Renci.SshNet.Tests.Classes
             _client.KeepAliveInterval = _keepAliveInterval;
 
             // allow keep-alive to be sent a few times
-            Thread.Sleep(190);
+            Thread.Sleep(180);
         }
 
         [TestMethod]

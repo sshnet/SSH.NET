@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
@@ -130,6 +131,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void ExceptionShouldNotHaveFired()
         {
+            Assert.AreEqual(string.Join(", ", _exceptionRegister.Select(p => p.Exception.Message)), "");
             Assert.AreEqual(0, _exceptionRegister.Count);
         }
 

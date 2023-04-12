@@ -37,11 +37,9 @@ namespace Renci.SshNet.Tests.Classes.Common
             catch (ArgumentOutOfRangeException ex)
             {
                 Assert.IsNull(ex.InnerException);
-#if NETFRAMEWORK
-                Assert.AreEqual(string.Format("Cannot be less than zero.{0}Parameter name: {1}", Environment.NewLine, ex.ParamName), ex.Message);
-#else
-                Assert.AreEqual(string.Format("Cannot be less than zero. (Parameter '{1}')", Environment.NewLine, ex.ParamName), ex.Message);
-#endif
+
+                Assert.AreEqual(new ArgumentOutOfRangeException("indentLevel", "Cannot be less than zero.").Message, ex.Message);
+
                 Assert.AreEqual("indentLevel", ex.ParamName);
             }
         }

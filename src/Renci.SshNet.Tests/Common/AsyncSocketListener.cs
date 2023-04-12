@@ -309,6 +309,10 @@ namespace Renci.SshNet.Tests.Common
                 {
                     handler.BeginReceive(state.Buffer, 0, state.Buffer.Length, 0, ReadCallback, state);
                 }
+                catch (ObjectDisposedException)
+                {
+                    ConnectionDisconnected();
+                }
                 catch (SocketException ex)
                 {
                     if (!_started)

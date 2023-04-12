@@ -303,8 +303,15 @@ namespace Renci.SshNet.Tests.Common
             {
                 var bytesReceived = new byte[bytesRead];
                 Array.Copy(state.Buffer, bytesReceived, bytesRead);
-                SignalBytesReceived(bytesReceived, handler);
-
+                try
+                {
+                    SignalBytesReceived(bytesReceived, handler);
+                }
+                catch (ObjectDisposedException ex)
+                {
+                    ConnectionDisconnected();
+                }
+                
                 try
                 {
                     handler.BeginReceive(state.Buffer, 0, state.Buffer.Length, 0, ReadCallback, state);

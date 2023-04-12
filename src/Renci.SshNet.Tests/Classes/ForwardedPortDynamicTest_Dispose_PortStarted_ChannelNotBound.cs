@@ -131,7 +131,6 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void ExceptionShouldNotHaveFired()
         {
-            Assert.AreEqual(string.Join(", ", _exceptionRegister.Select(p => p.Exception.Message)), "");
             Assert.AreEqual(0, _exceptionRegister.Count);
         }
 

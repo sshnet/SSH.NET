@@ -204,10 +204,19 @@ namespace Renci.SshNet
             {
                 // ignore exception thrown by interrupting the blocking receive as part of closing
                 // the forwarded port
+#if NETFRAMEWORK
                 if (ex.SocketErrorCode != SocketError.Interrupted)
                 {
                     RaiseExceptionEvent(ex);
                 }
+#else
+                // Since .NET 5 the exception has been changed. 
+                // more info https://github.com/dotnet/runtime/issues/41585
+                if (ex.SocketErrorCode != SocketError.ConnectionAborted)
+                {
+                    RaiseExceptionEvent(ex);
+                }
+#endif
                 return false;
             }
             finally

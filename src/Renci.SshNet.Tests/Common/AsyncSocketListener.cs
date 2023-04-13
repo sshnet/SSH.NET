@@ -279,28 +279,7 @@ namespace Renci.SshNet.Tests.Common
                 return;
             }
 
-            if (bytesRead > 0)
-            {
-                var bytesReceived = new byte[bytesRead];
-                Array.Copy(state.Buffer, bytesReceived, bytesRead);
-                SignalBytesReceived(bytesReceived, handler);
-
-                try
-                {
-                    handler.BeginReceive(state.Buffer, 0, state.Buffer.Length, 0, ReadCallback, state);
-                }
-                catch (SocketException ex)
-                {
-                    if (!_started)
-                    {
-                        throw new Exception("BeginReceive while stopping!", ex);
-                    }
-
-                    throw new Exception("BeginReceive while started!: " + ex.SocketErrorCode + " " + _stackTrace, ex);
-                }
-
-            }
-            else
+            void ConnectionDisconnected()
             {
                 SignalDisconnected(handler);
 
@@ -330,6 +309,42 @@ namespace Renci.SshNet.Tests.Common
                         _connectedClients.Remove(handler);
                     }
                 }
+            }
+
+            if (bytesRead > 0)
+            {
+                var bytesReceived = new byte[bytesRead];
+                Array.Copy(state.Buffer, bytesReceived, bytesRead);
+                SignalBytesReceived(bytesReceived, handler);
+
+                try
+                {
+                    handler.BeginReceive(state.Buffer, 0, state.Buffer.Length, 0, ReadCallback, state);
+                }
+                catch (ObjectDisposedException ex)
+                {
+                    //ConnectionDisconnected();
+                    if (!_started)
+                    {
+                        throw new Exception("BeginReceive throws ObjectDisposedException while stopping! " + _stackTrace, ex);
+                    }
+
+                    throw new Exception("BeginReceive throws ObjectDisposedException while started! " + _stackTrace, ex);
+                }
+                catch (SocketException ex)
+                {
+                    if (!_started)
+                    {
+                        throw new Exception("BeginReceive while stopping!", ex);
+                    }
+
+                    throw new Exception("BeginReceive while started!: " + ex.SocketErrorCode + " " + _stackTrace, ex);
+                }
+
+            }
+            else
+            {
+                ConnectionDisconnected();
             }
         }
 

@@ -107,12 +107,24 @@ namespace Renci.SshNet.Tests.Common
 
         private void StartListener(object state)
         {
-            var listener = (Socket)state;
-            while (_started)
+            try
             {
-                _acceptCallbackDone.Reset();
-                listener.BeginAccept(AcceptCallback, listener);
-                _acceptCallbackDone.WaitOne();
+                var listener = (Socket)state;
+                while (_started)
+                {
+                    _acceptCallbackDone.Reset();
+                    listener.BeginAccept(AcceptCallback, listener);
+                    _acceptCallbackDone.WaitOne();
+                }
+            }
+            catch (Exception ex)
+            {
+                // On .NET framework when Thread throws an exception then unit tests
+                // were executed without any problem.
+                // On new .NET exceptions from Thread breaks unit tests session.
+                Console.Error.WriteLine("[{0}] Failure in StartListener: {1}",
+                    typeof(AsyncSocketListener).FullName,
+                    ex);
             }
         }
 
@@ -267,7 +279,28 @@ namespace Renci.SshNet.Tests.Common
                 return;
             }
 
-            void ConnectionDisconnected()
+            if (bytesRead > 0)
+            {
+                var bytesReceived = new byte[bytesRead];
+                Array.Copy(state.Buffer, bytesReceived, bytesRead);
+                SignalBytesReceived(bytesReceived, handler);
+
+                try
+                {
+                    handler.BeginReceive(state.Buffer, 0, state.Buffer.Length, 0, ReadCallback, state);
+                }
+                catch (SocketException ex)
+                {
+                    if (!_started)
+                    {
+                        throw new Exception("BeginReceive while stopping!", ex);
+                    }
+
+                    throw new Exception("BeginReceive while started!: " + ex.SocketErrorCode + " " + _stackTrace, ex);
+                }
+
+            }
+            else
             {
                 SignalDisconnected(handler);
 
@@ -297,47 +330,6 @@ namespace Renci.SshNet.Tests.Common
                         _connectedClients.Remove(handler);
                     }
                 }
-            }
-
-            if (bytesRead > 0)
-            {
-                var bytesReceived = new byte[bytesRead];
-                Array.Copy(state.Buffer, bytesReceived, bytesRead);
-                try
-                {
-                    SignalBytesReceived(bytesReceived, handler);
-                }
-                catch (SocketException ex)
-                {
-                    ConnectionDisconnected();
-                }
-                catch (ObjectDisposedException ex)
-                {
-                    ConnectionDisconnected();
-                }
-                
-                try
-                {
-                    handler.BeginReceive(state.Buffer, 0, state.Buffer.Length, 0, ReadCallback, state);
-                }
-                catch (ObjectDisposedException)
-                {
-                    ConnectionDisconnected();
-                }
-                catch (SocketException ex)
-                {
-                    if (!_started)
-                    {
-                        throw new Exception("BeginReceive while stopping!", ex);
-                    }
-
-                    throw new Exception("BeginReceive while started!: " + ex.SocketErrorCode + " " + _stackTrace, ex);
-                }
-
-            }
-            else
-            {
-                ConnectionDisconnected();
             }
         }
 

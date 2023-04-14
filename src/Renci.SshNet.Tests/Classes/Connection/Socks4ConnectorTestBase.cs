@@ -2,6 +2,7 @@
 using Renci.SshNet.Connection;
 using Renci.SshNet.Tests.Common;
 using System.Net;
+using System.Threading;
 
 namespace Renci.SshNet.Tests.Classes.Connection
 {
@@ -31,6 +32,12 @@ namespace Renci.SshNet.Tests.Classes.Connection
             CreateMocks();
             SetupData();
             SetupMocks();
+        }
+
+        protected override void AfterAct()
+        {
+            // Give some time to process all messages
+            Thread.Sleep(200);
         }
 
         protected ConnectionInfo CreateConnectionInfo(string proxyUser, string proxyPassword)

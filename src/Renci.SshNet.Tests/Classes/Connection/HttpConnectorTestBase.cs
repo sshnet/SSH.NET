@@ -1,6 +1,7 @@
 ﻿using Moq;
 using Renci.SshNet.Connection;
 using Renci.SshNet.Tests.Common;
+using System.Threading;
 
 namespace Renci.SshNet.Tests.Classes.Connection
 {
@@ -23,6 +24,12 @@ namespace Renci.SshNet.Tests.Classes.Connection
 
         protected virtual void SetupMocks()
         {
+        }
+
+        protected override void AfterAct()
+        {
+            // Give some time to process all messages
+            Thread.Sleep(200);
         }
 
         protected sealed override void Arrange()

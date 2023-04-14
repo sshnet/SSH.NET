@@ -29,7 +29,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
         protected override void AfterAct()
         {
             // Give some time to process all messages
-            Thread.Sleep(200);
+            Thread.Sleep(400);
         }
 
         protected sealed override void Arrange()

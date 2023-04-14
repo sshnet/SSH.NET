@@ -297,6 +297,11 @@ namespace Renci.SshNet.Tests.Common
                             handler.Shutdown(SocketShutdown.Send);
                             handler.Close();
                         }
+                        catch (SocketException ex) when (ex.SocketErrorCode == SocketError.ConnectionReset)
+                        {
+                            // On .NET 7 we got Socker Exception with ConnectionReset from Shutdown method
+                            // when the socket is disposed
+                        }
                         catch (SocketException ex)
                         {
                             throw new Exception("Exception in ReadCallback: " + ex.SocketErrorCode + " " + _stackTrace, ex);

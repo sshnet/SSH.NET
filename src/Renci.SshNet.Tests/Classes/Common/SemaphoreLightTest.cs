@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Renci.SshNet.Common;
@@ -58,12 +59,13 @@ namespace Renci.SshNet.Tests.Classes.Common
             const int initialCount = 2;
             var target = new SemaphoreLight(initialCount);
 
-            var start = DateTime.Now;
+            var watch = new Stopwatch();
+            watch.Start();
 
             target.Wait();
             target.Wait();
-
-            Assert.IsTrue((DateTime.Now - start).TotalMilliseconds < 50);
+            
+            Assert.IsTrue(watch.ElapsedMilliseconds < 50);
 
             var releaseThread = new Thread(
                 () =>
@@ -75,11 +77,10 @@ namespace Renci.SshNet.Tests.Classes.Common
 
             target.Wait();
 
-            var end = DateTime.Now;
-            var elapsed = end - start;
+            watch.Stop();
 
-            Assert.IsTrue(elapsed.TotalMilliseconds > 200);
-            Assert.IsTrue(elapsed.TotalMilliseconds < 250);
+            Assert.IsTrue(watch.ElapsedMilliseconds > 200);
+            Assert.IsTrue(watch.ElapsedMilliseconds < 250);
         }
 
         [TestMethod]

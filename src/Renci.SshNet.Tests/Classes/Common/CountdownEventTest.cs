@@ -200,9 +200,10 @@ namespace Renci.SshNet.Tests.Classes.Common
             Assert.IsFalse(actual);
             Assert.IsFalse(countdownEvent.IsSet);
             Assert.IsFalse(countdownEvent.WaitHandle.WaitOne(0));
-            // Use precision because it fail in CI/CD pipeline on .NET 7. Locally it worked without precision.
-            // But I think it is not supper important because this is internal .NET implementation. 
-            var precision = TimeSpan.FromMilliseconds(6);
+            // Use precision because it fail in CI pipeline on .NET 7 and also on .NET Framework with Stopwatch.
+            // Locally it works without precision. This is internal .NET implementation, so this is 
+            // not super important
+            var precision = TimeSpan.FromMilliseconds(10);
             Assert.IsTrue(watch.Elapsed >= timeout.Subtract(precision));
 
             countdownEvent.Wait(Session.InfiniteTimeSpan);
@@ -334,9 +335,10 @@ namespace Renci.SshNet.Tests.Classes.Common
             Assert.IsFalse(actual);
             Assert.IsFalse(countdownEvent.IsSet);
             Assert.IsFalse(countdownEvent.WaitHandle.WaitOne(0));
-            // Use precision because it fail in CI/CD pipeline on .NET 7. Locally it worked without precision.
-            // But I think it is not supper important because this is internal .NET implementation. 
-            var precision = TimeSpan.FromMilliseconds(6);
+            // Use precision because it fail in CI pipeline on .NET 7 and also on .NET Framework with Stopwatch.
+            // Locally it works without precision. This is internal .NET implementation, so this is 
+            // not super important
+            var precision = TimeSpan.FromMilliseconds(10);
             Assert.IsTrue(watch.Elapsed >= timeout.Subtract(precision));
 
             countdownEvent.Wait(Session.InfiniteTimeSpan);

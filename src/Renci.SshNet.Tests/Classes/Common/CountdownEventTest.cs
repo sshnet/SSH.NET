@@ -200,6 +200,8 @@ namespace Renci.SshNet.Tests.Classes.Common
             Assert.IsFalse(actual);
             Assert.IsFalse(countdownEvent.IsSet);
             Assert.IsFalse(countdownEvent.WaitHandle.WaitOne(0));
+
+            Assert.AreEqual(watch.Elapsed, timeout);
             Assert.IsTrue(watch.Elapsed >= timeout);
 
             countdownEvent.Wait(Session.InfiniteTimeSpan);

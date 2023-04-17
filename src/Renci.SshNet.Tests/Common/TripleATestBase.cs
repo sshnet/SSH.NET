@@ -9,7 +9,6 @@ namespace Renci.SshNet.Tests.Common
         {
             Arrange();
             Act();
-            AfterAct();
         }
 
         [TestCleanup]
@@ -25,10 +24,6 @@ namespace Renci.SshNet.Tests.Common
         protected abstract void Arrange();
 
         protected abstract void Act();
-
-        protected virtual void AfterAct()
-        {
-        }
     }
 }
 

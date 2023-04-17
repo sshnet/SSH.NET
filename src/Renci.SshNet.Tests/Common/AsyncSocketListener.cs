@@ -65,10 +65,6 @@ namespace Renci.SshNet.Tests.Common
         {
             _started = false;
 
-            // Give some time to process all messages.The new .NET is faster, so the test establishes
-            // a connection with the server, events start to run and at the same time the test is finished.
-            _receiveThread.Join(400);
-
             lock (_syncLock)
             {
                 foreach (var connectedClient in _connectedClients)
@@ -283,28 +279,7 @@ namespace Renci.SshNet.Tests.Common
                 return;
             }
 
-            if (bytesRead > 0)
-            {
-                var bytesReceived = new byte[bytesRead];
-                Array.Copy(state.Buffer, bytesReceived, bytesRead);
-                SignalBytesReceived(bytesReceived, handler);
-
-                try
-                {
-                    handler.BeginReceive(state.Buffer, 0, state.Buffer.Length, 0, ReadCallback, state);
-                }
-                catch (SocketException ex)
-                {
-                    if (!_started)
-                    {
-                        throw new Exception("BeginReceive while stopping!", ex);
-                    }
-
-                    throw new Exception("BeginReceive while started!: " + ex.SocketErrorCode + " " + _stackTrace, ex);
-                }
-
-            }
-            else
+            void ConnectionDisconnected()
             {
                 SignalDisconnected(handler);
 
@@ -322,6 +297,11 @@ namespace Renci.SshNet.Tests.Common
                             handler.Shutdown(SocketShutdown.Send);
                             handler.Close();
                         }
+                        catch (SocketException ex) when (ex.SocketErrorCode == SocketError.ConnectionReset)
+                        {
+                            // On .NET 7 we got Socker Exception with ConnectionReset from Shutdown method
+                            // when the socket is disposed
+                        }
                         catch (SocketException ex)
                         {
                             throw new Exception("Exception in ReadCallback: " + ex.SocketErrorCode + " " + _stackTrace, ex);
@@ -334,6 +314,37 @@ namespace Renci.SshNet.Tests.Common
                         _connectedClients.Remove(handler);
                     }
                 }
+            }
+
+            if (bytesRead > 0)
+            {
+                var bytesReceived = new byte[bytesRead];
+                Array.Copy(state.Buffer, bytesReceived, bytesRead);
+                SignalBytesReceived(bytesReceived, handler);
+
+                try
+                {
+                    handler.BeginReceive(state.Buffer, 0, state.Buffer.Length, 0, ReadCallback, state);
+                }
+                catch (ObjectDisposedException ex)
+                {
+                    // TODO On .NET 7, sometimes we get ObjectDisposedException when _started but only on appveyor, locally it works
+                    ConnectionDisconnected();
+                }
+                catch (SocketException ex)
+                {
+                    if (!_started)
+                    {
+                        throw new Exception("BeginReceive while stopping!", ex);
+                    }
+
+                    throw new Exception("BeginReceive while started!: " + ex.SocketErrorCode + " " + _stackTrace, ex);
+                }
+
+            }
+            else
+            {
+                ConnectionDisconnected();
             }
         }
 

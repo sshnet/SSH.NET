@@ -4,7 +4,6 @@ using Renci.SshNet.Tests.Common;
 using System;
 using System.Net;
 using System.Text;
-using System.Threading;
 
 namespace Renci.SshNet.Tests.Classes.Connection
 {

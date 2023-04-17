@@ -1,6 +1,7 @@
 ﻿using Moq;
 using Renci.SshNet.Connection;
 using Renci.SshNet.Tests.Common;
+using System.Threading;
 
 namespace Renci.SshNet.Tests.Classes.Connection
 {

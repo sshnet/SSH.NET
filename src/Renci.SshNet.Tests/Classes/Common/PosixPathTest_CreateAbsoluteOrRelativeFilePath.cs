@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Renci.SshNet.Common;
 using System;
+using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Common
 {
@@ -37,7 +38,7 @@ namespace Renci.SshNet.Tests.Classes.Common
             catch (ArgumentException ex)
             {
                 Assert.IsNull(ex.InnerException);
-                Assert.AreEqual(new ArgumentException("The path is a zero-length string.", "path").Message, ex.Message);
+                ArgumentExceptionAssert.MessageEquals("The path is a zero-length string.", "path", ex);
                 Assert.AreEqual("path", ex.ParamName);
             }
         }

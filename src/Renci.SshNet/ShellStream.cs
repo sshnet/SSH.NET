@@ -16,7 +16,6 @@ namespace Renci.SshNet
     public class ShellStream : Stream
     {
         private const string CrLf = "\r\n";
-        private const string Cr = "\n";
 
         private readonly ISession _session;
         private readonly Encoding _encoding;
@@ -621,14 +620,14 @@ namespace Renci.SshNet
                         text = _encoding.GetString(_incoming.ToArray(), 0, _incoming.Count);
                     }
 
-                    var index = text.IndexOf(Cr, StringComparison.Ordinal);
+                    var index = text.IndexOf(CrLf, StringComparison.Ordinal);
 
                     if (index >= 0)
                     {
                         text = text.Substring(0, index);
 
                         // determine how many bytes to remove from buffer
-                        var bytesProcessed = _encoding.GetByteCount(text + Cr);
+                        var bytesProcessed = _encoding.GetByteCount(text + CrLf);
 
                         // remove processed bytes from the queue
                         for (var i = 0; i < bytesProcessed; i++)

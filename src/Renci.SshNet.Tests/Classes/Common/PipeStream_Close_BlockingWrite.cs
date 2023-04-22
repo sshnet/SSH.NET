@@ -15,7 +15,7 @@ namespace Renci.SshNet.Tests.Classes.Common
 
         protected override void Arrange()
         {
-            _pipeStream = new PipeStream {MaxBufferLength = 3};
+            _pipeStream = new PipeStream(3);
 
             _writehread = new Thread(() =>
                 {

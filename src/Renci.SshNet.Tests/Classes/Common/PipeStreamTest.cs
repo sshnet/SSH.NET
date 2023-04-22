@@ -175,18 +175,6 @@ namespace Renci.SshNet.Tests.Classes.Common
             Assert.AreEqual(0L, target.Length);
         }
 
-        /// <summary>
-        ///A test for MaxBufferLength
-        ///</summary>
-        [TestMethod]
-        public void MaxBufferLengthTest()
-        {
-            var target = new PipeStream();
-            Assert.AreEqual(200 * 1024 * 1024, target.MaxBufferLength);
-            target.MaxBufferLength = 0L;
-            Assert.AreEqual(0L, target.MaxBufferLength);
-        }
-
         [TestMethod]
         public void Position_GetterAlwaysReturnsZero()
         {

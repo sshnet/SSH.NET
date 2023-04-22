@@ -49,17 +49,9 @@ namespace Renci.SshNet.Tests.Classes
         }
 
         [TestMethod]
-        public void MaxBufferLength_Getter_ShouldReturnTwoHundredMegabyte()
+        public void BufferLength_Getter_ShouldReturnOneMegabyte()
         {
-            Assert.AreEqual(200 * 1024 * 1024, _pipeStream.MaxBufferLength);
-        }
-
-        [TestMethod]
-        public void MaxBufferLength_Setter_ShouldModifyMaxBufferLength()
-        {
-            var newValue = new Random().Next(1, int.MaxValue);
-            _pipeStream.MaxBufferLength = newValue;
-            Assert.AreEqual(newValue, _pipeStream.MaxBufferLength);
+            Assert.AreEqual(1024 * 1024, _pipeStream.BufferLength);
         }
 
         [TestMethod]

@@ -183,6 +183,11 @@ namespace Renci.SshNet.Tests.Classes
         {
             Assert.IsFalse(ForwardedPort.IsStarted);
         }
+        [TestMethod]
+        public void ForwardedPortShouldNotSendCancelTcpIpForwardMessageOnceSessionIsNoLongerActive()
+        {
+            _sessionMock.Verify(p => p.SendMessage(new CancelTcpIpForwardGlobalRequestMessage(ForwardedPort.BoundHost, ForwardedPort.Port)), Times.Never);
+        }
 
         [TestMethod]
         public void ForwardedPortShouldRejectChannelOpenMessagesThatAreReceivedWhileTheSuccessMessageForTheCancelOfTheForwardedPortIsNotReceived()

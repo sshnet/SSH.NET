@@ -33,13 +33,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
             SetupData();
             SetupMocks();
         }
-
-        protected override void AfterAct()
-        {
-            // Give some time to process all messages
-            Thread.Sleep(200);
-        }
-
+        
         protected ConnectionInfo CreateConnectionInfo(string proxyUser, string proxyPassword)
         {
             return new ConnectionInfo(IPAddress.Loopback.ToString(),

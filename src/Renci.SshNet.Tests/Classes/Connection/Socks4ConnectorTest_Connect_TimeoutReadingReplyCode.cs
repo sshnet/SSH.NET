@@ -92,7 +92,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
             }
 
             // Give some time to process all messages
-            Thread.Sleep(400);
+            Thread.Sleep(200);
         }
 
         [TestMethod]

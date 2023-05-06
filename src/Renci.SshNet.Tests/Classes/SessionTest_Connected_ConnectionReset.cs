@@ -17,7 +17,7 @@ namespace Renci.SshNet.Tests.Classes
             ServerSocket.Close();
 
             // give session some time to react to connection reset
-            Thread.Sleep(200);
+            Thread.Sleep(300);
         }
 
         [TestMethod]

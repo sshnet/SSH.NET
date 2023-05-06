@@ -56,8 +56,13 @@ namespace Renci.SshNet.Tests.Classes
         {
             _client.KeepAliveInterval = _keepAliveInterval;
 
-            // allow keep-alive to be sent a few times
+            // allow keep-alive to be sent a few times. .NET 7 is faster and
+            // we need to wait less because we want exactly three messages in a session.
+#if NETFRAMEWORK
             Thread.Sleep(195);
+#else
+            Thread.Sleep(180);
+#endif
         }
 
         [TestMethod]

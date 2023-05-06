@@ -326,7 +326,7 @@ namespace Renci.SshNet.Tests.Common
                 {
                     handler.BeginReceive(state.Buffer, 0, state.Buffer.Length, 0, ReadCallback, state);
                 }
-                catch (ObjectDisposedException ex)
+                catch (ObjectDisposedException)
                 {
                     // TODO On .NET 7, sometimes we get ObjectDisposedException when _started but only on appveyor, locally it works
                     ConnectionDisconnected();

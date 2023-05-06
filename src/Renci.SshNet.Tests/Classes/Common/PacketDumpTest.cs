@@ -39,7 +39,7 @@ namespace Renci.SshNet.Tests.Classes.Common
             {
                 Assert.IsNull(ex.InnerException);
 
-                ArgumentExceptionAssert.MessageEquals("indentLevel", "Cannot be less than zero.", ex);
+                ArgumentExceptionAssert.MessageEquals("Cannot be less than zero.", ex);
 
                 Assert.AreEqual("indentLevel", ex.ParamName);
             }

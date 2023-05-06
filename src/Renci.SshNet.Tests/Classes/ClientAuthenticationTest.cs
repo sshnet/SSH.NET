@@ -29,7 +29,7 @@ namespace Renci.SshNet.Tests.Classes
             catch (ArgumentOutOfRangeException ex)
             {
                 Assert.IsNull(ex.InnerException);
-                ArgumentExceptionAssert.MessageEquals("partialSuccessLimit", "Cannot be less than one.", ex);
+                ArgumentExceptionAssert.MessageEquals("Cannot be less than one.", ex);
                 Assert.AreEqual("partialSuccessLimit", ex.ParamName);
             }
         }
@@ -47,7 +47,7 @@ namespace Renci.SshNet.Tests.Classes
             catch (ArgumentOutOfRangeException ex)
             {
                 Assert.IsNull(ex.InnerException);
-                ArgumentExceptionAssert.MessageEquals("partialSuccessLimit", "Cannot be less than one.", ex);
+                ArgumentExceptionAssert.MessageEquals("Cannot be less than one.", ex);
                 Assert.AreEqual("partialSuccessLimit", ex.ParamName);
             }
         }

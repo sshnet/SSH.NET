@@ -86,7 +86,7 @@ namespace Renci.SshNet.Tests.Classes
             catch (ArgumentOutOfRangeException ex)
             {
                 Assert.IsNull(ex.InnerException);
-                ArgumentExceptionAssert.MessageEquals("value", "The timeout must represent a value between -1 and Int32.MaxValue, inclusive.", ex);
+                ArgumentExceptionAssert.MessageEquals("The timeout must represent a value between -1 and Int32.MaxValue, inclusive.", ex);
                 Assert.AreEqual("value", ex.ParamName);
             }
         }
@@ -105,7 +105,7 @@ namespace Renci.SshNet.Tests.Classes
             catch (ArgumentOutOfRangeException ex)
             {
                 Assert.IsNull(ex.InnerException);
-                ArgumentExceptionAssert.MessageEquals("value", "The timeout must represent a value between -1 and Int32.MaxValue, inclusive.", ex);
+                ArgumentExceptionAssert.MessageEquals("The timeout must represent a value between -1 and Int32.MaxValue, inclusive.", ex);
                 Assert.AreEqual("value", ex.ParamName);
             }
         }

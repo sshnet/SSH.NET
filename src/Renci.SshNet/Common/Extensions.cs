@@ -5,9 +5,6 @@ using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-#if !FEATURE_WAITHANDLE_DISPOSE
-using System.Threading;
-#endif // !FEATURE_WAITHANDLE_DISPOSE
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Messages;
 
@@ -335,20 +332,5 @@ namespace Renci.SshNet.Common
             handle.Close();
         }
 #endif // !FEATURE_WAITHANDLE_DISPOSE
-
-#if !FEATURE_HASHALGORITHM_DISPOSE
-        /// <summary>
-        /// Disposes the specified algorithm.
-        /// </summary>
-        /// <param name="algorithm">The algorithm.</param>
-        [DebuggerNonUserCode]
-        internal static void Dispose(this System.Security.Cryptography.HashAlgorithm algorithm)
-        {
-            if (algorithm == null)
-                throw new NullReferenceException();
-
-            algorithm.Clear();
-        }
-#endif // FEATURE_HASHALGORITHM_DISPOSE
     }
 }

@@ -37,17 +37,10 @@ namespace Renci.SshNet.Abstractions
             return System.Security.Cryptography.RandomNumberGenerator.Create();
         }
 
-#if FEATURE_HASH_MD5
         public static System.Security.Cryptography.MD5 CreateMD5()
         {
             return System.Security.Cryptography.MD5.Create();
         }
-#else
-        public static global::SshNet.Security.Cryptography.MD5 CreateMD5()
-        {
-            return new global::SshNet.Security.Cryptography.MD5();
-        }
-#endif // FEATURE_HASH_MD5
 
 #if FEATURE_HASH_SHA1_CREATE || FEATURE_HASH_SHA1_MANAGED
         public static System.Security.Cryptography.SHA1 CreateSHA1()

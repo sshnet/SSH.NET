@@ -8,9 +8,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
-#if FEATURE_TAP
 using System.Threading.Tasks;
-#endif
 
 namespace Renci.SshNet.Connection
 {
@@ -78,7 +76,6 @@ namespace Renci.SshNet.Connection
             }
         }
 
-#if FEATURE_TAP
         public async Task<SshIdentification> StartAsync(string clientVersion, Socket socket, CancellationToken cancellationToken)
         {
             // Immediately send the identification string since the spec states both sides MUST send an identification string
@@ -121,7 +118,6 @@ namespace Renci.SshNet.Connection
                 }
             }
         }
-#endif
 
         private static string GetGroupValue(Match match, string groupName)
         {
@@ -199,7 +195,6 @@ namespace Renci.SshNet.Connection
             return null;
         }
 
-#if FEATURE_TAP
         private static async Task<string> SocketReadLineAsync(Socket socket, CancellationToken cancellationToken, List<byte> buffer)
         {
             var data = new byte[1];
@@ -250,7 +245,5 @@ namespace Renci.SshNet.Connection
                 }
             }
         }
-#endif
-
     }
 }

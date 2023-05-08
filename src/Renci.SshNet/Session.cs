@@ -16,9 +16,7 @@ using System.Globalization;
 using System.Linq;
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Security.Cryptography;
-#if FEATURE_TAP
 using System.Threading.Tasks;
-#endif
 
 namespace Renci.SshNet
 {
@@ -671,7 +669,6 @@ namespace Renci.SshNet
             }
         }
 
-#if FEATURE_TAP
         /// <summary>
         /// Asynchronously connects to the server.
         /// </summary>
@@ -775,7 +772,6 @@ namespace Renci.SshNet
             RegisterMessage("SSH_MSG_CHANNEL_EOF");
             RegisterMessage("SSH_MSG_CHANNEL_CLOSE");
         }
-#endif
 
         /// <summary>
         /// Disconnects from the server.

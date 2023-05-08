@@ -1,5 +1,4 @@
-﻿#if FEATURE_TAP
-using System;
+﻿using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -132,5 +131,3 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             SftpSessionMock.Verify(p => p.RequestOpenAsync(_path, Flags.Write | Flags.CreateNewOrOpen | Flags.Truncate, _cancellationToken), Times.Once);
         }
     }
-}
-#endif

@@ -10,9 +10,7 @@ using System.Threading;
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 using Renci.SshNet.Sftp;
-#if FEATURE_TAP
 using System.Threading.Tasks;
-#endif
 
 namespace Renci.SshNet
 {
@@ -376,7 +374,6 @@ namespace Renci.SshNet
             _sftpSession.RequestRemove(fullPath);
         }
 
-#if FEATURE_TAP
         /// <summary>
         /// Asynchronously deletes remote file specified by path.
         /// </summary>
@@ -401,7 +398,6 @@ namespace Renci.SshNet
             var fullPath = await _sftpSession.GetCanonicalPathAsync(path, cancellationToken).ConfigureAwait(false);
             await _sftpSession.RequestRemoveAsync(fullPath, cancellationToken).ConfigureAwait(false);
         }
-#endif
 
         /// <summary>
         /// Renames remote file from old path to new path.
@@ -418,7 +414,6 @@ namespace Renci.SshNet
             RenameFile(oldPath, newPath, false);
         }
 
-#if FEATURE_TAP
         /// <summary>
         /// Asynchronously renames remote file from old path to new path.
         /// </summary>
@@ -446,7 +441,6 @@ namespace Renci.SshNet
             var newFullPath = await _sftpSession.GetCanonicalPathAsync(newPath, cancellationToken).ConfigureAwait(false);
             await _sftpSession.RequestRenameAsync(oldFullPath, newFullPath, cancellationToken).ConfigureAwait(false);
         }
-#endif
 
         /// <summary>
         /// Renames remote file from old path to new path.
@@ -536,8 +530,6 @@ namespace Renci.SshNet
             return InternalListDirectory(path, listCallback);
         }
 
-#if FEATURE_TAP
-
         /// <summary>
         /// Asynchronously retrieves list of files in remote directory.
         /// </summary>
@@ -593,8 +585,6 @@ namespace Renci.SshNet
 
             return result;
         }
-
-#endif
 
         /// <summary>
         /// Begins an asynchronous operation of retrieving list of files in remote directory.
@@ -1129,7 +1119,6 @@ namespace Renci.SshNet
             return _sftpSession.RequestStatVfs(fullPath);
         }
 
-#if FEATURE_TAP
         /// <summary>
         /// Asynchronously gets status using statvfs@openssh.com request.
         /// </summary>
@@ -1154,7 +1143,6 @@ namespace Renci.SshNet
             var fullPath = await _sftpSession.GetCanonicalPathAsync(path, cancellationToken).ConfigureAwait(false);
             return await _sftpSession.RequestStatVfsAsync(fullPath, cancellationToken).ConfigureAwait(false);
         }
-#endif
 
         #region File Methods
 
@@ -1503,7 +1491,6 @@ namespace Renci.SshNet
             return new SftpFileStream(_sftpSession, path, mode, access, (int) _bufferSize);
         }
 
-#if FEATURE_TAP
         /// <summary>
         /// Asynchronously opens a <see cref="SftpFileStream"/> on the specified path, with the specified mode and access.
         /// </summary>
@@ -1529,7 +1516,6 @@ namespace Renci.SshNet
 
             return SftpFileStream.OpenAsync(_sftpSession, path, mode, access, (int)_bufferSize, cancellationToken);
         }
-#endif
 
         /// <summary>
         /// Opens an existing file for reading.

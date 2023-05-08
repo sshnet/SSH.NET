@@ -3,9 +3,8 @@ using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
-#if FEATURE_TAP
 using System.Threading.Tasks;
-#endif
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Transport;
 
@@ -54,12 +53,10 @@ namespace Renci.SshNet.Abstractions
             ConnectCore(socket, remoteEndpoint, connectTimeout, false);
         }
 
-#if FEATURE_TAP
         public static async Task ConnectAsync(Socket socket, IPEndPoint remoteEndpoint, CancellationToken cancellationToken)
         {
             await socket.ConnectAsync(remoteEndpoint, cancellationToken).ConfigureAwait(false);
         }
-#endif
 
         private static void ConnectCore(Socket socket, IPEndPoint remoteEndpoint, TimeSpan connectTimeout, bool ownsSocket)
         {
@@ -319,12 +316,10 @@ namespace Renci.SshNet.Abstractions
             return buffer;
         }
 
-#if FEATURE_TAP
         public static Task<int> ReadAsync(Socket socket, byte[] buffer, int offset, int length, CancellationToken cancellationToken)
         {
             return socket.ReceiveAsync(buffer, offset, length, cancellationToken);
         }
-#endif
 
         /// <summary>
         /// Receives data from a bound <see cref="Socket"/> into a receive buffer.

@@ -78,7 +78,6 @@ namespace Renci.SshNet.Abstractions
         }
 #endif // FEATURE_HASH_RIPEMD160
 
-#if FEATURE_HMAC_MD5
         public static System.Security.Cryptography.HMACMD5 CreateHMACMD5(byte[] key)
         {
             return new System.Security.Cryptography.HMACMD5(key);
@@ -88,19 +87,7 @@ namespace Renci.SshNet.Abstractions
         {
             return new HMACMD5(key, hashSize);
         }
-#else
-        public static global::SshNet.Security.Cryptography.HMACMD5 CreateHMACMD5(byte[] key)
-        {
-            return new global::SshNet.Security.Cryptography.HMACMD5(key);
-        }
 
-        public static global::SshNet.Security.Cryptography.HMACMD5 CreateHMACMD5(byte[] key, int hashSize)
-        {
-            return new global::SshNet.Security.Cryptography.HMACMD5(key, hashSize);
-        }
-#endif // FEATURE_HMAC_MD5
-
-#if FEATURE_HMAC_SHA1
         public static System.Security.Cryptography.HMACSHA1 CreateHMACSHA1(byte[] key)
         {
             return new System.Security.Cryptography.HMACSHA1(key);
@@ -110,19 +97,7 @@ namespace Renci.SshNet.Abstractions
         {
             return new HMACSHA1(key, hashSize);
         }
-#else
-        public static global::SshNet.Security.Cryptography.HMACSHA1 CreateHMACSHA1(byte[] key)
-        {
-            return new global::SshNet.Security.Cryptography.HMACSHA1(key);
-        }
 
-        public static global::SshNet.Security.Cryptography.HMACSHA1 CreateHMACSHA1(byte[] key, int hashSize)
-        {
-            return new global::SshNet.Security.Cryptography.HMACSHA1(key, hashSize);
-        }
-#endif // FEATURE_HMAC_SHA1
-
-#if FEATURE_HMAC_SHA256
         public static System.Security.Cryptography.HMACSHA256 CreateHMACSHA256(byte[] key)
         {
             return new System.Security.Cryptography.HMACSHA256(key);
@@ -132,19 +107,7 @@ namespace Renci.SshNet.Abstractions
         {
             return new HMACSHA256(key, hashSize);
         }
-#else
-        public static global::SshNet.Security.Cryptography.HMACSHA256 CreateHMACSHA256(byte[] key)
-        {
-            return new global::SshNet.Security.Cryptography.HMACSHA256(key);
-        }
 
-        public static global::SshNet.Security.Cryptography.HMACSHA256 CreateHMACSHA256(byte[] key, int hashSize)
-        {
-            return new global::SshNet.Security.Cryptography.HMACSHA256(key, hashSize);
-        }
-#endif // FEATURE_HMAC_SHA256
-
-#if FEATURE_HMAC_SHA384
         public static System.Security.Cryptography.HMACSHA384 CreateHMACSHA384(byte[] key)
         {
             return new System.Security.Cryptography.HMACSHA384(key);
@@ -154,19 +117,7 @@ namespace Renci.SshNet.Abstractions
         {
             return new HMACSHA384(key, hashSize);
         }
-#else
-        public static global::SshNet.Security.Cryptography.HMACSHA384 CreateHMACSHA384(byte[] key)
-        {
-            return new global::SshNet.Security.Cryptography.HMACSHA384(key);
-        }
 
-        public static global::SshNet.Security.Cryptography.HMACSHA384 CreateHMACSHA384(byte[] key, int hashSize)
-        {
-            return new global::SshNet.Security.Cryptography.HMACSHA384(key, hashSize);
-        }
-#endif // FEATURE_HMAC_SHA384
-
-#if FEATURE_HMAC_SHA512
         public static System.Security.Cryptography.HMACSHA512 CreateHMACSHA512(byte[] key)
         {
             return new System.Security.Cryptography.HMACSHA512(key);
@@ -176,17 +127,6 @@ namespace Renci.SshNet.Abstractions
         {
             return new HMACSHA512(key, hashSize);
         }
-#else
-        public static global::SshNet.Security.Cryptography.HMACSHA512 CreateHMACSHA512(byte[] key)
-        {
-            return new global::SshNet.Security.Cryptography.HMACSHA512(key);
-        }
-
-        public static global::SshNet.Security.Cryptography.HMACSHA512 CreateHMACSHA512(byte[] key, int hashSize)
-        {
-            return new global::SshNet.Security.Cryptography.HMACSHA512(key, hashSize);
-        }
-#endif // FEATURE_HMAC_SHA512
 
 #if FEATURE_HMAC_RIPEMD160
         public static System.Security.Cryptography.HMACRIPEMD160 CreateHMACRIPEMD160(byte[] key)

@@ -79,13 +79,9 @@ namespace Renci.SshNet.Common
 
         private static string AsAscii(byte[] data, int length)
         {
-#if FEATURE_ENCODING_ASCII
-        var encoding = Encoding.ASCII;
-#else
-        var encoding = new ASCIIEncoding();
-#endif
+            var encoding = Encoding.ASCII;
 
-        var ascii = new StringBuilder();
+            var ascii = new StringBuilder();
             const char dot = '.';
 
             for (var i = 0; i < length; i++)

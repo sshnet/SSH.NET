@@ -42,21 +42,10 @@ namespace Renci.SshNet.Abstractions
             return System.Security.Cryptography.MD5.Create();
         }
 
-#if FEATURE_HASH_SHA1_CREATE || FEATURE_HASH_SHA1_MANAGED
         public static System.Security.Cryptography.SHA1 CreateSHA1()
         {
-#if FEATURE_HASH_SHA1_CREATE
             return System.Security.Cryptography.SHA1.Create();
-#elif FEATURE_HASH_SHA1_MANAGED
-            return new System.Security.Cryptography.SHA1Managed();
-#endif
         }
-#else
-        public static global::SshNet.Security.Cryptography.SHA1 CreateSHA1()
-        {
-            return new global::SshNet.Security.Cryptography.SHA1();
-        }
-#endif
 
 #if FEATURE_HASH_SHA256_CREATE || FEATURE_HASH_SHA256_MANAGED
         public static System.Security.Cryptography.SHA256 CreateSHA256()

@@ -5,9 +5,7 @@ namespace Renci.SshNet.Abstractions
 {
     internal static class CryptoAbstraction
     {
-#if FEATURE_RNG_CREATE || FEATURE_RNG_CSP
         private static readonly System.Security.Cryptography.RandomNumberGenerator Randomizer = CreateRandomNumberGenerator();
-#endif
 
         /// <summary>
         /// Generates a <see cref="Byte"/> array of the specified length, and fills it with a
@@ -31,29 +29,13 @@ namespace Renci.SshNet.Abstractions
         /// </remarks>
         public static void GenerateRandom(byte[] data)
         {
-#if FEATURE_RNG_CREATE || FEATURE_RNG_CSP
             Randomizer.GetBytes(data);
-#else
-            if(data == null)
-                throw new ArgumentNullException("data");
-
-            var buffer = Windows.Security.Cryptography.CryptographicBuffer.GenerateRandom((uint) data.Length);
-            System.Runtime.InteropServices.WindowsRuntime.WindowsRuntimeBufferExtensions.CopyTo(buffer, data);
-#endif
         }
 
-#if FEATURE_RNG_CREATE || FEATURE_RNG_CSP
         public static System.Security.Cryptography.RandomNumberGenerator CreateRandomNumberGenerator()
         {
-#if FEATURE_RNG_CREATE
             return System.Security.Cryptography.RandomNumberGenerator.Create();
-#elif FEATURE_RNG_CSP
-            return new System.Security.Cryptography.RNGCryptoServiceProvider();
-#else
-#error Creation of RandomNumberGenerator is not implemented.
-#endif
         }
-#endif // FEATURE_RNG_CREATE || FEATURE_RNG_CSP
 
 #if FEATURE_HASH_MD5
         public static System.Security.Cryptography.MD5 CreateMD5()

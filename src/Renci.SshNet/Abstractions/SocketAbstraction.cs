@@ -367,5 +367,6 @@ namespace Renci.SshNet.Abstractions
                 eventWaitHandle.Set();
         }
 #endif // FEATURE_SOCKET_EAP
+
     }
 }

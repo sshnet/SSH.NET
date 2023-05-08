@@ -131,3 +131,4 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             SftpSessionMock.Verify(p => p.RequestOpenAsync(_path, Flags.Write | Flags.CreateNewOrOpen | Flags.Truncate, _cancellationToken), Times.Once);
         }
     }
+}

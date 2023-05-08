@@ -252,13 +252,7 @@ namespace Renci.SshNet.Common
         {
             if (Capacity == Length)
             {
-#if FEATURE_MEMORYSTREAM_GETBUFFER
                 return GetBuffer();
-#elif FEATURE_MEMORYSTREAM_TRYGETBUFFER
-                ArraySegment<byte> buffer;
-                if (TryGetBuffer(out buffer))
-                    return buffer.Array;
-#endif
             }
             return base.ToArray();
         }

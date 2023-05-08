@@ -240,8 +240,38 @@ namespace Renci.SshNet
                 throw;
             }
             StartKeepAliveTimer();
-        }
+        }        /// <summary>
+        /// Say Hello to the server.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">The client is already connected.</exception>
+        /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
+        /// <exception cref="SocketException">Socket connection to the SSH server or proxy server could not be established, or an error occurred while resolving the hostname.</exception>
+        /// <exception cref="SshConnectionException">SSH session could not be established.</exception>
+        public void SayHello()
+        {
+            CheckDisposed();
 
+            if (IsSessionConnected())
+                throw new InvalidOperationException("The client is already connected.");
+
+            OnConnecting();
+
+            Session = CreateAndConnectSession();
+            try
+            {
+                // Even though the method we invoke makes you believe otherwise, at this point only
+                // the SSH session itself is connected.
+                OnConnected();
+            }
+            catch
+            {
+                // Only dispose the session as Disconnect() would have side-effects (such as remove forwarded
+                // ports in SshClient).
+                DisposeSession();
+                throw;
+            }
+            StartKeepAliveTimer();
+        }
 #if FEATURE_TAP
         /// <summary>
         /// Asynchronously connects client to the server.
@@ -524,6 +554,23 @@ namespace Renci.SshNet
             try
             {
                 session.Connect();
+                return session;
+            }
+            catch
+            {
+                DisposeSession(session);
+                throw;
+            }
+        }
+        private ISession CreateAndCheckingConnectivity()
+        {
+            var session = _serviceFactory.CreateSession(ConnectionInfo, _serviceFactory.CreateSocketFactory());
+            session.HostKeyReceived += Session_HostKeyReceived;
+            session.ErrorOccured += Session_ErrorOccured;
+
+            try
+            {
+                session.SayHello();
                 return session;
             }
             catch

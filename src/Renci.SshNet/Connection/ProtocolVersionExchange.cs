@@ -24,11 +24,7 @@ namespace Renci.SshNet.Connection
     {
         private const byte Null = 0x00;
 
-#if FEATURE_REGEX_COMPILE
         private static readonly Regex ServerVersionRe = new Regex("^SSH-(?<protoversion>[^-]+)-(?<softwareversion>.+?)([ ](?<comments>.+))?$", RegexOptions.Compiled);
-#else
-        private static readonly Regex ServerVersionRe = new Regex("^SSH-(?<protoversion>[^-]+)-(?<softwareversion>.+?)([ ](?<comments>.+))?$");
-#endif
 
         /// <summary>
         /// Performs the SSH protocol version exchange.

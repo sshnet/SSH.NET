@@ -1,5 +1,4 @@
-﻿#if FEATURE_ECDSA
-using System;
+﻿using System;
 using Renci.SshNet.Common;
 using System.Globalization;
 using System.Security.Cryptography;
@@ -186,4 +185,3 @@ namespace Renci.SshNet.Security.Cryptography
         }
     }
 }
-#endif

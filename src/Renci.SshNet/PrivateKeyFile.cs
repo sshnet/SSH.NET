@@ -218,12 +218,10 @@ namespace Renci.SshNet
                     _key = new DsaKey(decryptedData);
                     HostKey = new KeyHostAlgorithm("ssh-dss", _key);
                     break;
-#if FEATURE_ECDSA
                 case "EC":
                     _key = new EcdsaKey(decryptedData);
                     HostKey = new KeyHostAlgorithm(_key.ToString(), _key);
                     break;
-#endif
                 case "OPENSSH":
                     _key = ParseOpenSshV1Key(decryptedData, passPhrase);
                     HostKey = new KeyHostAlgorithm(_key.ToString(), _key);
@@ -494,7 +492,6 @@ namespace Renci.SshNet
                     unencryptedPrivateKey = privateKeyReader.ReadBignum2();
                     parsedKey = new ED25519Key(publicKey.Reverse(), unencryptedPrivateKey);
                     break;
-#if FEATURE_ECDSA
                 case "ecdsa-sha2-nistp256":
                 case "ecdsa-sha2-nistp384":
                 case "ecdsa-sha2-nistp521":
@@ -507,7 +504,6 @@ namespace Renci.SshNet
                     unencryptedPrivateKey = privateKeyReader.ReadBignum2();
                     parsedKey = new EcdsaKey(curve, publicKey, unencryptedPrivateKey.TrimLeadingZeros());
                     break;
-#endif
                 case "ssh-rsa":
                     var modulus = privateKeyReader.ReadBignum(); //n
                     var exponent = privateKeyReader.ReadBignum(); //e

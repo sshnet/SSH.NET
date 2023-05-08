@@ -1,5 +1,4 @@
-﻿#if FEATURE_ECDSA
-using System;
+﻿using System;
 using System.IO;
 using System.Text;
 using System.Runtime.InteropServices;
@@ -467,4 +466,3 @@ namespace Renci.SshNet.Security
         #endregion
     }
 }
-#endif

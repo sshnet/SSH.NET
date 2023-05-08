@@ -47,53 +47,20 @@ namespace Renci.SshNet.Abstractions
             return System.Security.Cryptography.SHA1.Create();
         }
 
-#if FEATURE_HASH_SHA256_CREATE || FEATURE_HASH_SHA256_MANAGED
         public static System.Security.Cryptography.SHA256 CreateSHA256()
         {
-#if FEATURE_HASH_SHA256_CREATE
             return System.Security.Cryptography.SHA256.Create();
-#elif FEATURE_HASH_SHA256_MANAGED
-            return new System.Security.Cryptography.SHA256Managed();
-#endif
         }
-#else
-        public static global::SshNet.Security.Cryptography.SHA256 CreateSHA256()
-        {
-            return new global::SshNet.Security.Cryptography.SHA256();
-        }
-#endif
 
-#if FEATURE_HASH_SHA384_CREATE || FEATURE_HASH_SHA384_MANAGED
         public static System.Security.Cryptography.SHA384 CreateSHA384()
         {
-#if FEATURE_HASH_SHA384_CREATE
             return System.Security.Cryptography.SHA384.Create();
-#elif FEATURE_HASH_SHA384_MANAGED
-            return new System.Security.Cryptography.SHA384Managed();
-#endif
         }
-#else
-        public static global::SshNet.Security.Cryptography.SHA384 CreateSHA384()
-        {
-            return new global::SshNet.Security.Cryptography.SHA384();
-        }
-#endif
 
-#if FEATURE_HASH_SHA512_CREATE || FEATURE_HASH_SHA512_MANAGED
         public static System.Security.Cryptography.SHA512 CreateSHA512()
         {
-#if FEATURE_HASH_SHA512_CREATE
             return System.Security.Cryptography.SHA512.Create();
-#elif FEATURE_HASH_SHA512_MANAGED
-            return new System.Security.Cryptography.SHA512Managed();
-#endif
         }
-#else
-        public static global::SshNet.Security.Cryptography.SHA512 CreateSHA512()
-        {
-            return new global::SshNet.Security.Cryptography.SHA512();
-        }
-#endif
 
 #if FEATURE_HASH_RIPEMD160_CREATE || FEATURE_HASH_RIPEMD160_MANAGED
         public static System.Security.Cryptography.RIPEMD160 CreateRIPEMD160()

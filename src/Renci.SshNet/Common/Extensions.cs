@@ -303,21 +303,6 @@ namespace Renci.SshNet.Common
             return socket.Connected;
         }
 
-#if !FEATURE_SOCKET_DISPOSE
-        /// <summary>
-        /// Disposes the specified socket.
-        /// </summary>
-        /// <param name="socket">The socket.</param>
-        [DebuggerNonUserCode]
-        internal static void Dispose(this Socket socket)
-        {
-            if (socket == null)
-                throw new NullReferenceException();
-
-            socket.Close();
-        }
-#endif // !FEATURE_SOCKET_DISPOSE
-
 #if !FEATURE_WAITHANDLE_DISPOSE
         /// <summary>
         /// Disposes the specified handle.

@@ -5,9 +5,6 @@ using System.Net.Sockets;
 using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-#if !FEATURE_SOCKET_DISPOSE
-using Renci.SshNet.Common;
-#endif // !FEATURE_SOCKET_DISPOSE
 using Renci.SshNet.Channels;
 using Renci.SshNet.Messages.Connection;
 using Renci.SshNet.Tests.Common;

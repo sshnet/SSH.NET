@@ -17,11 +17,7 @@ namespace Renci.SshNet.Abstractions
         {
             if (socket.Connected)
             {
-#if FEATURE_SOCKET_POLL
                 return socket.Poll(-1, SelectMode.SelectRead) && socket.Available > 0;
-#else
-                return true;
-#endif // FEATURE_SOCKET_POLL
             }
 
             return false;
@@ -40,11 +36,7 @@ namespace Renci.SshNet.Abstractions
         {
             if (socket != null && socket.Connected)
             {
-#if FEATURE_SOCKET_POLL
                 return socket.Poll(-1, SelectMode.SelectWrite);
-#else
-                return true;
-#endif // FEATURE_SOCKET_POLL
             }
 
             return false;

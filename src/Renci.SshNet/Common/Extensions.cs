@@ -302,20 +302,5 @@ namespace Renci.SshNet.Common
                 return false;
             return socket.Connected;
         }
-
-#if !FEATURE_WAITHANDLE_DISPOSE
-        /// <summary>
-        /// Disposes the specified handle.
-        /// </summary>
-        /// <param name="handle">The handle.</param>
-        [DebuggerNonUserCode]
-        internal static void Dispose(this WaitHandle handle)
-        {
-            if (handle == null)
-                throw new NullReferenceException();
-
-            handle.Close();
-        }
-#endif // !FEATURE_WAITHANDLE_DISPOSE
     }
 }

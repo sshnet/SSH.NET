@@ -382,11 +382,9 @@ namespace Renci.SshNet
             HostKeyAlgorithms = new Dictionary<string, Func<byte[], KeyHostAlgorithm>>
                 {
                     {"ssh-ed25519", data => new KeyHostAlgorithm("ssh-ed25519", new ED25519Key(), data)},
-#if FEATURE_ECDSA
                     {"ecdsa-sha2-nistp256", data => new KeyHostAlgorithm("ecdsa-sha2-nistp256", new EcdsaKey(), data)},
                     {"ecdsa-sha2-nistp384", data => new KeyHostAlgorithm("ecdsa-sha2-nistp384", new EcdsaKey(), data)},
                     {"ecdsa-sha2-nistp521", data => new KeyHostAlgorithm("ecdsa-sha2-nistp521", new EcdsaKey(), data)},
-#endif
                     {"ssh-rsa", data => new KeyHostAlgorithm("ssh-rsa", new RsaKey(), data)},
                     {"ssh-dss", data => new KeyHostAlgorithm("ssh-dss", new DsaKey(), data)},
                     //{"x509v3-sign-rsa", () => { ... },

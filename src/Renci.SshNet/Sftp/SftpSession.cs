@@ -6,9 +6,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using Renci.SshNet.Sftp.Responses;
 using Renci.SshNet.Sftp.Requests;
-#if FEATURE_TAP
 using System.Threading.Tasks;
-#endif
 
 namespace Renci.SshNet.Sftp
 {
@@ -139,7 +137,6 @@ namespace Renci.SshNet.Sftp
             return string.Format(CultureInfo.InvariantCulture, "{0}{1}{2}", canonizedPath, slash, pathParts[pathParts.Length - 1]);
         }
 
-#if FEATURE_TAP
         public async Task<string> GetCanonicalPathAsync(string path, CancellationToken cancellationToken)
         {
             var fullPath = GetFullRemotePath(path);
@@ -185,7 +182,6 @@ namespace Renci.SshNet.Sftp
                 slash = "/";
             return canonizedPath + slash + pathParts[pathParts.Length - 1];
         }
-#endif
 
         public ISftpFileReader CreateFileReader(byte[] handle, ISftpSession sftpSession, uint chunkSize, int maxPendingReads, long? fileSize)
         {
@@ -436,7 +432,6 @@ namespace Renci.SshNet.Sftp
             return handle;
         }
 
-#if FEATURE_TAP
         public async Task<byte[]> RequestOpenAsync(string path, Flags flags, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -452,7 +447,6 @@ namespace Renci.SshNet.Sftp
                 return await tcs.Task.ConfigureAwait(false);
             }
         }
-#endif
 
         /// <summary>
         /// Performs SSH_FXP_OPEN request
@@ -541,7 +535,6 @@ namespace Renci.SshNet.Sftp
             }
         }
 
-#if FEATURE_TAP
         public async Task RequestCloseAsync(byte[] handle, CancellationToken cancellationToken)
         {
             TaskCompletionSource<bool> tcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -566,8 +559,6 @@ namespace Renci.SshNet.Sftp
                 await tcs.Task.ConfigureAwait(false);
             }
         }
-#endif
-
 
         /// <summary>
         /// Performs SSH_FXP_CLOSE request.
@@ -732,7 +723,6 @@ namespace Renci.SshNet.Sftp
             return data;
         }
 
-#if FEATURE_TAP
         public async Task<byte[]> RequestReadAsync(byte[] handle, ulong offset, uint length, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -758,7 +748,6 @@ namespace Renci.SshNet.Sftp
                 return await tcs.Task.ConfigureAwait(false);
             }
         }
-#endif
 
         /// <summary>
         /// Performs SSH_FXP_WRITE request.
@@ -804,7 +793,6 @@ namespace Renci.SshNet.Sftp
             }
         }
 
-#if FEATURE_TAP
         public async Task RequestWriteAsync(byte[] handle, ulong serverOffset, byte[] data, int offset, int length, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -829,7 +817,6 @@ namespace Renci.SshNet.Sftp
                 await tcs.Task.ConfigureAwait(false);
             }
         }
-#endif
 
         /// <summary>
         /// Performs SSH_FXP_LSTAT request.
@@ -963,7 +950,6 @@ namespace Renci.SshNet.Sftp
             return attributes;
         }
 
-#if FEATURE_TAP
         public async Task<SftpFileAttributes> RequestFStatAsync(byte[] handle, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -979,7 +965,6 @@ namespace Renci.SshNet.Sftp
                 return await tcs.Task.ConfigureAwait(false);
             }
         }
-#endif
 
         /// <summary>
         /// Performs SSH_FXP_SETSTAT request.
@@ -1078,7 +1063,6 @@ namespace Renci.SshNet.Sftp
             return handle;
         }
 
-#if FEATURE_TAP
         public async Task<byte[]> RequestOpenDirAsync(string path, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -1094,7 +1078,6 @@ namespace Renci.SshNet.Sftp
                 return await tcs.Task.ConfigureAwait(false);
             }
         }
-#endif
 
         /// <summary>
         /// Performs SSH_FXP_READDIR request
@@ -1137,7 +1120,6 @@ namespace Renci.SshNet.Sftp
             return result;
         }
 
-#if FEATURE_TAP
         public async Task<KeyValuePair<string, SftpFileAttributes>[]> RequestReadDirAsync(byte[] handle, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -1163,8 +1145,6 @@ namespace Renci.SshNet.Sftp
                 return await tcs.Task.ConfigureAwait(false);
             }
         }
-#endif
-
 
         /// <summary>
         /// Performs SSH_FXP_REMOVE request.
@@ -1194,7 +1174,6 @@ namespace Renci.SshNet.Sftp
             }
         }
 
-#if FEATURE_TAP
         public async Task RequestRemoveAsync(string path, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -1219,8 +1198,6 @@ namespace Renci.SshNet.Sftp
                 await tcs.Task.ConfigureAwait(false);
             }
         }
-#endif
-
 
         /// <summary>
         /// Performs SSH_FXP_MKDIR request.
@@ -1319,7 +1296,6 @@ namespace Renci.SshNet.Sftp
             return result;
         }
 
-#if FEATURE_TAP
         internal async Task<KeyValuePair<string, SftpFileAttributes>[]> RequestRealPathAsync(string path, bool nullOnError, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -1345,7 +1321,6 @@ namespace Renci.SshNet.Sftp
                 return await tcs.Task.ConfigureAwait(false);
             }
         }
-#endif
 
         /// <summary>
         /// Performs SSH_FXP_REALPATH request.
@@ -1528,8 +1503,6 @@ namespace Renci.SshNet.Sftp
             }
         }
 
-
-#if FEATURE_TAP
         public async Task RequestRenameAsync(string oldPath, string newPath, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -1554,7 +1527,6 @@ namespace Renci.SshNet.Sftp
                 await tcs.Task.ConfigureAwait(false);
             }
         }
-#endif
 
         /// <summary>
         /// Performs SSH_FXP_READLINK request.
@@ -1722,8 +1694,6 @@ namespace Renci.SshNet.Sftp
             return information;
         }
 
-
-#if FEATURE_TAP
         public async Task<SftpFileSytemInformation> RequestStatVfsAsync(string path, CancellationToken cancellationToken)
         {
             if (ProtocolVersion < 3)
@@ -1744,7 +1714,6 @@ namespace Renci.SshNet.Sftp
                 return await tcs.Task.ConfigureAwait(false);
             }
         }
-#endif
 
         /// <summary>
         /// Performs fstatvfs@openssh.com extended request.

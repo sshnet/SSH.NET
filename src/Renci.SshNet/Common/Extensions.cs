@@ -5,9 +5,6 @@ using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-#if !FEATURE_WAITHANDLE_DISPOSE
-using System.Threading;
-#endif // !FEATURE_WAITHANDLE_DISPOSE
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Messages;
 
@@ -305,62 +302,5 @@ namespace Renci.SshNet.Common
                 return false;
             return socket.Connected;
         }
-
-#if !FEATURE_SOCKET_DISPOSE
-        /// <summary>
-        /// Disposes the specified socket.
-        /// </summary>
-        /// <param name="socket">The socket.</param>
-        [DebuggerNonUserCode]
-        internal static void Dispose(this Socket socket)
-        {
-            if (socket == null)
-                throw new NullReferenceException();
-
-            socket.Close();
-        }
-#endif // !FEATURE_SOCKET_DISPOSE
-
-#if !FEATURE_WAITHANDLE_DISPOSE
-        /// <summary>
-        /// Disposes the specified handle.
-        /// </summary>
-        /// <param name="handle">The handle.</param>
-        [DebuggerNonUserCode]
-        internal static void Dispose(this WaitHandle handle)
-        {
-            if (handle == null)
-                throw new NullReferenceException();
-
-            handle.Close();
-        }
-#endif // !FEATURE_WAITHANDLE_DISPOSE
-
-#if !FEATURE_HASHALGORITHM_DISPOSE
-        /// <summary>
-        /// Disposes the specified algorithm.
-        /// </summary>
-        /// <param name="algorithm">The algorithm.</param>
-        [DebuggerNonUserCode]
-        internal static void Dispose(this System.Security.Cryptography.HashAlgorithm algorithm)
-        {
-            if (algorithm == null)
-                throw new NullReferenceException();
-
-            algorithm.Clear();
-        }
-#endif // FEATURE_HASHALGORITHM_DISPOSE
-
-#if !FEATURE_STRINGBUILDER_CLEAR
-        /// <summary>
-        /// Clears the contents of the string builder.
-        /// </summary>
-        /// <param name="value">The <see cref="StringBuilder"/> to clear.</param>
-        public static void Clear(this StringBuilder value)
-        {
-            value.Length = 0;
-            value.Capacity = 16;
-        }
-#endif // !FEATURE_STRINGBUILDER_CLEAR
     }
 }

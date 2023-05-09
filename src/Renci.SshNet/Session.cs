@@ -16,9 +16,7 @@ using System.Globalization;
 using System.Linq;
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Security.Cryptography;
-#if FEATURE_TAP
 using System.Threading.Tasks;
-#endif
 
 namespace Renci.SshNet
 {
@@ -172,13 +170,11 @@ namespace Renci.SshNet
         /// </summary>
         private Socket _socket;
 
-#if FEATURE_SOCKET_POLL
         /// <summary>
         /// Holds an object that is used to ensure only a single thread can read from
         /// <see cref="_socket"/> at any given time.
         /// </summary>
         private readonly object _socketReadLock = new object();
-#endif // FEATURE_SOCKET_POLL
 
         /// <summary>
         /// Holds an object that is used to ensure only a single thread can write to
@@ -673,7 +669,6 @@ namespace Renci.SshNet
             }
         }
 
-#if FEATURE_TAP
         /// <summary>
         /// Asynchronously connects to the server.
         /// </summary>
@@ -777,7 +772,6 @@ namespace Renci.SshNet
             RegisterMessage("SSH_MSG_CHANNEL_EOF");
             RegisterMessage("SSH_MSG_CHANNEL_CLOSE");
         }
-#endif
 
         /// <summary>
         /// Disconnects from the server.
@@ -1150,13 +1144,11 @@ namespace Renci.SshNet
             byte[] data;
             uint packetLength;
 
-#if FEATURE_SOCKET_POLL
             // avoid reading from socket while IsSocketConnected is attempting to determine whether the
             // socket is still connected by invoking Socket.Poll(...) and subsequently verifying value of
             // Socket.Available
             lock (_socketReadLock)
             {
-#endif // FEATURE_SOCKET_POLL
                 //  Read first block - which starts with the packet length
                 var firstBlock = new byte[blockSize];
                 if (TrySocketRead(socket, firstBlock, 0, blockSize) == 0)
@@ -1204,9 +1196,7 @@ namespace Renci.SshNet
                         return null;
                     }
                 }
-#if FEATURE_SOCKET_POLL
             }
-#endif // FEATURE_SOCKET_POLL
 
             if (_serverCipher != null)
             {
@@ -1767,7 +1757,6 @@ namespace Renci.SshNet
 
         #endregion
 
-#if FEATURE_SOCKET_POLL
         /// <summary>
         /// Gets a value indicating whether the socket is connected.
         /// </summary>
@@ -1807,23 +1796,10 @@ namespace Renci.SshNet
         /// we synchronize reads from the <see cref="Socket"/>.
         /// </para>
         /// </remarks>
-#else
-        /// <summary>
-        /// Gets a value indicating whether the socket is connected.
-        /// </summary>
-        /// <returns>
-        /// <c>true</c> if the socket is connected; otherwise, <c>false</c>.
-        /// </returns>
-        /// <remarks>
-        /// We verify whether <see cref="Socket.Connected"/> is <c>true</c>. However, this only returns the state
-        /// of the socket as of the last I/O operation.
-        /// </remarks>
-#endif
         private bool IsSocketConnected()
         {
             lock (_socketDisposeLock)
             {
-#if FEATURE_SOCKET_POLL
                 if (!_socket.IsConnected())
                 {
                     return false;
@@ -1834,9 +1810,6 @@ namespace Renci.SshNet
                     var connectionClosedOrDataAvailable = _socket.Poll(0, SelectMode.SelectRead);
                     return !(connectionClosedOrDataAvailable && _socket.Available == 0);
                 }
-#else
-                return _socket.IsConnected();
-#endif // FEATURE_SOCKET_POLL
             }
         }
 
@@ -1915,10 +1888,8 @@ namespace Renci.SshNet
                         break;
                     }
 
-#if FEATURE_SOCKET_POLL || FEATURE_SOCKET_SELECT
                     try
                     {
-#if FEATURE_SOCKET_POLL
                         // Block until either data is available or the socket is closed
                         var connectionClosedOrDataAvailable = socket.Poll(-1, SelectMode.SelectRead);
                         if (connectionClosedOrDataAvailable && socket.Available == 0)
@@ -1926,43 +1897,6 @@ namespace Renci.SshNet
                             // connection with SSH server was closed or connection was reset
                             break;
                         }
-#elif FEATURE_SOCKET_SELECT
-                        var readSockets = new List<Socket> { socket };
-
-                        // if the socket is already disposed when Select is invoked, then a SocketException
-                        // stating "An operation was attempted on something that is not a socket" is thrown;
-                        // we attempt to avoid this exception by having an IsConnected() that can break the
-                        // message loop
-                        //
-                        // note that there's no guarantee that the socket will not be disposed between the
-                        // IsConnected() check and the Select invocation; we can't take a "dispose" lock
-                        // that includes the Select invocation as we want Dispose() to be able to interrupt
-                        // the Select
-
-                        // perform a blocking select to determine whether there's is data available to be
-                        // read; we do not use a blocking read to allow us to use Socket.Poll to determine
-                        // if the connection is still available (in IsSocketConnected)
-
-                        Socket.Select(readSockets, null, null, -1);
-
-                        // the Select invocation will be interrupted in one of the following conditions:
-                        // * data is available to be read
-                        //   => the socket will not be removed from "readSockets"
-                        // * the socket connection is closed during the Select invocation
-                        //   => the socket will be removed from "readSockets"
-                        // * the socket is disposed during the Select invocation
-                        //   => the socket will not be removed from "readSocket"
-                        // 
-                        // since we handle the second and third condition the same way and Socket.Connected
-                        // allows us to check for both conditions, we use that instead of both checking for
-                        // the removal from "readSockets" and the Connection check
-                        if (!socket.IsConnected())
-                        {
-                            // connection with SSH server was closed or socket was disposed;
-                            // break out of the message loop
-                            break;
-                        }
-#endif // FEATURE_SOCKET_SELECT
                     }
                     catch (ObjectDisposedException)
                     {
@@ -1972,7 +1906,6 @@ namespace Renci.SshNet
                         // * a SSH_MSG_DISCONNECT received from server
                         break;
                     }
-#endif // FEATURE_SOCKET_POLL || FEATURE_SOCKET_SELECT
 
                     var message = ReceiveMessage(socket);
                     if (message == null)

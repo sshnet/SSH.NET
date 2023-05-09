@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Threading;
-#if !FEATURE_WAITHANDLE_DISPOSE
-using Renci.SshNet.Common;
-#endif // !FEATURE_WAITHANDLE_DISPOSE
 using Renci.SshNet.Messages.Authentication;
 using Renci.SshNet.Messages;
 

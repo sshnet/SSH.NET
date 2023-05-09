@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Net.Sockets;
 using System.Threading;
-#if FEATURE_TAP
 using System.Threading.Tasks;
-#endif
+
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Transport;
@@ -242,7 +241,6 @@ namespace Renci.SshNet
             StartKeepAliveTimer();
         }
 
-#if FEATURE_TAP
         /// <summary>
         /// Asynchronously connects client to the server.
         /// </summary>
@@ -297,7 +295,6 @@ namespace Renci.SshNet
             }
             StartKeepAliveTimer();
         }
-#endif
 
         /// <summary>
         /// Disconnects client from the server.
@@ -533,7 +530,6 @@ namespace Renci.SshNet
             }
         }
 
-#if FEATURE_TAP
         private async Task<ISession> CreateAndConnectSessionAsync(CancellationToken cancellationToken)
         {
             var session = _serviceFactory.CreateSession(ConnectionInfo, _serviceFactory.CreateSocketFactory());
@@ -551,7 +547,6 @@ namespace Renci.SshNet
                 throw;
             }
         }
-#endif
 
         private void DisposeSession(ISession session)
         {

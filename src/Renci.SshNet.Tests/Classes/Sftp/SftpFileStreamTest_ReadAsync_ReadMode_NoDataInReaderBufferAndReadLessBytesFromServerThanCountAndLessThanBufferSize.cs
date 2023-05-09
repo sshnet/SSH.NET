@@ -1,5 +1,4 @@
-﻿#if FEATURE_TAP
-using System;
+﻿using System;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -149,4 +148,3 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         }
     }
 }
-#endif

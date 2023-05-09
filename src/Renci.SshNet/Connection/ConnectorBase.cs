@@ -5,10 +5,7 @@ using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
-
-#if FEATURE_TAP
 using System.Threading.Tasks;
-#endif
 
 namespace Renci.SshNet.Connection
 {
@@ -26,9 +23,7 @@ namespace Renci.SshNet.Connection
 
         public abstract Socket Connect(IConnectionInfo connectionInfo);
 
-#if FEATURE_TAP
         public abstract Task<Socket> ConnectAsync(IConnectionInfo connectionInfo, CancellationToken cancellationToken);
-#endif
 
         /// <summary>
         /// Establishes a socket connection to the specified host and port.
@@ -63,7 +58,6 @@ namespace Renci.SshNet.Connection
             }
         }
 
-#if FEATURE_TAP
         /// <summary>
         /// Establishes a socket connection to the specified host and port.
         /// </summary>
@@ -97,7 +91,6 @@ namespace Renci.SshNet.Connection
                 throw;
             }
         }
-#endif
 
         protected static byte SocketReadByte(Socket socket)
         {

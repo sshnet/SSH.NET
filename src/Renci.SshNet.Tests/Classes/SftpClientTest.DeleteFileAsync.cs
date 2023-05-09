@@ -1,5 +1,4 @@
-﻿#if FEATURE_TAP
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Renci.SshNet.Tests.Properties;
 using System;
 using System.Threading.Tasks;
@@ -24,4 +23,3 @@ namespace Renci.SshNet.Tests.Classes
         }
     }
 }
-#endif

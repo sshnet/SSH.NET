@@ -3,9 +3,7 @@ using System.IO;
 using System.Threading;
 using System.Diagnostics.CodeAnalysis;
 using Renci.SshNet.Common;
-#if FEATURE_TAP
 using System.Threading.Tasks;
-#endif
 
 namespace Renci.SshNet.Sftp
 {
@@ -293,7 +291,6 @@ namespace Renci.SshNet.Sftp
             }
         }
 
-#if FEATURE_TAP
         internal static async Task<SftpFileStream> OpenAsync(ISftpSession session, string path, FileMode mode, FileAccess access, int bufferSize, CancellationToken cancellationToken)
         {
             if (session == null)
@@ -390,7 +387,6 @@ namespace Renci.SshNet.Sftp
 
             return new SftpFileStream(session, path, access, bufferSize, handle, position);
         }
-#endif
 
         /// <summary>
         /// Releases unmanaged resources and performs other cleanup operations before the
@@ -423,7 +419,6 @@ namespace Renci.SshNet.Sftp
             }
         }
 
-#if FEATURE_TAP
         /// <summary>
         /// Asynchronously clears all buffers for this stream and causes any buffered data to be written to the file.
         /// </summary>
@@ -446,7 +441,6 @@ namespace Renci.SshNet.Sftp
 
             return Task.CompletedTask;
         }
-#endif
 
         /// <summary>
         /// Reads a sequence of bytes from the current stream and advances the position within the stream by the
@@ -588,7 +582,6 @@ namespace Renci.SshNet.Sftp
             return readLen;
         }
 
-#if FEATURE_TAP
         /// <summary>
         /// Asynchronously reads a sequence of bytes from the current stream and advances the position within the stream by the
         /// number of bytes read.
@@ -700,7 +693,6 @@ namespace Renci.SshNet.Sftp
             // return the number of bytes that were read to the caller.
             return readLen;
         }
-#endif
 
         /// <summary>
         /// Reads a byte from the stream and advances the position within the stream by one byte, or returns -1 if at the end of the stream.
@@ -986,7 +978,7 @@ namespace Renci.SshNet.Sftp
             }
         }
 
-#if FEATURE_TAP
+
         /// <summary>
         /// Asynchronously writes a sequence of bytes to the current stream and advances the current position within this stream by the number of bytes written.
         /// </summary>
@@ -1062,7 +1054,6 @@ namespace Renci.SshNet.Sftp
                 _bufferPosition = 0;
             }
         }
-#endif
 
         /// <summary>
         /// Writes a byte to the current position in the stream and advances the position within the stream by one byte.
@@ -1181,7 +1172,6 @@ namespace Renci.SshNet.Sftp
             }
         }
 
-#if FEATURE_TAP
         private async Task FlushWriteBufferAsync(CancellationToken cancellationToken)
         {
             if (_bufferPosition > 0)
@@ -1190,7 +1180,6 @@ namespace Renci.SshNet.Sftp
                 _bufferPosition = 0;
             }
         }
-#endif
 
         /// <summary>
         /// Setups the read.

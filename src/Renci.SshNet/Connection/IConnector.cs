@@ -7,8 +7,6 @@ namespace Renci.SshNet.Connection
     {
         Socket Connect(IConnectionInfo connectionInfo);
 
-#if FEATURE_TAP
         System.Threading.Tasks.Task<Socket> ConnectAsync(IConnectionInfo connectionInfo, CancellationToken cancellationToken);
-#endif
     }
 }

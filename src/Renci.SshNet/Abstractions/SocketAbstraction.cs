@@ -3,9 +3,8 @@ using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
-#if FEATURE_TAP
 using System.Threading.Tasks;
-#endif
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages.Transport;
 
@@ -17,11 +16,7 @@ namespace Renci.SshNet.Abstractions
         {
             if (socket.Connected)
             {
-#if FEATURE_SOCKET_POLL
                 return socket.Poll(-1, SelectMode.SelectRead) && socket.Available > 0;
-#else
-                return true;
-#endif // FEATURE_SOCKET_POLL
             }
 
             return false;
@@ -40,11 +35,7 @@ namespace Renci.SshNet.Abstractions
         {
             if (socket != null && socket.Connected)
             {
-#if FEATURE_SOCKET_POLL
                 return socket.Poll(-1, SelectMode.SelectWrite);
-#else
-                return true;
-#endif // FEATURE_SOCKET_POLL
             }
 
             return false;
@@ -62,12 +53,10 @@ namespace Renci.SshNet.Abstractions
             ConnectCore(socket, remoteEndpoint, connectTimeout, false);
         }
 
-#if FEATURE_TAP
         public static async Task ConnectAsync(Socket socket, IPEndPoint remoteEndpoint, CancellationToken cancellationToken)
         {
             await socket.ConnectAsync(remoteEndpoint, cancellationToken).ConfigureAwait(false);
         }
-#endif
 
         private static void ConnectCore(Socket socket, IPEndPoint remoteEndpoint, TimeSpan connectTimeout, bool ownsSocket)
         {
@@ -153,7 +142,6 @@ namespace Renci.SshNet.Abstractions
 
         public static int ReadPartial(Socket socket, byte[] buffer, int offset, int size, TimeSpan timeout)
         {
-#if FEATURE_SOCKET_SYNC
             socket.ReceiveTimeout = (int) timeout.TotalMilliseconds;
 
             try
@@ -167,53 +155,10 @@ namespace Renci.SshNet.Abstractions
                         "Socket read operation has timed out after {0:F0} milliseconds.", timeout.TotalMilliseconds));
                 throw;
             }
-#elif FEATURE_SOCKET_EAP
-            var receiveCompleted = new ManualResetEvent(false);
-            var sendReceiveToken = new PartialSendReceiveToken(socket, receiveCompleted);
-            var args = new SocketAsyncEventArgs
-                {
-                    RemoteEndPoint = socket.RemoteEndPoint,
-                    UserToken = sendReceiveToken
-                };
-            args.Completed += ReceiveCompleted;
-            args.SetBuffer(buffer, offset, size);
-
-            try
-            {
-                if (socket.ReceiveAsync(args))
-                {
-                    if (!receiveCompleted.WaitOne(timeout))
-                        throw new SshOperationTimeoutException(
-                            string.Format(
-                                CultureInfo.InvariantCulture,
-                                "Socket read operation has timed out after {0:F0} milliseconds.",
-                                timeout.TotalMilliseconds));
-                }
-                else
-                {
-                    sendReceiveToken.Process(args);
-                }
-
-                if (args.SocketError != SocketError.Success)
-                    throw new SocketException((int) args.SocketError);
-
-                return args.BytesTransferred;
-            }
-            finally
-            {
-                // initialize token to avoid the waithandle getting used after it's disposed
-                args.UserToken = null;
-                args.Dispose();
-                receiveCompleted.Dispose();
-            }
-#else
-            #error Receiving data from a Socket is not implemented.
-#endif
         }
 
         public static void ReadContinuous(Socket socket, byte[] buffer, int offset, int size, Action<byte[], int, int> processReceivedBytesAction)
         {
-#if FEATURE_SOCKET_SYNC
             // do not time-out receive
             socket.ReceiveTimeout = 0;
 
@@ -247,30 +192,6 @@ namespace Renci.SshNet.Abstractions
                     }
                 }
             }
-#elif FEATURE_SOCKET_EAP
-            var completionWaitHandle = new ManualResetEvent(false);
-            var readToken = new ContinuousReceiveToken(socket, processReceivedBytesAction, completionWaitHandle);
-            var args = new SocketAsyncEventArgs
-            {
-                RemoteEndPoint = socket.RemoteEndPoint,
-                UserToken = readToken
-            };
-            args.Completed += ReceiveCompleted;
-            args.SetBuffer(buffer, offset, size);
-
-            if (!socket.ReceiveAsync(args))
-            {
-                ReceiveCompleted(null, args);
-            }
-
-            completionWaitHandle.WaitOne();
-            completionWaitHandle.Dispose();
-
-            if (readToken.Exception != null)
-                throw readToken.Exception;
-#else
-            #error Receiving data from a Socket is not implemented.
-#endif
         }
 
         /// <summary>
@@ -327,12 +248,10 @@ namespace Renci.SshNet.Abstractions
             return buffer;
         }
 
-#if FEATURE_TAP
         public static Task<int> ReadAsync(Socket socket, byte[] buffer, int offset, int length, CancellationToken cancellationToken)
         {
             return socket.ReceiveAsync(buffer, offset, length, cancellationToken);
         }
-#endif
 
         /// <summary>
         /// Receives data from a bound <see cref="Socket"/> into a receive buffer.
@@ -358,7 +277,6 @@ namespace Renci.SshNet.Abstractions
         /// </remarks>
         public static int Read(Socket socket, byte[] buffer, int offset, int size, TimeSpan readTimeout)
         {
-#if FEATURE_SOCKET_SYNC
             var totalBytesRead = 0;
             var totalBytesToRead = size;
 
@@ -386,52 +304,12 @@ namespace Renci.SshNet.Abstractions
                         throw new SshOperationTimeoutException(string.Format(CultureInfo.InvariantCulture,
                             "Socket read operation has timed out after {0:F0} milliseconds.", readTimeout.TotalMilliseconds));
 
-                     throw;
+                    throw;
                 }
             }
             while (totalBytesRead < totalBytesToRead);
 
             return totalBytesRead;
-#elif FEATURE_SOCKET_EAP
-            var receiveCompleted = new ManualResetEvent(false);
-            var sendReceiveToken = new BlockingSendReceiveToken(socket, buffer, offset, size, receiveCompleted);
-
-            var args = new SocketAsyncEventArgs
-                {
-                    UserToken = sendReceiveToken,
-                    RemoteEndPoint = socket.RemoteEndPoint
-                };
-            args.Completed += ReceiveCompleted;
-            args.SetBuffer(buffer, offset, size);
-
-            try
-            {
-                if (socket.ReceiveAsync(args))
-                {
-                    if (!receiveCompleted.WaitOne(readTimeout))
-                        throw new SshOperationTimeoutException(string.Format(CultureInfo.InvariantCulture,
-                            "Socket read operation has timed out after {0:F0} milliseconds.", readTimeout.TotalMilliseconds));
-                }
-                else
-                {
-                    sendReceiveToken.Process(args);
-                }
-
-                if (args.SocketError != SocketError.Success)
-                        throw new SocketException((int) args.SocketError);
-
-                return sendReceiveToken.TotalBytesTransferred;
-            }
-            finally
-            {
-                // initialize token to avoid the waithandle getting used after it's disposed
-                args.UserToken = null;
-                args.Dispose();
-                receiveCompleted.Dispose();
-            }
-#else
-#error Receiving data from a Socket is not implemented.
-#endif
         }
 
         public static void Send(Socket socket, byte[] data)
@@ -441,7 +319,6 @@ namespace Renci.SshNet.Abstractions
 
         public static void Send(Socket socket, byte[] data, int offset, int size)
         {
-#if FEATURE_SOCKET_SYNC
             var totalBytesSent = 0;  // how many bytes are already sent
             var totalBytesToSend = size;
 
@@ -467,46 +344,6 @@ namespace Renci.SshNet.Abstractions
                         throw;  // any serious error occurr
                 }
             } while (totalBytesSent < totalBytesToSend);
-#elif FEATURE_SOCKET_EAP
-            var sendCompleted = new ManualResetEvent(false);
-            var sendReceiveToken = new BlockingSendReceiveToken(socket, data, offset, size, sendCompleted);
-            var socketAsyncSendArgs = new SocketAsyncEventArgs
-                {
-                    RemoteEndPoint = socket.RemoteEndPoint,
-                    UserToken = sendReceiveToken
-                };
-            socketAsyncSendArgs.SetBuffer(data, offset, size);
-            socketAsyncSendArgs.Completed += SendCompleted;
-
-            try
-            {
-                if (socket.SendAsync(socketAsyncSendArgs))
-                {
-                    if (!sendCompleted.WaitOne())
-                        throw new SocketException((int) SocketError.TimedOut);
-                }
-                else
-                {
-                    sendReceiveToken.Process(socketAsyncSendArgs);
-                }
-
-                if (socketAsyncSendArgs.SocketError != SocketError.Success)
-                    throw new SocketException((int) socketAsyncSendArgs.SocketError);
-
-                if (sendReceiveToken.TotalBytesTransferred == 0)
-                    throw new SshConnectionException("An established connection was aborted by the server.",
-                                                     DisconnectReason.ConnectionLost);
-            }
-            finally
-            {
-                // initialize token to avoid the completion waithandle getting used after it's disposed
-                socketAsyncSendArgs.UserToken = null;
-                socketAsyncSendArgs.Dispose();
-                sendCompleted.Dispose();
-            }
-#else
-            #error Sending data to a Socket is not implemented.
-#endif
         }
 
         public static bool IsErrorResumable(SocketError socketError)
@@ -531,199 +368,5 @@ namespace Renci.SshNet.Abstractions
         }
 #endif // FEATURE_SOCKET_EAP
 
-#if FEATURE_SOCKET_EAP && !FEATURE_SOCKET_SYNC
-        private static void ReceiveCompleted(object sender, SocketAsyncEventArgs e)
-        {
-            var sendReceiveToken = (Token) e.UserToken;
-            if (sendReceiveToken != null)
-                sendReceiveToken.Process(e);
-        }
-
-        private static void SendCompleted(object sender, SocketAsyncEventArgs e)
-        {
-            var sendReceiveToken = (Token) e.UserToken;
-            if (sendReceiveToken != null)
-                sendReceiveToken.Process(e);
-        }
-
-        private interface Token
-        {
-            void Process(SocketAsyncEventArgs args);
-        }
-
-        private class BlockingSendReceiveToken : Token
-        {
-            public BlockingSendReceiveToken(Socket socket, byte[] buffer, int offset, int size, EventWaitHandle completionWaitHandle)
-            {
-                _socket = socket;
-                _buffer = buffer;
-                _offset = offset;
-                _bytesToTransfer = size;
-                _completionWaitHandle = completionWaitHandle;
-            }
-
-            public void Process(SocketAsyncEventArgs args)
-            {
-                if (args.SocketError == SocketError.Success)
-                {
-                    TotalBytesTransferred += args.BytesTransferred;
-
-                    if (TotalBytesTransferred == _bytesToTransfer)
-                    {
-                        // finished transferring specified bytes
-                        _completionWaitHandle.Set();
-                        return;
-                    }
-
-                    if (args.BytesTransferred == 0)
-                    {
-                        // remote server closed the connection
-                        _completionWaitHandle.Set();
-                        return;
-                    }
-
-                    _offset += args.BytesTransferred;
-                    args.SetBuffer(_buffer, _offset, _bytesToTransfer - TotalBytesTransferred);
-                    ResumeOperation(args);
-                    return;
-                }
-
-                if (IsErrorResumable(args.SocketError))
-                {
-                    ThreadAbstraction.Sleep(30);
-                    ResumeOperation(args);
-                    return;
-                }
-
-                // we're dealing with a (fatal) error
-                _completionWaitHandle.Set();
-            }
-
-            private void ResumeOperation(SocketAsyncEventArgs args)
-            {
-                switch (args.LastOperation)
-                {
-                    case SocketAsyncOperation.Receive:
-                        _socket.ReceiveAsync(args);
-                        break;
-                    case SocketAsyncOperation.Send:
-                        _socket.SendAsync(args);
-                        break;
-                }
-            }
-
-            private readonly int _bytesToTransfer;
-            public int TotalBytesTransferred { get; private set; }
-            private readonly EventWaitHandle _completionWaitHandle;
-            private readonly Socket _socket;
-            private readonly byte[] _buffer;
-            private int _offset;
-        }
-
-        private class PartialSendReceiveToken : Token
-        {
-            public PartialSendReceiveToken(Socket socket, EventWaitHandle completionWaitHandle)
-            {
-                _socket = socket;
-                _completionWaitHandle = completionWaitHandle;
-            }
-
-            public void Process(SocketAsyncEventArgs args)
-            {
-                if (args.SocketError == SocketError.Success)
-                {
-                    _completionWaitHandle.Set();
-                    return;
-                }
-
-                if (IsErrorResumable(args.SocketError))
-                {
-                    ThreadAbstraction.Sleep(30);
-                    ResumeOperation(args);
-                    return;
-                }
-
-                // we're dealing with a (fatal) error
-                _completionWaitHandle.Set();
-            }
-
-            private void ResumeOperation(SocketAsyncEventArgs args)
-            {
-                switch (args.LastOperation)
-                {
-                    case SocketAsyncOperation.Receive:
-                        _socket.ReceiveAsync(args);
-                        break;
-                    case SocketAsyncOperation.Send:
-                        _socket.SendAsync(args);
-                        break;
-                }
-            }
-
-            private readonly EventWaitHandle _completionWaitHandle;
-            private readonly Socket _socket;
-        }
-
-        private class ContinuousReceiveToken : Token
-        {
-            public ContinuousReceiveToken(Socket socket, Action<byte[], int, int> processReceivedBytesAction, EventWaitHandle completionWaitHandle)
-            {
-                _socket = socket;
-                _processReceivedBytesAction = processReceivedBytesAction;
-                _completionWaitHandle = completionWaitHandle;
-            }
-
-            public Exception Exception { get; private set; }
-
-            public void Process(SocketAsyncEventArgs args)
-            {
-                if (args.SocketError == SocketError.Success)
-                {
-                    if (args.BytesTransferred == 0)
-                    {
-                        // remote socket was closed
-                        _completionWaitHandle.Set();
-                        return;
-                    }
-
-                    _processReceivedBytesAction(args.Buffer, args.Offset, args.BytesTransferred);
-                    ResumeOperation(args);
-                    return;
-                }
-
-                if (IsErrorResumable(args.SocketError))
-                {
-                    ThreadAbstraction.Sleep(30);
-                    ResumeOperation(args);
-                    return;
-                }
-
-                if (args.SocketError != SocketError.OperationAborted)
-                {
-                    Exception = new SocketException((int) args.SocketError);
-                }
-
-                // we're dealing with a (fatal) error
-                _completionWaitHandle.Set();
-            }
-
-            private void ResumeOperation(SocketAsyncEventArgs args)
-            {
-                switch (args.LastOperation)
-                {
-                    case SocketAsyncOperation.Receive:
-                        _socket.ReceiveAsync(args);
-                        break;
-                    case SocketAsyncOperation.Send:
-                        _socket.SendAsync(args);
-                        break;
-                }
-            }
-
-            private readonly EventWaitHandle _completionWaitHandle;
-            private readonly Socket _socket;
-            private readonly Action<byte[], int, int> _processReceivedBytesAction;
-        }
-#endif // FEATURE_SOCKET_EAP && !FEATURE_SOCKET_SYNC
     }
 }

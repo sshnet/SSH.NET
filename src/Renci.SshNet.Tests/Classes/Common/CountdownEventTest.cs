@@ -2,9 +2,6 @@
 using System.Diagnostics;
 using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-#if !FEATURE_THREAD_COUNTDOWNEVENT
-using CountdownEvent = Renci.SshNet.Common.CountdownEvent;
-#endif
 
 namespace Renci.SshNet.Tests.Classes.Common
 {

@@ -6,9 +6,7 @@ using Renci.SshNet.Common;
 using Renci.SshNet.Messages;
 using Renci.SshNet.Messages.Authentication;
 using Renci.SshNet.Messages.Connection;
-#if FEATURE_TAP
 using System.Threading.Tasks;
-#endif
 
 namespace Renci.SshNet
 {
@@ -57,7 +55,6 @@ namespace Renci.SshNet
         /// <exception cref="ProxyException">Failed to establish proxy connection.</exception>
         void Connect();
 
-#if FEATURE_TAP
         /// <summary>
         /// Asynchronously connects to the server.
         /// </summary>
@@ -68,7 +65,6 @@ namespace Renci.SshNet
         /// <exception cref="SshAuthenticationException">Authentication of SSH session failed.</exception>
         /// <exception cref="ProxyException">Failed to establish proxy connection.</exception>
         Task ConnectAsync(CancellationToken cancellationToken);
-#endif
 
         /// <summary>
         /// Create a new SSH session channel.

@@ -5,7 +5,7 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <AssemblyName>Renci.SshNet</AssemblyName>
     <AssemblyOriginatorKeyFile>../Renci.SshNet.snk</AssemblyOriginatorKeyFile>
-    <LangVersion>6</LangVersion>
+    <LangVersion>7.3</LangVersion>
     <SignAssembly>true</SignAssembly>
     <TargetFrameworks>net462;netstandard2.0;net6.0;net7.0</TargetFrameworks>
   </PropertyGroup>
@@ -19,6 +19,6 @@
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'net6.0' or '$(TargetFramework)' == 'net7.0' ">
-    <DefineConstants>FEATURE_DIRECTORYINFO_ENUMERATEFILES;FEATURE_SOCKET_TAP;FEATURE_SOCKET_APM;FEATURE_SOCKET_EAP;FEATURE_DNS_SYNC;FEATURE_DNS_APM;FEATURE_DNS_TAP</DefineConstants>
+    <DefineConstants>FEATURE_SOCKET_TAP;FEATURE_SOCKET_APM;FEATURE_SOCKET_EAP;FEATURE_DNS_SYNC;FEATURE_DNS_APM;FEATURE_DNS_TAP</DefineConstants>
   </PropertyGroup>
 </Project>

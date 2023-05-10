@@ -2074,60 +2074,68 @@ namespace Renci.SshNet
 
             var sourceDirectory = new DirectoryInfo(sourcePath);
 
-            var sourceFiles = FileSystemAbstraction.EnumerateFiles(sourceDirectory, searchPattern).ToList();
-            if (sourceFiles.Count == 0)
-                return uploadedFiles;
-
-            #region Existing Files at The Destination
-
-            var destFiles = InternalListDirectory(destinationPath, null);
-            var destDict = new Dictionary<string, ISftpFile>();
-            foreach (var destFile in destFiles)
+            using (var sourceFiles = sourceDirectory.EnumerateFiles(searchPattern).GetEnumerator())
             {
-                if (destFile.IsDirectory)
-                    continue;
-                destDict.Add(destFile.Name, destFile);
-            }
+                if(!sourceFiles.MoveNext())
+                    return uploadedFiles;
 
-            #endregion
+                #region Existing Files at The Destination
 
-            #region Upload the difference
-
-            const Flags uploadFlag = Flags.Write | Flags.Truncate | Flags.CreateNewOrOpen;
-            foreach (var localFile in sourceFiles)
-            {
-                var isDifferent = !destDict.ContainsKey(localFile.Name);
-
-                if (!isDifferent)
+                var destFiles = InternalListDirectory(destinationPath, null);
+                var destDict = new Dictionary<string, ISftpFile>();
+                foreach (var destFile in destFiles)
                 {
-                    var temp = destDict[localFile.Name];
-                    //  TODO:   Use md5 to detect a difference
-                    //ltang: File exists at the destination => Using filesize to detect the difference
-                    isDifferent = localFile.Length != temp.Length;
+                    if (destFile.IsDirectory)
+                        continue;
+                    destDict.Add(destFile.Name, destFile);
                 }
 
-                if (isDifferent)
+                #endregion
+
+                #region Upload the difference
+
+                const Flags uploadFlag = Flags.Write | Flags.Truncate | Flags.CreateNewOrOpen;
+                do
                 {
-                    var remoteFileName = string.Format(CultureInfo.InvariantCulture, @"{0}/{1}", destinationPath, localFile.Name);
-                    try
+                    var localFile = sourceFiles.Current;
+                    if (localFile == null)
                     {
-                        using (var file = File.OpenRead(localFile.FullName))
+                        continue;
+                    }
+
+                    var isDifferent = !destDict.ContainsKey(localFile.Name);
+
+                    if (!isDifferent)
+                    {
+                        var temp = destDict[localFile.Name];
+                        //  TODO:   Use md5 to detect a difference
+                        //ltang: File exists at the destination => Using filesize to detect the difference
+                        isDifferent = localFile.Length != temp.Length;
+                    }
+
+                    if (isDifferent)
+                    {
+                        var remoteFileName = string.Format(CultureInfo.InvariantCulture, @"{0}/{1}", destinationPath, localFile.Name);
+                        try
                         {
-                            InternalUploadFile(file, remoteFileName, uploadFlag, null, null);
+                            using (var file = File.OpenRead(localFile.FullName))
+                            {
+                                InternalUploadFile(file, remoteFileName, uploadFlag, null, null);
+                            }
+
+                            uploadedFiles.Add(localFile);
+
+                            if (asynchResult != null)
+                            {
+                                asynchResult.Update(uploadedFiles.Count);
+                            }
                         }
-
-                        uploadedFiles.Add(localFile);
-
-                        if (asynchResult != null)
+                        catch (Exception ex)
                         {
-                            asynchResult.Update(uploadedFiles.Count);
+                            throw new Exception(string.Format("Failed to upload {0} to {1}", localFile.FullName, remoteFileName), ex);
                         }
                     }
-                    catch (Exception ex)
-                    {
-                        throw new Exception(string.Format("Failed to upload {0} to {1}", localFile.FullName, remoteFileName), ex);
-                    }
-                }
+                } while (sourceFiles.MoveNext());
             }
 
             #endregion

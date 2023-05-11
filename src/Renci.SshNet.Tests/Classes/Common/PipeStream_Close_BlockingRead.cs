@@ -15,6 +15,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         protected override void Arrange()
         {
             _pipeStream = new PipeStream();
+            _pipeStream.BlockLastReadBuffer = true;
 
             _pipeStream.WriteByte(10);
             _pipeStream.WriteByte(13);

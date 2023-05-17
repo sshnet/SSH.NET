@@ -1996,6 +1996,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="sourcePath"/> is <c>null</c>.</exception>
         /// <exception cref="ArgumentException"><paramref name="destinationPath"/> is <c>null</c> or contains only whitespace.</exception>
         /// <exception cref="SftpPathNotFoundException"><paramref name="destinationPath"/> was not found on the remote host.</exception>
+        /// <exception cref="SshException">If a problem occurs while copying the file</exception>
         public IEnumerable<FileInfo> SynchronizeDirectories(string sourcePath, string destinationPath, string searchPattern)
         {
             if (sourcePath == null)
@@ -2019,6 +2020,7 @@ namespace Renci.SshNet
         /// </returns>
         /// <exception cref="ArgumentNullException"><paramref name="sourcePath"/> is <c>null</c>.</exception>
         /// <exception cref="ArgumentException"><paramref name="destinationPath"/> is <c>null</c> or contains only whitespace.</exception>
+        /// <exception cref="SshException">If a problem occurs while copying the file</exception>
         public IAsyncResult BeginSynchronizeDirectories(string sourcePath, string destinationPath, string searchPattern, AsyncCallback asyncCallback, object state)
         {
             if (sourcePath == null)

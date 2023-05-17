@@ -2076,8 +2076,10 @@ namespace Renci.SshNet
 
             using (var sourceFiles = sourceDirectory.EnumerateFiles(searchPattern).GetEnumerator())
             {
-                if(!sourceFiles.MoveNext())
+                if (!sourceFiles.MoveNext())
+                {
                     return uploadedFiles;
+                }
 
                 #region Existing Files at The Destination
 
@@ -2086,7 +2088,10 @@ namespace Renci.SshNet
                 foreach (var destFile in destFiles)
                 {
                     if (destFile.IsDirectory)
+                    {
                         continue;
+                    }
+
                     destDict.Add(destFile.Name, destFile);
                 }
 
@@ -2103,14 +2108,12 @@ namespace Renci.SshNet
                         continue;
                     }
 
-                    var isDifferent = !destDict.ContainsKey(localFile.Name);
-
-                    if (!isDifferent)
+                    var isDifferent = true;
+                    if (destDict.TryGetValue(localFile.Name, out var remoteFile))
                     {
-                        var temp = destDict[localFile.Name];
                         //  TODO:   Use md5 to detect a difference
                         //ltang: File exists at the destination => Using filesize to detect the difference
-                        isDifferent = localFile.Length != temp.Length;
+                        isDifferent = localFile.Length != remoteFile.Length;
                     }
 
                     if (isDifferent)
@@ -2132,10 +2135,11 @@ namespace Renci.SshNet
                         }
                         catch (Exception ex)
                         {
-                            throw new Exception(string.Format("Failed to upload {0} to {1}", localFile.FullName, remoteFileName), ex);
+                            throw new SshException($"Failed to upload {localFile.FullName} to {remoteFileName}", ex);
                         }
                     }
-                } while (sourceFiles.MoveNext());
+                }
+                while (sourceFiles.MoveNext());
             }
 
             #endregion

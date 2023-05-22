@@ -148,7 +148,7 @@ namespace Renci.SshNet
                 }
                 finally
                 {
-                    _dataReaderTaskCompleted.Set();
+                    _dataReaderTaskCompleted?.Set();
                 }
             });
 

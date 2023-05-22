@@ -1,11 +1,12 @@
-﻿using Renci.SshNet.Abstractions;
-using Renci.SshNet.Common;
-using Renci.SshNet.Messages.Transport;
-using System;
+﻿using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
+
+using Renci.SshNet.Abstractions;
+using Renci.SshNet.Common;
+using Renci.SshNet.Messages.Transport;
 
 namespace Renci.SshNet.Connection
 {
@@ -14,7 +15,9 @@ namespace Renci.SshNet.Connection
         protected ConnectorBase(ISocketFactory socketFactory)
         {
             if (socketFactory == null)
-                throw new ArgumentNullException("socketFactory");
+            {
+                throw new ArgumentNullException(nameof(socketFactory));
+            }
 
             SocketFactory = socketFactory;
         }
@@ -95,14 +98,14 @@ namespace Renci.SshNet.Connection
         protected static byte SocketReadByte(Socket socket)
         {
             var buffer = new byte[1];
-            SocketRead(socket, buffer, 0, 1, Session.InfiniteTimeSpan);
+            _ = SocketRead(socket, buffer, 0, 1, Session.InfiniteTimeSpan);
             return buffer[0];
         }
 
         protected static byte SocketReadByte(Socket socket, TimeSpan readTimeout)
         {
             var buffer = new byte[1];
-            SocketRead(socket, buffer, 0, 1, readTimeout);
+            _ = SocketRead(socket, buffer, 0, 1, readTimeout);
             return buffer[0];
         }
 
@@ -145,6 +148,7 @@ namespace Renci.SshNet.Connection
                 throw new SshConnectionException("An established connection was aborted by the server.",
                                                  DisconnectReason.ConnectionLost);
             }
+
             return bytesRead;
         }
     }

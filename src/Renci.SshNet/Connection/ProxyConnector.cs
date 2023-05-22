@@ -3,13 +3,12 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 
-
 namespace Renci.SshNet.Connection
 {
     internal abstract class ProxyConnector : ConnectorBase
     {
-        public ProxyConnector(ISocketFactory socketFactory) :
-            base(socketFactory)
+        public ProxyConnector(ISocketFactory socketFactory)
+            : base(socketFactory)
         {
         }
 
@@ -20,10 +19,11 @@ namespace Renci.SshNet.Connection
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            using (cancellationToken.Register(o => ((Socket)o).Dispose(), socket, false))
+            using (cancellationToken.Register(o => ((Socket)o).Dispose(), socket, useSynchronizationContext: false))
             {
                 HandleProxyConnect(connectionInfo, socket);
             }
+
             return Task.CompletedTask;
         }
 

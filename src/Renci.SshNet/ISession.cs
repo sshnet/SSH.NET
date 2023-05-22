@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Net.Sockets;
 using System.Threading;
+using System.Threading.Tasks;
+
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
 using Renci.SshNet.Messages;
 using Renci.SshNet.Messages.Authentication;
 using Renci.SshNet.Messages.Connection;
-using System.Threading.Tasks;
 
 namespace Renci.SshNet
 {

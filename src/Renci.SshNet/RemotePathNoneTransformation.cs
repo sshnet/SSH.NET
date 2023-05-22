@@ -23,7 +23,7 @@ namespace Renci.SshNet
         {
             if (path == null)
             {
-                throw new ArgumentNullException("path");
+                throw new ArgumentNullException(nameof(path));
             }
 
             return path;

@@ -3,7 +3,7 @@
 namespace Renci.SshNet.Security.Cryptography.Ciphers
 {
     /// <summary>
-    /// Implements Twofish cipher algorithm
+    /// Implements Twofish cipher algorithm.
     /// </summary>
     public sealed class TwofishCipher : BlockCipher
     {
@@ -20,10 +20,10 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         {
             var keySize = key.Length * 8;
 
-            if (!(keySize == 128 || keySize == 192 || keySize == 256))
+            if (keySize is not (128 or 192 or 256))
+            {
                 throw new ArgumentException(string.Format("KeySize '{0}' is not valid for this algorithm.", keySize));
-
-            //  TODO:   Refactor this algorithm
+            }
 
             // calculate the MDS matrix
             var m1 = new int[2];
@@ -139,8 +139,6 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             return BlockSize;
         }
 
-        #region Static Definition Tables
-
         private static readonly byte[] P =
             {
                 // p0
@@ -160,6 +158,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 0x57, 0xC7, 0x8D, 0x74, 0xB7, 0xC4, 0x9F, 0x72, 0x7E, 0x15, 0x22, 0x12, 0x58, 0x07, 0x99, 0x34,
                 0x6E, 0x50, 0xDE, 0x68, 0x65, 0xBC, 0xDB, 0xF8, 0xC8, 0xA8, 0x2B, 0x40, 0xDC, 0xFE, 0x32, 0xA4,
                 0xCA, 0x10, 0x21, 0xF0, 0xD3, 0x5D, 0x0F, 0x00, 0x6F, 0x9D, 0x36, 0x42, 0x4A, 0x5E, 0xC1, 0xE0,
+
                 // p1
                 0x75, 0xF3, 0xC6, 0xF4, 0xDB, 0x7B, 0xFB, 0xC8, 0x4A, 0xD3, 0xE6, 0x6B, 0x45, 0x7D, 0xE8, 0x4B,
                 0xD6, 0x32, 0xD8, 0xFD, 0x37, 0x71, 0xF1, 0xE1, 0x30, 0x0F, 0xF8, 0x1B, 0x87, 0xFA, 0x06, 0x3F,
@@ -179,13 +178,11 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 0xD7, 0x61, 0x1E, 0xB4, 0x50, 0x04, 0xF6, 0xC2, 0x16, 0x25, 0x86, 0x56, 0x55, 0x09, 0xBE, 0x91
             };
 
-        #endregion
-
         /**
-		* Define the fixed p0/p1 permutations used in keyed S-box lookup.
-		* By changing the following constant definitions, the S-boxes will
-		* automatically Get changed in the Twofish engine.
-		*/
+         * Define the fixed p0/p1 permutations used in keyed S-box lookup.
+         * By changing the following constant definitions, the S-boxes will
+         * automatically Get changed in the Twofish engine.
+         */
         private const int P_00 = 1;
         private const int P_01 = 0;
         private const int P_02 = 0;
@@ -217,10 +214,6 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
         private const int RS_GF_FDBK = 0x14D; // field generator
 
-        //====================================
-        // Useful constants
-        //====================================
-
         private const int ROUNDS = 16;
         private const int MAX_ROUNDS = 16;  // bytes = 128 bits
         private const int MAX_KEY_BITS = 256;
@@ -240,14 +233,14 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         private readonly int[] gMDS2 = new int[MAX_KEY_BITS];
         private readonly int[] gMDS3 = new int[MAX_KEY_BITS];
 
+        private readonly int _k64Cnt;
+
         /**
         * gSubKeys[] and gSBox[] are eventually used in the
         * encryption and decryption methods.
         */
         private int[] gSubKeys;
         private int[] gSBox;
-
-        private readonly int _k64Cnt;
 
         private void SetKey(byte[] key)
         {
@@ -387,6 +380,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                     gMDS3[(P[P_31 * 256 + (P[P_32 * 256 + b3] & 0xff) ^ M_b3(k1)] & 0xff) ^ M_b3(k0)];
                     break;
             }
+
             return result;
         }
 
@@ -402,6 +396,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         private static int RS_MDS_Encode(int k0, int k1)
         {
             var r = k1;
+
             // shift 1 byte at a time
             r = RS_rem(r);
             r = RS_rem(r);
@@ -432,7 +427,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                     ((b & 0x80) != 0 ? RS_GF_FDBK : 0)) & 0xff;
             var g3 = ((int)((uint)b >> 1) ^
                     ((b & 0x01) != 0 ? (int)((uint)RS_GF_FDBK >> 1) : 0)) ^ g2;
-            return ((x << 8) ^ (g3 << 24) ^ (g2 << 16) ^ (g3 << 8) ^ b);
+            return (x << 8) ^ (g3 << 24) ^ (g2 << 16) ^ (g3 << 8) ^ b;
         }
 
         private static int LFSR1(int x)
@@ -496,7 +491,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
         private static int BytesTo32Bits(byte[] b, int p)
         {
-            return ((b[p] & 0xff)) |
+            return (b[p] & 0xff) |
                 ((b[p + 1] & 0xff) << 8) |
                 ((b[p + 2] & 0xff) << 16) |
                 ((b[p + 3] & 0xff) << 24);

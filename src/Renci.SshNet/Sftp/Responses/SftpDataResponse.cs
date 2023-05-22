@@ -1,6 +1,6 @@
 ﻿namespace Renci.SshNet.Sftp.Responses
 {
-    internal class SftpDataResponse : SftpResponse
+    internal sealed class SftpDataResponse : SftpResponse
     {
         public override SftpMessageTypes SftpMessageType
         {

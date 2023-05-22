@@ -15,6 +15,8 @@ namespace Renci.SshNet
     /// </example>
     public class PasswordConnectionInfo : ConnectionInfo, IDisposable
     {
+        private bool _isDisposed;
+
         /// <summary>
         /// Occurs when user's password has expired and needs to be changed.
         /// </summary>
@@ -249,8 +251,7 @@ namespace Renci.SshNet
         {
             foreach (var authenticationMethod in AuthenticationMethods)
             {
-                var pwdAuthentication = authenticationMethod as PasswordAuthenticationMethod;
-                if (pwdAuthentication != null)
+                if (authenticationMethod is PasswordAuthenticationMethod pwdAuthentication)
                 {
                     pwdAuthentication.PasswordExpired += AuthenticationMethod_PasswordExpired;
                 }
@@ -259,33 +260,28 @@ namespace Renci.SshNet
 
         private void AuthenticationMethod_PasswordExpired(object sender, AuthenticationPasswordChangeEventArgs e)
         {
-            if (PasswordExpired != null)
-            {
-                PasswordExpired(sender, e);
-            }
+            PasswordExpired?.Invoke(sender, e);
         }
-
-        #region IDisposable Members
-
-        private bool _isDisposed;
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose()
         {
-            Dispose(true);
+            Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
 
         /// <summary>
-        /// Releases unmanaged and - optionally - managed resources
+        /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
         /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (_isDisposed)
+            {
                 return;
+            }
 
             if (disposing)
             {
@@ -293,8 +289,7 @@ namespace Renci.SshNet
                 {
                     foreach (var authenticationMethod in AuthenticationMethods)
                     {
-                        var disposable = authenticationMethod as IDisposable;
-                        if (disposable != null)
+                        if (authenticationMethod is IDisposable disposable)
                         {
                             disposable.Dispose();
                         }
@@ -306,17 +301,11 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Releases unmanaged resources and performs other cleanup operations before the
-        /// <see cref="PasswordConnectionInfo"/> is reclaimed by garbage collection.
+        /// Finalizes an instance of the <see cref="PasswordConnectionInfo"/> class.
         /// </summary>
         ~PasswordConnectionInfo()
         {
-            // Do not re-create Dispose clean-up code here.
-            // Calling Dispose(false) is optimal in terms of
-            // readability and maintainability.
-            Dispose(false);
+            Dispose(disposing: false);
         }
-
-        #endregion
     }
 }

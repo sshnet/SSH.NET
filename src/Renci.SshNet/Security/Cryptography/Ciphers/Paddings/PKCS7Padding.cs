@@ -37,10 +37,12 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers.Paddings
         {
             var output = new byte[length + paddinglength];
             Buffer.BlockCopy(input, offset, output, 0, length);
+
             for (var i = 0; i < paddinglength; i++)
             {
                 output[length + i] = (byte) paddinglength;
             }
+
             return output;
         }
     }

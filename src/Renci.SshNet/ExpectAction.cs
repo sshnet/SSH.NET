@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 namespace Renci.SshNet
 {
     /// <summary>
-    /// Specifies behavior for expected expression
+    /// Specifies behavior for expected expression.
     /// </summary>
     public class ExpectAction
     {
@@ -27,10 +27,14 @@ namespace Renci.SshNet
         public ExpectAction(Regex expect, Action<string> action)
         {
             if (expect == null)
-                throw new ArgumentNullException("expect");
+            {
+                throw new ArgumentNullException(nameof(expect));
+            }
 
             if (action == null)
-                throw new ArgumentNullException("action");
+            {
+                throw new ArgumentNullException(nameof(action));
+            }
 
             Expect = expect;
             Action = action;
@@ -45,10 +49,14 @@ namespace Renci.SshNet
         public ExpectAction(string expect, Action<string> action)
         {
             if (expect == null)
-                throw new ArgumentNullException("expect");
+            {
+                throw new ArgumentNullException(nameof(expect));
+            }
 
             if (action == null)
-                throw new ArgumentNullException("action");
+            {
+                throw new ArgumentNullException(nameof(action));
+            }
 
             Expect = new Regex(Regex.Escape(expect));
             Action = action;

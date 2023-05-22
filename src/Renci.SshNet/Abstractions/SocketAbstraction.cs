@@ -20,7 +20,6 @@ namespace Renci.SshNet.Abstractions
             }
 
             return false;
-
         }
 
         /// <summary>
@@ -80,8 +79,10 @@ namespace Renci.SshNet.Abstractions
                         // dispose Socket
                         socket.Dispose();
                     }
+
                     // dispose ManualResetEvent
                     connectCompleted.Dispose();
+
                     // dispose SocketAsyncEventArgs
                     args.Dispose();
 
@@ -151,8 +152,12 @@ namespace Renci.SshNet.Abstractions
             catch (SocketException ex)
             {
                 if (ex.SocketErrorCode == SocketError.TimedOut)
+                {
                     throw new SshOperationTimeoutException(string.Format(CultureInfo.InvariantCulture,
-                        "Socket read operation has timed out after {0:F0} milliseconds.", timeout.TotalMilliseconds));
+                                                                         "Socket read operation has timed out after {0:F0} milliseconds.",
+                                                                         timeout.TotalMilliseconds));
+                }
+
                 throw;
             }
         }
@@ -168,14 +173,18 @@ namespace Renci.SshNet.Abstractions
                 {
                     var bytesRead = socket.Receive(buffer, offset, size, SocketFlags.None);
                     if (bytesRead == 0)
+                    {
                         break;
+                    }
 
                     processReceivedBytesAction(buffer, offset, bytesRead);
                 }
                 catch (SocketException ex)
                 {
                     if (IsErrorResumable(ex.SocketErrorCode))
+                    {
                         continue;
+                    }
 
                     switch (ex.SocketErrorCode)
                     {
@@ -208,7 +217,9 @@ namespace Renci.SshNet.Abstractions
         {
             var buffer = new byte[1];
             if (Read(socket, buffer, 0, 1, timeout) == 0)
+            {
                 return -1;
+            }
 
             return buffer[0];
         }
@@ -221,14 +232,14 @@ namespace Renci.SshNet.Abstractions
         /// <exception cref="SocketException">The write failed.</exception>
         public static void SendByte(Socket socket, byte value)
         {
-            var buffer = new[] {value};
+            var buffer = new[] { value };
             Send(socket, buffer, 0, 1);
         }
 
         /// <summary>
         /// Receives data from a bound <see cref="Socket"/>.
         /// </summary>
-        /// <param name="socket"></param>
+        /// <param name="socket">The <see cref="Socket"/> to read from.</param>
         /// <param name="size">The number of bytes to receive.</param>
         /// <param name="timeout">Specifies the amount of time after which the call will time out.</param>
         /// <returns>
@@ -244,7 +255,7 @@ namespace Renci.SshNet.Abstractions
         public static byte[] Read(Socket socket, int size, TimeSpan timeout)
         {
             var buffer = new byte[size];
-            Read(socket, buffer, 0, size, timeout);
+            _ = Read(socket, buffer, 0, size, timeout);
             return buffer;
         }
 
@@ -256,7 +267,7 @@ namespace Renci.SshNet.Abstractions
         /// <summary>
         /// Receives data from a bound <see cref="Socket"/> into a receive buffer.
         /// </summary>
-        /// <param name="socket"></param>
+        /// <param name="socket">The <see cref="Socket"/> to read from.</param>
         /// <param name="buffer">An array of type <see cref="byte"/> that is the storage location for the received data. </param>
         /// <param name="offset">The position in <paramref name="buffer"/> parameter to store the received data.</param>
         /// <param name="size">The number of bytes to receive.</param>
@@ -288,7 +299,9 @@ namespace Renci.SshNet.Abstractions
                 {
                     var bytesRead = socket.Receive(buffer, offset + totalBytesRead, totalBytesToRead - totalBytesRead, SocketFlags.None);
                     if (bytesRead == 0)
+                    {
                         return 0;
+                    }
 
                     totalBytesRead += bytesRead;
                 }
@@ -301,8 +314,11 @@ namespace Renci.SshNet.Abstractions
                     }
 
                     if (ex.SocketErrorCode == SocketError.TimedOut)
+                    {
                         throw new SshOperationTimeoutException(string.Format(CultureInfo.InvariantCulture,
-                            "Socket read operation has timed out after {0:F0} milliseconds.", readTimeout.TotalMilliseconds));
+                                                               "Socket read operation has timed out after {0:F0} milliseconds.",
+                                                               readTimeout.TotalMilliseconds));
+                    }
 
                     throw;
                 }
@@ -328,8 +344,10 @@ namespace Renci.SshNet.Abstractions
                 {
                     var bytesSent = socket.Send(data, offset + totalBytesSent, totalBytesToSend - totalBytesSent, SocketFlags.None);
                     if (bytesSent == 0)
+                    {
                         throw new SshConnectionException("An established connection was aborted by the server.",
                                                          DisconnectReason.ConnectionLost);
+                    }
 
                     totalBytesSent += bytesSent;
                 }
@@ -341,9 +359,12 @@ namespace Renci.SshNet.Abstractions
                         ThreadAbstraction.Sleep(30);
                     }
                     else
-                        throw;  // any serious error occurr
+                    {
+                        throw; // any serious error occurr
+                    }
                 }
-            } while (totalBytesSent < totalBytesToSend);
+            }
+            while (totalBytesSent < totalBytesToSend);
         }
 
         public static bool IsErrorResumable(SocketError socketError)
@@ -363,10 +384,8 @@ namespace Renci.SshNet.Abstractions
         private static void ConnectCompleted(object sender, SocketAsyncEventArgs e)
         {
             var eventWaitHandle = (ManualResetEvent) e.UserToken;
-            if (eventWaitHandle != null)
-                eventWaitHandle.Set();
+            _ = eventWaitHandle?.Set();
         }
 #endif // FEATURE_SOCKET_EAP
-
     }
 }

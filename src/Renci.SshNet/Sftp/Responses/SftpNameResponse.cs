@@ -1,10 +1,11 @@
-﻿using Renci.SshNet.Common;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text;
+
+using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Sftp.Responses
 {
-    internal class SftpNameResponse : SftpResponse
+    internal sealed class SftpNameResponse : SftpResponse
     {
         public override SftpMessageTypes SftpMessageType
         {
@@ -27,7 +28,7 @@ namespace Renci.SshNet.Sftp.Responses
         protected override void LoadData()
         {
             base.LoadData();
-            
+
             Count = ReadUInt32();
             Files = new KeyValuePair<string, SftpFileAttributes>[Count];
 
@@ -36,8 +37,9 @@ namespace Renci.SshNet.Sftp.Responses
                 var fileName = ReadString(Encoding);
                 if (SupportsLongName(ProtocolVersion))
                 {
-                    ReadString(Encoding); // skip longname
+                    _ = ReadString(Encoding); // skip longname
                 }
+
                 Files[i] = new KeyValuePair<string, SftpFileAttributes>(fileName, ReadAttributes());
             }
         }

@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
-using Renci.SshNet.Sftp.Responses;
 using System.Threading.Tasks;
+
+using Renci.SshNet.Sftp.Responses;
 
 namespace Renci.SshNet.Sftp
 {
@@ -59,12 +60,12 @@ namespace Renci.SshNet.Sftp
         /// <param name="path">The path.</param>
         /// <param name="nullOnError">if set to <c>true</c> returns null instead of throwing an exception.</param>
         /// <returns>
-        /// File attributes
+        /// File attributes.
         /// </returns>
         SftpFileAttributes RequestStat(string path, bool nullOnError = false);
 
         /// <summary>
-        /// Performs SSH_FXP_STAT request
+        /// Performs SSH_FXP_STAT request.
         /// </summary>
         /// <param name="path">The path.</param>
         /// <param name="callback">The <see cref="AsyncCallback"/> delegate that is executed when <see cref="BeginOpen(string, Flags, AsyncCallback, object)"/> completes.</param>
@@ -121,7 +122,7 @@ namespace Renci.SshNet.Sftp
         void RequestMkDir(string path);
 
         /// <summary>
-        /// Performs SSH_FXP_OPEN request
+        /// Performs SSH_FXP_OPEN request.
         /// </summary>
         /// <param name="path">The path.</param>
         /// <param name="flags">The flags.</param>
@@ -132,7 +133,7 @@ namespace Renci.SshNet.Sftp
         Task<byte[]> RequestOpenAsync(string path, Flags flags, CancellationToken cancellationToken);
 
         /// <summary>
-        /// Performs SSH_FXP_OPEN request
+        /// Performs SSH_FXP_OPEN request.
         /// </summary>
         /// <param name="path">The path.</param>
         /// <param name="flags">The flags.</param>
@@ -158,7 +159,7 @@ namespace Renci.SshNet.Sftp
         byte[] EndOpen(SftpOpenAsyncResult asyncResult);
 
         /// <summary>
-        /// Performs SSH_FXP_OPENDIR request
+        /// Performs SSH_FXP_OPENDIR request.
         /// </summary>
         /// <param name="path">The path.</param>
         /// <param name="nullOnError">if set to <c>true</c> returns null instead of throwing an exception.</param>
@@ -213,7 +214,7 @@ namespace Renci.SshNet.Sftp
         Task<byte[]> RequestReadAsync(byte[] handle, ulong offset, uint length, CancellationToken cancellationToken);
 
         /// <summary>
-        /// Performs SSH_FXP_READDIR request
+        /// Performs SSH_FXP_READDIR request.
         /// </summary>
         /// <param name="handle">The handle.</param>
         /// <returns></returns>

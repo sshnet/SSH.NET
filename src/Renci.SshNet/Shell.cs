@@ -1,32 +1,33 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+
+using Renci.SshNet.Abstractions;
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
-using System.Collections.Generic;
-using Renci.SshNet.Abstractions;
 
 namespace Renci.SshNet
 {
     /// <summary>
-    /// Represents instance of the SSH shell object
+    /// Represents instance of the SSH shell object.
     /// </summary>
     public class Shell : IDisposable
     {
         private readonly ISession _session;
-        private IChannelSession _channel;
-        private EventWaitHandle _channelClosedWaitHandle;
-        private Stream _input;
         private readonly string _terminalName;
         private readonly uint _columns;
         private readonly uint _rows;
         private readonly uint _width;
         private readonly uint _height;
         private readonly IDictionary<TerminalModes, uint> _terminalModes;
-        private EventWaitHandle _dataReaderTaskCompleted;
         private readonly Stream _outputStream;
         private readonly Stream _extendedOutputStream;
         private readonly int _bufferSize;
+        private EventWaitHandle _dataReaderTaskCompleted;
+        private IChannelSession _channel;
+        private EventWaitHandle _channelClosedWaitHandle;
+        private Stream _input;
 
         /// <summary>
         /// Gets a value indicating whether this shell is started.
@@ -101,10 +102,7 @@ namespace Renci.SshNet
                 throw new SshException("Shell is started.");
             }
 
-            if (Starting != null)
-            {
-                Starting(this, new EventArgs());
-            }
+            Starting?.Invoke(this, new EventArgs());
 
             _channel = _session.CreateChannelSession();
             _channel.DataReceived += Channel_DataReceived;
@@ -114,13 +112,13 @@ namespace Renci.SshNet
             _session.ErrorOccured += Session_ErrorOccured;
 
             _channel.Open();
-            _channel.SendPseudoTerminalRequest(_terminalName, _columns, _rows, _width, _height, _terminalModes);
-            _channel.SendShellRequest();
+            _ = _channel.SendPseudoTerminalRequest(_terminalName, _columns, _rows, _width, _height, _terminalModes);
+            _ = _channel.SendShellRequest();
 
-            _channelClosedWaitHandle = new AutoResetEvent(false);
+            _channelClosedWaitHandle = new AutoResetEvent(initialState: false);
 
-            //  Start input stream listener
-            _dataReaderTaskCompleted = new ManualResetEvent(false);
+            // Start input stream listener
+            _dataReaderTaskCompleted = new ManualResetEvent(initialState: false);
             ThreadAbstraction.ExecuteThread(() =>
             {
                 try
@@ -148,16 +146,13 @@ namespace Renci.SshNet
                 }
                 finally
                 {
-                    _dataReaderTaskCompleted.Set();
+                    _ = _dataReaderTaskCompleted.Set();
                 }
             });
 
             IsStarted = true;
 
-            if (Started != null)
-            {
-                Started(this, new EventArgs());
-            }
+            Started?.Invoke(this, EventArgs.Empty);
         }
 
         /// <summary>
@@ -171,10 +166,7 @@ namespace Renci.SshNet
                 throw new SshException("Shell is not started.");
             }
 
-            if (_channel != null)
-            {
-                _channel.Dispose();
-            }
+            _channel?.Dispose();
         }
 
         private void Session_ErrorOccured(object sender, ExceptionEventArgs e)
@@ -184,11 +176,7 @@ namespace Renci.SshNet
 
         private void RaiseError(ExceptionEventArgs e)
         {
-            var handler = ErrorOccurred;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
+            ErrorOccurred?.Invoke(this, e);
         }
 
         private void Session_Disconnected(object sender, EventArgs e)
@@ -198,35 +186,29 @@ namespace Renci.SshNet
 
         private void Channel_ExtendedDataReceived(object sender, ChannelExtendedDataEventArgs e)
         {
-            if (_extendedOutputStream != null)
-            {
-                _extendedOutputStream.Write(e.Data, 0, e.Data.Length);
-            }
+            _extendedOutputStream?.Write(e.Data, 0, e.Data.Length);
         }
 
         private void Channel_DataReceived(object sender, ChannelDataEventArgs e)
         {
-            if (_outputStream != null)
-            {
-                _outputStream.Write(e.Data, 0, e.Data.Length);
-            }
+            _outputStream?.Write(e.Data, 0, e.Data.Length);
         }
 
         private void Channel_Closed(object sender, ChannelEventArgs e)
         {
             if (Stopping != null)
             {
-                //  Handle event on different thread
-                ThreadAbstraction.ExecuteThread(() => Stopping(this, new EventArgs()));
+                // Handle event on different thread
+                ThreadAbstraction.ExecuteThread(() => Stopping(this, EventArgs.Empty));
             }
 
             _channel.Dispose();
-            _channelClosedWaitHandle.Set();
+            _ = _channelClosedWaitHandle.Set();
 
             _input.Dispose();
             _input = null;
 
-            _dataReaderTaskCompleted.WaitOne(_session.ConnectionInfo.Timeout);
+            _ = _dataReaderTaskCompleted.WaitOne(_session.ConnectionInfo.Timeout);
             _dataReaderTaskCompleted.Dispose();
             _dataReaderTaskCompleted = null;
 
@@ -238,8 +220,8 @@ namespace Renci.SshNet
 
             if (Stopped != null)
             {
-                //  Handle event on different thread
-                ThreadAbstraction.ExecuteThread(() => Stopped(this, new EventArgs()));
+                // Handle event on different thread
+                ThreadAbstraction.ExecuteThread(() => Stopped(this, EventArgs.Empty));
             }
 
             _channel = null;
@@ -255,13 +237,13 @@ namespace Renci.SshNet
         private void UnsubscribeFromSessionEvents(ISession session)
         {
             if (session == null)
+            {
                 return;
+            }
 
             session.Disconnected -= Session_Disconnected;
             session.ErrorOccured -= Session_ErrorOccured;
         }
-
-        #region IDisposable Members
 
         private bool _disposed;
 
@@ -270,18 +252,20 @@ namespace Renci.SshNet
         /// </summary>
         public void Dispose()
         {
-            Dispose(true);
+            Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
 
         /// <summary>
-        /// Releases unmanaged and - optionally - managed resources
+        /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
         /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (_disposed)
+            {
                 return;
+            }
 
             if (disposing)
             {
@@ -313,15 +297,11 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Releases unmanaged resources and performs other cleanup operations before the
-        /// <see cref="Shell"/> is reclaimed by garbage collection.
+        /// Finalizes an instance of the <see cref="Shell"/> class.
         /// </summary>
         ~Shell()
         {
-            Dispose(false);
+            Dispose(disposing: false);
         }
-
-        #endregion
-
     }
 }

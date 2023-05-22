@@ -569,8 +569,10 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         {
             var keySize = key.Length * 8;
 
-            if (!(keySize == 256 || keySize == 192 || keySize == 128))
+            if (keySize is not (256 or 192 or 128))
+            {
                 throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "KeySize '{0}' is not valid for this algorithm.", keySize));
+            }
         }
 
         /// <summary>
@@ -589,10 +591,14 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         public override int EncryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
         {
             if (inputBuffer == null)
-                throw new ArgumentNullException("inputBuffer");
+            {
+                throw new ArgumentNullException(nameof(inputBuffer));
+            }
 
             if (outputBuffer == null)
-                throw new ArgumentNullException("outputBuffer");
+            {
+                throw new ArgumentNullException(nameof(outputBuffer));
+            }
 
             if ((inputOffset + (32 / 2)) > inputBuffer.Length)
             {
@@ -604,10 +610,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 throw new IndexOutOfRangeException("output buffer too short");
             }
 
-            if (_encryptionKey == null)
-            {
-                _encryptionKey = GenerateWorkingKey(true, Key);
-            }
+            _encryptionKey ??= GenerateWorkingKey(true, Key);
 
             UnPackBlock(inputBuffer, inputOffset);
 
@@ -634,10 +637,14 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         public override int DecryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
         {
             if (inputBuffer == null)
-                throw new ArgumentNullException("inputBuffer");
+            {
+                throw new ArgumentNullException(nameof(inputBuffer));
+            }
 
             if (outputBuffer == null)
-                throw new ArgumentNullException("outputBuffer");
+            {
+                throw new ArgumentNullException(nameof(outputBuffer));
+            }
 
             if ((inputOffset + (32 / 2)) > inputBuffer.Length)
             {
@@ -649,10 +656,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 throw new IndexOutOfRangeException("output buffer too short");
             }
 
-            if (_decryptionKey == null)
-            {
-                _decryptionKey = GenerateWorkingKey(false, Key);
-            }
+            _decryptionKey ??= GenerateWorkingKey(false, Key);
 
             UnPackBlock(inputBuffer, inputOffset);
 
@@ -668,7 +672,9 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             int KC = key.Length / 4;  // key length in words
 
             if (((KC != 4) && (KC != 6) && (KC != 8)) || ((KC * 4) != key.Length))
+            {
                 throw new ArgumentException("Key length not 128/192/256 bits.");
+            }
 
             _rounds = KC + 6;  // This is not always true for the generalized Rijndael that allows larger block sizes
             uint[] W = new uint[(_rounds + 1) * 4];   // 4 words in a block
@@ -679,7 +685,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
 
             int t = 0;
 
-            for (int i = 0; i < key.Length; t++)
+            for (var i = 0; i < key.Length; t++)
             {
                 W[(t >> 2) * 4 + (t & 3)] = Pack.LittleEndianToUInt32(key, i);
                 i += 4;

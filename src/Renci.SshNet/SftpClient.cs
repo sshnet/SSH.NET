@@ -1996,6 +1996,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="sourcePath"/> is <c>null</c>.</exception>
         /// <exception cref="ArgumentException"><paramref name="destinationPath"/> is <c>null</c> or contains only whitespace.</exception>
         /// <exception cref="SftpPathNotFoundException"><paramref name="destinationPath"/> was not found on the remote host.</exception>
+        /// <exception cref="SshException">If a problem occurs while copying the file</exception>
         public IEnumerable<FileInfo> SynchronizeDirectories(string sourcePath, string destinationPath, string searchPattern)
         {
             if (sourcePath == null)
@@ -2019,6 +2020,7 @@ namespace Renci.SshNet
         /// </returns>
         /// <exception cref="ArgumentNullException"><paramref name="sourcePath"/> is <c>null</c>.</exception>
         /// <exception cref="ArgumentException"><paramref name="destinationPath"/> is <c>null</c> or contains only whitespace.</exception>
+        /// <exception cref="SshException">If a problem occurs while copying the file</exception>
         public IAsyncResult BeginSynchronizeDirectories(string sourcePath, string destinationPath, string searchPattern, AsyncCallback asyncCallback, object state)
         {
             if (sourcePath == null)
@@ -2074,60 +2076,72 @@ namespace Renci.SshNet
 
             var sourceDirectory = new DirectoryInfo(sourcePath);
 
-            var sourceFiles = FileSystemAbstraction.EnumerateFiles(sourceDirectory, searchPattern).ToList();
-            if (sourceFiles.Count == 0)
-                return uploadedFiles;
-
-            #region Existing Files at The Destination
-
-            var destFiles = InternalListDirectory(destinationPath, null);
-            var destDict = new Dictionary<string, ISftpFile>();
-            foreach (var destFile in destFiles)
+            using (var sourceFiles = sourceDirectory.EnumerateFiles(searchPattern).GetEnumerator())
             {
-                if (destFile.IsDirectory)
-                    continue;
-                destDict.Add(destFile.Name, destFile);
-            }
-
-            #endregion
-
-            #region Upload the difference
-
-            const Flags uploadFlag = Flags.Write | Flags.Truncate | Flags.CreateNewOrOpen;
-            foreach (var localFile in sourceFiles)
-            {
-                var isDifferent = !destDict.ContainsKey(localFile.Name);
-
-                if (!isDifferent)
+                if (!sourceFiles.MoveNext())
                 {
-                    var temp = destDict[localFile.Name];
-                    //  TODO:   Use md5 to detect a difference
-                    //ltang: File exists at the destination => Using filesize to detect the difference
-                    isDifferent = localFile.Length != temp.Length;
+                    return uploadedFiles;
                 }
 
-                if (isDifferent)
+                #region Existing Files at The Destination
+
+                var destFiles = InternalListDirectory(destinationPath, null);
+                var destDict = new Dictionary<string, ISftpFile>();
+                foreach (var destFile in destFiles)
                 {
-                    var remoteFileName = string.Format(CultureInfo.InvariantCulture, @"{0}/{1}", destinationPath, localFile.Name);
-                    try
+                    if (destFile.IsDirectory)
                     {
-                        using (var file = File.OpenRead(localFile.FullName))
-                        {
-                            InternalUploadFile(file, remoteFileName, uploadFlag, null, null);
-                        }
-
-                        uploadedFiles.Add(localFile);
-
-                        if (asynchResult != null)
-                        {
-                            asynchResult.Update(uploadedFiles.Count);
-                        }
+                        continue;
                     }
-                    catch (Exception ex)
+
+                    destDict.Add(destFile.Name, destFile);
+                }
+
+                #endregion
+
+                #region Upload the difference
+
+                const Flags uploadFlag = Flags.Write | Flags.Truncate | Flags.CreateNewOrOpen;
+                do
+                {
+                    var localFile = sourceFiles.Current;
+                    if (localFile == null)
                     {
-                        throw new Exception(string.Format("Failed to upload {0} to {1}", localFile.FullName, remoteFileName), ex);
+                        continue;
+                    }
+
+                    var isDifferent = true;
+                    if (destDict.TryGetValue(localFile.Name, out var remoteFile))
+                    {
+                        //  TODO:   Use md5 to detect a difference
+                        //ltang: File exists at the destination => Using filesize to detect the difference
+                        isDifferent = localFile.Length != remoteFile.Length;
+                    }
+
+                    if (isDifferent)
+                    {
+                        var remoteFileName = string.Format(CultureInfo.InvariantCulture, @"{0}/{1}", destinationPath, localFile.Name);
+                        try
+                        {
+                            using (var file = File.OpenRead(localFile.FullName))
+                            {
+                                InternalUploadFile(file, remoteFileName, uploadFlag, null, null);
+                            }
+
+                            uploadedFiles.Add(localFile);
+
+                            if (asynchResult != null)
+                            {
+                                asynchResult.Update(uploadedFiles.Count);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            throw new SshException($"Failed to upload {localFile.FullName} to {remoteFileName}", ex);
+                        }
                     }
                 }
+                while (sourceFiles.MoveNext());
             }
 
             #endregion

@@ -698,21 +698,23 @@ namespace Renci.SshNet
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         IEnumerable<ISftpFile> ListDirectory(string path, Action<int> listCallback = null);
 
+#if FEATURE_ASYNC_ENUMERABLE
         /// <summary>
-        /// Asynchronously retrieves list of files in remote directory.
+        /// Asynchronously enumerates the files in remote directory.
         /// </summary>
         /// <param name="path">The path.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
         /// <returns>
-        /// A <see cref="Task{IEnumerable}"/> that represents the asynchronous list operation.
-        /// The task result contains an enumerable collection of <see cref="SftpFile"/> for the files in the directory specified by <paramref name="path" />.
+        /// An <see cref="IAsyncEnumerable{SftpFile}"/> that represents the asynchronous enumeration operation.
+        /// The enumeration contains an async stream of <see cref="SftpFile"/> for the files in the directory specified by <paramref name="path" />.
         /// </returns>
         /// <exception cref="ArgumentNullException"><paramref name="path" /> is <b>null</b>.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="SftpPermissionDeniedException">Permission to list the contents of the directory was denied by the remote host. <para>-or-</para> A SSH command was denied by the server.</exception>
         /// <exception cref="SshException">A SSH error where <see cref="Exception.Message" /> is the message from the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
-        Task<IEnumerable<ISftpFile>> ListDirectoryAsync(string path, CancellationToken cancellationToken);
+        IAsyncEnumerable<ISftpFile> ListDirectoryAsync(string path, CancellationToken cancellationToken);
+#endif //FEATURE_ASYNC_ENUMERABLE
 
         /// <summary>
         /// Opens a <see cref="SftpFileStream"/> on the specified path with read/write access.

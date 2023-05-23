@@ -94,7 +94,7 @@ namespace Renci.SshNet
         /// SSH_FXP_DATA protocol fields.
         /// </para>
         /// <para>
-        /// The size of the each indivual SSH_FXP_DATA message is limited to the
+        /// The size of the each individual SSH_FXP_DATA message is limited to the
         /// local maximum packet size of the channel, which is set to <c>64 KB</c>
         /// for SSH.NET. However, the peer can limit this even further.
         /// </para>

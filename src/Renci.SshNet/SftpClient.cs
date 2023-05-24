@@ -540,8 +540,8 @@ namespace Renci.SshNet
         /// <param name="path">The path.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
         /// <returns>
-        /// An <see cref="IAsyncEnumerable{SftpFile}"/> that represents the asynchronous enumeration operation.
-        /// The enumeration contains an async stream of <see cref="SftpFile"/> for the files in the directory specified by <paramref name="path" />.
+        /// An <see cref="IAsyncEnumerable{T}"/> of <see cref="ISftpFile"/> that represents the asynchronous enumeration operation.
+        /// The enumeration contains an async stream of <see cref="ISftpFile"/> for the files in the directory specified by <paramref name="path" />.
         /// </returns>
         /// <exception cref="ArgumentNullException"><paramref name="path" /> is <b>null</b>.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>

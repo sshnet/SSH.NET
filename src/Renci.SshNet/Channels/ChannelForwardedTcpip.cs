@@ -120,13 +120,17 @@ namespace Renci.SshNet.Channels
         private void ShutdownSocket(SocketShutdown how)
         {
             if (_socket == null)
+            {
                 return;
+            }
 
             lock (_socketShutdownAndCloseLock)
             {
                 var socket = _socket;
                 if (!socket.IsConnected())
+                {
                     return;
+                }
 
                 try
                 {
@@ -146,7 +150,9 @@ namespace Renci.SshNet.Channels
         private void CloseSocket()
         {
             if (_socket == null)
+            {
                 return;
+            }
 
             lock (_socketShutdownAndCloseLock)
             {

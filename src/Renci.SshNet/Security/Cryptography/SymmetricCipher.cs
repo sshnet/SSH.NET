@@ -20,7 +20,9 @@ namespace Renci.SshNet.Security.Cryptography
         protected SymmetricCipher(byte[] key)
         {
             if (key == null)
-                throw new ArgumentNullException("key");
+            {
+                throw new ArgumentNullException(nameof(key));
+            }
 
             Key = key;
         }

@@ -5,7 +5,7 @@ namespace Renci.SshNet.Security
     /// <summary>
     /// Represents "diffie-hellman-group1-sha1" algorithm implementation.
     /// </summary>
-    internal class KeyExchangeDiffieHellmanGroup1Sha1 : KeyExchangeDiffieHellmanGroupSha1
+    internal sealed class KeyExchangeDiffieHellmanGroup1Sha1 : KeyExchangeDiffieHellmanGroupSha1
     {
         private static readonly byte[] SecondOkleyGroupReversed =
             {

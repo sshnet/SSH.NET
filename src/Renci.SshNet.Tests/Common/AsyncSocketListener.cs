@@ -40,7 +40,7 @@ namespace Renci.SshNet.Tests.Common
         /// <value>
         /// <see langword="true"/> to invoke <see cref="Socket.Shutdown(SocketShutdown)"/> on the <see cref="Socket"/> that is used
         /// to handle the communication with the remote host, when the remote host has closed the connection; otherwise,
-        /// <see langword="false""/>. The default is <see langword="true"/>.
+        /// <see langword="false"/>. The default is <see langword="true"/>.
         /// </value>
         public bool ShutdownRemoteCommunicationSocket { get; set; }
 

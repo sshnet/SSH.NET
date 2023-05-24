@@ -52,19 +52,24 @@ namespace Renci.SshNet
         {
             if (path == null)
             {
-                throw new ArgumentNullException("path");
+                throw new ArgumentNullException(nameof(path));
             }
 
             var transformed = new StringBuilder(path.Length);
 
-            transformed.Append('"');
+            _ = transformed.Append('"');
+
             foreach (var c in path)
             {
                 if (c == '"')
-                    transformed.Append('\\');
-                transformed.Append(c);
+                {
+                    _ = transformed.Append('\\');
+                }
+
+                _ = transformed.Append(c);
             }
-            transformed.Append('"');
+
+            _ = transformed.Append('"');
 
             return transformed.ToString();
         }

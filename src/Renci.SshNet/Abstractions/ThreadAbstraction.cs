@@ -16,10 +16,12 @@ namespace Renci.SshNet.Abstractions
         public static void ExecuteThreadLongRunning(Action action)
         {
             if (action == null)
-                throw new ArgumentNullException("action");
+            {
+                throw new ArgumentNullException(nameof(action));
+            }
 
             var taskCreationOptions = System.Threading.Tasks.TaskCreationOptions.LongRunning;
-            System.Threading.Tasks.Task.Factory.StartNew(action, taskCreationOptions);
+            _ = System.Threading.Tasks.Task.Factory.StartNew(action, taskCreationOptions);
         }
 
         /// <summary>
@@ -29,9 +31,11 @@ namespace Renci.SshNet.Abstractions
         public static void ExecuteThread(Action action)
         {
             if (action == null)
-                throw new ArgumentNullException("action");
+            {
+                throw new ArgumentNullException(nameof(action));
+            }
 
-            System.Threading.ThreadPool.QueueUserWorkItem(o => action());
+            _ = System.Threading.ThreadPool.QueueUserWorkItem(o => action());
         }
     }
 }

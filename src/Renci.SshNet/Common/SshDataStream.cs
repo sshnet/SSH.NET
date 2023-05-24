@@ -21,7 +21,7 @@ namespace Renci.SshNet.Common
         }
 
         /// <summary>
-        /// Initializes a new non-resizable instance of the <see cref="SshDataStream"/> class based on the specified byte array.
+        /// Initializes a new instance of the <see cref="SshDataStream"/> class for the specified byte array.
         /// </summary>
         /// <param name="buffer">The array of unsigned bytes from which to create the current stream.</param>
         /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <c>null</c>.</exception>
@@ -31,7 +31,7 @@ namespace Renci.SshNet.Common
         }
 
         /// <summary>
-        /// Initializes a new non-resizable instance of the <see cref="SshDataStream"/> class based on the specified byte array.
+        /// Initializes a new instance of the <see cref="SshDataStream"/> class for the specified byte array.
         /// </summary>
         /// <param name="buffer">The array of unsigned bytes from which to create the current stream.</param>
         /// <param name="offset">The zero-based offset in <paramref name="buffer"/> at which to begin reading SSH data.</param>
@@ -94,7 +94,9 @@ namespace Renci.SshNet.Common
         public void Write(byte[] data)
         {
             if (data == null)
-                throw new ArgumentNullException("data");
+            {
+                throw new ArgumentNullException(nameof(data));
+            }
 
             Write(data, 0, data.Length);
         }
@@ -125,7 +127,9 @@ namespace Renci.SshNet.Common
         public void WriteBinary(byte[] buffer)
         {
             if (buffer == null)
-                throw new ArgumentNullException("buffer");
+            {
+                throw new ArgumentNullException(nameof(buffer));
+            }
 
             WriteBinary(buffer, 0, buffer.Length);
         }
@@ -155,7 +159,9 @@ namespace Renci.SshNet.Common
         public void Write(string s, Encoding encoding)
         {
             if (encoding == null)
-                throw new ArgumentNullException("encoding");
+            {
+                throw new ArgumentNullException(nameof(encoding));
+            }
 
             var bytes = encoding.GetBytes(s);
             WriteBinary(bytes, 0, bytes.Length);
@@ -201,6 +207,7 @@ namespace Renci.SshNet.Common
         /// <summary>
         /// Reads the next <see cref="string"/> data type from the SSH data stream.
         /// </summary>
+        /// <param name="encoding">The character encoding to use.</param>
         /// <returns>
         /// The <see cref="string"/> read from the SSH data stream.
         /// </returns>
@@ -215,27 +222,6 @@ namespace Renci.SshNet.Common
 
             var bytes = ReadBytes((int) length);
             return encoding.GetString(bytes, 0, bytes.Length);
-        }
-
-        /// <summary>
-        /// Reads next specified number of bytes data type from internal buffer.
-        /// </summary>
-        /// <param name="length">Number of bytes to read.</param>
-        /// <returns>
-        /// An array of bytes that was read from the internal buffer.
-        /// </returns>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="length"/> is greater than the internal buffer size.</exception>
-        private byte[] ReadBytes(int length)
-        {
-            var data = new byte[length];
-            var bytesRead = Read(data, 0, length);
-
-            if (bytesRead < length)
-                throw new ArgumentOutOfRangeException("length",
-                    string.Format(CultureInfo.InvariantCulture,
-                        "The requested length ({0}) is greater than the actual number of bytes read ({1}).", length, bytesRead));
-
-            return data;
         }
 
         /// <summary>
@@ -254,7 +240,29 @@ namespace Renci.SshNet.Common
             {
                 return GetBuffer();
             }
+
             return base.ToArray();
+        }
+
+        /// <summary>
+        /// Reads next specified number of bytes data type from internal buffer.
+        /// </summary>
+        /// <param name="length">Number of bytes to read.</param>
+        /// <returns>
+        /// An array of bytes that was read from the internal buffer.
+        /// </returns>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="length"/> is greater than the internal buffer size.</exception>
+        private byte[] ReadBytes(int length)
+        {
+            var data = new byte[length];
+            var bytesRead = Read(data, 0, length);
+
+            if (bytesRead < length)
+            {
+                throw new ArgumentOutOfRangeException(nameof(length), string.Format(CultureInfo.InvariantCulture, "The requested length ({0}) is greater than the actual number of bytes read ({1}).", length, bytesRead));
+            }
+
+            return data;
         }
     }
 }

@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Text;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Net;
+using System.Text;
+
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet
@@ -14,7 +15,7 @@ namespace Renci.SshNet
     public class SshClient : BaseClient
     {
         /// <summary>
-        /// Holds the list of forwarded ports
+        /// Holds the list of forwarded ports.
         /// </summary>
         private readonly List<ForwardedPort> _forwardedPorts;
 
@@ -39,8 +40,6 @@ namespace Renci.SshNet
             }
         }
 
-        #region Constructors
-
         /// <summary>
         /// Initializes a new instance of the <see cref="SshClient" /> class.
         /// </summary>
@@ -53,7 +52,7 @@ namespace Renci.SshNet
         /// </example>
         /// <exception cref="ArgumentNullException"><paramref name="connectionInfo"/> is <c>null</c>.</exception>
         public SshClient(ConnectionInfo connectionInfo)
-            : this(connectionInfo, false)
+            : this(connectionInfo, ownsConnectionInfo: false)
         {
         }
 
@@ -69,7 +68,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="port"/> is not within <see cref="IPEndPoint.MinPort"/> and <see cref="IPEndPoint.MaxPort"/>.</exception>
         [SuppressMessage("Microsoft.Reliability", "C2A000:DisposeObjectsBeforeLosingScope", Justification = "Disposed in Dispose(bool) method.")]
         public SshClient(string host, int port, string username, string password)
-            : this(new PasswordConnectionInfo(host, port, username, password), true)
+            : this(new PasswordConnectionInfo(host, port, username, password), ownsConnectionInfo: true)
         {
         }
 
@@ -105,7 +104,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="port"/> is not within <see cref="IPEndPoint.MinPort"/> and <see cref="IPEndPoint.MaxPort"/>.</exception>
         [SuppressMessage("Microsoft.Reliability", "CA2000:DisposeObjectsBeforeLosingScope", Justification = "Disposed in Dispose(bool) method.")]
         public SshClient(string host, int port, string username, params IPrivateKeySource[] keyFiles)
-            : this(new PrivateKeyConnectionInfo(host, port, username, keyFiles), true)
+            : this(new PrivateKeyConnectionInfo(host, port, username, keyFiles), ownsConnectionInfo: true)
         {
         }
 
@@ -159,8 +158,6 @@ namespace Renci.SshNet
             _forwardedPorts = new List<ForwardedPort>();
         }
 
-        #endregion
-
         /// <summary>
         /// Called when client is disconnecting from the server.
         /// </summary>
@@ -188,7 +185,10 @@ namespace Renci.SshNet
         public void AddForwardedPort(ForwardedPort port)
         {
             if (port == null)
-                throw new ArgumentNullException("port");
+            {
+                throw new ArgumentNullException(nameof(port));
+            }
+
             EnsureSessionIsOpen();
 
             AttachForwardedPort(port);
@@ -203,19 +203,23 @@ namespace Renci.SshNet
         public void RemoveForwardedPort(ForwardedPort port)
         {
             if (port == null)
-                throw new ArgumentNullException("port");
+            {
+                throw new ArgumentNullException(nameof(port));
+            }
 
-            //  Stop port forwarding before removing it
+            // Stop port forwarding before removing it
             port.Stop();
 
             DetachForwardedPort(port);
-            _forwardedPorts.Remove(port);
+            _ = _forwardedPorts.Remove(port);
         }
 
         private void AttachForwardedPort(ForwardedPort port)
         {
             if (port.Session != null && port.Session != Session)
+            {
                 throw new InvalidOperationException("Forwarded port is already added to a different client.");
+            }
 
             port.Session = Session;
         }
@@ -264,14 +268,14 @@ namespace Renci.SshNet
         ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\SshCommandTest.cs" region="Example SshCommand RunCommand Parallel" language="C#" title="Run many commands in parallel" />
         /// </example>
         /// <exception cref="ArgumentException">CommandText property is empty.</exception>
-        /// <exception cref="T:Renci.SshNet.Common.SshException">Invalid Operation - An existing channel was used to execute this command.</exception>
+        /// <exception cref="SshException">Invalid Operation - An existing channel was used to execute this command.</exception>
         /// <exception cref="InvalidOperationException">Asynchronous operation is already in progress.</exception>
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="commandText"/> is <c>null</c>.</exception>
         public SshCommand RunCommand(string commandText)
         {
             var cmd = CreateCommand(commandText);
-            cmd.Execute();
+            _ = cmd.Execute();
             return cmd;
         }
 
@@ -361,7 +365,7 @@ namespace Renci.SshNet
             var writer = new StreamWriter(_inputStream, encoding);
             writer.Write(input);
             writer.Flush();
-            _inputStream.Seek(0, SeekOrigin.Begin);
+            _ = _inputStream.Seek(0, SeekOrigin.Begin);
 
             return CreateShell(_inputStream, output, extendedOutput, terminalName, columns, rows, width, height, terminalModes, bufferSize);
         }
@@ -410,7 +414,7 @@ namespace Renci.SshNet
         /// <param name="terminalName">The <c>TERM</c> environment variable.</param>
         /// <param name="columns">The terminal width in columns.</param>
         /// <param name="rows">The terminal width in rows.</param>
-        /// <param name="width">The terminal height in pixels.</param>
+        /// <param name="width">The terminal width in pixels.</param>
         /// <param name="height">The terminal height in pixels.</param>
         /// <param name="bufferSize">The size of the buffer.</param>
         /// <returns>
@@ -438,7 +442,7 @@ namespace Renci.SshNet
         /// <param name="terminalName">The <c>TERM</c> environment variable.</param>
         /// <param name="columns">The terminal width in columns.</param>
         /// <param name="rows">The terminal width in rows.</param>
-        /// <param name="width">The terminal height in pixels.</param>
+        /// <param name="width">The terminal width in pixels.</param>
         /// <param name="height">The terminal height in pixels.</param>
         /// <param name="bufferSize">The size of the buffer.</param>
         /// <param name="terminalModeValues">The terminal mode values.</param>
@@ -479,7 +483,7 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Releases unmanaged and - optionally - managed resources
+        /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
         /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected override void Dispose(bool disposing)
@@ -487,7 +491,9 @@ namespace Renci.SshNet
             base.Dispose(disposing);
 
             if (_isDisposed)
+            {
                 return;
+            }
 
             if (disposing)
             {
@@ -504,7 +510,9 @@ namespace Renci.SshNet
         private void EnsureSessionIsOpen()
         {
             if (Session == null)
+            {
                 throw new SshConnectionException("Client not connected.");
+            }
         }
     }
 }

@@ -1,14 +1,17 @@
 ﻿using System;
+using System.Net;
+
 using Renci.SshNet.Common;
 
 namespace Renci.SshNet
 {
     /// <summary>
-    /// Provides functionality for local port forwarding
+    /// Provides functionality for local port forwarding.
     /// </summary>
     public partial class ForwardedPortLocal : ForwardedPort, IDisposable
     {
         private ForwardedPortStatus _status;
+        private bool _isDisposed;
 
         /// <summary>
         /// Gets the bound host.
@@ -47,9 +50,9 @@ namespace Renci.SshNet
         /// <param name="boundPort">The bound port.</param>
         /// <param name="host">The host.</param>
         /// <param name="port">The port.</param>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="boundPort" /> is greater than <see cref="F:System.Net.IPEndPoint.MaxPort" />.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="boundPort" /> is greater than <see cref="IPEndPoint.MaxPort" />.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="host"/> is <c>null</c>.</exception>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="port" /> is greater than <see cref="F:System.Net.IPEndPoint.MaxPort" />.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="port" /> is greater than <see cref="IPEndPoint.MaxPort" />.</exception>
         /// <example>
         ///     <code source="..\..\src\Renci.SshNet.Tests\Classes\ForwardedPortLocalTest.cs" region="Example SshClient AddForwardedPort Start Stop ForwardedPortLocal" language="C#" title="Local port forwarding" />
         /// </example>
@@ -66,9 +69,9 @@ namespace Renci.SshNet
         /// <param name="port">The port.</param>
         /// <exception cref="ArgumentNullException"><paramref name="boundHost"/> is <c>null</c>.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="host"/> is <c>null</c>.</exception>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="port" /> is greater than <see cref="F:System.Net.IPEndPoint.MaxPort" />.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="port" /> is greater than <see cref="IPEndPoint.MaxPort" />.</exception>
         public ForwardedPortLocal(string boundHost, string host, uint port)
-            : this(boundHost, 0, host, port) 
+            : this(boundHost, 0, host, port)
         {
         }
 
@@ -81,15 +84,19 @@ namespace Renci.SshNet
         /// <param name="port">The port.</param>
         /// <exception cref="ArgumentNullException"><paramref name="boundHost"/> is <c>null</c>.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="host"/> is <c>null</c>.</exception>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="boundPort" /> is greater than <see cref="F:System.Net.IPEndPoint.MaxPort" />.</exception>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="port" /> is greater than <see cref="F:System.Net.IPEndPoint.MaxPort" />.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="boundPort" /> is greater than <see cref="IPEndPoint.MaxPort" />.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="port" /> is greater than <see cref="IPEndPoint.MaxPort" />.</exception>
         public ForwardedPortLocal(string boundHost, uint boundPort, string host, uint port)
         {
             if (boundHost == null)
-                throw new ArgumentNullException("boundHost");
+            {
+                throw new ArgumentNullException(nameof(boundHost));
+            }
 
             if (host == null)
-                throw new ArgumentNullException("host");
+            {
+                throw new ArgumentNullException(nameof(host));
+            }
 
             boundPort.ValidatePort("boundPort");
             port.ValidatePort("port");
@@ -107,7 +114,9 @@ namespace Renci.SshNet
         protected override void StartPort()
         {
             if (!ForwardedPortStatus.ToStarting(ref _status))
+            {
                 return;
+            }
 
             try
             {
@@ -128,14 +137,19 @@ namespace Renci.SshNet
         protected override void StopPort(TimeSpan timeout)
         {
             if (!ForwardedPortStatus.ToStopping(ref _status))
+            {
                 return;
+            }
 
             // signal existing channels that the port is closing
             base.StopPort(timeout);
+
             // prevent new requests from getting processed
             StopListener();
+
             // wait for open channels to close
             InternalStop(timeout);
+
             // mark port stopped
             _status = ForwardedPortStatus.Stopped;
         }
@@ -147,7 +161,9 @@ namespace Renci.SshNet
         protected override void CheckDisposed()
         {
             if (_isDisposed)
+            {
                 throw new ObjectDisposedException(GetType().FullName);
+            }
         }
 
         partial void InternalStart();
@@ -162,45 +178,40 @@ namespace Renci.SshNet
 
         partial void InternalStop(TimeSpan timeout);
 
-        #region IDisposable Members
-
-        private bool _isDisposed;
-
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose()
         {
-            Dispose(true);
+            Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
 
         partial void InternalDispose(bool disposing);
 
         /// <summary>
-        /// Releases unmanaged and - optionally - managed resources
+        /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
         /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected override void Dispose(bool disposing)
         {
             if (_isDisposed)
+            {
                 return;
+            }
 
             base.Dispose(disposing);
-            InternalDispose(disposing);
 
+            InternalDispose(disposing);
             _isDisposed = true;
         }
 
         /// <summary>
-        /// Releases unmanaged resources and performs other cleanup operations before the
-        /// <see cref="ForwardedPortLocal"/> is reclaimed by garbage collection.
+        /// Finalizes an instance of the <see cref="ForwardedPortLocal"/> class.
         /// </summary>
         ~ForwardedPortLocal()
         {
-            Dispose(false);
+            Dispose(disposing: false);
         }
-
-        #endregion
     }
 }

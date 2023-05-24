@@ -135,6 +135,7 @@ namespace Renci.SshNet.Security.Cryptography
                 {
                     throw new ArgumentException("data");
                 }
+
                 data = _padding.Pad(_blockSize, data, offset, length);
                 offset = 0;
                 length = data.Length;

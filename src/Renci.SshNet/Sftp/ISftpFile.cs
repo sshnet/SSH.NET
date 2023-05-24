@@ -3,7 +3,7 @@
 namespace Renci.SshNet.Sftp
 {
     /// <summary>
-    /// Represents SFTP file information
+    /// Represents SFTP file information.
     /// </summary>
     public interface ISftpFile
     {
@@ -13,14 +13,23 @@ namespace Renci.SshNet.Sftp
         SftpFileAttributes Attributes { get; }
 
         /// <summary>
-        /// Gets the full path of the directory or file.
+        /// Gets the full path of the file or directory.
         /// </summary>
+        /// <value>
+        /// The full path of the file or directory.
+        /// </value>
         string FullName { get; }
 
         /// <summary>
-        /// For files, gets the name of the file. For directories, gets the name of the last directory in the hierarchy if a hierarchy exists. 
-        /// Otherwise, the Name property gets the name of the directory.
+        /// Gets the name of the file or directory.
         /// </summary>
+        /// <value>
+        /// The name of the file or directory.
+        /// </value>
+        /// <remarks>
+        /// For directories, this is the name of the last directory in the hierarchy if a hierarchy exists;
+        /// otherwise, the name of the directory.
+        /// </remarks>
         string Name { get; }
 
         /// <summary>
@@ -56,7 +65,7 @@ namespace Renci.SshNet.Sftp
         DateTime LastWriteTimeUtc { get; set; }
 
         /// <summary>
-        /// Gets or sets the size, in bytes, of the current file.
+        /// Gets the size, in bytes, of the current file.
         /// </summary>
         /// <value>
         /// The size of the current file in bytes.
@@ -83,7 +92,7 @@ namespace Renci.SshNet.Sftp
         /// Gets a value indicating whether file represents a socket.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if file represents a socket; otherwise, <c>false</c>.
+        /// <c>true</c> if file represents a socket; otherwise, <c>false</c>.
         /// </value>
         bool IsSocket { get; }
 
@@ -91,7 +100,7 @@ namespace Renci.SshNet.Sftp
         /// Gets a value indicating whether file represents a symbolic link.
         /// </summary>
         /// <value>
-        /// 	<c>true</c> if file represents a symbolic link; otherwise, <c>false</c>.
+        /// <c>true</c> if file represents a symbolic link; otherwise, <c>false</c>.
         /// </value>
         bool IsSymbolicLink { get; }
 
@@ -99,7 +108,7 @@ namespace Renci.SshNet.Sftp
         /// Gets a value indicating whether file represents a regular file.
         /// </summary>
         /// <value>
-        /// 	<c>true</c> if file represents a regular file; otherwise, <c>false</c>.
+        /// <c>true</c> if file represents a regular file; otherwise, <c>false</c>.
         /// </value>
         bool IsRegularFile { get; }
 
@@ -107,7 +116,7 @@ namespace Renci.SshNet.Sftp
         /// Gets a value indicating whether file represents a block device.
         /// </summary>
         /// <value>
-        /// 	<c>true</c> if file represents a block device; otherwise, <c>false</c>.
+        /// <c>true</c> if file represents a block device; otherwise, <c>false</c>.
         /// </value>
         bool IsBlockDevice { get; }
 
@@ -115,7 +124,7 @@ namespace Renci.SshNet.Sftp
         /// Gets a value indicating whether file represents a directory.
         /// </summary>
         /// <value>
-        /// 	<c>true</c> if file represents a directory; otherwise, <c>false</c>.
+        /// <c>true</c> if file represents a directory; otherwise, <c>false</c>.
         /// </value>
         bool IsDirectory { get; }
 
@@ -123,7 +132,7 @@ namespace Renci.SshNet.Sftp
         /// Gets a value indicating whether file represents a character device.
         /// </summary>
         /// <value>
-        /// 	<c>true</c> if file represents a character device; otherwise, <c>false</c>.
+        /// <c>true</c> if file represents a character device; otherwise, <c>false</c>.
         /// </value>
         bool IsCharacterDevice { get; }
 
@@ -131,7 +140,7 @@ namespace Renci.SshNet.Sftp
         /// Gets a value indicating whether file represents a named pipe.
         /// </summary>
         /// <value>
-        /// 	<c>true</c> if file represents a named pipe; otherwise, <c>false</c>.
+        /// <c>true</c> if file represents a named pipe; otherwise, <c>false</c>.
         /// </value>
         bool IsNamedPipe { get; }
 
@@ -139,7 +148,7 @@ namespace Renci.SshNet.Sftp
         /// Gets or sets a value indicating whether the owner can read from this file.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if owner can read from this file; otherwise, <c>false</c>.
+        /// <c>true</c> if owner can read from this file; otherwise, <c>false</c>.
         /// </value>
         bool OwnerCanRead { get; set; }
 

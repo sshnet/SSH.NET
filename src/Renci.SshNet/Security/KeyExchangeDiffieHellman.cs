@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Text;
-using Renci.SshNet.Messages.Transport;
+
 using Renci.SshNet.Common;
+using Renci.SshNet.Messages.Transport;
 
 namespace Renci.SshNet.Security
 {
@@ -21,7 +22,7 @@ namespace Renci.SshNet.Security
         protected BigInteger _prime;
 
         /// <summary>
-        /// Specifies client payload
+        /// Specifies client payload.
         /// </summary>
         protected byte[] _clientPayload;
 
@@ -83,11 +84,12 @@ namespace Renci.SshNet.Security
             {
                 return key.VerifySignature(exchangeHash, _signature);
             }
+
             return false;
         }
 
         /// <summary>
-        /// Starts key exchange algorithm
+        /// Starts key exchange algorithm.
         /// </summary>
         /// <param name="session">The session.</param>
         /// <param name="message">Key exchange init message.</param>
@@ -105,10 +107,14 @@ namespace Renci.SshNet.Security
         protected void PopulateClientExchangeValue()
         {
             if (_group.IsZero)
+            {
                 throw new ArgumentNullException("_group");
+            }
 
             if (_prime.IsZero)
+            {
                 throw new ArgumentNullException("_prime");
+            }
 
             // generate private exponent that is twice the hash size (RFC 4419) with a minimum
             // of 1024 bits (whatever is less)
@@ -118,11 +124,13 @@ namespace Renci.SshNet.Security
 
             do
             {
-                // create private component
+                // Create private component
                 _privateExponent = BigInteger.Random(privateExponentSize);
-                // generate public component
+
+                // Generate public component
                 clientExchangeValue = BigInteger.ModPow(_group, _privateExponent, _prime);
-            } while (clientExchangeValue < 1 || clientExchangeValue > (_prime - 1));
+            }
+            while (clientExchangeValue < 1 || clientExchangeValue > (_prime - 1));
 
             _clientExchangeValue = clientExchangeValue.ToByteArray().Reverse();
         }

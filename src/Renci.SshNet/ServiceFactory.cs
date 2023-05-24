@@ -1,27 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Sockets;
 using System.Text;
+
+using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
+using Renci.SshNet.Connection;
 using Renci.SshNet.Messages.Transport;
 using Renci.SshNet.Security;
 using Renci.SshNet.Sftp;
-using Renci.SshNet.Abstractions;
-using Renci.SshNet.Connection;
-using System.Net.Sockets;
 
 namespace Renci.SshNet
 {
     /// <summary>
     /// Basic factory for creating new services.
     /// </summary>
-    internal partial class ServiceFactory : IServiceFactory
+    internal sealed partial class ServiceFactory : IServiceFactory
     {
         /// <summary>
         /// Defines the number of times an authentication attempt with any given <see cref="IAuthenticationMethod"/>
         /// can result in <see cref="AuthenticationResult.PartialSuccess"/> before it is disregarded.
         /// </summary>
-        private static int PartialSuccessLimit = 5;
+        private static readonly int PartialSuccessLimit = 5;
 
         /// <summary>
         /// Creates a <see cref="IClientAuthentication"/>.
@@ -92,9 +93,14 @@ namespace Renci.SshNet
         public IKeyExchange CreateKeyExchange(IDictionary<string, Type> clientAlgorithms, string[] serverAlgorithms)
         {
             if (clientAlgorithms == null)
-                throw new ArgumentNullException("clientAlgorithms");
+            {
+                throw new ArgumentNullException(nameof(clientAlgorithms));
+            }
+
             if (serverAlgorithms == null)
-                throw new ArgumentNullException("serverAlgorithms");
+            {
+                throw new ArgumentNullException(nameof(serverAlgorithms));
+            }
 
             // find an algorithm that is supported by both client and server
             var keyExchangeAlgorithmType = (from c in clientAlgorithms
@@ -157,7 +163,7 @@ namespace Renci.SshNet
         /// <param name="terminalName">The <c>TERM</c> environment variable.</param>
         /// <param name="columns">The terminal width in columns.</param>
         /// <param name="rows">The terminal width in rows.</param>
-        /// <param name="width">The terminal height in pixels.</param>
+        /// <param name="width">The terminal width in pixels.</param>
         /// <param name="height">The terminal height in pixels.</param>
         /// <param name="terminalModeValues">The terminal mode values.</param>
         /// <param name="bufferSize">The size of the buffer.</param>
@@ -210,9 +216,14 @@ namespace Renci.SshNet
         public IConnector CreateConnector(IConnectionInfo connectionInfo, ISocketFactory socketFactory)
         {
             if (connectionInfo == null)
-                throw new ArgumentNullException("connectionInfo");
+            {
+                throw new ArgumentNullException(nameof(connectionInfo));
+            }
+
             if (socketFactory == null)
-                throw new ArgumentNullException("socketFactory");
+            {
+                throw new ArgumentNullException(nameof(socketFactory));
+            }
 
             switch (connectionInfo.ProxyType)
             {

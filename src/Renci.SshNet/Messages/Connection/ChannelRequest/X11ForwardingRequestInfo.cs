@@ -1,14 +1,14 @@
 ﻿namespace Renci.SshNet.Messages.Connection
 {
     /// <summary>
-    /// Represents "x11-req" type channel request information
+    /// Represents "x11-req" type channel request information.
     /// </summary>
-    internal class X11ForwardingRequestInfo : RequestInfo
+    internal sealed class X11ForwardingRequestInfo : RequestInfo
     {
         private byte[] _authenticationProtocol;
 
         /// <summary>
-        /// Channel request name
+        /// Channel request name.
         /// </summary>
         public const string Name = "x11-req";
 
@@ -27,7 +27,7 @@
         /// Gets or sets a value indicating whether it is a single connection.
         /// </summary>
         /// <value>
-        /// 	<c>true</c> if it is a single connection; otherwise, <c>false</c>.
+        /// <c>true</c> if it is a single connection; otherwise, <c>false</c>.
         /// </value>
         public bool IsSingleConnection { get; set; }
 

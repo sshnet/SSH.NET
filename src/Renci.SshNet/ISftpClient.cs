@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using Renci.SshNet.Sftp;
-using Renci.SshNet.Common;
 using System.Threading;
 using System.Threading.Tasks;
+
+using Renci.SshNet.Common;
+using Renci.SshNet.Sftp;
 
 namespace Renci.SshNet
 {
@@ -55,7 +56,7 @@ namespace Renci.SshNet
         /// one (-1) milliseconds, which indicates an infinite timeout period.
         /// </value>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="value"/> represents a value that is less than -1 or greater than <see cref="Int32.MaxValue"/> milliseconds.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="value"/> represents a value that is less than -1 or greater than <see cref="int.MaxValue"/> milliseconds.</exception>
         TimeSpan OperationTimeout { get; set; }
 
         /// <summary>

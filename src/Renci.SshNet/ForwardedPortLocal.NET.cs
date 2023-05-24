@@ -1,7 +1,8 @@
 ﻿using System;
-using System.Net.Sockets;
 using System.Net;
+using System.Net.Sockets;
 using System.Threading;
+
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 
@@ -73,7 +74,7 @@ namespace Renci.SshNet
 
         private void AcceptCompleted(object sender, SocketAsyncEventArgs e)
         {
-            if (e.SocketError == SocketError.OperationAborted || e.SocketError == SocketError.NotSocket)
+            if (e.SocketError is SocketError.OperationAborted or SocketError.NotSocket)
             {
                 // server was stopped
                 return;
@@ -86,6 +87,7 @@ namespace Renci.SshNet
             {
                 // accept new connection
                 StartAccept(e);
+
                 // dispose broken client socket
                 CloseClientSocket(clientSocket);
                 return;
@@ -93,6 +95,7 @@ namespace Renci.SshNet
 
             // accept new connection
             StartAccept(e);
+
             // process connection
             ProcessAccept(clientSocket);
         }
@@ -139,7 +142,7 @@ namespace Renci.SshNet
                 // the CountdownEvent will be disposed
                 try
                 {
-                    pendingChannelCountdown.Signal();
+                    _ = pendingChannelCountdown.Signal();
                 }
                 catch (ObjectDisposedException)
                 {
@@ -163,10 +166,7 @@ namespace Renci.SshNet
         private void InitializePendingChannelCountdown()
         {
             var original = Interlocked.Exchange(ref _pendingChannelCountdown, new CountdownEvent(1));
-            if (original != null)
-            {
-                original.Dispose();
-            }
+            original?.Dispose();
         }
 
         private static void CloseClientSocket(Socket clientSocket)
@@ -192,11 +192,7 @@ namespace Renci.SshNet
         partial void StopListener()
         {
             // close listener socket
-            var listener = _listener;
-            if (listener != null)
-            {
-                listener.Dispose();
-            }
+            _listener?.Dispose();
 
             // unsubscribe from session events
             var session = Session;
@@ -213,7 +209,8 @@ namespace Renci.SshNet
         /// <param name="timeout">The maximum time to wait for the pending channels to close.</param>
         partial void InternalStop(TimeSpan timeout)
         {
-            _pendingChannelCountdown.Signal();
+            _ = _pendingChannelCountdown.Signal();
+
             if (!_pendingChannelCountdown.Wait(timeout))
             {
                 // TODO: log as warning

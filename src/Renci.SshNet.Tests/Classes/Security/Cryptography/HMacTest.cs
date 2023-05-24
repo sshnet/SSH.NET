@@ -8,7 +8,6 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography
     /// <summary>
     /// Provides HMAC algorithm implementation.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
     [TestClass]
     public class HMacTest : TestBase
     {

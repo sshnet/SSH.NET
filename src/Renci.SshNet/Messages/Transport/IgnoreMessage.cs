@@ -50,7 +50,9 @@ namespace Renci.SshNet.Messages.Transport
         public IgnoreMessage(byte[] data)
         {
             if (data == null)
-                throw new ArgumentNullException("data");
+            {
+                throw new ArgumentNullException(nameof(data));
+            }
 
             Data = data;
         }

@@ -14,14 +14,14 @@ namespace Renci.SshNet.Common
     public class ProxyException : SshException
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="ScpException"/> class.
+        /// Initializes a new instance of the <see cref="ProxyException"/> class.
         /// </summary>
         public ProxyException()
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ScpException"/> class.
+        /// Initializes a new instance of the <see cref="ProxyException"/> class.
         /// </summary>
         /// <param name="message">The message.</param>
         public ProxyException(string message)
@@ -30,12 +30,12 @@ namespace Renci.SshNet.Common
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ScpException"/> class.
+        /// Initializes a new instance of the <see cref="ProxyException"/> class.
         /// </summary>
         /// <param name="message">The message.</param>
         /// <param name="innerException">The inner exception.</param>
-        public ProxyException(string message, Exception innerException) :
-            base(message, innerException)
+        public ProxyException(string message, Exception innerException)
+            : base(message, innerException)
         {
         }
 

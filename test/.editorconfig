@@ -1,0 +1,111 @@
+﻿[*.cs]
+
+# Sonar rules
+
+# S1854: Unused assignments should be removed
+# https://rules.sonarsource.com/csharp/RSPEC-1854
+#
+# We sometimes increment the value of a variable on each use to make the code future-proof.
+#
+# For example:
+# int idSequence = 0;
+# var train1 = new Train { Id = ++idSequence };
+# var train2 = new Train { Id = ++idSequence };
+#
+# The increment of 'idSequence' in the last line will cause this diagnostic to be reported. We prefer to keep the increment to make
+# sure the value of the variable will remain correct when we introduce a 'train3'.
+#
+# For unit tests, we do not care about this diagnostic.
+dotnet_diagnostic.S1854.severity = none
+
+#### StyleCop rules ####
+
+# SA1202: Elements must be ordered by access
+dotnet_diagnostic.SA1202.severity = none
+
+# SA1600: Elements must be documented
+#
+# For unit test projects, we do not care about documentation.
+dotnet_diagnostic.SA1600.severity = none
+
+# SA1601: Partial elements should be documented
+#
+# For unit test projects, we do not care about documentation.
+dotnet_diagnostic.SA1601.severity = none
+
+# SA1602: Enumeration items must be documented
+#
+# For unit test projects, we do not care about documentation.
+dotnet_diagnostic.SA1602.severity = none
+
+# SA1604: Element documentation should have summary
+#
+# TODO: Remove this when code has been updated!
+dotnet_diagnostic.SA1604.severity = none
+
+# SA1606: Element documentation should have summary text
+#
+# TODO: Remove this when code has been updated!
+dotnet_diagnostic.SA1606.severity = none
+
+# SA1607: Partial element documentation should have summary text
+#
+# For unit test projects, we do not care about documentation.
+dotnet_diagnostic.SA1607.severity = none
+
+# SA1611: Element parameters must be documented
+#
+# For unit test projects, we do not care about documentation.
+dotnet_diagnostic.SA1611.severity = none
+
+# SA1614: Element parameter documentation must have text
+#
+# TODO: Remove this when code has been updated!
+dotnet_diagnostic.SA1614.severity = none
+
+# SA1615: Element return value must be documented
+#
+# For unit test projects, we do not care about documentation.
+dotnet_diagnostic.SA1615.severity = none
+
+# SA1616: Element return value documentation should have text
+#
+# TODO: Remove this when code has been updated!
+dotnet_diagnostic.SA1616.severity = none
+
+# SA1623: Property summary documentation must match accessors
+#
+# TODO: Remove this when code has been updated!
+dotnet_diagnostic.SA1623.severity = none
+
+# SA1629: Documentation text must end with a period
+#
+# For unit test projects, we do not care about documentation.
+dotnet_diagnostic.SA1629.severity = none
+
+#### .NET Compiler Platform analysers rules ####
+
+# CA1001: Types that own disposable fields should be disposable
+#
+# We do not care about this for unit tests.
+dotnet_diagnostic.CA1001.severity = none
+
+# CA1707: Identifiers should not contain underscores
+#
+# We frequently use underscores in test classes and test methods.
+dotnet_diagnostic.CA1707.severity = none
+
+# CA1711: Identifiers should not have incorrect suffix
+#
+# We frequently define test classes and test method with a suffix that refers to a type.
+dotnet_diagnostic.CA1711.severity = none
+
+# CA1720: Identifiers should not contain type names
+#
+# We do not care about this for unit tests.
+dotnet_diagnostic.CA1720.severity = none
+
+# CA5394: Do not use insecure randomness
+#
+# We do not care about this for unit tests.
+dotnet_diagnostic.CA5394.severity = none

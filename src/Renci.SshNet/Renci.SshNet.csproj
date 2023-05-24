@@ -1,13 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <AssemblyName>Renci.SshNet</AssemblyName>
-    <AssemblyOriginatorKeyFile>../Renci.SshNet.snk</AssemblyOriginatorKeyFile>
-    <LangVersion>latest</LangVersion>
-    <SignAssembly>true</SignAssembly>
-    <TargetFrameworks>net462;netstandard2.0;netstandard2.1;net6.0;net7.0</TargetFrameworks>
+	<TargetFrameworks>net462;netstandard2.0;netstandard2.1;net6.0;net7.0</TargetFrameworks>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net462' ">

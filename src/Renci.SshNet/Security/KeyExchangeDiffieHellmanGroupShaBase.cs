@@ -14,30 +14,7 @@ namespace Renci.SshNet.Security
         public abstract BigInteger GroupPrime { get; }
 
         /// <summary>
-        /// Calculates key exchange hash value.
-        /// </summary>
-        /// <returns>
-        /// Key exchange hash.
-        /// </returns>
-        protected override byte[] CalculateHash()
-        {
-            var keyExchangeHashData = new KeyExchangeHashData
-                {
-                    ClientVersion = Session.ClientVersion,
-                    ServerVersion = Session.ServerVersion,
-                    ClientPayload = _clientPayload,
-                    ServerPayload = _serverPayload,
-                    HostKey = _hostKey,
-                    ClientExchangeValue = _clientExchangeValue,
-                    ServerExchangeValue = _serverExchangeValue,
-                    SharedKey = SharedKey,
-                };
-
-            return Hash(keyExchangeHashData.GetBytes());
-        }
-
-        /// <summary>
-        /// Starts key exchange algorithm
+        /// Starts key exchange algorithm.
         /// </summary>
         /// <param name="session">The session.</param>
         /// <param name="message">Key exchange init message.</param>
@@ -67,16 +44,39 @@ namespace Renci.SshNet.Security
             Session.KeyExchangeDhReplyMessageReceived -= Session_KeyExchangeDhReplyMessageReceived;
         }
 
+        /// <summary>
+        /// Calculates key exchange hash value.
+        /// </summary>
+        /// <returns>
+        /// Key exchange hash.
+        /// </returns>
+        protected override byte[] CalculateHash()
+        {
+            var keyExchangeHashData = new KeyExchangeHashData
+            {
+                ClientVersion = Session.ClientVersion,
+                ServerVersion = Session.ServerVersion,
+                ClientPayload = _clientPayload,
+                ServerPayload = _serverPayload,
+                HostKey = _hostKey,
+                ClientExchangeValue = _clientExchangeValue,
+                ServerExchangeValue = _serverExchangeValue,
+                SharedKey = SharedKey,
+            };
+
+            return Hash(keyExchangeHashData.GetBytes());
+        }
+
         private void Session_KeyExchangeDhReplyMessageReceived(object sender, MessageEventArgs<KeyExchangeDhReplyMessage> e)
         {
             var message = e.Message;
 
-            //  Unregister message once received
+            // Unregister message once received
             Session.UnRegisterMessage("SSH_MSG_KEXDH_REPLY");
 
             HandleServerDhReply(message.HostKey, message.F, message.Signature);
 
-            //  When SSH_MSG_KEXDH_REPLY received key exchange is completed
+            // When SSH_MSG_KEXDH_REPLY received key exchange is completed
             Finish();
         }
     }

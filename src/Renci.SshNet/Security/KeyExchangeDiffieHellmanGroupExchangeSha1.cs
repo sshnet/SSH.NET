@@ -5,7 +5,7 @@ namespace Renci.SshNet.Security
     /// <summary>
     /// Represents "diffie-hellman-group-exchange-sha1" algorithm implementation.
     /// </summary>
-    internal class KeyExchangeDiffieHellmanGroupExchangeSha1 : KeyExchangeDiffieHellmanGroupExchangeShaBase
+    internal sealed class KeyExchangeDiffieHellmanGroupExchangeSha1 : KeyExchangeDiffieHellmanGroupExchangeShaBase
     {
         /// <summary>
         /// Gets algorithm name.
@@ -31,7 +31,7 @@ namespace Renci.SshNet.Security
         /// </summary>
         /// <param name="hashData">The hash data.</param>
         /// <returns>
-        /// Hashed bytes
+        /// The hash of the data.
         /// </returns>
         protected override byte[] Hash(byte[] hashData)
         {

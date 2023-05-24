@@ -11,14 +11,22 @@ namespace Renci.SshNet
         private ForwardedPortStatus _status;
 
         /// <summary>
+        /// Holds a value indicating whether the current instance is disposed.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if the current instance is disposed; otherwise, <c>false</c>.
+        /// </value>
+        private bool _isDisposed;
+
+        /// <summary>
         /// Gets the bound host.
         /// </summary>
-        public string BoundHost { get; private set; }
+        public string BoundHost { get; }
 
         /// <summary>
         /// Gets the bound port.
         /// </summary>
-        public uint BoundPort { get; private set; }
+        public uint BoundPort { get; }
 
         /// <summary>
         /// Gets a value indicating whether port forwarding is started.
@@ -35,7 +43,8 @@ namespace Renci.SshNet
         /// Initializes a new instance of the <see cref="ForwardedPortDynamic"/> class.
         /// </summary>
         /// <param name="port">The port.</param>
-        public ForwardedPortDynamic(uint port) : this(string.Empty, port)
+        public ForwardedPortDynamic(uint port)
+            : this(string.Empty, port)
         {
         }
 
@@ -57,7 +66,9 @@ namespace Renci.SshNet
         protected override void StartPort()
         {
             if (!ForwardedPortStatus.ToStarting(ref _status))
+            {
                 return;
+            }
 
             try
             {
@@ -78,14 +89,19 @@ namespace Renci.SshNet
         protected override void StopPort(TimeSpan timeout)
         {
             if (!ForwardedPortStatus.ToStopping(ref _status))
+            {
                 return;
+            }
 
             // signal existing channels that the port is closing
             base.StopPort(timeout);
+
             // prevent new requests from getting processed
             StopListener();
+
             // wait for open channels to close
             InternalStop(timeout);
+
             // mark port stopped
             _status = ForwardedPortStatus.Stopped;
         }
@@ -97,7 +113,9 @@ namespace Renci.SshNet
         protected override void CheckDisposed()
         {
             if (_isDisposed)
+            {
                 throw new ObjectDisposedException(GetType().FullName);
+            }
         }
 
         partial void InternalStart();
@@ -113,51 +131,40 @@ namespace Renci.SshNet
         /// <param name="timeout">The maximum time to wait for the forwarded port to stop.</param>
         partial void InternalStop(TimeSpan timeout);
 
-        #region IDisposable Members
-
-        /// <summary>
-        /// Holds a value indicating whether the current instance is disposed.
-        /// </summary>
-        /// <value>
-        /// <c>true</c> if the current instance is disposed; otherwise, <c>false</c>.
-        /// </value>
-        private bool _isDisposed;
-
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose()
         {
-            Dispose(true);
+            Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
 
         partial void InternalDispose(bool disposing);
 
         /// <summary>
-        /// Releases unmanaged and - optionally - managed resources
+        /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
         /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected override void Dispose(bool disposing)
         {
             if (_isDisposed)
+            {
                 return;
+            }
 
             base.Dispose(disposing);
-            InternalDispose(disposing);
 
+            InternalDispose(disposing);
             _isDisposed = true;
         }
 
         /// <summary>
-        /// Releases unmanaged resources and performs other cleanup operations before the
-        /// <see cref="ForwardedPortDynamic"/> is reclaimed by garbage collection.
+        /// Finalizes an instance of the <see cref="ForwardedPortDynamic"/> class.
         /// </summary>
         ~ForwardedPortDynamic()
         {
-            Dispose(false);
+            Dispose(disposing: false);
         }
-
-        #endregion
     }
 }

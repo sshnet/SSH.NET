@@ -2,7 +2,7 @@
 
 namespace Renci.SshNet.Sftp.Responses
 {
-    internal class SftpVersionResponse : SftpMessage
+    internal sealed class SftpVersionResponse : SftpMessage
     {
         public override SftpMessageTypes SftpMessageType
         {
@@ -16,6 +16,7 @@ namespace Renci.SshNet.Sftp.Responses
         protected override void LoadData()
         {
             base.LoadData();
+
             Version = ReadUInt32();
             Extentions = ReadExtensionPair();
         }
@@ -25,8 +26,11 @@ namespace Renci.SshNet.Sftp.Responses
             base.SaveData();
 
             Write(Version);
+
             if (Extentions != null)
+            {
                 Write(Extentions);
+            }
         }
     }
 }

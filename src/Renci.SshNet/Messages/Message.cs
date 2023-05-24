@@ -1,7 +1,8 @@
-﻿using System.IO;
-using Renci.SshNet.Common;
-using System.Globalization;
+﻿using System.Globalization;
+using System.IO;
+
 using Renci.SshNet.Abstractions;
+using Renci.SshNet.Common;
 using Renci.SshNet.Compression;
 
 namespace Renci.SshNet.Messages
@@ -30,7 +31,7 @@ namespace Renci.SshNet.Messages
         /// </summary>
         protected override void WriteBytes(SshDataStream stream)
         {
-            var enumerator = GetType().GetCustomAttributes<MessageAttribute>(true).GetEnumerator();
+            var enumerator = GetType().GetCustomAttributes<MessageAttribute>(inherit: true).GetEnumerator();
             try
             {
                 if (!enumerator.MoveNext())
@@ -64,7 +65,7 @@ namespace Renci.SshNet.Messages
                 // * 4 bytes for the outbound packet sequence
                 // * 4 bytes for the packet data length
                 // * one byte for the packet padding length
-                sshDataStream.Seek(outboundPacketSequenceSize + 4 + 1, SeekOrigin.Begin);
+                _ = sshDataStream.Seek(outboundPacketSequenceSize + 4 + 1, SeekOrigin.Begin);
 
                 if (compressor != null)
                 {
@@ -99,12 +100,12 @@ namespace Renci.SshNet.Messages
                 var packetDataLength = GetPacketDataLength(messageLength, paddingLength);
 
                 // skip bytes for outbound packet sequence
-                sshDataStream.Seek(outboundPacketSequenceSize, SeekOrigin.Begin);
+                _ = sshDataStream.Seek(outboundPacketSequenceSize, SeekOrigin.Begin);
 
                 // add packet data length
                 sshDataStream.Write(packetDataLength);
 
-                //  add packet padding length
+                // add packet padding length
                 sshDataStream.WriteByte(paddingLength);
             }
             else
@@ -120,12 +121,12 @@ namespace Renci.SshNet.Messages
                 sshDataStream = new SshDataStream(packetLength + paddingLength + outboundPacketSequenceSize);
 
                 // skip bytes for outbound packet sequenceSize
-                sshDataStream.Seek(outboundPacketSequenceSize, SeekOrigin.Begin);
+                _ = sshDataStream.Seek(outboundPacketSequenceSize, SeekOrigin.Begin);
 
                 // add packet data length
                 sshDataStream.Write(packetDataLength);
 
-                //  add packet padding length
+                // add packet padding length
                 sshDataStream.WriteByte(paddingLength);
 
                 // add message payload
@@ -148,10 +149,12 @@ namespace Renci.SshNet.Messages
         private static byte GetPaddingLength(byte paddingMultiplier, long packetLength)
         {
             var paddingLength = (byte)((-packetLength) & (paddingMultiplier - 1));
+
             if (paddingLength < paddingMultiplier)
             {
                 paddingLength += paddingMultiplier;
             }
+
             return paddingLength;
         }
 
@@ -163,8 +166,7 @@ namespace Renci.SshNet.Messages
         /// </returns>
         public override string ToString()
         {
-            var enumerator = GetType().GetCustomAttributes<MessageAttribute>(true).GetEnumerator();
-            try
+            using (var enumerator = GetType().GetCustomAttributes<MessageAttribute>(inherit: true).GetEnumerator())
             {
                 if (!enumerator.MoveNext())
                 {
@@ -172,10 +174,6 @@ namespace Renci.SshNet.Messages
                 }
 
                 return enumerator.Current.Name;
-            }
-            finally
-            {
-                enumerator.Dispose();
             }
         }
 

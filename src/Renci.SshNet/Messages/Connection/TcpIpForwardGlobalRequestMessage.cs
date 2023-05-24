@@ -2,7 +2,7 @@
 
 namespace Renci.SshNet.Messages.Connection
 {
-    internal class TcpIpForwardGlobalRequestMessage : GlobalRequestMessage
+    internal sealed class TcpIpForwardGlobalRequestMessage : GlobalRequestMessage
     {
         private byte[] _addressToBind;
 

@@ -10,6 +10,7 @@ namespace Renci.SshNet.Security.Cryptography
     public class ED25519DigitalSignature : DigitalSignature, IDisposable
     {
         private readonly ED25519Key _key;
+        private bool _isDisposed;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ED25519DigitalSignature" /> class.
@@ -19,7 +20,9 @@ namespace Renci.SshNet.Security.Cryptography
         public ED25519DigitalSignature(ED25519Key key)
         {
             if (key == null)
-                throw new ArgumentNullException("key");
+            {
+                throw new ArgumentNullException(nameof(key));
+            }
 
             _key = key;
         }
@@ -51,16 +54,12 @@ namespace Renci.SshNet.Security.Cryptography
             return Ed25519.Sign(input, _key.PrivateKey);
         }
 
-        #region IDisposable Members
-
-        private bool _isDisposed;
-
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose()
         {
-            Dispose(true);
+            Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
 
@@ -71,7 +70,9 @@ namespace Renci.SshNet.Security.Cryptography
         protected virtual void Dispose(bool disposing)
         {
             if (_isDisposed)
+            {
                 return;
+            }
 
             if (disposing)
             {
@@ -80,14 +81,11 @@ namespace Renci.SshNet.Security.Cryptography
         }
 
         /// <summary>
-        /// Releases unmanaged resources and performs other cleanup operations before the
-        /// <see cref="ED25519DigitalSignature"/> is reclaimed by garbage collection.
+        /// Finalizes an instance of the <see cref="ED25519DigitalSignature"/> class.
         /// </summary>
         ~ED25519DigitalSignature()
         {
-            Dispose(false);
+            Dispose(disposing: false);
         }
-
-        #endregion
     }
 }

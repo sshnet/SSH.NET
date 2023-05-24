@@ -5,7 +5,7 @@ using System.Text;
 namespace Renci.SshNet.Common
 {
     /// <summary>
-    /// Base ssh data serialization type
+    /// Base ssh data serialization type.
     /// </summary>
     public abstract class SshData
     {
@@ -57,7 +57,7 @@ namespace Renci.SshNet.Common
         /// Gets data bytes array.
         /// </summary>
         /// <returns>
-        /// A <see cref="Byte"/> array representation of data structure.
+        /// A <see cref="byte"/> array representation of data structure.
         /// </returns>
         public byte[] GetBytes()
         {
@@ -86,7 +86,9 @@ namespace Renci.SshNet.Common
         public void Load(byte[] data)
         {
             if (data == null)
-                throw new ArgumentNullException("data");
+            {
+                throw new ArgumentNullException(nameof(data));
+            }
 
             LoadInternal(data, 0, data.Length);
         }
@@ -101,7 +103,9 @@ namespace Renci.SshNet.Common
         public void Load(byte[] data, int offset, int count)
         {
             if (data == null)
-                throw new ArgumentNullException("data");
+            {
+                throw new ArgumentNullException(nameof(data));
+            }
 
             LoadInternal(data, offset, count);
         }
@@ -130,7 +134,7 @@ namespace Renci.SshNet.Common
         {
             var bytesLength = (int) (_stream.Length - _stream.Position);
             var data = new byte[bytesLength];
-            _stream.Read(data, 0, bytesLength);
+            _ = _stream.Read(data, 0, bytesLength);
             return data;
         }
 
@@ -142,15 +146,19 @@ namespace Renci.SshNet.Common
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="length"/> is greater than the internal buffer size.</exception>
         protected byte[] ReadBytes(int length)
         {
-            // Note that this also prevents allocating non-relevant lengths, such as if length is greater than _data.Count but less than int.MaxValue.
-            // For the nerds, the condition translates to: if (length > data.Count && length < int.MaxValue)
-            // Which probably would cause all sorts of exception, most notably OutOfMemoryException.
+            /*
+             * Note that this also prevents allocating non-relevant lengths, such as if length is greater than _data.Count but less than int.MaxValue.
+             * For the nerds, the condition translates to: if (length > data.Count && length < int.MaxValue)
+             * Which probably would cause all sorts of exception, most notably OutOfMemoryException.
+             */
 
             var data = new byte[length];
             var bytesRead = _stream.Read(data, 0, length);
 
             if (bytesRead < length)
-                throw new ArgumentOutOfRangeException("length");
+            {
+                throw new ArgumentOutOfRangeException(nameof(length));
+            }
 
             return data;
         }
@@ -163,51 +171,63 @@ namespace Renci.SshNet.Common
         {
             var byteRead = _stream.ReadByte();
             if (byteRead == -1)
+            {
                 throw new InvalidOperationException("Attempt to read past the end of the SSH data stream.");
+            }
+
             return (byte) byteRead;
         }
 
         /// <summary>
-        /// Reads next boolean data type from internal buffer.
+        /// Reads the next <see cref="bool"/> from the internal buffer.
         /// </summary>
-        /// <returns>Boolean read.</returns>
+        /// <returns>
+        /// The <see cref="bool"/> that was read.
+        /// </returns>
         protected bool ReadBoolean()
         {
             return ReadByte() != 0;
         }
 
         /// <summary>
-        /// Reads next uint16 data type from internal buffer.
+        /// Reads the next <see cref="ushort"/> from the internal buffer.
         /// </summary>
-        /// <returns>uint16 read</returns>
+        /// <returns>
+        /// The <see cref="ushort"/> that was read.
+        /// </returns>
         protected ushort ReadUInt16()
         {
             return Pack.BigEndianToUInt16(ReadBytes(2));
         }
 
         /// <summary>
-        /// Reads next uint32 data type from internal buffer.
+        /// Reads the next <see cref="uint"/> from the internal buffer.
         /// </summary>
-        /// <returns>uint32 read</returns>
+        /// <returns>
+        /// The <see cref="uint"/> that was read.
+        /// </returns>
         protected uint ReadUInt32()
         {
             return Pack.BigEndianToUInt32(ReadBytes(4));
         }
 
         /// <summary>
-        /// Reads next uint64 data type from internal buffer.
+        /// Reads the next <see cref="ulong"/> from the internal buffer.
         /// </summary>
-        /// <returns>uint64 read</returns>
+        /// <returns>
+        /// The <see cref="ulong"/> that was read.
+        /// </returns>
         protected ulong ReadUInt64()
         {
             return Pack.BigEndianToUInt64(ReadBytes(8));
         }
 
         /// <summary>
-        /// Reads next string data type from internal buffer using the specific encoding.
+        /// Reads the next <see cref="string"/> from the internal buffer using the specified encoding.
         /// </summary>
+        /// <param name="encoding">The character encoding to use.</param>
         /// <returns>
-        /// The <see cref="string"/> read.
+        /// The <see cref="string"/> that was read.
         /// </returns>
         protected string ReadString(Encoding encoding)
         {
@@ -244,12 +264,14 @@ namespace Renci.SshNet.Common
         protected IDictionary<string, string> ReadExtensionPair()
         {
             var result = new Dictionary<string, string>();
+
             while (!IsEndOfData)
             {
                 var extensionName = ReadString(Ascii);
                 var extensionData = ReadString(Ascii);
                 result.Add(extensionName, extensionData);
             }
+
             return result;
         }
 

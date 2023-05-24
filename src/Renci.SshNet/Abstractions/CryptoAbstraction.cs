@@ -8,7 +8,7 @@ namespace Renci.SshNet.Abstractions
         private static readonly System.Security.Cryptography.RandomNumberGenerator Randomizer = CreateRandomNumberGenerator();
 
         /// <summary>
-        /// Generates a <see cref="Byte"/> array of the specified length, and fills it with a
+        /// Generates a <see cref="byte"/> array of the specified length, and fills it with a
         /// cryptographically strong random sequence of values.
         /// </summary>
         /// <param name="length">The length of the array generate.</param>

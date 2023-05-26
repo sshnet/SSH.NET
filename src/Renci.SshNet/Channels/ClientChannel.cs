@@ -7,7 +7,7 @@ namespace Renci.SshNet.Channels
     internal abstract class ClientChannel : Channel
     {
         /// <summary>
-        /// Initializes a new <see cref="ClientChannel"/> instance.
+        /// Initializes a new instance of the <see cref="ClientChannel"/> class.
         /// </summary>
         /// <param name="session">The session.</param>
         /// <param name="localChannelNumber">The local channel number.</param>
@@ -43,9 +43,7 @@ namespace Renci.SshNet.Channels
             // Channel is consider to be open when confirmation message was received
             IsOpen = true;
 
-            var openConfirmed = OpenConfirmed;
-            if (openConfirmed != null)
-                openConfirmed(this, new ChannelOpenConfirmedEventArgs(remoteChannelNumber, initialWindowSize, maximumPacketSize));
+            OpenConfirmed?.Invoke(this, new ChannelOpenConfirmedEventArgs(remoteChannelNumber, initialWindowSize, maximumPacketSize));
         }
 
         /// <summary>
@@ -68,9 +66,7 @@ namespace Renci.SshNet.Channels
         /// <param name="language">The language.</param>
         protected virtual void OnOpenFailure(uint reasonCode, string description, string language)
         {
-            var openFailed = OpenFailed;
-            if (openFailed != null)
-                openFailed(this, new ChannelOpenFailedEventArgs(LocalChannelNumber, reasonCode, description, language));
+            OpenFailed?.Invoke(this, new ChannelOpenFailedEventArgs(LocalChannelNumber, reasonCode, description, language));
         }
 
         private void OnChannelOpenConfirmation(object sender, MessageEventArgs<ChannelOpenConfirmationMessage> e)
@@ -79,8 +75,9 @@ namespace Renci.SshNet.Channels
             {
                 try
                 {
-                    OnOpenConfirmation(e.Message.RemoteChannelNumber, e.Message.InitialWindowSize,
-                        e.Message.MaximumPacketSize);
+                    OnOpenConfirmation(e.Message.RemoteChannelNumber,
+                                       e.Message.InitialWindowSize,
+                                       e.Message.MaximumPacketSize);
                 }
                 catch (Exception ex)
                 {
@@ -121,7 +118,9 @@ namespace Renci.SshNet.Channels
         private void UnsubscribeFromSessionEvents(ISession session)
         {
             if (session == null)
+            {
                 return;
+            }
 
             session.ChannelOpenConfirmationReceived -= OnChannelOpenConfirmation;
             session.ChannelOpenFailureReceived -= OnChannelOpenFailure;

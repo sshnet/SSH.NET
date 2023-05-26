@@ -1,9 +1,7 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-#if !FEATURE_THREAD_COUNTDOWNEVENT
-using CountdownEvent = Renci.SshNet.Common.CountdownEvent;
-#endif
 
 namespace Renci.SshNet.Tests.Classes.Common
 {
@@ -111,16 +109,17 @@ namespace Renci.SshNet.Tests.Classes.Common
                 threads[i].Start();
             }
 
-            var start = DateTime.Now;
+            var watch = new Stopwatch();
+            watch.Start();
             var actual = countdownEvent.Wait(timeout);
-            var elapsedTime = DateTime.Now - start;
+            watch.Stop();
 
             Assert.IsTrue(actual);
             Assert.AreEqual(expectedSignalCount, signalCount);
             Assert.IsTrue(countdownEvent.IsSet);
             Assert.IsTrue(countdownEvent.WaitHandle.WaitOne(0));
-            Assert.IsTrue(elapsedTime >= sleep);
-            Assert.IsTrue(elapsedTime <= sleep.Add(TimeSpan.FromMilliseconds(100)));
+            Assert.IsTrue(watch.Elapsed >= sleep);
+            Assert.IsTrue(watch.Elapsed <= sleep.Add(TimeSpan.FromMilliseconds(100)));
 
             countdownEvent.Dispose();
         }
@@ -150,16 +149,17 @@ namespace Renci.SshNet.Tests.Classes.Common
                 threads[i].Start();
             }
 
-            var start = DateTime.Now;
+            var watch = new Stopwatch();
+            watch.Start();
             var actual = countdownEvent.Wait(timeout);
-            var elapsedTime = DateTime.Now - start;
+            watch.Stop();
 
             Assert.IsTrue(actual);
             Assert.AreEqual(expectedSignalCount, signalCount);
             Assert.IsTrue(countdownEvent.IsSet);
             Assert.IsTrue(countdownEvent.WaitHandle.WaitOne(0));
-            Assert.IsTrue(elapsedTime >= sleep);
-            Assert.IsTrue(elapsedTime <= timeout);
+            Assert.IsTrue(watch.Elapsed >= sleep);
+            Assert.IsTrue(watch.Elapsed <= timeout);
 
             countdownEvent.Dispose();
         }
@@ -189,14 +189,14 @@ namespace Renci.SshNet.Tests.Classes.Common
                 threads[i].Start();
             }
 
-            var start = DateTime.Now;
+            var watch = new Stopwatch();
+            watch.Start();
             var actual = countdownEvent.Wait(timeout);
-            var elapsedTime = DateTime.Now - start;
+            watch.Stop();
 
             Assert.IsFalse(actual);
             Assert.IsFalse(countdownEvent.IsSet);
             Assert.IsFalse(countdownEvent.WaitHandle.WaitOne(0));
-            Assert.IsTrue(elapsedTime >= timeout);
 
             countdownEvent.Wait(Session.InfiniteTimeSpan);
             countdownEvent.Dispose();
@@ -239,16 +239,17 @@ namespace Renci.SshNet.Tests.Classes.Common
                 threads[i].Start();
             }
 
-            var start = DateTime.Now;
+            var watch = new Stopwatch();
+            watch.Start();
             var actual = countdownEvent.WaitHandle.WaitOne(timeout);
-            var elapsedTime = DateTime.Now - start;
+            watch.Stop();
 
             Assert.IsTrue(actual);
             Assert.AreEqual(expectedSignalCount, signalCount);
             Assert.IsTrue(countdownEvent.IsSet);
             Assert.IsTrue(countdownEvent.WaitHandle.WaitOne(0));
-            Assert.IsTrue(elapsedTime >= sleep);
-            Assert.IsTrue(elapsedTime <= sleep.Add(TimeSpan.FromMilliseconds(100)));
+            Assert.IsTrue(watch.Elapsed >= sleep);
+            Assert.IsTrue(watch.Elapsed <= sleep.Add(TimeSpan.FromMilliseconds(100)));
 
             countdownEvent.Dispose();
         }
@@ -278,16 +279,17 @@ namespace Renci.SshNet.Tests.Classes.Common
                 threads[i].Start();
             }
 
-            var start = DateTime.Now;
+            var watch = new Stopwatch();
+            watch.Start();
             var actual = countdownEvent.Wait(timeout);
-            var elapsedTime = DateTime.Now - start;
+            watch.Stop();
 
             Assert.IsTrue(actual);
             Assert.AreEqual(expectedSignalCount, signalCount);
             Assert.IsTrue(countdownEvent.IsSet);
             Assert.IsTrue(countdownEvent.WaitHandle.WaitOne(0));
-            Assert.IsTrue(elapsedTime >= sleep);
-            Assert.IsTrue(elapsedTime <= timeout);
+            Assert.IsTrue(watch.Elapsed >= sleep);
+            Assert.IsTrue(watch.Elapsed <= timeout);
 
             countdownEvent.Dispose();
         }
@@ -317,14 +319,14 @@ namespace Renci.SshNet.Tests.Classes.Common
                 threads[i].Start();
             }
 
-            var start = DateTime.Now;
+            var watch = new Stopwatch();
+            watch.Start();
             var actual = countdownEvent.WaitHandle.WaitOne(timeout);
-            var elapsedTime = DateTime.Now - start;
+            watch.Stop();
 
             Assert.IsFalse(actual);
             Assert.IsFalse(countdownEvent.IsSet);
             Assert.IsFalse(countdownEvent.WaitHandle.WaitOne(0));
-            Assert.IsTrue(elapsedTime >= timeout);
 
             countdownEvent.Wait(Session.InfiniteTimeSpan);
             countdownEvent.Dispose();

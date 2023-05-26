@@ -32,7 +32,6 @@ namespace Renci.SshNet.Tests.Classes.Common
                     catch (Exception ex)
                     {
                         _writeException = ex;
-                        throw;
                     }
                 });
             _writehread.Start();

@@ -4,7 +4,7 @@ using Renci.SshNet.Sftp.Responses;
 
 namespace Renci.SshNet.Sftp.Requests
 {
-    internal class SftpSetStatRequest : SftpRequest
+    internal sealed class SftpSetStatRequest : SftpRequest
     {
         private byte[] _path;
         private byte[] _attributesBytes;

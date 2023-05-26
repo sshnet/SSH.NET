@@ -88,7 +88,7 @@ namespace Renci.SshNet.Tests.Classes.Common
             Assert.AreEqual(0, buffer[2]);
             Assert.AreEqual(0, buffer[3]);
         }
-
+#if NETFRAMEWORK
         [TestMethod]
         public void WriteCausesSubsequentReadToBlockUntilRequestedNumberOfBytesAreAvailable()
         {
@@ -104,7 +104,10 @@ namespace Renci.SshNet.Tests.Classes.Common
             readThread.Start();
 
             Assert.IsFalse(readThread.Join(500));
+
+            // Thread Abort method is obsolete: https://learn.microsoft.com/en-us/dotnet/core/compatibility/core-libraries/5.0/thread-abort-obsolete
             readThread.Abort();
+        
 
             Assert.AreEqual(int.MaxValue, bytesRead);
             Assert.AreEqual(0, buffer[0]);
@@ -112,5 +115,6 @@ namespace Renci.SshNet.Tests.Classes.Common
             Assert.AreEqual(0, buffer[2]);
             Assert.AreEqual(0, buffer[3]);
         }
+#endif
     }
 }

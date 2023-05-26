@@ -2,12 +2,11 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using Renci.SshNet.Sftp;
-using Renci.SshNet.Common;
-#if FEATURE_TAP
 using System.Threading;
 using System.Threading.Tasks;
-#endif
+
+using Renci.SshNet.Common;
+using Renci.SshNet.Sftp;
 
 namespace Renci.SshNet
 {
@@ -57,7 +56,7 @@ namespace Renci.SshNet
         /// one (-1) milliseconds, which indicates an infinite timeout period.
         /// </value>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="value"/> represents a value that is less than -1 or greater than <see cref="Int32.MaxValue"/> milliseconds.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="value"/> represents a value that is less than -1 or greater than <see cref="int.MaxValue"/> milliseconds.</exception>
         TimeSpan OperationTimeout { get; set; }
 
         /// <summary>
@@ -492,7 +491,6 @@ namespace Renci.SshNet
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         void DeleteFile(string path);
 
-#if FEATURE_TAP
         /// <summary>
         /// Asynchronously deletes remote file specified by path.
         /// </summary>
@@ -506,7 +504,6 @@ namespace Renci.SshNet
         /// <exception cref="SshException">A SSH error where <see cref="Exception.Message"/> is the message from the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         Task DeleteFileAsync(string path, CancellationToken cancellationToken);
-#endif
 
         /// <summary>
         /// Downloads remote file specified by the path into the stream.
@@ -673,7 +670,6 @@ namespace Renci.SshNet
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         SftpFileSytemInformation GetStatus(string path);
 
-#if FEATURE_TAP
         /// <summary>
         /// Asynchronously gets status using statvfs@openssh.com request.
         /// </summary>
@@ -687,7 +683,6 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="path" /> is <b>null</b>.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         Task<SftpFileSytemInformation> GetStatusAsync(string path, CancellationToken cancellationToken);
-#endif
 
         /// <summary>
         /// Retrieves list of files in remote directory.
@@ -704,8 +699,6 @@ namespace Renci.SshNet
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         IEnumerable<ISftpFile> ListDirectory(string path, Action<int> listCallback = null);
 
-#if FEATURE_TAP
-
         /// <summary>
         /// Asynchronously retrieves list of files in remote directory.
         /// </summary>
@@ -721,7 +714,6 @@ namespace Renci.SshNet
         /// <exception cref="SshException">A SSH error where <see cref="Exception.Message" /> is the message from the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         Task<IEnumerable<ISftpFile>> ListDirectoryAsync(string path, CancellationToken cancellationToken);
-#endif
 
         /// <summary>
         /// Opens a <see cref="SftpFileStream"/> on the specified path with read/write access.
@@ -750,7 +742,6 @@ namespace Renci.SshNet
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         SftpFileStream Open(string path, FileMode mode, FileAccess access);
 
-#if FEATURE_TAP
         /// <summary>
         /// Asynchronously opens a <see cref="SftpFileStream"/> on the specified path, with the specified mode and access.
         /// </summary>
@@ -766,7 +757,6 @@ namespace Renci.SshNet
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         Task<SftpFileStream> OpenAsync(string path, FileMode mode, FileAccess access, CancellationToken cancellationToken);
-#endif
 
         /// <summary>
         /// Opens an existing file for reading.
@@ -906,7 +896,6 @@ namespace Renci.SshNet
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         void RenameFile(string oldPath, string newPath);
 
-#if FEATURE_TAP
         /// <summary>
         /// Asynchronously renames remote file from old path to new path.
         /// </summary>
@@ -920,7 +909,6 @@ namespace Renci.SshNet
         /// <exception cref="SshException">A SSH error where <see cref="Exception.Message"/> is the message from the remote host.</exception>
         /// <exception cref="ObjectDisposedException">The method was called after the client was disposed.</exception>
         Task RenameFileAsync(string oldPath, string newPath, CancellationToken cancellationToken);
-#endif
 
         /// <summary>
         /// Renames remote file from old path to new path.

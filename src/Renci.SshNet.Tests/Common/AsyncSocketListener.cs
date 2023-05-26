@@ -3,9 +3,6 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
-#if !FEATURE_SOCKET_DISPOSE
-using Renci.SshNet.Common;
-#endif // !FEATURE_SOCKET_DISPOSE
 
 namespace Renci.SshNet.Tests.Common
 {
@@ -43,7 +40,7 @@ namespace Renci.SshNet.Tests.Common
         /// <value>
         /// <see langword="true"/> to invoke <see cref="Socket.Shutdown(SocketShutdown)"/> on the <see cref="Socket"/> that is used
         /// to handle the communication with the remote host, when the remote host has closed the connection; otherwise,
-        /// <see langword="false""/>. The default is <see langword="true"/>.
+        /// <see langword="false"/>. The default is <see langword="true"/>.
         /// </value>
         public bool ShutdownRemoteCommunicationSocket { get; set; }
 
@@ -107,12 +104,24 @@ namespace Renci.SshNet.Tests.Common
 
         private void StartListener(object state)
         {
-            var listener = (Socket)state;
-            while (_started)
+            try
             {
-                _acceptCallbackDone.Reset();
-                listener.BeginAccept(AcceptCallback, listener);
-                _acceptCallbackDone.WaitOne();
+                var listener = (Socket)state;
+                while (_started)
+                {
+                    _acceptCallbackDone.Reset();
+                    listener.BeginAccept(AcceptCallback, listener);
+                    _acceptCallbackDone.WaitOne();
+                }
+            }
+            catch (Exception ex)
+            {
+                // On .NET framework when Thread throws an exception then unit tests
+                // were executed without any problem.
+                // On new .NET exceptions from Thread breaks unit tests session.
+                Console.Error.WriteLine("[{0}] Failure in StartListener: {1}",
+                    typeof(AsyncSocketListener).FullName,
+                    ex);
             }
         }
 
@@ -131,21 +140,38 @@ namespace Renci.SshNet.Tests.Common
             {
                 handler = listener.EndAccept(ar);
             }
-            catch (ObjectDisposedException ex)
+            catch (SocketException ex)
             {
                 // The listener is stopped through a Dispose() call, which in turn causes
-                // Socket.EndAccept(IAsyncResult) to throw an ObjectDisposedException
+                // Socket.EndAccept(...) to throw a SocketException or
+                // ObjectDisposedException
                 //
-                // Since we consider this ObjectDisposedException normal when the listener
-                // is being stopped, we only write a message to stderr if the listener
-                // is considered to be up and running
+                // Since we consider such an exception normal when the listener is being
+                // stopped, we only write a message to stderr if the listener is considered
+                // to be up and running
                 if (_started)
                 {
                     Console.Error.WriteLine("[{0}] Failure accepting new connection: {1}",
-                                            typeof(AsyncSocketListener).FullName,
-                                            ex);
+                        typeof(AsyncSocketListener).FullName,
+                        ex);
                 }
-
+                return;
+            }
+            catch (ObjectDisposedException ex)
+            {
+                // The listener is stopped through a Dispose() call, which in turn causes
+                // Socket.EndAccept(IAsyncResult) to throw a SocketException or
+                // ObjectDisposedException
+                //
+                // Since we consider such an exception normal when the listener is being
+                // stopped, we only write a message to stderr if the listener is considered
+                // to be up and running
+                if (_started)
+                {
+                    Console.Error.WriteLine("[{0}] Failure accepting new connection: {1}",
+                        typeof(AsyncSocketListener).FullName,
+                        ex);
+                }
                 return;
             }
 
@@ -164,14 +190,31 @@ namespace Renci.SshNet.Tests.Common
             {
                 handler.BeginReceive(state.Buffer, 0, state.Buffer.Length, 0, ReadCallback, state);
             }
+            catch (SocketException ex)
+            {
+                // The listener is stopped through a Dispose() call, which in turn causes
+                // Socket.BeginReceive(...) to throw a SocketException or
+                // ObjectDisposedException
+                //
+                // Since we consider such an exception normal when the listener is being
+                // stopped, we only write a message to stderr if the listener is considered
+                // to be up and running
+                if (_started)
+                {
+                    Console.Error.WriteLine("[{0}] Failure receiving new data: {1}",
+                        typeof(AsyncSocketListener).FullName,
+                        ex);
+                }
+            }
             catch (ObjectDisposedException ex)
             {
                 // The listener is stopped through a Dispose() call, which in turn causes
-                // Socket.BeginReceive(...) to throw an ObjectDisposedException
+                // Socket.BeginReceive(...) to throw a SocketException or
+                // ObjectDisposedException
                 //
-                // Since we consider this ObjectDisposedException normal when the listener
-                // is being stopped, we only write a message to stderr if the listener
-                // is considered to be up and running
+                // Since we consider such an exception normal when the listener is being
+                // stopped, we only write a message to stderr if the listener is considered
+                // to be up and running
                 if (_started)
                 {
                     Console.Error.WriteLine("[{0}] Failure receiving new data: {1}",
@@ -192,7 +235,11 @@ namespace Renci.SshNet.Tests.Common
             try
             {
                 // Read data from the client socket.
-                bytesRead = handler.EndReceive(ar);
+                bytesRead = handler.EndReceive(ar, out var errorCode);
+                if (errorCode != SocketError.Success)
+                {
+                    bytesRead = 0;
+                }
             }
             catch (SocketException ex)
             {
@@ -229,6 +276,43 @@ namespace Renci.SshNet.Tests.Common
                 return;
             }
 
+            void ConnectionDisconnected()
+            {
+                SignalDisconnected(handler);
+
+                if (ShutdownRemoteCommunicationSocket)
+                {
+                    lock (_syncLock)
+                    {
+                        if (!_started)
+                        {
+                            return;
+                        }
+
+                        try
+                        {
+                            handler.Shutdown(SocketShutdown.Send);
+                            handler.Close();
+                        }
+                        catch (SocketException ex) when (ex.SocketErrorCode == SocketError.ConnectionReset)
+                        {
+                            // On .NET 7 we got Socker Exception with ConnectionReset from Shutdown method
+                            // when the socket is disposed
+                        }
+                        catch (SocketException ex)
+                        {
+                            throw new Exception("Exception in ReadCallback: " + ex.SocketErrorCode + " " + _stackTrace, ex);
+                        }
+                        catch (Exception ex)
+                        {
+                            throw new Exception("Exception in ReadCallback: " + _stackTrace, ex);
+                        }
+
+                        _connectedClients.Remove(handler);
+                    }
+                }
+            }
+
             if (bytesRead > 0)
             {
                 var bytesReceived = new byte[bytesRead];
@@ -238,6 +322,11 @@ namespace Renci.SshNet.Tests.Common
                 try
                 {
                     handler.BeginReceive(state.Buffer, 0, state.Buffer.Length, 0, ReadCallback, state);
+                }
+                catch (ObjectDisposedException)
+                {
+                    // TODO On .NET 7, sometimes we get ObjectDisposedException when _started but only on appveyor, locally it works
+                    ConnectionDisconnected();
                 }
                 catch (SocketException ex)
                 {
@@ -252,33 +341,7 @@ namespace Renci.SshNet.Tests.Common
             }
             else
             {
-                SignalDisconnected(handler);
-
-                if (ShutdownRemoteCommunicationSocket)
-                {
-                    lock (_syncLock)
-                    {
-                        if (!_started)
-                        {
-                            return;
-                        }
-                        try
-                        {
-                            handler.Shutdown(SocketShutdown.Send);
-                            handler.Close();
-                        }
-                        catch (SocketException ex)
-                        {
-                            throw new Exception("Exception in ReadCallback: " + ex.SocketErrorCode + " " + _stackTrace, ex);
-                        }
-                        catch (Exception ex)
-                        {
-                            throw new Exception("Exception in ReadCallback: " + _stackTrace, ex);
-                        }
-
-                        _connectedClients.Remove(handler);
-                    }
-                }
+                ConnectionDisconnected();
             }
         }
 

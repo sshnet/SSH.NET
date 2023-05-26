@@ -348,7 +348,9 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         public override int EncryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
         {
             if (inputCount != BlockSize)
+            {
                 throw new ArgumentException("inputCount");
+            }
 
             uint xl = Pack.BigEndianToUInt32(inputBuffer, inputOffset);
             uint xr = Pack.BigEndianToUInt32(inputBuffer, inputOffset + 4);
@@ -451,6 +453,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                         keyIndex = 0;
                     }
                 }
+
                 // XOR the newly created 32 bit chunk onto the P-array
                 _p[i] ^= data;
             }

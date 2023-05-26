@@ -1,16 +1,15 @@
-﻿using Renci.SshNet.Abstractions;
-using Renci.SshNet.Common;
-using Renci.SshNet.Messages.Transport;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
-#if FEATURE_TAP
 using System.Threading.Tasks;
-#endif
+
+using Renci.SshNet.Abstractions;
+using Renci.SshNet.Common;
+using Renci.SshNet.Messages.Transport;
 
 namespace Renci.SshNet.Connection
 {
@@ -18,17 +17,13 @@ namespace Renci.SshNet.Connection
     /// Handles the SSH protocol version exchange.
     /// </summary>
     /// <remarks>
-    /// https://tools.ietf.org/html/rfc4253#section-4.2
+    /// https://tools.ietf.org/html/rfc4253#section-4.2.
     /// </remarks>
     internal class ProtocolVersionExchange : IProtocolVersionExchange
     {
         private const byte Null = 0x00;
 
-#if FEATURE_REGEX_COMPILE
         private static readonly Regex ServerVersionRe = new Regex("^SSH-(?<protoversion>[^-]+)-(?<softwareversion>.+?)([ ](?<comments>.+))?$", RegexOptions.Compiled);
-#else
-        private static readonly Regex ServerVersionRe = new Regex("^SSH-(?<protoversion>[^-]+)-(?<softwareversion>.+?)([ ](?<comments>.+))?$");
-#endif
 
         /// <summary>
         /// Performs the SSH protocol version exchange.
@@ -56,20 +51,10 @@ namespace Renci.SshNet.Connection
                 {
                     if (bytesReceived.Count == 0)
                     {
-                        throw new SshConnectionException(string.Format("The server response does not contain an SSH identification string.{0}" +
-                                                                       "The connection to the remote server was closed before any data was received.{0}{0}" +
-                                                                       "More information on the Protocol Version Exchange is available here:{0}" +
-                                                                       "https://tools.ietf.org/html/rfc4253#section-4.2",
-                                                                       Environment.NewLine),
-                                                         DisconnectReason.ConnectionLost);
+                        throw CreateConnectionLostException();
                     }
 
-                    throw new SshConnectionException(string.Format("The server response does not contain an SSH identification string:{0}{0}{1}{0}{0}" +
-                                                                   "More information on the Protocol Version Exchange is available here:{0}" +
-                                                                   "https://tools.ietf.org/html/rfc4253#section-4.2",
-                                                                   Environment.NewLine,
-                                                                   PacketDump.Create(bytesReceived, 2)),
-                                                     DisconnectReason.ProtocolError);
+                    throw CreateServerResponseDoesNotContainIdentification(bytesReceived);
                 }
 
                 var identificationMatch = ServerVersionRe.Match(line);
@@ -82,7 +67,6 @@ namespace Renci.SshNet.Connection
             }
         }
 
-#if FEATURE_TAP
         public async Task<SshIdentification> StartAsync(string clientVersion, Socket socket, CancellationToken cancellationToken)
         {
             // Immediately send the identification string since the spec states both sides MUST send an identification string
@@ -95,25 +79,15 @@ namespace Renci.SshNet.Connection
             // ignore text lines which are sent before if any
             while (true)
             {
-                var line = await SocketReadLineAsync(socket, cancellationToken, bytesReceived).ConfigureAwait(false);
+                var line = await SocketReadLineAsync(socket, bytesReceived, cancellationToken).ConfigureAwait(false);
                 if (line == null)
                 {
                     if (bytesReceived.Count == 0)
                     {
-                        throw new SshConnectionException(string.Format("The server response does not contain an SSH identification string.{0}" +
-                                                                       "The connection to the remote server was closed before any data was received.{0}{0}" +
-                                                                       "More information on the Protocol Version Exchange is available here:{0}" +
-                                                                       "https://tools.ietf.org/html/rfc4253#section-4.2",
-                                                                       Environment.NewLine),
-                                                         DisconnectReason.ConnectionLost);
+                        throw CreateConnectionLostException();
                     }
 
-                    throw new SshConnectionException(string.Format("The server response does not contain an SSH identification string:{0}{0}{1}{0}{0}" +
-                                                                   "More information on the Protocol Version Exchange is available here:{0}" +
-                                                                   "https://tools.ietf.org/html/rfc4253#section-4.2",
-                                                                   Environment.NewLine,
-                                                                   PacketDump.Create(bytesReceived, 2)),
-                                                     DisconnectReason.ProtocolError);
+                    throw CreateServerResponseDoesNotContainIdentification(bytesReceived);
                 }
 
                 var identificationMatch = ServerVersionRe.Match(line);
@@ -125,7 +99,6 @@ namespace Renci.SshNet.Connection
                 }
             }
         }
-#endif
 
         private static string GetGroupValue(Match match, string groupName)
         {
@@ -172,14 +145,7 @@ namespace Renci.SshNet.Connection
                 // The null character MUST NOT be sent
                 if (byteRead == Null)
                 {
-                    throw new SshConnectionException(string.Format(CultureInfo.InvariantCulture,
-                                                                   "The server response contains a null character at position 0x{0:X8}:{1}{1}{2}{1}{1}" +
-                                                                   "A server must not send a null character before the Protocol Version Exchange is complete.{1}{1}" +
-                                                                   "More information is available here:{1}" +
-                                                                   "https://tools.ietf.org/html/rfc4253#section-4.2",
-                                                                   buffer.Count,
-                                                                   Environment.NewLine,
-                                                                   PacketDump.Create(buffer.ToArray(), 2)));
+                    throw CreateServerResponseContainsNullCharacterException(buffer);
                 }
 
                 if (byteRead == Session.LineFeed)
@@ -189,22 +155,19 @@ namespace Renci.SshNet.Connection
                         // Return current line without CRLF
                         return Encoding.UTF8.GetString(buffer.ToArray(), startPosition, buffer.Count - (startPosition + 2));
                     }
-                    else
-                    {
-                        // Even though RFC4253 clearly indicates that the identification string should be terminated
-                        // by a CR LF we also support banners and identification strings that are terminated by a LF
 
-                        // Return current line without LF
-                        return Encoding.UTF8.GetString(buffer.ToArray(), startPosition, buffer.Count - (startPosition + 1));
-                    }
+                    // Even though RFC4253 clearly indicates that the identification string should be terminated
+                    // by a CR LF we also support banners and identification strings that are terminated by a LF
+
+                    // Return current line without LF
+                    return Encoding.UTF8.GetString(buffer.ToArray(), startPosition, buffer.Count - (startPosition + 1));
                 }
             }
 
             return null;
         }
 
-#if FEATURE_TAP
-        private static async Task<string> SocketReadLineAsync(Socket socket, CancellationToken cancellationToken, List<byte> buffer)
+        private static async Task<string> SocketReadLineAsync(Socket socket, List<byte> buffer, CancellationToken cancellationToken)
         {
             var data = new byte[1];
 
@@ -226,14 +189,7 @@ namespace Renci.SshNet.Connection
                 // The null character MUST NOT be sent
                 if (byteRead == Null)
                 {
-                    throw new SshConnectionException(string.Format(CultureInfo.InvariantCulture,
-                                                                   "The server response contains a null character at position 0x{0:X8}:{1}{1}{2}{1}{1}" +
-                                                                   "A server must not send a null character before the Protocol Version Exchange is complete.{1}{1}" +
-                                                                   "More information is available here:{1}" +
-                                                                   "https://tools.ietf.org/html/rfc4253#section-4.2",
-                                                                   buffer.Count,
-                                                                   Environment.NewLine,
-                                                                   PacketDump.Create(buffer.ToArray(), 2)));
+                    throw CreateServerResponseContainsNullCharacterException(buffer);
                 }
 
                 if (byteRead == Session.LineFeed)
@@ -243,18 +199,58 @@ namespace Renci.SshNet.Connection
                         // Return current line without CRLF
                         return Encoding.UTF8.GetString(buffer.ToArray(), startPosition, buffer.Count - (startPosition + 2));
                     }
-                    else
-                    {
-                        // Even though RFC4253 clearly indicates that the identification string should be terminated
-                        // by a CR LF we also support banners and identification strings that are terminated by a LF
 
-                        // Return current line without LF
-                        return Encoding.UTF8.GetString(buffer.ToArray(), startPosition, buffer.Count - (startPosition + 1));
-                    }
+                    // Even though RFC4253 clearly indicates that the identification string should be terminated
+                    // by a CR LF we also support banners and identification strings that are terminated by a LF
+
+                    // Return current line without LF
+                    return Encoding.UTF8.GetString(buffer.ToArray(), startPosition, buffer.Count - (startPosition + 1));
                 }
             }
         }
-#endif
 
+        private static SshConnectionException CreateConnectionLostException()
+        {
+#pragma warning disable SA1118 // Parameter should not span multiple lines
+            var message = string.Format(CultureInfo.InvariantCulture,
+                                        "The server response does not contain an SSH identification string.{0}" +
+                                        "The connection to the remote server was closed before any data was received.{0}{0}" +
+                                        "More information on the Protocol Version Exchange is available here:{0}" +
+                                        "https://tools.ietf.org/html/rfc4253#section-4.2",
+                                        Environment.NewLine);
+#pragma warning restore SA1118 // Parameter should not span multiple lines
+
+            return new SshConnectionException(message, DisconnectReason.ConnectionLost);
+        }
+
+        private static SshConnectionException CreateServerResponseContainsNullCharacterException(List<byte> buffer)
+        {
+#pragma warning disable SA1118 // Parameter should not span multiple lines
+            var message = string.Format(CultureInfo.InvariantCulture,
+                                        "The server response contains a null character at position 0x{0:X8}:{1}{1}{2}{1}{1}" +
+                                        "A server must not send a null character before the Protocol Version Exchange is complete.{1}{1}" +
+                                        "More information is available here:{1}" +
+                                        "https://tools.ietf.org/html/rfc4253#section-4.2",
+                                        buffer.Count,
+                                        Environment.NewLine,
+                                        PacketDump.Create(buffer.ToArray(), 2));
+#pragma warning restore SA1118 // Parameter should not span multiple lines
+
+            throw new SshConnectionException(message);
+        }
+
+        private static SshConnectionException CreateServerResponseDoesNotContainIdentification(List<byte> bytesReceived)
+        {
+#pragma warning disable SA1118 // Parameter should not span multiple lines
+            var message = string.Format(CultureInfo.InvariantCulture,
+                                        "The server response does not contain an SSH identification string:{0}{0}{1}{0}{0}" +
+                                        "More information on the Protocol Version Exchange is available here:{0}" +
+                                        "https://tools.ietf.org/html/rfc4253#section-4.2",
+                                        Environment.NewLine,
+                                        PacketDump.Create(bytesReceived, 2));
+#pragma warning restore SA1118 // Parameter should not span multiple lines
+
+            throw new SshConnectionException(message, DisconnectReason.ProtocolError);
+        }
     }
 }

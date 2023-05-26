@@ -5,16 +5,13 @@ using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-#if !FEATURE_WAITHANDLE_DISPOSE
-using System.Threading;
-#endif // !FEATURE_WAITHANDLE_DISPOSE
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Messages;
 
 namespace Renci.SshNet.Common
 {
     /// <summary>
-    /// Collection of different extension method
+    /// Collection of different extension methods.
     /// </summary>
     internal static partial class Extensions
     {
@@ -27,12 +24,17 @@ namespace Renci.SshNet.Common
         /// </returns>
         public static bool IsNullOrWhiteSpace(this string value)
         {
-            if (string.IsNullOrEmpty(value)) return true;
+            if (string.IsNullOrEmpty(value))
+            {
+                return true;
+            }
 
             for (var i = 0; i < value.Length; i++)
             {
                 if (!char.IsWhiteSpace(value[i]))
+                {
                     return false;
+                }
             }
 
             return true;
@@ -100,7 +102,7 @@ namespace Renci.SshNet.Common
         }
 
         /// <summary>
-        /// Prints out 
+        /// Prints out the specified bytes.
         /// </summary>
         /// <param name="bytes">The bytes.</param>
         internal static void DebugPrint(this IEnumerable<byte> bytes)
@@ -109,8 +111,9 @@ namespace Renci.SshNet.Common
 
             foreach (var b in bytes)
             {
-                sb.AppendFormat(CultureInfo.CurrentCulture, "0x{0:x2}, ", b);
+                _ = sb.AppendFormat(CultureInfo.CurrentCulture, "0x{0:x2}, ", b);
             }
+
             Debug.WriteLine(sb.ToString());
         }
 
@@ -120,32 +123,37 @@ namespace Renci.SshNet.Common
         /// <typeparam name="T">The type to create.</typeparam>
         /// <param name="type">Type of the instance to create.</param>
         /// <returns>A reference to the newly created object.</returns>
-        internal static T CreateInstance<T>(this Type type) where T : class
+        internal static T CreateInstance<T>(this Type type)
+            where T : class
         {
             if (type == null)
+            {
                 return null;
+            }
+
             return Activator.CreateInstance(type) as T;
         }
 
         internal static void ValidatePort(this uint value, string argument)
         {
             if (value > IPEndPoint.MaxPort)
+            {
                 throw new ArgumentOutOfRangeException(argument,
-                    string.Format(CultureInfo.InvariantCulture, "Specified value cannot be greater than {0}.",
-                        IPEndPoint.MaxPort));
+                                                      string.Format(CultureInfo.InvariantCulture, "Specified value cannot be greater than {0}.", IPEndPoint.MaxPort));
+            }
         }
 
         internal static void ValidatePort(this int value, string argument)
         {
             if (value < IPEndPoint.MinPort)
-                throw new ArgumentOutOfRangeException(argument,
-                    string.Format(CultureInfo.InvariantCulture, "Specified value cannot be less than {0}.",
-                        IPEndPoint.MinPort));
+            {
+                throw new ArgumentOutOfRangeException(argument, string.Format(CultureInfo.InvariantCulture, "Specified value cannot be less than {0}.", IPEndPoint.MinPort));
+            }
 
             if (value > IPEndPoint.MaxPort)
-                throw new ArgumentOutOfRangeException(argument,
-                    string.Format(CultureInfo.InvariantCulture, "Specified value cannot be greater than {0}.",
-                        IPEndPoint.MaxPort));
+            {
+                throw new ArgumentOutOfRangeException(argument, string.Format(CultureInfo.InvariantCulture, "Specified value cannot be greater than {0}.", IPEndPoint.MaxPort));
+            }
         }
 
         /// <summary>
@@ -166,13 +174,19 @@ namespace Renci.SshNet.Common
         public static byte[] Take(this byte[] value, int offset, int count)
         {
             if (value == null)
-                throw new ArgumentNullException("value");
+            {
+                throw new ArgumentNullException(nameof(value));
+            }
 
             if (count == 0)
+            {
                 return Array<byte>.Empty;
+            }
 
             if (offset == 0 && value.Length == count)
+            {
                 return value;
+            }
 
             var taken = new byte[count];
             Buffer.BlockCopy(value, offset, taken, 0, count);
@@ -195,13 +209,19 @@ namespace Renci.SshNet.Common
         public static byte[] Take(this byte[] value, int count)
         {
             if (value == null)
-                throw new ArgumentNullException("value");
+            {
+                throw new ArgumentNullException(nameof(value));
+            }
 
             if (count == 0)
+            {
                 return Array<byte>.Empty;
+            }
 
             if (value.Length == count)
+            {
                 return value;
+            }
 
             var taken = new byte[count];
             Buffer.BlockCopy(value, 0, taken, 0, count);
@@ -211,20 +231,31 @@ namespace Renci.SshNet.Common
         public static bool IsEqualTo(this byte[] left, byte[] right)
         {
             if (left == null)
-                throw new ArgumentNullException("left");
+            {
+                throw new ArgumentNullException(nameof(left));
+            }
+
             if (right == null)
-                throw new ArgumentNullException("right");
+            {
+                throw new ArgumentNullException(nameof(right));
+            }
 
             if (left == right)
+            {
                 return true;
+            }
 
             if (left.Length != right.Length)
+            {
                 return false;
+            }
 
             for (var i = 0; i < left.Length; i++)
             {
                 if (left[i] != right[i])
+                {
                     return false;
+                }
             }
 
             return true;
@@ -240,16 +271,22 @@ namespace Renci.SshNet.Common
         public static byte[] TrimLeadingZeros(this byte[] value)
         {
             if (value == null)
-                throw new ArgumentNullException("value");
+            {
+                throw new ArgumentNullException(nameof(value));
+            }
 
             for (var i = 0; i < value.Length; i++)
             {
                 if (value[i] == 0)
+                {
                     continue;
+                }
 
                 // if the first byte is non-zero, then we return the byte array as is
                 if (i == 0)
+                {
                     return value;
+                }
 
                 var remainingBytes = value.Length - i;
 
@@ -269,7 +306,10 @@ namespace Renci.SshNet.Common
         public static byte[] Pad(this byte[] data, int length)
         {
             if (length <= data.Length)
+            {
                 return data;
+            }
+
             var newData = new byte[length];
             Buffer.BlockCopy(data, 0, newData, newData.Length - data.Length, data.Length);
             return newData;
@@ -278,10 +318,14 @@ namespace Renci.SshNet.Common
         public static byte[] Concat(this byte[] first, byte[] second)
         {
             if (first == null || first.Length == 0)
+            {
                 return second;
+            }
 
             if (second == null || second.Length == 0)
+            {
                 return first;
+            }
 
             var concat = new byte[first.Length + second.Length];
             Buffer.BlockCopy(first, 0, concat, 0, first.Length);
@@ -302,65 +346,11 @@ namespace Renci.SshNet.Common
         internal static bool IsConnected(this Socket socket)
         {
             if (socket == null)
+            {
                 return false;
+            }
+
             return socket.Connected;
         }
-
-#if !FEATURE_SOCKET_DISPOSE
-        /// <summary>
-        /// Disposes the specified socket.
-        /// </summary>
-        /// <param name="socket">The socket.</param>
-        [DebuggerNonUserCode]
-        internal static void Dispose(this Socket socket)
-        {
-            if (socket == null)
-                throw new NullReferenceException();
-
-            socket.Close();
-        }
-#endif // !FEATURE_SOCKET_DISPOSE
-
-#if !FEATURE_WAITHANDLE_DISPOSE
-        /// <summary>
-        /// Disposes the specified handle.
-        /// </summary>
-        /// <param name="handle">The handle.</param>
-        [DebuggerNonUserCode]
-        internal static void Dispose(this WaitHandle handle)
-        {
-            if (handle == null)
-                throw new NullReferenceException();
-
-            handle.Close();
-        }
-#endif // !FEATURE_WAITHANDLE_DISPOSE
-
-#if !FEATURE_HASHALGORITHM_DISPOSE
-        /// <summary>
-        /// Disposes the specified algorithm.
-        /// </summary>
-        /// <param name="algorithm">The algorithm.</param>
-        [DebuggerNonUserCode]
-        internal static void Dispose(this System.Security.Cryptography.HashAlgorithm algorithm)
-        {
-            if (algorithm == null)
-                throw new NullReferenceException();
-
-            algorithm.Clear();
-        }
-#endif // FEATURE_HASHALGORITHM_DISPOSE
-
-#if !FEATURE_STRINGBUILDER_CLEAR
-        /// <summary>
-        /// Clears the contents of the string builder.
-        /// </summary>
-        /// <param name="value">The <see cref="StringBuilder"/> to clear.</param>
-        public static void Clear(this StringBuilder value)
-        {
-            value.Length = 0;
-            value.Capacity = 16;
-        }
-#endif // !FEATURE_STRINGBUILDER_CLEAR
     }
 }

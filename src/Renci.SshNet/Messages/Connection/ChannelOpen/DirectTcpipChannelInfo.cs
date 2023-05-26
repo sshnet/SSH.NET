@@ -5,7 +5,7 @@ namespace Renci.SshNet.Messages.Connection
     /// <summary>
     /// Used to open "direct-tcpip" channel type
     /// </summary>
-    internal class DirectTcpipChannelInfo : ChannelOpenInfo
+    internal sealed class DirectTcpipChannelInfo : ChannelOpenInfo
     {
         private byte[] _hostToConnect;
         private byte[] _originatorAddress;

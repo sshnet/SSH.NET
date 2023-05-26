@@ -1,6 +1,7 @@
 ﻿using System.Text;
-using Renci.SshNet.Messages.Transport;
+
 using Renci.SshNet.Common;
+using Renci.SshNet.Messages.Transport;
 
 namespace Renci.SshNet.Security
 {
@@ -87,11 +88,12 @@ namespace Renci.SshNet.Security
             {
                 return key.VerifySignature(exchangeHash, _signature);
             }
+
             return false;
         }
 
         /// <summary>
-        /// Starts key exchange algorithm
+        /// Starts key exchange algorithm.
         /// </summary>
         /// <param name="session">The session.</param>
         /// <param name="message">Key exchange init message.</param>

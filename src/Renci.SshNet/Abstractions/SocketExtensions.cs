@@ -1,5 +1,4 @@
-﻿#if FEATURE_TAP
-using System;
+﻿using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
@@ -9,15 +8,14 @@ using System.Threading.Tasks;
 namespace Renci.SshNet.Abstractions
 {
     // Async helpers based on https://devblogs.microsoft.com/pfxteam/awaiting-socket-operations/
-
     internal static class SocketExtensions
     {
-        sealed class SocketAsyncEventArgsAwaitable : SocketAsyncEventArgs, INotifyCompletion
+        private sealed class SocketAsyncEventArgsAwaitable : SocketAsyncEventArgs, INotifyCompletion
         {
-            private readonly static Action SENTINEL = () => { };
+            private static readonly Action SENTINEL = () => { };
 
-            private bool isCancelled;
-            private Action continuationAction;
+            private bool _isCancelled;
+            private Action _continuationAction;
 
             public SocketAsyncEventArgsAwaitable()
             {
@@ -36,7 +34,8 @@ namespace Renci.SshNet.Abstractions
             public void SetCompleted()
             {
                 IsCompleted = true;
-                var continuation = continuationAction ?? Interlocked.CompareExchange(ref continuationAction, SENTINEL, null);
+
+                var continuation = _continuationAction ?? Interlocked.CompareExchange(ref _continuationAction, SENTINEL, null);
                 if (continuation != null)
                 {
                     continuation();
@@ -45,40 +44,42 @@ namespace Renci.SshNet.Abstractions
 
             public void SetCancelled()
             {
-                isCancelled = true;
+                _isCancelled = true;
                 SetCompleted();
             }
 
-            public SocketAsyncEventArgsAwaitable GetAwaiter() { return this; }
+            public SocketAsyncEventArgsAwaitable GetAwaiter()
+            {
+                return this;
+            }
 
             public bool IsCompleted { get; private set; }
 
             void INotifyCompletion.OnCompleted(Action continuation)
             {
-                if (continuationAction == SENTINEL || Interlocked.CompareExchange(ref continuationAction, continuation, null) == SENTINEL)
+                if (_continuationAction == SENTINEL || Interlocked.CompareExchange(ref _continuationAction, continuation, null) == SENTINEL)
                 {
                     // We have already completed; run continuation asynchronously
-                    Task.Run(continuation);
+                    _ = Task.Run(continuation);
                 }
             }
 
             public void GetResult()
             {
-                if (isCancelled)
+                if (_isCancelled)
                 {
                     throw new TaskCanceledException();
                 }
-                else if (IsCompleted)
-                {
-                    if (SocketError != SocketError.Success)
-                    {
-                        throw new SocketException((int)SocketError);
-                    }
-                }
-                else
+
+                if (!IsCompleted)
                 {
                     // We don't support sync/async
                     throw new InvalidOperationException("The asynchronous operation has not yet completed.");
+                }
+
+                if (SocketError != SocketError.Success)
+                {
+                    throw new SocketException((int)SocketError);
                 }
             }
         }
@@ -116,4 +117,3 @@ namespace Renci.SshNet.Abstractions
         }
     }
 }
-#endif

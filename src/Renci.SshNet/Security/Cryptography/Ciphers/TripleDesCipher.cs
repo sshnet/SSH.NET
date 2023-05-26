@@ -70,7 +70,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 }
             }
 
-            byte[] temp = new byte[BlockSize];
+            var temp = new byte[BlockSize];
 
             DesFunc(_encryptionKey1, inputBuffer, inputOffset, temp, 0);
             DesFunc(_encryptionKey2, temp, 0, temp, 0);
@@ -93,10 +93,14 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         public override int DecryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
         {
             if ((inputOffset + BlockSize) > inputBuffer.Length)
+            {
                 throw new IndexOutOfRangeException("input buffer too short");
+            }
 
             if ((outputOffset + BlockSize) > outputBuffer.Length)
+            {
                 throw new IndexOutOfRangeException("output buffer too short");
+            }
 
             if (_decryptionKey1 == null || _decryptionKey2 == null || _decryptionKey3 == null)
             {
@@ -122,7 +126,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 }
             }
 
-            byte[] temp = new byte[BlockSize];
+            var temp = new byte[BlockSize];
 
             DesFunc(_decryptionKey3, inputBuffer, inputOffset, temp, 0);
             DesFunc(_decryptionKey2, temp, 0, temp, 0);
@@ -138,8 +142,10 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         {
             var keySize = Key.Length * 8;
 
-            if (!(keySize == 128 || keySize == 128 + 64))
+            if (keySize is not (128 or 128 + 64))
+            {
                 throw new ArgumentException(string.Format("KeySize '{0}' is not valid for this algorithm.", keySize));
+            }
         }
     }
 }

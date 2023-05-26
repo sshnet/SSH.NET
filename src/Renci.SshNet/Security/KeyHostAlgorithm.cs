@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Renci.SshNet.Common;
+using Renci.SshNet.Security.Chaos.NaCl;
 
 namespace Renci.SshNet.Security
 {
@@ -36,7 +37,7 @@ namespace Renci.SshNet.Security
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="HostAlgorithm"/> class.
+        /// Initializes a new instance of the <see cref="KeyHostAlgorithm"/> class.
         /// </summary>
         /// <param name="name">Host key name.</param>
         /// <param name="key">Host key.</param>
@@ -79,7 +80,7 @@ namespace Renci.SshNet.Security
             return Key.VerifySignature(data, signatureData.Signature);
         }
 
-        private class SshKeyData : SshData
+        private sealed class SshKeyData : SshData
         {
             private byte[] _name;
             private List<byte[]> _keys;
@@ -89,19 +90,28 @@ namespace Renci.SshNet.Security
                 get
                 {
                     var keys = new BigInteger[_keys.Count];
+
                     for (var i = 0; i < _keys.Count; i++)
                     {
                         var key = _keys[i];
                         keys[i] = key.ToBigInteger2();
                     }
+
                     return keys;
                 }
                 private set
                 {
                     _keys = new List<byte[]>(value.Length);
+
                     foreach (var key in value)
                     {
-                        _keys.Add(key.ToByteArray().Reverse());
+                        var keyData = key.ToByteArray().Reverse();
+                        if (Name == "ssh-ed25519")
+                        {
+                            keyData = keyData.TrimLeadingZeros().Pad(Ed25519.PublicKeySizeInBytes);
+                        }
+
+                        _keys.Add(keyData);
                     }
                 }
             }
@@ -160,7 +170,7 @@ namespace Renci.SshNet.Security
             }
         }
 
-        private class SignatureKeyData : SshData
+        private sealed class SignatureKeyData : SshData
         {
             /// <summary>
             /// Gets or sets the name of the algorithm as UTF-8 encoded byte array.
@@ -171,7 +181,7 @@ namespace Renci.SshNet.Security
             private byte[] AlgorithmName { get; set; }
 
             /// <summary>
-            /// Gets or sets the signature.
+            /// Gets the signature.
             /// </summary>
             /// <value>
             /// The signature.

@@ -1,7 +1,8 @@
-﻿using Renci.SshNet.Abstractions;
-using Renci.SshNet.Common;
-using System;
+﻿using System;
 using System.Net.Sockets;
+
+using Renci.SshNet.Abstractions;
+using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Connection
 {
@@ -9,30 +10,13 @@ namespace Renci.SshNet.Connection
     /// Establishes a tunnel via a SOCKS5 proxy server.
     /// </summary>
     /// <remarks>
-    /// https://en.wikipedia.org/wiki/SOCKS#SOCKS5
+    /// https://en.wikipedia.org/wiki/SOCKS#SOCKS5.
     /// </remarks>
-    internal class Socks5Connector : ConnectorBase
+    internal sealed class Socks5Connector : ProxyConnector
     {
-        public Socks5Connector(ISocketFactory socketFactory) : base(socketFactory)
+        public Socks5Connector(ISocketFactory socketFactory)
+            : base(socketFactory)
         {
-        }
-
-        public override Socket Connect(IConnectionInfo connectionInfo)
-        {
-            var socket = SocketConnect(connectionInfo.ProxyHost, connectionInfo.ProxyPort, connectionInfo.Timeout);
-
-            try
-            {
-                HandleProxyConnect(connectionInfo, socket);
-                return socket;
-            }
-            catch (Exception)
-            {
-                socket.Shutdown(SocketShutdown.Both);
-                socket.Dispose();
-
-                throw;
-            }
         }
 
         /// <summary>
@@ -40,7 +24,7 @@ namespace Renci.SshNet.Connection
         /// </summary>
         /// <param name="connectionInfo">The connection information.</param>
         /// <param name="socket">The <see cref="Socket"/>.</param>
-        private void HandleProxyConnect(IConnectionInfo connectionInfo, Socket socket)
+        protected override void HandleProxyConnect(IConnectionInfo connectionInfo, Socket socket)
         {
             var greeting = new byte[]
                 {
@@ -69,15 +53,23 @@ namespace Renci.SshNet.Connection
                 case 0x02:
                     // Create username/password authentication request
                     var authenticationRequest = CreateSocks5UserNameAndPasswordAuthenticationRequest(connectionInfo.ProxyUsername, connectionInfo.ProxyPassword);
+
                     // Send authentication request
                     SocketAbstraction.Send(socket, authenticationRequest);
+
                     // Read authentication result
                     var authenticationResult = SocketAbstraction.Read(socket, 2, connectionInfo.Timeout);
 
                     if (authenticationResult[0] != 0x01)
+                    {
                         throw new ProxyException("SOCKS5: Server authentication version is not valid.");
+                    }
+
                     if (authenticationResult[1] != 0x00)
+                    {
                         throw new ProxyException("SOCKS5: Username/Password authentication failed.");
+                    }
+
                     break;
                 case 0xFF:
                     throw new ProxyException("SOCKS5: No acceptable authentication methods were offered.");
@@ -86,13 +78,13 @@ namespace Renci.SshNet.Connection
             var connectionRequest = CreateSocks5ConnectionRequest(connectionInfo.Host, (ushort) connectionInfo.Port);
             SocketAbstraction.Send(socket, connectionRequest);
 
-            //  Read Server SOCKS5 version
+            // Read Server SOCKS5 version
             if (SocketReadByte(socket) != 5)
             {
                 throw new ProxyException("SOCKS5: Version 5 is expected.");
             }
 
-            //  Read response code
+            // Read response code
             var status = SocketReadByte(socket);
 
             switch (status)
@@ -119,7 +111,7 @@ namespace Renci.SshNet.Connection
                     throw new ProxyException("SOCKS5: Not valid response.");
             }
 
-            //  Read reserved byte
+            // Read reserved byte
             if (SocketReadByte(socket) != 0)
             {
                 throw new ProxyException("SOCKS5: 0 byte is expected.");
@@ -130,11 +122,11 @@ namespace Renci.SshNet.Connection
             {
                 case 0x01:
                     var ipv4 = new byte[4];
-                    SocketRead(socket, ipv4, 0, 4);
+                    _ = SocketRead(socket, ipv4, 0, 4);
                     break;
                 case 0x04:
                     var ipv6 = new byte[16];
-                    SocketRead(socket, ipv6, 0, 16);
+                    _ =SocketRead(socket, ipv6, 0, 16);
                     break;
                 default:
                     throw new ProxyException(string.Format("Address type '{0}' is not supported.", addressType));
@@ -142,19 +134,24 @@ namespace Renci.SshNet.Connection
 
             var port = new byte[2];
 
-            //  Read 2 bytes to be ignored
-            SocketRead(socket, port, 0, 2);
+            // Read 2 bytes to be ignored
+            _ = SocketRead(socket, port, 0, 2);
         }
 
         /// <summary>
-        /// https://tools.ietf.org/html/rfc1929
+        /// https://tools.ietf.org/html/rfc1929.
         /// </summary>
         private static byte[] CreateSocks5UserNameAndPasswordAuthenticationRequest(string username, string password)
         {
             if (username.Length > byte.MaxValue)
+            {
                 throw new ProxyException("Proxy username is too long.");
+            }
+
             if (password.Length > byte.MaxValue)
+            {
                 throw new ProxyException("Proxy password is too long.");
+            }
 
             var authenticationRequest = new byte
                 [
@@ -179,22 +176,21 @@ namespace Renci.SshNet.Connection
             authenticationRequest[index++] = (byte) username.Length;
 
             // Username
-            SshData.Ascii.GetBytes(username, 0, username.Length, authenticationRequest, index);
+            _ = SshData.Ascii.GetBytes(username, 0, username.Length, authenticationRequest, index);
             index += username.Length;
 
             // Length of the password
             authenticationRequest[index++] = (byte) password.Length;
 
             // Password
-            SshData.Ascii.GetBytes(password, 0, password.Length, authenticationRequest, index);
+            _ =SshData.Ascii.GetBytes(password, 0, password.Length, authenticationRequest, index);
 
             return authenticationRequest;
         }
 
         private static byte[] CreateSocks5ConnectionRequest(string hostname, ushort port)
         {
-            byte addressType;
-            var addressBytes = GetSocks5DestinationAddress(hostname, out addressType);
+            var addressBytes = GetSocks5DestinationAddress(hostname, out var addressType);
 
             var connectionRequest = new byte
                 [

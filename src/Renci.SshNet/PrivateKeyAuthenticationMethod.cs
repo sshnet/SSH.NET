@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using Renci.SshNet.Messages.Authentication;
-using Renci.SshNet.Messages;
-using Renci.SshNet.Common;
 using System.Threading;
+
+using Renci.SshNet.Common;
+using Renci.SshNet.Messages;
+using Renci.SshNet.Messages.Authentication;
 
 namespace Renci.SshNet
 {
@@ -16,9 +17,10 @@ namespace Renci.SshNet
         private AuthenticationResult _authenticationResult = AuthenticationResult.Failure;
         private EventWaitHandle _authenticationCompleted = new ManualResetEvent(false);
         private bool _isSignatureRequired;
+        private bool _isDisposed;
 
         /// <summary>
-        /// Gets authentication method name
+        /// Gets the name of the authentication method.
         /// </summary>
         public override string Name
         {
@@ -28,7 +30,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Gets the key files used for authentication.
         /// </summary>
-        public ICollection<PrivateKeyFile> KeyFiles { get; private set; }
+        public ICollection<IPrivateKeySource> KeyFiles { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PrivateKeyAuthenticationMethod"/> class.
@@ -36,13 +38,15 @@ namespace Renci.SshNet
         /// <param name="username">The username.</param>
         /// <param name="keyFiles">The key files.</param>
         /// <exception cref="ArgumentException"><paramref name="username"/> is whitespace or <c>null</c>.</exception>
-        public PrivateKeyAuthenticationMethod(string username, params PrivateKeyFile[] keyFiles)
+        public PrivateKeyAuthenticationMethod(string username, params IPrivateKeySource[] keyFiles)
             : base(username)
         {
             if (keyFiles == null)
-                throw new ArgumentNullException("keyFiles");
+            {
+                throw new ArgumentNullException(nameof(keyFiles));
+            }
 
-            KeyFiles = new Collection<PrivateKeyFile>(keyFiles);
+            KeyFiles = new Collection<IPrivateKeySource>(keyFiles);
         }
 
         /// <summary>
@@ -64,7 +68,7 @@ namespace Renci.SshNet
             {
                 foreach (var keyFile in KeyFiles)
                 {
-                    _authenticationCompleted.Reset();
+                    _ = _authenticationCompleted.Reset();
                     _isSignatureRequired = false;
 
                     var message = new RequestMessagePublicKey(ServiceName.Connection,
@@ -74,20 +78,20 @@ namespace Renci.SshNet
 
                     if (KeyFiles.Count < 2)
                     {
-                        //  If only one key file provided then send signature for very first request
+                        // If only one key file provided then send signature for very first request
                         var signatureData = new SignatureData(message, session.SessionId).GetBytes();
 
                         message.Signature = keyFile.HostKey.Sign(signatureData);
                     }
 
-                    //  Send public key authentication request
+                    // Send public key authentication request
                     session.SendMessage(message);
 
                     session.WaitOnHandle(_authenticationCompleted);
 
                     if (_isSignatureRequired)
                     {
-                        _authenticationCompleted.Reset();
+                        _ = _authenticationCompleted.Reset();
 
                         var signatureMessage = new RequestMessagePublicKey(ServiceName.Connection,
                                                                            Username,
@@ -98,7 +102,7 @@ namespace Renci.SshNet
 
                         signatureMessage.Signature = keyFile.HostKey.Sign(signatureData);
 
-                        //  Send public key authentication request with signature
+                        // Send public key authentication request with signature
                         session.SendMessage(signatureMessage);
                     }
 
@@ -125,38 +129,38 @@ namespace Renci.SshNet
         {
             _authenticationResult = AuthenticationResult.Success;
 
-            _authenticationCompleted.Set();
+            _ = _authenticationCompleted.Set();
         }
 
         private void Session_UserAuthenticationFailureReceived(object sender, MessageEventArgs<FailureMessage> e)
         {
             if (e.Message.PartialSuccess)
+            {
                 _authenticationResult = AuthenticationResult.PartialSuccess;
+            }
             else
+            {
                 _authenticationResult = AuthenticationResult.Failure;
+            }
 
-            //  Copy allowed authentication methods
+            // Copy allowed authentication methods
             AllowedAuthentications = e.Message.AllowedAuthentications;
 
-            _authenticationCompleted.Set();
+            _ = _authenticationCompleted.Set();
         }
 
         private void Session_UserAuthenticationPublicKeyReceived(object sender, MessageEventArgs<PublicKeyMessage> e)
         {
             _isSignatureRequired = true;
-            _authenticationCompleted.Set();
+            _ = _authenticationCompleted.Set();
         }
-
-        #region IDisposable Members
-
-        private bool _isDisposed;
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose()
         {
-            Dispose(true);
+            Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
 
@@ -167,7 +171,9 @@ namespace Renci.SshNet
         protected virtual void Dispose(bool disposing)
         {
             if (_isDisposed)
+            {
                 return;
+            }
 
             if (disposing)
             {
@@ -183,17 +189,14 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Releases unmanaged resources and performs other cleanup operations before the
-        /// <see cref="PasswordConnectionInfo"/> is reclaimed by garbage collection.
+        /// Finalizes an instance of the <see cref="PrivateKeyAuthenticationMethod"/> class.
         /// </summary>
         ~PrivateKeyAuthenticationMethod()
         {
-            Dispose(false);
+            Dispose(disposing: false);
         }
 
-        #endregion
-
-        private class SignatureData : SshData
+        private sealed class SignatureData : SshData
         {
             private readonly RequestMessagePublicKey _message;
 

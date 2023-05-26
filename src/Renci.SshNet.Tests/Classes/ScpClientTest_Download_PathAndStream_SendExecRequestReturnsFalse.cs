@@ -54,11 +54,7 @@ namespace Renci.SshNet.Tests.Classes
                                .Setup(p => p.SendExecRequest(string.Format("scp -f {0}", _transformedPath)))
                                .Returns(false);
             _channelSessionMock.InSequence(sequence).Setup(p => p.Dispose());
-            _pipeStreamMock.As<IDisposable>().InSequence(sequence).Setup(p => p.Dispose());
-
-            // On .NET Core, Dispose() in turn invokes Close() and since we're not mocking
-            // an interface, we need to expect this call as well
-            _pipeStreamMock.Setup(p => p.Close());
+            _pipeStreamMock.InSequence(sequence).Setup(p => p.Close());
         }
 
         protected override void Arrange()
@@ -116,7 +112,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void DisposeOnPipeStreamShouldBeInvokedOnce()
         {
-            _pipeStreamMock.As<IDisposable>().Verify(p => p.Dispose(), Times.Once);
+            _pipeStreamMock.Verify(p => p.Close(), Times.Once);
         }
 
         [TestMethod]

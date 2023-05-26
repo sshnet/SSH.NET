@@ -1,7 +1,8 @@
 ﻿using System;
-using System.Text;
-using Renci.SshNet.Sftp.Responses;
 using System.Globalization;
+using System.Text;
+
+using Renci.SshNet.Sftp.Responses;
 
 namespace Renci.SshNet.Sftp
 {

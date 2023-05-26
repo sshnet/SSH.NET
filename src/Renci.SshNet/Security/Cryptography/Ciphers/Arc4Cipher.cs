@@ -151,6 +151,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 // xor
                 outputBuffer[i + outputOffset] = (byte)(inputBuffer[i + inputOffset] ^ _engineState[(_engineState[_x] + _engineState[_y]) & 0xff]);
             }
+
             return inputCount;
         }
 
@@ -161,10 +162,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             _x = 0;
             _y = 0;
 
-            if (_engineState == null)
-            {
-                _engineState = new byte[STATE_LENGTH];
-            }
+            _engineState ??= new byte[STATE_LENGTH];
 
             // reset the state of the engine
             for (var i = 0; i < STATE_LENGTH; i++)
@@ -178,6 +176,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             for (var i = 0; i < STATE_LENGTH; i++)
             {
                 i2 = ((keyBytes[i1] & 0xff) + _engineState[i] + i2) & 0xff;
+
                 // do the byte-swap inline
                 var tmp = _engineState[i];
                 _engineState[i] = _engineState[i2];

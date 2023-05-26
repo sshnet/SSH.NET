@@ -1,36 +1,10 @@
 ﻿namespace Renci.SshNet.Common
 {
     /// <summary>
-    /// Provides prompt information when <see cref="Renci.SshNet.KeyboardInteractiveConnectionInfo.AuthenticationPrompt"/> is raised
+    /// Provides prompt information when <see cref="KeyboardInteractiveConnectionInfo.AuthenticationPrompt"/> is raised.
     /// </summary>
     public class AuthenticationPrompt
     {
-        /// <summary>
-        /// Gets the prompt sequence id.
-        /// </summary>
-        public int Id { get; private set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the user input should be echoed as characters are typed.
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if the user input should be echoed as characters are typed; otherwise, <c>false</c>.
-        /// </value>
-        public bool IsEchoed { get; private set; }
-
-        /// <summary>
-        /// Gets server information request.
-        /// </summary>
-        public string Request { get; private set; }
-
-        /// <summary>
-        /// Gets or sets server information response.
-        /// </summary>
-        /// <value>
-        /// The response.
-        /// </value>
-        public string Response { get; set; }
-
         /// <summary>
         /// Initializes a new instance of the <see cref="AuthenticationPrompt"/> class.
         /// </summary>
@@ -43,5 +17,31 @@
             IsEchoed = isEchoed;
             Request = request;
         }
+
+        /// <summary>
+        /// Gets the prompt sequence id.
+        /// </summary>
+        public int Id { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether the user input should be echoed as characters are typed.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if the user input should be echoed as characters are typed; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsEchoed { get; }
+
+        /// <summary>
+        /// Gets server information request.
+        /// </summary>
+        public string Request { get; }
+
+        /// <summary>
+        /// Gets or sets server information response.
+        /// </summary>
+        /// <value>
+        /// The response.
+        /// </value>
+        public string Response { get; set; }
     }
 }

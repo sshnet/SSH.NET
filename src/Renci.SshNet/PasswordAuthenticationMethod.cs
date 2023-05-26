@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Text;
 using System.Threading;
+
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
-using Renci.SshNet.Messages.Authentication;
 using Renci.SshNet.Messages;
+using Renci.SshNet.Messages.Authentication;
 
 namespace Renci.SshNet
 {
@@ -13,15 +14,16 @@ namespace Renci.SshNet
     /// </summary>
     public class PasswordAuthenticationMethod : AuthenticationMethod, IDisposable
     {
+        private readonly RequestMessage _requestMessage;
+        private readonly byte[] _password;
         private AuthenticationResult _authenticationResult = AuthenticationResult.Failure;
         private Session _session;
         private EventWaitHandle _authenticationCompleted = new AutoResetEvent(false);
         private Exception _exception;
-        private readonly RequestMessage _requestMessage;
-        private readonly byte[] _password;
+        private bool _isDisposed;
 
         /// <summary>
-        /// Gets authentication method name
+        /// Gets the name of the authentication method.
         /// </summary>
         public override string Name
         {
@@ -67,7 +69,9 @@ namespace Renci.SshNet
             : base(username)
         {
             if (password == null)
-                throw new ArgumentNullException("password");
+            {
+                throw new ArgumentNullException(nameof(password));
+            }
 
             _password = password;
             _requestMessage = new RequestMessagePassword(ServiceName.Connection, Username, _password);
@@ -84,7 +88,9 @@ namespace Renci.SshNet
         public override AuthenticationResult Authenticate(Session session)
         {
             if (session == null)
-                throw new ArgumentNullException("session");
+            {
+                throw new ArgumentNullException(nameof(session));
+            }
 
             _session = session;
 
@@ -107,7 +113,9 @@ namespace Renci.SshNet
             }
 
             if (_exception != null)
+            {
                 throw _exception;
+            }
 
             return _authenticationResult;
         }
@@ -116,20 +124,24 @@ namespace Renci.SshNet
         {
             _authenticationResult = AuthenticationResult.Success;
 
-            _authenticationCompleted.Set();
+            _ = _authenticationCompleted.Set();
         }
 
         private void Session_UserAuthenticationFailureReceived(object sender, MessageEventArgs<FailureMessage> e)
         {
             if (e.Message.PartialSuccess)
+            {
                 _authenticationResult = AuthenticationResult.PartialSuccess;
+            }
             else
+            {
                 _authenticationResult = AuthenticationResult.Failure;
+            }
 
-            //  Copy allowed authentication methods
+            // Copy allowed authentication methods
             AllowedAuthentications = e.Message.AllowedAuthentications;
 
-            _authenticationCompleted.Set();
+            _ = _authenticationCompleted.Set();
         }
 
         private void Session_UserAuthenticationPasswordChangeRequiredReceived(object sender, MessageEventArgs<PasswordChangeRequiredMessage> e)
@@ -142,45 +154,40 @@ namespace Renci.SshNet
                 {
                     var eventArgs = new AuthenticationPasswordChangeEventArgs(Username);
 
-                    //  Raise an event to allow user to supply a new password
-                    if (PasswordExpired != null)
-                    {
-                        PasswordExpired(this, eventArgs);
-                    }
+                    // Raise an event to allow user to supply a new password
+                    PasswordExpired?.Invoke(this, eventArgs);
 
-                    //  Send new authentication request with new password
+                    // Send new authentication request with new password
                     _session.SendMessage(new RequestMessagePassword(ServiceName.Connection, Username, _password, eventArgs.NewPassword));
                 }
                 catch (Exception exp)
                 {
                     _exception = exp;
-                    _authenticationCompleted.Set();
+                    _ = _authenticationCompleted.Set();
                 }
             });
         }
-
-        #region IDisposable Members
-
-        private bool _isDisposed;
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose()
         {
-            Dispose(true);
+            Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
 
         /// <summary>
-        /// Releases unmanaged and - optionally - managed resources
+        /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
         /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (_isDisposed)
+            {
                 return;
-           
+            }
+
             if (disposing)
             {
                 var authenticationCompleted = _authenticationCompleted;
@@ -195,14 +202,11 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Releases unmanaged resources and performs other cleanup operations before the
-        /// <see cref="PasswordAuthenticationMethod"/> is reclaimed by garbage collection.
+        /// Finalizes an instance of the <see cref="PasswordAuthenticationMethod"/> class.
         /// </summary>
         ~PasswordAuthenticationMethod()
         {
-            Dispose(false);
+            Dispose(disposing: false);
         }
-
-        #endregion
     }
 }

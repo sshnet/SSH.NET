@@ -75,10 +75,10 @@ namespace Renci.SshNet
         /// <param name="terminalName">The <c>TERM</c> environment variable.</param>
         /// <param name="columns">The terminal width in columns.</param>
         /// <param name="rows">The terminal width in rows.</param>
-        /// <param name="width">The terminal height in pixels.</param>
+        /// <param name="width">The terminal width in pixels.</param>
         /// <param name="height">The terminal height in pixels.</param>
-        /// <param name="bufferSize">Size of the buffer.</param>
         /// <param name="terminalModeValues">The terminal mode values.</param>
+        /// <param name="bufferSize">Size of the buffer.</param>
         /// <returns>
         /// The created <see cref="ShellStream"/> instance.
         /// </returns>

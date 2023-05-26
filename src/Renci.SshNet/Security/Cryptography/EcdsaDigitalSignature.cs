@@ -1,8 +1,10 @@
-﻿#if FEATURE_ECDSA
-using System;
-using Renci.SshNet.Common;
+﻿using System;
 using System.Globalization;
+#if NETFRAMEWORK
 using System.Security.Cryptography;
+#endif // NETFRAMEWORK
+
+using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Security.Cryptography
 {
@@ -12,6 +14,7 @@ namespace Renci.SshNet.Security.Cryptography
     public class EcdsaDigitalSignature : DigitalSignature, IDisposable
     {
         private readonly EcdsaKey _key;
+        private bool _isDisposed;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EcdsaDigitalSignature" /> class.
@@ -21,7 +24,9 @@ namespace Renci.SshNet.Security.Cryptography
         public EcdsaDigitalSignature(EcdsaKey key)
         {
             if (key == null)
-                throw new ArgumentNullException("key");
+            {
+                throw new ArgumentNullException(nameof(key));
+            }
 
             _key = key;
         }
@@ -39,12 +44,12 @@ namespace Renci.SshNet.Security.Cryptography
             // for 521 sig_size is 132
             var sig_size = _key.KeyLength == 521 ? 132 : _key.KeyLength / 4;
             var ssh_data = new SshDataSignature(signature, sig_size);
-#if NETSTANDARD2_0
-            return _key.Ecdsa.VerifyData(input, ssh_data.Signature, _key.HashAlgorithm);
-#else
+#if NETFRAMEWORK
             var ecdsa = (ECDsaCng)_key.Ecdsa;
             ecdsa.HashAlgorithm = _key.HashAlgorithm;
             return ecdsa.VerifyData(input, ssh_data.Signature);
+#else
+            return _key.Ecdsa.VerifyData(input, ssh_data.Signature, _key.HashAlgorithm);
 #endif
         }
 
@@ -57,28 +62,23 @@ namespace Renci.SshNet.Security.Cryptography
         /// </returns>
         public override byte[] Sign(byte[] input)
         {
-#if NETSTANDARD2_0
-            var signed = _key.Ecdsa.SignData(input, _key.HashAlgorithm);
-#else
+#if NETFRAMEWORK
             var ecdsa = (ECDsaCng)_key.Ecdsa;
             ecdsa.HashAlgorithm = _key.HashAlgorithm;
             var signed = ecdsa.SignData(input);
+#else
+            var signed = _key.Ecdsa.SignData(input, _key.HashAlgorithm);
 #endif
-            var ssh_data = new SshDataSignature(signed.Length);
-            ssh_data.Signature = signed;
+            var ssh_data = new SshDataSignature(signed.Length) { Signature = signed };
             return ssh_data.GetBytes();
         }
-
-        #region IDisposable Members
-
-        private bool _isDisposed;
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose()
         {
-            Dispose(true);
+            Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
 
@@ -89,7 +89,9 @@ namespace Renci.SshNet.Security.Cryptography
         protected virtual void Dispose(bool disposing)
         {
             if (_isDisposed)
+            {
                 return;
+            }
 
             if (disposing)
             {
@@ -98,20 +100,17 @@ namespace Renci.SshNet.Security.Cryptography
         }
 
         /// <summary>
-        /// Releases unmanaged resources and performs other cleanup operations before the
-        /// <see cref="EcdsaDigitalSignature"/> is reclaimed by garbage collection.
+        /// Finalizes an instance of the <see cref="EcdsaDigitalSignature"/> class.
         /// </summary>
         ~EcdsaDigitalSignature()
         {
-            Dispose(false);
+            Dispose(disposing: false);
         }
-
-        #endregion
     }
 
-    class SshDataSignature : SshData
+    internal class SshDataSignature : SshData
     {
-        private int _signature_size;
+        private readonly int _signature_size;
 
         private byte[] _signature_r;
         private byte[] _signature_s;
@@ -186,4 +185,3 @@ namespace Renci.SshNet.Security.Cryptography
         }
     }
 }
-#endif

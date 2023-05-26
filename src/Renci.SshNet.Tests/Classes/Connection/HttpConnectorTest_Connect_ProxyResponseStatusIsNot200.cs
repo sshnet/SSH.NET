@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 
 namespace Renci.SshNet.Tests.Classes.Connection
 {
@@ -81,6 +82,9 @@ namespace Renci.SshNet.Tests.Classes.Connection
             {
                 _actualException = ex;
             }
+
+            // Give some time to process all messages
+            Thread.Sleep(200);
         }
 
         [TestMethod]

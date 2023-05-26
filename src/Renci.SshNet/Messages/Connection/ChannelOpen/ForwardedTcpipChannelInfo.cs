@@ -5,7 +5,7 @@ namespace Renci.SshNet.Messages.Connection
     /// <summary>
     /// Used to open "forwarded-tcpip" channel type
     /// </summary>
-    internal class ForwardedTcpipChannelInfo : ChannelOpenInfo
+    internal sealed class ForwardedTcpipChannelInfo : ChannelOpenInfo
     {
         private byte[] _connectedAddress;
         private byte[] _originatorAddress;

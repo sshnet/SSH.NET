@@ -9,6 +9,15 @@ namespace Renci.SshNet.Security
     /// </summary>
     public class RsaKey : Key, IDisposable
     {
+
+        /// <summary>
+        /// Gets the Key String.
+        /// </summary>
+        public override string ToString()
+        {
+            return "ssh-rsa";
+        }
+
         /// <summary>
         /// Gets the modulus.
         /// </summary>
@@ -165,7 +174,6 @@ namespace Renci.SshNet.Security
         /// </summary>
         public RsaKey()
         {
-
         }
 
         /// <summary>
@@ -203,7 +211,7 @@ namespace Renci.SshNet.Security
 
         private static BigInteger PrimeExponent(BigInteger privateExponent, BigInteger prime)
         {
-            BigInteger pe = prime - new BigInteger(1);
+            var pe = prime - new BigInteger(1);
             return privateExponent % pe;
         }
 

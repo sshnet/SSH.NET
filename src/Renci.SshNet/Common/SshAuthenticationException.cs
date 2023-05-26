@@ -18,7 +18,6 @@ namespace Renci.SshNet.Common
         /// </summary>
         public SshAuthenticationException()
         {
-
         }
 
         /// <summary>
@@ -28,7 +27,6 @@ namespace Renci.SshNet.Common
         public SshAuthenticationException(string message)
             : base(message)
         {
-
         }
 
         /// <summary>
@@ -36,8 +34,8 @@ namespace Renci.SshNet.Common
         /// </summary>
         /// <param name="message">The message.</param>
         /// <param name="innerException">The inner exception.</param>
-        public SshAuthenticationException(string message, Exception innerException) :
-            base(message, innerException)
+        public SshAuthenticationException(string message, Exception innerException)
+            : base(message, innerException)
         {
         }
 

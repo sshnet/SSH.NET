@@ -435,7 +435,7 @@ namespace Renci.SshNet.Tests.Classes
         /// A test for <see cref="PrivateKeyFile(string, string)"/> ctor.
         ///</summary>
         [TestMethod()]
-        public void ConstructorWithFileNameAndPassphraseShouldThrowSshPassPhraseNullOrEmptyExceptionWhenPrivateKeyIsEncryptedAndPassphraseIsEmpty()
+        public void ConstructorWithFileNameAndPassphraseShouldThrowSshPassPhraseNullOrEmptyExceptionWhenNeededPassphraseIsEmpty()
         {
             var passphrase = string.Empty;
 
@@ -460,7 +460,7 @@ namespace Renci.SshNet.Tests.Classes
         /// A test for <see cref="PrivateKeyFile(string, string)"/> ctor.
         ///</summary>
         [TestMethod()]
-        public void ConstructorWithFileNameAndPassphraseShouldThrowSshPassPhraseNullOrEmptyExceptionWhenPrivateKeyIsEncryptedAndPassphraseIsNull()
+        public void ConstructorWithFileNameAndPassphraseShouldThrowSshPassPhraseNullOrEmptyExceptionWhenNeededPassphraseIsNull()
         {
             string passphrase = null;
 
@@ -545,13 +545,10 @@ namespace Renci.SshNet.Tests.Classes
             }
         }
 
-        /// <summary>
-        /// A test for opening an openssh v1 keyfile where there is no passphrase.
-        ///</summary>
         [TestMethod()]
         [Owner("bhalbright")]
         [TestCategory("PrivateKey")]
-        public void TestOpenSshV1KeyFileNoPassphrase()
+        public void Test_PrivateKey_OPENSSH_ED25519()
         {
             using (var stream = GetData("Key.OPENSSH.ED25519.txt"))
             {
@@ -559,17 +556,102 @@ namespace Renci.SshNet.Tests.Classes
             }
         }
 
-        /// <summary>
-        /// A test for opening an openssh v1 keyfile where there is a passphrase.
-        ///</summary>
         [TestMethod()]
         [Owner("bhalbright")]
         [TestCategory("PrivateKey")]
-        public void TestOpenSshV1KeyFileWithPassphrase()
+        public void Test_PrivateKey_OPENSSH_ED25519_ENCRYPTED()
         {
             using (var stream = GetData("Key.OPENSSH.ED25519.Encrypted.txt"))
             {
                 new PrivateKeyFile(stream, "password");
+            }
+        }
+
+        [TestMethod()]
+        [Owner("darinkes")]
+        [TestCategory("PrivateKey")]
+        public void Test_PrivateKey_OPENSSH_RSA()
+        {
+            using (var stream = GetData("Key.OPENSSH.RSA.txt"))
+            {
+                new PrivateKeyFile(stream);
+            }
+        }
+
+        [TestMethod()]
+        [Owner("darinkes")]
+        [TestCategory("PrivateKey")]
+        public void Test_PrivateKey_OPENSSH_RSA_ENCRYPTED()
+        {
+            using (var stream = GetData("Key.OPENSSH.RSA.Encrypted.txt"))
+            {
+                new PrivateKeyFile(stream, "12345");
+            }
+        }
+
+        [TestMethod()]
+        [Owner("darinkes")]
+        [TestCategory("PrivateKey")]
+        public void Test_PrivateKey_OPENSSH_ECDSA()
+        {
+            using (var stream = GetData("Key.OPENSSH.ECDSA.txt"))
+            {
+                new PrivateKeyFile(stream);
+            }
+        }
+
+        [TestMethod()]
+        [Owner("darinkes")]
+        [TestCategory("PrivateKey")]
+        public void Test_PrivateKey_OPENSSH_ECDSA_ENCRYPTED()
+        {
+            using (var stream = GetData("Key.OPENSSH.ECDSA.Encrypted.txt"))
+            {
+                new PrivateKeyFile(stream, "12345");
+            }
+        }
+
+        [TestMethod()]
+        [Owner("darinkes")]
+        [TestCategory("PrivateKey")]
+        public void Test_PrivateKey_OPENSSH_ECDSA384()
+        {
+            using (var stream = GetData("Key.OPENSSH.ECDSA384.txt"))
+            {
+                new PrivateKeyFile(stream);
+            }
+        }
+
+        [TestMethod()]
+        [Owner("darinkes")]
+        [TestCategory("PrivateKey")]
+        public void Test_PrivateKey_OPENSSH_ECDSA384_ENCRYPTED()
+        {
+            using (var stream = GetData("Key.OPENSSH.ECDSA384.Encrypted.txt"))
+            {
+                new PrivateKeyFile(stream, "12345");
+            }
+        }
+
+        [TestMethod()]
+        [Owner("darinkes")]
+        [TestCategory("PrivateKey")]
+        public void Test_PrivateKey_OPENSSH_ECDSA521()
+        {
+            using (var stream = GetData("Key.OPENSSH.ECDSA521.txt"))
+            {
+                new PrivateKeyFile(stream);
+            }
+        }
+
+        [TestMethod()]
+        [Owner("darinkes")]
+        [TestCategory("PrivateKey")]
+        public void Test_PrivateKey_OPENSSH_ECDSA521_ENCRYPTED()
+        {
+            using (var stream = GetData("Key.OPENSSH.ECDSA521.Encrypted.txt"))
+            {
+                new PrivateKeyFile(stream, "12345");
             }
         }
 

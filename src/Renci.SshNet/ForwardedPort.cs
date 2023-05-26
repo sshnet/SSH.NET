@@ -56,11 +56,19 @@ namespace Renci.SshNet
             CheckDisposed();
 
             if (IsStarted)
+            {
                 throw new InvalidOperationException("Forwarded port is already started.");
+            }
+
             if (Session == null)
+            {
                 throw new InvalidOperationException("Forwarded port is not added to a client.");
+            }
+
             if (!Session.IsConnected)
+            {
                 throw new SshConnectionException("Client not connected.");
+            }
 
             Session.ErrorOccured += Session_ErrorOccured;
             StartPort();
@@ -127,11 +135,7 @@ namespace Renci.SshNet
         /// <param name="exception">The exception.</param>
         protected void RaiseExceptionEvent(Exception exception)
         {
-            var handlers = Exception;
-            if (handlers != null)
-            {
-                handlers(this, new ExceptionEventArgs(exception));
-            }
+            Exception?.Invoke(this, new ExceptionEventArgs(exception));
         }
 
         /// <summary>
@@ -141,11 +145,7 @@ namespace Renci.SshNet
         /// <param name="port">Request originator port.</param>
         protected void RaiseRequestReceived(string host, uint port)
         {
-            var handlers = RequestReceived;
-            if (handlers != null)
-            {
-                handlers(this, new PortForwardEventArgs(host, port));
-            }
+            RequestReceived?.Invoke(this, new PortForwardEventArgs(host, port));
         }
 
         /// <summary>
@@ -153,11 +153,7 @@ namespace Renci.SshNet
         /// </summary>
         private void RaiseClosing()
         {
-            var handlers = Closing;
-            if (handlers != null)
-            {
-                handlers(this, EventArgs.Empty);
-            }
+            Closing?.Invoke(this, EventArgs.Empty);
         }
 
         /// <summary>

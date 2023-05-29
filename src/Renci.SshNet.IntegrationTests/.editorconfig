@@ -1,0 +1,36 @@
+﻿[*.cs]
+
+#### SYSLIB diagnostics ####
+
+# SYSLIB1045: Use 'GeneratedRegexAttribute' to generate the regular expression implementation at compile-time
+#
+# TODO: Remove this when https://github.com/sshnet/SSH.NET/issues/1131 is implemented.
+dotnet_diagnostic.SYSLIB1045.severity = none
+
+### StyleCop Analyzers rules ###
+
+#### .NET Compiler Platform analysers rules ####
+
+# IDE0007: Use var instead of explicit type
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0007
+dotnet_diagnostic.IDE0007.severity = suggestion
+
+# IDE0028: Use collection initializers
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0028
+dotnet_diagnostic.IDE0028.severity = suggestion
+
+# IDE0058: Remove unnecessary expression value
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0058
+dotnet_diagnostic.IDE0058.severity = suggestion
+
+# IDE0059: Remove unnecessary value assignment
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0059
+dotnet_diagnostic.IDE0059.severity = suggestion
+
+# IDE0230: Use UTF-8 string literal
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0230
+dotnet_diagnostic.IDE0230.severity = suggestion
+
+# IDE0025: Use block body for property
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0025
+dotnet_analyzer_diagnostic.category-Style.severity = none

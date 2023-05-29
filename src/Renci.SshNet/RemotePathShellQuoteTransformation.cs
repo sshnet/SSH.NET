@@ -6,7 +6,7 @@ namespace Renci.SshNet
     /// <summary>
     /// Quotes a path in a way to be suitable to be used with a shell-based server.
     /// </summary>
-    internal class RemotePathShellQuoteTransformation : IRemotePathTransformation
+    internal sealed class RemotePathShellQuoteTransformation : IRemotePathTransformation
     {
         /// <summary>
         /// Quotes a path in a way to be suitable to be used with a shell-based server.

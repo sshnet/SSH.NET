@@ -15,7 +15,7 @@ namespace Renci.SshNet
     public class PrivateKeyAuthenticationMethod : AuthenticationMethod, IDisposable
     {
         private AuthenticationResult _authenticationResult = AuthenticationResult.Failure;
-        private EventWaitHandle _authenticationCompleted = new ManualResetEvent(false);
+        private EventWaitHandle _authenticationCompleted = new ManualResetEvent(initialState: false);
         private bool _isSignatureRequired;
         private bool _isDisposed;
 

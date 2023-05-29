@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
+
 using Renci.SshNet.Abstractions;
 using Renci.SshNet.Common;
 using Renci.SshNet.Compression;
@@ -483,7 +484,7 @@ namespace Renci.SshNet.Security
         /// </summary>
         public void Dispose()
         {
-            Dispose(true);
+            Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
 
@@ -501,7 +502,7 @@ namespace Renci.SshNet.Security
         /// </summary>
         ~KeyExchange()
         {
-            Dispose(false);
+            Dispose(disposing: false);
         }
 
         #endregion

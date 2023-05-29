@@ -13,6 +13,12 @@ dotnet_diagnostic.SYSLIB1045.severity = none
 # https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1202.md
 dotnet_diagnostic.SA1202.severity = none
 
+#### Meziantou.Analyzer rules ####
+
+# MA0053: Make class sealed
+# https://github.com/meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0053.md
+MA0053.public_class_should_be_sealed = false
+
 #### .NET Compiler Platform analysers rules ####
 
 # CA1031: Do not catch general exception types

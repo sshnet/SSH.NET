@@ -11,7 +11,7 @@ namespace Renci.SshNet.Channels
     /// <summary>
     /// Implements "direct-tcpip" SSH channel.
     /// </summary>
-    internal class ChannelDirectTcpip : ClientChannel, IChannelDirectTcpip
+    internal sealed class ChannelDirectTcpip : ClientChannel, IChannelDirectTcpip
     {
         private readonly object _socketLock = new object();
 

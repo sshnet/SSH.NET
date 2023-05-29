@@ -7,7 +7,7 @@ namespace Renci.SshNet.Connection
 {
     internal abstract class ProxyConnector : ConnectorBase
     {
-        public ProxyConnector(ISocketFactory socketFactory)
+        protected ProxyConnector(ISocketFactory socketFactory)
             : base(socketFactory)
         {
         }

@@ -400,7 +400,7 @@ namespace Renci.SshNet
         /// <returns>
         /// The OpenSSH V1 key.
         /// </returns>
-        private Key ParseOpenSshV1Key(byte[] keyFileData, string passPhrase)
+        private static Key ParseOpenSshV1Key(byte[] keyFileData, string passPhrase)
         {
             var keyReader = new SshDataReader(keyFileData);
 
@@ -424,9 +424,9 @@ namespace Renci.SshNet
             var rounds = 0;
             if (kdfOptionsLen > 0)
             {
-                var saltLength = (int)keyReader.ReadUInt32();
+                var saltLength = (int) keyReader.ReadUInt32();
                 salt = keyReader.ReadBytes(saltLength);
-                rounds = (int)keyReader.ReadUInt32();
+                rounds = (int) keyReader.ReadUInt32();
             }
 
             // number of public keys, only supporting 1 for now
@@ -440,7 +440,7 @@ namespace Renci.SshNet
             _ = keyReader.ReadString(Encoding.UTF8);
 
             // possibly encrypted private key
-            var privateKeyLength = (int)keyReader.ReadUInt32();
+            var privateKeyLength = (int) keyReader.ReadUInt32();
             var privateKeyBytes = keyReader.ReadBytes(privateKeyLength);
 
             // decrypt private key if necessary
@@ -602,7 +602,7 @@ namespace Renci.SshNet
             Dispose(disposing: false);
         }
 
-        private class SshDataReader : SshData
+        private sealed class SshDataReader : SshData
         {
             public SshDataReader(byte[] data)
             {

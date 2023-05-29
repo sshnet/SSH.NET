@@ -44,7 +44,7 @@ namespace Renci.SshNet.Security.Cryptography
         /// </summary>
         public void Dispose()
         {
-            Dispose(true);
+            Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
 
@@ -78,7 +78,7 @@ namespace Renci.SshNet.Security.Cryptography
         /// </summary>
         ~RsaDigitalSignature()
         {
-            Dispose(false);
+            Dispose(disposing: false);
         }
 
         #endregion

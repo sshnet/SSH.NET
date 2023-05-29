@@ -9,7 +9,7 @@ using Renci.SshNet.Common;
 
 namespace Renci.SshNet.NetConf
 {
-    internal class NetConfSession : SubsystemSession, INetConfSession
+    internal sealed class NetConfSession : SubsystemSession, INetConfSession
     {
         private const string Prompt = "]]>]]>";
 

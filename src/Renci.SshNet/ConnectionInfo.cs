@@ -23,7 +23,7 @@ namespace Renci.SshNet
     /// </remarks>
     public class ConnectionInfo : IConnectionInfoInternal
     {
-        internal static int DefaultPort = 22;
+        internal const int DefaultPort = 22;
 
         /// <summary>
         /// The default connection timeout.

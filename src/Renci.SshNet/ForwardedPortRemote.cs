@@ -16,7 +16,7 @@ namespace Renci.SshNet
     {
         private ForwardedPortStatus _status;
         private bool _requestStatus;
-        private EventWaitHandle _globalRequestResponse = new AutoResetEvent(false);
+        private EventWaitHandle _globalRequestResponse = new AutoResetEvent(initialState: false);
         private CountdownEvent _pendingChannelCountdown;
         private bool _isDisposed;
 
@@ -390,7 +390,7 @@ namespace Renci.SshNet
         /// </summary>
         ~ForwardedPortRemote()
         {
-            Dispose(false);
+            Dispose(disposing: false);
         }
     }
 }

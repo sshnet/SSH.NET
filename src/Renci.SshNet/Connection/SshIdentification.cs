@@ -5,7 +5,7 @@ namespace Renci.SshNet.Connection
     /// <summary>
     /// Represents an SSH identification.
     /// </summary>
-    internal class SshIdentification
+    internal sealed class SshIdentification
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="SshIdentification"/> class with the specified protocol version

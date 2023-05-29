@@ -3,7 +3,7 @@ using Renci.SshNet.Sftp.Responses;
 
 namespace Renci.SshNet.Tests.Classes.Sftp
 {
-    internal class SftpStatVfsResponseBuilder
+    internal sealed class SftpStatVfsResponseBuilder
     {
         private uint _protocolVersion;
         private uint _responseId;
@@ -141,8 +141,13 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         }
     }
 
-    internal class StatVfsResponse : SftpExtendedReplyResponse
+    internal sealed class StatVfsResponse : SftpResponse
     {
+        public override SftpMessageTypes SftpMessageType
+        {
+            get { return SftpMessageTypes.ExtendedReply; }
+        }
+
         public SftpFileSytemInformation Information { get; set; }
 
         public StatVfsResponse(uint protocolVersion)

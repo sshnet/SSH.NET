@@ -108,7 +108,7 @@ namespace Renci.SshNet.Security.Cryptography
         }
     }
 
-    internal class SshDataSignature : SshData
+    internal sealed class SshDataSignature : SshData
     {
         private readonly int _signature_size;
 

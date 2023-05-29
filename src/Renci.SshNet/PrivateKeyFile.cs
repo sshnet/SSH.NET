@@ -147,7 +147,7 @@ namespace Renci.SshNet
         /// <param name="passPhrase">The pass phrase.</param>
         private void Open(Stream privateKey, string passPhrase)
         {
-            if (privateKey == null)
+            if (privateKey is null)
             {
                 throw new ArgumentNullException(nameof(privateKey));
             }
@@ -258,7 +258,9 @@ namespace Renci.SshNet
                     else if (ssh2CipherName == "3des-cbc")
                     {
                         if (string.IsNullOrEmpty(passPhrase))
+                        {
                             throw new SshPassPhraseNullOrEmptyException("Private key is encrypted but passphrase is empty.");
+                        }
 
                         var key = GetCipherKey(passPhrase, 192 / 8);
                         var ssh2Сipher = new TripleDesCipher(key, new CbcCipherMode(new byte[8]), new PKCS7Padding());
@@ -349,17 +351,17 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="cipherInfo" />, <paramref name="cipherData" />, <paramref name="passPhrase" /> or <paramref name="binarySalt" /> is <c>null</c>.</exception>
         private static byte[] DecryptKey(CipherInfo cipherInfo, byte[] cipherData, string passPhrase, byte[] binarySalt)
         {
-            if (cipherInfo == null)
+            if (cipherInfo is null)
             {
                 throw new ArgumentNullException(nameof(cipherInfo));
             }
 
-            if (cipherData == null)
+            if (cipherData is null)
             {
                 throw new ArgumentNullException(nameof(cipherData));
             }
 
-            if (binarySalt == null)
+            if (binarySalt is null)
             {
                 throw new ArgumentNullException(nameof(binarySalt));
             }

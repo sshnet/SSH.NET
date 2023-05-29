@@ -51,9 +51,12 @@ namespace Renci.SshNet.Tests.Classes
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);
             _channelMock = new Mock<IChannelDirectTcpip>(MockBehavior.Strict);
 
-            _connectionInfoMock.Setup(p => p.Timeout).Returns(TimeSpan.FromSeconds(15));
-            _sessionMock.Setup(p => p.IsConnected).Returns(true);
-            _sessionMock.Setup(p => p.ConnectionInfo).Returns(_connectionInfoMock.Object);
+            _ = _connectionInfoMock.Setup(p => p.Timeout)
+                                   .Returns(TimeSpan.FromSeconds(15));
+            _ = _sessionMock.Setup(p => p.IsConnected)
+                            .Returns(true);
+            _ = _sessionMock.Setup(p => p.ConnectionInfo)
+                            .Returns(_connectionInfoMock.Object);
 
             _forwardedPort = new ForwardedPortLocal(_localEndpoint.Address.ToString(), (uint) _localEndpoint.Port,
                 _remoteEndpoint.Address.ToString(), (uint) _remoteEndpoint.Port);
@@ -78,14 +81,19 @@ namespace Renci.SshNet.Tests.Classes
         {
             Socket handlerSocket = null;
 
-            _sessionMock.Setup(p => p.CreateChannelDirectTcpip()).Returns(_channelMock.Object);
-            _channelMock.Setup(p => p.Open(_forwardedPort.Host, _forwardedPort.Port, _forwardedPort, It.IsAny<Socket>())).Callback<string, uint, IForwardedPort, Socket>((address, port, forwardedPort, socket) => handlerSocket = socket);
-            _channelMock.Setup(p => p.Bind()).Callback(() =>
-                {
-                    if (handlerSocket != null && handlerSocket.Connected)
-                        handlerSocket.Shutdown(SocketShutdown.Both);
-                });
-            _channelMock.Setup(p => p.Dispose());
+            _ = _sessionMock.Setup(p => p.CreateChannelDirectTcpip())
+                            .Returns(_channelMock.Object);
+            _ = _channelMock.Setup(p => p.Open(_forwardedPort.Host, _forwardedPort.Port, _forwardedPort, It.IsAny<Socket>()))
+                            .Callback<string, uint, IForwardedPort, Socket>((address, port, forwardedPort, socket) => handlerSocket = socket);
+            _ = _channelMock.Setup(p => p.Bind())
+                            .Callback(() =>
+                                {
+                                    if (handlerSocket != null && handlerSocket.Connected)
+                                    {
+                                        handlerSocket.Shutdown(SocketShutdown.Both);
+                                    }
+                                });
+            _ = _channelMock.Setup(p => p.Dispose());
 
             using (var client = new Socket(_localEndpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp))
             {

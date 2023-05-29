@@ -52,7 +52,7 @@ namespace Renci.SshNet.Common
         {
             get
             {
-                if (_waitHandle == null)
+                if (_waitHandle is null)
                 {
                     lock (_lock)
                     {

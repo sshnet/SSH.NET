@@ -60,8 +60,7 @@ namespace Renci.SshNet.Security.Cryptography
             _mode = mode;
             _padding = padding;
 
-            if (_mode != null)
-                _mode.Init(this);
+            _mode?.Init(this);
         }
 
         /// <summary>
@@ -75,10 +74,11 @@ namespace Renci.SshNet.Security.Cryptography
         {
             if (length % _blockSize > 0)
             {
-                if (_padding == null)
+                if (_padding is null)
                 {
                     throw new ArgumentException("data");
                 }
+
                 var paddingLength = _blockSize - (length % _blockSize);
                 data = _padding.Pad(data, offset, length, paddingLength);
                 length += paddingLength;
@@ -90,7 +90,7 @@ namespace Renci.SshNet.Security.Cryptography
 
             for (var i = 0; i < length / _blockSize; i++)
             {
-                if (_mode == null)
+                if (_mode is null)
                 {
                     writtenBytes += EncryptBlock(data, offset + (i * _blockSize), _blockSize, output, i * _blockSize);
                 }
@@ -131,7 +131,7 @@ namespace Renci.SshNet.Security.Cryptography
         {
             if (length % _blockSize > 0)
             {
-                if (_padding == null)
+                if (_padding is null)
                 {
                     throw new ArgumentException("data");
                 }
@@ -146,7 +146,7 @@ namespace Renci.SshNet.Security.Cryptography
             var writtenBytes = 0;
             for (var i = 0; i < length / _blockSize; i++)
             {
-                if (_mode == null)
+                if (_mode is null)
                 {
                     writtenBytes += DecryptBlock(data, offset + (i * _blockSize), _blockSize, output, i * _blockSize);
                 }

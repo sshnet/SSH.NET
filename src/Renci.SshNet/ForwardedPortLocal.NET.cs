@@ -38,7 +38,7 @@ namespace Renci.SshNet
 
         private void StartAccept(SocketAsyncEventArgs e)
         {
-            if (e == null)
+            if (e is null)
             {
                 e = new SocketAsyncEventArgs();
                 e.Completed += AcceptCompleted;

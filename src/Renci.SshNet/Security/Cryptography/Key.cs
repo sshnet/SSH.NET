@@ -48,7 +48,7 @@ namespace Renci.SshNet.Security
         /// <param name="data">DER encoded private key data.</param>
         protected Key(byte[] data)
         {
-            if (data == null)
+            if (data is null)
             {
                 throw new ArgumentNullException(nameof(data));
             }

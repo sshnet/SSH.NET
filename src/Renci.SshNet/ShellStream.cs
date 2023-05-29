@@ -155,7 +155,7 @@ namespace Renci.SshNet
         /// <exception cref="ObjectDisposedException">Methods were called after the stream was closed.</exception>
         public override void Flush()
         {
-            if (_channel == null)
+            if (_channel is null)
             {
                 throw new ObjectDisposedException("ShellStream");
             }
@@ -676,12 +676,12 @@ namespace Renci.SshNet
         /// </remarks>
         public void Write(string text)
         {
-            if (text == null)
+            if (text is null)
             {
                 return;
             }
 
-            if (_channel == null)
+            if (_channel is null)
             {
                 throw new ObjectDisposedException("ShellStream");
             }
@@ -750,7 +750,7 @@ namespace Renci.SshNet
         /// </remarks>
         private void UnsubscribeFromSessionEvents(ISession session)
         {
-            if (session == null)
+            if (session is null)
             {
                 return;
             }
@@ -766,10 +766,7 @@ namespace Renci.SshNet
 
         private void Session_Disconnected(object sender, EventArgs e)
         {
-            if (_channel != null)
-            {
-                _channel.Dispose();
-            }
+            _channel?.Dispose();
         }
 
         private void Channel_Closed(object sender, ChannelEventArgs e)

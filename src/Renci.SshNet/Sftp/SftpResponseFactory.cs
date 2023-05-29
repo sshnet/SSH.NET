@@ -14,6 +14,7 @@ namespace Renci.SshNet.Sftp
 
             SftpMessage message;
 
+#pragma warning disable IDE0010 // Add missing cases
             switch (sftpMessageType)
             {
                 case SftpMessageTypes.Version:
@@ -40,6 +41,7 @@ namespace Renci.SshNet.Sftp
                 default:
                     throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "Message type '{0}' is not supported.", sftpMessageType));
             }
+#pragma warning restore IDE0010 // Add missing cases
 
             return message;
         }

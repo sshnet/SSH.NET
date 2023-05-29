@@ -40,12 +40,16 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         public override int EncryptBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
         {
             if ((inputOffset + BlockSize) > inputBuffer.Length)
+            {
                 throw new IndexOutOfRangeException("input buffer too short");
+            }
 
             if ((outputOffset + BlockSize) > outputBuffer.Length)
+            {
                 throw new IndexOutOfRangeException("output buffer too short");
+            }
 
-            if (_encryptionKey1 == null || _encryptionKey2 == null || _encryptionKey3 == null)
+            if (_encryptionKey1 is null || _encryptionKey2 is null || _encryptionKey3 is null)
             {
                 var part1 = new byte[8];
                 var part2 = new byte[8];
@@ -102,7 +106,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 throw new IndexOutOfRangeException("output buffer too short");
             }
 
-            if (_decryptionKey1 == null || _decryptionKey2 == null || _decryptionKey3 == null)
+            if (_decryptionKey1 is null || _decryptionKey2 is null || _decryptionKey3 is null)
             {
                 var part1 = new byte[8];
                 var part2 = new byte[8];

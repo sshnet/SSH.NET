@@ -97,7 +97,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             try
             {
-                new PasswordConnectionInfo(null, Resources.USERNAME, Resources.PASSWORD);
+                _ = new PasswordConnectionInfo(null, Resources.USERNAME, Resources.PASSWORD);
                 Assert.Fail();
             }
             catch (ArgumentNullException ex)
@@ -113,7 +113,7 @@ namespace Renci.SshNet.Tests.Classes
         [ExpectedException(typeof(ArgumentException))]
         public void Test_ConnectionInfo_Username_Is_Null()
         {
-            var connectionInfo = new PasswordConnectionInfo(Resources.HOST, null, Resources.PASSWORD);
+            _ = new PasswordConnectionInfo(Resources.HOST, null, Resources.PASSWORD);
         }
 
         [WorkItem(703), TestMethod]
@@ -121,7 +121,7 @@ namespace Renci.SshNet.Tests.Classes
         [ExpectedException(typeof(ArgumentNullException))]
         public void Test_ConnectionInfo_Password_Is_Null()
         {
-            var connectionInfo = new PasswordConnectionInfo(Resources.HOST, Resources.USERNAME, (string)null);
+            _ = new PasswordConnectionInfo(Resources.HOST, Resources.USERNAME, (string)null);
         }
 
         [TestMethod]
@@ -130,7 +130,7 @@ namespace Renci.SshNet.Tests.Classes
         [ExpectedException(typeof(ArgumentException))]
         public void Test_ConnectionInfo_Username_Is_Whitespace()
         {
-            var connectionInfo = new PasswordConnectionInfo(Resources.HOST, " ", Resources.PASSWORD);
+            _ = new PasswordConnectionInfo(Resources.HOST, " ", Resources.PASSWORD);
         }
 
         [WorkItem(703), TestMethod]
@@ -138,7 +138,7 @@ namespace Renci.SshNet.Tests.Classes
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void Test_ConnectionInfo_SmallPortNumber()
         {
-            var connectionInfo = new PasswordConnectionInfo(Resources.HOST, IPEndPoint.MinPort - 1, Resources.USERNAME, Resources.PASSWORD);
+            _ = new PasswordConnectionInfo(Resources.HOST, IPEndPoint.MinPort - 1, Resources.USERNAME, Resources.PASSWORD);
         }
 
         [WorkItem(703), TestMethod]
@@ -146,7 +146,7 @@ namespace Renci.SshNet.Tests.Classes
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void Test_ConnectionInfo_BigPortNumber()
         {
-            var connectionInfo = new PasswordConnectionInfo(Resources.HOST, IPEndPoint.MaxPort + 1, Resources.USERNAME, Resources.PASSWORD);
+            _ = new PasswordConnectionInfo(Resources.HOST, IPEndPoint.MaxPort + 1, Resources.USERNAME, Resources.PASSWORD);
         }
 
         [TestMethod]
@@ -209,10 +209,10 @@ namespace Renci.SshNet.Tests.Classes
         [Ignore] // placeholder for actual test
         public void DisposeTest()
         {
-            string host = string.Empty; // TODO: Initialize to an appropriate value
-            string username = string.Empty; // TODO: Initialize to an appropriate value
+            var host = string.Empty; // TODO: Initialize to an appropriate value
+            var username = string.Empty; // TODO: Initialize to an appropriate value
             byte[] password = null; // TODO: Initialize to an appropriate value
-            PasswordConnectionInfo target = new PasswordConnectionInfo(host, username, password); // TODO: Initialize to an appropriate value
+            var target = new PasswordConnectionInfo(host, username, password); // TODO: Initialize to an appropriate value
             target.Dispose();
             Assert.Inconclusive("A method that does not return a value cannot be verified.");
         }

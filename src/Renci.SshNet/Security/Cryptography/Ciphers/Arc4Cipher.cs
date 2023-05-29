@@ -47,7 +47,9 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
             //   first encrypted packet MUST be encrypted using the 1537th byte of
             //   keystream.
             if (dischargeFirstBytes)
-                Encrypt(new byte[1536]);
+            {
+                _ = Encrypt(new byte[1536]);
+            }
         }
 
         /// <summary>
@@ -94,7 +96,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         public override byte[] Encrypt(byte[] input, int offset, int length)
         {
             var output = new byte[length];
-            ProcessBytes(input, offset, length, output, 0);
+            _ = ProcessBytes(input, offset, length, output, 0);
             return output;
         }
 
@@ -122,7 +124,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         public override byte[] Decrypt(byte[] input, int offset, int length)
         {
             var output = new byte[length];
-            ProcessBytes(input, offset, length, output, 0);
+            _ = ProcessBytes(input, offset, length, output, 0);
             return output;
         }
 

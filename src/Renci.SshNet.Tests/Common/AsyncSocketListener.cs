@@ -10,11 +10,11 @@ namespace Renci.SshNet.Tests.Common
     {
         private readonly IPEndPoint _endPoint;
         private readonly ManualResetEvent _acceptCallbackDone;
-        private List<Socket> _connectedClients;
+        private readonly List<Socket> _connectedClients;
+        private readonly object _syncLock;
         private Socket _listener;
         private Thread _receiveThread;
         private bool _started;
-        private object _syncLock;
         private string _stackTrace;
 
         public delegate void BytesReceivedHandler(byte[] bytesReceived, Socket socket);
@@ -84,10 +84,7 @@ namespace Renci.SshNet.Tests.Common
                 _connectedClients.Clear();
             }
 
-            if (_listener != null)
-            {
-                _listener.Dispose();
-            }
+            _listener?.Dispose();
 
             if (_receiveThread != null)
             {
@@ -109,9 +106,9 @@ namespace Renci.SshNet.Tests.Common
                 var listener = (Socket)state;
                 while (_started)
                 {
-                    _acceptCallbackDone.Reset();
-                    listener.BeginAccept(AcceptCallback, listener);
-                    _acceptCallbackDone.WaitOne();
+                    _ = _acceptCallbackDone.Reset();
+                    _ = listener.BeginAccept(AcceptCallback, listener);
+                    _ = _acceptCallbackDone.WaitOne();
                 }
             }
             catch (Exception ex)
@@ -128,7 +125,7 @@ namespace Renci.SshNet.Tests.Common
         private void AcceptCallback(IAsyncResult ar)
         {
             // Signal the main thread to continue
-            _acceptCallbackDone.Set();
+            _ = _acceptCallbackDone.Set();
 
             // Get the socket that listens for inbound connections
             var listener = (Socket)ar.AsyncState;
@@ -188,7 +185,7 @@ namespace Renci.SshNet.Tests.Common
 
             try
             {
-                handler.BeginReceive(state.Buffer, 0, state.Buffer.Length, 0, ReadCallback, state);
+                _ =handler.BeginReceive(state.Buffer, 0, state.Buffer.Length, 0, ReadCallback, state);
             }
             catch (SocketException ex)
             {
@@ -308,7 +305,7 @@ namespace Renci.SshNet.Tests.Common
                             throw new Exception("Exception in ReadCallback: " + _stackTrace, ex);
                         }
 
-                        _connectedClients.Remove(handler);
+                        _ = _connectedClients.Remove(handler);
                     }
                 }
             }
@@ -321,7 +318,7 @@ namespace Renci.SshNet.Tests.Common
 
                 try
                 {
-                    handler.BeginReceive(state.Buffer, 0, state.Buffer.Length, 0, ReadCallback, state);
+                    _ = handler.BeginReceive(state.Buffer, 0, state.Buffer.Length, 0, ReadCallback, state);
                 }
                 catch (ObjectDisposedException)
                 {
@@ -347,23 +344,17 @@ namespace Renci.SshNet.Tests.Common
 
         private void SignalBytesReceived(byte[] bytesReceived, Socket client)
         {
-            var subscribers = BytesReceived;
-            if (subscribers != null)
-                subscribers(bytesReceived, client);
+            BytesReceived?.Invoke(bytesReceived, client);
         }
 
         private void SignalConnected(Socket client)
         {
-            var subscribers = Connected;
-            if (subscribers != null)
-                subscribers(client);
+            Connected?.Invoke(client);
         }
 
         private void SignalDisconnected(Socket client)
         {
-            var subscribers = Disconnected;
-            if (subscribers != null)
-                subscribers(client);
+            Disconnected?.Invoke(client);
         }
 
         private static void DrainSocket(Socket socket)

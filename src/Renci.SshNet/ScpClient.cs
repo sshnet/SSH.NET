@@ -77,7 +77,7 @@ namespace Renci.SshNet
             get { return _remotePathTransformation; }
             set
             {
-                if (value == null)
+                if (value is null)
                 {
                     throw new ArgumentNullException(nameof(value));
                 }
@@ -248,7 +248,7 @@ namespace Renci.SshNet
                 throw new ArgumentException(Message);
             }
 
-            if (destination == null)
+            if (destination is null)
             {
                 throw new ArgumentNullException(nameof(destination));
             }

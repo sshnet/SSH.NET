@@ -186,6 +186,7 @@ namespace Renci.SshNet.Abstractions
                         continue;
                     }
 
+#pragma warning disable IDE0010 // Add missing cases
                     switch (ex.SocketErrorCode)
                     {
                         case SocketError.ConnectionAborted:
@@ -199,6 +200,7 @@ namespace Renci.SshNet.Abstractions
                         default:
                             throw; // throw any other error
                     }
+#pragma warning restore IDE0010 // Add missing cases
                 }
             }
         }
@@ -369,6 +371,7 @@ namespace Renci.SshNet.Abstractions
 
         public static bool IsErrorResumable(SocketError socketError)
         {
+#pragma warning disable IDE0010 // Add missing cases
             switch (socketError)
             {
                 case SocketError.WouldBlock:
@@ -378,6 +381,7 @@ namespace Renci.SshNet.Abstractions
                 default:
                     return false;
             }
+#pragma warning restore IDE0010 // Add missing cases
         }
 
 #if FEATURE_SOCKET_EAP

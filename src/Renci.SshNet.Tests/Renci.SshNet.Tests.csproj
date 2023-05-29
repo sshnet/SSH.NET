@@ -13,10 +13,6 @@
     <NoWarn>$(NoWarn);CS1591</NoWarn>
   </PropertyGroup>
 
-  <PropertyGroup>
-    <DefineConstants>FEATURE_TPL</DefineConstants>
-  </PropertyGroup>
-
   <ItemGroup>
     <EmbeddedResource Include="Data\Key.ECDSA.Encrypted.txt" />
     <EmbeddedResource Include="Data\Key.ECDSA.txt" />

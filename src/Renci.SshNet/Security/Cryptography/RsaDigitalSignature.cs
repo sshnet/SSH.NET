@@ -55,7 +55,9 @@ namespace Renci.SshNet.Security.Cryptography
         protected virtual void Dispose(bool disposing)
         {
             if (_isDisposed)
+            {
                 return;
+            }
 
             if (disposing)
             {

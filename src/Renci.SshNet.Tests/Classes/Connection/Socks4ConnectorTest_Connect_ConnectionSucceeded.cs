@@ -1,14 +1,17 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
-using Renci.SshNet.Common;
-using Renci.SshNet.Connection;
-using Renci.SshNet.Tests.Common;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using Moq;
+
+using Renci.SshNet.Common;
+using Renci.SshNet.Connection;
+using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Connection
 {
@@ -43,7 +46,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
                     if (_bytesReceivedByProxy.Count == bytesReceived.Length)
                     {
                         // Send SOCKS response
-                        socket.Send(new byte[]
+                        _ = socket.Send(new byte[]
                             {
                                 // Reply version (null byte)
                                 0x00,
@@ -60,7 +63,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
                             });
 
                         // Send extra byte to allow us to verify that connector did not consume too much
-                        socket.Send(new byte[]
+                        _ = socket.Send(new byte[]
                             {
                                 0xfe
                             });
@@ -71,23 +74,16 @@ namespace Renci.SshNet.Tests.Classes.Connection
 
         protected override void SetupMocks()
         {
-            SocketFactoryMock.Setup(p => p.Create(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp))
-                             .Returns(_clientSocket);
+            _ = SocketFactoryMock.Setup(p => p.Create(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp))
+                                 .Returns(_clientSocket);
         }
 
         protected override void TearDown()
         {
             base.TearDown();
 
-            if (_proxyServer != null)
-            {
-                _proxyServer.Dispose();
-            }
-
-            if (_clientSocket != null)
-            {
-                _clientSocket.Dispose();
-            }
+            _proxyServer?.Dispose();
+            _clientSocket?.Dispose();
         }
 
         protected override void Act()

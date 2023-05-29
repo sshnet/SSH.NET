@@ -41,7 +41,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
                 // Wait until we received the greeting
                 if (_bytesReceivedByProxy.Count == 4)
                 {
-                    socket.Send(new byte[]
+                    _ = socket.Send(new byte[]
                         {
                                 // SOCKS version
                                 0x05,
@@ -55,30 +55,23 @@ namespace Renci.SshNet.Tests.Classes.Connection
 
         protected override void SetupMocks()
         {
-            SocketFactoryMock.Setup(p => p.Create(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp))
-                             .Returns(_clientSocket);
+            _ = SocketFactoryMock.Setup(p => p.Create(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp))
+                                 .Returns(_clientSocket);
         }
 
         protected override void TearDown()
         {
             base.TearDown();
 
-            if (_proxyServer != null)
-            {
-                _proxyServer.Dispose();
-            }
-
-            if (_clientSocket != null)
-            {
-                _clientSocket.Dispose();
-            }
+            _proxyServer?.Dispose();
+            _clientSocket?.Dispose();
         }
 
         protected override void Act()
         {
             try
             {
-                Connector.Connect(_connectionInfo);
+                _ = Connector.Connect(_connectionInfo);
                 Assert.Fail();
             }
             catch (ProxyException ex)
@@ -135,7 +128,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
         {
             try
             {
-                _clientSocket.Receive(new byte[0]);
+                _ = _clientSocket.Receive(new byte[0]);
                 Assert.Fail();
             }
             catch (ObjectDisposedException)

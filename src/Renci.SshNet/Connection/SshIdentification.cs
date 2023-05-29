@@ -31,12 +31,12 @@ namespace Renci.SshNet.Connection
         /// <exception cref="ArgumentNullException"><paramref name="softwareVersion"/> is <see langword="null"/>.</exception>
         public SshIdentification(string protocolVersion, string softwareVersion, string comments)
         {
-            if (protocolVersion == null)
+            if (protocolVersion is null)
             {
                 throw new ArgumentNullException(nameof(protocolVersion));
             }
 
-            if (softwareVersion == null)
+            if (softwareVersion is null)
             {
                 throw new ArgumentNullException(nameof(softwareVersion));
             }

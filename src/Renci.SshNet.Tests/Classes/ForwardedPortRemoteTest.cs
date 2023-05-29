@@ -1,10 +1,12 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System;
+using System.Net;
+using System.Threading;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Tests.Common;
 using Renci.SshNet.Tests.Properties;
-using System;
-using System.Net;
-using System.Threading;
 
 namespace Renci.SshNet.Tests.Classes
 {
@@ -23,7 +25,7 @@ namespace Renci.SshNet.Tests.Classes
             using (var client = new SshClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
             {
                 client.Connect();
-                var port1 = new ForwardedPortRemote((string)null, 8080, (string)null, 80);
+                var port1 = new ForwardedPortRemote(boundHost: null, 8080, host: null, 80);
                 client.AddForwardedPort(port1);
                 client.Disconnect();
             }
@@ -80,9 +82,9 @@ namespace Renci.SshNet.Tests.Classes
         public void StopTest()
         {
             uint boundPort = 0; // TODO: Initialize to an appropriate value
-            string host = string.Empty; // TODO: Initialize to an appropriate value
+            var host = string.Empty; // TODO: Initialize to an appropriate value
             uint port = 0; // TODO: Initialize to an appropriate value
-            ForwardedPortRemote target = new ForwardedPortRemote(boundPort, host, port); // TODO: Initialize to an appropriate value
+            var target = new ForwardedPortRemote(boundPort, host, port); // TODO: Initialize to an appropriate value
             target.Stop();
             Assert.Inconclusive("A method that does not return a value cannot be verified.");
         }
@@ -91,7 +93,7 @@ namespace Renci.SshNet.Tests.Classes
         public void Start_NotAddedToClient()
         {
             const int boundPort = 80;
-            string host = string.Empty;
+            var host = string.Empty;
             const uint port = 22;
             var target = new ForwardedPortRemote(boundPort, host, port);
 
@@ -115,9 +117,9 @@ namespace Renci.SshNet.Tests.Classes
         public void DisposeTest()
         {
             uint boundPort = 0; // TODO: Initialize to an appropriate value
-            string host = string.Empty; // TODO: Initialize to an appropriate value
+            var host = string.Empty; // TODO: Initialize to an appropriate value
             uint port = 0; // TODO: Initialize to an appropriate value
-            ForwardedPortRemote target = new ForwardedPortRemote(boundPort, host, port); // TODO: Initialize to an appropriate value
+            var target = new ForwardedPortRemote(boundPort, host, port); // TODO: Initialize to an appropriate value
             target.Dispose();
             Assert.Inconclusive("A method that does not return a value cannot be verified.");
         }
@@ -129,11 +131,11 @@ namespace Renci.SshNet.Tests.Classes
         [Ignore] // placeholder
         public void ForwardedPortRemoteConstructorTest()
         {
-            string boundHost = string.Empty; // TODO: Initialize to an appropriate value
+            var boundHost = string.Empty; // TODO: Initialize to an appropriate value
             uint boundPort = 0; // TODO: Initialize to an appropriate value
-            string host = string.Empty; // TODO: Initialize to an appropriate value
+            var host = string.Empty; // TODO: Initialize to an appropriate value
             uint port = 0; // TODO: Initialize to an appropriate value
-            ForwardedPortRemote target = new ForwardedPortRemote(boundHost, boundPort, host, port);
+            var target = new ForwardedPortRemote(boundHost, boundPort, host, port);
             Assert.Inconclusive("TODO: Implement code to verify target");
         }
 
@@ -145,9 +147,9 @@ namespace Renci.SshNet.Tests.Classes
         public void ForwardedPortRemoteConstructorTest1()
         {
             uint boundPort = 0; // TODO: Initialize to an appropriate value
-            string host = string.Empty; // TODO: Initialize to an appropriate value
+            var host = string.Empty; // TODO: Initialize to an appropriate value
             uint port = 0; // TODO: Initialize to an appropriate value
-            ForwardedPortRemote target = new ForwardedPortRemote(boundPort, host, port);
+            var target = new ForwardedPortRemote(boundPort, host, port);
             Assert.Inconclusive("TODO: Implement code to verify target");
         }
 

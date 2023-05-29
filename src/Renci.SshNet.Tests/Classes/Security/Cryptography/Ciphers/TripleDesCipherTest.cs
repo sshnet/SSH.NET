@@ -1,9 +1,12 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System.Linq;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Renci.SshNet.Security.Cryptography.Ciphers;
 using Renci.SshNet.Security.Cryptography.Ciphers.Modes;
 using Renci.SshNet.Tests.Common;
 using Renci.SshNet.Tests.Properties;
-using System.Linq;
+
 
 namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
 {
@@ -24,7 +27,9 @@ namespace Renci.SshNet.Tests.Classes.Security.Cryptography.Ciphers
             var r = testCipher.Encrypt(input);
 
             if (!r.SequenceEqual(output))
+            {
                 Assert.Fail("Invalid encryption");
+            }
         }
 
         [TestMethod]

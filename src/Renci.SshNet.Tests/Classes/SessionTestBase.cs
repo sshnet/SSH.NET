@@ -6,15 +6,15 @@ namespace Renci.SshNet.Tests.Classes
 {
     public abstract class SessionTestBase : TripleATestBase
     {
-        internal Mock<IServiceFactory> _serviceFactoryMock { get; private set; }
-        internal Mock<ISocketFactory> _socketFactoryMock { get; private set; }
-        internal Mock<IConnector> _connectorMock { get; private set; }
+        internal Mock<IServiceFactory> ServiceFactoryMock { get; private set; }
+        internal Mock<ISocketFactory> SocketFactoryMock { get; private set; }
+        internal Mock<IConnector> ConnectorMock { get; private set; }
 
         protected virtual void CreateMocks()
         {
-            _serviceFactoryMock = new Mock<IServiceFactory>(MockBehavior.Strict);
-            _socketFactoryMock = new Mock<ISocketFactory>(MockBehavior.Strict);
-            _connectorMock = new Mock<IConnector>(MockBehavior.Strict);
+            ServiceFactoryMock = new Mock<IServiceFactory>(MockBehavior.Strict);
+            SocketFactoryMock = new Mock<ISocketFactory>(MockBehavior.Strict);
+            ConnectorMock = new Mock<IConnector>(MockBehavior.Strict);
         }
 
         protected virtual void SetupData()

@@ -6,7 +6,7 @@ namespace Renci.SshNet.Messages.Connection
     /// <summary>
     /// Represents "exec" type channel request information.
     /// </summary>
-    internal class ExecRequestInfo : RequestInfo
+    internal sealed class ExecRequestInfo : RequestInfo
     {
         private byte[] _command;
 
@@ -79,12 +79,12 @@ namespace Renci.SshNet.Messages.Connection
         public ExecRequestInfo(string command, Encoding encoding)
             : this()
         {
-            if (command == null)
+            if (command is null)
             {
                 throw new ArgumentNullException(nameof(command));
             }
 
-            if (encoding == null)
+            if (encoding is null)
             {
                 throw new ArgumentNullException(nameof(encoding));
             }

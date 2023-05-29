@@ -99,7 +99,7 @@ namespace Renci.SshNet
             }
 
             var enabledMessageMetadata = _enabledMessagesByNumber[messageNumber];
-            if (enabledMessageMetadata == null)
+            if (enabledMessageMetadata is null)
             {
                 MessageMetadata definedMessageMetadata = null;
 
@@ -114,7 +114,7 @@ namespace Renci.SshNet
                     }
                 }
 
-                if (definedMessageMetadata == null)
+                if (definedMessageMetadata is null)
                 {
                     throw CreateMessageTypeNotSupportedException(messageNumber);
                 }
@@ -164,7 +164,7 @@ namespace Renci.SshNet
 
         public void EnableAndActivateMessage(string messageName)
         {
-            if (messageName == null)
+            if (messageName is null)
             {
                 throw new ArgumentNullException(nameof(messageName));
             }
@@ -191,7 +191,7 @@ namespace Renci.SshNet
 
         public void DisableAndDeactivateMessage(string messageName)
         {
-            if (messageName == null)
+            if (messageName is null)
             {
                 throw new ArgumentNullException(nameof(messageName));
             }

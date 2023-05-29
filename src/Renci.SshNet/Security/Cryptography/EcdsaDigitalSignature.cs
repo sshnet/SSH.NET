@@ -23,7 +23,7 @@ namespace Renci.SshNet.Security.Cryptography
         /// <exception cref="ArgumentNullException"><paramref name="key"/> is <c>null</c>.</exception>
         public EcdsaDigitalSignature(EcdsaKey key)
         {
-            if (key == null)
+            if (key is null)
             {
                 throw new ArgumentNullException(nameof(key));
             }

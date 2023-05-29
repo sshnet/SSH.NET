@@ -41,7 +41,7 @@ namespace Renci.SshNet
         public PrivateKeyAuthenticationMethod(string username, params IPrivateKeySource[] keyFiles)
             : base(username)
         {
-            if (keyFiles == null)
+            if (keyFiles is null)
             {
                 throw new ArgumentNullException(nameof(keyFiles));
             }

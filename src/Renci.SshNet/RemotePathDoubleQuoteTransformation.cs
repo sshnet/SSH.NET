@@ -50,7 +50,7 @@ namespace Renci.SshNet
         /// </example>
         public string Transform(string path)
         {
-            if (path == null)
+            if (path is null)
             {
                 throw new ArgumentNullException(nameof(path));
             }

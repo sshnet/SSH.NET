@@ -25,17 +25,17 @@ namespace Renci.SshNet.Sftp
         /// <exception cref="ArgumentNullException"><paramref name="sftpSession"/> or <paramref name="fullName"/> is <c>null</c>.</exception>
         internal SftpFile(ISftpSession sftpSession, string fullName, SftpFileAttributes attributes)
         {
-            if (sftpSession == null)
+            if (sftpSession is null)
             {
                 throw new SshConnectionException("Client not connected.");
             }
 
-            if (attributes == null)
+            if (attributes is null)
             {
                 throw new ArgumentNullException(nameof(attributes));
             }
 
-            if (fullName == null)
+            if (fullName is null)
             {
                 throw new ArgumentNullException(nameof(fullName));
             }
@@ -481,7 +481,7 @@ namespace Renci.SshNet.Sftp
         /// <exception cref="ArgumentNullException"><paramref name="destFileName"/> is <c>null</c>.</exception>
         public void MoveTo(string destFileName)
         {
-            if (destFileName == null)
+            if (destFileName is null)
             {
                 throw new ArgumentNullException(nameof(destFileName));
             }

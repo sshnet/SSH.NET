@@ -49,7 +49,7 @@ namespace Renci.SshNet.Messages.Transport
         /// <param name="data">The data.</param>
         public IgnoreMessage(byte[] data)
         {
-            if (data == null)
+            if (data is null)
             {
                 throw new ArgumentNullException(nameof(data));
             }

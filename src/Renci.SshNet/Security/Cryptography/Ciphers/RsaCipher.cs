@@ -18,7 +18,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
         /// <param name="key">The RSA key.</param>
         public RsaCipher(RsaKey key)
         {
-            if (key == null)
+            if (key is null)
             {
                 throw new ArgumentNullException(nameof(key));
             }

@@ -1,5 +1,12 @@
 ﻿[*.cs]
 
+#### SYSLIB diagnostics ####
+
+# SYSLIB1045: Use 'GeneratedRegexAttribute' to generate the regular expression implementation at compile-time
+#
+# TODO: Remove this when https://github.com/sshnet/SSH.NET/issues/1131 is implemented.
+dotnet_diagnostic.SYSLIB1045.severity = none
+
 ### StyleCop Analyzers rules ###
 
 # SA1202: Elements must be ordered by access

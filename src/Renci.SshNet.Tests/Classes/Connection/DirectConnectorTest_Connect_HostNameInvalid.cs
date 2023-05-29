@@ -1,6 +1,6 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
-using System.Net.Sockets;
+﻿using System.Net.Sockets;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Renci.SshNet.Tests.Classes.Connection
 {
@@ -22,7 +22,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
         {
             try
             {
-                Connector.Connect(_connectionInfo);
+                _ = Connector.Connect(_connectionInfo);
                 Assert.Fail();
             }
             catch (SocketException ex)

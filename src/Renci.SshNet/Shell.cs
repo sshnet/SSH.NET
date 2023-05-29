@@ -236,7 +236,7 @@ namespace Renci.SshNet
         /// </remarks>
         private void UnsubscribeFromSessionEvents(ISession session)
         {
-            if (session == null)
+            if (session is null)
             {
                 return;
             }

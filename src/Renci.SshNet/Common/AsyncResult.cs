@@ -121,7 +121,7 @@ namespace Renci.SshNet.Common
         {
             get
             {
-                if (_asyncWaitHandle == null)
+                if (_asyncWaitHandle is null)
                 {
                     var done = IsCompleted;
                     var mre = new ManualResetEvent(done);

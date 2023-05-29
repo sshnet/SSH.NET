@@ -1,6 +1,6 @@
-﻿using Renci.SshNet.Security;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Renci.SshNet.Tests.Common;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Renci.SshNet.Tests
 {

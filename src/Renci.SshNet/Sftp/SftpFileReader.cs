@@ -94,7 +94,7 @@ namespace Renci.SshNet.Sftp
             {
                 // wait until either the next chunk is available, an exception has occurred or the current
                 // instance is already disposed
-                while (!_queue.TryGetValue(_nextChunkIndex, out nextChunk) && _exception == null)
+                while (!_queue.TryGetValue(_nextChunkIndex, out nextChunk) && _exception is null)
                 {
                     _ =Monitor.Wait(_readLock);
                 }
@@ -281,7 +281,7 @@ namespace Renci.SshNet.Sftp
         {
             ThreadAbstraction.ExecuteThread(() =>
             {
-                while (!_endOfFileReceived && _exception == null)
+                while (!_endOfFileReceived && _exception is null)
                 {
                     // check if we should continue with the read-ahead loop
                     // note that the EOF and exception check are not included

@@ -14,8 +14,8 @@ namespace Renci.SshNet.Tests.Classes
         ///</summary>
         public void MessageEventArgsConstructorTestHelper<T>()
         {
-            T message = default(T); // TODO: Initialize to an appropriate value
-            MessageEventArgs<T> target = new MessageEventArgs<T>(message);
+            T message = default; // TODO: Initialize to an appropriate value
+            var target = new MessageEventArgs<T>(message);
             Assert.Inconclusive("TODO: Implement code to verify target");
         }
 

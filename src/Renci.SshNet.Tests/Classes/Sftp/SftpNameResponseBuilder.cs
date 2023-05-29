@@ -10,7 +10,7 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         private uint _responseId;
         private uint _protocolVersion;
         private Encoding _encoding;
-        private List<KeyValuePair<string, SftpFileAttributes>> _files;
+        private readonly List<KeyValuePair<string, SftpFileAttributes>> _files;
 
         public SftpNameResponseBuilder()
         {
@@ -32,7 +32,10 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         public SftpNameResponseBuilder WithFiles(params KeyValuePair<string, SftpFileAttributes>[] files)
         {
             for (var i = 0; i < files.Length; i++)
+            {
                 _files.Add(files[i]);
+            }
+
             return this;
         }
 

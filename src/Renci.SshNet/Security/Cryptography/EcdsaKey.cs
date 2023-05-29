@@ -26,6 +26,8 @@ namespace Renci.SshNet.Security
         private bool _isDisposed;
 
 #if NETFRAMEWORK
+        private CngKey _key;
+
         internal enum KeyBlobMagicNumber : int
         {
             BCRYPT_ECDSA_PUBLIC_P256_MAGIC = 0x31534345,
@@ -52,8 +54,6 @@ namespace Renci.SshNet.Security
             internal KeyBlobMagicNumber Magic;
             internal int cbKey;
         }
-
-        private CngKey key;
 #endif
 
         /// <summary>
@@ -104,9 +104,9 @@ namespace Renci.SshNet.Security
                         return HashAlgorithmName.SHA384;
                     case 521:
                         return HashAlgorithmName.SHA512;
+                    default:
+                        return HashAlgorithmName.SHA256;
                 }
-
-                return HashAlgorithmName.SHA256;
             }
         }
 #endif
@@ -152,7 +152,7 @@ namespace Renci.SshNet.Security
                 byte[] qx;
                 byte[] qy;
 #if NETFRAMEWORK
-                var blob = key.Export(CngKeyBlobFormat.EccPublicBlob);
+                var blob = _key.Export(CngKeyBlobFormat.EccPublicBlob);
 
                 KeyBlobMagicNumber magic;
                 using (var br = new BinaryReader(new MemoryStream(blob)))
@@ -163,6 +163,7 @@ namespace Renci.SshNet.Security
                     qy = br.ReadBytes(cbKey);
                 }
 
+#pragma warning disable IDE0010 // Add missing cases
                 switch (magic)
                 {
                     case KeyBlobMagicNumber.BCRYPT_ECDSA_PUBLIC_P256_MAGIC:
@@ -177,6 +178,7 @@ namespace Renci.SshNet.Security
                     default:
                         throw new SshException("Unexpected Curve Magic: " + magic);
                 }
+#pragma warning restore IDE0010 // Add missing cases
 #else
                 var parameter = Ecdsa.ExportParameters(false);
                 qx = parameter.Q.X;
@@ -377,9 +379,9 @@ namespace Renci.SshNet.Security
                     bw.Write(privatekey); // d
                 }
             }
-            key = CngKey.Import(blob, privatekey == null ? CngKeyBlobFormat.EccPublicBlob : CngKeyBlobFormat.EccPrivateBlob);
+            _key = CngKey.Import(blob, privatekey is null ? CngKeyBlobFormat.EccPublicBlob : CngKeyBlobFormat.EccPrivateBlob);
 
-            Ecdsa = new ECDsaCng(key);
+            Ecdsa = new ECDsaCng(_key);
 #else
             var curve = ECCurve.CreateFromValue(curve_oid);
             var parameter = new ECParameters

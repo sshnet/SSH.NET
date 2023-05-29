@@ -4,7 +4,7 @@ namespace Renci.SshNet.Tests.Common
 {
     public class ArrayBuilder<T>
     {
-        private List<T> _buffer;
+        private readonly List<T> _buffer;
 
         public ArrayBuilder()
         {
@@ -19,7 +19,10 @@ namespace Renci.SshNet.Tests.Common
         public ArrayBuilder<T> Add(T[] array, int index, int length)
         {
             for (var i = 0; i < length; i++)
+            {
                 _buffer.Add(array[index + i]);
+            }
+
             return this;
         }
 

@@ -88,12 +88,12 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="port" /> is greater than <see cref="IPEndPoint.MaxPort" />.</exception>
         public ForwardedPortLocal(string boundHost, uint boundPort, string host, uint port)
         {
-            if (boundHost == null)
+            if (boundHost is null)
             {
                 throw new ArgumentNullException(nameof(boundHost));
             }
 
-            if (host == null)
+            if (host is null)
             {
                 throw new ArgumentNullException(nameof(host));
             }

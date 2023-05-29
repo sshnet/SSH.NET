@@ -9,10 +9,8 @@
         <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)src\Renci.SshNet.snk</AssemblyOriginatorKeyFile>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <LangVersion>latest</LangVersion>
-        <!--
         <WarningLevel>9999</WarningLevel>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-        -->
         <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
     </PropertyGroup>
 

@@ -36,7 +36,7 @@ namespace Renci.SshNet.Abstractions
                 IsCompleted = true;
 
                 var continuation = _continuationAction ?? Interlocked.CompareExchange(ref _continuationAction, SENTINEL, null);
-                if (continuation != null)
+                if (continuation is not null)
                 {
                     continuation();
                 }

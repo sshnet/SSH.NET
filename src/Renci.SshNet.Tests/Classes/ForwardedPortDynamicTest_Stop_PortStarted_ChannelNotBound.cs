@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
-using System.Runtime.InteropServices;
 using System.Threading;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
 
@@ -55,11 +57,15 @@ namespace Renci.SshNet.Tests.Classes
             _sessionMock = new Mock<ISession>(MockBehavior.Strict);
             _channelMock = new Mock<IChannelDirectTcpip>(MockBehavior.Strict);
 
-            _connectionInfoMock.Setup(p => p.Timeout).Returns(TimeSpan.FromSeconds(15));
-            _sessionMock.Setup(p => p.IsConnected).Returns(true);
-            _sessionMock.Setup(p => p.ConnectionInfo).Returns(_connectionInfoMock.Object);
-            _sessionMock.Setup(p => p.CreateChannelDirectTcpip()).Returns(_channelMock.Object);
-            _channelMock.Setup(p => p.Dispose());
+            _ = _connectionInfoMock.Setup(p => p.Timeout)
+                                   .Returns(TimeSpan.FromSeconds(15));
+            _ = _sessionMock.Setup(p => p.IsConnected)
+                            .Returns(true);
+            _ = _sessionMock.Setup(p => p.ConnectionInfo)
+                            .Returns(_connectionInfoMock.Object);
+            _ = _sessionMock.Setup(p => p.CreateChannelDirectTcpip())
+                            .Returns(_channelMock.Object);
+            _ = _channelMock.Setup(p => p.Dispose());
 
             _forwardedPort = new ForwardedPortDynamic(_endpoint.Address.ToString(), (uint) _endpoint.Port);
             _forwardedPort.Closing += (sender, args) => _closingRegister.Add(args);
@@ -112,7 +118,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             try
             {
-                _client.Send(new byte[] { 0x0a }, 0, 1, SocketFlags.None);
+                _ = _client.Send(new byte[] { 0x0a }, 0, 1, SocketFlags.None);
                 Assert.Fail();
             }
             catch (SocketException ex)

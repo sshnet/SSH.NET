@@ -104,10 +104,14 @@ namespace Renci.SshNet.Tests.Classes
                 {
                     var result = reader.ReadToEnd();
                     if (string.IsNullOrEmpty(result))
+                    {
                         continue;
+                    }
+
                     Console.Write(result);
                 }
-                cmd.EndExecute(asynch);
+
+                _ = cmd.EndExecute(asynch);
 
                 client.Disconnect();
                 #endregion

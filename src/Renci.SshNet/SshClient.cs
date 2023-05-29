@@ -184,7 +184,7 @@ namespace Renci.SshNet
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         public void AddForwardedPort(ForwardedPort port)
         {
-            if (port == null)
+            if (port is null)
             {
                 throw new ArgumentNullException(nameof(port));
             }
@@ -202,7 +202,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="port"/> is <c>null</c>.</exception>
         public void RemoveForwardedPort(ForwardedPort port)
         {
-            if (port == null)
+            if (port is null)
             {
                 throw new ArgumentNullException(nameof(port));
             }
@@ -509,7 +509,7 @@ namespace Renci.SshNet
 
         private void EnsureSessionIsOpen()
         {
-            if (Session == null)
+            if (Session is null)
             {
                 throw new SshConnectionException("Client not connected.");
             }

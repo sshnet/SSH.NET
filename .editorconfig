@@ -535,6 +535,11 @@ dotnet_diagnostic.IDE0045.severity = none
 # Configured using 'dotnet_style_prefer_conditional_expression_over_return'
 dotnet_diagnostic.IDE0046.severity = suggestion
 
+# IDE0047: Remove unnecessary parentheses
+# 
+# Removing "unnecessary" parentheses is not always a clear win for readability.
+dotnet_diagnostic.IDE0047.severity = suggestion
+
 # IDE0055: Fix formatting
 #
 # When enabled, diagnostics are reported for indented object initializers.
@@ -546,6 +551,12 @@ dotnet_diagnostic.IDE0046.severity = suggestion
 #
 # There are no settings to configure this correctly, unless https://github.com/dotnet/roslyn/issues/63256 (or similar) is ever implemented.
 dotnet_diagnostic.IDE0055.severity = none
+
+# IDE0130: Namespace does not match folder structure
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0130
+#
+# TODO: Remove when https://github.com/sshnet/SSH.NET/issues/1129 is fixed
+dotnet_diagnostic.IDE0130.severity = none
 
 # IDE0270: Null check can be simplified
 # 

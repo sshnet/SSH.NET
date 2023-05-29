@@ -526,7 +526,7 @@ namespace Renci.SshNet.Sftp
         /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <c>null</c>.</exception>
         public byte[] EndOpen(SftpOpenAsyncResult asyncResult)
         {
-            if (asyncResult == null)
+            if (asyncResult is null)
             {
                 throw new ArgumentNullException(nameof(asyncResult));
             }
@@ -638,7 +638,7 @@ namespace Renci.SshNet.Sftp
         /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <c>null</c>.</exception>
         public void EndClose(SftpCloseAsyncResult asyncResult)
         {
-            if (asyncResult == null)
+            if (asyncResult is null)
             {
                 throw new ArgumentNullException(nameof(asyncResult));
             }
@@ -716,7 +716,7 @@ namespace Renci.SshNet.Sftp
         /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <c>null</c>.</exception>
         public byte[] EndRead(SftpReadAsyncResult asyncResult)
         {
-            if (asyncResult == null)
+            if (asyncResult is null)
             {
                 throw new ArgumentNullException(nameof(asyncResult));
             }
@@ -984,7 +984,7 @@ namespace Renci.SshNet.Sftp
         /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <c>null</c>.</exception>
         public SftpFileAttributes EndLStat(SFtpStatAsyncResult asyncResult)
         {
-            if (asyncResult == null)
+            if (asyncResult is null)
             {
                 throw new ArgumentNullException(nameof(asyncResult));
             }
@@ -1492,7 +1492,7 @@ namespace Renci.SshNet.Sftp
         /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <c>null</c>.</exception>
         public string EndRealPath(SftpRealPathAsyncResult asyncResult)
         {
-            if (asyncResult == null)
+            if (asyncResult is null)
             {
                 throw new ArgumentNullException(nameof(asyncResult));
             }
@@ -1592,7 +1592,7 @@ namespace Renci.SshNet.Sftp
         /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <c>null</c>.</exception>
         public SftpFileAttributes EndStat(SFtpStatAsyncResult asyncResult)
         {
-            if (asyncResult == null)
+            if (asyncResult is null)
             {
                 throw new ArgumentNullException(nameof(asyncResult));
             }
@@ -2044,6 +2044,7 @@ namespace Renci.SshNet.Sftp
 
         private static SshException GetSftpException(SftpStatusResponse response)
         {
+#pragma warning disable IDE0010 // Add missing cases
             switch (response.StatusCode)
             {
                 case StatusCodes.Ok:
@@ -2055,6 +2056,7 @@ namespace Renci.SshNet.Sftp
                 default:
                     return new SshException(response.ErrorMessage);
             }
+#pragma warning restore IDE0010 // Add missing cases
         }
 
         private void HandleResponse(SftpResponse response)
@@ -2069,7 +2071,7 @@ namespace Renci.SshNet.Sftp
                 }
             }
 
-            if (request == null)
+            if (request is null)
             {
                 throw new InvalidOperationException("Invalid response.");
             }

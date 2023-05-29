@@ -1,7 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Threading;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Tests.Common;
 
@@ -25,7 +27,7 @@ namespace Renci.SshNet.Tests.Classes.Common
 
                 Assert.AreEqual(stream.Length, testBuffer.Length);
 
-                stream.Read(outputBuffer, 0, outputBuffer.Length);
+                _ = stream.Read(outputBuffer, 0, outputBuffer.Length);
 
                 Assert.AreEqual(stream.Length, 0);
 
@@ -44,9 +46,9 @@ namespace Renci.SshNet.Tests.Classes.Common
             {
                 stream.Write(testBuffer, 0, testBuffer.Length);
                 Assert.AreEqual(stream.Length, testBuffer.Length);
-                stream.ReadByte();
+                _ = stream.ReadByte();
                 Assert.AreEqual(stream.Length, testBuffer.Length - 1);
-                stream.ReadByte();
+                _ = stream.ReadByte();
                 Assert.AreEqual(stream.Length, testBuffer.Length - 2);
             }
         }
@@ -92,7 +94,7 @@ namespace Renci.SshNet.Tests.Classes.Common
 
             try
             {
-                target.Seek(offset, origin);
+                _ = target.Seek(offset, origin);
                 Assert.Fail();
             }
             catch (NotSupportedException)
@@ -169,9 +171,9 @@ namespace Renci.SshNet.Tests.Classes.Common
             Assert.AreEqual(2L, target.Length);
             target.WriteByte(0x0a);
             Assert.AreEqual(3L, target.Length);
-            target.Read(new byte[2], 0, 2);
+            _ = target.Read(new byte[2], 0, 2);
             Assert.AreEqual(1L, target.Length);
-            target.ReadByte();
+            _ = target.ReadByte();
             Assert.AreEqual(0L, target.Length);
         }
 
@@ -195,7 +197,7 @@ namespace Renci.SshNet.Tests.Classes.Common
             Assert.AreEqual(0, target.Position);
             target.WriteByte(0x0a);
             Assert.AreEqual(0, target.Position);
-            target.ReadByte();
+            _ = target.ReadByte();
             Assert.AreEqual(0, target.Position);
         }
 

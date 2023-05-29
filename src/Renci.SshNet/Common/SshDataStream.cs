@@ -93,7 +93,7 @@ namespace Renci.SshNet.Common
         /// <exception cref="ArgumentNullException"><paramref name="data"/> is <c>null</c>.</exception>
         public void Write(byte[] data)
         {
-            if (data == null)
+            if (data is null)
             {
                 throw new ArgumentNullException(nameof(data));
             }
@@ -126,7 +126,7 @@ namespace Renci.SshNet.Common
         /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <c>null</c>.</exception>
         public void WriteBinary(byte[] buffer)
         {
-            if (buffer == null)
+            if (buffer is null)
             {
                 throw new ArgumentNullException(nameof(buffer));
             }
@@ -158,7 +158,7 @@ namespace Renci.SshNet.Common
         /// <exception cref="ArgumentNullException"><paramref name="encoding"/> is <c>null</c>.</exception>
         public void Write(string s, Encoding encoding)
         {
-            if (encoding == null)
+            if (encoding is null)
             {
                 throw new ArgumentNullException(nameof(encoding));
             }

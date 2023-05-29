@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Text;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Channels;
 using Renci.SshNet.Common;
 
@@ -42,18 +44,29 @@ namespace Renci.SshNet.Tests.Classes
             _channelAfterDisconnectMock = new Mock<IChannelSession>(MockBehavior.Strict);
 
             _sequence = new MockSequence();
-            _sessionMock.InSequence(_sequence).Setup(p => p.CreateChannelSession()).Returns(_channelBeforeDisconnectMock.Object);
-            _channelBeforeDisconnectMock.InSequence(_sequence).Setup(p => p.Open());
-            _channelBeforeDisconnectMock.InSequence(_sequence).Setup(p => p.SendSubsystemRequest(_subsystemName)).Returns(true);
-            _channelBeforeDisconnectMock.InSequence(_sequence).Setup(p => p.Dispose());
-            _sessionMock.InSequence(_sequence).Setup(p => p.CreateChannelSession()).Returns(_channelAfterDisconnectMock.Object);
-            _channelAfterDisconnectMock.InSequence(_sequence).Setup(p => p.Open());
-            _channelAfterDisconnectMock.InSequence(_sequence).Setup(p => p.SendSubsystemRequest(_subsystemName)).Returns(true);
 
-            _subsystemSession = new SubsystemSessionStub(
-                _sessionMock.Object,
-                _subsystemName,
-                _operationTimeout);
+            _ = _sessionMock.InSequence(_sequence)
+                            .Setup(p => p.CreateChannelSession())
+                            .Returns(_channelBeforeDisconnectMock.Object);
+            _ = _channelBeforeDisconnectMock.InSequence(_sequence)
+                                            .Setup(p => p.Open());
+            _ = _channelBeforeDisconnectMock.InSequence(_sequence)
+                                            .Setup(p => p.SendSubsystemRequest(_subsystemName))
+                                            .Returns(true);
+            _ = _channelBeforeDisconnectMock.InSequence(_sequence)
+                                            .Setup(p => p.Dispose());
+            _ = _sessionMock.InSequence(_sequence)
+                            .Setup(p => p.CreateChannelSession())
+                            .Returns(_channelAfterDisconnectMock.Object);
+            _ = _channelAfterDisconnectMock.InSequence(_sequence)
+                                           .Setup(p => p.Open());
+            _ = _channelAfterDisconnectMock.InSequence(_sequence)
+                                           .Setup(p => p.SendSubsystemRequest(_subsystemName))
+                                           .Returns(true);
+
+            _subsystemSession = new SubsystemSessionStub(_sessionMock.Object,
+                                                         _subsystemName,
+                                                         _operationTimeout);
             _subsystemSession.Disconnected += (sender, args) => _disconnectedRegister.Add(args);
             _subsystemSession.ErrorOccurred += (sender, args) => _errorOccurredRegister.Add(args);
             _subsystemSession.Connect();
@@ -80,7 +93,9 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void IsOpenShouldReturnTrueWhenChannelIsOpen()
         {
-            _channelAfterDisconnectMock.InSequence(_sequence).Setup(p => p.IsOpen).Returns(true);
+            _ = _channelAfterDisconnectMock.InSequence(_sequence)
+                                           .Setup(p => p.IsOpen)
+                                           .Returns(true);
 
             Assert.IsTrue(_subsystemSession.IsOpen);
 
@@ -90,7 +105,9 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void IsOpenShouldReturnFalseWhenChannelIsNotOpen()
         {
-            _channelAfterDisconnectMock.InSequence(_sequence).Setup(p => p.IsOpen).Returns(false);
+            _ = _channelAfterDisconnectMock.InSequence(_sequence)
+                                           .Setup(p => p.IsOpen)
+                                           .Returns(false);
 
             Assert.IsFalse(_subsystemSession.IsOpen);
 

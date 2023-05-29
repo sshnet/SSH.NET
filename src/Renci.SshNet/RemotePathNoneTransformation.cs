@@ -21,7 +21,7 @@ namespace Renci.SshNet
         /// </remarks>
         public string Transform(string path)
         {
-            if (path == null)
+            if (path is null)
             {
                 throw new ArgumentNullException(nameof(path));
             }

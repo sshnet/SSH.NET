@@ -131,17 +131,17 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException">Either <paramref name="session"/>, <paramref name="commandText"/> is <c>null</c>.</exception>
         internal SshCommand(ISession session, string commandText, Encoding encoding)
         {
-            if (session == null)
+            if (session is null)
             {
                 throw new ArgumentNullException(nameof(session));
             }
 
-            if (commandText == null)
+            if (commandText is null)
             {
                 throw new ArgumentNullException(nameof(commandText));
             }
 
-            if (encoding == null)
+            if (encoding is null)
             {
                 throw new ArgumentNullException(nameof(encoding));
             }
@@ -291,7 +291,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <c>null</c>.</exception>
         public string EndExecute(IAsyncResult asyncResult)
         {
-            if (asyncResult == null)
+            if (asyncResult is null)
             {
                 throw new ArgumentNullException(nameof(asyncResult));
             }
@@ -479,12 +479,19 @@ namespace Renci.SshNet
                     waitHandle
                 };
 
-            switch (WaitHandle.WaitAny(waitHandles, CommandTimeout))
+            var signaledElement = WaitHandle.WaitAny(waitHandles, CommandTimeout);
+            switch (signaledElement)
             {
                 case 0:
                     throw _exception;
+                case 1:
+                    // Specified waithandle was signaled
+                    break;
                 case WaitHandle.WaitTimeout:
                     throw new SshOperationTimeoutException(string.Format(CultureInfo.CurrentCulture, "Command '{0}' has timed out.", CommandText));
+                default:
+                    throw new SshException($"Unexpected element '{signaledElement.ToString(CultureInfo.InvariantCulture)}' signaled.");
+
             }
         }
 
@@ -498,7 +505,7 @@ namespace Renci.SshNet
         /// </remarks>
         private void UnsubscribeFromEventsAndDisposeChannel(IChannel channel)
         {
-            if (channel == null)
+            if (channel is null)
             {
                 return;
             }

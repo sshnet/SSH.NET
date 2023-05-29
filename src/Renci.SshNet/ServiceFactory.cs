@@ -92,12 +92,12 @@ namespace Renci.SshNet
         /// <exception cref="SshConnectionException">No key exchange algorithms are supported by both client and server.</exception>
         public IKeyExchange CreateKeyExchange(IDictionary<string, Type> clientAlgorithms, string[] serverAlgorithms)
         {
-            if (clientAlgorithms == null)
+            if (clientAlgorithms is null)
             {
                 throw new ArgumentNullException(nameof(clientAlgorithms));
             }
 
-            if (serverAlgorithms == null)
+            if (serverAlgorithms is null)
             {
                 throw new ArgumentNullException(nameof(serverAlgorithms));
             }
@@ -108,7 +108,7 @@ namespace Renci.SshNet
                                             where s == c.Key
                                             select c.Value).FirstOrDefault();
 
-            if (keyExchangeAlgorithmType == null)
+            if (keyExchangeAlgorithmType is null)
             {
                 throw new SshConnectionException("Failed to negotiate key exchange algorithm.", DisconnectReason.KeyExchangeFailed);
             }
@@ -215,12 +215,12 @@ namespace Renci.SshNet
         /// <exception cref="NotSupportedException">The <see cref="IConnectionInfo.ProxyType"/> value of <paramref name="connectionInfo"/> is not supported.</exception>
         public IConnector CreateConnector(IConnectionInfo connectionInfo, ISocketFactory socketFactory)
         {
-            if (connectionInfo == null)
+            if (connectionInfo is null)
             {
                 throw new ArgumentNullException(nameof(connectionInfo));
             }
 
-            if (socketFactory == null)
+            if (socketFactory is null)
             {
                 throw new ArgumentNullException(nameof(socketFactory));
             }

@@ -201,12 +201,12 @@ namespace Renci.SshNet.Sftp
 
         internal SftpFileStream(ISftpSession session, string path, FileMode mode, FileAccess access, int bufferSize)
         {
-            if (session == null)
+            if (session is null)
             {
                 throw new SshConnectionException("Client not connected.");
             }
 
-            if (path == null)
+            if (path is null)
             {
                 throw new ArgumentNullException(nameof(path));
             }
@@ -267,7 +267,7 @@ namespace Renci.SshNet.Sftp
                     break;
                 case FileMode.Create:
                     _handle = _session.RequestOpen(path, flags | Flags.Truncate, nullOnError: true);
-                    if (_handle == null)
+                    if (_handle is null)
                     {
                         flags |= Flags.CreateNew;
                     }
@@ -312,12 +312,12 @@ namespace Renci.SshNet.Sftp
 
         internal static async Task<SftpFileStream> OpenAsync(ISftpSession session, string path, FileMode mode, FileAccess access, int bufferSize, CancellationToken cancellationToken)
         {
-            if (session == null)
+            if (session is null)
             {
                 throw new SshConnectionException("Client not connected.");
             }
 
-            if (path == null)
+            if (path is null)
             {
                 throw new ArgumentNullException(nameof(path));
             }
@@ -501,7 +501,7 @@ namespace Renci.SshNet.Sftp
         {
             var readLen = 0;
 
-            if (buffer == null)
+            if (buffer is null)
             {
                 throw new ArgumentNullException(nameof(buffer));
             }
@@ -642,7 +642,7 @@ namespace Renci.SshNet.Sftp
         {
             var readLen = 0;
 
-            if (buffer == null)
+            if (buffer is null)
             {
                 throw new ArgumentNullException(nameof(buffer));
             }
@@ -987,7 +987,7 @@ namespace Renci.SshNet.Sftp
         /// <exception cref="ObjectDisposedException">Methods were called after the stream was closed.</exception>
         public override void Write(byte[] buffer, int offset, int count)
         {
-            if (buffer == null)
+            if (buffer is null)
             {
                 throw new ArgumentNullException(nameof(buffer));
             }
@@ -1086,7 +1086,7 @@ namespace Renci.SshNet.Sftp
         /// <exception cref="ObjectDisposedException">Methods were called after the stream was closed.</exception>
         public override async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
         {
-            if (buffer == null)
+            if (buffer is null)
             {
                 throw new ArgumentNullException(nameof(buffer));
             }
@@ -1318,7 +1318,7 @@ namespace Renci.SshNet.Sftp
 
         private void CheckSessionIsOpen()
         {
-            if (_session == null)
+            if (_session is null)
             {
                 throw new ObjectDisposedException(GetType().FullName);
             }

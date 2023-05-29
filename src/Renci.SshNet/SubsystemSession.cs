@@ -82,12 +82,12 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="session" /> or <paramref name="subsystemName" /> is <c>null</c>.</exception>
         protected SubsystemSession(ISession session, string subsystemName, int operationTimeout)
         {
-            if (session == null)
+            if (session is null)
             {
                 throw new ArgumentNullException(nameof(session));
             }
 
-            if (subsystemName == null)
+            if (subsystemName is null)
             {
                 throw new ArgumentNullException(nameof(subsystemName));
             }
@@ -472,7 +472,7 @@ namespace Renci.SshNet
         /// </remarks>
         private void UnsubscribeFromSessionEvents(ISession session)
         {
-            if (session == null)
+            if (session is null)
             {
                 return;
             }

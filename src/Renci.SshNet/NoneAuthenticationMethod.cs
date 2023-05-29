@@ -43,7 +43,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="session" /> is <c>null</c>.</exception>
         public override AuthenticationResult Authenticate(Session session)
         {
-            if (session == null)
+            if (session is null)
             {
                 throw new ArgumentNullException(nameof(session));
             }

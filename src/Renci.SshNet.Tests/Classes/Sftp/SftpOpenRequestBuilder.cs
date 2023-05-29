@@ -1,10 +1,9 @@
-﻿using Renci.SshNet.Sftp;
+﻿using System;
+using System.Text;
+
+using Renci.SshNet.Sftp;
 using Renci.SshNet.Sftp.Requests;
 using Renci.SshNet.Sftp.Responses;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Renci.SshNet.Tests.Classes.Sftp
 {

@@ -47,7 +47,7 @@ namespace Renci.SshNet.Connection
             while (true)
             {
                 var line = SocketReadLine(socket, timeout, bytesReceived);
-                if (line == null)
+                if (line is null)
                 {
                     if (bytesReceived.Count == 0)
                     {
@@ -80,7 +80,7 @@ namespace Renci.SshNet.Connection
             while (true)
             {
                 var line = await SocketReadLineAsync(socket, bytesReceived, cancellationToken).ConfigureAwait(false);
-                if (line == null)
+                if (line is null)
                 {
                     if (bytesReceived.Count == 0)
                     {
@@ -143,7 +143,7 @@ namespace Renci.SshNet.Connection
                 buffer.Add(byteRead);
 
                 // The null character MUST NOT be sent
-                if (byteRead == Null)
+                if (byteRead is Null)
                 {
                     throw CreateServerResponseContainsNullCharacterException(buffer);
                 }
@@ -187,7 +187,7 @@ namespace Renci.SshNet.Connection
                 buffer.Add(byteRead);
 
                 // The null character MUST NOT be sent
-                if (byteRead == Null)
+                if (byteRead is Null)
                 {
                     throw CreateServerResponseContainsNullCharacterException(buffer);
                 }

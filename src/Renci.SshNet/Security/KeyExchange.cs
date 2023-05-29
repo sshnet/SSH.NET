@@ -49,10 +49,7 @@ namespace Renci.SshNet.Security
         {
             get
             {
-                if (_exchangeHash == null)
-                {
-                    _exchangeHash = CalculateHash();
-                }
+                _exchangeHash ??= CalculateHash();
 
                 return _exchangeHash;
             }
@@ -262,7 +259,7 @@ namespace Renci.SshNet.Security
         /// </returns>
         public Compressor CreateCompressor()
         {
-            if (_compressionType == null)
+            if (_compressionType is null)
             {
                 return null;
             }
@@ -282,7 +279,7 @@ namespace Renci.SshNet.Security
         /// </returns>
         public Compressor CreateDecompressor()
         {
-            if (_decompressionType == null)
+            if (_decompressionType is null)
             {
                 return null;
             }

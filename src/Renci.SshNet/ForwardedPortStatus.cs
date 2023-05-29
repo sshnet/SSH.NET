@@ -21,18 +21,12 @@ namespace Renci.SshNet
 
         public override bool Equals(object other)
         {
-            if (other is null)
-            {
-                return false;
-            }
-
             if (ReferenceEquals(this, other))
             {
                 return true;
             }
 
-            var forwardedPortStatus = other as ForwardedPortStatus;
-            if (forwardedPortStatus == null)
+            if (other is not ForwardedPortStatus forwardedPortStatus)
             {
                 return false;
             }

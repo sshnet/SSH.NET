@@ -88,9 +88,13 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         public SftpStatVfsResponseBuilder WithIsReadOnly(bool isReadOnly)
         {
             if (isReadOnly)
+            {
                 _flag &= SftpFileSytemInformation.SSH_FXE_STATVFS_ST_RDONLY;
+            }
             else
+            {
                 _flag |= SftpFileSytemInformation.SSH_FXE_STATVFS_ST_RDONLY;
+            }
 
             return this;
         }
@@ -98,9 +102,13 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         public SftpStatVfsResponseBuilder WithSupportsSetUid(bool supportsSetUid)
         {
             if (supportsSetUid)
+            {
                 _flag |= SftpFileSytemInformation.SSH_FXE_STATVFS_ST_NOSUID;
+            }
             else
+            {
                 _flag &= SftpFileSytemInformation.SSH_FXE_STATVFS_ST_NOSUID;
+            }
 
             return this;
         }

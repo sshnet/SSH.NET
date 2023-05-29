@@ -74,7 +74,7 @@ namespace Renci.SshNet.Messages.Connection
         public ChannelDataMessage(uint localChannelNumber, byte[] data)
             : base(localChannelNumber)
         {
-            if (data == null)
+            if (data is null)
             {
                 throw new ArgumentNullException(nameof(data));
             }
@@ -94,7 +94,7 @@ namespace Renci.SshNet.Messages.Connection
         public ChannelDataMessage(uint localChannelNumber, byte[] data, int offset, int size)
             : base(localChannelNumber)
         {
-            if (data == null)
+            if (data is null)
             {
                 throw new ArgumentNullException(nameof(data));
             }

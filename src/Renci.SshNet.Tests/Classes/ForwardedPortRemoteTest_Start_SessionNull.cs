@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Net;
-using System.Net.Sockets;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
-using Renci.SshNet.Channels;
+
 using Renci.SshNet.Common;
-using Renci.SshNet.Messages.Connection;
 
 namespace Renci.SshNet.Tests.Classes
 {

@@ -27,7 +27,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
 
             try
             {
-                new SshIdentification(protocolVersion, softwareVersion);
+                _ = new SshIdentification(protocolVersion, softwareVersion);
                 Assert.Fail();
             }
             catch (ArgumentNullException ex)
@@ -45,7 +45,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
 
             try
             {
-                new SshIdentification(protocolVersion, softwareVersion);
+                _ = new SshIdentification(protocolVersion, softwareVersion);
                 Assert.Fail();
             }
             catch (ArgumentNullException ex)
@@ -90,7 +90,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
 
             try
             {
-                new SshIdentification(protocolVersion, softwareVersion, comments);
+                _ = new SshIdentification(protocolVersion, softwareVersion, comments);
                 Assert.Fail();
             }
             catch (ArgumentNullException ex)
@@ -109,7 +109,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
 
             try
             {
-                new SshIdentification(protocolVersion, softwareVersion, comments);
+                _ = new SshIdentification(protocolVersion, softwareVersion, comments);
                 Assert.Fail();
             }
             catch (ArgumentNullException ex)

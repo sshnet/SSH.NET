@@ -15,7 +15,7 @@ namespace Renci.SshNet.Abstractions
 
         public static void ExecuteThreadLongRunning(Action action)
         {
-            if (action == null)
+            if (action is null)
             {
                 throw new ArgumentNullException(nameof(action));
             }
@@ -30,7 +30,7 @@ namespace Renci.SshNet.Abstractions
         /// <param name="action">The action to execute.</param>
         public static void ExecuteThread(Action action)
         {
-            if (action == null)
+            if (action is null)
             {
                 throw new ArgumentNullException(nameof(action));
             }

@@ -110,7 +110,7 @@ namespace Renci.SshNet.NetConf
         {
             var chunk = Encoding.UTF8.GetString(data);
 
-            if (ServerCapabilities == null)
+            if (ServerCapabilities is null)
             {
                 _ = _data.Append(chunk);
 

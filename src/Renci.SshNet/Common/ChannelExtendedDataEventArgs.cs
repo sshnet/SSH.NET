@@ -3,7 +3,7 @@
     /// <summary>
     /// Provides data for <see cref="Channels.Channel.ExtendedDataReceived"/> events.
     /// </summary>
-    internal class ChannelExtendedDataEventArgs : ChannelDataEventArgs
+    internal sealed class ChannelExtendedDataEventArgs : ChannelDataEventArgs
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ChannelExtendedDataEventArgs"/> class.

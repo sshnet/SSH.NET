@@ -3,7 +3,7 @@ using System.Threading;
 
 namespace Renci.SshNet
 {
-    internal class ForwardedPortStatus
+    internal sealed class ForwardedPortStatus
     {
         public static readonly ForwardedPortStatus Stopped = new ForwardedPortStatus(1, "Stopped");
         public static readonly ForwardedPortStatus Stopping = new ForwardedPortStatus(2, "Stopping");
@@ -19,14 +19,14 @@ namespace Renci.SshNet
             _name = name;
         }
 
-        public override bool Equals(object other)
+        public override bool Equals(object obj)
         {
-            if (ReferenceEquals(this, other))
+            if (ReferenceEquals(this, obj))
             {
                 return true;
             }
 
-            if (other is not ForwardedPortStatus forwardedPortStatus)
+            if (obj is not ForwardedPortStatus forwardedPortStatus)
             {
                 return false;
             }

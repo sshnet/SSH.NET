@@ -122,10 +122,10 @@ namespace Renci.SshNet
 
             // Issue #292: Avoid overlapping SSH_FXP_OPEN and SSH_FXP_LSTAT requests for the same file as this
             // causes a performance degradation on Sun SSH
-            var openAsyncResult = sftpSession.BeginOpen(fileName, Flags.Read, null, null);
+            var openAsyncResult = sftpSession.BeginOpen(fileName, Flags.Read, callback: null, state: null);
             var handle = sftpSession.EndOpen(openAsyncResult);
 
-            var statAsyncResult = sftpSession.BeginLStat(fileName, null, null);
+            var statAsyncResult = sftpSession.BeginLStat(fileName, callback: null, state: null);
 
             long? fileSize;
             int maxPendingReads;

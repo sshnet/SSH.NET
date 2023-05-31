@@ -19,7 +19,7 @@ namespace Renci.SshNet.Connection
     /// <remarks>
     /// https://tools.ietf.org/html/rfc4253#section-4.2.
     /// </remarks>
-    internal class ProtocolVersionExchange : IProtocolVersionExchange
+    internal sealed class ProtocolVersionExchange : IProtocolVersionExchange
     {
         private const byte Null = 0x00;
 

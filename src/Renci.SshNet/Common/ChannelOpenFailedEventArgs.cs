@@ -3,7 +3,7 @@
     /// <summary>
     /// Provides data for <see cref="Channels.ClientChannel.OpenFailed"/> event.
     /// </summary>
-    internal class ChannelOpenFailedEventArgs : ChannelEventArgs
+    internal sealed class ChannelOpenFailedEventArgs : ChannelEventArgs
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ChannelOpenFailedEventArgs"/> class.

@@ -7,7 +7,7 @@ namespace Renci.SshNet.Messages.Connection
         private byte[] _addressToBind;
 
         public TcpIpForwardGlobalRequestMessage(string addressToBind, uint portToBind)
-            : base(Ascii.GetBytes("tcpip-forward"), true)
+            : base(Ascii.GetBytes("tcpip-forward"), wantReply: true)
         {
             AddressToBind = addressToBind;
             PortToBind = portToBind;

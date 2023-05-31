@@ -193,8 +193,8 @@ namespace Renci.SshNet.Sftp
              * or SSH_FXP_WRITE message.
              */
 
-            _readBufferSize = (int) session.CalculateOptimalReadLength((uint)bufferSize);
-            _writeBufferSize = (int) session.CalculateOptimalWriteLength((uint)bufferSize, _handle);
+            _readBufferSize = (int) session.CalculateOptimalReadLength((uint) bufferSize);
+            _writeBufferSize = (int) session.CalculateOptimalWriteLength((uint) bufferSize, _handle);
 
             _position = position;
         }

@@ -359,30 +359,6 @@ namespace Renci.SshNet.Common
         }
 
         /// <summary>
-        /// Writes data into internal buffer.
-        /// </summary>
-        /// <param name="buffer">The data to write.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <c>null</c>.</exception>
-        protected void WriteBinaryString(byte[] buffer)
-        {
-            _stream.WriteBinary(buffer);
-        }
-
-        /// <summary>
-        /// Writes data into internal buffer.
-        /// </summary>
-        /// <param name="buffer">An array of bytes. This method write <paramref name="count"/> bytes from buffer to the current SSH data stream.</param>
-        /// <param name="offset">The zero-based byte offset in <paramref name="buffer"/> at which to begin writing bytes to the SSH data stream.</param>
-        /// <param name="count">The number of bytes to be written to the current SSH data stream.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <c>null</c>.</exception>
-        /// <exception cref="ArgumentException">The sum of <paramref name="offset"/> and <paramref name="count"/> is greater than the buffer length.</exception>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> or <paramref name="count"/> is negative.</exception>
-        protected void WriteBinary(byte[] buffer, int offset, int count)
-        {
-            _stream.WriteBinary(buffer, offset, count);
-        }
-
-        /// <summary>
         /// Writes mpint data into internal buffer.
         /// </summary>
         /// <param name="data">mpint data to write.</param>
@@ -411,6 +387,30 @@ namespace Renci.SshNet.Common
                 Write(item.Key, Ascii);
                 Write(item.Value, Ascii);
             }
+        }
+
+        /// <summary>
+        /// Writes data into internal buffer.
+        /// </summary>
+        /// <param name="buffer">The data to write.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <c>null</c>.</exception>
+        protected void WriteBinaryString(byte[] buffer)
+        {
+            _stream.WriteBinary(buffer);
+        }
+
+        /// <summary>
+        /// Writes data into internal buffer.
+        /// </summary>
+        /// <param name="buffer">An array of bytes. This method write <paramref name="count"/> bytes from buffer to the current SSH data stream.</param>
+        /// <param name="offset">The zero-based byte offset in <paramref name="buffer"/> at which to begin writing bytes to the SSH data stream.</param>
+        /// <param name="count">The number of bytes to be written to the current SSH data stream.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentException">The sum of <paramref name="offset"/> and <paramref name="count"/> is greater than the buffer length.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> or <paramref name="count"/> is negative.</exception>
+        protected void WriteBinary(byte[] buffer, int offset, int count)
+        {
+            _stream.WriteBinary(buffer, offset, count);
         }
     }
 }

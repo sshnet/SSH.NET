@@ -18,7 +18,7 @@ namespace Renci.SshNet
         private readonly byte[] _password;
         private AuthenticationResult _authenticationResult = AuthenticationResult.Failure;
         private Session _session;
-        private EventWaitHandle _authenticationCompleted = new AutoResetEvent(false);
+        private EventWaitHandle _authenticationCompleted = new AutoResetEvent(initialState: false);
         private Exception _exception;
         private bool _isDisposed;
 

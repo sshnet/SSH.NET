@@ -11,7 +11,7 @@ using Renci.SshNet.Sftp.Responses;
 
 namespace Renci.SshNet.Sftp
 {
-    internal class SftpSession : SubsystemSession, ISftpSession
+    internal sealed class SftpSession : SubsystemSession, ISftpSession
     {
         internal const int MaximumSupportedVersion = 3;
         private const int MinimumSupportedVersion = 0;
@@ -19,13 +19,9 @@ namespace Renci.SshNet.Sftp
         private readonly Dictionary<uint, SftpRequest> _requests = new Dictionary<uint, SftpRequest>();
         private readonly ISftpResponseFactory _sftpResponseFactory;
         private readonly List<byte> _data = new List<byte>(32 * 1024);
+        private readonly Encoding _encoding;
         private EventWaitHandle _sftpVersionConfirmed = new AutoResetEvent(initialState: false);
         private IDictionary<string, string> _supportedExtensions;
-
-        /// <summary>
-        /// Gets the character encoding to use.
-        /// </summary>
-        protected Encoding Encoding { get; private set; }
 
         /// <summary>
         /// Gets the remote working directory.
@@ -66,7 +62,7 @@ namespace Renci.SshNet.Sftp
         public SftpSession(ISession session, int operationTimeout, Encoding encoding, ISftpResponseFactory sftpResponseFactory)
             : base(session, "sftp", operationTimeout)
         {
-            Encoding = encoding;
+            _encoding = encoding;
             _sftpResponseFactory = sftpResponseFactory;
         }
 
@@ -363,7 +359,7 @@ namespace Renci.SshNet.Sftp
         private bool TryLoadSftpMessage(byte[] packetData, int offset, int count)
         {
             // Create SFTP message
-            var response = _sftpResponseFactory.Create(ProtocolVersion, packetData[offset], Encoding);
+            var response = _sftpResponseFactory.Create(ProtocolVersion, packetData[offset], _encoding);
 
             // Load message data into it
             response.Load(packetData, offset + 1, count - 1);
@@ -433,7 +429,7 @@ namespace Renci.SshNet.Sftp
                 var request = new SftpOpenRequest(ProtocolVersion,
                                                   NextRequestId,
                                                   path,
-                                                  Encoding,
+                                                  _encoding,
                                                   flags,
                                                   response =>
                                                       {
@@ -470,7 +466,7 @@ namespace Renci.SshNet.Sftp
                 SendRequest(new SftpOpenRequest(ProtocolVersion,
                                                 NextRequestId,
                                                 path,
-                                                Encoding,
+                                                _encoding,
                                                 flags,
                                                 response => tcs.TrySetResult(response.Handle),
                                                 response => tcs.TrySetException(GetSftpException(response))));
@@ -496,7 +492,7 @@ namespace Renci.SshNet.Sftp
             var request = new SftpOpenRequest(ProtocolVersion,
                                               NextRequestId,
                                               path,
-                                              Encoding,
+                                              _encoding,
                                               flags,
                                               response =>
                                                   {
@@ -624,7 +620,7 @@ namespace Renci.SshNet.Sftp
                                                handle,
                                                response =>
                                                    {
-                                                       asyncResult.SetAsCompleted(GetSftpException(response), false);
+                                                       asyncResult.SetAsCompleted(GetSftpException(response), completedSynchronously: false);
                                                    });
             SendRequest(request);
 
@@ -919,7 +915,7 @@ namespace Renci.SshNet.Sftp
                 var request = new SftpLStatRequest(ProtocolVersion,
                                                    NextRequestId,
                                                    path,
-                                                   Encoding,
+                                                   _encoding,
                                                    response =>
                                                        {
                                                            attributes = response.Attributes;
@@ -960,7 +956,7 @@ namespace Renci.SshNet.Sftp
             var request = new SftpLStatRequest(ProtocolVersion,
                                                NextRequestId,
                                                path,
-                                               Encoding,
+                                               _encoding,
                                                response =>
                                                    {
                                                        asyncResult.SetAsCompleted(response.Attributes, completedSynchronously: false);
@@ -1080,7 +1076,7 @@ namespace Renci.SshNet.Sftp
                 var request = new SftpSetStatRequest(ProtocolVersion,
                                                      NextRequestId,
                                                      path,
-                                                     Encoding,
+                                                     _encoding,
                                                      attributes,
                                                      response =>
                                                          {
@@ -1148,7 +1144,7 @@ namespace Renci.SshNet.Sftp
                 var request = new SftpOpenDirRequest(ProtocolVersion,
                                                      NextRequestId,
                                                      path,
-                                                     Encoding,
+                                                     _encoding,
                                                      response =>
                                                          {
                                                              handle = response.Handle;
@@ -1184,7 +1180,7 @@ namespace Renci.SshNet.Sftp
                 SendRequest(new SftpOpenDirRequest(ProtocolVersion,
                                                    NextRequestId,
                                                    path,
-                                                   Encoding,
+                                                   _encoding,
                                                    response => tcs.TrySetResult(response.Handle),
                                                    response => tcs.TrySetException(GetSftpException(response))));
 
@@ -1277,7 +1273,7 @@ namespace Renci.SshNet.Sftp
                 var request = new SftpRemoveRequest(ProtocolVersion,
                                                     NextRequestId,
                                                     path,
-                                                    Encoding,
+                                                    _encoding,
                                                     response =>
                                                         {
                                                             exception = GetSftpException(response);
@@ -1306,7 +1302,7 @@ namespace Renci.SshNet.Sftp
                 SendRequest(new SftpRemoveRequest(ProtocolVersion,
                                                   NextRequestId,
                                                   path,
-                                                  Encoding,
+                                                  _encoding,
                                                   response =>
                                                       {
                                                           if (response.StatusCode == StatusCodes.Ok)
@@ -1336,7 +1332,7 @@ namespace Renci.SshNet.Sftp
                 var request = new SftpMkDirRequest(ProtocolVersion,
                                                    NextRequestId,
                                                    path,
-                                                   Encoding,
+                                                   _encoding,
                                                    response =>
                                                        {
                                                            exception = GetSftpException(response);
@@ -1367,7 +1363,7 @@ namespace Renci.SshNet.Sftp
                 var request = new SftpRmDirRequest(ProtocolVersion,
                                                    NextRequestId,
                                                    path,
-                                                   Encoding,
+                                                   _encoding,
                                                    response =>
                                                        {
                                                            exception = GetSftpException(response);
@@ -1404,7 +1400,7 @@ namespace Renci.SshNet.Sftp
                 var request = new SftpRealPathRequest(ProtocolVersion,
                                                       NextRequestId,
                                                       path,
-                                                      Encoding,
+                                                      _encoding,
                                                       response =>
                                                           {
                                                               result = response.Files;
@@ -1440,7 +1436,7 @@ namespace Renci.SshNet.Sftp
                 SendRequest(new SftpRealPathRequest(ProtocolVersion,
                                                     NextRequestId,
                                                     path,
-                                                    Encoding,
+                                                    _encoding,
                                                     response => tcs.TrySetResult(response.Files),
                                                     response =>
                                                         {
@@ -1474,7 +1470,7 @@ namespace Renci.SshNet.Sftp
             var request = new SftpRealPathRequest(ProtocolVersion,
                                                   NextRequestId,
                                                   path,
-                                                  Encoding,
+                                                  _encoding,
                                                   response => asyncResult.SetAsCompleted(response.Files[0].Key, completedSynchronously: false),
                                                   response => asyncResult.SetAsCompleted(GetSftpException(response), completedSynchronously: false));
             SendRequest(request);
@@ -1533,7 +1529,7 @@ namespace Renci.SshNet.Sftp
                 var request = new SftpStatRequest(ProtocolVersion,
                                                   NextRequestId,
                                                   path,
-                                                  Encoding,
+                                                  _encoding,
                                                   response =>
                                                       {
                                                           attributes = response.Attributes;
@@ -1574,7 +1570,7 @@ namespace Renci.SshNet.Sftp
             var request = new SftpStatRequest(ProtocolVersion,
                                               NextRequestId,
                                               path,
-                                              Encoding,
+                                              _encoding,
                                               response => asyncResult.SetAsCompleted(response.Attributes, completedSynchronously: false),
                                               response => asyncResult.SetAsCompleted(GetSftpException(response), completedSynchronously: false));
             SendRequest(request);
@@ -1634,7 +1630,7 @@ namespace Renci.SshNet.Sftp
                                                     NextRequestId,
                                                     oldPath,
                                                     newPath,
-                                                    Encoding,
+                                                    _encoding,
                                                     response =>
                                                         {
                                                             exception = GetSftpException(response);
@@ -1664,7 +1660,7 @@ namespace Renci.SshNet.Sftp
                                                   NextRequestId,
                                                   oldPath,
                                                   newPath,
-                                                  Encoding,
+                                                  _encoding,
                                                   response =>
                                                       {
                                                           if (response.StatusCode == StatusCodes.Ok)
@@ -1703,7 +1699,7 @@ namespace Renci.SshNet.Sftp
                 var request = new SftpReadLinkRequest(ProtocolVersion,
                                                       NextRequestId,
                                                       path,
-                                                      Encoding,
+                                                      _encoding,
                                                       response =>
                                                           {
                                                               result = response.Files;
@@ -1748,7 +1744,7 @@ namespace Renci.SshNet.Sftp
                                                      NextRequestId,
                                                      linkpath,
                                                      targetpath,
-                                                     Encoding,
+                                                     _encoding,
                                                      response =>
                                                          {
                                                              exception = GetSftpException(response);
@@ -1786,7 +1782,7 @@ namespace Renci.SshNet.Sftp
                                                      NextRequestId,
                                                      oldPath,
                                                      newPath,
-                                                     Encoding,
+                                                     _encoding,
                                                      response =>
                                                          {
                                                              exception = GetSftpException(response);
@@ -1833,7 +1829,7 @@ namespace Renci.SshNet.Sftp
                 var request = new StatVfsRequest(ProtocolVersion,
                                                  NextRequestId,
                                                  path,
-                                                 Encoding,
+                                                 _encoding,
                                                  response =>
                                                      {
                                                          information = response.GetReply<StatVfsReplyInfo>().Information;
@@ -1879,7 +1875,7 @@ namespace Renci.SshNet.Sftp
                 SendRequest(new StatVfsRequest(ProtocolVersion,
                                                NextRequestId,
                                                path,
-                                               Encoding,
+                                               _encoding,
                                                response => tcs.TrySetResult(response.GetReply<StatVfsReplyInfo>().Information),
                                                response => tcs.TrySetException(GetSftpException(response))));
 

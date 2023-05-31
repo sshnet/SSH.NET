@@ -102,7 +102,7 @@ namespace Renci.SshNet
                 throw new SshException("Shell is started.");
             }
 
-            Starting?.Invoke(this, new EventArgs());
+            Starting?.Invoke(this, EventArgs.Empty);
 
             _channel = _session.CreateChannelSession();
             _channel.DataReceived += Channel_DataReceived;
@@ -196,7 +196,7 @@ namespace Renci.SshNet
 
         private void Channel_Closed(object sender, ChannelEventArgs e)
         {
-            if (Stopping != null)
+            if (Stopping is not null)
             {
                 // Handle event on different thread
                 ThreadAbstraction.ExecuteThread(() => Stopping(this, EventArgs.Empty));
@@ -272,21 +272,21 @@ namespace Renci.SshNet
                 UnsubscribeFromSessionEvents(_session);
 
                 var channelClosedWaitHandle = _channelClosedWaitHandle;
-                if (channelClosedWaitHandle != null)
+                if (channelClosedWaitHandle is not null)
                 {
                     channelClosedWaitHandle.Dispose();
                     _channelClosedWaitHandle = null;
                 }
 
                 var channel = _channel;
-                if (channel != null)
+                if (channel is not null)
                 {
                     channel.Dispose();
                     _channel = null;
                 }
 
                 var dataReaderTaskCompleted = _dataReaderTaskCompleted;
-                if (dataReaderTaskCompleted != null)
+                if (dataReaderTaskCompleted is not null)
                 {
                     dataReaderTaskCompleted.Dispose();
                     _dataReaderTaskCompleted = null;

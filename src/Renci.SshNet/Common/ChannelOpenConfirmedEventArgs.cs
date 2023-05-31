@@ -3,7 +3,7 @@
     /// <summary>
     /// Provides data for <see cref="Channels.ClientChannel.OpenConfirmed"/> event.
     /// </summary>
-    internal class ChannelOpenConfirmedEventArgs : ChannelEventArgs
+    internal sealed class ChannelOpenConfirmedEventArgs : ChannelEventArgs
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ChannelOpenConfirmedEventArgs"/> class.

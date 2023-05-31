@@ -5,7 +5,7 @@ namespace Renci.SshNet.Messages.Authentication
     /// <summary>
     /// Represents "keyboard-interactive" SSH_MSG_USERAUTH_REQUEST message.
     /// </summary>
-    internal class RequestMessageKeyboardInteractive : RequestMessage
+    internal sealed class RequestMessageKeyboardInteractive : RequestMessage
     {
         /// <summary>
         /// Gets message language.

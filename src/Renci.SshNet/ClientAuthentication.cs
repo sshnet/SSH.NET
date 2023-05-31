@@ -4,7 +4,7 @@ using Renci.SshNet.Common;
 
 namespace Renci.SshNet
 {
-    internal class ClientAuthentication : IClientAuthentication
+    internal sealed class ClientAuthentication : IClientAuthentication
     {
         private readonly int _partialSuccessLimit;
 
@@ -151,7 +151,7 @@ namespace Renci.SshNet
             return false;
         }
 
-        private class AuthenticationState
+        private sealed class AuthenticationState
         {
             private readonly IList<IAuthenticationMethod> _supportedAuthenticationMethods;
 

@@ -10,7 +10,7 @@ namespace Renci.SshNet.Channels
     /// <summary>
     /// Implements "forwarded-tcpip" SSH channel.
     /// </summary>
-    internal class ChannelForwardedTcpip : ServerChannel, IChannelForwardedTcpip
+    internal sealed class ChannelForwardedTcpip : ServerChannel, IChannelForwardedTcpip
     {
         private readonly object _socketShutdownAndCloseLock = new object();
         private Socket _socket;

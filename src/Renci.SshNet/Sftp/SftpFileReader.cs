@@ -8,7 +8,7 @@ using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Sftp
 {
-    internal class SftpFileReader : ISftpFileReader
+    internal sealed class SftpFileReader : ISftpFileReader
     {
         private const int ReadAheadWaitTimeoutInMilliseconds = 1000;
 
@@ -64,8 +64,8 @@ namespace Renci.SshNet.Sftp
             _semaphore = new SemaphoreLight(maxPendingReads);
             _queue = new Dictionary<int, BufferedRead>(maxPendingReads);
             _readLock = new object();
-            _readAheadCompleted = new ManualResetEvent(false);
-            _disposingWaitHandle = new ManualResetEvent(false);
+            _readAheadCompleted = new ManualResetEvent(initialState: false);
+            _disposingWaitHandle = new ManualResetEvent(initialState: false);
             _waitHandles = _sftpSession.CreateWaitHandleArray(_disposingWaitHandle, _semaphore.AvailableWaitHandle);
 
             StartReadAhead();
@@ -78,7 +78,7 @@ namespace Renci.SshNet.Sftp
                 throw new ObjectDisposedException(GetType().FullName);
             }
 
-            if (_exception != null)
+            if (_exception is not null)
             {
                 throw _exception;
             }
@@ -133,9 +133,9 @@ namespace Renci.SshNet.Sftp
                     return data;
                 }
 
-                // when we received an EOF for the next chunk and the size of the file is known, then
-                // we only complete the current chunk if we haven't already read up to the file size;
-                // this way we save an extra round-trip to the server
+                // When we received an EOF for the next chunk and the size of the file is known, then
+                // we only complete the current chunk if we haven't already read up to the file size.
+                // This way we save an extra round-trip to the server.
                 if (data.Length == 0 && _fileSize.HasValue && _offset == (ulong) _fileSize.Value)
                 {
                     // avoid future reads
@@ -214,12 +214,12 @@ namespace Renci.SshNet.Sftp
 
         ~SftpFileReader()
         {
-            Dispose(false);
+            Dispose(disposing: false);
         }
 
         public void Dispose()
         {
-            Dispose(true);
+            Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
 
@@ -227,7 +227,7 @@ namespace Renci.SshNet.Sftp
         /// Releases unmanaged and - optionally - managed resources.
         /// </summary>
         /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-        protected void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (_disposingOrDisposed)
             {
@@ -266,7 +266,7 @@ namespace Renci.SshNet.Sftp
                 {
                     try
                     {
-                        var closeAsyncResult = _sftpSession.BeginClose(_handle, null, null);
+                        var closeAsyncResult = _sftpSession.BeginClose(_handle, callback: null, state: null);
                         _sftpSession.EndClose(closeAsyncResult);
                     }
                     catch (Exception ex)
@@ -329,7 +329,7 @@ namespace Renci.SshNet.Sftp
                         // mode to avoid having multiple read-aheads that read beyond EOF
                         if (_fileSize != null && (long) _readAheadOffset > _fileSize.Value)
                         {
-                            var asyncResult = _sftpSession.BeginRead(_handle, _readAheadOffset, _chunkSize, null, bufferedRead);
+                            var asyncResult = _sftpSession.BeginRead(_handle, _readAheadOffset, _chunkSize, callback: null, bufferedRead);
                             var data = _sftpSession.EndRead(asyncResult);
                             ReadCompletedCore(bufferedRead, data);
                         }
@@ -421,8 +421,8 @@ namespace Renci.SshNet.Sftp
                 // add item to queue
                 _queue.Add(bufferedRead.ChunkIndex, bufferedRead);
 
-                // signal that a chunk has been read or EOF has been reached;
-                // in both cases, Read() will eventually also unblock the "read-ahead" thread
+                // Signal that a chunk has been read or EOF has been reached.
+                // In both cases, Read() will eventually also unblock the "read-ahead" thread.
                 Monitor.PulseAll(_readLock);
             }
 

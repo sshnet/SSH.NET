@@ -28,7 +28,7 @@ namespace Renci.SshNet.Security
 #if NETFRAMEWORK
         private CngKey _key;
 
-        internal enum KeyBlobMagicNumber : int
+        internal enum KeyBlobMagicNumber
         {
             BCRYPT_ECDSA_PUBLIC_P256_MAGIC = 0x31534345,
             BCRYPT_ECDSA_PRIVATE_P256_MAGIC = 0x32534345,
@@ -180,7 +180,7 @@ namespace Renci.SshNet.Security
                 }
 #pragma warning restore IDE0010 // Add missing cases
 #else
-                var parameter = Ecdsa.ExportParameters(false);
+                var parameter = Ecdsa.ExportParameters(includePrivateParameters: false);
                 qx = parameter.Q.X;
                 qy = parameter.Q.Y;
                 switch (parameter.Curve.Oid.FriendlyName)
@@ -218,7 +218,7 @@ namespace Renci.SshNet.Security
                 var curve_oid = GetCurveOid(curve_s);
 
                 var publickey = value[1].ToByteArray().Reverse();
-                Import(curve_oid, publickey, null);
+                Import(curve_oid, publickey, privatekey: null);
             }
         }
 
@@ -278,7 +278,7 @@ namespace Renci.SshNet.Security
             var construct = der.ReadBytes(der.ReadLength()); // object length
 
             // curve OID
-            var curve_der = new DerData(construct, true);
+            var curve_der = new DerData(construct, construct: true);
             var curve = curve_der.ReadObject();
 
             // Construct
@@ -297,7 +297,7 @@ namespace Renci.SshNet.Security
             construct = der.ReadBytes(der.ReadLength()); // object length
 
             // PublicKey
-            var pubkey_der = new DerData(construct, true);
+            var pubkey_der = new DerData(construct, construct: true);
             var pubkey = pubkey_der.ReadBitString().TrimLeadingZeros();
 
             Import(OidByteArrayToString(curve), pubkey, privatekey);
@@ -306,7 +306,8 @@ namespace Renci.SshNet.Security
         private void Import(string curve_oid, byte[] publickey, byte[] privatekey)
         {
 #if NETFRAMEWORK
-            var curve_magic = KeyBlobMagicNumber.BCRYPT_ECDH_PRIVATE_GENERIC_MAGIC;
+            KeyBlobMagicNumber curve_magic;
+
             switch (GetCurveName(curve_oid))
             {
                 case "nistp256":
@@ -426,7 +427,7 @@ namespace Renci.SshNet.Security
         }
 
 #if NETFRAMEWORK
-        private string GetCurveName(string oid)
+        private static string GetCurveName(string oid)
         {
             switch (oid)
             {

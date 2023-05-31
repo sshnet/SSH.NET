@@ -300,24 +300,6 @@ namespace Renci.SshNet.Common
             }
         }
 
-        private static bool Negative(byte[] v)
-        {
-            return (v[7] & 0x80) != 0;
-        }
-
-        private static ushort Exponent(byte[] v)
-        {
-            return (ushort)((((ushort)(v[7] & 0x7F)) << (ushort)4) | (((ushort)(v[6] & 0xF0)) >> 4));
-        }
-
-        private static ulong Mantissa(byte[] v)
-        {
-            var i1 = (uint)v[0] | ((uint)v[1] << 8) | ((uint)v[2] << 16) | ((uint)v[3] << 24);
-            var i2 = (uint)v[4] | ((uint)v[5] << 8) | ((uint)(v[6] & 0xF) << 16);
-
-            return (ulong)((ulong)i1 | ((ulong)i2 << 32));
-        }
-
         /// <summary>
         /// Initializes a new instance of the <see cref="BigInteger"/> structure using a double-precision floating-point value.
         /// </summary>
@@ -355,7 +337,7 @@ namespace Renci.SshNet.Common
                 BigInteger res = mantissa;
                 res = exponent > Bias ? res << (exponent - Bias) : res >> (Bias - exponent);
 
-                _sign = (short)(Negative(bytes) ? -1 : 1);
+                _sign = (short) (Negative(bytes) ? -1 : 1);
                 _data = res._data;
             }
         }
@@ -365,7 +347,7 @@ namespace Renci.SshNet.Common
         /// </summary>
         /// <param name="value">A single-precision floating-point value.</param>
         public BigInteger(float value)
-            : this((double)value)
+            : this((double) value)
         {
         }
 
@@ -391,10 +373,10 @@ namespace Renci.SshNet.Common
                 return;
             }
 
-            _sign = (short)((bits[3] & DecimalSignMask) != 0 ? -1 : 1);
+            _sign = (short) ((bits[3] & DecimalSignMask) != 0 ? -1 : 1);
 
             _data = new uint[size];
-            _data[0] = (uint)bits[0];
+            _data[0] = (uint) bits[0];
             if (size > 1)
             {
                 _data[1] = (uint) bits[1];
@@ -498,9 +480,9 @@ namespace Renci.SshNet.Common
                            (uint) (value[j++] << 16) |
                            (uint) (value[j++] << 24);
 
-                    sub = (ulong)word - borrow;
-                    word = (uint)sub;
-                    borrow = (uint)(sub >> 32) & 0x1u;
+                    sub = (ulong) word - borrow;
+                    word = (uint) sub;
+                    borrow = (uint) (sub >> 32) & 0x1u;
                     _data[i] = ~word;
                 }
 
@@ -512,13 +494,13 @@ namespace Renci.SshNet.Common
                     uint storeMask = 0;
                     for (var i = 0; i < size; ++i)
                     {
-                        word |= (uint)(value[j++] << (i * 8));
+                        word |= (uint) (value[j++] << (i * 8));
                         storeMask = (storeMask << 8) | 0xFF;
                     }
 
                     sub = word - borrow;
-                    word = (uint)sub;
-                    borrow = (uint)(sub >> 32) & 0x1u;
+                    word = (uint) sub;
+                    borrow = (uint) (sub >> 32) & 0x1u;
 
                     if ((~word & storeMask) == 0)
                     {
@@ -536,6 +518,24 @@ namespace Renci.SshNet.Common
                     throw new Exception("non zero final carry");
                 }
             }
+        }
+
+        private static bool Negative(byte[] v)
+        {
+            return (v[7] & 0x80) != 0;
+        }
+
+        private static ushort Exponent(byte[] v)
+        {
+            return (ushort)((((ushort)(v[7] & 0x7F)) << (ushort)4) | (((ushort)(v[6] & 0xF0)) >> 4));
+        }
+
+        private static ulong Mantissa(byte[] v)
+        {
+            var i1 = (uint)v[0] | ((uint)v[1] << 8) | ((uint)v[2] << 16) | ((uint)v[3] << 24);
+            var i2 = (uint)v[4] | ((uint)v[5] << 8) | ((uint)(v[6] & 0xF) << 16);
+
+            return ((ulong) i1 | ((ulong) i2 << 32));
         }
 
         /// <summary>
@@ -2514,7 +2514,7 @@ namespace Renci.SshNet.Common
         /// of implicit conversion to a <see cref="BigInteger"/> value, and its value is equal to the value of the
         /// current <see cref="BigInteger"/> object; otherwise, <c>false</c>.
         /// </returns>
-        public override bool Equals(object obj)
+        public override readonly bool Equals(object obj)
         {
             if (obj is not BigInteger other)
             {
@@ -2533,7 +2533,7 @@ namespace Renci.SshNet.Common
         /// <c>true</c> if this <see cref="BigInteger"/> object and <paramref name="other"/> have the same value;
         /// otherwise, <c>false</c>.
         /// </returns>
-        public bool Equals(BigInteger other)
+        public readonly bool Equals(BigInteger other)
         {
             if (_sign != other._sign)
             {
@@ -2572,17 +2572,93 @@ namespace Renci.SshNet.Common
         }
 
         /// <summary>
+        /// Returns a value that indicates whether the current instance and an unsigned 64-bit integer have the same value.
+        /// </summary>
+        /// <param name="other">The unsigned 64-bit integer to compare.</param>
+        /// <returns>
+        /// <c>true</c> if the current instance and the unsigned 64-bit integer have the same value; otherwise, <c>false</c>.
+        /// </returns>
+        [CLSCompliant(false)]
+        public readonly bool Equals(ulong other)
+        {
+            return CompareTo(other) == 0;
+        }
+
+        /// <summary>
         /// Converts the numeric value of the current <see cref="BigInteger"/> object to its equivalent string representation.
         /// </summary>
         /// <returns>
         /// The string representation of the current <see cref="BigInteger"/> value.
         /// </returns>
-        public override string ToString()
+        public override readonly string ToString()
         {
             return ToString(10, provider: null);
         }
 
-        private string ToStringWithPadding(string format, uint radix, IFormatProvider provider)
+        /// <summary>
+        /// Converts the numeric value of the current <see cref="BigInteger"/> object to its equivalent string representation
+        /// by using the specified format.
+        /// </summary>
+        /// <param name="format">A standard or custom numeric format string.</param>
+        /// <returns>
+        /// The string representation of the current <see cref="BigInteger"/> value in the format specified by the
+        /// <paramref name="format"/> parameter.
+        /// </returns>
+        /// <exception cref="FormatException"><paramref name="format"/> is not a valid format string.</exception>
+        public readonly string ToString(string format)
+        {
+            return ToString(format, formatProvider: null);
+        }
+
+        /// <summary>
+        /// Converts the numeric value of the current <see cref="BigInteger"/> object to its equivalent string representation
+        /// by using the specified culture-specific formatting information.
+        /// </summary>
+        /// <param name="provider">An object that supplies culture-specific formatting information.</param>
+        /// <returns>
+        /// The string representation of the current <see cref="BigInteger"/> value in the format specified by the
+        /// <paramref name="provider"/> parameter.
+        /// </returns>
+        public readonly string ToString(IFormatProvider provider)
+        {
+            return ToString(format: null, provider);
+        }
+
+        /// <summary>
+        /// Converts the numeric value of the current <see cref="BigInteger"/> object to its equivalent string representation
+        /// by using the specified format and culture-specific format information.
+        /// </summary>
+        /// <param name="format">A standard or custom numeric format string.</param>
+        /// <param name="formatProvider">An object that supplies culture-specific formatting information.</param>
+        /// <returns>
+        /// The string representation of the current <see cref="BigInteger"/> value as specified by the <paramref name="format"/>
+        /// and <paramref name="formatProvider"/> parameters.
+        /// </returns>
+        public readonly string ToString(string format, IFormatProvider formatProvider)
+        {
+            if (string.IsNullOrEmpty(format))
+            {
+                return ToString(10, formatProvider);
+            }
+
+            switch (format[0])
+            {
+                case 'd':
+                case 'D':
+                case 'g':
+                case 'G':
+                case 'r':
+                case 'R':
+                    return ToStringWithPadding(format, 10, formatProvider);
+                case 'x':
+                case 'X':
+                    return ToStringWithPadding(format, 16, provider: null);
+                default:
+                    throw new FormatException(string.Format("format '{0}' not implemented", format));
+            }
+        }
+
+        private readonly string ToStringWithPadding(string format, uint radix, IFormatProvider provider)
         {
             if (format.Length > 1)
             {
@@ -2603,69 +2679,6 @@ namespace Renci.SshNet.Common
             }
 
             return ToString(radix, provider);
-        }
-
-        /// <summary>
-        /// Converts the numeric value of the current <see cref="BigInteger"/> object to its equivalent string representation
-        /// by using the specified format.
-        /// </summary>
-        /// <param name="format">A standard or custom numeric format string.</param>
-        /// <returns>
-        /// The string representation of the current <see cref="BigInteger"/> value in the format specified by the
-        /// <paramref name="format"/> parameter.
-        /// </returns>
-        /// <exception cref="FormatException"><paramref name="format"/> is not a valid format string.</exception>
-        public string ToString(string format)
-        {
-            return ToString(format, provider: null);
-        }
-
-        /// <summary>
-        /// Converts the numeric value of the current <see cref="BigInteger"/> object to its equivalent string representation
-        /// by using the specified culture-specific formatting information.
-        /// </summary>
-        /// <param name="provider">An object that supplies culture-specific formatting information.</param>
-        /// <returns>
-        /// The string representation of the current <see cref="BigInteger"/> value in the format specified by the
-        /// <paramref name="provider"/> parameter.
-        /// </returns>
-        public string ToString(IFormatProvider provider)
-        {
-            return ToString(format: null, provider);
-        }
-
-        /// <summary>
-        /// Converts the numeric value of the current <see cref="BigInteger"/> object to its equivalent string representation
-        /// by using the specified format and culture-specific format information.
-        /// </summary>
-        /// <param name="format">A standard or custom numeric format string.</param>
-        /// <param name="provider">An object that supplies culture-specific formatting information.</param>
-        /// <returns>
-        /// The string representation of the current <see cref="BigInteger"/> value as specified by the <paramref name="format"/>
-        /// and <paramref name="provider"/> parameters.
-        /// </returns>
-        public string ToString(string format, IFormatProvider provider)
-        {
-            if (string.IsNullOrEmpty(format))
-            {
-                return ToString(10, provider);
-            }
-
-            switch (format[0])
-            {
-                case 'd':
-                case 'D':
-                case 'g':
-                case 'G':
-                case 'r':
-                case 'R':
-                    return ToStringWithPadding(format, 10, provider);
-                case 'x':
-                case 'X':
-                    return ToStringWithPadding(format, 16, provider: null);
-                default:
-                    throw new FormatException(string.Format("format '{0}' not implemented", format));
-            }
         }
 
         private static uint[] MakeTwoComplement(uint[] v)
@@ -3369,7 +3382,7 @@ namespace Renci.SshNet.Common
                 }
 
                 // Reduce the risk of throwing an overflow exc
-                exp = checked((exp * 10) - (int)(s[i] - '0'));
+                exp = checked((exp * 10) - (s[i] - '0'));
                 if (exp is < int.MinValue or > int.MaxValue)
                 {
                     exc = tryParse ? null : new OverflowException("Value too large or too small.");
@@ -3627,7 +3640,7 @@ namespace Renci.SshNet.Common
         /// </returns>
         public static BigInteger Abs(BigInteger value)
         {
-            return new BigInteger((short) Math.Abs(value._sign), value._data);
+            return new BigInteger(Math.Abs(value._sign), value._data);
         }
 
         /// <summary>
@@ -3972,19 +3985,6 @@ namespace Renci.SshNet.Common
         }
 
         /// <summary>
-        /// Returns a value that indicates whether the current instance and an unsigned 64-bit integer have the same value.
-        /// </summary>
-        /// <param name="other">The unsigned 64-bit integer to compare.</param>
-        /// <returns>
-        /// <c>true</c> if the current instance and the unsigned 64-bit integer have the same value; otherwise, <c>false</c>.
-        /// </returns>
-        [CLSCompliant(false)]
-        public readonly bool Equals(ulong other)
-        {
-            return CompareTo(other) == 0;
-        }
-
-        /// <summary>
         /// Returns the hash code for the current <see cref="BigInteger"/> object.
         /// </summary>
         /// <returns>
@@ -4207,40 +4207,6 @@ namespace Renci.SshNet.Common
             return LongCompare(low, high);
         }
 
-        private readonly int LongCompare(uint low, uint high)
-        {
-            uint h = 0;
-
-            if (_data.Length > 1)
-            {
-                h = _data[1];
-            }
-
-            if (h > high)
-            {
-                return 1;
-            }
-
-            if (h < high)
-            {
-                return -1;
-            }
-
-            var l = _data[0];
-
-            if (l > low)
-            {
-                return 1;
-            }
-
-            if (l < low)
-            {
-                return -1;
-            }
-
-            return 0;
-        }
-
         /// <summary>
         /// Compares this instance to a signed 64-bit integer and returns an integer that indicates whether the value of this
         /// instance is less than, equal to, or greater than the value of the signed 64-bit integer.
@@ -4303,6 +4269,40 @@ namespace Renci.SshNet.Common
             }
 
             return r;
+        }
+
+        private readonly int LongCompare(uint low, uint high)
+        {
+            uint h = 0;
+
+            if (_data.Length > 1)
+            {
+                h = _data[1];
+            }
+
+            if (h > high)
+            {
+                return 1;
+            }
+
+            if (h < high)
+            {
+                return -1;
+            }
+
+            var l = _data[0];
+
+            if (l > low)
+            {
+                return 1;
+            }
+
+            if (l < low)
+            {
+                return -1;
+            }
+
+            return 0;
         }
 
         /// <summary>
@@ -4545,6 +4545,29 @@ namespace Renci.SshNet.Common
             return res;
         }
 
+        private static uint[] CoreAdd(uint[] a, uint b)
+        {
+            var len = a.Length;
+            var res = new uint[len];
+
+            ulong sum = b;
+            int i;
+            for (i = 0; i < len; i++)
+            {
+                sum += a[i];
+                res[i] = (uint) sum;
+                sum >>= 32;
+            }
+
+            if (sum != 0)
+            {
+                Array.Resize(ref res, len + 1);
+                res[i] = (uint) sum;
+            }
+
+            return res;
+        }
+
         /*invariant a > b*/
         private static uint[] CoreSub(uint[] a, uint[] b)
         {
@@ -4579,29 +4602,6 @@ namespace Renci.SshNet.Common
             if (i < bl - 1)
             {
                 Array.Resize(ref res, i + 1);
-            }
-
-            return res;
-        }
-
-        private static uint[] CoreAdd(uint[] a, uint b)
-        {
-            var len = a.Length;
-            var res = new uint[len];
-
-            ulong sum = b;
-            int i;
-            for (i = 0; i < len; i++)
-            {
-                sum += a[i];
-                res[i] = (uint)sum;
-                sum >>= 32;
-            }
-
-            if (sum != 0)
-            {
-                Array.Resize(ref res, len + 1);
-                res[i] = (uint)sum;
             }
 
             return res;

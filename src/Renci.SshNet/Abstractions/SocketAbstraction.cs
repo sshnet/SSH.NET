@@ -43,13 +43,13 @@ namespace Renci.SshNet.Abstractions
         public static Socket Connect(IPEndPoint remoteEndpoint, TimeSpan connectTimeout)
         {
             var socket = new Socket(remoteEndpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp) { NoDelay = true };
-            ConnectCore(socket, remoteEndpoint, connectTimeout, true);
+            ConnectCore(socket, remoteEndpoint, connectTimeout, ownsSocket: true);
             return socket;
         }
 
         public static void Connect(Socket socket, IPEndPoint remoteEndpoint, TimeSpan connectTimeout)
         {
-            ConnectCore(socket, remoteEndpoint, connectTimeout, false);
+            ConnectCore(socket, remoteEndpoint, connectTimeout, ownsSocket: false);
         }
 
         public static async Task ConnectAsync(Socket socket, IPEndPoint remoteEndpoint, CancellationToken cancellationToken)
@@ -60,7 +60,7 @@ namespace Renci.SshNet.Abstractions
         private static void ConnectCore(Socket socket, IPEndPoint remoteEndpoint, TimeSpan connectTimeout, bool ownsSocket)
         {
 #if FEATURE_SOCKET_EAP
-            var connectCompleted = new ManualResetEvent(false);
+            var connectCompleted = new ManualResetEvent(initialState: false);
             var args = new SocketAsyncEventArgs
                 {
                     UserToken = connectCompleted,

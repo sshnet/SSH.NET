@@ -5,7 +5,7 @@ namespace Renci.SshNet.Common
     /// <summary>
     /// Represents a POSIX path.
     /// </summary>
-    internal class PosixPath
+    internal sealed class PosixPath
     {
         private PosixPath()
         {

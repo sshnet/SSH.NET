@@ -5,7 +5,7 @@ namespace Renci.SshNet
     /// <summary>
     /// Performs no transformation.
     /// </summary>
-    internal class RemotePathNoneTransformation : IRemotePathTransformation
+    internal sealed class RemotePathNoneTransformation : IRemotePathTransformation
     {
         /// <summary>
         /// Returns the specified path without applying a transformation.

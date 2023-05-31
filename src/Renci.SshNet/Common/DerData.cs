@@ -231,18 +231,6 @@ namespace Renci.SshNet.Common
         }
 
         /// <summary>
-        /// Writes BITSTRING data into internal buffer.
-        /// </summary>
-        /// <param name="data">The data.</param>
-        public void WriteBitstring(byte[] data)
-        {
-            _data.Add(BITSTRING);
-            var length = GetLength(data.Length);
-            WriteBytes(length);
-            WriteBytes(data);
-        }
-
-        /// <summary>
         /// Writes OBJECTIDENTIFIER data into internal buffer.
         /// </summary>
         /// <param name="identifier">The identifier.</param>
@@ -286,6 +274,28 @@ namespace Renci.SshNet.Common
         }
 
         /// <summary>
+        /// Writes DerData data into internal buffer.
+        /// </summary>
+        /// <param name="data">DerData data to write.</param>
+        public void Write(DerData data)
+        {
+            var bytes = data.Encode();
+            _data.AddRange(bytes);
+        }
+
+        /// <summary>
+        /// Writes BITSTRING data into internal buffer.
+        /// </summary>
+        /// <param name="data">The data.</param>
+        public void WriteBitstring(byte[] data)
+        {
+            _data.Add(BITSTRING);
+            var length = GetLength(data.Length);
+            WriteBytes(length);
+            WriteBytes(data);
+        }
+
+        /// <summary>
         /// Writes OBJECTIDENTIFIER data into internal buffer.
         /// </summary>
         /// <param name="bytes">The bytes.</param>
@@ -304,16 +314,6 @@ namespace Renci.SshNet.Common
         {
             _data.Add(Null);
             _data.Add(0);
-        }
-
-        /// <summary>
-        /// Writes DerData data into internal buffer.
-        /// </summary>
-        /// <param name="data">DerData data to write.</param>
-        public void Write(DerData data)
-        {
-            var bytes = data.Encode();
-            _data.AddRange(bytes);
         }
 
         private static byte[] GetLength(int length)

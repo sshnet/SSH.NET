@@ -871,23 +871,6 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Waits for the specified handle or the exception handle for the receive thread
-        /// to signal within the connection timeout.
-        /// </summary>
-        /// <param name="waitHandle">The wait handle.</param>
-        /// <exception cref="SshConnectionException">A received package was invalid or failed the message integrity check.</exception>
-        /// <exception cref="SshOperationTimeoutException">None of the handles are signaled in time and the session is not disconnecting.</exception>
-        /// <exception cref="SocketException">A socket error was signaled while receiving messages from the server.</exception>
-        /// <remarks>
-        /// When neither handles are signaled in time and the session is not closing, then the
-        /// session is disconnected.
-        /// </remarks>
-        internal void WaitOnHandle(WaitHandle waitHandle)
-        {
-            WaitOnHandle(waitHandle, ConnectionInfo.Timeout);
-        }
-
-        /// <summary>
         /// Waits for the specified <seec ref="WaitHandle"/> to receive a signal, using a <see cref="TimeSpan"/>
         /// to specify the time interval.
         /// </summary>
@@ -963,6 +946,23 @@ namespace Renci.SshNet
                 default:
                     throw new InvalidOperationException("Unexpected result.");
             }
+        }
+
+        /// <summary>
+        /// Waits for the specified handle or the exception handle for the receive thread
+        /// to signal within the connection timeout.
+        /// </summary>
+        /// <param name="waitHandle">The wait handle.</param>
+        /// <exception cref="SshConnectionException">A received package was invalid or failed the message integrity check.</exception>
+        /// <exception cref="SshOperationTimeoutException">None of the handles are signaled in time and the session is not disconnecting.</exception>
+        /// <exception cref="SocketException">A socket error was signaled while receiving messages from the server.</exception>
+        /// <remarks>
+        /// When neither handles are signaled in time and the session is not closing, then the
+        /// session is disconnected.
+        /// </remarks>
+        internal void WaitOnHandle(WaitHandle waitHandle)
+        {
+            WaitOnHandle(waitHandle, ConnectionInfo.Timeout);
         }
 
         /// <summary>
@@ -1869,8 +1869,7 @@ namespace Renci.SshNet
                     var message = ReceiveMessage(socket);
                     if (message is null)
                     {
-                        // connection with SSH server was closed;
-                        // break out of the message loop
+                        // Connection with SSH server was closed, so break out of the message loop
                         break;
                     }
 

@@ -244,7 +244,7 @@ namespace Renci.SshNet.Security
         /// </summary>
         public void Dispose()
         {
-            Dispose(true);
+            Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
 
@@ -278,7 +278,7 @@ namespace Renci.SshNet.Security
         /// </summary>
         ~RsaKey()
         {
-            Dispose(false);
+            Dispose(disposing: false);
         }
     }
 }

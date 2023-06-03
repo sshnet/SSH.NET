@@ -1,7 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text;
-
-using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Sftp.Responses
 {
@@ -21,7 +20,7 @@ namespace Renci.SshNet.Sftp.Responses
         public SftpNameResponse(uint protocolVersion, Encoding encoding)
             : base(protocolVersion)
         {
-            Files = Array<KeyValuePair<string, SftpFileAttributes>>.Empty;
+            Files = Array.Empty<KeyValuePair<string, SftpFileAttributes>>();
             Encoding = encoding;
         }
 

@@ -690,7 +690,7 @@ namespace Renci.SshNet.Sftp
                                                   }
                                                   else
                                                   {
-                                                      asyncResult.SetAsCompleted(Array<byte>.Empty, completedSynchronously: false);
+                                                      asyncResult.SetAsCompleted(Array.Empty<byte>(), completedSynchronously: false);
                                                   }
                                               });
             SendRequest(request);
@@ -767,7 +767,7 @@ namespace Renci.SshNet.Sftp
                                                           }
                                                           else
                                                           {
-                                                              data = Array<byte>.Empty;
+                                                              data = Array.Empty<byte>();
                                                           }
 
                                                           _ = wait.Set();
@@ -804,7 +804,7 @@ namespace Renci.SshNet.Sftp
                                                 {
                                                     if (response.StatusCode == StatusCodes.Eof)
                                                     {
-                                                        _ = tcs.TrySetResult(Array<byte>.Empty);
+                                                        _ = tcs.TrySetResult(Array.Empty<byte>());
                                                     }
                                                     else
                                                     {

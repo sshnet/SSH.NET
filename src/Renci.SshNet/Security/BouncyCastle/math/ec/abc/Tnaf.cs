@@ -14,7 +14,6 @@ namespace Renci.SshNet.Security.Org.BouncyCastle.Math.EC.Abc
         private static readonly BigInteger MinusOne = BigInteger.One.Negate();
         private static readonly BigInteger MinusTwo = BigInteger.Two.Negate();
         private static readonly BigInteger MinusThree = BigInteger.Three.Negate();
-        private static readonly BigInteger Four = BigInteger.ValueOf(4);
 
         /**
         * The window width of WTNAF. The standard value of 4 is slightly less
@@ -97,47 +96,6 @@ namespace Renci.SshNet.Security.Org.BouncyCastle.Math.EC.Abc
 
             // s3 = 2 * v^2
             BigInteger s3 = lambda.v.Multiply(lambda.v).ShiftLeft(1);
-
-            if (mu == 1)
-            {
-                norm = s1.Add(s2).Add(s3);
-            }
-            else if (mu == -1)
-            {
-                norm = s1.Subtract(s2).Add(s3);
-            }
-            else
-            {
-                throw new ArgumentException("mu must be 1 or -1");
-            }
-
-            return norm;
-        }
-
-        /**
-        * Computes the norm of an element <code>&#955;</code> of
-        * <code><b>R</b>[&#964;]</code>, where <code>&#955; = u + v&#964;</code>
-        * and <code>u</code> and <code>u</code> are real numbers (elements of
-        * <code><b>R</b></code>). 
-        * @param mu The parameter <code>&#956;</code> of the elliptic curve.
-        * @param u The real part of the element <code>&#955;</code> of
-        * <code><b>R</b>[&#964;]</code>.
-        * @param v The <code>&#964;</code>-adic part of the element
-        * <code>&#955;</code> of <code><b>R</b>[&#964;]</code>.
-        * @return The norm of <code>&#955;</code>.
-        */
-        public static SimpleBigDecimal Norm(sbyte mu, SimpleBigDecimal u, SimpleBigDecimal v)
-        {
-            SimpleBigDecimal norm;
-
-            // s1 = u^2
-            SimpleBigDecimal s1 = u.Multiply(u);
-
-            // s2 = u * v
-            SimpleBigDecimal s2 = u.Multiply(v);
-
-            // s3 = 2 * v^2
-            SimpleBigDecimal s3 = v.Multiply(v).ShiftLeft(1);
 
             if (mu == 1)
             {
@@ -303,131 +261,6 @@ namespace Renci.SshNet.Security.Org.BouncyCastle.Math.EC.Abc
             return new SimpleBigDecimal(ls, c);
         }
 
-        /**
-        * Computes the <code>&#964;</code>-adic NAF (non-adjacent form) of an
-        * element <code>&#955;</code> of <code><b>Z</b>[&#964;]</code>.
-        * @param mu The parameter <code>&#956;</code> of the elliptic curve.
-        * @param lambda The element <code>&#955;</code> of
-        * <code><b>Z</b>[&#964;]</code>.
-        * @return The <code>&#964;</code>-adic NAF of <code>&#955;</code>.
-        */
-        public static sbyte[] TauAdicNaf(sbyte mu, ZTauElement lambda)
-        {
-            if (!((mu == 1) || (mu == -1))) 
-                throw new ArgumentException("mu must be 1 or -1");
-
-            BigInteger norm = Norm(mu, lambda);
-
-            // Ceiling of log2 of the norm 
-            int log2Norm = norm.BitLength;
-
-            // If length(TNAF) > 30, then length(TNAF) < log2Norm + 3.52
-            int maxLength = log2Norm > 30 ? log2Norm + 4 : 34;
-
-            // The array holding the TNAF
-            sbyte[] u = new sbyte[maxLength];
-            int i = 0;
-
-            // The actual length of the TNAF
-            int length = 0;
-
-            BigInteger r0 = lambda.u;
-            BigInteger r1 = lambda.v;
-
-            while(!((r0.Equals(BigInteger.Zero)) && (r1.Equals(BigInteger.Zero))))
-            {
-                // If r0 is odd
-                if (r0.TestBit(0)) 
-                {
-                    u[i] = (sbyte) BigInteger.Two.Subtract((r0.Subtract(r1.ShiftLeft(1))).Mod(Four)).IntValue;
-
-                    // r0 = r0 - u[i]
-                    if (u[i] == 1)
-                    {
-                        r0 = r0.ClearBit(0);
-                    }
-                    else
-                    {
-                        // u[i] == -1
-                        r0 = r0.Add(BigInteger.One);
-                    }
-                    length = i;
-                }
-                else
-                {
-                    u[i] = 0;
-                }
-
-                BigInteger t = r0;
-                BigInteger s = r0.ShiftRight(1);
-                if (mu == 1) 
-                {
-                    r0 = r1.Add(s);
-                }
-                else
-                {
-                    // mu == -1
-                    r0 = r1.Subtract(s);
-                }
-
-                r1 = t.ShiftRight(1).Negate();
-                i++;
-            }
-
-            length++;
-
-            // Reduce the TNAF array to its actual length
-            sbyte[] tnaf = new sbyte[length];
-            Array.Copy(u, 0, tnaf, 0, length);
-            return tnaf;
-        }
-
-        /**
-        * Applies the operation <code>&#964;()</code> to an
-        * <code>AbstractF2mPoint</code>. 
-        * @param p The AbstractF2mPoint to which <code>&#964;()</code> is applied.
-        * @return <code>&#964;(p)</code>
-        */
-        public static AbstractF2mPoint Tau(AbstractF2mPoint p)
-        {
-            return p.Tau();
-        }
-
-        /**
-        * Returns the parameter <code>&#956;</code> of the elliptic curve.
-        * @param curve The elliptic curve from which to obtain <code>&#956;</code>.
-        * The curve must be a Koblitz curve, i.e. <code>a</code> Equals
-        * <code>0</code> or <code>1</code> and <code>b</code> Equals
-        * <code>1</code>. 
-        * @return <code>&#956;</code> of the elliptic curve.
-        * @throws ArgumentException if the given ECCurve is not a Koblitz
-        * curve.
-        */
-        public static sbyte GetMu(AbstractF2mCurve curve)
-        {
-            BigInteger a = curve.A.ToBigInteger();
-
-            sbyte mu;
-            if (a.SignValue == 0)
-            {
-                mu = -1;
-            }
-            else if (a.Equals(BigInteger.One))
-            {
-                mu = 1;
-            }
-            else
-            {
-                throw new ArgumentException("No Koblitz curve (ABC), TNAF multiplication not possible");
-            }
-            return mu;
-        }
-
-        public static sbyte GetMu(ECFieldElement curveA)
-        {
-            return (sbyte)(curveA.IsZero ? -1 : 1);
-        }
-
         public static sbyte GetMu(int curveA)
         {
             return (sbyte)(curveA == 0 ? -1 : 1);
@@ -560,24 +393,6 @@ namespace Renci.SshNet.Security.Org.BouncyCastle.Math.EC.Abc
             return new BigInteger[] { dividend0, dividend1 };
         }
 
-        public static BigInteger[] GetSi(int fieldSize, int curveA, BigInteger cofactor)
-        {
-            sbyte mu = GetMu(curveA);
-            int shifts = GetShiftsForCofactor(cofactor);
-            int index = fieldSize + 3 - curveA;
-            BigInteger[] ui = GetLucas(mu, index, false);
-            if (mu == 1)
-            {
-                ui[0] = ui[0].Negate();
-                ui[1] = ui[1].Negate();
-            }
-
-            BigInteger dividend0 = BigInteger.One.Add(ui[1]).ShiftRight(shifts);
-            BigInteger dividend1 = BigInteger.One.Add(ui[0]).ShiftRight(shifts).Negate();
-
-            return new BigInteger[] { dividend0, dividend1 };
-        }
-
         protected static int GetShiftsForCofactor(BigInteger h)
         {
             if (h != null && h.BitLength < 4)
@@ -638,46 +453,6 @@ namespace Renci.SshNet.Security.Org.BouncyCastle.Math.EC.Abc
             BigInteger r1 = s[1].Multiply(q.u).Subtract(s[0].Multiply(q.v));
             
             return new ZTauElement(r0, r1);
-        }
-
-        /**
-        * Multiplies a {@link org.bouncycastle.math.ec.AbstractF2mPoint AbstractF2mPoint}
-        * by a <code>BigInteger</code> using the reduced <code>&#964;</code>-adic
-        * NAF (RTNAF) method.
-        * @param p The AbstractF2mPoint to Multiply.
-        * @param k The <code>BigInteger</code> by which to Multiply <code>p</code>.
-        * @return <code>k * p</code>
-        */
-        public static AbstractF2mPoint MultiplyRTnaf(AbstractF2mPoint p, BigInteger k)
-        {
-            AbstractF2mCurve curve = (AbstractF2mCurve)p.Curve;
-            int m = curve.FieldSize;
-            int a = curve.A.ToBigInteger().IntValue;
-            sbyte mu = GetMu(a);
-            BigInteger[] s = curve.GetSi();
-            ZTauElement rho = PartModReduction(k, m, (sbyte)a, s, mu, (sbyte)10);
-
-            return MultiplyTnaf(p, rho);
-        }
-
-        /**
-        * Multiplies a {@link org.bouncycastle.math.ec.AbstractF2mPoint AbstractF2mPoint}
-        * by an element <code>&#955;</code> of <code><b>Z</b>[&#964;]</code>
-        * using the <code>&#964;</code>-adic NAF (TNAF) method.
-        * @param p The AbstractF2mPoint to Multiply.
-        * @param lambda The element <code>&#955;</code> of
-        * <code><b>Z</b>[&#964;]</code>.
-        * @return <code>&#955; * p</code>
-        */
-        public static AbstractF2mPoint MultiplyTnaf(AbstractF2mPoint p, ZTauElement lambda)
-        {
-            AbstractF2mCurve curve = (AbstractF2mCurve)p.Curve;
-            sbyte mu = GetMu(curve.A);
-            sbyte[] u = TauAdicNaf(mu, lambda);
-
-            AbstractF2mPoint q = MultiplyFromTnaf(p, u);
-
-            return q;
         }
 
         /**

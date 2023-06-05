@@ -63,21 +63,6 @@ namespace Renci.SshNet.Security.Org.BouncyCastle.Security
             this.generator = generator;
         }
 
-        public virtual byte[] GenerateSeed(int length)
-        {
-            return GetNextBytes(Master, length);
-        }
-
-        public virtual void SetSeed(byte[] seed)
-        {
-            generator.AddSeedMaterial(seed);
-        }
-
-        public virtual void SetSeed(long seed)
-        {
-            generator.AddSeedMaterial(seed);
-        }
-
         public override int Next()
         {
             return NextInt() & int.MaxValue;
@@ -140,11 +125,6 @@ namespace Renci.SshNet.Security.Org.BouncyCastle.Security
         public override void NextBytes(byte[] buf)
         {
             generator.NextBytes(buf);
-        }
-
-        public virtual void NextBytes(byte[] buf, int off, int len)
-        {
-            generator.NextBytes(buf, off, len);
         }
 
         private static readonly double DoubleScale = System.Math.Pow(2.0, 64.0);

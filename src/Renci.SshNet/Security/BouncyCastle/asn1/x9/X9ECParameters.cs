@@ -9,50 +9,6 @@ namespace Renci.SshNet.Security.Org.BouncyCastle.Asn1.X9
     {
         private byte[]		seed;
 
-		public static X9ECParameters GetInstance(Object obj)
-		{
-			if (obj is X9ECParameters)
-				return (X9ECParameters)obj;
-
-            return null;
-		}
-
-        public X9ECParameters(
-            ECCurve		curve,
-            ECPoint		g,
-            BigInteger	n)
-            : this(curve, g, n, null, null)
-        {
-        }
-
-        public X9ECParameters(
-            ECCurve     curve,
-            X9ECPoint   g,
-            BigInteger  n,
-            BigInteger  h)
-            : this(curve, g, n, h, null)
-        {
-        }
-
-        public X9ECParameters(
-            ECCurve		curve,
-            ECPoint		g,
-            BigInteger	n,
-            BigInteger	h)
-            : this(curve, g, n, h, null)
-        {
-        }
-
-        public X9ECParameters(
-            ECCurve		curve,
-            ECPoint		g,
-            BigInteger	n,
-            BigInteger	h,
-            byte[]		seed)
-            : this(curve, new X9ECPoint(g), n, h, seed)
-        {
-        }
-
         public X9ECParameters(
             ECCurve     curve,
             X9ECPoint   g,
@@ -81,11 +37,6 @@ namespace Renci.SshNet.Security.Org.BouncyCastle.Asn1.X9
         public byte[] GetSeed()
         {
             return seed;
-        }
-
-        public X9Curve CurveEntry
-        {
-            get { return new X9Curve(Curve, seed); }
         }
 
         public X9ECPoint BaseEntry { get; private set; }

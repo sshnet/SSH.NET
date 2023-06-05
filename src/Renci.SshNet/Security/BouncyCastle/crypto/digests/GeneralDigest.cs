@@ -5,7 +5,7 @@ using Renci.SshNet.Security.Org.BouncyCastle.Utilities;
 namespace Renci.SshNet.Security.Org.BouncyCastle.Crypto.Digests
 {
     internal abstract class GeneralDigest
-		: IDigest, IMemoable
+		: IDigest
     {
         private const int BYTE_LENGTH = 64;
 
@@ -123,7 +123,5 @@ namespace Renci.SshNet.Security.Org.BouncyCastle.Crypto.Digests
         public abstract string AlgorithmName { get; }
 		public abstract int GetDigestSize();
         public abstract int DoFinal(byte[] output, int outOff);
-		public abstract IMemoable Copy();
-		public abstract void Reset(IMemoable t);
     }
 }

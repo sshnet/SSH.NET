@@ -10,13 +10,6 @@ namespace Renci.SshNet.Security.Org.BouncyCastle.Crypto.Parameters
         private readonly BigInteger d;
 
         public ECPrivateKeyParameters(
-            BigInteger			d,
-            ECDomainParameters	parameters)
-            : this("EC", d, parameters)
-        {
-        }
-
-        public ECPrivateKeyParameters(
             string				algorithm,
             BigInteger			d,
             ECDomainParameters	parameters)

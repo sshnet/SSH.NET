@@ -111,164 +111,6 @@ namespace Renci.SshNet.Security.Org.BouncyCastle.Math.EC.Multiplier
             return wnaf;
         }
 
-        public static byte[] GenerateJsf(BigInteger g, BigInteger h)
-        {
-            int digits = System.Math.Max(g.BitLength, h.BitLength) + 1;
-            byte[] jsf = new byte[digits];
-
-            BigInteger k0 = g, k1 = h;
-            int j = 0, d0 = 0, d1 = 0;
-
-            int offset = 0;
-            while ((d0 | d1) != 0 || k0.BitLength > offset || k1.BitLength > offset)
-            {
-                int n0 = ((int)((uint)k0.IntValue >> offset) + d0) & 7;
-                int n1 = ((int)((uint)k1.IntValue >> offset) + d1) & 7;
-
-                int u0 = n0 & 1;
-                if (u0 != 0)
-                {
-                    u0 -= (n0 & 2);
-                    if ((n0 + u0) == 4 && (n1 & 3) == 2)
-                    {
-                        u0 = -u0;
-                    }
-                }
-
-                int u1 = n1 & 1;
-                if (u1 != 0)
-                {
-                    u1 -= (n1 & 2);
-                    if ((n1 + u1) == 4 && (n0 & 3) == 2)
-                    {
-                        u1 = -u1;
-                    }
-                }
-
-                if ((d0 << 1) == 1 + u0)
-                {
-                    d0 ^= 1;
-                }
-                if ((d1 << 1) == 1 + u1)
-                {
-                    d1 ^= 1;
-                }
-
-                if (++offset == 30)
-                {
-                    offset = 0;
-                    k0 = k0.ShiftRight(30);
-                    k1 = k1.ShiftRight(30);
-                }
-
-                jsf[j++] = (byte)((u0 << 4) | (u1 & 0xF));
-            }
-
-            // Reduce the JSF array to its actual length
-            if (jsf.Length > j)
-            {
-                jsf = Trim(jsf, j);
-            }
-
-            return jsf;
-        }
-
-        public static byte[] GenerateNaf(BigInteger k)
-        {
-            if (k.SignValue == 0)
-                return Arrays.EmptyBytes;
-
-            BigInteger _3k = k.ShiftLeft(1).Add(k);
-
-            int digits = _3k.BitLength - 1;
-            byte[] naf = new byte[digits];
-
-            BigInteger diff = _3k.Xor(k);
-
-            for (int i = 1; i < digits; ++i)
-            {
-                if (diff.TestBit(i))
-                {
-                    naf[i - 1] = (byte)(k.TestBit(i) ? -1 : 1);
-                    ++i;
-                }
-            }
-
-            naf[digits - 1] = 1;
-
-            return naf;
-        }
-
-        /**
-         * Computes the Window NAF (non-adjacent Form) of an integer.
-         * @param width The width <code>w</code> of the Window NAF. The width is
-         * defined as the minimal number <code>w</code>, such that for any
-         * <code>w</code> consecutive digits in the resulting representation, at
-         * most one is non-zero.
-         * @param k The integer of which the Window NAF is computed.
-         * @return The Window NAF of the given width, such that the following holds:
-         * <code>k = &amp;sum;<sub>i=0</sub><sup>l-1</sup> k<sub>i</sub>2<sup>i</sup>
-         * </code>, where the <code>k<sub>i</sub></code> denote the elements of the
-         * returned <code>byte[]</code>.
-         */
-        public static byte[] GenerateWindowNaf(int width, BigInteger k)
-        {
-            if (width == 2)
-            {
-                return GenerateNaf(k);
-            }
-
-            if (width < 2 || width > 8)
-                throw new ArgumentException("must be in the range [2, 8]", "width");
-            if (k.SignValue == 0)
-                return Arrays.EmptyBytes;
-
-            byte[] wnaf = new byte[k.BitLength + 1];
-
-            // 2^width and a mask and sign bit set accordingly
-            int pow2 = 1 << width;
-            int mask = pow2 - 1;
-            int sign = pow2 >> 1;
-
-            bool carry = false;
-            int length = 0, pos = 0;
-
-            while (pos <= k.BitLength)
-            {
-                if (k.TestBit(pos) == carry)
-                {
-                    ++pos;
-                    continue;
-                }
-
-                k = k.ShiftRight(pos);
-
-                int digit = k.IntValue & mask;
-                if (carry)
-                {
-                    ++digit;
-                }
-
-                carry = (digit & sign) != 0;
-                if (carry)
-                {
-                    digit -= pow2;
-                }
-
-                length += (length > 0) ? pos - 1 : pos;
-                wnaf[length++] = (byte)digit;
-                pos = width;
-            }
-
-            // Reduce the WNAF array to its actual length
-            if (wnaf.Length > length)
-            {
-                wnaf = Trim(wnaf, length);
-            }
-        
-            return wnaf;
-        }
-
         public static int GetNafWeight(BigInteger k)
         {
             if (k.SignValue == 0)
@@ -278,16 +120,6 @@ namespace Renci.SshNet.Security.Org.BouncyCastle.Math.EC.Multiplier
             BigInteger diff = _3k.Xor(k);
 
             return diff.BitCount;
-        }
-
-        public static WNafPreCompInfo GetWNafPreCompInfo(ECPoint p)
-        {
-            return GetWNafPreCompInfo(p.Curve.GetPreCompInfo(p, PRECOMP_NAME));
-        }
-
-        public static WNafPreCompInfo GetWNafPreCompInfo(PreCompInfo preCompInfo)
-        {
-            return preCompInfo as WNafPreCompInfo;
         }
 
         /**
@@ -321,27 +153,9 @@ namespace Renci.SshNet.Security.Org.BouncyCastle.Math.EC.Multiplier
             return w + 2;
         }
 
-        public static ECPoint MapPointWithPrecomp(ECPoint p, int width, bool includeNegated,
-            ECPointMap pointMap)
-        {
-            ECCurve c = p.Curve;
-            WNafPreCompInfo wnafPreCompP = Precompute(p, width, includeNegated);
-
-            ECPoint q = pointMap.Map(p);
-            c.Precompute(q, PRECOMP_NAME, new MapPointCallback(wnafPreCompP, includeNegated, pointMap));
-            return q;
-        }
-
         public static WNafPreCompInfo Precompute(ECPoint p, int width, bool includeNegated)
         {
             return (WNafPreCompInfo)p.Curve.Precompute(p, PRECOMP_NAME, new WNafCallback(p, width, includeNegated));
-        }
-
-        private static byte[] Trim(byte[] a, int length)
-        {
-            byte[] result = new byte[length];
-            Array.Copy(a, 0, result, 0, result.Length);
-            return result;
         }
 
         private static int[] Trim(int[] a, int length)

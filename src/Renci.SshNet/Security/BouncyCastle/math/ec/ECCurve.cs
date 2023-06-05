@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Renci.SshNet.Security.Org.BouncyCastle.Math.EC.Abc;
-using Renci.SshNet.Security.Org.BouncyCastle.Math.EC.Endo;
 using Renci.SshNet.Security.Org.BouncyCastle.Math.EC.Multiplier;
 using Renci.SshNet.Security.Org.BouncyCastle.Math.Field;
 using Renci.SshNet.Security.Org.BouncyCastle.Math.Raw;
@@ -22,72 +21,11 @@ namespace Renci.SshNet.Security.Org.BouncyCastle.Math.EC
         public const int COORD_LAMBDA_PROJECTIVE = 6;
         public const int COORD_SKEWED = 7;
 
-        public static int[] GetAllCoordinateSystems()
-        {
-            return new int[]{ COORD_AFFINE, COORD_HOMOGENEOUS, COORD_JACOBIAN, COORD_JACOBIAN_CHUDNOVSKY,
-                COORD_JACOBIAN_MODIFIED, COORD_LAMBDA_AFFINE, COORD_LAMBDA_PROJECTIVE, COORD_SKEWED };
-        }
-
-        internal class Config
-        {
-            protected ECCurve outer;
-            protected int coord;
-            protected ECEndomorphism endomorphism;
-            protected ECMultiplier multiplier;
-
-            internal Config(ECCurve outer, int coord, ECEndomorphism endomorphism, ECMultiplier multiplier)
-            {
-                this.outer = outer;
-                this.coord = coord;
-                this.endomorphism = endomorphism;
-                this.multiplier = multiplier;
-            }
-
-            public Config SetCoordinateSystem(int coord)
-            {
-                this.coord = coord;
-                return this;
-            }
-
-            public Config SetEndomorphism(ECEndomorphism endomorphism)
-            {
-                this.endomorphism = endomorphism;
-                return this;
-            }
-
-            public Config SetMultiplier(ECMultiplier multiplier)
-            {
-                this.multiplier = multiplier;
-                return this;
-            }
-
-            public ECCurve Create()
-            {
-                if (!outer.SupportsCoordinateSystem(coord))
-                {
-                    throw new InvalidOperationException("unsupported coordinate system");
-                }
-
-                ECCurve c = outer.CloneCurve();
-                if (c == outer)
-                {
-                    throw new InvalidOperationException("implementation returned current curve");
-                }
-
-                c.m_coord = coord;
-                c.m_endomorphism = endomorphism;
-                c.m_multiplier = multiplier;
-
-                return c;
-            }
-        }
-
         protected readonly IFiniteField m_field;
         protected ECFieldElement m_a, m_b;
         protected BigInteger m_order, m_cofactor;
 
         protected int m_coord = COORD_AFFINE;
-        protected ECEndomorphism m_endomorphism = null;
         protected ECMultiplier m_multiplier = null;
 
         protected ECCurve(IFiniteField field)
@@ -99,24 +37,9 @@ namespace Renci.SshNet.Security.Org.BouncyCastle.Math.EC
         public abstract ECFieldElement FromBigInteger(BigInteger x);
         public abstract bool IsValidFieldElement(BigInteger x);
 
-        public virtual Config Configure()
-        {
-            return new Config(this, this.m_coord, this.m_endomorphism, this.m_multiplier);
-        }
-
         public virtual ECPoint ValidatePoint(BigInteger x, BigInteger y)
         {
             ECPoint p = CreatePoint(x, y);
-            if (!p.IsValid())
-            {
-                throw new ArgumentException("Invalid point coordinates");
-            }
-            return p;
-        }
-
-        public virtual ECPoint ValidatePoint(BigInteger x, BigInteger y, bool withCompression)
-        {
-            ECPoint p = CreatePoint(x, y, withCompression);
             if (!p.IsValid())
             {
                 throw new ArgumentException("Invalid point coordinates");
@@ -142,37 +65,12 @@ namespace Renci.SshNet.Security.Org.BouncyCastle.Math.EC
 
         protected virtual ECMultiplier CreateDefaultMultiplier()
         {
-            GlvEndomorphism glvEndomorphism = m_endomorphism as GlvEndomorphism;
-            if (glvEndomorphism != null)
-            {
-                return new GlvMultiplier(this, glvEndomorphism);
-            }
-
             return new WNafL2RMultiplier();
         }
 
         public virtual bool SupportsCoordinateSystem(int coord)
         {
             return coord == COORD_AFFINE;
-        }
-
-        public virtual PreCompInfo GetPreCompInfo(ECPoint point, string name)
-        {
-            CheckPoint(point);
-
-            IDictionary table;
-            lock (point)
-            {
-                table = point.m_preCompTable;
-            }
-
-            if (null == table)
-                return null;
-
-            lock (table)
-            {
-                return (PreCompInfo)table[name];
-            }
         }
 
         /**
@@ -376,11 +274,6 @@ namespace Renci.SshNet.Security.Org.BouncyCastle.Math.EC
                 throw new ArgumentException("must be non-null and on this curve", "point");
         }
 
-        protected virtual void CheckPoints(ECPoint[] points)
-        {
-            CheckPoints(points, 0, points.Length);
-        }
-
         protected virtual void CheckPoints(ECPoint[] points, int off, int len)
         {
             if (points == null)
@@ -420,11 +313,6 @@ namespace Renci.SshNet.Security.Org.BouncyCastle.Math.EC
         }
 
         protected abstract ECPoint DecompressPoint(int yTilde, BigInteger X1);
-
-        public virtual ECEndomorphism GetEndomorphism()
-        {
-            return m_endomorphism;
-        }
 
         /**
          * Sets the default <code>ECMultiplier</code>, unless already set. 
@@ -609,11 +497,6 @@ namespace Renci.SshNet.Security.Org.BouncyCastle.Math.EC
         protected readonly BigInteger m_q, m_r;
         protected readonly FpPoint m_infinity;
 
-        public FpCurve(BigInteger q, BigInteger a, BigInteger b)
-            : this(q, a, b, null, null)
-        {
-        }
-
         public FpCurve(BigInteger q, BigInteger a, BigInteger b, BigInteger order, BigInteger cofactor)
             : base(q)
         {
@@ -626,11 +509,6 @@ namespace Renci.SshNet.Security.Org.BouncyCastle.Math.EC
             this.m_order = order;
             this.m_cofactor = cofactor;
             this.m_coord = FP_DEFAULT_COORDS;
-        }
-
-        protected FpCurve(BigInteger q, BigInteger r, ECFieldElement a, ECFieldElement b)
-            : this(q, r, a, b, null, null)
-        {
         }
 
         protected FpCurve(BigInteger q, BigInteger r, ECFieldElement a, ECFieldElement b, BigInteger order, BigInteger cofactor)
@@ -722,11 +600,6 @@ namespace Renci.SshNet.Security.Org.BouncyCastle.Math.EC
     internal abstract class AbstractF2mCurve
         : ECCurve
     {
-        public static BigInteger Inverse(int m, int[] ks, BigInteger x)
-        {
-            return new LongArray(x).ModInverse(m, ks).ToBigInteger();
-        }
-
         /**
          * The auxiliary values <code>s<sub>0</sub></code> and
          * <code>s<sub>1</sub></code> used for partial modular reduction for
@@ -962,90 +835,6 @@ namespace Renci.SshNet.Security.Org.BouncyCastle.Math.EC
          * The point at infinity on this curve.
          */
         protected readonly F2mPoint m_infinity;
-
-        /**
-         * Constructor for Trinomial Polynomial Basis (TPB).
-         * @param m  The exponent <code>m</code> of
-         * <code>F<sub>2<sup>m</sup></sub></code>.
-         * @param k The integer <code>k</code> where <code>x<sup>m</sup> +
-         * x<sup>k</sup> + 1</code> represents the reduction
-         * polynomial <code>f(z)</code>.
-         * @param a The coefficient <code>a</code> in the Weierstrass equation
-         * for non-supersingular elliptic curves over
-         * <code>F<sub>2<sup>m</sup></sub></code>.
-         * @param b The coefficient <code>b</code> in the Weierstrass equation
-         * for non-supersingular elliptic curves over
-         * <code>F<sub>2<sup>m</sup></sub></code>.
-         */
-        [Obsolete("Use constructor taking order/cofactor")]
-        public F2mCurve(
-            int			m,
-            int			k,
-            BigInteger	a,
-            BigInteger	b)
-            : this(m, k, 0, 0, a, b, null, null)
-        {
-        }
-
-        /**
-         * Constructor for Trinomial Polynomial Basis (TPB).
-         * @param m  The exponent <code>m</code> of
-         * <code>F<sub>2<sup>m</sup></sub></code>.
-         * @param k The integer <code>k</code> where <code>x<sup>m</sup> +
-         * x<sup>k</sup> + 1</code> represents the reduction
-         * polynomial <code>f(z)</code>.
-         * @param a The coefficient <code>a</code> in the Weierstrass equation
-         * for non-supersingular elliptic curves over
-         * <code>F<sub>2<sup>m</sup></sub></code>.
-         * @param b The coefficient <code>b</code> in the Weierstrass equation
-         * for non-supersingular elliptic curves over
-         * <code>F<sub>2<sup>m</sup></sub></code>.
-         * @param order The order of the main subgroup of the elliptic curve.
-         * @param cofactor The cofactor of the elliptic curve, i.e.
-         * <code>#E<sub>a</sub>(F<sub>2<sup>m</sup></sub>) = h * n</code>.
-         */
-        public F2mCurve(
-            int			m, 
-            int			k, 
-            BigInteger	a, 
-            BigInteger	b,
-            BigInteger	order,
-            BigInteger	cofactor)
-            : this(m, k, 0, 0, a, b, order, cofactor)
-        {
-        }
-
-        /**
-         * Constructor for Pentanomial Polynomial Basis (PPB).
-         * @param m  The exponent <code>m</code> of
-         * <code>F<sub>2<sup>m</sup></sub></code>.
-         * @param k1 The integer <code>k1</code> where <code>x<sup>m</sup> +
-         * x<sup>k3</sup> + x<sup>k2</sup> + x<sup>k1</sup> + 1</code>
-         * represents the reduction polynomial <code>f(z)</code>.
-         * @param k2 The integer <code>k2</code> where <code>x<sup>m</sup> +
-         * x<sup>k3</sup> + x<sup>k2</sup> + x<sup>k1</sup> + 1</code>
-         * represents the reduction polynomial <code>f(z)</code>.
-         * @param k3 The integer <code>k3</code> where <code>x<sup>m</sup> +
-         * x<sup>k3</sup> + x<sup>k2</sup> + x<sup>k1</sup> + 1</code>
-         * represents the reduction polynomial <code>f(z)</code>.
-         * @param a The coefficient <code>a</code> in the Weierstrass equation
-         * for non-supersingular elliptic curves over
-         * <code>F<sub>2<sup>m</sup></sub></code>.
-         * @param b The coefficient <code>b</code> in the Weierstrass equation
-         * for non-supersingular elliptic curves over
-         * <code>F<sub>2<sup>m</sup></sub></code>.
-         */
-        [Obsolete("Use constructor taking order/cofactor")]
-        public F2mCurve(
-            int			m,
-            int			k1,
-            int			k2,
-            int			k3,
-            BigInteger	a,
-            BigInteger	b)
-            : this(m, k1, k2, k3, a, b, null, null)
-        {
-        }
 
         /**
          * Constructor for Pentanomial Polynomial Basis (PPB).

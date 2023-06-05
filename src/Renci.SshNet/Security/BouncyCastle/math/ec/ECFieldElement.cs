@@ -129,12 +129,6 @@ namespace Renci.SshNet.Security.Org.BouncyCastle.Math.EC
             return null;
         }
 
-        [Obsolete("Use ECCurve.FromBigInteger to construct field elements")]
-        public FpFieldElement(BigInteger q, BigInteger x)
-            : this(q, CalculateResidue(q), x)
-        {
-        }
-
         internal FpFieldElement(BigInteger q, BigInteger r, BigInteger x)
         {
             if (x == null || x.SignValue < 0 || x.CompareTo(q) >= 0)
@@ -414,15 +408,6 @@ namespace Renci.SshNet.Security.Org.BouncyCastle.Math.EC
             return _2x;
         }
 
-        protected virtual BigInteger ModHalf(BigInteger x)
-        {
-            if (x.TestBit(0))
-            {
-                x = q.Add(x);
-            }
-            return x.ShiftRight(1);
-        }
-
         protected virtual BigInteger ModHalfAbs(BigInteger x)
         {
             if (x.TestBit(0))
@@ -544,23 +529,6 @@ namespace Renci.SshNet.Security.Org.BouncyCastle.Math.EC
     internal abstract class AbstractF2mFieldElement
         :   ECFieldElement
     {
-        public virtual ECFieldElement HalfTrace()
-        {
-            int m = FieldSize;
-            if ((m & 1) == 0)
-                throw new InvalidOperationException("Half-trace only defined for odd m");
-
-            ECFieldElement fe = this;
-            ECFieldElement ht = fe;
-            for (int i = 2; i < m; i += 2)
-            {
-                fe = fe.SquarePow(2);
-                ht = ht.Add(fe);
-            }
-
-            return ht;
-        }
-
         public virtual int Trace()
         {
             int m = FieldSize;
@@ -668,24 +636,6 @@ namespace Renci.SshNet.Security.Org.BouncyCastle.Math.EC
 
             this.m = m;
             this.x = new LongArray(x);
-        }
-
-        /**
-         * Constructor for Tpb.
-         * @param m  The exponent <code>m</code> of
-         * <code>F<sub>2<sup>m</sup></sub></code>.
-         * @param k The integer <code>k</code> where <code>x<sup>m</sup> +
-         * x<sup>k</sup> + 1</code> represents the reduction
-         * polynomial <code>f(z)</code>.
-         * @param x The BigInteger representing the value of the field element.
-         */
-        public F2mFieldElement(
-            int			m,
-            int			k,
-            BigInteger	x)
-            : this(m, k, 0, 0, x)
-        {
-            // Set k1 to k, and set k2 and k3 to 0
         }
 
         internal F2mFieldElement(int m, int[] ks, LongArray x)

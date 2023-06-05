@@ -16,26 +16,9 @@ namespace Renci.SshNet.Security.Org.BouncyCastle.Math.EC.Abc
 	* <code>SimpleBigDecimal</code> with double scale.
 	*/
 	internal class SimpleBigDecimal
-		//	: Number
 	{
-		//	private static final long serialVersionUID = 1L;
-
 		private readonly BigInteger	bigInt;
 		private readonly int		scale;
-
-		/**
-		* Returns a <code>SimpleBigDecimal</code> representing the same numerical
-		* value as <code>value</code>.
-		* @param value The value of the <code>SimpleBigDecimal</code> to be
-		* created. 
-		* @param scale The scale of the <code>SimpleBigDecimal</code> to be
-		* created. 
-		* @return The such created <code>SimpleBigDecimal</code>.
-		*/
-		public static SimpleBigDecimal GetInstance(BigInteger val, int scale)
-		{
-			return new SimpleBigDecimal(val.ShiftLeft(scale), scale);
-		}
 
 		/**
 		* Constructor for <code>SimpleBigDecimal</code>. The value of the
@@ -51,12 +34,6 @@ namespace Renci.SshNet.Security.Org.BouncyCastle.Math.EC.Abc
 
 			this.bigInt = bigInt;
 			this.scale = scale;
-		}
-
-		private SimpleBigDecimal(SimpleBigDecimal limBigDec)
-		{
-			bigInt = limBigDec.bigInt;
-			scale = limBigDec.scale;
 		}
 
 		private void CheckScale(SimpleBigDecimal b)
@@ -82,11 +59,6 @@ namespace Renci.SshNet.Security.Org.BouncyCastle.Math.EC.Abc
 			return new SimpleBigDecimal(bigInt.Add(b.bigInt), scale);
 		}
 
-		public SimpleBigDecimal Add(BigInteger b)
-		{
-			return new SimpleBigDecimal(bigInt.Add(b.ShiftLeft(scale)), scale);
-		}
-
 		public SimpleBigDecimal Negate()
 		{
 			return new SimpleBigDecimal(bigInt.Negate(), scale);
@@ -100,40 +72,6 @@ namespace Renci.SshNet.Security.Org.BouncyCastle.Math.EC.Abc
 		public SimpleBigDecimal Subtract(BigInteger b)
 		{
 			return new SimpleBigDecimal(bigInt.Subtract(b.ShiftLeft(scale)), scale);
-		}
-
-		public SimpleBigDecimal Multiply(SimpleBigDecimal b)
-		{
-			CheckScale(b);
-			return new SimpleBigDecimal(bigInt.Multiply(b.bigInt), scale + scale);
-		}
-
-		public SimpleBigDecimal Multiply(BigInteger b)
-		{
-			return new SimpleBigDecimal(bigInt.Multiply(b), scale);
-		}
-
-		public SimpleBigDecimal Divide(SimpleBigDecimal b)
-		{
-			CheckScale(b);
-			BigInteger dividend = bigInt.ShiftLeft(scale);
-			return new SimpleBigDecimal(dividend.Divide(b.bigInt), scale);
-		}
-
-		public SimpleBigDecimal Divide(BigInteger b)
-		{
-			return new SimpleBigDecimal(bigInt.Divide(b), scale);
-		}
-
-		public SimpleBigDecimal ShiftLeft(int n)
-		{
-			return new SimpleBigDecimal(bigInt.ShiftLeft(n), scale);
-		}
-
-		public int CompareTo(SimpleBigDecimal val)
-		{
-			CheckScale(val);
-			return bigInt.CompareTo(val.bigInt);
 		}
 
 		public int CompareTo(BigInteger val)
@@ -151,26 +89,6 @@ namespace Renci.SshNet.Security.Org.BouncyCastle.Math.EC.Abc
 			SimpleBigDecimal oneHalf = new SimpleBigDecimal(BigInteger.One, 1);
 			return Add(oneHalf.AdjustScale(scale)).Floor();
 		}
-
-		public int IntValue
-		{
-			get { return Floor().IntValue; }
-		}
-
-		public long LongValue
-		{
-			get { return Floor().LongValue; }
-		}
-
-//		public double doubleValue()
-//		{
-//			return new Double(ToString()).doubleValue();
-//		}
-//
-//		public float floatValue()
-//		{
-//			return new Float(ToString()).floatValue();
-//		}
 
 		public int Scale
 		{

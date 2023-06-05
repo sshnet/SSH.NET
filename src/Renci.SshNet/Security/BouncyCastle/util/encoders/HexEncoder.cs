@@ -37,85 +37,9 @@ namespace Renci.SshNet.Security.Org.BouncyCastle.Utilities.Encoders
             InitialiseDecodingTable();
         }
 
-        /**
-        * encode the input data producing a Hex output stream.
-        *
-        * @return the number of bytes produced.
-        */
-        public int Encode(
-            byte[]	data,
-            int		off,
-            int		length,
-            Stream	outStream)
-        {
-            for (int i = off; i < (off + length); i++)
-            {
-                int v = data[i];
-
-                outStream.WriteByte(encodingTable[v >> 4]);
-                outStream.WriteByte(encodingTable[v & 0xf]);
-            }
-
-            return length * 2;
-        }
-
         private static bool Ignore(char c)
         {
             return c == '\n' || c =='\r' || c == '\t' || c == ' ';
-        }
-
-        /**
-        * decode the Hex encoded byte data writing it to the given output stream,
-        * whitespace characters will be ignored.
-        *
-        * @return the number of bytes produced.
-        */
-        public int Decode(
-            byte[]	data,
-            int		off,
-            int		length,
-            Stream	outStream)
-        {
-            byte b1, b2;
-            int outLen = 0;
-            int end = off + length;
-
-            while (end > off)
-            {
-                if (!Ignore((char)data[end - 1]))
-                {
-                    break;
-                }
-
-                end--;
-            }
-
-            int i = off;
-            while (i < end)
-            {
-                while (i < end && Ignore((char)data[i]))
-                {
-                    i++;
-                }
-
-                b1 = decodingTable[data[i++]];
-
-                while (i < end && Ignore((char)data[i]))
-                {
-                    i++;
-                }
-
-                b2 = decodingTable[data[i++]];
-
-                if ((b1 | b2) >= 0x80)
-                    throw new IOException("invalid characters encountered in Hex data");
-
-                outStream.WriteByte((byte)((b1 << 4) | b2));
-
-                outLen++;
-            }
-
-            return outLen;
         }
 
         /**

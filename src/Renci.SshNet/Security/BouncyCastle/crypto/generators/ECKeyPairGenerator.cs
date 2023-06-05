@@ -78,14 +78,5 @@ namespace Renci.SshNet.Security.Org.BouncyCastle.Crypto.Generators
         {
             return new FixedPointCombMultiplier();
         }
-
-        internal static ECPublicKeyParameters GetCorrespondingPublicKey(
-            ECPrivateKeyParameters privKey)
-        {
-            ECDomainParameters ec = privKey.Parameters;
-            ECPoint q = new FixedPointCombMultiplier().Multiply(ec.G, privKey.D);
-
-            return new ECPublicKeyParameters(privKey.AlgorithmName, q, ec);
-        }
     }
 }

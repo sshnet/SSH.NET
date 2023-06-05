@@ -57,21 +57,6 @@ namespace Renci.SshNet.Security.Org.BouncyCastle.Crypto.Parameters
             get { return h; }
         }
 
-        public BigInteger HInv
-        {
-            get
-            {
-                lock (this)
-                {
-                    if (hInv == null)
-                    {
-                        hInv = h.ModInverse(n);
-                    }
-                    return hInv;
-                }
-            }
-        }
-
         internal static ECPoint Validate(ECCurve c, ECPoint q)
         {
             if (q == null)

@@ -12,11 +12,6 @@ namespace Renci.SshNet.Security.Org.BouncyCastle.Math.EC.Multiplier
             return order == null ? c.FieldSize + 1 : order.BitLength;
         }
 
-        public static FixedPointPreCompInfo GetFixedPointPreCompInfo(PreCompInfo preCompInfo)
-        {
-            return preCompInfo as FixedPointPreCompInfo;
-        }
-
         public static FixedPointPreCompInfo Precompute(ECPoint p)
         {
             return (FixedPointPreCompInfo)p.Curve.Precompute(p, PRECOMP_NAME, new FixedPointCallback(p));

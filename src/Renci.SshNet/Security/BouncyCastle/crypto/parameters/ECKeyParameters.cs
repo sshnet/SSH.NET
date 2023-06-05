@@ -63,12 +63,6 @@ namespace Renci.SshNet.Security.Org.BouncyCastle.Crypto.Parameters
             return parameters.GetHashCode() ^ base.GetHashCode();
         }
 
-        internal ECKeyGenerationParameters CreateKeyGenerationParameters(
-            SecureRandom random)
-        {
-            return new ECKeyGenerationParameters(parameters, random);
-        }
-
         internal static string VerifyAlgorithmName(string algorithm)
         {
             if (Array.IndexOf(algorithms, algorithm, 0, algorithms.Length) < 0)

@@ -10,13 +10,6 @@ namespace Renci.SshNet.Security.Org.BouncyCastle.Crypto.Parameters
         private readonly ECPoint q;
 
         public ECPublicKeyParameters(
-            ECPoint				q,
-            ECDomainParameters	parameters)
-            : this("EC", q, parameters)
-        {
-        }
-
-        public ECPublicKeyParameters(
             string				algorithm,
             ECPoint				q,
             ECDomainParameters	parameters)

@@ -81,11 +81,6 @@ namespace Renci.SshNet.Security.Org.BouncyCastle.Math.EC
             return n == null || ECAlgorithms.ReferenceMultiply(this, n).IsInfinity;
         }
 
-        public ECPoint GetDetachedPoint()
-        {
-            return Normalize().Detach();
-        }
-
         public virtual ECCurve Curve
         {
             get { return m_curve; }
@@ -163,18 +158,6 @@ namespace Renci.SshNet.Security.Org.BouncyCastle.Math.EC
         public virtual ECFieldElement GetZCoord(int index)
         {
             return (index < 0 || index >= m_zs.Length) ? null : m_zs[index];
-        }
-
-        public virtual ECFieldElement[] GetZCoords()
-        {
-            int zsLen = m_zs.Length;
-            if (zsLen == 0)
-            {
-                return m_zs;
-            }
-            ECFieldElement[] copy = new ECFieldElement[zsLen];
-            Array.Copy(m_zs, 0, copy, 0, zsLen);
-            return copy;
         }
 
         protected internal ECFieldElement RawXCoord

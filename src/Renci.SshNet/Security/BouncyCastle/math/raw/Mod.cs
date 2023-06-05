@@ -8,8 +8,6 @@ namespace Renci.SshNet.Security.Org.BouncyCastle.Math.Raw
 {
     internal abstract class Mod
     {
-        private static readonly SecureRandom RandomSource = new SecureRandom();
-
         public static void Invert(uint[] p, uint[] x, uint[] z)
         {
             int len = p.Length;
@@ -73,50 +71,6 @@ namespace Renci.SshNet.Security.Org.BouncyCastle.Math.Raw
                         return;
                     }
                 }
-            }
-        }
-
-        public static uint[] Random(uint[] p)
-        {
-            int len = p.Length;
-            uint[] s = Nat.Create(len);
-
-            uint m = p[len - 1];
-            m |= m >> 1;
-            m |= m >> 2;
-            m |= m >> 4;
-            m |= m >> 8;
-            m |= m >> 16;
-
-            do
-            {
-                byte[] bytes = new byte[len << 2];
-                RandomSource.NextBytes(bytes);
-                Pack.BE_To_UInt32(bytes, 0, s);
-                s[len - 1] &= m;
-            }
-            while (Nat.Gte(len, s, p));
-
-            return s;
-        }
-
-        public static void Add(uint[] p, uint[] x, uint[] y, uint[] z)
-        {
-            int len = p.Length;
-            uint c = Nat.Add(len, x, y, z);
-            if (c != 0)
-            {
-                Nat.SubFrom(len, p, z);
-            }
-        }
-
-        public static void Subtract(uint[] p, uint[] x, uint[] y, uint[] z)
-        {
-            int len = p.Length;
-            int c = Nat.Sub(len, x, y, z);
-            if (c != 0)
-            {
-                Nat.AddTo(len, p, z);
             }
         }
 

@@ -180,7 +180,7 @@ namespace Renci.SshNet.Common
 
             if (count == 0)
             {
-                return Array<byte>.Empty;
+                return Array.Empty<byte>();
             }
 
             if (offset == 0 && value.Length == count)
@@ -215,7 +215,7 @@ namespace Renci.SshNet.Common
 
             if (count == 0)
             {
-                return Array<byte>.Empty;
+                return Array.Empty<byte>();
             }
 
             if (value.Length == count)

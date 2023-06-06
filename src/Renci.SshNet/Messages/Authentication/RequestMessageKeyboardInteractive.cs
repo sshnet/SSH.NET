@@ -1,4 +1,4 @@
-﻿using Renci.SshNet.Common;
+﻿using System;
 
 namespace Renci.SshNet.Messages.Authentication
 {
@@ -44,8 +44,8 @@ namespace Renci.SshNet.Messages.Authentication
         public RequestMessageKeyboardInteractive(ServiceName serviceName, string username)
             : base(serviceName, username, "keyboard-interactive")
         {
-            Language = Array<byte>.Empty;
-            SubMethods = Array<byte>.Empty;
+            Language = Array.Empty<byte>();
+            SubMethods = Array.Empty<byte>();
         }
 
         /// <summary>

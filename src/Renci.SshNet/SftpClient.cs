@@ -326,7 +326,7 @@ namespace Renci.SshNet
         {
             CheckDisposed();
 
-            if (path.IsNullOrWhiteSpace())
+            if (string.IsNullOrWhiteSpace(path))
             {
                 throw new ArgumentException(path);
             }
@@ -355,7 +355,7 @@ namespace Renci.SshNet
         {
             CheckDisposed();
 
-            if (path.IsNullOrWhiteSpace())
+            if (string.IsNullOrWhiteSpace(path))
             {
                 throw new ArgumentException("path");
             }
@@ -384,7 +384,7 @@ namespace Renci.SshNet
         {
             CheckDisposed();
 
-            if (path.IsNullOrWhiteSpace())
+            if (string.IsNullOrWhiteSpace(path))
             {
                 throw new ArgumentException("path");
             }
@@ -415,7 +415,7 @@ namespace Renci.SshNet
         {
             CheckDisposed();
 
-            if (path.IsNullOrWhiteSpace())
+            if (string.IsNullOrWhiteSpace(path))
             {
                 throw new ArgumentException("path");
             }
@@ -542,12 +542,12 @@ namespace Renci.SshNet
         {
             CheckDisposed();
 
-            if (path.IsNullOrWhiteSpace())
+            if (string.IsNullOrWhiteSpace(path))
             {
                 throw new ArgumentException("path");
             }
 
-            if (linkPath.IsNullOrWhiteSpace())
+            if (string.IsNullOrWhiteSpace(linkPath))
             {
                 throw new ArgumentException("linkPath");
             }
@@ -753,7 +753,7 @@ namespace Renci.SshNet
         {
             CheckDisposed();
 
-            if (path.IsNullOrWhiteSpace())
+            if (string.IsNullOrWhiteSpace(path))
             {
                 throw new ArgumentException("path");
             }
@@ -882,7 +882,7 @@ namespace Renci.SshNet
         {
             CheckDisposed();
 
-            if (path.IsNullOrWhiteSpace())
+            if (string.IsNullOrWhiteSpace(path))
             {
                 throw new ArgumentException("path");
             }
@@ -1109,7 +1109,7 @@ namespace Renci.SshNet
                 throw new ArgumentNullException(nameof(input));
             }
 
-            if (path.IsNullOrWhiteSpace())
+            if (string.IsNullOrWhiteSpace(path))
             {
                 throw new ArgumentException("path");
             }
@@ -2106,7 +2106,7 @@ namespace Renci.SshNet
                 throw new ArgumentNullException(nameof(sourcePath));
             }
 
-            if (destinationPath.IsNullOrWhiteSpace())
+            if (string.IsNullOrWhiteSpace(destinationPath))
             {
                 throw new ArgumentException("destinationPath");
             }
@@ -2135,7 +2135,7 @@ namespace Renci.SshNet
                 throw new ArgumentNullException(nameof(sourcePath));
             }
 
-            if (destinationPath.IsNullOrWhiteSpace())
+            if (string.IsNullOrWhiteSpace(destinationPath))
             {
                 throw new ArgumentException("destDir");
             }
@@ -2340,7 +2340,7 @@ namespace Renci.SshNet
                 throw new ArgumentNullException(nameof(output));
             }
 
-            if (path.IsNullOrWhiteSpace())
+            if (string.IsNullOrWhiteSpace(path))
             {
                 throw new ArgumentException("path");
             }
@@ -2404,7 +2404,7 @@ namespace Renci.SshNet
                 throw new ArgumentNullException(nameof(input));
             }
 
-            if (path.IsNullOrWhiteSpace())
+            if (string.IsNullOrWhiteSpace(path))
             {
                 throw new ArgumentException("path");
             }

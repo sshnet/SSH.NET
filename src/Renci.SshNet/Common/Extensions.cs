@@ -15,31 +15,6 @@ namespace Renci.SshNet.Common
     /// </summary>
     internal static partial class Extensions
     {
-        /// <summary>
-        /// Determines whether the specified value is null or white space.
-        /// </summary>
-        /// <param name="value">The value.</param>
-        /// <returns>
-        /// <c>true</c> if <paramref name="value"/> is null or white space; otherwise, <c>false</c>.
-        /// </returns>
-        public static bool IsNullOrWhiteSpace(this string value)
-        {
-            if (string.IsNullOrEmpty(value))
-            {
-                return true;
-            }
-
-            for (var i = 0; i < value.Length; i++)
-            {
-                if (!char.IsWhiteSpace(value[i]))
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
         internal static byte[] ToArray(this ServiceName serviceName)
         {
             switch (serviceName)

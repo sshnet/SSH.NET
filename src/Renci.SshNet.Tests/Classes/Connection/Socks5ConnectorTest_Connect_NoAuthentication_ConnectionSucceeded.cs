@@ -39,7 +39,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
                 {
                     // We received the greeting
 
-                    socket.Send(new byte[]
+                    _ = socket.Send(new byte[]
                         {
                                     // SOCKS version
                                     0x05,
@@ -51,7 +51,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
                 {
                     // We received the connection request
 
-                    socket.Send(new byte[]
+                    _ = socket.Send(new byte[]
                         {
                                     // SOCKS version
                                     0x05,
@@ -62,7 +62,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
                         });
 
                     // Send server bound address
-                    socket.Send(new byte[]
+                    _ = socket.Send(new byte[]
                         {
                                     // IPv6
                                     0x04,
@@ -89,7 +89,7 @@ namespace Renci.SshNet.Tests.Classes.Connection
                         });
 
                     // Send extra byte to allow us to verify that connector did not consume too much
-                    socket.Send(new byte[]
+                    _ = socket.Send(new byte[]
                         {
                                 0xff
                         });
@@ -100,18 +100,15 @@ namespace Renci.SshNet.Tests.Classes.Connection
 
         protected override void SetupMocks()
         {
-            SocketFactoryMock.Setup(p => p.Create(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp))
-                             .Returns(_clientSocket);
+            _ = SocketFactoryMock.Setup(p => p.Create(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp))
+                                 .Returns(_clientSocket);
         }
 
         protected override void TearDown()
         {
             base.TearDown();
 
-            if (_proxyServer != null)
-            {
-                _proxyServer.Dispose();
-            }
+            _proxyServer?.Dispose();
 
             if (_clientSocket != null)
             {

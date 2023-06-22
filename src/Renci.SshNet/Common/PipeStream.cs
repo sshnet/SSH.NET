@@ -185,7 +185,7 @@ namespace Renci.SshNet.Common
                 throw new NotSupportedException("Offsets with value of non-zero are not supported");
             }
 
-            if (buffer == null)
+            if (buffer is null)
             {
                 throw new ArgumentNullException(nameof(buffer));
             }
@@ -269,7 +269,7 @@ namespace Renci.SshNet.Common
         /// <exception cref="ArgumentOutOfRangeException">offset or count is negative.</exception>
         public override void Write(byte[] buffer, int offset, int count)
         {
-            if (buffer == null)
+            if (buffer is null)
             {
                 throw new ArgumentNullException(nameof(buffer));
             }

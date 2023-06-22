@@ -20,7 +20,7 @@ namespace Renci.SshNet.Common
         /// <exception cref="ArgumentException"><paramref name="identifiers"/> has less than two elements.</exception>
         public ObjectIdentifier(params ulong[] identifiers)
         {
-            if (identifiers == null)
+            if (identifiers is null)
             {
                 throw new ArgumentNullException(nameof(identifiers));
             }

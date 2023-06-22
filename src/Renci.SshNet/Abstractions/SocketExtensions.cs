@@ -35,8 +35,8 @@ namespace Renci.SshNet.Abstractions
             {
                 IsCompleted = true;
 
-                var continuation = _continuationAction ?? Interlocked.CompareExchange(ref _continuationAction, SENTINEL, null);
-                if (continuation != null)
+                var continuation = _continuationAction ?? Interlocked.CompareExchange(ref _continuationAction, SENTINEL, comparand: null);
+                if (continuation is not null)
                 {
                     continuation();
                 }
@@ -57,7 +57,7 @@ namespace Renci.SshNet.Abstractions
 
             void INotifyCompletion.OnCompleted(Action continuation)
             {
-                if (_continuationAction == SENTINEL || Interlocked.CompareExchange(ref _continuationAction, continuation, null) == SENTINEL)
+                if (_continuationAction == SENTINEL || Interlocked.CompareExchange(ref _continuationAction, continuation, comparand: null) == SENTINEL)
                 {
                     // We have already completed; run continuation asynchronously
                     _ = Task.Run(continuation);
@@ -92,7 +92,7 @@ namespace Renci.SshNet.Abstractions
             {
                 args.RemoteEndPoint = remoteEndpoint;
 
-                using (cancellationToken.Register(o => ((SocketAsyncEventArgsAwaitable)o).SetCancelled(), args, false))
+                using (cancellationToken.Register(o => ((SocketAsyncEventArgsAwaitable)o).SetCancelled(), args, useSynchronizationContext: false))
                 {
                     await args.ExecuteAsync(socket.ConnectAsync);
                 }
@@ -107,7 +107,7 @@ namespace Renci.SshNet.Abstractions
             {
                 args.SetBuffer(buffer, offset, length);
 
-                using (cancellationToken.Register(o => ((SocketAsyncEventArgsAwaitable)o).SetCancelled(), args, false))
+                using (cancellationToken.Register(o => ((SocketAsyncEventArgsAwaitable)o).SetCancelled(), args, useSynchronizationContext: false))
                 {
                     await args.ExecuteAsync(socket.ReceiveAsync);
                 }

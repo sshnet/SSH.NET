@@ -1,11 +1,11 @@
-﻿using Renci.SshNet.Common;
+﻿using System;
 
 namespace Renci.SshNet.Messages.Authentication
 {
     /// <summary>
     /// Represents "keyboard-interactive" SSH_MSG_USERAUTH_REQUEST message.
     /// </summary>
-    internal class RequestMessageKeyboardInteractive : RequestMessage
+    internal sealed class RequestMessageKeyboardInteractive : RequestMessage
     {
         /// <summary>
         /// Gets message language.
@@ -44,8 +44,8 @@ namespace Renci.SshNet.Messages.Authentication
         public RequestMessageKeyboardInteractive(ServiceName serviceName, string username)
             : base(serviceName, username, "keyboard-interactive")
         {
-            Language = Array<byte>.Empty;
-            SubMethods = Array<byte>.Empty;
+            Language = Array.Empty<byte>();
+            SubMethods = Array.Empty<byte>();
         }
 
         /// <summary>

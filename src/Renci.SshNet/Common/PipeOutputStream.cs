@@ -1,11 +1,11 @@
-﻿namespace Renci.SshNet.Common 
-{
-    using System;
-    using System.IO;
+﻿using System;
+using System.IO;
 
+namespace Renci.SshNet.Common
+{
     internal class PipeOutputStream : Stream
     {
-        private LinkedListQueue<byte[]> _queue;
+        private readonly LinkedListQueue<byte[]> _queue;
         private bool _isDisposed;
 
         public PipeOutputStream(LinkedListQueue<byte[]> queue)
@@ -35,15 +35,26 @@
         public override void Write(byte[] buffer, int offset, int count)
         {
             if (buffer == null)
+            {
                 throw new ArgumentNullException("buffer");
-            if (offset + count > buffer.Length)
-                throw new ArgumentException("The sum of offset and count is greater than the buffer length.");
-            if (offset < 0 || count < 0)
-                throw new ArgumentOutOfRangeException("offset", "offset or count is negative.");
-            if (_isDisposed || _queue.IsAddingCompleted)
-                throw CreateObjectDisposedException();
+            }
 
-            byte[] tmp = new byte[count];
+            if (offset + count > buffer.Length)
+            {
+                throw new ArgumentException("The sum of offset and count is greater than the buffer length.");
+            }
+
+            if (offset < 0 || count < 0)
+            {
+                throw new ArgumentOutOfRangeException("offset", "offset or count is negative.");
+            }
+
+            if (_isDisposed || _queue.IsAddingCompleted)
+            {
+                throw CreateObjectDisposedException();
+            }
+
+            var tmp = new byte[count];
             Buffer.BlockCopy(buffer, offset, tmp, 0, count);
             _queue.Add(tmp);
         }
@@ -90,7 +101,9 @@
 #endif
         {
             if (!_queue.IsAddingCompleted)
+            {
                 _queue.CompleteAdding();
+            }
         }
 
         protected override void Dispose(bool disposing)
@@ -100,7 +113,9 @@
             if (!_isDisposed)
             {
                 if (!_queue.IsAddingCompleted)
+                {
                     _queue.CompleteAdding();
+                }
                 _isDisposed = true;
             }
         }

@@ -184,7 +184,7 @@ namespace Renci.SshNet
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         public void AddForwardedPort(ForwardedPort port)
         {
-            if (port == null)
+            if (port is null)
             {
                 throw new ArgumentNullException(nameof(port));
             }
@@ -202,7 +202,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="port"/> is <c>null</c>.</exception>
         public void RemoveForwardedPort(ForwardedPort port)
         {
-            if (port == null)
+            if (port is null)
             {
                 throw new ArgumentNullException(nameof(port));
             }
@@ -336,7 +336,7 @@ namespace Renci.SshNet
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         public Shell CreateShell(Stream input, Stream output, Stream extendedOutput)
         {
-            return CreateShell(input, output, extendedOutput, string.Empty, 0, 0, 0, 0, null, 1024);
+            return CreateShell(input, output, extendedOutput, string.Empty, 0, 0, 0, 0, terminalModes: null, 1024);
         }
 
         /// <summary>
@@ -405,7 +405,7 @@ namespace Renci.SshNet
         /// <exception cref="SshConnectionException">Client is not connected.</exception>
         public Shell CreateShell(Encoding encoding, string input, Stream output, Stream extendedOutput)
         {
-            return CreateShell(encoding, input, output, extendedOutput, string.Empty, 0, 0, 0, 0, null, 1024);
+            return CreateShell(encoding, input, output, extendedOutput, string.Empty, 0, 0, 0, 0, terminalModes: null, 1024);
         }
 
         /// <summary>
@@ -433,7 +433,7 @@ namespace Renci.SshNet
         /// </remarks>
         public ShellStream CreateShellStream(string terminalName, uint columns, uint rows, uint width, uint height, int bufferSize)
         {
-            return CreateShellStream(terminalName, columns, rows, width, height, bufferSize, null);
+            return CreateShellStream(terminalName, columns, rows, width, height, bufferSize, terminalModeValues: null);
         }
 
         /// <summary>
@@ -509,7 +509,7 @@ namespace Renci.SshNet
 
         private void EnsureSessionIsOpen()
         {
-            if (Session == null)
+            if (Session is null)
             {
                 throw new SshConnectionException("Client not connected.");
             }

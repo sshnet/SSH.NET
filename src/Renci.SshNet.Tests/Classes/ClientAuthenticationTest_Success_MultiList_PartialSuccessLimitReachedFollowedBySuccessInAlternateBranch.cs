@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
-using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Tests.Classes
 {

@@ -13,10 +13,6 @@
     <NoWarn>$(NoWarn);CS1591</NoWarn>
   </PropertyGroup>
 
-  <PropertyGroup>
-    <DefineConstants>FEATURE_TPL</DefineConstants>
-  </PropertyGroup>
-
   <ItemGroup>
     <EmbeddedResource Include="Data\Key.ECDSA.Encrypted.txt" />
     <EmbeddedResource Include="Data\Key.ECDSA.txt" />
@@ -68,9 +64,9 @@
 
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.5.0" />
-    <PackageReference Include="MSTest.TestAdapter" Version="3.0.2" />
-    <PackageReference Include="MSTest.TestFramework" Version="3.0.2" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.6.0" />
+    <PackageReference Include="MSTest.TestAdapter" Version="3.0.3" />
+    <PackageReference Include="MSTest.TestFramework" Version="3.0.3" />
     <PackageReference Include="Moq" Version="4.18.4" />
   </ItemGroup>
   <ItemGroup>

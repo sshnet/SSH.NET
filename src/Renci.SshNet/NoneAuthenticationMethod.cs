@@ -12,7 +12,7 @@ namespace Renci.SshNet
     public class NoneAuthenticationMethod : AuthenticationMethod, IDisposable
     {
         private AuthenticationResult _authenticationResult = AuthenticationResult.Failure;
-        private EventWaitHandle _authenticationCompleted = new AutoResetEvent(false);
+        private EventWaitHandle _authenticationCompleted = new AutoResetEvent(initialState: false);
         private bool _isDisposed;
 
         /// <summary>
@@ -43,7 +43,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="session" /> is <c>null</c>.</exception>
         public override AuthenticationResult Authenticate(Session session)
         {
-            if (session == null)
+            if (session is null)
             {
                 throw new ArgumentNullException(nameof(session));
             }

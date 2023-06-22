@@ -33,12 +33,12 @@ namespace Renci.SshNet
             // consider port started when we're listening for inbound connections
             _status = ForwardedPortStatus.Started;
 
-            StartAccept(null);
+            StartAccept(e: null);
         }
 
         private void StartAccept(SocketAsyncEventArgs e)
         {
-            if (e == null)
+            if (e is null)
             {
                 e = new SocketAsyncEventArgs();
                 e.Completed += AcceptCompleted;
@@ -56,12 +56,12 @@ namespace Renci.SshNet
                 {
                     if (!_listener.AcceptAsync(e))
                     {
-                        AcceptCompleted(null, e);
+                        AcceptCompleted(sender: null, e);
                     }
                 }
                 catch (ObjectDisposedException)
                 {
-                    if (_status == ForwardedPortStatus.Stopped || _status == ForwardedPortStatus.Stopped)
+                    if (_status == ForwardedPortStatus.Stopping || _status == ForwardedPortStatus.Stopped)
                     {
                         // ignore ObjectDisposedException while stopping or stopped
                         return;

@@ -26,12 +26,12 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="expect"/> or <paramref name="action"/> is <c>null</c>.</exception>
         public ExpectAction(Regex expect, Action<string> action)
         {
-            if (expect == null)
+            if (expect is null)
             {
                 throw new ArgumentNullException(nameof(expect));
             }
 
-            if (action == null)
+            if (action is null)
             {
                 throw new ArgumentNullException(nameof(action));
             }
@@ -48,12 +48,12 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="expect"/> or <paramref name="action"/> is <c>null</c>.</exception>
         public ExpectAction(string expect, Action<string> action)
         {
-            if (expect == null)
+            if (expect is null)
             {
                 throw new ArgumentNullException(nameof(expect));
             }
 
-            if (action == null)
+            if (action is null)
             {
                 throw new ArgumentNullException(nameof(action));
             }

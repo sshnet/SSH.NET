@@ -15,7 +15,7 @@ namespace Renci.SshNet.Tests.Classes.Common
 
             try
             {
-                PacketDump.Create(data, 0);
+                _ = PacketDump.Create(data, 0);
                 Assert.Fail();
             }
             catch (ArgumentNullException ex)
@@ -32,7 +32,7 @@ namespace Renci.SshNet.Tests.Classes.Common
 
             try
             {
-                PacketDump.Create(data, -1);
+                _ =PacketDump.Create(data, -1);
                 Assert.Fail();
             }
             catch (ArgumentOutOfRangeException ex)

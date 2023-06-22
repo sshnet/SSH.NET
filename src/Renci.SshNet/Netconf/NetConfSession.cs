@@ -9,7 +9,7 @@ using Renci.SshNet.Common;
 
 namespace Renci.SshNet.NetConf
 {
-    internal class NetConfSession : SubsystemSession, INetConfSession
+    internal sealed class NetConfSession : SubsystemSession, INetConfSession
     {
         private const string Prompt = "]]>]]>";
 
@@ -110,7 +110,7 @@ namespace Renci.SshNet.NetConf
         {
             var chunk = Encoding.UTF8.GetString(data);
 
-            if (ServerCapabilities == null)
+            if (ServerCapabilities is null)
             {
                 _ = _data.Append(chunk);
 

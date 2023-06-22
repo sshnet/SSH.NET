@@ -7,7 +7,7 @@ namespace Renci.SshNet.Messages.Connection
     /// <summary>
     /// Represents "pty-req" type channel request information.
     /// </summary>
-    internal class PseudoTerminalRequestInfo : RequestInfo
+    internal sealed class PseudoTerminalRequestInfo : RequestInfo
     {
         /// <summary>
         /// Channel request name.

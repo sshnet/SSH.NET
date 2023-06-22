@@ -2,8 +2,11 @@
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Sftp;
 using Renci.SshNet.Tests.Common;
 
@@ -48,18 +51,18 @@ namespace Renci.SshNet.Tests.Classes.Sftp
 
         protected override void SetupMocks()
         {
-            SftpSessionMock.InSequence(MockSequence)
-                           .Setup(p => p.RequestOpenAsync(_path, Flags.Write | Flags.Append | Flags.CreateNewOrOpen, _cancellationToken))
-                           .ReturnsAsync(_handle);
-            SftpSessionMock.InSequence(MockSequence)
-                           .Setup(p => p.RequestFStatAsync(_handle, _cancellationToken))
-                           .ReturnsAsync(_fileAttributes);
-            SftpSessionMock.InSequence(MockSequence)
-                           .Setup(p => p.CalculateOptimalReadLength((uint)_bufferSize))
-                           .Returns(_readBufferSize);
-            SftpSessionMock.InSequence(MockSequence)
-                           .Setup(p => p.CalculateOptimalWriteLength((uint)_bufferSize, _handle))
-                           .Returns(_writeBufferSize);
+            _ = SftpSessionMock.InSequence(MockSequence)
+                               .Setup(p => p.RequestOpenAsync(_path, Flags.Write | Flags.Append | Flags.CreateNewOrOpen, _cancellationToken))
+                               .ReturnsAsync(_handle);
+            _ = SftpSessionMock.InSequence(MockSequence)
+                               .Setup(p => p.RequestFStatAsync(_handle, _cancellationToken))
+                               .ReturnsAsync(_fileAttributes);
+            _ = SftpSessionMock.InSequence(MockSequence)
+                               .Setup(p => p.CalculateOptimalReadLength((uint)_bufferSize))
+                               .Returns(_readBufferSize);
+            _ = SftpSessionMock.InSequence(MockSequence)
+                               .Setup(p => p.CalculateOptimalWriteLength((uint)_bufferSize, _handle))
+                               .Returns(_writeBufferSize);
         }
 
         protected override async Task ActAsync()
@@ -95,7 +98,9 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         [TestMethod]
         public void PositionShouldReturnSizeOfFile()
         {
-            SftpSessionMock.InSequence(MockSequence).Setup(p => p.IsOpen).Returns(true);
+            _ = SftpSessionMock.InSequence(MockSequence)
+                               .Setup(p => p.IsOpen)
+                               .Returns(true);
 
             var actual = _target.Position;
 
@@ -109,11 +114,13 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         {
             var buffer = new byte[_readBufferSize];
 
-            SftpSessionMock.InSequence(MockSequence).Setup(p => p.IsOpen).Returns(true);
+            _ = SftpSessionMock.InSequence(MockSequence)
+                               .Setup(p => p.IsOpen)
+                               .Returns(true);
 
             try
             {
-                await _target.ReadAsync(buffer, 0, buffer.Length, _cancellationToken);
+                _ = await _target.ReadAsync(buffer, 0, buffer.Length, _cancellationToken);
                 Assert.Fail();
             }
             catch (NotSupportedException ex)
@@ -129,8 +136,12 @@ namespace Renci.SshNet.Tests.Classes.Sftp
         {
             var buffer = new byte[_writeBufferSize];
 
-            SftpSessionMock.InSequence(MockSequence).Setup(p => p.IsOpen).Returns(true);
-            SftpSessionMock.InSequence(MockSequence).Setup(p => p.RequestWriteAsync(_handle, (ulong)_fileAttributes.Size, buffer, 0, buffer.Length, _cancellationToken)).Returns(Task.CompletedTask);
+            _ = SftpSessionMock.InSequence(MockSequence)
+                               .Setup(p => p.IsOpen)
+                               .Returns(true);
+            _ = SftpSessionMock.InSequence(MockSequence)
+                               .Setup(p => p.RequestWriteAsync(_handle, (ulong)_fileAttributes.Size, buffer, 0, buffer.Length, _cancellationToken))
+                               .Returns(Task.CompletedTask);
 
             await _target.WriteAsync(buffer, 0, buffer.Length, _cancellationToken);
 

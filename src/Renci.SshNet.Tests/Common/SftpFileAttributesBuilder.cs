@@ -64,23 +64,27 @@ namespace Renci.SshNet.Tests.Common
         public SftpFileAttributes Build()
         {
             if (_lastAccessTime == null)
+            {
                 _lastAccessTime = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Utc);
+            }
             else if (_lastAccessTime.Value.Kind != DateTimeKind.Utc)
+            {
                 _lastAccessTime = _lastAccessTime.Value.ToUniversalTime();
+            }
 
             if (_lastWriteTime == null)
+            {
                 _lastWriteTime = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Utc);
+            }
             else if (_lastWriteTime.Value.Kind != DateTimeKind.Utc)
+            {
                 _lastWriteTime = _lastWriteTime.Value.ToUniversalTime();
+            }
 
-            if (_size == null)
-                _size = 0;
-            if (_userId == null)
-                _userId = 0;
-            if (_groupId == null)
-                _groupId = 0;
-            if (_permissions == null)
-                _permissions = 0;
+            _size ??= 0;
+            _userId ??= 0;
+            _groupId ??= 0;
+            _permissions ??= 0;
 
             return new SftpFileAttributes(_lastAccessTime.Value,
                                           _lastWriteTime.Value,

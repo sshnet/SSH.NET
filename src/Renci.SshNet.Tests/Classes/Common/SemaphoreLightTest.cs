@@ -67,12 +67,11 @@ namespace Renci.SshNet.Tests.Classes.Common
             
             Assert.IsTrue(watch.ElapsedMilliseconds < 50);
 
-            var releaseThread = new Thread(
-                () =>
-                    {
-                        Thread.Sleep(sleepTime);
-                        target.Release();
-                    });
+            var releaseThread = new Thread(() =>
+                {
+                    Thread.Sleep(sleepTime);
+                    _ = target.Release();
+                });
             releaseThread.Start();
 
             target.Wait();

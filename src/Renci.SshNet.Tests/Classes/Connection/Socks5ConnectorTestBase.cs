@@ -1,10 +1,11 @@
 ﻿using Moq;
+
 using Renci.SshNet.Connection;
 using Renci.SshNet.Tests.Common;
+
 using System;
 using System.Net;
 using System.Text;
-using System.Threading;
 
 namespace Renci.SshNet.Tests.Classes.Connection
 {
@@ -59,8 +60,8 @@ namespace Renci.SshNet.Tests.Classes.Connection
 
             for (var i = 0; i < length; i++)
             {
-                var @char = (char) random.Next(offset, offset + 26);
-                sb.Append(@char);
+                var c = (char) random.Next(offset, offset + 26);
+                _ = sb.Append(c);
             }
 
             return sb.ToString();

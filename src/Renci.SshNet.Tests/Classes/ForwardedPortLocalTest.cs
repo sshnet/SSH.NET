@@ -1,11 +1,18 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System;
+using System.Diagnostics;
+#if NET6_0_OR_GREATER
+using System.Net.Http;
+#else
+using System.Net;
+#endif // NET6_0_OR_GREATER
+using System.Threading;
+using System.Threading.Tasks;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Renci.SshNet.Common;
 using Renci.SshNet.Tests.Common;
 using Renci.SshNet.Tests.Properties;
-using System;
-using System.Diagnostics;
-using System.Net;
-using System.Threading;
 
 namespace Renci.SshNet.Tests.Classes
 {
@@ -23,7 +30,7 @@ namespace Renci.SshNet.Tests.Classes
         [Description("Test if calling Stop on ForwardedPortLocal instance causes wait.")]
         public void Test_PortForwarding_Local_Stop_Hangs_On_Wait()
         {
-            using (var client = new SshClient(Resources.HOST, Int32.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD))
+            using (var client = new SshClient(Resources.HOST, int.Parse(Resources.PORT), Resources.USERNAME, Resources.PASSWORD))
             {
                 client.Connect();
 
@@ -36,47 +43,57 @@ namespace Renci.SshNet.Tests.Classes
 
                 port1.Start();
 
-                bool hasTestedTunnel = false;
-                System.Threading.ThreadPool.QueueUserWorkItem(delegate(object state)
-                {
-                    try
+                var hasTestedTunnel = false;
+
+                _ = ThreadPool.QueueUserWorkItem(delegate(object state)
                     {
-                        var url = "http://www.google.com/";
-                        Debug.WriteLine("Starting web request to \"" + url + "\"");
-                        HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(url);
-                        HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                        try
+                        {
+                            var url = "http://www.google.com/";
+                            Debug.WriteLine("Starting web request to \"" + url + "\"");
 
-                        Assert.IsNotNull(response);
+#if NET6_0_OR_GREATER
+                            var httpClient = new HttpClient();
+                            var response = httpClient.GetAsync(url)
+                                                     .ConfigureAwait(false)
+                                                     .GetAwaiter()
+                                                     .GetResult();
+#else
+                            var request = (HttpWebRequest) WebRequest.Create(url);
+                            var response = (HttpWebResponse) request.GetResponse();
+#endif // NET6_0_OR_GREATER
 
-                        Debug.WriteLine("Http Response status code: " + response.StatusCode.ToString());
+                            Assert.IsNotNull(response);
 
-                        response.Close();
+                            Debug.WriteLine("Http Response status code: " + response.StatusCode.ToString());
 
-                        hasTestedTunnel = true;
-                    }
-                    catch (Exception ex)
-                    {
-                        Assert.Fail(ex.ToString());
-                    }
-                });
+                            response.Dispose();
+
+                            hasTestedTunnel = true;
+                        }
+                        catch (Exception ex)
+                        {
+                            Assert.Fail(ex.ToString());
+                        }
+                    });
 
                 // Wait for the web request to complete.
                 while (!hasTestedTunnel)
                 {
-                    System.Threading.Thread.Sleep(1000);
+                    Thread.Sleep(1000);
                 }
 
                 try
                 {
                     // Try stop the port forwarding, wait 3 seconds and fail if it is still started.
-                    System.Threading.ThreadPool.QueueUserWorkItem(delegate(object state)
-                    {
-                        Debug.WriteLine("Trying to stop port forward.");
-                        port1.Stop();
-                        Debug.WriteLine("Port forwarding stopped.");
-                    });
+                    _ = ThreadPool.QueueUserWorkItem(delegate(object state)
+                        {
+                            Debug.WriteLine("Trying to stop port forward.");
+                            port1.Stop();
+                            Debug.WriteLine("Port forwarding stopped.");
+                        });
 
-                    System.Threading.Thread.Sleep(3000);
+                    Thread.Sleep(3000);
                     if (port1.IsStarted)
                     {
                         Assert.Fail("Port forwarding not stopped.");
@@ -96,7 +113,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             try
             {
-                new ForwardedPortLocal(null, 8080, Resources.HOST, 80);
+                _ = new ForwardedPortLocal(null, 8080, Resources.HOST, 80);
                 Assert.Fail();
             }
             catch (ArgumentNullException ex)
@@ -131,7 +148,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             try
             {
-                new ForwardedPortLocal(Resources.HOST, 8080, null, 80);
+                _ = new ForwardedPortLocal(Resources.HOST, 8080, null, 80);
                 Assert.Fail();
             }
             catch (ArgumentNullException ex)
@@ -188,7 +205,6 @@ namespace Renci.SshNet.Tests.Classes
             Assert.Inconclusive("TODO: Implement code to verify target");
         }
 
-#if FEATURE_TPL
         [TestMethod]
         [TestCategory("integration")]
         [ExpectedException(typeof(SshConnectionException))]
@@ -199,30 +215,33 @@ namespace Renci.SshNet.Tests.Classes
                 var port1 = new ForwardedPortLocal("localhost", 8084, "www.renci.org", 80);
                 client.AddForwardedPort(port1);
                 port1.Exception += delegate (object sender, ExceptionEventArgs e)
-                {
-                    Assert.Fail(e.Exception.ToString());
-                };
+                    {
+                        Assert.Fail(e.Exception.ToString());
+                    };
                 port1.Start();
 
-                System.Threading.Tasks.Parallel.For(0, 100,
+                _ = Parallel.For(0,
+                                 100,
+                                 counter =>
+                                    {
+                                        var start = DateTime.Now;
 
-                    //new ParallelOptions
-                    //{
-                    //    MaxDegreeOfParallelism = 20,
-                    //},
-                    (counter) =>
-                    {
-                        var start = DateTime.Now;
-                        var req = HttpWebRequest.Create("http://localhost:8084");
-                        using (var response = req.GetResponse())
-                        {
-                            var data = ReadStream(response.GetResponseStream());
-                            var end = DateTime.Now;
+#if NET6_0_OR_GREATER
+                                        var httpClient = new HttpClient();
+                                        using (var response = httpClient.GetAsync("http://localhost:8084").GetAwaiter().GetResult())
+                                        {
+                                            var data = ReadStream(response.Content.ReadAsStream());
+#else
+                                        var request = (HttpWebRequest) WebRequest.Create("http://localhost:8084");
+                                        using (var response = (HttpWebResponse) request.GetResponse())
+                                        {
+                                            var data = ReadStream(response.GetResponseStream());
+#endif // NET6_0_OR_GREATER
+                                            var end = DateTime.Now;
 
-                            Debug.WriteLine(string.Format("Request# {2}: Lenght: {0} Time: {1}", data.Length, (end - start), counter));
-                        }
-                    }
-                );
+                                            Debug.WriteLine(string.Format("Request# {2}: Lenght: {0} Time: {1}", data.Length, end - start, counter));
+                                        }
+                                    });
             }
         }
 
@@ -236,48 +255,54 @@ namespace Renci.SshNet.Tests.Classes
                 var port1 = new ForwardedPortLocal("localhost", 8084, "www.renci.org", 80);
                 client.AddForwardedPort(port1);
                 port1.Exception += delegate (object sender, ExceptionEventArgs e)
-                {
-                    Assert.Fail(e.Exception.ToString());
-                };
+                    {
+                        Assert.Fail(e.Exception.ToString());
+                    };
                 port1.Start();
 
-                System.Threading.Tasks.Parallel.For(0, 100,
+                _ = Parallel.For(0,
+                                 100,
+                                 counter =>
+                                    {
+                                        var start = DateTime.Now;
 
-                    //new ParallelOptions
-                    //{
-                    //    MaxDegreeOfParallelism = 20,
-                    //},
-                    (counter) =>
-                    {
-                        var start = DateTime.Now;
-                        var req = HttpWebRequest.Create("http://localhost:8084");
-                        using (var response = req.GetResponse())
-                        {
-                            var data = ReadStream(response.GetResponseStream());
-                            var end = DateTime.Now;
+#if NET6_0_OR_GREATER
+                                        var httpClient = new HttpClient();
+                                        using (var response = httpClient.GetAsync("http://localhost:8084").GetAwaiter().GetResult())
+                                        {
+                                            var data = ReadStream(response.Content.ReadAsStream());
+#else
+                                        var request = (HttpWebRequest) WebRequest.Create("http://localhost:8084");
+                                        using (var response = (HttpWebResponse) request.GetResponse())
+                                        {
+                                            var data = ReadStream(response.GetResponseStream());
+#endif // NET6_0_OR_GREATER
+                                            var end = DateTime.Now;
 
-                            Debug.WriteLine(string.Format("Request# {2}: Length: {0} Time: {1}", data.Length, (end - start), counter));
-                        }
-                    }
-                );
+                                            Debug.WriteLine(string.Format("Request# {2}: Length: {0} Time: {1}", data.Length, end - start, counter));
+                                        }
+                                    });
             }
         }
 
         private static byte[] ReadStream(System.IO.Stream stream)
         {
-            byte[] buffer = new byte[1024];
+            var buffer = new byte[1024];
             using (var ms = new System.IO.MemoryStream())
             {
                 while (true)
                 {
-                    int read = stream.Read(buffer, 0, buffer.Length);
+                    var read = stream.Read(buffer, 0, buffer.Length);
                     if (read > 0)
+                    {
                         ms.Write(buffer, 0, read);
+                    }
                     else
+                    {
                         return ms.ToArray();
+                    }
                 }
             }
         }
-#endif // FEATURE_TPL
     }
 }

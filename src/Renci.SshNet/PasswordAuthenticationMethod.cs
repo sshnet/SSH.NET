@@ -18,7 +18,7 @@ namespace Renci.SshNet
         private readonly byte[] _password;
         private AuthenticationResult _authenticationResult = AuthenticationResult.Failure;
         private Session _session;
-        private EventWaitHandle _authenticationCompleted = new AutoResetEvent(false);
+        private EventWaitHandle _authenticationCompleted = new AutoResetEvent(initialState: false);
         private Exception _exception;
         private bool _isDisposed;
 
@@ -68,7 +68,7 @@ namespace Renci.SshNet
         public PasswordAuthenticationMethod(string username, byte[] password)
             : base(username)
         {
-            if (password == null)
+            if (password is null)
             {
                 throw new ArgumentNullException(nameof(password));
             }
@@ -87,7 +87,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="session" /> is <c>null</c>.</exception>
         public override AuthenticationResult Authenticate(Session session)
         {
-            if (session == null)
+            if (session is null)
             {
                 throw new ArgumentNullException(nameof(session));
             }

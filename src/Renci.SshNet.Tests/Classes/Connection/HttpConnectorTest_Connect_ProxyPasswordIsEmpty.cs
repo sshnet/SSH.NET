@@ -1,13 +1,16 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
-using Renci.SshNet.Tests.Common;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using Moq;
+
+using Renci.SshNet.Tests.Common;
 
 namespace Renci.SshNet.Tests.Classes.Connection
 {
@@ -34,8 +37,10 @@ namespace Renci.SshNet.Tests.Classes.Connection
                                                  8122,
                                                  "proxyUser",
                                                  string.Empty,
-                                                 new KeyboardInteractiveAuthenticationMethod("user"));
-            _connectionInfo.Timeout = TimeSpan.FromMilliseconds(20);
+                                                 new KeyboardInteractiveAuthenticationMethod("user"))
+                {
+                    Timeout = TimeSpan.FromMilliseconds(20)
+                };
             _expectedHttpRequest = string.Format("CONNECT {0}:{1} HTTP/1.0{2}" +
                                                  "Proxy-Authorization: Basic cHJveHlVc2VyOg=={2}{2}",
                                                  _connectionInfo.Host,
@@ -49,13 +54,14 @@ namespace Renci.SshNet.Tests.Classes.Connection
             _proxyServer.Disconnected += (socket) => _disconnected = true;
             _proxyServer.Connected += socket =>
                 {
-                        socket.Send(Encoding.ASCII.GetBytes("\r\n"));
-                        socket.Send(Encoding.ASCII.GetBytes("SSH.NET\r\n"));
-                        socket.Send(Encoding.ASCII.GetBytes("HTTP/1.0 200 OK\r\n"));
-                        socket.Send(Encoding.ASCII.GetBytes("Content-Type: application/octet-stream\r\n"));
-                        socket.Send(Encoding.ASCII.GetBytes("\r\n"));
-                        socket.Send(Encoding.ASCII.GetBytes("SSH4EVER"));
-                        socket.Shutdown(SocketShutdown.Send);
+                    _ = socket.Send(Encoding.ASCII.GetBytes("\r\n"));
+                    _ = socket.Send(Encoding.ASCII.GetBytes("SSH.NET\r\n"));
+                    _ = socket.Send(Encoding.ASCII.GetBytes("HTTP/1.0 200 OK\r\n"));
+                    _ = socket.Send(Encoding.ASCII.GetBytes("Content-Type: application/octet-stream\r\n"));
+                    _ = socket.Send(Encoding.ASCII.GetBytes("\r\n"));
+                    _ = socket.Send(Encoding.ASCII.GetBytes("SSH4EVER"));
+
+                    socket.Shutdown(SocketShutdown.Send);
                 };
             _proxyServer.BytesReceived += (bytesReceived, socket) =>
                 {
@@ -66,18 +72,15 @@ namespace Renci.SshNet.Tests.Classes.Connection
 
         protected override void SetupMocks()
         {
-            SocketFactoryMock.Setup(p => p.Create(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp))
-                             .Returns(_clientSocket);
+            _ = SocketFactoryMock.Setup(p => p.Create(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp))
+                                 .Returns(_clientSocket);
         }
 
         protected override void TearDown()
         {
             base.TearDown();
 
-            if (_proxyServer != null)
-            {
-                _proxyServer.Dispose();
-            }
+            _proxyServer?.Dispose();
 
             if (_clientSocket != null)
             {

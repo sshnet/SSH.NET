@@ -1,8 +1,8 @@
-﻿namespace Renci.SshNet.Common
-{
-    using System;
-    using System.Threading;
+﻿using System;
+using System.Threading;
 
+namespace Renci.SshNet.Common
+{
     /// <summary>
     /// Fast concurrent generic linked list queue.
     /// </summary>
@@ -55,10 +55,14 @@
             lock (_lock)
             {
                 if (_isAddingCompleted)
+                {
                     return;
+                }
 
-                var entry = new Entry<T>();
-                entry.Item = item;
+                var entry = new Entry<T>()
+                {
+                    Item = item
+                };
 
                 if (_last != null)
                 {
@@ -66,11 +70,7 @@
                 }
 
                 _last = entry;
-
-                if (_first == null)
-                {
-                    _first = entry;
-                }
+                _first ??= entry;
 
                 Monitor.PulseAll(_lock);
             }
@@ -100,16 +100,18 @@
             {
                 if (_first == null && !wait)
                 {
-                    item = default(T);
+                    item = default;
                     return false;
                 }
 
                 while (_first == null && !_isAddingCompleted)
-                    Monitor.Wait(_lock);
+                {
+                    _ = Monitor.Wait(_lock);
+                }
 
                 if (_first == null && _isAddingCompleted)
                 {
-                    item = default(T);
+                    item = default;
                     return false;
                 }
 

@@ -3,7 +3,7 @@ using Renci.SshNet.Common;
 
 namespace Renci.SshNet.Security
 {
-    internal class GroupExchangeHashData : SshData
+    internal sealed class GroupExchangeHashData : SshData
     {
         private byte[] _serverVersion;
         private byte[] _clientVersion;

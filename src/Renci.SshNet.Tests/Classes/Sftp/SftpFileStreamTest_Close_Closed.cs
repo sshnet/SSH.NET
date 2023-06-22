@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Globalization;
 using System.IO;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Moq;
+
 using Renci.SshNet.Sftp;
 
 namespace Renci.SshNet.Tests.Classes.Sftp
@@ -37,20 +40,21 @@ namespace Renci.SshNet.Tests.Classes.Sftp
             _sftpSessionMock = new Mock<ISftpSession>(MockBehavior.Strict);
 
             var sequence = new MockSequence();
-            _sftpSessionMock.InSequence(sequence)
-                .Setup(p => p.RequestOpen(_path, Flags.Read, false))
-                .Returns(_handle);
-            _sftpSessionMock.InSequence(sequence)
-                .Setup(p => p.CalculateOptimalReadLength(_bufferSize))
-                .Returns(_readBufferSize);
-            _sftpSessionMock.InSequence(sequence)
-                .Setup(p => p.CalculateOptimalWriteLength(_bufferSize, _handle))
-                .Returns(_writeBufferSize);
-            _sftpSessionMock.InSequence(sequence)
-                .Setup(p => p.IsOpen)
-                .Returns(true);
-            _sftpSessionMock.InSequence(sequence)
-                .Setup(p => p.RequestClose(_handle));
+
+            _ = _sftpSessionMock.InSequence(sequence)
+                                .Setup(p => p.RequestOpen(_path, Flags.Read, false))
+                                .Returns(_handle);
+            _ = _sftpSessionMock.InSequence(sequence)
+                                .Setup(p => p.CalculateOptimalReadLength(_bufferSize))
+                                .Returns(_readBufferSize);
+            _ = _sftpSessionMock.InSequence(sequence)
+                                .Setup(p => p.CalculateOptimalWriteLength(_bufferSize, _handle))
+                                .Returns(_writeBufferSize);
+            _ = _sftpSessionMock.InSequence(sequence)
+                                .Setup(p => p.IsOpen)
+                                .Returns(true);
+            _ = _sftpSessionMock.InSequence(sequence)
+                                .Setup(p => p.RequestClose(_handle));
 
             _sftpFileStream = new SftpFileStream(_sftpSessionMock.Object, _path, FileMode.Open, FileAccess.Read, (int)_bufferSize);
             _sftpFileStream.Close();

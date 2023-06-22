@@ -288,32 +288,16 @@ namespace Renci.SshNet.Common
             else
             {
                 _sign = 1;
-                var low = (uint)value;
-                var high = (uint)(value >> 32);
+                var low = (uint) value;
+                var high = (uint) (value >> 32);
 
                 _data = new uint[high != 0 ? 2 : 1];
                 _data[0] = low;
                 if (high != 0)
+                {
                     _data[1] = high;
+                }
             }
-        }
-
-        private static bool Negative(byte[] v)
-        {
-            return (v[7] & 0x80) != 0;
-        }
-
-        private static ushort Exponent(byte[] v)
-        {
-            return (ushort)((((ushort)(v[7] & 0x7F)) << (ushort)4) | (((ushort)(v[6] & 0xF0)) >> 4));
-        }
-
-        private static ulong Mantissa(byte[] v)
-        {
-            var i1 = (uint)v[0] | ((uint)v[1] << 8) | ((uint)v[2] << 16) | ((uint)v[3] << 24);
-            var i2 = (uint)v[4] | ((uint)v[5] << 8) | ((uint)(v[6] & 0xF) << 16);
-
-            return (ulong)((ulong)i1 | ((ulong)i2 << 32));
         }
 
         /// <summary>
@@ -353,7 +337,7 @@ namespace Renci.SshNet.Common
                 BigInteger res = mantissa;
                 res = exponent > Bias ? res << (exponent - Bias) : res >> (Bias - exponent);
 
-                _sign = (short)(Negative(bytes) ? -1 : 1);
+                _sign = (short) (Negative(bytes) ? -1 : 1);
                 _data = res._data;
             }
         }
@@ -363,7 +347,7 @@ namespace Renci.SshNet.Common
         /// </summary>
         /// <param name="value">A single-precision floating-point value.</param>
         public BigInteger(float value)
-            : this((double)value)
+            : this((double) value)
         {
         }
 
@@ -377,7 +361,10 @@ namespace Renci.SshNet.Common
             var bits = decimal.GetBits(decimal.Truncate(value));
 
             var size = 3;
-            while (size > 0 && bits[size - 1] == 0) size--;
+            while (size > 0 && bits[size - 1] == 0)
+            {
+                size--;
+            }
 
             if (size == 0)
             {
@@ -386,10 +373,10 @@ namespace Renci.SshNet.Common
                 return;
             }
 
-            _sign = (short)((bits[3] & DecimalSignMask) != 0 ? -1 : 1);
+            _sign = (short) ((bits[3] & DecimalSignMask) != 0 ? -1 : 1);
 
             _data = new uint[size];
-            _data[0] = (uint)bits[0];
+            _data[0] = (uint) bits[0];
             if (size > 1)
             {
                 _data[1] = (uint) bits[1];
@@ -409,7 +396,7 @@ namespace Renci.SshNet.Common
         [CLSCompliant(false)]
         public BigInteger(byte[] value)
         {
-            if (value == null)
+            if (value is null)
             {
                 throw new ArgumentNullException(nameof(value));
             }
@@ -493,9 +480,9 @@ namespace Renci.SshNet.Common
                            (uint) (value[j++] << 16) |
                            (uint) (value[j++] << 24);
 
-                    sub = (ulong)word - borrow;
-                    word = (uint)sub;
-                    borrow = (uint)(sub >> 32) & 0x1u;
+                    sub = (ulong) word - borrow;
+                    word = (uint) sub;
+                    borrow = (uint) (sub >> 32) & 0x1u;
                     _data[i] = ~word;
                 }
 
@@ -507,13 +494,13 @@ namespace Renci.SshNet.Common
                     uint storeMask = 0;
                     for (var i = 0; i < size; ++i)
                     {
-                        word |= (uint)(value[j++] << (i * 8));
+                        word |= (uint) (value[j++] << (i * 8));
                         storeMask = (storeMask << 8) | 0xFF;
                     }
 
                     sub = word - borrow;
-                    word = (uint)sub;
-                    borrow = (uint)(sub >> 32) & 0x1u;
+                    word = (uint) sub;
+                    borrow = (uint) (sub >> 32) & 0x1u;
 
                     if ((~word & storeMask) == 0)
                     {
@@ -531,6 +518,24 @@ namespace Renci.SshNet.Common
                     throw new Exception("non zero final carry");
                 }
             }
+        }
+
+        private static bool Negative(byte[] v)
+        {
+            return (v[7] & 0x80) != 0;
+        }
+
+        private static ushort Exponent(byte[] v)
+        {
+            return (ushort)((((ushort)(v[7] & 0x7F)) << (ushort)4) | (((ushort)(v[6] & 0xF0)) >> 4));
+        }
+
+        private static ulong Mantissa(byte[] v)
+        {
+            var i1 = (uint)v[0] | ((uint)v[1] << 8) | ((uint)v[2] << 16) | ((uint)v[3] << 24);
+            var i2 = (uint)v[4] | ((uint)v[5] << 8) | ((uint)(v[6] & 0xF) << 16);
+
+            return ((ulong) i1 | ((ulong) i2 << 32));
         }
 
         /// <summary>
@@ -765,7 +770,7 @@ namespace Renci.SshNet.Common
         /// </returns>
         public static explicit operator int(BigInteger value)
         {
-            if (value._data == null)
+            if (value._data is null)
             {
                 return 0;
             }
@@ -810,7 +815,7 @@ namespace Renci.SshNet.Common
         [CLSCompliant(false)]
         public static explicit operator uint(BigInteger value)
         {
-            if (value._data == null)
+            if (value._data is null)
             {
                 return 0;
             }
@@ -906,7 +911,7 @@ namespace Renci.SshNet.Common
         /// </returns>
         public static explicit operator long(BigInteger value)
         {
-            if (value._data == null)
+            if (value._data is null)
             {
                 return 0;
             }
@@ -970,7 +975,7 @@ namespace Renci.SshNet.Common
         [CLSCompliant(false)]
         public static explicit operator ulong(BigInteger value)
         {
-            if (value._data == null)
+            if (value._data is null)
             {
                 return 0;
             }
@@ -999,7 +1004,7 @@ namespace Renci.SshNet.Common
         /// </returns>
         public static explicit operator double(BigInteger value)
         {
-            if (value._data == null)
+            if (value._data is null)
             {
                 return 0.0;
             }
@@ -1050,7 +1055,7 @@ namespace Renci.SshNet.Common
         /// </returns>
         public static explicit operator decimal(BigInteger value)
         {
-            if (value._data == null)
+            if (value._data is null)
             {
                 return decimal.Zero;
             }
@@ -1360,7 +1365,10 @@ namespace Renci.SshNet.Common
             }
 
             int m;
-            for (m = res.Length - 1; m >= 0 && res[m] == 0; --m) ;
+            for (m = res.Length - 1; m >= 0 && res[m] == 0; --m)
+            {
+                // Intentionally empty block
+            }
 
             if (m < res.Length - 1)
             {
@@ -1394,7 +1402,10 @@ namespace Renci.SshNet.Common
             DivModUnsigned(dividend._data, divisor._data, out var quotient, out _);
 
             int i;
-            for (i = quotient.Length - 1; i >= 0 && quotient[i] == 0; --i) ;
+            for (i = quotient.Length - 1; i >= 0 && quotient[i] == 0; --i)
+            {
+                // Intentionally empty block
+            }
 
             if (i == -1)
             {
@@ -1432,7 +1443,10 @@ namespace Renci.SshNet.Common
             DivModUnsigned(dividend._data, divisor._data, out _, out var remainderValue);
 
             int i;
-            for (i = remainderValue.Length - 1; i >= 0 && remainderValue[i] == 0; --i) ;
+            for (i = remainderValue.Length - 1; i >= 0 && remainderValue[i] == 0; --i)
+            {
+                // Intentionally empty block
+            }
 
             if (i == -1)
             {
@@ -1456,7 +1470,7 @@ namespace Renci.SshNet.Common
         /// </returns>
         public static BigInteger operator -(BigInteger value)
         {
-            if (value._data == null)
+            if (value._data is null)
             {
                 return value;
             }
@@ -1488,7 +1502,7 @@ namespace Renci.SshNet.Common
         /// </returns>
         public static BigInteger operator ++(BigInteger value)
         {
-            if (value._data == null)
+            if (value._data is null)
             {
                 return One;
             }
@@ -1522,7 +1536,7 @@ namespace Renci.SshNet.Common
         /// </returns>
         public static BigInteger operator --(BigInteger value)
         {
-            if (value._data == null)
+            if (value._data is null)
             {
                 return MinusOne;
             }
@@ -1619,7 +1633,10 @@ namespace Renci.SshNet.Common
                 result[i] = word;
             }
 
-            for (i = result.Length - 1; i >= 0 && result[i] == 0; --i) ;
+            for (i = result.Length - 1; i >= 0 && result[i] == 0; --i)
+            {
+                // Intentionally empty block
+            }
 
             if (i == -1)
             {
@@ -1706,7 +1723,10 @@ namespace Renci.SshNet.Common
                 result[i] = word;
             }
 
-            for (i = result.Length - 1; i >= 0 && result[i] == 0; --i) ;
+            for (i = result.Length - 1; i >= 0 && result[i] == 0; --i)
+            {
+                // Intentionally empty block
+            }
 
             if (i == -1)
             {
@@ -1793,7 +1813,10 @@ namespace Renci.SshNet.Common
                 result[i] = word;
             }
 
-            for (i = result.Length - 1; i >= 0 && result[i] == 0; --i) ;
+            for (i = result.Length - 1; i >= 0 && result[i] == 0; --i)
+            {
+                // Intentionally empty block
+            }
 
             if (i == -1)
             {
@@ -1817,7 +1840,7 @@ namespace Renci.SshNet.Common
         /// </returns>
         public static BigInteger operator ~(BigInteger value)
         {
-            if (value._data == null)
+            if (value._data is null)
             {
                 return MinusOne;
             }
@@ -1854,7 +1877,10 @@ namespace Renci.SshNet.Common
                 result[i] = word;
             }
 
-            for (i = result.Length - 1; i >= 0 && result[i] == 0; --i) ;
+            for (i = result.Length - 1; i >= 0 && result[i] == 0; --i)
+            {
+                // Intentionally empty block
+            }
 
             if (i == -1)
             {
@@ -1895,7 +1921,7 @@ namespace Renci.SshNet.Common
         /// </returns>
         public static BigInteger operator <<(BigInteger value, int shift)
         {
-            if (shift == 0 || value._data == null)
+            if (shift == 0 || value._data is null)
             {
                 return value;
             }
@@ -2488,7 +2514,7 @@ namespace Renci.SshNet.Common
         /// of implicit conversion to a <see cref="BigInteger"/> value, and its value is equal to the value of the
         /// current <see cref="BigInteger"/> object; otherwise, <c>false</c>.
         /// </returns>
-        public override bool Equals(object obj)
+        public override readonly bool Equals(object obj)
         {
             if (obj is not BigInteger other)
             {
@@ -2507,7 +2533,7 @@ namespace Renci.SshNet.Common
         /// <c>true</c> if this <see cref="BigInteger"/> object and <paramref name="other"/> have the same value;
         /// otherwise, <c>false</c>.
         /// </returns>
-        public bool Equals(BigInteger other)
+        public readonly bool Equals(BigInteger other)
         {
             if (_sign != other._sign)
             {
@@ -2546,17 +2572,93 @@ namespace Renci.SshNet.Common
         }
 
         /// <summary>
+        /// Returns a value that indicates whether the current instance and an unsigned 64-bit integer have the same value.
+        /// </summary>
+        /// <param name="other">The unsigned 64-bit integer to compare.</param>
+        /// <returns>
+        /// <c>true</c> if the current instance and the unsigned 64-bit integer have the same value; otherwise, <c>false</c>.
+        /// </returns>
+        [CLSCompliant(false)]
+        public readonly bool Equals(ulong other)
+        {
+            return CompareTo(other) == 0;
+        }
+
+        /// <summary>
         /// Converts the numeric value of the current <see cref="BigInteger"/> object to its equivalent string representation.
         /// </summary>
         /// <returns>
         /// The string representation of the current <see cref="BigInteger"/> value.
         /// </returns>
-        public override string ToString()
+        public override readonly string ToString()
         {
             return ToString(10, provider: null);
         }
 
-        private string ToStringWithPadding(string format, uint radix, IFormatProvider provider)
+        /// <summary>
+        /// Converts the numeric value of the current <see cref="BigInteger"/> object to its equivalent string representation
+        /// by using the specified format.
+        /// </summary>
+        /// <param name="format">A standard or custom numeric format string.</param>
+        /// <returns>
+        /// The string representation of the current <see cref="BigInteger"/> value in the format specified by the
+        /// <paramref name="format"/> parameter.
+        /// </returns>
+        /// <exception cref="FormatException"><paramref name="format"/> is not a valid format string.</exception>
+        public readonly string ToString(string format)
+        {
+            return ToString(format, formatProvider: null);
+        }
+
+        /// <summary>
+        /// Converts the numeric value of the current <see cref="BigInteger"/> object to its equivalent string representation
+        /// by using the specified culture-specific formatting information.
+        /// </summary>
+        /// <param name="provider">An object that supplies culture-specific formatting information.</param>
+        /// <returns>
+        /// The string representation of the current <see cref="BigInteger"/> value in the format specified by the
+        /// <paramref name="provider"/> parameter.
+        /// </returns>
+        public readonly string ToString(IFormatProvider provider)
+        {
+            return ToString(format: null, provider);
+        }
+
+        /// <summary>
+        /// Converts the numeric value of the current <see cref="BigInteger"/> object to its equivalent string representation
+        /// by using the specified format and culture-specific format information.
+        /// </summary>
+        /// <param name="format">A standard or custom numeric format string.</param>
+        /// <param name="formatProvider">An object that supplies culture-specific formatting information.</param>
+        /// <returns>
+        /// The string representation of the current <see cref="BigInteger"/> value as specified by the <paramref name="format"/>
+        /// and <paramref name="formatProvider"/> parameters.
+        /// </returns>
+        public readonly string ToString(string format, IFormatProvider formatProvider)
+        {
+            if (string.IsNullOrEmpty(format))
+            {
+                return ToString(10, formatProvider);
+            }
+
+            switch (format[0])
+            {
+                case 'd':
+                case 'D':
+                case 'g':
+                case 'G':
+                case 'r':
+                case 'R':
+                    return ToStringWithPadding(format, 10, formatProvider);
+                case 'x':
+                case 'X':
+                    return ToStringWithPadding(format, 16, provider: null);
+                default:
+                    throw new FormatException(string.Format("format '{0}' not implemented", format));
+            }
+        }
+
+        private readonly string ToStringWithPadding(string format, uint radix, IFormatProvider provider)
         {
             if (format.Length > 1)
             {
@@ -2577,69 +2679,6 @@ namespace Renci.SshNet.Common
             }
 
             return ToString(radix, provider);
-        }
-
-        /// <summary>
-        /// Converts the numeric value of the current <see cref="BigInteger"/> object to its equivalent string representation
-        /// by using the specified format.
-        /// </summary>
-        /// <param name="format">A standard or custom numeric format string.</param>
-        /// <returns>
-        /// The string representation of the current <see cref="BigInteger"/> value in the format specified by the
-        /// <paramref name="format"/> parameter.
-        /// </returns>
-        /// <exception cref="FormatException"><paramref name="format"/> is not a valid format string.</exception>
-        public string ToString(string format)
-        {
-            return ToString(format, provider: null);
-        }
-
-        /// <summary>
-        /// Converts the numeric value of the current <see cref="BigInteger"/> object to its equivalent string representation
-        /// by using the specified culture-specific formatting information.
-        /// </summary>
-        /// <param name="provider">An object that supplies culture-specific formatting information.</param>
-        /// <returns>
-        /// The string representation of the current <see cref="BigInteger"/> value in the format specified by the
-        /// <paramref name="provider"/> parameter.
-        /// </returns>
-        public string ToString(IFormatProvider provider)
-        {
-            return ToString(format: null, provider);
-        }
-
-        /// <summary>
-        /// Converts the numeric value of the current <see cref="BigInteger"/> object to its equivalent string representation
-        /// by using the specified format and culture-specific format information.
-        /// </summary>
-        /// <param name="format">A standard or custom numeric format string.</param>
-        /// <param name="provider">An object that supplies culture-specific formatting information.</param>
-        /// <returns>
-        /// The string representation of the current <see cref="BigInteger"/> value as specified by the <paramref name="format"/>
-        /// and <paramref name="provider"/> parameters.
-        /// </returns>
-        public string ToString(string format, IFormatProvider provider)
-        {
-            if (string.IsNullOrEmpty(format))
-            {
-                return ToString(10, provider);
-            }
-
-            switch (format[0])
-            {
-                case 'd':
-                case 'D':
-                case 'g':
-                case 'G':
-                case 'r':
-                case 'R':
-                    return ToStringWithPadding(format, 10, provider);
-                case 'x':
-                case 'X':
-                    return ToStringWithPadding(format, 16, provider: null);
-                default:
-                    throw new FormatException(string.Format("format '{0}' not implemented", format));
-            }
         }
 
         private static uint[] MakeTwoComplement(uint[] v)
@@ -2876,7 +2915,7 @@ namespace Renci.SshNet.Common
             result = Zero;
             exc = null;
 
-            if (value == null)
+            if (value is null)
             {
                 if (!tryParse)
                 {
@@ -3343,7 +3382,7 @@ namespace Renci.SshNet.Common
                 }
 
                 // Reduce the risk of throwing an overflow exc
-                exp = checked((exp * 10) - (int)(s[i] - '0'));
+                exp = checked((exp * 10) - (s[i] - '0'));
                 if (exp is < int.MinValue or > int.MaxValue)
                 {
                     exc = tryParse ? null : new OverflowException("Value too large or too small.");
@@ -3420,7 +3459,7 @@ namespace Renci.SshNet.Common
             result = Zero;
             exc = null;
 
-            if (value == null)
+            if (value is null)
             {
                 if (!tryParse)
                 {
@@ -3601,7 +3640,7 @@ namespace Renci.SshNet.Common
         /// </returns>
         public static BigInteger Abs(BigInteger value)
         {
-            return new BigInteger((short) Math.Abs(value._sign), value._data);
+            return new BigInteger(Math.Abs(value._sign), value._data);
         }
 
         /// <summary>
@@ -3630,7 +3669,10 @@ namespace Renci.SshNet.Common
             DivModUnsigned(dividend._data, divisor._data, out var quotient, out var remainderValue);
 
             int i;
-            for (i = remainderValue.Length - 1; i >= 0 && remainderValue[i] == 0; --i) ;
+            for (i = remainderValue.Length - 1; i >= 0 && remainderValue[i] == 0; --i)
+            {
+                // Intentionally empty block
+            }
 
             if (i == -1)
             {
@@ -3646,7 +3688,10 @@ namespace Renci.SshNet.Common
                 remainder = new BigInteger(dividend._sign, remainderValue);
             }
 
-            for (i = quotient.Length - 1; i >= 0 && quotient[i] == 0; --i) ;
+            for (i = quotient.Length - 1; i >= 0 && quotient[i] == 0; --i)
+            {
+                // Intentionally empty block
+            }
 
             if (i == -1)
             {
@@ -3870,7 +3915,7 @@ namespace Renci.SshNet.Common
                 return value.IsOne ? 0 : double.NaN;
             }
 
-            if (value._data == null)
+            if (value._data is null)
             {
                 return double.NegativeInfinity;
             }
@@ -3937,19 +3982,6 @@ namespace Renci.SshNet.Common
         public static double Log10(BigInteger value)
         {
             return Log(value, 10);
-        }
-
-        /// <summary>
-        /// Returns a value that indicates whether the current instance and an unsigned 64-bit integer have the same value.
-        /// </summary>
-        /// <param name="other">The unsigned 64-bit integer to compare.</param>
-        /// <returns>
-        /// <c>true</c> if the current instance and the unsigned 64-bit integer have the same value; otherwise, <c>false</c>.
-        /// </returns>
-        [CLSCompliant(false)]
-        public readonly bool Equals(ulong other)
-        {
-            return CompareTo(other) == 0;
         }
 
         /// <summary>
@@ -4079,7 +4111,7 @@ namespace Renci.SshNet.Common
         /// <exception cref="ArgumentException"><paramref name="obj"/> is not a <see cref="BigInteger"/>.</exception>
         public readonly int CompareTo(object obj)
         {
-            if (obj == null)
+            if (obj is null)
             {
                 return 1;
             }
@@ -4175,40 +4207,6 @@ namespace Renci.SshNet.Common
             return LongCompare(low, high);
         }
 
-        private readonly int LongCompare(uint low, uint high)
-        {
-            uint h = 0;
-
-            if (_data.Length > 1)
-            {
-                h = _data[1];
-            }
-
-            if (h > high)
-            {
-                return 1;
-            }
-
-            if (h < high)
-            {
-                return -1;
-            }
-
-            var l = _data[0];
-
-            if (l > low)
-            {
-                return 1;
-            }
-
-            if (l < low)
-            {
-                return -1;
-            }
-
-            return 0;
-        }
-
         /// <summary>
         /// Compares this instance to a signed 64-bit integer and returns an integer that indicates whether the value of this
         /// instance is less than, equal to, or greater than the value of the signed 64-bit integer.
@@ -4271,6 +4269,40 @@ namespace Renci.SshNet.Common
             }
 
             return r;
+        }
+
+        private readonly int LongCompare(uint low, uint high)
+        {
+            uint h = 0;
+
+            if (_data.Length > 1)
+            {
+                h = _data[1];
+            }
+
+            if (h > high)
+            {
+                return 1;
+            }
+
+            if (h < high)
+            {
+                return -1;
+            }
+
+            var l = _data[0];
+
+            if (l > low)
+            {
+                return 1;
+            }
+
+            if (l < low)
+            {
+                return -1;
+            }
+
+            return 0;
         }
 
         /// <summary>
@@ -4513,6 +4545,29 @@ namespace Renci.SshNet.Common
             return res;
         }
 
+        private static uint[] CoreAdd(uint[] a, uint b)
+        {
+            var len = a.Length;
+            var res = new uint[len];
+
+            ulong sum = b;
+            int i;
+            for (i = 0; i < len; i++)
+            {
+                sum += a[i];
+                res[i] = (uint) sum;
+                sum >>= 32;
+            }
+
+            if (sum != 0)
+            {
+                Array.Resize(ref res, len + 1);
+                res[i] = (uint) sum;
+            }
+
+            return res;
+        }
+
         /*invariant a > b*/
         private static uint[] CoreSub(uint[] a, uint[] b)
         {
@@ -4539,33 +4594,14 @@ namespace Renci.SshNet.Common
             }
 
             // remove extra zeroes
-            for (i = bl - 1; i >= 0 && res[i] == 0; --i) ;
+            for (i = bl - 1; i >= 0 && res[i] == 0; --i)
+            {
+                // Intentionally empty block
+            }
+
             if (i < bl - 1)
             {
                 Array.Resize(ref res, i + 1);
-            }
-
-            return res;
-        }
-
-        private static uint[] CoreAdd(uint[] a, uint b)
-        {
-            var len = a.Length;
-            var res = new uint[len];
-
-            ulong sum = b;
-            int i;
-            for (i = 0; i < len; i++)
-            {
-                sum += a[i];
-                res[i] = (uint)sum;
-                sum >>= 32;
-            }
-
-            if (sum != 0)
-            {
-                Array.Resize(ref res, len + 1);
-                res[i] = (uint)sum;
             }
 
             return res;
@@ -4586,7 +4622,11 @@ namespace Renci.SshNet.Common
             }
 
             // Remove extra zeroes
-            for (i = len - 1; i >= 0 && res[i] == 0; --i) ;
+            for (i = len - 1; i >= 0 && res[i] == 0; --i)
+            {
+                // Intentionally empty block
+            }
+
             if (i < len - 1)
             {
                 Array.Resize(ref res, i + 1);
@@ -4658,7 +4698,9 @@ namespace Renci.SshNet.Common
 
             if ((value & 0x80000000) == 0)
             {
+#pragma warning disable IDE0059 // Unnecessary assignment of a value
                 value <<= 1;
+#pragma warning restore IDE0059 // Unnecessary assignment of a value
                 shift += 1;
             }
 
@@ -4746,7 +4788,7 @@ namespace Renci.SshNet.Common
                     q[j] = (uint)div;
                 }
 
-                r[0] = (uint)rem;
+                r[0] = (uint) rem;
             }
             else if (m >= n)
             {
@@ -4759,7 +4801,6 @@ namespace Renci.SshNet.Common
                 Normalize(v, n, vn, shift);
 
                 q = new uint[m - n + 1];
-                r = null;
 
                 // Main division loop
                 for (var j = m - n; j >= 0; j--)
@@ -4789,7 +4830,7 @@ namespace Renci.SshNet.Common
 
                     // Multiply and subtract
                     long b = 0;
-                    long t = 0;
+                    long t;
                     for (i = 0; i < n; i++)
                     {
                         var p = vn[i] * qq;

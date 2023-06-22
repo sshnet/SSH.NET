@@ -43,7 +43,7 @@ namespace Renci.SshNet.Sftp.Requests
         public SftpRealPathRequest(uint protocolVersion, uint requestId, string path, Encoding encoding, Action<SftpNameResponse> nameAction, Action<SftpStatusResponse> statusAction)
             : base(protocolVersion, requestId, statusAction)
         {
-            if (nameAction == null)
+            if (nameAction is null)
             {
                 throw new ArgumentNullException(nameof(nameAction));
             }

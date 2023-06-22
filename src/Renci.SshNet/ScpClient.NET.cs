@@ -27,7 +27,7 @@ namespace Renci.SshNet
         /// <exception cref="SshException">The secure copy execution request was rejected by the server.</exception>
         public void Upload(FileInfo fileInfo, string path)
         {
-            if (fileInfo == null)
+            if (fileInfo is null)
             {
                 throw new ArgumentNullException(nameof(fileInfo));
             }
@@ -70,12 +70,12 @@ namespace Renci.SshNet
         /// <exception cref="SshException">The secure copy execution request was rejected by the server.</exception>
         public void Upload(DirectoryInfo directoryInfo, string path)
         {
-            if (directoryInfo == null)
+            if (directoryInfo is null)
             {
                 throw new ArgumentNullException(nameof(directoryInfo));
             }
 
-            if (path == null)
+            if (path is null)
             {
                 throw new ArgumentNullException(nameof(path));
             }
@@ -123,7 +123,7 @@ namespace Renci.SshNet
                 throw new ArgumentException("filename");
             }
 
-            if (fileInfo == null)
+            if (fileInfo is null)
             {
                 throw new ArgumentNullException(nameof(fileInfo));
             }
@@ -163,7 +163,7 @@ namespace Renci.SshNet
                 throw new ArgumentException("directoryName");
             }
 
-            if (directoryInfo == null)
+            if (directoryInfo is null)
             {
                 throw new ArgumentNullException(nameof(directoryInfo));
             }

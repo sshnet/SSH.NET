@@ -15,31 +15,6 @@ namespace Renci.SshNet.Common
     /// </summary>
     internal static partial class Extensions
     {
-        /// <summary>
-        /// Determines whether the specified value is null or white space.
-        /// </summary>
-        /// <param name="value">The value.</param>
-        /// <returns>
-        /// <c>true</c> if <paramref name="value"/> is null or white space; otherwise, <c>false</c>.
-        /// </returns>
-        public static bool IsNullOrWhiteSpace(this string value)
-        {
-            if (string.IsNullOrEmpty(value))
-            {
-                return true;
-            }
-
-            for (var i = 0; i < value.Length; i++)
-            {
-                if (!char.IsWhiteSpace(value[i]))
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
         internal static byte[] ToArray(this ServiceName serviceName)
         {
             switch (serviceName)
@@ -126,7 +101,7 @@ namespace Renci.SshNet.Common
         internal static T CreateInstance<T>(this Type type)
             where T : class
         {
-            if (type == null)
+            if (type is null)
             {
                 return null;
             }
@@ -173,14 +148,14 @@ namespace Renci.SshNet.Common
         /// </remarks>
         public static byte[] Take(this byte[] value, int offset, int count)
         {
-            if (value == null)
+            if (value is null)
             {
                 throw new ArgumentNullException(nameof(value));
             }
 
             if (count == 0)
             {
-                return Array<byte>.Empty;
+                return Array.Empty<byte>();
             }
 
             if (offset == 0 && value.Length == count)
@@ -208,14 +183,14 @@ namespace Renci.SshNet.Common
         /// </remarks>
         public static byte[] Take(this byte[] value, int count)
         {
-            if (value == null)
+            if (value is null)
             {
                 throw new ArgumentNullException(nameof(value));
             }
 
             if (count == 0)
             {
-                return Array<byte>.Empty;
+                return Array.Empty<byte>();
             }
 
             if (value.Length == count)
@@ -230,12 +205,12 @@ namespace Renci.SshNet.Common
 
         public static bool IsEqualTo(this byte[] left, byte[] right)
         {
-            if (left == null)
+            if (left is null)
             {
                 throw new ArgumentNullException(nameof(left));
             }
 
-            if (right == null)
+            if (right is null)
             {
                 throw new ArgumentNullException(nameof(right));
             }
@@ -270,7 +245,7 @@ namespace Renci.SshNet.Common
         /// </returns>
         public static byte[] TrimLeadingZeros(this byte[] value)
         {
-            if (value == null)
+            if (value is null)
             {
                 throw new ArgumentNullException(nameof(value));
             }
@@ -317,12 +292,12 @@ namespace Renci.SshNet.Common
 
         public static byte[] Concat(this byte[] first, byte[] second)
         {
-            if (first == null || first.Length == 0)
+            if (first is null || first.Length == 0)
             {
                 return second;
             }
 
-            if (second == null || second.Length == 0)
+            if (second is null || second.Length == 0)
             {
                 return first;
             }
@@ -345,7 +320,7 @@ namespace Renci.SshNet.Common
 
         internal static bool IsConnected(this Socket socket)
         {
-            if (socket == null)
+            if (socket is null)
             {
                 return false;
             }

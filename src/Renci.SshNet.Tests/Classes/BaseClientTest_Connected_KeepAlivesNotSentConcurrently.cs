@@ -24,15 +24,15 @@ namespace Renci.SshNet.Tests.Classes
         {
             _mockSequence = new MockSequence();
 
-            _serviceFactoryMock.InSequence(_mockSequence)
+            ServiceFactoryMock.InSequence(_mockSequence)
                                .Setup(p => p.CreateSocketFactory())
-                               .Returns(_socketFactoryMock.Object);
-            _serviceFactoryMock.InSequence(_mockSequence)
-                               .Setup(p => p.CreateSession(_connectionInfo, _socketFactoryMock.Object))
-                               .Returns(_sessionMock.Object);
-            _sessionMock.InSequence(_mockSequence)
+                               .Returns(SocketFactoryMock.Object);
+            ServiceFactoryMock.InSequence(_mockSequence)
+                               .Setup(p => p.CreateSession(_connectionInfo, SocketFactoryMock.Object))
+                               .Returns(SessionMock.Object);
+            SessionMock.InSequence(_mockSequence)
                         .Setup(p => p.Connect());
-            _sessionMock.InSequence(_mockSequence)
+            SessionMock.InSequence(_mockSequence)
                         .Setup(p => p.TrySendMessage(It.IsAny<IgnoreMessage>()))
                         .Returns(true)
                         .Callback(() =>
@@ -46,7 +46,7 @@ namespace Renci.SshNet.Tests.Classes
         {
             base.Arrange();
 
-            _client = new MyClient(_connectionInfo, false, _serviceFactoryMock.Object)
+            _client = new MyClient(_connectionInfo, false, ServiceFactoryMock.Object)
                 {
                     KeepAliveInterval = TimeSpan.FromMilliseconds(50d)
                 };
@@ -57,8 +57,8 @@ namespace Renci.SshNet.Tests.Classes
         {
             if (_client != null)
             {
-                _sessionMock.InSequence(_mockSequence).Setup(p => p.OnDisconnecting());
-                _sessionMock.InSequence(_mockSequence).Setup(p => p.Dispose());
+                SessionMock.InSequence(_mockSequence).Setup(p => p.OnDisconnecting());
+                SessionMock.InSequence(_mockSequence).Setup(p => p.Dispose());
                 _client.Dispose();
             }
         }
@@ -79,7 +79,7 @@ namespace Renci.SshNet.Tests.Classes
         [TestMethod]
         public void SendMessageOnSessionShouldBeInvokedOnce()
         {
-            _sessionMock.Verify(p => p.TrySendMessage(It.IsAny<IgnoreMessage>()), Times.Once);
+            SessionMock.Verify(p => p.TrySendMessage(It.IsAny<IgnoreMessage>()), Times.Once);
         }
 
         private class MyClient : BaseClient

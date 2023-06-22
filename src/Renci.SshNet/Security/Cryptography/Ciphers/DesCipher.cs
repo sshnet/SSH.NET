@@ -245,7 +245,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 throw new IndexOutOfRangeException("output buffer too short");
             }
 
-            _encryptionKey ??= GenerateWorkingKey(true, Key);
+            _encryptionKey ??= GenerateWorkingKey(encrypting: true, Key);
 
             DesFunc(_encryptionKey, inputBuffer, inputOffset, outputBuffer, outputOffset);
 
@@ -275,7 +275,7 @@ namespace Renci.SshNet.Security.Cryptography.Ciphers
                 throw new IndexOutOfRangeException("output buffer too short");
             }
 
-            _decryptionKey ??= GenerateWorkingKey(false, Key);
+            _decryptionKey ??= GenerateWorkingKey(encrypting: false, Key);
 
             DesFunc(_decryptionKey, inputBuffer, inputOffset, outputBuffer, outputOffset);
 

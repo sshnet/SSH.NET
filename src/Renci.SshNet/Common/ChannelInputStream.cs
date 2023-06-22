@@ -1,9 +1,9 @@
-﻿namespace Renci.SshNet.Common
-{
-    using System;
-    using System.IO;
-    using Renci.SshNet.Channels;
+﻿using System;
+using System.IO;
+using Renci.SshNet.Channels;
 
+namespace Renci.SshNet.Common
+{
     /// <summary>
     /// ChannelInputStream is a one direction stream intended for channel data.
     /// </summary>
@@ -33,7 +33,7 @@
         /// <summary>
         /// Channel to send data to.
         /// </summary>
-        private IChannelSession _channel;
+        private readonly IChannelSession _channel;
 
         /// <summary>
         /// Total bytes passed through the stream.
@@ -126,15 +126,29 @@
         public override void Write(byte[] buffer, int offset, int count)
         {
             if (buffer == null)
+            {
                 throw new ArgumentNullException("buffer");
+            }
+
             if (offset + count > buffer.Length)
+            {
                 throw new ArgumentException("The sum of offset and count is greater than the buffer length.");
+            }
+
             if (offset < 0 || count < 0)
+            {
                 throw new ArgumentOutOfRangeException("offset", "offset or count is negative.");
+            }
+
             if (_isDisposed)
+            {
                 throw CreateObjectDisposedException();
+            }
+
             if (count == 0)
+            {
                 return;
+            }
 
             _channel.SendData(buffer, offset, count);
 

@@ -15,7 +15,7 @@ namespace Renci.SshNet.Tests.Classes.Common
 
             try
             {
-                PosixPath.CreateAbsoluteOrRelativeFilePath(path);
+                _ = PosixPath.CreateAbsoluteOrRelativeFilePath(path);
                 Assert.Fail();
             }
             catch (ArgumentNullException ex)
@@ -32,7 +32,7 @@ namespace Renci.SshNet.Tests.Classes.Common
 
             try
             {
-                PosixPath.CreateAbsoluteOrRelativeFilePath(path);
+                _ = PosixPath.CreateAbsoluteOrRelativeFilePath(path);
                 Assert.Fail();
             }
             catch (ArgumentException ex)

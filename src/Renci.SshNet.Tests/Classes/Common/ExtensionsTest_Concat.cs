@@ -22,7 +22,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         [TestMethod]
         public void ShouldReturnSecondWhenFirstIsEmpty()
         {
-            var first = Array<byte>.Empty;
+            var first = Array.Empty<byte>();
             var second = CreateBuffer(16);
 
             var actual = Extensions.Concat(first, second);
@@ -47,7 +47,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         public void ShouldReturnFirstWhenSecondIsEmpty()
         {
             var first = CreateBuffer(16);
-            var second = Array<byte>.Empty;
+            var second = Array.Empty<byte>();
 
             var actual = Extensions.Concat(first, second);
 
@@ -101,7 +101,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         [TestCategory("Performance")]
         public void Performance_LargeArray_FirstEmpty()
         {
-            var first = Array<byte>.Empty;
+            var first = Array.Empty<byte>();
             var second = CreateBuffer(50000);
             const int runs = 10000;
 
@@ -115,7 +115,7 @@ namespace Renci.SshNet.Tests.Classes.Common
         public void Performance_LargeArray_SecondEmpty()
         {
             var first = CreateBuffer(50000);
-            var second = Array<byte>.Empty;
+            var second = Array.Empty<byte>();
             const int runs = 10000;
 
             Performance(first, second, runs);

@@ -11,7 +11,7 @@ namespace Renci.SshNet.Channels
     /// <summary>
     /// Implements "direct-tcpip" SSH channel.
     /// </summary>
-    internal class ChannelDirectTcpip : ClientChannel, IChannelDirectTcpip
+    internal sealed class ChannelDirectTcpip : ClientChannel, IChannelDirectTcpip
     {
         private readonly object _socketLock = new object();
 
@@ -113,14 +113,14 @@ namespace Renci.SshNet.Channels
         /// </summary>
         private void CloseSocket()
         {
-            if (_socket == null)
+            if (_socket is null)
             {
                 return;
             }
 
             lock (_socketLock)
             {
-                if (_socket == null)
+                if (_socket is null)
                 {
                     return;
                 }
@@ -138,7 +138,7 @@ namespace Renci.SshNet.Channels
         /// <param name="how">One of the <see cref="SocketShutdown"/> values that specifies the operation that will no longer be allowed.</param>
         private void ShutdownSocket(SocketShutdown how)
         {
-            if (_socket == null)
+            if (_socket is null)
             {
                 return;
             }

@@ -52,7 +52,7 @@ namespace Renci.SshNet.Common
         {
             get
             {
-                if (_waitHandle == null)
+                if (_waitHandle is null)
                 {
                     lock (_lock)
                     {
@@ -216,14 +216,6 @@ namespace Renci.SshNet.Common
         }
 
         /// <summary>
-        /// Finalizes an instance of the <see cref="SemaphoreLight"/> class.
-        /// </summary>
-        ~SemaphoreLight()
-        {
-            Dispose(disposing: false);
-        }
-
-        /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         public void Dispose()
@@ -241,7 +233,7 @@ namespace Renci.SshNet.Common
             if (disposing)
             {
                 var waitHandle = _waitHandle;
-                if (waitHandle != null)
+                if (waitHandle is not null)
                 {
                     waitHandle.Dispose();
                     _waitHandle = null;

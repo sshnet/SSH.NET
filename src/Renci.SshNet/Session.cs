@@ -207,14 +207,11 @@ namespace Renci.SshNet
         {
             get
             {
-                if (_sessionSemaphore == null)
+                if (_sessionSemaphore is null)
                 {
                     lock (this)
                     {
-                        if (_sessionSemaphore == null)
-                        {
-                            _sessionSemaphore = new SemaphoreLight(ConnectionInfo.MaxSessions);
-                        }
+                        _sessionSemaphore ??= new SemaphoreLight(ConnectionInfo.MaxSessions);
                     }
                 }
 
@@ -282,7 +279,7 @@ namespace Renci.SshNet
                     return false;
                 }
 
-                if (_messageListenerCompleted == null || _messageListenerCompleted.WaitOne(0))
+                if (_messageListenerCompleted is null || _messageListenerCompleted.WaitOne(0))
                 {
                     return false;
                 }
@@ -309,24 +306,21 @@ namespace Renci.SshNet
         {
             get
             {
-                if (_clientInitMessage == null)
-                {
-                    _clientInitMessage = new KeyExchangeInitMessage
-                        {
-                            KeyExchangeAlgorithms = ConnectionInfo.KeyExchangeAlgorithms.Keys.ToArray(),
-                            ServerHostKeyAlgorithms = ConnectionInfo.HostKeyAlgorithms.Keys.ToArray(),
-                            EncryptionAlgorithmsClientToServer = ConnectionInfo.Encryptions.Keys.ToArray(),
-                            EncryptionAlgorithmsServerToClient = ConnectionInfo.Encryptions.Keys.ToArray(),
-                            MacAlgorithmsClientToServer = ConnectionInfo.HmacAlgorithms.Keys.ToArray(),
-                            MacAlgorithmsServerToClient = ConnectionInfo.HmacAlgorithms.Keys.ToArray(),
-                            CompressionAlgorithmsClientToServer = ConnectionInfo.CompressionAlgorithms.Keys.ToArray(),
-                            CompressionAlgorithmsServerToClient = ConnectionInfo.CompressionAlgorithms.Keys.ToArray(),
-                            LanguagesClientToServer = new[] { string.Empty },
-                            LanguagesServerToClient = new[] { string.Empty },
-                            FirstKexPacketFollows = false,
-                            Reserved = 0
-                        };
-                }
+                _clientInitMessage ??= new KeyExchangeInitMessage
+                    {
+                        KeyExchangeAlgorithms = ConnectionInfo.KeyExchangeAlgorithms.Keys.ToArray(),
+                        ServerHostKeyAlgorithms = ConnectionInfo.HostKeyAlgorithms.Keys.ToArray(),
+                        EncryptionAlgorithmsClientToServer = ConnectionInfo.Encryptions.Keys.ToArray(),
+                        EncryptionAlgorithmsServerToClient = ConnectionInfo.Encryptions.Keys.ToArray(),
+                        MacAlgorithmsClientToServer = ConnectionInfo.HmacAlgorithms.Keys.ToArray(),
+                        MacAlgorithmsServerToClient = ConnectionInfo.HmacAlgorithms.Keys.ToArray(),
+                        CompressionAlgorithmsClientToServer = ConnectionInfo.CompressionAlgorithms.Keys.ToArray(),
+                        CompressionAlgorithmsServerToClient = ConnectionInfo.CompressionAlgorithms.Keys.ToArray(),
+                        LanguagesClientToServer = new[] { string.Empty },
+                        LanguagesServerToClient = new[] { string.Empty },
+                        FirstKexPacketFollows = false,
+                        Reserved = 0
+                    };
 
                 return _clientInitMessage;
             }
@@ -547,17 +541,17 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="socketFactory"/> is <c>null</c>.</exception>
         internal Session(ConnectionInfo connectionInfo, IServiceFactory serviceFactory, ISocketFactory socketFactory)
         {
-            if (connectionInfo == null)
+            if (connectionInfo is null)
             {
                 throw new ArgumentNullException(nameof(connectionInfo));
             }
 
-            if (serviceFactory == null)
+            if (serviceFactory is null)
             {
                 throw new ArgumentNullException(nameof(serviceFactory));
             }
 
-            if (socketFactory == null)
+            if (socketFactory is null)
             {
                 throw new ArgumentNullException(nameof(socketFactory));
             }
@@ -641,13 +635,13 @@ namespace Renci.SshNet
 
                     // Start incoming request listener
                     // ToDo: Make message pump async, to not consume a thread for every session
-                    ThreadAbstraction.ExecuteThreadLongRunning(() => MessageListener());
+                    ThreadAbstraction.ExecuteThreadLongRunning(MessageListener);
 
                     // Wait for key exchange to be completed
                     WaitOnHandle(_keyExchangeCompletedWaitHandle);
 
                     // If sessionId is not set then its not connected
-                    if (SessionId == null)
+                    if (SessionId is null)
                     {
                         Disconnect();
                         return;
@@ -753,13 +747,13 @@ namespace Renci.SshNet
 
             // Start incoming request listener
             // ToDo: Make message pump async, to not consume a thread for every session
-            ThreadAbstraction.ExecuteThreadLongRunning(() => MessageListener());
+            ThreadAbstraction.ExecuteThreadLongRunning(MessageListener);
 
             // Wait for key exchange to be completed
             WaitOnHandle(_keyExchangeCompletedWaitHandle);
 
             // If sessionId is not set then its not connected
-            if (SessionId == null)
+            if (SessionId is null)
             {
                 Disconnect();
                 return;
@@ -877,23 +871,6 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Waits for the specified handle or the exception handle for the receive thread
-        /// to signal within the connection timeout.
-        /// </summary>
-        /// <param name="waitHandle">The wait handle.</param>
-        /// <exception cref="SshConnectionException">A received package was invalid or failed the message integrity check.</exception>
-        /// <exception cref="SshOperationTimeoutException">None of the handles are signaled in time and the session is not disconnecting.</exception>
-        /// <exception cref="SocketException">A socket error was signaled while receiving messages from the server.</exception>
-        /// <remarks>
-        /// When neither handles are signaled in time and the session is not closing, then the
-        /// session is disconnected.
-        /// </remarks>
-        internal void WaitOnHandle(WaitHandle waitHandle)
-        {
-            WaitOnHandle(waitHandle, ConnectionInfo.Timeout);
-        }
-
-        /// <summary>
         /// Waits for the specified <seec ref="WaitHandle"/> to receive a signal, using a <see cref="TimeSpan"/>
         /// to specify the time interval.
         /// </summary>
@@ -934,7 +911,7 @@ namespace Renci.SshNet
         /// </returns>
         private WaitResult TryWait(WaitHandle waitHandle, TimeSpan timeout, out Exception exception)
         {
-            if (waitHandle == null)
+            if (waitHandle is null)
             {
                 throw new ArgumentNullException(nameof(waitHandle));
             }
@@ -973,6 +950,23 @@ namespace Renci.SshNet
 
         /// <summary>
         /// Waits for the specified handle or the exception handle for the receive thread
+        /// to signal within the connection timeout.
+        /// </summary>
+        /// <param name="waitHandle">The wait handle.</param>
+        /// <exception cref="SshConnectionException">A received package was invalid or failed the message integrity check.</exception>
+        /// <exception cref="SshOperationTimeoutException">None of the handles are signaled in time and the session is not disconnecting.</exception>
+        /// <exception cref="SocketException">A socket error was signaled while receiving messages from the server.</exception>
+        /// <remarks>
+        /// When neither handles are signaled in time and the session is not closing, then the
+        /// session is disconnected.
+        /// </remarks>
+        internal void WaitOnHandle(WaitHandle waitHandle)
+        {
+            WaitOnHandle(waitHandle, ConnectionInfo.Timeout);
+        }
+
+        /// <summary>
+        /// Waits for the specified handle or the exception handle for the receive thread
         /// to signal within the specified timeout.
         /// </summary>
         /// <param name="waitHandle">The wait handle.</param>
@@ -982,7 +976,7 @@ namespace Renci.SshNet
         /// <exception cref="SocketException">A socket error was signaled while receiving messages from the server.</exception>
         internal void WaitOnHandle(WaitHandle waitHandle, TimeSpan timeout)
         {
-            if (waitHandle == null)
+            if (waitHandle is null)
             {
                 throw new ArgumentNullException(nameof(waitHandle));
             }
@@ -994,12 +988,16 @@ namespace Renci.SshNet
                     waitHandle
                 };
 
-            switch (WaitHandle.WaitAny(waitHandles, timeout))
+            var signaledElement = WaitHandle.WaitAny(waitHandles, timeout);
+            switch (signaledElement)
             {
                 case 0:
                     throw _exception;
                 case 1:
                     throw new SshConnectionException("Client not connected.");
+                case 2:
+                    // Specified waithandle was signaled
+                    break;
                 case WaitHandle.WaitTimeout:
                     // when the session is disconnecting, a timeout is likely when no
                     // network connectivity is available; depending on the configured
@@ -1013,6 +1011,8 @@ namespace Renci.SshNet
                     }
 
                     break;
+                default:
+                    throw new SshException($"Unexpected element '{signaledElement.ToString(CultureInfo.InvariantCulture)}' signaled.");
             }
         }
 
@@ -1038,7 +1038,7 @@ namespace Renci.SshNet
 
             DiagnosticAbstraction.Log(string.Format("[{0}] Sending message '{1}' to server: '{2}'.", ToHex(SessionId), message.GetType().Name, message));
 
-            var paddingMultiplier = _clientCipher == null ? (byte) 8 : Math.Max((byte) 8, _serverCipher.MinimumSize);
+            var paddingMultiplier = _clientCipher is null ? (byte) 8 : Math.Max((byte) 8, _serverCipher.MinimumSize);
             var packetData = message.GetPacket(paddingMultiplier, _clientCompression);
 
             // take a write lock to ensure the outbound packet sequence number is incremented
@@ -1070,7 +1070,7 @@ namespace Renci.SshNet
                 }
 
                 var packetLength = packetData.Length - packetDataOffset;
-                if (hash == null)
+                if (hash is null)
                 {
                     SendPacket(packetData, packetDataOffset, packetLength);
                 }
@@ -1174,7 +1174,7 @@ namespace Renci.SshNet
             const int paddingLengthFieldLength = 1;
 
             // Determine the size of the first block, which is 8 or cipher block size (whichever is larger) bytes
-            var blockSize = _serverCipher == null ? (byte) 8 : Math.Max((byte) 8, _serverCipher.MinimumSize);
+            var blockSize = _serverCipher is null ? (byte) 8 : Math.Max((byte) 8, _serverCipher.MinimumSize);
 
             var serverMacLength = _serverMac != null ? _serverMac.HashSize/8 : 0;
 
@@ -1708,7 +1708,7 @@ namespace Renci.SshNet
 
         internal static string ToHex(byte[] bytes)
         {
-            if (bytes == null)
+            if (bytes is null)
             {
                 return null;
             }
@@ -1842,7 +1842,7 @@ namespace Renci.SshNet
                 {
                     var socket = _socket;
 
-                    if (socket == null || !socket.Connected)
+                    if (socket is null || !socket.Connected)
                     {
                         break;
                     }
@@ -1867,10 +1867,9 @@ namespace Renci.SshNet
                     }
 
                     var message = ReceiveMessage(socket);
-                    if (message == null)
+                    if (message is null)
                     {
-                        // connection with SSH server was closed;
-                        // break out of the message loop
+                        // Connection with SSH server was closed, so break out of the message loop
                         break;
                     }
 

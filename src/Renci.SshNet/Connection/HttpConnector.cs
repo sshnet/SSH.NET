@@ -63,13 +63,13 @@ namespace Renci.SshNet.Connection
             while (true)
             {
                 var response = SocketReadLine(socket, connectionInfo.Timeout);
-                if (response == null)
+                if (response is null)
                 {
                     // server shut down socket
                     break;
                 }
 
-                if (statusCode == null)
+                if (statusCode is null)
                 {
                     var statusMatch = httpResponseRe.Match(response);
                     if (statusMatch.Success)
@@ -112,7 +112,7 @@ namespace Renci.SshNet.Connection
                 }
             }
 
-            if (statusCode == null)
+            if (statusCode is null)
             {
                 throw new ProxyException("HTTP response does not contain status line.");
             }

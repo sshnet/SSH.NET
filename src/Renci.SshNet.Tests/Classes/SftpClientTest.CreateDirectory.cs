@@ -43,7 +43,9 @@ namespace Renci.SshNet.Tests.Classes
         public void Test_Sftp_CreateDirectory_In_Forbidden_Directory()
         {
             if (Resources.USERNAME == "root")
+            {
                 Assert.Fail("Must not run this test as root!");
+            }
 
             using (var sftp = new SftpClient(Resources.HOST, Resources.USERNAME, Resources.PASSWORD))
             {

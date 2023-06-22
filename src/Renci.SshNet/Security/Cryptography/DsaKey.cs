@@ -147,12 +147,7 @@ namespace Renci.SshNet.Security
         /// <param name="x">The x.</param>
         public DsaKey(BigInteger p, BigInteger q, BigInteger g, BigInteger y, BigInteger x)
         {
-            _privateKey = new BigInteger[5];
-            _privateKey[0] = p;
-            _privateKey[1] = q;
-            _privateKey[2] = g;
-            _privateKey[3] = y;
-            _privateKey[4] = x;
+            _privateKey = new BigInteger[5] { p, q, g, y, x };
         }
 
         /// <summary>

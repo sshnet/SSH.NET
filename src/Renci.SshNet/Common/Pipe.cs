@@ -1,7 +1,7 @@
-﻿namespace Renci.SshNet.Common
-{
-    using System;
+﻿using System;
 
+namespace Renci.SshNet.Common
+{
     /// <summary>
     /// A generic pipe to pass through data.
     /// </summary>

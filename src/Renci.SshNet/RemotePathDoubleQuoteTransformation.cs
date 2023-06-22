@@ -6,7 +6,7 @@ namespace Renci.SshNet
     /// <summary>
     /// Encloses a path in double quotes, and escapes any embedded double quote with a backslash.
     /// </summary>
-    internal class RemotePathDoubleQuoteTransformation : IRemotePathTransformation
+    internal sealed class RemotePathDoubleQuoteTransformation : IRemotePathTransformation
     {
         /// <summary>
         /// Encloses a path in double quotes, and escapes any embedded double quote with a backslash.
@@ -50,7 +50,7 @@ namespace Renci.SshNet
         /// </example>
         public string Transform(string path)
         {
-            if (path == null)
+            if (path is null)
             {
                 throw new ArgumentNullException(nameof(path));
             }

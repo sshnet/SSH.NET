@@ -29,10 +29,8 @@ namespace Renci.SshNet.IntegrationTests.TestsFixtures
 
         public ushort SshServerPort { get; set; }
 
-        // TODO the user name and password can be injected to dockerfile via arguments
         public SshUser AdminUser = new SshUser("sshnetadm", "ssh4ever");
 
-        // TODO the user name and password can be injected to dockerfile via arguments
         public SshUser User = new SshUser("sshnet", "ssh4ever");
 
         public async Task InitializeAsync()

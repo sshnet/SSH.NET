@@ -14,33 +14,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Data\Key.ECDSA.Encrypted.txt" />
-    <EmbeddedResource Include="Data\Key.ECDSA.txt" />
-    <EmbeddedResource Include="Data\Key.ECDSA384.Encrypted.txt" />
-    <EmbeddedResource Include="Data\Key.ECDSA384.txt" />
-    <EmbeddedResource Include="Data\Key.ECDSA521.Encrypted.txt" />
-    <EmbeddedResource Include="Data\Key.ECDSA521.txt" />
-    <EmbeddedResource Include="Data\Key.OPENSSH.ED25519.Encrypted.txt" />
-    <EmbeddedResource Include="Data\Key.OPENSSH.ED25519.txt" />
-    <EmbeddedResource Include="Data\Key.OPENSSH.RSA.Encrypted.txt" />
-    <EmbeddedResource Include="Data\Key.OPENSSH.RSA.txt" />
-    <EmbeddedResource Include="Data\Key.OPENSSH.ECDSA.txt" />
-    <EmbeddedResource Include="Data\Key.OPENSSH.ECDSA.Encrypted.txt" />
-    <EmbeddedResource Include="Data\Key.OPENSSH.ECDSA384.Encrypted.txt" />
-    <EmbeddedResource Include="Data\Key.OPENSSH.ECDSA521.Encrypted.txt" />
-    <EmbeddedResource Include="Data\Key.OPENSSH.ECDSA384.txt" />
-    <EmbeddedResource Include="Data\Key.OPENSSH.ECDSA521.txt" />
-    <EmbeddedResource Include="Data\Key.RSA.Encrypted.Aes.128.CBC.12345.txt" />
-    <EmbeddedResource Include="Data\Key.RSA.Encrypted.Aes.192.CBC.12345.txt" />
-    <EmbeddedResource Include="Data\Key.RSA.Encrypted.Aes.256.CBC.12345.txt" />
-    <EmbeddedResource Include="Data\Key.RSA.Encrypted.Des.CBC.12345.txt" />
-    <EmbeddedResource Include="Data\Key.RSA.Encrypted.Des.Ede3.CBC.12345.txt" />
-    <EmbeddedResource Include="Data\Key.RSA.Encrypted.Des.Ede3.CFB.1234567890.txt" />
-    <EmbeddedResource Include="Data\Key.RSA.txt" />
-    <EmbeddedResource Include="Data\Key.SSH2.DSA.Encrypted.Des.CBC.12345.txt" />
-    <EmbeddedResource Include="Data\Key.SSH2.DSA.txt" />
-    <EmbeddedResource Include="Data\Key.SSH2.RSA.Encrypted.Des.CBC.12345.txt" />
-    <EmbeddedResource Include="Data\Key.SSH2.RSA.txt" />
+      <EmbeddedResource Include="..\Data\*.txt" LinkBase="Data" />
   </ItemGroup>
 
   <ItemGroup>
